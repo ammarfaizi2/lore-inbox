@@ -1,127 +1,171 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262964AbTE2VEU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 17:04:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbTE2VEU
+	id S262955AbTE2VHG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 17:07:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262984AbTE2VHF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 17:04:20 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:59390 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S262964AbTE2VDV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 17:03:21 -0400
-Date: Thu, 29 May 2003 14:14:05 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.70-mm1
-Message-Id: <20030529141405.4578b72c.akpm@digeo.com>
-In-Reply-To: <39810000.1054240214@[10.10.2.4]>
-References: <20030527004255.5e32297b.akpm@digeo.com>
-	<1980000.1054189401@[10.10.2.4]>
-	<18080000.1054233607@[10.10.2.4]>
-	<20030529115237.33c9c09a.akpm@digeo.com>
-	<39810000.1054240214@[10.10.2.4]>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 29 May 2003 17:07:05 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:31472 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262955AbTE2VGZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 17:06:25 -0400
+Date: Thu, 29 May 2003 14:21:39 -0700
+From: Greg KH <greg@kroah.com>
+To: CaT <cat@zip.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.70: pcmcia oops (a real one! honest!)
+Message-ID: <20030529212139.GA25971@kroah.com>
+References: <20030528042610.GD6501@zip.com.au> <20030529090209.B12513@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 29 May 2003 21:16:39.0792 (UTC) FILETIME=[9856EF00:01C32627]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030529090209.B12513@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> wrote:
->
-> > OK, a 10x improvement isn't too bad.  I'm hoping the gap between ext2 and
-> > ext3 is mainly idle time and not spinning-on-locks time.
-> > 
-> > 
-> >> 
-> >>    2024927   267.3% total
-> >>    1677960   472.8% default_idle
-> >>     116350     0.0% .text.lock.transaction
-> >>      42783     0.0% do_get_write_access
-> >>      40293     0.0% journal_dirty_metadata
-> >>      34251  6414.0% __down
-> >>      27867  9166.8% .text.lock.attr
-> > 
-> > Bah.  In inode_setattr(), move the mark_inode_dirty() outside
-> > lock_kernel().
+On Thu, May 29, 2003 at 09:02:09AM +0100, Russell King wrote:
+> On Wed, May 28, 2003 at 02:26:10PM +1000, CaT wrote:
+> > removed my xircom pcmcia realport card and put in another. End result was
+> > total loss of ps2 keyboard functionality (everything else, inc the ps2 mouse
+> > still works). I then removed the xircom card. The following was in dmesg:
 > 
-> OK, will do. 
+> I'm assuming that this is something Gregkh needs to look into and not
+> myself; my guess is that it's related to the pci device accounting stuff.
+> 
+> Greg?
 
-Actually we can just ditch it.
+Yeah, it could be.  Cat, can you revert the following patch from your
+tree and let me know if it fixes your problem or not?
 
-diff -puN fs/attr.c~inode_setattr-speedup fs/attr.c
---- 25/fs/attr.c~inode_setattr-speedup	Thu May 29 14:01:54 2003
-+++ 25-akpm/fs/attr.c	Thu May 29 14:07:57 2003
-@@ -81,7 +81,6 @@ int inode_setattr(struct inode * inode, 
- 		}
- 	}
+thanks,
+
+greg k-h
+
+
+
+diff -Nru a/drivers/pci/bus.c b/drivers/pci/bus.c
+--- a/drivers/pci/bus.c	Thu May 29 14:18:20 2003
++++ b/drivers/pci/bus.c	Thu May 29 14:18:20 2003
+@@ -92,7 +92,7 @@
+ 		if (!list_empty(&dev->global_list))
+ 			continue;
  
--	lock_kernel();
- 	if (ia_valid & ATTR_UID)
- 		inode->i_uid = attr->ia_uid;
- 	if (ia_valid & ATTR_GID)
-@@ -93,12 +92,13 @@ int inode_setattr(struct inode * inode, 
- 	if (ia_valid & ATTR_CTIME)
- 		inode->i_ctime = attr->ia_ctime;
- 	if (ia_valid & ATTR_MODE) {
--		inode->i_mode = attr->ia_mode;
-+		umode_t mode = attr->ia_mode;
-+
- 		if (!in_group_p(inode->i_gid) && !capable(CAP_FSETID))
--			inode->i_mode &= ~S_ISGID;
-+			mode &= ~S_ISGID;
-+		inode->i_mode = mode;
- 	}
- 	mark_inode_dirty(inode);
--	unlock_kernel();
- out:
- 	return error;
+-		device_register(&dev->dev);
++		device_add(&dev->dev);
+ 		list_add_tail(&dev->global_list, &pci_devices);
+ #ifdef CONFIG_PROC_FS
+ 		pci_proc_attach_device(dev);
+diff -Nru a/drivers/pci/hotplug.c b/drivers/pci/hotplug.c
+--- a/drivers/pci/hotplug.c	Thu May 29 14:18:20 2003
++++ b/drivers/pci/hotplug.c	Thu May 29 14:18:20 2003
+@@ -275,7 +275,7 @@
+ 	pci_proc_detach_device(dev);
+ #endif
+ 
+-	kfree(dev);
++	pci_put_dev(dev);
  }
-
-
-> >>      20016  2619.9% __wake_up
-> >>      19632   927.4% schedule
-> >>      12204     0.0% .text.lock.sched
-> >>      12128     0.0% start_this_handle
-> >>      10011     0.0% journal_add_journal_head
-> > 
-> > hm, lots of context switches still.
-> 
-> I think that's ext3 busily kicking the living crap out of semaphores ;-)
-
-But I deleted them all!.  Well.  There is one semaphore left in ext3/jbd,
-and that is for serialisation around the oh-shit-we're-out-of-space
-checkpointing code.  I shall go on a hat diet if that is being a problem.
-
-hmm, very odd.
-
-You could try my "find out who's doing down() too much" patch:
-
-
-diff -puN arch/i386/kernel/semaphore.c~down-diag arch/i386/kernel/semaphore.c
---- 25/arch/i386/kernel/semaphore.c~down-diag	Thu May 29 14:11:46 2003
-+++ 25-akpm/arch/i386/kernel/semaphore.c	Thu May 29 14:12:18 2003
-@@ -66,6 +66,7 @@ void __down(struct semaphore * sem)
- 	sem->sleepers++;
- 	for (;;) {
- 		int sleepers = sem->sleepers;
-+		static int count;
  
- 		/*
- 		 * Add "everybody else" into it. They aren't
-@@ -79,6 +80,10 @@ void __down(struct semaphore * sem)
- 		sem->sleepers = 1;	/* us - see -1 above */
- 		spin_unlock_irqrestore(&sem->wait.lock, flags);
+ /**
+diff -Nru a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
+--- a/drivers/pci/pci-driver.c	Thu May 29 14:18:20 2003
++++ b/drivers/pci/pci-driver.c	Thu May 29 14:18:20 2003
+@@ -199,6 +199,45 @@
+ 	return 0;
+ }
  
-+		if (count++ > 100000) {
-+			count = 0;
-+			dump_stack();
-+		}
- 		schedule();
++/**
++ * pci_get_dev - increments the reference count of the pci device structure
++ * @dev: the device being referenced
++ *
++ * Each live reference to a device should be refcounted.
++ *
++ * Drivers for PCI devices should normally record such references in
++ * their probe() methods, when they bind to a device, and release
++ * them by calling pci_put_dev(), in their disconnect() methods.
++ *
++ * A pointer to the device with the incremented reference counter is returned.
++ */
++struct pci_dev *pci_get_dev (struct pci_dev *dev)
++{
++	struct device *tmp;
++
++	if (!dev)
++		return NULL;
++
++	tmp = get_device(&dev->dev);
++	if (tmp)        
++		return to_pci_dev(tmp);
++	else
++		return NULL;
++}
++
++/**
++ * pci_put_dev - release a use of the pci device structure
++ * @dev: device that's been disconnected
++ *
++ * Must be called when a user of a device is finished with it.  When the last
++ * user of the device calls this function, the memory of the device is freed.
++ */
++void pci_put_dev(struct pci_dev *dev)
++{
++	if (dev)
++		put_device(&dev->dev);
++}
++
+ struct bus_type pci_bus_type = {
+ 	.name		= "pci",
+ 	.match		= pci_bus_match,
+@@ -217,3 +256,5 @@
+ EXPORT_SYMBOL(pci_unregister_driver);
+ EXPORT_SYMBOL(pci_dev_driver);
+ EXPORT_SYMBOL(pci_bus_type);
++EXPORT_SYMBOL(pci_get_dev);
++EXPORT_SYMBOL(pci_put_dev);
+diff -Nru a/drivers/pci/probe.c b/drivers/pci/probe.c
+--- a/drivers/pci/probe.c	Thu May 29 14:18:20 2003
++++ b/drivers/pci/probe.c	Thu May 29 14:18:20 2003
+@@ -462,6 +462,21 @@
+ 	return 0;
+ }
  
- 		spin_lock_irqsave(&sem->wait.lock, flags);
-
-_
-
++/**
++ * pci_release_dev - free a pci device structure when all users of it are finished.
++ * @dev: device that's been disconnected
++ *
++ * Will be called only by the device core when all users of this pci device are
++ * done.
++ */
++static void pci_release_dev(struct device *dev)
++{
++	struct pci_dev *pci_dev;
++
++	pci_dev = to_pci_dev(dev);
++	kfree(pci_dev);
++}
++
+ /*
+  * Read the config data for a PCI device, sanity-check it
+  * and fill in the dev structure...
+@@ -506,6 +521,9 @@
+ 		kfree(dev);
+ 		return NULL;
+ 	}
++	device_initialize(&dev->dev);
++	dev->dev.release = pci_release_dev;
++	pci_get_dev(dev);
+ 
+ 	pci_name_device(dev);
+ 
+diff -Nru a/include/linux/pci.h b/include/linux/pci.h
+--- a/include/linux/pci.h	Thu May 29 14:18:20 2003
++++ b/include/linux/pci.h	Thu May 29 14:18:20 2003
+@@ -556,6 +556,8 @@
+ struct resource *pci_find_parent_resource(const struct pci_dev *dev, struct resource *res);
+ int pci_setup_device(struct pci_dev *dev);
+ int pci_get_interrupt_pin(struct pci_dev *dev, struct pci_dev **bridge);
++extern struct pci_dev *pci_get_dev(struct pci_dev *dev);
++extern void pci_put_dev(struct pci_dev *dev);
+ 
+ /* Generic PCI functions exported to card drivers */
+ 

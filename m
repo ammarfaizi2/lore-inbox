@@ -1,66 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264074AbUDQXan (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Apr 2004 19:30:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264075AbUDQXan
+	id S264073AbUDQXpe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Apr 2004 19:45:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264076AbUDQXpe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Apr 2004 19:30:43 -0400
-Received: from florence.buici.com ([206.124.142.26]:28288 "HELO
-	florence.buici.com") by vger.kernel.org with SMTP id S264074AbUDQXaj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Apr 2004 19:30:39 -0400
-Date: Sat, 17 Apr 2004 16:30:37 -0700
-From: Marc Singer <elf@buici.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Marc Singer <elf@buici.com>, wli@holomorphy.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: vmscan.c heuristic adjustment for smaller systems
-Message-ID: <20040417233037.GA15576@flea>
-References: <20040417193855.GP743@holomorphy.com> <20040417212958.GA8722@flea> <20040417162125.3296430a.akpm@osdl.org>
+	Sat, 17 Apr 2004 19:45:34 -0400
+Received: from ozlabs.org ([203.10.76.45]:34766 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S264073AbUDQXpc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Apr 2004 19:45:32 -0400
+Subject: Re: [RFC] fix sysfs symlinks
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Greg KH <greg@kroah.com>, Maneesh Soni <maneesh@in.ibm.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040417193942.GA17014@parcelfarce.linux.theplanet.co.uk>
+References: <20040413133615.GZ31500@parcelfarce.linux.theplanet.co.uk>
+	 <20040414064015.GA4505@in.ibm.com>
+	 <20040414070227.GA31500@parcelfarce.linux.theplanet.co.uk>
+	 <20040415091752.A24815@flint.arm.linux.org.uk>
+	 <20040415103849.GA24997@parcelfarce.linux.theplanet.co.uk>
+	 <20040415161942.A7909@flint.arm.linux.org.uk>
+	 <20040415161011.GB2965@kroah.com>
+	 <20040415161332.GC24997@parcelfarce.linux.theplanet.co.uk>
+	 <20040415191447.GE24997@parcelfarce.linux.theplanet.co.uk>
+	 <1082179555.1390.102.camel@bach>
+	 <20040417193942.GA17014@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain
+Message-Id: <1082245527.14093.23.camel@bach>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040417162125.3296430a.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 18 Apr 2004 09:45:27 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 17, 2004 at 04:21:25PM -0700, Andrew Morton wrote:
-> Marc Singer <elf@buici.com> wrote:
-> >
-> >  I'd say that there is no statistically significant difference between
-> >  these sets of times.  However, after I've run the test program, I run
-> >  the command "ls -l /proc"
+On Sun, 2004-04-18 at 05:39, viro@parcelfarce.linux.theplanet.co.uk
+wrote:
+> On Sat, Apr 17, 2004 at 04:15:34PM +1000, Rusty Russell wrote:
+> > > to these objects are gone, we get the section freed.  That can happen
+> > > way after the completion of rmmod - as the matter of fact we could have
+> > > the same module loaded again by that time.
 > > 
-> >  				 swappiness
-> >  			60 (default)		0
-> >  			------------		--------
-> >  elapsed time(s)		18			1
-> >  			30			1
-> >  			33			1
+> > Or you could skip the extra section, and keep all the module memory
+> > until later.  Instead of a section marker, you then set the release of
+> > those static things to "static_release" which does the put on the module
+> > memory kref:
 > 
-> How on earth can it take half a minute to list /proc?
+> That will keep too much allocated after rmmod - it's OK to have one or
+> two fixed-sized structures pinned down for a while, but entire .data can
+> be too large to treat it that way.
 
-I've watched the vmscan code at work.  The memory pressure is so high
-that it reclaims mapped pages zealously.  The program's code pages are
-being evicted frequently.
+I disagree.  Removal is rare, modules are usually small, it usually
+won't be pinned down for long, and the implementation is simple.
 
-I would like to show a video of the ls -l /proc command.  It's
-remarkable.  The program pauses after displaying each line.
+But that's an implementation detail.  You didn't answer my question, on
+how you initialize the reference count on this memory.
 
-> >  This is the problem.  Once RAM fills with IO buffers, the kernel's
-> >  tendency to evict mapped pages ruins interactive performance.
-> 
-> Is everything here on NFS, or are local filesystemms involved?  (What does
-> "mount" say?)
-
-    # mount
-    rootfs on / type rootfs (rw)
-    /dev/root on / type nfs (rw,v2,rsize=4096,wsize=4096,hard,udp,nolock,addr=192.168.8.1)
-    proc on /proc type proc (rw)
-    devpts on /dev/pts type devpts (rw)
-
-I've been wondering if the swappiness isn't a red herring.  Is it
-reasonable that the distress value (in refill_inactive_zones ()) be
-50?
+Cheers,
+Rusty.
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 

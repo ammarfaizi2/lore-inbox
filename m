@@ -1,56 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263163AbUDPNTi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 09:19:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263165AbUDPNTi
+	id S263164AbUDPN0g (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 09:26:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263167AbUDPN0f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 09:19:38 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:41869 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S263163AbUDPNTg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 09:19:36 -0400
-Date: Fri, 16 Apr 2004 15:19:35 +0200
-From: Karel Kulhavy <clock@atrey.karlin.mff.cuni.cz>
-To: linux-kernel@vger.kernel.org
-Subject: /dev/parport0 99,0 raw parport access
-Message-ID: <20040416131935.GC6879@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Fri, 16 Apr 2004 09:26:35 -0400
+Received: from mlf.linux.rulez.org ([192.188.244.13]:49931 "EHLO
+	mlf.linux.rulez.org") by vger.kernel.org with ESMTP id S263164AbUDPN0Y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 09:26:24 -0400
+Date: Fri, 16 Apr 2004 15:26:20 +0200 (MEST)
+From: Szakacsits Szabolcs <szaka@sienet.hu>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Andries Brouwer <aebr@win.tue.nl>, fledely <fledely@bgumail.bgu.ac.il>,
+       linux-ntfs-dev@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Accessing odd last partition sector (was: [Linux-NTFS-Dev] mkntfs
+ dirty volume marking)
+In-Reply-To: <20040410211301.GW31500@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.21.0404161431220.16938-100000@mlf.linux.rulez.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
 
-How do I cause linux to show 99,0 device (/dev/parport0, having devfs)?
+On Sat, 10 Apr 2004 viro@parcelfarce.linux.theplanet.co.uk wrote:
+> > > > 
+> > > > > > TODO.ntfsprogs conatins the following TODO item under mkntfs:
+> > > > > >  - We don't know what the real last sector is, thus we mark the volume
+> > > > > > dirty and the subsequent chkdsk (which will happen on reboot into
+> > > > > > Windows automatically) recreates the backup boot sector if the Linux
+> > > > > > kernel lied to us about the number of sectors.
+> > > > 
+> > > > The ioctl BLKGETSIZE64 will tell you the size (in bytes) of a
+> > > > block device.
 
-I tried to display help for
-make menuconfig -> Device Drivers -> Character devices -> Parallel
-printer support
-and
-make menuconfig -> Device Drivers -> Character devices -> Support for
-user-space parallel port device drivers
+Unless kernel 2.4.1[567] used (they return the size in sectors) or no
+ioctl conflict with the unofficial but used BLKSETLASTSECT (the issue was
+also summarized at http://lwn.net/2001/0906/kernel.php3). The last one
+could (did?) corrupt NTFS (NTFS keeps metadata there) when one tried to
+get the device size by BLKGETSIZE64 ...
 
-and the < Help > is not working.
+Unfortunately not many softwares get BLKGETSIZE64 right, but at least the
+latest fdisk (2.12a) and e2fsprogs (1.36-WIP) are ok AFAIS, although they
+workaround these issues differently.
 
-I have enabled my parport in BIOS, enabled
-make menuconfig -> Device Drivers -> Parallel port support -> Parallel
-port support
-and
-make menuconfig -> Device Drivers -> Parallel port support -> PC-style
-hardware
-and my dmesg says:
-parport0: PC-style at 0x378 [PCSPP(,...)]
+> > > So will lseek() to SEEK_END, actually (both 2.4 and 2.6).
+> > > And yes, last sector _is_ accessible for dd(1) et.al.
 
-However no /dev/parport0 is present.
+I checked these for 2.4.25 and 2.6.5. In 2.4 the last odd sector is
+visible only by BLKGETSIZE64 and BLKGETSIZE, otherwise it can't be
+accessed, as we agreed later on.
 
-I also consulted /usr/src/linux/Documentation/devices.txt which says
-99 char        Raw parallel ports
-                 0 = /dev/parport0     First parallel port
-                 1 = /dev/parport1     Second parallel port
-However this says nothing about what line should be ticked up in make
-menuconfig to make these "raw parallel ports" work.
+But 2.6 is ok in all cases, size is seen correctly by BLKGETSIZE64,
+BLKGETSIZE and accessible by lseek.
 
-Cl<
+I don't know how intrusive, risky would be the backport but I suspect 
+it's not worth. 
+
+Thank you for clarifying the issue,
+
+	Szaka
 

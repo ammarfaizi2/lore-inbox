@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275156AbRJFOEJ>; Sat, 6 Oct 2001 10:04:09 -0400
+	id <S275175AbRJFOF7>; Sat, 6 Oct 2001 10:05:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275173AbRJFOD7>; Sat, 6 Oct 2001 10:03:59 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:24329 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S275156AbRJFODm>;
-	Sat, 6 Oct 2001 10:03:42 -0400
-Date: Sat, 6 Oct 2001 11:03:47 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Cc: Krzysztof Rusocki <kszysiu@main.braxis.co.uk>, <linux-xfs@oss.sgi.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: %u-order allocation failed
-In-Reply-To: <Pine.LNX.3.96.1011006154039.27272A-100000@artax.karlin.mff.cuni.cz>
-Message-ID: <Pine.LNX.4.33L.0110061103000.12110-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S275172AbRJFOFu>; Sat, 6 Oct 2001 10:05:50 -0400
+Received: from node181b.a2000.nl ([62.108.24.27]:23825 "EHLO ddx.a2000.nu")
+	by vger.kernel.org with ESMTP id <S274897AbRJFOFf>;
+	Sat, 6 Oct 2001 10:05:35 -0400
+Date: Sat, 6 Oct 2001 16:05:59 +0200 (CEST)
+From: kernel@ddx.a2000.nu
+To: "David S. Miller" <davem@redhat.com>
+cc: linux-kernel@vger.kernel.org, <sparclinux@vger.kernel.org>
+Subject: Re: sun + gigabit nic
+In-Reply-To: <20011005.161024.104033411.davem@redhat.com>
+Message-ID: <Pine.LNX.4.40.0110061551050.11144-100000@ddx.a2000.nu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 6 Oct 2001, Mikulas Patocka wrote:
 
-> Buddy allocator is broken - kill it. Or at least do not misuse it for
-> anything except kernel or driver initialization.
+On Fri, 5 Oct 2001, David S. Miller wrote:
 
-Please send patches to get rid of the buddy allocator while
-still making it possible to allocate contiguous chunks of
-memory.
+> No patches needed, 2.2.x (and 2.4.x) supports Syskonnect gigabit cards
+> out of the box.
+>
+> Acenic is supported in 2.4.x, although I don't know why not in 2.2.x
+> as that should be trivial to make work...
 
-If you have any idea on how to fix things, this would be a
-good time to let us know.
+so the Syskonnect SK-9D21 is supported ?
 
-cheers,
+what about 3com and intel 1000base-t cards ? (which are much lower priced
+compared to syskonnect)
 
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
+also where can i found more info about Acenic ? (www.Acenic.com doesn't
+work)
 
-http://www.surriel.com/		http://distro.conectiva.com/
+P.s. system is a sun ultrasparc 10
+
+Thnx,
+	Stephan
 

@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285408AbRLSTWl>; Wed, 19 Dec 2001 14:22:41 -0500
+	id <S285417AbRLSTav>; Wed, 19 Dec 2001 14:30:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285412AbRLSTWc>; Wed, 19 Dec 2001 14:22:32 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:57676 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S285408AbRLSTWU>; Wed, 19 Dec 2001 14:22:20 -0500
-To: Alexander Viro <viro@math.psu.edu>
-Cc: "Grover, Andrew" <andrew.grover@intel.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        "'otto.wyss@bluewin.ch'" <otto.wyss@bluewin.ch>
-Subject: Re: Booting a modular kernel through a multiple streams file
-In-Reply-To: <Pine.GSO.4.21.0112191153280.11104-100000@weyl.math.psu.edu>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 19 Dec 2001 12:01:56 -0700
-In-Reply-To: <Pine.GSO.4.21.0112191153280.11104-100000@weyl.math.psu.edu>
-Message-ID: <m1vgf3uj8b.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S285418AbRLSTab>; Wed, 19 Dec 2001 14:30:31 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62471 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S285417AbRLSTa0>;
+	Wed, 19 Dec 2001 14:30:26 -0500
+Message-ID: <3C20EACF.DC97E803@mandrakesoft.com>
+Date: Wed, 19 Dec 2001 14:30:23 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Jon Wikne <wikne@lynx.uio.no>
+CC: linux-kernel@vger.kernel.org, ajoshi@shell.unixbox.com
+Subject: Re: 2.4.16 rivafb memory recognition problem
+In-Reply-To: <200112191616.RAA07423@lynx.uio.no>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro <viro@math.psu.edu> writes:
-
-> On 19 Dec 2001, Eric W. Biederman wrote:
+Jon Wikne wrote:
 > 
-> > I have alarm bells ringing in my gut saying there are pieces of your
-> > proposal that are on the edge of being overly complex... But without
-> > source I can't really say.  Arbitrary NULL padding between images is
-> > cool but why?
+> Hi,
 > 
-> 	Alignment that might be wanted by loaders.  Take that with hpa - for
-> all I care it's a non-issue.  while(!*p) p++; added before p = handle_part(p);
-> in the main loop...
+> I discovered a strange behaviour related to kernel memory recognition
+> when using the rivafb frame buffer option compiled into kernel 2.4.16.
+> The system in question has a Asus AGP7700 nVidia GeForce 2 GTS (32MB)
+> video card. It is a dual PIII SMP system, if that might matter.
+> 
+> When I select nVidia Riva support, at first it seemed to work perfectly.
+> But then I discovered that the kernel only recognizes 32MB of total
+> memory during boot! Excessive swapping is the result.
+> 
+> When instead I compile the kernel with VESA frame buffer support,
+> all other kernel config parameters the same, the resulting kernel
+> recognizes all of the 1GB physical memory actually installed in
+> this box.
 
-Right there are definitely cases where it makes sense, and it isn't too bad.
+That code is based on the XFree86 code, maybe you can copy info from
+XFree86's current driver...
 
-My basic design filter checks to see if there if there is one feature per
-requirement.  At one feature per requirement it is a uninspired design.  At less
-than one feature per requirement it approaches an elegant design.  At greater
-than one feature per requirement it approaches a crap design.
-
-The whole moving excess kernel code into user space, and use cpio
-instead of a raw disk image part is elegant.  I just don't want the
-idea to loose it in the small details.
-
-And you have mentioned enough small features my reaction is to want to review
-the code and think it through.  So I'll have to look it over very closely next
-time you post a patch.
-
-Eric
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno

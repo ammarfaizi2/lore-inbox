@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272426AbTG0Wyj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 18:54:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272450AbTG0Wy0
+	id S272617AbTG0XWx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 19:22:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272570AbTG0Wz6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 18:54:26 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:51698 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S272414AbTG0WyO (ORCPT
+	Sun, 27 Jul 2003 18:55:58 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:28659 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S272381AbTG0WzO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 18:54:14 -0400
-Message-ID: <3F2447E5.7030006@tiscali.es>
-Date: Sun, 27 Jul 2003 23:45:09 +0200
-From: Paco Ros <switch@tiscali.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; es-ES; rv:1.3.1) Gecko/20030527 Debian/1.3.1-2
-X-Accept-Language: es-es
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux v2.6.0-test2
-References: <Pine.LNX.4.44.0307271003360.3401-100000@home.osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0307271003360.3401-100000@home.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 27 Jul 2003 18:55:14 -0400
+Date: Sun, 27 Jul 2003 23:35:01 +0200
+From: Antonio Vargas <wind@cocodriloo.com>
+To: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Cc: mingo@elte.hu, kernel@kolivas.net, riel@surriel.com, wind@cocodriloo.com
+Subject: fairsched for o(1)-scheduler
+Message-ID: <20030727213501.GA23621@wind.cocodriloo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
 
->Lots of small updates and fixes all over the map (diffstat shows a flat
->profile, except for the DVB merge, the new wl3501 driver, and the new
->sound drivers from Alan).
->  
->
-I've just compiled and installed it.
-It seems to work fine on a Compaq Presario 920EA laptop!
+Given I've got spare time now, I'm trying to revive and finally
+have a working implementation for the 2.6 fairsched patch.
 
-Thank you all very much for this excellent work, and sorry for this
-stupid mail, but I'll sleep happier tonight :-)
+Since my early attempts crashed, I would appreciate peer review
+and advise on how to do a first implementation.
 
-Greetings.
---
-Paco
+I was told that printk should not be used inside the scheduler,
+is this true?
+
+Also, in order to park tasks aside, I created another prio_array
+besides the active and expired ones, queuing expired tasks there
+until the used could afford to move them to the active one. Does
+the scheduler assume, in implicit form, that a task is either on
+the active or expired array?
+
+The proposed design is described at this page:
+
+http://wind.cocodriloo.com/~wind/fairsched/
+
+And also by Hubertus Franke on his OLS 2003 paper:
+
+http://archive.linuxsymposium.org/ols2003/Proceedings/All-Reprints/Reprint-Franke-OLS2003.pdf
 
 
+Greets, Antonio.
+
+-- 
+
+1. Dado un programa, siempre tiene al menos un fallo.
+2. Dadas varias lineas de codigo, siempre se pueden acortar a menos lineas.
+3. Por induccion, todos los programas se pueden
+   reducir a una linea que no funciona.

@@ -1,54 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269750AbUICSuD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269704AbUICSzR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269750AbUICSuD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 14:50:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269743AbUICSqy
+	id S269704AbUICSzR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 14:55:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269456AbUICSzR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 14:46:54 -0400
-Received: from mail4.utc.com ([192.249.46.193]:39404 "EHLO mail4.utc.com")
-	by vger.kernel.org with ESMTP id S269738AbUICSnA (ORCPT
+	Fri, 3 Sep 2004 14:55:17 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:11228 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S269738AbUICSrE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 14:43:00 -0400
-Message-ID: <4138BAF5.3060105@cybsft.com>
-Date: Fri, 03 Sep 2004 13:41:57 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
+	Fri, 3 Sep 2004 14:47:04 -0400
+Message-ID: <4138BC13.2080005@us.ibm.com>
+Date: Fri, 03 Sep 2004 11:46:43 -0700
+From: Ian Romanick <idr@us.ibm.com>
+User-Agent: Mozilla Thunderbird 0.7.2 (Windows/20040707)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       Daniel Schmitt <pnambic@unu.nu>, Lee Revell <rlrevell@joe-job.com>,
-       Mark_H_Johnson@raytheon.com,
-       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-R0
-References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com> <20040902063335.GA17657@elte.hu> <20040902065549.GA18860@elte.hu> <20040902111003.GA4256@elte.hu> <20040902215728.GA28571@elte.hu> <4138A56B.4050006@cybsft.com> <20040903183947.GA11417@elte.hu>
-In-Reply-To: <20040903183947.GA11417@elte.hu>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Dave Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org
+Subject: Re: [BK pull] DRM macro removal tree
+References: <Pine.LNX.4.58.0409031134290.32026@skynet> <Pine.LNX.4.58.0409031100130.26393@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0409031100130.26393@ppc970.osdl.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * K.R. Foley <kr@cybsft.com> wrote:
+Linus Torvalds wrote:
+> On Fri, 3 Sep 2004, Dave Airlie wrote:
 > 
+>>This isn't the standard drm-2.6 tree, it is a separate tree for feeding
+>>the macro removal function table stuff. The highlights of this tree are:
 > 
->>Managed to hang the system again under heavy load. This time with the 
->>above patch:
->>
->>http://www.cybsft.com/testresults/crashes/2.6.9-rc1-bk4-R0.txt
-> 
-> 
-> do you have CONFIG_DEBUG_SPINLOCK and CONFIG_DEBUG_SPINLOCK_SLEEP
-> enabled? These are pretty good at e.g. catching illegal scheduling in
-> critical sections much earlier. You can enable them on !SMP kernels as
-> well.
-> 
-> 	Ingo
+> Hey, looks much cleaner, but I just wanted to check that this is all stuff
+> that has been agreed upon in the DRM groups? I don't follow the DRM
+> mailing list actively any more..
 
-Not currently but I am enabling now.
-
-kr
+Yes, it is.  The general consensus is that all the other DRM / DRI 
+developers are glad Dave is doing this work...so that we don't have to. :)

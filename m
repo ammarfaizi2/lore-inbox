@@ -1,83 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280251AbRKSRPQ>; Mon, 19 Nov 2001 12:15:16 -0500
+	id <S280320AbRKSRYP>; Mon, 19 Nov 2001 12:24:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280254AbRKSRPF>; Mon, 19 Nov 2001 12:15:05 -0500
-Received: from 66-108-76-7.nyc.rr.com ([66.108.76.7]:36082 "EHLO
-	localhost.galis.org") by vger.kernel.org with ESMTP
-	id <S280251AbRKSROy>; Mon, 19 Nov 2001 12:14:54 -0500
-Date: Mon, 19 Nov 2001 12:14:50 -0500
-From: George Georgalis <george@galis.org>
-To: "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>
-Subject: Re: Buslogic SCSI hangs with cdrecord
-Message-ID: <20011119121450.C10861@localhost.localdomain>
-In-Reply-To: <20011114002513.D676@trot>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011114002513.D676@trot>; from george@galis.org on Wed, Nov 14, 2001 at 12:25:13AM -0500
+	id <S280328AbRKSRXz>; Mon, 19 Nov 2001 12:23:55 -0500
+Received: from [195.66.192.167] ([195.66.192.167]:63501 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S280307AbRKSRXj>; Mon, 19 Nov 2001 12:23:39 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Subject: Re: x bit for dirs: misfeature?
+Date: Mon, 19 Nov 2001 19:21:57 +0000
+X-Mailer: KMail [version 1.2]
+Cc: James A Sutherland <jas88@cam.ac.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <200111191644.fAJGileU019108@pincoya.inf.utfsm.cl>
+In-Reply-To: <200111191644.fAJGileU019108@pincoya.inf.utfsm.cl>
+MIME-Version: 1.0
+Message-Id: <01111919215701.07749@nemo>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The problem it turns out was a failing CPU, which got worse but is now better.
+On Monday 19 November 2001 16:44, Horst von Brand wrote:
+> > > Anyway, as Al Viro has pointed out, R!=X. It's been like that for a
+> > > very long time, it's deliberate, not a misfeature, and it's staying
+> > > like that for the foreseeable future.
+> >
+> > Yes, I see... All I can do is to add workarounds (ok,ok, 'support')
+> > to chmod and friends:
+> >
+> > chmod -R a+R dir  - sets r for files and rx for dirs
+>
+> X sets x for dirs, leaves files alone.
 
-// George
+Hmm... yes this is one of such workarounds already implemented.
+But it is not very good for my example:
+X sets x for dirs *and* for files with x set for any of u,g,o.
 
-On Wed, Nov 14, 2001 at 12:25:13AM -0500, George Georgalis wrote:
->Hi All,
->
->Haven't posted or been around in a while so I hope this isn't a rehash.
->I didn't find anything in a quick goggle search...
->
->I'm having trouble writing CDs. I'll get from 0% to 75% (varies)
->through the process and the whole machine locks up, no oops and nothing
->in the log after a restart.
->
->I've been running a 2.2.19-6.2.12 kernel (RH 6.2 updated rpm). And today
->I tried using a monolithic vmlinuz-2.2.20 with identical results.
->
->Here is a typical record command, I've tried it at 2, 4 and 8 speed.
->
->cdrecord -v speed=8 dev=0,3,0  -data ~ftp/pub/ISOs/enigma-i386-disc1.iso 
->
->I'm running an AMD Athlon Processor at 1200MHz on a Soyo SY-K7VTA PRO   
->board with lots of ram and no other responsibilities.                   
->
->below is the scsi details, has anyone heard of similar problems?
->
->Host: scsi0 Channel: 00 Id: 03 Lun: 00
->  Vendor: YAMAHA   Model: CRW8424S         Rev: 1.0j
->  Type:   CD-ROM                           ANSI SCSI revision: 02
->
->
->***** BusLogic SCSI Driver Version 2.1.15 of 17 August 1998 *****
->Copyright 1995-1998 by Leonard N. Zubkoff <lnz@dandelion.com>
->Configuring BusLogic Model BT-930 PCI Ultra SCSI Host Adapter
->  Firmware Version: 5.02, I/O Address: 0xD800, IRQ Channel: 11/Level
->  PCI Bus: 0, Device: 9, Address: 0xD5000000, Host Adapter SCSI ID: 7
->  Parity Checking: Enabled, Extended Translation: Enabled
->  Synchronous Negotiation: Fast, Wide Negotiation: Disabled
->  Disconnect/Reconnect: Enabled, Tagged Queuing: Enabled
->  Driver Queue Depth: 255, Scatter/Gather Limit: 128 segments
->  Tagged Queue Depth: Automatic, Untagged Queue Depth: 3
->  Error Recovery Strategy: Default, SCSI Bus Reset: Enabled
->  SCSI Bus Termination: Enabled, SCAM: Disabled
->*** BusLogic BT-930 Initialized Successfully ***
->
->
->// George
->
->(comments on Soyo SY-K7VTA PRO built in sound are also welcome)
->
->-- 
->GEORGE GEORGALIS, Principal        http://www.galis.org/george 
->System Administration Services      email: george@galis.org 
->PGP Key ID: 98311631                  cell: 347-451-8229
->
+# chmod -R a+rX dir
 
--- 
-GEORGE GEORGALIS, Principal        http://www.galis.org/george 
-System Administration Services      email: george@galis.org 
-PGP Key ID: 98311631                  cell: 347-451-8229
+will make any executables (even root only) world-executable.
+
+That's why I'd like to add new flag to chmod: R.
+--
+vda

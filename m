@@ -1,121 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261913AbTILU0h (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 16:26:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261914AbTILU0h
+	id S261861AbTILU3I (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 16:29:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbTILU3I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 16:26:37 -0400
-Received: from mail3.cc.huji.ac.il ([132.64.1.21]:492 "EHLO
-	mail3.cc.huji.ac.il") by vger.kernel.org with ESMTP id S261913AbTILU0d
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 16:26:33 -0400
-Date: Sat, 13 Sep 2003 02:29:09 +0300
-From: Voicu Liviu <pacman@mscc.huji.ac.il>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.6.0-test5-mm1
-Message-Id: <20030913022909.3a18f6fa.pacman@mscc.huji.ac.il>
-In-Reply-To: <20030912112436.03ba9dd1.akpm@osdl.org>
-References: <3F61C062.1080700@mscc.huji.ac.il>
-	<20030912112436.03ba9dd1.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.0claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.Ft1Ivv69rt_SQx"
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.14; VAE: 6.21.0.1; VDF: 6.21.0.41; host: mail3.cc.huji.ac.il)
+	Fri, 12 Sep 2003 16:29:08 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:47626 "HELO
+	kinesis.swishmail.com") by vger.kernel.org with SMTP
+	id S261861AbTILU3D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 16:29:03 -0400
+Message-ID: <3F6231D7.6040702@techsource.com>
+Date: Fri, 12 Sep 2003 16:51:35 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+CC: James Clark <jimwclark@ntlworld.com>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Driver Model 2 Proposal - Linux Kernel Performance v Usability
+References: <1062637356.846.3471.camel@cube> <200309042114.45234.jimwclark@ntlworld.com> <Pine.LNX.4.53.0309041723090.9557@chaos> <3F5F8E90.4020701@techsource.com> <Pine.LNX.4.53.0309101640550.18999@chaos>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.Ft1Ivv69rt_SQx
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 
-Thank you, I have found the problem, my sound card is Ensoniq ES1371 so the module should be snd_ens1371 but I used to load by mistake snd_ens1370 so I got the OOPS all the time, I fixed the alsa-config and now all works.
-Liviu
 
-On Fri, 12 Sep 2003 11:24:36 -0700
-Andrew Morton <akpm@osdl.org> wrote:
-
-> Voicu Liviu <pacman@mscc.huji.ac.il> wrote:
-> >
-> > This happens after I load alsa modules on boot..............
-> > 
-> > <from_dmesg>
-> > 
-> > Freeing unused kernel memory: 308k freed
-> > Adding 313228k swap on /dev/hda6.  Priority:-1 extents:1
-> > PCI: Found IRQ 5 for device 0000:00:09.0
-> > PCI: Sharing IRQ 5 with 0000:00:04.2
-> > Unable to handle kernel paging request at virtual address ffffffef
+Richard B. Johnson wrote:
+> On Wed, 10 Sep 2003, Timothy Miller wrote:
 > 
 > 
-> diff -puN fs/sysfs/dir.c~sysfs-create_dir-oops-fix fs/sysfs/dir.c
-> --- 25/fs/sysfs/dir.c~sysfs-create_dir-oops-fix	Wed Sep 10 15:46:50 2003
-> +++ 25-akpm/fs/sysfs/dir.c	Wed Sep 10 15:46:50 2003
-> @@ -24,10 +24,11 @@ static int init_dir(struct inode * inode
->  static struct dentry * 
->  create_dir(struct kobject * k, struct dentry * p, const char * n)
->  {
-> -	struct dentry * dentry;
-> +	struct dentry *dentry, *ret;
->  
->  	down(&p->d_inode->i_sem);
->  	dentry = sysfs_get_dentry(p,n);
-> +	ret = dentry;
->  	if (!IS_ERR(dentry)) {
->  		int error = sysfs_create(dentry,
->  					 S_IFDIR| S_IRWXU | S_IRUGO | S_IXUGO,
-> @@ -36,11 +37,11 @@ create_dir(struct kobject * k, struct de
->  			dentry->d_fsdata = k;
->  			p->d_inode->i_nlink++;
->  		} else
-> -			dentry = ERR_PTR(error);
-> +			ret = ERR_PTR(error);
->  		dput(dentry);
->  	}
->  	up(&p->d_inode->i_sem);
-> -	return dentry;
-> +	return ret;
->  }
->  
->  
+>>I just have one quick question about all of this:
+>>
+>>People mention that driver interfaces don't change much in stable
+>>releases, but if memory serves, symbol versioning information changes
+>>with each minor release, requiring a recompile of modules.
+>>
+>>Would it be possible to have a driver module which can be dropped into,
+>>say, 2.6.17 that can also be dropped into 2.6.18 as long as the
+>>interface doesn't change?
+>>
 > 
-> _
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Short answer, YES. Anything that can be done is possible. The
+> problem is that different kernel versions end up with different
+> structure members, etc. So, you can't use code for 2.2.xxx in
+> 2.4.xx because, amongst other things, the first element in
+> 'struct file_operations' was added and the others moved up.
 
+That's all fine and dandy.  When the kernel changes its interface, then 
+you have to recompile (or rewrite) drivers.  No problem.  I'm just 
+trying to avoid having to recompile drivers if the interface DOESN'T change.
 
--- 
-Liviu Voicu
-Assistant Programmer and network support
-Computation Center, Mount Scopus
-Hebrew University of Jerusalem
-Tel: 972(2)-5881253
-E-mail: "Liviu Voicu"<pacman@mscc.huji.ac.il>
+> 
+> Now, you can make a different module interface that maintains
+> a compatibility level ABI. This has been discussed. Unfortunately,
+> this adds code in the execution path. This extra code gets
+> executed every time the module code is accessed. The result being
+> that the module can't possibly operate as fast as it would if
+> there were no such compatibility layer(s). It might be "good enough",
+> but it is unlikely that the module contributors/maintainers would
+> allow such an interface because the loss of performance is measurable
+> and there has been no requirement to trade-off performance for
+> anything (your and my convenience doesn't count, those are not
+> technical issues).
 
-/**
- * cat /usr/src/linux/arch/i386/boot/bzImage > /dev/dsp
- * ( and the voice of God will be heard! )
- *
- */
+I am not interested in adding additional layers of abstraction.  At 
+least not here.  I do it plenty of other places, but that's not 
+important right now.  If someone else wants to make an abstraction layer 
+(which seems to have been done here and there), then that's just fine, 
+and I may or may not use it.
 
-Click here to see my GPG signature:
-----------------------------------
-	http://search.keyserver.net:11371/pks/lookup?template=netensearch%2Cnetennomatch%2Cnetenerror&search=pacman%40mscc.huji.ac.il&op=vindex&fingerprint=on&submit=Get+List
+My point is that I'm not advocating any of the kruft associated with 
+backward-compatible interfaces.  I'm advocating not having to recompile 
+only in the cases where the interface DOES NOT change.
 
---=.Ft1Ivv69rt_SQx
-Content-Type: application/pgp-signature
+Why?  Because there are some advantages to being able to say that this 
+one module can be dropped into any box running, for instance, 2.6.12 
+through 2.6.16, while the next module is used for 2.6.17 thru 2.6.22, etc.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+For distributions, this can be helpful for drivers which are not in the 
+mainline kernel.  So, I'm not trying to necessarily find a way to help 
+binary-only drivers (although it would, to some extent).
 
-iD8DBQE/YlbJkj4I0Et8EMgRApK4AKCtJGHUj8mXqCPBq92jk5GRiWlYPwCgzJoB
-4TGcrXIKBZ/VTFZc6inQwd0=
-=Gs1a
------END PGP SIGNATURE-----
-
---=.Ft1Ivv69rt_SQx--

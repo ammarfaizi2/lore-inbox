@@ -1,63 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261863AbUK2Wnc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261846AbUK2Wnb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261863AbUK2Wnc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 17:43:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbUK2Wfa
+	id S261846AbUK2Wnb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 17:43:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbUK2WkF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 17:35:30 -0500
-Received: from gprs214-92.eurotel.cz ([160.218.214.92]:63625 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261850AbUK2We6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 17:34:58 -0500
-Date: Mon, 29 Nov 2004 23:34:37 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: Stefan Seyfried <seife@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       hugang@soulinfo.com, Andrew Morton <akpm@zip.com.au>
-Subject: Re: Suspend 2 merge
-Message-ID: <20041129223437.GD3867@elf.ucw.cz>
-References: <1101292194.5805.180.camel@desktop.cunninghams> <20041124132839.GA13145@infradead.org> <1101329104.3425.40.camel@desktop.cunninghams> <20041125192016.GA1302@elf.ucw.cz> <1101422088.27250.93.camel@desktop.cunninghams> <20041125232200.GG2711@elf.ucw.cz> <1101426416.27250.147.camel@desktop.cunninghams> <41AAED32.2010703@suse.de> <1101766833.4343.425.camel@desktop.cunninghams>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1101766833.4343.425.camel@desktop.cunninghams>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+	Mon, 29 Nov 2004 17:40:05 -0500
+Received: from av9-2-sn4.m-sp.skanova.net ([81.228.10.107]:21390 "EHLO
+	av9-2-sn4.m-sp.skanova.net") by vger.kernel.org with ESMTP
+	id S261855AbUK2WgZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 17:36:25 -0500
+Message-ID: <41ABA453.7070103@lanil.mine.nu>
+Date: Mon, 29 Nov 2004 23:36:03 +0100
+From: Christian Axelsson <smiler@lanil.mine.nu>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041119)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [2.6.10-rc2-mm3] Broken usb2 mass-storage?
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > >>>:> But not everyone who uses 2.6.9 uses swsusp. :>
-> > 
-> > and not everyone who downloads suspend2 uses it ;-)
-> 
-> Yes... I'd say the relative percentage would be much higher, though.
+Im trying to attach a usb2 200gb drive to my laptop that is runnig 
+2.6.10-rc2-mm3. Upon connect I get this in dmesg:
 
-Agreed.
+   usb 1-2: new high speed USB device using ehci_hcd and address 4
+   scsi0 : SCSI emulation for USB Mass Storage devices
+   usb-storage: device found at 4
+   usb-storage: waiting for device to settle before scanning
+     Vendor: Maxtor 6  Model: Y200P0            Rev: YAR4
+     Type:   Direct-Access                      ANSI SCSI revision: 04
+   SCSI device sda: 398297088 512-byte hdwr sectors (203928 MB)
+   sda: assuming drive cache: write through
+    sda: sda1
+   Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
+   Attached scsi generic sg0 at scsi0, channel 0, id 0, lun 0,  type 0
 
-> > > change a parameter or forcing them to do an ls in /dev with obscure
-> > > parameters (to get the major and minor numbers) when they already know
-> > > they want /dev/sda1 isn't user friendly. Obviously user friendliness is 
-> > 
-> > This can easily be done by a userspace helper. You do use the
-> > (userspace) X server to display your GUI, don't you?
-> 
-> No. Not at all. All of userspace is well and truly wedged in a block of
-> ice by then.
+Then I try to access the disk (via fdisk or mount anything) and I get 
+the following in dmesg:
 
-I think that was not what Stefan wanted to say.
+   usb 1-2: reset high speed USB device using ehci_hcd and address 4
+   usb 1-2: scsi_eh_0 timed out on ep0in
+   usb 1-2: device descriptor read/64, error -110
+   usb 1-2: scsi_eh_0 timed out on ep0in
+   usb 1-2: device descriptor read/64, error -110
+   usb 1-2: reset high speed USB device using ehci_hcd and address 4
+   usb 1-2: scsi_eh_0 timed out on ep0in
+   usb 1-2: device descriptor read/64, error -110
 
-> Regarding acceptance, there's no point in getting it accepted into the
-> kernel if we end up with something that's user-unfriendly. I think it
-> will help a lot if we agree that suspend does need to blur the lines
-> between kernel and userspace a little, in the interests of providing
-> software that is superior.
+Then it stalls a while and this shows up:
 
-I guess we'll have to agree to disagree here. I do not think suspend
-is special enough to blur the lines...
-								Pavel
+   scsi: Device offlined - not ready after error recovery: host 0 
+channel 0 id 0 lun 0
+   usb 1-2: USB disconnect, address 4
+   scsi0 (0:0): rejecting I/O to offline device
+   scsi0 (0:0): rejecting I/O to offline device
+   usb-storage: device scan complete
+   usb 1-2: new high speed USB device using ehci_hcd and address 5
+   usb 1-2: khubd timed out on ep0in
+   usb 1-2: device descriptor read/64, error -110
+
+And repeats this.. I think you get the point ;)
+The process trying to access the disk hangs.
+Note: the drive works flawless under windows and has worked fine under 
+linux during various stages of the 2.5 and early 2.6 kernels :)
+
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Regards,
+Christian

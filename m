@@ -1,32 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136548AbRD3Xr3>; Mon, 30 Apr 2001 19:47:29 -0400
+	id <S136550AbRD3XrJ>; Mon, 30 Apr 2001 19:47:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136549AbRD3XrT>; Mon, 30 Apr 2001 19:47:19 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:4870 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S136548AbRD3XrH>; Mon, 30 Apr 2001 19:47:07 -0400
-Subject: Re: Aironet doesn't work
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Tue, 1 May 2001 00:49:39 +0100 (BST)
-Cc: elmer@linking.ee (Elmer Joandi), ookhoi@dds.nl (Ookhoi),
-        fgouget@free.fr (Francois Gouget), linux-kernel@vger.kernel.org,
-        elmer@ylenurme.ee
-In-Reply-To: <3AED980A.4323AF7D@mandrakesoft.com> from "Jeff Garzik" at Apr 30, 2001 12:51:22 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S136549AbRD3Xqs>; Mon, 30 Apr 2001 19:46:48 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:2314 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S136548AbRD3Xqq>;
+	Mon, 30 Apr 2001 19:46:46 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: "J . A . Magallon" <jamagallon@able.es>
+cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] [PATCH] automatic multi-part link rules (fwd) 
+In-Reply-To: Your message of "Tue, 01 May 2001 01:31:20 +0200."
+             <20010501013120.A15120@werewolf.able.es> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14uNQD-0000hV-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Tue, 01 May 2001 09:46:39 +1000
+Message-ID: <16913.988674399@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Elmer Joandi wrote:
-> > the whole pcmcia does not work in 2.4.
-> 
-> Prove it.
-> It works for people with correct 2.4 kernel configurations.
+On Tue, 1 May 2001 01:31:20 +0200, 
+"J . A . Magallon" <jamagallon@able.es> wrote:
+>On 05.01 Keith Owens wrote:
+>> The patch appears to work but is it worth applying now?  The existing
+>> 2.4 rules work fine and the entire kbuild system will be rewritten for
+>> 2.5
+>
+>We will have to live with 2.4 until 2.6, 'cause 2.5 will not be stable.
+>2.4 will be the stable and non "brain damaged" kernel in distros.
+>So every thing that can make 2.4 more clean, better. Think in 2.4.57,
+>and we still are in 4. And feature backports, and new drivers...
+>The 2.5 rewrite is not excuse. The knowledge on the actual state, yes.
 
-Except on a few boxes where it doesnt. The Palmax is one of them but that
-seems to be irq routing
+But 2.4 kbuild for multi part objects already works, there is no bug to
+fix or live with.  2.4 is supposed to be bug fixes only.  IMHO keeping
+the existing boilerplate method for multi part objects in 2.4 is the
+safer approach, don't rock the boat.
+

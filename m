@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274997AbRJAM10>; Mon, 1 Oct 2001 08:27:26 -0400
+	id <S275004AbRJAMqN>; Mon, 1 Oct 2001 08:46:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275002AbRJAM1Q>; Mon, 1 Oct 2001 08:27:16 -0400
-Received: from mx1out.umbc.edu ([130.85.253.51]:18309 "EHLO mx1out.umbc.edu")
-	by vger.kernel.org with ESMTP id <S275000AbRJAM1E>;
-	Mon, 1 Oct 2001 08:27:04 -0400
-Date: Mon, 1 Oct 2001 08:27:31 -0400
-From: John Jasen <jjasen1@umbc.edu>
-X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] New Anti-Terrorism Law makes "hacking" punishable by life
- in  prison
-In-Reply-To: <20011001104130.32696.qmail@optushome.com.au>
-Message-ID: <Pine.SGI.4.31L.02.0110010826070.6140106-100000@irix2.gl.umbc.edu>
+	id <S275006AbRJAMqD>; Mon, 1 Oct 2001 08:46:03 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:50094
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S275004AbRJAMqC>; Mon, 1 Oct 2001 08:46:02 -0400
+Date: Mon, 01 Oct 2001 08:41:40 -0400
+From: Chris Mason <mason@suse.com>
+To: Mikael Pettersson <mikpe@csd.uu.se>, torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.11-pre1 oops in bdget()
+Message-ID: <1262100000.1001940100@tiny>
+In-Reply-To: <200110010002.CAA14944@harpo.it.uu.se>
+In-Reply-To: <200110010002.CAA14944@harpo.it.uu.se>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Helge Hafting <helgehaf@idb.hist.no> writes:
->
-> > .. but at least fixes appear a lot faster for linux.  That alone
-> > don't usually leave enough timespan for a large-scale exploit.
 
-Someone forget bind and rpc.statd worms of about 6 months ago?
+On Monday, October 01, 2001 02:02:23 AM +0200 Mikael Pettersson
+<mikpe@csd.uu.se> wrote:
 
-Or, the exploitability of ntp?
+> Running 2.4.11-pre1 built with gcc 2.95.3, building 2.4.10-ac1,
+> final dd in 'make bzdisk' oopsed with the following:
 
---
--- John E. Jasen (jjasen1@umbc.edu)
--- In theory, theory and practise are the same. In practise, they aren't.
+> Unable to handle kernel paging request at virtual address d08b8b60
+> c0133664
+> *pde = 0fd41067
+> Oops: 0000
+> CPU:    0
+> EIP:    0010:[<c0133664>]
+ 
+>>> EIP; c0133664 <bdget+f8/180>   <=====
+> Trace; c0133792 <bd_acquire+26/80>
+> Trace; c0133c16 <blkdev_open+16/b8>
+
+Well, this isn't good, looks like we've already freed something and are
+still using it.  Could you please turn on 'Debug memory allocations' in the
+kernel debugging section of make config, and try to reproduce again?
+
+-chris
 

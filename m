@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263105AbSJaUZL>; Thu, 31 Oct 2002 15:25:11 -0500
+	id <S263204AbSJaUQn>; Thu, 31 Oct 2002 15:16:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263249AbSJaUZL>; Thu, 31 Oct 2002 15:25:11 -0500
-Received: from adsl-67-114-192-42.dsl.pltn13.pacbell.net ([67.114.192.42]:417
-	"EHLO mx1.corp.rackable.com") by vger.kernel.org with ESMTP
-	id <S263105AbSJaUZL>; Thu, 31 Oct 2002 15:25:11 -0500
-Message-ID: <3DC1915E.8070502@rackable.com>
-Date: Thu, 31 Oct 2002 12:23:58 -0800
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	id <S263215AbSJaUQn>; Thu, 31 Oct 2002 15:16:43 -0500
+Received: from d12lmsgate-5.de.ibm.com ([194.196.100.238]:21703 "EHLO
+	d12lmsgate-5.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S263204AbSJaUQm>; Thu, 31 Oct 2002 15:16:42 -0500
+Subject: Re: [lkcd-devel] Re: What's left over.
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, lkcd-devel@lists.sourceforge.net,
+       lkcd-devel-admin@lists.sourceforge.net,
+       lkcd-general@lists.sourceforge.net,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       "Matt D. Robinson" <yakker@aparity.com>
+X-Mailer: Lotus Notes Release 5.0.4a  July 24, 2000
+Message-ID: <OFEC1A12FD.509981CC-ONC1256C63.00746AAA@de.ibm.com>
+From: "Andreas Herrmann" <AHERRMAN@de.ibm.com>
+Date: Thu, 31 Oct 2002 21:22:13 +0100
+X-MIMETrack: Serialize by Router on D12ML033/12/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 31/10/2002 21:22:14
 MIME-Version: 1.0
-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Reiser vs EXT3
-References: <20021031141950.GM3420@rdlg.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 31 Oct 2002 20:31:37.0301 (UTC) FILETIME=[82C80850:01C2811C]
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert L. Harris wrote:
 
->  Still working on that replacement mail server and a new rumor has hit
->the mix.  It follows that reiserfs is much faster than ext3 (made ext3,
->not converted from ext2 if it matters) and this is causing some
->problems.  On a 200Gig filesystem is this truely an issue?
->
->  
->
+      Linus Torvalds <torvalds@transmeta.com>
+      Sent by: lkcd-devel-admin@lists.sourceforge.net
+      10/31/02 04:46 PM
 
-  Have you tried different ext3 journalling modes?  Ordered is pretty 
-slow in many cases.  You might want to try writeback instead.  The 
-downside is that you might end up losing resently written changes in the 
-event of a crash.  Try mounting with "-o data=writeback".
+On Wed, 30 Oct 2002, Matt D. Robinson wrote:
 
+  > People have to realize that my kernel is not for random new
+  > features. The stuff I consider important are things that people
+  > use on their own, or stuff that is the base for other work.
+
+A dump mechanism within the kernel is a base for much easier
+kernel debugging.
+IMHO, analyzing a dump is much more effective than guessing
+a kernel bug solely with help of an oops message.
+Using lkcd/lcrash, I've debugged enough problems in
+kernel modules that were otherwise quite hard to determine.
+It is hard to understand why developers do not want the
+aid of dump/dump-analysis for kernel development.
+
+
+Regards,
+
+Andreas
 

@@ -1,73 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262876AbSKRQIk>; Mon, 18 Nov 2002 11:08:40 -0500
+	id <S262824AbSKRQLl>; Mon, 18 Nov 2002 11:11:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262887AbSKRQIj>; Mon, 18 Nov 2002 11:08:39 -0500
-Received: from ppp-217-133-216-163.dialup.tiscali.it ([217.133.216.163]:24714
-	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
-	id <S262876AbSKRQIh>; Mon, 18 Nov 2002 11:08:37 -0500
-Subject: [PATCH] dup_mmap tiny optimization
-From: Luca Barbieri <ldb@ldb.ods.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-VjG8IfptYwcgTUKvlMct"
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 18 Nov 2002 17:15:28 +0100
-Message-Id: <1037636128.1774.154.camel@ldb>
+	id <S262859AbSKRQLl>; Mon, 18 Nov 2002 11:11:41 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:10718 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S262824AbSKRQLk>; Mon, 18 Nov 2002 11:11:40 -0500
+Date: Mon, 18 Nov 2002 11:18:40 -0500
+From: Jakub Jelinek <jakub@redhat.com>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ulrich Drepper <drepper@redhat.com>
+Subject: Re: [rfc] epoll interface change and glibc bits ...
+Message-ID: <20021118111840.B27455@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <20021118111259.A27455@devserv.devel.redhat.com> <Pine.LNX.4.44.0211180814560.979-100000@blue1.dev.mcafeelabs.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0211180814560.979-100000@blue1.dev.mcafeelabs.com>; from davidel@xmailserver.org on Mon, Nov 18, 2002 at 08:15:39AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Nov 18, 2002 at 08:15:39AM -0800, Davide Libenzi wrote:
+> > > 1) epoll's event structure extension
+> > >
+> > > I received quite a few request to extend the event structure to have space
+> > > for an opaque user data object. The eventpoll event structure will turn to
+> > > be :
+> > >
+> > > struct epollfd {
+> > > 	int fd;
+> > > 	unsigned short int events, revents;
+> > > 	unsigned long obj;
+> >
+> > Cannot this be uint64_t obj; ?
+> > Have mercy with 32<->64 bit translation layers in the kernel.
+> 
+> Maybe this :
+> 
+> typedef void *epoll_obj_t;
 
---=-VjG8IfptYwcgTUKvlMct
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+That is as bad as unsigned long - it is different between 32-bit and 64-bit
+ABIs.
+Unless you handle the translation in the generic epoll code, there will
+need to be wrappers around it which will kmalloc (maxelements * sizeof (struct epollfd));
+do the generic epoll into that array and then translate all the structures
+in that array into smaller ones and copy to userspace.
 
-This patch moves retval =3D -ENOMEM out of the vma loop and after the
-fail_nomem label.
-The fail label is added and is used when retval is already set.
-
---- linux-2.5.48_ldb/kernel/fork.c~	2002-11-18 05:29:22.000000000 +0100
-+++ linux-2.5.48_ldb/kernel/fork.c	2002-11-18 17:08:55.000000000 +0100
-@@ -238,7 +238,6 @@ static inline int dup_mmap(struct mm_str
- 	for (mpnt =3D current->mm->mmap ; mpnt ; mpnt =3D mpnt->vm_next) {
- 		struct file *file;
-=20
--		retval =3D -ENOMEM;
- 		if(mpnt->vm_flags & VM_DONTCOPY)
- 			continue;
- 		if (mpnt->vm_flags & VM_ACCOUNT) {
-@@ -283,7 +282,7 @@ static inline int dup_mmap(struct mm_str
- 			tmp->vm_ops->open(tmp);
-=20
- 		if (retval)
--			goto fail_nomem;
-+			goto fail;
- 	}
- 	retval =3D 0;
- 	build_mmap_rb(mm);
-@@ -293,6 +292,8 @@ out:
- 	up_write(&oldmm->mmap_sem);
- 	return retval;
- fail_nomem:
-+	retval =3D -ENOMEM;
-+  fail:
- 	vm_unacct_memory(charge);
- 	goto out;
- }
-
-
---=-VjG8IfptYwcgTUKvlMct
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA92RIfdjkty3ft5+cRAoDxAKCy87TgdRc2Ps16H4dKvVyNI+DwrACggHjr
-O9W5b6pFCi1hEWYoM7Pi0So=
-=Pddj
------END PGP SIGNATURE-----
-
---=-VjG8IfptYwcgTUKvlMct--
+	Jakub

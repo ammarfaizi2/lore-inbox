@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130386AbRCBKSL>; Fri, 2 Mar 2001 05:18:11 -0500
+	id <S130389AbRCBKWx>; Fri, 2 Mar 2001 05:22:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130388AbRCBKSC>; Fri, 2 Mar 2001 05:18:02 -0500
-Received: from [62.172.234.2] ([62.172.234.2]:23092 "EHLO penguin.homenet")
-	by vger.kernel.org with ESMTP id <S130386AbRCBKRo>;
-	Fri, 2 Mar 2001 05:17:44 -0500
-Date: Fri, 2 Mar 2001 10:17:37 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.2ac8
-Message-ID: <Pine.LNX.4.21.0103021017050.1338-100000@penguin.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130390AbRCBKWo>; Fri, 2 Mar 2001 05:22:44 -0500
+Received: from firewall.spacetec.no ([192.51.5.5]:52952 "EHLO
+	pallas.spacetec.no") by vger.kernel.org with ESMTP
+	id <S130389AbRCBKWh>; Fri, 2 Mar 2001 05:22:37 -0500
+Message-Id: <200103021022.LAA08534@pallas.spacetec.no>
+From: tor@spacetec.no (Tor Arntsen)
+Date: Fri, 2 Mar 2001 11:22:29 +0100
+In-Reply-To: Tim Wright <timw@splhi.com>
+       "Re: Will Mosix go into the standard kernel?" (Mar  1, 20:13)
+X-Mailer: Mail User's Shell (7.2.6 beta(4) 03/19/98)
+To: timw@splhi.com
+Subject: Re: Will Mosix go into the standard kernel?
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Mar 2001, Alan Cox wrote:
-> 2.4.2-ac8
-> o	Stop two people claiming the same misc dev id	(Philipp Rumpf)
+On Mar 1, 20:13, Tim Wright wrote:
+[discussion about commercial customers and kernels snipped]
 
-is this what has broken misc devi registration on my machine? I have two
-misc devices -- microcode and psaux -- now (ac8) I get none, /proc/misc is
-empty. Also, on boot gpm generates an "oops" from gpm.c(968) saying
-"/dev/mouse: No such device"
+I don't think we disagree, actually.  My point was a different one.
+With vendor-patched kernels you can either stick to the hacked kernel
+or you can move on to an ftp.kernel.org kernel.  For the type of hacks
+that RedHat & co are doing it shouldn't matter.  If it did, I mean if
+they deliver hacked software that only works with a hacked kernel,
+*then* I would be angry.  That would mean that I would have to track
+the patches they did, and apply them myself to new kernels.  OR I
+would have to sit back and wait for them to come out with an updated
+distro, sometime in the future.  Not good.
 
-So, ac8 has two problems for me:
+What was brought up in this discussion about clustering patches was
+that that kind of model would be a good idea.  I disagree.  One thing
+is to deliver patches because integration is not currently possible, or 
+practical, or whatever, but to point to the RedHat hacked-kernels-are-us 
+model as a *goal*, that's what I don't like.  It's sometimes a necessity,
+but it's not something that should be encouraged.
 
-1. /proc/cpuinfo shows wrong info about bus (claims to be overclocked) --
-I will get back to you with the info you requested shortly
-
-2. misc device registration is broken.
-
-Regards,
-Tigran
-
-
+Cheers,
+-Tor

@@ -1,216 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261215AbUCQJO3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 04:14:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbUCQJO3
+	id S261197AbUCQJLE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 04:11:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261215AbUCQJLE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 04:14:29 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:32729 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261215AbUCQJOV (ORCPT
+	Wed, 17 Mar 2004 04:11:04 -0500
+Received: from fw.osdl.org ([65.172.181.6]:14511 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261197AbUCQJLB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 04:14:21 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 17 Mar 2004 04:11:01 -0500
+Date: Wed, 17 Mar 2004 01:10:53 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.5-rc1 shm paging blocker
+Message-Id: <20040317011053.78ae4821.akpm@osdl.org>
+In-Reply-To: <20040317061522.GN30940@dualathlon.random>
+References: <20040317061522.GN30940@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <16472.5852.375648.739489@neuro.alephnull.com>
-Date: Wed, 17 Mar 2004 04:14:04 -0500
-From: Rik Faith <faith@redhat.com>
-To: paulmck@us.ibm.com
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Light-weight Auditing Framework
-In-Reply-To: [Paul E. McKenney <paulmck@us.ibm.com>] Fri 12 Mar 2004 10:50:33 -0800
-References: <16464.30442.852919.24605@neuro.alephnull.com>
-	<20040312185033.GA2507@us.ibm.com>
-X-Key: 7EB57214; 958B 394D AD29 257E 553F  E7C7 9F67 4BE0 7EB5 7214
-X-Url: http://www.redhat.com/
-X-Mailer: VM 7.17; XEmacs 21.4; Linux 2.4.22-1.2163.nptl (neuro)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri 12 Mar 2004 10:50:33 -0800,
-   Paul E. McKenney <paulmck@us.ibm.com> wrote:
-> o	I don't see any rcu_read_lock() or rcu_read_unlock() calls.
+Andrea Arcangeli <andrea@suse.de> wrote:
+>
+> One of those patchsets (extracted from kernel CVS) is screwing
+>  completely the paging of shm in 2.6.5-rc1. The malfunction is nearly
+>  no-swapping of shm and machine hanging forever in a sort of live lock
+>  scenario and I've to click reboot.
 
-Fixed.
+Can't reproduce it, sorry.  Stock 2.6.5-rc1 on 4-way with mem=1024M,
+shmmax=3e9:
 
-> o	Presumably something surrounding netlink_kernel_create()
-> 	ensures that only one instance of audit_del_rule() will
-> 	be executing at a given time.  If not, some locking is
-> 	needed.
+procs                      memory      swap          io     system         cpu
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy wa id
+ 0  0      0 908480  15140  76796    0    0     0     0 1017    30  0  0  0 100
+ 0  0      0 908480  15148  76788    0    0     0    76 1010    16  0  0  0 100
+ 0  0      0 908480  15148  76788    0    0    28     0 1030    56  2  0  2 96
+41 21      0 865368  15148 115344    0    0     0     0 1011 33978  2 43  0 55
+41 31      0 782576  15148 189940    0    0     0     0 1006 64580  5 95  0  0
+47 40      0 701688  15148 259368    0    0     0     0 1006 13025  5 95  0  0
+69 29      0 656960  15148 291668    0    0     0     0 1005  1918  6 94  0  0
+62 29      0 644864  15156 291728    0    0     0    72 1007  4269  6 94  0  0
+67 28      0 560192  15156 367888    0    0     0     0 1005 40205  5 95  0  0
+67 30      0 511432  15156 406376    0    0     0     0 1005 24601  5 95  0  0
+57 39      0 476744  15156 429224    0    0     0     0 1004 12228  6 94  0  0
+80 46      0 443264  15156 450916    0    0     0     0 1005 16476  6 94  0  0
+87 53      0 387840  15156 493484    0    0     0     0 1005 10994  6 94  0  0
+90 49      0 310136  15156 561688    0    0     0     0 1005 39578  5 95  0  0
+72 60      0 254384  15156 604936    0    0     0     0 1006 13469  6 94  0  0
+104 59      0 198144  15156 652128    0    0     0     0 1006 46466  5 95  0  0
+85 71      0 150144  15160 688844    0    0     0     4 1007 38554  5 95  0  0
+101 63      0 110080  15160 718356    0    0     0     0 1006 15811  6 94  0  0
+84 59      0  72832  15160 743856    0    0     0     0 1005  8047  5 95  0  0
+96 60      0  46464  15160 757796    0    0     0     0 1005 11904  6 94  0  0
+112 56      0   2696   9332 796740    0    0     0     0 1005 18330  6 94  0  0
+85 53    684   2104   1380 796188    0    0     0   116 1000  4171  5 95  0  0
+98 48   6416   3412    240 787788  428 5284   428  5284 1524  7250  4 96  0  0
+94 47   8140   2908    240 784648  192 1988   192  1988 1034  3397  3 97  0  0
+67 58  21632   3132    240 771612  328 10532   328 10532 1206 11524  5 95  0  0
+94 73  26796   3796    244 765696  628 4692   628  4696 1184 21272  6 94  0  0
+97 89  52528   5960    244 734396  652 8672   652  8672 1122 32257  7 93  0  0
+47 97  57584   2164    184 730240 1284 28208  1284 28208 1103 15508  6 94  0  0
+34 109  64376   2520    184 724280 1256 2072  1256  2072 1078 37640  4 96  0  0
+procs                      memory      swap          io     system         cpu
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy wa id
+131 104  68964   2232    184 719776  716 10304   716 10304 1079  9494  5 95  0  0
 
-I was unable to find anything, so I added a semaphore to the receive
-routine, and comments to the add and delete routines.
-
-> o	The audit_add_rule() function also needs something to prevent
-> 	races with other audit_add_rule() and audit_del_rule()
-> 	instances.
-
-This is also handled by the semaphore.
-
-Thanks for your comments!  This patch is against 2.6.5-rc1-mm1.  It also
-corrects a problem that could trigger a BUG() near boot time.
-
- audit.c   |    9 +++++++++
- auditsc.c |   38 +++++++++++++++++++++++++++++---------
- 2 files changed, 38 insertions(+), 9 deletions(-)
-
-diff -rupP --exclude-from=ignore linux-2.6.4-pristine/kernel/audit.c linux-2.6.4/kernel/audit.c
---- linux-2.6.4-pristine/kernel/audit.c	2004-03-16 11:01:00.000000000 -0500
-+++ linux-2.6.4/kernel/audit.c	2004-03-16 15:47:45.000000000 -0500
-@@ -111,6 +111,11 @@ static LIST_HEAD(audit_tsklist);
- static LIST_HEAD(audit_entlist);
- static LIST_HEAD(audit_extlist);
- 
-+/* The netlink socket is only to be read by 1 CPU, which lets us assume
-+ * that list additions and deletions never happen simultaneiously in
-+ * auditsc.c */
-+static DECLARE_MUTEX(audit_netlink_sem);
-+
- /* AUDIT_BUFSIZ is the size of the temporary buffer used for formatting
-  * audit records.  Since printk uses a 1024 byte buffer, this buffer
-  * should be at least that large. */
-@@ -427,6 +432,9 @@ static void audit_receive(struct sock *s
- {
- 	struct sk_buff  *skb;
- 
-+	if (down_trylock(&audit_netlink_sem))
-+		return;
-+	
- 				/* FIXME: this must not cause starvation */
- 	while ((skb = skb_dequeue(&sk->sk_receive_queue))) {
- 		if (audit_receive_skb(skb) && skb->len)
-@@ -434,6 +442,7 @@ static void audit_receive(struct sock *s
- 		else
- 			kfree_skb(skb);
- 	}
-+	up(&audit_netlink_sem);
- }
- 
- /* Move data from tmp buffer into an skb.  This is an extra copy, and
-diff -rupP --exclude-from=ignore linux-2.6.4-pristine/kernel/auditsc.c linux-2.6.4/kernel/auditsc.c
---- linux-2.6.4-pristine/kernel/auditsc.c	2004-03-16 11:01:00.000000000 -0500
-+++ linux-2.6.4/kernel/auditsc.c	2004-03-16 17:43:37.000000000 -0500
-@@ -158,6 +158,9 @@ static int audit_compare_rule(struct aud
- 	return 0;
- }
- 
-+/* Note that audit_add_rule and audit_del_rule are called via
-+ * audit_receive() in audit.c, and are protected by
-+ * audit_netlink_sem. */
- static inline int audit_add_rule(struct audit_entry *entry,
- 				 struct list_head *list)
- {
-@@ -175,12 +178,17 @@ static void audit_free_rule(void *arg)
- 	kfree(arg);
- }
- 
-+/* Note that audit_add_rule and audit_del_rule are called via
-+ * audit_receive() in audit.c, and are protected by
-+ * audit_netlink_sem. */
- static inline int audit_del_rule(struct audit_rule *rule,
- 				 struct list_head *list)
- {
- 	struct audit_entry  *e;
- 
--	list_for_each_entry_rcu(e, list, list) {
-+	/* Do not use the _rcu iterator here, since this is the only
-+	 * deletion routine. */
-+	list_for_each_entry(e, list, list) {
- 		if (!audit_compare_rule(rule, &e->rule)) {
- 			list_del_rcu(&e->list);
- 			call_rcu(&e->rcu, audit_free_rule, e);
-@@ -223,6 +231,7 @@ int audit_receive_filter(int type, int p
- 
- 	switch (type) {
- 	case AUDIT_LIST:
-+		rcu_read_lock();
- 		list_for_each_entry_rcu(entry, &audit_tsklist, list)
- 			audit_send_reply(pid, seq, AUDIT_LIST, 0, 1,
- 					 &entry->rule, sizeof(entry->rule));
-@@ -232,6 +241,7 @@ int audit_receive_filter(int type, int p
- 		list_for_each_entry_rcu(entry, &audit_extlist, list)
- 			audit_send_reply(pid, seq, AUDIT_LIST, 0, 1,
- 					 &entry->rule, sizeof(entry->rule));
-+		rcu_read_unlock();
- 		audit_send_reply(pid, seq, AUDIT_LIST, 1, 1, NULL, 0);
- 		break;
- 	case AUDIT_ADD:
-@@ -382,10 +392,14 @@ static enum audit_state audit_filter_tas
- 	struct audit_entry *e;
- 	enum audit_state   state;
- 
-+	rcu_read_lock();
- 	list_for_each_entry_rcu(e, &audit_tsklist, list) {
--		if (audit_filter_rules(tsk, &e->rule, NULL, &state))
-+		if (audit_filter_rules(tsk, &e->rule, NULL, &state)) {
-+			rcu_read_unlock();
- 			return state;
-+		}
- 	}
-+	rcu_read_unlock();
- 	return AUDIT_BUILD_CONTEXT;
- }
- 
-@@ -403,11 +417,15 @@ static enum audit_state audit_filter_sys
- 	int		   word = AUDIT_WORD(ctx->major);
- 	int		   bit  = AUDIT_BIT(ctx->major);
- 
-+	rcu_read_lock();
- 	list_for_each_entry_rcu(e, list, list) {
- 		if ((e->rule.mask[word] & bit) == bit
-- 		    && audit_filter_rules(tsk, &e->rule, ctx, &state))
-+ 		    && audit_filter_rules(tsk, &e->rule, ctx, &state)) {
-+			rcu_read_unlock();
- 			return state;
-+		}
- 	}
-+	rcu_read_unlock();
- 	return AUDIT_BUILD_CONTEXT;
- }
- 
-@@ -753,8 +771,8 @@ void audit_getname(const char *name)
- 	BUG_ON(!context);
- 	if (!context->in_syscall) {
- #if AUDIT_DEBUG == 2
--		printk(KERN_ERR "audit.c:%d(:%d): ignoring getname(%p)\n",
--		       __LINE__, context->serial, name);
-+		printk(KERN_ERR "%s:%d(:%d): ignoring getname(%p)\n",
-+		       __FILE__, __LINE__, context->serial, name);
- 		dump_stack();
- #endif
- 		return;
-@@ -777,8 +795,8 @@ void audit_putname(const char *name)
- 	BUG_ON(!context);
- 	if (!context->in_syscall) {
- #if AUDIT_DEBUG == 2
--		printk(KERN_ERR "audit.c:%d(:%d): __putname(%p)\n",
--		       __LINE__, context->serial, name);
-+		printk(KERN_ERR "%s:%d(:%d): __putname(%p)\n",
-+		       __FILE__, __LINE__, context->serial, name);
- 		if (context->name_count) {
- 			int i;
- 			for (i = 0; i < context->name_count; i++)
-@@ -793,10 +811,10 @@ void audit_putname(const char *name)
- 	else {
- 		++context->put_count;
- 		if (context->put_count > context->name_count) {
--			printk(KERN_ERR "audit.c:%d(:%d): major=%d"
-+			printk(KERN_ERR "%s:%d(:%d): major=%d"
- 			       " in_syscall=%d putname(%p) name_count=%d"
- 			       " put_count=%d\n",
--			       __LINE__,
-+			       __FILE__, __LINE__,
- 			       context->serial, context->major,
- 			       context->in_syscall, name, context->name_count,
- 			       context->put_count);
-@@ -813,6 +831,8 @@ void audit_inode(const char *name, unsig
- 	int idx;
- 	struct audit_context *context = current->audit_context;
- 
-+	if (!context->in_syscall)
-+		return;
- 	if (context->name_count
- 	    && context->names[context->name_count-1].name
- 	    && context->names[context->name_count-1].name == name)
-
-
+Is there some info I'm missing?

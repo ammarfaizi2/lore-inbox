@@ -1,86 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282948AbRLWPGa>; Sun, 23 Dec 2001 10:06:30 -0500
+	id <S283782AbRLWPOv>; Sun, 23 Dec 2001 10:14:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282978AbRLWPGJ>; Sun, 23 Dec 2001 10:06:09 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:44813 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S282948AbRLWPGE>;
-	Sun, 23 Dec 2001 10:06:04 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: harri@synopsys.COM
+	id <S282978AbRLWPOo>; Sun, 23 Dec 2001 10:14:44 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:52182 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S282491AbRLWPOX>;
+	Sun, 23 Dec 2001 10:14:23 -0500
+Date: Sun, 23 Dec 2001 16:14:16 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200112231514.QAA25107@harpo.it.uu.se>
+To: marcelo@conectiva.com.br, torvalds@transmeta.com
+Subject: [PATCH] 2.4.17/2.5.1 apic.c LVTERR fixes
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Patch: Support for grub at installation time 
-In-Reply-To: Your message of "Sun, 23 Dec 2001 15:39:59 BST."
-             <3C25ECBF.AF0E819C@Synopsys.COM> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 24 Dec 2001 02:05:51 +1100
-Message-ID: <24997.1009119951@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 23 Dec 2001 15:39:59 +0100, 
-Harald Dunkel <harri@synopsys.COM> wrote:
->Below you can find a tiny patch to add 2 new targets to the top level 
->Makefile: bzgrub and zgrub. This is a suggestion about how the Grub 
+Linus & Marcelo,
 
-I am removing all the special targets that have crept into kbuild,
-including zlilo, I do not want to add any new boot targets.  It is the
-job of the kernel makefiles to build the kernel, install the kernel and
-modules and that is all.  Anything after the kernel and modules have
-been installed is not the job of kbuild.  There is too much special
-case code in the kernel makefiles, some of which only works for a few
-users.
+Here is a patch which fixes a long-standing bug in the x86 local APIC
+code. The patch applies to both 2.4.17 and 2.5.1. Please apply.
 
-All is not lost, however.  kbuild 2.5 has a config option to run a
-post-install script.  You can specify any script that you want and that
-script is responsible for doing whatever you want after the kernel and
-modules install.  There is a sample in scripts/lilo_new_kernel:
+The Intel P6 local APIC internally signals an Illegal Vector error
+whenever a zero vector is written to an LVT entry, even if the entry
+is simultaneously masked. The bug is that apic.c triggers these errors
+when the contents of LVTERR is defined by the BIOS and not the kernel,
+which can cause unexpected interrupts on unknown vectors. This typically
+happens at boot-time initialisation, PM suspend, and PM resume.
 
-#!/bin/sh
-#
-#  This is a sample script to add a new kernel to /etc/lilo.conf.  If it
-#  does not do what you want, copy this script to somewhere outside the
-#  kernel, change the copy and point your .config at the modified copy.
-#  Then you do not need to change the script when you upgrade your kernel.
-#
+The patch eliminates the problem by changing the initialisation order
+in apic.c's clear_local_APIC() and apic_pm_resume() to ensure that LVTERR
+is masked when we write (potentially) null vectors to LVT entries.
 
-label=$(echo "$KERNELRELEASE" | cut -c1-15)
-if ! grep "label=$label\$" /etc/lilo.conf > /dev/null
-then
-  ed /etc/lilo.conf > /dev/null 2>&1 <<EODATA 
-/^image/
-i
-image=$CONFIG_INSTALL_PREFIX_NAME$CONFIG_INSTALL_KERNEL_NAME
-	label=$label
-	optional
+(Non-broken UP BIOSen often boot the kernel with LVTERR null and masked,
+and leave LVTERR alone at PM suspend/resume, so _usually_ the errors just
+show up as annoying kernel messages. It is, however, an extremely bad
+idea to rely on the BIOS to mask errors caused the kernel itself.)
 
-.
-w
-q
-EODATA
-  if [ ! $? ]
-  then
-    echo edit of /etc/lilo.conf failed
-    exit 1
-  fi
-fi
-lilo
+/Mikael
 
-
-The problem with embedding boot loader data in kbuild is that everybody
-wants their boot to do something slightly different.  In the past they
-had to patch the kernel makefiles to do what they wanted, which shows
-it was a bad design.
-
-In kbuild 2.5, lilo users invoke scripts/lilo_new_kernel as the post
-install script.  If they want something different, copy lilo_new_kernel
-to their own directory and tell kbuild to use the local copy.  No more
-patching kernel makefiles for local changes.
-
-grub will be handled the same.  kbuild 2.5 can supply a sample
-scripts/grub_new_kernel which users can use as is or copy and change to
-their own requirements.  I will take a sample grub script, I will not
-take a new target in the makefiles.
-
+--- linux-2.4.17-apicfixes/arch/i386/kernel/apic.c.~1~	Fri Nov 23 22:40:14 2001
++++ linux-2.4.17-apicfixes/arch/i386/kernel/apic.c	Sun Dec 23 15:09:06 2001
+@@ -56,6 +56,14 @@
+ 	maxlvt = get_maxlvt();
+ 
+ 	/*
++	 * Masking an LVT entry on a P6 can trigger a local APIC error
++	 * if the vector is zero. Mask LVTERR first to prevent this.
++	 */
++	if (maxlvt >= 3) {
++		v = ERROR_APIC_VECTOR; /* any non-zero vector will do */
++		apic_write_around(APIC_LVTERR, v | APIC_LVT_MASKED);
++	}
++	/*
+ 	 * Careful: we have to set masks only first to deassert
+ 	 * any level-triggered sources.
+ 	 */
+@@ -65,10 +73,6 @@
+ 	apic_write_around(APIC_LVT0, v | APIC_LVT_MASKED);
+ 	v = apic_read(APIC_LVT1);
+ 	apic_write_around(APIC_LVT1, v | APIC_LVT_MASKED);
+-	if (maxlvt >= 3) {
+-		v = apic_read(APIC_LVTERR);
+-		apic_write_around(APIC_LVTERR, v | APIC_LVT_MASKED);
+-	}
+ 	if (maxlvt >= 4) {
+ 		v = apic_read(APIC_LVTPC);
+ 		apic_write_around(APIC_LVTPC, v | APIC_LVT_MASKED);
+@@ -84,6 +88,8 @@
+ 		apic_write_around(APIC_LVTERR, APIC_LVT_MASKED);
+ 	if (maxlvt >= 4)
+ 		apic_write_around(APIC_LVTPC, APIC_LVT_MASKED);
++	apic_write(APIC_ESR, 0);
++	v = apic_read(APIC_ESR);
+ }
+ 
+ void __init connect_bsp_APIC(void)
+@@ -480,6 +486,7 @@
+ 	l &= ~MSR_IA32_APICBASE_BASE;
+ 	l |= MSR_IA32_APICBASE_ENABLE | APIC_DEFAULT_PHYS_BASE;
+ 	wrmsr(MSR_IA32_APICBASE, l, h);
++	apic_write(APIC_LVTERR, ERROR_APIC_VECTOR | APIC_LVT_MASKED);
+ 	apic_write(APIC_ID, apic_pm_state.apic_id);
+ 	apic_write(APIC_DFR, apic_pm_state.apic_dfr);
+ 	apic_write(APIC_LDR, apic_pm_state.apic_ldr);
+@@ -487,15 +494,15 @@
+ 	apic_write(APIC_SPIV, apic_pm_state.apic_spiv);
+ 	apic_write(APIC_LVT0, apic_pm_state.apic_lvt0);
+ 	apic_write(APIC_LVT1, apic_pm_state.apic_lvt1);
++	apic_write(APIC_LVTPC, apic_pm_state.apic_lvtpc);
++	apic_write(APIC_LVTT, apic_pm_state.apic_lvtt);
++	apic_write(APIC_TDCR, apic_pm_state.apic_tdcr);
++	apic_write(APIC_TMICT, apic_pm_state.apic_tmict);
+ 	apic_write(APIC_ESR, 0);
+ 	apic_read(APIC_ESR);
+ 	apic_write(APIC_LVTERR, apic_pm_state.apic_lvterr);
+ 	apic_write(APIC_ESR, 0);
+ 	apic_read(APIC_ESR);
+-	apic_write(APIC_LVTPC, apic_pm_state.apic_lvtpc);
+-	apic_write(APIC_LVTT, apic_pm_state.apic_lvtt);
+-	apic_write(APIC_TDCR, apic_pm_state.apic_tdcr);
+-	apic_write(APIC_TMICT, apic_pm_state.apic_tmict);
+ 	__restore_flags(flags);
+ 	if (apic_pm_state.perfctr_pmdev)
+ 		pm_send(apic_pm_state.perfctr_pmdev, PM_RESUME, data);

@@ -1,436 +1,162 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130582AbQKJNCj>; Fri, 10 Nov 2000 08:02:39 -0500
+	id <S130805AbQKJNKl>; Fri, 10 Nov 2000 08:10:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130640AbQKJNC3>; Fri, 10 Nov 2000 08:02:29 -0500
-Received: from vill.ha.smisk.nu ([212.75.83.8]:31241 "HELO mail.smisk.nu")
-	by vger.kernel.org with SMTP id <S130582AbQKJNCU>;
-	Fri, 10 Nov 2000 08:02:20 -0500
-Message-ID: <006a01c04b16$7725e5f0$020a0a0a@totalmef>
-From: "Magnus Naeslund\(b\)" <mag@bahnhof.se>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: Oops on 2.2.17 (and 2.2.18pre20)
-Date: Fri, 10 Nov 2000 14:02:22 +0100
+	id <S130693AbQKJNKc>; Fri, 10 Nov 2000 08:10:32 -0500
+Received: from boss.staszic.waw.pl ([195.205.163.66]:3859 "EHLO
+	boss.staszic.waw.pl") by vger.kernel.org with ESMTP
+	id <S130805AbQKJNKX>; Fri, 10 Nov 2000 08:10:23 -0500
+Date: Fri, 10 Nov 2000 14:10:22 +0100 (CET)
+From: Bartlomiej Zolnierkiewicz <dake@staszic.waw.pl>
+To: linux-kernel@vger.kernel.org
+cc: torvalds@transmeta.com, jgarzik@mandrakesoft.com, rkroll@exploits.org
+Subject: [PATCH] media/radio hit 2
+Message-ID: <Pine.LNX.4.21.0011101407210.3342-101000@tricky>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-853808379-973861822=:3342"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello i got me several nasty oopses on my heavily loaded webserver.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-[1.] One line summary of the problem:
-
-I get a oops that seems to generate more oops.
-My logs are full of them bastards.
-I hate them. GRRR.
-
-[2.] Full description of the problem/report:
-
-I recently upgraded my box to 1GB of mem, and upgraded to 2.2.18pre20 +
-andreas VM-Global patch.
-The only thing i changed was to turn on (ip) firewall.
-I then got a oops.
-Thinking nothing of it i reverted to 2.2.17 (turned on firewalling there
-too) thinking it was a pre20 or VM-Global problem.
-Then i got this never ending oops loop.
-Some parts of the system still worked (especially the part mailing me all
-the oopses = 300MB of logs :)).
-I wonder if has something to do with the memory?
-How do i check for bad ram?
-Does 1GB break something?
-
-[3.] Keywords (i.e., modules, networking, kernel):
-
-eepro100,firewalling,2.2.17,2.2.18pre20,SMP,1GB
-
-[4.] Kernel version (from /proc/version):
-
-Linux version 2.2.17 (root@gimme.smisk.nu) (gcc version egcs-2.91.66
-19990314/Linux (egcs-1.1.2 release)) #4 SMP Thu Nov 9 07:21:07 CET 2000
-
-[5.] Output of Oops..
-
-I have several megs of oops if anyone wants them.
-Ksymoops complained about:
-/usr/bin/nm: /lib/modules/2.2.17/build/arch/i386/boot/bbootsect.o: File
-format not recognized
-/usr/src/linux/scripts/ksymoops/ksymoops: read_nm_symbols pclose failed
-0x100
-
-and alot about stuff like this:
-
-Warning: ksyms_base symbol EISA_bus_Rsmp_7413793a not found in System.map.
-Ignoring ksyms_base entry
-Warning: ksyms_base symbol MCA_bus_Rsmp_f48a2c4c not found in System.map.
-Ignoring ksyms_base entry
-
-The Oopses:
-Nov 10 09:05:48 gimme kernel: current->tss.cr3 = 31f25000, %%cr3 = 31f25000
-Nov 10 09:05:48 gimme kernel: *pde = 32556067
-Nov 10 09:05:48 gimme kernel: Oops: 0000
-Nov 10 09:05:48 gimme kernel: CPU:    1
-Nov 10 09:05:48 gimme kernel: EIP:    0010:[do_follow_link+39/408]
-Nov 10 09:05:48 gimme kernel: EFLAGS: 00010206
-Nov 10 09:05:48 gimme kernel: eax: c9dd3e60   ebx: c9dd3e60   ecx: 000c0024
-edx: eb374c00
-Nov 10 09:05:48 gimme kernel: esi: c71387a0   edi: c9dd3e60   ebp: 00000001
-esp: f2bcff20
-Nov 10 09:05:48 gimme kernel: ds: 0018   es: 0018   ss: 0018
-Nov 10 09:05:48 gimme kernel: Process postmaster (pid: 23613, process nr:
-192, stackpage=f2bcf000)
-Nov 10 09:05:48 gimme kernel: Stack: c60b0035 00000001 c012ff5b c71387a0
-c9dd3e60 00000001 e4f362a0 ffffffe9
-Nov 10 09:05:48 gimme kernel:        c60b0000 00000003 c60b001f 00000016
-8bc1bd82 c01300ae c60b0000 c71387a0
-Nov 10 09:05:48 gimme kernel:        00000001 e4f362a0 ffffffe9 c60b0000
-00000028 f2bce000 00001000 0000002e
-Nov 10 09:05:48 gimme kernel: Call Trace: [lookup_dentry+351/488]
-[open_namei+114/1248] [filp_open+68/240] [sys_open+82/172]
-[system_call+52/56]
-Nov 10 09:05:48 gimme kernel: Code: 8b 41 64 85 c0 0f 84 54 01 00 00 83 78
-2c 00 0f 84 4a 01 00
-Warning: trailing garbage ignored on Code: line
-  Text: 'Code: 8b 41 64 85 c0 0f 84 54 01 00 00 83 78 2c 00 0f 84 4a 01 00
-'
-  Garbage: '  '
-
-Code:  00000000 Before first symbol            00000000 <_IP>: <===
-Code:  00000000 Before first symbol               0:    8b 41 64
-movl   0x64(%ecx),%eax <===
-Code:  00000003 Before first symbol               3:    85 c0
-testl  %eax,%eax
-Code:  00000005 Before first symbol               5:    0f 84 54 01 00 00
-je      0000015f Before first symbol
-Code:  0000000b Before first symbol               b:    83 78 2c 00
-cmpl   $0x0,0x2c(%eax)
-Code:  0000000f Before first symbol               f:    0f 84 4a 01 00 00
-je      0000015f Before first symbol
-
-Nov 10 09:05:48 gimme kernel: Unable to handle kernel paging request at
-virtual address 000c0088
-Nov 10 09:05:48 gimme kernel: current->tss.cr3 = 324ea000, %%cr3 = 324ea000
-Nov 10 09:05:48 gimme kernel: *pde = 2f89c067
-Nov 10 09:05:48 gimme kernel: Oops: 0000
-Nov 10 09:05:48 gimme kernel: CPU:    0
-Nov 10 09:05:48 gimme kernel: EIP:    0010:[do_follow_link+39/408]
-Nov 10 09:05:48 gimme kernel: EFLAGS: 00010206
-Nov 10 09:05:48 gimme kernel: eax: c9dd3e60   ebx: c9dd3e60   ecx: 000c0024
-edx: eb374c00
-Nov 10 09:05:48 gimme kernel: esi: c71387a0   edi: c9dd3e60   ebp: 00000001
-esp: f2bcff20
-Nov 10 09:05:48 gimme kernel: ds: 0018   es: 0018   ss: 0018
-Nov 10 09:05:48 gimme kernel: Process postmaster (pid: 23615, process nr:
-192, stackpage=f2bcf000)
-Nov 10 09:05:48 gimme kernel: Stack: c77d7035 00000001 c012ff5b c71387a0
-c9dd3e60 00000001 c329d1e0 ffffffe9
-Nov 10 09:05:48 gimme kernel:        c77d7000 00000003 c77d701f 00000016
-8bc1bd82 c01300ae c77d7000 c71387a0
-Nov 10 09:05:48 gimme kernel:        00000001 c329d1e0 ffffffe9 c77d7000
-00000028 f2bce000 00001000 0000002e
-Nov 10 09:05:48 gimme kernel: Call Trace: [lookup_dentry+351/488]
-[open_namei+114/1248] [filp_open+68/240] [sys_open+82/172]
-[system_call+52/56]
-Nov 10 09:05:48 gimme kernel: Code: 8b 41 64 85 c0 0f 84 54 01 00 00 83 78
-2c 00 0f 84 4a 01 00
-Warning: trailing garbage ignored on Code: line
-  Text: 'Code: 8b 41 64 85 c0 0f 84 54 01 00 00 83 78 2c 00 0f 84 4a 01 00
-'
-  Garbage: '  '
-
-Code:  00000000 Before first symbol            00000000 <_IP>: <===
-Code:  00000000 Before first symbol               0:    8b 41 64
-movl   0x64(%ecx),%eax <===
-Code:  00000003 Before first symbol               3:    85 c0
-testl  %eax,%eax
-Code:  00000005 Before first symbol               5:    0f 84 54 01 00 00
-je      0000015f Before first symbol
-Code:  0000000b Before first symbol               b:    83 78 2c 00
-cmpl   $0x0,0x2c(%eax)
-Code:  0000000f Before first symbol               f:    0f 84 4a 01 00 00
-je      0000015f Before first symbol
-
-Nov 10 09:05:50 gimme kernel: Unable to handle kernel paging request at
-virtual address 000c0088
-Nov 10 09:05:50 gimme kernel: current->tss.cr3 = 07699000, %%cr3 = 07699000
-Nov 10 09:05:50 gimme kernel: *pde = 32d08067
-Nov 10 09:05:50 gimme kernel: Oops: 0000
-Nov 10 09:05:50 gimme kernel: CPU:    1
-Nov 10 09:05:50 gimme kernel: EIP:    0010:[do_follow_link+39/408]
-Nov 10 09:05:50 gimme kernel: EFLAGS: 00010206
-Nov 10 09:05:50 gimme kernel: eax: c9dd3e60   ebx: c9dd3e60   ecx: 000c0024
-edx: eb374c00
-Nov 10 09:05:50 gimme kernel: esi: c71387a0   edi: c9dd3e60   ebp: 00000001
-esp: f26a5f20
-Nov 10 09:05:50 gimme kernel: ds: 0018   es: 0018   ss: 0018
-Nov 10 09:05:50 gimme kernel: Process postmaster (pid: 23621, process nr:
-133, stackpage=f26a5000)
-Nov 10 09:05:50 gimme kernel: Stack: f2970035 00000001 c012ff5b c71387a0
-c9dd3e60 00000001 c7ea2200 ffffffe9
-Nov 10 09:05:50 gimme kernel:        f2970000 00000003 f297001f 00000016
-8bc1bd82 c01300ae f2970000 c71387a0
-Nov 10 09:05:50 gimme kernel:        00000001 c7ea2200 ffffffe9 f2970000
-00000028 f26a4000 00001000 0000002e
-Nov 10 09:05:50 gimme kernel: Call Trace: [lookup_dentry+351/488]
-[open_namei+114/1248] [filp_open+68/240] [sys_open+82/172]
-[system_call+52/56]
-Nov 10 09:05:50 gimme kernel: Code: 8b 41 64 85 c0 0f 84 54 01 00 00 83 78
-2c 00 0f 84 4a 01 00
-Warning: trailing garbage ignored on Code: line
-  Text: 'Code: 8b 41 64 85 c0 0f 84 54 01 00 00 83 78 2c 00 0f 84 4a 01 00
-'
-  Garbage: '  '
-
-Code:  00000000 Before first symbol            00000000 <_IP>: <===
-Code:  00000000 Before first symbol               0:    8b 41 64
-movl   0x64(%ecx),%eax <===
-Code:  00000003 Before first symbol               3:    85 c0
-testl  %eax,%eax
-Code:  00000005 Before first symbol               5:    0f 84 54 01 00 00
-je      0000015f Before first symbol
-Code:  0000000b Before first symbol               b:    83 78 2c 00
-cmpl   $0x0,0x2c(%eax)
-Code:  0000000f Before first symbol               f:    0f 84 4a 01 00 00
-je      0000015f Before first symbol
-
-Nov 10 09:05:50 gimme kernel: Unable to handle kernel paging request at
-virtual address 000c0088
-Nov 10 09:05:50 gimme kernel: current->tss.cr3 = 05b93000, %%cr3 = 05b93000
-Nov 10 09:05:50 gimme kernel: *pde = 32cd9067
-Nov 10 09:05:50 gimme kernel: Oops: 0000
-Nov 10 09:05:50 gimme kernel: CPU:    0
-Nov 10 09:05:50 gimme kernel: EIP:    0010:[do_follow_link+39/408]
-Nov 10 09:05:50 gimme kernel: EFLAGS: 00010206
-Nov 10 09:05:50 gimme kernel: eax: c9dd3e60   ebx: c9dd3e60   ecx: 000c0024
-edx: eb374c00
-Nov 10 09:05:50 gimme kernel: esi: c71387a0   edi: c9dd3e60   ebp: 00000001
-esp: f26a5f20
-Nov 10 09:05:50 gimme kernel: ds: 0018   es: 0018   ss: 0018
-Nov 10 09:05:50 gimme kernel: Process postmaster (pid: 23623, process nr:
-133, stackpage=f26a5000)
-Nov 10 09:05:50 gimme kernel: Stack: f290a035 00000001 c012ff5b c71387a0
-c9dd3e60 00000001 ef9b20e0 ffffffe9
-Nov 10 09:05:50 gimme kernel:        f290a000 00000003 f290a01f 00000016
-8bc1bd82 c01300ae f290a000 c71387a0
-Nov 10 09:05:50 gimme kernel:        00000001 ef9b20e0 ffffffe9 f290a000
-00000028 f26a4000 00001000 0000002e
-Nov 10 09:05:50 gimme kernel: Call Trace: [lookup_dentry+351/488]
-[open_namei+114/1248] [filp_open+68/240] [sys_open+82/172]
-[system_call+52/56]
-Nov 10 09:05:50 gimme kernel: Code: 8b 41 64 85 c0 0f 84 54 01 00 00 83 78
-2c 00 0f 84 4a 01 00
-Warning: trailing garbage ignored on Code: line
-  Text: 'Code: 8b 41 64 85 c0 0f 84 54 01 00 00 83 78 2c 00 0f 84 4a 01 00
-'
-  Garbage: '  '
-
-Code:  00000000 Before first symbol            00000000 <_IP>: <===
-Code:  00000000 Before first symbol               0:    8b 41 64
-movl   0x64(%ecx),%eax <===
-Code:  00000003 Before first symbol               3:    85 c0
-testl  %eax,%eax
-Code:  00000005 Before first symbol               5:    0f 84 54 01 00 00
-je      0000015f Before first symbol
-Code:  0000000b Before first symbol               b:    83 78 2c 00
-cmpl   $0x0,0x2c(%eax)
-Code:  0000000f Before first symbol               f:    0f 84 4a 01 00 00
-je      0000015f Before first symbol
-
-[7.] Environment
-
-HOSTNAME=gimme.smisk.nu
-RESIN_HOME=/opt/resin
-HISTFILESIZE=0
-CLASSPATH=/usr/lib/java/jre/lib/rt.jar:.
-LESSKEY=/etc/.less
-PS1=[\u@\h \W]\$
-ENV=/root/.bashrc
-LESS=-MM
-USER=root
-LS_COLORS=no=00:fi=00:di=01;34:ln=01;36:pi=40;33:so=01;35:bd=40;33;01:cd=40;
-33;01:or=01;05;37;41:mi=01;05;37;41:ex=01;32:*.cmd=01;32:*.exe=01;32:*.com=0
-1;32:*.btm=01;32:*.bat=01;32:*.tar=01;31:*.tgz=01;31:*.tbz2=01;31:*.arc=01;3
-1:*.arj=01;31:*.taz=01;31:*.lzh=01;31:*.lha=01;31:*.zip=01;31:*.z=01;31:*.Z=
-01;31:*.gz=01;31:*.bz2=01;31:*.bz=01;31:*.tz=01;31:*.rpm=01;31:*.jpg=01;35:*
-.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.xbm=01;35:*.xpm=01;35:*.png=01;35:*.ti
-f=01;35:*.tiff=01;35:
-MACHTYPE=i586-mandrake-linux-gnu
-THREADS_FLAG=green
-MAIL=/var/spool/mail/root
-JAVA_COMPILER=javacomp
-INPUTRC=/etc/inputrc
-EDITOR=jed
-JAVAHOME=/usr/lib/java
-SSH_CLIENT=212.75.83.17 62252 22
-LOGNAME=root
-SHLVL=1
-SHELL=/bin/bash
-USERNAME=root
-HOSTTYPE=i586
-OSTYPE=linux-gnu
-HISTSIZE=1000
-HOME=/root
-TERM=ansi
-PATH=/sbin:/usr/sbin:/bin:/usr/bin:/usr/lib/java/bin:/usr/bin:/bin:/usr/bin:
-/usr/lib/java/bin:/usr/local/bin:/usr/local/sbin
-SSH_TTY=/dev/pts/4
-_=/usr/bin/env
-OLDPWD=/usr/src/linux
-
-[7.1.] Software (add the output of the ver_linux script here)
-
--- Versions installed: (if some fields are empty or looks
--- unusual then possibly you have very old versions)
-Linux gimme.smisk.nu 2.2.17 #4 SMP Thu Nov 9 07:21:07 CET 2000 i686 unknown
-Kernel modules         2.3.10-pre1
-Gnu C                  egcs-2.91.66
-Binutils               2.9.1.0.25
-Linux C Library        2.1.2
-Dynamic linker         ldd (GNU libc) 2.1.2
-Procps                 2.0.2
-Mount                  2.9w
-Net-tools              1.52
-Console-tools          0.2.0
-Sh-utils               2.0
-Modules Loaded         eepro100
-
-[7.2.] Processor information (from /proc/cpuinfo):
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 7
-model name      : Pentium III (Katmai)
-stepping        : 3
-cpu MHz         : 501.147
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-sep_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
-cmov pat pse36 mmx fxsr xmm
-bogomips        : 999.42
-
-processor       : 1
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 7
-model name      : Pentium III (Katmai)
-stepping        : 3
-cpu MHz         : 501.147
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-sep_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
-cmov pat pse36 mmx fxsr xmm
-bogomips        : 999.42
-
-[7.3.] Module information (from /proc/modules):
-
-eepro100               16656   1 (autoclean)
-
-[7.4.] SCSI information (from /proc/scsi/scsi)
-
-[root@gimme scripts]# cat /proc/scsi/scsi
-Attached devices:
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-  Vendor: IBM      Model: DNES-309170W     Rev: SA30
-  Type:   Direct-Access                    ANSI SCSI revision: 03
-Host: scsi0 Channel: 00 Id: 01 Lun: 00
-  Vendor: SEAGATE  Model: ST318451LW       Rev: 0002
-  Type:   Direct-Access                    ANSI SCSI revision: 03
-Host: scsi0 Channel: 00 Id: 03 Lun: 00
-  Vendor: SEAGATE  Model: ST318451LW       Rev: 0002
-  Type:   Direct-Access                    ANSI SCSI revision: 03
-Host: scsi0 Channel: 00 Id: 04 Lun: 00
-  Vendor: IBM      Model: DNES-318350W     Rev: SA30
-  Type:   Direct-Access                    ANSI SCSI revision: 03
-
-[root@gimme scripts]# cat /proc/scsi/aic7xxx/0
-Adaptec AIC7xxx driver version: 5.1.31/3.2.4
-Compile Options:
-  TCQ Enabled By Default : Enabled
-  AIC7XXX_PROC_STATS     : Disabled
-  AIC7XXX_RESET_DELAY    : 5
-
-Adapter Configuration:
-           SCSI Adapter: Adaptec AIC-7890/1 Ultra2 SCSI host adapter
-                           Ultra-2 LVD/SE Wide Controller at PCI 0/6/0
-    PCI MMAPed I/O Base: 0xe1000000
- Adapter SEEPROM Config: SEEPROM found and used.
-      Adaptec SCSI BIOS: Enabled
-                    IRQ: 7
-                   SCBs: Active 0, Max Active 44,
-                         Allocated 75, HW 32, Page 255
-             Interrupts: 2866085
-      BIOS Control Word: 0x10a4
-   Adapter Control Word: 0x1c5e
-   Extended Translation: Enabled
-Disconnect Enable Flags: 0xffff
-     Ultra Enable Flags: 0x0000
- Tag Queue Enable Flags: 0x001b
-Ordered Queue Tag Flags: 0x001b
-Default Tag Queue Depth: 16
-    Tagged Queue By Device array for aic7xxx host instance 0:
-      {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
-    Actual queue depth per device for aic7xxx host instance 0:
-      {16,16,1,16,16,1,1,1,1,1,1,1,1,1,1,1}
-
-Statistics:
-
-(scsi0:0:0:0)
-  Device using Wide/Sync transfers at 80.0 MByte/sec, offset 31
-  Transinfo settings: current(10/31/1/0), goal(10/127/1/0), user(10/127/1/0)
-  Total transfers 35374 (9715 reads and 25659 writes)
+--8323328-853808379-973861822=:3342
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
 
-(scsi0:0:1:0)
-  Device using Wide/Sync transfers at 80.0 MByte/sec, offset 63
-  Transinfo settings: current(10/63/1/0), goal(10/127/1/0), user(10/127/1/0)
-  Total transfers 2796285 (36205 reads and 2760080 writes)
+should be less controversial...
+[Russell forgive me insinuating these drivers unmantained...]
 
+Regards
+--
+Bartlomiej Zolnierkiewicz
+<bkz@linux-ide.org>
 
-(scsi0:0:3:0)
-  Device using Wide/Sync transfers at 80.0 MByte/sec, offset 63
-  Transinfo settings: current(10/63/1/0), goal(10/127/1/0), user(10/127/1/0)
-  Total transfers 16875 (357 reads and 16518 writes)
+--8323328-853808379-973861822=:3342
+Content-Type: APPLICATION/x-gzip; name="240t11p1-radio-2.diff.gz"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.21.0011101410220.3342@tricky>
+Content-Description: 
+Content-Disposition: attachment; filename="240t11p1-radio-2.diff.gz"
 
-
-(scsi0:0:4:0)
-  Device using Wide/Sync transfers at 80.0 MByte/sec, offset 31
-  Transinfo settings: current(10/31/1/0), goal(10/127/1/0), user(10/127/1/0)
-  Total transfers 17584 (16956 reads and 628 writes)
-
-
-
-Tell me if i can assist any more...
-
-
-Magnus Naeslund
-
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
- Programmer/Networker [|] Magnus Naeslund
- PGP Key: http://www.genline.nu/mag_pgp.txt
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-
+H4sICGXyCzoAA2d6ZWQuOTczODYxNDc3AO1de3PaRtf/G3+KrTtNoAgsxMWA
+4zSOjRue2saDcS7tm2FkIWyNQeKVBLH7TL77e/YiaSXtgoTTvJk0mRaBtJez
+Z8/ld87uyhNrOkWV5YWLZpa9fKhoDdWv1Ra1vYlrrUzX25ubE0vfc/WJ5dDP
+im7NvZl+UzVolSwldyqVyhYdFEZLEw0MH6E6UtVubb9b7yBNVdWdcrmcvffC
+6G6JLpwVQlBb69Zb3YZKm3n1ClW0faXWRGV82UevXu0g9CtC+HNvB+1UfrZs
+Y7acmOgF7W7uTJYzs3r3srD3KzonPzxUKBSgdKqsZVs+LomL9uH7RPd1WVFn
+4bg+a9a4M437sWveWo6tINf836Xp+ey3sPbEnOmPrPKS/Eh1o3tz6CSgxln6
+Nwr5HC+ERZe6YZieFxDkLB6R7+xNXWeOlp7pigexsiamMzFXrNa96drmDJHJ
+QJ7vLg3fE1c0HHtq3bJqx4OL0/7v4+HRSX8wHo6GR8d/jC8HwxESkOmZc31x
+57jBhJw5xj2aOi7y70zU3xsg0l9ZOonpR2zOBA+CGUo/CtjPPwn5nbwZcTbd
+EMfA9MOQSckWeSbslOHpxJxatokY74CLvfej3sWooD6oGsg0+tma2lBGymko
+wZqQzkWlRnSnXt9X6ioq1+sdRWsR7dmBqdZ9y0CW7aPxGPMTub6rg0Tj78WV
+Y01KO+i/O5WCNS1azuFhpVaCH/hGYeFCrfviH73hxbg3HKLdD84SzZeejzzT
+R7pN5lSfTFzgIPpk+XcIGlAffvvtt/+xd0sHO2XaJjo8BApL0ElZ0Calpose
+87UNsuSa/tK1UaXXv3h7dIZvfd6pkIGgIq+0QIKCtFIJkXGVyfOf4npMiiRn
+SAmI2y1h4tEa4rEwIvXhlwekz1xTnzwCv7FqAq0KEJ6g9/X11QdKLsxPgU0H
+Ucwq9LA6fMZuLWGGDoBoOjlEHAm9nm+6YxBMyzCLz/jqCnp7ejYefbjsUSEp
+0eks05nYpoHY3LnmzNQ9cx3PxDMDsgT/C1iucTzG8gIciTG5f3E6QLtH/fMr
+cB1oiEkc4dJ75OvQXJn6DBm6O0HU8VSZcEAzYH+uQJKWi9D6zMAcWfYtdiXA
+U1TACjA+vx713hef4WclwusyOBtceb70Tdp0BS1c6Mn2PWQ7lveIbhzHXy48
+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
+AA==
+--8323328-853808379-973861822=:3342--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

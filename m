@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131579AbRAUSee>; Sun, 21 Jan 2001 13:34:34 -0500
+	id <S132104AbRAUSkI>; Sun, 21 Jan 2001 13:40:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132104AbRAUSeZ>; Sun, 21 Jan 2001 13:34:25 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:37638 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S131579AbRAUSeI>;
-	Sun, 21 Jan 2001 13:34:08 -0500
-Message-ID: <3A6B2B86.5A0C760@mandrakesoft.com>
-Date: Sun, 21 Jan 2001 13:33:42 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre8 i686)
-X-Accept-Language: en
+	id <S132204AbRAUSj6>; Sun, 21 Jan 2001 13:39:58 -0500
+Received: from [64.160.188.242] ([64.160.188.242]:4114 "HELO
+	mail.hislinuxbox.com") by vger.kernel.org with SMTP
+	id <S132104AbRAUSjk>; Sun, 21 Jan 2001 13:39:40 -0500
+Date: Sun, 21 Jan 2001 10:39:38 -0800 (PST)
+From: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
+To: "John O'Donnell" <johnod@voicefx.com>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, merlin@mwob.org.uk,
+        linux-kernel@vger.kernel.org
+Subject: Re: VIA chipset discussion
+In-Reply-To: <3A686E59.AB37B478@voicefx.com>
+Message-ID: <Pine.LNX.4.21.0101211038440.3439-100000@ns-01.hislinuxbox.com>
 MIME-Version: 1.0
-To: idalton@ferret.phonewave.net
-CC: egger@suse.de, burnus@gmx.de, linux-kernel@vger.kernel.org
-Subject: Re: Ethernet drivers: SiS 900, Netgear FA311
-In-Reply-To: <3A6A2D8D.D55655D5@mandrakesoft.com> <20010121134822.A46D4735B@Nicole.muc.suse.de> <20010121102315.A16586@ferret.phonewave.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-idalton@ferret.phonewave.net wrote:
+On Fri, 19 Jan 2001, John O'Donnell wrote:
+
+I also have APM disabled. (I don't think APM support is useful on a server
+so I default disable it.)
+
+
+
 > 
-> On Sun, Jan 21, 2001 at 01:54:34PM +0100, egger@suse.de wrote:
-> > On 20 Jan, Jeff Garzik wrote:
-> >
-> > > Not true, see natsemi.c (in 2.4.x at least).
-> >
-> >  Correct, and the cards really work with it.
+> Forgive me.  I know _nothing_ about Power Management resources.
+> What kind of resouces would PM use to interfere with the mouse.
+> FYI I have power management turned off in my BIOS and in the kernel
+> I have CONFIG_APM and ONLY  CONFIG_APM_REAL_MODE_POWER_OFF.
+> How does that compare with the rest of you?
+> Johnny O
 > 
-> natsemi did not work with 2.2.17 on a remote system I do work on, but
-> did work with the 2.4.0-included driver. Wonder if it'll be making it
-> into 2.2.x soon..
+> 
 
-It is available for 2.2 from http://www.scyld.com/network/ ...  All I
-did was port the Becker driver to 2.4.
-
-If someone wants to port his driver into 2.2.latest, I'm sure people
-will be happy..
-
-	Jeff
-
-
--- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

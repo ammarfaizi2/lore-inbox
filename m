@@ -1,52 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261294AbTFHJoM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jun 2003 05:44:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbTFHJoM
+	id S261280AbTFHJhD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jun 2003 05:37:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbTFHJhC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jun 2003 05:44:12 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:1441 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261294AbTFHJoL
+	Sun, 8 Jun 2003 05:37:02 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:65292 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S261280AbTFHJhA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jun 2003 05:44:11 -0400
-Date: Sun, 8 Jun 2003 11:57:04 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Andi Kleen <ak@suse.de>
-cc: <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: taskfile merge breaking suse hwscan
-In-Reply-To: <20030608082451.GA21200@wotan.suse.de>
-Message-ID: <Pine.SOL.4.30.0306081149140.4589-100000@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 8 Jun 2003 05:37:00 -0400
+Date: Sun, 8 Jun 2003 11:47:29 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Clayton Weaver <cgweav@email.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.21-rc7
+Message-ID: <20030608094729.GA29484@alpha.home.local>
+References: <20030608085448.31378.qmail@email.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030608085448.31378.qmail@email.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi !
 
-On Sun, 8 Jun 2003, Andi Kleen wrote:
+[ first, please fix your mailer and cut your lines, it's not easy to quote you in replies ]
 
-> I just tried to boot a recent 2.5 amd64 kernel. Result is that it is
-> hanging at boot during SuSE 8.2 hwscan.
->
-> Backtrace points to the new IDE taskfile code:
->
-> hwscan        D 0000000000000000 18446744073706259928   861    847                     (NOTLB)
->
-> Call Trace:<ffffffff80136137>{wait_for_completion+439} <ffffffff802fca2d>{start_request+253}
->        <ffffffff80135910>{default_wake_function+0} <ffffffff802fce94>{ide_do_request+996}
->        <ffffffff80135910>{default_wake_function+0} <ffffffff802fdf36>{ide_do_drive_cmd+710}
->        <ffffffff801cc440>{proc_alloc_inode+64} <ffffffff80303a4b>{ide_diag_taskfile+203}
->        <ffffffff803023f1>{taskfile_lib_get_identify+97} <ffffffff80302e40>{task_in_intr+0}
->        <ffffffff8031477f>{proc_ide_read_identify+111} <ffffffff801d128a>{proc_file_read+234}
->        <ffffffff8018c1b6>{vfs_read+198} <ffffffff8018c3f9>{sys_read+73}
->        <ffffffff80122f06>{ia32_do_syscall+30}
-> hdc: lost interrupt
+On Sun, Jun 08, 2003 at 03:54:48AM -0500, Clayton Weaver wrote:
+> > Now I really hope its the last one, all this
+> > rc's are making me mad.
+> 
+> We still have ide problems, and I don't see any
+> potential fixes for that in the changelog between -rc6 and -rc7.
+> 
+> I tried -rc6 on a whim and had hda report
+> a timeout (dma, I think, but the message went by kind of quick), then the big freeze with the
+> disk light stuck on,  Never happened in 6 months on the same hardware running
+> 2.4.19-rc2 (with glibc-2.2.5, gcc-2.95.3, binutils-2.12.90.0.9, all ext2 filesystems).
 
-hwscan is trying to read /proc/ide/hdX/identify.
-Are you sure its taskfile merge, not something else?
+Did you try with "ide0=nodma", or other similar options ?
 
-> Followed by more lost interrupt messages.
->
-> Any ideas?
->
-> -Andi
+> SiS530/5513, k6-II/450, udma33 Maxtor drive that 2.4.19-rc2 has no problems with.
+
+That's not exactly what you said below. You said that you could reliably kill it with 32 threads...
+Perhaps you have a broken hardware, and 2.4.21 stresses it more than 2.4.19-rc2. Perhaps it's
+really an old driver bug, then having reported it since this you encountered it would have been
+more constructive than telling us at 2.4.21 time that it dies even more easily than a one year old
+2.4.19-rc2.
+
+> You can release a 2.4.21 anyway, of course, but without finding out where the ide livelock (and other big freezes, thinking of the report on the all-scsi system already posted) originates, calling it "stable" would be a bit fanciful.
+
+That's what -pre and -rc are for : bug reports. The ide code has been included in 2.4.21-pre1,
+several months ago. There's always a risk of breaking someone's setup, but obviously, if people
+don't try pre-releases and don't report problems in time, how could they hope to get a stable
+kernel on their hardware ?
+
+> Not what you wanted to hear, right? Oh well.
+> 
+> (Better to find out sooner than release
+> 2.4.21-stable and watch 52 different bug reports on it arrive at the list the next day.)
+
+Well, look through the archives, there have been two patches by Lionel Bouton and Vojtech Pavlik
+posted in May for the 5513 driver, to support newer chipsets. I don't know if they have been
+included, nor if they also fixed old bugs. Perhaps you'll be intersted in checking them.
+
+BTW, someone reported yesterday that his 5513 worked flawlessly in 2.4.20, but behaved like yours
+on 2.5.70. Have you tested 2.4.20, or better, have you tried to narrow the problem down to a
+particular version (but I bet it will be tied to the introduction of the newer IDE code).
+
+You may also try -ac kernels which have more recent, but less tested code.
+
+Regards,
+Willy
 

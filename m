@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266341AbUHIIgC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266344AbUHIIhh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266341AbUHIIgC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 04:36:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266344AbUHIIf6
+	id S266344AbUHIIhh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 04:37:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266273AbUHIIhh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 04:35:58 -0400
-Received: from holomorphy.com ([207.189.100.168]:58333 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S266334AbUHIIdp (ORCPT
+	Mon, 9 Aug 2004 04:37:37 -0400
+Received: from mail.tpgi.com.au ([203.12.160.103]:1723 "EHLO mail.tpgi.com.au")
+	by vger.kernel.org with ESMTP id S266344AbUHIIhT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 04:33:45 -0400
-Date: Mon, 9 Aug 2004 01:33:39 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Rick Lindsley <ricklind@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc3-mm2
-Message-ID: <20040809083339.GK11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Rick Lindsley <ricklind@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20040808152936.1ce2eab8.akpm@osdl.org> <200408090820.i798Kbj07417@owlet.beaverton.ibm.com> <20040809082926.GJ11200@holomorphy.com>
+	Mon, 9 Aug 2004 04:37:19 -0400
+Subject: Re: [2.6.8-rc2-mm2] swsusp results on a hp compaq nx7000
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: crow@old-fsckful.ath.cx, mochel@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040808182440.GB620@elf.ucw.cz>
+References: <20040804120303.GA1828@final-judgement.ath.cx>
+	 <20040806201107.GD30518@elf.ucw.cz>
+	 <20040808092853.GC26305@old-fsckful.ath.cx>
+	 <20040808182440.GB620@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1092039852.28673.5.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040809082926.GJ11200@holomorphy.com>
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Mon, 09 Aug 2004 18:24:12 +1000
+Content-Transfer-Encoding: 7bit
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 09, 2004 at 01:29:26AM -0700, William Lee Irwin III wrote:
-> Initializing NODE_DATA(nid)->node_mem_map prior to calling it should do.
+Hi.
 
-Not sure why the first call didn't show up in the patch.
+On Mon, 2004-08-09 at 04:24, Pavel Machek wrote:
+> Hi!
+> 
+> > > > * locking with regard to preemption seems so be broken
+> 
+> I see it here, too.
+> 
+> > > > * ohci1394 seems to generate sporadic OOPs on resume (could be
+> > > >   preemption related)
+> 
+> I do not have firewire device to test with... There seem to be very
+> little of those beasts around, so I propose to ignore firewire for
+> now.
 
+I have firewire hardware but no actual devices to plug in. Is that any
+help at all when it comes to testing? (I'm not building any support in
+or as modules at the moment).
 
-Index: mm2-2.6.8-rc3/arch/i386/mm/discontig.c
-===================================================================
---- mm2-2.6.8-rc3.orig/arch/i386/mm/discontig.c	2004-08-08 15:39:24.000000000 -0700
-+++ mm2-2.6.8-rc3/arch/i386/mm/discontig.c	2004-08-09 01:18:30.750614368 -0700
-@@ -418,15 +418,15 @@
- 		 * remapped KVA area - mbligh
- 		 */
- 		if (!nid)
--			free_area_init_node(nid, NODE_DATA(nid), 0, 
--				zones_size, start, zholes_size);
-+			free_area_init_node(nid, NODE_DATA(nid),
-+					zones_size, start, zholes_size);
- 		else {
- 			unsigned long lmem_map;
- 			lmem_map = (unsigned long)node_remap_start_vaddr[nid];
- 			lmem_map += sizeof(pg_data_t) + PAGE_SIZE - 1;
- 			lmem_map &= PAGE_MASK;
--			free_area_init_node(nid, NODE_DATA(nid), 
--				(struct page *)lmem_map, zones_size, 
-+			NODE_DATA(nid)->node_mem_map = (struct page *)lmem_map;
-+			free_area_init_node(nid, NODE_DATA(nid), zones_size, 
- 				start, zholes_size);
- 		}
- 	}
+Nigel
+

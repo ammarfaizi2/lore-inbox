@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130357AbRCBIuj>; Fri, 2 Mar 2001 03:50:39 -0500
+	id <S130368AbRCBI4l>; Fri, 2 Mar 2001 03:56:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130368AbRCBIu2>; Fri, 2 Mar 2001 03:50:28 -0500
-Received: from WARSL401PIP1.highway.telekom.at ([195.3.96.69]:3105 "HELO
-	email01.aon.at") by vger.kernel.org with SMTP id <S130357AbRCBIuP>;
-	Fri, 2 Mar 2001 03:50:15 -0500
-Date: Fri, 2 Mar 2001 09:48:54 +0100
-From: Eduard Hasenleithner <eduardh@aon.at>
-To: linux-kernel@vger.kernel.org
-Subject: Re: How to set hdparms for ide-scsi devices on devfs?
-Message-ID: <20010302094854.A19782@moserv.hasi>
-Mail-Followup-To: Eduard Hasenleithner <eduardh@aon.at>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010228224850.A10608@moserv.hasi> <Pine.LNX.4.10.10103010310070.6914-100000@master.linux-ide.org>
+	id <S130375AbRCBI4c>; Fri, 2 Mar 2001 03:56:32 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:53266 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S130368AbRCBI4T>; Fri, 2 Mar 2001 03:56:19 -0500
+Date: Fri, 2 Mar 2001 09:56:08 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Tigran Aivazian <tigran@veritas.com>
+Cc: Alexander Viro <viro@math.psu.edu>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Hashing and directories
+Message-ID: <20010302095608.G15061@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <Pine.GSO.4.21.0103011547200.11577-100000@weyl.math.psu.edu> <Pine.LNX.4.21.0103012103140.754-100000@penguin.homenet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10103010310070.6914-100000@master.linux-ide.org>; from andre@linux-ide.org on Thu, Mar 01, 2001 at 03:10:53AM -0800
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <Pine.LNX.4.21.0103012103140.754-100000@penguin.homenet>; from tigran@veritas.com on Thu, Mar 01, 2001 at 09:05:34PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 01, 2001 at 03:10:53AM -0800, Andre Hedrick wrote:
-> 
-> procfs
-> 
-> echo unmaskirq:1 /proc/ide/hdx/settings
-> 
+Hi!
 
-Thank you, thats perfect. Is setting the parameters a relatively
-new feature? I searched for a possibiliy like this and found no
-references.
+> > 	* userland issues (what, you thought that limits on the
+> > command size will go away?)
+> 
+> the space allowed for arguments is not a userland issue, it is a kernel
+> limit defined by MAX_ARG_PAGES in binfmts.h, so one could tweak it if one
+> wanted to without breaking any userland.
 
-PS: Is there still a possibility for setting the IDE-sleep timeout
-	for a ide-scsi harddisk?  (I know, this doesnt make sense)
+Which is exactly what I done on my system. 2MB for command line is
+very nice.
+								Pavel
 -- 
-Eduard Hasenleithner
-student of
-Salzburg University of Applied Sciences and Technologies
+The best software in life is free (not shareware)!		Pavel
+GCM d? s-: !g p?:+ au- a--@ w+ v- C++@ UL+++ L++ N++ E++ W--- M- Y- R+

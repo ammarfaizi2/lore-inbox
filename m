@@ -1,33 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277237AbRJVRuI>; Mon, 22 Oct 2001 13:50:08 -0400
+	id <S277246AbRJVRwS>; Mon, 22 Oct 2001 13:52:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277246AbRJVRt6>; Mon, 22 Oct 2001 13:49:58 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:7856 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S277237AbRJVRtr>;
-	Mon, 22 Oct 2001 13:49:47 -0400
-Date: Mon, 22 Oct 2001 13:50:13 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andrew Morton <akpm@zip.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] binfmt_misc.c, kernel-2.4.12
-In-Reply-To: <3BD45631.78C4D16F@zip.com.au>
-Message-ID: <Pine.GSO.4.21.0110221348010.4117-100000@weyl.math.psu.edu>
+	id <S277247AbRJVRwI>; Mon, 22 Oct 2001 13:52:08 -0400
+Received: from zeke.inet.com ([199.171.211.198]:51628 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id <S277246AbRJVRwA>;
+	Mon, 22 Oct 2001 13:52:00 -0400
+Message-ID: <3BD45CD6.3FAF65FB@inet.com>
+Date: Mon, 22 Oct 2001 12:52:22 -0500
+From: Eli Carter <eli.carter@inet.com>
+Organization: Inet Technologies, Inc.
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.19-6.2.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.20pre11
+In-Reply-To: <E15vin0-0002eh-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
+> 
+> > On Mon, Oct 22, 2001 at 11:21:49AM +0100, Alan Cox wrote:
+> > >
+> > > 2.2.20pre11
+> > > o   Security fixes
+> > >     | Details censored in accordance with the US DMCA
+> >
+> > http://marc.theaimsgroup.com/?l=bugtraq&m=100343090106914
+> 
+> There are other security related changes
 
+It just hit /.  I wondered how long it would take...
 
-On Mon, 22 Oct 2001, Andrew Morton wrote:
+Alan, you've made your point pretty clear to me with this stunt (no
+slight intended, I don't have a better word at the moment)...  Though I
+have reservations about the method.
 
-> Why is it necessary that the new binfmt_misc create its own
-> filesystem type, when all it seems to need is a couple of
-> /proc entries?
+Good luck against the /.'ers.  :/
 
-If it was so nice...  It needs to create and remove them upon
-write(2).  And doing that correctly via procfs is _not_ pretty.
-The damn thing is very bad at doing dynamic contents and when
-mixed with API of that weirdness...
-
+Eli, a U.S. developer
+--------------------.     Real Users find the one combination of bizarre
+Eli Carter           \ input values that shuts down the system for days.
+eli.carter(a)inet.com `-------------------------------------------------

@@ -1,87 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262288AbTJXQac (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 12:30:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262397AbTJXQac
+	id S262405AbTJXQf4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 12:35:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262406AbTJXQf4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 12:30:32 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:43716 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S262288AbTJXQaa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 12:30:30 -0400
-Date: Fri, 24 Oct 2003 18:29:59 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: davem@redhat.com
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, grof@dragon.cz
-Subject: possible bug in tcp_input.c
-Message-ID: <20031024162959.GB11154@louise.pinerecords.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Fri, 24 Oct 2003 12:35:56 -0400
+Received: from dslb138.fsr.net ([12.7.7.138]:36267 "EHLO sandall.us")
+	by vger.kernel.org with ESMTP id S262405AbTJXQfz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Oct 2003 12:35:55 -0400
+Message-ID: <1067013354.3f9954ea4b787@horde.sandall.us>
+Date: Fri, 24 Oct 2003 16:35:54 +0000
+From: Eric Sandall <eric@sandall.us>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] udev 005 release
+References: <XFMail.20031023103313.pochini@shiny.it> <3F980A16.1050309@nortelnetworks.com> <20031024095024.008e834f.jhigdon@nni.com>
+In-Reply-To: <20031024095024.008e834f.jhigdon@nni.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.2
+X-Originating-IP: 134.121.40.89
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David,
+Quoting jhigdon <jhigdon@nni.com>:
+> For those unfortunates who are to lazy to look, these might help: :)
+> 
+> http://www.kernel.org/pub/linux/utils/kernel/hotplug/udev-FAQ/
+<snip>
 
-We came up with the attached patch during a hectic oops tracing session
-that got started by our sysadmin writing down an oops using the pen & paper
-method, no less.  The crashing machine has been a firewall running a very
-unusual NAT + QoS configuration, however we believe that we might have
-discovered a real bug in 2.4's tcp_input.c.  Since our insight into the
-internals of the tcp/ip stack is far from even basic, we are seeking your
-opinion on whether we are correct.
+That's: http://www.kernel.org/pub/linux/utils/kernel/hotplug/udev-FAQ
 
-The static inline function skb_peek() as defined in include/linux/skbuff.h
-returns a pointer to a sk_buff, or NULL when its argument is an empty list
-or a pointer to the head element.  Since this is documented behavior, it is
-not surprising that all segments of code within tcp_input.c dealing with
-a return from skb_peek() take care not to dereference the returned pointer
-if it happens to be NULL.  There is an exception, though:
+:)
 
-/* tcp_input.c, line 1138 */
-static inline int tcp_head_timedout(struct sock *sk, struct tcp_opt *tp)
-{
-  return tp->packets_out && tcp_skb_timedout(tp, skb_peek(&sk->write_queue));
-}
+-sandalle
 
-The passed NULL (and yes, this is where we are getting one) is dereferenced
-immediately in:
-
-/* tcp_input.c, line 1133 */
-static inline int tcp_skb_timedout(struct tcp_opt *tp, struct sk_buff *skb)
-{
-  return (tcp_time_stamp - TCP_SKB_CB(skb)->when > tp->rto);
-}
-
-with TCP_SKB_CB that is defined as
-
-/* tcp.h, line 1034 */
-#define TCP_SKB_CB(__skb)	((struct tcp_skb_cb *)&((__skb)->cb[0]))
-
-We are proposing to cure the problem by adding a simple check in
-tcp_head_timedout(), but are not sure whether this is the right
-thing to do, because as a friend put it, we seem to be fixing
-a leaking faucet in a god damn power plant.
-
-Thanks for any help,
 -- 
-Tomas Szepe <szepe@pinerecords.com>
+PGP Key Fingerprint:  FCFF 26A1 BE21 08F4 BB91  FAED 1D7B 7D74 A8EF DD61
+http://search.keyserver.net:11371/pks/lookup?op=get&search=0xA8EFDD61
 
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCS/E/IT$ d-- s++:+>: a-- C++(+++) BL++++VIS>$ P+(++) L+++ E-(---) W++ N+@ o?
+K? w++++>-- O M-@ V-- PS+(+++) PE(-) Y++(+) PGP++(+) t+() 5++ X(+) R+(++)
+tv(--)b++(+++) DI+@ D++(+++) G>+++ e>+++ h---(++) r++ y+
+------END GEEK CODE BLOCK------
 
-diff -urN a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
---- a/net/ipv4/tcp_input.c	2003-06-13 16:51:39 +0200
-+++ b/net/ipv4/tcp_input.c	2003-10-24 17:41:19 +0200
-@@ -1138,7 +1138,11 @@
- 
- static inline int tcp_head_timedout(struct sock *sk, struct tcp_opt *tp)
- {
--	return tp->packets_out && tcp_skb_timedout(tp, skb_peek(&sk->write_queue));
-+	struct sk_buff *skb = skb_peek(&sk->write_queue);
-+	if (skb == NULL)
-+		return 1;
-+
-+	return tp->packets_out && tcp_skb_timedout(tp, skb);
- }
- 
- /* Linux NewReno/SACK/FACK/ECN state machine.
+Eric Sandall                     |  Source Mage GNU/Linux Developer
+eric@sandall.us                  |  http://www.sourcemage.org/
+http://eric.sandall.us/          |  SysAdmin @ Inst. Shock Physics @ WSU
+http://counter.li.org/  #196285  |  http://www.shock.wsu.edu/
+
+----------------------------------------------------------------
+This message was sent using IMP, the Internet Messaging Program.

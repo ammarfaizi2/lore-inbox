@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262051AbTLNOtm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Dec 2003 09:49:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262055AbTLNOtm
+	id S262055AbTLNO63 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Dec 2003 09:58:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbTLNO63
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Dec 2003 09:49:42 -0500
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:34096 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S262051AbTLNOtl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Dec 2003 09:49:41 -0500
-Message-ID: <3FDC794E.6050200@myrealbox.com>
-Date: Sun, 14 Dec 2003 06:53:02 -0800
-From: walt <wa1ter@myrealbox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031213
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux, Inc. (Re: Linux GPL and binary module exception clause?)
-References: <fa.n7hmlmb.1uks08f@ifi.uio.no> <fa.goiufnl.gmgoan@ifi.uio.no>
-In-Reply-To: <fa.goiufnl.gmgoan@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+	Sun, 14 Dec 2003 09:58:29 -0500
+Received: from 217-124-45-68.dialup.nuria.telefonica-data.net ([217.124.45.68]:37505
+	"EHLO dardhal.mired.net") by vger.kernel.org with ESMTP
+	id S262055AbTLNO62 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Dec 2003 09:58:28 -0500
+Date: Sun, 14 Dec 2003 15:58:26 +0100
+From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: another oops, maybe I'll downgrade to 2.4.22.. :(
+Message-ID: <20031214145826.GA3252@localhost>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <1071361330.1551.2.camel@cripat.acasa-tr.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1071361330.1551.2.camel@cripat.acasa-tr.it>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley wrote:
-> I suspect most people are going to ignore this message because it's so out 
-> there and loopy, but I thought I'd address it because I think Andre is 
-> serious...
+On Sunday, 14 December 2003, at 01:22:10 +0100,
+Cristiano De Michele wrote:
 
-It's very difficult to tell, but I assumed he wasn't -- or that's he's run
-out of lithium again  ;0)
+> another oops got using kernel 2.4.23 caused to gkrellm
+> I'm on debian unstable up to date 
+> 
+Before downgrading anything, just try to reproduce the problem without
+the nVIDIA closed-source video drivers loaded on your box.
 
+Greetings.
 
-
-> ...I would have recommended that they use 
-> FreeBSD, technical merit notwithstanding...
-
-Hmm.  I think this kind of remark should be reserved for people who produce
-demonstrably inferior products at outrageously high prices and use FUD as
-their primary marketing strategy...
-
+-- 
+Jose Luis Domingo Lopez
+Linux Registered User #189436     Debian Linux Sid (Linux 2.6.0-test10-mm1)

@@ -1,107 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262885AbVDAUZz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262889AbVDAUaj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262885AbVDAUZz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 15:25:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262882AbVDAUXK
+	id S262889AbVDAUaj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 15:30:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262882AbVDAUai
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 15:23:10 -0500
-Received: from [212.91.234.123] ([212.91.234.123]:16294 "EHLO
-	webbox180.server-home.org") by vger.kernel.org with ESMTP
-	id S262881AbVDAUVw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 15:21:52 -0500
-Message-ID: <424DAD58.6080807@clagi.de>
-Date: Fri, 01 Apr 2005 22:21:44 +0200
-From: Guido Classen <classeng@clagi.de>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: jgarzik@pobox.com, tulip-users@lists.sourceforge.net,
-       linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] drivers/net/tulip/: fix for Lite-On 82c168 PNIC (2.6.11)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 1 Apr 2005 15:30:38 -0500
+Received: from fire.osdl.org ([65.172.181.4]:35537 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262892AbVDAU1C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 15:27:02 -0500
+Date: Fri, 1 Apr 2005 12:26:41 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Matt Mackall <mpm@selenic.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] clean up kernel messages
+Message-Id: <20050401122641.7c52eaab.akpm@osdl.org>
+In-Reply-To: <20050401200851.GG15453@waste.org>
+References: <20050401200851.GG15453@waste.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Matt Mackall <mpm@selenic.com> wrote:
+>
+> This patch tidies up those annoying kernel messages. A typical kernel
+>  boot now looks like this:
+> 
+>  Loading Linux... Uncompressing kernel...
+>  #
+> 
+>  See? Much nicer. This patch saves about 375k on my laptop config and
+>  nearly 100k on minimal configs.
+> 
 
-this small patch fixes two issues with the Lite-On 82c168 PNIC adapters.
-I've tested it with two cards in different machines both chip rev 17
+heh.  Please take a look at
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0004.2/0709.html, see if
+Graham did anything which you missed.
 
-The first is the wrong register address CSR6 for writing the MII register
-which instead is 0xB8 (this may get a symbol too?) (see similar exisiting code
-at line 437) in tulip_core.c
+One problem was that
 
-At least by my cards, the the bit 31 from the MII register seems to be
-somewhat unstable. This results in reading wrong values from the Phy-Registers
-und prevents the card from correct initialization. I've added a litte delay
-and an second test of the bit. If the bit is stil cleared the read/write
-process has definitely finished.
+	printk("foo");
 
-Cheers
-   Guido
+will still cause the string "foo\0" to appear in the kernel image.  That
+was fixed in later gcc's, but it would be interesting to know which
+compilers get it right.
 
-Signed-off-by: Guido Classen <classeng@clagi.de>
+> 
+>  Index: af/include/linux/kernel.h
+>  ===================================================================
+>  --- af.orig/include/linux/kernel.h	2005-04-01 00:32:18.000000000 -0800
+>  +++ af/include/linux/kernel.h	2005-04-01 10:38:43.000000000 -0800
+>  @@ -115,10 +115,19 @@ extern int __kernel_text_address(unsigne
+>   extern int kernel_text_address(unsigned long addr);
+>   extern int session_of_pgrp(int pgrp);
+>   
+>  +#ifdef CONFIG_PRINTK
+>   asmlinkage int vprintk(const char *fmt, va_list args)
+>   	__attribute__ ((format (printf, 1, 0)));
+>   asmlinkage int printk(const char * fmt, ...)
+>   	__attribute__ ((format (printf, 1, 2)));
+>  +#else
+>  +static inline int vprintk(const char *s, va_list args)
+>  +	__attribute__ ((format (printf, 1, 0)));
+>  +static inline int vprintk(const char *s, va_list args) { return 0; }
+>  +static inline int printk(const char *s, ...)
+>  +	__attribute__ ((format (printf, 1, 2)));
+>  +static inline int printk(const char *s, ...) { return 0; }
+>  +#endif
 
-diff -ru linux-2.6.11-org/drivers/net/tulip/tulip_core.c 
-linux-2.6.11.2-pentium/drivers/net/tulip/tulip_core.c
---- linux-2.6.11-org/drivers/net/tulip/tulip_core.c	2005-04-01 
-22:10:03.000000000 +0200
-+++ linux-2.6.11.2-pentium/drivers/net/tulip/tulip_core.c	2005-03-31 
-23:14:11.000000000 +0200
-@@ -1701,8 +1701,8 @@
-  			tp->nwayset = 0;
-  			iowrite32(csr6_ttm | csr6_ca, ioaddr + CSR6);
-  			iowrite32(0x30, ioaddr + CSR12);
--			iowrite32(0x0001F078, ioaddr + CSR6);
--			iowrite32(0x0201F078, ioaddr + CSR6); /* Turn on autonegotiation. */
-+			iowrite32(0x0001F078, ioaddr + 0xB8);
-+			iowrite32(0x0201F078, ioaddr + 0xB8); /* Turn on autonegotiation. */
-  		}
-  		break;
-  	case MX98713:
-diff -ru linux-2.6.11-org/drivers/net/tulip/media.c 
-linux-2.6.11.2-pentium/drivers/net/tulip/media.c
---- linux-2.6.11-org/drivers/net/tulip/media.c	2005-04-01 22:10:03.000000000 
-+0200
-+++ linux-2.6.11.2-pentium/drivers/net/tulip/media.c	2005-04-01 
-22:05:31.000000000 +0200
-@@ -74,8 +74,17 @@
-  		ioread32(ioaddr + 0xA0);
-  		while (--i > 0) {
-  			barrier();
--			if ( ! ((retval = ioread32(ioaddr + 0xA0)) & 0x80000000))
--				break;
-+			if ( ! ((retval = ioread32(ioaddr + 0xA0))
-+                                & 0x80000000)) {
-+                                /* bug in 82c168 rev 17?
-+                                 * wait a little while and check if
-+                                 * bit 31 is still cleared */
-+                                udelay(10);
-+                                if ( ! ((retval = ioread32(ioaddr + 0xA0))
-+                                        & 0x80000000)) {
-+                                        break;
-+                                }
-+                        }
-  		}
-  		spin_unlock_irqrestore(&tp->mii_lock, flags);
-  		return retval & 0xffff;
-@@ -153,8 +162,16 @@
-  		iowrite32(cmd, ioaddr + 0xA0);
-  		do {
-  			barrier();
--			if ( ! (ioread32(ioaddr + 0xA0) & 0x80000000))
--				break;
-+			if ( ! (ioread32(ioaddr + 0xA0) & 0x80000000)) {
-+                                /* bug in 82c168 rev 17?
-+                                 * wait a little while and check if
-+                                 * bit 31 is still cleared */
-+                                udelay(10);
-+                                if ( ! (ioread32(ioaddr + 0xA0)
-+                                        & 0x80000000)) {
-+                                        break;
-+                                }
-+                        }
-  		} while (--i > 0);
-  		spin_unlock_irqrestore(&tp->mii_lock, flags);
-  		return;
+Actually printk() is supposed to return the number of chars which it
+printed.  So if someone is doing:
+
+	while (len < 40)
+		len += printk("something");
+
+you've gone and made them lock up.
+
+But I think the number of places where we examine the printk return value
+is near zero.
+

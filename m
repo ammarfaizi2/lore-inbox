@@ -1,38 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268367AbUILQMI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268487AbUILQ1l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268367AbUILQMI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 12:12:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268365AbUILQMH
+	id S268487AbUILQ1l (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 12:27:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268539AbUILQ1l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 12:12:07 -0400
-Received: from share.sks3.muni.cz ([147.251.211.22]:58289 "EHLO
-	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S268367AbUILQLX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 12:11:23 -0400
-Date: Sun, 12 Sep 2004 18:11:19 +0200
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.9-rc1-mm4 - slowdown?
-Message-ID: <20040912161119.GR2260@mail.muni.cz>
+	Sun, 12 Sep 2004 12:27:41 -0400
+Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:37125 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S268487AbUILQ1i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 12:27:38 -0400
+Date: Sun, 12 Sep 2004 17:43:12 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
+Subject: Re: [PATCH][2.4.28-pre3] I2C driver core gcc-3.4 fixes
+Message-Id: <20040912174312.5ea8d2ef.khali@linux-fr.org>
+In-Reply-To: <200409121510.i8CFA5Ji015615@harpo.it.uu.se>
+References: <200409121510.i8CFA5Ji015615@harpo.it.uu.se>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
-User-Agent: Mutt/1.5.6+20040803i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> Yes, it results in code doing void* pointer arithmetic, but
+> the kernel uses that particular gcc extension in a lot of
+> places. It's ugly but known to work exactly like char*.
 
-I have fish-fillets game ported to linux. Under 2.6.9-rc1-bk9 it eats up to 10%
-with normal speed of game and up to 40% with fast mode.
-Under 2.6.9-rc1-mm4 it eats up to 40% with normal speed of game and cpu is too
-slow for fast mode.
+OK, I didn't know that. Thanks for the info.
 
-Any ideas?
+> However, I'm no fan of void* arithmetic. Would code like
+> buffer = (void*)((char*)buffer + buflen); make you happier?
 
-For both kernels I use almost the same .config.
+Well, it makes things even uglier IMHO, so let's not do it.
+
+> >After a quick look at the code I'd say that the buffer-like
+> >parameters involved should be declared as char* instead of void* in
+> >the first place, which would effectively make all further casts
+> >unnecessary, and still work exactly as before.
+> 
+> Maybe, but that's potentially a much larger change. I'm just
+> looking for the minimal changes to make the 2.4 kernel safe for
+> gcc-3.4 and later (cast-as-lvalue is an error in gcc-3.5/4.0).
+
+I'm not much in favor of "fixing" old code just to make it gcc-3.5
+compliant, especially when at the same time we won't clean it up,
+potentially resulting in less readable code. I would be perfectly happy
+with being able to compile 2.4 kernels with gcc versions up to 3.3 and
+not above. What's the exact benefit of changing old and stable code in
+the end of its life cycle for it to support future compilers? I don't
+get it (but at the same time I am not the one deciding here).
+
+This was a general comment. For the specific changes you propose, if
+void* works like char* when it comes to arithmetics, it looks safe and
+as such is (technically) fine with me.
+
+Thanks.
 
 -- 
-Luká¹ Hejtmánek
+Jean "Khali" Delvare
+http://khali.linux-fr.org/

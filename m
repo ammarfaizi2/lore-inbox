@@ -1,101 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268454AbTBNPuZ>; Fri, 14 Feb 2003 10:50:25 -0500
+	id <S268452AbTBNP4Y>; Fri, 14 Feb 2003 10:56:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268455AbTBNPuZ>; Fri, 14 Feb 2003 10:50:25 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:31018 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S268454AbTBNPuX>; Fri, 14 Feb 2003 10:50:23 -0500
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: suparna@in.ibm.com, fastboot@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [KEXEC][PATCH] Modified (smaller) x86 kexec hwfixes patch
-References: <20030213161014.A14361@in.ibm.com>
-	<m1heb8w737.fsf@frodo.biederman.org> <20030214085915.A1466@in.ibm.com>
-	<51710000.1045205264@[10.10.2.4]> <m165rn8dpz.fsf@frodo.biederman.org>
-	<53360000.1045236737@[10.10.2.4]>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 14 Feb 2003 09:00:16 -0700
-In-Reply-To: <53360000.1045236737@[10.10.2.4]>
-Message-ID: <m1k7g27sz3.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S268453AbTBNP4Y>; Fri, 14 Feb 2003 10:56:24 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:42759 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S268452AbTBNP4W>; Fri, 14 Feb 2003 10:56:22 -0500
+Date: Fri, 14 Feb 2003 19:05:38 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Marc Zyngier <mzyngier@freesurf.fr>
+Cc: James Bottomley <James.Bottomley@steeleye.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] EISA/sysfs update
+Message-ID: <20030214190538.A19355@jurassic.park.msu.ru>
+References: <1044241767.3924.14.camel@mulgrave> <wrp3cmrrwuf.fsf@hina.wild-wind.fr.eu.org> <20030214173217.A17730@jurassic.park.msu.ru> <wrpisvmri71.fsf@hina.wild-wind.fr.eu.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <wrpisvmri71.fsf@hina.wild-wind.fr.eu.org>; from mzyngier@freesurf.fr on Fri, Feb 14, 2003 at 04:32:50PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> writes:
-
-> >> Running on my 4-way P3 test box (just SMP, not NUMA) kexec_test
-> >> prints this:
-> >> 
-> >> Synchronizing SCSI caches: 
-> >> Shutting down devices
-> >> Starting new kernel
-> >> kexec_test 1.8 starting...
-> >> eax: 0E1FB007 ebx: 0000011C ecx: 00000000 edx: 00000000
-> >> esi: 00000000 edi: 00000000 esp: 00000000 ebp: 00000000
-> >> idt: 00000000 C0000000
-> >> gdt: 0000006F 000000A0
-> >> Switching descriptors.
-> >> Descriptors changed.
-> >> Legacy pic setup.
-> >> In real mode.
-> >> 
-> >> Without that I just get:
-> >> 
-> >> Synchronizing SCSI caches: 
-> >> Shutting down devices
-> >> Starting new kernel
-> >> 
-> >> Can someone interpret?
-> > 
-> > Besides the fact that you cannot make BIOS calls, and kexec is working
-> > there is not much to say.  You cannot kexec another kernel?
+On Fri, Feb 14, 2003 at 04:32:50PM +0100, Marc Zyngier wrote:
+> Ivan> I believe this driver will work for any PCI/EISA bridge without
+> Ivan> any changes, not only for i82375. Probably we need to look for a
+> Ivan> class code rather than a device id.
 > 
-> Nope, if I just kexec the same 2.5.59 kernel+kexec patches that I'm booted
-> on it says: 
+> Unfortunately, the i82375 appears to be unclassified :
 > 
-> Synchronizing SCSI caches: 
-> Shutting down devices
-> Starting new kernel
-> 
-> Could you give me a high-level sketch of what you're doing? kexec -l loads
-> the new kernel, then what do you do? Drop back into real mode and jump to
-> the normal kernel entry point? Or decompress by hand, do some alternate
-> setup of the early page tables and try to jump in at the 32-bit entry point?
+> 00:07.0 Non-VGA unclassified device: Intel Corp. 82375EB (rev 03)
 
-With Interrupts disabled.
-machine_kexec switch the cpu to physical address mode (it turns the mmu off).
-Copies the kernel to where it needs to run.
-Then it jumps to an entry point.
+We have this code in arch/alpha/kernel/pci.c for ages:
 
-kexec has put in a stub piece of code, and pointed the entry point at that location.
-The stub code setups of a gdt, the kernel can cope with.
-The stub code setups a parameter table just like the real mode code generates.
-The stub code jumps in at the 32bit entry point.
+...
+static void __init
+quirk_eisa_bridge(struct pci_dev *dev)
+{
+	dev->class = PCI_CLASS_BRIDGE_EISA << 8;
+}
+...
+struct pci_fixup pcibios_fixups[] __initdata = {
+	{ PCI_FIXUP_HEADER, PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82375,
+	  quirk_eisa_bridge },
+...
 
-[There is another stub that will attempt to start the kernel at the 16bit entry
- point but it is not used by default].
+I think it belongs in drivers/pci/quirks.c.
 
-Interrupts are off the entire time.
+> I'll had PCI_CLASS_BRIDGE_EISA anyway, just in case.
 
-> Is all I can assume from the above that I crash in the new kernel before
-> console_init()?
+Actually I thought of replacing "i82375" with "pci_eisa" everywhere
+in your driver and
 
-Yes.
+static struct pci_device_id pci_eisa_pci_tbl[] = {
+	{ PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
+	  PCI_CLASS_BRIDGE_EISA << 8, 0xffff00, 0 },
+	{ 0, }
+};
 
-> Or should I expect something from the decompress code?
-
-It is not hard to patch the decompression code to display a message, but
-by default it does not output to serial...
-
-You might want to run mkelfImage on a vmlinux so you can skip the decompression
-step.  It adds a stub to the elf file that gets passed to kexec so that
-you can skip the decompression.
-
-ftp://ftp.lnxi.com/pub/src/mkelfImage/mkelfImage-2.x
-
-Also I have some assembly language macros that display text out the serial port, if you want
-to instrument up the kernel you are booting.
-
-Eric
+Ivan.

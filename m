@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289748AbSAXAko>; Wed, 23 Jan 2002 19:40:44 -0500
+	id <S289855AbSAXAow>; Wed, 23 Jan 2002 19:44:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289854AbSAXAjn>; Wed, 23 Jan 2002 19:39:43 -0500
-Received: from firewall.digsol.net ([63.228.1.219]:60411 "EHLO
-	flanders.digsol.net") by vger.kernel.org with ESMTP
-	id <S289748AbSAXAji>; Wed, 23 Jan 2002 19:39:38 -0500
-Date: Wed, 23 Jan 2002 18:39:32 -0600
-From: "Marc A. Ohmann" <marc@ds6.net>
-To: linux-kernel@vger.kernel.org
-Subject: AMD 2.4.17 hard freeze
-Message-ID: <20020123183932.A5077@flanders.digsol.net>
-Mime-Version: 1.0
+	id <S289866AbSAXAon>; Wed, 23 Jan 2002 19:44:43 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:30954 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S289855AbSAXAo2>; Wed, 23 Jan 2002 19:44:28 -0500
+From: Badari Pulavarty <pbadari@us.ibm.com>
+Message-Id: <200201240044.g0O0iOh24822@eng2.beaverton.ibm.com>
+Subject: [PATCH] small bugfix for ll_rw_bio() for 2.5.3-pre3
+To: axboe@suse.de (Jens Axboe), linux-kernel@vger.kernel.org
+Date: Wed, 23 Jan 2002 16:44:24 -0800 (PST)
+In-Reply-To: <20020115145549.M31878@suse.de> from "Jens Axboe" at Jan 15, 2002 01:55:49 PM PST
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't know if this is related to the "Athlon PSE/AGP Bug" thread since that seems to be openGL related.
+Hi,
 
-I recently built an Athlon 1700+, 1GB DDR, GeForce2 MX-400 AGP system on a Soyo SY-K7V Dragon for a customer.  Slack 8 installed without a hitch but once I got the system up and running 2.4.17 the system would randomly freeze.  The freezes often happen during kernel compiles but they have also happened under no load at all.
+Here is a small bug fix for ll_rw_bio() for 2.5.3-pre3. 
+kio->io_count can be safely incremented only after 
+bio_alloc() success. 
 
-I thought it sounded like a hardware problem but I installed W2k on it the other night and now it has been up for 2 days with no problems.
+Thanks,
+Badari
 
-I really don't have much to offer for diagnostics but I am willing to try anything that is suggested.
-
-The freezes seem to be fairly repeatable and happen on 8/10 kernel compiles.  I have tried compiling in init 3 and with no modules loaded but it still freezes.
-
-Thanks for any help,
+--- linux-253pre3/fs/bio.c	Thu Dec 27 08:15:15 2001
++++ linux-253pre3.new/fs/bio.c	Wed Jan 23 17:32:59 2002
+@@ -368,8 +368,6 @@
+ 	if (nr_pages > total_nr_pages)
+ 		nr_pages = total_nr_pages;
  
--- 
------- Marc A. Ohmann  marc@ds6.net ------ Digital Solutions, Inc. ------
-|                                    |   .~.                            | 
-|  - Internet Hosting                |   /V\          L I N U X         | 
-|  - Application Programming         |  // \\                           |
-|  - Network Administration          | /(   )\    Solution Provider     |
-|                                    |  ^^-^^                           |
------------<a href="http://ds6.net">Digital Solutions, Inc</a>-----------
+-	atomic_inc(&kio->io_count);
+-
+ 	/*
+ 	 * allocate bio and do initial setup
+ 	 */
+@@ -377,6 +375,8 @@
+ 		err = -ENOMEM;
+ 		goto out;
+ 	}
++
++	atomic_inc(&kio->io_count);
+ 
+ 	bio->bi_sector = sector;
+ 	bio->bi_dev = dev;
+

@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263210AbSJHV4O>; Tue, 8 Oct 2002 17:56:14 -0400
+	id <S261351AbSJHWEo>; Tue, 8 Oct 2002 18:04:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263214AbSJHV4N>; Tue, 8 Oct 2002 17:56:13 -0400
-Received: from thunk.org ([140.239.227.29]:61123 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id <S263210AbSJHVzq>;
-	Tue, 8 Oct 2002 17:55:46 -0400
-Date: Tue, 8 Oct 2002 18:01:15 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Nathan Scott <nathans@sgi.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Andreas Gruenbacher <agruen@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] POSIX ACL configuration option
-Message-ID: <20021008220115.GB9807@think.thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Nathan Scott <nathans@sgi.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Andreas Gruenbacher <agruen@suse.de>, linux-kernel@vger.kernel.org
-References: <20021007025815.GD700@frodo>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021007025815.GD700@frodo>
-User-Agent: Mutt/1.3.28i
+	id <S261321AbSJHWEn>; Tue, 8 Oct 2002 18:04:43 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:14341 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261320AbSJHWEk>; Tue, 8 Oct 2002 18:04:40 -0400
+Date: Tue, 8 Oct 2002 15:12:03 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Patrick Mochel <mochel@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       <andre@linux-ide.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] embedded struct device Re: [patch] IDE driver model update
+In-Reply-To: <Pine.GSO.4.21.0210081735370.5897-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.44.0210081510550.1226-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 07, 2002 at 12:58:15PM +1000, Nathan Scott wrote:
-> Hi Linus,
+
+On Tue, 8 Oct 2002, Alexander Viro wrote:
+> That would be nice, if it worked that way.  As it is we have
 > 
-> This patch provides the configuration entry, help text and basic
-> header file definitions for filesystems that support POSIX ACLs.
-> The code implementing this in XFS is already merged in your tree,
-> we're just missing these enabling pieces and that previous umask
-> patch.
+> driver allocates foo
+> driver grabs a reference to foo->dev
+> ....
+> somebody else grabs/drops temporary references to foo->dev
+> ....
+> driver call put_device(&foo->dev)
+> driver frees structures refered from foo.
+> driver frees foo.
+> 
+> _IF_ the last two steps were done by ->release(), your arguments would
+> work.  Actually they are done by driver right after the put_device() call.
 
-FWIW, I need this patch as well for as part of porting Andreas's ACL
-code to 2.5.  So if it doesn't get accepted, I'll be resubmitting it
-as part of the ext 2/3 ACL patch set...  
+Right. But that's a driver bug, and it's because this whole thing is 
+fairly new.
 
-(the patch was developed and agreed upon between the XFS team and
-Andreas Gruenbacher, so it's part of the ext 2/3 ACL patches.)
+There aren't that many things that actually play with these things (mainly 
+the PCI and the USB layer, and individual drivers shouldn't care, it's 
+just the bus layer that does all of this), so we should be able to fix the 
+cases cleanly.
 
-						- Ted
+		Linus
+

@@ -1,58 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270338AbTGWOOL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 10:14:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270342AbTGWOOL
+	id S264030AbTGWO2X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 10:28:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268160AbTGWO2X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 10:14:11 -0400
-Received: from H-135-207-24-16.research.att.com ([135.207.24.16]:11400 "EHLO
-	linux.research.att.com") by vger.kernel.org with ESMTP
-	id S270338AbTGWOOI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 10:14:08 -0400
-Date: Wed, 23 Jul 2003 10:28:22 -0400 (EDT)
-From: David Korn <dgk@research.att.com>
-Message-Id: <200307231428.KAA15254@raptor.research.att.com>
-X-Mailer: mailx (AT&T/BSD) 9.9 2003-01-17
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-To: davem@redhat.com
-Subject: Re: Re: kernel bug in socketpair()
-Cc: gsf@research.att.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+	Wed, 23 Jul 2003 10:28:23 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:17106 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S264030AbTGWO2V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 10:28:21 -0400
+Date: Wed, 23 Jul 2003 16:42:41 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: "David S. Miller" <davem@redhat.com>
+cc: Christoph Hellwig <hch@infradead.org>, solca@guug.org, zaitcev@redhat.com,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       sparclinux@vger.kernel.org, debian-sparc@lists.debian.org
+Subject: Re: sparc scsi esp depends on pci & hangs on boot
+In-Reply-To: <20030723002008.538dc163.davem@redhat.com>
+Message-ID: <Pine.GSO.4.21.0307231641180.27805-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 23 Jul 2003, David S. Miller wrote:
+> On Wed, 23 Jul 2003 08:02:22 +0100
+> Christoph Hellwig <hch@infradead.org> wrote:
+> 
+> > On Tue, Jul 22, 2003 at 11:57:14PM -0700, David S. Miller wrote:
+> > > I don't see why this is a problem.  Either do this, or fix
+> > > asm-generic/dma-mapping.h which is not GENERIC because it
+> > > depends upon something SPECIFIC, specifically PCI.
+> > 
+> > The latter is what need to be done.  
+> 
+> I'll do the following for now.
+> 
+> # This is a BitKeeper generated patch for the following project:
+> # Project Name: Linux kernel tree
+> # This patch format is intended for GNU patch command version 2.5 or higher.
+> # This patch includes the following deltas:
+> #	           ChangeSet	1.1518  -> 1.1519 
+> #	include/asm-sparc64/dma-mapping.h	1.1     -> 1.2    
+> #	include/asm-sparc/dma-mapping.h	1.1     -> 1.2    
+> #
+> # The following is the BitKeeper ChangeSet Log
+> # --------------------------------------------
+> # 03/07/23	davem@nuts.ninka.net	1.1519
+> # [SPARC]: Do not include asm-generic/dma-mapping.h if !CONFIG_PCI.
 
-> On Wed, 23 Jul 2003 09:32:09 -0400 (EDT)
-> David Korn <dgk@research.att.com> wrote:
-> 
-> [ Added netdev@oss.sgi.com, the proper place to discuss networking kernel issues
-> . ]
-> 
-> > The first problem is that files created with socketpair() are not accessible
-> > via /dev/fd/n or /proc/$$/fd/n where n is the file descriptor returned
-> > by socketpair().  Note that this is not a problem with pipe().
-> 
-> Not a bug.
-> 
-> Sockets are not openable via /proc files under any circumstances,
-> not just the circumstances you describe.  This is a policy decision and
-> prevents a whole slew of potential security holes.
-> 
-> 
+Yep, that's what I did for m68k as well (inspired by s390 which never has PCI
+and thus an empty dma-mapping.h).
 
-Thanks for you quick response.
+Gr{oetje,eeting}s,
 
-This make sense for INET sockets, but I don't understand the security
-considerations for UNIX domain sockets.  Could you please elaborate?
-Moreover, /dev/fd/n, (as opposed to /proc/$$/n) is restricted to
-the current process and its decendents if close-on-exec is not specified.
-Again, I don't understand why this would create a security problem
-either since the socket is already accesible via the original
-descriptor.
+						Geert
 
-Finally if this is a security problem, why is the errno is set to ENXIO 
-rather than EACCESS?
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-David Korn
-dgk@research.att.com
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

@@ -1,76 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130163AbRBLTCg>; Mon, 12 Feb 2001 14:02:36 -0500
+	id <S131352AbRBLTGG>; Mon, 12 Feb 2001 14:06:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130893AbRBLTC1>; Mon, 12 Feb 2001 14:02:27 -0500
-Received: from cambot.suite224.net ([209.176.64.2]:38162 "EHLO suite224.net")
-	by vger.kernel.org with ESMTP id <S130163AbRBLTCT>;
-	Mon, 12 Feb 2001 14:02:19 -0500
-Message-ID: <003e01c09526$c958a6a0$0100a8c0@pcs586>
-From: "Matthew D. Pitts" <mpitts@suite224.net>
-To: "Mohammad A. Haque" <mhaque@haque.net>, "Mike Harrold" <mharrold@cas.org>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.32.0102121344060.1070-100000@viper.haque.net>
-Subject: Re: lkml subject line
-Date: Mon, 12 Feb 2001 14:05:34 -0500
+	id <S130931AbRBLTF4>; Mon, 12 Feb 2001 14:05:56 -0500
+Received: from server1.cosmoslink.net ([208.179.167.101]:14941 "EHLO
+	server1.cosmoslink.net") by vger.kernel.org with ESMTP
+	id <S130893AbRBLTFo>; Mon, 12 Feb 2001 14:05:44 -0500
+Message-ID: <015001c09527$84dfda60$bba6b3d0@Toshiba>
+From: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+In-Reply-To: <000901c094cc$880a75c0$bba6b3d0@Toshiba>
+Subject: Re: Problem with Ramdisk in linux-2.4.1 
+Date: Mon, 12 Feb 2001 11:10:50 -0800
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 X-Priority: 3
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2615.200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pine, Mutt, there might be a few more.
+Dear linux-kernel mailing list,
 
-Just my $0.02.
-Matthew.
+Is there there any change in latest kernel 2.4.1 and old kernels like 2.2.12
+with respect to Ramdisk or not .
+
+I mean is there any change in rd.c and or lib/inflate.c .
+
+Thanks for your help.
+
+Best Regards,
+
+Jaswinder.
+--
+These are my opinions not 3Di.
+
 ----- Original Message -----
-From: Mohammad A. Haque <mhaque@haque.net>
-To: Mike Harrold <mharrold@cas.org>
-Cc: David Woodhouse <dwmw2@infradead.org>; Guest section DW
-<dwguest@win.tue.nl>; Matti Aarnio <matti.aarnio@zmailer.org>; Guennadi
-Liakhovetski <g.liakhovetski@ragingbull.com>; <linux-kernel@vger.kernel.org>
-Sent: Monday, February 12, 2001 1:45 PM
-Subject: Re: lkml subject line
+From: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+Sent: Monday, February 12, 2001 12:19 AM
+Subject: Problem with Ramdisk in linux-2.4.1
 
 
-> Is there a mail reader nowadays that doesn't let you do some sort of
-> filtering?
+> Dear linux-kernel mailing list,
 >
-> On Mon, 12 Feb 2001, Mike Harrold wrote:
+> I am facing this problem in linux-2.4.1 :-
 >
-> > Assuming your mail reader can do that (and no, I can't change my mail
-> > reader).
-> >
-> > /Mike
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://vger.kernel.org/lkml/
-> >
+> RAMDISK driver initialized: 16 RAM disks of 8192K size
+> 1024 blocksize
+> RAMDISK: Compressed image found at block 0
+>  incomplete distance tree
+> invalid compressed format (err=1)Freeing initrd
+> memory: 4096k freed
 >
-> --
+> Is any body seen this problem earlier , any hint .
 >
-> =====================================================================
-> Mohammad A. Haque                              http://www.haque.net/
->                                                mhaque@haque.net
+> But this ramdisk works fine with linux-2.2.12 .
 >
->   "Alcohol and calculus don't mix.             Project Lead
->    Don't drink and derive." --Unknown          http://wm.themes.org/
->                                                batmanppc@themes.org
-> =====================================================================
+> Thanks ,
+>
+> Best Regards,
+>
+> Jaswinder.
+>
 >
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://vger.kernel.org/lkml/
+> Please read the FAQ at http://www.tux.org/lkml/
+>
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

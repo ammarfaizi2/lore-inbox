@@ -1,59 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261745AbULUWdW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261887AbULUWkm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261745AbULUWdW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 17:33:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261860AbULUWdW
+	id S261887AbULUWkm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 17:40:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261888AbULUWkm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 17:33:22 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:8891 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261745AbULUWdS (ORCPT
+	Tue, 21 Dec 2004 17:40:42 -0500
+Received: from cantor.suse.de ([195.135.220.2]:19178 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261887AbULUWkf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 17:33:18 -0500
-Date: Wed, 22 Dec 2004 09:32:42 +1100
-From: Nathan Scott <nathans@sgi.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "Nathaniel W. Filardo" <nwf@andrew.cmu.edu>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] XFS crash using Realtime Preemption patch
-Message-ID: <20041222093242.B674830@wobbly.melbourne.sgi.com>
-References: <Pine.LNX.4.60-041.0412182025220.5487@unix49.andrew.cmu.edu> <20041221104042.GA31843@elte.hu>
-Mime-Version: 1.0
+	Tue, 21 Dec 2004 17:40:35 -0500
+To: Christoph Lameter <clameter@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Increase page fault rate by prezeroing V1 [1/3]: Introduce __GFP_ZERO
+References: <B8E391BBE9FE384DAA4C5C003888BE6F02900FBD@scsmsx401.amr.corp.intel.com.suse.lists.linux.kernel>
+	<41C20E3E.3070209@yahoo.com.au.suse.lists.linux.kernel>
+	<Pine.LNX.4.58.0412211154100.1313@schroedinger.engr.sgi.com.suse.lists.linux.kernel>
+	<Pine.LNX.4.58.0412211155340.1313@schroedinger.engr.sgi.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 21 Dec 2004 23:40:34 +0100
+In-Reply-To: <Pine.LNX.4.58.0412211155340.1313@schroedinger.engr.sgi.com.suse.lists.linux.kernel>
+Message-ID: <p73mzw7cm1p.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20041221104042.GA31843@elte.hu>; from mingo@elte.hu on Tue, Dec 21, 2004 at 11:40:43AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 21, 2004 at 11:40:43AM +0100, Ingo Molnar wrote:
-> 
-> * Nathaniel W. Filardo <nwf@andrew.cmu.edu> wrote:
-> 
-> > Hello all.
-> > 
-> > Using 2.6.10-rc3-mm1-V0.7.33-04 and TCFQ ver 17, I get the following
-> > crash while trying to sync the portage tree, though the system seems
-> > stable under interactive load (read: an rm command went OK prior to
-> > this crash).
-> > 
-> > Machine is a 933MHz transmeta laptop with IDE disk.
-> > 
-> > Any more information you need?
-> > --nwf;
-> > 
-> > kernel BUG at kernel/rt.c:1210!
-> 
-> Seems like an XFS bug at first sight. The BUG() means that an up_write()
-> was done while a down_read() was active for the lock. Does XFS really do
-> this?
+Christoph Lameter <clameter@sgi.com> writes:
+> @@ -0,0 +1,52 @@
+> +/*
+> + * Zero a page.
+> + * rdi	page
+> + */
+> +	.globl zero_page
+> +	.p2align 4
+> +zero_page:
+> +	xorl   %eax,%eax
+> +	movl   $4096/64,%ecx
+> +	shl	%ecx, %esi
 
-That should definately not happen.  Something has gone wrong in
-mrlock.h if so - or it could be the incore xfs_inode has been
-trampled on, and the mrlock writer state has become inappropriately
-set.. that would cause the wrong branch to be taken and we'd end
-up with the situation you've described here.
+Surely must be shl %esi,%ecx
 
-cheers.
 
--- 
-Nathan
+> +zero_page_c:
+> +	movl $4096/8,%ecx
+> +	shl	%ecx, %esi
+
+Same.
+
+Haven't tested.
+
+But for the one instruction it seems overkill to me to have a new
+function. How about you just extend clear_page with the order argument?
+
+BTW I think Andrea has been playing with prezeroing on x86 and
+he found no benefit at all. So it's doubtful it makes any sense
+on x86/x86-64.
+
+-Andi

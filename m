@@ -1,72 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268916AbUH3Ty7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268915AbUH3T7Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268916AbUH3Ty7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 15:54:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268907AbUH3Tya
+	id S268915AbUH3T7Q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 15:59:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268944AbUH3T6u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 15:54:30 -0400
-Received: from ppp-62-11-78-150.dialup.tiscali.it ([62.11.78.150]:7042 "EHLO
-	zion.localdomain") by vger.kernel.org with ESMTP id S268883AbUH3Twj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 15:52:39 -0400
-Subject: [patch 2/2] Set-cflags-before-including-arch-Makefile
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, blaisorblade_spam@yahoo.it
-From: blaisorblade_spam@yahoo.it
-Date: Mon, 30 Aug 2004 21:48:38 +0200
-Message-Id: <20040830194838.3F2B37D87@zion.localdomain>
+	Mon, 30 Aug 2004 15:58:50 -0400
+Received: from fw.osdl.org ([65.172.181.6]:65495 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268907AbUH3T50 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 15:57:26 -0400
+Date: Mon, 30 Aug 2004 12:55:09 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Mukker, Atul" <Atulm@lsil.com>
+Cc: bunk@fs.tum.de, linux-kernel@vger.kernel.org, James.Bottomley@SteelEye.com,
+       linux-scsi@vger.kernel.org
+Subject: Re: [patch] 2.6.9-rc1-mm1: megaraid_mbox.c compile error with gcc
+ 3.4
+Message-Id: <20040830125509.46ea399c.akpm@osdl.org>
+In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E57033BC9C6@exa-atlanta>
+References: <0E3FA95632D6D047BA649F95DAB60E57033BC9C6@exa-atlanta>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Mukker, Atul" <Atulm@lsil.com> wrote:
+>
+> 2.	The guideline on the size of patches. Because of the new driver, the
+>  size of the patches for megaraid are relatively big (the small patches are
+>  always inlined). Should it be discretionary for submitter to either inline,
+>  attach, or (deprecated) send a link, based on size of the package.
 
-Please note that this patch, even if UML-related, should be immediately
-discussed for merging in mainline, if possible. The UML patch to handle
-this has therefore been separated.
+Sending a URL to a big patch is a necessary evil for mailing lists, so the
+best approach would be to also mail the patches directly to the guy(s) who
+you wish to apply them.
 
----Patch purpose:
-If arch/$(ARCH)/Makefile is included before adding -O2 (and the rest) to
-CFLAGS, I must duplicate the addition of it to USER_CFLAGS for UML.
-So let's fix this.
+An even better approach is to split the patches up so they are not so big ;)
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
----
-
- uml-linux-2.6.8.1-paolo/Makefile |   18 +++++++++---------
- 1 files changed, 9 insertions(+), 9 deletions(-)
-
-diff -puN Makefile~Set-cflags-before-including-arch-Makefile Makefile
---- uml-linux-2.6.8.1/Makefile~Set-cflags-before-including-arch-Makefile	2004-08-29 14:40:49.665661448 +0200
-+++ uml-linux-2.6.8.1-paolo/Makefile	2004-08-29 14:40:49.668660992 +0200
-@@ -428,15 +428,6 @@ else
- include/linux/autoconf.h: ;
- endif
- 
--include $(srctree)/arch/$(ARCH)/Makefile
--
--# Default kernel image to build when no specific target is given.
--# KBUILD_IMAGE may be overruled on the commandline or
--# set in the environment
--# Also any assingments in arch/$(ARCH)/Makefiel take precedence over
--# this default value
--export KBUILD_IMAGE ?= vmlinux
--
- # The all: target is the default when no target is given on the
- # command line.
- # This allow a user to issue only 'make' to build a kernel including modules
-@@ -460,6 +451,15 @@ endif
- # warn about C99 declaration after statement
- CFLAGS += $(call check_gcc,-Wdeclaration-after-statement,)
- 
-+include $(srctree)/arch/$(ARCH)/Makefile
-+
-+# Default kernel image to build when no specific target is given.
-+# KBUILD_IMAGE may be overruled on the commandline or
-+# set in the environment
-+# Also any assingments in arch/$(ARCH)/Makefiel take precedence over
-+# this default value
-+export KBUILD_IMAGE ?= vmlinux
-+
- #
- # INSTALL_PATH specifies where to place the updated kernel and system map
- # images.  Uncomment if you want to place them anywhere other than root.
-_
+Following the "once concept per patch rule" works well.

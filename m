@@ -1,49 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269103AbUIBV6t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269217AbUIBWCR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269103AbUIBV6t (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 17:58:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269180AbUIBV6H
+	id S269217AbUIBWCR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 18:02:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269180AbUIBV71
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 17:58:07 -0400
-Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:7766 "HELO
-	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S269196AbUIBV4A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 17:56:00 -0400
-Date: Thu, 2 Sep 2004 14:55:00 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Andi Kleen <ak@suse.de>
-Cc: benh@kernel.crashing.org, akpm@osdl.org, clameter@sgi.com,
-       paulus@samba.org, ak@muc.de, ak@suse.de, wli@holomorphy.com,
-       davem@redhat.com, raybry@sgi.com, manfred@colorfullife.com,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       vrajesh@umich.edu, hugh@veritas.com
-Subject: Re: page fault scalability patch final : i386 tested, x86_64
- support added
-Message-Id: <20040902145500.271ae676.davem@davemloft.net>
-In-Reply-To: <20040902212634.GJ16175@wotan.suse.de>
-References: <20040827172337.638275c3.davem@davemloft.net>
-	<20040827173641.5cfb79f6.akpm@osdl.org>
-	<20040828010253.GA50329@muc.de>
-	<20040827183940.33b38bc2.akpm@osdl.org>
-	<16687.59671.869708.795999@cargo.ozlabs.ibm.com>
-	<Pine.LNX.4.58.0408272021070.16607@schroedinger.engr.sgi.com>
-	<20040827204241.25da512b.akpm@osdl.org>
-	<Pine.LNX.4.58.0408272121300.16949@schroedinger.engr.sgi.com>
-	<20040827223954.7d021aac.akpm@osdl.org>
-	<1094012028.6539.320.camel@gaston>
-	<20040902212634.GJ16175@wotan.suse.de>
-Organization: DaveM Loft Enterprises
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+	Thu, 2 Sep 2004 17:59:27 -0400
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:48133 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S269196AbUIBV6U
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 17:58:20 -0400
+Date: Thu, 2 Sep 2004 14:56:27 -0700
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>, Jamie Lokier <jamie@shareable.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
+       Hans Reiser <reiser@namesys.com>,
+       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: The argument for fs assistance in handling archives (was: silent semantic changes with reiser4)
+Message-ID: <20040902215627.GA15688@nietzsche.lynx.com>
+References: <20040826150202.GE5733@mail.shareable.org> <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <1094118362.4847.23.camel@localhost.localdomain> <Pine.LNX.4.58.0409021045210.2295@ppc970.osdl.org> <1094150760.5809.30.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1094150760.5809.30.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6+20040818i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Sep 2004 23:26:34 +0200
-Andi Kleen <ak@suse.de> wrote:
+On Thu, Sep 02, 2004 at 07:46:05PM +0100, Alan Cox wrote:
+> On Iau, 2004-09-02 at 18:46, Linus Torvalds wrote:
+> > > Gnome already supports this in the gnome-vfs2 layer. "MC" has supported
+> > > it since the late 1990's.
+> > 
+> > And nobody has asked for kernel support that I know of.
+> 
+> I asked our desktop people. They want something like inotify because
+> dontify doesn't cut it. They have zero interest in the multiple streams
+> and hiding icons in streams type stuff.
 
-> I would do atomic64 on 64bit archs only and then do a wrapper 
-> somewhere that defines atomiclongt based on BITSPERLONG 
+It also depends on who you ask. I can't take a lot of the mainstream
+X folks serious since they are still using integer math as parameters
+to half broken drawing primitives and barely discovered things like OpenGL.
+Their attitude doesn't treat these things as first class citizens in
+what ever software system they create. They also haven't create a modern
+and highly dynamic structured document system that's in wide use yet,
+so this problem space hasn't really been pushed as hard as other much
+more dynamic systems. And the advent of XML (basically a primitive and
+flat model of what Hans is doing) for .NET style systems are going to
+push these systems into those areas in new and unique ways. (Actually
+retro Smalltalk-ish)
 
-We do have CONFIG_64BIT, might as well use it.
+It seems that many of the original ideas about "why" GUI systems exist
+have been lost to older commericial interests (Microsoft Win32) and that
+has wiped out the fundamental classic computer science backing this from
+history. This simple "MP3 metadata" stuff is a very superficial example
+of how something like this is used.
+
+The problems are fundamentally about data representation in a manner so
+simple that its "expressive power" (Hans here) can extend itself to even
+the dorkiest of shell scripts. To have that power immediately available
+as network/local objects and to have their relationships clearly defined
+is a very powerful manner to build software systems. 
+
+Unix folks tend to forget that since they either have never done this
+kind of programming or never understood why this existed in the first
+place. It's about a top-down methodology effecting the entire design of
+the software system, not just purity Unix. If it can be integrate
+smoothly into the system, then it should IMO.
+
+The folks against this system forget about how important the context of
+all this is work is set in... The mindset is fundamentally different and
+I'm quite sick of hearing "It's not Unix" over and over again. And
+notion of Linux being marginalize to a minority OS over this stuff is
+just plain crazy.
+ 
+bill
+

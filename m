@@ -1,199 +1,413 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266181AbUFPFwA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266177AbUFPFxL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266181AbUFPFwA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 01:52:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266178AbUFPFvg
+	id S266177AbUFPFxL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 01:53:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266176AbUFPFxK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 01:51:36 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:51379 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266176AbUFPFuq (ORCPT
+	Wed, 16 Jun 2004 01:53:10 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:24464 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266177AbUFPFvY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 01:50:46 -0400
-Date: Wed, 16 Jun 2004 11:17:14 +0530
+	Wed, 16 Jun 2004 01:51:24 -0400
+Date: Wed, 16 Jun 2004 11:17:46 +0530
 From: Dipankar Sarma <dipankar@in.ibm.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: Matt Mackall <mpm@selenic.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] reduce rcu_head size [1/2]
-Message-ID: <20040616054713.GB3658@in.ibm.com>
+Subject: Re: [PATCH] reduce rcu_head size [2/2]
+Message-ID: <20040616054746.GC3658@in.ibm.com>
 Reply-To: dipankar@in.ibm.com
-References: <20040616054604.GA3658@in.ibm.com>
+References: <20040616054604.GA3658@in.ibm.com> <20040616054713.GB3658@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040616054604.GA3658@in.ibm.com>
+In-Reply-To: <20040616054713.GB3658@in.ibm.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-singly-linked-rcu.patch
+This patch changes the call_rcu() API and avoids passing an
+argument to the callback function as suggested by Rusty. 
+Instead, it is assumed that the user has embedded the rcu head 
+into a structure that is useful in the callback and the rcu_head pointer 
+is passed to the callback. The callback can use container_of() to get the
+pointer to its structure and work with it. Together with
+the rcu-singly-link patch, it reduces the rcu_head size
+by 50%. Considering that we use these in things like
+struct dentry and struct dst_entry, this is good savings
+in space.
 
-This reduces the RCU head size by using a singly linked to maintain
-them. The ordering of the callbacks is still maintained as before
-by using a tail pointer for the next list.
+An example :
 
-Signed-Off-By : Dipankar Sarma <dipankar@in.ibm.com>
+struct my_struct {
+	struct rcu_head rcu;
+	int x;
+	int y;
+};
+
+void my_rcu_callback(struct rcu_head *head)
+{
+	struct my_struct *p = container_of(head, struct my_struct, rcu);
+	free(p);
+}
+
+void my_delete(struct my_struct *p)
+{
+	...
+	call_rcu(&p->rcu, my_rcu_callback);
+	...
+}
+
+Signed-Off-By: Dipankar Sarma <dipankar@in.ibm.com>
 
 
+ arch/ppc64/mm/tlb.c      |    7 ++++---
+ fs/dcache.c              |    6 +++---
+ include/linux/rcupdate.h |   10 ++++------
+ include/net/dst.h        |    6 ++++++
+ ipc/util.c               |   25 ++++++++++++++++++++-----
+ kernel/auditsc.c         |    7 ++++---
+ kernel/rcupdate.c        |   25 +++++++++++++++----------
+ net/bridge/br_if.c       |    7 ++++---
+ net/decnet/dn_route.c    |    4 ++--
+ net/ipv4/route.c         |    4 ++--
+ security/selinux/netif.c |    6 +++---
+ 11 files changed, 67 insertions(+), 40 deletions(-)
 
- include/linux/rcupdate.h |   21 ++++++++++-----------
- kernel/rcupdate.c        |   40 ++++++++++++++++++++--------------------
- 2 files changed, 30 insertions(+), 31 deletions(-)
-
-diff -puN include/linux/rcupdate.h~singly-linked-rcu include/linux/rcupdate.h
---- linux-2.6.6-rcu/include/linux/rcupdate.h~singly-linked-rcu	2004-06-12 00:16:30.000000000 +0530
-+++ linux-2.6.6-rcu-dipankar/include/linux/rcupdate.h	2004-06-12 00:16:30.000000000 +0530
-@@ -36,7 +36,6 @@
- #ifdef __KERNEL__
- 
- #include <linux/cache.h>
--#include <linux/list.h>
- #include <linux/spinlock.h>
- #include <linux/threads.h>
- #include <linux/percpu.h>
-@@ -44,21 +43,20 @@
- 
- /**
-  * struct rcu_head - callback structure for use with RCU
-- * @list: list_head to queue the update requests
-+ * @next: next update requests in a list
-  * @func: actual update function to call after the grace period.
-  * @arg: argument to be passed to the actual update function.
-  */
- struct rcu_head {
--	struct list_head list;
-+	struct rcu_head *next;
- 	void (*func)(void *obj);
- 	void *arg;
+diff -puN fs/dcache.c~rcu-no-arg fs/dcache.c
+--- linux-2.6.6-rcu/fs/dcache.c~rcu-no-arg	2004-06-12 00:17:28.000000000 +0530
++++ linux-2.6.6-rcu-dipankar/fs/dcache.c	2004-06-12 00:17:28.000000000 +0530
+@@ -61,9 +61,9 @@ struct dentry_stat_t dentry_stat = {
+ 	.age_limit = 45,
  };
  
--#define RCU_HEAD_INIT(head) \
--		{ .list = LIST_HEAD_INIT(head.list), .func = NULL, .arg = NULL }
-+#define RCU_HEAD_INIT(head) { .next = NULL, .func = NULL, .arg = NULL }
+-static void d_callback(void *arg)
++static void d_callback(struct rcu_head *head)
+ {
+-	struct dentry * dentry = (struct dentry *)arg;
++	struct dentry * dentry = container_of(head, struct dentry, d_rcu);
+ 
+ 	if (dname_external(dentry)) {
+ 		kfree(dentry->d_qstr);
+@@ -79,7 +79,7 @@ static void d_free(struct dentry *dentry
+ {
+ 	if (dentry->d_op && dentry->d_op->d_release)
+ 		dentry->d_op->d_release(dentry);
+- 	call_rcu(&dentry->d_rcu, d_callback, dentry);
++ 	call_rcu(&dentry->d_rcu, d_callback);
+ }
+ 
+ /*
+diff -puN include/linux/rcupdate.h~rcu-no-arg include/linux/rcupdate.h
+--- linux-2.6.6-rcu/include/linux/rcupdate.h~rcu-no-arg	2004-06-12 00:17:28.000000000 +0530
++++ linux-2.6.6-rcu-dipankar/include/linux/rcupdate.h	2004-06-12 00:17:28.000000000 +0530
+@@ -45,18 +45,16 @@
+  * struct rcu_head - callback structure for use with RCU
+  * @next: next update requests in a list
+  * @func: actual update function to call after the grace period.
+- * @arg: argument to be passed to the actual update function.
+  */
+ struct rcu_head {
+ 	struct rcu_head *next;
+-	void (*func)(void *obj);
+-	void *arg;
++	void (*func)(struct rcu_head *head);
+ };
+ 
+-#define RCU_HEAD_INIT(head) { .next = NULL, .func = NULL, .arg = NULL }
++#define RCU_HEAD_INIT(head) { .next = NULL, .func = NULL }
  #define RCU_HEAD(head) struct rcu_head head = RCU_HEAD_INIT(head)
  #define INIT_RCU_HEAD(ptr) do { \
--       INIT_LIST_HEAD(&(ptr)->list); (ptr)->func = NULL; (ptr)->arg = NULL; \
-+       (ptr)->next = NULL; (ptr)->func = NULL; (ptr)->arg = NULL; \
+-       (ptr)->next = NULL; (ptr)->func = NULL; (ptr)->arg = NULL; \
++       (ptr)->next = NULL; (ptr)->func = NULL; \
  } while (0)
  
  
-@@ -94,8 +92,9 @@ struct rcu_data {
-         long            last_qsctr;	 /* value of qsctr at beginning */
-                                          /* of rcu grace period */
-         long  	       	batch;           /* Batch # for current RCU batch */
--        struct list_head  nxtlist;
--        struct list_head  curlist;
-+        struct rcu_head *nxtlist;
-+	struct rcu_head **nxttail;
-+        struct rcu_head *curlist;
- };
+@@ -128,7 +126,7 @@ extern void rcu_check_callbacks(int cpu,
  
- DECLARE_PER_CPU(struct rcu_data, rcu_data);
-@@ -106,15 +105,15 @@ extern struct rcu_ctrlblk rcu_ctrlblk;
- #define RCU_batch(cpu) 		(per_cpu(rcu_data, (cpu)).batch)
- #define RCU_nxtlist(cpu) 	(per_cpu(rcu_data, (cpu)).nxtlist)
- #define RCU_curlist(cpu) 	(per_cpu(rcu_data, (cpu)).curlist)
-+#define RCU_nxttail(cpu) 	(per_cpu(rcu_data, (cpu)).nxttail)
+ /* Exported interfaces */
+ extern void FASTCALL(call_rcu(struct rcu_head *head, 
+-                          void (*func)(void *arg), void *arg));
++				void (*func)(struct rcu_head *head)));
+ extern void synchronize_kernel(void);
  
- #define RCU_QSCTR_INVALID	0
+ #endif /* __KERNEL__ */
+diff -puN include/net/dst.h~rcu-no-arg include/net/dst.h
+--- linux-2.6.6-rcu/include/net/dst.h~rcu-no-arg	2004-06-12 00:17:28.000000000 +0530
++++ linux-2.6.6-rcu-dipankar/include/net/dst.h	2004-06-12 00:17:29.000000000 +0530
+@@ -182,6 +182,12 @@ static inline void dst_free(struct dst_e
+ 	__dst_free(dst);
+ }
  
- static inline int rcu_pending(int cpu) 
++static inline void dst_rcu_free(struct rcu_head *head)
++{
++	struct dst_entry *dst = container_of(head, struct dst_entry, rcu_head);
++	dst_free(dst);
++}
++
+ static inline void dst_confirm(struct dst_entry *dst)
  {
--	if ((!list_empty(&RCU_curlist(cpu)) &&
-+	if ((RCU_curlist(cpu) &&
- 	     rcu_batch_before(RCU_batch(cpu), rcu_ctrlblk.curbatch)) ||
--	    (list_empty(&RCU_curlist(cpu)) &&
--			 !list_empty(&RCU_nxtlist(cpu))) ||
-+	    (!RCU_curlist(cpu) && RCU_nxtlist(cpu)) ||
- 	    cpu_isset(cpu, rcu_ctrlblk.rcu_cpu_mask))
- 		return 1;
- 	else
-diff -puN kernel/rcupdate.c~singly-linked-rcu kernel/rcupdate.c
---- linux-2.6.6-rcu/kernel/rcupdate.c~singly-linked-rcu	2004-06-12 00:16:30.000000000 +0530
-+++ linux-2.6.6-rcu-dipankar/kernel/rcupdate.c	2004-06-12 00:16:30.000000000 +0530
-@@ -73,9 +73,11 @@ void fastcall call_rcu(struct rcu_head *
+ 	if (dst)
+diff -puN ipc/util.c~rcu-no-arg ipc/util.c
+--- linux-2.6.6-rcu/ipc/util.c~rcu-no-arg	2004-06-12 00:17:28.000000000 +0530
++++ linux-2.6.6-rcu-dipankar/ipc/util.c	2004-06-12 00:17:28.000000000 +0530
+@@ -331,25 +331,40 @@ void* ipc_rcu_alloc(int size)
+  * Since RCU callback function is called in bh,
+  * we need to defer the vfree to schedule_work
+  */
+-static void ipc_schedule_free(void* arg)
++static void ipc_schedule_free(struct rcu_head *head)
+ {
+-	struct ipc_rcu_vmalloc *free = arg;
++	struct ipc_rcu_vmalloc *free = 
++		container_of(head, struct ipc_rcu_vmalloc, rcu);
+ 
+ 	INIT_WORK(&free->work, vfree, free);
+ 	schedule_work(&free->work);
+ }
+ 
++/**
++ *	ipc_immediate_free	- free ipc + rcu space
++ *
++ *	Free from the RCU callback context
++ * 
++ */
++static void ipc_immediate_free(struct rcu_head *head)
++{
++	struct ipc_rcu_kmalloc *free = 
++		container_of(head, struct ipc_rcu_kmalloc, rcu);
++	kfree(free);
++}
++
++
++
+ void ipc_rcu_free(void* ptr, int size)
+ {
+ 	if (rcu_use_vmalloc(size)) {
+ 		struct ipc_rcu_vmalloc *free;
+ 		free = ptr - sizeof(*free);
+-		call_rcu(&free->rcu, ipc_schedule_free, free);
++		call_rcu(&free->rcu, ipc_schedule_free);
+ 	} else {
+ 		struct ipc_rcu_kmalloc *free;
+ 		free = ptr - sizeof(*free);
+-		/* kfree takes a "const void *" so gcc warns.  So we cast. */
+-		call_rcu(&free->rcu, (void (*)(void *))kfree, free);
++		call_rcu(&free->rcu, ipc_immediate_free);
+ 	}
+ 
+ }
+diff -puN kernel/rcupdate.c~rcu-no-arg kernel/rcupdate.c
+--- linux-2.6.6-rcu/kernel/rcupdate.c~rcu-no-arg	2004-06-12 00:17:28.000000000 +0530
++++ linux-2.6.6-rcu-dipankar/kernel/rcupdate.c	2004-06-12 00:20:36.000000000 +0530
+@@ -59,20 +59,18 @@ static DEFINE_PER_CPU(struct tasklet_str
+  * call_rcu - Queue an RCU update request.
+  * @head: structure to be used for queueing the RCU updates.
+  * @func: actual update function to be invoked after the grace period
+- * @arg: argument to be passed to the update function
+  *
+  * The update function will be invoked as soon as all CPUs have performed 
+  * a context switch or been seen in the idle loop or in a user process. 
+  * The read-side of critical section that use call_rcu() for updation must 
+  * be protected by rcu_read_lock()/rcu_read_unlock().
+  */
+-void fastcall call_rcu(struct rcu_head *head, void (*func)(void *arg), void *arg)
++void call_rcu(struct rcu_head *head, void (*func)(struct rcu_head *rcu))
+ {
+ 	int cpu;
+ 	unsigned long flags;
  
  	head->func = func;
- 	head->arg = arg;
-+	head->next = NULL;
+-	head->arg = arg;
+ 	head->next = NULL;
  	local_irq_save(flags);
  	cpu = smp_processor_id();
--	list_add_tail(&head->list, &RCU_nxtlist(cpu));
-+	*RCU_nxttail(cpu) = head;
-+	RCU_nxttail(cpu) = &head->next;
- 	local_irq_restore(flags);
+@@ -91,7 +89,7 @@ static void rcu_do_batch(struct rcu_head
+ 
+ 	while (list) {
+ 		next = list->next;
+-		list->func(list->arg);
++		list->func(list);
+ 		list = next;
+ 	}
+ }
+@@ -302,11 +300,18 @@ void __init rcu_init(void)
+ 	register_cpu_notifier(&rcu_nb);
  }
  
-@@ -83,16 +85,14 @@ void fastcall call_rcu(struct rcu_head *
-  * Invoke the completed RCU callbacks. They are expected to be in
-  * a per-cpu list.
++struct rcu_synchronize {
++	struct rcu_head head;
++	struct completion completion;
++};
+ 
+ /* Because of FASTCALL declaration of complete, we use this wrapper */
+-static void wakeme_after_rcu(void *completion)
++static void wakeme_after_rcu(struct rcu_head  *head)
+ {
+-	complete(completion);
++	struct rcu_synchronize *rcu;
++
++	rcu = container_of(head, struct rcu_synchronize, head);
++	complete(&rcu->completion);
+ }
+ 
+ /**
+@@ -315,14 +320,14 @@ static void wakeme_after_rcu(void *compl
   */
--static void rcu_do_batch(struct list_head *list)
-+static void rcu_do_batch(struct rcu_head *list)
+ void synchronize_kernel(void)
  {
--	struct list_head *entry;
--	struct rcu_head *head;
-+	struct rcu_head *next;
+-	struct rcu_head rcu;
+-	DECLARE_COMPLETION(completion);
++	struct rcu_synchronize rcu;
  
--	while (!list_empty(list)) {
--		entry = list->next;
--		list_del(entry);
--		head = list_entry(entry, struct rcu_head, list);
--		head->func(head->arg);
-+	while (list) {
-+		next = list->next;
-+		list->func(list->arg);
-+		list = next;
- 	}
++	init_completion(&rcu.completion);
+ 	/* Will wake me after RCU finished */
+-	call_rcu(&rcu, wakeme_after_rcu, &completion);
++	call_rcu(&rcu.head, wakeme_after_rcu);
+ 
+ 	/* Wait for it */
+-	wait_for_completion(&completion);
++	wait_for_completion(&rcu.completion);
  }
  
-@@ -219,18 +219,19 @@ unlock:
- static void rcu_process_callbacks(unsigned long unused)
- {
- 	int cpu = smp_processor_id();
--	LIST_HEAD(list);
-+	struct rcu_head *rcu_list = NULL;
  
--	if (!list_empty(&RCU_curlist(cpu)) &&
-+	if (RCU_curlist(cpu) &&
- 	    rcu_batch_after(rcu_ctrlblk.curbatch, RCU_batch(cpu))) {
--		list_splice(&RCU_curlist(cpu), &list);
--		INIT_LIST_HEAD(&RCU_curlist(cpu));
-+		rcu_list = RCU_curlist(cpu);
-+		RCU_curlist(cpu) = NULL;
- 	}
- 
- 	local_irq_disable();
--	if (!list_empty(&RCU_nxtlist(cpu)) && list_empty(&RCU_curlist(cpu))) {
--		list_splice(&RCU_nxtlist(cpu), &RCU_curlist(cpu));
--		INIT_LIST_HEAD(&RCU_nxtlist(cpu));
-+	if (RCU_nxtlist(cpu) && !RCU_curlist(cpu)) {
-+		RCU_curlist(cpu) = RCU_nxtlist(cpu);
-+		RCU_nxtlist(cpu) = NULL;
-+		RCU_nxttail(cpu) = &RCU_nxtlist(cpu);
- 		local_irq_enable();
- 
- 		/*
-@@ -244,8 +245,8 @@ static void rcu_process_callbacks(unsign
- 		local_irq_enable();
- 	}
- 	rcu_check_quiescent_state();
--	if (!list_empty(&list))
--		rcu_do_batch(&list);
-+	if (rcu_list)
-+		rcu_do_batch(rcu_list);
+diff -puN net/bridge/br_if.c~rcu-no-arg net/bridge/br_if.c
+--- linux-2.6.6-rcu/net/bridge/br_if.c~rcu-no-arg	2004-06-12 00:17:28.000000000 +0530
++++ linux-2.6.6-rcu-dipankar/net/bridge/br_if.c	2004-06-12 00:17:28.000000000 +0530
+@@ -75,9 +75,10 @@ static int br_initial_port_cost(struct n
+ 	return 100;	/* assume old 10Mbps */
  }
  
- void rcu_check_callbacks(int cpu, int user)
-@@ -261,8 +262,7 @@ static void __devinit rcu_online_cpu(int
+-static void destroy_nbp(void *arg)
++static void destroy_nbp(struct rcu_head *head)
  {
- 	memset(&per_cpu(rcu_data, cpu), 0, sizeof(struct rcu_data));
- 	tasklet_init(&RCU_tasklet(cpu), rcu_process_callbacks, 0UL);
--	INIT_LIST_HEAD(&RCU_nxtlist(cpu));
--	INIT_LIST_HEAD(&RCU_curlist(cpu));
-+	RCU_nxttail(cpu) = &RCU_nxtlist(cpu);
+-	struct net_bridge_port *p = arg;
++	struct net_bridge_port *p = 
++			container_of(head, struct net_bridge_port, rcu);
+ 
+ 	p->dev->br_port = NULL;
+ 
+@@ -106,7 +107,7 @@ static void del_nbp(struct net_bridge_po
+ 	del_timer(&p->forward_delay_timer);
+ 	del_timer(&p->hold_timer);
+ 	
+-	call_rcu(&p->rcu, destroy_nbp, p);
++	call_rcu(&p->rcu, destroy_nbp);
  }
  
- static int __devinit rcu_cpu_notify(struct notifier_block *self, 
+ static void del_br(struct net_bridge *br)
+diff -puN net/decnet/dn_route.c~rcu-no-arg net/decnet/dn_route.c
+--- linux-2.6.6-rcu/net/decnet/dn_route.c~rcu-no-arg	2004-06-12 00:17:28.000000000 +0530
++++ linux-2.6.6-rcu-dipankar/net/decnet/dn_route.c	2004-06-12 00:17:29.000000000 +0530
+@@ -146,14 +146,14 @@ static __inline__ unsigned dn_hash(unsig
+ 
+ static inline void dnrt_free(struct dn_route *rt)
+ {
+-	call_rcu(&rt->u.dst.rcu_head, (void (*)(void *))dst_free, &rt->u.dst);
++	call_rcu(&rt->u.dst.rcu_head, dst_rcu_free);
+ }
+ 
+ static inline void dnrt_drop(struct dn_route *rt)
+ {
+ 	if (rt)
+ 		dst_release(&rt->u.dst);
+-	call_rcu(&rt->u.dst.rcu_head, (void (*)(void *))dst_free, &rt->u.dst);
++	call_rcu(&rt->u.dst.rcu_head, dst_rcu_free);
+ }
+ 
+ static void dn_dst_check_expire(unsigned long dummy)
+diff -puN net/ipv4/route.c~rcu-no-arg net/ipv4/route.c
+--- linux-2.6.6-rcu/net/ipv4/route.c~rcu-no-arg	2004-06-12 00:17:28.000000000 +0530
++++ linux-2.6.6-rcu-dipankar/net/ipv4/route.c	2004-06-12 00:17:29.000000000 +0530
+@@ -437,13 +437,13 @@ static struct file_operations rt_cpu_seq
+   
+ static __inline__ void rt_free(struct rtable *rt)
+ {
+-	call_rcu(&rt->u.dst.rcu_head, (void (*)(void *))dst_free, &rt->u.dst);
++	call_rcu(&rt->u.dst.rcu_head, dst_rcu_free);
+ }
+ 
+ static __inline__ void rt_drop(struct rtable *rt)
+ {
+ 	ip_rt_put(rt);
+-	call_rcu(&rt->u.dst.rcu_head, (void (*)(void *))dst_free, &rt->u.dst);
++	call_rcu(&rt->u.dst.rcu_head, dst_rcu_free);
+ }
+ 
+ static __inline__ int rt_fast_clean(struct rtable *rth)
+diff -puN arch/ppc64/mm/tlb.c~rcu-no-arg arch/ppc64/mm/tlb.c
+--- linux-2.6.6-rcu/arch/ppc64/mm/tlb.c~rcu-no-arg	2004-06-12 00:23:38.000000000 +0530
++++ linux-2.6.6-rcu-dipankar/arch/ppc64/mm/tlb.c	2004-06-12 00:32:37.000000000 +0530
+@@ -127,9 +127,10 @@ void pte_free_now(struct page *ptepage)
+ 	pte_free(ptepage);
+ }
+ 
+-static void pte_free_rcu_callback(void *arg)
++static void pte_free_rcu_callback(struct rcu_head *head)
+ {
+-	struct pte_freelist_batch *batch = arg;
++	struct pte_freelist_batch *batch = 
++		container_of(head, struct pte_freelist_batch, rcu);
+ 	unsigned int i;
+ 
+ 	for (i = 0; i < batch->index; i++)
+@@ -140,7 +141,7 @@ static void pte_free_rcu_callback(void *
+ void pte_free_submit(struct pte_freelist_batch *batch)
+ {
+ 	INIT_RCU_HEAD(&batch->rcu);
+-	call_rcu(&batch->rcu, pte_free_rcu_callback, batch);
++	call_rcu(&batch->rcu, pte_free_rcu_callback);
+ }
+ 
+ void pte_free_finish(void)
+diff -puN kernel/auditsc.c~rcu-no-arg kernel/auditsc.c
+--- linux-2.6.6-rcu/kernel/auditsc.c~rcu-no-arg	2004-06-12 00:35:09.000000000 +0530
++++ linux-2.6.6-rcu-dipankar/kernel/auditsc.c	2004-06-12 00:40:37.000000000 +0530
+@@ -177,9 +177,10 @@ static inline int audit_add_rule(struct 
+ 	return 0;
+ }
+ 
+-static void audit_free_rule(void *arg)
++static void audit_free_rule(struct rcu_head *head)
+ {
+-	kfree(arg);
++	struct audit_entry *e = container_of(head, struct audit_entry, rcu);
++	kfree(e);
+ }
+ 
+ /* Note that audit_add_rule and audit_del_rule are called via
+@@ -195,7 +196,7 @@ static inline int audit_del_rule(struct 
+ 	list_for_each_entry(e, list, list) {
+ 		if (!audit_compare_rule(rule, &e->rule)) {
+ 			list_del_rcu(&e->list);
+-			call_rcu(&e->rcu, audit_free_rule, e);
++			call_rcu(&e->rcu, audit_free_rule);
+ 			return 0;
+ 		}
+ 	}
+diff -puN security/selinux/netif.c~rcu-no-arg security/selinux/netif.c
+--- linux-2.6.6-rcu/security/selinux/netif.c~rcu-no-arg	2004-06-12 00:38:57.000000000 +0530
++++ linux-2.6.6-rcu-dipankar/security/selinux/netif.c	2004-06-12 00:40:28.000000000 +0530
+@@ -134,9 +134,9 @@ out:
+ 	return netif;
+ }
+ 
+-static void sel_netif_free(void *p)
++static void sel_netif_free(struct rcu_head *p)
+ {
+-	struct sel_netif *netif = p;
++	struct sel_netif *netif = container_of(p, struct sel_netif, rcu_head);
+ 	
+ 	DEBUGP("%s: %s\n", __FUNCTION__, netif->nsec.dev->name);
+ 	kfree(netif);
+@@ -151,7 +151,7 @@ static void sel_netif_destroy(struct sel
+ 	sel_netif_total--;
+ 	spin_unlock_bh(&sel_netif_lock);
+ 
+-	call_rcu(&netif->rcu_head, sel_netif_free, netif);
++	call_rcu(&netif->rcu_head, sel_netif_free);
+ }
+ 
+ void sel_netif_put(struct sel_netif *netif)
 
 _

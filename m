@@ -1,68 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272674AbRHaMSp>; Fri, 31 Aug 2001 08:18:45 -0400
+	id <S272679AbRHaMhS>; Fri, 31 Aug 2001 08:37:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272676AbRHaMSe>; Fri, 31 Aug 2001 08:18:34 -0400
-Received: from www.heureka.co.at ([195.64.11.111]:19720 "EHLO
-	www.heureka.co.at") by vger.kernel.org with ESMTP
-	id <S272674AbRHaMSS>; Fri, 31 Aug 2001 08:18:18 -0400
-Date: Fri, 31 Aug 2001 14:18:04 +0200
-From: David Schmitt <david@heureka.co.at>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ISSUE: DFE530-TX REV-A3-1 times out on transmit
-Message-ID: <20010831141803.A15177@www.heureka.co.at>
-In-Reply-To: <20010829144834.A32319@www.heureka.co.at> <Pine.LNX.4.30.0108292012440.1604-100000@cola.teststation.com>
+	id <S272680AbRHaMhH>; Fri, 31 Aug 2001 08:37:07 -0400
+Received: from [195.89.159.99] ([195.89.159.99]:6138 "EHLO kushida.degree2.com")
+	by vger.kernel.org with ESMTP id <S272679AbRHaMg6>;
+	Fri, 31 Aug 2001 08:36:58 -0400
+Date: Fri, 31 Aug 2001 13:37:50 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Ion Badulescu <ionut@cs.columbia.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+Message-ID: <20010831133750.A25128@thefinal.cern.ch>
+In-Reply-To: <200108310128.f7V1SSn08071@moisil.badula.org> <Pine.LNX.4.33.0108302204350.15159-100000@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.30.0108292012440.1604-100000@cola.teststation.com>
-User-Agent: Mutt/1.3.20i
-Organization: Heureka - Der EDV-Dienstleister
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0108302204350.15159-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Aug 30, 2001 at 10:08:03PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 29, 2001 at 08:45:34PM +0200, Urban Widmark wrote:
-> On Wed, 29 Aug 2001, David Schmitt wrote:
-> > under 'normal loads' (ie one tcp d/l at max, few other traffic) the
-> > situation didn' get better, it hangs as often as with the original
-> > via-rhine, at least it feels so. No hard figures here. But even
-> > writing this mail (via ssh) here parallel to a download over the lan
-> > (from the same server) triggers resets.
+Linus Torvalds wrote:
+> > 	if (len <= (int) sizeof(short) || len > (int) sizeof(*sunaddr))
 > 
-> That is still pretty awful ... but it doesn't stop working?
-> (you say hangs, but then resets)
-
-sorry, sloppy language. hang == reset (in this case)
-
-> > under heavy loads (ie with multiple flood pings) it resets often but I
-> > couldn't push it over the edge anymore. I have it running now for
-> > several minutes under multiple pingfloods and it always recovered
-> > (from quite a amount of resets).
+> You're so full of shit that it's incredible.
 > 
-> Ok, that means the "D-Link magic" does improve reset.
+> I'mnot going to argue this, when people call stuff like the above the
+> "natural way". This is not worth it.
 
-Yes. Until your patch 2.4.9 resetted three or four times sucessfully
-and then the resets stopped working. With your patch it resets as
-often but doesn't fail resetting anymore.
+While I agree with Linus that the above line is ugly, there is a problem
+with the original line:
 
-> It may be interesting to find out which parts that help. I simply added
-> things that looked good ... Lacking information on what the bit-flipping
-> is supposed to do, one way to try and do that is to remove code and see
-> how much can be removed without breaking anything.
-> (Sounds like a childrens game, except for programmers ...)
+    if (len <= sizeof(short) || len > sizeof(*sunaddr))
 
-Hehe, bruteforcing it :-))
+The problem?  Thinking this is natural, suppose you decide you only need
+to check len against sizeof(short), perhaps here, perhaps copying this
+idea to another part of the program:
 
-> I'll still try generating collisions and see what happens. If I can't
-> reproduce this perhaps you would test a different patch to see which
-> change that made a difference?
+    if (len <= sizeof(short))
 
-Sure, the machine is fast enough to handle another kernel recompile or
-two :^))
+_This_ code has a bug.  The comparison is unsigned; i.e. len is
+converted to unsigned int first, so if the user passes a negative value,
+the comparison returns false and the code will break.  It only works in
+the original example because the second comparison checks the bogus
+results of the first one.
 
+Now, any later use of len should not lead to a buffer overflow or
+anything, because you always check against a maximum size for copying,
+yes?
 
+No.  Consider this hypothetical code to copy things up to a page at a
+time.  len is a signed type s.t. sizeof(len) <= sizeof(size_t):
 
-Regards, David
--- 
-Signaturen sind wie Frauen. Man findet selten eine Vernuenftige
-	-- gesehen in at.linux
+   if (len <= sizeof(struct thing) || len > MAX_BUFFER_SIZE) {
+           printk(KERN_ERR "Sanity check failed!\n");
+           goto out;
+   }
+   memcpy (to, from, len);
+
+Inexperienced C programmers, and sleepy ones, may not see the fault.
+
+cheers,
+-- Jamie

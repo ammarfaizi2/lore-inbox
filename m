@@ -1,49 +1,113 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280676AbRKNQPv>; Wed, 14 Nov 2001 11:15:51 -0500
+	id <S280670AbRKNQZD>; Wed, 14 Nov 2001 11:25:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280678AbRKNQPm>; Wed, 14 Nov 2001 11:15:42 -0500
-Received: from bernstein.mrc-bsu.cam.ac.uk ([193.60.86.52]:4500 "EHLO
-	bernstein.mrc-bsu.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S280676AbRKNQP1>; Wed, 14 Nov 2001 11:15:27 -0500
-Date: Wed, 14 Nov 2001 16:15:24 +0000 (GMT)
-From: Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>
-X-X-Sender: <alastair@gurney>
-To: Matthew Sell <msell@ontimesupport.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Athlon SMP blues - kernels 2.4.[9 13 15-pre4]
-In-Reply-To: <5.1.0.14.0.20011114090926.00a87d88@127.0.0.1>
-Message-ID: <Pine.GSO.4.33.0111141607170.14971-100000@gurney>
+	id <S280678AbRKNQYx>; Wed, 14 Nov 2001 11:24:53 -0500
+Received: from lightning.hereintown.net ([207.196.96.3]:3227 "EHLO
+	lightning.hereintown.net") by vger.kernel.org with ESMTP
+	id <S280670AbRKNQYl>; Wed, 14 Nov 2001 11:24:41 -0500
+Date: Wed, 14 Nov 2001 11:40:41 -0500 (EST)
+From: Chris Meadors <clubneon@hereintown.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.15-pre4 fails to build in setup.c
+Message-ID: <Pine.LNX.4.40.0111141136540.88-200000@rc.priv.hereintown.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463805697-1276782806-1005756041=:88"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> We just finished putting together what was for us a pretty big box using
-> the Tyan S2460 with 1.4GHz Athlons (not MP) and ran into some troublesome
-> heating problems.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Well, I finally managed to check, and both CPUs are at 76C - sounds
-quite hot to me. Is that problematic? I've never run these Athlons
-before, so I'm not sure what's supposed to be normal ;-)
+---1463805697-1276782806-1005756041=:88
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Going back to kernel issues - I tried the Red Hat enterprise kernel
-(2.4.9-13), but that's no go either. Basically, the summary is:
+I don't think I've seen this yet.
 
-  - Red Hat Kernel (any) boots fine, hangs at login prompt
-  - Red Hat Kernel SINGLE USER runs fine and lets me hack around
-  - Custom kernel (2.4.15-pre4 SMP) hangs due to failing to
-    mount the root partition (initrd issue I think)
+Build failed with this error:
 
-I have experienced the "hanging at login prompt" issue before - with
-good old Red Hat 7.0. That was solved by upgrading the broken gcc and
-broken glibc, and didn't even appear to be a kernel issue.
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
+-pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4     -c
+-o setup.o setup.c
+setup.c: In function `c_start':
+setup.c:2791: subscripted value is neither array nor pointer
+setup.c:2792: warning: control reaches end of non-void function
+make[1]: *** [setup.o] Error 1
+make[1]: Leaving directory `/usr/src/linux/arch/i386/kernel'
+make: *** [_dir_arch/i386/kernel] Error 2
 
-Cheers
-Alastair
+My "grep ^CONFIG .config" is attatched.
 
-o o o o o o o o o o o o o o o o o o o o o o o o o o o o
-Alastair Stevens           \ \
-MRC Biostatistics Unit      \ \___________ 01223 330383
-Cambridge UK                 \___ www.mrc-bsu.cam.ac.uk
+-Chris
+-- 
+Two penguins were walking on an iceberg.  The first penguin said to the
+second, "you look like you are wearing a tuxedo."  The second penguin
+said, "I might be..."                         --David Lynch, Twin Peaks
 
+---1463805697-1276782806-1005756041=:88
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=config
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.40.0111141140410.88@rc.priv.hereintown.net>
+Content-Description: 
+Content-Disposition: attachment; filename=config
+
+Q09ORklHX1g4Nj15DQpDT05GSUdfSVNBPXkNCkNPTkZJR19VSUQxNj15DQpD
+T05GSUdfRVhQRVJJTUVOVEFMPXkNCkNPTkZJR19NT0RVTEVTPXkNCkNPTkZJ
+R19LTU9EPXkNCkNPTkZJR19NSzc9eQ0KQ09ORklHX1g4Nl9XUF9XT1JLU19P
+Sz15DQpDT05GSUdfWDg2X0lOVkxQRz15DQpDT05GSUdfWDg2X0NNUFhDSEc9
+eQ0KQ09ORklHX1g4Nl9YQUREPXkNCkNPTkZJR19YODZfQlNXQVA9eQ0KQ09O
+RklHX1g4Nl9QT1BBRF9PSz15DQpDT05GSUdfUldTRU1fWENIR0FERF9BTEdP
+UklUSE09eQ0KQ09ORklHX1g4Nl9MMV9DQUNIRV9TSElGVD02DQpDT05GSUdf
+WDg2X1RTQz15DQpDT05GSUdfWDg2X0dPT0RfQVBJQz15DQpDT05GSUdfWDg2
+X1VTRV8zRE5PVz15DQpDT05GSUdfWDg2X1BHRT15DQpDT05GSUdfWDg2X1VT
+RV9QUFJPX0NIRUNLU1VNPXkNCkNPTkZJR19YODZfTVNSPXkNCkNPTkZJR19Y
+ODZfQ1BVSUQ9eQ0KQ09ORklHX05PSElHSE1FTT15DQpDT05GSUdfTVRSUj15
+DQpDT05GSUdfTkVUPXkNCkNPTkZJR19QQ0k9eQ0KQ09ORklHX1BDSV9HT0FO
+WT15DQpDT05GSUdfUENJX0JJT1M9eQ0KQ09ORklHX1BDSV9ESVJFQ1Q9eQ0K
+Q09ORklHX1BDSV9OQU1FUz15DQpDT05GSUdfU1lTVklQQz15DQpDT05GSUdf
+QlNEX1BST0NFU1NfQUNDVD15DQpDT05GSUdfU1lTQ1RMPXkNCkNPTkZJR19L
+Q09SRV9FTEY9eQ0KQ09ORklHX0JJTkZNVF9FTEY9eQ0KQ09ORklHX1BNPXkN
+CkNPTkZJR19BQ1BJPXkNCkNPTkZJR19BQ1BJX0JVU01HUj15DQpDT05GSUdf
+QUNQSV9TWVM9eQ0KQ09ORklHX0FDUElfQ1BVPXkNCkNPTkZJR19BQ1BJX0JV
+VFRPTj15DQpDT05GSUdfUEFSUE9SVD15DQpDT05GSUdfUEFSUE9SVF9QQz15
+DQpDT05GSUdfUEFSUE9SVF9QQ19DTUwxPXkNCkNPTkZJR19QQVJQT1JUX1BD
+X0ZJRk89eQ0KQ09ORklHX1BBUlBPUlRfMTI4ND15DQpDT05GSUdfUE5QPXkN
+CkNPTkZJR19JU0FQTlA9eQ0KQ09ORklHX0JMS19ERVZfRkQ9eQ0KQ09ORklH
+X1BBQ0tFVD15DQpDT05GSUdfUEFDS0VUX01NQVA9eQ0KQ09ORklHX05FVExJ
+Tks9eQ0KQ09ORklHX1JUTkVUTElOSz15DQpDT05GSUdfTkVURklMVEVSPXkN
+CkNPTkZJR19GSUxURVI9eQ0KQ09ORklHX1VOSVg9eQ0KQ09ORklHX0lORVQ9
+eQ0KQ09ORklHX0lERT15DQpDT05GSUdfQkxLX0RFVl9JREU9eQ0KQ09ORklH
+X0JMS19ERVZfSURFUENJPXkNCkNPTkZJR19JREVQQ0lfU0hBUkVfSVJRPXkN
+CkNPTkZJR19CTEtfREVWX0lERURNQV9QQ0k9eQ0KQ09ORklHX0JMS19ERVZf
+QURNQT15DQpDT05GSUdfSURFRE1BX1BDSV9BVVRPPXkNCkNPTkZJR19CTEtf
+REVWX0lERURNQT15DQpDT05GSUdfQkxLX0RFVl9WSUE4MkNYWFg9eQ0KQ09O
+RklHX0lERURNQV9BVVRPPXkNCkNPTkZJR19CTEtfREVWX0lERV9NT0RFUz15
+DQpDT05GSUdfU0NTST15DQpDT05GSUdfQkxLX0RFVl9TRD15DQpDT05GSUdf
+U0RfRVhUUkFfREVWUz0wDQpDT05GSUdfQkxLX0RFVl9TUj15DQpDT05GSUdf
+U1JfRVhUUkFfREVWUz0wDQpDT05GSUdfQ0hSX0RFVl9TRz15DQpDT05GSUdf
+U0NTSV9TWU01M0M4WFhfMj15DQpDT05GSUdfU0NTSV9TWU01M0M4WFhfRE1B
+X0FERFJFU1NJTkdfTU9ERT0wDQpDT05GSUdfU0NTSV9TWU01M0M4WFhfREVG
+QVVMVF9UQUdTPTMyDQpDT05GSUdfU0NTSV9TWU01M0M4WFhfTUFYX1RBR1M9
+MzINCkNPTkZJR19ORVRERVZJQ0VTPXkNCkNPTkZJR19ORVRfRVRIRVJORVQ9
+eQ0KQ09ORklHX05FVF9QQ0k9eQ0KQ09ORklHX0VQSUMxMDA9eQ0KQ09ORklH
+X1ZUPXkNCkNPTkZJR19WVF9DT05TT0xFPXkNCkNPTkZJR19TRVJJQUw9eQ0K
+Q09ORklHX1NFUklBTF9DT05TT0xFPXkNCkNPTkZJR19VTklYOThfUFRZUz15
+DQpDT05GSUdfVU5JWDk4X1BUWV9DT1VOVD0yNTYNCkNPTkZJR19JMkM9eQ0K
+Q09ORklHX0kyQ19DSEFSREVWPXkNCkNPTkZJR19JMkNfUFJPQz15DQpDT05G
+SUdfTU9VU0U9eQ0KQ09ORklHX1BTTU9VU0U9eQ0KQ09ORklHX05WUkFNPXkN
+CkNPTkZJR19SVEM9eQ0KQ09ORklHX0FHUD15DQpDT05GSUdfQUdQX1ZJQT15
+DQpDT05GSUdfRFJNPXkNCkNPTkZJR19EUk1fTUdBPXkNCkNPTkZJR19FWFQz
+X0ZTPXkNCkNPTkZJR19KQkQ9eQ0KQ09ORklHX0ZBVF9GUz15DQpDT05GSUdf
+VkZBVF9GUz15DQpDT05GSUdfVE1QRlM9eQ0KQ09ORklHX0lTTzk2NjBfRlM9
+eQ0KQ09ORklHX0pPTElFVD15DQpDT05GSUdfUFJPQ19GUz15DQpDT05GSUdf
+REVWRlNfRlM9eQ0KQ09ORklHX0RFVkZTX01PVU5UPXkNCkNPTkZJR19NU0RP
+U19QQVJUSVRJT049eQ0KQ09ORklHX05MUz15DQpDT05GSUdfTkxTX0RFRkFV
+TFQ9Imlzbzg4NTktMSINCkNPTkZJR19WR0FfQ09OU09MRT15DQpDT05GSUdf
+VklERU9fU0VMRUNUPXkNCkNPTkZJR19TT1VORD15DQpDT05GSUdfU09VTkRf
+T1NTPXkNCkNPTkZJR19TT1VORF9ETUFQPXkNCkNPTkZJR19TT1VORF9QQVM9
+eQ0KQ09ORklHX1BBU19KT1lTVElDSz15DQpDT05GSUdfVVNCPXkNCkNPTkZJ
+R19VU0JfREVWSUNFRlM9eQ0KQ09ORklHX1VTQl9VSENJPXkNCkNPTkZJR19E
+RUJVR19LRVJORUw9eQ0KQ09ORklHX01BR0lDX1NZU1JRPXkNCg==
+---1463805697-1276782806-1005756041=:88--

@@ -1,51 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317663AbSGJXCc>; Wed, 10 Jul 2002 19:02:32 -0400
+	id <S317660AbSGJXBC>; Wed, 10 Jul 2002 19:01:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317664AbSGJXCb>; Wed, 10 Jul 2002 19:02:31 -0400
-Received: from pD952AE71.dip.t-dialin.net ([217.82.174.113]:41859 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317663AbSGJXCa>; Wed, 10 Jul 2002 19:02:30 -0400
-Date: Wed, 10 Jul 2002 17:05:06 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Eli Carter <eli.carter@inet.com>
-cc: Thunder from the hill <thunder@ngforever.de>,
-       Andrew Morton <akpm@zip.com.au>,
-       "Grover, Andrew" <andrew.grover@intel.com>,
-       Linux <linux-kernel@vger.kernel.org>
-Subject: Re: HZ, preferably as small as possible
-In-Reply-To: <3D2CBA08.6000604@inet.com>
-Message-ID: <Pine.LNX.4.44.0207101658440.5067-100000@hawkeye.luckynet.adm>
+	id <S317662AbSGJXBB>; Wed, 10 Jul 2002 19:01:01 -0400
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:61359 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S317660AbSGJXBA> convert rfc822-to-8bit; Wed, 10 Jul 2002 19:01:00 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <mcp@linux-systeme.de>
+Organization: Linux-Systeme GmbH
+To: Daniel Phillips <phillips@arcor.de>,
+       Andreas Dilger <adilger@clusterfs.com>
+Subject: Re: htree directory indexing 2.4.18-2 BUG with highmem and also high i/o
+Date: Thu, 11 Jul 2002 01:03:37 +0200
+X-Mailer: KMail [version 1.4]
+Cc: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org
+References: <200207092333.01130.mcp@linux-systeme.de> <20020710210153.GA1045@clusterfs.com> <E17SQE4-00029R-00@starship>
+In-Reply-To: <E17SQE4-00029R-00@starship>
+X-PRIORITY: 2 (High)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200207110103.37380.mcp@linux-systeme.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thursday 11 July 2002 00:46, Daniel Phillips wrote:
 
-On Wed, 10 Jul 2002, Eli Carter wrote:
-> Perhaps s/increased/shortened/ ?
+Hi Daniel, Hi Andreas,
 
-'Course. Sorry, I'm quite out of bounds since I heard that tonight some of 
-my friends possibly got lost in the storm in Germany. I wished them lots 
-of fun on their canoe tour at the Mueritz...
+> On Wednesday 10 July 2002 23:01, Andreas Dilger wrote:
+> > On Jul 09, 2002  23:33 +0200, Marc-Christian Petersen wrote:
+> > > Hi Daniel,
+> > >
+> > > I've found a bug with htree directory indexing patch and
+> > > highmem enabled (64GB). This is with 2.4.18 and htree patch
+> > > 2.4.18-2. Oops appears if accessing an ext2 partition with ls
+> > > or doing "who/w" in the directory of the ext2 partition.
+> >
+> > The ext2 htree patch probably needs to add a "kmap()" and "kunmap()"
+> > in the function that reads a page and scans the directory for the
+> > name it is looking for.  I can't be any more specific than this
+> > right now since I only have the ext3 version of this patch, and it
+> > does not have page-cache based directories (it is still using the
+> > buffer cache).
 
-I think I'll get back there tonight, so don't expect many responses, TAs 
-are ugly. Of course I'll try to get on working meanwhile.
+Say, where can i find those patch for ext3? I've searched a long time and 
+never found it?! :|
 
-The patch w/ the shortened-update is now at
 
-http://luckynet.dynu.com/~thunder/patches/CONFIG_SCHED_LOW_HZ.patch
-
-							Regards,
-							Thunder
 -- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
+Kind regards
+        Marc-Christian Petersen
 
+http://sourceforge.net/projects/wolk
+
+PGP/GnuPG Key: 1024D/408B2D54947750EC
+Fingerprint: 8602 69E0 A9C2 A509 8661 2B0B 408B 2D54 9477 50EC
+Key available at www.keyserver.net. Encrypted e-mail preferred.

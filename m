@@ -1,60 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281683AbRKQCVp>; Fri, 16 Nov 2001 21:21:45 -0500
+	id <S281684AbRKQCXZ>; Fri, 16 Nov 2001 21:23:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281685AbRKQCVf>; Fri, 16 Nov 2001 21:21:35 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:59778 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S281683AbRKQCVT>; Fri, 16 Nov 2001 21:21:19 -0500
-Message-ID: <002e01c16f0e$6a2290c0$f5976dcf@nwfs>
-From: "Jeff Merkey" <jmerkey@timpanogas.org>
-To: "David Flynn" <Dave@keston.u-net.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <002501c16e0c$d3800550$f5976dcf@nwfs> <016a01c16e14$3a937c70$1901a8c0@node0.idium.eu.org>
-Subject: Re: Microsoft IE6 is crashing with Linux 2.4.X
-Date: Fri, 16 Nov 2001 19:20:23 -0700
+	id <S281685AbRKQCXQ>; Fri, 16 Nov 2001 21:23:16 -0500
+Received: from CPE-61-9-148-175.vic.bigpond.net.au ([61.9.148.175]:40943 "EHLO
+	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id <S281684AbRKQCXF>; Fri, 16 Nov 2001 21:23:05 -0500
+Message-ID: <3BF5C9DA.DA060A38@eyal.emu.id.au>
+Date: Sat, 17 Nov 2001 13:22:18 +1100
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.15-pre5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+To: linux-kernel@vger.kernel.org
+Subject: Re: It's me again ...
+In-Reply-To: <20011117015851.531B415B4A@kubrick.trljc.com>
+Content-Type: multipart/mixed;
+ boundary="------------CFD801D177A11D641B288A20"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave,
+This is a multi-part message in MIME format.
+--------------CFD801D177A11D641B288A20
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-We got to the bottom of the problem.  IE6 is just plain busted and infested
-with bugs.
+Tony Reed wrote:
+> 
+> I've been building kernels since 2.2.15 or something, and I've never
+> had problems before, so bear with me.
+> 
+> Where is "deacivate_page" defined?  Because, right at the end, I'm
+> getting:
 
-Jeff
+Read the list, there is a well known patch.
 
------ Original Message -----
-From: "David Flynn" <Dave@keston.u-net.com>
-To: "Jeff V. Merkey" <jmerkey@timpanogas.org>;
-<linux-kernel@vger.kernel.org>
-Sent: Thursday, November 15, 2001 1:29 PM
-Subject: Re: Microsoft IE6 is crashing with Linux 2.4.X
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.anu.edu.au/eyal/>
+--------------CFD801D177A11D641B288A20
+Content-Type: text/plain; charset=us-ascii;
+ name="2.4.14-loop.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="2.4.14-loop.patch"
 
+--- linux-2.4.14/drivers/block/loop.c	Thu Oct 25 13:58:34 2001
++++ linux-2.4.14-loop/drivers/block/loop.c	Mon Nov  5 17:06:08 2001
+@@ -207,7 +207,6 @@
+ 		index++;
+ 		pos += size;
+ 		UnlockPage(page);
+-		deactivate_page(page);
+ 		page_cache_release(page);
+ 	}
+ 	return 0;
+@@ -218,7 +217,6 @@
+ 	kunmap(page);
+ unlock:
+ 	UnlockPage(page);
+-	deactivate_page(page);
+ 	page_cache_release(page);
+ fail:
+ 	return -1;
 
-> > The connection to the server has failed. Account: 'mail.timpanogas.org',
-> > Server: 'mail.timpanogas.org', Protocol: SMTP, Port: 25, Secure(SSL):
-No,
-> > Socket Error: 10061, Error Number: 0x800CCC0E
->
-> This error is WSACONNREFUSED, (ie connection refused), this is generated
-by
-> the target machine.  Check to see if you can 'telnet' the into the box,
->
-> telnet mail.timpanogas.org 25
->
-> see if it connects and gives the '220 identification line' it will look
-> something like this:
-> 220 firewall0.node0.idium.eu.org ESMTP Exim 3.31 #1 Thu, 15 Nov 2001
-> 20:25:00 +0000
->
-> Regards,
->
-> Dave
+--------------CFD801D177A11D641B288A20--
 

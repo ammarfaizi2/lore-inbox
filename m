@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265226AbTLRQ2i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 11:28:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265239AbTLRQ2i
+	id S265228AbTLRQhf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 11:37:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265237AbTLRQhf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 11:28:38 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:31759 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S265226AbTLRQ2h
+	Thu, 18 Dec 2003 11:37:35 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:33807 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S265228AbTLRQhd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 11:28:37 -0500
+	Thu, 18 Dec 2003 11:37:33 -0500
 To: linux-kernel@vger.kernel.org
 Path: gatekeeper.tmr.com!davidsen
 From: davidsen@tmr.com (bill davidsen)
 Newsgroups: mail.linux-kernel
-Subject: Re: Linux 2.6.0
-Date: 18 Dec 2003 16:17:05 GMT
+Subject: Re: Can't wait for '2.8 or 3.0',or maybe: 2.8 followed by 2.10 ??
+Date: 18 Dec 2003 16:26:02 GMT
 Organization: TMR Associates, Schenectady NY
-Message-ID: <brsju1$ckg$1@gatekeeper.tmr.com>
-References: <Pine.LNX.4.58.0312171951030.5789@home.osdl.org> <20031217211516.2c578bab.akpm@osdl.org> <200312181112.43745.ismail.donmez@boun.edu.tr> <006201c3c54c$2bb00c50$0e25fe0a@southpark.ae.poznan.pl>
-X-Trace: gatekeeper.tmr.com 1071764225 12944 192.168.12.62 (18 Dec 2003 16:17:05 GMT)
+Message-ID: <brskeq$cmk$1@gatekeeper.tmr.com>
+References: <Pine.LNX.4.44.0312181158200.6440-100000@gaia.cela.pl> <200312181114.hBIBEMB3000252@81-2-122-30.bradfords.org.uk> <00a501c3c564$fd4a91f0$0e25fe0a@southpark.ae.poznan.pl>
+X-Trace: gatekeeper.tmr.com 1071764762 13012 192.168.12.62 (18 Dec 2003 16:26:02 GMT)
 X-Complaints-To: abuse@tmr.com
 Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <006201c3c54c$2bb00c50$0e25fe0a@southpark.ae.poznan.pl>,
+In article <00a501c3c564$fd4a91f0$0e25fe0a@southpark.ae.poznan.pl>,
 Maciej Soltysiak <solt@dns.toxicfilms.tv> wrote:
-| > Wondering if ALSA and Latest Usb updates from Greg KH will make it into
-| > 2.6.1 ?
-| Is anything known about reiserfs4 becoming stable enough to be included some
-| time soon. Maybe around 2.6.3-5
+| > I think we should consider introduce a policy of having .*beaver.*
+| > names for each 2.6.x release, and maybe drop the version numbers
+| > altogether during 2.7.
+| How about a naming policy of something going along this:
+| Stag (2.2)
+| Wolfling (2.4)
+| Beaver (2.6)
+| Rooster (2.7)
+| Ostrich (2.8)
+| Sharkey (2.9)
+| Cheetah (3.0)
+| 
+| And all having names of animals. Like in Croatia, their local currency
+| has only pictures of animals and plants on the bills and coins.
 
-I think that's vastly optimistic. As Hans has reported, it's still
-pretty alpha as yet. And you can thank him for not releasing it until
-he's happy with it!
+The stable releases should have the names of nice non-threatening
+herbivores, like beaver, and the development trees should have names of
+omnivores. Subreleases can have an adjective prepended, like singing,
+dancing, horny, constipated... well, maybe someone else should do the
+naming of subversions ;-)
 
-I would guess it will be in 2.7 first, and backported when stable, but
-that's sure not my call, so feel free to disagree.
+A good job by any name.
 -- 
 bill davidsen <davidsen@tmr.com>
   CTO, TMR Associates, Inc

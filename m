@@ -1,157 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262603AbTLPVLl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 16:11:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262674AbTLPVLl
+	id S262758AbTLPV10 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 16:27:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262760AbTLPV10
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 16:11:41 -0500
-Received: from cv48.neoplus.adsl.tpnet.pl ([80.54.218.48]:29197 "EHLO
-	satan.blackhosts") by vger.kernel.org with ESMTP id S262603AbTLPVL0
+	Tue, 16 Dec 2003 16:27:26 -0500
+Received: from rogue.ncsl.nist.gov ([129.6.101.41]:29621 "EHLO
+	rogue.ncsl.nist.gov") by vger.kernel.org with ESMTP id S262758AbTLPV1Z
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 16:11:26 -0500
-Date: Tue, 16 Dec 2003 22:16:12 +0100
-From: Jakub Bogusz <qboosh@pld-linux.org>
+	Tue, 16 Dec 2003 16:27:25 -0500
 To: linux-kernel@vger.kernel.org
-Cc: dev@grsecurity.net
-Subject: [2.4.x, 2.6 problem] registering of empty /proc/sys dirs leads to leaving pointers to freed memory
-Message-ID: <20031216211611.GA16183@satan.blackhosts>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="ReaqsoxgOBHFXBhH"
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-Organization: Black Hosts
+Subject: DV failed to configure device 
+From: Ian Soboroff <ian.soboroff@nist.gov>
+Date: Tue, 16 Dec 2003 16:27:24 -0500
+Message-ID: <9cfhe00mp1f.fsf@rogue.ncsl.nist.gov>
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---ReaqsoxgOBHFXBhH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Running 2.4.23 I get the following message from the aic7xxx driver
+during boot:
 
-(sent to linux-kernel and grsecurity dev)
+scsi1:A:3:0: DV failed to configure device.  Please file a bug report against th
+is driver.
+(scsi1:A:3): 160.000MB/s transfers (80.000MHz DT, offset 31, 16bit)
+  Vendor: JetStor   Model: III IDE           Rev: 0001
+  Type:   Direct-Access                      ANSI SCSI revision: 03
+blk: queue c7d74418, I/O limit 524287Mb (mask 0x7fffffffff)
+  Vendor: JetStor   Model: III IDE           Rev: 0001
+  Type:   Direct-Access                      ANSI SCSI revision: 03
+blk: queue c7d74e18, I/O limit 524287Mb (mask 0x7fffffffff)
+scsi1:A:3:0: Tagged Queuing enabled.  Depth 253
+scsi1:A:3:1: Tagged Queuing enabled.  Depth 253
+Attached scsi disk sdb at scsi1, channel 0, id 3, lun 0
+Attached scsi disk sdc at scsi1, channel 0, id 3, lun 1
+SCSI device sdb: 2941353984 512-byte hdwr sectors (1505973 MB)
+ sdb: sdb1
+SCSI device sdc: 2451128320 512-byte hdwr sectors (1254978 MB)
+ sdc: sdc1
 
-Hello,
+(The key bit is the first line... the rest are hopefully enough
+context to make it useful ;-)  This happens to be a RAID I have
+attached to the HBA, a 39160, but I get this message with other,
+smaller RAIDs as well.)
 
-Yesterday I got an Oops on somewhat patched 2.4.20 when trying to run
-"sensors" program without lm_sensors modules actually loaded. It
-appeared that Oops occurs when numeric sysctl is performed with
-{CTL_DEV, DEV_SENSORS, SENSORS_CHIPS} while there was even no
-/proc/sys/dev directory (it was created on boot, then used by some
-module and disappeared after module removal).
+I am dutifully filing a bug report, but frankly I have no idea either
+from the message or the driver README or the driver source if I should
+actually care.  Should I?  What's DV, and how is the device not
+configured?  It seems to work ok.
 
-Although Oops is triggered in grsecurity code (in kernel/sysctl.c
-ctl_perm() dereferences table->de->parent), it's caused by ugly
-behaviour in raw, unpatched kernel.
+I sent mail to Justin Gibbs but never got a response.
 
-Scenario
-1. sysctl_init() in kernel/sysctl.c registers some sysctl tables
-together with /proc/sys entries (including empty /proc/sys/dev and
-/proc/sys/proc dirs).
-2. some module, say "rtc", is loaded and creates some entry in
-/proc/sys/dev
-3. this module is unloaded, it unregisters its sysctl and /proc/sys
-entries... and unregister_proc_table() removes empty, not used
-/proc/sys/dev directory. Directory disappears from filesystem, but
-empty CTL_DEV table still exists... and root_table[CTL_DEV].de contains
-a pointer to memory, which has been freed (well, at least seems to be;
-it's apparently used for other things - I checked it by reading from
-/dev/kmem).
-Although there is no access /proc/sys/dev, sysctl table for it is
-still accessible by numeric sysctls.
+Ian
 
-This behaviour seems the same in 2.4.x and 2.6.0-test up to test11
-(checked by reading structures from /dev/kmem).
-
-Consequences:
-- it's harmless in vanilla 2.4.x (I haven't found any read accesses to
-  table->de other than in unregister_proc_table())
-- in 2.4.x with grsecurity (confirmed on 2.4.23+grsec 2.0-rc3) it causes
-  Oops in ctl_perm() on dereferencing table->de->parent or table->de->name
-- in vanilla 2.6.0test similar issue may exist in selinux's sysctl hook
-  (I found that it dereferences table->de too)
-
-Possible fixes:
-- avoid creating empty directories in /proc/sys, as they could be easily
-  removed after some module removal (simplest one I think; attached
-  patch (it's for 2.4.x, but porting to 2.6.0 seems simple) does this -
-  it works for me and I can't see any side effects as for now; but I'm
-  not sure if some other modules don't create empty directories - it must
-  be checked)
-
-- or maybe don't remove directory if it was created as empty one?
-
-- or maybe when removing directory entry, clear all table->de pointers
-  pointing to it?
-
-
--- 
-Jakub Bogusz    http://cyber.cs.net.pl/~qboosh/
-PLD Linux       http://www.pld-linux.org/
-
---ReaqsoxgOBHFXBhH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="linux-2.4-sysctl-empty.patch"
-
-Don't register empty sysctl dirs in /proc/sys.
-They would be removed after registering some other sysctl(s) in the
-same directory (e.g. rtc in /proc/sys/dev) and unregistering all of
-them (then initially empty e.g. /proc/sys/dev disappears).
-After disappearing of directory topdir ->de (for "dev") points to
-structure which has been freed.
-It's harmless in vanilla 2.4, but with grsecurity causes an Oops
-on numeric sysctls referring to removed directory (even with all
-grsecurity features disabled, only patch applied).
-
-The same issue seems to exist in 2.6, and _probably_ can cause similar
-problems in selinux.
-
-	-- Jakub Bogusz <qboosh@pld-linux.org>
-
---- linux-2.4.20/kernel/sysctl.c.orig	Mon Dec 15 11:05:08 2003
-+++ linux-2.4.20/kernel/sysctl.c	Mon Dec 15 15:48:46 2003
-@@ -124,10 +124,8 @@
- #ifdef CONFIG_NET
- extern ctl_table net_table[];
- #endif
--static ctl_table proc_table[];
- static ctl_table fs_table[];
- static ctl_table debug_table[];
--static ctl_table dev_table[];
- extern ctl_table random_table[];
- 
- static ctl_table grsecurity_table[];
-@@ -163,10 +161,8 @@
- #ifdef CONFIG_NET
- 	{CTL_NET, "net", NULL, 0, 0555, net_table},
- #endif
--	{CTL_PROC, "proc", NULL, 0, 0555, proc_table},
- 	{CTL_FS, "fs", NULL, 0, 0555, fs_table},
- 	{CTL_DEBUG, "debug", NULL, 0, 0555, debug_table},
--        {CTL_DEV, "dev", NULL, 0, 0555, dev_table},
- 	{0}
- };
- 
-@@ -488,10 +484,6 @@
- 	{0}
- };
- 
--static ctl_table proc_table[] = {
--	{0}
--};
--
- static ctl_table fs_table[] = {
- 	{FS_NRINODE, "inode-nr", &inodes_stat, 2*sizeof(int),
- 	 0444, NULL, &proc_dointvec},
-@@ -526,10 +518,6 @@
- 	{0}
- };
- 
--static ctl_table dev_table[] = {
--	{0}
--};  
--
- extern void init_irq_proc (void);
- 
- void __init sysctl_init(void)
-
---ReaqsoxgOBHFXBhH--

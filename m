@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270255AbTHDFNP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 01:13:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271189AbTHDFNP
+	id S271380AbTHDFbe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 01:31:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271381AbTHDFbe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 01:13:15 -0400
-Received: from 066-241-084-054.bus.ashlandfiber.net ([66.241.84.54]:1408 "EHLO
-	bigred.russwhit.org") by vger.kernel.org with ESMTP id S270255AbTHDFNO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 01:13:14 -0400
-Date: Sun, 3 Aug 2003 22:10:02 -0700 (PDT)
-From: Russell Whitaker <russ@ashlandhome.net>
-X-X-Sender: russ@bigred.russwhit.org
-To: Joshua Kwan <joshk@triplehelix.org>
-cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test2-bk3
-In-Reply-To: <20030804001612.GA2032@triplehelix.org>
-Message-ID: <Pine.LNX.4.53.0308032124270.198@bigred.russwhit.org>
-References: <Pine.LNX.4.53.0308031641270.127@bigred.russwhit.org>
- <20030804001612.GA2032@triplehelix.org>
+	Mon, 4 Aug 2003 01:31:34 -0400
+Received: from ms-smtp-02.texas.rr.com ([24.93.36.230]:44493 "EHLO
+	ms-smtp-02.texas.rr.com") by vger.kernel.org with ESMTP
+	id S271380AbTHDFbd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 01:31:33 -0400
+Message-ID: <3F2DEFA5.2010700@austin.rr.com>
+Date: Mon, 04 Aug 2003 00:31:17 -0500
+From: Steve French <smfrench@austin.rr.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+CC: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: do_div considered harmful
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have made a change to fix this in fs/cifs/inode.c and a similar 
+problem in fs/cifs/file.c
+(and a change to fs/cifs/cifsfs.c to better match the blocksize bits and 
+blocksize default).
+It is (version 0.8.7 of the cifs vfs) in 
+bk://cifs.bkbits.net/linux-2.5cifs and I am testing it now.
 
-On Sun, 3 Aug 2003, Joshua Kwan wrote:
+ >> Similarly, I find in fs/cifs/inode.c>
+ >>          inode->i_blocks = do_div(findData.NumOfBytes, 
+inode->i_blksize);
+ >
+ >This should be
+ >
+ >        int blocksize = 1 << inode->i_blkbits;
+ >
+ >         inode->i_blocks = (findData.NumOfBytes + blocksize - 1)
+ >                                    >> inode->i_blkbits;
 
-> On Sun, Aug 03, 2003 at 04:45:31PM -0700, Russell Whitaker wrote:
-> >   modprobe: QM_MODULES: function not implemented
->
-> Install module-init-tools.
-Thank you.
-Installed module-init-tools 0.9.13-pre2 and 2.6.0 now starting to work.
-(Slackware 9.0 supplied modprobe, depmod, etc.  version 2.4.22)
-
-> And read
-> http://www.codemonkey.org.uk/post-halloween-2.5.txt,
-> it would have told you this if you had read it.
-Interesting read. Bookmarked it.
-
-It also would have helped if the section "SOFTWARE REQUIREMENTS"
-was moved ahead of "INSTALLING the kernel:" in file Linux-2.6.0-test2/
-README.
-
-  Russ

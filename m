@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261195AbULFGqO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261201AbULFHOU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261195AbULFGqO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 01:46:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261201AbULFGqO
+	id S261201AbULFHOU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 02:14:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261257AbULFHOU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 01:46:14 -0500
-Received: from chilli.pcug.org.au ([203.10.76.44]:58321 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S261195AbULFGqI (ORCPT
+	Mon, 6 Dec 2004 02:14:20 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:62627 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261201AbULFHOQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 01:46:08 -0500
-Date: Mon, 6 Dec 2004 17:46:04 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: paulmck@us.ibm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fw: [RFC] Strange code in cpu_idle()
-Message-Id: <20041206174604.036c5b08.sfr@canb.auug.org.au>
-In-Reply-To: <20041206111634.44d6d29c.sfr@canb.auug.org.au>
-References: <20041205004557.GA2028@us.ibm.com>
-	<20041206111634.44d6d29c.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 1.0.0beta3 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Mon, 6 Dec 2004 02:14:16 -0500
+Date: Mon, 6 Dec 2004 08:13:39 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Jeff Sipek <jeffpc@optonline.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Time sliced CFQ #2
+Message-ID: <20041206071335.GA10498@suse.de>
+References: <20041204104921.GC10449@suse.de> <20041204163948.GA20486@optonline.net> <20041205185844.GF6430@suse.de> <20041206002954.GA28205@optonline.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Mon__6_Dec_2004_17_46_04_+1100_.cKCJr3vely1lWqV"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041206002954.GA28205@optonline.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Mon__6_Dec_2004_17_46_04_+1100_.cKCJr3vely1lWqV
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-
-On Mon, 6 Dec 2004 11:16:34 +1100 Stephen Rothwell <sfr@canb.auug.org.au> wrote:
->
-> > Thoughts?
+On Sun, Dec 05 2004, Jeff Sipek wrote:
+> On Sun, Dec 05, 2004 at 07:58:45PM +0100, Jens Axboe wrote:
+> > It should be really easy to try some rudimentary prio io support - just
+> > scale the time slice based on process priority. A few lines of code
+> > change, and io priority now follows process cpu scheduler priority. To
+> > work really well, the code probably needs a few more limits besides just
+> > slice time.
 > 
-> None, sorry :-)
+> I started working on the rudimentary io prio code, and it got me
+> thinking...  Why use the cpu scheduler priorities? Wouldn't it make
+> more sense to add io_prio to task_struct? This way you can have a
+> process which you know needs a lot of CPU but not as much io, or the
+> other way around.
+> 
+> What do you think?
 
-Actually, Rusty suggests stop_machine() ...
+I don't like tieing them together, see various threads in the list
+archives for discussions about that. I just said that it would be easy
+to test basic support this way, since you only have to change a few
+lines.
+
+I've already posted the glue code to set/query process priorities, I
+would plan on just using something like that again.
 
 -- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+Jens Axboe
 
---Signature=_Mon__6_Dec_2004_17_46_04_+1100_.cKCJr3vely1lWqV
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBtAAs4CJfqux9a+8RAvssAJ0e8fF8qLb7abRvrmyGl0207QDOjgCeOvL8
-2FbIxOPvg8lqkf3fPNACT6o=
-=0HYf
------END PGP SIGNATURE-----
-
---Signature=_Mon__6_Dec_2004_17_46_04_+1100_.cKCJr3vely1lWqV--

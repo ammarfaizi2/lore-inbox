@@ -1,130 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315463AbSFTRXl>; Thu, 20 Jun 2002 13:23:41 -0400
+	id <S315479AbSFTR0d>; Thu, 20 Jun 2002 13:26:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315468AbSFTRXk>; Thu, 20 Jun 2002 13:23:40 -0400
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:30101 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S315463AbSFTRXi>; Thu, 20 Jun 2002 13:23:38 -0400
-Date: Thu, 20 Jun 2002 12:23:39 -0500 (CDT)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200206201723.MAA04517@tomcat.admin.navo.hpc.mil>
-To: pashley@storm.ca, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: McVoy's Clusters (was Re: latest linus-2.5 BK broken)
-X-Mailer: [XMailTool v3.1.2b]
+	id <S315480AbSFTR0d>; Thu, 20 Jun 2002 13:26:33 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:32904 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S315479AbSFTR0b>;
+	Thu, 20 Jun 2002 13:26:31 -0400
+Date: Thu, 20 Jun 2002 19:26:21 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Martin Dalecki <dalecki@evision-ventures.com>,
+       Paul Bristow <paul@paulbristow.net>,
+       Gadi Oxman <gadio@netvision.net.il>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5.22] simple ide-tape.c and ide-floppy.c cleanup
+Message-ID: <20020620172621.GB3893@suse.de>
+References: <20020620164417.GA3893@suse.de> <Pine.SOL.4.30.0206201847260.23175-100000@mion.elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.SOL.4.30.0206201847260.23175-100000@mion.elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sandy Harris <pashley@storm.ca>
+On Thu, Jun 20 2002, Bartlomiej Zolnierkiewicz wrote:
 > 
-> [ I removed half a dozen cc's on this, and am just sending to the
->   list. Do people actually want the cc's?]
+> On Thu, 20 Jun 2002, Jens Axboe wrote:
 > 
-> Larry McVoy wrote:
+> > On Thu, Jun 20 2002, Bartlomiej Zolnierkiewicz wrote:
+> > >
+> > > On Thu, 20 Jun 2002, Martin Dalecki wrote:
+> > >
+> > > > U?ytkownik Jens Axboe napisa?:
+> > > > > On Thu, Jun 20 2002, Martin Dalecki wrote:
+> > > > >
+> > > > >>U?ytkownik Jens Axboe napisa?:
+> > > > >>
+> > > > >>>On Wed, Jun 19 2002, Bartlomiej Zolnierkiewicz wrote:
+> > > > >>>
+> > > > >>>Looks pretty good in general, just one minor detail:
+> > > > >>>
+> > > > >>>
+> > > > >>>
+> > > > >>>>+
+> > > > >>>>+/*
+> > > > >>>>+ *	ATAPI packet commands.
+> > > > >>>>+ */
+> > > > >>>>+#define ATAPI_FORMAT_UNIT_CMD		0x04
+> > > > >>>>+#define ATAPI_INQUIRY_CMD		0x12
+> > > > >>>
+> > > > >>>
+> > > > >>>[snip]
+> > > > >>>
+> > > > >>>We already have the "full" list in cdrom.h (GPCMD_*), so lets just use
+> > > > >>>that. After all, ATAPI_MODE_SELECT10_CMD _is_ the same as the SCSI
+> > > > >>>variant (and I think the _CMD post fixing is silly, anyone familiar with
+> > > > >>>this is going to know what ATAPI_WRITE10 means just fine)
+> > > > >>>
+> > > > >>>Same for request_sense, that is already generalized in cdrom.h as well.
+> > > > >>
+> > > > >>I wonder what FreeBSD is using here? I see no need for invention at
+> > > > >>this place.
+> > > > >
+> > > > >
+> > > > > The invention would be adding the ATAPI_* commands, Linux has used the
+> > > > > GPCMD_ convention for quite some time now.
+> > > >
+> > > > Agreed. The ATAPI prefix would be confusing, since those are in reality SCSI
+> > > > commands anyway...
+> > >
+> > > I think we should use scsi.h and get rid of GPCMD_* convention also.
+> > > Jens, do you want "corrected" patch?
+> >
+> > Note that GPCMD_ is exported to user land, and several programs are
+> > using them for quite some time. So GPCMD_ stays, and that's final.
+> >
 > 
-> > > Checkpointing buys three things.  The ability to preempt jobs, the
-> > > ability to migrate processes,
-> 
-> For large multi-processor systems, it isn't clear that those matter
-> much. On single user systems I've tried , ps -ax | wc -l usually
-> gives some number 50 < n < 100. For a multi-user general purpose
-> system, my guess would be something under 50 system processes plus
-> 50 per user. So for a dozen to 20 users on a departmental server,
-> under 1000. A server for a big application, like database or web,
-> would have fewer users and more threads, but still only a few 100
-> or at most, say 2000.
+> There was some discussion that user land should not include linux/ headers
+> directly, so in long term user land should be fixed not to use GPCMD_* ...
 
-You don't use compute servers much? The problems we are currently running
-require the cluster (IBM SP) to have 100% uptime for a single job. that
-job may run for several days. If a detected problem is reported (not yet
-catastrophic) it is desired/demanded to checkpoint the users process.
+Irrelevant, these are propagated to user land through glibc anyways.
+Look, it's a convenience. These have existed since 2.2.x + dvd patches,
+and they are not going away just because you want to make up some new
+names.
 
-Currently, we can't - but should be able to by this fall.
+-- 
+Jens Axboe
 
-Having the users job checkpoint midway in it's computations will allow us
-to remove a node from active service, substitute a different node, and
-resume the users process without losing many hours of computation (we have
-a maximum of 300 nodes for computation, another 30 for I/O and front end).
-
-Just because a network interface fails is no reason to lose the job.
-
-> So at something like 8 CPUs in a personal workstation and 128 or
-> 256 for a server, things average out to 8 processes per CPU, and
-> it is not clear that process migration or any form of pre-emption
-> beyond the usual kernel scheduling is needed.
-> 
-> What combination of resources and loads do you think preemption
-> and migration are need for?
-
-It depends on the job. A web server farm shouldn't need one. A distributed
-compute cluster needs it to:
-
-a. be able to suspend large (256-300 nodes), long running (4-8 hours),
-   low priority jobs, to favor high priority production jobs (which may
-   also be relatively long running: say 2-4 hours on 256 nodes.
-b. be able to replace/substitute nodes (switch processing from a failing
-   node to allow for on-line replacement of the failing node or to wait for
-   spare parts).
-
-> > > and the ability to recover from failed nodes, (assuming the 
-> > > failed hardware didn't corrupt your jobs checkpoint).
-> 
-> That matters, but it isn't entirely clear that it needs to be done
-> in the kernel. Things like databases and journalling filesystems
-> already have their own mechanisms and it is not remarkably onerous
-> to put them into applications where required.
-
-Which is why I realized you don't use compute clusters very often.
-
-1. User jobs, written in fortran/C/other do not usually come with the ability
-   to take snapshots of computation.
-2. there is the problem of redirecting network connections (MPI/PVM) from one
-   place to another.
-3. (related to 2) Synchronized process suspension is difficult-to-impossible
-   to do outside the kernel.
-
-> [big snip]
-> 
-> > Larry McVoy's SMP Clusters
-> > 
-> > Discussion on November 8, 2001
-> > 
-> > Larry McVoy, Ted T'so, and Paul McKenney
-> > 
-> > What is SMP Clusters?
-> > 
-> >      SMP Clusters is a method of partioning an SMP (symmetric
-> >      multiprocessing) machine's CPUs, memory, and I/O devices
-> >      so that multiple "OSlets" run on this machine.  Each OSlet
-> >      owns and controls its partition.  A given partition is
-> >      expected to contain from 4-8 CPUs, its share of memory,
-> >      and its share of I/O devices.  A machine large enough to
-> >      have SMP Clusters profitably applied is expected to have
-> >      enough of the standard I/O adapters (e.g., ethernet,
-> >      SCSI, FC, etc.) so that each OSlet would have at least
-> >      one of each.
-> 
-> I'm not sure whose definition this is:
->    supercomputer: a device for converting compute-bound problems
->       into I/O-bound problems
-> but I suspect it is at least partially correct, and Beowulfs are
-> sometimes just devices to convert them to network-bound problems.
-> 
-> For a network-bound task like web serving, I can see a large
-> payoff in having each OSlet doing its own I/O.
-> 
-> However, in general I fail to see why each OSlet should have
-> independent resources rather than something like using one to
-> run a shared file system and another to handle the networking
-> for everybody.
-
-How about reliability, security isolation (accounting server isolated
-from a web server or audit server.. or both).
-
-See Suns use of "domains" in Solaris which does this in a single host.
-
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.

@@ -1,58 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261454AbRFBEMi>; Sat, 2 Jun 2001 00:12:38 -0400
+	id <S261594AbRFBFCu>; Sat, 2 Jun 2001 01:02:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261594AbRFBEM2>; Sat, 2 Jun 2001 00:12:28 -0400
-Received: from server1.cosmoslink.net ([208.179.167.101]:21525 "EHLO
-	server1.cosmoslink.net") by vger.kernel.org with ESMTP
-	id <S261454AbRFBEMR>; Sat, 2 Jun 2001 00:12:17 -0400
-Message-ID: <001701c0eb1a$34ee8da0$52a6b3d0@Toshiba>
-From: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
-To: <linux-kernel@vger.kernel.org>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
-Subject: Benchmarks for Linux kernel
-Date: Fri, 1 Jun 2001 21:12:14 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S261645AbRFBFCk>; Sat, 2 Jun 2001 01:02:40 -0400
+Received: from bellini.kjist.ac.kr ([203.237.41.6]:48515 "EHLO
+	bellini.kjist.ac.kr") by vger.kernel.org with ESMTP
+	id <S261594AbRFBFCd>; Sat, 2 Jun 2001 01:02:33 -0400
+Date: Sat, 2 Jun 2001 14:02:28 +0900
+Message-Id: <200106020502.f5252SO15014@bellini.kjist.ac.kr>
+From: "G. Hugh Song" <ghsong@kjist.ac.kr>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.5-ac6 and 2.4.4-ac11 boot fails with APIC timer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can please point me some nice benchmarks for linux kernel .
 
-Which tells the performance of following , under Linux Kernel :-
-
-1. CPU
-2. Bus 
-3. Cache 
-4. DMA
-5. Interrupts and Exceptions
-6. File Systems
-7. FPU
-8. forking and pthread (Process Management)
-9. IDE
-10. Ethernet
-11. Memory Management
-12. PCI
-13. USB
-14. Serial
-15. Clocks and Timers
-16. Sound 
-17. SMP
-18. Virtual Memory Management
-19. Networking
-20. PCMCIA
-21. RAID
-
-Thank you,
-
-Jaswinder.
--- 
-These are my opinions not 3Di.
+The message on the screen 
 
 
+calibrating APIC timer .....
+.... CPU clock speed is 1395.7390MHz
+... host bus clock speed is 0.0000 MHz
+cpu: 0, clocks: 0, slic: 0
+
+
+Then nothing.  I had to push the reset button at this point.
+ACPI and APM were disabled from the kernel config.
+
+This boot failure messages was obtained from 
+Pentium4 board GB-450(?) from Intel, NVIDIA M64 video.
+Sound Blaster 128 PCI.  Netgear PNIC fast ethernet....
+  
+The same kernel was able to boot up the other Pentium 4 board from 
+Gigabyte flawlessly. So, it depends on the motherboard manufacturers.
+
+Regards to all.
+
+G. Hugh Song

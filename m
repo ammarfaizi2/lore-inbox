@@ -1,55 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263123AbTHVNLg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 09:11:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbTHVNLg
+	id S263129AbTHVNMF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 09:12:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263156AbTHVNMF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 09:11:36 -0400
-Received: from dyn-ctb-210-9-245-150.webone.com.au ([210.9.245.150]:19974 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S263277AbTHVNJD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 09:09:03 -0400
-Message-ID: <3F4615D8.9030200@cyberone.com.au>
-Date: Fri, 22 Aug 2003 23:08:40 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
-X-Accept-Language: en
+	Fri, 22 Aug 2003 09:12:05 -0400
+Received: from [62.13.18.67] ([62.13.18.67]:28864 "EHLO
+	mail.kontorshotellet.nu") by vger.kernel.org with ESMTP
+	id S263129AbTHVNL5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 09:11:57 -0400
+Message-ID: <3F4616A5.3020505@lanil.mine.nu>
+Date: Fri, 22 Aug 2003 15:12:05 +0200
+From: Christian Axelsson <smiler@lanil.mine.nu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030814 Thunderbird/0.2a
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Roger Luethi <rl@hellgate.ch>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [CFT][PATCH] new scheduler policy
-References: <3F4182FD.3040900@cyberone.com.au> <20030822085508.GA10215@k3.hellgate.ch>
-In-Reply-To: <20030822085508.GA10215@k3.hellgate.ch>
+To: Bas Mevissen <ml@basmevissen.nl>
+CC: "Mr. James W. Laferriere" <babydr@baby-dragons.com>,
+       Anders Karlsson <anders@trudheim.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Current status of Intel PRO/Wireless 2100
+References: <3F3CA3A0.5030905@lanil.mine.nu> <1060942697.2296.83.camel@tor.trudheim.com> <3F421B6C.2050300@basmevissen.nl> <Pine.LNX.4.56.0308211327220.6793@filesrv1.baby-dragons.com> <3F45E651.8000408@basmevissen.nl>
+In-Reply-To: <3F45E651.8000408@basmevissen.nl>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Roger Luethi wrote:
-
->On Tue, 19 Aug 2003 11:53:01 +1000, Nick Piggin wrote:
->  
->
->>I haven't run many tests on it - my mind blanked when I tried to
->>remember the scores of scheduler "exploits" thrown around. So if
->>anyone would like to suggest some, or better still, run some,
->>please do so. And be nice, this isn't my type of scheduler :P
->>    
+Bas Mevissen wrote:
+> Mr. James W. Laferriere wrote:
+> 
+>>     Hello Bas ,  Do you (or anyone else) know which of the 'PCI' based
+>>     cards are use the 'mini-pci' cards on a bridge card ?
 >>
->
->I timed a pathological benchmark from hell I've been playing with lately.
->Three consecutive runs following a fresh boot. Time is in seconds:
->
->2.4.21			821	21	25
->2.6.0-test3-mm1		724	946	896
->2.6.0-test3-mm1-nick	905	987	997
->
->Runtime with ideal scheduling: < 2 seconds (we're thrashing).
->  
->
+> 
+> Probably all PCI-cards that have a huge metal casing. PCI WLAN cards are 
+> not so common (desktop and wireless is a bit silly :-))and hence the 
+> development costs for a "real" PCI WLAN card might be too high compared 
+> to the extra cost of using a Mini-PCI and a bridge. Actually, "bridge" 
+> is too much honour for the remaining card. Slot converter is more 
+> appropriate.
+> 
+>>     I'd really like more of a selection to choose from than just
+>>     Netgear .  The Netgear card you spoke of below religously doesn't
+>>     mention Linux in it's support sections .  But ,  (hopefully) it
+>>     appears that you are using under linux , correct ?  Tia ,  JimL
+>>
+> 
+> We all like that. Actually, I wanted to have an 802.11a/b/g from a 
+> supplier that has real open source drivers. But it was all I could get 
+> on a short term.
+> 
+> I use it with Linux. Actually, I did not more than a few tests. But I 
+> know it works and I verified it with the XP install that came with the 
+> notebook. I just had to install the PCI-card drivers there.
+> 
+> (general remark) Note that this kind of use of mini-pci modules is all 
+> on your own risk and responsibility. Maybe I better had not told this on 
+> LKML. But now that has happened, I advise people to think twice before 
+> doing it and ask me for details in private if they feel uncertain about it.
 
-Cool. Can you post the benchmark source please?
+Yep I was just gonna ask you for pictures (photos) showing all 
+connectors and stuff so I know how it will fit into my acer laptop :)
+
+-- 
+Christan Axelsson
+smiler@lanil.mine.nu
 
 

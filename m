@@ -1,66 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbUJ0LTx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262381AbUJ0LWL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262380AbUJ0LTx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 07:19:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262382AbUJ0LTw
+	id S262381AbUJ0LWL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 07:22:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbUJ0LWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 07:19:52 -0400
-Received: from phoenix.infradead.org ([81.187.226.98]:28686 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262380AbUJ0LTg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 07:19:36 -0400
-Date: Wed, 27 Oct 2004 12:19:29 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-mm1
-Message-ID: <20041027111929.GA27318@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20041022032039.730eb226.akpm@osdl.org> <20041022103910.GB17526@infradead.org> <20041022035400.28131d76.akpm@osdl.org> <20041022110846.GA17866@infradead.org> <Pine.LNX.4.61.0410222124240.17266@scrub.home>
+	Wed, 27 Oct 2004 07:22:10 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:49416 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262381AbUJ0LUG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 07:20:06 -0400
+Date: Wed, 27 Oct 2004 13:19:34 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org, golbi@mat.uni.torun.pl,
+       wrona@mat.uni.torun.pl
+Subject: 2.6.10-rc1-mm1: ipc/mqueue.c: remove unused label
+Message-ID: <20041027111934.GE2550@stusta.de>
+References: <20041026213156.682f35ca.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0410222124240.17266@scrub.home>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <20041026213156.682f35ca.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 22, 2004 at 09:34:35PM +0200, Roman Zippel wrote:
-> Hi,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+On Tue, Oct 26, 2004 at 09:31:56PM -0700, Andrew Morton wrote:
+>...
+> Changes since 2.6.9-mm1:
+>...
+> +handle-posix-message-queues-with-proc-sys-disabled.patch
 > 
-> On Fri, 22 Oct 2004, Christoph Hellwig wrote:
-> 
-> > > > > +hfs-export-type-creator-via-xattr.patch
-> > > > 
-> > > > I haven't heard an answer on the comments on this on on -fsdevel yet..
-> > > 
-> > > To use the generic xattr code?  Yes, we're waiting to hear back on that.
-> > 
-> > I'm more concerned about the lacking xattr name prefix as that's a
-> > published API.
-> 
-> Below I only added the prefix. The generic code doesn't seem to have that 
-> many advantages if you have only a single prefix anyway, does it?
+>  POSIX message queue fix.
 
-It has the advantage that we can move the permission check into sooner,
-and maybe we can get rid of the old entry point completely one day,
-simplifying the xattr subsystem.
+This removes the only usage of a label, resulting in the following 
+compile warning:
 
-> +int hfs_setxattr(struct dentry *dentry, const char *name,
-> +		 const void *value, size_t size, int flags)
-> +{
-> +	struct inode *inode = dentry->d_inode;
-> +	struct hfs_find_data fd;
-> +	hfs_cat_rec rec;
-> +	struct hfs_cat_file *file;
-> +	int res;
-> +
-> +	if (!S_ISREG(inode->i_mode) || HFS_IS_RSRC(inode))
-> +		return -EOPNOTSUPP;
+<--  snip  -->
 
-You don't have any permission checks here, or did I miss something?
+...
+  CC      ipc/mqueue.o
+ipc/mqueue.c: In function `init_mqueue_fs':
+ipc/mqueue.c:1245: warning: label `out_cache' defined but not used
+...
 
+<--  snip  -->
+
+
+The patch below removes this label.
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+- --- linux-2.6.10-rc1-mm1-full/ipc/mqueue.c.old	2004-10-27 13:13:48.000000000 +0200
++++ linux-2.6.10-rc1-mm1-full/ipc/mqueue.c	2004-10-27 13:13:57.000000000 +0200
+@@ -1242,7 +1242,6 @@
+ out_sysctl:
+ 	if (mq_sysctl_table)
+ 		unregister_sysctl_table(mq_sysctl_table);
+- -out_cache:
+ 	if (kmem_cache_destroy(mqueue_inode_cachep)) {
+ 		printk(KERN_INFO
+ 			"mqueue_inode_cache: not all structures were freed\n");
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQFBf4RGmfzqmE8StAARAvFLAKDA3nCvvYHMHpvhrOXmvlvvVUh6YwCfeTl6
+e+Amr4lm762PEGZnAky/pf8=
+=vNvV
+-----END PGP SIGNATURE-----

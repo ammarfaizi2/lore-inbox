@@ -1,58 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263195AbTFDKsZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 06:48:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263199AbTFDKsY
+	id S263199AbTFDKut (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 06:50:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263201AbTFDKut
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 06:48:24 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:11786 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S263195AbTFDKsX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 06:48:23 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Andrea Arcangeli <andrea@suse.de>
-Subject: Re: -rc7   Re: Linux 2.4.21-rc6
-Date: Wed, 4 Jun 2003 13:01:02 +0200
-User-Agent: KMail/1.5.2
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Georg Nikodym <georgn@somanetworks.com>,
-       lkml <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.55L.0305282019160.321@freak.distro.conectiva> <200306041235.07832.m.c.p@wolk-project.de> <20030604104304.GQ3412@x30.school.suse.de>
-In-Reply-To: <20030604104304.GQ3412@x30.school.suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 4 Jun 2003 06:50:49 -0400
+Received: from axion.xs4all.nl ([213.84.8.90]:54314 "EHLO axion.demon.nl")
+	by vger.kernel.org with ESMTP id S263199AbTFDKus (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 06:50:48 -0400
+Date: Wed, 4 Jun 2003 13:04:15 +0200
+From: Monchi Abbad <kernel@axion.demon.nl>
+To: linux-kernel@vger.kernel.org
+Subject: ever since 2.5.70 no isapnp for cs4236+
+Message-ID: <20030604110415.GA15922@axion.demon.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200306041301.02676.m.c.p@wolk-project.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 04 June 2003 12:43, Andrea Arcangeli wrote:
+Hi,
 
-Hi Andrea,
+ever since kernel 2.5.70 I have a problem with the kernel freezing upon initing the cs4236+
+ sound card, whereas previously there was no such problem. Now I get the following message:
 
-> sure, it's just a matter of adding a bit to the blkdev structure.
-> However I'm not 100% sure that it is the real thing that could make the
-> difference, but overall the exclusive wakeup FIFO in theory should
-> provide even an higher degree of fariness, so at the very least the
-> "fix" 2 from Andrew makes very little sense to me, and it seems just an
-> hack meant to hide a real problem in the algorithm.
-well, at least it reduces pauses/stops ;)
+Advanced Linux Sound Architecture Driver Version 0.9.4 (Sat May 31 13:37:06 2003 UTC).
+can't register device seq
+specify port
+isapnp detection failed and probing for CS4236+ is not supported
 
-> As for 1 and 3 they were just included in my tree for ages.
-err, 1 yes, but I don't see that 3 is in your tree. Well, ok, a bit different. 
-But hey, your 1+3 are still having pauses ;)
+It says that probing for cs4236+ is not supported, previously this worked just fine though.
 
-> BTW, Chris recently spotted a nearly impossible to trigger SMP-only race
-> in the fix pausing patch [great spotting Chris] (to trigger it would
-Cool Chris!
 
-> need an intersection of two races at the same time), it'll be fixed in
-> my next tree, however nobody ever reproduced it and you certainly can
-> ignore it in practice so it can't explain any issue.
-Good to know. Thanks.
-
-ciao, Marc
-
+Monchi.
+--

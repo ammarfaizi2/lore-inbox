@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268959AbRG0USZ>; Fri, 27 Jul 2001 16:18:25 -0400
+	id <S268952AbRG0UYd>; Fri, 27 Jul 2001 16:24:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268954AbRG0USM>; Fri, 27 Jul 2001 16:18:12 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:34060 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268952AbRG0UR6>; Fri, 27 Jul 2001 16:17:58 -0400
-Subject: Re: VIA KT133A / athlon / MMX
-To: ppeiffer@free.fr (PEIFFER Pierre)
-Date: Fri, 27 Jul 2001 21:19:21 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <no.id> from "PEIFFER Pierre" at Jul 27, 2001 09:42:06 PM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15QE4v-0006R5-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S268954AbRG0UYZ>; Fri, 27 Jul 2001 16:24:25 -0400
+Received: from isimail.interactivesi.com ([207.8.4.3]:6419 "HELO
+	dinero.interactivesi.com") by vger.kernel.org with SMTP
+	id <S268952AbRG0UYN>; Fri, 27 Jul 2001 16:24:13 -0400
+Message-ID: <01e601c116da$68497250$bef7020a@mammon>
+From: "Jeremy Linton" <jlinton@interactivesi.com>
+To: "Rik van Riel" <riel@conectiva.com.br>
+Cc: <linux-kernel@vger.kernel.org>, "Samuel Dupas" <samuel@dupas.com>
+In-Reply-To: <Pine.LNX.4.33L.0107271616170.5582-100000@duckman.distro.conectiva>
+Subject: Re: swap_free: swap-space map bad (entry 00000100)
+Date: Fri, 27 Jul 2001 15:26:19 -0500
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> have not found clear answer on the different threads about this topic.
-> As I understand, this problem does not exist on every athlon but only on
-> some which work with the VIA KT133 chipset ? Right ?
+> On Fri, 27 Jul 2001, Samuel Dupas wrote:
+> > On Fri, 27 Jul 2001 12:29:18 -0500
+> > "Jeremy Linton" <jlinton@interactivesi.com> wrote:
+> > > Did you do a 'swapoff' at some point before this?
+> > >
+> >
+> > No, I didn't change anything. I just put stress on it with ab to
+> > test the machine but it felt down :-((
+> >
+> > Others ideas ?
+>
+> The memory corruption you saw usually (almost always)
+> indicates a hardware problem. It may not have shown up
+> during normal usage because without ab your RAM has
+> more idle time and can keep up refreshing itself
+> easily.
 
-Its heavily tied to certain motherboards. Some people found a better PSU
-fixed it, others that altering memory settings helped. And in many cases,
-taking it back and buying a different vendors board worked.
+I asked about the swapoff path because I have a couple of stable MP boxes
+that exhibit swap map corruption (similar to what he appears to be seeing)
+during/after a swapoff operation in 2.4. I presented a patch a couple weeks
+ago that fixes some of the problems that I am seeing. A quick look at 2.2.19
+makes it look the same problems might exist there as well. If he isn't doing
+swapoff then my fixes probably won't help him.
 
-> 	Anyway, feel free to ask me more information if needed and please,
-> CC'ed me personally the answers/comments because I'm not subscribed to
-> the LKML.
 
-http://www.linuxhardware.org/article.pl?sid=01/06/06/1821202&mode=thread
 
-gives a good feel for the current state of play
+                                                                jlinton
+
+

@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311884AbSEUJIu>; Tue, 21 May 2002 05:08:50 -0400
+	id <S311898AbSEUJri>; Tue, 21 May 2002 05:47:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311898AbSEUJIt>; Tue, 21 May 2002 05:08:49 -0400
-Received: from 217-79-104-247.adsl.griffin.net.uk ([217.79.104.247]:16423 "EHLO
-	lemur.beezly.org.uk") by vger.kernel.org with ESMTP
-	id <S311884AbSEUJIs>; Tue, 21 May 2002 05:08:48 -0400
-Date: Tue, 21 May 2002 10:08:46 +0100
-To: "David S. Miller" <davem@redhat.com>
-Cc: hch@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: OOPS: ext3/sparc badness
-Message-ID: <20020521090846.GF18501@monkey.beezly.org.uk>
-In-Reply-To: <20020521083004.GB18501@monkey.beezly.org.uk> <20020521.011858.88884742.davem@redhat.com> <20020521083805.GC18501@monkey.beezly.org.uk> <20020521.013444.121208947.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: Andrew Beresford <beezly@beezly.org.uk>
+	id <S312381AbSEUJrh>; Tue, 21 May 2002 05:47:37 -0400
+Received: from [195.185.133.146] ([195.185.133.146]:63749 "HELO
+	gateway.hottinger.de") by vger.kernel.org with SMTP
+	id <S311898AbSEUJrg>; Tue, 21 May 2002 05:47:36 -0400
+Message-ID: <D3524C0FFDC6A54F9D7B6BBEECD341D5D56F58@HBMNTX0.da.hbm.com>
+From: "Wessler, Siegfried" <Siegfried.Wessler@de.hbm.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: DCOM coming?
+Date: Tue, 21 May 2002 11:47:28 +0200
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David,
+Hello,
 
-On Tue, May 21, 2002 at 01:34:44AM -0700, David S. Miller wrote:
-> Ok, we need to find some workaround at least for 2.4.x as this
-> is the compiler most people on sparc64 are using.
-> 
-> I'll play with it a bit...
+are there any plans to wrap DCOM ability into the Linux kernel "someday"? 
+Or will you wait until .net might be widely acepted and don't go into DCOM
+anyhow? 
 
-Great :) Please let me know if I can help with anything.
+Like it or not, but you need DCOM if you want to connect to DCOM organized
+networks, like OPC and others.
 
-Cheers,
+I know about the Sourceforge freedce project, but that is still hanging and
+I expect more capabilities and user comfort if a stronger group of
+developers will take care and implement DCOM directly into the kernel like
+Windoze somehow does.
 
-Beezly
+There is a commercial DCOM solution available by Software AG, but that's far
+beyond any GPL, but heavily expensive!
+
+(This is just a question to get an idea about your planning, no complaining
+at all!). 
+
+Thank You.
+Siegfried Wessler

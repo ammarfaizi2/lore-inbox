@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131479AbRD2UEL>; Sun, 29 Apr 2001 16:04:11 -0400
+	id <S136178AbRD2UMW>; Sun, 29 Apr 2001 16:12:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136156AbRD2UDw>; Sun, 29 Apr 2001 16:03:52 -0400
-Received: from 13dyn119.delft.casema.net ([212.64.76.119]:53765 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S131479AbRD2UDs>; Sun, 29 Apr 2001 16:03:48 -0400
-Message-Id: <200104292003.WAA25179@cave.bitwizard.nl>
-Subject: Re: Sony Memory stick format funnies...
-In-Reply-To: <9cflov$fdv$1@cesium.transmeta.com> from "H. Peter Anvin" at "Apr
- 28, 2001 05:03:43 pm"
-To: "H. Peter Anvin" <hpa@zytor.com>
-Date: Sun, 29 Apr 2001 22:03:40 +0200 (MEST)
-CC: linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S136189AbRD2UMM>; Sun, 29 Apr 2001 16:12:12 -0400
+Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:12537 "EHLO
+	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S136178AbRD2UMB>; Sun, 29 Apr 2001 16:12:01 -0400
+Date: Sun, 29 Apr 2001 22:11:59 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: "David S. Miller" <davem@redhat.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: X15 alpha release: as fast as TUX but in user space (fwd)
+Message-ID: <20010429221159.U706@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <Pine.LNX.4.33.0104281752290.10866-100000@localhost.localdomain> <20010428215301.A1052@gruyere.muc.suse.de> <200104282256.f3SMuRW15999@vindaloo.ras.ucalgary.ca> <9cg7t7$gbt$1@cesium.transmeta.com> <3AEBF782.1911EDD2@mandrakesoft.com> <15083.64180.314190.500961@pizda.ninka.net> <20010429153229.L679@nightmaster.csn.tu-chemnitz.de> <200104291848.f3TIm6821037@vindaloo.ras.ucalgary.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <200104291848.f3TIm6821037@vindaloo.ras.ucalgary.ca>; from rgooch@ras.ucalgary.ca on Sun, Apr 29, 2001 at 12:48:06PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> Followup to:  <200104282236.AAA06021@cave.bitwizard.nl>
-> By author:    R.E.Wolff@BitWizard.nl (Rogier Wolff)
-> In newsgroup: linux.dev.kernel
-> > 
-> > # l /mnt/d1
-> > total 16
-> > drwxr-xr-x 512 root     root        16384 Mar 24 17:26 dcim/
-> > -r-xr-xr-x   1 root     root            0 May 23  2000 memstick.ind*
-> > # 
-> > 
-> > Where the *(&#$%& does that "dcim" directory come from????
-> > 
-> 
-> "dcim" probably stands for "digital camera images".  At least Canon
-> digital cameras always put their data in a directory named dcim.
+On Sun, Apr 29, 2001 at 12:48:06PM -0600, Richard Gooch wrote:
+> Ingo Oeser writes:
+> > There we have 10x faster memmove/memcpy/bzero for 1K blocks
+> > granularity (== alignment is 1K and size is multiple of 1K), that
+> > is done by the memory controller.
+> This sounds different to me. Using the memory controller is (should
+> be!) a privileged operation, thus it requires a system call. This is
+> quite different from code in a magic page, which is excuted entirely
+> in user-space. The point of the magic page is to avoid the syscall
+> overhead.
 
-Yes. I know. Seems to be standard. The stick is for my Sony camera. 
+Yes, but we currently have more than 10K cycles for doing
+memset of a page. If we do an syscall, we have around 600-900
+(don't know exactly), which is still less.
 
-However, the question is: how in **** is the Linux kernel seeing that
-directory while it's not on the stick? (the root directory has one
-MEMSTICK.IND file, and nothing else!)
+The point is: The code in that "magic page" that considers the
+tradeoff is KERNEL code, which is designed to care about such
+trade-offs for that machine. Glibc never knows this stuff and
+shouldn't, because it is already bloated.
 
-				Roger.
+We get the full win here, for our "compile the kernel for THIS
+machine to get maximum performance"-strategy.
 
+People tend to compile the kernel, but not the glibc.
+
+Just let the benchmarks, Linus and Ulrich decide ;-)
+
+Regards
+
+Ingo Oeser
 -- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
+         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>

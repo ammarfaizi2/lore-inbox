@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292803AbSBVQg0>; Fri, 22 Feb 2002 11:36:26 -0500
+	id <S292634AbSBVQif>; Fri, 22 Feb 2002 11:38:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292655AbSBVQgQ>; Fri, 22 Feb 2002 11:36:16 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:63058 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S292803AbSBVQgG>; Fri, 22 Feb 2002 11:36:06 -0500
-Date: Fri, 22 Feb 2002 11:36:00 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: S W <egberts@yahoo.com>, Andrew Hatfield <lkml@secureone.com.au>,
-        Linux Kernel <linux-kernel@vger.kernel.org>, techsupport@itexinc.com
-Subject: Re: Dlink DSL PCI Card
-Message-ID: <20020222113600.F14673@redhat.com>
-In-Reply-To: <20020220185044.31163.qmail@web10502.mail.yahoo.com> <E16dcnl-0004Wd-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S292655AbSBVQi0>; Fri, 22 Feb 2002 11:38:26 -0500
+Received: from trained-monkey.org ([209.217.122.11]:3080 "EHLO
+	trained-monkey.org") by vger.kernel.org with ESMTP
+	id <S292634AbSBVQiR>; Fri, 22 Feb 2002 11:38:17 -0500
+From: Jes Sorensen <jes@trained-monkey.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E16dcnl-0004Wd-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Feb 20, 2002 at 07:53:17PM +0000
+Content-Transfer-Encoding: 7bit
+Message-ID: <15478.29686.862941.196746@trained-monkey.org>
+Date: Fri, 22 Feb 2002 11:38:14 -0500
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Ben Greear <greearb@candelatech.com>, Petro <petro@auctionwatch.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Eepro100 driver.
+In-Reply-To: <3C767359.44CD415E@mandrakesoft.com>
+In-Reply-To: <20020213211639.GB2742@auctionwatch.com>
+	<3C6B2277.CA9A0BF8@mandrakesoft.com>
+	<3C6B406E.1010706@candelatech.com>
+	<3C6B4B20.FE4AE960@mandrakesoft.com>
+	<d3sn7ttrcb.fsf@lxplus050.cern.ch>
+	<3C767359.44CD415E@mandrakesoft.com>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 20, 2002 at 07:53:17PM +0000, Alan Cox wrote:
-> > that have microcodes loaded to them NOR require
-> > proprietary microcodes accessed to memory by DMA.  In
-> > other word, don't buy winmodem nor DSL PCI adapters,
-> > until those chipset manufacturers publish those
-> > datasheets.
-> 
-> The same reasoning goes for another reason. Some of the newest DSL PCI cards are
-> in many respects winmodems at multimegabit speed levels, burning huge chunks
-> of CPU on a pentium III processor even.
+>>>>> "Jeff" == Jeff Garzik <jgarzik@mandrakesoft.com> writes:
 
-I did some digging on the chipset used by the dlink card, and its made by the 
-folks at http://www.itexinc.com/ .  They claim Linux support, but only in the 
-form of an infrequently updated binary only module that is only available 
-through OEMs.  Unfortunately, they're uncooperative in providing documentation 
-for writing an open source driver.  It would be Really Nice if the guidelines 
-on the use of the Linux trademark prevented claims of Linux support without 
-driver source (ie, forcing binary only module drivers to be marketed as 
-"partial Linux support through kernel specific binary modules").
+Jeff> Jes Sorensen wrote:
+>> Would be a lot nicer to see someone spending the time pulling the
+>> useful bits out of e100 and putting it into eepro100. e100 is ugly
+>> and bloated for no reason.
 
-		-ben
+Jeff> When it passes my review, it will not be.
+
+Jeff> e100 + my desired changes == eepro100 + my desired changes
+
+Guess I just prefer to build bottom up with a basic clean code base
+rather than a gross messy and bloated base.
+
+Jes

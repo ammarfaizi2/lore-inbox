@@ -1,60 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262353AbUJ0KVv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262387AbUJ0KmP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262353AbUJ0KVv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 06:21:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262375AbUJ0KUe
+	id S262387AbUJ0KmP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 06:42:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262393AbUJ0KiZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 06:20:34 -0400
-Received: from gprs214-182.eurotel.cz ([160.218.214.182]:44935 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S262372AbUJ0KBH (ORCPT
+	Wed, 27 Oct 2004 06:38:25 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:49383 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262375AbUJ0Kek (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 06:01:07 -0400
-Date: Wed, 27 Oct 2004 12:00:46 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Li, Shaohua" <shaohua.li@intel.com>
-Cc: ncunningham@linuxmail.org, Patrick Mochel <mochel@digitalimplant.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Fixing MTRR smp breakage and suspending sysdevs.
-Message-ID: <20041027100046.GB26265@elf.ucw.cz>
-References: <16A54BF5D6E14E4D916CE26C9AD30575699E58@pdsmsx402.ccr.corp.intel.com>
+	Wed, 27 Oct 2004 06:34:40 -0400
+Subject: NFS and recalc_sigpending() semantics?
+From: Greg Banks <gnb@melbourne.sgi.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: Silicon Graphics Inc, Australian Software Group.
+Message-Id: <1098873273.1985.180.camel@hole.melbourne.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16A54BF5D6E14E4D916CE26C9AD30575699E58@pdsmsx402.ccr.corp.intel.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Wed, 27 Oct 2004 20:34:33 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+G'day,
 
-> >One thing I have noticed is that by adding the sysdev suspend/resume
-> >calls, I've gained a few seconds delay. I'll see if I can track down
-> the
-> >cause.
-> Is the problem MTRR resume must be with IRQ enabled, right? Could we
-> implement a method sysdev resume with IRQ enabled? MTRR driver isn't
-> the
+Can someone please explain to me why recalc_sigpending() fails
+to clear the TIF_SIGPENDING flag if the pending signal is a
+coredumping signal like SIGQUIT?  Is this deliberate?
 
-MTRR does not deserve to be sysdev. It is not essential for the
-system, it only makes it slow.
+I ask because there's code in the NFS client like this:
 
-> only case. The ACPI Link device is another case, it's a sysdev (it must
-> resume before any PCI device resumed), but its resume (it uses semaphore
-> and non-atomic kmalloc) can't invoked with IRQ enabled. I guess cpufreq
-> driver is another case when suspend/resume SMP is supported.
+---> got here because signal_pending() is set <----
+	spin_lock_irqsave(&current->sighand->siglock, flags);
+	oldset = current->blocked;
+	sigfillset(&current->blocked);
+	recalc_sigpending();
+	spin_unlock_irqrestore(&current->sighand->siglock, flags);
+---> assumes signal_pending() is cleared <----
 
-I do not see how enabling interrupts before setting up IRQs is good
-idea.
+Have these semantics changed, or has NFS always been broken?
 
-What about this one, instead?
-
-* ACPI Link device should allocate with GFP_ATOMIC
-
-* during suspend, locks can't be taken. (We stop userland, etc). So it
-should be okay to down_trylock() and panic if that does not work.
-
-								Pavel
+Greg.
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Greg Banks, R&D Software Engineer, SGI Australian Software Group.
+I don't speak for SGI.
+
+

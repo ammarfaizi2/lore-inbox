@@ -1,70 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262089AbTBJFcd>; Mon, 10 Feb 2003 00:32:33 -0500
+	id <S263039AbTBJF4z>; Mon, 10 Feb 2003 00:56:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262838AbTBJFcd>; Mon, 10 Feb 2003 00:32:33 -0500
-Received: from webmail16.rediffmail.com ([203.199.83.26]:63123 "HELO
-	rediffmail.com") by vger.kernel.org with SMTP id <S262089AbTBJFcc>;
-	Mon, 10 Feb 2003 00:32:32 -0500
-Date: 10 Feb 2003 05:47:19 -0000
-Message-ID: <20030210054719.24656.qmail@webmail16.rediffmail.com>
-MIME-Version: 1.0
-From: "Nandakumar  NarayanaSwamy" <nanda_kn@rediffmail.com>
-Reply-To: "Nandakumar  NarayanaSwamy" <nanda_kn@rediffmail.com>
-To: "David Woodhouse" <dwmw2@infradead.org>
+	id <S263137AbTBJF4z>; Mon, 10 Feb 2003 00:56:55 -0500
+Received: from h80ad26eb.async.vt.edu ([128.173.38.235]:16525 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S263039AbTBJF4y>; Mon, 10 Feb 2003 00:56:54 -0500
+Message-Id: <200302100606.h1A66SOf023514@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
+To: Jakob Oestergaard <jakob@unthought.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Re: File systems in embedded devices
-Content-type: text/plain;
-	format=flowed
-Content-Disposition: inline
+Subject: Re: stochastic fair queueing in the elevator [Re: [BENCHMARK] 2.4.20-ck3 / aa / rmap with contest] 
+In-Reply-To: Your message of "Mon, 10 Feb 2003 06:10:08 +0100."
+             <20030210051007.GE1109@unthought.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.LNX.4.50L.0302100211570.12742-100000@imladris.surriel.com> <Pine.LNX.4.44.0302092018180.15944-100000@dlang.diginsite.com> <20030209203343.06608eb3.akpm@digeo.com> <20030210045107.GD1109@unthought.net> <3E473172.3060407@cyberone.com.au>
+            <20030210051007.GE1109@unthought.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-154650848P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 10 Feb 2003 01:06:27 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear David,
+--==_Exmh_-154650848P
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Thanks for your response.
+On Mon, 10 Feb 2003 06:10:08 +0100, Jakob Oestergaard said:
 
-I sent it correctly after typing the full mail. I think this is 
-some problem in rediff mails itself.
-Anyway these are the my requirements:
+> In stock 2.4.20 the interaction is horrible - whatever was done there i=
+s
+> not optimal.    A 'tar xf' on the client will neither load the network
+> nor the server - it seems to be network latency bound (readahead not
+> doing it's job - changing min-readahead and max-readahead on the client=
 
-1) My application is coming around 8 MB. So need a file system 
-about 12 MB to which i should be able to mount the root of the 
-Linux kernel.
-
-2) I need read-only file system.
-
-3) Is it possible to create multiple ram disks of multiple file 
-systems like CRAMFS, RAMDISK for a single kernel?
-
-Thanks in advance,
-Nanda
-
-On Sun, 09 Feb 2003 David Woodhouse wrote :
->On Sat, 2003-02-08 at 14:20, Nandakumar NarayanaSwamy wrote:
-> > Dear All,
-> >
-> > We are developing a embedded device based on linux. Through 
->the
-> > development phase we used NFS. But now we want to move some
-> > filesystem which can be created in FLASH/RAM.
->
->Which? Flash or RAM?
->
-> > Can anybody suggest me some ideas so that i can solve these
-> > issues?
->
->You need to give at least _some_ indication of your requirements 
->--
->what's on your file system, what is the expected pattern of 
->access to
->it, do you require write access all the time or only occasional 
->updates
->of the whole system, etc. ?
->
->
->--
->dwmw2
->
+> doesn't seem to make a difference). However, my desktop (running on the=
 
 
+This sounds like the traditional NFS suckage that has been there for deca=
+des.
+The problem is that 'tar xf' ends up doing a *LOT* of NFS calls - a huge
+stream of stat()/open()/chmod()/utime() calls.  On a local disk, most of
+this gets accelerated by the in-core inode cache, but on an NFS mount, yo=
+u're
+looking at lots and lots of synchronous calls.
+
+In 'man 5 exports':
+
+       async  This option allows the NFS server to violate  the  NFS  pro=
+tocol
+              and  reply  to  requests before any changes made by that re=
+quest
+              have been committed to stable storage (e.g. disc drive).
+
+              Using this option usually improves performance, but at the =
+ cost
+              that  an unclean server restart (i.e. a crash) can cause da=
+ta to
+              be lost or corrupted.
+
+              In releases of nfs-utils upto and including 1.0.0,  this  o=
+ption
+              was  the  default.   In  this  and  future releases, sync i=
+s the
+              default, and async must be explicit  requested  if  needed.=
+   To
+              help  make system adminstrators aware of this change, 'expo=
+rtfs'
+              will issue a warning if neither sync nor async is specified=
+=2E
+
+Does this address your NFS issue?
+-- =
+
+				Valdis Kletnieks
+				Computer Systems Senior Engineer
+				Virginia Tech
+
+
+--==_Exmh_-154650848P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+R0FjcC3lWbTT17ARAjYrAKDF/UowtexBnAueVAWK6eR+i4co2QCgmL4s
+PTmZ//OGP2umXwV5s5yLhpU=
+=dK1Q
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-154650848P--

@@ -1,65 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263791AbTKXPq6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 10:46:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263788AbTKXPqF
+	id S263807AbTKXQCM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 11:02:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263808AbTKXQCM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 10:46:05 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:59883 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id S263786AbTKXPpK convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 10:45:10 -0500
-From: Michael Buesch <mbuesch@freenet.de>
-To: Gerd Knorr <kraxel@bytesex.org>
-Subject: Re: [2.6.0-test10] standby freezes bttv
-Date: Mon, 24 Nov 2003 16:44:56 +0100
-User-Agent: KMail/1.5.93
-References: <200311241420.08216.mbuesch@freenet.de> <20031124134212.GE30618@bytesex.org>
-In-Reply-To: <20031124134212.GE30618@bytesex.org>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200311241645.05926.mbuesch@freenet.de>
+	Mon, 24 Nov 2003 11:02:12 -0500
+Received: from fw.osdl.org ([65.172.181.6]:19177 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263807AbTKXQCK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Nov 2003 11:02:10 -0500
+Subject: Re: Linux 2.6.0-test10 (compile stats)
+From: John Cherry <cherry@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0311231804170.17378-100000@home.osdl.org>
+References: <Pine.LNX.4.44.0311231804170.17378-100000@home.osdl.org>
+Content-Type: text/plain
+Message-Id: <1069689810.15740.0.camel@cherrytest.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Mon, 24 Nov 2003 08:03:30 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Linux 2.6 Compile Statistics (gcc 3.2.2)
+Warnings/Errors Summary
 
-On Monday 24 November 2003 14:42, Gerd Knorr wrote:
-> > Nov 24 14:10:29 lfs kernel: bttv0: timeout: risc=1fd6601c, bits: VSYNC
-> > HSYNC OFLOW HLOCK VPRES RISCI Nov 24 14:10:29 lfs kernel: bttv0: reset,
-> > reinitialize
->
-> Does that still happen with the updates from bytesex.org/patches?
+Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
+             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
+-----------  -----------  -------- -------- -------- -------- ---------
+2.6.0-test10   0w/0e       0w/0e   170w/ 0e  12w/0e   3w/0e    209w/0e
+2.6.0-test9    0w/0e       0w/0e   174w/ 0e  12w/0e   3w/0e    217w/0e
+2.6.0-test8    0w/0e       0w/0e   178w/ 0e  12w/0e   3w/0e    219w/0e
+2.6.0-test7    0w/0e       0w/0e   173w/ 1e   8w/0e   3w/0e    226w/0e
+2.6.0-test6    0w/0e       1w/0e   188w/ 1e  12w/0e   3w/0e    260w/2e
+2.6.0-test5    0w/0e       2w/0e   205w/ 9e  15w/1e   0w/0e    305w/5e
+2.6.0-test4    0w/0e       2w/0e   797w/55e  68w/1e   3w/0e   1016w/34e
+2.6.0-test3    0w/0e       2w/0e   755w/66e  62w/1e   7w/9e    984w/42e
+2.6.0-test2    0w/0e       1w/0e   952w/65e  63w/2e   7w/9e   1201w/43e
+2.6.0-test1    0w/0e       1w/0e  1016w/60e  75w/1e   8w/9e   1319w/38e
 
-I tried to apply
-20_v4l2-2.6.0-test8.diff
-30_tuner-2.6.0-test8.diff
-30_btaudio-2.6.0-test8.diff
-30_bttv-0.9.x-2.6.0-test8.diff
-30_i2c-2.6.0-test8.diff
+Web page with links to complete details:
+   http://developer.osdl.org/cherry/compile/
+Daily compiles (ia32): 
+   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running.txt
+Daily compiles (ia64): 
+   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running64.txt
+Latest changes in Linus' bitkeeper tree:
+   http://linux.bkbits.net:8080/linux-2.5
 
-bttv-patch didn't apply cleanly, but I applied
-it manually. Compiling gave these errors (as expected (tm) )
+John
 
-In file included from drivers/media/video/bttv-driver.c:39:
-drivers/media/video/bttvp.h:44:29: media/ir-common.h: No such file or directory
-In file included from drivers/media/video/bttv-driver.c:39:
-drivers/media/video/bttvp.h:267: error: field `ir' has incomplete type
 
-As I'm using test-10, do you have updated patches?
 
->   Gerd
-
-- -- 
-Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD4DBQE/wieAoxoigfggmSgRApAsAJ438vX2VFv02BomxGwknh8mrA/OmgCY4SK/
-c/9w3EO6YfWh1rGNwkNwag==
-=Vb55
------END PGP SIGNATURE-----

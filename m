@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262551AbVCCUrL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262373AbVCCUnI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262551AbVCCUrL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 15:47:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262525AbVCCUn2
+	id S262373AbVCCUnI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 15:43:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262526AbVCCUjB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 15:43:28 -0500
-Received: from fire.osdl.org ([65.172.181.4]:3482 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262539AbVCCUju (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 15:39:50 -0500
-Date: Thu, 3 Mar 2005 12:41:02 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Sean <seanlkml@sympatico.ca>
-cc: Jens Axboe <axboe@suse.de>, Chris Wright <chrisw@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
-       "David S. Miller" <davem@davemloft.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFD: Kernel release numbering
-In-Reply-To: <4737.10.10.10.24.1109878529.squirrel@linux1>
-Message-ID: <Pine.LNX.4.58.0503031239140.25732@ppc970.osdl.org>
-References: <42268749.4010504@pobox.com>   
- <20050302200214.3e4f0015.davem@davemloft.net><42268F93.6060504@pobox.com> 
-   <4226969E.5020101@pobox.com><20050302205826.523b9144.davem@davemloft.net>
-    <4226C235.1070609@pobox.com><20050303080459.GA29235@kroah.com>   
- <4226CA7E.4090905@pobox.com><Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>
-    <20050303165533.GQ28536@shell0.pdx.osdl.net><20050303170336.GL19505@suse.de>
-    <Pine.LNX.4.58.0503030952120.25732@ppc970.osdl.org>
- <4737.10.10.10.24.1109878529.squirrel@linux1>
+	Thu, 3 Mar 2005 15:39:01 -0500
+Received: from smtp-out.hotpop.com ([38.113.3.61]:12755 "EHLO
+	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S262373AbVCCUhx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 15:37:53 -0500
+From: "Antonino A. Daplas" <adaplas@hotpop.com>
+Reply-To: adaplas@pol.net
+To: Adrian Bunk <bunk@stusta.de>, adaplas@pol.net
+Subject: Re: RFC: disallow modular framebuffers
+Date: Fri, 4 Mar 2005 04:37:43 +0800
+User-Agent: KMail/1.5.4
+Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <20050301024118.GF4021@stusta.de> <200503040350.51163.adaplas@hotpop.com> <20050303202039.GH4608@stusta.de>
+In-Reply-To: <20050303202039.GH4608@stusta.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503040437.43495.adaplas@hotpop.com>
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 04 March 2005 04:20, Adrian Bunk wrote:
+> On Fri, Mar 04, 2005 at 03:50:42AM +0800, Antonino A. Daplas wrote:
+> >...
+> >
+> > > Is there any reason for these being three modules?
+> > > It seems the best solution would be to make this one module composed of
+> > > up to three object files?
+> >
+> > Yes.
+>
+> Two possible solutions:
+> - rename savagefb.c and link the three files into savagefb.o
+> - merge the other two files into savagefb.c
+>
+> I'd slightly prefer the first choice, but I can send patches for
+> whichever you prefer.
+
+I also prefer the first one even if it results into a big patch because
+of the rename.
+
+Tony
 
 
-On Thu, 3 Mar 2005, Sean wrote:
-> 
-> Wait a second though, this tree will be branched from the development
-> mainline.   So it will contain many patches that entered with less
-> testing.
 
-Well, since I'd pull basically all the time, all the patches _do_ get 
-testing the the -rc kernels. 
-
-But the rules would be that small patches can also be verified 
-independently.
-
-And realize that the 2.6.x tree doesn't "change" any way. It doesn't get 
-more unruly just because we have a side tree that is being anal about 
-things. It's still as stable as it ever is..
-
-		Linus

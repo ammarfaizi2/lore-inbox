@@ -1,76 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262157AbULaWHX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262159AbULaWPk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262157AbULaWHX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 17:07:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262158AbULaWHX
+	id S262159AbULaWPk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 17:15:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262158AbULaWPk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 17:07:23 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:52374 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262157AbULaWHO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 17:07:14 -0500
-Date: Fri, 31 Dec 2004 14:07:13 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: "Joseph D. Wagner" <technojoecoolusa@charter.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.10 Can't Open Initial Console on FC3
-Message-ID: <20041231140713.562f5f7a@lembas.zaitcev.lan>
-In-Reply-To: <mailman.1104479591.3634.linux-kernel2news@redhat.com>
-References: <mailman.1104479591.3634.linux-kernel2news@redhat.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.14; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 31 Dec 2004 17:15:40 -0500
+Received: from [222.65.100.168] ([222.65.100.168]:57098 "HELO
+	straitgateministry.org") by vger.kernel.org with SMTP
+	id S262159AbULaWPb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 17:15:31 -0500
+Message-ID: <D4B16B8F.F13879F@straitgateministry.org>
+Date: Fri, 31 Dec 2004 16:01:29 -0800
+From: "Charles" <carl@straitgateministry.org>
+User-Agent: Mail System Express 6.00.2810.1106
+MIME-Version: 1.0
+To: <linux-kernel@vger.kernel.org>
+Subject: PROJECT STRAIT GATE: Vigil for Peace, Sunday
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 31 Dec 2004 00:31:38 -0600, "Joseph D. Wagner" <technojoecoolusa@charter.net> wrote:
+(To join this list go to http://www.straitgateministry.org )
+PLEASE JOIN US on the public right-of-ways at:
 
-> The newly compiled kernel gets through everything OK including mounting
-> the root file system as read-only EXT3.  However, it freezes on the very
-> last line, which says:
-> 
->      Warning: unable to open an initial console
+ALL SAINTS OF THE DESERT EPISCOPAL CHURCH
+9502 W. Hutton Dr
+Sun City, Arizona 
+Time: 7:30 AM 11:30 AM)
+Sunday: January 2, 2005
+(#101 West to Bell Road, further West to Burns Drive, then south)
 
-> I feel like an idiot for posting this.  I'm probably missing something obvious.
+COME REMIND THIS BIG CONGREGATION THAT JESUS STOOD FOR PEACE, and that
+It is not enough to be for peace, we must stand for it. The Episcopal
+Church of America is one that has been on the verge of sanctioning the State
+of Israel for its brutal acts. Let us encourage those who attend this
+important church.
 
-Man, I know the feeling. It's rather annoying that the message does not
-tell what is happening, not even the errno. I was thinking about having
-the attached patch submitted, but I don't know if it's worth it.
+COME HOLD UP A SIGN AND HELP ANSWER QUESTIONS FROM PASSERSBY
 
-In case of FC3, the most common problem is that udev somehow fails to start.
-I do not know what the precise mechanics of it, because /dev/console
-exists in initrd images, but with all the crazy root pivoting it's
-no wonder it's ineffective. Anyhow, if udev quits, open in the init/main.c
-will fail with ENOENT.
+THE STRAIT GATE RULES:
+*  Watch for the big Yellow and Black STRAIT GATE PROJECT signs 
+*  Signs are furnished.  Some you will see are:
 
-The only solution I know is to do everything over again, and make sure
-you copied right configuration from /boot/config-2.6.9-1.678_FC3, and that
-your mkinitrd run created a sensible initrd image. Verify that udev runs
-and if not, debug that.
+BLESSED ARE THE PEACEMAKERS
+CHOOSE LIFE, NOT WAR
+IRAQ? WWJD? (what would Jesus do?)
+CHRISTIAN RACISM KILLS PALESTINIANS
+INNOCENT BLOOD ON OUR HANDS, IRAQ-PALESTINE
 
--- Pete
+*  Do not park your car on the church property 
+*  Walk only on right of ways, you will be shown where you may stand.
+*  The whole family is welcome; the police will be asked to be present.
+*  Remember, you are addressing the churchgoers, not the drive-by public.  
+*  Please dress in traditional church attire.
+*  Refrain from ANY loud exchanges with anyone, this is a SILENT vigil.  
+*  Please give space to those who come out to talk, no not interrupt or
+argue.
+*  Stay spaced so all the signs may be seen by those in the church.
+*  Please refer all press and other official inquires to the sponsors.
+*  Hand out literature will be provided. 
 
-diff -urp -X dontdiff linux-2.6.10-rc2-bk8/init/main.c linux-2.6.10-rc2-bk8-usb/init/main.c
---- linux-2.6.10-rc2-bk8/init/main.c	2004-11-16 17:03:37.000000000 -0800
-+++ linux-2.6.10-rc2-bk8-usb/init/main.c	2004-11-27 14:04:06.000000000 -0800
-@@ -691,6 +691,8 @@ static inline void fixup_cpu_present_map
- 
- static int init(void * unused)
- {
-+	int rc;
-+
- 	lock_kernel();
- 	/*
- 	 * Tell the world that we're going to be the grim
-@@ -738,8 +740,8 @@ static int init(void * unused)
- 	system_state = SYSTEM_RUNNING;
- 	numa_default_policy();
- 
--	if (sys_open((const char __user *) "/dev/console", O_RDWR, 0) < 0)
--		printk("Warning: unable to open an initial console.\n");
-+	if ((rc = sys_open((const char __user *) "/dev/console", O_RDWR, 0)) < 0)
-+		printk("Warning: unable to open an initial console (%d).\n", rc);
- 
- 	(void) sys_dup(0);
- 	(void) sys_dup(0);
+We hope you will make time for a lunch and A Strait Gate Ministries
+devotional after the Vigil.
+
+TO RECEIVE FUTURE NOTICES SUBSCRIBE AT( http://www.straitgateministry.org )
+
+PRESS RELEASE: A Silent Vigil for Peace
+PROJECT STRAIT GATE
+(www.straitgateministry.org)
+PO Box 14491
+Scottsdale, AZ 85267
+Vigil leader 
+Contact phone: 480 518 2751, 602 741 4650
+
+To be deleted from this list respond with the word remove
+
+
+
+

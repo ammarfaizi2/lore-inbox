@@ -1,65 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136019AbRAHXuu>; Mon, 8 Jan 2001 18:50:50 -0500
+	id <S136127AbRAHXwu>; Mon, 8 Jan 2001 18:52:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129805AbRAHXul>; Mon, 8 Jan 2001 18:50:41 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:43003 "HELO
-	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
-	id <S136019AbRAHXu2>; Mon, 8 Jan 2001 18:50:28 -0500
-Date: Mon, 8 Jan 2001 20:02:31 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S136466AbRAHXwk>; Mon, 8 Jan 2001 18:52:40 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:50184 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S136127AbRAHXw1>; Mon, 8 Jan 2001 18:52:27 -0500
+Subject: Re: HomePNA 2.0 flamage
+To: joe@gnacademy.tzo.org (Joseph Wang)
+Date: Mon, 8 Jan 2001 23:54:16 +0000 (GMT)
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] bmac.c: restore_flags on failure
-Message-ID: <20010108200231.C17087@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+In-Reply-To: <Pine.LNX.4.30.0101081724340.10568-100000@confucius.gnacademy.org> from "Joseph Wang" at Jan 08, 2001 05:35:10 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Url: http://advogato.org/person/acme
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14Fm7H-0005e6-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan,
+> This doesn't seem to be the case with HomePNA 2.0 which makes me suspect
+> that Broadcom has a patent on some critical piece of technology.  I
 
-	I haven't found Randy Gobbel's e-mail, please apply.
+Quite possible. Search for 'broadcom intel patent lawsuit' on google - there
+are other outstanding things.
 
-- Arnaldo
+> can't think of any other reason how they seem to have a defacto monopoly
+> on HomePNA 2.0 products.  This is bad because HomePNA 1.0 products
+> are becoming increasingly difficult to find.
 
---- linux-2.4.0-ac3/drivers/net/bmac.c	Tue Dec 19 11:24:51 2000
-+++ linux-2.4.0-ac3.acme/drivers/net/bmac.c	Mon Jan  8 19:55:30 2001
-@@ -6,6 +6,8 @@
-  *
-  * May 1999, Al Viro: proper release of /proc/net/bmac entry, switched to
-  * dynamic procfs inode.
-+ * Jan 2001, Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-+ * 		restore_flags on failure in bmac_reset_and_enable
-  */
- #include <linux/config.h>
- #include <linux/module.h>
-@@ -1227,9 +1229,9 @@
- 	bmac_reset_chip(dev);
- 	if (enable) {
- 		if (!bmac_init_tx_ring(bp) || !bmac_init_rx_ring(bp))
--			return 0;
-+			goto out;
- 		if (!bmac_init_chip(dev))
--			return 0;
-+			goto out;
- 		bmac_start_chip(dev);
- 		bmwrite(dev, INTDISABLE, EnableNormal);
- 		bp->reset_and_enabled = 1;
-@@ -1247,6 +1249,8 @@
- 	}
- 	restore_flags(flags);
- 	return 1;
-+out:	restore_flags(flags);
-+	return 0;
- }
- 
- static int __init bmac_probe(void)
+I suspect homepna is dead to be honest.
+
+Alan
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

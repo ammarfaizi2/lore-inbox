@@ -1,87 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268248AbUJORYT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268231AbUJORXe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268248AbUJORYT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 13:24:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268239AbUJORYR
+	id S268231AbUJORXe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 13:23:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268232AbUJORXT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 13:24:17 -0400
-Received: from mail-relay-2.tiscali.it ([213.205.33.42]:9164 "EHLO
-	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
-	id S268228AbUJORPp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 13:15:45 -0400
-Date: Fri, 15 Oct 2004 19:13:55 +0200
-From: Andrea Arcangeli <andrea@novell.com>
-To: Albert Cahalan <albert@users.sf.net>
-Cc: Hugh Dickins <hugh@veritas.com>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton OSDL <akpm@osdl.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Albert Cahalan <albert@users.sourceforge.net>
-Subject: Re: per-process shared information
-Message-ID: <20041015171355.GD17849@dualathlon.random>
-References: <Pine.LNX.4.44.0410151207140.5682-100000@localhost.localdomain> <1097846353.2674.13298.camel@cube> <20041015162000.GB17849@dualathlon.random> <1097857912.2669.13548.camel@cube>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 15 Oct 2004 13:23:19 -0400
+Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:12968 "EHLO
+	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S268231AbUJORWT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 13:22:19 -0400
+From: David Brownell <david-b@pacbell.net>
+To: linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] Re: 2.6.9-rc4-mm1 : oops when rmmod uhci_hcd  [was: 2.6.9-rc3-mm2 : oops...]
+Date: Fri, 15 Oct 2004 10:22:38 -0700
+User-Agent: KMail/1.6.2
+Cc: Paul Fulghum <paulkf@microgate.com>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       Laurent Riffard <laurent.riffard@free.fr>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>, Ingo Molnar <mingo@elte.hu>
+References: <Pine.LNX.4.44L0.0410151215440.1052-100000@ida.rowland.org> <1097858939.2820.3.camel@deimos.microgate.com>
+In-Reply-To: <1097858939.2820.3.camel@deimos.microgate.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <1097857912.2669.13548.camel@cube>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410151022.38486.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 15, 2004 at 12:31:52PM -0400, Albert Cahalan wrote:
-> Currently, ps uses /proc/*/stat for that. The /proc/*/statm
+On Friday 15 October 2004 9:48 am, Paul Fulghum wrote:
+> On Fri, 2004-10-15 at 11:18, Alan Stern wrote:
+> > Your explanation sounds entirely reasonable to me.  Can you pass it on to 
+> > the people responsible for the generic-irq subsystem?
+> 
+> I CCd Ingo Molnar, who appears to be the originator
+> of these patches.
+> 
+> There was a question in my mind about the hcd->description field.
+> Should it be unique for each device instance instead
+> of uniform for all device instances on a driver?
 
-maybe you mean /proc/pid/status, status has the RSS and most virtual
-info too, I doubt stat has it too (a trivial grep doesn't reveal it at
-least).
+It describes the driver ... I think the problem would be that
+the IRQ registration API seems to have changed requirements.
 
-Anyways my ps definitely reads /proc/*/statm with the 'v' option
-(confirmed by strace).
+Those labels were never previously treated as anything other
+than a way to make /proc/interrupts more meaningful.  The
+only request_irq() parameter that "must be globally unique"
+is the final "void *dev_id".
 
-open("/proc/1/stat", O_RDONLY)          = 6
-read(6, "1 (init) S 0 0 0 0 -1 256 207 16"..., 1023) = 199
-close(6)                                = 0
-open("/proc/1/statm", O_RDONLY)         = 6
-read(6, "147 17 111 111 0 36 0\n", 1023) = 22
-close(6)                                = 0
-open("/proc/1/status", O_RDONLY)        = 6
-read(6, "Name:\tinit\nState:\tS (sleeping)\nS"..., 1023) = 473
-close(6)                                = 0
-open("/proc/1/cmdline", O_RDONLY)       = 6
-read(6, "init [5]\0\0\0", 2047)         = 11
-close(6)                                = 0
-fstat64(1, {st_mode=S_IFCHR|0620, st_rdev=makedev(3, 5), ...}) = 0
-ioctl(1, SNDCTL_TMR_TIMEBASE or TCGETS, {B38400 opost isig icanon echo
-...}) = 0
-mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1,
-0) = 0x401cd000
-write(1, "  PID TTY      STAT   TIME  MAJF"..., 64) = 64
-write(1, "    1 ?        S      0:02     2"..., 67) = 67
-stat64("/proc/2", {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
-open("/proc/2/stat", O_RDONLY)          = 6
-read(6, "2 (migration/0) S 1 0 0 0 -1 328"..., 1023) = 135
-close(6)                                = 0
-
-peraphs we use different procps version. I heard there is more than one
-version, and I know you're maintaining one but I never followed the
-details, you sure know better than me why the above is happening on my
-machine. But the point is that there are widely used apps opening statm
-(top as you mentioned), and those apps normally don't care about
-"shared" (or at least they can't underflow), and those must run on the
-big boxes too, and statm was basically unfixable.
-
-> What exactly would be the difference, and when might users see it?
-
-one difference for example is that it cannot take into account for
-shared anonymous pages generated by fork(). Or other corner cases would
-be posisble, but I believe it's a minor issue... so it's looking good.
-Frankly I was thinking shared as a page_mapcount > 1, while all
-pagecache is considered "shared", so Hugh's algorithm is a lot closer to
-the old shared than what I thought originally. Peraphs solaris also
-implements it as rss - anon_rss (I mean, they must be facing similar
-issues, and the report states the "shared" info is being reported with
-the same semantics on linux 2.4 and solaris and some other unix... so
-the theory Hugh's matching other unix even better than 2.4 sounds
-reasonable).
+- Dave

@@ -1,117 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274838AbRIUVI3>; Fri, 21 Sep 2001 17:08:29 -0400
+	id <S274843AbRIUVcy>; Fri, 21 Sep 2001 17:32:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274839AbRIUVIT>; Fri, 21 Sep 2001 17:08:19 -0400
-Received: from mueller.uncooperative.org ([216.254.102.19]:2062 "EHLO
-	mueller.datastacks.com") by vger.kernel.org with ESMTP
-	id <S274838AbRIUVID>; Fri, 21 Sep 2001 17:08:03 -0400
-Date: Fri, 21 Sep 2001 17:08:28 -0400
-From: Crutcher Dunnavant <crutcher@datastacks.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Magic SysRq +# in 2.4.9-ac/2.4.10-pre12
-Message-ID: <20010921170828.J8188@mueller.datastacks.com>
-Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <3BA8C01D.79FBD7C3@osdlab.org>
-Mime-Version: 1.0
+	id <S274844AbRIUVcp>; Fri, 21 Sep 2001 17:32:45 -0400
+Received: from [208.129.208.52] ([208.129.208.52]:25871 "EHLO xmailserver.org")
+	by vger.kernel.org with ESMTP id <S274843AbRIUVc2>;
+	Fri, 21 Sep 2001 17:32:28 -0400
+Message-ID: <XFMail.20010921143623.davidel@xmailserver.org>
+X-Mailer: XFMail 1.5.0 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3BA8C01D.79FBD7C3@osdlab.org>; from rddunlap@osdlab.org on Wed, Sep 19, 2001 at 08:56:13AM -0700
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <3BABA15A.57255E63@distributopia.com>
+Date: Fri, 21 Sep 2001 14:36:23 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+To: "Christopher K. St. John" <cks@distributopia.com>
+Subject: Re: /dev/yapoll : Re: [PATCH] /dev/epoll update ...
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-++ 19/09/01 08:56 -0700 - Randy.Dunlap:
-> (and maybe earlier...)
+
+On 21-Sep-2001 Christopher K. St. John wrote:
+> Davide Libenzi wrote:
+>> 
+>> By reporting the initial state of the connection will
+>> make /dev/epoll to be a hybrid interface
+>>
 > 
-> Simple problems grow...
-> 
-> Keith Owens has already noted one problem in sysrq.c (2.4.10-pre12).
-> 
-> Beginning:
-> 
-> I have an IBM model KB-9910 keyboard.  When I use
-> Alt+SysRQ+number (number: 0...9) on it to change the
-> console loglevel, only keys 5 and 6 have the desired
-> effect.  I used showkey -s to view the scancodes from
-> the other <number> keys, but showkey didn't display
-> anything for them.  Any other suggestions?
+>  Yes, but you need that anyway (see below)
 > 
 > 
-> For now, I'm just using different (non-number) keys
-> to modify the loglevel.
+>> and looks pretty crappy to me.
+>>
 > 
-> Anyway, in looking at SysRq loglevel handling in
-> 2.4.9-ac (and 2.4.10-pre12), I see that it has been modified
-> quite a bit.  Looks extensible, which can be good.
-> However, looking over it gave me several nagging questions
-> and problems.
-> 
-> 1.  Was this stuff tested?  How ???
-> 
-> It always sets console_loglevel and then restores
-> console_loglevel from orig_log_level, so Alt+SysRq+#
-> handling is severely broken.
-> 
-> If someone (Crutcher ?) wants to patch it, that's fine.
-> If I patched it, I would just add a
->   next_loglevel = -1;
-> at the beginning of __handle_sysrq_nolock() and then
-> let the loglevel handler(s) set next_loglevel.
-> If next_loglevel != -1 at the end of __handle_sysrq_nolock(),
-> set console_loglevel to next_loglevel.
+>  It turns out that a hybrid interface is needed
+> in any case to handle overload. When the queues
+> start to fill up, you need to back off and start
+> basically doing something like a plain-old-poll()
+> instead. Ref the paper. Here's a link to a kernel
+> list dicussion that covers similiar ground:
 
-I'm looking real close at this right now, and there are a couple of
-problems, and a simple, but ugly solution.
+Now, my question born spontaneously :
 
-The entire reason that console_loglevel is touched _after_ the call to
-the second level handler is actually for the loglevel handler's
-printout. I was trying to minimize change in the display, but horked it.
+"Did you read and understood the /dev/epoll code ?"
 
-Here is the problem.
-
-SysRq events use action messages which get printed by the top level
-handler before calling the second level handler, the call line is:
-
-        orig_log_level = console_loglevel;
-        console_loglevel = 7;
-        printk(KERN_INFO "SysRq : ");
-
-        op_p = __sysrq_get_key_op(key);
-	...
-        printk ("%s", op_p->action_msg);
-        op_p->handler(key, pt_regs, kbd, tty);
-	...
-        console_loglevel = orig_log_level;
+If yes, could you explain to me a case where /dev/epoll users have
+to fall back doing "plain-old-poll()" ?
 
 
-The killer here is the fact that the action message format string does
-not carry a newline, allowing people to register strings which leave the
-printk state open. The loglevel handler then fills in the loglevel, and
-closes the printk state.
 
-There was a time when I thought that was a good idea.
+- Davide
 
-Go ahead, laugh.
-
-Anyway, that sort of unresolved state is bad, and is the source of all
-of this song and dance. I think the right answer is to force handlers to
-open their own calls to printk, and to keep whats going on with the
-console_loglevel and printk buffer nice and clean.
-
-The cost is that messages like this:
-
-SysRq : Loglevel switched to X
-
-will have to become more like this:
-
-SysRq : Loglevel
-Loglevel switched to X
-
-
-Again, appologies, and a patch is forthcoming.
-
--- 
-Crutcher        <crutcher@datastacks.com>
-GCS d--- s+:>+:- a-- C++++$ UL++++$ L+++$>++++ !E PS+++ PE Y+ PGP+>++++
-    R-(+++) !tv(+++) b+(++++) G+ e>++++ h+>++ r* y+>*$

@@ -1,48 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129092AbQJaOUd>; Tue, 31 Oct 2000 09:20:33 -0500
+	id <S129063AbQJaO3e>; Tue, 31 Oct 2000 09:29:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129043AbQJaOUX>; Tue, 31 Oct 2000 09:20:23 -0500
-Received: from mailgate2.zdv.Uni-Mainz.DE ([134.93.8.57]:26606 "EHLO
-	mailgate2.zdv.Uni-Mainz.DE") by vger.kernel.org with ESMTP
-	id <S129092AbQJaOUT>; Tue, 31 Oct 2000 09:20:19 -0500
-Date: Tue, 31 Oct 2000 15:20:16 +0100
-From: Dominik Kubla <dominik.kubla@uni-mainz.de>
-To: Riley Williams <rhw@MemAlpha.CX>
-Cc: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.X patch query (with initial PATCH against 2.2.17)
-Message-ID: <20001031152016.B767@uni-mainz.de>
-Mail-Followup-To: Riley Williams <rhw@MemAlpha.CX>,
-	Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200010310229.e9V2TCF29473@sleipnir.valparaiso.cl> <Pine.LNX.4.10.10010311249050.31668-200000@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-User-Agent: Mutt/1.0.1i
-In-Reply-To: <Pine.LNX.4.10.10010311249050.31668-200000@infradead.org>; from rhw@MemAlpha.CX on Tue, Oct 31, 2000 at 01:38:56PM +0000
-X-No-Archive: yes
-Restrict: no-external-archive
+	id <S129069AbQJaO3Y>; Tue, 31 Oct 2000 09:29:24 -0500
+Received: from tellus.thn.htu.se ([193.10.192.40]:34059 "EHLO thn.htu.se")
+	by vger.kernel.org with ESMTP id <S129063AbQJaO3O>;
+	Tue, 31 Oct 2000 09:29:14 -0500
+Date: Tue, 31 Oct 2000 15:28:55 +0100 (CET)
+From: Richard Torkar <ds98rito@thn.htu.se>
+To: John R Lenton <john@grulic.org.ar>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: oopsen in 2.4.0-pre9
+In-Reply-To: <20001031094755.A1029@grulic.org.ar>
+Message-ID: <Pine.LNX.4.21.0010311526550.1449-100000@toor.thn.htu.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 31, 2000 at 01:38:56PM +0000, Riley Williams wrote:
-...
-> Also, part of my plan was to check that the disk is already in this
-> non-standard format, and refuse to dump if not. This would ensure that
-> doing so didn't overwrite somebody's master boot disk by accident, as
-> such disks will not normally be in this non-standard format.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Just write a magic number somewhere to the disk and mark these blocks
-bad in the fat. Then just check if the blocks are marked as bad and
-contain the magic number. No need for a special disk format per se...
+John R Lenton wrote:
 
-Yours,
-  Dominik Kubla
--- 
-http://petition.eurolinux.org/index_html - No Software Patents In Europe!
+> Several oops come up when using a lot of memory (using
+> imagemagick on PIA00001.tif from photojournal.jpl.nasa.gov/tiff,
+> on a 64MB machine, for example)
+> 
+> The weird thing is the oops happen *after* I've finished with
+> imagemagick (or the gimp, or ...). In this particular situation
+> netscape suddenly died, together with wmtime, and then the whole
+> of X hung. I entered via the network, to find that xfs had died
+> (explaining X's hanging), and as soon as I restarted X the whole
+> box was gone. It still responded to pings, but even the active
+> ssh session was dead and I couldn't get a new one.
+
+I can only confirm your problem, but I use 128MB RAM.
+
+When using "display PIA00001.tif" my computer starts swapping furiously
+and then locks *hard*. Not even sysrq works and unfortunately in my case
+no oops in messages...
+
+
+Hmmmm, serious? Dunno...
+
+
+/Richard
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE5/tcrUSLExYo23RsRAticAKDV+Id7DrSVq8soFQVgtXj5X7mFRACfcgCs
+OgH+ITA+oafSn8QHuH9E43w=
+=cEAp
+-----END PGP SIGNATURE-----
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,67 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317977AbSFSTH7>; Wed, 19 Jun 2002 15:07:59 -0400
+	id <S317978AbSFSTJ7>; Wed, 19 Jun 2002 15:09:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317978AbSFSTH6>; Wed, 19 Jun 2002 15:07:58 -0400
-Received: from jeeves.momenco.com ([64.169.228.99]:62478 "EHLO
-	host099.momenco.com") by vger.kernel.org with ESMTP
-	id <S317977AbSFSTH5>; Wed, 19 Jun 2002 15:07:57 -0400
-From: "Matthew Dharm" <mdharm@momenco.com>
-To: "Balakrishnan Ananthanarayanan" <balakris_ananth@email.com>,
-       <linux-mips@oss.sgi.com>, <linux-kernel@vger.kernel.org>,
-       <redhat-list@redhat.com>
-Subject: RE: MIPS - Serial port
-Date: Wed, 19 Jun 2002 12:07:51 -0700
-Message-ID: <NEBBLJGMNKKEEMNLHGAICEIECHAA.mdharm@momenco.com>
+	id <S317979AbSFSTJ6>; Wed, 19 Jun 2002 15:09:58 -0400
+Received: from 12-234-169-113.client.attbi.com ([12.234.169.113]:48593 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S317978AbSFSTJ5>; Wed, 19 Jun 2002 15:09:57 -0400
+Date: Wed, 19 Jun 2002 13:03:38 -0400 (EDT)
+From: Christopher Li <chrisl@gnuchina.org>
+X-X-Sender: chrisl@localhost.localdomain
+To: "Stephen C. Tweedie" <sct@redhat.com>
+cc: Alexander Viro <viro@math.psu.edu>, DervishD <raul@pleyades.net>,
+       Linux-kernel <linux-kernel@vger.kernel.org>,
+       <ext2-devel@lists.sourceforge.net>
+Subject: Re: [Ext2-devel] Re: Shrinking ext3 directories
+In-Reply-To: <20020619113734.D2658@redhat.com>
+Message-ID: <Pine.LNX.4.44.0206191256550.20859-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-In-Reply-To: <20020619120414.8473.qmail@email.com>
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The RM7000 does not have an on-chip serial port.  The EV board has
-it's own UART.
 
-Matt
 
---
-Matthew D. Dharm                            Senior Software Designer
-Momentum Computer Inc.                      1815 Aston Ave.  Suite 107
-(760) 431-8663 X-115                        Carlsbad, CA 92008-7310
-Momentum Works For You                      www.momenco.com
+On Wed, 19 Jun 2002, Stephen C. Tweedie wrote:
 
-> -----Original Message-----
-> From: owner-linux-mips@oss.sgi.com
-> [mailto:owner-linux-mips@oss.sgi.com]On Behalf Of Balakrishnan
-> Ananthanarayanan
-> Sent: Wednesday, June 19, 2002 5:04 AM
-> To: linux-mips@oss.sgi.com; linux-kernel@vger.kernel.org;
-> redhat-list@redhat.com
-> Subject: MIPS - Serial port
->
->
-> Hi all,
->
->    Is there anyone who has accessed the serial port of an
-> RM7000 MIPS processor? If u can provide me the code please
-> - or atleast the Serial PORT number of an RM7000 proc.
-> mounted on an EV64120A Galileo Board?
->
-> Balakrishnan
->
-> --
-> __________________________________________________________
-> Sign-up for your own FREE Personalized E-mail at Mail.com
-> http://www.mail.com/?sr=signup
->
-> Save up to $160 by signing up for NetZero Platinum Internet service.
-> http://www.netzero.net/?refcd=N2P0602NEP8
->
+> Hi,
+> 
+> On Tue, Jun 18, 2002 at 06:18:49PM -0400, Alexander Viro wrote:
+>  
+> > IOW, making sure that empty blocks in the end of directory get freed
+> > is a matter of 10-20 lines.  If you want such patch - just tell, it's
+> > half an hour of work...
+> 
+> It's certainly easier at the tail, but with htree we may have
+> genuinely enormous directories and being able to hole-punch arbitrary
+> coalesced blocks could be a huge win.  Also, doing the coalescing
+I would can contribute on that. I am thinking about it anyway.
+Daniel might already has some code there.
+
+I have a silly question, where is that ext3 CVS? Under sourcefourge
+ext2/ext3 or gkernel?
+
+Chris
+
 

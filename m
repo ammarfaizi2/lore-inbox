@@ -1,55 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263857AbTLOSwY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 13:52:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263871AbTLOSwY
+	id S263956AbTLOS5O (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 13:57:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263963AbTLOS5O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 13:52:24 -0500
-Received: from fw.osdl.org ([65.172.181.6]:8896 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263857AbTLOSwW (ORCPT
+	Mon, 15 Dec 2003 13:57:14 -0500
+Received: from mtaw6.prodigy.net ([64.164.98.56]:19097 "EHLO mtaw6.prodigy.net")
+	by vger.kernel.org with ESMTP id S263956AbTLOS5J (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 13:52:22 -0500
-Date: Mon, 15 Dec 2003 10:52:19 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Toad <toad@amphibian.dyndns.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: 'bad: scheduling while atomic!', preempt kernel, 2.6.1-test11,
- reading an apparently duff DVD-R
-In-Reply-To: <20031215154654.GA7760@amphibian.dyndns.org>
-Message-ID: <Pine.LNX.4.58.0312151046430.1631@home.osdl.org>
-References: <20031215135802.GA4332@amphibian.dyndns.org>
- <20031215154654.GA7760@amphibian.dyndns.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 15 Dec 2003 13:57:09 -0500
+Date: Mon, 15 Dec 2003 10:57:01 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Rik van Riel <riel@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: More questions about 2.6 /proc/meminfo was: (Mem: and Swap: lines in /proc/meminfo)
+Message-ID: <20031215185701.GC1769@matchmail.com>
+Mail-Followup-To: Rik van Riel <riel@redhat.com>,
+	linux-kernel@vger.kernel.org
+References: <20031214014429.GB1769@matchmail.com> <Pine.LNX.4.44.0312141915550.26386-100000@chimarrao.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0312141915550.26386-100000@chimarrao.boston.redhat.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Dec 14, 2003 at 07:17:05PM -0500, Rik van Riel wrote:
+> On Sat, 13 Dec 2003, Mike Fedyk wrote:
+> 
+> > > > Are Dirty: and Writeback: counted in Inactive: or are they seperate?
+> > > 
+> > > They're unrelated statistics to active/inactive and will
+> > > overlap with active/inactive.
+> > 
+> > Do they count anonymous memory, or are they strictly dirty/writeback
+> > pagecache?
+> 
+> Pagecache only, I think.
+> 
 
+That makes sence, since dirty anonymous memory should be swapped out, not
+"written back".
 
-On Mon, 15 Dec 2003, Toad wrote:
->
-> I recompiled the kernel with IDE-SCSI, preemption, taskfile, and a few
-> other things disabled. With the result that it worked. But of course I
-> can't _write_ DVDs without IDE-SCSI (short of obtaining a SCSI
-> writer)...
+Though dirty seems anbiguous, since it could contain dirty anon memory too.
+But, I think you are right.  On my idle system (with kde running), there's
+only 40KB "dirty" memory, so it's probably pagecache only.
 
-Well, that "of course" shouldn't be there - it should work, using the
-standard cdrecord.
+Thanks.
 
-You don't even need to recompile a cdrecord if you have a reasonably
-recent distibution. Just use
+> > > > Does Mapped: include all files mmap()ed, or only the executable ones?
+> > > 
+> > > Mapped: includes all mmap()ed pages, regardless of executable
+> > > status.
+> > 
+> > Is mmap() always pagecache backed, or can it be backed with anonymous
+> > memory?  IE, can I subtract mapped from pagecache?
+> 
+> Mapped includes all mapped memory, both pagecache and
+> anonymous.
+> 
 
-	cdrecord dev=/dev/hdc
+Ok, then I can't subtract it from the pagecache value.  I'll have to graph
+that differently (a line instead of a stack).
 
-and it should "just work".
+Thanks.
 
-There's been at least one report that trying to write a DVD with packet
-writing (ie by just mounting it read-write and writing to it) doesn't
-work. That one seems to be due to the generic cdrom.c code getting the
-size of the disk wrong. There was a patch floating around for testing, but
-I never got any feedback on that apart from the original success story.
+> > I'd love to find a more accurate way to get the amount of memory used for
+> > apps, short of reading the output of ps and doing calculations on RSS,
+> > VIRTUAL, and SHARED...
+> 
+> That would be great, it would really help with tuning
+> the VM further (if that turns out to be needed for
+> special workloads).
 
-But if you have a DVD-R, then that shouldn't even be an issue, methinks.
-
-			Linus
+Any suggestions?

@@ -1,32 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289833AbSBYQhc>; Mon, 25 Feb 2002 11:37:32 -0500
+	id <S293424AbSBYQkM>; Mon, 25 Feb 2002 11:40:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291962AbSBYQhW>; Mon, 25 Feb 2002 11:37:22 -0500
-Received: from quechua.inka.de ([212.227.14.2]:14644 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S289833AbSBYQhJ>;
-	Mon, 25 Feb 2002 11:37:09 -0500
+	id <S292482AbSBYQkC>; Mon, 25 Feb 2002 11:40:02 -0500
+Received: from radio-112-20.poa.terraempresas.com.br ([200.176.112.20]:62984
+	"EHLO rush.interage.com.br") by vger.kernel.org with ESMTP
+	id <S291969AbSBYQj7>; Mon, 25 Feb 2002 11:39:59 -0500
+Message-ID: <3C7A693E.17FEE86@interage.com.br>
+Date: Mon, 25 Feb 2002 13:41:34 -0300
+From: Mauricio Pretto <pretto@interage.com.br>
+Organization: Interage Integradora
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: PATCH 2.5.4 i810_audio, bttv, working at all.
-In-Reply-To: <Pine.LNX.4.33.0202141817300.14384-100000@penguin.transmeta.com> <3C6CBB05.5010001@evision-ventures.com>
-Organization: private Linux site, southern Germany
-Date: Mon, 25 Feb 2002 17:24:36 +0100
-From: Olaf Titz <olaf@bigred.inka.de>
-Message-Id: <E16fNvY-0004Qj-00@bigred.inka.de>
+Subject: rc.devfs
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: OK (checked by AntiVir Version 6.10.0.32)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The idal solution would be some kind of stripped down C++ for some of
-> those problems...
-> No rtti, no templates, no exceptions, no additional cruft requirng back
-> behind you runtime
-> support for the language, but just plain simple direct struct
-> inheritance kind off ;-).
+In the 2.4.17 tree i cant find the rc.devfs script
+have been discontinued?
 
-I have a preprocessor for that. It's part of my squid-filters package
-but could be generally useful as well.
-
-<URL:http://sites.inka.de/~bigred/devel/squid-filter.html>
-
-Olaf
-
+-- 
+----------------------------------
+	Mauricio Pretto
+     Analista De Suporte
+    Interage  Integradora
+     www.interage.com.br
+---------------------------------

@@ -1,61 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268040AbTBRWDY>; Tue, 18 Feb 2003 17:03:24 -0500
+	id <S268062AbTBRWHO>; Tue, 18 Feb 2003 17:07:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268043AbTBRWDY>; Tue, 18 Feb 2003 17:03:24 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:28327 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S268040AbTBRWDW>; Tue, 18 Feb 2003 17:03:22 -0500
-Date: Tue, 18 Feb 2003 17:13:20 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200302182213.h1IMDKX31357@devserv.devel.redhat.com>
-To: Pavel Machek <pavel@ucw.cz>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Toshiba keyboard workaroun
-In-Reply-To: <mailman.1045603384.24857.linux-kernel2news@redhat.com>
-References: <mailman.1045603384.24857.linux-kernel2news@redhat.com>
+	id <S268064AbTBRWHN>; Tue, 18 Feb 2003 17:07:13 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:28435 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S268062AbTBRWG7>; Tue, 18 Feb 2003 17:06:59 -0500
+Date: Tue, 18 Feb 2003 14:13:00 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Chris Wedgwood <cw@f00f.org>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: Linux v2.5.62 --- spontaneous reboots
+In-Reply-To: <20030218215956.GA15178@f00f.org>
+Message-ID: <Pine.LNX.4.44.0302181408200.1107-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> --- clean/drivers/char/keyboard.c	2003-02-15 18:51:18.000000000 +0100
-> +++ linux/drivers/char/keyboard.c	2003-02-15 19:19:45.000000000 +0100
-> @@ -1020,6 +1041,23 @@
->  	struct tty_struct *tty;
->  	int shift_final;
->  
-> +        /*
-> +         * Fix for Toshiba Satellites. Toshiba's like to repeat 
-> +	 * "key down" event for A in combinations like shift-A.
-> +	 * Thanx to Andrei Pitis <pink@roedu.net>.
-> +         */
-> +        static int prev_scancode = 0;
-> +        static int stop_jiffies = 0;
-> +
-> +        /* new scancode, trigger delay */
-> +        if (keycode != prev_scancode) 	       stop_jiffies = jiffies;
-> +        else if (jiffies - stop_jiffies >= 10) stop_jiffies = 0;
-> +        else {
-> +	    printk( "Keyboard glitch detected, ignoring keypress\n" );
-> +            return;
-> +	}
-> +        prev_scancode = keycode;
-> +
->  	if (down != 2)
->  		add_keyboard_randomness((keycode << 1) ^ down);
 
-This is incredibly broken, on many layers.
+On Tue, 18 Feb 2003, Chris Wedgwood wrote:
+> 
+> Of course, Murphy being the optimist he is; about two minutes after I
+> make a claim that 2.5.52 does NOT spontaneously reboot --- it *DOES*.
+> 
+> I'm back to 2.5.51 and I'll beat it hard and see what happens.  I
+> guess until I (or someone else who sees this) can get some concrete
+> data points you'll have to ignore this.
 
-First, formatting does not respect the original code. Pavel, please,
-I do not care what crap you write in softsuspend, but this is a
-generic piece of code. Be kind to those who come next.
+Ok. Especially if it seems that -mjb4 also potentially does it (just
+harder to trigger), I don't see many other alternatives than just going
+back in time to see when it started.
 
-Second, no HZ or other way to specify a wall clock interval.
-What if I run with HZ=4000? How do you protect against a
-jiffies wraparound?
+But if it was getting hard to trigger with 2.5.52 too, things might be
+getting hairier and hairier.. If it becomes hard enough to trigger as to
+be practically nondeterministic, a better approach might be to just go
+back to -mjb4, and even if it is still there in -mjb4 try to see which
+part of the patch seems to be making it more stable. That might give us
+more clues, and it's a much smaller problem set than going arbitrarily far
+back in the 2.5.x series.
 
-Third, I do not see how this is supposed to work at all.
-What if I hit two letters like in a word "Fool"? The up event
-is filtered already by this time, so, won't this code eat
-the second 'o'?
+		Linus
 
--- Pete

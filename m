@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311470AbSCSRYw>; Tue, 19 Mar 2002 12:24:52 -0500
+	id <S311475AbSCSRaL>; Tue, 19 Mar 2002 12:30:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311469AbSCSRYl>; Tue, 19 Mar 2002 12:24:41 -0500
-Received: from smtp.polymtl.ca ([132.207.4.11]:4555 "EHLO smtp.polymtl.ca")
-	by vger.kernel.org with ESMTP id <S311470AbSCSRYZ>;
-	Tue, 19 Mar 2002 12:24:25 -0500
-Message-ID: <3C977438.AD5BCED@polymtl.ca>
-Date: Tue, 19 Mar 2002 12:24:08 -0500
-From: Christian Robert <christian.robert@polymtl.ca>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en, fr-CA
-MIME-Version: 1.0
-To: Oleg Drokin <green@namesys.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Unable to run kernel 2.4.18  it panic at boot
-In-Reply-To: <3C96C714.E6967570@polymtl.ca> <20020319085943.B4750@namesys.com> <3C976267.71756479@polymtl.ca> <20020319191359.A8533@namesys.com>
+	id <S311477AbSCSRaB>; Tue, 19 Mar 2002 12:30:01 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:10769 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S311475AbSCSR3o>;
+	Tue, 19 Mar 2002 12:29:44 -0500
+Date: Tue, 19 Mar 2002 10:30:22 -0700
+From: yodaiken@fsmlabs.com
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+        chiranjeevi vaka <cvaka_kernel@yahoo.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: using kmalloc
+Message-ID: <20020319103022.A17491@hq.fsmlabs.com>
+In-Reply-To: <20020319161831.80877.qmail@web21306.mail.yahoo.com> <20020319164136.GN20602@conectiva.com.br>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Drokin wrote:
+On Tue, Mar 19, 2002 at 01:41:36PM -0300, Arnaldo Carvalho de Melo wrote:
+> Em Tue, Mar 19, 2002 at 08:18:31AM -0800, chiranjeevi vaka escreveu:
 > 
-> Hello!
+> > I am getting some problems with kmalloc. If I tried to allocate more than
+> > certain memory then the system is hanging while booting with the changed
+> > kernel. Can you suggest me how to come out this situation. Can't I allocate
+> > as much I want when I want to allocate in the kernel. 
 > 
-> On Tue, Mar 19, 2002 at 11:08:07AM -0500, Christian Robert wrote:
-> 
-> > I have reiserfs, but no hpfs partitions ( but yes, it is compiled in the kernel )
-> > my next step will be to recompile kernel without "hpfs" to see if it help.
-> >
-> Yes, it should
-> Or alternatively you can move reiserfs up in the list of objects to be linked
-> in /usr/src/linux/fs/Makefile
-> 
-> Bye,
->     Oleg
+> try vmalloc, kmalloc is limited, AFAIK, to 128 KiB and even that is difficult
+> to get after some time.
 
-Running 2.4.18 now. 
+Apparently, kmalloc semantics changed at some point
+so it does not ever return error.
 
-Removing "hpfs" from the kernel config solved my problem.
 
-So, something has probably changed between kernel 2.4.17 and 2.4.18
-regarding detection of "hpfs" partitions ?
+-- 
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+ www.fsmlabs.com  www.rtlinux.com
 
-many thanks,
-Xtian.

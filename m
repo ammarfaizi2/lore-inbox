@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271746AbRHQW5k>; Fri, 17 Aug 2001 18:57:40 -0400
+	id <S271745AbRHQXIX>; Fri, 17 Aug 2001 19:08:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271745AbRHQW5c>; Fri, 17 Aug 2001 18:57:32 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:39692 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S271746AbRHQW5L>; Fri, 17 Aug 2001 18:57:11 -0400
-Date: Sat, 18 Aug 2001 00:57:27 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Dirk W. Steinberg" <dws@dirksteinberg.de>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Swapping for diskless nodes
-Message-ID: <20010818005727.A24936@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <Pine.LNX.4.33L.0108162146120.5646-100000@imladris.rielhome.conectiva> <3B7D8685.FE574210@xss.co.at> <3B7D9B32.2361D4D1@dirksteinberg.de>
+	id <S271747AbRHQXIN>; Fri, 17 Aug 2001 19:08:13 -0400
+Received: from nef.ens.fr ([129.199.96.32]:22020 "EHLO nef.ens.fr")
+	by vger.kernel.org with ESMTP id <S271745AbRHQXIC>;
+	Fri, 17 Aug 2001 19:08:02 -0400
+Date: Sat, 18 Aug 2001 01:08:10 +0200
+From: David Madore <david.madore@ens.fr>
+To: linux-kernel@vger.kernel.org
+Subject: Re: broken memory chip -> software fix?
+Message-ID: <20010818010810.A6422@clipper.ens.fr>
+In-Reply-To: <20010817161505.A25194@clipper.ens.fr> <E15XkYl-0007OT-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <3B7D9B32.2361D4D1@dirksteinberg.de>; from dws@dirksteinberg.de on Sat, Aug 18, 2001 at 12:31:14AM +0200
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E15XkYl-0007OT-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Aug 17, 2001 at 03:25:15PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-
-> > As I promised a few days ago I have just released the newest
-> > version of our NBD swap patches for Linux-2.2.19.
-> > You can find them together with the NBD swap server and
-> > client source code under the following URL:
-> > 
-> > <ftp://ftp.xss.co.at/pub/Linux/NBD/nbdswap-1.2-1.tar.gz>
+On Fri, Aug 17, 2001 at 03:25:15PM +0100, Alan Cox wrote:
+> > Now that I know the address, is there a way I can prevent Linux from
+> > using that region of memory in any way?  The simplest and cleanest
 > 
-> Hi,
-> 
-> do you have NBD swap patches for 2.4.x as well?
-> Or does it work out-of-the-box with 2.4?
+> Yep. The mem= option can exclude stuff. Alternatively you can
+> patch arch/i386/kernel/mm/init.c:mem_init() to skip that page. 
 
-It certainly does not work, but I do not have patches.
-								Pavel
+Thanks.  The mem= option works perfectly:
+
+	mem=78184k@1024k mem=313988k@79212k
+
+will avoid the incriminated page.
+
+Thanks also to those who pointed out the mmap() procedure: that will
+let toy with the page in question - after all, a defective memory chip
+is a fun thing to play with.
+
 -- 
-The best software in life is free (not shareware)!		Pavel
-GCM d? s-: !g p?:+ au- a--@ w+ v- C++@ UL+++ L++ N++ E++ W--- M- Y- R+
+     David A. Madore
+    (david.madore@ens.fr,
+     http://www.eleves.ens.fr:8080/home/madore/ )

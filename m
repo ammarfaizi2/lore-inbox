@@ -1,34 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312991AbSECNkP>; Fri, 3 May 2002 09:40:15 -0400
+	id <S313012AbSECNnv>; Fri, 3 May 2002 09:43:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313012AbSECNkN>; Fri, 3 May 2002 09:40:13 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9737 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S312991AbSECNkL>; Fri, 3 May 2002 09:40:11 -0400
-Subject: Re: [2.4 patch] CONFIG_AGP_HP_ZX1 should only be available on ia64
-To: bunk@fs.tum.de (Adrian Bunk)
-Date: Fri, 3 May 2002 14:58:38 +0100 (BST)
-Cc: bjorn_helgaas@hp.com, marcelo@conectiva.com.br (Marcelo Tosatti),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.NEB.4.44.0205030848230.2605-100000@mimas.fachschaften.tu-muenchen.de> from "Adrian Bunk" at May 03, 2002 08:52:09 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S313089AbSECNnu>; Fri, 3 May 2002 09:43:50 -0400
+Received: from r220-1.rz.RWTH-Aachen.DE ([134.130.3.31]:10672 "EHLO
+	r220-1.rz.RWTH-Aachen.DE") by vger.kernel.org with ESMTP
+	id <S313012AbSECNns>; Fri, 3 May 2002 09:43:48 -0400
+From: jarausch@igpm.rwth-aachen.de
+Message-Id: <200205031343.PAA53310@numa1.igpm.rwth-aachen.de>
+Date: Fri, 3 May 2002 15:43:37 +0200
+Reply-To: jarausch@igpm.rwth-aachen.de
+Subject: 2.4.19-pre8 IDE still broken
+To: linux-kernel@vger.kernel.org
+cc: andre@linux-ide.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E173da2-0006NW-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> available on ia64 but it was selectable on i386. The problem seems to be
-> that IIRC the dependency on a symbol in dep_bool doesn't work if the
-> symbol is neither set or unset.
+Hi all
 
-Indeed 
+on my Supermicro Serverworks board
+with an onboard Serverworks ide controller and
+a Promise Ultra 133-TX2 ide controller
 
-> The following patch should fix this (tested only on i386):
+the kernel hangs when accessing an Iomega
+Zip (Atapi) drive.
+I've configured IDEDMA_ONLYDISK=y and
+BLK_DEV_IDESCSI=y
 
-Already in -ac for a couple of patches - so it seems to work
+This configuration works just fine with
+a 2.4.18 kernel with the IDE-patches from
+/pub/linux/kernel/people/hedrick/ide-2.4.18
 
-Alan
+on 2.4.19-pre3 till 2.4.19-pre8 I get
+ide_dmaproc: chipset supported ide_dma_lostirq func only: 13
+hdd: lost interrupt  (that is the ZIP drive)
+
+Serverworks OSB4 in impossible state
+Disable UDMA ....
+
+If I disable UDMA, doesn't get my 24x CDwriter
+slow? Does it affect the speed of my ATA133 harddisks on the
+Promise controller?
+Or do I need to buy a PCI-IDE-controller and disable
+the onboard Serverworks IDE ?
+
+Thanks for advice,
+
+-- 
+Helmut Jarausch
+
+Lehrstuhl fuer Numerische Mathematik
+Institute of Technology, RWTH Aachen
+D 52056 Aachen, Germany
+

@@ -1,74 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261567AbTCGN1k>; Fri, 7 Mar 2003 08:27:40 -0500
+	id <S261579AbTCGNaf>; Fri, 7 Mar 2003 08:30:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261560AbTCGN1k>; Fri, 7 Mar 2003 08:27:40 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46503 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261567AbTCGN1j>;
-	Fri, 7 Mar 2003 08:27:39 -0500
-Date: Fri, 7 Mar 2003 13:38:13 +0000
-From: Chris Dukes <pakrat@www.uk.linux.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
-       Robin Holt <holt@sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com
-Subject: Re: Make ipconfig.c work as a loadable module.
-Message-ID: <20030307133812.A6676@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.44.0303061500310.31368-100000@mandrake.americas.sgi.com> <1046990052.18158.121.camel@irongate.swansea.linux.org.uk> <20030306221136.GB26732@gtf.org> <20030306222546.K838@flint.arm.linux.org.uk> <1046996037.18158.142.camel@irongate.swansea.linux.org.uk> <20030306231905.M838@flint.arm.linux.org.uk> <1046996987.17718.144.camel@irongate.swansea.linux.org.uk> <20030307000816.P838@flint.arm.linux.org.uk> <20030307012905.G20725@parcelfarce.linux.theplanet.co.uk> <20030307094235.A11807@flint.arm.linux.org.uk>
+	id <S261583AbTCGNaV>; Fri, 7 Mar 2003 08:30:21 -0500
+Received: from host-212-9-163-181.dial.netic.de ([212.9.163.181]:26496 "EHLO
+	solfire") by vger.kernel.org with ESMTP id <S261579AbTCGNaB>;
+	Fri, 7 Mar 2003 08:30:01 -0500
+Date: Fri, 07 Mar 2003 14:37:58 +0100 (MET)
+Message-Id: <20030307.143758.74753985.mccramer@s.netic.de>
+To: alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org
+From: Meino Christian Cramer <mccramer@s.netic.de>
+In-Reply-To: <1047041536.20794.10.camel@irongate.swansea.linux.org.uk>
+References: <20030306132904.A838@flint.arm.linux.org.uk>
+	<20030307.084425.41197714.mccramer@s.netic.de>
+	<1047041536.20794.10.camel@irongate.swansea.linux.org.uk>
+X-Mailer: Mew version 3.2 on Emacs 21.2 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030307094235.A11807@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Fri, Mar 07, 2003 at 09:42:35AM +0000
+X-SA-Exim-Rcpt-To: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.64p5 No USB support when APIC mode enabled
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Scanned: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 07, 2003 at 09:42:35AM +0000, Russell King wrote:
-> On Fri, Mar 07, 2003 at 01:29:05AM +0000, Chris Dukes wrote:
-> > That's nice.  Would you mind explaining to us where that would be a
-> > benefit?  Aside from dead header space in elf executables, I'm at
-> > a loss as to how a usermode implementation must be significantly
-> > larger than kernel code.
-> 
-> If you're suggesting above that "5MB isn't significantly larger than
-> the size Linux can do this" then I think I've just proven you wrong.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 2.5.64p5 No USB support when APIC mode enabled
+Date: 07 Mar 2003 12:52:16 +0000
 
-The 5Mb example is AIX.
-> 
-> Lets see - building an ramdisk to mount a root filesystem out of existing
-> binaries would require from my exisitng systems probably something like:
-> 
-I said userspace.  I did not say existing binaries.
-[Size comparison of the kitchen sink vs kernel code deleted because 
-it's comparing apples and oranges].
-> 
-> Which version is overly bloated?
-> Which version is huge?
-> Which version is compact?
+Hi Alan, 
 
-You are asserting aesthetics instead of benefits.  I asked about benefits.
-Specifically, what is the benefit of compact?
-I'm sure you have a very good technical or business benefit to compact, 
-but those of us in the world of workstations and servers have zero clue 
-what it may be.
+ thanks for your reply! 
 
-Another individual has already indicated a very valid technical merit to
-having it all in one file.  I have the same problem myself.  AIX and *BSD
-have a working approach to that problem.
+ Unfortunately it does not solve the problem:
+ As long as uhci (or USB per se) is not present, things do work.
+
+ But uhci/USB get confused and repeats the message (in my last mail)
+ endlessly i fcompbined with APIC mode.
+
+ Therefore it seems that APIC is working with my VIA board without USB.
+ But I cannot live without USB ... my mouse is USBish and X without a
+ mouse is a little ... hmmm senseless.
+
+ Any ideas else?
+
+ Keep Hacking!
+ Meino
+ 
+
+> You need at least 2.4.21-pre5-ac, or 2.5.64-ac (I just sent Linus the
+> relevant changes) to use APIC on the VIA chipset systems. You also need
+> a BIOS with correct tables, which can also be a little tricky to find
+> in uniprocessordom
 > 
-> Even the klibc ipconfig version is significantly larger than the in-kernel
-> version - and klibc and its binaries are written to be small.
-
-User space solution is not the same as a solution implemented with
-multiple user space apps.
 > 
-> Note: I *do* agree that ipconfig.c needs to die before 2.6 but I do not
-> agree that today is the right day.
-
-Perhaps you could explain why today is not the day.
-(ie, soon to be shipping product that requires it.  desire to see a viable
-userspace solution working before it is removed).
-
--- 
-Chris Dukes
-I tried being reasonable once--I didn't like it.

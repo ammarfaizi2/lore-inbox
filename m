@@ -1,52 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133110AbREFH5y>; Sun, 6 May 2001 03:57:54 -0400
+	id <S133113AbREFIEo>; Sun, 6 May 2001 04:04:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133113AbREFH5p>; Sun, 6 May 2001 03:57:45 -0400
-Received: from smtp9.xs4all.nl ([194.109.127.135]:42197 "EHLO smtp9.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S133110AbREFH5h>;
-	Sun, 6 May 2001 03:57:37 -0400
-From: thunder7@xs4all.nl
-Date: Sun, 6 May 2001 07:47:15 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Re: [lkml]Linux 2.4.4-ac5; hpt370 & new dma setup
-Message-ID: <20010506074715.A7138@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-In-Reply-To: <01050514375300.14219@oscar>
+	id <S135178AbREFIEY>; Sun, 6 May 2001 04:04:24 -0400
+Received: from vitelus.com ([64.81.36.147]:25610 "EHLO vitelus.com")
+	by vger.kernel.org with ESMTP id <S133113AbREFIET>;
+	Sun, 6 May 2001 04:04:19 -0400
+Date: Sun, 6 May 2001 01:04:11 -0700
+From: Aaron Lehmann <aaronl@vitelus.com>
+To: "Dwayne C. Litzenberger" <dlitz@dlitz.net>
+Cc: Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] CPU hot swap for 2.4.3 + s390 support
+Message-ID: <20010506010411.B10586@vitelus.com>
+In-Reply-To: <20010505063726.A32232@va.samba.org> <20010506011553.A11297@zed.dlitz.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.3.17i
-In-Reply-To: <01050514375300.14219@oscar>; from tomlins@cam.org on Sat, May 05, 2001 at 02:37:53PM -0400
+In-Reply-To: <20010506011553.A11297@zed.dlitz.net>; from dlitz@dlitz.net on Sun, May 06, 2001 at 01:15:53AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 05, 2001 at 02:37:53PM -0400, Ed Tomlinson wrote:
-> thunder7@xs4all.nl wrote:
+On Sun, May 06, 2001 at 01:15:53AM -0600, Dwayne C. Litzenberger wrote:
+> Hey, this is cool.
 > 
-> >> 2.4.4-ac5
-> >> o	Fix DMA setup on hpt366/370			(Tim Hockin)
-> > 
-> > I see definite changes; on heavy disk-access I got the following:
-> > 
-> > hdg: timeout waiting for dma
-> > ide_dmaproc: chipset supported ide_dma_timeout func only:14
-> > hdg: irq timeout: status = 0x58 { DriveReady SeekComplete DataRequest}
-> > 
-> > this was repeated several times, and ide3 was being reset, but the
-> > kernel hung anyway after 5 minutes of waiting.
-> > 
-> > I must have an unlucky set of hardware (via chipset VP6 board, Live!,
-> > ibm drives).
-> 
-> Funny I have had the same problem with 2.4.4 only with a pdc20267 (reported
-> to lkml with topic '[BUG] pdc20267 and dma timeouts')  Is there some problem 
-> with resets on ide2/3?
-> 
-I never saw it before, and this isn't the first time I've expired my
-news-spool, did a make -j5 and a man -k at the same time.
+> How far away is the capability to "teleport" processes from one machine to
+> another over the network?  Think of the uptime!
 
-Jurriaan
--- 
-Backup Not Found (A)ssasinate Bill Gates (R)etry (K)eep trying until 6 am?
-GNU/Linux 2.4.4 SMP/ReiserFS 2x1743 bogomips load av: 0.00 0.00 0.00
+http://www.mosix.org

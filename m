@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263708AbTIHWlI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 18:41:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263697AbTIHWlH
+	id S263733AbTIHWrM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 18:47:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263737AbTIHWrM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 18:41:07 -0400
-Received: from imap.comunit.de ([193.103.160.193]:63469 "EHLO imap.comunit.de")
-	by vger.kernel.org with ESMTP id S263708AbTIHWko (ORCPT
+	Mon, 8 Sep 2003 18:47:12 -0400
+Received: from [80.190.232.4] ([80.190.232.4]:64951 "EHLO srv02.rooty.de")
+	by vger.kernel.org with ESMTP id S263733AbTIHWrJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 18:40:44 -0400
-Date: Tue, 9 Sep 2003 00:40:41 +0200 (CEST)
-From: Sven-Haegar Koch <haegar@sdinet.de>
-X-X-Sender: haegar@space.comunit.de
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: netdev@oss.sgi.com, "David S. Miller" <davem@redhat.com>,
-       Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Re: ifconfig up/down problem
-In-Reply-To: <3F5CFF7E.1090005@pobox.com>
-Message-ID: <Pine.LNX.4.56.0309090039210.28325@space.comunit.de>
-References: <Pine.LNX.4.56.0309090004100.24700@space.comunit.de>
- <3F5CFF7E.1090005@pobox.com>
+	Mon, 8 Sep 2003 18:47:09 -0400
+Message-ID: <001a01c3765b$1f1ad6e0$0419a8c0@firestarter.shnet.org>
+From: "Dennis Freise" <Cataclysm@final-frontier.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: New ATI FireGL driver supports 2.6 kernel
+Date: Tue, 9 Sep 2003 00:47:02 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-Antivirus-Scanned: Clean
+X-Spam-Score: -0.5 (/)
+X-Spam-Report: -0.5/5.0
+	This mail is probably spam.  The original message has been attached
+	along with this report, so you can recognize or block similar unwanted
+	mail in future.  See http://spamassassin.org/tag/ for more details.
+	Content preview:  > isn't the 2.5 AGP GPL licensed? How can ATI then
+	include it in a bin > only module ? .... The ATI drivers are NOT
+	binary-only! agpgart (modified by ATI, I suppose) is included in form
+	of sourcecode, being compiled on installation. Dunno what else could
+	violate GPL :) [...] 
+	Content analysis details:   (-0.50 points, 5 required)
+	QUOTED_EMAIL_TEXT  (-0.5 points) BODY: Contains what looks like a quoted email text
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Sep 2003, Jeff Garzik wrote:
+> isn't the 2.5 AGP GPL licensed? How can ATI then include it in a bin
+> only module ? ....
 
-> Sven-Haegar Koch wrote:
-> > Short: ifconfig ethX down locks
-> Does the attached patch fix it?
+The ATI drivers are NOT binary-only! agpgart (modified by ATI, I suppose) is
+included in form of sourcecode, being compiled on installation. Dunno what
+else could violate GPL :)
 
-Yes, it does - thanks a lot!
+Greetings,
+Dennis
 
-c'ya
-sven
 
--- 
-
-The Internet treats censorship as a routing problem, and routes around it.
-(John Gilmore on http://www.cygnus.com/~gnu/)

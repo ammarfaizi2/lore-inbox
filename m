@@ -1,81 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266016AbRGGFfx>; Sat, 7 Jul 2001 01:35:53 -0400
+	id <S266037AbRGGFsy>; Sat, 7 Jul 2001 01:48:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266019AbRGGFfo>; Sat, 7 Jul 2001 01:35:44 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:53992 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S266016AbRGGFfd>;
-	Sat, 7 Jul 2001 01:35:33 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15174.40867.89472.953231@pizda.ninka.net>
-Date: Fri, 6 Jul 2001 22:35:31 -0700 (PDT)
-To: Ben LaHaise <bcrl@redhat.com>
-Cc: Jes Sorensen <jes@sunsite.dk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: (reposting) how to get DMA'able memory within 4GB on 64-bit m
- achi ne
-In-Reply-To: <Pine.LNX.4.33.0107062355070.26274-100000@toomuch.toronto.redhat.com>
-In-Reply-To: <15174.19941.681583.314691@pizda.ninka.net>
-	<Pine.LNX.4.33.0107062355070.26274-100000@toomuch.toronto.redhat.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+	id <S266035AbRGGFsp>; Sat, 7 Jul 2001 01:48:45 -0400
+Received: from science.horizon.com ([192.35.100.1]:49458 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP
+	id <S266037AbRGGFse>; Sat, 7 Jul 2001 01:48:34 -0400
+Date: 7 Jul 2001 05:48:20 -0000
+Message-ID: <20010707054820.720.qmail@science.horizon.com>
+From: linux@horizon.com
+To: linux-kernel@vger.kernel.org
+Subject: What's the status of kernel PNP?
+Cc: tom@lpsg.demon.co.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I just noticed that 2.4.6-ac1 parport won't compile (well, link) without
+the kernel PnP stuff configured.  So I tried turning it on.
 
-Ben LaHaise writes:
- > Yes.  It's not an unreasonable overhead considering that it's configured
- > out for all the non-highmem kernels that will be shipped.  Keep in mind
- > that the expected lifespan for 32 bit systems is now less than 3 years, so
- > elaborate planning that delays implementation buys us nothing more than a
- > smaller window of usefulness.
+It prints a line saying that it found my modem at boot time, but doesn't
+actually configure it, so I have to run isapnp anyway if I want to use it.
 
-Maybe by then only 64-bit cpus will matter.  Who knows.
+Okay, RTFM time... Documentation/isapnp.txt doesn't say anything about
+boot time (only /proc/isapnp usage after boot and some function call
+interfaces for kernel programming that are hard to follow).
 
- > > This says nothing about the real reason the IA64 solution is
- > > unacceptable, the inputs to the mapping functions which must
- > > be "page+offset+len" triplets as there is no logical "virtual
- > > address" to pass into the mapping routines on 32-bit systems.
- > 
- > On x86 a 64 bit DMA address cookie is fine.  If you've got concerns, tell
- > us what you have in mind for a design.
+kernel-parameters.txt gives a hint, although it required reading the
+source code to figure out what to pass as "isapnp=" to turn verbose up.
 
-Things along the lines of what Jens Axboe's patches are what I'm
-thinking about.
+A lot of google searching comes up with a lot of stale data but the only
+2.4-relevant kernel ISAPNP howto is written in Japanese.  Lots of stuff
+describes it as a feature in the 2.4 kernels, but I can't find anything
+on how to use it.
 
- > So what's the API?
+MAINTAINERS claims that it's maintained, but the web page is down (the
+whole site has moved, and /~pnp doesn't exist on the new site) and the
+only mailing list archives I can find for pnp-devel (at geocrawler)
+doesn't have any updates since the year 2000 - and those are all spam.
 
-See Jens's patches.
+I'm a little suspect about that maintained status, although I haven't
+written the maintainer yet.
 
-First it has to pass in page/off/len triplets, on all platforms.
-This is addressed by Jens's interfaces.
 
-Secondly it has to provide a query mechanism to delineate the
-three cases:
+But the upshot of all of this is that I can't figure out WTF to do with
+this "feature", since I haven't noticed it actually doing anything except
+taking up kernel memory.
 
-1) DAC is faster and always preferred
-2) SAC is faster
-3) DAC may be slower but more desirable for certain devices
-   due to large amounts of parallel address space usage
 
-I have not designed an interface for this, but it ought to be
-quite simple.
+On another machine, with an ISA PCMCIA adapter, which works with isapnp
+and David Hinds' PCMCIA package, but if I try to use the 2.4 cardbus
+code, it fails to probe the PCMCIA adapter, apparently because the PnP
+code again didn't set it up.  (And there's no obvious way to force a
+re-probe after boot unless I build the whole thing as a module.)  Again,
+the PnP code cheerfully points out that the PCMCIA adpater exists, but
+doesn't appear to grasp the concept that I didn't put the adapter into
+the machine because it looks pretty.
 
-Thirdly seperate 32-bit/64-bit DMA address types.  Added to the
-overhead concerns, I also think it sucks big donkey balls to cast the
-things around, especially since different platforms would potentially
-require different casts to eliminate the warnings.  In fact, with your
-suggested scheme, the setting of highmem would determine a core
-type.
 
-In fact, I'm not going to bother to code one single bit of this myself
-until I am convinced I have thought the whole problem over properly.
-This is the part nobody else wants to do, but it is a prerequisite for
-this sort of API.
-
-Later,
-David S. Miller
-davem@redhat.com
+Can someome point me at TFM or some other source of information?  I'd be
+much obliged.

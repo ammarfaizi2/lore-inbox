@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129485AbQKVXGl>; Wed, 22 Nov 2000 18:06:41 -0500
+        id <S131916AbQKVXGv>; Wed, 22 Nov 2000 18:06:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131919AbQKVXGV>; Wed, 22 Nov 2000 18:06:21 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:10253 "EHLO
-        neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-        id <S129485AbQKVXGK>; Wed, 22 Nov 2000 18:06:10 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: include conventions /usr/include/linux/sys ?
-Date: 22 Nov 2000 14:35:43 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8vhhnv$j0d$1@cesium.transmeta.com>
-In-Reply-To: <NBBBJGOOMDFADJDGDCPHOEKLCJAA.law@sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
+        id <S131938AbQKVXGl>; Wed, 22 Nov 2000 18:06:41 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:10250 "HELO mail.ocs.com.au")
+        by vger.kernel.org with SMTP id <S131916AbQKVXGZ>;
+        Wed, 22 Nov 2000 18:06:25 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Patch(?): pci_device_id tables for linux-2.4.0-test11/drivers/block 
+In-Reply-To: Your message of "Wed, 22 Nov 2000 14:01:36 -0800."
+             <200011222201.OAA29131@baldur.yggdrasil.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 23 Nov 2000 09:36:08 +1100
+Message-ID: <3702.974932568@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <NBBBJGOOMDFADJDGDCPHOEKLCJAA.law@sgi.com>
-By author:    "LA Walsh" <law@sgi.com>
-In newsgroup: linux.dev.kernel
->
-> Linus has mentioned a desire to move kernel internal interfaces into
-> a separate kernel include directory.  In creating some code, I'm wondering
-> what the name of this should/will be.  Does it follow that convention
-> would point toward a linux/sys directory?
-> 
+On Wed, 22 Nov 2000 14:01:36 -0800, 
+"Adam J. Richter" <adam@yggdrasil.com> wrote:
+>	Just to avoid duplication of effort, I am posting this preliminary
+>patch which adds PCI MODULE_DEVICE_TABLE declarations to the three PCI
+>drivers in linux-2.4.0-test11/drivers/block.  In response to input from
+>Christoph Hellwig, I have reduced my threshhold on using named initializers
+>to three entries, although I think that may be going to far, as I would
+>really like to keep the number of files that initialize the pci_device_id
+>arrays this way low so that changing struct pci_device_id remains feasible.
 
-I suggested include/kernel and include/arch with include/linux and
-include/asm being reserved for the kernel interfaces (ioctl and their
-structures mostly.)
+No need for named initializers.  Always add any new fields in struct
+pci_device_id at the end.  It does matter if you use named or unnamed
+initializers, the new fields will be zero on all existing declarations.
+Introducing new fields in the middle of pci_device_id introduces
+version skew problems for modutils and all code that reads
+modules.pcimap.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

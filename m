@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261314AbVAXMsr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbVAXMzw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261314AbVAXMsr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 07:48:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbVAXMsq
+	id S261340AbVAXMzw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 07:55:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261342AbVAXMzw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 07:48:46 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:38671 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261314AbVAXMsp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 07:48:45 -0500
-Date: Mon, 24 Jan 2005 13:48:41 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, patrick.boettcher@desy.de,
-       linux-dvb-maintainer@linuxtv.org
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.11-rc2-mm1: DVB compile error
-Message-ID: <20050124124840.GH3515@stusta.de>
-References: <20050124021516.5d1ee686.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050124021516.5d1ee686.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 24 Jan 2005 07:55:52 -0500
+Received: from imag.imag.fr ([129.88.30.1]:35257 "EHLO imag.imag.fr")
+	by vger.kernel.org with ESMTP id S261340AbVAXMzr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 07:55:47 -0500
+Message-ID: <41F4F04B.4020703@imag.fr>
+Date: Mon, 24 Jan 2005 13:55:39 +0100
+From: Raphael Jacquot <raphael.jacquot@imag.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050109 Fedora/1.7.5-3
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ian Norton <bredroll@darkspace.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: zlib or crypto ?
+References: <20050124124326.GA25406@earth.dsh.org.uk>
+In-Reply-To: <20050124124326.GA25406@earth.dsh.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (imag.imag.fr [129.88.30.1]); Mon, 24 Jan 2005 13:55:44 +0100 (CET)
+X-IMAG-MailScanner: Found to be clean
+X-IMAG-MailScanner-Information: Please contact the ISP for more information
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following compile error comes from Linus' tree:
+Ian Norton wrote:
+> Hi,
+> 
+> I'm trying to write a module that uses deflate, I'm wondering which is the best
+> point to use the zlib functions from, crypto.h or zlib.h
+> 
+> i only need to compress data of about 4k in size, 
+> 
+> any suggesions?
+> 
+> Regards
+> 
+> Ian
+> 
 
-<--  snip  -->
-
-...
-  LD      .tmp_vmlinux1
-drivers/built-in.o(.bss+0xd50e4): multiple definition of `debug'
-arch/i386/kernel/built-in.o(.text+0x2e4c): first defined here
-make: *** [.tmp_vmlinux1] Error 1
-
-<--  snip  -->
-
-
-The offender is in drivers/media/dvb/dibusb/dvb-dibusb-core.c:
-
-"debug" is not a good name for a global variable...
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
-
+shouldn't there be only one copy of zlib in the entire kernel ???

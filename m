@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271093AbTGPT61 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 15:58:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271072AbTGPT61
+	id S271090AbTGPT6H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 15:58:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271099AbTGPT6H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 15:58:27 -0400
-Received: from ms-smtp-02.southeast.rr.com ([24.93.67.83]:28871 "EHLO
-	ms-smtp-02.southeast.rr.com") by vger.kernel.org with ESMTP
-	id S271099AbTGPT6Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 15:58:25 -0400
-Subject: 2.6.0-test1 Vesa fb and Nvidia
-From: "David St.Clair" <dstclair@cs.wcu.edu>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1058386396.3710.4.camel@localhost>
+	Wed, 16 Jul 2003 15:58:07 -0400
+Received: from tazz.wtf.dk ([80.199.6.58]:1664 "EHLO sokrates")
+	by vger.kernel.org with ESMTP id S271090AbTGPT6F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 15:58:05 -0400
+Date: Wed, 16 Jul 2003 22:13:39 +0200
+From: Michael Kristensen <michael@wtf.dk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.0-test1-ac2
+Message-ID: <20030716201339.GA618@sokrates>
+References: <200307161816.h6GIGKH09243@devserv.devel.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 16 Jul 2003 16:13:16 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200307161816.h6GIGKH09243@devserv.devel.redhat.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't know if this is a hardware specific bug or I just don't have
-something configured right.
+* Alan Cox <alan@redhat.com> [2003-07-16 21:29:13]:
+> 2.6.0-test1-ac2
+> o	EMU10K update to match CVS + fixes		(Rudo Thomas)
+Yes, this made my oops on module-load go away.
 
-If I try to boot using vga=792 (which works with 2.4.18) I get a blank
-screen (but hard drive is actively booting). If I don't use vga= at all,
-I get a normal boot without the penguin logo.
+Apropos emu10k1. Why is OSS deprecated? I have tried a little to get
+ALSA working, but it doesn't seem to work. Hint?
 
-I am using Redhat 9 /w NVidia Geforce 4 420 64Mb.
-
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_FB=y
-CONFIG_FB_VGA16=y
-CONFIG_FB_VESA=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_LOGO=y
-CONFIG_LOGO_LINUX_MONO=y
-CONFIG_LOGO_LINUX_VGA16=y
-CONFIG_LOGO_LINUX_CLUT224=y
-
-I am currently using the RPMS from (7/14/2003)
-http://people.redhat.com/arjanv/2.5/
+By the way, Alan Cox. I think you forgot to increment the ac1 to ac2
+somewhere.
 
 -- 
-David St.Clair
-
+Med Venlig Hilsen/Best Regards/Mit freundlichen Grüßen
+Michael Kristensen <michael@wtf.dk>

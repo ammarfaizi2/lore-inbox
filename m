@@ -1,11 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266777AbTADJ7o>; Sat, 4 Jan 2003 04:59:44 -0500
+	id <S266794AbTADKF6>; Sat, 4 Jan 2003 05:05:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266794AbTADJ7o>; Sat, 4 Jan 2003 04:59:44 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:26120
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S266777AbTADJ7o>; Sat, 4 Jan 2003 04:59:44 -0500
+	id <S266796AbTADKF6>; Sat, 4 Jan 2003 05:05:58 -0500
+Received: from smtp-outbound.cwctv.net ([213.104.18.10]:60962 "EHLO
+	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S266794AbTADKF5>;
+	Sat, 4 Jan 2003 05:05:57 -0500
+From: <Hell.Surfers@cwctv.net>
+To: andre@linux-ide.org, andrew@indranet.co.nz, ryan@michonline.com,
+       linux-kernel@vger.kernel.org
+Date: Sat, 4 Jan 2003 10:12:49 +0000
+Subject: RE: Gauntlet Set NOW!
+MIME-Version: 1.0
+X-Mailer: Liberate TVMail 2.6
+Content-Type: multipart/mixed;
+ boundary="1041675169493"
+Message-ID: <0258a1111100413DTVMAIL11@smtp.cwctv.net>
+Sender: linux-kernel-owner@vger.kernel.org
+X-Mailing-List: linux-kernel@vger.kernel.org
+
+
+--1041675169493
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+Sounds like a jumped up PIC chip, cant think why isnt done yet.
+
+Dean McEwan, If the drugs don't work, [sarcasm] take more...[/sarcasm].
+
+On Sat, 4 Jan 2003 02:07:27 -0800 (PST) Andre Hedrick <andre@linux-ide.org> wrote:
+
+--1041675169493
+Content-Type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Received: from master.linux-ide.org ([64.85.224.253]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
+	 Sat, 4 Jan 2003 10:05:12 +0000
+Received: from localhost (andre@localhost)
+	by master.linux-ide.org (8.9.3/8.9.3) with ESMTP id CAA15010;
+	Sat, 4 Jan 2003 02:07:27 -0800
 Date: Sat, 4 Jan 2003 02:07:27 -0800 (PST)
 From: Andre Hedrick <andre@linux-ide.org>
 To: Hell.Surfers@cwctv.net
@@ -15,8 +49,7 @@ In-Reply-To: <063864055090413DTVMAIL1@smtp.cwctv.net>
 Message-ID: <Pine.LNX.4.10.10301040201590.421-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Sender: linux-kernel-owner@vger.kernel.org
-X-Mailing-List: linux-kernel@vger.kernel.org
+Return-Path: andre@linux-ide.org
 
 
 http://www.xilinx.com/ipcenter/catalog/logicore/docs/cam.pdf
@@ -46,4 +79,7 @@ On Sat, 4 Jan 2003 Hell.Surfers@cwctv.net wrote:
 
 Andre Hedrick
 LAD Storage Consulting Group
+
+--1041675169493--
+
 

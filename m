@@ -1,63 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267212AbTAKNdM>; Sat, 11 Jan 2003 08:33:12 -0500
+	id <S267214AbTAKNe0>; Sat, 11 Jan 2003 08:34:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267214AbTAKNdM>; Sat, 11 Jan 2003 08:33:12 -0500
-Received: from 5-116.ctame701-1.telepar.net.br ([200.193.163.116]:47326 "EHLO
-	5-116.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S267212AbTAKNdL>; Sat, 11 Jan 2003 08:33:11 -0500
-Date: Sat, 11 Jan 2003 11:41:41 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] disassociate_ctty SMP fix
-Message-ID: <Pine.LNX.4.50L.0301111137580.24361-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267216AbTAKNe0>; Sat, 11 Jan 2003 08:34:26 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:19348
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267214AbTAKNeZ>; Sat, 11 Jan 2003 08:34:25 -0500
+Subject: Re: [PATCH]Re: spin_locks without smp.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: manfred@colorfullife.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       solt@dns.toxicfilms.tv, wli@holomorphy.com
+In-Reply-To: <200301111322.OAA26316@harpo.it.uu.se>
+References: <200301111322.OAA26316@harpo.it.uu.se>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1042295370.2517.0.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 11 Jan 2003 14:29:32 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, 2003-01-11 at 13:22, Mikael Pettersson wrote:
+> On 10 Jan 2003 18:18:39 +0000, Alan Cox wrote:
+> >On Fri, 2003-01-10 at 17:19, Manfred Spraul wrote:
+> >> 
+> >>     disable_irq();
+> >>     spin_lock(&np->lock);
+> >> 
+> >> That's what 8390.c uses, no need for an #ifdef.
+> >
+> >Does someone have a card they can test that on. If so then I agree
+> >entirely it is the best way to go 
+> 
+> I have an ISA NE2000 available for testing, if someone feeds me patches.
+> Only UP hardware, though.
 
-the following patch, against today's BK tree, fixes a small
-SMP race in disassociate_ctty.  This function gets called
-from do_exit, without the BKL held.
-
-However, it sets the *tty variable before grabbing the bkl,
-then makes decisions on what the variable was set to before
-the lock was grabbed, despite the fact that another process
-could modify its ->tty pointer in this same function.
-
-please apply
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://guru.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+Sorry I wasnt clear enough. The 8390 is done, the one that would need the 
+testing is SMP etherexpress.c.
 
 
-===== drivers/char/tty_io.c 1.50 vs edited =====
---- 1.50/drivers/char/tty_io.c	Sat Dec  7 16:23:16 2002
-+++ edited/drivers/char/tty_io.c	Sat Jan 11 11:37:34 2003
-@@ -577,7 +577,7 @@
-  */
- void disassociate_ctty(int on_exit)
- {
--	struct tty_struct *tty = current->tty;
-+	struct tty_struct *tty;
- 	struct task_struct *p;
- 	struct list_head *l;
- 	struct pid *pid;
-@@ -585,6 +585,7 @@
-
- 	lock_kernel();
-
-+	tty = current->tty;
- 	if (tty) {
- 		tty_pgrp = tty->pgrp;
- 		if (on_exit && tty->driver.type != TTY_DRIVER_TYPE_PTY)

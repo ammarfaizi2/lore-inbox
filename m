@@ -1,62 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268388AbUHQSag@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268387AbUHQShS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268388AbUHQSag (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 14:30:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268387AbUHQSag
+	id S268387AbUHQShS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 14:37:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268389AbUHQShS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 14:30:36 -0400
-Received: from fw.osdl.org ([65.172.181.6]:55517 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268388AbUHQSa0 (ORCPT
+	Tue, 17 Aug 2004 14:37:18 -0400
+Received: from rproxy.gmail.com ([64.233.170.196]:10287 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S268387AbUHQShP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 14:30:26 -0400
-Date: Tue, 17 Aug 2004 11:28:43 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel@vger.kernel.org, mochel@digitalimplant.org
-Subject: Re: swsusp: fix default and merge upstream?
-Message-Id: <20040817112843.1e3dae58.akpm@osdl.org>
-In-Reply-To: <20040817180313.GD19009@elf.ucw.cz>
-References: <20040817111128.GA4164@elf.ucw.cz>
-	<20040817104745.683581dd.akpm@osdl.org>
-	<20040817180313.GD19009@elf.ucw.cz>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 17 Aug 2004 14:37:15 -0400
+Message-ID: <fb20c214040817113715e6202b@mail.gmail.com>
+Date: Tue, 17 Aug 2004 13:37:11 -0500
+From: Brian Jackson <notiggy@gmail.com>
+Reply-To: Brian Jackson <notiggy@gmail.com>
+To: Nigel Kukard <nkukard@lbsd.net>
+Subject: Re: external drive size differences
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040815093759.GK31901@lbsd.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <20040815093759.GK31901@lbsd.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@suse.cz> wrote:
->
-> Hi!
+On Sun, 15 Aug 2004 11:37:59 +0200, Nigel Kukard <nkukard@lbsd.net> wrote:
+> Something very very interesting... below is an external drive enclosure
+> supporting both USB2 and Firwire, fitted with a 200Gb IDE Hdd.
 > 
-> > > Perhaps now is the right time to merge -mm swsusp up to Linus?
-> > 
-> > I suppose so.  The way to do that is for Pat to merge up the various
-> > patches which are hanging around and then ask Linus to do the bk pull.
+> When plugged into the firewire bus, i get 137Gb size, when plugged into
+> the usb bus, i get 200Gb size.
 > 
-> -mm plus two patches I sent today works pretty much okay.
+> Could this be a bug in the kernel? or external hardware?
 
-OK.
+More than likely hardware. Most of the oxford chips that are so often
+used in firewire enclosures, don't support >137G drives. It probably
+uses a different chip for the usb side of things.
 
-> Are they
-> swsusp-related things in your tree that are not in patrick's bk?
+--Iggy
 
-Just a couple of patches:
-
-mm-swsusp-make-sure-we-do-not-return-to-userspace-where-image-is-on-disk.patch
-mm-swsusp-copy_page-is-harmfull.patch
-
-> driver-tree changes (enums etc) are pretty much orthogonal and can go
-> in anytime later.
 > 
-> > What's the testing status of the new code in bk-power.patch?
+> <snip>
+> ieee1394: sbp2: Logged into SBP-2 device
+> ieee1394: Node 0-00:1023: Max speed [S400] - Max payload [2048]
+>   Vendor: WDC WD20  Model: 00JB-00FUA0       Rev:
+>   Type:   Direct-Access                      ANSI SCSI revision: 06
+> SCSI device sdb: 268435455 512-byte hdwr sectors (137439 MB)
+> sdb: asking for cache data failed
+> sdb: assuming drive cache: write through
+>  sdb: sdb1
+> </snip>
 > 
-> Works for me, some users reported success (after being advised to use
-> "shutdown" method), and suse pulled it into internal tree and it got
-> basic testing there by Stefan. I guess that counts like "pretty well
-> tested".
-
-OK.  I'll integrate your most recent patches and will squirt everything at
-Patrick.
-
+> <snip>
+> scsi7 : SCSI emulation for USB Mass Storage devices
+>   Vendor: USB 2.0   Model: Storage Device    Rev: 0100
+>   Type:   Direct-Access                      ANSI SCSI revision: 02
+> SCSI device sdb: 390721968 512-byte hdwr sectors (200050 MB)
+> sdb: assuming drive cache: write through
+>  sdb: sdb1
+> </snip>
+> 
+> Regards
+> Nigel Kukard

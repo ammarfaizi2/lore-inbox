@@ -1,48 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130604AbRBARto>; Thu, 1 Feb 2001 12:49:44 -0500
+	id <S131302AbRBARuy>; Thu, 1 Feb 2001 12:50:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130766AbRBARte>; Thu, 1 Feb 2001 12:49:34 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:49682 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S130604AbRBARtT>; Thu, 1 Feb 2001 12:49:19 -0500
-Date: Thu, 1 Feb 2001 11:48:48 -0600
-To: John Jasen <jjasen1@umbc.edu>
-Cc: "Michael J. Dikkema" <mjd@moot.ca>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.1 - can't read root fs (devfs maybe?)
-Message-ID: <20010201114848.A4161@cadcamlab.org>
-In-Reply-To: <Pine.LNX.4.21.0101312258190.227-100000@sliver.moot.ca> <Pine.SGI.4.31L.02.0102011058520.71788-100000@irix2.gl.umbc.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.SGI.4.31L.02.0102011058520.71788-100000@irix2.gl.umbc.edu>; from jjasen1@umbc.edu on Thu, Feb 01, 2001 at 11:00:05AM -0500
-From: Peter Samuelson <peter@cadcamlab.org>
+	id <S131286AbRBARuo>; Thu, 1 Feb 2001 12:50:44 -0500
+Received: from athena.intergrafix.net ([206.245.154.69]:48651 "HELO
+	athena.intergrafix.net") by vger.kernel.org with SMTP
+	id <S130492AbRBARu1>; Thu, 1 Feb 2001 12:50:27 -0500
+Date: Thu, 1 Feb 2001 12:50:26 -0500 (EST)
+From: Admin Mailing Lists <mlist@intergrafix.net>
+To: Bruce Harada <bruce@ask.ne.jp>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: rlim_t and DNS?
+In-Reply-To: <20010202023923.4fce856c.bruce@ask.ne.jp>
+Message-ID: <Pine.LNX.4.10.10102011242380.18810-100000@athena.intergrafix.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-  [Michael J. Dikkema]
-> > I went from 2.4.0 to 2.4.1 and was surprised that either the root
-> > filesystem wasn't mounted, or it couldn't be read. I'm using devfs.. I'm
-> > thinking there might have been a change with regards to the devfs
-> > tree.. is the legacy /dev/hda1 still /dev/discs/disc0/part1?
-> >
-> > I can't even get a shell with init=/bin/bash..
+On Fri, 2 Feb 2001, Bruce Harada wrote:
 
-[John Jasen]
-> Sounds like a lack of devfsd, which handles backwards compatibility
-> for /dev entries.
+> > The C file says BSD/OS is the only OS they found not to have rlim_t.
+> > Am I missing something?
+> > Where can i find this in linux? I looked in all the include
+> > files, including resource.h
+> 
+> Are you sure you looked in ALL the include files? I seem to have it as:
+> 
+> /usr/include/bits/resource.h:typedef __rlim_t rlim_t;
+> 
+> where __rlim_t is
+> 
+> /usr/include/bits/types.h:typedef long int __rlim_t;
+> 
 
-devfsd does not start up until after the root filesystem is mounted, so
-that's not it.
+i have no bits directory, but those definitions are not in my resource.h
+or types.h.
+I know this is crude, but:
+	grep rlim_t /usr/include/*.h /usr/include/*/*.h
+	/usr/include/*/*/*.h /usr/include/*/*/*/*.h
+returns nothing. /usr/include/linux does link to the linux source too.
 
-I don't think you can use the /dev/discs/ link for "root=".  It was a
-long time ago that I ran into this issue -- but as I recall, links with
-'..' in them do not work before the vfs is fully operational.  When I
-brought it up with Richard he basically said "don't do that then".
+Ditto on SYS_capset.
+when bind can't find SYS_capset, it does do #define SYS_capset
+__NR_capset
+the compilation returns that __NR_capset is undeclared.
+the only __NR defines i can find are in /usr/include/asm/unistd.h
+and capset isn't in there.
 
-Peter
+*shrug*
+
+-Tony
+.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
+Anthony J. Biacco                       Network Administrator/Engineer
+thelittleprince@asteroid-b612.org       Intergrafix Internet Services
+
+    "Dream as if you'll live forever, live as if you'll die today"
+http://www.asteroid-b612.org                http://www.intergrafix.net
+.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
+
+> so you could try including those two in the appropriate places.
+> 
+> > For now i jsut typedefed it as a long.
+> > 
+> > Also, it's looking for a setting for SYS_capset to pass to syscall()
+> > and can't that either. Again, I looked in the include files without
+> > success.
+> 
+> I have this:
+> 
+> /usr/include/bits/syscall.h:#define SYS_capset __NR_capset
+> 
+> Hope that helps (although l-k probably isn't the best place for this...)
+> 
+> --
+> Bruce Harada
+> bruce@ask.ne.jp
+> 
+> 
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

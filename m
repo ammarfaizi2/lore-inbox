@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261318AbSJ1Vr4>; Mon, 28 Oct 2002 16:47:56 -0500
+	id <S261556AbSJ1V43>; Mon, 28 Oct 2002 16:56:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261352AbSJ1Vr4>; Mon, 28 Oct 2002 16:47:56 -0500
-Received: from pc132.utati.net ([216.143.22.132]:32386 "HELO
-	merlin.webofficenow.com") by vger.kernel.org with SMTP
-	id <S261318AbSJ1Vrz> convert rfc822-to-8bit; Mon, 28 Oct 2002 16:47:55 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Rob Landley <landley@trommello.org>
-Reply-To: landley@trommello.org
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.44: what's .tmp_export-objs for?
-Date: Mon, 28 Oct 2002 11:54:16 -0500
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200210281054.16008.landley@trommello.org>
+	id <S261559AbSJ1V43>; Mon, 28 Oct 2002 16:56:29 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:44184 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S261556AbSJ1V43>;
+	Mon, 28 Oct 2002 16:56:29 -0500
+Date: Mon, 28 Oct 2002 23:02:49 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: Hanna Linder <hannal@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] epoll more scalable than poll
+Message-ID: <20021028220249.GA27798@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Hanna Linder <hannal@us.ibm.com>, linux-kernel@vger.kernel.org
+References: <53100000.1035832459@w-hlinder> <20021028205647.GC1402@admingilde.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021028205647.GC1402@admingilde.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I accidentally did a 2.5.44 kernel build as root rather than my normal user, 
-so I'm trying to see what clean steps I need to so (as root) to be able to 
-build the tree again.  A normal make clean failed (permission denied deleting 
-files), so I did an su and a make clean.  Exit back to normal user, make 
-clean, life is good, do a make dep, and it complains about the directory 
-.tmp_export-objs.
+On Mon, Oct 28, 2002 at 09:56:47PM +0100, Martin Waitz wrote:
 
-1) Why does the build process use a hidden directory?
+> needing only one syscall per poll while building a changelist in
+> userspace...
 
-2) Why isn't make clean removing something with "tmp" in the name?
+Which is so smashingly succesful for iptables. I would very much doubt the
+utility of building tables in userspace and them blasting them across,
+especially as they will tend to be large when people bother to use epoll.
 
-Just curious,
+Regards,
 
-Rob
+bert
 
 -- 
-http://penguicon.sf.net - Terry Pratchett, Eric Raymond, Pete Abrams, Illiad, 
-CmdrTaco, liquid nitrogen ice cream, and caffienated jello.  Well why not?
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

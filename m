@@ -1,33 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314843AbSD2HXI>; Mon, 29 Apr 2002 03:23:08 -0400
+	id <S314690AbSD2Hds>; Mon, 29 Apr 2002 03:33:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314848AbSD2HXH>; Mon, 29 Apr 2002 03:23:07 -0400
-Received: from loewe.cosy.sbg.ac.at ([141.201.2.12]:58252 "EHLO
-	loewe.cosy.sbg.ac.at") by vger.kernel.org with ESMTP
-	id <S314843AbSD2HXG>; Mon, 29 Apr 2002 03:23:06 -0400
-Date: Mon, 29 Apr 2002 09:23:05 +0200 (MET DST)
-From: "Thomas 'Dent' Mirlacher" <dent@cosy.sbg.ac.at>
-To: Rolf Fokkens <fokkensr@linux06.vertis.nl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] module locking
-In-Reply-To: <200204290711.g3T7Bm217822@linux06.vertis.nl>
-Message-ID: <Pine.GSO.4.05.10204290922080.21672-100000@mausmaki.cosy.sbg.ac.at>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314854AbSD2Hdr>; Mon, 29 Apr 2002 03:33:47 -0400
+Received: from angband.namesys.com ([212.16.7.85]:27538 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S314690AbSD2Hdr>; Mon, 29 Apr 2002 03:33:47 -0400
+Date: Mon, 29 Apr 2002 11:33:45 +0400
+From: Oleg Drokin <green@namesys.com>
+To: kuebelr@email.uc.edu
+Cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
+Subject: Re: un-removable files on reiserfs
+Message-ID: <20020429113345.A22574@namesys.com>
+In-Reply-To: <20020427194019.GA898@cartman>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-... oops, sorry
+Hello!
 
-> -	if (!capable(CAP_SYS_MODULE))
-> +	if (module_lock || !capable(CAP_SYS_MODULE))
+  Apparently there is a problem with your filesystem.
+  Please get latest reiserfsprogs and run reiserfsck on your
+  partition to see what's wrong with your fs.
 
-the capable call is sthell there, but with the module_lock
-kind or redundant.
-
-	tm
-
--- 
-in some way i do, and in some way i don't.
-
+Bye,
+    Oleg
+On Sat, Apr 27, 2002 at 03:40:19PM -0400, kuebelr@email.uc.edu wrote:
+> i have a few files on a reiserfs disk that i cannot remove. they showed
+> up sometime after i started using 2.4.17.  also, i haven't been able to
+> find an oops in my ksymoops logs.

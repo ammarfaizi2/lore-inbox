@@ -1,65 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbULAEtk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbULAEy1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261205AbULAEtk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 23:49:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbULAEtk
+	id S261163AbULAEy1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 23:54:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbULAEy1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 23:49:40 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:64962
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261205AbULAEti (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 23:49:38 -0500
-Date: Tue, 30 Nov 2004 20:46:44 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Martin Lucina <mato@kotelna.sk>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: OOPS in Linux 2.6.9, fib_release_info
-Message-Id: <20041130204644.4319f974.davem@davemloft.net>
-In-Reply-To: <20041201011612.GA3423@kotelna.sk>
-References: <20041201011612.GA3423@kotelna.sk>
-X-Mailer: Sylpheed version 1.0.0beta3 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Tue, 30 Nov 2004 23:54:27 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:10771 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261163AbULAEyY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 23:54:24 -0500
+Date: Wed, 1 Dec 2004 05:54:22 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, dm-devel@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] dm: remove unused functions (fwd)
+Message-ID: <20041201045422.GF2650@stusta.de>
+References: <20041129022940.GQ4390@stusta.de> <20041130230525.GC24233@agk.surrey.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041130230525.GC24233@agk.surrey.redhat.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Dec 2004 02:16:12 +0100
-Martin Lucina <mato@kotelna.sk> wrote:
+On Tue, Nov 30, 2004 at 11:05:25PM +0000, Alasdair G Kergon wrote:
+> On Mon, Nov 29, 2004 at 03:29:40AM +0100, Adrian Bunk wrote:
+> > Please apply or comment on it.
+>  
+> Please check *why* the functions aren't used first.
+> 
+> e.g. An alloc function with a corresponding free that
+> never gets called suggests a leak to me...
 
-> I have found a reproducible OOPS in fib_release_info, in the 2.6.9 kernel.
-> Tested on two different systems, one UP, one SMP, both i386, both w/
-> CONFIG_PREEMPT=y, both Debian sarge, both w/ iproute2 version 20010824-13.1
-> (Debian).
+I have to admit that I don't thoroughly check the code where I find
+unused code. That's why I asked for comments on this patch. Ususally the 
+maintainers of the code in question know best whether such a patch is 
+correct or not.
 
-Already fixed in 2.6.10 by this patch.
+Simply consider my patches as some kind of "list of unused functions".
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/10/25 20:09:20-07:00 ehrhardt@mathematik.uni-ulm.de 
-#   [IPV4]: Do not try to unhash null-netdev nexthops.
-#   
-#   Signed-off-by: Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>
-#   Signed-off-by: David S. Miller <davem@davemloft.net>
-# 
-# net/ipv4/fib_semantics.c
-#   2004/10/25 20:09:01-07:00 ehrhardt@mathematik.uni-ulm.de +2 -0
-#   [IPV4]: Do not try to unhash null-netdev nexthops.
-#   
-#   Signed-off-by: Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>
-#   Signed-off-by: David S. Miller <davem@davemloft.net>
-# 
-diff -Nru a/net/ipv4/fib_semantics.c b/net/ipv4/fib_semantics.c
---- a/net/ipv4/fib_semantics.c	2004-11-30 20:22:10 -08:00
-+++ b/net/ipv4/fib_semantics.c	2004-11-30 20:22:10 -08:00
-@@ -163,6 +163,8 @@
- 		if (fi->fib_prefsrc)
- 			hlist_del(&fi->fib_lhash);
- 		change_nexthops(fi) {
-+			if (!nh->nh_dev)
-+				continue;
- 			hlist_del(&nh->nh_hash);
- 		} endfor_nexthops(fi)
- 		fi->fib_dead = 1;
+> Alasdair
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

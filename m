@@ -1,91 +1,112 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288756AbSATPlu>; Sun, 20 Jan 2002 10:41:50 -0500
+	id <S288765AbSATPtV>; Sun, 20 Jan 2002 10:49:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288759AbSATPlk>; Sun, 20 Jan 2002 10:41:40 -0500
-Received: from charger.oldcity.dca.net ([207.245.82.76]:44954 "EHLO
-	charger.oldcity.dca.net") by vger.kernel.org with ESMTP
-	id <S288756AbSATPl0>; Sun, 20 Jan 2002 10:41:26 -0500
-Date: Sun, 20 Jan 2002 10:41:19 -0500
-From: christophe =?iso-8859-15?Q?barb=E9?= <christophe.barbe@ufies.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: usb-ohci, ov511, video4linux
-Message-ID: <20020120154119.GB2873@online.fr>
-Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
+	id <S288767AbSATPtM>; Sun, 20 Jan 2002 10:49:12 -0500
+Received: from orange.csi.cam.ac.uk ([131.111.8.77]:43436 "EHLO
+	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S288765AbSATPs4>; Sun, 20 Jan 2002 10:48:56 -0500
+Message-Id: <5.1.0.14.2.20020120154049.04d7fbc0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sun, 20 Jan 2002 15:49:20 +0000
+To: Hans Reiser <reiser@namesys.com>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: Possible Idea with filesystem buffering.
+Cc: Shawn <spstarr@sh0n.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <3C4AAA95.8040702@namesys.com>
+In-Reply-To: <Pine.LNX.4.40.0201200359520.503-100000@coredump.sh0n.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0eh6TmSyL6TZE2Uz"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-X-Operating-System: debian SID Gnu/Linux 2.4.17 on i586
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 11:31 20/01/02, Hans Reiser wrote:
+>In version 4 of reiserfs, our plan is to implement writepage such that it 
+>does not write the page but instead pressures the reiser4 cache and marks 
+>the page as recently accessed.  This is Linus's preferred method of doing that.
 
---0eh6TmSyL6TZE2Uz
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+But why do you want to do your own cache? Any individual fs driver is in no 
+position to know the overall demands on the VMM of the currently running 
+kernel/user programs/etc. As such it is IMHO inefficient and I think it 
+won't actually work due to VMM requiring to free specific memory and hence 
+calling writepage on that specific memory so it can throw the pages away 
+afterwards but in your concept writepage won't result in the page being 
+marked clean and the vm has made no progress and you have just created a 
+hole load of headaches for the VMM which it can't solve...
+
+The VMM should be the ONLY thing in the kernel that has full control of all 
+caches in the system, and certainly all fs caches. Why you are putting a 
+second cache layer underneath the VMM is beyond me. It would be much better 
+to fix/expand the capabilities of the existing VMM which would have the 
+benefit that all fs could benefit not just ReiserFS.
+
+>Personally, I think that makes writepage the wrong name for that function, 
+>but I must admit it gets the job done, and it leaves writepage as the 
+>right name for all filesystems that don't manage their own cache, which is 
+>most of them.
+
+Yes it does make it the wrong name, but not only that it also breaks the 
+existing VMM if I understand anything about the VMM (which may of course 
+not be the case...).
+
+Just a thought.
+
+Best regards,
+
+Anton
 
 
-I've two problems with the 2.4 series that seems to be related.
-The common point is the usb-ohci module.
+>Hans
+>
+>Shawn wrote:
+>
+>>I've noticed that XFS's filesystem has a separate pagebuf_daemon to handle
+>>caching/buffering.
+>>
+>>Why not make a kernel page/caching daemon for other filesystems to use
+>>(kpagebufd) so that each filesystem can use a kernel daemon interface to
+>>handle buffering and caching.
+>>
+>>I found that XFS's buffering/caching significantly reduced I/O load on the
+>>system (with riel's rmap11b + rml's preempt patches and Andre's IDE
+>>patch).
+>>
+>>But I've not been able to acheive the same speed results with ReiserFS :-(
+>>
+>>Just as we have a filesystem (VFS) layer, why not have a buffering/caching
+>>layer for the filesystems to use inconjunction with the VM?
+>There is hostility to this from one of the VM maintainers.  He is 
+>concerned that separate caches were what they had before and they behaved 
+>badly.  I think that they simply coded them wrong the time before.  The 
+>time before, the pressure on the subcaches was uneven, with some caches 
+>only getting pressure if the other caches couldn't free anything, so of 
+>course it behaved badly.
+>
+>>
+>>
+>>Comments, suggestions, flames welcome ;)
+>>
+>>Shawn.
+>>
+>>-
+>>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>>the body of a message to majordomo@vger.kernel.org
+>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>Please read the FAQ at  http://www.tux.org/lkml/
+>>
+>
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
-Since 2.4.0, sometimes X loose the usb mouse. X show nothing special in
-its log and the kernel nothing (I have compiled the usb debug code).
-This seems to appear when the CPU is mostly used for another application
-(most of the time the CPU is 100% used when I loose the mouse).
-If I switch to the console (Ctrl-Alt-F1) and switch back to X, the usb
-mouse is back. My first thought was that it was a X bug. But the other
-problem I have seems to indicate this is a kernel problem.
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 
-I bought a usb webcam (D-Link DCS100) which uses the ov511 chipset
-familly. I use the last driver (not the one shipped with the kernel) but
-I think this is not an issue.
-Now It works for a few seconds (minutes) and the application using it
-freeze. If I kill the app and retsart it, I works for a few seconds (it
-looks like X and the mouse).
-Here also it seems to appear when another app use most of the CPU.
-
-The Xawtv outputs are interesting :
-
-# xawtv
-This is xawtv-3.68, running on Linux/i586 (2.4.17)
-/dev/video0 [v4l]: no overlay support
-v4l-conf had some trouble, trying to continue anyway
-v4l: timeout (got SIGALRM), hardware/driver problems?
-ioctl: VIDIOCSYNC(0): Appel syst=E8me interrompu
-v4l: timeout (got SIGALRM), hardware/driver problems?
-ioctl: VIDIOCSYNC(1): Appel syst=E8me interrompu
-
-What do you think about it ?
-
-I've enabled 'Allow IRQ during APM bios calls'. It seems slighly better
-for the mouse but not significantly enough to be sure.
-
-I've tried to boot without apm (apm=3Doff) but problems are still there.
-
-Should I try a preemt or low-latency kernel ?
-
-Christophe
-
---=20
-Christophe Barb=E9 <christophe.barbe@ufies.org>
-GnuPG FingerPrint: E0F6 FADF 2A5C F072 6AF8  F67A 8F45 2F1E D72C B41E
-
-Dogs believe they are human. Cats believe they are God.
-
---0eh6TmSyL6TZE2Uz
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Pour information voir http://www.gnupg.org
-
-iD8DBQE8SuUfj0UvHtcstB4RArnTAJ9AZUJwalTr8hA+31/OtPVNc+cP8ACghU7h
-GKUsE7LfiLO4xdWEZ56gL04=
-=teCk
------END PGP SIGNATURE-----
-
---0eh6TmSyL6TZE2Uz--

@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269377AbUIIJTG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269379AbUIIJbt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269377AbUIIJTG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 05:19:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269378AbUIIJTG
+	id S269379AbUIIJbt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 05:31:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269388AbUIIJbt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 05:19:06 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:35498 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S269377AbUIIJS7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 05:18:59 -0400
-Subject: Re: What File System supports Application XIP
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: colin <colin@realtek.com.tw>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <009901c4964a$be2468e0$8b1a13ac@realtek.com.tw>
-References: <009901c4964a$be2468e0$8b1a13ac@realtek.com.tw>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Vt6Ia1PNA/RD0mn1KAyc"
-Organization: Red Hat UK
-Message-Id: <1094721529.2801.6.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 09 Sep 2004 11:18:50 +0200
+	Thu, 9 Sep 2004 05:31:49 -0400
+Received: from postfix3-1.free.fr ([213.228.0.44]:28838 "EHLO
+	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S269379AbUIIJbs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 05:31:48 -0400
+From: Duncan Sands <baldrick@free.fr>
+To: Matt Mackall <mpm@selenic.com>
+Subject: Re: [PATCH] netpoll endian fixes
+Date: Thu, 9 Sep 2004 11:31:46 +0200
+User-Agent: KMail/1.6.2
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <200409080124.43530.baldrick@free.fr> <200409081201.28261.baldrick@free.fr> <20040908225334.GN31237@waste.org>
+In-Reply-To: <20040908225334.GN31237@waste.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200409091131.46574.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Ok, could you send an updated patch with a Signed-off-by, please?
 
---=-Vt6Ia1PNA/RD0mn1KAyc
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Here you are:
 
-On Thu, 2004-09-09 at 10:55, colin wrote:
-> Hi there,
-> We are developing embedded Linux system. Performance is our consideration=
-.
-> We hope some applications can run as fast as possible,
+Correct wrong ip header in netpoll_send_udp.
 
-well ramfs by definition is XIP :)
+Signed-off-by: Duncan Sands <baldrick@free.fr>
 
-but I guess the filesystem comes from flash somewhere at which point
-jffs2 with compression might be a better choice; if you have enough ram
-then the apps run from the pagecache anyway and compression keeps you
-from transfering too much data from the slower flash. It's not XIP but I
-don't think you really want XIP...
-
---=-Vt6Ia1PNA/RD0mn1KAyc
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBQB/5xULwo51rQBIRAjzjAJ9B1SMN3ZkLf9AJMMXKaKNxz8Yq4wCfQ72Y
-xnW203QocX70oqKAZfujq2k=
-=/ITc
------END PGP SIGNATURE-----
-
---=-Vt6Ia1PNA/RD0mn1KAyc--
-
+--- linux-2.5/net/core/netpoll.c.orig	2004-09-09 11:20:43.000000000 +0200
++++ linux-2.5/net/core/netpoll.c	2004-09-09 11:20:58.000000000 +0200
+@@ -242,9 +242,9 @@
+ 	iph = (struct iphdr *)skb_push(skb, sizeof(*iph));
+ 
+ 	/* iph->version = 4; iph->ihl = 5; */
+-	put_unaligned(0x54, (unsigned char *)iph);
++	put_unaligned(0x45, (unsigned char *)iph);
+ 	iph->tos      = 0;
+-	put_unaligned(htonl(ip_len), &(iph->tot_len));
++	put_unaligned(htons(ip_len), &(iph->tot_len));
+ 	iph->id       = 0;
+ 	iph->frag_off = 0;
+ 	iph->ttl      = 64;

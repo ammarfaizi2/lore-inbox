@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263184AbUDAVOe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 16:14:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263209AbUDAVOd
+	id S263178AbUDAVR0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 16:17:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbUDAVPu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 16:14:33 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:45619 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S263184AbUDAVNC (ORCPT
+	Thu, 1 Apr 2004 16:15:50 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:2100 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S263186AbUDAVNO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 16:13:02 -0500
-Date: Thu, 1 Apr 2004 13:12:27 -0800
+	Thu, 1 Apr 2004 16:13:14 -0500
+Date: Thu, 1 Apr 2004 13:12:07 -0800
 From: Paul Jackson <pj@sgi.com>
 To: Paul Jackson <pj@sgi.com>
 Cc: colpatch@us.ibm.com, wli@holomorphy.com, linux-kernel@vger.kernel.org
-Subject: [Patch 15/23] mask v2 - [4/7] nodemask_t_pp64_changes
-Message-Id: <20040401131227.07ab65b0.pj@sgi.com>
+Subject: [Patch 11/23] mask v2 - Add new nodemasks.h file
+Message-Id: <20040401131207.37fe8bdc.pj@sgi.com>
 In-Reply-To: <20040401122802.23521599.pj@sgi.com>
 References: <20040401122802.23521599.pj@sgi.com>
 Organization: SGI
@@ -25,174 +25,173 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch_15_of_23 - Matthew Dobson's [PATCH]_nodemask_t_pp64_changes_[4_7]
-        Changes to ppc64 specific code.  Untested.
-        Code review & testing requested.
+Patch_11_of_23 - Add new nodemasks.h file.
+	Provide a nodemasks_t type, using the mask.h ADT.
 
-Diffstat Patch_15_of_23:
- kernel/smp.c                   |   20 +++++++++-----------
- mm/hugetlbpage.c               |   10 +++++-----
- mm/init.c                      |    2 +-
- mm/numa.c                      |   17 +++++------------
- 4 files changed, 20 insertions(+), 29 deletions(-)
+Diffstat Patch_11_of_23:
+ nodemask.h                     |  152 +++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 152 insertions(+)
 
-
-diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.4-vanilla/arch/ppc64/kernel/smp.c linux-2.6.4-nodemask_t-ppc64/arch/ppc64/kernel/smp.c
---- linux-2.6.4-vanilla/arch/ppc64/kernel/smp.c	Wed Mar 10 18:55:37 2004
-+++ linux-2.6.4-nodemask_t-ppc64/arch/ppc64/kernel/smp.c	Thu Mar 11 16:46:15 2004
-@@ -737,19 +737,17 @@ static void register_nodes(void)
- 	int i;
- 	int ret;
- 
--	for (i = 0; i < MAX_NUMNODES; i++) {
--		if (node_online(i)) {
--			int p_node = parent_node(i);
--			struct node *parent = NULL;
-+	for_each_online_node(i) {
-+		int p_node = parent_node(i);
-+		struct node *parent = NULL;
- 
--			if (p_node != i)
--				parent = &node_devices[p_node];
-+		if (p_node != i)
-+			parent = &node_devices[p_node];
- 
--			ret = register_node(&node_devices[i], i, parent);
--			if (ret)
--				printk(KERN_WARNING "register_nodes: "
--				       "register_node %d failed (%d)", i, ret);
--		}
-+		ret = register_node(&node_devices[i], i, parent);
-+		if (ret)
-+			printk(KERN_WARNING "register_nodes: "
-+			       "register_node %d failed (%d)", i, ret);
- 	}
- }
- #else
-diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.4-vanilla/arch/ppc64/mm/hugetlbpage.c linux-2.6.4-nodemask_t-ppc64/arch/ppc64/mm/hugetlbpage.c
---- linux-2.6.4-vanilla/arch/ppc64/mm/hugetlbpage.c	Wed Mar 10 18:55:27 2004
-+++ linux-2.6.4-nodemask_t-ppc64/arch/ppc64/mm/hugetlbpage.c	Thu Mar 11 12:00:08 2004
-@@ -56,10 +56,10 @@ static struct page *dequeue_huge_page(vo
- 	if (!largepage_roundrobin)
- 		nid = numa_node_id();
- 
--	for (i = 0; i < numnodes; i++) {
-+	for_each_online_node(i) {
- 		if (!list_empty(&hugepage_freelists[nid]))
- 			break;
--		nid = (nid + 1) % numnodes;
-+		nid = (nid + 1) % num_online_nodes();
- 	}
- 
- 	if (!list_empty(&hugepage_freelists[nid])) {
-@@ -68,7 +68,7 @@ static struct page *dequeue_huge_page(vo
- 	}
- 
- 	if (largepage_roundrobin)
--		nid = (nid + 1) % numnodes;
-+		nid = (nid + 1) % num_online_nodes();
- 
- 	return page;
- }
-@@ -83,7 +83,7 @@ static struct page *alloc_fresh_huge_pag
- 		return NULL;
- 
- 	nid = page_zone(page)->zone_pgdat->node_id;
--	nid = (nid + 1) % numnodes;
-+	nid = (nid + 1) % num_online_nodes();
- 	return page;
- }
- 
-@@ -871,7 +871,7 @@ static int __init hugetlb_init(void)
- 	struct page *page;
- 
- 	if (cur_cpu_spec->cpu_features & CPU_FTR_16M_PAGE) {
--		for (i = 0; i < MAX_NUMNODES; ++i)
-+		for_each_node(i)
- 			INIT_LIST_HEAD(&hugepage_freelists[i]);
- 
- 		for (i = 0; i < htlbpage_max; ++i) {
-diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.4-vanilla/arch/ppc64/mm/init.c linux-2.6.4-nodemask_t-ppc64/arch/ppc64/mm/init.c
---- linux-2.6.4-vanilla/arch/ppc64/mm/init.c	Wed Mar 10 18:55:33 2004
-+++ linux-2.6.4-nodemask_t-ppc64/arch/ppc64/mm/init.c	Thu Mar 11 12:00:08 2004
-@@ -639,7 +639,7 @@ void __init mem_init(void)
- {
- 	int nid;
- 
--        for (nid = 0; nid < numnodes; nid++) {
-+	for_each_online_node(nid) {
- 		if (node_data[nid].node_spanned_pages != 0) {
- 			printk("freeing bootmem node %x\n", nid);
- 			totalram_pages +=
-diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.4-vanilla/arch/ppc64/mm/numa.c linux-2.6.4-nodemask_t-ppc64/arch/ppc64/mm/numa.c
---- linux-2.6.4-vanilla/arch/ppc64/mm/numa.c	Wed Mar 10 18:55:36 2004
-+++ linux-2.6.4-nodemask_t-ppc64/arch/ppc64/mm/numa.c	Mon Mar 22 15:41:15 2004
-@@ -55,7 +55,6 @@ static int __init parse_numa_properties(
- 	int *cpu_associativity;
- 	int *memory_associativity;
- 	int depth;
--	int max_domain = 0;
- 
- 	cpu = of_find_node_by_type(NULL, "cpu");
- 	if (!cpu)
-@@ -101,14 +100,11 @@ static int __init parse_numa_properties(
- 			numa_domain = 0;
- 		}
- 
--		if (numa_domain >= MAX_NUMNODES)
-+		if (!node_possible(numa_domain))
- 			BUG();
- 
- 		node_set_online(numa_domain);
- 
--		if (max_domain < numa_domain)
--			max_domain = numa_domain;
--
- 		map_cpu_to_node(cpu_nr, numa_domain);
- 	}
- 
-@@ -157,11 +153,10 @@ new_range:
- 			numa_domain = 0;
- 		}
- 
--		if (numa_domain >= MAX_NUMNODES)
-+		if (!node_possible(numa_domain))
- 			BUG();
- 
--		if (max_domain < numa_domain)
--			max_domain = numa_domain;
-+		node_set_online(numa_domain);
- 
- 		/* 
- 		 * For backwards compatibility, OF splits the first node
-@@ -198,8 +193,6 @@ new_range:
- 			goto new_range;
- 	}
- 
--	numnodes = max_domain + 1;
--
- 	return 0;
- err:
- 	of_node_put(cpu);
-@@ -242,7 +235,7 @@ void __init do_init_bootmem(void)
- 	if (parse_numa_properties())
- 		setup_nonnuma();
- 
--	for (nid = 0; nid < numnodes; nid++) {
-+	for_each_online_node(nid) {
- 		unsigned long start_paddr, end_paddr;
- 		int i;
- 		unsigned long bootmem_paddr;
-@@ -329,7 +322,7 @@ void __init paging_init(void)
- 	memset(zones_size, 0, sizeof(zones_size));
- 	memset(zholes_size, 0, sizeof(zholes_size));
- 
--	for (nid = 0; nid < numnodes; nid++) {
-+	for_each_online_node(nid) {
- 		unsigned long start_pfn;
- 		unsigned long end_pfn;
- 
-
+===================================================================
+--- 2.6.4.orig/include/linux/nodemask.h	1969-12-31 16:00:00.000000000 -0800
++++ 2.6.4/include/linux/nodemask.h	2004-04-01 09:42:21.000000000 -0800
+@@ -0,0 +1,156 @@
++#ifndef __LINUX_NODEMASK_H
++#define __LINUX_NODEMASK_H
++
++/*
++ * Nodemasks provide a bit mask suitable for representing the
++ * set of Node's in a system, one bit position per Node number.
++ *
++ * See detailed comments in the file linux/mask.h describing the
++ * data type on which these nodemasks are based.
++ *
++ * For details of nodemask_scnprintf() and nodemask_parse(),
++ * see bitmap_scnprintf() and bitmap_parse() in lib/bitmap.c.
++ *
++ * The available nodemask operations are:
++ *
++ * void node_set(node, mask)		turn on bit 'node' in mask
++ * void node_clear(node, mask)		turn off bit 'node' in mask
++ * void nodes_setall(mask)		set all bits
++ * void nodes_clear(mask)		clear all bits
++ * int node_isset(node, mask)		true iff bit 'node' set in mask
++ * int node_test_and_set(node, mask)	test and set bit 'node' in mask
++ *
++ * void nodes_and(dst, src1, src2)	dst = src1 & src2  [intersection]
++ * void nodes_or(dst, src1, src2)	dst = src1 | src2  [union]
++ * void nodes_xor(dst, src1, src2)	dst = src1 ^ src2
++ * void nodes_andnot(dst, src1, src2)	dst = src1 & ~src2
++ * void nodes_complement(dst, src)	dst = ~src
++ *
++ * int nodes_equal(mask1, mask2)	Does mask1 == mask2?
++ * int nodes_intersects(mask1, mask2)	Do mask1 and mask2 intersect?
++ * int nodes_subset(mask1, mask2)	Is mask1 a subset of mask2?
++ * int nodes_empty(mask)		Is mask empty (no bits sets)?
++ * int nodes_full(mask)			Is mask full (all bits sets)?
++ * int nodes_weight(mask)		Hamming weigh - number of set bits
++ *
++ * void nodes_shift_right(dst, src, n)	Shift right
++ * void nodes_shift_left(dst, src, n)	Shift left
++ *
++ * int first_node(mask)			Number lowest set bit, or MAX_NUMNODES
++ * int next_node(node, mask)		Next node past 'node', or MAX_NUMNODES
++ *
++ * nodemask_t nodemask_of_node(node)	Return nodemask with bit 'node' set
++ * NODE_MASK_ALL			Initializer - all bits set
++ * NODE_MASK_NONE			Initializer - no bits set
++ * unsigned long *nodes_addr(mask)	Array of unsigned long's in mask
++ *
++ * int nodemask_scnprintf(buf, len, mask) Format nodemask for printing
++ * int nodemask_parse(ubuf, ulen, mask)	Parse ascii string as nodemask
++ *
++ * int num_online_nodes()		Number of online nodes
++ * int num_possible_nodes()		Number of all possible nodes
++ * int node_online(node)		Is some node < MAX_NUMNODES online?
++ * int node_possible(node)		Is some node < MAX_NUMNODES possible? 
++ * void node_set_online(node)		set node in node_online_map
++ * void node_set_offline(node)		clear node in node_online_map
++ * int any_online_node(mask)		First online node in mask
++ *
++ * for_each_node_mask(node, mask)	for-loop node over mask
++ * for_each_node(node)			for-loop node over node_possible_map
++ * for_each_online_node(node)		for-loop node over node_online_map
++ */
++
++#include <linux/numa.h>
++#include <linux/mask.h>
++#include <asm/bug.h>
++
++typedef __mask(MAX_NUMNODES) nodemask_t;
++extern nodemask_t _unused_nodemask_arg_;
++
++#define node_set(node, mask)		mask_setbit((node), (mask))
++#define node_clear(node, mask)		mask_clearbit((node), (mask))
++#define nodes_setall(mask)		mask_setall((mask), MAX_NUMNODES)
++#define nodes_clear(mask)		mask_clearall((mask), MAX_NUMNODES)
++#define node_isset(node, mask)		mask_isset((node), (mask))
++#define node_test_and_set(node, mask)	mask_test_and_set((node), (mask))
++#define nodes_and(dst, src1, src2)	mask_and((dst), (src1), (src2), MAX_NUMNODES)
++#define nodes_or(dst, src1, src2)	mask_or((dst), (src1), (src2), MAX_NUMNODES)
++#define nodes_xor(dst, src1, src2)	mask_xor((dst), (src1), (src2), MAX_NUMNODES)
++#define nodes_andnot(dst, src1, src2)	mask_andnot((dst), (src1), (src2), MAX_NUMNODES)
++#define nodes_complement(dst, src)	mask_complement((dst), (src), MAX_NUMNODES)
++#define nodes_equal(mask1, mask2)	mask_equal((mask1), (mask2), MAX_NUMNODES)
++#define nodes_intersects(mask1, mask2)	mask_intersects((mask1), (mask2), MAX_NUMNODES)
++#define nodes_subset(mask1, mask2)	mask_subset((mask1), (mask2), MAX_NUMNODES)
++#define nodes_empty(mask)		mask_empty((mask), MAX_NUMNODES)
++#define nodes_full(mask)		mask_full((mask), MAX_NUMNODES)
++#define nodes_weight(mask)		mask_weight((mask), MAX_NUMNODES)
++#define nodes_shift_right(dst, src, n)	\
++			mask_shift_right((dst), (src), (n), MAX_NUMNODES)
++#define nodes_shift_left(dst, src, n)	\
++			mask_shift_left((dst), (src), (n), MAX_NUMNODES)
++#define first_node(mask)		mask_first((mask), MAX_NUMNODES)
++#define next_node(node, mask)		mask_next((node), (mask), MAX_NUMNODES)
++#define nodemask_of_node(node)		\
++			mask_of_bit((node), _unused_nodemask_arg_)
++#if MAX_NUMNODES <= BITS_PER_LONG
++#define NODE_MASK_ALL			MASK_ALL1(MAX_NUMNODES)
++#else
++#define NODE_MASK_ALL			MASK_ALL2(MAX_NUMNODES)
++#endif
++#define NODE_MASK_NONE			MASK_NONE(MAX_NUMNODES)
++#define nodes_addr(mask)			mask_addr(mask)
++#define nodemask_scnprintf(buf, len, mask) \
++			mask_scnprintf((buf), (len), (mask), MAX_NUMNODES)
++#define nodemask_parse(ubuf, ulen, mask) \
++			mask_parse((ubuf), (ulen), (mask), MAX_NUMNODES)
++
++/*
++ * The following particular system nodemasks and operations
++ * on them manage all (possible) and online nodes.
++ */
++
++extern nodemask_t node_online_map;
++extern nodemask_t node_possible_map;
++
++#ifdef CONFIG_NUMA
++
++#define num_online_nodes()		nodes_weight(node_online_map)
++#define num_possible_nodes()		nodes_weight(node_possible_map)
++#define node_online(node)		node_isset((node), node_online_map)
++#define node_possible(node) 		node_isset((node), node_possible_map)
++#define node_set_online(node)		node_set((node), node_online_map)
++#define node_set_offline(node)		node_clear((node), node_online_map)
++
++#define any_online_node(mask)			\
++({						\
++        nodemask_t n;				\
++        nodes_and(n, mask, node_online_map);	\
++        first_node(n);				\
++})
++
++#define for_each_node_mask(node, mask)		\
++	for (node = first_node(mask);		\
++		node < MAX_NUMNODES;		\
++		node = next_node(node, mask))
++
++#else /* !CONFIG_NUMA */
++
++#define num_online_nodes()		1
++#define num_possible_nodes()		1
++#define node_online(node)		({ BUG_ON((node) != 0); 1; })
++#define node_possible(node)		({ BUG_ON((node) != 0); 1; })
++#define node_set_online(node)		({ BUG_ON((node) != 0); })
++#define node_set_offline(node)		({ BUG(); })
++
++#define any_online_node(mask)		0
++
++#define for_each_node_mask(node, mask)	for (node = 0; node < 1; node++)
++
++#endif /* CONFIG_NUMA */
++
++#define for_each_node(node)		\
++			for_each_node_mask(node, node_possible_map)
++#define for_each_online_node(node)	\
++			for_each_node_mask(node, node_online_map)
++
++#endif /* __LINUX_NODEMASK_H */
 
 
 -- 

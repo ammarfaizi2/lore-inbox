@@ -1,62 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262118AbVDFGWt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262119AbVDFG1c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262118AbVDFGWt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 02:22:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbVDFGWt
+	id S262119AbVDFG1c (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 02:27:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbVDFG1c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 02:22:49 -0400
-Received: from main.gmane.org ([80.91.229.2]:6327 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S262118AbVDFGWq (ORCPT
+	Wed, 6 Apr 2005 02:27:32 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:48044 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262119AbVDFG1a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 02:22:46 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "shaun" <mailinglists@unix-scripts.com>
-Subject: kernel panic - not syncing: Fatal exception in interupt
-Date: Tue, 5 Apr 2005 23:04:11 -0700
-Message-ID: <d2vu0u$oog$1@sea.gmane.org>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ip68-111-70-41.oc.oc.cox.net
-X-MSMail-Priority: Normal
-X-Newsreader: Microsoft Outlook Express 6.00.2741.2600
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2742.200
+	Wed, 6 Apr 2005 02:27:30 -0400
+Date: Wed, 6 Apr 2005 08:27:23 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Subject: Re: [patch 5/5] sched: consolidate sbe sbf
+Message-ID: <20050406062723.GC5973@elte.hu>
+References: <425322E0.9070307@yahoo.com.au> <42532317.5000901@yahoo.com.au> <42532346.5050308@yahoo.com.au> <425323A1.5030603@yahoo.com.au> <42532427.3030100@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42532427.3030100@yahoo.com.au>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-+Hardware Specs
-Dual Xeon 800FSB
-Intel Server Board
-4GB ECC DDR
-3ware 9500 Sata Raid Card
-5x200 GB sata drives in a raid 10 Config (1 hot spare)
-Dual Nic
 
-+OS Specs
-CentOS 3.4 running a custom 2.6.x kernel patched with UML SKA's Patch
-eth0 is 0.0.0.0 promisc and assigned to a bridge (br0)
-tuntap devices up
-ebtables is enabled and loaded with rules
+* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-My problem is that every other week or so the machine crashes.  It never
-dumps the error to the logs so all i have is a screen shot of the console.
-I have put some serious stress on this machine and have been unable to
-duplicate the problem (running 20 guest UML's half running va-ctcs and the
-other half compiling a 2.6 kernel).   Below is a link to 2 screen shots i
-have (about 2 weeks apart).  I started off using a 2.6.10 kernel when the
-problem started.  Last time the machine crashed i built a 2.6.11.5 kernel
-and disabled APM and ACPI in the kernel config.  Any body know whats going
-on here.
+> 5/5
+> 
+> Any ideas about what to do with schedstats?
+> Do we really need balance on exec and fork as seperate
+> statistics?
 
-http://www.unix-scripts.com/shaun/host-screenshot-1.png
-http://www.unix-scripts.com/shaun/host-screenshot-2.png
+> Consolidate balance-on-exec with balance-on-fork. This is made easy
+> by the sched-domains RCU patches.
+> 
+> As well as the general goodness of code reduction, this allows
+> the runqueues to be unlocked during balance-on-fork.
+> 
+> schedstats is a problem. Maybe just have balance-on-event instead
+> of distinguishing fork and exec?
+> 
+> Signed-off-by: Nick Piggin <nickpiggin@yahoo.com.au>
 
-Kernel Config... http://www.unix-scripts.com/shaun/2.6.11.5-hr1_.config
+looks good.
 
---
-Best Regards,
+ Acked-by: Ingo Molnar <mingo@elte.hu>
 
-Shaun Reitan
+while the code is now consolidated, i think we still need the separate 
+fork/exec stats for schedstat. We have 3 conceptual ways to start off a 
+new context: fork(), pthread_create() and execve(), and applications use 
+them in different patterns. We have different flags and tuning 
+parameters for two of them (which might have to become 3, i'm not 
+entirely convinced we'll be able to ignore the 'process vs. thread' 
+condition in wake_up_new_task(), STREAM is a really bad example in that 
+sense), so we need 2 (or 3) separate stats.
 
-
-
-
+	Ingo

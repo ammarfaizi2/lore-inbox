@@ -1,89 +1,241 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131619AbQLQBi4>; Sat, 16 Dec 2000 20:38:56 -0500
+	id <S131559AbQLQBjr>; Sat, 16 Dec 2000 20:39:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131584AbQLQBiq>; Sat, 16 Dec 2000 20:38:46 -0500
-Received: from lips.borg.umn.edu ([160.94.232.50]:27923 "EHLO
-	lips.borg.umn.edu") by vger.kernel.org with ESMTP
-	id <S131559AbQLQBii>; Sat, 16 Dec 2000 20:38:38 -0500
-Message-ID: <3A3C11F2.130DE89E@thebarn.com>
-Date: Sat, 16 Dec 2000 19:08:02 -0600
-From: Russell Cattelan <cattelan@thebarn.com>
-X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.12 i386)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Stephen C. Tweedie" <sct@redhat.com>
-CC: Alexander Viro <viro@math.psu.edu>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: Test12 ll_rw_block error.
-In-Reply-To: <Pine.LNX.4.10.10012142208420.1308-100000@penguin.transmeta.com> <Pine.GSO.4.21.0012150150570.11106-100000@weyl.math.psu.edu> <20001215105148.E11931@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131697AbQLQBj2>; Sat, 16 Dec 2000 20:39:28 -0500
+Received: from jalon.able.es ([212.97.163.2]:714 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S131584AbQLQBjJ>;
+	Sat, 16 Dec 2000 20:39:09 -0500
+Date: Sun, 17 Dec 2000 02:08:36 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Cc: alan@lxorguk.ukuu.org.uk, becker@scyld.com
+Subject: [PATCH] ne2k-pci update
+Message-ID: <20001217020836.A734@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Stephen C. Tweedie" wrote:
+Hi, everyone.
 
-> Hi,
->
-> On Fri, Dec 15, 2000 at 02:00:19AM -0500, Alexander Viro wrote:
-> > On Thu, 14 Dec 2000, Linus Torvalds wrote:
-> >
-> > Just one: any fs that really cares about completion callback is very likely
-> > to be picky about the requests ordering. So sync_buffers() is very unlikely
-> > to be useful anyway.
-> >
-> > In that sense we really don't have anonymous buffers here. I seriously
-> > suspect that "unrealistic" assumption is not unrealistic at all. I'm
-> > not sufficiently familiar with XFS code to say for sure, but...
->
-> Right.  ext3 and reiserfs just want to submit their own IOs when it
-> comes to the journal.  (At least in ext3, already-journaled buffers
-> can be written back by the VM freely.)  It's a matter of telling the
-> fs when that should start.
->
-> > What we really need is a way for VFS/VM to pass the pressure on filesystem.
-> > That's it. If fs wants unusual completions for requests - let it have its
-> > own queueing mechanism and submit these requests when it finds that convenient.
->
-> There is a very clean way of doing this with address spaces.  It's
-> something I would like to see done properly for 2.5: eliminate all
-> knowledge of buffer_heads from the VM layer.  It would be pretty
-> simple to remove page->buffers completely and replace it with a
-> page->private pointer, owned by whatever address_space controlled the
-> page.  Instead of trying to unmap and flush buffers on the page
-> directly, these operations would become address_space operations.
+Here is a patch to update the 2.2.18 driver for ne2k-pci cards to 1.02
+version. Reviewed by Donald Becker, tried on 18, 19-pre1 and 19-pre2.
+Changes:
+- full duplex support on Realtek and Holtek cards, ignored on others.
+- module params 
+    debug=1 (0..7)
+    full_duplex=1,0,1 ... (up to 6 supported cards)
+     NOTE: full duplex is not active by default.
 
-Yes this is a lot of what page buf would like to do eventually.
-Have the VM system pressure page_buf for pages which would
-then be able to intelligently call the file system to free up cached pages.
-A big part of getting Delay Alloc to not completely consume all the
-system pages, is being told when it's time to start really allocating disk
-space and push pages out.
+Please apply for 19-preX...
 
+-------------- patch-ne2k-pci
+--- linux/drivers/net/ne2k-pci.c.org	Sun Dec 17 01:51:04 2000
++++ linux/drivers/net/ne2k-pci.c	Sun Dec 17 01:55:22 2000
+@@ -12,19 +12,31 @@
+ 	This software may be used and distributed according to the terms
+ 	of the GNU Public License, incorporated herein by reference.
+ 
+-	The author may be reached as becker@CESDIS.gsfc.nasa.gov, or C/O
+-	Center of Excellence in Space Data and Information Sciences
+-	Code 930.5, Goddard Space Flight Center, Greenbelt MD 20771
++	Drivers based on or derived from this code fall under the GPL and must
++	retain the authorship, copyright and license notice.  This file is not
++	a complete program and may only be used when the entire operating
++	system is licensed under the GPL.
++
++	The author may be reached as becker@scyld.com, or C/O
++	Scyld Computing Corporation
++	410 Severn Ave., Suite 210
++	Annapolis MD 21403
+ 
++	Issues remaining:
+ 	People are making PCI ne2000 clones! Oh the horror, the horror...
++	Limited full-duplex support.
+ 
+-	Issues remaining:
+-	No full-duplex support.
++	ChangeLog:
++
++	12/15/2000 Merged Scyld v1.02 into 2.2.18
++									J.A. Magallon <jamagallon@able.es>
+ */
+ 
+-/* Our copyright info must remain in the binary. */
+-static const char *version =
+-"ne2k-pci.c:vpre-1.00e 5/27/99 D. Becker/P. Gortmaker
+http://cesdis.gsfc.nasa.gov/linux/drivers/ne2k-pci.html\n";
++/* These identify the driver base version and may not be removed. */
++static const char version1[] =
++"ne2k-pci.c:v1.02 10/19/2000 D. Becker/P. Gortmaker\n";
++static const char version2[] =
++"  http://www.scyld.com/network/ne2k-pci.html\n";
+ 
+ #include <linux/module.h>
+ #include <linux/kernel.h>
+@@ -49,7 +61,18 @@
+ #endif
+ 
+ /* Set statically or when loading the driver module. */
+-static int debug = 1;
++static int debug = 1; /* 1 normal messages, 0 quiet .. 7 verbose. */
++/* More are supported, limit only on options */
++#define MAX_UNITS 6
++/* Used to pass the full-duplex flag, etc. */
++static int full_duplex[MAX_UNITS] = {0, };
++static int options[MAX_UNITS] = {0, };
++
++MODULE_AUTHOR("Donald Becker / Paul Gortmaker");
++MODULE_DESCRIPTION("PCI NE2000 clone driver");
++MODULE_PARM(debug, "i");
++MODULE_PARM(options, "1-" __MODULE_STRING(MAX_UNITS) "i");
++MODULE_PARM(full_duplex, "1-" __MODULE_STRING(MAX_UNITS) "i");
+ 
+ /* Some defines that people can play with if so inclined. */
+ 
+@@ -62,12 +85,13 @@
+ /* Do we have a non std. amount of memory? (in units of 256 byte pages) */
+ /* #define PACKETBUF_MEMSIZE	0x40 */
+ 
+-#define ne2k_flags reg0			/* Rename an existing field to
+store flags! */
+-
+-/* Only the low 8 bits are usable for non-init-time flags! */
++/* Flags.  We rename an existing ei_status field to store flags! */
++/* Thus only the low 8 bits are usable for non-init-time flags. */
++#define ne2k_flags reg0
+ enum {
+-	HOLTEK_FDX=1, 		/* Full duplex -> set 0x80 at offset
+0x20. */
+-	ONLY_16BIT_IO=2, ONLY_32BIT_IO=4,	/* Chip can do only 16/32-bit
+xfers. */
++	ONLY_16BIT_IO=8, ONLY_32BIT_IO=4,   /* Chip can do only 16/32-bit
+xfers. */
++	FORCE_FDX=0x20,                     /* User override. */
++	REALTEK_FDX=0x40, HOLTEK_FDX=0x80,
+ 	STOP_PG_0x60=0x100,
+ };
+ 
+@@ -79,18 +103,17 @@
+ 	int flags;
+ }
+ pci_clone_list[] __initdata = {
+-	{0x10ec, 0x8029, "RealTek RTL-8029", 0},
+-	{0x1050, 0x0940, "Winbond 89C940", 0},
+-	{0x11f6, 0x1401, "Compex RL2000", 0},
+-	{0x8e2e, 0x3000, "KTI ET32P2", 0},
+-	{0x4a14, 0x5000, "NetVin NV5000SC", 0},
+-	{0x1106, 0x0926, "Via 86C926", ONLY_16BIT_IO},
+-	{0x10bd, 0x0e34, "SureCom NE34", 0},
+-	{0x1050, 0x5a5a, "Winbond", 0},
+-	{0x12c3, 0x0058, "Holtek HT80232", ONLY_16BIT_IO | HOLTEK_FDX},
+-	{0x12c3, 0x5598, "Holtek HT80229",
+-	 ONLY_32BIT_IO | HOLTEK_FDX | STOP_PG_0x60 },
+-	{0,}
++{0x10ec, 0x8029, "RealTek RTL-8029", REALTEK_FDX},
++{0x1050, 0x0940, "Winbond 89C940", 0},
++{0x1050, 0x5a5a, "Winbond w89c940", 0},
++{0x8e2e, 0x3000, "KTI ET32P2", 0},
++{0x4a14, 0x5000, "NetVin NV5000SC", 0},
++{0x1106, 0x0926, "Via 86C926", ONLY_16BIT_IO},
++{0x10bd, 0x0e34, "SureCom NE34", 0},
++{0x12c3, 0x0058, "Holtek HT80232", ONLY_16BIT_IO|HOLTEK_FDX},
++{0x12c3, 0x5598, "Holtek HT80229", ONLY_32BIT_IO|HOLTEK_FDX|STOP_PG_0x60 },
++{0x11f6, 0x1401, "Compex RL2000", 0},
++{0,}
+ };
+ 
+ /* ---- No user-serviceable parts below ---- */
+@@ -119,7 +142,7 @@
+ static void ne2k_pci_block_output(struct device *dev, const int count,
+ 		const unsigned char *buf, const int start_page);
+ 
+-
++
+ 
+ /* No room in the standard 8390 structure for extra info we need. */
+ struct ne2k_pci_card {
+@@ -137,7 +160,7 @@
+ {
+ 	/* We must emit version information. */
+ 	if (debug)
+-		printk(KERN_INFO "%s", version);
++		printk(KERN_INFO "%s" KERN_INFO "%s", version1, version2);
+ 
+ 	if (ne2k_pci_probe(0)) {
+ 		printk(KERN_NOTICE "ne2k-pci.c: No useable cards found, driver
+NOT installed.\n");
+@@ -263,8 +286,8 @@
+ 	return cards_found ? 0 : -ENODEV;
+ }
+ 
+-__initfunc (static struct device *ne2k_pci_probe1(struct device *dev, long
+ioaddr, int irq,
+-									  int chip_idx))
++__initfunc (static struct device *ne2k_pci_probe1(struct device *dev,
++			long ioaddr, int irq, int chip_idx))
+ {
+ 	int i;
+ 	unsigned char SA_prom[32];
+@@ -291,6 +314,8 @@
+ 
+ 	dev = init_etherdev(dev, 0);
+ 
++	if (!dev) return 0;
++
+ 	/* Reset card. Who knows what dain-bramaged state it was left in. */
+ 	{
+ 		unsigned long reset_start_time = jiffies;
+@@ -342,7 +367,7 @@
+ 	/* Note: all PCI cards have at least 16 bit access, so we don't have
+ 	   to check for 8 bit cards.  Most cards permit 32 bit access. */
+ 	if (pci_clone_list[chip_idx].flags & ONLY_32BIT_IO) {
+-		for (i = 0; i < 4 ; i++)
++		for (i = 0; i < 8 ; i++)
+ 			((u32 *)SA_prom)[i] = le32_to_cpu(inl(ioaddr +
+NE_DATAPORT));
+ 	} else
+ 		for(i = 0; i < 32 /*sizeof(SA_prom)*/; i++)
+@@ -379,6 +404,10 @@
+ 	ei_status.stop_page = stop_page;
+ 	ei_status.word16 = 1;
+ 	ei_status.ne2k_flags = pci_clone_list[chip_idx].flags;
++	if (chip_idx < MAX_UNITS) {
++		if (full_duplex[chip_idx]  ||  (options[chip_idx] & FORCE_FDX))
++			ei_status.ne2k_flags |= FORCE_FDX;
++	}
+ 
+ 	ei_status.rx_start_page = start_page + TX_PAGES;
+ #ifdef PACKETBUF_MEMSIZE
+@@ -401,8 +430,17 @@
+ {
+ 	if (request_irq(dev->irq, ei_interrupt, SA_SHIRQ, dev->name, dev))
+ 		return -EAGAIN;
+-	ei_open(dev);
+ 	MOD_INC_USE_COUNT;
++	/* Set full duplex for the chips that we know about. */
++	if (ei_status.ne2k_flags & FORCE_FDX) {
++		long ioaddr = dev->base_addr;
++		if (ei_status.ne2k_flags & REALTEK_FDX) {
++			outb(0xC0 + E8390_NODMA, ioaddr + NE_CMD); /* Page 3 */
++			outb(inb(ioaddr + 0x20) | 0x80, ioaddr + 0x20);
++		} else if (ei_status.ne2k_flags & HOLTEK_FDX)
++			outb(inb(ioaddr + 0x20) | 0x80, ioaddr + 0x20);
++	}
++	ei_open(dev);
+ 	return 0;
+ }
+ 
 
->
->
-> We could still provide the standard try_to_free_buffers() and
-> unmap_underlying_metadata() functions to operate on the per-page
-> buffer_head lists, and existing filesystems would only have to point
-> their address_space "private metadata" operations at the generic
-> functions.  However, a filesystem which had additional ordering
-> constraints could then intercept the flush or writeback calls from the
-> VM and decide on its own how best to honour the VM pressure.
->
-> This even works both for hashed and unhashed anonymous buffers, *if*
-> you allow the filesystem to attach all of its hashed buffers buffers
-> to an address_space of its own rather than having the buffer cache
-> pool all such buffers together.
->
-> --Stephen
-
+-------------- patch-ne2k-pci
 --
-Russell Cattelan
-cattelan@thebarn.com
+Juan Antonio Magallon Lacarta                                 #> cd /pub
+mailto:jamagallon@able.es                                     #> more beer
 
-
+Linux werewolf 2.2.19-pre2 #2 SMP Sun Dec 17 00:51:15 CET 2000 i686
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

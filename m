@@ -1,54 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293574AbSCGOer>; Thu, 7 Mar 2002 09:34:47 -0500
+	id <S293095AbSCGOe2>; Thu, 7 Mar 2002 09:34:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293515AbSCGOe3>; Thu, 7 Mar 2002 09:34:29 -0500
-Received: from mgw-x1.nokia.com ([131.228.20.21]:30869 "EHLO mgw-x1.nokia.com")
-	by vger.kernel.org with ESMTP id <S292955AbSCGOeW>;
-	Thu, 7 Mar 2002 09:34:22 -0500
-Message-ID: <3C877AC7.8090008@nokia.com>
-Date: Thu, 07 Mar 2002 16:35:51 +0200
-From: Dmitry Kasatkin <dmitry.kasatkin@nokia.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011023
+	id <S292978AbSCGOeR>; Thu, 7 Mar 2002 09:34:17 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:23294 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S292955AbSCGOeM>;
+	Thu, 7 Mar 2002 09:34:12 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Hubertus Franke <frankeh@watson.ibm.com>
+Reply-To: frankeh@watson.ibm.com
+Organization: IBM Research
+To: Rusty Russell <rusty@rustcorp.com.au>, rajancr@us.ibm.com
+Subject: Re: Fwd: [Lse-tech] get_pid() performance fix
+Date: Thu, 7 Mar 2002 09:35:09 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+In-Reply-To: <20020305145004.BFA503FE06@smtp.linux.ibm.com> <20020307145630.7d4aed95.rusty@rustcorp.com.au>
+In-Reply-To: <20020307145630.7d4aed95.rusty@rustcorp.com.au>
 MIME-Version: 1.0
-Newsgroups: comp.os.linux.networking
-To: Dmitry Kasatkin <dmitry.kasatkin@nokia.com>
-CC: affix-devel@lists.sourceforge.net,
-        Affix support <affix-support@lists.sourceforge.net>,
-        linux-net <linux-net@vger.kernel.org>, linux-kernel@vger.kernel.org
-Subject: New Affix Release: Affix-0_95  --- Bluetooth Protocol Stack
-In-Reply-To: <3C500D09.4080206@nokia.com> <3C5AB093.5050405@nokia.com> <3C5E4991.6010707@nokia.com> <3C628D6A.2050900@nokia.com> <3C628DCF.40700@nokia.com> <3C6D25F6.4010905@nokia.com> <3C766511.5050808@nokia.com> <3C7F6C0C.6030204@nokia.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Mar 2002 14:34:19.0147 (UTC) FILETIME=[2A54D5B0:01C1C5E5]
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020307143404.A8FFF3FE06@smtp.linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All.
+On Wednesday 06 March 2002 10:56 pm, Rusty Russell wrote:
+> On Mon, 4 Mar 2002 20:57:49 -0500
+>
+> Hubertus Franke <frankeh@watson.ibm.com> wrote:
+> > Can somebody post why this patch shouldn't be picked up ?
+> > The attached program shows the problem in user space
+> > and the patch is almost trivial ..
+>
+> At a cursory glance, this seems to be three patches:
+> 	1) Fix the get_pid() hang.
+> 	2) Speed up get_pid().
+>
+> 	3) And this piece I'm not sure about:
+> > +                 if(p->tgid > last_pid && next_safe > p->tgid)
+> > +                       next_safe = p->tgid;
+>
+> Please split, and send the fix get_pid() hang to trivial patch monkey,
+> and push optimization to Linus.
+>
+> Cheers!
+> Rusty.
 
+Thanks, patch was bad and not properly functioning as pointed out to us.
+We are rewriting right now (actually <rajancr@us.ibm.com> 
+is doing the coding. I am just there for idea bouncing
+easy if the office is 2 doors away.
 
-Find new affix release Affix-0_94 on
-http://affix.sourceforge.net
-
-Version 0.95 [07.03.2002]
-- [fix] changes in /etc/pcmcia/config file
-	device "affix_uart" to device "affix_uart_cs"
-	bind "affix_uart" to bind "affix_uart_cs"
-	PCMCIA does not work correctly in previouse case
-- [new] btctl prints features suported by the module (Audio,...)
-- [fix] SDP stuff has been fixed to be compiled with C compiler
-- [fix] extra locks added to l2cap and rfcomm modules
-- [fix] module counters fixed
-
-
-
-br, Dmitry
+1) was done by Greg Larson and was already submitted
+2) once properly done, we will circulate before bothering Linus again
+3) this must have come in because of a wrong patch generation.
 
 -- 
- Dmitry Kasatkin
- Nokia Research Center / Helsinki
- Mobile: +358 50 4836365
- E-Mail: dmitry.kasatkin@nokia.com
-
-
-
+-- Hubertus Franke  (frankeh@watson.ibm.com)

@@ -1,111 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282165AbRK1PaG>; Wed, 28 Nov 2001 10:30:06 -0500
+	id <S282163AbRK1PaH>; Wed, 28 Nov 2001 10:30:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282163AbRK1P3r>; Wed, 28 Nov 2001 10:29:47 -0500
-Received: from [194.202.59.31] ([194.202.59.31]:53256 "EHLO
-	tempest.chil.ndsuk.com") by vger.kernel.org with ESMTP
-	id <S282164AbRK1P3p>; Wed, 28 Nov 2001 10:29:45 -0500
-Message-ID: <F128989C2E99D4119C110002A507409801C530F7@topper.hrow.ndsuk.com>
-From: "Elgar, Jeremy" <JElgar@ndsuk.com>
-To: Pascal Haakmat <a.haakmat@chello.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: XFS Oopses with 2.4.5 and 2.4.14?
-Date: Wed, 28 Nov 2001 15:29:41 -0000
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S282156AbRK1P3r>; Wed, 28 Nov 2001 10:29:47 -0500
+Received: from firewall.synchrotron.fr ([193.49.43.1]:29374 "HELO out.esrf.fr")
+	by vger.kernel.org with SMTP id <S281560AbRK1P3k>;
+	Wed, 28 Nov 2001 10:29:40 -0500
+Date: Wed, 28 Nov 2001 16:29:06 +0100
+From: Samuel Maftoul <maftoul@esrf.fr>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Ieee1394
+Message-ID: <20011128162906.A29500@pcmaftoul.esrf.fr>
+In-Reply-To: <20011128103256.A28083@pcmaftoul.esrf.fr> <20011128090928.I23907@visi.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20011128090928.I23907@visi.net>; from bcollins@debian.org on Wed, Nov 28, 2001 at 09:09:28AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just as a data point I've been running XFS with 2.4.14 on three machines
-since Saturday (two machines on 24/7) + my laptop ,quite a lot of disk
-access on my laptop (Debian upgrade and install) and its been fine.
-
-
-> -----Original Message-----
-> From: Pascal Haakmat [mailto:a.haakmat@chello.nl]
-> Sent: 28 November 2001 14:57
-> To: linux-kernel@vger.kernel.org
-> Subject: XFS Oopses with 2.4.5 and 2.4.14?
+On Wed, Nov 28, 2001 at 09:09:28AM -0500, Ben Collins wrote:
+> On Wed, Nov 28, 2001 at 10:32:56AM +0100, Samuel Maftoul wrote:
+> > Hello everyone,
+> >         Still me with my ieee1394 problems :)
+> > 
+> > Workaround: My goal is to make ieee1394 HardDisk  work in a production 
+> > environment:
+> > 	User come on a machine, plug his disk, store his (experience 
+> > 	results) datas on it, unplugs it and go away with it in his home
+> > 	institute where he processes his datas.
+> 
+> I don't see any mention of the kernel version you are using, nor about
+> the specific ohci chipset, or the hardware (ppc, i386?).
+> 
+> Give me some details. I don't see this issue right now, but I'm using
+> linux1394 CVS.
+i386, AFW-4300, 2.4.16, ieee1394 from kernel (not CVS , but soon CVS :)
+)
+Most problems resolved.
+Now I'm working on a script to automount and autoumount the HD.
+This is so fucking hard 'cause we are not aware of what user wants to
+use the disk (for mount -o user to let the user accessing his datas in
+rw mode). Another problem is the umount: if the directory s busy, my
+script isn't able to du "cd .." for the user ...
+so crazy
+        Sam
 > 
 > 
-> Given the following Oopses, is it wise to continue running the XFS
-> filesystem, or might there be some other underlying problem 
-> that is causing
-> these Oopses?
+> Ben
 > 
-> Kernel 2.4.5 + XFS 1.0.1:
-> 
-> Nov 25 07:28:23 awacs kernel: Unable to handle kernel paging 
-> request at virtual address 0cb73058
-> Nov 25 07:28:23 awacs kernel:  printing eip:
-> Nov 25 07:28:23 awacs kernel: c01d6493
-> Nov 25 07:28:23 awacs kernel: *pde = 00000000
-> Nov 25 07:28:23 awacs kernel: Oops: 0000
-> Nov 25 07:28:23 awacs kernel: CPU:    0
-> Nov 25 07:28:23 awacs kernel: EIP: 
-> 0010:[xfs_inactive_free_eofblocks+615/720]
-> Nov 25 07:28:23 awacs kernel: EFLAGS: 00010206
-> Nov 25 07:28:23 awacs kernel: eax: 0cb73000   ebx: dfecf400   
-> ecx: dfecf400 edx: ce19b830
-> Nov 25 07:28:23 awacs kernel: esi: c0042bd8   edi: da742f20   
-> ebp: 00000000 esp: dffe7f2c
-> Nov 25 07:28:23 awacs kernel: ds: 0018   es: 0018   ss: 0018
-> Nov 25 07:28:23 awacs kernel: Process kupdated (pid: 6, 
-> stackpage=dffe7000)
-> Nov 25 07:28:23 awacs kernel: Stack: dfec6c00 00000000 
-> dfec6c44 dffe6650 00000001 dfecf514 00000010 00000001 
-> Nov 25 07:28:23 awacs kernel:        dfecf514 00000000 
-> 00000010 00000001 00000000 00000008 00000008 00000040 
-> Nov 25 07:28:23 awacs kernel:        00000000 00000000 
-> 00000000 de64d500 df196f20 00000026 dfaeaa00 00000000 
-> Nov 25 07:28:23 awacs kernel: Call Trace: 
-> [xfs_inactive_free_eofblocks+17/720] [load_msg+176/240] 
-> [block_write+1347/1376] [do_remount+122/172] 
-> [do_mount+537/740] [kernel_thread+35/48] 
-> Nov 25 07:28:23 awacs kernel: 
-> Nov 25 07:28:23 awacs kernel: Code: f7 40 58 ff 01 00 00 75 
-> 14 66 83 be 52 01 00 00 00 75 0a 8b 
-> 
-> Kernel 2.4.14 + XFS 1.0.2:
-> 
-> Nov 26 04:16:23 awacs kernel: Unable to handle kernel paging 
-> request at virtual address ff689108
-> Nov 26 04:16:23 awacs kernel:  printing eip:
-> Nov 26 04:16:23 awacs kernel: c01c5955
-> Nov 26 04:16:23 awacs kernel: *pde = 00000000
-> Nov 26 04:16:23 awacs kernel: Oops: 0000
-> Nov 26 04:16:23 awacs kernel: CPU:    1
-> Nov 26 04:16:23 awacs kernel: EIP:    
-> 0010:[xfs_syncsub+2309/3056]    Not tainted
-> Nov 26 04:16:23 awacs kernel: EFLAGS: 00010246
-> Nov 26 04:16:23 awacs kernel: eax: 00000000   ebx: 00000000   
-> ecx: dffbe914 edx: c490bbd8
-> Nov 26 04:16:23 awacs kernel: esi: ff689100   edi: c84ab740   
-> ebp: c03c4760 esp: c1955f24
-> Nov 26 04:16:23 awacs kernel: ds: 0018   es: 0018   ss: 0018
-> Nov 26 04:16:23 awacs kernel: Process kupdated (pid: 7, 
-> stackpage=c1955000)
-> Nov 26 04:16:23 awacs kernel: Stack: dffbe914 00000001 
-> 00000001 00000000 00000001 00000008 00000008 00000040 
-> Nov 26 04:16:23 awacs kernel:        00000000 00000000 
-> 00000000 dd2bda00 c79a91a0 c197bfac c0114539 c1955f9c 
-> Nov 26 04:16:23 awacs kernel:        de302f40 dbde0000 
-> 0000001a 00000046 00000286 00000001 00000286 00000003 
-> Nov 26 04:16:23 awacs kernel: Call Trace: [schedule+969/1504] 
-> [xfs_sync+21/32] [linvfs_write_super+42/48] 
-> [sync_supers+199/256] [sync_old_buffers+44/128]
-> Nov 26 04:16:23 awacs kernel:    [kupdate+317/336] 
-> [_stext+0/64] [kernel_thread+38/48] [kupdate+0/336] 
-> Nov 26 04:16:23 awacs kernel: 
-> Nov 26 04:16:23 awacs kernel: Code: 39 56 08 0f 85 22 f8 ff 
-> ff 8b 44 24 78 05 14 01 00 00 50 e8 
+> -- 
+>  .----------=======-=-======-=========-----------=====------------=-=-----.
+> /                   Ben Collins    --    Debian GNU/Linux                  \
+> `  bcollins@debian.org  --  bcollins@openldap.org  --  bcollins@linux.com  '
+>  `---=========------=======-------------=-=-----=-===-======-------=--=---'
 > -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
-> 

@@ -1,40 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261627AbSKRHtE>; Mon, 18 Nov 2002 02:49:04 -0500
+	id <S261573AbSKRIAY>; Mon, 18 Nov 2002 03:00:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261640AbSKRHtE>; Mon, 18 Nov 2002 02:49:04 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:15842 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S261627AbSKRHtD>; Mon, 18 Nov 2002 02:49:03 -0500
-Date: Sun, 17 Nov 2002 23:52:51 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Oliver Xymoron <oxymoron@waste.org>,
-       Werner Almesberger <wa@almesberger.net>
-cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Bugzilla bug tracking database for 2.5 now available.
-Message-ID: <674189713.1037577169@[10.10.2.3]>
-In-Reply-To: <20021118044614.GB20171@waste.org>
-References: <20021118044614.GB20171@waste.org>
-X-Mailer: Mulberry/2.1.2 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S261609AbSKRIAX>; Mon, 18 Nov 2002 03:00:23 -0500
+Received: from ppp-217-133-216-163.dialup.tiscali.it ([217.133.216.163]:7297
+	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
+	id <S261573AbSKRIAW>; Mon, 18 Nov 2002 03:00:22 -0500
+Subject: Re: [patch] threading fix, tid-2.5.47-A3
+From: Luca Barbieri <ldb@ldb.ods.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Ulrich Drepper <drepper@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0211172003050.1206-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0211172003050.1206-100000@home.transmeta.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-NLJzUcp03C6g7I4U5Gzl"
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 18 Nov 2002 09:07:11 +0100
+Message-Id: <1037606831.1774.13.camel@ldb>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> There's a good example extant where this isn't a problem: Wikipedia.
-> In their example, vandalism increases, but so does clean-up. Dave's
-> idea lets us scale the number of Bugzilla janitors. We won't get
-> perfect scaling, but it's much better than not scaling.
 
-I'm all for scaling the number of janitors, but not to any random
-moron with an easily created free email address. And it's not just
-malicious damage, it's too easy for people to close of things as
-duplicates because they look similar-ish. People need to have a
-certain level of skill and trust - I'm not going to open this up 
-into a total free-for-all.
+--=-NLJzUcp03C6g7I4U5Gzl
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-M.
+>  - please don't introduce a new pointer, just use the old one. There=20
+>    appears to be no cases where you want to have different pointers
+>    anyway.
+There are: suppose that you want to implement the int cfork(int* pid)
+function, which returns the pid in *pid in the parent vm, in a
+multithreaded application.
 
+The child tid pointer must be set to the current thread tid field,
+because the thread structure is going to be reused.
+
+However, that field contains the tid of the forking thread in the parent
+process and must not be modified. So a different pointer is needed.
+
+You could avoid the additional pointer by letting
+child_tidptr =3D (!(flags & CLONE_VM) && current->user_tid) ?
+current->user_tid : parent_tidptr;
+
+but this forces the thread library to reuse the thread structure when
+forking.
+
+
+--=-NLJzUcp03C6g7I4U5Gzl
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA92J+vdjkty3ft5+cRAux4AJ9r4jfiWTT0cN2iK3tpAc2XrOfKJwCg0BXv
+r1WAK7VtjtHlpHnTsc7ie0U=
+=LsSD
+-----END PGP SIGNATURE-----
+
+--=-NLJzUcp03C6g7I4U5Gzl--

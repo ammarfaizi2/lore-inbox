@@ -1,62 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261424AbULIBc2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261430AbULIBq0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261424AbULIBc2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 20:32:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbULIBc2
+	id S261430AbULIBq0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 20:46:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261432AbULIBq0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 20:32:28 -0500
-Received: from out014pub.verizon.net ([206.46.170.46]:5359 "EHLO
-	out014.verizon.net") by vger.kernel.org with ESMTP id S261424AbULIBcY
+	Wed, 8 Dec 2004 20:46:26 -0500
+Received: from probity.mcc.ac.uk ([130.88.200.94]:12037 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP id S261430AbULIBqX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 20:32:24 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: Mach Speed motherboard w/onboard video
-Date: Wed, 8 Dec 2004 20:32:22 -0500
-User-Agent: KMail/1.7
-References: <200412081140.33199.gene.heskett@verizon.net> <200412081248.57255.gene.heskett@verizon.net> <Pine.LNX.4.61.0412081409350.14310@twin.uoregon.edu>
-In-Reply-To: <Pine.LNX.4.61.0412081409350.14310@twin.uoregon.edu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Dec 2004 20:46:23 -0500
+Date: Thu, 9 Dec 2004 01:46:22 +0000
+From: John Levon <levon@movementarian.org>
+To: Greg Banks <gnb@sgi.com>
+Cc: Philippe Elie <phil.el@wanadoo.fr>, Akinobu Mita <amgta@yacht.ocn.ne.jp>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [mm patch] oprofile: backtrace operation does not initialized
+Message-ID: <20041209014622.GB48804@compsoc.man.ac.uk>
+References: <200412081830.51607.amgta@yacht.ocn.ne.jp> <20041208160055.GA82465@compsoc.man.ac.uk> <20041208223156.GB4239@sgi.com> <20041208235623.GA563@zaniah> <20041209003906.GE4239@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200412082032.22619.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out014.verizon.net from [141.153.76.102] at Wed, 8 Dec 2004 19:32:23 -0600
+In-Reply-To: <20041209003906.GE4239@sgi.com>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Graham Coxon - Happiness in Magazines
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1CcDNu-000JhH-AB*ymXtApMqEbI*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 December 2004 17:11, Joel Jaeggli wrote:
-And Gene heskett replied:
->>
->> Unforch, this implies its for 2.6 kernels.  The machine in
->> question will be running 2.5.25-adeos, an rtai conversion kernel. 
->> I'll take a look and see if it might be buildable for that. 
->> Thanks for the links.
->
->If you don't care much about video performance the via embedded
-> video works fine for most applications... it's derived from their
-> s3 aquisition.
+On Thu, Dec 09, 2004 at 11:39:06AM +1100, Greg Banks wrote:
 
-I did place the order for the board, and a cheap Chaintech Gforce 5200
-video card in case the onboard doesn't work out for this app.  The
-existing card, a 4 meg rage based card, apparently is not well
-supported by xorg's code, if the blanker is allowed to kick in, the
-recovery when the mouse is moved or a key is hit, is to a totally
-trashed screen & one must find the pager and switch screens to effect
-a redraw.  Minor detail, but a pita anyway.
+> But for now I don't see any drama with leaving in the ->setup() and
+> ->shutdown() methods when rewriting the ops structure.  Ditto for
+> the ->create_files() methods.
 
-Thanks a bunch.
+Wouldn't this mean that we try to set up the NMI stuff regardless of
+forcing the timer ? I can imagine a flaky system where somebody needs to
+avoid going near that stuff.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.30% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+timer_init() making sure to set all fields seems reasonable to me.  Or
+oprofile_init() could grab ->backtrace, memset the structure, then
+replace ->backtrace...
 
+john

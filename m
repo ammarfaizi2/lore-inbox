@@ -1,26 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312450AbSDOMBT>; Mon, 15 Apr 2002 08:01:19 -0400
+	id <S312495AbSDOMEm>; Mon, 15 Apr 2002 08:04:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312427AbSDOMBS>; Mon, 15 Apr 2002 08:01:18 -0400
-Received: from f145.law11.hotmail.com ([64.4.17.145]:4879 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S312450AbSDOMBS>;
-	Mon, 15 Apr 2002 08:01:18 -0400
-X-Originating-IP: [200.230.227.67]
-From: "Henrique Oliveira" <cyclades_kernel@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Date: Mon, 15 Apr 2002 12:01:12 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F145gyFEb0Si06nysxK000072f8@hotmail.com>
-X-OriginalArrivalTime: 15 Apr 2002 12:01:12.0470 (UTC) FILETIME=[3CC16B60:01C1E475]
+	id <S312526AbSDOMEl>; Mon, 15 Apr 2002 08:04:41 -0400
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:60166 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S312495AbSDOMEk>; Mon, 15 Apr 2002 08:04:40 -0400
+Date: Mon, 15 Apr 2002 14:04:34 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+To: Jens Axboe <axboe@suse.de>
+cc: "Ivan G." <ivangurdiev@yahoo.com>, Linus Torvalds <torvalds@transmeta.com>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.8 compile bugs
+In-Reply-To: <20020415115131.GN12608@suse.de>
+Message-ID: <Pine.LNX.4.21.0204151356070.26237-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-unsubscribe linux-kernel cyclades_kernel@hotmail.com.br
+Hi,
 
+On Mon, 15 Apr 2002, Jens Axboe wrote:
 
-_________________________________________________________________
-Join the world’s largest e-mail service with MSN Hotmail. 
-http://www.hotmail.com
+> > That's not enough, some archs don't define pci_alloc_consistent/
+> > pci_free_consistent, because they have neither PCI nor ISA.
+> 
+> Please, then those archs need to provide similar functionality. This is
+> the established api, unless you want to change the documentation and xxx
+> number of drivers?
+
+These functions are only specified for PCI/ISA and there was no need so
+far to implement them. It's no problem to provide the functionality, but I
+have to know with what API.
+
+bye, Roman
 

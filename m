@@ -1,84 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265446AbTAEXiD>; Sun, 5 Jan 2003 18:38:03 -0500
+	id <S265469AbTAEXqJ>; Sun, 5 Jan 2003 18:46:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265469AbTAEXiD>; Sun, 5 Jan 2003 18:38:03 -0500
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:13478 "EHLO
-	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S265446AbTAEXiC>; Sun, 5 Jan 2003 18:38:02 -0500
-Date: Mon, 6 Jan 2003 00:46:17 +0100
-From: Andi Kleen <ak@muc.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andi Kleen <ak@muc.de>, davem@redhat.com, andrew.morton@digeo.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BENCHMARK] Lmbench 2.5.54-mm2 (impressive improvements)
-Message-ID: <20030105234617.GA4714@averell>
-References: <m3k7hjq5ag.fsf@averell.firstfloor.org> <Pine.LNX.4.44.0301051040020.11848-100000@home.transmeta.com>
+	id <S265470AbTAEXqJ>; Sun, 5 Jan 2003 18:46:09 -0500
+Received: from smtp07.iddeo.es ([62.81.186.17]:50833 "EHLO smtp07.retemail.es")
+	by vger.kernel.org with ESMTP id <S265469AbTAEXqI>;
+	Sun, 5 Jan 2003 18:46:08 -0500
+Date: Mon, 6 Jan 2003 00:54:41 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Nuno Monteiro <nuno@itsari.org>
+Cc: akpm@digeo.com, linux-kernel@vger.kernel.org
+Subject: Re: updated CDROMREADAUDIO DMA patch
+Message-ID: <20030105235441.GA2462@werewolf.able.es>
+References: <20030105230752.GA936@hobbes.itsari.int>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0301051040020.11848-100000@home.transmeta.com>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20030105230752.GA936@hobbes.itsari.int>; from nuno@itsari.org on Mon, Jan 06, 2003 at 00:07:52 +0100
+X-Mailer: Balsa 2.0.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 05, 2003 at 07:51:44PM +0100, Linus Torvalds wrote:
+
+On 2003.01.06 Nuno Monteiro wrote:
+> [First of all, excuse me for breaking the thread, I had already deleted 
+> your original mail when I ran into this. Sorry for the inconvenience :)]
 > 
-> On 5 Jan 2003, Andi Kleen wrote:
-> > 
-> > Regarding the EFLAGS handling: why can't you just do 
-> > a pushfl in the vsyscall page before pushing the 6th arg on the stack
-> > and a popfl afterwards. 
+> On January 4th 2003 Andrew Morton wrote:
+> > A refresh and retest of this patch, against 2.4.21-pre2.  It would
+> > be helpful if a few (or a lot of) people could test this, and report
+> > on the result.   Otherwise it'll never get anywhere...
 > 
-> I did that originally, but timings from Jamie convinced me that it's 
-> actually a quite noticeable overhead for the system call path.
+> Ok, I tested it earlier on today and I ran into an oops & kernel panic. I 
+> can read audio cd's just fine (using xmms, gtcd, whatever) for hours, but 
+> whenever I try to rip anything using cdparanoia, it goes down south.
 > 
-> You should realize that the 5-9% slowdown in schedule (which I don't like)  
-> comes with a 360% speedup on a P4 in simple system call handling (which I
-> _do_ like). My P4 does a system call in 428 cycles as opposed to 1568
-> cycles according to my benchmarks.
-
-According to my benchmarks the slowdown on context switch is a lot 
-more than 5-9% on P4:
-
-Host                 OS 2p/0K 2p/16K 2p/64K 8p/16K 8p/64K 16p/16K 16p/64K
-                        ctxsw  ctxsw  ctxsw ctxsw  ctxsw   ctxsw   ctxsw
-
-with wrmsr Linux 2.5.54 2.410 3.5600 6.0300 3.9900   34.8 8.59000    43.7
-no wrmsr   Linux 2.5.54 1.270 2.3300 4.7700 2.5100   29.5 4.16000    39.2
-
-That looks more like between 10%-51%
-
-[Note I don't trust the numbers completely, the slowdown looks a bit too
-extreme especially for the 16p case. But it is clear that it is a lot
-slower]
-
-I haven't benchmarked pushfl/popfl, but I cannot imagine it being that 
-slow to offset that. I agree that syscalls are a slightly hotter path than the
-context switch, but hurting one for the other that much looks a bit
-misbalanced.
-
-
+> This is 2.4.21-pre2aa2 with some reiserfs fixes Hans posted on lkml a 
+> while ago, mind you, and not vanilla 2.4.21-pre2. The patch applied 
+> cleanly, though -- not even with offset. Its a run-of-the-mill 48x cdrom 
+> (dont even know the brand), connected as slave on the primary IDE 
+> channel, which is a PIIX4. Let me know if you need any other info!
 > 
-> And part of the reason for the huge speedup is that the vsyscall/sysenter
-> path is actually pretty much the fastest possible. Yes, it would have been
 
-I can think of some things to speed it up more. e.g. replace all the
-push / pop in SAVE/RESTORE_ALL with sub $frame,%esp ; movl %reg,offset(%esp) 
-and movl offset(%esp),%reg ; addl $frame,%esp. This way the CPU has 
-no dependencies between all the load/store options unlike push/pop.
+Just a me-too, but with the old version. If I try to rip anything with
+grip (using cdda2wav as backend), the box just locks. No SysRq.
+Curious: one other PIIX4.
 
-(that is what all the code optimization guides recommend and gcc / icc
-do too for saving/restoring of lots of registers) 
+Still have to try with this new version.
 
-Perhaps that would offset a pushfl / popfl in kernel mode, may be worth 
-a try.
-
--Andi
-
-
-P.S.: For me it is actually good if the i386 context switch is slow.
-On x86-64 I have some ugly wrmsrs in the context switch for the 
-64bit segment base rewriting too and slowing down i386 like this will
-make the 64bit kernel look better compared to 32bit ;););)
-
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.1 (Cooker) for i586
+Linux 2.4.21-pre2-jam2 (gcc 3.2.1 (Mandrake Linux 9.1 3.2.1-2mdk))

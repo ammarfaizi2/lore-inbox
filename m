@@ -1,51 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264984AbTBAVSf>; Sat, 1 Feb 2003 16:18:35 -0500
+	id <S264992AbTBAVkH>; Sat, 1 Feb 2003 16:40:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264986AbTBAVSf>; Sat, 1 Feb 2003 16:18:35 -0500
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:61402 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id <S264984AbTBAVSe>; Sat, 1 Feb 2003 16:18:34 -0500
-Date: Sat, 1 Feb 2003 22:27:17 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: John Bradford <john@grabjohn.com>
-Cc: Jon Burgess <Jon_Burgess@eur.3com.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Little endian Cramfs on big endian machines?
-Message-ID: <20030201212717.GA32074@wohnheim.fh-wedel.de>
-References: <80256CC0.0067A8CA.00@notesmta.eur.3com.com> <200302011929.h11JTMiC010227@darkstar.example.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200302011929.h11JTMiC010227@darkstar.example.net>
-User-Agent: Mutt/1.3.28i
+	id <S265008AbTBAVkH>; Sat, 1 Feb 2003 16:40:07 -0500
+Received: from 60.54.252.64.snet.net ([64.252.54.60]:57496 "EHLO
+	hotmale.blue-labs.org") by vger.kernel.org with ESMTP
+	id <S264992AbTBAVkG>; Sat, 1 Feb 2003 16:40:06 -0500
+Message-ID: <3E3C40E9.1010901@blue-labs.org>
+Date: Sat, 01 Feb 2003 16:49:29 -0500
+From: David Ford <david+cert@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030131
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: trond.myklebust@fys.uio.no
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Neil Brown <neilb@cse.unsw.edu.au>, Andrew Morton <akpm@digeo.com>
+Subject: Re: NFS problems, 2.5.5x
+References: <3E3B2D2E.8000604@blue-labs.org>	<15931.35891.22926.408963@charged.uio.no>	<3E3BEFDB.3060208@blue-labs.org> <15931.62606.441404.74917@charged.uio.no>
+In-Reply-To: <15931.62606.441404.74917@charged.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 1 February 2003 19:29:22 +0000, John Bradford wrote:
-> 
-> Maybe the native machine endianness is used for performace reasons -
-> that would make sense given the typical uses of cramfs.  Also, it is a
-> read-only filesystem, so a userland application could flip the
-> endianness if a filesystem needs to be used on a non-native endianness
-> machine.
+Yes.  Today I haven't experienced the loop problem.  On the other hand,
+when I reboot back and forth between 2.5.53 and 2.5.59, I have to
+restart the server nfs programs or I get permission denied on the client
+and "rpc.mountd: getfh failed: Operation not permitted" on the server.
 
-Touchy matter.
-Having two possible endianness options _will_ cause problems and hours
-of lost work, since 50% of all users will get it wrong at least once.
-And fixing bugs between keyboard and chair is not a fun job. :)
+I have also had to restart 2.4 clients because NFS silently hangs.  I
+believe there's a few patches on the list that I need to apply regarding
+this.
 
-On the other hand, most filesystem data will be read more than once,
-so performance does matter, at least a little.
+David
 
-> I'm not necessarily saying that that it's not a bug, just suggesting
-> an explaination.
+Trond Myklebust wrote:
 
-It is not a bug, it is a tradeoff. Do you want to waste time accessing
-the filesystem or fixing so-called bugs and educating the users?
-
-Jörn
+>>>>>>" " == David Ford <david+powerix@blue-labs.org> writes:
+>>>>>>            
+>>>>>>
+>
+>     > The last time NFS was working, I had 2.4.19 and 2.5.53 clients
+>     > on a
+>     > 2.5.59 server, that was yesterday.  I had experienced a slight
+>     >        problem
+>     > with it last week when my 2.5.53 client was booted for first
+>     > time on 2.5.5x, it was previously a 2.4 kernel.  The server
+>     > OOPSed repeatedly shortly after bootup in NFS stuff then it
+>     > never happened again and was rock solid until today.
+>
+>So have you tried out the 2.5.53 client since you noticed this
+>problem?
+>
+>Cheers,
+>  Trond
+>  
+>
 
 -- 
-And spam is a useful source of entropy for /dev/random too!
--- Jasmine Strong
+I may have the information you need and I may choose only HTML.  It's up 
+to you. Disclaimer: I am not responsible for any email that you send me 
+nor am I bound to any obligation to deal with any received email in any 
+given fashion.  If you send me spam or a virus, I may in whole or part 
+send you 50,000 return copies of it. I may also publically announce any 
+and all emails and post them to message boards, news sites, and even 
+parody sites.  I may also mark them up, cut and paste, print, and staple 
+them to telephone poles for the enjoyment of people without internet 
+access.  This is not a confidential medium and your assumption that your 
+email can or will be handled confidentially is akin to baring your 
+backside, burying your head in the ground, and thinking nobody can see 
+you butt nekkid and in plain view for miles away.  Don't be a cluebert, 
+buy one from K-mart today.
+
+When it absolutely, positively, has to be destroyed overnight.
+                           AIR FORCE
+
+
+

@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269207AbRHLOgx>; Sun, 12 Aug 2001 10:36:53 -0400
+	id <S269254AbRHLOnN>; Sun, 12 Aug 2001 10:43:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269242AbRHLOgo>; Sun, 12 Aug 2001 10:36:44 -0400
-Received: from t2.redhat.com ([199.183.24.243]:5874 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S269207AbRHLOgc>; Sun, 12 Aug 2001 10:36:32 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <4736.997579282@ocs3.ocs-net> 
-In-Reply-To: <4736.997579282@ocs3.ocs-net> 
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Tom Rini <trini@kernel.crashing.org>, kbuild-devel@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: Announce: Kernel Build for 2.5, Release 1.1 is available. 
+	id <S269257AbRHLOnD>; Sun, 12 Aug 2001 10:43:03 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:6918 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S269254AbRHLOms>;
+	Sun, 12 Aug 2001 10:42:48 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: John Levon <moz@compsoc.man.ac.uk>
+cc: linux-kernel@vger.kernel.org, sailer@ife.ee.ethz.ch
+Subject: Re: Gameport & esssolo1 2.4.8 
+In-Reply-To: Your message of "Sun, 12 Aug 2001 12:48:40 +0100."
+             <20010812124840.A26055@compsoc.man.ac.uk> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 12 Aug 2001 15:36:13 +0100
-Message-ID: <21485.997626973@redhat.com>
+Date: Mon, 13 Aug 2001 00:42:55 +1000
+Message-ID: <3592.997627375@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 12 Aug 2001 12:48:40 +0100, 
+John Levon <moz@compsoc.man.ac.uk> wrote:
+>esssolo1 uses register_gameport_port() which requires support for it to
+>be enabled. Shouldn't there be always-failing register/unregister so I don't have
+>to compile in input support and joystick support ?
 
-kaos@ocs.com.au said:
->  The alternative of having code in some arch directory updating
-> include/asm-$(ARCH)/offsets.h is worse.  It is a terrible design to
-> have code in one makefile updating files in another directory.  It is
-> a layer violation which is always a bad idea.
-
-With sensible (i.e. non-recursive) makefiles, surely this is far more 
-acceptable?
-
---
-dwmw2
-
+AFAIK this was fixed in the -ac trees some time ago.  I have no idea
+why it is not in 2.4.8, maybe Alan Cox is waiting for the input and/or
+joystick maintainer to push it.  No, I am not going to do a 2.4.8
+version of the fix, that is up to the maintainer.
 

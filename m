@@ -1,101 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262792AbTL2Hlp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 02:41:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262795AbTL2Hlp
+	id S262838AbTL2HsJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 02:48:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262844AbTL2HsJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 02:41:45 -0500
-Received: from mx2.it.wmich.edu ([141.218.1.94]:395 "EHLO mx2.it.wmich.edu")
-	by vger.kernel.org with ESMTP id S262792AbTL2Hlk (ORCPT
+	Mon, 29 Dec 2003 02:48:09 -0500
+Received: from [218.22.48.211] ([218.22.48.211]:27654 "HELO 67.72.78.212")
+	by vger.kernel.org with SMTP id S262838AbTL2HsB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 02:41:40 -0500
-Message-ID: <3FEFDAB1.2050202@wmich.edu>
-Date: Mon, 29 Dec 2003 02:41:37 -0500
-From: Ed Sweetman <ed.sweetman@wmich.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
-X-Accept-Language: en
+	Mon, 29 Dec 2003 02:48:01 -0500
+Message-ID: <ke3gm-l4x2ka8045914$v-$$yw5k6@dqn.3y>
+From: "Admin" <Personnel@selu.com.ar>
+To: linux-kernel@vger.kernel.org
+Subject: Attention All  Staff and Personnel:
+Date: Mon, 29 Dec 03 08:51:14 GMT
+X-Priority: 1
+X-MSMail-Priority: High
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-CC: Walt H <waltabbyh@comcast.net>
-Subject: Re: Can't eject a previously mounted CD?
-References: <3FEF89D5.4090103@comcast.net> <3FEF8BB1.6090704@wmich.edu> <3FEFA36A.5050307@comcast.net> <3FEFC86E.9050307@wmich.edu>
-In-Reply-To: <3FEFC86E.9050307@wmich.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+	boundary="_CD2..1F2.A4_F_DD_7."
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just to add to my previous post about the problem with the ide-cd 
-driver. It appears that loading and unloading it and loading it again a 
-couple times causes the driver to mess up it's interrupts. Now i get a 
-recurring "lost interrupt to hdc" message and the device is 
-non-responsive, causing any attempt to rmmod or modprobe ide-cd to hang, 
-and the /dev entry is missing according to hdparm.
+This is a multi-part message in MIME format.
+
+--_CD2..1F2.A4_F_DD_7.
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+Attention All Staff, Personnel, and Students:
+
+You must respond by 5 P.M. Tuesday, December 30, 2003
+
+Avtech Direct a leading computer manufacturer is offering a
+limited allotment of BRAND NEW, top of-the-line, name-brand
+laptop computers at 50% off MSRP to all Who respond to this
+message before: 5 P.M. Tuesday, December 30, 2003
 
 
+All laptops are brand-new packed in their original boxes and
+come with a full manufacturer's warranty plus a
+100% satisfaction guarantee.
+
+These professional grade laptops are lightweight and fully
+equipped with the next generation WiFi technology, making these
+the very best performing computers that money can buy.
+
+Avtech Direct is offering these feature rich, top performing laptops
+with the latest Wireless technology at an amazing price
+to all Teachers, Students, Faculty and Staff who call:
+
+     1-800-318-1388 by 5 P.M. Tuesday, December 30, 2003
+
+Laptop AT-1000S Series- Sleek, Slim and Wireless Ready
+
+   * 1 Giga Pro Transmeta Crusoe CPU for incredible power
+   * 128 MB SD RAM, Upgradeable to 256
+   * 20 GB Hard Drive upgradeable to 30 GB
+   * CD-Rom Drive upgradeable to  DVD/CDRW 
+   * WiFi Next Generation Wireless Technology for total freedom
+   * 14.1 XGA TFT Ultra Sharp Liquid Display
+   * Premium Sound and Video
+   * Total Connectivity 56k v90 fax modem, 10/100 T-base LAN Net Card 
+   * 1394 Fire wire and USB 2.0 Ports
+   * Soft Touch Keyboard
+   * Internet and Network Ready
+   * Extra Long Life Battery Pack
+   * 1 Year parts and labor warranty with
+   * Priority customer service and tech support
+
+MSRP $1299 ......................................... Your Cost $647
 
 
-Ed Sweetman wrote:
-> Walt H wrote:
-> 
->> Ed Sweetman wrote:
->>
->>> I'd have to say the december 17th listed changes are the culprit here.
->>> I'm definitely not up to figuring out what change is the bad one.  If
->>> any of the cdrom/ide-cd people wanna have me get some data from them
->>> then just tell me how.  I've tried viewing the debug output from the
->>> modules with no success in figuring out the problem.
->>>
->>>
-> 
->>
->> Luckily for me, I built my cdrom drivers as modules, so I could play :)
-> 
-> 
-> so did i. I looked at the debugging output and noticed the increments 
-> increasing. This had no effect on me unloading the module so i didn't 
-> care. It also should have nothing to do with not being able to eject it 
-> since being unable to eject would imply that the door is locked, in 
-> which case the command "eject" should also fail but it does not. I think 
-> the kernel is really really fubarred since the dec 17th patches dealing 
-> with ide-cd.  My cd writer is no longer able to write in atapi direct 
-> mode because the driver isn't giving it the capabalities it should have. 
-> It's being shown as a simple cdrom as far as the kernel is concerned. 
-> Also, the drive throws errors about being unable to access sector 0, as 
-> many others have pointed out. This is an error that should be caught 
-> prior to actually sending such a command since media is not in the drive 
-> in the first place.
-> 
-> It's definitely not up to me but i would roll back the cdrom and ide-cd 
-> changes from dec 17th and re-add them much more carefully because 
-> something is really messed up.
-> 
-> cdrecord is showing the TOC as just CdRom and reports the drive as 
-> readonly.  That's about all the irregular information i can find on my 
-> own. I dont know where to look for anything else, the cdrom debugging 
-> output doesn't report anything irregular except for the behavior 
-> described below and that really doesn't help me with anything except to 
-> prove that the patches that went in last are the cause of the problem, 
-> not necessarily famd's hackish behavior or hardware.
-> 
->> I turned on debugging, and noticed that cdi->use_count continues to 
->> increment by
->> 2 for each access. In cdrom_release, only one cdi->use_count-- exists, 
->> so the
->> driver never gets to 0 use count and releases. I noticed in
->> drivers/cdrom/cdrom.c line 753:
->>
->>         if (!ret) cdi->use_count++;
->>
->> Which is our second increment, but I can't find two decrements, 
->> because the
->> check further down won't ever be true if the above is true. Hence, two
->> increments and only 1 dec when we reach cdrom_release. What I did, was 
->> add a
->> conditional decrement right before the open_for_data call, which makes 
->> the value
->> of use_count like it used to be prior to the Mt. Rainier patches. 
->> Seems kinda
->> hacky :)
->>
+Laptop AT-2000 Series Plenty of Power and Wireless Ready
+
+     * 2.0 Intel Processor for outstanding  speed and performance
+     * 256 MB SD RAM, Upgradeable to 512 MB
+     *  CD Rewriteable and DVD Combo Drive
+     * 20 GB Hard Drive upgradeable to 40 GB
+     * WiFi Ready-Next Generation Wireless Technology for total freedom
+     * 15.1 XGA TFT Ultra Sharp Liquid Display
+     * Premium Sound and Video 
+     * Total Connectivity 56k v90 fax modem, 10/100 T-base LAN Net Card
+     * 1394 Fire wire and USB 2.0 Ports
+     * Soft Touch Keyboard
+     * Internet and Network Ready
+     * Long Life Battery Pack
+     * 1 Year parts and labor warranty with
+     * Priority customer service and tech support
+
+MSRP $1999 ......................................... Your Cost $947
+
+How to qualify:
+
+   1. You must be a Student or Staff Member.
+   2. All laptop computers will be available on a
+      first come first serve basis.
+   3. You must call 1-800-318-1388 by 5 P.M. Tuesday, December 30, 2003
+      and we will hold the laptops you request on will call. 
+   4. You are not obligated in any way.
+   5. All computers are 100% Satisfaction Guaranteed
+
+
+Avtech Direct 1-800-318-1388 by 5 P.M. Tuesday, December 30, 2003
+
+Special bonus offer for the first 10 customers who purchase by Thursday.
+--_CD2..1F2.A4_F_DD_7.--
 

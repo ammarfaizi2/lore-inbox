@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261801AbTFZOcJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 10:32:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbTFZOcJ
+	id S261757AbTFZOip (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 10:38:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbTFZOip
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 10:32:09 -0400
-Received: from vdp184.ath05.cas.hol.gr ([195.97.120.185]:22431 "EHLO
-	pfn1.pefnos") by vger.kernel.org with ESMTP id S261801AbTFZObY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 10:31:24 -0400
-From: "P. Christeas" <p_christ@hol.gr>
-To: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Subject: Re: Synaptics support kills my mouse
-Date: Thu, 26 Jun 2003 17:46:14 +0300
-User-Agent: KMail/1.5
-Cc: lkml <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Thu, 26 Jun 2003 10:38:45 -0400
+Received: from remt28.cluster1.charter.net ([209.225.8.38]:59592 "EHLO
+	remt28.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S261757AbTFZOim (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jun 2003 10:38:42 -0400
+Subject: Re: Problems with IDE on GA-7VAXP motherboard
+From: Tim McGrath <misty-@charter.net>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.SOL.4.30.0306261242310.24845-100000@mion.elka.pw.edu.pl>
+References: <Pine.SOL.4.30.0306261242310.24845-100000@mion.elka.pw.edu.pl>
+Content-Type: text/plain
+Message-Id: <1056633178.11435.2.camel@roll>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 26 Jun 2003 09:12:58 -0400
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200306261746.14578.p_christ@hol.gr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It is true, 2.5.73 unconditionally detects and tries to use the Syn. Touchpad 
-in 'absolute mode'. I wouldn't blame the authors of the module, however. They 
-are already doing a great job :).
+On Thu, 2003-06-26 at 06:50, Bartlomiej Zolnierkiewicz wrote:
+> Maybe you can use dosemu under Linux instead?
+> http://www.dosemu.org
+Well, yes, it works - problem is I can't figure out how to get sound nor
+VGA/SVGA working in it, and I need both to play the games I use DOS for.
 
-I 've read the code to see what's wrong and found that the problem is that the 
-Touchpad itself doesn't report any data to the PS/2 port. The code still 
-looks conforming to the specs.
-However, you shouldn't give up 2.5.73 because of that. You can still use the 
-PS/2 compatibility mode
- o Compile the ps mouse as a module "psmouse"
- o Arrange so that the module is loaded with the option "psmouse_noext=1"
- o Have gpm and X (you can even use both of them) read /dev/input/mice as an 
-exps2 or imps2 mouse (Intellimouse Explorer PS/2) .
+> There is also GPLed DOS replacement, maybe it doesn't use CHS info,
+> if it does you have source code available ;-).
+> http://www.freedos.org
+Nope, not even going to try that one - I've used it before and the last
+time I tried it, it had the same problems dos did. Not that it's a bad
+program or anything.
 
-I don't think the "event interface" has any support yet. Nor the synaptics 
-driver.
-Reading from /dev/input/mice means that the psmouse module doesn't have to be 
-loaded before X starts. You can safely rmmod/modprobe the module while X run.
-You may find that tapping with the finger may not work (produce 'click' 
-effect). I hope next release will have a fix (contact me in personal until 
-the official patch is out).
+Thanks for trying to help. If you know how to get dosemu working with
+vga/svga and sound in linux console/x let me know.
+
+Another option I'm going to try is booting off the 40GB disk I have
+instead of the 100GB disk - should work as the CHS info given by the
+bios agrees with the kernel.
+
+We'll see.
+
+Timothy C. McGrath
 

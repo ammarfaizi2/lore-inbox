@@ -1,121 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267112AbTAVArp>; Tue, 21 Jan 2003 19:47:45 -0500
+	id <S267130AbTAVBCG>; Tue, 21 Jan 2003 20:02:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267130AbTAVArp>; Tue, 21 Jan 2003 19:47:45 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:10895 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267112AbTAVArn>;
-	Tue, 21 Jan 2003 19:47:43 -0500
-Date: Tue, 21 Jan 2003 16:51:38 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Jim Houston <jim.houston@attbi.com>
-cc: <linux-kernel@vger.kernel.org>,
-       <high-res-timers-discourse@lists.sourceforge.net>
-Subject: Re: posix timers patch comments.
-In-Reply-To: <3E2DD8CB.5B984772@attbi.com>
-Message-ID: <Pine.LNX.4.33L2.0301211613360.30777-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267145AbTAVBCG>; Tue, 21 Jan 2003 20:02:06 -0500
+Received: from mailhub.fokus.gmd.de ([193.174.154.14]:29604 "EHLO
+	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
+	id <S267130AbTAVBCF>; Tue, 21 Jan 2003 20:02:05 -0500
+Date: Wed, 22 Jan 2003 02:09:52 +0100 (CET)
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Message-Id: <200301220109.h0M19qNV021906@burner.fokus.gmd.de>
+To: cdwrite@other.debian.org, greg@ulima.unil.ch, linux-kernel@vger.kernel.org
+Subject: Re: Can't burn DVD under 2.5.59 with ide-cd
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Jan 2003, Jim Houston wrote:
+>From: Gregoire Favre <greg@ulima.unil.ch>
 
-| "Randy.Dunlap" wrote:
-| >
-| > Hi Jim,
-| >
-| > I'm reviewing both George's and your POSIX/high-res-timers patches.
-| > I might not send you comments every time that I come across something,
-| > and I might not cc lkml on every comment (unless you want me to).
-| >
-| > Anyway, here's a beginning.
-| >
-| > In functions get_eip(), check_expiry(), and run_posix_timers(),
-| > the <regs> parameter is a void *.  Linus generally doesn't like
-| > void * parameters, so they should be avoided as much as possible,
-| > and I don't see any reason that <regs> in all of these can't be
-| > declared as <struct pt_regs *> instead of <void *>.  Is there a
-| > good reason?
-| >
-| > BTW, when do expect to have any updated patches?
-|
-| Hi Randy,
-|
-| It makes sense to include lkml in the discussion.  It's an
-| interesting balancing act.  If you openly criticize code that you
-| hope will be included in the kernel, you risk having your arguments
-| used as a reason for its rejection.  If there is no visible discussion,
-| the patch will be perceived as un-reviewed.
+>after reporting this problem, someone pointed me that I should try
+>without DAO, I have tried this:
 
-Yes, I'm aware of the tradeoffs and I expect to discuss most of it
-openly, but I don't know that all nitpicking needs to be.
-It could have negative effects, as you imply.
+>mkisofs -dvd-video -V $1 $2 | cdrecord-prodvd driveropts=burnfree -dummy -v dev=/dev/hdc fs=64m speed=1 -eject tsize={$SIZE}s -
 
-And some of my comments are just questions about "how does so-and-so
-work?".  But I guess they won't be any more noise than we've had
-lately.
+>And got this:
 
-| The code that uses get_eip() is just debug.  It may go away soon.
-| I was feeling lazy and didn't want to chase down the header files needed
-| to for "struct pt_regs".  I just made the change and it was easy.
-| It turns out that pt_regs was already defined. I also found the
-| instruction_pointer() macro so I can get rid of the get_eip() function I
-| added.  The timer code has to deal with timer overruns so it always
-| calculates the amount of time that a time interrupt is delayed.  I'm logging
-| the EIP values which correspond to these long interrupt lockouts.
+>Cdrecord-ProDVD-Clone 2.0 (i586-pc-linux-gnu) Copyright (C) 1995-2002 Jörg Schilling
+>Unlocked features: ProDVD Clone 
+>Limited  features: speed 
+>This copy of cdrecord is licensed for: private/research/educational_non-commercial_use
+>TOC Type: 1 = CD-ROM
+>scsidev: '/dev/hdc'
+>devname: '/dev/hdc'
+>scsibus: -2 target: -2 lun: -2
+>Warning: Open by 'devname' is unintentional and not supported.
+>Linux sg driver version: 3.5.27
+>Using libscg version 'schily-0.7'
+>Driveropts: 'burnfree'
+>atapi: 1
+>Device type    : Removable CD-ROM
+>Version        : 2
+>Response Format: 2
+>Capabilities   : 
+>Vendor_info    : 'SONY    '
+>Identifikation : 'DVD RW DRU-500A '
+>Revision       : '1.0f'
+>Device seems to be: Generic mmc2 DVD-R/DVD-RW.
+>Using generic SCSI-3/mmc-2 DVD-R/DVD-RW driver (mmc_dvd).
+>Driver flags   : DVD SWABAUDIO BURNFREE 
+>Supported modes: TAO PACKET SAO SAO/R96R RAW/R96R
+>Drive buf size : 8126464 = 7936 KB
+>FIFO size      : 67108864 = 65536 KB
+>Track 01: data  4001 MB        
+>Total size:     4001 MB = 2048512 sectors
+>Current Secsize: 2048
+>Blocks total: 2298496 Blocks current: 2298496 Blocks remaining: 249984
+>Starting to write CD/DVD at speed 1 in dummy TAO mode for single session.
+>Last chance to quit, starting dummy write in 9 seconds.  0.24% done, estimate finish Tue Jan 21 23:09:02 2003
+>   8 seconds.  0.49% done, estimate finish Tue Jan 21 23:09:03 2003
+>   7 seconds.  0.73% done, estimate finish Tue Jan 21 23:06:46 2003
+>   6 seconds.  0.98% done, estimate finish Tue Jan 21 23:07:21 2003
+>   5 seconds.  1.22% done, estimate finish Tue Jan 21 23:07:41 2003
+>   4 seconds.  1.46% done, estimate finish Tue Jan 21 23:07:55 2003
+>   0 seconds. Operation starts.
+>Waiting for reader process to fill input buffer ... input buffer ready.
+>BURN-Free is ON.
+>Starting new track at sector: 0
+>Track 01:    4 of 4001 MB written (fifo  96%)  16.1x.cdrecord-prodvd: Success. write_g1: scsi sendcmd: no error
+>CDB:  2A 00 00 00 08 B8 00 00 1F 00
+>status: 0x1 (GOOD STATUS)
+>resid: 63488
+>cmd finished after 0.008s timeout 100s
 
-OK, thanks.
+I can't tell you what happened because the kernel is broken :-(
 
-| I'm not sure when I will do the next patch.  I only have a few small
-| changes in the queue.  I'm tempted to put it off a few days.
+If you fix the kernel, you will get a readble error message,
 
-OK.
+Jörg
 
-
-Here are some more comments and questions.  I still don't understand
-all of the code, so I'm not commenting on the guts of it just yet.
-This is mostly about style.  I do have some code comments, but
-I don't want to mix them in here.
-
-
-1.  In include/linux/posix-timers.h:
-
-Keeping with current style, these should be all caps (for "linux"):
-+#ifndef _linux_POSIX_TIMERS_H
-+#define _linux_POSIX_TIMERS_H
-
-No other files in include/linux/*.h use this "linux" convention.
-
-Same header file:  I think that you can lose this comment.
-+/* This should be in posix-timers.h - but this is easier now. */
-
-Same header file:
-Why is sys_timer_delete() the only (new) syscall that has a prototype?
-+asmlinkage int sys_timer_delete(timer_t timer_id);
-
-
-2.  In include/linux/sys.h:
-Increases NR_syscalls by 6 more than needed?
-
-3.  +#define NSEC_PER_SEC (1000000000L)
-
-Would you use NSEC_PER_SEC instead of "1000000000" in the source code
-in several places?  My eyes get tired of counting the zeros.
-
-4.  From include/linux/id2ptr.h, ID_FULL is unused.
-
-5.  From include/linux/time.h, MAX_CLOCKS is unused.
-
-6.  (general:) Use of "return(val);" : lose the parens.  No, it's not
-mentioned in Documentation/CodingStyle, but it is the preferred style
-by more than 10 to 1 in my quick research.
-
-
-
-More tomorrow...
-
--- 
-~Randy
-
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.fhg.de		(work) chars I am J"org Schilling
+ URL:  http://www.fokus.fhg.de/usr/schilling   ftp://ftp.berlios.de/pub/schily

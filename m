@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266473AbUIOOQU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266319AbUIOOU0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266473AbUIOOQU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 10:16:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266357AbUIOOP5
+	id S266319AbUIOOU0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 10:20:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266291AbUIOOQw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 10:15:57 -0400
-Received: from convulsion.choralone.org ([212.13.208.157]:1800 "EHLO
-	convulsion.choralone.org") by vger.kernel.org with ESMTP
-	id S266223AbUIOOPP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 10:15:15 -0400
-Date: Wed, 15 Sep 2004 15:14:55 +0100
-From: Dave Jones <davej@redhat.com>
-To: Joe Korty <joe.korty@ccur.com>
-Cc: Arjan van de Ven <arjanv@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] tune vmalloc size
-Message-ID: <20040915141455.GA24892@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Joe Korty <joe.korty@ccur.com>,
-	Arjan van de Ven <arjanv@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040915125356.GA11250@elte.hu> <20040915132936.GB30233@tsunami.ccur.com> <20040915133144.GB30530@devserv.devel.redhat.com> <20040915134047.GA30493@tsunami.ccur.com>
+	Wed, 15 Sep 2004 10:16:52 -0400
+Received: from cpc2-sout5-5-0-cust135.sot3.cable.ntl.com ([81.110.110.135]:6160
+	"EHLO teh.ath.cx") by vger.kernel.org with ESMTP id S266236AbUIOOMm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 10:12:42 -0400
+Date: Wed, 15 Sep 2004 15:12:37 +0100
+From: Matt Kavanagh <matthew@teh.ath.cx>
+To: Patrick Kiwitter- Mailinglist <ccc@devilcode.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: monoholitic, hybrid or not monoholitic?
+Message-ID: <20040915141237.GB2429@teh.ath.cx>
+References: <4148271D.9050009@devilcode.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040915134047.GA30493@tsunami.ccur.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <4148271D.9050009@devilcode.de>
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 15, 2004 at 09:40:47AM -0400, Joe Korty wrote:
-
- > > boot time settable is 100x better than only compile time settable imo :)
- > 
- > IMO, everything that is changable at boot time needs an equivalent way
- > of changing the default without specifying a boot time value.
- > 
- > boot time values works well only when the number of values that need
- > changing is small.
-
-Most users will never need to change this /at all/, at boot time,
-or compile time. Its a corner case for certain hardware configurations.
-That fits into 'small number of values' afaics.
-
-		Dave
-
+On Wed, Sep 15, 2004 at 01:27:25PM +0200, Patrick Kiwitter- Mailinglist wrote:
+> Hash: SHA1
+> 
+> hello world,
+> 
+> i've invested a couple of hours to find a correct description of the
+> linux kernel achritecture. most books or litretures (in general) are
+> talking about a monoholitic kernel (incl. linux kernel development -
+> robert love and understanding the linux kernel - oreilly). i also asked
+> google an read the kernel.org faq.
+> 
+> the kernel were mostly descripted as monoholitic. but some sources means
+> that the linux kernel is not really monoholitic because of the feature
+> of loading kernel modules. some pages are talking about a "hybrid
+> kernel" which means that the kernel is a glue one, a little bit of
+> monoholitic and a little bit not.
+> 
+> so i would like to receive detailed information where i can read a
+> correct description of course you can also post your comments here (if
+> allowed). by the way, yes i've read the "tanenbaum" reffering monoholitc.
+> 
+> thanks a lot in advanced,
+> patrick
+> 
+I'd tend towards monolithic because the modules (as mentioned) run in kernel
+space; but it's not a cookie-cutter case. Things are implemented in userspace
+that provide functionality normally included in the kernel; udev springs to
+mind, even if it is not the predominant solution.

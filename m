@@ -1,64 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276361AbRJCPRX>; Wed, 3 Oct 2001 11:17:23 -0400
+	id <S276369AbRJCPUX>; Wed, 3 Oct 2001 11:20:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276359AbRJCPRN>; Wed, 3 Oct 2001 11:17:13 -0400
-Received: from shell.cyberus.ca ([209.195.95.7]:59063 "EHLO shell.cyberus.ca")
-	by vger.kernel.org with ESMTP id <S276354AbRJCPQ7>;
-	Wed, 3 Oct 2001 11:16:59 -0400
-Date: Wed, 3 Oct 2001 11:14:41 -0400 (EDT)
-From: jamal <hadi@cyberus.ca>
-To: Ingo Molnar <mingo@elte.hu>
-cc: <linux-kernel@vger.kernel.org>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-        Robert Olsson <Robert.Olsson@data.slu.se>,
-        Benjamin LaHaise <bcrl@redhat.com>, <netdev@oss.sgi.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Simon Kirby <sim@netnation.com>
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-In-Reply-To: <Pine.LNX.4.33.0110031528370.6272-100000@localhost.localdomain>
-Message-ID: <Pine.GSO.4.30.0110031109430.4833-100000@shell.cyberus.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S276364AbRJCPUG>; Wed, 3 Oct 2001 11:20:06 -0400
+Received: from 1-196.ctame701-5.telepar.net.br ([200.181.178.196]:58118 "EHLO
+	stratus.heavenlabs") by vger.kernel.org with ESMTP
+	id <S276369AbRJCPTv>; Wed, 3 Oct 2001 11:19:51 -0400
+Date: Wed, 3 Oct 2001 12:29:44 -0300
+From: sergio@bruder.net
+To: linux-kernel@vger.kernel.org
+Cc: jgarzik@mandrakesoft.com
+Subject: CONFIG_SOUND_VIA82CXXX problems
+Message-ID: <20011003122944.C8214@bruder.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="n8g4imXOkfNTN/H1"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--n8g4imXOkfNTN/H1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Wed, 3 Oct 2001, Ingo Molnar wrote:
+I'm having some strange problems with VIA82CXXX sound driver.
+(BTW, I'm using a ECS K7VZA - KT133A + VIA686b)
 
-Robert has a driver extension (part of Alexey's iputils) that cna
-generate in the 140Kpps (for 100Mbps) and about 900Kpps for the e1000, but
-i'll take a look at Simons stuff if it is available. Marc Boucher has
-something that is an in-kernel client/server  as well.
+Sometimes my sound gets 'garbled', normally in the same time of a large video
+update. Then I just cause more updates (just keep switching workspaces in
+WMaker) and the sound 'corrects' itself again.
 
-> 10.0.3.4 is running vanilla 2.4.11-pre2 UP, a 466 MHz PII box with enough
-> RAM, using eepro100. The system effectively locks up - even in the full
-> knowledge of what is happening, i can hardly switch consoles, let alone do
-> anything like ifconfig eth0 down to fix the lockup. Until this kind of
-> load is present the only option is to power-cycle the box. SysRq does not
-> work.
+I'm using XMMS through artsd, if it matters. I already tried the kernel's
+driver and the 1.1.15 version, too. I'm using 2.4.9-ac18.
 
-use the netif_rx() return code and hardware flowcontrol to fix it.
+BTW, I'm using an old S3 Trio64V+ 2MB PCI (Diamond Stealth Video 2001 Series).
 
-> and frankly, this has been well-known for a long time - it's just since
-> Simon sent me this testcode that i realized how trivial it is. Alexey told
-> me about Linux routers effectively locking up if put under 100 mbit IRQ
-> load more than a year ago, when i first tried to fix softirq latencies. I
-> think if you are doing networking patches then you should be aware of it
-> as well.
->
+Anyone with the same problem?
 
-I am fully aware of it. We have progessed extensively since then. Look at
-NAPI.
+It's the sound driver, its the PCI bus, it's my video board or what?
 
-> your refusal to accept this problem as an existing and real problem is
-> really puzzling me.
->
 
-I must have miscommunicated. I am not saying there is no problem otherwise
-i wouldnt be working on this to begin with. I am just against your shotgun
-approach.
+Sergio Bruder
+--
+http://pontobr.org, http://sergio.bruder.net, http://bruder.homeip.net:81
+-----------------------------------------------------------------------------
+pub  1024D/0C7D9F49 2000-05-26 Sergio Devojno Bruder <sergio@bruder.net>
+     Key fingerprint = 983F DBDF FB53 FE55 87DF  71CA 6B01 5E44 0C7D 9F49
+sub  1024g/138DF93D 2000-05-26
 
-cheers,
-jamal
+--n8g4imXOkfNTN/H1
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7uy7oawFeRAx9n0kRApryAJ46QRFzoSdbPW62psv7tAi13YGQAACghUtr
+GtrhvO5NmgBNOfjPv7VFEKY=
+=nG2s
+-----END PGP SIGNATURE-----
+
+--n8g4imXOkfNTN/H1--

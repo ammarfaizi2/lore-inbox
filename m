@@ -1,36 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287348AbSACQA1>; Thu, 3 Jan 2002 11:00:27 -0500
+	id <S287341AbSACQA1>; Thu, 3 Jan 2002 11:00:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287351AbSACQAQ>; Thu, 3 Jan 2002 11:00:16 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:59653 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S287348AbSACQAI>;
-	Thu, 3 Jan 2002 11:00:08 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200201031554.g03Fsm206277@saturn.cs.uml.edu>
-Subject: Re: system.map
-To: phillips@bonn-fries.net (Daniel Phillips)
-Date: Thu, 3 Jan 2002 10:54:48 -0500 (EST)
-Cc: tmh@nothing-on.tv (Tony Hoyle), timothy.covell@ashavan.org,
-        adriankok2000@yahoo.com.hk (adrian kok), linux-kernel@vger.kernel.org
-In-Reply-To: <E16LxOr-000118-00@starship.berlin> from "Daniel Phillips" at Jan 03, 2002 03:14:29 AM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S287348AbSACQAQ>; Thu, 3 Jan 2002 11:00:16 -0500
+Received: from saphir.a2i-micro.fr ([212.208.108.140]:62226 "EHLO
+	saphir.a2i-micro.fr") by vger.kernel.org with ESMTP
+	id <S287341AbSACQAE>; Thu, 3 Jan 2002 11:00:04 -0500
+Message-ID: <3C347F73.1F6FD8A0@ask.fr>
+Date: Thu, 03 Jan 2002 16:57:39 +0100
+From: Serge Manigault <asksmanig@ask.fr>
+Reply-To: serge.manigault@ask.fr
+Organization: ASK
+X-Mailer: Mozilla 4.7 [fr] (Win98; I)
+X-Accept-Language: fr
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: romable kernel (XIP)
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips writes:
+Hello,
+I am looking for information about Linux XIP for eXecute In Place
+I need a romable image to minimize RAM usage.
+Thanks for any information, link, or anything else about this subject.
+regards,
 
->    cp arch/i386/boot/bzImage /boot/bzImage-$kernel
->    cp System.map /boot/System.map-$kernel
->    cp .config /boot/config-$kernel
+Serge
 
-Gee, exactly the names I use. Surely then, this is correct.
-You even take the '.' off of .config like I do. The only
-difference is that you don't keep a copy of vmlinuz as well.
-
-For a Mac, the only difference is that you need vmlinuz and
-there isn't any bzImage at all. Stuff still goes in /boot.
-(plus ybin and yaboot.conf instead of lilo and lilo.conf)

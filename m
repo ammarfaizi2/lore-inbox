@@ -1,35 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262804AbREaQUF>; Thu, 31 May 2001 12:20:05 -0400
+	id <S262707AbREaQYf>; Thu, 31 May 2001 12:24:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262707AbREaQTp>; Thu, 31 May 2001 12:19:45 -0400
-Received: from pop.gmx.net ([194.221.183.20]:31572 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S262804AbREaQTf>;
-	Thu, 31 May 2001 12:19:35 -0400
-Date: Thu, 31 May 2001 18:19:28 +0200
-From: Jonas Diemer <diemer@gmx.de>
-To: linux-kernel@vger.kernel.org
-Message-Id: <20010531181928.635137b7.diemer@gmx.de>
-X-Mailer: Sylpheed version 0.4.65 (GTK+ 1.2.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S263021AbREaQY0>; Thu, 31 May 2001 12:24:26 -0400
+Received: from fencepost.gnu.org ([199.232.76.164]:16646 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S262707AbREaQYL>; Thu, 31 May 2001 12:24:11 -0400
+Date: Thu, 31 May 2001 12:24:44 -0400 (EDT)
+From: Pavel Roskin <proski@gnu.org>
+X-X-Sender: <proski@vesta.nine.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] for Matrox FB config help
+Message-ID: <Pine.LNX.4.33.0105311219030.20239-100000@vesta.nine.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello!
 
-I hope this is the right place for my request. I have heard about a VIA sytem timer bug.
+This patch moves the sentence about multihead support where it belongs,
+i.e. to CONFIG_FB_MATROX_MULTIHEAD, and removes it where it's meaningless,
+i.e. from CONFIG_FB_MATROX_MAVEN and CONFIG_FB_MATROX_G450.
 
-I have a Via KX-133 (for athlon) board and the following problem:
+The patch is against 2.4.5-ac5.
 
-Once the bug is triggered, the system timer goes crazy (i think it is the system timer, i am not sure). following things happen then: X blanks the screen all the time, licq auto-aways or auto-disconnects...
+____________________________
+--- linux.orig/Documentation/Configure.help
++++ linux/Documentation/Configure.help
+@@ -3503,9 +3503,6 @@
+   too. You can use only some font widths, as the driver uses generic
+   painting procedures (the secondary head does not use acceleration
+   engine).
+-
+-  There is no need for enabling 'Matrox multihead support' if you have
+-  only one Matrox card in the box.
 
-the bug is triggered by high disk throughput (copying large amounts of data from one hd to another) and it often occurs during open-gl.
+ Matrox G450 second head support
+ CONFIG_FB_MATROX_G450
+@@ -3528,9 +3525,6 @@
+   painting procedures (the secondary head does not use acceleration
+   engine).
 
+-  There is no need for enabling 'Matrox multihead support' if you have
+-  only one Matrox card in the box.
+-
+ Matrox unified driver multihead support
+ CONFIG_FB_MATROX_MULTIHEAD
+   Say Y here if you have more than one (supported) Matrox device in
+@@ -3545,6 +3539,9 @@
+   with insmod, supplying the parameter "dev=N" where N is 0, 1, etc.
+   for the different Matrox devices. This method is slightly faster but
+   uses 40 KB of kernel memory per Matrox card.
++
++  There is no need for enabling 'Matrox multihead support' if you have
++  only one Matrox card in the box.
 
-I have heard, that there is a patch since 2.4.4-ac?, so i upgraded to 2.4.5, but the bug still occurs. do i have to set up something in make menuconfig? if so, what?
+ MDA text console (dual-headed)
+ CONFIG_MDA_CONSOLE
+____________________________
 
--regards, Jonas Diemer
+-- 
+Regards,
+Pavel Roskin
 
-PS: I have NOT subscribed to the list, so please CC me your response.

@@ -1,31 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131830AbRACPxS>; Wed, 3 Jan 2001 10:53:18 -0500
+	id <S131138AbRACP5i>; Wed, 3 Jan 2001 10:57:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132157AbRACPxI>; Wed, 3 Jan 2001 10:53:08 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:52209 "EHLO
+	id <S131372AbRACP5S>; Wed, 3 Jan 2001 10:57:18 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:39410 "EHLO
 	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S131830AbRACPwz>; Wed, 3 Jan 2001 10:52:55 -0500
-Date: Wed, 3 Jan 2001 13:21:57 -0200 (BRDT)
+	id <S131138AbRACP5H>; Wed, 3 Jan 2001 10:57:07 -0500
+Date: Wed, 3 Jan 2001 13:26:18 -0200 (BRDT)
 From: Rik van Riel <riel@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org
-Subject: Re: [PATCH] drop-behind fix for generic_file_write
-In-Reply-To: <Pine.LNX.4.21.0101031256040.1403-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0101031321200.1403-100000@duckman.distro.conectiva>
+To: "Dr. David Gilbert" <gilbertd@treblig.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Journaling: Surviving or allowing unclean shutdown?
+In-Reply-To: <Pine.LNX.4.30.0101031253130.6567-100000@springhead.px.uk.com>
+Message-ID: <Pine.LNX.4.21.0101031325270.1403-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Jan 2001, Rik van Riel wrote:
+On Wed, 3 Jan 2001, Dr. David Gilbert wrote:
 
-> the following (trivial) patch fixes drop-behind behaviour
-> in generic_file_write to only drop fully written pages.
+>   I got wondering as to whether the various journaling file
+> system activities were designed to survive the occasional
+> unclean shutdown or were designed to allow the user to just pull
+> the plug as a regular means of shutting down.
 
-OK, please ignore. It is already in  prerelease-diff
-in the testing/ directory .. ;)
+>   Thoughts?
+
+1. a journaling filesystem is designed to be "consistent"
+   (or rather, easily recoverable) all of the time
+2. there's no difference between the "2 situations" you
+   describe above
 
 regards,
 

@@ -1,44 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbUIVH1H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbUIVH3f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261169AbUIVH1H (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 03:27:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbUIVH1H
+	id S261232AbUIVH3f (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 03:29:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbUIVH3f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 03:27:07 -0400
-Received: from styx.suse.cz ([82.119.242.94]:33674 "EHLO shadow.suse.cz")
-	by vger.kernel.org with ESMTP id S261169AbUIVH1F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 03:27:05 -0400
-Date: Wed, 22 Sep 2004 09:27:27 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: John Lenz <lenz@cs.wisc.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] new class for led devices
-Message-ID: <20040922072727.GA4553@ucw.cz>
-References: <1095829641l.11731l.0l@hydra>
+	Wed, 22 Sep 2004 03:29:35 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38596 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261232AbUIVH31
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 03:29:27 -0400
+Date: Wed, 22 Sep 2004 08:29:25 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Andrew Morton <akpm@osdl.org>
+Cc: Mingming Cao <cmm@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] ext3_new_inode() failure case fix
+Message-ID: <20040922072925.GH23987@parcelfarce.linux.theplanet.co.uk>
+References: <200409071302.i87D2Dus030892@sisko.scot.redhat.com> <1095815041.1637.32926.camel@w-ming2.beaverton.ibm.com> <20040921230124.368e469c.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1095829641l.11731l.0l@hydra>
+In-Reply-To: <20040921230124.368e469c.akpm@osdl.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 22, 2004 at 05:07:21AM +0000, John Lenz wrote:
-
-> This is an attempt to provide an alternative to the current arm  
-> specific led interface that is generic for all arches and uses the "one  
-> value, one file" idea of sysfs.
+On Tue, Sep 21, 2004 at 11:01:24PM -0700, Andrew Morton wrote:
+> Mingming Cao <cmm@us.ibm.com> wrote:
+> >
+> > While I am studying ext3_new_inode() failure code paths, I found the
+> > inode->i_nlink is not cleared to 0 in the first failure path. But it is
+> > cleared to 0 in the second failure path(fail to allocate disk quota). I
+> > think it should be cleared in both cases, because later when
+> > generic_drop_inode() is called by iput(), i_nlink is checked to decide
+> > whether to call generic_delete_inode(). Currently it is calling
+> > generic_forget_inode().
+> > 
+> > Also the reference to the inode bitmap buffer head should be dropped on
+> > the failure path too.
 > 
-> I removed the function attribute that was in the previous patch, and  
-> added the ability for userspace to control the timer on each led  
-> individually.  Userspace can also set the delay in milliseconds for the  
-> blink.
+> That reference already is dropped:
+> 
+> > --- linux-2.6.9-rc1-mm5/fs/ext3/ialloc.c~ext3_new_inode_failure_case_fix	2004-09-22 00:18:18.196012520 -0700
+> > +++ linux-2.6.9-rc1-mm5-ming/fs/ext3/ialloc.c	2004-09-22 00:19:20.063607216 -0700
+> > @@ -622,7 +622,9 @@ got:
+> >  fail:
+> >  	ext3_std_error(sb, err);
+> >  out:
+> > +	inode->i_nlink = 0;
+> >  	iput(inode);
+> > +	brelse(bitmap_bh);
+> >  	ret = ERR_PTR(err);
+> >  really_out:
+> >  	brelse(bitmap_bh);
+> 
+>         ^ here
+> 
+> So I'll drop that part of the patch.
 
-Well, we already have an interface for setting LEDs through the input
-layer, it'd be trivial to create an input device driver with just LEDs
-and no buttons/keys ...
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Drop it completely - we do *NOT* want ->delete_inode() to be called until
+we had done allocation (and set sane ->i_ino, while we are at it).  And
+that's exactly the difference between places that bail to fail2 and places
+that bail to out.

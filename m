@@ -1,66 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266617AbUBQVJO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 16:09:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266616AbUBQVJK
+	id S266595AbUBQVFu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 16:05:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266593AbUBQVFu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 16:09:10 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:24960 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S266601AbUBQVHY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 16:07:24 -0500
-Date: Tue, 17 Feb 2004 21:06:51 GMT
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200402172106.i1HL6pQe000331@81-2-122-30.bradfords.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, Jamie Lokier <jamie@shareable.org>,
-       Marc <pcg@goof.com>, Marc Lehmann <pcg@schmorp.de>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0402171251130.2154@home.osdl.org>
-References: <Pine.LNX.4.58.0402161040310.30742@home.osdl.org>
- <20040216200321.GB17015@schmorp.de>
- <Pine.LNX.4.58.0402161205120.30742@home.osdl.org>
- <20040216222618.GF18853@mail.shareable.org>
- <Pine.LNX.4.58.0402161431260.30742@home.osdl.org>
- <20040217071448.GA8846@schmorp.de>
- <Pine.LNX.4.58.0402170739580.2154@home.osdl.org>
- <20040217163613.GA23499@mail.shareable.org>
- <20040217175209.GO8858@parcelfarce.linux.theplanet.co.uk>
- <20040217192917.GA24311@mail.shareable.org>
- <20040217195348.GQ8858@parcelfarce.linux.theplanet.co.uk>
- <200402172035.i1HKZM4j000154@81-2-122-30.bradfords.org.uk>
- <Pine.LNX.4.58.0402171251130.2154@home.osdl.org>
-Subject: Re: UTF-8 practically vs. theoretically in the VFS API (was: Re: JFS default behavior)
+	Tue, 17 Feb 2004 16:05:50 -0500
+Received: from [217.219.143.160] ([217.219.143.160]:1548 "HELO 67.72.78.212")
+	by vger.kernel.org with SMTP id S266584AbUBQVFc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 16:05:32 -0500
+Message-Id: <S266584AbUBQVFc/20040217210532Z+501@vger.kernel.org>
+From: <kaewen@fastbowler.com>
+To: unlisted-recipients:; (no To-header on input)
+Date: Tue, 17 Feb 2004 16:05:32 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quote from Linus Torvalds <torvalds@osdl.org>:
-> 
-> 
-> On Tue, 17 Feb 2004, John Bradford wrote:
-> > 
-> > Why not:
-> 
-> I'll start with the first one. That already kills the rest.
-> 
-> > * State that filenames are strings of 32-bit words.  UCS-4 should be
-> >   the prefered format for storing text in them, but storing legacy
-> >   encodings in the low 8 bits is acceptable, (but a Bad Thing for new
-> >   installations).
-> 
-> UCS-4 is as braindamaged as UCS-2 was, and for all the same reasons.
-> 
-> It's bloated, non-expandable, and not backwards compatible.
+Return-Path: <kaewen@fastbowler.com>
+Received: from 228.46.38.34 by 217.219.143.160; Tue, 17 Feb 2004 23:02:17 -0100
+From: "Angelina Steward" <kaewen@fastbowler.com>
+To: linux-msdos@vger.kernel.org
+Cc: linux-kernel-owner@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: 91.PI. nothing?
+Date: Tue, 17 Feb 2004 22:03:17 -0200
+Message-ID: <WCJBXTWHPRS$186$coljlzs@yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	boundary="--3975054382653183"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6700
+X-MimeOLE:  Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
+Content-Length: 1982
 
-Which I hardly see as real pain for filenames, especially as I covered
-the backward compatibility bit anyway, and wanting to expand beyond
-2^31 characters isn't really on my to-do list at the moment, which
-just leaves filename bloat, which is laughably trivial in at least
-99.9% of cases, and probably just a minor inconvenience the other
-0.1%.
 
-But, I don't think I care anymore, anyway, clearly we are going to end
-up with UTF-8 filenames everywhere, and security vulnerabilities to go
-with them, and as long as I'm aware of that fact, I should be OK.
+Rejuvenate your skin with BOTOX in a Bottle. HOT TICKET ITEM!
 
-John.
+Special price on this amazing Anti-Aging Anti-Wrinkle serum.
+See these incredible Before and After photos.
+
+http://www.a10zing29.com/promo.php?id=93976
+
+
+This special anti-wrinkle serum works like BOTOX but without the doctor, the needle, and the expensive price that accompanies it.
+
+PROVEN TO WORK OR YOUR MONEY BACK! YOU WILL SEE RESULTS FAST! GREAT GIFT FOR ALL!
+
+
+http://www.a10zing29.com/promo.php?id=93976
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+This communication is privileged and contains confidential information 
+intended only for the person(s) to whom it is addressed.  Any 
+unauthorized disclosure, copying, other distribution  of this communication or 
+taking any action on its contents is strictly  prohibited. If you have 
+received this message in error, please notify us immediately OR remove 
+yourself from our list if there is no interest in regards to our 
+services or products.
+
+http://www.a10zing29.com/remove.php?id=93976
+
+
+deficient denny depart teet railway the jimenez goshawk acrylate cleft flute isomorph 
+lt
+
+
+
+
+
+

@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261151AbRETLxp>; Sun, 20 May 2001 07:53:45 -0400
+	id <S261868AbRETMNf>; Sun, 20 May 2001 08:13:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261868AbRETLxf>; Sun, 20 May 2001 07:53:35 -0400
-Received: from t2.redhat.com ([199.183.24.243]:31219 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S261151AbRETLxV>; Sun, 20 May 2001 07:53:21 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <Pine.LNX.4.21.0105181858280.12703-120000@schoen3.schoen.nl> 
-In-Reply-To: <Pine.LNX.4.21.0105181858280.12703-120000@schoen3.schoen.nl> 
-To: kees <kees@schoen.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Delivery reports about your email [FAILED(1)] (fwd) 
+	id <S261886AbRETMN0>; Sun, 20 May 2001 08:13:26 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:7174 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S261868AbRETMNO>; Sun, 20 May 2001 08:13:14 -0400
+Date: Sun, 20 May 2001 16:12:34 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
+Subject: Re: alpha iommu fixes
+Message-ID: <20010520161234.B8223@jurassic.park.msu.ru>
+In-Reply-To: <20010518214617.A701@jurassic.park.msu.ru> <20010519155502.A16482@athlon.random> <20010519231131.A2840@jurassic.park.msu.ru> <20010520044013.A18119@athlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 20 May 2001 12:53:00 +0100
-Message-ID: <9456.990359580@redhat.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010520044013.A18119@athlon.random>; from andrea@suse.de on Sun, May 20, 2001 at 04:40:13AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, May 20, 2001 at 04:40:13AM +0200, Andrea Arcangeli wrote:
+> I was only talking about when you get the "pci_map_sg failed" because
+> you have not 3 but 300 scsi disks connected to your system and you are
+> writing to all them at the same time allocating zillons of pte, and one
+> of your drivers (possibly not even a storage driver) is actually not
+> checking the reval of the pci_map_* functions. You don't need a pte
+> memleak to trigger it, even regardless of the fact I grown the dynamic
+> window to 1G which makes it 8 times harder to trigger than in mainline.
 
-kees@schoen.nl said:
-> Why? 
+I think you're too pessimistic. Don't mix "disks" and "controllers" --
+SCSI adapter with 10 drives attached is a single DMA agent, not 10 agents.
 
-> ---------- Forwarded message ----------
-> Some explanations/translations for these reports
-> can be found at:
->      http://www.zmailer.org/reports.html
+If you're so concerned about Big Iron, go ahead and implement 64-bit PCI
+support, it would be right long-term solution. I'm pretty sure that
+high-end servers use mostly this kind of hardware.
 
->    ->> 550-Open relay - see http://www.orbs.org/verify.php3?address=212.153.111.69
->    ->> 550 mail from 212.153.111.69 rejected: administrative prohibition (host is blacklisted)
+Oh, well. This doesn't mean that I'm disagreed with what you said. :-)
+Driver writers must realize that pci mappings are limited resources.
 
-This means that:
-The mail from 212.153.111.69 was rejected because of an administrative
-prohibition - that host is blacklisted.
-
-This is probably because it's an open relay.
-See http://www.orbs.org/verify.php3?address=212.153.111.69
-
-If you encounter other pieces of plain English would you would like
-translated into... er, ... plain English, please don't hesitate to go away 
-and ask somewhere more appropriate.
-
---
-dwmw2
-
-
+Ivan.

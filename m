@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265094AbUADFqL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 00:46:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265137AbUADFqL
+	id S264917AbUADFnK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 00:43:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265063AbUADFnK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 00:46:11 -0500
-Received: from mail5.speakeasy.net ([216.254.0.205]:21439 "EHLO
-	mail5.speakeasy.net") by vger.kernel.org with ESMTP id S265094AbUADFqJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 00:46:09 -0500
-Message-Id: <6.0.1.1.0.20040103214203.038dceb0@no.incoming.mail>
-X-Mailer: QUALCOMM Windows Eudora Version 6.0.1.1
-Date: Sat, 03 Jan 2004 21:45:47 -0800
+	Sun, 4 Jan 2004 00:43:10 -0500
+Received: from host-64-65-253-246.alb.choiceone.net ([64.65.253.246]:54932
+	"EHLO gaimboi.tmr.com") by vger.kernel.org with ESMTP
+	id S264917AbUADFnH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 00:43:07 -0500
+Message-ID: <3FF7A7F2.9060009@tmr.com>
+Date: Sun, 04 Jan 2004 00:43:14 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+Organization: TMR Associates Inc, Schenectady NY
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: viro@parcelfarce.linux.theplanet.co.uk
-From: Jeff Woods <kazrak+kernel@cesmail.net>
+CC: linux-kernel@vger.kernel.org
 Subject: Re: Should struct inode be made available to userspace?
-Cc: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+References: <200312292040.00409.mmazur@kernel.pl> <20031229195742.GL4176@parcelfarce.linux.theplanet.co.uk> <bt71ip$cer$1@gatekeeper.tmr.com> <20040103185712.GV4176@parcelfarce.linux.theplanet.co.uk>
 In-Reply-To: <20040103185712.GV4176@parcelfarce.linux.theplanet.co.uk>
-References: <200312292040.00409.mmazur@kernel.pl>
- <20031229195742.GL4176@parcelfarce.linux.theplanet.co.uk>
- <bt71ip$cer$1@gatekeeper.tmr.com>
- <20040103185712.GV4176@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 1/3/2004 06:57 PM +0000, viro@parcelfarce.linux.theplanet.co.uk wrote:
->On Sat, Jan 03, 2004 at 01:39:41PM -0500, Bill Davidsen wrote:
+viro@parcelfarce.linux.theplanet.co.uk wrote:
+> On Sat, Jan 03, 2004 at 01:39:41PM -0500, Bill Davidsen wrote:
+> 
+>>viro@parcelfarce.linux.theplanet.co.uk wrote:
+>>
+>>
+>>>struct inode and structures containing it should not be used outside of 
+>>>kernel.
+>>>Moreover, foo_fs.h should be seriously trimmed down and everything _not_
+>>>useful outside of kernel should be taken into fs/foo/*; other kernel code
+>>>also doesn't give a fsck for that stuff, so it should be private to 
+>>>filesystem
+>>>instead of polluting include/linux/*.
+>>
 >>Moving the definitions is fine, but some user programs, like backup 
 >>programs, do benefit from direct interpretation of the inode. Clearly 
->>that's not a normal user program, but this information is not only useful 
->>inside the kernel.
->
->No, they do not.  They care about on-disk structures, not the in-core ones 
->fs driver happens to build.
+>>that's not a normal user program, but this information is not only 
+>>useful inside the kernel.
+> 
+> 
+> No, they do not.  They care about on-disk structures, not the in-core
+> ones fs driver happens to build.
 
-They may if trying to do an online backup of open files, especially if 
-attempting to maintain transactional integrity (i.e. make the backup 
-logically atomic).
+Pardon, I thought that was exactly what was being suggested to hide.
 
---
-Jeff Woods <kazrak+kernel@cesmail.net> 
-
-
+-- 
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

@@ -1,48 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262387AbTJISfQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 14:35:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262395AbTJISfQ
+	id S262355AbTJISuM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 14:50:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262365AbTJISuM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 14:35:16 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:34576 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262387AbTJISfM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 14:35:12 -0400
+	Thu, 9 Oct 2003 14:50:12 -0400
+Received: from pop.gmx.net ([213.165.64.20]:24460 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262355AbTJISuG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 14:50:06 -0400
+X-Authenticated: #7204266
+Date: Thu, 09 Oct 2003 19:50:10 +0100
 To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: Who changed /proc/<pid>/ in 2.6.0-test5-bk9?
-Date: 9 Oct 2003 18:25:30 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bm496q$5c4$1@gatekeeper.tmr.com>
-References: <Pine.LNX.4.58.0310071931570.19619@dlang.diginsite.com> <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAG15dxRiudEualTNpHNYqMgEAAAAA@casabyte.com>
-X-Trace: gatekeeper.tmr.com 1065723930 5508 192.168.12.62 (9 Oct 2003 18:25:30 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+Subject: Horrible ordeals with ACPI, APIC and HIGHMEM (2.6.0-test* and -ac kernels)
+From: Martin Aspeli <optilude@gmx.net>
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-ID: <oprwsg9wfc9y0cdf@mail.gmx.net>
+User-Agent: Opera7.20/Win32 M2 build 3144
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAG15dxRiudEualTNpHNYqMgEAAAAA@casabyte.com>,
-Robert White <rwhite@casabyte.com> wrote:
-| Actually, the point I am trying to _make_ is that Linux allows you to share
-| or not share each item (already) but making a coherent "thread" implies a
-| unity of interface over the entities.  We already have VM and Signals in
-| that unity, but not file descriptors.  I think that's bad.  Since the old
-| way lets me have this 2/3-of-a-thread already.  When I ask for a thread I
-| should get a thread, not just a composite of otherwise identical shareable
-| options.
+Hello all,
 
-I think you have wrapped yourself in nomenclature, and by using your own
-definitions of terms in strictly traditional meanings you have  created
-problems which aren't really there.
+First off, sorry for not being subscribed to the list (my mail provider 
+would kill me), so please CC answers. I will of course check the archives. 
+I've tried to search and ask elsewhere... LKML is my last resort! Any help 
+at all would be greatly appreciated!
 
-If you don't like it don't use it. If you insist on your own definition
-of "thread" then your paragraph above may have meaning, but since your
-definition doesn't seem to match the way Linux is going to work, I'm not
-sure it's meaningful in any relevant context.
+Hardware: Evesham Voyager Xi (which is really a Mitac M3000N); 1.6GHz 
+Centrino with 1GB RAM. ACPI, all the RAM and everything else works fine in 
+Windows XP, and it's brand new, so I doubt there are any hardware 
+problems. BIOS is by AMI and claims to be v02.33, from March 2003, no 
+update available from OEM. Standard intel chipset with onboard sound 
+(i8x0) and 855 graphics.I'm trying to do a fresh install of Gentoo.
+
+I've been trying the 2.6.0-test kernels, mostly for the speedstep support 
+(which appears to work). However, when I put ACPI in the kernel, all goes 
+wrong. Without ACPI, half my hardware is left IRQ-less. These are the 
+symptoms:
+
+1. ACPI enabled + Local APIC disabled: System boots fine, but as soon as 
+ACPI goes on, the fan starts blowing full speed. When I try to log in 
+performance is very sluggish. Top shows a process "events/0" (what is 
+this?) that is eating 99.9% of my CPU (is this why the fan comes on?). 
+Constant disk access (probably swap, but it did continue after I did 
+"swapoff -a").
+
+2. ACPI + APIC + APIC-IO enabled, HIGHMEM disabled: System freezes on boot 
+immediately after loading ACPI subsystem.
+
+3. Same as 2 + HIGHMEM (4GB) enabled: System reboots immediately after 
+loading ACPI subsystem.
+
+4. Same as 1 (no HIGHMEM) but with "acpi=off" on command line: System 
+boots and runs fine. Obviously no battery monitor, but I can live without. 
+However, a lot of my hardware (particularly the sound card, but I think 
+maybe also the graphics) try to get assigned to IRQ 0 and fail, so they do 
+not get configured. BIOS appears to regulate fan.
+
+Also, in any configuration, if HIGHMEM is enabled and I pass acpi=off to 
+get the system to boot, performance is absolutely appalling - it takes 
+about 10 minutes to get to the login prompt! I can't see anything 
+obviously wrong (speedfreq and uname -a detect all 1600MHz, top shows no 
+obviously astray processes, although top itself is taking about 10-15% CPU 
+just by being there).
+
+Apart from complaints about IRQ 0 for various devices, I see nothing 
+obviously wrong in dmesg or anywhere else.
+
+Please don't condemn me to a life of Windows XP! I'm willing to live 
+without ACPI if I could get my soundcard and other hardware (I can't see 
+what it is, all I get are the id numbers) to work; I could also live with 
+the ~800Mb or RAM left if HIGHMEM is off, but it's just annoying not to 
+use those last ~200Mb.
+
+Main question, I guess - what is events/0 and why is it bent on screwing 
+up my life?
+
+Best wishes,
+Martin
+
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Using M2, Opera's revolutionary e-mail client: http://www.opera.com/m2/

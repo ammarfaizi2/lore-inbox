@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261697AbTISUQm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 16:16:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261703AbTISUQm
+	id S261719AbTISURr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 16:17:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261771AbTISURr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 16:16:42 -0400
-Received: from vega.digitel2002.hu ([213.163.0.181]:61616 "HELO lgb.hu")
-	by vger.kernel.org with SMTP id S261697AbTISUQl (ORCPT
+	Fri, 19 Sep 2003 16:17:47 -0400
+Received: from mail.kroah.org ([65.200.24.183]:43728 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261719AbTISURp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 16:16:41 -0400
-Date: Fri, 19 Sep 2003 22:16:34 +0200
-From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
-To: Herbert Poetzl <herbert@13thfloor.at>
+	Fri, 19 Sep 2003 16:17:45 -0400
+Date: Fri, 19 Sep 2003 13:17:52 -0700
+From: Greg KH <greg@kroah.com>
+To: Jan Rychter <jan@rychter.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Bind Mount Extensions ...
-Message-ID: <20030919201634.GF3978@vega.digitel2002.hu>
-Reply-To: lgb@lgb.hu
-References: <20030919192937.GA31111@DUK2.13thfloor.at>
+Subject: Re: 2.4.22 USB problem (uhci)
+Message-ID: <20030919201751.GA7101@kroah.com>
+References: <m2znh1pj5z.fsf@tnuctip.rychter.com> <20030919190628.GI6624@kroah.com> <m2d6dwr3k8.fsf@tnuctip.rychter.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030919192937.GA31111@DUK2.13thfloor.at>
-X-Operating-System: vega Linux 2.6.0-test3 i686
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <m2d6dwr3k8.fsf@tnuctip.rychter.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This would be VERY usefull. Here, we're using chroot'ed apache servers
-on Solaris and on Linux. For security reasons, the document root
-is mounted from "outside of chroot" into "inside of chroot" with
-read-only mode using lofs on Solaris, and it does the job.
+On Fri, Sep 19, 2003 at 12:17:11PM -0700, Jan Rychter wrote:
+> >>>>> "Greg" == Greg KH <greg@kroah.com> writes:
+>  Greg> On Thu, Sep 18, 2003 at 08:10:48PM -0700, Jan Rychter wrote:
+>  >> Upon disconnecting an USB mouse from a 2.4.22, I get
+>  >>
+>  >> uhci.c: efe0: host controller halted. very bad
+>  >>
+>  >> and subsequently, the machine keeps on spinning in ACPI C2 state,
+>  >> never going into C3, as it should (since the mouse is the only USB
+>  >> device).
+>  >>
+>  >> If afterwards I do 'rmmod uhci; modprobe uhci', then the machine
+>  >> starts using the C3 state again.
+> 
+>  Greg> If you use the usb-uhci driver, does it also do this?
+> 
+> If you mean strange messages, no, it doesn't. Using usb-uhci it just
+> says "USB disconnect..." and everything looks fine.
+> 
+> As to C-states, usb-uhci prevents Linux from *ever* entering C3, being
+> effectively unusable on some laptops -- so there is no way I can see the
+> same symptoms with it.
 
-However we can't do this on Linux, or we must use nfs ro mount from
-localhost which is quite ugly, and much more slower as well I think ;-)
+If you want to suspend using 2.4, unload the usb drivers entirely.
+That's the only safe way.
 
-On Fri, Sep 19, 2003 at 09:29:37PM +0200, Herbert Poetzl wrote:
-> 
-> Hi Andrew!
-> 
-> just verified that the patch still applies on
-> linux-2.6.0-test5 and linux-2.6.0-test5-mm3 
-> without any issues ...
-> 
-> FYI, this patch allows RO --bind mounts to
-> behave like other ro mounted filesystems ...
-> 
-> do you see any possibility to get this in
-> for extensive testing in the near future?
-> 
-> TIA,
-> Herbert
+thanks,
 
-- Gábor (larta'H)
+greg k-h

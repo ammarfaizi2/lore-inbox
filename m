@@ -1,43 +1,80 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314809AbSDVVbF>; Mon, 22 Apr 2002 17:31:05 -0400
+	id <S314815AbSDVVfa>; Mon, 22 Apr 2002 17:35:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314810AbSDVVbE>; Mon, 22 Apr 2002 17:31:04 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:57116 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S314809AbSDVVbC>; Mon, 22 Apr 2002 17:31:02 -0400
-Date: Mon, 22 Apr 2002 17:30:59 -0400
-From: Doug Ledford <dledford@redhat.com>
-To: Jeff Garzik <garzik@havoc.gtf.org>
-Cc: Daniel Phillips <phillips@bonn-fries.net>, Larry McVoy <lm@bitmover.com>,
-        Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org
-Subject: Re: BK, deltas, snapshots and fate of -pre...
-Message-ID: <20020422173059.D914@redhat.com>
-Mail-Followup-To: Jeff Garzik <garzik@havoc.gtf.org>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	Larry McVoy <lm@bitmover.com>, Ian Molton <spyro@armlinux.org>,
+	id <S314816AbSDVVf3>; Mon, 22 Apr 2002 17:35:29 -0400
+Received: from bitmover.com ([192.132.92.2]:8873 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S314815AbSDVVf1>;
+	Mon, 22 Apr 2002 17:35:27 -0400
+Date: Mon, 22 Apr 2002 14:35:27 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [OFF TOPIC] BK license change
+Message-ID: <20020422143527.K18800@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
 	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0204202108410.10137-100000@home.transmeta.com> <E16zNxY-0001Ld-00@starship> <20020422165327.A914@redhat.com> <E16zOWH-0001MF-00@starship> <20020422172537.A13585@havoc.gtf.org>
+In-Reply-To: <20020421095715.A10525@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 22, 2002 at 05:25:37PM -0400, Jeff Garzik wrote:
-> To imply that the BK doc is an intentioned advertisement is silly.
-> It's in the kernel source tree to help people with, like it or not, what
-> is a part of kernel development.  An _optional_ part.
+On Sun, Apr 21, 2002 at 09:57:15AM -0700, Larry McVoy wrote:
+> I'm considering a change to the BKL which says that N days after a
+> changeset is made, that changeset (and its ancestory) must be available
+> on a public bk server.  In other words, put a hard limit on how long
+> you may hide.
 
-Which is *exactly* why it belongs with the kernel docs, and not on 
-bitkeeper's web site.  It's an optional part of the kernel process, and 
-just because BK has a license some people don't like is no reason to 
-*not* document how that optional process works.
+OK, people have been replying in private to this raising various objections
+and making good points:
 
+    David Mosberger was worried that I was suggesting that not
+    providing access to changes to GPLed code immediately (or ever,
+    if you don't redistribute) is a GPL violation.  To clarify: people
+    can make changes to GPLed software and are only required to make
+    those changes available if they redistribute.  That's the rule.
+    The point I was trying to make is that I wanted BK to be used for
+    free on work which is done out in the open, not behind closed doors.
+
+    Greg KH raised the point that not everyone can have a public
+    BK server, their IT department may not allow that.  He said that
+    bkbits.net may need beefing up if we force people out into the open
+    (it needs beefing up anyway, but point is well taken).
+
+    Itai Nahshon raised several points about encrypted software, illegal
+    under the DMCA software, etc.
+
+    Jonathan Corbet raised the point of exposing software that isn't
+    done yet, which may have security holes, and/or other problems.
+
+There were others, but this gives you a feel.  In general, I'm getting 
+the message that forcing everything out into the open isn't always going
+to be a good thing.
+
+Yet I still have the problem of people abusing the system (not to mention
+the "spirit" of free software).  What I'd like is a way to qualify that
+"abuse" and put that in the license, and what I'm hearing is that any
+blanket statement may be a net negative for someone who should not be
+adversely affected.
+
+So that leaves a more selective approach.  We can add a clause that says
+we reserve the right to insist you either
+
+    a) maintain your changes in public within 90 days of making them, or
+    b) buy closed use seats, or
+    c) cease to use the product.
+
+and then apply it to the abusers of the system.  I understand this is 
+still a scary thing in that there is no guarentee that we won't knock 
+on your door, but the reality is that people always find ways to 
+avoid the intent of licenses and we need some recourse.  At least this
+way doesn't force this upon everyone, you have to exhibit some bad
+behaviour in order for us to notice.
+
+If you have a better idea on how to shut down the abusers without scaring
+the legit users, I'm all ears.
 -- 
-  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
-         Red Hat, Inc. 
-         1801 Varsity Dr.
-         Raleigh, NC 27606
-  
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,45 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262360AbTINKpw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 06:45:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262363AbTINKpw
+	id S262363AbTINKzR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 06:55:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262364AbTINKzR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 06:45:52 -0400
-Received: from smtp1.att.ne.jp ([165.76.15.137]:43452 "EHLO smtp1.att.ne.jp")
-	by vger.kernel.org with ESMTP id S262360AbTINKpv (ORCPT
+	Sun, 14 Sep 2003 06:55:17 -0400
+Received: from fep04-mail.bloor.is.net.cable.rogers.com ([66.185.86.74]:48861
+	"EHLO fep04-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
+	with ESMTP id S262363AbTINKzM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 06:45:51 -0400
-Message-ID: <1f4b01c37aad$53675e40$2dee4ca5@DIAMONDLX60>
-From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
-To: "Russell King" <rmk@arm.linux.org.uk>, "Greg KH" <greg@kroah.com>
-Cc: <linux-kernel@vger.kernel.org>
-References: <1b7201c37a73$844b7030$2dee4ca5@DIAMONDLX60> <20030914091702.B20889@flint.arm.linux.org.uk>
-Subject: Re: 2.6.0-test5 vs. Ethernet cards
-Date: Sun, 14 Sep 2003 19:45:14 +0900
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Sun, 14 Sep 2003 06:55:12 -0400
+Date: Sun, 14 Sep 2003 06:55:09 -0400
+From: Sean Estabrooks <seanlkml@rogers.com>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: ebiederm@xmission.com, davids@webmaster.com, der.eremit@email.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: People, not GPL  [was: Re: Driver Model]
+Message-Id: <20030914065509.33e31035.seanlkml@rogers.com>
+In-Reply-To: <Pine.LNX.4.10.10309131030590.16744-100000@master.linux-ide.org>
+References: <m14qzjmp0d.fsf@ebiederm.dsl.xmission.com>
+	<Pine.LNX.4.10.10309131030590.16744-100000@master.linux-ide.org>
+Organization: 
+X-Mailer: Sylpheed version 0.9.4-gtk2-20030802 (GTK+ 2.2.3; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-Authentication-Info: Submitted using SMTP AUTH LOGIN at fep04-mail.bloor.is.net.cable.rogers.com from [24.103.233.222] using ID <seanlkml@rogers.com> at Sun, 14 Sep 2003 06:54:44 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Russell King" <rmk@arm.linux.org.uk> replied to me:
+On Sat, 13 Sep 2003 10:34:12 -0700 (PDT)
+Andre Hedrick <andre@linux-ide.org> wrote:
+> 
+> On 11 Sep 2003, Eric W. Biederman wrote:
+> 
+> > "David Schwartz" <davids@webmaster.com> writes:
+> > 
+> > > 	The GPL_ONLY stuff is an attempt to restrict use. There is nothing
+> > > inherently wrong with attempts to restrict use. One could argue that the
+> > > root permission check on 'umount' is a restriction on use. Surely the GPL
+> > > doesn't mean you can't have any usage restrictions at all.
+> > 
+> > No the GPL_ONLY stuff is an attempt to document that there is no conceivable
+> > way that using a given symbol does not create a derived work.  
+> 
+> Bzzit ... GPL_ONLY stuff is an attempt to retrict usage by removing access
+> to the unprotectable API.  And for anyone claiming there is not API to
+> protect, the kernel source is the manual to the API.  The foolish intent
+> and design to hide the API has caused the kernel itself to become the
+> manual.
+> 
+> This is even obvious to people, like myself, who are not lawyers.
 
-> > Shutting down PCMCIA unregister_netdevice: waiting for eth0 to become free. Usage count = 1
-> > unregister_netdevice: waiting for eth0 to become free. Usage count = 1
-> > [...]
-> > The only way to shut down at this point is to turn off the power.
->
-> IIRC the problem is your hotplug scripts.  Maybe the hotplug folk can tell
-> you the minimum version for 2.6.
+Andre,
 
-Then I wonder why the interface came up automatically when the card was
-inserted.  By the way the relevant module is pcnet_cs, which is 16-bit
-PCMCIA.  I didn't guess that the hotplug scripts were used for that.  But
-I'll try to find time to test it with new hotplug scripts some weekend.
+You seem to be mixing two forms of "use"; the right to use GPL'd source
+and the right to use an operational Linux kernel.    
 
-(Can't do it now, I'm in the middle of installing SuSE 8.2 on that machine.)
+You are free to take the source and do whatever you want with it, restricted
+only by the terms of the GPL.  Other people have the right to do the same.
+There is nothing in the GPL that says how a program must behave when 
+_executing_.  Therefore, if you don't like how the resulting executable 
+operates, _tough_.   Your option, and the _freedom_ provided by the GPL, 
+is to fork the source. 
+
+No different than a kernel provided by the Church of Holy Computation 
+which refuses to operate on Sunday.   You may disagree with the 
+restriction, but surely they are free to add such a restriction to their
+kernel source.
+
+As it stands, you are complaining about a _runtime_ restriction;  ignoring 
+your ability to change the source.   By insisting that other people remove 
+checks for license type, you are trying to restrict  what others do with 
+_their_ source.  By design, the kernel is already full of runtime restrictions. 
+There is nothing special about a runtime limitation imposed on modules 
+lacking the GPL symbol.   Just to drive the point home,  please consider that there is nothing wrong with a kernel that refuses 
+to load modules that _DO_ contain the GPL symbol.
+
+In short, fork off...
+Sean
+

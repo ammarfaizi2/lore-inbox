@@ -1,59 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270690AbTGNSZk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 14:25:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270706AbTGNSZj
+	id S270708AbTGNSWm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 14:22:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270720AbTGNSWm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 14:25:39 -0400
-Received: from [213.4.129.129] ([213.4.129.129]:46276 "EHLO tsmtp4.mail.isp")
-	by vger.kernel.org with ESMTP id S270690AbTGNSZ2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 14:25:28 -0400
-Date: Mon, 14 Jul 2003 20:37:50 +0200
-From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
-To: linux-kernel@vger.kernel.org
-Cc: Christoph Hellwig <hch@infradead.org>
-Subject: [PATCH] Remove mtrr version printk
-Message-Id: <20030714203750.0598dd36.diegocg@teleline.es>
-In-Reply-To: <20030713102543.B24901@infradead.org>
-References: <200307131132.46522.arvidjaar@mail.ru>
-	<20030713102543.B24901@infradead.org>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Mon, 14 Jul 2003 14:22:42 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:27595 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S270708AbTGNSWJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 14:22:09 -0400
+Date: Mon, 14 Jul 2003 20:36:50 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.75: parse error in pci.h if !CONFIG_PCI
+Message-ID: <20030714183649.GS12104@fs.tum.de>
+References: <20030713102740.GY12104@fs.tum.de> <20030714060754.GA20416@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030714060754.GA20416@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Sun, 13 Jul 2003 10:25:43 +0100 Christoph Hellwig <hch@infradead.org> escribió:
+On Sun, Jul 13, 2003 at 11:07:54PM -0700, Greg KH wrote:
+> On Sun, Jul 13, 2003 at 12:27:41PM +0200, Adrian Bunk wrote:
+> > I got the following compile error when trying to compile 2.5.75 with 
+> > !CONFIG_PCI:
+> > 
+> > <--  snip  -->
+> > 
+> > ...
+> >   CC      drivers/message/fusion/mptscsih.o
+> > In file included from drivers/message/fusion/linux_compat.h:10,
+> >                  from drivers/message/fusion/mptbase.h:58,
+> >                  from drivers/message/fusion/mptscsih.c:82:
+> > include/linux/pci.h:718: error: syntax error before "int"
+> > drivers/message/fusion/mptscsih.c:6924: warning: `mptscsih_setup' 
+> > defined but not used
+> > make[3]: *** [drivers/message/fusion/mptscsih.o] Error 1
+> > 
+> > <--  snip  -->
+> 
+> Thanks, the patch below should fix this problem.  I'll send it on to
+> Linus in a bit.
 
-> Just rip out the whole printk then.  Componentes that are maintained inside
-> the kernel tree don't need version numbers.
+Thanks, this patch fixed it.
 
+> greg k-h
+>...
 
+cu
+Adrian
 
-So I guess this would be right.
+-- 
 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-diff -puN arch/i386/kernel/cpu/mtrr/main.c~nuke_mtrrver arch/i386/kernel/cpu/mtrr/main.c
---- unsta.moo/arch/i386/kernel/cpu/mtrr/main.c~nuke_mtrrver	2003-07-14 20:29:53.000000000 +0200
-+++ unsta.moo-diego/arch/i386/kernel/cpu/mtrr/main.c	2003-07-14 20:34:28.000000000 +0200
-@@ -44,8 +44,6 @@
- #include <asm/msr.h>
- #include "mtrr.h"
- 
--#define MTRR_VERSION            "2.0 (20020519)"
--
- u32 num_var_ranges = 0;
- 
- unsigned int *usage_table;
-@@ -677,7 +675,6 @@ static int __init mtrr_init(void)
- 			break;
- 		}
- 	}
--	printk("mtrr: v%s\n",MTRR_VERSION);
- 
- 	if (mtrr_if) {
- 		set_num_var_ranges();
-
-_

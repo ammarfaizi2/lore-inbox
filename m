@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310190AbSGYSYg>; Thu, 25 Jul 2002 14:24:36 -0400
+	id <S315513AbSGYS3C>; Thu, 25 Jul 2002 14:29:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315449AbSGYSYg>; Thu, 25 Jul 2002 14:24:36 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:33007 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S310190AbSGYSYf>;
-	Thu, 25 Jul 2002 14:24:35 -0400
-Date: Thu, 25 Jul 2002 14:27:48 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Anton Altaparmakov <aia21@cantab.net>,
-       Linus Torvalds <torvalds@transmeta.com>, Matt_Domsch@Dell.com,
-       Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-Subject: RE: 2.5.28 and partitions
-In-Reply-To: <Pine.LNX.4.44L.0207251457180.8815-100000@duckman.distro.conectiva>
-Message-ID: <Pine.GSO.4.21.0207251420570.17621-100000@weyl.math.psu.edu>
+	id <S315870AbSGYS3C>; Thu, 25 Jul 2002 14:29:02 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:42994 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S315513AbSGYS3C>;
+	Thu, 25 Jul 2002 14:29:02 -0400
+Message-ID: <3D40440D.116FF155@mvista.com>
+Date: Thu, 25 Jul 2002 11:31:41 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rusty Russell <rusty@rustcorp.com.au>
+CC: Linus Torvalds <torvalds@transmeta.com>, lk@tantalophile.demon.co.uk,
+       ebiederm@xmission.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 'select' failure or signal should not update timeout
+References: <20020724144433.B7192@kushida.apsleyroad.org>
+		<Pine.LNX.4.33.0207241142320.2117-100000@penguin.transmeta.com> <20020725163239.6c6e5ed6.rusty@rustcorp.com.au>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 25 Jul 2002, Rik van Riel wrote:
-
-> On Thu, 25 Jul 2002, Alexander Viro wrote:
-> > On Thu, 25 Jul 2002, Anton Altaparmakov wrote:
-> > > At 12:44 25/07/02, Alexander Viro wrote:
+Rusty Russell wrote:
 > 
-> > > It's one database, and it's huge.
-> >
-> > ... and backups of your database are done on...?
+> On Wed, 24 Jul 2002 11:48:10 -0700 (PDT)
+> Linus Torvalds <torvalds@transmeta.com> wrote:
 > 
-> LVM snapshot + rsync to an identical machine elsewhere ?
+> > The thing is, we cannot change existing select semantics, and the
+> > question is whether what most soft-realtime wants is actually select, or
+> > whether people really want a "waittimeofday()".
+> 
+> NOT waittimeofday.  You need a *new* measure which can't be set forwards
+> or back if you want this to be sane.  pthreads has absolute timeouts (eg.
+> pthread_cond_timedwait), but they suck IRL for this reason.
+> 
+> Of course, doesn't need any correlation with absolute time, it could be a
+> "microseconds since boot" kind of thing.
+> 
+The POSIX clocks & timers API defines CLOCK_MONOTONIC for
+this sort of thing (CLOCK_MONOTONIC can not be set).  It
+also defines an API for clock_nanosleep() that CAN use an
+absolute time which is supposed to follow any clock setting
+that is done.  Combine the two and you have a fixed time
+definition.
 
-	Works fine until you find a nasty bug in (identical) firmware.
-
-<cue story about RAID5 built out of a bunch of Seagates; a year later
-6 disks out of 16 went to hell during a weekend - ones that had
-serial numbers within a $SMALLNUM from each other>
-
-And that's aside of the "wisdom" of using LVM...
-
+AND, guess what, the high-res-timers patch does all this and
+more.
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Real time sched:  http://sourceforge.net/projects/rtsched/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

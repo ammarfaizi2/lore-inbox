@@ -1,54 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267710AbTAMBay>; Sun, 12 Jan 2003 20:30:54 -0500
+	id <S267701AbTAMBmc>; Sun, 12 Jan 2003 20:42:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267743AbTAMBay>; Sun, 12 Jan 2003 20:30:54 -0500
-Received: from warden3-p.diginsite.com ([208.147.64.186]:11682 "HELO
-	warden3.diginsite.com") by vger.kernel.org with SMTP
-	id <S267710AbTAMBax>; Sun, 12 Jan 2003 20:30:53 -0500
-Date: Sun, 12 Jan 2003 17:26:48 -0800 (PST)
-From: David Lang <dlang@diginsite.com>
-To: Rob Wilkens <robw@optonline.net>
-cc: Matti Aarnio <matti.aarnio@zmailer.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S267743AbTAMBmc>; Sun, 12 Jan 2003 20:42:32 -0500
+Received: from [193.126.32.23] ([193.126.32.23]:52892 "EHLO
+	mail.paradigma.co.pt") by vger.kernel.org with ESMTP
+	id <S267701AbTAMBmb>; Sun, 12 Jan 2003 20:42:31 -0500
+Date: Mon, 13 Jan 2003 01:51:16 +0000
+From: Nuno Monteiro <nuno.monteiro@ptnix.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: any chance of 2.6.0-test*?
-In-Reply-To: <1042406849.3162.121.camel@RobsPC.RobertWilkens.com>
-Message-ID: <Pine.LNX.4.44.0301121717140.30519-100000@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20030113015116.GA3433@hobbes.itsari.int>
+References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com> <1042400094.1208.26.camel@RobsPC.RobertWilkens.com> <20030112211530.GP27709@mea-ext.zmailer.org> <1042406849.3162.121.camel@RobsPC.RobertWilkens.com> <20030112215949.GA2392@www.kroptech.com> <1042410059.1208.150.camel@RobsPC.RobertWilkens.com> <1850.4.64.197.173.1042420003.squirrel@www.osdl.org> <1042420910.3162.277.camel@RobsPC.RobertWilkens.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <1042420910.3162.277.camel@RobsPC.RobertWilkens.com>; from robw@optonline.net on Mon, Jan 13, 2003 at 01:21:50 +0000
+X-Mailer: Balsa 1.4.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've only compiled (and haven't tested this code), but it should be much
-> faster than the original code.  Why?  Because we're eliminating an extra
-> "jump" in several places in the code every time open would be called.
-> Yes, it's more code, so the kernel is a little bigger, but it should be
-> faster at the same time, and memory should be less of an issue nowadays.
+On 13.01.03 01:21 Rob Wilkens wrote:
+> 
+> I didn't have a lesson about multiple return paths.. I actually before
+> posting checked out the coding style document..
+> 
+> :/usr/src/linux-2.5.56/Documentation# grep -i return CodingStyle
+> 
+> Returned nothing..  There was no mention of using return in the middle
+> or end of a function in the coding style document, though perhaps there
+> should be.
+> 
 
-Rob, one thing you may not have noticed since you haven't been following
-the list for a while is that with the current generation of computers size
-frequently translates directly into speed and a lot of the time honored
-performance tricks that trade size for fewer commands executed end up
-being losses.
+You dont realistically expect to learn how to program reading 
+Documentation/CodingStyle, do you? CodingStyle merely serves as general 
+guidelines of what is considered good practice among kernel development, 
+no more no less. If you dont know how to code in the first place (which 
+you have proved spectacularly, by now), you're SOL.
 
-this can be seen by compiling code with -O2 and with -Os and frequently
-the -Os will actually be faster.
+Go educate yourself and stop trolling. Somewhere, along the bucketloads 
+of vomit you insisted in throwing here, you asked who were the other 
+top-rank trolls -- sincerely, and as far as I can remember, you're ahead 
+by a fair margin. Not even imel96@trustix.co.id with his delireous 
+"single user linux" crap came anywhere near you, although he was, too, 
+very resistant to being clued in.
 
-This is becouse not all memory is equal, main memory is very slow compared
-to the CPU cache, so code that is slightly larger can cause more cache
-misses and therefor be slower, even if significantly fewer commands are
-executed.
+See things from this end -- when 99% of the people tell you you're wrong, 
+consider the possibility you are _actually_ wrong, and not the other way 
+around.
 
-in addition frequently the effect isn't direct (i.e. no noticable
-difference on the code you are changing, but instead the change makes
-other code slower as it gets evicted from the cache)
+Now, off to ~/.killfile you go.
 
-unfortunantly while this effect is known the rules of when to optimize for
-space and when to optimize for fewer cpu cycles for code execution are not
-clear and vary from CPU to CPU frequently within variations of the same
-family)
 
-if you google for -Os you should find one of the several discussions on
-the list in the last year on the subject.
+Regards,
 
-David Lang
+
+	Nuno

@@ -1,85 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262518AbUDOB0B (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 21:26:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262431AbUDOBZz
+	id S262429AbUDOBZj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 21:25:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262453AbUDOBZj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 21:25:55 -0400
-Received: from ozlabs.org ([203.10.76.45]:21194 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262518AbUDOBZq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 21:25:46 -0400
-Date: Thu, 15 Apr 2004 11:23:45 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, lse-tech@lists.sourceforge.net,
-       raybry@sgi.com, "'Andy Whitcroft'" <apw@shadowen.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: hugetlb demand paging patch part [0/3]
-Message-ID: <20040415012345.GA24941@zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Arjan van de Ven <arjanv@redhat.com>,
-	"Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-	linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-	lse-tech@lists.sourceforge.net, raybry@sgi.com,
-	'Andy Whitcroft' <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>
-References: <200404132317.i3DNH4F21162@unix-os.sc.intel.com> <1081933442.4688.6.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="n8g4imXOkfNTN/H1"
-Content-Disposition: inline
-In-Reply-To: <1081933442.4688.6.camel@laptop.fenrus.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Wed, 14 Apr 2004 21:25:39 -0400
+Received: from web12505.mail.yahoo.com ([216.136.173.197]:42118 "HELO
+	web12505.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262429AbUDOBZh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 21:25:37 -0400
+Message-ID: <20040415012536.61202.qmail@web12505.mail.yahoo.com>
+Date: Wed, 14 Apr 2004 18:25:36 -0700 (PDT)
+From: ZI ZHOU <zhouzi@yahoo.com>
+Subject: HELP ! Why my dev->hard_start_xmit get called three times for one ping packet?
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---n8g4imXOkfNTN/H1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I've written a ethernet device driver based on 2.6.4
+sis190.c, and I am testing it on my 2.4.25 machine. I
+am currently testing the transmit part and couldn't
+figure out the scenorio I've seen. Can someone shed
+some light PLEASE !
 
-On Wed, Apr 14, 2004 at 11:04:02AM +0200, Arjan van de Ven wrote:
-> On Wed, 2004-04-14 at 01:17, Chen, Kenneth W wrote:
-> > In addition to the hugetlb commit handling that we've been working on
-> > off the list, Ray Bryant of SGI and I are also working on demand paging
-> > for hugetlb page.  Here are our final version that has been heavily
-> > tested on ia64 and x86.  I've broken the patch into 3 pieces so it's
-> > easier to read/review, etc.
->=20
-> Ok I think it's time to say "HO STOP" here.
->=20
-> If you're going to make the kernel deal with different, concurrent page
-> sizes then please do it for real. Or alternatively leave hugetlb to be
-> the kludge/hack it is right now. Anything inbetween is the road to
-> madness...
+After I configure the ethernet interface(it's a PCI
+card plugged in my debian PC), I run command ' ping -c
+1 192.168.0.100', (the interface is configured with IP
+address 192.168.0.35), I used smartbit to look at the
+wire and found 3 ping packets. From the debugging
+info, I can see dev->hard_start_xmit is called three
+times, the DMA engine seems to be acting correctly,
+and each time hard_start_xmit is invoked the skb
+address is different. How can this happen? Could it be
+sth related to tx timeout? I am not very clear about
+what happens between IP send and dev->hard_start_xmit
+besides knowing there is a queue for skb, and if
+device is busy, the skb will be re-queued? Can someone
+give me some idea about how the driver communicate
+with the upper layer software about the status of its
+transmit ? There used to be tbusy I remember, but I've
+lost track of what happen there after.
 
-Well, bear in mind that in a number of ways these patches actually
-simplify the hugetlb code, although I think most of that is not
-inherently related to making the hugepage allocation on-demand rather
-than prefaulted.  Nonetheless, doing the demand allocation is actually
-really easy.  Even if you add COW as well, which these patches don't,
-it doesn't actually make the hack any worse than it was already, but
-it does make it more useful.
+Btw, I run different number of ping packets, here is
+some result, Haven't been able to make sense out of it
+yet.
 
---=20
-David Gibson			| For every complex problem there is a
-david AT gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+ping -c 1/2/3  -> recv 3 packets
+ping -c 4/5/6  -> recv 6 packets
+ping -c 7      -> recv 8 packets
 
---n8g4imXOkfNTN/H1
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+Thanks & your help is greatly appreciated !
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Zi
 
-iD8DBQFAfeQhaILKxv3ab8YRAiWnAJ9Ci0aqAqAL1kIaUrifvugY5hwjMwCfXXWg
-2tJdGbSGhecUD/9XjwCkpYE=
-=Adqz
------END PGP SIGNATURE-----
+ 
 
---n8g4imXOkfNTN/H1--
+
+
+	
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Tax Center - File online by April 15th
+http://taxes.yahoo.com/filing.html

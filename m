@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289030AbSA3Jz4>; Wed, 30 Jan 2002 04:55:56 -0500
+	id <S289032AbSA3J54>; Wed, 30 Jan 2002 04:57:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289032AbSA3Jzq>; Wed, 30 Jan 2002 04:55:46 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:19983 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S289030AbSA3Jzh>; Wed, 30 Jan 2002 04:55:37 -0500
-Subject: Re: A modest proposal -- We need a patch penguin
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Wed, 30 Jan 2002 10:06:35 +0000 (GMT)
-Cc: viro@math.psu.edu (Alexander Viro),
-        phillips@bonn-fries.net (Daniel Phillips), mingo@elte.hu,
-        landley@trommello.org (Rob Landley), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0201300110420.1542-100000@penguin.transmeta.com> from "Linus Torvalds" at Jan 30, 2002 01:21:09 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S289036AbSA3J5q>; Wed, 30 Jan 2002 04:57:46 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:9993 "HELO thebsh.namesys.com")
+	by vger.kernel.org with SMTP id <S289032AbSA3J5i>;
+	Wed, 30 Jan 2002 04:57:38 -0500
+Message-ID: <3C57C38B.30101@namesys.com>
+Date: Wed, 30 Jan 2002 12:57:31 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020123
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Oliver Xymoron <oxymoron@waste.org>
+CC: Chris Mason <mason@suse.com>, Alexander Viro <viro@math.psu.edu>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Josh MacDonald <jmacd@CS.Berkeley.EDU>,
+        linux-kernel <linux-kernel@vger.kernel.org>, reiserfs-list@namesys.com,
+        reiserfs-dev@namesys.com
+Subject: Re: [reiserfs-dev] Re: Note describing poor dcache utilization under high memory pressure
+In-Reply-To: <Pine.LNX.4.44.0201300106020.25123-100000@waste.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16VrdT-0006t7-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> A "small stuff" maintainer may indeed be a good idea. The maintainer could
-> be the same as somebody who does bigger stuff too, but they should be
-> clearly different things - trivial one-liners that do not add anything
-> new, only fix obvious stuff (to the point where nobody even needs to think
-> about it - if I'd start getting any even halfway questionable patches from
-> the "small stuff" maintainer, it wouldn't work).
+Oliver Xymoron wrote:
 
-So if someone you trusted actually started batching up small fixes and 
-sending you things like
+>
+>Can we get you to agree that basically all subpage objects are immovable?
+>
+No.  Certainly not in the general case, and I think Josh found ways to 
+handle the dcache case.  If we can simply free the old objects, we don't 
+actually have to move the hot ones, as he points out.
 
-"37 random documentation updates - no code changed", "11 patches to fix
-kmalloc checks", "maintainers updates to 6 network drivers"
+>
+>And as a consequence that garbage collecting at subpage levels doesn't
+>guarantee freeing up any pages that can then be given up to other
+>subsystems in response to VM pressure? The GC must think in terms of pages
+>to actually make progress.
+>
+>One of the design goals of slab by the way is that objects of a similar
+>type will end up having similar lifetimes, avoiding some of the worst
+>cases of sub-page allocations.
+>
 
-that would work sanely ? I think that would actually fix a lot of the stuff 
-getting lost right now. Its mostly small stuff, often from new people, or from
-folks who met a bug, fixed it and have a totally seperate and rather more 
-important (to them) project and deadline to meet that is going walkies.
 
-It also increases bandwidth for sorting out the big stuff.
 
-The other related question is device driver implementation stuff (not interfaces
-and abstractions). You don't seem to check that much anyway, or have any taste
-in device drivers 8) so should that be part of the small fixing job ?
-
-Alan

@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135220AbRDRSpv>; Wed, 18 Apr 2001 14:45:51 -0400
+	id <S135250AbRDRSsv>; Wed, 18 Apr 2001 14:48:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135223AbRDRSpm>; Wed, 18 Apr 2001 14:45:42 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:29608 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S135220AbRDRSpZ>;
-	Wed, 18 Apr 2001 14:45:25 -0400
-Message-ID: <3ADDE0C0.BD5B0EF5@mandrakesoft.com>
-Date: Wed, 18 Apr 2001 14:45:20 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-19mdksmp i686)
-X-Accept-Language: en
+	id <S135249AbRDRSsr>; Wed, 18 Apr 2001 14:48:47 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:38660 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S135254AbRDRSsU>;
+	Wed, 18 Apr 2001 14:48:20 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Shawn <z3rk@ahkbarr.dynip.com>
+Date: Wed, 18 Apr 2001 20:47:17 MET-1
 MIME-Version: 1.0
-To: "Grover, Andrew" <andrew.grover@intel.com>
-Cc: "'Simon Richter'" 
-	<Simon.Richter@phobos.fachschaften.tu-muenchen.de>,
-        "Acpi-PM (E-mail)" <linux-power@phobos.fachschaften.tu-muenchen.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Let init know user wants to shutdown
-In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDDD9A@orsmsx35.jf.intel.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: Coping with removal of skb_dataref
+CC: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <78704B4246@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Grover, Andrew" wrote:
+On 18 Apr 01 at 13:11, Shawn wrote:
+
+> Ever since the changes to skb_dataref happened,
+> The following snippit needs to be changed.
 > 
-> > From: Simon Richter
-> > > We are going to need some software that handles button
-> > events, as well as
-> > > thermal events, battery events, polling the battery, AC
-> > adapter status
-> > > changes, sleeping the system, and more.
-> >
-> > Yes, that will be a separate daemon that will also get the
-> > events. But I
-> > think it's a good idea to have a simple interface that allows
-> > the user to
-> > run arbitrary commands when ACPI events occur, even without
-> > acpid running
-> > (think of singleuser mode, embedded systems, ...).
-> 
-> Fair enough. I don't think I would be out of line to say that our resources
-> are focused on enabling full ACPI functionality for Linux, including a
-> full-featured PM policy daemon. That said, I don't think there's anything
-> precluding the use of another daemon (or whatever) from using the ACPI
-> driver's interface.
+> #  define SKB_IS_CLONE_OF(clone, skb)   ( \
+>       skb_dataref(clone) == skb_dataref(skb) \
+>    )
 
-There's a ton of stuff to focus on :)
+It is from VMware, so best place would be news server
+news.vmware.com. Pointer to patch is resent there 
+almost daily, as VMware users are not able to search 
+newsgroups (server supports it, but users do not), so 
+just join and read all messages from any day ;-) Just 
+replace skb_datarefp with skb_shinfo. You can found 
+details at:
 
-For example, if you focused on suspend and resume, I could start
-implementing and testing that in the drivers :)
+NNTP-Host: news.vmware.com
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+Newsgroups: vmware.for-linux.installation
+Subject: Re: vmnet and 2.4.2-ac4 compile error. Fix here.
+Date: Mon, 26 Feb 2001 21:14:47 +0100
+Message-ID: <3A9AB937.AC84BF58@vc.cvut.cz>
 
--- 
-Jeff Garzik       | "The universe is like a safe to which there is a
-Building 1024     |  combination -- but the combination is locked up
-MandrakeSoft      |  in the safe."    -- Peter DeVries
+                                        Petr Vandrovec
+                                        vandrove@vc.cvut.cz
+                                        

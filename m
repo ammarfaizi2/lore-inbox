@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262317AbSK0L40>; Wed, 27 Nov 2002 06:56:26 -0500
+	id <S262326AbSK0L47>; Wed, 27 Nov 2002 06:56:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262326AbSK0L40>; Wed, 27 Nov 2002 06:56:26 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:62728 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S262317AbSK0L4Z>; Wed, 27 Nov 2002 06:56:25 -0500
-Date: Wed, 27 Nov 2002 13:03:23 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Keith Owens <kaos@ocs.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: A Kernel Configuration Tale of Woe 
-In-Reply-To: <11412.1038394511@ocs3.intra.ocs.com.au>
-Message-ID: <Pine.LNX.4.44.0211271234560.2109-100000@serv>
-References: <11412.1038394511@ocs3.intra.ocs.com.au>
+	id <S262360AbSK0L47>; Wed, 27 Nov 2002 06:56:59 -0500
+Received: from gjs.xs4all.nl ([80.126.25.16]:11028 "EHLO mail.gjs.cc")
+	by vger.kernel.org with ESMTP id <S262326AbSK0L4z>;
+	Wed, 27 Nov 2002 06:56:55 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: GertJan Spoelman <kl@gjs.cc>
+To: Petr Baudis <pasky@ucw.cz>
+Subject: Re: [PATCH] Updated Documentation/kernel-parameters.txt (resent, v3)
+Date: Wed, 27 Nov 2002 13:04:11 +0100
+User-Agent: KMail/1.4.3
+References: <20021123093600.GV25628@pasky.ji.cz> <200211231617.08772.kl@gjs.cc> <20021124154808.GC25628@pasky.ji.cz>
+In-Reply-To: <20021124154808.GC25628@pasky.ji.cz>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211271304.11956.kl@gjs.cc>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sunday 24 November 2002 16:48, Petr Baudis wrote:
+> Dear diary, on Sat, Nov 23, 2002 at 04:17:08PM CET, I got a letter,
+> where GertJan Spoelman <kl@gjs.cc> told me, that...
+>
+> > parameter. To me it looks like the mem parameter can now only be used to
+> > specify less memory then the kernel actually recognizes.
+>
+> Huh.. That could be some bug actually.. try to report this in a separate
+> mail with some attractive subject ;-).
 
-On Wed, 27 Nov 2002, Keith Owens wrote:
+I have looked further into this, but it seemes intentional, if you look at the 
+comment in arch/i386/kernel/setup.c of 2.4.20-rc4 it says:
+If the user specifies memory size, we limit the BIOS-provided memory map to 
+that size. exactmap can be used to specify the exact map. mem=number can be 
+used to trim the existing memory map.
 
-> cat > .force_default <<EOF
-> CONFIG_BLK_DEV_IDE=y
-> CONFIG_BLK_DEV_IDEDISK=y
-> EOF
-> make allmodconfig 
-> 
-> That used to work, until 2.5.48.  Being able to force selected options
-> and have the rest of the options default to all Y or all M was
-> extremely useful.  What a pity that Kconfig removed this facility.
+The comment in 2.4.18 was: If the user specifies memory size, we blow away any 
+automatically generated size.
 
-It's not that difficult to reimplement, but it was an undocumented 
-feature, so I'd rather concentrated on the rest and waited until one of a 
-few people who knew about this feature would complain.
+If you still think it's a bug, let me know and I'll report it in a seperate 
+mail.
 
-bye, Roman
+> > Also can you add how to use the mem=exactmap parameter, it says now that
+> > such lines can be constructed based on BIOS output or other requirements,
+> > that doesn't tell me how such a line should look like, I only found out
+> > how to use it by searching through posts on lkml, maybe you can add the
+> > above append lines as an example.
+>
+> Thanks for the idea, done.
 
+Thanks.
+-- 
+
+    GertJan

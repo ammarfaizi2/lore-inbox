@@ -1,65 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267986AbUIPLvk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267977AbUIPLz5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267986AbUIPLvk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 07:51:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267976AbUIPLrw
+	id S267977AbUIPLz5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 07:55:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268029AbUIPLyX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 07:47:52 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:37559 "EHLO
-	baythorne.infradead.org") by vger.kernel.org with ESMTP
-	id S267973AbUIPLka (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 07:40:30 -0400
-Subject: Re: Being more careful about iospace accesses..
-From: David Woodhouse <dwmw2@infradead.org>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Linus Torvalds <torvalds@osdl.org>, Roland Dreier <roland@topspin.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040916001001.GN23987@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.58.0409081543320.5912@ppc970.osdl.org>
-	 <Pine.LNX.4.58.0409150737260.2333@ppc970.osdl.org>
-	 <Pine.LNX.4.58.0409150859100.2333@ppc970.osdl.org>
-	 <52zn3rupw8.fsf@topspin.com>
-	 <Pine.LNX.4.58.0409151546400.2333@ppc970.osdl.org>
-	 <20040916001001.GN23987@parcelfarce.linux.theplanet.co.uk>
+	Thu, 16 Sep 2004 07:54:23 -0400
+Received: from 147.32.220.203.comindico.com.au ([203.220.32.147]:6576 "EHLO
+	relay01.mail-hub.kbs.net.au") by vger.kernel.org with ESMTP
+	id S267977AbUIPLwk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 07:52:40 -0400
+Subject: Re: [PATCH] Suspend2 merge: New exports.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: arjanv@redhat.com
+Cc: Andrew Morton <akpm@digeo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1095334846.2698.13.camel@laptop.fenrus.com>
+References: <1095333619.3327.189.camel@laptop.cunninghams>
+	 <1095334846.2698.13.camel@laptop.fenrus.com>
 Content-Type: text/plain
-Message-Id: <1095334825.9144.2305.camel@imladris.demon.co.uk>
+Message-Id: <1095335648.4883.230.camel@laptop.cunninghams>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Thu, 16 Sep 2004 12:40:25 +0100
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 16 Sep 2004 21:54:09 +1000
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-09-16 at 01:10 +0100,
-viro@parcelfarce.linux.theplanet.co.uk wrote:
-> On Wed, Sep 15, 2004 at 04:26:12PM -0700, Linus Torvalds wrote:
->  
-> >    other bitwise type. You'd get a warnign about incompatible types. Makes 
-> >    sense, no?
-> >  - you can only do operations that are safe within that byte order. For 
-> >    example, it is safe to do a bitwise "&" on two __le16 values. Clearly 
-> >    the result is meaningful.
+Hi.
+
+On Thu, 2004-09-16 at 21:40, Arjan van de Ven wrote:
+> On Thu, 2004-09-16 at 13:20, Nigel Cunningham wrote:
 > 
-> BTW, so far the most frequent class of endianness bugs had been along the
-> lines of
-> 	foo->le16_field = cpu_to_le32(12);
-> and vice versa.  On big-endian it's a guaranteed FUBAR - think carefully about
-> the value that will end up there.
+> >  
+> > +EXPORT_SYMBOL(tainted);
+> 
+> uhhhhh why do you need this in a module ?????
+> 
+> most of these exports look REALLY fishy to me.
 
-Is that really more frequent than just 'foo->le16_field = 12' ? 
-I'm surprised. 
+I'm marking the kernel as tainted when we've suspended. It could
+probably be dropped but I was erring on the side of paranoia.
 
-Certainly, it was the frequency of pure assignment without _any_ attempt
-at byte-swapping which caused me to introduce the 'jint32_t' et al
-structures in jffs2, which even gcc then bitches about if you use them
-wrongly.
+As to the others, I'll be happy to explain how they're used and drop
+them if necessary/possible. I agree about a couple. The keyboard sound
+one, for example, slipped past my purge of some
+report-progress-while-beeping code I inherited.
 
-I suppose I can ditch those now -- I always intended to after a while
-anyway.
+Regards,
 
+Nigel
 -- 
-dwmw2
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
 
+Many today claim to be tolerant. True tolerance, however, can cope with others
+being intolerant.
 

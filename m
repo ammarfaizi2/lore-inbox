@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264944AbTGBKw0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 06:52:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264047AbTGBKtW
+	id S264939AbTGBKwZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 06:52:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264944AbTGBKt3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 06:49:22 -0400
-Received: from smithers.nildram.co.uk ([195.112.4.34]:2064 "EHLO
-	smithers.nildram.co.uk") by vger.kernel.org with ESMTP
-	id S264928AbTGBKq2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 06:46:28 -0400
-Date: Wed, 2 Jul 2003 12:00:16 +0100
-From: Joe Thornber <thornber@sistina.com>
-To: dm-devel@sistina.com
-Cc: Kevin Corry <kevcorry@us.ibm.com>,
-       Linux Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [dm-devel] Re: [RFC 3/3] dm: v4 ioctl interface
-Message-ID: <20030702110016.GD6243@fib011235813.fsnet.co.uk>
-References: <20030701145812.GA1596@fib011235813.fsnet.co.uk> <20030701150246.GD1596@fib011235813.fsnet.co.uk> <200307011505.07184.kevcorry@us.ibm.com> <20030702085951.GB410@fib011235813.fsnet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030702085951.GB410@fib011235813.fsnet.co.uk>
-User-Agent: Mutt/1.5.4i
+	Wed, 2 Jul 2003 06:49:29 -0400
+Received: from gate.corvil.net ([213.94.219.177]:4869 "EHLO corvil.com")
+	by vger.kernel.org with ESMTP id S263894AbTGBKtH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 06:49:07 -0400
+Message-ID: <3F02BAA9.2080209@draigBrady.com>
+Date: Wed, 02 Jul 2003 11:57:45 +0100
+From: P@draigBrady.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030617
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Frederick, Fabian" <Fabian.Frederick@prov-liege.be>
+CC: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: Re: find
+References: <D9B4591FDBACD411B01E00508BB33C1B0140538E@mesadm.epl.prov-liege.be>
+In-Reply-To: <D9B4591FDBACD411B01E00508BB33C1B0140538E@mesadm.epl.prov-liege.be>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Move unregister_with_devfs() to before the rename.
---- diff/drivers/md/dm-ioctl-v4.c	2003-07-02 11:35:31.000000000 +0100
-+++ source/drivers/md/dm-ioctl-v4.c	2003-07-02 11:34:24.000000000 +0100
-@@ -301,13 +301,14 @@
- 	/*
- 	 * rename and move the name cell.
- 	 */
-+	unregister_with_devfs(hc);
-+
- 	list_del(&hc->name_list);
- 	old_name = hc->name;
- 	hc->name = new_name;
- 	list_add(&hc->name_list, _name_buckets + hash_str(new_name));
- 
- 	/* rename the device node in devfs */
--	unregister_with_devfs(hc);
- 	register_with_devfs(hc);
- 
- 	up_write(&_hash_lock);
+Frederick, Fabian wrote:
+> Hi!
+> 	Someone could tell me if 'find' command is fs or vfs relevant ? If
+> vfs, does any btree approach is planned for it ?
+> 
+> Regards,
+> Fabian
+
+Should be some pertinent info here:
+http://www.pixelbeat.org/fastfind/
+
+Pádraig.
+

@@ -1,44 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264303AbTDPLkU (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 07:40:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264305AbTDPLkU 
+	id S264305AbTDPLmi (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 07:42:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264307AbTDPLmi 
 	(for <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 07:40:20 -0400
-Received: from c-97a870d5.037-69-73746f23.cust.bredbandsbolaget.se ([213.112.168.151]:59545
-	"EHLO zaphod.guide") by vger.kernel.org with ESMTP id S264303AbTDPLkT 
+	Wed, 16 Apr 2003 07:42:38 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:8452 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id S264305AbTDPLmh 
 	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 07:40:19 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Driver for Netgear FA120 USB2 ethernet
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: 16 Apr 2003 13:51:00 +0200
-Message-ID: <yw1x65ped5jv.fsf@zaphod.guide>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Portable Code)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 16 Apr 2003 07:42:37 -0400
+Date: Wed, 16 Apr 2003 13:52:50 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: PATCH: MTRR save and restore.
+Message-ID: <20030416115250.GA241@elf.ucw.cz>
+References: <20030407201311.GA177@elf.ucw.cz> <Pine.LNX.4.44.0304151313260.912-100000@cherise>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0304151313260.912-100000@cherise>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-Is there any chance to get a linux driver for a Netgear FA120 USB2
-ethernet adaptor?  It's got two chips inside.  One is a Realtek
-RTL8201BL and the other an ASIX AX88172.
+> I'd like to see the rest of this thread ;)
+> 
+> > > > > We could add it to suspend scripts, but wouldn't mtrrs fit into the
+> > > > > driver model idea? Would you say the same thing about implementing S3
+> > > > > support?
+> > > > 
+> > > > I think going through the driver model is the right thing to
+> > > > do.
+> > > 
+> > > It's useless bloat.
+> 
+> What exactly is useless bloat? Based on the level of indentation, I'd 
+> assume that Richard said that...care to elaborate? 
 
-/proc/bus/usb/devices:
+Richard claims that MTRR save/restore is "useless bloat" and that it
+can be don in userspace. He wants userland daemon to do it. I believe
+that's bad idea (for reasons like suspend when battery low).
 
-T:  Bus=01 Lev=01 Prnt=01 Port=03 Cnt=01 Dev#=  4 Spd=480 MxCh= 0
-D:  Ver= 2.00 Cls=02(comm.) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=0846 ProdID=1040 Rev= 0.01
-S:  Manufacturer=NETGEAR
-S:  Product=NETGEAR FA120 Adapter
-C:* #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr=300mA
-I:  If#= 0 Alt= 0 #EPs= 3 Cls=00(>ifc ) Sub=00 Prot=00 Driver=(none)
-E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=128ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=83(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+[This is what I said]
+> > There's no helper daemon, nor I plan to make one. Notice that mtrr
+> > stuff is shared between S3 (== suspend to ram) and swsusp. Both S3 and
+> > swsusp can be used to do some pretty important stuff (machine
+> > overheats or battery critically low -> suspend somewhere), so I do not
+> > think userland daemon is good idea.
+> > 
+> > It can be dependend on CONFIG_PM; if you still think that's too much
+> > bloat, it could be dependend on CONFIG_SLEEP which could be only
+> > compiled when S3 or swsusp is selected (but I feel that would be
+> > overdesign).
+> 
+> Yes, that's too much. 
+> 
+> MTRRs are one interface to an x86 CPU. CPUs are already represented in the
+> device tree. The proper thing to do would be to have the CPU suspend/ 
+> resume methods save and restore the MTRRs. It still requires an #ifdef in 
+> the CPU code, but with a little work, could be massaged down a ways. 
 
-
+Yep, agreed, mtrrs need in-kernel save/restore support.
+								Pavel
 -- 
-Måns Rullgård
-mru@users.sf.net
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

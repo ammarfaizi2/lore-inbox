@@ -1,55 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272159AbTG3P64 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 11:58:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272958AbTG3P64
+	id S272941AbTG3P5x (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 11:57:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272949AbTG3P5x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 11:58:56 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:5504 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S272159AbTG3P6y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 11:58:54 -0400
-Date: Wed, 30 Jul 2003 17:08:34 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200307301608.h6UG8YQJ000339@81-2-122-30.bradfords.org.uk>
-To: john@grabjohn.com, pavel@ucw.cz
-Subject: Re: PATCH : LEDs - possibly the most pointless kernel subsystem ever
-Cc: linux-kernel@vger.kernel.org, pgw99@doc.ic.ac.uk
+	Wed, 30 Jul 2003 11:57:53 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:52881 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S272941AbTG3P5v convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 11:57:51 -0400
+Date: Wed, 30 Jul 2003 12:53:44 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ROOT NFS fixes ...
+In-Reply-To: <20030730150743.GD24587@www.13thfloor.at>
+Message-ID: <Pine.LNX.4.55L.0307301253060.3725@freak.distro.conectiva>
+References: <20030729211521.GA19594@www.13thfloor.at>
+ <Pine.LNX.4.55L.0307301057030.29278@freak.distro.conectiva>
+ <20030730140739.GA24587@www.13thfloor.at> <Pine.LNX.4.55L.0307301107080.29393@freak.distro.conectiva>
+ <Pine.LNX.4.55L.0307301128200.29648@freak.distro.conectiva>
+ <20030730150743.GD24587@www.13thfloor.at>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Does anybody have any suggestions for recommended standard uses for
-> > parallel port connected LEDs?
 
-> At one point I had 12 LEDs on parport. LEDs were fast enough to be
-> drive at interrupt entry/exit.
-> They were: 
-> Yellow not idle task
-> Green interrupt
-> " bh
-> " pagefault
-> Red lowest 4 bits of PID
-> Red, low intensity serial i/o
-> " network i/o
+
+On Wed, 30 Jul 2003, Herbert Pötzl wrote:
+
+> On Wed, Jul 30, 2003 at 11:28:46AM -0300, Marcelo Tosatti wrote:
+> >
+> > On Wed, 30 Jul 2003, Marcelo Tosatti wrote:
+> > > On Wed, 30 Jul 2003, Herbert Pötzl wrote:
+> > > > On Wed, Jul 30, 2003 at 10:57:52AM -0300, Marcelo Tosatti wrote:
+> > > > > On Tue, 29 Jul 2003, Herbert Pötzl wrote:
+> > > > >
+> > > > > >
+> > > > > > Hi Marcelo!
+> > > > > >
+> > > > > > just verified that the NFS root bug-fix was not
+> > > > > > included in 2.4.22-pre9, unfortunately I have
+> > > > > > to ask you again, why you do not want to fix
+> > > > > > this issue in 2.4.22 ...
+> > > > > >
+> > > > > > I do not understand why Trond obviously is
+> > > > > > ignoring my mails, regarding this particular
+> > > > > > issue, maybe he is just too busy to look at
+> > > > > > four twoline changes, and more, I do not
+> > > > > > understand why this isn't accepted into the
+> > > > > > marcelo kernel tree, as it obviously fixes a
+> > > > > > misbehaviour?
+> > > > > >
+> > > > > > please explain!
+> > > > > >
+> > > > > > It is okay for me, if your argumentation goes
+> > > > > > like "I don't like you, that's reason enough
+> > > > > > for me to not include your patches ...", but I
+> > > > > > would like to know ...
+> > > > >
+> > > > > I do not consider the patch critical enough.
+> > > > >
+> > > > > Get it in 2.5 first, then come back :)
+> > > >
+> > > > I hope this is a joke, and you are still reading
+> > > > your mail ...
+> > >
+> > > No, this is not a joke, at all.
+> > >
+> > > Let me repeat: I (and Trond) do not consider this patch critical.
+> >
+> > Ok, I'm wrong. I just read Trond's mail saying the patch is OK.
+> >
+> > I'll apply it to -pre10.
 >
-> It actually looked very good. Glow of interrupt led told you
-> interrupt load, pid LEDs told you about what kind of load it is
-> experiencing (you could tell shell script from make and from
-> computation, and if machine hard-died, you at least knew if it was
-> interrupt or process context). 
+> hmm, maybe it _is_ too early to do this ;)
+> but on the other hand, I'm a fearless creature ...
 
-Sounds like exactly what we need.  If we standardise on something like
-the above, we could just have a CONFIG_FRONT_PANEL_MONITOR and ask
-people to send in the LED status with bug reports.
+What do you mean too early ?
 
-> But this kind of blinkenlights needed pretty fast LEDs. (At 486 time
-> I decided that parport on ISA is fast enough..)
-
-I'll buy some LEDs and build a parallel port connected LED panel
-tomorrow...  Do you think the overhead of driving the LEDs would have
-too much of a negative effect on system performance?  If so, or if we
-want more flexibility, maybe we could work out a design for a PCI
-card, which could include more than 12 LEDs - 7-segment numeric
-displays of pid, etc.
-
-John.
+Trond is OK with it, it seems.

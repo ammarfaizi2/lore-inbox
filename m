@@ -1,76 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262154AbVBUW1o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262158AbVBUW22@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262154AbVBUW1o (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 17:27:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262158AbVBUW1o
+	id S262158AbVBUW22 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 17:28:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262160AbVBUW21
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 17:27:44 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9629 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262143AbVBUW1i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 17:27:38 -0500
-Message-ID: <421A604B.9090302@pobox.com>
-Date: Mon, 21 Feb 2005 17:27:23 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-CC: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] libata kfree fix
-Content-Type: multipart/mixed;
- boundary="------------080600070009090607070607"
+	Mon, 21 Feb 2005 17:28:27 -0500
+Received: from fire.osdl.org ([65.172.181.4]:25757 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262158AbVBUW2U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 17:28:20 -0500
+Date: Mon, 21 Feb 2005 14:28:04 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Paul Jackson <pj@sgi.com>
+Cc: mort@wildopensource.com, linux-kernel@vger.kernel.org, raybry@sgi.com
+Subject: Re: [PATCH/RFC] A method for clearing out page cache
+Message-Id: <20050221142804.2b7de5ed.akpm@osdl.org>
+In-Reply-To: <20050221141252.6b44f0ea.pj@sgi.com>
+References: <20050214154431.GS26705@localhost>
+	<20050214193704.00d47c9f.pj@sgi.com>
+	<20050221192721.GB26705@localhost>
+	<20050221134220.2f5911c9.akpm@osdl.org>
+	<20050221141252.6b44f0ea.pj@sgi.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080600070009090607070607
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Paul Jackson <pj@sgi.com> wrote:
+>
+> Andrew wrote:
+> > sys_free_node_memory(long node_id, long pages_to_make_free, long what_to_free)
+> > ...
+> > - To make the syscall more general, we should be able to reclaim mapped
+> >   pagecache and anonymous memory as well.
+> 
+> sys_free_node_memory() - nice.
+> 
+> Does it make sense to also have it be able to free up slab cache,
+> calling shrink_slab()?
 
-Fixes double-kfree that caused slab corruption.
+Yes, I suggested that slab be one of the `what_to_free' flags.  (Some of
+this may be tricky to implement.  But a good interface with an
+initially-crappy implementation is OK ;)
 
-Signed-off-by: Jeff Garzik <jgarzik@pobox.com>
+> Did you mean to pass a nodemask, or a single node id?  Passing a single
+> node id is easier - we've shown that it is difficult to pass bitmaps
+> across the user/kernel boundary without confusions.  But if only a
+> single node id is passed, then you get the thread per node that you just
+> argued was sometimes overkill.
 
---------------080600070009090607070607
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch"
+I meant a single node ID.  With a bitmap, the kernel needs to futz around
+scanning the bitmap, launching kernel threads, etc.
 
-===== drivers/scsi/libata-core.c 1.116 vs edited =====
---- 1.116/drivers/scsi/libata-core.c	2005-02-01 20:23:51 -05:00
-+++ edited/drivers/scsi/libata-core.c	2005-02-20 23:34:32 -05:00
-@@ -2800,7 +2800,7 @@
- 			return 1;
- 
- 		/* fall through */
--	
-+
- 	default:
- 		return 0;
- 	}
-@@ -3743,16 +3743,13 @@
- 	if (legacy_mode) {
- 		if (legacy_mode & (1 << 0))
- 			ata_device_add(probe_ent);
--		else
--			kfree(probe_ent);
- 		if (legacy_mode & (1 << 1))
- 			ata_device_add(probe_ent2);
--		else
--			kfree(probe_ent2);
--	} else {
-+	} else
- 		ata_device_add(probe_ent);
--	}
-+
- 	kfree(probe_ent);
-+	kfree(probe_ent2);
- 
- 	return 0;
- 
+I'm proposing that there be no kernel threads at all.   If you have four nodes:
 
---------------080600070009090607070607--
+for i in 0 1 2 3
+do
+	call-sys_free_node_memory $i -1 -1 &
+done
+
+> I'd prefer the single node id, because it's easier to get right.
+
+yup.

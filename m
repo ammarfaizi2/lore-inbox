@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264629AbTGGDwu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jul 2003 23:52:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264650AbTGGDwu
+	id S266810AbTGGENz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 00:13:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266801AbTGGENy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jul 2003 23:52:50 -0400
-Received: from dyn-ctb-210-9-243-115.webone.com.au ([210.9.243.115]:6160 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S264629AbTGGDws
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jul 2003 23:52:48 -0400
-Message-ID: <3F08F1D8.4040601@cyberone.com.au>
-Date: Mon, 07 Jul 2003 14:06:48 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030618 Debian/1.3.1-3
-X-Accept-Language: en
+	Mon, 7 Jul 2003 00:13:54 -0400
+Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:15272 "HELO
+	develer.com") by vger.kernel.org with SMTP id S266810AbTGGEMB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 00:12:01 -0400
+From: Bernardo Innocenti <bernie@develer.com>
+Organization: Develer
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] Fix do_div() for all architectures
+Date: Mon, 7 Jul 2003 06:26:08 +0200
+User-Agent: KMail/1.5.9
+Cc: <linux-kernel@vger.kernel.org>, Andrea Arcangeli <andrea@suse.de>,
+       Peter Chubb <peter@chubb.wattle.id.au>, Andrew Morton <akpm@digeo.com>,
+       Ian Molton <spyro@f2s.com>
+References: <200307060133.15312.bernie@develer.com>
+In-Reply-To: <200307060133.15312.bernie@develer.com>
 MIME-Version: 1.0
-To: Chris Mason <mason@suse.com>
-CC: Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       lkml <linux-kernel@vger.kernel.org>, Andrea Arcangeli <andrea@suse.de>
-Subject: Re: Status of the IO scheduler fixes for 2.4
-References: <Pine.LNX.4.55L.0307021923260.12077@freak.distro.conectiva>	 <Pine.LNX.4.55L.0307041639020.7389@freak.distro.conectiva>	 <1057354654.20903.1280.camel@tiny.suse.com>	 <200307060958.36642.m.c.p@wolk-project.de> <1057517497.20904.1322.camel@tiny.suse.com>
-In-Reply-To: <1057517497.20904.1322.camel@tiny.suse.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200307070626.08215.bernie@develer.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 06 July 2003 01:33, Bernardo Innocenti wrote:
 
+ >  - add __attribute__((pure)) to __div64_32() prototype so
+ >    the compiler knows global memory isn't clobbered;
 
-Chris Mason wrote:
+ Hmmm... I've just found out that the pure attribute wasn't
+supported until gcc 2.96. Shall I get rid of it or maybe add
+something in linux/compiler.h?
 
->On Sun, 2003-07-06 at 03:58, Marc-Christian Petersen wrote:
->
->>On Friday 04 July 2003 23:37, Chris Mason wrote:
->>
->>Hi Chris,
->>
->>
->>>>If the IO fairness still doesnt
->>>>get somewhat better for general use (well get isolated user reports and
->>>>benchmarks for both the two patches), then I might consider the q->full
->>>>patch (it has throughtput drawbacks and I prefer avoiding a tunable
->>>>there).
->>>>
->>now there is io-stalls-10 in .22-pre3 (lowlat elev. + fixpausing). Could you 
->>please send "q->full patch" as ontop of -pre3? :-)
->>
->
->Attached, this defaults to q->full off and keeps the elvtune changes. 
->So to turn on the q->full low latency fixes, you need to:
->
->
+ Please note that __attribute__((const)) is not applicable
+to this case according to gcc documentation.
 
-Its a shame to have it default off, seeing as it fixes a real starvation
-/ unfairness problem, and nobody is going to turn it on. It would be
-nice to turn it on by default and see how many people shout about the
-throughput drop, but I guess you can't do that in a stable series :P
+-- 
+  // Bernardo Innocenti - Develer S.r.l., R&D dept.
+\X/  http://www.develer.com/
 
-I guess it will be useful to be able to ask people to try it if they are
-reporting bad behaviour.
+Please don't send Word attachments - http://www.gnu.org/philosophy/no-word-attachments.html
 
 

@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310324AbSCBGCv>; Sat, 2 Mar 2002 01:02:51 -0500
+	id <S310326AbSCBGSu>; Sat, 2 Mar 2002 01:18:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310326AbSCBGCm>; Sat, 2 Mar 2002 01:02:42 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:7067 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S310324AbSCBGC1>; Sat, 2 Mar 2002 01:02:27 -0500
-Date: Fri, 1 Mar 2002 23:16:39 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Mike Anderson <andmike@us.ibm.com>
+	id <S310328AbSCBGSb>; Sat, 2 Mar 2002 01:18:31 -0500
+Received: from 1Cust55.tnt6.lax7.da.uu.net ([67.193.244.55]:5624 "HELO
+	cx518206-b.irvn1.occa.home.com") by vger.kernel.org with SMTP
+	id <S310326AbSCBGS3>; Sat, 2 Mar 2002 01:18:29 -0500
+Subject: Re: dell inspiron and 2.4.18?
+To: jjasen1@umbc.edu (John Jasen)
+Date: Fri, 1 Mar 2002 22:19:59 -0800 (PST)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: queue_nr_requests needs to be selective
-Message-ID: <20020301231639.A14413@vger.timpanogas.org>
-In-Reply-To: <20020301132254.A11528@vger.timpanogas.org> <20020301165104.C6778@beaverton.ibm.com> <20020301213908.B13983@vger.timpanogas.org> <20020301225918.A14239@vger.timpanogas.org> <20020301230142.B14239@vger.timpanogas.org>
-Mime-Version: 1.0
+In-Reply-To: <Pine.SGI.4.31L.02.0203020004440.5865235-100000@irix2.gl.umbc.edu> from "John Jasen" at Mar 02, 2002 12:11:45 AM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020301230142.B14239@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Fri, Mar 01, 2002 at 11:01:42PM -0700
+Content-Transfer-Encoding: 7bit
+Message-Id: <20020302061959.383EE89C87@cx518206-b.irvn1.occa.home.com>
+From: barryn@pobox.com (Barry K. Nathan)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 01, 2002 at 11:01:42PM -0700, Jeff V. Merkey wrote:
-> On Fri, Mar 01, 2002 at 10:59:18PM -0700, Jeff V. Merkey wrote:
-> > 
-> > 
-> > Mike,
-> > 
-> > Here are some numbers from the running system.  This system is 
-> > running at 120 MB/S 
+John Jasen wrote:
+> I have a Dell Inspiron 3700 running Redhat 7.2 with the latest updates,
+> and I just upgraded to kernel 2.4.18. On random intervals, usually within
+> about 10 minutes of usage, it hangs completely solid.
+[snip]
+> Anyway, the short form: anyone else have any problems, or have I gone
+> crazy again?
 
-Mike,
+My own Inspiron 5000e is running a heavily patched-up (-jam with
+grsecurity and a few other things merged in) 2.4.18-based kernel with no
+problems.
 
-Also, I've had a single adapter above 150 MB/S.  This test I am running
-was to test this 15 queue depth issue, so I took the system down 
-to a single adapter for the test so I could get the stats you raised the 
-issue about.
+I installed 2.4.18-ac2 on an Inspiron 7500 today, and rpm started
+corrupting its database repeatedly (rpm --rebuilddb would only fix things
+until I installed or freshened a few more packages, then the corruption
+would come back). Upgrading rpm to the 4.0.3 release candidate from
+Rawhide, then doing another rpm --rebuilddb to be safe, made this problem
+completely disappear however, and the system is otherwise totally stable
+so far.
 
-Jeff
-
-
-on a single 3Ware adapter.  Stats attached.  You
-> > will note that the max commands hitting the adapter are way above
-> > 15.  I can only presume this is due to caching behavior on the card.
-> > I do have these cards enabled with caching.  I have had these numbers
-> > as high as 319 MB/S with multiple cards in separate buses.  The system
-> > this test is running on has 3 PCI buses.  2 x 33 Mhz and 1 x 66 Mhz.  
-> > with Serverwork HE Chipset.
-> > 
+-Barry K. Nathan <barryn@pobox.com>

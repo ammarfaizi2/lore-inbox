@@ -1,112 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263733AbTIBOc2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 10:32:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263752AbTIBOc2
+	id S261440AbTIBMes (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 08:34:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261415AbTIBMes
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 10:32:28 -0400
-Received: from h80ad25e7.async.vt.edu ([128.173.37.231]:14464 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263733AbTIBOcE (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 10:32:04 -0400
-Message-Id: <200309021431.h82EViEl014303@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: azarah@gentoo.org
-Cc: KML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test4-mm3 
-In-Reply-To: Your message of "Tue, 02 Sep 2003 06:14:04 +0200."
-             <1062476044.5275.13.camel@nosferatu.lan> 
-From: Valdis.Kletnieks@vt.edu
-References: <3F4F22D3.9080104@freemail.hu> <200308291300.h7TD049n022785@turing-police.cc.vt.edu> <1062168946.19599.114.camel@workshop.saharacpt.lan> <200308291553.h7TFrcGG009390@turing-police.cc.vt.edu> <1062447809.5275.7.camel@nosferatu.lan> <200309012352.h81NqXT9006422@turing-police.cc.vt.edu>
-            <1062476044.5275.13.camel@nosferatu.lan>
+	Tue, 2 Sep 2003 08:34:48 -0400
+Received: from hauptpostamt.charite.de ([193.175.66.220]:39099 "EHLO
+	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
+	id S261440AbTIBMeg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 08:34:36 -0400
+Date: Tue, 2 Sep 2003 14:32:52 +0200
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: keyboard - was: Re: Linux 2.6.0-test4
+Message-ID: <20030902123252.GC22365@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030831120605.08D6.CHRIS@heathens.co.nz> <20030902080733.GA14380@charite.de> <20030902124717.B1221@pclin040.win.tue.nl>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1364590517P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 02 Sep 2003 10:31:43 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030902124717.B1221@pclin040.win.tue.nl>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1364590517P
-Content-Type: text/plain; charset=us-ascii
+* Andries Brouwer <aebr@win.tue.nl>:
 
-On Tue, 02 Sep 2003 06:14:04 +0200, Martin Schlemmer said:
+> Yesterday's data sufficed, and I suppose the patch I gave solves
+> this problem.
 
-> The problem I have with the patch you had here, is you changed:
-> 
-> DEPMOD         = /sbin/depmod
-> 
-> to:
-> 
-> DEPMOD         = /sbin/depmod.old
-> 
-> which is only the one from module-init-tools on a RH system ....
+Nope. I applied the patch and rebuilt the kernel and rebooted.
 
-Damn.  Somebody hand me a brown paper bag. :)
+Linux version 2.6.0-test4-bk2 (root@hummus2) (gcc version 3.2.3 (Debian)) #1 Tue Sep 2 11:45:23 CEST 2003
+shows that the kernel I build this moring is actually running.
 
-(Make note to self - next time, diff the right 2 versions, not the testing version ;)
+Right now, my CTRL key is totally "stuck" on the fbconsole. I can't
+release it, not even by switching between the consoles and/or X11.
 
-I got misdirected by your comment "this will only work with RH based systems",
-because (a) neither the RH9 or Rawhide tools include a depmod.old, (b)
-depmod.old gets created on non-Redhat systems if you install the Rusty version,
-and (c) using depmod.old *wont* work - so I totally failed to notice I'd
-botched the value of $DEPMOD. ;)
+But now I don't get any messages like the one below (yes, the special
+code generating this output is still active...)
 
+> > atkbd.c: Unknown key (set 2, scancode 0x9c, on isa0060/serio0) pressed.
+> > i8042 history: e0 d0 1c 9c 2e ae 10 90 e0 50 e0 d0 e0 d0 1c 9c
 
---==_Exmh_1364590517P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD4DBQE/VKnPcC3lWbTT17ARAroGAJd/qpqS/eZxbKstFYJeROah3l3bAKDtuGNR
-6B8q0UW6ElLDgg7+0xH8vA==
-=BxiJ
------END PGP SIGNATURE-----
-
---==_Exmh_1364590517P--
+-- 
+Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
+Charite Campus Mitte                            Tel.  +49 (0)30-450 570-155
+Referat V a - Kommunikationsnetze -             Fax.  +49 (0)30-450 570-916
+AIM: ralfpostfix
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html
 Please read the FAQ at  http://www.tux.org/lkml/
---==_Exmh_1364590517P
-Content-Type: text/plain; charset=us-ascii
+* Andries Brouwer <aebr@win.tue.nl>:
 
-On Tue, 02 Sep 2003 06:14:04 +0200, Martin Schlemmer said:
+> Yesterday's data sufficed, and I suppose the patch I gave solves
+> this problem.
 
-> The problem I have with the patch you had here, is you changed:
-> 
-> DEPMOD         = /sbin/depmod
-> 
-> to:
-> 
-> DEPMOD         = /sbin/depmod.old
-> 
-> which is only the one from module-init-tools on a RH system ....
+Nope. I applied the patch and rebuilt the kernel and rebooted.
 
-Damn.  Somebody hand me a brown paper bag. :)
+Linux version 2.6.0-test4-bk2 (root@hummus2) (gcc version 3.2.3 (Debian)) #1 Tue Sep 2 11:45:23 CEST 2003
+shows that the kernel I build this moring is actually running.
 
-(Make note to self - next time, diff the right 2 versions, not the testing version ;)
+Right now, my CTRL key is totally "stuck" on the fbconsole. I can't
+release it, not even by switching between the consoles and/or X11.
 
-I got misdirected by your comment "this will only work with RH based systems",
-because (a) neither the RH9 or Rawhide tools include a depmod.old, (b)
-depmod.old gets created on non-Redhat systems if you install the Rusty version,
-and (c) using depmod.old *wont* work - so I totally failed to notice I'd
-botched the value of $DEPMOD. ;)
+But now I don't get any messages like the one below (yes, the special
+code generating this output is still active...)
 
+> > atkbd.c: Unknown key (set 2, scancode 0x9c, on isa0060/serio0) pressed.
+> > i8042 history: e0 d0 1c 9c 2e ae 10 90 e0 50 e0 d0 e0 d0 1c 9c
 
---==_Exmh_1364590517P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD4DBQE/VKnPcC3lWbTT17ARAroGAJd/qpqS/eZxbKstFYJeROah3l3bAKDtuGNR
-6B8q0UW6ElLDgg7+0xH8vA==
-=BxiJ
------END PGP SIGNATURE-----
-
---==_Exmh_1364590517P--
+-- 
+Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
+Charite Campus Mitte                            Tel.  +49 (0)30-450 570-155
+Referat V a - Kommunikationsnetze -             Fax.  +49 (0)30-450 570-916
+AIM: ralfpostfix

@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265649AbSK1QdL>; Thu, 28 Nov 2002 11:33:11 -0500
+	id <S265657AbSK1Qep>; Thu, 28 Nov 2002 11:34:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265656AbSK1QdL>; Thu, 28 Nov 2002 11:33:11 -0500
-Received: from pat.uio.no ([129.240.130.16]:14287 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S265649AbSK1QdK>;
-	Thu, 28 Nov 2002 11:33:10 -0500
-To: KELEMEN Peter <fuji@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NFS performance ...
-References: <200211241521.09981.m.c.p@wolk-project.de>
-	<20021128110627.GD26875@chiara.elte.hu>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 28 Nov 2002 17:40:30 +0100
-In-Reply-To: <20021128110627.GD26875@chiara.elte.hu>
-Message-ID: <shs65uh1wch.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
-MIME-Version: 1.0
+	id <S265675AbSK1Qep>; Thu, 28 Nov 2002 11:34:45 -0500
+Received: from pc-62-31-66-70-ed.blueyonder.co.uk ([62.31.66.70]:35203 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S265657AbSK1Qeo>; Thu, 28 Nov 2002 11:34:44 -0500
+Date: Thu, 28 Nov 2002 16:41:43 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>,
+       Jeremy Fitzhardinge <jeremy@goop.org>,
+       Ext2 devel <ext2-devel@lists.sourceforge.net>,
+       NFS maillist <nfs@lists.sourceforge.net>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [Ext2-devel] Re: [NFS] htree+NFS (NFS client bug?)
+Message-ID: <20021128164143.D2362@redhat.com>
+References: <1038354285.1302.144.camel@sherkaner.pao.digeo.com> <shsptsrd761.fsf@charged.uio.no> <1038387522.31021.188.camel@ixodes.goop.org> <20021127150053.A2948@redhat.com> <15845.10815.450247.316196@charged.uio.no> <20021127205554.J2948@redhat.com> <shslm3e4or2.fsf@charged.uio.no>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <shslm3e4or2.fsf@charged.uio.no>; from trond.myklebust@fys.uio.no on Wed, Nov 27, 2002 at 11:44:01PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == KELEMEN Peter <fuji@elte.hu> writes:
+Hi,
 
-     > * Marc-Christian Petersen (m.c.p@wolk-project.de) [20021124
-     >   15:23]:
-     > Marc, Andrea,
+On Wed, Nov 27, 2002 at 11:44:01PM +0100, Trond Myklebust wrote:
 
-    >> I think Andrea and me have something in our kernels that may
-    >> cause it. For me I don't know what that can be. I even have no
-    >> idea what it can be :(
+> We could possibly cache the EOF status by overloading some other field
+> in the struct file. f_version comes to mind as a useful candidate,
+> since it automatically gets reset by llseek.
 
-     > The culprit turned out to be an inherited CONFIG_NFS_DIRECTIO
-     > setting.  Having the client kernel (2.4.20rc2aa1) this option
-     > turned off, performance is stable 4 MB/sec (server hasn't
-     > changed).  This is almost twice as good as with 2.4.19-rmap14b.
+If you want it to be preserved in cache, it needs to be in the inode,
+not in the file.
 
-Huh? Sounds like something is seriously screwed up in your kernel
-build then. CONFIG_NFS_DIRECTIO should should result in 2 things only:
-
-  - direct.c gets compiled.
-
-  - the 'direct_IO' address space operation gets defined, so that the
-    VFS knows what to do with files that get opened with the O_DIRECT
-    flag.
-
-None of the ordinary NFS read and write code paths should be affected
-by the above.
-
-Cheers,
-  Trond
+--Stephen

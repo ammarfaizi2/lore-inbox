@@ -1,65 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbUJ3Vdj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261328AbUJ3VX0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261332AbUJ3Vdj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 17:33:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbUJ3Vdi
+	id S261328AbUJ3VX0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 17:23:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbUJ3VX0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 17:33:38 -0400
-Received: from fw.osdl.org ([65.172.181.6]:42463 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261332AbUJ3Vdg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 17:33:36 -0400
-Date: Sat, 30 Oct 2004 14:31:32 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>,
-       Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: No PS2 with ACPI [was Re: 2.6.10-rc1-mm2]
-Message-Id: <20041030143132.5f20d048.akpm@osdl.org>
-In-Reply-To: <1099149503l.23066l.0l@werewolf.able.es>
-References: <20041029014930.21ed5b9a.akpm@osdl.org>
-	<1099149503l.23066l.0l@werewolf.able.es>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 30 Oct 2004 17:23:26 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:59154 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261328AbUJ3VXW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 17:23:22 -0400
+Date: Sat, 30 Oct 2004 23:22:50 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Anders Larsen <al@alarsen.net>
+Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] mark QNX4FS_RW as BROKEN
+Message-ID: <20041030212249.GY4374@stusta.de>
+References: <20041030180702.GT4374@stusta.de> <20041030183422.GY24336@parcelfarce.linux.theplanet.co.uk> <1099162888l.2673l.0l@errol.alarsen.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1099162888l.2673l.0l@errol.alarsen.net>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"J.A. Magallon" <jamagallon@able.es> wrote:
->
+On Sat, Oct 30, 2004 at 07:01:28PM +0000, Anders Larsen wrote:
+> On Sat, Oct 30, 2004 at 08:07:02PM +0200, Adrian Bunk wrote:
+> >The patch below does the following cleanups in the QNX4 fs:
+> >- remove two unused global functions
 > 
-> On 2004.10.29, Andrew Morton wrote:
-> > 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc1/2.6.10-rc1-mm2/
-> > 
-> > 
-> 
-> Here we go again...
+> If you remove any code inside the #ifdef CONFIG_QNX4FS_RW we might
+> as well remove the option "config QNX4FS_RW" altogether.
+> It's horribly broken, and I don't intend to fix it; while I was
+> thinking about how to properly implement write-support, somebody else
+> went away and did it. As that alternative seems to work well and is
+> being actively maintained, I won't try to reinvent it.
 
-Perhaps Dmitry and Vojtech can help.
 
-> With normal boot, I have no kbd nor mouse (both PS2).
-> 2.6.9-mm1 detects them correctly:
-> 
-> mice: PS/2 mouse device common for all mice
-> input: AT Translated Set 2 keyboard on isa0060/serio0
-> input: PS2++ Logitech <NULL> on isa0060/serio1
-> 
-> 2.6.10-rc1-mm2 misses the two 'input' lines, I just get the 'mice:' one.
-> 
-> Booting with i8042.noacpi makes them work again.
-> 
-> BTW, what is that <NULL> ? 
-> I don't have the full logs, but 2.6.9-rc2-mm2 told 'Mouse',and
-> the next I have is -rc3-mm3 that says '<NULL>'.
-> 
-> TIA
-> 
-> --
-> J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-> werewolf!able!es                         \         It's better when it's free
-> Mandrakelinux release 10.1 (Community) for i586
-> Linux 2.6.9-jam1 (gcc 3.4.1 (Mandrakelinux 10.1 3.4.1-4mdk)) #6
-> 
-> 
+OK, I understand why my patch wasn't good.
+
+What about the following to mark it as BROKEN in the Kconfig file?
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.10-rc1-mm2-full/fs/Kconfig.old	2004-10-30 23:15:17.000000000 +0200
++++ linux-2.6.10-rc1-mm2-full/fs/Kconfig	2004-10-30 23:15:34.000000000 +0200
+@@ -1353,7 +1353,7 @@
+ 
+ config QNX4FS_RW
+ 	bool "QNX4FS write support (DANGEROUS)"
+-	depends on QNX4FS_FS && EXPERIMENTAL
++	depends on QNX4FS_FS && EXPERIMENTAL && BROKEN
+ 	help
+ 	  Say Y if you want to test write support for QNX4 file systems.
+ 
+

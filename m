@@ -1,58 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136356AbRASCnQ>; Thu, 18 Jan 2001 21:43:16 -0500
+	id <S136812AbRASCpq>; Thu, 18 Jan 2001 21:45:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136828AbRASCnG>; Thu, 18 Jan 2001 21:43:06 -0500
-Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:64004 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S136813AbRASCmx>; Thu, 18 Jan 2001 21:42:53 -0500
-From: bsuparna@in.ibm.com
-X-Lotus-FromDomain: IBMIN@IBMAU
-To: Christoph Hellwig <hch@ns.caldera.de>
-cc: linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net
-Message-ID: <CA2569D9.000ECCBC.00@d73mta03.au.ibm.com>
-Date: Fri, 19 Jan 2001 08:05:41 +0530
-Subject: Re: [Kiobuf-io-devel] Re: [PLEASE-TESTME] Zerocopy networking
-	 patch, 2.4.0-1
+	id <S136828AbRASCpg>; Thu, 18 Jan 2001 21:45:36 -0500
+Received: from galileo.bork.org ([209.217.122.37]:7688 "HELO galileo.bork.org")
+	by vger.kernel.org with SMTP id <S136812AbRASCpa>;
+	Thu, 18 Jan 2001 21:45:30 -0500
+Subject: pppoe in 2.4.0
+From: Martin Hicks <mort@bork.org>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+X-Mailer: Evolution 0.8 (Developer Preview)
+Date: 18 Jan 2001 21:45:26 -0500
 Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Message-Id: <E14JRYM-0000Ns-00@plato.bork.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->Ok. Then we need an additional more or less generic object that is used
-for
->passing in a rw_kiovec file operation (and we really want that for many
-kinds
->of IO). I thould mostly be used for communicating to the high-level
-driver.
->
->/*
-> * the name is just plain stupid, but that shouldn't matter
-> */
->struct vfs_kiovec {
->    struct kiovec *     iov;
->
->    /* private data, mostly for the callback */
->    void * private;
->
->    /* completion callback */
->    void (*end_io) (struct vfs_kiovec *);
->    wait_queue_head_t wait_queue;
->};
->
->    Christoph
+Hello,
 
-Shouldn't we have an error / status field too ?
+Does anyone have pppoe working with 2.4.0?
+
+I'm running 2.4.0-ac9 with ppp and pppoe compiled into the kernel (I've
+tried with modules too)
+
+The pppd simply refuses to acknowlege the presence of ppp support in the
+kernel.
+The last release of pppd was in august 2000.  Was this before the ppp
+interface in the 
+kernel was overhauled?
+
+mh
 
 
-  Suparna Bhattacharya
-  Systems Software Group, IBM Global Services, India
-  E-mail : bsuparna@in.ibm.com
-  Phone : 91-80-5267117, Extn : 2525
-
-
+-- 
+Martin Hicks   || mort@bork.org    
+Use PGP/GnuPG  || DSS PGP Key: 0x4C7F2BEE  
+Beer: So much more than just a breakfast drink.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

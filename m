@@ -1,105 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261904AbTH3QL1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 12:11:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261484AbTH3QL1
+	id S261484AbTH3Q0m (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 12:26:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261922AbTH3Q0m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 12:11:27 -0400
-Received: from [213.39.233.138] ([213.39.233.138]:23016 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S261904AbTH3QKm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 12:10:42 -0400
-Date: Sat, 30 Aug 2003 18:10:29 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: bandwidth for bkbits.net (good news)
-Message-ID: <20030830161029.GA4632@wohnheim.fh-wedel.de>
-References: <20030830012949.GA23789@work.bitmover.com> <20030830150311.GB23789@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030830150311.GB23789@work.bitmover.com>
-User-Agent: Mutt/1.3.28i
+	Sat, 30 Aug 2003 12:26:42 -0400
+Received: from fmr09.intel.com ([192.52.57.35]:25575 "EHLO hermes.hd.intel.com")
+	by vger.kernel.org with ESMTP id S261484AbTH3Q0k convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Aug 2003 12:26:40 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: [PATCHSET][2.6-test4][0/6]Support for HPET based timer - Take 2
+Date: Sat, 30 Aug 2003 09:26:38 -0700
+Message-ID: <C8C38546F90ABF408A5961FC01FDBF1902C7D225@fmsmsx405.fm.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCHSET][2.6-test4][0/6]Support for HPET based timer - Take 2
+Thread-Index: AcNus6wiUrR0Dd5xTaWqQNJvSc9NPgAXEv3w
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: <David.Mosberger@acm.org>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 30 Aug 2003 16:26:38.0961 (UTC) FILETIME=[7D0D9610:01C36F13]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 30 August 2003 08:03:11 -0700, Larry McVoy wrote:
+
+> -----Original Message-----
+> From: David Mosberger-Tang [mailto:davidm@mostang.com]
+> >>>>> On Fri, 29 Aug 2003 09:12:52 -0700, "Pallipadi, 
+> Venkatesh" <venkatesh.pallipadi@intel.com> said:
 > 
-> Many people have sent me mail saying that we should be using traffic
-> shaping to fix this problem.  We are using it and we can't seem to make
-> it work.  Our theory is that we have a network like
+>   Venkatesh> The part of the patch that does the HPET initialization
+>   Venkatesh> for timer interrupt, and general HPET registers
+>   Venkatesh> read/write/programming can be common across
+>   Venkatesh> architectures.  However, different archs diverge, when it
+>   Venkatesh> comes to gettimeofday-timer implementation (tsc, pit,
+>   Venkatesh> itc, hpet, ) and we may still have to keep that part
+>   Venkatesh> architecture specific.
 > 
->  ----- [ ISP ] ====== internet ======== [ ISP ] ----
+> Is the time_interpolator interface provided by timex.h sufficient for
+> HPET timer-interrupt needs?  I think It ought to be.  If so, perhaps
+> all that's missing is that x86 needs to be switched over to that
+> interface?
 > 
-> wherein "-" means our skinny T1 or DSL and "=" means some fat internet 
-> connection on the backbone.  
-> 
-> We can shape all we want on our ends but if the internet is blasting us
-> then our skinny pipe gets full and our shaping doesn't work.  We really
-> need to have the ISP do the shaping so they can squelch the traffic 
-> before it gets to our pipe.
-> 
-> If there is someone out there who (a) is running VOIP over the public net
-> to a pile of different end points (T1 on both ends tends to work, T1 to DSL
-> or cable modem tends to get harder) and (b) has figured out traffic shaping
-> that works I'd love to know about it.  
 
-By principle, you can only control your side of the wire.  Unless your
-ISP does some decent shaping for you or allows you to place a machine
-at the other end to do it, you are at the internets mercy.  If people
-with enough bandwidth want to DOS you, they can.
+timer_interpolator kind of interface helps for one part of HPET changes.
+That is using HPET during gettimeofday(). Unfortunately, i386 has its
+own timer infrastructure (which is quite similar to timer_interpolator),
+which is already being used by variety of timers that exist (cyclone_timer,
+tsc, pit - code under arch/i386/kernel/timers). i386 timers seems to be 
+the superset of timer_interpolator.
+struct timer_opts{
+        int (*init)(char *override);
+        void (*mark_offset)(void);
+        unsigned long (*get_offset)(void);
+        unsigned long long (*monotonic_clock)(void);
+        void (*delay)(unsigned long);
+};
+I agree, in future, it is best to integrate these timers in an 
+architecture independent way. 
 
-For well behaved traffic you have some limited control over the
-incoming traffic through your responses, so QoS should work in theory,
-but setting it up is still very close to black magic.
+The other part of HPET change is, change in kernel base timer. In i386, 
+along with local APIC timer interrupts, we also have a IRQ0 timer interrupt.
+This is where kernel time-keeping happens (similar to TIME_KEEPER_ID in IPF).
+This will also used for process times in UP case, when there is no LAPIC.
+As of now this interrupt comes from PIT/8254. HPET will replace this too, 
+and can be programmed to generate periodic interrupts at a particular rate.
+This part may be specific to i386.
 
-> But just saying QoS/wondershaper doesn't help much (though the thought is
-> appreciated), we've tried that already.
 
-Wondershaper was magically configured once and works for everyone that
-has similar needs like the original magician.  Plus, this magician had
-a simple task, as the sending side is the bottleneck and that is the
-side he has control over.  So unless you have a regular DSL line...
+Thanks,
+-Venkatesh
 
-What you really need might not even exist in the kernel yet.  The last
-couple of times I've tried setting it up and read the code, things
-were just not adequate.
-
----<deeper technical stuff follows>---
-
-In order to control incoming traffic, it is easiest to look at tcp.
-udp can work similarly, but it doesn't have to.  To throttle the
-stream of tcp packets, you could simply through away the acks and the
-sending side will reduce it's speed.  So you have to measure one
-stream and control a related but different one.  Maybe this is
-possible, not sure.
-
-Second, you usually don't want to through away the acks, as packets
-would be retransmitted then.  This reduces the effective bandwidth and
-limited bandwidth was the problem in the first place.  So we have to
-delay them enough to slow things down, but not beyond the timeout.
-
-Third, there is the problem transition from continuous streams to
-discrete packets, when bandwidth is low.  It doesn't take a huge
-amount of large packets to create enough latency for your sad VOIP.
-
-And fourth, the possibility of resonance frequency.  If measurement
-and/or shaping intervals are too long and match nicely to the travel
-time to one of your peers, you are back at point three.
-
-Overall, it is possible to do some decent traffic shaping, but it is
-far from being simple.  And it might even be completely impossible, at
-least in your case, with the code that is in the kernel today, be it
-Linux or some BSD.
-
-Jörn
-
-PS: If anyone can prove how stupid I am and how simple QoS is, please
-do!  Seriously!
-
--- 
-Public Domain  - Free as in Beer
-General Public - Free as in Speech
-BSD License    - Free as in Enterprise
-Shared Source  - Free as in "Work will make you..."

@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317604AbSG2TpM>; Mon, 29 Jul 2002 15:45:12 -0400
+	id <S317610AbSG2Tzt>; Mon, 29 Jul 2002 15:55:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317605AbSG2TpL>; Mon, 29 Jul 2002 15:45:11 -0400
-Received: from agate.roonetworks.com ([12.44.168.40]:48546 "EHLO
-	h216.ofc.roonetworks.com") by vger.kernel.org with ESMTP
-	id <S317604AbSG2TpL>; Mon, 29 Jul 2002 15:45:11 -0400
-From: Remco Treffkorn <remco@rvt.com>
-Reply-To: remco@rvt.com
-To: Dan Malek <dan@embeddededge.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: 3 Serial issues up for discussion (was: Re: Serial core problems on embedded PPC)
-Date: Mon, 29 Jul 2002 12:46:42 -0700
-User-Agent: KMail/1.4.5
-Cc: Tom Rini <trini@kernel.crashing.org>, Russell King <rmk@arm.linux.org.uk>,
-       linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
-References: <20020729174341.GA12964@opus.bloom.county> <20020729181352.27999@192.168.4.1> <3D4592D3.50505@embeddededge.com>
-In-Reply-To: <3D4592D3.50505@embeddededge.com>
+	id <S317616AbSG2Tzt>; Mon, 29 Jul 2002 15:55:49 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:19725 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S317610AbSG2Tzm>;
+	Mon, 29 Jul 2002 15:55:42 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200207291957.g6TJvIl158896@saturn.cs.uml.edu>
+Subject: Re: [PATCH -ac] Panicking in morse code
+To: davidsen@tmr.com (Bill Davidsen)
+Date: Mon, 29 Jul 2002 15:57:18 -0400 (EDT)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan),
+       j.schmidt@paradise.net.nz (Jens Schmidt), root@chaos.analogic.com,
+       phillips@arcor.de (Daniel Phillips), arodland@noln.com (Andrew Rodland),
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.96.1020729074834.30577B-100000@gatekeeper.tmr.com> from "Bill Davidsen" at Jul 29, 2002 07:50:04 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-Message-Id: <200207291246.43134.remco@rvt.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 29 July 2002 12:09, Dan Malek wrote:
-...
-> or a mix of both.  The problems to solve are drivers fighting over minor
-> device numbers and assumptions about the system console.
+Bill Davidsen writes:
+> On Fri, 26 Jul 2002, Albert D. Cahalan wrote:
+>> Jens Schmidt writes:
+
+>>> I am not a "morse" guy myself, but appreciate this idea.
+>>
+>> Yeah, same here. I have to wonder if morse is the
+>> best encoding, since many people don't know it.
+>> The vast majority of us would need a microphone and
+>> translator program anyway, so a computer-friendly
+>> encoding makes more sense. Modems don't do morse.
 >
+> What other widely known encoding for blinking lights did you have in mind.
+> Clearly there are more people who know morse than any other encoding you
+> could make up, and even those who don't know it would know what it is.
 
-Drivers need not fight about minor numbers. That can be simply handled:
+ROTFL
 
-int get_new_serial_minor()
-{
-    static int minor;
+This is NOT morse over blinking lights. Even at 12 WPM,
+which is moderately fast, you'd have to stare at the
+lights for over an hour without blinking! Keep in mind
+that people know morse by sound, not sight, so you'd
+have to slow it down. Maybe 24 hours for an oops?
 
-    return minor++;
-}
+(note: in morse, hex digits are slow)
 
-Any serial driver can call this when it initializes a new uart.
-Hot pluggable drivers have to hang on to their minors, and
-re-use.
+No, the lights just blink. Encoding just the instruction
+pointer, in binary, might be worthwhile. I have doubts.
 
--- 
-Remco Treffkorn (RT445)
-HAM DC2XT
-remco@rvt.com   (831) 685-1201
+As for the audio... you can copy morse for over an hour
+or you can tape record 4 minutes of noise. Hard choice?

@@ -1,64 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269329AbUIYNVX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269328AbUIYNVF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269329AbUIYNVX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 09:21:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269324AbUIYNVX
+	id S269328AbUIYNVF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 09:21:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269324AbUIYNVF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 09:21:23 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:18187 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S269346AbUIYNUY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 09:20:24 -0400
-Date: Sat, 25 Sep 2004 14:20:17 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Xavier Bestel <xavier.bestel@free.fr>
-Cc: Paul Fulghum <paulkf@microgate.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.6.9-rc2-mm3
-Message-ID: <20040925142017.A3742@flint.arm.linux.org.uk>
-Mail-Followup-To: Xavier Bestel <xavier.bestel@free.fr>,
-	Paul Fulghum <paulkf@microgate.com>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <Xine.LNX.4.44.0409241127220.7816-300000@thoron.boston.redhat.com> <Xine.LNX.4.44.0409241210220.8009-100000@thoron.boston.redhat.com> <20040925013135.GJ9106@holomorphy.com> <1096082711.7111.38.camel@at2.pipehead.org> <20040925101937.A29796@flint.arm.linux.org.uk> <1096104467.2918.16.camel@nomade>
+	Sat, 25 Sep 2004 09:21:05 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:50848 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S269340AbUIYNTY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Sep 2004 09:19:24 -0400
+Subject: Re: 2.6.9-rc2-mm1 swsusp bug report.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Kevin Fenzi <kevin@scrye.com>,
+       Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040925125606.GN9106@holomorphy.com>
+References: <20040924021956.98FB5A315A@voldemort.scrye.com>
+	 <20040924143714.GA826@openzaurus.ucw.cz>
+	 <20040924210958.A3C5AA2073@voldemort.scrye.com>
+	 <1096069216.3591.16.camel@desktop.cunninghams>
+	 <20040925014546.200828E71E@voldemort.scrye.com>
+	 <1096113235.5937.3.camel@desktop.cunninghams>
+	 <415562FE.3080709@yahoo.com.au>  <20040925125606.GN9106@holomorphy.com>
+Content-Type: text/plain
+Message-Id: <1096118462.6294.0.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1096104467.2918.16.camel@nomade>; from xavier.bestel@free.fr on Sat, Sep 25, 2004 at 11:27:49AM +0200
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Sat, 25 Sep 2004 23:21:02 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 25, 2004 at 11:27:49AM +0200, Xavier Bestel wrote:
-> Le sam 25/09/2004 à 11:19, Russell King a écrit :
-> 
-> > I wonder if we should consider adding:
-> > 
-> > 	WARN_ON(!spin_is_locked(&tty_termios_lock));
-> > 
-> > in there.
-> > 
-> > However, the one annoying thing about "spin_is_locked" is that, on UP,
-> > it defaults to "unlocked" which makes these kinds of checks too noisy.
-> > Maybe we need a spin_is_locked() with a bias towards being locked for UP?
-> 
-> Or something like:
-> 
-> #define spin_is_safe(lock) ((!CONFIG_SMP) || spin_is_locked(lock))
-> 
-> (maybe as an inline)
+Hi.
 
-You can't rely on CONFIG_SMP always being 0 or 1.  When it's turned off,
-it's undefined, rather than being defined to 0.
+On Sat, 2004-09-25 at 22:56, William Lee Irwin III wrote:
+> Nigel Cunningham wrote:
+> >> Normal usage; the pattern of pages being freed and allocated inevitably
+> >> leads to fragmentation. The buddy allocator does a good job of
+> >> minimising it, but what is really needed is a run-time defragmenter. I
+> >> saw mention of this recently, but it's probably not that practical to
+> >> implement IMHO.
+> > 
+> On Sat, Sep 25, 2004 at 10:22:22PM +1000, Nick Piggin wrote:
+> > Well, by this stage it looks like memory is already pretty well shrunk
+> > as much as it is going to be, which means that even a pretty capable
+> > defragmenter won't be able to do anything.
+> 
+> For however useful defragmentation may be to make speculative use of
+> physically or virtually contiguous memory more probable to succeed, it
+> can never be made deterministic or even reliable, not even in pageable
+> kernels (which Linux is not). Fallback to allocations no larger than
+> the kernel's internal allocation unit, potentially in tandem with
+> scatter/gather capabilities, is essential.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+I fully agree. That's why I do it :>
+
+Regards,
+
+Nigel
+

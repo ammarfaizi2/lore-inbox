@@ -1,67 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267605AbTBFT7x>; Thu, 6 Feb 2003 14:59:53 -0500
+	id <S267609AbTBFUAp>; Thu, 6 Feb 2003 15:00:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267609AbTBFT7x>; Thu, 6 Feb 2003 14:59:53 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:31909 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S267605AbTBFT7r>;
-	Thu, 6 Feb 2003 14:59:47 -0500
+	id <S267612AbTBFUAp>; Thu, 6 Feb 2003 15:00:45 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:44709 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S267609AbTBFUAl>;
+	Thu, 6 Feb 2003 15:00:41 -0500
 From: Andries.Brouwer@cwi.nl
-Date: Thu, 6 Feb 2003 21:09:24 +0100 (MET)
-Message-Id: <UTC200302062009.h16K9Op23604.aeb@smtp.cwi.nl>
+Date: Thu, 6 Feb 2003 21:10:18 +0100 (MET)
+Message-Id: <UTC200302062010.h16KAIH23613.aeb@smtp.cwi.nl>
 To: linux-kernel@vger.kernel.org
-Subject: syscall documentation (3)
+Subject: syscall documentation (4)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The next new page is tkill.2
+The next new page is gettid(2).
 
 Comments welcome.
 Andries
 aeb@cwi.nl
 
------------------------------------
+----------------------------------- 
+GETTID(2)           Linux Programmer's Manual           GETTID(2)
+
 NAME
-       tkill - send a signal to a single process
+       gettid - get thread identification
 
 SYNOPSIS
        #include <sys/types.h>
        #include <linux/unistd.h>
 
-       _syscall2(int, tkill, pid_t, tid, int, sig)
+       _syscall0(pid_t,gettid)
 
-       int tkill(pid_t tid, int sig);
+       pid_t gettid(void);
 
 DESCRIPTION
-       The tkill system call is analogous to kill(2), except when
-       the specified process is part of a thread  group  (created
-       by specifying the CLONE_THREAD flag in the call to clone).
-       Since all the processes in a thread group  have  the  same
-       PID,  they  cannot  be  individually  signalled with kill.
-       With tkill, however, one can address each process  by  its
-       unique TID.
-
-RETURN VALUE
-       On  success,  zero  is returned. On error, -1 is returned,
-       and errno is set appropriately.
-
-ERRORS
-       EINVAL An invalid TID or signal was specified.
-
-       ESRCH  No process with the specified TID exists.
-
-       EPERM  The caller did not have permission to send the sig­
-              nal  to  the specified process. For a process to be
-              allowed to send a signal, it must either have  root
-              privileges,  or  its real or effective user ID must
-              be equal to the real or saved  set-user-ID  of  the
-              receiving process.
+       gettid  returns the thread ID of the current process. This
+       is equal to the process ID  (as  returned  by  getpid(2)),
+       unless  the  process is part of a thread group (created by
+       specifying the CLONE_THREAD flag to  the  clone(2)  system
+       call).  All  processes  in  the same thread group have the
+       same PID, but each one has a unique TID.
 
 CONFORMING TO
-       tkill is Linux specific and should not be used in programs
-       that are intended to be portable.
+       gettid is Linux specific and should not be  used  in  pro­
+       grams that are intended to be portable.
 
 SEE ALSO
-       gettid(2), kill(2)
+       getpid(2), clone(2), fork(2)
 
-Linux 2.4.20                2003-02-01                   TKILL(2)
+Linux 2.4.20                2003-02-01                  GETTID(2)

@@ -1,69 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261372AbVCDMUC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263010AbVCDMvM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261372AbVCDMUC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 07:20:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262838AbVCDMSd
+	id S263010AbVCDMvM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 07:51:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262999AbVCDMrj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 07:18:33 -0500
-Received: from fire.osdl.org ([65.172.181.4]:30430 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262896AbVCDLpN (ORCPT
+	Fri, 4 Mar 2005 07:47:39 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:12208 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S262983AbVCDMmh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 06:45:13 -0500
-Date: Fri, 4 Mar 2005 03:44:10 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: davej@redhat.com, torvalds@osdl.org, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org
+	Fri, 4 Mar 2005 07:42:37 -0500
+Message-ID: <01ef01c520b7$94bebf80$0f01a8c0@max>
+From: "Richard Purdie" <rpurdie@rpsys.net>
+To: "Russell King" <rmk+lkml@arm.linux.org.uk>,
+       "Andrew Morton" <akpm@osdl.org>
+Cc: <davej@redhat.com>, <torvalds@osdl.org>, <jgarzik@pobox.com>,
+       <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <20050302230634.A29815@flint.arm.linux.org.uk> <42265023.20804@pobox.com> <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org> <20050303002733.GH10124@redhat.com> <20050302203812.092f80a0.akpm@osdl.org> <20050304105247.B3932@flint.arm.linux.org.uk> <20050304032632.0a729d11.akpm@osdl.org> <20050304113626.E3932@flint.arm.linux.org.uk>
 Subject: Re: RFD: Kernel release numbering
-Message-Id: <20050304034410.2ccfba74.akpm@osdl.org>
-In-Reply-To: <20050304113626.E3932@flint.arm.linux.org.uk>
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
-	<20050302230634.A29815@flint.arm.linux.org.uk>
-	<42265023.20804@pobox.com>
-	<Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org>
-	<20050303002733.GH10124@redhat.com>
-	<20050302203812.092f80a0.akpm@osdl.org>
-	<20050304105247.B3932@flint.arm.linux.org.uk>
-	<20050304032632.0a729d11.akpm@osdl.org>
-	<20050304113626.E3932@flint.arm.linux.org.uk>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Date: Fri, 4 Mar 2005 12:40:30 -0000
+MIME-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2527
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+Russell King:
+>> It's very much in an arch maintainer's interest to make sure that
+>> cross-compilers are easily obtainable.  Any hints?
 >
-> On Fri, Mar 04, 2005 at 03:26:32AM -0800, Andrew Morton wrote:
-> > Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> > >
-> > > On Wed, Mar 02, 2005 at 08:38:12PM -0800, Andrew Morton wrote:
-> > >  > Grump.  Have all these regressions received the appropriate level of
-> > >  > visibility on this mailing list?
-> > > 
-> > >  Looking at the http://l4x.org/k/ site, it appears that all -mm versions
-> > >  have broken ARM support with the defconfig, while Linus kernels at least
-> > >  build fine.
-> > 
-> > It's very much in an arch maintainer's interest to make sure that
-> > cross-compilers are easily obtainable.  Any hints?
-> 
-> Been trying to achieve that since it's a FAQ on ARM lists.  Even gone to
-> the extent of setting up a separate mailing list, getting a volunteer to
-> track what people want and do the hard work to build them.  That was
-> about 6 months ago, and I haven't seen any results.
+> I was thinking at the time "great, this is one problem which should be
+> solved".  How silly of me.  It seems, yet again, that it comes down to
+> a case of "if rmk doesn't do it, it won't get done."  Sad but true.
+> Now, why do I keep feeling that I'm being taken advantage of all the
+> time?  Could it be the complete lack of productive help from anyone else.
 
-hm.  That's strange.  I'd have thought that 99% of the arm embedded
-developers cross-build.
+I've found the arm cross compiler generated from openembedded 
+(http://openembedded.org) to be very reliable. The big advantage in using oe 
+would be that it is in active use so it is always highly likely to generate 
+a working compiler. Someone just needs to make it generate a 
+toolchain/compiler for external use[1], make it available somewhere and 
+advertise the fact its available. Generation of the toolchain could probably 
+be almost entirely automated.
 
-> Anyway, going back to why -mm doesn't work:
-> 
->  arch/arm/kernel/built-in.o(.init.text+0xb64): In function `$a':
->  : undefined reference to `rd_size'
->  make[1]: *** [.tmp_vmlinux1] Error 1
-> 
-> So "rd_size" got deleted in -mm kernels without reference to anyone else
-> who's using it.  Greeeeaaatttt....
+Fixes for any problems with compiler would be more than welcome for 
+incorporation into oe short term and for submission upstream for "proper" 
+fixing.
 
-Ah.  Fixed, thanks.
+[1] I think I've seen reference that it can already do this...
+
+Richard 
+

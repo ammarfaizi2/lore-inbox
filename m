@@ -1,53 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267168AbUGMWUx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267165AbUGMWTr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267168AbUGMWUx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 18:20:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267171AbUGMWUx
+	id S267165AbUGMWTr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 18:19:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267170AbUGMWTr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 18:20:53 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:42675 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S267168AbUGMWUc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 18:20:32 -0400
-From: jmerkey@comcast.net
-To: linux-kernel@vger.kernel.org
-Cc: jmerkey@drdos.com
-Subject: af_packet.c -ERRMSGSIZE logic error for VLAN Support
-Date: Tue, 13 Jul 2004 22:20:27 +0000
-Message-Id: <071320042220.5497.40F4602B0006FC4B000015792200758942970A059D0A0306@comcast.net>
-X-Mailer: AT&T Message Center Version 1 (Jun 24 2004)
-X-Authenticated-Sender: am1lcmtleUBjb21jYXN0Lm5ldA==
+	Tue, 13 Jul 2004 18:19:47 -0400
+Received: from holomorphy.com ([207.189.100.168]:22424 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267165AbUGMWSG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 18:18:06 -0400
+Date: Tue, 13 Jul 2004 15:17:57 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rmaplock 2/6 SLAB_DESTROY_BY_RCU
+Message-ID: <20040713221757.GK21066@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Manfred Spraul <manfred@colorfullife.com>,
+	Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0407132029540.8535-100000@localhost.localdomain> <40F447B8.5080208@colorfullife.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40F447B8.5080208@colorfullife.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I guess a RAW packet interface needs to really be just that.  The af_packet.c logic is broken
-with VLAN tagging.  When I attempt to regenerate packets through ethernet with 
-AF_PACKET calls via sockaddr_ll request structures, the calculation being performed in
-af_packet of:
+On Tue, Jul 13, 2004 at 10:36:08PM +0200, Manfred Spraul wrote:
+> Thus I'd propose a quick fix (fail if there is a dtor - are there any 
+> slab caches with dtors at all?) and in the long run slab_destroy should 
+> be moved into the rcu callback.
 
-err = -ERRMSGSIZE
-if (len > (dev->mtu + dev->hard_header_len))
-    goto out_unlock;
-
-...
-..
-
-return err;
-
-This is busted with VLAN tags.  I am sending packets out of the max length of 1514 with the
-additional 4 bytes of VLAN info attached.  I am received packets of this size from the 
-e1000 adapters (1518) from one side of the system and when I attempt to resend them 
-via af_packet.c through another e1000 adapter with the ame driver code, it bombs since the packet is larger than the mtu (1500) + dev->hard_header_len (14).  A RAW packet interface needs to really be raw, and this includes taking into account the size of a VLAN header.  I realize this is a driver error since the driver returns these fields from the net_device structure, but it doesn't make much sense for a driver to enforce these limits in raw mode.  
-
-manipulation of VLAN tags should be allowed through a raw interface, and the logic in 
-af_packet.c is what is creating the error.  If this an error in the logic or is there some other
-method recommended for dealing with the VLAN tagging info.
-
-I would assume for IP and other types of sockets, some sort of sideband is ok for tagging 
-the packets, but a raw interface should allow raw packet construction and transmission.
-
-Jeff
+Yes, ia32 pgd and pmd slabs have dtors.
 
 
-
-
+-- wli

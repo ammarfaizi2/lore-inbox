@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292792AbSCDT1a>; Mon, 4 Mar 2002 14:27:30 -0500
+	id <S292795AbSCDT2K>; Mon, 4 Mar 2002 14:28:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292795AbSCDT1K>; Mon, 4 Mar 2002 14:27:10 -0500
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:33062 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S292792AbSCDT1G>; Mon, 4 Mar 2002 14:27:06 -0500
-Date: Mon, 4 Mar 2002 13:27:04 -0600 (CST)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200203041927.NAA95433@tomcat.admin.navo.hpc.mil>
-To: Weimer@CERT.Uni-Stuttgart.DE, linux-kernel@vger.kernel.org
-Subject: Re: SSSCA: We're in trouble now
-X-Mailer: [XMailTool v3.1.2b]
+	id <S292811AbSCDT2B>; Mon, 4 Mar 2002 14:28:01 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:40458 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S292795AbSCDT1o>;
+	Mon, 4 Mar 2002 14:27:44 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Norbert Tretkowski <tretkowski@bzimage.de>
+Date: Mon, 4 Mar 2002 20:26:48 +0100
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: Matrox Framebuffer with 2.4.18-ac2 and -ac3 (was: Linux
+CC: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <137E1553179C@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>:
-> Thomas Hood <jdthood@mail.com> writes:
+On  4 Mar 02 at 19:58, Norbert Tretkowski wrote:
+> drivers/video/video.o: In function `m1064_compute':
+> drivers/video/video.o(.text+0xad9d): undefined reference to
+> `matroxfb_g450_setclk'
+> make: *** [vmlinux] Error 1
+
+Either get matroxfb from 2.4.19-pre2 (it is newer although it may not
+look at first glance; I had to remove *PMINFO* naming changes to get 
+through Linus filter)... 
+
+> Relevant part of my .config:
 > 
-> >> The solution is simple: go and create your own content, and share it
-> >> with your friends. But you won't get Hollywood movies this way.
-> >
-> > The problem is that copy-protection will only be effective
-> > if you impose Soviet style restrictions on the use of computers.
-> 
-> That's not necessarily true.  Most people cannot circumvent even basic
-> obstacles when it comes to computers, and both industry and
-> legislative might be content with that.
+> CONFIG_FB=y
+> CONFIG_DUMMY_CONSOLE=y
+> CONFIG_VIDEO_SELECT=y
+> CONFIG_FB_MATROX=y
+> CONFIG_FB_MATROX_MYSTIQUE=y
 
-Not a chance. Think about it, if the legistators would be content with that
-then they wouldn't need additional laws... M$ is already that way.
+or set also CONFIG_FB_MATROX_G100=y (Gxx0 driver) and 
+CONFIG_FB_MATROX_G450=y (G450/G550 support). Sorry for inconvience,
+but I somehow got lost in all these #ifdefs.
 
-This is aimed at people that KNOW what they want, and know HOW to get it.
-
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.
+BTW, 2.5.6-pre2 matroxfb suffers from same problem. I hope that
+2.5.6-pre3 will have it fixed.
+                                          Best regards,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz

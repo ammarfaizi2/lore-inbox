@@ -1,64 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264427AbTEJQJe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 12:09:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264428AbTEJQJd
+	id S264424AbTEJQMw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 12:12:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264425AbTEJQMw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 12:09:33 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:56991 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S264427AbTEJQJc
+	Sat, 10 May 2003 12:12:52 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:55424 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S264424AbTEJQMv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 12:09:32 -0400
-Date: Sat, 10 May 2003 09:22:07 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Ben Collins <bcollins@debian.org>
-Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: kernel.bkbits.net and BK->CVS gateway
-Message-ID: <20030510162207.GB24686@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Ben Collins <bcollins@debian.org>, Larry McVoy <lm@bitmover.com>,
-	linux-kernel@vger.kernel.org
-References: <20030510140455.GA23475@work.bitmover.com> <20030510153416.GJ679@phunnypharm.org> <20030510160651.GA24686@work.bitmover.com> <20030510154352.GK679@phunnypharm.org>
+	Sat, 10 May 2003 12:12:51 -0400
+Date: Sat, 10 May 2003 17:25:27 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Tuncer M zayamut Ayaz <tuncer.ayaz@gmx.de>
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.69 strange high tone on DELL Inspiron 8100
+Message-ID: <20030510162527.GD29271@mail.jlokier.co.uk>
+References: <1405.1052575075@www9.gmx.net> <1052575167.16165.0.camel@dhcp22.swansea.linux.org.uk> <S264332AbTEJO5e/20030510145734Z+7011@vger.kernel.org> <S264373AbTEJPSN/20030510151813Z+1648@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030510154352.GK679@phunnypharm.org>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=0.5, required 4.5,
-	DATE_IN_PAST_06_12)
+In-Reply-To: <S264373AbTEJPSN/20030510151813Z+1648@vger.kernel.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 10, 2003 at 11:43:52AM -0400, Ben Collins wrote:
-> On Sat, May 10, 2003 at 09:06:51AM -0700, Larry McVoy wrote:
-> > On Sat, May 10, 2003 at 11:34:16AM -0400, Ben Collins wrote:
-> > > > This bad disk is the cause of the CVS gateway being screwed up, we should
-> > > > have that back online tonight or tomorrow.  Sorry about the downtime.
-> > > 
-> > > Any idea if the new repo will be revision compatible with the old bkcvs?
-> > > IOW, will checkouts have to be redone?
-> > 
-> > It should be 100% compatible, I build the CVS repo here and mirror it to
-> > kernel.bkbits.net.  You should be all set.
-> 
-> Ah, so bkbits wasn't the primary source. Thanks again Larry.
+Tuncer M zayamut Ayaz wrote:
+> what I found out right now is that when there is
+> load (moving mailer windows around) the sound
+> is gone and reappears if there's no load aka
+> I stop moving mailer window (while typing this mail).
 
-I'm not sure that I follow that, but
+That's the opposite of my Toshiba in any of the lower power modes.
 
-    a) kernel.bkbits.net is fully backed up nightly so we wouldn't lose it
-       there
-    b) the CVS tree is generated on my desktop so we have a mirror of it
-       there
-    c) HPA mirrors the CVS tree to kernel.org so we have a third copy there
-    d) Regenerating the the CVS tree from scratch will generate the same
-       revs.
+When there's CPU activity, it emits a quiet high-pitched noise.  When
+CPU activity stops, the noise stops.  This doesn't happen in the
+maximum power usage mode (brigh screen, fastest clock), and I don't
+know if there's a way to turn it off.
 
-In other words, I think you're safe.  Famous last words, we'll now discover
-that our friends in .cz have written the world's first BK virus and it 
-corrupts the CVS tree.  Or something.  Regardless, we've taken steps to
-make sure the CVS data is safe and restorable.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+-- Jamie
+

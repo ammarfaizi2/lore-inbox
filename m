@@ -1,52 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315957AbSEGTvA>; Tue, 7 May 2002 15:51:00 -0400
+	id <S315958AbSEGTyZ>; Tue, 7 May 2002 15:54:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315958AbSEGTu7>; Tue, 7 May 2002 15:50:59 -0400
-Received: from air-2.osdl.org ([65.201.151.6]:20367 "EHLO segfault.osdl.org")
-	by vger.kernel.org with ESMTP id <S315957AbSEGTu6>;
-	Tue, 7 May 2002 15:50:58 -0400
-Date: Tue, 7 May 2002 12:47:32 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-To: Thunder from the hill <thunder@ngforever.de>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.14 IDE 56
-In-Reply-To: <Pine.LNX.4.44.0205071245370.4189-100000@hawkeye.luckynet.adm>
-Message-ID: <Pine.LNX.4.33.0205071238000.6307-100000@segfault.osdl.org>
+	id <S315959AbSEGTyY>; Tue, 7 May 2002 15:54:24 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:21376 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S315958AbSEGTyX>;
+	Tue, 7 May 2002 15:54:23 -0400
+Message-ID: <3CD830BE.CAB7FA96@vnet.ibm.com>
+Date: Tue, 07 May 2002 14:53:34 -0500
+From: Dave Engebretsen <engebret@vnet.ibm.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Memory Barrier Definitions
+In-Reply-To: <3CD825E4.6950ED92@vnet.ibm.com> <E175AyE-0008NR-00@the-village.bc.nu>
+X-MIMETrack: Itemize by SMTP Server on d27ml101/27/M/IBM(Release 5.0.10 |March 22, 2002) at
+ 05/07/2002 02:53:36 PM,
+	Serialize by Router on d27ml101/27/M/IBM(Release 5.0.10 |March 22, 2002) at
+ 05/07/2002 02:53:37 PM,
+	Serialize complete at 05/07/2002 02:53:37 PM
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Tue, 7 May 2002, Thunder from the hill wrote:
-
-> Hi,
+Alan Cox wrote:
 > 
-> > > >	/driverfs/root/pci0/00:1f.4/usb_bus/000/
-> > /driverfs/class/ide/
-> > /driverfs/root/pci0/07.2/
-> > /driverfs/class/ide/0/
-> > /driverfs/class/ide/0/2
+> > A solution was pointed out by Rusty Russell that we should probabily be
+> > using smp_*mb() for system memory ordering and reserve the *mb() calls
 > 
-> Why not fixing devfs for that? My root directory is messed up enough. We 
-> have dev, proc, tmp, ...
+> For pure compiler level ordering we have barrier()
+> 
+> Alan
+> 
 
-For one, I am of the camp that believes devfs is unfixable. 
+Sure, but none of these issues I think need disscussion are a compiler
+reordering.  Perhaps you are just pointing out another barrier primitive
+to provide a more complete listing?  There are some others, such as the
+*before_atomic* that will require a seperate discussion, I think.
 
-For two, where driverfs is mounted is irrelevant: /driverfs, /sys, 
-/proc/bus are all valid places. 
+In case my point was not clear, I'll restate: where PowerPC (at a
+minimum) gets into trouble is with the seperate ordering between
+references to system memory and to I/O space with respect to the various
+forms of processor memory barrier instructions.  It is _very_ expensive
+to blindly force all memory references to be ordered completely to the
+seperate spaces.  The use of wmb(), rmb(), and mb() is overloaded in the
+context of PowerPC.
 
-Besides, who cares what's in /? You have /home, which is all that really 
-matters, no? 
-
-> We might have /dev/driver or such, which doesn't make the root directory 
-> any fuller. (And also not to disturb the newbies any further. It's hard a 
-> lot to explain to a windows user why he can't remove /proc and /dev, and 
-> what this is supposed to be.)
-
-So don't give them root access. Or, explain to them that they're magic, 
-like the pagefile.sys file. :)
-
-	-pat
-
+Dave.

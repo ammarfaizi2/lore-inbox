@@ -1,110 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273012AbRIOTse>; Sat, 15 Sep 2001 15:48:34 -0400
+	id <S273023AbRIOU1l>; Sat, 15 Sep 2001 16:27:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273013AbRIOTsZ>; Sat, 15 Sep 2001 15:48:25 -0400
-Received: from smtp6.mindspring.com ([207.69.200.110]:8505 "EHLO
-	smtp6.mindspring.com") by vger.kernel.org with ESMTP
-	id <S273012AbRIOTsN>; Sat, 15 Sep 2001 15:48:13 -0400
-Subject: Re: [PATCH] AGP GART for AMD 761
-From: Robert Love <rml@tech9.net>
-To: Jesper Juhl <juhl@eisenstein.dk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3BA228EA.FCD61CA1@eisenstein.dk>
-In-Reply-To: <1000577021.32706.29.camel@phantasy> 
-	<3BA22537.94D4EA28@eisenstein.dk> <1000582067.32708.51.camel@phantasy> 
-	<3BA228EA.FCD61CA1@eisenstein.dk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.13.99+cvs.2001.09.14.18.39 (Preview Release)
-Date: 15 Sep 2001 15:49:15 -0400
-Message-Id: <1000583357.32707.54.camel@phantasy>
+	id <S273029AbRIOU1W>; Sat, 15 Sep 2001 16:27:22 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:57105 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S273018AbRIOU1R>;
+	Sat, 15 Sep 2001 16:27:17 -0400
+Date: Sat, 15 Sep 2001 17:26:59 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "David S.Miller" <davem@redhat.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Paul Mackerras <paulus@samba.org>
+Subject: [PATCH][RFC] spin_trylock_bh
+Message-ID: <20010915172659.A1916@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	David S.Miller <davem@redhat.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Paul Mackerras <paulus@samba.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2001-09-14 at 11:57, Jesper Juhl wrote:
-> bash-2.05# /sbin/lspci -n -v -s 0:0
-> 00:00.0 Class 0600: 1022:700e (rev 13)
+Hi,
 
-Thanks.  Ca you try the attached patch? It should fall back on
-try_unsupported if it can't find the 761.  Please send the relevant
-dmesg in reply.  Thank you.
+	Please see if this is acceptable, I noticed this while working on
+the locks for NetBEUI 8) Patch is against 2.4.9, but it should apply to
+latest prepatch. It was being used in the ppp code for quite some time.
 
+                        - Arnaldo
 
-diff -urN linux-2.4.10-pre9/Documentation/Configure.help linux/Documentation/Configure.help
---- linux-2.4.10-pre9/Documentation/Configure.help	Thu Sep 13 21:03:36 2001
-+++ linux/Documentation/Configure.help	Fri Sep 14 22:28:37 2001
-@@ -2581,7 +2581,7 @@
- AMD Irongate support
- CONFIG_AGP_AMD
-   This option gives you AGP support for the GLX component of the
--  XFree86 4.x on AMD Irongate chipset.
-+  XFree86 4.x on AMD Irongate and 761 chipsets.
+Index: include/linux/spinlock.h
+===================================================================
+RCS file: /home/cvs/kernel-acme/include/linux/spinlock.h,v
+retrieving revision 1.1.1.2
+diff -u -r1.1.1.2 spinlock.h
+--- include/linux/spinlock.h	2001/08/16 21:48:34	1.1.1.2
++++ include/linux/spinlock.h	2001/09/15 20:16:44
+@@ -30,6 +30,10 @@
+ #define write_unlock_irqrestore(lock, flags)	do { write_unlock(lock); local_irq_restore(flags); } while (0)
+ #define write_unlock_irq(lock)			do { write_unlock(lock); local_irq_enable();       } while (0)
+ #define write_unlock_bh(lock)			do { write_unlock(lock); local_bh_enable();        } while (0)
++#define spin_trylock_bh(lock)			({ int __r; local_bh_disable();\
++						__r = spin_trylock(lock);      \
++						if (!__r) local_bh_enable();   \
++						__r; })
  
-   For the moment, you should probably say N, unless you want to test
-   the GLX component for XFree86 3.3.6, which can be downloaded from
-diff -urN linux-2.4.10-pre9/drivers/char/agp/agp.h linux/drivers/char/agp/agp.h
---- linux-2.4.10-pre9/drivers/char/agp/agp.h	Thu Sep 13 21:03:40 2001
-+++ linux/drivers/char/agp/agp.h	Sat Sep 15 15:33:06 2001
-@@ -196,6 +196,9 @@
- #ifndef PCI_DEVICE_ID_AMD_IRONGATE_0
- #define PCI_DEVICE_ID_AMD_IRONGATE_0    0x7006
- #endif
-+#ifndef PCI_DEVICE_ID_AMD_761_0
-+#define PCI_DEVICE_ID_AMD_761_0		0x700e
-+#endif
- #ifndef PCI_VENDOR_ID_AL
- #define PCI_VENDOR_ID_AL		0x10b9
- #endif
-diff -urN linux-2.4.10-pre9/drivers/char/agp/agpgart_be.c linux/drivers/char/agp/agpgart_be.c
---- linux-2.4.10-pre9/drivers/char/agp/agpgart_be.c	Thu Sep 13 21:03:40 2001
-+++ linux/drivers/char/agp/agpgart_be.c	Sat Sep 15 15:36:26 2001
-@@ -60,7 +60,7 @@
- static void flush_cache(void);
+ #ifdef CONFIG_SMP
+ #include <asm/spinlock.h>
+Index: drivers/net/ppp_synctty.c
+===================================================================
+RCS file: /home/cvs/kernel-acme/drivers/net/ppp_synctty.c,v
+retrieving revision 1.1.1.2
+diff -u -r1.1.1.2 ppp_synctty.c
+--- drivers/net/ppp_synctty.c	2001/08/16 21:45:05	1.1.1.2
++++ drivers/net/ppp_synctty.c	2001/09/15 20:16:47
+@@ -44,13 +44,6 @@
+ #include <linux/init.h>
+ #include <asm/uaccess.h>
  
- static struct agp_bridge_data agp_bridge;
--static int agp_try_unsupported __initdata = 0;
-+static int agp_try_unsupported __initdata = 1;
+-#ifndef spin_trylock_bh
+-#define spin_trylock_bh(lock)	({ int __r; local_bh_disable();	\
+-				   __r = spin_trylock(lock);	\
+-				   if (!__r) local_bh_enable();	\
+-				   __r; })
+-#endif
+-
+ #define PPP_VERSION	"2.4.1"
  
- 
- static inline void flush_cache(void)
-@@ -2895,6 +2895,12 @@
- 		"AMD",
- 		"Irongate",
- 		amd_irongate_setup },
-+	{ PCI_DEVICE_ID_AMD_761_0,
-+		PCI_VENDOR_ID_AMD,
-+		AMD_761,
-+		"AMD",
-+		"761",
-+		amd_irongate_setup },
- 	{ 0,
- 		PCI_VENDOR_ID_AMD,
- 		AMD_GENERIC,
-@@ -2922,7 +2928,6 @@
- 		"Intel",
- 		"440GX",
- 		intel_generic_setup },
--	/* could we add support for PCI_DEVICE_ID_INTEL_815_1 too ? */
- 	{ PCI_DEVICE_ID_INTEL_815_0,
- 		PCI_VENDOR_ID_INTEL,
- 		INTEL_I815,
-diff -urN linux-2.4.10-pre9/include/linux/agp_backend.h linux/include/linux/agp_backend.h
---- linux-2.4.10-pre9/include/linux/agp_backend.h	Thu Sep 13 21:03:50 2001
-+++ linux/include/linux/agp_backend.h	Fri Sep 14 22:27:34 2001
-@@ -58,6 +58,7 @@
- 	SIS_GENERIC,
- 	AMD_GENERIC,
- 	AMD_IRONGATE,
-+	AMD_761,
- 	ALI_M1541,
- 	ALI_M1621,
- 	ALI_M1631,
-
-
---
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
-
+ /* Structure for storing local state. */
+Index: net/ipv6/ip6_fib.c
+===================================================================
+RCS file: /home/cvs/kernel-acme/net/ipv6/ip6_fib.c,v
+retrieving revision 1.1.1.2
+diff -u -r1.1.1.2 ip6_fib.c
+--- net/ipv6/ip6_fib.c	2001/08/16 18:44:10	1.1.1.2
++++ net/ipv6/ip6_fib.c	2001/09/15 20:16:50
+@@ -1192,10 +1192,8 @@
+ 		spin_lock_bh(&fib6_gc_lock);
+ 		gc_args.timeout = (int)dummy;
+ 	} else {
+-		local_bh_disable();
+-		if (!spin_trylock(&fib6_gc_lock)) {
++		if (!spin_trylock_bh(&fib6_gc_lock)) {
+ 			mod_timer(&ip6_fib_timer, jiffies + HZ);
+-			local_bh_enable();
+ 			return;
+ 		}
+ 		gc_args.timeout = ip6_rt_gc_interval;

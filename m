@@ -1,54 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131990AbRDPTnP>; Mon, 16 Apr 2001 15:43:15 -0400
+	id <S132037AbRDPTnG>; Mon, 16 Apr 2001 15:43:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132038AbRDPTnG>; Mon, 16 Apr 2001 15:43:06 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:16399 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S131990AbRDPTms>; Mon, 16 Apr 2001 15:42:48 -0400
-Date: Mon, 16 Apr 2001 15:01:40 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: buz.c compile error
-Message-ID: <Pine.LNX.4.21.0104161500450.3211-100000@freak.distro.conectiva>
+	id <S131985AbRDPTmz>; Mon, 16 Apr 2001 15:42:55 -0400
+Received: from m655-mp1-cvx1a.col.ntl.com ([213.104.70.143]:44185 "EHLO
+	[213.104.70.143]") by vger.kernel.org with ESMTP id <S131983AbRDPTmj>;
+	Mon, 16 Apr 2001 15:42:39 -0400
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [new PATCH] Re: 8139too: defunct threads
+In-Reply-To: <Pine.LNX.4.33.0104150100210.13758-100000@dystopia.lab43.org>
+	<3AD99CE4.E1ED7090@colorfullife.com> <3ADB2522.6A0C579C@uow.edu.au>
+From: John Fremlin <chief@bandits.org>
+Date: 16 Apr 2001 20:42:00 +0100
+In-Reply-To: Andrew Morton's message of "Mon, 16 Apr 2001 10:00:18 -0700"
+Message-ID: <m2u23ows1j.fsf@boreas.yi.org.>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (GTK)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ Andrew Morton <andrewm@uow.edu.au> writes:
 
-Kernel 2.4.4-pre3.
+[...]
 
-gcc -D__KERNEL__ -I/home/marcelo/rpm/BUILD/kernel-2.4.3/linux/include
--Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing
--pipe -mpreferred-stack-boundary=2 -march=i386 -DMODULE -DMODVERSIONS
--include
-/home/marcelo/rpm/BUILD/kernel-2.4.3/linux/include/linux/modversions.h
--c -o buz.o buz.c
-buz.c: In function `v4l_fbuffer_alloc':
-buz.c:188: `KMALLOC_MAXSIZE' undeclared (first use in this function)
-buz.c:188: (Each undeclared identifier is reported only once
-buz.c:188: for each function it appears in.)
-buz.c: In function `jpg_fbuffer_alloc':
-buz.c:262: `KMALLOC_MAXSIZE' undeclared (first use in this function)
-buz.c:256: warning: `alloc_contig' might be used uninitialized in this
-function
-buz.c: In function `jpg_fbuffer_free':
-buz.c:322: `KMALLOC_MAXSIZE' undeclared (first use in this function)
-buz.c:316: warning: `alloc_contig' might be used uninitialized in this
-function
-buz.c: In function `zoran_ioctl':
-buz.c:2837: `KMALLOC_MAXSIZE' undeclared (first use in this function)
-make[3]: *** [buz.o] Error 1
-make[3]: Leaving directory
-`/home/marcelo/rpm/BUILD/kernel-2.4.3/linux/drivers/media/video'
-make[2]: *** [_modsubdir_video] Error 2
-make[2]: Leaving directory
-`/home/marcelo/rpm/BUILD/kernel-2.4.3/linux/drivers/media'
-make[1]: *** [_modsubdir_media] Error 2
-make[1]: Leaving directory
-`/home/marcelo/rpm/BUILD/kernel-2.4.3/linux/drivers'
-make: *** [_mod_drivers] Error 2
+> None of these will work.  The problems with globally setting
+> exit_signal to SIGCHLD are that
+> 
+> a) If the parent does waitpid(pid, status, __WCLONE), the
+>    waitpid will fail.  request_module() does this.  I don't
+>    know _why_ it does this.  Maybe it's bogus.  There is no
+>    explanation.
 
+waitpid doesn't work on cloned children unless you put in __WCLONE or
+__WALL, so this was necessary to catch the child at all. If you set to
+use SIGCHLD this will no longer be needed (if I understand correctly).
 
+[...]
+
+> So it seems that we must reparent the thread to init, and
+> make sure that it delivers SIGCHLD to init when it exits.
+
+Sounds good. Why isn't SIGCHLD a stronger default anyway.
+
+[...]
+
+> +	/* Set the exit signal to SIGCHLD so we signal init on exit */
+> +	if (this_task->exit_signal ! 0) {
+
+Tyop.
+
+> +		printk(KERN_ERR "task `%s' exit_signal %d in daemonize()\n",
+> +			this_task->comm, this_task->exit_signal);
+> +	}
+> +	this_task->exit_signal = SIGCHLD;
+> +
+> +	write_unlock_irq(&tasklist_lock);
+>  }
+>  
+>  void __init init_idle(void)
+> 
+
+-- 
+
+	http://www.penguinpowered.com/~vii

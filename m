@@ -1,72 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312031AbSDDXql>; Thu, 4 Apr 2002 18:46:41 -0500
+	id <S311948AbSDDXnl>; Thu, 4 Apr 2002 18:43:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312076AbSDDXqb>; Thu, 4 Apr 2002 18:46:31 -0500
-Received: from ppp-228-11.25-151.libero.it ([151.25.11.228]:14580 "EHLO
-	ashland") by vger.kernel.org with ESMTP id <S312031AbSDDXqT>;
-	Thu, 4 Apr 2002 18:46:19 -0500
-To: linux-kernel@vger.kernel.org
-Subject: forth interpreter as kernel module
-From: davidw@dedasys.com (David N. Welton)
-Date: 05 Apr 2002 01:49:03 +0200
-Message-ID: <877knnowi8.fsf@dedasys.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S312031AbSDDXnc>; Thu, 4 Apr 2002 18:43:32 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:16145 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S311948AbSDDXnZ>; Thu, 4 Apr 2002 18:43:25 -0500
+Date: Thu, 4 Apr 2002 15:42:42 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Robert Love <rml@tech9.net>
+cc: Andrew Morton <akpm@zip.com.au>, Roger Larsson <roger.larsson@norran.net>,
+        Dave Hansen <haveblue@us.ibm.com>,
+        "Adam J. Richter" <adam@yggdrasil.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Patch: linux-2.5.8-pre1/kernel/exit.c change caused BUG() at
+ boot  time
+In-Reply-To: <1017961694.23629.649.camel@phantasy>
+Message-ID: <Pine.LNX.4.33.0204041541500.26177-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[ please CC replies to me ]
+On 4 Apr 2002, Robert Love wrote:
+> 
+> Curiously, what is wrong with the way we did it in the original patch? 
+> I.e. set a bit in preempt_count and use that to skip to pick_next_task
+> in schedule.  This allows us to preempt any task of any state ...
 
-Hello,
+Because that requires that every user of "set_task_state()" needs to know 
+about preemption.
 
-Once upon a time, I had a rather random idea, and, acting on it, I
-wedged a forth interpreter into the Linux kernel.  I've always wanted
-to clean it up and do things nicely, but have never really found the
-time or the motivation.
+Btw, I think entry.S should just call preempt_schedule() instead, instead 
+of knowing about these details.
 
-So, I am posting here, in the hope that someone might find the idea
-interesting and take it up, or, better yet, think of something that it
-might actually be used for (this was besides the point when I did it).
+		Linus
 
-I doubt the code itself is of much interest.  Actually, I'm pretty
-embarassed about it, but decided to make it available despite that.
-
-It does run, on my system (2.4.18):
-
-@grantspass [/home/davidw/workshop/pforth-21] # insmod kpforth.o 
-Warning: loading kpforth.o will taint the kernel: no license
-
-@grantspass [/proc] # echo 3 . > kpforth
-@grantspass [/proc] # cat kpforth-out 
-pfLoadDictionary - Filename ignored! Loading from static data.
-Static data copied to newly allocated dictionaries.
-Begin AUTO.INIT ------
-3    ok
-Stack<10> 
-
-Although from what I recall when experimenting with it, there are some
-definite 'issues'.  See aforementioned disclaimer about the code.  It
-doesn't interface with the kernel in any interesting ways, either.
-
-Anyway, for the interested/bored/adventerous, the code may be found
-at:
-
-http://www.dedasys.com/freesoftware/files/kpforth-21.tgz
-
-The original forth system that I based it on - pforth - which is much
-better code then mine, is by Phil Burk.
-
-I would be interested in comments on what should be fixed in the code,
-although I may not have time to act on them.
-
-Anyway, hope this is of interest to someone, and thank you for your
-time,
--- 
-David N. Welton
-   Consulting: http://www.dedasys.com/
-     Personal: http://www.dedasys.com/davidw/
-Free Software: http://www.dedasys.com/freesoftware/
-   Apache Tcl: http://tcl.apache.org/

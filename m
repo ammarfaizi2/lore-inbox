@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263048AbTDROEc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 10:04:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263049AbTDROEc
+	id S263057AbTDROIR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 10:08:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbTDROIP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 10:04:32 -0400
-Received: from watch.techsource.com ([209.208.48.130]:46055 "EHLO
-	techsource.com") by vger.kernel.org with ESMTP id S263048AbTDROEb
+	Fri, 18 Apr 2003 10:08:15 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:30691 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S263057AbTDROIN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 10:04:31 -0400
-Message-ID: <3EA00C38.2080308@techsource.com>
-Date: Fri, 18 Apr 2003 10:31:20 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
+	Fri, 18 Apr 2003 10:08:13 -0400
+Date: Fri, 18 Apr 2003 07:20:08 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 599] New: rtl8139 NIC don't work while CONFIG_ACPI=y
+Message-ID: <22490000.1050675608@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       Arjan van de Ven <arjanv@redhat.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [BK+PATCH] remove __constant_memcpy
-References: <Pine.LNX.4.44.0304171253270.2795-100000@home.transmeta.com> <3E9F3D6F.9030501@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+http://bugme.osdl.org/show_bug.cgi?id=599
+
+           Summary: rtl8139 NIC don't work while CONFIG_ACPI=y
+    Kernel Version: 2.5.67
+            Status: NEW
+          Severity: normal
+             Owner: andrew.grover@intel.com
+         Submitter: farshad_kh@yahoo.com
 
 
-Jeff Garzik wrote:
+Distribution: redhat 8.0
 
-[snip]
+Hardware Environment: x86 (duran 1200)
 
->-		case 20:
->-			*(unsigned long *)to = *(const unsigned long *)from;
->-			*(1+(unsigned long *)to) = *(1+(const unsigned long *)from);
->-			*(2+(unsigned long *)to) = *(2+(const unsigned long *)from);
->-			*(3+(unsigned long *)to) = *(3+(const unsigned long *)from);
->-			*(4+(unsigned long *)to) = *(4+(const unsigned long *)from);
->-			return to;
->-	}
->+	if (n <= 128)
->+		return __builtin_memcpy(to, from, n);
->+
-> #define COMMON(x) \
-> __asm__ __volatile__( \
-> 	"rep ; movsl" \
->  
->
+Software Environment:
 
-Ignorant questions since I haven't been following the discussion:  Does 
-this work with unaligned copies?  Does it work well?  What's better, 
-letting the CPU do realignment, or writing the code to do bit shifts so 
-that both reads and writes are aligned?
+Problem Description:
+
+RTL8139 don't add others to arp table but answer to others arp requests
+while CONFIG_ACPI=y
+
+Steps to reproduce:
+
+compile, boot and it won't work
 
 

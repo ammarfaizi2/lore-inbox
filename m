@@ -1,44 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268461AbTBSNTW>; Wed, 19 Feb 2003 08:19:22 -0500
+	id <S268556AbTBSNYL>; Wed, 19 Feb 2003 08:24:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268556AbTBSNTW>; Wed, 19 Feb 2003 08:19:22 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:17939 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S268461AbTBSNTV>; Wed, 19 Feb 2003 08:19:21 -0500
-Date: Wed, 19 Feb 2003 14:29:15 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH 2.5.62]: 3/3: Very small menu cleanup
-In-Reply-To: <200302181359.37969.m.c.p@wolk-project.de>
-Message-ID: <Pine.LNX.4.44.0302191422110.32518-100000@serv>
-References: <200302181359.37969.m.c.p@wolk-project.de>
+	id <S268557AbTBSNYL>; Wed, 19 Feb 2003 08:24:11 -0500
+Received: from tomts17-srv.bellnexxia.net ([209.226.175.71]:52659 "EHLO
+	tomts17-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S268556AbTBSNYK>; Wed, 19 Feb 2003 08:24:10 -0500
+Date: Wed, 19 Feb 2003 08:31:27 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@dell
+To: Helge Hafting <helgehaf@aitel.hist.no>
+cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: a really annoying feature of the config menu structure
+In-Reply-To: <3E538479.1040305@aitel.hist.no>
+Message-ID: <Pine.LNX.4.44.0302190823270.29022-100000@dell>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 19 Feb 2003, Helge Hafting wrote:
 
-On Tue, 18 Feb 2003, Marc-Christian Petersen wrote:
+> Robert P. J. Day wrote:
+> >   i finally decided to get serious and start looking at the
+> > overall config menu structure, to re-arrange the menus and
+> > submenus so that it made more sense and flowed more logically,
+> [...]
+> >   other areas where this would have made sense would be for
+> > something like a "Networking" main menu, with submenus for
+> > things like ISDN, Wireless and so on, those all being 
+> > subsets of networking.  
+> 
+> It isn't that simple.  ISDN is more than networking, and even
+> useable without it.  Non-network uses of isdn:
+> 
+> * Making an answering machine or voicemail from a pc
+> and one or more isdn cards.
+> * Use isdn for dialing into non-IP services like a BBS.
+> 
+> So you have a choice between sticking all networking
+> things in a network menu (and have stuff like ISDN
+> spread out in different places (network and other ISDN at least)
+> 
+> or put all ISDN in one plave and have network etc. spread over
+> various networking technologies like today.
+> 
+> There is no config layout that is "clean" for everybody,
+> because it is fundamentally trying to stuff a generic graph
+> into a hierarchical tree.
 
-> 1. Move "JBD (ext3) debugging support" two spaces rightwards
+ok, so i could have picked a better example than ISDN as a 
+submenu for "Networking", but my main point still stands --
+the "Networking support" menu cannot have submenus incorporated
+below it without changing the specific Kconfig file for that
+directory.  and that gets incredibly messy as one tries to 
+follow a menu structure around the various kernel source
+directories.  ("Multimedia" was another example of an
+unfortunately inflexible menu, so you see my point.)
 
-Don't do this, indentation is now derived from the dependencies. Adding 
-spaces helps 'make config' but not really the other front ends.
-The correct fix would be to change JBD into:
+perhaps you're right -- perhaps there is no nice solution
+and there's not much point pursuing this.  but given that
+linux is being more widely adopted every day, it's clear
+that more and more people are going to be building kernels,
+it still might be worth trying to address this before it
+goes much further.
 
-config JBD
-	bool
-	default y
-	depends on EXT3_FS
+i'll go with tomas' suggestion to wait until the new 
+config grammar is out.  until then, i'm just going to
+play with theoretically reorganizing the menus and see
+what eventually makes sense to me, regardless of whether
+it's ever implemented or not.
 
-Now the following JBD_DEBUG entry should be an entry under EXT3_FS,
-but unfortunately there seems to be bug somewhere, it's inserted to high 
-in the menu tree. As a work around you can add EXT3_FS as dependency to 
-JBD_DEBUG, I'll look into it as soon as possible.
+rday
 
-bye, Roman
+
 

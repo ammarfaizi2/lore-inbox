@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132307AbRAFQY7>; Sat, 6 Jan 2001 11:24:59 -0500
+	id <S131796AbRAFQqC>; Sat, 6 Jan 2001 11:46:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131796AbRAFQYu>; Sat, 6 Jan 2001 11:24:50 -0500
-Received: from filesrv1.baby-dragons.com ([199.33.245.55]:13331 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S132305AbRAFQYk>; Sat, 6 Jan 2001 11:24:40 -0500
-Date: Sat, 6 Jan 2001 08:23:50 -0800 (PST)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Mike <mike@khi.sdnpk.org>
-cc: Igmar Palsenberg <maillist@chello.nl>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Console logging
-In-Reply-To: <Pine.LNX.4.21.0101061824460.7188-100000@server.serve.me.nl>
-Message-ID: <Pine.LNX.4.30.0101060820160.30876-100000@filesrv1.baby-dragons.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131973AbRAFQpw>; Sat, 6 Jan 2001 11:45:52 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:13541 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S131796AbRAFQpk>;
+	Sat, 6 Jan 2001 11:45:40 -0500
+Date: Sat, 6 Jan 2001 17:45:35 +0100 (MET)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200101061645.RAA145723.aeb@texel.cwi.nl>
+To: maillist@chello.nl, matthias.andree@stud.uni-dortmund.de
+Subject: Re: 2.2.18 and Maxtor 96147H6 (61 GB)
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> It's not that simple.. The maxtor comes clipped,. but Linux can't kill the
+> clip. So it sticks with 32 MB
 
-	Hello Mike ,
+> ibmsetmax.c does a software clip, but that bugs a bit. Sometimes even
+> Linux doesn't see 61 GB, but only 32, sometimes the full capacity.
 
-On Sat, 6 Jan 2001, Igmar Palsenberg wrote:
-> On Sat, 6 Jan 2001, Mike wrote:
-> > Hi!
-> > I am getting getting "/var/log/messages" on my console. It doesn't save
-> > it in /var/log.
-> > I have checked entries in /etc/syslog.conf file. Its correct.
-> > Can someone help me.
-> Syslog isn't running
-	Or the directory/file in /var/log/ hasn't the correct permission
-	to allow program 'X' to write into it .  But it is more likely
-	that Igmar is correct .  Twyl ,  JimL
+Please don't talk vague useless garbage.
+There is no entity called "Linux". If you mean "the 2.4.0 kernel
+boot messages report 61 GB, fdisk 2.9s sees 32 GB, fdisk 2.10r sees 61 GB"
+then say so. If you mean something else, say what you mean.
+Precisely, with versions and everything.
 
-       +----------------------------------------------------------------+
-       | James   W.   Laferriere | System  Techniques | Give me VMS     |
-       | Network        Engineer | 25416      22nd So |  Give me Linux  |
-       | babydr@baby-dragons.com | DesMoines WA 98198 |   only  on  AXP |
-       +----------------------------------------------------------------+
+Since you have a Maxtor, my old setmax should suffice for you, it can kill
+the clip, and there is no reason to use ibmsetmax.c, that is a version for
+IBM disks. There should not be any need to use other machines.
 
+If something changed for recent Maxtor disks, we would like to know,
+but only reliable, detailed reports are of any use.
+
+Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

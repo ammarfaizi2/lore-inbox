@@ -1,87 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S320867AbUKBFWY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S773514AbUKBFXW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S320867AbUKBFWY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 00:22:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274667AbUKAW3V
+	id S773514AbUKBFXW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 00:23:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S376804AbUKAW3B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 17:29:21 -0500
-Received: from smtp2.netcabo.pt ([212.113.174.29]:37223 "EHLO
-	exch01smtp10.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S276276AbUKAUBt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 15:01:49 -0500
-Message-ID: <32784.192.168.1.5.1099339206.squirrel@192.168.1.5>
-Date: Mon, 1 Nov 2004 20:00:06 -0000 (WET)
-Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
-From: "Rui Nuno Capela" <rncbc@rncbc.org>
-To: tglx@linutronix.de
-Cc: "Ingo Molnar" <mingo@elte.hu>, "Florian Schmidt" <mista.tapas@gmx.net>,
-       "Lee Revell" <rlrevell@joe-job.com>,
-       "Paul Davis" <paul@linuxaudiosystems.com>,
-       "LKML" <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
-       "Bill Huey" <bhuey@lnxw.com>, "Adam Heath" <doogie@debian.org>,
-       "Michal Schmidt" <xschmi00@stud.feec.vutbr.cz>,
-       "Fernando Pablo Lopez-Lezcano" <nando@ccrma.stanford.edu>,
-       "Karsten Wiese" <annabellesgarden@yahoo.de>,
-       "jackit-devel" <jackit-devel@lists.sourceforge.net>,
-       "K.R. Foley" <kr@cybsft.com>
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-References: <20041031120721.GA19450@elte.hu>    
-    <20041031124828.GA22008@elte.hu>    
-    <1099227269.1459.45.camel@krustophenia.net>    
-    <20041031131318.GA23437@elte.hu> <20041031134016.GA24645@elte.hu>    
-    <20041031162059.1a3dd9eb@mango.fruits.de>    
-    <20041031165913.2d0ad21e@mango.fruits.de>    
-    <20041031200621.212ee044@mango.fruits.de>   
-    <20041101134235.GA18009@elte.hu>  <20041101135358.GA19718@elte.hu>   
-    <20041101140630.GA20448@elte.hu>    
-    <32917.192.168.1.5.1099328648.squirrel@192.168.1.5>   
-    <1099328912.3337.40.camel@thomas>
-In-Reply-To: <1099328912.3337.40.camel@thomas>
-X-OriginalArrivalTime: 01 Nov 2004 20:01:39.0305 (UTC) FILETIME=[99789D90:01C4C04D]
+	Mon, 1 Nov 2004 17:29:01 -0500
+Received: from mail47.e.nsc.no ([193.213.115.47]:61359 "EHLO mail47.e.nsc.no")
+	by vger.kernel.org with ESMTP id S293402AbUKAT5a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 14:57:30 -0500
+Subject: [Patch]2.6.8 htmldocs target fails with id already defined.
+	<asm/uaccess.h>
+From: Enrique Perez-Terron <enrio@online.no>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1099339046.2774.14.camel@arabia.home.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 01 Nov 2004 20:57:28 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Gleixner wrote:
-> Rui Nuno Capela wrote:
->> Ingo Molnar wrote:
->> >
->> > I've uploaded -V0.6.5 to the usual place:
->> >
->> >   http://redhat.com/~mingo/realtime-preempt/
->> >
->>
->> Build error:
->>
->> kernel/built-in.o(.text+0x308a): In function `show_state':
->> : undefined reference to `show_all_locks'
->> kernel/built-in.o(.text+0x30bc): In function `show_state':
->> : undefined reference to `show_all_locks'
->> make: *** [.tmp_vmlinux1] Error 1
->
-> You have lock debugging disabled.
->
+The DocBook markup in source comments is misplaced in
+include/asm-i386/uaccess.h, with the description of macro
+strlen-user() just above the definition of
+direct_strncpy_from_user(). 
 
-OK. Applied Thomas' corrective patch and now a debug-stripped RT-V0.6.5
-has been built fine on both of my machines.
+This leads the "make htmldocs" commands to generate the following
+error messages:
 
-But I'm afraid to have bad news.
+jade:/var/linux/Documentation/DocBook/kernel-api.sgml:6698:27:E: ID "API-DIRECT-STRNCPY-FROM-USER" already defined
+jade:/var/linux/Documentation/DocBook/kernel-api.sgml:6556:27: ID "API-DIRECT-STRNCPY-FROM-USER" first defined here
 
-My (now infamous:) jackd-R + 9*fluidsynth test is being abruptly killed by
-jack_watchdog. Annoyingly always. On both of my configurations, laptop
-(P4/UP) and desktop (P4/SMT), and in any other circunstance, jackd -R
-can't survive for long. It just stalls after a while.
+where the "first defined here" instance produces a documentation that
+gives the description of strlen_user() under the header of
+direct_strncpy_from_user().  The second instance is the correct one.
 
-To be sincere, this happened once while testing with RT-V0.6.4, but only
-after too many successful test runs.
+Regards,
+Enrique Perez-Terron
 
-Take care.
--- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
+--- include/asm-i386/uaccess.h~	2004-08-16 14:58:44.000000000 +0200
++++ include/asm-i386/uaccess.h	2004-11-01 10:21:05.000000000 +0100
+@@ -549,21 +549,6 @@
+ long strncpy_from_user(char *dst, const char __user *src, long count);
+ long __strncpy_from_user(char *dst, const char __user *src, long count);
+ 
+-/**
+- * strlen_user: - Get the size of a string in user space.
+- * @str: The string to measure.
+- *
+- * Context: User context only.  This function may sleep.
+- *
+- * Get the size of a NUL-terminated string in user space.
+- *
+- * Returns the size of the string INCLUDING the terminating NUL.
+- * On exception, returns 0.
+- *
+- * If there is a limit on the length of a valid string, you may wish to
+- * consider using strnlen_user() instead.
+- */
+-
+ long direct_strncpy_from_user(char *dst, const char *src, long count);
+ long __direct_strncpy_from_user(char *dst, const char *src, long count);
+ #define direct_strlen_user(str) direct_strnlen_user(str, ~0UL >> 1)
+@@ -604,6 +589,21 @@
+ #define get_user(val,ptr) indirect_get_user(val,ptr)
+ #define __put_user(val,ptr) __indirect_put_user(val,ptr)
+ #define put_user(val,ptr) indirect_put_user(val,ptr)
++/**
++ * strlen_user: - Get the size of a string in user space.
++ * @str: The string to measure.
++ *
++ * Context: User context only.  This function may sleep.
++ *
++ * Get the size of a NUL-terminated string in user space.
++ *
++ * Returns the size of the string INCLUDING the terminating NUL.
++ * On exception, returns 0.
++ *
++ * If there is a limit on the length of a valid string, you may wish to
++ * consider using strnlen_user() instead.
++ */
++
+ #define strlen_user(str) indirect_strlen_user(str)
+ #define strnlen_user(src,count) indirect_strnlen_user(src,count)
+ #define strncpy_from_user(dst,src,count) \
+
 

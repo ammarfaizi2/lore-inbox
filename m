@@ -1,79 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262797AbUCRRa1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 12:30:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262793AbUCRRa1
+	id S262800AbUCRRhU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 12:37:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262802AbUCRRhU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 12:30:27 -0500
-Received: from fw.osdl.org ([65.172.181.6]:12687 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262772AbUCRRaY (ORCPT
+	Thu, 18 Mar 2004 12:37:20 -0500
+Received: from fw.osdl.org ([65.172.181.6]:1683 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262800AbUCRRhS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 12:30:24 -0500
-Date: Thu, 18 Mar 2004 09:30:16 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: David Howells <dhowells@redhat.com>
-cc: Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-arch@vger.kernel.org
-Subject: Re: fcntl error
-In-Reply-To: <7051.1079628297@redhat.com>
-Message-ID: <Pine.LNX.4.58.0403180923190.880@ppc970.osdl.org>
-References: <7051.1079628297@redhat.com>
+	Thu, 18 Mar 2004 12:37:18 -0500
+Message-Id: <200403181737.i2IHbCE09261@mail.osdl.org>
+Date: Thu, 18 Mar 2004 09:37:08 -0800 (PST)
+From: markw@osdl.org
+Subject: Re: 2.6.4-mm2
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040314172809.31bd72f7.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sorry I'm falling behind...  I see about a 10% decrease in throughput
+with our dbt2 workload when comparing 2.6.4-mm2 to 2.6.3.  I'm wondering
+if this might be a result of the changes to the pagecache, radix-tree
+and writeback code since you mentioned it could affect i/o scheduling in
+2.6.4-mm1.
 
+PostgreSQL is using 8KB blocks and the characteristics of the i/o should
+be that one lvm2 volume is experiencing mostly sequential writes, while
+another has random reading and writing.  Both these volumes are using
+ext2.  I'll summarize the throughput results here, with the lvm2 stripe
+width varying across the columns:
 
-On Thu, 18 Mar 2004, David Howells wrote:
-> 
-> The attached patch fixes a minor problem with fcntl.
+kernel          16 kb   32 kb   64 kb   128 kb  256 kb  512 kb
+2.6.3                           2308    2335    2348    2334
+2.6.4-mm2       2028    2048    2074    2096    2082    2078
 
-I agree that it is a cleanup, but I disagree on the "problem" part.
+Here's a page with links to profile, oprofile, etc of each result:
+	http://developer.osdl.org/markw/linux/2.6-pagecache.html
 
-> get_close_on_exec() uses FD_ISSET() to determine the fd state. However,
-> FD_ISSET() does not return 0 or 1 on all archs. On some it returns 0 or non-0,
-> which is fine by POSIX.
+Comparing one pair of readprofile results, I find it curious that
+dm_table_unplug_all and dm_table_any_congested show up near the top of a
+2.6.4-mm2 profile when they haven't shown up before in 2.6.3.
 
-FD_ISSET() is broken if it returns anything but 0/1, in my not-so-humble 
-opinion.
-
-Looking at the implementations, you are right that some architectures 
-don't do this right, but that is a bug, and it's a bug in FD_ISSET(), not 
-in fcntl.
-
-The fact is, FD_ISSET() isn't always used in just as a conditional, and
-you're supposed to be able to do
-
-	int was_set = FD_ISSET(..);
-	...
-
-and in fact I'd suggest very _strongly_ that it also should work with
-
-	bool is_set = FD_ISSET(..);
-
-where some people use "char" for booleans for space reasons.
-
-That implies that while non-zero for "set" is ok, that non-zero had better
-have the _low_ bits set. Which is not true on architectures that use just
-a logical and with the bits in the word.
-
-Which implies that FD_ISSET() really must NOT be of that "logical and" 
-approach, which in turn implies that it should be either a inequality 
-expression, or it should be a "shift down and then and with 1".
-
-And in both of those cases, the result ends up being 0/1. So we might as 
-well just make it so.
-
-In short, the real bug is elsewhere.
-
-> Also, the argument of set_close_on_exec() is being AND'ed with literal 1. This
-> is incorrect - there's no requirement for FD_CLOEXEC to be 1.
-
-Not in theory, no. In practice, it always is.
-
-I'd suggest architecture maintainers fix their __FD_ISSET() 
-implementations to conform to the proper return value.
-
-		Linus
+Mark

@@ -1,61 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270956AbTGPQmX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 12:42:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270955AbTGPQmX
+	id S270949AbTGPQpF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 12:45:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270957AbTGPQpF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 12:42:23 -0400
-Received: from fw.osdl.org ([65.172.181.6]:4527 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270956AbTGPQmT (ORCPT
+	Wed, 16 Jul 2003 12:45:05 -0400
+Received: from main.gmane.org ([80.91.224.249]:56254 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S270949AbTGPQo4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 12:42:19 -0400
-Date: Wed, 16 Jul 2003 09:49:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: andrea@suse.de, alan@lxorguk.ukuu.org.uk, marcelo@conectiva.com.br,
-       mason@suse.com, linux-kernel@vger.kernel.org, sct@redhat.com,
-       jgarzik@pobox.com, viro@math.psu.edu
-Subject: Re: RFC on io-stalls patch
-Message-Id: <20030716094931.0a5015a5.akpm@osdl.org>
-In-Reply-To: <20030716130442.GZ833@suse.de>
-References: <Pine.LNX.4.55L.0307140922130.17091@freak.distro.conectiva>
-	<20030714131206.GJ833@suse.de>
-	<20030714195138.GX833@suse.de>
-	<20030714201637.GQ16313@dualathlon.random>
-	<20030715052640.GY833@suse.de>
-	<1058268126.3857.25.camel@dhcp22.swansea.linux.org.uk>
-	<20030715112737.GQ833@suse.de>
-	<20030716124355.GE4978@dualathlon.random>
-	<20030716124656.GY833@suse.de>
-	<20030716125933.GF4978@dualathlon.random>
-	<20030716130442.GZ833@suse.de>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 16 Jul 2003 12:44:56 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: Input layer demand loading
+Date: Wed, 16 Jul 2003 18:56:03 +0200
+Message-ID: <yw1x65m2mmvw.fsf@users.sourceforge.net>
+References: <200307131839.49112.fredrik@dolda2000.cjb.net> <200307141258.24458.fredrik@dolda2000.cjb.net>
+ <20030716042916.GC3929@kroah.com>
+ <200307161457.42862.fredrik@dolda2000.cjb.net>
+ <20030716162639.GB7513@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:hofSci+miGAGwNLm+Q2P7bagI0Y=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> wrote:
+Greg KH <greg@kroah.com> writes:
+
+>> Not necessarily. When the joystick is plugged in, you want to load the 
+>> hardware driver modules. There's really no need for the userspace interface 
+>> until someone requests it. At least that's the way I see it.
+>> And in any case, even if you do want to load joydev.o when the joystick is 
+>> plugged in, I don't see how that could be done on-demand when the joystick 
+>> port isn't hotplug compatible, such as is the case with gameports, right?
 >
-> On Wed, Jul 16 2003, Andrea Arcangeli wrote:
-> > On Wed, Jul 16, 2003 at 02:46:56PM +0200, Jens Axboe wrote:
-> > > Well it's a combined problem. Threshold too high on dirty memory,
-> > > someone doing a read well get stuck flushing out as well.
-> > 
-> > a pure read not. the write throttling should be per-process, then there
-> > will be little risk.
-> 
-> A read from user space, dirtying data along the way.
+> True, but then if you try to open the port, you will only get the base
+> joydev.o module loaded, not the gameport driver, which is what you
+> _really_ want to have loaded, right?
+>
+> So there really isn't much benifit to doing this, sorry.
 
-Actually it's a read from userspace which allocates a page which goes into
-direct reclaim which discovers a locked buffer on the tail of the LRU and
-then waits on it.
+That's easily fixed in modules.conf, or modprobe.conf for 2.6.
 
-And if he's especially unlucky: while he waits, some other process
-continues to pound more writes into the queue which get merged ahead of the
-one he's waiting on, up to a point.
-
-(I don't know if 2.6 does much better in this regard.  It is supposed to. 
-Has anyone tested for it?)
+-- 
+Måns Rullgård
+mru@users.sf.net
 

@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbRAEVxg>; Fri, 5 Jan 2001 16:53:36 -0500
+	id <S132109AbRAEVyq>; Fri, 5 Jan 2001 16:54:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129267AbRAEVx1>; Fri, 5 Jan 2001 16:53:27 -0500
-Received: from msp-65-25-230-128.mn.rr.com ([65.25.230.128]:41996 "HELO
-	msp-65-25-230-128.mn.rr.com") by vger.kernel.org with SMTP
-	id <S129183AbRAEVxT>; Fri, 5 Jan 2001 16:53:19 -0500
-Date: Fri, 5 Jan 2001 15:53:03 -0600
-From: Goblin <ahkbarr@yahoo.com>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: "chen, xiangping" <chen_xiangping@emc.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: [OT] Re: boot up problem of IDE disk in 2.4.0!
-Message-ID: <20010105155302.A20222@msp-65-25-230-128.mn.rr.com>
-In-Reply-To: <276737EB1EC5D311AB950090273BEFDD979E4B@elway.lss.emc.com> <Pine.LNX.4.10.10101051334280.6736-100000@master.linux-ide.org>
+	id <S129267AbRAEVyg>; Fri, 5 Jan 2001 16:54:36 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:58830 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S132109AbRAEVyR>;
+	Fri, 5 Jan 2001 16:54:17 -0500
+Date: Fri, 5 Jan 2001 21:52:23 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Rik van Riel <riel@conectiva.com.br>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org
+Cc: Stephen Tweedie <sct@redhat.com>
+Subject: Re: MM/VM todo list
+Message-ID: <20010105215223.M1290@redhat.com>
+In-Reply-To: <Pine.LNX.4.21.0101051505430.1295-100000@duckman.distro.conectiva> <Pine.LNX.4.21.0101051454230.2859-100000@freak.distro.conectiva> <20010105221326.A10112@caldera.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.LNX.4.10.10101051334280.6736-100000@master.linux-ide.org>; from andre@linux-ide.org on Fri, Jan 05, 2001 at 01:35:00PM -0800
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010105221326.A10112@caldera.de>; from hch@caldera.de on Fri, Jan 05, 2001 at 10:13:27PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You know, it makes me really love free OSes when I see a simple
-question asked on the list, and it's answered by the guy who
-writes the code!!!
+Hi,
 
-Cheers to Alan, Andre, Linus, Rik, R. Gooch, Mingo, HPA and all
-the rest who I forgot. You guys ROCK!
-
--Shawn
-
-On 01/05, Andre Hedrick rearranged the electrons to read:
+On Fri, Jan 05, 2001 at 10:13:27PM +0100, Christoph Hellwig wrote:
+> On Fri, Jan 05, 2001 at 02:56:40PM -0200, Marcelo Tosatti wrote:
+> > > * VM: experiment with different active lists / aging pages
+> > >   of different ages at different rates + other page replacement
+> > >   improvements
+> > > * VM: Quality of Service / fairness / ... improvements
+> >   * VM: Use kiobuf IO in VM instead buffer_head IO. 
 > 
-> Maybe run make config and not make oldconfig.
-> 
-> 
-> On Fri, 5 Jan 2001, chen, xiangping wrote:
-> 
-> > Hi, folks
-> > 
-> > I meet some problem when I tried by install kernel 2.4.0
-> > to a PC using IDE disk. It reports VFS panic error during
-> > boot up time when it tried to mount the rootfs. The error
-> > indicates that it can not find the driver for the harddisk,
-> > but I already build in the IDE disk support. The hard disk
-> > is seagate ST310212A. The related content in .config file
-> > is as follows. I would like to know what else I need to do.
+> I'd vote for killing both bufer_head and kiobuf from VM.
+> Lokk at my pageio patch - VM doesn't know about the use of kiobufs
+> in the filesystem IO...
 
- Your eyes are weary from staring at the CRT.  You feel sleepy.  Notice how
- restful it is to watch the cursor blink.  Close your eyes.  The opinions
- stated above are yours.  You cannot imagine why you ever felt otherwise.
+It has already been talked about, and is something I'd like for 2.5
+--- it's easy enough to push the buffer-head list into the
+per-address-space structures so that the upper VM has no knowledge of
+the IO mechanism being used underneath.
 
+Cheers,
+ Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

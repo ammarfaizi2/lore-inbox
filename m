@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262457AbSJVLnK>; Tue, 22 Oct 2002 07:43:10 -0400
+	id <S262484AbSJVLxa>; Tue, 22 Oct 2002 07:53:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262461AbSJVLnK>; Tue, 22 Oct 2002 07:43:10 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:10216 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262457AbSJVLnJ>;
-	Tue, 22 Oct 2002 07:43:09 -0400
-Date: Tue, 22 Oct 2002 17:32:44 +0530
-From: "Vamsi Krishna S ." <vamsi@in.ibm.com>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, rusty@rustcorp.com.au,
-       richard <richardj_moore@uk.ibm.com>, suparna@in.ibm.com,
-       bharata <bharata@in.ibm.com>
-Subject: Re: [patch 1/4] kprobes - base for 2.5.44
-Message-ID: <20021022173244.A26805@in.ibm.com>
-Reply-To: vamsi@in.ibm.com
-References: <20021022163909.A26617@in.ibm.com> <1035287010.3002.4.camel@localhost.localdomain>
+	id <S262480AbSJVLx3>; Tue, 22 Oct 2002 07:53:29 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:62136 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262476AbSJVLx0>; Tue, 22 Oct 2002 07:53:26 -0400
+Subject: Re: PROBLEM: PCMCIA cardmgr kill hangs kernel
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Take Vos <Take.Vos@binary-magic.com>
+Cc: bert hubert <ahu@ds9a.nl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200210221313.49423.Take.Vos@binary-magic.com>
+References: <200210221046.46700.Take.Vos@binary-magic.com>
+	<20021022093410.GA2392@outpost.ds9a.nl> 
+	<200210221313.49423.Take.Vos@binary-magic.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 22 Oct 2002 13:15:39 +0100
+Message-Id: <1035288939.31917.57.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1035287010.3002.4.camel@localhost.localdomain>; from arjanv@redhat.com on Tue, Oct 22, 2002 at 01:43:29PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan,
+On Tue, 2002-10-22 at 12:13, Take Vos wrote:
+> removing the flashcard from the pcmcia slot also hangs the kernel.
+> So it seams a flashcard issue (I had issues with this card in the early 2.4.x 
+> kernels, but it would hang the kernel at insertion)
 
-I understand your point, I will post all patches in a series in a
-single thread in future.
+IDE card eject was broken in the new IDE code but should have been
+fixed, unless it has come broken again. I'll investigate at some point
+soon
 
-Thanks,
--- 
-Vamsi Krishna S.
-Linux Technology Center,
-IBM Software Lab, Bangalore.
-Ph: +91 80 5044959
-Internet: vamsi@in.ibm.com

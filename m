@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269440AbUIYXlF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269441AbUIYXof@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269440AbUIYXlF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 19:41:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269441AbUIYXlF
+	id S269441AbUIYXof (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 19:44:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269442AbUIYXoc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 19:41:05 -0400
-Received: from gprs214-184.eurotel.cz ([160.218.214.184]:47232 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S269440AbUIYXlD (ORCPT
+	Sat, 25 Sep 2004 19:44:32 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:24277 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S269441AbUIYXoW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 19:41:03 -0400
-Date: Sun, 26 Sep 2004 01:40:46 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9-rc2-mm3: swsusp horribly slow on AMD64
-Message-ID: <20040925234045.GA17856@elf.ucw.cz>
-References: <200409251214.28743.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200409251214.28743.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Sat, 25 Sep 2004 19:44:22 -0400
+Date: Sat, 25 Sep 2004 19:44:05 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Andrea Arcangeli <andrea@novell.com>
+cc: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: ptep_establish/establish_pte needs set_pte_atomic and all set_pte
+ must be written in asm
+In-Reply-To: <20040925155404.GL3309@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0409251941590.28582-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sat, 25 Sep 2004, Andrea Arcangeli wrote:
 
-> I've just tried to suspend my box and I must admit I've given up after 30 
-> minutes (sic!) of waiting when there were only 12% of pages written to disk.  
-> Apparently, swsusp slows down to an unacceptable level after saying "PM: 
-> Writing image to disk".
+> set_pte), while something like this should be fine:
 > 
-> The box is an Athlon 64-based notebook.  The .config is available at:
-> http://www.sisk.pl/kernel/040925/2.6.9-rc2-mm3.config
-> and the output of dmesg is available at:
-> http://www.sisk.pl/kernel/040925/2.6.9-rc2-mm3-dmesg.log
+> 	ptep_get_and_clear
+> 	set_pte
+> 	flush_tlb
 
-We have seen something similar after hdparm was used on specific
-machines. Are you using hdparm?
-							Pavel
+Almost.  Think of software TLB refills, especially HPTE.
+The order needs to be:
+
+	ptep_get_and_clear
+	flush_tlb
+	set_pte
+
+Any page faults happening "in the middle" will end up as
+virtual no-ops once they grab the page_table_lock.
+
+Luckily the PPC64 code in 2.6 seems to have a fix for the
+race already.  Martin's race is a 2.4 thing only and needs
+a 2-line change to establish_pte(), to make the code do what
+I described above.
+
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+
+

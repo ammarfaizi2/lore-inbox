@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268062AbTBMPbu>; Thu, 13 Feb 2003 10:31:50 -0500
+	id <S268059AbTBMP3m>; Thu, 13 Feb 2003 10:29:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268063AbTBMPbu>; Thu, 13 Feb 2003 10:31:50 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:58122 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S268062AbTBMPbt>; Thu, 13 Feb 2003 10:31:49 -0500
-Date: Thu, 13 Feb 2003 16:41:39 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Bjorn Wesen <bjorn.wesen@axis.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [ACPI] S4bios support
-Message-ID: <20030213154138.GC27708@atrey.karlin.mff.cuni.cz>
-References: <20030211185406.GA25167@elf.ucw.cz> <Pine.LNX.4.33.0302131611020.7941-100000@godzilla.axis.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0302131611020.7941-100000@godzilla.axis.se>
-User-Agent: Mutt/1.3.28i
+	id <S268061AbTBMP3m>; Thu, 13 Feb 2003 10:29:42 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:59010 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S268059AbTBMP3l>;
+	Thu, 13 Feb 2003 10:29:41 -0500
+Date: Thu, 13 Feb 2003 09:33:07 -0600 (CST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: Rusty Lynch <rusty@linux.co.intel.com>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5.60 Trivial] Sysfs not handling show errors
+In-Reply-To: <1045089456.1150.6.camel@vmhack>
+Message-ID: <Pine.LNX.4.33.0302130932530.1133-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > S4bios is easier to use [no possibility to boot into wrong kernel;
-> > machine actually indicates it is sleeping, not powered down], has
-> > nicer progress bars, etc... I'd like to see it in. Please apply,
+On 12 Feb 2003, Rusty Lynch wrote:
+
+> Attempting to cat a sysfs file that returns an error will result in an
+> endless dump of garbage to the screen because the result of the specific
+> show operation was being saved to a size_t (unsigned) and then later
+> checked for a negative value.
 > 
-> May I ask what s4bios does compared to "just s4" ? Does the kernel still 
-> dump its core to swap or what happens ?
+> Here is a trivial patch to fix the error.
 
-Yes, kernel suspends into swap space. See documentation/swsusp.txt for
-details... You might want to add some details ;-).
-								Pavel
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+Thanks, applied.
+
+	-pat
+

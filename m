@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268134AbUHTOsu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268176AbUHTOw2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268134AbUHTOsu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 10:48:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268149AbUHTOsu
+	id S268176AbUHTOw2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 10:52:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268183AbUHTOw1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 10:48:50 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:29361 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S268134AbUHTOsq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 10:48:46 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: PF_MEMALLOC in 2.6
-Date: Fri, 20 Aug 2004 16:50:07 +0200
-User-Agent: KMail/1.6.2
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Hugh Dickins <hugh@veritas.com>,
-       arjanv@redhat.com, alan@redhat.com, greg@kroah.com,
-       linux-kernel@vger.kernel.org, riel@redhat.com, sct@redhat.com
-References: <Pine.LNX.4.44.0408191320320.17508-100000@localhost.localdomain> <4125B111.2040308@yahoo.com.au> <20040820014005.73383a43@lembas.zaitcev.lan>
-In-Reply-To: <20040820014005.73383a43@lembas.zaitcev.lan>
+	Fri, 20 Aug 2004 10:52:27 -0400
+Received: from brmx1.fl.icn.siemens.com ([12.147.96.32]:17111 "EHLO
+	brmx1.boca.ssc.siemens.com") by vger.kernel.org with ESMTP
+	id S268176AbUHTOvE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 10:51:04 -0400
+Message-ID: <7A25937D23A1E64C8E93CB4A50509C2A0310F332@stca204a.bus.sc.rolm.com>
+From: "Bloch, Jack" <jack.bloch@siemens.com>
+To: linux-kernel@vger.kernel.org
+Cc: "Laxman, Amruth" <amruth.laxman@siemens.com>
+Subject: IP stack question
+Date: Fri, 20 Aug 2004 07:50:56 -0700
 MIME-Version: 1.0
-Content-Disposition: inline
+X-Mailer: Internet Mail Service (5.5.2657.72)
 Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408201650.07513.oliver@neukum.org>
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have the following situation.
 
-> If you let me gloat for a little bit, ub makes this discussion moot
-> because it has no helper thread. But getting back to usb-storage,
+I am running a SuSE 2.4.19 Kernel on an SMP machine. I am using the bonding
+driver. I have a BOND1 device created with IP address 10.77.67.125 and MAC
+address 00:10:18:06:CF:B8.  BOND1 consists of ETH2 and ETH6 in active
+standby mode with ETH2 being the active slave and ETH6 being standby. I see
+periods of duplicate messages being received by my application. I traced it
+down to the fact that the messages are indeed being received by both ETH2
+and ETH6 (since ETH6 has the same MAC/IP combination, it does pass messages
+up the stack). Further analysis has shown that soem messages coming from the
+active bond have a garbage sour address in the MAC header. The source
+address seems to be an ASCII representation of the actual MAC address, that
+is,   30303A31303A (00:10:). This causes the Ethernet switch to overwrite
+its learning tables and subsequent messages for that MAC/IP are broadcast
+and received by both chips. I put some tracepoints in the bonding drivers
+transmit routine and see that the bad address is in the SKB at the time of
+transmission. I would like to know if similar problems have been seen. My
+assumtion is that this message arrives  at the bonding driver already "bad"
+from the IP stack. The fat that I have bonding allows the error to be seen.
+Without bonding, this error would not be noticed.
 
-But ub supports only a subset of storage devices, doesn't it?
+Please CC me directly on any responses.
 
-[..] 
-> This is what made me suspect that it's the diry memory writeout problem.
-> It's just like how it was on 2.4 before Alan added PF_MEMALLOC.
 
-If we add PF_MEMALLOC, do we solve the issue or make it only less
-likely? Isn't there a need to limit users of the reserves in number?
 
-	Regards
-		Oliver
+Regards,
+
+
+Jack Bloch
+
+
+Siemens 

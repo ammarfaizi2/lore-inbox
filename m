@@ -1,66 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263628AbUEEHtJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263670AbUEEIEi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263628AbUEEHtJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 03:49:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263636AbUEEHtJ
+	id S263670AbUEEIEi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 04:04:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263823AbUEEIEi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 03:49:09 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:5134 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S263628AbUEEHtF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 03:49:05 -0400
-Date: Wed, 5 May 2004 00:44:56 -0700
-From: Paul Jackson <pj@sgi.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: akpm@osdl.org, ashok.raj@intel.com, davidm@hpl.hp.com,
-       linux-kernel@vger.kernel.org, anil.s.keshavamurthy@intel.com,
-       jreiser@BitWagon.com, mike@navi.cx, pageexec@freemail.hu,
-       colpatch@us.ibm.com, rusty@rustcorp.com.au, nickpiggin@yahoo.com.au
-Subject: Re: various cpu patches [was: (resend) take3: Updated CPU Hotplug
- patches]
-Message-Id: <20040505004456.4fd397f0.pj@sgi.com>
-In-Reply-To: <20040505072431.GG1397@holomorphy.com>
-References: <20040504211755.A13286@unix-os.sc.intel.com>
-	<20040504225907.6c2fe459.akpm@osdl.org>
-	<20040505000348.018f88bb.pj@sgi.com>
-	<20040505072431.GG1397@holomorphy.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 5 May 2004 04:04:38 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:39623 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S263670AbUEEIEc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 May 2004 04:04:32 -0400
+X-Envelope-From: kraxel@bytesex.org
+Date: Wed, 5 May 2004 09:50:17 +0200
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Linus Torvalds <torvalds@osdl.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Kernel List <linux-kernel@vger.kernel.org>, degerrit@web.de
+Subject: [patch] Re: V4L bug report - oops: video_register_device (ksymoops, objdump)
+Message-ID: <20040505075017.GA2375@bytesex.org>
+References: <40983350.4020403@web.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40983350.4020403@web.de>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I don't see any essential interaction between these patches.
+On Wed, May 05, 2004 at 02:20:32AM +0200, degerrit@web.de wrote:
+> I caused an oops in unusual circumstances by accidentally "forcing" a
+> video device number which was too high or already taken (don't know
+> which). I assume this probably shouldn't give an oops (though it was my
+> fault), so here's a bugreport...
 
-Essentially, yes.  The interactions were:
+Fixed by adding a range check for the number passed in by the driver.
+The fix applies to 2.4 kernels as well.
 
- Ashok's Hotplug added an essential arch-specific ifdef to a
-  arch-specific cpumask file that my cleanup removes - so I had
-  to work with Ashok to remove that arch dependency.
+  Gerd
 
- Reiser's bssprot broke ia64, so I couldn't test with that patch.
-
- Matthew has recoded his nodemask patch to presume my cpumask cleanup.
-
- Andi's numa patch is so far as we know independent, but close enough
-  to all this other activity to be at risk for something.
-
-The interactions were enough that I probably couldn't expect Andrew to
-wade through them to adapt my cleanup.  Rather I pretty much have to
-deliver my cleanup ready to go, with whatever Andrew thinks is his
-current *-mm series.
-
-I'll be doing well just to get Andrew to look at it, despite what I take
-to be endorsements from Matthew, Rusty and Joe Korty, and conditional
-acceptance from yourself.  Andrew would probably drop it in a heartbeat
-if it collided non-trivially.
-
-So merge work - yes.  But merge work that mostly I need to do, which
-makes me very sensitive to the order in which things happen.
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+--- linux-2.6.6-rc2/drivers/media/video/videodev.c~	2004-04-21 15:05:10.000000000 +0200
++++ linux-2.6.6-rc2/drivers/media/video/videodev.c	2004-05-05 09:38:20.032625621 +0200
+@@ -316,7 +316,14 @@
+ 
+ 	/* pick a minor number */
+ 	down(&videodev_lock);
+-	if (-1 == nr) {
++	if (nr >= 0  &&  nr < end-base) {
++		/* use the one the driver asked for */
++		i = base+nr;
++		if (NULL != video_device[i]) {
++			up(&videodev_lock);
++			return -ENFILE;
++		}
++	} else {
+ 		/* use first free */
+ 		for(i=base;i<end;i++)
+ 			if (NULL == video_device[i])
+@@ -325,13 +332,6 @@
+ 			up(&videodev_lock);
+ 			return -ENFILE;
+ 		}
+-	} else {
+-		/* use the one the driver asked for */
+-		i = base+nr;
+-		if (NULL != video_device[i]) {
+-			up(&videodev_lock);
+-			return -ENFILE;
+-		}
+ 	}
+ 	video_device[i]=vfd;
+ 	vfd->minor=i;

@@ -1,56 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132674AbRDBKlQ>; Mon, 2 Apr 2001 06:41:16 -0400
+	id <S132681AbRDBK4Q>; Mon, 2 Apr 2001 06:56:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132673AbRDBKlG>; Mon, 2 Apr 2001 06:41:06 -0400
-Received: from f103.law3.hotmail.com ([209.185.241.103]:47118 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id <S132667AbRDBKkq>;
-	Mon, 2 Apr 2001 06:40:46 -0400
-X-Originating-IP: [192.122.134.138]
-From: "Destroy micro$oft" <ihate_ms@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.3 instabilities, kernel panic with IrDA, ps, etc.
-Date: Mon, 02 Apr 2001 10:40:00 
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F103G5aYY61LEdyt3ce00004d5e@hotmail.com>
-X-OriginalArrivalTime: 02 Apr 2001 10:40:00.0953 (UTC) FILETIME=[44F56A90:01C0BB61]
+	id <S132682AbRDBK4H>; Mon, 2 Apr 2001 06:56:07 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:50960 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S132680AbRDBKzx>; Mon, 2 Apr 2001 06:55:53 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Wolfgang Rohdewald <WRohdewald@dplanet.ch>
+Reply-To: WRohdewald@dplanet.ch
+To: linux-ibcs2@vger.kernel.org
+Subject: 2.2.19 breaks iBCS2: Patch
+Date: Mon, 2 Apr 2001 11:55:41 +0200
+X-Mailer: KMail [version 1.2.1]
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010402095543.AEEF0400D2@poboxes.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What's with the so called "stable" 2.4.x kernels
-these days?
+in 2.2.19, linux/include/asm-i386/uaccess.h is missing the line
 
-The first time I booted 2.4.3, the system came
-up to the login prompt and promptly froze.
-The second time, I tried to start X, and it
-froze again. Never seen this with the older
-kernels.
+#define strlen_user(str) strnlen_user(str, ~0UL >> 1)
 
-I've got my actisys IrDA dongle working with
-the 2.2.x and 2.4.2 kernels, and tried the
-2.4.3 kernel. As soon as a connection was initiated,
-I got an Oops, kernel panic, and an Aieeee!
-This behaviour was repeated infrequently - it
-does this once every 5 connect requests.
+putting it back makes iBCS2 work again.
 
-With ps -ax | grep something, it complained
-about not being able to do something with
-file descriptor 1 and 4.
+Btw will iBCS2 ever be ported to the 2.4 kernel? I'm stuck with 2.2
+until this is ported.
 
-Other than the kernel change from 2.4.2 to
-2.4.3, nothing else has been modified in my
-system.
+Please CC: me, I'm not (yet) subscribed
 
-BTW I'm using a run of the mill PC with a P-II,
-ATI Mach64, sound blaster, Adaptec AIC7880 SCSI,
-etc.
-
-The other interesting thing is the code bloat.
-Given the exact same options with 2.2.1[789]
-the compressed kernel comes to ~510KB. With
-2.4.x, it's 730+KB :(  Whoa!
-
-_________________________________________________________________________
-Get Your Private, Free E-mail from MSN Hotmail at http://www.hotmail.com.
-
+Thanks, Wolfgang

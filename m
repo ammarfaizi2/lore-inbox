@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265786AbSLNSex>; Sat, 14 Dec 2002 13:34:53 -0500
+	id <S265797AbSLNSlH>; Sat, 14 Dec 2002 13:41:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265797AbSLNSex>; Sat, 14 Dec 2002 13:34:53 -0500
-Received: from packet.digeo.com ([12.110.80.53]:42682 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265786AbSLNSew>;
-	Sat, 14 Dec 2002 13:34:52 -0500
-Message-ID: <3DFB7B9E.FC404B6B@digeo.com>
-Date: Sat, 14 Dec 2002 10:42:38 -0800
+	id <S265798AbSLNSlH>; Sat, 14 Dec 2002 13:41:07 -0500
+Received: from packet.digeo.com ([12.110.80.53]:49338 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265797AbSLNSlG>;
+	Sat, 14 Dec 2002 13:41:06 -0500
+Message-ID: <3DFB7D14.149B2B80@digeo.com>
+Date: Sat, 14 Dec 2002 10:48:52 -0800
 From: Andrew Morton <akpm@digeo.com>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Oleg Drokin <green@namesys.com>
-CC: Hans Reiser <reiser@namesys.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BK][PATCH] ReiserFS CPU and memory bandwidth efficient large writes
-References: <3DFA2D4F.3010301@namesys.com> <3DFA53DA.DE6788C1@digeo.com> <20021214162108.A3452@namesys.com>
+To: Mohamed El Ayouty <melayout@umich.edu>
+CC: Rusty Russell <rusty@rustcorp.com.au>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5.51] Failure to mount ext3 root when ext2 compiled in
+References: <3DFB03E8.C7AB1271@digeo.com> <1039875751.10805.3.camel@syKr0n.mine.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Dec 2002 18:42:38.0725 (UTC) FILETIME=[93A98350:01C2A3A0]
+X-OriginalArrivalTime: 14 Dec 2002 18:48:52.0877 (UTC) FILETIME=[72AC93D0:01C2A3A1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Drokin wrote:
+Mohamed El Ayouty wrote:
 > 
-> Hello!
+> I started having that problem since 2.5.48.
 > 
-> On Fri, Dec 13, 2002 at 01:40:42PM -0800, Andrew Morton wrote:
+> I just commented out those 4 lines in init/do_mounts.c:
 > 
-> > This seems wrong.  This could be a newly-allocated pagecache page.  It is not
-> > yet fully uptodate.  If (say) the subsequent copy_from_user gets a fault then
-> > it appears that this now-uptodate pagecache page will leak uninitialised stuff?
+> #ifdef CONFIG_DEVFS_FS
+>         sys_mount("devfs", "/dev", "devfs", 0, NULL);
+>         do_devfs = 1;
+> #endif
 > 
-> Ok, after all I think we do not need this uptodate stuff at all.
+> and 2.5.51 now works.
+> 
 
-Well that certainly simplifies things.
- 
-> Find below the patch that address all the issues you've brought.
-> It is on top of previous one.
-> Do you think it is ok now?
+OK, the above code was added in 2.5.48.   Thanks.  I'll bug Mr Viro
+about it when the power comes back on over on the East coast...
 
-I addresses the things I noticed and raised, thanks.  Except for the
-stack-space use.  People are waving around 4k-stack patches, and we
-do need to be careful there.
+If you replace CONFIG_DEVFS_FS with CONFIG_DEVFS_MOUNT there, does
+that fix it?

@@ -1,59 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266486AbUIOPlf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266512AbUIOPn3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266486AbUIOPlf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 11:41:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266490AbUIOPlf
+	id S266512AbUIOPn3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 11:43:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266498AbUIOPn3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 11:41:35 -0400
-Received: from fw.osdl.org ([65.172.181.6]:31451 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266486AbUIOPlB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 11:41:01 -0400
-Date: Wed, 15 Sep 2004 08:40:55 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Arjan van de Ven <arjanv@redhat.com>, Lee Revell <rlrevell@joe-job.com>
-Subject: Re: [patch] remove the BKL (Big Kernel Lock), this time for real
-In-Reply-To: <20040915151815.GA30138@elte.hu>
-Message-ID: <Pine.LNX.4.58.0409150826150.2333@ppc970.osdl.org>
-References: <20040915151815.GA30138@elte.hu>
+	Wed, 15 Sep 2004 11:43:29 -0400
+Received: from shockwave.systems.pipex.net ([62.241.160.9]:38879 "EHLO
+	shockwave.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S266490AbUIOPnR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 11:43:17 -0400
+Date: Wed, 15 Sep 2004 16:43:59 +0100 (BST)
+From: Tigran Aivazian <tigran@veritas.com>
+X-X-Sender: tigran@einstein.homenet
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Latest microcode data from Intel.
+In-Reply-To: <Pine.LNX.3.96.1040915111445.10950I-100000@gatekeeper.tmr.com>
+Message-ID: <Pine.LNX.4.44.0409151641430.3504-100000@einstein.homenet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 15 Sep 2004, Bill Davidsen wrote:
+> That's exactly why I mentioned using the per-cpu device if present. While
+> having CPUs with different loaders is not a feature today, I wouldn't bet
+> that will always be true. We know that AMD expects to ship dual core CPUs
+> in an Opteron form factor. If I have a dual opteron system and replace one
+> CPU with dual core, will I need a different loader? I have no idea, but
+> since it's easy to use the per-CPU microcode I would.
 
+The microcode driver handles the case of different types of CPUs in an SMP 
+system internally. Namely, it selects the appropriate microcode data 
+chunks for each CPU and then uploads them correctly to each one. Anyway, 
+it only works for Intel processors, so AMD is not in the equation anyway 
+(unless I discover that AMD processors support similar feature and enhance 
+the driver to support it).
 
-On Wed, 15 Sep 2004, Ingo Molnar wrote:
-> 
-> the attached patch is a new approach to get rid of Linux's Big Kernel
-> Lock as we know it today.
+Kind regards
+Tigran
 
-I really think this is wrong.
-
-Maybe not from a conceptual standpoint, but that implementation with the
-scheduler doing "reaquire_kernel_lock()" and doing a down() there is just
-wrong, wrong, wrong.
-
-If we're going to do a down() and block immediately after being scheduled,
-I don't think we should have been picked in the first place.
-
-Yeah, yeah, you have all that magic to not recurse by setting lock-depth 
-negative before doing the down(), but it still feels fundamentally wrong 
-to me. There's also the question whether this actually _helps_ anything, 
-since it may well just replace the spinning with lots of new scheduler 
-activity. 
-
-And you make schedule() a lot more expensive for kernel lock holders by 
-copying the CPU map. You may have tested it on a machine where the CPU map 
-is just a single word, but what about the big machines?
-
-Spinlocks really _are_ cheaper. Wouldn't it be nice to just continue 
-removing kernel lock users and keeping a very _simple_ kernel lock for 
-legacy issues? 
-
-In other words, I'd _really_ like to see some serious numbers for this.
-
-		Linus

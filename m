@@ -1,54 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267244AbTB0WxD>; Thu, 27 Feb 2003 17:53:03 -0500
+	id <S267365AbTB0XAu>; Thu, 27 Feb 2003 18:00:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267256AbTB0WxD>; Thu, 27 Feb 2003 17:53:03 -0500
-Received: from [62.37.236.142] ([62.37.236.142]:59276 "EHLO smtp.wanadoo.es")
-	by vger.kernel.org with ESMTP id <S267244AbTB0WxC>;
-	Thu, 27 Feb 2003 17:53:02 -0500
-Message-ID: <3E5E9876.3040306@wanadoo.es>
-Date: Fri, 28 Feb 2003 00:00:06 +0100
-From: =?ISO-8859-1?Q?Xos=C9_Vazquez?= <xose@wanadoo.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: gl, es, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.21-pre5 error
-X-Enigmail-Version: 0.63.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+	id <S267368AbTB0XAu>; Thu, 27 Feb 2003 18:00:50 -0500
+Received: from packet.digeo.com ([12.110.80.53]:31111 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267365AbTB0XAt>;
+	Thu, 27 Feb 2003 18:00:49 -0500
+Date: Thu, 27 Feb 2003 15:07:38 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Paul B Schroeder <paulsch@haywired.net>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, girouard@us.ibm.com
+Subject: Re: [PATCH][2.5] mwave updates
+Message-Id: <20030227150738.54382b6c.akpm@digeo.com>
+In-Reply-To: <Pine.LNX.4.33.0302271430390.18104-100000@snafu.haywired.net>
+References: <Pine.LNX.4.33.0302271430390.18104-100000@snafu.haywired.net>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 27 Feb 2003 23:11:02.0400 (UTC) FILETIME=[7F2E9000:01C2DEB5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+Paul B Schroeder <paulsch@haywired.net> wrote:
+>
+> The patch can be found here...
+> 
+> http://www.haywired.net/~paulsch/patches/mwave-2.5.63.patch
+> 
 
---cortamorena--
-make[2]: Entering directory `/datos/kernel/linux/drivers/ieee1394'
-ld -m elf_i386 -e stext -r -o ieee1394.o ieee1394_core.o
-ieee1394_transactions.o hosts.o highlevel.o
- csr.o nodemgr.o dma.o
-gcc -D__KERNEL__ -I/datos/kernel/linux/include -Wall -Wstrict-prototypes
--Wno-trigraphs -O2 -fno-str
-ict-aliasing -fno-common -fomit-frame-pointer -pipe
--mpreferred-stack-boundary=2 -march=athlon -DMOD
-ULE -DMODVERSIONS -include
-/datos/kernel/linux/include/linux/modversions.h  -nostdinc -iwithprefix
-include -DKBUILD_BASENAME=raw1394  -c -o raw1394.o raw1394.c
-In file included from raw1394.c:50:
-raw1394.h:167: field `tq' has incomplete type
-raw1394.c: In function `__alloc_pending_request':
-raw1394.c:110: warning: implicit declaration of function `HPSB_INIT_WORK'
-raw1394.c: In function `handle_iso_send':
-raw1394.c:800: warning: implicit declaration of function `HPSB_PREPARE_WORK'
-make[2]: *** [raw1394.o] Error 1
-make[2]: Leaving directory `/datos/kernel/linux/drivers/ieee1394'
-make[1]: *** [_modsubdir_ieee1394] Error 2
-make[1]: Leaving directory `/datos/kernel/linux/drivers'
-mak: *** [_mod_drivers] Error 2
---end--
+I tested this patch on a machine which does not have mwave hardware.  The
+driver was statically linked into the kernel.  It died...
 
-regards,
--- 
-Galiza nin perdoa nin esquence. Governo demision!
+smapi::smapi_init, ERROR invalid usSmapiID
+mwave: tp3780i::tp3780I_InitializeBoardData: Error: SMAPI is not available on this machine
+mwave: mwavedd::mwave_init: Error: Failed to initialize board data
+mwave: mwavedd::mwave_init: Error: Failed to initialize
 
+Program received signal SIGSEGV, Segmentation fault.
+hash_and_remove (dir=0x0, name=0xc0338e70 "3780i_dma")
+    at include/asm/semaphore.h:115
+115     {
+(gdb) bt
+#0  hash_and_remove (dir=0x0, name=0xc0338e70 "3780i_dma")
+    at include/asm/semaphore.h:115
+#1  0xc0180295 in sysfs_remove_file (kobj=0xc04243d4, attr=0xc0377130)
+    at fs/sysfs/inode.c:771
+#2  0xc022f289 in device_remove_file (dev=0xc04243a0, attr=0xc0377130)
+    at drivers/base/core.c:121
+#3  0xc0247aa2 in mwave_exit () at drivers/char/mwave/mwavedd.c:520
+#4  0xc03c6720 in mwave_init () at drivers/char/mwave/mwavedd.c:663
+#5  0xc03b4804 in do_initcalls () at init/main.c:472
+#6  0xc03b4833 in do_basic_setup () at init/main.c:497
+#7  0xc01050f6 in init (unused=0x0) at init/main.c:535
+
+(gdb) up
+#1  0xc0180295 in sysfs_remove_file (kobj=0xc04243d4, attr=0xc0377130)
+    at fs/sysfs/inode.c:771
+771             hash_and_remove(kobj->dentry,attr->name);
+(gdb) p kobj
+$1 = (struct kobject *) 0xc04243d4
+(gdb) p *kobj
+$2 = {name = '\0' <repeats 15 times>, refcount = {counter = 0}, entry = {
+    next = 0x0, prev = 0x0}, parent = 0x0, kset = 0x0, ktype = 0x0, 
+  dentry = 0x0}
+		

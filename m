@@ -1,66 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262328AbTEAEuQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 00:50:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262350AbTEAEuQ
+	id S262318AbTEAEtK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 00:49:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbTEAEtK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 00:50:16 -0400
-Received: from dp.samba.org ([66.70.73.150]:31379 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S262328AbTEAEuN (ORCPT
+	Thu, 1 May 2003 00:49:10 -0400
+Received: from dsl-140-114.aei.ca ([66.36.140.114]:5124 "HELO elbasta.ath.cx")
+	by vger.kernel.org with SMTP id S262318AbTEAEtJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 00:50:13 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Loading a module multtiple times 
-In-reply-to: Your message of "Wed, 30 Apr 2003 14:05:57 MST."
-             <20030430140557.12e13f1a.rddunlap@osdl.org> 
-Date: Thu, 01 May 2003 12:12:12 +1000
-Message-Id: <20030501050235.045232C051@lists.samba.org>
+	Thu, 1 May 2003 00:49:09 -0400
+Message-ID: <00b701c30f9e$772ec8b0$8000a8c0@ELBASTA>
+From: "Frederic Trudeau" <ftrudeau@zesolution.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Fatal: Kernel /boot/vmlinux-2.4.18-27.7.xsmp is too big
+Date: Thu, 1 May 2003 00:59:37 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030430140557.12e13f1a.rddunlap@osdl.org> you write:
-> 
-> Hi Rusty-
-> 
-> I was looking into a bug in /proc/net/dev truncated output.
-> /proc/net/dev lists {if (!buggy)} all loaded network interfaces.
-> 
-> To get a large number of network interfaces, Christian (below)
-> told me to copy driver/net/dummy.o to several different file names
-> and then insmod them.  It seems to have worked for him, and it works
-> that way in 2.4.recent, but it's not working for me.  See error
-> messages below.
-> 
-> Which way is expected behavior?
-> What should be the expected behavior?
-> or am I just seeing bugs (failures) that noone else sees?
+Greetings.
 
-No, it's a 2.5 thing: modules know their own name.  This is because
-(1) the names are used to set new-style boot parameters, (2) needing
-to insert two modules is usually wrong, since how would that work if
-the module was built-in?
+I am really not sure if I post this problem to the right list, but here it
+is ...
+I've got RH 7.3 running on a i686 SMP machine. I downloaded and
+installed RedHat's kernel-smp-2.4.18-3 RPM, reconfigured lilo, rebooted,
+bingo.
 
-It also opens us up to the possibility of a list of built-in modules,
-if we wanted to.
+Now im having problems with the kernel-smp-2.4.18-27.7.x RPM.
 
-However, the -o option to modprobe replaces the module name (by
-hacking the elf object, yes), because programmers are basically lazy,
-and multiple modules are useful for testing.
+When trying to run lilo, I get the error message, that I pasted in the
+subject line
+Now, the error message is pretty obvious, but I still dont get why lilo (or
+anything
+else) wouls give me this error message, since this is a RPM that was build
+for
+my exact system architecture, and my exact OS.
 
-So, you want:
-	for i in `seq 1 100`; do modprobe -o dummy$i dummy; done
+Here is the content of my /boot directory :
 
-This works on 2.4 as well.  Note that insmod doesn't support -o, being
-a trivial program by design.
+-rw-r--r--    1 root     root          512 Apr 29 19:17 boot.0800
+-rw-r--r--    1 root     root         5824 Jun 24  2001 boot.b
+-rw-r--r--    1 root     root          612 Jun 24  2001 chain.b
+-rw-r--r--    1 root     root        42255 Mar 14 06:24
+config-2.4.18-27.7.xsmp
+-rw-r--r--    1 root     root        39947 Apr 18  2002 config-2.4.18-3
+-rw-r--r--    1 root     root        39945 Apr 18  2002 config-2.4.18-3smp
+drwxr-xr-x    2 root     root         1024 Apr 30 08:58 grub
+-rw-r--r--    1 root     root       267061 Apr 30 08:58
+initrd-2.4.18-27.7.xsmp.img
+-rw-r--r--    1 root     root       261683 Apr 29 19:08 initrd-2.4.18-3.img
+-rw-r--r--    1 root     root       268599 Apr 29 19:07
+initrd-2.4.18-3smp.img
+-rw-r--r--    1 root     root          477 Apr 29 19:22 kernel.h
+drwx------    2 root     root        12288 Apr 29 19:02 lost+found
+-rw-------    1 root     root        32768 Apr 29 20:11 map
+-rw-r--r--    1 root     root        23108 Jun 24  2001 message
+lrwxrwxrwx    1 root     root           20 Apr 29 19:08 module-info ->
+module-info-2.4.18-3
+-rw-r--r--    1 root     root        15436 Mar 14 06:24
+module-info-2.4.18-27.7.xsmp
+-rw-r--r--    1 root     root        14431 Apr 18  2002 module-info-2.4.18-3
+-rw-r--r--    1 root     root        14431 Apr 18  2002
+module-info-2.4.18-3smp
+-rw-r--r--    1 root     root          640 Jun 24  2001 os2_d.b
+lrwxrwxrwx    1 root     root           22 Apr 29 19:22 System.map ->
+System.map-2.4.18-3smp
+-rw-r--r--    1 root     root       518438 Mar 14 06:24
+System.map-2.4.18-27.7.xsmp
+-rw-r--r--    1 root     root       465966 Apr 18  2002 System.map-2.4.18-3
+-rw-r--r--    1 root     root       490685 Apr 18  2002
+System.map-2.4.18-3smp
+-rwxr-xr-x    1 root     root      3463389 Mar 14 06:24
+vmlinux-2.4.18-27.7.xsmp
+-rwxr-xr-x    1 root     root      2835238 Apr 18  2002 vmlinux-2.4.18-3
+-rwxr-xr-x    1 root     root      3176626 Apr 18  2002 vmlinux-2.4.18-3smp
+lrwxrwxrwx    1 root     root           16 Apr 29 19:08 vmlinuz ->
+vmlinuz-2.4.18-3
+-rw-r--r--    1 root     root      1155108 Mar 14 06:24
+vmlinuz-2.4.18-27.7.xsmp
+-rw-r--r--    1 root     root      1030147 Apr 18  2002 vmlinuz-2.4.18-3
+-rw-r--r--    1 root     root      1108097 Apr 18  2002 vmlinuz-2.4.18-3smp
 
-> It seems like not supporting this is likely to cause some problems.
+Any pointers appreciated.
 
-Yes.  Removing any feature causes problems 8(.  But adding every
-feature is usually worse.
 
-Hope this clarifies?
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

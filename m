@@ -1,79 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265705AbSKKPhM>; Mon, 11 Nov 2002 10:37:12 -0500
+	id <S265700AbSKKPeN>; Mon, 11 Nov 2002 10:34:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265706AbSKKPhM>; Mon, 11 Nov 2002 10:37:12 -0500
-Received: from [195.223.140.107] ([195.223.140.107]:41093 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S265705AbSKKPhK>;
-	Mon, 11 Nov 2002 10:37:10 -0500
-Date: Mon, 11 Nov 2002 16:43:31 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Andrew Morton <akpm@digeo.com>, Con Kolivas <conman@kolivas.net>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       marcelo@conectiva.com.br
-Subject: Re: [BENCHMARK] 2.4.{18,19{-ck9},20rc1{-aa1}} with contest
-Message-ID: <20021111154331.GE30193@dualathlon.random>
-References: <20021111015445.GB5343@x30.random> <Pine.LNX.4.44L.0211111139450.30221-100000@imladris.surriel.com>
+	id <S265697AbSKKPeN>; Mon, 11 Nov 2002 10:34:13 -0500
+Received: from ma-northadams1b-126.bur.adelphia.net ([24.52.166.126]:1152 "EHLO
+	ma-northadams1b-126.bur.adelphia.net") by vger.kernel.org with ESMTP
+	id <S265700AbSKKPeL>; Mon, 11 Nov 2002 10:34:11 -0500
+Date: Mon, 11 Nov 2002 10:41:53 -0500
+From: Eric Buddington <eric@ma-northadams1b-126.bur.adelphia.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.47 hangs while checking hda on PII laptop
+Message-ID: <20021111104153.A8017@ma-northadams1b-126.bur.adelphia.net>
+Reply-To: ebuddington@wesleyan.edu
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L.0211111139450.30221-100000@imladris.surriel.com>
-User-Agent: Mutt/1.3.27i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+User-Agent: Mutt/1.2.5i
+Organization: ECS Labs
+X-Eric-Conspiracy: there is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 11, 2002 at 11:45:06AM -0200, Rik van Riel wrote:
-> On Mon, 11 Nov 2002, Andrea Arcangeli wrote:
-> 
-> > [snip bad example by somebody who hasn't read Andrew's patch]
-> 
-> > Anybody claiming there isn't the potential of a global I/O throughput
-> > slowdown would be clueless.
-> 
-> IO throughput isn't the point.  Due to the fundamental asymmetry
+This is 2.5.47, compiled for a PII laptop (Omnibook 4100) with
+gcc-3.2. I fixed an earlier boot panic by disabling IDE-TCQ, but now
+it hangs in the hda check (shown below) I waited at least 2 minutes
+for it to unhang.
 
-IO throughput is the whole point of the elevator and if you change it
-that way, you can decrease it, even if you put at the seventh request
-instead of the first, you're making assumption that the reads cannot
-keep the I/O pipeline full, this is a realistic assumption for some
-workloads, but not all. My example still very much apply, just not at
-the head but as the seventh request. I definitely known what is the
-design idea behind read-latency unlike what you think, I just didn't
-remeber the lowlevel implementation details which are not important in
-terms of a pontential slowdown in math theorical terms.
+Below is as much of the boot messages as I could capture; I don't know
+if the hdc error is significant (the drive had no media), but pulling
+the CD-ROM did not prevent the hda hang in a subsequent boot.
 
-> On the contrary, the decrease of latency will probably bring a
-> global throughput increase.  Just program throughput, not raw
+-Eric
 
-I perfectly know this, but you're making assumptions about certain
-workloads, I can agree they are realistic workloads on a desktop
-machine though, but not all the workloads are like that.
+------------------------------------------
 
-> That must be why it was backed out ;)
-
-it was backed out because the request size must be big and it couldn't
-be big with such ""feature"" enabled, as I just said in my previous
-email. I just given you the reason it was backed out, not sure what are
-you wondering about.
-
-The fact is that read-latency is an hack for getting a special case
-faster and that definitely in theory can hurt some workload, there is a
-reason read-latency isn't the default, read-latency definitely *can*
-increase the seeks, not admitting this and claiming it can only improve
-performance is clueless from your part. the implementation detail that
-it is adding as the seventh request instead of as the first request
-decreases the probability of a slowdown, but it still has the potential
-of slowing down something, this is all about math local to the elevator.
-
-And IMHO read-latency kinds of hide the real problem that is we should
-limit the queue in bytes or we could delay after I/O completion as
-mentioned by Andrew since certain workloads will be still very much
-slower than writes even with read-latency. I'll fix soon the real
-problem in my tree, I just need to make a number of benchmarks on SCSI
-and IDE to kind of measure a good size in bytes for peak contigous I/O
-performance before I can implement that.
-
-Andrea
+ACPI: Interpreter enabled
+ACPI: Using PIC for interrupt routing
+ACPI: (supports S0 S1 S2 S3 S4 S5)
+ACPI: PCI Interrupt Link [LNKA] (IRQs *10)
+ACPI: PCI Interrupt Link [LNKB] (IRQs *10)
+ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 5 6 7 9 10 11 12 14 15, disabled)
+ACPI: PCI Interrupt Link [LNKD] (IRQs *10)
+ACPI: PCI Root Bridge [PCI0] (00:00)
+PCI: Probing PCI hardware (bus 00)
+ACPI: Embedded Controller [EC0] (gpe 9)
+AnCPI: Power Reso [PIDE] (on)
+ACPI: Power Resource [PIDE] (on)
+pci_bind-0191 [17] acpi_pci_bind         : Device 00:00:11.00 not present in PCI
+ namespace
+pci_bind-0191 [18] acpi_pci_bind         : Device 00:00:12.00 not present in PCI
+ namespace
+ACPI: Power Resource [PFAN] (off)
+block request queues:
+ 128 requests per read queue
+ 128 requests per write queue
+ 8 requests per batch
+ enter congestion at 31
+ exit congestion at 33
+isapnp: Scanning for PnP cards...
+isapnp: No Plug & Play device found
+ACPI: PCI Interrupt Link [LNKC] enabled at IRQ 11
+PCI: Using ACPI for IRQ routing
+PCI: if you experience problems, try using option 'pci=noacpi' or even 'acpi=off
+'
+NET4: Frame Diverter 0.46
+Total HugeTLB memory allocated, 0
+slab: reap timer started for cpu 0
+Starting kswapd
+aio_setup: sizeof(struct page) = 40
+[c11ac040] eventpoll: driver installed.
+VFS: Disk quotas vdquot_6.5.1
+Journalled Block Device driver loaded
+devfs: v1.22 (20021013) Richard Gooch (rgooch@atnf.csiro.au)
+devfs: devfs_debug: 0x0
+devfs: boot_options: 0x1
+Capability LSM initialized
+Initializing Cryptographic API
+Limiting direct PCI/PCI transfers.
+Serial: 8250/16550 driver $Revision: 1.90 $ IRQ sharing enabled
+ytts/0 at I/O 0x3f8 (irq = 4) is a 16550A
+pty: 256 Unix98 ptys configured
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+hdc: _NEC CDR-2800B, ATAPI CD/DVD-ROM drive
+ide1 at 0x170-0x177,0x376 on irq 15
+hdc: ATAPI 24X CD-ROM drive, 128kB Cache
+Uniform CD-ROM driver Revision: 3.12
+end_request: I/O error, dev hdc, sector 0
+hda: 3909MB, CHS=993/128/63
+ hda:

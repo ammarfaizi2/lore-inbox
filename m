@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129572AbQK3Xt3>; Thu, 30 Nov 2000 18:49:29 -0500
+	id <S129520AbQLAAGP>; Thu, 30 Nov 2000 19:06:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131067AbQK3XtS>; Thu, 30 Nov 2000 18:49:18 -0500
-Received: from TSX-PRIME.MIT.EDU ([18.86.0.76]:33938 "HELO tsx-prime.MIT.EDU")
-	by vger.kernel.org with SMTP id <S130854AbQK3XtB>;
-	Thu, 30 Nov 2000 18:49:01 -0500
-Date: Thu, 30 Nov 2000 18:18:20 -0500
-Message-Id: <200011302318.SAA17390@tsx-prime.MIT.EDU>
-From: "Theodore Y. Ts'o" <tytso@MIT.EDU>
-To: Alexander Viro <viro@math.psu.edu>
-CC: linux-kernel@vger.kernel.org, "Theodore Y. Ts'o" <tytso@MIT.EDU>
-In-Reply-To: Alexander Viro's message of Thu, 30 Nov 2000 17:13:27 -0500
-	(EST), <Pine.GSO.4.21.0011301652130.21891-100000@weyl.math.psu.edu>
-Subject: Re: [CFT][RFC] ext2_new_inode() fixes and cleanup
-Phone: (781) 391-3464
+	id <S129552AbQLAAGF>; Thu, 30 Nov 2000 19:06:05 -0500
+Received: from north.net.CSUChico.EDU ([132.241.66.18]:2832 "EHLO
+	north.net.csuchico.edu") by vger.kernel.org with ESMTP
+	id <S129520AbQLAAGC>; Thu, 30 Nov 2000 19:06:02 -0500
+Date: Thu, 30 Nov 2000 15:35:35 -0800
+From: John Kennedy <jk@csuchico.edu>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: loopback block sizes vs. truncation
+Message-ID: <20001130153535.A10494@north.csuchico.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: Thu, 30 Nov 2000 17:13:27 -0500 (EST)
-   From: Alexander Viro <viro@math.psu.edu>
+  In trying to test the international crypto patch-2.2.17.11pre1 I was
+doing some QA on my bootloader program.  It looks like the loopback
+device will return EOF before a file is finished.
 
-	   * search for appropriate cylinder group had been taken out of the
-   ext2_new_inode() into helper functions - find_cg_dir(sb, parent_group) and
-   find_cg_other(sb, parent_group). Bug caught by Daniel (wrong bh being
-   dirtied when we update the free inodes counter) - fixed.
-	   * ext2_new_inode() returns error values via ERR_PTR(). Callers
-   updated, the third argument gone.
-	   * load_inode_bitmap() returns bh of the bitmap instead of the slot
-   number. Callers updated.
-	   * code in ext2_new_inode() straightened up. Nothing spectacular,
-   but it became more readable now...
-	   * all callers of ext2_new_inode() in namei.c are passing correct
-   mode (including ext2_mkdir(), etc.) instead of setting ->i_mode by hands
-   afterwards. 
+  In my case in particular, I was using files instead of block devices
+(again, for testing) and had a nulled loop_info so I wasn't dealing with
+encryption at that point.  I had a 7851-byte test file, which happens
+to be (7*1024)+683.  The general setup was:
 
-	   It's _not_ likely that the whole thing will go into 2.4.0. Moreover,
-   if it ever will go, it will go in pieces. I will post the splitup for
-   review, indeed. Right now I'm just asking to help with testing the
-   thing and with reading the resulting code. Hopefully, it's easier to
-   read than it used to be.
+	(<stdin> -> /dev/loop0) -> <stdout>	[ < /tmp/in > /tmp/out ]
 
-The code is definitely more readable with these changes.  For 2.4.0 at
-this point my bias is towards a simple 1-2 line fix for Daniel's bug,
-and save the cleanups for post 2.4.  
+			... which should equate to
 
-	   Ted, if you could look through the code and comment on it... I would
-   be extremely grateful. I can send you a splitup of the patch if that will be
-   more convenient for you - just tell.
+			(/tmp/in -> /dev/loop0) -> /tmp/out
 
-If you could send me the split up, I'd appreciate it, as it'll make it
-easier to find any subtle bugs.  I certainly like the general way you've
-cleaned up the interfaces and factored out the code.
+  I was getting a output file truncated at 7168 (7*1024) bytes.  That
+wasn't even a multiple of 4096, which is st_blksize if you stat() the
+input, output, or loopback file descriptors.
 
-Many thanks,
+  No problems with files that are multiples of 1K so far.
 
-					- Ted
+  I assume it is just giving me the finger because the leftover 683
+bytes aren't a multiple of the block size, but right now I'm not sure
+how to go about getting the proper block size anyway.
+
+
+  No real problem dealing with it, but it made me wonder what was going
+on with the whole 1K/4K filesystem block size again.
+
+  [This is with a patched 2.2.18pre24 kernel.]
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

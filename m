@@ -1,47 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289912AbSAOPAo>; Tue, 15 Jan 2002 10:00:44 -0500
+	id <S289918AbSAOPDy>; Tue, 15 Jan 2002 10:03:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289882AbSAOPAe>; Tue, 15 Jan 2002 10:00:34 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:1031 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S289881AbSAOPAZ>;
-	Tue, 15 Jan 2002 10:00:25 -0500
-Date: Tue, 15 Jan 2002 16:00:18 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Klaus Meyer <k.meyer@m3its.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: highmem=system killer, 2.2.17=performance killer ?
-Message-Id: <20020115160018.18793569.skraw@ithnet.com>
-In-Reply-To: <3C439E6D.B2B8C5B8@m3its.de>
-In-Reply-To: <3C439E6D.B2B8C5B8@m3its.de>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S289908AbSAOPDp>; Tue, 15 Jan 2002 10:03:45 -0500
+Received: from xsmtp.ethz.ch ([129.132.97.6]:31497 "EHLO xfe3.d.ethz.ch")
+	by vger.kernel.org with ESMTP id <S289882AbSAOPDf>;
+	Tue, 15 Jan 2002 10:03:35 -0500
+Message-ID: <3C444441.3080608@debian.org>
+Date: Tue, 15 Jan 2002 16:01:21 +0100
+From: Giacomo Catenazzi <cate@debian.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011128 Netscape6/6.2.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Marco Colombo <marco@esi.it>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery --the elegant solution)
+In-Reply-To: <Pine.LNX.4.33.0201151517550.11441-100000@Megathlon.ESI>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Jan 2002 15:03:33.0707 (UTC) FILETIME=[CD1031B0:01C19DD5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Jan 2002 04:13:49 +0100
-Klaus Meyer <k.meyer@m3its.de> wrote:
 
-> i've got serious problems using 2.4.x kernels using highmem support.
-> It seems to me that i'm not the only one, but the difference to most
-> other ones is,
-> that i can't use highmem because the system performance is terrible
-> slow.
+
+Marco Colombo wrote:
+
+>>
+>>The main discussion was in kbuild-devel list.
+>>
 > 
-> the testbed:
-> 1) Asus CUR-DLS (Server Set LE III) with two 1Ghz Pentiums, 2GB of ram
+> Uh, my mailbox hurts just at the thought of even more posting on the suject.
+> 
 
-Interestingly I have about the same setup and use, only I transfer about 25 GB
-a day via nfs to an Asus CUV4XD with 2 GB under 2.4.18-pre3 and do not
-experience any problem so far. I haven't had any with 2.4.17, too. Cache is
-pretty heavy used, but I experience no slowdown or other weird things. Can this
-be somehow chipset related? Maybe something about the DGE cards? I am using TP
-100MBit tulip-based.
 
-Regards,
-Stephan
+In kbuild: less people, less traffic, more discussion, less flames
 
+> Kernel tarballs are for hackers. Marcelo can't test any configuration
+> the autoconfigurator can produce. So basically it means an untested
+> kernel. Running untested kernel isn't a job for Joe User, and never
+> will be.
+
+
+Also what are the stable series?
+
+But you think your distribution test the kernel in all possible
+use? With all possible hardware configuration?
+Autoconfiguration will configure a compile and booting kernel.
+(but on old machine). Neither vendor can assure you that the kernel
+will work for a particolar permutation of hardware, and mainly
+it is indipendent from configuration.
+
+
+> Vendors and kernel developers have different goals. That horrible hack
+> that fixes some bug or misbehavior fits fine into a vendor kernel, and
+> has no place in Marcelo's tree; the same for that C++ written, cross OS
+> crap driver for hardware XYZ. Users want it, vendors provide it.
+> Different goals, different targets.
+
+
+Change distribution. In Debian/unstable developers and distribution are
+hardly linked!
+Why do you need someone in the 'layer' between developers
+and user?
+
+
+> Autoconfiguration is nice. But please move the topic elsewhere.
+
+
+Right. Let stop it
+
+
+	giacomo
 

@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263793AbUAHIl3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 03:41:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263880AbUAHIl2
+	id S263942AbUAHIqY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 03:46:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263963AbUAHIqY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 03:41:28 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:47804 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S263793AbUAHIl2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 03:41:28 -0500
-Message-ID: <3FFD17B5.90603@comcast.net>
-Date: Thu, 08 Jan 2004 02:41:25 -0600
-From: Ian Pilcher <i.pilcher@comcast.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031114
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Checking patch for non-x86 bugs
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 8 Jan 2004 03:46:24 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:28685 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S263927AbUAHIqW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 03:46:22 -0500
+Date: Thu, 8 Jan 2004 09:46:05 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Ben Greear <greearb@candelatech.com>
+Cc: Willy Tarreau <willy@w.ods.org>,
+       Stephan von Krawczynski <skraw@ithnet.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com,
+       linux-net@vger.kernel.org
+Subject: Re: Problem with 2.4.24 e1000 and keepalived
+Message-ID: <20040108084605.GA9050@alpha.home.local>
+References: <20040107200556.0d553c40.skraw@ithnet.com> <20040107210255.GA545@alpha.home.local> <3FFCC430.4060804@candelatech.com> <20040108052000.GA8829@alpha.home.local> <3FFD0FAE.8050705@candelatech.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FFD0FAE.8050705@candelatech.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I know that this is probably wishful thinking, but "they" always say
-that the only stupid question is the one you don't ask.  (Whoever "they"
-are, they are decidedly wrong about this, BTW.)
+On Thu, Jan 08, 2004 at 12:07:10AM -0800, Ben Greear wrote:
+ 
+> No, I meant what I said:  You have to tell many drivers to bring the 
+> interface
+> up before they will attempt (or at least report) link negotiation.
+> You do NOT have to give it an IP address or add any routes to it.
 
-I have a patch that adds an x86-specific sysctl.  I believe that every-
-thing is properly #ifdef'ed, but it would be awful nice to be able to
-ensure that I haven't broken building on non-x86 architectures.  Is
-there any way to do this without building a full-fledged cross-compiler
-toolchain?  (And if not, does anyone know of a good HOWTO on setting up
-such a toolchain?)
+ah, OK. No, anyway, it is just a matter of wrongly detecting link state
+after the link has been plugged while the interface was already UP, no
+matter if an IP was set or not.
 
-Thanks!
--- 
-========================================================================
-Ian Pilcher                                        i.pilcher@comcast.net
-========================================================================
+> But, I don't know about your particular program, I just suspect it
+> is related to detecting link state.  I think tg3 detects link when
+> the interface is not UP, if you have some tg3 nics maybe you could
+> try with them?
+
+As far as I have tested, tg3 are fine WRT this.
+
+Willy
 

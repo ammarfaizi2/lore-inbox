@@ -1,33 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269557AbTHJOSX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 10:18:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269619AbTHJOSW
+	id S270329AbTHJO16 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 10:27:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270420AbTHJO16
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 10:18:22 -0400
-Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:26894 "EHLO
-	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
-	id S269557AbTHJOSV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 10:18:21 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: removing module by path name?
-Date: Sun, 10 Aug 2003 18:11:50 +0400
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sun, 10 Aug 2003 10:27:58 -0400
+Received: from werbeagentur-aufwind.com ([217.160.128.76]:37529 "EHLO
+	mail.werbeagentur-aufwind.com") by vger.kernel.org with ESMTP
+	id S270329AbTHJO15 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 10:27:57 -0400
+Subject: Re: [PATCH] loop: fixing cryptoloop troubles.
+From: Christophe Saout <christophe@saout.de>
+To: Pascal Brisset <pascal.brisset-ml@wanadoo.fr>
+Cc: Fruhwirth Clemens <clemens-dated-1061346967.29a4@endorphin.org>,
+       linux-kernel@vger.kernel.org, mbligh@aracnet.com, kernel@gozer.org,
+       axboe@suse.de
+In-Reply-To: <20030810140912.6F7224007E9@mwinf0301.wanadoo.fr>
+References: <20030810023606.GA15356@ghanima.endorphin.org>
+	 <20030810140912.6F7224007E9@mwinf0301.wanadoo.fr>
+Content-Type: text/plain
+Message-Id: <1060525667.14835.4.camel@chtephan.cs.pocnet.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Sun, 10 Aug 2003 16:27:47 +0200
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308101811.50581.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is it intentional?
+Am So, 2003-08-10 um 16.10 schrieb Pascal Brisset:
 
-{pts/2}% sudo rmmod arch/i386/kernel/msr.ko
-{pts/2}% grep msr /proc/modules
-{pts/2}%
+> > In loop_transfer_bio the initial vector has been computed only once. For any
+> > situation where more than one bio_vec is present the initial vector will be
+> > wrong. Here is the trivial but important fix. 
+> 
+> Looks good, but:
+> - I doubt this could explain the alteration pattern (1 byte every 512).
+> - Corruption also occured with cipher_null (which ignores the IV).
 
--andrey
+I personally think that the only way to get things right is to do
+encryption sector by sector (not bvec by bvec) since every sector can
+have its own iv.
+
+I've implemented a crypto target for device-mapper that does this and it
+doesn't seem to suffer from these corruption problems:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=105967481007242&w=2 and a
+slightly updated patch: http://www.saout.de/misc/dm-crypt.diff
+
+Unfortunately I haven't got a single response. :(
+
+Just got one person outside LKML to (successfully) test it.
+
+Should I repost the patch (inline this time) with an additional [PATCH]
+or am I being annoying? Joe Thornber (the dm maintainer) would like to
+see this patch merged.
+
+--
+Christophe Saout <christophe@saout.de>
+Please avoid sending me Word or PowerPoint attachments.
+See http://www.fsf.org/philosophy/no-word-attachments.html
 

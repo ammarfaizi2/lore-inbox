@@ -1,76 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263475AbTLOLFQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 06:05:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263496AbTLOLFQ
+	id S263496AbTLOLXw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 06:23:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263504AbTLOLXw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 06:05:16 -0500
-Received: from imag.imag.fr ([129.88.30.1]:6560 "EHLO imag.imag.fr")
-	by vger.kernel.org with ESMTP id S263475AbTLOLFI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 06:05:08 -0500
-Date: Mon, 15 Dec 2003 11:56:52 +0100
-Subject: Re: PCI lib for 2.4
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Mime-Version: 1.0 (Apple Message framework v552)
-Cc: linux-kernel@vger.kernel.org
-To: Peter Chubb <peter@chubb.wattle.id.au>
-From: =?ISO-8859-1?Q?Damien_Courouss=E9?= <damien.courousse@imag.fr>
-In-Reply-To: <16348.59126.537876.178991@wombat.chubb.wattle.id.au>
-Message-Id: <6414C79D-2EED-11D8-82D9-000393C76BFA@imag.fr>
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Apple Mail (2.552)
-X-IMAG-MailScanner: Found to be clean
-X-IMAG-MailScanner-Information: Please contact the ISP for more information
+	Mon, 15 Dec 2003 06:23:52 -0500
+Received: from findaloan.ca ([66.11.177.6]:24542 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id S263496AbTLOLXu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 06:23:50 -0500
+Date: Sun, 14 Dec 2003 22:51:19 -0500
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Miles Bader <miles@gnu.org>
+Cc: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
+       linux-kernel@vger.kernel.org
+Subject: Re: udev sysfs docs Re: State of devfs in 2.6?
+Message-ID: <20031215035119.GA23538@mark.mielke.cc>
+References: <20031209075619.GA1698@kroah.com> <1070960433.869.77.camel@nomade> <20031209090815.GA2681@kroah.com> <buoiskqfivq.fsf@mcspd15.ucom.lsi.nec.co.jp> <yw1xd6ayib3f.fsf@kth.se> <3FD5AB6C.3040008@aitel.hist.no> <20031212112636.GA12727@mail.shareable.org> <20031212163422.GA4051@helium.inexs.com> <yw1xr7zaymzp.fsf@kth.se> <buo1xr6q15p.fsf@mcspd15.ucom.lsi.nec.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <buo1xr6q15p.fsf@mcspd15.ucom.lsi.nec.co.jp>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Dec 15, 2003 at 11:12:50AM +0900, Miles Bader wrote:
+> mru@kth.se (Måns Rullgård) writes:
+> > Please, don't CC me.  I'm subscribed to linux-kernel and don't need
+> > two copies of all mails.
+> You ought to put in one of those magic headers that says so (I don't see
+> one in your messages, though maybe I overlooked something), as you can
+> hardly expect everybody to remember who's subscribed to the list and
+> who's not.
 
-Actually, it will be first a user-space driver.
+I am also a believer that it is the sender's responsibility to communicate
+their wishes according to the generally accepted protocols.
 
-Maybe I wasn't clear:
+At the moment, I believe the most popular and implemented one is
+Mail-Followup-To. Set it however you want. Don't complain until you have
+set it.
 
-I link the PCI library with '-lpci' option, but it seems the library is 
-not complete, ie I can't use the whole lib. For example, the compiler 
-cannot link pci_resource_start() func. or pci_fond_device(). I think 
-these are usually in all pci libraries... My lib does not support dma 
-abilities too.
+This is standard mailing list trivia, though, and so, please keep "don't
+CC me requests" off the mailing list. :-)
 
-My problem is that I have several pci.h files which contain these 
-function (the 'whole package?'), but I don't have the lib that fits 
-to...
+My excuse for posting this is to offer Mail-Followup-To as a researching
+starting point, rather than let people become frustrated.
 
-For example
- >>grep pci_resource_start /usr/lib/pcilib.a
-returns nothing. I think it should.
+Cheers,
+mark
 
-I was just wondering how I will be able to retrieve the good lib, which 
-I can't find on my PC.  Tried to update the Red Hat (and kernel), but 
-it didn't change anything in my lib. I guess someone installed sthg on 
-my PC, which removed the 'good' pci library, or changed it for an other 
-lighter version.
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
 
-Is there anything related with CONFIG_... flags??
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
 
-Damien
+                           http://mark.mielke.cc/
 
-Le dimanche, 14 déc 2003, à 23:40 Europe/Paris, Peter Chubb a écrit :
-
->>>>>> "Damien" == Damien Courouss <Damien> writes:
->
-> Damien> Hi all, I'm a rookie in Linux development, and I have to
-> Damien> develop a small driver for a data-acquisition card on PCI
-> Damien> port.
->
-> Is this a user=space or in-kernel driver?  A user-space driver will
-> link with -lpci; an in-kernel driver needs to be built as if part
-> of the kernel.
->
-> --
-> Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT 
-> gelato.unsw.edu.au
-> The technical we do immediately,  the political takes *forever*
->
-  
-  

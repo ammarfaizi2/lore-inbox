@@ -1,66 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284687AbRLEWCB>; Wed, 5 Dec 2001 17:02:01 -0500
+	id <S284535AbRLEWCB>; Wed, 5 Dec 2001 17:02:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284535AbRLEWAL>; Wed, 5 Dec 2001 17:00:11 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:35260 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S284761AbRLEV7U>; Wed, 5 Dec 2001 16:59:20 -0500
-Date: Wed, 5 Dec 2001 13:58:51 -0800
-From: Mike Kravetz <kravetz@us.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Scheduler Cleanup
-Message-ID: <20011205135851.D1193@w-mikek2.des.beaverton.ibm.com>
-In-Reply-To: <20011126114610.B1141@w-mikek2.des.beaverton.ibm.com> <Pine.LNX.4.33.0111280145300.3429-100000@localhost.localdomain>
+	id <S284536AbRLEWAO>; Wed, 5 Dec 2001 17:00:14 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:15092
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S284760AbRLEV7Z>; Wed, 5 Dec 2001 16:59:25 -0500
+Date: Wed, 5 Dec 2001 13:59:17 -0800
+To: Rene Rebe <rene.rebe@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.16 freezes during IDE RAID5 resync
+Message-ID: <20011205215917.GD9050@mikef-linux.matchmail.com>
+Mail-Followup-To: Rene Rebe <rene.rebe@gmx.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011205195308.53c6170c.rene.rebe@gmx.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0111280145300.3429-100000@localhost.localdomain>; from mingo@elte.hu on Wed, Nov 28, 2001 at 02:07:08AM +0100
+In-Reply-To: <20011205195308.53c6170c.rene.rebe@gmx.net>
+User-Agent: Mutt/1.3.24i
+From: Mike Fedyk <mfedyk@matchmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 28, 2001 at 02:07:08AM +0100, Ingo Molnar wrote:
+On Wed, Dec 05, 2001 at 07:53:08PM +0100, Rene Rebe wrote:
+> Hi all!
 > 
-> On Mon, 26 Nov 2001, Mike Kravetz wrote:
+> Due to a f**ked power shortage (no UPS yet) our server had to reboot:
+> Hardware:
 > 
-> > I'm happy to see the cleanup of scheduler code that went into
-> > 2.4.15/16.  One small difference in behavior (I think) is that the
-> > currently running task is not given preference over other tasks on the
-> > runqueue with the same 'goodness' value.  I would think giving the
-> > current task preference is a good thing (especially in light of recent
-> > discussions about too frequent moving/rescheduling of tasks).  Can
-> > someone provide the rational for this change?  Was it just the result
-> > of making the code cleaner?  Is it believed that this won't really
-> > make a difference?
+> model name      : AMD-K6(tm) 3D processor
+> stepping        : 0
+> cpu MHz         : 350.814
 > 
-> i've done this change as part of the sched_yield() fixes/cleanups, and the
-> main reason for it is that the current process is preferred *anyway*, due
-> to getting the +1 boost via current->mm == this_mm in goodness().
-> 
-> (and besides, the percentage/probability of cases where we'd fail reselect
-> a runnable process where the previous scheduler would reselect it is very
-> very low. It does not justify adding a branch to the scheduler hotpath
-> IMO. In 99.9% of the cases if a runnable process is executing schedule()
-> then there is a higher priority process around that will win the next
-> selection. Or if there is a wakeup race, then the process will win the
-> selection very likely because it won the previous selection.)
-> 
-> 	Ingo
+> RAM: 128 MB
+>
 
-FYI - I have been having a heck of a time getting our MQ scheduler to
-work well in 2.4.16/2.5.0.  The problem was mainly with performance
-when running (I'm afraid to say) VolanoMark.  Turns out that the above
-change makes a big difference in this benchmark when running with the
-MQ scheduler.  There is an almost 50% drop in performance on my 8 way.
-I suspect that one would not see such a dramatic drop (if any) with
-the current scheduler as its performance is mostly limited by lock
-contention in this benchmark.
+SMP 2x366 Celeron, 256MB ram, Debian sid-Unstable (2.4.16)
 
-Now, I'm aware that very few people are actively using our MQ scheduler,
-and even fewer care about VolanoMark performance (perhaps no one on this
-list).  However, this seemed like an interesting observation.
+lspci:
+00:00.0 Host bridge: Intel Corp. 440LX/EX - 82443LX/EX Host bridge (rev 03)
+00:01.0 PCI bridge: Intel Corp. 440LX/EX - 82443LX/EX AGP bridge (rev 03)
+00:07.0 ISA bridge: Intel Corp. 82371AB PIIX4 ISA (rev 01)
+00:07.1 IDE interface: Intel Corp. 82371AB PIIX4 IDE (rev 01)
+00:07.2 USB Controller: Intel Corp. 82371AB PIIX4 USB (rev 01)
+00:07.3 Bridge: Intel Corp. 82371AB PIIX4 ACPI (rev 01)
+00:08.0 SCSI storage controller: Adaptec AIC-7881U (rev 01)
+00:0a.0 Ethernet controller: Digital Equipment Corporation DECchip 21041 [Tulip Pass 3] (rev 21)
+00:0b.0 Ethernet controller: Intel Corp. 82557 [Ethernet Pro 100] (rev 08)
+01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G100 [Productiva] AGP (rev 01)
 
--- 
-Mike
+/proc/isapnp:
+Card 1 'CTL0044:Creative SB32 PnP' PnP version 1.0 Product version 1.0
+
+> There where 1 (for /) and 3 software RAID 5 IBM-DTLA-305040 each as master
+> on a single channel connected all using ReiserFS.
+>
+
+Just /home in ext3 (data=journal) on /dev/md0
+
+Personalities : [raid1] 
+read_ahead 1024 sectors
+md0 : active raid1 hda3[0] sda3[1]
+      3927808 blocks [2/2] [UU]
+      
+unused devices: <none>
+
+
+hda: FUJITSU MPB3043ATU
+sda: Vendor: IBM      Model: DCAS-34330W      Rev: S65A
+
+> The system freezed (no oops - simply freeze) reproduceable during a ReiseFS
+> check of the / partiotion. (So it doens't even come to the /home md0 one).
+>
+> I even booted a recsue disc mounted the / (so the transaction-log is clean),
+> and rebooted. Then it freezes at an ramdon point during the init.d scripts.
+>
+
+Didn't crash (hang, no oops, interrupts off -- no sysrq, no capslock/numlock
+response) during the init scripts, but did while X was running during a
+raid1 reconstruction.
+
+> I fixed it by removing one IBM disc from the on-board IDE chip's
+> second channel and adding it to the promisse as slave. Now it works?
+>
+> The server ran stable for 17 days using a 2.4.14 kernel and using the
+> 2.4.16 since it got out ... I do not know what might be wrong, IDE code,
+
+2.4.14+ext3 was also reliable for me.
+
+Common items in our setups are IDE and RAID.
+
+I can run some tests if anyone comes up with something.
+
+mf

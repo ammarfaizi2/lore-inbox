@@ -1,77 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261247AbVBZSFs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbVBZSIY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261247AbVBZSFs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Feb 2005 13:05:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVBZSFs
+	id S261252AbVBZSIY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Feb 2005 13:08:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVBZSIY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Feb 2005 13:05:48 -0500
-Received: from pop.gmx.de ([213.165.64.20]:19658 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261247AbVBZSFj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Feb 2005 13:05:39 -0500
-X-Authenticated: #264456
-Date: Sat, 26 Feb 2005 19:05:56 +0100
-From: Matthias Kunze <Matthias.Kunze@gmx-topmail.de>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] config option for default loglevel
-Message-Id: <20050226190556.0def242c.Matthias.Kunze@gmx-topmail.de>
-Reply-To: Matthias.Kunze@gmx-topmail.de
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 26 Feb 2005 13:08:24 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47812 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261252AbVBZSII (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Feb 2005 13:08:08 -0500
+Date: Sat, 26 Feb 2005 10:48:52 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Luben Tuikov <luben_tuikov@adaptec.com>, slee@netengine1.com
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       James Bottomley <James.Bottomley@HansenPartnership.com>
+Subject: Re: [PATCH] fix units/partition count in sd.c (2.4.x)
+Message-ID: <20050226134851.GC16717@logos.cnet>
+References: <42137399.5080600@adaptec.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42137399.5080600@adaptec.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Feb 16, 2005 at 11:23:53AM -0500, Luben Tuikov wrote:
+> Hi,
+> 
+> This patch fixes the nr_real count in sd.c, which is also used
+> in genhd.c to print out the partitions/units.  The problem is that
+> nr_real is decremented on detach, the genhd's nr_sects is
+> cleared but the entry is still there and is being counted
+> for when displaying the partitions.  Thus when nr_real
+> is decremented _and_ a 0-ed partition/unit is counted,
+> we get to not display 1 or more entries of the tail of
+> the list.
+> 
+> The solution is to not decrement nr_real on detach, effectively
+> never decrementing it, and so that it doesn't grow without a bound,
+> to throttle it on attach, incrementing it only if it would be
+> smaller than nr_dev.
+> 
+> This was observed on a RH kernel and on the current BK kernel.
+> Tested and fixed on 2.4.30-pre1 (BK).  This patch is against 2.4.30-pre1.
+> 
+> To reproduce: assume 4 scsi disks sda, sdb, sdc, sdd.
+> #echo "scsi remove-single-device <sdb-HCTL>" > /proc/scsi/scsi
+> #cat /proc/partitions
+> <<sdb _and_ sdd are not listed>>
 
-I've created a little patch to make the default loglevel a configurable
-option. Is there a chance that this patch will be included in a future
-release?
+Luben,
 
-diff -Naur linux-2.6.10/drivers/video/console/Kconfig linux-2.6.10-new/drivers/video/console/Kconfig
---- linux-2.6.10/drivers/video/console/Kconfig  2004-12-24 22:34:26.000000000 +0100
-+++ linux-2.6.10-new/drivers/video/console/Kconfig      2005-02-26 17:11:03.000000000 +0100
-@@ -186,5 +186,25 @@
-          big letters (like the letters used in the SPARC PROM). If the
-          standard font is unreadable for you, say Y, otherwise say N.
- 
-+config DEFAULT_CONSOLE_LOGLEVEL
-+        int "Default Console Loglevel"
-+        range 1 8
-+        default 7
-+        help
-+          All Kernel Messages with a loglevel smaller than the console loglevel
-+          will be printed to the console. This value can later be changed with
-+          klogd or other programs. The loglevels are defined as follows:
-+
-+          0 (KERN_EMERG)        system is unusable
-+          1 (KERN_ALERT)        action must be taken immediately
-+          2 (KERN_CRIT)         critical conditions
-+          3 (KERN_ERR)          error conditions
-+          4 (KERN_WARNING)      warning conditions
-+          5 (KERN_NOTICE)       normal but significant condition
-+          6 (KERN_INFO)         informational
-+          7 (KERN_DEBUG)        debug-level messages
-+
-+          The console loglevel can be set to a value in the range from 1 to 8.
-+
- endmenu
- 
-diff -Naur linux-2.6.10/kernel/printk.c linux-2.6.10-new/kernel/printk.c
---- linux-2.6.10/kernel/printk.c        2005-02-26 16:49:03.000000000 +0100
-+++ linux-2.6.10-new/kernel/printk.c    2005-02-26 17:32:09.000000000 +0100
-@@ -41,7 +41,7 @@
- 
- /* We show everything that is MORE important than this.. */
- #define MINIMUM_CONSOLE_LOGLEVEL 1 /* Minimum loglevel we let people use */
--#define DEFAULT_CONSOLE_LOGLEVEL 7 /* anything MORE serious than KERN_DEBUG */
-+#define DEFAULT_CONSOLE_LOGLEVEL CONFIG_DEFAULT_CONSOLE_LOGLEVEL
- 
- DECLARE_WAIT_QUEUE_HEAD(log_wait);
+On James Bottomley advice I have applied Soo Lee's fix, which looks cleaner.
+
+Also as James notice this will increase overhead of /proc/partitions which might be
+a problem on higher-end systems with many devices. 
+
+Testing of it on such systems is highly appreciated.
 
 
----
-Matthias Kunze
-http://elpp.foofighter.de
+# 05/02/26      slee@netengine1.com     1.1558
+# [PATCH] Fix units/partition count in sd.c
+#
+# Symptom:
+#    When a scsi disk is removed other scsi disk with biggest minor #
+#    disapears in /proc/partition at the same time.
+#
+# Cause and fix:
+#    sd.c decreases nr_real on disk removal but because nr_real is not
+#    real # of devices but max # of devices of a major #,
+#    it doesn't need to be changed on disk add/remove.
+#
+# 2.6 has little different structure but it does like this
+#
+# sd.c:sd_probe()
+#       gd->minors = 16;
+# --------------------------------------------
+#
+diff -Nru a/drivers/scsi/sd.c b/drivers/scsi/sd.c
+--- a/drivers/scsi/sd.c Sat Feb 26 10:46:42 2005
++++ b/drivers/scsi/sd.c Sat Feb 26 10:46:42 2005
+@@ -1220,7 +1220,7 @@
+                        goto cleanup_gendisks_part;
+                memset(sd_gendisks[i].part, 0, (SCSI_DISKS_PER_MAJOR << 4) * sizeof(struct hd_struct));
+                sd_gendisks[i].sizes = sd_sizes + (i * SCSI_DISKS_PER_MAJOR << 4);
+-               sd_gendisks[i].nr_real = 0;
++               sd_gendisks[i].nr_real = SCSI_DISKS_PER_MAJOR;
+                sd_gendisks[i].real_devices =
+                    (void *) (rscsi_disks + i * SCSI_DISKS_PER_MAJOR);
+        }
+@@ -1333,7 +1333,6 @@
+        rscsi_disks[i].device = SDp;
+        rscsi_disks[i].has_part_table = 0;
+        sd_template.nr_dev++;
+-       SD_GENDISK(i).nr_real++;
+         devnum = i % SCSI_DISKS_PER_MAJOR;
+         SD_GENDISK(i).de_arr[devnum] = SDp->de;
+         if (SDp->removable)
+@@ -1447,7 +1446,6 @@
+                        SDp->attached--;
+                        sd_template.dev_noticed--;
+                        sd_template.nr_dev--;
+-                       SD_GENDISK(i).nr_real--;
+                        return;
+                }
+        return;
+
+
+

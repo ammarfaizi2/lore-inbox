@@ -1,62 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317589AbSGTX6k>; Sat, 20 Jul 2002 19:58:40 -0400
+	id <S317579AbSGUAGk>; Sat, 20 Jul 2002 20:06:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317593AbSGTX6k>; Sat, 20 Jul 2002 19:58:40 -0400
-Received: from mail.storm.ca ([209.87.239.66]:30601 "EHLO mail.storm.ca")
-	by vger.kernel.org with ESMTP id <S317589AbSGTX6j>;
-	Sat, 20 Jul 2002 19:58:39 -0400
-Message-ID: <3D39ED09.90F8E1AA@storm.ca>
-Date: Sat, 20 Jul 2002 19:06:49 -0400
-From: Sandy Harris <pashley@storm.ca>
-Organization: Flashman's Dragoons
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: close return value
-References: <200207182347.g6INlcl47289@saturn.cs.uml.edu> <s5gsn2fr922.fsf@egghead.curl.com> <015401c22f40$c4471380$da5b903f@starbak.net> <s5gvg7bmu43.fsf@egghead.curl.com> <20020719192524.GY12420@marowsky-bree.de> <20020719193059.GD2718@conectiva.com.br> <000e01c22f5c$dce9c600$da5b903f@starbak.net>
-Content-Type: text/plain; charset=us-ascii
+	id <S317593AbSGUAGj>; Sat, 20 Jul 2002 20:06:39 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:57586 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317579AbSGUAGf>; Sat, 20 Jul 2002 20:06:35 -0400
+Subject: Re: [PATCH] VM strict overcommit
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Robert Love <rml@tech9.net>
+Cc: akpm@zip.com.au, Linus Torvalds <torvalds@transmeta.com>,
+       riel@conectiva.com.br, linux-kernel@vger.kernel.org
+In-Reply-To: <1027209468.1555.893.camel@sinai>
+References: <1027196403.1086.751.camel@sinai> 
+	<1027211556.17234.55.camel@irongate.swansea.linux.org.uk> 
+	<1027207835.1116.861.camel@sinai> 
+	<1027213161.16818.65.camel@irongate.swansea.linux.org.uk> 
+	<1027213626.16819.74.camel@irongate.swansea.linux.org.uk> 
+	<1027209468.1555.893.camel@sinai>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 21 Jul 2002 02:21:32 +0100
+Message-Id: <1027214492.16818.79.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joseph Malicki wrote:
+On Sun, 2002-07-21 at 00:57, Robert Love wrote:
+> No problem.
 > 
-> It's an issue when it MIGHT be important.  Such as, fprintf to an important
-> data file should be checked, fprintf to stderr is usually cool not to check.
+> > Lets go with a sysctl tuned value and see what the 2.5 world finds the
+> > best numbers to be ?
+> 
+> Great idea.  This allows pedants with swap to use 0, others to use 50,
+> and those without swap to pick whatever works for them (e.g. 65% as you
 
-That's an application issue. From the kernel point of view, we cannot
-tell
-which errors matter to the application, so we just return error on any
-we
-can detect and let the app worry about it.
+On a swapless box you are unlikely to ever achieve 65% used by anonymous
+pages in real world applications. Its suprising how much of memory is
+file backed when you actually try it out. One exception in the future
+might be a system with extensive amounts of XIP, where very little of
+the binaries is actually pulled into RAM and thus counted into the
+figures.
 
-> People are going on the assumption that ignoring an error to a system call
-> will interfere with program operation or corrupt data - which is NOT
-> necessarily true.  Sure many people write programs that way.  But it is
-> quite often that if something fails, you don't particularly care, and you
-> know, with certainty, that it does not materially affect the operation of
-> your program.  For instance, should shutdown fail just because it couldn't
-> write a message to everyone's console?
-
-Again, that's an application issue; shutdown should succeed no matter
-what
-files or devices become inaccessible, so it should be written to
-continue
-despite error codes, likely with a console message about the error.
-
->From the kernel point of view, the only question is whether to return an
-error when it cannot write where it is asked to. Of course it must.
-
-I don't see why anyone is bothering to argue on the kernel list about
-what applications should do with error returns. That's not our problem.
-
-All we need to worry about is:
-
-	what errors are possible,
-	whether they can be detected
-	whether any merit a panic or kernel logging
-	what to return to the application in each case
-
-If the kernel gets those right, it has done its part.

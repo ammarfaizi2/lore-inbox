@@ -1,69 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261709AbVCCO7W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261791AbVCCPBR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261709AbVCCO7W (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 09:59:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261791AbVCCO7W
+	id S261791AbVCCPBR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 10:01:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbVCCPBR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 09:59:22 -0500
-Received: from pastinakel.tue.nl ([131.155.2.7]:34315 "EHLO pastinakel.tue.nl")
-	by vger.kernel.org with ESMTP id S261797AbVCCO6z (ORCPT
+	Thu, 3 Mar 2005 10:01:17 -0500
+Received: from s2.ukfsn.org ([217.158.120.143]:19176 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S261791AbVCCPAp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 09:58:55 -0500
-Date: Thu, 3 Mar 2005 15:58:46 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       davem@davemloft.net, jgarzik@pobox.com, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
+	Thu, 3 Mar 2005 10:00:45 -0500
+Message-ID: <42272699.8020206@dgreaves.com>
+Date: Thu, 03 Mar 2005 15:00:41 +0000
+From: David Greaves <david@dgreaves.com>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matt Mackall <mpm@selenic.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: RFD: Kernel release numbering
-Message-ID: <20050303145846.GA5586@pclin040.win.tue.nl>
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <42264F6C.8030508@pobox.com> <20050302162312.06e22e70.akpm@osdl.org> <42265A6F.8030609@pobox.com> <20050302165830.0a74b85c.davem@davemloft.net> <20050303011151.GJ10124@redhat.com> <20050302172049.72a0037f.akpm@osdl.org> <20050303012707.GK10124@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050303012707.GK10124@redhat.com>
-User-Agent: Mutt/1.4.2i
-X-Spam-DCC: CollegeOfNewCaledonia: pastinakel.tue.nl 1189; Body=1 Fuz1=1 
-	Fuz2=1
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <20050302235206.GK3163@waste.org>
+In-Reply-To: <20050302235206.GK3163@waste.org>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ha - a nice big thread. Issues include trivial fixes, testing,
-and API stability.
+Matt Mackall wrote:
 
------
-About trivial fixes:
-davem: the day Linus releases we always get a pile of "missing MODULE_EXPORT()"
-       type bug reports that are one liner fixes.
-davej: So what was broken with the 2.6.8.1 type of release ?
-akpm: But that _is_ a branch
+>On Wed, Mar 02, 2005 at 02:21:38PM -0800, Linus Torvalds wrote:
+>  
+>
+>>This is an idea that has been brewing for some time: Andrew has mentioned
+>>it a couple of times, I've talked to some people about it, and today Davem
+>>sent a suggestion along similar lines to me for 2.6.12.
+>>
+>>Namely that we could adopt the even/odd numbering scheme that we used to 
+>>do on a minor number basis, and instead of dropping it entirely like we 
+>>did, we could have just moved it to the release number, as an indication 
+>>of what was the intent of the release.
+>>    
+>>
+>
+>One last plea for the 2.4 scheme:
+>
+> a) all the crazy stuff goes in 2.6.x-preN, which ends up being
+>    equivalent to 2.6.<odd> and friends in your scheme
+> b) bugfixes only in 2.6.x-rcN, which ends up being equivalent to
+>    2.6.<even>-* in your scheme.
+> c) 2.6.x is always 2.6.x-rc<last> with just a version number change[1]
+>
+>This has some nice features:
+>
+> - alternates as rapidly as you want between stable and development
+> - no brown paper bag bugs sneaking in between -rc<last> and 2.6.x 
+> - 2.6.* is suitable for all users, 2.6.*-rc* is suitable for almost
+>   all users
+> - it's already in use for 2.4 and people are happy with it
+>
+>  
+>
 
-I think we all like the 2.6.8.1 model.
+I understand that :)
+(and if 2.6.y+1-preX appeared before 2.6.y then that wouldn't be too 
+confusing)
+(neither would 2.6.y.1 as an 'oops' in the human sense)
 
-davej: The only question in my mind is 'how critical does a bug have to be
-       to justify a .y release'.
+--Joe User.
 
-I think that is the wrong question. The question should be 'how trivial
-should a fix be to be admissible in a .y release'. If something is important
-but nonobvious, it should cause earlier release of 2.6.x+1.
-No regressions in 2.6.x.y.
+Who's scared to risk his personally valuable data on a 
+2.6.x-pre<anything> - but will install, lets see, hmm, -rc2 or above :)
+(I suppose the more paranoid I get, the higher the watermark I set on -rcX)
 
------
-About testing: users do not test p.q.r-suffix, they just test p.q.r
-Solution: Release early, release often. No silly odd/even games.
-jgarzik: I would prefer a weekly snapshot as the release
+(I'm lying since I'm running a -mm on my server but that's only because 
+I helped track down an XFS/nfsd bug!)
 
------
-API stability: Stable series like 2.0, 2.2, 2.4 try to maintain
-the guarantee that user-visible APIs do not change. That goal
-has disappeared, meaning that anything might break when one
-upgrades from 2.6.14 to 2.6.16.
-This is one of the big disadvantages of the new 2.6 way.
-
------
-A separate twig is that of when to call a release 'stable'.
-Since there is no good way to predict, the solution is 'wait and see'.
-'Stable' also depends on the type of use. It is easier to leave
-construction of stable kernels to separate people and trees.
-With some delay they can have the benefit of hindsight.
-
-Andries

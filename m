@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137077AbREKI0K>; Fri, 11 May 2001 04:26:10 -0400
+	id <S137078AbREKIhK>; Fri, 11 May 2001 04:37:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137078AbREKI0B>; Fri, 11 May 2001 04:26:01 -0400
-Received: from hood.tvd.be ([195.162.196.21]:36494 "EHLO hood.tvd.be")
-	by vger.kernel.org with ESMTP id <S137077AbREKIZs>;
-	Fri, 11 May 2001 04:25:48 -0400
-Date: Fri, 11 May 2001 10:24:13 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: linux-parport@torque.net
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: [PATCH] parport_pc_init_superio()
-Message-ID: <Pine.LNX.4.05.10105111021570.1624-100000@callisto.of.borg>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S137076AbREKIhA>; Fri, 11 May 2001 04:37:00 -0400
+Received: from ns.suse.de ([213.95.15.193]:39429 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S137078AbREKIgu>;
+	Fri, 11 May 2001 04:36:50 -0400
+Date: Fri, 11 May 2001 10:36:40 +0200
+From: Andi Kleen <ak@suse.de>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Andi Kleen <ak@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Ulrich.Weigand@de.ibm.com, linux-kernel@vger.kernel.org,
+        schwidefsky@de.ibm.com
+Subject: Re: Deadlock in 2.2 sock_alloc_send_skb?
+Message-ID: <20010511103640.A2454@gruyere.muc.suse.de>
+In-Reply-To: <C1256A48.00451BD1.00@d12mta11.de.ibm.com> <E14xq0v-0004j0-00@the-village.bc.nu> <20010510193047.A22970@gruyere.muc.suse.de> <20010510231300.W848@athlon.random> <20010510231717.A25610@gruyere.muc.suse.de> <20010510233225.Y848@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010510233225.Y848@athlon.random>; from andrea@suse.de on Thu, May 10, 2001 at 11:32:25PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, May 10, 2001 at 11:32:25PM +0200, Andrea Arcangeli wrote:
+> you said interrupt won't call that function so I don't see the
+> GFP_ATOMIC issue.
 
-Someone forgot to update parport_pc_init_superio() for CONFIG_PCI=n (found by
-Richard Zidlicky, IIRC).
+I said interrupts should not call it, but apparently somebody tries to 
+call it with GFP_ATOMIC and I'm suspecting that caller is broken (whatever
+it is, I don't think it is in the main tree)
 
-Patches against Linus' 2.4.5-pre1 and Alan's 2.4.4-ac6 below.
+> 
+> I also don't what's the issue with GFP_ATOMIC regardless somebody uses
 
-diff -urN linux-2.4.5-pre1/drivers/parport/parport_pc.c linux-m68k-2.4.5-pre1/drivers/parport/parport_pc.c
---- linux-2.4.5-pre1/drivers/parport/parport_pc.c	Sat Apr 28 20:21:49 2001
-+++ linux-m68k-2.4.5-pre1/drivers/parport/parport_pc.c	Wed May  2 08:23:08 2001
-@@ -2576,7 +2576,7 @@
- }
- #else
- static struct pci_driver parport_pc_pci_driver;
--static int __init parport_pc_init_superio(void) {return 0;}
-+static int __init parport_pc_init_superio(int autoirq, int autodma) {return 0;}
- #endif /* CONFIG_PCI */
- 
- /* This is called by parport_pc_find_nonpci_ports (in asm/parport.h) */
+[...]
 
---- linux-2.4.4-ac6/drivers/parport/parport_pc.c	Wed May  9 09:20:02 2001
-+++ m68k-2.4.4-ac6/drivers/parport/parport_pc.c	Fri May 11 10:16:37 2001
-@@ -2718,7 +2718,7 @@
- 
- #else
- static struct pci_driver parport_pc_pci_driver;
--static int __init parport_pc_init_superio(void) {return 0;}
-+static int __init parport_pc_init_superio(int autoirq, int autodma) {return 0;}
- #endif
- 
- /* This is called by parport_pc_find_nonpci_ports (in asm/parport.h) */
+No argument about that it should handle oom anyways.
 
-Gr{oetje,eeting}s,
 
-						Geert
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-Andi
 

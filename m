@@ -1,57 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266989AbSLWWWT>; Mon, 23 Dec 2002 17:22:19 -0500
+	id <S266993AbSLWWcG>; Mon, 23 Dec 2002 17:32:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266991AbSLWWWT>; Mon, 23 Dec 2002 17:22:19 -0500
-Received: from smtp.hotbox.ru ([80.68.244.50]:64013 "EHLO smtp.hotbox.ru")
-	by vger.kernel.org with ESMTP id <S266989AbSLWWWS>;
-	Mon, 23 Dec 2002 17:22:18 -0500
-Date: Tue, 24 Dec 2002 01:35:19 +0300
-From: Nikolai Zhubr <s001@hotbox.ru>
-Message-ID: <1876003973.20021224013519@hotbox.ru>
+	id <S266994AbSLWWcG>; Mon, 23 Dec 2002 17:32:06 -0500
+Received: from cpe-66-1-165-152.az.sprintbbd.net ([66.1.165.152]:55288 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S266993AbSLWWcF>; Mon, 23 Dec 2002 17:32:05 -0500
+Subject: Re: nforce2 and agpgart
+From: "Carl D. Blake" <carl@boeckeler.com>
 To: linux-kernel@vger.kernel.org
-CC: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [PATCH] 2.4.20/drivers/ide/pdc202xx.c
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1040678186.2237.4.camel@localhost.localdomain>
+References: <1040669417.4563.24.camel@vulcan> 
+	<1040678186.2237.4.camel@localhost.localdomain>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 23 Dec 2002 15:40:14 -0700
+Message-Id: <1040683214.4447.7.camel@vulcan>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, this patch fixes misdetection of 80-pin vs 40-pin IDE cable
-connected to Promise 202xx IDE controller (kernel 2.4.20). The original
-code used hwif->dma_base field which is yet unset upon the call,
-therefore some random value was returned. The patch came out of reading
-2.5.xx code. I've tested it with both 40pin and 80pin cables, pdc20276
-controller. I'm not subscribed, please CC me if necessary. Thank you.
+On Mon, 2002-12-23 at 14:16, Bongani Hlope wrote:
+> On Mon, 2002-12-23 at 20:50, Carl D. Blake wrote:
+> > I'm having trouble getting agpgart support to work with an nforce2
+> > chipset.  Is this supported on any kernels?  I'm running a Redhat 7.1
+> > system with Redhat's 2.4.9-21 kernel.
+> 
+> Try to use a newer kernel from Redhat, because that kernel was around
+> looong before nforce was released. IIRC support for nforce2 was added
+> around 2.4.19 
+> 
 
-diff -u --recursive linux-2.4.20/drivers/ide/pdc202xx.c linux-2.4.20-zh/drivers/ide/pdc202xx.c
---- linux-2.4.20/drivers/ide/pdc202xx.c Sat Aug  3 04:39:44 2002
-+++ linux-2.4.20-zh/drivers/ide/pdc202xx.c      Mon Dec 23 21:32:53 2002
-@@ -1121,6 +1121,10 @@
- {
-        unsigned short mask = (hwif->channel) ? (1<<11) : (1<<10);
-        unsigned short CIS;
-+       struct pci_dev *dev     = hwif->pci_dev;
-+       unsigned long high_16   = pci_resource_start(dev, 4);
-+       unsigned long indexreg  = high_16 + (hwif->channel ? 0x09 : 0x01);
-+       unsigned long datareg   = (indexreg + 2);
- 
-                switch(hwif->pci_dev->device) {
-                case PCI_DEVICE_ID_PROMISE_20276:
-@@ -1128,8 +1132,8 @@
-                case PCI_DEVICE_ID_PROMISE_20269:
-                case PCI_DEVICE_ID_PROMISE_20268:
-                case PCI_DEVICE_ID_PROMISE_20270:
--                       OUT_BYTE(0x0b, (hwif->dma_base + 1));
--                       return (!(IN_BYTE((hwif->dma_base + 3)) & 0x04));
-+                       OUT_BYTE(0x0b, indexreg);
-+                       return (!(IN_BYTE(datareg) & 0x04));
-                        /* check 80pin cable */
-                default:
-                        pci_read_config_word(hwif->pci_dev, 0x50, &CIS);
+I just upgraded to the 2.4.18 kernel provided by Redhat and it didn't
+make any difference.  The message I get in dmesg is:
+
+Linux agpgart interface v0.99 (c) Jeff Hartmann
+agpgart: Maximum main memory to use for agp memory: 439M
+agpgart: unsupported bridge
+agpgart: no supported devices found.
+
+You suggested trying 2.4.19, so I downloaded kernel 2.4.20 from
+kernel.org and compared its agp code (drivers/char/agp) with the code in
+2.4.18.  There are a few differences - such as supporting AMD 8151 - but
+nothing that indicates improved support for agpgart on the nforce2
+chipset.  The changelog for 2.4.20 indicated some added support for the
+nforce2 chipset, but that seems to be support for the audio and network
+portions of the chipset, not agp.  I was able to incorporate the audio
+changes manually for kernel 2.4.18 by using Nvidia's patches, but I
+can't get agp to work.
+
+Any other suggestions?  Thanks for your help.
+> -- 
+> For future reference - don't anybody else try to send patches as vi
+> scripts, please. Yes, it's manly, but let's face it, so is
+> bungee-jumping with the cord tied to your testicles.
+> 
+>                 -- Linus
 -- 
-Best regards,
- Nikolai Zhubr
+Carl D. Blake
+Director of Engineering
+Boeckeler Instruments, Inc.
+4650 S. Butterfield Dr.
+Tucson, AZ  85714
 
+Phone: 520-745-0001
+FAX: 520-745-0004
+email: carl@boeckeler.com
+
+.com
 

@@ -1,92 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268208AbTBNB7K>; Thu, 13 Feb 2003 20:59:10 -0500
+	id <S267133AbTBNCRd>; Thu, 13 Feb 2003 21:17:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268209AbTBNB7K>; Thu, 13 Feb 2003 20:59:10 -0500
-Received: from dp.samba.org ([66.70.73.150]:59372 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S268208AbTBNB7I>;
-	Thu, 13 Feb 2003 20:59:08 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Werner Almesberger <wa@almesberger.net>
-Cc: kuznet@ms2.inr.ac.ru, Roman Zippel <zippel@linux-m68k.org>,
-       davem@redhat.com, kronos@kronoz.cjb.net, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Migrating net/sched to new module interface 
-In-reply-to: Your message of "Thu, 13 Feb 2003 20:16:19 -0300."
-             <20030213201619.A2092@almesberger.net> 
-Date: Fri, 14 Feb 2003 12:57:38 +1100
-Message-Id: <20030214020901.22E6C2C002@lists.samba.org>
+	id <S268157AbTBNCRd>; Thu, 13 Feb 2003 21:17:33 -0500
+Received: from ool-4351594a.dyn.optonline.net ([67.81.89.74]:63493 "EHLO
+	badula.org") by vger.kernel.org with ESMTP id <S267133AbTBNCRc>;
+	Thu, 13 Feb 2003 21:17:32 -0500
+Date: Thu, 13 Feb 2003 21:27:14 -0500 (EST)
+From: Ion Badulescu <ionut@badula.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [net drvr] starfire driver update for 2.5.60
+In-Reply-To: <3E4C3A8A.3030207@pobox.com>
+Message-ID: <Pine.LNX.4.44.0302132111050.3318-100000@moisil.badula.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030213201619.A2092@almesberger.net> you write:
-> m.au on Fri, Jan 17, 2003 at 01:27:56PM +1100
-> 
-> Sorry for the long pause ...
-> 
-> Rusty Russell wrote:
-> > They gave us SMP.  What do we gain for your change?
-> 
-> Mainly a simpler interface - one that doesn't treat module unloading
-> as such a special case, but just as yet another fairly regular
-> synchronization problem.
-> 
-> This should also have a performance impact: the current approach
-> puts "code locking" outside of the module, and "data locking" inside
-> of it. Unifying this eliminates one layer of locking mechanisms.
+On Thu, 13 Feb 2003, Jeff Garzik wrote:
 
-Um, no.  You're special case "optimizing" it.
+> I'm curious about the ring-wrapping code... the comments indicate you 
+> may not have fully investigated the ring-wrapping semantics?
 
-When you have an object which may vanish, the linux kernel idiom runs
-something like this:
+I think you're misreading the code...
 
-	write_lock()
-	find available object in list
-	inc object refcount
-	write_unlock()
+The problem with the starfire is that you can only wrap the ring after the 
+_first_ descriptor in a SG skbuff. That's why the code is more complicated 
+than it would otherwise be.
 
-The writelock protects the infrastructure, the refcount protects the
-object.  Deleting is done in two stages (mark deleted and drop
-refcount, then whoever drops the refcount to 0 actually does the
-free).  Usually "mark deleted" means simply remove from the list, but
-not always.
+> Neither style requires any special handling of "wrap" cases, which your 
+> patch adds..  Your patch adds things like arbitrary padding of 4 tx 
+> slots, where you might as well add a comment "/* for luck! */".
 
-The current module code uses exactly the same idiom for the code
-itself: we use a heavily read-optimized lock, but that's an
-implementation detail.
+Again, I think you're misinterpreting the 4 (which is, as I mentioned, 
+hardcoded and somewhat arbitrary).
 
-Now, could you instead lock all the (arbitrary, widespread, unrelated)
-accesses to the object, instead of the object itself?  Sure.  It'd be
-unique in the kernel, and involve changing the way every interface
-works, and probably expose some of the complexity to every module
-author (every workable implementation I've seen has this problem), but
-you could do it.  See below for why I don't think it's worth it.
+All I'm doing there is making sure there are at least 4 slots available 
+before waking up the Tx queue. Why? because otherwise you might end up not 
+having enough slots free for all the descriptors needed for a SG skbuff.
 
-> Independent of this, we should fix the interfaces that give us
-> unstoppable callbacks. These are just disasters waiting to happen,
-> modules or no.
+Otherwise, the Becker-style cur_tx <-> dirty_tx handling is in effect, and 
+works as expected.
 
-I assume you're referring to the many places where we assume that the
-structure being added was not dynamically allocated, so don't bother
-to protect against its deletion?
+> Why not 
+> actually nail down the problems the code is obvious working around? 
 
-That is, of course, orthogonal.
+Because there aren't any? :-)
 
-And in general, I agree: not including a refcount is asking for
-trouble.  But these reference counts are *not* free.  The module
-reference counts, by comparison, can be made extremely cheap (see
-implementation), because we can allocate a cacheline per cpu, and we
-can bias "read" speed in preference of awful "write" speed.
+There were two big problems in the old driver:
 
-In summary: the most obvious implementation is to lock to module as an
-object separately from any objects it might create.  The current
-implementation is extremely fast, requires neither module changes nor
-(many) interface changes, and in effect canonicalizes a single
-existing method of locking, which coders seem quite comfortable with.
+- it was still using the Becker-era tx_full flag, which was non-atomic and 
+therefore had a race between start_tx and intr_handler.
+- it was failing to stop the DMA engines on ifdown, which could end up 
+corrupting random memory (also inherited from the Becker driver)
 
-Given these reasons, you can see why I no longer discuss new
-implementation ideas with people 8(
+The reason all the Tx handling has changed is due to the 64-bit support. 
+The starfire does have a SG descriptor, but it can only handle 32-bit 
+buffers. If you want 64-bit, you have to use chained single-buffer 
+descriptors. So I just changed the code to always use chained 
+single-buffer descriptors, for both 32-bit and 64-bit buffers -- but 
+that's again the reason the driver now reserves more than one slot before 
+turning Tx back on.
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+> A minor style point too, "s/struct foodesc/foodesc/" is going the 
+> opposite of preferred.
+
+The alternative is a lot of #ifdef's all over the place. Thanks but no 
+thanks, I'm no fan of typedef's but ifdef's are worse.
+
+> This is why I have not applied your patch when it was sent to me...
+
+Well, you didn't say much at the time... :-) so I just assumed you were 
+mostly happy with it.
+
+Thanks,
+Ion
+
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
 

@@ -1,41 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267104AbTATTuF>; Mon, 20 Jan 2003 14:50:05 -0500
+	id <S267453AbTATTyI>; Mon, 20 Jan 2003 14:54:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266886AbTATTkI>; Mon, 20 Jan 2003 14:40:08 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:10756 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S266854AbTATTjv>;
-	Mon, 20 Jan 2003 14:39:51 -0500
-Date: Sun, 19 Jan 2003 17:05:15 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Andi Kleen <ak@muc.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: any chance of 2.6.0-test*?
-Message-ID: <20030119160515.GA1945@elf.ucw.cz>
-References: <20030110165441$1a8a@gated-at.bofh.it> <20030110165505$38d9@gated-at.bofh.it> <m3iswv27o3.fsf@averell.firstfloor.org> <1042295999.2517.10.camel@irongate.swansea.linux.org.uk> <20030111140602.GA20221@averell>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030111140602.GA20221@averell>
-User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S267273AbTATTx7>; Mon, 20 Jan 2003 14:53:59 -0500
+Received: from h-64-105-35-85.SNVACAID.covad.net ([64.105.35.85]:2030 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S267248AbTATTww>; Mon, 20 Jan 2003 14:52:52 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Mon, 20 Jan 2003 12:01:48 -0800
+Message-Id: <200301202001.MAA15032@adam.yggdrasil.com>
+To: brand@jupiter.cs.uni-dortmund.de
+Subject: Re: Patch?: linux-2.5.59/sound/soundcore.c referenced non-existant errno variable
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Sorry, I failed to complete a sentence in my previous reply:
 
-> >   - Flaws in error recovery paths in certain situations
-> >   - Lots of random oopses on boot/remove that were apparently
-> >     introduced by the kobject/sysfs people and need chasing
-> >     down. (There are some non sysfs ones mostly fixed)
-> 
-> I guess the kobject/sysfs stuff could be ripped out if it doesn't
-> work - it is probably not a "must have" feature.
+>        In both cases, the compiler is normally going to put all of
+>error handling code after all of the success code, so the only extra
+>instructions read into the cache will be from the tail end of the
 
-sysfs is  needed to properly flush caches on powerdown and for
-S3/S4 suspend/resume to work.
-								Pavel
--- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+	...cache line containing the "return success" code.
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

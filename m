@@ -1,57 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267449AbRHKMWy>; Sat, 11 Aug 2001 08:22:54 -0400
+	id <S267534AbRHKNG0>; Sat, 11 Aug 2001 09:06:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266914AbRHKMWe>; Sat, 11 Aug 2001 08:22:34 -0400
-Received: from 195-23-114-51.nr.ip.pt ([195.23.114.51]:50816 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S267579AbRHKMWc>; Sat, 11 Aug 2001 08:22:32 -0400
-Date: Sat, 11 Aug 2001 13:21:10 +0100 (WEST)
-From: Rui Sousa <rui.p.m.sousa@clix.pt>
-X-X-Sender: <rsousa@localhost.localdomain>
-To: Daniel Bertrand <d.bertrand@ieee.org>
-cc: <linux-kernel@vger.kernel.org>,
-        emu10k1-devel <emu10k1-devel@opensource.creative.com>
-Subject: Re: [Emu10k1-devel] [PATCH] emu10k1 againt kernel 2.4.8
-In-Reply-To: <Pine.LNX.4.33.0108110000300.32369-100000@kilrogg>
-Message-ID: <Pine.LNX.4.33.0108111318420.847-100000@localhost.localdomain>
+	id <S267542AbRHKNGQ>; Sat, 11 Aug 2001 09:06:16 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:17927 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S267534AbRHKNGK>; Sat, 11 Aug 2001 09:06:10 -0400
+Subject: Re: complete_and_exit
+To: moz@compsoc.man.ac.uk (John Levon)
+Date: Sat, 11 Aug 2001 14:04:57 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010811030442.A5238@compsoc.man.ac.uk> from "John Levon" at Aug 11, 2001 03:04:43 AM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15VYRl-0002aB-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Aug 2001, Daniel Bertrand wrote:
+> Is complete_and_exit() going to be in 2.4.8 ? Trying to support before and
+> after the change is really more of a pain than it could be right now, as
+> you can't use LINUX_VERSION_CODE to detect ac kernels.
 
-Are there any "beginner" instructions for the tools?
-Will you be mantaining this tarball? If so we can point people
-there from "Configure.help".
-
-Rui Sousa
-> Hi,
->
-> Here's an 'emergency' tarball of the userland tools to go with it:
->
-> http://opensource.creative.com/~dbertrand/emu-tools-0.9.tar.gz
->
->
->
->
-> On Sat, 11 Aug 2001, Rui Sousa wrote:
->
-> >
-> > Patch against kernel 2.4.8:
-> > 1. Fixes makefiles changes (can now be compiled as a module).
-> > 2. Reverts addition of joystick.c
-> > 3. Enables emu10k1 sequencer support.
-> > 4. Adds documentation for the driver new features.
-> >
-> > Please apply,
-> >
-> > Rui Sousa
-> >
->
->
-
--- 
-Rui Sousa
-
+I've no idea. It depends whether Linus takes it when its fed to him or not.

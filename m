@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282695AbRLFTxu>; Thu, 6 Dec 2001 14:53:50 -0500
+	id <S282705AbRLFTyA>; Thu, 6 Dec 2001 14:54:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282702AbRLFTxl>; Thu, 6 Dec 2001 14:53:41 -0500
-Received: from mail311.mail.bellsouth.net ([205.152.58.171]:48306 "EHLO
-	imf11bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S282695AbRLFTx3>; Thu, 6 Dec 2001 14:53:29 -0500
-Message-ID: <3C0FCCAC.CE6905D5@mandrakesoft.com>
-Date: Thu, 06 Dec 2001 14:53:16 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.13-12mdksmp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: devnull@geisel.info
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17-pre5 "make bzImage" fails
-In-Reply-To: <20011206195025.GA9599@geisel.info>
+	id <S282702AbRLFTxv>; Thu, 6 Dec 2001 14:53:51 -0500
+Received: from bitmover.com ([192.132.92.2]:50050 "EHLO bitmover.bitmover.com")
+	by vger.kernel.org with ESMTP id <S282705AbRLFTxk>;
+	Thu, 6 Dec 2001 14:53:40 -0500
+Date: Thu, 6 Dec 2001 11:53:38 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Larry McVoy <lm@bitmover.com>, "David S. Miller" <davem@redhat.com>,
+        davidel@xmailserver.org, rusty@rustcorp.com.au,
+        Martin.Bligh@us.ibm.com, riel@conectiva.com.br, lars.spam@nocrew.org,
+        alan@lxorguk.ukuu.org.uk, hps@intermeta.de,
+        linux-kernel@vger.kernel.org
+Subject: Re: SMP/cc Cluster description
+Message-ID: <20011206115338.E27589@work.bitmover.com>
+Mail-Followup-To: Daniel Phillips <phillips@bonn-fries.net>,
+	Larry McVoy <lm@bitmover.com>, "David S. Miller" <davem@redhat.com>,
+	davidel@xmailserver.org, rusty@rustcorp.com.au,
+	Martin.Bligh@us.ibm.com, riel@conectiva.com.br,
+	lars.spam@nocrew.org, alan@lxorguk.ukuu.org.uk, hps@intermeta.de,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011206135224.12c4b123.rusty@rustcorp.com.au> <20011205.235617.23011309.davem@redhat.com> <20011206000216.B18034@work.bitmover.com> <E16C4PM-0000qu-00@starship.berlin>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <E16C4PM-0000qu-00@starship.berlin>; from phillips@bonn-fries.net on Thu, Dec 06, 2001 at 08:42:05PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-devnull@geisel.info wrote:
+On Thu, Dec 06, 2001 at 08:42:05PM +0100, Daniel Phillips wrote:
+> On December 6, 2001 09:02 am, Larry McVoy wrote:
+> > On Wed, Dec 05, 2001 at 11:56:17PM -0800, David S. Miller wrote:
+> > > These lockless algorithms, instructions like CAS, DCAS, "infinite
+> > > consensus number", it's all crap.  You have to seperate out the access
+> > > areas amongst different cpus so they don't collide, and none of these
+> > > mechanisms do that.
+> > 
+> > Err, Dave, that's *exactly* the point of the ccCluster stuff.  You get
+> > all that seperation for every data structure for free.  Think about
+> > it a bit.  Aren't you going to feel a little bit stupid if you do all
+> > this work, one object at a time, and someone can come along and do the
+> > whole OS in one swoop?  Yeah, I'm spouting crap, it isn't that easy,
+> > but it is much easier than the route you are taking.  
 > 
-> Hi,
-> 
-> I switched from 2.4.16 to 2.4.17-pre5 without changing config and now
-> "make bzImage" fails with the following error:
-> 
-> ----------------------------------------------------------------------------
-> tmppiggy=_tmp_$$piggy; \
-> rm -f $tmppiggy $tmppiggy.gz $tmppiggy.lnk; \
-> objcopy -O binary -R .note -R .comment -S /usr/src/linux/vmlinux
-> $tmppiggy; \
-> gzip -f -9 < $tmppiggy > $tmppiggy.gz; \
-> echo "SECTIONS { .data : { input_len = .; LONG(input_data_end -
-> input_data) input_data = .; *(.data) input_data_end = .; }}" >
-> $tmppiggy.lnk; \
-> ld -m elf_i386 -r -o piggy.o -b binary $tmppiggy.gz -b elf32-i386 -T
-> $tmppiggy.lnk; \
-> rm -f $tmppiggy $tmppiggy.gz $tmppiggy.lnk
-> gcc -D__ASSEMBLY__ -D__KERNEL__ -I/usr/src/linux/include -traditional -c
-> head.S
-> gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
-> -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
-> -pipe -mpreferred-stack-boundary=2 -march=athlon  -c misc.c
-> ld -m elf_i386 -Ttext 0x100000 -e startup_32 -o bvmlinux head.o misc.o
-> piggy.o
-> ld: bvmlinux: Not enough room for program headers (allocated 2, need 3)
-> ld: final link failed: Bad value
+> What I don't get after looking at your material, is how you intend to do the 
+> locking.  Sharing a mmap across OS instances is fine, but how do processes on 
+> the two different OS's avoid stepping on each other when they access the same 
+> file?
 
-did you upgrade your binutils recently?
-
+Exactly the same way they would if they were two processes on a traditional
+SMP OS.
 -- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
-
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310953AbSCTBMS>; Tue, 19 Mar 2002 20:12:18 -0500
+	id <S310436AbSCTBQI>; Tue, 19 Mar 2002 20:16:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310436AbSCTBMI>; Tue, 19 Mar 2002 20:12:08 -0500
-Received: from [211.238.181.68] ([211.238.181.68]:15879 "EHLO
-	mail.digitaldreamstudios.net") by vger.kernel.org with ESMTP
-	id <S310953AbSCTBLr>; Tue, 19 Mar 2002 20:11:47 -0500
-Message-ID: <3C97E1D2.369C6A10@nownuri.net>
-Date: Wed, 20 Mar 2002 10:11:46 +0900
-From: SeongTae Yoo <alloying@nownuri.net>
-X-Mailer: Mozilla 4.79 [en] (Win98; U)
-X-Accept-Language: en
+	id <S310963AbSCTBP6>; Tue, 19 Mar 2002 20:15:58 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:23044 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S310436AbSCTBPq>; Tue, 19 Mar 2002 20:15:46 -0500
+Subject: Re: Filesystem Corruption (ext2) on Tyan S2462, 2xAMD1900MP, 2.4.17SMP (RH7.2)
+To: ken@irridia.com (Ken Brownfield)
+Date: Wed, 20 Mar 2002 01:31:46 +0000 (GMT)
+Cc: m.knoblauch@TeraPort.de,
+        linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
+In-Reply-To: <20020319190211.B15811@asooo.flowerfire.com> from "Ken Brownfield" at Mar 19, 2002 07:02:11 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Urban Widmark <urban@teststation.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: file listing problem in smbfs, kernel 2.4.18
-In-Reply-To: <Pine.LNX.4.44.0203191959310.27806-100000@cola.teststation.com>
-Content-Type: text/plain; charset=EUC-KR
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16nUx8-0000w4-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Urban Widmark wrote:
-> 
-> On Tue, 19 Mar 2002, SeongTae Yoo wrote:
-> 
-> > Urban Widmark wrote:
-> > >
-> > > You could also try the smbfs unicode patch for 2.4.18, and see if that
-> > > changes anything.
-> > >     http://www.hojdpunkten.ac.se/054/samba/index.html
-> > >     (Note the additional samba patch and mount flags needed)
-> >
-> > I tried it just before, but same result.
-> 
-> And you patched samba, enabled unicode with the unicode flag and set the
-> "codepage" to be unicode?
-> (I know, it's a bad interface)
+> We're seeing this with Tyan 2410s and Seagate drives.  I think Tyan just
+> can't get DMA right.  Luckily we mainly lost docs or man pages before we
+> disabled DMA, although losing the rpm database sucked.  MDMA2 seems okay
+> but we haven't tested it long enough to form a lasting impression.
+> I'm actually patching the ServerWorks driver to honor the CONFIG flag,
+> since even with hdparm there is a narrow risk to the fs during the boot
+> process before DMA is disabled.
 
-My mistake! Although I have read your patch page, the w2k ntfs partition is
-mounted in the normal options. When they are mounted with enabled unicode
-option, it seems to be listed very well.
+I can confirm problems with serverworks OSB4 and UDMA. With UDMA and
+a seagate disk you see 4 bytes repeat from one transfer into the next
+shuffling all the data up 4 bytes (which since it includes inode and
+metadata is *messy*). Current 2.4 has detect code that sometimes traps this
+and panics to avoid fs death.
 
-After some other tests (depth change, other directories with the same problem,
-fat32 partition, etc), I will post the results.
+With MWDMA all was fine.
+
+This was observed across a large number of boxes in a rendering farm so its
+not a one off flawed box, and across two board vendors. I reported it to
+serverworks who were interested but couldnt reproduce it in their lab.

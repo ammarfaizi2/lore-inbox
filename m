@@ -1,111 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbUEJUsm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbUEJUyM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261602AbUEJUsm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 16:48:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbUEJUsl
+	id S261604AbUEJUyM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 16:54:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbUEJUyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 16:48:41 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:39407 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261602AbUEJUsS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 16:48:18 -0400
-Date: Mon, 10 May 2004 13:48:13 -0700
-From: Todd Poynor <tpoynor@mvista.com>
-To: greg@kroah.com, linux-hotplug-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] Synchronous hotplug for kobjects
-Message-ID: <20040510204813.GA20691@dhcp193.mvista.com>
+	Mon, 10 May 2004 16:54:12 -0400
+Received: from smtp1.wanadoo.fr ([193.252.22.30]:47713 "EHLO
+	mwinf0101.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S261604AbUEJUyH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 16:54:07 -0400
+Subject: usb_hcd_irq, nobody cared on 2.6.6
+From: Thomas Cataldo <tomc@compaqnet.fr>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1084222439.3548.7.camel@buffy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.5.7 
+Date: Mon, 10 May 2004 22:53:59 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As discussed recently, it's expected to be useful to generate
-synchronous hotplug events from the kobject subsystem in certain
-situations.  This patch adds a kobject_hotplug_wait function that issues
-a synchronous call.  The function should be used for appropriate actions
-that require synchronous semantics; please note many hotplug events
-would suffer severe performance degradation if issued synchronously, and
-one should exercise caution in choosing to use this function.
+Hi,
 
---- linux-2.6.6-orig/include/linux/kobject.h	2004-05-10 11:23:55.000000000 -0700
-+++ linux-2.6.6-pm/include/linux/kobject.h	2004-05-10 11:41:25.000000000 -0700
-@@ -57,6 +57,7 @@
- extern void kobject_put(struct kobject *);
+Few minutes after boot I found that in my logs :
+
+irq 10: nobody cared!
+Call Trace:
+ [<c01063aa>] __report_bad_irq+0x2a/0x90
+ [<c01064a0>] note_interrupt+0x70/0xb0
+ [<c0106751>] do_IRQ+0x111/0x120
+ [<c010497c>] common_interrupt+0x18/0x20
+ [<c0101f40>] default_idle+0x0/0x40
+ [<c0101f6c>] default_idle+0x2c/0x40
+ [<c0101ffb>] cpu_idle+0x3b/0x50
+ [<c0119eb2>] printk+0x192/0x1c0
  
- extern void kobject_hotplug(const char *action, struct kobject *);
-+extern void kobject_hotplug_wait(const char *action, struct kobject *);
- 
- struct kobj_type {
- 	void (*release)(struct kobject *);
---- linux-2.6.6-orig/lib/kobject.c	2004-05-10 11:26:35.000000000 -0700
-+++ linux-2.6.6-pm/lib/kobject.c	2004-05-10 13:20:35.389369032 -0700
-@@ -104,7 +104,7 @@
- static spinlock_t sequence_lock = SPIN_LOCK_UNLOCKED;
- 
- static void kset_hotplug(const char *action, struct kset *kset,
--			 struct kobject *kobj)
-+			 struct kobject *kobj, int wait)
- {
- 	char *argv [3];
- 	char **envp = NULL;
-@@ -185,9 +185,9 @@
- 		}
- 	}
- 
--	pr_debug ("%s: %s %s %s %s %s %s %s\n", __FUNCTION__, argv[0], argv[1],
--		  envp[0], envp[1], envp[2], envp[3], envp[4]);
--	retval = call_usermodehelper (argv[0], argv, envp, 0);
-+	pr_debug ("%s: %s %s %s %s %s %s %s %d\n", __FUNCTION__, argv[0], argv[1],
-+		  envp[0], envp[1], envp[2], envp[3], envp[4], wait);
-+	retval = call_usermodehelper (argv[0], argv, envp, wait);
- 	if (retval)
- 		pr_debug ("%s - call_usermodehelper returned %d\n",
- 			  __FUNCTION__, retval);
-@@ -199,7 +199,8 @@
- 	return;
- }
- 
--void kobject_hotplug(const char *action, struct kobject *kobj)
-+static void kobject_hotplug_flags(const char *action, struct kobject *kobj,
-+				  int wait)
- {
- 	struct kobject * top_kobj = kobj;
- 
-@@ -212,13 +213,27 @@
- 	}
- 
- 	if (top_kobj->kset && top_kobj->kset->hotplug_ops)
--		kset_hotplug(action, top_kobj->kset, kobj);
-+		kset_hotplug(action, top_kobj->kset, kobj, wait);
-+}
-+
-+void kobject_hotplug(const char *action, struct kobject *kobj)
-+{
-+	kobject_hotplug_flags(action, kobj, 0);
-+}
-+
-+void kobject_hotplug_wait(const char *action, struct kobject *kobj)
-+{
-+	kobject_hotplug_flags(action, kobj, 1);
- }
- #else
- void kobject_hotplug(const char *action, struct kobject *kobj)
- {
- 	return;
- }
-+void kobject_hotplug_wait(const char *action, struct kobject *kobj)
-+{
-+	return;
-+}
- #endif	/* CONFIG_HOTPLUG */
- 
- /**
+handlers:
+[<f99efe80>] (usb_hcd_irq+0x0/0x70 [usbcore])
+[<f99efe80>] (usb_hcd_irq+0x0/0x70 [usbcore])
+Disabling IRQ #10
+
+Here is cat /proc/interrupts :
+
+           CPU0       CPU1
+  0:   23928959   23883721    IO-APIC-edge  timer
+  1:       2082       1731    IO-APIC-edge  i8042
+  8:          3          1    IO-APIC-edge  rtc
+  9:          0          0   IO-APIC-level  acpi
+ 10:      40387      59613   IO-APIC-level  uhci_hcd, uhci_hcd
+ 12:      44370      57657    IO-APIC-edge  i8042
+ 14:       1284       1029    IO-APIC-edge  ide0
+ 16:    4384837        220   IO-APIC-level  eth0, radeon@PCI:1:0:0
+ 18:     409701     397459   IO-APIC-level  sym53c8xx, sym53c8xx
+ 19:      31024      34528   IO-APIC-level  EMU10K1
+NMI:          0          0
+LOC:   47813934   47813970
+ERR:          0
+MIS:        543
+
+The same kind of problem hapenned with 2.6.5 too.
+
+My mouse is ps2. The only connected usb device right now is an ipaq
+craddle. If I remove it and reboot with my digital camera (usb storage)
+connected, I've got the same problem.
 
 
+lspci output follows :
 
--- 
-Todd Poynor
-MontaVista Software
+0000:00:00.0 Host bridge: VIA Technologies, Inc. VT82C693A/694x [Apollo PRO133x] (rev c4)
+0000:00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo MVP3/Pro133x AGP]
+0000:00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 40)
+0000:00:07.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
+0000:00:07.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 1a)
+0000:00:07.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 1a)
+0000:00:07.4 Bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 40)
+0000:00:09.0 SCSI storage controller: LSI Logic / Symbios Logic 53c1010 Ultra3 SCSI Adapter (rev 01)
+0000:00:09.1 SCSI storage controller: LSI Logic / Symbios Logic 53c1010 Ultra3 SCSI Adapter (rev 01)
+0000:00:0a.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 07)
+0000:00:0a.1 Input device controller: Creative Labs SB Live! MIDI/Game Port (rev 07)
+0000:00:0b.0 Ethernet controller: Winbond Electronics Corp W89C940 (rev 0b)
+0000:00:0c.0 Network controller: Texas Instruments ACX 100 22Mbps Wireless Interface
+0000:01:00.0 VGA compatible controller: ATI Technologies Inc RV280 [Radeon 9200 SE] (rev 01)
+0000:01:00.1 Display controller: ATI Technologies Inc RV280 [Radeon 9200 SE] (Secondary) (rev 01)
+
+

@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266717AbSLDQDb>; Wed, 4 Dec 2002 11:03:31 -0500
+	id <S266853AbSLDQHG>; Wed, 4 Dec 2002 11:07:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266718AbSLDQDb>; Wed, 4 Dec 2002 11:03:31 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:37386
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S266717AbSLDQDb>; Wed, 4 Dec 2002 11:03:31 -0500
-Subject: Re: [PATCH] deprecate use of bdflush()
-From: Robert Love <rml@ufl.edu>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <m3of82fuy9.fsf@defiant.pm.waw.pl>
-References: <Pine.LNX.3.96.1021203091821.5578A-100000@gatekeeper.tmr.com>
-	 <1038935401.994.9.camel@phantasy> <3DED0076.55B970DD@yahoo.com>
-	 <m3of82fuy9.fsf@defiant.pm.waw.pl>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1039018264.1509.3.camel@phantasy>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 04 Dec 2002 11:11:04 -0500
-Content-Transfer-Encoding: 7bit
+	id <S266886AbSLDQHF>; Wed, 4 Dec 2002 11:07:05 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:32775 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S266853AbSLDQHF>; Wed, 4 Dec 2002 11:07:05 -0500
+Date: Wed, 4 Dec 2002 17:14:30 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Robinson Maureira Castillo <rmaureira@alumno.inacap.cl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Strange options when doing make allnoconfig
+In-Reply-To: <Pine.LNX.4.44.0212041248370.20359-100000@alumno.inacap.cl>
+Message-ID: <Pine.LNX.4.44.0212041710490.2109-100000@serv>
+References: <Pine.LNX.4.44.0212041248370.20359-100000@alumno.inacap.cl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-12-03 at 20:12, Krzysztof Halasa wrote:
+Hi,
 
-> So why don't we print the warning with 2.4 as well?
+On Wed, 4 Dec 2002, Robinson Maureira Castillo wrote:
 
-We should of.  Now its too late - we cannot start printing evil warnings
-on existing 2.4 systems.
+> CONFIG_SOUND_GAMEPORT=y
+> CONFIG_MSDOS_PARTITION=y
+> 
+> Are this included on purpose, or did they just slipped? 8)
 
-> I don't know if returning -EINVAL (= removing the call completely in 2.5)
-> isn't better, though - does it have any compatibility implications?
+These are derived symbols, so this is correct. allnoconfig just means that 
+all questions are answered with no, not that all symbols are set to no.
 
-Right now the call forces a do_exit(), so the application terminates. 
-If we just returned `-EINVAL' the application might sit around doing
-nothing.
-
-	Robert Love
+bye, Roman
 

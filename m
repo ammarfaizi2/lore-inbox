@@ -1,85 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265615AbTIJTjg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 15:39:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265530AbTIJTjf
+	id S265674AbTIJTlh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 15:41:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265680AbTIJTlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 15:39:35 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:12044 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S265627AbTIJTSA (ORCPT
+	Wed, 10 Sep 2003 15:41:36 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:6033 "EHLO mail.jlokier.co.uk")
+	by vger.kernel.org with ESMTP id S265674AbTIJTk5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 15:18:00 -0400
-Date: Wed, 10 Sep 2003 21:17:58 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Linus Torvalds <torvalds@osdl.org>, Russell King <rmk@arm.linux.org.uk>,
-       linux-kernel@vger.kernel.org,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       Roman Zippel <zippel@linux-m68k.org>, linuxppc-dev@lists.linuxppc.org
-Subject: kbuild: Build minimum in scripts/ when changing configuration
-Message-ID: <20030910191758.GC5604@mars.ravnborg.org>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
-	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-	Roman Zippel <zippel@linux-m68k.org>, linuxppc-dev@lists.linuxppc.org
-References: <20030910191411.GA5517@mars.ravnborg.org>
+	Wed, 10 Sep 2003 15:40:57 -0400
+Date: Wed, 10 Sep 2003 20:40:42 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Arjan van de Ven <arjanv@redhat.com>,
+       Luca Veraldi <luca.veraldi@katamail.com>, alexander.riesen@synopsys.COM,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Efficient IPC mechanism on Linux
+Message-ID: <20030910194042.GA24424@mail.jlokier.co.uk>
+References: <00f201c376f8$231d5e00$beae7450@wssupremo> <20030909175821.GL16080@Synopsys.COM> <001d01c37703$8edc10e0$36af7450@wssupremo> <20030910064508.GA25795@Synopsys.COM> <015601c3777c$8c63b2e0$5aaf7450@wssupremo> <1063185795.5021.4.camel@laptop.fenrus.com> <20030910095255.GA21313@mail.jlokier.co.uk> <20030910192426.GE2589@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030910191411.GA5517@mars.ravnborg.org>
+In-Reply-To: <20030910192426.GE2589@elf.ucw.cz>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1270  -> 1.1271 
-#	            Makefile	1.427   -> 1.428  
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/09/10	sam@mars.ravnborg.org	1.1271
-# kbuild: Build minimum in scripts/ when changing configuration
-# 
-# From: Ricky Beam <jfbeam@bluetronic.net>, me
-# 
-# With the increasing amount of programs located in scripts/, several
-# of which is dependent on the kernel configuration, it makes sense to
-# avoid building these too often.
-# With this patch only fixdep is build, the minimal requirement for running
-# any *config target
-# --------------------------------------------
-#
-diff -Nru a/Makefile b/Makefile
---- a/Makefile	Wed Sep 10 21:15:44 2003
-+++ b/Makefile	Wed Sep 10 21:15:44 2003
-@@ -253,12 +253,15 @@
- 
- # Helpers built in scripts/
- 
--scripts/docproc scripts/fixdep scripts/split-include : scripts ;
-+scripts/docproc scripts/split-include : scripts ;
- 
--.PHONY: scripts
-+.PHONY: scripts scripts/fixdep
- scripts:
- 	$(Q)$(MAKE) $(build)=scripts
- 
-+scripts/fixdep:
-+	$(Q)$(MAKE) $(build)=scripts $@
-+
- 
- # To make sure we do not include .config for any of the *config targets
- # catch them early, and hand them over to scripts/kconfig/Makefile
-@@ -336,8 +339,8 @@
- 
- # If .config is newer than include/linux/autoconf.h, someone tinkered
- # with it and forgot to run make oldconfig
--include/linux/autoconf.h: scripts/fixdep .config
--	$(Q)$(MAKE) $(build)=scripts/kconfig silentoldconfig
-+include/linux/autoconf.h: .config
-+	$(Q)$(MAKE) -f $(srctree)/Makefile silentoldconfig
- 
- endif
- 
+Pavel Machek wrote:
+> Can you make it available so we can test on, say, 900MHz athlon? Or
+> you can have it tested on 1800MHz athlon64, that's about as high end
+> as it can get.
+
+I just deleted the program, so here's a rewrite :)
+
+	#include <sys/mman.h>
+
+	int main()
+	{
+		int i, j;
+		for (j = 0; j < 64; j++) {
+			volatile char * ptr =
+				mmap (0, 4096 * 4096, PROT_READ | PROT_WRITE,
+				      MAP_PRIVATE | MAP_ANON, -1, 0);
+			for (i = 0; i < 4096; i++) {
+	#if 1
+				*(ptr + 4096 * i) = 0; /* Write */
+	#else
+				(void) *(ptr + 4096 * i); /* Read */
+	#endif
+			}
+			munmap ((void *) ptr, 4096 * 4096);
+		}
+		return 0;
+	}
+
+Smallest results, from "gcc -o test test.c -O2; time ./test" on a
+1500MHz dual Athlon 1800 MP:
+
+Write:
+	real	0m1.316s
+	user	0m0.059s
+	sys	0m1.256s
+
+	==> 7531 cycles per page
+
+Read:
+	real	0m0.199s
+	user	0m0.053s
+	sys	0m0.146s
+
+	==> 1139 cycles per page
+
+As I said, it's a crude upper bound.
+
+-- Jamie

@@ -1,45 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261987AbVBBB2F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262193AbVBBBg1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261987AbVBBB2F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 20:28:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262194AbVBBB2F
+	id S262193AbVBBBg1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 20:36:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbVBBBg0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 20:28:05 -0500
-Received: from mail.kroah.org ([69.55.234.183]:28843 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261987AbVBBB2B (ORCPT
+	Tue, 1 Feb 2005 20:36:26 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:62650 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S262193AbVBBBgW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 20:28:01 -0500
-Date: Tue, 1 Feb 2005 17:27:24 -0800
-From: Greg KH <greg@kroah.com>
-To: Alexey Dobriyan <adobriyan@mail.ru>
-Cc: "Mark A. Greer" <mgreer@mvista.com>, phil@netroedge.com,
-       sensors@stimpy.netroedge.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][I2C] Marvell mv64xxx i2c driver
-Message-ID: <20050202012723.GA16465@kroah.com>
-References: <200502020315.14281.adobriyan@mail.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200502020315.14281.adobriyan@mail.ru>
-User-Agent: Mutt/1.5.6i
+	Tue, 1 Feb 2005 20:36:22 -0500
+Message-Id: <200502020100.j12104Ws031252@laptop11.inf.utfsm.cl>
+To: Andreas Gruenbacher <agruen@suse.de>
+cc: Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/8] lib/sort: Heapsort implementation of sort() 
+In-Reply-To: Message from Andreas Gruenbacher <agruen@suse.de> 
+   of "Tue, 01 Feb 2005 18:50:00 BST." <1107280199.12050.113.camel@winden.suse.de> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
+Date: Tue, 01 Feb 2005 22:00:04 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 02, 2005 at 03:15:14AM +0200, Alexey Dobriyan wrote:
- 
-> P. S.: struct mv64xxx_i2c_data revisited...
-> 
-> > +	uint			state;
-> > +	ulong			reg_base_p;
-> 
-> Silly request, but... Maybe this should be changed to plain old "unsigned int"
-> and "unsigned long". Please. I just don't understand why people use "uint",
-> "u_int", "uInt", "UINT", "uINT", "uint_t" which are always typedef'ed to
-> "unsigned int".
+Andreas Gruenbacher <agruen@suse.de> said:
 
-Not a silly request at all.  Please use the u32, u64 and so on values
-instead.  That way we know what you mean, and it's portable.
+[...]
 
-thanks,
+> Yes, because a custom swap routine isn't very useful generally. It's
+> over-engineered IMHO.
 
-greg k-h
+It shouldn't swap, but juggle elements around like so:
+
+    t --------------->+
+    ^                 |
+    |                 v
+    x <-- x <-- x <-- x
+
+Sure, this needs a temporary element, but reduces the data copying to
+around 1/3 (1 swap == 3 copies, this makes a bit more than 1 copy for each
+element moved). This is probably much more important than
+microoptimizations in swap.
+
+My tuned heapsort for doubles is:
+
+/*
+ * heapsort.c: Heap sort
+ */
+
+#include "sort.h"
+
+void
+sort(double a[], int n)
+
+{
+  double tmp;
+  int i, j, k;
+    
+  /* Make heap */
+  for(i = n / 2 - 1; i >= 0; i--) {
+    /* downheap(a, i, n); */
+    j = i;
+    tmp = a[j];
+    for(;;) {
+      k = 2 * j + 1;
+      if(k >= n)
+	break;
+      if(k + 1 < n && a[k + 1] > a[k])
+	k++;
+      if(tmp > a[k])
+	break;
+      a[j] = a[k];
+      j = k;
+    }
+    a[j] = tmp;
+  }
+    
+  /* Sort */
+  for(i = n - 1; i >= 1; i--) {
+    /* downheap(a, 1, i); swap(a[1], a[n]); */
+    j = 0;
+    tmp = a[j];
+    for(;;) {
+      k = 2 * j + 1;
+      if(k > i)
+	break;
+      if(k + 1 <= i && a[k + 1] > a[k])
+	k++;
+      if(tmp > a[k])
+	break;
+      a[j] = a[k];
+      j = k;
+    }
+    a[j] = tmp;
+
+    tmp = a[0]; a[0] = a[i]; a[i] = tmp;
+  }
+}
+
+Hack on it as you wish.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

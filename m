@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317622AbSGZJPB>; Fri, 26 Jul 2002 05:15:01 -0400
+	id <S317424AbSGZJUg>; Fri, 26 Jul 2002 05:20:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317632AbSGZJPB>; Fri, 26 Jul 2002 05:15:01 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:24564 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317622AbSGZJPA>; Fri, 26 Jul 2002 05:15:00 -0400
-Subject: Re: PATCH: 2.5.28 (resend #1) Q40 keyboard
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: martin@dalecki.de
-Cc: Alan Cox <alan@irongate.swansea.linux.org.uk>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <3D40B109.1000105@evision.ag>
-References: <200207251445.g6PEjs17010417@irongate.swansea.linux.org.uk> 
-	<3D40B109.1000105@evision.ag>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 26 Jul 2002 11:32:26 +0100
-Message-Id: <1027679546.13428.19.camel@irongate.swansea.linux.org.uk>
+	id <S317429AbSGZJUf>; Fri, 26 Jul 2002 05:20:35 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:22173 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S317424AbSGZJUf>; Fri, 26 Jul 2002 05:20:35 -0400
+Date: Fri, 26 Jul 2002 14:53:44 +0530
+From: Kiran <geekazoid@phreaker.net>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: Patch 2.5.25: Ensure xtime_lock and timerlist_lock are on difft cachelines
+Message-ID: <20020726145344.A18568@phreaker.net>
+References: <20020726125605.A2822@phreaker.net> <20020726080211.3E71E4824@lists.samba.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020726080211.3E71E4824@lists.samba.org>; from rusty@rustcorp.com.au on Fri, Jul 26, 2002 at 05:56:19PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-07-26 at 03:16, Marcin Dalecki wrote:
-> Alan Cox wrote:
-> > The Q40 keyboard is only found on a Q40..
-> > 
+On Fri, Jul 26, 2002 at 05:56:19PM +1000, Rusty Russell wrote:
+> In message <20020726125605.A2822@phreaker.net> you write:
+> > This patch was not meant to be a definitive fix for do_gettimeofday.
+> > I thought having diffrent locks  on the same cacheline was bad. Atleast, 
+> > I don't think there'd be any negative performance impact due to my patch.  
+> > Pls correct me if I am wrong. 
 > 
-> Are you sure it's not simply RS232?
+> Did you ever wonder why we don't declare spinlock to be ____cacheline_aligned?
 
-It relies on m68k specific code, so it won't even compile on non Q40
-boxes.
+Yep...and for long enough...(I think..)..or there'd have been an RFC 
+or a stupid question to lkml sometime from me :)
 
+> While it's probably justified in this case, you pay for it in a slight
+> increase in size...
+>
+
+I thought you were of the opinion that "memory is cheap" ;-)
+
+-Kiran

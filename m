@@ -1,71 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267607AbSKQVvo>; Sun, 17 Nov 2002 16:51:44 -0500
+	id <S266964AbSKQV4n>; Sun, 17 Nov 2002 16:56:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267611AbSKQVvo>; Sun, 17 Nov 2002 16:51:44 -0500
-Received: from mta01ps.bigpond.com ([144.135.25.133]:48352 "EHLO
-	mta01ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S267607AbSKQVvn>; Sun, 17 Nov 2002 16:51:43 -0500
-From: Brad Hards <bhards@bigpond.net.au>
-To: David Lang <dlang@diginsite.com>, ebiederm@xmission.com
-Subject: Re: lan based kgdb
-Date: Mon, 18 Nov 2002 08:48:40 +1100
-User-Agent: KMail/1.4.5
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0211171323360.10200-100000@dlang.diginsite.com>
-In-Reply-To: <Pine.LNX.4.44.0211171323360.10200-100000@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
+	id <S266961AbSKQV4m>; Sun, 17 Nov 2002 16:56:42 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:18309 "EHLO
+	flossy.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S266958AbSKQV4j>; Sun, 17 Nov 2002 16:56:39 -0500
+Date: Sun, 17 Nov 2002 17:04:10 -0500
+From: Doug Ledford <dledford@redhat.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Scsi Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: Several Misc SCSI updates...
+Message-ID: <20021117220410.GI3280@redhat.com>
+Mail-Followup-To: Alexander Viro <viro@math.psu.edu>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Linux Scsi Mailing List <linux-scsi@vger.kernel.org>
+References: <Pine.LNX.4.44.0211171338570.12975-100000@home.transmeta.com> <Pine.GSO.4.21.0211171653391.23400-100000@steklov.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200211180848.40509.bhards@bigpond.net.au>
+In-Reply-To: <Pine.GSO.4.21.0211171653391.23400-100000@steklov.math.psu.edu>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sun, Nov 17, 2002 at 04:55:26PM -0500, Alexander Viro wrote:
+> 
+> 
+> On Sun, 17 Nov 2002, Linus Torvalds wrote:
+> 
+> > 
+> > On Sun, 17 Nov 2002, Doug Ledford wrote:
+> > > 
+> > > Won't work.  module->live is what Rusty uses to indicate that the module 
+> > > is in the process of unloading, which is when we *do* want the attempt to 
+> > > module_get() to fail.
+> > 
+> > That's fine, as long as "module_get()" is the only thing that cares. Just 
+> > make it go "live" early as you indicate, and everybody should be happy. I 
+> > certainly agree that it should be illegal to do more module_get()'s once 
+> > we've already started unloading..
+> 
+> On the unload side it's OK.  module_get() also breaks during _init_ and that's
+> the problem.  IOW, you'll need to make every block device driver to set ->live
+> manually.  Smells like a wrong API...
 
-On Mon, 18 Nov 2002 08:32, David Lang wrote:
-> a couple quick questions from an end-user
->
-> 1. will an interface be dedicated to this use, or will it share an
-> interface with other traffic.
-I imagined that it would have to be shared. The world is not a PC, and you 
-can't trivially add extra connectivtity to that embedded ARM board...
+This is the patch I just put into my tree (beware cut-n-paste breakage is 
+in effect, but Linus should have the change in his tree momentarily 
+anyway):
 
-<snip>
-> 3. if we really want to make this limited to the local wire why not use
-> something other then UDP? either another IP protocol number (more likly to
-> be blocked by routers) or somethign not IP compatable (so that routers
-> couldn't forward it if they wanted to). especially if you are talking
-> about useing a special (aka stripped down, simplified) stack for this
-> interface instead of the full-blown version
-If you really want link-local, use the link-local IP addresses (169.254/16). 
-See http://files.zeroconf.org/draft-ietf-zeroconf-ipv4-linklocal.txt
+diff -Nru a/kernel/module.c b/kernel/module.c
+--- a/kernel/module.c   Sun Nov 17 17:02:48 2002
++++ b/kernel/module.c   Sun Nov 17 17:02:48 2002
+@@ -1058,6 +1058,15 @@
+        list_add(&mod->extable.list, &extables);
+        spin_unlock_irq(&modlist_lock);
 
-(I actually have an implementation of this for linux, alas it is only in 
-userspace :)
++       /* Note, setting the mod->live to 1 here is safe because we haven't
++        * linked the module into the system's kernel symbol table yet,
++        * which means that the only way any other kernel code can call
++        * into this module right now is if this module hands out entry
++        * pointers to the other code.  We assume that no module hands out
++        * entry pointers to the rest of the kernel unless it is ready to
++        * have them used.
++        */
++       mod->live = 1;
+        /* Start the module */
+        ret = mod->init ? mod->init() : 0;
+        if (ret < 0) {
+@@ -1070,9 +1079,10 @@
+                        /* Mark it "live" so that they can force
+                           deletion later, and we don't keep getting
+                           woken on every decrement. */
+-                       mod->live = 1;
+-               } else
++               } else {
++                       mod->live = 0;
+                        free_module(mod);
++               }
+                up(&module_mutex);
+                return ret;
+        }
+@@ -1087,7 +1097,6 @@
+        mod->module_init = NULL;
 
-> normally I would agree that standards are good, becouse they let you
-> interoperate with other equipment, but in this case I'm not sure that's
-> really what we want. All communications is not IP :-)
-All _good_ communication is IP :)
+        /* All ok! */
+-       mod->live = 1;
+        up(&module_mutex);
+        return 0;
+ }
 
-> as someone managing 60 or so remote boxes, this sounds really nice, if it
-> can be made to work securely.
-OK, I'm confused again. Do you want remote, or to you want link-local?
 
-Brad
-
-- -- 
-http://linux.conf.au. 22-25Jan2003. Perth, Aust. I'm registered. Are you?
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE92A64W6pHgIdAuOMRArrEAJ9Yp6w85APLudklNBVxfY6nAF066ACfeLc7
-z00tKrs79Ri3k7UbFNCQzJo=
-=VXrF
------END PGP SIGNATURE-----
-
+-- 
+  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
+         Red Hat, Inc. 
+         1801 Varsity Dr.
+         Raleigh, NC 27606
+  

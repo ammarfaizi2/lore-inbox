@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290228AbSBFHvp>; Wed, 6 Feb 2002 02:51:45 -0500
+	id <S290229AbSBFH4W>; Wed, 6 Feb 2002 02:56:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290223AbSBFHvd>; Wed, 6 Feb 2002 02:51:33 -0500
-Received: from smtp1.ndsu.NoDak.edu ([134.129.111.146]:52750 "EHLO
-	smtp1.ndsu.nodak.edu") by vger.kernel.org with ESMTP
-	id <S290228AbSBFHvT>; Wed, 6 Feb 2002 02:51:19 -0500
-Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
-From: Reid Hekman <reid.hekman@ndsu.nodak.edu>
-To: Andreas Dilger <adilger@turbolabs.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020205235000.J2928@lynx.turbolabs.com>
-In-Reply-To: <Pine.LNX.4.31.0202051928330.2375-100000@cesium.transmeta.com> 
-	<20020205235000.J2928@lynx.turbolabs.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 06 Feb 2002 01:50:34 -0600
-Message-Id: <1012981874.6918.10.camel@zeus>
-Mime-Version: 1.0
+	id <S290223AbSBFH4M>; Wed, 6 Feb 2002 02:56:12 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:53972 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S290232AbSBFH4B>; Wed, 6 Feb 2002 02:56:01 -0500
+Date: Wed, 6 Feb 2002 09:49:12 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>, Dave Jones <davej@suse.de>
+Subject: Re: [PATCH] Re: 2.4.17 Oops when trying to mount ATAPI CDROM
+In-Reply-To: <Pine.LNX.3.96.1020205180314.3562B-100000@gatekeeper.tmr.com>
+Message-ID: <Pine.LNX.4.44.0202060943260.8308-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-02-06 at 00:50, Andreas Dilger wrote:
-> On Feb 05, 2002  19:37 -0800, Linus Torvalds wrote:
-> > For a first example, the ChangeLog file for 2.5.4-pre1 is rather more
-> > detailed than usual (in fact, right now it is _too_ detailed, and I
-> > haven't written the scripts to "terse it down" for postings to
-> > linux-kernel, for example).
-> 
-> Well, I for one would rather have these verbose messages than very terse
-> messages (or none at all).  
+On Tue, 5 Feb 2002, Bill Davidsen wrote:
 
-I second that. Maybe however we can have it both ways -- I have no
-experience with bk, but can't this same info be made available elsewhere
-like a public web interface or some such thing?
+> I have two comments on that code, first that it is some of the ugliest
+> code I've seen in a while in terms of goto's, 
 
-> Actually, having the full email explanation
-> helps other readers just as much as it helps you, and having the subject
-> lines helps go back to the specific message/thread in l-k (if the patch
-> was also posted there).
+10: You ain't seen nothing...
 
-If the Changelogs stay verbose on lkml, possibly the list itself would
-be more "searchable" -- people hunting specific bugs and kernel versions
-would hit the release announcements as kind of an index into the
-discussion.
+> the patch adds a goto to avoid duplicating the test for the missing id,
+> which really could be made more readable.
+
+I don't see whats so unreadable about it though, its a short function with 
+just a few possible code paths, (out of interest) could you post what you 
+have in mind.
+
+> (while I have a flow diagram in front of me), but given the recent
+> discussion of path acceptable lately I won't bother. The code really is
+> uglier than a hedgehog's asshole, though.
+
+GOTO 10
+
+> MORE IMPORTANT: doesn't this imply that the device id has either been lost
+> or not initialized? I haven't finished grepping for calls to this code
+> yet, but intuitively I would guess that if we don't have the id all the
+> other stuff might be suspect as well.
+
+Indeed, frankly i have no idea how he managed to go on in that state, but 
+do note his device is horribly broken. This patch doesn't really fix his 
+case, but adds a (needed) NULL pointer check.
 
 Regards,
-Reid
+	Zwane Mwaikambo
+
 

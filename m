@@ -1,163 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264395AbTLQM4e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Dec 2003 07:56:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264396AbTLQM4e
+	id S264384AbTLQN37 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Dec 2003 08:29:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264397AbTLQN36
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Dec 2003 07:56:34 -0500
-Received: from smtp06.iddeo.es ([62.81.186.16]:42978 "EHLO smtp06.retemail.es")
-	by vger.kernel.org with ESMTP id S264395AbTLQM4a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Dec 2003 07:56:30 -0500
-Date: Wed, 17 Dec 2003 13:56:28 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: venom@sns.it
-Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: gcc-3.3.2 vs 2.6.0-test11
-Message-ID: <20031217125628.GA2663@werewolf.able.es>
-References: <Pine.LNX.4.43.0312171324380.32480-100000@cibs9.sns.it>
+	Wed, 17 Dec 2003 08:29:58 -0500
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:43780 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S264384AbTLQN34 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Dec 2003 08:29:56 -0500
+Subject: Re: 2.6.0-test11-mm1
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+In-Reply-To: <20031217035246.32adbf87.akpm@osdl.org>
+References: <20031217014350.028460b2.akpm@osdl.org>
+	 <20031217035246.32adbf87.akpm@osdl.org>
+Content-Type: multipart/mixed; boundary="=-IlfhZDU4nFj9LviihjCj"
+Message-Id: <1071667814.2588.0.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="UugvWAfsgieZRqgk"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.43.0312171324380.32480-100000@cibs9.sns.it> (from venom@sns.it on Wed, Dec 17, 2003 at 13:25:34 +0100)
-X-Mailer: Balsa 2.0.15
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
+Date: Wed, 17 Dec 2003 14:30:14 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---UugvWAfsgieZRqgk
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+--=-IlfhZDU4nFj9LviihjCj
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
+On Wed, 2003-12-17 at 12:52, Andrew Morton wrote:
 
-On 12.17, venom@sns.it wrote:
+> And new breakage too!
+
+> Fix:
 > 
-> using gcc 3.3.2 with 2.6.0-test11 and 2.4.23. boots cleanly on Ayhlon XP,
-> Athlon-trbind, PentiumIII.
 > 
-> which compilation options are you using?
-> 
+> diff -puN arch/i386/kernel/cpu/intel.c~cpu_sibling_map-fixes-fix arch/i386/kernel/cpu/intel.c
+> --- 25/arch/i386/kernel/cpu/intel.c~cpu_sibling_map-fixes-fix	2003-12-17 03:31:56.000000000 -0800
+> +++ 25-akpm/arch/i386/kernel/cpu/intel.c	2003-12-17 03:46:25.000000000 -0800
+> @@ -8,9 +8,11 @@
+>  #include <asm/processor.h>
+>  #include <asm/msr.h>
+>  #include <asm/uaccess.h>
+> +#include <asm/mpspec.h>
+> +#include <asm/apic.h>
+>  
+>  #include "cpu.h"
+> -#include "mach_apic.h"
+> +#include <mach_apic.h>
+>  
+>  extern int trap_init_f00f_bug(void);
 
-.config attached
+Does not apply cleanly, but this one does.
 
--- 
-J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
-werewolf!able!es                         \           It's better when it's free
-Mandrake Linux release 10.0 (Cooker) for i586
-Linux 2.6.0-test11-jam2 (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-4mdk))
+--=-IlfhZDU4nFj9LviihjCj
+Content-Disposition: attachment; filename=intel.c~cpu_sibling_map-fixes-fix
+Content-Type: text/x-patch; name=intel.c~cpu_sibling_map-fixes-fix; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
---UugvWAfsgieZRqgk
-Content-Type: application/x-bzip
-Content-Disposition: attachment; filename="config.bz2"
-Content-Transfer-Encoding: base64
+diff -uNr linux-2.6.0-test11/arch/i386/kernel/cpu/intel.c linux-2.6.0-test11-mm1/arch/i386/kernel/cpu/intel.c
+--- linux-2.6.0-test11/arch/i386/kernel/cpu/intel.c	2003-12-17 14:21:29.060115753 +0100
++++ linux-2.6.0-test11-mm1/arch/i386/kernel/cpu/intel.c	2003-12-17 14:10:39.886919748 +0100
+@@ -9,9 +9,11 @@
+ #include <asm/msr.h>
+ #include <asm/uaccess.h>
+ #include <asm/desc.h>
++#include <asm/mpspec.h>
++#include <asm/apic.h>
+ 
+ #include "cpu.h"
+-#include "mach_apic.h"
++#include <mach_apic.h>
+ 
+ #ifdef CONFIG_X86_INTEL_USERCOPY
+ /*
 
-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
-AF+ivjveSy5t7RtdlrIBP9i7kinChIV2UaX4
+--=-IlfhZDU4nFj9LviihjCj--
 
---UugvWAfsgieZRqgk--

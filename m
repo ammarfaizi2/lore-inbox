@@ -1,45 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264514AbUFRVPv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262730AbUFRVTy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264514AbUFRVPv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 17:15:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264513AbUFRVPl
+	id S262730AbUFRVTy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 17:19:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263865AbUFRVQJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 17:15:41 -0400
-Received: from stat1.steeleye.com ([65.114.3.130]:57771 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S264500AbUFRVOt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 17:14:49 -0400
-Subject: Re: DMA API issues
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: David Brownell <david-b@pacbell.net>
-Cc: Ian Molton <spyro@f2s.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       greg@kroah.com, tony@atomide.com, jamey.hicks@hp.com,
-       joshua@joshuawise.com
-In-Reply-To: <40D359BB.3090106@pacbell.net>
-References: <1087582845.1752.107.camel@mulgrave>	<20040618193544.48b88771.spyro@f2s.com>
-		<1087584769.2134.119.camel@mulgrave>	<20040618195721.0cf43ec2.spyro@f2s.com
-	> <40D34078.5060909@pacbell.net> 	<20040618204438.35278560.spyro@f2s.com>
-	<1087588627.2134.155.camel@mulgrave>  <40D359BB.3090106@pacbell.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 18 Jun 2004 16:14:41 -0500
-Message-Id: <1087593282.2135.176.camel@mulgrave>
+	Fri, 18 Jun 2004 17:16:09 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:6040 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263664AbUFRVOC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 17:14:02 -0400
+Date: Fri, 18 Jun 2004 23:13:53 +0200
+From: Jens Axboe <axboe@suse.de>
+To: jsimmons@pentafluge.infradead.org, Rik van Riel <riel@redhat.com>,
+       Tim Bird <tim.bird@am.sony.com>, linux-kernel@vger.kernel.org,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Andrew Morton <akpm@osdl.org>, 4Front Technologies <dev@opensound.com>
+Subject: Re: Stop the Linux kernel madness
+Message-ID: <20040618211352.GC7404@suse.de>
+References: <40D33C58.1030905@am.sony.com> <Pine.LNX.4.44.0406181604270.8065-100000@chimarrao.boston.redhat.com> <20040618200848.GL20632@lug-owl.de> <Pine.LNX.4.56.0406182150500.26434@pentafluge.infradead.org> <20040618211000.GP20632@lug-owl.de>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040618211000.GP20632@lug-owl.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-06-18 at 16:08, David Brownell wrote:
-> I'm not following you.  This isn't using the PCI DMA calls.
-> These dots don't connect:  different hardware needs different
-> solutions.  How would those calls make dma_alloc_coherent work?
+On Fri, Jun 18 2004, Jan-Benedict Glaw wrote:
+> On Fri, 2004-06-18 22:03:51 +0100, jsimmons@pentafluge.infradead.org <jsimmons@pentafluge.infradead.org>
+> wrote in message <Pine.LNX.4.56.0406182150500.26434@pentafluge.infradead.org>:
+> > On Fri, 18 Jun 2004, Jan-Benedict Glaw wrote:
+> > > It's not only all the embedded stuff (where the -tiny tree is a nice
+> > > start!). Remember the bits of the pc98 arch that got ripped these days?
+> > > Remember the CRIS architecture being hopefully out of sync? They're all
+> > > good candidates to profit from such a helper.
+> > 
+> > The framebuffer is also so far behind. 9 out of 10 patches are 
+> > dropped. The reason being is that everyone is a volunteer doing this in 
+> > there spare time. We don't have the man power, hardware, nor the support 
+> > to do the work that is needed. There are a huge number of drivers that 
+> > could be included but never are. The companies we work for will not 
+> > support the work we do in our spare time because there is no instant 
+> > $$$$$. 
+> 
+> Very right. Companies don't see any general benefit, if there isn't any
+> $$ to come in soon.
+> 
+> > So what is going to be done about this? Will this be the usually hot air?
+> > I seen this discussed before but nothiing ever happens :-( I don't see any 
+> > one setting up to the plate.
+> 
+> Hope the CE Forum will show some engagement there. Or OSDL. Or IBM.
+> Or ...  But usually, that's hot air. No direct income :--<
 
+Come on people, not everything is counted in dollars or euros. Lots of
+people enjoy doing auxiliary work in their spare time and get loads
+done. If it doesn't work for you, then maybe you are not the right for
+the job or maybe you are doing something wrong.
 
-The statement was "That's dma_alloc_coherent at its core ... it should
-allocate from that 32K region." and what I was pointing out is that not
-all platforms can treat an on-chip memory region as a real memory area. 
-That's why we have the iomem accessor functions.
-
-James
-
+-- 
+Jens Axboe
 

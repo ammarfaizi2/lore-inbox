@@ -1,16 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318718AbSHAMEb>; Thu, 1 Aug 2002 08:04:31 -0400
+	id <S318728AbSHAMGR>; Thu, 1 Aug 2002 08:06:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318719AbSHAMEb>; Thu, 1 Aug 2002 08:04:31 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:9600 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S318718AbSHAMEa>;
-	Thu, 1 Aug 2002 08:04:30 -0400
-Date: Thu, 1 Aug 2002 12:39:58 +0200
+	id <S318724AbSHAMFZ>; Thu, 1 Aug 2002 08:05:25 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:15232 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S318728AbSHAMFG>;
+	Thu, 1 Aug 2002 08:05:06 -0400
+Date: Thu, 1 Aug 2002 12:40:53 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
-Subject: swsusp: Vojtech pointed error in usb/hub.c
-Message-ID: <20020801103957.GA128@elf.ucw.cz>
+To: Andrew Grover <andrew.grover@intel.com>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: ACPI: compilation fixes
+Message-ID: <20020801104053.GA137@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,25 +23,30 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-We do not want threads exiting because of suspend, so refrigerator
-should be just before test for signals pending (so it has chance to
-kill them).
+2.5.29 will not compile for me without these, please apply.
 
 								Pavel
-
---- clean/drivers/usb/core/hub.c	Wed Jul 24 17:54:21 2002
-+++ linux-swsusp/drivers/usb/core/hub.c	Tue Jul 30 21:28:49 2002
-@@ -1059,9 +1059,9 @@
- 	/* Send me a signal to get me die (for debugging) */
- 	do {
- 		usb_hub_events();
-+		wait_event_interruptible(khubd_wait, !list_empty(&hub_event_list)); 
- 		if (current->flags & PF_FREEZE)
- 			refrigerator(PF_IOTHREAD);
--		wait_event_interruptible(khubd_wait, !list_empty(&hub_event_list)); 
- 	} while (!signal_pending(current));
+--- clean/drivers/acpi/system.c	Mon Jul 29 20:02:23 2002
++++ linux-swsusp/drivers/acpi/system.c	Mon Jul 29 20:14:27 2002
+@@ -256,7 +256,8 @@
+ 	acpi_status		status = AE_ERROR;
+ 	unsigned long		flags = 0;
  
- 	dbg("usb_hub_thread exiting");
+-	save_flags(flags);
++	local_irq_save(flags);
++	local_irq_disable();
+ 	
+ 	switch (state)
+ 	{
+@@ -270,7 +271,7 @@
+ 		do_suspend_lowlevel(0);
+ 		break;
+ 	}
+-	restore_flags(flags);
++	local_irq_restore(flags);
+ 
+ 	return status;
+ }
 
 -- 
 Worst form of spam? Adding advertisment signatures ala sourceforge.net.

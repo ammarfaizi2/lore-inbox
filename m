@@ -1,58 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261844AbULaKMq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261847AbULaKOo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261844AbULaKMq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 05:12:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbULaKMq
+	id S261847AbULaKOo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 05:14:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261848AbULaKOo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 05:12:46 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:26121 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261844AbULaKMo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 05:12:44 -0500
-Subject: Re: [PATCH] /proc/sys/kernel/bootloader_type
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
-       SYSLINUX@zytor.com
-In-Reply-To: <20041231013443.313a3320.akpm@osdl.org>
-References: <41D34E3A.3090708@zytor.com>
-	 <20041231013443.313a3320.akpm@osdl.org>
-Content-Type: text/plain
-Date: Fri, 31 Dec 2004 11:12:34 +0100
-Message-Id: <1104487954.5402.20.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 31 Dec 2004 05:14:44 -0500
+Received: from c201010.adsl.hansenet.de ([213.39.201.10]:22408 "EHLO
+	fusebox.fsfeurope.org") by vger.kernel.org with ESMTP
+	id S261847AbULaKOd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 05:14:33 -0500
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: PROBLEM: Kernel 2.6.10 crashing repeatedly and hard
+References: <m3is6k4oeu.fsf@reason.gnu-hamburg>
+	<Pine.LNX.4.58.0412301239160.22893@ppc970.osdl.org>
+	<m3zmzvl9x1.fsf@reason.gnu-hamburg>
+	<Pine.LNX.4.58.0412301418521.22893@ppc970.osdl.org>
+From: "Georg C. F. Greve" <greve@fsfeurope.org>
+Organisation: Free Software Foundation Europe
+X-PGP-Fingerprint: 2D68 D553 70E5 CCF9 75F4 9CC9 6EF8 AFC2 8657 4ACA
+X-PGP-Affinity: will accept encrypted messages for GNU Privacy Guard
+X-Home-Page: http://gnuhh.org
+X-Accept-Language: en, de
+Date: Fri, 31 Dec 2004 10:58:29 +0100
+In-Reply-To: <Pine.LNX.4.58.0412301418521.22893@ppc970.osdl.org> (Linus
+	Torvalds's message of "Thu, 30 Dec 2004 14:23:01 -0800 (PST)")
+Message-ID: <m3hdm2lrga.fsf@reason.gnu-hamburg>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: multipart/signed; boundary="20041231105829+0100-24502877-242178719523027";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-12-31 at 01:34 -0800, Andrew Morton wrote:
-> "H. Peter Anvin" <hpa@zytor.com> wrote:
-> >
-> > This patch exports to userspace the boot loader ID which has been 
-> >  exported by (b)zImage boot loaders since boot protocol version 2.
-> 
-> Why does userspace need to know this?
+--20041231105829+0100-24502877-242178719523027
 
-so that update tools that update kernels from vendors know which
-bootloader file they need to update; eg right now those tools do all
-kinds of hairy heuristics to find out if it's grub or lilo or .. that
-installed the kernel. Those heuristics are fragile in the presence of
-more than one bootloader (which isn't that uncommon in OS upgrade
-situations).
+ || On Thu, 30 Dec 2004 14:23:01 -0800 (PST)
+ || Linus Torvalds <torvalds@osdl.org> wrote: 
+
+ lt> Ok. This is apparently a slab cache corruption issue.
+
+So we're one step further, it seems.
 
 
+ lt> Can you compile with SLAB_DEBUG and DEBUG_PAGEALLOC turned on,
+ lt> since that may well catch something in the act (or it may make
+ lt> the machine so unusably slow that it's not funny - who knows..)
+
+Did that last night. You are right -- it is so slow that it is no fun
+at all. So I started the test run last night and went to bed. 
+
+This morning, the machine had crashed again, but unlike the noisy
+crashes, when there was output on the console, this time, with
+debugging compiled in, it crashed entirely silently. There was no info
+on the console and none in the syslog, it just stopped.
+
+Anything else I can try to help?
+
+Anyone else willing to join the slab corruption bug hunt? :)
+
+Regards,
+Georg
+
+-- 
+Georg C. F. Greve                                 <greve@fsfeurope.org>
+Free Software Foundation Europe	                 (http://fsfeurope.org)
+GNU Business Network                        (http://mailman.gnubiz.org)
+Brave GNU World	                           (http://brave-gnu-world.org)
+
+--20041231105829+0100-24502877-242178719523027
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.3.92 (GNU/Linux)
+
+iD8DBQBB1SLKbvivwoZXSsoRAg8ZAJ9LCaWygWwKMHY/lEYVhDpsFiZL1ACgkTuW
+yDP0gARhBzVZTAJpYjKrsEY=
+=IoxJ
+-----END PGP SIGNATURE-----
+--20041231105829+0100-24502877-242178719523027--

@@ -1,70 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284526AbRLPIrq>; Sun, 16 Dec 2001 03:47:46 -0500
+	id <S284529AbRLPIuz>; Sun, 16 Dec 2001 03:50:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284529AbRLPIrg>; Sun, 16 Dec 2001 03:47:36 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:40210 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S284526AbRLPIr3>; Sun, 16 Dec 2001 03:47:29 -0500
-Message-ID: <3C1C5F65.A060B285@zip.com.au>
-Date: Sun, 16 Dec 2001 00:46:29 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
-X-Accept-Language: en
+	id <S284535AbRLPIup>; Sun, 16 Dec 2001 03:50:45 -0500
+Received: from p15.dynadsl.ifb.co.uk ([194.105.168.15]:21123 "HELO smeg")
+	by vger.kernel.org with SMTP id <S284529AbRLPIug>;
+	Sun, 16 Dec 2001 03:50:36 -0500
+From: "Lee Packham" <linux@mswinxp.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: FW: Intel 810 Problems/Solutions
+Date: Sun, 16 Dec 2001 08:49:35 -0000
+Message-ID: <000601c1860e$96726cb0$0102a8c0@lee>
 MIME-Version: 1.0
-To: GOTO Masanori <gotom@debian.org>
-CC: Suresh Gopalakrishnan <gsuresh@cs.rutgers.edu>,
-        linux-kernel@vger.kernel.org, Andrea Arcangeli <andrea@suse.de>
-Subject: Re: O_DIRECT wierd behavior..
-In-Reply-To: <3C1C382A.946EA61B@zip.com.au>,
-		<Pine.GSO.4.02A.10112151947010.14453-100000@aramis.rutgers.edu>
-		<3C1C382A.946EA61B@zip.com.au> <wtwwuzn4m02.wl@fe.dis.titech.ac.jp>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-GOTO Masanori wrote:
+Sorry if this has appeared more than once... I mucked up!
+
+> -----Original Message-----
+> From: Lee Packham [mailto:linux@mswinxp.net]
+> Sent: 16 December 2001 06:12
+> To: 'linux-kernel@vger.kernel.org''
+> Subject: Intel 810 Problems/Solutions
 > 
-> At Sat, 15 Dec 2001 21:59:06 -0800,
-> Andrew Morton wrote:
-> ...
-> > --- linux-2.4.17-rc1/mm/filemap.c     Thu Dec 13 14:07:55 2001
-> > +++ linux-akpm/mm/filemap.c   Sat Dec 15 21:52:06 2001
-> > @@ -3038,8 +3038,11 @@ unlock:
-> >       /* For now, when the user asks for O_SYNC, we'll actually
-> >        * provide O_DSYNC. */
-> >       if (status >= 0) {
-> > -             if ((file->f_flags & O_SYNC) || IS_SYNC(inode))
-> > +             if ((file->f_flags & O_SYNC) || IS_SYNC(inode)) {
-> >                       status = generic_osync_inode(inode, OSYNC_METADATA|OSYNC_DATA);
-> > +                     if (status < 0)
-> > +                             written = 0;    /* Return the right thing */
-> > +             }
-> >       }
+> Hi,
 > 
-> Right. If generic_osync_inode returns error, it must be needed.
-> This patch seems ok than my patch...
+> I have a Sony Vaio PCG-FX103 laptop that I play around with Linux
+stuff
+> on. Sound has been an issue. With the latest kernel (plus various
+patches
+> that have appeared in linux-kernel) cause a major squeal on a DivX
+file I
+> recorded off the TV on another Linux box. The only place I get the
+squeal
+> is on the laptop. Under Windows its OK, on my other Linux box its ok,
+just
+> on this Intel 810 sound card laptop thing it squeals.
+> 
+> So, I installed ALSA and it went away but I got the chipmunk problem.
+> However, the only documentation that said about setting the ac97 codec
+> frequency to 41194 really was just tooooo slow (like groaning
+stretched
+> out sound). The default 48000 was chipmunk. I used another PC to
+calibrate
+> and came up with 47500. That little bit slows it down to the right
+speed.
+> 
+> Now I know this isn't the ALSA group, just thought this info would
+help
+> people out who are working on the Intel 810 driver in the kernel. BTW:
+if
+> you want the file its about a 200MB avi of an Eastenders episode but
+you
+> are welcome to have it to test out fixes.
+> 
+> Lee Packham
 
-Actually, I preferred your approach :)
-
-Also, note how if ->commit_write() or ->prepare_write() return an
-error, and we have already written some data, the function returns
-the number of bytes written and no indication that there was an error.
-According to the write(2) manpage, that's wrong.
-
-Probably it is sufficient to make `written' a signed quantity
-and to do:
-
-out_status:
--       err = written ? written : status;
-+       err = status ? status : written;
-
-I think that fixes the five or six bugs we've found so far in
-this function.  err..  make that six or seven.  What is it trying
-do if ->prepare_write() returns a non-zero, positive value?
-
-It needs a big spring-clean.   I'm afraid I don't have time to
-do that for several days.
-
--

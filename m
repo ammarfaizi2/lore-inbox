@@ -1,80 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261427AbVBVTjq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261512AbVBVTiT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261427AbVBVTjq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 14:39:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbVBVTjp
+	id S261512AbVBVTiT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 14:38:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbVBVTgo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 14:39:45 -0500
-Received: from rproxy.gmail.com ([64.233.170.195]:51317 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261427AbVBVTix (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 14:38:53 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=pf+yVIDF/Mb+cFugXwx8IG0T0s1Y8jAZeP6tcFlvJDkMGwAo3ndMtfdFdh7ZPnFWZCTcxFBFk6RI7DBi+dY5+jS6ToJoKJIA5dLlw3BrgOnYuaNToct9qNuBrFGQVkA1UyrQy/BM8ksYIHOhor3Piu4trk22G7aQksw7YHCUuBs=
-Message-ID: <d120d50005022211384a83726d@mail.gmail.com>
-Date: Tue, 22 Feb 2005 14:38:48 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: POSTing of video cards (WAS: Solo Xgl..)
-Cc: Jon Smirl <jonsmirl@gmail.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Dave Airlie <airlied@linux.ie>, dri-devel@lists.sourceforge.net,
-       xorg@lists.freedesktop.org,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0502221111410.2378@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 22 Feb 2005 14:36:44 -0500
+Received: from relay1.tiscali.de ([62.26.116.129]:31979 "EHLO
+	webmail.tiscali.de") by vger.kernel.org with ESMTP id S261427AbVBVTgQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 14:36:16 -0500
+Message-ID: <421B8979.9030103@tiscali.de>
+Date: Tue, 22 Feb 2005 20:35:21 +0100
+From: Matthias-Christian Ott <matthias.christian@tiscali.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Weathers, Norman R." <Norman.R.Weathers@conocophillips.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Problems with 2.6.11-rc4, Opteron server and MPTBase
+References: <D821697F08061F4FBB069FA1AAAA92370C44F7@hoexmb7.conoco.net>
+In-Reply-To: <D821697F08061F4FBB069FA1AAAA92370C44F7@hoexmb7.conoco.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <Pine.LNX.4.58.0502201049480.18753@skynet>
-	 <21d7e997050220150030ea5a68@mail.gmail.com>
-	 <9e4733910502201542afb35f7@mail.gmail.com>
-	 <1108973275.5326.8.camel@gaston>
-	 <9e47339105022111082b2023c2@mail.gmail.com>
-	 <1109019855.5327.28.camel@gaston>
-	 <9e4733910502211717116a4df3@mail.gmail.com>
-	 <1109041968.5412.63.camel@gaston>
-	 <9e473391050221204215a079e1@mail.gmail.com>
-	 <Pine.LNX.4.58.0502221111410.2378@ppc970.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Feb 2005 11:19:10 -0800 (PST), Linus Torvalds
-<torvalds@osdl.org> wrote:
-> 
-> 
-> On Mon, 21 Feb 2005, Jon Smirl wrote:
-> >
-> > I was working on the assumption that all PCI based, VGA class hardware
-> > that is not the boot device needs to be posted.
-> 
-> I don't think that's true. We certainly don't _want_ it to be true in the
-> long run - and even now there are cards that we can initialize fully
-> without using the BIOS at all.
-> 
-> > And that the posting should occur before the drivers are
-> > loaded.
-> 
-> Personally, I'd much rather let the driver be involved in the decision.
-> 
-> That may mean that the probe routine knows how to initialize the card, but
-> it may mean that it does an "exec_usermodehelper()" kind of thing.
-> Actually, I'd prefer it if this was largely up to "udev": if the driver
-> notices that it can't initialize the card, why not just enumerate it
-> enough that "udev" knows about it (that's pretty much automatic), and let
-> the driver just ignore the card until some (possibly much later) date when
-> the user level scripts have found it and initialized it.
-> 
-> That would imply that the driver have some "re-attach" entrypoint (which
-> migth be a ioctl, but might also be just a /sysfs file access), which is
-> the user-lands way of saying "try again - I've now initialized the
-> hardware".
-> 
+Weathers, Norman R. wrote:
 
-This sounds awfully like firmware loader that seems to be working just
-fine for a ranfe of network cards and other devices.
+>To all whom it may concern:
+>
+>
+>I am having trouble with several of the 2.6 kernels.  The last one is
+>the one that is perhaps most annoying.
+>
+>I have a dual Opteron based NFS server that keeps crashing when I try to
+>boot up with 2.6.11-rc4.
+>
+>The node is trying to boot from an mptbase device, and it is also
+>loading modules for a qlogic fiber card (module is qla2300, qla2xxx, and
+>the scsi_transport_fc).  Now, as it is scanning the drives, it does a
+>perfect impersonation of a dying duck and crashes.  
+>
+>Here is the output from the crash:'
+>
+>Fusion MPT base driver 3.01.18
+>Loading scsi_modCopyright (c) 1999-2004 LSI Logic Corporation
+>.ko module
+>Loadmptbase: Initiating ioc0 bringup
+>ing sd_mod.ko module
+>Loading mptbase.ko module
+>ioc0: 53C1030: Capabilities={Initiator}
+>Unable to handle kernel paging request at 00000000000025b0 RIP: 
+><ffffffff8012064d>{vmalloc_fault+557}
+>PGD 821ad067 PUD 2c50067 PMD 0 
+>Oops: 0000 [1] SMP 
+>CPU 0 
+>Modules linked in: mptbase sd_mod scsi_mod
+>Pid: 0, comm: swapper Not tainted 2.6.11-rc4
+>RIP: 0010:[<ffffffff8012064d>] <ffffffff8012064d>{vmalloc_fault+557}
+>RSP: 0000:ffffffff80455230  EFLAGS: 00010212
+>RAX: 00000000000fe050 RBX: 0000000000000001 RCX: 0000000000000018
+>RDX: 0000000000000000 RSI: 03fffffffffff000 RDI: 00003fffffffffff
+>RBP: 0000000000000000 R08: ffff8100fba3c000 R09: 00000000fba3c000
+>R10: 0000000000000008 R11: ffff810081b44760 R12: ffffffff80455338
+>R13: 0000000000000003 R14: ffffc20000000044 R15: 0000000000000000
+>FS:  0000000000000000(0000) GS:ffffffff804c1800(0000)
+>knlGS:0000000000000000
+>CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+>CR2: 00000000000025b0 CR3: 0000000002c58000 CR4: 00000000000006e0
+>Process swapper (pid: 0, threadinfo ffffffff804c8000, task
+>ffffffff80358380)
+>Stack: ffffffff801207ce 0000000000000001 0000000000000001
+>ffffffff80455278 
+>       ffffffff80358380 ffffffff80455338 ffffffff80317933
+>0000000000000000 
+>       0000000b0000000e 0000000000000082 
+>Call Trace:<IRQ> <ffffffff801207ce>{do_page_fault+238}
+><ffffffff8014c179>{autoremove
+>_wake_function+9} 
+>       <ffffffff80131d83>{__wake_up_common+67}
+><ffffffff8010eddd>{error_exit+0} 
+>       <ffffffff8802c02d>{:mptbase:mpt_interrupt+45}
+><ffffffff8013fbd9>{update_wall_
+>time+9} 
+>       <ffffffff8015777c>{handle_IRQ_event+44}
+><ffffffff8015788e>{__do_IRQ+222} 
+>       <ffffffff80111392>{do_IRQ+66} <ffffffff8010e981>{ret_from_intr+0}
+>
+>        <EOI> <ffffffff802f7c4a>{thread_return+42}
+><ffffffff8010c420>{default_idle+0
+>} 
+>       <ffffffff8010c444>{default_idle+36}
+><ffffffff8010c58a>{cpu_idle+58} 
+>       <ffffffff804ca910>{start_kernel+416}
+><ffffffff804ca294>{x86_64_start_kernel+4
+>04} 
+>       
+>
+>Code: 48 2b 82 b0 25 00 00 48 8d 34 c5 00 00 00 00 48 29 c6 48 8b 
+>RIP <ffffffff8012064d>{vmalloc_fault+557} RSP <ffffffff80455230>
+>CR2: 00000000000025b0
+> <0>Kernel panic - not syncing: Aiee, killing interrupt handler!
+>
+>Has anyone seen this in this kernel?  2.6.7 - 2.6.10 has not had a
+>problem booting, but there has been other problems that are forcing us
+>to move up to a newer kernel (2.6.7 has stability issues, 2.6.9 had some
+>interesting issues with our IBM servers and USB keyboards (complete
+>lockups), and I had problems with kswapd on 2.6.7 - 2.6.10).
+>
+>Thanks for any help you may be able to shed on this problem.  Please CC
+>me.  I was on the kernel list, but I think my company has blocked that
+>email due to the volume of the traffic.
+>
+>Norman Weathers
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+Hi!
+Did you change some configuration options or did add/remove hardware?
 
--- 
-Dmitry
+Matthias-Christian Ott

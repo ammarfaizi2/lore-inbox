@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261412AbSJMBHQ>; Sat, 12 Oct 2002 21:07:16 -0400
+	id <S261395AbSJMBP1>; Sat, 12 Oct 2002 21:15:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261420AbSJMBHQ>; Sat, 12 Oct 2002 21:07:16 -0400
-Received: from modemcable061.219-201-24.mtl.mc.videotron.ca ([24.201.219.61]:8343
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S261412AbSJMBHP>; Sat, 12 Oct 2002 21:07:15 -0400
-Date: Sat, 12 Oct 2002 20:53:04 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH][2.5] make cifs/print_status static
-Message-ID: <Pine.LNX.4.44.0210122050250.10081-100000@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261396AbSJMBP1>; Sat, 12 Oct 2002 21:15:27 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:11780 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261395AbSJMBP0>;
+	Sat, 12 Oct 2002 21:15:26 -0400
+Date: Sat, 12 Oct 2002 18:16:44 -0700
+From: Greg KH <greg@kroah.com>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.20-pre10: make PL-2303 hack work again
+Message-ID: <20021013011644.GA12720@kroah.com>
+References: <20021009233624.GA17162@ip68-4-86-174.oc.oc.cox.net> <20021009235332.GA19351@kroah.com> <20021011023925.GA9142@ip68-4-86-174.oc.oc.cox.net> <20021011170623.GB4123@kroah.com> <20021012063036.GA10921@ip68-4-86-174.oc.oc.cox.net> <20021012205604.GB17162@ip68-4-86-174.oc.oc.cox.net> <20021013004249.GC17162@ip68-4-86-174.oc.oc.cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021013004249.GC17162@ip68-4-86-174.oc.oc.cox.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Index: linux-2.5.42/fs/cifs/nterr.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.42/fs/cifs/nterr.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 nterr.c
---- linux-2.5.42/fs/cifs/nterr.c	12 Oct 2002 16:56:42 -0000	1.1.1.1
-+++ linux-2.5.42/fs/cifs/nterr.c	13 Oct 2002 00:45:56 -0000
-@@ -694,7 +694,7 @@
- /*****************************************************************************
-  Print an error message from the status code
-  *****************************************************************************/
--void
-+static void
- print_status(__u32 status_code)
- {
- 	int idx = 0;
+On Sat, Oct 12, 2002 at 05:42:49PM -0700, Barry K. Nathan wrote:
+> The following patch allows the PL-2303 hack to work again. It applies
+> to and has been tested with 2.4.20-pre10. Testing included using an ISDN
+> "modem" connected to the PL-2303 to do some web browsing and some
+> downloads (including a gzipped Linux 2.5.42 tarball).
+> 
+> The patch resurrects a sanity check (or so it appears to me) which was
+> removed in 2.4.20-pre2. However, the new version of the check is
+> contained within the PL-2303 hack #ifdef's, and it no longer relies on
+> variables like interrupt_pipe which have been removed from the USB
+> serial code.
+> 
+> Given that 2.4.19 works with my PL-2303 and 2.4 is supposed to be a
+> "stable" series, I'd appreciate if this patch (or another which fixes my
+> problem) could be merged. If this patch needs improvements first, please
+> let me know.
 
--- 
-function.linuxpower.ca
+Sweet, nice job, I like it.  I'll go add this to my kernel trees and
+send it to Marcelo.
 
+Thanks for finding and fixing this.
+
+Now, would you mind taking a look at 2.5, and fixing this there too? :)
+
+thanks,
+
+greg k-h

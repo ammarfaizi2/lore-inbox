@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263186AbUJ2AR2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263199AbUJ2B5g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263186AbUJ2AR2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 20:17:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263162AbUJ2AIN
+	id S263199AbUJ2B5g (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 21:57:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263189AbUJ2ASE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 20:08:13 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:24464
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S263160AbUJ2AFS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 20:05:18 -0400
-Date: Thu, 28 Oct 2004 16:56:58 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: "Meda, Prasanna" <pmeda@akamai.com>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, davem@redhat.com
-Subject: Re: rcv_wnd = init_cwnd*mss
-Message-Id: <20041028165658.753eee50.davem@davemloft.net>
-In-Reply-To: <DB2C167D8FFDEA45B8FC0B1B75E3EE154A3B08@usca1ex-priv1.sanmateo.corp.akamai.com>
-References: <DB2C167D8FFDEA45B8FC0B1B75E3EE154A3B08@usca1ex-priv1.sanmateo.corp.akamai.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Thu, 28 Oct 2004 20:18:04 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:58629 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S263166AbUJ2APL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 20:15:11 -0400
+Date: Fri, 29 Oct 2004 02:14:39 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: acme@conectiva.com.br
+Cc: davem@davemloft.net, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] appletalk: remove an unused function
+Message-ID: <20041029001439.GC29142@stusta.de>
+References: <20041028221046.GI3207@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041028221046.GI3207@stusta.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Oct 2004 23:15:48 -0700
-"Meda, Prasanna" <pmeda@akamai.com> wrote:
+[ this time without the problems due to a digital signature... ]
 
-> Thanks, still it is unclear to me why are we
-> downsizing the advertised window(rcv_wnd) to cwnd? 
-> To defeat disobeying sender, or something like below?
+The patch below removes an unsed function from net/appletalk/ddp.c
 
-There is never any reason to advertise a receive window
-larger than the initial congestion window of the sender
-could ever be.
 
-Setting it properly like this also makes sure that we do
-receive window update events at just the right place as
-the sender starts sending us the initial data frames.
+diffstat output:
+ net/appletalk/ddp.c |    7 -------
+ 1 files changed, 7 deletions(-)
 
-> And also in the following line,
-> if (*rcv_wscale && sysctl_tcp_app_win && space>=mss &&
->                     space - max((space>>sysctl_tcp_app_win), mss>>*rcv_wscale) <
-> 65536/2)
-> 
-> space is actual_space>>rcv_wscale, mss is actual value.
-> Why are we checking space>=mss, which are in different
-> scales? The second line is doing max on space and mss 
-> on same scales, and looks right.
 
-Yep, that space>=mss test looks super buggy for the *rcv_wscale
-not zero case.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Good thing we don't have this buggy code in 2.6.x any more.
-It's only present in 2.4.x
+--- linux-2.6.10-rc1-mm1-full/net/appletalk/ddp.c.old	2004-10-28 23:49:44.000000000 +0200
++++ linux-2.6.10-rc1-mm1-full/net/appletalk/ddp.c	2004-10-28 23:49:57.000000000 +0200
+@@ -78,13 +78,6 @@
+ 	sk_add_node(sk, &atalk_sockets);
+ }
+ 
+-static inline void atalk_insert_socket(struct sock *sk)
+-{
+-	write_lock_bh(&atalk_sockets_lock);
+-	__atalk_insert_socket(sk);
+-	write_unlock_bh(&atalk_sockets_lock);
+-}
+-
+ static inline void atalk_remove_socket(struct sock *sk)
+ {
+ 	write_lock_bh(&atalk_sockets_lock);

@@ -1,59 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265925AbUBBUgg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 15:36:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265924AbUBBUgO
+	id S265901AbUBBVTM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 16:19:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265902AbUBBVTM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 15:36:14 -0500
-Received: from mailr-1.tiscali.it ([212.123.84.81]:13699 "EHLO
-	mailr-1.tiscali.it") by vger.kernel.org with ESMTP id S266014AbUBBUDJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 15:03:09 -0500
-X-BrightmailFiltered: true
-Date: Mon, 2 Feb 2004 21:03:07 +0100
-From: Kronos <kronos@kronoz.cjb.net>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [Compile Regression in 2.4.25-pre8][PATCH 35/42]
-Message-ID: <20040202200307.GI6785@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
-References: <20040130204956.GA21643@dreamland.darkstar.lan> <Pine.LNX.4.58L.0401301855410.3140@logos.cnet> <20040202180940.GA6367@dreamland.darkstar.lan>
+	Mon, 2 Feb 2004 16:19:12 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:15488 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S265901AbUBBVTG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 16:19:06 -0500
+Date: Mon, 2 Feb 2004 22:19:26 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Valdis.Kletnieks@vt.edu
+Cc: Joshua Kwan <joshk@triplehelix.org>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: 2.6 input drivers FAQ
+Message-ID: <20040202211926.GB440@ucw.cz>
+References: <20040201100644.GA2201@ucw.cz> <20040201163136.GF11391@triplehelix.org> <200402020527.i125RvTx008088@turing-police.cc.vt.edu> <20040202092318.GD548@ucw.cz> <200402021812.i12IC6eR006637@turing-police.cc.vt.edu> <20040202201813.GA272@ucw.cz> <200402022028.i12KSnSQ011554@turing-police.cc.vt.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040202180940.GA6367@dreamland.darkstar.lan>
-User-Agent: Mutt/1.4i
+In-Reply-To: <200402022028.i12KSnSQ011554@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Feb 02, 2004 at 03:28:49PM -0500, Valdis.Kletnieks@vt.edu wrote:
+> On Mon, 02 Feb 2004 21:18:13 +0100, Vojtech Pavlik said:
+> 
+> > Because normally the X server reads them in very quick succession and if
+> > you don't make a very short click, the sequence looks like this:
+> > 
+> > push1 push2 release1 release2, which is fine, because X interprets that
+> > as just a push and a release.
+> > 
+> > If there is disk activity or something else that causes the scheduling
+> > to be delayed, it's push1 release1 push2 release2, which counts as a
+> > doubleclick.
+> > 
+> > Hence sporadic doubleclicking.
+> 
+> Well.. that would explain things except for the single /dev/psaux I have.
+> 
+> Could a similar timing hole happen if the system submerged into SMM
+> code for a battery check or similar? (I know, that *should* cause
+> lost events not duplicated, but....)
 
-radeon_mem.c:135: warning: `print_heap' defined but not used
+I don't see a way how this could happen. One thing you could try - run
+evtest on the mouse event device in a window/on another vc, and when the
+doubleclick happens, examine the last sreenful of events.
 
-Remove unused function.
- 
-diff -Nru -X dontdiff linux-2.4-vanilla/drivers/char/drm/radeon_mem.c linux-2.4/drivers/char/drm/radeon_mem.c
---- linux-2.4-vanilla/drivers/char/drm/radeon_mem.c	Tue Nov 11 17:51:38 2003
-+++ linux-2.4/drivers/char/drm/radeon_mem.c	Sat Jan 31 19:00:49 2004
-@@ -131,16 +131,6 @@
- 	}
- }
- 
--static void print_heap( struct mem_block *heap )
--{
--	struct mem_block *p;
--
--	for (p = heap->next ; p != heap ; p = p->next) 
--		DRM_DEBUG("0x%x..0x%x (0x%x) -- owner %d\n",
--			  p->start, p->start + p->size,
--			  p->size, p->pid);
--}
--
- /* Initialize.  How to check for an uninitialized heap?
-  */
- static int init_heap(struct mem_block **heap, int start, int size)
+> > For movement, of course, you get twice the mouse speed, but usually most
+> > people just adjust the acceleration settings and are done with that.
+> 
+> Haven't seen this.
+
+Most likely your problem comes from elsewhere. Did you try another
+mouse?
 
 -- 
-Reply-To: kronos@kronoz.cjb.net
-Home: http://kronoz.cjb.net
-Non sempre quello che viene dopo e` progresso.
-Alessandro Manzoni
+Vojtech Pavlik
+SuSE Labs, SuSE CR

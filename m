@@ -1,73 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268917AbRHFRqd>; Mon, 6 Aug 2001 13:46:33 -0400
+	id <S268920AbRHFRsM>; Mon, 6 Aug 2001 13:48:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268914AbRHFRqX>; Mon, 6 Aug 2001 13:46:23 -0400
-Received: from libra.cus.cam.ac.uk ([131.111.8.19]:60391 "EHLO
-	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S268917AbRHFRqI> convert rfc822-to-8bit; Mon, 6 Aug 2001 13:46:08 -0400
-Message-Id: <5.1.0.14.2.20010806184120.04b9b640@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 06 Aug 2001 18:46:09 +0100
-To: Linus Torvalds <torvalds@transmeta.com>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: /proc/<n>/maps growing...
-Cc: Andrea Arcangeli <andrea@suse.de>, Chris Wedgwood <cw@f00f.org>,
-        "David S. Miller" <davem@redhat.com>,
+	id <S268921AbRHFRsC>; Mon, 6 Aug 2001 13:48:02 -0400
+Received: from [63.209.4.196] ([63.209.4.196]:14854 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S268920AbRHFRrt>; Mon, 6 Aug 2001 13:47:49 -0400
+Date: Mon, 6 Aug 2001 10:46:28 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: "David S. Miller" <davem@redhat.com>, Andrea Arcangeli <andrea@suse.de>,
         David Luyer <david_luyer@pacific.net.au>,
         <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0108061019280.8972-100000@penguin.transmeta.
- com>
-In-Reply-To: <20010806143603.C20837@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"; format=flowed
-Content-Transfer-Encoding: 8BIT
+Subject: Re: /proc/<n>/maps growing...
+In-Reply-To: <Pine.LNX.4.33L.0108061311120.1439-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0108061035320.8972-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 18:20 06/08/2001, Linus Torvalds wrote:
 
->On Mon, 6 Aug 2001, Andrea Arcangeli wrote:
->
-> > On Tue, Aug 07, 2001 at 12:26:50AM +1200, Chris Wedgwood wrote:
-> > > mmap does merge in many common cases.
+On Mon, 6 Aug 2001, Rik van Riel wrote:
+
+> On Mon, 6 Aug 2001, David S. Miller wrote:
+> > Andrea Arcangeli writes:
+> >  > Can somebody see a problem with this design?
 > >
-> > (assuming you speak about 2.2 because 2.4 obviously doesn't merge
-> > anything and that's the point of the discussion) So what? What do you
-> > mean with your observation?
+> > As someone who was involved when the merge_segments stuff got tossed
+> > by Linus, the reason was that the locking is utterly atrocious.
 >
->2.4.x _does_ merge. Look for yourself. It doesn't merge mprotects, no. And
->why should glibc do mprotect() for a malloc() call? Electric Fence, yes.
->glibc, no.
+> Mmmm, don't we ONLY need to hold both the mm->mmap_sem for
+> write access and the mm->page_table_lock ?
 
-Is it possible that is has something to do with what "man malloc" on my 
-machine says in the notes section:
+No. We used to merge non-NULL files too in 2.2.x, which meant that we had
+to also hold mapping->i_shared_lock.
 
----quote from man page, glibc 2.2.3-14 on RedHat 7.something---
-Recent versions of Linux libc (later than 5.4.23) and GNU libc (2.x) 
-include a malloc implementation which is tunable via environment variables. 
-When MALLOC_CHECK_ is set, a special (less efficient) implementation is 
-used which is designed to be tolerant against simple errors, such as double 
-calls of free() with the same argument, or overruns of a single byte 
-(off-by-one bugs). Not all such errors can be proteced against, however, 
-and memory leaks can result. If MALLOC_CHECK_ is set to 0, any detected 
-heap corruption is silently ignored; if set to 1, a diag­nostic is printed 
-on stderr; if set to 2, abort() is called immediately. This can be useful 
-because otherwise a crash may happen much later, and the true cause for the 
-problem is then very hard to track down.
----eoq---
+Also, the locking order for that is (due to the MM layer) _different_ from
+the one we'd like: we need to get the "i_shared_lock" before we get the
+page table lock.
 
-That sounds like the kind of stuff Electric Fence would be doing, doesn't it?
+ALSO, we have the issue of calling the "vm_ops->open()" routine - we need
+to call that one with the MM semaphore held, but without any of the
+spinlocks held. This one is also kind of interesting: if we merge with an
+existing memory map we must _not_ call the open routine at all (it's
+already open), while if we add a new one we do have to call it.
 
-Best regards,
+This was another reason why I removed the merging: I could not for the
+life of me see how that merging could possibly be correct with some of the
+special character drivers we have right now. In particular, some drivers
+"open()" routines not just increment usage counts, but also check the
+limits and allocate backing space.
 
-Anton
+Which means that there is _no_ way we can merge such a vma - we'd have to
+call "->open()" for it to get the security checks etc, but we could not
+increment usage counts, or whatever.
 
+So what the old merging code used to do was:
+ - ignore the fundamental "->open()" problem, on the theory that it
+   doesn't happen in real life (correct, btw. But it can happen if you're
+   a cracker trying to break in to the system)
+ - get and drop the locks, which meant that we did hold the locks for all
+   the operations we did, but we dropped them in between - so the code
+   would drop the page table lock, get the i_shared_lock, and re-get the
+   page table lock etc.
 
--- 
-   "Nothing succeeds like success." - Alexandre Dumas
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+Did I mention that the old code was buggy and slow? And that fixing it was
+hard? Which is, surprise surprise, why 2.4.x takes the approach of merging
+only things that it _knows_ are (a) common and (b) safe to merge.
+
+		Linus
 

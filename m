@@ -1,35 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263837AbSJWLoW>; Wed, 23 Oct 2002 07:44:22 -0400
+	id <S263326AbSJWLnH>; Wed, 23 Oct 2002 07:43:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263785AbSJWLoV>; Wed, 23 Oct 2002 07:44:21 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:1036 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S263837AbSJWLoT>; Wed, 23 Oct 2002 07:44:19 -0400
-Date: Wed, 23 Oct 2002 13:50:26 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@zip.com.au>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [patch] generic nonlinear mappings, 2.5.44-mm2-D0
-Message-ID: <20021023115026.GB30182@dualathlon.random>
-References: <20021023020534.GJ11242@dualathlon.random> <Pine.LNX.4.44.0210230851170.2360-100000@localhost.localdomain>
-Mime-Version: 1.0
+	id <S263785AbSJWLnG>; Wed, 23 Oct 2002 07:43:06 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:37995 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S263326AbSJWLnF>; Wed, 23 Oct 2002 07:43:05 -0400
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200210231149.g9NBn3G29403@devserv.devel.redhat.com>
+Subject: Re: Linux 2.5.44-ac1
+To: jason_williams@suth.com (Jason Williams)
+Date: Wed, 23 Oct 2002 07:49:03 -0400 (EDT)
+Cc: alan@redhat.com (Alan Cox),
+       linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <1035373185.24550.21.camel@cermanius.suth.com> from "Jason Williams" at Oct 23, 2002 07:39:35 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0210230851170.2360-100000@localhost.localdomain>
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 23, 2002 at 09:19:23AM +0200, Ingo Molnar wrote:
-> theory (and i raised that possibility in the discussion), but i'd like to
-> see your patch first, because yet another vma tree is quite some
-> complexity and it further increases the size of the vma, which is not
-> quite a no-cost approach.
+> code within the ide_iomio_dma function in ide-dma.c The problem shows
+> itself if you only enable the secondary channel of your IDE controller. 
+> I understand this is a strange set up, but it could happen in a machine
+> that boots off of SCSI and uses IDE disks for DATA or a CD Burner. I
+> came up with a fix, some extra sanity checks before this line in the
+> code:
 
-it's not another vma tree, furthmore another vma tree indexed by the
-hole size wouldn't be able to defragment and it would find the best fit
-not the first fit on the left.
-
-Andrea
+Yes I saw the report. I've not applied it because I want to know how
+the slave came not to have a hwif->mate even though it was bios disabled.
+There are other things that really mean we should be assigning the hwif
+pointers (eg hot plugging)

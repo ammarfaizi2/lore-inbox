@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270658AbTHQTkm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 15:40:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270681AbTHQTkm
+	id S270724AbTHQTqS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 15:46:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270727AbTHQTqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 15:40:42 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:43526 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S270658AbTHQTkl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 15:40:41 -0400
-Date: Sun, 17 Aug 2003 15:28:50 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Tom Sightler <ttsig@tuxyturvy.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Can't run Quake 3 on 2.6.0-test3-mm2
-In-Reply-To: <1061142481.14239.7.camel@iso-8590-lx.zeusinc.com>
-Message-ID: <Pine.LNX.4.53.0308171528110.32300@montezuma.mastecende.com>
-References: <1061142481.14239.7.camel@iso-8590-lx.zeusinc.com>
+	Sun, 17 Aug 2003 15:46:18 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:33546 "HELO
+	127.0.0.1") by vger.kernel.org with SMTP id S270724AbTHQTqS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 15:46:18 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: insecure <insecure@mail.od.ua>
+Reply-To: insecure@mail.od.ua
+To: arjanv@redhat.com, Carlos Velasco <carlosev@newipnet.com>
+Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
+Date: Sun, 17 Aug 2003 22:46:12 +0300
+X-Mailer: KMail [version 1.4]
+Cc: David T Hollis <dhollis@davehollis.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Lamont Granquist <lamont@scriptkiddie.org>,
+       Bill Davidsen <davidsen@tmr.com>, "David S. Miller" <davem@redhat.com>,
+       bloemsaa@xs4all.nl, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       netdev@oss.sgi.com, linux-net@vger.kernel.org, layes@loran.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.3.96.1030728222606.21100A-100000@gatekeeper.tmr.com> <200308171845560303.00D4B163@192.168.128.16> <1061140404.29559.0.camel@laptop.fenrus.com>
+In-Reply-To: <1061140404.29559.0.camel@laptop.fenrus.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200308172246.12835.insecure@mail.od.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Aug 2003, Tom Sightler wrote:
+On Sunday 17 August 2003 20:13, Arjan van de Ven wrote:
+> > 1. hidden patch is not in the main linuk kernel stream.... why?
+>
+> because arpfilter is a more generic way of doing things like this, and
+> that IS in the main linux kernel
 
-> I've recently upgraded to 2.6.0-test3-mm2 and part of my normal testing
-> involves a quick run of q3demo.  Under this kernel the system segfaults
-> when attempting to run this program.  Running strace I was able to
-> determine that this fails when it attempts to open the pak0.pk3 as
-> readonly.  Booting back to 2.6.0-test2-mm1 and the same program
-> continues to work perfectly.
-> 
-> Any ideas what might be going on here?  I haven't found any other
-> applications that exhibit such strange behavior but I'm still testing.
-
-You may want to send over the entire strace log so that more people can 
-have a look.
-
+I am interested in that but last time I googled for it,
+neither userspace utils nor any documentation turned up.
+I only see some kernel parts of it.
+-- 
+vda

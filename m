@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274623AbRITTdv>; Thu, 20 Sep 2001 15:33:51 -0400
+	id <S266488AbRITTz4>; Thu, 20 Sep 2001 15:55:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274621AbRITTdb>; Thu, 20 Sep 2001 15:33:31 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:55022 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S274619AbRITTd3>; Thu, 20 Sep 2001 15:33:29 -0400
-Date: Thu, 20 Sep 2001 15:33:52 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: linux-kernel@vger.kernel.org,
-        "Christopher K. St. John" <cks@distributopia.com>
-Subject: Re: [PATCH] /dev/epoll update ...
-Message-ID: <20010920153352.A20626@redhat.com>
-In-Reply-To: <20010920010502.A7960@redhat.com> <XFMail.20010920112513.davidel@xmailserver.org>
-Mime-Version: 1.0
+	id <S272723AbRITTzs>; Thu, 20 Sep 2001 15:55:48 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:28655 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S266488AbRITTzh>; Thu, 20 Sep 2001 15:55:37 -0400
+Message-ID: <3BAA49B5.E02FA5E7@mvista.com>
+Date: Thu, 20 Sep 2001 12:55:33 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+CC: linux-kernel@vger.kernel.org, Robert Love <rml@tech9.net>
+Subject: Re: [PATCH] latency-profiling
+In-Reply-To: <200109200609.f8K69uQ26778@mailc.telia.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <XFMail.20010920112513.davidel@xmailserver.org>; from davidel@xmailserver.org on Thu, Sep 20, 2001 at 11:25:13AM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 20, 2001 at 11:25:13AM -0700, Davide Libenzi wrote:
-> The advantage /dev/epoll has compared to aio_* and RTsig is 
-> 1) multiple event delivery/system call
-
-This is actually covered in my aio plan, and just needs the kernel 
-provided syscall function library support to read from shared memory.  
-The ABI I'm using is based on aio_*, but is different.  There are a 
-few emails I've written on the subject recently that I can forward to 
-you, but the basic API is: io_submit queues aio requests which later 
-write a 32 byte completion entry containing the object, user data and 
-result codes to a ringbuffer.
-
-> 2) less user<->kernel memory moves
+Roger Larsson wrote:
 > 
-> The concept is very similar anyway coz you basically have to initiate the
-> io-call and wait for an event.
-> The difference is how events are collected.
+> Hi,
+> 
+> I ported my old latency-profiling patch to 2.4.10-pre10 with
+> the reschedulable kernel patch. (I have not checked that it is
+> preemption safe itself...)
+> 
+> This patch works a little different from Robert Loves.
+> Since it samples the execution location at ticks.
+> It is possible to instrument an ordinary kernel too...
 
-See the above. =)  aio also works much better as the io request helps 
-define the duration for memory pinning of any O_DIRECT or similar 
-operations that allow the hardware to act on user provided buffers.
+It gives experienced latencies rather than potential latencies, but more
+important from the developer/maintainers point of view, "Robert Loves"
+patch provides information on the bad guys, i.e. the reason for the long
+latency, which, hopefully, will allow them to be addressed by competent
+maintainers.
 
-		-ben
+George

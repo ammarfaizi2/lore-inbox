@@ -1,46 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268894AbTBSFr1>; Wed, 19 Feb 2003 00:47:27 -0500
+	id <S268895AbTBSFvQ>; Wed, 19 Feb 2003 00:51:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268895AbTBSFr0>; Wed, 19 Feb 2003 00:47:26 -0500
-Received: from w089.z209220022.nyc-ny.dsl.cnc.net ([209.220.22.89]:56591 "HELO
-	yucs.org") by vger.kernel.org with SMTP id <S268894AbTBSFr0>;
-	Wed, 19 Feb 2003 00:47:26 -0500
-Subject: hard lockup on 2.4.20 w/ nfs over frees/wan
-From: Shaya Potter <spotter@cs.columbia.edu>
+	id <S268896AbTBSFvQ>; Wed, 19 Feb 2003 00:51:16 -0500
+Received: from web21201.mail.yahoo.com ([216.136.129.59]:5185 "HELO
+	web21201.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S268895AbTBSFvQ>; Wed, 19 Feb 2003 00:51:16 -0500
+Message-ID: <20030219060118.93609.qmail@web21201.mail.yahoo.com>
+Date: Tue, 18 Feb 2003 22:01:18 -0800 (PST)
+From: Srinivas Chinta <chintasrinivas_tech@yahoo.com>
+Subject: EOF charector in file?
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1045634189.4761.44.camel@zaphod>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 19 Feb 2003 00:56:29 -0500
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to use frees/wan 1.99 w/ NFSv3.  I've been testing it w/
-large r and wsize's (32k each).  When used w/o ipsec, it seems to work
-fine.  When used w/ ipsec, make dep on a kernel source tree has
-consistently frozen up these IBM Netfinity boxes (2*933mhz P3s w/ smp
-kernel).  One time the last thing the kernel printk'd was
+Hi,
+ any body please help me how to write an "end of file"
+charector in a file?
+ I could truncate(), but is there any other way of
+doing it like "putc('some-EOF-charector', fp)" ?
+If it is there, what charector i have to "putc()"?
 
-pcnet32.c:	    printk(KERN_ERR "%s: Bus master arbitration failure,
-status %4.4x.\n",
+Thanks.
+Srinivasu Chinta.
 
-but didn't record the status number (well it was eth0: Bus master....,
-and it's using a pcnet32 controller, so assume that's the line). 
-Usually it's locked up w/o printk'ing anything, last things I see on
-console are the normal ipsec printk's
 
-Is it possible that the r/w size's are causing issues when used in
-conjuction w/ ipsec?  Am I triggering some sort of race condition?  The
-NFS client is running the exact same kernel on the same exact hardware
-and hasn't had an issue yet.
-
-any ideas on what I can do to debug it?
-
-thanks,
-
-shaya
-
+__________________________________________________
+Do you Yahoo!?
+Yahoo! Shopping - Send Flowers for Valentine's Day
+http://shopping.yahoo.com

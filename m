@@ -1,85 +1,145 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262481AbSKEWHG>; Tue, 5 Nov 2002 17:07:06 -0500
+	id <S264868AbSKEWKg>; Tue, 5 Nov 2002 17:10:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262776AbSKEWHF>; Tue, 5 Nov 2002 17:07:05 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:53414 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S262481AbSKEWHE> convert rfc822-to-8bit; Tue, 5 Nov 2002 17:07:04 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: James Cleverdon <jamesclv@us.ibm.com>
-Reply-To: jamesclv@us.ibm.com
-Organization: IBM xSeries Linux Solutions
-To: Andrew Morton <akpm@digeo.com>
-Subject: Re: Kswapd madness in 2.4 kernels
-Date: Tue, 5 Nov 2002 14:13:00 -0800
-User-Agent: KMail/1.4.1
-Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-       Rik van Riel <riel@conectiva.com.br>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-References: <200210242026.13071.jamesclv@us.ibm.com> <3DB8C941.DEF1C069@digeo.com>
-In-Reply-To: <3DB8C941.DEF1C069@digeo.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200211051413.00661.jamesclv@us.ibm.com>
+	id <S264900AbSKEWKg>; Tue, 5 Nov 2002 17:10:36 -0500
+Received: from smtp-out-2.wanadoo.fr ([193.252.19.254]:18834 "EHLO
+	mel-rto2.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S264868AbSKEWKe>; Tue, 5 Nov 2002 17:10:34 -0500
+Subject: aic7xxx problem.
+From: Emmanuel Fuste <e.fuste@wanadoo.fr>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 05 Nov 2002 23:34:46 +0100
+Message-Id: <1036535689.3349.36.camel@rafale>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Status report:
+Hi all,
 
-Due to dependencies, I didn't try the two recommended patches alone.  I ran 
-Andrea's 2.4.20-pre10aa1 kernel on the test load for one week.  Low memory 
-was conserved and kswapd never went out of control.  Presumably, 
-05_vm_16_active_free_zone_bhs-1 did the job for buffers, and the inode patch 
-continued to work.
+I have a problem with an adaptec 2940u2w since ... a long time: I tried
+to get it working since kernel 2.3.9x.
+The board work fine in other computer on Linux.
+When I try on mine (old dual cpu i586 asus board) I got this kind of
+kernel messages at boot and less than five second later, the computer
+lock:
+scsi0: PCI error Interrupt at seqaddr = 0x8
+scsi0: Data Parity Error Detected during address or write data phase
+scsi0: PCI error Interrupt at seqaddr = 0x8
+scsi0: Data Parity Error Detected during address or write data phase
+scsi0: PCI error Interrupt at seqaddr = 0x8
+scsi0: Data Parity Error Detected during address or write data phase
+scsi0: PCI error Interrupt at seqaddr = 0x8
+scsi0: Data Parity Error Detected during address or write data phase
+scsi0: PCI error Interrupt at seqaddr = 0x8
+scsi0: Data Parity Error Detected during address or write data phase
+scsi0: PCI error Interrupt at seqaddr = 0x8
+scsi0: Data Parity Error Detected during address or write data phase
+scsi0: PCI error Interrupt at seqaddr = 0x7
+scsi0: Data Parity Error Detected during address or write data phase
+scsi0: PCI error Interrupt at seqaddr = 0x8
+scsi0: Data Parity Error Detected during address or write data phase
+scsi0: PCI error Interrupt at seqaddr = 0x9
+scsi0: Data Parity Error Detected during address or write data phase
+scsi0: PCI error Interrupt at seqaddr = 0x7
+scsi0: Data Parity Error Detected during address or write data phase
+scsi0: PCI error Interrupt at seqaddr = 0x8
+scsi0: Data Parity Error Detected during address or write data phase
 
-Are there any plans on getting these into 2.4.21?
+My computer had always worked with an aic7xxx since 1.3.4x kernels. I
+have now an aic7871 (2940uw) and it work well.
+But sometimes I have a flood of theses messages in syslog like with the
+2940u2w, messages stops and the computer continue to work as if nothing
+was appened.
+It generaly apened only one time per boot.
+My running kernel is 2.4.20-rc1 with alsa 0.9rc5. I already tried all
+combinaisons: single CPU mode, noapic, etc...
+I think I have a problem with my PCI conf, but I'm not an expert :-(
+
+Output of lspci -v:
+00:00.0 Host bridge: Intel Corp. 430HX - 82439HX TXC [Triton II] (rev
+03)
+        Flags: bus master, medium devsel, latency 32
+
+00:01.0 ISA bridge: Intel Corp. 82371SB PIIX3 ISA [Natoma/Triton II]
+(rev 01)
+        Flags: bus master, medium devsel, latency 0
+
+00:01.1 IDE interface: Intel Corp. 82371SB PIIX3 IDE [Natoma/Triton II]
+(prog-if 80 [Master])
+        Flags: bus master, medium devsel, latency 32
+        I/O ports at e800 [size=16]
+
+00:01.2 USB Controller: Intel Corp. 82371SB PIIX3 USB [Natoma/Triton II]
+(rev 01) (prog-if 00 [UHC
+I])
+        Flags: bus master, medium devsel, latency 32, IRQ 19
+        I/O ports at e400 [size=32]
+
+00:09.0 SCSI storage controller: Adaptec AHA-2940U/UW/D / AIC-7881U
+        Flags: bus master, medium devsel, latency 32, IRQ 19
+        I/O ports at e000 [disabled] [size=256]
+        Memory at e3000000 (32-bit, non-prefetchable) [size=4K]
+        Expansion ROM at <unassigned> [disabled] [size=64K]
+
+00:0b.0 VGA compatible controller: Matrox Graphics, Inc. MGA 2164W
+[Millennium II] (prog-if 00 [VG
+A])
+        Subsystem: Matrox Graphics, Inc. MGA-2164W Millennium II
+        Flags: bus master, medium devsel, latency 32, IRQ 17
+        Memory at e6000000 (32-bit, prefetchable) [size=16M]
+        Memory at e2800000 (32-bit, non-prefetchable) [size=16K]
+        Memory at e2000000 (32-bit, non-prefetchable) [size=8M]
+        Expansion ROM at <unassigned> [disabled] [size=64K]
+
+00:0c.0 VGA compatible controller: Matrox Graphics, Inc. MGA G200 (rev
+01) (prog-if 00 [VGA])
+        Subsystem: Matrox Graphics, Inc. Millennium G200 SD
+        Flags: medium devsel, IRQ 16
+        Memory at e4000000 (32-bit, prefetchable) [size=16M]
+        Memory at e1800000 (32-bit, non-prefetchable) [size=16K]
+        Memory at e1000000 (32-bit, non-prefetchable) [size=8M]
+        Expansion ROM at e3ff0000 [disabled] [size=64K]
+        Capabilities: [dc] Power Management version 1
+
+00:0d.0 Ethernet controller: Advanced Micro Devices [AMD] 79c970 [PCnet
+LANCE] (rev 02)
+        Flags: bus master, stepping, medium devsel, latency 0, IRQ 19
+        I/O ports at d800 [size=32]
+
+The things that choked me are the latency on the isa bridge and the
+PCnet controller.
+On the other hand, for the pcnet, I could read these in my syslog:
+
+pcnet32.c:v1.27b 01.10.2002 tsbogend@alpha.franken.de
+PCI: Setting latency timer of device 00:0d.0 to 64
+pcnet32: PCnet/PCI 79C970 at 0xd800, 10 00 5a 5b 55 97 assigned IRQ 19.
+eth0: registered as PCnet/PCI 79C970
+pcnet32: 1 cards_found.
+
+Who is true ? lspci or the syslog ? is the driver fail to set latency to
+64 or lspci wrong ?
+
+For the ISA bridge, is this harmless or should I try to patch the kernel
+with a new quirk ? (if my bios is buggy, there is no support for my
+board since a long time).
+
+Please Alan (which like old bizare computer) or other, help me. I will
+try a 2.5 kernel which seems to have more advanced PCI setup some time
+but it is a long operation to compile a kernel on this computer (and
+more now since alsa just crashed leaving one cpu stuck a 100% ;-)))
+
+Emmanuel.
+
+PS: Please CC, I only read lklm via web mail archive.
+Thanks.
 
 
-On Thursday 24 October 2002 09:32 pm, Andrew Morton wrote:
-> James Cleverdon wrote:
-> >    Andrea_Archangeli-inode_highmem_imbalance.patch    Type: text/x-diff
->
-> That's in -aa kernels, is correct and is needed.
->
-> >    Andrew_Morton-2.4_VM_sucks._Again.patch    Type: text/x-diff
->
-> hmm.  Someone seems to have renamed my nuke-buffers patch ;)
->
-> My main concern is that this was a real quickie; it does a very
-> aggressive takedown of buffer_heads.  Andrea's kernels contain a
-> patch which takes a very different approach.  See
-> http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.20pre
->8aa2/05_vm_16_active_free_zone_bhs-1
->
-> I don't think anyone has tried that patch in isolation though...
->
-> If nuke-buffers passes testing and doesn't impact performance then
-> fine.  A more cautious approach would be to use the active_free_zone_bhs
-> patch.  If that proves inadequate then add in the "read" part of
-> nuke-buffers. That means dropping the fs/buffer.c part.
-> -
 
 
-On Friday 25 October 2002 09:57 am, Rik van Riel wrote:
-> On Thu, 24 Oct 2002, James Cleverdon wrote:
-> > We have some customers with some fairly beefy servers.  They can get the
-> > system into an unusable state that has been reported on lkml before.
-> >
-> > The two attached patches applied to 2.4.19 fix the problem on our test
-> > boxes.
-> >
-> > Are these patches still considered a good idea for 2.4?  Is there
-> > something better I should be using?
->
-> Yes, these patches are a good idea.  I'm curious why they
-> haven't been submitted to Marcelo yet ;)
->
-> Rik
 
 
--- 
-James Cleverdon
-IBM xSeries Linux Solutions
-{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot com
 

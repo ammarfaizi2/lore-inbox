@@ -1,22 +1,25 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314051AbSDVExg>; Mon, 22 Apr 2002 00:53:36 -0400
+	id <S312579AbSDVFTz>; Mon, 22 Apr 2002 01:19:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314052AbSDVExf>; Mon, 22 Apr 2002 00:53:35 -0400
-Received: from mail.bmlv.gv.at ([193.171.152.34]:64425 "EHLO mail.bmlv.gv.at")
-	by vger.kernel.org with ESMTP id <S314051AbSDVExe>;
-	Mon, 22 Apr 2002 00:53:34 -0400
-Message-Id: <3.0.6.32.20020422065639.0090cd10@pop3.bmlv.gv.at>
+	id <S314052AbSDVFTy>; Mon, 22 Apr 2002 01:19:54 -0400
+Received: from mail.bmlv.gv.at ([193.171.152.34]:46506 "EHLO mail.bmlv.gv.at")
+	by vger.kernel.org with ESMTP id <S312579AbSDVFTy>;
+	Mon, 22 Apr 2002 01:19:54 -0400
+Message-Id: <3.0.6.32.20020422072320.009347f0@pop3.bmlv.gv.at>
 X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
-Date: Mon, 22 Apr 2002 06:56:39 +0200
+Date: Mon, 22 Apr 2002 07:23:20 +0200
 To: sct@redhat.com, akpm@zip.com.au, adilger@turbolinux.com
 From: "Ph. Marek" <marek@bmlv.gv.at>
-Subject: [PATCH] open files in kjounald
+Subject: Re: [PATCH] open files in kjounald (2)
 Cc: linux-kernel@vger.kernel.org, ext3-users@redhat.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+Sorry, got it the wrong way around :-(
+
 
 Hello everybody!
 
@@ -59,13 +62,13 @@ Phil
 
 
 diff -ru linux/fs/jbd/journal.c linux.ori/fs/jbd/journal.c
---- linux/fs/jbd/journal.c      Mon Apr 22 06:29:16 2002
-+++ linux.ori/fs/jbd/journal.c  Mon Apr 22 06:28:54 2002
+--- linux.ori/fs/jbd/journal.c  Mon Apr 22 06:28:54 2002
++++ linux/fs/jbd/journal.c      Mon Apr 22 06:29:16 2002
 @@ -204,7 +204,6 @@
 
         lock_kernel();
         daemonize();
--       exit_files(current);
++       exit_files(current);
         spin_lock_irq(&current->sigmask_lock);
         sigfillset(&current->blocked);
         recalc_sigpending(current);

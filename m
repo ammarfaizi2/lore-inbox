@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S132279AbRC1TwM>; Wed, 28 Mar 2001 14:52:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S132147AbRC1TwC>; Wed, 28 Mar 2001 14:52:02 -0500
-Received: from [195.180.174.223] ([195.180.174.223]:9344 "EHLO idun.neukum.org") by vger.kernel.org with ESMTP id <S132163AbRC1Tvv>; Wed, 28 Mar 2001 14:51:51 -0500
-From: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>, Oliver.Neukum@lrz.uni-muenchen.de, jesse@cats-chateau.net
-Subject: Re: Larger dev_t
-Date: Wed, 28 Mar 2001 21:50:20 +0200
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-Cc: linux-kernel@vger.kernel.org
-References: <200103281905.NAA41794@tomcat.admin.navo.hpc.mil>
-In-Reply-To: <200103281905.NAA41794@tomcat.admin.navo.hpc.mil>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S132352AbRC1UAw>; Wed, 28 Mar 2001 15:00:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S132143AbRC1UAm>; Wed, 28 Mar 2001 15:00:42 -0500
+Received: from james.kalifornia.com ([208.179.59.2]:36218 "EHLO james.kalifornia.com") by vger.kernel.org with ESMTP id <S132147AbRC1UAZ>; Wed, 28 Mar 2001 15:00:25 -0500
+Message-ID: <3AC1D1B8.9080507@kalifornia.com>
+Date: Wed, 28 Mar 2001 03:57:44 -0800
+From: Ben Ford <ben@kalifornia.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22 i586; en-US; 0.8.1)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01032821502009.01508@idun>
-Content-Transfer-Encoding: 7BIT
+To: Simon Williams <announce@sis-domain.demon.co.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Disturbing news..
+References: <01032806093901.11349@tabby> <Pine.GSO.3.96.1010328144551.7198A-100000@laertes> <F6Om1QA+9ew6EwTq@sis-domain.demon.co.uk> <20010328100440.A5941@zalem.puupuu.org> <ZEABaXAGggw6EwTH@sis-domain.demon.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > And what would you do if the names collide ?
->
-> refuse to mount - give the admin time to fix them in single user mode
+Simon Williams wrote:
 
-That means that it could only be used for optional filesystems otherwise
-booting unattended is put into question.
-A user set for a practical joke could prevent booting by leaving a medium in 
-the drive. You could add options for not considering removable media, etc, 
-but you get to a stage where you design workarounds. That'd be bad for core 
-filesystems. Thus the need for a second improved system remains.
+> In message <20010328100440.A5941@zalem.puupuu.org>, Olivier Galibert
+> <galibert@pobox.com> writes
+> 
+>> On Wed, Mar 28, 2001 at 03:04:46PM +0100, Simon Williams wrote:
+>> 
+>>> I think their point was that a program could only change permissions
+>>> of a file that was owned by the same owner.  If a file is owned by a
+>>> different user & has no write permissions for any user, the program
+>>> can't modify the file or it's permissions.
+>> 
+>> You mean, you usually have write permissions for other than the owner
+>> on executable files?
+>> 
+>> Let me reformulate that.  You usually have write permissions for other
+>> than the owner, and not only on some special, untrusted log files (I'm
+>> talking files, here, not device nodes)?  What's your umask, 0?
+>> 
+> 
+> Firstly, I'm relatively new to Linux (only about 3 yrs experience) &
+> don't claim to be an expert.  Secondly, I don't think I stated my point
+> very clearly.
+> 
+> No, I don't have write permissions set on an executable for any user
+> other than the owner.
+> 
+> What I meant was that if a file is owned by root with permissions of,
+> say, 555 (r-xr-xr-x), not setuid or setgid, then another executable
+> run as a non-root user cannot modify it or change the permissions to
+> 7 (rwx).
 
-Aside from that adding the name to /proc/partions is a good idea but not 
-universally usable.
+There are two problems I see here.  First, there are several known ways 
+to elevate privileges.  If a virus can elevate privileges, then it owns 
+you.  Second, this is a multi-OS virus.  If you dual-boot into Windows,  
+any ELF files accessible can be infected.  With this one, that isn't a 
+prob, but when somebody codes in an ext2 driver to their virus, then 
+we've got issues.
 
-> I'm still thinking about how the root filesystem could be mounted during
-> boot where devfs and /proc are not yet mounted.
+-b
 
-Enable the kernel command line to understand devfs names.
-
-> locate the serial number in /proc/scsi/scsi. use devfs name that
-> corresponds to this device (scsi2/target 6/lun/00 or similar) and
-> create a symbolic link for it. This does assume that the serial number or
-> equivalent is available to be searched for. It also assumes that the
-
-This is the problem. I wouldn't trust it.
-
-> Is this reasonable? Perhaps not for small systems, but when lots of dynamic
-> devices are available it is needed
-
-It is reasonable. GUIs could use a unified way to learn volume names.
-
-	Regards
-		Oliver

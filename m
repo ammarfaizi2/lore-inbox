@@ -1,33 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277244AbRJQVhT>; Wed, 17 Oct 2001 17:37:19 -0400
+	id <S277246AbRJQViT>; Wed, 17 Oct 2001 17:38:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277246AbRJQVhJ>; Wed, 17 Oct 2001 17:37:09 -0400
-Received: from mx9.port.ru ([194.67.57.19]:36317 "EHLO mx9.port.ru")
-	by vger.kernel.org with ESMTP id <S277244AbRJQVhE>;
-	Wed, 17 Oct 2001 17:37:04 -0400
-From: Samium Gromoff <_deepfire@mail.ru>
-Message-Id: <200110172139.f9HLdVt01368@vegae.deep.net>
-Subject: new Rik` patch kicks ass
-To: alan@lxorguk.ukuu.org.uk
-Date: Thu, 18 Oct 2001 01:39:25 +0400 (MSD)
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.5 PL6]
+	id <S277252AbRJQViM>; Wed, 17 Oct 2001 17:38:12 -0400
+Received: from mailout00.sul.t-online.com ([194.25.134.16]:43757 "EHLO
+	mailout00.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S277246AbRJQVh7>; Wed, 17 Oct 2001 17:37:59 -0400
+Date: Wed, 17 Oct 2001 23:38:11 +0200 (CEST)
+From: bartscgr@t-online.de (Guenter Bartsch)
+X-X-Sender: <guenter@goofy.disney.gb>
+Reply-To: <bartscgr@studbox.uni-stuttgart.de>
+To: <linux-kernel@vger.kernel.org>
+cc: xine-dev <xine-devel@lists.sourceforge.net>
+Subject: Re: xine pauses with recent (not -ac) kernels
+Message-ID: <Pine.LNX.4.33.0110172335160.3116-100000@goofy.disney.gb>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-      hello folks, i`m here to report significant success in VM area
-   achieved by latest Rik van Riel` patch vs 2.4.12-ac3.
-    The system resposiveness on 24M ram in X improved quite considerable, 
-   even though i started an additional xmms over gimp with opened image +
-   opera + some xterms. This leaves me with 37MB swap and system no more
-   goes mad when i point`n`click random windows...
+Hi,
 
-    Btw xmms havent clicked...
+after some experimentation it seems clear to me that the problem is (at
+least not fully) raw-device related. Some plugins authenticate and unlock
+the drive each time they're opened and some of the ioctl's used for that
+seem to hang for a long time :-(
 
-   Overall: quite great job!
+...ist there any hope that this is going to be fixed soon?
 
-cheers, Samium Grommoff
+please cc any reply if you're reading this on the kernel mailing list as
+I'm not subscribed to that list.
+
+Cheers,
+
+   Guenter
+
+--
+time is a funny concept
+

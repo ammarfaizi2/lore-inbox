@@ -1,67 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262075AbVCIXbm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262016AbVCIXbl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262075AbVCIXbm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 18:31:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbVCIX36
+	id S262016AbVCIXbl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 18:31:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262075AbVCIXaT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 18:29:58 -0500
-Received: from fire.osdl.org ([65.172.181.4]:39072 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262132AbVCIX2w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 18:28:52 -0500
-Date: Wed, 9 Mar 2005 15:28:37 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: process file descriptor limit handling
-Message-ID: <20050309232837.GI5389@shell0.pdx.osdl.net>
-References: <3FBD1BD2.908@redhat.com>
-Mime-Version: 1.0
+	Wed, 9 Mar 2005 18:30:19 -0500
+Received: from mirapoint2.TIS.CWRU.Edu ([129.22.104.47]:56150 "EHLO
+	mirapoint2.tis.cwru.edu") by vger.kernel.org with ESMTP
+	id S262016AbVCIX2h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 18:28:37 -0500
+From: prj@po.cwru.edu (Paul Jarc)
+To: linux-kernel@vger.kernel.org
+Cc: users@spamassassin.apache.org, misc@list.smarden.org,
+       supervision@list.skarnet.org, mkettler@evi-inc.com, nix@esperi.org.uk
+Subject: Re: a problem with linux 2.6.11 and sa
+In-Reply-To: <20050309152958.GB4042@ixeon.local> (George Georgalis's message
+	of "Wed, 9 Mar 2005 10:29:59 -0500")
+Organization: What did you have in mind?  A short, blunt, human pyramid?
+References: <20050303214023.GD1251@ixeon.local>
+	<6.2.1.2.0.20050303165334.038f32a0@192.168.50.2>
+	<20050303224616.GA1428@ixeon.local>
+	<871xaqb6o0.fsf@amaterasu.srvr.nix>
+	<20050308165814.GA1936@ixeon.local>
+	<871xap9dfg.fsf@amaterasu.srvr.nix>
+	<20050309152958.GB4042@ixeon.local>
+Mail-Copies-To: nobody
+Mail-Followup-To: linux-kernel@vger.kernel.org, users@spamassassin.apache.org,
+	misc@list.smarden.org, supervision@list.skarnet.org,
+	mkettler@evi-inc.com, nix@esperi.org.uk
+Date: Wed, 09 Mar 2005 18:28:35 -0500
+Message-ID: <m3is40z9dy.fsf@multivac.cwru.edu>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FBD1BD2.908@redhat.com>
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Ulrich Drepper (drepper@redhat.com) wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> The current kernel (and all before as far as I can see) have a problem
-> with the file system limit handling.  The behavior does not conform to
-> the current POSIX spec.
-<snip>
-> It might also be that some wording is getting in the specification which
-> will allow the current kernel behavior to continue to exist.  More
-> through a loophole, but still.
+"George Georgalis" <george@galis.org> wrote:
+> It (Gerrit Pape's technique) very defiantly stopped working a few revs
+> back (2.6.7?). I'm seeing a similar failed read from /dev/rtc and
+> mplayer with 2.6.10, now too.
 
-This seems the case.  SuS v3 says:
+The /proc/kmsg problem happens because the kernel now checks for
+permission at read() instead of open().  The /dev/rtc problem seems to
+be a different beast.
 
-setrlimit
-RLIMIT_NOFILE
-    This is a number one greater than the maximum value that the system
-    may assign to a newly-created descriptor. If this limit is exceeded,
-    functions that allocate a file descriptor shall fail with errno set
-    to [EMFILE]. This limit constrains the number of file descriptors
-    that a process may allocate.
+> while read file; do mplayer $file ; done <mediafiles.txt
+>
+> Failed to open /dev/rtc: Permission denied
+>
+> for file in `cat mediafiles.txt`; do mplayer $file ; done
+>
+> works.
 
-open
-[EMFILE]
-    {OPEN_MAX} file descriptors are currently open in the calling process.
- 
-limits.h
-{OPEN_MAX}
-    Maximum number of files that one process can have open at any one time.
-    Minimum Acceptable Value: {_POSIX_OPEN_MAX}
+To simplify, what about these two:
+mplayer foo.mpg
+mplayer foo.mpg < mediafiles.txt
 
-So, one view says your test program is within the spec, since the new fd
-is still one less than the current rlimit.
+You might try strace'ing both cases and see how they compare.
 
-Anyway, here's a simple patch that would fail the second setrlimit, as you
-suggested.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+paul

@@ -1,44 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268293AbUJMDmx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268301AbUJMD4R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268293AbUJMDmx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 23:42:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268301AbUJMDmx
+	id S268301AbUJMD4R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 23:56:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268327AbUJMD4R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 23:42:53 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:28352 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S268293AbUJMDmw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 23:42:52 -0400
-Subject: Re: 4level page tables for Linux II
-From: Albert Cahalan <albert@users.sf.net>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: ak@suse.de
-Content-Type: text/plain
-Organization: 
-Message-Id: <1097638599.2673.9668.camel@cube>
+	Tue, 12 Oct 2004 23:56:17 -0400
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:11021 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S268301AbUJMD4Q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 23:56:16 -0400
+Date: Tue, 12 Oct 2004 20:55:47 -0700
+To: Sven Dietrich <sdietrich@mvista.com>
+Cc: "Bill Huey (hui)" <bhuey@lnxw.com>, Thomas Gleixner <tglx@linutronix.de>,
+       dwalker@mvista.com, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, amakarov@ru.mvista.com,
+       ext-rt-dev@mvista.com, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [Ext-rt-dev] Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
+Message-ID: <20041013035547.GA7517@nietzsche.lynx.com>
+References: <20041012211201.GA28590@nietzsche.lynx.com> <EOEGJOIIAIGENMKBPIAEGEJGDKAA.sdietrich@mvista.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 12 Oct 2004 23:36:40 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <EOEGJOIIAIGENMKBPIAEGEJGDKAA.sdietrich@mvista.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmmm...
+On Tue, Oct 12, 2004 at 02:41:02PM -0700, Sven Dietrich wrote:
+> I emailed the mmlinux project about 2 months ago, 
+> telling you that we were doing this.
 
-pml4, pgd, pmd, pte  (kernel names)
-PML4E, PDPE, PDE, PTE   (AMD hardware names)
+http://mmlinux.sourceforge.net/temp/
 
-It's kind of a mess, isn't it? It was bad enough
-with the "pmd" (page middle directory, ugh) being
-some random invention and everything being generally
-in conflict with real hardware naming. Now you've
-come up with a fourth name.
+I'll do an official announcement tomorrow. It's party time for me. :)
 
-Notice that you've resorted to using a number.
-Why not do that for the others too? It would
-bring some order to this ever-growing collection
-of arbitrary names. Like this:
-
-pd4, pd3, pd2, pd1
-
+bill
 

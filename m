@@ -1,105 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261330AbVB0V4F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261321AbVB0WFI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261330AbVB0V4F (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 16:56:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbVB0V4E
+	id S261321AbVB0WFI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 17:05:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261387AbVB0WFI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 16:56:04 -0500
-Received: from h34-aclarke.sv.meer.net ([205.217.153.34]:46058 "EHLO
-	ofb3.ofb.net") by vger.kernel.org with ESMTP id S261330AbVB0Vzs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 16:55:48 -0500
-Date: Sun, 27 Feb 2005 13:55:19 -0800
-From: Frederik Eaton <frederik@a5.repetae.net>
-To: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
-Cc: postmaster@vger.kernel.org
-Subject: Re: Majordomo results
-Message-ID: <20050227215519.GA21657@a5.repetae.net>
-Reply-To: frederik@ofb.net
-References: <S261762AbVBZFAO/20050226050014Z+35@vger.kernel.org> <20050226052158.GA19286@a5.repetae.net> <20050226134946.690df06a.davem@davemloft.net> <20050227041745.GA4323@a5.repetae.net> <20050226204058.5c19ea26.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050226204058.5c19ea26.davem@davemloft.net>
-User-Agent: Mutt/1.5.6+20040907i
+	Sun, 27 Feb 2005 17:05:08 -0500
+Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:36270 "HELO
+	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261321AbVB0WFF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Feb 2005 17:05:05 -0500
+Message-ID: <42224409.8010809@yahoo.com.au>
+Date: Mon, 28 Feb 2005 09:04:57 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Giovanni Tusa <gtusa@inwind.it>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: sched_yield behavior
+References: <00e901c51cbb$45b3cac0$65071897@gtusa>
+In-Reply-To: <00e901c51cbb$45b3cac0$65071897@gtusa>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 26, 2005 at 08:40:58PM -0800, David S. Miller wrote:
-> On Sat, 26 Feb 2005 20:17:45 -0800
-> Frederik Eaton <frederik@a5.repetae.net> wrote:
-> 
-> > Wait... how is the address to which I'm trying to subscribe defined if
-> > the email field has to be empty?
-> 
-> If it's empty Majordomo uses the From: of the email the request
-> comes from, that's the most error-proof way to add yourself.
+Giovanni Tusa wrote:
 
-No, actually it appears to use Reply-To: in preference to From: if it
-exists, apparently that was my (its) problem. Can you change this
-error message:
+> If  I am not wrong, the scheduler will choose it again (it will be still the
+> higher priority task, and the only of its priority list).
+> I have to add an explicit sleep to effectively relinquish the CPU for some
+> time, or the scheduler can deal with such a
+> situation in another way?
 
-> >>>> auth 51a49557 subscribe linux-kernel frederik@a5.repetae.net
-> Your request to Majordomo@vger.kernel.org:
-> 
->         subscribe linux-kernel frederik@a5.repetae.net
-> 
-> has been forwarded to the owner of the "linux-kernel" list for approval.
-> This could be for any of several reasons:
-> 
->     You might have asked to subscribe to a "closed" list, where all new
->         additions must be approved by the list owner.
-> 
->     You might have asked to subscribe or unsubscribe an address other than
->         the one that appears in the headers of your mail message.
-> 
-> When the list owner approves your request, you will be notified.
-> 
-> If you have any questions about the policy of the list owner, please
-> contact "linux-kernel-approval@vger.kernel.org".
-> 
-> 
-> Thanks!
+Yes, the scheduler will choose it again. This behaviour is also
+specified in the relevant standards.
 
-to say something like this:
-
-> >>>> auth 51a49557 subscribe linux-kernel frederik@a5.repetae.net
-> Your request to Majordomo@vger.kernel.org:
-> 
->         subscribe linux-kernel frederik@a5.repetae.net
-> 
-> has been forwarded to the owner of the "linux-kernel" list for
-> approval. This is most likely because you have asked to subscribe or
-> unsubscribe an address other than the one that appears in the
-> Reply-To: header of your mail message, if it exists, or the From:
-> header otherwise. We do this not to prevent people from abusively
-> subscribing others, but to make it hard for people to subscribe who
-> wouldn't be able to figure out how to unsubscribe later, which cause
-> us a great deal of trouble.
-> 
-> If the list owner approves your request (although really, you
-> shouldn't hold your breath) you will be notified.
-> 
-> If you have any questions about the policy of the list owner, please
-> contact "linux-kernel-approval@vger.kernel.org".
-> 
-> 
-> Thanks!
-
-Your assertion that only From: was used caused me to reverify a couple
-of times that none of my outgoing MTAs were rewriting my From:
-headers, before I tried subscribing without Reply-To:. I think putting
-in the error message a description of exactly what the behavior of
-your list server is, along with removing the suggestion of the
-possibility that the list might be closed (are any vger lists
-closed?), and that the user should wait for the owner to take action,
-would be of great help to users who are trying to subscribe and are
-indeed *not* clueless. Actually, I'm not an expert in mailing list
-logic, but I also don't see any reason not to let the subscription
-address match either From: *or* Reply-To: *or*, say, Sender:, rather
-than taking the first header it finds as it seems to do now.
-
-Thanks,
-
-Frederik Eaton
+Your alternatives may be to use other methods of userspace
+synchronisation (eg. pipes, semaphores), or to use timers.
 

@@ -1,62 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266690AbUAOLjV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 06:39:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266737AbUAOLjU
+	id S266505AbUAOLoW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 06:44:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266553AbUAOLoW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 06:39:20 -0500
-Received: from [160.218.214.150] ([160.218.214.150]:1920 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S266690AbUAOLip (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 06:38:45 -0500
-Date: Thu, 15 Jan 2004 12:38:11 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
-       Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0 NFS-server low to 0 performance
-Message-ID: <20040115113810.GA9265@elf.ucw.cz>
-References: <1073771855.3958.15.camel@nidelv.trondhjem.org> <Pine.LNX.4.44.0401102338270.7120-100000@poirot.grange> <20040111131857.GA11246@hh.idb.hist.no> <20040111135309.F1931@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040111135309.F1931@flint.arm.linux.org.uk>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Thu, 15 Jan 2004 06:44:22 -0500
+Received: from 213-229-38-66.static.adsl-line.inode.at ([213.229.38.66]:26013
+	"HELO mail.falke.at") by vger.kernel.org with SMTP id S266505AbUAOLoR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 06:44:17 -0500
+Message-ID: <40067C9B.1080401@winischhofer.net>
+Date: Thu, 15 Jan 2004 12:42:19 +0100
+From: Thomas Winischhofer <thomas@winischhofer.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
+X-Accept-Language: en-us, en, de, de-de, de-at, sv
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@fs.tum.de>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       jsimmons@infradead.org
+Subject: Re: 2.6.1-mm1: drivers/video/sis/sis_main.c link error
+References: <20040109014003.3d925e54.akpm@osdl.org> <20040109233714.GL1440@fs.tum.de> <3FFF79E5.5010401@winischhofer.net> <20040113190443.GR9677@fs.tum.de> <40048EB4.9010500@winischhofer.net> <20040115113244.GP23383@fs.tum.de>
+In-Reply-To: <20040115113244.GP23383@fs.tum.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > The only my doubt was - yes, you upgrade the __server__, so, you look in
-> > > Changes, upgrade all necessary stuff, or just upgrade blindly (as does
-> > > happen sometimes, I believe) a distribution - and the server works, fine.
-> > > What I find non-obvious, is that on updating the server you have to
-> > > re-configure __clients__, see? Just think about a network somewhere in a
-> > 
-> > If you upgrade the server and read "Changes", then a note in changes might
-> > say that "you need to configure carefully or some clients could get in trouble."
-> > (If the current "Changes" don't have that - post a documentation patch.)
+Adrian Bunk wrote:
+> On Wed, Jan 14, 2004 at 01:35:00AM +0100, Thomas Winischhofer wrote:
 > 
-> [This is more to Guennadi than Helge]
+>>>Until the framebuffer stuff in 2.6 gets updated, I'm suggesting the 
+>>>patch below to mark FB_SIS as BROKEN.
+>>
+>>I think that's a bit harsh. It basically works, it just illegally uses 
+>>some FP operations (as it still does in 2.4 until Marcelo finally 
+>>applies the patch I have sent him for three times now - hint, hint)
 > 
-> I don't see why such a patch to "Changes" should be necessary.  The
-> problem is most definitely with the client hardware, and not the
-> server software.
 > 
-> The crux of this problem comes down to the SMC91C111 having only a
-> small on-board packet buffer, which is capable of storing only about
-> 4 packets (both TX and RX).  This means that if you receive 8 packets
-> with high enough interrupt latency, you _will_ drop some of those
-> packets.
+> Now that -mm uses -msoft-float, this means that FB_SIS does no longer 
+> compile...
 
-I believe problem is in software... basically UDP is broken. I don't
-think you can call hw broken just because small RX ring. RX ring has
-to have some fixed size, and if the OS is not fast enough, well, some
-packets are going on the floor.
+Well, then mark it BROKEN in -mm....
 
-I believe SW should deal with RX ring being just one packet big, and
-believe that UDP is to blame...
-								Pavel
+Thomas
+
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Thomas Winischhofer
+Vienna/Austria
+thomas AT winischhofer DOT net          *** http://www.winischhofer.net/
+twini AT xfree86 DOT org
+
+
+

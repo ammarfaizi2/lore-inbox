@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129777AbQKUPX4>; Tue, 21 Nov 2000 10:23:56 -0500
+	id <S129752AbQKUP1g>; Tue, 21 Nov 2000 10:27:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130465AbQKUPXq>; Tue, 21 Nov 2000 10:23:46 -0500
-Received: from smtp1.cern.ch ([137.138.128.38]:27913 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S129777AbQKUPXa>;
-	Tue, 21 Nov 2000 10:23:30 -0500
-To: elenstev@mesatop.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] CONFIG_TOSHIBA Configure.help for 2.4.0-test11
-In-Reply-To: <00112018440600.00911@localhost.localdomain>
+	id <S130265AbQKUP11>; Tue, 21 Nov 2000 10:27:27 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:63500 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S129752AbQKUP1M>;
+	Tue, 21 Nov 2000 10:27:12 -0500
+To: rml@ufl.edu
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [WEIRD] working kernel off RH7's gcc-2.96!?
+In-Reply-To: <974783952.3a1a05d0c4840@webmail.ufl.edu>
 From: Jes Sorensen <jes@linuxcare.com>
-Date: 21 Nov 2000 15:53:21 +0100
-In-Reply-To: Steven Cole's message of "Mon, 20 Nov 2000 18:44:06 -0700"
-Message-ID: <d37l5xbcm6.fsf@lxplus015.cern.ch>
+Date: 21 Nov 2000 15:57:03 +0100
+In-Reply-To: rml@ufl.edu's message of "Tue, 21 Nov 2000 00:19:12 -0500"
+Message-ID: <d33dglbcg0.fsf@lxplus015.cern.ch>
 User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Steven" == Steven Cole <elenstev@mesatop.com> writes:
+>>>>> "Robert" == rml  <rml@ufl.edu> writes:
 
-Steven> I noticed that for 2.4.0-test11 there is no help for
-Steven> CONFIG_TOSHIBA, although there is for 2.2.17.
+Robert> i dont want to revisit the flame fest (at all, please) but it
+Robert> seems i have been using a kernel that successfully compiled
+Robert> under RedHat 7's gcc snapshot (2.96).  i normally use
+Robert> gcc-2.91.66 for everything (mv kgcc gcc) but just synced my
+Robert> system with rawhide, so the gcc/kgcc pair is back on my system
+Robert> and i forgot. so i recompiled to test11 yesterday, and:
 
-Steven> The following patch borrows the words for CONFIG_TOSHIBA from
-Steven> the 2.2.17 Documentation/Configure.help, dropping an
-Steven> extraneous "the" from the first line.
+[snip]
 
-Would probably be a good idea to name the config option
-CONFIG_TOSHIBA_LAPTOP_MGMT or something to avoid the possibility of a
-conflict in case someone else special cases some other Toshiba thing.
+Robert> the odd thing is, not only did it compile, but my machine has
+Robert> been up for a day with heavy use in X with a full-featured
+Robert> kernel! not only no OOPSs, but no bugs!
+
+Just keep in mind that 'seems to run fine' doesn't clearly show cases
+like something in the signal handling code got miscompiled for a
+special case or a bit error in the file system code. You could be
+lucky, it might also show itself as more frequent crashes later etc.
 
 Jes
 -

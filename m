@@ -1,75 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280452AbRKODlc>; Wed, 14 Nov 2001 22:41:32 -0500
+	id <S280718AbRKOE0S>; Wed, 14 Nov 2001 23:26:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280606AbRKODlX>; Wed, 14 Nov 2001 22:41:23 -0500
-Received: from thumper.research.telcordia.com ([128.96.41.1]:5510 "EHLO
-	thumper.research.telcordia.com") by vger.kernel.org with ESMTP
-	id <S280452AbRKODlP>; Wed, 14 Nov 2001 22:41:15 -0500
-From: Allen Mcintosh <mcintosh@research.telcordia.com>
-Message-Id: <200111150339.WAA04775@science.research.telcordia.com>
-Subject: [PATCH] Re: Promise PDC20262 in kernel 2.4.x
-To: linux-kernel@vger.kernel.org, andre@linux-ide.org
-Date: Wed, 14 Nov 2001 22:39:19 -0500 (EST)
-Cc: whitney@math.berkeley.edu, magamo@ranka.2y.net
-In-Reply-To: <200111140323.WAA18909@mc-pc.research.telcordia.com> from "Allen McIntosh" at Nov 13, 2001 10:23:01 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	id <S280740AbRKOE0I>; Wed, 14 Nov 2001 23:26:08 -0500
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:30981 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S280718AbRKOEZ6>;
+	Wed, 14 Nov 2001 23:25:58 -0500
+Date: Wed, 14 Nov 2001 21:24:41 -0800
+From: Greg KH <greg@kroah.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] races in access to pci_devices
+Message-ID: <20011114212441.B8285@kroah.com>
+In-Reply-To: <Pine.GSO.4.21.0111142257510.1095-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0111142257510.1095-100000@weyl.math.psu.edu>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Thu, 18 Oct 2001 04:03:20 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote:
+On Wed, Nov 14, 2001 at 11:00:26PM -0500, Alexander Viro wrote:
+> 	Linus, as far as I can see there's no exclusion between
+> the code that walks pci_devices and pci_insert_device().  It's
+> not a big deal wrt security (not many laptops with remote access)
+> but...
 
-> [Can't get Linux to boot with PDC20262 controller.  One of disks is a
-> Quantum Fireball Plus.]
+It's a bigger deal with large servers that have PCI Hotplug controllers.
 
-Malcom Mallardi posted a note around the same time describing the same
-problem.  Wayne Whitney suggested that Malcom add his disk to the "problem
-disk" list in pdc202xx.c, and Malcom reports that it worked.  I did the
-same thing for my disk, with the same results.
+> 	What locking is supposed to be there?
 
-I enclose two patches against the 2.4.14 kernel.  The first patch just adds
-both problem disks to the list.  The second assumes that all disks in the
-appropriate Quantum families are a problem.  My vote is for the second one.
+I'll add a lock to keep the problem from happening.
 
-Patch 1:
---- drivers/ide/pdc202xx.c.ori	Wed Nov 14 18:22:27 2001
-+++ drivers/ide/pdc202xx.c	Wed Nov 14 20:57:13 2001
-@@ -230,7 +230,9 @@
- 	"QUANTUM FIREBALLP KA6.4",
- 	"QUANTUM FIREBALLP LM20.4",
- 	"QUANTUM FIREBALLP KX20.5",
-+	"QUANTUM FIREBALLP KX27.3",
- 	"QUANTUM FIREBALLP LM20.5",
-+	"QUANTUM FIREBALLP LM30.0",
- 	NULL
- };
- 
-Patch 2:
---- drivers/ide/pdc202xx.c.ori	Wed Nov 14 18:22:27 2001
-+++ drivers/ide/pdc202xx.c	Wed Nov 14 21:20:09 2001
-@@ -225,12 +225,18 @@
- 
- byte pdc202xx_proc = 0;
- 
-+/*
-+ * Problems have been reported with the following Quantum Fireball Plus drives:
-+ * KA 6.4GB, KX 20.5GB, 27.3GB, LM 20.4GB, 20.5GB and 30.0GB.  Quantum's
-+ * datasheets suggest that all drives in a series (KA, KX and LM) have the
-+ * same design.  It seems prudent to identify them all here.
-+ */
-+ 
- const char *pdc_quirk_drives[] = {
- 	"QUANTUM FIREBALLlct08 08",
--	"QUANTUM FIREBALLP KA6.4",
--	"QUANTUM FIREBALLP LM20.4",
--	"QUANTUM FIREBALLP KX20.5",
--	"QUANTUM FIREBALLP LM20.5",
-+	"QUANTUM FIREBALLP KA",
-+	"QUANTUM FIREBALLP KX",
-+	"QUANTUM FIREBALLP LM",
- 	NULL
- };
- 
+thanks,
+
+greg k-h

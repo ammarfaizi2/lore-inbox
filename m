@@ -1,49 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265400AbTBKBHM>; Mon, 10 Feb 2003 20:07:12 -0500
+	id <S265725AbTBKBJl>; Mon, 10 Feb 2003 20:09:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265567AbTBKBHM>; Mon, 10 Feb 2003 20:07:12 -0500
-Received: from dsl-213-023-060-099.arcor-ip.net ([213.23.60.99]:16103 "EHLO
-	spot.lan") by vger.kernel.org with ESMTP id <S265400AbTBKBHL>;
-	Mon, 10 Feb 2003 20:07:11 -0500
-From: Oliver Feiler <kiza@gmx.net>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: Athlon adv speculative caching fix removed from 2.4.20?
-Date: Tue, 11 Feb 2003 02:16:52 +0100
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <200302102321.30549.kiza@gmx.net.suse.lists.linux.kernel> <p73fzqvbw6b.fsf@oldwotan.suse.de>
-In-Reply-To: <p73fzqvbw6b.fsf@oldwotan.suse.de>
-X-PGP-Key-Fingerprint: E9DD 32F1 FA8A 0945 6A74  07DE 3A98 9F65 561D 4FD2
-X-PGP-Key: http://kiza.kcore.de/pgpkey.shtml
-X-Species: Snow Leopard
-X-Operating-System: Linux i686
+	id <S265736AbTBKBJl>; Mon, 10 Feb 2003 20:09:41 -0500
+Received: from clem.clem-digital.net ([68.16.168.10]:11537 "EHLO
+	clem.clem-digital.net") by vger.kernel.org with ESMTP
+	id <S265725AbTBKBJl>; Mon, 10 Feb 2003 20:09:41 -0500
+From: Pete Clements <clem@clem.clem-digital.net>
+Message-Id: <200302110119.UAA23883@clem.clem-digital.net>
+Subject: 2.5.60 fails compile -- net/Space.c -- 3c509
+To: linux-kernel@vger.kernel.org (linux-kernel)
+Date: Mon, 10 Feb 2003 20:18:11 -0500 (EST)
+X-Mailer: ELM [version 2.4ME+ PL48 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200302110216.53111.kiza@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 10 February 2003 23:36, Andi Kleen wrote:
->
-> The "long term" fix for it went in instead (arch/i386/mm/pageattr.c)
-> The kernel is careful now to not create conflicting cache attributes
-> for AGP and other mappings.  This makes the linux kernel x86
-> conformant in this area.  It also increases performance on
-> Athlon XP/MP because they can now use large pages in kernel space again.
+FYI:
 
-Ah yes, indeed. I must have missed that. :)
-
-Thanks for the quick answers everyone.
-
--Oliver
+make -f scripts/Makefile.build obj=drivers/net
+  gcc -Wp,-MD,drivers/net/.Space.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc -iwithprefix include    -DKBUILD_BASENAME=Space -DKBUILD_MODNAME=Space -c -o drivers/net/Space.o drivers/net/Space.c
+drivers/net/Space.c:228: `el3_probe' undeclared here (not in a function)
+drivers/net/Space.c:228: initializer element is not constant
+drivers/net/Space.c:228: (near initialization for `isa_probes[0].probe')
+make[2]: *** [drivers/net/Space.o] Error 1
 
 -- 
-Oliver Feiler  <kiza@(kcore.de|lionking.org|gmx(pro).net)>
-http://kiza.kcore.de/    <--    homepage
-PGP-key      -->    /pgpkey.shtml
-http://kiza.kcore.de/journal/
-
+Pete Clements 
+clem@clem.clem-digital.net

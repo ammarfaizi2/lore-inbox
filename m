@@ -1,35 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317400AbSIEKxs>; Thu, 5 Sep 2002 06:53:48 -0400
+	id <S317415AbSIELOA>; Thu, 5 Sep 2002 07:14:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317402AbSIEKxs>; Thu, 5 Sep 2002 06:53:48 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:27899
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317400AbSIEKxs>; Thu, 5 Sep 2002 06:53:48 -0400
-Subject: Re: 2.4.x (including -ac) SiS agp not recognized
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Murray J. Root" <murrayr@brain.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020905013149.GA31910@Master.Wizards>
-References: <20020905013149.GA31910@Master.Wizards>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 05 Sep 2002 11:59:11 +0100
-Message-Id: <1031223551.6178.4.camel@irongate.swansea.linux.org.uk>
+	id <S317422AbSIELOA>; Thu, 5 Sep 2002 07:14:00 -0400
+Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:145 "EHLO
+	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
+	id <S317415AbSIELN7>; Thu, 5 Sep 2002 07:13:59 -0400
+Date: Thu, 5 Sep 2002 12:17:17 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Gabriel Paubert <paubert@iram.es>
+Cc: Hirokazu Takahashi <taka@valinux.co.jp>, hpa@zytor.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: TCP Segmentation Offloading (TSO)
+Message-ID: <20020905121717.A15540@kushida.apsleyroad.org>
+References: <20020905.111326.68164898.taka@valinux.co.jp> <Pine.LNX.4.33.0209051219000.21098-100000@gra-lx1.iram.es>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.33.0209051219000.21098-100000@gra-lx1.iram.es>; from paubert@iram.es on Thu, Sep 05, 2002 at 12:28:23PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-09-05 at 02:31, Murray J. Root wrote:
-> SiS645DX chipset:
-> 
-> Sep  2 03:28:17 Master kernel: Linux agpgart interface v0.99 (c) Jeff Hartmann
-> Sep  2 03:28:17 Master kernel: agpgart: Maximum main memory to use for agp memory: 816M
-> Sep  2 03:28:17 Master kernel: agpgart: Unsupported SiS chipset (device id: 0646), you might want to
->  try agp_try_unsupported=1.
-> Sep  2 03:28:17 Master kernel: agpgart: no supported devices found.
+Gabriel Paubert wrote:
+> Now that is grossly inefficient ;-) since you can save one instruction by
+> moving roll after adcl (hand edited partial patch hunk, won't apply):
 
-Try insmod agpgart agp_try_unsupported=1 and see if it works. (it may
-crash if not)
+Yes but is it _faster_? :-)
 
+I've been doing some PPro assembly lately, and I'm reminded that
+sometimes inserting instructions can reduce the timing by up to 8 cycles
+or so.
+
+-- Jamie

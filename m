@@ -1,59 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283249AbRLDSWD>; Tue, 4 Dec 2001 13:22:03 -0500
+	id <S283141AbRLDS0k>; Tue, 4 Dec 2001 13:26:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281645AbRLDSU0>; Tue, 4 Dec 2001 13:20:26 -0500
-Received: from maile.telia.com ([194.22.190.16]:53223 "EHLO maile.telia.com")
-	by vger.kernel.org with ESMTP id <S283259AbRLDSTx>;
-	Tue, 4 Dec 2001 13:19:53 -0500
-Message-Id: <200112041818.fB4IIua03097@d1o849.telia.com>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Jakob Kemi <jakob.kemi@telia.com>
-To: =?iso-8859-1?q?Ra=FAlN=FA=F1ez=20de=20Arenas=20Coronado?= 
-	<raul@viadomus.com>,
-        linux-kernel@vger.kernel.org, matthias.andree@stud.uni-dortmund.de
-Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
-Date: Tue, 4 Dec 2001 19:17:35 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: esr@thyrsus.com, hch@caldera.de, kaos@ocs.com.au,
-        kbuild-devel@lists.sourceforge.net, torvalds@transmeta.com
-In-Reply-To: <E16BJ3x-0001qq-00@DervishD.viadomus.com>
-In-Reply-To: <E16BJ3x-0001qq-00@DervishD.viadomus.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S281624AbRLDSZZ>; Tue, 4 Dec 2001 13:25:25 -0500
+Received: from mail-smtp.uvsc.edu ([161.28.224.157]:48081 "HELO
+	mail-smtp.uvsc.edu") by vger.kernel.org with SMTP
+	id <S281566AbRLDSYA> convert rfc822-to-8bit; Tue, 4 Dec 2001 13:24:00 -0500
+Message-Id: <sc0cb294.005@mail-smtp.uvsc.edu>
+X-Mailer: Novell GroupWise Internet Agent 5.5.4.1
+Date: Tue, 04 Dec 2001 11:24:38 -0700
+From: "Tyler BIRD" <BIRDTY@uvsc.edu>
+To: <CAmes@PacificDigital.com>, <apiggyjj@yahoo.ca>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Insmod problems
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesdayen den 4 December 2001 18.08, RaúlNúñez de Arenas	 Coronado wrote:
->     Hi Matthias :)
->
-> >Creating a dependency on Python? Is a non-issue.
->
->     Maybe for you. For me it *is* an issue. I don't like more and
-> more dependencies for the kernel. I mean, if I can drop kbuild and
-> keep on building the kernel with the old good 'make config' I won't
-> worry, but otherwise I don't think that kernel building depends on
-> something like Python.
->
->     Why must I install Python in order to compile the kernel? I don't
-> understand this. I think there are better alternatives, but kbuild
-> seems to be imposed any way.
->
-> >You don't make the pen yourself when writing a letter either.
->
->     I don't like to be forced in a particular pen, that's the reason
-> why I use and develop for linux.
->
-> >What are the precise issues with Python? Just claiming it is an
-> >issue is not useful for discussing this. Archive pointers are
-> >welcome.
->
->     Well, let's start writing kernel drivers with Python, Perl, PHP,
-> awk, etc... And, why not, C++, Ada, Modula, etc...
->
->     The kernel should depend just on the compiler and assembler, IMHO.
+in linux/module.h header file
+KERNEL_VERSION is defined.
 
-And you'll select and pass every .c file directly to the compiler via the 
-command line ?? Sounds like a giant step forwards !!
+what you need to do is make sure the directory /usr/include is a link
+to the include directory in your kernel source and not the header files os some other kernel.
+
+if you cant do that try something like this
+
+___NO_VERSION___
+#include <linux/module.h>
+KERNEL_VERSION(major,minor,release)
+
+
+read more on this site
+
+http://www.xml.com/ldd/chapter/book/ch02.html#t2 
+
+
+>>> Michael Zhu <apiggyjj@yahoo.ca> 12/04/01 11:13AM >>>
+I've changed my source file like this:
+#define MODULE
+
+#include <linux/module.h>
+
+int init_module(void)  { printk("<1>Hello, world\n");
+return 0; }
+void cleanup_module(void) { printk("<1>Goodbye cruel
+world\n"); }
+
+And I use the following message to build the module.
+But when I use insmod to load the module I got the
+following error message:
+
+hello.o : kernel-module version mismatch
+         hello.o was compiled for kernel version
+2.4.12
+         while this kernel is version 2.4.8
+
+What is wrong? My kernel version is 2.4.8. Is there
+something wrong with the gcc compilier? My gcc
+compilier is gcc-2.95.
+
+Thanks to everyone. Your help is very beneficial to
+me.
+
+Michael
+
+--- Christine Ames <CAmes@PacificDigital.com> wrote:
+> > -----Original Message-----
+> > From: Michael Zhu [mailto:apiggyjj@yahoo.ca] 
+> > Sent: Tuesday, December 04, 2001 9:07 AM
+> 
+> <snip>
+> 
+> > 
+> > 
+> > I've define these two when I compile the module.
+> The
+> > command line is:
+> > 
+> > gcc -D_KERNEL_ -DMODULE -c hello.c
+> > 
+> > 
+> <snip>
+> > 
+> 
+> See http://www.xml.com/ldd/chapter/book/ch02.html 
+> 
+> Where your source should be similar to:
+> 
+> #define MODULE		// <- HERE!!! define MODULE 
+> #include <linux/module.h>
+> 
+> int init_module(void)  { printk("<1>Hello,
+> world\n"); return 0; }
+> void cleanup_module(void) { printk("<1>Goodbye cruel
+> world\n"); }
+> 
+
+
+______________________________________________________ 
+Send your holiday cheer with http://greetings.yahoo.ca
 

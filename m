@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265296AbUAJSw0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 13:52:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265299AbUAJSw0
+	id S265311AbUAJSyp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 13:54:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265331AbUAJSyo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 13:52:26 -0500
-Received: from main.gmane.org ([80.91.224.249]:57788 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S265296AbUAJSwW (ORCPT
+	Sat, 10 Jan 2004 13:54:44 -0500
+Received: from mail.bluebottle.com ([69.20.6.25]:14214 "EHLO mail.bluebottle")
+	by vger.kernel.org with ESMTP id S265311AbUAJSxh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 13:52:22 -0500
-X-Injected-Via-Gmane: http://gmane.org/
+	Sat, 10 Jan 2004 13:53:37 -0500
+Date: Sat, 10 Jan 2004 16:53:32 -0200 (BRST)
+From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <1@pervalidus.net>
+X-X-Sender: fredlwm@pervalidus.dyndns.org
 To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: [2.6.1] atkbd.c: Unknown key released
-Date: Sat, 10 Jan 2004 19:52:20 +0100
-Message-ID: <yw1xlloftz4r.fsf@kth.se>
-References: <20040110183116.GA8319@ss1000.ms.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:J57rRSnrF1UmlOXSpoIJrEw5W84=
+Subject: Re: BUG:2.6.1 USB keyboard ignores "#" key
+Message-ID: <Pine.LNX.4.58.0401101645400.528@pervalidus.dyndns.org>
+X-Archive: encrypt
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rudo Thomas <rudo@matfyz.cz> writes:
+Marcelo Bezerra wrote on 2004-01-10 14:40:14:
 
-> Hello.
->
-> This line shows up twice in dmesg when starting up X.
->
-> atkbd.c: Unknown key released (translated set 2, code 0x7a on isa0060/serio0).
->
-> Tried with 2.6.1, 2.6.1-mm1. It does not happen in 2.6.0, IIRC. I
-> don't seem to be able to reproduce the message by pressing any
-> combination on keyboard.
+> I also have problems with my br-abnt2 usb keyboard.
+> I lost my ]} key.
 
-For me, it showed up in 2.6.1-rc1 or possibly -rc2.
+And here with my PS/2 ABNT2 keyboard I lost the key with
+
+/? (the one before right Shift).
+
+On a side note, I also lose some accents with frame buffer on
+all terminals except tty1. I have to use setfont lat1-16 on all
+others. But that one is a very old problem.
 
 -- 
-Måns Rullgård
-mru@kth.se
-
+http://www.pervalidus.net/contact.html

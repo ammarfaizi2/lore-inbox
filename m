@@ -1,68 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262790AbVDARAu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262793AbVDARB6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262790AbVDARAu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 12:00:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262792AbVDARAu
+	id S262793AbVDARB6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 12:01:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262794AbVDARB6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 12:00:50 -0500
-Received: from rproxy.gmail.com ([64.233.170.207]:65145 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262790AbVDARAn (ORCPT
+	Fri, 1 Apr 2005 12:01:58 -0500
+Received: from fire.osdl.org ([65.172.181.4]:33160 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262793AbVDARBf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 12:00:43 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=DZ6aQBk4qRoxMWLYrmMtzjbrnwjxOdfXoJ3C0OBgzT/8JA5BPACyIzU5nk9f5eBKFuAr+Rz5NAHYbxj06pv0WC/Boue5k796WPl7AFYe3Ssm43C5bNEqv6saFUphyxDfHSlR3QV+KjSwMGCj3f7xMmw5U2LjE0zacqSeTPw3bVg=
-Message-ID: <d120d5000504010900142bed75@mail.gmail.com>
-Date: Fri, 1 Apr 2005 12:00:42 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
-Subject: Re: Touchpad does not work anymore
-Cc: romano@dea.icai.upco.es, Pavel Machek <pavel@ucw.cz>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050401164321.GN10278@ens-lyon.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Fri, 1 Apr 2005 12:01:35 -0500
+Message-ID: <424D7E6A.3020608@osdl.org>
+Date: Fri, 01 Apr 2005 09:01:30 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Miklos Szeredi <miklos@szeredi.hu>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: build logs for -mm
+References: <E1DH7KJ-00023v-00@dorka.pomaz.szeredi.hu> <424C7016.5050404@osdl.org> <E1DHJLZ-00039U-00@dorka.pomaz.szeredi.hu>
+In-Reply-To: <E1DHJLZ-00039U-00@dorka.pomaz.szeredi.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <20050329110309.GA17744@pern.dea.icai.upco.es>
-	 <d120d5000503310715cbc917@mail.gmail.com>
-	 <20050331165007.GA29674@pern.dea.icai.upco.es>
-	 <200503311309.50165.dtor_core@ameritech.net>
-	 <40f323d0050401081423650536@mail.gmail.com>
-	 <d120d5000504010828152031a@mail.gmail.com>
-	 <20050401164321.GN10278@ens-lyon.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 1, 2005 11:43 AM, Benoit Boissinot <benoit.boissinot@ens-lyon.org> wrote:
-> On Fri, Apr 01, 2005 at 11:28:05AM -0500, Dmitry Torokhov wrote:
-> > On Apr 1, 2005 11:14 AM, Benoit Boissinot <bboissin@gmail.com> wrote:
-> > > On Mar 31, 2005 8:09 PM, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
-> > > > > It works, too. Which one is the best one?
-> > > > >
-> > > >
-> > > > Both of them are needed as they address two different problems.
-> > > >
-> > > I tried to boot with the 2 patches applied (and the patch which solves
-> > > noresume) and now touchpad/touchpoint no longer works (with this
-> > > kernel or with an older kernel).
-> > >
-> >
-> > Could you be more explicit - it is not recognized at all or it is
-> > recognized but mouse pointer does not move or something else? dmesg
-> > also might be interesting.
-> >
-> It is recognized in dmesg (same message as before), but the mouse
-> pointer does not move (a `cat /dev/input/mice` doesn't do anything).
+Miklos Szeredi wrote:
+>>>do I believe correctly that you do automatic builds of -mm for lots of
+>>>architectures?  If yes, is there some place where the output is
+>>>available?  This would be useful for fixing warnings.
+>>
+>>The OSDL PLM tool also does automated builds of all -linus
+>>and -mm releases.  2.6.12-rc1-mm4 results are here:
+>>
+>>http://www.osdl.org/plm-cgi/plm?module=patch_info&patch_id=4352
 > 
+> 
+> Thanks.  I see that for most architectures this only builds a
+> defconfig kernel, which is not useful for projects not included in
+> defconfig.
+> 
+> Would it be too much load for the server to handle a full config for
+> all archs?
 
-Should work... The patches come into play only when
-suspending/resuming. So you are saying even with an old, unpatched
-kernel ALS stopped working, right?
-
-Hmm, that USB mouse - was it there before? I wonder if "usb-handoff"
-on the kernel comman line will help.
+I'm asking about that (I don't do the PLM builds).
 
 -- 
-Dmitry
+~Randy

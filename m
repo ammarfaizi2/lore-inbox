@@ -1,41 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263973AbRFMTan>; Wed, 13 Jun 2001 15:30:43 -0400
+	id <S263999AbRFMTgM>; Wed, 13 Jun 2001 15:36:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264183AbRFMTac>; Wed, 13 Jun 2001 15:30:32 -0400
-Received: from warande3094.warande.uu.nl ([131.211.123.94]:23372 "EHLO
-	warande3094.warande.uu.nl") by vger.kernel.org with ESMTP
-	id <S263999AbRFMTaW> convert rfc822-to-8bit; Wed, 13 Jun 2001 15:30:22 -0400
-Date: Wed, 13 Jun 2001 21:30:12 +0200
-From: Guus Sliepen <guus@warande3094.warande.uu.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Looking for ifenslave.c
-Message-ID: <20010613213012.A23439@sliepen.warande.net>
-Mail-Followup-To: Guus Sliepen <guus@sliepen.warande.net>,
-	linux-kernel@vger.kernel.org
+	id <S264200AbRFMTgD>; Wed, 13 Jun 2001 15:36:03 -0400
+Received: from mail1.qualcomm.com ([129.46.64.223]:50410 "EHLO
+	mail1.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S264183AbRFMTfx>; Wed, 13 Jun 2001 15:35:53 -0400
+Message-Id: <4.3.1.0.20010613105628.02083e80@mail1>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.1
+Date: Wed, 13 Jun 2001 12:35:44 -0700
+To: esr@thyrsus.com, CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+From: Maksim Krasnyanskiy <maxk@qualcomm.com>
+Subject: Re: Undocumented configuration symbols in 2.4.6pre2
+In-Reply-To: <20010610100935.A11098@thyrsus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-User-Agent: Mutt/1.3.18i
-X-oi: oi
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi Eric,
 
-The Ethernet bonding module is useless without ifenslave.c. I'm making a Debian
-package for it, and I have tried to find the "offical" distribution of this
-small program. I could not find an authorative source, instead a lot of copies
-and patched versions are scattered around the Internet (I maintain a patched
-version myself too).
+>CONFIG_BLUEZ
+>CONFIG_BLUEZ_HCIEMU
+>CONFIG_BLUEZ_HCIUART
+>CONFIG_BLUEZ_HCIUSB
+>CONFIG_BLUEZ_L2CAP
+>
+>Would the people responsible for these symbols please write Configure.help entries and send them to me?  
+Yep, those are mine. They belong to Linux Bluetooth subsystem.
 
-I would like to combine all the useful extra features and patches into this
-Debian package, so if you know of a patched version or maintain one yourself,
-please send it to me.
+btw Linux is the first OS that has official Bluetooth support.
 
-Thanks,
+Here we go:
 
--- 
-Met vriendelijke groet / with kind regards,
-  Guus Sliepen <guus@sliepen.warande.net>
+CONFIG_BLUEZ
+   Bluetooth is low-cost, low-power, short-range wireless technology. 
+   It was designed as a replacement for cables and other short-range 
+   technologies like IrDA. Bluetooth operates in personal area range
+   that typically extends up to 10 meters.
+   More information about Bluetooth can be found at http://www.bluetooth.com
+
+   Linux Bluetooth subsystem consist of several layers:
+                 HCI Core (device and connection manager, scheduler)
+                 HCI Device drivers (interface to the hardware)
+                 L2CAP Module (L2CAP protocol)
+
+   Say Y here to enable Linux Bluetooth support and to build HCI Core 
+   layer.
+
+   To use Linux Bluetooth subsystem, you will need several user-space utilities 
+   like hciconfig and hcid. These utilities and updates to Bluetooth kernel 
+   modules are provided in the BlueZ package.
+   For more information, see http://bluez.sf.net.
+
+   If you want to compile HCI Core as module (hci.o) say M here.
+
+   Not unsure ? say N.
+
+CONFIG_BLUEZ_L2CAP
+   L2CAP (Logical Link Control and Adaptation Protocol) provides connection 
+   oriented and connection-less data transport. L2CAP support is required for 
+   most Bluetooth applications.
+
+   Say Y here to compile L2CAP support into the kernel or say M to compile it 
+   as module (l2cap.o).
+
+   Not unsure ? say M.
+
+CONFIG_BLUEZ_HCIUART
+   Bluetooth HCI UART driver.
+   This driver is required if you want to use Bluetooth devices with serial
+   port interface.
+
+   Say Y here to compile support for Bluetooth UART devices into the kernel 
+   or say M to compile it as module (hci_uart.o).
+
+   Not unsure ? say M.
+
+
+CONFIG_BLUEZ_HCIUSB
+   Bluetooth HCI USB driver.
+   This driver is required if you want to use Bluetooth devices with USB
+   interface. 
+
+   Say Y here to compile support for Bluetooth USB devices into the kernel 
+   or say M to compile it as module (hci_usb.o).
+
+   Not unsure ? say M.
+
+CONFIG_BLUEZ_HCIEMU
+   Bluetooth Virtual HCI device driver.
+   This driver is required if you want to use HCI Emulation software.
+
+   Say Y here to compile support for Virtual HCI devices into the kernel or 
+   say M to compile it as module (hci_usb.o).
+
+   Not unsure ? say M.
+
+Thanks
+Max
+
+Maksim Krasnyanskiy		
+Senior Kernel Engineer
+Qualcomm Incorporated
+
+maxk@qualcomm.com
+(408) 557-1092
+

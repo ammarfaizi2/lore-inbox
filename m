@@ -1,71 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131409AbRCWUEb>; Fri, 23 Mar 2001 15:04:31 -0500
+	id <S131411AbRCWUKb>; Fri, 23 Mar 2001 15:10:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131411AbRCWUEO>; Fri, 23 Mar 2001 15:04:14 -0500
-Received: from zooty.lancs.ac.uk ([148.88.16.231]:53729 "EHLO
-	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP
-	id <S131400AbRCWUDn>; Fri, 23 Mar 2001 15:03:43 -0500
-Message-Id: <l0313030eb6e156f24437@[192.168.239.101]>
-In-Reply-To: <3ABB9CF2.E7715667@evision-ventures.com>
-In-Reply-To: <E14gVQf-00056B-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Fri, 23 Mar 2001 19:45:26 +0000
-To: Martin Dalecki <dalecki@evision-ventures.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-From: Jonathan Morton <chromi@cyberspace.org>
+	id <S131412AbRCWUKV>; Fri, 23 Mar 2001 15:10:21 -0500
+Received: from [213.96.124.18] ([213.96.124.18]:34026 "HELO dardhal")
+	by vger.kernel.org with SMTP id <S131411AbRCWUKG>;
+	Fri, 23 Mar 2001 15:10:06 -0500
+Date: Fri, 23 Mar 2001 21:11:10 +0000
+From: José Luis Domingo López 
+	<jldomingo@crosswinds.net>
+To: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Prevent OOM from killing init
-Cc: "James A. Sutherland" <jas88@cam.ac.uk>,
-        Guest section DW <dwguest@win.tue.nl>,
-        Rik van Riel <riel@conectiva.com.br>,
-        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Message-ID: <20010323211110.A1441@dardhal.mired.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010323015358Z129164-406+3041@vger.kernel.org> <Pine.LNX.4.21.0103230403370.29682-100000@imladris.rielhome.conectiva> <20010323122815.A6428@win.tue.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010323122815.A6428@win.tue.nl>; from dwguest@win.tue.nl on Fri, Mar 23, 2001 at 12:28:15PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->It would make much sense to make the oom killer
->leave not just root processes alone but processes belonging to a UID
->lower
->then a certain value as well (500). This would be:
+On Friday, 23 March 2001, at 12:28:15 +0100,
+Guest section DW wrote:
+
+> [...]
+> To a murderer: "Why did you kill that old lady?"
+> Reply: "I won't defend that deed, but who else should I have killed?"
+> 
+No comments.
+
+> Andries - getting more and more unhappy with OOM
+> 
+> Mar 23 11:48:49 mette kernel: Out of Memory: Killed process 2019 (emacs).
+> Mar 23 11:48:49 mette kernel: Out of Memory: Killed process 1407 (emacs).
+> Mar 23 11:48:50 mette kernel: Out of Memory: Killed process 1495 (emacs).
+> Mar 23 11:48:50 mette kernel: Out of Memory: Killed process 2800 (rpm).
+> 
+> [yes, that was rpm growing too large, taking a few emacs sessions]
+> [2.4.2]
 >
->1. Easly managable by the admin. Just let oracle/www and analogous users
->   have a UID lower then let's say 500.
+OOM clearly didn't work perfectly in this case, but it worked and left
+your machine usable (maybe you lost data on your emacs sessions). From my
+(OS design newbie) point of view, there must be quite difficult to keep
+track of all system processes, and even a resource intensive task.
 
-That sounds vaguely sensible.  However, make it a "much less likely" rather
-than an "impossible", otherwise we end up with an unkillable runaway root
-process killing everything else in userland.
+If you can do it better, come up with a kernel patch, submit it, and get
+credit and fame for it. I would love to see Linux as the perfect OS for
+everyone, but won't ever complain about each other's work, mainly when I'm
+unable to contribute a thing.
 
-I'm still in favour of a failing malloc(), and I'm currently reading a bit
-of source and docs to figure out where this should be done and why it isn't
-done now.  So far I've found the overcommit_memory flag, which looks kinda
-promising.
-
->1. Processes with a UID < 100 are immune to OOM killers.
->2. Processes with a UID >= 100 && < 500 are hard for the OOM killer to
->take on.
->3. Processes with a UID >= 500 are easy targets.
-
-As I said above, "immune" can be dangerous.  "Extremely hard" would be
-better terminology and behaviour.  It also helps that the current weighting
-in badness() appears to leave getty processes alone, since they don't
-consume much and normally have long uptimes - also I believe init would try
-to restart them anyway.
-
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-big-mail: chromatix@penguinpowered.com
-uni-mail: j.d.morton@lancaster.ac.uk
-
-The key to knowledge is not to rely on people to teach you it.
-
-Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
-
------BEGIN GEEK CODE BLOCK-----
-Version 3.12
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
------END GEEK CODE BLOCK-----
-
+-- 
+José Luis Domingo López
+Linux Registered User #189436     Debian GNU/Linux Potato (P166 64 MB RAM)
+ 
+jdomingo AT internautas DOT   org  => Spam at your own risk
 

@@ -1,63 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264278AbUFGFkx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264288AbUFGFnB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264278AbUFGFkx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 01:40:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264295AbUFGFkx
+	id S264288AbUFGFnB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 01:43:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264295AbUFGFnB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 01:40:53 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:64159 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S264288AbUFGFkt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 01:40:49 -0400
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: kdb@oss.sgi.com, linux-kernel@vger.kernel.org
-Cc: linux-ia64@vger.kernel.org
-Subject: Announce: kdb v4.4 is available for kernel 2.6.7-rc2
-Date: Mon, 07 Jun 2004 15:40:38 +1000
-Message-ID: <9766.1086586838@kao2.melbourne.sgi.com>
+	Mon, 7 Jun 2004 01:43:01 -0400
+Received: from miranda.se.axis.com ([193.13.178.2]:20420 "EHLO
+	miranda.se.axis.com") by vger.kernel.org with ESMTP id S264288AbUFGFm4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 01:42:56 -0400
+From: "Mikael Starvik" <mikael.starvik@axis.com>
+To: "'Bartlomiej Zolnierkiewicz'" <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       "'Mikael Starvik'" <mikael.starvik@axis.com>,
+       "'Jeff Garzik'" <jgarzik@pobox.com>, "'Andrew Morton'" <akpm@osdl.org>
+Cc: "'Linux Kernel'" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] CRIS architecture update
+Date: Mon, 7 Jun 2004 07:42:18 +0200
+Message-ID: <BFECAF9E178F144FAEF2BF4CE739C668640C44@exmail1.se.axis.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+Importance: Normal
+In-Reply-To: <BFECAF9E178F144FAEF2BF4CE739C668D47E56@exmail1.se.axis.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+>It will probably fail on devices needing write access because
+>e100_dma_begin() always passes e100_read_command as
+>argument to e100_start_dma().
 
-KDB (Linux Kernel Debugger) has been updated.
+e100_read_command is a variable that is either 1 for reads
+or 0 for writes. This variable is set in e100_dma_write and
+e100_dma_read. As long as the framework calls dma_write or 
+dma_read before it calls dma_begin it will work just fine.
 
-ftp://oss.sgi.com/projects/kdb/download/v4.4/
+The driver has been tested with a ext2 filesystem on a disk 
+(and the files are still there after a sync and reboot).
 
-Current versions are :-
-
-  kdb-v4.4-2.6.7-rc2-common-1.bz2
-  kdb-v4.4-2.6.7-rc2-i386-1.bz2
-  kdb-v4.4-2.6.7-rc2-ia64-1.bz2
-
-Changelog extract since kdb-v4.4-2.6.6-common-2.
-
-2004-06-07 Keith Owens  <kaos@sgi.com>
-
-	* kdb v4.4-2.6.7-rc2-common-1.
-
-Changelog extract since kdb-v4.4-2.6.6-i386-2.
-
-2004-06-07 Keith Owens  <kaos@sgi.com>
-
-	* Force KALLSYMS and KALLSYMS_ALL for CONFIG_KDB.
-	* kdb v4.4-2.6.7-rc2-i386-1.
-
-Changelog extract since kdb v4.4-2.6.6-ia64-040521-2.
-
-2004-06-07 Keith Owens  <kaos@sgi.com>
-
-	* Force KALLSYMS and KALLSYMS_ALL for CONFIG_KDB.
-	* kdb v4.4-2.6.7-rc2-1.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQFAw//Wi4UHNye0ZOoRAo9yAKCVtms2D35Q5rVCr6P+ibfzDtsrFACg9Poq
-kV3UGuIR8ABdaQ2Bf6QSLfc=
-=1g61
------END PGP SIGNATURE-----
+/Mikael
 

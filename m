@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269351AbTGJPeq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 11:34:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269353AbTGJPeq
+	id S269440AbTGJPme (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 11:42:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269415AbTGJPlL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 11:34:46 -0400
-Received: from f9.mail.ru ([194.67.57.39]:10770 "EHLO f9.mail.ru")
-	by vger.kernel.org with ESMTP id S269351AbTGJPep (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 11:34:45 -0400
-From: =?koi8-r?Q?=22?=Peter Lojkin=?koi8-r?Q?=22=20?= <ia6432@inbox.ru>
-To: linux-kernel@vger.kernel.org
-Cc: skraw@ithnet.com
-Subject: 2.4.22-pre3 and reiserfs boot problem
+	Thu, 10 Jul 2003 11:41:11 -0400
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:18182 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id S269400AbTGJPjf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 11:39:35 -0400
+Date: Fri, 11 Jul 2003 00:55:42 +0900 (JST)
+Message-Id: <20030711.005542.04973601.yoshfuji@linux-ipv6.org>
+To: cat@zip.com.au
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, pekkas@netcore.fi
+Subject: Re: 2.4.21+ - IPv6 over IPv4 tunneling b0rked
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <20030710154302.GE1722@zip.com.au>
+References: <20030710154302.GE1722@zip.com.au>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: unknown via proxy [81.89.69.194]
-Date: Thu, 10 Jul 2003 19:49:20 +0400
-Reply-To: =?koi8-r?Q?=22?=Peter Lojkin=?koi8-r?Q?=22=20?= 
-	  <ia6432@inbox.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E19adfc-000Cax-00.ia6432-inbox-ru@f9.mail.ru>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+In article <20030710154302.GE1722@zip.com.au> (at Fri, 11 Jul 2003 01:43:03 +1000), CaT <cat@zip.com.au> says:
 
-I am not on the list so please CC me if replying...
+> With 2.4.21-pre2 I can get a nice tunnel going over my ppp connection
+> and as such get ipv6 connectivity. I think went to 2.4.21 and then to
+> 2.4.22-pre4 and bringing up the tunnel fails as follows:
+:
+> ip addr add 3ffe:8001:000c:ffff::37/127 dev sit1
+>  ip route add ::/0 via 3ffe:8001:000c:ffff::36 
+> RTNETLINK answers: Invalid argument
 
-I've found the problem, it's patch with description:
+This is not bug, but rather misconfiguration;
+you cannot use prefix::, which is mandatory subnet routers 
+anycast address, as unicast address.
 
-Fix potential IO hangs and increase interactiveness during heavy IO
+Thank you.
 
-http://linux.bkbits.net:8080/linux-2.4/user=mason/cset@1.1024?nav=!-|index.html|stats|!+|index.html|ChangeSet@-7d
-
-After removing all changes from this cset, a had no problems
-mounting big reiserfs volumes...
-
+-- 
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

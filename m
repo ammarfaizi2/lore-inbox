@@ -1,56 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315120AbSFTPjc>; Thu, 20 Jun 2002 11:39:32 -0400
+	id <S315171AbSFTPkL>; Thu, 20 Jun 2002 11:40:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315171AbSFTPjc>; Thu, 20 Jun 2002 11:39:32 -0400
-Received: from moutvdom00.kundenserver.de ([195.20.224.149]:16995 "EHLO
-	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S315120AbSFTPja>; Thu, 20 Jun 2002 11:39:30 -0400
-Date: Thu, 20 Jun 2002 17:40:46 +0200
-From: Heinz Diehl <hd@cavy.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre10aa3
-Message-ID: <20020620154046.GA3408@chiara.cavy.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20020620055933.GA1308@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020620055933.GA1308@dualathlon.random>
-Organization: private site in Mannheim/Germany
-X-PGP-Key: To get my public-key, send mail with subject 'get pgpkey'
-User-Agent: Mutt/1.5.1i (Linux 2.4.19-pre10-aa2 i586)
+	id <S315179AbSFTPkK>; Thu, 20 Jun 2002 11:40:10 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:33411 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S315171AbSFTPkH>; Thu, 20 Jun 2002 11:40:07 -0400
+Date: Thu, 20 Jun 2002 11:42:14 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: devnull@adc.idt.com
+cc: Brian Gerst <bgerst@didntduck.org>, linux-kernel@vger.kernel.org
+Subject: Re: >3G Memory support
+In-Reply-To: <Pine.GSO.4.31.0206201010340.13158-100000@bom.adc.idt.com>
+Message-ID: <Pine.LNX.3.95.1020620110247.20919A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu Jun 20 2002, Andrea Arcangeli wrote:
+On Thu, 20 Jun 2002 devnull@adc.idt.com wrote:
 
-[....]
+> > >
+> > > When i compiled my kernel, i set CONFIG_HIGHMEM4G.
+> > >
+> > > Does this mean that all my programs should be able to address 4G ?
+> >
+> > No.  It means the kernel can access all 4GB of memory.  For memory above
+> > the 950MB that it can directly map, it needs to use dynamic mappings
+> > (kmap).  User space is always 3GB virtual space per process, regardless
+> > of the highmem setting.
+> 
+> Is there a way to make a process in the user space to able to access 4GB
+> at all. What limits user space to 3GB.
+> 
+> If not in current 2.4.x / 2.5.x, is this something planned in the future
+> releases ?
+> 
+> Thanks for your time.
 
-Pre10-aa3 fails to compile on my systems:
+The Intel 32-bit processors provide 32-bit virtual address space which
+is, in Unix/Linux machines, shared between the kernel and the process.
 
-[....]
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
--Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer
--pipe -mpreferred-stack-boundary=2 -march=k6   -nostdinc -I
-/usr/local/gcc2/lib/gcc-lib/i586-pc-linux-gnu/2.95.3/include
--DKBUILD_BASENAME=ioctl  -c -o ioctl.o ioctl.c
-gcc: Internal compiler error: program cc1 got fatal signal 11
-make[3]: *** [ioctl.o] Error 1
-make[3]: Leaving directory /usr/src/linux/fs/ext3'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory /usr/src/linux/fs/ext3'
-make[1]: *** [_subdir_ext3] Error 2
-make[1]: Leaving directory /usr/src/linux/fs'
-make: *** [_dir_fs] Error 2
-chiara:/usr/src/linux #
+If you add address space to the process, you need to take it away from
+the kernel and vice-versa. The result is that each process gets its own
+data and (usually) code, but shares the kernel. Each process also gets
+to share, via memory-mapping, major portions of runtime-libraries like
+the 'C' runtime library. Even though code is shared, it takes up
+address-space.
 
-This is not a hardware problem, all other programs and kernels compile
-without any problems (and also -aa2 and older -aa kernels).
+The kernel can use RAM that does not exist in the 'lower 32-bits' to
+satisfy virtual RAM. This is the "High memory" option. Nevertheless,
+a task ends up with 32-bits of address space.
 
-gcc is "gcc version 2.95.3 20010315 (release)", and it also does not 
-compile with "Thread model: single, gcc version 3.1". Both compilers 
-built -aa2 flawlessly.
+The "fix" is to either wait for 64-bit machines, at which time users
+will complain that they can't address all 64 bits, or re-do the kernel
+as a VAX/VMS kind of virtual memory system.
 
--- 
-# Heinz Diehl, 68259 Mannheim, Germany
+It is, in principle, possible for user virtual address space to range
+from 0 to 0xffffffff. The kernel could have its own virtual address
+space which is not shared at all. The problem is there is only one
+set of page tables on Intel machines. You would have to make two, or
+more, in an area where there is a 1:1 virtual to physical address-
+translation, you would have to transition to that area, disable paging,
+flush the cache, load the kernel page-tables, enable paging, then
+call/execute kernel code every time you made a kernel system call.
+Oh yes, you have to do the reverse to return control to the user who
+called the kernel code. Copying data to/from kernel space would be
+a bear. The physical address of any user buffer would have to be
+mapped into the kernel's address space (like a mailbox), on the off-
+chance that the kernel might need to access it. Nasty.
+
+This would make system calls take milliseconds instead of microseconds.
+
+FYI, you can explore user-address possibilities with simple 'C' code:
+
+#include <stdio.h>
+char data;
+int main()
+{
+  char stack;
+  unsigned long avail;
+
+  avail = 0xffffffff - (long)&stack;
+  printf("Address available above stack %08lx\n", avail);
+  avail = 0xffffffff - (long)&data;
+  printf("Address available above data %08lx\n", avail);
+  avail = 0xffffffff - (long)main;
+  printf("Address available above code %08lx\n", avail);
+}
+
+
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
+

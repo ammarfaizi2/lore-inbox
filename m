@@ -1,62 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-thread-index: AcQVpP7rXz6ChwS6TS2gk1fytqlIpg==
+thread-index: AcQVpHAJe6ni3gZqT/ysOkgcaEi3CQ==
 Envelope-to: paul@sumlocktest.fsnet.co.uk
-Delivery-date: Tue, 06 Jan 2004 06:08:23 +0000
-Message-ID: <049201c415a4$feebc2a0$d100000a@sbs2003.local>
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft CDO for Exchange 2000
+Delivery-date: Sun, 04 Jan 2004 09:28:14 +0000
+Message-ID: <01c201c415a4$70098b30$d100000a@sbs2003.local>
+Date: Mon, 29 Mar 2004 16:42:27 +0100
 Content-Class: urn:content-classes:message
+From: "Rusty Russell" <rusty@au1.ibm.com>
 Importance: normal
 Priority: normal
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
-Date: Mon, 29 Mar 2004 16:46:26 +0100
-From: "Jakob Oestergaard" <jakob@unthought.net>
 To: <Administrator@smtp.paston.co.uk>
-Cc: "Mikael Pettersson" <mikpe@csd.uu.se>, <akpm@osdl.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Pentium M config option for 2.6
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Tomas Szepe <szepe@pinerecords.com>,
-	Mikael Pettersson <mikpe@csd.uu.se>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <200401041227.i04CReNI004912@harpo.it.uu.se> <20040104123358.GB24913@louise.pinerecords.com>
+Cc: <linux-kernel@vger.kernel.org>, <akpm@osdl.org>
+Subject: Re: Module Observations
+In-Reply-To: <20040102185509.A18154@in.ibm.com>
+References: <20040102185509.A18154@in.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <20040104123358.GB24913@louise.pinerecords.com>
-User-Agent: Mutt/1.3.28i
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
 Sender: <linux-kernel-owner@vger.kernel.org>
 X-Mailing-List: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 29 Mar 2004 15:46:29.0171 (UTC) FILETIME=[0047D030:01C415A5]
+X-OriginalArrivalTime: 29 Mar 2004 15:42:28.0187 (UTC) FILETIME=[70A492B0:01C415A4]
 
-On Sun, Jan 04, 2004 at 01:33:58PM +0100, Tomas Szepe wrote:
-> On Jan-04 2004, Sun, 13:27 +0100
-> Mikael Pettersson <mikpe@csd.uu.se> wrote:
+On Fri, 2 Jan 2004 18:55:09 +0530
+Srivatsa Vaddagiri <vatsa@in.ibm.com> wrote:
+
+> Hi,
+> 	I was going thr' module code and made some observations:
 > 
-> > IOW, don't lie to the compiler and pretend P-M == P4
-> > with that -march=pentium4.
+> 1. sys_init_module drops the module_mutex semaphore
+>    before calling mod->init() function and later
+>    reacquires it. After reacquiring, it marks
+>    the module state as MODULE_STATE_LIVE.
 > 
-> What do you recommend to use as march then?  There is
-> no pentiumm subarch support in gcc yet;  I was convinced
-> p4 was the closest match.
+>    In the window when mod->init() function is running,
+>    isn't it possible that sys_delete_module (running
+>    on some other CPU and trying to remove the _same_ module)
+>    acquires the module_mutex sem and marks the module
+>    state as MODULE_STATE_GOING?
+> 
+>    Shouldn't sys_init_module check for
+>    that possibility when it reacquires the semaphore after
+>    calling mod->init function?
 
-Use the same as for P-III.
+Good catch.  The module removal should refuse to remove it without --force.
 
-The P-M has the same instruction decoder (and execution unit) setup as
-the P-III, which is *very* different from P-IV (which has one decoder
-only, and then a trace cache for the decoded uops).  This is an
-important difference from a code generator point of view.
+I opened this hole when I dropped the sem around mod->init() (because
+some modules load other modules in their init routine).
 
->From reading Intel's optimization guides, it seems to me like the P-M is
-pretty much just a slightly enhanced P-III (more cache AFAIR) which
-happens to get shipped with a good mobile chipset - and that package
-together is called Centrino.
+Andrew, please apply patch below.
 
-That would also explain why Centrino leaves the P-IV based laptops in
-the dust ;)
+> 2. try_module_get() and module_put()
+> 
+> 	try_module_get increments the local cpu's ref count for the module 
+>    and module_put decrements it.
+> 
+>    Is it required that the caller call both these functions from the same CPU?
+>    Otherwise, the total refcount for the module will be non-zero!
 
-Cheers,
+No, it's OK.  We only care about the *total* being zero.
 
- / jakob
+Thanks,
+Rusty.
+-- 
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy
 
+Name: Prevent Removal of Module During Init
+Author: Rusty Russell
+Status: Trivial
+
+D: Vatsa spotted this: you can remove a module while it's being
+D: initialized, and that will be bad.  Hole was opened when I dropped
+D: the sem around the init routine (which can probe for other
+D: modules).
+
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22325-linux-2.6.1-rc1/kernel/module.c .22325-linux-2.6.1-rc1.updated/kernel/module.c
+--- .22325-linux-2.6.1-rc1/kernel/module.c	2003-11-24 15:42:33.000000000 +1100
++++ .22325-linux-2.6.1-rc1.updated/kernel/module.c	2004-01-03 15:59:54.000000000 +1100
+@@ -687,8 +687,8 @@ sys_delete_module(const char __user *nam
+ 		goto out;
+ 	}
+ 
+-	/* Already dying? */
+-	if (mod->state == MODULE_STATE_GOING) {
++	/* Doing init or already dying? */
++	if (mod->state != MODULE_STATE_LIVE) {
+ 		/* FIXME: if (force), slam module count and wake up
+                    waiter --RR */
+ 		DEBUGP("%s already dying\n", mod->name);

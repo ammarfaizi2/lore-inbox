@@ -1,77 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277210AbRJLEip>; Fri, 12 Oct 2001 00:38:45 -0400
+	id <S277212AbRJLElP>; Fri, 12 Oct 2001 00:41:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277212AbRJLEif>; Fri, 12 Oct 2001 00:38:35 -0400
-Received: from oe22.law9.hotmail.com ([64.4.8.79]:63501 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S277210AbRJLEia>;
-	Fri, 12 Oct 2001 00:38:30 -0400
-X-Originating-IP: [66.108.21.174]
-From: "T. A." <tkhoadfdsaf@hotmail.com>
-To: "J Sloan" <jjs@lexus.com>, "Tim Moore" <timothymoore@bigfoot.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <XFMail.20011011094548.jkp@riker.nailed.org> <3BC5E152.3D81631@bigfoot.com> <3BC5E3AF.588D0A55@lexus.com>
-Subject: Re: Which kernel (Linus or ac)?
-Date: Fri, 12 Oct 2001 00:37:01 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S277219AbRJLElF>; Fri, 12 Oct 2001 00:41:05 -0400
+Received: from smtp10.atl.mindspring.net ([207.69.200.246]:55332 "EHLO
+	smtp10.atl.mindspring.net") by vger.kernel.org with ESMTP
+	id <S277212AbRJLEkx>; Fri, 12 Oct 2001 00:40:53 -0400
+Subject: Re: Re[02]: [CFT][PATCH] smoother VM for -ac
+From: Robert Love <rml@tech9.net>
+To: jlmales@softhome.net
+Cc: Rik van Riel <riel@conectiva.com.br>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <3BC63A77.19202.29B1FD0@localhost>
+In-Reply-To: <3BC63A77.19202.29B1FD0@localhost>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Message-ID: <OE22ITtCsuSYkbAY0Jp0000df3f@hotmail.com>
-X-OriginalArrivalTime: 12 Oct 2001 04:38:56.0651 (UTC) FILETIME=[CDC105B0:01C152D7]
+X-Mailer: Evolution/0.15.99+cvs.2001.10.05.08.08 (Preview Release)
+Date: 12 Oct 2001 00:41:19 -0400
+Message-Id: <1002861682.866.3.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well I'd have to agree that for stability I'd also go for 2.2.x.  2.4.x
-isn't bad but 2.2.x is just rock stable right now.  Furthermore its been
-hard to gain confidence in 2.4.x with all the bugs that have yet to be
-worked out.  I'd use 2.2.x almost exclusively if it would just gain support
-for the latest EIDE chipsets, a journaling filesystem, and the latest SMP
-boards.  iptables and large file support would also be great.
+On Fri, 2001-10-12 at 01:33, John L. Males wrote:
+> I just found out about your desire to have some workstation testing
+> done to get feedback on your current VM patch.
+> 
+> I am currently using Kernel 2.4.9-ac18.  I am still not happy about
+> some of the memory management.  I love to try your patch.  I would be
+> willing to do so against the 2.4.10-ac11 Kernel if a patch is
+> available.  If Alan is going to implement this patch in a later
+> 2.4.10-acxx patch I will wait patiently.
 
------ Original Message -----
-From: "J Sloan" <jjs@lexus.com>
-To: "Tim Moore" <timothymoore@bigfoot.com>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Thursday, October 11, 2001 2:23 PM
-Subject: Re: Which kernel (Linus or ac)?
+Said patch and other VM work is in 2.4.10-ac12.  Get that and report
+back.
+
+	Robert Love
 
 
-> Tim Moore wrote:
->
-> > Any special reason to use 2.4?
->
-> er... scalability, performance, features?
->
-> > I only use 2.2.19p8 and 2.2.20p10 where
-> > stability is important.
->
-> experimental pre-releases? interesting...
->
-> All my 2.4 based servers are running quite
-> reliably - the oldest now have over180 days
-> uptime, all have been up since install or last
-> kernel with no hint of instability.
->
-> Red Hat and Late -ac kernels are especially
-> stable examples of 2.4 -
->
-> cu
->
-> jjs
->
->
->
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->

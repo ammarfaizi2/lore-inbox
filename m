@@ -1,80 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262159AbUCITdL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 14:33:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262134AbUCITar
+	id S262099AbUCITWI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 14:22:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262124AbUCITR1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 14:30:47 -0500
-Received: from pfepb.post.tele.dk ([195.41.46.236]:17426 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S262135AbUCIT0K
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 14:26:10 -0500
-Date: Tue, 9 Mar 2004 20:27:13 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Kliment Yanev <Kliment.Yanev@helsinki.fi>, linux-kernel@vger.kernel.org
-Subject: Re: Nokia c110 driver
-Message-ID: <20040309192713.GA2182@mars.ravnborg.org>
-Mail-Followup-To: "Randy.Dunlap" <rddunlap@osdl.org>,
-	Kliment Yanev <Kliment.Yanev@helsinki.fi>,
-	linux-kernel@vger.kernel.org
-References: <40419A1C.5070103@helsinki.fi> <20040301101706.3a606d35.rddunlap@osdl.org> <404C8A35.3020308@helsinki.fi> <20040308090640.2d557f9e.rddunlap@osdl.org> <404CF77A.2050301@helsinki.fi> <20040308150907.4db68831.rddunlap@osdl.org> <404D0032.1000807@helsinki.fi> <20040308153602.331f079e.rddunlap@osdl.org> <404DC622.7020300@helsinki.fi> <20040309080409.49fc0358.rddunlap@osdl.org>
+	Tue, 9 Mar 2004 14:17:27 -0500
+Received: from palrel12.hp.com ([156.153.255.237]:56550 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S262129AbUCITPQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 14:15:16 -0500
+Date: Tue, 9 Mar 2004 11:15:14 -0800
+To: "David S. Miller" <davem@redhat.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6 IrDA] (13/14) irda_param symbol exports
+Message-ID: <20040309191514.GN14543@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040309080409.49fc0358.rddunlap@osdl.org>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 09, 2004 at 08:04:09AM -0800, Randy.Dunlap wrote:
-> | 
-> | dhw.o, dap.o, dmgr.o and dcfg.o are located in nokia_cs.a, which does
-> | not include source. These are the parts that actually access the card
-> | and configure frequencies etc. They don't seem to be linked, since the
-> | dhw_* symbols are unknown in the module. Manually linking them with the
-> | .ko prevents it from being loaded (or maybe I am linking them wrong).
-> | They are defined in corresponding .h files mostly.
-The above files are normal .o files, that should be linked in.
-So what you do is to rename the above files to:
-dhw.o_shipped
-dap.o_shipped
-dmgr.o_shipped
-dcfg.o_shipped
+ir264_irsyms_13_param.diff :
+~~~~~~~~~~~~~~~~~~~~~~~~
+		<Patch from Stephen Hemminger>
+(13/14) irda_param symbol exports
 
-And then in your makefile specify:
+Move irda_param related exports out of irsyms
 
-obj-m	:= cs110.o
-cs110-y := dhw.o dap.o dmgr.o dcfg.o
-cs110-y += <additional .o files compield from .c files>
 
-Maybe you can specify the .a file direct replacing the four .o file - 
-should work but I have not tried.
 
-> | | Well, Sam Ravnborg did post a patch in the last week or so that
-> | | should help with (some) binary files...  probably .o and not .bin,
-> | | or maybe it doesn't matter.
-That patch was crap - the _shipped functionality covers this nicely.
-
-> | | | My makefile (dhw, dap, dmgr and dcfg are in the binary parts, present in
-> | | | the current dir as dhw.o etc.; all the others are .c files that get
-> | | | compiled during a make):
-> | | |
-> | | | ~    ifneq ($(KERNELRELEASE),)
-> | | | ~    obj-m       := nokia_c110.o
-> | | | ~    module-objs := dllc.o dtools.o dhw.o dap.o dmgr.o dcfg.o
-Should be:   nokia_c110-y := dllc.o dtools.o dhw.o dap.o dmgr.o dcfg.o
-See also example above.
-
-> | | | ~    else
-> | | | ~    KDIR        := /lib/modules/$(shell uname -r)/build
-> | | | ~    PWD         := $(shell pwd)
-> | | |
-> | | | ~    default:
-> | | | ~        $(MAKE) -C $(KDIR) SUBDIRS=$(PWD) modules
-> | | | ~    endif
-> | 
-> | Can you tell me if the makefile is correct?
-Looks OK except for the s/module/nokia_cs110/ point.
-
-	Sam
+diff -u -p -r linux/net/irda.sC/irsyms.c linux/net/irda/irsyms.c
+--- linux/net/irda.sC/irsyms.c	Mon Mar  8 19:23:23 2004
++++ linux/net/irda/irsyms.c	Mon Mar  8 19:24:58 2004
+@@ -73,11 +73,6 @@ extern int  irlap_driver_rcv(struct sk_b
+ EXPORT_SYMBOL(irda_debug);
+ #endif
+ EXPORT_SYMBOL(irda_notify_init);
+-EXPORT_SYMBOL(irda_param_insert);
+-EXPORT_SYMBOL(irda_param_extract);
+-EXPORT_SYMBOL(irda_param_extract_all);
+-EXPORT_SYMBOL(irda_param_pack);
+-EXPORT_SYMBOL(irda_param_unpack);
+ 
+ /* IrLAP */
+ 
+diff -u -p -r linux/net/irda.sC/parameters.c linux/net/irda/parameters.c
+--- linux/net/irda.sC/parameters.c	Wed Dec 17 18:59:05 2003
++++ linux/net/irda/parameters.c	Mon Mar  8 19:24:58 2004
+@@ -29,6 +29,8 @@
+  ********************************************************************/
+ 
+ #include <linux/types.h>
++#include <linux/module.h>
++
+ #include <asm/unaligned.h>
+ #include <asm/byteorder.h>
+ 
+@@ -393,6 +395,7 @@ int irda_param_pack(__u8 *buf, char *fmt
+ 
+ 	return 0;
+ }
++EXPORT_SYMBOL(irda_param_pack);
+ 
+ /*
+  * Function irda_param_unpack (skb, fmt, ...)
+@@ -437,6 +440,7 @@ int irda_param_unpack(__u8 *buf, char *f
+ 
+ 	return 0;
+ }
++EXPORT_SYMBOL(irda_param_unpack);
+ 
+ /*
+  * Function irda_param_insert (self, pi, buf, len, info)
+@@ -489,6 +493,7 @@ int irda_param_insert(void *self, __u8 p
+ 						 pi_minor_info->func);
+ 	return ret;
+ }
++EXPORT_SYMBOL(irda_param_insert);
+ 
+ /*
+  * Function irda_param_extract_all (self, buf, len, info)
+@@ -544,6 +549,7 @@ int irda_param_extract(void *self, __u8 
+ 						  type, pi_minor_info->func);
+ 	return ret;
+ }
++EXPORT_SYMBOL(irda_param_extract);
+ 
+ /*
+  * Function irda_param_extract_all (self, buf, len, info)
+@@ -575,4 +581,4 @@ int irda_param_extract_all(void *self, _
+ 	}
+ 	return n;
+ }
+-
++EXPORT_SYMBOL(irda_param_extract_all);

@@ -1,78 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265921AbVBDUQx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262869AbVBDUVT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265921AbVBDUQx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 15:16:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265719AbVBDUQV
+	id S262869AbVBDUVT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 15:21:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266373AbVBDURL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 15:16:21 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:52934 "EHLO
-	postbox.bitmover.com") by vger.kernel.org with ESMTP
-	id S265605AbVBDUOI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 15:14:08 -0500
-Date: Fri, 4 Feb 2005 12:11:57 -0800
-To: Stelian Pop <stelian@popies.net>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Linux Kernel Subversion Howto
-Message-ID: <20050204201157.GN27707@bitmover.com>
-Mail-Followup-To: lm@bitmover.com, Stelian Pop <stelian@popies.net>,
-	linux-kernel@vger.kernel.org
-References: <20050203033459.GA29409@bitmover.com> <20050203193220.GB29712@sd291.sivit.org> <20050203202049.GC20389@bitmover.com> <20050203220059.GD5028@deep-space-9.dsnet> <20050203222854.GC20914@bitmover.com> <20050204130127.GA3467@crusoe.alcove-fr> <20050204160631.GB26748@bitmover.com> <20050204170306.GB3467@crusoe.alcove-fr> <20050204183922.GC27707@bitmover.com> <20050204200507.GE5028@deep-space-9.dsnet>
+	Fri, 4 Feb 2005 15:17:11 -0500
+Received: from holomorphy.com ([66.93.40.71]:38374 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265819AbVBDUQo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 15:16:44 -0500
+Date: Fri, 4 Feb 2005 12:16:36 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Mr. Berkley Shands" <berkley@exegy.com>
+Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com
+Subject: Re: 2.6.10 Kernel BUG at hugetlbpage:212 (x86_64 and i386)
+Message-ID: <20050204201636.GP24805@holomorphy.com>
+References: <42023352.9040309@dssimail.com> <Pine.LNX.4.61.0502041634090.10535@goblin.wat.veritas.com> <20050204194255.GO24805@holomorphy.com> <4203D5AD.8030108@cse.wustl.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050204200507.GE5028@deep-space-9.dsnet>
+In-Reply-To: <4203D5AD.8030108@cse.wustl.edu>
+Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.6+20040907i
-From: lm@bitmover.com (Larry McVoy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > So, do you think you can sign up the usual suspects to being happy with
-> > this answer?
-> 
-> I'll let them answer themselves.
+On Fri, Feb 04, 2005 at 02:06:05PM -0600, Mr. Berkley Shands wrote:
+> Sorry, but I still crash. This time it hung the kernel so bad I had to 
+> powerfail to restart.
 
-You'll need to rally them to speak up or this is going nowhere.  We
-can't afford to spend engineering dollars one unhappy person at a time
-to try and get you happy.  We need concensus.
+Well, that fix is needed anyway.
 
-> > And do you mind spelling out exactly what it is that you
-> > think is being offered so there is no confusion later?
-> 
-> Informaly, exactly what I said before: Be able to find enough information
-> in the CVS tree which would allow anybody to trace back each change
-> to what was submitted by the author of the change (= patch + comment).
+On Fri, Feb 04, 2005 at 02:06:05PM -0600, Mr. Berkley Shands wrote:
+> Feb  4 13:43:19 eclipse kernel: RIP: 0010:[<ffffffff8011e3cb>] 
+> <ffffffff8011e3cb>{unmap_hugepage_range+75}
 
-Yup, seems reasonable.
+Could you try this?
 
-> How you can make this happen is another problem. The obvious way to
-> implement this is using CVS branches and merges but this could be
-> too much work for you.
 
-Yeah, that's insane, CVS just isn't up to the task.  We know, we import
-history from CVS to BitKeeper all the time and it is very painful.  We
-probably understand the impedence mismatch better than anyone and it is
-large.
+-- wli
 
-> (and know I agreed at the moment), but thinking again about this I'm not
-> sure anymore how "sticking the BK changeset key into the delta history"
-> gives us "BK level granularity". From what I understand (but you are the
-> SCM expert not me so I may be missing something) there is exactly 
-> one delta per 'trunk' changeset, so if you have a file being modified
-> several times on a branch you will end with one single delta which is
-> the merge of the separate patches. I'm not sure how, by adding several
-> 'BK changeset keys' into the log entry of the merged delta you make
-> one able to resplit the delta later.
 
-First, you have to remember that BK is capturing 96% of the deltas made
-to files.  Some of those deltas get clumped into one CVS commit because
-of the flattening of the graph structure.  If each delta had the
-changeset key for the BK changeset to which it belonged you could 
-split the coarse commit into the sub patches which happened on the
-collapsed branch.  You wouldn't get 100% of the information but you'd
-have 96% of it in a way that could be used for debugging, which is what
-I suspect you are after.  
-
-If that's not good enough then I'm not sure there is much point in
-continuing the conversation.
--- 
----
-Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com
+Index: mm2-2.6.11-rc2/arch/i386/mm/hugetlbpage.c
+===================================================================
+--- mm2-2.6.11-rc2.orig/arch/i386/mm/hugetlbpage.c	2005-01-29 01:13:39.000000000 -0800
++++ mm2-2.6.11-rc2/arch/i386/mm/hugetlbpage.c	2005-02-04 12:05:12.000000000 -0800
+@@ -209,14 +209,17 @@
+ {
+ 	struct mm_struct *mm = vma->vm_mm;
+ 	unsigned long address;
+-	pte_t pte;
++	pte_t pte, *ptep;
+ 	struct page *page;
+ 
+ 	BUG_ON(start & (HPAGE_SIZE - 1));
+ 	BUG_ON(end & (HPAGE_SIZE - 1));
+ 
+ 	for (address = start; address < end; address += HPAGE_SIZE) {
+-		pte = ptep_get_and_clear(huge_pte_offset(mm, address));
++		ptep = huge_pte_offset(mm, address);
++		if (!ptep)
++			continue;
++		pte = ptep_get_and_clear(ptep);
+ 		if (pte_none(pte))
+ 			continue;
+ 		page = pte_page(pte);

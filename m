@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262182AbTD3OKV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 10:10:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262185AbTD3OKU
+	id S261968AbTD3OKP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 10:10:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262182AbTD3OKP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 10:10:20 -0400
-Received: from lopsy-lu.misterjones.org ([62.4.18.26]:55046 "EHLO
-	young-lust.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
-	id S262182AbTD3OKT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 10:10:19 -0400
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Marc Zyngier <mzyngier@freesurf.fr>, rth@twiddle.net,
+	Wed, 30 Apr 2003 10:10:15 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:3001 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S261968AbTD3OKO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 10:10:14 -0400
+Date: Wed, 30 Apr 2003 07:22:05 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Wojciech Sobczak <Wojciech.Sobczak@comarch.pl>,
        linux-kernel@vger.kernel.org
-Subject: Re: [Patch] DMA mapping API for Alpha
-References: <20030429150532.A3984@jurassic.park.msu.ru>
-	<Pine.GSO.3.96.1030430140450.1016E-100000@delta.ds2.pg.gda.pl>
-	<20030430141258.GA25076@gtf.org>
-Organization: Metropolis -- Nowhere
-X-Attribution: maz
-Reply-to: mzyngier@freesurf.fr
-From: Marc Zyngier <mzyngier@freesurf.fr>
-Date: 30 Apr 2003 16:18:35 +0200
-Message-ID: <wrpu1cg2hms.fsf@hina.wild-wind.fr.eu.org>
-In-Reply-To: <20030430141258.GA25076@gtf.org>
+Subject: Re: IBM x440 problems on 2.4.20 to 2.4.20-rc1-ac3
+Message-ID: <3270000.1051712524@[10.10.2.4]>
+In-Reply-To: <01d601c30f17$f3ffadf0$b312840a@nbsobczak>
+References: <01d601c30f17$f3ffadf0$b312840a@nbsobczak>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Jeff" == Jeff Garzik <jgarzik@pobox.com> writes:
+> I'm trying to boot from linux kernel 2.4 tree
+> i've installed rh 7.1 dist, but system seems only 3 procesors, so i made
+> 2.4.20 kernel with smp without NUMA support and i saw 4 processors. Next
+> 2.4.20 with numa support, and system hangs on mounting root filesystem (no
+> scsi devices found, ide devices lost interruption, no keyboard found etc
+> etc)
+> Next 2.4.21-rc1-ac3 without NUMA, 3-processors available
+> with NUMA support and summit/exa support and clustered apic support kernel
+> boots, found scsi devices but hangs on it with lost interruption, also
+> with ide devices and so on
+> machine has 4 HT processors and 8GB of RAM
+> any ideas or help?
+> 
+> i don't wat to use 2.5.x kernel.....
 
-Jeff> On Wed, Apr 30, 2003 at 02:07:17PM +0200, Maciej W. Rozycki wrote:
+SuSE works well, at least the SLES edition does.
 
->> Note that's the only non-PCI Alpha we support right now -- there may be
->> more such ones in the future. 
+I'm not sure that any of the other 2.4 kernels work properly, though I
+can't say I've tried the latest updates to other distros - they might work,
+but I doubt 7.1 does - that's very old.
 
-Jeff> Highly unlikely, I would guess :)
+M.
 
-Turbo-channel anyone ? :-))
-
-        M.
--- 
-Places change, faces change. Life is so very strange.

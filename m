@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264446AbTH1Xdr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 19:33:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264450AbTH1Xdq
+	id S264393AbTH1XVu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 19:21:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264392AbTH1XVu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 19:33:46 -0400
-Received: from fw.osdl.org ([65.172.181.6]:31682 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264446AbTH1Xdp (ORCPT
+	Thu, 28 Aug 2003 19:21:50 -0400
+Received: from fw.osdl.org ([65.172.181.6]:33980 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264393AbTH1XVt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 19:33:45 -0400
-Date: Thu, 28 Aug 2003 16:39:37 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise
-To: Thomas Spatzier <TSPAT@de.ibm.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] memory leak in sysfs
-In-Reply-To: <OF846221A1.E004CC84-ONC1256D8F.00491EF9-C1256D8F.004A7867@de.ibm.com>
-Message-ID: <Pine.LNX.4.44.0308281638160.4140-100000@cherise>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 28 Aug 2003 19:21:49 -0400
+Date: Thu, 28 Aug 2003 16:21:41 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Chris Wright <chrisw@osdl.org>, Breno <brenosp@brasilsec.com.br>,
+       Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: non-exec stack
+Message-ID: <20030828162141.P20553@osdlab.pdx.osdl.net>
+References: <001801c3860b$ab8e5560$3fdfa7c8@bsb.virtua.com.br> <20030828151501.A24595@osdlab.pdx.osdl.net> <20030828231239.GG21352@matchmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030828231239.GG21352@matchmail.com>; from mfedyk@matchmail.com on Thu, Aug 28, 2003 at 04:12:39PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Mike Fedyk (mfedyk@matchmail.com) wrote:
+> On Thu, Aug 28, 2003 at 03:15:01PM -0700, Chris Wright wrote:
+> > 
+> > Have you looked at Openwall Linux or exec-shield?
+> > 
+> > http://www.openwall.com/linux/
+> > http://people.redhat.com/mingo/exec-shield/
+> > 
+> > of course, neither is a complete security solution, just a small bit of
+> > protection.
+> 
+> What about ingo's exec shield patch that was going around a while ago?  Has
+> that died?
 
-> please verify the following patch. We found a memory leak in sysfs. Entries
-> in the dentry_cache allocated for objects in sysfs are not freed when the
-> objects in sysfs are deleted. This effect is due to inconsistent reference
-> counting in sysfs. Furthermore, when calling sysfs_remove_dir the deleted
-> directory was not removed from its parent's list of children. The attached
-> patch should fix the problems.
-
-Thanks. Martin Schwidefsky had mentioned this to me at OLS (I presume it's 
-the same problem). I haven't had a chance to look closely at the patch, 
-but it's in my immediate queue..
-
-
-	Pat
-
-
+Heh, err that's the second URL above
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

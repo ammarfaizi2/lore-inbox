@@ -1,74 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261581AbUKCMyx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbUKCM4X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261581AbUKCMyx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 07:54:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261584AbUKCMyx
+	id S261582AbUKCM4X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 07:56:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261584AbUKCM4W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 07:54:53 -0500
-Received: from gprs214-124.eurotel.cz ([160.218.214.124]:129 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261581AbUKCMyt (ORCPT
+	Wed, 3 Nov 2004 07:56:22 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:45456 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261582AbUKCM4M (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 07:54:49 -0500
-Date: Wed, 3 Nov 2004 13:54:32 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>
-Cc: gcs@lsc.hu, lm@work.bitmover.com
-Subject: Example where BKCVS is not detailed enough (and ask for help)
-Message-ID: <20041103125432.GB1132@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+	Wed, 3 Nov 2004 07:56:12 -0500
+Message-ID: <4188D55D.7000200@redhat.com>
+Date: Wed, 03 Nov 2004 07:55:57 -0500
+From: Neil Horman <nhorman@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0; hi, Mom) Gecko/20020604 Netscape/7.01
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Tim Warnock <timoid@getonit.net.au>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ipv4 arp and linux
+References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA4+E3P43380+sBshf1RHa98KAAAAQAAAADJ+ICBUnRkOc9W13U4B0WAEAAAAA@getonit.net.au>
+In-Reply-To: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA4+E3P43380+sBshf1RHa98KAAAAQAAAADJ+ICBUnRkOc9W13U4B0WAEAAAAA@getonit.net.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Tim Warnock wrote:
+> What arp packet size does a linux 2.4 series kernel use? How would it be
+> made bigger?
+> 
+64 bytes is the minimum packet size of an ethernet frame (which includes 
+the CRC).  ARP requests don't take up that much space so the kernel pads 
+them out to be large enough.  A tcpdump will show you exactly how it looks.
 
-We are trying to track down ugly bug where machines fail to power down
-/ power up at first occassion on 2.6.8.1 + acpi parts from 2.6.9-bk1.
+> I'm having a problem where a cisco switch is ignoring me because (according
+> to the guys who operate it) the arp spec for 802.3 is 64 bytes and im not
+> doing that.
+> 
+802.3 stipulates 64 bytes for all ethernet frames.  If you have a 
+program that is somehow sending frames smaller than that, yes, you (or 
+something) is broken.  How exactly are you sending frames that you think 
+are too small?
 
-Unfortunately all acpi changes in this area are merged into "BKrev:
-412f21c8cj8TLCDiYwWr68kVXtdeXg" => it is not easy to find bug by
-binary search. Is there easy way to get split-up patches?
+Neil
+> Im not subscribed to the list, so if I could be cc'd I'd appreciate it.
+> 
+> Hope someone can help me, and thanks for taking the time to read this.
+> 
+> Tim
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Bjorn: You could probably download individual patches from bkbits.net
-by hand and try to revert them one by one.
 
-Others: Is there easier way than that?
-
-Improvement request:
-
-One big change looks like this on cvs log...
-
-[PATCH] USB: USB PhidgetServo driver update
-
-Once again a (small) patch for the phidgetservo driver.
-
-Some servos have a very high maximum angle, set upper limit to the
-maximum allowed by the hardware. Reported by Mario Scholz
-<mario@expires-0409.mail.trial-n-error.net>
-
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
-
-2004/08/23 18:06:07+00:00 aegl
-Merge agluck-lia64.sc.intel.com:/data/home/aegl/BK/linux-ia64-test-2.6.8.1
-into agluck-lia64.sc.intel.com:/data/home/aegl/BK/linux-ia64-release-2.6.8.1
-
-2004/08/18 21:50:56+00:00 jbarnes
-[ACPI] ia64 build fix
-
-Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-
-2004/08/18 18:18:02+00:00 kenneth.w.chen
-
-....would it be possible to put some bkrev's or urls for the
-individual changes? If I want to find patch corresponding to last
-change on bkbits, ... I guess I can only grep for changelog comment.
-
-								Pavel
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+/***************************************************
+  *Neil Horman
+  *Software Engineer
+  *Red Hat, Inc.
+  *nhorman@redhat.com
+  *gpg keyid: 1024D / 0x92A74FA1
+  *http://pgp.mit.edu
+  ***************************************************/

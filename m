@@ -1,58 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263134AbUCMR2u (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Mar 2004 12:28:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263136AbUCMR2u
+	id S263132AbUCMR1v (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Mar 2004 12:27:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263135AbUCMR0u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Mar 2004 12:28:50 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:5539 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263134AbUCMR2l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Mar 2004 12:28:41 -0500
-Date: Sat, 13 Mar 2004 12:28:31 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Hugh Dickins <hugh@veritas.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
-       William Lee Irwin III <wli@holomorphy.com>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: anon_vma RFC2
-In-Reply-To: <Pine.LNX.4.44.0403131653010.3585-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0403131227210.15971-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 13 Mar 2004 12:26:50 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:30949 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S263132AbUCMR0p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Mar 2004 12:26:45 -0500
+Date: Sat, 13 Mar 2004 18:26:39 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Raj <obelix123@toughguy.net>
+Cc: Neil Brown <neilb@cse.unsw.edu.au>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, okir@monad.swb.de
+Subject: Re: [TRIVIAL][PATCH]:/proc/fs/nfsd/
+Message-ID: <20040313172639.GW14833@fs.tum.de>
+References: <404843B5.1010409@toughguy.net> <16456.20875.670811.900445@notabene.cse.unsw.edu.au> <40485803.7060102@toughguy.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40485803.7060102@toughguy.net>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 13 Mar 2004, Hugh Dickins wrote:
-> On Sat, 13 Mar 2004, Linus Torvalds wrote:
-
-> > 	if (PageAnonymous(page) && page->count > 1) {
-> > 		newpage = alloc_page();
-> > 		copy_page(page, newpage);
-> > 		page = newpage;
-> > 	}
-> > 	/* Move the page to the new address */
-> > 	page->index = address >> PAGE_SHIFT;
+On Fri, Mar 05, 2004 at 04:05:47PM +0530, Raj wrote:
+> Neil Brown wrote:
+>...
+> >Does it need fixing??
+> >
+> >If you remove this, then people who compile a kernel without nfsd
+> >support, and then later decide to compile an nfsd module and load it,
+> >will not be able to mount the nfsd filesystem at the right place.
 > > 
-> > and now we have zero special cases.
+> >
 > 
-> That's always been a fallback solution, I was just a little too ashamed
-> to propose it originally - seems a little wrong to waste whole pages
-> rather than wasting a few bytes of data structure trying to track them:
-> though the pages are pageable unlike any data structure we come up with.
+> I guess choosing nfsd either builtin or as a module will cause a rebuild 
+> of some components of the main kernel and hence a
+> reboot is anyway need. Pls correct me if i am wrong.
 
-No, Linus is right.
+You are wrong.
 
-If a child process uses mremap(), it stands to reason that
-it's about to use those pages for something.
+If choosing nfsd as a module, no component of the main kernel needs to 
+be changed to load the module on i386.
 
-Think of it as taking the COW faults early, because chances
-are you'd be taking them anyway, just a little bit later...
+cu
+Adrian
 
 -- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261562AbREUGgm>; Mon, 21 May 2001 02:36:42 -0400
+	id <S261679AbREUGsM>; Mon, 21 May 2001 02:48:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261601AbREUGgc>; Mon, 21 May 2001 02:36:32 -0400
-Received: from james.kalifornia.com ([208.179.59.2]:56432 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S261562AbREUGgT>; Mon, 21 May 2001 02:36:19 -0400
-Message-ID: <3B08B6B0.4010907@kalifornia.com>
-Date: Sun, 20 May 2001 23:33:20 -0700
-From: Ben Ford <ben@kalifornia.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.17-14 i686; en-US; rv:0.9) Gecko/20010505
-X-Accept-Language: en
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
-In-Reply-To: <20010520185827.B16356@thune.mrc-home.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+	id <S261680AbREUGsC>; Mon, 21 May 2001 02:48:02 -0400
+Received: from deliverator.sgi.com ([204.94.214.10]:49437 "EHLO
+	deliverator.sgi.com") by vger.kernel.org with ESMTP
+	id <S261679AbREUGrz>; Mon, 21 May 2001 02:47:55 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Allan Duncan <b372050@vus068.trl.telstra.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: compile failure in 2.4.5-pre4 
+In-Reply-To: Your message of "Mon, 21 May 2001 16:38:45 +1000."
+             <200105210638.QAA19887@vus068.trl.telstra.com.au> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 21 May 2001 16:47:45 +1000
+Message-ID: <1380.990427665@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Castle wrote:
+On Mon, 21 May 101 16:38:45 +1000 (EST), 
+Allan Duncan <b372050@vus068.trl.telstra.com.au> wrote:
+>drivers/ide/ide-pci.c:711
+>    		if (!IDE_PCI_DEVID_EQ(d->devid, DEVID_CS5530)
 
->On Mon, May 21, 2001 at 02:29:17AM +0200, Jes Sorensen wrote:
->
->>distributions). 18 months is more realistic for it to be deployed
->>widely enough.
->>
->
->People who are going to be savvy enough to install a development 2.5.*
->kernel that is defining a new configuration utility are going to be savvy
->enough to install python.
->
->mrc
->
-Not only that, but Alan said that somebody is rewriting it in C.
+for (i = 0; i < 1000; ++i)
+  printf("I must scan kernel archives before report bugs\n");
 
--- 
- "One trend that bothers me is the glorification of
-stupidity, that the media is reassuring people it's 
-alright not to know anything. That to me is far more 
-dangerous than a little pornography on the Internet." 
-  - Carl Sagan
+http://www.mail-archive.com/linux-kernel%40vger.kernel.org/msg45470.html
 
+>Allan Duncan  b372050@vus068.trl.telstra.com.au  (+613) 9253 6708, Fax 9253 6775
+>     (We are just a number)
 
+Who is number 1?
+You are number 6.
+I am not a number, I am a free man!
 

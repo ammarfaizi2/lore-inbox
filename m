@@ -1,97 +1,146 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272867AbTHKRjd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 13:39:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272875AbTHKRhO
+	id S272971AbTHKRqd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 13:46:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272975AbTHKRqP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 13:37:14 -0400
-Received: from 204.Red-213-96-224.pooles.rima-tde.net ([213.96.224.204]:53003
-	"EHLO betawl.net") by vger.kernel.org with ESMTP id S272867AbTHKRfl
+	Mon, 11 Aug 2003 13:46:15 -0400
+Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:39629 "EHLO
+	mx.rackable.com") by vger.kernel.org with ESMTP id S272971AbTHKRoi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 13:35:41 -0400
-Date: Mon, 11 Aug 2003 19:35:38 +0200
-From: Santiago Garcia Mantinan <manty@manty.net>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0test3 problems on Acer TravelMate 260 (ALSA,ACPIvsSynaptics,yenta)
-Message-ID: <20030811173538.GA2604@man.beta.es>
-References: <20030811102236.GA731@man.beta.es> <20030811114850.E32508@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030811114850.E32508@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.4i
+	Mon, 11 Aug 2003 13:44:38 -0400
+Message-ID: <3F37D49B.6050409@rackable.com>
+Date: Mon, 11 Aug 2003 10:38:35 -0700
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Brown, Len" <len.brown@intel.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22-pre10 ACPI kennel oops
+References: <BF1FE1855350A0479097B3A0D2A80EE009FC12@hdsmsx402.hd.intel.com>
+In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE009FC12@hdsmsx402.hd.intel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 11 Aug 2003 17:44:34.0415 (UTC) FILETIME=[39FDFFF0:01C36030]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey, what a quick reply, here goes the info you asked for, if you need any
-more just ask for it.
+Brown, Len wrote:
 
-> - does 2.6.0-test3 detect the card at boot ?
->   - if not, what are the complete kernel messages ?
+>Was ACPI included in your 2.4.21 kernel?  If no, then 2.4.22-pre10 may
+>be the 1st time that Linux ACPI has examined the tables on this system.
+>
+>I'm not familiar with "woodruf" -- do it have a part number?
+>First thing to do is to locate the latest BIOS for the board, and see if
+>this is something that has already been fixed there.
+>
+>If the latest BIOS doesn't do it, then filing a bug under componenet
+>ACPI will be the best way to get it fixed w/o having it fall through the
+>
 
-Yes and no, I mean, it detects a card, but not the card it has in, it tries
-to load memory_cs when I have a wireless card in, the card should load
-hostap_cs, in fact if after booting I remove it and insert it twice, it
-recognices the card well and tries to load hostap_cs.
+  Still fails.  A bug with quad, or the ACPI project?
 
-Here are the messages it outputs:
+>cracks.
+>
+>Thanks,
+>-Len
+>
+>
+>
+>  
+>
+>>-----Original Message-----
+>>From: Samuel Flory [mailto:sflory@rackable.com] 
+>>Sent: Tuesday, August 05, 2003 5:29 PM
+>>To: linux-kernel@vger.kernel.org
+>>Subject: 2.4.22-pre10 ACPI kennel oops
+>>
+>>
+>>  I'm getting a kernel oops on the intel woodruf P4 motherboard under 
+>>2.4.22pre10.  This config worked fine under 2.4.21.  The output of 
+>>ksymoops is attached, and the raw oops is attached.
+>>
+>>ksymoops 2.4.4 on i686 2.4.20-8smp.  Options used
+>>     -V (default)
+>>     -K (specified)
+>>     -L (specified)
+>>     -O (specified)
+>>     -m /boot/System.map-2.4.22-pre10 (specified)
+>>
+>>ACPI: LAPIC_NMI (acpi_id[0x01] polarity[0x0] trigger[0x0] lint[0x1])
+>>ACPI: LAPIC_NMI (acpi_id[0x02] polarity[0x0] trigger[0x0] lint[0x1])
+>>cpu: 0, clocks: 1328876, slice: 664438
+>>Unable to handle kernel paging request at virtual address f8803000
+>>c022d588
+>>*pde = 00000000
+>>Oops: 0000
+>>CPU:    0
+>>EIP:    0010:[<c022d588>]    Not tainted
+>>Using defaults from ksymoops -t elf32-i386 -a i386
+>>EFLAGS: 00010206
+>>eax: 00000000   ebx: 00000000   ecx: 00000001   edx: c1c13ec0
+>>esi: f8802ffd   edi: c1c13ee0   ebp: c1c13ec0   esp: c1c13e64
+>>ds: 0018   es: 0018   ss: 0018
+>>Process swapper (pid: 1, stackpage=c1c13000)
+>>Stack: c1c13f1c c1c13f1c c1c13e84 c022d015 c1c13ec0 f8802fdd 00000024 
+>>f8802fdd
+>>       00000008 c0492d37 c0492d24 00200000 c1c13eb0 c1c13ec0 c1c13f2c 
+>>c1c13eb0
+>>       c022c984 c1c13f1c c1c13ec0 00000008 c0492cab c0492ca2 c1c13f0c 
+>>54445353
+>>Call Trace:    [<c022d015>] [<c022c984>] [<c022cb68>] [<c022cd89>] 
+>>[<c022e124>]
+>>  [<c022e1fa>] [<c0105000>] [<c010508b>] [<c0105000>] [<c01075ae>] 
+>>[<c0105060>]
+>>Code: f3 a5 e9 5c ff ff ff c1 e9 02 89 d7 f3 a5 a4 e9 4f ff ff ff
+>>
+>> >>EIP; c022d588 <__constant_memcpy+bd/f5>   <=====
+>>Trace; c022d015 <acpi_tb_get_table_header+11a/12d>
+>>Trace; c022c984 <acpi_tb_get_primary_table+64/d2>
+>>Trace; c022cb68 <acpi_tb_get_required_tables+45/2b4>
+>>Trace; c022cd89 <acpi_tb_get_required_tables+266/2b4>
+>>Trace; c022e124 <acpi_load_tables+34/188>
+>>Trace; c022e1fa <acpi_load_tables+10a/188>
+>>Trace; c0105000 <_stext+0/0>
+>>Trace; c010508b <init+2b/190>
+>>Trace; c0105000 <_stext+0/0>
+>>Trace; c01075ae <arch_kernel_thread+2e/40>
+>>Trace; c0105060 <init+0/190>
+>>Code;  c022d588 <__constant_memcpy+bd/f5>
+>>00000000 <_EIP>:
+>>Code;  c022d588 <__constant_memcpy+bd/f5>   <=====
+>>   0:   f3 a5                     repz movsl 
+>>%ds:(%esi),%es:(%edi)   <=====
+>>Code;  c022d58a <__constant_memcpy+bf/f5>
+>>   2:   e9 5c ff ff ff            jmp    ffffff63 <_EIP+0xffffff63>
+>>Code;  c022d58f <__constant_memcpy+c4/f5>
+>>   7:   c1 e9 02                  shr    $0x2,%ecx
+>>Code;  c022d592 <__constant_memcpy+c7/f5>
+>>   a:   89 d7                     mov    %edx,%edi
+>>Code;  c022d594 <__constant_memcpy+c9/f5>
+>>   c:   f3 a5                     repz movsl %ds:(%esi),%es:(%edi)
+>>Code;  c022d596 <__constant_memcpy+cb/f5>
+>>   e:   a4                        movsb  %ds:(%esi),%es:(%edi)
+>>Code;  c022d597 <__constant_memcpy+cc/f5>
+>>   f:   e9 4f ff ff ff            jmp    ffffff63 <_EIP+0xffffff63>
+>>
+>>
+>>-- 
+>>Once you have their hardware. Never give it back.
+>>(The First Rule of Hardware Acquisition)
+>>Sam Flory  <sflory@rackable.com>
+>>
+>>    
+>>
+>
+>  
+>
 
-Linux Kernel Card Services 3.1.22
-  options:  [pci] [cardbus] [pm]
-PCI: IRQ 10 for device 0000:01:09.0 doesn't match PIRQ mask - try
-pci=usepirqmask
-PCI: Found IRQ 11 for device 0000:01:09.0
-PCI: Sharing IRQ 11 with 0000:00:1d.1
-IRQ routing conflict for 0000:01:09.0, have irq 10, want irq 11
-Yenta: CardBus bridge found at 0000:01:09.0 [1025:1024]
-Yenta IRQ list 02b8, PCI irq10
-Socket status: 30000811
-cs: memory probe 0x0c0000-0x0fffff: excluding 0xc0000-0xcffff
-0xdc000-0x103fff
 
-> - does 2.6.0-test3 detect it at every insertion after the first
->   "insert remove insert" cycle, or does it always need an even
->   number of insertions for it to be recognised?
-
-It always needs an even number of insertions.
-
-> - does 2.4 and 2.6-test3 yenta find the same IRQs ?
-
-Seems so, these are the messages for yenta on 2.4.21:
-
-Linux Kernel Card Services 3.1.22
-  options:  [pci] [cardbus] [pm]
-PCI: Found IRQ 11 for device 01:09.0
-PCI: Sharing IRQ 11 with 00:1d.1
-IRQ routing conflict for 01:09.0, have irq 10, want irq 11
-Yenta IRQ list 00b8, PCI irq10
-Socket status: 30000007
-cs: memory probe 0x0c0000-0x0fffff: excluding 0xc0000-0xcbfff
-0xe0000-0xfffff
-
-> - which version of pcmcia-cs are you using with 2.4 ?
-
-3.2.2
-
-> - which IRQ(s) does 2.4 i82365 use ?
-
-The same ones as yenta, here you have the messages I get with it just in
-case:
-
-Linux PCMCIA Card Services 3.2.2
-  kernel build: 2.4.21 #1 Sat Jun 14 19:43:14 CEST 2003
-  options:  [pci] [cardbus] [apm]
-Intel ISA/PCI/CardBus PCIC probe:
-PCI: Found IRQ 11 for device 01:09.0
-PCI: Sharing IRQ 11 with 00:1d.1
-IRQ routing conflict for 01:09.0, have irq 10, want irq 11
-  O2Micro OZ6912 rev 00 PCI-to-CardBus at slot 01:09, mem 0x10001000
-    host opts [0]: [pci/way] [pci irq 10] [lat 32/176] [bus 2/5]
-    ISA irqs (default) = 3,4,5,7 PCI status changes
-
-Hope this helps, if you need anything else, just ask for it.
-
-Regards...
 -- 
-Manty/BestiaTester -> http://manty.net
+Once you have their hardware. Never give it back.
+(The First Rule of Hardware Acquisition)
+Sam Flory  <sflory@rackable.com>
+
+

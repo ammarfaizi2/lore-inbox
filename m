@@ -1,65 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263769AbUJ3A3C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263672AbUJ2X6g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263769AbUJ3A3C (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 20:29:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263751AbUJ3A2t
+	id S263672AbUJ2X6g (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 19:58:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263701AbUJ2XpZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 20:28:49 -0400
-Received: from smtp-out.hotpop.com ([38.113.3.61]:65495 "EHLO
-	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S263740AbUJ3AZy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 20:25:54 -0400
-From: "Antonino A. Daplas" <adaplas@hotpop.com>
-Reply-To: adaplas@pol.net
-To: linux-fbdev-devel@lists.sourceforge.net,
-       Mark Fortescue <mark@mtfhpc.demon.co.uk>, jsimmons@infradead.org,
-       geert@linux-m68k.org
-Subject: Re: [Linux-fbdev-devel] Help re Frame Buffer/Console Problems
-Date: Sat, 30 Oct 2004 08:25:47 +0800
-User-Agent: KMail/1.5.4
-Cc: sparclinux@vger.kernel.org, ultralinux@vger.kernel.org,
-       linux-kernel@vger.kernel.org, wli@holomorphy.com
-References: <Pine.LNX.4.10.10410291849480.2831-100000@mtfhpc.demon.co.uk>
-In-Reply-To: <Pine.LNX.4.10.10410291849480.2831-100000@mtfhpc.demon.co.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Oct 2004 19:45:25 -0400
+Received: from fw.osdl.org ([65.172.181.6]:6856 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263690AbUJ2Xjq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 19:39:46 -0400
+Date: Fri, 29 Oct 2004 16:39:44 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Steven Dake <sdake@mvista.com>
+Cc: Mark Haverkamp <markh@osdl.org>, Openais List <openais@lists.osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9 kernel oops with openais
+Message-ID: <20041029163944.H14339@build.pdx.osdl.net>
+References: <1099090282.14581.19.camel@persist.az.mvista.com> <1099091302.13961.42.camel@markh1.pdx.osdl.net> <1099091816.14581.22.camel@persist.az.mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200410300825.47096.adaplas@hotpop.com>
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1099091816.14581.22.camel@persist.az.mvista.com>; from sdake@mvista.com on Fri, Oct 29, 2004 at 04:16:57PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 30 October 2004 02:22, Mark Fortescue wrote:
-> Hi all,
->
-> I have been trying to get a CG3 sparc clone up and running with linux.
-> Under 2.2.26, the console is fine. During the development of the
-> 2.5.x/2.6.x frame buffer system the CG3 support got broken. I have managed
-> to track done one of the problems (the blanking code had some typing
-> errors in it) and this gave me a logo + black screen and cursor using a
-> linux-2.2.8.1 kernel. Still no console text.
->
-> Given that 2.2.10-rc1-bk6 is available, I have downloaded and applied the
-> appropriate patches and made some additional mods to keep the
-> compiler/linker happy. Now I have a black console, no text, logo or cursor
-> and if I redirect the console output to a serial port I get the following:
+* Steven Dake (sdake@mvista.com) wrote:
+> well probably all related..  The best way around the memset problem is
+> to comment out the code that does the mlockall (the function is
+> aisexec_mlockall().  This then allows all memory allocations to
+> succeed.  I think there must be some new limit with mlockall in the
+> 2.6.9 kernel series or later.
 
-I'm assuming 2.6.10-rc1-bk6...
+What's the mlock issue?  I changed that code about 2.6.9-rc4.
 
-Make sure you correctly fill up the red, green, blue, and transp fields
-in all->info.var.  You can do it in sbufsfb_fill_var, or somewhere
-within cg3.c before the register_framebuffer() part.
-
-As a reminder, info->var and info->fix must be valid prior to framebuffer
-registration.
-
-Tony
-
-
-
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

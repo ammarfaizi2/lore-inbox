@@ -1,38 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261550AbRE3QlN>; Wed, 30 May 2001 12:41:13 -0400
+	id <S261502AbRE3QlN>; Wed, 30 May 2001 12:41:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261502AbRE3QlD>; Wed, 30 May 2001 12:41:03 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:50962 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S261550AbRE3Qkz>;
-	Wed, 30 May 2001 12:40:55 -0400
-Date: Wed, 30 May 2001 18:40:47 +0200
-From: Jens Axboe <axboe@kernel.org>
-To: Steve Whitehouse <Steve@ChyGwyn.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Zerocopy NBD
-Message-ID: <20010530184047.J17136@suse.de>
-In-Reply-To: <200105301639.RAA21383@gw.chygwyn.com>
+	id <S261562AbRE3QlC>; Wed, 30 May 2001 12:41:02 -0400
+Received: from 24.66.120.83.on.wave.home.com ([24.66.120.83]:42768 "EHLO
+	trillian.adap.org") by vger.kernel.org with ESMTP
+	id <S261502AbRE3Qkz>; Wed, 30 May 2001 12:40:55 -0400
+Date: Wed, 30 May 2001 12:40:53 -0400
+From: Edsel Adap <edsel@adap.org>
+To: linux-kernel@vger.kernel.org
+Subject: ln -s broken on 2.4.5
+Message-ID: <20010530124052.A26266@adap.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200105301639.RAA21383@gw.chygwyn.com>; from steve@gw.chygwyn.com on Wed, May 30, 2001 at 05:39:58PM +0100
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 30 2001, Steve Whitehouse wrote:
-> +	if (PageHighMem(page))
-> +		offset = (int)bh->b_data;
-> +	else
-> +		offset = (int)bh->b_data - (int)page_address(page);
+Hi,
 
-Side note:
+I downloaded the linux 2.4.5 sources and built and installed them on my
+system.  Since then, I've noticed strange file system behavior:
 
-	offset = bh_offset(bh);
+marvin:~> cd /tmp
+marvin:/tmp> ls -la
+total 2656
+drwxrwxrwt    6 root     root         1024 May 30 12:06 ./
+drwxr-xr-x   22 root     root         1024 Feb 18  2000 ../
+-r--r--r--    1 root     root           11 May 30 11:19 .X0-lock
+drwxrwxrwt    2 root     root         1024 May 30 11:19 .X11-unix/
+drwxrwxrwt    2 root     root         1024 May 30 11:18 .font-unix/
+-rw-r--r--    1 adap     users     2699286 May 30 11:24 mpeg2-digital.mpg
+drwx------    2 adap     root         1024 May 30 12:06 ssh-SXp13149/
+drwx------    2 adap     root         1024 May 30 11:19 ssh-unNLs321/
+marvin:/tmp> ln -s foo bar
+marvin:/tmp> ls -la
+total 2656
+drwxrwxrwt    6 root     root         1024 May 30 12:06 ./
+drwxr-xr-x   22 root     root         1024 Feb 18  2000 ../
+-r--r--r--    1 root     root           11 May 30 11:19 .X0-lock
+drwxrwxrwt    2 root     root         1024 May 30 11:19 .X11-unix/
+drwxrwxrwt    2 root     root         1024 May 30 11:18 .font-unix/
+lrwxrwxrwx    1 adap     users           3 May 30 12:09 bar -> bar
+-rw-r--r--    1 adap     users     2699286 May 30 11:24 mpeg2-digital.mpg
+drwx------    2 adap     root         1024 May 30 12:06 ssh-SXp13149/
+drwx------    2 adap     root         1024 May 30 11:19 ssh-unNLs321/
+marvin:/tmp>
 
-will handle this nicely for you. No need for (nasty) casting and
-checking for highmem pages.
+Notice that the symlink created is wrong.  It seems that any symlink I
+create is always linked to itself.
+
+I booted 2.4.0 again, and the problem went away.  Is this a known
+problem? Is there a patch?
+
+Please cc me with your replies since I am not on the list.
 
 -- 
-Jens Axboe
+Edsel Adap
+edsel@adap.org
+http://www.adap.org/~edsel/          LINUX - the choice of the GNU generation
 
+"Netscape is an application which grows to fill all available memory."  - me

@@ -1,71 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266409AbUBLN2T (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 08:28:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266412AbUBLN2S
+	id S266412AbUBLN3P (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 08:29:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266414AbUBLN3P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 08:28:18 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:58099 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266409AbUBLN2O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 08:28:14 -0500
-Subject: Re: JFS default behavior (was: UTF-8 in file systems?
-	xfs/extfs/etc.)
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Andy Isaacson <adi@hexapodia.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040212004532.GB29952@hexapodia.org>
-References: <20040209115852.GB877@schottelius.org>
-	 <slrn-0.9.7.4-32556-23428-200402111736-tc@hexane.ssi.swin.edu.au>
-	 <1076517309.21961.169.camel@shaggy.austin.ibm.com>
-	 <20040212004532.GB29952@hexapodia.org>
-Content-Type: text/plain
-Message-Id: <1076592485.21961.191.camel@shaggy.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 12 Feb 2004 07:28:05 -0600
+	Thu, 12 Feb 2004 08:29:15 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:18356 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S266412AbUBLN3M
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 08:29:12 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: "Dott. Surricani" <surricani@surricani.cjb.net>
+Subject: Re: Oops with SAtA siimage module
+Date: Thu, 12 Feb 2004 14:34:57 +0100
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org
+References: <402A88A6.4000704@surricani.cjb.net> <200402121251.52987.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200402121251.52987.bzolnier@elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200402121434.57185.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-02-11 at 18:45, Andy Isaacson wrote:
+On Thursday 12 of February 2004 12:51, Bartlomiej Zolnierkiewicz wrote:
+> Already fixed, please update kernel to 2.6.2-rc2.
 
-> Why on earth is JFS worried about the filename, anyways?  Why has it
-> *ever* had *any* behavior other than "string of bytes, delimited with /,
-> terminated with \0" ?
-
-The problem that was addressed in OS/2 was that one user using locale A
-would create some files using non-ascii characters.  Then a user using
-locale B would access these files, but the characters in those names did
-not make sense in his locale.  Storing the file names in unicode allowed
-the characters to always translate to the correct characters in the
-user's locale, when the charset allowed it.  I'm not familiar enough
-with the European locales to give specific examples.  It was never an
-issue in the U.S. :^)
-
-The OS/2 kernel has locale information for each process, so this
-actually works very well there.  I will admit that it was a mistake not
-to change the default behavior when we ported this to Linux.
-
-> I read your response about OS/2, and maybe I'm just slow, but I don't
-> see what that has to do with anything.
-> 
-> Does JFS on AIX have the same buggy behavior?
-
-I know that JFS1 did not.  I'm not sure about JFS2, since it was ported
-from the same OS/2 code base.
-
-> What behavior was the code originally designed to implement, on OS/2?
-> Why was that behavior chosen rather than "filenames are a string of
-> bytes"?
-
-I hope I explained that well enough above.
-
-> Feel free to point to a "Design of the OS/2 JFS interface" document if
-> such exists and answers my question. :)
-> 
-> -andy
--- 
-David Kleikamp
-IBM Linux Technology Center
+Ergh.  2.6.3-rc2 :-).
 

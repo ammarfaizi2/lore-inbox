@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267199AbRGYWud>; Wed, 25 Jul 2001 18:50:33 -0400
+	id <S267402AbRGYXAO>; Wed, 25 Jul 2001 19:00:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267220AbRGYWuX>; Wed, 25 Jul 2001 18:50:23 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:31090 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S267199AbRGYWuR>; Wed, 25 Jul 2001 18:50:17 -0400
-Date: Thu, 26 Jul 2001 00:49:57 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Chris Friesen <cfriesen@nortelnetworks.com>,
-        Jeff Dike <jdike@karaya.com>,
-        user-mode-linux-user <user-mode-linux-user@lists.sourceforge.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>, Jan Hubicka <jh@suse.cz>
-Subject: Re: user-mode port 0.44-2.4.7
-Message-ID: <20010726004957.F32148@athlon.random>
-In-Reply-To: <20010724020413.A29561@athlon.random> <Pine.LNX.4.33.0107240849240.29354-100000@penguin.transmeta.com>
-Mime-Version: 1.0
+	id <S267390AbRGYXAF>; Wed, 25 Jul 2001 19:00:05 -0400
+Received: from protactinium.btinternet.com ([194.73.73.176]:10643 "EHLO
+	protactinium") by vger.kernel.org with ESMTP id <S267317AbRGYW7u>;
+	Wed, 25 Jul 2001 18:59:50 -0400
+Message-ID: <3B5F4FCA.EF860FF@dawa.demon.co.uk>
+Date: Thu, 26 Jul 2001 00:01:30 +0100
+From: Paul Flinders <paul@dawa.demon.co.uk>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: IDE "lost interrupt" on SMP
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0107240849240.29354-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Jul 24, 2001 at 09:04:28AM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tue, Jul 24, 2001 at 09:04:28AM -0700, Linus Torvalds wrote:
-> 
-> On Tue, 24 Jul 2001, Andrea Arcangeli wrote:
-> > On Mon, Jul 23, 2001 at 05:47:04PM -0600, Richard Gooch wrote:
-> > > I don't think it should be allowed to do that. That's a whipping
-> >
-> > it is allowed to do that, period. This is not your choice or my choice.
-> > You may ask gcc folks not to do that and I think they just do.
-> 
-> Stop this stupid argument.
+I decided to replace the Celerons on my Asus P2B-D with something
+a little faster so I bought a new 1Ghz PIII** (it would have been two but
+the local dealer only had one in stock).
 
-I will if Honza assures me that no future version of gcc will cause me to
-crash if I don't declare xtime volatile and I play with it while it can
-change under me (which seems not the case from his last email).
+However I can't boot any SMP configured kernel. It gets as far as
+the partition check and then starts printing "hd<x>: lost interrupt"
+after than it proceeds _very_ slowly to print the partitions and
+then grinds to a halt as it tries to mount the root fs (I suspect that
+it hasn't actually crashed but that disk I/O is proceeding extremely
+slowly).
 
-Of course I know that this is more a theorical thing and that if we
-consider that a bug we have also many other bugs of the same kind.
+Configuring the kernel for single processor works and boots OK
+- this is true for all the kernels (2.2.x and 2.4.x including 2.4.7)
+that I've tried.
 
-Honza? Do you assure me that? In case you don't, could you suggest
-another way besides volatile and spinlocks around the access to the
-variable to avoid gcc to get confused?
+I thought that SMP kernels were OK with just one processor. Do
+I need to add the second one or could there be something else
+wrong.
 
-Andrea
+** Actually underclocked at 750Mhz as the BX chipset only goes to
+100 Mhz FSB
+

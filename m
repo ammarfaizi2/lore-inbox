@@ -1,50 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288209AbSAHSiz>; Tue, 8 Jan 2002 13:38:55 -0500
+	id <S288206AbSAHSiP>; Tue, 8 Jan 2002 13:38:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288221AbSAHSiq>; Tue, 8 Jan 2002 13:38:46 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:52237 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S288209AbSAHSin>;
-	Tue, 8 Jan 2002 13:38:43 -0500
-Date: Tue, 8 Jan 2002 10:36:35 -0800
-From: Greg KH <greg@kroah.com>
-To: Giacomo Catenazzi <cate@dplanet.ch>
-Cc: esr@thyrsus.com, kbuild-devel@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: [kbuild-devel] Re: Hardware Inventory [was: Re: ISA slot detection on PCI systems?]
-Message-ID: <20020108183635.GG14410@kroah.com>
-In-Reply-To: <Pine.LNX.4.33.0201070955480.867-100000@segfault.osdlab.org> <Pine.LNX.4.33.0201071908580.16327-100000@Appserv.suse.de> <20020107185001.GK7378@kroah.com> <20020107185813.GL7378@kroah.com> <3C3AA7FE.2060304@dplanet.ch>
+	id <S288209AbSAHSiF>; Tue, 8 Jan 2002 13:38:05 -0500
+Received: from grobbebol.xs4all.nl ([194.109.248.218]:3966 "EHLO
+	grobbebol.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S288206AbSAHSh5>; Tue, 8 Jan 2002 13:37:57 -0500
+Date: Tue, 8 Jan 2002 18:37:38 +0000
+From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Compile error 2.5.2-pre8 (ext3)
+Message-ID: <20020108183738.A29468@grobbebol.xs4all.nl>
+In-Reply-To: <20020105175727.A10286@rene-engelhard.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3C3AA7FE.2060304@dplanet.ch>
-User-Agent: Mutt/1.3.25i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Tue, 11 Dec 2001 16:19:48 -0800
+In-Reply-To: <20020105175727.A10286@rene-engelhard.de>
+User-Agent: Mutt/1.3.22.1i
+X-OS: Linux grobbebol 2.4.17 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 08, 2002 at 09:04:14AM +0100, Giacomo Catenazzi wrote:
-> modules.*map exist only on compiled kernel. And entry depends on
-> architecture and on configuration.
+On Sat, Jan 05, 2002 at 05:57:27PM +0100, Rene Engelhard wrote:
+> Does anyone know what do do here now?
+> I _have_ to compile the kernel with ext3 because / and all partitions
+> are ext3...
 
-I agree.  That's why something like what David has proposed would be
-more helpful here.
+ext3 partitions canb be mounted witout ext3 support. you only loose
+journalling....
 
-> But don't worry. I use the kernel source to find the
-> MODULES_DEVICE_TABLE (with a partially automated script) to build the
-> new tables.
-
-Do you check for devices that are now handled by different drivers?  For
-example, the CDCEther and acm USB drivers have gone though a series of
-different configuration changes, where one driver would claim devices
-meant for the other.  It is hopefully all fixes up now, but might have
-confused your scripts.
-
-What about devices that are supported by more than one driver?  How do
-you handle that?  (see the USB keyspan_pda and keyspan drivers for an
-example.)
-
-thanks,
-
-greg k-h
+-- 
+Grobbebol's Home                        |  Don't give in to spammers.   -o)
+http://www.xs4all.nl/~bengel            | Use your real e-mail address   /\
+Linux 2.4.17 (noapic) SMP 466MHz/768 MB |        on Usenet.             _\_v  

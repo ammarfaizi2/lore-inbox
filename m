@@ -1,51 +1,152 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266961AbTCEW4s>; Wed, 5 Mar 2003 17:56:48 -0500
+	id <S267013AbTCEXBp>; Wed, 5 Mar 2003 18:01:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266965AbTCEW4s>; Wed, 5 Mar 2003 17:56:48 -0500
-Received: from dsl-fl-207-34-65-6-cgy.nucleus.com ([207.34.65.6]:63222 "EHLO
-	bluetooth.WNI.AD") by vger.kernel.org with ESMTP id <S266961AbTCEW4r>;
-	Wed, 5 Mar 2003 17:56:47 -0500
-Message-ID: <3E66842F.9020000@WirelessNetworksInc.com>
-Date: Wed, 05 Mar 2003 16:11:43 -0700
-From: Herman Oosthuysen <Herman@WirelessNetworksInc.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux vs Windows temperature anomaly
-References: <20030303123029.GC20929@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.33.0303041434220.1438-100000@localhost.localdomain> <20030305205032.GD2958@atrey.karlin.mff.cuni.cz> <p05210507ba8c20241329@[10.2.0.101]>
-In-Reply-To: <p05210507ba8c20241329@[10.2.0.101]>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 Mar 2003 23:07:17.0189 (UTC) FILETIME=[F76C9750:01C2E36B]
+	id <S266987AbTCEXBo>; Wed, 5 Mar 2003 18:01:44 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:17038 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id <S267013AbTCEXBm>; Wed, 5 Mar 2003 18:01:42 -0500
+Date: Wed, 5 Mar 2003 23:09:44 -0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: J?rn Engel <joern@wohnheim.fh-wedel.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Top stack (l)users
+Message-ID: <20030306000944.GA24986@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	J?rn Engel <joern@wohnheim.fh-wedel.de>,
+	linux-kernel@vger.kernel.org
+References: <20030305202157.GA392@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030305202157.GA392@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Mar 05, 2003 at 09:21:57PM +0100, J?rn Engel wrote:
 
+ > And the winner is drivers/scsi/qlogicfc.c.
 
-Jonathan Lundell wrote:
-> We've been seeing a curious phenomenon on some PIII/ServerWorks CNB30-LE 
-> systems.
-> 
-> The systems fail at relatively low temperatures. While the failures are 
-> So, the puzzle: what might account for temperature sensitivity, of all 
-> things, under Linux 2.4.9-31 (RH 7.2), but not Win2K?
+Ugh, I tackled that ~6 months back for 2.4 but never got
+anyone to test my changes (I don't have hardware).
 
-Linux is more 'busy' than windoze and I have heard of boxes frying when 
-running Linux.   The solution is to find a better motherboard 
-manufacturer...
+Someone want to try out the following diff with a card ?
+(Still applies to 2.5 with offsets..)
 
-Cheers,
--- 
+		Dave
 
-------------------------------------------------------------------------
-Herman Oosthuysen
-B.Eng.(E), Member of IEEE
-Wireless Networks Inc.
-http://www.WirelessNetworksInc.com
-E-mail: Herman@WirelessNetworksInc.com
-Phone: 1.403.569-5687, Fax: 1.403.235-3965
-------------------------------------------------------------------------
-
+diff -urpN --exclude-from=/home/davej/.exclude linux-2.4.19/drivers/scsi/qlogicfc.c linux-2.4.19-dj/drivers/scsi/qlogicfc.c
+--- linux-2.4.19/drivers/scsi/qlogicfc.c	2002-09-16 15:26:49.000000000 +0100
++++ linux-2.4.19-dj/drivers/scsi/qlogicfc.c	2002-09-18 15:01:51.000000000 +0100
+@@ -650,6 +650,7 @@ struct isp2x00_hostdata {
+ 	u_char queued;
+ 	u_char host_id;
+         struct timer_list explore_timer;
++	struct id_name_map tempmap[QLOGICFC_MAX_ID + 1];
+ };
+ 
+ 
+@@ -845,13 +846,12 @@ static int isp2x00_make_portdb(struct Sc
+ 
+ 	short param[8];
+ 	int i, j;
+-	struct id_name_map temp[QLOGICFC_MAX_ID + 1];
+ 	struct isp2x00_hostdata *hostdata;
+ 
+ 	isp2x00_disable_irqs(host);
+ 
+-	memset(temp, 0, sizeof(temp));
+ 	hostdata = (struct isp2x00_hostdata *) host->hostdata;
++	memset(hostdata->tempmap, 0, sizeof(hostdata->tempmap));
+ 
+ #if ISP2x00_FABRIC
+ 	for (i = 0x81; i < QLOGICFC_MAX_ID; i++) {
+@@ -877,15 +877,15 @@ static int isp2x00_make_portdb(struct Sc
+ 	if (param[0] == MBOX_COMMAND_COMPLETE) {
+ 		hostdata->port_id = ((u_int) param[3]) << 16;
+ 		hostdata->port_id |= param[2];
+-		temp[0].loop_id = param[1];
+-		temp[0].wwn = hostdata->wwn;
++		hostdata->tempmap[0].loop_id = param[1];
++		hostdata->tempmap[0].wwn = hostdata->wwn;
+ 	}
+ 	else {
+ 	        printk("qlogicfc%d : error getting scsi id.\n", hostdata->host_id);
+ 	}
+ 
+         for (i = 0; i <=QLOGICFC_MAX_ID; i++)
+-                temp[i].loop_id = temp[0].loop_id;
++                hostdata->tempmap[i].loop_id = hostdata->tempmap[0].loop_id;
+    
+         for (i = 0, j = 1; i <= QLOGICFC_MAX_LOOP_ID; i++) {
+                 param[0] = MBOX_GET_PORT_NAME;
+@@ -894,15 +894,15 @@ static int isp2x00_make_portdb(struct Sc
+ 		isp2x00_mbox_command(host, param);
+ 
+ 		if (param[0] == MBOX_COMMAND_COMPLETE) {
+-			temp[j].loop_id = i;
+-			temp[j].wwn = ((u64) (param[2] & 0xff)) << 56;
+-			temp[j].wwn |= ((u64) ((param[2] >> 8) & 0xff)) << 48;
+-			temp[j].wwn |= ((u64) (param[3] & 0xff)) << 40;
+-			temp[j].wwn |= ((u64) ((param[3] >> 8) & 0xff)) << 32;
+-			temp[j].wwn |= ((u64) (param[6] & 0xff)) << 24;
+-			temp[j].wwn |= ((u64) ((param[6] >> 8) & 0xff)) << 16;
+-			temp[j].wwn |= ((u64) (param[7] & 0xff)) << 8;
+-			temp[j].wwn |= ((u64) ((param[7] >> 8) & 0xff));
++			hostdata->tempmap[j].loop_id = i;
++			hostdata->tempmap[j].wwn = ((u64) (param[2] & 0xff)) << 56;
++			hostdata->tempmap[j].wwn |= ((u64) ((param[2] >> 8) & 0xff)) << 48;
++			hostdata->tempmap[j].wwn |= ((u64) (param[3] & 0xff)) << 40;
++			hostdata->tempmap[j].wwn |= ((u64) ((param[3] >> 8) & 0xff)) << 32;
++			hostdata->tempmap[j].wwn |= ((u64) (param[6] & 0xff)) << 24;
++			hostdata->tempmap[j].wwn |= ((u64) ((param[6] >> 8) & 0xff)) << 16;
++			hostdata->tempmap[j].wwn |= ((u64) (param[7] & 0xff)) << 8;
++			hostdata->tempmap[j].wwn |= ((u64) ((param[7] >> 8) & 0xff));
+ 
+ 			j++;
+ 
+@@ -911,33 +911,33 @@ static int isp2x00_make_portdb(struct Sc
+ 
+ 
+ #if ISP2x00_FABRIC
+-	isp2x00_init_fabric(host, temp, j);
++	isp2x00_init_fabric(host, hostdata->tempmap, j);
+ #endif
+ 
+ 	for (i = 0; i <= QLOGICFC_MAX_ID; i++) {
+-		if (temp[i].wwn != hostdata->port_db[i].wwn) {
++		if (hostdata->tempmap[i].wwn != hostdata->port_db[i].wwn) {
+ 			for (j = 0; j <= QLOGICFC_MAX_ID; j++) {
+-				if (temp[j].wwn == hostdata->port_db[i].wwn) {
+-					hostdata->port_db[i].loop_id = temp[j].loop_id;
++				if (hostdata->tempmap[j].wwn == hostdata->port_db[i].wwn) {
++					hostdata->port_db[i].loop_id = hostdata->tempmap[j].loop_id;
+ 					break;
+ 				}
+ 			}
+ 			if (j == QLOGICFC_MAX_ID + 1)
+-				hostdata->port_db[i].loop_id = temp[0].loop_id;
++				hostdata->port_db[i].loop_id = hostdata->tempmap[0].loop_id;
+ 
+ 			for (j = 0; j <= QLOGICFC_MAX_ID; j++) {
+-				if (hostdata->port_db[j].wwn == temp[i].wwn || !hostdata->port_db[j].wwn) {
++				if (hostdata->port_db[j].wwn == hostdata->tempmap[i].wwn || !hostdata->port_db[j].wwn) {
+ 					break;
+ 				}
+ 			}
+ 			if (j == QLOGICFC_MAX_ID + 1)
+ 				printk("qlogicfc%d : Too many scsi devices, no more room in port map.\n", hostdata->host_id);
+ 			if (!hostdata->port_db[j].wwn) {
+-				hostdata->port_db[j].loop_id = temp[i].loop_id;
+-				hostdata->port_db[j].wwn = temp[i].wwn;
++				hostdata->port_db[j].loop_id = hostdata->tempmap[i].loop_id;
++				hostdata->port_db[j].wwn = hostdata->tempmap[i].wwn;
+ 			}
+ 		} else
+-			hostdata->port_db[i].loop_id = temp[i].loop_id;
++			hostdata->port_db[i].loop_id = hostdata->tempmap[i].loop_id;
+ 
+ 	}
+ 
 

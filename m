@@ -1,59 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261321AbVCYC6r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261162AbVCYDPl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261321AbVCYC6r (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 21:58:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbVCYC6r
+	id S261162AbVCYDPl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 22:15:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261180AbVCYDPl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 21:58:47 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48281 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261321AbVCYC6m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 21:58:42 -0500
-Message-ID: <42437E53.5060708@pobox.com>
-Date: Thu, 24 Mar 2005 21:58:27 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: tulip-users@lists.sourceforge.net, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/net/tulip/dmfe.c: fix check after use
-References: <20050325010315.GL3966@stusta.de>
-In-Reply-To: <20050325010315.GL3966@stusta.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Mar 2005 22:15:41 -0500
+Received: from wproxy.gmail.com ([64.233.184.204]:43655 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261162AbVCYDPS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 22:15:18 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=ZfLnD0JQFdWV80Yefj4dxZj+Tins5Xd5k7NEHCST5v7VNpn2WhQyIQsXdgKgSw5kIzv/DpniWo4YBE9vZlnHvEdcVYQyhxKz/3CVZN8xEZu3O01NPSenR9dtvHYHhpfOpA3hTMvLq7lpfZ7MC5MHLF1ioNL5h8nTeBbGlDKzEPo=
+Date: Fri, 25 Mar 2005 12:15:11 +0900
+From: Tejun Heo <htejun@gmail.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>, Jens Axboe <axboe@suse.de>
+Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH scsi-misc-2.6 08/08] scsi: fix hot unplug sequence
+Message-ID: <20050325031511.GA22114@htj.dyndns.org>
+References: <20050323021335.960F95F8@htj.dyndns.org> <20050323021335.4682C732@htj.dyndns.org> <1111550882.5520.93.camel@mulgrave> <4240F5A9.80205@gmail.com> <20050323071920.GJ24105@suse.de> <1111591213.5441.19.camel@mulgrave> <20050323152550.GB16149@suse.de> <1111711558.5612.52.camel@mulgrave>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1111711558.5612.52.camel@mulgrave>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> This patch fixes a check after use found by the Coverity checker.
+ Hello, James and Jens.
+
+On Thu, Mar 24, 2005 at 06:45:58PM -0600, James Bottomley wrote:
+> On Wed, 2005-03-23 at 16:25 +0100, Jens Axboe wrote:
+> > Let me guess, it is hanging in wait_for_completion()?
 > 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> Yes, I have the trace now.  Why is curious.  This is the trace of the
+> failure:
 > 
-> --- linux-2.6.12-rc1-mm1-full/drivers/net/tulip/dmfe.c.old	2005-03-23 05:05:36.000000000 +0100
-> +++ linux-2.6.12-rc1-mm1-full/drivers/net/tulip/dmfe.c	2005-03-23 05:06:00.000000000 +0100
-> @@ -736,20 +736,22 @@
->  
->  static irqreturn_t dmfe_interrupt(int irq, void *dev_id, struct pt_regs *regs)
->  {
->  	struct DEVICE *dev = dev_id;
->  	struct dmfe_board_info *db = netdev_priv(dev);
-> -	unsigned long ioaddr = dev->base_addr;
-> +	unsigned long ioaddr;
->  	unsigned long flags;
->  
->  	DMFE_DBUG(0, "dmfe_interrupt()", 0);
->  
->  	if (!dev) {
->  		DMFE_DBUG(1, "dmfe_interrupt() without DEVICE arg", 0);
->  		return IRQ_NONE;
->  	}
+> Mar 24 18:40:34 localhost kernel: usb 4-2: USB disconnect, address 3
+> Mar 24 18:40:34 localhost kernel: sd 0:0:0:0: CMD c25c98b0 done, completing
+> Mar 24 18:40:34 localhost kernel:  0:0:0:0: cmd c25c98b0 returning
+> Mar 24 18:40:34 localhost kernel:  0:0:0:0: cmd c25c98b0 going out <6>Read Capacity (10) 25 00 00 00 00 00 00 00 00 00
+> Mar 24 18:40:34 localhost kernel: scsi0 (0:0): rejecting I/O to dead device (req c25c98b0)
+> Mar 24 18:40:34 localhost kernel: usb 4-2: new full speed USB device using uhci_hcd and address 4
+> Mar 24 18:40:34 localhost kernel: scsi1 : SCSI emulation for USB Mass Storage devices
+> Mar 24 18:40:34 localhost kernel:  1:0:0:0: cmd c1a1b4b0 going out <6>Inquiry 12 00 00 00 24 00
+> 
+> The problem occurs when the mid-layer rejects the I/O to the dead
+> device.  Here it returns BLKPREP_KILL to the prep function, but after
+> that we never get a completion back.
 
-I would prefer to remove the "if (!dev)" test, since it shouldn't ever 
-succeed.
+ I think I found the cause.  Special requests submitted using
+scsi_do_req() never initializes ->end_io().  Normally, SCSI midlayer
+terminates special requests inside the SCSI midlayer without passing
+through the blkdev layer.  However, if a device is going away or taken
+offline, blkdev layer gets to terminate special requests and, as
+->end_io() is never set-up, nothing happens and the completion gets
+lost.
 
-	Jeff
+ The following patch implements scsi_do_req_endio() and sets up
+->end_io() and ->end_io_data before sending out special commands.
+It's a quick fix & hacky.  I think the proper fix might be one of
+
+ * Don't return BLKPREP_KILL in the prep_fn and always terminate
+   special commands inside request_fn without using end_that_*
+   functions.
+
+ * I don't really know why the scsi_request/scsi_cmnd distincion
+   is made (resource usage?), but, if it's a legacy thing, replace
+   scsi_request with scsi_cmnd; then we can BLKPREP_KILL without using
+   dummy scsi_cmnd.
 
 
+ Signed-off-by: Tejun Heo <htejun@gmail.com>
 
+
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2005/03/25 11:57:25+09:00 tj@htj.dyndns.org 
+#   midlayer special command termination fix
+# 
+# drivers/scsi/scsi_lib.c
+#   2005/03/25 11:57:17+09:00 tj@htj.dyndns.org +30 -0
+#   midlayer special command termination fix
+# 
+diff -Nru a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
+--- a/drivers/scsi/scsi_lib.c	2005-03-25 11:59:28 +09:00
++++ b/drivers/scsi/scsi_lib.c	2005-03-25 11:59:28 +09:00
+@@ -274,6 +274,33 @@
+ }
+ 
+ /*
++ * Special requests usually gets terminated inside scsi midlayer
++ * proper; however, they can be terminated by the blkdev layer when
++ * scsi_prep_fn() returns BLKPREP_KILL or scsi_request_fn() detects
++ * offline condition.  The following callback is invoked when the
++ * blkdev layer terminates a special request.  Emulate DID_NO_CONNECT.
++ */
++static void scsi_do_req_endio(struct request *rq)
++{
++	struct scsi_request *sreq = rq->end_io_data;
++	struct request_queue *q = sreq->sr_device->request_queue;
++	struct scsi_cmnd cmd;
++
++	memset(&cmd, 0, sizeof(cmd));
++	cmd.device = sreq->sr_device;
++	scsi_init_cmd_from_req(&cmd, sreq);
++	/* Our command is dummy, nullify back link. */
++	sreq->sr_command = NULL;
++
++	sreq->sr_result = cmd.result = DID_NO_CONNECT << 16;
++
++	/* The sreq->done() callback expects queue_lock to be unlocked. */
++	spin_unlock(q->queue_lock);
++	cmd.done(&cmd);
++	spin_lock(q->queue_lock);
++}
++
++/*
+  * Function:    scsi_do_req
+  *
+  * Purpose:     Queue a SCSI request
+@@ -326,6 +353,9 @@
+ 
+ 	if (sreq->sr_cmd_len == 0)
+ 		sreq->sr_cmd_len = COMMAND_SIZE(sreq->sr_cmnd[0]);
++
++	sreq->sr_request->end_io = scsi_do_req_endio;
++	sreq->sr_request->end_io_data = sreq;
+ 
+ 	/*
+ 	 * head injection *required* here otherwise quiesce won't work

@@ -1,49 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264653AbSKSMaI>; Tue, 19 Nov 2002 07:30:08 -0500
+	id <S264610AbSKSMkg>; Tue, 19 Nov 2002 07:40:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264714AbSKSMaI>; Tue, 19 Nov 2002 07:30:08 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:22199 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264653AbSKSMaH>; Tue, 19 Nov 2002 07:30:07 -0500
-Subject: Re: 2.4.20-rc1-ac4 HPT374 doesn't find connected ide drives
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Christian Guggenberger 
-	<Christian.Guggenberger@physik.uni-regensburg.de>
-Cc: "Karsten 'soohrt' Desler" <linux-kernel@ml.soohrt.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021119113300.C23008@pc9391.uni-regensburg.de>
-References: <20021119105955.A23008@pc9391.uni-regensburg.de>
-	<20021119102338.GA24510@sit0.ifup.net> 
-	<20021119113300.C23008@pc9391.uni-regensburg.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 19 Nov 2002 13:04:59 +0000
-Message-Id: <1037711099.11541.16.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S264625AbSKSMkg>; Tue, 19 Nov 2002 07:40:36 -0500
+Received: from gwsystems-4.d.gtn.com ([194.231.113.36]:47629 "EHLO
+	hydra.colinet.de") by vger.kernel.org with ESMTP id <S264610AbSKSMkf>;
+	Tue, 19 Nov 2002 07:40:35 -0500
+Subject: Re: DAC960, 2.4.19 alpha problems 
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <kirk-1021119132330.A0216470@hydra.colinet.de>
+X-Mailer: TkMail 4.0beta9
+In-Reply-To: <1037710684.11541.8.camel@irongate.swansea.linux.org.uk> 
+From: "T. Weyergraf" <kirk@colinet.de>
+Date: Tue, 19 Nov 2002 13:23:30 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-11-19 at 10:33, Christian Guggenberger wrote:
-> On 19.11.2002   11:23 Karsten 'soohrt' Desler wrote:
-> > > I have the same board, and the controller works fine for me in 2.5.4*, as
-> > > 2.4-ac doesn't contain xfs suport. I only have one drive attached, but as I
-> > 
-> > > remember I first had to configure the (raid) controller' BIOS (Ctrl-H at
-> > boot
-> > > time) (even for just a bunch of disks) before using the drives. But I'm not
-> > 
-> > > 100%ly sure.
-> > 
-> > I've "been in" the controller BIOS a few times, but never configured
-> > anything because I'm using the linux md driver.
-> 
-> Maybe U would try 2.5.48, just to see if it works then.
-> When I'm back home in about 7 hours, I'll check my bios settings, maybe this 
-> could help you.
+Hi,
 
-For IDE 2.5.47-ac is current head. 2.5.48 was just too weird and broken
-for me to move to a 2.5.48-ac just yet. I hope to push Linus the next
-IDE updates pretty soon
+[....]
+ 
+> Does the firmware need to run to make the card work however ? Thats a
+> problem on some other raid cards that prevents them running on non x86
+> platforms
+
+That is something, I honestly don't know. I've asked on the debian-alpha
+mailing-list first and did not get any explanatory response. I've checked
+the card in a x86-machine ( just to very it's working and to configure
+RAID drives ). In this machine, the card posts a banner, saying it's
+a Mylex and - depending on the BIOS enable/disable setting - posting
+some keypress options to start the build-in firmware.
+That i don't see on my alpha, which does not necessarily mean something.
+
+The SRM firmware contains a small x86-emulator, being capable to at
+least run the POST-routines of normal PCI cards. AFAIK, this emulator
+works on a lot of cards, but is not capable of doing any screen/terminal
+I/O. For example, if you use Matrox vga cards ( quite common on alphas )
+you get a working grafics device, but yoy won't see any matrox banner
+on the screen. Newer firmware's even support a "run_bios" command,
+that allows to start configuration routines, like the RAID setup.
+Unfortunately, a version of this newer firmware does not exist for
+my machine.
+
+Mylex OEM'd some earlier DAC-models to DEC for use as a RAID
+controller. These came with their own firmwaer, which allowed ppl
+to setup logical RAID-drives. I can't tell, if the firmware handles any
+other POST stuff.
+
+The controller comes with a SA-110 processor running it's own firmware.
+I would assume, that the SA-110 handles POST - but that's honestly
+just a wild guess.
+
+Regards, 
+T.weyergraf
+
+
+-- 
+Thomas Weyergraf                                                kirk@colinet.de
+My Favorite IA64 Opcode-guess ( see arch/ia64/lib/memset.S )
+"br.ret.spnt.few" - got back from getting beer, did not spend a lot.
+
 

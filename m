@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263384AbUCTMLl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 07:11:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263385AbUCTMLl
+	id S263385AbUCTMNe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 07:13:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263388AbUCTMNe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 07:11:41 -0500
-Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:39571 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S263384AbUCTMLk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 07:11:40 -0500
-Date: Sat, 20 Mar 2004 13:11:37 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [BUG]: BIND fails to start with 2.6.4[5-rc1]
-Message-ID: <20040320121137.GD7714@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <200403201357.16203.tarkane@solmaz.com.tr>
+	Sat, 20 Mar 2004 07:13:34 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:49344
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263385AbUCTMNc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 07:13:32 -0500
+Date: Sat, 20 Mar 2004 13:14:23 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@osdl.org>,
+       mjy@geizhals.at, linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_PREEMPT and server workloads
+Message-ID: <20040320121423.GA9009@dualathlon.random>
+References: <40591EC1.1060204@geizhals.at> <20040318060358.GC29530@dualathlon.random> <20040318015004.227fddfb.akpm@osdl.org> <20040318145129.GA2246@dualathlon.random> <405A584B.40601@cyberone.com.au> <20040319050948.GN2045@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200403201357.16203.tarkane@solmaz.com.tr>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <20040319050948.GN2045@holomorphy.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 Mar 2004, Tarkan Erimer wrote:
-
-> I  have an interesting problem. BIND (BIND 9.2.3) is not working with 
-> linux-2.6.4 and linux-2.6.5-rc1 (haven't tried linux-2.6.5-rc2, yet). But 
-> linux-2.6.4-rc2 works fine with BIND. When the system boots and starts 
-> BIND daemon, I got the following error message:
+On Thu, Mar 18, 2004 at 09:09:48PM -0800, William Lee Irwin III wrote:
+> On Fri, Mar 19, 2004 at 01:17:47PM +1100, Nick Piggin wrote:
+> > Technically, I think preempt can still reduce maximum latency
+> > depending on whether the time between explicit resched checks
+> > is greater than the (small) scheduling overhead that preempt
+> > adds.
+> > But yeah, that would be in the noise compared with long
+> > preempt-off regions.
+> > I'm not sure about applications, but maybe some soft-realtime
+> > things like audio software benefit from a lower average latency
+> > (I don't know).
 > 
-> Starting BIND:  /usr/sbin/named
-> named: capset failed: Operation not permitted
+> Someone really needs to get numbers on this stuff.
 
-Did you configure standard linux capabilities in the security models
-section?
+Takashi already did it and we know it doesn't reduce the maximum latency.

@@ -1,51 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262066AbTEYMfD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 May 2003 08:35:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262069AbTEYMfD
+	id S262073AbTEYMnb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 May 2003 08:43:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262097AbTEYMnb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 May 2003 08:35:03 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:21509 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S262066AbTEYMfC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 May 2003 08:35:02 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Stephan von Krawczynski <skraw@ithnet.com>,
-       Willy Tarreau <willy@w.ods.org>
-Subject: Re: Undo aic7xxx changes
-Date: Sun, 25 May 2003 14:47:56 +0200
-User-Agent: KMail/1.5.1
-Cc: willy@w.ods.org, gibbs@scsiguy.com, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva> <20030524111608.GA4599@alpha.home.local> <20030525125811.68430bda.skraw@ithnet.com>
-In-Reply-To: <20030525125811.68430bda.skraw@ithnet.com>
+	Sun, 25 May 2003 08:43:31 -0400
+Received: from bv-n-3b5d.adsl.wanadoo.nl ([212.129.187.93]:37896 "HELO
+	legolas.dynup.net") by vger.kernel.org with SMTP id S262073AbTEYMna
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 May 2003 08:43:30 -0400
+From: Rudmer van Dijk <rudmer@legolas.dynup.net>
+To: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.5.69-mm9
+Date: Sun, 25 May 2003 14:56:33 +0200
+User-Agent: KMail/1.5.2
+References: <20030525042759.6edacd62.akpm@digeo.com>
+In-Reply-To: <20030525042759.6edacd62.akpm@digeo.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200305251447.34027.m.c.p@wolk-project.de>
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200305251456.39404.rudmer@legolas.dynup.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 25 May 2003 12:58, Stephan von Krawczynski wrote:
-
-Hi Stephan,
-
-> Though I used nmi_watchdog there are no presentable outputs. As I expected
-> the screen simply is black and no messages are in any logfiles.
-> Again it froze while tar-ing about 80 GB of data onto an aic-driven SDLT.
-> Data is coming from IDE drive connected to a 3ware 7500-8 (though no raid
-> configuration).
+On Sunday 25 May 2003 13:27, Andrew Morton wrote:
 >
-> I conclude that rc2+aic20030502 was way better.
-> Ah yes, one more thing: I can ping the box, but keyboard, mouse, display is
-> dead and usually working processes stopped (like snmp).
-> Willy: I am willing to try a serial console setup (as it does not interfere
-> with X). I have tried this before with no luck. Can you provide some hints
-> how you got that working (yes, I read Documentation/serial-console.txt, but
-> I could not manage any output on the serial line).
-before trying this, could you please update to aic20030523? Thank you.
+> . 2.5.69-mm9 is not for the timid.  It includes extensive changes to the
+>   ext3 filesystem and the JBD layer.  It withstood an hour of testing on my
+>   4-way, but it probably has a couple of holes still.
+
+there seems to be no problem, it survives a kernel compile.
+Only the patch for fs/buffer.c seems to be reverted, it was there in -mm8
+(original patch by wli, adjusted to cleanly apply against -mm9)
+
+	Rudmer
 
 
-ciao, Marc
+--- linux-2.5.69-mm9/fs/buffer.c.orig	2003-05-25 14:33:53.000000000 +0200
++++ linux-2.5.69-mm9/fs/buffer.c	2003-05-25 14:34:51.000000000 +0200
+@@ -1505,6 +1505,7 @@
+ 		bh = __bread_slow(bh);
+ 	return bh;
+ }
++EXPORT_SYMBOL(__bread);
+ 
+ 
+ struct buffer_head *
+@@ -1517,7 +1518,7 @@
+ 		bh = __bread_slow_wq(bh, wait);
+ 	return bh;
+ }
+-EXPORT_SYMBOL(__bread);
++EXPORT_SYMBOL(__bread_wq);
+ 
+ /*
+  * invalidate_bh_lrus() is called rarely - at unmount.  Because it is only 
+for
+--- linux-2.5.69-mm9/kernel/ksyms.c.orig	2003-05-25 14:34:45.000000000 +0200
++++ linux-2.5.69-mm9/kernel/ksyms.c	2003-05-25 14:34:51.000000000 +0200
+@@ -123,6 +123,7 @@
+ EXPORT_SYMBOL(init_mm);
+ EXPORT_SYMBOL(blk_queue_bounce);
+ EXPORT_SYMBOL(blk_congestion_wait);
++EXPORT_SYMBOL(blk_congestion_wait_wq);
+ #ifdef CONFIG_HIGHMEM
+ EXPORT_SYMBOL(kmap_high);
+ EXPORT_SYMBOL(kunmap_high);
+@@ -216,6 +217,7 @@
+ EXPORT_SYMBOL(submit_bh);
+ EXPORT_SYMBOL(unlock_buffer);
+ EXPORT_SYMBOL(__wait_on_buffer);
++EXPORT_SYMBOL(__wait_on_buffer_wq);
+ EXPORT_SYMBOL(blockdev_direct_IO);
+ EXPORT_SYMBOL(block_write_full_page);
+ EXPORT_SYMBOL(block_read_full_page);
+

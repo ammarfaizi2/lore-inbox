@@ -1,73 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264976AbSJ3X7v>; Wed, 30 Oct 2002 18:59:51 -0500
+	id <S264965AbSJ3X7L>; Wed, 30 Oct 2002 18:59:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264978AbSJ3X7u>; Wed, 30 Oct 2002 18:59:50 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:766 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S264976AbSJ3X7r>;
-	Wed, 30 Oct 2002 18:59:47 -0500
-Message-ID: <3DC073D9.276DBDE5@mvista.com>
-Date: Wed, 30 Oct 2002 16:05:45 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Are x86 trap gate handlers safe for preemption?
-References: <15808.17731.311432.596865@kim.it.uu.se> <appnou$jof$1@penguin.transmeta.com>
+	id <S264978AbSJ3X5h>; Wed, 30 Oct 2002 18:57:37 -0500
+Received: from rj.sgi.com ([192.82.208.96]:52354 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S264976AbSJ3X5F>;
+	Wed, 30 Oct 2002 18:57:05 -0500
+Date: Wed, 30 Oct 2002 16:03:26 -0800
+From: Jesse Barnes <jbarnes@sgi.com>
+To: Matthew Dobson <colpatch@us.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] pcibus_to_node() addition to topology infrastructure
+Message-ID: <20021031000326.GA3049@sgi.com>
+Mail-Followup-To: Matthew Dobson <colpatch@us.ibm.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <3DC06E75.6010003@us.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3DC06E75.6010003@us.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> In article <15808.17731.311432.596865@kim.it.uu.se>,
-> Mikael Pettersson  <mikpe@csd.uu.se> wrote:
-> >Consider an exception handler like vector 7, device_not_available:
-> >
-> >ENTRY(device_not_available)
-> >        pushl $-1                       # mark this as an int
-> >        SAVE_ALL
-> >        movl %cr0, %eax
-> >        testl $0x4, %eax                # EM (math emulation bit)
-> >        jne device_not_available_emulate
-> >        preempt_stop
-> >
-> >Since this is invoked via a trap gate and not an interrupt gate,
-> >what's preventing this code from being preempted and resumed on
-> >another CPU before the read from %cr0?
-> 
-> Well, since %cr0 should be stable across the task switche, that
-> shouldn't actually matter.
+This is a nice addition, but just FYI there are SGI systems that have
+PCI busses attached to more than one node.  I guess for now we can just
+round-robin through the attached nodes for the return value.
 
-Unless the new task does the same sort of thing... i.e.
-touchs cr0 in some way.  The page fault issue was ok if the
-intervening tasks did not fault...
+Thanks,
+Jesse
 
-Cancel that!  Wrong page or book or...  Cr0 is the same for
-all tasks so it is cool.
--g
+On Wed, Oct 30, 2002 at 03:42:45PM -0800, Matthew Dobson wrote:
+> Linus,
+> 	Here's a patch that adds PCI busses to the list of basic topology 
+> elements (incl. CPUs, MemBlks, & Nodes).
 > 
-> >                                Another example is the
-> >machine_check vector (also trap gate) whose handlers access MSRs.
+> pcibus_to_node-2.5.44.patch
 > 
-> This one looks like a real bug. The fix should be to make it an
-> interrupt gate, I suspect. Comments?
+> This patch adds a new topology macro: pcibus_to_node().  This will be 
+> useful to allow I/O bound processes to bind themselves to CPUs/Nodes 
+> close to the PCI busses they are communicating over.
 > 
-> On the whole, I think it is probably a good idea to make all exceptions
-> be interrupt gates, and then on a case-by-case basis show why some don't
-> need to (ie clearly the system calls should _not_ be interrupt gates,
-> but we've long since made the page fault path use an interrupt gate for
-> similar special register stability reasons).
+> 1) Adds pcibus_to_node() macro to asm-generic/topology.h
+> 2) Makes small modifications to NUMA-Q PCI code, mostly modifying macros.
+> 3) Uses the macros from #2 to implement pcibus_to_node() in 
+> asm-i386/topology.h
 > 
->                 Linus
-
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+> [mcd@arrakis patches]$ diffstat api_patches/pcibus_to_node-2.5.44.patch
+>  arch/i386/pci/numa.c           |   33 +++++++++++++++------------------
+>  include/asm-generic/topology.h |    3 +++
+>  include/asm-i386/topology.h    |    3 +++
+>  3 files changed, 21 insertions(+), 18 deletions(-)
+> 
+> Cheers!
+> 
+> -Matt
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

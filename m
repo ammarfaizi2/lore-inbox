@@ -1,65 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318310AbSHKPT6>; Sun, 11 Aug 2002 11:19:58 -0400
+	id <S318312AbSHKPgs>; Sun, 11 Aug 2002 11:36:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318312AbSHKPT6>; Sun, 11 Aug 2002 11:19:58 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:44304 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S318310AbSHKPT6>; Sun, 11 Aug 2002 11:19:58 -0400
-Date: Sun, 11 Aug 2002 12:23:25 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Andrew Morton <akpm@zip.com.au>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 9/21] batched addition of pages to the LRU
-In-Reply-To: <3D56149B.C6E9414@zip.com.au>
-Message-ID: <Pine.LNX.4.44L.0208111213180.23404-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S318313AbSHKPgs>; Sun, 11 Aug 2002 11:36:48 -0400
+Received: from mta06bw.bigpond.com ([139.134.6.96]:62671 "EHLO
+	mta06bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S318312AbSHKPgr>; Sun, 11 Aug 2002 11:36:47 -0400
+Message-ID: <3D5685A2.3010201@snapgear.com>
+Date: Mon, 12 Aug 2002 01:41:22 +1000
+From: gerg <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.0.0) Gecko/20020530
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH]: linux-2.5.31uc0 MMU-less patches
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 Aug 2002, Andrew Morton wrote:
+Hi All,
 
-> Also.  This whole patch series improves the behaviour of the system
-> under heavy writeback load.  There is a reduction in page allocation
-> failures, some reduction in loss of interactivity due to page
-> allocators getting stuck on writeback from the VM.  (This is still bad
-> though).
+I have put the latest uClinux (MMU-less) patches at:
 
-> It appears that this simply had the effect of pushing dirty, unwritten
-> data closer to the tail of the inactive list, making things worse.
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.31uc0.patch.gz
 
-This nicely points out the weak points in having the VM block
-on individual pages ... the fact that there are so damn many
-of those pages.
+Nothing much new, just updated against 2.5.31.
 
-Every time the VM is shifting workloads we can run into the
-problem of having a significant part (or even the whole) of
-the inactive list full of dirty pages and with the inactive
-list being 1/3rd of RAM you could easily run into 200 MB of
-dirty pages.
+Regards
+Greg
 
-If you insist on deferring the "waiting on IO" for these
-pages too much, you'll end up blocking in __get_request_wait
-instead, until you've scheduled all 200 MB of dirty pages
-for IO.
 
-By the time you've gotten out of __get_request_wait and
-scheduled the last page for IO, you can be pretty sure the
-first 120 MB of dirty pages have been written to disk already
-and would have been reclaimable for many seconds already.
 
-I really need to look at fixing this thing right ...
-
-kind regards,
-
-Rik
 -- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
+825 Stanley St,                                  FAX:    +61 7 3279 1820
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
 

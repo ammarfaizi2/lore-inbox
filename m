@@ -1,41 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269399AbUI3SZL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269412AbUI3S32@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269399AbUI3SZL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 14:25:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269398AbUI3SZK
+	id S269412AbUI3S32 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 14:29:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269402AbUI3S31
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 14:25:10 -0400
-Received: from fw.osdl.org ([65.172.181.6]:46059 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269400AbUI3SWl (ORCPT
+	Thu, 30 Sep 2004 14:29:27 -0400
+Received: from gw.goop.org ([64.81.55.164]:25041 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S269398AbUI3SZW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 14:22:41 -0400
-Date: Thu, 30 Sep 2004 11:22:33 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Andrey S. Klochko" <aklochko@acipower.com>
-cc: Franz Pletz <franz_pletz@t-online.de>, Michal Rokos <michal@rokos.info>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH 2.6] Natsemi - remove compilation warnings
-In-Reply-To: <415C4BD8.40005@acipower.com>
-Message-ID: <Pine.LNX.4.58.0409301121560.2403@ppc970.osdl.org>
-References: <200409230958.31758.michal@rokos.info> <200409231618.56861.michal@rokos.info>
- <415C37D8.20203@t-online.de> <Pine.LNX.4.58.0409300951150.2403@ppc970.osdl.org>
- <415C4BD8.40005@acipower.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 30 Sep 2004 14:25:22 -0400
+Subject: Re: Unsupported speedstep
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+To: Marcus Sundberg <marcus@ingate.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <415ACA3C.908@ingate.com>
+References: <415ACA3C.908@ingate.com>
+Content-Type: text/plain
+Date: Thu, 30 Sep 2004 11:25:16 -0700
+Message-Id: <1096568717.3995.6.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.9.1 (1.5.9.1-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2004-09-29 at 16:44 +0200, Marcus Sundberg wrote:
+> Hi,
+> 
+> my 1.1 GHz dothan apparently isn't supported yet. I've seen patches for
+> stepping 6 1.5GHz and up, but none for 1.1 GHz, so here's the /proc/cpuinfo:
 
+This should be fine in 2.6.9-rc2, using the ACPI tables option.
 
-On Thu, 30 Sep 2004, Andrey S. Klochko wrote:
->
-> > -#define mii_delay(dev)  readl(dev->base_addr + EECtrl)
-> > +#define mii_delay(dev)  readl(ioaddr + EECtrl)
->                       ^^^
-> Probably this should be
-> +#define mii_delay(ioaddr)  readl(ioaddr + EECtrl)
+	J
 
-Yes. Good catch, will fix.
-
-		Linus

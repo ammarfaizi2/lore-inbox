@@ -1,69 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264858AbUF1Hvx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264881AbUF1Hyk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264858AbUF1Hvx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 03:51:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264880AbUF1Hvx
+	id S264881AbUF1Hyk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 03:54:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264882AbUF1Hyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 03:51:53 -0400
-Received: from gprs187-64.eurotel.cz ([160.218.187.64]:20352 "EHLO
-	midnight.ucw.cz") by vger.kernel.org with ESMTP id S264858AbUF1Hvv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 03:51:51 -0400
-Date: Mon, 28 Jun 2004 09:51:24 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/19] New set of input patches
-Message-ID: <20040628075124.GA1507@ucw.cz>
-References: <200406280008.21465.dtor_core@ameritech.net> <20040628065259.GA1291@ucw.cz> <200406280213.58978.dtor_core@ameritech.net>
+	Mon, 28 Jun 2004 03:54:40 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:63243 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264881AbUF1Hyi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 03:54:38 -0400
+Date: Mon, 28 Jun 2004 08:54:30 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Erik Jacobson <erikj@subway.americas.sgi.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
+       Pat Gefre <pfg@sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6] Altix serial driver
+Message-ID: <20040628085429.C32206@flint.arm.linux.org.uk>
+Mail-Followup-To: Chris Wedgwood <cw@f00f.org>,
+	Erik Jacobson <erikj@subway.americas.sgi.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
+	Pat Gefre <pfg@sgi.com>, linux-kernel@vger.kernel.org
+References: <Pine.SGI.4.53.0406242153360.343801@subway.americas.sgi.com> <20040625083130.GA26557@infradead.org> <Pine.SGI.4.53.0406250742350.377639@subway.americas.sgi.com> <20040625124807.GA29937@infradead.org> <Pine.SGI.4.53.0406250751470.377692@subway.americas.sgi.com> <20040626235248.GC12761@taniwha.stupidest.org> <Pine.SGI.4.53.0406271908390.524706@subway.americas.sgi.com> <20040628003311.GA23017@taniwha.stupidest.org> <20040628021439.A17654@flint.arm.linux.org.uk> <20040628014443.GA24247@taniwha.stupidest.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200406280213.58978.dtor_core@ameritech.net>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040628014443.GA24247@taniwha.stupidest.org>; from cw@f00f.org on Sun, Jun 27, 2004 at 06:44:43PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 28, 2004 at 02:13:58AM -0500, Dmitry Torokhov wrote:
-
-> > IMO drivers have no bussiness messing with the serio locks. We could use
-> > 'plug' and 'unplug' functions like the network driver use, or handle it
-> > inside the driver, but taking the lock is the wrong thing to do.
+On Sun, Jun 27, 2004 at 06:44:43PM -0700, Chris Wedgwood wrote:
+> On Mon, Jun 28, 2004 at 02:14:39AM +0100, Russell King wrote:
+> > It's the way its always been done, and the way the tty layer works.
+> > You register a range of ttys that you're going to be driving, and
+> > you own those ttys whether or not you actually have hardware for
+> > them.
 > 
-> OK, I just don't want to introduce another lock just for that...
+> How about this (yes, it's a hack but it's really not that bad and will
+> get things working until we can fix this up in 2.7.x):
 
-I think a bit in flags "PSMOUSE_ENABLED", like we have the
-"ATKBD_ENABLED" bit might be just fine - handle the interrupt, but throw
-away the data during the protocol switch. We aren't interested in the
-data anyway.
-
-> > > 15-synaptics-passthrough-handling.patch
-> > >         - If data looks like a pass-through packet and tuchpad has
-> > >           pass-through capability do not pass it to the main handler
-> > >           if child port is disconnected.
-> > 
-> > I'll have to look closer on this one - I think we want to pass the data
-> > to the serio layer even if there is no driver listening on the
-> > passthrough serio.
-> 
-> We probably should issue serio_interrupt on child port to force rescan but
-> that packet has no business in parent's motion handling routine and that's
-> what this patch tries to fix. Anyway, I will look at it more later.
-
-Indeed, we need it for the rescan. It shouldn't be that hard to fix at
-once.
-
->   
-> > > (*) These patches have also been sent to Greg KH.
-> > 
-> > Did he accept them already?
->  
-> No, not yet. He promised to take a look at platoform_device_register_simple by
-> the end of the week but I guess kernel.bkbits.net troubles might intervene...
-> And other 2 I just send out today.
-
-Ok. I'll wait then.
+If you're going to do that, why not just disable 8250 in the kernels
+configuration?  It has exactly the same effect.  With the change you
+propose, you can't even use 8250 for PCMCIA serial cards.
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

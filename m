@@ -1,76 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129434AbQKYOPk>; Sat, 25 Nov 2000 09:15:40 -0500
+        id <S129295AbQKYOTv>; Sat, 25 Nov 2000 09:19:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129437AbQKYOPV>; Sat, 25 Nov 2000 09:15:21 -0500
-Received: from sphinx.mythic-beasts.com ([195.82.107.246]:53778 "EHLO
-        sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
-        id <S129434AbQKYOPO>; Sat, 25 Nov 2000 09:15:14 -0500
-Date: Sat, 25 Nov 2000 13:44:37 +0000 (GMT)
-From: Matthew Kirkwood <matthew@hairy.beasts.org>
-To: "J . A . Magallon" <jamagallon@able.es>
-cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+        id <S130338AbQKYOTk>; Sat, 25 Nov 2000 09:19:40 -0500
+Received: from jalon.able.es ([212.97.163.2]:19656 "EHLO jalon.able.es")
+        by vger.kernel.org with ESMTP id <S129295AbQKYOTZ>;
+        Sat, 25 Nov 2000 09:19:25 -0500
+Date: Sat, 25 Nov 2000 14:49:04 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: LKCD from SGI
-In-Reply-To: <20001125141830.C2877@werewolf.able.es>
-Message-ID: <Pine.LNX.4.10.10011251341460.878-200000@sphinx.mythic-beasts.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1388574315-2080741805-975159877=:878"
+Message-ID: <20001125144904.E2877@werewolf.able.es>
+Reply-To: jamagallon@able.es
+In-Reply-To: <20001125141830.C2877@werewolf.able.es> <7235.975158637@ocs3.ocs-net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <7235.975158637@ocs3.ocs-net>; from kaos@ocs.com.au on Sat, Nov 25, 2000 at 14:23:57 +0100
+X-Mailer: Balsa 1.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
 
---1388574315-2080741805-975159877=:878
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+On Sat, 25 Nov 2000 14:23:57 Keith Owens wrote:
+> On Sat, 25 Nov 2000 14:18:30 +0100, 
+> "J . A . Magallon" <jamagallon@able.es> wrote:
+> >Could the default target install names int the std kernel be changed to 
+> >System.map -> System.map-$(KERNELRELEASE)
+> >vmlinuz    -> vmlinuz-$(KERNELRELEASE)
+> >and then symlink to that ?
+> 
+> We could do a lot of things in the install targets.  But none of them
+> are going to be done before kernel 2.5.  We are in code freeze (is this
+> freeze number 4 or 5?).  Changing the install method just before a new
+> kernel branch is released will not be popular with the distributors.
 
-On Sat, 25 Nov 2000, J . A . Magallon wrote:
+Yes, I know. I thought you were talking about '2.5 kernel build wish list'.
 
-> Could the default target install names int the std kernel be changed to 
-> System.map -> System.map-$(KERNELRELEASE)
-> vmlinuz    -> vmlinuz-$(KERNELRELEASE)
-> and then symlink to that ?
->
-> I think everyone that has a stable2.2, a devel 2.2 and a test24 is
-> using that method, so as many distros...
+-- 
+Juan Antonio Magallon Lacarta                                 #> cd /pub
+mailto:jamagallon@able.es                                     #> more beer
 
-The /sbin/installkernel hooks allow you to do this (and
-other stuff) very easily:
+Linux 2.2.18-pre23-vm #3 SMP Wed Nov 22 22:33:53 CET 2000 i686 unknown
 
-# make install
-
-does it all for you on Red Hat.  I've attached their
-/sbin/installkernel in case you want to see how its
-done.
-
-Matthew.
-
---1388574315-2080741805-975159877=:878
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=installkernel
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.10.10011251344370.878@sphinx.mythic-beasts.com>
-Content-Description: 
-Content-Disposition: attachment; filename=installkernel
-
-IyEgL2Jpbi9zaA0KDQojDQojIC9zYmluL2luc3RhbGxrZXJuZWwgIC0gd3Jp
-dHRlbiBieSB0eXNvbkByd2lpLmNvbQ0KIw0KDQpJTlNUQUxMX1BBVEg9L2Jv
-b3QNCg0KS0VSTkVMX1ZFUlNJT049JDENCkJPT1RJTUFHRT0kMg0KTUFQRklM
-RT0kMw0KDQppZiBbIC1mICRJTlNUQUxMX1BBVEgvdm1saW51ei0kS0VSTkVM
-X1ZFUlNJT04gXTsgdGhlbiANCiAgICAgIG12ICRJTlNUQUxMX1BBVEgvdm1s
-aW51ei0kS0VSTkVMX1ZFUlNJT04gXA0KICAgICAgICAgICAgICAkSU5TVEFM
-TF9QQVRIL3ZtbGludXoub2xkOw0KZmkNCg0KaWYgWyAtZiAkSU5TVEFMTF9Q
-QVRIL1N5c3RlbS5tYXAtJEtFUk5FTF9WRVJTSU9OIF07IHRoZW4gDQogICAg
-ICBtdiAkSU5TVEFMTF9QQVRIL1N5c3RlbS5tYXAtJEtFUk5FTF9WRVJTSU9O
-IFwNCiAgICAgICAgICAgICAgJElOU1RBTExfUEFUSC9TeXN0ZW0ubWFwLm9s
-ZDsgDQpmaQ0KDQpjYXQgJEJPT1RJTUFHRSA+ICRJTlNUQUxMX1BBVEgvdm1s
-aW51ei0kS0VSTkVMX1ZFUlNJT04NCmNwICRNQVBGSUxFICRJTlNUQUxMX1BB
-VEgvU3lzdGVtLm1hcC0kS0VSTkVMX1ZFUlNJT04NCg0KbG4gLWZzIHZtbGlu
-dXotJEtFUk5FTF9WRVJTSU9OICRJTlNUQUxMX1BBVEgvdm1saW51eg0KbG4g
-LWZzIFN5c3RlbS5tYXAtJEtFUk5FTF9WRVJTSU9OICRJTlNUQUxMX1BBVEgv
-U3lzdGVtLm1hcA0KDQppZiBbIC14IC9zYmluL2xpbG8gXTsgdGhlbiAvc2Jp
-bi9saWxvOyBlbHNlIC9ldGMvbGlsby9pbnN0YWxsOyBmaQ0KDQo=
---1388574315-2080741805-975159877=:878--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,98 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263748AbUCXPk2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 10:40:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262010AbUCXPk2
+	id S263747AbUCXPn7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 10:43:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263750AbUCXPn7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 10:40:28 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:33958 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263748AbUCXPkZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 10:40:25 -0500
-Subject: Re: [RFC,PATCH] dnotify: enhance or replace?
-From: Alexander Larsson <alexl@redhat.com>
-To: rudi@lambda-computing.de
-Cc: linux-kernel@vger.kernel.org, ttb@tentacle.dhs.org, jamie@shareable.org,
-       tridge@samba.org, viro@parcelfarce.linux.theplanet.co.uk,
-       torvalds@osdl.org
-In-Reply-To: <4061986E.6020208@gamemakers.de>
-References: <4061986E.6020208@gamemakers.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Message-Id: <1080142815.8108.90.camel@localhost.localdomain>
+	Wed, 24 Mar 2004 10:43:59 -0500
+Received: from fed1mtao07.cox.net ([68.6.19.124]:59860 "EHLO
+	fed1mtao07.cox.net") by vger.kernel.org with ESMTP id S263747AbUCXPn4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Mar 2004 10:43:56 -0500
+Date: Wed, 24 Mar 2004 08:43:55 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: "Amit S. Kale" <amitkale@emsyssoft.com>
+Cc: kgdb-bugreport@lists.sourceforge.net,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Kgdb-bugreport] Document hooks in kgdb
+Message-ID: <20040324154355.GD7126@smtp.west.cox.net>
+References: <20040319162009.GE4569@smtp.west.cox.net> <200403242011.26314.amitkale@emsyssoft.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.92 (Preview Release)
-Date: 24 Mar 2004 16:40:15 +0100
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200403242011.26314.amitkale@emsyssoft.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-03-24 at 15:17, Rüdiger Klaehn wrote:
-> Hi all,
+On Wed, Mar 24, 2004 at 08:11:26PM +0530, Amit S. Kale wrote:
+> That's a good idea. Go ahead.
+> -Amit
+> On Friday 19 Mar 2004 9:50 pm, Tom Rini wrote:
+> > Hi.  The following is my first attempt at documenting the hooks found in
+> > the KGDB found on kgdb.sf.net.  I'm not quite sure about the description
+> > of some of the optional hooks (used under hw breakpoints) so corrections
+> > / suggestions welcome.  After I got done with it, it hit me that maybe I
+> > should have done this in the code, and in DocBook format, so I'll go and
+> > do that next...
+> >
+> > <-- snip -->
+> > This is an attempt to document the various architecture specific functions
+> > that are part of KGDB.  There are a number of optional functions, depending
+> > on hardware setps, for which empty defaults are provided.  There are also
+> > functions which must be implemented and for which no default is provided.
+> >
+> > The required functions are:
+> > int kgdb_arch_handle_exception(int vector, int signo, int err_code,
+> > 		char *InBuffer, char *outBuffer, struct pt_regs *regs)
+> > 	This function MUST handle the 'c' and 's' command packets,
+> > 	as well packets to set / remove a hardware breakpoint, if used.
+> >
+> > void regs_to_gdb_regs(unsigned long *gdb_regs, struct pt_regs *regs)
+> > 	Convert the ptrace regs in regs into what GDB expects to
+> > 	see for registers, in gdb_regs.
+> >
+> > void sleeping_thread_to_gdb_regs(unsigned long *gdb_regs, struct
+> > task_struct *p) Like regs_to_gdb_regs, except that the process in p is
+> > sleeping,
+> > 	so we cannot get as much information.
+> >
+> > void gdb_regs_to_regs(unsigned long *gdb_regs, struct pt_regs *regs)
+> > 	Convert the GDB regs in gdb_regs into the ptrace regs pointed
+> > 	to in regs.
+> >
+> > The optional functions are:
+> > int kgdb_arch_init(void) :
+> > 	This function will handle the initalization of any architecture
+> > 	specific hooks.  If there is a suitable early output driver,
+> > 	kgdb_serial can be pointed at it now.
+> >
+> > void kgdb_printexceptioninfo(int exceptionNo, int errorcode, char *buffer)
+> > 	Write into buffer and information about the exception that has
+> > 	occured that can be gleaned from exceptionNo and errorcode.
+> >
+> > void kgdb_disable_hw_debug(struct pt_regs *regs)
+> > 	Disable hardware debugging while we are in kgdb.
+> >
+> > void kgdb_correct_hw_break(void)
+> > 	A hook to allow for changes to the hardware breakpoint, called
+> > 	after a single step (s) or continue (c) packet, and once we're about
+> > 	to let the kernel continue running.
+> >
+> > void kgdb_post_master_code(struct pt_regs *regs, int eVector, int err_code)
+> > 	Store the raw vector and error, for later retreival.
+> >
+> > void kgdb_shadowinfo(struct pt_regs *regs, char *buffer, unsigned threadid)
+> > struct task_struct *kgdb_get_shadow_thread(struct pt_regs *regs, int
+> > threadid) struct pt_regs *kgdb_shadow_regs(struct pt_regs *regs, int
+> > threadid) If we have a shadow thread (determined by setting
+> > 	kgdb_ops->shadowth = 1), these functions are required to return
+> > 	information about this thread.
 > 
-> I have been working on a dnotify enhancement to let it work recursively 
-> and to store information about what exactly has changed.
-> 
-> My current code can be found here:
-> <http://www.lambda-computing.com/~rudi/dnotify/>
-> 
->  From reading the list, I got the impression that there is a general 
-> consensus that the current dnotify mechanism is less than optimal, and 
-> that something should be done about it. Is that correct?
-> 
-> My current implementation enhances the dnotify mechanism, but is 
-> backwards compatible to the old mechanism. This is obviously the least 
-> intrusive approach, but it is also less than optimal. For example it 
-> still requires an open file handle to watch for changes in a tree, so it 
-> will create problems when unmounting a device.
-> 
-> In an offline discussion, the issue came up wether it would not be 
-> better to replace dnotify with a completely new mechanism like e.g. a 
-> special netlink socket. Since most userspace programs (e.g. KDE and 
-> gnome) do not use dnotify directly, but through the fam daemon, the 
-> required changes in user space applications would not be that great.
-> 
-> So what is your take on this? Enhance or replace?
-> 
-> best regards,
-> 
-> Rüdiger
-> 
-> p.s.: I cc'ed everybody who I think might be interested in a dnotify 
-> enhancement/replacement.
+> An addition: shadow threads are needed to provide information not retrievable 
+> by gdb. e.g. Backtraces beyond interrupt entrypoints, that aren't retrievable 
+> in absence of debugging info for interrupt entrypoint code.
 
-I think everyone agrees that dnotify is a POS that needs replacement,
-however coming up with a good new API and implementation seems to be
-hard (or at least uninteresting to kernel developers). 
+If I follow everything right, this could go in favor of cfi macros,
+right ?
 
-I for sure would welcome a sane file change notification API, i.e. one
-that doesn't require the use of signals. However, I don't really care
-about recursive monitors, and I'm actually unsure if you really want the
-DN_EXTENDED functionallity in the kernel. It seems like a great way to
-make the kernel use a lot of unswappable memory, unless you limit the
-event queues, and if you do that you need to stat all files in userspace
-anyway so you can correctly handle queue overflows.
-
-I think the most important properties for a good dnotify replacement is:
-
-* Don't use signals or any other global resource that makes it
-impossible to use the API in a library thats supposed to be used by all
-sorts of applications.
-
-* Get sane semantics. i.e. if a hardlink changes notify a file change in
-all directories the file is in. (This is hard though, it needs backlinks
-from the inodes to the directories, at least for the directories with a
-monitor, something i guess we don't have today.)
-
-* Some way to get an event when the last open fd to the file is closed
-after a file change. This means you won't get hundreds of write events
-for a single file change. (Of course, you won't catch writes to e.g.
-logs which aren't closed, so this has to be optional. But for a desktop,
-this is often what you want.)
-
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
- Alexander Larsson                                            Red Hat, Inc 
-                   alexl@redhat.com    alla@lysator.liu.se 
-He's a time-tossed guerilla cowboy who knows the secret of the alien invasion. 
-She's a cosmopolitan mutant mercenary living on borrowed time. They fight 
-crime! 
-
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

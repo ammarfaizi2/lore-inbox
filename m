@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265762AbTF3GZm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 02:25:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265767AbTF3GZm
+	id S265769AbTF3GpQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 02:45:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265781AbTF3GpQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 02:25:42 -0400
-Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:51873 "EHLO
-	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S265762AbTF3GZk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 02:25:40 -0400
+	Mon, 30 Jun 2003 02:45:16 -0400
+Received: from client73.fre.communitycolo.net ([216.218.240.222]:22742 "EHLO
+	slick.sigje.org") by vger.kernel.org with ESMTP id S265769AbTF3GpL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 02:45:11 -0400
+Date: Sun, 29 Jun 2003 23:59:28 -0700 (PDT)
+From: ahorn@deorth.org
+X-X-Sender: ahorn@slick.sigje.org
 To: Andre Hedrick <andre@linux-ide.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Svein Ove Aas <svein.ove@aas.no>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Dell vs. GPL
-References: <Pine.LNX.4.10.10306292053480.2711-100000@master.linux-ide.org>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-From: Miles Bader <miles@lsi.nec.co.jp>
-Date: 30 Jun 2003 15:39:09 +0900
-In-Reply-To: <Pine.LNX.4.10.10306292053480.2711-100000@master.linux-ide.org>
-Message-ID: <buoznk06pde.fsf@mcspd15.ucom.lsi.nec.co.jp>
+cc: David Schwartz <davids@webmaster.com>, Fluke <fluke@gibson.mw.luc.edu>,
+       linux-poweredge@dell.com, linux-kernel@vger.kernel.org
+Subject: RE: Dell vs. GPL
+In-Reply-To: <Pine.LNX.4.10.10306292108320.2711-100000@master.linux-ide.org>
+Message-ID: <Pine.NEB.4.44.0306292357430.7687-100000@slick.sigje.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick <andre@linux-ide.org> writes:
-> I know first hand that I can not take "RAIDZONE" to court yet to sue for
-> GPL violation to get the code back into the community and monetary
-> damages, until I fully file a registered copyright and not the halfassed
-> crap of just sticking you name and email address in a file.
-> 
-> GPL wins great.
-> GPL loses, maybe better so it can be replaced with OSL and then it gets
-> serious because we will have teeth to defend the ideas of open source.
+On Sun, 29 Jun 2003, Andre Hedrick wrote:
+>
+>BAWHAHAHAHA
+>
+>Only if you assign copyright to FSF and they control you works, correction
+>"their works" now.
+>
+>Been there, got burned and no tshirt.
+>
+>
+>Andre Hedrick
+>LAD Storage Consulting Group
+>
+>
 
-Even if you are right about the need to register (I have no idea, though
-everyone else seems to say otherwise), this seems like a bizarre
-conclusion.  If the problem is the lack of proper copyright
-registration, how would changing the license make the least bit of
-difference?
+Well, I couldn't possibly comment on that, but my original point stands;
+that pursuit of GPL violation must be pursued by the copyright _holder_,
+unless they assign that copyright to subsequent third-party beneficiaries.
+which technically I don't think they do, they merely grant a right to make
+copies in perpetuity, subject to the conditions of the GPL (or something
+like that)
 
--Miles
--- 
-`...the Soviet Union was sliding in to an economic collapse so comprehensive
- that in the end its factories produced not goods but bads: finished products
- less valuable than the raw materials they were made from.'  [The Economist]
+right ?
+
+

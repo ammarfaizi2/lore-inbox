@@ -1,76 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261606AbULUKJ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbULUKNg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261606AbULUKJ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 05:09:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbULUKJ4
+	id S261682AbULUKNg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 05:13:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbULUKNg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 05:09:56 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:64718 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261606AbULUKJu (ORCPT
+	Tue, 21 Dec 2004 05:13:36 -0500
+Received: from gate.firmix.at ([80.109.18.208]:44509 "EHLO gate.firmix.at")
+	by vger.kernel.org with ESMTP id S261682AbULUKNb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 05:09:50 -0500
-Date: Tue, 21 Dec 2004 11:09:34 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Loic Domaigne <loic-dev@gmx.net>
-Cc: piggin@cyberone.com.au, nptl@bullopensource.org,
-       Linux-Kernel@Vger.Kernel.ORG
-Subject: Re: Re: OSDL Bug 3770
-Message-ID: <20041221100934.GA31538@elte.hu>
-References: <9785.1103562168@www38.gmx.net>
+	Tue, 21 Dec 2004 05:13:31 -0500
+Subject: Re: loading modules at kernel startup
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Alex Riesen <raa.lkml@gmail.com>
+Cc: linux lover <linux.lover2004@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <81b0412b041221013752802fc5@mail.gmail.com>
+References: <72c6e3790412210114650e05d1@mail.gmail.com>
+	 <81b0412b041221013752802fc5@mail.gmail.com>
+Content-Type: text/plain
+Organization: Firmix Software GmbH
+Message-Id: <1103624005.31674.10.camel@tara.firmix.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9785.1103562168@www38.gmx.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.5.5 
+Date: Tue, 21 Dec 2004 11:13:25 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2004-12-21 at 10:37 +0100, Alex Riesen wrote:
+> On Tue, 21 Dec 2004 14:44:23 +0530, linux lover
+> <linux.lover2004@gmail.com> wrote:
+[...]
+> > How to load own kernel modules just after eth0
+> > interface is brought up?
+> > I want to load kernel module as soon as networking part of kenrel
+> > starts.
 
-* Loic Domaigne <loic-dev@gmx.net> wrote:
+This usually depends on your distribution.
 
-> N> lkml: We're discussing the fact that on SMP machines, our realtime 
-> N> scheduling policies are per-CPU only. This caused a problem where a 
-> N> high priority task on one CPU caused all lower priority tasks on that 
-> N> CPU to be starved, while tasks on another CPU with the same low 
-> N> priority were able to run.
+> Look at udev and hotplug
 > 
-> That summary should readily motivate you to make a patch ;-)
+> > I dont want to loose any packets that travels on my linux
+> > machine.
+> 
+> You'll always loose something: there will be a gap between activating
+> of the network interface and running of your module (or sniffer, as it sounds).
 
-note that my -RT patchset includes scheduler changes that implement
-"global RT scheduling" on SMP systems. Give it a go, it's at:
+Not if you do all on "activating the network interface" except "ip link
+set eth<x> up".
+Usually this means patching your distributions network startup scripts
+and/or hooking in the firewall-rule-startup-script (where you basically
+have the same problem).
 
-   http://redhat.com/~mingo/realtime-preempt/
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 
-you have to enable CONFIG_PREEMPT_RT to active this feature. I've
-designed this code to not hurt non-RT scheduling, and i've optimized
-performance for the 'lightly loaded case' (which is the most common to
-occur on mainline-using systems).
-
-A very short description of the design: there's a global 'RT overload
-counter' - which is zero and causes no overhead if there is at most 1 RT
-task in every runqueue.  (i.e. at most 2 RT tasks on a 2-way system, at
-most 4 RT tasks on a 4-way system, etc.) If the system gets into 'RT
-overload' mode (e.g. the third RT task gets activated on a 2-way box),
-then the scheduler starts to balance the RT tasks agressively. Also,
-whenever an RT task is preempted on a CPU, or is woken up but cannot
-preempt a higher-prio RT task on a given CPU, then it's 'pushed' to
-other CPUs if possible. This design avoids global locking (it avoids a
-global runqueue), which simplifies things immensely. (I first tried a
-global runqueue for RT tasks but the complexity impact was much bigger.)
-
-(note that these scheduler changes are resonably self-contained and do
-not depend on other parts of PREEMPT_RT, so in theory they could be
-added to mainline too, after some time - given lots of testing and broad
-agreement.)
-
-anyway, the first step would be to try this scheduler and give feedback
-of how well it works for you :-)
-
-	Ingo

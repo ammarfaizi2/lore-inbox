@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265816AbRF2JtC>; Fri, 29 Jun 2001 05:49:02 -0400
+	id <S265821AbRF2JvW>; Fri, 29 Jun 2001 05:51:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265803AbRF2Jsx>; Fri, 29 Jun 2001 05:48:53 -0400
-Received: from t2.redhat.com ([199.183.24.243]:25589 "EHLO
-	whatever.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S265816AbRF2Jsj>; Fri, 29 Jun 2001 05:48:39 -0400
-Date: Fri, 29 Jun 2001 01:02:24 -0700 (PDT)
-From: Bernd Schmidt <bernds@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Mikael Pettersson <mikpe@csd.uu.se>, FrankZhu@viatech.com.cn,
-        linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM:Illegal instruction when mount nfs file systems using
-In-Reply-To: <E15Fkwy-0007ps-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0106290100230.29441-100000@whatever.cambridge.redhat.com>
+	id <S265824AbRF2JvM>; Fri, 29 Jun 2001 05:51:12 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:59140 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S265821AbRF2Ju6>; Fri, 29 Jun 2001 05:50:58 -0400
+Subject: Re: O_DIRECT please; Sybase 12.5
+To: dank@kegel.com (Dan Kegel)
+Date: Fri, 29 Jun 2001 10:50:15 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
+In-Reply-To: <3B3C4CB4.6B3D2B2F@kegel.com> from "Dan Kegel" at Jun 29, 2001 02:39:00 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15Fuul-0008SJ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Jun 2001, Alan Cox wrote:
+> the boss say "If Linux makes Sybase go through the page cache on
+> reads, maybe we'll just have to switch to Solaris.  That's
+> a serious performance problem."
 
-> > Here I have to disagree with you Alan. When you pass "-march=i686" to
-> > gcc, you are _not_ saying "generate code for a CPUID family 6 CPU".
-> > "-march=i686" actually means "target an Intel P6 family chip, given
-> > what we currently know about them". The gcc info pages don't talk
-> 
-> Which is fine. The Pentium Pro manual explicitly states that cmov may go
-> away. So it is not based on what we know about the CPU, its based on not
-> reading the documentation. 
-> 
-> It's a bug. -march=i6868 does not 'target an Intel P6 family chip, ...'
-> It happens to work because the error in reading the docs was never triggered
-> by intel removing cmov from a cpu as the reserved the right to do
+Thats something you'd have to benchmark. It depends on a very large number
+of factors including whether the database uses mmap, the average I/O size
+and the like
 
-Pedantically you  may be right, but it's not a very useful interpretation of
-the situation.  Would it make you happier if -march=i686 was documented as
-generating cmov instructions?  IMO it's only a manual bug if at all.
+> It supports raw partitions, which is good; that might satisfy my
+> boss (although the administration will be a pain, and I'm not
+> sure whether it's really supported by Dell RAID devices).
+> I'd prefer O_DIRECT :-(
 
-
-Bernd
+We already support raw direct I/O to devices themselves so they should support
+that - if not then Oracle I believe already does.
 

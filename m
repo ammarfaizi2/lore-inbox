@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261392AbUCKPCy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 10:02:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbUCKPCx
+	id S261380AbUCKPEh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 10:04:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261410AbUCKPEh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 10:02:53 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:12962 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261392AbUCKPCo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 10:02:44 -0500
-Date: Thu, 11 Mar 2004 16:02:30 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.4-rc-bk3: hdparm -X locks up IDE
-Message-ID: <20040311150230.GD6955@suse.de>
-References: <200403111614.08778.vda@port.imtp.ilyichevsk.odessa.ua> <200403111552.26315.bzolnier@elka.pw.edu.pl> <20040311144812.GC6955@suse.de> <200403111607.39235.bzolnier@elka.pw.edu.pl>
+	Thu, 11 Mar 2004 10:04:37 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:43392 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261380AbUCKPE2 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 10:04:28 -0500
+Message-Id: <200403111503.i2BF3uDY010930@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: root@chaos.analogic.com
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>,
+       "Godbole, Amarendra (GE Consumer & Industrial)" 
+	<Amarendra.Godbole@ge.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: (0 == foo), rather than (foo == 0) 
+In-Reply-To: Your message of "Wed, 10 Mar 2004 13:33:53 EST."
+             <Pine.LNX.4.53.0403101324120.18709@chaos> 
+From: Valdis.Kletnieks@vt.edu
+References: <905989466451C34E87066C5C13DDF034593392@HYDMLVEM01.e2k.ad.ge.com> <20040310100215.1b707504.rddunlap@osdl.org>
+            <Pine.LNX.4.53.0403101324120.18709@chaos>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200403111607.39235.bzolnier@elka.pw.edu.pl>
+Content-Type: multipart/signed; boundary="==_Exmh_2002632292P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 11 Mar 2004 10:03:56 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 11 2004, Bartlomiej Zolnierkiewicz wrote:
-> On Thursday 11 of March 2004 15:48, Jens Axboe wrote:
-> > On Thu, Mar 11 2004, Bartlomiej Zolnierkiewicz wrote:
-> > > On Thursday 11 of March 2004 15:14, Denis Vlasenko wrote:
-> > > > I discovered that hdparm -X <mode> /dev/hda can lock up IDE
-> > > > interface if there is some activity.
-> > >
-> > > Known bug and is on TODO but fixing it ain't easy.
-> > > Thanks for a report anyway.
-> >
-> > Wouldn't it be possible to do the stuff that needs serializing from the
-> > end_request() part and get automatic synchronization with normal
-> > requests?
-> 
-> That's the way to do it (REQ_SPECIAL) but unfortunately on some chipsets
-> we need to synchronize both channels (whereas we don't need to serialize
-> normal operations).
+--==_Exmh_2002632292P
+Content-Type: text/plain; charset=us-ascii
 
-Ugh yes, that gets nasty... Good luck with that :)
+On Wed, 10 Mar 2004 13:33:53 EST, "Richard B. Johnson" said:
 
--- 
-Jens Axboe
+> People who develop kernel code know the difference between
+> '==' and '=' and are never confused my them. If you make
 
+Remember a few months ago when a lot of very clever people looked at
+a line of code that said 'if (yadda yadda && (uid = 0))' that had been
+inserted into the CVS tree, and it took a while for some of the very clever
+people to notice the equally clever hack?
+
+--==_Exmh_2002632292P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAUH/ccC3lWbTT17ARAog6AJsGKiKkanocOb0LY86jxGhcKVteqwCfQCCg
+dCOSs9Hx/ACYbNVddYgdKnc=
+=Rq0m
+-----END PGP SIGNATURE-----
+
+--==_Exmh_2002632292P--

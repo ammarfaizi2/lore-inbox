@@ -1,64 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272602AbRHaEXp>; Fri, 31 Aug 2001 00:23:45 -0400
+	id <S272599AbRHaEVy>; Fri, 31 Aug 2001 00:21:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272603AbRHaEXe>; Fri, 31 Aug 2001 00:23:34 -0400
-Received: from [209.218.224.101] ([209.218.224.101]:10881 "EHLO
-	mail.labsysgrp.com") by vger.kernel.org with ESMTP
-	id <S272602AbRHaEXT>; Fri, 31 Aug 2001 00:23:19 -0400
-Message-ID: <001301c131d4$de9180f0$6caaa8c0@kevin>
-From: "Kevin P. Fleming" <kevin@labsysgrp.com>
-To: "Trond Myklebust" <trond.myklebust@fys.uio.no>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <000901c13179$be7b9ae0$6caaa8c0@kevin> <shsd75d2whg.fsf@charged.uio.no>
-Subject: Re: 2.4.9-ac1/2/3 allows multiple mounts of NFS filesystem on same mountpoint
-Date: Thu, 30 Aug 2001 21:24:47 -0700
-Organization: LSG, Inc.
+	id <S272600AbRHaEVo>; Fri, 31 Aug 2001 00:21:44 -0400
+Received: from anime.net ([63.172.78.150]:41490 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S272598AbRHaEVa>;
+	Fri, 31 Aug 2001 00:21:30 -0400
+Date: Thu, 30 Aug 2001 21:20:16 -0700 (PDT)
+From: Dan Hollis <goemon@anime.net>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+cc: David Hollister <david@digitalaudioresources.org>,
+        Jan Niehusmann <jan@gondor.com>, <linux-kernel@vger.kernel.org>,
+        <rgooch@atnf.csiro.au>
+Subject: Re: Athlon doesn't like Athlon optimisation?
+In-Reply-To: <200108310334.f7V3YZm442148@saturn.cs.uml.edu>
+Message-ID: <Pine.LNX.4.30.0108302117150.16904-100000@anime.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was expecting it to be an error, but I'm not upset that it's not. Just
-kind of weird to see five mounts with the exact same information in
-/etc/mtab.
+On Thu, 30 Aug 2001, Albert D. Cahalan wrote:
+> Don't go blaming Linux when power supply upgrades sometimes
+> make this problem go away. You could also try one of the
+> recent SiS or ALi chipsets.
+> I just saw a reference (maybe www.tomshardware.com) to AMD's new
+> chips having trouble on VIA boards -- I'd guess that the Palimino
+> core can push the motherboard too hard without fancy Athlon code.
 
-I can see why it would be useful to have multiple things mounted on the same
-mountpoint, but is there any reason to allow the _same_ filesystem to be
-mounted multiple times at the same mountpoint?
+So what happens when someone is able to duplicate the problem on say AMD
+760MP chipset with registered ECC PC2100 ram and 450W power supply?
 
------ Original Message -----
-From: "Trond Myklebust" <trond.myklebust@fys.uio.no>
-To: "Kevin P. Fleming" <kevin@labsysgrp.com>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Thursday, August 30, 2001 12:12 PM
-Subject: Re: 2.4.9-ac1/2/3 allows multiple mounts of NFS filesystem on same
-mountpoint
+Not to say it has happened yet (I havent got my dual Tyan Tiger MP yet :-)
+but where would the finger start pointing then?
 
+-Dan
 
-> >>>>> " " == Kevin P Fleming <kevin@labsysgrp.com> writes:
->
->      > Accidentally <G> I mounted a filesystem from my server onto my
->      > workstation twice. Mount gave me no error....
->
-> That's right. The 2.4 VFS removed the global restriction on the number
-> of mounts on a single mountpoint. So?
->
-> If people expect this to be an error, then the correct thing is for
-> the VFS restriction to be reinstated. I see no reason why it should be
-> the responsibility of the filesystem to check for this sort of
-> thing. A mountpoint is after all the one place where the VFS is
-> actually *designed* to override the filesystem.
->
-> Cheers,
->   Trond
->
->
->
+-- 
+[-] Omae no subete no kichi wa ore no mono da. [-]
 

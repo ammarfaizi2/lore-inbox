@@ -1,204 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131370AbQKAFnp>; Wed, 1 Nov 2000 00:43:45 -0500
+	id <S129130AbQKAGA6>; Wed, 1 Nov 2000 01:00:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131386AbQKAFnc>; Wed, 1 Nov 2000 00:43:32 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:34315 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131370AbQKAFnQ>; Wed, 1 Nov 2000 00:43:16 -0500
-Date: Tue, 31 Oct 2000 21:43:01 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Miles Lane <miles@speakeasy.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.0-test10
-In-Reply-To: <39FFAE2D.B6487BB0@speakeasy.org>
-Message-ID: <Pine.LNX.4.10.10010312142170.1156-100000@penguin.transmeta.com>
+	id <S129655AbQKAGAr>; Wed, 1 Nov 2000 01:00:47 -0500
+Received: from ns1.crl.go.jp ([133.243.3.1]:40929 "EHLO ns1.crl.go.jp")
+	by vger.kernel.org with ESMTP id <S129130AbQKAGAh>;
+	Wed, 1 Nov 2000 01:00:37 -0500
+Date: Wed, 1 Nov 2000 15:00:34 +0900 (JST)
+From: Tom Holroyd <tomh@po.crl.go.jp>
+To: kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: test10 compile fails on alpha
+Message-ID: <Pine.LNX.4.10.10011011439380.372-100000@holly.crl.go.jp>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2
+-fomit-frame-pointer -fno-strict-aliasing -pipe -mno-fp-regs -ffixed-8
+-mcpu=ev6 -Wa,-mev6    -c -o binfmt_elf.o binfmt_elf.c
+binfmt_elf.c: In function `create_elf_tables':
+binfmt_elf.c:166: `CLOCKS_PER_SEC' undeclared (first use in this function)
+binfmt_elf.c:166: (Each undeclared identifier is reported only once
+binfmt_elf.c:166: for each function it appears in.)
+
+Um, is there any reason why you don't just use HZ instead of
+CLOCKS_PER_SEC (which is pretty much Hz by definition)?
+All the arches seem to define it as HZ anyway.
+
+--- linux/include/asm-alpha/#param.h    Wed Nov  1 14:11:11 2000
++++ linux/include/asm-alpha/param.h     Wed Nov  1 14:54:59 2000
+@@ -26,5 +26,9 @@
+ #endif
+ 
+ #define MAXHOSTNAMELEN 64      /* max length of hostname */
++
++#ifdef __KERNEL__
++# define CLOCKS_PER_SEC HZ      /* frequency at which times() counts */
++#endif
+ 
+ #endif /* _ASM_ALPHA_PARAM_H */
 
 
-On Tue, 31 Oct 2000, Miles Lane wrote:
-> 
-> Were there no changes between test10-pre7 and test10?
-> I notice you didn't send out a Changelist.
-> 
-> The Changelists help me focus my testing.
+Also CONFIG_ALPHA_LARGE_VMALLOC is not recognized by "make xconfig".
 
-Sorry. Here it is..
-
-		Linus
------
- - final:
-    - Jeff Garzik: ISA network driver cleanup, wrapper.h fixes, 8139too
-      update, etc
-    - Mike Coleman: fix TracerPid in /proc/<n>/status
-    - Thomas Molina: mark NAT packet drop message KERN_DEBUG
-    - Marcelo Tosatti: nbd should use GFP_BUFFER, not GFP_ATOMIC
-    - Steve Pratt: TLB flush order fix
-    - David Miller: network and sparc updates
-    - Alan Cox: various details (NULL ptr checks in SCSI etc)
-    - Daniel Roesen: pretty up microcode revision printouts
-    - Mike Coleman: fix ptrace ambiguity issues
-    - Paul Mackerras: make yenta work even in the absense of ISA irqs
-    - me: make USB Makefile do the right thing for export-objs.
-    - Randy Dunlap, USB: fix race conditions, usb enumeration etc.
-
- - pre7:
-    - Niels Jensen: remove no-longer-needed workarounds for old gcc versions
-    - Ingo Molnar & Rik v Riel: VM inactive list maintenance correction
-    - Randy Dunlap, USB: printer.c, usb-storage, usb identification and
-      memory leak fixes
-    - David Miller: networking updates
-    - David Mosberger: add AT_CLKTCK to elf information. And make AT_PAGESZ work
-      for static binaries too.
-    - oops. pcmcia broke by mistake
-    - Me: truncate vs page access race fix.
-
- - pre6:
-    - Jeremy Fitzhardinge: autofs4 expiry fix
-    - David Miller: sparc driver updates, networking updates
-    - Mathieu Chouquet-Stringer: buffer overflow in sg_proc_dressz_write
-    - Ingo Molnar: wakeup race fix (admittedly the window was basically
-      non-existent, but still..)
-    - Rasmus Andersen: notice that "this_slice" is no longer used for
-      scheduling - delete the code that calculates it.
-    - ALI pirq routing update. It's even uglier than we initially thought..
-    - Dimitrios Michailidis: fix ipip locking bugs
-    - Various: face it - gcc-2.7.2.3 miscompiles structure initializers.
-    - Paul Cassella: locking comments on dev_base
-    - Trond Myklebust: NFS locking atomicity. refresh inode properly.
-    - Andre Hedrick: Serverworks Chipset driver, IDE-tape fix
-    - Paul Gortmaker: kill unused code from 8390 support.
-    - Andrea Arcangeli: fix nfsv3d wrong truncates over 4G
-    - Maciej W. Rozycki: PIIX4 needs the same USB quirk handling as PIIX3.
-    - me: if we cannot figure out the PCI bridge windows, just "inherit"
-      the window from the parent. Better than not booting.
-    - Ching-Ling Lee: ALI 5451 Audio core support update
-
- - pre5:
-    - Mikael Pettersson: more Pentium IV cleanup.
-    - David Miller: non-x86 platforms missed "pte_same()".
-    - Russell King: NFS invalidate_inode_pages() can do bad things!
-    - Randy Dunlap: usb-core.c is gone - module fix
-    - Ben LaHaise: swapcache fixups for the new atomic pte update code
-    - Oleg Drokin: fix nm256_audio memory region confusion
-    - Randy Dunlap: USB printer fixes
-    - David Miller: sparc updates
-    - David Miller: off-by-one error in /proc socket dumper
-    - David Miller: restore non-local bind() behaviour.
-    - David Miller: wakeups on socket shutdown()
-    - Jeff Garzik: DEPCA net drvr fixes and CodingStyle
-    - Jeff Garzik: netsemi net drvr fix
-    - Jeff Garzik & Andrea Arkangeli: keyboard cleanup
-    - Jeff Garzik: VIA audio update
-    - Andrea Arkangeli: mxcsr initialization cleanup and fix
-    - Gabriel Paubert: better twd_i387_to_fxsr() emulation
-    - Andries Brouwer: proper error return in ext2 mkdir()
-
- - pre4:
-    - disable writing to /proc/xxx/mem. Sure, it works now, but it's still
-      a security risk.
-    - IDE driver update (Victroy66 SouthBridge support)
-    - i810 rng driver cleanup
-    - fix sbus Makefile
-    - named initializers in module..
-    - ppoe: remove explicit initializer - it's done with initcalls.
-    - x86 WP bit detection: do it cleanly with exception handling
-    - Arnaldo Carvalho de Melo: memory leaks in drivers/media/video
-    - Bartlomiej Zolnierkiewicz: video init functions get __init
-    - David Miller: get rid of net/protocols.c - they get to initialize themselves
-    - David Miller: get rid of dev_mc_lock - we hold dev->xmit_lock anyway.
-    - Geert Uytterhoeven: Zorro (Amiga) bus support update
-    - David Miller: work around gcc-2.7.2 bug
-    - Geert Uytterhoeven: mark struct consw's "const".
-    - Jeff Garzik: network driver cleanups, ns558 joystick driver oops fix
-    - Tigran Aivazian: clean up __alloc_pages(), kill_super() and
-      notify_change()
-    - Tigran Aivazian: move stuff from .data to .bss
-    - Jeff Garzik: divert.h typename cleanups
-    - James Simmons: mdacon using spinlocks
-    - Tigran Aivazian: fix BFS free block calculation
-    - David Miller: sparc32 works again
-    - Bernd Schmidt: fix undefined C code (set/use without a sequence point)
-    - Mikael Pettersson: nicer Pentium IV setup handling.
-    - Georg Acher: usb-uhci cpia oops fix
-    - Kanoj Sarcar: more node_data cleanups for [non]NUMA.
-    - Richard Henderson: alpha update to new vmalloc setup
-    - Ben LaHaise: atomic pte updates (don't lose dirty bit)
-    - David Brownell: ohci memory debugging (== use separate slabs for allocation)
-
- - pre3:
-    - update email address of Joerg Reuter
-    - Andries Brouwer: spelling fixes, missing atari brelse(), breada() fix
-    - Geert Uytterhoeven: used named initializers for "struct console".
-    - Carsten Paeth: ISDN capifs - iput() only once.
-    - Petr Vandrovec: VFAT short name generation fix
-    - Jeff Garzik: i810_rng cleanup, and i815 chipset added.
-    - Bartlomiej Zolnierkiewicz: clean up some remaining old-style Makefiles
-    - Dave Jones: x86 setup fixes (recognize Pentium IV etc).
-    - x86: do the "fast A20" setup too in setup.S
-    - NIIBE Yutaka: update SuperH for the global page table (vmalloc) change.
-    - David Miller: sparc updates (vmalloc stuff still pending)
-    - David Miller: CodaFS warnings and 64-bit warnings in pci_size()
-    - David Miller: pcnet32 - correct NULL test
-    - David Miller: vmlist lock -> page_table_lock clarification
-    - Trond Myklebust: Ouch. rpcauth_lookup_credcache() memory corruption bug
-    - Matthew Wilcox: file locking cleanups
-    - David Woodhouse: USB audio spinlock fixes
-    - Torben Mathiasen: tlan driver cleanups
-    - Randy Dunlap: Yenta: CACHE_LINE_SIZE is in dwords, not bytes.
-    - Randy Dunlap: more USB updates
-    - Kanoj Sarcar: clean up the NUMA interfaces (pg_data instead of nodes)
-    - "save_fpu()" was broken. Need to clear pending errors: save_init_fpu().
-
- - pre2:
-    - remember to change the kernel version ;)
-    - isapnp.txt bugfix
-    - ia64 update
-    - sparc update
-    - networking update (pppoe init, frame diverter, fix tcp_sendmsg,
-      fix udp_recvmsg).
-    - Compile for WinChip must _not_ use "-march=i686". It's a i586.
-    - Randy Dunlap: more USB updates
-    - clarify the Firewire AIC-5800 situation. It's not supported yet.
-    - PCI-space decode size fix. This is needed for some (broken?) hardware
-    - /proc/self/maps off-by-one error
-    - 3c501, 3c507, cs89x0 network drivers drop unnecessary check_region
-    - Asahi Kasei AK4540: new codec ID. Yamaha: new PCI ID's.
-    - ne2k-pci net driver documentation update
-    - Paul Gortmaker: delete paranoia check in rtc_exit
-    - scsi_merge: memset the right amount of memory.
-    - sun3fb: old __initfunc() not supported any more.
-    - synclink: remove unnecessary task state games
-    - xd.c: proper casting for 64-bit architectures
-    - vmalloc: page table update race condition.
-
- - pre1:
-    - Roger Larsson: ">=" instead of ">" to make the VM not get stuck.
-    - Gideon Glass: brw_kiovec() failure case oops fix
-    - Rik van Riel: better memory balancing and OOM killer
-    - Ivan Kokshaysky: alpha compile fixes
-    - Vojtech Pavlik: forgotten ENOUGH macro in via82cxxx ide driver
-    - Arnaldo Carvalho de Melo: acpi resource leak fix
-    - Brian Gerst: use mov's instead of xchg in kernel trap entry
-    - Torben Mathiasen: tlan timer being added twice bug
-    - Andrzej Krzysztofowicz: config file fixes
-    - Jean Tourrilhes: Wavelan lockup on SMP fix
-    - Roman Zippel: initdata must be initialized (even if it is to zero:
-      gcc is strange)
-    - Jean Tourrilhes: hp100 driver lockup at startup on SMP
-    - Russell King: fix silly minixfs uninitialized error bug
-    - (various): fix uid hashing to use "uid_t" instead of "unsigned short"
-    - Jaroslav Kysela: isapnp timeout fix. NULL ptr dereference fix.
-    - Alain Knaff: fdformat should work again.
-    - Randy Dunlap: USB - fix bluetooth, acm, printer, serial to work
-      with urb->dev changes. 
-    - Randy Dunlap: USB whiteheat serial driver firmware update.
-    - Randy Dunlap: USB hub memory corruption and pegasus driver update
-    - Andre Hedrick: IDE Makefile cleanup
+Dr. Tom Holroyd
+"I am, as I said, inspired by the biological phenomena in which
+chemical forces are used in repetitious fashion to produce all
+kinds of weird effects (one of which is the author)."
+	-- Richard Feynman, _There's Plenty of Room at the Bottom_
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

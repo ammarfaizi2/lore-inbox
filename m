@@ -1,57 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281902AbRKUPAN>; Wed, 21 Nov 2001 10:00:13 -0500
+	id <S281906AbRKUPTF>; Wed, 21 Nov 2001 10:19:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281901AbRKUPAD>; Wed, 21 Nov 2001 10:00:03 -0500
-Received: from ns.suse.de ([213.95.15.193]:10500 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S281395AbRKUO7s> convert rfc822-to-8bit;
-	Wed, 21 Nov 2001 09:59:48 -0500
-To: root@chaos.analogic.com
-Cc: Jan Hudec <bulb@ucw.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] Bad #define, nonportable C, missing {}
-In-Reply-To: <Pine.LNX.3.95.1011121085737.21389A-100000@chaos.analogic.com>
-X-Yow: I'm pretending that we're all watching PHIL SILVERS
- instead of RICARDO MONTALBAN!
-From: Andreas Schwab <schwab@suse.de>
-Date: 21 Nov 2001 15:59:46 +0100
-In-Reply-To: <Pine.LNX.3.95.1011121085737.21389A-100000@chaos.analogic.com> ("Richard B. Johnson"'s message of "Wed, 21 Nov 2001 09:12:56 -0500 (EST)")
-Message-ID: <jelmh09nkt.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.1.30
+	id <S281905AbRKUPSy>; Wed, 21 Nov 2001 10:18:54 -0500
+Received: from gatekeeper.corp.netcom.net.uk ([194.42.224.25]:1968 "EHLO
+	gatekeeper") by vger.kernel.org with ESMTP id <S281904AbRKUPSv>;
+	Wed, 21 Nov 2001 10:18:51 -0500
+Message-ID: <3BFBC5C5.82366455@netcomuk.co.uk>
+Date: Wed, 21 Nov 2001 15:18:29 +0000
+From: Bill Crawford <billc@netcomuk.co.uk>
+Reply-To: bill@eb0ne.net
+Organization: Netcom Internet Ltd
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-0.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8BIT
+To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux-kernel-daily-digest digest, Vol 1 #171 - 281 msgs
+In-Reply-To: <200111201202.fAKC2Md29689@lists.us.dell.com> <3BFA8AE2.2B5FA0@netcomuk.co.uk> <01112112032600.01961@nemo>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" <root@chaos.analogic.com> writes:
+vda wrote:
 
-|> On Wed, 21 Nov 2001, Jan Hudec wrote:
-|> 
-|> > > >     *a++ = byte_rev[*a]
-|> > > It looks perferctly okay to me. Anyway, whenever would you listen to a
-|> > > C++ book talking about good C coding :p
-|> > 
-|> 
-|> It's simple. If any object is modified twice without an intervening
-|> sequence point, the results are undefined. The sequence-point in
-|> 
-|> 	*a++ = byte_rev[*a];
-|> 
-|> ... is the ';'.
-|> 
-|> So, we look at 'a' and see if it's modified twice.
+> >  Perhaps we should not distinguish between read and execute on programs
+> > either?  After all, they're not much different, are they?
 
-No, the rule much stricter. 
+ This was intended to be sarcastic :o)
 
-         -- Between two sequence points, an object is modified more
-            than once, or  is  modified  and  the  prior  value  is
-            accessed other than to determine the value to be stored
-            (6.5).
+> Yes, we can. In fact, NT lives with it with no problem. It is very common
+> in NT to have rx on all readable files regardless of their 'executability'.
+> If someone have 'r' perms, he can make a copy of a file, flag it with x and
+> execute.
 
-Andreas.
+ In theory one can do just that on Un*x systems too.  That's why setid
+bits can't be set by just anybody.
+
+ What if the program is setuid and executable by a group but not other?
+We do this with "su" on servers.
+
+ Now, ACLs I want to see widely supported on Linux, and *used* properly
+too.  They've been little used in most environments I've seen even on
+systems that do support them, which is a shame as they are a necessary
+and useful idea.  Yes, the Un*x permissions system does have some
+limitations, but let's not break *all* the existing software and OSs
+that use them, since what you're suggesting will not improve things.
+
+> versions of it). It's too late. I've made patch for chmod which adds new +R
+> flag to that effect.
+
+ Why is that needed anyway?  By default directories get execute bit set
+when they're created, at least in my environment; if you're extending
+permissions you can use "go=u" or "o=g" to broaden the permissions, as
+I would expect the existing perms to be correct on files vs directories
+in most cases.
+
+> --
+> vda
 
 -- 
-Andreas Schwab                                  "And now for something
-Andreas.Schwab@suse.de				completely different."
-SuSE Labs, SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+/* Bill Crawford, Unix Systems Developer, Ebone (formerly GTS Netcom) */
+#include <stddiscl>
+const char *addresses[] = {
+    "bill@syseng.netcom.net.uk", "Bill.Crawford@ebone.com",     // work
+    "billc@netcomuk.co.uk", "bill@eb0ne.net"                    // home
+};

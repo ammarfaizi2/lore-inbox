@@ -1,54 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261807AbVAGXyP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261738AbVAGXnM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261807AbVAGXyP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 18:54:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbVAGXyA
+	id S261738AbVAGXnM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 18:43:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261737AbVAGXmA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 18:54:00 -0500
-Received: from mail.tyan.com ([66.122.195.4]:25875 "EHLO tyanweb.tyan")
-	by vger.kernel.org with ESMTP id S261799AbVAGXxP (ORCPT
+	Fri, 7 Jan 2005 18:42:00 -0500
+Received: from fw.osdl.org ([65.172.181.6]:55016 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261730AbVAGXib (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 18:53:15 -0500
-Message-ID: <3174569B9743D511922F00A0C943142307291355@TYANWEB>
-From: YhLu <YhLu@tyan.com>
-To: Andi Kleen <ak@muc.de>
-Cc: Matt Domsch <Matt_Domsch@dell.com>, linux-kernel@vger.kernel.org,
-       discuss@x86-64.org, jamesclv@us.ibm.com, suresh.b.siddha@intel.com
-Subject: RE: 256 apic id for amd64
-Date: Fri, 7 Jan 2005 16:04:42 -0800 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	Fri, 7 Jan 2005 18:38:31 -0500
+Date: Fri, 7 Jan 2005 15:43:05 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Nikita Danilov <nikita@clusterfs.com>
+Cc: pmarques@grupopie.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       hch@infradead.org
+Subject: Re: [RFC] per thread page reservation patch
+Message-Id: <20050107154305.790b8a51.akpm@osdl.org>
+In-Reply-To: <m18y74rfqs.fsf@clusterfs.com>
+References: <20050103011113.6f6c8f44.akpm@osdl.org>
+	<20050103114854.GA18408@infradead.org>
+	<41DC2386.9010701@namesys.com>
+	<1105019521.7074.79.camel@tribesman.namesys.com>
+	<20050107144644.GA9606@infradead.org>
+	<1105118217.3616.171.camel@tribesman.namesys.com>
+	<41DEDF87.8080809@grupopie.com>
+	<m1llb5q7qs.fsf@clusterfs.com>
+	<20050107132459.033adc9f.akpm@osdl.org>
+	<m1d5wgrir7.fsf@clusterfs.com>
+	<20050107150315.3c1714a4.akpm@osdl.org>
+	<m18y74rfqs.fsf@clusterfs.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-arch/x86_64/kernel/setup.c
+Nikita Danilov <nikita@clusterfs.com> wrote:
+>
+> >
+> > Why does the filesystem risk going oom during the rebalance anyway?  Is it
+> > doing atomic allocations?
+> 
+> No, just __alloc_pages(GFP_KERNEL, 0, ...) returns NULL. When this
+> happens, the only thing balancing can do is to panic.
 
-static void __init detect_ht(struct cpuinfo_x86 *c)
+__alloc_pages(GFP_KERNEL, ...) doesn't return NULL.  It'll either succeed
+or never return ;) That behaviour may change at any time of course, but it
+does make me wonder why we're bothering with this at all.  Maybe it's
+because of the possibility of a GFP_IO failure under your feet or
+something?
 
-                phys_proc_id[cpu] = phys_pkg_id(index_msb);
+What happens if reiser4 simply doesn't use this code?
 
---->
-			  Phy_proc_id[cpu] = cpu_to_node[cpu];
-Or
-   	      // that is initial apicid
-          phys_proc_id[cpu] = c->x86_apicid >> hweight32(c->x86_num_cores -
-1);
 
-YH
+If we introduce this mechanism, people will end up using it all over the
+place.  Probably we could remove radix_tree_preload(), which is the only
+similar code I can I can immediately think of.
 
------Original Message-----
-From: Andi Kleen [mailto:ak@muc.de] 
-Sent: Friday, January 07, 2005 2:18 PM
-To: YhLu
-Cc: Matt Domsch; linux-kernel@vger.kernel.org; discuss@x86-64.org;
-jamesclv@us.ibm.com; suresh.b.siddha@intel.com
-Subject: Re: 256 apic id for amd64
+Page reservation is not a bad thing per-se, but it does need serious
+thought.
 
-On Fri, Jan 07, 2005 at 01:44:19PM -0800, YhLu wrote:
-> Can you consider to use c->x86_apicid to get phy_proc_id, that is initial
-> apicid.?
-
-Where? 
-
--Andi
+How does reiser4 end up deciding how many pages to reserve?  Gross
+overkill?

@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261560AbVB1FN5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261561AbVB1FkY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261560AbVB1FN5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 00:13:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261561AbVB1FN4
+	id S261561AbVB1FkY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 00:40:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbVB1FkX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 00:13:56 -0500
-Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:39855 "HELO
-	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261560AbVB1FNt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 00:13:49 -0500
-Message-ID: <4222A887.80301@yahoo.com.au>
-Date: Mon, 28 Feb 2005 16:13:43 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christian Schmid <webmaster@rapidforum.com>
-CC: Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Slowdown on high-load machines with 3000 sockets
-References: <4221FB13.6090908@rapidforum.com> <Pine.LNX.4.61.0502271216050.19979@chimarrao.boston.redhat.com> <Pine.LNX.4.61.0502271606220.19979@chimarrao.boston.redhat.com> <422239A8.1090503@rapidforum.com> <Pine.LNX.4.61.0502271830380.19979@chimarrao.boston.redhat.com> <42225B34.7020104@rapidforum.com> <Pine.LNX.4.61.0502271905270.19979@chimarrao.boston.redhat.com> <42226607.6020803@rapidforum.com>
-In-Reply-To: <42226607.6020803@rapidforum.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 28 Feb 2005 00:40:23 -0500
+Received: from fire.osdl.org ([65.172.181.4]:14763 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261561AbVB1FkS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 00:40:18 -0500
+Date: Sun, 27 Feb 2005 21:39:46 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "" <pmarques@grupopie.com>
+Cc: mdharm-kernel@one-eyed-alien.net, linux-kernel@vger.kernel.org,
+       perex@suse.cz, luming.yu@intel.com
+Subject: Re: sizeof(ptr) or sizeof(*ptr)?
+Message-Id: <20050227213946.199e82af.akpm@osdl.org>
+In-Reply-To: <1109546013.4222541d5db16@webmail.grupopie.com>
+References: <1109535904.42222ca0b0b78@webmail.grupopie.com>
+	<20050227204524.GA29026@one-eyed-alien.net>
+	<1109546013.4222541d5db16@webmail.grupopie.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Schmid wrote:
-> I already tried with 300 KB and even used a perl-hash as a horrible-slow 
-> buffer for a readahead-replacement. It still slowed down on the syswrite 
-> to the socket. Thats the strange thing.
+"" <pmarques@grupopie.com> wrote:
+>
+> Anyway, after improving the tool and checking for false positives, there is only
+>  one more suspicious piece of code in drivers/acpi/video.c:561
 > 
+>  	status = acpi_video_device_lcd_query_levels(device, &obj);
+> 
+>  	if (obj && obj->type == ACPI_TYPE_PACKAGE && obj->package.count >= 2) {
+>  		int count = 0;
+>  		union acpi_object *o;
+> 
+>  		br = kmalloc(sizeof &br, GFP_KERNEL);
 
-Do you have to use manual readahead though? What is the performance
-like if you just let the kernel do its own thing? The kernel's
-readahead provides things like automatic scaling and thrashing
-control, so if possible you should just stick to that.
+yup, bug.
 
-Although you may want to experiment with the maximum readahead on your
-working disks:
-/sys/block/???/queue/read_ahead_kb
+>  		if (!br) {
+>  			printk(KERN_ERR "can't allocate memory\n");
+>  		} else {
+>  			memset(br, 0, sizeof &br);
+>  			br->levels = kmalloc(obj->package.count * sizeof &br->levels, GFP_KERNEL);
 
-Also, can we get a testcase (ie. minimal compilable code) to reproduce
-this problem?
+And another one, although it happens to work out OK.
 
-Thanks,
-Nick
-
+I'll get these all fixed up, thanks.

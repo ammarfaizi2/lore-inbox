@@ -1,55 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316674AbSHGCoA>; Tue, 6 Aug 2002 22:44:00 -0400
+	id <S316683AbSHGCvD>; Tue, 6 Aug 2002 22:51:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316683AbSHGCoA>; Tue, 6 Aug 2002 22:44:00 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7184 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316674AbSHGCoA>;
-	Tue, 6 Aug 2002 22:44:00 -0400
-Message-ID: <3D508C83.3A78CC58@zip.com.au>
-Date: Tue, 06 Aug 2002 19:57:07 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Anton Blanchard <anton@samba.org>
-CC: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
-       riel@surriel.com
-Subject: Re: fix CONFIG_HIGHPTE
-References: <20020806231522.GJ6256@holomorphy.com> <3D506D43.890EA215@zip.com.au> <20020807010752.GC6343@krispykreme>
+	id <S316695AbSHGCvD>; Tue, 6 Aug 2002 22:51:03 -0400
+Received: from pcp01179415pcs.strl1201.mi.comcast.net ([68.60.208.36]:9206
+	"EHLO mythical") by vger.kernel.org with ESMTP id <S316683AbSHGCvD>;
+	Tue, 6 Aug 2002 22:51:03 -0400
+Date: Tue, 6 Aug 2002 22:54:10 -0400
+From: Ryan Anderson <ryan@michonline.com>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org,
+       abraham@2d3d.co.za
+Subject: Re: ethtool documentation
+Message-ID: <20020807025410.GG24032@mythical.michonline.com>
+Mail-Followup-To: "Richard B. Johnson" <root@chaos.analogic.com>,
+	"Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org,
+	abraham@2d3d.co.za
+References: <Pine.LNX.4.33L2.0208060834030.10089-100000@dragon.pdx.osdl.net> <Pine.LNX.3.95.1020806151104.25149A-100000@chaos.analogic.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.3.95.1020806151104.25149A-100000@chaos.analogic.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Blanchard wrote:
+> The EEPROM (SEEPROM) on these NICS is used to contain the startup
+> configuration bits and the IEEE Station Address. This must be a
+> unique number that is assigned so that there is no other such
+> number in (preferably) the world, and certainly in the LAN.
+> If you let a user write to this area, you will allow the user
+> to destroy the connectivity on a LAN.
 > 
+> If you provide an ioctl() to write new SEEPROM contents, it had
+> better be disabled in code that user's (any, including root)
+> can execute because, if caught, your company may lose it's IEEE
+> Station Addresses and never again be allowed to configure Ethernet
+> Controllers.
+
+I think you overstate the seriousness here - it's not unheard of for
+manufacturers to ship hardware with duplicate MAC addresses - a trivial
+search on Google turns up Cisco as one offender:
+
+http://www.cisco.com/warp/public/770/7.html
+
 > 
-> > We're piling more and more crap in there to support these pte_chains.
-> > How much is too much?
-> >
-> > Is it likely that large pages and/or shared pagetables would allow us to
-> > place pagetables and pte_chains in the direct-mapped region, avoid all
-> > this?
-> 
-> On ppc64 shared pagetables will require significant changes to the way
-> we handle the hardware hashtable. So add that to the "more and more crap
-> in there to support these pte_chains"
+> Because of this, there is no such thing as 'unused eeprom space' in
+> the Ethernet Controllers. Be careful about putting this weapon in
+> the hands of the 'public'. All you need is for one Linux Machine
+> on a LAN to end up with the same IEEE Station Address as another
+> on that LAN and connectivity to everything on that segment will
+> stop. You do this once at an important site and Linux will get a
+> very black eye.
 
-Last I heard, pagetable sharing wasn't working out too well
-because they all get unshared.
- 
-> Will shared pagetables be a requirement or can we turn it on per arch?
+Worse than GE?
 
-It's doubtful if per-arch would be an option.
+http://www.gefanuc.com/support/plc/m030202.htm
 
-How about this?
+Being able to permanently fix a screwed up card that duplicated another
+card on my LAN would be nice, imo.
 
-- We rely on large pages to solve the Oracle problem
+Of course, this assumes that IEEE Station Address == MAC address.
 
-- I'll do pte_chain_highmem and keep that and Bill's patch under test
-  in my tree on a wait-and-see basis.  Could go ahead and submit it
-  but it's all more complexity, and it'd be nice to actually pull
-  something out for a change.
 
-- We'll continue to suck for the University workload.
+--
+Ryan Anderson
+  sometimes Pug Majere

@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316397AbSEOPNj>; Wed, 15 May 2002 11:13:39 -0400
+	id <S316402AbSEOPPE>; Wed, 15 May 2002 11:15:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316400AbSEOPNi>; Wed, 15 May 2002 11:13:38 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:65296 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id <S316397AbSEOPNh>;
-	Wed, 15 May 2002 11:13:37 -0400
-Date: Wed, 15 May 2002 10:13:29 -0500
-From: Tommy Reynolds <reynolds@redhat.com>
-To: "Joe deBlaquiere" <jadb@redhat.com>
-Cc: Jack.Bloch@icn.siemens.com, linux-kernel@vger.kernel.org
-Subject: Re: Device driver question
-Message-Id: <20020515101329.6e609f33.reynolds@redhat.com>
-In-Reply-To: <1021474990.1450.56.camel@uberdog>
-Organization: Red Hat Software, Inc. / Embedded Development
-X-Mailer: Sylpheed version 0.7.6cvs4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$ t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- boundary="=.a1bh0ytlOWXb2B"
+	id <S316399AbSEOPPD>; Wed, 15 May 2002 11:15:03 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:3333 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S316402AbSEOPPB>; Wed, 15 May 2002 11:15:01 -0400
+Date: Wed, 15 May 2002 11:11:05 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Address space limits in IA32 linux
+In-Reply-To: <200205151257.HAA75582@tomcat.admin.navo.hpc.mil>
+Message-ID: <Pine.LNX.3.96.1020515110730.5026A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.a1bh0ytlOWXb2B
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+On Wed, 15 May 2002, Jesse Pollard wrote:
 
-Uttered "Joe deBlaquiere" <jadb@redhat.com>, spoke thus:
+> IA32 is by definition limited to 4G. Just because the Kernel may, under
+> extreem duress, access more by memory management shenanigans access more,
+> user processes are ALWAYS limited to a 32 bit virtual address. Even this
+> is more restricted, since shared libraries and other access limits it even
+> more. Usually you can stretch it to 3G, but not over that.
 
->  How about just write a driver that responds to the interrupt, and write
->  a program that does a blocking read from the driver. The driver read
->  routine stuff the program on a wait queue... until... interrupt occurs,
->  wake up the program, program does exec(/sbin/halt) ?
+Actually you can go to 3.5G now, using readily available patches. However,
+your unstated premise is correct, the limit using current kernel and gcc
+capabilities is <4G. 
 
-Yup, that could work too. (Classic see-interrupt-from-user-space solution)  It
-all depends on how urgently his embedded system needs to reboot.  Choices abound
-for rebooting: the hard part is not rebooting until you want to reboot.
---=.a1bh0ytlOWXb2B
-Content-Type: application/pgp-signature
+> 
+> search the archives - the details are available.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
+Right, so is 3.5G, but I doubt that anyone with a problem not working in
+3G is going to find solace in 3.5G.
 
-iEYEARECAAYFAjziex8ACgkQWEn3bOOMcurNiACgqOhb4MAibiALiXSAR49haOQa
-XmIAoJIaNFb6zMN8OUUtcOR0k9un0J4m
-=3lzP
------END PGP SIGNATURE-----
-
---=.a1bh0ytlOWXb2B--
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

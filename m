@@ -1,29 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293022AbSCJMoq>; Sun, 10 Mar 2002 07:44:46 -0500
+	id <S293027AbSCJMsG>; Sun, 10 Mar 2002 07:48:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293024AbSCJMog>; Sun, 10 Mar 2002 07:44:36 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:18190 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S293022AbSCJMoZ>; Sun, 10 Mar 2002 07:44:25 -0500
-Subject: Re: [PATCH] RPM build target fixes
-To: alexh@ihatent.com (Alexander Hoogerhuis)
-Date: Sun, 10 Mar 2002 12:59:25 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <m3sn784vmm.fsf@lapper.ihatent.com> from "Alexander Hoogerhuis" at Mar 10, 2002 10:31:13 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S293026AbSCJMr4>; Sun, 10 Mar 2002 07:47:56 -0500
+Received: from [194.228.240.11] ([194.228.240.11]:63404 "EHLO sakal.vgd.cz")
+	by vger.kernel.org with ESMTP id <S293024AbSCJMrr>;
+	Sun, 10 Mar 2002 07:47:47 -0500
+Subject: 2.5.6 Swap weirdness
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OFF7BC4A71.4F6A5218-ONC1256B78.00383620@vgd.cz>
+From: Petr.Titera@whitesoft.cz
+Date: Sun, 10 Mar 2002 11:18:30 +0100
+X-MIMETrack: Serialize by Router on Sakal/SRV/SOCO/CZ(Release 5.0.8 |June 18, 2001) at
+ 03/10/2002 01:47:45 PM
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16k2v8-0006QY-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Thats exactly the opposite of what is expected
-> 
-> How so? Given that it actually cleans up after itself you are not left
-> with multiple .spec files in any directory? Or have I missed something?
+Hello,
 
-Most source rpm packages come with a [packagename.spec] file without a 
-version.
+     in linux kernel 2.5.6 swap statistics are displayed incorrectly. Used
+space is added to total swap size and not subtracted from free space. See
+attached output
+
+
+[root@nevskij proc]# free
+             total       used       free     shared    buffers     cached
+Mem:        257348     159748      97600          0       9328      41004
+-/+ buffers/cache:     109416     147932
+Swap:       152800      24320     128480
+[root@nevskij proc]# cat /proc/swaps
+Filename                                Type            Size    Used
+Priority
+/dev/hda5                               partition       128480  24316   -1
+[root@nevskij proc]#
+
+Petr Titera
+

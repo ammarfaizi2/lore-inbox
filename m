@@ -1,64 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285550AbRLGVNx>; Fri, 7 Dec 2001 16:13:53 -0500
+	id <S285553AbRLGVRX>; Fri, 7 Dec 2001 16:17:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285551AbRLGVNr>; Fri, 7 Dec 2001 16:13:47 -0500
-Received: from thebsh.namesys.com ([212.16.0.238]:50954 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S285550AbRLGVNg>; Fri, 7 Dec 2001 16:13:36 -0500
-Message-ID: <3C1130B7.8020201@namesys.com>
-Date: Sat, 08 Dec 2001 00:12:23 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Daniel Phillips <phillips@bonn-fries.net>
-CC: Ragnar =?ISO-8859-1?Q?Kj=F8rstad?= <reiserfs@ragnark.vestdata.no>,
-        linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
-Subject: Re: [reiserfs-dev] Re: Ext2 directory index: ALS paper and benchmarks
-In-Reply-To: <E16BjYc-0000hS-00@starship.berlin> <E16CP0X-0000uE-00@starship.berlin> <20011207190301.C6640@vestdata.no> <E16CPaA-0000uj-00@starship.berlin>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S285554AbRLGVRN>; Fri, 7 Dec 2001 16:17:13 -0500
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:11179 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S285553AbRLGVRB>; Fri, 7 Dec 2001 16:17:01 -0500
+Date: Fri, 7 Dec 2001 16:16:59 -0500
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] [RFC] [PATCH] Scalable Statistics Counters
+Message-ID: <20011207161659.A22935@devserv.devel.redhat.com>
+In-Reply-To: <3C0F6D99.8CF24014@redhat.com> <951177670.1007759364@[195.224.237.69]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <951177670.1007759364@[195.224.237.69]>; from linux-kernel@alex.org.uk on Fri, Dec 07, 2001 at 09:09:25PM -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
+yOn Fri, Dec 07, 2001 at 09:09:25PM -0000, Alex Bligh - linux-kernel wrote:
+> 
+> 
+> --On Thursday, 06 December, 2001 1:07 PM +0000 Arjan van de Ven 
+> <arjanv@redhat.com> wrote:
+> 
+> > Would you care to point out a statistic in the kernel that is
+> > incremented
+> > more than 10.000 times/second ? (I'm giving you a a factor of 100 of
+> > playroom
+> > here) [One that isn't per-cpu yet of course]
+> 
+> cat /proc/net/dev
+> 
+> 80,000 increments a second here on at least 4 counters
 
->On December 7, 2001 07:03 pm, Ragnar Kjørstad wrote:
->
->>>With ReiserFS we see slowdown due to random access even with small 
->>>directories.  I don't think this is a cache effect.
->>>
->>I can't see why the benefit from read-ahead on the file-data should be
->>affected by the directory-size?
->>
->>I forgot to mention another important effect of hash-ordering:
->>If you mostly add new files to the directory it is far less work if you
->>almost always can add the new entry at the end rather than insert it in
->>the middle. Well, it depends on your implementation of course, but this
->>effect is quite noticable on reiserfs. When untaring a big directory of
->>maildir the performance difference between the tea hash and a special
->>maildir hash was approxemately 20%. The choice of hash should not affect
->>the performance on writing the data itself, so it has to be related to
->>the cost of the insert operation.
->>
->
->Yes, I think you're on the right track.  HTree on the other hand is optimized 
->for inserting in arbitrary places, it takes no advantage at all of sequential 
->insertion.  (And doesn't suffer from this, because it all happens in cache 
->anyway - a million-file indexed directory is around 30 meg.)
->
->--
->Daniel
->
->
-someday reiserfs might benefit from inserting more airholes into 
-directories so that insertion is more efficient.
-
-This may be a significant advantage of Htree.
-
-Yet another feature needed.....:-/
-
-Hans
-
-
+except that
+1) you can (and should) bind nics to cpus
+and 
+2) the cacheline for nic stats should (for good drivers) be in the cacheline
+the ISR gets into the cpu ANYWAY to get to the device data -> no extra
+cacheline pingpong

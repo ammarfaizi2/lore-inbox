@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262221AbSJJXCI>; Thu, 10 Oct 2002 19:02:08 -0400
+	id <S262194AbSJJXA0>; Thu, 10 Oct 2002 19:00:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262223AbSJJXCH>; Thu, 10 Oct 2002 19:02:07 -0400
-Received: from blowme.phunnypharm.org ([65.207.35.140]:40967 "EHLO
-	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
-	id <S262221AbSJJXCG>; Thu, 10 Oct 2002 19:02:06 -0400
-Date: Thu, 10 Oct 2002 19:07:47 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Erik Andersen <andersen@codepoet.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux1394-devel@lists.sourceforge.net
-Subject: Re: [PATCH] ieee1394 hotplug SCSI interaction 2.4.20-pre10
-Message-ID: <20021010230747.GC26771@phunnypharm.org>
-References: <20021010223700.GA26348@codepoet.org>
-Mime-Version: 1.0
+	id <S262202AbSJJXA0>; Thu, 10 Oct 2002 19:00:26 -0400
+Received: from packet.digeo.com ([12.110.80.53]:25535 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262194AbSJJXA0>;
+	Thu, 10 Oct 2002 19:00:26 -0400
+Message-ID: <3DA607DC.7F6DADB9@digeo.com>
+Date: Thu, 10 Oct 2002 16:06:04 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "J.A. Magallon" <jamagallon@able.es>
+CC: Mark Mielke <mark@mark.mielke.cc>, Robert Love <rml@tech9.net>,
+       Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: More on O_STREAMING (goodby read pauses)
+References: <20021009222349.GA2353@werewolf.able.es> <1034203433.794.152.camel@phantasy> <20021010034057.GC8805@mark.mielke.cc> <20021010143927.GA2193@werewolf.able.es> <20021010180108.GB16962@mark.mielke.cc> <20021010225052.GE1676@werewolf.able.es>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021010223700.GA26348@codepoet.org>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 10 Oct 2002 23:06:05.0004 (UTC) FILETIME=[9C1688C0:01C270B1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> When I posted my earlier effort to the linux1394-devel list:
->     http://sourceforge.net/mailarchive/forum.php?thread_id=949390&forum_id=5389
-> it was decided that the change to the SCSI subsystem needed to
-> expose scsi_add_single_device() and scsi_remove_single_device()
-> was not desirable.  I'll leave the decision on that to others.
+"J.A. Magallon" wrote:
+> 
+> ...
+> I look at gnome system monitor graph for mem. I start with a tiny amount of
+> used memory. Start the 1Gb read without O_STREAM, the blue area in monitor
+> starts to grow linearly in time, stars (*) from the reader appear at a
+> given rate, and as soon as it touches the top limit the stars stop, the disk
+> begins to thrash, and swap space used grows. After a 2-4 seconds, the stars
+> go again with the same rate. Tell me what is this but swapper writing pages,
+> and reading the new pages for my giga.
+> 
 
-Never said it wasn't desirable per se, just that if Marcelo doesn't
-accept that patch, then we can't make use of it. If you feel so strongly
-about it, then send that portion of the patch to Marcelo for 2.4.20 or
-2.4.21.
+That's fairly rude behaviour for a 2.4 kernel.  Sounds like 2.5 ;)
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/
+What kernel is that?

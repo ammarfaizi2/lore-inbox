@@ -1,53 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262216AbUKDNQN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262212AbUKDN3x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262216AbUKDNQN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 08:16:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262220AbUKDNQN
+	id S262212AbUKDN3x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 08:29:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbUKDN3x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 08:16:13 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:23314 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S262216AbUKDNQM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 08:16:12 -0500
-Subject: Re: [PATCH 7/12] meye: the driver is no longer experimental and
-	depends on PCI
-From: Arjan van de Ven <arjan@infradead.org>
-To: Stelian Pop <stelian@popies.net>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20041104123210.GW3472@crusoe.alcove-fr>
-References: <20041104111231.GF3472@crusoe.alcove-fr>
-	 <20041104111613.GM3472@crusoe.alcove-fr>
-	 <20041104114126.GA31736@infradead.org>
-	 <20041104114904.GV3472@crusoe.alcove-fr>
-	 <1099570980.16640.6.camel@laptop.fenrus.org>
-	 <20041104123210.GW3472@crusoe.alcove-fr>
-Content-Type: text/plain
-Message-Id: <1099574162.16640.9.camel@laptop.fenrus.org>
+	Thu, 4 Nov 2004 08:29:53 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25757 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262222AbUKDN2v
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 08:28:51 -0500
+Date: Thu, 4 Nov 2004 08:25:05 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Germano <germano.barreiro@cyclades.com>
+Cc: greg@kroah.com, Scott_Kilau@digi.com, linux-kernel@vger.kernel.org
+Subject: Re: patch for sysfs in the cyclades driver
+Message-ID: <20041104102505.GA8379@logos.cnet>
+References: <1099487348.1428.16.camel@tsthost>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Thu, 04 Nov 2004 14:16:02 +0100
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.6 (++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (2.6 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[62.195.31.207 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[62.195.31.207 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1099487348.1428.16.camel@tsthost>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 03, 2004 at 11:09:08AM -0200, Germano wrote:
+> Hi
+> 
+> I will have to study again the code I tried first (it was long ago), but
+> the main problem was that due to that class be (somehow) derived from
+> class_simple, I can one export using it the major and minor numbers for
+> the device. Tosatti, maybe you can complete my answer with details,
+> since it was you that advised me about this limitation.
+> However, this was some time ago (kernel 2.6.7 was going to be released),
+> and I didn't check how much sysfs for the tty drivers has changed since
+> them. If I can attach this data (signalling states) to the port, it
+> would be very preferable than attaching to the board as me and Scott are
+> trying. Even because his advise about the possibility of my patch be
+> overwritting one channel data with other's make a lot of sense and I
+> will have to test it (I'm grateful for you, Scott).
 
-> I thought that CONFIG_HIGHMEM64G is not cost-free and thus must
-> be enabled only when needed...
+The problem was class_simple only contains the "dev" attribute. You can't
+add other attributes to it.
 
-having multiple kernels also isn't free... and there's a milion
-different config options that cost/gain performance ;)
+The correct thing should be to create "class_tty" with all necessary attributes 
+(speed, data transferred, etc).  
 
+But thats not a v2.6 thing I believe.  
 
+I talked to Greg about this at the time and he agreed we need a "class_tty"
+type.
+
+> Cheers :)
+> Germano
+> 
+> On Tue, Nov 02, 2004 at 02:51:33PM -0600, Kilau, Scott wrote:
+> > > I know you have done work on USB serial drivers with devices with
+> > > multiple ports...
+> > > Is there any way to create a file in sys that can point back to a port,
+> > > and NOT the port's
+> > > parent (ie, the board) WITHOUT having to create a new kobject per port?
+> What's wrong with the kobject in /sys/class/tty/ which has one object
+> per port?  I think we might not be exporting that class_device
+> structure, but I would not have a problem with doing that.

@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274738AbRIZAFx>; Tue, 25 Sep 2001 20:05:53 -0400
+	id <S274705AbRIYX6m>; Tue, 25 Sep 2001 19:58:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274739AbRIZAFm>; Tue, 25 Sep 2001 20:05:42 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:16113 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S274738AbRIZAFj>;
-	Tue, 25 Sep 2001 20:05:39 -0400
-Date: Wed, 26 Sep 2001 02:06:17 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Michael Rothwell <rothwell@holly-springs.nc.us>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.10 much better than previous 2.4.x :-)
-Message-ID: <20010926020617.T1782@athlon.random>
-In-Reply-To: <1001377785.1430.7.camel@gromit.house>
-Mime-Version: 1.0
+	id <S274738AbRIYX6c>; Tue, 25 Sep 2001 19:58:32 -0400
+Received: from dfw-smtpout3.email.verio.net ([129.250.36.43]:17799 "EHLO
+	dfw-smtpout3.email.verio.net") by vger.kernel.org with ESMTP
+	id <S274705AbRIYX6T>; Tue, 25 Sep 2001 19:58:19 -0400
+Message-ID: <3BB11A30.CFED2454@bigfoot.com>
+Date: Tue, 25 Sep 2001 16:58:40 -0700
+From: Tim Moore <timothymoore@bigfoot.com>
+Organization: Yoyodyne Propulsion Systems, Inc.
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.20p10i i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Chris Newton <newton@unb.ca>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: FWD: RE: excessive interrupts on network cards
+In-Reply-To: <3BB13A1B@webmail1>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1001377785.1430.7.camel@gromit.house>; from rothwell@holly-springs.nc.us on Mon, Sep 24, 2001 at 08:29:44PM -0400
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 24, 2001 at 08:29:44PM -0400, Michael Rothwell wrote:
+Just for grins what does 'procinfo -DSn2' say?
+
+Chris Newton wrote:
+> ...
+> uptime:       0:07:54.17         context :    43253
 > 
-> This is mainly a thank you for 2.4.10. It performs much better than
-> 2.4.7 (RedHat version), from which I upgraded. Interactive performance
-> for applications (Gnome, Evolution, Mozilla) is much improved, and my
-> swap load is at zero, which is probably where it should be (2.4.7 would
-> regularly be using 256MB of swap with the same applications running).
-
-if you apply vm-tweaks-1 it should get even better ;).
-
-Andrea
+> irq  0:       500 timer                 irq 16:       131 eth2
+> irq  1:         0 keyboard              irq 20:     22266 eth0
+> irq  2:         0 cascade [4]           irq 21:         0 eth1
+> irq  6:         0                       irq 30:         0 aic7xxx
+> irq 12:         0                       irq 31:       121 aic7xxx
+> irq 14:         0 ide0
+--

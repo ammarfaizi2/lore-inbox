@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316768AbSFFNBh>; Thu, 6 Jun 2002 09:01:37 -0400
+	id <S316906AbSFFNJL>; Thu, 6 Jun 2002 09:09:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316906AbSFFNBg>; Thu, 6 Jun 2002 09:01:36 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:42764 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S316768AbSFFNBg>;
-	Thu, 6 Jun 2002 09:01:36 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: jlmales@yahoo.com
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Question Regarding "EXTRAVERSION" Specification 
-In-Reply-To: Your message of "Thu, 06 Jun 2002 03:09:29 -0400."
-             <20020606030929.460bec3e.jlmales@softhome.net> 
-Mime-Version: 1.0
+	id <S316919AbSFFNJK>; Thu, 6 Jun 2002 09:09:10 -0400
+Received: from mail.parknet.co.jp ([210.134.213.6]:28172 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP
+	id <S316906AbSFFNJJ>; Thu, 6 Jun 2002 09:09:09 -0400
+To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] remove the fat_cvf
+In-Reply-To: <73BA70C46BF@vcnet.vc.cvut.cz>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Thu, 06 Jun 2002 22:08:44 +0900
+Message-ID: <87wutc4krn.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 06 Jun 2002 23:01:27 +1000
-Message-ID: <4708.1023368487@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Jun 2002 03:09:29 -0400, 
-"John L. Males" <jlmales@softhome.net> wrote:
->***** Please note I am not on the Linux Kernel Mailing List.  Please
->be so kind as to BCC copy me in on any reply to this inquiry.  Thanks
->The questions are:
->
->  1) Is there a specification that states the maximum length that the
->"EXTRAVERSION" string may be?
+"Petr Vandrovec" <VANDROVE@vc.cvut.cz> writes:
 
-The total length $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
-must not exceed 64 characters.  Break that limit and you get garbage in
-uname -r.
+> On  6 Jun 02 at 0:31, OGAWA Hirofumi wrote:
+> > This patch is first stuff to remove fat_cvf. AFAIK, it seems the
+> > fat_cvf isn't used for a long time. And fat_cvf makes change of fatfs
+> > difficult.
+> > 
+> > Is the fat_cvf needed? If it's not needed, I will submit the
+> > following patch at this weekend..
+> 
+> ftp://fb9nt.uni-duisburg.de/pub/linux/dmsdos/README reads:
+> --
+> PLEASE NOTE:
+> 
+>  The DMSDOS project is dead. I no longer maintain it due to lack of time.
+>  The latest supported kernel is 2.2.15 with dmsdos 0.9.2.1.
+>  There will never be a kernel 2.4.x port. Dmsdos 0.9.2.3-pre2 was an
+>  attempt to port the code, but it has failed. Don't use it.
+> --        
+> and it is latest dmsdos related file I found (and 0.9.2.1 is latest
+> I used on 2.2.17), so I believe that it is safe to remove cvf code
+> from fatfs. Both Stacker and Doublespace supported FAT16 only, so
+> current usual 120GB disk would require 120 logical units with estimated
+> compression ratio 2:1. IMHO adding dmsdosfs into mtools is the best 
+> solution for those who still need it.
 
->  2) Does the Kernel make/build process enforce any specified limit of
->(1) above?
-
-kbuild 2.5 enforces the limit, the existing kernel build code does not.
-I sent a patch to Linus four times back in the 2.4.15 days, he
-completely ignored it.  Linus does not care about kernel build
-problems.
-
-I will dig out the patch and send it to Marcelo.
-
+Indeed. If dmsdos is need, I think it must rewriting already many
+stuff.  Thanks.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

@@ -1,124 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129613AbRBAMjr>; Thu, 1 Feb 2001 07:39:47 -0500
+	id <S129804AbRBAMnS>; Thu, 1 Feb 2001 07:43:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129714AbRBAMjh>; Thu, 1 Feb 2001 07:39:37 -0500
-Received: from tomts8.bellnexxia.net ([209.226.175.52]:998 "EHLO
-	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S129613AbRBAMja>; Thu, 1 Feb 2001 07:39:30 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: David Ford <david@linux.com>
-Subject: Re: VM brokenness, possibly related to reiserfs
-Date: Thu, 1 Feb 2001 07:39:15 -0500
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
+	id <S129772AbRBAMnI>; Thu, 1 Feb 2001 07:43:08 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:4102 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129804AbRBAMm7>; Thu, 1 Feb 2001 07:42:59 -0500
+Date: Thu, 1 Feb 2001 08:53:33 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+cc: David Gould <dg@suse.com>, "Eric W. Biederman" <ebiederm@xmission.com>,
+        lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: Re: [PATCH] vma limited swapin readahead
+In-Reply-To: <20010201112601.K11607@redhat.com>
+Message-ID: <Pine.LNX.4.21.0102010824000.17822-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Message-Id: <01020107391500.07626@oscar>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Gather this is with no swap space allocated...  And the question is why does 
-the oom handler not get triggered?
+On Thu, 1 Feb 2001, Stephen C. Tweedie wrote:
 
-Ed Tomlinson
+> Hi,
+> 
+> On Wed, Jan 31, 2001 at 04:24:24PM -0800, David Gould wrote:
+> > 
+> > I am skeptical of the argument that we can win by replacing "the least
+> > desirable" pages with pages were even less desireable and that we have
+> > no recent indication of any need for. It seems possible under heavy swap
+> > to discard quite a portion of the useful pages in favor of junk that just
+> > happenned to have a lucky disk address.
+> 
+> When readin clustering was added to 2.2 for swap and paging,
+> performance for a lot of VM-intensive tasks more than doubled.  Disk
+> seeks are _expensive_.  If you read in 15 neighbouring pages on swapin
+> and on average only one of them turns out to be useful, you have still
+> halved the number of swapin IOs required.  The performance advantages
+> are so enormous that easily compensate for the cost of holding the
+> other, unneeded pages in memory for a while.
+> 
+> Also remember that the readahead pages won't actually get mapped into
+> memory, so they can be recycled easily.  So, under swapping you tend
+> to find that the extra readin pages are going to be replacing old,
+> unneeded readahead pages to some extent, rather than swapping out
+> useful pages.
 
-David Ford wrote:
+If we're under free memory shortage, "unlucky" readaheads will be harmful.
 
-> (Chris, changing JOURNAL_MAX_BATCH from 900 to 100 didn't affect
-> anything).
-> 
-> Ok, having approached this slightly more intelligently here are [better]
-> results.
-> 
-> The dumps are large so they are located at http://stuph.org/VM/.  Here's
-> the story.  I boot and startx, I load xmms and netscape to eat away
-> memory.  When free buffers/cache falls below 7M the system stalls and
-> the only recovery is sysrq-E or reboot.  At the moment of stall the disk
-> will grind continuously for about 25 to 30 minutes then go silent.  At
-> this point in time the only recovery is reboot, sysrq-E won't work.
-> 
-> If I move the mouse or type a key within 30 seconds of this incident,
-> that user input will take about 5 minutes to register.  After that
-> initial minute, nothing more will happen.
-> 
-> Kernel 2.4.1, with reiserfs, devfs, no patches applied.
-> 
-> "klog-X" are basically the same thing but I'm running top, syslogd, and
-> klogd with -20 priority.  I didn't note anything out of the ordinary in
-> top.  These are snapshots where I've managed to murder processes and
-> restart the problem without rebooting.
-> 
-> In the second instance, I had my finger on the kill button and managed
-> to kill netscape and recover partially.  However the system was heavily
-> loaded even after the kill.
-> 
-> I have xmms in STOPped state so it's just waiting.
-> 
-> kswapd is taking 12.2% of the CPU according to ps, and kapm-idled is
-> taking 26.9%.  bdflush is taking 2.7%, X 3.5%, all others are nominal.
-> The system load was hovering at 1.00 for a few minutes then dropped to
-> zero.  However scrolling text in an rxvt is slow enough to watch blocks
-> move.  Running "ps aux" takes nearly one third of a second for total
-> time.  Total number of processes is ~40.
-> 
-> Jan 31 22:31:51 nifty kernel: kapm-idled  S CBF77F94  4124     3
-> 1        (L-TLB)       4     2
-> Jan 31 22:31:51 nifty kernel: Call Trace: [schedule_timeout+115/148]
-> [process_timeout+0/72] [apm_mainloop+221/256] [apm+668/692]
-> [kernel_thread+31/56] [kernel_thread+40/56]
-> 
-> Jan 31 22:31:51 nifty kernel: kswapd    S CBF75FAC  5704     4
-> 1        (L-TLB)       5     3
-> Jan 31 22:31:51 nifty kernel: Call Trace: [schedule_timeout+115/148]
-> [process_timeout+0/72] [interruptible_sleep_on_timeout+66/92]
-> [kswapd+213/244] [kernel_thread+40/56]
-> 
-> Jan 31 22:31:52 nifty kernel: bdflush   S CBF70000  5912     6
-> 1        (L-TLB)       7     5
-> Jan 31 22:31:52 nifty kernel: Call Trace: [bdflush+206/216]
-> [kernel_thread+40/56]
-> 
-> 
-> In the fourth snapshot, I have put xmms in STOP state again inside the
-> memory shortage, memory is at 4800 free buffers/cache and 1592 free mem.
-> 
-> As I entered this shortage period I started a 'ps -eo ... > file' to try
-> and record data there.  This is the only disk activity happening.  Load
-> is ~4.00.  I have now killed the ps.
-> 
-> Load has dropped significantly and I have tolerable but quite laggy user
-> input responsiveness now.
-> 
-> Memory is currently 4900/1588 like above.  Load is about 2.00 and will
-> continue dropping if I don't do anything.  Any processes I exec which
-> need to be loaded from disk take several seconds.  I.e. 'uptime' takes
-> about 4 seconds to execute.
-> 
-> Snapshot #5 will be the last one and I will reboot.  Once memory is
-> freed from xmms (back to 150megs free), everything is peachy.
-> 
-> 
-> -d
-> 
-> --
->   There is a natural aristocracy among men. The grounds of this are virtue 
-and talents.
->   Thomas Jefferson The good thing about standards is that there are so many 
-to choose
->   from. Andrew S. Tanenbaum
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
+Currently the swapin readahead code can block waiting for memory to do the
+readahead, forcing other pages to be aged/freed more aggressively.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

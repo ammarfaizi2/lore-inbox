@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292563AbSBTW5e>; Wed, 20 Feb 2002 17:57:34 -0500
+	id <S292564AbSBTXBY>; Wed, 20 Feb 2002 18:01:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292564AbSBTW5S>; Wed, 20 Feb 2002 17:57:18 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:58312 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S292563AbSBTW5E>; Wed, 20 Feb 2002 17:57:04 -0500
-Date: Wed, 20 Feb 2002 17:57:04 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200202202257.g1KMv4c04306@devserv.devel.redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: socket API extensions workgroup at OpenGroup needs HELP
-In-Reply-To: <mailman.1014244622.20316.linux-kernel2news@redhat.com>
-In-Reply-To: <mailman.1014244622.20316.linux-kernel2news@redhat.com>
+	id <S292566AbSBTXBO>; Wed, 20 Feb 2002 18:01:14 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:35342 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292564AbSBTXA7>; Wed, 20 Feb 2002 18:00:59 -0500
+Subject: Re: Q: PCI Driver ioremap
+To: dstroupe@keyed-upsoftware.com (David Stroupe)
+Date: Wed, 20 Feb 2002 23:15:13 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3C741BAF.9090300@keyed-upsoftware.com> from "David Stroupe" at Feb 20, 2002 03:57:03 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16dfxB-00054C-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  Interested people should contact the working group co-chairs for details
->  about how to join the effort:
->     David Edmondson (david.edmondson@sun.co) or
->     Satya Sharma (ssharma@us.ibm.com)
->  
->  The URL of the OpenGroup Interconnect Software Consortium is:
->     http://www.opengroup.org/icsc/
+> pci_enable_device (pdev)
 
-Yea, yea. The little problem here is that TOG is not getting it.
-When I see a website that says "Employees of member companies should
-send mail to the Consortium Administrator requesting access to the
-Member area.", I sure as hell is not getting a hardon about working
-on "overtaking Winsock" (and why exactly would we want to copy
-broken attempts to embrace and extend? Perhaps you should talk to
-a certain <i>monkey lover company</i> about it).
+Should check the return but that is fine I guess
 
-I would not mind to participate in something more open.
-If anyone has a suggestion of a mailing list which works
-in a way of tcp-implementors, but on the topic of socket API
-extensions for Infiniband, then I am interested.
+>         if(base==0)
+>            DBG("memory mapped wrong\n");//this is never reached
+>         writew(0xffff, base + 0x48);
+> <snip>
+> The write is unsuccessful or at least the data never reaches the card. 
+>  What am I doing incorrectly?
 
--- Pete
+
+Looks fine to me. Obviously you should a read to make sure the write
+reaches the card from PCI posting but I'd expect that to timeout and
+hit the card

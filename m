@@ -1,75 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129078AbRBDQr7>; Sun, 4 Feb 2001 11:47:59 -0500
+	id <S129116AbRBDRAf>; Sun, 4 Feb 2001 12:00:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131206AbRBDQrt>; Sun, 4 Feb 2001 11:47:49 -0500
-Received: from green.csi.cam.ac.uk ([131.111.8.57]:14473 "EHLO
-	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S129078AbRBDQri>; Sun, 4 Feb 2001 11:47:38 -0500
-Date: Sun, 4 Feb 2001 16:46:30 +0000 (GMT)
-From: James Sutherland <jas88@cam.ac.uk>
-To: Steve Underwood <steveu@coppice.org>
-cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Better battery info/status files
-In-Reply-To: <3A7D8116.CA16340B@coppice.org>
-Message-ID: <Pine.SOL.4.21.0102041641170.7886-100000@green.csi.cam.ac.uk>
+	id <S129304AbRBDRAZ>; Sun, 4 Feb 2001 12:00:25 -0500
+Received: from Cantor.suse.de ([213.95.15.193]:59399 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129116AbRBDRAK>;
+	Sun, 4 Feb 2001 12:00:10 -0500
+To: "Hen, Shmulik" <shmulik.hen@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel memory allocations alignment
+In-Reply-To: <07E6E3B8C072D211AC4100A0C9C5758302B2711B@hasmsx52.iil.intel.com>
+From: Andi Kleen <ak@suse.de>
+Date: 04 Feb 2001 18:00:05 +0100
+In-Reply-To: "Hen, Shmulik"'s message of "4 Feb 2001 17:18:50 +0100"
+Message-ID: <oup66iq8ju2.fsf@pigdrop.muc.suse.de>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Feb 2001, Steve Underwood wrote:
-> James Sutherland wrote:
-> > On Sun, 4 Feb 2001, Ben Ford wrote:
-> > > David Woodhouse wrote:
-> > > > On Sun, 4 Feb 2001, James Sutherland wrote:
-> > > >
-> > > > > For the end-user, the ability to see readings in other units would be
-> > > > > useful - how many people on this list work in litres/metres/kilometres,
-> > > > > and how many in gallons/feet/miles? Probably enough in both groups that
-> > > > > neither could count as universal...
-> > > >
-> > > > Yeah. We can have this as part of the locale settings, changable by
-> > > > echoing the desired locale string to /proc/sys/kernel/lc_all.
-> > >
-> > > Just an idea, . .  but isn't this something better done in userland?
-> > >
-> > > (ben@Deacon)-(06:49am Sun Feb  4)-(ben)
-> > > $ date  +%s
-> > > 981298161
-> > > (ben@Deacon)-(06:49am Sun Feb  4)-(ben)
-> > > $ date  +%c
-> > > Sun Feb  4 06:49:24 2001
-> > 
-> > That's what I'd do, anyway - /dev/pieceofstring would return the length of
-> > said piece of string in some units, explicityly stated. (e.g. "5m" or
-> > "15ft").
-> > 
-> > "uname -s" ("how long's a piece of string on this system") would then
-> > convert the length into feet, metres or fathoms, depending on what the
-> > user prefers.
+"Hen, Shmulik" <shmulik.hen@intel.com> writes:
+
+> Actually yes. We were warned that on IA64 architecture the system will halt
+> when accessing any type of variable via a pointer if the pointer does not
+> contain an aligned address matching that type. Until now we were using a
+
+That will need to be fixed with a handler anyways, the network stack requires 
+unaligned accesses. If the IA64 port doesn't handle that it it's buggy and 
+trivially remotely crashable.
+
+Of course it'll always be much faster to use aligned accesses that do not
+need an exception.
+
+> method of receiving a pointer to an array, casting it to a pointer of a
+> struct (packed with #pragma pack(1) ) ,and retrieving fields directly from
+> it with pointers.
+> It seems we cannot do that any more and were wondering what are the
+> alternatives.
+
+get_unaligned() or a memcpy to a local variable is the standard method.
+get_unaligned is normally slightly faster than relying on an unalignment
+exception handler.
+
+> One way we could think of is forget the packing and rearrange the fields in
+> the struct in descending order so they all come out aligned, but we didn't
+> know for sure if the first one will be aligned too.
 > 
-> Don't get carried away. In the present context we are only talking about
-> time and electrical measurements. Whilst most of the human race can't
-> read the English labels in /proc, they all use the same measurements for
-> electrical units and time (unless the time exceeds 24 hours, where dates
-> get a bit screwed up). In this case even the US in in line with the rest
-> of humanity............. or would you like to be able to express battery
-> capacity in BTUs?
+> Will that work ?
 
-Personally, I'd prefer a percentage and/or estimated time remaining
-anyway... However, from the kernel's PoV, the rule is just "KISS". Print
-in something consistent, let userspace do any conversions you
-want. Probably seconds for time (simplest - scripts can compare "if
-est_batterylife_remaining < 300 do something", UI things can convert to
-H:M:S or whatever), watts for power.
+Yes, it's the best solution.
 
-What is measured, BTW - battery voltage, presumably, and drain
-current?
-
-
-James.
-
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

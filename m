@@ -1,73 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261491AbTCZGvN>; Wed, 26 Mar 2003 01:51:13 -0500
+	id <S261490AbTCZGpm>; Wed, 26 Mar 2003 01:45:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261492AbTCZGvN>; Wed, 26 Mar 2003 01:51:13 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:24083
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S261491AbTCZGvL>; Wed, 26 Mar 2003 01:51:11 -0500
-Date: Tue, 25 Mar 2003 22:59:11 -0800 (PST)
-From: Andre Hedrick <andre@pyxtechnologies.com>
-To: Matt Mackall <mpm@selenic.com>
-cc: Jeff Garzik <jgarzik@pobox.com>, ptb@it.uc3m.es,
-       Justin Cormack <justin@street-vision.com>,
-       linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ENBD for 2.5.64
-In-Reply-To: <20030326055525.GA20244@waste.org>
-Message-ID: <Pine.LNX.4.10.10303252222060.25072-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S261491AbTCZGpl>; Wed, 26 Mar 2003 01:45:41 -0500
+Received: from proxy.povodiodry.cz ([62.77.115.11]:5534 "HELO pc11.op.pod.cz")
+	by vger.kernel.org with SMTP id <S261490AbTCZGpl>;
+	Wed, 26 Mar 2003 01:45:41 -0500
+From: "Vitezslav Samel" <samel@mail.cz>
+Date: Wed, 26 Mar 2003 07:56:50 +0100
+To: Alan Cox <alan@redhat.com>, Andre Hedrick <andre@linux-ide.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [IDE SiI680] throughput drop to 1/4
+Message-ID: <20030326065650.GA10282@pc11.op.pod.cz>
+Mail-Followup-To: Alan Cox <alan@redhat.com>,
+	Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
+References: <20030324072910.GA16596@pc11.op.pod.cz> <Pine.LNX.4.10.10303240943070.8000-100000@master.linux-ide.org> <20030324072910.GA16596@pc11.op.pod.cz> <200303241213.h2OCD6u21467@devserv.devel.redhat.com> <20030325070605.GA26860@pc11.op.pod.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030325070605.GA26860@pc11.op.pod.cz>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Mar 2003, Matt Mackall wrote:
-
-> > Yeah, iSCSI handles all that and more.  It's a behemoth of a 
-> > specification.  (whether a particular implementation implements all that 
-> > stuff correctly is another matter...)
+On Tue, Mar 25, 2003 at 08:06:05AM +0100, Vitezslav Samel wrote:
+> On Mon, Mar 24, 2003 at 07:13:06AM -0500, Alan Cox wrote:
+> > >   Recently I tried to figure out in 2.5.65, why throughput on my disk which
+> > > hangs on Silicon Image 680 dropped to 1/4 compared to 2.4.21-pre5, but didn't
+> > > found anything useful. Are there any known issues with this driver?
+> > 
+> > The same code in both cases. Its quite likely the problem is higher up in
+> > the block or filesystem layer. It might also be a general IDE layer bug
+> > 
+> > What does performance look like on your other disk between
+> > 2.4.21pre/2.5.65 ?
 > 
-> Indeed, there are iSCSI implementations that do multipath and
-> failover.
-> 
-> Both iSCSI and ENBD currently have issues with pending writes during
-> network outages. The current I/O layer fails to report failed writes
-> to fsync and friends.
-> 
-> > BTW, I'm a big enbd fan :)  I like enbd for it's _simplicity_ compared 
-> > to iSCSI.
-> 
-> Definitely. The iSCSI protocol is more powerful but _much_ more
-> complex than ENBD. I've spent two years working on iSCSI but guess
-> which I use at home..
+>   Will test it as I come back home (it's on my home machine). But I think this
+> performance drop is only on the SiI680 interface.
 
-To be totally fair ENBD/NBD is not SAN nor will it ever become a qualified
-SAN.  I would like to see what happens to your data if you wrap your
-ethernet around a ballast resistor or even run it near by the associated
-light fixture, and blink the the power/lights.  This is where goofy people
-run cables in the drop ceilings.
+  Tested today: on the other disk on integrated interface (piix) is throughput
+exactly the same on both kernels.
 
-We have almost finalized our initiator to be submitted under OSL/GPL.
-This will be a full RFC ERL=2 w/ Sync-n-Steering.
-
-I have seen to much GPL code stolen and could do nothing about it.
-
-While the code is not in binary executable form it shall be under OSL
-only.  Only at compile and execution time will it become GPL compliant
-period.  This is designed to extend the copyright holders rights to force
-anyone who uses the code and changes anything to return to open to the
-copyright holder period.  Additional language may be added to permit not
-return code to exist under extremely heavy licensing fees to be used to
-promote OSL projects and assist any GPL holder with litigation fees to
-protect their rights.  To many of us do not have the means to defend our
-copyrights, this is one way I can see to provide a plausable solution to a
-dirty problem.  This may not be the best answer but it is doable.  This
-will apply some teeth into the license to stop this from happening again.
-
-Like it or hate it, OSL/GPL looks to be the best match out there.
-
-Regards,
-
-Andre Hedrick, CTO & Founder 
-iSCSI Software Solutions Provider
-http://www.PyXTechnologies.com/
-
+	Cheers,
+		Vita

@@ -1,61 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283672AbRLEB33>; Tue, 4 Dec 2001 20:29:29 -0500
+	id <S283680AbRLEBaa>; Tue, 4 Dec 2001 20:30:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283674AbRLEB3V>; Tue, 4 Dec 2001 20:29:21 -0500
-Received: from hermes.domdv.de ([193.102.202.1]:21259 "EHLO zeus.domdv.de")
-	by vger.kernel.org with ESMTP id <S283660AbRLEB3A>;
-	Tue, 4 Dec 2001 20:29:00 -0500
-Message-ID: <XFMail.20011205022659.ast@domdv.de>
-X-Mailer: XFMail 1.5.1 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-In-Reply-To: <20011204222407.D1772@mouse.mydomain>
-Date: Wed, 05 Dec 2001 02:26:59 +0100 (CET)
-Organization: D.O.M. Datenverarbeitung GmbH
-From: Andreas Steinmetz <ast@domdv.de>
-To: Gert Menke <gert@menke.za.net>
-Subject: Re: kapm-idled
-Cc: linux-kernel@vger.kernel.org
+	id <S283677AbRLEBaP>; Tue, 4 Dec 2001 20:30:15 -0500
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:41485 "EHLO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S283660AbRLEB3y> convert rfc822-to-8bit; Tue, 4 Dec 2001 20:29:54 -0500
+Date: Wed, 5 Dec 2001 02:29:52 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
+Message-ID: <20011205022952.F28582@emma1.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <E16BKeT-0001zt-00@DervishD.viadomus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <E16BKeT-0001zt-00@DervishD.viadomus.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-the problem is that kapm-idled and the idle task are both trying to handle the
-system idle time. I did send a patch correcting this weird behaviour for
-revision to Alan Cox a few days ago but until now there's no reaction from him.
-Oh, and there's more problems with kapm-idled. Think of a task like kmix that
-is ready to run every fraction of HZ to do some bookkeeping. Now look at the
-kapm-idled code. If both run in sync, e.g. they are ready to run during the
-same time slice kapm-idled will never do bios idle calls as there's always at
-least one task ready to run and this is then accounted as a 'heavily loaded
-system'.
-If you want to have a look at the patch please let me know though it may take a
-few days. I have to recover a system suffering from severe bit errors due to
-a memory module having gone south very slowly and quiet.
+On Tue, 04 Dec 2001, RaúlNúñez de Arenas Coronado wrote:
 
-On 04-Dec-2001 Gert Menke wrote:
-> Hi,
-> 
-> On Tue, Dec 04, 2001 at 09:45:44PM +0100, Dave Jones wrote:
->> http://www.tux.org/lkml/#s14-1
-> Sorry, I should have read the FAQ first.
-> 
-> But it is still annoying that kapm-idled claims to use that much system
-> ressources when it isn't. When my system is idle it should say ~100% idle,
-> not ~50% system. Right?
-> Is there an easy way to fix this? Or a good reason not to?
-> 
-> Greetings
-> Gert
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+>     Well, IMHO Python is good only in being big and doing things
+> slow, but... why the parser cannot be built over flex/bison?. That
+> way it can be 'pregenerated' and people won't need additional tools
+> to build the kernel.
 
-Andreas Steinmetz
-D.O.M. Datenverarbeitung GmbH
+Go ahead. Until then, as an interim solution, ship the .depend stuff as
+well so people won't need make dep...
+
+-- 
+Matthias Andree
+
+"They that can give up essential liberty to obtain a little temporary
+safety deserve neither liberty nor safety."         Benjamin Franklin

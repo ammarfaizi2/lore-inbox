@@ -1,63 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273859AbRIXLDB>; Mon, 24 Sep 2001 07:03:01 -0400
+	id <S273857AbRIXLGL>; Mon, 24 Sep 2001 07:06:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273857AbRIXLCw>; Mon, 24 Sep 2001 07:02:52 -0400
-Received: from ns.hobby.nl ([212.72.224.8]:1810 "EHLO hgatenl.hobby.nl")
-	by vger.kernel.org with ESMTP id <S273858AbRIXLCk>;
-	Mon, 24 Sep 2001 07:02:40 -0400
-Date: Mon, 24 Sep 2001 12:52:55 +0200
-From: toon@vdpas.hobby.nl
-To: linux-kernel@vger.kernel.org
-Subject: Re: /proc/partitions hosed
-Message-ID: <20010924125255.B4755@vdpas.hobby.nl>
-In-Reply-To: <20010924124131.A4755@vdpas.hobby.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010924124131.A4755@vdpas.hobby.nl>; from toon@vdpas.hobby.nl on Mon, Sep 24, 2001 at 12:41:31PM +0200
+	id <S273858AbRIXLGB>; Mon, 24 Sep 2001 07:06:01 -0400
+Received: from ns.suse.de ([213.95.15.193]:20497 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S273857AbRIXLFv>;
+	Mon, 24 Sep 2001 07:05:51 -0400
+Date: Mon, 24 Sep 2001 13:06:08 +0200 (CEST)
+From: Dave Jones <davej@suse.de>
+To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux VM design
+In-Reply-To: <6514162334.20010924123631@port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <Pine.LNX.4.30.0109241304130.20453-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 24, 2001 at 12:41:31PM +0200, toon@vdpas.hobby.nl wrote:
-> Hi,
-> 
-> [...]
-> 
-> For convenience I'll give you the output of some relevant commands:
+On Mon, 24 Sep 2001, VDA wrote:
 
-Of course, I forgot some extremely relevant information:
+> I'd like to understand Linux VM but there's not much in
+> Documentation/vm/* on the subject. I understand that with current
+> frantic development pace it is hard to maintain such docs.
 
-# uname -a
-Linux vdpas.hobby.nl 2.4.10 #1 SMP Mon Sep 24 00:39:55 CEST 2001 i686 unknown
+In case you're not aware of it, http://linux-mm.org/wiki/moin.cgi
+is starting to fill out with documentation/ideas/etc on VM strategies
+past, present and future.
 
-# cat /proc/cpuinfo 
-processor	: 0
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 7
-model name	: Pentium III (Katmai)
-stepping	: 2
-cpu MHz		: 451.033
-cache size	: 512 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse
-bogomips	: 897.84
+regards,
 
-So this an SMP kernel, running on a single processor machine.
+Dave.
 
-Regards,
-Toon.
 -- 
- /"\                             |   Windows XP:
- \ /     ASCII RIBBON CAMPAIGN   |        "I'm sorry Dave...
-  X        AGAINST HTML MAIL     |         I'm afraid I can't do that."
- / \
+| Dave Jones.        http://www.suse.de/~davej
+| SuSE Labs
+

@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288128AbSAHQLd>; Tue, 8 Jan 2002 11:11:33 -0500
+	id <S287976AbSAHQPx>; Tue, 8 Jan 2002 11:15:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288129AbSAHQLX>; Tue, 8 Jan 2002 11:11:23 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:16000 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S288128AbSAHQLN> convert rfc822-to-8bit;
-	Tue, 8 Jan 2002 11:11:13 -0500
-Date: Tue, 08 Jan 2002 08:10:15 -0800 (PST)
-Message-Id: <20020108.081015.71089787.davem@redhat.com>
-To: marcelo@conectiva.com.br
-Cc: Dieter.Nuetzel@hamburg.de, andrea@suse.de, riel@conectiva.com.br,
-        linux-kernel@vger.kernel.org, akpm@zip.com.au, rml@tech9.net
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.21.0201081153160.19178-100000@freak.distro.conectiva>
-In-Reply-To: <20020108030431.0099F38C58@perninha.conectiva.com.br>
-	<Pine.LNX.4.21.0201081153160.19178-100000@freak.distro.conectiva>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S288129AbSAHQPo>; Tue, 8 Jan 2002 11:15:44 -0500
+Received: from ztxmail05.ztx.compaq.com ([161.114.1.209]:56850 "EHLO
+	ztxmail05.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id <S287976AbSAHQPf> convert rfc822-to-8bit; Tue, 8 Jan 2002 11:15:35 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.4712.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: Re: PATCH 2.5.2-pre9 scsi cleanup
+Date: Tue, 8 Jan 2002 10:15:27 -0600
+Message-ID: <45B36A38D959B44CB032DA427A6E1064012812AD@cceexc18.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Re: PATCH 2.5.2-pre9 scsi cleanup
+Thread-Index: AcGYX6+HHO0GeftCS7WdPYeRrBMMIg==
+From: "Cameron, Steve" <Steve.Cameron@COMPAQ.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <dalecki@evision-ventures.com>,
+        "White, Charles" <Charles.White@COMPAQ.com>
+X-OriginalArrivalTime: 08 Jan 2002 16:15:28.0757 (UTC) FILETIME=[B0245250:01C1985F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Marcelo Tosatti <marcelo@conectiva.com.br>
-   Date: Tue, 8 Jan 2002 11:59:36 -0200 (BRST)
-   
-   On Tue, 8 Jan 2002, Dieter [iso-8859-15] Nützel wrote:
-   
-   > Andrew Morten`s read-latency.patch is a clear winner for me, too.
-   
-   AFAIK Andrew's code simply adds schedule points around the kernel, right? 
-   
-   If so, nope, I do not plan to integrate it.
+Martin Dalecki (dalecki@evision-ventures.com) wrote:
 
-No, this is the block I/O scheduler changes he did which up the
-priority of reads wrt. writes so they do not sit around forever.
+[...]
+> --- linux-old/drivers/scsi/scsi.c	Sat May  4 09:11:44 2002
+> +++ linux/drivers/scsi/scsi.c	Sat May  4 07:49:19 2002
+> @@ -139,25 +139,7 @@
+>   */
+>  unsigned int scsi_logging_level;
+>  
+> -const char *const scsi_device_types[MAX_SCSI_DEVICE_CODE] =
+> -{
+> -	"Direct-Access    ",
+> -	"Sequential-Access",
+> -	"Printer          ",
+> -	"Processor        ",
+> -	"WORM             ",
+> -	"CD-ROM           ",
+> -	"Scanner          ",
+[...etc...]
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+Hmmm, I was using that.... (In, for example, 
+the cciss patch here: http://www.geocities.com/smcameron 
+It's not any big deal, though.)
+
+-- steve

@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285143AbRLFOQ3>; Thu, 6 Dec 2001 09:16:29 -0500
+	id <S285147AbRLFOY7>; Thu, 6 Dec 2001 09:24:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285146AbRLFOQU>; Thu, 6 Dec 2001 09:16:20 -0500
-Received: from web13901.mail.yahoo.com ([216.136.175.27]:54020 "HELO
-	web13901.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S285143AbRLFOQD>; Thu, 6 Dec 2001 09:16:03 -0500
-Message-ID: <20011206141602.88142.qmail@web13901.mail.yahoo.com>
-Date: Thu, 6 Dec 2001 06:16:02 -0800 (PST)
-From: Jorge Carminati <jcarminati@yahoo.com>
-Subject: Re: Kernel freezing....
-To: linux-kernel@vger.kernel.org
+	id <S285153AbRLFOYt>; Thu, 6 Dec 2001 09:24:49 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:37638 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S285149AbRLFOYj>; Thu, 6 Dec 2001 09:24:39 -0500
+Date: Thu, 6 Dec 2001 12:24:21 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Rusty Russell <rusty@rustcorp.com.au>,
+        "David S. Miller" <davem@redhat.com>, <lm@bitmover.com>,
+        <Martin.Bligh@us.ibm.com>, <lars.spam@nocrew.org>,
+        <alan@lxorguk.ukuu.org.uk>, <hps@intermeta.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: SMP/cc Cluster description
+In-Reply-To: <Pine.LNX.4.40.0112051915440.1644-100000@blue1.dev.mcafeelabs.com>
+Message-ID: <Pine.LNX.4.33L.0112061223520.1282-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One strange thing that I want to share with all of you is that I
-installed two times Red Hat in this notebook during this week, and no
-freeze was suffered during the whole installation process, which is a
-process that as you know requires almost an hour to complete.
+On Wed, 5 Dec 2001, Davide Libenzi wrote:
+> On Thu, 6 Dec 2001, Rusty Russell wrote:
+>
+> > I'd love to say that I can solve this with RCU, but it's vastly non-trivial
+> > and I haven't got code, so I'm not going to say that. 8)
+>
+> Lockless algos could help if we're able to have "good" quiescent point
+> inside the kernel. Or better have a good quiescent infrastructure to
+> have lockless code to plug in.
 
-I´m just asking why the kernel doesn´t freeze during the installation
-process (which it is supposed to run Linux I suspect :) ) and just
-after booting and typing some commands in init 1 mode, it freezes;
-quite strange. 
+Machines get dragged down by _uncontended_ locks, simply
+due to cache line ping-pong effects.
 
-I have downloaded memtest86 v.2.8, and will test tonight.
+regards,
 
-Thanks for all the help.
-Jorge Carminati.
+Rik
+-- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
 
-__________________________________________________
-Do You Yahoo!?
-Send your FREE holiday greetings online!
-http://greetings.yahoo.com
+http://www.surriel.com/		http://distro.conectiva.com/
+

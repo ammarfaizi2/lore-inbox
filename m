@@ -1,37 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270460AbRHHLtt>; Wed, 8 Aug 2001 07:49:49 -0400
+	id <S270458AbRHHLsJ>; Wed, 8 Aug 2001 07:48:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270462AbRHHLtj>; Wed, 8 Aug 2001 07:49:39 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:264 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S270460AbRHHLta>; Wed, 8 Aug 2001 07:49:30 -0400
-Subject: Re: [kbuild-devel] Announce: Kernel Build for 2.5, Release 1 is
-To: cate@dplanet.ch
-Date: Wed, 8 Aug 2001 12:50:32 +0100 (BST)
-Cc: kaos@ocs.com.au (Keith Owens), kbuild-devel@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <no.id> from "Giacomo Catenazzi" at Aug 08, 2001 01:33:38 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S270460AbRHHLr7>; Wed, 8 Aug 2001 07:47:59 -0400
+Received: from frege-d-math-north-g-west.math.ethz.ch ([129.132.145.3]:63228
+	"EHLO frege.math.ethz.ch") by vger.kernel.org with ESMTP
+	id <S270458AbRHHLrr>; Wed, 8 Aug 2001 07:47:47 -0400
+Message-ID: <3B712706.A7D566F1@math.ethz.ch>
+Date: Wed, 08 Aug 2001 13:48:22 +0200
+From: Giacomo Catenazzi <cate@math.ethz.ch>
+Reply-To: cate@dplanet.ch
+X-Mailer: Mozilla 4.7C-SGI [en] (X11; I; IRIX 6.5 IP22)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Christoph Hellwig <hch@ns.caldera.de>
+CC: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [kbuild-devel] Announce: Kernel Build for 2.5, Release 1 is  
+ available.
+In-Reply-To: <200108081139.f78BdTH11980@ns.caldera.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15URr6-00057w-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If generating some support files requires some non common tools,
-> it is the right thing to ship the two files (source and generated).
+Christoph Hellwig wrote:
+> 
+> In article <3B712392.A7CFEEC9@math.ethz.ch> you wrote:
+> > BTW we cannot ship the generated file without the source files,
+> > because of GPL.
+> 
+> That's wrong.
 
-Its often easiest. Justin does this with the Adaptec driver now and it makes
-life both simple for those who want to build kernels and handy for those
-who want to hack the stuff.
+Why?
 
-> BTW we cannot ship the generated file without the source files,
-> because of GPL.
+(Yes legally is wrong, and we should check case per case, but as far
+as we can do, we should GPL as much code as possible, and we should
+follow where possible the GPL also on non GPL code)
 
-If its part of the kernel tools you want to make it available, that doesn't 
-mean it has to be shipped with the kernel. 
+	giacomo
 
-Alan
+
+>         Christoph
+> 
+> --
+> Of course it doesn't work. We've performed a software upgrade.
+> 
+> _______________________________________________
+> kbuild-devel mailing list
+> kbuild-devel@lists.sourceforge.net
+> http://lists.sourceforge.net/lists/listinfo/kbuild-devel

@@ -1,24 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265257AbUF1WSo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265261AbUF1WVU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265257AbUF1WSo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 18:18:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265261AbUF1WSo
+	id S265261AbUF1WVU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 18:21:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265260AbUF1WVU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 18:18:44 -0400
-Received: from fw.osdl.org ([65.172.181.6]:37552 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265257AbUF1WSl (ORCPT
+	Mon, 28 Jun 2004 18:21:20 -0400
+Received: from fw.osdl.org ([65.172.181.6]:55987 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265261AbUF1WVS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 18:18:41 -0400
-Date: Mon, 28 Jun 2004 15:17:25 -0700
+	Mon, 28 Jun 2004 18:21:18 -0400
+Date: Mon, 28 Jun 2004 15:20:00 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: george@mvista.com
-Cc: boris.hu@intel.com, drepper@redhat.com, adam.li@intel.com,
-       linux-kernel@vger.kernel.org, akpm@digeo.com
-Subject: Re: [PATCH] Bugfix for CLOCK_REALTIME absolute timer.
-Message-Id: <20040628151725.09b691e4.akpm@osdl.org>
-In-Reply-To: <40E094DB.9000702@mvista.com>
-References: <37FBBA5F3A361C41AB7CE44558C3448E04561419@PDSMSX403.ccr.corp.intel.com>
-	<40E094DB.9000702@mvista.com>
+To: Pat Gefre <pfg@sgi.com>
+Cc: pfg@sgi.com, erikj@subway.americas.sgi.com, rmk+lkml@arm.linux.org.uk,
+       cw@f00f.org, hch@infradead.org, jbarnes@engr.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6] Altix serial driver
+Message-Id: <20040628152000.4b7665c6.akpm@osdl.org>
+In-Reply-To: <Pine.SGI.3.96.1040628170609.36430N-100000@fsgi900.americas.sgi.com>
+References: <20040628121312.75ac9ed7.akpm@osdl.org>
+	<Pine.SGI.3.96.1040628170609.36430N-100000@fsgi900.americas.sgi.com>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -26,58 +27,36 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-George Anzinger <george@mvista.com> wrote:
+Pat Gefre <pfg@sgi.com> wrote:
 >
-> Andrew,
+> On Mon, 28 Jun 2004, Andrew Morton wrote:
 > 
-> Boris and I have kicked this around enough.  It think it is ready for prime time.
+> + Pat Gefre <pfg@sgi.com> wrote:
+> + >
+> + > We think we should stick with the major/minor set we have proposed.  We
+> + >  don't like hacking the 8250 code, dynamic allocation doesn't work (once
+> + >  that works we will update our driver to use it), registering for our
+> + >  own major/minor may not work (if we DO get one we will update the
+> + >  driver to reflect it) but in the meantime we need to get something in
+> + >  the community that works.
+> + 
+> + "we don't like" isn't a very strong argument ;)
+> + 
+> + It does sound to me like some work is needed in the generic serial layer to
+> + teach it to get its sticky paws off the ttyS0 major/minor if there is no
+> + corresponding hardware.  AFAICT nobody has scoped out exactly what has to
+> + be done for a clean solution there - it may not be very complex.  So could
+> + we please explore that a little further?
+> + 
+> + If that proves to be impractical for some reason then I'd be inclined to
+> + allocate a new misc minor, stick it in devices.txt and be done with it.
+> 
+> I'm not sure I understand what you mean by this. Use a different major
+> (one that is likely to not be used by anyone else on our system) and a
+> minor that no one is assigned ?
 > 
 
->  static void schedule_next_timer(struct k_itimer *timr)
->  {
-> ...
-> +	do {
-> +		seq = read_seqbegin(&xtime_lock);
-> +		new_wall_to =	wall_to_monotonic;
-> +		posix_get_now(&now);
-> +	} while (read_seqretry(&xtime_lock, seq));
-> +
-> +	if (!list_empty(&timr->abs_timer_entry)) {
-> +		spin_lock(&abs_list.lock);
-> +		add_clockset_delta(timr, &new_wall_to);
-> +	}
-> +		    
->  	do {
->  		posix_bump_timer(timr);
->  	}while (posix_time_before(&timr->it_timer, &now));
->  
-> +	if (!list_empty(&timr->abs_timer_entry))
-> +		spin_unlock(&abs_list.lock);
-
-The locking in here is a bit ugly.  Does the lock actually need to be held while
-the timer is being bumped?
-
-And what is the upper bound on that while loop?
-
->  	tmr->it_id = (timer_t)-1;
-> +        INIT_LIST_HEAD(&tmr->abs_timer_entry);
->  	if (unlikely(!(tmr->sigq = sigqueue_alloc()))) {
-
-The cat ate your tab key? ;)
-
-> +	if (!list_empty(&timr->abs_timer_entry)) {
-> +		spin_lock(&abs_list.lock);
-> +		list_del_init(&timr->abs_timer_entry);
-> +		spin_unlock(&abs_list.lock);
-> +	}
-
-This is repeated often.  Does it merit its own function?
-
-> +static DECLARE_MUTEX(clock_was_set_lock);
-> +#define mutex_enter(x) down(x)
-> +#define mutex_enter_interruptable(x) down_interruptible(x)
-> +#define mutex_exit(x) up(x)
-
-Please open-code these operations.
-
+Or use dynamic allocation.  I'm trying to understand why early-boot code
+needs to know the major/minor when it will be accessing the driver via
+/dev/console anyway.
 

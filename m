@@ -1,58 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263357AbTD0E0X (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Apr 2003 00:26:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263359AbTD0E0X
+	id S263398AbTD0F7e (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Apr 2003 01:59:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263409AbTD0F7e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Apr 2003 00:26:23 -0400
-Received: from granite.he.net ([216.218.226.66]:29452 "EHLO granite.he.net")
-	by vger.kernel.org with ESMTP id S263357AbTD0E0W (ORCPT
+	Sun, 27 Apr 2003 01:59:34 -0400
+Received: from [12.47.58.68] ([12.47.58.68]:8831 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S263398AbTD0F7d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Apr 2003 00:26:22 -0400
-Date: Sat, 26 Apr 2003 21:35:21 -0700
-From: Greg KH <greg@kroah.com>
-To: Ricardo Galli <gallir@uib.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BUG: 2.5.68 uhci: host controlled halted and then kills the kernel
-Message-ID: <20030427043521.GA4330@kroah.com>
-References: <200304252314.13085.gallir@uib.es>
+	Sun, 27 Apr 2003 01:59:33 -0400
+Date: Sat, 26 Apr 2003 23:11:47 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Andi Kleen <ak@muc.de>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] An generic subarchitecture for 2.5.68
+Message-Id: <20030426231147.69efb07d.akpm@digeo.com>
+In-Reply-To: <20030427012238.GA13997@averell>
+References: <20030427012238.GA13997@averell>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200304252314.13085.gallir@uib.es>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 27 Apr 2003 06:11:40.0301 (UTC) FILETIME=[DE1A23D0:01C30C83]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 25, 2003 at 11:14:13PM +0200, Ricardo Galli wrote:
-> Sorry, again me :-(
+Andi Kleen <ak@muc.de> wrote:
+>
 > 
-> Playing aroung with the mouse, I've got the following error:
-> 
-> usb 1-1: USB disconnect, address 2
-> drivers/usb/host/uhci-hcd.c: 8800: host controller halted. very bad
->                                                            ^^^^^^^^
+> This patch adds an generic x86 subarchitecture.
 
-Do you get this error when running 2.4.21-rc1 when using the uhci.o
-driver?
+It causes a large number of compilation errors with the config at
+http://www.zip.com.au/~akpm/linux/patches/stuff/config
 
-> hub 1-0:0: debounce: port 1: delay 100ms stable 4 status 0x301
-> ...
-> 
-> 
-> The USB didn't wok anymore, then I stopped hotplug and the system died 
-> just after the message "Stopping hotplug subsystem" appeared in the 
-> konsole.
-
-That's because there's a nasty bug you hit when unloading the usb host
-controller driver.
-
-> It's the same Dell Latitude X200.
-> 
-> BTW, the usb mouse doesn't work with ohci, altough the modules are loaded.
-
-That's because you probably do not have the ohci hardware :)
-
-thanks,
-
-greg k-h
+Some Kconfig help would be nice...

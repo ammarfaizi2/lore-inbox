@@ -1,63 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268013AbTAIUfJ>; Thu, 9 Jan 2003 15:35:09 -0500
+	id <S268027AbTAIUhN>; Thu, 9 Jan 2003 15:37:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268014AbTAIUfJ>; Thu, 9 Jan 2003 15:35:09 -0500
-Received: from adsl-66-112-90-25-rb.spt.centurytel.net ([66.112.90.25]:2688
-	"EHLO carthage") by vger.kernel.org with ESMTP id <S268013AbTAIUfI>;
-	Thu, 9 Jan 2003 15:35:08 -0500
-Date: Thu, 9 Jan 2003 14:43:50 -0600
-From: James Curbo <phoenix@sandwich.net>
-To: linux-kernel@vger.kernel.org
-Subject: DMA timeouts on Promise 20267 IDE card
-Message-ID: <20030109204350.GA413@carthage>
-Reply-To: James Curbo <phoenix@sandwich.net>
+	id <S268031AbTAIUhM>; Thu, 9 Jan 2003 15:37:12 -0500
+Received: from ithilien.qualcomm.com ([129.46.51.59]:4481 "EHLO
+	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S268027AbTAIUhK>; Thu, 9 Jan 2003 15:37:10 -0500
+Message-Id: <5.1.0.14.2.20030109124152.07a18e28@mail1.qualcomm.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 09 Jan 2003 12:45:37 -0800
+To: "David S. Miller" <davem@redhat.com>
+From: Max Krasnyansky <maxk@qualcomm.com>
+Subject: Re: [PATCH/RFC] New module refcounting for net_proto_family
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030107.012139.34126482.davem@redhat.com>
+References: <Pine.LNX.4.33.0212252340090.1270-100000@champ.qualcomm.com>
+ <Pine.LNX.4.33.0212252340090.1270-100000@champ.qualcomm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Operating-System: Debian GNU/Linux
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[please cc: me as I am not subscribed to lkml]
+At 01:21 AM 1/7/2003 -0800, David S. Miller wrote:
 
-I've recently started getting errors like this (this example is from
-2.4.20-pre3-ac2):
+>Change is buggy, there are many places that sk_alloc() but don't use
+>sock_init_data().  net/ipv4/tcp_minisocks.c is one of many such
+>places.
+Those guys will have to bump mod refcount themselves then.
+sock_init_data() and sock_graft() have access to ->owner field but sk_alloc()
+doesn't. So we either have to change sk_alloc() API or make call to
+sock_init_data()/sock_graft() a must. Any other suggestions ?
 
-Jan  9 14:20:48 carthage kernel: hda: dma_timer_expiry: dma status ==
-0x61
-Jan  9 14:20:48 carthage kernel: hdc: dma_timer_expiry: dma status ==
-0x21
-Jan  9 14:20:58 carthage kernel: hda: timeout waiting for DMA
-Jan  9 14:20:58 carthage kernel: PDC202XX: Primary channel reset.
-Jan  9 14:20:58 carthage kernel: PDC202XX: Secondary channel reset.
-Jan  9 14:20:58 carthage kernel: hda: DMA disabled
-Jan  9 14:20:58 carthage kernel: hda: timeout waiting for DMA
-Jan  9 14:20:58 carthage kernel: blk: queue c03c2860, I/O limit 4095Mb
-(mask 0xffffffff)
-Jan  9 14:20:58 carthage kernel: hdc: timeout waiting for DMA
-Jan  9 14:20:58 carthage kernel: PDC202XX: Secondary channel reset.
-Jan  9 14:20:58 carthage kernel: PDC202XX: Primary channel reset.
-Jan  9 14:20:58 carthage kernel: hdc: DMA disabled
-Jan  9 14:20:58 carthage kernel: hdc: timeout waiting for DMA
-Jan  9 14:20:58 carthage kernel: blk: queue c03c2cac, I/O limit 4095Mb
-(mask 0xffffffff)
+Max
 
-I have a Promise 20267 PCI IDE controller card on an Epox 8RDA motherboard.
-The motherboard is brand new and I never got these kinds of errors with
-my previous MSI K7T Turbo board. There are two drives on the card:
-
-hda: WDC WD400BB-00AUA1, ATA DISK drive
-hdc: WDC WD400BB-00DEA0, ATA DISK drive
-
-which are both alone on the seperate controllers. I've tried both 2.4
-and 2.5 kernels (2.4.20, 2.4.20-ac2, 2.4.20-pre3-ac2, 2.5.[53-55] and
-get the same errors.
-
-Does anyone have idea what is causing this? I can offer more information
-(.config etc) if necessary.
-
--- 
-James Curbo <hannibal@adtrw.org> <phoenix@sandwich.net>
-http://www.adtrw.org/blogs/hannibal/

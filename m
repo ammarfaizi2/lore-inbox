@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129392AbQLGSr1>; Thu, 7 Dec 2000 13:47:27 -0500
+	id <S131739AbQLGSsR>; Thu, 7 Dec 2000 13:48:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129340AbQLGSrR>; Thu, 7 Dec 2000 13:47:17 -0500
-Received: from cip.physik.uni-wuerzburg.de ([132.187.42.13]:15623 "EHLO
-	wpax13.physik.uni-wuerzburg.de") by vger.kernel.org with ESMTP
-	id <S129392AbQLGSrG>; Thu, 7 Dec 2000 13:47:06 -0500
-Date: Thu, 7 Dec 2000 19:09:13 +0100 (MET)
-From: Andreas Klein <asklein@cip.physik.uni-wuerzburg.de>
-To: linux-kernel@vger.kernel.org
-cc: drew@colorado.edu
-Subject: bug in scsi.c
-Message-ID: <Pine.GHP.4.21.0012071809140.18350-100000@wpax13.physik.uni-wuerzburg.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129340AbQLGSsH>; Thu, 7 Dec 2000 13:48:07 -0500
+Received: from icarus.com ([208.36.26.146]:53764 "EHLO icarus.com")
+	by vger.kernel.org with ESMTP id <S131685AbQLGSrz>;
+	Thu, 7 Dec 2000 13:47:55 -0500
+Message-Id: <200012071817.KAA08227@icarus.com>
+X-Mailer: exmh version 2.1.1 10/15/1999
+To: Mike Dresser <mdresser@windsormachine.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 40Gig IDE disk wrapping around at 32Gig? 
+In-Reply-To: Your message of "Thu, 07 Dec 2000 13:02:53 EST."
+             <3A2FD0CD.3B9FF8B6@windsormachine.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 07 Dec 2000 10:17:19 -0800
+From: Stephen Williams <steve@icarus.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello,
 
-I have found a problem in scsi.c which in present in the 2.2 and 2.4
-series. the scsi error handler thread is created with:
+mdresser@windsormachine.com said:
+> My understanding is that the part you're accessing, above 33.6 gig,
+> wraps around the int or whatever they use(i'm not a programmer, and
+> i'm not going to think about what it'd actually be <grin>)
 
-kernel_thread((int (*)(void *)) scsi_error_handler,
-                                (void *) shpnt, 0);
+2.2.17 solves the problem. The 2.2.12 kernel definitely goes
+berserk when faced with blocks way up there. With 2.2.17, the whole
+disk works fine.
 
-This will lead to problems, when you have to umount the filesystem on
-which the scsi-hostapter module is located.
-To solve to problem I would propose to change this to:
+Thanks for the fast response.
 
-kernel_thread((int (*)(void *)) scsi_error_handler,
-                      (void *) shpnt, CLONE_FILES);
- 
-
-Bye,
-
--- Andreas Klein
-   asklein@cip.physik.uni-wuerzburg.de
-   root / webmaster @cip.physik.uni-wuerzburg.de
-   root / webmaster @www.physik.uni-wuerzburg.de
-_____________________________________
-|                                   | 
-|   Long live our gracious AMIGA!   |
-|___________________________________|
-
+-- 
+Steve Williams                "The woods are lovely, dark and deep.
+steve@icarus.com              But I have promises to keep,
+steve@picturel.com            and lines to code before I sleep,
+http://www.picturel.com       And lines to code before I sleep."
 
 
 -

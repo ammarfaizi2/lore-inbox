@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261379AbTDBDCI>; Tue, 1 Apr 2003 22:02:08 -0500
+	id <S261381AbTDBDDj>; Tue, 1 Apr 2003 22:03:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261381AbTDBDCI>; Tue, 1 Apr 2003 22:02:08 -0500
-Received: from mortar.viawest.net ([216.87.64.7]:24469 "EHLO
-	mortar.viawest.net") by vger.kernel.org with ESMTP
-	id <S261379AbTDBDCH>; Tue, 1 Apr 2003 22:02:07 -0500
-Date: Tue, 1 Apr 2003 19:13:24 -0800
-From: A Guy Called Tyketto <tyketto@wizard.com>
-To: xombi@accessus.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: A more balanced view of user priviliges
-Message-ID: <20030402031324.GA29448@wizard.com>
-References: <503755781.1049233111@resnet146-209.resnet.buffalo.edu> <Pine.LNX.4.44.0304012111400.8903-100000@localhost.localdomain>
+	id <S261401AbTDBDDj>; Tue, 1 Apr 2003 22:03:39 -0500
+Received: from sccrmhc03.attbi.com ([204.127.202.63]:59571 "EHLO
+	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP
+	id <S261381AbTDBDDi>; Tue, 1 Apr 2003 22:03:38 -0500
+Date: Tue, 1 Apr 2003 19:18:36 -0800
+From: John Wendel <jwendel10@attbi.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Query about SIS963 Bridges
+Message-Id: <20030401191836.40ff4b5f.jwendel10@attbi.com>
+In-Reply-To: <1049208265.19703.14.camel@dhcp22.swansea.linux.org.uk>
+References: <Pine.LNX.4.44.0303300940200.16280-100000@hades.internal.beyondhelp.co.nz>
+	<1049208265.19703.14.camel@dhcp22.swansea.linux.org.uk>
+Organization: WizardControl
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0304012111400.8903-100000@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
-X-Operating-System: Linux/2.4.19 (i686)
-X-uptime: 19:10:38 up 6 days, 15:56,  3 users,  load average: 0.00, 0.02, 0.08
-X-RSA-KeyID: 0xE9DF4D85
-X-DSA-KeyID: 0xE319F0BF
-X-GPG-Keys: see http://www.wizard.com/~tyketto/pgp.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 01, 2003 at 09:12:39PM -0600, xombi@accessus.net wrote:
-> On Tue, 1 Apr 2003, "Linus Torvalds" wrote:
-> > I've always tried to keep our work separate from religious and political
-> > influences, however I also feel that incorporating suggestions from all
-> > categories of users is part of what makes Linux, and Open Source in
-> > general, so great.
+On 01 Apr 2003 15:44:26 +0100
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+
 > 
-> Is there some way to use procmail on vger to filter out these pathetic
-> fakes?
+> > 2.4.20 slackware 9.0 bare.i works with the PCI NIC and PCI ATA card
+> > (no acpi in this kernel)
+> > 
+> > is ACPI the problem with this chipset ?
+> 
+> It might be. I don't have time to find out and SiS clearly don't care
+> about their customers any more
+> 
 
-        man 1 date
+ob IANAL ...
 
-                                                        BL.
--- 
-Brad Littlejohn                         | Email:        tyketto@wizard.com
-Unix Systems Administrator,             |           tyketto@ozemail.com.au
-Web + NewsMaster, BOFH.. Smeghead! :)   |   http://www.wizard.com/~tyketto
-  PGP: 1024D/E319F0BF 6980 AAD6 7329 E9E6 D569  F620 C819 199A E319 F0BF
+It seems to me that if SIS has provided the chipset docs to Microsoft,
+then a polite note from Redhat legal that mentions "RESTRAINT OF TRADE"
+might work wonders. Perhaps Alan could get the RH lawyers involved.
+
+Regards,
+
+John
 

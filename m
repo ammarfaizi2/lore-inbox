@@ -1,56 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261380AbVBZDjx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbVBZDl1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261380AbVBZDjx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 22:39:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbVBZDjx
+	id S261448AbVBZDl1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 22:41:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbVBZDlN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 22:39:53 -0500
-Received: from ns1.g-housing.de ([62.75.136.201]:38072 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S261380AbVBZDjv (ORCPT
+	Fri, 25 Feb 2005 22:41:13 -0500
+Received: from fire.osdl.org ([65.172.181.4]:3046 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261406AbVBZDlH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 22:39:51 -0500
-Message-ID: <421FEF81.2070806@g-house.de>
-Date: Sat, 26 Feb 2005 04:39:45 +0100
-From: Christian <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20050111)
-X-Accept-Language: en-us, en
+	Fri, 25 Feb 2005 22:41:07 -0500
+Date: Fri, 25 Feb 2005 19:42:00 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+cc: nuclearcat <nuclearcat@nuclearcat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: pty_chars_in_buffer NULL pointer (kernel oops)
+In-Reply-To: <20050225230432.GD15251@logos.cnet>
+Message-ID: <Pine.LNX.4.58.0502251935420.9237@ppc970.osdl.org>
+References: <1567604259.20050218105653@nuclearcat.com> <20050225230432.GD15251@logos.cnet>
 MIME-Version: 1.0
-To: Sven Luther <sven.luther@wanadoo.fr>
-CC: Tom Rini <trini@kernel.crashing.org>, Meelis Roos <mroos@linux.ee>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linuxppc-dev@ozlabs.org, Sven Hartge <hartge@ds9.gnuu.de>
-Subject: Re: [PATCH 2.6.10-rc3][PPC32] Fix Motorola PReP (PowerstackII Utah)
- PCI IRQ map
-References: <20041206185416.GE7153@smtp.west.cox.net> <Pine.SOC.4.61.0502221031230.6097@math.ut.ee> <20050224074728.GA31434@pegasos> <Pine.SOC.4.61.0502241746450.21289@math.ut.ee> <20050224160657.GB11197@pegasos> <421E7033.1030600@g-house.de> <20050225063609.GA21244@pegasos> <49984.195.126.66.126.1109332744.squirrel@housecafe.dyndns.org> <20050225121536.GA20174@pegasos>
-In-Reply-To: <20050225121536.GA20174@pegasos>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sven Luther wrote:
-> Some backports that i got from the list. The complete list of patches is at :
+
+
+On Fri, 25 Feb 2005, Marcelo Tosatti wrote:
 > 
->   http://svn.debian.org/wsvn/kernel/trunk/kernel/source/kernel-source-2.6.8-2.6.8/debian/patches/?rev=0&sc=0
+> BTW, I fail to see any drivers/char/pty.c change related to the race which triggers
+> the pty_chars_in_buffer->0 oops.
 
-dooh, these websvn patches are giving me a headache.... will have to 
-learn /usr/bin/svn first :-\
+Indeed, I don't think 2.6.x got that merged, because it was never really 
+clear _which_ fix was the right one (the extra locking was absolutely 
+deadly for performance, the hacky one was a tad _too_ hacky ;)
 
+Alan, did you ever decide what the proper locking would be? I've applied
+the hacky "works by hiding the problem" patch for 2.6.11 which didn't have 
+any subtle performance issues associated with it.
 
-> --- kernel-source-2.6.8.orig/arch/ppc/platforms/prep_pci.c	2004-12-28
-
-yes, the prep_pci.c and its irq-mappings. the PowerStackII lines were 
-changed back and forth, and a current 2.6-BK is only different in one 
-line to the patch you mentioned:
-
-http://nerdbynature.de/bits/hal/2.6.11-rc5.patched/powerpc-prep-powerstack-irq_2.6.11-rc5.patch
-
-unfortunately it did not help either and i'll switch back to vanilla 
-2.6.8 again and hopefully find out exactly when scsi stopped working.
-
-http://nerdbynature.de/bits/hal/2.6.11-rc5/
-http://nerdbynature.de/bits/hal/2.6.11-rc5.patched/
-
-
-thank you for your concern,
-Christian.
+		Linus

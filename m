@@ -1,69 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289291AbSBJFaQ>; Sun, 10 Feb 2002 00:30:16 -0500
+	id <S289290AbSBJFaQ>; Sun, 10 Feb 2002 00:30:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288677AbSBJFaH>; Sun, 10 Feb 2002 00:30:07 -0500
-Received: from [206.40.79.199] ([206.40.79.199]:16256 "EHLO
-	sparrow.websense.net") by vger.kernel.org with ESMTP
-	id <S289290AbSBJF36>; Sun, 10 Feb 2002 00:29:58 -0500
-Date: Sun, 10 Feb 2002 00:25:12 -0500 (EST)
-From: William Stearns <wstearns@pobox.com>
-X-X-Sender: <wstearns@sparrow.websense.net>
-Reply-To: William Stearns <wstearns@pobox.com>
-To: Larry McVoy <lm@bitmover.com>
-cc: David Lang <dlang@diginsite.com>, Tom Rini <trini@kernel.crashing.org>,
-        Patrick Mochel <mochel@osdl.org>,
-        ML-linux-kernel <linux-kernel@vger.kernel.org>,
-        William Stearns <wstearns@pobox.com>
-Subject: Re: [bk patch] Make cardbus compile in -pre4
-In-Reply-To: <20020209134132.J13735@work.bitmover.com>
-Message-ID: <Pine.LNX.4.33.0202092358500.1868-100000@sparrow.websense.net>
+	id <S289291AbSBJFaG>; Sun, 10 Feb 2002 00:30:06 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26628 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S288677AbSBJF3x>;
+	Sun, 10 Feb 2002 00:29:53 -0500
+Message-ID: <3C660517.AAA7FA8@zip.com.au>
+Date: Sat, 09 Feb 2002 21:28:55 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Hugh Dickins <hugh@veritas.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] BUG preserve registers
+In-Reply-To: <3C65F523.FDDB7FA@zip.com.au> <Pine.LNX.4.33.0202092211001.10024-100000@home.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good day, Larry,
-
-On Sat, 9 Feb 2002, Larry McVoy wrote:
-
-> On Sat, Feb 09, 2002 at 01:01:34PM -0800, David Lang wrote:
-> > do you have a script that can go back after the fact and see what can be
-> > hardlinked?
-> > 
-> > I'm thinking specififcly of the type of thing that will be happening to
-> > your server where you have a bunch of people putting in a clone of one
-> > tree who will probably not be doing a clone -l to set it up, but who could
-> > have and you want to clean up after the fact (and perhapse again on a
-> > periodic basis, becouse after all of these trees apply a changeset from
-> > linus they will all have changed (breaking the origional hardlinks) but
-> > will still be duplicates of each other.
+Linus Torvalds wrote:
 > 
-> We don't, but we can, and we should.  "bk relink tree1 tree2" seems like 
-> the right interface.
+> On Sat, 9 Feb 2002, Andrew Morton wrote:
+> >
+> > This is due to BUG() calls in inline functions in headers.  The biggest
+> > culprit is dget(), in dcache.h.  This causes the full path of the header file
+> > to be expanded into each and every compilation unit which includes
+> > dcache.h.
 > 
-> Right now we aren't too worried about the disk space, the data is sitting 
-> on a pair of 40GB drives and we're running the trees in gzip mode, so they
-> are 75MB each.  But yes, it's a good idea, we should do it, and probably
-> should figure out some way to make it automatic.  I'll add it to the
-> (ever growing) list, thanks.
+> Hmm. Which brings up another issue: can somebody come up with an idea of
+> how to make the thing not use the whole pathname, but only the basename
+> relative to the top-of-tree?
 
-	Larry, I'll save you the time.
-	"freedups -a -d /some/dir [/other/dirs]" will look for identical
-files (the -d requires dates to be equal as well as the content) and
-hardlink them.  It's not terribly efficient, but works marvelously well.  
-Run it from cron once a week or so, perhaps?
-	http://www.stearns.org/freedups/
-	Cheers,
-	- Bill
+This is the cue for Keith to pop up and say "fixed in kbuild 2.5".
 
----------------------------------------------------------------------------
-        "Patience is a minor form of despair, disguised as virtue."
-        -- Ambrose Bierce, on qualifiers
---------------------------------------------------------------------------
-William Stearns (wstearns@pobox.com).  Mason, Buildkernel, named2hosts, 
-and ipfwadm2ipchains are at:                http://www.pobox.com/~wstearns
-LinuxMonth; articles for Linux Enthusiasts! http://www.linuxmonth.com
---------------------------------------------------------------------------
+The preprocessor is simply pasting together its -I argument and the
+string from the #include statement.  There doesn't seem to be a way
+of getting it to just emit "include/linux/dcache.h" or "drivers/char/serial.c".
+
+__BASE_FILE__ seems to have been supported for a sufficiently long time.  It
+will just give us "dcache.h".  I think that's OK.  We don't get full path
+info for the .c files either, and I'm not aware of that causing problems - if
+there's a BUG() at inode.c:1234 we seem to be able to work out which inode.c
+to look at.
+
+__BASE_FILE__ is already used a bit in spinlock.h, so I think I'll
+go with that.  But I'll also take a look at all the inlined BUGs.
 
 
+> 
+> Note that the correct thing to do may be to un-inline a lot of things.
+> We've done that before, simply because it often improves performance.
+> 
+> What ends up happening is that some function starts out really small, and
+> then later on people add logic and debug code to it, and suddenly it's not
+> really appropriate to inline any more.
+
+I noticed :)
+
+
+-

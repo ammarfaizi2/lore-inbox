@@ -1,179 +1,126 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262802AbTCQFaO>; Mon, 17 Mar 2003 00:30:14 -0500
+	id <S262791AbTCQFbS>; Mon, 17 Mar 2003 00:31:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262803AbTCQFaO>; Mon, 17 Mar 2003 00:30:14 -0500
-Received: from rj.sgi.com ([192.82.208.96]:53212 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S262802AbTCQFaK>;
-	Mon, 17 Mar 2003 00:30:10 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: kdb@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org
-Subject: Announce: kdb v4.0 is available for kernels 2.4.19, 2.4.20, i386 and ia64
-Date: Mon, 17 Mar 2003 16:40:44 +1100
-Message-ID: <24691.1047879644@kao2.melbourne.sgi.com>
+	id <S262796AbTCQFbR>; Mon, 17 Mar 2003 00:31:17 -0500
+Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:15839 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP
+	id <S262791AbTCQFbF>; Mon, 17 Mar 2003 00:31:05 -0500
+Message-ID: <20030317054152.7512.qmail@indiainfo.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Cigol C" <linuxppp@indiainfo.com>
+To: cfowler@outpostsentinel.com, rwhite@casabyte.com
+Cc: EdV@macrolink.com, "'Linux PPP'" <linuxppp@indiainfo.com>,
+       linux-serial@vger.kernel.org,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Date: Mon, 17 Mar 2003 11:11:52 +0530
+Subject: RE: RS485 communication
+X-Originating-Ip: 203.197.138.194
+X-Originating-Server: ws5-1.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Content-Type: text/plain; charset=us-ascii
+Thannks for the info. Can i acheive IP over RS485 if i use SOCK_PACKET. I need some more info on this if u could provide that. If this option is set in the socket call will i have an option the choose the hardware interface.
 
-ftp://oss.sgi.com/projects/kdb/download/v4.0/
+----- Original Message ----- 
+From: Chris Fowler 
+Date: 15 Mar 2003 10:42:53 -0500 
+To: Robert White 
+Subject: RE: RS485 communication 
 
-  kdb-v4.0-2.4.19-common-1.bz2
-  kdb-v4.0-2.4.19-i386-1.bz2
-  kdb-v4.0-2.4.19-ia64-020821-1.bz2
-  kdb-v4.0-2.4.20-common-1.bz2
-  kdb-v4.0-2.4.20-i386-1.bz2
-  kdb-v4.0-2.4.20-ia64-021210-1.bz2
+> I think using SOCK_PACKET an an ethernet chip may be the best choice. 
+> You can use IP or you can use RWP (Rober White Protocol). 
+> 
+> 
+> On Sat, 2003-03-15 at 03:07, Robert White wrote: 
+> > Yes, that, but that is only part of it. 
+> > 
+> > The RS485 is a proper bus, so this custom program (or programs) will have to 
+> > act as full bus arbiters and a kind of router. Each PPP daemon must receive 
+> > ONLY the data that its peer daemon transmits. That means that each slave 
+> > must know to ignore the data not destined for it. Further, the master, 
+> > which would have multiple PPP instances running on it, will need to decide 
+> > which of those instances get which of the receiving bytes. 
+> > 
+> > So just like an Ethernet transceiver puts a protocol frame around the data 
+> > to get it to the destination, the transport program will have to put 
+> > envelopes around the data. THEN the master transport program will tell each 
+> > slave when and how many of its envelopes it may send. The only way that can 
+> > work (because there is no "ring" you can't pass a "token") is for the master 
+> > to ask each slave in turn: "Got anything to send?" 
+> > 
+> > This usually devolves to a sequence of "#1, say your piece", "#2 say your 
+> > piece" etc. That is a very bad performance model. 
+> > 
+> > So every frame of data will need to be arbitrarily wide, meaning a length 
+> > code, and will need an in-multiplexor address. 
+> > 
+> > So the master, for instance, will say "slave 1, go". The slave 1 will send 
+> > a packet (not necessarily a PPP packet, as the multiplexor will have 
+> > overhead data etc.) 
+> > 
+> > The master will look at the address and decide which local pty the data is 
+> > for and send it there. (Think a simple byte pump here) 
+> > 
+> > When that pty has response data, and when the master says "slave 0 (e.g. me) 
+> > go" it will frame a message that slave #1 will receive and put through to 
+> > its local pty. Slave 1 also has the job of ignoring data for slaves 2 
+> > through N and the Master (Slave 0). 
+> > 
+> > In short, he has to write a distributed application that pumps data into and 
+> > out of a broadcast medium, and makes sure that each participant gets only 
+> > the data intended for itself. (This is what both the Ethernet hardware 
+> > layer, and the IP protocols do.) 
+> > 
+> > In communications you almost always put protocols inside of protocols to 
+> > some significant depth. 
+> > 
+> > For instance, when you play Unreal Tournament 2003: 
+> > Unreal Tournament's data is carried by UDP, 
+> > The UDP is carried by IP, 
+> > The IP is carried by the Ethernet hardware access layer (raw Ethernet), 
+> > Those packets may go to your cable modem which either wraps the Ethernet 
+> > hardware packets or decodes them and reencodes the IP into whatever it 
+> > does. 
+> > 
+> > >From there, if your cable modem is doing PPPoE there are even more layers. 
+> > 
+> > This guy will only have to write a multiplexing layer, but it won't be fun. 
+> > 
+> > Then again, the Ethernet people have done all that, which is why it is 
+> > cheaper and easier to just get the Ethernet hardware and use it. 
+> > 
+> > Rob. 
+> > 
+> > -----Original Message----- 
+> > From: Chris Fowler [mailto:cfowler@outpostsentinel.com] 
+> > Sent: Thursday, March 13, 2003 3:31 PM 
+> > To: Robert White 
+> > Cc: Ed Vance; 'Linux PPP'; linux-serial@vger.kernel.org; 'linux-kernel' 
+> > Subject: RE: RS485 communication 
+> > 
+> > 
+> > Are you saying that for him to to use PPPD that he will have to write a 
+> > program that will run on a master and tell all the slave nodes when they 
+> > can transmit their data. In this case it would be ppp data. Hopfully 
+> > in block sizes that are at least the size of the MTU ppp is running. 
+> > 
+> > Chris 
+> > 
+> 
+> 
+> - 
+> To unsubscribe from this list: send the line "unsubscribe linux-serial" in 
+> the body of a message to majordomo@vger.kernel.org 
+> More majordomo info at http://vger.kernel.org/majordomo-info.html 
+-- 
+______________________________________________
+http://www.indiainfo.com
+Now with POP3/SMTP access for only US$14.95/yr
 
- <=== You know what they say about .0 releases.  Caveat emptor. ===>
-
-The biggest change is this release in the way that kdb captures data
-from each cpu.  Prior to v4.0, the controlling cpu (first to get into
-kdb) would try to pull the other cpus into kdb by sending them an IPI.
-Doing a backtrace on the active tasks required that kdb switch its
-context into each cpu in turn.
-
-This works in most cases, but when the system is really wedged, it is
-difficult to get data from the other cpus.  Of course this is precisely
-the case when we want data from the other cpus.  This problem is
-particularly noticeable on ia64, when machine checks (MCA) or INIT
-interrupts can disable normal IPI or dive down into SAL, taking control
-away from the OS.  Also on IA64 the non-maskable interrupt is actually
-masked[1].
-
-In kdb v4.0, each cpu pushes its state via a global array.  This allows
-any cpu to do a backtrace on any other cpu, from a known starting
-point.  It even handles the cases when IA64 requires that cpus
-rendezvous and spin in SAL.  The push model also makes it easier to
-detect when a cpu is dead, an event which would often hang the old kdb
-pull model.
-
-On ia64, kdb v4.0 gives decent backtraces from MCA callback, MCA
-rendezvous and the INIT monarch event.  The next step in kdb v4.1 is to
-detect hung spinloops and break out of them, and to support INIT slave
-events.  The detection and debugging of hung spinloops is waiting on
-acceptance of my new spinlock code for IA64[2].
-
-[1] http://external-lists.valinux.com/archives//linux-ia64/2001-May/subject.html,
-    look for 'Replacements for local_irq_xxx'.
-[2] http://external-lists.valinux.com/archives//linux-ia64/2003-March/004976.html
-
-
-Changelog extracts since v3.0.
-
-2.4.{19,20}-common-1
-
-2003-03-16 Keith Owens  <kaos@sgi.com>
-
-        * Each cpu saves its state as it enters kdb or before it enters code
-          which cannot call kdb.
-        * Allow btp on process 0 for a specified cpu.
-        * Add btt command, backtrace given a struct task address.
-        * btc command no longer switches cpus, instead it uses the saved data.
-        * bta shows the idle task on each cpu as well as real tasks, the idle
-          task could be handling an interrupt.
-        * ps command shows the idle task on each cpu.
-        * ps checks that the saved data for a cpu matches the process running on
-          that cpu and warns about stale saved data or no saved data at all.
-        * Remove special cases for i386 backtrace from common code and simplify
-          common bt code.
-        * Clean up kdb interaction with CONFIG_SERIAL_CONSOLE.
-        * Do not automatically repeat commands after the user typed 'q'.
-        * O(1) scheduler patch changes the process cpu field but does not set
-          any indicator that O(1) is being used.  Adjust kdb_process_cpu() by
-          hand after applying O(1).
-        * Add kdb_print_nameval() to common code.
-        * Convert tests of cpu_online_map to cpu_online() macro.
-        * module.h needs errno.h when compiling with CONFIG_MODULES=n.
-        * Correct duplicate breakpoint handling.
-        * Do not try to send IPI during a catastrophic error, send_ipi can hang
-          and take kdb with it.
-        * kdb memmap command is i386 only, restrict it.
-        * Add large block device (LBD) support from XFS tree.  Eric Sandeen.
-
-2.4.{19,20}-i386-1
-
-2003-03-16 Keith Owens  <kaos@sgi.com>
-
-        * Each cpu saves its state as it enters kdb or before it enters code
-          which cannot call kdb, converting kdb from a pull to a push model.
-        * Clean up kdb interaction with CONFIG_SERIAL_CONSOLE.
-        * Removal of special cases for i386 backtrace from common code
-          simplifies the architecture code.
-        * Add command to dump i386 struct pt_regs.
-
-2.4.{19,20}-ia64-*-1
-
-2003-03-16 Keith Owens  <kaos@sgi.com>
-
-        * Each cpu saves its state as it enters kdb or before it enters code
-          which cannot call kdb, converting kdb from a pull to a push model.
-        * Clean up kdb interaction with CONFIG_SERIAL_CONSOLE.
-        * Removal of special cases for i386 backtrace from common code
-          simplifies the architecture code.
-        * Add support for MCA events (both main and rendezvous) plus INIT
-          monarch event.
-        * Correct decode of brl.
-        * Move kdba_print_nameval to common code.
-        * Generalize kdba unwind handlers.
-        * Fix decode of sal records (fix included in later ia64 kernels).
-        * Handle multiple pt_regs in stack (fix included in later ia64 kernels).
-        * Clean up debug code in unwind (fix included in later ia64 kernels).
-        * Move kdb break numbers to their own file so it can be used in asm.
-
-
-
-v4.0/README
-
-Starting with kdb v2.0 there is a common patch against each kernel which
-contains all the architecture independent code plus separate architecture
-dependent patches.  Apply the common patch for your kernel plus at least
-one architecture dependent patch, the architecture patches activate kdb.
-
-The naming convention for kdb patches is :-
-
- vx.y    The version of kdb.  x.y is updated as new features are added to kdb.
- -v.p.s  The kernel version that the patch applies to.  's' may include -pre,
-	 -rc or whatever numbering system the kernel keepers have thought up this
-	 week.
- -common The common kdb code.  Everybody needs this.
- -i386   Architecture dependent code for i386.
- -ia64   Architecture dependent code for ia64, etc.
- -n      If there are multiple kdb patches against the same kernel version then
-	 the last number is incremented.
-
-To build kdb for your kernel, apply the common kdb patch which is less
-than or equal to the kernel v.p.s, taking the highest value of '-n'
-if there is more than one.  Apply the relevant arch dependent patch
-with the same value of 'vx.y-v.p.s-', taking the highest value of '-n'
-if there is more than one.
-
-For example, to use kdb for i386 on kernel 2.4.20, apply
-  kdb-v4.0-2.4.20-common-<n>            (use highest value of <n>)
-  kdb-v4.0-2.4.20-i386-<n>              (use highest value of <n>)
-in that order.  To use kdb for ia64-021210 on kernel 2.4.20, apply
-  kdb-v4.0-2.4.20-common-<n>            (use highest value of <n>)
-  kdb-v4.0-2.4.20-ia64-021210-<n>       (use highest value of <n>)
-in that order.
-
-Use patch -p1 for all patches.
-
-I do not have any time to work on 2.5, so there are no patches available
-for 2.5 kernels.  If somebody wants to port the latest kdb patches to
-2.5 kernels and send patches to kaos@sgi.com then I will put them up in
-this directory.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQE+dV/Zi4UHNye0ZOoRAnClAJ9w5o2dFH1PiacptvwX1uGJRWb1lACdEcpH
-3F9mS5NCPrM91Nt1WuYEm+s=
-=dlxz
------END PGP SIGNATURE-----
-
+Powered by Outblaze

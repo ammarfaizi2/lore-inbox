@@ -1,80 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265359AbSJSK4u>; Sat, 19 Oct 2002 06:56:50 -0400
+	id <S263491AbSJSLGN>; Sat, 19 Oct 2002 07:06:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265584AbSJSK4u>; Sat, 19 Oct 2002 06:56:50 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:4041 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S265359AbSJSK4t> convert rfc822-to-8bit; Sat, 19 Oct 2002 06:56:49 -0400
-Date: Sat, 19 Oct 2002 13:02:48 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Corey Minyard <cminyard@mvista.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] IPMI driver for Linux, version 7
-In-Reply-To: <3DACD6E3.6020707@mvista.com>
-Message-ID: <Pine.NEB.4.44.0210191249240.28761-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S264614AbSJSLGN>; Sat, 19 Oct 2002 07:06:13 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:33552 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S263491AbSJSLGM>;
+	Sat, 19 Oct 2002 07:06:12 -0400
+Date: Sat, 19 Oct 2002 07:12:15 -0400 (EDT)
+Message-Id: <200210191112.g9JBCFl288460@saturn.cs.uml.edu>
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] procps 3.0.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Oct 2002, Corey Minyard wrote:
 
-> In the continuing saga of IPMI driver updates, here's another installment.
->
-> More cleanups and bug fixes, some from Arjan van de Ven, and others from
-> myself. This fixes some problems with blocking operations while holding
-> a lock. It has an unfortunate interface change (but better now than
-> later), the lun field is removed from the IPMI message, and one is added
-> to the system interface address. It's a minor change, but it really
-> needed to be done to make things consistent. It's only released as a
-> patch to the v6 version and it applies cleanly to all kernel versions.
->  As usual, you can download the driver from my home page at
-> http://home.attbi.com/~minyard.
->
-> -Corey
->
-> PS - In case you don't know, IPMI is a standard for system management,
-> it provides ways to detect the managed devices in the system and sensors
-> attached to them.  You can get more information at
-> http://www.intel.com/design/servers/ipmi/spec.htm
+That was rather new code last time... the new top now runs much
+better, so you don't have to give up Linux 2.2.xx to support the
+2.5.xx kernel, etc.
 
-<--  snip  -->
+The WOLK kernel needs a patch -- or rather, one less patch. :-)
+The procps-2.x.x code silently gives bad output; it does NOT work.
 
-...
-Adopters Agreement:
+http://procps.sf.net/
+http://procps.sf.net/procps-3.0.4.tar.gz
 
-Before implementing the IPMI, IPMB or ICMB specifications, a royalty-free
-reciprocal patent license must be signed. Please follow the steps below to
-sign the IPMI Adopters Agreement:
-...
-·  Adopter hereby grants to the Promoters and to Fellow Adopters, and the
-   Promoters hereby grant to Adopter, a nonexclusive, royalty-free,
-   nontransferable, nonsublicenseable, worldwide license under its
-   Necessary Claims to make, have made, use, import, offer to sell and
-   sell products which comply with the Specification; provided that such
-   license shall not extend to features of a product which are not
-   required to comply with the Specification or for which there exists a
-   feasible, noninfringing alternative.
-...
+------------ changes ------------
 
-<--  snip  -->
+procps-3.0.3 --> procps-3.0.4
 
+make top go faster
+Linux 2.2.xx ELF note warning removed
+only show IO-wait on recent kernels
+fix top's SMP stats
+fix top for "dumb" and "vt510" terminals
+in top, limit the priority values to -99 ... 99
 
-Am I right that this makes it impossible to include an IPMI driver into
-the kernel (this isn't GPL-compatible)?
+procps-3.0.2 --> procps-3.0.3
 
+more "make install" fixes
+lib CFLAGS working again
+top.1 codes fixed
+bad (int*) cast in top removed
+top runs faster
+libproc memory corruption fixed
+rant moved out of top.1 man page
+ability to SKIP installing things
+fixed ps --sort crash
 
-cu
-Adrian
+procps-3.0.1 --> procps-3.0.2
 
--- 
-
-"Is there not promise of rain?" Ling Tan asked suddenly out
-of the darkness. There had been need of rain for many days.
-"Only a promise," Lao Er said.
-                                Pearl S. Buck - Dragon Seed
-
-
+top defaults to the old layout
+top defaults to sorting by %CPU
+fix top for non-SMP 2.2.xx and 2.0.xx
+new "make install" fixed
+vmstat -a fixed
+vmstat compiles with latest gcc-3.x
+vmstat does 64-bit time

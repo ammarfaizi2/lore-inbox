@@ -1,30 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262190AbUJZIlH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262180AbUJZIms@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262190AbUJZIlH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 04:41:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbUJZIlH
+	id S262180AbUJZIms (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 04:42:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbUJZIms
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 04:41:07 -0400
-Received: from canuck.infradead.org ([205.233.218.70]:7954 "EHLO
+	Tue, 26 Oct 2004 04:42:48 -0400
+Received: from canuck.infradead.org ([205.233.218.70]:9490 "EHLO
 	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S262190AbUJZIlF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 04:41:05 -0400
-Subject: Re: [PATCH] remove dead tcp exports
+	id S262180AbUJZImo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 04:42:44 -0400
+Subject: Re: [ACPI] [Proposal]Another way to save/restore PCI config space
+	for suspend/resume
 From: Arjan van de Ven <arjan@infradead.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: "David S. Miller" <davem@davemloft.net>,
-       Werner Almesberger <wa@almesberger.net>, hch@lst.de, davem@redhat.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1098765665.9404.5.camel@krustophenia.net>
-References: <20041024134309.GB20267@lst.de>
-	 <20041026000710.D3841@almesberger.net>
-	 <20041025204147.667ee2b1.davem@davemloft.net>
-	 <1098765665.9404.5.camel@krustophenia.net>
+To: Len Brown <len.brown@intel.com>
+Cc: Andi Kleen <ak@suse.de>, "Li, Shaohua" <shaohua.li@intel.com>,
+       ACPI-DEV <acpi-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, greg@kroah.com,
+       Pavel Machek <pavel@suse.cz>
+In-Reply-To: <417DEA8D.4080307@intel.com>
+References: <1098766257.8433.7.camel@sli10-desk.sh.intel.com>
+	 <20041026051100.GA5844@wotan.suse.de>  <417DEA8D.4080307@intel.com>
 Content-Type: text/plain
-Message-Id: <1098780051.2789.17.camel@laptop.fenrus.org>
+Message-Id: <1098780150.2789.19.camel@laptop.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Tue, 26 Oct 2004 10:40:51 +0200
+Date: Tue, 26 Oct 2004 10:42:31 +0200
 Content-Transfer-Encoding: 7bit
 X-Spam-Score: 2.6 (++)
 X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
@@ -40,19 +40,15 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-10-26 at 00:41 -0400, Lee Revell wrote:
+On Tue, 2004-10-26 at 02:11 -0400, Len Brown wrote:
+> What this comes down to is that extended config space is device-specific.
+> Generic solutions will fail.  Only device drivers will work.
+> 
+> If there are no drivers for PCI bridges to properly save/restore
+> their config space, then should create them, even if this is all the 
+> drivers do.
 
-> Is this really a compelling reason to remove them?  For example ALSA
-> provides an API for driver writers, just because a certain function
-> happens not to be used by any does not mean is never will be or that it
-> should not.
-
-sometimes such "spurious" exports still make sense. Most of the time
-they don't, and during these cleanups we've found several functions for
-which the only "user" was the export, eg entirely dead code. 
-Also nobody in the entire tree using a part of the API is a pretty good
-sign that the API isn't good or even supposed to be used. (again,
-exceptions possible, which is why cleaning this stuff is manual work and
-not a script to just nuke it all)
+note that by default, if there is no driver, the first 64 bytes of
+config space are saved/restored.
 -- 
 

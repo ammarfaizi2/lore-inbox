@@ -1,44 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262613AbRFFX6r>; Wed, 6 Jun 2001 19:58:47 -0400
+	id <S262436AbRFFX64>; Wed, 6 Jun 2001 19:58:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262448AbRFFX6g>; Wed, 6 Jun 2001 19:58:36 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:16824 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S262436AbRFFX60>;
-	Wed, 6 Jun 2001 19:58:26 -0400
-Date: Thu, 7 Jun 2001 01:52:45 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: RTL8139, IRQ sharing, etc.
-Message-ID: <20010607015245.B11765@emma1.emma.line.org>
-Mail-Followup-To: Jeff Garzik <jgarzik@mandrakesoft.com>,
-	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010529215647.A3955@greenhydrant.com> <3B147F80.31EC7520@mandrakesoft.com> <20010531104437.C10057@emma1.emma.line.org> <3B17D471.D636E208@mandrakesoft.com> <20010601203127.B17137@emma1.emma.line.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010601203127.B17137@emma1.emma.line.org>; from matthias.andree@stud.uni-dortmund.de on Fri, Jun 01, 2001 at 20:31:27 +0200
+	id <S262448AbRFFX6r>; Wed, 6 Jun 2001 19:58:47 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:58760 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S262436AbRFFX6i>; Wed, 6 Jun 2001 19:58:38 -0400
+Date: Wed, 6 Jun 2001 17:51:24 -0600
+Message-Id: <200106062351.f56NpOs20522@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: "David S. Miller" <davem@redhat.com>
+Cc: "Matt D. Robinson" <yakker@alacritech.com>,
+        "La Monte H.P. Yarroll" <piggy@em.cig.mot.com>,
+        linux-kernel@vger.kernel.org, sctp-developers-list@cig.mot.com
+Subject: Re: [PATCH] sockreg2.4.5-05 inet[6]_create() register/unregister table
+In-Reply-To: <15134.48456.5360.764458@pizda.ninka.net>
+In-Reply-To: <200106051659.LAA20094@em.cig.mot.com>
+	<3B1E5CC1.553B4EF1@alacritech.com>
+	<15134.42714.3365.32233@theor.em.cig.mot.com>
+	<15134.43914.98253.998655@pizda.ninka.net>
+	<3B1EBB13.34721ED9@alacritech.com>
+	<15134.48456.5360.764458@pizda.ninka.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 01 Jun 2001, Matthias Andree wrote:
+David S. Miller writes:
+> 
+> Matt D. Robinson writes:
+>  > > This allows people to make proprietary implementations of TCP under
+>  > > Linux.  And we don't want this just as we don't want to add a way to
+>  > > allow someone to do a proprietary Linux VM.
+>  > 
+>  > And if as Joe User I don't want Linux TCP, but Joe's TCP, they can't
+>  > do that (in a supportable way)?  Are you saying Linux is, "do it my
+>  > way, or it's the highway"?
 
-> Not sure if it's related to IRQ sharing or another initialization issue.
+Pardon my cynicism, but this reads more like "I'm an ACME Inc. and I
+want to sell a proprietary TCP stack for Linux, please change Linux to
+make this possible/easy". I doubt there are many Joe Users out there
+who want to replace their TCP stack. I bet they would be much happier
+to see patches go in which improve the performance of the generic
+kernel.
 
-Looks like IRQ sharing is still in the play.
+But I'm sure there are plenty of ACME Inc.'s out there who would love
+to sell a replacement TCP stack. And suck users down a proprietary
+solution path. But I don't see why the Linux community should help the
+ACME's of this world. And Linux is doing very nicely in the corporate
+world, so we needn't to lose any sleep over what our current policies
+do for our acceptance levels.
 
-Yesterday, I purchased a pair of used 3C905TXs, replaced the RTL 8139 by
-the 3C905, and got complaints by the 3C905 about "eth0: Interrupt posted
-but not delivered -- IRQ blocked by another device?" (Linux 2.2.19). The
-other card on the same IRQ is a Brooktree 878.
+If it bothers you that Linux caters more the the users and less to the
+vendors, then use another OS. We don't mind. The door is over there.
+Please don't slam it on your way out.
 
-I then swapped the Bt878 and the 3C900 (not 3C905!) and got no more
-complaints, now, the Bt878 can keep its IRQ to itself, and the two 3Com
-cards share the IRQ. Seems both NICs are fine. TV is also fine. Strange.
+> If Joe's TCP is opensource, they are more than welcome to publish
+> such changes.
 
-Might the BT 878 PCI AND the NVidia AGP card be the culprits?
+Yep. And then we can all benefit.
 
-Cheers,
-Matthias
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

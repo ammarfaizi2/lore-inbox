@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261697AbTDOPjn (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 11:39:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbTDOPjn 
+	id S261702AbTDOPlh (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 11:41:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbTDOPlh 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 11:39:43 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:62212
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id S261697AbTDOPjm 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 11:39:42 -0400
-Subject: Re: statistics for this mailinglist
-From: Robert Love <rml@tech9.net>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: root@vanheusden.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20030414065034.3c552fa4.rddunlap@osdl.org>
-References: <200304130201.h3D211vu030602@muur.intranet.vanheusden.com>
-	 <20030414065034.3c552fa4.rddunlap@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1050421892.3664.143.camel@localhost>
+	Tue, 15 Apr 2003 11:41:37 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:48811 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261702AbTDOPle 
+	(for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Apr 2003 11:41:34 -0400
+Date: Tue, 15 Apr 2003 08:52:02 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: alan@lxorguk.ukuu.org.uk
+Cc: davidsen@tmr.com, linux-kernel@vger.kernel.org
+Subject: Re: oops when using hdc=ide-scsi (2.5.66)
+Message-Id: <20030415085202.493ee48a.rddunlap@osdl.org>
+In-Reply-To: <20030415090357.5d5586b4.skraw@ithnet.com>
+References: <1049740232.2965.80.camel@dhcp22.swansea.linux.org.uk>
+	<Pine.LNX.3.96.1030415002500.22538A-100000@gatekeeper.tmr.com>
+	<20030415090357.5d5586b4.skraw@ithnet.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
-Date: 15 Apr 2003 11:51:32 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-04-14 at 09:50, Randy.Dunlap wrote:
+On Tue, 15 Apr 2003 09:03:57 +0200 Stephan von Krawczynski <skraw@ithnet.com> wrote:
 
-> Could you merge different versions of the same MUA?
-> I.e., just use up to the '/'.
-> Or is that a bad idea?
+| On Tue, 15 Apr 2003 00:27:50 -0400 (EDT)
+| Bill Davidsen <davidsen@tmr.com> wrote:
+| 
+| > On 7 Apr 2003, Alan Cox wrote:
+| > 
+| > > On Llu, 2003-04-07 at 20:02, Randy.Dunlap wrote:
+| > > > Hi,
+| > > > 
+| > > > I get this when I boot 2.5.66 and the Linux command line contains
+| > > > "hdc=ide-scsi".  Yes, I know that I can remove that option (as in
+| > > > "DDT"), but the kernel shouldn't do this, either.
+| > > 
+| > > ide_scsi is completely broken in 2.5.x. Known problem. If you need it
+| > > either use 2.4 or fix it 8)
+| > 
+| > Is that an official position that it will not be supported? People with MO
+| > drives and tape will be supported only on 2.4?
 
-No, that is a good idea.  All these Mutt entries are silly.
+Alan, if someone is willing to spend some time on ide-scsi, can you
+give hints about where to start, what to do?
 
-Further, I bet mailers like Mozilla and Evolution would be very near the
-top if all the versions were merged.
-
-Also, as someone else I believe pointed out, there is a bug. F.e.,
-"Ximian" should be "Ximian Evolution" -- it looks like anything after
-the space is being ignored, which is no good.  I like Randy's idea of
-ignoring up to the '/'.
-
-	Robert Love
-
+Thanks,
+--
+~Randy

@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315456AbSGIPWO>; Tue, 9 Jul 2002 11:22:14 -0400
+	id <S315458AbSGIPam>; Tue, 9 Jul 2002 11:30:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315457AbSGIPWN>; Tue, 9 Jul 2002 11:22:13 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:48300 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S315456AbSGIPWN>;
-	Tue, 9 Jul 2002 11:22:13 -0400
-Date: Tue, 9 Jul 2002 17:24:49 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] using 2.5.25 with IDE
-Message-ID: <20020709172449.A10605@ucw.cz>
-References: <Pine.SOL.4.30.0207091613350.16892-100000@mion.elka.pw.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.SOL.4.30.0207091613350.16892-100000@mion.elka.pw.edu.pl>; from B.Zolnierkiewicz@elka.pw.edu.pl on Tue, Jul 09, 2002 at 04:17:39PM +0200
+	id <S315472AbSGIPal>; Tue, 9 Jul 2002 11:30:41 -0400
+Received: from c-24-118-234-119.mn.client2.attbi.com ([24.118.234.119]:48001
+	"EHLO c-24-118-234-119mnclient2attbicom") by vger.kernel.org
+	with ESMTP id <S315458AbSGIPal>; Tue, 9 Jul 2002 11:30:41 -0400
+Date: Tue, 9 Jul 2002 10:29:59 -0500 (CDT)
+From: "Scott M. Hoffman" <scott783@attbi.com>
+X-X-Sender: scott@ScottnBonnies.attbi.com
+Reply-To: scott783@attbi.com
+To: Duncan Sands <duncan.sands@wanadoo.fr>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.25-dj1
+In-Reply-To: <200207091140.42367.duncan.sands@wanadoo.fr>
+Message-ID: <Pine.LNX.4.44.0207091026270.14288-100000@ScottnBonnies.attbi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 09, 2002 at 04:17:39PM +0200, Bartlomiej Zolnierkiewicz wrote:
+On Tue, 9 Jul 2002 at 11:40 +0200 Duncan Sands wrote:
 
-> Contrary to the popular belief 2.5.25 has only Martin's IDE-93
-> and has broken locking...
+> fs/fs.o: In function `proc_pid_stat':
+> fs/fs.o(.text+0x1fb72): undefined reference to `__udivdi3'
+> fs/fs.o: In function `kstat_read_proc':
+> fs/fs.o(.text+0x20b42): undefined reference to `__udivdi3'
+> fs/fs.o(.text+0x20bd0): undefined reference to `__udivdi3'
+> make[1]: *** [vmlinux] Error 1
+> make[1]: Leaving directory `/usr/src/linux-2.5.25-dj1'
+> make: *** [stamp-build] Error 2
 > 
-> If you want to run IDE on 2.5.25 get and apply:
-> 
-> IDE-94 by Martin
-> IDE-95/96/97/98-pre by me
-> 
-> from:
-> http://home.elka.pw.edu.pl/~bzolnier/ata/
 
-Just for convenience, now that the 2.4 IDE backport has a BK tree, I've
-put the above patches into BK, too, so anyone can pull them from:
 
-http://linux-ide.bkbits.net:8080/linux-ide
+I'm also getting this error.  Looking it up on Google points to earlier 
+problems than 2.5.25, both with binutils and gcc.  I've tried binutils 
+2.11, 2.12 and gcc 2.95.3, 2.96(RH 7.3), and 3.1.  No combination seems 
+to work.
 
-I'll try to keep it up to date with latest 2.5 (hopefully working) IDE.
 
 -- 
-Vojtech Pavlik
-SuSE Labs
+Scott M. Hoffman
+scott783@attbi.com
+Running Linux 2.4.18-3smp, up 0 days 17 hours 7 minutes
+

@@ -1,50 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129505AbQKHWMY>; Wed, 8 Nov 2000 17:12:24 -0500
+	id <S130078AbQKHWNX>; Wed, 8 Nov 2000 17:13:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129611AbQKHWMN>; Wed, 8 Nov 2000 17:12:13 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:44809 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129505AbQKHWMG>; Wed, 8 Nov 2000 17:12:06 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: malloc(1/0) ??
-Date: 8 Nov 2000 14:11:34 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8ucj2m$oiq$1@cesium.transmeta.com>
-In-Reply-To: <NCBBLIEPOCNJOAEKBEAKEEAJLMAA.davids@webmaster.com> <Pine.LNX.4.21.0011080149010.32613-100000@server.serve.me.nl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
+	id <S129611AbQKHWNN>; Wed, 8 Nov 2000 17:13:13 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:27155 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S130078AbQKHWNB>;
+	Wed, 8 Nov 2000 17:13:01 -0500
+Date: Wed, 8 Nov 2000 23:13:00 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+        "J . A . Magallon" <jamagallon@able.es>,
+        Michael Rothwell <rothwell@holly-springs.nc.us>,
+        linux-kernel@vger.kernel.org
+Subject: Re: continuing VM madness
+Message-ID: <20001108231300.A7845@inspiron.suse.de>
+In-Reply-To: <Pine.LNX.3.96.1001108174731.7153B-100000@artax.karlin.mff.cuni.cz> <E13tZF5-0000EX-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E13tZF5-0000EX-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Nov 08, 2000 at 05:42:33PM +0000
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.21.0011080149010.32613-100000@server.serve.me.nl>
-By author:    Igmar Palsenberg <maillist@chello.nl>
-In newsgroup: linux.dev.kernel
->
-> 
-> > 	The program does not work. A program works if it does what it's supposed to
-> > do. If you want to argue that this program is supposed to print "ffffff"
-> > then explain to me why the 'malloc' contains a zero in parenthesis.
-> > 
-> > 	The program can't possibly work because it invokes undefined behavior. It
-> > is impossible to determine what a program that invokes undefined behavior is
-> > 'supposed to do'.
-> 
-> May I remind you guys that a malloc(0) is equal to a free(). There is no
-> way that any mem get's malloced. 
-> 
+On Wed, Nov 08, 2000 at 05:42:33PM +0000, Alan Cox wrote:
+> add page aging then in theory it'll be as good as 2.2 but in practice who 
 
-Where the heck did you get idea?
+Agreed.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

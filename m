@@ -1,64 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318393AbSGYKU6>; Thu, 25 Jul 2002 06:20:58 -0400
+	id <S318397AbSGYKZ5>; Thu, 25 Jul 2002 06:25:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318396AbSGYKU6>; Thu, 25 Jul 2002 06:20:58 -0400
-Received: from zikova.cvut.cz ([147.32.235.100]:55823 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S318393AbSGYKU5>;
-	Thu, 25 Jul 2002 06:20:57 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Marcin Dalecki <dalecki@evision.ag>
-Date: Thu, 25 Jul 2002 12:23:12 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: IDE and CDROM devices (was Re: [IDE bug] hdparm lockup)
-CC: lkml <linux-kernel@vger.kernel.org>
-X-mailer: Pegasus Mail v3.50
-Message-ID: <1A90171BA8@vcnet.vc.cvut.cz>
+	id <S318398AbSGYKZ5>; Thu, 25 Jul 2002 06:25:57 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:40641 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S318397AbSGYKZ5>;
+	Thu, 25 Jul 2002 06:25:57 -0400
+Date: Thu, 25 Jul 2002 03:18:21 -0700 (PDT)
+Message-Id: <20020725.031821.123624987.davem@redhat.com>
+To: mingo@elte.hu
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.5.28
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0207251126120.20754-100000@localhost.localdomain>
+References: <20020724.225921.108418454.davem@redhat.com>
+	<Pine.LNX.4.44.0207251126120.20754-100000@localhost.localdomain>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 25 Jul 02 at 9:38, Marcin Dalecki wrote:
-> Andrew Morton wrote:
-> > 
-> > /dev/hdc:
-> >  HDIO_GETGEO_BIG failed: Invalid argument
-> >  (what's this?)
-> 
-> Please don't call every bug out there IDE. Thanks.
-> Becouse this one is acutally most likely due to the ioctl() handling
-> changes between 27 and 28...
+   From: Ingo Molnar <mingo@elte.hu>
+   Date: Thu, 25 Jul 2002 11:28:15 +0200 (CEST)
+   
+   i think the networking code is a special case - nothing else relies on the
+   interaction of timers and IRQ contexts in such a deep way. (which it does
+   for performance reasons.) I'd say 99% of all cli()/sti() users are in the
+   'introduce a per-driver or per-subsystem lock' league Linus mentioned.
+   
+I'm sure the serial drivers used to.  Look at how they were using
+SERIAL_BH for example.
 
-Any plans to fix 'hdparm -I /dev/atapi-cdrom-device' I reported to
-you and Bartolomiej at the end of June? ide_*_taskfile
-sets REQ_SPECIAL, but ide-cd calls cdrom_end_request(drive, rq, 1) 
-on all such requests without looking at them or without trying to
-execute them. This forces hdparm -I to think that ATA identify
-suceeded and returned all zeroes:
+RMK's stuff fixes that so wrt. the current state of affairs you're
+probably right.
 
-/dev/hdd:
-
-removable ATA device, with non-removable media
-Standards:
-        Likely used: 1
-Configuration:
-        Logical               max current
-        cylinders             0   0
-        heads                 0   0
-        ...
-Capabilities:
-        no IORDY
-        Cannot perform double-word IO
-        r/w/ multiple sector transfer: not supported
-        DMA: not supported
-        PIO: pio0        
-
-while 'hdparm -i' correctly reports that it is Toshiba DVD device
-supporting IORDY, pio0-4, sdma0-2, mdma0-2, udma0-2, according
-to ATA2-ATA5.
-                                                Thanks,
-                                                    Petr Vandrovec
-                                                    vandrove@vc.cvut.cz
-                                                    

@@ -1,71 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132414AbQKDF3A>; Sat, 4 Nov 2000 00:29:00 -0500
+	id <S132037AbQKDFeb>; Sat, 4 Nov 2000 00:34:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132155AbQKDF2v>; Sat, 4 Nov 2000 00:28:51 -0500
-Received: from horus.its.uow.edu.au ([130.130.68.25]:7816 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S131961AbQKDF2h>; Sat, 4 Nov 2000 00:28:37 -0500
-Message-ID: <3A039E77.5DD87DF0@uow.edu.au>
-Date: Sat, 04 Nov 2000 16:28:23 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
-X-Accept-Language: en
+	id <S132427AbQKDFeV>; Sat, 4 Nov 2000 00:34:21 -0500
+Received: from squeaker.ratbox.org ([63.216.218.10]:20050 "HELO
+	squeaker.ratbox.org") by vger.kernel.org with SMTP
+	id <S132037AbQKDFeM>; Sat, 4 Nov 2000 00:34:12 -0500
+Date: Sat, 4 Nov 2000 00:34:23 -0500 (EST)
+From: Aaron Sethman <androsyn@ratbox.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Tim Riker <Tim@Rikers.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: non-gcc linux? (was Re: Where did kgcc go in 2.4.0-test10?)
+In-Reply-To: <20001102201836.A14409@gruyere.muc.suse.de>
+Message-ID: <Pine.LNX.4.21.0011040031450.11261-100000@squeaker.ratbox.org>
 MIME-Version: 1.0
-To: Jorge Nerin <comandante@zaralinux.com>
-CC: Paul Gortmaker <p_gortmaker@yahoo.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux SMP Mailing List <linux-smp@vger.kernel.org>
-Subject: Re: [patch] NE2000
-In-Reply-To: <E13pz9c-0006Jh-00@the-village.bc.nu> <39FD5433.587FF7C6@zaralinux.com> <39FFE612.2688A5AD@yahoo.com> <3A02F9AA.AFB2DB1B@zaralinux.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jorge Nerin wrote:
-> 
-> ...
-> So I think that it could be a little window near sock_wait_for_wmem that
-> could be SMP insecure wich is affecting me.
-> 
-> The code of sock_wait_for_wmem in 2.4.0-test10 is this:
-> 
-> static long sock_wait_for_wmem(struct sock * sk, long timeo)
-> {
->         DECLARE_WAITQUEUE(wait, current);
-> 
->         clear_bit(SOCK_ASYNC_NOSPACE, &sk->socket->flags);
->         add_wait_queue(sk->sleep, &wait);
->         for (;;) {
->                 if (signal_pending(current))
->                         break;
->                 set_bit(SOCK_NOSPACE, &sk->socket->flags);
->                 set_current_state(TASK_INTERRUPTIBLE);
->                 if (atomic_read(&sk->wmem_alloc) < sk->sndbuf)
->                         break;
->                 if (sk->shutdown & SEND_SHUTDOWN)
->                         break;
->                 if (sk->err)
->                         break;
->                 timeo = schedule_timeout(timeo);
->         }
->         __set_current_state(TASK_RUNNING);
->         remove_wait_queue(sk->sleep, &wait);
->         return timeo;
-> }
-> 
-> Does someone see something SMP insecure? Perhaps I'm totally wrong, this
-> could also be somewhere in the interrupt handling, don't know.
+On Thu, 2 Nov 2000, Andi Kleen wrote:
 
-No, that code is correct, provided (current->state == TASK_RUNNING)
-on entry.  If it isn't, there's a race window which can cause
-lost wakeups.   As a check you could add:
+> On Thu, Nov 02, 2000 at 07:07:12PM +0000, Alan Cox wrote:
+> > > 1. There are architectures where some other compiler may do better
+> > > optimizations than gcc. I will cite some examples here, no need to argue
+> > 
+> > I think we only care about this when they become free software.
+> 
+> SGI's pro64 is free software and AFAIK is able to compile a kernel on IA64.
+> It is also not clear if gcc will ever produce good code on IA64.
 
-	if ((current->state & (TASK_INTERRUPTIBLE|TASK_UNINTERRUPTIBLE)) == 0)
-		BUG();
+Well if its compiling the kernel just fine without alterations to the
+code, then fine. If not, if the SGI compiler is GPL'd pillage its sources
+and get that code working in gcc. Otherwise, trying to get linux to work
+with other C compilers doesn't seem worth the effort. 
 
-to the start of this function.
+Aaron
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

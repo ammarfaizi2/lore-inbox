@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263675AbUJ2X6h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263685AbUJ3ABr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263675AbUJ2X6h (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 19:58:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263552AbUJ2XoA
+	id S263685AbUJ3ABr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 20:01:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263674AbUJ2X7e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 19:44:00 -0400
-Received: from cantor.suse.de ([195.135.220.2]:6622 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263693AbUJ2XkT (ORCPT
+	Fri, 29 Oct 2004 19:59:34 -0400
+Received: from fw.osdl.org ([65.172.181.6]:48591 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263713AbUJ2Xpw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 19:40:19 -0400
-Date: Sat, 30 Oct 2004 01:39:11 +0200
-From: Andi Kleen <ak@suse.de>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.10-rc1-mm2: konqueror segfaults for no reason
-Message-ID: <20041029233911.GI31914@wotan.suse.de>
-References: <200410291823.34175.rjw@sisk.pl>
+	Fri, 29 Oct 2004 19:45:52 -0400
+Date: Fri, 29 Oct 2004 16:45:51 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Steven Dake <sdake@mvista.com>
+Cc: Chris Wright <chrisw@osdl.org>, Mark Haverkamp <markh@osdl.org>,
+       Openais List <openais@lists.osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9 kernel oops with openais
+Message-ID: <20041029164551.U2357@build.pdx.osdl.net>
+References: <1099090282.14581.19.camel@persist.az.mvista.com> <1099091302.13961.42.camel@markh1.pdx.osdl.net> <1099091816.14581.22.camel@persist.az.mvista.com> <20041029163944.H14339@build.pdx.osdl.net> <1099093468.1207.8.camel@persist.az.mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200410291823.34175.rjw@sisk.pl>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1099093468.1207.8.camel@persist.az.mvista.com>; from sdake@mvista.com on Fri, Oct 29, 2004 at 04:44:29PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 29, 2004 at 06:23:34PM +0200, Rafael J. Wysocki wrote:
-> Hi,
+* Steven Dake (sdake@mvista.com) wrote:
+> The use case is this (on 2.6.9):
 > 
-> On 2.6.10-rc1-mm2 with SuSE 9.1 /x86_64 konqueror always crashes for no 
-> specific reason and the following messages appear in dmesg:
-> 
-> local[18494]: segfault at 0000003000000018 rip 0000000000428f2a rsp 
-> 0000007fbfffe870 error 4
-> local[18493]: segfault at 0000003000000018 rip 0000000000428f2a rsp 
-> 0000007fbfffe870 error 4
-> 
-> This does not happen on 2.6.10-rc1.
-> 
-> The .config is available at:
-> http://www.sisk.pl/kernel/041029/2.6.10-rc1-mm2.config
+> task starts as uid 0
+> task calls mlockall
+> task allocates several mb of ram
+> task drops root privs to non prived uid
+> further memory allocations fail
 
-Can you back out patches and try to figure out which one caused it? 
-Doing a strace -f -o LOG of konqueror before the fault may also be interesting
-to see what it did before it crashes.
+What's the RLIMIT_MEMLOCK?
 
--Andi
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

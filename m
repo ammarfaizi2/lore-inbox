@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272218AbRHWIOc>; Thu, 23 Aug 2001 04:14:32 -0400
+	id <S272219AbRHWIPV>; Thu, 23 Aug 2001 04:15:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272219AbRHWIOW>; Thu, 23 Aug 2001 04:14:22 -0400
-Received: from t2.redhat.com ([199.183.24.243]:12539 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S272218AbRHWIOL>; Thu, 23 Aug 2001 04:14:11 -0400
-Message-ID: <3B84BB62.4571A0EF@redhat.com>
-Date: Thu, 23 Aug 2001 09:14:26 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-Organization: Red Hat, Inc
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-2 i686)
-X-Accept-Language: en
+	id <S272233AbRHWIPN>; Thu, 23 Aug 2001 04:15:13 -0400
+Received: from ltgp.iram.es ([150.214.224.138]:1408 "EHLO ltgp.iram.es")
+	by vger.kernel.org with ESMTP id <S272219AbRHWIO6>;
+	Thu, 23 Aug 2001 04:14:58 -0400
+Date: Thu, 23 Aug 2001 10:15:04 +0200 (CEST)
+From: Gabriel Paubert <paubert@iram.es>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: adding accuracy to random timers on PPC - new config option or
+ runtime  overhead?
+In-Reply-To: <3B83EC7B.B10F59C6@nortelnetworks.com>
+Message-ID: <Pine.LNX.4.21.0108231004580.2015-100000@ltgp.iram.es>
 MIME-Version: 1.0
-To: Tim Hockin <thockin@hockin.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PDC20265 RAID signature
-In-Reply-To: <200108230745.f7N7jTY00414@www.hockin.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Hockin wrote:
-> 
-> Andre or anyone,
-> 
-> Do you happen to know where the Promise "raid" controllers store the RAID
-> signature?  My crappy BIOS will only let me make a 2 disk array and 2x 1 disk
-> arrays.  I really would like 4 1 disk arrays so windows and Linux see the
-> same data, or 1 4 disk array...
+On Wed, 22 Aug 2001, Chris Friesen wrote:
 
-see http://people.redhat.com/arjanv/pdcraid/
+> 
+> I'm looking at putting in PPC-specific code in add_timer_randomness() that would
+> be similar to the x86-specific stuff.
+> 
+> The problem is that the PPC601 uses real time clock registers while the other
+> PPC chips use a timebase register, so two different versions will be required.
+> Should I try and identify at runtime which it is (which would be extra
+> overhead), or should I add another config option to the kernel?
+
+Look at how it's done in do_gettimeofday (expand the macros). Note that
+the USE_RTC was not yet perfect last time I looked at it: it should only
+perform a test whenever 601 support is enabled (there are so many problems
+with 601).
+
+Don't forget that in the case of a 601, you have to shift the least
+significant word right by 7 bits since the register increments by 128
+every 128 nanoseconds. But the upper word changes more often...
+
+However, it would perhaps be better to define the code as a macro in
+asm-${ARCH}/whatever.h and fall back to jiffies in case the macro is not
+defined. Arch dependent ifdef'ed code should be avoided.
+
+	Gabriel.
+

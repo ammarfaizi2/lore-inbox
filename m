@@ -1,60 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261779AbULOAS7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261718AbULOAS4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261779AbULOAS7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 19:18:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261783AbULOASw
+	id S261718AbULOAS4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 19:18:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbULOASD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 19:18:52 -0500
-Received: from kweetal.tue.nl ([131.155.3.6]:5131 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S261718AbULNX4H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 18:56:07 -0500
-Date: Wed, 15 Dec 2004 00:56:01 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Chris Heath <chris@heathens.co.nz>
-Cc: aeb@cwi.nl, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: Improved console UTF-8 support for the Linux kernel?
-Message-ID: <20041214235601.GA4681@pclin040.win.tue.nl>
-References: <1102920623.30543.1820.camel@linux.heathens.co.nz>
+	Tue, 14 Dec 2004 19:18:03 -0500
+Received: from adsl-67-117-73-34.dsl.sntc01.pacbell.net ([67.117.73.34]:41737
+	"EHLO mail.muru.com") by vger.kernel.org with ESMTP id S261769AbULNXNK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 18:13:10 -0500
+Date: Tue, 14 Dec 2004 15:13:00 -0800
+From: Tony Lindgren <tony@atomide.com>
+To: linux-os@analogic.com
+Cc: Pavel Machek <pavel@suse.cz>, john stultz <johnstul@us.ibm.com>,
+       Andrea Arcangeli <andrea@suse.de>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Con Kolivas <kernel@kolivas.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: dynamic-hz
+Message-ID: <20041214231300.GD31226@atomide.com>
+References: <20041213124313.GB29426@atrey.karlin.mff.cuni.cz> <20041213125844.GY16322@dualathlon.random> <20041213191249.GB1052@elf.ucw.cz> <1102970039.1281.415.camel@cog.beaverton.ibm.com> <20041213204933.GA4693@elf.ucw.cz> <20041214013924.GB14617@atomide.com> <20041214093735.GA1063@elf.ucw.cz> <20041214211814.GA31226@atomide.com> <20041214220646.GC19218@elf.ucw.cz> <Pine.LNX.4.61.0412141751590.20391@chaos.analogic.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1102920623.30543.1820.camel@linux.heathens.co.nz>
-User-Agent: Mutt/1.4.2i
-X-Spam-DCC: : kweetal.tue.nl 1074; Body=1 Fuz1=1 Fuz2=1
+In-Reply-To: <Pine.LNX.4.61.0412141751590.20391@chaos.analogic.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 13, 2004 at 01:50:24AM -0500, Chris Heath wrote:
-
-> Logically, keyboard input and console display are separated in the
-> kernel. When you switch in and out of Unicode mode you have to switch
-> both the keyboard and the display separately.  However, this patch
-> intertwines the two because it does its 8-bit to Unicode conversion
-> using a table that is designed for use by the display module.
+* linux-os <linux-os@chaos.analogic.com> [041214 15:04]:
+> On Tue, 14 Dec 2004, Pavel Machek wrote:
 > 
-> I have a couple of other patches on my website, which I am happy to
-> submit (or you are welcome to take), but this is the simplest and the
-> most popular.
+> >Hi!
+> >
+> >>>>The patch in question is at:
+> >>>>
+> >>>>http://linux-omap.bkbits.net:8080/main/user=tmlind/patch@1.2016.4.18?nav=!-|index.html|stats|!+|index.html|ChangeSet@-12w|cset@1.2016.4.18
+> >>>
+> >>>Wow, that's basically 8 lines of code plus driver for new
+> >>>hardware... Is it really that simple?
+> >>
+> >>Yeah, the key things are reprogramming the timer in the idle loop
+> >>based on next_timer_interrupt(), and calling timer_interrupt from
+> >>other interrupts as well :)
+> >>
+> >>Should we try a similar patch for x86/amd64? I'm not sure which timers
+> >>to use though? One should be programmable length for the interrupt,
+> >>and the other continuous for the timekeeping.
+> >
+> >Yes, it would certainly be interesting. 5% power savings, and no
+> >singing capacitors, while keeping HZ=1000. Sounds good to me.
+> >
+> >There are about 1000 timers available in PC, each having its own
+> >quirks. CMOS clock should be able to generate 1024Hz periodic timer
+> >(we currently do not use) and TSC we currently use for periodic timer
+> >should be usable in single-shot mode.
+> >								Pavel
+> >--
+> 
+> If you use that RTC timer, it needs to be something that can be
+> turned OFF. Many embedded applications use that because its the
+> only timer that the OS doesn't muck with. It also has very low
+> noise which makes in a good timing source for IIR filters for
+> high precision, low data-rate data acquisition (like 24 bits).
 
-Wouldnt mind looking at your other patches.
-Will not submit this one - perhaps someone else likes it.
-I consider the below completely unacceptable.
+OK, thanks for the information. That could be the continuous timer
+then, and TSC the periodic timer.
 
-You cannot use knowledge about the setup of the output side
-in the keyboard handler. These are independent in principle.
+> Since it generates an edge, its interrupt can't be shared.
+> I certainly hope that you don't use it. One can read the
+> time without disturbing the interrupt rate. One just
+> needs to use the existing rtc_lock and not spin with
+> the lock being held.
 
-Andries
+Yeah, the timer update would be just a read from the RTC timer.
 
+> Currently the kernel RTC software allocates the RTC interrupt
+> even though it doesn't use it. This makes it necessary to
+> compile the RTC as a module and then remove it when another
+> driver needs to use the RTC interrupt source.
 
-> +u32 conv_8bit_to_uni(unsigned char c)
-> +{
-> +	/* 
-> +	 * Always use USER_MAP. This function is used by the keyboard,
-> +	 * which shouldn't be affected by G0/G1 switching, etc.
-> +	 * If the user map still contains default values, i.e. the 
-> +	 * direct-to-font mapping, then assume user is using Latin1.
-> +	 */
-> +	unsigned short uni = translations[USER_MAP][c];
-> +	return uni == (0xf000 | c) ? c : uni;
-> +}
+The interrupt could be used for timer wrap only.
+
+Tony

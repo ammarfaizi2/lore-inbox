@@ -1,41 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268752AbUHTVVW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268754AbUHTVYT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268752AbUHTVVW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 17:21:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268753AbUHTVVW
+	id S268754AbUHTVYT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 17:24:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268756AbUHTVYT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 17:21:22 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:24006 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S268752AbUHTVVU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 17:21:20 -0400
-Date: Fri, 20 Aug 2004 23:21:12 +0200 (MEST)
-From: <Andries.Brouwer@cwi.nl>
-Message-Id: <UTC200408202121.i7KLLCO04775.aeb@smtp.cwi.nl>
-To: akpm@osdl.org, torvalds@osdl.org
-Subject: [PATCH] minix fix
-Cc: linux-kernel@vger.kernel.org
+	Fri, 20 Aug 2004 17:24:19 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:7580 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S268754AbUHTVYO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 17:24:14 -0400
+Subject: Re: [RFC] enhanced version of net_random()
+From: Lee Revell <rlrevell@joe-job.com>
+To: Andreas Dilger <adilger@clusterfs.com>
+Cc: Jean-Luc Cooke <jlcooke@certainkey.com>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       "David S. Miller" <davem@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, "Theodore Ts'o" <tytso@mit.edu>,
+       netdev@oss.sgi.com, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040820185956.GV8967@schnapps.adilger.int>
+References: <20040812104835.3b179f5a@dell_ss3.pdx.osdl.net>
+	 <20040820175952.GI5806@certainkey.com>
+	 <20040820185956.GV8967@schnapps.adilger.int>
+Content-Type: text/plain
+Message-Id: <1093037055.10063.192.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 20 Aug 2004 17:24:15 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 2.5.18 some minix-specific stuff was moved to the minix
-subdirectory where it belonged. However, a typo crept in.
-A few people have complained, but so far not sufficiently loudly.
+On Fri, 2004-08-20 at 14:59, Andreas Dilger wrote:
+> On Aug 20, 2004  13:59 -0400, Jean-Luc Cooke wrote:
+> > Is there a reason why get_random_bytes() is unsuitable?
+> > 
+> > Keeping the number of PRNGs in the kernel to a minimum should a goal we can
+> > all share.
+> 
+> For some uses a decent PRNG is enough, and the overhead of get_random_bytes()
+> is much too high.
 
-The bug is of a type that automated tools might discover:
-a value res is computed, but not used.
+Agreed.  I have numbers to support the above.
 
-Andries
+>   We've needed something like this for a long time (something
+> that gives decenly uniform numbers) and hacks to use useconds/cycles/etc do
+> not cut it.  I for one welcome a simple in-kernel interface to
+> e.g. get_urandom_bytes() (or net_random() as this is maybe inappropriately
+> called) that is only pseudo-random but fast and efficient.
 
-Signed-off-by: Andries Brouwer
+One problem is that AIUI, we incur this overhead even if a hardware RNG
+is present.  This does not seem right.  Hardware RNGs are increasingly
+common, Linux supports hardware RNGs from AMD, Intel, and VIA.
 
-diff -uprN -X /linux/dontdiff a/fs/minixdiff -uprN -X /linux/dontdiff a/fs/minix/itree_common.c b/fs/minix/itree_common.c
---- a/fs/minix/itree_common.c	2003-12-18 03:59:05.000000000 +0100
-+++ b/fs/minix/itree_common.c	2004-08-20 23:02:26.000000000 +0200
-@@ -358,5 +358,5 @@ static inline unsigned nblocks(loff_t si
- 		res += blocks;
- 		direct = 1;
- 	}
--	return blocks;
-+	return res;
- }
+Lee 
+

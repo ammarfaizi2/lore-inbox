@@ -1,72 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262881AbTIEUlX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 16:41:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263058AbTIEUlW
+	id S266176AbTIEUfq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 16:35:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266053AbTIEUcf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 16:41:22 -0400
-Received: from fmr09.intel.com ([192.52.57.35]:60120 "EHLO hermes.hd.intel.com")
-	by vger.kernel.org with ESMTP id S262881AbTIEUlN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 16:41:13 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: [PATCH] idle using PNI monitor/mwait (take 2)
-Date: Fri, 5 Sep 2003 13:41:07 -0700
-Message-ID: <7F740D512C7C1046AB53446D3720017304AF0D@scsmsx402.sc.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] idle using PNI monitor/mwait (take 2)
-Thread-Index: AcNz1WPx/s5HCVrCSCOIOaM5jCRGWgABNj+g
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, "Saxena, Sunil" <sunil.saxena@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-X-OriginalArrivalTime: 05 Sep 2003 20:41:08.0742 (UTC) FILETIME=[0907C260:01C373EE]
+	Fri, 5 Sep 2003 16:32:35 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:52171 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S266109AbTIEUb7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 16:31:59 -0400
+Date: Fri, 5 Sep 2003 22:31:57 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Rob Landley <rob@landley.net>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Patrick Mochel <mochel@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Keyboard stuff (was Re: Fix up power managment in 2.6)
+Message-ID: <20030905203157.GU16859@atrey.karlin.mff.cuni.cz>
+References: <200309050158.36447.rob@landley.net> <200309051457.37241.rob@landley.net> <20030905190649.GP16859@atrey.karlin.mff.cuni.cz> <200309051609.35135.rob@landley.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200309051609.35135.rob@landley.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We are doing this as defensive programming (because of bogus device
-drivers, for example), like the other idle routines (default_idle, and
-poll_idle) always do. 
+Hi!
 
-BTW, I'm not sure that local_irq_disable() is really required below (as
-you know, "sti" is hiding in safe_halt()).
-
-void default_idle(void)
-{
-	if (!hlt_counter && current_cpu_data.hlt_works_ok) {
-=>		local_irq_disable();
-		if (!need_resched())
-			safe_halt();
-		else
-			local_irq_enable();
-	}
-}
-
-Thanks,
-Jun
-
-
-> -----Original Message-----
-> From: Andrew Morton [mailto:akpm@osdl.org]
-> Sent: Friday, September 05, 2003 10:14 AM
-> To: Nakajima, Jun
-> Cc: linux-kernel@vger.kernel.org; Saxena, Sunil; Mallick, Asit K;
-> Pallipadi, Venkatesh
-> Subject: Re: [PATCH] idle using PNI monitor/mwait (take 2)
-> 
-> "Nakajima, Jun" <jun.nakajima@intel.com> wrote:
+> > > I was hoping software suspend would avoid having to have IBM firmware
+> > > involved in the suspend process at all (it can boot, it can shut down, I
+> > > just want it to snapshot process state so it comes up with the same
+> > > things up on the desktop as last time).
 > >
-> > Attached is a patch that enables PNI (Prescott New Instructions)
-> > monitor/mwait in the kernel idle.
+> > Yes software suspend can do that.
 > 
-> Thanks, looks good.
-> 
-> Why is there a local_irq_enable() on entry to mwait_idle()?
+> Footnote 1: If it worked, which I've never been able to get it to
+> do.
 
+Try -test3 with ext2 and minimal set of drivers.
+
+> > > P.S.  I reeeeeeeeeeeeeeeeeally hate it the way the keys on the keyboard
+> > > sometimes have an up event delayed (or miss it entirely) and decide to
+> > > auto-repeat insanely fast.  It happens about twice an hour.  I've seen
+> > > mouse clicks do it as well.  Not a show-stopper, just annoying.
+> >
+> > I guess that *is* showstopper. Unfortunately notebook keyboards tend
+> > to be crappy :-(.
+> 
+> Not on a thinkpad.  I could probably bring down a wild caribou with this 
+> thing, it's designed like a tank.  (Part of the reason I bought it. :)
+> 
+> I tried 2.4 for a bit on it when I was first trying to get it working.  
+> (Largely to assess how much reconfiguration needed to be done, since I'd 
+> swapped in a hard drive from a toshiba and didn't want to have to reinstall.)
+> 
+> The keyboard never had a problem under 2.4, this is a 2.6 problem.
+> It also 
+
+You need to report this to vojtech, I guess.
+									Pavel
+-- 
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

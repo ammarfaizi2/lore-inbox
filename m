@@ -1,49 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261943AbUEAERF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261969AbUEAFIH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261943AbUEAERF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 May 2004 00:17:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261979AbUEAERF
+	id S261969AbUEAFIH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 May 2004 01:08:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbUEAFIH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 May 2004 00:17:05 -0400
-Received: from adsl-67-65-14-122.dsl.austtx.swbell.net ([67.65.14.122]:38355
-	"EHLO laptop.michaels-house.net") by vger.kernel.org with ESMTP
-	id S261943AbUEAERC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 May 2004 00:17:02 -0400
-Subject: Re: [PATCH 2.4] add SMBIOS information to /proc/smbios -- UPDATE 2
-From: Michael Brown <mebrown@michaels-house.net>
-To: Lev Makhlis <mlev@despammed.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200405010007.43171.mlev@despammed.com>
-References: <200404302009.49576.mlev@despammed.com>
-	 <1083382335.1203.2975.camel@debian> <200405010007.43171.mlev@despammed.com>
-Content-Type: text/plain
-Message-Id: <1083384955.1202.2988.camel@debian>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 30 Apr 2004 23:15:55 -0500
+	Sat, 1 May 2004 01:08:07 -0400
+Received: from obsidian.spiritone.com ([216.99.193.137]:59070 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S261969AbUEAFIF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 May 2004 01:08:05 -0400
+Date: Fri, 30 Apr 2004 22:07:59 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Marc Boucher <marc@linuxant.com>
+cc: "'lkml - Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
+Message-ID: <6900000.1083388078@[10.10.2.4]>
+In-Reply-To: <90DD8A88-9AE2-11D8-B83D-000A95BCAC26@linuxant.com>
+References: <009701c42edf$25e47390$ca41cb3f@amer.cisco.com> <Pine.LNX.4.58.0404301212070.18014@ppc970.osdl.org> <90DD8A88-9AE2-11D8-B83D-000A95BCAC26@linuxant.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-04-30 at 23:07, Lev Makhlis wrote:
-> > Can you please send me a URL with this information? I have access to
-> > some IA64 machines. I will add this code if I have a spec.
-> > --
-> > Michael
-> 
-> The EFI spec is here: http://developer.intel.com/technology/efi/EFI_110.htm
-> (SMBIOS pointer is mentioned in section 4.3), but arch/ia64/kernel/efi*.c
-> already reads EFI.  You may want to look at dmidecode
-> (http://freshmeat.net/projects/dmidecode/), which has code to read
-> /proc/efi/systab (which, last I checked, itself required a patch).
-> In kernel space, I think you could just use efi.smbios, but I'm not an expert
-> on that myself.
+> All bugs can be debugged or fixed, it's a matter of how hard it is 
+> to do (generally easier with open-source) and *who* is responsible 
+> for doing it (i.e. supporting the modules).
 
-Ok, good. Thanks. I was also looking around a bit. It looks like the
-right thing to do is to use efi.smbios. I'll look at this next week when
-I get a chance to hop on our test box. Looks like this makes the ia64
-version of this a bit shorter than the x86 version. :-)
---
-Michael
+Yes, exactly. The tainted mechanism is there to tell us that it's not 
+*our* problem to support it. And you deliberately screwed that up,
+which is why everybody is pissed at you.
 
+M.
 

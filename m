@@ -1,41 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287401AbRL3NMl>; Sun, 30 Dec 2001 08:12:41 -0500
+	id <S287408AbRL3NSM>; Sun, 30 Dec 2001 08:18:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287399AbRL3NMb>; Sun, 30 Dec 2001 08:12:31 -0500
-Received: from smtp02.web.de ([217.72.192.151]:22303 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id <S287403AbRL3NMO>;
-	Sun, 30 Dec 2001 08:12:14 -0500
-Message-ID: <004801c19133$9bc91210$0dfda8c0@mausi>
-From: "Tobias Reinhard" <TRTracer@web.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: SIS-Driver
-Date: Sun, 30 Dec 2001 14:12:16 +0100
+	id <S287403AbRL3NSB>; Sun, 30 Dec 2001 08:18:01 -0500
+Received: from p15.dynadsl.ifb.co.uk ([194.105.168.15]:38540 "HELO smeg")
+	by vger.kernel.org with SMTP id <S287405AbRL3NRl>;
+	Sun, 30 Dec 2001 08:17:41 -0500
+From: "Lee Packham" <linux@mswinxp.net>
+To: <axboe@suse.de>
+Cc: <davej@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: FW: [BUG] 2.5.1-dj8 - IDE CD-ROM ... Also in main tree
+Date: Sun, 30 Dec 2001 13:17:04 -0000
+Message-ID: <000501c19134$463fd580$010ba8c0@lee>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
+X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maybe I am doing something wrong but I dicovered a problem with the Linux
-2.4.17,XFree 4.1.0 and the SIS-DRM-Driver.
+2.5.2-pre3 has the same problem.
 
-If I choose the SIS to compile as module the Linux-Menuconfig UNDEF
-CONFIG_DRM_SIS - this result in a compile-error when compiling XFree. I have
-to comfigure the SIS to be included in the kernel. But this is not what I
-want because I use the same kernel on differend computer - but at least
-XFree compiles. But now Linux does not compile because it wants that I
-include the SIS-FB driver in the kernel. Another thing that i dont want! :-)
-
-What am I doing wrong, or is that a bug? I solved it by setting up a Kernel
-with all SIS-DRM included, compile X and then removed them. ATM I am unable
-to test if the SIS-DRM really runs with that configuration...
-
-Tobias
-
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-
+> owner@vger.kernel.org] On Behalf Of Dave Jones
+> Sent: 30 December 2001 12:37
+> To: Lee Packham
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: [BUG] 2.5.1-dj8 - IDE CD-ROM
+> 
+> On Sun, 30 Dec 2001, Lee Packham wrote:
+> 
+> > On a VIA KT266a chipset motherboard with a standard IDE CD-ROM
+device I
+> > get input/output errors on all iso9660 + joilet CD's. I don't have
+any
+> > basic CDs to try.
+> 
+> Looks like I dropped part of the isofs changes. I'll take a look
+> at this for the next patch.
+> 
+> Thanks
+> 
+> Dave.
+> 
+> --
+> | Dave Jones.        http://www.codemonkey.org.uk
+> | SuSE Labs
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

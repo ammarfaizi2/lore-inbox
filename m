@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbUKNMHw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261291AbUKNMK2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261290AbUKNMHw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 07:07:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbUKNMHw
+	id S261291AbUKNMK2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 07:10:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbUKNMK2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 07:07:52 -0500
-Received: from port-212-202-157-208.static.qsc.de ([212.202.157.208]:31693
-	"EHLO zoidberg.portrix.net") by vger.kernel.org with ESMTP
-	id S261290AbUKNMHq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 07:07:46 -0500
-Message-ID: <41974A6C.20302@ppp0.net>
-Date: Sun, 14 Nov 2004 13:07:08 +0100
-From: Jan Dittmer <jdittmer@ppp0.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.3) Gecko/20040926 Thunderbird/0.8 Mnenhy/0.6.0.104
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux kernel <linux-kernel@vger.kernel.org>
-CC: johnpol@2ka.mipt.ru
-Subject: [PATCH] matrox w1: fix integer to pointer conversion warnings
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sun, 14 Nov 2004 07:10:28 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:61084 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S261291AbUKNMKX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Nov 2004 07:10:23 -0500
+Date: Sun, 14 Nov 2004 13:10:18 +0100 (MET)
+Message-Id: <200411141210.iAECAIgd011479@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: linux-kernel@vger.kernel.org, pgallen@gmail.com
+Subject: Re: Compiling RHEL WS Kernels
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Get rid of some pointer to integer conversion warnings
-in the matrox w1 bus driver.
+On Sat, 13 Nov 2004 22:23:14 -0800, Paul G. Allen wrote:
+>I recently installed RHEL WS Update 3 (kernel 2.4.21-20) on my laptop.
+>Out of the box it does not recognize any USB devices, my Synaptics
+>touchpad, my PCMCIA Wireless (NetGear WAG511G) or the proper
+>resolution on my LCD. (NOTE: RH 9 worked perfectly OOTB on this same
+>machine. So far I'm not at all impressed with RHEL WS - any more than
+>I was with RH 7.0.)
+>
+>I tried to build a new 2.4.21 kernel based upon a configuration from a
+>non-RH kernel (2.4.24) that worked on this machine. Not a single
+>module will compile correctly. I had to remove all modules and compile
+>them into the kernel. I2C code will not compile at all and it had to
+>be completely removed. After this I was able to compile a working
+>kernel, but it boots with errors and the NVIDIA driver will not
+>compile.
+...
+>What compiler versions are known to work with this kernel?
 
-Signed-off-by: Jan Dittmer <jdittmer@ppp0.net>
+I run RHEL3 2.4.21-20.EL on several servers over here,
+and in that role it works great.
 
-diff -Nru a/drivers/w1/matrox_w1.c b/drivers/w1/matrox_w1.c
---- a/drivers/w1/matrox_w1.c	2004-11-14 13:03:45 +01:00
-+++ b/drivers/w1/matrox_w1.c	2004-11-14 13:03:45 +01:00
-@@ -78,11 +78,12 @@
+You should only use gcc-3.2.3 to compile RHEL3 kernels.
+The old 2.4 code base has problems with later gcc versions;
+they've been fixed in 2.4.28-pre/rc, but that doesn't
+help you with your 2.4.21-based RHEL kernel.
 
- struct matrox_device
- {
--	unsigned long base_addr;
--	unsigned long port_index, port_data;
-+	char *base_addr;
-+	char *port_index, *port_data;
- 	u8 data_mask;
+And as Arjan wrote, you must do a mrproper before configuring
+and building the kernel and modules.
 
--	unsigned long phys_addr, virt_addr;
-+	unsigned long phys_addr;
-+	char *virt_addr;
- 	unsigned long found;
+>My next step may be D/L the latest 2.6 stable kernel and try compiling
+>that (but that still leaves the question of which gcc version to use).
 
- 	struct w1_bus_master *bus_master;
-@@ -181,8 +182,7 @@
-
- 	dev->phys_addr = pci_resource_start(pdev, 1);
-
--	dev->virt_addr =
--		(unsigned long) ioremap_nocache(dev->phys_addr, 16384);
-+	dev->virt_addr = ioremap_nocache(dev->phys_addr, 16384);
- 	if (!dev->virt_addr) {
- 		dev_err(&pdev->dev, "%s: failed to ioremap(0x%lx, %d).\n",
- 			__func__, dev->phys_addr, 16384);
+Just about any one of {2.95.3, 3.2.3, 3.3.5, 3.4.3}.

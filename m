@@ -1,39 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261518AbVCHTFt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261536AbVCHTI3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261518AbVCHTFt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 14:05:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261521AbVCHTFt
+	id S261536AbVCHTI3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 14:08:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbVCHTHi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 14:05:49 -0500
-Received: from moritz.faps.uni-erlangen.de ([131.188.113.15]:44653 "EHLO
-	moritz.faps.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S261518AbVCHTFo convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 14:05:44 -0500
-content-class: urn:content-classes:message
+	Tue, 8 Mar 2005 14:07:38 -0500
+Received: from alog0465.analogic.com ([208.224.222.241]:29312 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261521AbVCHTGc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 14:06:32 -0500
+Date: Tue, 8 Mar 2005 14:04:47 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: kernel mmap() and friends.
+Message-ID: <Pine.LNX.4.61.0503081403340.12268@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="Windows-1252"
-Content-Transfer-Encoding: 8BIT
-Subject: Writing data > PAGESIZE into kernel with proc fs
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-Date: Tue, 8 Mar 2005 20:05:42 +0100
-Message-ID: <09766A6E64A068419B362367800D50C0B58A4F@moritz.faps.uni-erlangen.de>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Writing data > PAGESIZE into kernel with proc fs
-thread-index: AcUkEdNbBcV8JJD2QwmEFsgwF3XHQw==
-From: "Weber Matthias" <weber@faps.uni-erlangen.de>
-To: <kernelnewbies@nl.linux.org>, <linux-kernel@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-is there any chance to signal an EOF when writing data to kernel via proc fs? Actually if the length of data is N*PAGE_SIZE it seems not to be detectable. I followed up the "struct file" but haven't found anything that helped...
+Hello mem-map gurus,
 
-Any help would be appreciated!
+If one uses x = __get_dma_pages(GFP_KERNEL, nr), finds the physical
+address with b = virt_to_bus(x), then attempts to mmap(,,b,,,) the result
+_does_not_fail_, yet the user ends up with memory ...somewhere....
+that is R/W able and WRONG.
 
-Bye
-Matthias
+Yet, if the code executes SetPageReserved(virt_to_page(x)), the
+mmap() works and the user gets the CORRECT page(s).
 
+I think that if mmap() needs a physical buffer to be reserved
+then that's fine. However, silently returning some different
+buffer is a BUG.
+
+Is anyone aware of this BUG? Does anybody else care?
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261401AbULTDaN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261400AbULTDWJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261401AbULTDaN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Dec 2004 22:30:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261402AbULTDaM
+	id S261400AbULTDWJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Dec 2004 22:22:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbULTDWI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Dec 2004 22:30:12 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:27293 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261401AbULTDaH (ORCPT
+	Sun, 19 Dec 2004 22:22:08 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:4816 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261400AbULTDWF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Dec 2004 22:30:07 -0500
-Date: Sun, 19 Dec 2004 19:30:01 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Roland McGrath <roland@redhat.com>
-cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+	Sun, 19 Dec 2004 22:22:05 -0500
+Date: Sun, 19 Dec 2004 22:21:35 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Con Kolivas <kernel@kolivas.org>
+cc: Mikhail Ramendik <mr@ramendik.ru>, Andrew Morton <akpm@digeo.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, lista4@comhem.se,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] back out CPU clock additions to posix-timers
-In-Reply-To: <200412182202.iBIM2RaZ030987@magilla.sf.frob.com>
-Message-ID: <Pine.LNX.4.58.0412191923360.1580@schroedinger.engr.sgi.com>
-References: <200412182202.iBIM2RaZ030987@magilla.sf.frob.com>
+Subject: Re: 2.6.10-rc3: kswapd eats CPU on start of memory-eating task
+In-Reply-To: <41C640DE.7050002@kolivas.org>
+Message-ID: <Pine.LNX.4.61.0412192220450.4315@chimarrao.boston.redhat.com>
+References: <14514245.1103496059334.JavaMail.tomcat@pne-ps4-sn2>
+ <41C6073B.6030204@yahoo.com.au> <20041219155722.01b1bec0.akpm@digeo.com>
+ <200412200303.35807.mr@ramendik.ru> <41C640DE.7050002@kolivas.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 18 Dec 2004, Roland McGrath wrote:
+On Mon, 20 Dec 2004, Con Kolivas wrote:
 
-> > Roland McGrath <roland@redhat.com> wrote:
-> > >
-> > > I really think we should not let the
-> > > existing clockid_t encoding change get out in 2.6.10.
-> >
-> > So.. could you please send a patch which disables the userspace-visibility
-> > of Christoph's changes?
+> I still suspect the thrash token patch even with the swap token timeout 
+> at 0. Is it completely disabled at 0 or does it still do something?
 
-I am not sure what the point of these is? The userspace visibility of the
-regular posix clocks (positive clockid's) does not change. The way we
-encode process cputime clocks as negative values changes but there is
-nothing that supports my encoding yet (apart from my test code) since
-the glibc patch was never accepted.
+It makes it harder to page out pages from the task holding the
+token.  I wonder if kswapd should try to steal the token away
+from the task holding it, so in effect nobody holds the token
+when the system isn't under a heavy swapping load.
 
-I would like to keep the support for all 4 standard posix clocks through
-clockids 0-3 as listed in the kernel headers and simply have the cputime
-clocks redirect to your code appropriately to get the current values for
-each process. IMHO that makes the interface cleaner, is cleaner for glibc
-since it allows simply to pass positive clockids through  and also
-maintains compatibility for positive clockids to the existing situation.
-
+-- 
+He did not think of himself as a tourist; he was a traveler. The difference is
+partly one of time, he would explain. Where as the tourist generally hurries
+back home at the end of a few weeks or months, the traveler belonging no more
+to one place than to the next, moves slowly, over periods of years, from one
+part of the earth to another. Indeed, he would have found it difficult to tell,
+among the many places he had lived, precisely where it was he had felt most at
+home.  -- Paul Bowles

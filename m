@@ -1,73 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261641AbSIXKrD>; Tue, 24 Sep 2002 06:47:03 -0400
+	id <S261642AbSIXKtK>; Tue, 24 Sep 2002 06:49:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261642AbSIXKrD>; Tue, 24 Sep 2002 06:47:03 -0400
-Received: from ns.crescendo.ro ([194.235.240.134]:19210 "EHLO ns.crescendo.ro")
-	by vger.kernel.org with ESMTP id <S261641AbSIXKrC> convert rfc822-to-8bit;
-	Tue, 24 Sep 2002 06:47:02 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Alex <devel@qnet.ro>
-To: linux-kernel@vger.kernel.org
-Subject: HOT SWAP PROBLEM using hp4100 server series
-Date: Tue, 24 Sep 2002 13:50:50 +0300
-User-Agent: KMail/1.4.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200209241350.50702.devel@qnet.ro>
-X-RAVMilter-Version: 8.3.3(snapshot 20020312) (mail.masini.ro)
+	id <S261643AbSIXKtJ>; Tue, 24 Sep 2002 06:49:09 -0400
+Received: from angband.namesys.com ([212.16.7.85]:64906 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S261642AbSIXKtI>; Tue, 24 Sep 2002 06:49:08 -0400
+Date: Tue, 24 Sep 2002 14:54:21 +0400
+From: Oleg Drokin <green@namesys.com>
+To: Jakob Oestergaard <jakob@unthought.net>, linux-kernel@vger.kernel.org,
+       Hans Reiser <reiser@namesys.com>
+Subject: Re: ReiserFS buglet
+Message-ID: <20020924145421.A23754@namesys.com>
+References: <20020924072455.GE2442@unthought.net> <20020924132110.A22362@namesys.com> <20020924092720.GF2442@unthought.net> <20020924134816.A23185@namesys.com> <20020924100338.GH2442@unthought.net> <20020924142521.C23185@namesys.com> <20020924103923.GI2442@unthought.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20020924103923.GI2442@unthought.net>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello linux experts,
+Hello!
 
+On Tue, Sep 24, 2002 at 12:39:24PM +0200, Jakob Oestergaard wrote:
+> > amount of data. If it writes these sectors from the start of the data flow,
+> > what will it do on data transefer timeout?
+> > So I still think that data is written on disk in 512 bytes atomic blocks
+> > until I see IDE device that does otherwise (and then I will probably
+> > dig some IDE datasheet and find out they are violating some spec ;) )
+> That would be really interesting.
+> I mean, my point still stands even though my proof was wrong, unless
+> someone can come up with a "proof" (a spec would be close enough) that
+> writes must be 512 bytes.
 
-I don`t know if i come to the right place
+Ok, here's what I have quckly found, it seems to proove that my assumptions are
+right:
+http://www.repairfaq.org/filipg/LINK/F_IDE-tech.html
+Section: "9. Command Descriptions":
+Here the quote:
+   The recommended procedure for executing a command on the selected
+   drive is:
 
+    1. Wait for drive to clear BUSY.
+    2. Load required parameters in the Command Block Registers.
+    3. Activate the Interrupt Enable (nIEN) bit.
+    4. Wait for drive to set DRDY.
+    5. Write the command code to the Command Register.
+   Execution of the command begins as soon as the drive loads the Command
+   Block Register.
 
-I have a HP 4100 server with LSI 53c1010R SCSI controller. I use 
-RedHat7.3 os with default kernel 2.4.18-3. Also i have 3 scsi drives 
-36G Ultra3 firmware HP. All thins are ok till here.
+Commands:
+   E8h: Write Buffer
+          This command enables the host to overwrite the contents of the
+          drive's sector buffer with any data pattern. On receipt of this
+          comand the drive sets BUSY within 400 nsec, sets up the sector
+          buffer for a write operation, sets DRQ and clears BUSY. The
+          host then writes up to 512 bytes of data to the buffer. The
+          Read Buffer and Write Buffer are synchronized so that back to
+          back Read Buffer and Write Buffer commands access the same 512
+          bytes within the buffer.
+   30h: Write Sectors with Retry
+   31h: Write Sectors without Retry
+          This command writes from 1 to 256 sectors beginning at the
+          specified sector and as stated earlier, a sector count of 0 in
+          the Command Block Register will request 256 sectors. When the
+          drive accepts this command it sets DRQ and wait for the host to
+          fill the sector buffer with the data to be written to disk. No
+          interrupt is generated to start the first buffer fill operation
+          and once the buffer is full the drive clears the DRQ, sets BUSY
+          and begins execution of the command.
 
+          For single sector Write operations, the drive sets DRQ upon
+          receipt of the command and waits for the host to fill the
+          sector buffer. Once a sector has been transferred, the drive
+          sets BUSY and clears DRQ. If the drive is not on the requested
+          cylinder and head an inplied seek and/or head switch is
+          performed. Once the desired track is reached the drive searches
+          for the appropriate ID field.
 
-I need some help to test HOT SWAP feature for this drives. I read some 
-documentation and i saw that HOT SWAP may work if my driver for 
-scsi-controller support re-scanning the bus.
+....
+End of quote
 
+So no write should be even started until entire sector buffer is filled.
 
-[snip]
-Normal SCSI hardware is not hot-swappable either. It may however work. 
-If your SCSI driver supports re-scanning the bus, and removing and 
-appending devices, you may be able to hot-swap devices.
-
-
-I try to check if this feature works for me and don`t. If i remove any 
-scsi drive, this device remain in /proc until will be removed manually, 
-or using a script named rescan-scsi-bus.sh which i found it on google.
-
-
-I try to obtain some additional info and i saw that for my 
-scsi-controller has 2 active drivers: one older named sym53cxx.o and 
-one newer named sym53cxx_2.o!
-I don`t have for the moment access to this computer but i remember that 
-on default installation, redhat assigned the old driver to my 
-scsi-controller.
-
-
-I want to know if i change the driver with this new one, i can use the 
-HOT SWAP feature!
-
-
-Are necessary additional settings to be made when i load the new driver 
-or on the system configuration?
-
-
-Any success story will be appreciated.
-
-
-Regards,
-
-
-Alex
-
+Bye,
+    Oleg

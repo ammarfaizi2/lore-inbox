@@ -1,88 +1,118 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129093AbRBWRWT>; Fri, 23 Feb 2001 12:22:19 -0500
+	id <S129115AbRBWRZt>; Fri, 23 Feb 2001 12:25:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129115AbRBWRWK>; Fri, 23 Feb 2001 12:22:10 -0500
-Received: from dsl-64-192-216-221.telocity.com ([64.192.216.221]:11268 "EHLO
-	topgun.unixexchange.com") by vger.kernel.org with ESMTP
-	id <S129093AbRBWRV5>; Fri, 23 Feb 2001 12:21:57 -0500
-Date: Fri, 23 Feb 2001 12:20:34 -0500 (EST)
-From: "Carl D. Speare" <carlds@attglobal.net>
-X-X-Sender: <carlds@topgun.unixexchange.com>
-To: David Weinehall <tao@acc.umu.se>
-cc: Quim K Holland <qkholland@my-deja.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: need to suggest a good FS:
-In-Reply-To: <20010223143235.E5465@khan.acc.umu.se>
-Message-ID: <Pine.BSF.4.33.0102231216030.4359-100000@topgun.unixexchange.com>
+	id <S129156AbRBWRZa>; Fri, 23 Feb 2001 12:25:30 -0500
+Received: from cthulhu.lls.se ([193.15.114.2]:28596 "HELO cthulhu.lls.se")
+	by vger.kernel.org with SMTP id <S129115AbRBWRZH>;
+	Fri, 23 Feb 2001 12:25:07 -0500
+From: "Magnus Walldal" <magnus.walldal@b-linc.com>
+To: "Rik van Riel" <riel@conectiva.com.br>
+Cc: <kuznet@ms2.inr.ac.ru>, <linux-kernel@vger.kernel.org>
+Subject: RE: 2.4.1 under heavy network load - more info
+Date: Fri, 23 Feb 2001 18:26:06 +0100
+Message-ID: <HFEDLHHPHHEOBHLNPJOKGEIECAAA.magnus.walldal@b-linc.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <Pine.LNX.4.31.0102212031240.21127-100000@localhost.localdomain>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Actually there isn't. Hmmm, sounds like I'll have some hacking to do...
 
-But I have to ask if this is something that would actually be desirable.
-Given how rare it is, does the Linux community actually want to have YAFS
-(yet another file system) added to the list, especially for an even more
-rare OS like OpenServer 5.0.x? Maybe now that Caldera is involved more
-with SCO, it might be something that happens in a few months anyway...
 
---Carl
+> In that case, could I see some vmstat (and/or top) output of
+> when the kernel is no longer able to keep up, or maybe even
+> a way I could reproduce these things at the office ?
 
-On Fri, 23 Feb 2001, David Weinehall wrote:
+Interactive response is actually pretty OK, the only thing I'm seeing is
+short (about 1 sec) pauses, they could be due to network problems or VM
+stuff...
+hard to say because I work with the machine over the net and not from
+console.
+What I do see during these short pauses is that sendq is building up on the
+remote end, nothing happens for a short while and then things continue as
+nothing bad happened ;)
 
-> Received: from localhost (localhost.unixexchange.com [127.0.0.1])
-> 	by topgun.unixexchange.com (8.11.1/8.11.1) with ESMTP id
->     f1NH24t04182
-> 	for <carlds@localhost>; Fri, 23 Feb 2001 12:02:04 -0500 (EST)
-> 	(envelope-from tao@acc.umu.se)
-> Received: from pop4.prserv.net [32.97.166.5]
-> 	by localhost with POP3 (fetchmail-5.5.6)
-> 	for carlds@localhost (single-drop); Fri, 23 Feb 2001 12:02:04 -0500 (EST)
-> Received: from khan.acc.umu.se ([130.239.18.139])
->           by prserv.net (in3) with ESMTP
->           id <20010223133237103013haume>; Fri, 23 Feb 2001 13:32:37 +0000
-> Received: (from tao@localhost)
-> 	by khan.acc.umu.se (8.11.2/8.11.2) id f1NDWZq17714;
-> 	Fri, 23 Feb 2001 14:32:35 +0100 (MET)
-> Date: Fri, 23 Feb 2001 14:32:35 +0100
-> From: David Weinehall <tao@acc.umu.se>
-> To: Carl D. Speare <carlds@attglobal.net>
-> Cc: Quim K Holland <qkholland@my-deja.com>, linux-kernel@vger.kernel.org
-> Subject: Re: need to suggest a good FS:
-> Message-ID: <20010223143235.E5465@khan.acc.umu.se>
-> References: <200102230127.RAA01303@mail18.bigmailbox.com>
->     <Pine.BSF.4.33.0102222229370.818-100000@topgun.unixexchange.com>
-> Mime-Version: 1.0
-> Content-Type: text/plain; charset=us-ascii
-> Content-Disposition: inline
-> User-Agent: Mutt/1.2.4i
-> In-Reply-To:
->     <Pine.BSF.4.33.0102222229370.818-100000@topgun.unixexchange.com>; from
->     carlds@attglobal.net on Thu, Feb 22, 2001 at 10:35:06PM -0500
->
-> On Thu, Feb 22, 2001 at 10:35:06PM -0500, Carl D. Speare wrote:
-> > HTFS, which is the default filesystem for SCO OpenServer 5, is pretty
-> > rare.
->
-> I didn't know there was HTFS support in the Linux-kernel?!
->
-> Oh, btw, I think I just came up with the perfect file-system; CBMFS.
-> Feel welcome to get patches from my homepage. Guaranteed to
->
-> a.) Not work as a baseline OS (I'll probably accept patches to make it
-> do so, though)
-> b.) Drive you nuts
-> c.) Make you feel coooooool
-> d.) Allow you to use .d64's and 1581-disks from your dear C64/C128
->
-> http://www.acc.umu.se/~tao/ (Have a look in the Linux-section)
->
->
-> /David
->   _                                                                 _
->  // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-> //  Project MCA Linux hacker        //  Dance across the winter sky //
-> \>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
->
+It feels like a subtle problem, nothing terribly wrong, but the system does
+not feel
+100% OK either. Be it a networking or a VM-problem.
+
+Some data from vmstat
+root@mcquack:/root# vmstat 3
+   procs                      memory    swap          io     system
+cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy
+id
+ 1  0  0  76572   2400    324  48160   4   2     1     1   22    14  47  39
+14
+ 1  0  0  76572   2400    324  48160   0   0     0     1 3889     5  49  51
+0
+ 1  0  0  76572   2400    324  48160   0   0     0     1 3698     7  48  52
+0
+ 1  0  0  76572   2400    324  48160   0   0     0     0 3759     6  46  54
+0
+ 1  0  0  76572   2400    324  48160   0   0     0     0 2987     6  48  52
+1
+ 1  0  0  76572   2400    324  48160   0   0     0     0 3015     5  46  54
+0
+ 1  0  0  76572   2400    324  48160   0   0     0     0 4024     4  45  55
+0
+ 2  0  0  76572   2396    324  48160   0   0     0     0 4066    21  44  42
+14
+ 1  0  0  76572   2400    324  48160   0   0     0     0 3995    75  29  26
+44
+ 1  0  0  76572   2400    324  48160   0   0     0     0 3747    30  43  40
+16
+ 1  0  0  76572   2400    324  48160   0   0     0     0 3568     5  44  56
+0
+ 1  0  0  76572   2400    324  48160   0   0     0     0 3942     4  43  57
+0
+ 1  0  0  76572   2400    324  48160   0   0     0     0 3702     5  44  56
+0
+ 1  0  0  76572   2376    320  48176   0   0     0     0 3994    50  33  32
+34
+ 1  0  0  76572   2376    320  48176   0   0     0     0 3637    31  25  24
+51
+ 1  0  0  76572   2376    320  48176   0   0     0     0 3445     5  48  52
+0
+ 1  0  0  76572   2376    320  48176   0   0     0     0 3709     5  52  48
+0
+
+This goes on and on, long periods of zero idle time and then a short period
+with some idle time and some more cs, the "short pauses" are (when they
+happen to occur) just before or slightly after the period with more context
+switches.
+
+Top says:
+ 4:53pm  up 5 days, 13:42,  1 user,  load average: 0.62, 0.69, 0.64
+22 processes: 19 sleeping, 3 running, 0 zombie, 0 stopped
+CPU states: 47.1% user, 52.8% system,  0.0% nice,  0.0% idle
+Mem:   127264K av,  125052K used,    2212K free,       0K shrd,     452K
+buff
+Swap:  499960K av,   76680K used,  423280K free                   48480K
+cached
+
+  PID USER     PRI  NI  SIZE  RSS SHARE STAT  LIB %CPU %MEM   TIME COMMAND
+ 1152 adm       20   0  110M  78M 42792 R       0 99.3 63.1  6772m ircd
+
+
+Btw..the box is a PII-450 so it's not terribly slow ;)
+
+
+> I'm really interested in things which make Linux 2.4 break
+> performance-wise since I'd like to have them fixed before the
+> distributions start shipping 2.4 as default.
+
+
+As always, I'm happy to provide you with more information if I can!
+
+Regards,
+Magnus
 

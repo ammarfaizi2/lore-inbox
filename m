@@ -1,72 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261410AbTHYDGF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 23:06:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261413AbTHYDGF
+	id S261427AbTHYDXH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 23:23:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbTHYDXH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 23:06:05 -0400
-Received: from dyn-ctb-210-9-243-120.webone.com.au ([210.9.243.120]:6916 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S261410AbTHYDGC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 23:06:02 -0400
-Message-ID: <3F497CEC.3030507@cyberone.com.au>
-Date: Mon, 25 Aug 2003 13:05:16 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
-X-Accept-Language: en
+	Sun, 24 Aug 2003 23:23:07 -0400
+Received: from co239024-a.almel1.ov.home.nl ([217.120.226.100]:53397 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261427AbTHYDXE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Aug 2003 23:23:04 -0400
+Date: Mon, 25 Aug 2003 04:50:49 +0200 (CEST)
+From: Aschwin Marsman <aschwin@marsman.org>
+X-X-Sender: marsman@localhost.localdomain
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.22-rc3 (retry)
+Message-ID: <Pine.LNX.4.44.0308250447370.1837-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Nick's scheduler policy
-References: <3F48B12F.4070001@cyberone.com.au> <1061735355.1034.2.camel@teapot.felipe-alfaro.com>
-In-Reply-To: <1061735355.1034.2.camel@teapot.felipe-alfaro.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Retry, the mail that I sent yesterday didn't appear on the list...
 
+On Sat, 23 Aug 2003, Marcelo Tosatti wrote:
 
-Felipe Alfaro Solana wrote:
+> Hi,
 
->On Sun, 2003-08-24 at 14:35, Nick Piggin wrote:
->
->>Hi,
->>Patch against 2.6.0-test4. It fixes a lot of problems here vs
->>previous versions. There aren't really any open issues for me, so
->>testers would be welcome.
->>
->>The big change is more dynamic timeslices, which allows "interactive"
->>tasks to get very small timeslices while more compute intensive loads
->>can be given bigger timeslices than usual. This works properly with
->>nice (niced processes will tend to get bigger timeslices).
->>
->>I think I have cured test-starve too.
->>
->
->I haven't still found any starvation cases, but forking time when the
->system is under heavy load has increased considerable with respect to
->vanilla or Con's O18.1int:
->
->1. On a Konsole session, run "while true; do a=2; done"
->2. Now, try forming a new Konsole session and you'll see it takes
->approximately twice the time it takes when the system is under no load.
->
+Hi,
+ 
+> Here goes -rc3, with several fixes. The ACPI changes should fix most of
+> well known ACPI issues: Please test it.
 
-Yeah, it probably penalises parents and children too much on fork, and
-doesn't penalise parents of exiting cpu hogs enough. I have noticed
-this too.
+ACPI was working well (powerdown) until 2.4.22-rc2 but was disabled for my 
+bios in 2.4.22-rc3 because of the date of the bios. By using the suggested 
+acpi=force powerdown works again.
 
->
->Also, renicing X to -20 helps X interactivity, while with Con's patches,
->renicing X to -20 makes it feel worse.
->
+Is there a list of known broken/working BIOS versions, because the bios
+for the ASUS CUBX-L is working (for my use of ACPI)?
 
-renicing IMO is a lot more sane in my patches, although others might
-disagree. In Con's patches, when you make X -20, it gets huge timeslices.
-In my version, it will get lots of smaller timeslices.
+Aug 24 05:29:40 quinten kernel: ACPI disabled because your bios is from 2000 and too old
+Aug 24 05:29:40 quinten kernel: You can enable it with acpi=force
+Aug 24 05:29:40 quinten kernel: ACPI: RSDP (v000 ASUS                                      ) @ 0x000f5a90
+Aug 24 05:29:40 quinten kernel: ACPI: RSDT (v001 ASUS   CUBX-L   0x30303031 MSFT 0x31313031) @ 0x3ffec000
+Aug 24 05:29:40 quinten kernel: ACPI: FADT (v001 ASUS   CUBX-L   0x30303031 MSFT 0x31313031) @ 0x3ffec080
+Aug 24 05:29:40 quinten kernel: ACPI: BOOT (v001 ASUS   CUBX-L   0x30303031 MSFT 0x31313031) @ 0x3ffec040
+Aug 24 05:29:40 quinten kernel: ACPI: DSDT (v001   ASUS CUBX-L   0x00001000 MSFT 0x0100000b) @ 0x00000000
 
-Thanks again for testing.
+> This is the last -rc I hope.
 
-Nick
+Everything is working as aspected, nothing prevents me from living on
+the edge.
+ 
+> Detailed changelog below
+> 
+> Summary of changes from v2.4.22-rc2 to v2.4.22-rc3
+> ============================================
+> 
+> <len.brown:intel.com>:
+>   o ACPI update
+>   o ACPI build fix
+>   o linux-acpi-2.4.22.patch
+ 
+Have fun & a nice weekend,
+ 
+Aschwin Marsman
+ 
+--
+aschwin@marsman.org              http://www.marsman.org
+
 

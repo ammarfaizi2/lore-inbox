@@ -1,54 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262532AbUKRCKW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262510AbUKRCAG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262532AbUKRCKW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 21:10:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262415AbUKRCEp
+	id S262510AbUKRCAG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 21:00:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262491AbUKQUlO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 21:04:45 -0500
-Received: from inx.pm.waw.pl ([195.116.170.20]:23256 "EHLO inx.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S262379AbUKRCDg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 21:03:36 -0500
-To: dean gaudet <dean-list-linux-kernel@arctic.org>
-Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] prefer TSC over PM Timer
-References: <88056F38E9E48644A0F562A38C64FB60035C613D@scsmsx403.amr.corp.intel.com>
-	<Pine.LNX.4.61.0411161738370.13681@twinlark.arctic.org>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Thu, 18 Nov 2004 03:01:17 +0100
-In-Reply-To: <Pine.LNX.4.61.0411161738370.13681@twinlark.arctic.org> (dean
- gaudet's message of "Tue, 16 Nov 2004 17:50:42 -0800 (PST)")
-Message-ID: <m3y8gz3ogi.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 17 Nov 2004 15:41:14 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:3741 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262524AbUKQUjt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 15:39:49 -0500
+Message-Id: <200411162133.iAGLXn7v018578@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.1 10/11/2004 with nmh-1.1-RC3
+To: A M <alim1993@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Accessing program counter registers from within C or Aseembler. 
+In-Reply-To: Your message of "Tue, 16 Nov 2004 13:20:15 PST."
+             <20041116212015.32217.qmail@web51901.mail.yahoo.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <20041116212015.32217.qmail@web51901.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-1806489916P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 16 Nov 2004 16:33:49 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dean gaudet <dean-list-linux-kernel@arctic.org> writes:
+--==_Exmh_-1806489916P
+Content-Type: text/plain; charset=us-ascii
 
-> i know that all p3, p-m, p4, k8 and efficeon have local APIC,
+On Tue, 16 Nov 2004 13:20:15 PST, A M said:
 
-Some Celeron P3s (the one in my notebook for example) have no L-APIC:
+> Does anybody know how to access the address of the
+> current executing instruction in C while the program
+> is executing?
 
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 8
-model name      : Celeron (Coppermine)
-stepping        : 6
-cpu MHz         : 597.367
-cache size      : 128 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge
-mca cmov pat pse36 mmx fxsr sse
-bogomips        : 1179.64
--- 
-Krzysztof Halasa
+For what processor?  x86, itanium, sparc, s390 all do it differently.
+
+Also, the answer to "this *very* instruction" is different from
+"where this instruction was when we trapped/kdbg/interrupt/whatever
+it so we could look at the current process/thread/worker state".
+
+In other words, are you trying to answer "Where in memory am *I*?"
+or "Where in memory is <that very recent code I want to look at>?"
+
+(Hint - for the former, you can probably get very good approximations
+by just looking at the entry point address for the function:
+
+	(void *) where = &__FUNCTION__;
+
+> Also, is there a method to load a program image from
+> memory not a file (an exec that works with a memory
+> address)? Mainly I am looking for a method that brings
+> a program image into memory modify parts of it and
+> start the in-memory modified version.
+
+In user space, you probably want either mmap() or dlopen(), depending what it
+is you're trying to do, most likely...
+
+In kernel space, you'll have to be more specific as to what you're
+trying to do, but you're always welcome to write a replacement for
+fs/binfmt_elf.c :)
+
+> Can anybody think of a method to replace a thread
+> image without replacing the whole process image? 
+
+What are you trying to achieve here?  It's unclear what you're
+hoping will happen....
+
+--==_Exmh_-1806489916P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFBmnI9cC3lWbTT17ARAkRGAKDx9bN4jAZxlKqOePw5lS/E7Vr3ZgCfcoce
+pjF65D+U08oRJCDRwMaE2ys=
+=JcKq
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1806489916P--

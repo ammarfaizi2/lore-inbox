@@ -1,69 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286179AbRLJH3X>; Mon, 10 Dec 2001 02:29:23 -0500
+	id <S286174AbRLJHax>; Mon, 10 Dec 2001 02:30:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286174AbRLJH3O>; Mon, 10 Dec 2001 02:29:14 -0500
-Received: from bitmover.com ([192.132.92.2]:37538 "EHLO bitmover.bitmover.com")
-	by vger.kernel.org with ESMTP id <S286177AbRLJH3A>;
-	Mon, 10 Dec 2001 02:29:00 -0500
-Date: Sun, 9 Dec 2001 23:28:59 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Stevie O <stevie@qrpff.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: "Colo[u]rs"
-Message-ID: <20011209232859.I25754@work.bitmover.com>
-Mail-Followup-To: Stevie O <stevie@qrpff.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <5.1.0.14.2.20011210020236.01cca428@whisper.qrpff.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <5.1.0.14.2.20011210020236.01cca428@whisper.qrpff.net>; from stevie@qrpff.net on Mon, Dec 10, 2001 at 02:07:06AM -0500
+	id <S286180AbRLJHai>; Mon, 10 Dec 2001 02:30:38 -0500
+Received: from gw.lowendale.com.au ([203.26.242.120]:60952 "EHLO
+	marina.lowendale.com.au") by vger.kernel.org with ESMTP
+	id <S286174AbRLJHaQ>; Mon, 10 Dec 2001 02:30:16 -0500
+Date: Mon, 10 Dec 2001 18:45:44 +1100 (EST)
+From: Neale Banks <neale@lowendale.com.au>
+To: Hein Roehrig <hein@acm.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: network interface names ethX and renaming interfaces
+In-Reply-To: <E16C7a8-00014B-00@qaip3>
+Message-ID: <Pine.LNX.4.05.10112101829060.8110-100000@marina.lowendale.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 10, 2001 at 02:07:06AM -0500, Stevie O wrote:
-> After a few failed web searches (combos like 'linux cache color' just gave 
-> me a bunch of references to video), I am resorting to this list for this 
-> question.
+On Fri, 7 Dec 2001, Hein Roehrig wrote:
+
+> in Linux 2.2.20 I have a problem renaming the network interface dummy0
+> to eth0 and then starting a regular ethernet driver --- I would like
+> it to come up as eth1 but it comes up as eth0, messing up the dummy0
+> interface.
 > 
-> What exactly do y'all mean by these "colors"? Task colors, cache colors, 
-> and probably a few other colors i've missed/forgotten about. What do these 
-> colors represent? How are they used to group tasks/cache entries? Is what 
-> they're actually for?
+> Reading the source, it appears that in init_ethernev(), ethernet
+> drivers claim device names according to the array ethdev_index and
+> shoot down any device name eth0 claimed by a non-ethernet driver.
 
-Coloring usually means the laying out of data such that the data will 
-not collide in the cache, usually the second (or third) level cache.
+I presume you are refering to init_etherdev() in drivers/net/net_init.c ?
 
-Data references are virtual, most caches are physically tagged.  That 
-means that where data lands in the cache is a function of the physical
-page address and offset within that page.  If the cache is what is called
-direct mapped, which means each address has exactly one place it can be
-in the cache, then page coloring becomes beneficial.  More on that in
-a second.  Most caches these days are set associative, which means there
-are multiple places the same cache line could be.  A 2 way set associative
-cache means there are 2 places, 4 way means there are 4, and so on.  The
-trend is that the last big cache before memory is at least 2 way and more
-typically 4 way set associative.  There is a cost with making it N-way
-associative, you have to run all the tag comparitors in parallel or
-you have unacceptable performance.  With shrinking transistors and high
-yields we are currently enjoying, the costs are somewhat reduced.
+> Therefore it appears to me that SIOCSIFNAME should either disallow
+> renaming to ethX or it should adjust ethdev_index.
 
-So what's page coloring?  Suppose we have a 10 page address space and
-we touch each page.  As we touch them, the OS takes a page fault, grabs
-a physical page, and makes it part of our address space.  The actual
-physical addresses of those pages determine where the cache lines
-will land in the cache.  If the pages are allocated at random, worst
-case is that all 10 pages will map to the same location in the cache,
-reducing the cache effectiveness by 10x assuming a direct mapped cache,
-where there is only one place to go.   Page coloring is the careful
-allocation of pages such that each virtual page maps to a physical page
-which will be at a different location in the cache.  Linus doesn't like
-it because it adds cost to the page free/page alloc paths, they now have
-to go put/get the page from the right bucket.  He also says it's pointless
-because the caches are becoming enough associative that there is no need
-and he's mostly right.  Life can really suck on small cache systems that
-are direct mapped, as are some embedded systems, but that's life.  It's
-a tradeoff.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+I wonder why it doesn't either use dev_alloc_name() from
+net/core/dev.c , or implement similar logic?
+
+Regards,
+Neale.
+

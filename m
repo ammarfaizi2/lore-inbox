@@ -1,70 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262764AbVDAPWm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262768AbVDAPXK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262764AbVDAPWm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 10:22:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbVDAPWm
+	id S262768AbVDAPXK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 10:23:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262767AbVDAPXK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 10:22:42 -0500
-Received: from alog0177.analogic.com ([208.224.220.192]:707 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262764AbVDAPWj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 10:22:39 -0500
-Date: Fri, 1 Apr 2005 10:22:18 -0500 (EST)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] : remove unreliable, unused and unmainained arch from
- kernel.
-In-Reply-To: A<yw1xbr8yr0ow.fsf@ford.inprovide.com>
-Message-ID: <Pine.LNX.4.61.0504011018260.13298@chaos.analogic.com>
-References: <11123574931907@2ka.mipt.ru> <Pine.LNX.4.61.0504010805130.12910@chaos.analogic.com>
- A<yw1xbr8yr0ow.fsf@ford.inprovide.com>
+	Fri, 1 Apr 2005 10:23:10 -0500
+Received: from phoenix.infradead.org ([81.187.226.98]:25355 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262766AbVDAPXC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 10:23:02 -0500
+Date: Fri, 1 Apr 2005 16:22:50 +0100 (BST)
+From: "Artem B. Bityuckiy" <dedekind@infradead.org>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: "Artem B. Bityuckiy" <dedekind@yandex.ru>,
+       Herbert Xu <herbert@gondor.apana.org.au>, linux-kernel@vger.kernel.org,
+       linux-crypto@vger.kernel.org
+Subject: Re: [RFC] CryptoAPI & Compression
+In-Reply-To: <1112367926.3899.70.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0504011622350.9305@phoenix.infradead.org>
+References: <E1DGxa7-0000GH-00@gondolin.me.apana.org.au> 
+ <Pine.LNX.4.58.0504011534460.9305@phoenix.infradead.org> 
+ <1112366647.3899.66.camel@localhost.localdomain>  <424D6175.8000700@yandex.ru>
+ <1112367926.3899.70.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1879706418-507536842-1112368938=:13298"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dedekind@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+David Woodhouse wrote:
+> On Fri, 2005-04-01 at 18:57 +0400, Artem B. Bityuckiy wrote:
+> 
+>>Yes, the compression will be better. But the implementation will be more 
+>>complicated.
+>>We can try to use the "bound" functions to predict how many bytes to 
+>>pass to the deflate's input, but there is no guarantee they'll fit into 
+>>the output buffer. In this case we'll need to try again.
+> 
+> 
+> Can we not predict the maximum number of bytes it'll take to flush the
+> stream when we're not using Z_SYNC_FLUSH?
 
---1879706418-507536842-1112368938=:13298
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN; format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+AFAIU, no. Zlib may eat a lot of input and do not produce much output, but 
+on Z_FINISH it may ask an undetermined amount of additional output space. 
+So, we must even regulate the amount of input we pass to zlib_deflate(). 
+In case of Z_SYNC_FLUSH, things are more determined.
 
-On Fri, 1 Apr 2005, [iso-8859-1] M=E5ns Rullg=E5rd wrote:
+Another question, does JFFSx *really* need the peaces of a 4K page to be 
+independently uncompressable? It it wouldn't be required, we would achieve 
+better compression if we have saved the zstream state. :-) But it is too 
+late to change things at least for JFFS2.
 
-> linux-os <linux-os@analogic.com> writes:
->
->> [PATCH snipped]
->>
->> Cruel joke. Now 80 percent of the Intel clones won't boot.
->> Those are the ones that run industry, you know, the stuff that
->> is necessary to earn money.
->
-> For now, yes.  Hopefully it will change some day.
->
->> Without i386 support, you don't have any embedded systems. You
->> need to use the garbage Motorola CPUs and the proprietary
->> operating systems in embedded stuff.
->
-> In front me at the moment are two embedded devices, one PPC based, the
-> other MIPS, both running Linux.
->
-
-You can't be serious. Software doesn't get the opportunity
-to select the hardware. With Linux on PC-like machines, we
-have been able to write and debug 90 or more percent of the
-software on our work-stations before embedding it in the
-target machines.
-
-You get rid of that capability just because you don't
-__like__ i386???  Did you ever have a job?
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
---1879706418-507536842-1112368938=:13298--
+--
+Best Regards,
+Artem B. Bityuckiy,
+St.-Petersburg, Russia.

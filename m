@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262110AbULaPm5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262112AbULaPt6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262110AbULaPm5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 10:42:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262112AbULaPm4
+	id S262112AbULaPt6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 10:49:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262113AbULaPt6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 10:42:56 -0500
-Received: from rproxy.gmail.com ([64.233.170.199]:50717 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262110AbULaPmz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 10:42:55 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=HdP5UCDvjmeEn/ZkNPwsrGezyRBa2NnMBdrFUFnWLkE51CYE7tz1FZVYLJgUzcSKq+fYO9KtoEVtWlSDp7Tje8eCYcv/9bTXcR6qYN4LmxziAlg6NkFpV8kd4GsPSKPlAp20Py3Fkh0kYR8ioBz8s1ak+AlKgHE5oe8LimRfQ6E=
-Message-ID: <53046857041231074248b111d5@mail.gmail.com>
-Date: Fri, 31 Dec 2004 08:42:54 -0700
-From: Jesse Allen <the3dfxdude@gmail.com>
-Reply-To: Jesse Allen <the3dfxdude@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ptrace single-stepping change breaks Wine
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org
-In-Reply-To: <1104499860.3594.5.camel@littlegreen>
+	Fri, 31 Dec 2004 10:49:58 -0500
+Received: from stat16.steeleye.com ([209.192.50.48]:36019 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S262112AbULaPt4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 10:49:56 -0500
+Subject: [BK PATCH] voyager (and subarch) updates
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, pazke@donpac.ru
+Content-Type: text/plain
+Date: Fri, 31 Dec 2004 09:49:41 -0600
+Message-Id: <1104508181.5247.7.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
-References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com>
-	 <1104401393.5128.24.camel@gamecube.scs.ch>
-	 <1104411980.3073.6.camel@littlegreen>
-	 <200412311413.16313.sailer@scs.ch>
-	 <1104499860.3594.5.camel@littlegreen>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi wrote:
-> I don't think that the Wine problem resolution is due to the POPF 
-> instruction handling. Basically Linus patch does a nice cleanup plus POPF 
-> handling, so maybe the patch can be split.
+I've had this in my voyager tree for a while ... it contains two bug
+fixes (double #include and a missing iounmap) and also the reboot rework
+which affects VISWS as well.
 
-If you or Andi or anyone else wants to split up the patch and have me
-test it, I'd be willing.  I could try it myself if you want, though it
-will be later, as I have to leave soon.  But I really do think that it
-does have to do with POPF, since that alone seems to make wine happier
-all-round.
+The patch is available here:
 
-Jesse
+bk://linux-voyager.bkbits.net/voyager-2.6
+
+The short changelog is:
+
+Adrian Bunk:
+  o i386: reboot.c cleanups
+  o i386 voyager_smp.c: remove a duplicate #include
+
+James Bottomley:
+  o dma_release_declared_memory needs iounmap
+
+And the diffstat is:
+ kernel/pci-dma.c             |    1 +
+ kernel/reboot.c              |    2 +-
+ mach-visws/reboot.c          |    3 ---
+ mach-voyager/voyager_basic.c |    2 --
+ mach-voyager/voyager_smp.c   |    3 ---
+ 5 files changed, 2 insertions(+), 9 deletions(-)
+
+James
+
+

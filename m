@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129944AbRAWLe6>; Tue, 23 Jan 2001 06:34:58 -0500
+	id <S129764AbRAWLoI>; Tue, 23 Jan 2001 06:44:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130211AbRAWLes>; Tue, 23 Jan 2001 06:34:48 -0500
-Received: from zmamail04.zma.compaq.com ([161.114.64.104]:54281 "HELO
-	zmamail04.zma.compaq.com") by vger.kernel.org with SMTP
-	id <S129944AbRAWLe3>; Tue, 23 Jan 2001 06:34:29 -0500
-Message-ID: <E7D21F6C2128D41199B600508BCF8D54A9AD67@nosexc01.nwo.cpqcorp.net>
-From: "Wahlman, Petter" <Petter.Wahlman@compaq.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Marking sectors on IDE drives as bad
-Date: Tue, 23 Jan 2001 11:34:11 -0000
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S130211AbRAWLn7>; Tue, 23 Jan 2001 06:43:59 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:53009 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S129764AbRAWLnl>;
+	Tue, 23 Jan 2001 06:43:41 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Anders Karlsson <anders.karlsson@meansolutions.com>
+cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-ac10 compile errors 
+In-Reply-To: Your message of "Tue, 23 Jan 2001 10:48:14 -0000."
+             <20010123104814.A2937@alien.ssd.hursley.ibm.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 23 Jan 2001 22:43:34 +1100
+Message-ID: <23801.980250214@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 23 Jan 2001 10:48:14 +0000, 
+Anders Karlsson <anders.karlsson@meansolutions.com> wrote:
+>The procedure I have gone through to compile the kernel are as
+>follows:
+>a) Copy the .config file safe
+>b) Remove the previous kernel tree
+>c) Extract the pristine 2.4.0 kernel tree
+>d) Apply the 2.4.0-ac10 patch
 
-I'm experiencing some fscking problems due to a defective IDE drive.
+make mrproper here
 
-exerpt from /var/log/messages:
-Jan 22 09:31:29 evil kernel: hda: read_intr: status=0x59 { DriveReady
-SeekComplete DataRequest Error }
-Jan 22 09:31:29 evil kernel: hda: read_intr: error=0x01 { AddrMarkNotFound
-}, LBAsect=10262250, sector=1311147
-Jan 22 09:31:29 evil kernel: ide0: reset: success
-Jan 22 09:31:29 evil kernel: hda: read_intr: status=0x59 { DriveReady
-SeekComplete DataRequest Error }
-Jan 22 09:31:29 evil kernel: hda: read_intr: error=0x40 { UncorrectableError
-}, LBAsect=10262250, sector=1311147
-Jan 22 09:31:29 evil kernel: end_request: I/O error, dev 03:05 (hda), sector
-1311147
-
-Is it possible to somehow mark the above sector as bad (in ll_rw_block.c or
-similar) to circumvent the problem?
-
-
-please CC to me, because i'm not on this list.
-
-
-thanks
-
-
-Petter Wahlman
+>e) Copy the .config in to the new /usr/src/linux tree 
+>f) make oldconfig
+>g) make dep
+>h) make bzImage
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

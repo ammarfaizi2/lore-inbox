@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267567AbUHEGap@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267571AbUHEG4q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267567AbUHEGap (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 02:30:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267568AbUHEGap
+	id S267571AbUHEG4q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 02:56:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267578AbUHEG4q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 02:30:45 -0400
-Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:17800
-	"EHLO acheron.informatik.uni-muenchen.de") by vger.kernel.org
-	with ESMTP id S267567AbUHEGan (ORCPT
+	Thu, 5 Aug 2004 02:56:46 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:39822 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S267571AbUHEG4p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 02:30:43 -0400
-Message-ID: <4111D412.6020107@bio.ifi.lmu.de>
-Date: Thu, 05 Aug 2004 08:30:42 +0200
-From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NFS-mounted, read-only /dev unusable in 2.6
-References: <410F481C.9090408@bio.ifi.lmu.de>	<64bf.410f9d6f.62af@altium.nl>	<ceouv0$7s8$2@news.cistron.nl>	<41108380.6080809@bio.ifi.lmu.de>	<20040804064716.GA31600@traveler.cistron.net>	<16656.35530.819884.579436@cse.unsw.edu.au>	<4110BBEF.1040709@bio.ifi.lmu.de> <16656.49742.597235.511861@cse.unsw.edu.au>
-In-Reply-To: <16656.49742.597235.511861@cse.unsw.edu.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Aug 2004 02:56:45 -0400
+Date: Thu, 5 Aug 2004 08:57:08 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Albert Cahalan <albert@users.sf.net>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       kernel@kolivas.org, Andrew Morton OSDL <akpm@osdl.org>
+Subject: Re: SCHED_BATCH and SCHED_BATCH numbering
+Message-ID: <20040805065708.GA10124@elte.hu>
+References: <1091638227.1232.1750.camel@cube>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1091638227.1232.1750.camel@cube>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Neil,
 
-Neil Brown wrote:
+* Albert Cahalan <albert@users.sf.net> wrote:
 
-> .... It looks like it was *so* recent that I haven't actually
-> submitted the patch yet :-(
-> 
-> I think someone reported it, I sent them a patch, and never got a
-> confirmation that it worked (or missed it if I did) so the patch
-> didn't progres..
-> 
-> Try the following.
+> Are these going to be numbered consecutively, or might they better be
+> done like the task state? [...]
 
-it works :-)) Especially, I got my initial console back for the diskless
-clients and can again see all the debugging output from my init script,
-and that really really helps.
+this is quite unnecessary at the moment since p->prio < MAX_RT_PRIO is a
+good enough check - but whenever the way p->prio works is changed it
+will be easy to introduce a PF_REALTIME flag that is set/cleared in
+setscheduler(). (instead of playing around with p->policy.)
 
-Thanks a lot for that patch!
-
-cu,
-Frank
-
--- 
-Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
-Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
-LMU, Amalienstr. 17           Phone: +49 89 2180-4049
-80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
-
+	Ingo

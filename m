@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277629AbRJHXrC>; Mon, 8 Oct 2001 19:47:02 -0400
+	id <S277633AbRJHXsw>; Mon, 8 Oct 2001 19:48:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277627AbRJHXqw>; Mon, 8 Oct 2001 19:46:52 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:47366 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S277629AbRJHXqh>; Mon, 8 Oct 2001 19:46:37 -0400
-Date: Tue, 9 Oct 2001 01:46:52 +0200 (CEST)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: torvalds@transmeta.com, Rik van Riel <riel@conectiva.com.br>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-        Krzysztof Rusocki <kszysiu@main.braxis.co.uk>, linux-xfs@oss.sgi.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: %u-order allocation failed
-In-Reply-To: <E15qk40-0002Jf-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.3.96.1011009014458.15573A-100000@artax.karlin.mff.cuni.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277631AbRJHXsg>; Mon, 8 Oct 2001 19:48:36 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:32903 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S277632AbRJHXsK>;
+	Mon, 8 Oct 2001 19:48:10 -0400
+Date: Mon, 08 Oct 2001 16:46:29 -0700 (PDT)
+Message-Id: <20011008.164629.88474756.davem@redhat.com>
+To: dwmw2@infradead.org
+Cc: frival@zk3.dec.com, paulus@samba.org, Martin.Bligh@us.ibm.com,
+        alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org, jay.estabrook@compaq.com,
+        rth@twiddle.net
+Subject: Re: [PATCH] change name of rep_nop 
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <15384.1002584524@redhat.com>
+In-Reply-To: <13962.1002580586@redhat.com>
+	<14658.1002582388@redhat.com>
+	<15384.1002584524@redhat.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Oct 2001, Alan Cox wrote:
+   From: David Woodhouse <dwmw2@infradead.org>
+   Date: Tue, 09 Oct 2001 00:42:04 +0100
 
-> > Linus, what do you think: is it OK if fork randomly fails with very small
-> > probability or not?
-> 
-> Your code doesnt change that behaviour. Not one iota. Do the mathematics,
-> work out the failure probabilities for page pairs. Now remember that the
-> vmalloc one has guard pages too.
-> 
-> You are trying to solve a non problem with a non solution
+   But x86 isn't particularly interesting - it'd be useful to have a 
+   flush_dcache_range() which actually works across other architectures anyway.
+   
+The memory technology device case is weird, give it a solution
+such as "asm/memdev.h".
 
-I asked Linus, not you :-/
+   > Regardless, the purpose of the cachetlb.txt interfaces is for the
+   > generic VM subsystem of the kernel.  Nothing more. 
+   
+   So they should probably have less misleading names, perchance including the
+   letter 'v' and the letter 'm' somewhere? And they should _certainly_ have
+   less misleading documentation. :)
 
-It's up to him, if he wants "stability-based-on-probability" algorithms in
-Linux or not.
+Why?  find_get_page says nothing about "page cache", but people
+understand that is what it is used for.
 
-Mikulas
+The documention should be more specific, thats all.
 
+Franks a lot,
+David S. Miller
+davem@redhat.com

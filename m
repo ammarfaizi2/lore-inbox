@@ -1,61 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129103AbQKNPEc>; Tue, 14 Nov 2000 10:04:32 -0500
+	id <S129112AbQKNPOq>; Tue, 14 Nov 2000 10:14:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129112AbQKNPEM>; Tue, 14 Nov 2000 10:04:12 -0500
-Received: from mx3.port.ru ([194.67.23.37]:48911 "EHLO mx3.port.ru")
-	by vger.kernel.org with ESMTP id <S129103AbQKNPEI>;
-	Tue, 14 Nov 2000 10:04:08 -0500
-From: "Samium Gromoff" <_deepfire@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: RE: /proc tweaking
-Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [195.34.30.66]
-Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E13vh9C-0001mM-00@f6.mail.ru>
-Date: Tue, 14 Nov 2000 17:33:23 +0300
+	id <S129466AbQKNPOg>; Tue, 14 Nov 2000 10:14:36 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:56194 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129112AbQKNPOV>; Tue, 14 Nov 2000 10:14:21 -0500
+Date: Tue, 14 Nov 2000 09:43:54 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Keith Owens <kaos@ocs.com.au>, linux-kernel <linux-kernel@i405.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: newbie, 2.4.0-test11-pre4 no compile when CONFIG_AGP=y
+In-Reply-To: <3A114955.3B58479A@mandrakesoft.com>
+Message-ID: <Pine.LNX.3.95.1001114093947.22448A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-on Tue, 14 Nov 2000 Arjan van de Ven wrote:
->In article <E13vevy-0003Lv-00@f4.mail.ru> you wrote:
->>            Hey people, i`ve got such a thought
->>     not long ago:
->>       all boxes are different, but the /proc/sys/vm
->>       defaults are equal for every people, so there
->>       is a good issue in getting more performance
->>       from linux, just by making a way to autoadjust
->>       these mysterious values according to amount of
->>       RAM/swap and speed of CPU!  Or this can be >done
->>       in userspace with an utility which look also
->>       on the field of box` use (eg workstation, >>server        etc...)
->>           But who can make this better than the >>people        who hack the kernel?
->>           And i wonder why such a issue is not >>clearly        covered? (maybe
->>i`m making mistake?)
->>           This can also be done for >>proc/sys/net/*...
->
->
->Take a look at powertweak. >http://powertweak.sourceforge.net
->Made by kernel people, for non-kernel people.
+On Tue, 14 Nov 2000, Jeff Garzik wrote:
 
-      Maybe i were not enough exact, but i`ve meant
-   addition of some intelligence to tweaking /proc
-   e.g. something what automates tuning, not only
-   providing interface to such actions.
-      But after lookthru ptweaks source i realized
-   what its ONLY interface (to proc), and MAYBE
-   it does some PCI tuning (really intelligent 
-   choices to advance system`s performance).
-      BTW powertweak is a port from unfamous MD,
-   therefore when it was created NO proc tuning
-   was in mind...
+> Keith Owens wrote:
+> > 
+> > On Tue, 14 Nov 2000 00:56:13 -0800,
+> > linux-kernel <linux-kernel@i405.com> wrote:
+> > >I'll preface this saying I'm a kernel compile newbie and I could be making
+> > >the most basic of mistakes.
+> > 
+> > You are.  Hand editing the .config file gives undefined results.  Make
+> > all changes through menuconfig or xconfig.  The config system does lots
+> > of work behind the scenes which is not peformed if you hand edit.
+> 
+> Hand editing works just fine...   You just have to remember to run "make
+> oldconfig" afterwards.
+> 
+> 	Jeff
 
-      There is another argument, telling what doing        autotune is ugly by design.... but thats another        issue.
+Only __sometimes__. There are "questions" that will be skipped even
+in `make oldconfig` if some things are hand edited. Hand editing,
+followed by `make oldconfig` works only if you know what you are doing.
 
-   Sorry for poor english/lameness
+I wouldn't suggest it for a "newbie'.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
 
 
 -

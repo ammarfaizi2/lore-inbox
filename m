@@ -1,58 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269166AbTGJKEo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 06:04:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269167AbTGJKEn
+	id S269167AbTGJKEs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 06:04:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269168AbTGJKEs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 06:04:43 -0400
-Received: from f25.mail.ru ([194.67.57.151]:42760 "EHLO f25.mail.ru")
-	by vger.kernel.org with ESMTP id S269166AbTGJKEm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 06:04:42 -0400
-From: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	<arvidjaar@mail.ru>
-To: =?koi8-r?Q?=22?=Nikita Danilov=?koi8-r?Q?=22=20?= 
-	<Nikita@Namesys.COM>
+	Thu, 10 Jul 2003 06:04:48 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:31983 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S269167AbTGJKEo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 06:04:44 -0400
+Subject: Re: memset (was: Redundant memset in AIO read_events)
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Etienne Lorrain <etienne_lorrain@yahoo.fr>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re[2]: Are =?koi8-r?Q?=22?=,=?koi8-r?Q?=22=20?=and =?koi8-r?Q?=22?=..=?koi8-r?Q?=22=20?=in directory required=?koi8-r?Q?=3F?=
+In-Reply-To: <20030710100417.83333.qmail@web11801.mail.yahoo.com>
+References: <20030710100417.83333.qmail@web11801.mail.yahoo.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-6zWRbGZMJlXzh9bqgD3t"
+Organization: Red Hat, Inc.
+Message-Id: <1057832361.5817.2.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [212.248.25.26]
-Date: Thu, 10 Jul 2003 14:19:21 +0400
-In-Reply-To: <16141.14720.980604.428130@laputa.namesys.com>
-Reply-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	  <arvidjaar@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E19aYWH-00075R-00.arvidjaar-mail-ru@f25.mail.ru>
+X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
+Date: 10 Jul 2003 12:19:21 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--=-6zWRbGZMJlXzh9bqgD3t
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
------Original Message-----
+On Thu, 2003-07-10 at 12:04, Etienne Lorrain wrote:
+>  Note that using memset() is better reserved to initialise variable-size
+>  structures or buffers. Even if memset() is extremely optimised,
+>  it is still not as fast as not doing anything.
 
-> 
-> "Andrey Borzenkov"  writes:
->  > 
->  > Is it possible for readdir to return really empty directory - without
->  > and entry, even "." and ".."?
-> 
-> Enter empty directory. Remove it by rmdir() by another process. Now you
-> have a directory without dot and dotdot.
-> 
+this is not always true....
+memset can be used as an optimized cache-warmup, which can avoid the
+write-allocate behavior of normal writes, which means that if you memset
+a structure first and then fill it, it can be halve the memory bandwidth
+and thus half as fast. This assumes an optimized memset which we
+*currently* don't have I think... but well, we can fix that ;)
 
-It is not quite the same.
 
-bor@itsrm2% cd foo
-bor@itsrm2% sudo rmdir /tmp/foo
-bor@itsrm2% ls -la .
-.: No such file or directory
+--=-6zWRbGZMJlXzh9bqgD3t
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-how do I access this? OK I could have opendir on it ... but then,
-directory contents is (mur be) still there just like with any
-open unlinked file.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-OK, not "possible to return" - it was wrong. Is it allowed? :)
+iD8DBQA/DT2pxULwo51rQBIRAjYZAJ0e3LDgB2zo/B3cTKzNPOJoeCf/VQCcDGV/
+RNKxJXrywBqU1REePcf+zRg=
+=ie72
+-----END PGP SIGNATURE-----
 
--andrey
+--=-6zWRbGZMJlXzh9bqgD3t--

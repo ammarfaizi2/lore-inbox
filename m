@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262955AbTJYVGj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Oct 2003 17:06:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263004AbTJYVGi
+	id S262989AbTJYVL4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Oct 2003 17:11:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263004AbTJYVL4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Oct 2003 17:06:38 -0400
-Received: from storm.he.net ([64.71.150.66]:33261 "HELO storm.he.net")
-	by vger.kernel.org with SMTP id S262960AbTJYVGe (ORCPT
+	Sat, 25 Oct 2003 17:11:56 -0400
+Received: from storm.he.net ([64.71.150.66]:4480 "HELO storm.he.net")
+	by vger.kernel.org with SMTP id S262989AbTJYVLx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Oct 2003 17:06:34 -0400
-Date: Sat, 25 Oct 2003 14:05:50 -0700
+	Sat, 25 Oct 2003 17:11:53 -0400
+Date: Sat, 25 Oct 2003 14:11:21 -0700
 From: Greg KH <greg@kroah.com>
-To: Matthew Wilcox <willy@debian.org>
-Cc: "Moore, Eric Dean" <emoore@lsil.com>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]  2.4.23-pre8 driver udpate for MPT Fusion (2.05.10)
-Message-ID: <20031025210550.GB23437@kroah.com>
-References: <0E3FA95632D6D047BA649F95DAB60E57035A9458@exa-atlanta.se.lsil.com> <20031025191828.GA17144@kroah.com> <20031025204405.GB5172@parcelfarce.linux.theplanet.co.uk>
+To: David Jez <dave.jez@seznam.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: diethotplug-0.4 utility patch
+Message-ID: <20031025211121.GA29379@kroah.com>
+References: <20031023184603.GA81234@stud.fit.vutbr.cz> <20031024054145.GA3233@kroah.com> <20031025120422.GB93355@stud.fit.vutbr.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031025204405.GB5172@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20031025120422.GB93355@stud.fit.vutbr.cz>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 25, 2003 at 09:44:05PM +0100, Matthew Wilcox wrote:
-> On Sat, Oct 25, 2003 at 12:18:28PM -0700, Greg KH wrote:
-> > On Fri, Oct 24, 2003 at 11:12:25AM -0400, Moore, Eric Dean wrote:
-> > > I'm going to be working on that.
-> > > Can't say when its going to be ready.
-> > 
-> > How about support for all of the pci hotplug systems on 2.4 that are
-> > shipping today? 
-> 
-> The SCSI system isn't really capable of supporting hotplug PCI in 2.4.
+On Sat, Oct 25, 2003 at 02:04:25PM +0200, David Jez wrote:
+> On Thu, Oct 23, 2003 at 10:41:46PM -0700, Greg KH wrote:
+> > Hm, remove action will not work.  See the linux-hotplug-devel mailing
+> > list archives for why we can not do this.
+>   OK, i'll see. But this realy helps me.
 
-Yeah, but some drivers almost do (Adaptec comes to mind.)  It will work
-in a pci hotplug system, while other scsi drivers will not work at all.
+But it's wrong.  You can't get this correct, and you will end up
+removing modules for devices that are currently in use.  The moment you
+have 2 devices that use the same module this will happen.  You will end
+up with some very unhappy users.
+
+> > > - adds pci.rc & usb.rc
+> > 
+> > Why do you need this?  What's wrong with a small shell script to do
+> > this?  Are you using this for a system?  I guess it could be useful for
+> > a system that has no shell.
+>   Nothing wrong on shell script, but i use this on system without perl,
+> awk, if, ...etc... binaries.
+
+Ok, care to send these as a separate patch then too?
 
 thanks,
 

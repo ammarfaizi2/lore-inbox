@@ -1,72 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129763AbQLETY3>; Tue, 5 Dec 2000 14:24:29 -0500
+	id <S130196AbQLET3J>; Tue, 5 Dec 2000 14:29:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129563AbQLETYT>; Tue, 5 Dec 2000 14:24:19 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:19984 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129543AbQLETYH>;
-	Tue, 5 Dec 2000 14:24:07 -0500
-Date: Tue, 5 Dec 2000 18:50:30 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Alexander Viro <viro@math.psu.edu>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alexander Viro <aviro@redhat.com>, Andrew Morton <andrewm@uow.edu.au>,
-        Alan Cox <alan@redhat.com>, Christoph Rohland <cr@sap.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        MOLNAR Ingo <mingo@chiara.elte.hu>
-Subject: Re: test12-pre5
-Message-ID: <20001205185030.H10663@redhat.com>
-In-Reply-To: <20001205170950.D10663@redhat.com> <Pine.LNX.4.21.0012050930170.18170-100000@dual.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.21.0012050930170.18170-100000@dual.transmeta.com>; from torvalds@transmeta.com on Tue, Dec 05, 2000 at 09:48:51AM -0800
+	id <S129991AbQLET27>; Tue, 5 Dec 2000 14:28:59 -0500
+Received: from [62.172.234.2] ([62.172.234.2]:61571 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S129563AbQLET2u>; Tue, 5 Dec 2000 14:28:50 -0500
+Date: Tue, 5 Dec 2000 18:58:15 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@zytor.com>,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH] setup.c cpuinfo flags notsc
+In-Reply-To: <3A296529.545192C2@transmeta.com>
+Message-ID: <Pine.LNX.4.21.0012051807280.996-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Peter,
 
-On Tue, Dec 05, 2000 at 09:48:51AM -0800, Linus Torvalds wrote:
-> 
-> On Tue, 5 Dec 2000, Stephen C. Tweedie wrote:
-> > 
-> > That is still buggy.  We MUST NOT invalidate the inode buffers unless
-> > i_nlink == 0, because otherwise a subsequent open() and fsync() will
-> > have forgotten what buffers are dirty, and hence will fail to
-> > synchronise properly with the disk.
-> 
-> Are you all on drugs?
-> 
-> Look at where clear_inode() is called. It's called by
-> ext2_delete_inode(). It's not called by close(). Never has, never will.
+Some minor mods to test12-pre5 (and earlier) arch/i386/kernel/setup.c:
+please pass on to Linus if you approve.
 
-It is also called during prune_icache().  Yes, I know that the
-CAN_UNUSE() macro should make sure we never try to do this on a
-count==0 inode which still has dirty buffers, but I'd feel happier if
-we had the safety net to guard against any callers ever doing a
-clear_inode while we have dirty buffers around.
+1. Your "features" was reverted to "flags", but an extra tab is needed.
 
-We have two completely different paths to clear_inode() here: one in
-which there had better not be any dirty buffers or we've got a data
-corrupter on our hands, and a second in which dirty buffers are
-irrelevant because we're doing a delete.
+2. identify_cpu() re-evaluates x86_capability, which left cpu_has_tsc true
+   (and cpu MHz shown as 0.000) in non-SMP "notsc" case: #ifdef CONFIG_TSC
+   was bogus.  And set X86_CR4_TSD here when testing this cpu's capability,
+   not where cpu_init() tests cpu_has_tsc (boot_cpu's adjusted capability).
 
-That's the problem --- doing the invalidate in clear_inode() feels
-like the wrong place to do it, because our treatment of the dirty
-buffers list differs depending on the caller.  I'd be much happer with
-the delete case doing the invalidate, and leave clear_inode BUG()ing
-if there are any dirty buffers left, and that's basically what the
-test with i_nlink==0 did.
+I have removed the "FIX-HPA" comment line: of course, that's none of my
+business, but if you approve the patch I imagine you'd want that to go too
+(I agree it's a bit ugly there, but safest to disable cpu_has_tsc soonest).
 
-> So I repeat: are there known bugs in this area left in pre5? And with
-> "bugs", I don't mean fever-induced rants like the above (*).
+Hugh
 
-No, I don't think so.
+--- test12-pre5/arch/i386/kernel/setup.c	Tue Dec  5 17:25:55 2000
++++ linux/arch/i386/kernel/setup.c	Tue Dec  5 17:56:35 2000
+@@ -1999,10 +1999,14 @@
+ 	 * we do "generic changes."
+ 	 */
+ 
++#ifndef CONFIG_X86_TSC
+ 	/* TSC disabled? */
+-#ifdef CONFIG_TSC
+-	if ( tsc_disable )
+-		clear_bit(X86_FEATURE_TSC, &c->x86_capability);
++	if ( test_bit(X86_FEATURE_TSC, &c->x86_capability) ) {
++		if (tsc_disable || !cpu_has_tsc) {
++			clear_bit(X86_FEATURE_TSC, &c->x86_capability);
++			set_in_cr4(X86_CR4_TSD);
++		}
++	}
+ #endif
+ 
+ 	/* Disable the PN if appropriate */
+@@ -2172,7 +2176,7 @@
+ 			        "fpu_exception\t: %s\n"
+ 			        "cpuid level\t: %d\n"
+ 			        "wp\t\t: %s\n"
+-			        "flags\t:",
++			        "flags\t\t:",
+ 			     c->fdiv_bug ? "yes" : "no",
+ 			     c->hlt_works_ok ? "no" : "yes",
+ 			     c->f00f_bug ? "yes" : "no",
+@@ -2218,9 +2222,7 @@
+ #ifndef CONFIG_X86_TSC
+ 	if (tsc_disable && cpu_has_tsc) {
+ 		printk("Disabling TSC...\n");
+-		/**** FIX-HPA: DOES THIS REALLY BELONG HERE? ****/
+ 		clear_bit(X86_FEATURE_TSC, boot_cpu_data.x86_capability);
+-		set_in_cr4(X86_CR4_TSD);
+ 	}
+ #endif
+ 
 
-Cheers,
- Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

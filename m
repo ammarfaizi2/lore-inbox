@@ -1,40 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266876AbTAOSdU>; Wed, 15 Jan 2003 13:33:20 -0500
+	id <S266844AbTAOSlz>; Wed, 15 Jan 2003 13:41:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266859AbTAOSdU>; Wed, 15 Jan 2003 13:33:20 -0500
-Received: from eamail1-out.unisys.com ([192.61.61.99]:43674 "EHLO
-	eamail1-out.unisys.com") by vger.kernel.org with ESMTP
-	id <S266852AbTAOSdT>; Wed, 15 Jan 2003 13:33:19 -0500
-Message-ID: <3FAD1088D4556046AEC48D80B47B478C022BD905@usslc-exch-4.slc.unisys.com>
-From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-To: "'Martin J. Bligh'" <mbligh@aracnet.com>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       James Cleverdon <jamesclv@us.ibm.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] (0/7) Finish moving NUMA-Q into subarch, cleanup
-Date: Wed, 15 Jan 2003 12:41:19 -0600
+	id <S266852AbTAOSlz>; Wed, 15 Jan 2003 13:41:55 -0500
+Received: from 216-239-45-4.google.com ([216.239.45.4]:15326 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id <S266844AbTAOSly>; Wed, 15 Jan 2003 13:41:54 -0500
+Message-ID: <3E25AD42.3090409@google.com>
+Date: Wed, 15 Jan 2003 10:49:38 -0800
+From: Ross Biro <rossb@google.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2656.59)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+       andre@linux-ide.org
+Subject: [BUG] 2.4.21-pre3 hdparm -X violates IDE locking
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+This bug impacts all versions of the kernel that I have looked at 
+including 2.4.18 and above.  It probably impacts many other versions as 
+well.
 
->> Can these (MAX_IO_APICS, MAX_APICS) be moved to sub-arch too, instead of
+hdparm -X issues a drive command ioctl which eventually issue a command 
+to the drive bypassing all of the normal locking.  The net effect is 
+that a command can be set to the drive when the drive is not ready. 
+ Some drives lock up when this happens.
 
-Yes, pleeese! Without CLUSTERED_APIC I would have to re-define it in some
-ugly way in subarch.
+The call chain is
 
->Actually replacing CONFIG_X86_NUMA with CONFIG_NUMA ... and we could
->do (CONFIG_NUMA || CONFIG_BIGSMP) instead. But you're right, subarch
->would be much better if you can find a way.
+ide_ioctl calls
+ide_cmd_ioctl
 
-With BIGSMP, we are still only allowed 16, whereus es7000 needs 256 of
-each...
+If the command is a set features to change the communications speed, 
+after the command is complete, ide_cmd_ioctl calls
+
+ide_set_xfer_rate
+
+ide_set_xfer_rate then calls drive->speedproc.
+
+Most speedprocs then call ide_config_drive_speed
+ide_config_drive_speed issue a set features command. and busy waits on it.
+
+The easiest fix is to probably modify execute_drive_command to update 
+drive->current_speed when it issues the appropriate SET FEATURES 
+command, and then have ide_config_drive_speed do nothing if speed == 
+current_speed.
+
+I did a much bigger modification that handles changing drive speed 
+specially and immediately.  I'll make patches for either one, but I 
+wanted to get some opinions before I did so.
+
+    Ross
+
+

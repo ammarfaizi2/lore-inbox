@@ -1,54 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263005AbSJHVva>; Tue, 8 Oct 2002 17:51:30 -0400
+	id <S261342AbSJHVuX>; Tue, 8 Oct 2002 17:50:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261306AbSJHVvV>; Tue, 8 Oct 2002 17:51:21 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:50442 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S263005AbSJHVuv>; Tue, 8 Oct 2002 17:50:51 -0400
-Message-ID: <3DA3548A.2000302@namesys.com>
-Date: Wed, 09 Oct 2002 01:56:26 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
-X-Accept-Language: en-us, en
+	id <S263423AbSJHVsI>; Tue, 8 Oct 2002 17:48:08 -0400
+Received: from smtp-outbound.cwctv.net ([213.104.18.10]:15139 "EHLO
+	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S263279AbSJHVrP>;
+	Tue, 8 Oct 2002 17:47:15 -0400
+From: <Hell.Surfers@cwctv.net>
+To: davem@redhat.com, jw@pegasys.ws, linux-kernel@vger.kernel.org
+Date: Tue, 8 Oct 2002 22:52:27 +0100
+Subject: RE:Re: The end of embedded Linux?
 MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.5.40 - and a feature freeze reminder
-References: <Pine.LNX.4.33.0210010021400.25527-100000@penguin.transmeta.com> 
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Liberate TVMail 2.6
+Content-Type: multipart/mixed;
+ boundary="1034113947114"
+Message-ID: <05c1158502108a2DTVMAIL9@smtp.cwctv.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  
 
-Wouldn't it make more sense, or at least be more fair, to move the 
-deadline in the other direction if you are going on vacation/away? 
- We're going to have trouble getting reiser4 ready before the Halloween 
-date you announced, and we are working long hours as it is.  reiser4 is 
-dramatically better and dramatically faster than reiserfs.
+--1034113947114
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Hans
+yep. i prefer pressing enter though. lol.
 
-Linus Torvalds wrote:
+Cheers, Dean.
 
->
->And a small reminder that we're now officially in the last month of
->features, and since I'm going to be away basically the last week of
->October, so I actually personally consider Oct 20th to be the drop-date,
->unless you've got a really good and scary costume.. So don't try to leave 
->it to the last day.
->
->[ And if that didn't worry you, the following should: I'm perfectly happy 
->  with the kernel, and as such whatever features _you_ think are missing 
->  might just not weigh too much with me if you then also make the mistake
->  of trying to leave them for the last crunch. I might just take the last
->  day off too ;]
->
->  
->
+On 	Tue, 08 Oct 2002 13:00:14 -0700 (PDT) 	"David S. Miller" <davem@redhat.com> wrote:
 
+--1034113947114
+Content-Type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
+	 Tue, 8 Oct 2002 22:49:13 +0100
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+	id <S263552AbSJHUEB>; Tue, 8 Oct 2002 16:04:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org
+	id <S263547AbSJHUDO>; Tue, 8 Oct 2002 16:03:14 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:54694 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S263533AbSJHUBf>;
+	Tue, 8 Oct 2002 16:01:35 -0400
+Received: from localhost (IDENT:davem@localhost.localdomain [127.0.0.1])
+	by pizda.ninka.net (8.9.3/8.9.3) with ESMTP id NAA11525;
+	Tue, 8 Oct 2002 13:00:14 -0700
+Date: Tue, 08 Oct 2002 13:00:14 -0700 (PDT)
+Message-Id: <20021008.130014.53509656.davem@redhat.com>
+To: Hell.Surfers@cwctv.net
+Cc: jw@pegasys.ws, linux-kernel@vger.kernel.org
+Subject: Re: The end of embedded Linux?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <0372021510908a2DTVMAIL6@smtp.cwctv.net>
+References: <0372021510908a2DTVMAIL6@smtp.cwctv.net>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
+Precedence: bulk
+X-Mailing-List: linux-kernel@vger.kernel.org
+Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
+
+   From: <Hell.Surfers@cwctv.net>
+   Date: Tue, 8 Oct 2002 10:51:40 +0100
+
+   limitation of mailer.
+   
+I know, it must be really hard to type carriage return
+occaisionally.
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+--1034113947114--
 
 

@@ -1,78 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262356AbTESG0t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 02:26:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262357AbTESG0t
+	id S262360AbTESG6r (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 02:58:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262361AbTESG6r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 02:26:49 -0400
-Received: from [193.98.9.7] ([193.98.9.7]:51675 "EHLO mail.provi.de")
-	by vger.kernel.org with ESMTP id S262356AbTESG0s (ORCPT
+	Mon, 19 May 2003 02:58:47 -0400
+Received: from mail.gmx.de ([213.165.64.20]:39017 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262360AbTESG6p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 02:26:48 -0400
-Subject: Re: 2.4.21-rc:  lost interrupt wgen usinf atapi cdrom-drive
-From: Michael Reincke <reincke.m@stn-atlas.de>
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1052811475.1618.7.camel@pcew80.atlas.de>
-References: <E19FTA7-000Mgw-00.arvidjaar-mail-ru@f15.mail.ru>
-	 <1052810966.1602.4.camel@pcew80.atlas.de>
-	 <1052811475.1618.7.camel@pcew80.atlas.de>
-Content-Type: text/plain; charset=ISO-8859-15
-Organization: STN ATLAS Elektronik GmbH
-Message-Id: <1053326382.8024.2.camel@pcew80.atlas.de>
+	Mon, 19 May 2003 02:58:45 -0400
+Message-Id: <5.2.0.9.2.20030519085451.01db6e48@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Mon, 19 May 2003 09:16:02 +0200
+To: Andrea Arcangeli <andrea@suse.de>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: Scheduling problem with 2.4?
+Cc: David Schwartz <davids@webmaster.com>, dak@gnu.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20030518231126.GF1429@dualathlon.random>
+References: <5.2.0.9.2.20030518103757.00ce93e8@pop.gmx.net>
+ <20030517235048.GB1429@dualathlon.random>
+ <5.2.0.9.2.20030518103757.00ce93e8@pop.gmx.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 19 May 2003 08:39:43 +0200
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-05-13 at 09:37, Michael Reincke wrote:
-> On Tue, 2003-05-13 at 09:29, Michael Reincke wrote:
-> > On Tue, 2003-05-13 at 08:21, Andrey Borzenkov wrote:
-> > > > i upgraded the linux kernel of my computer from 2.4.21-pre4 to
-> > > > 2.4.21-rc2 and got the following messages in syslog when using my
-> > > > atapi-cdrom drive:
-> > > > May 12 09:42:52 pcew80 kernel: hdc: DMA interrupt recovery
-> > > > May 12 09:42:52 pcew80 kernel: hdc: lost interrupt
-> > > > May 12 09:42:52 pcew80 kernel: hdc: status timeout: status=0xd0 { Busy }
-> > > > May 12 09:42:52 pcew80 kernel: hdc: status timeout: error=0x00
-> > > > May 12 09:42:52 pcew80 kernel: hdc: DMA disabled
-> > > > May 12 09:42:52 pcew80 kernel: hdc: drive not ready for command
-> > > > May 12 09:42:52 pcew80 kernel: hdc: ATAPI reset complete
-> > > 
-> > > 
-> > > It smells like ide_do_request forgets to enable interrupts when
-> > > request queue is empty.
-> > > 
-> > > drivers/ide/ide-io.c:
-> > > 
-> > > void ide_do_request (ide_hwgroup_t *hwgroup, int masked_irq)
-> > >                         hwgroup->busy = 0;
-> > > 
-> > > Ironically it does not release ide_intr_lock in this case but we
-> > > are not on m68k so we do not care :)
-> > > 
-> > > Could you please try to add local_irq_enable() before ide_release_lock() above and see if it helps?
-> > > It has been reported to have fixed fix problems for other people. OTOH
-> > > I did have sevral hard lockups with this so there may be more subtle
-> > > problems issues.
-> > The hangs and timeouts and total blocking of the cdrom drive seems to be
-> > away, but the lost interrupt messages are still there.
-> > But have in mind I've only a quick test so far.
-> 
-> Bad news the hangs and timeout are still there!
+At 01:11 AM 5/19/2003 +0200, Andrea Arcangeli wrote:
+>On Sun, May 18, 2003 at 10:55:17AM +0200, Mike Galbraith wrote:
+> > At 05:16 PM 5/17/2003 -0700, David Schwartz wrote:
+> >
+> > >> I see what you mean, but I still don't think it is a problem. If
+> > >> bandwidth matters you will have to use large writes and reads anyways,
+> > >> if bandwidth doesn't matter the number of ctx switches doesn't matter
+> > >> either and latency usually is way more important with small messages.
+> > >
+> > >> Andrea
+> > >
+> > >        This is the danger of pre-emption based upon dynamic priorities.
+> > >You can
+> > >get cases where two processes each are permitted to make a very small
+> > >amount
+> > >of progress in alternation. This can happen just as well with large writes
+> > >as small ones, the amount of data is irrelevent, it's the amount of CPU
+> > >time
+> > >that's important, or to put it another way, it's how far a process can get
+> > >without suffering a context switch.
+> > >
+> > >        I suggest that a process be permitted to use up at least some
+> > >portion of
+> > >its timeslice exempt from any pre-emption based solely on dynamic
+> > >priorities.
+> >
+> > Cool.
+> >
+> > Thank you for the spiffy idea.  I implemented this in my (hack/chop) mm5
+> > tree in about 30 seconds, and it works just fine.  Very simple
+> > time_after(jiffies, p->last_run + MIN_TIMESLICE) checks in wake_up_cpu()
+>
+>If I understand well, what you did is different (in functionalty) from
+>what I described (and what I described in the last email certainly takes
+>more than 30 seconds no matter how smart you implement it ;). I mean,
 
-The problem is vanishing when disabling
-IO-APIC support on uniprocessors             
--- 
-Michael Reincke, NUT Team 2 (Software Build Management)
+The p->last_run is a typo, it's effectively current->last_run, with 
+last_run also being updated upon task switch so you can see how long he's 
+had the cpu.  That can be done much quicker than 30 seconds by someone who 
+can type with fingers instead of thumbs ;-)
 
-STN ATLAS Elektronik GmbH, Bremen (Germany)
-E-mail : reincke.m@stn-atlas.de |  mail: Sebaldsbrücker Heerstr 235    
-phone  : +49-421-457-2302       |        28305 Bremen                  
-fax    : +49-421-457-3913       |
+>you lose the whole "wakeup" information, yeah that will fix
+>it too like deleting the need_resched =1 after the check on the
+>curr->prio enterely, but while it's so simple you you don't only
+>guarantee the miniumum timeslice, but you let the current task running
+>even after it expired the minimum timeslice.  That will most certainly
+>hurt interactivity way too much, I don't think it's an option, unless
+>you want to trim significantly the timeslice length too. The only reason
+>we can take these long timeslices are the interactivity hints, we always
+>had those in linux, all versions. If you start to ignore it, things
+>should not do too well, even throughput can decrease in a multithread
+>environment due the slower delivery of events.
 
+Throughput did decrease.  I was thinking that there was likely to be 
+another event before my ignoring the preempt could matter much.  As 
+mentioned privately, I guaranteed that no task could hold the cpu for more 
+than 50ms max, so on the next schedule he'd get the cpu (if prio high 
+enough) but the test results weren't encouraging.
 
+>Delaying a interprocess message for 1msec (or even 10msec) [i.e. 1/HZ]
+>may not be noticeable, but delaying it for a whole timeslice will
+>certainly be noticeable, that's an order of magnitude bigger delay.
+>
+>Actually besides the way I described yesterday (that would require arch
+>asm changes) to experiment the "miniumum timeslice guarantee", it could
+>also be implemented by moving the timeslice-min_timeslice in a
+>rest_timeslice field if jiffies - last_run  < MIN_TIMESLICE and if
+>rest_timeslice is zero, and trimming the timeslice down to
+>min_timeslice. Then the next schedule would put rest_timeslice back in
+>timeslice. This is on the lines of what you implemented but it also
+>guaranteees that the higher dyn-prio task will be scheduled after this
+>min_timeslice (to still provide the ~same interactive behaviour, which
+>is a must IMHO ;) This will be a bit more difficult of the need_resched
+>secondary field, but it's probably conceptually cleaner, since it
+>restricts the algorithm in the scheduler keeping the asm fast paths
+>small and simple.
 
+I'd really like to try a deferred preempt.  I don't know enough (yet 
+anyway;) to not create spectacular explosions with that idea though.  I'll 
+go ponder your idea instead.
+
+         -Mike 
 

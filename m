@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261909AbTK3Xjk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 18:39:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261914AbTK3Xjk
+	id S261326AbTK3XwO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 18:52:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbTK3XwO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 18:39:40 -0500
-Received: from gprs149-102.eurotel.cz ([160.218.149.102]:11136 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261909AbTK3Xjj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 18:39:39 -0500
-Date: Sun, 30 Nov 2003 20:18:35 +0100
-From: Pavel Machek <pavel@ucw.cz>
+	Sun, 30 Nov 2003 18:52:14 -0500
+Received: from postfix3-2.free.fr ([213.228.0.169]:1488 "EHLO
+	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S261326AbTK3XwM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Nov 2003 18:52:12 -0500
+Message-ID: <3FCA830F.7080103@free.fr>
+Date: Mon, 01 Dec 2003 00:53:51 +0100
+From: =?ISO-8859-2?Q?Ga=EBl_Deest?= <GUtopiste@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030903 Thunderbird/0.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Cc: rene@rene-engelhard.de
-Subject: Re: 2.6.0-test11: Mouse breaks after Suspend-to-RAM
-Message-ID: <20031130191834.GA188@elf.ucw.cz>
-References: <20031127125344.GA2606@rene-engelhard.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031127125344.GA2606@rene-engelhard.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Subject: Re: 2.6.0-test11, 2.6.0-test9 and gdb 6.0
+References: <20031130214025.GO2935@mail.muni.cz>
+In-Reply-To: <20031130214025.GO2935@mail.muni.cz>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Lukas Hejtmanek wrote:
 
-Hi!
+>Hello,
+>
+>is there any issue about using gdb with pthreads under 2.6.0-test9+ kernels?
+>
+>With 2.6.0-test11 I got message while du next over a function that creates some
+>threads:
+>
+>Program received signal SIG32, Real-time event 32.
+>__pthread_sigsuspend (set=0xbffff6d0)
+>   at ../linuxthreads/sysdeps/unix/sysv/linux/pt-sigsuspend.c:5656	
+>   ../linuxthreads/sysdeps/unix/sysv/linux/pt-sigsuspend.c: No such file or directory.
+>   in ../linuxthreads/sysdeps/unix/sysv/linux/pt-sigsuspend.c
+>(gdb)
+>
+>With 2.6.0-test9 I got a message about gdb cannot read thread registers.
+>
+>With 2.4.x series it is ok. Is it a bug in ptrace in kernel or a bug in gdb?
+>
+>  
+>
+I've got exactly the same problem...
 
-> [ please Cc: me as I am not on linux-kernel ]
-> 
-> Hi,
-> 
-> Suspend-to-Dsk via Software Suspend seems to work fine -- however,
-> Suspend-to-RAM doesn't.
-> 
-> When I echo 3 > /proc/acpi/sleep it goes into sleep mode as it should
-> and it awakes as it should. However, my mouse in X then is really
-> confused and does not do what I want it to do.
-> 
-> On the tthy then there is written:
-> 
-> psmouse.c: Wheel Mouse at isa0060/serio1/input0 lost synchronization,
-> throwing 2 bytes away.
-> 
-> I need to reboot :/
-> 
-> This "mouse" is a trackpad if that helps..
-
-I'm working on that, there are some 'bigdiffs' floating around, but
-you should probably wait until it gets stable...
-								Pavel
-
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

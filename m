@@ -1,75 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289002AbSAIUPH>; Wed, 9 Jan 2002 15:15:07 -0500
+	id <S289001AbSAIUUe>; Wed, 9 Jan 2002 15:20:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289020AbSAIUOs>; Wed, 9 Jan 2002 15:14:48 -0500
-Received: from cygnus.equallogic.com ([65.170.102.10]:5394 "HELO
-	cygnus.equallogic.com") by vger.kernel.org with SMTP
-	id <S289002AbSAIUMY>; Wed, 9 Jan 2002 15:12:24 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15420.42020.88898.576943@pkoning.dev.equallogic.com>
-Date: Wed, 9 Jan 2002 15:12:20 -0500 (EST)
-From: Paul Koning <pkoning@equallogic.com>
-To: mrs@windriver.com
-Cc: gcc@gcc.gnu.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] C undefined behavior fix
-In-Reply-To: <200201091953.LAA27042@kankakee.wrs.com>
-X-Mailer: VM 6.75 under 21.1 (patch 11) "Carlsbad Caverns" XEmacs Lucid
+	id <S289012AbSAIUU3>; Wed, 9 Jan 2002 15:20:29 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:13463
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S289001AbSAIUUT>; Wed, 9 Jan 2002 15:20:19 -0500
+Date: Wed, 9 Jan 2002 15:05:24 -0500
+Message-Id: <200201092005.g09K5OL28043@snark.thyrsus.com>
+From: "Eric S. Raymond" <esr@snark.thyrsus.com>
+To: linux-kernel@vger.kernel.org
+Cc: greg@kroah.com, felix-dietlibc@fefe.de
+Subject: initramfs programs (was [RFC] klibc requirements)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "mike" == mike stump <mrs@windriver.com> writes:
+greg k-h:
+>What does everyone else need/want there?
 
- >> From: dewar@gnat.com To: dewar@gnat.com, mrs@windriver.com,
- >> paulus@samba.org Cc: gcc@gcc.gnu.org,
- >> linux-kernel@vger.kernel.org, trini@kernel.crashing.org,
- >> velco@fadata.bg Date: Tue, 8 Jan 2002 21:13:43 -0500 (EST)
+dmidecode, so the init script can dump a DMI report in a known
+location such as /var/run/dmi.  
 
- >> Yes, of course! No one disagrees. I am talking about *LOADS* not
- >> stores, your example is 100% irrelevant to my point, since it does
- >> stores.
+I want this for autoconfiguration purposes.  If I can have it, I
+won't need /proc/dmi.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
- mike> Ok, in the bodies of those, put in
-
- mike> j1=c1;
-
- mike> j2=c2;
-
- mike> j3=c3;
-
- mike> With new definitions for j1, j2 and k3 as being volatile.
- mike> Accesses are volatile:
-
- mike> [#2] Accessing a volatile object, modifying an object,
- mike> modifying a file, or calling a function that does any of those
- mike> operations are all side effects
-
- mike> So, I would claim that the case is symetric with writing
- mike> volatiles.  If the standard doesn't make a distinction for
- mike> write v read, then you can't and claim that distinction is
- mike> based in the standard.  If you claim the standard does make a
- mike> distinction, please point it out, I am unaware of it.
-
-Ah... so (paraphrasing) -- if you have two byte size volatile objects,
-and they happen to end up adjacent in memory, the compiler is
-explicitly forbidden from turning an access to one of them into a
-wider access -- because that would be an access to both of them, which
-is a *different* side effect.  (Certainly that exactly matches the
-hardware-centric view of why "volatile" exists.)  And the compiler
-isn't allowed to change side effects, including causing them when the
-source code didn't ask you to cause them.
-
-So that says that you are indeed entitled to expect the compiler not
-to enlarge volatile accesses, neither loads nor stores.  Or, if you
-want to be *really* paranoid, you can at least enforce that by
-"wrapping" the volatile object, if necessary, with two more volatile
-objects that are +1 and -1 address unit away from the one you care
-about.  And if the compiler then generates a larger reference, that's
-a compiler bug.
-
-Nice.
-
-	paul
-
+I cannot undertake to lay my finger on that article of the
+Constitution which grant[s] a right to Congress of expending, on
+objects of benevolence, the money of their constituents.
+	-- James Madison, 1794

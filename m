@@ -1,38 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264832AbTF0VjV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 17:39:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264830AbTF0VjV
+	id S264844AbTF0Vkj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 17:40:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264843AbTF0Vkj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 17:39:21 -0400
-Received: from smtp.terra.es ([213.4.129.129]:55484 "EHLO tsmtp4.mail.isp")
-	by vger.kernel.org with ESMTP id S264832AbTF0VjT convert rfc822-to-8bit
+	Fri, 27 Jun 2003 17:40:39 -0400
+Received: from dhcp93-dsl-usw3.w-link.net ([206.129.84.93]:61888 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id S264839AbTF0Vkc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 17:39:19 -0400
-Date: Fri, 27 Jun 2003 23:51:29 +0200
-From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
-To: Flameeyes <daps_mls@libero.it>
-Cc: mharrell-dated-1057177236.425fdb@bittwiddlers.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: PPP Modem connection impossible with 2.5.73-bk2
-Message-Id: <20030627235129.4facd849.diegocg@teleline.es>
-In-Reply-To: <1056747440.1734.32.camel@laurelin>
-References: <1056567978.931.8.camel@laurelin>
-	<20030626195238.673bcffd.diegocg@teleline.es>
-	<20030626164116.1bfbad1e.shemminger@osdl.org>
-	<20030627022837.3dca1b09.diegocg@teleline.es>
-	<20030627202032.GA28863@bittwiddlers.com>
-	<1056747440.1734.32.camel@laurelin>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Fri, 27 Jun 2003 17:40:32 -0400
+Message-ID: <3EFCBD12.3070101@candelatech.com>
+Date: Fri, 27 Jun 2003 14:54:26 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: davidel@xmailserver.org, mbligh@aracnet.com, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: networking bugs and bugme.osdl.org
+References: <20030626.224739.88478624.davem@redhat.com>	<21740000.1056724453@[10.10.2.4]>	<Pine.LNX.4.55.0306270749020.4137@bigblue.dev.mcafeelabs.com> <20030627.143738.41641928.davem@redhat.com>
+In-Reply-To: <20030627.143738.41641928.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27 Jun 2003 22:57:21 +0200
-Flameeyes <daps_mls@libero.it> wrote:
+David S. Miller wrote:
+>    From: Davide Libenzi <davidel@xmailserver.org>
+>    Date: Fri, 27 Jun 2003 07:56:16 -0700 (PDT)
+>    
+>    The good of a bug tracking system against the mailing list is that
+>    bugs do survive in a bug tracking system,
+> 
+> No, this is the _BAD_ part, shit accumulates equally with
+> useful reports.
+> 
+> Useful reports in non-bugtracking system environments get
+> retransmitted and eventually looked at.
 
-> Neither the patch sent me by Diego Calleja García works :/
+I think you are putting too much work on the bug reporter(s).  If
+you want to ignore bug reports that only happen once, feel free,
+but give the rest of us a way to easily keep a history and list
+of bug reports.
 
-It was Stephen Hemminger <shemminger@osdl.org>; i never sent any patch.
+For instance, where is the list of open networking bugs for
+2.4 now?
+
+
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
+

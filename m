@@ -1,69 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261785AbTFDSbq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 14:31:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbTFDSbq
+	id S261788AbTFDSmC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 14:42:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbTFDSmC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 14:31:46 -0400
-Received: from sj-core-1.cisco.com ([171.71.177.237]:21189 "EHLO
-	sj-core-1.cisco.com") by vger.kernel.org with ESMTP id S261785AbTFDSbp
+	Wed, 4 Jun 2003 14:42:02 -0400
+Received: from a089003.adsl.hansenet.de ([213.191.89.3]:53677 "EHLO
+	sfhq.hn.org") by vger.kernel.org with ESMTP id S261788AbTFDSmB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 14:31:45 -0400
-Reply-To: <hzhong@cisco.com>
-From: "Hua Zhong" <hzhong@cisco.com>
-To: "'Linus Torvalds'" <torvalds@transmeta.com>
-Cc: "'Christoph Hellwig'" <hch@infradead.org>,
-       "'P. Benie'" <pjb1008@eng.cam.ac.uk>,
-       "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] [2.5] Non-blocking write can block
-Date: Wed, 4 Jun 2003 11:44:26 -0700
-Organization: Cisco Systems
-Message-ID: <01b601c32ac9$52f002c0$ca41cb3f@amer.cisco.com>
+	Wed, 4 Jun 2003 14:42:01 -0400
+Message-ID: <3EDE4049.8040205@portrix.net>
+Date: Wed, 04 Jun 2003 20:54:01 +0200
+From: Jan Dittmer <j.dittmer@portrix.net>
+Organization: portrix.net GmbH
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030521 Debian/1.3.1-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Margit Schubert-While <margitsw@t-online.de>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+Subject: Re: I2C/Sensors 2.5.70
+References: <5.1.0.14.2.20030604200930.00afde40@pop.t-online.de>
+In-Reply-To: <5.1.0.14.2.20030604200930.00afde40@pop.t-online.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4024
-Importance: Normal
-In-Reply-To: <Pine.LNX.4.44.0306041019570.14465-100000@home.transmeta.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Look in -mm, Documentation/i2c/sysfs-interface.
+Mainline seems to have lost this...
+Greg KH is the Maintainer, though I wrote the via686a driver.
+
+Jan
 
 
-> -----Original Message-----
-> From: Linus Torvalds [mailto:torvalds@transmeta.com] 
-> Sent: Wednesday, June 04, 2003 10:42 AM
-> To: Hua Zhong
-> Cc: 'Christoph Hellwig'; 'P. Benie'; 'Kernel Mailing List'
-> Subject: RE: [PATCH] [2.5] Non-blocking write can block
+Margit Schubert-While wrote:
+>  > Martin Schlemmer wrote :
+>  > Will have to check with Greg here.
+> OK - Has anybody tested/got running I2C/Sensors > 2.5.6x ?
 > 
+> Who's maintaining the 2.5 sensors part ?
+> Need some info on naming conventions/display units for a port
+> of lm85 driver (chips lm85(b,c), adm1027, adt7463).
+> Doc is a wee bit out of date :-)
 > 
+> Margit
 > 
-> On Wed, 4 Jun 2003, Hua Zhong wrote:
-> >
-> > We ran into this problem here in an embedded environment. It causes
-> > syslogd to hang and when this happens, everybody who talks to
-syslogd
-> > hangs. Which means you may not even be able to login. In the end we 
-> > used exactly the same fix which seems to work.
-> > 
-> > I am curious to know the correct fix.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
-> [ First off: your embedded syslog problem is fixed by making sure that
->   syslog doesn't try to write to a tty that somebody else might be
->   blocked. In other words, to me it sounds like a "well, don't do that
->   then" schenario, rather than a real kernel problem. ]
 
-It's hard. The shell might be printing and you cannot prevent that.
- 
-That said, the main problem was somebody could be stuck in waiting for
-tty *forever* and thus everyone who tries to write also hangs.
-
-This particular patch is in 2.4.20 already. There is another patch in
-2.4.20 (?) which seems to fix the "main problem" (the n_tty_write_wakeup
-function in n_tty.c), but I didn't verify it.
 

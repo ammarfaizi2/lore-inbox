@@ -1,68 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262469AbSK0M3R>; Wed, 27 Nov 2002 07:29:17 -0500
+	id <S262430AbSK0MYr>; Wed, 27 Nov 2002 07:24:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262464AbSK0M3R>; Wed, 27 Nov 2002 07:29:17 -0500
-Received: from web21508.mail.yahoo.com ([66.163.169.19]:2899 "HELO
-	web21508.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S262457AbSK0M3P>; Wed, 27 Nov 2002 07:29:15 -0500
-Message-ID: <20021127123634.84689.qmail@web21508.mail.yahoo.com>
-Date: Wed, 27 Nov 2002 12:36:34 +0000 (GMT)
-From: =?iso-8859-1?q?Neil=20Conway?= <nconway_kernel@yahoo.co.uk>
-Subject: Re: FS-corrupting IDE bug still in 2.4.20-rc3
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       linux-kernel@vger.kernel.org
-Cc: nconway_kernel@yahoo.co.uk
-In-Reply-To: <200211271158.13771.m.c.p@wolk-project.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S262449AbSK0MYq>; Wed, 27 Nov 2002 07:24:46 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:64404 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262430AbSK0MYq>; Wed, 27 Nov 2002 07:24:46 -0500
+Subject: Re: 2.5.49 module problem
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Young-Ho Cha <ganadist@nakyup.mizi.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021127043532.GA25666@nakyup.mizi.com>
+References: <20021126193026.Q14666-100000@sorrow.ashke.com>
+	<1038362008.2594.112.camel@irongate.swansea.linux.org.uk> 
+	<20021127043532.GA25666@nakyup.mizi.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 27 Nov 2002 13:03:26 +0000
+Message-Id: <1038402206.6394.26.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marc...
+On Wed, 2002-11-27 at 04:35, Young-Ho Cha wrote:
+> I use rusty's module init tools with modutils 2.4.22.
+> 
+> But many modules cannot load.
+> 
+> attach some list of modules that kernel cannot load.
 
- --- Marc-Christian Petersen <m.c.p@wolk-project.de> wrote:
-> You may try that patch with a VIA boxen and I am quite sure you may
-> experience 
-> a bug that none of your harddisks may be recognized and result in a 
-> panic();
+Rusty's code has a design flaw and demands a "no_modules_init" clause.
+When this is fixed in the kernel tree/tools the problem will go away.
+Since the problem is clearly a modules one I don't plan to fix the -ac
+drivers.
 
-Aha...  Actually, if you read the patch, you'll see why that's no
-longer the case.  I had in fact forgotten that I'd had to patch the
-patch to make my VIA box boot (it was 6 months ago now!).  I now do "if
-(hwgroup) ..." in the test-for-busy section.  So, the new patch does
-NOT now cause panics on VIA.
-
-> I had the same Fix in WOLK some time ago and many users with VIA
-> chipset 
-> complained that with the fix their mashine does not recognize any
-> harddisks 
-> and after trying to recognize they had a panic();
-
-Yes, only some chipsets end up in ide_config_drive_speed() at bootup;
-notably the PIIX doesn't and the VIA does.  Mea culpa!  I should have
-posted the fixed patch perhaps, but then it was deprecated and I
-thought Andre had a better fix in hand.  (BTW, when you say you had
-"the same fix", you mean you fixed it independently or you used my
-patch from May '02?)
-
-> Maybe it's working for you with some VIA chipsets but I removed that
-> fix and 
-> after removal all users with VIA were happy. I've never heard of a FS
-> corruption of them.
-
-Well, do they have the trigger ingredients?  You MUST have an IDE CDROM
-sharing a bus with a HDD.  Also, the perfect recipe for disk corruption
-is to reboot, and then log in to your chosen desktop, and while it's
-hammering the disk starting everything up, it should fire off
-"magicdev", which in turn loads ide-cd: BOOM.  RedHat 7.x with GNOME
-does things in this order.  YMMV.
-
-Neil
-
-__________________________________________________
-Do You Yahoo!?
-Everything you'll ever need on one web page
-from News and Sport to Email and Music Charts
-http://uk.my.yahoo.com

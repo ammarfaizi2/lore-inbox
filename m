@@ -1,66 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292378AbSBBUSA>; Sat, 2 Feb 2002 15:18:00 -0500
+	id <S292379AbSBBUWk>; Sat, 2 Feb 2002 15:22:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292379AbSBBURt>; Sat, 2 Feb 2002 15:17:49 -0500
-Received: from rj.sgi.com ([204.94.215.100]:4328 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S292378AbSBBURi>;
-	Sat, 2 Feb 2002 15:17:38 -0500
-Message-ID: <3C5C4929.5080403@sgi.com>
-Date: Sat, 02 Feb 2002 14:16:41 -0600
-From: Stephen Lord <lord@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
-X-Accept-Language: en-us
+	id <S292380AbSBBUWa>; Sat, 2 Feb 2002 15:22:30 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:531 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292379AbSBBUWZ>; Sat, 2 Feb 2002 15:22:25 -0500
+Subject: Re: should I trust 'free' or 'top'?
+To: david.lang@digitalinsight.com (David Lang)
+Date: Sat, 2 Feb 2002 20:35:21 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), blumpkin@attbi.com,
+        adam-dated-1013023458.e87e05@flounder.net,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0202021150370.21319-100000@dlang.diginsite.com> from "David Lang" at Feb 02, 2002 11:58:42 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Chris Mason <mason@suse.com>
-CC: Andrea Arcangeli <andrea@suse.de>, Chris Wedgwood <cw@f00f.org>,
-        Andrew Morton <akpm@zip.com.au>, Ricardo Galli <gallir@uib.es>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: O_DIRECT fails in some kernel and FS
-In-Reply-To: <E16WkQj-0005By-00@antoli.uib.es> <3C5AFE2D.95A3C02E@zip.com.au> <1012597538.26363.443.camel@jen.americas.sgi.com> <20020202093554.GA7207@tapu.f00f.org> <234710000.1012674008@tiny> <20020202205438.D3807@athlon.random> <242700000.1012680610@tiny>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16X6sb-0000T0-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Mason wrote:
+> tweak them again to fix B anc cause C .... tweak them again to fix J and
+> cause A' type circles with nobody (other then possibly rik) understanding
+> what was really causing the problems (at least if they did understand them
+> they weren't posted here)
 
->
->On Saturday, February 02, 2002 08:54:38 PM +0100 Andrea Arcangeli <andrea@suse.de> wrote:
->
->>>Chris and I had initially decided to unpack the tails on file open
->>>if O_DIRECT is used, but it seems cleaner to add a 
->>>reiserfs_get_block_direct_io, and have it return -EINVAL if a read
->>>went to a tail.  writes that happen to a tail will trigger tail
->>>conversion.
->>>
->>This is a safe approch (no risk of corruption etc..). However to provide
->>the same semantics of the other filesystems it would be even better if
->>we could unpack the tail within reiserfs_get_block_direct_io rather than
->>returning -EINVAL, but ok, most apps should work fine anyways (and as
->>worse people can workaround the magic by remounting reiserfs with notail
->>before writing the data that will need to be handled later via
->>O_DIRECT).
->>
->
->In the normal case, O_DIRECT can't be done on a file with a tail. 
->
->The way I read generic_file_direct_IO, O_DIRECT is only done in 
->units that start block aligned, and continue for a block aligned 
->length.  So, this can never include a packed file tail.  
->
->We should only need to worry if i_size on the file is wrong, and allows a 
->read/write to a block aligned chunk on a file with a tail, which should
->only be legal in the expanding truncate case from older kernels.  The
->-EINVAL return should only happen in this (very unlikely) case.
->
->-chris
->
-Can't you fall back to buffered I/O for the tail? OK it complicates the
-code, probably a lot, but it keeps things sane from the user's point of
-view.
+Plenty of people understood them. The continual changing was also not 
+helped by the fact that at least three totally contradictory sets of
+patches were getting applied (Riks, the use once stuff and Linus own
+changes)
 
-Steve
+> the fundamental problem was that while the VM would work well most of the
+> time, once in a while it would hit a pathalogical condition that would
+> lockup the machine completely, the new VM was seen as not nessasarily
+> being quite as good in the best cases, but avoiding the worst lockups (of
+> course it had a few problems of it's own, but these seemed to be easier to
+> fix without causing additional problems)
 
+The original Andrea vm was faster on light loads, and even less stable on
+anything sane. In the -aa patches it does quite well, but those aren't 
+merged either.
 
-
+Alan

@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261269AbTHSTF0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 15:05:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261230AbTHSSmT
+	id S261294AbTHSSxY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 14:53:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbTHSSvA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 14:42:19 -0400
-Received: from relay.pair.com ([209.68.1.20]:40464 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S272927AbTHSSa3 (ORCPT
+	Tue, 19 Aug 2003 14:51:00 -0400
+Received: from zero.aec.at ([193.170.194.10]:28933 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S261274AbTHSStI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 14:30:29 -0400
-X-pair-Authenticated: 68.40.145.213
-Subject: RE: [2.4 PATCH] bugfix: ARP respond on all devices
-From: Daniel Gryniewicz <dang@fprintf.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Richard Underwood <richard@aspectgroup.co.uk>,
-       "'David S. Miller'" <davem@redhat.com>,
-       Stephan von Krawczynski <skraw@ithnet.com>, willy@w.ods.org,
-       carlosev@newipnet.com, lamont@scriptkiddie.org, davidsen@tmr.com,
-       bloemsaa@xs4all.nl, Marcelo Tosatti <marcelo@conectiva.com.br>,
-       netdev@oss.sgi.com, linux-net@vger.kernel.org, layes@loran.com,
-       torvalds@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1061296544.30566.8.camel@dhcp23.swansea.linux.org.uk>
-References: <353568DCBAE06148B70767C1B1A93E625EAB57@post.pc.aspectgroup.co.uk>
-	 <1061296544.30566.8.camel@dhcp23.swansea.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1061317825.3744.7.camel@athena.fprintf.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 19 Aug 2003 14:30:26 -0400
+	Tue, 19 Aug 2003 14:49:08 -0400
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
+From: Andi Kleen <ak@muc.de>
+Date: Tue, 19 Aug 2003 20:48:47 +0200
+In-Reply-To: <miMw.5yo.31@gated-at.bofh.it> (Lars Marowsky-Bree's message of
+ "Tue, 19 Aug 2003 19:50:16 +0200")
+Message-ID: <m365ktxz3k.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
+References: <mdtk.Zy.1@gated-at.bofh.it> <mgUv.3Wb.39@gated-at.bofh.it>
+	<mgUv.3Wb.37@gated-at.bofh.it> <miMw.5yo.31@gated-at.bofh.it>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-08-19 at 08:35, Alan Cox wrote:
-> You increase it and you shortcut on shared lans. Thats really a seperate
-> issue to the question of which source is used. If you loopback someone
-> elses address on your own lo device I'm not suprised weird shit happens,
-> put the alias on eth0 where it belongs.
+Lars Marowsky-Bree <lmb@suse.de> writes:
 
-Only if you are on a shared lan.  If you are not on a shared lan, then
-it will *ONLY* work if linux is on the other end.  No other system will
-work.  And, you don't need an alias on loopback.  Merely changing the
-default route will result in this.  Change default route from gw 1.1.1.1
-on eth0 to gw 2.2.2.2 on eth1 (making sure that 2.2.2.2 doesn't have an
-arp entry), and linux will say, on eth1:
-whohas 2.2.2.2 tell 1.1.1.2
-where 1.1.1.2 is the address on eth0.  No one will respond to this, so
-all communication from beyond a directly connected network will now
-fail.
+> Yes, both are "correct" in the sense that the RFC allows this
+> interpretation. The _sensible_ interpretation for practical networking
+> however is #2, and the only persons who seem to believe differently are
+> those in charge of the Linux network code...
 
--- 
-Daniel Gryniewicz <dang@fprintf.net>
+Just spend a minute to think about multihoming and failover
+between multiple links on a host.
+
+For that the Linux default makes a lot of sense - you get automatic
+transparent failover between interfaces without any effort.
+
+In my experience everybody who wants a different behaviour use some
+more or less broken stateful L2/L3 switching hacks (like ipvs) or
+having broken routing tables. While such hacks may be valid for some
+uses they should not impact the default case.
+
+-Andi
+

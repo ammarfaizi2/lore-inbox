@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261489AbTEEWc7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 18:32:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbTEEWc7
+	id S261446AbTEEWbd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 18:31:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261450AbTEEWbd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 18:32:59 -0400
-Received: from [217.157.19.70] ([217.157.19.70]:62736 "EHLO jehova.dsm.dk")
-	by vger.kernel.org with ESMTP id S261489AbTEEWc6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 18:32:58 -0400
-Date: Tue, 6 May 2003 00:45:26 +0200 (CEST)
-From: Thomas Horsten <thomas@horsten.com>
-X-X-Sender: thomas@jehova.dsm.dk
-To: Halil Demirezen <nitrium@bilmuh.ege.edu.tr>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: about bios
-In-Reply-To: <20030505225013.GA5375@bilmuh.ege.edu.tr>
-Message-ID: <Pine.LNX.4.40.0305060041550.7106-100000@jehova.dsm.dk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 5 May 2003 18:31:33 -0400
+Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:47792 "HELO
+	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S261446AbTEEWbc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 18:31:32 -0400
+Subject: Re: 2.5.69-mm1 OOPS: modprobe usbcore
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Greg KH <greg@kroah.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030505165059.GA1199@kroah.com>
+References: <1052151088.1052.0.camel@teapot.felipe-alfaro.com>
+	 <20030505165059.GA1199@kroah.com>
+Content-Type: text/plain
+Message-Id: <1052174634.603.0.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.3.2.99 (Preview Release)
+Date: 06 May 2003 00:43:54 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Halil,
+On Mon, 2003-05-05 at 18:51, Greg KH wrote:
+> On Mon, May 05, 2003 at 06:11:28PM +0200, Felipe Alfaro Solana wrote:
+> > 
+> > This error is reproducble 100% of the time when trying to boot Red Hat
+> > Linux 9 with a 2.5.69-mm1 kernel. Config attached.
+> 
+> Same thing happen on 2.5.69 (no mm)?
 
-On Tue, 6 May 2003, Halil Demirezen wrote:
+No... Vanilla 2.5.69 works fine.
 
-> I entered bios and disabled FDC and expected to linux
-> work still well with floppy, that is fd0.
->
-> I thought that linux is not dependent on bios for using
-> fdc, hdc, and other things. I want to know how linux uses bios.
->
-> does linux still depends on bios thing?
-
-No, it does not, but the floppy driver (drivers/block/floppy.c) looks at
-certain hardcoded IO addresses to see if there is a floppy controller or
-not.
-
-What you do in the BIOS does not only disable the BIOS calls for the
-floppy controller, it turns it completely off in the chipset (software
-disconnect) so it is never accessed with the IO access, and therefore is
-not detected.
-
-It would probably be possible to turn it on again in floppy.c, but it
-would be chipset dependent how to do it.
-
-Cheers,
-Thomas
+-- 
+Please AVOID sending me WORD, EXCEL or POWERPOINT attachments.
+See http://www.fsf.org/philosophy/no-word-attachments.html
+Linux Registered User #287198
 

@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130073AbRBBWvL>; Fri, 2 Feb 2001 17:51:11 -0500
+	id <S130201AbRBBWwv>; Fri, 2 Feb 2001 17:52:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130201AbRBBWvB>; Fri, 2 Feb 2001 17:51:01 -0500
-Received: from thebsh.namesys.com ([212.16.0.238]:2569 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S130073AbRBBWuv>; Fri, 2 Feb 2001 17:50:51 -0500
-Message-ID: <3A7B31B9.CBD13EEA@namesys.com>
-Date: Sat, 03 Feb 2001 01:16:25 +0300
-From: Hans Reiser <reiser@namesys.com>
-Organization: Namesys
-X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.14 i686)
-X-Accept-Language: en, ru
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Alan Cox <alan@redhat.com>, John Morrison <john@vmlinux.net>,
-        Chris Mason <mason@suse.com>, Jan Kasprzak <kas@informatics.muni.cz>,
+	id <S130435AbRBBWwb>; Fri, 2 Feb 2001 17:52:31 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:63236 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S130201AbRBBWw0>;
+	Fri, 2 Feb 2001 17:52:26 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Alan Cox <alan@redhat.com>
+cc: john@vmlinux.net (John Morrison), reiser@namesys.com (Hans Reiser),
+        mason@suse.com (Chris Mason), kas@informatics.muni.cz (Jan Kasprzak),
         linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
-        "Yury Yu. Rupasov" <yura@yura.polnet.botik.ru>
-Subject: Re: [reiserfs-list] Re: ReiserFS Oops (2.4.1, deterministic, symlink
-In-Reply-To: <E14OosP-0007KT-00@the-village.bc.nu>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+        yura@yura.polnet.botik.ru (Yury Yu. Rupasov)
+Subject: Re: [reiserfs-list] Re: ReiserFS Oops (2.4.1, deterministic, symlink 
+In-Reply-To: Your message of "Fri, 02 Feb 2001 16:39:18 CDT."
+             <200102022139.f12LdII21148@devserv.devel.redhat.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 03 Feb 2001 09:52:18 +1100
+Message-ID: <10226.981154338@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > > their kernel, something putting #ifdefs all over it will mean they have to
-> > > mess around to fix too.
-> > >
-> > A moment of precision here.  We won't test to see if the right compiler is used,
-> > we will just test for the wrong one.
-> 
-> Ok that makes a lot more sense
+On Fri, 2 Feb 2001 16:39:18 -0500 (EST), 
+Alan Cox <alan@redhat.com> wrote:
+>Large numbers of people routinely build the kernel with 'unsupported' compilers
 
-Ok, so with that last clarification, we are all in agreement I think.
+<irony>
+gcc version 2.96-ia64-000717 snap 001117 - works for me doing cross
+compile from ia32 to ia64.  Anybody adding #ifdef, please include this
+version, oh and also include the version of gcc on the latest Redhat
+ia64 beta, and the version of gcc on the latest Turbolinux ia64 beta.
+Don't forget to include a check for cross compile, querying the local
+rpm will not work in cross compile mode.
 
-Thanks for the code frag Alan,
+On second thoughts, forget about #ifdef.
+</irony>
 
-Hans
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,62 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129471AbRBURzY>; Wed, 21 Feb 2001 12:55:24 -0500
+	id <S129373AbRBUR5o>; Wed, 21 Feb 2001 12:57:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129512AbRBURzO>; Wed, 21 Feb 2001 12:55:14 -0500
-Received: from oboe.it.uc3m.es ([163.117.139.101]:60426 "EHLO oboe.it.uc3m.es")
-	by vger.kernel.org with ESMTP id <S129471AbRBURyz>;
-	Wed, 21 Feb 2001 12:54:55 -0500
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200102211754.f1LHscA12507@oboe.it.uc3m.es>
-Subject: Re: plugging in 2.4. Does it work?
-In-Reply-To: <20010221182743.W1447@suse.de> from "Jens Axboe" at "Feb 21, 2001
- 06:27:43 pm"
-To: "Jens Axboe" <axboe@suse.de>
-Date: Wed, 21 Feb 2001 18:54:38 +0100 (MET)
-CC: "linux kernel" <linux-kernel@vger.kernel.org>
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S129512AbRBUR5e>; Wed, 21 Feb 2001 12:57:34 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:59264 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129931AbRBUR5Y>; Wed, 21 Feb 2001 12:57:24 -0500
+Date: Wed, 21 Feb 2001 12:56:32 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Giuliano Pochini <pochini@shiny.it>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 128MB lost... where ?
+In-Reply-To: <XFMail.010221182231.pochini@shiny.it>
+Message-ID: <Pine.LNX.3.95.1010221125207.15293A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"A month of sundays ago Jens Axboe wrote:"
-> The implementation in ll_rw_blk.c (and other places) assumes that
-> a failed request just means the first chunk and it then makes sense
-> to just end i/o on that buffer and resetup the request for the next
-> buffer. If you want to completely scrap the request on an error, then
-> you'll just have to do that manually (ie loop end_that_request_first
-> and end_that_request_last at the end).
+On Wed, 21 Feb 2001, Giuliano Pochini wrote:
+
 > 
-> void my_end_request(struct request *rq, int uptodate)
-> {
-> 	while (end_that_request_first(rq, uptodate))
-> 		;
+> Perhaps this is a faq...
+> I have a dual-800 (mb asus, no AGP) with 1GB ram,
+> but according to /proc/meminfo tells I only have
+> 900000KB. I tried "mem=1024" boot parameter without
+> success. How can I get my 128MB back ?
 > 
-> 	io_lock
-> 	end_that_request_last(rq);
-> 	io_unlock
-> }
+> 
+> Bye.
+>     Giuliano Pochini ->)|(<- Shiny Corporation {AS6665} ->)|(<-
+> 
 
-OK, thanks!
+You can't. You have to enable HIGHMEM4G in `make config`, then
+rebuild the entire kernel. This doesn't work well with 2.4.1 because
+many modules will have unresolved symbols. Maybe this has been
+fixed in a later kernel.
 
-> And why you keep insisting on a duplicate end_that_request_first I don't
-> know?!
 
-Backwards compatibility.  The code has to keep working under older
-kernel versions too in order to pass the regression tests, and the
-simplest thing is to put the front while loop in an ifdef while I work
-on it.  At some stage soon I'll do as you want. Things have stopped
-oopsing on write now, and I've sent it for testing.
+Cheers,
+Dick Johnson
 
-That's also why I have the io_lock around the whole code instead of
-only the last part. I have to put it around something that at least
-existed in 2.2 and even 2.0. I've stepped the version number and will
-be revising the code while its being tested. But thanks for the
-concern :-). I appreciate it!
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
 
-Peter
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
 

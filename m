@@ -1,43 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262696AbUCEUdB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 15:33:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262698AbUCEUdB
+	id S262697AbUCEUlM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 15:41:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262698AbUCEUlM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 15:33:01 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:8715
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262696AbUCEUc7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 15:32:59 -0500
-Date: Fri, 5 Mar 2004 21:33:40 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Andrew Morton <akpm@osdl.org>, peter@mysql.com, riel@redhat.com,
-       mbligh@aracnet.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high end)
-Message-ID: <20040305203340.GU4922@dualathlon.random>
-References: <20040228072926.GR8834@dualathlon.random> <Pine.LNX.4.44.0402280950500.1747-100000@chimarrao.boston.redhat.com> <20040229014357.GW8834@dualathlon.random> <1078370073.3403.759.camel@abyss.local> <20040303193343.52226603.akpm@osdl.org> <1078371876.3403.810.camel@abyss.local> <20040303200704.17d81bda.akpm@osdl.org> <20040304045212.GG4922@dualathlon.random> <20040303211042.33cd15ce.akpm@osdl.org> <20040305201954.GB7254@mail.shareable.org>
+	Fri, 5 Mar 2004 15:41:12 -0500
+Received: from fw.osdl.org ([65.172.181.6]:42978 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262697AbUCEUlK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 15:41:10 -0500
+Date: Fri, 5 Mar 2004 12:41:19 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: mbligh@aracnet.com, mingo@elte.hu, peter@mysql.com, riel@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high
+ end)
+Message-Id: <20040305124119.756aab4c.akpm@osdl.org>
+In-Reply-To: <20040305202941.GT4922@dualathlon.random>
+References: <1078370073.3403.759.camel@abyss.local>
+	<20040303193343.52226603.akpm@osdl.org>
+	<1078371876.3403.810.camel@abyss.local>
+	<20040305103308.GA5092@elte.hu>
+	<20040305141504.GY4922@dualathlon.random>
+	<20040305143210.GA11897@elte.hu>
+	<20040305145837.GZ4922@dualathlon.random>
+	<39960000.1078512175@flay>
+	<20040305191329.GR4922@dualathlon.random>
+	<56050000.1078516505@flay>
+	<20040305202941.GT4922@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040305201954.GB7254@mail.shareable.org>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 05, 2004 at 08:19:55PM +0000, Jamie Lokier wrote:
-> Andrew Morton wrote:
-> >   We believe that this could cause misbehaviour of such things as the
-> >   boehm garbage collector.  This patch provides the mprotect() atomicity by
-> >   performing all userspace copies under page_table_lock.
+Andrea Arcangeli <andrea@suse.de> wrote:
+>
+> > > The main thing you didn't mention is the overhead in the per-cpu data
+>  > > structures, that alone generates an overhead of several dozen mbytes
+>  > > only in the page allocator, without accounting the slab caches,
+>  > > pagetable caches etc.. putting an high limit to the per-cpu caches
+>  > > should make a 32-way 32G work fine with 3:1 too though. 8-way is
+>  > > fine with 32G currently.
+>  > 
+>  > Humpf. Do you have a hard figure on how much it actually is per cpu?
 > 
-> Can you use a read-write lock, so that userspace copies only need to
-> take the lock for reading?  That doesn't eliminate cacheline bouncing
-> but does eliminate the serialisation.
+>  not a definitive one, but it's sure more than 2m per cpu, could be 3m
+>  per cpu.
 
-normally the bouncing would be the only overhead, but here I also think
-the serialization is a significant factor of the contention because the
-critical section is taking lots of time. So I would expect some
-improvement by using a read/write lock.
+It'll average out to 68 pages per cpu.  (4 in ZONE_DMA, 64 in ZONE_NORMAL).
+
+That's eight megs on 32-way.  Maybe it can be trimmed back a bit, but on
+32-way you probably want the locking amortisation more than the 8 megs.
+
+The settings we have in there are still pretty much guesswork.  I don't
+think anyone has done any serious tuning on them.  Any differences are
+likely to be small.
+
+

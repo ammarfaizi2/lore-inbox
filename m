@@ -1,44 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261895AbVBOV2g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261899AbVBOV3J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261895AbVBOV2g (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 16:28:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261899AbVBOV2g
+	id S261899AbVBOV3J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 16:29:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261900AbVBOV3J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 16:28:36 -0500
-Received: from wproxy.gmail.com ([64.233.184.194]:55269 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261895AbVBOV2d convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 16:28:33 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=NCW0ma4mJVYdUBSnAY+QW9SaU1B6HMSWRDyCOOwAv9XQm5QWm7qskPMBcKYdmHpe+mpDjlKPeRa6RC0npPWrwMTnMMos36cqakyDVxvwnzSwCUsYgeeEai8DEyDIpK665VF9U2uyl3HekfRKljOGepoKm6gPiyRQjBdPquJ0guY=
-Date: Tue, 15 Feb 2005 22:11:28 +0100
-From: Diego Calleja <diegocg@gmail.com>
-To: Adam Goode <adam@evdebs.org>
-Cc: linas@austin.ibm.com, rlrevell@joe-job.com, prakashp@arcor.de,
-       paolo.ciarrocchi@gmail.com, gregkh@suse.de, pmcfarland@downeast.net,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Optimizing disk-I/O [was Re: [ANNOUNCE] hotplug-ng 001 release]
-Message-Id: <20050215221128.63d5c738.diegocg@gmail.com>
-In-Reply-To: <1108500416.17531.35.camel@lynx.auton.cs.cmu.edu>
-References: <20050215004329.5b96b5a1.diegocg@gmail.com>
-	<20050215195614.GT23424@austin.ibm.com>
-	<1108500416.17531.35.camel@lynx.auton.cs.cmu.edu>
-X-Mailer: Sylpheed version 1.9.2+svn (GTK+ 2.6.1; i686-pc-linux-gnu)
+	Tue, 15 Feb 2005 16:29:09 -0500
+Received: from smtp.gentoo.org ([156.56.111.197]:46572 "EHLO smtp.gentoo.org")
+	by vger.kernel.org with ESMTP id S261899AbVBOV27 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 16:28:59 -0500
+Subject: Re: [ACPI] Call for help: list of machines with working S3
+From: Henrik Brix Andersen <brix@gentoo.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>, seife@suse.de, rjw@sisk.pl
+In-Reply-To: <20050214211105.GA12808@elf.ucw.cz>
+References: <20050214211105.GA12808@elf.ucw.cz>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-D/qzgXnlZmrfEGwBYxEt"
+Organization: Gentoo Linux
+Date: Tue, 15 Feb 2005 22:28:52 +0100
+Message-Id: <1108502932.29172.5.camel@sponge.fungus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Tue, 15 Feb 2005 15:46:56 -0500,
-Adam Goode <adam@evdebs.org> escribió:
 
-> Mac OS X has a similar thing, with a pretty simple description of how
-> they do it:
-> 
-> http://developer.apple.com/technotes/tn/tn1150.html#HotFile
+--=-D/qzgXnlZmrfEGwBYxEt
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Also all those things are part of darwin i think (or IOW, we can look at how they
-did it)
+Hi,
+
+On Mon, 2005-02-14 at 22:11 +0100, Pavel Machek wrote:
+> Stefan provided me initial list of machines where S3 works (including
+> video). If you have machine that is not on the list, please send me a
+> diff. If you have eMachines... I'd like you to try playing with
+> vbetool (it worked for me), and if it works for you supplying right
+> model numbers.
+
+I have S3 working with 2.6.11-rc4 here:
+
+Model                           hack (or "how to do it")
+---------------------------------------------------------------------------=
+---
+IBM TP X31 / Type 2672-XXH      LCD backlight must be turned off=20
+                                manually using radeontool [1]
+
+Sincerely,
+Brix
+
+[1]: http://fdd.com/software/radeon/
+--=20
+Henrik Brix Andersen <brix@gentoo.org>
+Gentoo Linux
+
+--=-D/qzgXnlZmrfEGwBYxEt
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBCEmmUv+Q4flTiePgRAsLfAJ4gpmbP+onTyzPrmxe8lHUxSGStcwCeOcH3
+WLUGItS94rAX+dyP/+D/jPI=
+=HCtK
+-----END PGP SIGNATURE-----
+
+--=-D/qzgXnlZmrfEGwBYxEt--
+

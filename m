@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267599AbUG2QVI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267602AbUG2Q3W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267599AbUG2QVI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 12:21:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264966AbUG2QUt
+	id S267602AbUG2Q3W (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 12:29:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267482AbUG2Q10
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 12:20:49 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:43451 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S267597AbUG2QUH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 12:20:07 -0400
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Andrew Morton <akpm@osdl.org>, suparna@in.ibm.com, fastboot@osdl.org,
-       jbarnes@engr.sgi.com, alan@lxorguk.ukuu.org.uk,
+	Thu, 29 Jul 2004 12:27:26 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:13720 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267716AbUG2QYq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 12:24:46 -0400
+Date: Thu, 29 Jul 2004 18:23:55 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Chris Caputo <ccaputo@alt.net>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] Re: Announce: dumpfs v0.01 - common RAS output API
-References: <16734.1090513167@ocs3.ocs.com.au>
-	<20040725235705.57b804cc.akpm@osdl.org>
-	<m1r7qw7v9e.fsf@ebiederm.dsl.xmission.com>
-	<200407280903.37860.jbarnes@engr.sgi.com> <25870000.1091042619@flay>
-	<m14qnr7u7b.fsf@ebiederm.dsl.xmission.com>
-	<20040728133337.06eb0fca.akpm@osdl.org>
-	<1091044742.31698.3.camel@localhost.localdomain>
-	<m1llh367s4.fsf@ebiederm.dsl.xmission.com>
-	<20040728164457.732c2f1d.akpm@osdl.org>
-	<m1d62f6351.fsf@ebiederm.dsl.xmission.com>
-	<20040728180954.1f2baed9.akpm@osdl.org>
-	<m1u0vr4luo.fsf@ebiederm.dsl.xmission.com>
-	<138620000.1091110702@[10.10.2.4]>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 29 Jul 2004 10:19:12 -0600
-In-Reply-To: <138620000.1091110702@[10.10.2.4]>
-Message-ID: <m1llh2kcqn.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: inode_unused list corruption in 2.4.26 - spin_lock problem?
+Message-ID: <20040729162354.GA26891@devserv.devel.redhat.com>
+References: <20040729122107.GA1024@devserv.devel.redhat.com> <Pine.LNX.4.44.0407290909410.30975-100000@nacho.alt.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="gBBFr7Ir9EOA20Yy"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0407290909410.30975-100000@nacho.alt.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> writes:
 
-> IIRC, what Adam did is to relocate the bottom 16MB of mem into the
-> reserved buffer and execute into the bottom 16MB. Yes, that probably does
-> leave some DMA issues that we should fix up as you suggest above, but I
-> think it's good enough for a first pass at the problem.
+--gBBFr7Ir9EOA20Yy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I guess I don't have a problem with that as long as I don't have to
-chase the bugs.  
 
-If I do have to chase the bugs I would rather call the shutdown methods
-and just say things don't _yet_ work in cases where it is not safe
-to call them.
+On Thu, Jul 29, 2004 at 09:22:40AM -0700, Chris Caputo wrote:
+> 
+> Should I try the run-once/oneshot feature of irqbalance on boot, and then
+> leave it off and see if anything happens?
 
-I guess I just like to be easily to explain what does not work _yet_.
+that sounds like a good test
 
-With running at the same addresses we also have a rogue cpu problem as
-well.  If we don't kill the cpu before the new kernel starts what happens
-if it starts executing some random bit of the new code...
+it really smells that a certain distribution of irq's is causing you grief
+more than the actual changing...
 
-Eric
+--gBBFr7Ir9EOA20Yy
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFBCSSaxULwo51rQBIRApQ5AJ4vorrgZT2fefeQIhutx514vCYNgwCgmj9n
+ewnsYMaxuETUmeEe/gI7JuQ=
+=0IEt
+-----END PGP SIGNATURE-----
+
+--gBBFr7Ir9EOA20Yy--

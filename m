@@ -1,36 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282111AbRKWLWv>; Fri, 23 Nov 2001 06:22:51 -0500
+	id <S282106AbRKWLVm>; Fri, 23 Nov 2001 06:21:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282123AbRKWLWl>; Fri, 23 Nov 2001 06:22:41 -0500
-Received: from ATuileries-103-2-2-113.abo.wanadoo.fr ([217.128.34.113]:9460
-	"EHLO boo.taktile.com") by vger.kernel.org with ESMTP
-	id <S282111AbRKWLWc>; Fri, 23 Nov 2001 06:22:32 -0500
-Date: Fri, 23 Nov 2001 12:09:50 +0100
+	id <S282111AbRKWLVc>; Fri, 23 Nov 2001 06:21:32 -0500
+Received: from hal.astr.lu.lv ([195.13.134.67]:18048 "EHLO hal.astr.lu.lv")
+	by vger.kernel.org with ESMTP id <S282106AbRKWLVS>;
+	Fri, 23 Nov 2001 06:21:18 -0500
+Message-Id: <200111231121.fANBLEi00909@hal.astr.lu.lv>
+Content-Type: text/plain; charset=US-ASCII
+From: Andris Pavenis <pavenis@latnet.lv>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.15 compile problem on PPC
-Message-ID: <20011123120950.A27067@boo.taktile.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
-From: matthieu foillard <matthieu@taktile.com>
+Subject: [PATCH] 2.4.15: fix for i810_audio problems under KDE
+Date: Fri, 23 Nov 2001 13:21:14 +0200
+X-Mailer: KMail [version 1.3.2]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-do you know what's wrong with this ?
-thanks.
+i810_audio doesn't work under KDE for 2.4.15 (realy already for a rather 
+long time). I'm only getting garbled sound unless i810_audio.c is patched. 
+Perhaps the reason is use of non blocked output by artsd.
 
-make[2]: Leaving directory `/usr/src/linux/arch/ppc/xmon'
-ld -T arch/ppc/vmlinux.lds -Ttext 0xc0000000 -Bstatic arch/ppc/kernel/head.o init/main.o init/version.o \
-  --start-group \
-  arch/ppc/kernel/kernel.o arch/ppc/mm/mm.o arch/ppc/lib/lib.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o arch/ppc/xmon/x.o \
-  drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/ide/idedriver.o drivers/cdrom/driver.o drivers/sound/sounddrivers.o drivers/pci/driver.o drivers/pcmcia/pcmcia.o drivers/net/wireless/wireless_net.o drivers/macintosh/macintosh.o drivers/video/video.o drivers/usb/usbdrv.o drivers/input/inputdrv.o \
-  net/network.o \
-  /usr/src/linux/lib/lib.a \
-  --end-group \
-  -o vmlinux
-  kernel/kernel.o: In function `show_task':
-  kernel/kernel.o(.text+0x17e0): undefined reference to `show_trace_task'
-  kernel/kernel.o(.text+0x17e0): relocation truncated to fit: R_PPC_REL24 show_trace_task
-  make[1]: *** [vmlinux] Erreur 1
+Included patch reverts one change between 2.4.6-ac1 and 2.4.6-ac2 and 
+also includes patch from Tobias Diedrich 
+( http://www.cs.helsinki.fi/linux/linux-kernel/2001-44/1023.html ).
+As far as I have tested it fixes all problems I have met with i810_audio.
+
+Andris
+
+--- i810_audio.c~1	Tue Nov 20 11:23:24 2001
++++ i810_audio.c	Tue Nov 20 13:08:05 2001
+@@ -1405,10 +1405,9 @@
+ 		if (dmabuf->count < 0) {
+ 			dmabuf->count = 0;
+ 		}
+-		cnt = dmabuf->dmasize - dmabuf->fragsize - dmabuf->count;
+-		// this is to make the copy_from_user simpler below
+-		if(cnt > (dmabuf->dmasize - swptr))
+-			cnt = dmabuf->dmasize - swptr;
++		cnt = dmabuf->dmasize - swptr;
++		if(cnt > (dmabuf->dmasize - dmabuf->count))
++			cnt = dmabuf->dmasize - dmabuf->count;
+ 		spin_unlock_irqrestore(&state->card->lock, flags);
+ 
+ #ifdef DEBUG2
+@@ -1419,16 +1418,13 @@
+ 		if (cnt <= 0) {
+ 			unsigned long tmo;
+ 			// There is data waiting to be played
++			i810_update_lvi(state,0);
+ 			if(!dmabuf->enable && dmabuf->count) {
+ 				/* force the starting incase SETTRIGGER has been used */
+ 				/* to stop it, otherwise this is a deadlock situation */
+ 				dmabuf->trigger |= PCM_ENABLE_OUTPUT;
+ 				start_dac(state);
+ 			}
+-			// Update the LVI pointer in case we have already
+-			// written data in this syscall and are just waiting
+-			// on the tail bit of data
+-			i810_update_lvi(state,0);
+ 			if (file->f_flags & O_NONBLOCK) {
+ 				if (!ret) ret = -EAGAIN;
+ 				goto ret;
+@@ -1860,7 +1856,7 @@
+ 		if(dmabuf->mapped)
+ 			abinfo.bytes = dmabuf->count;
+ 		else
+-			abinfo.bytes = dmabuf->dmasize - dmabuf->count;
++			abinfo.bytes = dmabuf->dmasize - dmabuf->fragsize - dmabuf->count;
+ 		abinfo.fragments = abinfo.bytes / dmabuf->userfragsize;
+ 		spin_unlock_irqrestore(&state->card->lock, flags);
+ #ifdef DEBUG
+
+

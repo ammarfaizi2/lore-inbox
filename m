@@ -1,39 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263079AbRE1P5r>; Mon, 28 May 2001 11:57:47 -0400
+	id <S263082AbRE1QEh>; Mon, 28 May 2001 12:04:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263080AbRE1P5h>; Mon, 28 May 2001 11:57:37 -0400
-Received: from thimm.dialup.fu-berlin.de ([160.45.217.207]:9735 "EHLO
-	pua.physik.fu-berlin.de") by vger.kernel.org with ESMTP
-	id <S263079AbRE1P5W>; Mon, 28 May 2001 11:57:22 -0400
-Date: Mon, 28 May 2001 17:57:12 +0200
-From: Axel Thimm <Axel.Thimm@physik.fu-berlin.de>
+	id <S263083AbRE1QE1>; Mon, 28 May 2001 12:04:27 -0400
+Received: from mx-02.carambole.com ([213.180.68.10]:36622 "HELO
+	mx-02.carambole.com") by vger.kernel.org with SMTP
+	id <S263082AbRE1QEP>; Mon, 28 May 2001 12:04:15 -0400
+Message-ID: <3B12769F.CAC4ED8F@opensource.se>
+Date: Mon, 28 May 2001 18:02:39 +0200
+From: Magnus Damm <damm@opensource.se>
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Status of ALi MAGiK 1 support in 2.4.?
-Message-ID: <20010528175712.B18955@pua.nirvana>
-Mime-Version: 1.0
+Subject: incorrect help for NETLINK in 2.2.19
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What is the status of the support for this chipset, found for example in an
-ASUS A7A266? Judging from
-             http://www.acerlabs.com/eng/support/faqlnx.htm
-one gets the impression that ALi is respectfully treating the Linux community.
+Hi all,
 
-Although VIA is the most popular chipset vendor, its reaction on the recently
-Southbridge 686 bugs (and even more recently the Northbridge bug with Athlon
-C) and the pirq routing problem in Linux rather disqualify it.
+I think I've found some incorrect helptexts in 2.2.19:
 
-So it seems that only AMD and ALi are left with Socket A chipsets (SiS 735 is
-yet to come). And the ALi MAGiK 1 has a good feature/cost ratio and is being
-reported as very stable (although perhaps not very fast).
+I've compared the netlink config options for 2.2.19 with 2.4.5.
 
-So having been burned in the recent past with VIAs KT133A/686B and Linux, I
-hope that I can get an ALi MAGiK 1 board and rest in peace ...
+1. CONFIG_NETLINK - Enabling netlink
 
-Thanks, Axel.
--- 
-Axel.Thimm@physik.fu-berlin.de
+   The help in 2.4.5 seems correct to me.
+   2.2.19 raves about nodes under /dev with major 36.  (BAD)
+
+
+2. CONFIG_RTNETLINK - Route messages over netlink.
+
+   2.4.5 seems good here too.
+   2.2.19 tells us to create a /dev/route node.        (BAD)
+
+
+3. CONFIG_NETLINK_DEV - Enable support for major 36 nodes.
+
+   2.4.5 says that this option enables major 36 nodes.
+   2.2.19 says nothing useful at all.                  (BAD)
+
+
+CONFIG_NETLINK_DEV enables major 36 char devices for both 2.2 
+and 2.4, right? 
+
+If that is true then I suggest that the 2.4.5-help for NETLINK
+is used for next 2.2-kernel.
+
+And - the help for CONFIG_RTNETLINK claims that data sent to the
+kernel is ignored. Is that really true?
+
+Tell me if you want a patch.
+
+Thanks /
+
+Magnus Damm
+
+
+http://opensource.se - open source in sweden

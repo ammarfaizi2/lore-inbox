@@ -1,62 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262780AbTHZRBf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 13:01:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262785AbTHZRBf
+	id S262665AbTHZQww (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 12:52:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262681AbTHZQww
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 13:01:35 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:29864 "EHLO
-	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
-	id S262780AbTHZRBc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 13:01:32 -0400
-Date: Tue, 26 Aug 2003 18:03:14 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Jaroslav Kysela <perex@suse.cz>
-cc: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Strange memory usage reporting
-In-Reply-To: <Pine.LNX.4.44.0308261550240.1958-100000@pnote.perex-int.cz>
-Message-ID: <Pine.LNX.4.44.0308261756570.1632-100000@localhost.localdomain>
+	Tue, 26 Aug 2003 12:52:52 -0400
+Received: from smtp2.brturbo.com ([200.199.201.158]:61068 "EHLO
+	smtp2.brturbo.com") by vger.kernel.org with ESMTP id S262665AbTHZQwu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 12:52:50 -0400
+Message-ID: <3F4B9055.5070708@PolesApart.wox.org>
+Date: Tue, 26 Aug 2003 13:52:37 -0300
+From: Alexandre Pereira Nunes <alex@PolesApart.wox.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030718
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Doubt: core not dumped when binary give up root privileges.
+References: <3F466E2A.8040905@PolesApart.wox.org> <1061913848.20910.55.camel@dhcp23.swansea.linux.org.uk>
+In-Reply-To: <1061913848.20910.55.camel@dhcp23.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Aug 2003, Jaroslav Kysela wrote:
-> 
-> Yes, it seems so. The do_no_page() function in mm/memory.c does accounting 
-> for reserved pages (++mm->rss), but in zap_pte_range() there is a check 
-> preventing increase the count of freed pages.
-> 
-> Here is a patch for VM gurus to review (for 2.4 kernel, but it should 
-> apply to 2.6 as well):
-> 
-> ===== mm/memory.c 1.57 vs edited =====
-> --- 1.57/mm/memory.c	Fri Jun 13 18:26:23 2003
-> +++ edited/mm/memory.c	Tue Aug 26 15:33:28 2003
-> @@ -1306,7 +1306,8 @@
->  	 */
->  	/* Only go through if we didn't race with anybody else... */
->  	if (pte_none(*page_table)) {
-> -		++mm->rss;
-> +		if (!PageReserved(new_page))
-> +			++mm->rss;
->  		flush_page_to_ram(new_page);
->  		flush_icache_page(vma, new_page);
->  		entry = mk_pte(new_page, vma->vm_page_prot);
+Alan Cox wrote:
 
-You're right (but please rediff against 2.4.22 when you send Marcelo).
+>On Gwe, 2003-08-22 at 20:25, Alexandre Pereira Nunes wrote:
+>  
+>
+>>The program explicitly sets RLIMIT_CORE to RLIM_INFINITY when still 
+>>running with uid 0.
+>>    
+>>
+>
+>The kernel assumes a core image from something that was priviledged may
+>be unsafe.
+>  
+>
+That makes sense... By that time, I took a look at the sources and found 
+the prctl syscall, and with a little tweaking it was possible to do what 
+I wish (keep reading)...
 
-You may wonder how this has taken so long to show up: because usually
-drivers which mmap Reserved pages use remap_page_range on them,
-and so never fault to do_no_page.
+>  
+>
+>>If instead of calling the program as root, I call it from the non-priv 
+>>uid in question, if it crashes, it dumps core on the mentioned dir. 
+>>That's the desired behaviour, since I can then take the core and debug. 
+>>But if I run it as root (in fact, I would have to), and it crashes (or 
+>>is forced to ,by means of kill -SEGV), after it gives up root 
+>>credentials, it won't leave a core dump file, which in turn means I 
+>>cannot debug it later.
+>>
+>>Any ideas?
+>>    
+>>
+>
+>2.4-ac has support for enabling setuid core dumps and setting the dump
+>path, so you can write such dumps to /root/dumps and the kernel will
+>make them root accessible only.
+>
+>The 2.6 test tree and Marcelo 2.4 don't currently support this
+>
+>  
+>
 
-Which is the driver involved?  Though it's not wrong to give do_no_page
-a Reserved page, beware of the the page->count accounting: while it's
-Reserved, get_page or page_cache_get raises the count, but put_page
-or page_cache_release does not decrement it - very easy to end up
-with the page never freed.
+That's an interesting feature and is almost exactly what I needed: I 
+wrote a daemon, which is started by root at boot time. In some point at 
+startup, it chroot to an application-specific directory and gives up 
+privileges. If it would dump core, it had to be on that directory, which 
+has somewhat restrict permissions, so that I (and only I) can get it 
+later for further analysis. By means of chroot + prctl it was possible 
+to achieve this, but it would be simpler with this approach of yours, 
+which could also help in debugging in case something else crashes. I'm 
+inclined to adopting it, even though the daemon will ship to run on 
+third-parties machines, and I'll have no much control of what kernel is 
+running there (probably distribution default ones). I'll see what is 
+possible here... Thank you!
 
-Hugh
+Alexandre
 

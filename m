@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264588AbTK0Sz7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 13:55:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264591AbTK0Sz7
+	id S264593AbTK0S4Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 13:56:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264595AbTK0S4Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 13:55:59 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:6290 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S264588AbTK0Sz6 (ORCPT
+	Thu, 27 Nov 2003 13:56:16 -0500
+Received: from bolt.sonic.net ([208.201.242.18]:51878 "EHLO bolt.sonic.net")
+	by vger.kernel.org with ESMTP id S264593AbTK0S4N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Nov 2003 13:55:58 -0500
-Message-ID: <3FC648B1.1090607@colorfullife.com>
-Date: Thu, 27 Nov 2003 19:55:45 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: pinotj@club-internet.fr
-CC: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [Oops]  i386 mm/slab.c (cache_flusharray)
-References: <mnet1.1069958559.15912.pinotj@club-internet.fr>
-In-Reply-To: <mnet1.1069958559.15912.pinotj@club-internet.fr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 27 Nov 2003 13:56:13 -0500
+Date: Thu, 27 Nov 2003 10:56:12 -0800
+From: David Hinds <dhinds@sonic.net>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] Ricoh Cardbus -> Can't get interrupts
+Message-ID: <20031127105612.B28106@sonic.net>
+References: <Pine.LNX.4.58.0311241845200.1599@home.osdl.org> <Pine.LNX.4.44.0311241906500.1986-100000@bigblue.dev.mdolabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0311241906500.1986-100000@bigblue.dev.mdolabs.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-pinotj@club-internet.fr wrote:
+On Mon, Nov 24, 2003 at 07:08:26PM -0800, Davide Libenzi wrote:
+> 
+> I didn't want to post this because I was ashamed of the fix, but w/out 
+> this my orinoco cardbus gets an interrupt one every ten boots. This is 
+> against 2.4.20 ...
+> 
+> - Davide
 
->Thanks for your explanation.
->Should I try with L1 and/or L2 cache disable on my computer (I don't know if it's safe) ?
->I trust my hardware but it's better to get some facts.
->
-No, it wouldn't help. Something in the kernel randomly corrupts memory. 
-I'm certain that it's not slab. I'm also fairly certain that it's not 
-the hardware - IBM guys reproduced corruptions on both ppc64 and i386 
-systems (bugzilla 1097 and 1497). The corrupted object is the slab 
-structure or the bufctl entries - data near the beginning of a page. But 
-I have no idea how to pinpoint it.
+Your patch seems to do two things:
 
---
-    Manfred
+First, it automatically falls back on using a socket's PCI interrupt
+if its ISA interrupts are not available.  That part seems ok.
 
+But, it also falls back on sharing an interrupt if a driver requested
+an exclusive interrupt and that was not available.  This part is not
+ok.  The original code will share a PCI interrupt automatically, but
+will not share an ISA interrupt except under certain circumstances
+(for multifunction cards or when the driver specifically requests it).
+Sharing ISA interrupts is unsafe and should never be done blindly.
+
+-- Dave

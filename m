@@ -1,76 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261403AbTIYRWG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 13:22:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbTIYRVO
+	id S261735AbTIYRpo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 13:45:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261726AbTIYRoF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 13:21:14 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:38995 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261346AbTIYRRw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 13:17:52 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: andrea@kernel.org, Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Matthew Wilcox <willy@debian.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       Larry McVoy <lm@bitmover.com>
-Subject: Re: log-buf-len dynamic
-References: <Pine.LNX.4.44.0309231924540.27467-100000@home.osdl.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 25 Sep 2003 11:15:33 -0600
-In-Reply-To: <Pine.LNX.4.44.0309231924540.27467-100000@home.osdl.org>
-Message-ID: <m1n0csiybu.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Thu, 25 Sep 2003 13:44:05 -0400
+Received: from fmr09.intel.com ([192.52.57.35]:2244 "EHLO hermes.hd.intel.com")
+	by vger.kernel.org with ESMTP id S261718AbTIYRnt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 13:43:49 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Shmulik Hen <shmulik.hen@intel.com>
+Reply-To: shmulik.hen@intel.com
+Organization: Intel corp.
+To: Jay Vosburgh <fubar@us.ibm.com>
+Subject: Re: [Bonding-announce] [PATCH SET][bonding] cleanup
+Date: Thu, 25 Sep 2003 20:43:40 +0300
+User-Agent: KMail/1.4.3
+Cc: "Chad N. Tindel" <chad@tindel.net>, bonding-devel@lists.sourceforge.net,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
+       "Noam, Amir" <amir.noam@intel.com>,
+       "Mendelson, Tsippy" <tsippy.mendelson@intel.com>,
+       "Noam, Marom" <noam.marom@intel.com>
+References: <200309251733.h8PHXWpV013559@death.ibm.com>
+In-Reply-To: <200309251733.h8PHXWpV013559@death.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200309252043.40608.shmulik.hen@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> writes:
+On Thursday 25 September 2003 08:33 pm, Jay Vosburgh wrote:
+>
+> 	Separately, recent ifenslaves have compatibility code within
+> them to cover the great "ifenslave calling sequence change" from
+> April or so.  As much as I love the sleek new slimmed down
+> ifenslave, I'm not absolutely sure we can nuke that compatibility
+> stuff within ifenslave.  I really, really wanna, but I'm not sure
+> if it will cause problems for end users.  This is the upgrade
+> scenario that prompted the creation of the whole "ABI version" and
+> compat stuff in the first place; if we don't have to worry about
+> that, then the simpler ifenslave can be used, and I think the
+> ethtool ABI version hack can go away (since we wouldn't need an ABI
+> version if there's only one).
+>
+> 	Comments?
+>
 
-> On Wed, 24 Sep 2003 andrea@kernel.org wrote:
-> > 
-> > It's because I grow up that I can actually better understand the deals
-> > it's in my own (again speaking only for myself and not for anybody else)
-> > interest to avoid.
-> 
-> You've claimed this now twice. 
-> 
-> However, that only explains why you don't use BitKeeper. And everybody
-> accepts that. When I started to use BK, I made it _very_ clear that
-> service for non-BK users will be _at_least_ as good as it ever was before
-> I started using BK.
+I think I better leave this for Amir to answer. He's our ABI expert 
+and this needs carefull consideration, especially now that he's 
+working on enhancing ifenslave's capabilities for the hot operation 
+stuff. However, he won't be able to do that before Monday since we're 
+going out on a long weekend - it's holiday season over here.
 
-And for the core kernel development this is true.  There are subprojects
-that are currently using BK that you can't even get the code without
-BK.  And the only reason they are using BK is they are attempting to
-following how Linux is managed.  So having the Linux kernel
-development use BK does have some down sides.
+-- 
+| Shmulik Hen   Advanced Network Services  |
+| Israel Design Center, Jerusalem          |
+| LAN Access Division, Platform Networking |
+| Intel Communications Group, Intel corp.  |
 
-In addition there are some major gains to be had in standardizing on a
-distributed version control system that everyone can use, and
-unfortunately BK does not fill that position.  So I think it is good
-that there is enough general discontent it the air that people
-continue to look for alternatives. 
-
-The current situation with version control is painful.  CVS branches
-poorly and is not distributed.  SVN is not distributed.  ARCH is
-barely distributed and architecturally it makes distributed merging
-hard.  BK requires open logging which makes it unsuitable for working
-on prerelease hardware.  BK does not scale to the low end because
-to use it successfully you need to make non-BK releases which is
-an extra burden.  Unless I missed something big all of the BK->foo
-gateways are specific to a few source trees.  And of course BK won't
-let you hack on a replacement.
-
-I don't think the flame wars should stop.  The current situation is
-not half as good as it could be.  And discussion is needed to get us
-there.  Even pure flames which accomplish nothing technical accomplish
-something socially by reminding people that there is the potential to
-do much better, and that the current situation is painful. 
-
-It is clearly not a solution to simply drop BK, that is even more
-painful.  To reduce the pain will take a combination of frustration,
-time, talent, and a bit of luck that has not happened yet.
-
-Eric

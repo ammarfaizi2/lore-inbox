@@ -1,58 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261850AbTJANPG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 09:15:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbTJANPG
+	id S262081AbTJANId (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 09:08:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262101AbTJANIc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 09:15:06 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57227 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261850AbTJANPA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 09:15:00 -0400
-Date: Wed, 1 Oct 2003 14:14:57 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Al Smith <Al.Smith@aeschi.ch.eu.org>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: include/linux/efs_fs.h declares a symbol
-Message-ID: <20031001131456.GR7665@parcelfarce.linux.theplanet.co.uk>
-References: <20031001121643.GD31698@wohnheim.fh-wedel.de>
+	Wed, 1 Oct 2003 09:08:32 -0400
+Received: from main.gmane.org ([80.91.224.249]:38565 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262081AbTJANIb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 09:08:31 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: File Permissions are incorrect. Security flaw in Linux
+Date: Wed, 01 Oct 2003 15:08:28 +0200
+Message-ID: <yw1x65j9m7g3.fsf@users.sourceforge.net>
+References: <1065012013.4078.2.camel@lisaserver>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031001121643.GD31698@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:ODE6IkMp2tX6/Zed4u07XK0f0is=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Al Viro: There is no maintainer for efs in the kernel MAINTAINERS
-> file.  Is this filesystem orphaned?
+"Lisa R. Nelson" <lisanels@cableone.net> writes:
 
-Beats me.  As far as I can see, all updates to it were 3rd-party.  It's
-either abandoned, or never required specific patches too badly (also
-quite possible in this case).
+> [1.] One line summary of the problem:    
+> A low level user can delete a file owned by root and belonging to group
+> root even if the files permissions are 744.  This is not in agreement
+> with Unix, and is a major security issue.
+>
+> [2.] Full description of the problem/report: 
+>     Permissions on a file basis take precedence over directory
+> permissions (for most cases), but in Linux they do not.  In order to
+> secure a file, you have to secure the directory which effects all files
+> within it.  
+>     As user 'lisa', I do all my work on my server.  One task is to move
+> pictures from my digital camera to my server picture directory that is
+> wide open to everyone.  All users can create sub-folders and put
+> pictures in there.  But every hour I have a cron job run that changes
+> the ownership to root, and sets the permissions to 644 on all files in
+> that directory structure.  Thinking the files could no longer be altered
+> by anyone but root (as would be the case in unix), and found anyone
+> could delete them.  That's when I discovered this major bug.
 
-It went into the tree in 2.3.2 and from there to 2.6.0-test6 I see nothing
-that would look like maintainer's update.  OTOH, it's read-only and shouldn't
-be too badly broken (or hard to keep alive).
+This is not a bug.  Deleting a file is in effect a modification to the
+directory containing the file, not to the file itself.  If the file
+has a hard link in another directory, it will still remain there,
+unmodified.  If you want only the owner of a file to be able to delete
+it, set the sticky bit on the directory containing it, like this:
 
-Outside of trunk (i.e. in 2.4.16--) we have a backport of global 2.5 change
-(sb_bread()) and check for set_blocksize() failures (from Alan).  BTW, the
-latter patch is missing in 2.5.  Its equivalent would be
+chmod 1777 /the/dir
 
---- B6/fs/efs/super.c	Mon Jun 23 07:23:09 2003
-+++ B6-efs/fs/efs/super.c	Wed Oct  1 08:58:35 2003
-@@ -218,7 +218,11 @@
- 	memset(sb, 0, sizeof(struct efs_sb_info));
-  
- 	s->s_magic		= EFS_SUPER_MAGIC;
--	sb_set_blocksize(s, EFS_BLOCKSIZE);
-+	if (!sb_set_blocksize(s, EFS_BLOCKSIZE)) {
-+		printk(KERN_ERR "EFS: device does not support %d byte blocks\n",
-+			EFS_BLOCKSIZE);
-+		goto out_no_fs_ul;
-+	}
-   
- 	/* read the vh (volume header) block */
- 	bh = sb_bread(s, 0);
+This is commonly used on /tmp.  It is also the all Unix systems I've
+been using work.
+
+-- 
+Måns Rullgård
+mru@users.sf.net
 

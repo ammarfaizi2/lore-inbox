@@ -1,52 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261513AbUK1W5o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261589AbUK1XAy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261513AbUK1W5o (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 17:57:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261386AbUK1W5o
+	id S261589AbUK1XAy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 18:00:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261593AbUK1XAy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 17:57:44 -0500
-Received: from web51909.mail.yahoo.com ([206.190.39.52]:3416 "HELO
-	web51909.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261513AbUK1W51 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 17:57:27 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=Q1qS802JeRHqJNXc3cOGs5DthmSPyUKaw2AALQpeA2s0ib2irM1Z/BKgOBWBUxCYDX/ArQ91U0FXN2ujahXYtRXlfcqmUeV3fn0KJsVHeUbwVAiRgqEju0q2ZE6DFpti+nRcAGOt+CDKWMYm8S/cmORmqBs9oDIQ0PClN7QbFj0=  ;
-Message-ID: <20041128225720.99389.qmail@web51909.mail.yahoo.com>
-Date: Sun, 28 Nov 2004 14:57:20 -0800 (PST)
-From: A M <alim1993@yahoo.com>
-Subject: Accessing a process structure in the processes link list
-To: linux-kernel@vger.kernel.org, linux-assembly@vger.kernel.org,
-       linux-c-programming@vger.kernel.org
-MIME-Version: 1.0
+	Sun, 28 Nov 2004 18:00:54 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:7441 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261589AbUK1XAo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Nov 2004 18:00:44 -0500
+Date: Mon, 29 Nov 2004 00:00:43 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Rusty Russell <rusty@rustcorp.com.au>, David Howells <dhowells@redhat.com>
+Cc: vlobanov <vlobanov@speakeasy.net>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, lethal@linux-sh.org,
+       kkojima@rr.iij4u.or.jp
+Subject: Re: EXPORT_SYMBOL_NOVERS question
+Message-ID: <20041128230043.GH4390@stusta.de>
+References: <Pine.LNX.4.58.0411030007220.22814@shell2.speakeasy.net> <1101681740.25347.21.camel@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1101681740.25347.21.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Would it be possible for a program running as root
-that wasn't compiled with the kernel to access a
-process structure in the processes link list? 
+On Mon, Nov 29, 2004 at 09:42:20AM +1100, Rusty Russell wrote:
+> On Wed, 2004-11-03 at 00:10 -0800, vlobanov wrote:
+> > Hi,
+> > 
+> > I was looking over the /include/linux/module.h file, and the
+> > EXPORT_SYMBOL_NOVERS macro caught my eye. To quote the source:
+> > 
+> >   /* We don't mangle the actual symbol anymore, so no need for
+> >    * special casing EXPORT_SYMBOL_NOVERS.  FIXME: Deprecated */
+> >   #define EXPORT_SYMBOL_NOVERS(sym) EXPORT_SYMBOL(sym)
+> > 
+> > A quick grep through the tree brought up no usage cases for this macro.
+> > Is there any reason to keep it around, instead of cutting it out, as the
+> > FIXME comment seems to suggest?
+> 
+> Yep, it's time.
+> 
+> Rusty.
+> 
+> Name: Remove EXPORT_SYMBOL_NOVERS
+> Status: Trivial
+> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+> 
+> Vadim Lobanov points out that EXPORT_SYMBOL_NOVERS is no longer used;
+> in fact, SH still uses it, but once we fix that, the kernel is clean.
+> Remove it.
+>...
 
-I've read an article about hiding processes and the
-article made sound so easy to access the link list and
-hide a process, how easy is it? 
+Thaat's true for Linus' tree, but not for -mm.
 
-Is it possible to a process to access its own entry in
-the processes link list?
+@David:
+arch/frv/kernel/frv_ksyms.c has to be changed.
 
+cu
+Adrian
 
-Thanks, 
+-- 
 
-Ali 
-
-
-
-
-		
-__________________________________ 
-Do you Yahoo!? 
-Meet the all-new My Yahoo! - Try it today! 
-http://my.yahoo.com 
- 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,24 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263628AbTFDRDA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 13:03:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263642AbTFDRDA
+	id S263610AbTFDRMU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 13:12:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263638AbTFDRMU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 13:03:00 -0400
-Received: from ds4.granbury.com ([205.162.53.20]:35343 "EHLO ds4.granbury.com")
-	by vger.kernel.org with ESMTP id S263628AbTFDRC5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 13:02:57 -0400
+	Wed, 4 Jun 2003 13:12:20 -0400
+Received: from ds4.granbury.com ([205.162.53.20]:36623 "EHLO ds4.granbury.com")
+	by vger.kernel.org with ESMTP id S263610AbTFDRMT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 13:12:19 -0400
 From: "Jeremy Salch" <salch@tblx.net>
 To: "'Stewart Smith'" <stewart@linux.org.au>
 Cc: <linux-kernel@vger.kernel.org>
 Subject: RE: Access past end of device
-Date: Wed, 4 Jun 2003 12:14:29 -0500
-Message-ID: <001f01c32abc$c2d47e70$9fdeae3f@TBLXM>
+Date: Wed, 4 Jun 2003 12:23:50 -0500
+Message-ID: <002001c32abe$10a18700$9fdeae3f@TBLXM>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
 X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
 X-Mailer: Microsoft Outlook, Build 10.0.4510
@@ -28,12 +28,10 @@ Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok I'll give that a try.  One other question.  If the partitiontable was bad
-wouldn't fdisk report a incorrect size for the partitions that are having
-the problems ?
+I did a fdisk on the device /dev/sda  and it found no bad blocks.  
 
-Also the system freezes when under a heavy load without giving any error
-output. What it does do is report something like 600000% idle time in top  
+I was given the suggestion from one person it sounds like a kernel bug since
+redhat patches their kernels soo much.
 
 
 -----Original Message-----

@@ -1,64 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264987AbUFALdF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264984AbUFALg4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264987AbUFALdF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 07:33:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264984AbUFALdE
+	id S264984AbUFALg4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 07:36:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264986AbUFALg4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 07:33:04 -0400
-Received: from gprs214-191.eurotel.cz ([160.218.214.191]:52609 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S264987AbUFALbX (ORCPT
+	Tue, 1 Jun 2004 07:36:56 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:36548 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S264984AbUFALge (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 07:31:23 -0400
-Date: Tue, 1 Jun 2004 13:31:13 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
-Cc: Giuseppe Bilotta <bilotta78@hotpop.com>, linux-kernel@vger.kernel.org
-Subject: Re: keyboard problem with 2.6.6
-Message-ID: <20040601113113.GA16312@elf.ucw.cz>
-References: <xb7aczqb2sv.fsf@savona.informatik.uni-freiburg.de>
+	Tue, 1 Jun 2004 07:36:34 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-rc2-mm1 
+In-reply-to: Your message of "Tue, 01 Jun 2004 04:26:16 MST."
+             <20040601112616.GN2093@holomorphy.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <xb7aczqb2sv.fsf@savona.informatik.uni-freiburg.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Date: Tue, 01 Jun 2004 21:36:22 +1000
+Message-ID: <21845.1086089782@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, 1 Jun 2004 04:26:16 -0700, 
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>On Tue, Jun 01, 2004 at 02:15:39AM -0700, Andrew Morton wrote:
+>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7-rc2/2.6.7-rc2-mm1/
+>> - NFS server udpates
+>> - md updates
+>> - big x86 dmi_scan.c cleanup
+>> - merged perfctr.  No documentation though :(
+>> - cris architecture update
+>
+>Hmm. task_cpu() on UP seems to be missing a const.
 
-> >>>>> "Giuseppe" == Giuseppe Bilotta <bilotta78@hotpop.com> writes:
-> 
->     Giuseppe> So, while we wait for complete support, at the kernel
->     Giuseppe> level, for all the multimedia keyboards supported by X,
->     Giuseppe> we *need* proper raw mode.
-> 
-> My question is: why do everything inside the kernel?
-> 
-> 
-> Even  'khttpd' has  been removed  from  the kernel,  because the  same
-> efficiency has been achieved in  the *userland* apache module.  Why is
-> the input layer moving _backwards_?
-> 
-> I  don't think  converting  between keyboard/mouse  protocols and  the
-> input   system's  "struct   input_event"  has   a   tighter  real-time
-> requirement  than a  heavily loaded  web  server.  How  many keys  per
-> second can  you type  at?  (Even  if you type  extremely fast  and the
-> hardware constraints  (velocity, etc.) are  not reached yet,  there is
-> still  a  limit that  the  keyboard  controller,  e.g.  i8042,  cannot
-> exceed.)  How  many mouse movements are  you making per  second?  Is a
-> userland driver unable  to handle that data rate?   (I don't think so.
-> I believe enve a 386-DX 33MHz  can handle it with ease.)  If not, then
-> please do it  in userland, so as not to waste  kernel memory (which is
-> *NON-swappable*).
+I must remember, not everybody runs SMP ...  My bad.
 
-It would be nice to have keyboard in kernel because that means
-keyboard works even on heavilly overloaded system, in case of oops
-etc. (Unfortunately steps back were already taken; console switching
-is no longer so robust w.r.t. kernel crashes :-( ).
-
-Are you able to provide accurate timestamps for input events from
-userland?
-								Pavel
--- 
-934a471f20d6580d5aad759bf0d97ddc

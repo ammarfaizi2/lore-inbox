@@ -1,50 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262385AbUKKV2P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262390AbUKKVaC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262385AbUKKV2P (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 16:28:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbUKKV2P
+	id S262390AbUKKVaC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 16:30:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262388AbUKKV3K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 16:28:15 -0500
-Received: from msgbas2x.cos.agilent.com ([192.25.240.37]:5613 "EHLO
-	msgbas2x.cos.agilent.com") by vger.kernel.org with ESMTP
-	id S262385AbUKKV2L convert rfc822-to-8bit (ORCPT
+	Thu, 11 Nov 2004 16:29:10 -0500
+Received: from wproxy.gmail.com ([64.233.184.207]:37850 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262386AbUKKV2j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 16:28:11 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
+	Thu, 11 Nov 2004 16:28:39 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=Ud9gaCV2/aPqVebKe/Au+qijQLqeCN432m6GIUxKfippTvFhttgH2yF1RSk98A90BKgNMco1f9MKgBudb3pvcPDOYKAPD/E2Aas9eEsMiOut3s2rhwotNIu7D8pdpC4ll3qyyLbOJ1W3UJci0t5ZBtd3vYHlfP2cv3NXgAmB750=
+Message-ID: <8874763604111113281b1cf9a5@mail.gmail.com>
+Date: Thu, 11 Nov 2004 16:28:35 -0500
+From: Anthony Samsung <anthony.samsung@gmail.com>
+Reply-To: Anthony Samsung <anthony.samsung@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: network interface to driver and pci slot mapping
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: module tool with 2.6.9 issue
-Date: Thu, 11 Nov 2004 14:27:52 -0700
-Message-ID: <08A354A3A9CCA24F9EE9BE13600CFBC50F85CE@wcosmb07.cos.agilent.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Sparse "context" checking..
-Thread-Index: AcTIJiDuaiXLq84HQqubxEnP3IlcIQADwyoA
-From: <yiding_wang@agilent.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 11 Nov 2004 21:27:51.0917 (UTC) FILETIME=[4CB811D0:01C4C835]
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am using moudle-init-tools-3.1-pre6 with kernel 2.6.9. The new insmod seems have restrictions which failed using parameters to load a driver module.
+Given an interface name (like eth0), how do I determine:
+The name of the driver (module) for this interface.
+The PCI address for this interface, if relevant.
 
-My module parameter is in the form of modname="*************** ****", a quite long one.
-Run - insmod modname.o modname="*********** *******" (with a script), it complains about the space and treats the string next to the space to be a "Unknown parameter".
+?
 
-By replacing the space with any character, then it complains 
-"modname: string parameter too long"
-
-Reducing the length of the parameter to less than 1k character works fine.
-
-Same long parameter string wit space in between works fine under 2.4.25 with original insmod.
-
-Questions:
-1, Is this a bug or new insmod has restrictions? 
-2, If it is restriction on special character such as space, or limitation on parameter length, then why and what is the limit? 
-3, If insmod has limitation, then what is better way to pass long parameter with some special character? 
-
-Thanks!
-
-Eddie
+I need something that works non-destructively on a live system, that
+isn't broken by nameif, and has a strong chance of producing a correct
+result. In particular, parsing syslog is out. There's no consistency
+in the format of messages and there's no guarantee the logs from
+bootup will still be around. And the interface may have been renamed
+since then.

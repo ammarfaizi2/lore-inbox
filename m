@@ -1,34 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287203AbSACMZb>; Thu, 3 Jan 2002 07:25:31 -0500
+	id <S287202AbSACMZv>; Thu, 3 Jan 2002 07:25:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287199AbSACMZV>; Thu, 3 Jan 2002 07:25:21 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:65284 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S287202AbSACMZL>; Thu, 3 Jan 2002 07:25:11 -0500
-Subject: Re: ISA slot detection on PCI systems?
-To: cs@zip.com.au
-Date: Thu, 3 Jan 2002 12:35:36 +0000 (GMT)
-Cc: Lionel.Bouton@free.fr (Lionel Bouton),
-        linux-kernel@vger.kernel.org (Linux Kernel List),
-        alan@lxorguk.ukuu.org.uk (Alan Cox), davej@suse.de (Dave Jones)
-In-Reply-To: <20020103144904.A644@zapff.research.canon.com.au> from "Cameron Simpson" at Jan 03, 2002 02:49:04 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S287199AbSACMZc>; Thu, 3 Jan 2002 07:25:32 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:2053 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S287202AbSACMZ1>; Thu, 3 Jan 2002 07:25:27 -0500
+Date: Thu, 3 Jan 2002 15:25:20 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
+        reiserfs-dev@namesys.com, viro@math.psu.edu
+Subject: Re: [PATCH] expanding truncate
+Message-ID: <20020103152520.A7030@namesys.com>
+In-Reply-To: <20020103102128.A2625@namesys.com> <E16M6wB-00089t-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16M75s-0008Bz-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <E16M6wB-00089t-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	  binary may have bugs, security holes, race conditions etc; it may be
-> 	  hacked post boot (no so easy to do to the live kernel image), etc
+Hello!
 
-Just like the kernel, only the binary is a little less dangerous. Hacking
-live kernel images is trivial also btw. There are tools for it.
+On Thu, Jan 03, 2002 at 12:25:34PM +0000, Alan Cox wrote:
+> >     This patch makes sure that indirect pointers for holes are correctly filled in by zeroes at
+> >     hole-creation time. (Author is Chris Mason. fs/buffer.c part (generic_cont_expand) were written by
+> >     Alexander Viro)
+> Why is that even needed. If you truncate a file larger it doesn't need to
+> fill in the datablocks until they are touched surely
+Purpose of this patch is of course not to fill in the datablocks with zeroes.
+The purpose (as applied to reiserfs) is to fill indirect data pointers (that is - pointers to real data blocks)
+with zeroes (and to organize proper in-tree data structure for such pointers).
+As of now such organization and zero-filling is done on a lazy manner at disk-flushing time.
+Unfortunatelly this leads to races in the code.
+I do not know why parts of this code can be needed by other filesystem and why Al Viro put it in generic VFS
+code. (but he can comment on it, I think)
 
-> Further, binaries which grovel in /dev/kmem tend to have to be kept in sync
-> with the kernel; in-kernel code is fundamentally in sync.
-
-Disagree. Its reading BIOS tables not poking at kernel internals
+Bye,
+    Oleg

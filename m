@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263224AbTJVAkV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 20:40:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263256AbTJVAkU
+	id S263269AbTJVBCi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 21:02:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263277AbTJVBCe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 20:40:20 -0400
-Received: from mail-04.iinet.net.au ([203.59.3.36]:11244 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S263224AbTJVAkS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 20:40:18 -0400
-Message-ID: <3F95D1F2.1080304@cyberone.com.au>
-Date: Wed, 22 Oct 2003 10:40:18 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Lars Marowsky-Bree <lmb@suse.de>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] must fix lists
-References: <3F94C833.8040204@cyberone.com.au> <20031021093601.GH26189@marowsky-bree.de>
-In-Reply-To: <20031021093601.GH26189@marowsky-bree.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Oct 2003 21:02:34 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:54174
+	"EHLO velociraptor.random") by vger.kernel.org with ESMTP
+	id S263269AbTJVBCd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 21:02:33 -0400
+Date: Wed, 22 Oct 2003 03:03:10 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Strange dcache memory pressure when highmem enabled
+Message-ID: <20031022010310.GD12013@velociraptor.random>
+References: <16268.52761.907998.436272@notabene.cse.unsw.edu.au> <20031014224352.0171e971.akpm@osdl.org> <20031016133304.GC1348@velociraptor.random> <16277.47600.3243.275778@notabene.cse.unsw.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16277.47600.3243.275778@notabene.cse.unsw.edu.au>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Oct 22, 2003 at 08:57:52AM +1000, Neil Brown wrote:
+> I didn't end up trying Andrew's patch, but tried 2.4.23-pre7 instead.
+> It appears to be doing the right thing.
+> Free Highmem (grep HighFree /proc/meminfo) steadily dropped from 3Gig
+> to about 2-3 Meg and stayed there.
+> The dentry cache (grep dentry_cache /proc/slabinfo) climbed up to
+> about 500,000 and stayed there for 24 hours - much better than before
+> where it would often be only a few thousand and we had complaints every
+> night when the backups ran.
 
+sounds good. And unless I misread something Andrew's patch shrinking
+lowmem only for highmem allocation definitely looks wrong and it would
+be DoSable as well.
 
-Lars Marowsky-Bree wrote:
+As for 2.4 mainline there's some bit of refill_inactive still not fully
+classzone aware, it's the half merge bit mentioned earlier on the list
+that also introduced a typo kind of bug. My tree is fully aware instead
+to avoid falling apart on the 32G boxes in production. Those secondary
+bits in refill_inactive should be merged in mainline too over time.
 
->On 2003-10-21T15:46:27,
->   Nick Piggin <piggin@cyberone.com.au> said:
->
->The multipath module will be (outcome of KS) implemented as a
->device-mapper personality, which Sistina / Joe are developing. So,
->luckily, I'm sort of out of the loop of the "must fix" list, but I'll
->hopefully have some of the issues on my "will fix" list anyway ;-)
->
+Anyways for a 1G machine (or maybe with 2G too), those bits could hardly
+make any difference, I assume your highmem/lowmem ratio isn't too high.
 
-OK so that means it can go in any time really, right? So it can
-be removed from the list. Thanks.
+thanks,
 
+Andrea - If you prefer relying on open source software, check these links:
+	    rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.[45]/
+	    http://www.cobite.com/cvsps/

@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279981AbRKIQot>; Fri, 9 Nov 2001 11:44:49 -0500
+	id <S279984AbRKIQ5b>; Fri, 9 Nov 2001 11:57:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279983AbRKIQoj>; Fri, 9 Nov 2001 11:44:39 -0500
-Received: from sweetums.bluetronic.net ([66.57.88.6]:3505 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id <S279981AbRKIQob>; Fri, 9 Nov 2001 11:44:31 -0500
-Date: Fri, 9 Nov 2001 11:44:28 -0500 (EST)
-From: Ricky Beam <jfbeam@bluetopia.net>
-X-X-Sender: <jfbeam@sweetums.bluetronic.net>
-To: Remco Post <r.post@sara.nl>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Yet another design for /proc. Or actually /kernel. 
-In-Reply-To: <200111081000.LAA00436@zhadum.sara.nl>
-Message-ID: <Pine.GSO.4.33.0111091139580.17287-100000@sweetums.bluetronic.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S279987AbRKIQ5V>; Fri, 9 Nov 2001 11:57:21 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:385 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S279984AbRKIQ5O>; Fri, 9 Nov 2001 11:57:14 -0500
+Date: Fri, 9 Nov 2001 09:56:54 -0700
+Message-Id: <200111091656.fA9GusD06947@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Xavier Bestel <xavier.bestel@free.fr>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Andre Hedrick <andre@linux-ide.org>
+Subject: Re: Lockup in IDE code
+In-Reply-To: <1005299137.13841.27.camel@nomade>
+In-Reply-To: <200111090217.fA92HYh00521@vindaloo.ras.ucalgary.ca>
+	<1005299137.13841.27.camel@nomade>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->the discussion is irrelevant. Despite what everybody thinks, Linus thinks
->/proc must be not binary, so it will stay that way for those of us who run
->Linus kernels...
+GXavier Bestel writes:
+> le ven 09-11-2001 à 03:17, Richard Gooch a écrit :
+> >   Hi, all. I tried to use my IDE CD-ROM today, the first time in a
+> > long while. When attempting to mount it, the machine locked up,
+> > hard. Even SysReq didn't work.
+> 
+> Do you have a read error on your CD ?
 
-Linus has been "wrong" before.  It will require good code and numbers
-backing that codes "goodness" before Linus will begin to listen.  Yes,
-a new procfs format will break a great deal of userland toys, so the
-changes had better be worth it and sufficient to never, EVER require
-a complete overhaul in the future.
+No. I did mention that when I turned off DMA, it worked fine.
 
->I can inmagine people like Alan ignoring this discussion after such a
->statement, the outcome of the discussion is irrelevant for the kernel
->development.
+BTW: I've gotten a few "helpful" responses saying "try using hdparm to
+turn off DMA". Well, those people obviously hadn't bothered reading
+all my message, because I stated that when I disabled DMA with hdparm,
+it worked fine.
+</grumble>
 
-I think Alan is already ignoring the entire discussion.
+				Regards,
 
---Ricky
-
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

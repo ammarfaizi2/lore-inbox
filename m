@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318779AbSHRAZ4>; Sat, 17 Aug 2002 20:25:56 -0400
+	id <S319842AbSHRAsZ>; Sat, 17 Aug 2002 20:48:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318780AbSHRAZ4>; Sat, 17 Aug 2002 20:25:56 -0400
-Received: from 209-221-203-149.dsl.qnet.com ([209.221.203.149]:54024 "HELO
-	divino.rinspin.com") by vger.kernel.org with SMTP
-	id <S318779AbSHRAZz>; Sat, 17 Aug 2002 20:25:55 -0400
-Subject: Re: IDE?  IDE-TNG driver
-From: Scott Bronson <bronson@rinspin.com>
-To: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0208172353330.3111-100000@sharra.ivimey.org>
-References: <Pine.LNX.4.44.0208172353330.3111-100000@sharra.ivimey.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 17 Aug 2002 17:28:38 -0700
-Message-Id: <1029630519.1541.11.camel@emma>
+	id <S319844AbSHRAsY>; Sat, 17 Aug 2002 20:48:24 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:44551 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S319840AbSHRAsX>; Sat, 17 Aug 2002 20:48:23 -0400
+Date: Sun, 18 Aug 2002 01:52:18 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Alexander Viro <viro@math.psu.edu>, Larry McVoy <lm@bitmover.com>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: IDE?
+Message-ID: <20020818015218.A20958@flint.arm.linux.org.uk>
+References: <Pine.GSO.4.21.0208162057550.14493-100000@weyl.math.psu.edu> <Pine.LNX.4.44.0208161822130.1674-100000@home.transmeta.com> <20020817092239.A2211@flint.arm.linux.org.uk> <20020817235942.A11420@ucw.cz>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020817235942.A11420@ucw.cz>; from vojtech@suse.cz on Sat, Aug 17, 2002 at 11:59:42PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-08-17 at 15:57, Ruth Ivimey-Cook wrote:
->  a) some people want basically module-less kernels
+On Sat, Aug 17, 2002 at 11:59:42PM +0200, Vojtech Pavlik wrote:
+> We'll need PIO for control commands anyways, but the thing is that we
+> won't need to speed optimize PIO and will be able to kill multi-sector
+> PIO completely probably.
 
-Everyone I've heard advocating a moduleless kernel uses an argument that
-boils down to "it's slightly more secure."  Does anybody have a GOOD
-reason for not using modules?  Obsolete or embedded hardware arguments
-don't count.
+Well, I'll probably be maintaining multi-sector PIO externally to the
+main kernel in that case.  95% of ARM machines have either PIO only or
+in the case of those that do have PCI DMA support (netwinders) the
+southbridge is soo messed up that DMA is useless on most boxes produced.
 
+Multi-sector PIO is a fundamental requirement that I require.
 
->  b) in some environments, you need to be able to select the IO mechanism 
->     without the ability to select the module to load.
-
-If that's the case, won't a kernel parameter suffice?  Can you
-elaborate?
-
-    - Scott
-
-
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

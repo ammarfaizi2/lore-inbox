@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264724AbSLLPMp>; Thu, 12 Dec 2002 10:12:45 -0500
+	id <S264706AbSLLPRM>; Thu, 12 Dec 2002 10:17:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264730AbSLLPMo>; Thu, 12 Dec 2002 10:12:44 -0500
-Received: from mail.dyna-drill.com ([63.237.98.21]:62732 "HELO
-	whhouowa.whes.com") by vger.kernel.org with SMTP id <S264724AbSLLPMo> convert rfc822-to-8bit;
-	Thu, 12 Dec 2002 10:12:44 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.4712.0
-content-class: urn:content-classes:message
+	id <S264730AbSLLPRM>; Thu, 12 Dec 2002 10:17:12 -0500
+Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:43905 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S264706AbSLLPRL>; Thu, 12 Dec 2002 10:17:11 -0500
+Message-ID: <3DF95416.7010107@ToughGuy.net>
+Date: Fri, 13 Dec 2002 08:59:26 +0530
+From: Bourne <bourne@ToughGuy.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RH 8.0 vs. RH7.3 driver issues
-Date: Thu, 12 Dec 2002 09:12:47 -0600
-Message-ID: <6E921763A81C3A47AAC790EEF69751C021AF88@pfhouex1.whes.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: RH 8.0 vs. RH7.3 driver issues
-Thread-Index: AcKh8hfczmncRQ3gEdeQzACQJ3QCdg==
-From: "Harlan Jillson" <Harlan.Jillson@pathfinderlwd.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 12 Dec 2002 15:19:48.0830 (UTC) FILETIME=[E90367E0:01C2A1F1]
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.19 ( try_to_swap_out) does not set page->mapping to NULL
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all,
-  I just subscribed to the list, and am looking for some suggestions.
-  I have a device driver for a RS485 card that does microlan
-communications between several devices.  The driver was written a couple
-of years ago using the 2.2 kernel in RH 6.1.  It's was updated for 2.4
-kernel when RH7.3 was released and has been working fine.  RH8.0 is
-apparently a different story, as there appears to be problems with
-scheduled timeouts (polling intervals) and maybe some interrupt issues.
-My question is are there any known problems ( RH kernel 2.4.18-3)?  I
-know I'm dealing the revamps in the scheduler and timer areas and then
-there's the shift from gcc 2.96 to 3.2.  
-Thanks for any suggestions,
-Harlan
+Hi all, A small piece of code in mm/vmscan.c kept me confused. Please 
+could some one explain this ?
+
+File: mm/vmscan.c , try_to_swap_out()
+
+....SNIP....
+drop_pte: mm->rss--
+                UnlockPage(page);
+                ---SNIP--
+                page_cache_release(page);
+                return freeable;
+                ----SNIP----
+if(page->mapping)
+    goto drop_pte;
+
+What i can get is if page->mapping is NOT NULL , then do a 
+page_cache_release(). This boils down to __free_pages_ok(). Here the 
+code snippet is if(page->mapping) BUG();
+
+So if try_to_swap_out wants to drop a page which can be brought in 
+always ( i.e , not dirty ), then what is the harm in setting it to NULL ?
+
+TIA
+
+Bourne
+

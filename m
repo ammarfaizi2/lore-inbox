@@ -1,34 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318986AbSHSTHL>; Mon, 19 Aug 2002 15:07:11 -0400
+	id <S318988AbSHSTKS>; Mon, 19 Aug 2002 15:10:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318987AbSHSTHL>; Mon, 19 Aug 2002 15:07:11 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11787 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318986AbSHSTHL>; Mon, 19 Aug 2002 15:07:11 -0400
-Date: Mon, 19 Aug 2002 12:10:55 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Dave McCracken <dmccr@us.ibm.com>, <linux-kernel@vger.kernel.org>
+	id <S318989AbSHSTKS>; Mon, 19 Aug 2002 15:10:18 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:33472 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S318988AbSHSTKS>;
+	Mon, 19 Aug 2002 15:10:18 -0400
+Date: Mon, 19 Aug 2002 21:15:31 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: george anzinger <george@mvista.com>
+Cc: Dave McCracken <dmccr@us.ibm.com>, Linus Torvalds <torvalds@transmeta.com>,
+       <linux-kernel@vger.kernel.org>
 Subject: Re: [patch] O(1) sys_exit(), threading, scalable-exit-2.5.31-A6
-In-Reply-To: <Pine.LNX.4.44.0208192034260.30906-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.31.0208191210040.6752-100000@torvalds-p95.transmeta.com>
+In-Reply-To: <3D613F20.9E5E3B84@mvista.com>
+Message-ID: <Pine.LNX.4.44.0208192115001.31716-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Mon, 19 Aug 2002, george anzinger wrote:
 
-On Mon, 19 Aug 2002, Ingo Molnar wrote:
->
-> well, this means that we'd still have to iterate through both lists in
-> wait4(), and we'd have to maintain the ptrace list(s) in all the relevant
-> codepaths - does this buy us anything relative to -B4?
+> The current way its done, a child can not get the pid of its father and
+> thus would NEED to know it was being traced in order to do anything that
+> required such. [...]
 
-Ok, you've convinced me. The reparenting is fairly ugly, but it sounds
-like other implementations would be fairly equivalent and it would be
-mainly an issue of just which list we'd work on.
+what do you mean by this? sys_getppid() uses ->real_parent so it gets the 
+proper PID.
 
-		Linus
+	Ingo
 

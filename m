@@ -1,88 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131459AbQK2OG3>; Wed, 29 Nov 2000 09:06:29 -0500
+        id <S131483AbQK2OLu>; Wed, 29 Nov 2000 09:11:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131483AbQK2OGU>; Wed, 29 Nov 2000 09:06:20 -0500
-Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:8421 "EHLO
-        asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-        id <S131459AbQK2OGJ>; Wed, 29 Nov 2000 09:06:09 -0500
-Date: Wed, 29 Nov 2000 15:35:26 +0100
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Kai Germaschewski <kai@thphy.uni-duesseldorf.de>
-Subject: Re: test12-pre2
-Message-ID: <20001129153526.W13759@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <Pine.LNX.4.10.10011271838080.15454-100000@penguin.transmeta.com>
+        id <S131497AbQK2OLl>; Wed, 29 Nov 2000 09:11:41 -0500
+Received: from yara.IMSD.Uni-Mainz.DE ([134.93.144.68]:46604 "EHLO
+        yara.imsd.uni-mainz.de") by vger.kernel.org with ESMTP
+        id <S131483AbQK2OLd>; Wed, 29 Nov 2000 09:11:33 -0500
+Date: Wed, 29 Nov 2000 14:40:28 +0100
+From: Dominik Kubla <kubla@netz.klinik.uni-mainz.de>
+To: support@moxa.com.tw
+Cc: linux-kernel@vger.kernel.org
+Subject: BUG: Moxa SmartIO driver does not register i/o regions
+Message-ID: <20001129144028.B752@baobab.netz.klinik.uni-mainz.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=unknown-8bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.10.10011271838080.15454-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Nov 27, 2000 at 06:45:31PM -0800
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.11i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 27, 2000 at 06:45:31PM -0800, Linus Torvalds wrote:
-> Due to the birth of my third daughter last week (yes, I got /.'ed), if you
-> sent me patches that aren't in pre2, you can pretty much consider them
-> lost.
+Dear Moxa Support,
 
-Congrats ;-)
+While adapting the hinv_linux script (http://www.brownnut.com/hinv.htm)
+i noticed that the mxser driver will only show up in /proc/interrupts,
+but not in /proc/ioports.  Since it is highly unlikely that this driver
+can access the board without any I/O ports i would consider this a bug.
+(Moxa's msdiag tool does report the I/O ports, but i would prefer
+that they are properly registered with the kernel...)
 
->     - Kai Germaschewski: ISDN updates
+A quick check at the moxa driver shows that it also fails to register
+the i/o region.
 
-There seem to be a questionable part of it (didn't see this part
-on linux-kernel, why?).
+This bug is present both in v2.2 and v2.4.
 
-diff -u --recursive --new-file v2.4.0-test11/linux/drivers/isdn/hisax/bkm_a8.c linux/drivers/isdn/hisax/bkm_a8.c
---- v2.4.0-test11/linux/drivers/isdn/hisax/bkm_a8.c	Mon Aug 21 07:49:02 2000
-+++ linux/drivers/isdn/hisax/bkm_a8.c	Mon Nov 27 16:53:43 2000
-@@ -282,17 +283,17 @@
- 	return(0);
- }
- 
--static struct pci_dev *dev_a8 __initdata = NULL;
--static u16  sub_vendor_id __initdata = 0;
--static u16  sub_sys_id __initdata = 0;
--static u_char pci_bus __initdata = 0;
--static u_char pci_device_fn __initdata = 0;
--static u_char pci_irq __initdata = 0;
-+static struct pci_dev *dev_a8 __initdata;
-+static u16  sub_vendor_id __initdata;
-+static u16  sub_sys_id __initdata;
-+static u_char pci_bus __initdata;
-+static u_char pci_device_fn __initdata;
-+static u_char pci_irq __initdata;
- 
- #endif /* CONFIG_PCI */
- 
--__initfunc(int
--setup_sct_quadro(struct IsdnCard *card))
-+int __init
-+setup_sct_quadro(struct IsdnCard *card)
- {
- #if CONFIG_PCI
- 	struct IsdnCardState *cs = card->cs;
+As a further feature request: it would be nice if the moxa/mxser drivers
+would support the /proc/tty-Interface.
 
-IIRC variables marked as "__initdata" need to be explicitly set
-even to zero, because gcc won't put them into the right section
-otherwise. One of Tigran's patches has been reverted because of
-this.
-
-So please reconsider this chunk and prove me wrong if I'm ;-)
-
-PS: Same goes for several other chunks in the submitted
-   ISDN-Patch. 
-   
-PPS: No, this is not fixed in pre3.
-
-Regards
-
-Ingo Oeser
+Yours,
+  Dominik Kubla
 -- 
-To the systems programmer, users and applications
-serve only to provide a test load.
-<esc>:x
+  Networking Group,  Hospital of Johannes Gutenberg-University
+  Obere Zahlbacher Straﬂe 69, 55101 Mainz, Germany
+  Tel: +49 (0)6131 17-7193   FAX: +49 (0)6131 17-477193
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

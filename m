@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263083AbRFFHSS>; Wed, 6 Jun 2001 03:18:18 -0400
+	id <S263409AbRFFHv6>; Wed, 6 Jun 2001 03:51:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263086AbRFFHSI>; Wed, 6 Jun 2001 03:18:08 -0400
-Received: from sportingbet.gw.dircon.net ([195.157.147.30]:55044 "HELO
-	sysadmin.sportingbet.com") by vger.kernel.org with SMTP
-	id <S263083AbRFFHRu>; Wed, 6 Jun 2001 03:17:50 -0400
-Date: Wed, 6 Jun 2001 08:14:16 +0100
-From: Sean Hunter <sean@dev.sportingbet.com>
-To: Russell Leighton <russell.leighton@247media.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Break 2.4 VM in five easy steps
-Message-ID: <20010606081416.B15199@dev.sportingbet.com>
-Mail-Followup-To: Sean Hunter <sean@dev.sportingbet.com>,
-	Russell Leighton <russell.leighton@247media.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0106051634540.8311-100000@heat.gghcwest.com> <3B1D8A82.63FA138C@247media.com>
-Mime-Version: 1.0
+	id <S263411AbRFFHvt>; Wed, 6 Jun 2001 03:51:49 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:22537 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S263409AbRFFHve>; Wed, 6 Jun 2001 03:51:34 -0400
+Subject: Re: SCSI is as SCSI don't...
+To: alan@clueserver.org (Alan Olsen)
+Date: Wed, 6 Jun 2001 08:49:57 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, laughing@shared-source.org (Alan Cox)
+In-Reply-To: <Pine.LNX.4.10.10106052247210.17745-100000@clueserver.org> from "Alan Olsen" at Jun 05, 2001 11:08:04 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B1D8A82.63FA138C@247media.com>; from russell.leighton@247media.com on Tue, Jun 05, 2001 at 09:42:26PM -0400
+Content-Transfer-Encoding: 7bit
+Message-Id: <E157Y4j-0007yX-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 05, 2001 at 09:42:26PM -0400, Russell Leighton wrote:
+> I am trying to get 2.4.5 and/or 2.4.5-ac9 working.  Both are choking on
+> compile with an odd error message or four...
 > 
-> I also need some 2.4 features and can't really goto 2.2.
-> I would have to agree that the VM is too broken for production...looking
-> forward to the work that (hopefully) will be in 2.4.6 to resolve these issues.
-> 
+> In file included from /usr/src/linux-2.4.5-ac9/include/linux/raid/md.h:50,
+>                  from ll_rw_blk.c:30:
+> /usr/src/linux-2.4.5-ac9/include/linux/raid/md_k.h: In function
+> `pers_to_level':/usr/src/linux-2.4.5-ac9/include/linux/raid/md_k.h:41:
+> warning: control reaches end of non-void function
 
-Boring to do a "me too", but "me too".  We have four big production oracle
-servers that could use 2.4 .  However, the test server we have put 2.4 on has
-no end of ridiculous VM and OOM problems.
-
-It seems bizarre that a 4GB machine with a working set _far_ lower than that
-should be dying from OOM and swapping itself to death, but that's life in 2.4
-land.
+That is just a warning caused by a C compiler bug and harmless. The sg case
+you report I've seen random variants of caused by burner bugs, software bugs
+and scsi layer bugs - I dont know what it would be and you didnt give enough
+info
 
 
-Sean

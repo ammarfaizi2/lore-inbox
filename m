@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285367AbRLSQSL>; Wed, 19 Dec 2001 11:18:11 -0500
+	id <S285377AbRLSQ3V>; Wed, 19 Dec 2001 11:29:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285366AbRLSQSB>; Wed, 19 Dec 2001 11:18:01 -0500
-Received: from pat.uio.no ([129.240.130.16]:49576 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S285364AbRLSQRw>;
-	Wed, 19 Dec 2001 11:17:52 -0500
-Date: Wed, 19 Dec 2001 17:16:50 +0100 (MET)
-From: wikne@lynx.uio.no (Jon Wikne)
-Message-Id: <200112191616.RAA07423@lynx.uio.no>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.16 rivafb memory recognition problem
-Cc: ajoshi@shell.unixbox.com
-X-Sun-Charset: US-ASCII
+	id <S285378AbRLSQ3M>; Wed, 19 Dec 2001 11:29:12 -0500
+Received: from dnph.phys.msu.su ([193.232.121.81]:33043 "HELO dnph.phys.msu.su")
+	by vger.kernel.org with SMTP id <S285377AbRLSQ3C>;
+	Wed, 19 Dec 2001 11:29:02 -0500
+Content-Type: text/plain;
+  charset="koi8-r"
+From: Oleg Artamonov <oleg@dnph.phys.msu.su>
+Organization: Moscow State University, Department of Nuclear Physics
+To: spike@superweb.ca, linux-kernel@vger.kernel.org
+Subject: Re: IDE Harddrive Performance
+Date: Wed, 19 Dec 2001 19:28:59 +0300
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20011219153233.GA3424@leukertje.hitnet.rwth-aachen.de> <20011219160143.GA8658@gondor.com> <01121912181304.31762@spikes>
+In-Reply-To: <01121912181304.31762@spikes>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <20011219162859.89976380A@dnph.phys.msu.su>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Brendan Pike написал:
 
-I discovered a strange behaviour related to kernel memory recognition
-when using the rivafb frame buffer option compiled into kernel 2.4.16.
-The system in question has a Asus AGP7700 nVidia GeForce 2 GTS (32MB)
-video card. It is a dual PIII SMP system, if that might matter.
+> wowie, that is quite slow then. well udma33 mode is probebly why. if
+> getting an ata100 offboard card (since i have an ata100 drive) would make
+> such a big differance, im all for it. would there be any others reasons for
+> such slowness? is udma33 capible of more then 9MB/sec ??
 
-When I select nVidia Riva support, at first it seemed to work perfectly.
-But then I discovered that the kernel only recognizes 32MB of total
-memory during boot! Excessive swapping is the result.
+  Yes, of course it's capable. Up to 33Mbytes/sec (really you should see 
+about 20Mbytes/sec or more). Sounds like you disable 32-bit transfer or 
+disable DMA modes.
 
-When instead I compile the kernel with VESA frame buffer support,
-all other kernel config parameters the same, the resulting kernel
-recognizes all of the 1GB physical memory actually installed in
-this box.
+> dont know if that info would help much but there it is. also uses the via
+> kernel driver.
 
-Any ideas?
-
-
-Cheers,
--- Jon Wikne
+  What 'hdparm /dev/<your drive>' and 'hdparm -i /dev/<your drive>' says?

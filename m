@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261754AbSI2Tnb>; Sun, 29 Sep 2002 15:43:31 -0400
+	id <S261756AbSI2TqW>; Sun, 29 Sep 2002 15:46:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261755AbSI2Tnb>; Sun, 29 Sep 2002 15:43:31 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61193 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261754AbSI2Tna>;
-	Sun, 29 Sep 2002 15:43:30 -0400
-Message-ID: <3D975901.9000207@pobox.com>
-Date: Sun, 29 Sep 2002 15:48:17 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S261758AbSI2TqW>; Sun, 29 Sep 2002 15:46:22 -0400
+Received: from mail.parknet.co.jp ([210.134.213.6]:1553 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP
+	id <S261756AbSI2TqS>; Sun, 29 Sep 2002 15:46:18 -0400
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] use fff/ffff/fffffff instead of ff8/fff8/ffffff8 for EOF of FAT
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Mon, 30 Sep 2002 04:51:35 +0900
+Message-ID: <87vg4ok20o.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       "David S. Miller" <davem@redhat.com>, Andrew Morton <akpm@zip.com.au>
-Subject: Re: [patch] smptimers, old BH removal, tq-cleanup, 2.5.39
-References: <Pine.LNX.4.44.0209292117200.25393-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> yes, wrt. keventd i was thinking along the same line - but in a different,
-> perhaps cleaner and simpler direction.
-> 
-> i'd like to introduce the following interfaces:
-> 
-> 	- create_work_queue(wq, handler_fn)
+Hi,
 
-what is handler_fn for, if you pass work_fn later?
+For example on FAT12, the current FAT driver recognize 0xff8-0xfff as
+EOF, and it writes in 0xff8 as EOF. This is right behavior. However,
+the firmware of some MP3-Players recognize only 0xfff(standard EOF
+which Micorsoft uses) as EOF.
 
+So, we write 0xfff instead of 0xff8 as EOF, until the reason we need
+values other than standard EOF is found.
 
-> 	- destroy_work_queue(wq)
-> 
-> 	- queue_work(wq, work_fn, work_data)
+[Randy Dunlap, I appreciate your help.]
 
-queue_work_delayed(wq, work_fn, work_data, delay) would be nice too
+Please apply.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
 
-
-> 	- flush_work_queue(wq)
-> 
-> this is an extension of the keventd concept. A work queue is a simplified
-> interface to create a kernel thread that gets work queued from IRQ and
-> process contexts. No more, no less.
-
-Your proposal sounds good to me...
-
-	Jeff
-
-
-
+--- linux-2.5/include/linux/msdos_fs.h~	2002-09-29 16:46:46.000000000 +0900
++++ linux-2.5/include/linux/msdos_fs.h	2002-09-29 16:47:04.000000000 +0900
+@@ -68,9 +68,9 @@
+ 	MSDOS_SB(s)->fat_bits == 16 ? BAD_FAT16 : BAD_FAT12)
+ 
+ /* standard EOF */
+-#define EOF_FAT12 0xFF8
+-#define EOF_FAT16 0xFFF8
+-#define EOF_FAT32 0xFFFFFF8
++#define EOF_FAT12 0xFFF
++#define EOF_FAT16 0xFFFF
++#define EOF_FAT32 0xFFFFFFF
+ #define EOF_FAT(s) (MSDOS_SB(s)->fat_bits == 32 ? EOF_FAT32 : \
+ 	MSDOS_SB(s)->fat_bits == 16 ? EOF_FAT16 : EOF_FAT12)
+ 

@@ -1,74 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268502AbUHLJn3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268498AbUHLKA6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268502AbUHLJn3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 05:43:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268500AbUHLJn3
+	id S268498AbUHLKA6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 06:00:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268500AbUHLKA6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 05:43:29 -0400
-Received: from mail.tpgi.com.au ([203.12.160.61]:53387 "EHLO mail.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S261232AbUHLJnY (ORCPT
+	Thu, 12 Aug 2004 06:00:58 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:40602 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S268498AbUHLKA5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 05:43:24 -0400
-Subject: Re: [PATCH] SCSI midlayer power management
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Nathan Bryant <nbryant@optonline.net>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       "'James Bottomley'" <James.Bottomley@steeleye.com>,
-       Linux SCSI Reflector <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       jgarzik@pobox.com
-In-Reply-To: <411AA24C.6050303@optonline.net>
-References: <4119611D.60401@optonline.net>
-	 <20040811080935.GA26098@elf.ucw.cz> <411A1B72.1010302@optonline.net>
-	 <1092262602.3553.14.camel@laptop.cunninghams>
-	 <411AA24C.6050303@optonline.net>
-Content-Type: text/plain
-Message-Id: <1092303123.3214.3.camel@laptop.cunninghams>
+	Thu, 12 Aug 2004 06:00:57 -0400
+Date: Thu, 12 Aug 2004 11:57:36 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Steven Dake <sdake@mvista.com>, "Walker, Bruce J" <bruce.walker@hp.com>,
+       linux-kernel@vger.kernel.org
+Cc: Chris Wright <chrisw@osdl.org>,
+       Discussion of clustering software components including
+	 GFS <linux-cluster@redhat.com>,
+       dcl_discussion@osdl.org, cgl_discussion@osdl.org
+Subject: Re: [Linux-cluster] Re: [cgl_discussion] Re: [dcl_discussion] Clustersummit materials
+Message-ID: <20040812095736.GE4096@marowsky-bree.de>
+References: <3689AF909D816446BA505D21F1461AE4C75110@cacexc04.americas.cpqcorp.net> <1092249962.4717.21.camel@persist.az.mvista.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 12 Aug 2004 19:39:51 +1000
-Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1092249962.4717.21.camel@persist.az.mvista.com>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On 2004-08-11T11:46:03,
+   Steven Dake <sdake@mvista.com> said:
 
-On Thu, 2004-08-12 at 08:48, Nathan Bryant wrote: 
-> Just to speculate about what would be required for swsusp: you probably 
-> need to be using a SCSI LLD that properly implements pci suspend/resume, 
-> which implies you need to make sure the card's DMA state machine is 
-> flushed and idle before suspend completes. I've got a patch that fixes 
-> this much up for aic7xxx. And my other midlayer-level patch may also 
-> help... What happens during resume is interesting. I think maybe the 
-> problem is not what the drive is expecting, but what the card's state 
-> engine is expecting when it tries to map commands to command buffers in 
-> DMA space.  Maybe you need to suspend the LLD from the context of the 
-> kernel that is doing the image load, and then resume from the context of 
-> the kernel that was just loaded.
+> If we can't live with the cluster services in userland (although I'm
+> still not convinced), then atleast the group messaging protocol in the
+> kernel could be based upon 20 years of research in group messaging and
+> work properly under _all_ fault scenarios.
 
-I fully agree. That's what I'm doing at the moment; it's been a while
-since I looked at swsusp though, so can't say anything about Pavel &
-Patrick's implementation.
+Right. Another important alternative maybe the Transis group
+communication suite, which has been released as GPL/LGPL now.
 
-> >With my 'device tree' code, I'm getting the struct dev of the device
-> >we're using via the struct block_device in the swap_info struct.
-> >
-> Right, though you also need to get the host adapter's struct device, if 
-> you're not already doing so, that is. Many IDE host drivers don't bother 
-> with suspend/resume callbacks at the pci_driver level, but SCSI needs 
-> callbacks because the BIOS usually doesn't handle things for us.
+This all just highlights that we need to think about communication some
+more before we can tackle it sensibly, but of course I'll be glad if
+someone proves me wrong and Just Does It ;-)
 
-The host adapter isn't in the device's chain of parents?
 
-Nigel 
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
 
 -- 
-Nigel Cunningham
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-Many today claim to be tolerant. But true tolerance can cope with others
-being intolerant.
+High Availability & Clustering	    \ I allow neither my experience
+SUSE Labs, Research and Development | nor my cynicism to deter my
+SUSE LINUX AG - A Novell company    \ optimistic outlook on life.
 

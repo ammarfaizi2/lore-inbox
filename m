@@ -1,32 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265727AbSKKP4a>; Mon, 11 Nov 2002 10:56:30 -0500
+	id <S265747AbSKKQAN>; Mon, 11 Nov 2002 11:00:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265736AbSKKP4a>; Mon, 11 Nov 2002 10:56:30 -0500
-Received: from general.tip.duke.edu ([152.3.19.6]:55057 "EHLO
-	general.tip.duke.edu") by vger.kernel.org with ESMTP
-	id <S265727AbSKKP43>; Mon, 11 Nov 2002 10:56:29 -0500
-From: "general.tip.duke.edu" <general.tip.duke.edu@tip.duke.edu>
-X-Priority: 3 (Normal)
-Date: Mon, 11 Nov 2002 10:47:02 -0500
-Subject: Report to Sender
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <OFC53CE5EA.6404F793-ON85256C6E.0056B44F@tip.duke.edu>
-X-MIMETrack: Serialize by Router on general.tip.duke.edu/Tip(Release 5.0.8 |June 18, 2001) at
- 11/11/2002 10:47:03 AM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S265737AbSKKQAN>; Mon, 11 Nov 2002 11:00:13 -0500
+Received: from email.gcom.com ([206.221.230.194]:35529 "EHLO gcom.com")
+	by vger.kernel.org with ESMTP id <S265740AbSKKQAM>;
+	Mon, 11 Nov 2002 11:00:12 -0500
+Message-Id: <5.1.0.14.2.20021111100525.02841da8@localhost>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 11 Nov 2002 10:06:26 -0600
+To: landley@trommello.org, nwourms@netscape.net, linux-kernel@vger.kernel.org
+From: David Grothe <dave@gcom.com>
+Subject: Re: [PATCH] Linux-streams registration 2.5.46
+In-Reply-To: <200211081759.52061.landley@trommello.org>
+References: <aqgjr9$8d4$1@main.gmane.org>
+ <5.1.0.14.2.20021107145447.027905c8@localhost>
+ <200211080637.06511.landley@trommello.org>
+ <aqgjr9$8d4$1@main.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Incident Information:-
-
-Database: d:/Lotus/Domino/Data/mail2.box
-Originator:    linux-kernel <linux-kernel@vger.kernel.org>
-Recipients:    webmaster@tip.duke.edu
-Subject:  CompConfig
-Date/Time:     11/11/2002 10:46:58 AM
-
-The file attachment 126.pif you sent to the recipients listed above was
-infected with the W32/Klez.h@MM virus and was not successfully cleaned.
+At 05:59 PM 11/8/2002 Friday, Rob Landley wrote:
+>On Friday 08 November 2002 15:07, Nicholas Wourms wrote:
+>
+>To answer the original question for Dave: Alan Cox has now seen it, so 
+>life is
+>probably good for you.
+Do I need to do anything more to get it into the kernel source?
+-- Dave
 

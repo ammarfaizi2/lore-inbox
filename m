@@ -1,42 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267101AbSLKKG6>; Wed, 11 Dec 2002 05:06:58 -0500
+	id <S267104AbSLKKJ2>; Wed, 11 Dec 2002 05:09:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267102AbSLKKG6>; Wed, 11 Dec 2002 05:06:58 -0500
-Received: from poup.poupinou.org ([195.101.94.96]:20524 "EHLO
-	poup.poupinou.org") by vger.kernel.org with ESMTP
-	id <S267101AbSLKKG5>; Wed, 11 Dec 2002 05:06:57 -0500
-Date: Wed, 11 Dec 2002 11:14:38 +0100
-To: Andrew McGregor <andrew@indranet.co.nz>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>
-Subject: Re: [ACPI] Re: [2.5.50, ACPI] link error
-Message-ID: <20021211101438.GC29390@poup.poupinou.org>
-References: <EDC461A30AC4D511ADE10002A5072CAD04C7A581@orsmsx119.jf.intel.com> <1039481341.12046.21.camel@irongate.swansea.linux.org.uk> <20021210204031.GF20049@atrey.karlin.mff.cuni.cz> <23440000.1039553448@localhost.localdomain>
+	id <S267105AbSLKKJ2>; Wed, 11 Dec 2002 05:09:28 -0500
+Received: from [217.167.51.129] ([217.167.51.129]:61638 "EHLO zion.wanadoo.fr")
+	by vger.kernel.org with ESMTP id <S267104AbSLKKJ1>;
+	Wed, 11 Dec 2002 05:09:27 -0500
+Subject: Re: Linux 2.5.51
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: James Simmons <jsimmons@infradead.org>, Stian Jordet <liste@jordet.nu>,
+       Allan Duncan <allan.d@bigpond.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <m1smx4vrem.fsf@frodo.biederman.org>
+References: <Pine.LNX.4.33.0212101016280.2617-100000@maxwell.earthlink.net>
+	<1039547936.538.5.camel@zion>  <m1smx4vrem.fsf@frodo.biederman.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 11 Dec 2002 11:21:12 +0100
+Message-Id: <1039602072.3539.42.camel@zion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <23440000.1039553448@localhost.localdomain>
-User-Agent: Mutt/1.4i
-From: Ducrot Bruno <ducrot@poupinou.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 11, 2002 at 09:50:48AM +1300, Andrew McGregor wrote:
-> I strongly suspect that s4bios will work on this machine, but swsusp won't. 
-> Why?  It's a Dell Inspiron 8000 with an NVidia Geforce2go, and until NVidia 
-> put pm support in their driver, it's game over for Linux.  Except that the 
-> BIOS knows how to suspend it, so some kernel/driver combinations work with 
-> APM.  I suspect any Geforce2go Dell is the same.
+On Wed, 2002-12-11 at 10:25, Eric W. Biederman wrote:
+> > Well, I'm not sure it quite works yet. Maybe unaccelerated, but anyway,
+> > my version of radeonfb for 2.5 isn't accelerated yet anyway. I'll work
+> > on that (or Ani will) now that the API is stable enough.
+> 
+> How well does this driver work if you don't have a firmware
+> driver initialize the card? aka a pci option ROM.
 
-No.  You are wrong.  I need to suspend allmost all the drivers, and the
-video chipset is not an execption (or go to a console before suspending,
-in fact).
-You still need to bug NVIDIA in order to have proper pm support
-in their driver.
+Probably not at all
+ 
+> I am interested because with LinuxBIOS it is still a pain to run
+> PCI option roms, and I don't necessarily even have then if it a
+> motherboard with video.  There are some embedded/non-x86 platforms
+> with similar issues.  
 
--- 
-Ducrot Bruno
+Well, at least r128's and radeon's need the memory controller and PLLs
+initialized by the BIOS/firmware, we don't have documentation about how
+to acheive that ourselves (and this can depend on the specific wiring of
+a given card anyway).
 
---  Which is worse:  ignorance or apathy?
---  Don't know.  Don't care.
+> My primary interest is in the cheap ATI Rage XL chip that is on many
+> server board. PCI Vendor/device  id 1002:4752 (rev 27) from lspci.
+> 
+> If nothing else if some one could point me to some resources on
+> how to get the appropriate documentation from the video chipset
+> manufacturers I would be happy.
+> 
+> But I did want to at least point that running a system with out bios
+> initialized video was certainly among the cases that are used.
+
+This is not possible with most modern cards without specific POST code
+provided by the chip manufacturer.
+
+Ben.
+

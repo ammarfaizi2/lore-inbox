@@ -1,117 +1,115 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129732AbQLUJ4p>; Thu, 21 Dec 2000 04:56:45 -0500
+	id <S129810AbQLUKN2>; Thu, 21 Dec 2000 05:13:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130442AbQLUJ4f>; Thu, 21 Dec 2000 04:56:35 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:20231 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129732AbQLUJ41>; Thu, 21 Dec 2000 04:56:27 -0500
-Date: Thu, 21 Dec 2000 04:26:25 -0500 (EST)
-From: "Mike A. Harris" <mharris@opensourceadvocate.org>
-X-X-Sender: <mharris@asdf.capslock.lan>
-To: "Barry K. Nathan" <barryn@pobox.com>
-cc: Julian Anastasov <ja@ssi.bg>,
-        Robert Högberg <robho956@student.liu.se>,
-        Andre Hedrick <andre@linux-ide.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Extreme IDE slowdown with 2.2.18
-In-Reply-To: <200012210758.XAA07609@pobox.com>
-Message-ID: <Pine.LNX.4.31.0012210416360.748-100000@asdf.capslock.lan>
-X-Unexpected-Header: The Spanish Inquisition
-Copyright: Copyright 2000 by Mike A. Harris - All rights reserved
+	id <S129884AbQLUKNT>; Thu, 21 Dec 2000 05:13:19 -0500
+Received: from smtp5.mail.yahoo.com ([128.11.69.102]:13061 "HELO
+	smtp5.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S129810AbQLUKNE>; Thu, 21 Dec 2000 05:13:04 -0500
+X-Apparently-From: <p?gortmaker@yahoo.com>
+Message-ID: <3A41CD4F.1259FB08@yahoo.com>
+Date: Thu, 21 Dec 2000 04:28:47 -0500
+From: Paul Gortmaker <p_gortmaker@yahoo.com>
+X-Mailer: Mozilla 3.04 (X11; I; Linux 2.2.18 i486)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+CC: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+Subject: Re: set_rtc_mmss: can't update from 0 to 59
+In-Reply-To: <UTC200012172054.VAA173604.aeb@aak.cwi.nl> <20001217194737.C11947@one-eyed-alien.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Dec 2000, Barry K. Nathan wrote:
+Matthew Dharm wrote:
+> 
+> On Sun, Dec 17, 2000 at 09:54:18PM +0100, Andries.Brouwer@cwi.nl wrote:
+> 
+> > Of course, messing with the cmos clock at all was a rather bad idea,
+> > but that is a different discussion.
+> 
+> True enough...  but, the question is, how do we fix this?  Make the logic
+> more buff?  Or change the algorithm to use something like minutes since the
+> epoch?
 
->[snip]
->> message saying UDMA 3/4/5 is not supported.  It also claims the
->> MVP3 chipset is UDMA-33 only, whereas all relevant docs I can
->> muster including the mobo manual state the board is UDMA-66
->> capable.  Mental note to myself: Do not enable WORD93 invalidate.
->> ;o)
->
->I'm somewhat tired and busy, so I'll post URLs without quoting anything
->from them (look at the data in *all* of them, and connect the dots, before
->you come to any conclusions). Short version of the story: Some MVP3's
->support UDMA-66, some don't -- it depends on the southbridge. 596B & 686A
->do, others don't.
->
->http://www.via.com.tw/news/98mvp3nr.htm
->http://www.via.com.tw/products/prodmvp3.htm
->http://www.via.com.tw/support/faq.htm#ide
+Actually I agree 100% with Andries -- having the kernel write back its
+time into the CMOS RTC every 11 minutes just because NTP is active seems
+like a random heuristic that probably "seemed like a good idea at the time".
+(Probably made more sense back when there were no other users of the RTC.)
 
-Thanks for the info!  Here is the most relevant portion I found:
+It smells like policy in the kernel to me.  What if a user wants to run NTP
+but wants the CMOS RTC time as an independent clock to do something else
+(possibly with the option of having a meaningful /etc/adjtime too) ?
 
-      * Q: Which VIA Chipsets support UDMA 66?
-        A: For UDMA 66 you must first make sure that you're southbridge is
-        either VT82C596B or VT82C686A. You must also have a UDMA 66
-        capable hard drive and be using an 80 pin cable which enables
-        faster transmission of data. Windows 98 is UDMA 66 enabled, but if
-        you have Win95 you should install our busmaster drivers.
+Can't the people who want the current behaviour simply have a crontab
+that runs (hw)clock -[u]w from util-linux at whatever interval they want?
+Then set_rtc_mmss magically goes away,  the kernel doesn't need to know
+UTC vs. local, and the timer interrupt gets smaller - a Good Thing(tm).
 
+I'd delete set_rtc_mmss entirely, but I just #ifdef'd it out in case
+I'm overlooking something...
 
-Here is my mobo info:
-
-2 root@asdf:~# lspci -v
-00:00.0 Host bridge: VIA Technologies, Inc. VT82C598 [Apollo MVP3] (rev 04)
-        Flags: bus master, medium devsel, latency 16
-        Memory at d8000000 (32-bit, prefetchable)
-        Capabilities: [a0] AGP version 1.0
-
-00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598 [Apollo MVP3 AGP] (prog-if 00 [Normal decode])
-        Flags: bus master, 66Mhz, medium devsel, latency 0
-        Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
-
-00:07.0 ISA bridge: VIA Technologies, Inc. VT82C596 ISA [Apollo PRO] (rev 23)
-        Subsystem: VIA Technologies, Inc. VT82C596/A/B PCI to ISA Bridge
-        Flags: bus master, stepping, medium devsel, latency 0
-
-00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 10) (prog-if 8a [Master SecP PriP])
-        Flags: bus master, medium devsel, latency 32
-        I/O ports at e000
-        Capabilities: [c0] Power Management version 2
-
-00:07.3 Host bridge: VIA Technologies, Inc.: Unknown device 3050 (rev 30)
-        Flags: medium devsel
+Paul.
 
 
+--- linux/arch/i386/kernel/time.c~	Mon Nov 20 04:16:25 2000
++++ linux/arch/i386/kernel/time.c	Thu Dec 21 04:10:37 2000
+@@ -28,6 +28,9 @@
+  * 1998-12-24 Copyright (C) 1998  Andrea Arcangeli
+  *	Fixed a xtime SMP race (we need the xtime_lock rw spinlock to
+  *	serialize accesses to xtime/lost_ticks).
++ * 2000-12-20	Paul Gortmaker
++ *	Don't mess with the CMOS clock just because NTP is used.  This
++ *	gets rid of annoying "set_rtc_mmss: can't update ..." messages.
+  */
+ 
+ #include <linux/errno.h>
+@@ -304,7 +307,16 @@
+ 	write_unlock_irq(&xtime_lock);
+ }
+ 
++#ifdef INVALIDATE_ADJTIME
+ /*
++ * NOTE: This is NOT an externally exported interface for setting 
++ * the time stored in the RTC.  It is ONLY used internally to store
++ * the kernel time back into the RTC if the kernel time is externally
++ * synchronized.  (Yes, this smells like policy in the kernel...)
++ * If you enable this then your /etc/adjtime value(s) are no longer 
++ * valid. Conversely, non-zero /etc/adjtime values can result in this
++ * spewing the "set_rtc_mmss: cant update from N to M" messages.
++ *
+  * In order to set the CMOS clock precisely, set_rtc_mmss has to be
+  * called 500 ms after the second nowtime has started, because when
+  * nowtime is written into the registers of the CMOS clock, it will
+@@ -374,6 +386,7 @@
+ 
+ /* last time the cmos clock got updated */
+ static long last_rtc_update;
++#endif
+ 
+ int timer_ack;
+ 
+@@ -417,6 +430,7 @@
+ 		smp_local_timer_interrupt(regs);
+ #endif
+ 
++#ifdef INVALIDATE_ADJTIME
+ 	/*
+ 	 * If we have an externally synchronized Linux clock, then update
+ 	 * CMOS clock accordingly every ~11 minutes. Set_rtc_mmss() has to be
+@@ -431,6 +445,7 @@
+ 		else
+ 			last_rtc_update = xtime.tv_sec - 600; /* do it again in 60 s */
+ 	}
++#endif
+ 	    
+ #ifdef CONFIG_MCA
+ 	if( MCA_bus ) {
 
-Clear as mud.  Board docs say it does ATA66, so I am assuming it
-is the VT82C596B model.  lspci doesn't appear to know which it is
-though.  The numbers on the chip itself are:
-
-VT82C596B
-        ^
-
-Thus indicating from all the info I've collected so far, that my
-hardware setup according to docs, is ata66.
-
-My drive is ATA100 capable so that is no problem.  80 conductor
-cable...
-
-12Mb/s on drive rated 37Mb/s sustained..  ;o(
-
-Without Andre's fine IDE patches I get 5Mb/s...  12M/s is better
-than 5.
-
-Getting 1/2 of the hardware specs rated values would even be
-nice...  I think it is shoddy hardware with made up specs
-myself..  makes a good sell to people...  ;o)
 
 
-----------------------------------------------------------------------
-      Mike A. Harris  -  Linux advocate  -  Open source advocate
-          This message is copyright 2000, all rights reserved.
-  Views expressed are my own, not necessarily shared by my employer.
-----------------------------------------------------------------------
 
-If you're interested in computer security, and want to stay on top of the
-latest security exploits, and other information, visit:
-
-http://www.securityfocus.com
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

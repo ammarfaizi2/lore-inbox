@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315410AbSE2OZJ>; Wed, 29 May 2002 10:25:09 -0400
+	id <S315411AbSE2OZj>; Wed, 29 May 2002 10:25:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315411AbSE2OZI>; Wed, 29 May 2002 10:25:08 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:1513 "EHLO
-	zcars04f.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S315410AbSE2OZI>; Wed, 29 May 2002 10:25:08 -0400
-Message-ID: <3CF4E4BB.7D475747@nortelnetworks.com>
-Date: Wed, 29 May 2002 10:24:59 -0400
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: anything happening with kbuild 2.5?
+	id <S315414AbSE2OZi>; Wed, 29 May 2002 10:25:38 -0400
+Received: from ns.suse.de ([213.95.15.193]:6660 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S315411AbSE2OZh>;
+	Wed, 29 May 2002 10:25:37 -0400
+Date: Wed, 29 May 2002 16:25:36 +0200
+From: Dave Jones <davej@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "J.A. Magallon" <jamagallon@able.es>,
+        Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Use of CONFIG_M686
+Message-ID: <20020529162536.N27463@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	"J.A. Magallon" <jamagallon@able.es>,
+	Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020527222253.GG1848@werewolf.able.es> <20020527222928.GI1848@werewolf.able.es> <1022544346.4123.14.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 28, 2002 at 01:05:46AM +0100, Alan Cox wrote:
 
-I'm just wondering if anything is happening with kbuild 2.5, since I think it
-makes sense to put it in.
+ > You misunderstand the intent. A 386 or 486 kernel will run on a Pentium
+ > and could therefore hit the error. A PPro kernel would die earlier
+ > anyway. Of course its long been PPRO|Athlon|... and the ifdef wanted
+ > updating. I'd ifdef it on CONFIG_X86_FOOF_BUG and put the FOOF thing
+ > into arch/i386/Config.in nicely with the other stuff
 
-There seem to be a number of fairly well known developers in favour of it
-(Robert Love, Richard Gooch, Mike Fedyk, Paul Mackerras, Alan Cox, Andrea
-Arcangeli, Dave Jones, for a few), and I don't see any major objections to it in
-the archives.
-
-According to my googling, the only comment Linus has had on the topic since
-January is this (the typos are his):
-
-"I'm hoping we can get there in small steps, rather than a big traumatic
-merge. I'd love to just try to merge it piecemeal.
-
-Especially as I don't find the existign system so broken."
-
-
-Keith--any way you can send it in piecemeal like he wants?
-
-Chris
-
+Agreed. This is what's done in 2.5 btw.
 
 -- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

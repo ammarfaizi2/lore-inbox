@@ -1,94 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263948AbVBFGg2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S272596AbVBFGuM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263948AbVBFGg2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 01:36:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264003AbVBFGg2
+	id S272596AbVBFGuM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 01:50:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266133AbVBFGuM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 01:36:28 -0500
-Received: from pD9F879A4.dip0.t-ipconnect.de ([217.248.121.164]:4480 "EHLO
-	susi.maya.org") by vger.kernel.org with ESMTP id S263948AbVBFGgK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 01:36:10 -0500
-From: Andreas Hartmann <andihartmann@01019freenet.de>
-X-Newsgroups: fa.linux.kernel
-Subject: Re: 2.4.x oops with X
-Date: Sun, 06 Feb 2005 07:35:13 +0100
-Organization: privat
-Message-ID: <cu4dr1$l4$1@pD9F879A4.dip0.t-ipconnect.de>
-References: <fa.gv4g3v7.1ng0thr@ifi.uio.no> <fa.kmfmtrp.1a16aaf@ifi.uio.no>
+	Sun, 6 Feb 2005 01:50:12 -0500
+Received: from rproxy.gmail.com ([64.233.170.192]:1528 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S272596AbVBFGt5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 01:49:57 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=mQKYkWRnIHFJ7sdi0x81K0xbLSXY4xM31jt68QZexHFmaBE7dqVSx2+zEDlavDHBr6nrvfP+x/wlYxkK/ZLmKJYAv559FwkRYBDSp5zMEJpHTpLMQjyjGeV25RSGlxBap0fIvV2zeC3wwT8WFt3kVVuu8k6CzVNLJVb/pfZAMQE=
+Message-ID: <9e473391050205224960767ad0@mail.gmail.com>
+Date: Sun, 6 Feb 2005 01:49:57 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Dave Jones <davej@redhat.com>, Jon Smirl <jonsmirl@gmail.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Intel AGP support attaching to wrong PCI IDs
+In-Reply-To: <20050206060839.GA19330@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: abuse@fu.berlin.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.5) Gecko/20050128
-X-Accept-Language: de, en-us, en
-In-Reply-To: <fa.kmfmtrp.1a16aaf@ifi.uio.no> 
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-To: linux-kernel@vger.kernel.org
+References: <9e4733910502051745c25d6f@mail.gmail.com>
+	 <20050206040526.GA2908@redhat.com>
+	 <9e4733910502052158491b5ce3@mail.gmail.com>
+	 <20050206060839.GA19330@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Hartmann wrote:
-> Andreas Hartmann wrote:
-> [...]
->> But now, the question is:
->> Why does X crash running kernel 2.4.x with glibc 2.3.4 and not with kernel
->> 2.6.10? Why does X run fine using kernel 2.4 and 2.6 with glibc 2.3.3?
->> 
->> ----------------------------------------------
->> 	|		glibc
->> 	|	2.3.3		2.3.4
->> ------|-------------------------------------
->> kernel|
->> 2.4	|	X ok		X segfaults
->> 2.6	|	X ok		X ok
-> 
-> 
-> Meanwhile, I could find where X crashes using glibc 2.3.4 with kernel 2.4.
-> It's this piece of code in linux_vm86.c:267
-> 
-> static int
-> vm86_rep(struct vm86_struct *ptr)
-> {
->     int __res;
-> 
-> #ifdef __PIC__
->     /* When compiling with -fPIC, we can't use asm constraint "b" because
->        %ebx is already taken by gcc. */
->     __asm__ __volatile__("pushl %%ebx\n\t"
->                          "movl %2,%%ebx\n\t"
->                          "movl %1,%%eax\n\t"
->                          "int $0x80\n\t"
->                          "popl %%ebx"
->                          :"=a" (__res)
->                          :"n" ((int)113), "r" ((struct vm86_struct *)ptr));
-> #else
->     __asm__ __volatile__("int $0x80\n\t"
->                          :"=a" (__res):"a" ((int)113),
->                          "b" ((struct vm86_struct *)ptr));
-> #endif
-> 
->             if (__res < 0) {
->                 errno = -__res;
->                 __res = -1;
->             }
->             else errno = 0;
->             return __res;
-> }
-> 
-> 
-> The function ExecX86int10 (vbe.c) calls do_vm86 (linux_vm86.c), which
-> calls vm86_rep (linux_vm86.c).
-> 
-> 
-> I don't understand, why this piece of assembler code works fine with glibc
-> 2.3.3, but not with glibc 2.3.4, running kernel 2.4.x. It works fine again
-> with kernel 2.6.
+On Sun, 6 Feb 2005 01:08:40 -0500, Dave Jones <davej@redhat.com> wrote:
+> Why exactly are you trying to write host bridge drivers anyway ?
+> Confused.
 
-Solution for this problem can be found meanwhile at
-https://bugs.freedesktop.org/show_bug.cgi?id=2431
+We're trying to add sysfs attributes for identifying and controlling
+legacy address spaces. Desktop x86 has just a single legacy IO/mem
+address space but more advanced systems like the IA64 support multiple
+ones.  See Documentation/filesystems/sysfs-pci.txt. All architectures
+need to provide a consistent API to make it easier to write the user
+space app (like video reset). If IA64 is the example then x86 needs to
+add legacy_io/mem attributes to the host bus bridge which just passes
+the accesses on without change.
 
+Another part of this is VGA control. When there are multiple VGA
+devices the bridges have to be set to route VGA appropriately. This is
+a different feature than multiple legacy address spaces on the IA64.
 
-Kind regards,
-Andreas Hartmann
+> Another way forward (somewhat hacky in one sense, but a lot cleaner in another)
+> would be to change the PCI code so that it'll load and init
+> multiple drivers that claim to support the same PCI ID.
+> This may cause issues for some other drivers however where
+> we have an old and a new driver with ID overlap.
+
+This problem already exits in DRM/fbdev. DRM loads like a normal
+driver and binds to the PCI IDs. But if it loads and finds fbdev
+already bound to the PCI IDs it goes into stealth mode and runs
+without binding to the ID.
+
+I would prefer that we stick with the one driver per ID rule and
+instead sort out DRM/fbdev to coordinate more. The legacy_io/mem
+support can probably be added some place in common AGP code since the
+attributes need to be created on all x86 boxes.
+
+> What are you up to?
+
+Putting together a foundation for X on GL.  That involves reworking
+video support in Linux so that X can remove all the horrible code that
+plays with bridge chips and PCI config space from a user space app.
+Right now the foundation is not there to allow X to remove the code.
+
+Several things are needed:
+1) Secondary card reset at boot
+2) Mode setting on secondary heads - fbdev does not have this
+3) A way to set modes without being root
+4) Memory management coordination between fbdev/DRM when multiple scan
+buffers are active
+5) Mouse cursor support in fbdev
+6) Fix video reset when resuming from suspend
+
+Something that isn't required but would be nice it to fix things so
+that an OOPs will be visible even if X is running.
+
+Once DRM/fbdev is fixed mesa-solo will run on it with full features
+(it already runs on fbdev/DRM with limited features).  This will bring
+up a standalone OpenGL stack.
+
+X on GL is already written and is part of the xserver project. This
+will run on the standalone OpenGL stack. Combine this with Cairo/Glitz
+and we have a graphics system that can compete with Windows Longhorn.
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com

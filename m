@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290839AbSARVev>; Fri, 18 Jan 2002 16:34:51 -0500
+	id <S290837AbSARVgb>; Fri, 18 Jan 2002 16:36:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290837AbSARVep>; Fri, 18 Jan 2002 16:34:45 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:35222 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S290839AbSARVec>;
-	Fri, 18 Jan 2002 16:34:32 -0500
-Date: Fri, 18 Jan 2002 13:33:06 -0800 (PST)
-Message-Id: <20020118.133306.118980313.davem@redhat.com>
-To: rmk@arm.linux.org.uk
-Cc: dan@embeddededge.com, hozer@drgw.net, linux-kernel@vger.kernel.org,
-        groudier@free.fr, mattl@mvista.com
-Subject: Re: pci_alloc_consistent from interrupt == BAD
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020118212949.H2059@flint.arm.linux.org.uk>
-In-Reply-To: <3C4875DB.9080402@embeddededge.com>
-	<20020118.123221.85715153.davem@redhat.com>
-	<20020118212949.H2059@flint.arm.linux.org.uk>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S290842AbSARVgZ>; Fri, 18 Jan 2002 16:36:25 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:29056 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S290837AbSARVgK> convert rfc822-to-8bit; Fri, 18 Jan 2002 16:36:10 -0500
+Date: Fri, 18 Jan 2002 16:37:19 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: DervishD <raul@viadomus.com>
+cc: bgerst@didntduck.org, linux-kernel@vger.kernel.org, yinlei_yu@hotmail.com
+Subject: Re: Is there anyway to use 4M pages on x86 linux in user level?
+In-Reply-To: <E16RgGu-0005tD-00@DervishD.viadomus.com>
+Message-ID: <Pine.LNX.3.95.1020118163202.3008A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Russell King <rmk@arm.linux.org.uk>
-   Date: Fri, 18 Jan 2002 21:29:49 +0000
-   
-   However, if it becomes easy to implement without impacting the code too
-   much, then it will get fixed in due coarse.  The problem currently is
-   that there is no way for the page table allocation functions to know
-   that they should be using atomic and emergency pool memory allocations.
+On Fri, 18 Jan 2002, DervishD wrote:
 
-Encapsultate the page table allocation core interfaces into
-__whatever_alloc() routines that take a GFP arg perhaps?
-It is like a 15 minute hack.
+>     Hi Brian :)
+> 
+> >The large page size is 4MB, except in PAE mode where they are 2MB. 
+> >Normal pages are always 4KB.  Noting in the GDT affects the page
+> >size.
+> 
+>     The entries in the GDT, do not set the page size for that
+> descriptor? I'm certainly rusted on the i386 O:)))
+> 
+>     Raúl
 
-BTW, the USB host controller drivers do this (allocate potentially
-from interrupts) so anyone using USB on ARM...
+Nope! You might be confusing the "granularity" number. This just
+tells the CPU how to interpret the rest of the stuff. Right now
+the base and limit is set for 32-bits for a, gawd help me, 
+`segment`. You can go back to 16-bit segments if you want.
+
+Paging is different, there's a single bit that controls the size
+of a page; small or big, nothing in-between.  That's it.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
+

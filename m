@@ -1,50 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261993AbTEUNwA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 09:52:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261747AbTEUNvK
+	id S262097AbTEUNuz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 09:50:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbTEUNuy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 09:51:10 -0400
-Received: from dspnet.fr.eu.org ([62.73.5.179]:9485 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S262095AbTEUNiy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 09:38:54 -0400
-Date: Wed, 21 May 2003 15:51:54 +0200
-From: Olivier Galibert <galibert@pobox.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [Linux-ia64] Re: web page on O(1) scheduler
-Message-ID: <20030521135154.GA15462@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	linux-kernel@vger.kernel.org
-References: <16075.8557.309002.866895@napali.hpl.hp.com> <1053507692.1301.1.camel@laptop.fenrus.com> <3ECB57A4.1010804@octopus.com.au> <1053522732.1301.4.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1053522732.1301.4.camel@laptop.fenrus.com>
-User-Agent: Mutt/1.4i
+	Wed, 21 May 2003 09:50:54 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:52876 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262115AbTEUNl7 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 09:41:59 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: James Cleverdon <jamesclv@us.ibm.com>
+Reply-To: jamesclv@us.ibm.com
+Organization: IBM xSeries Linux Solutions
+To: "Nakajima, Jun" <jun.nakajima@intel.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       "David S. Miller" <davem@redhat.com>
+Subject: Re: userspace irq balancer
+Date: Wed, 21 May 2003 06:54:22 -0700
+User-Agent: KMail/1.4.3
+Cc: <haveblue@us.ibm.com>, <wli@holomorphy.com>, <arjanv@redhat.com>,
+       <pbadari@us.ibm.com>, <linux-kernel@vger.kernel.org>, <gh@us.ibm.com>,
+       <johnstul@us.ibm.com>, <akpm@digeo.com>, <mannthey@us.ibm.com>
+References: <3014AAAC8E0930438FD38EBF6DCEB56402043344@fmsmsx407.fm.intel.com>
+In-Reply-To: <3014AAAC8E0930438FD38EBF6DCEB56402043344@fmsmsx407.fm.intel.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200305210654.22987.jamesclv@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 21, 2003 at 03:12:12PM +0200, Arjan van de Ven wrote:
-> if you had spent the time you spent on this colorful graphic on reading
-> SUS or Posix about what sched_yield() means, you would actually have
-> learned something. sched_yield() means "I'm the least important thing in
-> the system".
+On Tuesday 20 May 2003 08:41 am, Nakajima, Jun wrote:
+> The in-kernel load balance does not move IRQs that are bound to particular
+> CPUs. If the user-level can do it better, just set affinity, and I believe
+> that is the current implementation.
+>
+> The in-kernel one is simply trying to emulate functionality in the chipset,
+> thus it's not so intelligent, of course. The major reason we need to do it
+> in software is that x86 Linux does not update TPR(s).
+>
+> Thanks,
+> Jun
 
-Susv2:
-
-DESCRIPTION
-
- The sched_yield() function forces the running thread to relinquish
- the processor until it again becomes the head of its thread list. It
- takes no arguments.
+It may be time to think about using the TPRs again, and see if HW interrupt 
+routing helps Arjan's test case.  Of course for any system using clustered 
+APIC mode, we will still need to decide which APIC cluster gets which IRQ....
 
 
-Aka "I skip the rest of my turn, try the others again once", not "I'm
-unimportant" nor "please rerun me immediatly".
+> > -----Original Message-----
+> > From: Martin J. Bligh [mailto:mbligh@aracnet.com]
+> > Sent: Tuesday, May 20, 2003 7:01 AM
+> > To: David S. Miller
+> > Cc: haveblue@us.ibm.com; wli@holomorphy.com; arjanv@redhat.com;
+> > pbadari@us.ibm.com; linux-kernel@vger.kernel.org; gh@us.ibm.com;
+> > johnstul@us.ibm.com; jamesclv@us.ibm.com; akpm@digeo.com;
+> > mannthey@us.ibm.com
+> > Subject: Re: userspace irq balancer
+> >
+> > > How does the in-kernel IRQ load balancing measure "load" and
+> > > "busyness"?  Herein lies the most absolutely fundamental problem with
+> > > this code, it fails to recognize that we end up with most of our
+> > > networking "load" from softint context.
+> >
+> > OK, that's a great observation, and probably fixable. What were the
+> > author's comments when you told him that?
+> >
+> > > rm -rf in-kernel-irqbalance;
+> >
+> > It's *very* late in the day to be ripping out such chunks of code.
+> > 1. Prove new code works better for you => make it a config option.
+> > 2. Prove new code works better for everyone => rip it out.
+> >
+> > I think we're at 1, not 2.
+> >
+> > Note that the userspace stuff doesn't even require that the kernel
+> > stuff be disabled ... it should just override it (I can believe
+> > there maybe is a bug that needs fixing, but it works by design).
+> >
+> > M.
 
-What is it with you people wanting to make sched_yield() unusable for
-anything that makes sense?
 
-  OG.
+-- 
+James Cleverdon
+IBM xSeries Linux Solutions
+{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot com
 

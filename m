@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265695AbUGDOTM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265691AbUGDOTO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265695AbUGDOTM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 10:19:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265696AbUGDOTM
+	id S265691AbUGDOTO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 10:19:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265696AbUGDOTO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 10:19:12 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:12181 "EHLO
+	Sun, 4 Jul 2004 10:19:14 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:11925 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S265695AbUGDOTK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S265691AbUGDOTK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 4 Jul 2004 10:19:10 -0400
-Date: Sun, 4 Jul 2004 08:33:21 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Weird:  30 sec delay during early boot
-Message-ID: <20040704063321.GB5054@openzaurus.ucw.cz>
-References: <40E76CC5.6020903@pobox.com>
+Date: Sun, 4 Jul 2004 08:28:46 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Louis Garcia <louisg00@bellsouth.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Status of software suspend(s)
+Message-ID: <20040704062845.GA5054@openzaurus.ucw.cz>
+References: <1088888736.2666.6.camel@tiger>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40E76CC5.6020903@pobox.com>
+In-Reply-To: <1088888736.2666.6.camel@tiger>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> This appeared in -bk-latest in the past day or two.
-> 
-> BK-current on x86-64 (config/dmesg/lspci attached) will pause for 30 
-> wall-clock seconds immediately after being loaded by the bootloader, 
-> then will proceed to boot successfully and function correctly.  This 
-> is reproducible on every boot.
-> 
-> So, 30 seconds with no printk output, then boots normally.
+> I've noticed that pavel is still hacking on swsusp. My question is what
+> happened to swsusp2? If swsusp2 is going to be merged will pavel's work
+> be for not? Any then their's pmdisk... When will this issue be finally
+> resolved?
 > 
 
-Search archives, there was something similar seen before.
-It was related to EDD, or some similar BIOS feature, IIRC.
-
-
-
-
+We are working on both issues.
+				Pavel
 -- 
 64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

@@ -1,132 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269682AbUIRXha@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269675AbUISAGn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269682AbUIRXha (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Sep 2004 19:37:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269680AbUIRXaM
+	id S269675AbUISAGn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Sep 2004 20:06:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269681AbUISAGn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Sep 2004 19:30:12 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:53714 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S269671AbUIRX15 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Sep 2004 19:27:57 -0400
-Date: Sat, 18 Sep 2004 16:27:34 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: akpm@osdl.org
-cc: "David S. Miller" <davem@davemloft.net>, benh@kernel.crashing.org,
-       wli@holomorphy.com, davem@redhat.com, raybry@sgi.com, ak@muc.de,
-       manfred@colorfullife.com, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, vrajesh@umich.edu, hugh@veritas.com
-Subject: page fault scalability patch V8: [3/7] atomic pte operations for
- ia64
-In-Reply-To: <B6E8046E1E28D34EB815A11AC8CA312902CD3243@mtv-atc-605e--n.corp.sgi.com>
-Message-ID: <Pine.LNX.4.58.0409181626420.24054@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0408150630560.324@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0408151924250.4480@schroedinger.engr.sgi.com>
- <20040816143903.GY11200@holomorphy.com>
- <B6E8046E1E28D34EB815A11AC8CA3129027B679F@mtv-atc-605e--n.corp.sgi.com>
- <B6E8046E1E28D34EB815A11AC8CA3129027B67A9@mtv-atc-605e--n.corp.sgi.com>
- <B6E8046E1E28D34EB815A11AC8CA3129027B67B4@mtv-atc-605e--n.corp.sgi.com>
- <Pine.LNX.4.58.0408271616001.14712@schroedinger.engr.sgi.com>
- <1094012689.6538.330.camel@gaston> <Pine.LNX.4.58.0409010938200.9907@schroedinger.engr.sgi.com>
- <1094080164.4025.17.camel@gaston> <Pine.LNX.4.58.0409012140440.23186@schroedinger.engr.sgi.com>
- <20040901215741.3538bbf4.davem@davemloft.net>
- <Pine.LNX.4.58.0409020920570.26893@schroedinger.engr.sgi.com>
- <20040902131057.0341e337.davem@davemloft.net>
- <Pine.LNX.4.58.0409021358540.28182@schroedinger.engr.sgi.com>
- <20040902140759.5f1003d5.davem@davemloft.net>
- <B6E8046E1E28D34EB815A11AC8CA312902CD3243@mtv-atc-605e--n.corp.sgi.com>
+	Sat, 18 Sep 2004 20:06:43 -0400
+Received: from jive.SoftHome.net ([66.54.152.27]:731 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id S269675AbUISAGi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Sep 2004 20:06:38 -0400
+Message-ID: <414CCD88.30001@softhome.net>
+Date: Sun, 19 Sep 2004 02:06:32 +0200
+From: "Ihar 'Philips' Filipau" <filia@softhome.net>
+User-Agent: Mozilla Thunderbird 0.8 (Macintosh/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Greg KH <greg@kroah.com>
+CC: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: udev is too slow creating devices
+References: <414C9003.9070707@softhome.net> <20040918213023.GB1901@kroah.com>
+In-Reply-To: <20040918213023.GB1901@kroah.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Changelog
-	* Provide atomic pte operations for ia64
-	* Enhanced parallelism in page fault handler if applied together
-	  with the generic patch
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+   Well, I got your point.
+   I promise I will not use udev ;-)
 
-Index: linus/include/asm-ia64/pgalloc.h
-===================================================================
---- linus.orig/include/asm-ia64/pgalloc.h	2004-09-18 14:25:23.000000000 -0700
-+++ linus/include/asm-ia64/pgalloc.h	2004-09-18 15:43:25.000000000 -0700
-@@ -34,6 +34,10 @@
- #define pmd_quicklist		(local_cpu_data->pmd_quick)
- #define pgtable_cache_size	(local_cpu_data->pgtable_cache_sz)
+   For last embedded system where I have had external usb storage used 
+for firmware upgrade, I used preloading of usb-storage - and everything 
+worked well. Seems it worked better than udev will ever worked - with 0 
+user space calls and immediate accessibility of /dev/sda ;-)))
 
-+/* Empty entries of PMD and PGD */
-+#define PMD_NONE       0
-+#define PGD_NONE       0
-+
- static inline pgd_t*
- pgd_alloc_one_fast (struct mm_struct *mm)
- {
-@@ -78,12 +82,19 @@
- 	preempt_enable();
- }
+   I will not try to argue, it is rather pointless for me at moment, 
+being unemployed and far from any of my systems.
 
-+
- static inline void
- pgd_populate (struct mm_struct *mm, pgd_t *pgd_entry, pmd_t *pmd)
- {
- 	pgd_val(*pgd_entry) = __pa(pmd);
- }
+P.S. Funny diversion from OpenBSD thinking. OpenBSD intentionally do not 
+support loadale modules, to prevent _any_ user space attempt to modify 
+running kernel.
 
-+/* Atomic populate */
-+static inline int
-+pgd_test_and_populate (struct mm_struct *mm, pgd_t *pgd_entry, pmd_t *pmd)
-+{
-+	return ia64_cmpxchg8_acq(pgd_entry,__pa(pmd), PGD_NONE) == PGD_NONE;
-+}
+P.P.S. Another day, I hope, you will understand that right system need 
+to provide people with two opposite ways of doing things. Sometimes it 
+is advantage to be event-based and asynchronous, sometimes it is very 
+convient to be dumb & synchronous. This two options are not mutually 
+exclusive. I/O subsystem does both ways: you can be dumb and synchronous 
+with read() (as most applications do - regardless of actual I/O being 
+event-driven), or asynchronous with aio_* stuff (sacrificing simplicity 
+of application). Giving a choice is right way to go.
 
- static inline pmd_t*
- pmd_alloc_one_fast (struct mm_struct *mm, unsigned long addr)
-@@ -132,6 +143,13 @@
- 	pmd_val(*pmd_entry) = page_to_phys(pte);
- }
+Greg KH wrote:
+> On Sat, Sep 18, 2004 at 09:44:03PM +0200, Ihar 'Philips' Filipau wrote:
+> 
+>>>That will be soon going away with my multi-threaded device discovery
+>>>work.  And I run pci hotplug boxes (and so do all of the PCMCIA/CardBus
+>>>users), so don't discard PCI from being a async bus type :)
+>>>
+>>>Async is now the norm, and drivers like the microcode module are the
+>>>exception.
+>>
+>>  I wanted you to say that.
+>>
+>>  That's wrong attitude. I'm working on workstation where 95% of 
+>>hardware plugged 100% of time. That's not exception. Not eerything is 
+>>hot-pluggable USB/FireWire/whatever.
+> 
+> 
+> Do you have PCI devices?  pnp-isa devices?  Ok, those all are
+> "hotpluggable" as far as the kernel is concerned.  They are loaded on
+> demand by userspace when the kernel sees the device.
+> 
+> If not, what kind of devices do you have?  The only place the
+> "on-demand" loading of modules doesn't work is for embedded systems that
+> have no way of discovering their devices, and need to be hardcoded in
+> the kernel.  But people are working on that :)
+> 
+> 
+>>  Event-based hot-plug scripts are great thing. As an implementation. 
+>>But user cares about one thing: 'modprobe usb-storage; mount /whatever' 
+>>working reliably.
+> 
+> 
+> No, they want to plug in their device and have the proper module
+> automatically loaded, and then the device mounted and the icon show up
+> on their desktop all automatically.  With hotplug and its helpers (udev,
+> /etc/dev.d/ and HAL) this all works just fine today.
+> 
+> 
+>>  /etc/dev.d probably great thing - but I'm not going to implement FSM 
+>>into every shell script which does modprobe for sake being Ok with 
+>>dynamic /dev/.
+> 
+> 
+> Fine, I'm not forcing you to do anything you don't want to do.  It
+> sounds like you like polling for your device nodes.  Great, live with
+> that, it is one way to do this :)
+> 
+> 
+>>  You need to change your attitude for first.
+> 
+> 
+> Change it to what?  A combative one?  Gladly :)
+> 
+> 
+>>For second - come up with a way for user space to block until device
+>>is here, and if it is not here/error detected - fail.
+> 
+> 
+> Please explain (with code) how to do that for something as "simple" as
+> the usb-storage driver.  Then we can continue this discussion.
+> 
+> 
+>>  As it was said before - /all/ we need, is to be able to tell 
+>>discovery phase from idle state of driver. "/All/" is quite much here - 
+>>but it must be a goal.
+> 
+> 
+> Wrong.  Our goal is to make Linux "just work".  And that is what is
+> happening today.  This "wait for modprobe" stuff helps no one.
+> 
+> 
+>>  I'm absolutely sure, that for PCI devices it is implementable quite 
+>>easy - probing is already done outside of modules. And we know precisely 
+>>are we Ok, or are we not. And we know when we are done. If it is not so 
+>>for USB yet - then it is bug which must be fixed.
+> 
+> 
+> PCI and USB both use the same probe core code.  So it works the same :)
+> 
+> You think you are grumpy now, just wait till I add threads to the probe
+> code...
+> 
 
-+/* Atomic populate */
-+static inline int
-+pmd_test_and_populate (struct mm_struct *mm, pmd_t *pmd_entry, struct page *pte)
-+{
-+	return ia64_cmpxchg8_acq(pmd_entry, page_to_phys(pte), PMD_NONE) == PMD_NONE;
-+}
-+
- static inline void
- pmd_populate_kernel (struct mm_struct *mm, pmd_t *pmd_entry, pte_t *pte)
- {
-Index: linus/include/asm-ia64/pgtable.h
-===================================================================
---- linus.orig/include/asm-ia64/pgtable.h	2004-09-18 14:25:23.000000000 -0700
-+++ linus/include/asm-ia64/pgtable.h	2004-09-18 15:43:25.000000000 -0700
-@@ -423,6 +423,19 @@
- extern pgd_t swapper_pg_dir[PTRS_PER_PGD];
- extern void paging_init (void);
-
-+/* Atomic PTE operations */
-+static inline pte_t
-+ptep_xchg (struct mm_struct *mm, pte_t *ptep, pte_t pteval)
-+{
-+	return __pte(xchg((long *) ptep, pteval.pte));
-+}
-+
-+static inline int
-+ptep_cmpxchg (struct vm_area_struct *vma, unsigned long addr, pte_t *ptep, pte_t oldval, pte_t newval)
-+{
-+	return ia64_cmpxchg8_acq(&ptep->pte, newval.pte, oldval.pte) == oldval.pte;
-+}
-+
- /*
-  * Note: The macros below rely on the fact that MAX_SWAPFILES_SHIFT <= number of
-  *	 bits in the swap-type field of the swap pte.  It would be nice to
-@@ -558,6 +571,7 @@
- #define __HAVE_ARCH_PTEP_MKDIRTY
- #define __HAVE_ARCH_PTE_SAME
- #define __HAVE_ARCH_PGD_OFFSET_GATE
-+#define __HAVE_ARCH_ATOMIC_TABLE_OPS
- #include <asm-generic/pgtable.h>
-
- #endif /* _ASM_IA64_PGTABLE_H */
-
+   If you are not  yet threaded - so that must be done.

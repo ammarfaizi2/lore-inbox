@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267431AbSKQBx1>; Sat, 16 Nov 2002 20:53:27 -0500
+	id <S267434AbSKQCQR>; Sat, 16 Nov 2002 21:16:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267433AbSKQBx1>; Sat, 16 Nov 2002 20:53:27 -0500
-Received: from probity.mcc.ac.uk ([130.88.200.94]:15623 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S267431AbSKQBx0>; Sat, 16 Nov 2002 20:53:26 -0500
-Date: Sun, 17 Nov 2002 02:00:17 +0000
-From: John Levon <levon@movementarian.org>
-To: Corey Minyard <cminyard@mvista.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       "'Zwane Mwaikambo'" <zwane@holomorphy.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: NMI handling rework for x86
-Message-ID: <20021117020017.GA96715@compsoc.man.ac.uk>
-References: <3DD47858.3060404@mvista.com> <20021115051207.GA29779@compsoc.man.ac.uk> <3DD5011F.9010409@mvista.com> <20021115174833.GB83229@compsoc.man.ac.uk> <3DD5444E.9070808@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DD5444E.9070808@mvista.com>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan *18DEjR-0000sJ-00*IZVQeOUZLAY* (Manchester Computing, University of Manchester)
+	id <S267435AbSKQCQR>; Sat, 16 Nov 2002 21:16:17 -0500
+Received: from mx11.dmz.fedex.com ([199.81.193.118]:37380 "EHLO
+	mx11.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S267434AbSKQCQQ>; Sat, 16 Nov 2002 21:16:16 -0500
+Date: Sun, 17 Nov 2002 10:21:34 +0800 (SGT)
+From: Jeff Chua <jchua@fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Jeff Chua <jchua@fedex.com>
+cc: Andries Brouwer <aebr@win.tue.nl>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Subject: Re: VFAT mount (bug or feature?
+In-Reply-To: <Pine.LNX.4.44.0211170944020.432-100000@boston.corp.fedex.com>
+Message-ID: <Pine.LNX.4.44.0211171019550.524-100000@boston.corp.fedex.com>
+MIME-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 11/17/2002
+ 10:23:08 AM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 11/17/2002
+ 10:23:11 AM,
+	Serialize complete at 11/17/2002 10:23:11 AM
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 15, 2002 at 01:00:30PM -0600, Corey Minyard wrote:
 
-> I have attached another patch, this one fixes my stupid bug in 
-> dummy_watchdog_reset and also adds code to the NMI watchdog to not 
-> handle the NMI if it has already been handled.  Again, you must do a "cd 
-> arch/i386/kernel; mv nmi.c nmi_watchdog.c" before applying this patch.
+On Sun, 17 Nov 2002, Jeff Chua wrote:
 
-I have tested this patch running oprofile on a dual box at 150,000
-ints/sec and more, with nmi_watchdog=0,1,2, and couldn't reproduce any
-problems.
+> But, 2.4.20-rc2 seems ok.
+>
+> 'mount -o umask=022' now works under 2.4.20-rc2.
 
-One thing: since we have the unnatural relationship between the watchdog
-and oprofile, I would much prefer that be obvious in the priority. e.g
-MAX_NMI_PRIORITY, which oprofile uses, then watchdog is MAX_NMI_PRIORITY
--1. Currently the gap between the two values you use indicates it's OK
-to have another handler inbetween, which it definitely isn't.
+"remount" doesn't work.
 
-regards
-john
+mount -o umask=022 -t vfat /dev/hda1 /dos
+mount -o umask=000 -o remount -t vfat /dev/hda1 /dos
+
+The above didn't work.
+
+umount /dos
+mount -o umask=022 -t vfat /dev/hda1 /dos
+umount /dos
+mount -o umask=000 -t vfat /dev/hda1 /dos
+
+
+Jeff
+
+

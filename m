@@ -1,55 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265025AbUFVS3V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265343AbUFVStX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265025AbUFVS3V (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 14:29:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265140AbUFVS3A
+	id S265343AbUFVStX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 14:49:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265286AbUFVSiq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 14:29:00 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:22409 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S265025AbUFVSVW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 14:21:22 -0400
-Message-ID: <40D878DF.7060109@tmr.com>
-Date: Tue, 22 Jun 2004 14:22:23 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040608
-X-Accept-Language: en-us, en
+	Tue, 22 Jun 2004 14:38:46 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:42320 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S265343AbUFVSgf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 14:36:35 -0400
+To: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Question on using MSI in PCI driver
+X-Message-Flag: Warning: May contain useful information
+References: <C7AB9DA4D0B1F344BF2489FA165E5024057E5196@orsmsx404.amr.corp.intel.com>
+From: Roland Dreier <roland@topspin.com>
+Date: Tue, 22 Jun 2004 11:26:44 -0700
+In-Reply-To: <C7AB9DA4D0B1F344BF2489FA165E5024057E5196@orsmsx404.amr.corp.intel.com> (Tom
+ L. Nguyen's message of "Tue, 22 Jun 2004 11:08:04 -0700")
+Message-ID: <524qp3o3dn.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
-To: Matthias Andree <matthias.andree@gmx.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Stop the Linux kernel madness
-References: <20040620052836.GC28363@michonline.com><20040620052836.GC28363@michonline.com> <20040622151759.GB11760@merlin.emma.line.org>
-In-Reply-To: <20040622151759.GB11760@merlin.emma.line.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 22 Jun 2004 18:26:44.0944 (UTC) FILETIME=[78D71500:01C45886]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Andree wrote:
-> On Sun, 20 Jun 2004, Ryan Anderson wrote:
-> 
-> 
->>>What do I need commercial OSS for after all when Alsa works well for me?
->>
->>Well, for what it's worth, there are a few devices out there for which
->>there is no open source driver:
->>0000:02:02.0 Multimedia audio controller: Creative Labs [SB Live! Value]
->>EMU10k1X
->>(Dell Dimension 2100, *I think* - it's at work right, and I'm not)
->>
->>I believe 4Front provides the only driver for that specific device (it's
->>a crippled EMU10k1, probably what could be called a "WinSoundchip")
-> 
-> 
-> So what? If the mutilated hardware requires a commercial driver one
-> might as well spend the third-party driver cost on better hardware.
+    Tom> What do you think of "Failure to request the MMIO address
+    Tom> space of the MSI-X PBA"?  Or what name do you suggest?
 
-The beauty of FOSS is that people have a *choice* of where to spend 
-their money. If you prefer an o/s which limits your choices there is 
-one... upgrade the hardware is not always a choice, not all Linux 
-systems are PCs, even the Intel-based systems.
+Unless I'm misunderstanding the code, nothing is failing, and it's not
+the PBA being mapped.  You're ioremapping the the MSI-X vector table
+so that the msi core can write vector values, etc.  So I would suggest
+using a name of "MSI-X vector table" in the call to
+request_mem_region.  (Remember that this name will be displayed in
+/proc/iomem, and I don't think it makes sense to display "MSI-X iomap
+Failure" to the user when MSI-X is set up and working).
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+ - Roland

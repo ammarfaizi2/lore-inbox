@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262532AbUDHTz5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 15:55:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262416AbUDHTzP
+	id S262454AbUDHUD5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 16:03:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262418AbUDHUAy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 15:55:15 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:37352 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S262532AbUDHTvr (ORCPT
+	Thu, 8 Apr 2004 16:00:54 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:3047 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262454AbUDHTvH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 15:51:47 -0400
-Date: Thu, 8 Apr 2004 12:50:37 -0700
+	Thu, 8 Apr 2004 15:51:07 -0400
+Date: Thu, 8 Apr 2004 12:50:30 -0700
 From: Paul Jackson <pj@sgi.com>
 To: Paul Jackson <pj@sgi.com>
 Cc: colpatch@us.ibm.com, wli@holomorphy.com, rusty@rustcorp.com.au,
        linux-kernel@vger.kernel.org
-Subject: Patch 21/23 - Bitmaps, Cpumasks and Nodemasks
-Message-Id: <20040408125037.7c65ac76.pj@sgi.com>
+Subject: Patch 20/23 - Bitmaps, Cpumasks and Nodemasks
+Message-Id: <20040408125030.2b710efa.pj@sgi.com>
 In-Reply-To: <20040408115050.2c67311a.pj@sgi.com>
 References: <20040408115050.2c67311a.pj@sgi.com>
 Organization: SGI
@@ -26,216 +26,170 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-P21.nodemask_x86_64 - Matthew Dobson's [PATCH]_nodemask_t_x86_64_changes_[5_7]
-        Changes to x86_64 specific code.
-        Untested.  Code review & testing requested.
+P20.nodemask_pp64 - Matthew Dobson's [PATCH]_nodemask_t_pp64_changes_[4_7]
+        Changes to ppc64 specific code.  Untested.
+        Code review & testing requested.
 
-Index: 2.6.5.bitmap/arch/x86_64/kernel/setup64.c
+Index: 2.6.5.bitmap/arch/ppc64/kernel/smp.c
 ===================================================================
---- 2.6.5.bitmap.orig/arch/x86_64/kernel/setup64.c	2004-04-05 02:41:32.000000000 -0700
-+++ 2.6.5.bitmap/arch/x86_64/kernel/setup64.c	2004-04-08 04:46:12.000000000 -0700
-@@ -135,11 +135,11 @@
- 		unsigned char *ptr;
- 		/* If possible allocate on the node of the CPU.
- 		   In case it doesn't exist round-robin nodes. */
--		if (!NODE_DATA(i % numnodes)) { 
--			printk("cpu with no node %d, numnodes %d\n", i, numnodes);
-+		if (!NODE_DATA(i % num_online_nodes())) { 
-+			printk("cpu with no node %d, num_online_nodes() %d\n", i, num_online_nodes());
- 			ptr = alloc_bootmem(size);
- 		} else { 
--			ptr = alloc_bootmem_node(NODE_DATA(i % numnodes), size);
-+			ptr = alloc_bootmem_node(NODE_DATA(i % num_online_nodes()), size);
- 		}
- 		if (!ptr)
- 			panic("Cannot allocate cpu data for CPU %d\n", i);
-Index: 2.6.5.bitmap/arch/x86_64/mm/k8topology.c
-===================================================================
---- 2.6.5.bitmap.orig/arch/x86_64/mm/k8topology.c	2004-04-05 02:41:32.000000000 -0700
-+++ 2.6.5.bitmap/arch/x86_64/mm/k8topology.c	2004-04-08 04:46:12.000000000 -0700
-@@ -44,7 +44,7 @@
- int __init k8_scan_nodes(unsigned long start, unsigned long end)
- { 
- 	unsigned long prevbase;
--	struct node nodes[MAXNODE];
-+	struct node nodes[MAX_NUMNODES];
- 	int nodeid, i, nb; 
- 	int found = 0;
- 	u32 reg;
-@@ -57,9 +57,10 @@
- 	printk(KERN_INFO "Scanning NUMA topology in Northbridge %d\n", nb); 
- 
- 	reg = read_pci_config(0, nb, 0, 0x60); 
--	numnodes =  ((reg >> 4) & 7) + 1; 
-+	for(i = 0; i <= ((reg >> 4) & 7); i++)
-+		node_set_online(i); 
- 
--	printk(KERN_INFO "Number of nodes %d (%x)\n", numnodes, reg);
-+	printk(KERN_INFO "Number of nodes %d (%x)\n", num_online_nodes(), reg);
- 
- 	memset(&nodes,0,sizeof(nodes)); 
- 	prevbase = 0;
-@@ -71,11 +72,11 @@
- 
- 		nodeid = limit & 7; 
- 		if ((base & 3) == 0) { 
--			if (i < numnodes) 
-+			if (i < num_online_nodes()) 
- 				printk("Skipping disabled node %d\n", i); 
- 			continue;
- 		} 
--		if (nodeid >= numnodes) { 
-+		if (nodeid >= num_online_nodes()) { 
- 			printk("Ignoring excess node %d (%lx:%lx)\n", nodeid,
- 			       base, limit); 
- 			continue;
-@@ -91,7 +92,7 @@
- 			       nodeid, (base>>8)&3, (limit>>8) & 3); 
- 			return -1; 
- 		}	
--		if ((1UL << nodeid) & nodes_present) { 
-+		if (node_online(nodeid)) {
- 			printk(KERN_INFO "Node %d already present. Skipping\n", 
- 			       nodeid);
- 			continue;
-@@ -151,7 +152,7 @@
- 	} 
- 	printk(KERN_INFO "Using node hash shift of %d\n", memnode_shift); 
- 
--	for (i = 0; i < MAXNODE; i++) { 
-+	for_each_node(i) {
- 		if (nodes[i].start != nodes[i].end)
- 		setup_node_bootmem(i, nodes[i].start, nodes[i].end); 
- 	} 
-@@ -161,15 +162,16 @@
- 	   mapping. To avoid this fill in the mapping for all possible
- 	   CPUs, as the number of CPUs is not known yet. 
- 	   We round robin the existing nodes. */
--	rr = 0;
--	for (i = 0; i < MAXNODE; i++) {
--		if (nodes_present & (1UL<<i))
--			continue;
--		if ((nodes_present >> rr) == 0) 
--			rr = 0; 
--		rr = ffz(~nodes_present >> rr); 
-+	rr = first_node(node_online_map);
-+	for_each_node(i) {
-+		if (node_online(i))
-+			continue;
-+
- 		node_data[i] = node_data[rr];
--		rr++; 
-+
-+		rr = next_node(rr, node_online_map);
-+		if (rr >= MAX_NUMNODES)
-+			rr = first_node(node_online_map);
- 	}
- 
- 	if (found == 1) 
-Index: 2.6.5.bitmap/arch/x86_64/mm/numa.c
-===================================================================
---- 2.6.5.bitmap.orig/arch/x86_64/mm/numa.c	2004-04-05 02:41:32.000000000 -0700
-+++ 2.6.5.bitmap/arch/x86_64/mm/numa.c	2004-04-08 04:46:12.000000000 -0700
-@@ -18,7 +18,7 @@
- #define Dprintk(x...)
- #endif
- 
--struct pglist_data *node_data[MAXNODE];
-+struct pglist_data *node_data[MAX_NUMNODES];
- bootmem_data_t plat_node_bdata[MAX_NUMNODES];
- 
- int memnode_shift;
-@@ -26,8 +26,6 @@
- 
- static int numa_off __initdata; 
- 
--unsigned long nodes_present; 
--
- int __init compute_hash_shift(struct node *nodes)
- {
- 	int i; 
-@@ -37,7 +35,7 @@
- 	/* When in doubt use brute force. */
- 	while (shift < 48) { 
- 		memset(memnodemap,0xff,sizeof(*memnodemap) * NODEMAPSIZE); 
--		for (i = 0; i < numnodes; i++) { 
-+		for_each_online_node(i) {
- 			if (nodes[i].start == nodes[i].end) 
- 				continue;
- 			for (addr = nodes[i].start; 
-@@ -103,9 +101,6 @@
- 
- 	reserve_bootmem_node(NODE_DATA(nodeid), nodedata_phys, pgdat_size); 
- 	reserve_bootmem_node(NODE_DATA(nodeid), bootmap_start, bootmap_pages<<PAGE_SHIFT);
--	if (nodeid + 1 > numnodes)
--		numnodes = nodeid + 1;
--	nodes_present |= (1UL << nodeid); 
- 	node_set_online(nodeid);
- } 
- 
-@@ -154,7 +149,8 @@
- 	fake_node = 1; 	
- 	memnode_shift = 63; 
- 	memnodemap[0] = 0;
--	numnodes = 1;
-+	nodes_clear(node_online_map);
-+	node_set_online(0);
- 	setup_node_bootmem(0, start_pfn<<PAGE_SHIFT, end_pfn<<PAGE_SHIFT);
- 	return -1; 
- } 
-@@ -163,7 +159,7 @@
- { 
+--- 2.6.5.bitmap.orig/arch/ppc64/kernel/smp.c	2004-04-05 02:41:32.000000000 -0700
++++ 2.6.5.bitmap/arch/ppc64/kernel/smp.c	2004-04-08 04:46:10.000000000 -0700
+@@ -737,19 +737,17 @@
  	int i;
- 	unsigned long pages = 0;
--	for_all_nodes(i) {
+ 	int ret;
+ 
+-	for (i = 0; i < MAX_NUMNODES; i++) {
+-		if (node_online(i)) {
+-			int p_node = parent_node(i);
+-			struct node *parent = NULL;
+-
+-			if (p_node != i)
+-				parent = &node_devices[p_node];
+-
+-			ret = register_node(&node_devices[i], i, parent);
+-			if (ret)
+-				printk(KERN_WARNING "register_nodes: "
+-				       "register_node %d failed (%d)", i, ret);
+-		}
 +	for_each_online_node(i) {
- 		pages += free_all_bootmem_node(NODE_DATA(i));
++		int p_node = parent_node(i);
++		struct node *parent = NULL;
++
++		if (p_node != i)
++			parent = &node_devices[p_node];
++
++		ret = register_node(&node_devices[i], i, parent);
++		if (ret)
++			printk(KERN_WARNING "register_nodes: "
++			       "register_node %d failed (%d)", i, ret);
  	}
- 	return pages;
-@@ -172,7 +168,7 @@
- void __init paging_init(void)
- { 
- 	int i;
--	for_all_nodes(i) { 
-+	for_each_online_node(i) { 
- 		setup_node_zones(i); 
+ }
+ #else
+Index: 2.6.5.bitmap/arch/ppc64/mm/hugetlbpage.c
+===================================================================
+--- 2.6.5.bitmap.orig/arch/ppc64/mm/hugetlbpage.c	2004-04-05 02:41:32.000000000 -0700
++++ 2.6.5.bitmap/arch/ppc64/mm/hugetlbpage.c	2004-04-08 04:46:10.000000000 -0700
+@@ -56,10 +56,10 @@
+ 	if (!largepage_roundrobin)
+ 		nid = numa_node_id();
+ 
+-	for (i = 0; i < numnodes; i++) {
++	for_each_online_node(i) {
+ 		if (!list_empty(&hugepage_freelists[nid]))
+ 			break;
+-		nid = (nid + 1) % numnodes;
++		nid = (nid + 1) % num_online_nodes();
  	}
- } 
-Index: 2.6.5.bitmap/include/asm-x86_64/mmzone.h
+ 
+ 	if (!list_empty(&hugepage_freelists[nid])) {
+@@ -68,7 +68,7 @@
+ 	}
+ 
+ 	if (largepage_roundrobin)
+-		nid = (nid + 1) % numnodes;
++		nid = (nid + 1) % num_online_nodes();
+ 
+ 	return page;
+ }
+@@ -83,7 +83,7 @@
+ 		return NULL;
+ 
+ 	nid = page_zone(page)->zone_pgdat->node_id;
+-	nid = (nid + 1) % numnodes;
++	nid = (nid + 1) % num_online_nodes();
+ 	return page;
+ }
+ 
+@@ -887,7 +887,7 @@
+ 	struct page *page;
+ 
+ 	if (cur_cpu_spec->cpu_features & CPU_FTR_16M_PAGE) {
+-		for (i = 0; i < MAX_NUMNODES; ++i)
++		for_each_node(i)
+ 			INIT_LIST_HEAD(&hugepage_freelists[i]);
+ 
+ 		for (i = 0; i < htlbpage_max; ++i) {
+Index: 2.6.5.bitmap/arch/ppc64/mm/init.c
 ===================================================================
---- 2.6.5.bitmap.orig/include/asm-x86_64/mmzone.h	2004-04-05 02:41:33.000000000 -0700
-+++ 2.6.5.bitmap/include/asm-x86_64/mmzone.h	2004-04-08 04:46:12.000000000 -0700
-@@ -12,7 +12,6 @@
+--- 2.6.5.bitmap.orig/arch/ppc64/mm/init.c	2004-04-05 02:41:32.000000000 -0700
++++ 2.6.5.bitmap/arch/ppc64/mm/init.c	2004-04-08 04:46:10.000000000 -0700
+@@ -637,7 +637,7 @@
+ {
+ 	int nid;
  
- #include <asm/smp.h>
- 
--#define MAXNODE 8 
- #define NODEMAPSIZE 0xff
- 
- /* Simple perfect hash to map physical addresses to node numbers */
-Index: 2.6.5.bitmap/include/asm-x86_64/numa.h
+-        for (nid = 0; nid < numnodes; nid++) {
++	for_each_online_node(nid) {
+ 		if (node_data[nid].node_spanned_pages != 0) {
+ 			printk("freeing bootmem node %x\n", nid);
+ 			totalram_pages +=
+Index: 2.6.5.bitmap/arch/ppc64/mm/numa.c
 ===================================================================
---- 2.6.5.bitmap.orig/include/asm-x86_64/numa.h	2004-04-05 02:41:33.000000000 -0700
-+++ 2.6.5.bitmap/include/asm-x86_64/numa.h	2004-04-08 04:46:12.000000000 -0700
-@@ -1,19 +1,13 @@
- #ifndef _ASM_X8664_NUMA_H 
- #define _ASM_X8664_NUMA_H 1
+--- 2.6.5.bitmap.orig/arch/ppc64/mm/numa.c	2004-04-05 02:41:32.000000000 -0700
++++ 2.6.5.bitmap/arch/ppc64/mm/numa.c	2004-04-08 04:46:10.000000000 -0700
+@@ -64,7 +64,6 @@
+ 	int *cpu_associativity;
+ 	int *memory_associativity;
+ 	int depth;
+-	int max_domain = 0;
  
--#define MAXNODE 8 
- #define NODEMASK 0xff
+ 	if (strstr(saved_command_line, "numa=off")) {
+ 		printk(KERN_WARNING "NUMA disabled by user\n");
+@@ -115,14 +114,11 @@
+ 			numa_domain = 0;
+ 		}
  
- struct node { 
- 	u64 start,end; 
- };
+-		if (numa_domain >= MAX_NUMNODES)
++		if (!node_possible(numa_domain))
+ 			BUG();
  
--#define for_all_nodes(x) for ((x) = 0; (x) < numnodes; (x)++) \
--				if ((1UL << (x)) & nodes_present)
+ 		node_set_online(numa_domain);
+ 
+-		if (max_domain < numa_domain)
+-			max_domain = numa_domain;
 -
--
- extern int compute_hash_shift(struct node *nodes);
--extern unsigned long nodes_present;
+ 		map_cpu_to_node(cpu_nr, numa_domain);
+ 	}
  
- #define ZONE_ALIGN (1UL << (MAX_ORDER+PAGE_SHIFT))
+@@ -171,11 +167,10 @@
+ 			numa_domain = 0;
+ 		}
+ 
+-		if (numa_domain >= MAX_NUMNODES)
++		if (!node_possible(numa_domain))
+ 			BUG();
+ 
+-		if (max_domain < numa_domain)
+-			max_domain = numa_domain;
++		node_set_online(numa_domain);
+ 
+ 		/* 
+ 		 * For backwards compatibility, OF splits the first node
+@@ -212,8 +207,6 @@
+ 			goto new_range;
+ 	}
+ 
+-	numnodes = max_domain + 1;
+-
+ 	return 0;
+ err:
+ 	of_node_put(cpu);
+@@ -256,7 +249,7 @@
+ 	if (parse_numa_properties())
+ 		setup_nonnuma();
+ 
+-	for (nid = 0; nid < numnodes; nid++) {
++	for_each_online_node(nid) {
+ 		unsigned long start_paddr, end_paddr;
+ 		int i;
+ 		unsigned long bootmem_paddr;
+@@ -343,7 +336,7 @@
+ 	memset(zones_size, 0, sizeof(zones_size));
+ 	memset(zholes_size, 0, sizeof(zholes_size));
+ 
+-	for (nid = 0; nid < numnodes; nid++) {
++	for_each_online_node(nid) {
+ 		unsigned long start_pfn;
+ 		unsigned long end_pfn;
  
 
 

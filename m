@@ -1,60 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263977AbSLJQfT>; Tue, 10 Dec 2002 11:35:19 -0500
+	id <S262620AbSLJQd2>; Tue, 10 Dec 2002 11:33:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264638AbSLJQfT>; Tue, 10 Dec 2002 11:35:19 -0500
-Received: from willow.compass.com.ph ([202.70.96.38]:52231 "EHLO
-	willow.compass.com.ph") by vger.kernel.org with ESMTP
-	id <S263977AbSLJQfR>; Tue, 10 Dec 2002 11:35:17 -0500
-Subject: Re: [BUG]: agpgart for i810 chipsets broken in 2.5.51
-From: Antonino Daplas <adaplas@pol.net>
-To: Dave Jones <davej@suse.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021210172320.A4586@suse.de>
-References: <1039522886.1041.17.camel@localhost.localdomain>
-	<20021210131143.GA26361@suse.de>
-	<1039538881.2025.2.camel@localhost.localdomain>
-	<20021210140301.GC26361@suse.de>
-	<1039547210.1071.26.camel@localhost.localdomain> 
-	<20021210172320.A4586@suse.de>
-Content-Type: text/plain
+	id <S263321AbSLJQd1>; Tue, 10 Dec 2002 11:33:27 -0500
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:62622 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
+	id <S262620AbSLJQd1>; Tue, 10 Dec 2002 11:33:27 -0500
+Message-ID: <3DF61922.D9083BAF@attbi.com>
+Date: Tue, 10 Dec 2002 11:41:06 -0500
+From: Jim Houston <jim.houston@attbi.com>
+Reply-To: jim.houston@attbi.com
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: akpm@digeo.com, linux-kernel@vger.kernel.org, george@mvista.com
+Subject: Re: [PATCH 3/3] High-res-timers part 3 (posix to hrposix) take 20
+References: <3DF4B5C1.D36D4CCF@attbi.com> <20021209223515.GC20686@holomorphy.com> <3DF549A3.5D63B4B0@attbi.com> <20021210021107.GD9882@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <1039548861.1086.42.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 11 Dec 2002 00:36:47 +0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-12-10 at 21:23, Dave Jones wrote:
-> On Wed, Dec 11, 2002 at 12:08:22AM +0500, Antonino Daplas wrote:
->  > Tried it with framebuffer console off, same results. Moved agp before vt
->  > in char/Makefile, same. Even manually calling agp_init() doesn't work
->  > because what's really needed is agp_intel_init(). 
->  > 
->  > Anyway, I guess I'll stick to what I'm doing right now, periodically do
->  > an inter_module_get("drm_agp") until it becomes available.
-> 
-> That's really quite icky. Even putting an..
-> 
-> #ifdef CONFIG_FRAMEBUFFER_I810
->     dev = pci_find_blah..
->     agp_intel_init(dev);
-> #endif
-> 
-> before console_init() call in init/main.c seems cleaner than that imo,
-> (and this is still quite gross).
-> 
-That's fine by me.  It's basically what I'm doing in 2.4, except that I
-call it directly from the driver.  I'm just not in the habit of touching
-other people's code.  
+Hi Everyone,
 
-agp_intel_init() will be called twice though, first by i810fb, then the
-usual inits, so a flag has to be set once the function is called.
+Since both Andrew and Bill have mentioned user space test harness,
+I thought it might help to point out to my earlier email which
+includes the user space test program I used.
 
-If it's okay with you, I'll do it that way (and save me some 100 lines
-of code in the process :-), and submit a patch.
+It is archived here:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=102916884821920&w=2
 
-Tony 
-
-
+Jim Houston - Concurrent Computer Corp.

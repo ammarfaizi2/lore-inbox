@@ -1,54 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263401AbTH0O4v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 10:56:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263411AbTH0O4v
+	id S263452AbTH0Oub (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 10:50:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263450AbTH0Oub
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 10:56:51 -0400
-Received: from kone17.procontrol.vip.fi ([212.149.71.178]:40160 "EHLO
-	danu.procontrol.fi") by vger.kernel.org with ESMTP id S263401AbTH0O4u
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 10:56:50 -0400
-Date: Wed, 27 Aug 2003 17:56:30 +0300
-Subject: Re: Lockless file reading
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v552)
-Cc: Martin Konold <martin.konold@erfrakon.de>, linux-kernel@vger.kernel.org
-To: root@chaos.analogic.com
-From: Timo Sirainen <tss@iki.fi>
-In-Reply-To: <Pine.LNX.4.53.0308270925550.278@chaos>
-Message-Id: <A43789CE-D89E-11D7-9D97-000393CC2E90@iki.fi>
-Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.552)
+	Wed, 27 Aug 2003 10:50:31 -0400
+Received: from www.13thfloor.at ([212.16.59.250]:29909 "EHLO www.13thfloor.at")
+	by vger.kernel.org with ESMTP id S263452AbTH0Oua (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 10:50:30 -0400
+Date: Wed, 27 Aug 2003 16:50:41 +0200
+From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
+To: Laurent =?iso-8859-1?Q?Hug=E9?= <laurent.huge@wanadoo.fr>
+Cc: Stuart MacDonald <stuartm@connecttech.com>,
+       "'Russell King'" <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Reading accurate size of recepts from serial port
+Message-ID: <20030827145041.GC26817@www.13thfloor.at>
+Reply-To: herbert@13thfloor.at
+Mail-Followup-To: Laurent =?iso-8859-1?Q?Hug=E9?= <laurent.huge@wanadoo.fr>,
+	Stuart MacDonald <stuartm@connecttech.com>,
+	'Russell King' <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+References: <005c01c36bdd$8ae58d30$294b82ce@stuartm> <200308261723.04683.laurent.huge@wanadoo.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200308261723.04683.laurent.huge@wanadoo.fr>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, Aug 27, 2003, at 16:40 Europe/Helsinki, Richard B. 
-Johnson wrote:
+On Tue, Aug 26, 2003 at 05:23:04PM +0200, Laurent Hugé wrote:
+> Le Mardi 26 Août 2003 16:22, Stuart MacDonald a écrit :
+> > I may be mistaken, but I believe that Windows serial drivers work the
+> > same way; so whatever you meant by your previous comment that you can
+> > get what you want under windows, either you can get the same thing
+> > under linux, or windows doesn't behave like you think it does.
+> I actually don't know how it works, because I didn't contrive it (I can only 
+> rely on what has been told to me by the people whom has done it). I'm only in 
+> charge of porting it to Linux.
+> Anyway, I'm on the way to another solution (by using some property of CCSDS 
+> segments, and see what happens).
 
-> So I don't see how you could ever have a sequence of 123 written,
-> with both '1' and '3' written, but not '2'. It is only the stuff
-> on the 'ends' that can be incomplete.
+hmm, why not do simple framing ...
+[length]<data>[length]<data> ....
 
-That's pretty much what I was assuming without knowing how the kernel 
-internally really works.
+best,
+Herbert
 
-> Anyway, if you want two (or more) processes to access the file,
-> you should mmap it. You can configure a mmap'ed file so that
-> updates appear to all readers. However, just like any shared-memory
-> access, you need some kind of synchronization, perhaps a semaphore,
-> so that you always read valid data. Usually one only needs
-> __valid__ data, not necessarily __current__ data.
-
-Right, that's why I don't really need read locking. The 
-double-writing/reading with memcmp() checking was supposed to check 
-that the data is valid.
-
-I'm already using shared mmaps, but I was thinking that supporting NFS 
-would be nice as well. That'd work pretty much the same as write()s.
-
-Maybe it would be possible to use some kind of error detection 
-checksums which would guarantee that the data either is valid or isn't, 
-regardless of the order in which it is written. I don't really know how 
-that could be done though.
-
+> -- 
+> Laurent Hugé.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

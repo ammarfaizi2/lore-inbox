@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263350AbTDSE7T (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Apr 2003 00:59:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263353AbTDSE7T
+	id S263355AbTDSFNm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Apr 2003 01:13:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263357AbTDSFNl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Apr 2003 00:59:19 -0400
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:16104 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S263350AbTDSE7S
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Apr 2003 00:59:18 -0400
-Message-ID: <3EA0CD95.1070109@pacbell.net>
-Date: Fri, 18 Apr 2003 21:16:21 -0700
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-X-Accept-Language: en-us, en, fr
-MIME-Version: 1.0
-To: "Kevin P. Fleming" <kpfleming@cox.net>
-CC: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       message-bus-list@redhat.com
-Subject: Re: [ANNOUNCE] udev 0.1 release
-References: <20030411172011.GA1821@kroah.com> <200304111746.h3BHk9hd001736@81-2-122-30.bradfords.org.uk> <20030411182313.GG25862@wind.cocodriloo.com> <3E970A00.2050204@cox.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 19 Apr 2003 01:13:41 -0400
+Received: from dp.samba.org ([66.70.73.150]:48335 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S263355AbTDSFNk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Apr 2003 01:13:40 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Greg KH <greg@kroah.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, sfr@canb.auug.org.au,
+       Andries.Brouwer@cwi.nl, akpm@digeo.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] struct loop_info64 
+In-reply-to: Your message of "Fri, 18 Apr 2003 11:06:30 MST."
+             <20030418180630.GA7247@kroah.com> 
+Date: Sat, 19 Apr 2003 14:54:59 +1000
+Message-Id: <20030419052538.9EA962C0C7@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kevin P. Fleming wrote:
+In message <20030418180630.GA7247@kroah.com> you write:
+> On Fri, Apr 18, 2003 at 10:55:21AM -0700, Linus Torvalds wrote:
+> > 
+> > But we really should have a __ptr64 type too. There's just no sane way to
+> > tell gcc about it without requireing casts, which is inconvenient (which
+> > means that right now it you just have to use __u64 for pointers if you
+> > want to be able to share the structure across 32/64-bit architectures).
 > 
-> 	 All it takes 
-> for the driver for a Fibre Channel host adapter to load, and enumerate 
-> the devices it can see. In a matter of seconds many hundreds or 
-> thousands of disk devices could be registered with the kernel.
+> I think that's what Stephan and Rusty tried to do with the
+> kernel_ulong_t typedef in include/linux/mod_devicetable.h.
+> 
+> Maybe that typedef could be changed into the __ptr64 type?  Stephan?
 
-Not the design center for the original "exec /sbin/hotplug" style
-event delivery, no way!
+Stephen is away on holidays.
 
-A near-term option would be just to have some kind of throttle on
-how many hotplug invocations are going on concurrently -- avoiding
-process creation storms.  That should easily take Linux all the way
-into the 2.7 series, for those who want to tread carefully in terms
-of changing sysadmin technologies.
+The kernel_ulong_t here is different.  It's because (for good or bad)
+that header contains longs and is shared with userspace.  Fortunately,
+it's only now shared with one very particular program, which is in the
+kernel source tree, so kludgery is less harmful.
 
-- Dave
-
-
-
+Hope that clarifies,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,63 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132857AbRALUgr>; Fri, 12 Jan 2001 15:36:47 -0500
+	id <S132550AbRALUhh>; Fri, 12 Jan 2001 15:37:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132966AbRALUgh>; Fri, 12 Jan 2001 15:36:37 -0500
-Received: from e56090.upc-e.chello.nl ([213.93.56.90]:42251 "EHLO unternet.org")
-	by vger.kernel.org with ESMTP id <S132857AbRALUgY>;
-	Fri, 12 Jan 2001 15:36:24 -0500
-Date: Fri, 12 Jan 2001 21:35:55 +0100
-From: Frank de Lange <frank@unternet.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Manfred Spraul <manfred@colorfullife.com>,
-        Linus Torvalds <torvalds@transmeta.com>, dwmw2@infradead.org,
-        linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardwarerelated?
-Message-ID: <20010112213555.F26555@unternet.org>
-In-Reply-To: <20010112212646.D26555@unternet.org> <Pine.LNX.4.30.0101122130310.2772-100000@e2>
-Mime-Version: 1.0
+	id <S132756AbRALUhU>; Fri, 12 Jan 2001 15:37:20 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:8455 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S132550AbRALUg5>; Fri, 12 Jan 2001 15:36:57 -0500
+Message-ID: <3A5F6AD9.8DAD6ABC@transmeta.com>
+Date: Fri, 12 Jan 2001 12:36:41 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
+MIME-Version: 1.0
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+CC: Andries.Brouwer@cwi.nl, ftpadmin@kernel.org, jmd@foozle.turbogeek.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: kernel.org signer broken?
+In-Reply-To: <UTC200101121456.PAA105954.aeb@ark.cwi.nl> <3A5F67D4.D096B191@transmeta.com> <20010112223415.J25659@mea-ext.zmailer.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0101122130310.2772-100000@e2>; from mingo@elte.hu on Fri, Jan 12, 2001 at 09:31:15PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 12, 2001 at 09:31:15PM +0100, Ingo Molnar wrote:
+Matti Aarnio wrote:
 > 
-> On Fri, 12 Jan 2001, Frank de Lange wrote:
+> On Fri, Jan 12, 2001 at 12:23:48PM -0800, H. Peter Anvin wrote:
+> > Andries.Brouwer@cwi.nl wrote:
+> > > > The signature on man-pages-1.34.tar.gz is bad:
+> > >
+> > > Hmm, thought I had corrected that already.
+> > > Is it correct now?
+> > >
+> > > Andries
+> >
+> > Because an updated signature has the same timestamp and size, it can take
+> > up to 24 hours for it to hit ftp.kernel.org, and even longer to propagate
+> > to the mirrors, unfortunately.
 > 
-> > WITH or WITHOUT the changed 8390 driver? I can already give you the
-> > results for running WITH the changed driver: it works. I have not yet
-> > tried it WITHOUT the changed 8390 driver (so that would be stock 8390,
-> > patched apic.c, stock io_apic.c). Please let me know which you want...
+>         Ok, then rsync  won't find it either unless driven in
+>         file CRC verification mode (which is not usual...)
 > 
-> WITH. patched 8390.c, patched apic.c, sock io_apic.c. My very strong
-> feeling is that this will be a stable combination, and that this is what
-> we want as a final solution.
 
-It is. As I already mentioned in other messages, I already tested with JUST the
-patched 8390.c driver, no other patches. It was stable. I then patched apic.c
-AND io_apic.c, which did not introduce new instabilities. Unless you think that
-reverting back to a stock io_apic.c would cause instabilities (which would be
-weird, since I had no instabilities running only a patched 8390.c), I think the
-patch to 8390.c DOES remove the symptoms all by itself. No other patches seem
-necessary to get a stable box.
+Right; kernel.org does that once a day.
 
-But I'll patch the mess again just fox kicks :-)
+>         You *must* change its time (e.g. with touch).
+> 
 
-Cheers//Frank
+Unfortunately, you can't -- because the signer relies on the timestamp to
+know if the file it is mirroring has changed.
+
+Probably the best solution is to touch the original file.
+
+	-hpa
 
 -- 
-  WWWWW      _______________________
- ## o o\    /     Frank de Lange     \
- }#   \|   /                          \
-  ##---# _/     <Hacker for Hire>      \
-   ####   \      +31-320-252965        /
-           \    frank@unternet.org    /
-            -------------------------
- [ "Omnis enim res, quae dando non deficit, dum habetur
-    et non datur, nondum habetur, quomodo habenda est."  ]
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,72 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313444AbSDLIUl>; Fri, 12 Apr 2002 04:20:41 -0400
+	id <S313451AbSDLI3Z>; Fri, 12 Apr 2002 04:29:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313448AbSDLIUk>; Fri, 12 Apr 2002 04:20:40 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:41175 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S313444AbSDLIUk>;
-	Fri, 12 Apr 2002 04:20:40 -0400
-Date: Fri, 12 Apr 2002 10:20:21 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: vojtech@suse.cz, martin@dalecki.de, linux-kernel@vger.kernel.org
-Subject: Re: VIA, 32bit PIO and 2.5.x kernel
-Message-ID: <20020412102021.A18037@ucw.cz>
-In-Reply-To: <20020412001029.GA1172@ppc.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S313452AbSDLI3Y>; Fri, 12 Apr 2002 04:29:24 -0400
+Received: from mail.ekh.no ([213.184.194.22]:50449 "EHLO romeo.skybert.no")
+	by vger.kernel.org with ESMTP id <S313451AbSDLI3Y>;
+	Fri, 12 Apr 2002 04:29:24 -0400
+Date: Fri, 12 Apr 2002 10:29:05 +0200 (CEST)
+From: =?iso-8859-1?Q?Erik_Inge_Bols=F8?= <erik@tms.no>
+To: Urban Widmark <urban@teststation.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.20 umount oops (probably smbfs related)
+In-Reply-To: <Pine.LNX.4.33.0204112117400.21322-100000@cola.teststation.com>
+Message-ID: <Pine.LNX.4.30.0204121003210.25377-100000@romeo.skybert.no>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+X-AntiVirus: scanned for viruses by AMaViS 0.2.0-pre6-clm-rl-8 (http://amavis.org/)
+X-AntiVirus: scanned for viruses by AMaViS 0.2.0-pre6-clm-rl-8 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 12, 2002 at 02:10:29AM +0200, Petr Vandrovec wrote:
+On Thu, 11 Apr 2002, Urban Widmark wrote:
+> On Tue, 9 Apr 2002, Erik Inge Bolsø wrote:
+> > >>EIP: c0126389 <fput+5/48>
+> > Trace: c012914e <do_umount+ee/144>
+> > Trace: c01291f8 <umount_dev+54/9c>
+> > Trace: c01292ed <sys_umount+ad/bc>
+> > Trace: c0129308 <sys_oldumount+c/10>
+> > Trace: c0109144 <system_call+34/38>
+> > Code:  c0126389 <fput+5/48>                    00000000 <_EIP>: <===
+> > Code:  c0126389 <fput+5/48>                       0:	8b 43 1c             	movl   0x1c(%ebx),%eax <===
+>
+> Your trace doesn't include any smb_ references, but I suppose the cd8ef644
+> ones might be. I don't see where do_umount calls fput so ...
 
->   last friday I found strange problem with 2.5.8-pre1 kernel
-> corrupting my data. Today I tracked it down to enabled (by
-> default) 32bit I/O. Problem occurs only in 2.5.x kernels
-> (2.5.8-pre1, 2.5.8-pre3) and does not occur in 2.4.x
-> (2.4.19-pre6, 2.4.18-pre4). My tests were done in 
-> non-multicount mode:
-> 
-> /dev/hdc:
->  multcount    =  0 (off)
->  I/O support  =  1 (32-bit)
->  unmaskirq    =  1 (on)
->  using_dma    =  0 (off)
->  keepsettings =  0 (off)
->  nowerr       =  0 (off)
->  readonly     =  0 (off)
->  geometry     = 4865/255/63, sectors = 78165360, start = 0
->  busstate     =  1 (on)
-> 
->   After looking through code up and down I found that first 
-> sector is written in 32bit mode, while others in 16bit mode, 
-> and VIA IDE interface does not cope with this correctly. Can 
-> anybody explain me, what's wrong with patch at the end of this 
-> message? As there is dozen of places where io_32bit is cleared, 
-> I believe that there must be some reason for doing that... And 
-> do not ask me why it worked in 2.4.x, as it cleared io_32bit
-> in task_out_intr too.
+Right. Seems that the somewhat ancient ksymoops (0.6e) didn't pick up the
+smbfs module's symbols. Will update.
 
-It's a very unwise thing to disable 32-bit mode on VIA and AMD chipsets,
-AMD even has it in their errata (VIA has no documented errata, of
-course). Thanks for the good find. Martin, can we do anything about
-this?
+> This is usually bad and you may want to investigate why it died/upgrade
+> your samba version regardless of the patch below. Recent smbmounts can log
+> to file and with a suitable debuglevel you may find out what happened
+> (debug=4 or so).
 
-> diff -urN linux-2.5.8-pre3.dist/drivers/ide/ide-taskfile.c linux-2.5.8-pre3/drivers/ide/ide-taskfile.c
-> --- linux-2.5.8-pre3.dist/drivers/ide/ide-taskfile.c	Sun Apr  7 03:43:03 2002
-> +++ linux-2.5.8-pre3/drivers/ide/ide-taskfile.c	Fri Apr 12 01:50:04 2002
-> @@ -602,7 +602,7 @@
->  		rq = HWGROUP(drive)->rq;
->  		pBuf = ide_map_rq(rq, &flags);
->  		DTF("write: %p, rq->current_nr_sectors: %d\n", pBuf, (int) rq->current_nr_sectors);
-> -		drive->io_32bit = 0;
-> +//		drive->io_32bit = 0;
->  		taskfile_output_data(drive, pBuf, SECTOR_WORDS);
->  		ide_unmap_rq(rq, pBuf, &flags);
->  		drive->io_32bit = io_32bit;
+Thanks for the tip. Upgrading the 2.0.6 to 2.0.10 ASAP.
+
+> > smb_lookup: find //email.txt failed, error=-5
+> > smb_get_length: recv error = 512
+> > smb_request: result -512, setting invalid
+> > smb_dont_catch_keepalive: did not get valid server!
+>
+> smbfs unmount code "put_super" does:
+> 	if (server->sock_file) {
+> 		smb_proc_disconnect(server);
+> 		smb_dont_catch_keepalive(server);
+> 		fput(server->sock_file);
+> 	}
+
+<snip good explanation>
+
+Aha! I traced it as far as these lines myself yesterday, but couldn't
+figure out what nulled sock_file, and why. Thanks!
+
+> If that is what happened the patch below should help. It simply changes
+> smbfs not to try and send a disconnect message if it isn't connected.
+> Which makes sense anyway, no need to connect just to say goodbye. Even if
+> that may the polite thing to do :)
+
+Thanks, will try the patch as soon as I find time to rebuild. Looks sane
+:)
+
+> > Note that the smb share in question is mounted, alive and well as of this
+> > moment, I can read files on it just fine - it's just the umount of it that
+> > oopsed.
+>
+> Sounds strange. Could that be some automounter that mounted another one
+> for you?
+
+Could be, I suppose. No automounter running, but the script that oopsed is
+run once an hour and does an umount/mount to deal with the windows server
+being rebooted - we want the share to stay mounted, no matter if we reboot
+the old NT4 box. (If we reboot it and don't do this, we get I/O errors on
+accessing the mount point.)
 
 -- 
-Vojtech Pavlik
-SuSE Labs
+Erik I. Bolsø, Triangel Maritech Software AS | Skybert AS
+Tlf: 712 41 694		Mobil: 915 79 512
+

@@ -1,62 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313307AbSE2Paw>; Wed, 29 May 2002 11:30:52 -0400
+	id <S313419AbSE2PdM>; Wed, 29 May 2002 11:33:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313314AbSE2Pav>; Wed, 29 May 2002 11:30:51 -0400
-Received: from ip68-3-14-32.ph.ph.cox.net ([68.3.14.32]:12479 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S313307AbSE2Pau>;
-	Wed, 29 May 2002 11:30:50 -0400
-Message-ID: <3CF4F421.1040908@candelatech.com>
-Date: Wed, 29 May 2002 08:30:41 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Nivedita Singhvi <niv@us.ibm.com>
-CC: cfriesen@nortelnetworks.com, linux-kernel@vger.kernel.org
-Subject: Re: how to get per-socket stats on udp rx buffer overflow?
-In-Reply-To: <Pine.LNX.4.33.0205290640580.4572-100000@w-nivedita2.des.beaverton.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S313508AbSE2PdL>; Wed, 29 May 2002 11:33:11 -0400
+Received: from stingr.net ([212.193.32.15]:2482 "EHLO hq.stingr.net")
+	by vger.kernel.org with ESMTP id <S313419AbSE2PdL>;
+	Wed, 29 May 2002 11:33:11 -0400
+Date: Wed, 29 May 2002 19:33:11 +0400
+From: Paul P Komkoff Jr <i@stingr.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Re: vlan dotQ vs 2.4.19pre8-ac5 vs big packets trouble
+Message-ID: <20020529153311.GM422@stingr.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020528165918.GT1365@blackhole.adamant.ua> <20020528200904.GJ422@stingr.net> <20020529070358.GX1365@blackhole.adamant.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+User-Agent: Agent Darien Fawkes
+X-Mailer: Intel Ultra ATA Storage Driver
+X-RealName: Stingray Greatest Jr
+Organization: Department of Fish & Wildlife
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Nivedita Singhvi wrote:
-
-> On Tue, 28 May 2002, Ben Greear wrote:
-
->>It would not be that expensive..it's just an extra counter that
->>is bumped whenever a pkt is dropped.
->>
+Replying to Alexander Trotsai:
+> Thanks, it work
 > 
-> True for one counter, but generally when considering per
-> socket stats as a feature, you include all the TCP/UDP/I
+> PS. Why this patch not in mainstream???
 
-> stats, and if youre not holding locks, thats probably an
-> atomic increment.  Pretty soon we're talking actual
-> performance and scalability money. (Even if we're not
-> in the mindset of saving every cycle wherever possible).
+And why tulip and eepro100 not in mainline too ? :) questions ...
 
-
-Integer increments are usually pretty cheap.  Considering
-accuracy is not absolutely needed (imho), then there is no
-need to lock or use special atomic increments.
-
-So, I view the performance issue as not that big of a deal.  Space
-may be a bigger deal, and the /proc interface and/or IOCTLs to read
-the counters...
-
-If/when I do implement, I'll be sure to make it a selectable option
-in the kernel config process...
-
-Ben
+(eepro100 one really isn't needed anymore due to e100)
 
 -- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
-
+Paul P 'Stingray' Komkoff 'Greatest' Jr /// (icq)23200764 /// (http)stingr.net
+  When you're invisible, the only one really watching you is you (my keychain)

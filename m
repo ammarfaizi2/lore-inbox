@@ -1,63 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265094AbTLKOz6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 09:55:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265098AbTLKOz6
+	id S265079AbTLKOwy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 09:52:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265066AbTLKOwy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 09:55:58 -0500
-Received: from [195.255.196.126] ([195.255.196.126]:31953 "EHLO
-	gw.compusonic.fi") by vger.kernel.org with ESMTP id S265094AbTLKOzx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 09:55:53 -0500
-Date: Thu, 11 Dec 2003 16:54:54 +0200 (EET)
-From: Hannu Savolainen <hannu@opensound.com>
-X-X-Sender: hannu@zeus.compusonic.fi
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Linus Torvalds <torvalds@osdl.org>, Larry McVoy <lm@bitmover.com>,
-       Andre Hedrick <andre@linux-ide.org>,
-       Arjan van de Ven <arjanv@redhat.com>, Valdis.Kletnieks@vt.edu,
-       Kendall Bennett <KendallB@scitechsoft.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Driver API (was Re: Linux GPL and binary module exception clause?)
-In-Reply-To: <20031211133307.GK4176@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.58.0312111648030.15937@zeus.compusonic.fi>
-References: <Pine.LNX.4.58.0312100852210.29676@home.osdl.org>
- <20031210175614.GH6896@work.bitmover.com> <Pine.LNX.4.58.0312100959180.29676@home.osdl.org>
- <20031210180822.GI6896@work.bitmover.com> <Pine.LNX.4.58.0312101016010.29676@home.osdl.org>
- <20031210183833.GJ6896@work.bitmover.com> <Pine.LNX.4.58.0312101108150.29676@home.osdl.org>
- <Pine.LNX.4.58.0312102256520.3787@zeus.compusonic.fi>
- <20031211100627.GJ4176@parcelfarce.linux.theplanet.co.uk>
- <Pine.LNX.4.58.0312111427530.12975@zeus.compusonic.fi>
- <20031211133307.GK4176@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 11 Dec 2003 09:52:54 -0500
+Received: from dodge.jordet.nu ([217.13.8.142]:63655 "EHLO dodge.jordet.nu")
+	by vger.kernel.org with ESMTP id S265079AbTLKOwu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 09:52:50 -0500
+Subject: Re: PPP over ttyUSB (visor.o, Treo)
+From: Stian Jordet <liste@jordet.nu>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1071152620.753.1.camel@chevrolet.hybel>
+References: <20031210165540.B26394@fi.muni.cz>
+	 <20031210212807.GA8784@kroah.com> <1071105744.1154.1.camel@chevrolet.hybel>
+	 <1071114290.750.18.camel@chevrolet.hybel> <20031211064441.GA2529@kroah.com>
+	 <1071152620.753.1.camel@chevrolet.hybel>
+Content-Type: text/plain
+Message-Id: <1071154385.721.1.camel@chevrolet.hybel>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 11 Dec 2003 15:53:06 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Dec 2003 viro@parcelfarce.linux.theplanet.co.uk wrote:
+tor, 11.12.2003 kl. 15.23 skrev Stian Jordet:
+> tor, 11.12.2003 kl. 07.44 skrev Greg KH:
+> > On Thu, Dec 11, 2003 at 04:44:50AM +0100, Stian Jordet wrote:
+> > > tor, 11.12.2003 kl. 02.22 skrev Stian Jordet:
+> > > > ons, 10.12.2003 kl. 22.28 skrev Greg KH:
+> > > > > Can you try the patch below?  I think it will fix the problem.
+> > > > 
+> > > > Fixes it for me. Thanks :)
+> > > > 
+> > > Uhm.. I was a bit too fast. It fixed the problem, okay, but it makes the
+> > > kernel spit out a lot of these messages:
+> > > 
+> > > 
+> > > Dec 11 02:29:40 chevrolet kernel: usb 1-1: USB disconnect, address 7
+> > > Dec 11 02:29:40 chevrolet kernel: hub 1-0:1.0: new USB device on port 1,
+> > > assigned address 8
+> > 
+> > This has nothing to do with the visor or other usb-serial drivers.  It
+> > looks like you have either a flaky USB connection, or a power issue on
+> > your USB hub.  Either way, the device keeps disconnecting itself
+> > electronically (nothing Linux can do about that) and then reconnecting
+> > itself.  Not good.
+> > 
+> > Is this connected to a powered hub?  If not, I'd recommend using one, or
+> > getting a new keyboard/mouse as this is on the fritz.
+> 
+> It isn't connected to a hub at all. I have never had any usb problems,
+> before I tried this patch. Now it's unusable :( What ever is the cause,
+> the patch triggers it. 
 
-> On Thu, Dec 11, 2003 at 02:47:49PM +0200, Hannu Savolainen wrote:
->
-> > In a charcter driver all you need to know from the inode structure is
-> > basicly just the device (minor) number. It's not hard to implement the
-> > ABI layer so that the minor number can be provided regardless of the
-> > changes made to the kernel behind it.
->
-> Not good enough (if you want a demonstration, check USB character devices
-> and the nightmare stuff happening around handling of minor->object mapping
-> there).
-I'm not talking about USB character devices. I'm not talking about
-hot-plugging. For sure it will be very difficult or even impossible to
-handle this kind of issues. I'm only talking about simple character
-device drivers. Ok, you can remove the major/minor mechanism entirely from
-Linux. Then we have a problem but I'm sure there will be some easy
-workaround even then.
+I just tried 2.4.24-pre1, and I have the same behaviour, so I guess
+either the ftdi_sio or my mouse is b0rked. Weird, though, since they are
+connected on two different buses, and I have four other usb devices
+connected as well, without problem.
 
 Best regards,
+Stian
 
-Hannu
------
-Hannu Savolainen (hannu@opensound.com)
-http://www.opensound.com (Open Sound System (OSS))
-http://www.compusonic.fi (Finnish OSS pages)
-OH2GLH QTH: Karkkila, Finland LOC: KP20CM

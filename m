@@ -1,87 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263206AbTEBXl1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 19:41:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263208AbTEBXl1
+	id S263212AbTECAag (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 20:30:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263219AbTECAag
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 19:41:27 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:28648 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S263206AbTEBXl0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 19:41:26 -0400
-Date: Fri, 02 May 2003 16:55:15 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-Reply-To: Hanna Linder <hannal@us.ibm.com>
-To: lse-tech@lists.sourceforge.net
-cc: linux-kernel@vger.kernel.org
-Subject: Minutes from May 2 Call
-Message-ID: <55010000.1051919715@w-hlinder>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Fri, 2 May 2003 20:30:36 -0400
+Received: from news.cistron.nl ([62.216.30.38]:49678 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S263212AbTECAaf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 May 2003 20:30:35 -0400
+From: miquels@cistron-office.nl (Miquel van Smoorenburg)
+Subject: Re: sendfile
+Date: Sat, 3 May 2003 00:42:59 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <b8v3aj$p2j$1@news.cistron.nl>
+References: <Pine.SOL.4.51.0304302102300.12387@ellifu.ifi.uio.no> <20030502024147.GA523@mark.mielke.cc> <3EB1F1CD.4060702@nortelnetworks.com> <20030502210648.GA5322@mark.mielke.cc>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1051922579 25683 62.216.29.200 (3 May 2003 00:42:59 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <20030502210648.GA5322@mark.mielke.cc>,
+Mark Mielke  <mark@mark.mielke.cc> wrote:
+>One question it raises in my mind, is whether there would be value in
+>improving write()/send() such that they detect that the userspace
+>pointer refers entirely to mmap()'d file pages, and therefore no copy
+>of data from userspace -> kernelspace should be performed.
 
-Bill -
+You mean like
+http://hypermail.idiosynkrasia.net/linux-kernel/archived/2003/week00/0056.html
 
-Able to get his hands on a NUMA-Q with 64 GB of memory (or rather,
-put it together) and it worked. The I/O throughput went up as measured
-by dbench on a UP. On the 64GB verified there were no out of memory
-conditions or leaks or crashes. He did the performance testing on a
-smaller system as the 64 gig was only available for a short time.
-
-He asked for any feedback at all... Has anyone looked at the code?
-Do people like the idea? hate the idea?
-
-Tony Luck mentioned that it was similar to what was done
-on VAX and it was a good thing then and a good thing now.
-
-Bill said it is alot like that done on the VAX (with BSD?)
-
-Tony asked about systems that support multiple page sizes,
-could it be extended to work (ie-IA64)? Bill said that it would 
-require a second tlb entry size notion among other things. So it
-would be possible but difficult. Bill said he thought about
-ia64 at first but people didnt seem very excited about it.
-Tony said people might be more excited about it in the future
-and Bill did some clever things (partial pages) with pgcl
-that might make it possible to work with multiple page sizes.
-
-Bill also has it running on his laptop where he is doing some
-fo the testing. He agrees the state of the code now is pretty
-stinky and has to go back around to clean up things he did just
-to get it working.
-
-The rate of bug fixing has decreased. Linus expressed interest
-on Hugh's patch in the 2.4 era but hasnt commented on Bill's
-work. Andrew has expressed some interest but hasnt made any
-moves to include it. 
-
-Hanna asked Bill when he thinks it will be stable and mergeable.
-Bill said part of the problem is he doesnt have access to all
-the drivers or a cross-system guarantee without any other
-people running it.
-
-John asked if running it on systems with 1-8MB would be worth
-it. Bill said internal fragmentation could be really bad on
-a system that small. But it would be interesting. So John 
-may run it. Bill is desperate for feedback!
-
-Hanna-
-
-We decided on Wednesdays at 2pm PDT. All future meetings
-will be on Wednesdays (not Fridays) at 2pm (not 9:30am).
-If you are ever in doubt the web site will alwyas have
-the correct time:
-
-http://lse.sf.net/mtg
-
-
-
-
-
-
+Mike.
 

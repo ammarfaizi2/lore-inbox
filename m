@@ -1,51 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265801AbUBPR4a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 12:56:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265825AbUBPR4a
+	id S265769AbUBPRyR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 12:54:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265801AbUBPRyR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 12:56:30 -0500
-Received: from fw.osdl.org ([65.172.181.6]:50570 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265801AbUBPR41 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 12:56:27 -0500
-Date: Mon, 16 Feb 2004 09:56:23 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: David Eger <eger@theboonies.us>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.3-rc3 radeonfb: Problems with new (and old) driver
-In-Reply-To: <1076904084.12300.189.camel@gaston>
-Message-ID: <Pine.LNX.4.58.0402160947080.30742@home.osdl.org>
-References: <Pine.LNX.4.50L0.0402160411260.2959-100000@rosencrantz.theboonies.us>
- <1076904084.12300.189.camel@gaston>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 16 Feb 2004 12:54:17 -0500
+Received: from crimson.namesys.com ([212.16.7.70]:58544 "EHLO
+	crimson.namesys.com") by vger.kernel.org with ESMTP id S265769AbUBPRyD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 12:54:03 -0500
+Date: Mon, 16 Feb 2004 20:51:27 +0300
+From: Alex Zarochentsev <zam@namesys.com>
+To: Jon Burgess <lkml@jburgess.uklinux.net>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: ext2/3 performance regression in 2.6 vs 2.4 for small interleaved writes
+Message-ID: <20040216175127.GJ1298@backtop.namesys.com>
+References: <402BE01E.2010506@jburgess.uklinux.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <402BE01E.2010506@jburgess.uklinux.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 16 Feb 2004, Benjamin Herrenschmidt wrote:
+On Thu, Feb 12, 2004 at 08:20:46PM +0000, Jon Burgess wrote:
+> Andrew Morton wrote:
 > 
-> No, it's not. I posted a patch fixing that. Enclosed again below.
+> >I don't know why the single-stream case would be slower, but the 
+> >two-stream
+> >
+> >case is probably due to writeback changes interacting with a weakness in
+> >the block allocator.  10 megs/sec is pretty awful either way.
+> >
+> > 
+> >
+> 10MB/s is just because I did the test on an old machine, it maxes out at 
+> 15MB/s with "hdparm -t".
+> I didn't want to do it on my main PC because I using it to record a TV 
+> program at the time :-)
+> 
+> >Either way, you have intermingled blocks in the files.
+> > 
+> >
+> Yes the blocks are intermingled. Thanks for the explanation of the 
+> 2.4/2.6 difference.
+> 
+> >Reads will be slower too - you will probably find that reading back a file
+> > 
+> >
+> Yes reads are 50% for 2 streams, 25% for 4 etc. 2.4 and 2.6 perform the 
+> same.
+> I did a debugfs "stat" and it clearly shows the fragmented file blocks.
+> 
+> >You can probably address it quite well within the
+> >application itself by buffering up a good amount of data for each write()
+> >call.  Maybe a megabyte.
+> > 
+> >
+> Writes in the 256kB - 1MB region do avoid the problem. Unfortunately the 
+> way the application is written it makes this tricky to do. It wants to 
+> write out the data in one frame at a time, typically 10 - 50kB.
+> 
+> >XFS will do well at this.
+> > 
+> >
+> Yes, both XFS and JFS perform much better. Here is a summary of some 
+> tests done on 2.6, these were done on a faster machine / disk 
+> combination. This was the original test program which also measured the 
+> read speeds, you can get this  from http://www.jburgess.uklinux.net/slow.c
+> 
+> The ext2 result is a bit slow, but ext3 is really bad.
+> 
+> Num streams   |1       1       |2        2
+> Filesystem    |Write   Read    |Write    Read
+> --------------|----------------|--------------
+> Ext2          |27.7    29.17   | 5.89    14.43
+> ext3-ordered  |25.73   29.21   | 0.48     1.1
+> Reiserfs      |25.31   26.25   | 7.47    13.55
+> JFS           |26.27   26.95   |26.92    28.5
+> XFS           |27.51   26.00   |27.35    27.42
 
-I don't think this is right.
+I ran slow.c on Reiser4, it is different hardware, ext2 results are for
+comparing:
 
-It gets the same-tty case wrong, and the reason it gets it wrong is that 
-it does its thing in entirely the wrong place.
+server config:
+        2xXeon, hyperthreading, 256 MB RAM 
+        Linux-2.6.2
 
-The console layer already always calls "unblank_screen()" on any switch to
-text mode, _regardless_ of whether it was switching from another console
-or not. That should be the place where this is done, and perhaps by
-changing the console layer to be a bit more helpful about things (mainly
-re-name the damn thing, since it has nothing to do with "unblank" any
-more).
+Test:
+        /tests/slow  foo 1024
+        it writes 1GB to one or two files.
 
-"unblank_screen()" is really the same as "reset_screen" - it's also called
-on resume. While "do_blank_screen()" is basically "go away".
+Results:
+---------+------------+-----------+-----------+-----------+
+         |       1 stream         |       2 streams       |
+---------+------------+-----------+-----------+-----------+
+         | WRITE      | READ      | WRITE     | READ      |
+---------+------------+-----------+-----------+-----------+
+REISER4  | 33.67 Mb/s | 40.97Mb/s | 30.78Mb/s | 38.37Mb/s |
+---------+------------+-----------+-----------+-----------+
+EXT2     | 33.32Mb/s  | 40.82Mb/s | 9.45Mb/s  | 20.39Mb/s |
+---------+------------+-----------+-----------+-----------+
 
-So why don't you just reset the thing in "con_blank()" that gets called in 
-all the right cases?
+The fs with delayed block allocation (Reiser4, XFS, seems JFS too) look much
+better.
 
-		Linus
+
+-- 
+Alex.

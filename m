@@ -1,57 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292903AbSBVPej>; Fri, 22 Feb 2002 10:34:39 -0500
+	id <S292907AbSBVPft>; Fri, 22 Feb 2002 10:35:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292904AbSBVPe3>; Fri, 22 Feb 2002 10:34:29 -0500
-Received: from trained-monkey.org ([209.217.122.11]:65287 "EHLO
-	trained-monkey.org") by vger.kernel.org with ESMTP
-	id <S292903AbSBVPeT>; Fri, 22 Feb 2002 10:34:19 -0500
-From: Jes Sorensen <jes@trained-monkey.org>
+	id <S292906AbSBVPfb>; Fri, 22 Feb 2002 10:35:31 -0500
+Received: from mgw-x3.nokia.com ([131.228.20.26]:51098 "EHLO mgw-x3.nokia.com")
+	by vger.kernel.org with ESMTP id <S292905AbSBVPfY>;
+	Fri, 22 Feb 2002 10:35:24 -0500
+Message-ID: <3C766511.5050808@nokia.com>
+Date: Fri, 22 Feb 2002 17:34:41 +0200
+From: Dmitry Kasatkin <dmitry.kasatkin@nokia.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011023
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Newsgroups: comp.os.linux.networking
+To: Dmitry Kasatkin <dmitry.kasatkin@nokia.com>
+CC: affix-devel@lists.sourceforge.net,
+        Affix support <affix-support@lists.sourceforge.net>,
+        linux-net <linux-net@vger.kernel.org>, linux-kernel@vger.kernel.org
+Subject: New Affix Release: Affix-0_93
+In-Reply-To: <3C500D09.4080206@nokia.com> <3C5AB093.5050405@nokia.com> <3C5E4991.6010707@nokia.com> <3C628D6A.2050900@nokia.com> <3C628DCF.40700@nokia.com> <3C6D25F6.4010905@nokia.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <15478.25845.343591.883309@trained-monkey.org>
-Date: Fri, 22 Feb 2002 10:34:13 -0500
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] bring sanity to div64.h and do_div usage
-In-Reply-To: <3C76631C.E685815D@mandrakesoft.com>
-In-Reply-To: <5.1.0.14.2.20020208113710.04ecedf0@pop.cus.cam.ac.uk>
-	<20020207234555.N17426@altus.drgw.net>
-	<5.1.0.14.2.20020208181656.03862ec0@pop.cus.cam.ac.uk>
-	<d37kp5v9y5.fsf@lxplus050.cern.ch>
-	<3C7660F5.FC238A7E@mandrakesoft.com>
-	<15478.25001.512565.628500@trained-monkey.org>
-	<3C76631C.E685815D@mandrakesoft.com>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+X-OriginalArrivalTime: 22 Feb 2002 15:35:22.0271 (UTC) FILETIME=[8A5A72F0:01C1BBB6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Jeff" == Jeff Garzik <jgarzik@mandrakesoft.com> writes:
+Hi all,
 
-Jeff> Jes Sorensen wrote:
->>  Why? CONFIG_$ARCH only makes sense if you can enable two
->> architectures in the same build. What does CONFIG_M68K give you that
->> __mc68000__ doesn't provide?
+Find new affix release Affix-0_93 on
+http://affix.sourceforge.net
 
-Jeff> 1) it is a Linux kernel standard.  all arches save two define
-Jeff> CONFIG_$arch.
+Version 0.93 [22.02.2002]
+- [fix] extern inline replaced by static inline
+	prevent un-optimized compilation problem
+- [new] usb driver support any bluetooth deivices
+- [fix] btsdp_browse connection establishment
+- [new] L2CAP socket can be connected through any Bluetooth adapter
+	sockaddr_l2cap {
+	... old fields..
+	BD_ADDR		local;
+	}
+	set *local* to Bluetooth address of the adapter to connect through.
+	or BDADDR_ANY
+- [fix] hci devices are removing well on *btctl close_uart *
+- [fix] added locks for l2cap objects
+- [fix] compilation problem for older kernel (2.4.7 at least) - headers ...
 
-Ehm, what standard? the standard way has always been ARCH==, CONFIG_PPC
-used to be the only place using this and all it did was to make things
-uglier and inconsistent.
 
-Jeff> 2) you have two tests, "ARCH==m68k" in config.in and "__mc68000__"
-Jeff> in C code.  CONFIG_M68K means you only test one symbol, the same
-Jeff> symbol, in all code.
 
-If you want to do that, then one should use CONFIG_<ARCH> in the
-Makefiles as well.
+Br, Dmitry
 
-Jeff> 3) as this thread shows, due to #1, users -expect- that
-Jeff> CONFIG_M68K will exist
+-- 
+ Dmitry Kasatkin
+ Nokia Research Center / Helsinki
+ Mobile: +358 50 4836365
+ E-Mail: dmitry.kasatkin@nokia.com
 
-Ehm, most kernel developers will expect ARCH== in Config.in as thats
-how it's always been.
 
-Jes
+

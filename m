@@ -1,62 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266846AbUGLOYK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266847AbUGLOZ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266846AbUGLOYK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 10:24:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266845AbUGLOYK
+	id S266847AbUGLOZ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 10:25:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266848AbUGLOZ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 10:24:10 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:54008 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S266847AbUGLOYE (ORCPT
+	Mon, 12 Jul 2004 10:25:56 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:45198 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266847AbUGLOYa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 10:24:04 -0400
-Date: Mon, 12 Jul 2004 16:23:51 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Andy Whitcroft <apw@shadowen.org>
-cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: is_highmem() and WANT_PAGE_VIRTUAL (was: Re: Linux 2.6.8-rc1)
-In-Reply-To: <200407121351.i6CDplLM031827@voidhawk.shadowen.org>
-Message-ID: <Pine.GSO.4.58.0407121623240.17199@waterleaf.sonytel.be>
-References: <200407121351.i6CDplLM031827@voidhawk.shadowen.org>
+	Mon, 12 Jul 2004 10:24:30 -0400
+Date: Mon, 12 Jul 2004 07:24:20 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org
+cc: akpm@osdl.org
+Subject: Re: [PATCH] Instrumenting high latency
+Message-ID: <75270000.1089642258@[10.10.2.4]>
+In-Reply-To: <cone.1089613755.742689.28499.502@pc.kolivas.org>
+References: <cone.1089613755.742689.28499.502@pc.kolivas.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Jul 2004, Andy Whitcroft wrote:
-> --- Geert wrote:
-> > | --- reference/mm/page_alloc.c	2004-07-07 18:08:56.000000000 +0100
-> > | +++ current/mm/page_alloc.c	2004-07-07 18:10:15.000000000 +0100
-> > | @@ -1421,7 +1421,7 @@ void __init memmap_init_zone(struct page
-> > |  		INIT_LIST_HEAD(&page->lru);
-> > |  #ifdef WANT_PAGE_VIRTUAL
-> > |  		/* The shift won't overflow because ZONE_NORMAL is below 4G. */
-> > | -		if (zone != ZONE_HIGHMEM)
-> > | +		if (!is_highmem(zone))
-> > |  			set_page_address(page, __va(start_pfn << PAGE_SHIFT));
-> > |  #endif
-> > |  		start_pfn++;
-> >
-> > The above change is incorrect, since zone is an unsigned long, while
-> > is_highmem() takes a struct zone *.
->
-> My bad.  I was stupidly assuming that this was used then ZONE_HIGHMEM was
-> not enabled.  This should apply on top of 2.6.8-rc1 and repair the damage.
->
-> -apw
->
-> === 8< ===
-> Should be applying is_highmem() to a zone.
+> Because of the recent discussion about latency in the kernel I asked 
+> William Lee Irwin III to help create some instrumentation to determine 
+> where in the kernel there were still sustained periods of non-preemptible 
+> code. He hacked together this simple patch which times periods according 
+> to the preempt count. Hopefully we can use this patch in the advice of 
+> Linus to avoid the "mental masturbation" at guessing where latency is 
+> and track down real problem areas.
 
-I can confirm this patch fixes compilation.
+Is this much different from Rick's schedstat's work, which was itself based
+on some earlier patches by Bill? I'd hate to end up with two sets of patches,
+and schedstats seemed pretty comprehensive to me. He's on vacation, but his
+stuff is here, if you want to take a look:
 
-Gr{oetje,eeting}s,
+http://eaglet.rain.com/rick/linux/schedstats/
 
-						Geert
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

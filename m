@@ -1,29 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267303AbUIJJIA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267333AbUIJJN7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267303AbUIJJIA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 05:08:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267324AbUIJJIA
+	id S267333AbUIJJN7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 05:13:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267334AbUIJJN7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 05:08:00 -0400
-Received: from fw.osdl.org ([65.172.181.6]:8387 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267303AbUIJJH6 (ORCPT
+	Fri, 10 Sep 2004 05:13:59 -0400
+Received: from fw.osdl.org ([65.172.181.6]:39110 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267333AbUIJJN4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 05:07:58 -0400
-Date: Fri, 10 Sep 2004 02:05:29 -0700
+	Fri, 10 Sep 2004 05:13:56 -0400
+Date: Fri, 10 Sep 2004 02:11:32 -0700
 From: Andrew Morton <akpm@osdl.org>
 To: Kirill Korotaev <dev@sw.ru>
-Cc: wli@holomorphy.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] adding per sb inode list to make invalidate_inodes()
- faster
-Message-Id: <20040910020529.2a1ea4f3.akpm@osdl.org>
-In-Reply-To: <41416BCA.3020005@sw.ru>
-References: <4140791F.8050207@sw.ru>
-	<Pine.LNX.4.58.0409090844410.5912@ppc970.osdl.org>
-	<20040909171927.GU3106@holomorphy.com>
-	<20040909110622.78028ae6.akpm@osdl.org>
-	<20040909181818.GF3106@holomorphy.com>
-	<20040909120818.7f127d14.akpm@osdl.org>
-	<41416BCA.3020005@sw.ru>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: Q: bugs in generic_forget_inode()?
+Message-Id: <20040910021132.44d6c812.akpm@osdl.org>
+In-Reply-To: <41416E1A.5050905@sw.ru>
+References: <413C52E2.10809@sw.ru>
+	<20040906123534.3487839e.akpm@osdl.org>
+	<41416E1A.5050905@sw.ru>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -33,29 +28,55 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Kirill Korotaev <dev@sw.ru> wrote:
 >
-> Well for sure this bug can be triggered only on really big servers with
->  a huge amount of memory and cache size.
->  It's up to you whether to apply it or not. I understand your position 
->  about 8 bytes, but probably it's just a question of using kernel, 
->  whether it's a user or server system.
->  Probably we can introduce some config option which would trigger 
->  features such as this one for enterprise systems.
+> Andrew Morton wrote:
+> > Kirill Korotaev <dev@sw.ru> wrote:
+> > 
+> >>Hello,
+> >>
+> >>1. I found that generic_forget_inode() calls write_inode_now() dropping 
+> >>inode_lock and destroys inode after that. The problem is that 
+> >>write_inode_now() can sleep and during this sleep someone can find inode 
+> >>in the hash, w/o I_FREEING state and with i_count = 0.
+> > 
+> > The filesystem is in the process of being unmounted (!MS_ACTIVE).  So the
+> > question is: who is doing inode lookups against a soon-to-be-defunct
+> > filesystem?
+> 
+> Yup, I'm studing this issue.
 
-I am paralysed by indecision!
+Do you mean to say that you are observing the above scenario with an
+unmodified kernel.org filesystem?  Which one?
 
-It would be nice if we had evidence that more than one site in the world
-was affected by this :(
+I suggest you add a
 
-I can't see an less space-consuming alternative here (apart from per-sb lru)
+	BUG_ON(!(inode->i_sb->s_flags & MS_ACTIVE));
 
->  >> Also, the additional sizeof(struct list_head) is only a requirement
->  >> while the global inode LRU is maintained. I believed it would have
->  >> been beneficial to have localized the LRU to the sb also, which would
->  >> have maintained sizeof(struct inode0 at parity with current mainline.
->  > 
->  > Could be.  We would give each superblock its own shrinker callback and
->  > everything should balance out nicely (hah).
->
->  heh, and how do you plan to make per-sb LRU to be fair?
+in the hash lookup code.
 
-Good point.  
+> But while looking at code I found this interesting place:
+> 
+> __writeback_single_inode()
+> {
+>          while (inode->i_state & I_LOCK) {
+>                  __iget(inode);			<<<<<<
+>                  spin_unlock(&inode_lock);
+>                  __wait_on_inode(inode);
+>                  iput(inode);			<<<<<<
+>                  spin_lock(&inode_lock);
+>         }
+> 	return __sync_single_inode(inode, wbc); <<<<<<
+> }
+> 
+> the problem here is iget/iput.
+> 
+> There are 2 possible cases:
+> 1. all callers of this function do hold reference on inode, then 
+> iget/iput is unneeded.
+> 2. if 1) is incorrect then it's a bug, since inode is used after iput.
+> 
+> This place looks really ugly, or I don't understand something here?
+
+You're right - the iget/iput is not needed.  The only caller here who does
+not already have a ref on the inode is pdflush, and we already did an
+__iget on that callpath.
+

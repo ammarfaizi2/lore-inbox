@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316842AbSE3TY5>; Thu, 30 May 2002 15:24:57 -0400
+	id <S316843AbSE3T3r>; Thu, 30 May 2002 15:29:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316843AbSE3TY4>; Thu, 30 May 2002 15:24:56 -0400
-Received: from 217-126-207-69.uc.nombres.ttd.es ([217.126.207.69]:26116 "EHLO
-	server01.nullzone.prv") by vger.kernel.org with ESMTP
-	id <S316842AbSE3TYz>; Thu, 30 May 2002 15:24:55 -0400
-Message-Id: <5.1.0.14.2.20020530212421.02cb50e8@192.168.2.131>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 30 May 2002 21:25:41 +0200
-To: Jens Axboe <axboe@suse.de>
-From: system_lists@nullzone.org
-Subject: Re: 2.5.19 - raid1 erros on compile
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020530062248.GP17674@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S316844AbSE3T3q>; Thu, 30 May 2002 15:29:46 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10758 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316843AbSE3T3p>;
+	Thu, 30 May 2002 15:29:45 -0400
+Message-ID: <3CF67D5F.3398C893@zip.com.au>
+Date: Thu, 30 May 2002 12:28:31 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+CC: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] 2.4 VM sucks. Again
+In-Reply-To: <200205241004.g4OA4Ul28364@mail.pronto.tv> <1572079531.1022225730@[10.10.2.3]> <3CEE954F.9CB99816@zip.com.au> <200205301029.g4UATuE03249@mail.pronto.tv>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well its not on raid1.c file.
-It must be invoqued just from any funtion_structure_reference.
-
-I'll wait a patch.
-
-Thanks anyway
-
-At 08:22 30/05/2002 +0200, Jens Axboe wrote:
->On Thu, May 30 2002, system_lists@nullzone.org wrote:
+Roy Sigurd Karlsbakk wrote:
+> 
+> > > I don't think Andrew is ready to submit this yet ... before anything
+> > > gets merged back, it'd be very worthwhile testing the relative
+> > > performance of both solutions ... the more testers we have the
+> > > better ;-)
 > >
-> > I have problems compiling kernel with raid1 support.
-> >
-> > Any idea?
-> >
-> > thanks
-> >
-> > make[2]: Entering directory `/usr/src/linux-2.5.19/drivers/md'
-> > gcc -D__KERNEL__ -I/usr/src/linux-2.5.19/include -Wall -Wstrict-prototypes
-> > -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
-> > -pipe -mpreferred-stack-boundary=2
-> > -march=i686    -DKBUILD_BASENAME=raid1  -c -o raid1.o raid1.c
-> > raid1.c: In function `device_barrier':
-> > raid1.c:412: `tq_disk' undeclared (first use in this function)
-> > raid1.c:412: (Each undeclared identifier is reported only once
-> > raid1.c:412: for each function it appears in.)
-> > raid1.c: In function `make_request':
-> > raid1.c:449: `tq_disk' undeclared (first use in this function)
-> > raid1.c: In function `close_sync':
-> > raid1.c:651: `tq_disk' undeclared (first use in this function)
->
->run_task_queue(&tq_disk) -> blk_run_queues()
->
->--
->Jens Axboe
+> > Cripes no.  It's pretty experimental.  Andrea spotted a bug, too.  Fixed
+> > version is below.
+> 
+> Works great! This should _definetely_ be merged into the main kernel after
+> som testing. Without it _all_ other kernels I've tested (2.4.lots) goes OOM
+> under the mentioned scenarios. This one simply does the job.
 
+I suspect nuke-buffers is simply always the right thing to do.  It's
+what 2.5 is doing now (effectively).  We'll see...
 
+But in your case, you only have a couple of gigs of memory, iirc.
+You shouldn't be running into catastrophic buffer_head congestion.
+Something odd is happening.
 
+If you can provide a really detailed set of steps which can be
+used by others to reproduce this, that would really help.
 
+-

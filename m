@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266698AbRGZLEN>; Thu, 26 Jul 2001 07:04:13 -0400
+	id <S267003AbRGZLKx>; Thu, 26 Jul 2001 07:10:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267003AbRGZLEE>; Thu, 26 Jul 2001 07:04:04 -0400
-Received: from charybda.fi.muni.cz ([147.251.48.214]:3332 "HELO
-	charybda.fi.muni.cz") by vger.kernel.org with SMTP
-	id <S266698AbRGZLDx>; Thu, 26 Jul 2001 07:03:53 -0400
-From: Jan Kasprzak <kas@informatics.muni.cz>
-Date: Thu, 26 Jul 2001 13:03:54 +0200
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.7 cyclades-Y crash
-Message-ID: <20010726130354.A1024@informatics.muni.cz>
-In-Reply-To: <20010724190103.J1033@informatics.muni.cz> <E15P5oK-0000Vs-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E15P5oK-0000Vs-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Jul 24, 2001 at 06:17:32PM +0100
+	id <S267184AbRGZLKo>; Thu, 26 Jul 2001 07:10:44 -0400
+Received: from tahallah.demon.co.uk ([158.152.175.193]:2564 "EHLO
+	tahallah.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S267003AbRGZLKa>; Thu, 26 Jul 2001 07:10:30 -0400
+Date: Thu, 26 Jul 2001 12:08:17 +0100 (BST)
+From: Alex Buell <alex.buell@tahallah.demon.co.uk>
+X-X-Sender: <alex@tahallah.demon.co.uk>
+Reply-To: <alex.buell@tahallah.demon.co.uk>
+To: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: cg14 frambuffer bug in 2.2.19 (and probably 2.4.x as well)
+Message-ID: <Pine.LNX.4.33.0107261203241.366-100000@tahallah.demon.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Alan Cox wrote:
-: > connected to 16-port box). The 2.4.7 kernel crashes when initializing the
-: > cyclades driver (either as a module or a built-in driver). I've tried
-: > the stock kernel from Red Hat 7.1, and the cyclades.o module causes the
-: > system to lock up when loaded.
-: 
-: Is this an SMP box ?
+Hi guys,
 
-	No. Pentium 233 MMX, 32M RAM, RedHat 7.1. Can this be a compiler
-problem?
+I have a patch here that fixes an annoying bug in the cg14 framebuffer
+driver on sparc32 platforms. The bug is when it never switches off the
+cursor before going into X11 mode, so you get an 'orrible cursor
+overlaying whatever you've got on the screen, in the same position as the
+consoles. Switching to any console and back to the X11 display, the cursor
+overlays the last position the cursor was in on the console. On
+investigating, discovered that the cg14 framebuffer doesn't switch off the
+cursor!
 
--Y.
+Here's the patch:
+
+--- linux/drivers/video/cgfourteenfb.c.orig     Thu Jul 26 11:34:00 2001
++++ linux/drivers/video/cgfourteenfb.c  Thu Jul 26 11:48:30 2001
+@@ -234,6 +234,9 @@
+        spin_lock_irqsave(&fb->lock, flags);
+        if (c->enable)
+                cur->ccr |= CG14_CCR_ENABLE;
++       else
++               cur->ccr &= ~CG14_CCR_ENABLE;
++
+        cur->cursx = ((c->cpos.fbx - c->chot.fbx) & 0xfff);
+        cur->cursy = ((c->cpos.fby - c->chot.fby) & 0xfff);
+        spin_unlock_irqrestore(&fb->lock, flags);
+
 
 -- 
-\ Jan "Yenya" Kasprzak <kas at fi.muni.cz>       http://www.fi.muni.cz/~kas/
-\\ PGP: finger kas at aisa.fi.muni.cz   0D99A7FB206605D7 8B35FCDE05B18A5E //
-\\\             Czech Linux Homepage:  http://www.linux.cz/              ///
---Just returned after being 10 days off-line. Sorry for the delayed reply.--
+Hey, they *are* out to get you, but it's nothing personal.
+
+http://www.tahallah.demon.co.uk
+

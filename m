@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262728AbRE0Cz1>; Sat, 26 May 2001 22:55:27 -0400
+	id <S262729AbRE0C5R>; Sat, 26 May 2001 22:57:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262729AbRE0CzS>; Sat, 26 May 2001 22:55:18 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:2512 "HELO havoc.gtf.org")
-	by vger.kernel.org with SMTP id <S262728AbRE0CzJ>;
-	Sat, 26 May 2001 22:55:09 -0400
-Message-ID: <3B106C88.A2A763C8@mandrakesoft.com>
-Date: Sat, 26 May 2001 22:55:04 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre6 i686)
-X-Accept-Language: en
+	id <S262730AbRE0C5H>; Sat, 26 May 2001 22:57:07 -0400
+Received: from mail.alphalink.com.au ([203.24.205.7]:53298 "EHLO
+	mail.alphalink.com.au") by vger.kernel.org with ESMTP
+	id <S262729AbRE0C5B>; Sat, 26 May 2001 22:57:01 -0400
+Message-ID: <3B106F40.B86382E6@alphalink.com.au>
+Date: Sun, 27 May 2001 13:06:40 +1000
+From: Greg Banks <gnb@alphalink.com.au>
+X-Mailer: Mozilla 4.07 [en] (X11; I; Linux 2.2.1 i586)
 MIME-Version: 1.0
-To: Jonathan Morton <chromi@cyberspace.org>
-Cc: cesar.da.silva@cyberdude.com, kernellist <linux-kernel@vger.kernel.org>
-Subject: Re: Please help me fill in the blanks.
-In-Reply-To: <20010527021808.80979.qmail@web13407.mail.yahoo.com> <l03130309b7361b2c0bc8@[192.168.239.105]>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] Configure.help entries wanted
+In-Reply-To: <E153pEG-0008RL-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jonathan Morton wrote:
+Alan Cox wrote:
 > 
-> >> * Live Upgrade
-> >
-> >LOBOS will let one Linux kernel boot another, but that requires a boot
-> >step, so it is not a live upgrade.  so, no, afaik
+> > Visual Studio, or the feature where you can have a decent handwriting
+> > recognition system, or the feature where you can run Pocket {Internet
+> > Explorer,Word} then the answer is none of them.
 > 
-> If you build nearly everything (except, obviously what you need to boot) as
-> modules, you can unload modules, build new versions, and reload them.  So,
-> you could say that partial support for "live upgrades" is included.
+> Handwriting recognition with fscrib works very well indeed.
 
-I stand corrected, though I clearly know better:
-Modules are unloaded/reloaded all the time during my driver development
-:)
+  Ok, I've found the description of this on handhelds.org, and
+it appears to be a derivative of xscribble, which I have tried.
+Unlike xscribble it does fullscreen mode, which is good, but
+it's still single-character and requires the user to learn
+how to write all over again.  In other words, like everything
+else available on Linux (and even MS's Jot) it's *crap* compared to
 
+http://www.paragraph.com/products/internetink/calligrapher/features.html
+
+  I would give my eye teeth for a Linux version of Calligrapher.
+
+Greg.
 -- 
-Jeff Garzik      | Disbelief, that's why you fail.
-Building 1024    |
-MandrakeSoft     |
+If it's a choice between being a paranoid, hyper-suspicious global
+village idiot, or a gullible, mega-trusting sheep, I don't look
+good in mint sauce.                      - jd, slashdot, 11Feb2000.

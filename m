@@ -1,64 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275671AbTHODD6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 23:03:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275672AbTHODD6
+	id S275673AbTHODji (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 23:39:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275674AbTHODji
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 23:03:58 -0400
-Received: from chromatix.demon.co.uk ([80.177.102.173]:60106 "EHLO
-	lithium.chromatix.org.uk") by vger.kernel.org with ESMTP
-	id S275671AbTHODD5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 23:03:57 -0400
-Date: Fri, 15 Aug 2003 02:42:33 +0100
-Subject: Re: agpgart failure on KT400
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v552)
-Cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-To: Robert Toole <tooler@tooleweb.homelinux.com>
-From: Jonathan Morton <chromi@chromatix.demon.co.uk>
-In-Reply-To: <3F3C2DA0.1030504@tooleweb.homelinux.com>
-Message-Id: <BD8AF95A-CEC1-11D7-A88B-003065664B7C@chromatix.demon.co.uk>
-Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.552)
+	Thu, 14 Aug 2003 23:39:38 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:13837 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id S275673AbTHODje (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 23:39:34 -0400
+Date: Fri, 15 Aug 2003 13:39:03 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: Matt Mackall <mpm@selenic.com>
+cc: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       <davem@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] cryptoapi: Fix sleeping
+In-Reply-To: <20030814201847.GO325@waste.org>
+Message-ID: <Mutt.LNX.4.44.0308151337390.26882-100000@excalibur.intercode.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But this seems to be a pretty big thing to leave out of the production 
-> Kernel. Unless Red Hat and other distros are planning to use 2.6 in 
-> their next release, there are a lot of these KT400 MBs out there. My 
-> local computer reseller was selling 10 to 20 of these boards for every 
-> one of any other AMD chipset right up until VIA released the KT600.
+On Thu, 14 Aug 2003, Matt Mackall wrote:
 
-This, I think, is a pretty good point.
+> Leaves no room actually. I figured this would be easy to move around
+> after the fact.
 
-Surely it's not too big a job to get basic, generic AGP3 support into 
-2.4, even if it's not optimised?  If it's non-trivial to make all AGP3 
-features work in 2.4, then it's reasonable to require 2.6 for "better 
-performance".
+Ok.
 
-To be honest, I'd at least expect a fallback to AGP2 for hardware that 
-can support it, such as KT400.  The Windows drivers for my ATI card can 
-tell the hardware to drop to "AGP 4x" (which I believe implies AGP2 - I 
-could be wrong), and the card *did* work correctly with the KT266A 
-chipset I was using before.
+> On the subject of flags, what's the best way for an algorithm init
+> function to get at the tfm structures (and thereby the flags) given a
+> ctxt? Pointer math on a ctxt?
 
-> Yes, I could use 2.6-x and help test that, but like so many people, I 
-> need to have something reliable so I can get some work done.
+The algorithms should not access the tfm structure.  In the case of 
+ciphers, we pass the tfm flags in via setkey.
 
-FWIW, I installed 2.6.0-test3 and it seems to work well.  After 
-grabbing a later version of the ATI drivers (which are needed for 2.6 
-compatibility), the AGP was set up correctly and I'm back in X.  I'm 
-not seeing any stability problems so far.
+What do you need this for?
 
-However, I did encounter a compilation problem with one of the USB 
-device drivers - not a major problem at present since that particular 
-device is attached to a different machine - but it does show that 2.6 
-isn't ready for primetime yet.  The major distros aren't going to make 
-that switch for a while.
 
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@chromatix.demon.co.uk
-website:  http://www.chromatix.uklinux.net/
-tagline:  The key to knowledge is not to rely on people to teach you it.
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
 

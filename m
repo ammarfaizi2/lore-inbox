@@ -1,61 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289009AbSAIU1E>; Wed, 9 Jan 2002 15:27:04 -0500
+	id <S289004AbSAIU3e>; Wed, 9 Jan 2002 15:29:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289005AbSAIU0y>; Wed, 9 Jan 2002 15:26:54 -0500
-Received: from mail.myrio.com ([63.109.146.2]:48628 "HELO smtp1.myrio.com")
-	by vger.kernel.org with SMTP id <S289004AbSAIU0m> convert rfc822-to-8bit;
-	Wed, 9 Jan 2002 15:26:42 -0500
-content-class: urn:content-classes:message
+	id <S289005AbSAIU3Z>; Wed, 9 Jan 2002 15:29:25 -0500
+Received: from shed.alex.org.uk ([195.224.53.219]:56728 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S289004AbSAIU3V>;
+	Wed, 9 Jan 2002 15:29:21 -0500
+Date: Wed, 09 Jan 2002 20:29:16 -0000
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Andreas Dilger <adilger@turbolabs.com>
+Cc: Kervin Pierre <kpierre@fit.edu>, linux-kernel@vger.kernel.org,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: fs corruption recovery?
+Message-ID: <1379421486.1010608155@[195.224.237.69]>
+In-Reply-To: <200201090326.g093QBF27608@vindaloo.ras.ucalgary.ca>
+In-Reply-To: <200201090326.g093QBF27608@vindaloo.ras.ucalgary.ca>
+X-Mailer: Mulberry/2.1.0 (Win32)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: initramfs programs (was [RFC] klibc requirements)
-X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
-Date: Wed, 9 Jan 2002 12:25:37 -0800
-Message-ID: <D52B19A7284D32459CF20D579C4B0C0211CB23@mail0.myrio.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: initramfs programs (was [RFC] klibc requirements)
-Thread-Index: AcGZOJH+IDY7PdD0TbiLosFb9+Jo5AACKSrg
-From: "Torrey Hoffman" <torrey.hoffman@myrio.com>
-To: "Tom Rini" <trini@kernel.crashing.org>
-Cc: <andersen@codepoet.org>, "Greg KH" <greg@kroah.com>,
-        <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Rini wrote:
-> On Wed, Jan 09, 2002 at 09:54:28AM -0800, Torrey Hoffman wrote:
-> 
-> > The interesting thing that I currently do with initrd support is a
-> > custom network-booted Linux installer for an embedded system. 
-> > 
-> > I'd like to be able to do this with initramfs too.  It needs:
-> [snip]
-> 
-> Er, for this particular application, why would you use klibc, if
-> existant?  The initramfs stuff could work with glibc, if you 
-> didn't mind
-> a big enough image, it sounds like.
 
-You are correct, the size of glibc is not a major problem for me right 
-now and that's what I'm using.  However, it is the largest thing in my
-initrd, which goes across the net using tftp, and glibc just keeps 
-getting bigger...  I'm thinking of switching to ulibc when I get time.
 
-One of the neat things about moving a lot of this formerly in-kernel
-boot stuff to userspace is that it will be easier to do interesting
-customization of the boot process, without having to hack the kernel.
+--On Tuesday, 08 January, 2002 8:26 PM -0700 Richard Gooch 
+<rgooch@ras.ucalgary.ca> wrote:
 
-I'm sure that this will be used in lots of innovative ways that people
-haven't even thought of yet.  
+> I contacted one of these
+> recovery companies. I wanted to know if they could recover the bad
+> sectors. I was told no. After some probing, it turns out that all they
+> do is basically what I was doing. They just charge $2000 for it.
 
-So, I guess what I'd like to see with the initramfs build system is a 
-easy way to build little apps like sfdisk and mkreiserfs against the 
-libc it (normally) uses and add them to the ramdisk.
+You are talking to the wrong data recovery company. There
+are companies in the UK I know of (and I'm sure elsewhere)
+who go further, for instance
+a) Physical cleaning of drive and electronics (useful if
+   a water release fire suppression, or foam fire suppression
+   has just washed crap all over it).
+b) Swapping controller electronics with known working
+   drive (to combat fried electronics or physical damage
+   to PCB).
+c) Go to clean room, remove platters, clean carefully,
+   insert into known working drive
+d) Read sectors multiple times varying various parameters
+   to build up statistical bitmaps of sectors which fatally
+   fail CRC checks.
 
-I'm not so worried for myself, but for an overworked sysadmin trying 
-to customize the boot it could end up being very confusing... 
+Now I'm not a DR person but I know 2 people who have worked
+for them. I'm sure you can do much of this yourself if you
+dare^Wtry, but I think many /do/ do more than keep reading
+the same sector multiple times (FWIW if you want this to
+work I recommend resetting the drive, and/or powering it
+down after every n attempts at a read, then doing a seek
+to a random position - this used to help).
 
-Torrey
+--
+Alex Bligh

@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291676AbSBTIZB>; Wed, 20 Feb 2002 03:25:01 -0500
+	id <S290550AbSBTITv>; Wed, 20 Feb 2002 03:19:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291677AbSBTIYv>; Wed, 20 Feb 2002 03:24:51 -0500
-Received: from frege-d-math-north-g-west.math.ethz.ch ([129.132.145.3]:54775
-	"EHLO frege.math.ethz.ch") by vger.kernel.org with ESMTP
-	id <S291676AbSBTIYd>; Wed, 20 Feb 2002 03:24:33 -0500
-Message-ID: <3C735D2E.3070808@debian.org>
-Date: Wed, 20 Feb 2002 09:24:14 +0100
-From: Giacomo Catenazzi <cate@debian.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
-X-Accept-Language: en-us, en
+	id <S291676AbSBTITm>; Wed, 20 Feb 2002 03:19:42 -0500
+Received: from [212.48.154.34] ([212.48.154.34]:38333 "EHLO gate.stelt.ru")
+	by vger.kernel.org with ESMTP id <S290550AbSBTIT3>;
+	Wed, 20 Feb 2002 03:19:29 -0500
+Date: Wed, 20 Feb 2002 11:22:08 +0300
+From: Advisories <advisories@stelt.ru>
+X-Mailer: The Bat! (v1.53d)
+Organization: STELT Telecom
+X-Priority: 3 (Normal)
+Message-ID: <150996876692.20020220112208@stelt.ru>
+To: Bongani Hlope <bonganilinux@mweb.co.za>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18-rc1 freezing while switching to console
+In-Reply-To: <1014144125.2424.0.camel@localhost.localdomain>
+In-Reply-To: <73925952749.20020219154004@stelt.ru>
+ <1014144125.2424.0.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: lee johnson <lee@imyourhandiman.com>
-CC: kernel-list <linux-kernel@vger.kernel.org>
-Subject: Re: opengl-nvidia not compiling
-In-Reply-To: <fa.dui02sv.125uf2m@ifi.uio.no> <fa.i651ekv.c3sng3@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-lee johnson wrote:
+BH> On Tue, 2002-02-19 at 14:40, Advisories wrote:
+>> Hi, All!
+>> 
+>> Tested system:
+>> CPU:   AMD Duron 700
+>> MB:    GA-7ZM
+>> RAM:   256Mb
+>> VIDEO: nVidia TNT AGP
+BH>         ^^^^^^^^^^^
+BH> The freeze is usually caused by the nVidia drivers, email them and
+BH> complain or disable them.
+Thanks
 
-> hi..
-> 
->    hope i'm not repeating a message here if so sorry,- but by any chance
-> does anyone know that nvidia opengl isn't compiling with 2.5.5pre1..
-> 
+I haven't install nVidia drivers. Kernel 2.4.18-rc1 compiled without
+src modifications.
 
+I will try other versions from testing branch %)
 
-Ask nvidia.
-And you should also ask to GPLize the driver, until they don't open the
-source you will see these problems in many new kernel release.
-
-	giacomo
-
+---------------------------------------------------
+Advisories               mailto:advisories@stelt.ru
 

@@ -1,41 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130797AbRCJBm7>; Fri, 9 Mar 2001 20:42:59 -0500
+	id <S130824AbRCJBoj>; Fri, 9 Mar 2001 20:44:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130799AbRCJBmu>; Fri, 9 Mar 2001 20:42:50 -0500
-Received: from f45.law8.hotmail.com ([216.33.241.45]:1291 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S130797AbRCJBmm>;
-	Fri, 9 Mar 2001 20:42:42 -0500
-X-Originating-IP: [24.228.19.252]
-From: "s d" <seandarcy@hotmail.com>
+	id <S130825AbRCJBoa>; Fri, 9 Mar 2001 20:44:30 -0500
+Received: from Mail.ubishops.ca ([192.197.190.5]:6661 "EHLO Mail.ubishops.ca")
+	by vger.kernel.org with ESMTP id <S130824AbRCJBoW>;
+	Fri, 9 Mar 2001 20:44:22 -0500
+Message-ID: <3AA9868C.A5226735@yahoo.co.uk>
+Date: Fri, 09 Mar 2001 20:42:36 -0500
+From: Thomas Hood <jdthoodREMOVETHIS@yahoo.co.uk>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-ac16 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Real Time Clock driver hangs in 2.2.17
-Date: Fri, 09 Mar 2001 20:41:55 -0500
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F45cF1s5IOiV3XpfbFT00004fb1@hotmail.com>
-X-OriginalArrivalTime: 10 Mar 2001 01:41:56.0044 (UTC) FILETIME=[4A2700C0:01C0A903]
+CC: linux-thinkpad@www.bm-soft.com
+Subject: 2.4.2-ac16 PIIX4 ACPI getting wrong IRQ?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm using an old Intel Pentium 90 mb -I think its "Plato". It's worked well 
-as a gateway and file server for over two years.
+With 2.4.3-pre1, /proc/pci contained:
+>   Bus  0, device   7, function  3:
+>     Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 1).
 
-When I boot 2.2.17, the machine always hangs at the Real Time Clock driver. 
-Pressing any key gets it going, but this is a remote machine - which makes 
-it a real pain.
+With 2.4.2-ac16, /proc/pci contains:
+>  Bus  0, device   7, function  3:
+>    Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 1).
+>      IRQ 9.
 
-Without a clue, I ve done the following:
+So the ACPI function of the PIIX4 is now being given
+IRQ 9.  I don't want this.  I was using IRQ 9 for a
+PCMCIA device.
 
-I've put in a new cmos battery
+So I tried booting the kernel with "acpi=off" and
+"pci=irqmask=0x0800", but the result was the same.
 
-I renamed /dev/rtc to dev/somethingelse ( a suggestion from a ng)
+Documentation/kernel-parameters.txt says that
+"pci=irqmask=0xMMMM ... sets a bit mask of IRQs allowed
+to be assigned".  This parameter is being ignored.
 
-Same problem. Is there a way to fix this? rtc.txt doesn't say much. Can I do 
-without it? If so, how do I compile the kernel without it?
+[... searches through kernel sources ...]
 
-thanks
-jay
-_________________________________________________________________
-Get your FREE download of MSN Explorer at http://explorer.msn.com
+Well I see that this is the result of a change to
+/usr/src/linux-2.4.2-ac16/arch/i386/kernel/pci_pc.c
+which looks deliberate:
 
+< static void __init pci_fixup_piix4_acpi(struct pci_dev *d)
+< {
+< 	/*
+< 	 * PIIX4 ACPI device: hardwired IRQ9
+< 	 */
+< 	d->irq = 9;
+< }
+
+What's going on?
+
+Thomas Hood
+jdthood_AT_yahoo.co.uk

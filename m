@@ -1,21 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbVCLL41@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261695AbVCLMLi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261684AbVCLL41 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 06:56:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261695AbVCLL40
+	id S261695AbVCLMLi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 07:11:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261701AbVCLMLi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 06:56:26 -0500
-Received: from smtp1.Stanford.EDU ([171.67.16.123]:50630 "EHLO
-	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP id S261684AbVCLL4R
+	Sat, 12 Mar 2005 07:11:38 -0500
+Received: from smtp1.Stanford.EDU ([171.67.16.123]:18386 "EHLO
+	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP id S261695AbVCLMLc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 06:56:17 -0500
-Date: Sat, 12 Mar 2005 03:56:14 -0800 (PST)
+	Sat, 12 Mar 2005 07:11:32 -0500
+Date: Sat, 12 Mar 2005 04:11:14 -0800 (PST)
 From: Junfeng Yang <yjf@stanford.edu>
-To: nfs@lists.sourceforge.net
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <ext2-devel@lists.sourceforge.net>, <mc@cs.Stanford.EDU>
-Subject: [CHECKER] inconsistent NFS stat cache (NFS on ext3, 2.6.11)
-Message-ID: <Pine.GSO.4.44.0503120335160.12085-100000@elaine24.Stanford.EDU>
+To: linux-hfsplus-devel@lists.sourceforge.net
+cc: mc@cs.Stanford.EDU,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [CHECKER] sync, fsync and mount -o sync all not flush things out
+ properly (hfsplus, 2.6.11)
+Message-ID: <Pine.GSO.4.44.0503120401290.12531-100000@elaine24.Stanford.EDU>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -24,28 +25,23 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-We checked NFS on top of ext3 using FiSC (our file system model checker)
-and found a case where NFS stat cache can contain inconsistent entries.
+We developed a file system checker called FiSC and recently applied it to
+hfsplus.  It complains 3 things about hfsplus:
 
-Basically, to trigger this inconsistency, just do the following steps:
-1. create a file A1, write a few bytes to it, so A1 is 4 words
-2. create a hard link A2, pointing to A1
-3. stat on A2. A2's size is 4 words
-4. truncate A1 to a larger size, write a few bytes at the end. now it's
-1031 words.
-5. stat on A2. it's size is still 4 words, which should be 1031 words
+1. sync on hfsplus doesn't actually flush everything out.  Immediate crash
+after sync still causes data-loss  (testcase:
+http://fisc.stanford.edu/bug13/crash.c)
 
-We have a test case to re-create this warning.  You can download it at
-http://fisc.stanford.edu/bug16/crash.c.  It includes some sudo commands
-to mount nfs partitions, which you might want to change according to your
-local settings.
+2. fsync on hfsplus doesn't actually flush out the file.
+(http://fisc.stanford.edu/bug14/crash.c)
 
-cat /etc/exports shows:
-/mnt/sbd0-export          localhost(rw,sync)
-/mnt/sbd1-export          localhost(rw,sync)
+3. mount -o sync doesn't cause file system operations to be synchronous.
+(http://fisc.stanford.edu/bug15/crash.c)
 
-Let me know if you have any problems reproducing the warning. We'd
-appreciate any confirmations/clarifications.
+To reproduce these warnings, download the test case and run it.  You might
+need to customize the test case according to your local settings.  Let me
+know if you need any more information to reproduce the warnings.
 
+Any confirmations/clarifications are appreciated.
 -Junfeng
 

@@ -1,28 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268165AbUIPXV4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268258AbUIPXqi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268165AbUIPXV4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 19:21:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268323AbUIPXFl
+	id S268258AbUIPXqi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 19:46:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268392AbUIPXpP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 19:05:41 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:21948 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S268165AbUIPXET (ORCPT
+	Thu, 16 Sep 2004 19:45:15 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:11996 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S268314AbUIPXo0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 19:04:19 -0400
-Date: Thu, 16 Sep 2004 16:04:02 -0700 (PDT)
+	Thu, 16 Sep 2004 19:44:26 -0400
+Date: Thu, 16 Sep 2004 16:42:10 -0700 (PDT)
 From: Ray Bryant <raybry@sgi.com>
-To: Ray Bryant <raybry@austin.rr.com>, Andrew Morton <akpm@osdl.org>
-Cc: Ray Bryant <raybry@sgi.com>, lse-tech@lists.sourceforge.net,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>, linux-kernel@vger.kernel.org
-Message-Id: <20040916230402.23023.89478.83475@tomahawk.engr.sgi.com>
-In-Reply-To: <20040916230344.23023.79384.49263@tomahawk.engr.sgi.com>
-References: <20040916230344.23023.79384.49263@tomahawk.engr.sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>,
+       Ray Bryant <raybry@austin.rr.com>, Ray Bryant <raybry@sgi.com>,
+       lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Message-Id: <20040916234210.5225.93240.56774@tomahawk.engr.sgi.com>
 Subject: [PATCH 2/3] lockmeter: lockmeter fix for generic_read_trylock
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Update lockmeter.c with generic_raw_read_trylock fix.
+Fixed as per Zwane's comment.
 
 Signed-off-by: Ray Bryant <raybry@sgi.com>
 
@@ -41,7 +41,7 @@ Index: linux-2.6.9-rc2-mm1/kernel/lockmeter.c
 + */
 +int __lockfunc generic_raw_read_trylock(rwlock_t *lock)
 +{
-+	_metered_read_lock(lock, __builtin_return_address(0));
++	_raw_read_lock(lock);
 +	return 1;
 +}
 +EXPORT_SYMBOL(generic_raw_read_trylock);

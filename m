@@ -1,28 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315409AbSEBUev>; Thu, 2 May 2002 16:34:51 -0400
+	id <S315410AbSEBUfo>; Thu, 2 May 2002 16:35:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315410AbSEBUeu>; Thu, 2 May 2002 16:34:50 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22544 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S315409AbSEBUet>; Thu, 2 May 2002 16:34:49 -0400
-Subject: Re: Re[2]: Support of AMD 762?
-To: ekuznetsov@divxnetworks.com
-Date: Thu, 2 May 2002 21:53:56 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <732555515.20020502133225@divxnetworks.com> from "Eugene Kuznetsov" at May 02, 2002 01:32:25 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S315411AbSEBUfn>; Thu, 2 May 2002 16:35:43 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7439 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315410AbSEBUfi>;
+	Thu, 2 May 2002 16:35:38 -0400
+Message-ID: <3CD1A2E2.A240823C@zip.com.au>
+Date: Thu, 02 May 2002 13:34:42 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Alexander Viro <viro@math.psu.edu>
+CC: Daniel Pittman <daniel@rimspace.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.12 severe ext3 filesystem corruption warning!
+In-Reply-To: <3CD191C5.AC09B1F4@zip.com.au> <Pine.GSO.4.21.0205021530010.16530-100000@weyl.math.psu.edu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E173NaO-0004pV-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> AC> When someone volunteers to test it
+Alexander Viro wrote:
 > 
-> I do!
-> BTW, why didn't you respond on my previous emails?
+> On Thu, 2 May 2002, Andrew Morton wrote:
+> > A few things..
+> >
+> [snip]
+> 
+> Andrew, judging by the filenames he'd mentioned, I suspect that he runs
+> innd.  I.e. one of the very few programs heavily using truncate().  And
+> no, it doesn't promise anything good - last time we had crap in truncate/mmap
+> interaction it was a hell to fix.
+> 
+> I suspect that you had screwed the truncate exclusion warranties up.  If
+> _any_ IO happens in the area currently manipulated by ->truncate() - you
+> are screwed and results would look pretty much like the things mentioned
+> in bug report.
 
-No idea. I don't get to reply to all mails 8)
+OK, thanks.  That's something to go on.
+
+The only change which comes to mind is discard_buffer() - it's
+no longer clearing BH_Uptodate.  Because for the partial page
+at the end of the mapping, buffers outside i_size were zeroed
+in truncate_partial_page().  But with (presumed) 4k blocksize,
+it can't be that.
+
+ext3_writepage() can hold a reference against the buffers
+after the page has come unlocked, so a try_to_free in the
+right window will fail, which will leave the page floating
+about on the page LRU, not mapped into any address_space,
+clean, not uptodate, but with uptodate buffers.  Nobody
+but the VM should ever find that page, but it does make more
+sense to mark that buffer not uptodate.  This would only
+happen on super-heavy SMP loads.
+
+So hmm.
+
+There's a small SMP-only race in truncate_list_pages:
+the test for PageWriteback happens against an unlocked
+page.  There's a three-instruction window where writeback
+could start up.  That won't be it, but I'll fix that.
+
+-

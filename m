@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319277AbSHVBmd>; Wed, 21 Aug 2002 21:42:33 -0400
+	id <S319276AbSHVAxi>; Wed, 21 Aug 2002 20:53:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319278AbSHVBmd>; Wed, 21 Aug 2002 21:42:33 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31498 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S319277AbSHVBmc>;
-	Wed, 21 Aug 2002 21:42:32 -0400
-Message-ID: <3D644512.585BF69D@zip.com.au>
-Date: Wed, 21 Aug 2002 18:57:38 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andy Smith <asmith@umdgrb.umd.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ENOMEM in do_get_write_access, retrying.
-References: <Pine.LNX.4.33.0208212133070.7748-100000@umdgrb.umd.edu>
-Content-Type: text/plain; charset=us-ascii
+	id <S319277AbSHVAxi>; Wed, 21 Aug 2002 20:53:38 -0400
+Received: from 205-158-62-94.outblaze.com ([205.158.62.94]:64439 "HELO
+	ws3-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S319276AbSHVAxi>; Wed, 21 Aug 2002 20:53:38 -0400
+Message-ID: <20020822005730.9319.qmail@email.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "James Hayhurst" <herrdoktor@email.com>
+To: linux-kernel@vger.kernel.org
+Date: Wed, 21 Aug 2002 19:57:30 -0500
+Subject: Cannot unmount initrd
+X-Originating-Ip: 198.4.83.52
+X-Originating-Server: ws3-4.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Smith wrote:
-> 
-> ENOMEM in do_get_write_access, retrying.
-> ENOMEM in do_get_write_access, retrying.
-> ENOMEM in do_get_write_access, retrying.
-> ENOMEM in journal_alloc_journal_head, retrying.
-> ENOMEM in do_get_write_access, retrying.
-> ENOMEM in do_get_write_access, retrying.
-> 
-> Hi All,
-> 
-> I am getting a bunch of these in my messages file while cp'ing
-> files from one computer 2 another. Both machines have 3c996 gigabit
-> and large disk arrays. The computer with the errors is receiving the
-> files.
-> 
+I'm making a boot CD and having problems unmounting and freeing the initrd after pivoting to a different root.  First off, for some reaosn it seems that /linuxrc is not being executed.  Just to test this, I have it as a simple script (with execute permissions) printing something to the screen and it never printed....at boot it just seems to go to /sbin/init on the initrd image.  After pivoting to a cramfs root, I cannot unmount /initrd as it says that the device or resource is busy.  Checking out /proc, it looks like [keventd], [ksoftirqd_CPU0], [kswapd] and [kupdated] are holding onto open fd from /initrd, namely /initrd/dev/console.  Strangely though, some of the fd's they're holding are the  "normal" /dev/console.
 
-Your gigE NIC gobbled up all the free memory.  ext3 is stuck
-in a corner where it just _has_ to allocate some memory, so it
-retries the allocation.
+My /sbin/init on the initrd script looks something like:
 
-bdflush or nfsd or kswapd write some memory back to disk, it
-becomes reclaimable and ext3 is happy.
+#I have the new root mount on /new_root/root.cfs and all directories are set up to pivot
+cd /new_root
+pivot_root . initrd
+export PATH=/bin:/usr/bin:/sbin
+echo Done pivoting
 
-We should kill that printk.
+umount /initrd/proc
+umount /initrd/devfs
+umount /initrd
+
+exec chroot . sbin/startup < dev/console > dev/console 2> dev/console
+
+Should i unmount /proc and /devfs before I pivot?  Any suggestions would be wonderful!
+
+Cheers,
+James
+
+Please CC to me directly if you can, i'm not suscribed to the mailing list, bad me!
+-- 
+__________________________________________________________
+Sign-up for your own FREE Personalized E-mail at Mail.com
+http://www.mail.com/?sr=signup
+

@@ -1,95 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265350AbUBPGPT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 01:15:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265356AbUBPGPS
+	id S265356AbUBPGV7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 01:21:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265357AbUBPGV7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 01:15:18 -0500
-Received: from nsmtp.pacific.net.th ([203.121.130.117]:26857 "EHLO
-	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
-	id S265350AbUBPGPL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 01:15:11 -0500
-From: Michael Frank <mhf@linuxmail.org>
-To: Bill Anderson <banderson@hp.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: system (not HW) clock advancing really fast
-Date: Mon, 16 Feb 2004 14:24:49 +0800
-User-Agent: KMail/1.5.4
-References: <1076910368.25980.12.camel@perseus>
-In-Reply-To: <1076910368.25980.12.camel@perseus>
-X-OS: KDE 3 on GNU/Linux
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 16 Feb 2004 01:21:59 -0500
+Received: from vladimir.pegasys.ws ([64.220.160.58]:29190 "EHLO
+	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S265356AbUBPGV5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 01:21:57 -0500
+Date: Sun, 15 Feb 2004 22:21:52 -0800
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: JFS default behavior
+Message-ID: <20040216062152.GB5192@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <1076886183.18571.14.camel@m222.net81-64-248.noos.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200402161424.49242.mhf@linuxmail.org>
+In-Reply-To: <1076886183.18571.14.camel@m222.net81-64-248.noos.fr>
+User-Agent: Mutt/1.3.27i
+X-Message-Flag: If you're running Outlook, look out!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had this somtetimes when using ntpd doing step time update
-resulting in silly values in /etc/adjtime . 
+On Mon, Feb 16, 2004 at 12:03:03AM +0100, Nicolas Mailhot wrote:
+> | Linus Torvalds pointed the way of Tux :
+> 
+> | In short: the kernel talks bytestreams, and that implies that if you 
+> | want to talk to the kernel, you HAVE TO USE UTF-8.
+> 
+> In that case :
+> - should the kernel allow apps to write filenames that are invalid 
+>   UTF-8 and will crash UTF-8 apps ?
 
-# mv /etc/adjtime /tmp 
-# hwclock --systohc
+Yes.  The kernel interface specifies it as a bytesteam with
+0x00 and 0x2f having special meaning.  That is a constraint,
+not a policy.  It is user space that determines the policy
+of UTF-8.
 
-and see if it goes away.
+>   UTF-8 and will crash UTF-8 apps ?
 
-Regards
-Michael
+Fix the broken apps.  Crashing because of "invalid" UTF-8 is
+no more excusable than crashing because of a string longer
+than expected (buffer overrun).  Filenames as read from the
+filesystem should be treated just like any other untrusted
+input.
 
-On Monday 16 February 2004 13:46, Bill Anderson wrote:
-> Kernel version: 
-> 	2.4.24-xfs
-> 	We've apaprently had this problem for a while
-> 
-> Ok, I've got an HP LPr machine, dual 700MHz intel machine that has it's
-> system clock gaining seconds very quickly. This, I am told, has been
-> happening for several kernels.
-> 
-> At first, others on the team insisted it was the hardware clock at
-> fault, as rebooting the system gives the appearance of fixing it.
-> However, the system is currently having this issue, and the HW clock is
-> actually keeping accurate time, as I expected.
-> 
-> The time gain is no consistent. It can gain 3 seconds in one, or 12 in
-> 11, but it always runs fast. This time speedup is to much for ntp to
-> keep up with. If I sync from hwclock or ntpdate every second, I'm
-> correcting about 1-3 seconds each time. This is a mail server, so I am
-> sure you can appreciate the need for accurate timestamps. ;)
-> 
-> I've seen many messages in the archives about *losing* time, but only a
-> few about gaining it. Personally, I am opposed to the "just reboot it"
-> mentality; one reason I run Linux.
-> 
-> Given that we are talking about system clock, not HW, and that this
-> happens with or w/o ntpd/ntpdate, I am suspecting something in the
-> kernel. Also, this thread leads me there too:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=105465355622844&w=2
-> 
-> 
-> Am I off base here? I can probably keep the hwclock sync method running
-> for a day or so before I'm forced to reboot it, so if there is anything
-> you need to know or want me to try while it is in this state, let me
-> know.
-> 
-> This address is not subscribed, so please cc me on responses.
-> 
-> Thanks,
-> 
-> Bill
-> 
-> 
-> 
-> 
-> -- 
-> Bill Anderson <banderson@hp.com>
-> Red Hat Certified Engineer
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+> - should this UTF-8 rule be noted somewhere (in a FAQ/man page/LSB spec/
+> whatever) so apps authors know they are supposed to read and write UTF-8
+> filenames and not apply locale rules to kernel objects ?
 
+Since the LSB spec describes user space it might be a
+suitable place.
+
+> - what happens to already existing invalid UTF-8 filenames ? Should the
+> kernel forcibly rewrite them (in 2.7.0...) to remove legacy mess ? What
+
+If you have a filesystem with filenames that don't conform
+to your policy write userspace tools to detect and/or fix
+them.  If you have programs creating non-conforming
+filenames, fix or rm those programs.
+
+> kernel forcibly rewrite them (in 2.7.0...) to remove legacy mess ? What
+> should happen if someone plug an unconverted FS in such a system
+> afterwards ?
+
+The kernel won't care.  Any user space code that treats the
+filenames as something other than bytestreams should be able
+to cope with any sequence of bytes.
+
+> These are the questions people have been asking.
+
+OK.  The questions have been asked and answered.
+Asking again and again and again won't change the answer.
+
+
+
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
+
+		Remember Cernan and Schmitt

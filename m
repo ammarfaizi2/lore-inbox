@@ -1,55 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280589AbRKFVbf>; Tue, 6 Nov 2001 16:31:35 -0500
+	id <S280600AbRKFViZ>; Tue, 6 Nov 2001 16:38:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280586AbRKFVb0>; Tue, 6 Nov 2001 16:31:26 -0500
-Received: from cc78409-a.hnglo1.ov.nl.home.com ([212.120.97.185]:40582 "EHLO
-	dexter.hensema.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S280587AbRKFVbG>; Tue, 6 Nov 2001 16:31:06 -0500
-From: spamtrap@use.reply-to (Erik Hensema)
-Subject: Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc
-Date: 6 Nov 2001 21:31:04 GMT
-Message-ID: <slrn9uglko.esu.spamtrap@dexter.hensema.xs4all.nl>
-In-Reply-To: <F272lT2NqFJ3sl3xbYi00004f63@hotmail.com>
-Reply-To: erik@hensema.net
-To: linux-kernel@vger.kernel.org
+	id <S280599AbRKFViG>; Tue, 6 Nov 2001 16:38:06 -0500
+Received: from pc4-camb6-0-cust116.cam.cable.ntl.com ([213.104.14.116]:59126
+	"EHLO kc.cam.armlinux.org") by vger.kernel.org with ESMTP
+	id <S280587AbRKFVh5>; Tue, 6 Nov 2001 16:37:57 -0500
+X-Mailer: exmh version 2.3.1 01/18/2001 (debian 2.3.1-1) with nmh-1.0.4+dev
+To: Tim Schmielau <tim@physik3.uni-rostock.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] lp.c, eexpress.c jiffies cleanup 
+In-Reply-To: Message from Andreas Dilger <adilger@turbolabs.com> 
+   of "Tue, 06 Nov 2001 14:15:21 MST." <20011106141521.R3957@lynx.no> 
+In-Reply-To: <Pine.LNX.4.30.0111062039440.23693-100000@gans.physik3.uni-rostock.de>  <20011106141521.R3957@lynx.no> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 06 Nov 2001 21:37:50 +0000
+From: Philip Blundell <philb@gnu.org>
+Message-Id: <E161Duo-0000jO-00@kc.cam.armlinux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Knop (w_knop@hotmail.com) wrote:
->>>1)  IT SHOULD NOT BE PRETTY.  No tabs to line up columns. No "progress
->>>bars."  No labels except as "proc comments" (see later).  No in-line
->>>labelling.
->>
->>It should not be pretty TO HUMANS. Slight difference. It should be >pretty 
->>to shellscripts and other applications though.
+In message <20011106141521.R3957@lynx.no>, Andreas Dilger writes:
+>On Nov 06, 2001  21:04 +0100, Tim Schmielau wrote:
+>> In eexpress.c I also turned absolute jiffies number into multiples of HZ,
+>> yet the resulting timeout values still do not always seem reasonable to
+>> me.
 >
->If this is the case, why are we using ASCII for everything? If the only 
->interface to /proc will be applications, then we could just as well let the 
->application turn four bytes into an ASCII IPv4 adddress. We could easily 
->have it set up to parse using the format [single byte type identifier (ie 4 
->for string with the first byte of "data" being the string length, 1 for 
->unsigned int, 2 for signed int, 19 for IPv4, 116 for progress bar, 
->etc.)][data]. Let people standardize away. Am I missing the point?
+>I agree.  It seems very ugly.  I looked at a few drivers which loop 1 or 2
+>jiffies, but to busy-loop for 1/10th of a second, or even 20 seconds
+>is terribly bad. 
 
-ASCII is readable by all languages with little programmer effort. In C, you
-can use a simple scanf, Perl and shells like plain ascii best.
+Those timeouts are only a last resort.  If the card is working properly the loop will terminate much sooner.
 
-When /proc is turned into some binary interface we'd need to create little
-programs which read the binary values from the files and output them on
-their stdout, which is quite cumbersome, IMHO.
+p.
 
->I think every aspect of an OS should be intuitive (so long as it is 
->efficient), which IMO /proc isn't. If this means splitting it in two, as 
->some have suggested, so be it. It certainly should have a design 
->guideline/spec so we may at least be consistant. Just my 2 coppers.
-
-Yes, maintain compatibility for 2.6 and try to dump it for 2.8.
-
-Heck, 95% compatibility could even be achieved using a 100% userspace app
-which serves the data over named pipes.
-
--- 
-Erik Hensema (erik@hensema.net)
-I'm on the list; no need to Cc: me, though I appreciate one if your mailer
-doesn't support the References header.

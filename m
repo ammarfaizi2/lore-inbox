@@ -1,138 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264251AbUGaVLn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264261AbUGaVOq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264251AbUGaVLn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 17:11:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264183AbUGaVLn
+	id S264261AbUGaVOq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 17:14:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264097AbUGaVOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 17:11:43 -0400
-Received: from gate.crashing.org ([63.228.1.57]:29323 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S264251AbUGaVLb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 17:11:31 -0400
-Subject: Re: Solving suspend-level confusion
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: David Brownell <david-b@pacbell.net>
-Cc: Pavel Machek <pavel@suse.cz>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>
-In-Reply-To: <200407310723.12137.david-b@pacbell.net>
-References: <20040730164413.GB4672@elf.ucw.cz>
-	 <200407302102.12554.david-b@pacbell.net> <1091252962.7387.14.camel@gaston>
-	 <200407310723.12137.david-b@pacbell.net>
-Content-Type: text/plain
-Message-Id: <1091308167.7396.31.camel@gaston>
+	Sat, 31 Jul 2004 17:14:46 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:55047 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S264261AbUGaVOZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jul 2004 17:14:25 -0400
+Date: Sat, 31 Jul 2004 23:06:21 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, greearb@candelatech.com,
+       akpm@osdl.org, alan@redhat.com, jgarzik@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: PATCH-2.4: MTU fix for tulip driver
+Message-ID: <20040731210621.GB28074@alpha.home.local>
+References: <20040730121004.GA21305@alpha.home.local> <E1BqkzY-0003mK-00@gondolin.me.apana.org.au> <20040731083308.GA24496@alpha.home.local> <410B67B1.4080906@pobox.com> <20040731101152.GG1545@alpha.home.local> <410BC32F.7050107@pobox.com> <20040731161234.GA27388@alpha.home.local> <410BC81D.3010105@pobox.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 01 Aug 2004 07:09:28 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <410BC81D.3010105@pobox.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-08-01 at 00:23, David Brownell wrote:
+On Sat, Jul 31, 2004 at 12:26:05PM -0400, Jeff Garzik wrote:
+ 
+> Using MODULE_PARM to select max MTU limit was always the wrong thing to 
+> do.  The user generally has no idea of the hardware limits involve.
 
-> So suspend-to-RAM more or less matches PCI D3hot, and
-> suspend-to-DISK matches PCI D3cold.  If those power states
-> were passed to the device suspend(), the disk driver could act
-> appropriately.  In my observation, D3cold was never passed
-> down, it was always D3hot.
+That's right but sometimes useful, especially when there's no other choice :-)
+I've used with it a lot when playing with jumbo frames on dl2k.
 
-Not really, they really have nothing to do with the PCI state
-at all. Besides, the difference between PCI D3 hot and D3 cold
-is dependent on what happens on the mobo after the chip gets
-set to D3...
+> Patches to remove these incorrect module parameters are welcome.
 
-> These look to me like "wrong device-level suspend state" cases.
+OK, here are two patches :
+  - the first one, against 2.4.27-rc4, removes the unused static mtu
+  - the second one, which has to be applied on top of the previous one,
+    implements the change_mtu() function.
 
-No. The driver interface provide a semantic that indicates in what
-state the system is going to, it's driver policy to translate that into
-appropriate actions, eventually involving some bus power state (or not,
-for some archs, we'll haev no choice but have some driver level arch
-hacks in there anyway, like some macs wanting video chips to be in D2
-state etc...)
+I've tried it, and indeed my firewall currently runs on it.
 
-> > USB is another example. Typically, suspend-to-RAM wants to do a bus
-> > suspend, eventually enabling remote wakeup on some devices, and expects
-> > to recover the bus on wakeup, while suspend-to-disk is roughtly
-> > equivalent to a full shutdown & reconnect on wakeup.
-> 
-> Same thing:  an HCD could do the right thing if it was told to go
-> into D1, D2, or D3hot (supports USB suspend) vs D3cold (doesn't).
+For the higher bound, I looked at Donald Becker's driver, and noticed that
+he considers 18 bytes between dev->mtu and PKT_BUF_SZ. So I set the limit
+to (PKT_BUF_SZ - 18). BTW, at first, I used netif_running() to prevent
+MTU changes when the device was up, but since the code never uses it
+anywhere, I simply removed this annoying constraint.
 
-And your whole PM code would suddently become PCI specific ...
+Now I could successfully change the MTU on my firewall up to 1518 and SEND
+frames normally (1532 bytes frames).
 
-> Though the PM core doesn't cooperate at all there.  Neither the
-> suspend nor the resume codepaths cope well with disconnect
-> (and hence device removal), the PM core self-deadlocks since
-> suspend/resume outcalls are done while holding the semaphore
-> that device_pm_remove() needs, ugh.
+The problem is with incoming frames larger than 1514 bytes. They get
+accounted as errors. Matti talked about a 'TL' bit which should be ignored,
+but I couldn't find anything related to it. Even the way the rx_missed_errors
+are increased is magics to me.
 
-That's an old problem, I don't know how to fix this one best in USB,
-I've always had problem with the whole PM semaphore for that reasons
-among others but I'll let Greg & Patrick find a solution there.
+That's exactly the part I didn't want to get into, since I don't know
+how the driver nor the hardware works.
 
-> And FWIW Greg's now merged the CONFIG_USB_SUSPEND code
-> into his tree, as experimental ... so now all the relevant integration
-> issues can start to get sorted out.  Eventually, that PM core deadlock
-> can get fixed.  And remote wakeup needs work ... x86 machines need
-> a way to tell ACPI to pay attention to PME# wakeups (which Len says
-> is in some recent ACPI patch), and maybe the PPC/Mac platforms
-> will need something similar.
-> 
->  
-> > > The problem I'm clear on is with PCI suspend, which some
-> > > earlier driver model PM changes goofed up.  It's trying to
-> > > pass a system state to driver suspend() methods that are
-> > > expecting a value appropriate for pci_set_power_state().
-> > > You're proposing to fix that by changing the call semantics,
-> > > while I'd rather just see the call site fixed.
-> > 
-> > No, I don't agree. It's a driver policy to decide what PCI state
-> > to use based on the system suspend level.
-> 
-> You've not persuaded me on that point at all ...
-> 
-> Consider:  device PM calls  aren't only made as part of changing
-> a "system suspend level".  Minimally, there's the ability to suspend
-> a single device through sysfs.  And in general, we need to be able
-> to do that directly ... one device suspending **must** be able to
-> trigger another one suspending, without assuming that every
-> device on the system is suspending to the same state.
-> 
-> As for example, suspending a USB flash storage device must
-> be able to suspend its subsidiary storage and block devices,
-> without necessarily suspending the network link on an adjacent
-> hub port.  Or a USB port on a camera (or cell phone) that must
-> act as either host or peripheral (USB OTG) ... at most one of those
-> controllers should be active at a time.
+I past the 2 trivial patches here anyway, hoping that someone else knows
+how to unlock the receive limit.
 
-And who resumes it ? Or you just lockup as soon as your VM try to
-swap in from the flash ? If it self-wakes up then it's driver internal
-policy. Again, the PM interface exposed to the kernel and userland has,
-imho, nothing to do with the actualy low level bus states.
+Regards,
+Willy
 
-> Consider a system PM policy including "suspend all idle devices".
-> With N devices supporting only "on" and "suspend" states, that's
-> something like 2^N system suspend levels.  Or more; most
-> devices support more than two suspend states (add at least
-> "off", plus often light weight suspend states).  And N is system-specific,
-> so there's no way all those system states can be given small
-> integer values ... much less fit into a "u32 state".
+#### patch 1 : remove the unused mtu[] array
 
-And ? that's not the point. "standby" is defined as a kernel PM state
-that could be used to implement that. It's per-driver policy to decide
-how to react to "standby" of the HW can only do on/off (which usually
-turns into go to "off" if the transition back to "on" is fast, or do
-nothing if not).
+--- ./drivers/net/tulip/tulip_core.c~	Sat Jul 31 18:45:59 2004
++++ ./drivers/net/tulip/tulip_core.c	Sat Jul 31 18:47:50 2004
+@@ -48,7 +48,6 @@
+ /* Used to pass the full-duplex flag, etc. */
+ static int full_duplex[MAX_UNITS];
+ static int options[MAX_UNITS];
+-static int mtu[MAX_UNITS];			/* Jumbo MTU for interfaces. */
+ 
+ /*  The possible media types that can be set in options[] are: */
+ const char * const medianame[32] = {
+@@ -1671,8 +1670,6 @@
+ 			tp->default_port = options[board_idx] & MEDIA_MASK;
+ 		if ((options[board_idx] & FullDuplex) || full_duplex[board_idx] > 0)
+ 			tp->full_duplex = 1;
+-		if (mtu[board_idx] > 0)
+-			dev->mtu = mtu[board_idx];
+ 	}
+ 	if (dev->mem_start & MEDIA_MASK)
+ 		tp->default_port = dev->mem_start & MEDIA_MASK;
 
-There's also one thing we haven't dealt with is since queues are blocked
-etc..., there need to be some explicit action waking things up. We don't
-yet have provisions for devices themselves to trigger wakeup, either of
-the whole tree, or themselves individually, based on activity. things like
-USB remote wakeup usually hook through the firmware/motherboard to trigger
-the system wakeup, but all of this is useless for such a standby state
-where we actually want a pending request to the disk, for example, to
-wakeup the whole subsystem.
 
-Ben.
+#### patch 2 : implement change_mtu()
+
+--- linux-2.4.27-rc4-tulip-no-mtu/drivers/net/tulip/tulip.h	Mon May 10 01:11:16 2004
++++ linux-2.4.27-rc4-tulip-mtu/drivers/net/tulip/tulip.h	Sat Jul 31 18:56:21 2004
+@@ -267,6 +267,8 @@
+ #define MEDIA_MASK     31
+ 
+ #define PKT_BUF_SZ		1536	/* Size of each temporary Rx buffer. */
++#define TULIP_MTU_MIN		68
++#define TULIP_MTU_MAX		(PKT_BUF_SZ - 18) /* from D.Becker's tulip.c */
+ 
+ #define TULIP_MIN_CACHE_LINE	8	/* in units of 32-bit words */
+ 
+diff -urN linux-2.4.27-rc4-tulip-no-mtu/drivers/net/tulip/tulip_core.c linux-2.4.27-rc4-tulip-mtu/drivers/net/tulip/tulip_core.c
+--- linux-2.4.27-rc4-tulip-no-mtu/drivers/net/tulip/tulip_core.c	Sat Jul 31 18:58:54 2004
++++ linux-2.4.27-rc4-tulip-mtu/drivers/net/tulip/tulip_core.c	Sat Jul 31 18:56:31 2004
+@@ -266,8 +266,16 @@
+ static struct net_device_stats *tulip_get_stats(struct net_device *dev);
+ static int private_ioctl(struct net_device *dev, struct ifreq *rq, int cmd);
+ static void set_rx_mode(struct net_device *dev);
++static int change_mtu(struct net_device *dev, int new_mtu);
+ 
+ 
++static int change_mtu(struct net_device *dev, int new_mtu)
++{
++	if ((new_mtu < TULIP_MTU_MIN) || (new_mtu > TULIP_MTU_MAX))
++		return -EINVAL;
++	dev->mtu = new_mtu;
++	return 0;
++}
+ 
+ static void tulip_set_power_state (struct tulip_private *tp,
+ 				   int sleep, int snooze)
+@@ -1726,6 +1734,7 @@
+ 	dev->get_stats = tulip_get_stats;
+ 	dev->do_ioctl = private_ioctl;
+ 	dev->set_multicast_list = set_rx_mode;
++	dev->change_mtu = &change_mtu;
+ 
+ 	if (register_netdev(dev))
+ 		goto err_out_free_ring;
 
 

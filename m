@@ -1,180 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267455AbTASMwj>; Sun, 19 Jan 2003 07:52:39 -0500
+	id <S267458AbTASMvs>; Sun, 19 Jan 2003 07:51:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267459AbTASMwj>; Sun, 19 Jan 2003 07:52:39 -0500
-Received: from holomorphy.com ([66.224.33.161]:47238 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S267455AbTASMwS>;
-	Sun, 19 Jan 2003 07:52:18 -0500
-Date: Sun, 19 Jan 2003 05:01:18 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
+	id <S267459AbTASMvs>; Sun, 19 Jan 2003 07:51:48 -0500
+Received: from ulima.unil.ch ([130.223.144.143]:61375 "EHLO ulima.unil.ch")
+	by vger.kernel.org with ESMTP id <S267458AbTASMvr>;
+	Sun, 19 Jan 2003 07:51:47 -0500
+Date: Sun, 19 Jan 2003 14:00:49 +0100
+From: Gregoire Favre <greg@ulima.unil.ch>
 To: linux-kernel@vger.kernel.org
-Cc: Martin.Bligh@us.ibm.com
-Subject: setup_ioapic_ids_from_mpc()
-Message-ID: <20030119130118.GC770@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, Martin.Bligh@us.ibm.com
+Subject: Status of ide-cdrom writing?
+Message-ID: <20030119130049.GA15941@ulima.unil.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-By means of Zen, voodoo, and guessing the method from the results, I
-came to a conclusion somewhat resembling this patch.
+Hello,
 
-Since this has approximately zero resemblance to the "Pee Cee" case,
-I think it best to avoid crossdressing the box to get it to survive
-IO-APIC init and just break off our own version which blindly trusts
-the BIOS and doesn't panic() at the drop of a hat, much unlike the
-Pee Cee version. It also runs (mostly) silent, which I consider a bonus.
+I sent this email to the cdwrite ml a while ago, and the conclusion was
+that it was a kernel bug... so I forward here ;-)
 
-100% untested. I'll spin it sometime tomorrow.
+I got the same result with 2.5.58 (I need to compil a 2.5.59...).
 
+Thank you very much ;-)
 
--- wli
+----- Forwarded message from Gregoire Favre <greg@ulima.unil.ch> -----
 
-===== arch/i386/kernel/io_apic.c 1.40 vs edited =====
---- 1.40/arch/i386/kernel/io_apic.c	Tue Jan 14 03:02:28 2003
-+++ edited/arch/i386/kernel/io_apic.c	Sun Jan 19 04:59:04 2003
-@@ -1132,7 +1132,40 @@
-  * by Matt Domsch <Matt_Domsch@dell.com>  Tue Dec 21 12:25:05 CST 1999
-  */
- 
--static void __init setup_ioapic_ids_from_mpc (void)
-+#ifdef CONFIG_X86_NUMAQ
-+static void __init setup_ioapic_ids_from_mpc(void)
-+{
-+	int io_apic;
-+
-+	for (io_apic = 0; io_apic < nr_ioapics; ++io_apic) {
-+		struct IO_APIC_reg_00 reg;
-+		int node, local, global, *regval = (int *)&reg;
-+
-+		global = mp_ioapics[apic].mpc_apicid;
-+		for (node = 0; node < MAX_NUMNODES; ++node) {
-+			if (mp_ioapic_id_map[node][0][0] == global)
-+				local = mp_ioapic_id_map[node][0][1];
-+			else if (mp_ioapic_id_map[node][1][0] == global)
-+				local = mp_ioapic_id_map[node][1][1];
-+		}
-+
-+		if (!local) {
-+			printk("mystery IO-APIC, it will die\n");
-+			continue;
-+		}
-+
-+		
-+		spin_lock_irqsave(&ioapic_lock, flags);
-+		*regval = io_apic_read(apic, 0);
-+		if (reg.ID != local) {
-+			reg.ID = local;
-+			io_apic_write(apic, 0, *regval);
-+		}
-+		spin_unlock_irqrestore(&ioapic_lock, flags);
-+	}
-+}
-+#else /* !CONFIG_X86_NUMAQ */
-+static void __init setup_ioapic_ids_from_mpc(void)
- {
- 	struct IO_APIC_reg_00 reg_00;
- 	unsigned long phys_id_present_map;
-@@ -1225,6 +1258,7 @@
- 			printk(" ok.\n");
- 	}
- }
-+#endif
- 
- /*
-  * There is a nasty bug in some older SMP boards, their mptable lies
-===== arch/i386/kernel/mpparse.c 1.32 vs edited =====
---- 1.32/arch/i386/kernel/mpparse.c	Mon Jan 13 16:41:17 2003
-+++ edited/arch/i386/kernel/mpparse.c	Sun Jan 19 04:19:09 2003
-@@ -47,6 +47,7 @@
- int mp_bus_id_to_local [MAX_MP_BUSSES];
- int quad_local_to_mp_bus_id [NR_CPUS/4][4];
- int mp_bus_id_to_pci_bus [MAX_MP_BUSSES] = { [0 ... MAX_MP_BUSSES-1] = -1 };
-+int mp_ioapic_id_map [MAX_NUMNODES][2][2];
- int mp_current_pci_id;
- 
- /* I/O APIC entries */
-@@ -232,6 +233,7 @@
- 		return;
- 	}
- 	mp_ioapics[nr_ioapics] = *m;
-+	mpc_oem_ioapic(m, str, translation_table[mpc_record]);
- 	nr_ioapics++;
- }
- 
-===== include/asm-i386/mpspec.h 1.11 vs edited =====
---- 1.11/include/asm-i386/mpspec.h	Tue Jan 14 03:02:28 2003
-+++ edited/include/asm-i386/mpspec.h	Sun Jan 19 04:40:31 2003
-@@ -204,6 +204,7 @@
- extern int mp_bus_id_to_local [MAX_MP_BUSSES];
- extern int quad_local_to_mp_bus_id [NR_CPUS/4][4];
- extern int mp_bus_id_to_pci_bus [MAX_MP_BUSSES];
-+extern int mp_ioapic_id_map [MAX_NUMNODES][2][2];
- 
- extern unsigned int boot_cpu_physical_apicid;
- extern unsigned long phys_cpu_present_map;
-===== include/asm-i386/mach-default/mach_mpparse.h 1.2 vs edited =====
---- 1.2/include/asm-i386/mach-default/mach_mpparse.h	Mon Jan 13 16:41:17 2003
-+++ edited/include/asm-i386/mach-default/mach_mpparse.h	Sun Jan 19 04:26:45 2003
-@@ -12,6 +12,11 @@
- {
- }
- 
-+static inline void mpc_oem_ioapic(struct mpc_config_ioapic *m, 
-+				struct mpc_config_translation *translation)
-+{
-+}
-+
- static inline void mps_oem_check(struct mp_config_table *mpc, char *oem, 
- 		char *productid)
- {
-===== include/asm-i386/mach-numaq/mach_mpparse.h 1.4 vs edited =====
---- 1.4/include/asm-i386/mach-numaq/mach_mpparse.h	Mon Jan 13 16:41:17 2003
-+++ edited/include/asm-i386/mach-numaq/mach_mpparse.h	Sun Jan 19 04:57:29 2003
-@@ -24,6 +24,25 @@
- 	quad_local_to_mp_bus_id[quad][local] = m->mpc_busid;
- }
- 
-+static inline void mpc_oem_ioapic(struct mpc_config_ioapic *m, 
-+				struct mpc_config_translation *translation)
-+{
-+	int quad = translation->trans_quad;
-+	int local = translation->trans_local;
-+	int *info;
-+
-+	if (!mp_ioapic_id_map[quad][0][0])
-+		info = mp_ioapic_id_map[quad][0];
-+	else if (!mp_ioapic_id_map[quad][1][0])
-+		info = mp_ioapic_id_map[quad][1];
-+	else {
-+		printk("bad IO-APIC! go to your quad!\n");
-+		return;
-+	}
-+	info[0] = global;
-+	info[1] = local;
-+}
-+
- static inline void mps_oem_check(struct mp_config_table *mpc, char *oem, 
- 		char *productid)
- {
-===== include/asm-i386/mach-summit/mach_mpparse.h 1.3 vs edited =====
---- 1.3/include/asm-i386/mach-summit/mach_mpparse.h	Tue Jan 14 03:02:28 2003
-+++ edited/include/asm-i386/mach-summit/mach_mpparse.h	Sun Jan 19 04:30:32 2003
-@@ -12,6 +12,11 @@
- {
- }
- 
-+static inline void mpc_oem_ioapic(struct mpc_config_ioapic *m, 
-+				struct mpc_config_translation *translation)
-+{
-+}
-+
- static inline void mps_oem_check(struct mp_config_table *mpc, char *oem, 
- 		char *productid)
- {
+Date: Sun, 12 Jan 2003 22:58:50 +0100
+From: Gregoire Favre <greg@ulima.unil.ch>
+To: cdwrite@other.debian.org
+Subject: Status of ide writing?
+
+Hello,
+
+is it possible to burn without idescsi under 2.5.56?
+
+I got:
+
+Cdrecord-ProDVD-Clone 2.0 (i586-pc-linux-gnu) Copyright (C) 1995-2002 Jörg Schilling
+Unlocked features: ProDVD Clone 
+Limited  features: speed 
+This copy of cdrecord is licensed for: private/research/educational_non-commercial_use
+TOC Type: 1 = CD-ROM
+scsidev: '/dev/hdc'
+devname: '/dev/hdc'
+scsibus: -2 target: -2 lun: -2
+Warning: Open by 'devname' is unintentional and not supported.
+Linux sg driver version: 3.5.27
+Using libscg version 'schily-0.7'
+Driveropts: 'burnfree'
+atapi: 1
+Device type    : Removable CD-ROM
+Version        : 2
+Response Format: 2
+Capabilities   : 
+Vendor_info    : 'SONY    '
+Identifikation : 'DVD RW DRU-500A '
+Revision       : '1.0f'
+Device seems to be: Generic mmc2 DVD-R/DVD-RW.
+Using generic SCSI-3/mmc-2 DVD-R/DVD-RW driver (mmc_dvd).
+Driver flags   : DVD SWABAUDIO BURNFREE 
+Supported modes: TAO PACKET SAO SAO/R96R RAW/R96R
+Drive buf size : 8126464 = 7936 KB
+FIFO size      : 67108864 = 65536 KB
+Track 01: data  3502 MB        
+Total size:     3502 MB = 1793056 sectors
+Current Secsize: 2048
+Blocks total: 2298496 Blocks current: 2298496 Blocks remaining: 505440
+Starting to write CD/DVD at speed 1 in real SAO mode for single session.
+Last chance to quit, starting real write in 9 seconds.  0.28% done, estimate finish Sun Jan 12 22:32:14 2003
+  0.56% done, estimate finish Sun Jan 12 22:29:15 2003
+  0.84% done, estimate finish Sun Jan 12 22:28:15 2003
+  1.12% done, estimate finish Sun Jan 12 22:27:45 2003
+   8 seconds.  1.39% done, estimate finish Sun Jan 12 22:28:39 2003
+  1.67% done, estimate finish Sun Jan 12 22:28:15 2003
+   0 seconds. Operation starts.
+Waiting for reader process to fill input buffer ... input buffer ready.
+BURN-Free is ON.
+Starting new track at sector: 0
+Track 01:    4 of 3502 MB written (fifo  99%)  13.1x.cdrecord-prodvd: Input/output error. write_g1: scsi sendcmd: no error
+CDB:  2A 00 00 00 08 B8 00 00 1F 00
+status: 0x1 (GOOD STATUS)
+resid: 63488
+cmd finished after 0.011s timeout 100s
+
+write track data: error after 4571136 bytes
+Sense Bytes: 70 00 00 00 00 00 00 12 00 00 00 00 00 00 00 00 00 00
+Writing  time:    5.315s
+Average write speed 501.9x.
+Fixating...
+Fixating time:   84.976s
+cdrecord-prodvd: fifo had 1095 puts and 73 gets.
+cdrecord-prodvd: fifo was 0 times empty and 7 times full, min fill was 99%.
+Exit 254
+
+Should I compil again with ide-scsi?
+
+Thank you very much,
+
+	Grégoire
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

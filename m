@@ -1,62 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262175AbUKWEqI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262156AbUKVQa3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262175AbUKWEqI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 23:46:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262185AbUKVQd6
+	id S262156AbUKVQa3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 11:30:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262191AbUKVQaM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 11:33:58 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:50649 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S262161AbUKVQAD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 11:00:03 -0500
-Message-ID: <41A20CFA.3050101@namesys.com>
-Date: Mon, 22 Nov 2004 07:59:54 -0800
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jesper Juhl <juhl-lkml@dif.dk>
-CC: lkml <linux-kernel@vger.kernel.org>, vs <vs@thebsh.namesys.com>
-Subject: Re: [patch] silence sparse warning in fs/reiserfs/namei.c about using
- plain integer as NULL pointer
-References: <Pine.LNX.4.61.0411212304180.3423@dragon.hygekrogen.localhost>
-In-Reply-To: <Pine.LNX.4.61.0411212304180.3423@dragon.hygekrogen.localhost>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 22 Nov 2004 11:30:12 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:2833 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261460AbUKVP4X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 10:56:23 -0500
+Date: Mon, 22 Nov 2004 16:56:19 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: rusty@rustcorp.com.au, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] MODULE_PARM_: remove the __deprecated
+Message-ID: <20041122155619.GG19419@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
+Hi Rusty,
 
->Hi,
->
->sparse complains about passing 0 to functions execting a pointer argument:
->
->  CHECK   fs/reiserfs/namei.c
->fs/reiserfs/namei.c:617:50: warning: Using plain integer as NULL pointer
->
->Trivial patch to change it to pass NULL instead below.
->
->Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
->
->diff -up linux-2.6.10-rc2-bk6-orig/fs/reiserfs/namei.c linux-2.6.10-rc2-bk6/fs/reiserfs/namei.c
->--- linux-2.6.10-rc2-bk6-orig/fs/reiserfs/namei.c	2004-11-17 01:20:16.000000000 +0100
->+++ linux-2.6.10-rc2-bk6/fs/reiserfs/namei.c	2004-11-21 22:52:41.000000000 +0100
->@@ -614,7 +614,7 @@ static int reiserfs_create (struct inode
->         goto out_failed;
->     }
-> 
->-    retval = reiserfs_new_inode (&th, dir, mode, 0, 0/*i_size*/, dentry, inode);
->+    retval = reiserfs_new_inode (&th, dir, mode, NULL, 0/*i_size*/, dentry, inode);
->     if (retval)
->         goto out_failed;
-> 	
->
->
->
->
->  
->
-thanks, vs. will look into it and get back to you.
+I know you will not like this patch, but I consider it important since 
+the current beghavior is pretty annoying.
+
+When making patches here and there, I'm touching many different places 
+in the kernel. One of the advantages of the 2.6 build system is that 
+warnings are very visible - and often a new compile warning indicates 
+that something with the patch is wrong.
+
+MODULE_PARM_ might be deprecated.
+But there are still over 2000 places in the kernel where it's used.
+I consider it _very_ annoying if after changing the kernel, the whole 
+screen is swamped with warnings that MODULE_PARM_ is deprecated as it 
+still happens in several subsystems. That's quite annoying if you want 
+to check whether changing a common header file has any negative effects.
+
+This is not generally against using __deprecated, but currently 
+MODULE_PARM_ generates so many warnings that it's really no fun.
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.10-rc2-mm3-modular/include/linux/module.h.old	2004-11-22 15:51:17.000000000 +0100
++++ linux-2.6.10-rc2-mm3-modular/include/linux/module.h	2004-11-22 15:53:29.000000000 +0100
+@@ -559,7 +559,7 @@
+ 	void *addr;
+ };
+ 
+-static inline void __deprecated MODULE_PARM_(void) { }
++static inline void MODULE_PARM_(void) { }
+ #ifdef MODULE
+ /* DEPRECATED: Do not use. */
+ #define MODULE_PARM(var,type)						    \
+

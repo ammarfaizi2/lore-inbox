@@ -1,53 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269882AbUJHBSo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267953AbUJHBSp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269882AbUJHBSo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 21:18:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267953AbUJGWz2
+	id S267953AbUJHBSp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 21:18:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269889AbUJGWzS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 18:55:28 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:10763 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S269875AbUJGWeg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 18:34:36 -0400
-Date: Fri, 8 Oct 2004 00:34:34 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: mmap specification - was: ... select specification
-Message-ID: <20041007223434.GB7047@pclin040.win.tue.nl>
-References: <4164EBF1.3000802@nortelnetworks.com> <Pine.LNX.4.61.0410071244150.304@hibernia.jakma.org> <001601c4ac72$19932760$161b14ac@boromir> <Pine.LNX.4.61.0410071346040.304@hibernia.jakma.org> <001c01c4ac76$fb9fd190$161b14ac@boromir> <1097156727.31753.44.camel@localhost.localdomain> <001f01c4ac8b$35849710$161b14ac@boromir> <1097160628.31614.68.camel@localhost.localdomain> <20041007215834.GA7047@pclin040.win.tue.nl> <20041007221745.GA16597@taniwha.stupidest.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 7 Oct 2004 18:55:18 -0400
+Received: from smtp09.auna.com ([62.81.186.19]:65248 "EHLO smtp09.retemail.es")
+	by vger.kernel.org with ESMTP id S267953AbUJGWbS convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 18:31:18 -0400
+Date: Thu, 07 Oct 2004 22:31:14 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: PS2 mouse/kbd problems (gremlins?)
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: "J.A. Magallon" <jamagallon@able.es>,
+       Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+References: <1096998302l.5347l.0l@werewolf.able.es>
+	<200410052332.34837.dtor_core@ameritech.net>
+	<1097101822l.5054l.0l@werewolf.able.es>
+	<20041007001017.GF4523@pclin040.win.tue.nl>
+In-Reply-To: <20041007001017.GF4523@pclin040.win.tue.nl> (from
+	aebr@win.tue.nl on Thu Oct  7 02:10:17 2004)
+X-Mailer: Balsa 2.2.5
+Message-Id: <1097188274l.6408l.0l@werewolf.able.es>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	Format=Flowed
 Content-Disposition: inline
-In-Reply-To: <20041007221745.GA16597@taniwha.stupidest.org>
-User-Agent: Mutt/1.4.1i
-X-Spam-DCC: : 
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 07, 2004 at 03:17:45PM -0700, Chris Wedgwood wrote:
-> On Thu, Oct 07, 2004 at 11:58:34PM +0200, Andries Brouwer wrote:
-> 
-> > [I read this as follows: If you mmap a file with MAP_SHARED and
-> > modify the memory at an address so far beyond EOF that it is not in
-> > a page containing stuff from the file, then you get a SIGBUS. --
-> > Linux does this.  Also, that if you modify the memory at an address
-> > beyond EOF, then the file is not modified. -- Again Linux does
-> > this.]
-> 
-> consider mmaping a 1-byte file ... you can modify bytes 0..4095.
-> bytes 1..4095 shouldn't be recorded to disk ideally
-> 
-> at one point one fs did actually store this data and it caused cpp
-> problems (it would expect to see zeroes and where it didn't it got
-> upset)
 
-Is this an answer? Or an anecdote?
+On 2004.10.07, Andries Brouwer wrote:
+> On Wed, Oct 06, 2004 at 10:30:22PM +0000, J.A. Magallon wrote:
+> > 
+> > On 2004.10.06, Dmitry Torokhov wrote:
+> > >On Tuesday 05 October 2004 12:45 pm, J.A. Magallon wrote:
+> > >> Hi all...
+> > >> 
+> > >> I got time to track my ps2 problems. I run 2.6.9-rc2-mm[123] (that was
+> > >> enough).
+> > >> 
+> > >> Results:
+> > >> - mm1: mouse and kbd work ok, both in console and X
+> > >> - mm2: mouse works, no kbd. I had to unplug/plug the keyboard to get it
+> > >>   responding.
+> > >> - mm3: kbd ok, but ps2 mouse is sluggish.
+> > >> 
+> > >> In latest -rc3-mm2, behavior is like mm3 and above.
+> > >> 
+> > >
+> > >What about vanilla -rc3 and vanilla -rc3 with bk-input patch applied (if 
+> > >you
+> > >have some time of course). Do they exibit the same symptoms as -mm tree?
+> > >
+> > 
+> > Both rc3 and rc3-bk.input work. Even rc3-mm2 works, depending on how I boot 
+> > ;).
+> > This is getting really strange....look:
+> > 
+> > lrwxrwxrwx  1 root root      21 2004.10.05 14:16 vmlinuz -> 
+> > vmlinuz-2.6.9-rc3-mm2
+> > 
+> > lilo.conf:
+> > default="linux"
+> > append="psmouse.proto=exps"
+> > image=/boot/vmlinuz
+> >    label="linux"
+> > ...
+> > image=/boot/vmlinuz-2.6.9-rc3-mm2
+> >    label="linux-2.6.9-rc3-mm2"
+> > 
+> > If I boot with the default entry, mouse does not work. If I boot with
+> > the specific entry in lilo for rc3-mm2, it works.
+> > 
+> > dmesg diff:
+> > -Kernel command line: BOOT_IMAGE=linux ro root=801 psmouse.proto=exps 3
+> > +Kernel command line: BOOT_IMAGE=linux-2.6.9-rc3-mm2 ro root=801 
+> > 
+> > Somebody understands this ? Are there gremlins in my box ?
+> 
+> A week or so ago I had a problem and couldnt see which changeset
+> caused it. After a binary search it turned out to be the changeset
+> that changed the (length of the) kernel version string.
+> A wild pointer was harmless at first, but after shifting everything
+> by a few bytes it caused crashes.
+> 
+> Probably (hopefully) your problem is something entirely different,
+> but it is not impossible that kernel behaviour depends on kernel name.
 
-[You seem to say anecdotically that at one point in time Linux mmap
-was not POSIX compliant, and problems arose.
-Alan on the other hand seems to say that POSIX comes with
-ridiculous requirements.]
+Well, partially solved...
 
-Andries
+I had USB legacy emulation active in the BIOS.  Disabling it makes
+everything work as it should.
+
+I had alwasy thought that Linux ignored the BIOS completely, as an
+ancient remain of cr*p.
+
+Thanks everyoune.
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandrakelinux release 10.1 (Community) for i586
+Linux 2.6.9-rc3-mm3 (gcc 3.4.1 (Mandrakelinux 10.1 3.4.1-4mdk)) #1
+
+

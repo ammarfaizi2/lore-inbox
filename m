@@ -1,48 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263642AbUDMRco (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Apr 2004 13:32:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263644AbUDMRco
+	id S263394AbUDMRpb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Apr 2004 13:45:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263615AbUDMRpa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Apr 2004 13:32:44 -0400
-Received: from citrine.spiritone.com ([216.99.193.133]:64946 "EHLO
-	citrine.spiritone.com") by vger.kernel.org with ESMTP
-	id S263642AbUDMRcf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Apr 2004 13:32:35 -0400
-Message-ID: <407C244D.70206@BitWagon.com>
-Date: Tue, 13 Apr 2004 10:33:01 -0700
-From: John Reiser <jreiser@BitWagon.com>
-Organization: -
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] binfmt_elf.c allow .bss with no access (p---)
-References: <1078508281.3065.33.camel@linux.littlegreen>	<404A1C71.3010507@redhat.com>	<1078607410.10313.7.camel@linux.littlegreen>	<m1brn8us96.fsf@ebiederm.dsl.xmission.com>	<404C0B57.6030607@BitWagon.com>	<20040308080615.GS31589@devserv.devel.redhat.com>	<4050047F.5010808@BitWagon.com> <20040412185317.79ac7d7d.akpm@osdl.org>
-In-Reply-To: <20040412185317.79ac7d7d.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 13 Apr 2004 13:45:30 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:44708 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S263394AbUDMRp1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Apr 2004 13:45:27 -0400
+Date: Tue, 13 Apr 2004 19:45:16 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Guillaume =?iso-8859-1?Q?Lac=F4te?= <Guillaume@lacote.name>
+Cc: linux-kernel@vger.kernel.org, Linux@glacote.com
+Subject: Re: Using compression before encryption in device-mapper
+Message-ID: <20040413174516.GB1084@wohnheim.fh-wedel.de>
+References: <200404131744.40098.Guillaume@Lacote.name>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200404131744.40098.Guillaume@Lacote.name>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>>>LOAD           0x001000 0x00400000 0x00400000 0x00000 0x10000000 R   0x1000
->>
->>>It should really be p_flags 0 and binfmt_elf.c should be fixed if it doesn't
->>>handle that properly.
->>
->>This ALPHA quality patch against 2.6.3 adds another argument to do_brk()
->>which enables having a user ELF .bss with no-access (or read-only).
+On Tue, 13 April 2004 17:44:40 +0200, Guillaume Lacôte wrote:
+> 
+> I hope this is the right place to post this message; I tried to keep it small.
+> Basically I really would like to implement compression at the dm level, 
+> despite all of the problems. The reason for this is that reducing redundancy 
+> through compression tremendously reduces the possibilities of success for an 
+> attacker. I had implemented this idea in a java archiver ( 
+> http://jsam.sourceforge.net ).
+> 
+> Although I am not a good kernel hacker, I have spent some time reading 
+> compressed-loop.c, loop-aes, dm-crypt.c, and various threads from lkml 
+> including http://www.uwsg.iu.edu/hypermail/linux/kernel/0402.2/0035.html
+> Thus I would appreciate if you could answer the following questions regarding 
+> the implementation of a "dm-compress" dm personality. 
+> 
+> 0) Has this problem already been adressed, and if yes, where ?
 
-Here are refreshed patches (now BETA quality) against recent kernels:
-    http://www.bitwagon.com/elfdiet/elfdiet-2.6.5-mm5-1.patch.gz
-    http://www.bitwagon.com/elfdiet/elfdiet-2.6.5.patch.gz
-(Patch mechanics: take 2.6.5, apply -mm5-1 [if desired], then apply
-the corresponding elfdiet patch.)
+Yes, on the filesystems level.  Jffs2 is usable, although not
+well-suited for disks and similar, ext2compr appears to be unusable.
+On the device level, I haven't heard of anything yet.
 
-A short introduction with links to past and future patches is:
-    http://www.bitwagon.com/elfdiet/elfdiet.html
+> 1) Using dm: I want to be able to use compression both above dm (to compress 
+> before encrypting a volume) and below it (to do a RAID on compressed 
+> volumes). I assume there is no other way than to make compression be a dm 
+> personality. Is this correct (or shall I use something more similar to a 
+> compressed loop device) ?
+
+I'd go for a dm implementation.
+
+> 2) Block I/O boundaries: compression does not preserve size. I plan to use a 
+> mapping from real sectors to their compressed location (e.g. struct { 
+> sector_t sector; size_t compressed_length }* mapping; ). I believe this 
+> mapping can be stored on another dm target and bufferized dynamically. Is 
+> this correct, or shall it remain in (non-swappable ?) memory ?
+> 
+> 3) Compressed sectors have varying sizes, while dm targets only deal with full 
+> blocks. Thus every compressed request may need to be fragmented into several 
+> block aligned requests. This might imply reading a full block before 
+> partially filling it with new data. Is it an exceedingly difficult task ? 
+> Will this kill performance ?
+> 
+> 4) Block allocation on writes: this is the most difficult problem I believe. 
+> When rewriting a sector, its new compressed length might not be the same as 
+> before. This would require a whole sector allocation mechanism: magaging 
+> lists of free space, optimizing dynamic allocation to reduce fragmentation, 
+> etc. Is there another solution than to adapt algorithms used in for e.g. ext2 
+> ?
+
+If you really want to deal with this, you end up with a device that
+can grow and shrink depending on the data.  Unless you have a strange
+fetish for pain, you shouldn't even think about it.
+
+> 5) As a workaround to 2,3,4 I plan to systematically allocate 2 sectors per 
+> real sector (space efficiency is _not_ my aim, growing entropy per bit is) 
+> and to use a trivial dynamic huffman compression algorithm. Is this solution 
+> (which means having half less space than physically available) acceptable ?
+
+Makes sense.  One of the zlib developers actually calculated the
+maximum expansion when zlib-compressing data, so you could even get
+away with more than 50% net size, but that makes the code more
+complicated.  Your call.
+
+Performance should not be a big issue, as encryption is a performance
+killer anyway.
+
+Whether it is acceptable depends on the user.  Make it optional and
+let the user decide.
+
+> 6) Shall this whole idea of compression be ruled out of dm and only be 
+> implemented at the file-system level (e.g. as a plugin for ReiserFS4) ?
+
+Again, depends on the user.  But from experience, there are plenty of
+users who want something like this.
+
+Jörn
 
 -- 
-John Reiser, jreiser@BitWagon.com
-
+A victorious army first wins and then seeks battle.
+-- Sun Tzu

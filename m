@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265641AbUBBH3X (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 02:29:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265651AbUBBH3X
+	id S265651AbUBBHey (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 02:34:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265658AbUBBHey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 02:29:23 -0500
-Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:13974 "EHLO
-	blue-labs.org") by vger.kernel.org with ESMTP id S265641AbUBBH3W
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 02:29:22 -0500
-Message-ID: <401DFC4C.2080802@blue-labs.org>
-Date: Mon, 02 Feb 2004 02:29:16 -0500
-From: David Ford <david+powerix@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040129
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: ACPI/battery status on Dell Inspiron 8200 broken, 2.6.2-rc3
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 2 Feb 2004 02:34:54 -0500
+Received: from mail.kroah.org ([65.200.24.183]:49308 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265651AbUBBHex (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 02:34:53 -0500
+Date: Sun, 1 Feb 2004 23:34:51 -0800
+From: Greg KH <greg@kroah.com>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: module-init-tools/udev and module auto-loading
+Message-ID: <20040202073451.GA23181@kroah.com>
+References: <E1AnYNT-0002Tp-00.arvidjaar-mail-ru@f17.mail.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1AnYNT-0002Tp-00.arvidjaar-mail-ru@f17.mail.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Battery status got lost in either rc2 or rc3.  It worked in rc1.
+On Mon, Feb 02, 2004 at 10:20:15AM +0300, "Andrey Borzenkov"  wrote:
+> 
+> so there are cases when "action on access" makes sense.
 
-powerix klaptopdaemon # cat /proc/acpi/battery/BAT0/info
-present:                 yes
-design capacity:         0 mWh
-last full capacity:      0 mWh
-battery technology:      non-rechargeable
-design voltage:          0 mV
-design capacity warning: 0 mWh
-design capacity low:     0 mWh
-capacity granularity 1:  0 mWh
-capacity granularity 2:  0 mWh
-model number:
-serial number:
-battery type:
-OEM info:
+Yes, there are cases like this where that might make sense.  However
+there's no real way for udev itself to solve those cases.  You will have
+to rely on some other method to do this (script to load module, making
+the /dev node yourself, script to make dev node and then access it which
+causes kmod to load the module, etc.)
 
-powerix klaptopdaemon # cat /proc/acpi/battery/BAT0/state
-present:                 yes
-capacity state:          ok
-charging state:          unknown
-present rate:            0 mA
-remaining capacity:      0 mAh
-present voltage:         0 mV
+thanks,
 
+greg k-h

@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287386AbSAPUEG>; Wed, 16 Jan 2002 15:04:06 -0500
+	id <S287432AbSAPUHh>; Wed, 16 Jan 2002 15:07:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287371AbSAPUD4>; Wed, 16 Jan 2002 15:03:56 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:53771 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S287368AbSAPUDt>; Wed, 16 Jan 2002 15:03:49 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: hex addresses in setup.S
-Date: 16 Jan 2002 12:03:16 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a24ma4$4ps$1@cesium.transmeta.com>
-In-Reply-To: <BJEJJDPJOCEPDBLPFDKJCEACCCAA.ceswiedler@mindspring.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+	id <S287436AbSAPUH1>; Wed, 16 Jan 2002 15:07:27 -0500
+Received: from chello212186127068.14.vie.surfer.at ([212.186.127.68]:21420
+	"EHLO server.home.at") by vger.kernel.org with ESMTP
+	id <S287432AbSAPUHT>; Wed, 16 Jan 2002 15:07:19 -0500
+Subject: Re: floating point exception
+From: Christian Thalinger <e9625286@student.tuwien.ac.at>
+To: Bruce Harada <bruce@ask.ne.jp>
+Cc: Dave Jones <davej@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020116221454.12e55709.bruce@ask.ne.jp>
+In-Reply-To: <1011181530.513.0.camel@sector17.home.at>
+	<Pine.LNX.4.33.0201161257210.9083-100000@Appserv.suse.de> 
+	<20020116221454.12e55709.bruce@ask.ne.jp>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 16 Jan 2002 21:06:07 +0100
+Message-Id: <1011211577.1617.4.camel@sector17.home.at>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <BJEJJDPJOCEPDBLPFDKJCEACCCAA.ceswiedler@mindspring.com>
-By author:    "Chris Swiedler" <ceswiedler@mindspring.com>
-In newsgroup: linux.dev.kernel
->
-> Why does setup.S define the default system load address as 0x1000, and the
-> comment on the line explain this to be 0x10000(and gives the decimal
-> translation of 65536, so it's not a typo)? This seems to be true for several
-> addresss (0x9000 = 0x90000, etc). I'm sure there's something simple I'm
-> missing...what is it?
+On Wed, 2002-01-16 at 14:14, Bruce Harada wrote:
+> On Wed, 16 Jan 2002 12:58:35 +0100 (CET)
+> Dave Jones <davej@suse.de> wrote:
 > 
+> > On 16 Jan 2002, Christian Thalinger wrote:
+> > 
+> > > I mentioned in my first mail the dual tyan, so athlon xp, no fpu
+> > > emulator ;-) and no oops messages.
+> > 
+> > Dual Athlon XP problem. Thanks for playing.
+> 
+> Interesting. That's the first actual report I've seen of problems caused by
+> using XPs instead of MPs. I'd been wondering if I could get away with XPs for
+> my next SMP box; now I know better ;)
 
-In real mode:
+Don't be too scared. Everything works except this seti thingy.
 
-linear_address := (segment << 4) + offset
-
-Those addresses are "segment" addresses, with (implied) offset == 0.
-These kinds of addresses are sometimes referred to as "paragraph
-addresses" (paragraph being bigger than words but smaller than pages,
-I guess.)
-
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

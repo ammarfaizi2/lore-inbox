@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275357AbRIZR1c>; Wed, 26 Sep 2001 13:27:32 -0400
+	id <S275363AbRIZR2w>; Wed, 26 Sep 2001 13:28:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275356AbRIZR1W>; Wed, 26 Sep 2001 13:27:22 -0400
-Received: from post.aecom.yu.edu ([129.98.1.4]:22982 "EHLO post.aecom.yu.edu")
-	by vger.kernel.org with ESMTP id <S275357AbRIZR1M>;
-	Wed, 26 Sep 2001 13:27:12 -0400
-Mime-Version: 1.0
-Message-Id: <a0510031eb7d7bfead585@[129.98.91.150]>
-In-Reply-To: <Pine.LNX.4.33.0109260811240.2579-100000@vk-clued0.fnal.gov>
-In-Reply-To: <Pine.LNX.4.33.0109260811240.2579-100000@vk-clued0.fnal.gov>
-Date: Wed, 26 Sep 2001 13:27:30 -0400
-To: vkuznet <vkuznet@fnal.gov>
-From: Maurice Volaski <mvolaski@aecom.yu.edu>
-Subject: Re: problem with 2.4.8 and "Checking root filesystem"
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	id <S275358AbRIZR2d>; Wed, 26 Sep 2001 13:28:33 -0400
+Received: from smtp2.cistron.nl ([195.64.68.41]:45323 "EHLO smtp2.cistron.nl")
+	by vger.kernel.org with ESMTP id <S275356AbRIZR2Y>;
+	Wed, 26 Sep 2001 13:28:24 -0400
+Message-ID: <3BB21007.8E73A83E@cistron.nl>
+Date: Wed, 26 Sep 2001 19:27:35 +0200
+From: Alfred Munnikes <munnikes@cistron.nl>
+Reply-To: munnikes@cistron.nl
+Organization: Munnikes
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9 i686)
+X-Accept-Language: nl, en
+MIME-Version: 1.0
+To: mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: spurious 8259A interrupt: IRQ7. AND VM: killing process..
+In-Reply-To: <Pine.LNX.4.33.0109261855220.6377-100000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Hi,
->I'm trying to install kernel 2.4.8 with Alan's patches (AC) plus XFS.
->I took vanilla kernel, applied all patches and build successfully
->kernel. When I reboot system, kernel was loaded and on my RedHat 7.1
->booting sequence stopped at
->Checking root filesystem...
->and wait forever. It doesn't try to invoke fsck for root file system,
->just wait for something. Reading Documentation/Changes for new kernel
->I check out that have all appropriate packages (all needed vesions
->of e2fsprogs, etc.) Any idea what happens and how to fix?
+Ingo Molnar wrote:
+> > eth0: RealTek RTL-8029 found at 0xe000, IRQ 10, 00:00:B4:B6:73:BC.
 >
->System Dual PIII, SCSI disks (Adaptec AIC7xxx), root on ext2, the rest on xfs.
->
->I'll appreciate if you personally CC'ed the answers/comments to my Email
->since I'm still not in kernel mailing list.
->
+> > spurious 8259A interrupt: IRQ7.
+> > NETDEV WATCHDOG: eth0: transmit timed out
+> > eth0: Tx timed out, cable problem? TSR=0x16, ISR=0x0, t=26.
+> > NETDEV WATCHDOG: eth0: transmit timed out
+> > eth0: Tx timed out, cable problem? TSR=0x16, ISR=0x0, t=23.
+> 
+> apparently interrupt 10 got lost and was delivered as a spurious
+> interrupt. This can be the result of out-of-spec hardware. (card or
+> board.)
 
-I am seeing the same problem on a single processor system but I am 
-running 2.4.10 with ext3 and the kdb patch. Root happens to be ext2.
+Sorry, I have a network card without a networkcable ( at this time), so
+there is not a network cable plugged into the network card, that makes
+the timeout. Nothing to worry about (the working kernel 2.4.9 has the
+same error message)
 
--- 
-
-Maurice Volaski, mvolaski@aecom.yu.edu
-Computing Support, Rose F. Kennedy Center
-Albert Einstein College of Medicine of Yeshiva University
+Afred

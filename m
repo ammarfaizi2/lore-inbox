@@ -1,63 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262943AbTDBAVt>; Tue, 1 Apr 2003 19:21:49 -0500
+	id <S261290AbTDBAeT>; Tue, 1 Apr 2003 19:34:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262945AbTDBAVt>; Tue, 1 Apr 2003 19:21:49 -0500
-Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:37270 "EHLO
-	shimura.math.berkeley.edu") by vger.kernel.org with ESMTP
-	id <S262943AbTDBAVs>; Tue, 1 Apr 2003 19:21:48 -0500
-Date: Tue, 1 Apr 2003 16:33:07 -0800 (PST)
-From: Wayne Whitney <whitney@math.berkeley.edu>
-Reply-To: whitney@math.berkeley.edu
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] 2.5.65: Caching MSR_IA32_SYSENTER_CS kills dosemu
-In-Reply-To: <Pine.LNX.4.44.0304011320580.13867-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0304011632060.2951-100000@mf1.private>
+	id <S261352AbTDBAeT>; Tue, 1 Apr 2003 19:34:19 -0500
+Received: from mail.internetwork-ag.de ([217.6.75.131]:46518 "EHLO
+	mail.internetwork-ag.de") by vger.kernel.org with ESMTP
+	id <S261290AbTDBAeS>; Tue, 1 Apr 2003 19:34:18 -0500
+Message-ID: <3E8A3291.F8397F43@inw.de>
+Date: Tue, 01 Apr 2003 16:45:05 -0800
+From: Till Immanuel Patzschke <tip@inw.de>
+Organization: interNetwork AG
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-4GB i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: chas williams <chas@locutus.cmf.nrl.navy.mil>
+CC: linux-atm-general@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Linux-ATM-General] Re: [ATM] second pass at fixing atm spinlock
+References: <200304011628.h31GSXGi000846@locutus.cmf.nrl.navy.mil>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Apr 2003, Linus Torvalds wrote:
+Hi Chas,
 
-> Can you test this patch? 
+thanks for having taken the job of cleaning this up!!!
+I've merged your 2.4 patch w/ my changes and check w/ a couple of thousand PPPoA
+sessions created and destroyed over night (which always triggered the
+locking/unlocking vcc problems on my SMP box).
+I'll let you know how it goes by tomorrow.
 
-This patch (on top of the previous one) does the trick for me.  Thanks!
+One comment on the patch - the change in the net/atm/Makefile (i.e. changing
+O_TARGET into atmdev.o) didn't work in my environment (main Makefile still links
+atm.o), but I haven't had time to check it out any further - I am using the old
+Makefile for now.
 
-Wayne
+Thanks again - and yes, I am using the he155 card :-)
 
-> ===== arch/i386/kernel/vm86.c 1.22 vs edited =====
-> --- 1.22/arch/i386/kernel/vm86.c	Mon Mar 31 14:30:01 2003
-> +++ edited/arch/i386/kernel/vm86.c	Tue Apr  1 13:25:28 2003
-> @@ -113,10 +113,14 @@
->  		printk("vm86: could not access userspace vm86_info\n");
->  		do_exit(SIGSEGV);
->  	}
-> +
-> +	preempt_disable();
->  	tss = init_tss + smp_processor_id();
->  	current->thread.esp0 = current->thread.saved_esp0;
->  	load_esp0(tss, current->thread.esp0);
->  	current->thread.saved_esp0 = 0;
-> +	preempt_enable();
-> +
->  	loadsegment(fs, current->thread.saved_fs);
->  	loadsegment(gs, current->thread.saved_gs);
->  	ret = KVM86->regs32;
-> @@ -289,10 +293,11 @@
->  	asm volatile("movl %%fs,%0":"=m" (tsk->thread.saved_fs));
->  	asm volatile("movl %%gs,%0":"=m" (tsk->thread.saved_gs));
->  
-> -	tss = init_tss + get_cpu();
-> +	preempt_disable();
-> +	tss = init_tss + smp_processor_id();
->  	tss->esp0 = tsk->thread.esp0 = (unsigned long) &info->VM86_TSS_ESP0;
->  	disable_sysenter(tss);
-> -	put_cpu();
-> +	preempt_enable();
->  
->  	tsk->thread.screen_bitmap = info->screen_bitmap;
->  	if (info->flags & VM86_SCREEN_BITMAP)
+Immanuel
+chas williams wrote:
 
+> >ftp://ftp.cmf.nrl.navy.mil/pub/chas/linux-atm/2_5_64_atm_dev_lock.patch
+>
+> i have made an equivalent version of these patches for 2.4.20 in hopes
+> of getting more feedback.
+>
+> ftp://ftp.cmf.nrl.navy.mil/pub/chas/linux-atm/2_4_20_atm_dev_lock.patch
+>
+> (only the nicstar, fore200e, eni and he (included) driver support the
+> new smp 'safe' locking)
+>
 

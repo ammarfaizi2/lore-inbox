@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310769AbSCRNOu>; Mon, 18 Mar 2002 08:14:50 -0500
+	id <S293251AbSCRNTa>; Mon, 18 Mar 2002 08:19:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310783AbSCRNOk>; Mon, 18 Mar 2002 08:14:40 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:62225 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S310769AbSCRNOb>; Mon, 18 Mar 2002 08:14:31 -0500
-Message-ID: <3C95E7E3.4020300@evision-ventures.com>
-Date: Mon, 18 Mar 2002 14:13:07 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: =?ISO-8859-1?Q?ChristianBorntr=E4ger?= <christian@borntraeger.net>,
-        linux-kernel@vger.kernel.org, andre@linux-ide.org
-Subject: Re: some ide-scsi commands starve drives on the same cable
-In-Reply-To: <E16mIEq-0006nO-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S310783AbSCRNTU>; Mon, 18 Mar 2002 08:19:20 -0500
+Received: from ns.suse.de ([213.95.15.193]:58640 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S293251AbSCRNTE>;
+	Mon, 18 Mar 2002 08:19:04 -0500
+Date: Mon, 18 Mar 2002 14:19:03 +0100
+From: Dave Jones <davej@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.19pre3] Celeron 333 MMX hangs w/MCE upon boot
+Message-ID: <20020318141903.C3025@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020318105351.GA27739@chiara.elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
->>during some activities (e.g. erasing a CDRW or fixating a CDR on my 
->>CD-Burner) the hard disc on the same cable cannot be accessed.All data and 
->>swap partitions are inaccessable. There is no dmesg output, just entering the
->>mount point fails.
->>I am not sure if it is a kernel problem or if it is a firmware-bug.
-> 
-> 
-> Neither. Its an IDE design limitation. IDE can't handle disconnects like
-> real scsi does. The fixate command effectively locks the bus until it
-> completes. 
-> 
-> There has been some movement forward in the standards on this. You might
-> want to ask our new 2.5 IDE maintainer if/when it will be implemented - I
-> suspect you have to wait a while though. There is much IDE to clean up first
+On Mon, Mar 18, 2002 at 11:53:51AM +0100, KELEMEN Peter wrote:
+ > Hello,
+ > 
+ > My Intel Celeron 333 MMX hangs upon boot if MCE is enabled (kernel
+ > 2.4.19pre3).  /proc/cpuinfo follows:
 
-Just for the record: I'm aware of it.
+ Last weeks Linux-kernel archives await you...
 
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262482AbUKQR1P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261719AbUKQRgh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262482AbUKQR1P (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 12:27:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262467AbUKQR0w
+	id S261719AbUKQRgh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 12:36:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbUKQRfI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 12:26:52 -0500
-Received: from fire.osdl.org ([65.172.181.4]:32651 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S262432AbUKQRZx (ORCPT
+	Wed, 17 Nov 2004 12:35:08 -0500
+Received: from [213.85.13.118] ([213.85.13.118]:62338 "EHLO tau.rusteko.ru")
+	by vger.kernel.org with ESMTP id S262427AbUKQRdz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 12:25:53 -0500
-Message-ID: <419B869B.5030603@osdl.org>
-Date: Wed, 17 Nov 2004 09:12:59 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
+	Wed, 17 Nov 2004 12:33:55 -0500
+From: Nikita Danilov <nikita@clusterfs.com>
 MIME-Version: 1.0
-To: Oleg Nesterov <oleg@tv-sign.ru>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] trivial, uninline do_trap(), remove get_cr2()
-References: <419B64C2.CED2FABC@tv-sign.ru>
-In-Reply-To: <419B64C2.CED2FABC@tv-sign.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16795.35688.634029.21478@gargle.gargle.HOWL>
+Date: Wed, 17 Nov 2004 20:33:28 +0300
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Miklos Szeredi <miklos@szeredi.hu>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
+In-Reply-To: <Pine.LNX.4.53.0411171809490.24190@yvahk01.tjqt.qr>
+References: <E1CToBi-0008V7-00@dorka.pomaz.szeredi.hu>
+	<Pine.LNX.4.58.0411151423390.2222@ppc970.osdl.org>
+	<E1CTzKY-0000ZJ-00@dorka.pomaz.szeredi.hu>
+	<84144f0204111602136a9bbded@mail.gmail.com>
+	<E1CU0Ri-0000f9-00@dorka.pomaz.szeredi.hu>
+	<20041116120226.A27354@pauline.vellum.cz>
+	<E1CU3tO-0000rV-00@dorka.pomaz.szeredi.hu>
+	<20041116163314.GA6264@kroah.com>
+	<E1CURx6-0005Qf-00@dorka.pomaz.szeredi.hu>
+	<16795.33515.187015.492860@thebsh.namesys.com>
+	<Pine.LNX.4.53.0411171809490.24190@yvahk01.tjqt.qr>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Nesterov wrote:
-> Uninlining do_trap() saves 544 bytes in traps.o.
-> get_cr2() seems to be unused, remove it.
-> 
-> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-> 
-> --- 2.6.10-rc2/arch/i386/kernel/traps.c~	Tue Nov 16 14:13:08 2004
-> +++ 2.6.10-rc2/arch/i386/kernel/traps.c	Wed Nov 17 16:47:41 2004
-> @@ -358,16 +358,7 @@ static inline void die_if_kernel(const c
->  		die(str, regs, err);
->  }
->  
-> -static inline unsigned long get_cr2(void)
-> -{
-> -	unsigned long address;
-> -
-> -	/* get the address */
-> -	__asm__("movl %%cr2,%0":"=r" (address));
-> -	return address;
-> -}
+Jan Engelhardt writes:
+ > 
+ > >mount -tfoo_ctrlfs -o host=/mnt/point /mnt/control-point
+ > 
+ > Looks to me like a pollution of the mount table if you do this on a lot of
+ > filesystems.
+ > 
 
-Looks like it can be removed from arch/x86_64/kernel/traps.c also.
+If you have a lot of file-systems your mount table is already polluted.
 
--- 
-~Randy
+As they say, in UNIX everything is a file, and in Linux---a filesystem.
+
+ > 
+ > 
+ > Jan Engelhardt
+ > -- 
+
+Nikita.

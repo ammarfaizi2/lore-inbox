@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316657AbSE1Opr>; Tue, 28 May 2002 10:45:47 -0400
+	id <S316666AbSE1Oui>; Tue, 28 May 2002 10:50:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316666AbSE1Opq>; Tue, 28 May 2002 10:45:46 -0400
-Received: from [209.237.59.50] ([209.237.59.50]:35884 "EHLO
-	zinfandel.topspincom.com") by vger.kernel.org with ESMTP
-	id <S316657AbSE1Opo>; Tue, 28 May 2002 10:45:44 -0400
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-        Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] PentiumPro/II split in x86 config
-In-Reply-To: <3937.1022552654@kao2.melbourne.sgi.com>
-	<buo3cwdf0b0.fsf@mcspd15.ucom.lsi.nec.co.jp>
-	<20020528030200.GL20729@conectiva.com.br>
-	<20020528140322.GA6320@werewolf.able.es>
-X-Message-Flag: Warning: May contain useful information
-X-Priority: 1
-X-MSMail-Priority: High
-From: Roland Dreier <roland@topspin.com>
-Date: 28 May 2002 07:45:39 -0700
-Message-ID: <524rgse3fw.fsf@topspin.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
-MIME-Version: 1.0
+	id <S316668AbSE1Ouh>; Tue, 28 May 2002 10:50:37 -0400
+Received: from mx1.mail.ru ([194.67.57.11]:7953 "EHLO mx1.mail.ru")
+	by vger.kernel.org with ESMTP id <S316666AbSE1Oug>;
+	Tue, 28 May 2002 10:50:36 -0400
+Date: Tue, 28 May 2002 18:46:43 +0400
+From: Dmitry Volkoff <vdb@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Memory management in Kernel 2.4.x
+Message-ID: <20020528184643.A796@localhost>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "J" == J A Magallon <J.A.> writes:
+Hello,
 
-    J> Problem is that named initializers '.xx =' are ISO C99, so
-    J> problably they are not supported in gcc till 3.0...the old way
-    J> is working with older compilers.
+> Unfortunately, the memory management of kernel 2.4.x didn't get better until 
+> today. It is very easy to make a machine dead. Take the following script: 
+> 
+> http://groups.google.com/groups?q=malloc+bestie&hl=de&lr=&selm=slrn8aiglm.tqd.pfk@c.zeiss.de&rnum=2 
+> 
+> The result with kernel 2.4.19pre8ac4: 
 
-I actually tried it :).  gcc 2.95 supports named initializers as well:
+What about results with latest -aa kernels? 
+I'm writing this letter while running your killer-test ;)
+My machine is perfectly responsive.
 
-$ cat a.c
-struct foo {
-  int x;
-  int y;
-};
+$ uname -a
+Linux localhost 2.4.19-pre6vm33 #2 Sat Apr 13 00:56:55 MSD 2002 i686 unknown
+This is vanilla 2.4.19-pre6 + vm33 from Andrea Arcangelly.
 
-struct foo bar = {
-  .y = 2,
-  .x = 1
-};
+Funny stats:
 
-int main() {
-  printf("%d\n", bar.x);
-  return 0;
-}
+bash-2.05$ free
+total       used       free     shared    buffers     cached
+Mem:        516496     512804       3692          0       2080      10064
+-/+ buffers/cache:     500660      15836
+Swap:      1028120    1028120          0
 
-$ gcc a.c
-$ ./a.out
-1
-$ gcc --version
-2.95.2
+I'm running X, netscape, mutt, top, 5 xterms, web, mysql, ftp, samba etc.
+Lots of "0-order allocation failed" in the log. Anyway it is usable!
+The good thing is VM is killing right process most of the time: 
 
-Best,
- Roland
+VM: killing process memory-killer
+
+Netscape got killed. Big deal, I can start it again and it works... 
+
+P.S. Running it already for 20 minutes.
+
+-- 
+
+    DV

@@ -1,43 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261821AbULUSAU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261822AbULUSFg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261821AbULUSAU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 13:00:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261822AbULUSAU
+	id S261822AbULUSFg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 13:05:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbULUSFg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 13:00:20 -0500
-Received: from wproxy.gmail.com ([64.233.184.194]:51658 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261821AbULUSAQ (ORCPT
+	Tue, 21 Dec 2004 13:05:36 -0500
+Received: from gate.firmix.at ([80.109.18.208]:18914 "EHLO gate.firmix.at")
+	by vger.kernel.org with ESMTP id S261822AbULUSF2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 13:00:16 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=Nhk7NHVw/PZj7X5LDVaEh0J0Rcz6TmDXIRulQFQ/TyhNKs9h/hdDiO6a+1i6Xa+xKiayXjHwkLNr3LfpUhfRO1zyejzMbq53qFvTaYple2mBt2IW+fV8WcKGTk3Efs1noGdXj0dxpPSfpGUj9SvjA/UU334Oobvokw6t0QTkI9w=
-Message-ID: <7ac1e90c04122110004bd9f3b2@mail.gmail.com>
-Date: Tue, 21 Dec 2004 18:00:15 +0000
-From: Bahadir Balban <bahadir.balban@gmail.com>
-Reply-To: Bahadir Balban <bahadir.balban@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Re : Re: Error - Kernel panic - not syncing:VFS:unable to mount root fs on unknown block (0,0)
+	Tue, 21 Dec 2004 13:05:28 -0500
+Subject: Re: Linux 2.6.9 and the GPL Buyout
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: "Jeff V. Merkey" <jmerkey@gadugi.org>
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
+In-Reply-To: <41C84B2B.4050408@gadugi.org>
+References: <20041220212723.GA8634@mail.gadugi.org>
+	 <1103578975.6142.45.camel@wookie-zd7>
+	 <20041220214748.GA8828@mail.gadugi.org>
+	 <1103621128.31663.6.camel@tara.firmix.at>  <41C84B2B.4050408@gadugi.org>
+Content-Type: text/plain
+Organization: http://www.firmix.at/
+Date: Tue, 21 Dec 2004 19:05:21 +0100
+Message-Id: <1103652322.9142.6.camel@gimli.at.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Your bootloader is cannot find your root partition. Check your
-grub.conf file if you're using grub. This is off topic and you should
-seek help somewhere else.
+On Tue, 2004-12-21 at 09:11 -0700, Jeff V. Merkey wrote:
 
-Bahadir
+> A copyright holder can re-release their code under any license they 
+> choose, even if
+
+ACK. For a given piece of code this means all copyright holders (not
+just one).
+
+> they have released under GPL previously.  This is because GPL code 
+> really isn't free,
+
+No, this has nothing to do with it.
+
+> it's owned by the copyright holder.  And honestly, the way the GPL is 
+
+That holds for all written works - text, music, source code,
+paintings, ...
+
+> worded it
+> in fact affects an implied transfer of copyright ownership to whomeve 
+> receives it.
+
+Yes, and this is actually makes the GPL incompatible with Author's
+rights. However, you are allowed to transfer all rights of use of your
+works (which all the artist and programmers are doing) which is usually
+enough to satisfy the GPL. IANAL though (and this has not been tested in
+court AFAIK).
+And for the Linux kernel, Linus actually likes it that way AFAICT.
+
+> Truly free code isn't copyrighted by any individual, or is copyrighted 
+> by an organization
+> that uses a license that really is free.
+
+That depends on the definition of "free" (and the goals of the defining
+parties) and there are more than one - e.g. behind the GPL and BSD
+license are different interpretationms of "free".
+
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 
 
-> I installed the latest stable 2.6.9 kernel in my 
-> system. When I rebooted the system with the kernel it 
-> showed the following error. 
->
->    "Kernel panic - not syncing:VFS:unable to mount 
-> root fs on unknown block (3,1)" 
 
-Thanks, 
-selva

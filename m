@@ -1,43 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271380AbTHOVuf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 17:50:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271416AbTHOVu0
+	id S267561AbTHOVwU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 17:52:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267520AbTHOVwU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 17:50:26 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:60630 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S271380AbTHOVuW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 17:50:22 -0400
-Message-ID: <3F3D558D.5050803@colorfullife.com>
-Date: Fri, 15 Aug 2003 23:50:05 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
+	Fri, 15 Aug 2003 17:52:20 -0400
+Received: from marblerye.cs.uga.edu ([128.192.101.172]:16000 "HELO
+	marblerye.cs.uga.edu") by vger.kernel.org with SMTP id S267561AbTHOVwK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 17:52:10 -0400
+To: Ed L Cashin <ecashin@uga.edu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] do_wp_page: BUG on invalid pfn
+References: <20030815184720.A4D482CE79@lists.samba.org>
+	<877k5e8vwe.fsf@uga.edu> <20030815212244.GQ1027@matchmail.com>
+From: Ed L Cashin <ecashin@uga.edu>
+Date: Fri, 15 Aug 2003 17:52:09 -0400
+Message-ID: <87k79e7fna.fsf@uga.edu>
+User-Agent: Gnus/5.090014 (Oort Gnus v0.14) Emacs/21.2
+ (i386-debian-linux-gnu)
 MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] slab debug vs. L1 alignement
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben wrote:
+Mike Fedyk <mfedyk@matchmail.com> writes:
 
->Currently, when enabling slab debugging, we lose the property of
->having the objects aligned on a cache line size.
->  
+> On Fri, Aug 15, 2003 at 05:15:45PM -0400, Ed L Cashin wrote:
+>> Rusty Russell <rusty@rustcorp.com.au> writes:
+>> 
+>> > In message <87d6fixvpm.fsf@uga.edu> you write:
+>> >> This patch just does what the comment says should be done.
+>> >
+>> > Hi Ed!
+>> >
+>> > 	Not trivial I'm afraid.  Send to Linus and lkml.
+>> 
+>> 
+>> This patch just does what the comment says should be done.  I thought
+>> it was a trivial patch, but Rusty Russell has informed me otherwise.
+>> (Thanks, RR).
+>> 
+>> 
+>> --- linux-2.6.0-test2/mm/memory.c.orig	Sun Jul 27 13:01:24 2003
+>> +++ linux-2.6.0-test2/mm/memory.c	Wed Aug  6 18:30:55 2003
+>> @@ -990,15 +990,10 @@
+>>  	int ret;
+>>  
+>>  	if (unlikely(!pfn_valid(pfn))) {
+>> -		/*
+>> -		 * This should really halt the system so it can be debugged or
+>> -		 * at least the kernel stops what it's doing before it corrupts
+>> -		 * data, but for the moment just pretend this is OOM.
+>> -		 */
+>> -		pte_unmap(page_table);
+>>  		printk(KERN_ERR "do_wp_page: bogus page at address %08lx\n",
+>>  				address);
+>> -		goto oom;
+>> +		dump_stack();
+>> +		BUG();
 >
-Correct. Cache line alignment is advisory. Slab debugging is not the 
-only case that violates the alignment, for example 32-byte allocations 
-are not padded to the 128 byte cache line size of the Pentium 4 cpus. I 
-really doubt we want that.
+> You're not unmapping the pte I guess to not interfere with the dump_stack,
 
-Have you looked at pci_pool_{create,alloc,free,destroy}? The functions 
-were specifically written to provide aligned buffers for DMA operations. 
-Perhaps SCSI should use them?
+This patch changes the logic from "pretend it's out of memory" to
+"announce something's very wrong and bail out right away."  Unmapping
+the pte seems like a precursor to carrying on business as usual, but
+there must be some subtleties here that I am unaware of, or Rusty
+Russell wouldn't have called this patch non-trivial.
 
---
-    Manfred
+> but what about the printk?  Will that affect the dump_stack also?
+
+It seems like you'd return from the printk before dumping the stack,
+so I wouldn't think so.
+
+-- 
+--Ed L Cashin            |   PGP public key:
+  ecashin@uga.edu        |   http://noserose.net/e/pgp/
 

@@ -1,63 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262868AbRE3Wv1>; Wed, 30 May 2001 18:51:27 -0400
+	id <S262901AbRE3XlJ>; Wed, 30 May 2001 19:41:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262869AbRE3WvR>; Wed, 30 May 2001 18:51:17 -0400
-Received: from wisdn-0.gus.net ([208.146.196.17]:33296 "EHLO
-	cerberus.stardot-tech.com") by vger.kernel.org with ESMTP
-	id <S262868AbRE3WvH>; Wed, 30 May 2001 18:51:07 -0400
-Date: Wed, 30 May 2001 15:50:20 -0700 (PDT)
-From: Jim Treadway <jim@stardot-tech.com>
-To: "Eric S. Raymond" <esr@thyrsus.com>
-cc: Harald Welte <laforge@gnumonks.org>, CML2 <linux-kernel@vger.kernel.org>,
-        <kbuild-devel@lists.sourceforge.net>
-Subject: Re: Remaining undocumented Configure.help symbols
-In-Reply-To: <20010530182012.D1305@thyrsus.com>
-Message-ID: <Pine.LNX.4.33.0105301543560.11050-100000@cerberus.stardot-tech.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262903AbRE3Xk7>; Wed, 30 May 2001 19:40:59 -0400
+Received: from coruscant.franken.de ([193.174.159.226]:34322 "EHLO
+	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
+	id <S262901AbRE3Xk4>; Wed, 30 May 2001 19:40:56 -0400
+Date: Wed, 30 May 2001 20:37:25 -0300
+From: Harald Welte <laforge@gnumonks.org>
+To: linux-kernel@vger.kernel.org
+Subject: How to know HZ from userspace?
+Message-ID: <20010530203725.H27719@corellia.laforge.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+X-Operating-System: Linux corellia.laforge.distro.conectiva 2.4.3
+X-Date: Today is Setting Orange, the 4th day of Confusion in the YOLD 3167
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 May 2001, Eric S. Raymond wrote:
+Hi!
 
-> Harald Welte <laforge@gnumonks.org>:
-> > On Tue, May 29, 2001 at 02:59:40PM -0400, Eric S. Raymond wrote:
-> >
-> > > CONFIG_NET_CLS_TCINDEX
-> >
-> >   If you say Y here, you will be able to classify outgoing packets
-> >   according to the tc_index field of the skb. You will want this
-> >   feature if you want to implement Differentiates Services useing
-> >   sch_dsmark. If unsure, say Y.
+Is there any way to read out the compile-time HZ value of the kernel?
 
-Change "useing" to "using". ;)
+I had a brief look at /proc/* and didn't find anything.
 
-Change "Differentiates" to "Differentiated" (at least according to
-./net/sched/sch_dsmark.c).
+The background, why it is needed:
 
-> >   This code is also available as a module called cls_tcindex.o ( = code
-> >   which can be inserted in and removed from the running kernel
-> >   whenever you want). If you want to compile it as a module, say MM
+There are certain settings, for example the icmp rate limiting values,
+which can be set using sysctl. Those setting are basically derived from
+HZ values (1*HZ, for example).
 
-Shouldn't this be "say M" (and not "say MM")?
+If you now want to set those values from a userspace program / script in
+a portable manner, you need to be able to find out of HZ of the currently
+running kernel.
 
-> >   here and read Documentation/modules.txt
->
-> Looks good.
->
-> > > CONFIG_NET_SCH_INGRESS
-> >
-> >   If you say Y here, you will be able to police incoming bandwidth
-> >   and drop packets when this bandwidth exceeds your desired rate.
-> >   If unsure, say Y.
-> >
-> >   This code is also available as a module called cls_tcindex.o ( = code
-> >   which can be inserted in and removed from the running kernel
-> >   whenever you want). If you want to compile it as a module, say MM
-
-Shouldn't this be "say M"?
-
-> >   here and read Documentation/modules.txt
-
-
+-- 
+Live long and prosper
+- Harald Welte / laforge@gnumonks.org               http://www.gnumonks.org/
+============================================================================
+GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M- 
+V-- PS+ PE-- Y+ PGP++ t++ 5-- !X !R tv-- b+++ DI? !D G+ e* h+ r% y+(*)

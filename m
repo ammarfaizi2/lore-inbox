@@ -1,32 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277148AbRJLBr0>; Thu, 11 Oct 2001 21:47:26 -0400
+	id <S277151AbRJLCCa>; Thu, 11 Oct 2001 22:02:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277145AbRJLBrQ>; Thu, 11 Oct 2001 21:47:16 -0400
-Received: from sushi.toad.net ([162.33.130.105]:25275 "EHLO sushi.toad.net")
-	by vger.kernel.org with ESMTP id <S277148AbRJLBq7>;
-	Thu, 11 Oct 2001 21:46:59 -0400
-Subject: Re: [PATCH] 2.4.10-ac11 parport_pc.c bugfix
-From: Thomas Hood <jdthood@mail.com>
-To: bill davidsen <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200110112241.f9BMfWM27107@deathstar.prodigy.com>
-In-Reply-To: <200110112241.f9BMfWM27107@deathstar.prodigy.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.15 (Preview Release)
-Date: 11 Oct 2001 21:45:41 -0400
-Message-Id: <1002851144.10317.18.camel@thanatos>
-Mime-Version: 1.0
+	id <S277152AbRJLCCT>; Thu, 11 Oct 2001 22:02:19 -0400
+Received: from chac.inf.utfsm.cl ([200.1.19.54]:33028 "EHLO chac.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S277151AbRJLCCI>;
+	Thu, 11 Oct 2001 22:02:08 -0400
+Message-Id: <200110120201.f9C21XNQ004348@sleipnir.valparaiso.cl>
+To: Tim Moore <timothymoore@bigfoot.com>
+cc: jkp@riker.nailed.org, linux-kernel@vger.kernel.org
+Subject: Re: Which kernel (Linus or ac)? 
+In-Reply-To: Message from Tim Moore <timothymoore@bigfoot.com> 
+   of "Thu, 11 Oct 2001 11:11:07 MST." <3BC5E0BB.C12861A2@bigfoot.com> 
+Date: Thu, 11 Oct 2001 22:01:33 -0400
+From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2001-10-11 at 18:41, bill davidsen wrote:
-> Does this address any bug present without the cast?
+Tim Moore <timothymoore@bigfoot.com> said:
 
-No.  There's no bug.  The debate is over whether or not
-it's naughty to cast -1 to unsigned long.
+[...]
 
---
-Thomas
+> Any reason not to stick with 2.2.20preX?  Especially where stability is
+> important.
 
+iptables vs ipchains for me.
+-- 
+Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
+Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616

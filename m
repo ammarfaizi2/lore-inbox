@@ -1,39 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314422AbSE1MfU>; Tue, 28 May 2002 08:35:20 -0400
+	id <S314389AbSE1MsK>; Tue, 28 May 2002 08:48:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314396AbSE1MfT>; Tue, 28 May 2002 08:35:19 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:39329 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S314395AbSE1MfS>;
-	Tue, 28 May 2002 08:35:18 -0400
-Date: Tue, 28 May 2002 05:19:38 -0700 (PDT)
-Message-Id: <20020528.051938.03645050.davem@redhat.com>
-To: bcollins@debian.org
-Cc: alan@lxorguk.ukuu.org.uk, szepe@pinerecords.com, colin@gibbs.dhs.org,
-        linux-kernel@vger.kernel.org, tcallawa@redhat.com,
-        sparclinux@vger.kernel.org, aurora-sparc-devel@linuxpower.org
-Subject: Re: 2.4 SRMMU bug revisited
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020528121044.GG30482@blimpo.internal.net>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S314396AbSE1MsJ>; Tue, 28 May 2002 08:48:09 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:37113 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S314389AbSE1MsJ>; Tue, 28 May 2002 08:48:09 -0400
+Subject: Re: bluesmoke, machine check exception, reboot
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Corin Hartland-Swann <cdhs@commerce.uk.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33L2.0205281301440.27799-100000@buffy.commerce.uk.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 28 May 2002 14:50:37 +0100
+Message-Id: <1022593837.4124.78.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Ben Collins <bcollins@debian.org>
-   Date: Tue, 28 May 2002 08:10:44 -0400
-   
-   Not trying to add fuel to the fire, but Marcelo's last prepatch was
-   almost 4 weeks ago (26 days).
+On Tue, 2002-05-28 at 13:19, Corin Hartland-Swann wrote:
+> I have a Dual PIII-1000 running 2.4.18, and am occasionally getting the
+> following error:
+> 
+> > CPU 1: Machine Check Exception: 000000000000000004
+> > Bank 1: f200000000000115
+> > Kernel panic: CPU context corrupt
+> 
+> This results in a hard lock (unable to use magic SysRQ key to sync or
+> reboot, etc). I located these errors in arch/i386/kernel/bluesmoke.c in
+> the function intel_machine_check(). From what I have read on lkml it is
+> probably a result of the processor overheating and causing errors.
 
-For most of that time I wasn't even getting responses from him, only
-recently (within the last week) did he start pulling in my changes.
+It may even be a faulty processor. If you are running the processor to
+spec and your heatsink/fan/voltage all check out you may want to see
+about getting the CPU replaced. Thats a data cache l1 read error it
+appears
 
-If you want Marcelo to make prepatches more often, simply ask him to
-do it :-)
+> meantime is there anything I can do to get the machine to reboot after the
+> panic? After the last time that this happened, I set
+> /proc/sys/kernel/panic to 10, but it hasn't happened since then so I can't
+> tell whether it will work. The error listed above is the entire error
+> before the machine fails - there is no register dump or anything after
+> that.
 
-A lot of the BK grievences amount to "Well, how would you approach
-this situation if BK didn't exit?" --> "Oh, I'd ask the maintainer to
-make prepatches more often."
+That /proc setting should cause a reboot although after an MCE all
+things are a little undefined
+
+> Do you think it will manage to reboot with a hopelessly confused
+> processor?
+
+Should do
+

@@ -1,66 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272512AbTGaPJi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 11:09:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272511AbTGaPJh
+	id S272546AbTGaP2S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 11:28:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272545AbTGaP1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 11:09:37 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:34245
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S272509AbTGaPIZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 11:08:25 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.0-test2-mm1 results
-Date: Fri, 1 Aug 2003 01:13:02 +1000
-User-Agent: KMail/1.5.2
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-References: <5110000.1059489420@[10.10.2.4]> <200307310128.50189.kernel@kolivas.org> <58530000.1059663364@[10.10.2.4]>
-In-Reply-To: <58530000.1059663364@[10.10.2.4]>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 31 Jul 2003 11:27:09 -0400
+Received: from fed1mtao05.cox.net ([68.6.19.126]:33248 "EHLO
+	fed1mtao05.cox.net") by vger.kernel.org with ESMTP id S272546AbTGaPY5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 11:24:57 -0400
+Date: Thu, 31 Jul 2003 08:24:55 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Miles Bader <miles@gnu.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Bernardo Innocenti <bernie@develer.com>,
+       Willy Tarreau <willy@w.ods.org>, Christoph Hellwig <hch@lst.de>,
+       uClinux development list <uclinux-dev@uclinux.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel 2.6 size increase
+Message-ID: <20030731152455.GE27214@ip68-0-152-218.tc.ph.cox.net>
+References: <20030723222747.GF643@alpha.home.local> <200307242227.16439.bernie@develer.com> <20030729222921.GK16051@ip68-0-152-218.tc.ph.cox.net> <1059518889.6838.19.camel@dhcp22.swansea.linux.org.uk> <20030729230657.GL16051@ip68-0-152-218.tc.ph.cox.net> <buoptjsepib.fsf@mcspd15.ucom.lsi.nec.co.jp> <20030730153311.GA27214@ip68-0-152-218.tc.ph.cox.net> <buoel07tqi5.fsf@mcspd15.ucom.lsi.nec.co.jp> <20030731041743.GD27214@ip68-0-152-218.tc.ph.cox.net> <buo1xw7thi1.fsf@mcspd15.ucom.lsi.nec.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308010113.02866.kernel@kolivas.org>
+In-Reply-To: <buo1xw7thi1.fsf@mcspd15.ucom.lsi.nec.co.jp>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Aug 2003 00:56, Martin J. Bligh wrote:
-> --Con Kolivas <kernel@kolivas.org> wrote (on Thursday, July 31, 2003 
-01:28:49 +1000):
-> > On Thu, 31 Jul 2003 01:01, Martin J. Bligh wrote:
-> >> OK, so test2-mm1 fixes the panic I was seeing in test1-mm1.
-> >> Only noticeable thing is that -mm tree is consistently a little slower
-> >> at kernbench
-> >
-> > Could conceivably be my hacks throwing the cc cpu hogs onto the expired
-> > array more frequently.
->
-> Kernbench: (make -j vmlinux, maximal tasks)
->                               Elapsed      System        User         CPU
->               2.6.0-test2       46.05      115.20      571.75     1491.25
->           2.6.0-test2-con       46.98      121.02      583.55     1498.75
->           2.6.0-test2-mm1       46.95      121.18      582.00     1497.50
->
-> Good guess ;-)
->
-> Does this help interactivity a lot, or was it just an experiment?
-> Perhaps it could be less agressive or something?
+On Thu, Jul 31, 2003 at 02:03:34PM +0900, Miles Bader wrote:
+> Tom Rini <trini@kernel.crashing.org> writes:
+> > > The point was that in _some_ embedded systems, the space-savings is
+> > > wanted, and so a useful thing for linux to support.
+> > 
+> > As has been pointed out, there's things like the block layer that aren't
+> > needed if you have just a subset of common embedded-device filesystems and
+> > some network stuff seems to have creeped back in.  All I'm trying to say
+> > is that before you go too far down the CONFIG_SYSFS route, investigate the
+> > others first as there's a fair chance of saving even more.
+> 
+> I'm not really trying to defend this particular config option, just
+> saying that the attitude of `why bother trying to cut down, it's more
+> featureful to include everything!' is not always valid.
 
-Well basically this is a side effect of selecting out the correct cpu hogs in 
-the interactivity estimator. It seems to be working ;-) The more cpu hogs 
-they are the lower dynamic priority (higher number) they get, and the more 
-likely they are to be removed from the active array if they use up their full 
-timeslice. The scheduler in it's current form costs more to resurrect things 
-from the expired array and restart them, and the cpu hogs will have to wait 
-till other less cpu hogging tasks run. 
+I hate email sometimes.  My attitude is "some things you really can't
+cut out".  I really am all for trying to cut things out, it's just that
+some things are tied in rather well (like sysfs and root device as
+opposed to the static table before).
 
-How do we get around this? I'll be brave here and say I'm not sure we need to, 
-as cpu hogs have a knack of slowing things down for everyone, and it is best 
-not just for interactivity for this to happen, but for fairness.
+> You may very well be right that other subsystems offer better
+> gain/pain, and I'm all for attacking the low-hanging-fruit first.
+> 
+> > To what end?  One of the things we (== PPC folks) at OLS was that, wow,
+> > doing PM as some sort of one-off sucks, and if at all possible we want
+> > to get device information (and pm dependancies) passed in so we can tell
+> > sysfs and get any shared driver done right for free, among other
+> > reasons.
+> 
+> [What's PM?  Power Management?  What does that have to do with anything?]
 
-I suspect a lot of people will have something to say on this one...
+Power Management, sysfs plays / will play a role in finding out the order
+in which devices get powered down.  This is important on some types of
+embedded devices (and arguably important everywhere).
 
-Con
-
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

@@ -1,75 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263355AbUCTKxm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 05:53:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263364AbUCTKxm
+	id S263356AbUCTLAj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 06:00:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263359AbUCTLAj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 05:53:42 -0500
-Received: from moutng.kundenserver.de ([212.227.126.189]:38124 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S263355AbUCTKxb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 05:53:31 -0500
-Date: Sat, 20 Mar 2004 11:53:25 +0100 (MET)
-From: Armin Schindler <armin@melware.de>
-To: Andrew Morton <akpm@osdl.org>
-cc: <linux-kernel@vger.kernel.org>, <torvalds@osdl.org>
-Subject: Re: [PATCH 2.6] serialization of kernelcapi work
-In-Reply-To: <20040318121826.61c9f145.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.31.0403201139240.23993-100000@phoenix.one.melware.de>
-Organization: Cytronics & Melware
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:4f0aeee4703bc17a8237042c4702a75a
+	Sat, 20 Mar 2004 06:00:39 -0500
+Received: from ozlabs.org ([203.10.76.45]:25494 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S263356AbUCTLAg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 06:00:36 -0500
+Subject: Re: [PATCH] cpu hotplug fix
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Anton Blanchard <anton@samba.org>, Andrew Morton <akpm@osdl.org>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040320074033.A21586@infradead.org>
+References: <20040320063642.GF1153@krispykreme>
+	 <20040320074033.A21586@infradead.org>
+Content-Type: text/plain
+Message-Id: <1079780351.18972.48.camel@bach>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 20 Mar 2004 21:59:12 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Mar 2004, Andrew Morton wrote:
-> I would suggest that you look at avoiding the global semaphore.  Suppose
-> someone has 64 interfaces or something.  Is that possible?  It might be
-> better to put the semaphore into struct capi_ctr so you can at least
-> process frames from separate cards in parallel.
->
-> > Is there a better way to do user-context work serialized ?
->
-> Not really - you've been bitten by the compulsory per-cpuness of the
-> workqueue handlers.
->
-> You could have a standalone kernel thread or always queue the work onto CPU
-> #0 (the function to do this isn't merged, but exists).  But both these are
-> unscalable.
->
-> So apart from moving recv_handler_lock into struct capi_ctr I can't think
-> of anything clever.
+On Sat, 2004-03-20 at 18:40, Christoph Hellwig wrote:
+> On Sat, Mar 20, 2004 at 05:36:42PM +1100, Anton Blanchard wrote:
+> > 
+> > start_cpu_timer was changed to __init a few hours before the cpu hotplug
+> > patches went in. With cpu hotplug it can be called at any time, so fix
+> > this.
+> 
+> So we're wasting memory due to the few machines supporting hot-plug cpus
+> in slab now?  What about adding __cpuinit ala __devinit instead?
 
-I think an atomic counter in the workqueue-function would be more efficient.
-What do you think about this?
+Just use __devinit.
+
+More importantly, Christoph, you're missing the forest through the
+trees: what the hell is start_cpu_timer trying to do?
+
+Name: Remove Strange start_cpu_timer Code
+Status: Untested
+
+Why is start_cpu_timer checking for fn being NULL?  And why isn't
+every CPU's reap_timer initialized in cpucache_init (which is an
+__init function).
+
+Clean up this mess by just starting the timer in start_cpu_timer.
+
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .15051-linux-2.6.5-rc2/mm/slab.c .15051-linux-2.6.5-rc2.updated/mm/slab.c
+--- .15051-linux-2.6.5-rc2/mm/slab.c	2004-03-20 21:21:33.000000000 +1100
++++ .15051-linux-2.6.5-rc2.updated/mm/slab.c	2004-03-20 21:45:06.000000000 +1100
+@@ -576,17 +576,12 @@ static void __slab_error(const char *fun
+  * Add the CPU number into the expiry time to minimize the possibility of the
+  * CPUs getting into lockstep and contending for the global cache chain lock.
+  */
+-static void __init start_cpu_timer(int cpu)
++static inline void start_cpu_timer(int cpu)
+ {
+ 	struct timer_list *rt = &per_cpu(reap_timers, cpu);
+ 
+-	if (rt->function == NULL) {
+-		init_timer(rt);
+-		rt->expires = jiffies + HZ + 3*cpu;
+-		rt->data = cpu;
+-		rt->function = reap_timer_fnc;
+-		add_timer_on(rt, cpu);
+-	}
++	rt->expires = jiffies + HZ + 3*cpu;
++	add_timer_on(rt, cpu);
+ }
+ 
+ #ifdef CONFIG_HOTPLUG_CPU
+@@ -798,7 +793,13 @@ int __init cpucache_init(void)
+ 	 * Register the timers that return unneeded
+ 	 * pages to gfp.
+ 	 */
+-	for (cpu = 0; cpu < NR_CPUS; cpu++) {
++	for_each_cpu(cpu) {
++		struct timer_list *rt = &per_cpu(reap_timers, cpu);
++
++		init_timer(rt);
++		rt->data = cpu;
++		rt->function = reap_timer_fnc;
++		
+ 		if (cpu_online(cpu))
+ 			start_cpu_timer(cpu);
+ 	}
 
 
-static atomic_t recv_work_count;
 
-static void recv_handler(void *data)
-{
-	if (atomic_inc_and_test(&recv_work_count)) {
-		do {
-			/* work to do */
-		} while (!atomic_add_negative(-1, &recv_work_count));
-	}
-}
-
-static int __init kcapi_init(void)
-{
-	atomic_set(&recv_work_count, -1);
-}
-
-
-A second call to the recv_handler() just results in an additional loop
-of the first one and the second CPU goes on with its work.
-
-Unfortunately, the atomic functions are not available on all architechtures.
-
-atomic_dec_and_test() is the only atomic function with return value on all
-platforms, right? Which isn't enough for the loop above.
-
-Armin
-
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 

@@ -1,61 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267215AbUBMVD6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 16:03:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267214AbUBMVD5
+	id S267202AbUBMVau (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 16:30:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267197AbUBMVau
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 16:03:57 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41178 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267216AbUBMVDd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 16:03:33 -0500
-Message-ID: <402D3B97.70005@pobox.com>
-Date: Fri, 13 Feb 2004 16:03:19 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Martin Schlemmer <azarah@nosferatu.za.org>
-CC: akpm@osdl.org, torvalds@osdl.org,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCHES] 2.6.x libata update
-References: <20040213184316.GA28871@gtf.org> <1076700491.22542.38.camel@nosferatu.lan>
-In-Reply-To: <1076700491.22542.38.camel@nosferatu.lan>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 13 Feb 2004 16:30:50 -0500
+Received: from fw.osdl.org ([65.172.181.6]:3822 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267240AbUBMVag (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 16:30:36 -0500
+Subject: [PATCH 2.6.3-rc2-mm1] __block_write_full patch
+From: Daniel McNeil <daniel@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "linux-aio@kvack.org" <linux-aio@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040212015710.3b0dee67.akpm@osdl.org>
+References: <20040212015710.3b0dee67.akpm@osdl.org>
+Content-Type: multipart/mixed; boundary="=-vQPS3DX6BdI5JDzw8WLH"
+Organization: 
+Message-Id: <1076707830.1956.46.camel@ibm-c.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 13 Feb 2004 13:30:30 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Schlemmer wrote:
-> On Fri, 2004-02-13 at 20:43, Jeff Garzik wrote:
+
+--=-vQPS3DX6BdI5JDzw8WLH
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+Andrew,
+
+Here is my original __block_write_full_page patch which adds
+a wait_on_buffer() to catch the case where i/o might be in flight
+from ll_rw_block().
+
+I know that it waits for i/o even the non-blocking writebacks, but
+it does make sure filemap_write_and_wait() and  filemap_fdatawrite /
+filemap_fdatawait() do wait for all i/o that has been submitted to
+complete. (This similar to 2.4 which always does a lock_buffer()).
+The direct_read_under test does not see uninitialized data with
+this patch.  Without this patch 2.6.3-rc2-mm1 still sees uninitialized
+data.
+
+I am worried that the current behavior where PageWriteback can be
+cleared with i/o still in flight for a buffer on that page could cause
+other problems.
+
+I am still trying to figure out how to fix this some other way,
+but, in the mean time, this makes sure the code is correct.
+
+Thoughts?
+
+re-diff against 2.6.3-rc2-mm1.
+
+Daniel
+
+On Thu, 2004-02-12 at 01:57, Andrew Morton wrote:
+
 > 
-> Hi
+> O_DIRECT-ll_rw_block-vs-block_write_full_page-fix.patch
+>   Fix race between ll_rw_block() and block_write_full_page()
 > 
-> 
->><jgarzik@redhat.com> (04/02/13 1.1634)
->>   [libata] catch, and ack, spurious DMA interrupts
->>   
->>   Hardware issue on Intel ICH5 requires an additional ack sequence
->>   over and above the normal IDE DMA interrupt ack requirements.  Issue
->>   described in post to freebsd list:
->>   http://www.mail-archive.com/freebsd-stable@freebsd.org/msg58421.html
->>   
->>   Since the bug workaround only requires a single additional PIO or
->>   MMIO read in the interrupt handler, it is applied to all chipsets
->>   using the standard libata interrupt handler.
->>   
->>   Credit for research the issue, creating the patch, and testing the
->>   patch all go to Jon Burgess.
->>
-> 
-> 
-> Did you miss the mail I sent about this locking my box in under
-> 20-30 mins?  It still looks the same as the previous one ....
 
 
-Yes, I did.  Can you test 2.6.3-rc2 + this patch?
+--=-vQPS3DX6BdI5JDzw8WLH
+Content-Disposition: attachment; filename=__block_write_full.2.6.3-rc2-mm1.patch
+Content-Type: text/plain; name=__block_write_full.2.6.3-rc2-mm1.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-	Jeff
+--- linux-2.6.3-rc2-mm1.orig/fs/buffer.c	2004-02-12 11:43:39.000000000 -0800
++++ linux-2.6.3-rc2-mm1/fs/buffer.c	2004-02-12 11:42:56.000000000 -0800
+@@ -1810,6 +1810,7 @@ static int __block_write_full_page(struc
+ 
+ 	do {
+ 		get_bh(bh);
++		wait_on_buffer(bh);	/* i/o might be in flight */
+ 		if (!buffer_mapped(bh))
+ 			continue;
+ 		if (wbc->sync_mode != WB_SYNC_NONE) {
 
-
+--=-vQPS3DX6BdI5JDzw8WLH--
 

@@ -1,27 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286177AbRLaCt2>; Sun, 30 Dec 2001 21:49:28 -0500
+	id <S286179AbRLaCxi>; Sun, 30 Dec 2001 21:53:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286178AbRLaCtI>; Sun, 30 Dec 2001 21:49:08 -0500
-Received: from 217-126-161-163.uc.nombres.ttd.es ([217.126.161.163]:1152 "EHLO
-	DervishD.viadomus.com") by vger.kernel.org with ESMTP
-	id <S286177AbRLaCtF>; Sun, 30 Dec 2001 21:49:05 -0500
-To: bryce@obviously.com, linux-kernel@vger.kernel.org
-Subject: Re: Why would a valid DVD show zero files on Linux?
-Message-Id: <E16KshN-00004p-00@DervishD.viadomus.com>
-Date: Mon, 31 Dec 2001 04:01:13 +0100
-From: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
-	 Coronado <raul@viadomus.com>
-Reply-To: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
-	   Coronado <raul@viadomus.com>
-X-Mailer: DervishD TWiSTiNG Mailer
+	id <S286184AbRLaCx2>; Sun, 30 Dec 2001 21:53:28 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:26898 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S286179AbRLaCxP>; Sun, 30 Dec 2001 21:53:15 -0500
+Message-ID: <3C2FD24A.19EAC82A@zip.com.au>
+Date: Sun, 30 Dec 2001 18:49:46 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: James Simmons <jsimmons@transvirtual.com>
+CC: Timothy Covell <timothy.covell@ashavan.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] Re: Framebuffer...Why oh Why???
+In-Reply-To: <200112302231.fBUMVTSr012088@svr3.applink.net> <Pine.LNX.4.10.10112301748180.20136-100000@www.transvirtual.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hello Bryce :)
+James Simmons wrote:
+> 
+> Usually the problem with X11 and framebuffer is people forget they need to
+> use the UseFBDev option for XFree86. You need to tell the X server please
+> use the fbdev layer to restore the video mode. Otherwise X will try to
+> reset the card back to the VGA state.
 
->What's up?  And ideas?
-
-    Have you 'UDF' support in your kernel? This may be the problem.
-
-    Raúl
+Couldn't the X server query the kernel for this info when it starts up?

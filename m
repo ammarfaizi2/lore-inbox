@@ -1,125 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261576AbTCRRas>; Tue, 18 Mar 2003 12:30:48 -0500
+	id <S262130AbTCRR5w>; Tue, 18 Mar 2003 12:57:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261770AbTCRRas>; Tue, 18 Mar 2003 12:30:48 -0500
-Received: from ns0.cobite.com ([208.222.80.10]:63499 "EHLO ns0.cobite.com")
-	by vger.kernel.org with ESMTP id <S261576AbTCRRaq>;
-	Tue, 18 Mar 2003 12:30:46 -0500
-Date: Tue, 18 Mar 2003 12:41:42 -0500 (EST)
-From: David Mansfield <lkml@dm.cobite.com>
-X-X-Sender: david@admin
-To: linux-kernel@vger.kernel.org
-cc: Andrea Arcangeli <andrea@suse.de>, Larry McVoy <lm@bitmover.com>
-Subject: [ANNOUNCE] cvsps support for parsing BK->CVS kernel tree logs
-Message-ID: <Pine.LNX.4.44.0303181214360.21884-100000@admin>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262485AbTCRR5w>; Tue, 18 Mar 2003 12:57:52 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:55048
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S262130AbTCRR5v>; Tue, 18 Mar 2003 12:57:51 -0500
+Subject: Re: process resident in memory
+From: Robert Love <rml@tech9.net>
+To: mersan@ceng.metu.edu.tr
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3E772B7D.3010309@ceng.metu.edu.tr>
+References: <3E76BCA9.3060902@ceng.metu.edu.tr>
+	 <20030318134238.GA22953@riesen-pc.gr05.synopsys.com>
+	 <3E772604.5050604@ceng.metu.edu.tr>
+	 <Pine.LNX.4.53.0303180901001.26924@chaos>
+	 <3E772B7D.3010309@ceng.metu.edu.tr>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1048010915.828.120.camel@phantasy.awol.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
+Date: 18 Mar 2003 13:08:35 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2003-03-18 at 09:21, Mehmet Ersan TOPALOGLU wrote:
 
-Hi everyone,
+> first of all i don't have chance to modify the process' code.
+> the thing mlockall does is exactly what i am trying to do
+> (at least a part of it).
+> 
+> So your answer is he couldn't know about user-mode so it is not possible.
+> What if kernel forks that process or somehow its process id is informed 
+> to kernel?
 
-I've just added (updated) lightly tested support for the BK->CVS kernel
-trees to cvsps (www.cobite.com/cvsps) in version 2.0b4.  The purpose of
-this effort is to recreate the BK ChangeSet meta-data that is embedded in
-the 'cvs log' data in these trees.  BTW, cvsps is GPL software :-p. I'd
-like to thank Larry and Andrea for helping me track down some issues with
-this effort. This is still a BETA version, though, and I haven't given
-this enough testing, so be nice.  It works for me.
+nice works given a PID.  You can call renice(1) from the command line or
+you can use the nice(2) or setpriority(2) system calls.
 
-This version is tested and works against this morning's linux-2.4 and
-linux-2.5 trees, and contains a few workarounds for specific issues in
-those trees.  See below for information on these problems.
+Note you need to be root to lower the nice value (increase the priority)
+of a process.
 
-The output of cvsps looks like:
-------------------------------
-PatchSet 999
-Date: 2002/07/11 19:50:46
-Author: alan
-Branch: HEAD
-Tag: (none)
-Log:
-[PATCH] Fix several pdc202xx problems
+Unfortunately mlockall() only works from a process in the address
+space.  And it is not inherited on fork().  Tough luck.
 
-Misnaming of 20270 as 20268R
-Failure of LBA48 on 20262
-Incorrect speed detection because the old driver used host not drive side
-cable detect
-PDC202xx handling for quirks in udma reporting off some drives
-LBA48 for PIO mode
-
-BKrev: 3d2dd386wJMnehoOAhv3wL991IfXVQ
-
-Members:
-        ChangeSet:1.999->1.1000
-        MAINTAINERS:1.74->1.75
-        drivers/ide/ide-features.c:1.4->1.5
-        drivers/ide/ide-pci.c:1.18->1.19
-        drivers/ide/pdc202xx.c:1.11->1.12
-        include/linux/pci_ids.h:1.44->1.45
------------------
-
-You can also get a diff of this PatchSet using the '-g' option to cvsps.
-
-There are currently 2,798 PatchSets in the linux-2.4 tree, and 8,382 in 
-the linux-2.5 tree.
-
-Quick start instructions
-========================
-Download, build and install cvsps from http://www.cobite.com/cvsps
-Get the 2.0b4 (or latest) version.
-Create a working directory with the tree of your choice:
-
-cvs -d:pserver:anonymous@kernel.bkbits.net:/home/cvs co linux-2.4/Makefile
-
-cd linux-2.4
-
-[ IMPORTANT: cvsps doesn't currently support an option for setting the
-compression level so PLEASE, edit your .cvsrc and put 'cvs -z4' to enable
-compression ]
-
-cvsps [-x] --bkcvs
-
-This basically runs a 'cvs rlog' against the tree, parses, and caches all
-of the revision history as PatchSets.  It also outputs all of the 
-PatchSet summaries to stdout, so you may want to '>/dev/null' the first 
-time.
-
-Subsequent 'cvsps' commands do not need the '--bkcvs' unless you are 
-updating (-u, not completely tested) or rebuilding (-x, always works) the 
-cache file.
-
-Now you can use cvsps to browse the patchsets at your leisure, without 
-loading the cvs server (except to generate diffs).  See cvsps -h for the 
-many ways you can slice and dice the information.
-
-I welcome any feedback.
-
-Problems
-========
-I have currently encountered two problems with the log format.
-
-1) someone has committed sections of 'cvs log' text into the log.  This 
-causes quite a headache for my parser, because false end-of-log-message 
-markers are present in the log.  Fortunately, Larry has put a '(Logical 
-change x.yyyy)' marker at the end of each log message, see alse 2)
-
-2) Not all log messages are terminated by a '(Logical change x.yyy)' 
-marker.  A single revision of one file is missing this marker, Larry is 
-looking into why this may have happened.
-
-Both of these problems are being worked around by my 'Adaptive Crap Filter 
-(notTM)' code.  Don't look at it.  It'll kill you.
-
-David
-
--- 
-/==============================\
-| David Mansfield              |
-| lkml@dm.cobite.com           |
-\==============================/
+	Robert Love
 
 
 

@@ -1,91 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265656AbUBFT0c (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 14:26:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265658AbUBFT0b
+	id S265681AbUBFTkp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 14:40:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265684AbUBFTkp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 14:26:31 -0500
-Received: from post.tau.ac.il ([132.66.16.11]:56753 "EHLO post.tau.ac.il")
-	by vger.kernel.org with ESMTP id S265656AbUBFT02 (ORCPT
+	Fri, 6 Feb 2004 14:40:45 -0500
+Received: from [64.76.43.245] ([64.76.43.245]:53388 "EHLO smtp.bensa.ar")
+	by vger.kernel.org with ESMTP id S265681AbUBFTkn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 14:26:28 -0500
-Date: Fri, 6 Feb 2004 21:26:18 +0200
-From: Micha Feigin <michf@post.tau.ac.il>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: reiserfs - difference between a commit and a transaction
-Message-ID: <20040206192618.GE2582@luna.mooo.com>
-Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
-References: <20040206002346.GA2571@luna.mooo.com> <16419.22749.486759.348150@laputa.namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16419.22749.486759.348150@laputa.namesys.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.23.0.3; VDF: 6.23.0.60; host: localhost)
+	Fri, 6 Feb 2004 14:40:43 -0500
+From: Norberto Bensa <nbensa@gmx.net>
+To: Mark McClelland <mark@alpha.dyndns.org>
+Subject: ov511: compression doesn't work with 2.6.x
+Date: Fri, 6 Feb 2004 16:31:10 -0300
+User-Agent: KMail/1.6
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_Eu+IANFciGPPplP";
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200402061631.16123.nbensa@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 06, 2004 at 12:05:33PM +0300, Nikita Danilov wrote:
-> Micha Feigin writes:
->  > I am trying to do some work on reiserfs to make it laptop-mode
->  > compliant. After looking at the code because it was still noisy after I
->  > thought I told correctly to be quite, raised a question that I was
->  > hoping someone can clarify for me.
->  > 
->  > Reiserfs has both a transaction and a commit and I was wondering what
->  > is which.
-> 
-> Transaction is a sequence of file system modifications that (by the
-> virtue of file system implementation) is bound to either be completed as
-> a whole or be aborted as a whole (this is called "atomicity").
-> 
-> Commit is a certain operation performed during transaction life-time to
-> implement its atomicity.
-> 
 
-So, at what time of a transaction's life would a commit be flushed to
-disk, only in the process of flushing the transaction to disk or at
-several points during its life time to make sure that atomicity is
-preserved.
+--Boundary-02=_Eu+IANFciGPPplP
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-And on that note, can there be several transactions active at one time
-or is a new transaction created only when the previous is closed and
-ready to flush.
+Hello,
 
->  > 
->  > (I am mostly interested in this from the point of what max_trans_age
->  > and max_commit_age affect)
-> 
-> Take a look at the "commit" mount option of reiserfs.
-> 
+I'm trying to use my Creative WebCam III (CT6840) but if I enable compress=
+=3D1 I=20
+can't use the camera. Dmesg shows:
 
-Thats what I was looking at and what I ported to 2.4 (it did require a
-fix for laptop mode to enable reseting the value, but that will be
-coming shortly).
+Linux video capture interface: v1.00
+drivers/usb/media/ov511.c: USB OV511+ video device found
+drivers/usb/media/ov511.c: model: Creative Labs WebCam 3
+drivers/usb/media/ov511.c: Sensor is an OV7620
+drivers/usb/media/ov511.c: Device at usb-0000:00:07.2-2 registered to minor=
+ 0
+drivers/usb/core/usb.c: registered new driver ov511
+drivers/usb/media/ov511.c: v1.64 for Linux 2.5 : ov511 USB Camera Driver
+drivers/usb/media/ov511.c: No decompressor available
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The problem was that reiserfs was still being very noisy (kreiserfsd was
-writing to disk around every 30 seconds despite beeing mounted with
-commit=600). That led me to look further into the code and changing
-max_trans_age instead of max_commit_age kept it quite for the full ten
-minutes. I am still checking to make sure that its not something with me
-or my system.
+No decompressor available? This worked with kernel 2.4.x=20
 
-For laptop mode we want to keep disk activity quiet for around ten
-minutes at a time so that the disk can be spun down, thus sacrificing
-the chance of loosing data for battery life.
+Many thanks in advance,
+Norberto
 
-I am trying to see what is the right value to change and what is the
-meaning of changing it but I could only find old documentation and the
-comments in the code are good only for people who know the meaning of
-the terms in the first place.
+=2D-=20
+Linux 2.6.2-mm1 Pentium III (Coppermine) GenuineIntel GNU/Linux
+ 16:16:53 up  1:05,  1 user,  load average: 1.02, 0.64, 0.41
 
->  > 
->  > Thanks
-> 
-> Nikita.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+--Boundary-02=_Eu+IANFciGPPplP
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAI+uEFXVF50lmS74RAjEQAJ98hNCyPv7NSGQTrYC43cfoXyZf5wCeO/J9
+DRhQL+SMIUUGQgJkFI+Syx4=
+=nl4D
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_Eu+IANFciGPPplP--

@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264522AbUE0OBp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264443AbUE0ODg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264522AbUE0OBp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 10:01:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264479AbUE0OBa
+	id S264443AbUE0ODg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 10:03:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264479AbUE0ODg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 10:01:30 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:32689 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S264443AbUE0OB2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 10:01:28 -0400
-Date: Thu, 27 May 2004 23:02:42 +0900
-From: Takao Indoh <indou.takao@soft.fujitsu.com>
-Subject: Re: [PATCH]Diskdump - yet another crash dump function
-In-reply-to: <m3k6yyuhvz.fsf@averell.firstfloor.org>
-To: Andi Kleen <ak@muc.de>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <25C443F3471BF0indou.takao@soft.fujitsu.com>
-MIME-version: 1.0
-X-Mailer: TuruKame 3.55
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-References: <m3k6yyuhvz.fsf@averell.firstfloor.org>
+	Thu, 27 May 2004 10:03:36 -0400
+Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:13453 "EHLO
+	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S264443AbUE0ODd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 10:03:33 -0400
+Date: Thu, 27 May 2004 16:03:32 +0200 (CEST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Ingo Molnar <mingo@redhat.com>
+Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>, mingo@elte.hu
+Subject: Re: Cleanups for APIC
+In-Reply-To: <Pine.LNX.4.58.0405270931040.28319@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.55.0405271542080.10917@jurand.ds.pg.gda.pl>
+References: <20040525124937.GA13347@elf.ucw.cz>
+ <Pine.LNX.4.58.0405270856120.28319@devserv.devel.redhat.com>
+ <Pine.LNX.4.55.0405271525140.10917@jurand.ds.pg.gda.pl>
+ <Pine.LNX.4.58.0405270931040.28319@devserv.devel.redhat.com>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 27 May 2004, Ingo Molnar wrote:
 
-On Thu, 27 May 2004 15:19:44 +0200, Andi Kleen wrote:
+> > Hmm, isn't that needed to make sure the iomem writeback is completed
+> > before exiting the caller?
+> 
+> the only thing that could happen is a POST delay in the PCI chipset - but
+> is that really an issue? Plus we only do the io_apic_sync() for the
+> masking, not the unmasking - so if it's needed then we dont do it
+> consistently.
 
->I like the concept - it's basically netconsole for SCSI drivers
->and the driver changes are surprisingly simple and clean.
->
->But it would be better if it coexisted with LKCD so that netdump
->would also work. Can't you make it a low level driver for LKCD? 
+ The I/O APIC need not be hooked to PCI ;-) -- I'm not sure about the
+i82093AA, but that's definitely true for the i82489DX.  The call to
+io_apic_sync() is needed for masking to make sure interrupts won't be
+dispatched after returning from the call -- this is not needed for
+unmasking as a delay here is harmless.
 
-One of the policy of diskdump is "simple structure".
-LKCD has many funcitons (normal dump to disk, network dump, memdump,
- ...), so its structure is somewhat complex.
+ Though, now that we don't mask APIC interrupts during their service
+anymore the synchronization may be superfluous indeed -- other cases have
+to take late interrupts into account anyway.
 
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +

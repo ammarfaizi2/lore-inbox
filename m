@@ -1,54 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbVC2VZN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261477AbVC2VYx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbVC2VZN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 16:25:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbVC2VZM
+	id S261477AbVC2VYx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 16:24:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261467AbVC2VWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 16:25:12 -0500
-Received: from digitalimplant.org ([64.62.235.95]:25031 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S261252AbVC2VXr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 16:23:47 -0500
-Date: Tue, 29 Mar 2005 13:23:35 -0800 (PST)
-From: Patrick Mochel <mochel@digitalimplant.org>
-X-X-Sender: mochel@monsoon.he.net
-To: Pavel Machek <pavel@suse.cz>
-cc: dtor_core@ameritech.net, Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Vojtech Pavlik <vojtech@suse.cz>, Stefan Seyfried <seife@suse.de>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Andy Isaacson <adi@hexapodia.org>
-Subject: Re: [linux-pm] Re: swsusp 'disk' fails in bk-current - intel_agp at
- fault?
-In-Reply-To: <20050329205225.GF8125@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.50.0503291321490.29474-100000@monsoon.he.net>
-References: <4242CE43.1020806@suse.de> <20050324181059.GA18490@hexapodia.org>
- <4243252D.6090206@suse.de> <20050324235439.GA27902@hexapodia.org>
- <4243D854.2010506@suse.de> <d120d50005032908183b2f622e@mail.gmail.com>
- <20050329181831.GB8125@elf.ucw.cz> <d120d50005032911114fd2ea32@mail.gmail.com>
- <20050329192339.GE8125@elf.ucw.cz> <d120d50005032912051fee6e91@mail.gmail.com>
- <20050329205225.GF8125@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 29 Mar 2005 16:22:10 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:19850 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261252AbVC2VRt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 16:17:49 -0500
+Date: Tue, 29 Mar 2005 16:17:41 -0500
+From: Neil Horman <nhorman@redhat.com>
+To: jamal <hadi@cyberus.ca>
+Cc: Neil Horman <nhorman@redhat.com>, linux-kernel@vger.kernel.org,
+       "David S. Miller" <davem@davemloft.net>, netdev <netdev@oss.sgi.com>
+Subject: Re: [Patch] net: fix build break when CONFIG_NET_CLS_ACT is not set
+Message-ID: <20050329211741.GL22447@hmsendeavour.rdu.redhat.com>
+References: <20050329202506.GI22447@hmsendeavour.rdu.redhat.com> <1112130720.1076.112.camel@jzny.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1112130720.1076.112.camel@jzny.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Mar 29, 2005 at 04:12:01PM -0500, jamal wrote:
+> 
+> This is being discussed on netdev at the moment. Thomas Graf is working
+> on a patch.
+> Thanks for the effort though.
+> 
+> cheers,
+> jamal
+> 
+No worries.  What exactly is the point of contention on netdev? (I'm not
+currently following that list).  My patch seems to follow the common practice
+for CONFIG_NET_CLS_ACT, in that all references to the action member of the
+appropriate struct are themselves ifdef-ed.
+Regards,
+Neil
 
-On Tue, 29 Mar 2005, Pavel Machek wrote:
+> On Tue, 2005-03-29 at 15:25, Neil Horman wrote:
+> > Patch to fix build break that occurs when CONFIG_NET_CLS_ACT is not set.
+> > 
+> > Signed-off-by: Neil Horman <nhorman@redhat.com>
+> > 
+> >  cls_fw.c      |    3 ++-
+> >  cls_route.c   |    3 ++-
+> >  cls_tcindex.c |    3 ++-
+> >  cls_u32.c     |    2 ++
+> >  4 files changed, 8 insertions(+), 3 deletions(-)
+> > 
+> 
+> 
 
-> I don't really want us to try execve during resume... Could we simply
-> artifically fail that execve with something if (in_suspend()) return
-> -EINVAL; [except that in_suspend() just is not there, but there were
-> some proposals to add it].
->
-> Or just avoid calling hotplug at all in resume case? And then do
-> coldplug-like scan when userspace is ready...
-
-I thought that cold-plugging only worked for devices, not all objects.
-
-Can we just queue up hotplug events? That way we wouldn't lose any across
-the transition, and could be used to send resume events to userspace for
-various devices that need help..
-
-
-	Pat
-
+-- 
+/***************************************************
+ *Neil Horman
+ *Software Engineer
+ *Red Hat, Inc.
+ *nhorman@redhat.com
+ *gpg keyid: 1024D / 0x92A74FA1
+ *http://pgp.mit.edu
+ ***************************************************/

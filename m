@@ -1,144 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262536AbTJAUnh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 16:43:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbTJAUnh
+	id S262522AbTJAUvx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 16:51:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262525AbTJAUvx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 16:43:37 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:26498 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S262536AbTJAUnd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 16:43:33 -0400
-Message-ID: <3F7B3C17.10909@intel.com>
-Date: Wed, 01 Oct 2003 13:41:59 -0700
-From: Arun Sharma <arun.sharma@intel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, "Tian, Kevin" <kevin.tian@intel.com>
-Subject: [PATCH] ioctl32 fix for bond_ioctl
-Content-Type: multipart/mixed;
- boundary="------------070406060006010109060109"
+	Wed, 1 Oct 2003 16:51:53 -0400
+Received: from fw.osdl.org ([65.172.181.6]:48060 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262522AbTJAUvv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 16:51:51 -0400
+Subject: [PATCH 2.6.0-test6-mm1] aio ref count in io_submit_one updated
+From: Daniel McNeil <daniel@osdl.org>
+To: Suparna Bhattacharya <suparna@in.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, "linux-aio@kvack.org" <linux-aio@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031001084639.GA4188@in.ibm.com>
+References: <1064596018.1950.10.camel@ibm-c.pdx.osdl.net>
+	 <1064620762.2115.29.camel@ibm-c.pdx.osdl.net>
+	 <20030929040935.GA3637@in.ibm.com> <20030929131057.GA4630@in.ibm.com>
+	 <1064876358.23108.41.camel@ibm-c.pdx.osdl.net>
+	 <20030930040020.GA3435@in.ibm.com>
+	 <1064964169.1922.16.camel@ibm-c.pdx.osdl.net>
+	 <20031001084639.GA4188@in.ibm.com>
+Content-Type: multipart/mixed; boundary="=-w35UmDByRJ79ns4quFko"
+Organization: 
+Message-Id: <1065041501.1939.7.camel@ibm-c.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 01 Oct 2003 13:51:41 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070406060006010109060109
-Content-Type: text/plain; charset=us-ascii; format=flowed
+
+--=-w35UmDByRJ79ns4quFko
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
+On Wed, 2003-10-01 at 01:46, Suparna Bhattacharya wrote:
 
-Problem: These four ioctls use ifreq32.ifr_ifru.ifru_data.
-
-	case SIOCBONDENSLAVE:
- 	case SIOCBONDRELEASE:
- 	case SIOCBONDSETHWADDR:
- 	case SIOCBONDCHANGEACTIVE:
-
-Whereas these use ifreq32.ifr_ifru.ifru_slave:
-
-	case SIOCBONDSLAVEINFOQUERY:
-        case SIOCBONDINFOQUERY:
-
-The current code assumes ifru_data for all 6 ioctls. This fails with EFAULT for the last two. The attached patch fixes the problem and has been tested on ia64.
-
-	-Arun
+> I haven't looked very closely, but am just wondering why you ignore 
+> the return value of __aio_put_req here - are you sure there is no 
+> potential memory leakage (could be missing a put_ioctx) as a result ? 
 
 
+You are right.  I didn't look closely enough.  I thought the only
+difference between aio_put_req() and __aio_put_req() was the lock
+already being help.  I missed the put_ioctx().  So here is the
+updated patch.  This also runs on my 2-proc with CONFIG_DEBUG_PAGEALLOC
+without oops'ing.
 
---------------070406060006010109060109
-Content-Type: text/plain;
- name="bonding.patch"
+I'm still looking at the retry case and I will send out a patch for
+that when I'm done.
+
+Thanks,
+
+Daniel
+
+
+
+--=-w35UmDByRJ79ns4quFko
+Content-Disposition: attachment; filename=2.6.0-test6-mm1.aio_ref_count.patch
+Content-Type: text/plain; name=2.6.0-test6-mm1.aio_ref_count.patch; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="bonding.patch"
 
-Index: linux-2.6/fs/compat_ioctl.c
-===================================================================
---- linux-2.6/fs/compat_ioctl.c	(revision 13715)
-+++ linux-2.6/fs/compat_ioctl.c	(working copy)
-@@ -576,54 +576,45 @@
+--- linux-2.6.0-test6-mm1/fs/aio.c	2003-09-30 14:47:51.000000000 -0700
++++ linux-2.6.0-test6-mm1.aio/fs/aio.c	2003-10-01 13:42:25.091744710 -0700
+@@ -1431,6 +1431,7 @@ int io_submit_one(struct kioctx *ctx, st
+ 	struct kiocb *req;
+ 	struct file *file;
+ 	ssize_t ret;
++	int need_putctx;
  
- static int bond_ioctl(unsigned long fd, unsigned int cmd, unsigned long arg)
- {
--	struct ifreq ifr;
-+	struct ifreq kifr;
-+	struct ifreq *uifr;
-+	struct ifreq32 *ifr32 = (struct ifreq32 *) arg;
- 	mm_segment_t old_fs;
--	int err, len;
-+	int err;
- 	u32 data;
--	
--	if (copy_from_user(&ifr, (struct ifreq32 *)arg, sizeof(struct ifreq32)))
--		return -EFAULT;
--	ifr.ifr_data = (__kernel_caddr_t)get_zeroed_page(GFP_KERNEL);
--	if (!ifr.ifr_data)
--		return -EAGAIN;
-+	void *datap;
+ 	/* enforce forwards compatibility on users */
+ 	if (unlikely(iocb->aio_reserved1 || iocb->aio_reserved2 ||
+@@ -1490,16 +1491,26 @@ int io_submit_one(struct kioctx *ctx, st
+ 		goto out_put_req;
  
- 	switch (cmd) {
- 	case SIOCBONDENSLAVE:
- 	case SIOCBONDRELEASE:
- 	case SIOCBONDSETHWADDR:
- 	case SIOCBONDCHANGEACTIVE:
--		len = IFNAMSIZ * sizeof(char);
--		break;
-+		if (copy_from_user(&kifr, ifr32, sizeof(struct ifreq32)))
-+			return -EFAULT;
+ 	spin_lock_irq(&ctx->ctx_lock);
++	/*
++	 * Hold an extra reference while submitting the i/o.
++	 * This prevents races between the aio code path referencing the
++	 * req (after submitting it) and aio_complete() freeing the req.
++	 */
++	req->ki_users++;			/* grab extra reference */
+ 	ret = aio_run_iocb(req);
++	need_putctx = __aio_put_req(ctx, req);	/* drop the extra reference */	
+ 	spin_unlock_irq(&ctx->ctx_lock);
+ 
+ 	if (-EIOCBRETRY == ret)
+ 		queue_work(aio_wq, &ctx->wq);
+ 
++	if (need_putctx)
++		put_ioctx(ctx);
 +
-+		old_fs = get_fs();
-+		set_fs (KERNEL_DS);
-+		err = sys_ioctl (fd, cmd, (unsigned long)&kifr);
-+		set_fs (old_fs);
-+
-+		return err;
- 	case SIOCBONDSLAVEINFOQUERY:
--		len = sizeof(struct ifslave);
--		break;
- 	case SIOCBONDINFOQUERY:
--		len = sizeof(struct ifbond);
--		break;
--	default:
--		err = -EINVAL;
--		goto out;
--	};
-+		uifr = compat_alloc_user_space(sizeof(*uifr));
-+		if (copy_in_user(&uifr->ifr_name, &ifr32->ifr_name, IFNAMSIZ))
-+			return -EFAULT;
+ 	return 0;
  
--	__get_user(data, &(((struct ifreq32 *)arg)->ifr_ifru.ifru_data));
--	if (copy_from_user(ifr.ifr_data, compat_ptr(data), len)) {
--		err = -EFAULT;
--		goto out;
--	}
-+		if (get_user(data, &ifr32->ifr_ifru.ifru_data))	
-+			return -EFAULT;
- 
--	old_fs = get_fs();
--	set_fs (KERNEL_DS);
--	err = sys_ioctl (fd, cmd, (unsigned long)&ifr);
--	set_fs (old_fs);
--	if (!err) {
--		len = copy_to_user(compat_ptr(data), ifr.ifr_data, len);
--		if (len)
--			err = -EFAULT;
--	}
-+		datap = compat_ptr(data);
-+		if (put_user(datap, &uifr->ifr_ifru.ifru_data))
-+			return -EFAULT;
- 
--out:
--	free_page((unsigned long)ifr.ifr_data);
--	return err;
-+		return sys_ioctl (fd, cmd, (unsigned long)uifr);
-+	default:
-+		return -EINVAL;
-+	};
+ out_put_req:
+-	aio_put_req(req);
++	(void)aio_put_req(req);
+ 	return ret;
  }
  
- int siocdevprivate_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
 
---------------070406060006010109060109--
+--=-w35UmDByRJ79ns4quFko--
 

@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266207AbUFJG2H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266183AbUFJG3m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266207AbUFJG2H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 02:28:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266195AbUFJG2H
+	id S266183AbUFJG3m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 02:29:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266182AbUFJG3l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 02:28:07 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:19898 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S266183AbUFJG14 (ORCPT
+	Thu, 10 Jun 2004 02:29:41 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:48314 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S266189AbUFJG3N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 02:27:56 -0400
-Date: Thu, 10 Jun 2004 08:27:50 +0200
+	Thu, 10 Jun 2004 02:29:13 -0400
+Date: Thu, 10 Jun 2004 08:29:07 +0200
 From: Jens Axboe <axboe@suse.de>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Andrew Morton <akpm@osdl.org>, edt@aei.ca, linux-kernel@vger.kernel.org
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ed Tomlinson <edt@aei.ca>, linux-kernel@vger.kernel.org
 Subject: Re: ide errors in 7-rc1-mm1 and later
-Message-ID: <20040610062750.GF13836@suse.de>
-References: <1085689455.7831.8.camel@localhost> <200406092352.18470.bzolnier@elka.pw.edu.pl> <20040609150658.5e5e6653.akpm@osdl.org> <200406100138.18028.bzolnier@elka.pw.edu.pl>
+Message-ID: <20040610062906.GG13836@suse.de>
+References: <1085689455.7831.8.camel@localhost> <200405271928.33451.edt@aei.ca> <200406032207.25602.edt@aei.ca> <200406091944.15082.edt@aei.ca> <20040609165231.151e84e7.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200406100138.18028.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <20040609165231.151e84e7.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 10 2004, Bartlomiej Zolnierkiewicz wrote:
-> > > - if you more than > 1 filesystem on the disk (quite likely scenario) it
-> > >   can happen that barrier (flush) will fail for sector for file from the
-> > >   other fs and later barrier for this other fs will succeed
+On Wed, Jun 09 2004, Andrew Morton wrote:
+> Ed Tomlinson <edt@aei.ca> wrote:
 > >
-> > I don't understand this one.
+> > Hi,
+> > 
+> > I am still seeing these with 7-rc3-mm1...  No extra diag info either.   I would be
+> > really nice to see this one fixed.
 > 
-> Flush command can fail for sector which came into disk's write cache
-> from some write request for some other fs on the same disk i.e.
-> 
-> write requests for fs 'a' (sector 'x' stays in write cache)
-> write requests for fs 'b'
-> commit log for fs 'b' -> barrier for fs 'b'
-> barrier fails because of sector 'x'
-> commit log for fs 'a' -> barrier for fs 'a'
-> barrier succeeds
+> So ide-print-failed-opcode.patch isn't working.  Presumably
+> HWGROUP(drive)->rq is null.
 
-That's a bug in ide_complete_barrier(), like I outlined in the previous
-mail you need to reissue the flush until no errors occur. A pre-flush
-should not fail the barrier of course, since it has no relation to it.
+No, I just put the code in the wrong ->error() location since ide has
+dupes of this sprinkled...
 
-> Such scenario is highly unlikely (disks do bad sector re-allocation
-> on write) but not impossible (pool of sectors for remapping is unlimited).
-> That's why I think it is a minor issue (but still worth to know about it).
-
-Yes very, wants to work though...
+I'll get you one for ide-disk that works. It could be handy in the
+future as well, it's always annoyed me that ide errors without telling
+you what command failed.
 
 -- 
 Jens Axboe

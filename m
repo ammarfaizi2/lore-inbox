@@ -1,51 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270281AbUJTBzs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270250AbUJTCda@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270281AbUJTBzs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 21:55:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270246AbUJTBvE
+	id S270250AbUJTCda (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 22:33:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269225AbUJTCdX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 21:51:04 -0400
-Received: from almesberger.net ([63.105.73.238]:36621 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S266465AbUJTBrh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 21:47:37 -0400
-Date: Tue, 19 Oct 2004 22:47:32 -0300
-From: Werner Almesberger <werner@almesberger.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] boot parameters: quoting of environment variables revisited
-Message-ID: <20041019224732.P18873@almesberger.net>
-References: <20041019192336.K18873@almesberger.net> <20041019180440.1ff780c5.akpm@osdl.org>
+	Tue, 19 Oct 2004 22:33:23 -0400
+Received: from pimout1-ext.prodigy.net ([207.115.63.77]:48324 "EHLO
+	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S270286AbUJTCcr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 22:32:47 -0400
+Date: Tue, 19 Oct 2004 19:32:43 -0700
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] uml: process_kern.c --- remove unused label
+Message-ID: <20041020023243.GB8597@taniwha.stupidest.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041019180440.1ff780c5.akpm@osdl.org>; from akpm@osdl.org on Tue, Oct 19, 2004 at 06:04:40PM -0700
+From: cw@f00f.org (Chris Wedgwood)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> hm.  The environment string handling and the "command line" string handling
-> appear to be identical in there.  How come only one of them has the
-> problem?  That function makes my eyes bleed.
+remove unused label/warning
 
-The joy of "clever" string manipulation, I suppose :-(
+Signed-off-by: cw@f00f.org
 
-The difference between the two branches is that the "command line"
-thing uses only the parameter name, which cannot be quoted (well,
-at least kernel/params.c doesn't let this happen). So the whole
-problem can't occur.
-
-If you quote the parameter name, the quotes will happily end up
-in the argument, thanks to kernel/params.c.
-
-Perhaps a better long-term solution would be to fix all this in
-kernel/params.c, and remove any quote special-casing from
-init/main.c. It just scares me to touch such a highly sensitive
-area of the kernel ... :)
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina     werner@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+diff -Nru a/arch/um/kernel/tt/process_kern.c b/arch/um/kernel/tt/process_kern.c
+--- a/arch/um/kernel/tt/process_kern.c	2004-10-19 17:48:11 -07:00
++++ b/arch/um/kernel/tt/process_kern.c	2004-10-19 17:48:11 -07:00
+@@ -305,7 +305,6 @@
+ 
+ 	change_sig(SIGUSR1, 0);
+ 	err = 0;
+- out:
+ 	return(err);
+ }
+ 

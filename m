@@ -1,36 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267412AbTALTWW>; Sun, 12 Jan 2003 14:22:22 -0500
+	id <S267417AbTALT2H>; Sun, 12 Jan 2003 14:28:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267413AbTALTWW>; Sun, 12 Jan 2003 14:22:22 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:24580 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267412AbTALTWV>; Sun, 12 Jan 2003 14:22:21 -0500
-Date: Sun, 12 Jan 2003 11:26:25 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Robert Love <rml@tech9.net>, <L.A.van.der.Duim@student.rug.nl>,
-       <akpm@digeo.com>,
+	id <S267421AbTALT2H>; Sun, 12 Jan 2003 14:28:07 -0500
+Received: from mta5.srv.hcvlny.cv.net ([167.206.5.31]:10140 "EHLO
+	mta5.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id <S267415AbTALT2E>; Sun, 12 Jan 2003 14:28:04 -0500
+Date: Sun, 12 Jan 2003 14:34:54 -0500
+From: Rob Wilkens <robw@optonline.net>
+Subject: Re: any chance of 2.6.0-test*?
+In-reply-to: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Greg KH <greg@kroah.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       William Lee Irwin III <wli@holomorphy.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] add explicit Pentium II support
-In-Reply-To: <1042402563.16288.0.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0301121125370.14031-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Reply-to: robw@optonline.net
+Message-id: <1042400094.1208.26.camel@RobsPC.RobertWilkens.com>
+Organization: Robert Wilkens
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.1
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus,
 
-On 12 Jan 2003, Alan Cox wrote:
-> 
-> Looks good. Might also be good to clarify in the help whether the PII/PIII
-> option also skips using lock decb for the spinlocks and the other fence
-> workarounds for the PPro fence errata. 
+I'm REALLY opposed to the use of the word "goto" in any code where it's
+not needed.  OF course, I'm a linux kernel newbie, so I'm in no position
+to comment
 
-The thing I reacted to was that the P4 entry should include the P4-based 
-celerons. I have no idea what those are called, though.
+Let me comment below the relevant code snippet below as to how I would
+change it:
 
-Anyway, applied.
+On Sun, 2003-01-12 at 14:15, Linus Torvalds wrote:
+> 		if (spin_trylock(&tty_lock.lock))
+> 			goto got_lock;
+> 		if (tsk == tty_lock.lock_owner) {
+> 			WARN_ON(!tty_lock.lock_count);
+> 			tty_lock.lock_count++;
+> 			return flags;
+> 		}
+> 		spin_lock(&tty_lock.lock);
+> 	got_lock:
+> 		WARN_ON(tty_lock.lock_owner);
+	    	   <etc...>
 
-		Linus
+I would change it to something like the following (without testing the
+code through a compiler or anything to see if it's valid):
+
+			if (!(spin_trylock(&tty_lock.lock))){
+				if (tsk ==tty_lock.lock_owner){
+					WRAN_ON(!tty_lock.lcok_count);
+					tty_lock.lock_count++;
+					return flags;
+				}
+			}
+			WARN_ON(tty_lock.lock_owner);	
+			<etc...>
+
+Am I wrong that the above would do the same thing without generating the
+sphagetti code that a goto would give you.  Gotos are BAD, very very
+bad.  Please note also that the two if statements above could probably
+even be combined further into one statement by using a short circuit &&
+in the if.
+
+If I'm misinterpreting the original code, then forgive me..  I just saw
+a goto and gasped.  There's always a better option than goto.
+
+-Rob
 

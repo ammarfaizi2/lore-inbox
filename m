@@ -1,27 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266676AbTAINI6>; Thu, 9 Jan 2003 08:08:58 -0500
+	id <S266271AbTAINPX>; Thu, 9 Jan 2003 08:15:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266678AbTAINI6>; Thu, 9 Jan 2003 08:08:58 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:27859 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S266676AbTAINI5>;
-	Thu, 9 Jan 2003 08:08:57 -0500
-Date: Thu, 9 Jan 2003 14:22:58 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: John Bradford <john@grabjohn.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Kernel Bug Database V1.10 on-line
-In-Reply-To: <200301091311.h09DB4Ka001126@darkstar.example.net>
-Message-ID: <Pine.LNX.4.44.0301091422140.9186-100000@localhost.localdomain>
+	id <S266411AbTAINPX>; Thu, 9 Jan 2003 08:15:23 -0500
+Received: from mailgw.cvut.cz ([147.32.3.235]:7339 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id <S266271AbTAINPW>;
+	Thu, 9 Jan 2003 08:15:22 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Tupshin Harper <tupshin@tupshin.com>
+Date: Thu, 9 Jan 2003 14:23:52 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: oops while vmware-config.pl with kernel 2.4.21-pre2
+Cc: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <CBD40FC6247@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On  8 Jan 03 at 22:04, Tupshin Harper wrote:
+> I'm going to forward this to the vmware folks, but there's a decent 
+> chance they are not totally to blame:
 
-any reason why it has forced registration with a forced email address?  
-Makes it hard to just browse the bugs.
+> Jan  8 21:40:41 fussbudget kernel: EIP:    0010:[skb_clone+407/448] 
+> Trace; e4f287e3 <[vmnet]VNetHubReceive+57/a7>
 
-	Ingo
+Can you try to update your vmware with 
+ftp://platan.vc.cvut.cz/pub/vmware/vmware-any-any-update24.tar.gz ?
 
+But I do not think that it will fix your problem. I'm not able to
+find how it could happen, except if skb with NULL skb->end (and though
+NULL skb_shinfo()) was passed to the callback registered by dev_add_pack()...
+But it should not happen...
+                                            Thanks,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                

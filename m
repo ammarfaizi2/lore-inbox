@@ -1,78 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130128AbRAQXYm>; Wed, 17 Jan 2001 18:24:42 -0500
+	id <S129991AbRAQXZW>; Wed, 17 Jan 2001 18:25:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129847AbRAQXYc>; Wed, 17 Jan 2001 18:24:32 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:21770 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129991AbRAQXYW>; Wed, 17 Jan 2001 18:24:22 -0500
-Date: Wed, 17 Jan 2001 18:25:12 -0500 (EST)
-From: "Mike A. Harris" <mharris@opensourceadvocate.org>
-X-X-Sender: <mharris@asdf.capslock.lan>
-To: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: eth1: Transmit timed out, status 0000, PHY status 0000 (fwd)
-Message-ID: <Pine.LNX.4.31.0101171822520.859-100000@asdf.capslock.lan>
-X-Unexpected-Header: The Spanish Inquisition
-Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
+	id <S129847AbRAQXZO>; Wed, 17 Jan 2001 18:25:14 -0500
+Received: from [24.65.192.120] ([24.65.192.120]:4848 "EHLO webber.adilger.net")
+	by vger.kernel.org with ESMTP id <S129991AbRAQXYg>;
+	Wed, 17 Jan 2001 18:24:36 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200101172323.f0HNNt529625@webber.adilger.net>
+Subject: Re: Linux not adhering to BIOS Drive boot order?
+In-Reply-To: <3A657885.6D6F64C4@uni-mb.si> "from David Balazic at Jan 17, 2001
+ 11:48:37 am"
+To: David Balazic <david.balazic@uni-mb.si>
+Date: Wed, 17 Jan 2001 16:23:55 -0700 (MST)
+CC: Andreas Dilger <adilger@turbolinux.com>, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Phil,
+David Balazic writes:
+> Andreas Dilger <adilger@turbolinux.com> wrote :
+> > In the end I re-wrote most of the patch, so
+> > that we resolve ROOT_DEV before calling mount_root(), just to be a bit
+> > more consistent. I will release a new patch for 2.2.18 and 2.4.0 after
+> > David Balazic has a look at it.
+> 
+> Cool, send it to me !
 
-I've forwarded it for you, however you likely didn't realize hat
-lkml is an "open" mailing list, ie: you don't need to be a
-subscriber to post.  This is so that non-members can file bug
-reports, and send spam, etc..  ;o)
+Need to test it a bit first (i.e. at least compile it)...
 
-Take care.
+> > I know a bit about LILO, so I should be able to get the "root=LABEL=" to
+> > work there as well.   
+> 
+> There were no problems with the original patch with LILO.
+> You just must use append="root=xxxxx" instead of simply
+> root=xxx , because LILO tries to be "smart" .... at least the
+> version I used then did.
 
+Actually, there are 2 ways to go about this: LILO could do the UUID/LABEL
+resolution at the time lilo is run (to store root dev into kernel), and
+_also_ append "root=LABEL=X" to kernel options, so that if the kernel
+can't resolve the UUID/LABEL (i.e. no support for this option) we can fall
+back to the root dev from when LILO was run.
 
+> > One reason why this may NOT ever make it into the kernel is that I know
+> > "kernel poking at devices" is really frowned upon.
+> 
+> This an ugly hack , if you ask me. The identificators ( be it labels ,
+> UUIDs or whatever ) should be outside the partitions. Otherwise cases with
+> swap partitions , <any FS that doesn't support labels/UUIDs> unformatted
+> partitions etc. can not be handled.
 
-----------------------------------------------------------------------
-    Mike A. Harris  -  Linux advocate  -  Free Software advocate
-          This message is copyright 2001, all rights reserved.
-  Views expressed are my own, not necessarily shared by my employer.
-----------------------------------------------------------------------
+LVM now has UUID-like identifiers for all "partitions" (Logical Volumes),
+although they are not really accessible by any tools right now. The "LABEL"
+is actually the LV name, so it is used directly all the time:
 
----------- Forwarded message ----------
-Date: Wed, 17 Jan 2001 10:46:54 +0100
-From: Ph. Marek <marek@mail.bmlv.gv.at>
-To: mharris@opensourceadvocate.org
-Content-Type: text/plain; charset="us-ascii"
-Subject: Re: eth1: Transmit timed out, status 0000, PHY status 0000
+/dev/vgroot/lvroot	/	ext3	defaults	1	1
+/dev/vgroot/lvswap	none	swap	sw,pri=100	0	0
 
-Hi Mike!
+This obviates most of the reason for the UUID/LABEL support, but not
+everyone runs LVM (yet ;-) and ext2 UUID/LABELs are still useful.
 
-I'm not on lkml but I follow the discussions from time to time and saw your
-mail.
-(as I'm not subscribed, please forward this to lkml)
-
-
-I've had the same problem using DLink 530 using 10baseT. DOS-diagnostic
-said "No connection". Even trying to say
-	modprobe tulip options=1
-(use 10baseT) didn't work.
-
-
-Then I got a crossed 10base2 cable and - IT WORKED (for me) without any
-problems, though I said option=4 (10base2, full duplex).
-
-
-Hope this helps!
-
-
-Regards,
-
-Phil
-
-
-"A Firewall is really much like a sophisticated traffic cop; it detects and
-stops unauthorized or suspicious movement in or out of the network. But
-security is more than a Firewall; it's a process. You can't just put in a
-Firewall and think you're secure."
-
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

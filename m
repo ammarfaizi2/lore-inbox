@@ -1,108 +1,108 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281691AbRLNXvH>; Fri, 14 Dec 2001 18:51:07 -0500
+	id <S280817AbRLOATB>; Fri, 14 Dec 2001 19:19:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280971AbRLNXu7>; Fri, 14 Dec 2001 18:50:59 -0500
-Received: from woody.ichilton.co.uk ([216.28.122.60]:48909 "EHLO
-	woody.ichilton.co.uk") by vger.kernel.org with ESMTP
-	id <S280817AbRLNXur>; Fri, 14 Dec 2001 18:50:47 -0500
-Date: Fri, 14 Dec 2001 23:50:40 +0000
-From: Ian Chilton <ian@ichilton.co.uk>
-To: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: IP Autoconfig Not Working on Sparc32 (2.4.17-rc1)
-Message-ID: <20011214235040.B30047@woody.ichilton.co.uk>
-Reply-To: Ian Chilton <ian@ichilton.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.13i
+	id <S280961AbRLOASv>; Fri, 14 Dec 2001 19:18:51 -0500
+Received: from smtpsrv1.isis.unc.edu ([152.2.1.138]:49541 "EHLO
+	smtpsrv1.isis.unc.edu") by vger.kernel.org with ESMTP
+	id <S280960AbRLOASm>; Fri, 14 Dec 2001 19:18:42 -0500
+Date: Fri, 14 Dec 2001 19:18:32 -0500 (EST)
+From: "Daniel T. Chen" <crimsun@email.unc.edu>
+To: linux-kernel@vger.kernel.org
+cc: marcelo@conectiva.com.br, jgarzik@mandrakesoft.com
+Subject: [PATCH] more __devexit cleanups in drivers/net/*
+Message-ID: <Pine.A41.4.21L1.0112141911580.40484-100000@login3.isis.unc.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-I have a Sun Javastation Krups which is happily booting linux-2.4.1
-from the network and using nfsroot.
-
-However, trying to get a more recent kernel working.
-
-It's compiling fine and boots, but doesn't seem to do all the bootp /
-ip autoconfig stuff - it just complains about no nfs server (which
-obviosuly wont work if it doesn't get the ip etc from bootp first).
+Here are some more __devexit cleanups in drivers/net/*
+(against .17-rc1)...
 
 
-Server log when trying to boot the 2.4.17-rc1 looks like this:
-
-Dec 14 23:36:01 slinky dhcpd: DHCPDISCOVER from 08:00:20:94:77:a4 via
-eth0
-Dec 14 23:36:01 slinky dhcpd: DHCPOFFER on 192.168.0.21 to
-08:00:20:94:77:a4 via eth0
-Dec 14 23:36:01 slinky dhcpd: DHCPREQUEST for 192.168.0.21
-(192.168.0.11) from 08:00:20:94:77:a4 via eth0
-Dec 14 23:36:01 slinky dhcpd: DHCPACK on 192.168.0.21 to
-08:00:20:94:77:a4 via eth0
-Dec 14 23:36:02 slinky in.tftpd[4664]: connect from taz.ichilton.local
-Dec 14 23:36:02 slinky tftpd[4665]: tftpd: trying to get file:
-C0A80015.SUN4M 
-Dec 14 23:36:02 slinky tftpd[4665]: tftpd: serving file from
-/export/tftpboot 
-Dec 14 23:36:03 slinky dhcpd: BOOTREQUEST from 08:00:20:94:77:a4 via
-eth0
-Dec 14 23:36:03 slinky dhcpd: BOOTREPLY for 192.168.0.21 to taz
-(08:00:20:94:77:a4) via eth0
-Dec 14 23:36:03 slinky in.tftpd[4672]: connect from taz.ichilton.local
-Dec 14 23:36:03 slinky tftpd[4673]: tftpd: trying to get file:
-C0A80015.PROL 
-Dec 14 23:36:03 slinky tftpd[4673]: tftpd: serving file from
-/export/tftpboot 
+diff -uNr /usr/src/linux/drivers/net/dmfe.c /tmpfs/linux/drivers/net/dmfe.c
+--- /usr/src/linux/drivers/net/dmfe.c   Fri Nov  9 16:50:01 2001
++++ /tmpfs/linux/drivers/net/dmfe.c     Fri Dec 14 18:08:35 2001
+@@ -527,7 +527,7 @@
+ }
 
 
-If I swap back to my trusty 2.4.1, I get this:
+-static void __exit dmfe_remove_one (struct pci_dev *pdev)
++static void __devexit dmfe_remove_one (struct pci_dev *pdev)
+ {
+        struct net_device *dev = pci_get_drvdata(pdev);
+        struct dmfe_board_info *db = dev->priv;
+@@ -2059,7 +2059,7 @@
+        name:           "dmfe",
+        id_table:       dmfe_pci_tbl,
+        probe:          dmfe_init_one,
+-       remove:         dmfe_remove_one,
++       remove:         __devexit_p(dmfe_remove_one),
+ };
 
-Dec 14 23:41:37 slinky dhcpd: DHCPDISCOVER from 08:00:20:94:77:a4 via
-eth0
-Dec 14 23:41:37 slinky dhcpd: DHCPOFFER on 192.168.0.21 to
-08:00:20:94:77:a4 via eth0
-Dec 14 23:41:37 slinky dhcpd: DHCPREQUEST for 192.168.0.21
-(192.168.0.11) from 08:00:20:94:77:a4 via eth0
-Dec 14 23:41:37 slinky dhcpd: DHCPACK on 192.168.0.21 to
-08:00:20:94:77:a4 via eth0
-Dec 14 23:41:38 slinky in.tftpd[6779]: connect from taz.ichilton.local
-Dec 14 23:41:38 slinky tftpd[6780]: tftpd: trying to get file:
-C0A80015.SUN4M 
-Dec 14 23:41:38 slinky tftpd[6780]: tftpd: serving file from
-/export/tftpboot 
-Dec 14 23:41:39 slinky dhcpd: BOOTREQUEST from 08:00:20:94:77:a4 via
-eth0
-Dec 14 23:41:39 slinky dhcpd: BOOTREPLY for 192.168.0.21 to taz
-(08:00:20:94:77:a4) via eth0
-Dec 14 23:41:39 slinky in.tftpd[6787]: connect from taz.ichilton.local
-Dec 14 23:41:39 slinky tftpd[6788]: tftpd: trying to get file:
-C0A80015.PROL 
-Dec 14 23:41:39 slinky tftpd[6788]: tftpd: serving file from
-/export/tftpboot 
-
-[this is where it boots the kernel]
-
-Dec 14 23:41:51 slinky dhcpd: BOOTREQUEST from 08:00:20:94:77:a4 via
-eth0
-Dec 14 23:41:51 slinky dhcpd: BOOTREPLY for 192.168.0.21 to taz
-(08:00:20:94:77:a4) via eth0
-Dec 14 23:41:51 slinky rpc.mountd: authenticated mount request from
-192.168.0.21:800 for /export/javastation/iclinux (/export/javastation) 
+ MODULE_AUTHOR("Sten Wang, sten_wang@davicom.com.tw");
+diff -uNr /usr/src/linux/drivers/net/hamachi.c /tmpfs/linux/drivers/net/hamachi.c
+--- /usr/src/linux/drivers/net/hamachi.c        Tue Oct  9 18:13:03 2001
++++ /tmpfs/linux/drivers/net/hamachi.c  Fri Dec 14 18:10:12 2001
+@@ -1981,7 +1981,7 @@
+ }
 
 
-See the extra BOOTP stuff on the end?
+-static void __exit hamachi_remove_one (struct pci_dev *pdev)
++static void __devexit hamachi_remove_one (struct pci_dev *pdev)
+ {
+        struct net_device *dev = pci_get_drvdata(pdev);
 
+@@ -2011,7 +2011,7 @@
+        name:           DRV_NAME,
+        id_table:       hamachi_pci_tbl,
+        probe:          hamachi_init_one,
+-       remove:         hamachi_remove_one,
++       remove:         __devexit_p(hamachi_remove_one),
+ };
 
-I tried passing things like ip=192.168.0.21:192.168.0.11 and ip=bootp
-on the command line, but nothing seems to work.
+ static int __init hamachi_init (void)
+diff -uNr /usr/src/linux/drivers/net/tokenring/abyss.c /tmpfs/linux/drivers/net/tokenring/abyss.c
+--- /usr/src/linux/drivers/net/tokenring/abyss.c        Thu Sep 13 19:04:43 2001
++++ /tmpfs/linux/drivers/net/tokenring/abyss.c  Fri Dec 14 18:33:22 2001
+@@ -433,7 +433,7 @@
+        return 0;
+ }
 
+-static void __exit abyss_detach (struct pci_dev *pdev)
++static void __devexit abyss_detach (struct pci_dev *pdev)
+ {
+        struct net_device *dev = pci_get_drvdata(pdev);
 
-Any ideas?
+@@ -451,7 +451,7 @@
+        name:           "abyss",
+        id_table:       abyss_pci_tbl,
+        probe:          abyss_attach,
+-       remove:         abyss_detach,
++       remove:         __devexit_p(abyss_detach),
+ };
 
+ static int __init abyss_init (void)
+diff -uNr /usr/src/linux/drivers/net/tokenring/tmspci.c /tmpfs/linux/drivers/net/tokenring/tmspci.c
+--- /usr/src/linux/drivers/net/tokenring/tmspci.c       Thu Sep 13 19:04:43 2001
++++ /tmpfs/linux/drivers/net/tokenring/tmspci.c Fri Dec 14 18:34:07 2001
+@@ -220,7 +220,7 @@
+        return val;
+ }
 
-Thanks!
+-static void __exit tms_pci_detach (struct pci_dev *pdev)
++static void __devexit tms_pci_detach (struct pci_dev *pdev)
+ {
+        struct net_device *dev = pci_get_drvdata(pdev);
 
-Ian
+@@ -238,7 +238,7 @@
+        name:           "tmspci",
+        id_table:       tmspci_pci_tbl,
+        probe:          tms_pci_attach,
+-       remove:         tms_pci_detach,
++       remove:         __devexit_p(tms_pci_detach),
+ };
+
+ static int __init tms_pci_init (void)
 

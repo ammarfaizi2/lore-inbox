@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261742AbSL2VrC>; Sun, 29 Dec 2002 16:47:02 -0500
+	id <S261907AbSL2Vvz>; Sun, 29 Dec 2002 16:51:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261799AbSL2VrC>; Sun, 29 Dec 2002 16:47:02 -0500
-Received: from verein.lst.de ([212.34.181.86]:35083 "EHLO verein.lst.de")
-	by vger.kernel.org with ESMTP id <S261742AbSL2VrA>;
-	Sun, 29 Dec 2002 16:47:00 -0500
-Date: Sun, 29 Dec 2002 22:55:19 +0100
+	id <S261900AbSL2Vvz>; Sun, 29 Dec 2002 16:51:55 -0500
+Received: from verein.lst.de ([212.34.181.86]:37899 "EHLO verein.lst.de")
+	by vger.kernel.org with ESMTP id <S261907AbSL2Vvv>;
+	Sun, 29 Dec 2002 16:51:51 -0500
+Date: Sun, 29 Dec 2002 23:00:11 +0100
 From: Christoph Hellwig <hch@lst.de>
 To: torvalds@transmeta.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] check_region remove for drivers/i2c/
-Message-ID: <20021229225519.A12080@lst.de>
+Subject: [PATCH] avoid deprecated module functions in core code
+Message-ID: <20021229230011.A12151@lst.de>
 Mail-Followup-To: Christoph Hellwig <hch@lst.de>, torvalds@transmeta.com,
 	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
@@ -21,170 +21,136 @@ User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trying to get the i2c code in shape at some point..
+A first start at removing them from kernel/*.c and fs/*.c.
+
+Note that module_put is fine for a NULL argument.
 
 
---- 1.5/drivers/i2c/i2c-adap-ite.c	Thu May 23 12:07:43 2002
-+++ edited/drivers/i2c/i2c-adap-ite.c	Sun Dec 29 21:43:46 2002
-@@ -160,19 +160,17 @@
-  */
- static int iic_hw_resrc_init(void)
- {
--  	if (check_region(gpi.iic_base, ITE_IIC_IO_SIZE) < 0 ) {
--   	   return -ENODEV;
--  	} else {
--  	   request_region(gpi.iic_base, ITE_IIC_IO_SIZE, 
--		"i2c (i2c bus adapter)");
--  	}
--	if (gpi.iic_irq > 0) {
--	   if (request_irq(gpi.iic_irq, iic_ite_handler, 0, "ITE IIC", 0) < 0) {
--	      gpi.iic_irq = 0;
--	   } else
--	      DEB3(printk("Enabled IIC IRQ %d\n", gpi.iic_irq));
--	      enable_irq(gpi.iic_irq);
--	}
-+	if (!request_region(gpi.iic_base, ITE_IIC_IO_SIZE, "i2c"))
-+		return -ENODEV;
-+  
-+	if (gpi.iic_irq <= 0)
-+		return 0;
-+
-+	if (request_irq(gpi.iic_irq, iic_ite_handler, 0, "ITE IIC", 0) < 0)
-+		gpi.iic_irq = 0;
-+	else
-+		enable_irq(gpi.iic_irq);
-+
- 	return 0;
- }
- 
---- 1.10/drivers/i2c/i2c-elektor.c	Mon Nov 18 07:42:08 2002
-+++ edited/drivers/i2c/i2c-elektor.c	Sun Dec 29 21:44:33 2002
-@@ -142,11 +142,11 @@
- static int pcf_isa_init(void)
- {
- 	if (!mmapped) {
--		if (check_region(base, 2) < 0 ) {
--			printk(KERN_ERR "i2c-elektor.o: requested I/O region (0x%X:2) is in use.\n", base);
-+		if (!request_region(base, 2, "i2c (isa bus adapter)"))
-+			printk(KERN_ERR
-+			       "i2c-elektor.o: requested I/O region (0x%X:2) "
-+			       "is in use.\n", base);
- 			return -ENODEV;
--		} else {
--			request_region(base, 2, "i2c (isa bus adapter)");
+--- 1.119/fs/block_dev.c	Sun Dec 15 18:49:04 2002
++++ edited/fs/block_dev.c	Sun Dec 29 21:50:13 2002
+@@ -623,8 +623,7 @@
  		}
+ 	} else {
+ 		put_disk(disk);
+-		if (owner)
+-			__MOD_DEC_USE_COUNT(owner);
++		module_put(owner);
+ 		if (bdev->bd_contains == bdev) {
+ 			if (bdev->bd_disk->fops->open) {
+ 				ret = bdev->bd_disk->fops->open(inode, file);
+@@ -651,8 +650,7 @@
+ 		blkdev_put(bdev->bd_contains, BDEV_RAW);
+ 	bdev->bd_contains = NULL;
+ 	put_disk(disk);
+-	if (owner)
+-		__MOD_DEC_USE_COUNT(owner);
++	module_put(owner);
+ out:
+ 	up(&bdev->bd_sem);
+ 	unlock_kernel();
+@@ -723,9 +721,10 @@
  	}
- 	if (irq > 0) {
---- 1.6/drivers/i2c/i2c-elv.c	Tue May 14 18:01:25 2002
-+++ edited/drivers/i2c/i2c-elv.c	Sun Dec 29 21:46:23 2002
-@@ -88,34 +88,31 @@
+ 	if (!bdev->bd_openers) {
+ 		struct module *owner = disk->fops->owner;
++
+ 		put_disk(disk);
+-		if (owner)
+-			__MOD_DEC_USE_COUNT(owner);
++		module_put(owner);
++
+ 		bdev->bd_disk = NULL;
+ 		bdev->bd_inode->i_data.backing_dev_info = &default_backing_dev_info;
+ 		if (bdev != bdev->bd_contains) {
+===== fs/dquot.c 1.52 vs edited =====
+--- 1.52/fs/dquot.c	Wed Nov 27 18:11:14 2002
++++ edited/fs/dquot.c	Sun Dec 29 21:33:57 2002
+@@ -111,8 +111,7 @@
  
- static int bit_elv_init(void)
+ static void put_quota_format(struct quota_format_type *fmt)
  {
--	if (check_region(base,(base == 0x3bc)? 3 : 8) < 0 ) {
--		return -ENODEV;	
--	} else {
--						/* test for ELV adap. 	*/
--		if (inb(base+1) & 0x80) {	/* BUSY should be high	*/
--			DEBINIT(printk(KERN_DEBUG "i2c-elv.o: Busy was low.\n"));
--			return -ENODEV;
--		} else {
--			outb(0x0c,base+2);	/* SLCT auf low		*/
--			udelay(400);
--			if ( !(inb(base+1) && 0x10) ) {
--				outb(0x04,base+2);
--				DEBINIT(printk(KERN_DEBUG "i2c-elv.o: Select was high.\n"));
--				return -ENODEV;
--			}
--		}
--		request_region(base,(base == 0x3bc)? 3 : 8,
--			"i2c (ELV adapter)");
--		PortData = 0;
--		bit_elv_setsda((void*)base,1);
--		bit_elv_setscl((void*)base,1);
-+	if (!request_region(base, (base == 0x3bc) ? 3 : 8,
-+				"i2c (ELV adapter)"))
-+		return -ENODEV;
-+
-+	if (inb(base+1) & 0x80) {	/* BUSY should be high	*/
-+		DEBINIT(printk(KERN_DEBUG "i2c-elv.o: Busy was low.\n"));
-+		goto fail;
-+	} 
-+
-+	outb(0x0c,base+2);	/* SLCT auf low		*/
-+	udelay(400);
-+	if (!(inb(base+1) && 0x10)) {
-+		outb(0x04,base+2);
-+		DEBINIT(printk(KERN_DEBUG "i2c-elv.o: Select was high.\n"));
-+		goto fail;
- 	}
-+
-+	PortData = 0;
-+	bit_elv_setsda((void*)base,1);
-+	bit_elv_setscl((void*)base,1);
- 	return 0;
--}
- 
--static void __exit bit_elv_exit(void)
--{
--	release_region( base , (base == 0x3bc)? 3 : 8 );
-+fail:
-+	release_region(base , (base == 0x3bc) ? 3 : 8);
-+	return -ENODEV;
+-	if (fmt->qf_owner)
+-		__MOD_DEC_USE_COUNT(fmt->qf_owner);
++	module_put(fmt->qf_owner);
  }
  
- static int bit_elv_reg(struct i2c_client *client)
---- 1.2/drivers/i2c/i2c-frodo.c	Mon Nov 18 09:02:17 2002
-+++ edited/drivers/i2c/i2c-frodo.c	Sun Dec 29 18:25:35 2002
-@@ -96,8 +96,6 @@
- 	return (i2c_bit_add_bus (&frodo_ops));
+ /*
+===== fs/exec.c 1.58 vs edited =====
+--- 1.58/fs/exec.c	Sun Dec 15 06:07:04 2002
++++ edited/fs/exec.c	Sun Dec 29 21:34:51 2002
+@@ -102,8 +102,7 @@
+ 
+ static inline void put_binfmt(struct linux_binfmt * fmt)
+ {
+-	if (fmt->module)
+-		__MOD_DEC_USE_COUNT(fmt->module);
++	module_put(fmt->module);
  }
  
--EXPORT_NO_SYMBOLS;
--
- static void __exit i2c_frodo_exit (void)
+ /*
+@@ -1111,11 +1110,11 @@
+ void set_binfmt(struct linux_binfmt *new)
  {
- 	i2c_bit_del_bus (&frodo_ops);
-@@ -105,12 +103,7 @@
+ 	struct linux_binfmt *old = current->binfmt;
+-	if (new && new->module)
++	if (new)
+ 		__MOD_INC_USE_COUNT(new->module);
+ 	current->binfmt = new;
+-	if (old && old->module)
+-		__MOD_DEC_USE_COUNT(old->module);
++	if (old)
++		module_put(old->module);
+ }
  
- MODULE_AUTHOR ("Abraham van der Merwe <abraham@2d3d.co.za>");
- MODULE_DESCRIPTION ("I2C-Bus adapter routines for Frodo");
--
--#ifdef MODULE_LICENSE
- MODULE_LICENSE ("GPL");
--#endif	/* #ifdef MODULE_LICENSE */
--
--EXPORT_NO_SYMBOLS;
+ #define CORENAME_MAX_SIZE 64
+--- 1.76/kernel/exit.c	Mon Dec  2 08:44:31 2002
++++ edited/kernel/exit.c	Sun Dec 29 21:30:04 2002
+@@ -665,8 +665,8 @@
+ 		disassociate_ctty(1);
  
- module_init (i2c_frodo_init);
- module_exit (i2c_frodo_exit);
-===== drivers/i2c/i2c-philips-par.c 1.5 vs edited =====
---- 1.5/drivers/i2c/i2c-philips-par.c	Tue Sep 17 15:53:02 2002
-+++ edited/drivers/i2c/i2c-philips-par.c	Sun Dec 29 18:26:03 2002
-@@ -297,14 +297,5 @@
+ 	put_exec_domain(tsk->thread_info->exec_domain);
+-	if (tsk->binfmt && tsk->binfmt->module)
+-		__MOD_DEC_USE_COUNT(tsk->binfmt->module);
++	if (tsk->binfmt)
++		module_put(tsk->binfmt);
  
- MODULE_PARM(type, "i");
+ 	tsk->exit_code = code;
+ 	exit_notify();
+===== kernel/fork.c 1.93 vs edited =====
+--- 1.93/kernel/fork.c	Sat Dec 14 12:42:12 2002
++++ edited/kernel/fork.c	Sun Dec 29 21:31:39 2002
+@@ -745,8 +745,8 @@
+ 	
+ 	get_exec_domain(p->thread_info->exec_domain);
  
--#ifdef MODULE
--int init_module(void)
--{
--	return i2c_bitlp_init();
--}
--
--void cleanup_module(void)
--{
--	i2c_bitlp_exit();
--}
--#endif
-+module_init(i2c_bitlp_init);
-+module_exit(i2c_bitlp_exit);
---- 1.8/drivers/i2c/i2c-proc.c	Sun Dec  1 19:42:06 2002
-+++ edited/drivers/i2c/i2c-proc.c	Sun Dec 29 21:48:56 2002
-@@ -648,6 +643,7 @@
- 					I2C_FUNC_SMBUS_QUICK)) return -1;
+-	if (p->binfmt && p->binfmt->module)
+-		__MOD_INC_USE_COUNT(p->binfmt->module);
++	if (p->binfmt && !try_module_get(p->binfmt))
++		goto bad_fork_cleanup_put;
  
- 	for (addr = 0x00; addr <= (is_isa ? 0xffff : 0x7f); addr++) {
-+		/* XXX: WTF is going on here??? */
- 		if ((is_isa && check_region(addr, 1)) ||
- 		    (!is_isa && i2c_check_addr(adapter, addr)))
- 			continue;
+ #ifdef CONFIG_PREEMPT
+ 	/*
+@@ -958,9 +958,10 @@
+ bad_fork_cleanup:
+ 	if (p->pid > 0)
+ 		free_pidmap(p->pid);
++	if (p->binfmt)
++		module_put(p->binfmt);
++bad_fork_cleanup_put:
+ 	put_exec_domain(p->thread_info->exec_domain);
+-	if (p->binfmt && p->binfmt->module)
+-		__MOD_DEC_USE_COUNT(p->binfmt->module);
+ bad_fork_cleanup_count:
+ 	atomic_dec(&p->user->processes);
+ 	free_uid(p->user);
+===== kernel/intermodule.c 1.1 vs edited =====
+--- 1.1/kernel/intermodule.c	Fri Nov  8 23:08:33 2002
++++ edited/kernel/intermodule.c	Sun Dec 29 21:32:41 2002
+@@ -166,7 +166,7 @@
+ 		ime = list_entry(tmp, struct inter_module_entry, list);
+ 		if (strcmp(ime->im_name, im_name) == 0) {
+ 			if (ime->owner)
+-				__MOD_DEC_USE_COUNT(ime->owner);
++				module_put(ime->owner);
+ 			spin_unlock(&ime_lock);
+ 			return;
+ 		}

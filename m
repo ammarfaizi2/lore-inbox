@@ -1,41 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316039AbSENU3R>; Tue, 14 May 2002 16:29:17 -0400
+	id <S316042AbSENUaJ>; Tue, 14 May 2002 16:30:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316040AbSENU3Q>; Tue, 14 May 2002 16:29:16 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:50879 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S316039AbSENU3P>;
-	Tue, 14 May 2002 16:29:15 -0400
-Date: Tue, 14 May 2002 22:29:12 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: Andre LeBlanc <ap.leblanc@shaw.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: No Network after Compiling, 2.4.19-pre8 under Debian Woody
-Message-ID: <20020514202912.GA18544@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Andre LeBlanc <ap.leblanc@shaw.ca>, linux-kernel@vger.kernel.org
-In-Reply-To: <003c01c1fb9d$345e0a20$2000a8c0@metalbox>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S316041AbSENUaI>; Tue, 14 May 2002 16:30:08 -0400
+Received: from uucp.cistron.nl ([195.64.68.38]:37894 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id <S316040AbSENUaH>;
+	Tue, 14 May 2002 16:30:07 -0400
+From: Rene Blokland <reneb@orac.aais.org>
+Subject: Foloppy always read only after 2.5.12?
+Date: Tue, 14 May 2002 22:20:23 +0200
+Organization: Cistron
+Message-ID: <slrnae2sc7.dhe.reneb@orac.aais.org>
+Reply-To: reneb@cistron.nl
+X-Trace: ncc1701.cistron.net 1021408206 12840 195.64.94.30 (14 May 2002 20:30:06 GMT)
+X-Complaints-To: abuse@cistron.nl
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 14, 2002 at 04:15:14PM -0700, Andre LeBlanc wrote:
-> Ok, the system is a Duron 1GHz on an ECS Motherboard with the SiS 730S
-> Chipset. 384 MB PC133, with a realtek 8139 based Nic.
-> heres the .config
-> 
-> network works fine if I boot the old(2.2.20) kernel but booting 2.4.19-pre8
-> causes me to have no network connection, But the device is configured
-> properly. (I Think)
-> I can also send my dmesg if it will help
+When  try to run lilo with a kernel after 2.5.12 to a floppy i get:
+Fatal: open /dev/fd0: Read-only file system
+Im runnig on a x86 platform with with a AMD K6 
+to me it seems at an enduser error because knowbody has this problem reported
+this or is it realy a bug.
+The floppy drive is detected :
+May 14 07:09:07 orac kernel: Floppy drive(s): fd0 is 1.44M
+May 14 07:09:07 orac kernel: FDC 0 is a post-1991 82077
 
-Please do. Also show the output of ifconfig before and after trying to ping
-some hosts.
 
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://www.tk                              the dot in .tk
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+Groeten / Regards, Rene J. Blokland
+

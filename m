@@ -1,156 +1,260 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288914AbSBMUkS>; Wed, 13 Feb 2002 15:40:18 -0500
+	id <S288921AbSBMUnI>; Wed, 13 Feb 2002 15:43:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288923AbSBMUkM>; Wed, 13 Feb 2002 15:40:12 -0500
-Received: from tstac.esa.lanl.gov ([128.165.46.3]:10625 "EHLO
-	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
-	id <S288914AbSBMUkF>; Wed, 13 Feb 2002 15:40:05 -0500
-Message-Id: <200202131952.MAA03108@tstac.esa.lanl.gov>
-Content-Type: text/plain; charset=US-ASCII
-From: Steven Cole <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
-To: "David S. Miller" <davem@redhat.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: [PATCH] 2.5.4, add 8 help texts to drivers/net/Config.help
-Date: Wed, 13 Feb 2002 13:38:50 -0700
-X-Mailer: KMail [version 1.3.1]
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+	id <S288919AbSBMUmu>; Wed, 13 Feb 2002 15:42:50 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:2065 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S288921AbSBMUmi>; Wed, 13 Feb 2002 15:42:38 -0500
+Date: Wed, 13 Feb 2002 17:33:00 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Linux 2.4.18-rc1
+Message-ID: <Pine.LNX.4.21.0202131732330.20915-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The drivers/net/Config.in file contains 11 options which do not have any 
-help text in drivers/net/Config.help (or anywhere else).
 
-The following patch provides help texts for the 8 of those 11 marked by
-asterisks in the list below. I inserted the help texts in Config.help 
-in the same order that the option appears in Config.in.
 
-   CONFIG_8139_NEW_RX_RESET
-*  CONFIG_DE2104X
-*  CONFIG_LASI_82596
-*  CONFIG_LP486E
-*  CONFIG_MIPS_AU1000_ENET
-   CONFIG_NE2K_ZORRO
-*  CONFIG_PPPOATM
-*  CONFIG_TULIP_MMIO
-*  CONFIG_TULIP_MWI
-   CONFIG_VETH
-*  CONFIG_VIA_RHINE_MMIO
+So here it goes.
 
-Steven
+rc1: 
+- PPC MPC8260 update				(Tom Rini)
+- eepro100 fixes				(Jeff Garzik)
+- Make natsemi hardware workaround a config 
+  option					(Jeff Garzik)
+- Add serial board PCI ID			(Jeff Garzik)
+- Add support for another tulip clone		(Jeff Garzik)
+- Fix typo in winbond driver			(Jeff Garzik)
+- Move initialization of tridentfb before 
+  the generic drivers				(Geert Uytterhoeven)
+- Reiserfs bugfixes				(Oleg Drokin)
+- More __devexit_p assorted fixes		(Andrew Morton)
+- Merge some -ac bugfixes			(Alan Cox)
 
---- linux-2.5.4/drivers/net/Config.help.orig	Wed Feb 13 11:18:09 2002
-+++ linux-2.5.4/drivers/net/Config.help	Wed Feb 13 13:15:58 2002
-@@ -3,6 +3,10 @@
-   MIPS-32-based Baget embedded system.  This chipset is better known
-   via the NE2100 cards.
- 
-+CONFIG_LASI_82596
-+  Say Y here to support the on-board Intel 82596 ethernet controller
-+  built into Hewlett-Packard PA-RISC machines.
-+
- CONFIG_MIPS_JAZZ_SONIC
-   This is the driver for the onboard card of MIPS Magnum 4000,
-   Acer PICA, Olivetti M700-10 and a few other identical OEM systems.
-@@ -214,6 +218,12 @@
-   pppd, along with binaries of a patched pppd package can be found at:
-   <http://www.shoshin.uwaterloo.ca/~mostrows/>.
- 
-+CONFIG_PPPOATM
-+  Support PPP (Point to Point Protocol) encapsulated in ATM frames.
-+  This implementation does not yet comply with section 8 of RFC2364,
-+  which can lead to bad results if the ATM peer loses state and
-+  changes its encapsulation unilaterally.
-+
- CONFIG_NET_RADIO
-   Support for wireless LANs and everything having to do with radio,
-   but not with amateur radio or FM broadcasting.
-@@ -817,6 +827,10 @@
-   say M here and read <file:Documentation/modules.txt>.  This is
-   recommended.  The module will be called lance.o.
- 
-+CONFIG_MIPS_AU1000_ENET
-+  If you have an Alchemy Semi AU1000 ethernet controller
-+  on an SGI MIPS system, say Y.  Otherwise, say N.
-+
- CONFIG_SGI_IOC3_ETH
-   If you have a network (Ethernet) card of this type, say Y and read
-   the Ethernet-HOWTO, available from
-@@ -1290,6 +1304,24 @@
-   module, say M here and read <file:Documentation/modules.txt> as well
-   as <file:Documentation/networking/net-modules.txt>.
- 
-+CONFIG_DE2104X
-+  This driver is developed for the SMC EtherPower series Ethernet
-+  cards and also works with cards based on the DECchip
-+  21040 (Tulip series) chips.  Some LinkSys PCI cards are
-+  of this type.  (If your card is NOT SMC EtherPower 10/100 PCI
-+  (smc9332dst), you can also try the driver for "Generic DECchip"
-+  cards, above.  However, most people with a network card of this type
-+  will say Y here.) Do read the Ethernet-HOWTO, available from
-+  <http://www.linuxdoc.org/docs.html#howto>.  More specific
-+  information is contained in
-+  <file:Documentation/DocBook/tulip-user.tmpl>.
-+
-+  This driver is also available as a module ( = code which can be
-+  inserted in and removed from the running kernel whenever you want).
-+  The module will be called tulip.o.  If you want to compile it as a
-+  module, say M here and read <file:Documentation/modules.txt> as well
-+  as <file:Documentation/networking/net-modules.txt>.
-+
- CONFIG_TULIP
-   This driver is developed for the SMC EtherPower series Ethernet
-   cards and also works with cards based on the DECchip 
-@@ -1308,6 +1340,20 @@
-   module, say M here and read <file:Documentation/modules.txt> as well
-   as <file:Documentation/networking/net-modules.txt>.
- 
-+CONFIG_TULIP_MWI
-+  This configures your Tulip card specifically for the card and
-+  system cache line size type you are using.
-+
-+  This is experimental code, not yet tested on many boards.
-+
-+  If unsure, say N.
-+
-+CONFIG_TULIP_MMIO
-+  Use PCI shared memory for the NIC registers, rather than going through
-+  the Tulip's PIO (programmed I/O ports).  Faster, but could produce
-+  obscure bugs if your mainboard has memory controller timing issues.
-+  If in doubt, say N.
-+
- CONFIG_DGRS
-   This is support for the Digi International RightSwitch series of
-   PCI/EISA Ethernet switch cards. These include the SE-4 and the SE-6
-@@ -1338,6 +1384,11 @@
-   cards. Specifications and data at
-   <http://www.myson.com.hk/mtd/datasheet/>.
- 
-+CONFIG_LP486E
-+  Say Y here to support the 82596-based on-board Ethernet controller
-+  for the Panther motherboard, which is one of the two shipped in the
-+  Intel Professional Workstation.
-+
- CONFIG_ETH16I
-   If you have a network (Ethernet) card of this type, say Y and read
-   the Ethernet-HOWTO, available from
-@@ -1377,6 +1428,16 @@
-   a module, say M here and read <file:Documentation/modules.txt> as
-   well as <file:Documentation/networking/net-modules.txt>.
- 
-+CONFIG_VIA_RHINE_MMIO
-+  This instructs the driver to use PCI shared memory (MMIO) instead of
-+  programmed I/O ports (PIO). Enabling this gives an improvement in
-+  processing time in parts of the driver.
-+
-+  It is not known if this works reliably on all "rhine" based cards,
-+  but it has been tested successfully on some DFE-530TX adapters.
-+
-+  If unsure, say N.
-+
- CONFIG_DM9102
-   This driver is for DM9102(A)/DM9132/DM9801 compatible PCI cards from
-   Davicom (<http://www.davicom.com.tw/>).  If you have such a network
+pre9:
+
+- Cris update					(Bjorn Wesen)
+- SPARC update					(David S. Miller)
+- Remove duplicate CONFIG_SUNLANCE entry in 
+  Config.in					(David S. Miller)
+- Change Netfilter maintainer 			(David S. Miller)
+- More SunGEM bugfixes				(David S. Miller)
+- Update md5sums in ISDN's md5sums.asc		(Kai Germaschewski)
+- 3ware driver update				(Adam Radford)
+- Fix cosa compile problem			(Adrian Bunk)
+- Change VIA "disabling write queue" message	(Oliver Feiler)
+- Remove buggy Elan-specific handling code	(Robert Schwebel)
+- Reiserfs bugfixes				(Oleg Drokin)
+- Fix ppp memory leak				(Andrew Morton)
+- Really add devfs fix for removable devices: 
+  its on pre8 changelog but not on pre8 patch	(me)
+- Add framebuffer support for trident graphics
+  card						(James Simmons)
+- SCSI tape driver bugfixes			(Kai Makisara)
+- Add support to Ovislink card on 8139too
+  driver					(Jeff Garzik)
+- Add SIOCxMIIxxxx ioctls for better binary 
+  compatibility on au1000_eth driver		(Jeff Garzik)
+- Fix initialization of phy on epic100 driver	(Jeff Garzik)
+- Add MODULE_* info to mii.c 			(Jeff Garzik)
+- Add new PCI ID to sundance driver		(Jeff Garzik)
+- Merge some -ac3 patches			(Alan Cox)
+- Unify simple_strtol symbol export		(Russell King)
+- Add amount of cached memory to sysreq-m 
+  output					(Martin Knoblauch)
+- Do not use SCSI device type to change
+  IO clustering					(Jens Axboe)
+- IRC conntrack update				(Harald Welte)
+- sonypi driver update				(Stelian Pop)
+- Fix one of the PPP deadlocks			(Manfred Spraul)
+
+pre8: 
+
+- Add missing netfilter files in pre7 		(David S. Miller)
+- SunGEM driver update				(David S. Miller)
+- Kill get_fast_time				(David S. Miller)
+- Update APIC LVTERR fix to work correctly on 
+  old 486/586 APICs				(Mikael Pettersson)
+- Check the return code of copy_{from,to}_user
+  on serial code				(Rasmus Andersen)
+- Mark 2.5 extended attributes system calls as 
+  reserved to avoid potential conflicts		(Nathan Scott)
+- Change Christoph Hellwig's email address	(Christoph Hellwig)
+- Make BLKGETSIZE64 return size in bytes not 
+  sectors					(Eric Sandeen)
+- Coda dentry revalidation fix			(Jan Harkes)
+- hisax_fcpcipnp driver update			(Kai Germaschewski)
+- i810 sound driver update			(Doug Ledford)
+- Early personality setting in binfmt_elf	(Christoph Hellwig)
+- Fix rename bug in reiserfs			(Oleg Drokin)
+- SCSI documentation update			(Douglas Gilbert)
+- Fix silly typo in megaraid driver 		(Arjan Van de Ven)
+- PPC update					(Benjamin Herrenschmidt)
+- USB bug fixes					(Greg KH)
+- Fix devfs problems with removable devices	(Richard Gooch)
+- Merge -ac1 fixes				(Alan Cox)
+- VXFS update					(Christoph Hellwig)
+- Add Compaq FC array to the LUN whitelist	(Arjan Van de Ven) 
+
+pre7:
+
+- Make ext2/minix/sysvfs actually operate
+  synchronously on directories when using
+  the sync mount option				(Andrew Morton)
+- AFFS update					(Roman Zippel)
+- Fix 3dfx fb crash with high pixelclock 	(Jurriaan on Alpha)
+- PATH_MAX POSIX compliance			(Rusty Russell)
+- Really apply AMD Elan patch			(me)
+- Don't drop IP packets with less than 8 bytes 
+  of payload 					(David S. Miller)
+- Netfilter update 				(Netfilter team)
+- Backport 2.5 sb_bread() changes		(Alexander Viro)
+- Fix AF_UNIX fd leak				(David S. Miller)
+- Add Audigy Gameport PCI ID	 		(Daniel Bertrand)
+- Sync with ia64 arch independant parts		(Keith Owens)
+- APM fixes					(Stephen Rothwell)
+- fs/super.c cleanups				(Alexander Viro)
+
+pre6:
+
+- Removed patch in icmp code: its
+  not needed and causes problems                (me)
+
+pre5:
+
+- Include missing radeonfb defines		(Erik Andersen)
+- Fix fs/buffer.c thinko introduced in pre4	(Andrew Morton)
+- USB bugfixes					(Greg KH)
+- Make fat work correctly with gcc-3.0.x 	(Tom Rini)
+- Avoid overusage of the vmalloc area by 
+  NTFS						(Anton Altaparmakov)
+- atyfb: Decrease clock rate for 3d RAGE XL 	(David S. Miller)
+- Sungem driver bugfixes			(David S. Miller)
+- More networking updates			(David S. Miller)
+- More SPARC updates				(David S. Miller)
+- devfs update 					(Richard Gooch)
+- Reiserfs expanding truncate fix		(Chris Mason)
+- ext3 update					(Andrew Morton/Stephen Tweedie)
+- Add support to WDIOC_SETTIMEOUT on several
+  watchdog drivers				(Joel Becker)
+- dl2k driver update				(Jeff Garzik)
+- Orinoco driver update				(David Gibson)
+- Radeonfb driver update			(Ani Joshi)
+- Avoid free_swap_and_cache() from leaving 
+  freeable pages on the cache			(Hugh Dickins)
+- Add workarounds for AMD Elan processors	(Robert Schwebel)
+- Random pmac driver bugfixing			(Benjamin Herrenschmidt)
+- emu10k1 driver update				(Rui Sousa)
+
+pre4:
+
+- Networking updates				(David S. Miller)
+- clgenfb update				(Jeff Garzik)
+- 8139cp: make it faster			(Jeff Garzik)
+- 8139too: fix bugs, add experimental RX reset	(Jeff Garzik)
+- Add MII ethtool interface and change 
+  several drivers to support that		(Jeff Garzik)
+- Fix ramdisk corruption problems		(Andrea Arcangeli) 	
+- Correct in-kernel MS_ASYNC behaviour 
+  on msync/fsync()				(Andrew Morton)
+- Fix PLIP problems 				(Niels Jensen)
+- Fix problems triggered by the "fsx test" 
+  on smbfs					(Urban Widmark)
+- Turn on OOSTORE for IDT winchip		(from -ac tree)
+- Fix iphase crash				(from -ac tree)
+- Fix crash with two mxser cards		(from -ac tree)
+- Fix tty write block bug			(from -ac tree)
+- Add mono/stereo detect to gemtek pci radio	(from -ac tree)
+- Fix sf16fmi crash on load			(from -ac tree)
+- add CP1250 (windows eastern european) 
+  translation table				(from -ac tree)
+- cs46xx driver update				(from -ac tree)
+- Fix rare data loss case with RAID-1		(Ingo Molnar)
+- Add 2.5.x compatibility for the kdev_t
+  changes					(me)
+- SPARC updates					(David S. Miller)
+
+pre3:
+
+- Cris arch merge				(Bjorn Wesen)
+- Finish PPC merge				(Benjamin Herrenschmidt)
+- Add Dell PowerEdge 2400 to 
+  "use BIOS to reboot" blacklist		(Arjan van de Ven)
+- Avoid potential oops at module unload with 
+  cyclades driver				(Andrew Morton)
+- Gracefully handle SCSI initialization 
+  failures					(Pete Zaitcev)
+- USB update					(Greg KH)
+- Fix potential oops while ejecting ide cds 	(Zwane Mwaikambo)
+- Unify page freeing codepaths 			(Benjamin LaHaise)
+- Miata dma corruption workaround 		(Richard Henderson)
+- Fix vmalloc corruption problem on machines 
+  with virtual dcaches				(Ralf Baechle)
+- Reiserfs fixes				(Oleg Drokin)
+- DiskOnChip driver update			(David Woodhouse)
+- Do not inherit page locking rules across 
+  fork/exec					(Dave Anderson)
+- Add DRM 4.0 for XFree 4.0 users convenience	(Christoph Hellwig)
+- Replace .text.lock with .subsection 		(Keith Owens)
+- IrDA bugfixes					(Jean Tourrilhes)
+
+pre2: 
+
+- APIC LVTERR fixes				(Mikael Pettersson)
+- Fix ppdev ioctl oops and deadlock		(Tim Waugh)
+- parport fixes					(Tim Waugh)
+- orinoco wireless driver update		(David Gibson)
+- Fix oopsable race in binfmt_elf.c 		(Alexander Viro)
+- Small sx16 driver bugfix			(Heinz-Ado Arnolds)
+- sbp2 deadlock fix 				(Andrew Morton)
+- Fix JFFS2 write error handling		(David Woodhouse)
+- Intermezzo update				(Peter J. Braam)
+- Proper AGP support for Intel 830MP chipsets	(Nicolas Aspert)
+- Alpha fixes					(Jay Estabrook)
+- 53c700 SCSI driver update			(James Bottomley)
+- Fix coredump mmap_sem deadlock on IA64	(David Mosberger)
+- 3ware driver update				(Adam Radford)
+- Fix elevator insertion point on failed 
+  request merge					(Jens Axboe)
+- Remove bogus rpciod_tcp_dispatcher definition (David Woodhouse)
+- Reiserfs fixes				(Oleg Drokin)
+- de4x5 endianess fixes				(Kip Walker)
+- ISDN CAPI cleanup				(Kai Germaschewski)
+- Make refill_inactive() correctly account 
+  progress					(me)
+
+pre1:
+
+- S390 merge					(IBM)
+- SuperH merge					(SuperH team)
+- PPC merge					(Benjamin Herrenschmidt)
+- PCI DMA update				(David S. Miller)
+- radeonfb update 				(Ani Joshi)
+- aty128fb update				(Ani Joshi)
+- Add nVidia GeForce3 support to rivafb		(Ani Joshi)
+- Add PM support to opl3sa2			(Zwane Mwaikambo)
+- Basic ethtool support for 3com, starfire
+  and pcmcia net drivers			(Jeff Garzik)
+- Add MII ethtool interface			(Jeff Garzik)
+- starfire,sundance,dl2k,sis900,8139{too,cp},
+  natsemi driver updates			(Jeff Garzik)
+- ufs/minix: mark inodes as bad in case of read
+  failure					(Christoph Hellwig)
+- ReiserFS fixes				(Oleg Drokin)
+- sonypi update					(Stelian Pop)
+- n_hdlc update					(Paul Fulghum)
+- Fix compile error on aty_base.c		(Tobias Ringstrom)
+- Document cpu_to_xxxx() on kernel-hacking doc  (Rusty Russell)
+- USB update					(Greg KH)
+- Fix sysctl console loglevel bug on 
+  IA64 (and possibly other archs)		(Jesper Juhl) 
+- Update Athlon/VIA PCI quirks			(Calin A. Culianu)
+- blkmtd update					(Simon Evans)
+- boot protocol update (makes the highest 
+  possible initrd address available to the 
+  bootloader)					(H. Peter Anvin)
+- NFS fixes					(Trond Myklebust)
+

@@ -1,48 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261732AbUCBSbX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 13:31:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbUCBSbX
+	id S261717AbUCBSkM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 13:40:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbUCBSkL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 13:31:23 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25528 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261732AbUCBSbW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 13:31:22 -0500
-Message-ID: <4044D2ED.401@pobox.com>
-Date: Tue, 02 Mar 2004 13:31:09 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-CC: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC] kbuild: Add a binary only .o file to a module
-References: <20040301214617.GA7777@mars.ravnborg.org> <4044A692.40106@nortelnetworks.com>
-In-Reply-To: <4044A692.40106@nortelnetworks.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 2 Mar 2004 13:40:11 -0500
+Received: from NS1.idleaire.net ([65.220.16.2]:32190 "EHLO iasrv1.idleaire.net")
+	by vger.kernel.org with ESMTP id S261717AbUCBSkG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 13:40:06 -0500
+Subject: [PATCH 0/3] Auto checkout for kbuild
+From: Dave Dillow <dave@thedillows.org>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040302180730.GD2135@mars.ravnborg.org>
+References: <20040229235150.GA6327@merlin.emma.line.org>
+	 <20040301060859.GA2129@mars.ravnborg.org>
+	 <1078163528.22900.17.camel@dillow.idleaire.com>
+	 <20040302180730.GD2135@mars.ravnborg.org>
+Content-Type: text/plain
+Message-Id: <1078252801.31314.21.camel@dillow.idleaire.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 02 Mar 2004 13:40:02 -0500
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 02 Mar 2004 18:40:05.0530 (UTC) FILETIME=[C7C2CFA0:01C40085]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Friesen wrote:
-> Sam Ravnborg wrote:
-> 
->> Any objections from having this in the kernel?
->> [Please, please, this is only for 'legal' binary modules - so do not
->> start the usual 'binary modules should be GPL discussion'].
->>
->> This is a small step towards better support for external modules.
-> 
-> 
-> I'll put in a vote for this.  Unfortunately we have some hardware for 
-> which the only drivers available use binary blobs.
+On Tue, 2004-03-02 at 13:07, Sam Ravnborg wrote:
+> I have pulled the tree, and the getfiles script and Makefile.repo is easy to spot.
+> Could you drop a mail with the rest of your changes as a regular patch?
 
+Here's three patches, in order. The first adds getfiles and
+Makefile.repo. It will pull all files needed from BK, except for the
+Kconfig files.
 
-Shouldn't we discourage this practice where feasible?  :)
+The second adds support for Kconfig files.
 
-	Jeff
+The third is just some comsetic cleanups to cut chatter during
+non-verbose builds.
 
+> I will then try to look through what you made - but my first impression is that this
+> is by far too much overhead just to replace an "bk -r co -Sq".
 
+There is a bit of overhead, but mainly for files that are not there. If
+the file has already been checked out, and the SCCS file is not newer,
+then getfiles will not be run. There is the matter of an extra stat()
+call, though, to figure that out.
+
+For me, since I am working in a NFS directory, this is much faster than
+doing a "bk -r get; make bzImage" because it only pulls the files needed
+to build my kernel configuration. Even on a local disk, it "feels"
+faster, though I'm sure I do not see as much of a benefit.
+
+Code wise, yeah, it is more overhead, and it could be potentially
+fragile in regards to compiler messages in the getfiles script.
+-- 
+Dave Dillow <dave@thedillows.org>
 

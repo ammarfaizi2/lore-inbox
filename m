@@ -1,56 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318869AbSHWQZ5>; Fri, 23 Aug 2002 12:25:57 -0400
+	id <S318903AbSHWQgc>; Fri, 23 Aug 2002 12:36:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318888AbSHWQZ5>; Fri, 23 Aug 2002 12:25:57 -0400
-Received: from kura.mail.jippii.net ([195.197.172.113]:13185 "HELO
-	kura.mail.jippii.net") by vger.kernel.org with SMTP
-	id <S318869AbSHWQZ4>; Fri, 23 Aug 2002 12:25:56 -0400
-Date: Fri, 23 Aug 2002 19:30:56 +0300
-From: Anssi Saari <as@sci.fi>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.20-pre4-ac1
-Message-ID: <20020823163056.GA7426@sci.fi>
-Mail-Followup-To: Anssi Saari <as@sci.fi>,
-	linux-kernel@vger.kernel.org
-References: <200208231046.g7NAk2914276@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200208231046.g7NAk2914276@devserv.devel.redhat.com>
-User-Agent: Mutt/1.3.28i
+	id <S318914AbSHWQgc>; Fri, 23 Aug 2002 12:36:32 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:9355 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S318903AbSHWQgb>;
+	Fri, 23 Aug 2002 12:36:31 -0400
+Message-ID: <3D666531.4020909@us.ibm.com>
+Date: Fri, 23 Aug 2002 09:39:13 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020808
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mala Anand <manand@us.ibm.com>
+CC: Benjamin LaHaise <bcrl@redhat.com>, alan@lxorguk.ukuu.org.uk,
+       Bill Hartner <bhartner@us.ibm.com>, davem@redhat.com,
+       linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
+       lse-tech-admin@lists.sourceforge.net
+Subject: Re: [Lse-tech] Re: (RFC): SKB Initialization
+References: <OF1AAF39E9.D733B26C-ON87256C1E.004ACC87@boulder.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 23, 2002 at 06:46:02AM -0400, Alan Cox wrote:
+Mala Anand wrote:
+> Readprofile ticks are not as accurate as the cycles I measured.
+> Moreover readprofile can give misleading information as it profiles
+> on timer interrupts. The alloc_skb and __kfree_skb call memory
+> management routines and interrupts are disabled in many parts of that code.
+> So I don't trust the readprofile data.
 
-> IDE status
-[...]
+I don't believe your results to be accurate.  They may be _precise_ 
+for a small case, but you couldn't have been measuring them for very 
+long.  A claim of accuracy requires a large number of samples, which 
+you apparently did not do.
 
-This new IDE stuff has certainly worsened my longstanding CD writing problem.
+I can't use oprofile or other NMI-based profilers on my hardware, so 
+we'll just have to guess.  Is there any chance that you have access to 
+a large Specweb setup on hardware that is close to mine and can run 
+oprofile?
 
-Former situation (linux 2.2.19, 2.4.whatever, up to 2.4.19-ac4):
+Where are interrupts disabled?   I just went through a set of kernprof 
+data and traced up the call graph.  In the most common __kfree_skb 
+case, I do not believe that it has interupts disabled.  I could be 
+wrong, but I didn't see it.
 
-Audio CD writes hog system if writing at > 4x so that CPU intensive
-stuff like watching video goes poorly, frames are dropped a lot, even
-if video is 160x100 mpeg1 which needs about 1% CPU time. Writing speed
-is about 14x according to cdrecord, when trying to write at 16x which
-is the drive's max speed. Apparently the writer is smart enough to be
-able to limit writing speed on the fly if data doesn't arrive fast enough.
-cdrecord's fifo keeps at 0-3% mostly.
+http://www.sr71.net/~specweb99/old/run-specweb-2300-nodynpost-2.5.31-bk+profilers-08-14-2002-02.19.22/callgraph
 
-Data writes go fine at 16x. Audio writes work fine at 16x in FreeBSD
-and Windows 98 with the same system. DMA is on, unmask_irq is on, 32bit
-transfers are on, but don't matter much.
+The end result, as I can see it, is that your patches hurt Specweb 
+performance.  They moved the profile around, but there was an overall 
+decline in performance.  They partly address the symptom, but not the 
+real problem.  We don't need to _tune_ it, we need to fix it.
 
-New situation (2.4.20-pre2-ac6, 2.4.20-pre4-ac1):
-
-All writes now at no faster than 4x and even at that speed, system
-can't keep cdrecord's fifo filled. System is really slow, mouse cursor
-moves jerkily, opening an xterm takes several seconds.
-
-System: MSI K7T Turbo-R motherboard, VIA kt133a/686b chipset, Duron 800MHz.
-CD writer is LG GCE-8160B in /dev/hdc, main HD is /dev/hda.
-
-No problems otherwise, though, so far.
+The e1000's need to allocate/free fewer skbs.  NAPI's polling mode 
+_should_ help this, or at least make it possible to batch them up.
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 

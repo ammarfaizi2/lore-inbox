@@ -1,56 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270886AbUJVJM5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270894AbUJVJM4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270886AbUJVJM5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 05:12:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270877AbUJVJI4
+	id S270894AbUJVJM4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 05:12:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270889AbUJVJJb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 05:08:56 -0400
-Received: from smtp.Lynuxworks.com ([207.21.185.24]:33810 "EHLO
-	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S270889AbUJVJHf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 05:07:35 -0400
-Date: Fri, 22 Oct 2004 02:06:37 -0700
-To: Jens Axboe <axboe@suse.de>
-Cc: Bill Huey <bhuey@lnxw.com>, Thomas Gleixner <tglx@linutronix.de>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Ingo Molnar <mingo@elte.hu>,
-       LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
-Message-ID: <20041022090637.GA24523@nietzsche.lynx.com>
-References: <1098352441.26758.30.camel@thomas> <20041021101103.GC10531@suse.de> <20041021195842.GA23864@nietzsche.lynx.com> <20041021201443.GF32465@suse.de> <20041021202422.GA24555@nietzsche.lynx.com> <20041021203350.GK32465@suse.de> <20041021203821.GA24628@nietzsche.lynx.com> <20041022061901.GM32465@suse.de> <20041022085007.GA24444@nietzsche.lynx.com> <20041022085928.GK1820@suse.de>
+	Fri, 22 Oct 2004 05:09:31 -0400
+Received: from khan.acc.umu.se ([130.239.18.139]:5584 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id S270894AbUJVJIT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 05:08:19 -0400
+Date: Fri, 22 Oct 2004 11:07:52 +0200
+From: David Weinehall <tao@acc.umu.se>
+To: "Jeff V. Merkey" <jmerkey@drdos.com>
+Cc: Dax Kelson <dax@gurulabs.com>, Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.9 and GPL Buyout
+Message-ID: <20041022090752.GA1308@khan.acc.umu.se>
+Mail-Followup-To: "Jeff V. Merkey" <jmerkey@drdos.com>,
+	Dax Kelson <dax@gurulabs.com>, Linus Torvalds <torvalds@osdl.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> <417550FB.8020404@drdos.com> <1098218286.8675.82.camel@mentorng.gurulabs.com> <41757478.4090402@drdos.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041022085928.GK1820@suse.de>
-User-Agent: Mutt/1.5.6+20040907i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+In-Reply-To: <41757478.4090402@drdos.com>
+User-Agent: Mutt/1.4.1i
+X-Accept-Language: Swedish, English
+X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
+X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 22, 2004 at 10:59:28AM +0200, Jens Axboe wrote:
-> On Fri, Oct 22 2004, Bill Huey wrote:
-> > On Fri, Oct 22, 2004 at 08:19:01AM +0200, Jens Axboe wrote:
-> > > It has to go, why? Because your deadlock detection breaks? Doesn't seem
-> > > a very strong reason to me at all, sorry.
-> > 
-> > The deadlock detector is needed. Whether you understand that or not is
-> > irrelevant to the current work that's being done. And your idiot attacks
-> > against it doesn't correct these issues nor does it gain credibility
-> > with the audience that does find it useful.
-> 
-> *plonk*
-> 
-> If you can't stand criticism without resorting to feeble personal
-> attacks, I suggest you go elsewhere.
+On Tue, Oct 19, 2004 at 02:09:28PM -0600, Jeff V. Merkey wrote:
+[snip]
 
-Then stick to the topic at hand, suggest positive changes, and cut the
-crap with implied personal attacks like the above. If you hadn't pull
-the discussion to that point, I wouldn't have reacted that way. It's
-completely juvenile behavior from you and you can't expect me or
-anybody else to take it sitting down.
+> No.  They seem to have some factual concrete evidence IP covered under 
+> Employee
+> agreements was used and subsequently converted into Linux, and they are 
+> very
+> confident of this.  From a cursory viewpoint, it looks valid.  I think 
+> they have a case
+> (having been sued and nailed for the same type of thing by Novell).  
 
-bill
+(Quoting from groklaw wrt that lawsuit:)
 
+"The judge had a few descriptive words for Mr. Merkey, as you will note
+ particularly in paragraph 123 - 125 of the Findings of Fact:
+
+ 124. In fact, however, Merkey is not just prone to exaggeration, he also
+ is and can be deceptive, not only to his adversaries, but also to his
+ own partners, his business associates and to the court. He deliberately
+ describes his own, separate reality."
+
+[snip]
+
+Meanwhile, life goes on as usual in the real world.
+
+Oh, and if you happen to need any code I might have contributed to the
+kernel, it's available under the GPL.  Only.
+
+
+Regards: David Weinehall
+-- 
+ /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

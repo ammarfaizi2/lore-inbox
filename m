@@ -1,59 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131704AbRCTD0r>; Mon, 19 Mar 2001 22:26:47 -0500
+	id <S129495AbRCTDfr>; Mon, 19 Mar 2001 22:35:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131705AbRCTD0h>; Mon, 19 Mar 2001 22:26:37 -0500
-Received: from tallinn.sydamekirurgia.ee ([193.40.6.9]:1553 "EHLO
-	ns.linking.ee") by vger.kernel.org with ESMTP id <S131704AbRCTD0a>;
-	Mon, 19 Mar 2001 22:26:30 -0500
-Date: Tue, 20 Mar 2001 05:55:30 +0200 (EET)
-From: Elmer Joandi <elmer@linking.ee>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: atyfb,matrox hardlocks, multihead, USB broken, 2.4.2-ac8
-In-Reply-To: <3AB695DE.84A933D@vc.cvut.cz>
-Message-ID: <Pine.LNX.4.30.0103200541050.1535-100000@localhost.localdomain>
+	id <S129598AbRCTDfi>; Mon, 19 Mar 2001 22:35:38 -0500
+Received: from chromium11.wia.com ([207.66.214.139]:65036 "EHLO
+	neptune.kirkland.local") by vger.kernel.org with ESMTP
+	id <S129495AbRCTDf0>; Mon, 19 Mar 2001 22:35:26 -0500
+Message-ID: <3AB6D0A5.EC4807E3@chromium.com>
+Date: Mon, 19 Mar 2001 19:38:13 -0800
+From: Fabio Riccardi <fabio@chromium.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: user space web server accelerator support
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+I've been working for a while on a user-space web server accelerator (as
+opposed to a kernel space accelerator, like TUX). So far I've had very
+promising results and I can achieve performance (spec) figures
+comparable to those of TUX.
 
-Got it to work somewhat...
-that was real long f***
+Although my implementation is entirely sitting in user space, I need
+some cooperation form the kernel for efficiently forwarding network
+connections from the accelerator to the full-fledged Apache server.
 
-the only sequence -
-no dga,
-kernel boots and BIOS uses Matrox PCI as first graphics
-via matrox
-start up two ATI cards(one AGP, one PCI)(xinerama mode,
-screwed output ) with Xserver hacked to read /dev/input/event*
-ant talking direct to ATI.
+I've made a little kernel hack (mostly lifted out of the TUX and khttpd
+code) to forward a live socket connection from an application to
+another. I'd like to clean this up such that my users don't have to mock
+with their kernel to get my accelerator to work.
 
-now insert matroxfb_base
-now start two normal XFree86 on  framebuffer /dev/fb0 and /dev/fb1,
-i.e. matroxes, xinerama keyboard from system console...
+Would it be a major heresy to ask for a new system call?
 
-log into matroxes
-ATI dualscreen picture clears itself by magic spell and becomes usable.
+If so I could still hide my stuff in a kernel module and snatch an
+unused kernel call for my private use (such as the one allotted for
+tux). The problem with this is that the kernel only exposes the "right"
+symbols to the modules if either khttp or ipv6 are compiled as modules.
 
-everything works... until ATI exits, then there is kernel hardlock.
+How could this be fixed?
 
-Weird that all locks are hardlocks - no ping no sysreq...
+TIA, ciao,
 
-SMP here.
-
-ah - message from matrox framebuffer  - complaining no irq A assigned to
-slot, and  suggesting that BIOS is buggy.
-
-
-Will I be more happy when using a dualhead matrox AGP instead of AGP+PCI
-ATI pair ?
-
-2.4.0 kernel, 2.4.2-ac8 USB looks like very very broken.
-
-elmer.
-
+ - Fabio
 
 

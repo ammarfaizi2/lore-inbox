@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276094AbRJPMRK>; Tue, 16 Oct 2001 08:17:10 -0400
+	id <S276097AbRJPM2n>; Tue, 16 Oct 2001 08:28:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276074AbRJPMRA>; Tue, 16 Oct 2001 08:17:00 -0400
-Received: from dsl-64-34-35-93.telocity.com ([64.34.35.93]:47809 "HELO
-	tigger.rogueind.com") by vger.kernel.org with SMTP
-	id <S276069AbRJPMQy>; Tue, 16 Oct 2001 08:16:54 -0400
-Date: Tue, 16 Oct 2001 08:17:23 -0400 (EDT)
-From: Tom Diehl <tdiehl@rogueind.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: What is /boot/modules-info
-In-Reply-To: <E15tPPh-00051D-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0110160815030.581-100000@tigger.rogueind.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S276074AbRJPM2c>; Tue, 16 Oct 2001 08:28:32 -0400
+Received: from curlew.cs.man.ac.uk ([130.88.13.7]:40965 "EHLO
+	curlew.cs.man.ac.uk") by vger.kernel.org with ESMTP
+	id <S273358AbRJPM2V>; Tue, 16 Oct 2001 08:28:21 -0400
+Date: Tue, 16 Oct 2001 13:28:51 +0100
+From: John Levon <moz@compsoc.man.ac.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: VM
+Message-ID: <20011016132851.B74778@compsoc.man.ac.uk>
+In-Reply-To: <20011015211216.A1314@localhost> <Pine.LNX.4.40.0110151742440.1380-100000@dlang.diginsite.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.40.0110151742440.1380-100000@dlang.diginsite.com>
+User-Agent: Mutt/1.3.19i
+X-Url: http://www.movement.uklinux.net/
+X-Record: Truant - Neither Work Nor Leisure
+X-Toppers: N/A
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Oct 2001, Alan Cox wrote:
+On Mon, Oct 15, 2001 at 05:53:32PM -0700, David Lang wrote:
 
-> > On 15 Oct 2001 12:40:53 -0700, 
-> > Mark Atwood <mra@pobox.com> wrote:
-> > >I've been doing some online searching, and the best I can find is it
-> > >is an exampe of a RPM resource, and no one can figure out what it's
-> > >for.
-> > 
-> > A Redhat'ism, nothing in the standard kernel or modutils uses it.  Ask RH.
-> 
-> Its a table of drivers, arguments to the module etc for common modules,
-> used by the various config tools to help guide installs etc
+> before switching my production machines from 2.4.5 to a newer kernel.
 
-Is there any way to regenerate it for non redhat kernels?
+running such an old kernel does not give a fair comparison. Personally I've
+found the /current/ ac VM to be stable and give slightly smoother feel than
+the linus tree VM.
+
+regards
+john
 
 -- 
-......Tom		Dysfunction The Only Consistent Feature of All
-tdiehl@rogueind.com	of Your Dissatisfying Relationships is You.
-
+"I hear you have four hundred and eighty six PCs for sale ?"
+	- Some Fool 

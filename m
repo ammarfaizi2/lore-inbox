@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRADFU7>; Thu, 4 Jan 2001 00:20:59 -0500
+	id <S129324AbRADF2l>; Thu, 4 Jan 2001 00:28:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129436AbRADFUt>; Thu, 4 Jan 2001 00:20:49 -0500
-Received: from pop.gmx.net ([194.221.183.20]:16806 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S129324AbRADFUh>;
-	Thu, 4 Jan 2001 00:20:37 -0500
-From: Norbert Breun <nbreun@gmx.de>
-Reply-To: nbreun@gmx.de
-Organization: private
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.0-prerelease: System dies after leaving XF86_4.0.2
-Date: Thu, 4 Jan 2001 06:15:45 +0100
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-MIME-Version: 1.0
-Message-Id: <01010406154500.01435@nmb>
-Content-Transfer-Encoding: 7BIT
+	id <S132754AbRADF2c>; Thu, 4 Jan 2001 00:28:32 -0500
+Received: from deliverator.sgi.com ([204.94.214.10]:55062 "EHLO
+	deliverator.sgi.com") by vger.kernel.org with ESMTP
+	id <S129324AbRADF2U>; Thu, 4 Jan 2001 00:28:20 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Frank Davis <fdavis112@juno.com>
+cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-prerelease-ac5 : 'make dep' error 
+In-Reply-To: Your message of "Wed, 03 Jan 2001 23:51:31 CDT."
+             <20010103.235132.-322857.2.fdavis112@juno.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 04 Jan 2001 16:28:12 +1100
+Message-ID: <22515.978586092@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo,
+On Wed, 3 Jan 2001 23:51:31 -0500, 
+Frank Davis <fdavis112@juno.com> wrote:
+>Hello,
+>       I received the following make dep error while compiling
+>prerelease-ac5 .
+>make -C acpi fastdep
+>make[4]: Entering directory `/usr/src/linux/drivers/acpi'
+>/usr/src/linux/Rules.make:224: *** Recursive variable `CFLAGS' references
+>itself (eventually).  Stop.
 
-I've tested 2.4.0prerelease pure - ac1-ac2-ac3-ac4-ac5 and my system crashed 
-whenever I left X. 
-Having switched back to 2.4.0-test13pre7 all is fine. 
-I'm no developer, so if you need more information, give me some hints.
+Which version of make are you running, make --version?
 
-kind regards
-Norbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

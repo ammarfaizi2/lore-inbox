@@ -1,40 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262909AbUB0PHo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 10:07:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262984AbUB0PHn
+	id S262990AbUB0PMc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 10:12:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262988AbUB0PMc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 10:07:43 -0500
-Received: from mail.oatmail.org ([198.145.35.3]:6929 "EHLO mail.oatmail.org")
-	by vger.kernel.org with ESMTP id S262909AbUB0PHl (ORCPT
+	Fri, 27 Feb 2004 10:12:32 -0500
+Received: from mail1.allneo.com ([216.185.99.210]:39662 "EHLO mail1.allneo.com")
+	by vger.kernel.org with ESMTP id S262991AbUB0PMa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 10:07:41 -0500
-Message-ID: <403F5D3A.4080101@oatmail.org>
-Date: Fri, 27 Feb 2004 07:07:38 -0800
-From: Brad Davidson <kiloman@oatmail.org>
-User-Agent: Mozilla Thunderbird 0.5a (20031216)
-X-Accept-Language: en-us, en
+	Fri, 27 Feb 2004 10:12:30 -0500
+From: "Brad Cramer" <bcramer@callahanfuneralhome.com>
+To: <root@chaos.analogic.com>
+Cc: "'Guennadi Liakhovetski'" <g.liakhovetski@gmx.de>,
+       "'Linux kernel'" <linux-kernel@vger.kernel.org>,
+       <linux-scsi-owner@vger.kernel.org>
+Subject: RE: sym53c8xx_2 driver and tekram dc-390u2w kernel-2.6.x
+Date: Fri, 27 Feb 2004 10:12:22 -0500
+Message-ID: <008d01c3fd44$1d5ec760$6501a8c0@office>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: drivers/ieee1394/sbp2.c:734: error: `host' undeclared (first
- use in this function) 2.6.3-bk3
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+In-Reply-To: <Pine.LNX.4.53.0402270955240.7189@chaos>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
+Sorry, yes I did rmmod the sym53c8xx driver before modprobeing the
+sym53c8xx_2
+Brad
 
-This is the same change I made in my local tree against 2.6.3-bk4. It 
-was pretty much a blind change, so I have no idea if it's the right 
-thing to do or not, but it certainly compiles now. I've connected a few 
-firewire devices and they appear to work as expected without anything 
-going belly-up, so it's good enought for me. I guess only Bob really 
-knows if that's what he meant.
+-----Original Message-----
+From: Richard B. Johnson [mailto:root@chaos.analogic.com] 
+Sent: Friday, February 27, 2004 9:59 AM
+To: Brad Cramer
+Cc: 'Guennadi Liakhovetski'; Linux kernel; linux-scsi-owner@vger.kernel.org
+Subject: RE: sym53c8xx_2 driver and tekram dc-390u2w kernel-2.6.x
 
-I'm not subscribed to the list, reply to me personally, etc etc etc.
+On Fri, 27 Feb 2004, Brad Cramer wrote:
 
- > I've no hardware to test this, but does this do the right thing for you ?
- > Dave
+> OK, it took me some time, but here is what I did.
+> I installed a debian kernel image (kernel_image-2.4.24-1-k7) to tell if
+this
+> was just a problem with the driver or because of the upgrade to kernel
+2.6.x
+> I the sym53c8xx and sym53c8xx_2 drivers are modules and this is what I
+got.
+>
+> bigdaddy:~# modprobe sym53c8xx
+> PCI: Found IRQ 11 for device 00:0f.0
+> PCI: Sharing IRQ 11 with 00:0d.0
+> PCI: Sharing IRQ 11 with 00:0d.1
+[SNIPPED...everything was fine]
 
- > < patch converting host to hi->host >
+>
+> and everything works fine, then when I do :
+>
+
+Did you `rmmod` the previos driver???  If not, you have
+two drivers pounding on the same board, attempting to
+handle the same disk(s). All bets are off.
+
+> bigdaddy:~# modprobe sym53c8xx_2
+[SNIPPED...]
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
+
+
+

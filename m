@@ -1,46 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261653AbTCaO3v>; Mon, 31 Mar 2003 09:29:51 -0500
+	id <S261668AbTCaObe>; Mon, 31 Mar 2003 09:31:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261659AbTCaO3v>; Mon, 31 Mar 2003 09:29:51 -0500
-Received: from web20003.mail.yahoo.com ([216.136.225.48]:27967 "HELO
-	web20003.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S261653AbTCaO3u>; Mon, 31 Mar 2003 09:29:50 -0500
-Message-ID: <20030331144110.55232.qmail@web20003.mail.yahoo.com>
-Date: Mon, 31 Mar 2003 06:41:10 -0800 (PST)
-From: Kenny Simpson <theonetruekenny@yahoo.com>
-Subject: mmap-related questions
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	id <S261672AbTCaObe>; Mon, 31 Mar 2003 09:31:34 -0500
+Received: from d146.dhcp212-198-27.noos.fr ([212.198.27.146]:8599 "EHLO
+	deep-space-9.dsnet") by vger.kernel.org with ESMTP
+	id <S261668AbTCaObC>; Mon, 31 Mar 2003 09:31:02 -0500
+Date: Mon, 31 Mar 2003 16:42:15 +0200
+From: Stelian Pop <stelian@popies.net>
+To: "Daniel K." <dk@uw.no>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [patch] fix ec_read using wrong #define's in sonypi driver.
+Message-ID: <20030331164215.D11090@deep-space-9.dsnet>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>, "Daniel K." <dk@uw.no>,
+	linux-kernel@vger.kernel.org,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>
+References: <3E884305.9070701@uw.no>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3E884305.9070701@uw.no>; from dk@uw.no on Mon, Mar 31, 2003 at 01:30:45PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings!  I hate to ask this type of questions here,
-but having searched the list and googling, I have
-found no good answers, so here goes..
+On Mon, Mar 31, 2003 at 01:30:45PM +0000, Daniel K. wrote:
 
-If I use mmap to give me a sliding window view onto a
-file (mmap/munmap/mmap or mremap), how can I sync all
-unmapped memory associated with the file?
+> This patch will make the driver use the correct #define's when
+> querying battery charge.
+> 
+> This error sneaked into 2.4.20-pre1,
+> and have been present in 2.5 since 2.5.49.
 
-I read from Stevens that "the call to munmap does not
-cause the contents of the mapped region to be written
-to the disk file.", but I don't want to pay the
-penalty of doing many msync()'s each time I move my
-window.
-I tested that fsync() does not seem to sync pages that
-were mapped with mmap.  Is there some way to sync all
-data associated with the file?  Is there a way which
-is also portable to Solaris 2.6?
+Damn, a copy and paste error and nobody noticed until now.
 
-Thanks,
--Kenny
+Thanks Daniel!
 
-BTW: I'm using 2.4.7 (RH enterprise)
+Linus, Marcelo, please apply it.
+
+Stelian.
+
+--- linux-2.4.21-pre6.vanilla/drivers/char/sonypi.c	2003-03-29 17:27:22.000000000 +0000
++++ linux-2.4.21-pre6/drivers/char/sonypi.c	2003-03-30 11:44:42.000000000 +0000
+@@ -531,7 +531,7 @@
+  			ret = -EFAULT;
+  		break;
+  	case SONYPI_IOCGBAT1REM:
+-		if (ec_read16(SONYPI_BAT1_FULL, &val16)) {
++		if (ec_read16(SONYPI_BAT1_LEFT, &val16)) {
+  			ret = -EIO;
+  			break;
+  		}
+@@ -539,7 +539,7 @@
+  			ret = -EFAULT;
+  		break;
+  	case SONYPI_IOCGBAT2CAP:
+-		if (ec_read16(SONYPI_BAT1_FULL, &val16)) {
++		if (ec_read16(SONYPI_BAT2_FULL, &val16)) {
+  			ret = -EIO;
+  			break;
+  		}
+@@ -547,7 +547,7 @@
+  			ret = -EFAULT;
+  		break;
+  	case SONYPI_IOCGBAT2REM:
+-		if (ec_read16(SONYPI_BAT1_FULL, &val16)) {
++		if (ec_read16(SONYPI_BAT2_LEFT, &val16)) {
+  			ret = -EIO;
+  			break;
+  		}
 
 
-__________________________________________________
-Do you Yahoo!?
-Yahoo! Platinum - Watch CBS' NCAA March Madness, live on your desktop!
-http://platinum.yahoo.com
+-- 
+Stelian Pop <stelian@popies.net>

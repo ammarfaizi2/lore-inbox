@@ -1,32 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267352AbSLEQ6i>; Thu, 5 Dec 2002 11:58:38 -0500
+	id <S267353AbSLEQ4j>; Thu, 5 Dec 2002 11:56:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267359AbSLEQ6i>; Thu, 5 Dec 2002 11:58:38 -0500
-Received: from pc1-cwma1-5-cust42.swan.cable.ntl.com ([80.5.120.42]:18601 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267352AbSLEQ5S>; Thu, 5 Dec 2002 11:57:18 -0500
-Subject: Re: stock 2.4.20: loading amd76x_pm makes time jiggle on A7M266-D
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Kay Diederichs <kay.diederichs@uni-konstanz.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3DEF26D3.7A4236D7@uni-konstanz.de>
-References: <3DEDF543.51C80677@uni-konstanz.de>
-	<1039009531.15353.13.camel@irongate.swansea.linux.org.uk> 
-	<3DEF26D3.7A4236D7@uni-konstanz.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 05 Dec 2002 17:39:30 +0000
-Message-Id: <1039109970.19681.14.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S267352AbSLEQ4i>; Thu, 5 Dec 2002 11:56:38 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:59400 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S267353AbSLEQ4C>; Thu, 5 Dec 2002 11:56:02 -0500
+Date: Thu, 5 Dec 2002 12:01:23 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Erich Focht <efocht@ess.nec.de>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Michael Hohnbaum <hohnbaum@us.ibm.com>,
+       LSE <lse-tech@lists.sourceforge.net>
+Subject: Re: per cpu time statistics
+In-Reply-To: <20021205111443.GA18600@holomorphy.com>
+Message-ID: <Pine.LNX.3.96.1021205120007.18090B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-12-05 at 10:13, Kay Diederichs wrote:
-> installed the latest glibc-2.2.4-31 from redhat/7.2/updates but still
-> init fails. Are there RH7.2 compatible versions of glibc which are
-> TSC-checking?
+On Thu, 5 Dec 2002, William Lee Irwin III wrote:
 
-The -i386 one rather than the -i686 one
+> And so I feel we are all in harmony; the scheduler statistics are in
+> fact valuable on all platforms, it's just an question of basic "should
+> this overhead be required or optional?"
+
+Unless there's a downside, optional. While I might want to instrument a
+kernel to follow a problem, I see no gain for most people, regardless of
+number of processors.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

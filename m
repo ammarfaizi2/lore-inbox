@@ -1,82 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261509AbUJZWiw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261515AbUJZW7I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261509AbUJZWiw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 18:38:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261514AbUJZWiw
+	id S261515AbUJZW7I (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 18:59:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261527AbUJZW7I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 18:38:52 -0400
-Received: from ping.ovh.net ([213.186.33.13]:50129 "EHLO ping.ovh.net")
-	by vger.kernel.org with ESMTP id S261509AbUJZWit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 18:38:49 -0400
-Date: Wed, 27 Oct 2004 00:38:47 +0200
-From: Miro <totoro@ovh.net>
-To: linux-kernel@vger.kernel.org
-Subject: Problem in 2.4.28-rc1 with e1000 and io-apic
-Message-ID: <20041026223847.GB7198@ping.ovh.net>
+	Tue, 26 Oct 2004 18:59:08 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:40837 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261515AbUJZW7E
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 18:59:04 -0400
+Subject: Re: [Ext2-devel] Re: [PATCH 2/3] ext3 reservation allow turn off
+	for specifed file
+From: Mingming Cao <cmm@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: ray-lk@madrabbit.org, sct@redhat.com, pbadari@us.ibm.com,
+       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+In-Reply-To: <20041026131842.45b99834.akpm@osdl.org>
+References: <1097846833.1968.88.camel@sisko.scot.redhat.com>
+	<1097856114.4591.28.camel@localhost.localdomain>
+	<1097858401.1968.148.camel@sisko.scot.redhat.com>
+	<1097872144.4591.54.camel@localhost.localdomain>
+	<1097878826.1968.162.camel@sisko.scot.redhat.com> <109787 
+	<1098147705.8803.1084.camel@w-ming2.beaverton.ibm.com>
+	<1098294941.18850.4.camel@orca.madrabbit.org>
+	<1098736389.9692.7243.camel@w-ming2.beaverton.ibm.com>
+	<1098745548.9754.7427.camel@w-ming2.beaverton.ibm.com>
+	<20041025164516.1f02bb9f.akpm@osdl.org>
+	<1098809607.8919.7466.camel@w-ming2.beaverton.ibm.com> 
+	<20041026131842.45b99834.akpm@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 26 Oct 2004 16:01:25 -0700
+Message-Id: <1098831688.9920.7632.camel@w-ming2.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, 2004-10-26 at 13:18, Andrew Morton wrote:
+> Mingming Cao <cmm@us.ibm.com> wrote:
+> >
+> > > I wonder how important this optimisation really is?  I bet no applications
+> >  > are using posix_fadvise(POSIX_FADV_RANDOM) anyway.
+> >  > 
+> >  I don't know if there is application using the POSIX_FADV_RANDOM. No? If
+> >  this is the truth, I think we don't need this optimization at present.
+> >  Logically reservation does not benefit seeky random write, but there is
+> >  no benchmark showing performance issue so far. We have already provided
+> >  ways for applications turn off reservation through the existing ioctl
+> >  for specified file and -o noreservation mount option for the whole
+> >  filesystem.
+> 
+> Well we definitely don't want to be encouraging application developers to be
+> adding ext3-specific ioctls.  So we need to work out if any applications
+> can get significant benefit from manually disabling reservations and if
+> so, wire up fadvise() into filesystems and do it that way.
+> 
+Okey. Also, if there is such a need to disable reservation, maybe we
+could think about closing the reservation window dynamically based on
+past I/O pattern, when user application did not give any hint.
 
-I've got problems with a bi-xeon based on Intel E7320 chipset
-with 2.4.28-rc1. When I boot the smp kernel, IO-APIC works fine
-for all devices except for both e1000 lan.
+> Do you know if disabling reservations helps any workloads?
+> 
+Not that I aware of.  We have done several microbenchmark on sequential
+and random workload, haven't seen regression with reservations so far.
+But our testing is certainly not comprehensive.
 
-e1000 driver reports on dmesg "watchdog tx errors".
+Mingming
 
-I suppose it is an io-apic problem:
-# cat /proc/interrupts
-         CPU0       CPU1       CPU2       CPU3
-0:   38000646          0          0          0    IO-APIC-edge  timer
-1:          2          0          0          0    IO-APIC-edge  keyboard
-2:          0          0          0          0          XT-PIC  cascade
-4:         16          0          0          0    IO-APIC-edge  serial
-8:          1          0          0          0    IO-APIC-edge  rtc
-71:         0          0          0          0            none  eth1
-72:         0          0          0          0            none  eth0
-[...]						        ^^^^^^
-
-The system can't handle the lan interrupts. It should be the problem.
-
-Enable or disable NAPI option for e1000 doesn't resolve the problem.
-
-But, when I boot the kernel with "noapic" option, both lans work fine:
-# cat /proc/interrupts
-            CPU0       CPU1       CPU2       CPU3
-   0:    1090980          0          0          0          XT-PIC  timer
-   1:        235          0          0          0          XT-PIC  keyboard
-   2:          0          0          0          0          XT-PIC  cascade
-   4:         16          0          0          0          XT-PIC  serial
-   8:          1          0          0          0          XT-PIC  rtc
-   9:      15629          0          0          0          XT-PIC  eth0, eth1
-[...]
-
-Maybe, there are devices that are not supported on this kernel and that
-create this problem:
-# lspci
-00:00.0 Host bridge: Intel Corp. E7320 Memory Controller Hub (rev 0a)
-00:02.0 PCI bridge: Intel Corp. E7525/E7520/E7320 PCI Express Port A (rev 0a)
-00:03.0 PCI bridge: Intel Corp. E7525/E7520/E7320 PCI Express Port A1 (rev 0a)
-00:1c.0 PCI bridge: Intel Corp. 6300ESB 64-bit PCI-X Bridge (rev 02)
-00:1e.0 PCI bridge: Intel Corp. 82801 PCI Bridge (rev 0a)
-00:1f.0 ISA bridge: Intel Corp. 6300ESB LPC Interface Controller (rev 02)
-00:1f.1 IDE interface: Intel Corp. 6300ESB PATA Storage Controller (rev 02)
-00:1f.3 SMBus: Intel Corp. 6300ESB SMBus Controller (rev 02)
-01:00.0 PCI bridge: Intel Corp. 6700PXH PCI Express-to-PCI Bridge A (rev 09)
-01:00.2 PCI bridge: Intel Corp. 6700PXH PCI Express-to-PCI Bridge B (rev 09)
-03:05.0 SCSI storage controller: LSI Logic / Symbios Logic 53c1030 PCI-X Fusion-MPT Dual Ultra320 SCSI (rev c1)
-05:01.0 Ethernet controller: Intel Corp. 82541GI/PI Gigabit Ethernet Controller
-05:02.0 Ethernet controller: Intel Corp. 82541GI/PI Gigabit Ethernet Controller
-06:02.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
-
-
-Is there a way to force type of interrupts for both e1000 lan on "IO-APIC-level"?
-or maybe to find the bug?
-
-Thanks in advance.
-Miro

@@ -1,68 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262287AbVCWN3s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261462AbVCWNbw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262287AbVCWN3s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 08:29:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbVCWN3n
+	id S261462AbVCWNbw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 08:31:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261594AbVCWNbv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 08:29:43 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:9829 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261443AbVCWN3j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 08:29:39 -0500
-Date: Wed, 23 Mar 2005 13:28:34 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       nickpiggin@yahoo.com.au, davem@davemloft.net, tony.luck@intel.com,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/5] freepgt: free_pgtables use vma list
-In-Reply-To: <1111534250.16224.22.camel@gaston>
-Message-ID: <Pine.LNX.4.61.0503231248510.13752@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0503212048040.1970@goblin.wat.veritas.com> 
-    <20050322034053.311b10e6.akpm@osdl.org> 
-    <Pine.LNX.4.61.0503221617440.8666@goblin.wat.veritas.com> 
-    <1111534250.16224.22.camel@gaston>
+	Wed, 23 Mar 2005 08:31:51 -0500
+Received: from alog0307.analogic.com ([208.224.222.83]:52173 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261466AbVCWNbd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 08:31:33 -0500
+Date: Wed, 23 Mar 2005 08:28:59 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: linux lover <linux_lover2004@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Accessing data structure from kernel space
+In-Reply-To: <20050323132036.99757.qmail@web52202.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.61.0503230823420.14182@chaos.analogic.com>
+References: <20050323132036.99757.qmail@web52202.mail.yahoo.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Mar 2005, Benjamin Herrenschmidt wrote:
-> On Tue, 2005-03-22 at 16:37 +0000, Hugh Dickins wrote:
-> > 
-> > I cannot see those arches doing pte_allocs outside their vmas,
-> > that of course could cause it.  And nr_ptes is initialized to 0
-> > once by memset and again by assignment, so it should be starting
-> > out even zeroer than most fields.
-> 
-> We do funny things in arch/ppc64/mm/init.c in the ioremap_mm, where we
-> don't use VMAs but our own mecanism (yah, ugly, but that's some legacy
-> we have from the original port, though I do intend to change that at one
-> point).
+On Wed, 23 Mar 2005, linux lover wrote:
 
-Thanks for the warning, Ben, but I don't see a problem there: that's
-in your separate ioremap_mm, which is rather like init_mm, and won't
-ever go through exit_mmap, and doesn't need its page tables freed -
-isn't that right?
+> Hello all,
+>        I have one linked list data structure added to
+> a file in kernel source code which has some kernel
+> info. I want to acess that linked list structure from
+> user space. Is that possible??
+>        Also how to add own system call usable at user
+> level from kernel module??
+> regards,
+> linux_lover.
+>
 
-But it was worth auditing the different architectures for this: there
-seems to be just one problem, where the x86_64 32-bit vsyscall page
-is mapped into userspace by __map_syscall32 without linking a real
-vma into mm.  Which Andi has already marked with his "RED-PEN".
+Many people will tell you to use the /proc file-system.
+I suggest you make a simple "character" driver and access
+your kernel structure using ioctl() or mmap().
 
-That's not something I can fix up in a hurry.  Yes, as the comment
-suggests we should probably allocate a real vma for it, but that might
-have a few consequences (if only /proc/<pid>/maps showing two vdsos?).
-I'll have to let someone else deal with that.
+You don't add your own system call __ever__, even if you
+are a long-time kernel developer. The current API already
+has lots of standard interface capabilities. Thinking, even
+for an instant, that you need more means that you don't
+understand Unix/Linux.
 
-For the moment, I think the behaviour of x86_64 32bit-support with
-the freepgt patches will depend on personality - ADDR_LIMIT_32BIT
-should usually work fine (unless the app moves its stack elsewhere
-and munmaps the old one: that might well unmap its vdso too); but
-ADDR_LIMIT_3GB will be liable to leak tables (if get_user_pages or
-its /proc/<pid>/maps has been examined).  I don't know how common
-ADDR_LIMIT_3GB use is, but whatever: okay for testing, but not for
-including the patches in a release.
-
-Hugh
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

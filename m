@@ -1,85 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262706AbUCKFxX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 00:53:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262753AbUCKFxX
+	id S262692AbUCKFv1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 00:51:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262706AbUCKFv1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 00:53:23 -0500
-Received: from h-67-100-3-250.SFLDMIDN.covad.net ([67.100.3.250]:1737 "EHLO
-	morpheous.rootservices.net") by vger.kernel.org with ESMTP
-	id S262706AbUCKFxS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 00:53:18 -0500
-Message-ID: <64529.24.50.227.119.1078984401.squirrel@24.50.227.119>
-In-Reply-To: <404FF12D.4090507@iitbombay.org>
-References: <64805.24.50.227.119.1078963073.squirrel@24.50.227.119>
-    <404FF12D.4090507@iitbombay.org>
-Date: Thu, 11 Mar 2004 00:53:21 -0500 (EST)
-Subject: Re: nforce 2 chipset
-From: "Jeremy D. May" <jeremy@rootservices.net>
-To: "Niraj Kumar" <niraj17@iitbombay.org>
-Cc: linux-kernel@vger.kernel.org
-Reply-To: jeremy@rootservices.net
-User-Agent: SquirrelMail/1.5.1 [CVS]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Thu, 11 Mar 2004 00:51:27 -0500
+Received: from pfepb.post.tele.dk ([195.41.46.236]:46485 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S262692AbUCKFv0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 00:51:26 -0500
+Date: Thu, 11 Mar 2004 06:53:10 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Daniel Mack <daniel@zonque.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.6.4-rc2: scripts/modpost.c
+Message-ID: <20040311055310.GA2102@mars.ravnborg.org>
+Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
+	Daniel Mack <daniel@zonque.org>, lkml <linux-kernel@vger.kernel.org>
+References: <20040304113749.GD5569@zonque.dyndns.org> <1078965617.23891.103.camel@bach>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1078965617.23891.103.camel@bach>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thnx Man That should help alot!
+On Thu, Mar 11, 2004 at 11:40:18AM +1100, Rusty Russell wrote:
+> On Thu, 2004-03-04 at 22:37, Daniel Mack wrote:
+> 
+> > --- linux-2.6.4-rc2.orig/scripts/modpost.c      2004-03-04 11:40:21.000000000 +0100
+> > +++ linux-2.6.4-rc2/scripts/modpost.c   2004-03-04 11:23:08.000000000 +0100
+> > @@ -63,16 +63,16 @@
+> >  new_module(char *modname)
+> >  {
+> >         struct module *mod;
+> > -       char *p;
+> > +       int len;
+> >  
+> >         mod = NOFAIL(malloc(sizeof(*mod)));
+> >         memset(mod, 0, sizeof(*mod));
+> >         mod->name = NOFAIL(strdup(modname));
+> >  
+> >         /* strip trailing .o */
+> > -       p = strstr(mod->name, ".o");
+> > -       if (p)
+> > -               *p = 0;
+> > +       len = strlen(mod->name);
+> > +       if (len > 2 && mod->name[len-2] == '.' && mod->name[len-1] == 'o')
+> > +               mod->name[len-2] = 0;
+> >  
+> >         /* add to list */
+> >         mod->next = modules;
+> 
+> Please use strrchr(mod->name, '.').  More readable, simpler, and ever
+> arguably more correct.
+OK.
+I have some pending modpost changes (to fix MODULE_VERSION with O=),
+so I will include the fix there.
 
-
---jeremy
-
-> Look at :
->
-> http://atlas.et.tudelft.nl/verwei90/nforce2/index.html
->
-> Niraj
->
-> Jeremy D. May wrote:
->
->>Not sure if this is the right place to go for this, but maybe someone
->>could point me in the right direction.
->>
->>system:
->>
->>2500+ Athlon XP (barton)
->>NFource 2 Ultra 400 + MCP chipset (is a Shuttle AN35-Ultra400(latest bios
->>flash))
->>1.5 gigs PC2700
->>40 Gig Maxtor HD
->>80 Gig Seagate HD
->>CDRW
->>DVD
->>GF FX 5600XT
->>SB Live 5.1Digital
->>
->>
->>i installed debian and a fresh compile of 2.4.25, installed the backports
->>collection for XF86/gnome2 and all my software i like. it goes fine for a
->>bit. but then while playing any sound (mainly streaming mp3's and my own
->>mp3's(in xmms)) the machine would lockup and i would have to reboot. i
->>never had this problem in windows with the box so i was wondering if
->>anyone had any incite into this.
->>
->>--jeremy
->>-
->>To unsubscribe from this list: send the line "unsubscribe linux-kernel"
->> in
->>the body of a message to majordomo@vger.kernel.org
->>More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>Please read the FAQ at  http://www.tux.org/lkml/
->>
->>
->>
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+	Sam

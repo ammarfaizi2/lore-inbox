@@ -1,69 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277411AbRJJU2s>; Wed, 10 Oct 2001 16:28:48 -0400
+	id <S272280AbRJJUcI>; Wed, 10 Oct 2001 16:32:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277410AbRJJU2d>; Wed, 10 Oct 2001 16:28:33 -0400
-Received: from 157-151.nwinfo.net ([216.187.157.151]:25739 "EHLO
-	mail.morcant.org") by vger.kernel.org with ESMTP id <S277414AbRJJU2Q>;
-	Wed, 10 Oct 2001 16:28:16 -0400
-Message-ID: <34710.24.255.76.12.1002745701.squirrel@webmail.morcant.org>
-Date: Wed, 10 Oct 2001 13:28:21 -0700 (PDT)
-Subject: Re: Tainted Modules Help Notices
-From: "Morgan Collins [Ax0n]" <sirmorcant@morcant.org>
-To: tkhoadfdsaf@hotmail.com
-In-Reply-To: <OE64YU5ts1Tjkw1BzCf0000708c@hotmail.com>
-In-Reply-To: <OE64YU5ts1Tjkw1BzCf0000708c@hotmail.com>
-Cc: dwmw2@infradead.org, alan@lxorguk.ukuu.org.uk, viro@math.psu.edu,
-        kaos@ocs.com.au, sirmorcant@morcant.org, linux-kernel@vger.kernel.org
-X-Mailer: SquirrelMail (version 1.0.6)
+	id <S274862AbRJJUb6>; Wed, 10 Oct 2001 16:31:58 -0400
+Received: from [216.151.155.121] ([216.151.155.121]:10513 "EHLO
+	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
+	id <S274667AbRJJUbs>; Wed, 10 Oct 2001 16:31:48 -0400
+To: Stephen Torri <storri@ameritech.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Memory free report error (kernel-2.4.10-ac10)
+In-Reply-To: <Pine.LNX.4.33.0110101605120.733-100000@base.torri.linux>
+From: Doug McNaught <doug@wireboard.com>
+Date: 10 Oct 2001 16:32:18 -0400
+In-Reply-To: Stephen Torri's message of "Wed, 10 Oct 2001 16:10:58 -0400 (EDT)"
+Message-ID: <m34rp75j8t.fsf@belphigor.mcnaught.org>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->     I was under the same impression about the module licensing tagging.  I
-> had read that it was suppose to be for maintainability (.i.e. source available so
-> kernel gods can debug) and not to enforce ideological conformity.  Now I read that
-> anything not licensed under the GPL, including BSD or simply public domain source
-> code, will taint my kernel and modprobe complains about non-GPL stuff including
-> parport_pc which apparently did not have a license.  Should I expect a Linux kernel
-> KGB to show up next?
+Stephen Torri <storri@ameritech.net> writes:
+
+> I have installed and used kernel-2.4.10-ac10 on a SMP system (Dual P3)
+> using 768 MB Ram. Yet on startup of the system (RedHat 7.0), the system
+> resources are almost all used. Here are the files started:
 > 
-I think what has happened here is a little bit of a misunderstanding.
+> Here is the report of the memory (free -m):
+>              total       used       free     shared    buffers     cached
+> Mem:           751        662         89          0        564         18
+> -/+ buffers/cache:         78        672
+> Swap:          133          0        133
 
-I think that the modprobe source and the kernel source just aren't in sync with the
-development of the new (re DEVELOPMENTAL) MOD_LICENSE() implementation.
+Unless I'm missing something, this is completely normal.  You're using 
+78M of memory once buffers are factored out.  Seems reasonable for a
+just-started system.
 
-Weither or not the BSD-NAC is GPL compatible has already been determined, as it's in the
-kernel and the lead developers have said so. I trust them, they'll get sued if they don't
-look at things like that. Modprobe told me a BSD module was tainted, I assumed that ment
-it was incompatible with the kernel which is GPLed. I shouldn't trust everything I read :>
+For comparison, here's a moderately loaded machine running 2.2.19:
 
-The problem lies in modprobe not having it in it's list of licenses to not mark as tainted.
+[doug@scooby doug]$ free -m
+             total       used       free     shared    buffers     cached
+Mem:           505        480         24        137         42        278
+-/+ buffers/cache:        159        345
+Swap:          101          0        101
 
-When I modprobe ppp_deflate, it does not fail to load, it simply warned me that my kernel
-would be tainted. What does having a tainted kernel mean? It is to tell kernel 
-debuggers if this is a clean kernel or if anything unusual has occurred.
+Are you actually seeing performance problems or are you just worried
+about the 'free' output?
 
->     Furthermore I have to agree with the previous poster.  Any module could
-> easily lie to MODULE_LICENSE about its licensing terms and that would not make it's
-> source automatically "free" and GPLable so I am now wondering if this tainting
-> mechanism is of any use at all.
-> 
-If the purpose was to discriminate against licensing, I would agree. But since
-non-compatible source is not distributed with the kernel, and the mechanism is for
-debugging, what is the purpose of lying to the kernel? To confuse debuggers? No point in that.
-
->     Just out of curiosity do all of these license tags in the modules take
-> up any permanent kernel memory, especially in a heavily modularize system?
-> 
-A grep of /proc/kcore only showed the MODULE_LICESE in this email, and the scrollback
-buffer in my xterm, so I don't think so.
-
+-Doug
 -- 
-Morgan Collins [Ax0n] http://sirmorcant.morcant.org
-Software is something like a machine, and something like mathematics, and something like
-language, and something like thought, and art, and information.... but software is not in
-fact any of those other things.
-
+Let us cross over the river, and rest under the shade of the trees.
+   --T. J. Jackson, 1863

@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130782AbRBAQNs>; Thu, 1 Feb 2001 11:13:48 -0500
+	id <S129659AbRBAQP2>; Thu, 1 Feb 2001 11:15:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130457AbRBAQNj>; Thu, 1 Feb 2001 11:13:39 -0500
-Received: from dryline-fw.wireless-sys.com ([216.126.67.45]:35096 "EHLO
-	dryline-fw.wireless-sys.com") by vger.kernel.org with ESMTP
-	id <S130735AbRBAQNV>; Thu, 1 Feb 2001 11:13:21 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14969.35608.472226.83936@somanetworks.com>
-Date: Thu, 1 Feb 2001 11:13:12 -0500 (EST)
-From: "Georg Nikodym" <georgn@somanetworks.com>
-To: John Jasen <jjasen@datafoundation.com>
-Cc: William Knop <w_knop@hotmail.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Modules and DevFS
-In-Reply-To: <Pine.LNX.4.30.0102011021520.31149-100000@flash.datafoundation.com>
-In-Reply-To: <F204tAEHLB8TrBHxvZ900001de6@hotmail.com>
-	<Pine.LNX.4.30.0102011021520.31149-100000@flash.datafoundation.com>
-X-Mailer: VM 6.75 under 21.2  (beta40) "Persephone" XEmacs Lucid
-Reply-To: georgn@somanetworks.com
+	id <S130851AbRBAQPS>; Thu, 1 Feb 2001 11:15:18 -0500
+Received: from h57s242a129n47.user.nortelnetworks.com ([47.129.242.57]:12721
+	"EHLO zcars04f.ca.nortel.com") by vger.kernel.org with ESMTP
+	id <S129659AbRBAQPF>; Thu, 1 Feb 2001 11:15:05 -0500
+Message-ID: <28560036253BD41191A10000F8BCBD116BDCEE@zcard00g.ca.nortel.com>
+From: "Jonathan Earle" <jearle@nortelnetworks.com>
+To: "'David S. Miller'" <davem@redhat.com>,
+        "'Linux Kernel List'" <linux-kernel@vger.kernel.org>
+Subject: RE: [UPDATE] Fresh zerocopy patch on kernel.org
+Date: Thu, 1 Feb 2001 11:06:30 -0500
+X-Mailer: Internet Mail Service (5.5.2652.35)
+X-Orig: <jearle@americasm01.nt.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "JJ" == John Jasen <jjasen@datafoundation.com> writes:
 
- JJ> On Thu, 1 Feb 2001, William Knop wrote:
- >> >One thing that I've noticed with devfs is that all the old-style
- >> >names are symlinks.
- >>
- >> Hmm... I have no symlinks until the module loads. Therefore X sees
- >> no /dev/input/mouse, doesn't ask the kernel for it, the kernel
- >> doesn't load the module, and DevFS doesn't add the /dev
- >> entry. There's got to be an easy way around this. Perhaps it has
- >> already been implimented, but I haven't been able to get anything
- >> to work well (manual loading for me).
+> Malcolm Beattie writes:
+>  > Alexey has mailed me suggesting the problem may be that netfilter
+>  > is turned on.
+> 
+> Oh yes, netfilter being enabled will cause some performance
+> degradation, that is for sure.
 
- JJ> change your XF86Config file to point to /dev/psaux
+Do you think that netfilter being enabled would also cause a decrease in
+routing throughput (ie: causing packet loss)?
 
-Or /dev/input/mice if you use a USB thang.
+Cheers!
+Jon
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

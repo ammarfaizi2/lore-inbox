@@ -1,65 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265069AbUAJL2D (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 06:28:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265080AbUAJL2D
+	id S265105AbUAJLkJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 06:40:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265151AbUAJLkJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 06:28:03 -0500
-Received: from ms-smtp-02-smtplb.ohiordc.rr.com ([65.24.5.136]:25047 "EHLO
-	ms-smtp-02-eri0.ohiordc.rr.com") by vger.kernel.org with ESMTP
-	id S265069AbUAJL1x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 06:27:53 -0500
-From: Rob <rpc@cafe4111.org>
-Reply-To: rpc@cafe4111.org
-Organization: Cafe 41:11
-To: ivern@acm.org
-Subject: Re: Make the init-process look like the StarWars Credits
-Date: Sat, 10 Jan 2004 06:26:17 -0500
-User-Agent: KMail/1.5.4
-References: <3FFEDD1D.7000003@ippensen.de> <200401092107.13588.rpc@cafe4111.org> <3FFFDBDF.4090900@acm.org>
-In-Reply-To: <3FFFDBDF.4090900@acm.org>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 10 Jan 2004 06:40:09 -0500
+Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:2311 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S265105AbUAJLkE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 06:40:04 -0500
+Date: Sat, 10 Jan 2004 12:41:56 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Ivanovich <ivanovich@menta.net>
+Cc: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com,
+       "Nicolas Nilles" <nnilles@skycop.net>
+Subject: Re: Kernel 2.6.0 and i2c-viapro posible Bug
+Message-Id: <20040110124156.3b127c86.khali@linux-fr.org>
+In-Reply-To: <200401091955.55007.ivanovich@menta.net>
+References: <200401091955.55007.ivanovich@menta.net>
+Reply-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401100626.17775.rpc@cafe4111.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 10 January 2004 06:02 am, you wrote:
+> > I thinks that thgere is  probably a bug in I2c-viapro module,
+> > cuz when i load i2c-viapro after loading w82781d, my computer  just
+> > put very slow..., i try loading as modules in the kernel or built
+> > in, in both cases i have the same problem.
+> 
+> I have this very same board CUV4X_E and the same problem too (present
+> in 2.6.0 and before)
+> The workaround i found is to not initialize the chip "modprobe w83781d
+> init=0"
+> 
+> And answering some of your questions, yes, the slowdown is global, not
+> only disk and it doesn't gets better if you unload the modules.
+> 
+> It's fixed in 2.6.1? going to download+compile and see if it works. 
 
-> I think you're overcomplicating the issue.  You certainly don't need any
-> 3D code to get a star-wars like scroll going.  You can make a 2D
-> transform to make the fonts _look_ like they're scrolling out into
-> space.  As a matter of fact, wouldn't simply transforming the
-> rectangular viewport into a trapezoid do the trick?  You could then
-> frame this with a starry bitmap, or whatever.
->
-> This doesn't sound like it would require any massive hacking (although
-> I'll readily confess that I haven't looked into the code.)
+Could be fixed, because limits initialization has been removed from the
+w83781d driver. But since there is still some intialization stuff done,
+the problem may still be there. Please try and report. The "init=0"
+parameter is still there, so your workaround should still work.
 
-i know,  i'm a pessimist seeing things way too negatively. not trying to knock 
-a guy senseless for his 3d suggestion, i just got carried away. sorry...
+If the problem is still present, I'd like you to do more tests. Edit the
+driver (drivers/i2c/chips/w83781d.c), look for the "w83781d_init_client"
+function. You'll find three blocks that are under a "init" conditional.
+I'd like you to disable each of them individually ("if (0) {" should do
+the trick) and see each time if the slowdown still occurs, so as to give
+us a hint on which command causes the slowdown.
 
-of course you wouldn't _need_ actual 3D code, so you can leave mesa out. it's 
-just the issue of HW accel vs. software making things really hard to do 
-without engineering a new DRI-like fb, it seems. and that new fb has other 
-(ab)uses... one thing leads to another.
+Also, at the moment a slowdown occurs and if you have ACPI support
+enabled, could you please check the throttling level (and the frequency,
+if that applies to your CPU)? I suspect that the motherboard is
+hardwired so as to enable throttling on overheat detection. A faulty
+init of the w83781d could trigger such an alarm and enable throttling,
+resulting in the slowdown you notice. Well, that's just a wild guess,
+but still worth verifying IMHO.
 
-and what youre describing... that's quite like the hacked fb fullscreen splash 
-code i'm suggesting. but i'm not realizing that a little code can draw a lot 
-of things. thus it probably _could_ all fit in the kernel (except gfx) and 
-run instantly (but only unitl init is through booting to the default 
-runlevel, i hope?)
+Thanks.
 
 -- 
-Rob Couto
-rpc@cafe4111.org
-Rules for computing success:
-1) Attitude is no substitute for competence.
-2) Ease of use is no substitute for power.
-3) Safety matters; use a static-free hammer.
---
-
+Jean Delvare
+http://www.ensicaen.ismra.fr/~delvare/

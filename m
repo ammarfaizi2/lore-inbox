@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137108AbREKLPD>; Fri, 11 May 2001 07:15:03 -0400
+	id <S137106AbREKLNx>; Fri, 11 May 2001 07:13:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137109AbREKLOy>; Fri, 11 May 2001 07:14:54 -0400
-Received: from zikova.cvut.cz ([147.32.235.100]:40207 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S137107AbREKLOe>;
-	Fri, 11 May 2001 07:14:34 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Fri, 11 May 2001 13:12:53 MET-1
+	id <S137107AbREKLNo>; Fri, 11 May 2001 07:13:44 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:41879 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S137106AbREKLNh>;
+	Fri, 11 May 2001 07:13:37 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: 2.4.2 - Locked keyboard
-CC: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.40
-Message-ID: <2991890558C@vcnet.vc.cvut.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15099.51549.316701.83524@pizda.ninka.net>
+Date: Fri, 11 May 2001 04:13:33 -0700 (PDT)
+To: Andi Kleen <ak@suse.de>
+Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>, linux-kernel@vger.kernel.org
+Subject: Re: Source code compatibility in Stable series????
+In-Reply-To: <20010511120341.A5112@gruyere.muc.suse.de>
+In-Reply-To: <200105110947.LAA18167@cave.bitwizard.nl>
+	<15099.46931.914571.475632@pizda.ninka.net>
+	<20010511120341.A5112@gruyere.muc.suse.de>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11 May 01 at 18:59, Alan Cox wrote:
-> >     I changed the keyboard and looked at the keyboard plugs unsucessful=
-> > ly.
-> > 
-> >     Could this be related to a kernel bug or an userspace issue??? How =
-> > can I
-> > debug it?
-> 
-> I think its kernel related. There are a few other reports of 'my computer
-> is fine but they keyboard stopped working' with 2.4.x. Does the box have
-> a ps/2 mouse ?
 
-Just FYI - all my boxes with PS/2 connector without connected mouse (and 
-psaux compiled into kernel) stop responding to keyboard as soon as gpm 
-starts. If I kill gpm, keyboard starts working again. I never investigated 
-it, as I assumed that it is just admin mistake to run gpm without mouse. 
-It should not behave this way?
+Andi Kleen writes:
+ > I guess it would be possible to add a HAVE_ZEROCOPY to skbuff.h to make
+ > it a bit easier for single source drivers.
 
-                                        Best regards,
-                                            Petr Vandrovec
-                                            vandrove@vc.cvut.cz
-                                            
+Try MAX_SKB_FRAG, the drivers use that already.
+
+Later,
+David S. Miller
+davem@redhat.com

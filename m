@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319586AbSIMJq3>; Fri, 13 Sep 2002 05:46:29 -0400
+	id <S319591AbSIMJmW>; Fri, 13 Sep 2002 05:42:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319588AbSIMJq2>; Fri, 13 Sep 2002 05:46:28 -0400
-Received: from ipx.zarz.agh.edu.pl ([149.156.125.1]:57092 "EHLO
-	zarz.agh.edu.pl") by vger.kernel.org with ESMTP id <S319586AbSIMJq2>;
-	Fri, 13 Sep 2002 05:46:28 -0400
-Date: Fri, 13 Sep 2002 11:35:56 +0200 (CEST)
-From: "Wojciech \"Sas\" Cieciwa" <cieciwa@alpha.zarz.agh.edu.pl>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: 2.4.19, PPC and AGP
-In-Reply-To: <Pine.LNX.4.44.0209122313470.30211-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.44L.0209131115460.5612-100000@alpha.zarz.agh.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319592AbSIMJmW>; Fri, 13 Sep 2002 05:42:22 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:50579 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S319591AbSIMJmV>;
+	Fri, 13 Sep 2002 05:42:21 -0400
+Date: Fri, 13 Sep 2002 11:46:21 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Jan Kasprzak <kas@informatics.muni.cz>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>, vojtech@suse.cz,
+       kernel@street-vision.com, linux-kernel@vger.kernel.org
+Subject: Re: AMD 760MPX DMA lockup (partly solved)
+Message-ID: <20020913114621.A28946@ucw.cz>
+References: <20020912161258.A9056@fi.muni.cz> <200209121815.g8CIFdp06612@Port.imtp.ilyichevsk.odessa.ua> <20020912211452.C29717@fi.muni.cz> <1031863392.2902.113.camel@irongate.swansea.linux.org.uk> <20020913114149.I29717@fi.muni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020913114149.I29717@fi.muni.cz>; from kas@informatics.muni.cz on Fri, Sep 13, 2002 at 11:41:49AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Sep 13, 2002 at 11:41:49AM +0200, Jan Kasprzak wrote:
 
-I try to compile 2.4.19 [2.4.20-pre7 too] on PPC.
-But in file drivers/char/agp/agpgart_be.c in function flush_cache 
-line 68-86 isn't defined PowerPC.
+> Vojtech Pavlik wrote:
+> : 
+> : X33? X33 doesn't make sense.
+> : 
+> 	X34, sorry. DMA 33.
 
-Thanx.
-					Sas.
-Here is small patch to fix this:
-
---- linux-2.4.19/drivers/char/agp/agpgart_be.c.org	Fri Sep 13 10:26:51 2002
-+++ linux-2.4.19/drivers/char/agp/agpgart_be.c	Fri Sep 13 10:26:29 2002
-@@ -69,7 +69,7 @@
- {
- #if defined(__i386__) || defined(__x86_64__)
- 	asm volatile ("wbinvd":::"memory");
--#elif defined(__alpha__) || defined(__ia64__) || defined(__sparc__)
-+#elif defined(__alpha__) || defined(__ia64__) || defined(__sparc__) || defined(__powerpc__)
- 	/* ??? I wonder if we'll really need to flush caches, or if the
- 	   core logic can manage to keep the system coherent.  The ARM
- 	   speaks only of using `cflush' to get things in memory in
-
+Still not right. -X34 is MWDMA16, for UDMA33 you need -X66.
+I know it's confusing, but these are mode numbers from the ATA spec.
 
 -- 
-{Wojciech 'Sas' Cieciwa}  {Member of PLD Team                               }
-{e-mail: cieciwa@alpha.zarz.agh.edu.pl, http://www2.zarz.agh.edu.pl/~cieciwa}
-
-
+Vojtech Pavlik
+SuSE Labs

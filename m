@@ -1,177 +1,225 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278755AbRJZQ6r>; Fri, 26 Oct 2001 12:58:47 -0400
+	id <S278803AbRJZRxa>; Fri, 26 Oct 2001 13:53:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278758AbRJZQ6h>; Fri, 26 Oct 2001 12:58:37 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:4100 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S278755AbRJZQ6T>; Fri, 26 Oct 2001 12:58:19 -0400
-Date: Fri, 26 Oct 2001 09:57:02 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Zlatko Calusic <zlatko.calusic@iskon.hr>
-cc: Jens Axboe <axboe@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
-        <linux-mm@kvack.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: xmm2 - monitor Linux MM active/inactive lists graphically
-In-Reply-To: <dnpu7asb37.fsf@magla.zg.iskon.hr>
-Message-ID: <Pine.LNX.4.33.0110260949300.2939-200000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="168447515-392138068-1004115422=:2939"
+	id <S278785AbRJZRxM>; Fri, 26 Oct 2001 13:53:12 -0400
+Received: from gnu.in-berlin.de ([192.109.42.4]:7686 "EHLO gnu.in-berlin.de")
+	by vger.kernel.org with ESMTP id <S278803AbRJZRww>;
+	Fri, 26 Oct 2001 13:52:52 -0400
+X-Envelope-From: kraxel@bytesex.org
+Date: Fri, 26 Oct 2001 19:52:59 +0200
+From: Gerd Knorr <kraxel@bytesex.org>
+Message-Id: <200110261752.f9QHqxoM007951@bytesex.masq.in-berlin.de>
+To: volodya@mindspring.com, video4linux-list@redhat.com,
+        livid-gatos@linuxvideo.org, linux-kernel@vger.kernel.org
+Subject: Re: [V4L] Re: [RFC] alternative kernel multimedia API
+In-Reply-To: <Pine.LNX.4.20.0110261037080.11540-100000@node2.localnet.net>
+In-Reply-To: <slrn9tiq3v.69j.kraxel@bytesex.org> <Pine.LNX.4.20.0110261037080.11540-100000@node2.localnet.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+> > what exactly is bad with the v4l2 controls?
+>  
+>  a) no way to use them to set non-integer data (like gamma tables)
 
---168447515-392138068-1004115422=:2939
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Yes, they aren't designed for complex stuff.  They can do boolean,
+multiple choice and integer options.  These ones an application can
+easily present a reasonable GUI to the user without knowing what the
+control exactly is good for.  For more complex stuff like gamma tables
+(list of integers?) it is IMHO nearly impossible to build a reasonable
+GUI without knowing what these values are actually good for.  Or even
+know whenever it is useful to build a GUI for it or not.
 
+>  b) labels are limited to 32 chars, no way to provide "comment" fields.
+>    (I would like the driver to provide a short label and longer,
+>     user-readable and understable comment field).
 
-On 26 Oct 2001, Zlatko Calusic wrote:
->
-> When I find some time, I'll dig around that code. It is very
-> interesting part of the kernel, I'm sure, I just didn't have enough
-> time so far, to spend hacking on that part.
+IMHO this isn't the job of the device driver.  Think about translations
+of these descriptions for example ...
 
-Attached is a very untested patch (but hey, it compiles, so it must work,
-right?) against 2.4.14-pre2, that makes the batching be a high/low
-watermark thing instead. It actually simplified the code, but that is, of
-course, assuming that it works at all ;)
+>  c) no way to present control dependencies.
 
-(If I got the comparisons wrong, of if I update the counts wrong, your IO
-queue will probably stop cold. So be careful. The code is obvious
-enough, but typos and thinkos happen).
+I don't see how your approach handles this.
 
-		Linus
+>    For example in ATI cards there are several ways you can control gamma:
+>    gamma table, gamma overlay setting, gamma setting in the decoder chip.
+>    same goes for brightness. I would rather expose all the controls and
+>    show their relationship then bundle them up in one control
 
---168447515-392138068-1004115422=:2939
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=p2p3
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0110260957020.2939@penguin.transmeta.com>
-Content-Description: 
-Content-Disposition: attachment; filename=p2p3
+... and thus trying to make the driver tell the applications how the GUI
+should present the controls to the user?
 
-ZGlmZiAtdSAtLXJlY3Vyc2l2ZSBwcmUyL2xpbnV4L2RyaXZlcnMvYmxvY2sv
-bGxfcndfYmxrLmMgbGludXgvZHJpdmVycy9ibG9jay9sbF9yd19ibGsuYw0K
-LS0tIHByZTIvbGludXgvZHJpdmVycy9ibG9jay9sbF9yd19ibGsuYwlGcmkg
-T2N0IDI2IDA5OjQ4OjI1IDIwMDENCisrKyBsaW51eC9kcml2ZXJzL2Jsb2Nr
-L2xsX3J3X2Jsay5jCUZyaSBPY3QgMjYgMDk6NTM6NTQgMjAwMQ0KQEAgLTE0
-MCwyMSArMTQwLDIzIEBADQogCQlyZXR1cm4gJmJsa19kZXZbTUFKT1IoZGV2
-KV0ucmVxdWVzdF9xdWV1ZTsNCiB9DQogDQotc3RhdGljIGludCBfX2Jsa19j
-bGVhbnVwX3F1ZXVlKHN0cnVjdCBsaXN0X2hlYWQgKmhlYWQpDQorc3RhdGlj
-IGludCBfX2Jsa19jbGVhbnVwX3F1ZXVlKHN0cnVjdCByZXF1ZXN0X2xpc3Qg
-Kmxpc3QpDQogew0KKwlzdHJ1Y3QgbGlzdF9oZWFkICpoZWFkID0gJmxpc3Qt
-PmZyZWU7DQogCXN0cnVjdCByZXF1ZXN0ICpycTsNCiAJaW50IGkgPSAwOw0K
-IA0KLQlpZiAobGlzdF9lbXB0eShoZWFkKSkNCi0JCXJldHVybiAwOw0KLQ0K
-LQlkbyB7DQorCXdoaWxlICghbGlzdF9lbXB0eShoZWFkKSkgew0KIAkJcnEg
-PSBsaXN0X2VudHJ5KGhlYWQtPm5leHQsIHN0cnVjdCByZXF1ZXN0LCBxdWV1
-ZSk7DQogCQlsaXN0X2RlbCgmcnEtPnF1ZXVlKTsNCiAJCWttZW1fY2FjaGVf
-ZnJlZShyZXF1ZXN0X2NhY2hlcCwgcnEpOw0KIAkJaSsrOw0KLQl9IHdoaWxl
-ICghbGlzdF9lbXB0eShoZWFkKSk7DQorCX07DQogDQorCWlmIChpICE9IGxp
-c3QtPmNvdW50KQ0KKwkJcHJpbnRrKCJyZXF1ZXN0IGxpc3QgbGVhayFcbiIp
-Ow0KKw0KKwlsaXN0LT5jb3VudCA9IDA7DQogCXJldHVybiBpOw0KIH0NCiAN
-CkBAIC0xNzYsMTAgKzE3OCw4IEBADQogew0KIAlpbnQgY291bnQgPSBxdWV1
-ZV9ucl9yZXF1ZXN0czsNCiANCi0JY291bnQgLT0gX19ibGtfY2xlYW51cF9x
-dWV1ZSgmcS0+cmVxdWVzdF9mcmVlbGlzdFtSRUFEXSk7DQotCWNvdW50IC09
-IF9fYmxrX2NsZWFudXBfcXVldWUoJnEtPnJlcXVlc3RfZnJlZWxpc3RbV1JJ
-VEVdKTsNCi0JY291bnQgLT0gX19ibGtfY2xlYW51cF9xdWV1ZSgmcS0+cGVu
-ZGluZ19mcmVlbGlzdFtSRUFEXSk7DQotCWNvdW50IC09IF9fYmxrX2NsZWFu
-dXBfcXVldWUoJnEtPnBlbmRpbmdfZnJlZWxpc3RbV1JJVEVdKTsNCisJY291
-bnQgLT0gX19ibGtfY2xlYW51cF9xdWV1ZSgmcS0+cnFbUkVBRF0pOw0KKwlj
-b3VudCAtPSBfX2Jsa19jbGVhbnVwX3F1ZXVlKCZxLT5ycVtXUklURV0pOw0K
-IA0KIAlpZiAoY291bnQpDQogCQlwcmludGsoImJsa19jbGVhbnVwX3F1ZXVl
-OiBsZWFrZWQgcmVxdWVzdHMgKCVkKVxuIiwgY291bnQpOw0KQEAgLTMzMSwx
-MSArMzMxLDEwIEBADQogCXN0cnVjdCByZXF1ZXN0ICpycTsNCiAJaW50IGk7
-DQogDQotCUlOSVRfTElTVF9IRUFEKCZxLT5yZXF1ZXN0X2ZyZWVsaXN0W1JF
-QURdKTsNCi0JSU5JVF9MSVNUX0hFQUQoJnEtPnJlcXVlc3RfZnJlZWxpc3Rb
-V1JJVEVdKTsNCi0JSU5JVF9MSVNUX0hFQUQoJnEtPnBlbmRpbmdfZnJlZWxp
-c3RbUkVBRF0pOw0KLQlJTklUX0xJU1RfSEVBRCgmcS0+cGVuZGluZ19mcmVl
-bGlzdFtXUklURV0pOw0KLQlxLT5wZW5kaW5nX2ZyZWVbUkVBRF0gPSBxLT5w
-ZW5kaW5nX2ZyZWVbV1JJVEVdID0gMDsNCisJSU5JVF9MSVNUX0hFQUQoJnEt
-PnJxW1JFQURdLmZyZWUpOw0KKwlJTklUX0xJU1RfSEVBRCgmcS0+cnFbV1JJ
-VEVdLmZyZWUpOw0KKwlxLT5ycVtSRUFEXS5jb3VudCA9IDA7DQorCXEtPnJx
-W1dSSVRFXS5jb3VudCA9IDA7DQogDQogCS8qDQogCSAqIERpdmlkZSByZXF1
-ZXN0cyBpbiBoYWxmIGJldHdlZW4gcmVhZCBhbmQgd3JpdGUNCkBAIC0zNDks
-NyArMzQ4LDggQEANCiAJCX0NCiAJCW1lbXNldChycSwgMCwgc2l6ZW9mKHN0
-cnVjdCByZXF1ZXN0KSk7DQogCQlycS0+cnFfc3RhdHVzID0gUlFfSU5BQ1RJ
-VkU7DQotCQlsaXN0X2FkZCgmcnEtPnF1ZXVlLCAmcS0+cmVxdWVzdF9mcmVl
-bGlzdFtpICYgMV0pOw0KKwkJbGlzdF9hZGQoJnJxLT5xdWV1ZSwgJnEtPnJx
-W2kmMV0uZnJlZSk7DQorCQlxLT5ycVtpJjFdLmNvdW50Kys7DQogCX0NCiAN
-CiAJaW5pdF93YWl0cXVldWVfaGVhZCgmcS0+d2FpdF9mb3JfcmVxdWVzdCk7
-DQpAQCAtNDIzLDEwICs0MjMsMTIgQEANCiBzdGF0aWMgaW5saW5lIHN0cnVj
-dCByZXF1ZXN0ICpnZXRfcmVxdWVzdChyZXF1ZXN0X3F1ZXVlX3QgKnEsIGlu
-dCBydykNCiB7DQogCXN0cnVjdCByZXF1ZXN0ICpycSA9IE5VTEw7DQorCXN0
-cnVjdCByZXF1ZXN0X2xpc3QgKnJsID0gcS0+cnEgKyBydzsNCiANCi0JaWYg
-KCFsaXN0X2VtcHR5KCZxLT5yZXF1ZXN0X2ZyZWVsaXN0W3J3XSkpIHsNCi0J
-CXJxID0gYmxrZGV2X2ZyZWVfcnEoJnEtPnJlcXVlc3RfZnJlZWxpc3Rbcndd
-KTsNCisJaWYgKCFsaXN0X2VtcHR5KCZybC0+ZnJlZSkpIHsNCisJCXJxID0g
-YmxrZGV2X2ZyZWVfcnEoJnJsLT5mcmVlKTsNCiAJCWxpc3RfZGVsKCZycS0+
-cXVldWUpOw0KKwkJcmwtPmNvdW50LS07DQogCQlycS0+cnFfc3RhdHVzID0g
-UlFfQUNUSVZFOw0KIAkJcnEtPnNwZWNpYWwgPSBOVUxMOw0KIAkJcnEtPnEg
-PSBxOw0KQEAgLTQ0MywxNyArNDQ1LDEzIEBADQogCXJlZ2lzdGVyIHN0cnVj
-dCByZXF1ZXN0ICpycTsNCiAJREVDTEFSRV9XQUlUUVVFVUUod2FpdCwgY3Vy
-cmVudCk7DQogDQorCWdlbmVyaWNfdW5wbHVnX2RldmljZShxKTsNCiAJYWRk
-X3dhaXRfcXVldWVfZXhjbHVzaXZlKCZxLT53YWl0X2Zvcl9yZXF1ZXN0LCAm
-d2FpdCk7DQotCWZvciAoOzspIHsNCi0JCV9fc2V0X2N1cnJlbnRfc3RhdGUo
-VEFTS19VTklOVEVSUlVQVElCTEUpOw0KLQkJc3Bpbl9sb2NrX2lycSgmaW9f
-cmVxdWVzdF9sb2NrKTsNCi0JCXJxID0gZ2V0X3JlcXVlc3QocSwgcncpOw0K
-LQkJc3Bpbl91bmxvY2tfaXJxKCZpb19yZXF1ZXN0X2xvY2spOw0KLQkJaWYg
-KHJxKQ0KLQkJCWJyZWFrOw0KLQkJZ2VuZXJpY191bnBsdWdfZGV2aWNlKHEp
-Ow0KLQkJc2NoZWR1bGUoKTsNCi0JfQ0KKwlkbyB7DQorCQlzZXRfY3VycmVu
-dF9zdGF0ZShUQVNLX1VOSU5URVJSVVBUSUJMRSk7DQorCQlpZiAocS0+cnFb
-cnddLmNvdW50IDwgYmF0Y2hfcmVxdWVzdHMpDQorCQkJc2NoZWR1bGUoKTsN
-CisJfSB3aGlsZSAoKHJxID0gZ2V0X3JlcXVlc3QocSxydykpID09IE5VTEwp
-Ow0KIAlyZW1vdmVfd2FpdF9xdWV1ZSgmcS0+d2FpdF9mb3JfcmVxdWVzdCwg
-JndhaXQpOw0KIAljdXJyZW50LT5zdGF0ZSA9IFRBU0tfUlVOTklORzsNCiAJ
-cmV0dXJuIHJxOw0KQEAgLTU0MiwxNSArNTQwLDYgQEANCiAJbGlzdF9hZGQo
-JnJlcS0+cXVldWUsIGluc2VydF9oZXJlKTsNCiB9DQogDQotaW5saW5lIHZv
-aWQgYmxrX3JlZmlsbF9mcmVlbGlzdChyZXF1ZXN0X3F1ZXVlX3QgKnEsIGlu
-dCBydykNCi17DQotCWlmIChxLT5wZW5kaW5nX2ZyZWVbcnddKSB7DQotCQls
-aXN0X3NwbGljZSgmcS0+cGVuZGluZ19mcmVlbGlzdFtyd10sICZxLT5yZXF1
-ZXN0X2ZyZWVsaXN0W3J3XSk7DQotCQlJTklUX0xJU1RfSEVBRCgmcS0+cGVu
-ZGluZ19mcmVlbGlzdFtyd10pOw0KLQkJcS0+cGVuZGluZ19mcmVlW3J3XSA9
-IDA7DQotCX0NCi19DQotDQogLyoNCiAgKiBNdXN0IGJlIGNhbGxlZCB3aXRo
-IGlvX3JlcXVlc3RfbG9jayBoZWxkIGFuZCBpbnRlcnJ1cHRzIGRpc2FibGVk
-DQogICovDQpAQCAtNTY0LDI4ICs1NTMsMTIgQEANCiANCiAJLyoNCiAJICog
-UmVxdWVzdCBtYXkgbm90IGhhdmUgb3JpZ2luYXRlZCBmcm9tIGxsX3J3X2Js
-ay4gaWYgbm90LA0KLQkgKiBhc3VtbWUgaXQgaGFzIGZyZWUgYnVmZmVycyBh
-bmQgY2hlY2sgd2FpdGVycw0KKwkgKiBhc3N1bWUgaXQgaGFzIGZyZWUgYnVm
-ZmVycyBhbmQgY2hlY2sgd2FpdGVycw0KIAkgKi8NCiAJaWYgKHEpIHsNCi0J
-CS8qDQotCQkgKiBJZiBub2JvZHkgaXMgd2FpdGluZyBmb3IgcmVxdWVzdHMs
-IGRvbid0IGJvdGhlcg0KLQkJICogYmF0Y2hpbmcgdXAuDQotCQkgKi8NCi0J
-CWlmICghbGlzdF9lbXB0eSgmcS0+cmVxdWVzdF9mcmVlbGlzdFtyd10pKSB7
-DQotCQkJbGlzdF9hZGQoJnJlcS0+cXVldWUsICZxLT5yZXF1ZXN0X2ZyZWVs
-aXN0W3J3XSk7DQotCQkJcmV0dXJuOw0KLQkJfQ0KLQ0KLQkJLyoNCi0JCSAq
-IEFkZCB0byBwZW5kaW5nIGZyZWUgbGlzdCBhbmQgYmF0Y2ggd2FrZXVwcw0K
-LQkJICovDQotCQlsaXN0X2FkZCgmcmVxLT5xdWV1ZSwgJnEtPnBlbmRpbmdf
-ZnJlZWxpc3RbcnddKTsNCi0NCi0JCWlmICgrK3EtPnBlbmRpbmdfZnJlZVty
-d10gPj0gYmF0Y2hfcmVxdWVzdHMpIHsNCi0JCQlpbnQgd2FrZV91cCA9IHEt
-PnBlbmRpbmdfZnJlZVtyd107DQotCQkJYmxrX3JlZmlsbF9mcmVlbGlzdChx
-LCBydyk7DQotCQkJd2FrZV91cF9ucigmcS0+d2FpdF9mb3JfcmVxdWVzdCwg
-d2FrZV91cCk7DQotCQl9DQorCQlsaXN0X2FkZCgmcmVxLT5xdWV1ZSwgJnEt
-PnJxW3J3XS5mcmVlKTsNCisJCWlmICgrK3EtPnJxW3J3XS5jb3VudCA+PSBi
-YXRjaF9yZXF1ZXN0cyAmJiB3YWl0cXVldWVfYWN0aXZlKCZxLT53YWl0X2Zv
-cl9yZXF1ZXN0KSkNCisJCQl3YWtlX3VwKCZxLT53YWl0X2Zvcl9yZXF1ZXN0
-KTsNCiAJfQ0KIH0NCiANCkBAIC0xMTQ0LDcgKzExMTcsNyBAQA0KIAkvKg0K
-IAkgKiBCYXRjaCBmcmVlcyBhY2NvcmRpbmcgdG8gcXVldWUgbGVuZ3RoDQog
-CSAqLw0KLQliYXRjaF9yZXF1ZXN0cyA9IHF1ZXVlX25yX3JlcXVlc3RzLzM7
-DQorCWJhdGNoX3JlcXVlc3RzID0gcXVldWVfbnJfcmVxdWVzdHMvNDsNCiAJ
-cHJpbnRrKCJibG9jazogJWQgc2xvdHMgcGVyIHF1ZXVlLCBiYXRjaD0lZFxu
-IiwgcXVldWVfbnJfcmVxdWVzdHMsIGJhdGNoX3JlcXVlc3RzKTsNCiANCiAj
-aWZkZWYgQ09ORklHX0FNSUdBX1oyUkFNDQpkaWZmIC11IC0tcmVjdXJzaXZl
-IHByZTIvbGludXgvaW5jbHVkZS9saW51eC9ibGtkZXYuaCBsaW51eC9pbmNs
-dWRlL2xpbnV4L2Jsa2Rldi5oDQotLS0gcHJlMi9saW51eC9pbmNsdWRlL2xp
-bnV4L2Jsa2Rldi5oCVR1ZSBPY3QgMjMgMjI6MDE6MDEgMjAwMQ0KKysrIGxp
-bnV4L2luY2x1ZGUvbGludXgvYmxrZGV2LmgJRnJpIE9jdCAyNiAwOTozNjo0
-MSAyMDAxDQpAQCAtNjYsMTQgKzY2LDE3IEBADQogICovDQogI2RlZmluZSBR
-VUVVRV9OUl9SRVFVRVNUUwk4MTkyDQogDQorc3RydWN0IHJlcXVlc3RfbGlz
-dCB7DQorCXVuc2lnbmVkIGludCBjb3VudDsNCisJc3RydWN0IGxpc3RfaGVh
-ZCBmcmVlOw0KK307DQorDQogc3RydWN0IHJlcXVlc3RfcXVldWUNCiB7DQog
-CS8qDQogCSAqIHRoZSBxdWV1ZSByZXF1ZXN0IGZyZWVsaXN0LCBvbmUgZm9y
-IHJlYWRzIGFuZCBvbmUgZm9yIHdyaXRlcw0KIAkgKi8NCi0Jc3RydWN0IGxp
-c3RfaGVhZAlyZXF1ZXN0X2ZyZWVsaXN0WzJdOw0KLQlzdHJ1Y3QgbGlzdF9o
-ZWFkCXBlbmRpbmdfZnJlZWxpc3RbMl07DQotCWludAkJCXBlbmRpbmdfZnJl
-ZVsyXTsNCisJc3RydWN0IHJlcXVlc3RfbGlzdAlycVsyXTsNCiANCiAJLyoN
-CiAJICogVG9nZXRoZXIgd2l0aCBxdWV1ZV9oZWFkIGZvciBjYWNoZWxpbmUg
-c2hhcmluZw0K
---168447515-392138068-1004115422=:2939--
+> > Ok, you replace the '#define V4L2_CID_HUE 0x???' with the magic string
+> > "HUE" then.  The point is?
+>  
+>  ioctl are kernel specific. My scheme proposes a set of mmaped buffers and
+>  character stream. The plus is that I can make Xmultimedia extension that
+>  also presents a set of shared buffers and character stream. The
+>  application code will be exactly the same.
+
+That's your main point I assume?  You are trying to kill the ioctls
+because you want to use the same protocol between application + driver
+and application + other application (say a X-Server)?
+
+>  Additionally nonone will need to include kernel headers to compile the
+>  application.
+
+Why do you want to avoid this?
+
+>  Also magic string HUE is a bigger namespace then an
+>  integer number. 
+
+I doubt we will ever run out of space with 2^32 integer numbers.  I have
+yet to see a v4l2 driver which has more than 2^8 controls ...
+
+> > >         * be compatible with a wide range of applications
+> > 
+> > ???
+> > Sorry, but I don't see why your approach handles this better than v4l2.
+>  
+>  Since the application accesses the driver symbolically they only have to
+>  worry about agreeing on semantics. For example the driver can layout its
+>  control structs any way it likes (say, to mirror hardware registers) and 
+>  the application will bind to them. 
+
+I don't see any difference to v4l2 here ...
+
+>  Also, mmaped buffers + character device fits a larger category then just
+>  the devices mentioned in v4l2 specifications. Granted the specification
+>  can be extended, but the new driver will have to distribute not only its
+>  source but a patch to the kernel headers. The scheme will avoid this.
+
+And why this is better?  You likely still have to teach the applications
+about the new features of the driver if you actually want to use them
+(unless there are just a few new controls, but this case can easily
+handled with v4l2 too).
+
+> > >         * introduce support for new features without the need to modify
+> > >           kernel interfaces
+> > 
+> > Hmm.  I don't like the idea to add new stuff that easily.  People tend
+> > to do quick&dirty hacks + crazy stuff with it, leading to more
+> > incompatibilies between drivers and applications.
+>  
+>  And people will always be able to write a driver outside video4linux
+>  framework. In fact, plenty of drivers and applications are incompatible as
+>  is. The same is true about audio drivers. 
+
+Yes, these incompatibility issues are bad.  But I doubt the situation
+will become better if every driver can easily add new stuff.
+
+>  The compatibility is achived best by specifications that are clear and
+>  easy to implement. This proposal helps it by providing a well defined
+>  interface and by separating semantic meaning from actual interface. 
+
+The semantic needs to be documented too, otherwise it easily gets worse
+than v4l2.  One big plus for v4l2 is that it actually has very good API
+specs.
+
+>  First the internal kernel library will insure that the control interface
+>  is standard across drivers. Secondly, the drivers are free to use whatever
+>  fields they want - no restriction their.  Thirdly, the way the applications
+>  know they deal, say, with a grabber device is when the driver says it
+>  supports a certain INTERFACE_CLASS. Hence, to make sure the drivers
+>  behave, all we have to do is bar any driver which declares itself
+>  compliant with a certain INTERFACE_CLASS but isn't from entering the
+>  kernel.
+
+I don't see how this is different from the v4l2 ioctl interface.  We
+have capability flags, ...
+
+>  And the added advantage is that we can have many INTERFACE_CLASSes
+>  which vary in implementation difficulty, so that BASIC_GRABBER-YUV422
+>  would be very easy to implement (just expose the buffers) and something
+>  more advanced could be added later. This solves the conflict of people
+>  wanting to have _some_ driver and the time consumption of writing a driver
+>  that supports all features.
+
+I doubt this fixes the problem (driver devel time) you've mentioned.
+Most of the time of the driver development is needed for the code which
+talks to the hardware.  Building a simple v4l(2) ioctl interface which
+just says "I can nothing but capture, and the format list is YUV422" is
+easy compared to the other work which needs to be done for a working
+driver.  v4l(2) doesn't force you to wait with the release until you
+have a full-featured driver ...
+
+> > >  The last point is the very important in my opinion. For example, in
+> > >  current specification, v4l2 has no support for TV-out in graphics cards.
+> > >  It has no support for setting complex parameters like gamma tables. 
+> > >  Using memory-mapped buffers requires device specific ioctls.
+> > 
+> > Which device specific ioctls?  They are common for _all_ v4l2 devices.
+>  
+>  Quote from http://www.thedirks.org/v4l2/v4l2dev.htm :
+>  
+>  A common use for memory-mapped buffers is for streaming data to and from
+>  drivers with minimum overhead. Drivers will maintain internal queues of
+>  buffers and process them asynchonously. The ioctl commands for doing that
+>  are described in the device-specific documents. Memory-mapping can also be
+>  used for a variety of other purposes. Drivers can define hardware-specific
+>  memory buffer types if needed. Use V4L2_BUF_TYPE_PRIVATE_BASE and greater
+>  values for such buffer types. 
+
+Ok, for different device types.  Currently only capture drivers exist
+for v4l2 btw.  I doubt that your application will use the _same_ code
+path for a _different_ device type.
+
+> > >  The goal is to create an interface that does not rely on structures
+> > >  defined in kernel headers for communication. 
+> > 
+> > Why do you want to do that?
+>  
+>   * not elegant
+
+"elegant" is hardly a argument because it is subjective.
+
+>   * kernel structures force a specific model onto a driver
+
+The control strings you want to read() and write() to the driver do
+exactly the same, because they must have some clear defined semantic to
+make the whole model actually workable.
+
+>   * can cause problems with different compilers
+
+Then your compiler is buggy.
+
+>   * confuse applications when a driver does not implement a field
+
+With v4l2 controls this shouldn't be a issue any more.
+
+>  However, this is hard to implement with ioctl's as they rely on fixed
+>  length structures. You would have to call first to find out the size of
+>  the buffer you need (which the driver would have to compute) and then the
+>  second time to get the data. Eeeks.
+
+Wrong.  Look at the specs for the v4l2 controls.
+
+>  Now what is left are the structs describing the format of memory buffers. 
+>  But the driver typically has this info in a struct itself. Instead of
+>  getting it via ioctl simply mmap the area - you'll be getting the exact
+>  same information yourself with less context switches.
+
+read() + write() need context switches too.  And ioctl() can actually
+pass informations in both directions, there are cases where you need
+_more_ context switches with read()/write() than with ioctl() because
+with ioctl one system calls does the job, but with read()/write() you
+need two:  one for the request and one to get back the actual data.
+
+>  This gets rid of the structs. 
+
+Using strings instead adds a overhead to both driver and applications
+for string parsing.  And the application likely puts the parsed data
+into a struct again anyway ...
+
+>  What is left of v4l now are synchronization ioctls. But we can replace
+>  them with read/writes on the control device. With the added benifit that
+>  we can select on it to wait for an event.
+
+v4l2 expects drivers to support select too, so you can wait for your
+capture requests using select.
+
+  Gerd
+
+-- 
+Netscape is unable to locate the server localhost:8000.
+Please check the server name and try again.

@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289005AbSAIXUh>; Wed, 9 Jan 2002 18:20:37 -0500
+	id <S289072AbSAIXWg>; Wed, 9 Jan 2002 18:22:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289068AbSAIXU0>; Wed, 9 Jan 2002 18:20:26 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:13459 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S289005AbSAIXUQ>;
-	Wed, 9 Jan 2002 18:20:16 -0500
-From: Badari Pulavarty <pbadari@us.ibm.com>
-Message-Id: <200201092320.g09NK1224012@eng2.beaverton.ibm.com>
-Subject: Re: [PATCH] PAGE_SIZE IO for RAW (RAW VARY)
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Wed, 9 Jan 2002 15:20:01 -0800 (PST)
-Cc: pbadari@us.ibm.com (Badari Pulavarty), linux-kernel@vger.kernel.org,
-        marcelo@conectiva.com.br
-In-Reply-To: <E16OReG-0002Zi-00@the-village.bc.nu> from "Alan Cox" at Jan 09, 2002 09:56:44 PM PST
-X-Mailer: ELM [version 2.5 PL3]
+	id <S289068AbSAIXWZ>; Wed, 9 Jan 2002 18:22:25 -0500
+Received: from freeside.toyota.com ([63.87.74.7]:16137 "EHLO
+	freeside.toyota.com") by vger.kernel.org with ESMTP
+	id <S289075AbSAIXWM>; Wed, 9 Jan 2002 18:22:12 -0500
+Message-ID: <3C3CD09B.7050801@lexus.com>
+Date: Wed, 09 Jan 2002 15:22:03 -0800
+From: J Sloan <jjs@lexus.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: walter <walt@nea-fast.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: new kernel --this is wierd
+In-Reply-To: <200201092250.RAA03139@int1.nea-fast.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> > Here is a 2.4.17 patch for doing PAGE_SIZE IO on raw devices. Instead 
-> > of doing 512 byte buffer heads, the patch does 4K buffer heads. This
-> > patch significantly reduced CPU overhead and increased IO throughput
-> > in our database benchmark runs. (CPU went from 45% busy to 6% busy).
-> 
-> Does that work out when the application is still doing 512 byte raw I/O.
-> Its fine to fall back to the current performance but at least one very
-> large competing database would get quite irate if the fallback made
-> 512 byte mode slower or nonfunctional ?
-> 
+A shot in the dark:
 
-It works as usual for 512 byte IO (few checks in the code).  I have not 
-seen any slowness for < 4K IO. Infact, I can change the patch to try 
-raw vary only for iosize > PAGE_SIZE.
+echo "0" > /proc/sys/net/ipv4/tcp_ecn
 
-I tested with 2 large competing databases, both of them seem to benifit 
-significantly from this patch. I tested with 4 different Fiber & SCSI
-adaptors, they all seem to work fine. (only on i386).
+cu
 
-But unfortunately, if the hardware have special alignment restrictions
-(as you mentioned), this patch does not work. I don't know if it makes
-sense to make this configurable and expect customer/user to enable this
-feature if they know about their hardware/driver alignment restrictions.
+jjs
 
-Thanks,
-Badari
+walter wrote:
+
+>This may be a SGI question...
+>
+>After upgrading to kernel-2.4.14-SGI_XFS_1.0.2 I can no longer connect to 
+>www.zdnet.com. I can connect to any other web site. 
+>
+>I've tried kde konqueror-2.2.2-1, netscape-communicator-4.77-0.6.2, 
+>netscape-navigator-4.77-0.6.2, netscape-communicator-4.78-2, and the latest 
+>release of opera. 
+>
+>I've used rpm to verify all depends. I get no error messages anywhere that I 
+>can find. If I boot to winsucks98 I have no problem(boo) so I know its not a 
+>firewall problem. Does anyone have any ideas what the problem may be or a way 
+>to figure out whats happening? Someone I work with suggested process 
+>accouting.
+>
+>Thanks!
+>
+
+

@@ -1,38 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271714AbRH0N16>; Mon, 27 Aug 2001 09:27:58 -0400
+	id <S271722AbRH0NgS>; Mon, 27 Aug 2001 09:36:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271720AbRH0N1t>; Mon, 27 Aug 2001 09:27:49 -0400
-Received: from mustard.heime.net ([194.234.65.222]:11136 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S271714AbRH0N1n>; Mon, 27 Aug 2001 09:27:43 -0400
-Date: Mon, 27 Aug 2001 15:27:58 +0200 (CEST)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: <linux-kernel@vger.kernel.org>
-cc: Jannik Rasmussen <jannik@east.no>
-Subject: Error 3c900 driver in 2.2.19?
-Message-ID: <Pine.LNX.4.30.0108271523560.921-100000@mustard.heime.net>
+	id <S271720AbRH0NgI>; Mon, 27 Aug 2001 09:36:08 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:19215 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S271722AbRH0Nf4>; Mon, 27 Aug 2001 09:35:56 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Christian Engwer <christi@fsmath.zbt.uni-heidelberg.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: kernel patch to keep control over batch processes
+Date: Mon, 27 Aug 2001 15:42:41 +0200
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <20010827134715.A21058@mathphys.fsk.uni-heidelberg.de>
+In-Reply-To: <20010827134715.A21058@mathphys.fsk.uni-heidelberg.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010827133605Z16129-32383+1629@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On August 27, 2001 01:47 pm, Christian Engwer wrote:
+> PS: If this is not the right place to post this mail... please don't
+>     flame me - it's my first patch
 
-I have a 3c900 card in a server, and after upgrading to 2.2.19 it started
-hanging every now and then, giving me the error message "kernel: eth0:
-memory shortage". The card is this (as reported during boot)
+It's the right place :-)
 
-3c59x.c:v0.99H 27May00 Donald Becker
-http://cesdis.gsfc.nasa.gov/linux/drivers/vortex.html
-eth0: 3Com 3c900 Boomerang 10Mbps Combo at 0xa800,  00:a0:24:ef:ef:50, IRQ 5
-  8K word-wide RAM 3:5 Rx:Tx split, 10baseT interface.
-  Enabling bus-master transmits and whole-frame receives.
-
-Please cc: to me (roy@karlsbakk.net) and Jannik (jannik@east.no), as we're
-not on the list.
-
-Best regards
-
-roy
-
+--
+Daniel

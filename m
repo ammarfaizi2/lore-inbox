@@ -1,33 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261786AbUB1LZ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Feb 2004 06:25:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261816AbUB1LZ5
+	id S261626AbUB1LiE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Feb 2004 06:38:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261710AbUB1LiE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Feb 2004 06:25:57 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:21242 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261786AbUB1LZ4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Feb 2004 06:25:56 -0500
-Date: Sat, 28 Feb 2004 12:25:55 +0100 (MET)
-Message-Id: <200402281125.i1SBPtxe017049@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH][2.6.4-rc1] use set_task_cpu() in kthread_bind()
+	Sat, 28 Feb 2004 06:38:04 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:39567 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261626AbUB1LiA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Feb 2004 06:38:00 -0500
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: r3pek@r3pek.homelinux.org, fastboot@lists.osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] Re: kexec "problem" [and patch updates]
+References: <20040224160341.GA11739@in.ibm.com>
+	<28775.62.229.71.110.1077620541.squirrel@webmail.r3pek.homelinux.org>
+	<20040226165446.16a5bb3b.rddunlap@osdl.org>
+	<m1znb5c5q3.fsf@ebiederm.dsl.xmission.com>
+	<20040227113224.72f6dcc5.rddunlap@osdl.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 28 Feb 2004 03:41:33 -0700
+In-Reply-To: <20040227113224.72f6dcc5.rddunlap@osdl.org>
+Message-ID: <m1brnjcwpu.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use set_task_cpu() instead of direct assignment to ->cpu in
-kthread_bind(), as this eliminates the assignment on UP.
+"Randy.Dunlap" <rddunlap@osdl.org> writes:
 
---- linux-2.6.4-rc1/kernel/kthread.c.~1~	2004-02-28 11:15:23.000000000 +0100
-+++ linux-2.6.4-rc1/kernel/kthread.c	2004-02-28 12:02:10.000000000 +0100
-@@ -131,7 +131,7 @@
- void kthread_bind(struct task_struct *k, unsigned int cpu)
- {
- 	BUG_ON(k->state != TASK_INTERRUPTIBLE);
--	k->thread_info->cpu = cpu;
-+	set_task_cpu(k, cpu);
- 	k->cpus_allowed = cpumask_of_cpu(cpu);
- }
- 
+> On 27 Feb 2004 01:00:04 -0700 Eric W. Biederman wrote:
+> 
+> | > It works fine on 2.6.2.  It works for me on 2.6.3 if not SMP.
+> | > If the kernel is built for SMP, when running kexec, I get a
+> | > BUG in arch/i386/kernel/smp.c at line 359.
+> | > I'm testing various workarounds for that BUG now.
+> | 
+> | I will eyeball it...
+> | 
+> | Is it the kernel that is shutting down, or the kernel that is being
+> | brought up that has problems?
+> 
+> the kernel that is shutting down.
+> 
+> | The back trace from the BUG would be interesting.
+> 
+> see below.  my bad.  i should have included it.
+> 
+> | As I see it flush_tlb_others is being called when we have shutdown
+> | cpus and the kernel still thinks we have the mm present on foreign
+> | cpus.
+> 
+> Martin Bligh thinks that there is a tlb race here.
+> I printed the 2 cpu masks on my dual-proc macine and saw
+> 0 in one of them and 0xc in the other one.
+
+Ouch we have both cpus running when this happens, and we have not
+started any shutdown whatsoever.  This is the bit that sets up
+the page tables for later use...
+
+I think identity_map_pages will have problems with a kernel that does
+the 4G/4G split, and it has known issues on some other architectures,
+because they treat init_mm specially.  So the proper solution may be
+to simply rewrite identity_map_pages. 
+
+Before we do that in the short term we need to see if
+identity_map_pages is actually doing anything bad.  You are
+not using the 4G/4G split so that is not the cause.  So either
+init_mm is now special in some way, or we have hit a generic kernel
+bug.
+
+So this may indeed be a tlb race.  But it is init_mm->cpu_vm_mask and
+cpu_online map that are different.  With the implication being
+that init_mm->cpu_vm_mask has cpus set that are not in cpu_online_map?
+Very weird especially on SMP.
+
+Without attribution I have a hard time making sense of which cpumask
+is which so I can't draw any conclusions.  But I find it very
+interesting that it is bits 2 and 3 that are set.  I wonder if
+there is any mixup between logical cpu identities and apic ids.
+
+Eric

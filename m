@@ -1,48 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266941AbTBCRuo>; Mon, 3 Feb 2003 12:50:44 -0500
+	id <S266940AbTBCRyh>; Mon, 3 Feb 2003 12:54:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266938AbTBCRuo>; Mon, 3 Feb 2003 12:50:44 -0500
-Received: from esperi.demon.co.uk ([194.222.138.8]:8208 "EHLO
-	esperi.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S266286AbTBCRun>; Mon, 3 Feb 2003 12:50:43 -0500
-To: trond.myklebust@fys.uio.no
-Cc: ultralinux@vger.kernel.org,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: strange sparc64 -> i586 intermittent but reproducible NFS write errors to one and only one fs
-References: <87bs2q3paq.fsf@amaterasu.srvr.nix>
-	<200301100658.h0A6vxs14580@Port.imtp.ilyichevsk.odessa.ua>
-	<87iswkx53u.fsf@amaterasu.srvr.nix>
-	<15915.4574.380686.123067@charged.uio.no>
-X-Emacs: well, why *shouldn't* you pay property taxes on your editor?
-From: Nix <nix@esperi.demon.co.uk>
-Date: 03 Feb 2003 17:35:03 +0000
-In-Reply-To: <15915.4574.380686.123067@charged.uio.no>
-Message-ID: <87adhd6zeg.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Military Intelligence)
+	id <S266944AbTBCRyh>; Mon, 3 Feb 2003 12:54:37 -0500
+Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:59809 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S266940AbTBCRyf>;
+	Mon, 3 Feb 2003 12:54:35 -0500
+Message-ID: <3E3EAF04.9010308@candelatech.com>
+Date: Mon, 03 Feb 2003 10:03:48 -0800
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: John Bradford <john@grabjohn.com>
+CC: Chris Friesen <cfriesen@nortelnetworks.com>, davem@redhat.com, ahu@ds9a.nl,
+       linux-kernel@vger.kernel.org
+Subject: Re: problems achieving decent throughput with latency.
+References: <200302031611.h13GBl9D019119@darkstar.example.net>
+In-Reply-To: <200302031611.h13GBl9D019119@darkstar.example.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Jan 2003, Trond Myklebust said:
-> It sounds rather strange that this particular patch should introduce
-> an EIO, but here it is (fresh from BitKeeper)
+John Bradford wrote:
+>>>TCP can only send into a pipe as fast as it can see the
+>>>ACKs coming back.  That is how TCP clocks its sending rate,
+>>>and latency thus affects that.
+>>
+>>Wouldn't you just need larger windows?  The problem is latency, not 
+>>bandwidth.
+> 
+> 
+> Exactly - the original post says that no problems are experienced
+> using UDP, which backs that up.
 
-... and indeed it doesn't.
+I started poking around, and found the tcp_mem, tcp_rmem, and tcp_wmem
+tunables in /proc/sys/net/ipv4...
 
-The problem still exists in -pre9, but is very much rarer and harder to
-replicate; I've sene it only half a dozen times in two weeks, in each
-case during an ftp retrieval; I'm assuming there's something about the
-write patterns used by ncftp (lots of few-KB appends, far apart in time)
-that triggers it.
+If I change the values, I see up to 25Mbps with 25ms of latency.
+It would go higher, but I have uncovered a performance bug in my code that
+drops a packet every now and then at those higher rates, so that backs tcp
+off quickly.  I should have that fixed this evening and will continue testing.
 
-So it really is merely a timing change that has brought a pre-existing
-problem into the light.
 
-I'm going to try to come up with something that consistently reproduces
-this as well, so I can track down the origins of this bug more
-correctly.
+Here are the values that I used.  The documentation I found is not overly
+descriptive, so if anyone has any suggestions for improving my tunings, please
+let me know!
+
+Also, if it's as simple as allocating a few more buffers for tcp, maybe we
+should consider defaulting to higher in the normal kernel?  (I'm not suggesting
+**my** numbers..)
+
+# See the kernel documentation: Documentation/networking/ip-sysctl.txt
+my $tcp_rmem_min     = 4096;
+my $tcp_rmem_default = 256000;  # TCP specific receive memory pool size.
+my $tcp_rmem_max     = 3000000;  # TCP specific receive memory pool size.
+
+my $tcp_wmem_min     = 4096;
+my $tcp_wmem_default = 256000;  # TCP specific receive memory pool size.
+my $tcp_wmem_max     = 3000000;  # TCP specific receive memory pool size.
+
+my $tcp_mem_lo       = 20000000; # Below here there is no memory pressure.
+my $tcp_mem_pressure = 30000000; # Can use up to 30MB for TCP buffers.
+my $tcp_mem_high     = 30000000; # Can use up to 30MB for TCP buffers.
+
+
+
+
+> 
+> John.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
 
 -- 
-2003-02-01: the day the STS died.
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
+

@@ -1,72 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271170AbTGPWfJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 18:35:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271179AbTGPWfJ
+	id S271166AbTGPWbI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 18:31:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271157AbTGPWbI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 18:35:09 -0400
-Received: from [192.188.53.72] ([192.188.53.72]:12186 "EHLO mail.usfq.edu.ec")
-	by vger.kernel.org with ESMTP id S271170AbTGPWec (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 18:34:32 -0400
-Message-ID: <3F15D498.4080503@mail.usfq.edu.ec>
-Date: Wed, 16 Jul 2003 17:41:28 -0500
-From: Fernando Sanchez <fsanchez@mail.usfq.edu.ec>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
-X-Accept-Language: en
+	Wed, 16 Jul 2003 18:31:08 -0400
+Received: from ausadmmsrr502.aus.amer.dell.com ([143.166.83.89]:24845 "HELO
+	AUSADMMSRR502.aus.amer.dell.com") by vger.kernel.org with SMTP
+	id S271170AbTGPW3H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 18:29:07 -0400
+X-Server-Uuid: 586817ae-3c88-41be-85af-53e6e1fe1fc5
+Message-ID: <1058395431.1481.6.camel@localhost.localdomain>
+From: Matt_Domsch@Dell.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5 'what to expect'
+Date: Wed, 16 Jul 2003 17:43:52 -0500
 MIME-Version: 1.0
-To: Joshua Schmidlkofer <kernel@pacrimopen.com>
-CC: Martin Zwickel <martin.zwickel@technotrend.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test1 + nvidia 4363 driver
-References: <20030714162056.27616c6c.martin.zwickel@technotrend.de> <1058377174.7568.1.camel@bubbles.imr-net.com>
-In-Reply-To: <1058377174.7568.1.camel@bubbles.imr-net.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+X-Mailer: Internet Mail Service (5.5.2653.19)
+X-WSS-ID: 130B0AA512045268-01-01
+Content-Type: text/plain; 
+ charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello Joshua,
-is there any mirror for the patch? I can't get to the site you pointed. 
+> We had this discussion before, back when I first submitted the large
+> block device patches.  The consensus then was to use EFI, or LDM.
+
+GNU parted has had the GPT code for a couple years now, and
+CONFIG_EFI_PARTITION has been in both 2.4.x and 2.5.x trees for over a
+year.  To the best of my knowledge and experience, it works equally well
+on x86 as on IA-64, modulo booting with traditional BIOSs of course.
+
+# parted /dev/sdb print
+# parted /dev/sdb mklabel gpt
+# parted /dev/sdb mkpartfs p ext2 0.017 some-really-big-number
+
+partx in util-linux can even tell the kernel about it without requiring
+a reboot.
+
+I'd definitely be interested to know of cases where it doesn't work, so
+I can get them addressed.
+
 Thanks,
-
-Fernando
-
-Joshua Schmidlkofer wrote:
-> http://www.minion.de posted updated patches.  They work pretty find for
-> me.
-> 
-> 
-> js
-> 
-> 
-> On Mon, 2003-07-14 at 07:20, Martin Zwickel wrote:
-> 
->>Hi there!
->>
->>Anybody got a working patch for nvidia 4363 to let it work with the 2.6.0-test1
->>kernel?
->>The 2.5 nvidia patch doesn't work for the 2.6 kernel.
->>
->>Regards,
->>Martin
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
-> 
-
+Matt
 
 -- 
-
-
-Fernando Sanchez
-Dpto. Sistemas USFQ
-
-
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
 

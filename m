@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129406AbQLAKP2>; Fri, 1 Dec 2000 05:15:28 -0500
+	id <S129597AbQLAKTK>; Fri, 1 Dec 2000 05:19:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129434AbQLAKPR>; Fri, 1 Dec 2000 05:15:17 -0500
-Received: from mx1.eskimo.com ([204.122.16.48]:4870 "EHLO mx1.eskimo.com")
-	by vger.kernel.org with ESMTP id <S129406AbQLAKPA>;
-	Fri, 1 Dec 2000 05:15:00 -0500
-Date: Fri, 1 Dec 2000 01:44:31 -0800 (PST)
-From: Clayton Weaver <cgweav@eskimo.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: tulip log (additional detail: single-threaded httpd)
-Message-ID: <Pine.SUN.3.96.1001201012905.16065A-100000@eskimo.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129604AbQLAKTA>; Fri, 1 Dec 2000 05:19:00 -0500
+Received: from uu194-7-68-2.unknown.uunet.be ([194.7.68.2]:35837 "EHLO
+	bartok.iverlek.kotnet.org") by vger.kernel.org with ESMTP
+	id <S129597AbQLAKSk>; Fri, 1 Dec 2000 05:18:40 -0500
+Date: Fri, 1 Dec 2000 10:47:45 +0100
+From: Arnaud Installe <ainstalle@filepool.com>
+To: David Lang <david.lang@digitalinsight.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: high load & poor interactivity on fast thread creation
+Message-ID: <20001201104745.C1413@bartok.filepool.com>
+In-Reply-To: <20001130081443.A8118@bach.iverlek.kotnet.org> <Pine.LNX.4.21.0011301459250.17363-100000@dlang.diginsite.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.21.0011301459250.17363-100000@dlang.diginsite.com>; from david.lang@digitalinsight.com on Thu, Nov 30, 2000 at 03:00:10PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Note: if anyone else is wondering what may be deadlocking 2.2.17+
-in the context of http connects over ethernet (assuming that it is not the
-ethernet driver itself): it is also not the httpd server's use of linux
-kernel threads (wn is single threaded). And there isn't much going
-on in the background when this is tested. A bunch of daemons are
-running, but only the k*d (kupdated, kflushd, kpiod, kswapd, klogd)
-and utmpd besides the httpd server itself ever run during the test.
+On Thu, Nov 30, 2000 at 03:00:10PM -0800, David Lang wrote:
+> try the 2.4 test kernels. I had a situation of poor performance with lots
+> of processes and saw a dramatic improvement with the 2.4 kernel.
 
-Tests were conducted both with inetd handling the http connect and with
-wnsd listening on the http port directly, no difference.
+So what load average should I expect Linux versions 2.2 and 2.4 to perform
+well under ?  I'm wondering what would be the best way to solve this
+problem: limit the number of processes created during a certain time span;
+check if the load average isn't too high before creating a new thread (and
+go to sleep if it isn't); or something else ?
 
-Unless one of those k*d daemons uses kernel threads, kernel threads
-exported to user space are not possibly the source of the deadlock.
+Thanks very much BTW !  The list has always been very helpful.  :-)
 
-(Might have looked that way due to the stack corruption in the httpd
-parent that strace seems to see a few connects before the kernel
-deadlock.)
+								Arnaud
 
-Regards,
+> > When creating a lot of Java threads per second linux slows down to a
+> > crawl.  I don't think this happens on NT, probably because NT doesn't
+> > create new threads as fast as Linux does.
+> > 
+> > Is there a way (setting ?) to solve this problem ?  Rate-limit the number
+> > of threads created ?  The problem occurred on linux 2.2, IBM Java 1.1.8.
 
-Clayton Weaver
-<mailto:cgweav@eskimo.com>
-(Seattle)
+-- 
+Arnaud Installe						<ainstalle@filepool.com>
 
-"Everybody's ignorant, just in different subjects."  Will Rogers
-
-
-
+Man has never reconciled himself to the ten commandments.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

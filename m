@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264530AbUFLBuY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264258AbUFLCRn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264530AbUFLBuY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 21:50:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264535AbUFLBuX
+	id S264258AbUFLCRn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 22:17:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264537AbUFLCRn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 21:50:23 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:38886 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264530AbUFLBuR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 21:50:17 -0400
-Date: Fri, 11 Jun 2004 21:50:03 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-cc: John Bradford <john@grabjohn.com>, Matt Mackall <mpm@selenic.com>,
-       Christian Borntraeger <linux-kernel@borntraeger.net>,
-       <linux-kernel@vger.kernel.org>,
-       Lasse K?rkk?inen / Tronic <tronic2@sci.fi>
-Subject: Re: Some thoughts about cache and swap
-In-Reply-To: <20040611140721.GB7369@wohnheim.fh-wedel.de>
-Message-ID: <Pine.LNX.4.44.0406112148420.13607-100000@chimarrao.boston.redhat.com>
+	Fri, 11 Jun 2004 22:17:43 -0400
+Received: from AAnnecy-103-1-23-109.w80-15.abo.wanadoo.fr ([80.15.191.109]:2065
+	"HELO freenet.co.uk") by vger.kernel.org with SMTP id S264258AbUFLCRm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jun 2004 22:17:42 -0400
+Message-ID: <bca701c45024$32079215$e80de816@freenet.co.uk>
+From: "Lorena Reid" <reid_lh@luckyboy.cc>
+To: linux-kernel@vger.kernel.org
+Subject: Powerful weightloss now available for you.
+Date: Sat, 12 Jun 2004 06:23:54 +0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Jun 2004, Jörn Engel wrote:
-> On Wed, 9 June 2004 15:32:41 -0400, Rik van Riel wrote:
-> > 
-> > Haven't seen many of those, to be honest.  The majority
-> > of the VM problems I get to see are people running a
-> > workload the kernel didn't expect - a workload the kernel
-> > wasn't prepared to handle...
-> 
-> Is there a list of those different workloads somewhere?  And I don't
-> mean in your head. ;)
+Hello, I have a special_offer for you...
+WANT TO LOSE WEIGHT?
+The most powerful weightloss is now available
+without prescription. All natural Adipren720
+100% Money Back Guarantée!
+- Lose up to 19% Total Body Weight.
+- Up to 300% more Weight Loss while dieting.
+- Loss of 20-35% abdominal Fat.
+- Reduction of 40-70% overall Fat under skin.
+- Increase metabolic rate by 76.9% without Exercise.
+- Boost your Confidence level and Self Esteem.
+- Burns calorized fat.
+- Suppresses appetite for sugar.
+Get the facts about all-natural Adipren720 <http://3adipren.com/>
 
-That's the point.  If there was such a list, we could put
-appropriate kludges in place for all of them.
 
-> All I notive in my personal use is the cache flushing effect from
-> use-once data.  If that was the whole list, it should be easy enough to
-> fix.
 
-I wish it were that easy.  Users keep surprising us with
-new and unexpected workloads, though.
+---- system information ----
+group respect used subtle allow formatting) will operation 
+contrast subject place by checking data Claim(s) presented 
+subject expecting represented cultural string server documents disclosures
 
-Part of it is that every time Linux is improved, people are
-encouraged to try out stranger, newer, heavier workloads ;)
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+Identifiers:: describe encompasses Simplified Existing identification wants
+back 
+marks clients same or regime variation call expectations 
 

@@ -1,128 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267628AbUHJSqp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267545AbUHJSuX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267628AbUHJSqp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 14:46:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267673AbUHJSnu
+	id S267545AbUHJSuX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 14:50:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267529AbUHJSsh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 14:43:50 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:23778 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S267598AbUHJSkD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 14:40:03 -0400
-Date: Tue, 10 Aug 2004 20:39:56 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Dave Hansen <haveblue@us.ibm.com>
-Subject: [patch] 2.6.8-rc4: compile error with gcc 2.95
-Message-ID: <20040810183955.GR26174@fs.tum.de>
-References: <Pine.LNX.4.58.0408091958450.1839@ppc970.osdl.org>
+	Tue, 10 Aug 2004 14:48:37 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:33981 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S267361AbUHJSnl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 14:43:41 -0400
+Subject: Re: [PATCH 2.6] ibmveth bug fixes 2/4
+From: Dave Hansen <haveblue@us.ibm.com>
+To: "Santiago A. Leon [imap]" <santil@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <41190E8E.9050004@us.ibm.com>
+References: <41190E8E.9050004@us.ibm.com>
+Content-Type: multipart/mixed; boundary="=-80jhYVFp42Um6qhk3rig"
+Message-Id: <1092162537.11212.27.camel@nighthawk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408091958450.1839@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 10 Aug 2004 11:28:57 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm still getting a flood of the following errors when using gcc 2.95:
 
+--=-80jhYVFp42Um6qhk3rig
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-<--  snip  -->
+On Tue, 2004-08-10 at 11:06, Santiago Leon wrote:
+> This patch fixes a race condition that would panic the kernel when 
+> replenishing a buffer pool.  Please apply.
 
-...
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.6.8-rc4; fi
-WARNING: /lib/modules/2.6.8-rc4/kernel/sound/pci/ymfpci/snd-ymfpci.ko 
-needs unknown symbol free_irq
-WARNING: /lib/modules/2.6.8-rc4/kernel/sound/pci/ymfpci/snd-ymfpci.ko
-needs unknown symbol request_irq
-WARNING: /lib/modules/2.6.8-rc4/kernel/sound/pci/vx222/snd-vx222.ko
-needs unknown symbol free_irq
-WARNING: /lib/modules/2.6.8-rc4/kernel/sound/pci/vx222/snd-vx222.ko
-needs unknown symbol request_irq
-WARNING: /lib/modules/2.6.8-rc4/kernel/sound/pci/trident/snd-trident.ko
-needs unknown symbol free_irq
-WARNING: /lib/modules/2.6.8-rc4/kernel/sound/pci/trident/snd-trident.ko
-needs unknown symbol request_irq
-WARNING: /lib/modules/2.6.8-rc4/kernel/sound/pci/snd-via82xx.ko needs
-unknown symbol free_irq
-WARNING: /lib/modules/2.6.8-rc4/kernel/sound/pci/snd-via82xx.ko needs
-unknown symbol request_irq
-WARNING: /lib/modules/2.6.8-rc4/kernel/sound/pci/snd-sonicvibes.ko needs
-unknown symbol free_irq
-WARNING: /lib/modules/2.6.8-rc4/kernel/sound/pci/snd-sonicvibes.ko needs
-unknown symbol request_irq
-WARNING: /lib/modules/2.6.8-rc4/kernel/sound/pci/snd-rme96.ko needs
-unknown symbol free_irq
-... [several hundred similar lines siped] 
+How about something like this that doesn't add more magic numbers?
 
-<--  snip  -->
+I'm not so sure about the type, though.  Is that (u16) cast OK?
 
+-- Dave
 
-The following patch (as 268-rc2-mm1-link-errors.patch already in -mm)
-fixes this issue:
+--=-80jhYVFp42Um6qhk3rig
+Content-Disposition: attachment; filename=ibmveth-invalid_map.patch
+Content-Type: text/x-patch; name=ibmveth-invalid_map.patch; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 7bit
 
-
-<-- snip  -->
-
-
-From: Dave Hansen <haveblue@us.ibm.com>
-
-Investigation of why the build is failing due to bogus detection of
-undefined symbols: We're getting this warning:
-
-arch/i386/kernel/irq.c
-{standard input}: Assembler messages:
-{standard input}:3565: Warning: setting incorrect section type for
-.bss.page_aligned
-
-Which comes from this code in the 4k stacks code:
-
-static char softirq_stack[NR_CPUS * THREAD_SIZE]  __attribute__((__aligned__(THREAD_SIZE), __section__(".bss.page_aligned")));
-static char hardirq_stack[NR_CPUS * THREAD_SIZE]  __attribute__((__aligned__(THREAD_SIZE), __section__(".bss.page_aligned")));
-
-Removing the __section__() fixes it, as does moving to gcc 3.2 or 3.3,
-but gcc 2.95 and 3.0 still exhibit the problem.  It seems the 4k stack
-developers like newer compilers than I do :) 
-
-The gcc 2.95 section declaration looks like this:
-	.section        .bss.page_aligned,"aw",@progbits
-while the 3.1 section looks like this:
-	.section        .bss.page_aligned,"aw",@nobits
-
-It's definitely a bug that's been fixed:
-http://sources.redhat.com/ml/binutils/2002-10/msg00507.html
-
-I've been told that I can fix it with a carefully crafted assembly file and
-maybe a change to the linker script, but all that it buys us is a little
-space in the uncompressed kernel image.  Plus, the warning will still be
-there at compile-time.  
-
-I say, put them back in plain old BSS.  Patch attached.
-
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
----
-
- 25-akpm/arch/i386/kernel/irq.c |    8 ++++++--
- 1 files changed, 6 insertions(+), 2 deletions(-)
-
-diff -puN arch/i386/kernel/irq.c~268-rc2-mm1-link-errors arch/i386/kernel/irq.c
---- 25/arch/i386/kernel/irq.c~268-rc2-mm1-link-errors	2004-07-28 22:11:29.652159016 -0700
-+++ 25-akpm/arch/i386/kernel/irq.c	2004-07-28 22:11:29.658158104 -0700
-@@ -1118,8 +1118,12 @@ void init_irq_proc (void)
+--- veth/drivers/net/ibmveth.h.orig	2004-08-10 11:34:05.000000000 -0700
++++ veth/drivers/net/ibmveth.h	2004-08-10 11:35:01.000000000 -0700
+@@ -77,6 +77,8 @@
+ #define IbmVethPool1DftCnt  256
+ #define IbmVethPool2DftCnt  256
  
++#define IBM_VETH_INVALID_MAP ((u16)0xffff)
++
+ struct ibmveth_buff_pool {
+     u32 size;
+     u32 index;
+--- veth/drivers/net/ibmveth.c.orig	2004-08-10 11:35:17.000000000 -0700
++++ veth/drivers/net/ibmveth.c	2004-08-10 11:37:22.000000000 -0700
+@@ -213,11 +213,12 @@ static void ibmveth_replenish_buffer_poo
+ 		free_index = pool->consumer_index++ % pool->size;
+ 		index = pool->free_map[free_index];
+ 	
+-		ibmveth_assert(index != 0xffff);
++		ibmveth_assert(index != IBM_VETH_INVALID_MAP);
+ 		ibmveth_assert(pool->skbuff[index] == NULL);
  
- #ifdef CONFIG_4KSTACKS
--static char softirq_stack[NR_CPUS * THREAD_SIZE]  __attribute__((__aligned__(THREAD_SIZE), __section__(".bss.page_aligned")));
--static char hardirq_stack[NR_CPUS * THREAD_SIZE]  __attribute__((__aligned__(THREAD_SIZE), __section__(".bss.page_aligned")));
-+/*
-+ * These should really be __section__(".bss.page_aligned") as well, but
-+ * gcc's 3.0 and earlier don't handle that correctly.
-+ */
-+static char softirq_stack[NR_CPUS * THREAD_SIZE]  __attribute__((__aligned__(THREAD_SIZE)));
-+static char hardirq_stack[NR_CPUS * THREAD_SIZE]  __attribute__((__aligned__(THREAD_SIZE)));
+ 		dma_addr = vio_map_single(adapter->vdev, skb->data, pool->buff_size, DMA_FROM_DEVICE);
  
- /*
-  * allocate per-cpu stacks for hardirq and for softirq processing
-_
++		pool->free_map[free_index] = IBM_VETH_INVALID_MAP;
+ 		pool->dma_addr[index] = dma_addr;
+ 		pool->skbuff[index] = skb;
+ 
+@@ -232,6 +233,7 @@ static void ibmveth_replenish_buffer_poo
+ 		lpar_rc = h_add_logical_lan_buffer(adapter->vdev->unit_address, desc.desc);
+ 		    
+ 		if(lpar_rc != H_Success) {
++			pool->free_map[free_index] = IBM_VETH_INVALID_MAP;
+ 			pool->skbuff[index] = NULL;
+ 			pool->consumer_index--;
+ 			vio_unmap_single(adapter->vdev, pool->dma_addr[index], pool->buff_size, DMA_FROM_DEVICE);
+@@ -239,7 +241,6 @@ static void ibmveth_replenish_buffer_poo
+ 			adapter->replenish_add_buff_failure++;
+ 			break;
+ 		} else {
+-			pool->free_map[free_index] = 0xffff;
+ 			buffers_added++;
+ 			adapter->replenish_add_buff_success++;
+ 		}
+
+--=-80jhYVFp42Um6qhk3rig--
+

@@ -1,43 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261824AbUCVJP5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 04:15:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261816AbUCVJP5
+	id S261822AbUCVJRL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 04:17:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261816AbUCVJRK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 04:15:57 -0500
-Received: from shark.pro-futura.com ([161.58.178.219]:58530 "EHLO
-	shark.pro-futura.com") by vger.kernel.org with ESMTP
-	id S261815AbUCVJPz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 04:15:55 -0500
-From: "Tvrtko A. =?iso-8859-2?q?Ur=B9ulin?=" <tvrtko@croadria.com>
-Organization: Croadria Internet usluge
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH,RFT] VIA SATA driver update
-Date: Mon, 22 Mar 2004 10:21:01 +0100
-User-Agent: KMail/1.6.1
-Cc: linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
-References: <405828DB.7060005@pobox.com> <200403171236.21145.tvrtko@croadria.com> <405B21FE.4010609@pobox.com>
-In-Reply-To: <405B21FE.4010609@pobox.com>
+	Mon, 22 Mar 2004 04:17:10 -0500
+Received: from GOL139579-1.gw.connect.com.au ([203.63.118.157]:38615 "EHLO
+	goldweb.com.au") by vger.kernel.org with ESMTP id S261822AbUCVJRG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 04:17:06 -0500
+Message-ID: <405EAE8C.2090602@stillhq.com>
+Date: Mon, 22 Mar 2004 20:14:52 +1100
+From: Michael Still <mikal@stillhq.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Makefile dependancies: scripts depending on configured kernel?
+References: <405E1427.6080309@stillhq.com> <20040322055617.GA2250@mars.ravnborg.org>
+In-Reply-To: <20040322055617.GA2250@mars.ravnborg.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200403221021.01679.tvrtko@croadria.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 19 March 2004 17:38, Jeff Garzik wrote:
-> > This is the same behavior I get ever since 2.6.1 when I started testing
-> > 2.6 seried. It also doesn't work under 2.6 with IDE generic support for
-> > VIA8237SATA (irq timeout, dma timeout)
->
-> Ok...
->
-> Does enabling SMP (CONFIG_SMP) fix things for you?
-> (Note, this should work fine even on a uniprocessor machine)
+Sam Ravnborg wrote:
 
-Nope. :(
+> The dependency for docs is (now) wrong.
+> It should be:
+> # Documentation targets
+> # ---------------------------------------------------------------------------
+> %docs: scripts_basic FORCE
+>         $(Q)$(MAKE) $(build)=Documentation/DocBook $@
+> 
+> docproc is the only binary used by Documentation/Docbook, and it is already
+> placed in scripts_basic.
 
-Regards,
-Tvrtko
+True.
+
+> Trivial - so I will include this in some other kbuild patch
+> I'm preparing.
+
+Cool, it will be nice to have this working out of the box again.
+
+> Test a bit more, and you will see they are indeed needed.
+> Note, some archs other than i386 have a bit different requirements
+> because thay do not use an asm-offsett.h file.
+
+Interesting. I built most of the targets and they still worked. I'm 
+happy to accept that it's needed though.
+
+Cheers,
+Mikal
+
+-- 
+
+Michael Still (mikal@stillhq.com) | "All my life I've had one dream,
+http://www.stillhq.com            |  to achieve my many goals"
+UTC + 11                          |    -- Homer Simpson

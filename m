@@ -1,70 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270329AbTGPIUZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 04:20:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270415AbTGPIUY
+	id S266622AbTGPIUG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 04:20:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270329AbTGPIUG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 04:20:24 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:16617 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S270329AbTGPIUT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 04:20:19 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Wed, 16 Jul 2003 10:44:48 +0200
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Greg KH <greg@kroah.com>
-Cc: Kernel List <linux-kernel@vger.kernel.org>,
-       video4linux list <video4linux-list@redhat.com>
-Subject: Re: [RFC/PATCH] sysfs'ify video4linux
-Message-ID: <20030716084448.GC27600@bytesex.org>
-References: <20030715143119.GB14133@bytesex.org> <20030715212714.GB5458@kroah.com>
-Mime-Version: 1.0
+	Wed, 16 Jul 2003 04:20:06 -0400
+Received: from mailb.telia.com ([194.22.194.6]:65514 "EHLO mailb.telia.com")
+	by vger.kernel.org with ESMTP id S266622AbTGPIUD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 04:20:03 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+To: Dax Kelson <dax@gurulabs.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Synaptics Touchpad 2.6.0-test1 problem
+References: <Pine.LNX.4.44.0307151809380.31633-100000@mooru.gurulabs.com>
+From: Peter Osterlund <petero2@telia.com>
+Date: 16 Jul 2003 09:16:54 +0200
+In-Reply-To: <Pine.LNX.4.44.0307151809380.31633-100000@mooru.gurulabs.com>
+Message-ID: <m2wuejvt3t.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030715212714.GB5458@kroah.com>
-User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >   * some usb webcam drivers (usbvideo.ko, stv680.ko, se401.ko 
-> >     and ov511.ko) use the video_proc_entry() to add additional
-> >     procfs files.  These drivers must be converted to sysfs too
-> >     because video_proc_entry() doesn't exist any more.
+Dax Kelson <dax@gurulabs.com> writes:
+
+> I'm using XFree86-4.3.0-17, I have the synaptics XF86 0.11.3p6 driver 
+> installed.
 > 
-> I'd be glad to do this work once your change makes it into the core.  Is
-> there any need for these drivers to export anything through sysfs now
-> instead of /proc?  From what I remember, it only looked like debugging
-> and other general info stuff.
-
-IIRC some tuning / debugging / info stuff, the drivers should work just
-fine without.  Temporarely disableling that wouldn't be a big issue
-IMHO.
-
-> So dev should point to the dev of the video class device?
-
-Exactly.  videodev.o will put that into class_device->dev which in turn
-will produce these symlinks:
-
-eskarina kraxel /sys/class/video4linux/video0# ll device
-lrwxrwxrwx    1 root     root           53 Jul 15 17:20 device -> ../../../devices/pci0000:00/0000:00:06.0/0000:02:07.0/
-
-> > Comments?
+> I have input, evdev, mousedev, psmouse in the kernel.
 > 
-> You _have_ to set up a release function for your class device.  You
-> can't just kfree it like I think you are doing, otherwise any users of
-> the sysfs files will oops the kernel after the video class device is
-> gone.
+> I get happy dmesg output when psmouse loads.
+> 
+> When X starts the cursor sits in the middle of the screen and won't move 
+> when I touch the touchpad or the buttons.
 
-class_device_unregister() is called from video_unregister_device() which
-looks fine to me.  Or do you talk about something else?
+Are you using the correct eventX device node? Look at
+/proc/bus/input/devices to make sure. Verify from the console that you
+get data from the device. Type
 
-> Other than that, how about exporting the dev_t value for the video
-> device?  Then you automatically get udev support, and I don't have to go
-> add it to this code later :)
+        cat /dev/input/eventX | od -x
 
-Do you have a pointer to sample code for that?
+access the touchpad and verify that some data is produced.
 
-  Gerd
+Your XF86Config file should have a section that looks something like
+this:
+
+Section "InputDevice"
+	Identifier	"TouchPad"
+	Driver	"synaptics"
+	Option	"Device"	"/dev/input/event3"
+	Option	"Protocol"	"event"
+	Option	"SHMConfig"	"on"
+EndSection
+
+P.S. Auto-detection of the correct eventX device is under
+construction, so pretty soon it will be much easier to set things up.
 
 -- 
-sigfault
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

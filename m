@@ -1,74 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261526AbSJ2DlW>; Mon, 28 Oct 2002 22:41:22 -0500
+	id <S261522AbSJ2Dvp>; Mon, 28 Oct 2002 22:51:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261539AbSJ2DlW>; Mon, 28 Oct 2002 22:41:22 -0500
-Received: from dp.samba.org ([66.70.73.150]:62100 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261526AbSJ2DlV>;
-	Mon, 28 Oct 2002 22:41:21 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: colpatch@us.ibm.com
-Cc: mochel@osdl.org, alan@lxorguk.ukuu.org.uk, davej@suse.de,
-       mjbligh@us.ibm.com, akpm@zip.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [rfc][patch] DriverFS Topology + per-node (NUMA) meminfo 
-In-reply-to: Your message of "Mon, 28 Oct 2002 17:08:00 -0800."
-             <3DBDDF70.9050609@us.ibm.com> 
-Date: Tue, 29 Oct 2002 14:09:47 +1100
-Message-Id: <20021029034743.811402C39F@lists.samba.org>
+	id <S261523AbSJ2Dvp>; Mon, 28 Oct 2002 22:51:45 -0500
+Received: from alpha8.cc.monash.edu.au ([130.194.1.8]:61964 "EHLO
+	ALPHA8.CC.MONASH.EDU.AU") by vger.kernel.org with ESMTP
+	id <S261522AbSJ2Dvo>; Mon, 28 Oct 2002 22:51:44 -0500
+Date: Tue, 29 Oct 2002 14:04:42 +1100 (EST)
+From: netdev-bounce@oss.sgi.com
+To: undisclosed-recipients:;
+Message-id: <20021029030442.437EE12D03E@blammo.its.monash.edu.au>
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3DBDDF70.9050609@us.ibm.com> you write:
-> Rusty Russell wrote:
-> > In message <3DBD88EA.7000402@us.ibm.com> you write:
-> > 
-> >>Rusty Russell wrote:
-> >>
-> >>>On Mon, 21 Oct 2002 14:50:25 -0700
-> >>>Matthew Dobson <colpatch@us.ibm.com> wrote:
-> >>>
-> >>>This clashes with my "move cpu driverfs to generic code" patch.
-> >>
-> >>Yes, yes it does.  It does a lot of similar things though.
-> > 
-> > Hey, great minds think alike 8)
-> 
-> Indeed!
-> 
-> 
-> >>My patch does not take advantage of the DECLARE_PER_CPU macros, etc.
-> > 
-> > A minor optimization which can be done later.  The important bit is
-> > not creating entries for cpus where !cpu_possible(cpu).
-> 
-> Very true.  I only instantiate entries for cpus that are online at the 
-> time of the initcall.  With the cpu callback stuff that you had in your 
-> patch, we can easily instantiate cpus that (magically? ;) come on line 
-> at a later point.
+> >
+> > 905182 total                                      0.4741
+> > 121426 csum_partial_copy_generic                474.3203
+>
+> Well, maybe take a look at this func and try to optimize it?
 
-I think you really want them there all the time.  Otherwise it's hard
-to use the entried to bring them online 8)
+I don't know assembly that good - sorry.
 
-It's easy: just don't entry i if "cpu_possible(i)" is false.
+> >  93633 default_idle                             1800.6346
+> >  74665 do_wp_page                               111.1086
+>
+> What's this?
 
-> Well, in either (NUMA/non-NUMA) case, there are symlinks to the CPUs 
-> under class/cpu/devices:
-> [root@elm3b79 devices]# ls -al class/cpu/devices/
-> total 0
-> drwxr-xr-x    2 root     root            0 Oct 25 07:59 .
-> drwxr-xr-x    4 root     root            0 Oct 25 07:59 ..
-> lrwxrwxrwx    1 root     root           22 Oct 25 07:59 0 -> 
-> ../../../root/sys/cpu0
+do_wp_page is Defined as a function in: mm/memory.c
 
-Cool, I missed that.  As long as they're somewhere, I'm happy.
+comments from the file:
 
-> > driver/base/cpu.c should probably be moved into kernel/cpu.c anyway.
-> 
-> What about driver/base/node.c & memblk.c?  My thoughts were to maintain 
-> a separation between driverfs-only and other in-core code.
+/*
+ * This routine handles present pages, when users try to write
+ * to a shared page. It is done by copying the page to a new address
+ * and decrementing the shared-page counter for the old page.
+ *
+ * Goto-purists beware: the only reason for goto's here is that it results
+ * in better assembly code.. The "default" path will see no jumps at all.
+ *
+ * Note that this routine assumes that the protection checks have been
+ * done by the caller (the low-level page fault routine in most cases).
+ * Thus we can safely just mark it writable once we've done any necessary
+ * COW.
+ *
+ * We also mark the page dirty at this point even though the page will
+ * change only once the write actually happens. This avoids a few races,
+ * and potentially makes it more efficient.
+ *
+ * We hold the mm semaphore and the page_table_lock on entry and exit
+ * with the page_table_lock released.
+ */
 
-OK, I'll come to the mountain then. 8)
+>
+> >  65857 ide_intr                                 184.9916
+>
+> You have 1 ide_intr per 2 csum_partial_copy_generic... hmmm...
+> how large is your readahead? I assume you'd like to fetch
+> more sectors from ide per interrupt. (I hope you do DMA ;)
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+doing DMA - RAID-0 with 1MB chunk size on 4 disks.
+
+> >  53636 handle_IRQ_event                         432.5484
+> >  21973 do_softirq                               107.7108
+> >  20498 e1000_intr                               244.0238
+>
+> I know zero about networking, but why 120 000 csum_partial_copy_generic
+> and inly 20 000 nic interrupts? That may be abnormal.
+
+sorry
+I don't know
+
+-- 
+Roy Sigurd Karlsbakk, Datavaktmester
+ProntoTV AS - http://www.pronto.tv/
+Tel: +47 9801 3356
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+
+
+

@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316004AbSEJOVU>; Fri, 10 May 2002 10:21:20 -0400
+	id <S316003AbSEJO04>; Fri, 10 May 2002 10:26:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316005AbSEJOVT>; Fri, 10 May 2002 10:21:19 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:50426 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S316004AbSEJOVS>; Fri, 10 May 2002 10:21:18 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <Pine.LNX.3.95.1020510095907.2632A-100000@chaos.analogic.com> 
-To: root@chaos.analogic.com
-Cc: Keith Owens <kaos@ocs.com.au>, Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: spin-locks 
+	id <S316006AbSEJO04>; Fri, 10 May 2002 10:26:56 -0400
+Received: from moutvdom00.kundenserver.de ([195.20.224.149]:11347 "EHLO
+	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S316003AbSEJO0y>; Fri, 10 May 2002 10:26:54 -0400
+Date: Fri, 10 May 2002 16:26:51 +0200
+From: Hans-Peter Jansen <hpj@urpla.net>
+To: <thomas.wallrafen@post.rwth-aachen.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Promise Ultra100 TX2
+Message-Id: <20020510162651.6b39cd9b.hpj@urpla.net>
+In-Reply-To: <200205080843.g488h9d10474@r220-1.rz.RWTH-Aachen.DE>
+Organization: Treewater
+X-Mailer: Sylpheed version 0.7.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 10 May 2002 15:17:50 +0100
-Message-ID: <26626.1021040270@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 8 May 2002 10:43:09 +0200 (MEST) thomas wallrafen wrote:
+> Hi!
+> I´ve found an article written by you in a Linux-Kernel Archive Mailing list.
+> I´d like to ask you, how you made your first Promise IDE-Controller work
+> with a Linux OS.
+> Is there perhaps a driver included in the 2.4.12 Kernel-release?
+> I just bought one right now and have found nearly no documentation about
+> how to make this IDE-controller work.
 
-root@chaos.analogic.com said:
->  Well, here is code that worked on linux 2.2.17.  Same CPUs, same
-> everything... Just a different version of OS...
+Depends on what controller type you have purchased. Most of them seem to
+work right out the box (besides 2.4.12 is fairly old in linux terms).
+With 4 port controllers (TX4) or multiple TX2's YMMV depending on kernel
+and motherboard. In short, be more explicit!
 
-I suspect your code was protected by the BKL in 2.2.17, not by your 
-'spinlocks'.
+> Thanks in advance for your help.
+> 
+> Thomas Wallrafen
+ 
+Cheers,
+  Hans-Peter
 
-root@chaos.analogic.com said:
-> 	cli
-> 	lock
-> 	incb	(lockf)		# Bump lock-value 
+> HINWEIS:
+> Diese Mail wurde von einem öffentlich zugänglichen SiteKiosk Internet-Terminal versendet. Der Betreiber ist nicht Verfasser dieser E-Mail und kann somit auch keine Verantwortung für den Inhalt übernehmen.
+> http://www.sitekiosk.de
 
-Ponder what happens if two CPUs get here at the same time. Lock count is 
-now two.
-
-> 1:	cmpb	$1,(lockf)	# See if we own it
-> 	jnz	1b		# Nope, spin until we do. 
-
-Now they both spin forever.
-
---
-dwmw2
-
+P.S.: Would be nice if the orginator of this disclaimer would split 
+      the second line to a proper length...
 

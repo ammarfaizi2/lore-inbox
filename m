@@ -1,77 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261635AbVAaJGE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261709AbVAaJJ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261635AbVAaJGE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 04:06:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261641AbVAaJGD
+	id S261709AbVAaJJ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 04:09:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261641AbVAaJJ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 04:06:03 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:4259 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S261635AbVAaJF4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 04:05:56 -0500
-Subject: Re: 2.4.29, e100 and a WOL packet causes keventd going mad
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: sfeldma@pobox.com
-Cc: David =?ISO-8859-1?Q?H=E4rdeman?= <david@2gen.com>,
-       Michael Gernoth <simigern@stud.uni-erlangen.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com
-In-Reply-To: <1107152056.21273.56.camel@desktop.cunninghams>
-References: <20050130171849.GA3354@hardeman.nu>
-	 <1107143255.18167.428.camel@localhost.localdomain>
-	 <1107143905.21273.33.camel@desktop.cunninghams>
-	 <1107147615.18167.433.camel@localhost.localdomain>
-	 <1107152056.21273.56.camel@desktop.cunninghams>
-Content-Type: text/plain
-Message-Id: <1107162475.4234.26.camel@desktop.cunninghams>
+	Mon, 31 Jan 2005 04:09:29 -0500
+Received: from styx.suse.cz ([82.119.242.94]:8865 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S261862AbVAaJJ0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 04:09:26 -0500
+Date: Mon, 31 Jan 2005 10:13:03 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-input@atrey.karlin.mff.cuni.cz, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 0/16] New set of input patches
+Message-ID: <20050131091303.GA28018@ucw.cz>
+References: <200412290217.36282.dtor_core@ameritech.net> <d120d5000501271018358c1d56@mail.gmail.com> <20050127221623.GA2300@ucw.cz> <200501301835.19220.dtor_core@ameritech.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Mon, 31 Jan 2005 20:08:03 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200501301835.19220.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again.
+On Sun, Jan 30, 2005 at 06:35:18PM -0500, Dmitry Torokhov wrote:
 
-Ignore that :> I realised later that there's only one badly named
-routine and my assumption that there was another called disable_.. was
-wrong :>
+> > You're right. I forgot that serio isn't anymore tied to the driver and
+> > can cease to exist on its own asynchronously. However, I'm still not
+> > sure whether it's worth it. We might as well simply drop the unregister
+> > call in i8042_open for AUX completely and forget about asynchronous
+> > unregisters and use normal refcounting. As far as grep knows, it's the
+> > only user.
+> 
+> I am pretty sure I will need asynchronous unregister in some form when
+> I finish dynamic protocol switching in psmouse (those darned pass-through
+> ports!). Plus again, having these 2 methods will draw driver writers'
+> attention to the existence of this particular problem.
 
-Nigel
+OK. I'm convinced.
 
-On Mon, 2005-01-31 at 17:14, Nigel Cunningham wrote:
-> Hi.
-> 
-> On Mon, 2005-01-31 at 16:00, Scott Feldman wrote:
-> > On Sun, 2005-01-30 at 19:58, Nigel Cunningham wrote:
-> > > Do you also disable the WOL event when resuming?
-> > 
-> > Good catch.  How's this look?
-> 
-> I looked at it last week because I used it for an example of device
-> model drivers at the CELF conference. I got your intel address from the
-> top of the .c file, but IIRC it bounced. Providence :>
-> 
-> [...]
-> 
-> > @@ -2333,6 +2331,7 @@ static int e100_resume(struct pci_dev *p
-> >  	struct nic *nic = netdev_priv(netdev);
-> >  
-> >  	pci_set_power_state(pdev, PCI_D0);
-> > +	pci_enable_wake(pdev, PCI_D0, 0);
-> >  	pci_restore_state(pdev);
-> >  	e100_hw_init(nic);
-> 
-> Shouldn't this be disable_wake?
-> 
-> Regards,
-> 
-> Nigel
 -- 
-Nigel Cunningham
-Software Engineer, Canberra, Australia
-http://www.cyclades.com
-
-Ph: +61 (2) 6292 8028      Mob: +61 (417) 100 574
-
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,75 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135494AbRDWSYV>; Mon, 23 Apr 2001 14:24:21 -0400
+	id <S135497AbRDWSpf>; Mon, 23 Apr 2001 14:45:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135497AbRDWSYL>; Mon, 23 Apr 2001 14:24:11 -0400
-Received: from venus.Sun.COM ([192.9.25.5]:16578 "EHLO venus.Sun.COM")
-	by vger.kernel.org with ESMTP id <S135494AbRDWSYA>;
-	Mon, 23 Apr 2001 14:24:00 -0400
-From: "Pawel Worach" <pworach@mysun.com>
-To: linux-kernel@vger.kernel.org
-Reply-To: pawel.worach@mysun.com
-Message-ID: <32812371f1.371f132812@mysun.com>
-Date: Mon, 23 Apr 2001 20:15:26 +0200
-X-Mailer: Netscape Webmail
-MIME-Version: 1.0
-Content-Language: en
-Subject: i810_audio broken?
-X-Accept-Language: en
-Content-Type: multipart/mixed; boundary="--540eaa83eb9773d"
+	id <S135504AbRDWSpY>; Mon, 23 Apr 2001 14:45:24 -0400
+Received: from mail5.doit.wisc.edu ([144.92.9.76]:5645 "EHLO
+	mail5.doit.wisc.edu") by vger.kernel.org with ESMTP
+	id <S135497AbRDWSpN>; Mon, 23 Apr 2001 14:45:13 -0400
+Message-Id: <200104231845.NAA13534@mail5.doit.wisc.edu>
+Subject: Re: BUG: Global FPU corruption in 2.2
+From: Erik Paulson <epaulson@cs.wisc.edu>
+To: Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>
+Cc: linux-kernel@vger.kernel.org, zandy@cs.wisc.edu
+In-Reply-To: <20010423161148.6465.qmail@theseus.mathematik.uni-ulm.de>
+In-Reply-To: <cpx7l0g3mfk.fsf@goat.cs.wisc.edu>  
+	<20010423161148.6465.qmail@theseus.mathematik.uni-ulm.de>
+Content-Type: text/plain
+X-Mailer: Evolution 0.8 (Developer Preview)
+Date: 23 Apr 2001 13:44:27 -0500
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On 23 Apr 2001 18:11:48 +0200, Christian Ehrhardt wrote:
+> On Thu, Apr 19, 2001 at 11:05:03AM -0500, Victor Zandy wrote:
+> > 
+> > We have found that one of our programs can cause system-wide
+> > corruption of the x86 FPU under 2.2.16 and 2.2.17.  That is, after we
+> > run this program, the FPU gives bad results to all subsequent
+> > processes.
+> 
+<...>
+> 
+> 3.) It might be interesting to know if the problem can be triggered:
+> a) If pi doesn't fork, i.e. just one process calculating pi and
+> another one doing the attach/detach.
 
-----540eaa83eb9773d
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+Yes, we are still able to reproduce it without calling fork (the new
+program just calls
+do_pi() a bunch of times, and then we attach and detach to that process)
 
-God afternoon!
+> b) If pi doesn't do FPU Operations, i.e. only the children call do_pi.
+> 
 
-The i810 audio driver is broken on my Fujitsu Lifebook
-S-4546. All output is just noise. Here is a snip's from
-the kernel log.
+You seem to need to attach and detach to a program using the fpu -
+running pt on a 
+process that is just busy-looping over and over some integer adds does
+not seem to
+while running pi on the machine at the same time, but not attaching to
+it does not
+seem to affect the floating point state.
 
-Intel 810 + AC97 Audio, version 0.02, 19:41:16 Apr 23 2001
-PCI: Found IRQ 9 for device 00:00.1
-PCI: The same IRQ used for device 00:00.2
-PCI: The same IRQ used for device 00:13.1
-PCI: Setting latency timer of device 00:00.1 to 64
-i810: Intel 440MX found at IO 0x1cc0 and 0x1000, IRQ 9
-ac97_codec: AC97 Audio codec, id: 0x594d:0x4800 (Unknown)
-i810_audio: only 48Khz playback available
-
-And the lspci:
-[root@whyami src]# lspci -vv -s 00:00.1
-00:00.1 Multimedia audio controller: Intel Corporation 82440MX AC'97
-Audio Controller
-	Subsystem: Citicorp TTI: Unknown device 10d0
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
-Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort-
-<MAbort- >SERR- <PERR-
-	Latency: 0
-	Interrupt: pin B routed to IRQ 9
-	Region 0: I/O ports at 1000 [size=256]
-	Region 1: I/O ports at 1cc0 [size=64]
-
-
-
-----540eaa83eb9773d
-Content-Type: text/x-vcard; name="pworach.vcf"; charset=us-ascii
-Content-Disposition: attachment; filename="pworach.vcf
-Content-Description: Card for <pworach@mysun.com>
-Content-Transfer-Encoding: 7bit
-
-begin:vcard
-n:Worach;Pawel
-fn:Pawel Worach
-version:2.1
-email;internet:pawel.worach@mysun.com
-end:vcard
-
-----540eaa83eb9773d--
+-Erik
 

@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263357AbTJQJTW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 05:19:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263358AbTJQJTW
+	id S263355AbTJQJcW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 05:32:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263356AbTJQJcW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 05:19:22 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:57872 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263357AbTJQJTV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 05:19:21 -0400
-Date: Fri, 17 Oct 2003 10:19:16 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Anton Blanchard <anton@samba.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] disable_irq()/enable_irq() semantics and ide-probe.c
-Message-ID: <20031017101916.B24238@flint.arm.linux.org.uk>
-Mail-Followup-To: Anton Blanchard <anton@samba.org>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Fri, 17 Oct 2003 05:32:22 -0400
+Received: from holomorphy.com ([66.224.33.161]:13959 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263355AbTJQJcV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 05:32:21 -0400
+Date: Fri, 17 Oct 2003 02:35:26 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: IWAMOTO Toshihiro <iwamoto@valinux.co.jp>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: highmem-zone memory hotremoval test patch
+Message-ID: <20031017093526.GF25291@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	IWAMOTO Toshihiro <iwamoto@valinux.co.jp>, akpm@osdl.org,
 	linux-kernel@vger.kernel.org
-References: <20031009174604.GC7665@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.44.0310091049150.22318-100000@home.osdl.org> <20031015171411.GH610@krispykreme>
+References: <20031017082835.713167007A@sv1.valinux.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20031015171411.GH610@krispykreme>; from anton@samba.org on Thu, Oct 16, 2003 at 03:14:11AM +1000
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+In-Reply-To: <20031017082835.713167007A@sv1.valinux.co.jp>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 16, 2003 at 03:14:11AM +1000, Anton Blanchard wrote:
-> >From memory at least x86, alpha, ppc32 and ppc64 worked with Andrey's
-> irq consolidation patches. I'll be pushing for it in 2.7 together with
-> some macros to abstract away irq_desc[NR_IRQS] completely. (it will
-> make it easier to support 24 bit irqs on ppc64 and should allow sparc64
-> to use the consolidated irq code).
+On Fri, Oct 17, 2003 at 05:28:35PM +0900, IWAMOTO Toshihiro wrote:
+> diff -dpur linux-2.6.0-test1/fs/proc/kcore.c linux-2.6.0-test1-mh/fs/proc/kcore.c
+> --- linux-2.6.0-test1/fs/proc/kcore.c	Mon Jul 14 12:34:39 2003
+> +++ linux-2.6.0-test1-mh/fs/proc/kcore.c	Thu Jul 31 16:01:37 2003
+> @@ -450,7 +450,7 @@ static ssize_t read_kcore(struct file *f
+>  			}
+>  			kfree(elf_buf);
+>  		} else {
+> -			if (kern_addr_valid(start)) {
+> +			if (1 /*kern_addr_valid(start)*/) {
+>  				unsigned long n;
+>  
+>  				n = copy_to_user(buffer, (char *)start, tsz);
 
-(CC list snipped)
+kern_addr_valid() has been bogus garbage for a while, and smbfs and
+ncpfs are swiss cheese. IMHO unless some arch gets its act together and
+acquires a legitimate use for it, pgdat->valid_addr_bitmap and
+kern_addr_valid() should be removed. And probably d_validate(), too.
 
->From what I heard, benh was seriously considering changing ppc64 IRQ
-stuff in 2.7 to use something like the system we have in ARM.
 
-benh?
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+-- wli

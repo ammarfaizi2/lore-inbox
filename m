@@ -1,33 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261718AbTCaQaE>; Mon, 31 Mar 2003 11:30:04 -0500
+	id <S261709AbTCaQ2C>; Mon, 31 Mar 2003 11:28:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261719AbTCaQaD>; Mon, 31 Mar 2003 11:30:03 -0500
-Received: from dp.samba.org ([66.70.73.150]:46788 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261718AbTCaQ37>;
-	Mon, 31 Mar 2003 11:29:59 -0500
-Date: Tue, 1 Apr 2003 02:36:38 +1000
-From: Anton Blanchard <anton@samba.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: sfr@canb.auug.org.au, torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       randolph@tausq.org, bcrl@redhat.com
-Subject: Re: [PATCH][COMPAT] another net/compat fix -- for recvmsg
-Message-ID: <20030331163637.GB28986@krispykreme>
-References: <20030331181644.29a2bfc6.sfr@canb.auug.org.au> <20030331.051718.111107720.davem@redhat.com>
+	id <S261708AbTCaQ2C>; Mon, 31 Mar 2003 11:28:02 -0500
+Received: from yuzuki.cinet.co.jp ([61.197.228.219]:30336 "EHLO
+	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
+	id <S261707AbTCaQ17>; Mon, 31 Mar 2003 11:27:59 -0500
+Date: Tue, 1 Apr 2003 01:37:55 +0900
+From: Osamu Tomita <tomita@cinet.co.jp>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH 2.5.66-ac1] Rest of PC-9800 support (1/9) Kconfig
+Message-ID: <20030331163755.GD1148@yuzuki.cinet.co.jp>
+References: <20030331163404.GC1148@yuzuki.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030331.051718.111107720.davem@redhat.com>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030331163404.GC1148@yuzuki.cinet.co.jp>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is the patch to support NEC PC-9800 subarchitecture
+against 2.5.66-ac1. (1/9)
 
-> I believe all are totally correct, patch applied.
-> 
-> Anton, please check to make sure this fixes your sshd problems
-> on ppc64, thanks.
+Add selection CONFIG_X86_PC9800.
 
-Nice work, it does fix the ssh problems (ie broken FD passing).
+Regards,
+Osamu Tomita
 
-Anton
+diff -Nru linux-2.5.65-ac3/arch/i386/Kconfig linux98-2.5.65-ac3/arch/i386/Kconfig
+--- linux-2.5.65-ac3/arch/i386/Kconfig	2003-03-23 16:59:02.000000000 +0900
++++ linux98-2.5.65-ac3/arch/i386/Kconfig	2003-03-23 17:01:20.000000000 +0900
+@@ -104,6 +104,12 @@
+ 	  A kernel compiled for the Visual Workstation will not run on PCs
+ 	  and vice versa. See <file:Documentation/sgi-visws.txt> for details.
+ 
++config X86_PC9800
++	bool "PC-9800 (NEC)"
++	help
++	  To make kernel for NEC PC-9801/PC-9821 sub-architecture, say Y.
++	  If say Y, kernel works -ONLY- on PC-9800 architecture.
++
+ endchoice
+ 
+ 
+@@ -1090,7 +1096,7 @@
+ 
+ config EISA
+ 	bool "EISA support"
+-	depends on ISA
++	depends on ISA && !X86_PC9800
+ 	---help---
+ 	  The Extended Industry Standard Architecture (EISA) bus was
+ 	  developed as an open alternative to the IBM MicroChannel bus.
+@@ -1108,7 +1114,7 @@
+ 
+ config MCA
+ 	bool "MCA support"
+-	depends on !(X86_VISWS || X86_VOYAGER)
++	depends on !(X86_VISWS || X86_VOYAGER || X86_PC9800)
+ 	help
+ 	  MicroChannel Architecture is found in some IBM PS/2 machines and
+ 	  laptops.  It is a bus system similar to PCI or ISA. See

@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135935AbRDZVXR>; Thu, 26 Apr 2001 17:23:17 -0400
+	id <S135941AbRDZV35>; Thu, 26 Apr 2001 17:29:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135939AbRDZVXH>; Thu, 26 Apr 2001 17:23:07 -0400
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:10766 "EHLO
-	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S135935AbRDZVWz>; Thu, 26 Apr 2001 17:22:55 -0400
-From: Andrzej Krzysztofowicz <kufel!ankry@green.mif.pg.gda.pl>
-Message-Id: <200104262113.XAA01552@kufel.dom>
-Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
-To: kufel!transmeta.com!torvalds@green.mif.pg.gda.pl (Linus Torvalds)
-Date: Thu, 26 Apr 2001 23:13:30 +0200 (CEST)
-Cc: kufel!math.psu.edu!viro@green.mif.pg.gda.pl (Alexander Viro),
-        kufel!suse.de!andrea@green.mif.pg.gda.pl (Andrea Arcangeli),
-        kufel!lxorguk.ukuu.org.uk!alan@green.mif.pg.gda.pl (Alan Cox),
-        kufel!vger.kernel.org!linux-kernel@green.mif.pg.gda.pl
-In-Reply-To: <Pine.LNX.4.31.0104261303030.1118-100000@penguin.transmeta.com> from "Linus Torvalds" at kwi 26, 2001 01:08:25 
-X-Mailer: ELM [version 2.5 PL0pre8]
-MIME-Version: 1.0
+	id <S135942AbRDZV3u>; Thu, 26 Apr 2001 17:29:50 -0400
+Received: from cc885639-a.flushing1.mi.home.com ([24.182.96.34]:18436 "HELO
+	caesar.lynix.com") by vger.kernel.org with SMTP id <S135941AbRDZV33>;
+	Thu, 26 Apr 2001 17:29:29 -0400
+Date: Thu, 26 Apr 2001 17:30:16 +0000
+From: Subba Rao <subba9@home.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: init process in 2.2.19
+Message-ID: <20010426173016.C1125@home.com>
+Reply-To: Subba Rao <subba9@home.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> Note that I think all these arguments are fairly bogus.  Doing things like
-> "dump" on a live filesystem is stupid and dangerous (in my opinion it is
-> stupid and dangerous to use "dump" at _all_, but that's a whole 'nother
-> discussion in itself), and there really are no valid uses for opening a
-> block device that is already mounted. More importantly, I don't think
-> anybody actually does.
+Hi,
 
-I know a few people that often do:
+I am trying to add a process which is to be managed by init. I have added the
+following entry to /etc/inittab
 
-dd if=/dev/hda1 of=/dev/hdc1
-e2fsck /dev/hdc1
+SV:2345:respawn:env - PATH=/usr/local/bin:/usr/sbin:/usr/bin:/bin svscan /service </dev/null 2> dev/console
 
-to make an "exact" copy of a currently working system.
+After saving, I execute the following command:
 
-Maybe it is stupid, but they do.
-Fortunately, their systems are not SMP...
+	# kill -HUP 1
 
-Andrzej
+This does not start the process I have added. The process that I have added
+only starts when I do:
 
+	# init u
+or
+	# telinit u
+
+PS - The process will not start even after a reboot. I have to manually do one
+of the above commands as root.
+
+My kernel version is : 2.2.19
+Distro : Slackware
+GCC : gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)
+
+Any help appreciated.
+
+-- 
+
+Subba Rao
+subba9@home.com
+http://members.home.net/subba9/
+
+GPG public key ID 27FC9217

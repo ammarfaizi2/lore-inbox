@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266204AbUG0TXa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266509AbUG0TXy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266204AbUG0TXa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 15:23:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266509AbUG0TXa
+	id S266509AbUG0TXy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 15:23:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266511AbUG0TXy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 15:23:30 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56221 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266204AbUG0TX3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 15:23:29 -0400
-Date: Tue, 27 Jul 2004 20:23:28 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Gene Heskett <gene.heskett@verizon.net>
+	Tue, 27 Jul 2004 15:23:54 -0400
+Received: from smtp811.mail.sc5.yahoo.com ([66.163.170.81]:27754 "HELO
+	smtp811.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266509AbUG0TXu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 15:23:50 -0400
+From: tabris <tabris@tabris.net>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: [Repost] IDE error 2.6.7-rc3-mm2 and 2.6.8-rc1-mm1
+Date: Tue, 27 Jul 2004 14:07:10 -0400
+User-Agent: KMail/1.6.1
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc2 crashes
-Message-ID: <20040727192328.GF12308@parcelfarce.linux.theplanet.co.uk>
-References: <200407271233.04205.gene.heskett@verizon.net> <200407271402.59846.gene.heskett@verizon.net> <20040727105039.052352d8.rddunlap@osdl.org> <200407271442.33208.gene.heskett@verizon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <200407220659.22948.tabris@tabriel.tabris.net> <20040722153933.GJ3987@suse.de>
+In-Reply-To: <20040722153933.GJ3987@suse.de>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <200407271442.33208.gene.heskett@verizon.net>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407271407.10631.tabris@tabris.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 27, 2004 at 02:42:33PM -0400, Gene Heskett wrote:
-> Humm, I just tried to build it using 2.6.8-rc1 as the main patch to 
-> 2.6.7, but then the 2.6.8-rc2-bk3 patch will not apply as the second 
-> patch...  I'll go back and redo the rc2 patch first.  Or do I really 
-> have something totally fubared?
+On Thursday 22 July 2004 11:39 am, Jens Axboe wrote:
+> On Thu, Jul 22 2004, Tabris wrote:
+> > -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: SHA1
+<snip log>
+> > 	This error did not occur in 2.6.6-rc3-mm2. Turning off ACPI made
+> > no difference, not that I expected one.
+> >
+> > 	It appears to be harmless but it's polluting my syslog.
+> >
+> > Appears related to
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=108946389700930
+> >
+> > 	None of my harddrives are over 60GiB (and hda is an 8GiB), so
+> > there's no reason i should be getting LBA48 Flush Cache.
+> >
+> > 	What should I do, what do you need from me to get to the bottom of
+> > this?
+>
+> Does this work?
+	No, however it does seem to start it going in my syslog a bit earlier, 
+but that may be meaningless (normally I found it waited until after 
+qmail would start).
 
-It goes like that:
-2.6.7
-2.6.7 + 7-bk<n>
-2.6.7 + 8-rc1
-2.6.7 + 8-rc1 + 8-rc1-bk<n>
-2.6.7 + 8-rc2
-2.6.7 + 8-rc2 + 8-rc2-bk<n>
-...
+	Also, my i2c/sensors have stopped working (tho I doubt it has anything 
+to do with your patch, it _does_ lineup with my applying your patch and 
+rebooting...)
 
-Since rc1 works and rc2 doesnt, you want 
-	linux-2.6.7.tar.bz2 +
-	testing/patch-2.6.8-rc1.bz2 +
-	snapshots/old/patch-2.6.8-rc1-bk<n>.bz2
-(all under /pub/linux/kernel/v2.6 on ftp.kernel.org and mirrors)
+--
+tabris

@@ -1,57 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265401AbUBAR6I (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 12:58:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265406AbUBAR6I
+	id S265431AbUBAR75 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 12:59:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265433AbUBAR75
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 12:58:08 -0500
-Received: from leticia.terra.com.br ([200.154.55.226]:50908 "EHLO
-	leticia.terra.com.br") by vger.kernel.org with ESMTP
-	id S265401AbUBAR6F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 12:58:05 -0500
-Subject: Re: Linux device driver using c++!
-From: Rafael Pereira <flip-flop@pop.com.br>
-To: "Jinu M." <jinum@esntechnologies.co.in>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1118873EE1755348B4812EA29C55A9720DE151@esnmail.esntechnologies.co.in>
-References: <1118873EE1755348B4812EA29C55A9720DE151@esnmail.esntechnologies.co.in>
-Content-Type: text/plain
-Message-Id: <1075658301.4608.8.camel@fliflop.mosfet.bit>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 01 Feb 2004 15:58:21 -0200
+	Sun, 1 Feb 2004 12:59:57 -0500
+Received: from kluizenaar.xs4all.nl ([213.84.184.247]:1725 "EHLO samwel.tk")
+	by vger.kernel.org with ESMTP id S265431AbUBAR7z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Feb 2004 12:59:55 -0500
+Message-ID: <401D3E97.5080902@samwel.tk>
+Date: Sun, 01 Feb 2004 18:59:51 +0100
+From: Bart Samwel <bart@samwel.tk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031221 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: reiser@namesys.com
+Subject: Reiserfs flags question
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-SA-Exim-Mail-From: bart@samwel.tk
+X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-02-01 at 10:47, Jinu M. wrote:
-> Hi All,
-> 
-> 	I am new to Linux based device driver development.
->          I wanted to know if it is possible to write a Linux device driver (kernel loadable module) using C++.
-> 	
-> Regards,
-> -Jinu
+Hi everyone,
 
-This topic you posted is in the Linux Kernel Mailing List FAQ at:
+I was looking at fs/reiserfs/inode.c, and I noticed that the functions 
+sd_attrs_to_i_attrs and i_attrs_to_sd_attrs are not exact inverses: 
+i_attrs_to_sd_attrs doesn't convert the S_APPEND flag to 
+REISERFS_APPEND_FL, but sd_attrs_to_i_attrs does convert 
+REISERFS_APPEND_FL to S_APPEND. I was wondering, is this intentional?
 
-http://www.kernel.org/pub/linux/docs/lkml/
-
-Seacrh for this question:
-
-"Why don't we rewrite the Linux kernel in C++?"
-
-And you find because C++ is not used in the Linux Kernel.
-
-
-Rafael.
-
--- 
-================================================== 
-Rafael do Nascimento Pereira 
-Equipe de Suporte - Dpto. de Informatica - PUC-Rio 
-================================================== 
-Tel: (21) 3114-1500 ramais 3303,3304,3305 
-Fax: (21) 3114-1530 
-================================================== 
-
+--Bart

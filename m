@@ -1,56 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262373AbTKNLvK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 06:51:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbTKNLvK
+	id S262352AbTKNLiv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 06:38:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbTKNLiv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 06:51:10 -0500
-Received: from no-dns-yet.demon.co.uk ([62.49.87.163]:49803 "EHLO
-	mailgate.scotcomms.co.uk") by vger.kernel.org with ESMTP
-	id S262373AbTKNLvG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 06:51:06 -0500
-Message-ID: <09A92EA4A9D2D51182170004AC96FE7A1216BB@mercury.scotcomms>
-From: Patrick Beard <patrick@scotcomms.co.uk>
-To: "'Andries Brouwer'" <aebr@win.tue.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: 2.6.0-test9 VFAT problem
-Date: Fri, 14 Nov 2003 11:51:57 -0000
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2656.59)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-X-Scanner: exiscan *1AKcTZ-0003FN-00*arCY7T2ZL4A*
+	Fri, 14 Nov 2003 06:38:51 -0500
+Received: from D7146.d.pppool.de ([80.184.113.70]:45199 "EHLO
+	karin.de.interearth.com") by vger.kernel.org with ESMTP
+	id S262352AbTKNLit (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 06:38:49 -0500
+Subject: Re: kernel.bkbits.net off the air
+From: Daniel Egger <degger@fhm.edu>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Larry McVoy <lm@bitmover.com>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <3FB4A6B7.5040306@cyberone.com.au>
+References: <fa.eto0cvm.1v20528@ifi.uio.no>
+	 <200311112021.34631.andrew@walrond.org>
+	 <20031111235215.GA22314@work.bitmover.com>
+	 <200311131010.27315.andrew@walrond.org>
+	 <20031113162712.GA2462@work.bitmover.com>
+	 <1068766365.15965.228.camel@sonja>  <3FB4A6B7.5040306@cyberone.com.au>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-4g/ftrUq0H2P7YNe2qfB"
+Message-Id: <1068809923.15965.240.camel@sonja>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 14 Nov 2003 12:38:44 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > My fstab entry is;
-> > /dev/sda    /mnt/smedia    vfat    rw,user,noauto    0,0
-> 
-> I would guess that you have to mount /dev/sda1 or perhaps /dev/sda4.
-> Isn't that what you do under 2.4?
-> 
-> Andries
 
-Hi Andries,
+--=-4g/ftrUq0H2P7YNe2qfB
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Yes, with 2.4 I used sda1. When I first compiled 2.6 I used sda1 but I got
-the 'wrong fs..' error. This was a clean install of debian so I didn't have
-my original fstab. I checked the web and noticed people using sda. so I
-tried that - same error. In trying to get this to work I've used sda and
-sda1 at different times both gave the same errors.
+Am Fre, den 14.11.2003 schrieb Nick Piggin um 10:56:
 
-Thanks for your reply,
+> Actually, at http://www.kernel.org/ there is a link to daily snapshots.
+> There are also changesets generated every couple of hours at the "C" link
+> at the right of the page.
 
---
-Patrick 
+> Even if Linus doesn't release as often (doesn't he? I don't know), this
+> is surely much better than pre BK. Maybe I didn't understand you right?
 
+Seems so. I assume you missed the "bandwidth constraint" part. Fetching
+a whole snapshot every day is not even close to workable. The snapshots
+in patch form are nice however patching forth and back is not really an
+option. If svn doesn't get back up I'd be tempted to use rsync and use
+vendor branches in my own SVN repository but this also seems far from
+optimal to me. rsync alone doesn't cut it because there's no version
+management and I've lost quite a few patches due to an not thoroughly
+considered rsync use.
 
-Whilst we have taken every effort to ensure that all attachments 
-are virus free, use is at the recipients own risk.
+--=20
+Servus,
+       Daniel
 
-_________________ANTI_VIRUS PROTECTION___________________ 
+--=-4g/ftrUq0H2P7YNe2qfB
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
 
-This message has been checked for all known viruses by Norman Anti-Virus. 
-For further information visit http://www.norman.com 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
+iD8DBQA/tL7Cchlzsq9KoIYRAtNKAKCiOxMlSDfUhUYKXTtytyO9PNTG3QCfaoc2
+jPPe97csCrWSZ0fP3oXhWuU=
+=JDk/
+-----END PGP SIGNATURE-----
+
+--=-4g/ftrUq0H2P7YNe2qfB--
 

@@ -1,96 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265663AbSKAIWm>; Fri, 1 Nov 2002 03:22:42 -0500
+	id <S265683AbSKAI3c>; Fri, 1 Nov 2002 03:29:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265665AbSKAIWm>; Fri, 1 Nov 2002 03:22:42 -0500
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:60126 "EHLO
+	id <S265682AbSKAI3c>; Fri, 1 Nov 2002 03:29:32 -0500
+Received: from natsmtp00.webmailer.de ([192.67.198.74]:14290 "EHLO
 	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S265663AbSKAIWT>; Fri, 1 Nov 2002 03:22:19 -0500
-Date: Fri, 1 Nov 2002 09:28:19 +0100
+	id <S265681AbSKAI3a>; Fri, 1 Nov 2002 03:29:30 -0500
+Date: Fri, 1 Nov 2002 09:35:41 +0100
 From: Dominik Brodowski <linux@brodo.de>
 To: torvalds@transmeta.com
 Cc: linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk
-Subject: [2.5. PATCH] cpufreq: correct initialization on PIII Coppermines
-Message-ID: <20021101092819.C1268@brodo.de>
+Subject: [2.5. PATCH] cpufreq: VIA longhaul v.1 update
+Message-ID: <20021101093541.D1268@brodo.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="IrhDeMKUP4DT/M7F"
+	protocol="application/pgp-signature"; boundary="gr/z0/N6AeWAPJVB"
 Content-Disposition: inline
 User-Agent: Mutt/1.3.16i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---IrhDeMKUP4DT/M7F
+--gr/z0/N6AeWAPJVB
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-The detection process for speedstep-enabled Pentium IIIs mixed up the
-lower and upper 32 bits of a MSR. Additionally, the second check
-turned out to be wrong. (Bruno Ducrot, "Nash")
+Updates for better support of VIA longhaul v.1. which is found on
+Samuel/CyrixIII, Samuel2/C3 processors. (Dave Jones)
 
-       Dominik
+	Dominik
 
-
---- linux-2545original/arch/i386/kernel/cpu/cpufreq/speedstep.c	Thu Oct 31 =
-12:00:00 2002
-+++ linux/arch/i386/kernel/cpu/cpufreq/speedstep.c	Thu Oct 31 20:30:00 2002
+--- linux-2545original/arch/i386/kernel/cpu/cpufreq/longhaul.c	Thu Oct 31 1=
+2:00:00 2002
++++ linux/arch/i386/kernel/cpu/cpufreq/longhaul.c	Thu Oct 31 23:50:00 2002
 @@ -1,5 +1,5 @@
  /*
-- *  $Id: speedstep.c,v 1.53 2002/09/29 23:43:11 db Exp $
-+ *  $Id: speedstep.c,v 1.54 2002/10/10 15:52:55 db Exp $
+- *  $Id: longhaul.c,v 1.72 2002/09/29 23:43:10 db Exp $
++ *  $Id: longhaul.c,v 1.77 2002/10/31 21:17:40 db Exp $
   *
-  * (C) 2001  Dave Jones, Arjan van de ven.
-  * (C) 2002  Dominik Brodowski <linux@brodo.de>
-@@ -72,7 +72,7 @@
- #ifdef SPEEDSTEP_DEBUG
- #define dprintk(msg...) printk(msg)
- #else
--#define dprintk(msg...) do { } while(0);
-+#define dprintk(msg...) do { } while(0)
- #endif
+  *  (C) 2001  Dave Jones. <davej@suse.de>
+  *  (C) 2002  Padraig Brady. <padraig@antefacto.com>
+@@ -436,8 +436,10 @@
+ 	switch (longhaul) {
+ 	case 1:
+ 		/* Ugh, Longhaul v1 didn't have the min/max MSRs.
+-		   Assume max =3D whatever we booted at. */
++		   Assume min=3D3.0x & max =3D whatever we booted at. */
++		minmult =3D 30;
+ 		maxmult =3D longhaul_get_cpu_mult();
++		minfsb =3D maxfsb =3D current_fsb;
+ 		break;
 =20
-=20
-@@ -490,16 +490,10 @@
- 			/* platform ID seems to be 0x00140000 */
- 			rdmsr(MSR_IA32_PLATFORM_ID, msr_lo, msr_hi);
- 			dprintk(KERN_DEBUG "cpufreq: Coppermine: MSR_IA32_PLATFORM ID is 0x%x, =
-0x%x\n", msr_lo, msr_hi);
--			msr_hi =3D msr_lo & 0x001c0000;
-+			msr_hi &=3D 0x001c0000;
- 			if (msr_hi !=3D 0x00140000)
- 				return 0;
-=20
--			/* and these bits seem to be either 00_b, 01_b or
--			 * 10_b but never 11_b */
--			msr_lo &=3D 0x00030000;
--			if (msr_lo =3D=3D 0x0030000)
--				return 0;
--
- 			/* let's hope this is correct... */
- 			return SPEEDSTEP_PROCESSOR_PIII_C;
- 		}
-@@ -644,11 +638,11 @@
- 		speedstep_processor =3D speedstep_detect_processor();
-=20
- 	if ((!speedstep_chipset) || (!speedstep_processor)) {
--		dprintk(KERN_INFO "cpufreq: Intel(R) SpeedStep(TM) for this %s not (yet)=
- available.\n", speedstep_processor ? "chipset" : "processor");
-+		printk(KERN_INFO "cpufreq: Intel(R) SpeedStep(TM) for this %s not (yet) =
-available.\n", speedstep_processor ? "chipset" : "processor");
- 		return -ENODEV;
- 	}
-=20
--	dprintk(KERN_INFO "cpufreq: Intel(R) SpeedStep(TM) support $Revision: 1.5=
-3 $\n");
-+	dprintk(KERN_INFO "cpufreq: Intel(R) SpeedStep(TM) support $Revision: 1.5=
-4 $\n");
- 	dprintk(KERN_DEBUG "cpufreq: chipset 0x%x - processor 0x%x\n",=20
- 	       speedstep_chipset, speedstep_processor);
-=20
+ 	case 2 ... 3:
 
---IrhDeMKUP4DT/M7F
+--gr/z0/N6AeWAPJVB
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
@@ -98,9 +62,9 @@ Content-Disposition: inline
 Version: GnuPG v1.0.6 (GNU/Linux)
 Comment: Weitere Infos: siehe http://www.gnupg.org
 
-iD8DBQE9wjrQZ8MDCHJbN8YRApMiAJ0aM3m9yfQHLji9c9g9RBSnGgHPcACgqDRX
-leAjtSKAUUvpgTEh59BHr0o=
-=G4Yu
+iD8DBQE9wjzbZ8MDCHJbN8YRAjk/AJsG1INOc4AuH+DtxgnDVrbCUiB6BACfe6vN
+f9lneRW2tvvnirQH6OY+eX8=
+=qOdF
 -----END PGP SIGNATURE-----
 
---IrhDeMKUP4DT/M7F--
+--gr/z0/N6AeWAPJVB--

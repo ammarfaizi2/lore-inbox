@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288708AbSADSLg>; Fri, 4 Jan 2002 13:11:36 -0500
+	id <S288710AbSADSMg>; Fri, 4 Jan 2002 13:12:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288710AbSADSL1>; Fri, 4 Jan 2002 13:11:27 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:56488 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S288708AbSADSLK>;
-	Fri, 4 Jan 2002 13:11:10 -0500
-Date: Fri, 4 Jan 2002 13:11:05 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Nikita Danilov <Nikita@Namesys.COM>,
-        Alessandro Suardi <alessandro.suardi@oracle.com>,
-        linux-kernel@vger.kernel.org, andries.brouwer@cwi.nl
-Subject: Re: 2.5.2-pre7 still missing bits of kdev_t
-In-Reply-To: <Pine.LNX.4.33.0201040953040.5360-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0201041308380.26982-100000@weyl.math.psu.edu>
+	id <S288711AbSADSMc>; Fri, 4 Jan 2002 13:12:32 -0500
+Received: from mustard.heime.net ([194.234.65.222]:35507 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S288710AbSADSMW>; Fri, 4 Jan 2002 13:12:22 -0500
+Date: Fri, 4 Jan 2002 19:12:17 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: Arjan van de Ven <arjanv@redhat.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Error loading e1000.o - symbol not found
+In-Reply-To: <3C35EFCC.52E7BFD9@redhat.com>
+Message-ID: <Pine.LNX.4.30.0201041912080.30049-100000@mustard.heime.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 4 Jan 2002, Arjan van de Ven wrote:
 
-
-On Fri, 4 Jan 2002, Linus Torvalds wrote:
-
-> 
-> On Fri, 4 Jan 2002, Jeff Garzik wrote:
+> Roy Sigurd Karlsbakk wrote:
 > >
-> > As mentioned to viro on IRC, I think init_special_inode should take
-> > major and minor arguments, to nudge the filesystem implementors into
-> > thinking that major and minor should be treated separately, and be given
-> > additional thought as to how they are encoded on-disk.
-> 
-> Yes. If somebody sends me a patch, I'll apply it in a jiffy.
+> > hm...
+> >
+> > same problem with 2.4.18-pre1
+> >
+> > [root@vs2 src]# modprobe e1000
+> > /lib/modules/2.4.18-srv1/kernel/drivers/net/e1000.o: unresolved symbol _mmx_memcpy
+> > /lib/modules/2.4.18-srv1/kernel/drivers/net/e1000.o: insmod
+> > /lib/modules/2.4.18-srv1/kernel/drivers/net/e1000.o failed
+> > /lib/modules/2.4.18-srv1/kernel/drivers/net/e1000.o: insmod e1000 failed
+> >
+> > anyone that knows why?
+>
+> Intel probably uses the wrong set of kernel headers to compile against
+>
 
-Guys, wait a minute with that.  There is a related issue (->i_rdev
-becoming dev_t) and I'd rather see it handled first.
+do you know how I can fix it?
+
+--
+Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+
+Computers are like air conditioners.
+They stop working when you open Windows.
 

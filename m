@@ -1,33 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316289AbSGNMgr>; Sun, 14 Jul 2002 08:36:47 -0400
+	id <S316235AbSGNMnh>; Sun, 14 Jul 2002 08:43:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316235AbSGNMgq>; Sun, 14 Jul 2002 08:36:46 -0400
-Received: from mailhub.fokus.gmd.de ([193.174.154.14]:29684 "EHLO
+	id <S316434AbSGNMng>; Sun, 14 Jul 2002 08:43:36 -0400
+Received: from mailhub.fokus.gmd.de ([193.174.154.14]:28918 "EHLO
 	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
-	id <S315784AbSGNMgp>; Sun, 14 Jul 2002 08:36:45 -0400
-Date: Sun, 14 Jul 2002 14:38:03 +0200 (CEST)
+	id <S316235AbSGNMnf>; Sun, 14 Jul 2002 08:43:35 -0400
+Date: Sun, 14 Jul 2002 14:44:53 +0200 (CEST)
 From: Joerg Schilling <schilling@fokus.gmd.de>
-Message-Id: <200207141238.g6ECc3vZ019049@burner.fokus.gmd.de>
+Message-Id: <200207141244.g6ECir4j019051@burner.fokus.gmd.de>
 To: linux-kernel@vger.kernel.org
 Subject: Re: IDE/ATAPI in 2.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->H. Peter Anvin wrote:
+H. Peter Anvin wrote:
 
->OK, non-ATAPI devices need not apply, obviously, but the argument
->still applies for ATAPI devices...
+I'm talking specifically about ATAPI devices here.  As we have already 
+covered, not all ATA devices are ATAPI, but unless I'm completely off 
+the wall, ATAPI is SCSI over IDE, and should be able to be driven as 
+such.  The lack of access to that interface using the established 
+interface mechanisms just bites.
 
-It is bad to see, that you are the only person in this thread who
-seems to did already think about the problem and who tries to find
-a useful solution.
+You fund it!
 
-Nearly all other people only track personal wishes and aversions.
+Other people did not even think about the problem, or even lack the 
+needed knowledge.
 
-To find a useful solution, we need a tecnical and knowledge base
-driven idea - not only trying to prevent other people's ideas to become
-reality.
+Alan Cox is one of the latter ones :-( he only tries to avoid needed
+changes ithout any technical reason.
+
+If you have a IDE based CD-ROM drive that does not support ATAPI,
+why not handle it the only way it makes sense?
+
+Such a drive is no more than a read-only hard disk and may be accessed
+via the HD IDE read interface. You will never be able to use it 
+to e.g. rip audio data off it.
+
+If there really is a poor school that cannot afford to buy a modern
+20-30 Euro CD-ROM drive, then this school can liveas long as they 
+are able to install the OS from the old (1992) CD-ROM they currently own.
+
+
 
 Jörg
 

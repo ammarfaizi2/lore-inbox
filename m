@@ -1,44 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263054AbTJULie (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 07:38:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263015AbTJULid
+	id S263082AbTJULsh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 07:48:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263081AbTJULsh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 07:38:33 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:43493 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S263054AbTJULic (ORCPT
+	Tue, 21 Oct 2003 07:48:37 -0400
+Received: from pop.gmx.net ([213.165.64.20]:53632 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263082AbTJULsf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 07:38:32 -0400
-Date: Tue, 21 Oct 2003 13:37:10 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Subject: [patch] updated exec-shield patch, 2.4/2.6 -G4
-Message-ID: <Pine.LNX.4.56.0310211330290.6034@earth>
+	Tue, 21 Oct 2003 07:48:35 -0400
+Date: Tue, 21 Oct 2003 13:48:34 +0200 (MEST)
+From: "Svetoslav Slavtchev" <svetljo@gmx.de>
+To: "lkml " <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/mixed; boundary="========GMXBoundary5741066736914"
+Subject: [PATCH][2.6-mm] radeonfb as module 
+X-Priority: 3 (Normal)
+X-Authenticated: #20183004
+Message-ID: <574.1066736914@www3.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a MIME encapsulated multipart message -
+please use a MIME-compliant e-mail program to open it.
 
-Here's the latest, -G4 update of the exec-shield patches, against various
-kernels:
+Dies ist eine mehrteilige Nachricht im MIME-Format -
+bitte verwenden Sie zum Lesen ein MIME-konformes Mailprogramm.
 
-	redhat.com/~mingo/exec-shield/exec-shield-2.6.0-test8-G4
-	redhat.com/~mingo/exec-shield/exec-shield-2.6.0-test8-mm1-G4
-	redhat.com/~mingo/exec-shield/exec-shield-2.4.22-G4
-	redhat.com/~mingo/exec-shield/exec-shield-2.4.22-ac1-nptl-G4
+--========GMXBoundary5741066736914
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-Changes in -G4:
+acquire_console_sem is exported, 
+but release_console_sem is not
 
- - bugfix in the 2.6 patches, certain applications segfaulted when the 
-   stack limit was set to unlimited. (Roland McGrath)
+this seems like a bug for me,
+as if one acquire console_sem, he should be able to relase it
 
- - PIE bugfix: for certain ELF layouts the kernel loader ended up 
-   overmapping ld.so resulting in broken applications. (Jakub Jelinek, me)
+svetljo
 
- - port to 2.6.0-test8-mm1. (Valdis Kletnieks, me)
+PS.
+missing symbol in (IIRC) drivers/video/aty/radeon_pm.c
 
-reports, comments welcome. Enjoy it,
+-- 
+NEU FÜR ALLE - GMX MediaCenter - für Fotos, Musik, Dateien...
+Fotoalbum, File Sharing, MMS, Multimedia-Gruß, GMX FotoService
 
-	Ingo
+Jetzt kostenlos anmelden unter http://www.gmx.net
+
++++ GMX - die erste Adresse für Mail, Message, More! +++
+--========GMXBoundary5741066736914
+Content-Type: application/octet-stream; name="missed_export-release_console_sem.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="missed_export-release_console_sem.patch"
+
+LS0tIGxpbnV4LTIuNi4wLXRlc3Q3L2tlcm5lbC9wcmludGsuYy5vcmlnCTIwMDMtMTAtMjEgMDk6
+NDU6MzIuMjk0OTU2MDE4ICswMjAwCisrKyBsaW51eC0yLjYuMC10ZXN0Ny9rZXJuZWwvcHJpbnRr
+LmMJMjAwMy0xMC0yMSAwOTo0Mzo1OS45NTIwNDkzMDYgKzAyMDAKQEAgLTU2Niw2ICs1NjYsNyBA
+QAogCWlmICh3YWtlX2tsb2dkICYmICFvb3BzX2luX3Byb2dyZXNzICYmIHdhaXRxdWV1ZV9hY3Rp
+dmUoJmxvZ193YWl0KSkKIAkJd2FrZV91cF9pbnRlcnJ1cHRpYmxlKCZsb2dfd2FpdCk7CiB9CitF
+WFBPUlRfU1lNQk9MKHJlbGVhc2VfY29uc29sZV9zZW0pOwogCiAvKiogY29uc29sZV9jb25kaXRp
+b25hbF9zY2hlZHVsZSAtIHlpZWxkIHRoZSBDUFUgaWYgcmVxdWlyZWQKICAqCg==
+
+--========GMXBoundary5741066736914--
+

@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261837AbUK2WfF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261868AbUK2WrX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261837AbUK2WfF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 17:35:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261846AbUK2WdY
+	id S261868AbUK2WrX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 17:47:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbUK2WoV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 17:33:24 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:43503 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261837AbUK2W3r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 17:29:47 -0500
-To: Greg KH <greg@kroah.com>
-Cc: Gerrit Huizenga <gh@us.ibm.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, Rik van Riel <riel@redhat.com>,
-       Chris Mason <mason@suse.com>,
-       ckrm-tech <ckrm-tech@lists.sourceforge.net>
-X-Message-Flag: Warning: May contain useful information
-References: <E1CYqYe-00057g-00@w-gerrit.beaverton.ibm.com>
-	<20041129220047.GC19892@kroah.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Mon, 29 Nov 2004 14:28:32 -0800
-In-Reply-To: <20041129220047.GC19892@kroah.com> (Greg KH's message of "Mon,
- 29 Nov 2004 14:00:47 -0800")
-Message-ID: <527jo4s31r.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: Re: [PATCH] CKRM: 3/10 CKRM:  Core ckrm, rcfs
+	Mon, 29 Nov 2004 17:44:21 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:48394 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261858AbUK2Wms (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 17:42:48 -0500
+Date: Mon, 29 Nov 2004 22:42:40 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: Domen Puncer <domen@coderock.org>, janitor@sternwelten.at,
+       linux-kernel@vger.kernel.org, akpm@digeo.com
+Subject: Re: ds1620: replace schedule_timeout() with 	msleep()
+Message-ID: <20041129224240.D5614@flint.arm.linux.org.uk>
+Mail-Followup-To: Jesper Juhl <juhl-lkml@dif.dk>,
+	Domen Puncer <domen@coderock.org>, janitor@sternwelten.at,
+	linux-kernel@vger.kernel.org, akpm@digeo.com
+References: <E1C2cAP-0007Rx-JK@sputnik> <Pine.LNX.4.61.0411281835430.3389@dragon.hygekrogen.localhost> <20041129140929.GC7889@nd47.coderock.org> <Pine.LNX.4.61.0411292336320.3389@dragon.hygekrogen.localhost>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 29 Nov 2004 22:28:32.0763 (UTC) FILETIME=[C24494B0:01C4D662]
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.61.0411292336320.3389@dragon.hygekrogen.localhost>; from juhl-lkml@dif.dk on Mon, Nov 29, 2004 at 11:37:48PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Greg> Ick.  Don't put a _t at the end of a typedef.  Wrong OS
-    Greg> style guide.
+On Mon, Nov 29, 2004 at 11:37:48PM +0100, Jesper Juhl wrote:
+> On Mon, 29 Nov 2004, Domen Puncer wrote:
+> > It's right:
+> > schedule_timeout(2*HZ) sleeps for 2 seconds;
+> > msleep(2000) sleeps for 2000 miliseconds, and does not depend on what
+> > HZ is.
+>
+> It seems I didn't understand schedule_timeout() properly, thank you for 
+> the clarification.
 
-Just out of curiousity, who wrote the line
+As part-author of this driver, and actually of this particular bit
+of code, a 2 second delay is intented here.  The fan needs to be run
+at full power in order to start running, so the idea here is to give
+it full power for 2 seconds and then to restore the temperature trip
+points to the configured values.
 
-	typedef int __bitwise kobject_action_t;
-
-in <linux/kobject_uevent.h>?  From the changelog it almost looks like
-you did it ;)
-
- - Roland
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,86 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262298AbVCBOCS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262301AbVCBODb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262298AbVCBOCS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 09:02:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262297AbVCBOCS
+	id S262301AbVCBODb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 09:03:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262299AbVCBODb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 09:02:18 -0500
-Received: from rproxy.gmail.com ([64.233.170.193]:48578 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262298AbVCBOCC (ORCPT
+	Wed, 2 Mar 2005 09:03:31 -0500
+Received: from wproxy.gmail.com ([64.233.184.193]:8906 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262301AbVCBODQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 09:02:02 -0500
+	Wed, 2 Mar 2005 09:03:16 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=iS6xGwaDCHyu7oGR5EVwxfS+rn6+aJXyeEWv2MIovN2Rh1wstPFJww7/r6qYgvTHAmDJwZJQN73Ave3NqAl3qpht6tmF6LWL7nzgUaic49pfPJAE557MWj7W6K+nKS/Kj2yiUzbW/oLYKFiXXZhPj3lGUqKBtnCHdmrQajuZKTY=
-Message-ID: <5a4c581d0503020602130fc630@mail.gmail.com>
-Date: Wed, 2 Mar 2005 15:02:01 +0100
-From: Alessandro Suardi <alessandro.suardi@gmail.com>
-Reply-To: Alessandro Suardi <alessandro.suardi@gmail.com>
-To: Jaroslav Kysela <perex@suse.cz>
-Subject: Re: smartlink alsa modem problem in 2.6.11
-Cc: Michal Semler <cijoml@volny.cz>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0503021358290.1745@pnote.perex-int.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=jV+jd8VDrwd1dhXyF6cdRhbzhmCMn2OlCObhbxRAsQ3T3PfNhXb9gVQzodAF5S5SCVZOW9gnT946sWOt1r2EoLjw/ql5fk6xhJtNRpuX/KJB2xZzJgUxJ4oD+M4fIKdchAtARx8+lw1IYIBGYEqs4Gzxn5XF3UM1RSSfM9w9Usg=
+Message-ID: <4225C799.2000502@gmail.com>
+Date: Wed, 02 Mar 2005 09:03:05 -0500
+From: Keenan Pepper <keenanpepper@gmail.com>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Undefined symbols in 2.6.11-rc5-mm1
+References: <422550FC.9090906@gmail.com> <20050302012331.746bf9cb.akpm@osdl.org> <4225C613.7010701@gmail.com>
+In-Reply-To: <4225C613.7010701@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <200503021354.38603.cijoml@volny.cz>
-	 <Pine.LNX.4.58.0503021358290.1745@pnote.perex-int.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Mar 2005 14:01:41 +0100 (CET), Jaroslav Kysela <perex@suse.cz> wrote:
-> On Wed, 2 Mar 2005, Michal Semler wrote:
+Oops, should have read all the messages before posting!
+
+I'll try the fix you said, I knew it'd be something like that.
+
 > 
-> > Hi,
-> >
-> > I tried use snd_intel8x0m  with smartlink modem, but without success:
+> It's attached.
 > 
-> > Mar  2 13:49:37 notas kernel: codec_semaphore: semaphore is not ready [0x1][0x701300]
-> > Mar  2 13:49:37 notas kernel: codec_write 1: semaphore is not ready for
+> BTW, is attaching things like this the preferred method?
 > 
-> It's known bug:
-> 
-> https://bugtrack.alsa-project.org/alsa-bug/view.php?id=890
-> 
-> Have you tried to load "snd-intel8x0m and snd-intel8x0" modules in
-> opposite order? Anyway, further discussion should go to this bug
-> report...
-
-slmodemd over snd-intel8x0m worked for me last week on 2.6.11-rc4-bk10:
-
-Feb 24 23:19:07 incident chat[2554]: send (ATX3M0^M)
-Feb 24 23:19:07 incident chat[2554]: timeout set to 120 seconds
-Feb 24 23:19:07 incident chat[2554]: expect (OK)
-Feb 24 23:19:07 incident chat[2554]: ^M
-Feb 24 23:19:07 incident chat[2554]: ATX3M0^M^M
-Feb 24 23:19:07 incident chat[2554]: OK
-Feb 24 23:19:07 incident chat[2554]:  -- got it
-Feb 24 23:19:07 incident chat[2554]: send (ATDT0,,xxxxxx^M)
-Feb 24 23:19:07 incident chat[2554]: expect (CONNECT)
-Feb 24 23:19:07 incident chat[2554]: ^M
-Feb 24 23:19:07 incident chat[2554]: ATDT0,,xxxxxx^M^M
-Feb 24 23:19:07 incident kernel: ALSA sound/pci/intel8x0m.c:401:
-codec_semaphore: semaphore is not ready [0x1][0x301300]
-Feb 24 23:19:07 incident kernel: ALSA sound/pci/intel8x0m.c:415: codec_write 1:
-semaphore is not ready for register 0x54
-Feb 24 23:19:52 incident chat[2554]: CONNECT
-Feb 24 23:19:52 incident chat[2554]:  -- got it
-Feb 24 23:19:52 incident chat[2554]: send (^M)
-Feb 24 23:19:52 incident chat[2554]: expect (ogin:)
-Feb 24 23:19:52 incident chat[2554]:  28800^M
-Feb 24 23:19:58 incident chat[2554]: ^M
-
-[snipped rest of log]
-
-That is - I do get the codec_semaphore messages (though the error code
- is slightly different), but the modem connection works fine.
-
-I have snd-intel8x0m modular while snd-intel8x0 is in-kernel.
-
---alessandro
-
-  "There is no distance that I don't see
-  I do have a will - No limit to my reach"
-  
-    (Wallflowers, "Empire In My Mind")

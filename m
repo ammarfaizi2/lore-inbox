@@ -1,36 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262266AbSJGAOo>; Sun, 6 Oct 2002 20:14:44 -0400
+	id <S262270AbSJGA0u>; Sun, 6 Oct 2002 20:26:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262272AbSJGAOo>; Sun, 6 Oct 2002 20:14:44 -0400
-Received: from almesberger.net ([63.105.73.239]:11539 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S262266AbSJGAOn>; Sun, 6 Oct 2002 20:14:43 -0400
-Date: Sun, 6 Oct 2002 21:19:52 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Allan Duncan <allan.d@bigpond.com>
-Cc: Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.40 etc and IDE HDisk geometry
-Message-ID: <20021006211952.C14894@almesberger.net>
-References: <3D9D9BE4.32421A87@bigpond.com> <20021004215049.GA20192@win.tue.nl> <3DA0AFBE.935D25BA@bigpond.com>
+	id <S262272AbSJGA0u>; Sun, 6 Oct 2002 20:26:50 -0400
+Received: from swan.mail.pas.earthlink.net ([207.217.120.123]:3478 "EHLO
+	swan.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S262270AbSJGA0t>; Sun, 6 Oct 2002 20:26:49 -0400
+Date: Sun, 6 Oct 2002 20:35:41 -0400
+To: akpm@digeo.com
+Cc: linux-kernel@vger.kernel.org
+Subject: benchmarks 2.5.40-mm1 and 2.5.39 on quad xeon
+Message-ID: <20021007003541.GA17916@rushmore>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3DA0AFBE.935D25BA@bigpond.com>; from allan.d@bigpond.com on Mon, Oct 07, 2002 at 07:48:46AM +1000
+User-Agent: Mutt/1.4i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Allan Duncan wrote:
-> Like LILO.  It complains that the partition tables don't match the
-> geometry, or somesuch, despite an explicit "lba32".
+Fork improvements continue in the 2.5 tree.
 
-If everything else is fine, and if this is one of the errors from
-the partition table checks, you could turn it simply into a
-non-fatal warning with the config option "IGNORE-TABLE".
+Seconds to build autoconf-2.53 12 times:
+		seconds
+2.5.39          780.3
+2.5.40-mm1      750.5  4% faster
 
-- Werner
+ext[23] filesystems built with e2fsprogs-1.29.
 
+postgres database create times 4-8% faster.
+
+kernel - ext3   Create-ui   Create   Create-emb
+2.5.39          326.4       311.7    333.7     seconds
+2.5.40-mm1      300.9       299.2    318.9     
+
+dbench 64 on ext2 13% faster.   
+
+dbench 64	  avg 5 runs
+2.5.39            201.40 mb/sec
+2.5.40-mm1        227.55 
+
+dbench 192       avg 5 runs
+2.5.39           189.57 mb/sec
+2.5.40-mm1       193.55
+
+tbench 192 11% faster.
+
+tbench 192
+2.5.39           118.17
+2.5.40-mm1       131.39
+
+In the 120% memory pressure test there has been
+a 66% improvement since 2.5.38:
+
+qsbench    h:mm:ss   
+2.5.38     1:57:48
+2.5.39     1:30:49
+2.5.40-mm1 1:10:40
+
+All tests on quad xeon with 3.75 gb ram.
 -- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+Randy Hron
+http://home.earthlink.net/~rwhron/kernel/bigbox.html
+

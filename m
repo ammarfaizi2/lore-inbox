@@ -1,55 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262194AbSJTV7p>; Sun, 20 Oct 2002 17:59:45 -0400
+	id <S264645AbSJTWQU>; Sun, 20 Oct 2002 18:16:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262779AbSJTV7n>; Sun, 20 Oct 2002 17:59:43 -0400
-Received: from dsl-65-188-232-225.telocity.com ([65.188.232.225]:25817 "EHLO
-	area51.underboost.net") by vger.kernel.org with ESMTP
-	id <S262194AbSJTV7k> convert rfc822-to-8bit; Sun, 20 Oct 2002 17:59:40 -0400
-Date: Sat, 19 Oct 2002 18:02:56 -0400 (AST)
-From: dijital1 <dijital1@underboost.net>
-To: david@pleyades.net
-cc: Eric Altendorf <EricAltendorf@orst.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: Question: Favorite Linux kernel book?
-In-Reply-To: <20021020214227.GA31718@fargo>
-Message-ID: <Pine.LNX.4.44.0210191800130.20361-100000@area51.underboost.net>
+	id <S264646AbSJTWQU>; Sun, 20 Oct 2002 18:16:20 -0400
+Received: from pacman.mweb.co.za ([196.2.45.77]:25793 "EHLO pacman.mweb.co.za")
+	by vger.kernel.org with ESMTP id <S264645AbSJTWQS>;
+	Sun, 20 Oct 2002 18:16:18 -0400
+From: Bongani <bhlope@mweb.co.za>
+To: kraxel@bytesex.org
+Subject: [PATCH] 2.5.44 bttv-driver.c
+Date: Mon, 21 Oct 2002 00:23:10 +0200
+User-Agent: KMail/1.4.7
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200210210023.10640.bhlope@mweb.co.za>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'd also recommend "Unix Internals: The New Frontiers". The sections on
-memory management, particularly the slab allocator is worth understand
-seeing as how the linux's current slab allocator is based on the concepts
-discussed in that book.
+Hi Gerd
 
-Ron Henry
+You are listing as the maintainer of the bttv driver, so I hope I'm sending
+this to the correct person. The bttv drivers are printing the following
+following "debug" information, which is filling up my messages file the patch
+bellow seems to fix it.
 
-"the illiterate of the future are not those who can neither read
-or write; but those who cannot learn, unlearn, and relearn..."
+Oct 20 04:03:01 localhost kernel: bttv0: amux: mode=-1 audio=1 signal=no 
+mux=4/1 irq=yes
+Oct 20 04:03:01 localhost kernel: bttv0: amux: mode=-1 audio=1 signal=yes 
+mux=1/1 irq=yes
+Oct 20 04:03:08 localhost kernel: bttv0: amux: mode=-1 audio=1 signal=no 
+mux=4/1 irq=yes
+Oct 20 04:03:08 localhost kernel: bttv0: amux: mode=-1 audio=1 signal=yes 
+mux=1/1 irq=yes
+Oct 20 04:03:09 localhost kernel: bttv0: amux: mode=-1 audio=1 signal=no 
+mux=4/1 irq=yes
+Oct 20 04:03:09 localhost kernel: bttv0: amux: mode=-1 audio=1 signal=yes 
+mux=1/1 irq=yes
+Oct 20 04:03:10 localhost kernel: bttv0: amux: mode=-1 audio=1 signal=no 
+mux=4/1 irq=yes
 
-On Sun, 20 Oct 2002, it was written:
+Could you please foward the patch to Linus.(If you think its correct that is 
+;)
 
-> Hi Eric,
->
-> > I was just wondering if anyone had any recommendations for reading
-> > material to introduce the Linux kernel, design & code.
->
-> I recommend you the book 'Understanding the Linux kernel' from O'Reilly,
-> though it's mainly based in 2.2 kernel, with some comments on new features
-> in 2.4, still contains a lot o good information about how the kernel 'guts' ;)
-> work. A book that you shouldn't miss.
->
-> --
-> David Gómez
->
-> "The question of whether computers can think is just like the question of
->  whether submarines can swim." -- Edsger W. Dijkstra
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Thanx
+
+--- linux-2.5/drivers/media/video/bttv-driver.c.old     2002-10-21 
+00:08:50.000000000 +0200
++++ linux-2.5/drivers/media/video/bttv-driver.c 2002-10-21 00:09:17.000000000 
++0200
+@@ -813,7 +813,7 @@
+        i2c_mux = mux = (btv->audio & AUDIO_MUTE) ? AUDIO_OFF : btv->audio;
+        if (btv->opt_automute && !signal && !btv->radio_user)
+                mux = AUDIO_OFF;
+-       printk("bttv%d: amux: mode=%d audio=%d signal=%s mux=%d/%d irq=%s\n",
++       dprintk(KERN_DEBUG "bttv%d: amux: mode=%d audio=%d signal=%s mux=%d/%d 
+irq=%s\n",
+               btv->nr, mode, btv->audio, signal ? "yes" : "no",
+               mux, i2c_mux, in_interrupt() ? "yes" : "no");
+
 

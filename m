@@ -1,15 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261216AbVA1JDK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261223AbVA1JMJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261216AbVA1JDK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 04:03:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261223AbVA1JDK
+	id S261223AbVA1JMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 04:12:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261224AbVA1JMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 04:03:10 -0500
-Received: from mail.joq.us ([67.65.12.105]:58339 "EHLO sulphur.joq.us")
-	by vger.kernel.org with ESMTP id S261216AbVA1JDD (ORCPT
+	Fri, 28 Jan 2005 04:12:09 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:17065 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261223AbVA1JMH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 04:03:03 -0500
-To: Ingo Molnar <mingo@elte.hu>
+	Fri, 28 Jan 2005 04:12:07 -0500
+Date: Fri, 28 Jan 2005 10:11:43 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "Jack O'Quin" <joq@io.com>
 Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
        Paul Davis <paul@linuxaudiosystems.com>,
        Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
@@ -18,55 +20,32 @@ Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
        Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
        Arjan van de Ven <arjanv@redhat.com>
 Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
-References: <87hdl940ph.fsf@sulphur.joq.us> <20050124085902.GA8059@elte.hu>
-	<20050124125814.GA31471@elte.hu> <20050125135613.GA18650@elte.hu>
-	<87sm4opxto.fsf@sulphur.joq.us> <20050126070404.GA27280@elte.hu>
-	<87fz0neshg.fsf@sulphur.joq.us>
-	<1106782165.5158.15.camel@npiggin-nld.site>
-	<20050128080802.GA2860@elte.hu> <871xc62bot.fsf@sulphur.joq.us>
-	<20050128084049.GA5004@elte.hu>
-From: "Jack O'Quin" <joq@io.com>
-Date: Fri, 28 Jan 2005 03:01:28 -0600
-In-Reply-To: <20050128084049.GA5004@elte.hu> (Ingo Molnar's message of "Fri,
- 28 Jan 2005 09:40:49 +0100")
-Message-ID: <87vf9i0vx3.fsf@sulphur.joq.us>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
+Message-ID: <20050128091143.GA6199@elte.hu>
+References: <20050124125814.GA31471@elte.hu> <20050125135613.GA18650@elte.hu> <87sm4opxto.fsf@sulphur.joq.us> <20050126070404.GA27280@elte.hu> <87fz0neshg.fsf@sulphur.joq.us> <1106782165.5158.15.camel@npiggin-nld.site> <20050128080802.GA2860@elte.hu> <871xc62bot.fsf@sulphur.joq.us> <20050128084049.GA5004@elte.hu> <87vf9i0vx3.fsf@sulphur.joq.us>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87vf9i0vx3.fsf@sulphur.joq.us>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> writes:
 
-> * Jack O'Quin <joq@io.com> wrote:
->
->> > i'm wondering, couldnt Jackd solve this whole issue completely in
->> > user-space, via a simple setuid-root wrapper app that does nothing else
->> > but validates whether the user is in the 'jackd' group and then keeps a
->> > pipe open to to the real jackd process which it forks off, deprivileges
->> > and exec()s? Then unprivileged jackd could request RT-priority changes
->> > via that pipe in a straightforward way. Jack normally gets installed as
->> > root/admin anyway, so it's not like this couldnt be done.
->> 
->> Perhaps.
->> 
->> Until recently, that didn't work because of the longstanding rlimits
->> bug in mlockall().  For scheduling only, it might be possible.
->> 
->> Of course, this violates your requirement that the user not be able to
->> lock up the CPU for DoS.  The jackd watchdog is not perfect.
->
-> there is a legitimate fear that if it's made "too easy" to acquire some
-> sort of SCHED_FIFO priority, that an "arm's race" would begin between
-> desktop apps, each trying to set themselves to SCHED_FIFO (or SCHED_ISO)
-> and advising users to 'raise the limit if they see delays' - just to get
-> snappier than the rest.
->
-> thus after a couple of years we'd end up with lots of desktop apps
-> running as SCHED_FIFO, and latency would go down the drain again.
+* Jack O'Quin <joq@io.com> wrote:
 
-I wonder how Mac OS X and Windows deal with this priority escalation
-problem?  Is it real or only theoretical?
--- 
-  joq
+> > thus after a couple of years we'd end up with lots of desktop apps
+> > running as SCHED_FIFO, and latency would go down the drain again.
+> 
+> I wonder how Mac OS X and Windows deal with this priority escalation
+> problem?  Is it real or only theoretical?
+
+no idea. Anyone with MacOSX/Windows application writing experience? :-|
+
+	Ingo

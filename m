@@ -1,63 +1,233 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132632AbQKSRG4>; Sun, 19 Nov 2000 12:06:56 -0500
+	id <S130615AbQKSRPg>; Sun, 19 Nov 2000 12:15:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132622AbQKSRGr>; Sun, 19 Nov 2000 12:06:47 -0500
-Received: from hera.cwi.nl ([192.16.191.1]:39621 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S132632AbQKSRGe>;
-	Sun, 19 Nov 2000 12:06:34 -0500
-Date: Sun, 19 Nov 2000 17:36:23 +0100
-From: Andries Brouwer <aeb@veritas.com>
-To: linux-kernel@vger.kernel.org
-Cc: ahu@ds9a.nl, goemon@anime.net
-Subject: Re: 2.4 sendfile() not doing as manpage promises?
-Message-ID: <20001119173623.A1185@veritas.com>
-In-Reply-To: <20001119001558.B10579@home.ds9a.nl> <Pine.LNX.4.30.0011181513290.5897-100000@anime.net> <20001119015259.A10773@home.ds9a.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20001119015259.A10773@home.ds9a.nl>; from ahu@ds9a.nl on Sun, Nov 19, 2000 at 01:53:00AM +0100
+	id <S129256AbQKSRP0>; Sun, 19 Nov 2000 12:15:26 -0500
+Received: from [213.8.185.141] ([213.8.185.141]:26116 "EHLO callisto.yi.org")
+	by vger.kernel.org with ESMTP id <S129716AbQKSRPT>;
+	Sun, 19 Nov 2000 12:15:19 -0500
+Date: Sun, 19 Nov 2000 18:41:29 +0200 (IST)
+From: Dan Aloni <karrde@callisto.yi.org>
+To: Taisuke Yamada <tai@imasy.or.jp>
+cc: andre@linux-ide.org, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Large "clipped" IDE disk support for 2.4 when using old
+ BIOS
+In-Reply-To: <200011181930.eAIJUYA01883@research.imasy.or.jp>
+Message-ID: <Pine.LNX.4.21.0011191816570.857-100000@callisto.yi.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 19, 2000 at 01:53:00AM +0100, bert hubert wrote:
-:  On Sat, Nov 18, 2000 at 03:15:28PM -0800, Dan Hollis wrote:
-:  
-:::  In that case, the wording of the manpage needs to be changed, as it
-:::  implies that 'either or both' of the filedescriptors can be sockets.
-::  
-::  Its quite clear.
-::  
-::  DESCRIPTION
-::         This  call copies data between file descriptor and another
-::         file  descriptor  or  socket.   in_fd  should  be  a  file
-::         descriptor   opened  for  reading.   out_fd  should  be  a
-::         descriptor opened for writing or a connected socket.
-::  
-::  in_fd must be a file, out_fd can be a file or socket.
-:  
-:  My manpages must be outdated then, my manpage is from 1 Dec 1998. Thanks for
-:  the correction.
+On Sun, 19 Nov 2000, Taisuke Yamada wrote:
 
-The manpage is dated 1 Dec 1998 and reads
+> Earlier this month, I had sent in a patch to 2.2.18pre17 (with
+> IDE-patch from http://www.linux-ide.org/ applied) to add support
+> for IDE disk larger than 32GB, even if the disk required "clipping"
+> to reduce apparent disk size due to BIOS limitation.
+>
+> [...] patch 
+ 
+This patch is not good. It compiles, but when I boot the kernel, it
+decides to ignore the hdc=5606,255,63 parameter that I pass to the kernel,
+and limits the number of sectors to fill 8.4GB.
 
-DESCRIPTION
-       This call copies data  between  one  file  descriptor  and
-       another.   Either  or  both  of these file descriptors may
-       refer to a socket.  in_fd  should  be  a  file  descriptor
-       opened  for  reading  and  out_fd  should  be a descriptor
-       opened for writing.
+(from dmesg:)
 
-If that is incorrect, then editing a private copy of the manpage,
-as Dan Hollis, or the distributor from whom he got his page,
-seems to have done, does not suffice to change the manpage distribution.
+hdc: lba = 0, cap = 16514064
+hdc: 16514064 sectors (8455 MB) w/1916KiB Cache, CHS=5606/255/63, UDMA(33)
 
-(Moreover, the text Dan Hollis quotes is rather strange --
-also sockets give one a file descriptor, so the author
-of that modified man page did not know what he was talking
-about, or was not being precise.)
+Notes:
+ * Notice the contradiction between 16414064 sectors and 5606/255/63
+   geometry, something is definitly wrong there.
+ * I *didn't* change the jumper settings to 'clipping' mode, only the
+   kernel was modified in this test. 
+ * When I try to read (using dd) from somewhere above the 40GB offset in
+   the drive, no success. I guess if I tried to read pass 8.4GB it
+   wouldn't have yield success either.
+ * In this test, the code in the patch doesn't printk() anything except
+   that 'hdc: lba = 0, cap = 16514064' line.
+ * Normally, without the patch I get:
 
-Andries
+     hdc: 90069840 sectors (46116 MB) w/1916KiB Cache, CHS=5606/255/63,  
+         UDMA(33)
+
+   And then there's no problem reading any offset on the drive.
+
+ * I really need this sort of patch, tired of booting the computer from a
+   floppy...   
+ * The patch didn't want to apply for some reason, so I had to apply the
+   patch manually (to test11-pre7).
+
+   Here is the version of patch that does apply: (please release an
+   updated patch)
+
+--- linux/drivers/ide/ide-disk.c	Sun Nov 19 17:15:56 2000
++++ linux/drivers/ide/ide-disk.c	Sun Nov 19 17:27:31 2000
+@@ -513,24 +513,149 @@
+ 			current_capacity(drive));
+ }
+ 
++
++/*
++ * Tests if the drive supports Host Protected Area feature.
++ * Returns true if supported, false otherwise.
++ */
++static inline int idedisk_supports_host_protected_area(ide_drive_t *drive)
++{
++    int flag = (drive->id->command_set_1 & 0x0a) ? 1 : 0;
++    printk("%s: host protected area => %d\n", drive->name, flag);
++    return flag;
++}
++
++/*
++ * Queries for true maximum capacity of the drive.
++ * Returns maximum LBA address (> 0) of the drive, 0 if failed.
++ */
++static unsigned long idedisk_read_native_max_address(ide_drive_t *drive)
++{
++    byte args[7];
++    unsigned long addr = 0;
++
++    printk("%s: checking for max native LBA...\n", drive->name);
++
++    /* Create IDE/ATA command request structure
++     *
++     * NOTE: I'm not sure if I can safely use IDE_*_OFFSET macro
++     *       here...For real ATA command structure, offset for IDE
++     *       command is 7, but in IDE driver, it needs to be at 0th
++     *       index (same goes for IDE status offset below). Hmm...
++     */
++    args[0]                  = 0xf8; /* READ_NATIVE_MAX - see ATA spec */
++    args[IDE_FEATURE_OFFSET] = 0x00;
++    args[IDE_NSECTOR_OFFSET] = 0x00;
++    args[IDE_SECTOR_OFFSET]  = 0x00;
++    args[IDE_LCYL_OFFSET]    = 0x00;
++    args[IDE_HCYL_OFFSET]    = 0x00;
++    args[IDE_SELECT_OFFSET]  = 0x40;
++
++    /* submit command request - if OK, read current max LBA value */
++    if (ide_wait_cmd_task(drive, args) == 0) {
++        if ((args[0] & 0x01) == 0) {
++            addr = ((args[IDE_SELECT_OFFSET] & 0x0f) << 24)
++                 | ((args[IDE_HCYL_OFFSET]         ) << 16)
++                 | ((args[IDE_LCYL_OFFSET]         ) <<  8)
++                 | ((args[IDE_SECTOR_OFFSET]       ));
++        }
++    }
++
++    printk("%s: max native LBA is %lu\n", drive->name, addr);
++
++    return addr;
++}
++
++/*
++ * Sets maximum virtual LBA address of the drive.
++ * Returns new maximum virtual LBA address (> 0) or 0 on failure.
++ */
++static unsigned long idedisk_set_max_address(ide_drive_t  *drive,
++                         unsigned long addr_req)
++{
++    byte args[7];
++    unsigned long addr_set = 0;
++
++    printk("%s: (un)clipping max LBA...\n", drive->name);
++
++    /* Create IDE/ATA command request structure
++     *
++     * NOTE: I'm not sure if I can safely use IDE_*_OFFSET macro
++     *       here...For real ATA command structure, offset for IDE
++     *       command is 7, but in IDE driver, it needs to be at 0th
++     *       index (same goes for IDE status offset below). Hmm...
++     */
++    args[0]                  = 0xf9; /* SET_MAX - see ATA spec */
++	args[IDE_FEATURE_OFFSET] = 0x00;
++    args[IDE_NSECTOR_OFFSET] = 0x00;
++    args[IDE_SECTOR_OFFSET]  = ((addr_req      ) & 0xff);
++    args[IDE_LCYL_OFFSET]    = ((addr_req >>  8) & 0xff);
++    args[IDE_HCYL_OFFSET]    = ((addr_req >> 16) & 0xff);
++    args[IDE_SELECT_OFFSET]  = ((addr_req >> 24) & 0x0f) | 0x40;
++
++    /* submit command request - if OK, read new max LBA value */
++    if (ide_wait_cmd_task(drive, args) == 0) {
++        if ((args[0] & 0x01) == 0) {
++            addr_set = ((args[IDE_SELECT_OFFSET] & 0x0f) << 24)
++                 | ((args[IDE_HCYL_OFFSET]         ) << 16)
++                 | ((args[IDE_LCYL_OFFSET]         ) <<  8)
++                 | ((args[IDE_SECTOR_OFFSET]       ));
++        }
++    }
++
++    printk("%s: max LBA (un)clipped to %lu\n", drive->name, addr_set);
++
++    return addr_set;
++}
++
+ /*
+  * Compute drive->capacity, the full capacity of the drive
+  * Called with drive->id != NULL.
++ *
++ * To compute capacity, this uses either of
++ *
++ *    1. CHS value set by user       (whatever user sets will be trusted)
++ *    2. LBA value from target drive (require new ATA feature)
++ *    3. LBA value from system BIOS  (new one is OK, old one may break)
++ *    4. CHS value from system BIOS  (traditional style)
++ *
++ * in above order (i.e., if value of higher priority is available,
++ * rest of the values are ignored).
+  */
+ static void init_idedisk_capacity (ide_drive_t  *drive)
+ {
++    unsigned long      hd_max;
++    unsigned long      hd_cap = drive->cyl * drive->head * drive->sect;
++    int                is_lba = 0;
++
+ 	struct hd_driveid *id = drive->id;
+-	unsigned long capacity = drive->cyl * drive->head * drive->sect;
+ 
+-	drive->select.b.lba = 0;
++    /* Unless geometry is given by user, use autodetected value */
++    if (! drive->forced_geom) {
++        /* If BIOS LBA geometry is available, use it */
++        if ((id->capability & 2) && lba_capacity_is_ok(id)) {
++            hd_cap = id->lba_capacity;
++            is_lba = 1;
++        }
+ 
+-	/* Determine capacity, and use LBA if the drive properly supports it */
+-	if ((id->capability & 2) && lba_capacity_is_ok(id)) {
+-		capacity = id->lba_capacity;
+-		drive->cyl = capacity / (drive->head * drive->sect);
+-		drive->select.b.lba = 1;
++        /* If new ATA feature is supported, try using it */
++        if (idedisk_supports_host_protected_area(drive)) {
++            hd_max = idedisk_read_native_max_address(drive);
++            hd_max = idedisk_set_max_address(drive, hd_max);
++
++            if (hd_max > 0) {
++                hd_cap = hd_max;
++                is_lba = 1;
++            }
++        }
+ 	}
+-	drive->capacity = capacity;
++
++    printk("%s: lba = %d, cap = %lu\n", drive->name, is_lba, hd_cap);
++
++    /* update parameters with fetched results */
++    drive->select.b.lba = is_lba;
++    drive->capacity     = hd_cap;
++    drive->cyl          = hd_cap / (drive->head * drive->sect);
+ }
+ 
+ static unsigned long idedisk_capacity (ide_drive_t  *drive)
+ 
+
+-- 
+Dan Aloni 
+dax@karrde.org
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

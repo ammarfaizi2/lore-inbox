@@ -1,57 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262423AbUCHJLA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 04:11:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262317AbUCHJK7
+	id S262297AbUCHJOT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 04:14:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbUCHJOT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 04:10:59 -0500
-Received: from yue.hongo.wide.ad.jp ([203.178.135.30]:30995 "EHLO
-	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id S262423AbUCHJKz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 04:10:55 -0500
-Date: Mon, 08 Mar 2004 18:12:20 +0900 (JST)
-Message-Id: <20040308.181220.131486671.yoshfuji@linux-ipv6.org>
-To: mulix@mulix.org
-Cc: marcelo.tosatti@cyclades.com, bunk@fs.tum.de, degger@fhm.edu,
-       linux-kernel@vger.kernel.org, jgarzik@pobox.com,
-       linux-net@vger.kernel.org, yoshfuji@linux-ipv6.org
-Subject: Re: [2.4 patch] MAINTAINERS: remove LAN media entry
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <20040308071642.GL877@mulix.org>
-References: <Pine.LNX.4.44.0403080221520.2604-100000@dmt.cyclades>
-	<20040308.150402.86498894.yoshfuji@linux-ipv6.org>
-	<20040308071642.GL877@mulix.org>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+	Mon, 8 Mar 2004 04:14:19 -0500
+Received: from gprs40-191.eurotel.cz ([160.218.40.191]:57766 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262297AbUCHJOR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Mar 2004 04:14:17 -0500
+Date: Mon, 8 Mar 2004 10:13:24 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Andy Isaacson <adi@hexapodia.org>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: Some highmem pages still in use after shrink_all_memory()?
+Message-ID: <20040308091324.GA209@elf.ucw.cz>
+References: <20040307144921.GA189@elf.ucw.cz> <20040307164052.0c8a212b.akpm@osdl.org> <20040308063639.GA20793@hexapodia.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040308063639.GA20793@hexapodia.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20040308071642.GL877@mulix.org> (at Mon, 8 Mar 2004 09:16:43 +0200), Muli Ben-Yehuda <mulix@mulix.org> says:
-
-> > > LANMEDIA WAN CARD DRIVER
-> > > S: UNMAINTAINED
-:
-
-> > "S" is one of the following (from MAINTAINERS):
+On Po 08-03-04 00:36:39, Andy Isaacson wrote:
+> On Sun, Mar 07, 2004 at 04:40:52PM -0800, Andrew Morton wrote:
+> > Pavel Machek <pavel@ucw.cz> wrote:
+> > > For swsusp, I need to free as much memory as possible. Well, and it
+> > > would be great if no highmem pages remained, so that I would not have
+> > > to deal with that. Is that possible?
 > > 
-> >         Supported:      Someone is actually paid to look after this.
+> > No, it isn't.  There are pagetable pages and mlocked user pages which we
+> > cannot do anything with.
+> > 
+> > We could perhaps swap out the mlocked pages anyway if a suspend is in
+> > progress, but the highmem pagetable pages are not presently reclaimed
+> > by the VM.
 > 
-> Then we should add 'unmaintained'... something like this: 
-:
->  			should be using that.
-> +        Unmaintained:	Nobody is taking care of it. Maybe you want to?
->  
-:
+> Note that there are some applications for which it is a *bug* if an
+> mlocked page gets written out to magnetic media.  (gpg, for example.)
 
-Well, I think "Orphan" is what this entry needs.
-
---yoshfuji
+Well, but that can not be solved. During suspend-to-disk, data (by
+definition) go to magnetic media. We could block suspend, and we could
+kill such application....
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

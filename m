@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262153AbSJGSiW>; Mon, 7 Oct 2002 14:38:22 -0400
+	id <S262605AbSJGSej>; Mon, 7 Oct 2002 14:34:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262149AbSJGSiW>; Mon, 7 Oct 2002 14:38:22 -0400
-Received: from barrichello.cs.ucr.edu ([138.23.169.5]:49100 "HELO
-	barrichello.cs.ucr.edu") by vger.kernel.org with SMTP
-	id <S261726AbSJGSiV>; Mon, 7 Oct 2002 14:38:21 -0400
-Mailbox-Line: From jtyner@cs.ucr.edu  Mon Oct  7 11:43:56 2002
-Date: Mon, 7 Oct 2002 11:43:55 -0700 (PDT)
-From: John Tyner <jtyner@cs.ucr.edu>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: <video4linux-list@redhat.com>, <linux-kernel@vger.kernel.org>,
-       <greg@kroah.com>, <kraxel@bytesex.org>
-Subject: Re: Vicam/3com homeconnect usb camera driver
-In-Reply-To: <20021006210629.GB387@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.30.0210071136290.10476-100000@hill.cs.ucr.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262607AbSJGSej>; Mon, 7 Oct 2002 14:34:39 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:27922 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S262605AbSJGSei>; Mon, 7 Oct 2002 14:34:38 -0400
+Date: Mon, 7 Oct 2002 19:40:12 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Mark Peloquin <peloquin@us.ibm.com>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org, evms-devel@lists.sourceforge.net
+Subject: Re: [Evms-devel] Re: [PATCH] EVMS core 3/4: evms_ioctl.h
+Message-ID: <20021007194012.A25510@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Alexander Viro <viro@math.psu.edu>,
+	Mark Peloquin <peloquin@us.ibm.com>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org, evms-devel@lists.sourceforge.net
+References: <20021007183415.A22316@infradead.org> <Pine.GSO.4.21.0210071340580.29030-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.GSO.4.21.0210071340580.29030-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Mon, Oct 07, 2002 at 01:50:00PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> How is this different from 3comhc.c from sourceforge?
+On Mon, Oct 07, 2002 at 01:50:00PM -0400, Alexander Viro wrote:
+> 
+> 
+> On Mon, 7 Oct 2002, Christoph Hellwig wrote:
+> 
+> > I don't think that basing kernel internal interfaces on ioctl is
+> > a smart idea.  Just add another function pionter to your operations
+> > vector for every operation you want supported on volumes.
+> 
+> s/every/& generic/.  Other than that, seconded.  BTW, one of the pending
+> changes is taking the last more or less generic ioctl (HDIO_GETGEO) into
+> a separate method...
 
-Lots of little fixes, speed and memory allocation improvements and
-generally more understandable (in my opinion). The one I've written
-actually implements an asynchronous send/receive and decode so
-the camera works a bit faster.
-
-I had actually been developing this driver in parallel with the
-sourceforge guys before I found out about them. I combined their work with
-mine to finish the driver.
-
-See these two threads. The first provides a little more background and the
-second is the thread that you replied to.
-
-http://marc.theaimsgroup.com/?t=103344771400001&r=1&w=2
-http://marc.theaimsgroup.com/?t=103370436400001&r=1&w=2
-
-Thanks,
-John
+Well, I implied generic ioctl as the EVMS "API" (aka collection of random
+ioctls) is about that generic interface.
 

@@ -1,45 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263179AbTESV6Q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 17:58:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263182AbTESV6Q
+	id S263132AbTESWDH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 18:03:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263182AbTESWDH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 17:58:16 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:46171 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S263179AbTESV6O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 17:58:14 -0400
-Date: Mon, 19 May 2003 22:11:11 +0000
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Badari Pulavarty <pbadari@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       Gerrit Huizenga <gh@us.ibm.com>, John Stultz <johnstul@us.ibm.com>,
-       James Cleverdon <jamesclv@us.ibm.com>, Andrew Morton <akpm@digeo.com>,
-       arjanv@redhat.com, Keith Mannthey <mannthey@us.ibm.com>
-Subject: Re: userspace irq balancer
-Message-ID: <20030519221111.P7061@devserv.devel.redhat.com>
-References: <200305191314.06216.pbadari@us.ibm.com> <1053382055.5959.346.camel@nighthawk>
+	Mon, 19 May 2003 18:03:07 -0400
+Received: from 213-97-199-90.uc.nombres.ttd.es ([213.97.199.90]:37608 "HELO
+	fargo") by vger.kernel.org with SMTP id S263132AbTESWDF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 18:03:05 -0400
+Date: Tue, 20 May 2003 00:20:52 +0200
+From: David =?iso-8859-15?Q?G=F3mez?= <david@pleyades.net>
+To: Hugo Mills <hugo-lkml@carfax.org.uk>,
+       Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: e100 driver
+Message-ID: <20030519222052.GA9598@fargo>
+Mail-Followup-To: Hugo Mills <hugo-lkml@carfax.org.uk>,
+	Linux-kernel <linux-kernel@vger.kernel.org>
+References: <20030519211248.GA7633@fargo> <20030519213318.GB1605@carfax.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1053382055.5959.346.camel@nighthawk>; from haveblue@us.ibm.com on Mon, May 19, 2003 at 03:07:36PM -0700
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030519213318.GB1605@carfax.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 19, 2003 at 03:07:36PM -0700, Dave Hansen wrote:
+Hi Hugo,
 
-> The only thing I'm concerned about is how it's going to be packaged. 
-> I'm envisioning explaining how to get the daemon out of its initrd
-> image, set it up and run it, especially before distros have it
-> integrated.  The stuff that's in the kernel now isn't horribly broken;
-> it's just not optimal for some relatively unusual cases.  
+On May 19 at 10:33:18, Hugo Mills wrote:
+> > <31>May 19 09:05:42 kernel: hw tcp v4 csum failed
+> > <31>May 19 09:11:11 kernel: icmp v4 hw csum failure
+> 
+>    I get this, too, on two recently-purchased machines. I suspect that
+> the new revs of the chips are the cause -- my kernel doesn't seem to
+> know about many of the device IDs on this board:
 
-as for distros: RHL8 and later ship with it on the RH side
-(default enabled as of RHL9).
+Not in my case :(, i'm using a not very recent intel ethernet card:
 
-As for where to start it: I really think an initscript is the logical
-place; there has been some discussion about doing it
-from the initramfs but I don't see real benifit from that; from starting
-init to running the initscripts isn't exactly THIS interrupt/performance
-heavy.
+00:0c.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100] (rev 08)
+
+>    Other than the odd csum failures (average of 1-2 a day on each
+> box), it all seems to work perfectly.
+
+I was getting a lot more, look:
+
+[huma@fargo] [~] % grep csum /var/log/messages|grep "May 19"| wc -l
+    443
+[huma@fargo] [~] % grep csum /var/log/messages|grep "May 18"| wc -l
+    486
+[huma@fargo] [~] % grep csum /var/log/messages|grep "May 17"| wc -l
+    425
+[huma@fargo] [~] % grep csum /var/log/messages|grep "May 16"| wc -l
+    953
+[huma@fargo] [~] % grep csum /var/log/messages|grep "May 15"| wc -l
+   1023
+[huma@fargo] [~] % grep csum /var/log/messages|grep "May 14"| wc -l
+    911
+
+I've been a long time without noticing this problem, but looking casually
+for another reason at the logs get me to finding these checksum errors hell ;))
+
+
+-- 
+David Gómez
+
+"The question of whether computers can think is just like the question of
+ whether submarines can swim." -- Edsger W. Dijkstra

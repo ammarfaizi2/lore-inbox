@@ -1,59 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269281AbUIYIIx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269285AbUIYIWO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269281AbUIYIIx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 04:08:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269283AbUIYIIx
+	id S269285AbUIYIWO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 04:22:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269284AbUIYIWO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 04:08:53 -0400
-Received: from ltgp.iram.es ([150.214.224.138]:55427 "EHLO ltgp.iram.es")
-	by vger.kernel.org with ESMTP id S269281AbUIYIIr (ORCPT
+	Sat, 25 Sep 2004 04:22:14 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:27787 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S269283AbUIYIWI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 04:08:47 -0400
-From: Gabriel Paubert <paubert@iram.es>
-Date: Sat, 25 Sep 2004 10:04:27 +0200
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: Stas Sergeev <stsp@aknet.ru>, linux-kernel@vger.kernel.org
-Subject: Re: ESP corruption bug - what CPUs are affected?
-Message-ID: <20040925080426.GB12901@iram.es>
-References: <414C662D.5090607@aknet.ru> <20040918165932.GA15570@vana.vc.cvut.cz> <414C8924.1070701@aknet.ru> <20040918203529.GA4447@vana.vc.cvut.cz> <4151C949.1080807@aknet.ru> <20040922200228.GB11017@vana.vc.cvut.cz> <41530326.2050900@aknet.ru> <20040923180607.GA20678@vana.vc.cvut.cz> <4154853F.6070105@aknet.ru> <20040924214330.GD8151@vana.vc.cvut.cz>
+	Sat, 25 Sep 2004 04:22:08 -0400
+Subject: Re: [RFC] put symbolic links between drivers and modules in the
+	sysfs tree
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: viro@parcelfarce.linux.theplanet.co.uk, James.Bottomley@steeleye.com,
+       greg@kroah.com, rusty@rustcorp.com.au, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+In-Reply-To: <E1CB7YE-0004cA-00@gondolin.me.apana.org.au>
+References: <E1CB7YE-0004cA-00@gondolin.me.apana.org.au>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-iBxiXwrs1lVnFT8XtWjP"
+Organization: Red Hat UK
+Message-Id: <1096100492.17155.3.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040924214330.GD8151@vana.vc.cvut.cz>
-User-Agent: Mutt/1.5.6+20040818i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 25 Sep 2004 10:21:33 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 24, 2004 at 11:43:30PM +0200, Petr Vandrovec wrote:
-> On Sat, Sep 25, 2004 at 12:36:15AM +0400, Stas Sergeev wrote:
-> > Hi,
-> > 
-> > Petr Vandrovec wrote:
-> > >In that new patch I set the const to 0xe00, which
-> > >is 3,5K. Is it still the limitation? I can probably
-> > >For 4KB stacks 2KB looks better
-> > OK, done that. Wondering though, for what?
-> > I don't need 2K myself, I need 24 bytes only.
-> > So what prevents me to raise the gap to 3.5K
-> > or somesuch? Why 2K looks better?
-> 
-> You run with ESP decreased by 2KB for some time during
-> CPL1 stack setup.  As you run in this part at CPL0
-> with same setup as on CPL1, I think that you should
-> offer same stack for setup code, and for CPL1 code,
-> and so each should get 2KB.
 
-Maybe I miss something, but it seems that lret (or retl)
-is not affected by this bug. What prevents you from reordering
-the stack (doing the inverse operation of what the lcall7 entry
-point does) and then doing:
+--=-iBxiXwrs1lVnFT8XtWjP
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-	popfl
-	lret
+On Sat, 2004-09-25 at 10:05, Herbert Xu wrote:
 
-Yes, I see issues with debugging (trap flag mostly) but I believe
-that they are solvable.
+> BTW, I'm very glad that this is being worked on and that table in Debian'=
+s
+> mkinitrd can finally die.
 
-	Regards,
-	Gabriel
+btw does that mkinitrd already use=20
+readlink /sys/block/sda/device/block/device
+
+(which gives
+../../devices/pci0000:00/0000:00:06.0/0000:03:0b.0/host1/1:0:0:0
+as output)
+
+the pci path that gives can easily be matched to modules.pcimap to find
+the information in case of a PCI device, so at least the table in your
+mkinitrd doesn't need to contain PCI devices.....
+
+--=-iBxiXwrs1lVnFT8XtWjP
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBVSqMxULwo51rQBIRAm1qAJ9ohY+2Vr7pGxNLH8AEwX6WZqJK3QCeLTgk
+UiAR1b61gZQBgVlpHVWbdU4=
+=89pR
+-----END PGP SIGNATURE-----
+
+--=-iBxiXwrs1lVnFT8XtWjP--
 

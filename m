@@ -1,43 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267410AbUH2KRT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267604AbUH2KXG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267410AbUH2KRT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 06:17:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267587AbUH2KRT
+	id S267604AbUH2KXG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 06:23:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267605AbUH2KXG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 06:17:19 -0400
-Received: from verein.lst.de ([213.95.11.210]:45230 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S267410AbUH2KRP (ORCPT
+	Sun, 29 Aug 2004 06:23:06 -0400
+Received: from [211.208.218.216] ([211.208.218.216]:32520 "HELO hivolda.no")
+	by vger.kernel.org with SMTP id S267604AbUH2KXE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 06:17:15 -0400
-Date: Sun, 29 Aug 2004 12:17:10 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Jaroslav Kysela <perex@suse.cz>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       ALSA development <alsa-devel@alsa-project.org>
-Subject: Re: Your message to Alsa-devel awaits moderator approval
-Message-ID: <20040829101710.GB28909@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
-	Jaroslav Kysela <perex@suse.cz>,
-	LKML <linux-kernel@vger.kernel.org>,
-	ALSA development <alsa-devel@alsa-project.org>
-References: <E1C161j-0006Cx-La@sc8-sf-list2.sourceforge.net> <20040828162817.GC15381@lst.de> <Pine.LNX.4.58.0408291202030.1778@pnote.perex-int.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408291202030.1778@pnote.perex-int.cz>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+	Sun, 29 Aug 2004 06:23:04 -0400
+Message-ID: <12ce01c48db2$59519844$4a2cd07a@hivolda.no>
+From: "Lloyd G. Marquez" <lloyd_marquezow@waitematadhb.govt.nz>
+To: linux-kernel@vger.kernel.org
+Subject: Try CortiZyte, a revolutionary weightloss product.
+Date: Sun, 29 Aug 2004 14:28:52 +0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 29, 2004 at 12:06:01PM +0200, Jaroslav Kysela wrote:
-> On Sat, 28 Aug 2004, Christoph Hellwig wrote:
-> 
-> > Jaroslav, could you please turn off the moderation for alsa-devel?
-> > Mailinglists mentioned in MAINTAINERS should be easily accessible for
-> > bugreports.
-> 
-> Changed. The alsa-devel list is open now. Hopefully, spam won't eat us.
+Try CortiZyte!
 
-Thanks a lot!
+With our pharmaceutical grade all-natural weight-loss
+formula, you will:
+
+- Lose pounds and inches like crazy
+- Jump start your metabolism
+- Boost your energy level
+- Lose your appetite and feel satisfied
+- Reduce cholesterol levels
+- Eliminate cellulite and excess fat pockets
+- Stimulate your body's natural fat-burning ability
+
+Most Important: You Will Keep The Weight Off!
+
+Get the facts about all-natural CortiZyte: http://www.sister26.com/
+
 

@@ -1,86 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262119AbTJNJ5q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 05:57:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbTJNJ5q
+	id S262276AbTJNJ7X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 05:59:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262241AbTJNJ7X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 05:57:46 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:45289 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S262119AbTJNJ5o
+	Tue, 14 Oct 2003 05:59:23 -0400
+Received: from mail.convergence.de ([212.84.236.4]:14012 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S262276AbTJNJ7W
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 05:57:44 -0400
-Message-ID: <3F8BC896.6020106@namesys.com>
-Date: Tue, 14 Oct 2003 13:57:42 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
+	Tue, 14 Oct 2003 05:59:22 -0400
+Message-ID: <3F8BC8F8.6000909@convergence.de>
+Date: Tue, 14 Oct 2003 11:59:20 +0200
+From: Michael Hunold <hunold@convergence.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.5b) Gecko/20030903 Thunderbird/0.2
+X-Accept-Language: de-de, de-at, de, en-us, en
 MIME-Version: 1.0
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-CC: John Bradford <john@grabjohn.com>, Wes Janzen <superchkn@sbcglobal.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Why are bad disk sectors numbered strangely, and what happens
- to them?
-References: <32a101c3916c$e282e330$5cee4ca5@DIAMONDLX60> <200310131014.h9DAEwY3000241@81-2-122-30.bradfords.org.uk> <33a201c39174$2b936660$5cee4ca5@DIAMONDLX60> <20031014064925.GA12342@bitwizard.nl> <3F8BA037.9000705@sbcglobal.net> <200310140721.h9E7LmNE000682@81-2-122-30.bradfords.org.uk> <20031014074020.GC13117@bitwizard.nl> <200310140811.h9E8Bxq1000831@81-2-122-30.bradfords.org.uk> <3F8BB7AE.2040507@namesys.com> <20031014094629.GA16683@bitwizard.nl>
-In-Reply-To: <20031014094629.GA16683@bitwizard.nl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Stephen Hemminger <shemminger@osdl.org>
+CC: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/14] LinuxTV.org DVB driver update
+References: <20031011105320.1c9d46db.davem@redhat.com>	<Pine.GSO.4.21.0310121115260.27309-100000@starflower.sonytel.be>	<20031012110846.GA1677@mars.ravnborg.org> <20031013090108.3aa8c464.shemminger@osdl.org>
+In-Reply-To: <20031013090108.3aa8c464.shemminger@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rogier Wolff wrote:
+Hello Stephen,
 
->On Tue, Oct 14, 2003 at 12:45:34PM +0400, Hans Reiser wrote:
->  
->
->>Perhaps we should tell people to first write to the bad block, and only 
->>if the block remains bad after triggering the remapping by writing to it 
->>should you make any effort to get the filesystem to remap it for you.  
->>What do you think?
->>
->>Rogier has not indicated that he has tried writing to the bad sector, 
->>has he?
->>    
->>
->
->Hans, 
->
->I simply refuse to try to trigger a remapping by writing to the
->sector. A couple of things can happen:
->
->1) The write succeeds on the "bad" spot.
->
-> The "normal" write doesn't
->do a "veriy-after-write", so the write might simply be succeeding, 
->resulting in an immediate data-loss (which might be masked if I try
->to reread the data from userspace bacause the data is still cached!)
->
-Do a hard reboot with > 25 seconds power off.
+> I think root cause of the problem is that dvb was only just been added
+> to the MAINTAINERS file so the patch got lost when I sent to closet
+> match was the video lists. It was kind of orphan thing since it crossed
+> both networking and DVB.
 
->
->2) the realloc might succeed, hiding the fact that my drive just lost
->0.5k bytes of my data. I mean, there was SOME data there. Linux
->wouldn't try to be reading it if it had never been written, right?  A
->drive that refers my data to /dev/null should be diverted there
->itself.
->
->Of course, I left my drive that indicated it had problems (i.e. it
->didn't spot the sector going bad before it became unreadable), in the
->machine for another two days. It's getting replaced ASAP (i.e. the
->next hour or so).
->
->The bad sector developed in a backup of data that is still running
->hapilly on another machine. But I'm not risking a sector getting
->assigned some important data going bad next time I notice something.
->
->			Roger. 
->
->  
->
-replacing the drive is reasonable caution.  I think though that the 
-other poster is right that IFF you want to remap bad blocks, the drive 
-should do it not reiserfs.
+I just browsed thorugh the changelogs at
+http://linus.bkbits.net:8080/linux-2.5/src/drivers/media/dvb?nav=index.html|src/.|src/drivers|src/drivers/media
+and back-feeded the changes that did not make it into our local CVS yet.
 
--- 
-Hans
+> Do you need any help in reinserting it?
 
+Thanks for your offer. But I have just cut out your patch, "reversed 
+it", compile tested it and sent it to lkml.
+
+CU
+Michael.
 

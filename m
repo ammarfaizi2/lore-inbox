@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314447AbSDFNHY>; Sat, 6 Apr 2002 08:07:24 -0500
+	id <S314115AbSDFKBX>; Sat, 6 Apr 2002 05:01:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314448AbSDFNHY>; Sat, 6 Apr 2002 08:07:24 -0500
-Received: from zork.zork.net ([66.92.188.166]:42510 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id <S314447AbSDFNHX>;
-	Sat, 6 Apr 2002 08:07:23 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: Best 2.4 kernel for SPARC?
-In-Reply-To: <000701c1dcf8$6d5b61b0$0201a8c0@homer>
-From: Sean Neakums <sneakums@zork.net>
-X-Worst-Pick-Up-Line-Ever: "Hey baby, wanna peer with my leafnode instance?"
-X-Groin-Mounted-Steering-Wheel: "Arrrr... it's driving me nuts!"
-X-Message-Flag: Message text advisory: ARGUMENTUM AD BACULUM,
- TERRORISM/FIREARMS
-X-Mailer: Norman
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Date: Sat, 06 Apr 2002 14:07:12 +0100
-Message-ID: <6ud6xdkmbj.fsf@zork.zork.net>
-User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.1
- (i386-debian-linux-gnu)
+	id <S314116AbSDFKBW>; Sat, 6 Apr 2002 05:01:22 -0500
+Received: from mail.sonytel.be ([193.74.243.200]:5600 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S314115AbSDFKBV>;
+	Sat, 6 Apr 2002 05:01:21 -0500
+Date: Sat, 6 Apr 2002 12:01:14 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Peter Horton <pdh@berserk.demon.co.uk>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] radeonfb 2.4.19-pre2
+In-Reply-To: <20020405163811.GB1902@berserk.demon.co.uk>
+Message-ID: <Pine.GSO.4.21.0204061200220.2210-100000@lisianthus.sonytel.be>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-commence  Martin Eriksson quotation:
+On Fri, 5 Apr 2002, Peter Horton wrote:
+> On Fri, Apr 05, 2002 at 12:15:22PM +0200, Geert Uytterhoeven wrote:
+> > If you use the palette in directcolor modes (instead of emulating truecolor
+> > mode), the console palette can be changed without redrawing the screen, just
+> > like in VGA text mode.
+> 
+> Doesn't this then limit you to 32/64 colours in 15/16 bit mode (the
+> original code reject attempts to set palette entries above these indexes)
 
-> What is the 2.4 kernel that works best for SPARC?
->
-> The machine is a SPARC Ultra 10 3D creator with RedHat 6.2, now running some
-> old 2.4 kernel (cannot check right now).
+Yes, but that's not a problem for emulating a text console. And the logo code
+will use the 16-color penguin in that case.
 
-I've been using mainline 2.4.18 plus rmap12h on my Ultra5 successfully
-for a few weeks now.  Built with Debian's egcs64 package, which is
-version 1.1.2, as I recall.  It's been very solid; no problems at all.
+Gr{oetje,eeting}s,
 
--- 
- /////////////////  |                  | The spark of a pin
-<sneakums@zork.net> |  (require 'gnu)  | dropping, falling feather-like.
- \\\\\\\\\\\\\\\\\  |                  | There is too much noise.
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

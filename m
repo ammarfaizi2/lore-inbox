@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262028AbVAYSEf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262041AbVAYSId@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262028AbVAYSEf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 13:04:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262041AbVAYSEf
+	id S262041AbVAYSId (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 13:08:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbVAYSId
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 13:04:35 -0500
-Received: from twin.jikos.cz ([213.151.79.26]:15542 "EHLO twin.jikos.cz")
-	by vger.kernel.org with ESMTP id S262028AbVAYSEa (ORCPT
+	Tue, 25 Jan 2005 13:08:33 -0500
+Received: from fw.osdl.org ([65.172.181.6]:4551 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262041AbVAYSIb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 13:04:30 -0500
-Date: Tue, 25 Jan 2005 19:04:27 +0100 (CET)
-From: Jirka Kosina <jikos@jikos.cz>
-To: coreteam@netfilter.org
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix linking of ip_nat_tftp.o and ip_conntrack_tftp.o
-Message-ID: <Pine.LNX.4.58.0501251901480.32479@twin.jikos.cz>
+	Tue, 25 Jan 2005 13:08:31 -0500
+Date: Tue, 25 Jan 2005 10:08:10 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Bill Davidsen <davidsen@tmr.com>
+cc: Valdis.Kletnieks@vt.edu, John Richard Moser <nigelenki@comcast.net>,
+       Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Christoph Hellwig <hch@infradead.org>, Dave Jones <davej@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
+       Greg KH <greg@kroah.com>, chrisw@osdl.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: thoughts on kernel security issues
+In-Reply-To: <41F6816D.1020306@tmr.com>
+Message-ID: <Pine.LNX.4.58.0501251006340.2342@ppc970.osdl.org>
+References: <1106157152.6310.171.camel@laptopd505.fenrus.org>
+ <200501191947.j0JJlf3j024206@turing-police.cc.vt.edu> <41F6604B.4090905@tmr.com>
+ <Pine.LNX.4.58.0501250741210.2342@ppc970.osdl.org> <41F6816D.1020306@tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-when both nat and connection tracking for TFTP protocol is turned on, the 
-linking fails:
 
-net/ipv4/netfilter/ip_nat_tftp.o(.bss+0x0): multiple definition of `ip_nat_tftp_hook'
-net/ipv4/netfilter/ip_conntrack_tftp.o(.bss+0x0): first defined here
+On Tue, 25 Jan 2005, Bill Davidsen wrote:
+> 
+> No,perhaps it isn't clear. If A changes the way a lock is used (for 
+> example), then all the places which were using the lock the old way have 
+> to use it the new way, or lockups or similar bad behaviour occur.
 
-The following patch fixes it, please apply.
+Sure. Some patches are like that, but even then you can split it out so 
+that one patch does _only_ that part, and is verifiable as doing only that 
+part.
 
-diff -ruN linux-2.6.11-rc2.old/include/linux/netfilter_ipv4/ip_conntrack_tftp.h linux-2.6.11-rc2/include/linux/netfilter_ipv4/ip_conntrack_tftp.h
---- linux-2.6.11-rc2.old/include/linux/netfilter_ipv4/ip_conntrack_tftp.h	2005-01-22 02:47:31.000000000 +0100
-+++ linux-2.6.11-rc2/include/linux/netfilter_ipv4/ip_conntrack_tftp.h	2005-01-25 18:50:20.000000000 +0100
-@@ -13,7 +13,7 @@
- #define TFTP_OPCODE_ACK		4
- #define TFTP_OPCODE_ERROR	5
- 
--unsigned int (*ip_nat_tftp_hook)(struct sk_buff **pskb,
-+extern unsigned int (*ip_nat_tftp_hook)(struct sk_buff **pskb,
- 				 enum ip_conntrack_info ctinfo,
- 				 struct ip_conntrack_expect *exp);
- 
-diff -ruN linux-2.6.11-rc2.old/net/ipv4/netfilter/ip_conntrack_tftp.c linux-2.6.11-rc2/net/ipv4/netfilter/ip_conntrack_tftp.c
---- linux-2.6.11-rc2.old/net/ipv4/netfilter/ip_conntrack_tftp.c	2005-01-22 02:47:32.000000000 +0100
-+++ linux-2.6.11-rc2/net/ipv4/netfilter/ip_conntrack_tftp.c	2005-01-25 18:47:28.000000000 +0100
-@@ -38,9 +38,6 @@
- #define DEBUGP(format, args...)
- #endif
- 
--unsigned int (*ip_nat_tftp_hook)(struct sk_buff **pskb,
--				 enum ip_conntrack_info ctinfo,
--				 struct ip_conntrack_expect *exp);
- EXPORT_SYMBOL_GPL(ip_nat_tftp_hook);
- 
- static int tftp_help(struct sk_buff **pskb,
+It's also pretty rare. We've had a few big ones like that, notably when 
+moving a BKL around (moving it from the VFS layer down into each 
+individual filesystem). And I can't see that really happening in a 
+security-only patch.
 
--- 
-JiKos.
+		Linus

@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265325AbUAYWl6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 17:41:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265326AbUAYWl6
+	id S265350AbUAYWsa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 17:48:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265351AbUAYWsa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 17:41:58 -0500
-Received: from out003pub.verizon.net ([206.46.170.103]:27554 "EHLO
-	out003.verizon.net") by vger.kernel.org with ESMTP id S265325AbUAYWl5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 17:41:57 -0500
-Message-ID: <40144617.7040901@verizon.net>
-Date: Sun, 25 Jan 2004 22:41:27 +0000
-From: Mark K Hannah <mk.hannah@verizon.net>
-Reply-To: mk.hannah@verizon.net
+	Sun, 25 Jan 2004 17:48:30 -0500
+Received: from d213-103-156-147.cust.tele2.ch ([213.103.156.147]:3394 "EHLO
+	kameha") by vger.kernel.org with ESMTP id S265350AbUAYWs2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jan 2004 17:48:28 -0500
+Message-ID: <401447C1.6020902@freesurf.ch>
+Date: Sun, 25 Jan 2004 23:48:33 +0100
+From: Marc Mongenet <Marc.Mongenet@freesurf.ch>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-To: mec@shout.net, linux-kernel@vger.kernel.org
-Subject: Menuconfig Error
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Greg KH <greg@kroah.com>
+CC: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net, tranter@pobox.com
+Subject: Re: 2.4.25pre7 - cannot mount 128MB vfat fs on Minolta camera
+References: <4013D155.3080900@freesurf.ch> <87y8rw2eyy.fsf@devron.myhome.or.jp> <40140221.40901@freesurf.ch> <87isiz3luw.fsf@devron.myhome.or.jp> <20040125214625.GB28000@kroah.com>
+In-Reply-To: <20040125214625.GB28000@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [138.88.227.206] at Sun, 25 Jan 2004 16:41:56 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Following error received while trying to get into "Advanced Linux Sound 
-Arch."  Crashes as soon as you select.
+Greg KH wrote:
 
-Also getting module compile errors...I assume it is because I can't get 
-into ALSA parameters to shut off usbaudio under ALSA.
+> Marc Mongenet <Marc.Mongenet@freesurf.ch> writes:
+>> Hi, I have a Minolta DiMAGE F100 camera and two memory cards,
+>> a 16 MB and a 128 MB.
+ >> So, I can mount the 16 MB card or the 128 MB card with any kernel,
+ >> BUT I have to reboot the system when I change the cards. Example:
 
-Using Mandrake 9.2 and kernel-source-2.4.22-10mdk
-Mark Hannah
+> Yes, run 'eject' after removing the media before inserting the new
+> media.  That should fix the problem.
 
+Fixed.
+It does not seem to be well known.
+I suggest to add this information in the eject documentation.
 
-Menuconfig has encountered a possible error in one of the kernel's
-configuration files and is unable to continue.  Here is the error
-report:
-
- Q> scripts/Menuconfig: line 832: MCmenu78: command not found
-
-Please report this to the maintainer <mec@shout.net>.  You may also
-send a problem report to <linux-kernel@vger.kernel.org>.
-
-Please indicate the kernel version you are trying to configure and
-which menu you were trying to enter when this error occurred.
-
-make: *** [menuconfig] Error 1
+Thanks,
+Marc Mongenet

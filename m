@@ -1,219 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263868AbTDJDWX (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 23:22:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263883AbTDJDWX (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 23:22:23 -0400
-Received: from dp.samba.org ([66.70.73.150]:48562 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S263868AbTDJDWT (for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Apr 2003 23:22:19 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: davidm@hpl.hp.com
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [patch] add module_arch_cleanup() and improve module debugging output 
-In-reply-to: Your message of "Wed, 09 Apr 2003 14:54:48 MST."
-             <200304092154.h39Lsmop011302@napali.hpl.hp.com> 
-Date: Thu, 10 Apr 2003 12:16:52 +1000
-Message-Id: <20030410033400.962822C09B@lists.samba.org>
+	id S263884AbTDJDZ4 (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 23:25:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263897AbTDJDZz (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 23:25:55 -0400
+Received: from [202.109.126.231] ([202.109.126.231]:37165 "HELO
+	www.support-smartpc.com.cn") by vger.kernel.org with SMTP
+	id S263884AbTDJDZy (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 23:25:54 -0400
+Message-ID: <3E94E6EA.5CF533A2@mic.com.tw>
+Date: Thu, 10 Apr 2003 11:37:14 +0800
+From: "rain.wang" <rain.wang@mic.com.tw>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [rfc][patch]: fix handler race in HDIO_DRIVE_RESET path for 2.5.67-ac1
+References: <Pine.LNX.4.21.0303241129420.855-100000@mars.zaxl.net> <1048514373.25136.4.camel@irongate.swansea.linux.org.uk> <20030324180125.2606b046.alex@ssi.bg> <1048527607.25655.18.camel@irongate.swansea.linux.org.uk> <3E8BDC10.D0195D71@mic.com.tw> <20030403071620.GJ2072@suse.de> <3E8BF293.2CC30C1F@mic.com.tw>
+Content-Type: multipart/mixed;
+ boundary="------------6B8585142F17A95670C95165"
+X-OriginalArrivalTime: 10 Apr 2003 03:33:22.0687 (UTC) FILETIME=[F00F80F0:01C2FF11]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <200304092154.h39Lsmop011302@napali.hpl.hp.com> you write:
-> Rusty,
-> 
-> The patch below updates the other platforms with
-> module_arch_cleanup().  Also, I added more debug output to
-> kernel/module.c since I found it useful to be able to see the final
-> section layout.
+This is a multi-part message in MIME format.
+--------------6B8585142F17A95670C95165
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Yep, looks great.
+Hi,
+    I found there's another 50 msec wait needed after the
+first reset poll handler return to avoid the handler race.
+but I can't find out reason why.
 
-Linus, please apply if you haven't already.
+regards
+rain.w
 
-Thanks,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+--------------6B8585142F17A95670C95165
+Content-Type: text/plain; charset=us-ascii;
+ name="ide.c.diff.2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ide.c.diff.2"
 
-Name: module_arch_cleanup hook
-Author: David Mosberger
-Status: Trivial
+--- /usr/src/linux-2.5.67-ac1/drivers/ide/ide.c	Wed Apr  9 11:31:40 2003
++++ ide.c	Wed Apr  9 13:31:18 2003
+@@ -1608,6 +1608,10 @@
+ 			HWGROUP(drive)->busy = 1;
+ 			spin_unlock_irqrestore(&ide_lock, flags);
+ 			(void) ide_do_reset(drive);
++
++			/* wait for another 50ms */
++			mdelay(50);
++
+ 			if (drive->suspend_reset) {
+ /*
+  *				APM WAKE UP todo !!
 
-D: The patch below updates the other platforms with
-D: module_arch_cleanup().  Also, I added more debug output to
-D: kernel/module.c since I found it useful to be able to see the final
-D: section layout.
+--------------6B8585142F17A95670C95165--
 
-diff -Nru a/kernel/module.c b/kernel/module.c
---- a/kernel/module.c	Wed Apr  9 14:49:49 2003
-+++ b/kernel/module.c	Wed Apr  9 14:49:49 2003
-@@ -909,6 +909,9 @@
- 	list_del(&mod->list);
- 	spin_unlock_irq(&modlist_lock);
- 
-+	/* Arch-specific cleanup. */
-+	module_arch_cleanup(mod);
-+
- 	/* Module unload stuff */
- 	module_unload_free(mod);
- 
-@@ -1241,6 +1244,7 @@
- 	mod->module_init = ptr;
- 
- 	/* Transfer each section which specifies SHF_ALLOC */
-+	DEBUGP("final section addresses:\n");
- 	for (i = 0; i < hdr->e_shnum; i++) {
- 		void *dest;
- 
-@@ -1258,6 +1262,7 @@
- 			       sechdrs[i].sh_size);
- 		/* Update sh_addr to point to copy in image. */
- 		sechdrs[i].sh_addr = (unsigned long)dest;
-+		DEBUGP("\t0x%lx %s\n", sechdrs[i].sh_addr, secstrings + sechdrs[i].sh_name);
- 	}
- 	/* Module has been moved. */
- 	mod = (void *)sechdrs[modindex].sh_addr;
-diff -Nru a/include/linux/moduleloader.h b/include/linux/moduleloader.h
---- a/include/linux/moduleloader.h	Wed Apr  9 14:49:49 2003
-+++ b/include/linux/moduleloader.h	Wed Apr  9 14:49:49 2003
-@@ -41,4 +41,7 @@
- 		    const Elf_Shdr *sechdrs,
- 		    struct module *mod);
- 
-+/* Any cleanup needed when module leaves. */
-+void module_arch_cleanup(struct module *mod);
-+
- #endif
-diff -Nru a/arch/alpha/kernel/module.c b/arch/alpha/kernel/module.c
---- a/arch/alpha/kernel/module.c	Wed Apr  9 14:49:48 2003
-+++ b/arch/alpha/kernel/module.c	Wed Apr  9 14:49:48 2003
-@@ -300,3 +300,8 @@
- {
- 	return 0;
- }
-+
-+void
-+module_arch_cleanup(struct module *mod)
-+{
-+}
-diff -Nru a/arch/arm/kernel/module.c b/arch/arm/kernel/module.c
---- a/arch/arm/kernel/module.c	Wed Apr  9 14:49:48 2003
-+++ b/arch/arm/kernel/module.c	Wed Apr  9 14:49:48 2003
-@@ -159,3 +159,8 @@
- {
- 	return 0;
- }
-+
-+void
-+module_arch_cleanup(struct module *mod)
-+{
-+}
-diff -Nru a/arch/i386/kernel/module.c b/arch/i386/kernel/module.c
---- a/arch/i386/kernel/module.c	Wed Apr  9 14:49:49 2003
-+++ b/arch/i386/kernel/module.c	Wed Apr  9 14:49:49 2003
-@@ -110,3 +110,7 @@
- {
- 	return 0;
- }
-+
-+void module_arch_cleanup(struct module *mod)
-+{
-+}
-diff -Nru a/arch/parisc/kernel/module.c b/arch/parisc/kernel/module.c
---- a/arch/parisc/kernel/module.c	Wed Apr  9 14:49:50 2003
-+++ b/arch/parisc/kernel/module.c	Wed Apr  9 14:49:50 2003
-@@ -568,3 +568,7 @@
- #endif
- 	return 0;
- }
-+
-+void module_arch_cleanup(struct module *mod)
-+{
-+}
-diff -Nru a/arch/ppc/kernel/module.c b/arch/ppc/kernel/module.c
---- a/arch/ppc/kernel/module.c	Wed Apr  9 14:49:48 2003
-+++ b/arch/ppc/kernel/module.c	Wed Apr  9 14:49:48 2003
-@@ -269,3 +269,7 @@
- {
- 	return 0;
- }
-+
-+void module_arch_cleanup(struct module *mod)
-+{
-+}
-diff -Nru a/arch/ppc64/kernel/module.c b/arch/ppc64/kernel/module.c
---- a/arch/ppc64/kernel/module.c	Wed Apr  9 14:49:49 2003
-+++ b/arch/ppc64/kernel/module.c	Wed Apr  9 14:49:49 2003
-@@ -386,3 +386,7 @@
- 		      me->extable.entry + me->extable.num_entries);
- 	return 0;
- }
-+
-+void module_arch_cleanup(struct module *mod)
-+{
-+}
-diff -Nru a/arch/s390/kernel/module.c b/arch/s390/kernel/module.c
---- a/arch/s390/kernel/module.c	Wed Apr  9 14:49:49 2003
-+++ b/arch/s390/kernel/module.c	Wed Apr  9 14:49:49 2003
-@@ -348,3 +348,7 @@
- 		kfree(me->arch.syminfo);
- 	return 0;
- }
-+
-+void module_arch_cleanup(struct module *mod)
-+{
-+}
-diff -Nru a/arch/s390x/kernel/module.c b/arch/s390x/kernel/module.c
---- a/arch/s390x/kernel/module.c	Wed Apr  9 14:49:50 2003
-+++ b/arch/s390x/kernel/module.c	Wed Apr  9 14:49:50 2003
-@@ -374,3 +374,7 @@
- 		kfree(me->arch.syminfo);
- 	return 0;
- }
-+
-+void module_arch_cleanup(struct module *mod)
-+{
-+}
-diff -Nru a/arch/sparc/kernel/module.c b/arch/sparc/kernel/module.c
---- a/arch/sparc/kernel/module.c	Wed Apr  9 14:49:48 2003
-+++ b/arch/sparc/kernel/module.c	Wed Apr  9 14:49:48 2003
-@@ -145,3 +145,7 @@
- {
- 	return 0;
- }
-+
-+void module_arch_cleanup(struct module *mod)
-+{
-+}
-diff -Nru a/arch/sparc64/kernel/module.c b/arch/sparc64/kernel/module.c
---- a/arch/sparc64/kernel/module.c	Wed Apr  9 14:49:49 2003
-+++ b/arch/sparc64/kernel/module.c	Wed Apr  9 14:49:49 2003
-@@ -273,3 +273,7 @@
- {
- 	return 0;
- }
-+
-+void module_arch_cleanup(struct module *mod)
-+{
-+}
-diff -Nru a/arch/v850/kernel/module.c b/arch/v850/kernel/module.c
---- a/arch/v850/kernel/module.c	Wed Apr  9 14:49:49 2003
-+++ b/arch/v850/kernel/module.c	Wed Apr  9 14:49:49 2003
-@@ -230,3 +230,8 @@
- 
- 	return 0;
- }
-+
-+void
-+module_arch_cleanup(struct module *mod)
-+{
-+}
-diff -Nru a/arch/x86_64/kernel/module.c b/arch/x86_64/kernel/module.c
---- a/arch/x86_64/kernel/module.c	Wed Apr  9 14:49:49 2003
-+++ b/arch/x86_64/kernel/module.c	Wed Apr  9 14:49:49 2003
-@@ -231,3 +231,7 @@
- {
- 	return 0;
- }
-+
-+void module_arch_cleanup(struct module *mod)
-+{
-+}

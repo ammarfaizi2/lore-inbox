@@ -1,70 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271130AbRHTI0Y>; Mon, 20 Aug 2001 04:26:24 -0400
+	id <S271126AbRHTIYy>; Mon, 20 Aug 2001 04:24:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271134AbRHTI0P>; Mon, 20 Aug 2001 04:26:15 -0400
-Received: from [203.161.228.202] ([203.161.228.202]:12294 "EHLO
-	spf1.hq.outblaze.com") by vger.kernel.org with ESMTP
-	id <S271135AbRHTIZ5>; Mon, 20 Aug 2001 04:25:57 -0400
-Date: 20 Aug 2001 08:36:30 -0000
-Message-ID: <20010820083630.16182.qmail@yusufg.portal2.com>
-From: Yusuf Goolamabbas <yusufg@outblaze.com>
-To: linux-kernel@vger.kernel.org
-Subject: aic7xxx errors with 2.4.8-ac7 on 440gx mobo
+	id <S271130AbRHTIYo>; Mon, 20 Aug 2001 04:24:44 -0400
+Received: from pf107.gdansk.sdi.tpnet.pl ([213.77.129.107]:14096 "EHLO
+	alf.amelek.gda.pl") by vger.kernel.org with ESMTP
+	id <S271126AbRHTIYc>; Mon, 20 Aug 2001 04:24:32 -0400
+Subject: Compaq Notebook 100 + yenta_socket problem
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Date: Mon, 20 Aug 2001 10:22:43 +0200 (CEST)
+X-Mailer: ELM [version 2.4ME+ PL89 (25)]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <E15YkKa-0000pw-00@mm.amelek.gda.pl>
+From: Marek Michalkiewicz <marekm@amelek.gda.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 2.4.8 and 2.4.9 have no problems compiling and booting on a P3 500
-440GX mobo (APIC not compiled in the kernel)
+Hello,
 
-With 2.4.8-ac7, I get SCSI errors and the kernel fails to boot. If I
-compile with APIC enabled and APIC on UP also enabled, it boots
-cleanly
+Following up my earlier bug report sent to linux-kernel...
 
-booting with append="noapic", gives the same errors
+I can confirm that the standalone PCMCIA drivers (pcmcia-cs-3.1.28)
+work fine for me under 2.4.x too, the problem is specific to the
+yenta_socket driver in the kernel.  After it is loaded (even if
+later unloaded), any BIOS-related functions cause immediate power-off
+of the machine, or a hard lockup, or hard lockup with backlight off
+but HDD still spinning, sometimes changing the RTC by a few hours.
+After such lockup (if it doesn't power off), the power button must
+be held for a few seconds (the machine has no reset button).
 
+By "any BIOS-related functions" I mean rebooting, suspending by
+closing the lid, loading apm.o module, running "apm" if the driver
+was compiled in, or even simply changing brightness or contrast
+with Fn-key combinations.  Sometimes it just happens without me
+doing anything.  Could be that yenta_socket driver initialization
+overwrites some memory containing SMM code?
 
-SCSI subsystem driver Revision: 1.00
-PCI: Assigned IRQ 11 for device 00:0c.0
-PCI: Sharing IRQ 11 with 00:0c.1
-PCI: Found IRQ 11 for device 00:0c.1
-PCI: Sharing IRQ 11 with 00:0c.0
+On an unrelated note, there seems to be some APM BIOS bug, where
+remaining battery life is reported as 150 seconds when it should
+be 150 minutes.  This is the case under both 2.2.x and 2.4.x.
 
-scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.1
-        <Adaptec aic7896/97 Ultra2 SCSI adapter>
-        aic7896/97: Ultra2 Wide Channel A, SCSI Id=7, 32/255 SCBs
+Thanks,
+Marek
 
-scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.1
-        <Adaptec aic7896/97 Ultra2 SCSI adapter>
-        aic7896/97: Ultra2 Wide Channel B, SCSI Id=7, 32/255 SCBs
-
-scsi0:0:0:0: Attempting to queue an ABORT message
-scsi0:0:0:0: Command already completed
-aic7xxx_abort returns 8194
-scsi0:0:0:0: Attempting to queue an ABORT message
-scsi0:0:0:0: Device is active, asserting ATN
-Recovery code sleeping
-Recovery code awake
-Timer Expired
-aic7xxx_abort returns 8195
-scsi0:0:0:0: Attempting to queue a TARGET RESET message
-aic7xxx_dev_reset returns 8195
-Recovery SCB completes
-scsi0:0:0:0: Attempting to queue an ABORT message
-ahc_intr: HOST_MSG_LOOP bad phase 0x0
-scsi0:0:0:0: Cmd aborted from QINFIFO
-aic7xxx_abort returns 8194
-scsi: device set offline - not ready or command retry failed after bus reset: host 0 channel 0 id 0 lun 0
-scsi0:0:1:0: Attempting to queue an ABORT message
-scsi0:0:1:0: Command already completed
-aic7xxx_abort returns 8194
-scsi0:0:1:0: Attempting to queue an ABORT message
-scsi0:0:1:0: Command already completed
-aic7xxx_abort returns 8194
-scsi0:0:1:0: Attempting to queue a TARGET RESET message
-scsi0:0:1:0: Is not an active device
-scsi0:0:1:0: Attempting to queue an ABORT message
-scsi0:0:1:0: Command already completed
-aic7xxx_abort returns 8194
-
-Regards, Yusuf

@@ -1,82 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262530AbVA0JvK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262536AbVA0JyA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262530AbVA0JvK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 04:51:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262536AbVA0JvJ
+	id S262536AbVA0JyA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 04:54:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262537AbVA0Jx7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 04:51:09 -0500
-Received: from colin2.muc.de ([193.149.48.15]:45840 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S262530AbVA0JvD (ORCPT
+	Thu, 27 Jan 2005 04:53:59 -0500
+Received: from master.debian.org ([146.82.138.7]:43701 "EHLO master.debian.org")
+	by vger.kernel.org with ESMTP id S262536AbVA0Jx5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 04:51:03 -0500
-Date: 27 Jan 2005 10:51:02 +0100
-Date: Thu, 27 Jan 2005 10:51:02 +0100
-From: Andi Kleen <ak@muc.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: critical bugs in md raid5
-Message-ID: <20050127095102.GA88779@muc.de>
-References: <20050127035906.GA7025@schmorp.de> <m1vf9j4fsp.fsf@muc.de> <20050127063131.GA29574@schmorp.de>
+	Thu, 27 Jan 2005 04:53:57 -0500
+Date: Thu, 27 Jan 2005 03:53:50 -0600
+From: Colin Watson <cjwatson@debian.org>
+To: debian-amd64@lists.debian.org, linux-kernel@vger.kernel.org
+Cc: discuss@x86-64.org
+Subject: x86-64: PT_GNU_STACK exec bit broken under ia32 emulation?
+Message-ID: <20050127095350.GA6638@master.debian.org>
+Mail-Followup-To: Colin Watson <cjwatson@debian.org>,
+	debian-amd64@lists.debian.org, linux-kernel@vger.kernel.org,
+	discuss@x86-64.org
+References: <299008303.20050111201628@gmx.net> <7772a2590501111121348a6ab@mail.gmail.com> <20050111215733.GB5049@frankengul.org> <41E4603C.20701@comcast.net> <20050112140833.GX10437@ns.snowman.net> <20050112145903.GA9336@frankengul.org> <20050112151350.GY10437@ns.snowman.net> <20050126114931.GA9784@master.debian.org> <20050127024523.GA6511@master.debian.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050127063131.GA29574@schmorp.de>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20050127024523.GA6511@master.debian.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I disagree. When not working in degraded mode, it's absolutely reasonable
-> to e.g. use only the non-parity data. A crash with raid5 is in no way
-
-Yep. But when you go into degraded mode during the crash recovery 
-(before the RAID is fully synced again) you lose.
-
-> different to a crash without raid5 then: either the old data is on the
-> disk, the new data is on the disk, or you had some catastrophic disk event
-> and no data is on the disk.
-
-No, that's not how RAID-5 works. For its redundancy it requires
-coordinated writes of full stripes (= bigger than fs block) over
-multiple disks. When you crash in the middle of a write and you
-lose a disk during crash recovery there is no way to fully
-reconstruct all the data because the XOR data recovery requires
-valid data on all disks.
-
-The nasty part there is that it can affect completely unrelated
-data too (on a traditional disk you normally only lose the data
-that is currently being written) because of of the relationship
-between stripes on different disks.
-
+On Wed, Jan 26, 2005 at 08:45:23PM -0600, Colin Watson wrote:
+> On Wed, Jan 26, 2005 at 05:49:31AM -0600, Colin Watson wrote:
+> > I had the exact same problem (on Ubuntu rather than Debian, but hey).
+> > Debugging-by-printf revealed that grub segfaulted after calling
+> > stage2/builtins.c:disk_read_savesect_func() through the disk_read_func
+> > pointer in stage2/disk_io.c:rawread(); output from a printf before that
+> > call was printed, while output from a printf at the beginning of the
+> > disk_read_savesect_func() call was not printed. It *looks* like the text
+> > of that function is corrupt in memory, although I'm not wholly convinced
+> > that my debugging techniques were sound there because I'm having trouble
+> > debugging a 32-bit binary.
 > 
-> The case I reported was not a catastrophic failure: either the old or new
-> data was on the disk, and the filesystem journaling (which is ext3) will
-> take care of it. Even if the parity information is not in sync, either old or
-> new data is on the disk.
-
-But you lost a disk in the middle of recovery (any IO error is
-a lost disk) 
-
-> Indeed, but I think linux' behaviour is especially poor. For example, the
-> renumbering of the devices or the strange rebuild-restart behaviour (which
-> is definitely a bug) will make recovery unnecessarily complicated.
-
-There were some suggestions in the past 
-to be a bit nicer on read IO errors - often if a read fails and you rewrite 
-the block from the reconstructed data the disk would allocate a new block
-and then be error free again.
-
-The problem is just that when there are user visible IO errors
-on a modern disk something is very wrong and it will likely run quickly out 
-of replacement blocks, and will eventually fail. That is why
-Linux "forces" early replacement of the disk on any error - it is the
-safest thing to do.
-
-
-> > problem though (e.g. when file system metadata is affected)
+> I think this last sentence was indeed bogus.
 > 
-> Of course, but that's supposed to be worked around by using a journaling
-> file system, right?
+> Anyway, I've narrowed down the introduction of the problem to somewhere
+> between 2.6.9-bk1 and 2.6.9-bk2. Suggestions for changesets in there
+> that could have broken grub would be gratefully appreciated.
 
-Nope, journaling is no magical fix for meta data corruption.
+Context for LKML and discuss@x86-64; grub segfaults when running its
+'install' command (via grub-install) on Debian and Ubuntu systems
+running stock kernels >= 2.6.9-bk2, up to and including 2.6.11-rc2-bk3
+(haven't tried 2.6.11-rc2-bk4 yet). grub is a 32-bit binary relying on
+ia32 emulation. The implementation of the 'install' command in grub uses
+nested functions, which require a stack trampoline, and therefore the
+executable-stack bit is set on the binary:
 
--Andi
+  $ readelf -l /sbin/grub | grep STACK
+  STACK          0x000000 0x00000000 0x00000000 0x00000 0x00000 RWE 0x4
 
+However, booting with noexec=off cures the problem, so it would appear
+that the executable stack bit isn't being checked properly at least
+under ia32 emulation.
+
+2.6.9-bk1 works fine, but noexec=on only became the default in
+2.6.9-bk2; I haven't yet tried booting 2.6.9-bk1 with noexec=on, but I
+can try that if it might be helpful.
+
+Thanks,
+
+-- 
+Colin Watson                                       [cjwatson@debian.org]

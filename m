@@ -1,37 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265648AbRGCJ3s>; Tue, 3 Jul 2001 05:29:48 -0400
+	id <S265655AbRGCJY3>; Tue, 3 Jul 2001 05:24:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265657AbRGCJ3i>; Tue, 3 Jul 2001 05:29:38 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:26536 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S265648AbRGCJ3b>;
-	Tue, 3 Jul 2001 05:29:31 -0400
-Message-ID: <3B419078.6397F41C@mandrakesoft.com>
-Date: Tue, 03 Jul 2001 05:29:28 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Howells <dhowells@redhat.com>
-Cc: Russell King <rmk@arm.linux.org.uk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        David Woodhouse <dwmw2@infradead.org>, Jes Sorensen <jes@sunsite.dk>,
-        linux-kernel@vger.kernel.org, arjanv@redhat.com
-Subject: Re: [RFC] I/O Access Abstractions
-In-Reply-To: <4047.994150836@warthog.cambridge.redhat.com>
+	id <S265648AbRGCJYS>; Tue, 3 Jul 2001 05:24:18 -0400
+Received: from [195.66.192.167] ([195.66.192.167]:46610 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S265655AbRGCJYF>; Tue, 3 Jul 2001 05:24:05 -0400
+Date: Tue, 3 Jul 2001 12:15:55 +0300
+From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+X-Mailer: The Bat! (v1.44)
+Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+Organization: IMTP
+X-Priority: 3 (Normal)
+Message-ID: <2114620503.20010703121555@port.imtp.ilyichevsk.odessa.ua>
+To: linux-kernel@vger.kernel.org
+CC: bgerst@didntduck.org
+Subject: Re: [CHECKER] large stack variables (>=1K) in 2.4.4 and 2.4.4-ac8
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells wrote:
-> Of course, however, this still requires cookie decoding to be done in readb
-> and writeb (even on the i386). So why not use resource struct?
+On Fri, May 25, 2001 at 07:52:02AM -0400, Brian Gerst wrote:
+> Actually, you will never get a stack fault exception, since with a flat
+> stack segment you can never get a limit violation. All you will do is
+> corrupt the data in task struct and cause an oops later on when the
+> kernel tries to use the task struct. There are only two ways to
+> properly trap a kernel stack overflow:
 
-IMHO that makes the operation too heavyweight on architectures where
-that level of abstraction is not needed.
+> - Make the stack segment non-flat, putting the limit just above the task
+> struct. Ugly, because we want to stay away from segmentation. The
+> stack fault handler would have to be a task gate. This also causes
+> problems because pointers accessed through %ebp also use the stack
+> segment by default. We would either need to leave frame pointers turned
+> on or teach GCC to use %ds overrides when using %ebp as a pointer.
 
--- 
-Jeff Garzik      | "I respect faith, but doubt is
-Building 1024    |  what gives you an education."
-MandrakeSoft     |           -- Wilson Mizner
+> - Add a not-present guard page at the bottom of the stack. This means
+> the stack would have to live in vmalloc'ed memory, which I don't think
+> the kernel can handle at this time (with lazy vmalloc mapping). The
+> task struct would have to be moved elsewhere or it would still get
+> overwritten. Then a double fault task would be able to detect this and
+> kill the task.
+
+You're talking about something like this?
+
+0.............|taskstruct|guardpage(s)|stack space............FFFFFFFF
+^^^^^^^^^^^^              ^^^^^^^^^^^^
+This is not               these cause
+a stack space             a page fault
+                          -> double fault
+                          thru task gate
+
+I don't see why task struct have to be moved elsewhere. A couple of
+(not-present) pages and some support from MM subsystem is needed as
+well as double fault handling code.
+
+> In other words, with the current x86 architecture, there isn't really
+> much we can do to handle stack overflows without sacrificing
+> performance. Good discipline is the best we have.
+
+It could be useful as a debug feature for testing experimental kernels
+(selectable by make config).
+
+Pls CC me. I'm not on the list
+--
+vda@port.imtp.ilyichevsk.odessa.ua
+
+

@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131899AbREBLLf>; Wed, 2 May 2001 07:11:35 -0400
+	id <S131949AbREBLMZ>; Wed, 2 May 2001 07:12:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132606AbREBLLZ>; Wed, 2 May 2001 07:11:25 -0400
-Received: from smtp.mountain.net ([198.77.1.35]:10761 "EHLO riker.mountain.net")
-	by vger.kernel.org with ESMTP id <S131899AbREBLLM>;
-	Wed, 2 May 2001 07:11:12 -0400
-Message-ID: <3AEFEB0E.1C464EA9@mountain.net>
-Date: Wed, 02 May 2001 07:10:06 -0400
-From: Tom Leete <tleete@mountain.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.3 i486)
-X-Accept-Language: English/United, States, en-US, English/United, Kingdom, en-GB, English, en, French, fr, Spanish, es, Italian, it, German, de, , ru
-MIME-Version: 1.0
-To: Seth Goldberg <bergsoft@home.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Followup to previous post: Atlon/VIA Instabilities
-In-Reply-To: <3AEE9EA0.3752F0C0@home.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S132606AbREBLMQ>; Wed, 2 May 2001 07:12:16 -0400
+Received: from juicer24.bigpond.com ([139.134.6.34]:56269 "EHLO
+	mailin3.email.bigpond.com") by vger.kernel.org with ESMTP
+	id <S131949AbREBLMH>; Wed, 2 May 2001 07:12:07 -0400
+Message-Id: <m14uubp-001QJTC@mozart>
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: alan@redhat.com
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] kernel locking guide fix.
+Date: Wed, 02 May 2001 21:15:53 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Seth Goldberg wrote:
-> 
-> Hi,
-> 
->   So it seems that CONFIG_X86_USE_3DNOW is simply used to
-> enable access to the routines in mmx.c (the athlon-optimized
-> routines on CONFIG_K7 kernels), so then it appears that somehow
-> this is corrupting memory / not behaving as it should (very
-> technical, right?) :)...
-> 
->  --Seth
+diff -urN -I \$.*\$ -X /tmp/kerndiff.hKrYxB --minimal linux-2.4.4-official/Documentation/DocBook/kernel-locking.tmpl working-2.4.4-rcu/Documentation/DocBook/kernel-locking.tmpl
+--- linux-2.4.4-official/Documentation/DocBook/kernel-locking.tmpl	Tue May  1 12:26:15 2001
++++ working-2.4.4-rcu/Documentation/DocBook/kernel-locking.tmpl	Wed May  2 21:14:19 2001
+@@ -760,8 +760,11 @@
+     </para>
+ 
+     <para>
+-      Any atomic operation is defined to act as a memory barrier
+-      (ie. as per the <function>mb()</function> macro).  Also,
++      Some atomic operations are defined to act as a memory barrier
++      (ie. as per the <function>mb()</function> macro, but if in
++      doubt, be explicit.
++      <!-- Rusty Russell 2 May 2001, 2.4.4 -->
++      Also,
+       spinlock operations act as partial barriers: operations after
+       gaining a spinlock will never be moved to precede the
+       <function>spin_lock()</function> call, and operations before
 
-This is a shot in the dark. Do you have floating-point emulation on
-(CONFIG_MATH_EMULATION=y)?
-
-Tom
-
--- 
-The Daemons lurk and are dumb. -- Emerson
+--
+Premature optmztion is rt of all evl. --DK

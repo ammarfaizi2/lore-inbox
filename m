@@ -1,34 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262224AbTBKPXL>; Tue, 11 Feb 2003 10:23:11 -0500
+	id <S261836AbTBKP0Y>; Tue, 11 Feb 2003 10:26:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261836AbTBKPXK>; Tue, 11 Feb 2003 10:23:10 -0500
-Received: from node181b.a2000.nl ([62.108.24.27]:56995 "EHLO ddx.a2000.nu")
-	by vger.kernel.org with ESMTP id <S261463AbTBKPXJ>;
-	Tue, 11 Feb 2003 10:23:09 -0500
-Date: Tue, 11 Feb 2003 16:32:48 +0100 (CET)
-From: Stephan van Hienen <raid@a2000.nu>
-To: "Marco C. Mason" <mason@ntr.net>
-cc: Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org,
-       linux-raid@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       "Theodore Ts'o" <tytso@mit.edu>, peter@chubb.wattle.id.au,
-       bernard@biesterbos.nl
-Subject: Re:2TB+ fs ext3 (was fsck out of memory)
-In-Reply-To: <3E486596.2090800@ntr.net>
-Message-ID: <Pine.LNX.4.53.0302111628230.15933@ddx.a2000.nu>
-References: <3E486596.2090800@ntr.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261996AbTBKP0Y>; Tue, 11 Feb 2003 10:26:24 -0500
+Received: from mail.ziplip.com ([128.242.109.119]:42031 "EHLO ziplip.com")
+	by vger.kernel.org with ESMTP id <S261836AbTBKP0X>;
+	Tue, 11 Feb 2003 10:26:23 -0500
+Message-ID: <MLH4BXEKP5ICCBLRMHNZB4HVOGOMN5CPOFL4B0CK@ziplip.com>
+Date: Tue, 11 Feb 2003 07:35:04 -0800 (PST)
+From: machoamerica <machoamerica@ziplip.com>
+Reply-To: machoamerica <machoamerica@ziplip.com>
+To: linux-kernel@vger.kernel.org
+Subject: reiserfs assumed over ext2?
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-ZLPwdHint: 
+X-ZLExpiry: -1
+X-ZLReceiptConfirm: N
+X-Mailer: ZipLip v4.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Feb 2003, Marco C. Mason wrote:
-> I don't know if anyone mentioned it or not, but the block addresses in your
-> error messages appear suspiciously close to 2^29.  I'm suspecting an
-> internal
-> overflow in a calculation somewhere...
 
-615381536 blocks can this be over the limit ?
+hello there,
+i'm using a machine with a 2.2.x kernel and ext2 partitions.  i compiled a new 2.4.x kernel with built-in ext2 and reiserfs support.  however, when i now try to boot the 2.4.x kernel i end up with "kernel panic" as it tries to mount my partitions as if they were reiserfs, and of course fails.  the 2.2.x kernel still works fine.
 
-(-b 8192 gives me warning : 'Warning: blocksize 8192 not usable on most
-systems.')
+why is it assuming reiserfs over ext2 when support for both are compiled into the kernel?  my boot loader is lilo, is that where the problem lies?  please help.
+
+-macho
+

@@ -1,44 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283052AbRK1ONc>; Wed, 28 Nov 2001 09:13:32 -0500
+	id <S282146AbRK1OQX>; Wed, 28 Nov 2001 09:16:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283066AbRK1OMs>; Wed, 28 Nov 2001 09:12:48 -0500
-Received: from w089.z209220022.nyc-ny.dsl.cnc.net ([209.220.22.89]:60686 "HELO
-	yucs.org") by vger.kernel.org with SMTP id <S283062AbRK1OLA>;
-	Wed, 28 Nov 2001 09:11:00 -0500
-Subject: Re: task_struct.mm == NULL
-From: Shaya Potter <spotter@cs.columbia.edu>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <p734rnfrsnb.fsf@amdsim2.suse.de>
-In-Reply-To: <Pine.GSO.4.31.0111281300070.8642-100000@eduserv.rug.ac.be.suse.lists.linux.
-	kernel>  <p734rnfrsnb.fsf@amdsim2.suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 28 Nov 2001 09:10:30 -0500
-Message-Id: <1006956633.4222.2.camel@zaphod>
-Mime-Version: 1.0
+	id <S283057AbRK1OPf>; Wed, 28 Nov 2001 09:15:35 -0500
+Received: from mons.uio.no ([129.240.130.14]:19585 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S283061AbRK1OO6>;
+	Wed, 28 Nov 2001 09:14:58 -0500
+To: <kernel@alon.wox.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: NFS long wait problem
+In-Reply-To: <Pine.LNX.4.33L2.0111281553120.786-100000@alon1.dhs.org>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 28 Nov 2001 15:14:38 +0100
+In-Reply-To: <Pine.LNX.4.33L2.0111281553120.786-100000@alon1.dhs.org>
+Message-ID: <shsu1vfrnht.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2001-11-28 at 07:23, Andi Kleen wrote:
-> Frank Cornelis <Frank.Cornelis@rug.ac.be> writes:
-> 
-> > Hey,
-> > 
-> > I found in some code checks for task_struct.mm being NULL.
-> > When can task_struct.mm of a process be NULL except right before the
-> > process-kill?
-> 
-> For kernel threads that run in lazy-mm mode. It allows a much cheaper context
-> switch into kernel threads.
+>>>>> " " == kernel  <kernel@alon.wox.org> writes:
 
-oh. so not all kernel threades have mm == null.  I used to think that
-kernel threads ran in the kernel's address space, therefore there was no
-point in having an mm struct as that just defines a virtual process
-address space.  What's this lazy_mm mode?
+     > 06:45:23.270071 192.168.1.2.1402759134 > 192.168.1.1.2049: 100
+     > null (DF) 06:45:23.271049 192.168.1.1.2049 >
+     > 192.168.1.2.1402759134: reply ok 24 null (DF) 06:45:23.271105
+     > 192.168.1.2.1302095838 > 192.168.1.1.2049: 1100 write fh
+     > 96,1/197709 960 bytes @ 0x04019e000 (DF) 06:45:24.670061
+     > 192.168.1.2.1302095838 > 192.168.1.1.2049: 1100 write fh
+     > 96,1/197709 960 bytes @ 0x04019e000 (DF) 06:45:27.470062
+     > 192.168.1.2.1302095838 > 192.168.1.1.2049: 1100 write fh
+     > 96,1/197709 960 bytes @ 0x04019e000 (DF) 06:45:33.070065
+     > 192.168.1.2.1302095838 > 192.168.1.1.2049: 1100 write fh
+     > 96,1/197709 960 bytes @ 0x04019e000 (DF) 06:45:44.270083
+     > 192.168.1.2.1419536350 > 192.168.1.1.2049: 100 null (DF)
+     > 06:45:44.270563 192.168.1.1.2049 > 192.168.1.2.1419536350:
+     > reply ok 24 null (DF) 06:45:44.270619 192.168.1.2.1302095838 >
+     > 192.168.1.1.2049: 1100 write fh 96,1/197709 960 bytes @
+     > 0x04019e000 (DF) 06:45:47.070068 192.168.1.2.1302095838 >
+     > 192.168.1.1.2049: 1100 write fh 96,1/197709 960 bytes @
+     > 0x04019e000 (DF) 06:45:52.670060 192.168.1.2.1302095838 >
+     > 192.168.1.1.2049: 1100 write fh 96,1/197709 960 bytes @
+     > 0x04019e000 (DF) 06:46:03.870068 192.168.1.2.1302095838 >
+     > 192.168.1.1.2049: 1100 write fh 96,1/197709 960 bytes @
+     > 0x04019e000 (DF) 06:46:04.115689 192.168.1.1.2049 >
+     > 192.168.1.2.1302095838: reply ok 136 write [|nfs] (DF)
 
-thanks,
+     >   This cannot be a physical link problem, as other packets get
+     >   transferred
+     > correctly on the same link. When this happens, it's always with
+     > NFS V3 WRITE calls. Any ideas?
 
-shaya
+The client isn't seeing any replies from the server. Each and every
+one of those write requests should normally be followed up with an
+'OK' from the server.
 
+Either the server isn't seeing the write requests, or it isn't
+replying to them (because it is busy?) or they are getting lost
+somewhere on your network on the way back to the client.
+
+A comparison of 'tcpdump' on the client and the server will tell you
+which of these 3 hypotheses is correct.
+
+Cheers,
+  Trond

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269250AbTCDGAT>; Tue, 4 Mar 2003 01:00:19 -0500
+	id <S269273AbTCDGCP>; Tue, 4 Mar 2003 01:02:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269257AbTCDGAT>; Tue, 4 Mar 2003 01:00:19 -0500
-Received: from supreme.pcug.org.au ([203.10.76.34]:17549 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S269250AbTCDGAQ>;
-	Tue, 4 Mar 2003 01:00:16 -0500
-Date: Tue, 4 Mar 2003 17:10:34 +1100
+	id <S269275AbTCDGCP>; Tue, 4 Mar 2003 01:02:15 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:27021 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S269273AbTCDGCL>;
+	Tue, 4 Mar 2003 01:02:11 -0500
+Date: Tue, 4 Mar 2003 17:12:30 +1100
 From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: davidm@hpl.hp.com
-Cc: linux-kernel@vger.kernel.org, Linus <torvalds@transmeta.com>
-Subject: [PATCH][COMPAT] compat_sys_fcntl{,64} 5/9 ia64 part
-Message-Id: <20030304171034.40b12e85.sfr@canb.auug.org.au>
+To: Linus <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com
+Subject: [PATCH][COMPAT] compat_sys_fcntl{,64} 6/9 s390x part
+Message-Id: <20030304171230.0312601d.sfr@canb.auug.org.au>
 In-Reply-To: <20030304165812.7141f7c0.sfr@canb.auug.org.au>
 References: <20030304165812.7141f7c0.sfr@canb.auug.org.au>
 X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i386-debian-linux-gnu)
@@ -21,204 +21,183 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David,
+Hi Linus,
 
-Here is the IA64 part of the patch.
-
+Here is the s390x part with Martin's blessing (hopefully).
 -- 
 Cheers,
 Stephen Rothwell                    sfr@canb.auug.org.au
 http://www.canb.auug.org.au/~sfr/
 
-diff -ruN 2.5.63-32bit.1/arch/ia64/ia32/ia32_entry.S 2.5.63-32bit.2/arch/ia64/ia32/ia32_entry.S
---- 2.5.63-32bit.1/arch/ia64/ia32/ia32_entry.S	2003-02-25 14:35:17.000000000 +1100
-+++ 2.5.63-32bit.2/arch/ia64/ia32/ia32_entry.S	2003-02-25 14:35:59.000000000 +1100
-@@ -253,7 +253,7 @@
- 	data8 sys_umount	  /* recycled never used phys( */
- 	data8 sys32_ni_syscall	  /* old lock syscall holder */
- 	data8 sys32_ioctl
--	data8 sys32_fcntl	  /* 55 */
-+	data8 compat_sys_fcntl	  /* 55 */
- 	data8 sys32_ni_syscall	  /* old mpx syscall holder */
- 	data8 sys_setpgid
- 	data8 sys32_ni_syscall	  /* old ulimit syscall holder */
-@@ -419,7 +419,7 @@
- 	data8 sys_mincore
- 	data8 sys_madvise
- 	data8 sys_getdents64	  /* 220 */
--	data8 sys32_fcntl64
-+	data8 compat_sys_fcntl64
- 	data8 sys_ni_syscall		/* reserved for TUX */
- 	data8 sys_ni_syscall		/* reserved for Security */
- 	data8 sys_gettid
-diff -ruN 2.5.63-32bit.1/arch/ia64/ia32/sys_ia32.c 2.5.63-32bit.2/arch/ia64/ia32/sys_ia32.c
---- 2.5.63-32bit.1/arch/ia64/ia32/sys_ia32.c	2003-02-25 12:59:25.000000000 +1100
-+++ 2.5.63-32bit.2/arch/ia64/ia32/sys_ia32.c	2003-02-25 14:35:59.000000000 +1100
-@@ -2966,38 +2966,6 @@
- 	return ret;
+diff -ruN 2.5.63-32bit.1/arch/s390x/kernel/entry.S 2.5.63-32bit.2/arch/s390x/kernel/entry.S
+--- 2.5.63-32bit.1/arch/s390x/kernel/entry.S	2003-02-25 12:59:29.000000000 +1100
++++ 2.5.63-32bit.2/arch/s390x/kernel/entry.S	2003-02-25 14:35:59.000000000 +1100
+@@ -452,7 +452,7 @@
+         .long  SYSCALL(sys_umount,sys32_umount_wrapper)
+         .long  SYSCALL(sys_ni_syscall,sys_ni_syscall) /* old lock syscall */
+         .long  SYSCALL(sys_ioctl,sys32_ioctl_wrapper)
+-        .long  SYSCALL(sys_fcntl,sys32_fcntl_wrapper)   /* 55 */
++        .long  SYSCALL(sys_fcntl,compat_sys_fcntl_wrapper)   /* 55 */
+         .long  SYSCALL(sys_ni_syscall,sys_ni_syscall) /* intel mpx syscall */
+         .long  SYSCALL(sys_setpgid,sys32_setpgid_wrapper)
+         .long  SYSCALL(sys_ni_syscall,sys_ni_syscall) /* old ulimit syscall */
+@@ -618,7 +618,7 @@
+         .long  SYSCALL(sys_mincore,sys32_mincore_wrapper)
+         .long  SYSCALL(sys_madvise,sys32_madvise_wrapper)
+ 	.long  SYSCALL(sys_getdents64,sys32_getdents64_wrapper)/* 220 */
+-	.long  SYSCALL(sys_ni_syscall,sys32_fcntl64_wrapper)
++	.long  SYSCALL(sys_ni_syscall,compat_sys_fcntl64_wrapper)
+ 	.long  SYSCALL(sys_readahead,sys32_readahead)
+ 	.long  SYSCALL(sys_ni_syscall,sys32_sendfile64)
+ 	.long  SYSCALL(sys_setxattr,sys32_setxattr_wrapper)
+diff -ruN 2.5.63-32bit.1/arch/s390x/kernel/linux32.c 2.5.63-32bit.2/arch/s390x/kernel/linux32.c
+--- 2.5.63-32bit.1/arch/s390x/kernel/linux32.c	2003-02-25 12:59:30.000000000 +1100
++++ 2.5.63-32bit.2/arch/s390x/kernel/linux32.c	2003-02-25 14:35:59.000000000 +1100
+@@ -834,57 +834,6 @@
+ 	return err;
  }
  
--extern asmlinkage long sys_fcntl (unsigned int fd, unsigned int cmd, unsigned long arg);
+-extern asmlinkage long sys_fcntl(unsigned int fd, unsigned int cmd, unsigned long arg);
 -
--asmlinkage long
--sys32_fcntl (unsigned int fd, unsigned int cmd, unsigned int arg)
+-asmlinkage long sys32_fcntl(unsigned int fd, unsigned int cmd, unsigned long arg)
 -{
--	mm_segment_t old_fs;
--	struct flock f;
--	long ret;
--
 -	switch (cmd) {
--	      case F_GETLK:
--	      case F_SETLK:
--	      case F_SETLKW:
--		if (get_compat_flock(&f, (struct compat_flock *) A(arg)))
--			return -EFAULT;
--		old_fs = get_fs();
--		set_fs(KERNEL_DS);
--		ret = sys_fcntl(fd, cmd, (unsigned long) &f);
--		set_fs(old_fs);
--		if (cmd == F_GETLK && put_compat_flock(&f, (struct compat_flock *) A(arg)))
--			return -EFAULT;
--		return ret;
--
--	      default:
--		/*
--		 *  `sys_fcntl' lies about arg, for the F_SETOWN
--		 *  sub-function arg can have a negative value.
--		 */
--		return sys_fcntl(fd, cmd, arg);
+-	case F_GETLK:
+-		{
+-			struct flock f;
+-			mm_segment_t old_fs;
+-			long ret;
+-			
+-			if(get_compat_flock(&f, (struct compat_flock *)A(arg)))
+-				return -EFAULT;
+-			old_fs = get_fs(); set_fs (KERNEL_DS);
+-			ret = sys_fcntl(fd, cmd, (unsigned long)&f);
+-			set_fs (old_fs);
+-			if (ret) return ret;
+-			if (f.l_start >= 0x7fffffffUL ||
+-			    f.l_start + f.l_len >= 0x7fffffffUL)
+-				return -EOVERFLOW;
+-			if(put_compat_flock(&f, (struct compat_flock *)A(arg)))
+-				return -EFAULT;
+-			return 0;
+-		}
+-	case F_SETLK:
+-	case F_SETLKW:
+-		{
+-			struct flock f;
+-			mm_segment_t old_fs;
+-			long ret;
+-			
+-			if(get_compat_flock(&f, (struct compat_flock *)A(arg)))
+-				return -EFAULT;
+-			old_fs = get_fs(); set_fs (KERNEL_DS);
+-			ret = sys_fcntl(fd, cmd, (unsigned long)&f);
+-			set_fs (old_fs);
+-			if (ret) return ret;
+-			return 0;
+-		}
+-	default:
+-		return sys_fcntl(fd, cmd, (unsigned long)arg);
 -	}
 -}
 -
- asmlinkage long sys_ni_syscall(void);
+-asmlinkage long sys32_fcntl64(unsigned int fd, unsigned int cmd, unsigned long arg)
+-{
+-	if (cmd >= F_GETLK64 && cmd <= F_SETLKW64)
+-		return sys_fcntl(fd, cmd + F_GETLK - F_GETLK64, arg);
+-	return sys32_fcntl(fd, cmd, arg);
+-}
+-
+ extern asmlinkage long sys_truncate(const char * path, unsigned long length);
+ extern asmlinkage long sys_ftruncate(unsigned int fd, unsigned long length);
  
- asmlinkage long
-@@ -3288,66 +3256,6 @@
- 	return ret;
- }
- 
--/*
-- * Unfortunately, the x86 compiler aligns variables of type "long long" to a 4 byte boundary
-- * only, which means that the x86 version of "struct flock64" doesn't match the ia64 version
-- * of struct flock.
-- */
--
--static inline long
--ia32_put_flock (struct flock *l, unsigned long addr)
--{
--	return (put_user(l->l_type, (short *) addr)
--		| put_user(l->l_whence, (short *) (addr + 2))
--		| put_user(l->l_start, (long *) (addr + 4))
--		| put_user(l->l_len, (long *) (addr + 12))
--		| put_user(l->l_pid, (int *) (addr + 20)));
--}
--
--static inline long
--ia32_get_flock (struct flock *l, unsigned long addr)
--{
--	unsigned int start_lo, start_hi, len_lo, len_hi;
--	int err = (get_user(l->l_type, (short *) addr)
--		   | get_user(l->l_whence, (short *) (addr + 2))
--		   | get_user(start_lo, (int *) (addr + 4))
--		   | get_user(start_hi, (int *) (addr + 8))
--		   | get_user(len_lo, (int *) (addr + 12))
--		   | get_user(len_hi, (int *) (addr + 16))
--		   | get_user(l->l_pid, (int *) (addr + 20)));
--	l->l_start = ((unsigned long) start_hi << 32) | start_lo;
--	l->l_len = ((unsigned long) len_hi << 32) | len_lo;
--	return err;
--}
--
--asmlinkage long
--sys32_fcntl64 (unsigned int fd, unsigned int cmd, unsigned int arg)
--{
--	mm_segment_t old_fs;
--	struct flock f;
--	long ret;
--
--	switch (cmd) {
--	      case F_GETLK64:
--	      case F_SETLK64:
--	      case F_SETLKW64:
--		if (ia32_get_flock(&f, arg))
--			return -EFAULT;
--		old_fs = get_fs();
--		set_fs(KERNEL_DS);
--		ret = sys_fcntl(fd, cmd, (unsigned long) &f);
--		set_fs(old_fs);
--		if (cmd == F_GETLK && ia32_put_flock(&f, arg))
--			return -EFAULT;
--		break;
--
--	      default:
--		ret = sys32_fcntl(fd, cmd, arg);
--		break;
--	}
--	return ret;
--}
--
- asmlinkage long
- sys32_truncate64 (unsigned int path, unsigned int len_lo, unsigned int len_hi)
- {
-diff -ruN 2.5.63-32bit.1/include/asm-ia64/compat.h 2.5.63-32bit.2/include/asm-ia64/compat.h
---- 2.5.63-32bit.1/include/asm-ia64/compat.h	2003-02-11 09:39:57.000000000 +1100
-+++ 2.5.63-32bit.2/include/asm-ia64/compat.h	2003-02-25 14:35:59.000000000 +1100
-@@ -68,6 +68,22 @@
- 	compat_pid_t	l_pid;
+diff -ruN 2.5.63-32bit.1/arch/s390x/kernel/linux32.h 2.5.63-32bit.2/arch/s390x/kernel/linux32.h
+--- 2.5.63-32bit.1/arch/s390x/kernel/linux32.h	2003-01-17 14:01:01.000000000 +1100
++++ 2.5.63-32bit.2/arch/s390x/kernel/linux32.h	2003-02-25 14:35:59.000000000 +1100
+@@ -21,10 +21,6 @@
+         __s32   msgtyp;
  };
  
-+#define F_GETLK64	12
-+#define F_SETLK64	13
-+#define F_SETLKW64	14
+-#define F_GETLK64       12
+-#define F_SETLK64       13
+-#define F_SETLKW64      14    
+-
+ struct old_sigaction32 {
+        __u32			sa_handler;	/* Really a pointer, but need to deal with 32 bits */
+        compat_old_sigset_t	sa_mask;	/* A 32 bit mask */
+diff -ruN 2.5.63-32bit.1/arch/s390x/kernel/wrapper32.S 2.5.63-32bit.2/arch/s390x/kernel/wrapper32.S
+--- 2.5.63-32bit.1/arch/s390x/kernel/wrapper32.S	2003-02-25 12:59:30.000000000 +1100
++++ 2.5.63-32bit.2/arch/s390x/kernel/wrapper32.S	2003-02-25 14:35:59.000000000 +1100
+@@ -227,12 +227,12 @@
+ 	llgfr	%r4,%r4			# unsigned int
+ 	jg	sys32_ioctl		# branch to system call
+ 
+-	.globl  sys32_fcntl_wrapper 
+-sys32_fcntl_wrapper:
++	.globl  compat_sys_fcntl_wrapper 
++compat_sys_fcntl_wrapper:
+ 	llgfr	%r2,%r2			# unsigned int
+ 	llgfr	%r3,%r3			# unsigned int 
+ 	llgfr	%r4,%r4			# unsigned long
+-	jg	sys32_fcntl		# branch to system call
++	jg	compat_sys_fcntl	# branch to system call
+ 
+ 	.globl  sys32_setpgid_wrapper 
+ sys32_setpgid_wrapper:
+@@ -1050,12 +1050,12 @@
+ 	llgfr	%r4,%r4			# unsigned int
+ 	jg	sys_getdents64		# branch to system call
+ 
+-	.globl  sys32_fcntl64_wrapper 
+-sys32_fcntl64_wrapper:
++	.globl  compat_sys_fcntl64_wrapper 
++compat_sys_fcntl64_wrapper:
+ 	llgfr	%r2,%r2			# unsigned int
+ 	llgfr	%r3,%r3			# unsigned int 
+ 	llgfr	%r4,%r4			# unsigned long
+-	jg	sys32_fcntl64		# branch to system call
++	jg	compat_sys_fcntl64	# branch to system call
+ 
+ 	.globl	sys32_stat64_wrapper
+ sys32_stat64_wrapper:
+diff -ruN 2.5.63-32bit.1/include/asm-s390x/compat.h 2.5.63-32bit.2/include/asm-s390x/compat.h
+--- 2.5.63-32bit.1/include/asm-s390x/compat.h	2003-02-25 12:59:57.000000000 +1100
++++ 2.5.63-32bit.2/include/asm-s390x/compat.h	2003-02-25 14:35:59.000000000 +1100
+@@ -64,7 +64,18 @@
+ 	compat_off_t	l_start;
+ 	compat_off_t	l_len;
+ 	compat_pid_t	l_pid;
+-	short		__unused;
++};
 +
-+/*
-+ * IA32 uses 4 byte alignment for 64 bit quantities,
-+ * so we need to pack this structure.
-+ */
++#define F_GETLK64       12
++#define F_SETLK64       13
++#define F_SETLKW64      14    
++
 +struct compat_flock64 {
 +	short		l_type;
 +	short		l_whence;
 +	compat_loff_t	l_start;
 +	compat_loff_t	l_len;
 +	compat_pid_t	l_pid;
-+} __attribute__((packed));
-+
+ };
+ 
  struct compat_statfs {
- 	int		f_type;
- 	int		f_bsize;
-@@ -88,4 +104,7 @@
+@@ -87,4 +98,7 @@
  
  typedef u32		compat_sigset_word;
  
 +#define COMPAT_OFF_T_MAX	0x7fffffff
 +#define COMPAT_LOFF_T_MAX	0x7fffffffffffffffL
 +
- #endif /* _ASM_IA64_COMPAT_H */
-diff -ruN 2.5.63-32bit.1/include/asm-ia64/fcntl.h 2.5.63-32bit.2/include/asm-ia64/fcntl.h
---- 2.5.63-32bit.1/include/asm-ia64/fcntl.h	2000-10-10 11:54:58.000000000 +1100
-+++ 2.5.63-32bit.2/include/asm-ia64/fcntl.h	2003-02-25 14:35:59.000000000 +1100
-@@ -78,9 +78,6 @@
- 	pid_t l_pid;
- };
+ #endif /* _ASM_S390X_COMPAT_H */
+diff -ruN 2.5.63-32bit.1/include/asm-s390x/fcntl.h 2.5.63-32bit.2/include/asm-s390x/fcntl.h
+--- 2.5.63-32bit.1/include/asm-s390x/fcntl.h	2001-11-10 09:11:15.000000000 +1100
++++ 2.5.63-32bit.2/include/asm-s390x/fcntl.h	2003-02-25 14:35:59.000000000 +1100
+@@ -80,6 +80,4 @@
  
--#ifdef __KERNEL__
--# define flock64	flock
--#endif
--
- #define F_LINUX_SPECIFIC_BASE	1024
-+
- #endif /* _ASM_IA64_FCNTL_H */
-diff -ruN 2.5.63-32bit.1/include/asm-ia64/ia32.h 2.5.63-32bit.2/include/asm-ia64/ia32.h
---- 2.5.63-32bit.1/include/asm-ia64/ia32.h	2003-02-11 09:39:57.000000000 +1100
-+++ 2.5.63-32bit.2/include/asm-ia64/ia32.h	2003-02-25 14:35:59.000000000 +1100
-@@ -18,10 +18,6 @@
- #define IA32_PAGE_ALIGN(addr)	(((addr) + IA32_PAGE_SIZE - 1) & IA32_PAGE_MASK)
- #define IA32_CLOCKS_PER_SEC	100	/* Cast in stone for IA32 Linux */
+ #define F_LINUX_SPECIFIC_BASE  1024
  
--#define F_GETLK64	12
--#define F_SETLK64	13
--#define F_SETLKW64	14
+-#define flock64   flock
 -
- /* sigcontext.h */
- /*
-  * As documented in the iBCS2 standard..
+ #endif

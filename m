@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265511AbTFMTrk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 15:47:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265512AbTFMTrk
+	id S265512AbTFMTst (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 15:48:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265509AbTFMTst
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 15:47:40 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:57093 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S265511AbTFMTri (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 15:47:38 -0400
-Date: Fri, 13 Jun 2003 21:01:25 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Rocketport changes for 2.5.70-bk
-Message-ID: <20030613210125.A7121@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-References: <20030613195214.GA1260@kroah.com> <20030613195239.GB1260@kroah.com>
+	Fri, 13 Jun 2003 15:48:49 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:60398 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S265512AbTFMTsB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 15:48:01 -0400
+Subject: Re: linux-2.4.21 released
+From: Robert Love <rml@tech9.net>
+To: =?ISO-8859-1?Q?Ram=F3n?= Rey =?UTF-8?Q?Vicente=F3=AE=A0=92ey?=
+	 Vicente <retes_simbad@yahoo.es>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1055530616.1194.2.camel@debian>
+References: <200306131453.h5DErX47015940@hera.kernel.org>
+	 <20030613165628.GE28609@in-ws-001.cid-net.de>
+	 <20030613172226.GB9339@merlin.emma.line.org>
+	 <1055530616.1194.2.camel@debian>
+Content-Type: text/plain; charset=UTF-8
+Message-Id: <1055534626.1123.4.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030613195239.GB1260@kroah.com>; from greg@kroah.com on Fri, Jun 13, 2003 at 12:52:39PM -0700
+X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
+Date: 13 Jun 2003 20:03:46 +0000
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 13, 2003 at 12:52:39PM -0700, Greg KH wrote:
-> ChangeSet 1.1308, 2003/06/13 12:36:16-07:00, Kurt.Robideau@comtrol.com
-> 
-> [PATCH] Rocket patch against 2.5.70-bk18
-> 
-> Here is rocket driver patch against 2.5.70-bk18.  Changes are:
-> 
-> -  Removed non-GPL license text from headers
-> -  Removed check_region()/request_region() raciness
-> -  Made the driver a >2.5 driver only (as you had suggested)
+On Fri, 2003-06-13 at 18:56, Ramón Rey Vicente󮠒ey Vicente wrote:
 
-Please also remove all those silly indirection macros added
-to rocket_int.h in the last update.
+> And, what's about the low_latency/preemptible patches? 
+
+We did all that and more for 2.5.
+
+I do not think 2.4 will be seeing either.
+
+	Robert Love
 

@@ -1,73 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267903AbTAMROj>; Mon, 13 Jan 2003 12:14:39 -0500
+	id <S267906AbTAMRPN>; Mon, 13 Jan 2003 12:15:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267906AbTAMROj>; Mon, 13 Jan 2003 12:14:39 -0500
-Received: from auemail1.lucent.com ([192.11.223.161]:21416 "EHLO
-	auemail1.firewall.lucent.com") by vger.kernel.org with ESMTP
-	id <S267903AbTAMROi>; Mon, 13 Jan 2003 12:14:38 -0500
+	id <S267907AbTAMRPN>; Mon, 13 Jan 2003 12:15:13 -0500
+Received: from pat.uio.no ([129.240.130.16]:935 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S267906AbTAMRPL>;
+	Mon, 13 Jan 2003 12:15:11 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Performance problems with NFS under 2.4.20
+References: <m3y95pkqpd.fsf@quimbies.gnus.org>
+	<shsfzrxrqjb.fsf@charged.uio.no> <m3iswtkp0x.fsf@quimbies.gnus.org>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 13 Jan 2003 18:23:59 +0100
+In-Reply-To: <m3iswtkp0x.fsf@quimbies.gnus.org>
+Message-ID: <shs3cnxufo0.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15906.62947.738373.947969@gargle.gargle.HOWL>
-Date: Mon, 13 Jan 2003 12:22:43 -0500
-From: "John Stoffel" <stoffel@lucent.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Bill Davidsen <davidsen@tmr.com>, Jean-Daniel Pauget <jd@disjunkt.com>,
-       Alan Cox <alan@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21pre3-ac2
-In-Reply-To: <1042470092.18624.12.camel@irongate.swansea.linux.org.uk>
-References: <Pine.LNX.3.96.1030112222243.17657C-100000@gatekeeper.tmr.com>
-	<1042470092.18624.12.camel@irongate.swansea.linux.org.uk>
-X-Mailer: VM 7.07 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> " " == Lars Magne Ingebrigtsen <larsi@gnus.org> writes:
 
-Alan> I'm seeing enough other -ac specific errors to be fairly sure
-Alan> its not just hardware in the current -ac tree case. I don't know
-Alan> what the common factor is yet - it 'works for me' which makes it
-Alan> hard to pin down
+     > I have several machines that reads the same files/directories,
+     > but only one machine that writes to the directories.  Will that
+     > be OK?
 
-I'm now running -ac3 and it seems more stable.  I've got a Dual Xeon
-550 Mhz Dell with 768mb of ECC memory and a Matrox G450 card.  Nice
-stable system usually.
+If you require your data cache to be guaranteed to be consistent you
+still have to use some form of locking to ensure that nobody tries to
+read a file that is in the process of being updated on the server.
+If so, close-to-open helps by ensuring that you can safely rely on
+more lightweight locking protocols such as that provided by the
+"lockfile" utility (a.k.a. dotlocking) instead of the full NFS Lock
+Manager.
 
-Alan> Guess #1 is reverting mm/shmem.c. Guess #2 is reverting the buffer cache
-Alan> changes. Guess #3 is new IDE + highmem and Guess #4 is quota related (are
-Alan> people seeing the problem with quota disabled ?)
-
-I'm not running with quotas at all, and I've seen the complete lockup
-under -ac1 and -ac2.  I'll see about stressing -ac3 with some
-filesystem stuff to see what happens.  
-
-Here are the options I have enabled for IDE on my system:
-    
-    CONFIG_PARIDE=m
-    CONFIG_PARIDE_PARPORT=m
-    CONFIG_PARIDE_PD=m
-    CONFIG_PARIDE_PCD=m
-    CONFIG_PARIDE_PF=m
-    CONFIG_PARIDE_PT=m
-    CONFIG_PARIDE_PG=m
-    CONFIG_IDE=y
-    CONFIG_BLK_DEV_IDE=y
-    CONFIG_BLK_DEV_IDEDISK=y
-    CONFIG_IDEDISK_MULTI_MODE=y
-    CONFIG_BLK_DEV_IDECD=y
-    CONFIG_BLK_DEV_IDETAPE=m
-    CONFIG_BLK_DEV_IDEFLOPPY=m
-    CONFIG_BLK_DEV_IDESCSI=m
-    CONFIG_BLK_DEV_IDEPCI=y
-    CONFIG_IDEPCI_SHARE_IRQ=y
-    CONFIG_BLK_DEV_IDEDMA_PCI=y
-    CONFIG_IDEDMA_PCI_AUTO=y
-    CONFIG_BLK_DEV_IDEDMA=y
-    CONFIG_IDEDMA_AUTO=y
-    CONFIG_BLK_DEV_IDE_MODES=y
-
-
-Maybe I can pull the buffer cache and/or SHMEM changes.  
-
-John
+Cheers,
+  Trond

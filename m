@@ -1,70 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314380AbSEIVe2>; Thu, 9 May 2002 17:34:28 -0400
+	id <S314381AbSEIVgY>; Thu, 9 May 2002 17:36:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314381AbSEIVe1>; Thu, 9 May 2002 17:34:27 -0400
-Received: from host194.steeleye.com ([216.33.1.194]:16658 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S314380AbSEIVe0>; Thu, 9 May 2002 17:34:26 -0400
-Message-Id: <200205092134.g49LYNo04387@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@transmeta.com>,
-        James Bottomley <James.Bottomley@SteelEye.com>, mochel@osdl.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] PCI reorg fix 
-In-Reply-To: Message from Martin Dalecki <dalecki@evision-ventures.com> 
-   of "Thu, 09 May 2002 21:45:04 +0200." <3CDAD1C0.9090406@evision-ventures.com> 
+	id <S314385AbSEIVgX>; Thu, 9 May 2002 17:36:23 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:53007 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S314381AbSEIVgV>; Thu, 9 May 2002 17:36:21 -0400
+Date: Thu, 9 May 2002 23:36:24 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Andrew Morton <akpm@zip.com.au>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Reading page from given block device
+Message-ID: <20020509213624.GF1988@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20020508225603.GA11842@atrey.karlin.mff.cuni.cz> <Pine.GSO.4.21.0205090039060.12789-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 09 May 2002 17:34:22 -0400
-From: James Bottomley <James.Bottomley@SteelEye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dalecki@evision-ventures.com said:
-> If your are at it: I was always itching my had what
-> pci_alloc_inconsistent and pci_free_inconsistent is supposed to be?
-> Negating semantically the consistent attribute shows nicely that the
-> _consistent is a bad nomenclatures. Perhaps something more related to
-> the purpose of it would help. Like
+Hi!
 
-> ioalloc() and iofree()
+> > Well, I'm doing it during boot, and this is swap partition; it should
+> > not have been accessed previously.
+> > 
+> > > >         bdev = bdget(kdev_t_to_nr(dev));
+> > > >         if (!bdev) {
+> > > >                 printk("No block device for %s\n", __bdevname(dev));
+> > > >                 BUG();
+> > > >         }
+> > > >         printk("C");
+> 
+> blkdev_open(bdev, FMODE_READ, O_RDONLY, BDEV_RAW)
 
-> Could be even abstracted from the bus implementation.
+blkdev_open is 
 
-> And of course much less typing... 
+fs.h:extern int blkdev_open(struct inode *, struct file *);
 
-I'm all for less typing, but "consistent" memory has a definite meaning to 
-some non-x86 architectures (and inconsistent also has a definite and 
-semantically opposite meaning).
+... I can't see how to use it in this context.
 
-The x86 is nice because it is fully coherent architecture: the CPUs snoop the 
-I/O busses and do CPU cache invalidations for data transferred from an I/O 
-device directly to memory and CPU cache flushes when a device reads directly 
-from memory.
+> > > >         if (!bh || (!bh->b_data)) {
+> > > >                 return -1;
+> 
+> However, I would really suggest to open the bugger once, do all IO and
+> then close it.  See how raw.c and friends deal with these problems.
 
-If the CPU doesn't snoop I/O transfers, you have to manually invalidate or 
-flush the necessary CPU cache lines.  The pci_sync_... functions are for doing 
-the cache invalidations and flushes correctly.  Sometimes you can obtain a 
-region of memory which is "consistent" meaning that  you no longer need to do 
-the invalidations/flushes manually because the CPU will operate coherently on 
-this region.  "inconsistent" means that you must control the CPU cache 
-yourself.  In an incoherent memory architecture, the normal memory allocations 
-give you "inconsistent" regions.
+Performance should not matter here.
+								Pavel
 
-The royal pain on some CPUs is that they only have small consistent regions, 
-so pci_alloc_consistent can fail and you have to know this and fall back to 
-doing all the manual cache operations.  For this reason, some cross platform 
-drivers simply choose not to bother with consistent memory at all because the 
-cache manipulation operations are optimised away on fully consistent platforms.
-
-I'd like to say that this is totally unrelated to the bus type, but some 
-architectures place MMUs on their busses which means that memory consistency 
-(and even memory addressability) can indeed be bus specific depending on what 
-the MMU actually does.
-
-James
-
-
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

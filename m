@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266630AbTGKILN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 04:11:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266633AbTGKILM
+	id S269815AbTGKIMu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 04:12:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269814AbTGKIMu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 04:11:12 -0400
-Received: from smithers.nildram.co.uk ([195.112.4.34]:58636 "EHLO
-	smithers.nildram.co.uk") by vger.kernel.org with ESMTP
-	id S266630AbTGKILJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 04:11:09 -0400
-Date: Fri, 11 Jul 2003 09:25:32 +0100
-From: Joe Thornber <thornber@sistina.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.5.74-mm3
-Message-ID: <20030711082532.GA432@fib011235813.fsnet.co.uk>
-References: <20030708223548.791247f5.akpm@osdl.org> <200307101821.h6AIL87u013299@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200307101821.h6AIL87u013299@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.5.4i
+	Fri, 11 Jul 2003 04:12:50 -0400
+Received: from c180224.adsl.hansenet.de ([213.39.180.224]:32690 "EHLO
+	sfhq.hn.org") by vger.kernel.org with ESMTP id S266639AbTGKIMo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 04:12:44 -0400
+Message-ID: <3F0E74EB.9050704@portrix.net>
+Date: Fri, 11 Jul 2003 10:27:23 +0200
+From: Jan Dittmer <j.dittmer@portrix.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030524 Debian/1.3.1-1.he-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Kissner, Sven" <sven.kissner@tally.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: linux 2.5.75 & I2C_PROC
+References: <97F6E34E67F1BA4B93F8C35F84D146620993B5@TGE-MAIL.tally.de>
+In-Reply-To: <97F6E34E67F1BA4B93F8C35F84D146620993B5@TGE-MAIL.tally.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 10, 2003 at 02:21:08PM -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Tue, 08 Jul 2003 22:35:48 PDT, Andrew Morton <akpm@osdl.org>  said:
+Kissner, Sven wrote:
+> Hi,
 > 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.74/2.5.74-mm3/
-> 
-> OK, I'm finally getting around to actually commenting, this has been a niggling issue for
-> a while...
-> 
-> > All 113 patches:
-> 
-> > 64-bit-dev_t-kdev_t.patch
-> >   64-bit dev_t and kdev_t
-> 
-> Yes, this patch says "not ready for prime time, it breaks things".
-> 
-> In particular, this gives the device-mapper userspace indigestion, because the
-> ioctl passes something other than a 64-bit kdev_t in from libdevmapper. Upshot
-> is that the LVM2 'vgchange -ay' fails gloriously.
-> 
-> Workaround:  Compile the devmapper/LVM stuff with a private copy of include/
-> linux/kdev_t.h that matches the one the kernel uses.  No, I didn't actually get
-> that to work, so I backed out the 64-bit patch...
-> 
-> (And no, the recent devmapper/LVM2 stuff posted doesn't fix this).
+> i'm using linux 2.5.75 on my debian box and want to run lm_sensors. The
+> userspace apps (sensors-detect & sensors) require the module I2C_PROC,
+> which I can't find within the kernel configuration. Are there any
+> dependencies so I2C_PROC becomes available? I'm thankful for any
+> enlightment. 
 
-The v1 ioctl interface passes the dev in as a __kernel_dev_t, so
-unfortunately if you change the size of __kernel_dev_t you will have
-to rebuild the tools.
+The proc interface to i2c didn't make it in 2.5 in favor for sysfs.
+Just do a `find /sys | grep i2c` and you can cat & echo the various 
+files to read/change the values.
 
-The v4 ioctl interface just uses a __u64 which I hope will be future
-proof.
+Jan
 
-- Joe
+
+-- 
+Linux rubicon 2.5.74-mm3-jd2 #1 SMP Wed Jul 9 09:38:20 CEST 2003 i686
+

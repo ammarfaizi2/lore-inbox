@@ -1,99 +1,175 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266380AbTGEQDk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 12:03:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266385AbTGEQDk
+	id S266383AbTGEQFd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 12:05:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266386AbTGEQFd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 12:03:40 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:9347
+	Sat, 5 Jul 2003 12:05:33 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:10115
 	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S266380AbTGEQDW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 12:03:22 -0400
-Date: Sat, 5 Jul 2003 17:16:38 +0100
+	id S266383AbTGEQFK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jul 2003 12:05:10 -0400
+Date: Sat, 5 Jul 2003 17:18:28 +0100
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200307051616.h65GGcv7002815@hraefn.swansea.linux.org.uk>
+Message-Id: <200307051618.h65GIS57003382@hraefn.swansea.linux.org.uk>
 To: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-Subject: PATCH: (new) Turn on the IDE modular stuff in the Makefile
+Subject: PATCH: (resend) collected semaphore fixes and semtimedop
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-This isnt perfect but it is a start
-
-diff --exclude-from /usr/src/exclude -u --recursive linux.22-bk2/drivers/ide/Makefile linux.22-pre2-ac1/drivers/ide/Makefile
---- linux.22-bk2/drivers/ide/Makefile	2003-07-05 16:58:51.000000000 +0100
-+++ linux.22-pre2-ac1/drivers/ide/Makefile	2003-06-29 16:10:17.000000000 +0100
-@@ -8,7 +8,6 @@
- # In the future, some of these should be built conditionally.
- #
+diff --exclude-from /usr/src/exclude -u --recursive linux.22-bk2/ipc/sem.c linux.22-pre2-ac1/ipc/sem.c
+--- linux.22-bk2/ipc/sem.c	2003-07-05 16:58:37.000000000 +0100
++++ linux.22-pre2-ac1/ipc/sem.c	2003-06-29 16:09:50.000000000 +0100
+@@ -62,6 +62,7 @@
+ #include <linux/spinlock.h>
+ #include <linux/init.h>
+ #include <linux/proc_fs.h>
++#include <linux/time.h>
+ #include <asm/uaccess.h>
+ #include "util.h"
  
--O_TARGET := idedriver.o
+@@ -251,39 +252,38 @@
+ 	for (sop = sops; sop < sops + nsops; sop++) {
+ 		curr = sma->sem_base + sop->sem_num;
+ 		sem_op = sop->sem_op;
+-
+-		if (!sem_op && curr->semval)
++		result = curr->semval;
++  
++		if (!sem_op && result)
+ 			goto would_block;
  
- export-objs := ide-iops.o ide-taskfile.o ide-proc.o ide.o ide-probe.o ide-dma.o ide-lib.o setup-pci.o ide-io.o ide-disk.o
+-		curr->sempid = (curr->sempid << 16) | pid;
+-		curr->semval += sem_op;
+-		if (sop->sem_flg & SEM_UNDO)
+-		{
++		result += sem_op;
++		if (result < 0)
++			goto would_block;
++		if (result > SEMVMX)
++			goto out_of_range;
++		if (sop->sem_flg & SEM_UNDO) {
+ 			int undo = un->semadj[sop->sem_num] - sem_op;
+ 			/*
+ 	 		 *	Exceeding the undo range is an error.
+ 			 */
+ 			if (undo < (-SEMAEM - 1) || undo > SEMAEM)
+-			{
+-				/* Don't undo the undo */
+-				sop->sem_flg &= ~SEM_UNDO;
+ 				goto out_of_range;
+-			}
+-			un->semadj[sop->sem_num] = undo;
+ 		}
+-		if (curr->semval < 0)
+-			goto would_block;
+-		if (curr->semval > SEMVMX)
+-			goto out_of_range;
++		curr->semval = result;
+ 	}
  
-@@ -29,24 +28,25 @@
+-	if (do_undo)
+-	{
+-		sop--;
++	if (do_undo) {
+ 		result = 0;
+ 		goto undo;
+ 	}
+-
++	sop--;
++	while (sop >= sops) {
++		sma->sem_base[sop->sem_num].sempid = pid;
++		if (sop->sem_flg & SEM_UNDO)
++			un->semadj[sop->sem_num] -= sop->sem_op;
++		sop--;
++	}
+ 	sma->sem_otime = CURRENT_TIME;
+ 	return 0;
  
- # Core IDE code - must come before legacy
+@@ -298,13 +298,9 @@
+ 		result = 1;
  
--obj-$(CONFIG_BLK_DEV_IDE)		+= ide-probe.o ide-geometry.o ide-iops.o ide-taskfile.o ide.o ide-lib.o ide-io.o ide-default.o
--obj-$(CONFIG_BLK_DEV_IDEDISK)		+= ide-disk.o
--obj-$(CONFIG_BLK_DEV_IDECD)		+= ide-cd.o
--obj-$(CONFIG_BLK_DEV_IDETAPE)		+= ide-tape.o
--obj-$(CONFIG_BLK_DEV_IDEFLOPPY)		+= ide-floppy.o
-+ide-core-objs	:= ide-iops.o ide-taskfile.o ide.o ide-lib.o ide-io.o ide-default.o ide-proc.o
-+ide-detect-objs	:= ide-probe.o ide-geometry.o
+ undo:
++	sop--;
+ 	while (sop >= sops) {
+-		curr = sma->sem_base + sop->sem_num;
+-		curr->semval -= sop->sem_op;
+-		curr->sempid >>= 16;
+-
+-		if (sop->sem_flg & SEM_UNDO)
+-			un->semadj[sop->sem_num] += sop->sem_op;
++		sma->sem_base[sop->sem_num].semval -= sop->sem_op;
+ 		sop--;
+ 	}
+ 
+@@ -624,7 +620,7 @@
+ 		err = curr->semval;
+ 		goto out_unlock;
+ 	case GETPID:
+-		err = curr->sempid & 0xffff;
++		err = curr->sempid;
+ 		goto out_unlock;
+ 	case GETNCNT:
+ 		err = count_semncnt(sma,semnum);
+@@ -839,6 +835,12 @@
+ 
+ asmlinkage long sys_semop (int semid, struct sembuf *tsops, unsigned nsops)
+ {
++	return sys_semtimedop(semid, tsops, nsops, NULL);
++}
 +
++asmlinkage long sys_semtimedop (int semid, struct sembuf *tsops,
++			unsigned nsops, const struct timespec *timeout)
++{
+ 	int error = -EINVAL;
+ 	struct sem_array *sma;
+ 	struct sembuf fast_sops[SEMOPM_FAST];
+@@ -846,6 +848,7 @@
+ 	struct sem_undo *un;
+ 	int undos = 0, decrease = 0, alter = 0;
+ 	struct sem_queue queue;
++	unsigned long jiffies_left = 0;
  
- ifeq ($(CONFIG_BLK_DEV_IDEPCI),y)
--obj-$(CONFIG_BLK_DEV_IDE)		+= setup-pci.o
-+ide-core-objs += setup-pci.o
- endif
- ifeq ($(CONFIG_BLK_DEV_IDEDMA_PCI),y)
--obj-$(CONFIG_BLK_DEV_IDE)		+= ide-dma.o
-+ide-core-objs += ide-dma.o
- endif
--obj-$(CONFIG_BLK_DEV_ISAPNP)		+= ide-pnp.o
+ 	if (nsops < 1 || semid < 0)
+ 		return -EINVAL;
+@@ -860,6 +863,19 @@
+ 		error=-EFAULT;
+ 		goto out_free;
+ 	}
++	if (timeout) {
++		struct timespec _timeout;
++		if (copy_from_user(&_timeout, timeout, sizeof(*timeout))) {
++			error = -EFAULT;
++			goto out_free;
++		}
++		if (_timeout.tv_sec < 0 || _timeout.tv_nsec < 0 ||
++		    _timeout.tv_nsec >= 1000000000L) {
++			error = -EINVAL;
++			goto out_free;
++		}
++		jiffies_left = timespec_to_jiffies(&_timeout);
++	}
+ 	sma = sem_lock(semid);
+ 	error=-EINVAL;
+ 	if(sma==NULL)
+@@ -932,7 +948,10 @@
+ 		current->state = TASK_INTERRUPTIBLE;
+ 		sem_unlock(semid);
  
-+# Initialisation order:
-+#	Core sets up
-+#	Legacy drivers may register a callback
-+#	Drivers are pre initialised
-+#	Probe inits the drivers and driver callbacks
-+#	Raid scans the devices
+-		schedule();
++		if (timeout)
++			jiffies_left = schedule_timeout(jiffies_left);
++		else
++			schedule();
  
--ifeq ($(CONFIG_BLK_DEV_IDE),y)
--obj-$(CONFIG_PROC_FS)			+= ide-proc.o
--endif
-+obj-$(CONFIG_BLK_DEV_IDE)		+= ide-core.o
- 
- ifeq ($(CONFIG_BLK_DEV_IDE),y)
-   obj-y		+= legacy/idedriver-legacy.o
-@@ -58,10 +58,28 @@
-   endif
- endif
- 
-+obj-$(CONFIG_BLK_DEV_ISAPNP) 		+= ide-pnp.o
-+
-+obj-$(CONFIG_BLK_DEV_IDEDISK)		+= ide-disk.o
-+obj-$(CONFIG_BLK_DEV_IDECD)		+= ide-cd.o
-+obj-$(CONFIG_BLK_DEV_IDETAPE)		+= ide-tape.o
-+obj-$(CONFIG_BLK_DEV_IDEFLOPPY)		+= ide-floppy.o
-+
-+obj-$(CONFIG_BLK_DEV_IDE) += ide-detect.o
- 
- ifeq ($(CONFIG_BLK_DEV_IDE),y)
- # RAID must be last of all
-   obj-y		+= raid/idedriver-raid.o
- endif
- 
-+list-multi	:= ide-core.o ide-detect.o
-+O_TARGET := idedriver.o
-+
- include $(TOPDIR)/Rules.make
-+
-+ide-core.o:	$(ide-core-objs)
-+	$(LD) -r -o $@ $(ide-core-objs)
-+
-+ide-detect.o:	$(ide-detect-objs)
-+	$(LD) -r -o $@ $(ide-detect-objs)
-+
+ 		tmp = sem_lock(semid);
+ 		if(tmp==NULL) {
+@@ -957,6 +976,8 @@
+ 				break;
+ 		} else {
+ 			error = queue.status;
++			if (error == -EINTR && timeout && jiffies_left == 0)
++				error = -EAGAIN;
+ 			if (queue.prev) /* got Interrupt */
+ 				break;
+ 			/* Everything done by update_queue */

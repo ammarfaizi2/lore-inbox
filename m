@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264936AbUFAHYm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264915AbUFAH20@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264936AbUFAHYm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 03:24:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264916AbUFAHYi
+	id S264915AbUFAH20 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 03:28:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264918AbUFAH20
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 03:24:38 -0400
-Received: from atlas.informatik.uni-freiburg.de ([132.230.150.3]:33679 "EHLO
-	atlas.informatik.uni-freiburg.de") by vger.kernel.org with ESMTP
-	id S264919AbUFAHYS convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 03:24:18 -0400
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i8042_shutdown bug: Linux 2.6.7-rc2
-References: <xb7zn7q81fe.fsf@savona.informatik.uni-freiburg.de>
-	<20040530140446.GB2053@ucw.cz>
-	<xb7r7t280rd.fsf@savona.informatik.uni-freiburg.de>
-	<20040530142632.GA3150@ucw.cz>
-From: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
-Date: 01 Jun 2004 09:24:17 +0200
-In-Reply-To: <20040530142632.GA3150@ucw.cz>
-Message-ID: <xb7brk391we.fsf@savona.informatik.uni-freiburg.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Tue, 1 Jun 2004 03:28:26 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:27866 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S264915AbUFAH2Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 03:28:24 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: fastboot@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] Re: 2.6.7-rc1-mm1
+References: <20040527015259.3525cbbc.akpm@osdl.org>
+	<m165abyegj.fsf@ebiederm.dsl.xmission.com>
+	<20040531233923.0ed6276a.akpm@osdl.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 01 Jun 2004 01:26:46 -0600
+In-Reply-To: <20040531233923.0ed6276a.akpm@osdl.org>
+Message-ID: <m1vfibwxft.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=big5
-Content-Transfer-Encoding: 8BIT
-Organization: Universitaet Freiburg, Institut fuer Informatik
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Vojtech" == Vojtech Pavlik <vojtech@suse.cz> writes:
+Andrew Morton <akpm@osdl.org> writes:
 
-    >> >> This bug is still in 2.6.7-rc2:
-    >> >> 
-    >> >> See: http://lkml.org/lkml/2004/5/10/63
-    >> 
-    Vojtech> Yes, my tree wasn't yet merged into mainline, as I'm
-    Vojtech> fixing locking in atkbd and psmouse now.
+> ebiederm@xmission.com (Eric W. Biederman) wrote:
+> >
+> > - What happened to the kexec reserve system call number patch that was in mm4?
+> 
+> >    I thought we had that all straightened out.
+> 
+> It was merged into 2.6.7-rc2.
 
-    >>  I see.  Will it be in 2.6.7?
+Look like that was brain hiccup on my side.  I looked but I missed
+it the first time I looked at 2.6.7-rc[12].
 
-    Vojtech> Unlikely. 2.6.7 is already in its rc stage, so 2.6.8 will
-    Vojtech> likely be the target.
+Thanks Andrew.
 
-Why not?   This is a  bug fix --  a bug that  hangs the kernel,  not a
-brand new, cool, untested feature.
-
-What's the point of the RC status, then?
-
-
-
--- 
-Sau Dan LEE                     §õ¦u´°(Big5)                    ~{@nJX6X~}(HZ) 
-
-E-mail: danlee@informatik.uni-freiburg.de
-Home page: http://www.informatik.uni-freiburg.de/~danlee
-
+Eric

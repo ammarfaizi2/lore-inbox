@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262519AbRENVvM>; Mon, 14 May 2001 17:51:12 -0400
+	id <S262513AbRENVwm>; Mon, 14 May 2001 17:52:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262516AbRENVvD>; Mon, 14 May 2001 17:51:03 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:2156 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S262513AbRENVuz>; Mon, 14 May 2001 17:50:55 -0400
-Date: Mon, 14 May 2001 17:50:47 -0400
-From: Bill Nottingham <notting@redhat.com>
-To: Jesper Juhl <juhl@eisenstein.dk>
-Cc: linux-serial@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] missing return value from pci_xircom_fn() in drivers/char/serial.c
-Message-ID: <20010514175047.A19221@devserv.devel.redhat.com>
-Mail-Followup-To: Jesper Juhl <juhl@eisenstein.dk>,
-	linux-serial@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3AFEFD06.9010500@eisenstein.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3AFEFD06.9010500@eisenstein.dk>; from juhl@eisenstein.dk on Sun, May 13, 2001 at 11:30:46PM +0200
+	id <S262516AbRENVwc>; Mon, 14 May 2001 17:52:32 -0400
+Received: from baltazar.tecnoera.com ([200.29.128.1]:46862 "EHLO
+	baltazar.tecnoera.com") by vger.kernel.org with ESMTP
+	id <S262513AbRENVwT>; Mon, 14 May 2001 17:52:19 -0400
+Date: Mon, 14 May 2001 17:51:54 -0400 (CLT)
+From: Juan Pablo Abuyeres <jpabuyer@tecnoera.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Adaptec RAID SCSI 2100S
+In-Reply-To: <E14zPxu-0001Tr-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0105141745020.4694-100000@baltazar.tecnoera.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl (juhl@eisenstein.dk) said: 
-> I have made a patch against 2.4.4-ac8 that makes the change, it is 
-> below. I guess someone more knowledgeable than me can probably see if 
-> this is correct. If this is completely bogus, then please just disregard 
-> this email.
+> > Then When I tried to fdisk /dev/sda (/dev/sda is a RAID1 of two
+> > Quantum disks) syslog shows this:
+>
+> is /dev/sda the raid or the disks raw ?
 
-Yup, it's right. My bad. :)
+/dev/sda is the RAID1
 
-Bill
+> > So, I don't know if I'm doing something wrong or what, but I haven't been
+> > able to get it working on 2.4.4 yet... please help.
+>
+> Ok I need to put mroe disks and newer firmware on my card when I have some
+> time
+
+my /dev/dsa is a RAID1 made of two quantum atlas 10K II 18.xGb.
+Unfortunately I have to get this RAID running this week (maybe on
+wednesday) and after that I won't be able to do tests... so.. maybe
+I would have to use 2.2.19 instead of 2.4.4  :-(...
+
+Juan Pablo Abuyeres
+

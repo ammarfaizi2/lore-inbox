@@ -1,66 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264511AbUDVSFd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264571AbUDVSIK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264511AbUDVSFd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 14:05:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264541AbUDVSFd
+	id S264571AbUDVSIK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 14:08:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264613AbUDVSIK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 14:05:33 -0400
-Received: from smtp.wp.pl ([212.77.101.160]:38577 "EHLO smtp.wp.pl")
-	by vger.kernel.org with ESMTP id S264511AbUDVSF3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 14:05:29 -0400
-Date: Thu, 22 Apr 2004 20:05:29 +0200
-From: Marek Szuba <scriptkiddie@wp.pl>
+	Thu, 22 Apr 2004 14:08:10 -0400
+Received: from ip213-185-37-13.laajakaista.mtv3.fi ([213.185.37.13]:28044 "EHLO
+	home.holviala.com") by vger.kernel.org with ESMTP id S264571AbUDVSIH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 14:08:07 -0400
+From: Kim Holviala <kim@holviala.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] isofs "default NLS charset not used" fix
-Message-Id: <20040422200529.6a3c592c.scriptkiddie@wp.pl>
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart=_Thu__22_Apr_2004_20_05_29_+0200_FL.svpt2msJNFMwT"
-X-AntiVirus: skaner antywirusowy poczty Wirtualnej Polski S. A. [wersja 2.0c]
-X-WP-AntySpam-Rezultat: NIE-SPAM
+Subject: Re: [PATCH] psmouse: fix mouse hotplugging
+Date: Thu, 22 Apr 2004 21:08:06 +0300
+User-Agent: KMail/1.6.1
+References: <200404221546.i3MFka6w004059@eeyore.valparaiso.cl>
+In-Reply-To: <200404221546.i3MFka6w004059@eeyore.valparaiso.cl>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404222108.06373.kim@holviala.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Thursday 22 April 2004 18:46, Horst von Brand wrote:
 
---Multipart=_Thu__22_Apr_2004_20_05_29_+0200_FL.svpt2msJNFMwT
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+> > This patch fixes hotplugging of PS/2 devices on hardware which don't
+> > support hotplugging of PS/2 devices. In other words, most desktop
+> > machines.
+>
+> I have seen "hoplugging of mice" fry PS/2 ports, and heard of motherboards
+> killed that way.
 
-Hello again,
+And I've heard people rm -rf'ing their root. Yet rm is still included.
 
-Since nobody has made any suggestions about the behaviour mentioned
-above being a feature and not a bug, I took a liberty to fix it - if
-changing one constant in one line of C code can be called "fixing".
+Anyway, the patch should also fix rare cases of KVM weirdness and an even 
+rarer cases of mouse not detected properly at boot.
 
-The attached diff has been made against vanilla 2.6.5 kernel sources. A
-bit of context changing will be in order for it to apply to 2.4.26
-because of filesystem options structure type having changed; I haven't
-looked at 2.2.
 
-Regards,
--- 
-MS
 
---Multipart=_Thu__22_Apr_2004_20_05_29_+0200_FL.svpt2msJNFMwT
-Content-Type: text/plain;
- name="isofs-nls-2.6.patch"
-Content-Disposition: attachment;
- filename="isofs-nls-2.6.patch"
-Content-Transfer-Encoding: quoted-printable
 
---- linux/fs/isofs/inode.c	Fri Jan  9 11:58:50 2004
-+++ linux/fs/isofs/inode-defaultnls.c	Thu Apr 22 18:47:12 2004
-@@ -794,7 +794,7 @@
-=20
- #ifdef CONFIG_JOLIET
- 	if (joliet_level && opt.utf8 =3D=3D 0) {
--		char * p =3D opt.iocharset ? opt.iocharset : "iso8859-1";
-+		char * p =3D opt.iocharset ? opt.iocharset : CONFIG_NLS_DEFAULT;
- 		sbi->s_nls_iocharset =3D load_nls(p);
- 		if (! sbi->s_nls_iocharset) {
- 			/* Fail only if explicit charset specified */
-
---Multipart=_Thu__22_Apr_2004_20_05_29_+0200_FL.svpt2msJNFMwT--
+Kim

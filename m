@@ -1,56 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266134AbUFIOSQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266136AbUFIOVy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266134AbUFIOSQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 10:18:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266092AbUFIOSP
+	id S266136AbUFIOVy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 10:21:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266092AbUFIOVy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 10:18:15 -0400
-Received: from cantor.suse.de ([195.135.220.2]:17280 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S266134AbUFIOSI (ORCPT
+	Wed, 9 Jun 2004 10:21:54 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:41125 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S266139AbUFIOVm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 10:18:08 -0400
-Date: Wed, 9 Jun 2004 16:16:07 +0200
-From: Karsten Keil <kkeil@suse.de>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: kai.germaschewski@gmx.de, isdn4linux@listserv.isdn4linux.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [STACK] weird code in some isdn drivers
-Message-ID: <20040609141607.GA968@pingi3.kke.suse.de>
-Mail-Followup-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-	kai.germaschewski@gmx.de, isdn4linux@listserv.isdn4linux.de,
-	linux-kernel@vger.kernel.org
-References: <20040609123633.GH21168@wohnheim.fh-wedel.de> <20040609131628.GA10403@pingi3.kke.suse.de> <20040609133003.GO21168@wohnheim.fh-wedel.de>
+	Wed, 9 Jun 2004 10:21:42 -0400
+Date: Wed, 9 Jun 2004 16:21:41 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: kbuild make deb patch
+Message-ID: <20040609142141.GT20632@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20040607141353.GK21794@wiggy.net> <20040608210846.GA5216@mars.ravnborg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="RxBYAwKLDxPbmc5c"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040609133003.GO21168@wohnheim.fh-wedel.de>
-Organization: SuSE Linux AG
-X-Operating-System: Linux 2.6.4-52-default i686
+In-Reply-To: <20040608210846.GA5216@mars.ravnborg.org>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 09, 2004 at 03:30:03PM +0200, Jörn Engel wrote:
-> On Wed, 9 June 2004 15:16:28 +0200, Karsten Keil wrote:
-> > On Wed, Jun 09, 2004 at 02:36:33PM +0200, Jörn Engel wrote:
-> > > Karsten, Kai,
-> > > 
-> > > while I agree that this is a measurement bug, it's not exacly fun to
-> > > look at the code in question.  Can you please find a solution for
-> > > hscx_irq.c?
-> > 
-> > HiSax and I4L is in bugfix only mode, since it will replaced
-> > by other drivers. So I do not want waste time for soon obsolate code.
-> 
-> Valid solution.  Any date as to when the new drivers will be
-> available?
-> 
 
-I hope that I have enough time to fix the known issues in mISDN this month
-and implement some more hardware, after this it should go into mainline.
+--RxBYAwKLDxPbmc5c
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Karsten Keil
-SuSE Labs
-ISDN development
+On Tue, 2004-06-08 23:08:46 +0200, Sam Ravnborg <sam@ravnborg.org>
+wrote in message <20040608210846.GA5216@mars.ravnborg.org>:
+> On Mon, Jun 07, 2004 at 04:13:53PM +0200, Wichert Akkerman wrote:
+> I'm in progress of doing some infrastructure work to better support build=
+ing
+> different packages. I have requests for .tar.gz, tar.gz2 as well
+> as deb.
+
+(Being a Debian user...) I really *love* to see a .tar.{gz,bz2} target.
+For my in-house use (as well in in the company I work for) we do have a
+script to basically install modules (+ vmlinuz + vmlinux + .config +
+System.map), adding some identifier to the filenames (of the last four
+files mentioned) and preparing a .tar.gz from that.
+
+For my private use, my version of the script also handles some non-ia32
+archs :)
+
+MfG, JBG
+
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
+PA));
+
+--RxBYAwKLDxPbmc5c
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAxxz1Hb1edYOZ4bsRAj9KAJ9BNOKhtFVjSbeTmEfuiEl0Dt6oLACfT0Mh
+DnC/ds+zbV7FrqA0rGzbBJg=
+=laO7
+-----END PGP SIGNATURE-----
+
+--RxBYAwKLDxPbmc5c--

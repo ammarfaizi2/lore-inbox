@@ -1,69 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272245AbRHXQkb>; Fri, 24 Aug 2001 12:40:31 -0400
+	id <S272258AbRHXQrz>; Fri, 24 Aug 2001 12:47:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272226AbRHXQkU>; Fri, 24 Aug 2001 12:40:20 -0400
-Received: from mx3.port.ru ([194.67.57.13]:53769 "EHLO mx3.port.ru")
-	by vger.kernel.org with ESMTP id <S272245AbRHXQkM>;
-	Fri, 24 Aug 2001 12:40:12 -0400
-From: "Samium Gromoff" <_deepfire@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: [OT] Howl of soul...
+	id <S272260AbRHXQrn>; Fri, 24 Aug 2001 12:47:43 -0400
+Received: from smtp.mailbox.net.uk ([195.82.125.32]:43724 "EHLO
+	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
+	id <S272258AbRHXQrf>; Fri, 24 Aug 2001 12:47:35 -0400
+Date: Fri, 24 Aug 2001 17:47:48 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Dave Jones <davej@suse.de>
+Cc: Padraig Brady <Padraig@antefacto.com>, linux-kernel@vger.kernel.org
+Subject: Re: [OT] CPU temperature control
+Message-ID: <20010824174748.F31722@flint.arm.linux.org.uk>
+In-Reply-To: <3B86771E.3050207@AnteFacto.com> <Pine.LNX.4.30.0108241801420.14354-100000@Appserv.suse.de>
 Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [195.34.27.172]
-Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E15aK0R-000M5f-00@f8.mail.ru>
-Date: Fri, 24 Aug 2001 20:40:27 +0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.30.0108241801420.14354-100000@Appserv.suse.de>; from davej@suse.de on Fri, Aug 24, 2001 at 06:06:00PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-     dear people!
+On Fri, Aug 24, 2001 at 06:06:00PM +0200, Dave Jones wrote:
+> So far, there are several implementations in there, in various stages
+> of completion. The various x86 types need finishing, and it'll be
+> ready (as long as rmk has nothing else to add to it) for submission.
 
-   Sorry for OT, but i want only good to you, lkml
- people...
-   If you are to buy a new ide drive, do not buy 
- recent IBM 7200 drives!!!
-   The story begins when at February of this year i`ve bought
- perfectly shining ever-fast IBM DTLA-307045...
-   After 3 months i`ve hardly regreted about such
- decision: drive started to covers himself with a thick
- layer of logical-not-physical badblocks (ie lowlevel
- reformat doesnt show anything).
-   So i went to storagereview and lerned about the matter.
- As i found, these drives had an internal controller bug.
+I don't have anything to add to the generic layer; it needs a little
+cleanup to remove the "this is debug only" comments against the proc
+interface.
 
-   So i said okay, while restoring 3rd time my reiserfs
- and dumping data to spare drive, and went to
- replace the drive to perfectly new and shining
- IBM IC35L040AVER07-0 also known as 60GXP.
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-   Now i`am heavily punished for that.
- Badblocks are reapperaing on runtime.
-   After they appeared first time i`ve attached large
- fan to the drive, so it was cold(!) to touch. Also
- i stopped to transport the drive between boxes.
-
-   Nevertheless these fscking logical badblocks
- appeared again twice.
-
-   The fact is, that we had bought these drives
- with my friend synchronusly, and now he owns
- quantum drive, after 75gxp and 60gxp...
-   Ofcourse he had similar problems.... (btw he use windoze)
-
-   I am _tired_ fixing my poor reiserfs root partition.
-   I can say that now i`am expert on how to restore
- badblocked reiserfs partiotions... ;(
-
-   Beware.
-
----
-
-
-cheers,
-
-
-   Samium Gromoff

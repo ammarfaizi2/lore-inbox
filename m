@@ -1,33 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132691AbRDIFEF>; Mon, 9 Apr 2001 01:04:05 -0400
+	id <S132693AbRDIFoI>; Mon, 9 Apr 2001 01:44:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132692AbRDIFDq>; Mon, 9 Apr 2001 01:03:46 -0400
-Received: from quechua.inka.de ([212.227.14.2]:26176 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S132691AbRDIFDh>;
-	Mon, 9 Apr 2001 01:03:37 -0400
-From: Bernd Eckenfels <W1012@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: race condition on looking up inodes
-In-Reply-To: <000201c0c0a4$eb5c7b10$321ea8c0@saturn>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.36 (i686))
-Message-Id: <E14mTpv-0002Qv-00@sites.inka.de>
-Date: Mon, 9 Apr 2001 07:03:35 +0200
+	id <S132695AbRDIFn6>; Mon, 9 Apr 2001 01:43:58 -0400
+Received: from mail.xmission.com ([198.60.22.22]:60423 "EHLO mail.xmission.com")
+	by vger.kernel.org with ESMTP id <S132693AbRDIFnx>;
+	Mon, 9 Apr 2001 01:43:53 -0400
+Message-ID: <3AD14C5E.5050801@xmission.com>
+Date: Sun, 08 Apr 2001 23:45:02 -0600
+From: Frank Jacobberger <f1j@xmission.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.3 i686; en-US; 0.8.1) Gecko/20010327
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 8139too.c and 2.4.4-pre1 kernel burp
+In-Reply-To: <3AD118F4.3050507@xmission.com> <3AD11A13.6E52A515@mandrakesoft.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <000201c0c0a4$eb5c7b10$321ea8c0@saturn> you wrote:
->    rename("/usr/hybrid/cfg/data","/usr/mytemp/data1"); /*for process 1*/
->  rename("/usr/mytemp/data1","/usr/test");/* for process 2*/
+Jeff Garzik wrote:
 
-Rename syscall is expected to be atomic on unixoid systems. And I dont know of
-a case where a problem is, besides if you use some network file system, where
-nobody can realy gurantee anything (well kidding, but it is harder than on a
-local one).
+> Frank Jacobberger wrote:
+> 
+>> Jeff,
+>> 
+>> I noticed the following on boot with 2.4.4-pre1:
+>> 
+>> kernel: eth0: Too much work at interrupt, IntrStatus=0x0001.
+>> 
+>> What is this saying to me :)
+> 
+> 
+> How often does this occur?  A lot, or just once or twice?
+> 
+Every time I boot the kernel... very last statement.
 
-The second rename may see the result of the first rename or the original state
-before the first rename. It will not see any half-state or locked nodes.
 
-Greetings
-Bernd
+

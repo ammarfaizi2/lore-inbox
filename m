@@ -1,56 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265216AbUBOX2S (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 18:28:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265221AbUBOX2S
+	id S265236AbUBOXrP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 18:47:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265251AbUBOXrP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 18:28:18 -0500
-Received: from amalthea.dnx.de ([193.108.181.146]:12524 "EHLO amalthea.dnx.de")
-	by vger.kernel.org with ESMTP id S265216AbUBOX2R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 18:28:17 -0500
-Date: Mon, 16 Feb 2004 00:28:11 +0100
-From: Robert Schwebel <robert@schwebel.de>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel Cross Compiling
-Message-ID: <20040215232810.GK549@pengutronix.de>
-References: <402D9567.B5044EFE@ou.edu> <20040214142157.GA9398@MAIL.13thfloor.at>
+	Sun, 15 Feb 2004 18:47:15 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:11994 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S265236AbUBOXrO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Feb 2004 18:47:14 -0500
+Date: Sun, 15 Feb 2004 18:47:11 -0500
+From: Willem Riede <wrlk@riede.org>
+To: Paul Jackson <pj@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove obsolete onstream support from ide-tape in 2.6.3-rc3
+Message-ID: <20040215234711.GC4957@serve.riede.org>
+Reply-To: wrlk@riede.org
+References: <20040215221108.GA4957@serve.riede.org> <20040215153214.002dcc9a.pj@sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040214142157.GA9398@MAIL.13thfloor.at>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-Spam-Score: 0.0 (/)
-X-Scan-Signature: 346b5eef83b54e7774ba8be021db0e74
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20040215153214.002dcc9a.pj@sgi.com> (from pj@sgi.com on Sun, Feb 15, 2004 at 18:32:14 -0500)
+X-Mailer: Balsa 2.0.16
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert, 
-
-On Sat, Feb 14, 2004 at 03:21:57PM +0100, Herbert Poetzl wrote:
-> > http://kegel.com/crosstool
+On 2004.02.15 18:32, Paul Jackson wrote:
+> And another obsolete tape drive goes on my vintage shelf.
 > 
-> thanks for the info, I read/tested that one too, some time
-> ago, but decided against this approach, as it builds the
-> glibc, which I do not need for the kernel toolchain at all
-> and I didn't want to bother with another source that won't
-> compile on arch xy ... maybe the wrong decision? I don't 
-> know ...
+> Willem - I notice off SourceForge a note:
+> 
+>   http://sourceforge.net/forum/forum.php?forum_id=333748
+> 
+>   Posted By: wriede
+>   Date: 2003-12-01 16:24
+>   Summary: osst, the Linux OnStream Tape driver now avalable on sf.net
+> 
+>   Following the unfortunate bankruptcy of OnStream, I have now completed
+>   the migration of the osst CVS repository, web site and mailing list to
+>   SourceForge.
+> 
+>   Willem Riede,
+>   osst maintainer.
+> 
+> How does this relate to your removal of onstream from 2.6?  I'm guessing
+> that you are maintaining onstream in 2.4, but not in 2.6 or beyond.  But
+> that's just a guess.
 
-you might also want to have a look at the idea behind PTXdist (see
-http://www.pengutronix.de/software/ptxdist_en.html) which is also able
-to build toolchains and do all the necessary tweaking, without building
-a glibc (just only run 'make xchain-gccstage1' to get a compiler without
-glibc). It follows the same approach for the patch repositories like Dan
-and we are syncing heavily.
+I am maintaining osst, which is available in both 2.4 and 2.6. It works very 
+well, and the DI-30 is supported by it through ide-scsi. In contrast, 
+onstream code in ide-tape has not been maintained, and is buggy. To ease my 
+work, I want osst to be the only onstream code in the kernel.
 
-The whole toolchain building is a huge mess at the moment.  
+So the "obsolete" refers to ide-tape's implementation only, not the drive.
 
-Robert
--- 
- Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
-   Handelsregister:  Amtsgericht Hildesheim, HRA 2686
-     Hornemannstraﬂe 12,  31137 Hildesheim, Germany
-    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4
+Regards, Willem Riede.

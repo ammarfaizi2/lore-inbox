@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267747AbUHWV23@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267796AbUHWV1z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267747AbUHWV23 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 17:28:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267993AbUHWV2Z
+	id S267796AbUHWV1z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 17:27:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267967AbUHWV1u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 17:28:25 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:22015 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S267747AbUHWVZW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 17:25:22 -0400
-Date: Mon, 23 Aug 2004 23:25:14 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: rlrevell@joe-job.com, diegocg@teleline.es, linux-kernel@vger.kernel.org,
-       kernel@wildsau.enemy.org, diablod3@gmail.com
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Message-ID: <20040823212514.GE22419@fs.tum.de>
-References: <200408041233.i74CX93f009939@wildsau.enemy.org> <d577e5690408190004368536e9@mail.gmail.com> <1092915160.830.9.camel@krustophenia.net> <20040819140659.6f61edcd.diegocg@teleline.es> <4124A572.nail7YU5JK0TN@burner>
+	Mon, 23 Aug 2004 17:27:50 -0400
+Received: from zmamail03.zma.compaq.com ([161.114.64.103]:49415 "EHLO
+	zmamail03.zma.compaq.com") by vger.kernel.org with ESMTP
+	id S267957AbUHWV10 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 17:27:26 -0400
+Date: Mon, 23 Aug 2004 16:25:17 -0500
+From: mikem <mikem@beardog.cca.cpqcorp.net>
+To: marcelo.tossati@cyclades.com, axboe.suse.de@beardog.cca.cpqcorp.net
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: patch for kernel_stats.h, bump DK_MAJOR_MAX for cciss devices
+Message-ID: <20040823212517.GA8811@beardog.cca.cpqcorp.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4124A572.nail7YU5JK0TN@burner>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 19, 2004 at 03:04:50PM +0200, Joerg Schilling wrote:
-> >From diegocg@teleline.es  Thu Aug 19 14:07:10 2004
-> 
-> >See http://weblogs.mozillazine.org/gerv/archives/006193.html (which may not
-> >be the best interpretation of the changes)
-> 
-> Unfortunately the person who did write this has no clue on the Copyright law :-(
-> 
-> The Copyright law is _very_ explicit about the fact that Authors that do minor
-> contributions have no right to influence the license or the way of publishing.
->...
+This patch bumps DK_MAX_MAJOR to 111 so various cciss statistics can be
+collected just they are with SCSI, IDE, etc.
+Applies to 2.4.28-pre1. Please consider this for inclusion.
 
-"The Copyright law" is a strange term.
-
-E.g. the German and the US copyright laws aren't exactly the same.
-
-> Jörg
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Thanks,
+mikem
+-------------------------------------------------------------------------------
+diff -burNp lx2428-pre1.orig/include/linux/kernel_stat.h lx2428-pre1/include/linux/kernel_stat.h
+--- lx2428-pre1.orig/include/linux/kernel_stat.h	2004-08-23 15:41:43.640300000 -0500
++++ lx2428-pre1/include/linux/kernel_stat.h	2004-08-23 15:43:07.097613064 -0500
+@@ -12,7 +12,7 @@
+  * used by rstatd/perfmeter
+  */
+ 
+-#define DK_MAX_MAJOR 16
++#define DK_MAX_MAJOR 111
+ #define DK_MAX_DISK 16
+ 
+ struct kernel_stat {

@@ -1,66 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264672AbSLWMDG>; Mon, 23 Dec 2002 07:03:06 -0500
+	id <S264679AbSLWMHm>; Mon, 23 Dec 2002 07:07:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264679AbSLWMDG>; Mon, 23 Dec 2002 07:03:06 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:16813 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S264672AbSLWMDF>;
-	Mon, 23 Dec 2002 07:03:05 -0500
-Date: Mon, 23 Dec 2002 12:10:22 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Ed Tomlinson <tomlins@cam.org>, linux-kernel@vger.kernel.org
-Subject: Re: [drm:drm_init] *ERROR* Cannot initialize the agpgart module.
-Message-ID: <20021223121022.GA32080@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Rusty Russell <rusty@rustcorp.com.au>,
-	Ed Tomlinson <tomlins@cam.org>, linux-kernel@vger.kernel.org
-References: <20021221142226.GA24941@suse.de> <20021223021009.C6CC32C0E3@lists.samba.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021223021009.C6CC32C0E3@lists.samba.org>
-User-Agent: Mutt/1.4i
+	id <S264711AbSLWMHm>; Mon, 23 Dec 2002 07:07:42 -0500
+Received: from amsfep14-int.chello.nl ([213.46.243.22]:55347 "EHLO
+	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
+	id <S264679AbSLWMHl>; Mon, 23 Dec 2002 07:07:41 -0500
+Date: Mon, 23 Dec 2002 13:15:42 +0100
+Subject: Re: Read this and be ashamed ;) or: Awfull performance loss since 2.4.18 to 2.4.21-pre2
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v548)
+Cc: linux-kernel@vger.kernel.org
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+In-Reply-To: <200212221439.28075.m.c.p@wolk-project.de>
+Message-Id: <41E779BC-1670-11D7-A27C-000393950CC2@karlsbakk.net>
+Content-Transfer-Encoding: 7bit
+X-Mailer: Apple Mail (2.548)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 23, 2002 at 12:10:47PM +1100, Rusty Russell wrote:
- > > This one is due to the way AGPGART does (or has done for the last 3
- > > years) its module locking. It does a MOD_INC_USE_COUNT as soon as
- > > someone calls the acquire routines.
- > Which is racy under SMP, and under preempt, which is why it's
- > deprecated.
+hi
 
-Crapola. I've just realised why this is no longer relevant.
-I've moved what this was protecting into the per chipset modules.
-Right now its possible to load modules, start x (which loads DRM),
-then rmmod via_agp from under its feet. result - boom when something
-tries to use 3d.
+What disk/controller is this?
 
-Sure it's unlikely someone would be crazy enough to try and do this,
-and they deserve what they get, but it's not exactly clean, or nice.
+On Sunday, December 22, 2002, at 02:47 PM, Marc-Christian Petersen 
+wrote:
 
-So where is the documentation describing module locking de jour ?
+> Hi all,
+>
+> not much to say about, just read. All are vanilla kernels w/o any 
+> patch.
+>
+> /dev/hda5 on /home type ext3 (rw,data=ordered)
+> /dev/hda5             10080488    731488   8836932   8% /home
+>
+> UDMA100 IDE Drive, DMA is on. All these runs were done right after 
+> bootup.
+> Mashine is a Celeron 1,3GHz, 512MB RAM, 512MB SWAP.
+>
+> root@codeman:[/] # uname -r
+> 2.4.18
+> root@codeman:[/] # dd if=/dev/zero of=/home/largefile bs=16384 
+> count=131072
+> 131072+0 records in
+> 131072+0 records out
+> 2147483648 bytes transferred in 119.140681 seconds (18024772 bytes/sec)
+> root@codeman:[/] #
+>
+> root@codeman:[/] # uname -r
+> 2.4.19
+> root@codeman:[/] # dd if=/dev/zero of=/home/largefile bs=16384 
+> count=131072
+> 131072+0 records in
+> 131072+0 records out
+> 2147483648 bytes transferred in 140.305836 seconds (15305733 bytes/sec)
+>
+> root@codeman:[/] # uname -r
+> 2.4.20
+> root@codeman:[/] # dd if=/dev/zero of=/home/largefile bs=16384 
+> count=131072
+> 131072+0 records in
+> 131072+0 records out
+> 2147483648 bytes transferred in 172.327570 seconds (12461637 bytes/sec)
+>
+> root@codeman:[/] # uname -r
+> 2.4.21-pre2
+> root@codeman:[/] # dd if=/dev/zero of=/home/largefile bs=16384 
+> count=131072
+> 131072+0 records in
+> 131072+0 records out
+> 2147483648 bytes transferred in 177.743959 seconds (12081894 bytes/sec)
+>
+>
+> ciao, Marc
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
- > > (So you can't unload agpgart whilst you've a 3d using app (like X)
- > > open).  This seems quite sensible, but these days you can't unload
- > > agpgart.ko anyway because the chipset module (via-agp.ko in your
- > > case) already has it 'in use', so I'm tempted to drop those bits.
- > If this is true (it usually is), you can simply drop them.
-
-I'll need 'something' in the chipset drivers. The first thing that
-jumps to mind is to give the chipset drivers an 'acquire' op
-which does the locking much like the old agp_backend_acquire() does.
- 
- > There are other cases where the caller is not grabbing references, so
- > MOD_INC_USE_COUNT is better than nothing (should the warning stay for
- > 2.6?  Good question).
-
-Why exactly isn't it safe any more?  If there's documentation on this,
-I'd love to read it. If there isn't, there really should be.
-
-		Dave
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs

@@ -1,152 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264425AbUDTWQy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264530AbUDTW72@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264425AbUDTWQy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 18:16:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264381AbUDTWPN
+	id S264530AbUDTW72 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 18:59:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264512AbUDTW0G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 18:15:13 -0400
-Received: from dsl092-042-129.lax1.dsl.speakeasy.net ([66.92.42.129]:44306
-	"HELO mgix.com") by vger.kernel.org with SMTP id S264556AbUDTVav convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 17:30:51 -0400
-From: "Emmanuel Mogenet" <mgix@mgix.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Ooops on with 2.4.22 when using rsync over ssh
-Date: Tue, 20 Apr 2004 14:30:39 -0700
-Message-ID: <AMEKICHCJFIFEDIBLGOBOEAJCPAA.mgix@mgix.com>
+	Tue, 20 Apr 2004 18:26:06 -0400
+Received: from ausc60ps301.us.dell.com ([143.166.148.206]:24 "EHLO
+	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
+	id S264280AbUDTTt4 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Apr 2004 15:49:56 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6527.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-Importance: Normal
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [RFC] Enhanced MD / alternatives in userspace
+Date: Tue, 20 Apr 2004 14:49:52 -0500
+Message-ID: <D69989B48C25DB489BBB0207D0BF51F7096023@ausx2kmpc104.aus.amer.dell.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [RFC] Enhanced MD / alternatives in userspace
+Thread-Index: AcQj/goVjK2cczaYQdyN/FzoMh7RlQDEKbMg
+From: <Andre_Dumouchelle@Dell.com>
+To: <c-d.hailfinger.kernel.2004@gmx.net>, <linux-kernel@vger.kernel.org>
+Cc: <linux-raid@vger.kernel.org>
+X-OriginalArrivalTime: 20 Apr 2004 19:49:52.0559 (UTC) FILETIME=[A5AA7BF0:01C42710]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Carl-Daniel,
 
-The raw and ksymoops'ed oops are at the end of this message.
+>From a high level, there is definitely interest in any solution that has
+the ability to get around the need for proprietary binary drivers that
+enable driver based RAID solutions, and enables common metadata formats
+like DDF.  
 
-It happens with a Fedora install and it is 100% reproducible
-with my config (happens every single time I launch the rsync command below).
+The main features of interest from a server perspective in any RAID
+solution (Software or Hardware) are 
 
-The exact version of the kernel it happens with is:
+- Full RAID support (0/1/5/10)
+- DDF
+- OS RAID Management / configuration 
+- Robust error handling 
+- Installable to the RAID logical device.  Need the ability for Linux to
+understand the RAID array prior to installation, and not force the user
+to add RAID support post installation (protected boot arrays)
 
-Linux version 2.4.22-1.2174.nptl (bhcompile@tweety.devel.redhat.com) (gcc version 3.2.3 20030422 (Red Hat Linux 3.2.3-6)) #1 Wed Feb 18 16:38:32 EST 2004
+Enhanced MD has accomplished these features through E-MD and E-MDADM,
+however, it has not met the needs of the community from an architectural
+standpoint.  We're looking for something that meets both sides of this
+equation.
 
-It happens when I launch the following command from a remote machine:
+Thanks
+Andre
 
-rsync                                   \
-        -v                              \
-        -c                              \
-        -a                              \
-        -e 'ssh -p 2222 -l root'        \
-        --stats                         \
-        --delete                        \
-        --dry-run                       \
-        --compress                      \
-        --progress                      \
-        --numeric-ids                   \
-        --no-whole-file                 \
-        --no-blocking-io                \
-        machine_that_oopses:/data       \
-        /v/backup/data                  \
-
-
-RAW OOPS:
----------
-
-Apr 20 14:02:57 alastor sshd(pam_unix)[16553]: session opened for user root by (uid=0)
-Apr 20 14:02:57 alastor kernel:  <1>Unable to handle kernel paging request at virtual address ee832ec0
-Apr 20 14:02:57 alastor kernel:  printing eip:
-Apr 20 14:02:57 alastor kernel: c01426ae
-Apr 20 14:02:57 alastor kernel: *pde = 00000000
-Apr 20 14:02:57 alastor kernel: Oops: 0000
-Apr 20 14:02:57 alastor kernel: reiserfs sd_mod ipt_state ipt_REJECT ipt_LOG iptable_mangle iptable_nat ip_conntrack iptab
-Apr 20 14:02:57 alastor kernel: CPU:    0
-Apr 20 14:02:57 alastor kernel: EIP:    0060:[<c01426ae>]    Not tainted
-Apr 20 14:02:57 alastor kernel: EFLAGS: 00010286
-Apr 20 14:02:57 alastor kernel:
-Apr 20 14:02:57 alastor kernel: EIP is at dentry_open [kernel] 0x6e (2.4.22-1.2174.nptl)
-Apr 20 14:02:57 alastor kernel: eax: ee832ec0   ebx: cc448d40   ecx: 00000000   edx: 00000000
-Apr 20 14:02:57 alastor kernel: esi: cb10c980   edi: ffffffe9   ebp: cdfb4400   esp: ca101f58
-Apr 20 14:02:57 alastor kernel: ds: 0068   es: 0068   ss: 0068
-Apr 20 14:02:57 alastor kernel: Process rsync (pid: 16574, stackpage=ca101000)
-Apr 20 14:02:57 alastor kernel: Stack: 00000004 c8da89c0 00008000 c4bf3000 005d7238 bfe8ea28 c0142637 c8da89c0
-Apr 20 14:02:57 alastor kernel:        cdfb4400 00008000 ca101f84 c8da89c0 cdfb4400 c4bf3000 ca1a9b5c 00000007
-Apr 20 14:02:57 alastor kernel:        00000001 00000001 005d7238 00000007 c01429d3 c4bf3000 00008000 00000000
-Apr 20 14:02:57 alastor sshd(pam_unix)[16553]: session closed for user root
-Apr 20 14:02:57 alastor kernel: Call Trace:   [<c0142637>] filp_open [kernel] 0x67 (0xca101f70)
-Apr 20 14:02:57 alastor kernel: [<c01429d3>] sys_open [kernel] 0x53 (0xca101fa8)
-Apr 20 14:02:57 alastor kernel: [<c01095f7>] system_call [kernel] 0x33 (0xca101fc0)
-Apr 20 14:02:57 alastor kernel:
-Apr 20 14:02:57 alastor kernel:
-Apr 20 14:02:57 alastor kernel: Code: 8b 10 85 d2 0f 85 1e 01 00 00 89 c2 89 53 10 8b 86 a0 00 00
-
-KSYMOOPS'ed:
-------------
-
-./ksymoops -m /boot/System.map <~/OOPS 
-ksymoops 2.4.9 on i686 2.4.22-1.2174.nptl.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.22-1.2174.nptl/ (default)
-     -m /boot/System.map (specified)
-
-Error (expand_objects): cannot stat(/lib/ext3.o) for ext3
-./ksymoops: No such file or directory
-Error (expand_objects): cannot stat(/lib/jbd.o) for jbd
-./ksymoops: No such file or directory
-/usr/bin/find: /lib/modules/2.4.22-1.2174.nptl/build: No such file or directory
-Error (pclose_local): find_objects pclose failed 0x100
-Warning (map_ksym_to_module): cannot match loaded module ext3 to a unique module object.  Trace may not be reliable.
-Apr 20 14:02:57 alastor kernel:  <1>Unable to handle kernel paging request at virtual address ee832ec0
-Apr 20 14:02:57 alastor kernel: c01426ae
-Apr 20 14:02:57 alastor kernel: *pde = 00000000
-Apr 20 14:02:57 alastor kernel: Oops: 0000
-Apr 20 14:02:57 alastor kernel: CPU:    0
-Apr 20 14:02:57 alastor kernel: EIP:    0060:[<c01426ae>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-Apr 20 14:02:57 alastor kernel: EFLAGS: 00010286
-Apr 20 14:02:57 alastor kernel: eax: ee832ec0   ebx: cc448d40   ecx: 00000000   edx: 00000000
-Apr 20 14:02:57 alastor kernel: esi: cb10c980   edi: ffffffe9   ebp: cdfb4400   esp: ca101f58
-Apr 20 14:02:57 alastor kernel: ds: 0068   es: 0068   ss: 0068
-Apr 20 14:02:57 alastor kernel: Process rsync (pid: 16574, stackpage=ca101000)
-Apr 20 14:02:57 alastor kernel: Stack: 00000004 c8da89c0 00008000 c4bf3000 005d7238 bfe8ea28 c0142637 c8da89c0 
-Apr 20 14:02:57 alastor kernel:        cdfb4400 00008000 ca101f84 c8da89c0 cdfb4400 c4bf3000 ca1a9b5c 00000007 
-Apr 20 14:02:57 alastor kernel:        00000001 00000001 005d7238 00000007 c01429d3 c4bf3000 00008000 00000000 
-Apr 20 14:02:57 alastor kernel: Call Trace:   [<c0142637>] filp_open [kernel] 0x67 (0xca101f70)
-Apr 20 14:02:57 alastor kernel: [<c01429d3>] sys_open [kernel] 0x53 (0xca101fa8)
-Apr 20 14:02:57 alastor kernel: [<c01095f7>] system_call [kernel] 0x33 (0xca101fc0)
-Apr 20 14:02:57 alastor kernel: Code: 8b 10 85 d2 0f 85 1e 01 00 00 89 c2 89 53 10 8b 86 a0 00 00 
+-----Original Message-----
+From: linux-raid-owner@vger.kernel.org
+[mailto:linux-raid-owner@vger.kernel.org] On Behalf Of Carl-Daniel
+Hailfinger
+Sent: Friday, April 16, 2004 4:35 PM
+To: Linux Kernel Mailing List
+Cc: Linux RAID Mailing List
+Subject: [RFC] Enhanced MD / alternatives in userspace
 
 
->>EIP; c01426ae <dentry_open+6e/1d0>   <=====
+Hi,
 
->>ebx; cc448d40 <_end+c038e08/e404148>
->>esi; cb10c980 <_end+acfca48/e404148>
->>ebp; cdfb4400 <_end+dba44c8/e404148>
->>esp; ca101f58 <_end+9cf2020/e404148>
+during development of raiddetect I asked myself if this tool could be
+extended to set up not only the classic vendor ATARAID devices, but also
+things like Adaptec ASR (HostRAID) and DDF based RAID formats.
 
-Trace; c0142637 <filp_open+67/70>
-Trace; c01429d3 <sys_open+53/a0>
-Trace; c01095f7 <system_call+33/38>
+Raiddetect is a utility which searches all disks for known RAID
+superblocks/metadata and parses the contents for validity. The results
+of this scan can either be outputted to the console or used to tell
+dm/md to set up the RAID devices. The newest version of raiddetect was
+posted to linux-kernel a few minutes ago and I will provide a web home
+for it soon.
 
-Code;  c01426ae <dentry_open+6e/1d0>
-00000000 <_EIP>:
-Code;  c01426ae <dentry_open+6e/1d0>   <=====
-   0:   8b 10                     mov    (%eax),%edx   <=====
-Code;  c01426b0 <dentry_open+70/1d0>
-   2:   85 d2                     test   %edx,%edx
-Code;  c01426b2 <dentry_open+72/1d0>
-   4:   0f 85 1e 01 00 00         jne    128 <_EIP+0x128>
-Code;  c01426b8 <dentry_open+78/1d0>
-   a:   89 c2                     mov    %eax,%edx
-Code;  c01426ba <dentry_open+7a/1d0>
-   c:   89 53 10                  mov    %edx,0x10(%ebx)
-Code;  c01426bd <dentry_open+7d/1d0>
-   f:   8b 86 a0 00 00 00         mov    0xa0(%esi),%eax
+So far, the development of raiddetect is at a stage where I can find
+(and mostly validate) the metadata of all ATARAID devices recognized by
+2.4 kernels. Adding ASR and DDF detection should be relatively easy
+since I tried to make the code moular and extensible.
+
+Assuming the on-disk format of RAID5 et al. does not differ between the
+Linux md implementation and e.g. DDF (modulo some offset and different
+superblocks), DDF support is possible today with combinations of plain
+MD and DM. No additional kernel code needed at all. Simply teach
+raiddetect to understand the DDF metadata and pass this information to
+MD in a format md understands. The DDF metadata can be masked away from
+MD by using DM so you don't have to worry about it being trashed.
+
+Since this is marked as [RFC], please comment on its (in-)feasibility.
 
 
+Regards,
+Carl-Daniel
+-- 
+http://www.hailfinger.org/
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-raid" in
+the body of a message to majordomo@vger.kernel.org More majordomo info
+at  http://vger.kernel.org/majordomo-info.html

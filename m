@@ -1,81 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267683AbUHZHHc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267713AbUHZHSz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267683AbUHZHHc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 03:07:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267702AbUHZHHc
+	id S267713AbUHZHSz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 03:18:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267712AbUHZHSz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 03:07:32 -0400
-Received: from lhr002a.dhl.com ([198.141.197.2]:18137 "EHLO gateway3a.dhl.com")
-	by vger.kernel.org with ESMTP id S267683AbUHZHHV (ORCPT
+	Thu, 26 Aug 2004 03:18:55 -0400
+Received: from mail.kroah.org ([69.55.234.183]:33450 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S267713AbUHZHSx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 03:07:21 -0400
-From: Michal Rokos <michal@rokos.info>
-To: cpufreq@www.linux.org.uk
-Subject: [2.6 PATCH] Missing default governors choices
-Date: Thu, 26 Aug 2004 09:07:17 +0200
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Thu, 26 Aug 2004 03:18:53 -0400
+Date: Thu, 26 Aug 2004 00:18:06 -0700
+From: Greg KH <greg@kroah.com>
+To: "Nemosoft Unv." <nemosoft@smcc.demon.nl>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] Re: kernel 2.6.8 pwc patches and counterpatches
+Message-ID: <20040826071806.GA22646@kroah.com>
+References: <1092793392.17286.75.camel@localhost> <200408250058.24845@smcc.demon.nl> <20040824230458.GA12422@kroah.com> <200408260058.59490@smcc.demon.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200408260907.17503.michal@rokos.info>
-X-OriginalArrivalTime: 26 Aug 2004 07:07:30.0243 (UTC) FILETIME=[59FEF930:01C48B3B]
+In-Reply-To: <200408260058.59490@smcc.demon.nl>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, Aug 26, 2004 at 12:58:59AM +0200, Nemosoft Unv. wrote:
+> Hello,
+> 
+> On Wednesday 25 August 2004 01:04, Greg KH wrote:
+> > On Wed, Aug 25, 2004 at 12:58:24AM +0200, Nemosoft Unv. wrote:
+> > If you want to send me a patch to tell me to rip the whole driver out,
+> > fine I will, no problems, I completly understand.
+> 
+> I don't think you do.
 
-aren't these 2 missing in "Default CPUFreq governor" menu?
+Just like I don't think you understand the laws involved here :)
 
-Thank you.
+> > But realize that anyone can then add it back, as the work you did was
+> > released under the GPL :)
+> 
+> We'll see. Greg, please remove all references to the PWC driver from the 2.6 
+> kernel ASAP. This also includes Documentation/usb/philips.txt and a 
+> possible entry in the MAINTAINERS file. Sending a patch will probably be 
+> pointless since you made changes I haven't seen.
 
- Michal
+I've done that.  You should send a patch to Pete to do the same for the
+2.4 tree too.
 
-PS: CC to me (I'm off the lists)
+I'm very sorry it's come to this, I really am.  
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/08/26 08:57:24+02:00 michal@rokos.info 
-#   Add missing governors to "Default CPUFreq governor" menu.
-# 
-# drivers/cpufreq/Kconfig
-#   2004/08/26 08:57:13+02:00 michal@rokos.info +16 -0
-#   Add missing governors to "Default CPUFreq governor" menu.
-# 
-diff -Nru a/drivers/cpufreq/Kconfig b/drivers/cpufreq/Kconfig
---- a/drivers/cpufreq/Kconfig 2004-08-26 09:00:15 +02:00
-+++ b/drivers/cpufreq/Kconfig 2004-08-26 09:00:15 +02:00
-@@ -27,6 +27,14 @@
-    the frequency statically to the highest frequency supported by
-    the CPU.
- 
-+config CPU_FREQ_DEFAULT_GOV_POWERSAVE
-+ bool "powersave"
-+ select CPU_FREQ_GOV_POWERSAVE
-+ help
-+   Use the CPUFreq governor 'powersave' as default. This sets
-+   the frequency statically to the lowest frequency supported by
-+   the CPU.
-+
- config CPU_FREQ_DEFAULT_GOV_USERSPACE
-  bool "userspace"
-  select CPU_FREQ_GOV_USERSPACE
-@@ -35,6 +43,14 @@
-    you to set the CPU frequency manually or when an userspace 
-    programm shall be able to set the CPU dynamically without having
-    to enable the userspace governor manually.
-+
-+config CPU_FREQ_DEFAULT_GOV_ONDEMAND
-+ bool "ondemand"
-+ select CPU_FREQ_GOV_ONDEMAND
-+ help
-+   Use the CPUFreq governor 'ondemand' as default. This does
-+   a periodic polling and changes frequency based on the CPU
-+   utilization.
- 
- endchoice
- 
- 
+I'd like to personally thank you for all the time you've spent in
+working on this driver over the years, and wish you the best in whatever
+you do in the future.  Come back anytime.
+
+thanks,
+
+greg k-h

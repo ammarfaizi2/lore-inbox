@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262021AbVBUQmO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262034AbVBUQop@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262021AbVBUQmO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 11:42:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbVBUQmN
+	id S262034AbVBUQop (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 11:44:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262037AbVBUQop
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 11:42:13 -0500
-Received: from laas.laas.fr ([140.93.0.15]:16822 "EHLO laas.laas.fr")
-	by vger.kernel.org with ESMTP id S262021AbVBUQmK (ORCPT
+	Mon, 21 Feb 2005 11:44:45 -0500
+Received: from rproxy.gmail.com ([64.233.170.207]:41197 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262034AbVBUQol (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 11:42:10 -0500
-Message-ID: <421A0F60.60005@laas.fr>
-Date: Mon, 21 Feb 2005 17:42:08 +0100
-From: Matthieu Herrb <matthieu.herrb@laas.fr>
-Organization: CNRS/LAAS
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: rocketport driver problems in 2.6.10
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 21 Feb 2005 11:44:41 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=pGEoRUHniS3pRQc+tWzZvcfq1l1Ne7ZJAYG1kf8m1UMYfssewD26I1wOmCuCKByLbkOkt2eLpbG05xJm+o8fViKB50ijUumT+01Xw5OseDjdelql+OSTuM15/7pFdDkwPujvrxYR/aprY41jvqvYOlxaSeVuoW8Xne1A3+qAm2c=
+Message-ID: <93ca30670502210844578dce95@mail.gmail.com>
+Date: Mon, 21 Feb 2005 10:44:38 -0600
+From: Alex Adriaanse <alex.adriaanse@gmail.com>
+Reply-To: Alex Adriaanse <alex.adriaanse@gmail.com>
+To: Andreas Steinmetz <ast@domdv.de>
+Subject: Re: Odd data corruption problem with LVM/ReiserFS
+Cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+In-Reply-To: <4219C811.5070906@domdv.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0 () 
+References: <93ca3067050220212518d94666@mail.gmail.com>
+	 <4219C811.5070906@domdv.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-I'm experimenting problems with the rocket driver with a Comtrol 
-Rocketprot ISA board, under Fedora Core 3 with a 2.6.10 kernel.
-(Linux dala 2.6.10-1.766_FC3 #1 Wed Feb 9 23:06:42 EST 2005 i686 i686 
-i386 GNU/Linux)
-
-I have a multi-threaded application that opens 2 ports on the rocketport 
-card, and happily talks to both devices connected to these ports.
-
-But when I quit the application, the close on the last port leaves the 
-thread that called close() and the rocket kernel module in a strange 
-state: the thread changes between 'D' state with a wait channel of 
-'release_dev' and running. It can't be killed. Lsof doesn't show the 
-device as open anymore. Any try to open the device again fails with 
-errno == EIO.
-lsmod shows the kernel module used by 1 client, and I can't rmmod it.
-
-Only a reboot can free the device and let me work further.
-
-When I only use one device on the rocketport per process, everything is 
-ok (or seems ok).
-
-Any idea(s) on how to debug/fix that ?
-
--- 
-Matthieu Herrb
+On Mon, 21 Feb 2005 12:37:53 +0100, Andreas Steinmetz <ast@domdv.de> wrote:
+> Alex Adriaanse wrote:
+> > As far as I can tell all the directories are still intact, but there
+> > was a good number of files that had been corrupted.  Those files
+> > looked like they had some chunks removed, and some had a bunch of NUL
+> > characters (in blocks of 4096 characters).  Some files even had chunks
+> > of other files inside of them!
+> 
+> I can second that. I had the same experience this weekend on a
+> md/dm/reiserfs setup. The funny thing is that e.g. find reports I/O
+> errors but if you then run tar on the tree you eventually get the
+> correct data from tar. Then run find again and you'll again get I/O errors.
+The weird thing is I did not see any I/O errors in my logs, and
+running find on /var worked without a problem.  By the way, did you
+take any DM snapshots when you experienced that corruption?

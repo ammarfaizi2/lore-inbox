@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264763AbTFUOmI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 10:42:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264788AbTFUOmH
+	id S264788AbTFUOpx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 10:45:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264797AbTFUOpx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 10:42:07 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:59631 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264763AbTFUOmG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 10:42:06 -0400
-Date: Sat, 21 Jun 2003 16:56:03 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Antonino Daplas <adaplas@pol.net>, James Simmons <jsimmons@infradead.org>
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: [2.5 patch] remove useless statement from video/i810/i810_main.c
-Message-ID: <20030621145603.GA23337@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Sat, 21 Jun 2003 10:45:53 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:11150 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S264788AbTFUOpw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 10:45:52 -0400
+Date: Sat, 21 Jun 2003 16:59:38 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linus Torvalds <torvalds@transmeta.com>, perex@suse.cz,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Isapnp warning
+In-Reply-To: <1056198688.25975.25.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <Pine.GSO.4.21.0306211658470.869-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-An u8 is _never_ > 255.
+On 21 Jun 2003, Alan Cox wrote:
+> On Sul, 2003-06-15 at 19:36, Geert Uytterhoeven wrote:
+> > Isapnp: Kill warning if CONFIG_PCI is not set
+> > 
+> > --- linux-2.5.x/drivers/pnp/resource.c	Tue May 27 19:03:04 2003
+> > +++ linux-m68k-2.5.x/drivers/pnp/resource.c	Sun Jun  8 13:31:20 2003
+> > @@ -97,7 +97,9 @@
+> >  
+> >  int pnp_add_irq_resource(struct pnp_dev *dev, int depnum, struct pnp_irq *data)
+> >  {
+> > +#ifdef CONFIG_PCI
+> >  	int i;
+> > +#endif
+> 
+> This is far uglier than te warning
 
+It depends on your goals. These warnings distract us from the real harmful
+warnings. Will we ever have a kernel that compiles with -Werror?
 
---- linux-2.5.72-mm2/drivers/video/i810/i810_main.c.old	2003-06-21 16:52:32.000000000 +0200
-+++ linux-2.5.72-mm2/drivers/video/i810/i810_main.c	2003-06-21 16:52:44.000000000 +0200
-@@ -1075,8 +1075,6 @@
- 	struct i810fb_par *par = (struct i810fb_par *) info->par;
- 	u8 *mmio = par->mmio_start_virtual, temp;
- 
--	if (regno > 255) return 1;
--
- 	if (info->fix.visual == FB_VISUAL_DIRECTCOLOR) {
- 		if ((info->var.green.length == 5 && regno > 31) ||
- 		    (info->var.green.length == 6 && regno > 63))
+Gr{oetje,eeting}s,
 
+						Geert
 
-cu
-Adrian
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

@@ -1,51 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267243AbRGKIy0>; Wed, 11 Jul 2001 04:54:26 -0400
+	id <S267242AbRGKI4g>; Wed, 11 Jul 2001 04:56:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267237AbRGKIyG>; Wed, 11 Jul 2001 04:54:06 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:34053 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S267236AbRGKIx4>;
-	Wed, 11 Jul 2001 04:53:56 -0400
-Date: Wed, 11 Jul 2001 10:53:39 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Dipankar Sarma <dipankar@sequent.com>
-Cc: Mike Anderson <mike.anderson@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: io_request_lock patch?
-Message-ID: <20010711105339.F17314@suse.de>
-In-Reply-To: <20010710172545.A8185@in.ibm.com> <20010710160512.A25632@us.ibm.com> <20010711142311.B9220@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010711142311.B9220@in.ibm.com>
+	id <S267238AbRGKI40>; Wed, 11 Jul 2001 04:56:26 -0400
+Received: from b0rked.dhs.org ([216.99.196.11]:11912 "HELO b0rked.dhs.org")
+	by vger.kernel.org with SMTP id <S267236AbRGKI4K>;
+	Wed, 11 Jul 2001 04:56:10 -0400
+Date: Wed, 11 Jul 2001 01:56:07 -0700 (PDT)
+From: Chris Vandomelen <chrisv@b0rked.dhs.org>
+To: Antonio Pagliaro <antoniopagliaro@tin.it>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Athlon Thunderbird, Abit KT7 Raid, Kernel 2.4: DESKTOP FROZEN!
+In-Reply-To: <01071023392004.02550@lila.localdomain>
+Message-ID: <Pine.LNX.4.31.0107110151280.4986-100000@b0rked.dhs.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 11 2001, Dipankar Sarma wrote:
-> >  I would like to know why the request_freelist is going empty? Having
-> >  __get_request_wait being called alot would appear to be not optimal.
-> 
-> It is not unreasonable for request IOCB pools to go empty, the important
-> issue is at what rate ? If a large portion of I/Os have to wait for
-> request structures to be freed, we may not be able to utilize the available
-> hardware bandwidth of the system optimally when we need, say, large
-> # of IOs/Sec. On the other hand, having large number of request structures
-> available may not necessarily give you large IOs/sec. The thing to look
-> at would be - how well are we utilizing the queueing capablility
-> of the hardware given a particular type of workload.
+> My box: Athlon Thunderbird 900 MHz, MotherboardAbit KT7 Raid,
+> Kernel 2.4 (the one that comes with Red Hat 7.1 no updates)
+>
+> I get apparently random desktop freezing.
 
-The queue lengths should always be long enough to keep the hw busy of
-course. And in addition, the bigger the queues the bigger the chance of
-skipping seeks due to reordering. But don't worry, I've scaled the queue
-lengths so I'm pretty sure that they are always on the safe side in
-size.
+Hmm, I have a similar machine.
+	K7-800, KT7 RAID, 2.4.5 kernel (was .0 at install time).
 
-It's pretty easy to test for yourself if you want, just change
-QUEUE_NR_REQUESTS in blkdev.h. It's currently 8192, the request slots
-are scaled down from this value. 8k will give you twice the amount of
-slots that you have RAM in mb, ie 2048 on a 1gig machine.
+>
+> Last time:
+>
+> I was just doing nothing so the screensaver
+> was on when I noticed the screen was frozen. Nor the keyboard
+> neither the mouse worked. No combination of CTRL-ALT keys.
+> Only choice left: reset. I did it.  When it booted again I got a
+>
+> Kernel Panic: Attempted to kill the idle task
+> In idle: not syncing.
 
-block: queued sectors max/low 683554kB/552482kB, 2048 slots per queue
+Err.. attempted to kill the idle task? Are you sure you don't have an
+overheating processor?
 
--- 
-Jens Axboe
+>
+> (by the way: what is the SysRq magic or something similar?
+> Does it help? Which keys??)
+>
+
+SysRq will only help if the machine is responsive; and then even still
+it's not going to correct issues like overheating processors and etc.
+
+<snip>
+>
+> Is this really a KDE problem? I myself doubt...
+> It could be a kernel problem or maybe hardware (I checked
+> all the ram and removed one, but freezing is still there)
+>
+
+Shhouldn't be a problem with KDE. It *could* be with X, since (unless
+you're using the framebuffer driver), it's directly accessing the
+hardware.
+
+Try starting up to a console and building a kernel with fb support, and
+then use X through that and see if that solves any problems. (I haven't
+had a single crash since; just that, for some reason, the sysrq key gets
+disabled on startup and occasionally a framebuffer program will crash and
+take my keyboard along with it. "Oops".)
+
+> Thanks for any help, I am in trouble!!
+>
+> Antonio
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

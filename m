@@ -1,39 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132137AbRCYR4X>; Sun, 25 Mar 2001 12:56:23 -0500
+	id <S132144AbRCYSJD>; Sun, 25 Mar 2001 13:09:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132139AbRCYR4M>; Sun, 25 Mar 2001 12:56:12 -0500
-Received: from fe040.world-online.no ([213.142.64.154]:42489 "HELO
-	mail.world-online.no") by vger.kernel.org with SMTP
-	id <S132137AbRCYRz4>; Sun, 25 Mar 2001 12:55:56 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Gerry <gerry@c64.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Larger dev_t
-Date: Sun, 25 Mar 2001 19:55:15 +0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <UTC200103251231.OAA10795.aeb@vlet.cwi.nl>
-In-Reply-To: <UTC200103251231.OAA10795.aeb@vlet.cwi.nl>
+	id <S132143AbRCYSIo>; Sun, 25 Mar 2001 13:08:44 -0500
+Received: from tango.SoftHome.net ([204.144.231.49]:22926 "HELO
+	tango.SoftHome.net") by vger.kernel.org with SMTP
+	id <S132142AbRCYSIc>; Sun, 25 Mar 2001 13:08:32 -0500
+Message-ID: <3ABE33FB.181EC9CD@softhome.net>
+Date: Sun, 25 Mar 2001 13:07:55 -0500
+From: "Todd M. Roy" <toddroy@softhome.net>
+Reply-To: toddroy@softhome.net
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01032519492002.00897@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+Subject: new aic7xxx needs berkeley db?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, i don't really know much about the kernel at all, but here's my opinion 
-anyway..
-
-To use 64bit pids when 32bit is enough just to "make things easier" doesn't 
-sound like a good idea to me. Eventually it might wrap around (fx. as on that 
-supercomputer Jamie Lokier talked about) to overwrite running processes, and 
-cause death and destruction. Bye bye stability.
-
-Even if it doesn't wrap, using double the space necessarry for something 
-every single process has is a waste of space. Linux is supposed to be able to 
-run on a large range of systems, and some of them don't have that kind of 
-luxury. Sure, the kernel can be modified for those (rare) cases, but still, 
-using something that's not necessary just sounds like bad practice to me.. 
-
-Never assume luxury..
-
-Gerry
+Hi All,
+  I notice that the new aic7xxx driver needs some version
+of the berkekey db.  (the make file has -ldb1 in it).  It blew
+up on my because I apparently don't have it installed.  
+-- 
+  .~.  Todd Roy, Senior Database Administrator  .~.
+  /V\     Holstein Association, U.S.A. Inc.     /V\         
+ // \\           troy@holstein.com             // \\  
+/(   )\         1-802-254-4551x4230           /(   )\
+ ^^-^^                                         ^^-^^

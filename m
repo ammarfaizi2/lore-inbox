@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261878AbSI3BCh>; Sun, 29 Sep 2002 21:02:37 -0400
+	id <S261891AbSI3BHF>; Sun, 29 Sep 2002 21:07:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261884AbSI3BCh>; Sun, 29 Sep 2002 21:02:37 -0400
-Received: from crack.them.org ([65.125.64.184]:21260 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id <S261878AbSI3BCA>;
-	Sun, 29 Sep 2002 21:02:00 -0400
-Date: Sun, 29 Sep 2002 21:07:46 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Use __attribute__((malloc)) for gcc 3.2
-Message-ID: <20020930010746.GA28120@nevyn.them.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20020929152731.GA10631@averell> <20020929235141.GA1090@krispykreme> <20020930003121.GB2805@averell>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020930003121.GB2805@averell>
-User-Agent: Mutt/1.5.1i
+	id <S261892AbSI3BHF>; Sun, 29 Sep 2002 21:07:05 -0400
+Received: from smtp3.texas.rr.com ([24.93.36.231]:20647 "EHLO
+	txsmtp03.texas.rr.com") by vger.kernel.org with ESMTP
+	id <S261891AbSI3BHE>; Sun, 29 Sep 2002 21:07:04 -0400
+Message-ID: <00d601c2681e$a60c3280$7f71a018@OMIT>
+From: "omit_ECE" <omit@rice.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: linux-kernel@vger.kernel.org
+Date: Sun, 29 Sep 2002 20:13:56 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 30, 2002 at 02:31:21AM +0200, Andi Kleen wrote:
-> On Mon, Sep 30, 2002 at 01:51:41AM +0200, Anton Blanchard wrote:
-> > 
-> > Hi Andi,
-> > 
-> > > Also added an noinline macro to wrap __attribute__((noinline)). That's 
-> > > not used yet. It tells the compiler that it should never inline, which
-> > > may be useful to prevent some awful code generation for those misguided
-> > > folks who use -O3 (gcc often screws up the register allocation of a 
-> > > function completely when bigger functions are inlined). 
-> > 
-> > Could you also add an always inline? It would be useful for functions
-> > like context_switch, where we require it to be inlined (otherwise it
-> > falls outside scheduling_functions_{start,end}_here and wchan handling
-> > fails).
-> 
-> Ok. gcc supports it with __attribute__((always_inline))
-> 
-> Suggestions for a name? alwaysinline would be a bit lengthy.
+Hi,
 
-Stick with always_inline?
+I want to know the one-way trip time in TCP header.
+In tcp_input.c , I found many functions under which include
+rcv_tsval and  rcv_tsecr . I don't know which two are right.
+So, I put many "printf" and fprintf in functions and compile the kernel.
+But when compiling it, some errors happen,
 
--- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+net/network.o: In function `tcp_parse_options':
+net/network.o: In function `tcp_rcv_established':
+net/network.o: In function `tcp_rcv_synsent_state_process':
+net/network.o: In function `tcp_rcv_state_process':
+net/network.o(.text+0x2807b): undefined reference to `printf'
+net/network.o(.text+0x2808c): undefined reference to `printf'
+net/network.o(.text+0x2631d): undefined reference to `fopen'
+net/network.o(.text+0x26334): undefined reference to `fprintf'
+net/network.o(.text+0x2634e): undefined reference to `fprintf'
+net/network.o(.text+0x2635a): undefined reference to `fclose'
+
+Aren't "printf" and "fprintf"  standard outputs? I also put #include <stdio.h>
+and "FILE *in_file", but they didn't work. Please give me suggestions.
+Thank you.

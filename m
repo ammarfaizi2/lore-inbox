@@ -1,69 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268445AbTCCQjs>; Mon, 3 Mar 2003 11:39:48 -0500
+	id <S268532AbTCCQll>; Mon, 3 Mar 2003 11:41:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268458AbTCCQjs>; Mon, 3 Mar 2003 11:39:48 -0500
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:521 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id <S268445AbTCCQjp>;
-	Mon, 3 Mar 2003 11:39:45 -0500
-Date: Mon, 3 Mar 2003 17:50:11 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Modules broken on alpha ?
-Message-ID: <20030303165011.GE27794@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <wrp1y1p8srx.fsf@hina.wild-wind.fr.eu.org>
+	id <S268560AbTCCQlH>; Mon, 3 Mar 2003 11:41:07 -0500
+Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:50644 "EHLO
+	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id <S268532AbTCCQkz>; Mon, 3 Mar 2003 11:40:55 -0500
+Date: Mon, 3 Mar 2003 11:50:54 -0500
+To: Oleg Drokin <green@namesys.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@digeo.com>,
+       mason@suse.com, trond.myklebust@fys.uio.no, jaharkes@cs.cmu.edu,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4 iget5_locked port attempt to 2.4
+Message-ID: <20030303165054.GC13151@delft.aura.cs.cmu.edu>
+Mail-Followup-To: Oleg Drokin <green@namesys.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@digeo.com>,
+	mason@suse.com, trond.myklebust@fys.uio.no, jaharkes@cs.cmu.edu,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030220175309.A23616@namesys.com> <20030220154924.7171cbd7.akpm@digeo.com> <20030221220341.A9325@namesys.com> <20030221200440.GA23699@delft.aura.cs.cmu.edu> <20030303170924.B3371@namesys.com> <1046708741.6509.5.camel@irongate.swansea.linux.org.uk> <20030303183838.B4513@namesys.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="vmttodhTwj0NAgWp"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <wrp1y1p8srx.fsf@hina.wild-wind.fr.eu.org>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux mail 2.4.18
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
+In-Reply-To: <20030303183838.B4513@namesys.com>
+User-Agent: Mutt/1.5.3i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Mar 03, 2003 at 06:38:38PM +0300, Oleg Drokin wrote:
+> Hello!
+> 
+> On Mon, Mar 03, 2003 at 04:25:41PM +0000, Alan Cox wrote:
+> > >    It's me again, I basically got no reply for this iget5_locked patch
+> > >    I have now. Would there be any objections if I try push it to Marcelo
+> > >    tomorrow? ;)
+> > I just binned it. Certainly its not the kind of stuff I want to test in -ac, 
+> > too many VFS changes outside reiserfs
+> 
+> Andrew Morton said "iget5_locked() looks simple enough, and as far as I can
+> tell does not change any existing code - it just adds new stuff.",
+> also this code (in its 2.5 incarnation) was tested in 2.5 for long
+> time already.
 
---vmttodhTwj0NAgWp
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It is simple enough, and it does fixe real bug. However at the time it
+was decided that the change should not go into 2.4 because it breaks the
+VFS API for 3rd party filesystems. Basically anyone that might be using
+iget4 and/or read_inode2 will have to change their filesystem in the
+middle of a supposedly stable series.
 
-On Sun, 2003-03-02 20:36:50 +0100, Marc Zyngier <mzyngier@freesurf.fr>
-wrote in message <wrp1y1p8srx.fsf@hina.wild-wind.fr.eu.org>:
-> Richard, Rusty,
->=20
-> I've been trying to use modules on alpha without much success (at
-> least on the latest 2.5.63-bk). Any non-trivial module fails to load
-> with a relocation error :
+I believe that argument still stands. Ofcourse anyone using the existing
+iget4/read_inode[2] interface is pretty much guaranteed to have broken
+code.
 
-> I'm using module-init-tools from Debian sid (0.9.10-1).
+> Also it fixes real bug (and while I have another reiserfs-only fix for
+> the bug, it is fairly inelegant).
 
-IIRC there was recently a quite small patch flyin' around on LKML.
-<digging...> Ah, look for "[PATCH] alpha modutils update" as a
-subject:-) That was ment to fix it.
+Yeah, I actually hit that bug while working on Coda which prompted the
+whole iget5_locked implementation. The fix I used for 2.4 is trivial but
+inefficient. Just grab a lock around any call to iget4. I think I used a
+semaphore as I wasn't sure whether the iget4 code would sleep.
 
-MfG, JBG
+Jan
 
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-      ret =3D do_actions((curr | FREE_SPEECH) & ~(IRAQ_WAR_2 | DRM | TCPA));
-
---vmttodhTwj0NAgWp
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD4DBQE+Y4fDHb1edYOZ4bsRAjLJAJ0QV6vx6qIrcEeIjjbI0qe7BYX9nwCY2ccL
-+3opWlwWC2JQuVyyAa+9ZA==
-=Ufrd
------END PGP SIGNATURE-----
-
---vmttodhTwj0NAgWp--

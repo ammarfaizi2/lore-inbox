@@ -1,30 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289226AbSCGBTY>; Wed, 6 Mar 2002 20:19:24 -0500
+	id <S289298AbSCGBVo>; Wed, 6 Mar 2002 20:21:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289243AbSCGBTO>; Wed, 6 Mar 2002 20:19:14 -0500
-Received: from r198m97.cybercable.tm.fr ([195.132.198.97]:63492 "EHLO lsinitam")
-	by vger.kernel.org with ESMTP id <S289226AbSCGBS7> convert rfc822-to-8bit;
-	Wed, 6 Mar 2002 20:18:59 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Laurent <laurent@augias.org>
-To: linux-kernel@vger.kernel.org
-Subject: ?chown and ?chown32 syscalls
-Date: Thu, 7 Mar 2002 02:24:25 +0100
-X-Mailer: KMail [version 1.3.2]
+	id <S289306AbSCGBVe>; Wed, 6 Mar 2002 20:21:34 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:1245 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S289298AbSCGBVV>;
+	Wed, 6 Mar 2002 20:21:21 -0500
+Message-ID: <3C86BEB0.4090203@us.ibm.com>
+Date: Wed, 06 Mar 2002 17:13:20 -0800
+From: mingming cao <cmm@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16imdu-0000He-00@lsinitam>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Jean-Eric Cuendet <jean-eric.cuendet@linkvest.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Rework of /proc/stat
+In-Reply-To: <3C86553E.3070608@linkvest.com> <E16ik6y-0008Qf-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In asm/unistd.h there are 2 series of syscalls for chown commands (chown, 
-lchown and fchown) : the ?chown and ?chown32
-In 2.4.17 (ix86) the system is using the ?chown32 syscalls, when I intercept 
-the ?chown syscalls nothing happens. Are these syscalls deprecated ?
+Alan Cox wrote:
 
-Thanks for any help.
-Laurent Sinitambirivoutin
-laurent@augias.org
+>>I've made a new version of IO statistics in kstat that remove the
+>>previous limitations of MAX_MAJOR. I've made tests on my machine only, so could someone test it, please?
+>>Feedback welcome.
+>>
+> 
+> Any reason for preferring this over the sard patches in -ac ?
+> 
 
-PS: please CC: me the answers since I'm not on the list... ;)
+Basically, statistic data are moved from the global kstat structure to 
+the request_queue structures, and it is allocated/freed when the request 
+queue is initialized and freed.  This way it is
+
+1)self-controlled;
+2)avoid the lookup step before the accounting, so it should be faster;
+3)statistics implementation is not affected by the major/minor numbers;
+4)able to gathering statistics for all disks while keep the memory needs 
+minimized.
+

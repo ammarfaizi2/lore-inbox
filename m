@@ -1,54 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132546AbRBEBOz>; Sun, 4 Feb 2001 20:14:55 -0500
+	id <S132553AbRBEBSy>; Sun, 4 Feb 2001 20:18:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132554AbRBEBOo>; Sun, 4 Feb 2001 20:14:44 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:13585 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S132546AbRBEBOe>;
-	Sun, 4 Feb 2001 20:14:34 -0500
-Message-ID: <3A7DFE77.E055BC14@mandrakesoft.com>
-Date: Sun, 04 Feb 2001 20:14:31 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-pre1 i686)
-X-Accept-Language: en
+	id <S132582AbRBEBSp>; Sun, 4 Feb 2001 20:18:45 -0500
+Received: from mdmgrp2-250.accesstoledo.net ([207.43.107.250]:60685 "EHLO
+	rosswinds.net") by vger.kernel.org with ESMTP id <S132553AbRBEBSb>;
+	Sun, 4 Feb 2001 20:18:31 -0500
+Date: Sun, 4 Feb 2001 20:18:18 -0500 (EST)
+From: "Michael B. Trausch" <fd0man@crosswinds.net>
+To: Tom Eastep <teastep@seattlefirewall.dyndns.org>
+cc: Josh Myer <jbm@joshisanerd.com>, linux-kernel@vger.kernel.org
+Subject: Re: [OT] Major Clock Drift
+In-Reply-To: <Pine.LNX.4.30.0102040908320.877-100000@wookie.seattlefirewall.dyndns.org>
+Message-ID: <Pine.LNX.4.21.0102042015350.5276-100000@fd0man.accesstoledo.com>
 MIME-Version: 1.0
-To: Miles Lane <miles@megapathdsl.net>
-CC: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
-Subject: Re: Adding PCMCIA support to the kernel tree -- developers needed.
-In-Reply-To: <Pine.LNX.3.96.1010203040618.29269C-100000@mandrakesoft.mandrakesoft.com> <3A7C9BAE.45DB2F09@megapathdsl.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miles Lane wrote:
+On Sun, 4 Feb 2001, Tom Eastep wrote:
+
+> Thus spoke Michael B. Trausch:
 > 
-> Jeff Garzik wrote:
+> > On Sat, 3 Feb 2001, Josh Myer wrote:
 > >
-> > On Fri, 2 Feb 2001, Miles Lane wrote:
-> > > I asked David Hinds to write up an outline of the things that
-> > > will be needed to get PCMCIA support cleanly and completely
-> > > integrated into the kernel tree.
+> > > Hello all,
 > > >
-> > > David has expressed that he'll not be able to participate in
-> > > this work.  He has his hands full with his day job and his
-> > > role as maintainer/developer of the pcmcia-cs package.
-> > [...]
-> > > Anyone willing to sign up for some of this effort?
+> > > I know this _really_ isn't the forum for this, but a friend of mine has
+> > > noticed major, persistent clock drift over time. After several weeks, the
+> > > clock is several minutes slow (always slow). Any thoughts on the
+> > > cause? (Google didn't show up anything worthwhile in the first couple of
+> > > pages, so i gave up).
+> > >
 > >
-> > I'll convert all the network drivers once a design is agreed upon.
+> > I'm having the same problem here.  AMD K6-II, 450 MHz, VIA Chipset, Kernel
+> > 2.4.1.
+> >
 > 
-> Would you write up a proposal for this design that we could work
-> from to come to a agreed design?  You are probably the best person
-> to start this process.
+> 
+> The video on this system is an onboard ATI 3D Rage LT Pro; I use vesafb
+> rather than atyfb because the latter screws up X.
+> 
 
-I'm going to finish my current projects first :)
+I'm not using any framebuffer on my machine (I have an ATI 3D Rage 128
+Pro, myself).  I use the standard 80x50 console, and X when I need
+it.  I'm about to put Debian on the system and see how that works and if I
+like it, I just got the .ISO of disc 1 downloaded (after about a week) and
+now it's burning.  (I hate having a 33.6 connection!)
 
--- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
+However the clock drift didn't happen as much, if at all, with 2.2.xx
+kernels.  It's kept itself pretty well sane.  But now I'm losing something
+on the order of a half hour a week - that didn't happen before.
+
+	- Mike
+
+===========================================================================
+Michael B. Trausch                                    fd0man@crosswinds.net
+Avid Linux User since April, '96!                           AIM:  ML100Smkr
+
+              Contactable via IRC (DALNet) or AIM as ML100Smkr
+===========================================================================
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,51 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286311AbSBMPTG>; Wed, 13 Feb 2002 10:19:06 -0500
+	id <S285161AbSBMPZ0>; Wed, 13 Feb 2002 10:25:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286521AbSBMPS5>; Wed, 13 Feb 2002 10:18:57 -0500
-Received: from [195.157.147.30] ([195.157.147.30]:29194 "HELO
-	pookie.dev.sportingbet.com") by vger.kernel.org with SMTP
-	id <S286311AbSBMPSn>; Wed, 13 Feb 2002 10:18:43 -0500
-Date: Wed, 13 Feb 2002 15:08:50 +0000
-From: Sean Hunter <sean@dev.sportingbet.com>
-To: Ken Brownfield <brownfld@irridia.com>
-Cc: Tim Schmielau <tim@physik3.uni-rostock.de>,
-        "Proescholdt, timo" <Timo.Proescholdt@brk-muenchen.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: randomness - compaq smart array driver
-Message-ID: <20020213150850.H26054@dev.sportingbet.com>
-Mail-Followup-To: Sean Hunter <sean@dev.sportingbet.com>,
-	Ken Brownfield <brownfld@irridia.com>,
-	Tim Schmielau <tim@physik3.uni-rostock.de>,
-	"Proescholdt, timo" <Timo.Proescholdt@brk-muenchen.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <410B51F29EA8D3118EE400508B44AE2B3C6FB3@RZ_NT_MAIL> <Pine.LNX.4.33.0202111754560.5685-100000@gans.physik3.uni-rostock.de> <20020213071445.A20717@asooo.flowerfire.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020213071445.A20717@asooo.flowerfire.com>; from brownfld@irridia.com on Wed, Feb 13, 2002 at 07:14:45AM -0600
+	id <S286590AbSBMPZR>; Wed, 13 Feb 2002 10:25:17 -0500
+Received: from dsl-213-023-039-092.arcor-ip.net ([213.23.39.92]:55688 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S285161AbSBMPZE>;
+	Wed, 13 Feb 2002 10:25:04 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Bill Davidsen <davidsen@tmr.com>, Andrew Morton <akpm@zip.com.au>
+Subject: Re: [patch] sys_sync livelock fix
+Date: Wed, 13 Feb 2002 16:29:21 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.3.96.1020213000859.8487A-100000@gatekeeper.tmr.com>
+In-Reply-To: <Pine.LNX.3.96.1020213000859.8487A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16b1LV-0001ol-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 13, 2002 at 07:14:45AM -0600, Ken Brownfield wrote:
-> Yes, I've been using the netdev patches for months.  Aside from the
-> unrelated entropy exhaustion bug, his patches are stable (and optional)
-> and help on diskless or low-I/O machines.  2.4 or 2.5 anyone? :)
+On February 13, 2002 06:21 am, Bill Davidsen wrote:
+> On Tue, 12 Feb 2002, Andrew Morton wrote:
+> 
+> > IMO, the SuS definition sucks.  We really do want to do our best to
+> > ensure that pending writes are committed to disk before sys_sync()
+> > returns.  As long as that doesn't involve waiting until mid-August.
+> 
+>   The current behaviour allows the system to hang forever waiting for
+> sync(2). In practice it does actually wait minutes on a busy system (df
+> has --no-sync for that reason) when there is no reason for that to happen.
+> I think that not only sucks worse, it's non-standard as well.
 
-Randomness from network packet timings can be gathered entirely in userspace by
-using a packet socket.  I am busy writing an "additional entropy daemon" to
-gather entropy from this and other sources[1], clean it up, test its fitness,
-estimate its information content, and feed it into the random pool.  This job
-is (IMO) better done in userspace because there we can run fitness tests on the
-stream more easily because we have floating point etc.
+Nothing sucks worse than losing your data.  Let's concentrate on fixing
+shutdown, not breaking (linux) sync.
 
-I personally don't think that network packet timings should be added to the
-entropy pool by the kernel because they could be controlled to a lesser or
-greater extent by an attacker.  I'm hoping that the fitness tests in my
-userspace thingy would detect this.
+> > For example, ext3 users get to enjoy rebooting with `sync ; reboot -f'
+> > to get around all those silly shutdown scripts.  This very much relies
+> > upon the sync waiting upon the I/O.
+> 
+>   Because people count on something broken we should keep the bug? You do
+> realize that the sync may NEVER finish?
 
-Sean
+You do realize that if you lose your data you may NEVER get it back? ;-)
 
-[1] Including clock jitter and soundcard noise (I got the idea
-    from Schneier 1996).
+> That's not in theory, I have news
+> servers which may wait overnight without finishing a "df" iwthout the
+> option.
+
+OK, what you're really saying is, we need a way to kill the sync process
+if it runs overtime, no?
+ 
+> > I mean, according to SUS, our sys_sync() implementation could be
+> > 
+> > asmlinkage void sys_sync(void)
+> > {
+> > 	return;
+> > }
+> > 
+> > Because all I/O is already scheduled, thanks to kupdate.
+> 
+>   I think the wording is queued, and I would read that as "on the
+> elevator."
+
+Well now you're adding your own semantics to SuS, welcome to the party.
+I vote we keep the existing and-don't-come-back-until-you're-done Linux
+semantics.
+
+> Your example is a good example of bad practive, since even with
+> ext3 a program creating files quickly would lose data, even though the
+> directory structure is returned to a known state, without stopping the
+> writing processes the results are unknown.
+
+Huh?  You know about journal commit, right?
+
+-- 
+Daniel

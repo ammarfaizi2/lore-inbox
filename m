@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130193AbQK2KLH>; Wed, 29 Nov 2000 05:11:07 -0500
+        id <S130406AbQK2KO7>; Wed, 29 Nov 2000 05:14:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130406AbQK2KK6>; Wed, 29 Nov 2000 05:10:58 -0500
-Received: from mail.jet.uk ([193.128.26.69]:45718 "EHLO site-2.jet.uk")
-        by vger.kernel.org with ESMTP id <S130193AbQK2KKg>;
-        Wed, 29 Nov 2000 05:10:36 -0500
-Message-ID: <3A24CEF2.7F0FBAE8@jet.uk>
-Date: Wed, 29 Nov 2000 09:40:02 +0000
-From: David Robson <David.Robson@jet.uk>
-Organization: JET Joint Undertaking
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20 i686)
-X-Accept-Language: en
+        id <S130866AbQK2KOt>; Wed, 29 Nov 2000 05:14:49 -0500
+Received: from office.mandrakesoft.com ([195.68.114.34]:20210 "HELO
+        havane.mandrakesoft.com") by vger.kernel.org with SMTP
+        id <S130406AbQK2KOe>; Wed, 29 Nov 2000 05:14:34 -0500
+To: Kiril Vidimce <vkire@pixar.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dan Hollis <goemon@anime.net>,
+        Petter Sundlöf <odd@findus.dhs.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: XFree 4.0.1/NVIDIA 0.9-5/2.4.0-testX/11 woes [solved]
+In-Reply-To: <Pine.LNX.4.21.0011281843100.1353-100000@nevena.pixar.com>
+From: Yoann Vandoorselaere <yoann@mandrakesoft.com>
+Date: 29 Nov 2000 10:37:45 +0100
+In-Reply-To: Kiril Vidimce's message of "Tue, 28 Nov 2000 18:48:36 -0800 (PST)"
+Message-ID: <m31yvv2k5y.fsf@havane.mandrakesoft.com>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.6
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Experimental kernel to enhance Solaris -> Linux NFS performance
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear All,
+Kiril Vidimce <vkire@pixar.com> writes:
 
+> On Wed, 29 Nov 2000, Alan Cox wrote:
+> > > I've never seen such thing as code without bugs. In my experience,
+> > > the NVIDIA drivers are by far the most complete and solid 3D drivers 
+> > > under Linux.
+> > 
+> > You are welcome to your opinion. I've got this great bridge to sell you too
+> 
+> I don't see the need for sarcasm. If you feel that you can demonstrate
+> that the above is untrue, by all means do so. I am sure there is more
+> than one person that would want to know what's currently the best 3D 
+> Linux configuration out there.
 
-The NFS HOWTO refers to NFS performance problems with Sparc Servers and
-Linux
-clients.  It mentions a patch at http://www.uio.no/~trondmy/src/   to
-overcome this
-problem.  It also mentions some "Alan Cox experimental kernels" which
-have been
-built with this patch.
+It was already discussed too much time...
+A good argument against what they do is that they don't even respect
+existing standard (see DRI). Also, from what I seen, the Radeon card
+have almost the same performance as the nvidia one... and we have an
+open source driver... at least.
 
-Unfortunately, it is not clear to me which of the patches at the trondmy
-site is the correct
-one for me.  I am starting with a Red Hat 6.1  (Linux 2.2.6) kernel.
+Ps : and this is going offtopic...
 
-Can anyone tell me
-
-1) Where is the correct patch?  or failing that, where do I get the
-prebuilt kernel?
-2)  How did the patch address the problem (just an overview)
-
-
-Thanks very much
-
-Dave Robson
-
-
+-- 
+		-- Yoann http://www.mandrakesoft.com/~yoann/
+Murphy's law : If anything can go wrong, it will.
+O'Tool's commentary : Murphy was an optimist.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

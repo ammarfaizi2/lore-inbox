@@ -1,47 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263718AbUEGUCw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263712AbUEGUEx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263718AbUEGUCw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 16:02:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263702AbUEGUCF
+	id S263712AbUEGUEx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 16:04:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263731AbUEGUC7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 16:02:05 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:65376 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261913AbUEGT4L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 15:56:11 -0400
-Date: Fri, 7 May 2004 18:43:28 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Timothy Miller <miller@techsource.com>
-cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       Paul Jackson <pj@sgi.com>, <vonbrand@inf.utfsm.cl>,
-       <nickpiggin@yahoo.com.au>, <jgarzik@pobox.com>,
-       <brettspamacct@fastclick.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
-In-Reply-To: <409BC7A7.4060203@techsource.com>
-Message-ID: <Pine.LNX.4.44.0405071836530.21102-100000@localhost.localdomain>
+	Fri, 7 May 2004 16:02:59 -0400
+Received: from over.ny.us.ibm.com ([32.97.182.111]:49868 "EHLO
+	over.ny.us.ibm.com") by vger.kernel.org with ESMTP id S263712AbUEGUCn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 May 2004 16:02:43 -0400
+Date: Fri, 07 May 2004 11:30:33 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+cc: hannal@us.ibm.com
+Subject: Re: [PATCH 2.6.6-rc3] Lindent on arch/i386/kernel/msr.c
+Message-ID: <72100000.1083954633@dyn318071bld.beaverton.ibm.com>
+In-Reply-To: <c7elrc$ddm$1@terminus.zytor.com>
+References: <50390000.1083882659@dyn318071bld.beaverton.ibm.com> <c7elrc$ddm$1@terminus.zytor.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 May 2004, Timothy Miller wrote:
-> > 
-> >>>Perhaps what we really want is "swap_back_in" script? That way you
-> >>>could do "updatedb; swap_back_in" in cron and be happy.
-> >>
-> >>swapoff -a; swapon -a
-> 
-> Wouldn't this also be a problem if you are using more memory than you 
-> have physical RAM?
+--On Friday, May 07, 2004 12:39:08 AM +0000 "H. Peter Anvin" <hpa@zytor.com> wrote:
 
-On 2.4 it certainly would be a problem (hang with others OOM-killed).
+> Please don't apply this right now.  I'm in the middle of making a change to
+> the msr and cpuid modules.
 
-On 2.6 it shouldn't be a problem: the swapoff may fail upfront if
-there's way too little memory, or it may get itself OOM-killed if
-it runs out on the way, but it ought not to upset other tasks.
+Sorry about that. I usually remember to cc the maintainers. Of course the one time
+I forget it is actively being worked on.
 
-But of course, Pavel is right that it does nothing for file backed.
+I can do a Lindent patch after we are both done. Sounds like our changes won't conflict.
 
-Hugh
+Hanna
 

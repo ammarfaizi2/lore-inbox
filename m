@@ -1,73 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288919AbSA3H6z>; Wed, 30 Jan 2002 02:58:55 -0500
+	id <S288814AbSA3ICO>; Wed, 30 Jan 2002 03:02:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288828AbSA3H6h>; Wed, 30 Jan 2002 02:58:37 -0500
-Received: from point41.gts.donpac.ru ([213.59.116.41]:26386 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S288957AbSA3H5b>;
-	Wed, 30 Jan 2002 02:57:31 -0500
-Date: Wed, 30 Jan 2002 11:00:25 +0300
-From: Andrey Panin <pazke@orbita1.ru>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ACPI] ACPI mentioned on lwn.net/kernel
-Message-ID: <20020130110025.A251@pazke.ipt>
-In-Reply-To: <20020130122200.A254@pazke.ipt> <Pine.LNX.4.33.0201291412590.18804-100000@coffee.psychology.mcmaster.ca>
+	id <S288921AbSA3IBc>; Wed, 30 Jan 2002 03:01:32 -0500
+Received: from adsl-187-220.38-151.net24.it ([151.38.220.187]:26385 "EHLO
+	karis.localdomain") by vger.kernel.org with ESMTP
+	id <S288957AbSA3IAr>; Wed, 30 Jan 2002 03:00:47 -0500
+Message-Id: <200201300803.g0U83uB24903@karis.localdomain>
+Date: Wed, 30 Jan 2002 09:03:55 +0100
+From: Francesco Munda <syylk@libero.it>
+To: LK <linux-kernel@vger.kernel.org>
+Subject: Re: A modest proposal -- We need a patch penguin
+In-Reply-To: <a354iv$ai9$1@penguin.transmeta.com>
+In-Reply-To: <200201282213.g0SMDcU25653@snark.thyrsus.com>
+	<200201290137.g0T1bwB24120@karis.localdomain>
+	<a354iv$ai9$1@penguin.transmeta.com>
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ibTvN161/egqYuK8"
-User-Agent: Mutt/1.0.1i
-In-Reply-To: <Pine.LNX.4.33.0201291412590.18804-100000@coffee.psychology.mcmaster.ca>; from hahn@physics.mcmaster.ca on Tue, Jan 29, 2002 at 02:14:32PM -0500
-X-Uname: Linux pazke 2.4.13-ac7 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 29 Jan 2002 03:23:11 +0000 (UTC)
+torvalds@transmeta.com (Linus Torvalds) wrote:
 
---ibTvN161/egqYuK8
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
+> One "patch penguin" scales no better than I do. In fact, I will claim
+> that most of them scale a whole lot worse. 
 
-On Tue, Jan 29, 2002 at 02:14:32PM -0500, Mark Hahn wrote:
-> > 	- what stop us from using -mregparm=3D3 gcc switch ?
->=20
-> I dimly recall that it can generage bad code, perhaps only
-> on old compilers.
+I could hardly disagree.
 
-Bad code, hmm ... slow code or wrong code ?
-IIRC gcc 2.95.3 declared as minimal requirement for kernel compilation,
-so may be it's not an issue anymore ?
+> In short: don't try to come up with a "patch penguin".  Instead try to
+> help existing maintainers, or maybe help grow new ones. THAT is the way
+> to scalability.
 
->=20
-> > 	- same with -Os -malign-loops=3D1 -malign-jumps=3D1 ?
->=20
-> 2 is probably always the lowest you should go, and indeed,
-> I think that's all the compiler permits.
->
+Ok, I won't come up with anything. :)
 
-gcc (at least 2.95.2) permits 1, but i didn't check generated code.
+I just heard a bell ringing, with Rob's message. It's still a faint ring, but
+the debate spurred on l-k has shown that the bell is indeed ringing
+somewhere. Many opinions were quite harsh on you, some even ungrateful; I'm
+sorry if this caused any trouble.
 
-> > 	- any tool to measure perfomance gain/penalty of above ?
->=20
-> lmbench.  it has to be a microbenchmark to measure this sort of thing,
-> though a sanity check (kernel compile) would also be useful.
+What I see (from the viewpoint of some random user giving a try to test
+kernels just for the fun of doing it) is not a problem with subsys
+maintainers. I don't even _see_ them, from my pov. I trust them because you
+do, and that's enough for me.
 
-Thanks, i'll test these issues this weekend.=20
+But I start to feel the need for someone to throw me an "unified development
+tree". Like -ac was in 2.4: some source you trust from which pulling a kernel
+to be tested. I need it, or better I prefer it over a forest of cross-patched
+subtrees where I can find kernels bleedingly optimized in some area and
+lacking trivial fixes in others.
 
-Best regards.
+A matter of convenience, actually. To which you can just answer "go away,
+lazy scum". And probably will! :)
 
---=20
-Andrey Panin            | Embedded systems software engineer
-pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
---ibTvN161/egqYuK8
-Content-Type: application/pgp-signature
+But also convenience for you.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.1 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+You says, righteously, that you want tested patches. OTOH, to have them
+tested, peer review would want to have them available somewhere to be tested,
+for us crunching drones. Eventually in a tree where I can easily find all the
+patches which are subject to scrutiny.
 
-iD8DBQE8V6gZBm4rlNOo3YgRAq+mAJ48f8SwXB3fwa02oImdrN67IxniXwCbB0Cz
-HqgNnXLWOeaqQn/l58SRuDY=
-=OrYw
------END PGP SIGNATURE-----
+So we both could take advantage of what you call a "layer": someone (better:
+more than someone - one man doesn't scale) who gathers stuff and readies ONE
+unified, test-time-ready kernel, who has all the reviewing eyeballs, who goes
+at you with the results of the tests, re-chunkifying(tm) the patches, and
+letting you discard what you don't like and keep the (tested) things you see
+fitting.
 
---ibTvN161/egqYuK8--
+In the upper spheres, there could be a split of workload between who packages
+the kernel to be thrown to the test-dogs (AC in the past, DJ now, ore than
+one man in the future?), and who actually pioneers code and steers the kernel
+after the packager gathers enough feedback from testers (that's you, wow! :)
+).
+
+Of course there has to be trust at that level, and I agree with you that
+without trust with few, very selected people, you can't go ahead blindly
+gathering debris from everyone.
+
+In short: I think there are too many concurrent, overlapping development
+trees, with a web of crosspatches that are honestly difficult to follow from
+my "download, make, lilo, reboot, report" viewpoint. A fragmentation in the
+to-be-tested code. A single "reference development" tree would be most
+welcome.
+
+I didn't intend to ask it to *you*. Probably natural evolution of kernel
+development will pop out a good solution anyway.
+
+The "patch penguin" as solution is just an idea. Bad as you want, but it
+comes from a sensation Rob had. And I feel it too. And maybe others, less
+silly than me.
+
+The idea is rejectable, of course. The sensation, a bit less.
+
+Have fun,
+
+-- Francesco Munda

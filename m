@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261705AbUKPMbT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261963AbUKPMnW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261705AbUKPMbT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 07:31:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261963AbUKPMbT
+	id S261963AbUKPMnW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 07:43:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261964AbUKPMnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 07:31:19 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:4509 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261705AbUKPMbQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 07:31:16 -0500
-Date: Tue, 16 Nov 2004 13:31:10 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Simon Braunschmidt <braunschmidt@corscience.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-In-Reply-To: <4199DDF2.5040700@corscience.de>
-Message-ID: <Pine.LNX.4.53.0411161329440.15835@yvahk01.tjqt.qr>
-References: <E1CToBi-0008V7-00@dorka.pomaz.szeredi.hu> 
- <Pine.LNX.4.58.0411151423390.2222@ppc970.osdl.org>  <E1CTzKY-0000ZJ-00@dorka.pomaz.szeredi.hu>
-  <84144f0204111602136a9bbded@mail.gmail.com>  <E1CU0Ri-0000f9-00@dorka.pomaz.szeredi.hu>
- <84144f020411160235616c529b@mail.gmail.com> <4199DDF2.5040700@corscience.de>
+	Tue, 16 Nov 2004 07:43:22 -0500
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:28167 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261963AbUKPMnU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 07:43:20 -0500
+Date: Tue, 16 Nov 2004 12:42:01 +0000 (GMT)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: "Li, Shaohua" <shaohua.li@intel.com>
+Cc: Nickolai Zeldovich <kolya@MIT.EDU>, linux-kernel@vger.kernel.org,
+       csapuntz@stanford.edu, hiroit@mcn.ne.jp
+Subject: RE: [patch] Fix GDT re-load on ACPI resume
+In-Reply-To: <16A54BF5D6E14E4D916CE26C9AD305758EF0BA@pdsmsx402.ccr.corp.intel.com>
+Message-ID: <Pine.LNX.4.58L.0411161237020.17411@blysk.ds.pg.gda.pl>
+References: <16A54BF5D6E14E4D916CE26C9AD305758EF0BA@pdsmsx402.ccr.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> The have been
->> patches to get rid of the existing casts so please don't introduce new
->> ones.
->
->I vote for explicit casts, makes code more readable.
+On Tue, 16 Nov 2004, Li, Shaohua wrote:
 
-And makes it more error prone. Once upon a time, a user wrote:
+> There is a patch from hiroit@mcn.ne.jp to fix the GDT issue. You can try
+> it.
+> Please cc 'acpi-devel@lists.sourceforge.net' for suspend/resume issue.
 
-	ptr = (int *)malloc(...)
+ What is the "gdt body must be addressable from real mode" requirement
+about?  GDT is addressed by the CPU using a linear address as obtained
+from GDTR (bypassing segmentation, for obvious reasons) and is accessible
+regardless of its placement within the 32-bit linear address space in all
+CPU modes.  As its a linear address it only undergoes translation at the
+page level, if enabled.  The same applies to IDT.
 
-And justified the use of the cast because gcc generated a warning, and I
-replied that if he'd included <stdlib.h> (yeah, user space), the warning would
-be gone, even without a cast. Sigh.
-
-
-
-Jan Engelhardt
--- 
-Gesellschaft für Wissenschaftliche Datenverarbeitung
-Am Fassberg, 37077 Göttingen, www.gwdg.de
+  Maciej

@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261417AbVBRRAJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261415AbVBRRAe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261417AbVBRRAJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 12:00:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbVBRRAJ
+	id S261415AbVBRRAe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 12:00:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbVBRRAe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 12:00:09 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:42682 "EHLO suse.cz")
-	by vger.kernel.org with ESMTP id S261404AbVBRRAE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 12:00:04 -0500
-Date: Fri, 18 Feb 2005 18:00:36 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Oliver Neukum <oliver@neukum.org>, Richard Purdie <rpurdie@rpsys.net>,
-       James Simmons <jsimmons@pentafluge.infradead.org>,
-       Adrian Bunk <bunk@stusta.de>,
-       Linux Input Devices <linux-input@atrey.karlin.mff.cuni.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       dmitry.torokhov@gmail.com
-Subject: Re: 2.6: drivers/input/power.c is never built
-Message-ID: <20050218170036.GA1672@ucw.cz>
-References: <20050213004729.GA3256@stusta.de> <047401c515bb$437b5130$0f01a8c0@max> <20050218132651.GA1813@elf.ucw.cz> <200502181436.01943.oliver@neukum.org> <20050218160153.GC12434@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050218160153.GC12434@elf.ucw.cz>
-User-Agent: Mutt/1.5.6i
+	Fri, 18 Feb 2005 12:00:34 -0500
+Received: from scl-ims.phoenix.com ([216.148.212.222]:9914 "EHLO
+	scl-ims.phoenix.com") by vger.kernel.org with ESMTP id S261404AbVBRRA2 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 12:00:28 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Kernel modules query
+Date: Fri, 18 Feb 2005 09:00:25 -0800
+Message-ID: <5F106036E3D97448B673ED7AA8B2B6B301BA9E4C@scl-exch2k.phoenix.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Kernel modules query
+Thread-Index: AcUVnbUiK/IxWvaxTUiXvVupCWbt3gAPWn/Q
+From: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
+To: "linux lover" <linux.lover2004@gmail.com>, <kernelnewbies@nl.linux.org>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 18 Feb 2005 17:00:27.0735 (UTC) FILETIME=[58896E70:01C515DB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 18, 2005 at 05:01:53PM +0100, Pavel Machek wrote:
+Hi 
 
-> > > It has quite a lot of #ifdefs for CONFIG_APM/CONFIG_ARM/CONFIG_ACPI,
-> > > and it will not work on i386/APM, anyway. I still believe right
-> > > solution is to add input interface to ACPI. /proc/acpi/events needs to
-> > > die, being replaced by input subsystem.
-> > 
-> > But aren't there power events (battery low, etc) which are not
-> > input events?
-> 
-> Yes, there are. They can probably stay... Or we can get "battery low"
-> key.
- 
-We even have an event class for that, EV_PWR in the input subsystem.
+>-----Original Message-----
+>From: linux-kernel-owner@vger.kernel.org 
+>[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of linux lover
+>Sent: Friday, February 18, 2005 1:36 AM
+>To: kernelnewbies@nl.linux.org; linux-kernel@vger.kernel.org
+>Subject: Kernel modules query
+>
+>Hello,
+>        I want to know can a variable be exported by a linux kernel
+>modules? How can i make a variable getting assigned in kernel module
+>available to other kernel modules?
+>regards,
+>linux.lover.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+EXPORT_SYMBOL(var_name);
+
+For example see arch/i386/kernel/time.c & jiffies_64 (2.6.10 source).
+
+Aleks.
+

@@ -1,41 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288274AbSBIEQp>; Fri, 8 Feb 2002 23:16:45 -0500
+	id <S288325AbSBIFNU>; Sat, 9 Feb 2002 00:13:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288284AbSBIEQf>; Fri, 8 Feb 2002 23:16:35 -0500
-Received: from sm13.texas.rr.com ([24.93.35.40]:3279 "EHLO sm13.texas.rr.com")
-	by vger.kernel.org with ESMTP id <S288274AbSBIEQS>;
-	Fri, 8 Feb 2002 23:16:18 -0500
-Message-ID: <000f01c1b120$7cbd86f0$1cbaa218@HomeServer>
-Reply-To: "Bryan Parkoff" <BParkoff@satx.rr.com>
-From: "Bryan Parkoff" <BParkoff@satx.rr.com>
-To: "Linux-Kernel" <Linux-Kernel@vger.kernel.org>
-Subject: Character Device Question
-Date: Fri, 8 Feb 2002 22:16:03 -0600
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2526.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2526.0000
+	id <S288374AbSBIFNL>; Sat, 9 Feb 2002 00:13:11 -0500
+Received: from bitmover.com ([192.132.92.2]:21127 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S288325AbSBIFNA>;
+	Sat, 9 Feb 2002 00:13:00 -0500
+Date: Fri, 8 Feb 2002 21:12:57 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [bk patch] Make cardbus compile in -pre4
+Message-ID: <20020208211257.F25595@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0202081824070.25114-100000@segfault.osdlab.org> <20020208203931.X15496@lynx.turbolabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020208203931.X15496@lynx.turbolabs.com>; from adilger@turbolabs.com on Fri, Feb 08, 2002 at 08:39:31PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Character Device Question
+On Fri, Feb 08, 2002 at 08:39:31PM -0700, Andreas Dilger wrote:
+> On Feb 08, 2002  18:25 -0800, Patrick Mochel wrote:
+> > (I don't have a public repository yet, so there's no place to pull form)
 
-    I have been studying Linux Kernel that I am doing my project to
-maniuplate character device.  I only have one important question that is
-very simple.  It is not necessary to answer which it is very deep technical
-information.
-    Can character device be done by transmitting one or more bits rather
-than 8 bits as one byte?  It is all I need to know because it can be done by
-serial ports which use bits only, but parallel port uses bytes only.  Please
-advise.
+Read the second half below to see how to get one.
 
-Yours Truly,
+> I don't see why everyone who is using BK is expecting Linus to do a pull.
 
-Bryan Parkoff
-BParkoff@satx.rr.com
+For one, he seems to like that model, if the data is in a well known
+place, he can pull it when he is ready.  Makes it easy for him to not
+worry about whether he has all the stuff Jeff wants to give him, pull
+either says there is nothing to do or it doesn't.
 
+The other issue is that if you do the "bk send -r+" thing, that assumes
+that the receiver has the parent of the most recent change.  The patch
+will not apply otherwise.  This is one difference between BK & diff/patch.
+diff/patch will work in more cases, BK is insistent that the receiver has
+everything that the sender had except the data sent.  So if you let Linus
+pull from a known place then you know he can apply your patch using BK,
+if you don't, then he might be able to apply your patch.
+
+On to the "known place" issue.  One problem people have is having a
+place to stash this stuff.  Since BK is a replicating system, you can
+have the same data in lots of different places, like your laptop, your
+home machine, work machine, whatever, but you need a place that other
+people can pull from that is always there.  Anyone can install BK, read
+the bkd man page and set up such a place.  For those people who either
+don't want to do that, or don't have a place where they can run a BKD,
+or they don't trust the BKD software to be secure, or whatever, we've set
+up bkbits.net, it's somewhat like sourceforge but right now, at least,
+mostly intended for the benefit of the kernel team.  We originally set it
+up for the PPC team but anyone can stash a copy of their repository there.
+
+To get the model, think of this as a staging area.  You don't work there,
+you don't use that system to do your patches or really do very much at
+all.  You work where you work right now.  Make your stuff work, test it
+out, and when you are ready, push a copy of it up to bkbits.net and send
+out mail.  People can go look at the changelogs, see the diffs, pull the
+changes using BK, etc.  And Jeff asked for URL format that he can post 
+so you can do a
+
+	wget <URL> 
+
+and you have the patch described in his posting.  That should keep the
+non-BK users happy, in essense the BK users are adding the data and
+BK may be viewed as a patchbot.  For those who don't like the license
+or for whatever reason just like plain patches better, they can slurp
+down the patches any time they want.
+
+If you want to get a project space up there, send mail to
+support@bitmover.com and we'll send you instructions, it's pretty easy
+to set up, you log in and pick a name and add your identity.pub and
+you're all set.  There is a little admin shell you can use to populate
+your repository.  Then you may push your patches there and point Linus
+at them and hope he pulls them.  I can see that in short order Linus
+is going to be asking for the "show me everything I don't have on one
+web page" tool, but that's cool, we've been meaning to build that one
+for a while.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

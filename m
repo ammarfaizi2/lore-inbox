@@ -1,68 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261622AbSJYV4Z>; Fri, 25 Oct 2002 17:56:25 -0400
+	id <S261640AbSJYWDv>; Fri, 25 Oct 2002 18:03:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261623AbSJYV4Z>; Fri, 25 Oct 2002 17:56:25 -0400
-Received: from [63.204.6.12] ([63.204.6.12]:50862 "EHLO mail.somanetworks.com")
-	by vger.kernel.org with ESMTP id <S261622AbSJYV4U>;
-	Fri, 25 Oct 2002 17:56:20 -0400
-Date: Fri, 25 Oct 2002 18:02:31 -0400 (EDT)
-From: "Scott Murray" <scottm@somanetworks.com>
-X-X-Sender: <scottm@rancor.yyz.somanetworks.com>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-cc: Greg KH <greg@kroah.com>, Jeff Garzik <jgarzik@pobox.com>,
-       KOCHI Takayoshi <t-kouchi@mvf.biglobe.ne.jp>, <jung-ik.lee@intel.com>,
-       <tony.luck@intel.com>,
-       pcihpd-discuss <pcihpd-discuss@lists.sourceforge.net>,
-       <linux-ia64@linuxia64.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Pcihpd-discuss] Re: PCI Hotplug Drivers for 2.5
-In-Reply-To: <20021025193725.A3300@jurassic.park.msu.ru>
-Message-ID: <Pine.LNX.4.33.0210251754290.17433-100000@rancor.yyz.somanetworks.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261641AbSJYWDv>; Fri, 25 Oct 2002 18:03:51 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:18190
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S261640AbSJYWDt>; Fri, 25 Oct 2002 18:03:49 -0400
+Subject: Re: [PATCH] hyper-threading information in /proc/cpuinfo
+From: Robert Love <rml@tech9.net>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>,
+       "'Dave Jones'" <davej@codemonkey.org.uk>,
+       "'akpm@digeo.com'" <akpm@digeo.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'chrisl@vmware.com'" <chrisl@vmware.com>,
+       "'Martin J. Bligh'" <mbligh@aracnet.com>
+In-Reply-To: <E185CbL-0008R5-00@starship>
+References: <F2DBA543B89AD51184B600508B68D4000ECE7046@fmsmsx103.fm.intel.com>
+	<1035584076.13032.96.camel@irongate.swansea.linux.org.uk> 
+	<E185CbL-0008R5-00@starship>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 25 Oct 2002 18:10:09 -0400
+Message-Id: <1035583810.1501.4004.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Oct 2002, Ivan Kokshaysky wrote:
+On Fri, 2002-10-25 at 18:06, Daniel Phillips wrote:
 
-> On Thu, Oct 24, 2002 at 06:22:44PM -0400, Scott Murray wrote:
-> > I hopefully will have something working against 2.5.44 tomorrow.  I think
-> > the only potentially contentious piece that I'd like to get reviewed and
-> > maybe integrated before the feature freeze is the resource reservation
-> > stuff.  There seemed to be no serious objections to the 2.4.x version I
-> > posted a while back, so maybe this won't be a big deal.  Everything else
-> > is either __devinit/export tweaks or driver code.
+> On Saturday 26 October 2002 00:14, Alan Cox wrote:
 >
-> The setup-bus code already does resource reservation, but only for
-> cardbus. It can be easily extended for any type of hotplug
-> controller though. Other enhancements (like configurable amount
-> of reserved IO/memory) also shouldn't be a problem.
+> > Im just wondering what we would then use to describe a true multiple cpu
+> > on a die x86. Im curious what the powerpc people think since they have
+> > this kind of stuff - is there a generic terminology they prefer ?
+> 
+> MIPS also has it, for N=2.
 
-Unfortunately, my take on the scheme used to reserve space for CardBus
-bridges was that it only works on platforms that use the setup-*.c code
-to do their complete PCI subsystem initialization.  On platforms like
-x86, where the BIOS configures all the devices, something like my patch
-is needed to fixup things to handle the desired reservation.  I'm not
-finished getting things ported to 2.5 yet, I'll post a patch ASAP once
-I've got everything workin.  If you're keen on devising an alternative
-method, check put my old patch against 2.4.19 at:
+Yep, neat chip :)
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=102866931731553&w=2
+POWER4 calls the technology "Chip-Multiprocessing (CMP)" but I have
+never seen terminology for referring to the on-core processors
+individually.
 
-[snip]
-> BTW, 2.5 setup-* stuff went into 2.4 recently. :-)
+They do call the SMT units "threads" obviously, however, so if Alan is
+OK with it maybe we should go with Jun's opinion and name the field
+"thread" ?
 
-Cool, that definitely will make my life easier.
+	Robert Love
 
-Thanks,
-
-Scott
-
-
--- 
-Scott Murray
-SOMA Networks, Inc.
-Toronto, Ontario
-e-mail: scottm@somanetworks.com
 

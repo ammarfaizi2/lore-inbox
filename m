@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270131AbRHNDOD>; Mon, 13 Aug 2001 23:14:03 -0400
+	id <S269197AbRHNDSd>; Mon, 13 Aug 2001 23:18:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270018AbRHNDNy>; Mon, 13 Aug 2001 23:13:54 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:61706 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S266158AbRHNDNq>; Mon, 13 Aug 2001 23:13:46 -0400
-Date: Mon, 13 Aug 2001 22:45:03 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: 2.4.8: error on dasd.c 
-Message-ID: <Pine.LNX.4.21.0108132243330.19368-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S270018AbRHNDSX>; Mon, 13 Aug 2001 23:18:23 -0400
+Received: from rj.sgi.com ([204.94.215.100]:2746 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S269197AbRHNDSF>;
+	Mon, 13 Aug 2001 23:18:05 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: paragw@excite.com
+cc: Colonel <klink@clouddancer.com>, linux-kernel@vger.kernel.org
+Subject: Re: 
+In-Reply-To: Your message of "Mon, 13 Aug 2001 20:08:01 MST."
+             <27661815.997758482137.JavaMail.imail@scorch.excite.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 14 Aug 2001 13:17:51 +1000
+Message-ID: <22627.997759071@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 13 Aug 2001 20:08:01 -0700 (PDT), 
+Parag Warudkar <paragw@excite.com> wrote:
+>Additionally include/linux/modules/ksyms.ver 
+>requires following  two lines to be added for modules to work
+>
+>#define __ver_no_llseek 8d4d42a6 
+>#define no_llseek       _set_ver(no_llseek)
 
-Hi, 
-
-I got some errors while trying to compile stock 2.4.8 on S390:
-
-dasd.c: In function `dasd_alloc_request':
-dasd.c:1069: warning: unused variable `flags'
-dasd.c:1068: warning: unused variable `i'
-dasd.c: In function `dasd_default_erp_action':
-dasd.c:1952: warning: assignment makes pointer from integer without a cast
-dasd.c: In function `dasd_revalidate':
-dasd.c:2151: warning: implicit declaration of function `dasd_destroy_partitions'
-dasd.c: In function `dasd_disable_volume':
-dasd.c:2660: warning: unused variable `part'
-dasd.c: In function `dasd_state_del_to_new':
-dasd.c:2954: warning: label `noidal' defined but not used
-dasd.c: At top level:
-dasd.c:3258: warning: `dasd_destroy_partitions' was declared implicitly `extern' and later `static'
-dasd.c:2151: warning: previous declaration of `dasd_destroy_partitions'
-dasd.c:3258: warning: type mismatch with previous implicit declaration
-dasd.c:2151: warning: previous implicit declaration of `dasd_destroy_partitions'
-dasd.c:3258: warning: `dasd_destroy_partitions' was previously implicitly declared to return `int'
-dasd.c: In function `dasd_destroy_partitions':
-dasd.c:3260: warning: unused variable `major'
-dasd.c: In function `cleanup_dasd':
-dasd.c:4048: warning: implicit declaration of function `list_for_each_safe'
-dasd.c:4048: parse error before `{'
-dasd.c:4017: warning: unused variable `range'
-dasd.c: At top level:
-dasd.c:4070: parse error before `&'
-...
-
-2.4.9-pre3 does not have any change to dasd.c 
+Don't do that.  If you have module symbol versions turned on
+(CONFIG_MODVERSIONS) then after any change that affects exported
+symbols, you must make mrproper and rebuild from scratch.  See
+http://www.tux.org/lkml/#s8-8.
 

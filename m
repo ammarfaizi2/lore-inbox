@@ -1,46 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261829AbTHYNzt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 09:55:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbTHYNzs
+	id S261898AbTHYOJv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 10:09:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261904AbTHYOJv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 09:55:48 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:38852 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S261829AbTHYNvl (ORCPT
+	Mon, 25 Aug 2003 10:09:51 -0400
+Received: from amdext2.amd.com ([163.181.251.1]:8162 "EHLO amdext2.amd.com")
+	by vger.kernel.org with ESMTP id S261898AbTHYOJn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 09:51:41 -0400
-Date: Mon, 25 Aug 2003 15:51:26 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: paul.devriendt@amd.com
-Cc: davej@redhat.com, linux-kernel@vger.kernel.org, aj@suse.de,
+	Mon, 25 Aug 2003 10:09:43 -0400
+Message-ID: <99F2150714F93F448942F9A9F112634C080EF014@txexmtae.amd.com>
+From: paul.devriendt@amd.com
+To: pavel@suse.cz
+cc: davej@redhat.com, linux-kernel@vger.kernel.org, aj@suse.de,
        mark.langsdorf@amd.com, richard.brunner@amd.com
-Subject: Re: Cpufreq for opteron
-Message-ID: <20030825135126.GC740@elf.ucw.cz>
-References: <99F2150714F93F448942F9A9F112634C080EF010@txexmtae.amd.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <99F2150714F93F448942F9A9F112634C080EF010@txexmtae.amd.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+Subject: RE: Cpufreq for opteron
+Date: Mon, 25 Aug 2003 09:09:26 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+X-WSS-ID: 1354C7121009509-01-01
+Content-Type: text/plain;
+ charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > 4) given good hardware and debugged driver, will any of those
-> > BUG_ON()s ever trigger?
+> -----Original Message-----
+> From: Pavel Machek [mailto:pavel@suse.cz]
+> Sent: Monday, August 25, 2003 8:51 AM
+> To: Devriendt, Paul
+> Cc: davej@redhat.com; linux-kernel@vger.kernel.org; aj@suse.de;
+> Langsdorf, Mark; Brunner, Richard
+> Subject: Re: Cpufreq for opteron
 > 
-> Only if there are BIOS problems. 
+> 
+> Hi!
+> 
+> > > 4) given good hardware and debugged driver, will any of those
+> > > BUG_ON()s ever trigger?
+> > 
+> > Only if there are BIOS problems. 
+> 
+> In such case, I believe best idea is to leave them in as BUG_ON(). On
+> broken BIOS, it will kill machine cleanly, and hopefully bios is going
+> to be fixed.
+> 
+> If broken BIOS is seen in retail, we'll need to solve this other way.
+> 
+> Does this seem okay to you?
 
-In such case, I believe best idea is to leave them in as BUG_ON(). On
-broken BIOS, it will kill machine cleanly, and hopefully bios is going
-to be fixed.
+My concerns with the BUG_ON() approach are :
+  1. Ease of me debugging the problem, as some of the state data I would
+     want to see is global, so it might not be in a backtrace.
+  2. Taking the machine down when exestuation could continue.
 
-If broken BIOS is seen in retail, we'll need to solve this other way.
+You have more kernel experience than I do, so I am willing to accept your
+advice. I am ok with it.
 
-Does this seem okay to you?
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Thanks. Paul.
+
+> 								Pavel
+> -- 
+> When do you have a heart between your knees?
+> [Johanka's followup: and *two* hearts?]
+> 
+

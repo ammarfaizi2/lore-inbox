@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261756AbVDEOOb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261757AbVDEOTy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261756AbVDEOOb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 10:14:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261758AbVDEOMe
+	id S261757AbVDEOTy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 10:19:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbVDEOTy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 10:12:34 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:31709 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261756AbVDEOMA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 10:12:00 -0400
-Date: Sat, 2 Apr 2005 10:59:35 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Stefan Schweizer <sschweizer@gmail.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Norbert Preining <preining@logic.at>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] Re: 2.6.12-rc1-mm4 and suspend2ram (and synaptics)
-Message-ID: <20050402085935.GC1330@openzaurus.ucw.cz>
-References: <20050331220822.GA22418@gamma.logic.tuwien.ac.at> <20050401113335.GA13160@elf.ucw.cz> <e79639220504010938582bade6@mail.gmail.com>
+	Tue, 5 Apr 2005 10:19:54 -0400
+Received: from orb.pobox.com ([207.8.226.5]:12215 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S261758AbVDEOOv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 10:14:51 -0400
+Date: Tue, 5 Apr 2005 07:14:45 -0700
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc2-mm1
+Message-ID: <20050405141445.GA5170@ip68-4-98-123.oc.oc.cox.net>
+References: <20050405000524.592fc125.akpm@osdl.org> <20050405134408.GB10733@ip68-4-98-123.oc.oc.cox.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <e79639220504010938582bade6@mail.gmail.com>
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <20050405134408.GB10733@ip68-4-98-123.oc.oc.cox.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, Apr 05, 2005 at 06:44:08AM -0700, Barry K. Nathan wrote:
+> swsusp: reading slkf;jalksfsadflkjas;dlfasdfkl (12345 pages): 34%
+> [sorry, I just got up so my short-term memory isn't working that well
+> yet]
+> 
+> takes 10-30 minutes (depending on whether it's closer to 11000 pages or
+> 20000) rather than the 5-10 seconds or so that it takes under 2.6.11-ac5
+> (or mainline 2.6.11 if I remember correctly).
+[snip]
+> I'll try to do some more testing to see (a) when this problem started
+> and (b) whether it still exists in 2.6.12-rc2 or later. This is going to
+> be ridiculously difficult for me to fit into my schedule right now, but
+> I'll try....
 
-> Same issue here.
-> 
-> Suspend-to-ram works perfectly fine with kernel 2.6.12-rc1-mm1, in
-> mm2,3 and mm4 it is broken.
-> 
-> It suspends properly but does not resume. Just a blackscreen and no
-> reaction on keypress/usb plug-in/network/power button.
-> 
+2.6.11-bk9 works (actually it takes under 2 seconds, not 5-10).
+2.6.11-bk10 has the weird slowdown.
 
-Same way to debug it, then.... try minimal drivers.
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+I'll see if I can isolate it any further.
+
+-Barry K. Nathan <barryn@pobox.com>
 

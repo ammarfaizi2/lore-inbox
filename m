@@ -1,67 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262584AbTCTVHu>; Thu, 20 Mar 2003 16:07:50 -0500
+	id <S262586AbTCTVJI>; Thu, 20 Mar 2003 16:09:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262586AbTCTVHu>; Thu, 20 Mar 2003 16:07:50 -0500
-Received: from spc1.esa.lanl.gov ([128.165.67.191]:26241 "EHLO
-	spc1.esa.lanl.gov") by vger.kernel.org with ESMTP
-	id <S262584AbTCTVHt> convert rfc822-to-8bit; Thu, 20 Mar 2003 16:07:49 -0500
-Subject: Re: 2.5.65-mm2
-From: "Steven P. Cole" <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
-To: Mike Galbraith <efault@gmx.de>
-Cc: Ed Tomlinson <tomlins@cam.org>, Andrew Morton <akpm@digeo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-In-Reply-To: <5.2.0.9.2.20030320220413.00ceaa98@pop.gmx.net>
-References: <5.2.0.9.2.20030320194530.01985440@pop.gmx.net>
-	 <200303192327.45883.tomlins@cam.org>
-	 <20030319012115.466970fd.akpm@digeo.com>
-	 <20030319163337.602160d8.akpm@digeo.com>
-	 <1048117516.1602.6.camel@spc1.esa.lanl.gov>
-	 <200303192327.45883.tomlins@cam.org>
-	 <5.2.0.9.2.20030320194530.01985440@pop.gmx.net>
-	 <5.2.0.9.2.20030320220413.00ceaa98@pop.gmx.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Organization: 
-Message-Id: <1048194922.1639.40.camel@spc1.esa.lanl.gov>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2-1mdk 
-Date: 20 Mar 2003 14:15:22 -0700
+	id <S262588AbTCTVJH>; Thu, 20 Mar 2003 16:09:07 -0500
+Received: from mailman.xyplex.com ([140.179.176.116]:24030 "EHLO
+	mailman.xyplex.com") by vger.kernel.org with ESMTP
+	id <S262586AbTCTVJH>; Thu, 20 Mar 2003 16:09:07 -0500
+Message-ID: <19EE6EC66973A5408FBE4CB7772F6F0A046ACA@ltnmail.xyplex.com>
+From: "Dow, Benjamin" <bdow@mrv.com>
+To: linux-kernel@vger.kernel.org
+Subject: RE: Release of 2.4.21
+Date: Thu, 20 Mar 2003 16:17:30 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-03-20 at 14:07, Mike Galbraith wrote:
-> At 01:12 PM 3/20/2003 -0700, Steven P. Cole wrote:
-> >On Thu, 2003-03-20 at 12:48, Mike Galbraith wrote:
-> > > At 07:36 AM 3/20/2003 -0700, Steven Cole wrote:
-> > > Bottom line is that once cpu hogs are falsely determined to be sleepers,
-> > > positive feedback kills you.
-> > >
-> > >          -Mike
-> > >
-> > >
-> >Sure, either post a patch against a known sync point, .65, .65-bk, or
-> >65-mm2, or send me the sched.c file itself (2600 lines might be a little
-> >too much for the entire list).
-> >
-> >If you send it in the next 2 hours, I can test today, otherwise I'll do
-> >it mañana.
-> 
-> What the heck.  It is attached.
-> 
->          -Mike
-> 
-> (and I repeat, don't _look_, just run it, and let me know;) 
-
-[steven@spc1 linux-2.5.65-mg]$ patch -p1 <../../xx.diff
-patching file include/linux/sched.h
-patching file kernel/fork.c
-patching file kernel/printk.c
-patching file kernel/sched.c
-patch: **** unexpected end of file in patch
-
-It looks like the last hunk has no trailing context lines.
-Did your patch get clobbered?
-
-Steven
+What would concern me about releasing 2.4.21 with just this bugfix is the
+reports I've seen of it breaking other things (kill, etc).  Have these
+issues been addressed?

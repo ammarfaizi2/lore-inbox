@@ -1,122 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263576AbUJ2VRX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263484AbUJ2VUG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263576AbUJ2VRX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 17:17:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262649AbUJ2VO2
+	id S263484AbUJ2VUG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 17:20:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263575AbUJ2VS4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 17:14:28 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:61366 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S263577AbUJ2VLK (ORCPT
+	Fri, 29 Oct 2004 17:18:56 -0400
+Received: from pop.gmx.de ([213.165.64.20]:18870 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263484AbUJ2VOL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 17:11:10 -0400
-Date: Fri, 29 Oct 2004 23:11:12 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Paul Davis <paul@linuxaudiosystems.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+	Fri, 29 Oct 2004 17:14:11 -0400
+X-Authenticated: #4399952
+Date: Fri, 29 Oct 2004 23:31:17 +0200
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Paul Davis <paul@linuxaudiosystems.com>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>,
        Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
        Karsten Wiese <annabellesgarden@yahoo.de>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>
+       jackit-devel <jackit-devel@lists.sourceforge.net>,
+       Rui Nuno Capela <rncbc@rncbc.org>
 Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
-Message-ID: <20041029211112.GA9836@elte.hu>
-References: <20041029203320.GC5186@elte.hu> <200410292051.i9TKptOi007283@localhost.localdomain>
+Message-ID: <20041029233117.6d29c383@mango.fruits.de>
+In-Reply-To: <20041029204220.GA6727@elte.hu>
+References: <20041029183256.564897b2@mango.fruits.de>
+	<20041029162316.GA7743@elte.hu>
+	<20041029163155.GA9005@elte.hu>
+	<20041029191652.1e480e2d@mango.fruits.de>
+	<20041029170237.GA12374@elte.hu>
+	<20041029170948.GA13727@elte.hu>
+	<20041029193303.7d3990b4@mango.fruits.de>
+	<20041029172151.GB16276@elte.hu>
+	<20041029172243.GA19630@elte.hu>
+	<20041029203619.37b54cba@mango.fruits.de>
+	<20041029204220.GA6727@elte.hu>
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200410292051.i9TKptOi007283@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 29 Oct 2004 22:42:20 +0200
+Ingo Molnar <mingo@elte.hu> wrote:
 
-* Paul Davis <paul@linuxaudiosystems.com> wrote:
-
->   [ I trimmed the CC: line because several people there are on
->     jackit-devel. ]
+> > compiles and boots fine. no observable change in xrun behaviour
+> > though. 
 > 
-> >> compiles and boots fine. no observable change in xrun behaviour though. 
-> >
-> >ok, so there's something else going on as well - or i missed an ioctl. 
+> do you compile jackd from sources? If yes then could you try the patch
+> below? With this added, the kernel will produce a stackdump whenever
+> jackd does an 'illegal' sleep.
 > 
-> i really don't think the ioctl's are relevant. 
+> Also, could you do a small modification to kernel/sched.c and remove
+> this line:
 > 
-> consider what will happen if jackd does make a system call that causes
-> a major delay (say, because of the BKL). we will get an xrun, yes, but
-> this will cause jackd to stop the audio interface and restart.
-> max_delay is not affected by this behaviour.
-
-indeed. I'd exclude the ioctls at this point. But:
-
-> as far as i can tell, the number reported by max_delay entirely (or
-> almost entirely) represents problems in kernel scheduling, specifically
-> with a combination of:
+> 		send_sig(SIGUSR1, current, 1);
 > 
->      a) handling the audio interface interrupt in time.
->      b) marking the relevant jackd thread runnable
->      c) context switching back to the relevant jackd thread
-> 
-> things that jackd does once its running do not, it appear to me, have
-> any impact on max_delay, which is based on the simple observation: 
-> 
->    "i was just woken, i expect to be awakened again in N usecs or
->    less.
+> just to make it easier to get Jack up and running. (by default an
+> atomicity violation triggers a signal to make it easier to debug it in
+> userspace, but i suspect there will be alot of such violations so jackd
+> would stop all the time.)
 
-i dont yet see how this conclusion follows. Here's the poll() code
-(simplified):
+[snip]
 
-                poll_enter = jack_get_microseconds ();
+will do so. btw: i think i'm a bit confused right now. What debugging
+features should i have enabled for this test?
 
-                ret = poll (driver->pfd, nfds, driver->poll_timeout);
-
-		[...]
-
-		if (extra_fd < 0) {
-			if (driver->poll_next && poll_ret > driver->poll_next) {
-				*delayed_usecs = poll_ret - driver->poll_next;
-			} 
-			driver->poll_last = poll_ret;
-			driver->poll_next = poll_ret + driver->period_usecs;
-			driver->engine->transport_cycle_start (driver->engine, 
-							       poll_ret);
-		}
-
-is there a mechanism that ensures that the next poll() will be called
-_before_ ->poll_next? Do you get a real hard ALSA xrun in that case or
-something similar?
-
-if it's possible to 'silently' overrun the next due interrupt (somewhat,
-but not large enough overrun to cause a hard ALSA xrun) then the
-processing delay will i believe be accounted as a 'wakeup delay'. In
-that case to make the delayed_usecs value truly accurate, i'd at least
-add this:
-
-                poll_enter = jack_get_microseconds ();
-
-		if (poll_enter > driver->poll_next) {
-			/*
-			 * This processing cycle got delayed over
-			 * the next due interrupt! Do not account this
-			 * as a wakeup delay:
-			 */
-			driver->poll_next = 0;
-		}
-
-but i'd also suggest to put in a counter into that branch so that this
-condition doesnt get lost. In fact the Maximum Process Cycle stat from
-Rui:
-
->>   Maximum Delay . . . . . . . . .    6904       921       721    usecs
->>   Maximum Process Cycle . . . . .    1449      1469      1590    usecs
-
-seems to suggest that there can be significant processing delays? (if
-Maximum Process Cycle is indeed the time spent from poll_ret to the next
-poll_enter.)
-
-	Ingo
+flo

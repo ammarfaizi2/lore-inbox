@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264850AbSKENK6>; Tue, 5 Nov 2002 08:10:58 -0500
+	id <S264848AbSKENUz>; Tue, 5 Nov 2002 08:20:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264855AbSKENK6>; Tue, 5 Nov 2002 08:10:58 -0500
-Received: from h-64-105-136-52.SNVACAID.covad.net ([64.105.136.52]:6638 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S264850AbSKENK4>; Tue, 5 Nov 2002 08:10:56 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Tue, 5 Nov 2002 05:17:10 -0800
-Message-Id: <200211051317.FAA26655@adam.yggdrasil.com>
-To: ink@jurassic.park.msu.ru
-Subject: Re: Patch: 2.5.45 PCI Fixups for PCI HotPlug
-Cc: alan@lxorguk.ukuu.org.uk, greg@kroah.com, jgarzik@pobox.com,
-       jung-ik.lee@intel.com, linux-kernel@vger.kernel.org
+	id <S264849AbSKENUz>; Tue, 5 Nov 2002 08:20:55 -0500
+Received: from green.pwm-1.clinic.net ([216.204.105.145]:28167 "EHLO
+	green.pwm-1.clinic.net") by vger.kernel.org with ESMTP
+	id <S264848AbSKENUy>; Tue, 5 Nov 2002 08:20:54 -0500
+Date: Tue, 5 Nov 2002 08:24:16 -0500 (EST)
+From: David G Hamblen <dave@AFRInc.com>
+Reply-To: dave@AFRinc.com
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.46 won't compile with pcmcia_aha152x
+In-Reply-To: <4.3.2.7.2.20021105141812.00c5ccd0@192.168.6.2>
+Message-ID: <Pine.LNX.4.44.0211050813050.12822-100000@puppy.afrinc.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ivan Kokshaysky wrote:
->On Mon, Nov 04, 2002 at 12:29:37PM -0800, Adam J. Richter wrote:
->You cannot mark individual quirk routines differently as long as they
->belong in the same quirk list. If the list is __devinitdata and some
->of routines in it are __init, you'll have an oops in the hotplug path.
 
-	If pci_do_fixups determines that f->vendor and f->device do
-not match the device in question, it will not call the corresponding
-f->hook, so it is OK for that f->hook to point to the address of a
-discarded __init routine that now contains garbage as long as the
-ID's will not match any hot plugged device.
+The last time I tried (2.5.29), this stuff worked. The next time I tried
+(2.5.39) it failed.  Here's the error with 2.5.46:
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+  gcc -Wp,-MD,drivers/scsi/pcmcia/.aha152x_stub.o.d -D__KERNEL__ -Iinclude
+-Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+-march=pentium3 -Iarch/i386/mach-generic -nostdinc -iwithprefix include
+-DMODULE -include include/linux/modversions.h
+-DKBUILD_BASENAME=aha152x_stub   -c -o drivers/scsi/pcmcia/aha152x_stub.o
+drivers/scsi/pcmcia/aha152x_stub.c
+make[4]: *** No rule to make target `drivers/scsi/pcmcia/aha152x.s',
+needed by `drivers/scsi/pcmcia/aha152x.o'.  Stop.
+
+
+
+
+			Dave
+
 

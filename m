@@ -1,68 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261783AbVCRTrM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262011AbVCRTtP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261783AbVCRTrM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 14:47:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262067AbVCRTpq
+	id S262011AbVCRTtP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 14:49:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261791AbVCRTrf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 14:45:46 -0500
-Received: from fire.osdl.org ([65.172.181.4]:63122 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262011AbVCRTkP (ORCPT
+	Fri, 18 Mar 2005 14:47:35 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:34495 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262011AbVCRTqb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 14:40:15 -0500
-Date: Fri, 18 Mar 2005 11:25:45 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-Cc: akpm <akpm@osdl.org>, davem@davemloft.net, wli <wli@holomorphy.com>,
-       riel@redhat.com, kurt@garloff.de, Keir.Fraser@cl.cam.ac.uk,
-       Ian.Pratt@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk
-Subject: [PATCH 0/4] io_remap_pfn_range: intro.
-Message-Id: <20050318112545.6f5f7635.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Fri, 18 Mar 2005 14:46:31 -0500
+Date: Fri, 18 Mar 2005 14:46:17 -0500
+From: Dave Jones <davej@redhat.com>
+To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, rohit.seth@intel.com
+Subject: Re: [PATCH] Reading deterministic cache parameters and exporting it in /sysfs
+Message-ID: <20050318194616.GH24385@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
+	Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org, rohit.seth@intel.com
+References: <20050315152448.A1697@unix-os.sc.intel.com> <20050315230736.6faa3734.akpm@osdl.org> <20050318111847.A32361@unix-os.sc.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050318111847.A32361@unix-os.sc.intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Mar 18, 2005 at 11:18:47AM -0800, Venkatesh Pallipadi wrote:
+ > 
+ > Here is the updated patch. 
+ > 
+ > I have seperated out the changes related to 
+ > (1) using new method to determine cache size in existing /proc/cpuinfo and
+ >     kernel boot messages (All but last hunk below)
+ > (2) code to look at sharedness of the caches and store these details for future
+ >     uses inside kernel and also exporting the cache details in /sysfs (last
+ >     hunk in the patch)
+ >   
+ > Dave: Do you still feel having the cache details exported in /sysfs is a bad
+ > idea? If yes, we can go ahead with the basic part of this patch (1 - above)
+ > and look at (2) sometime later, as and when required.
 
-This is a combination of io_remap_pfn_range patches posted in the
-last week or so by Keir Fraser and me.
+tbh I think its just bloat, but if no-one else has any objections I won't oppose it.
+The rest of the patch I have no problem with.
 
-This description is mostly from Keir's original post.
+		Dave
 
-
-This patch introduces a new interface function for mapping bus/device
-memory: io_remap_pfn_range. This accepts the same parameters as
-remap_pfn_range and io_remap_page_range but should be used in any
-situation where the caller is not simply remapping ordinary RAM.
-For example, when mapping device registers the new function should be used.
-
-The distinction between remapping device memory and ordinary RAM is
-critical for the Xen hypervisor.
-
-This patch series also cleans up the remaining users of
-io_remap_page_range (in particular, the several sparc-specific
-sections in various drivers that use a special form of io_remap_page_range:
-an extra <iospace> argument for SPARC arch.) by converting them to
-use io_remap_pfn_range(), where io_remap_pfn_range() supports
-passing <iospace> as part of the pfn argument.
-
-The sparc32 & sparc64 code needs live testing.
-
-
-(from Keir:)
-I have audited the drivers/ and sound/ directories. Most uses of
-remap_pfn_range are okay, but there are a small handful that are
-remapping device memory (mostly AGP and DRM drivers).
-
-Of particular driver is the HPET driver, whose mmap function is broken
-even for native (non-Xen) builds. If nothing else, vmalloc_to_phys
-should be used instead of __pa to convert an ioremapped virtual
-address to a valid physical address. The fix in this patch is to
-remember the original bus address as probed at boot time and to pass
-this to io_remap_pfn_range.
-
-
----
-~Randy

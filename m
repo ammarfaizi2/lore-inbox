@@ -1,58 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267310AbTAMIBk>; Mon, 13 Jan 2003 03:01:40 -0500
+	id <S267144AbTAMH7J>; Mon, 13 Jan 2003 02:59:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267313AbTAMIBk>; Mon, 13 Jan 2003 03:01:40 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:44691 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S267310AbTAMIBg>;
-	Mon, 13 Jan 2003 03:01:36 -0500
-Date: Mon, 13 Jan 2003 13:42:33 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Andi Kleen <ak@muc.de>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: Fixing the tty layer was Re: any chance of 2.6.0-test*?
-Message-ID: <20030113081233.GA15525@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20030110165441$1a8a@gated-at.bofh.it> <20030110165505$38d9@gated-at.bofh.it> <20030112094007$1647@gated-at.bofh.it> <m3iswuk7xm.fsf_-_@averell.firstfloor.org> <20030113064131.GB14996@in.ibm.com> <20030113072539.GA2197@averell>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030113072539.GA2197@averell>
-User-Agent: Mutt/1.4i
+	id <S267285AbTAMH7J>; Mon, 13 Jan 2003 02:59:09 -0500
+Received: from [212.27.202.178] ([212.27.202.178]:11140 "EHLO sakal.vgd.cz")
+	by vger.kernel.org with ESMTP id <S267144AbTAMH7H>;
+	Mon, 13 Jan 2003 02:59:07 -0500
+Subject: Re: Problems with USB
+To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.11   July 24, 2002
+Message-ID: <OF08F436B6.5ED0DD79-ONC1256CAD.002CEDA7-C1256CAD.002CABBA@vgd.cz>
+From: Petr.Titera@whitesoft.cz
+Date: Mon, 13 Jan 2003 09:13:44 +0100
+X-MIMETrack: Serialize by Router on Sakal/SRV/SOCO/CZ(Release 5.0.8 |June 18, 2001) at
+ 13.01.2003 09:13:48
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 13, 2003 at 08:25:39AM +0100, Andi Kleen wrote:
-> > Oh, yes, I have spent hours and hours trying to untangle tty locking
-> > and it isn't simple.
-> 
-> Oops. Could you quickly summarize your findings so far ?
 
-I only found more confusions - I can't figure how tty_files list
-is locked - sure files_lock is supposed to protect it but there
-are deletions done without any lock. Another thing that needs
-looking into is to avoid or reduce use of the tasklist_lock there.
+Hello,
 
-> > What does that BKL protect ? I can't seem to ever figure our if
-> > all the races are plugged or not.
-> 
-> Well, one has to start somewhere. Just starting by plugging most of the
-> obvious races, then the more subtle ones can be attacked later.
-> 
-> The idea of the BKL was to protect the protect context code against
-> itself (code lock) and also the few global data structures that 
-> are only accessed from process context (like the tty drivers list)
+     yes it look that this patch can work. But who send that signal. I
+tried to hack kernel to print signal number and it looks, that khubd gets
+SIGHUP.
 
-In that case would it not be better to replace all BKLs by a single tty
-lock ?
+Petr Titera
+petr.titera@whitesoft.cz
 
-> 
-> I attached my current patch, it isn't too well tested however and needs
-> more work.
-> 
-> Mostly just adds lock_kernel()s to the high level code so far and a few comments.
 
-Cool, I will start off by testing this stuff.
 
-Thanks
-Dipankar
+                                                                                            
+                    Greg KH                                                                 
+                    <greg@kroah.co       To:     Petr.Titera@whitesoft.cz                   
+                    m>                   cc:     linux-kernel@vger.kernel.org               
+                                         Fax to:                                            
+                    13.01.2003           Subject:     Re: Problems with USB                 
+                    06:55                                                                   
+                                                                                            
+                                                                                            
+
+
+
+
+On Sun, Jan 12, 2003 at 09:44:42PM +0100, Petr.Titera@whitesoft.cz wrote:
+> Hello all,
+>
+>      I have problems with USB in recent kernels (tested on 2.5.56) and
+> RedHat 8.0. Right after end of script  '/etc/rc.d/rc.sysinit' and before
+> script '/etc/rc.d/rc' which runs after USB  daemon khubd gets some signal
+> and ends. From this point USB does not work as as system does not get any
+> plug events. If I disable USB at startup and load modules later,
+everything
+> works.
+
+Can you try this patch that I just added to the USB tree?  It seems to
+work for me.
+
+thanks,
+
+greg k-h
+
+
+# USB: Fix from Jeff and Pete to keep khubd from being able to be killed
+#      by a signal
+
+diff -Nru a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
+--- a/drivers/usb/core/hub.c  Sun Jan 12 22:03:13 2003
++++ b/drivers/usb/core/hub.c  Sun Jan 12 22:03:13 2003
+@@ -1085,6 +1085,12 @@
+
+     daemonize();
+
++    /* keep others from killing us */
++    spin_lock_irq(&current->sig->siglock);
++    sigemptyset(&current->blocked);
++    recalc_sigpending();
++    spin_unlock_irq(&current->sig->siglock);
++
+     /* Setup a nice name */
+     strcpy(current->comm, "khubd");
+
+
+
+

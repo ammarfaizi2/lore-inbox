@@ -1,34 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275115AbRJFKSY>; Sat, 6 Oct 2001 06:18:24 -0400
+	id <S275121AbRJFK0g>; Sat, 6 Oct 2001 06:26:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275117AbRJFKSN>; Sat, 6 Oct 2001 06:18:13 -0400
-Received: from smtp.mailbox.net.uk ([195.82.125.32]:29854 "EHLO
-	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
-	id <S275115AbRJFKSB>; Sat, 6 Oct 2001 06:18:01 -0400
-Date: Sat, 6 Oct 2001 11:18:29 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
-Cc: "Adam J. Richter" <adam@yggdrasil.com>, jamey.hicks@compaq.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.11-pre4/drivers/mtd/bootldr.c does not compile
-Message-ID: <20011006111829.D23628@flint.arm.linux.org.uk>
-In-Reply-To: <200110052048.NAA19993@baldur.yggdrasil.com> <20011005231732.B19985@flint.arm.linux.org.uk> <20011006120015.A12624@arthur.ubicom.tudelft.nl>
+	id <S275119AbRJFK0Z>; Sat, 6 Oct 2001 06:26:25 -0400
+Received: from ns.ithnet.com ([217.64.64.10]:20228 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S275117AbRJFK0V>;
+	Sat, 6 Oct 2001 06:26:21 -0400
+Date: Sat, 6 Oct 2001 12:26:40 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Problem with reiserfs 3.5.34 under 2.2.19
+Message-Id: <20011006122640.271536fe.skraw@ithnet.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011006120015.A12624@arthur.ubicom.tudelft.nl>; from J.A.K.Mouw@ITS.TUDelft.NL on Sat, Oct 06, 2001 at 12:00:15PM +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 06, 2001 at 12:00:15PM +0200, Erik Mouw wrote:
-> Did you ever get a motivation on why they want to pass it from the boot
-> loader? It sounds like a particularly bad idea to me.
+Hello,
 
-See Jamey Hicks mail on linux-arm-kernel of the 24th September.
+I had some serious crash today originated by a reiserfs 3.5.32 on 2.2.19 which
+panic'd telling me something with inodes is wrong. Unfortunately the msg was
+only to see on the screen and I didn't write it down. So I decided to update to
+3.5.34 and give it a try, again. Now I see the following during normal
+operation:
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Oct  6 12:14:05 heather kernel: vs-13048: reiserfs_iget: key in inode [0 68965
+0
+ 0] and key in entry [3 68965 0 0] do not match
+Oct  6 12:14:18 heather last message repeated 25 times
+Oct  6 12:14:19 heather kernel: vs-13048: reiserfs_iget: key in inode [0 13612
+0
+ 0] and key in entry [13609 13612 0 0] do not match
+Oct  6 12:14:21 heather kernel: vs-13048: reiserfs_iget: key in inode [0 68965
+0
+ 0] and key in entry [3 68965 0 0] do not match
+Oct  6 12:14:48 heather last message repeated 55 times
+Oct  6 12:15:29 heather last message repeated 14 times
+Oct  6 12:16:29 heather last message repeated 8 times
+Oct  6 12:17:42 heather last message repeated 5 times
+Oct  6 12:18:19 heather kernel: vs-13048: reiserfs_iget: key in inode [0 13612
+0
+ 0] and key in entry [13609 13612 0 0] do not match
+Oct  6 12:18:29 heather kernel: vs-13048: reiserfs_iget: key in inode [0 68965
+0
+ 0] and key in entry [3 68965 0 0] do not match
 
+What does this mean? What should be done? Does this fs survive, or am I to
+reformat?
+
+Regards,
+Stephan

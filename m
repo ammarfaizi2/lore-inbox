@@ -1,32 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271467AbRIAWzg>; Sat, 1 Sep 2001 18:55:36 -0400
+	id <S271473AbRIAXXw>; Sat, 1 Sep 2001 19:23:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271473AbRIAWz0>; Sat, 1 Sep 2001 18:55:26 -0400
-Received: from mail.triton.net ([216.65.160.10]:10501 "HELO mail.triton.net")
-	by vger.kernel.org with SMTP id <S271467AbRIAWzP>;
-	Sat, 1 Sep 2001 18:55:15 -0400
-Message-ID: <3B916760.1000104@lycosmail.com>
-Date: Sat, 01 Sep 2001 18:55:28 -0400
-From: Adam Schrotenboer <ajschrotenboer@lycosmail.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: USB trouble w/ 2.4.8-ac12
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S271486AbRIAXXm>; Sat, 1 Sep 2001 19:23:42 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:33807 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S271473AbRIAXXj>;
+	Sat, 1 Sep 2001 19:23:39 -0400
+Date: Sat, 1 Sep 2001 16:21:30 -0700
+From: Greg KH <greg@kroah.com>
+To: Adam Schrotenboer <ajschrotenboer@lycosmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: USB trouble w/ 2.4.8-ac12
+Message-ID: <20010901162130.C26407@kroah.com>
+In-Reply-To: <3B916760.1000104@lycosmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B916760.1000104@lycosmail.com>; from ajschrotenboer@lycosmail.com on Sat, Sep 01, 2001 at 06:55:28PM -0400
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Using 2.4.8-ac12, USB modules, and a Philips CDRW400.
+On Sat, Sep 01, 2001 at 06:55:28PM -0400, Adam Schrotenboer wrote:
+> Using 2.4.8-ac12, USB modules, and a Philips CDRW400.
+> 
+> I was able to get it to see the CDRW drive once(and that took a minute 
+> or three), but mostly it only sees the Freecom USB-IDE bridge.
+> 
+> How do I get the usb code to probe the ATAPI bridge for the devices 
+> behind it??
 
-I was able to get it to see the CDRW drive once(and that took a minute 
-or three), but mostly it only sees the Freecom USB-IDE bridge.
+You might try asking on the linux-usb-devel mailing list.  I don't know
+how well the Freecom bridge device is currently supported in Linux.
 
-How do I get the usb code to probe the ATAPI bridge for the devices 
-behind it??
-
-TIA
-tabris
-
+greg k-h

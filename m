@@ -1,72 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263219AbTDVQqy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 12:46:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263225AbTDVQqy
+	id S263217AbTDVQqj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 12:46:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263219AbTDVQqj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 12:46:54 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:20700 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S263219AbTDVQqu
+	Tue, 22 Apr 2003 12:46:39 -0400
+Received: from mail-4.tiscali.it ([195.130.225.150]:53162 "EHLO
+	mail-4.tiscali.it") by vger.kernel.org with ESMTP id S263217AbTDVQqh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 12:46:50 -0400
-Date: Tue, 22 Apr 2003 09:58:42 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: William Lee Irwin III <wli@holomorphy.com>, Ingo Molnar <mingo@redhat.com>
-cc: Andrew Morton <akpm@digeo.com>, Andrea Arcangeli <andrea@suse.de>,
-       mingo@elte.hu, hugh@veritas.com, dmccr@us.ibm.com,
+	Tue, 22 Apr 2003 12:46:37 -0400
+Date: Tue, 22 Apr 2003 18:57:46 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: William Lee Irwin III <wli@holomorphy.com>, Ingo Molnar <mingo@redhat.com>,
+       Andrew Morton <akpm@digeo.com>, mbligh@aracnet.com, mingo@elte.hu,
+       hugh@veritas.com, dmccr@us.ibm.com,
        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
        linux-mm@kvack.org
 Subject: Re: objrmap and vmtruncate
-Message-ID: <1040000.1051030721@[10.10.2.4]>
-In-Reply-To: <20030422162055.GJ8978@holomorphy.com>
-References: <20030422145644.GG8978@holomorphy.com>
- <Pine.LNX.4.44.0304221110560.10400-100000@devserv.devel.redhat.com>
- <20030422162055.GJ8978@holomorphy.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+Message-ID: <20030422165746.GK23320@dualathlon.random>
+References: <20030422145644.GG8978@holomorphy.com> <Pine.LNX.4.44.0304221110560.10400-100000@devserv.devel.redhat.com> <20030422162055.GJ8978@holomorphy.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20030422162055.GJ8978@holomorphy.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> using nonlinear mappings adds the overhead of pte chains, which roughly
->> doubles the pagetable overhead. (or companion pagetables, which triple
->> the pagetable overhead) Purely RAM-wise the break-even point is at
->> around 8 pages, 8 pte chain entries make up for 64 bytes of vma overhead.
->> the biggest problem i can see is that we (well, the kernel) has to make a
->> judgement of RAM footprint vs. algorithmic overhead, which is apples to
->> oranges. Nonlinear vmas [or just linear vmas with pte chains installed],
->> while being only O(N), double/triple the pagetable overhead. objrmap
->> linear vmas, while having only the pagetable overhead, are O(N^2). [well,
->> it's O(N*M)]
->> RAM-footprint wise the boundary is clear: above 8 pages of granularity,
->> vmas with objrmap cost less RAM than nonlinear mappings.
->> CPU-time-wise the nonlinear mappings with pte chains always beat objrmap.
-> 
-> There's definitely an argument brewing here. Large 32-bit is very space
-> conscious; the rest of the world is largely oblivious to these specific
-> forms of space consumption aside from those tight on space in general.
+could we focus and solve the remap_file_pages current breakage first?
 
-However, the time consumption affects everybody. The overhead of pte-chains
-is very significant ... people seem to be conveniently forgetting that for
-some reason. Ingo's rmap_pages thing solves the lowmem space problem, but
-the time problem is still there, if not worse.
+I proposed my fix that IMHO is optimal and simple (I recall Hugh also
+proposed something on these lines):
 
-Please don't create the impression that rmap methodologies are only an
-issue for large 32 bit machines - that's not true at all.
+1) allow it only inside mmap(VM_NONLINAER) vmas only
+2) have the VM skip over VM_NONLINEAR vmas enterely
+3) set vma->vm_file to NULL for those vams and forbid paging and allow
+   multiple files to be mapped in the same nonlinaer vma (add an fd
+   parameter to the syscall)
+4) enable it as non-root (w/o IPC_LOCK capability) only with a sysctl
+   enabled
+5) avoid any overhead connected with the potential paging of the
+   nonlinaer vmas
+6) populate it with pmd on hugetlbfs
+7) if a truncate happens leave the page pinned outside the pagecache
+   but still mapped into userspace, we don't care about it and it will
+   be freed during the munmap of the nonlinear vma
 
-People seem to be focused on one corner case of performance for objrmap ...
-If you want a countercase for pte-chain based rmap, try creating 1000
-processes in a machine with a decent amount of RAM. Make them share
-libraries (libc, etc), and then fork and exit in a FIFO rolling fashion.
-Just forking off a bunch of stuff (regular programs / shell scripts) that
-do similar amounts of work will presumably approximate this. Kernel
-compiles see large benefits here, for instance. Things that were less
-dominated by userspace calculations would see even bigger changes.
+Note: in the longer run if you want, you can as well change the kernel
+internals to make this area pageable and then you won't need a sysctl
+anymore.
 
-I've not seen anything but a focused microbenchmark deliberately written
-for the job do better on pte-chain based rmap that partial objrmap yet. If
-we had something more realistic, it would become rather more interesting.
+The mmap and remap_file_pages kind of overlaps, remap_file_pages is the
+"hack" that should be quick and simple IMHO. Everything not just
+intersting as a pte mangling vm-bypass should happen in the mmap layer
+IMHO.
 
-M.
+Andrea

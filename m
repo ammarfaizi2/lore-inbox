@@ -1,172 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261328AbTD0S05 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Apr 2003 14:26:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbTD0S05
+	id S261321AbTD0Si3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Apr 2003 14:38:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbTD0Si3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Apr 2003 14:26:57 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:32406 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261328AbTD0S0s
+	Sun, 27 Apr 2003 14:38:29 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:31372 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S261321AbTD0Si0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Apr 2003 14:26:48 -0400
-Date: Sun, 27 Apr 2003 20:38:45 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.5.67-ac2 fix new PIO handlers
-Message-ID: <Pine.SOL.4.30.0304272011560.27252-200000@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-33463914-1051468725=:27252"
+	Sun, 27 Apr 2003 14:38:26 -0400
+Date: Sun, 27 Apr 2003 11:50:37 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Chris Adams <cmadams@hiwaay.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
+Message-ID: <20030427185037.GA23581@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Chris Adams <cmadams@hiwaay.net>, linux-kernel@vger.kernel.org
+References: <fa.ivrgub8.1ci079c@ifi.uio.no> <20030427183553.GA955879@hiwaay.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030427183553.GA955879@hiwaay.net>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=0.5, required 4.5,
+	DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Sun, Apr 27, 2003 at 01:35:53PM -0500, Chris Adams wrote:
+[rant, missed the point, thought it was about BK]
 
----559023410-33463914-1051468725=:27252
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Sorry to pick on Chris, but his is the best example of what most of the
+replies have been saying.
 
+I should have never brought BK into the conversation, it was just an example.
+Remove all references to BK and what you are left with is:
 
-Hi,
+    1) Corporations are threatened when people copy their content and/or
+       products.
+    2) Corporations have a lot of money which they use to get the government
+       to create laws to protect the corporate interests.
+    3) Corporations have a lot of money which they use to create technology
+       which will remove threats to the corporation.
+    4) The more you inist that you are doing nothing wrong the more motivated
+       the corporation becomes to stop you.
 
-During rewrite of bio walking patch to use rq->cbio instead
-of rq->hard_bio I've realized I had screwed orig 2.5.66 patches :\
+This isn't a BK thing, we don't have lobbyists in Washington get laws
+passed on our behalf.  This is my private opinion based on observing
+what's happened in the last five years or so.  The world is moving more
+and more towards a place where IP is the significant source of revenue.
+Microsoft successfully made the case that if they were broken up it would
+damage world economy.  So thinking and laws will evolve to accomodate
+this new world wherein IP is a critical factor.  What I'm trying to
+say is that I think that the organizations which *create* the IP will
+vigorously defend that.  The more you try and circumvent that the more
+draconian they will get.
 
-I somehow forgot to update task_map_rq(), it should use
-__bio_kmap_irq(rq->bio, current_idx, flags) instead of
-bio_kmap_irq(rq->bio, flags). The result is that you get
-bio corruption (-> data corruption) when using PIO multiple
-with sectors multiply > 8 (PAGE_SIZE == bio_vec size).
-
-Attached patch fixes it and fixes TASKFILE ioctl.
-
-Please apply to next -ac.
---
-Bartlomiej
-
----559023410-33463914-1051468725=:27252
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="pio_fixes.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.SOL.4.30.0304272038450.27252@mion.elka.pw.edu.pl>
-Content-Description: 
-Content-Disposition: attachment; filename="pio_fixes.diff"
-
-IyBGaXggUElPIGhhbmRsZXJzICghKS4NCiMNCiMgRGV0YWlsZWQgY2hhbmdl
-bG9nOg0KIyAtIGludHJvZHVjZSBwcm9wZXIgdGFza18odW4pbWFwX3JxKCkg
-LSBjcml0aWNhbCBmaXgNCiMgLSBmaXggcHJvY2Vzc190aGF0X3JlcXVlc3Rf
-Zmlyc3QoKSBmb3IgcnEtPmJ1ZmZlciAobm9uLWJpbykgYmFzZWQgcmVxdWVz
-dHMNCiMgLSBzZXQgcnEtPmhhcmRfbnJfc2VjdG9ycyBhbmQgcnEtPmhhcmRf
-Y3VyX3NlY3RvcnMgaW4gaWRlX2RpYWdfdGFza2ZpbGUoKQ0KIyAtIGZpeCBQ
-SU8gaGFuZGxlcnMgZm9yIHJxLT5idWZmZXIgYmFzZWQgcmVxdWVzdHMgKFRB
-U0tGSUxFIGlvY3RsKQ0KIyAtIHJldmVydCAtPnByZWhhbmRsZXIoKSBoYW5k
-bGluZyBmb3IgZmxhZ2dlZCB0YXNrZmlsZXMgYXMgdGhleSBoYXZlIHRoZWly
-DQojICAgb3duIFBJTyBoYW5kbGVycw0KIw0KIyBCYXJ0bG9taWVqIFpvbG5p
-ZXJraWV3aWN6IDxiem9sbmllckBlbGthLnB3LmVkdS5wbD4NCg0KZGlmZiAt
-dU5yIGxpbnV4LTIuNS42Ny1hYzIvZHJpdmVycy9ibG9jay9sbF9yd19ibGsu
-YyBsaW51eC9kcml2ZXJzL2Jsb2NrL2xsX3J3X2Jsay5jDQotLS0gbGludXgt
-Mi41LjY3LWFjMi9kcml2ZXJzL2Jsb2NrL2xsX3J3X2Jsay5jCVN1biBBcHIg
-MjcgMTk6NTQ6NDAgMjAwMw0KKysrIGxpbnV4L2RyaXZlcnMvYmxvY2svbGxf
-cndfYmxrLmMJU3VuIEFwciAyNyAxOTo1NDo1OCAyMDAzDQpAQCAtMjI2NSw5
-ICsyMjY1LDExIEBADQogCQluc2VjdCA9IG1pbl90KHVuc2lnbmVkIGludCwg
-cmVxLT5jdXJyZW50X25yX3NlY3RvcnMsDQogCQkJICAgICAgbnJfc2VjdG9y
-cyk7DQogCQlyZXEtPmN1cnJlbnRfbnJfc2VjdG9ycyAtPSBuc2VjdDsNCi0J
-CXJlcS0+bnJfYmlvX3NlY3RvcnMgLT0gbnNlY3Q7DQogCQlucl9zZWN0b3Jz
-IC09IG5zZWN0Ow0KLQkJYmxrX3JxX25leHRfc2VnbWVudChyZXEpOw0KKwkJ
-aWYgKHJlcS0+YmlvKSB7DQorCQkJcmVxLT5ucl9iaW9fc2VjdG9ycyAtPSBu
-c2VjdDsNCisJCQlibGtfcnFfbmV4dF9zZWdtZW50KHJlcSk7DQorCQl9DQog
-CX0NCiAJcmV0dXJuIDE7DQogfQ0KZGlmZiAtdU5yIGxpbnV4LTIuNS42Ny1h
-YzIvZHJpdmVycy9pZGUvaWRlLXRhc2tmaWxlLmMgbGludXgvZHJpdmVycy9p
-ZGUvaWRlLXRhc2tmaWxlLmMNCi0tLSBsaW51eC0yLjUuNjctYWMyL2RyaXZl
-cnMvaWRlL2lkZS10YXNrZmlsZS5jCVN1biBBcHIgMjcgMTk6NTQ6NDAgMjAw
-Mw0KKysrIGxpbnV4L2RyaXZlcnMvaWRlL2lkZS10YXNrZmlsZS5jCVN1biBB
-cHIgMjcgMTk6NTg6NDEgMjAwMw0KQEAgLTU5LDkgKzU5LDYgQEANCiAjZGVm
-aW5lIERURih4Li4uKQ0KICNlbmRpZg0KIA0KLSNkZWZpbmUgdGFza19tYXBf
-cnEocnEsIGZsYWdzKQkJaWRlX21hcF9idWZmZXIoKHJxKSwgKGZsYWdzKSkN
-Ci0jZGVmaW5lIHRhc2tfdW5tYXBfcnEocnEsIGJ1ZiwgZmxhZ3MpCWlkZV91
-bm1hcF9idWZmZXIoKHJxKSwgKGJ1ZiksIChmbGFncykpDQotDQogc3RhdGlj
-IHZvaWQgYXRhX2Jzd2FwX2RhdGEgKHZvaWQgKmJ1ZmZlciwgaW50IHdjb3Vu
-dCkNCiB7DQogCXUxNiAqcCA9IGJ1ZmZlcjsNCkBAIC00MDYsNiArNDAzLDEx
-IEBADQogCXdoaWxlIChycS0+aGFyZF9iaW8gIT0gcnEtPmJpbykNCiAJCWlm
-ICghRFJJVkVSKGRyaXZlKS0+ZW5kX3JlcXVlc3QoZHJpdmUsIDEsIGJpb19z
-ZWN0b3JzKHJxLT5oYXJkX2JpbykpKQ0KIAkJCXJldHVybiBpZGVfc3RvcHBl
-ZDsNCisJLyogQ29tcGxldGUgcnEtPmJ1ZmZlciBiYXNlZCByZXF1ZXN0IChp
-b2N0bHMpLiAqLw0KKwlpZiAoIXJxLT5iaW8gJiYgIXJxLT5ucl9zZWN0b3Jz
-KSB7DQorCQlpZGVfZW5kX2RyaXZlX2NtZChkcml2ZSwgc3RhdCwgSFdJRihk
-cml2ZSktPklOQihJREVfRVJST1JfUkVHKSk7DQorCQlyZXR1cm4gaWRlX3N0
-b3BwZWQ7DQorCX0NCiANCiAJcnEtPmVycm9ycyA9IDA7DQogCXRhc2tfc2Vj
-dG9ycyhkcml2ZSwgcnEsIDEsIFBJT19JTik7DQpAQCAtNDUyLDYgKzQ1NCwx
-MSBAQA0KIAl3aGlsZSAocnEtPmhhcmRfYmlvICE9IHJxLT5iaW8pDQogCQlp
-ZiAoIURSSVZFUihkcml2ZSktPmVuZF9yZXF1ZXN0KGRyaXZlLCAxLCBiaW9f
-c2VjdG9ycyhycS0+aGFyZF9iaW8pKSkNCiAJCQlyZXR1cm4gaWRlX3N0b3Bw
-ZWQ7DQorCS8qIENvbXBsZXRlIHJxLT5idWZmZXIgYmFzZWQgcmVxdWVzdCAo
-aW9jdGxzKS4gKi8NCisJaWYgKCFycS0+YmlvICYmICFycS0+bnJfc2VjdG9y
-cykgew0KKwkJaWRlX2VuZF9kcml2ZV9jbWQoZHJpdmUsIHN0YXQsIEhXSUYo
-ZHJpdmUpLT5JTkIoSURFX0VSUk9SX1JFRykpOw0KKwkJcmV0dXJuIGlkZV9z
-dG9wcGVkOw0KKwl9DQogDQogCXJxLT5lcnJvcnMgPSAwOw0KIAlkbyB7DQpA
-QCAtNTEwLDYgKzUxNywxMSBAQA0KIAl3aGlsZSAocnEtPmhhcmRfYmlvICE9
-IHJxLT5iaW8pDQogCQlpZiAoIURSSVZFUihkcml2ZSktPmVuZF9yZXF1ZXN0
-KGRyaXZlLCAxLCBiaW9fc2VjdG9ycyhycS0+aGFyZF9iaW8pKSkNCiAJCQly
-ZXR1cm4gaWRlX3N0b3BwZWQ7DQorCS8qIENvbXBsZXRlIHJxLT5idWZmZXIg
-YmFzZWQgcmVxdWVzdCAoaW9jdGxzKS4gKi8NCisJaWYgKCFycS0+YmlvICYm
-ICFycS0+bnJfc2VjdG9ycykgew0KKwkJaWRlX2VuZF9kcml2ZV9jbWQoZHJp
-dmUsIHN0YXQsIEhXSUYoZHJpdmUpLT5JTkIoSURFX0VSUk9SX1JFRykpOw0K
-KwkJcmV0dXJuIGlkZV9zdG9wcGVkOw0KKwl9DQogDQogCS8qIFN0aWxsIGRh
-dGEgbGVmdCB0byB0cmFuc2Zlci4gKi8NCiAJaWRlX3NldF9oYW5kbGVyKGRy
-aXZlLCAmdGFza19vdXRfaW50ciwgV0FJVF9XT1JTVENBU0UsIE5VTEwpOw0K
-QEAgLTU2OSw2ICs1ODEsMTEgQEANCiAJd2hpbGUgKHJxLT5oYXJkX2JpbyAh
-PSBycS0+YmlvKQ0KIAkJaWYgKCFEUklWRVIoZHJpdmUpLT5lbmRfcmVxdWVz
-dChkcml2ZSwgMSwgYmlvX3NlY3RvcnMocnEtPmhhcmRfYmlvKSkpDQogCQkJ
-cmV0dXJuIGlkZV9zdG9wcGVkOw0KKwkvKiBDb21wbGV0ZSBycS0+YnVmZmVy
-IGJhc2VkIHJlcXVlc3QgKGlvY3RscykuICovDQorCWlmICghcnEtPmJpbyAm
-JiAhcnEtPm5yX3NlY3RvcnMpIHsNCisJCWlkZV9lbmRfZHJpdmVfY21kKGRy
-aXZlLCBzdGF0LCBIV0lGKGRyaXZlKS0+SU5CKElERV9FUlJPUl9SRUcpKTsN
-CisJCXJldHVybiBpZGVfc3RvcHBlZDsNCisJfQ0KIA0KIAkvKiBTdGlsbCBk
-YXRhIGxlZnQgdG8gdHJhbnNmZXIuICovDQogCWlkZV9zZXRfaGFuZGxlcihk
-cml2ZSwgJnRhc2tfbXVsb3V0X2ludHIsIFdBSVRfV09SU1RDQVNFLCBOVUxM
-KTsNCkBAIC05NTIsMTEgKzk2OSwxMiBAQA0KIAkgKi8NCiAJaWYgKGFyZ3Mt
-PmNvbW1hbmRfdHlwZSAhPSBJREVfRFJJVkVfVEFTS19OT19EQVRBKSB7DQog
-CQlpZiAoZGF0YV9zaXplID09IDApDQotCQkJcnEuY3VycmVudF9ucl9zZWN0
-b3JzID0gcnEubnJfc2VjdG9ycyA9IChhcmdzLT5ob2JSZWdpc3RlcltJREVf
-TlNFQ1RPUl9PRkZTRVRfSE9CXSA8PCA4KSB8IGFyZ3MtPnRmUmVnaXN0ZXJb
-SURFX05TRUNUT1JfT0ZGU0VUXTsNCi0JCS8qCXJxLmhhcmRfY3VyX3NlY3Rv
-cnMJKi8NCisJCQlycS5ucl9zZWN0b3JzID0gKGFyZ3MtPmhvYlJlZ2lzdGVy
-W0lERV9OU0VDVE9SX09GRlNFVF9IT0JdIDw8IDgpIHwgYXJncy0+dGZSZWdp
-c3RlcltJREVfTlNFQ1RPUl9PRkZTRVRdOw0KIAkJZWxzZQ0KLQkJCXJxLmN1
-cnJlbnRfbnJfc2VjdG9ycyA9IHJxLm5yX3NlY3RvcnMgPSBkYXRhX3NpemUg
-LyBTRUNUT1JfU0laRTsNCi0JCS8qCXJxLmhhcmRfY3VyX3NlY3RvcnMJKi8N
-CisJCQlycS5ucl9zZWN0b3JzID0gZGF0YV9zaXplIC8gU0VDVE9SX1NJWkU7
-DQorDQorCQlycS5oYXJkX25yX3NlY3RvcnMgPSBycS5ucl9zZWN0b3JzOw0K
-KwkJcnEuaGFyZF9jdXJfc2VjdG9ycyA9IHJxLmN1cnJlbnRfbnJfc2VjdG9y
-cyA9IHJxLm5yX3NlY3RvcnM7DQogCX0NCiANCiAJaWYgKGFyZ3MtPnRmX291
-dF9mbGFncy5hbGwgPT0gMCkgew0KQEAgLTE1NDksMTQgKzE1NjcsMTAgQEAN
-CiAgCQkJaWYgKHRhc2stPmhhbmRsZXIgPT0gTlVMTCkNCiAJCQkJcmV0dXJu
-IGlkZV9zdG9wcGVkOw0KIA0KLQkJCWlmICh0YXNrLT5wcmVoYW5kbGVyICE9
-IE5VTEwpIHsNCi0JCQkJaHdpZi0+T1VUQlNZTkMoZHJpdmUsIHRhc2tmaWxl
-LT5jb21tYW5kLCBJREVfQ09NTUFORF9SRUcpOw0KLQkJCQluZGVsYXkoNDAw
-KTsJLyogRklYTUUgKi8NCi0JCQkJcmV0dXJuIHRhc2stPnByZWhhbmRsZXIo
-ZHJpdmUsIEhXR1JPVVAoZHJpdmUpLT5ycSk7DQotCQkJfQ0KLQ0KIAkJCS8q
-IElzc3VlIHRoZSBjb21tYW5kICovDQogCQkJaWRlX2V4ZWN1dGVfY29tbWFu
-ZChkcml2ZSwgdGFza2ZpbGUtPmNvbW1hbmQsIHRhc2stPmhhbmRsZXIsIFdB
-SVRfV09SU1RDQVNFLCBOVUxMKTsNCisJCQlpZiAodGFzay0+cHJlaGFuZGxl
-ciAhPSBOVUxMKQ0KKwkJCQlyZXR1cm4gdGFzay0+cHJlaGFuZGxlcihkcml2
-ZSwgSFdHUk9VUChkcml2ZSktPnJxKTsNCiAJfQ0KIA0KIAlyZXR1cm4gaWRl
-X3N0YXJ0ZWQ7DQpkaWZmIC11TnIgbGludXgtMi41LjY3LWFjMi9pbmNsdWRl
-L2xpbnV4L2lkZS5oIGxpbnV4L2luY2x1ZGUvbGludXgvaWRlLmgNCi0tLSBs
-aW51eC0yLjUuNjctYWMyL2luY2x1ZGUvbGludXgvaWRlLmgJU3VuIEFwciAy
-NyAxOTo1NDo0MCAyMDAzDQorKysgbGludXgvaW5jbHVkZS9saW51eC9pZGUu
-aAlTdW4gQXByIDI3IDIwOjAwOjI4IDIwMDMNCkBAIC04MzIsNiArODMyLDI2
-IEBADQogCWlkZV9zdGFydHN0b3BfdCAoKmlkZV9kbWFfcXVldWVkX3N0YXJ0
-KShpZGVfZHJpdmVfdCAqZHJpdmUpOw0KIH0gaWRlX2RtYV9vcHNfdDsNCiAN
-CitzdGF0aWMgaW5saW5lIHZvaWQgKnRhc2tfbWFwX3JxKHN0cnVjdCByZXF1
-ZXN0ICpycSwgdW5zaWduZWQgbG9uZyAqZmxhZ3MpDQorew0KKwkvKg0KKwkg
-KiBmcyByZXF1ZXN0DQorCSAqLw0KKwlpZiAocnEtPmJpbykNCisJCXJldHVy
-biBycV9tYXBfYnVmZmVyKHJxLCBmbGFncyk7DQorDQorCS8qDQorCSAqIHRh
-c2sgcmVxdWVzdA0KKwkgKi8NCisJcmV0dXJuIHJxLT5idWZmZXIgKyBibGtf
-cnFfb2Zmc2V0KHJxKTsNCit9DQorDQorc3RhdGljIGlubGluZSB2b2lkIHRh
-c2tfdW5tYXBfcnEoc3RydWN0IHJlcXVlc3QgKnJxLCBjaGFyICpidWZmZXIs
-IHVuc2lnbmVkIGxvbmcgKmZsYWdzKQ0KK3sNCisJaWYgKHJxLT5iaW8pDQor
-CQlycV91bm1hcF9idWZmZXIoYnVmZmVyLCBmbGFncyk7DQorfQ0KKw0KIC8q
-DQogICogbWFwcGluZyBzdHVmZiwgcHJlcGFyZSBmb3IgaGlnaG1lbS4uLg0K
-ICAqIA0K
----559023410-33463914-1051468725=:27252--
+If you want to win, you win by being a creator, not a copier.  That's the
+point.  In my opinion, chasing the leader and copying them is a losing
+strategy and always has been.  The successes have been when someone
+creates something new.  So for both historical reasons and current reasons,
+copying as a strategy looks flawed.  And depressing if I'm right that the
+corporations will just encrypt all the data so that copying the program 
+is pointless.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

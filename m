@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261680AbUEEDYm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbUEEDxi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261680AbUEEDYm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 23:24:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbUEEDYm
+	id S261576AbUEEDxi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 23:53:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261817AbUEEDxi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 23:24:42 -0400
-Received: from smtp018.mail.yahoo.com ([216.136.174.115]:28251 "HELO
-	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261680AbUEEDYj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 23:24:39 -0400
-Message-ID: <40985E73.6000901@yahoo.com.au>
-Date: Wed, 05 May 2004 13:24:35 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: Andrew Morton <akpm@osdl.org>, sgoel01@yahoo.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [VM PATCH 2.6.6-rc3-bk5] Dirty balancing in the presence of mapped
- pages
-References: <20040505002029.11785.qmail@web12821.mail.yahoo.com>	<20040504180345.099926ec.akpm@osdl.org>	<40984E89.6070501@yahoo.com.au> <20040504195753.0a9e4a54.akpm@osdl.org> <40985C91.9080809@yahoo.com.au>
-In-Reply-To: <40985C91.9080809@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 4 May 2004 23:53:38 -0400
+Received: from mail.kroah.org ([65.200.24.183]:36762 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261576AbUEEDxh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 23:53:37 -0400
+Date: Tue, 4 May 2004 19:56:02 -0700
+From: Greg KH <greg@kroah.com>
+To: "Patrick J. LoPresti" <patl@users.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Load hid.o module synchronously?
+Message-ID: <20040505025602.GA19873@kroah.com>
+References: <s5g8ygi4l3q.fsf@patl=users.sf.net> <408D65A7.7060207@nortelnetworks.com> <s5gisfm34kq.fsf@patl=users.sf.net> <c6od9g$53k$1@gatekeeper.tmr.com> <s5ghdv0i8w4.fsf@patl=users.sf.net> <20040504200147.GA26579@kroah.com> <s5ghduvdg1u.fsf@patl=users.sf.net> <20040504223550.GA32155@kroah.com> <s5gy8o7bnhv.fsf@patl=users.sf.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <s5gy8o7bnhv.fsf@patl=users.sf.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> Andrew Morton wrote:
+On Tue, May 04, 2004 at 10:49:56PM -0400, Patrick J. LoPresti wrote:
+> Greg KH <greg@kroah.com> writes:
 > 
->> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
->>
+> > On Tue, May 04, 2004 at 05:56:48PM -0400, Patrick J. LoPresti wrote:
+> >
+> > > But what if it fails to bind?  For example, what if an error occurs?
+> > > Or what if the keyboard is on the module's blacklist?  How do I know
+> > > when to stop waiting?
+> > 
+> > You do not, sorry.
+> 
+> That is disappointing.  I mean, I deal with Microsoft products a lot,
+> where "unreliable by design" is normal.  But I expected better from
+> Linux.
 
->>> It doesn't do the wakeup_bdflush thing, but that sounds
->>> like a good idea. What does wakeup_bdflush(-1) mean?
->>
->>
->>
->> It appears that it will cause pdflush to write out down to
->> dirty_background_ratio.
->>
-> 
-> Yeah. So wakeup_bdflush(0) would be more consistent?
-> 
+That is such an obvious troll and flame bait, I really do not know why I
+am responding.  Please, try to be civil here.  The point of Linux isis,
+if you don't like the way things are today, you can change them.  Try
+that with Microsoft products (for that manner, please show me how you
+can do what you are trying to do on Windows 2000, driver stuff there is
+_so_ much more complex...)
 
-No. Sorry, next time I'll actually read the code :|
+But before you try to do that (which basically is moving things back to
+the way things used to be years ago in 2.2), why don't you try to state
+the problem you are having.  Perhaps it can be solved in a different
+manner than what you are trying to do.
+
+So, what are you trying to fix/solve/monitor/do here?
+
+thanks,
+
+greg k-h

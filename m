@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262940AbTCSIBu>; Wed, 19 Mar 2003 03:01:50 -0500
+	id <S262947AbTCSIF3>; Wed, 19 Mar 2003 03:05:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262943AbTCSIBu>; Wed, 19 Mar 2003 03:01:50 -0500
-Received: from landfill.ihatent.com ([217.13.24.22]:59778 "EHLO
-	mail.ihatent.com") by vger.kernel.org with ESMTP id <S262940AbTCSIBt>;
-	Wed, 19 Mar 2003 03:01:49 -0500
-To: Andrew Morton <akpm@digeo.com>
-Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.65-mm1
-References: <20030318031104.13fb34cc.akpm@digeo.com>
-	<87adfs4sqk.fsf@lapper.ihatent.com>
-	<87bs08vfkg.fsf@lapper.ihatent.com>
-	<20030318160902.C21945@flint.arm.linux.org.uk>
-	<873clkw6ui.fsf@lapper.ihatent.com>
-	<20030318162601.78f11739.akpm@digeo.com>
-From: Alexander Hoogerhuis <alexh@ihatent.com>
-Date: 19 Mar 2003 09:12:48 +0100
-In-Reply-To: <20030318162601.78f11739.akpm@digeo.com>
-Message-ID: <87fzpjepvj.fsf@lapper.ihatent.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262948AbTCSIF3>; Wed, 19 Mar 2003 03:05:29 -0500
+Received: from imap.gmx.net ([213.165.65.60]:4640 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S262947AbTCSIF1>;
+	Wed, 19 Mar 2003 03:05:27 -0500
+Message-Id: <5.2.0.9.2.20030319091819.00ca4bf0@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Wed, 19 Mar 2003 09:21:00 +0100
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [patch] sched-2.5.64-D3, more interactivity changes
+Cc: Andrew Morton <akpm@digeo.com>, Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1048057981.1209.17.camel@ixodes.goop.org>
+References: <20030318215228.417e0a58.akpm@digeo.com>
+ <Pine.LNX.4.44.0303171114310.19107-100000@localhost.localdomain>
+ <20030318215228.417e0a58.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@digeo.com> writes:
-
-> Alexander Hoogerhuis <alexh@ihatent.com> wrote:
+At 11:13 PM 3/18/2003 -0800, Jeremy Fitzhardinge wrote:
+>On Tue, 2003-03-18 at 21:52, Andrew Morton wrote:
+> > > Could people, who can reproduce 'audio skips' kind of problems even with
+> > > BK-curr, give this patch a go?
 > >
-> > I'm not suspecting the PCI in particular for the PCIC-bits, only
-> > making X and the Radeon work again. But here you are:
-> 
-> Something bad has happened to the Radeon driver in recent kernels.  I've seen
-> various reports with various syptoms and some suspicion has been directed at
-> the AGP changes.
-> 
-> But as far as I know nobody has actually got down and done the binary search
-> to find out exactly when it started happening.
+> > I do not test for multimedia performance and cannot comment on this.
+>
+>I'm still getting starvation problems.  If I run xmms with the "Goom"
+>visualizer (with the window large enough that it is CPU-bound), then
+>type a command into a shell window (say, ps), it will not run the
+>command until I close or shrink the goom window.  xmms itself plays
+>fine, though sometimes it fails to go to the next track, apparently for
+>the same reason (ie, it starts the next track when I disable the
+>visualizer).
 
-Just got my machine out and booted up, this time I did enable my
-chipset into 4x AGP, instead of 1x as last night:
+I'm hot on the trail (woof) of this.  If I get it working "right", are you 
+willing to test a patch?  I don't want to bug Ingo until I've got something 
+worth arm waving about ;-)
 
-alexh@lapper ~ $ dmesg | grep -i agp
-Linux agpgart interface v0.100 (c) Dave Jones
-agpgart: Detected Intel i845 chipset
-agpgart: Maximum main memory to use for agp memory: 690M
-agpgart: AGP aperture is 256M @ 0xa0000000
-agpgart: Putting AGP V2 device at 00:00.0 into 4x mode
-agpgart: Putting AGP V2 device at 01:00.0 into 4x mode
-alexh@lapper ~ $
+         -Mike 
 
-mvh,
-A
--- 
-Alexander Hoogerhuis                               | alexh@ihatent.com
-CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
-"You have zero privacy anyway. Get over it."  --Scott McNealy

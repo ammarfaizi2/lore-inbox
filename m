@@ -1,107 +1,215 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261626AbULNTjw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261637AbULNTls@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261626AbULNTjw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 14:39:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261630AbULNTjw
+	id S261637AbULNTls (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 14:41:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261636AbULNTlo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 14:39:52 -0500
-Received: from wproxy.gmail.com ([64.233.184.197]:12438 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261626AbULNTfJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 14:35:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Q8lhXsa1bsG8yNJi30pbiYPdgjyybSUeNk4ngDIbrdS2lEq4bo2ZyHg93LzxChbaVxboAszd9lBKf6PEvaphABu5ZnjPMzfj4qX0aaGLMwxdU9CDOpHA/8XqpB6yUctYSp63W6gmmraZVXTrQUHPgID/pyKozpBrNHKzmzfTnro=
-Message-ID: <69304d1104121411354f95af5e@mail.gmail.com>
-Date: Tue, 14 Dec 2004 20:35:08 +0100
-From: Antonio Vargas <windenntw@gmail.com>
-Reply-To: Antonio Vargas <windenntw@gmail.com>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: arch/xen is a bad idea
-Cc: Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, Ian Pratt <Ian.Pratt@cl.cam.ac.uk>,
-       Steven.Hand@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk,
-       Keir.Fraser@cl.cam.ac.uk, samuel@ibrium.se, benh@kernel.crashing.org
-In-Reply-To: <p73acsg1za1.fsf@bragg.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <41BF1983.mailP9C1B91GB@suse.de.suse.lists.linux.kernel>
-	 <p73acsg1za1.fsf@bragg.suse.de>
+	Tue, 14 Dec 2004 14:41:44 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:25073 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261631AbULNTlF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 14:41:05 -0500
+Message-Id: <200412141941.iBEJf129020290@d03av04.boulder.ibm.com>
+Subject: [PATCH 1/1] pci: Block config access during BIST (resend)
+To: greg@kroah.com
+Cc: paulus@samba.org, benh@kernel.crashing.org, linux-kernel@vger.kernel.org,
+       brking@us.ibm.com
+From: brking@us.ibm.com
+Date: Tue, 14 Dec 2004 13:41:00 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 14 Dec 2004 19:59:50 +0100, Andi Kleen <ak@suse.de> wrote:
-> "Andi Kleen" <ak@suse.de> writes:
-> 
-> [again this time with subject. sorry for the screwup]
-> [very late answer]
-> 
-> > Stunned silence I guess - merging an architecture is
-> > usually much more controversial ;)
-> 
-> In my opinion it's still an extremly bad idea to have arch/xen
-> an own architecture. It will cause a lot of work long term
-> to maintain it, especially when it gets x86-64 support too.
-> It would be much better to just merge it with i386/x86-64.
-> 
-> Currently it's already difficult enough to get people to
-> add fixes to both i386 and x86-64, adding fixes to three
-> or rather four (xen32 and xen64) architectures will be quite bad.
-> In practice we'll likely get much worse code drift and missing
-> fixes. Also I still suspect Ian is underestimating how much
-> work it is long term to keep an Linux architecture uptodate.
-> 
-> I cannot imagine the virtualization hooks are intrusive anyways. The
-> only things it needs to hook idle and the page table updates, right?
-> Doing that cleanly in the existing architectures shouldn't be that
-> hard.
-> 
-> I suspect xen64 will be rather different from xen32 anyways
-> because as far as I can see the tricks Xen32 uses to be
-> fast (segment limits) just plain don't work on 64bit
-> because the segments don't extend into 64bit space.
-> So having both in one architecture may also end up messy.
-> 
-> And i386 and x86-64 are in many pieces very different anyways,
-> I have my doubts that trying to mesh them together in arch/xen
-> will be very pretty.
-> 
-> Also the other thing I'm worried about is that there is no clear
-> specification on how the Xen<->Linux interface works. Assuming
-> there will be other para Hypervisors in the future too will we
-> end up with even more virtual architectures? It would be much
-> better to have at least a somewhat defined "linux virtual interface"
-> first that is actually understood by multiple people outside
-> the Xen group.
-> 
-> I think before merging stuff the hypervisor interfaces need to be
-> discussed on linux-kernel. Splitting the patches and posting them
-> as individual pieces for i386 with good description will be a good
-> first step for that.
-> 
-> -Andi
-> -
 
-Andi, there is at least one other hypervisor interface, mac-on-linux
-features a kernel module that allows booting other kernels inside the
-running one, and keeps very good speed anyways.
+Some PCI adapters (eg. ipr scsi adapters) have an exposure today in that 
+they issue BIST to the adapter to reset the card. If, during the time
+it takes to complete BIST, userspace attempts to access PCI config space, 
+the host bus bridge will master abort the access since the ipr adapter 
+does not respond on the PCI bus for a brief period of time when running BIST. 
+On PPC64 hardware, this master abort results in the host PCI bridge
+isolating that PCI device from the rest of the system, making the device
+unusable until Linux is rebooted. This patch is an attempt to close that
+exposure by introducing some blocking code in the PCI code. When blocked,
+writes will be humored and reads will return the cached value. Ben
+Herrenschmidt has also mentioned that he plans to use this in PPC power
+management.
 
-Their code, at least the user-space part, was also very good coded
-for my eyes.
+Signed-off-by: Brian King <brking@us.ibm.com>
+---
 
-Driver support is done by exporting a customized open-firmware
-device tree and then implementing drivers for these devices on
-the client OSs.
+ linux-2.6.10-rc3-bk8-bjking1/drivers/pci/access.c |  104 ++++++++++++++++++++++
+ linux-2.6.10-rc3-bk8-bjking1/include/linux/pci.h  |   37 ++-----
+ 2 files changed, 115 insertions(+), 26 deletions(-)
 
-(just goto http://www.maconlinux.org/ and have a look)
-
-Oh, this is obviusly ppc-only ATM :)
-
--- 
-Greetz, Antonio Vargas aka winden of network
-
-http://wind.codepixel.com/
-
-Las cosas no son lo que parecen, excepto cuando parecen lo que si son.
+diff -puN include/linux/pci.h~pci_block_config_io_during_bist include/linux/pci.h
+--- linux-2.6.10-rc3-bk8/include/linux/pci.h~pci_block_config_io_during_bist	2004-12-14 13:31:52.000000000 -0600
++++ linux-2.6.10-rc3-bk8-bjking1/include/linux/pci.h	2004-12-14 13:31:52.000000000 -0600
+@@ -535,7 +535,8 @@ struct pci_dev {
+ 	/* keep track of device state */
+ 	unsigned int	is_enabled:1;	/* pci_enable_device has been called */
+ 	unsigned int	is_busmaster:1; /* device is busmaster */
+-	
++	unsigned int	block_cfg_access:1;	/* config space access is blocked */
++
+ 	u32		saved_config_space[16]; /* config space saved at suspend time */
+ 	struct bin_attribute *rom_attr; /* attribute descriptor for sysfs ROM entry */
+ 	int rom_attr_enabled;		/* has display of the rom attribute been enabled? */
+@@ -750,31 +751,12 @@ int pci_bus_read_config_dword (struct pc
+ int pci_bus_write_config_byte (struct pci_bus *bus, unsigned int devfn, int where, u8 val);
+ int pci_bus_write_config_word (struct pci_bus *bus, unsigned int devfn, int where, u16 val);
+ int pci_bus_write_config_dword (struct pci_bus *bus, unsigned int devfn, int where, u32 val);
+-
+-static inline int pci_read_config_byte(struct pci_dev *dev, int where, u8 *val)
+-{
+-	return pci_bus_read_config_byte (dev->bus, dev->devfn, where, val);
+-}
+-static inline int pci_read_config_word(struct pci_dev *dev, int where, u16 *val)
+-{
+-	return pci_bus_read_config_word (dev->bus, dev->devfn, where, val);
+-}
+-static inline int pci_read_config_dword(struct pci_dev *dev, int where, u32 *val)
+-{
+-	return pci_bus_read_config_dword (dev->bus, dev->devfn, where, val);
+-}
+-static inline int pci_write_config_byte(struct pci_dev *dev, int where, u8 val)
+-{
+-	return pci_bus_write_config_byte (dev->bus, dev->devfn, where, val);
+-}
+-static inline int pci_write_config_word(struct pci_dev *dev, int where, u16 val)
+-{
+-	return pci_bus_write_config_word (dev->bus, dev->devfn, where, val);
+-}
+-static inline int pci_write_config_dword(struct pci_dev *dev, int where, u32 val)
+-{
+-	return pci_bus_write_config_dword (dev->bus, dev->devfn, where, val);
+-}
++int pci_read_config_byte(struct pci_dev *dev, int where, u8 *val);
++int pci_read_config_word(struct pci_dev *dev, int where, u16 *val);
++int pci_read_config_dword(struct pci_dev *dev, int where, u32 *val);
++int pci_write_config_byte(struct pci_dev *dev, int where, u8 val);
++int pci_write_config_word(struct pci_dev *dev, int where, u16 val);
++int pci_write_config_dword(struct pci_dev *dev, int where, u32 val);
+ 
+ int pci_enable_device(struct pci_dev *dev);
+ int pci_enable_device_bars(struct pci_dev *dev, int mask);
+@@ -870,6 +852,9 @@ extern void pci_disable_msix(struct pci_
+ extern void msi_remove_pci_irq_vectors(struct pci_dev *dev);
+ #endif
+ 
++extern int pci_start_bist(struct pci_dev *dev);
++extern void pci_block_config_access(struct pci_dev *dev);
++extern void pci_unblock_config_access(struct pci_dev *dev);
+ #endif /* CONFIG_PCI */
+ 
+ /* Include architecture-dependent settings and functions */
+diff -puN drivers/pci/access.c~pci_block_config_io_during_bist drivers/pci/access.c
+--- linux-2.6.10-rc3-bk8/drivers/pci/access.c~pci_block_config_io_during_bist	2004-12-14 13:31:52.000000000 -0600
++++ linux-2.6.10-rc3-bk8-bjking1/drivers/pci/access.c	2004-12-14 13:31:52.000000000 -0600
+@@ -60,3 +60,107 @@ EXPORT_SYMBOL(pci_bus_read_config_dword)
+ EXPORT_SYMBOL(pci_bus_write_config_byte);
+ EXPORT_SYMBOL(pci_bus_write_config_word);
+ EXPORT_SYMBOL(pci_bus_write_config_dword);
++
++#define PCI_READ_CONFIG(size,type)	\
++int pci_read_config_##size	\
++	(struct pci_dev *dev, int pos, type *val)	\
++{									\
++	unsigned long flags;					\
++	int ret = 0;						\
++	u32 data = -1;						\
++	if (PCI_##size##_BAD) return PCIBIOS_BAD_REGISTER_NUMBER;	\
++	spin_lock_irqsave(&pci_lock, flags);		\
++	if (likely(!dev->block_cfg_access))				\
++		ret = dev->bus->ops->read(dev->bus, dev->devfn, pos, sizeof(type), &data); \
++	else if (pos < sizeof(dev->saved_config_space))		\
++		data = dev->saved_config_space[pos/sizeof(dev->saved_config_space[0])]; \
++	spin_unlock_irqrestore(&pci_lock, flags);		\
++	*val = (type)data;					\
++	return ret;							\
++}
++
++#define PCI_WRITE_CONFIG(size,type)	\
++int pci_write_config_##size	\
++	(struct pci_dev *dev, int pos, type val)		\
++{									\
++	unsigned long flags;					\
++	int ret = 0;						\
++	if (PCI_##size##_BAD) return PCIBIOS_BAD_REGISTER_NUMBER;	\
++	spin_lock_irqsave(&pci_lock, flags);		\
++	if (likely(!dev->block_cfg_access))					\
++		ret = dev->bus->ops->write(dev->bus, dev->devfn, pos, sizeof(type), val); \
++	spin_unlock_irqrestore(&pci_lock, flags);		\
++	return ret;							\
++}
++
++PCI_READ_CONFIG(byte, u8)
++PCI_READ_CONFIG(word, u16)
++PCI_READ_CONFIG(dword, u32)
++PCI_WRITE_CONFIG(byte, u8)
++PCI_WRITE_CONFIG(word, u16)
++PCI_WRITE_CONFIG(dword, u32)
++
++/**
++ * pci_block_config_access - Block PCI config reads/writes
++ * @dev:	pci device struct
++ *
++ * This function blocks any PCI config accesses from occurring.
++ * When blocked, any writes will be humored and reads will return
++ * the data saved using pci_save_state for the first 64 bytes
++ * of config space and return ff's for all other config reads.
++ *
++ * Return value:
++ * 	nothing
++ **/
++void pci_block_config_access(struct pci_dev *dev)
++{
++	unsigned long flags;
++
++	pci_save_state(dev);
++	spin_lock_irqsave(&pci_lock, flags);
++	dev->block_cfg_access = 1;
++	spin_unlock_irqrestore(&pci_lock, flags);
++}
++
++/**
++ * pci_unblock_config_access - Unblock PCI config reads/writes
++ * @dev:	pci device struct
++ *
++ * This function allows PCI config accesses to resume.
++ *
++ * Return value:
++ * 	nothing
++ **/
++void pci_unblock_config_access(struct pci_dev *dev)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&pci_lock, flags);
++	dev->block_cfg_access = 0;
++	spin_unlock_irqrestore(&pci_lock, flags);
++}
++
++/**
++ * pci_start_bist - Start BIST on a PCI device
++ * @dev:	pci device struct
++ *
++ * This function allows a device driver to start BIST
++ * when PCI config accesses are disabled.
++ *
++ * Return value:
++ * 	nothing
++ **/
++int pci_start_bist(struct pci_dev *dev)
++{
++	return pci_bus_write_config_byte(dev->bus, dev->devfn, PCI_BIST, PCI_BIST_START);
++}
++
++EXPORT_SYMBOL(pci_read_config_byte);
++EXPORT_SYMBOL(pci_read_config_word);
++EXPORT_SYMBOL(pci_read_config_dword);
++EXPORT_SYMBOL(pci_write_config_byte);
++EXPORT_SYMBOL(pci_write_config_word);
++EXPORT_SYMBOL(pci_write_config_dword);
++EXPORT_SYMBOL(pci_start_bist);
++EXPORT_SYMBOL(pci_block_config_access);
++EXPORT_SYMBOL(pci_unblock_config_access);
+_

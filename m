@@ -1,68 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263474AbTH0R06 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 13:26:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263497AbTH0R06
+	id S263475AbTH0RRR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 13:17:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263489AbTH0RRR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 13:26:58 -0400
-Received: from [24.241.190.29] ([24.241.190.29]:4838 "EHLO wally.rdlg.net")
-	by vger.kernel.org with ESMTP id S263474AbTH0R04 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 13:26:56 -0400
-Date: Wed, 27 Aug 2003 13:26:54 -0400
-From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Odd error
-Message-ID: <20030827172654.GJ16183@rdlg.net>
-Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lGa3FpvTyf1CgKg0"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Wed, 27 Aug 2003 13:17:17 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:23424 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263475AbTH0RRP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 13:17:15 -0400
+Date: Wed, 27 Aug 2003 13:17:15 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Laurent =?iso-8859-1?q?Hug=E9?= <laurent.huge@wanadoo.fr>
+cc: herbert@13thfloor.at, Stuart MacDonald <stuartm@connecttech.com>,
+       "'Russell King'" <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Reading accurate size of recepts from serial port
+In-Reply-To: <200308271853.18821.laurent.huge@wanadoo.fr>
+Message-ID: <Pine.LNX.4.53.0308271312060.2174@chaos>
+References: <005c01c36bdd$8ae58d30$294b82ce@stuartm> <200308261723.04683.laurent.huge@wanadoo.fr>
+ <20030827145041.GC26817@www.13thfloor.at> <200308271853.18821.laurent.huge@wanadoo.fr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 27 Aug 2003, Laurent [iso-8859-1] Hugé wrote:
 
---lGa3FpvTyf1CgKg0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> Le Mercredi 27 Août 2003 16:50, Herbert Pötzl a écrit :
+> > hmm, why not do simple framing ...
+> > [length]<data>[length]<data> ....
+> That's impossible. CCSDS is the committee for space date systems and it
+> provides standards that I can't overrule (even if I can't really understand
+> why they've done it like that !).
+> --
+> Laurent Hugé.
+>
+
+The transfer frame in your reference specified, contains all
+the information necessary for the protocol, even if it's stupid
+to use that protocol on a RS-232C link. Nevertheless, there is
+a minimim size for the header (5 octets in length). There is
+also the 3 octets used for sync, which I'm pretty sure will
+not be put onto the RS-232C links. Anyway, you need to read
+40 bytes (always), from that, you will learn the length
+of the rest of the data. So you use poll()/read() until you
+get that header information. Then you will know what the
+total read-length should be.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (794.73 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 
-
-I just put a new kernel on a server and all of a sudden I'm see'ing
-this:
-
-sending pkt_too_big (len[1500] pmtu[1442]) to self
-sending pkt_too_big (len[1500] pmtu[1442]) to self
-sending pkt_too_big (len[1500] pmtu[1442]) to self
-sending pkt_too_big (len[1500] pmtu[1442]) to self
-
-
-A LOT in my dmesg.  I think it's most likely an app which is doing
-something stupid but I'd like confirmation before I go smack someone.
-
-:wq!
----------------------------------------------------------------------------
-Robert L. Harris                     | GPG Key ID: E344DA3B
-                                         @ x-hkp://pgp.mit.edu
-DISCLAIMER:
-      These are MY OPINIONS ALONE.  I speak for no-one else.
-
-Life is not a destination, it's a journey.
-  Microsoft produces 15 car pileups on the highway.
-    Don't stop traffic to stand and gawk at the tragedy.
-
---lGa3FpvTyf1CgKg0
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/TOne8+1vMONE2jsRAmESAJ4sJn7ixaKydRbvTbIbKcduJffW0gCgj27F
-vqs6QUpK6SDxIQxf5RMaOg0=
-=rnzv
------END PGP SIGNATURE-----
-
---lGa3FpvTyf1CgKg0--

@@ -1,67 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263101AbTLIFtG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 00:49:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263102AbTLIFtF
+	id S263137AbTLIGU3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 01:20:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263142AbTLIGU3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 00:49:05 -0500
-Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:11856 "HELO
-	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S263101AbTLIFtD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 00:49:03 -0500
-Message-ID: <3FD56241.3070606@yahoo.es>
-Date: Tue, 09 Dec 2003 00:48:49 -0500
-From: Roberto Sanchez <rcsanchez97@yahoo.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031105 Thunderbird/0.3
-X-Accept-Language: en-us, en
+	Tue, 9 Dec 2003 01:20:29 -0500
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:33920 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S263137AbTLIGU2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 01:20:28 -0500
+Message-ID: <000701c3be1c$8a3cfbc0$0301a8c0@comcast.net>
+From: "Paul Zimmerman" <zimmerman.paul@comcast.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux GPL and binary module exception clause?
+Date: Mon, 8 Dec 2003 22:20:27 -0800
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel 2.6.0-testX show stoppers
-References: <3FD498A0.9080802@yahoo.es> <1070898030.2098.146.camel@athlonxp.bradney.info>
-In-Reply-To: <1070898030.2098.146.camel@athlonxp.bradney.info>
-X-Enigmail-Version: 0.81.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig756B0C56FCDBD44A8EB116D5"
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2720.3000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig756B0C56FCDBD44A8EB116D5
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+[ Date:  Sometime in the near future. ]
 
-Craig Bradney wrote:
-> For the Athlon, keep in touch with the nforce thread on here.. There are
-> patches due to timing issues with the nforce chipset. 
-> 
-> For me, so far, just using this one works:
-> http://www.kernel.org/pub/linux/kernel/people/bart/2.6.0-test11-bart1/broken-out/nforce2-apic.patch
-> 
-> There is a program called athcool to turn off CPU Disconnect if you dont
-> have that in your BIOS. I havent used this patch as I have found
-> reliability using the first one I mentioned.
-> 
-> Craig
-> 
+[ Scene:  Exterior of a Federal courthouse in a large city in the US.  Among
+the cars parked in the lot are several dozen stretch limos, a Saab 9000
+Turbo with a penguin bobble-head doll on the dashboard, and a '67 VW van
+covered with "peace" symbols and sporting a bumper sticker that reads "Code
+free or die!" ]
 
-I went ahead and used the entire -bart1 patch and life is good.  No more
-lockups.  It would be great to see this go into the main tree.
+[ Scene:  Interior of said courthouse.  Seated at the plaintiff's table are
+a gaggle of expensive-looking lawyers in expensive-looking suits.  Seated at
+the defendant's table are Linus T, Alan C, Jeff G, Andrew M, David M, Al V,
+Richard S, plus a host of other people whose names we might recognize.  And
+one very nervous-looking, pimply-faced young lawyer who looks like he might
+have graduated from law school sometime last week. ]
 
--Roberto
+[ Lawyer for NVidia: ]  "... And in conclusion, Your Honor, we have
+established that for many years our company sold graphics cards to users of
+the Windows, Mac, and Linux operating systems, in each case providing a
+binary graphics driver to make our card work with that OS. Then, without
+warning, the defendants" [ angrily points his finger at the defendant's
+table ] "conspired to arrange so that our drivers would no longer work with
+the Linux OS. We have already demonstrated that, around the same time, our
+company's revenues began to decline, caused in large part, we believe, by
+the defendants' actions.  We ask for $1 billion in damages."
 
---------------enig756B0C56FCDBD44A8EB116D5
-Content-Type: application/pgp-signature
+[ Judge - banging gavel: ]  "You've convinced me.  I order a summary
+judgement for the amount requested, plus $2 billion punitive damages."
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+[ Cut to:  Bedroom of a comfortable house in the suburbs.  Nighttime. ]
 
-iD8DBQE/1WJNTfhoonTOp2oRAvLeAKDeha+or+y+vJD4L101ArXcuqEMawCfcU+X
-RKftztGykvY2dHUqseOndAc=
-=judY
------END PGP SIGNATURE-----
+[ Linus - suddenly sits bolt upright in the bed, a horrified expression on
+his face: ]  "AAAAiiiiiiieeeeeeeeaaaaaaarrrrrrgggggghhhhhh!!!!"
 
---------------enig756B0C56FCDBD44A8EB116D5--
+[ Wife - shaking Linus' shoulder: ]  "Honey, wake up, wake up!  I think
+you're having that horrible nightmare again!"
+
+And that is why binary drivers will always be allowed under Linux.
+
+-p
 

@@ -1,47 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265074AbSKVFeY>; Fri, 22 Nov 2002 00:34:24 -0500
+	id <S265326AbSKVFsI>; Fri, 22 Nov 2002 00:48:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265246AbSKVFeY>; Fri, 22 Nov 2002 00:34:24 -0500
-Received: from rwcrmhc53.attbi.com ([204.127.198.39]:59589 "EHLO
-	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
-	id <S265074AbSKVFeX>; Fri, 22 Nov 2002 00:34:23 -0500
-Message-ID: <3DDDC37F.5AC219D5@attbi.com>
-Date: Fri, 22 Nov 2002 00:41:19 -0500
-From: Jim Houston <jim.houston@attbi.com>
-Reply-To: jim.houston@attbi.com
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
+	id <S265336AbSKVFsH>; Fri, 22 Nov 2002 00:48:07 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:45316 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S265326AbSKVFsG>;
+	Fri, 22 Nov 2002 00:48:06 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200211220555.gAM5tC5337098@saturn.cs.uml.edu>
+Subject: Re: Where is ext2/3 secure delete ("s") attribute?
+To: jgarzik@pobox.com (Jeff Garzik)
+Date: Fri, 22 Nov 2002 00:55:12 -0500 (EST)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan), linux-kernel@vger.kernel.org,
+       kentborg@borg.org, alan@lxorguk.ukuu.org.uk
+In-Reply-To: <3DDDB4EF.9090300@pobox.com> from "Jeff Garzik" at Nov 21, 2002 11:39:11 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-To: efault@gmx.de, linux-kernel@vger.kernel.org
-CC: riel@conectiva.com.br
-Subject: Re: 2.5.47 scheduler problems?
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mike, Rik, Everyone,
+Jeff Garzik writes:
+> Albert D. Cahalan wrote:
+>> Jeff Garzik writes:
 
-The O(1) schedule just isn't fair.  It will run a subset 
-of the runable processes excluding the rest.  See my earlier
-emails for the details.
+>>> Please name a filesystem that moves allocated blocks around
+>>> on you.  And point to code, too.
+>>
+>> Reiserfs tails
+>>   fs/reiserfs
+>
+> inodes don't move
 
-I had been working on a fix for this but got distracted
-by Posix timers.  I still hope to get back to it.
+In that case I suppose you could iterate through all possible
+tail sizes. In any case, Reiserfs 4 is coming. Reiserfs 4 shifts
+the tree all over.
 
-My patch is here:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=103508412423719&w=2
+>> ext3 with data journalling
+>>   fs/ext3
+>
+> the allocated blocks don't change
 
-It fixes fairness but breaks nice(2). Rik van Riel has a
-patch here which builds on my patch which fixes this:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=103651801424031&w=2
+Same effect though: only the filesystem driver can know how
+to overwrite a file.
 
-I just gave this a spin with.  The patches still apply cleanly
-to linux-2.5.48 and it seems well behaved:-)  
+>> the journalling flash filesystems
+>>   fs/jffs
+>>   fs/jffs2
+>
+> yep
+>
+>> NTFS with compression
+>>   fs/ntfs
+>
+> the allocated blocks don't change
 
-I found this problem with the LTP waitpid06 test.  It actually
-produced a live-lock. See this mail:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=103133744217082&w=2
+They must. I suppose that might not be implemented yet.
 
-Jim Houston - Concurrent Computer Corp.
+>> Multiple overwrites won't protect you from the disk manufacturer
+>> or the NSA. Only one is needed to protect against root & kernel.
+>> So it makes sense to have the filesystem zero the blocks when
+>> they are freed from a file.
+>
+> if you need to protect against root, then zeroing the blocks isn't
+> going to help for LVM or jffs or other journalling.
+
+By "protect against root" of course I mean a future cracked box
+or the drive put into another machine.
+
+LVM has to cooperate. If it can't, then that's a bug. Snapshots
+count the same as keeping backups on separate media. Likewise,
+fsck and defraggers need to cooperate.

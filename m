@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261593AbTAVPXL>; Wed, 22 Jan 2003 10:23:11 -0500
+	id <S261568AbTAVPWo>; Wed, 22 Jan 2003 10:22:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261594AbTAVPXL>; Wed, 22 Jan 2003 10:23:11 -0500
-Received: from mons.uio.no ([129.240.130.14]:46723 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S261593AbTAVPXJ>;
-	Wed, 22 Jan 2003 10:23:09 -0500
+	id <S261545AbTAVPWo>; Wed, 22 Jan 2003 10:22:44 -0500
+Received: from amsfep11-int.chello.nl ([213.46.243.20]:24660 "EHLO
+	amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
+	id <S261529AbTAVPWn>; Wed, 22 Jan 2003 10:22:43 -0500
+Message-ID: <3E2EB962.9020503@users.sf.net>
+Date: Wed, 22 Jan 2003 16:31:46 +0100
+From: Thomas Tonino <ttonino@users.sf.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030116
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15918.47480.31996.510033@charged.uio.no>
-Date: Wed, 22 Jan 2003 16:32:08 +0100
-To: Oliver Tennert <tennert@science-computing.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NFS client problem and IO blocksize
-In-Reply-To: <Pine.GHP.4.02.10301221459090.7581-100000@alderaan.science-computing.de>
-References: <15918.40855.583602.576856@charged.uio.no>
-	<Pine.GHP.4.02.10301221459090.7581-100000@alderaan.science-computing.de>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Problem with Qlogic 2200 and 2.4.20
+References: <20030122094015$6b19@gated-at.bofh.it>
+In-Reply-To: <20030122094015$6b19@gated-at.bofh.it>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Oliver Tennert <tennert@science-computing.de> writes:
+Przemys³aw Maciuszko wrote:
+> Hello.
+> I have a strange problem with 2.4.20 (also 2.4.19) and Qlogic FC 2200.
+> 
+> The machine runs test news-server, so disk load is high.
+> After few minutes of running I get the following errors on console:
+> 
+> qlogifc0 : no handle slots, this should not happen
+> hostdata->queued is 19, in_ptr: 63
+> qlogifc0 : no handle slots, this should not happen
+> hostdata->queued is 19, in_ptr: 6a
+> qlogifc0 : no handle slots, this should not happen
+> hostdata->queued is 19, in_ptr: 70
+> 
+> and so on.
 
-     > OK thanks. But I am sorry to push you once more, Trond: can you
-     > now give me just a brief explanation of difference between the
-     > "wsize" option and the "wtmult" attribute? Is it better now to
-     > disable O_DIRECT and use a larger wsize/rsize, or to enable it
-     > and be content with the parameters it uses?
+This is a long standing problem. Andrew Patterson gave a patch on the list:
 
-wsize gives you the maximum number of bytes NFS is allowed to send in
-a single NFSPROC_WRITE RPC call. (rsize gives the same number for
-NFSPROC_READ calls). The NFS client will usually wait until it has
-'wsize' bytes or more in the page cache before it tries to send
-anything over to the server.
+http://groups.google.com/groups?selm=linux.scsi.1019759258.2413.1.camel%40lvadp.fc.hp.com
 
-OTOH wtmult has nothing to do with RPC, and has more to do with the
-disk organization on the server.
-As I understand it, in many cases the significance of this value lies
-in the fact that hardware operations to the disk have a lower limit on
-the number of bytes that can be read/written. IOW if your write is not
-aligned to a 'wtmult' boundary, then the server may be forced to read
-in the remaining data from the disk before it writes the entire block
-back.
+Without this patch, 2.4.18 would lock up in a few minutes syncing a software 
+raid. With the patch, it has been running multiple megabytes I/O a second for 
+months. And yes it can sync software RAIDs too.
 
-Cheers,
-  Trond
+The driver seems to be working for some people without the patch, but the 
+problem appears so quickly on some systems that it is strange the fix has not 
+been incorporated yet. In my case, I tested with ISP2200 cards and a JBOD with 
+Cheetah 10k4 and 10k5 drives.
+
+
+Thomas
+

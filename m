@@ -1,67 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271598AbRIBJmk>; Sun, 2 Sep 2001 05:42:40 -0400
+	id <S271599AbRIBJyU>; Sun, 2 Sep 2001 05:54:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271599AbRIBJma>; Sun, 2 Sep 2001 05:42:30 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:10767 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S271598AbRIBJmQ>; Sun, 2 Sep 2001 05:42:16 -0400
-Date: Sun, 2 Sep 2001 11:42:25 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: linux-kernel@vger.kernel.org, Lars Christian Nygaard <lars@snart.com>
+	id <S271600AbRIBJyB>; Sun, 2 Sep 2001 05:54:01 -0400
+Received: from mustard.heime.net ([194.234.65.222]:28596 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S271599AbRIBJxu>; Sun, 2 Sep 2001 05:53:50 -0400
+Message-Id: <200109020953.LAA02862@mustard.heime.net>
+Date: Sun, 02 Sep 2001 09:53:59 +0000
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Reply-To: roy@karlsbakk.net
+To: J.A.K.Mouw@ITS.TUDelft.NL, roy@karlsbakk.net
+Cc: linux-kernel@vger.kernel.org, lars@snart.com
+X-Mailer: phpGroupWare (http://www.phpgroupware.org)
 Subject: Re: 2.4.6 error
-Message-ID: <20010902114225.C697@arthur.ubicom.tudelft.nl>
-In-Reply-To: <Pine.LNX.4.30.0109021117260.2609-100000@mustard.heime.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+MIME-version: 1.0
+Content-type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0109021117260.2609-100000@mustard.heime.net>; from roy@karlsbakk.net on Sun, Sep 02, 2001 at 11:26:27AM +0200
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 02, 2001 at 11:26:27AM +0200, Roy Sigurd Karlsbakk wrote:
-> I just got a whole bunch of the following error on my 2.4.6 installation.
-> Virtual address (EIP), pde, pte, eflags, edx, esi, edi, the first quad in
-> the stack and the call trace remains stable. The others are varying. The
-> oops comes whenever sa1 (in sysstat) is run.
-> 
-> please cc: to me as I'm not on the list
-> 
-> roy
-> 
-> Code:  Bad EIP value.
-> Unable to handle kernel paging request at virtual address c9049180
->  printing eip:
-> c9049180
-> *pde = 07f8b067
-> *pte = 00000000
-> Oops: 0000
-> CPU:    0
-> EIP:    0010:[<c9049180>]
-> EFLAGS: 00010282
-> eax: c1903f68   ebx: c6c5d960   ecx: c6c5d980   edx: c9049180
-> esi: 00000400   edi: 00000000   ebp: c3b7c000   esp: c1903f40
-> ds: 0018   es: 0018   ss: 0018
-> Process sadc (pid: 9922, stackpage=c1903000)
-> Stack: c0149fcd c3b7c000 c1903f68 00000000 00000400 c1903f64 c90500e0 c7f7b8c0
->        00000000 00000000 00000000 c6c5d960 ffffffea 00000000 00000400 c012ea28
->        c6c5d960 40017000 00000400 c6c5d980 00000000 00001000 00000003 00000022
-> Call Trace: [<c0149fcd>] [<c012ea28>] [<c0106d43>]
+It looks like I have a bad system map file, so I'll try to make a new kernel. Anyway 
+- if anyone's interested, I got the following output from ksymopps
 
-Could you run this through ksymoops and repost to linux-kernel? The
-addresses are useless right now. See REPORTING-BUGS and
-Documentation/oops-tracing.txt in the linux source tree for details.
+roy
+
+www:~/bugs># cat sadc-oops | ksymoops -m /boot/System.map-2.4.6
+ksymoops 2.4.2 on i586 2.4.6.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.6/ (default)
+     -m /boot/System.map-2.4.6 (specified)
+
+Warning (compare_maps): ksyms_base symbol __VERSIONED_SYMBOL(shmem_file_setup) not 
+found in System.map.  Ignoring ksyms_base entry
+Warning (compare_maps): ksyms_base symbol hotplug_path_R__ver_hotplug_path not found 
+in System.map.  Ignoring ksyms_base entry
+Warning (compare_maps): ksyms_base symbol nfsd_linkage_R__ver_nfsd_linkage not found 
+in System.map.  Ignoring ksyms_base entry
+Unable to handle kernel paging request at virtual address c9049180
+c9049180
+*pde = 07f8b067
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c9049180>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010282
+eax: c5e47f68   ebx: c0eb37a0   ecx: c0eb37c0   edx: c9049180
+esi: 00000400   edi: 00000000   ebp: c7d0f000   esp: c5e47f40
+ds: 0018   es: 0018   ss: 0018
+Process sadc (pid: 13746, stackpage=c5e47000)
+Stack: c0149fcd c7d0f000 c5e47f68 00000000 00000400 c5e47f64 c90500e0 c7f7b8c0
+       00000000 00000000 00000000 c0eb37a0 ffffffea 00000000 00000400 c012ea28
+       c0eb37a0 4001a000 00000400 c0eb37c0 00000000 00001000 00000003 00000022
+Call Trace: [<c0149fcd>] [<c012ea28>] [<c0106d43>]
+Code:  Bad EIP value.
+
+>>EIP; c9049180 <_end+8d5bcb0/8d64b30>   <=====
+Trace; c0149fcc <proc_file_read+bc/1a0>
+Trace; c012ea28 <sys_read+98/d0>
+Trace; c0106d42 <system_call+32/40>
 
 
-Erik
-
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+3 warnings issued.  Results may not be reliable.

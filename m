@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbVALRxM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261272AbVALSDq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261284AbVALRxM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 12:53:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbVALRxM
+	id S261272AbVALSDq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 13:03:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbVALSDq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 12:53:12 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:28035 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261279AbVALRxK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 12:53:10 -0500
-Date: Wed, 12 Jan 2005 09:52:53 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Christoph Hellwig <hch@infradead.org>
-cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       torvalds@osdl.org, ak@muc.de, hugh@veritas.com, linux-mm@kvack.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       benh@kernel.crashing.org
-Subject: Re: page table lock patch V15 [0/7]: overview
-In-Reply-To: <20050112174101.GA5838@infradead.org>
-Message-ID: <Pine.LNX.4.58.0501120951140.10806@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0412011545060.5721@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0501041129030.805@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0501041137410.805@schroedinger.engr.sgi.com> <m1652ddljp.fsf@muc.de>
- <Pine.LNX.4.58.0501110937450.32744@schroedinger.engr.sgi.com>
- <41E4BCBE.2010001@yahoo.com.au> <20050112014235.7095dcf4.akpm@osdl.org>
- <Pine.LNX.4.58.0501120833060.10380@schroedinger.engr.sgi.com>
- <20050112164906.GA4935@infradead.org> <Pine.LNX.4.58.0501120931460.10697@schroedinger.engr.sgi.com>
- <20050112174101.GA5838@infradead.org>
+	Wed, 12 Jan 2005 13:03:46 -0500
+Received: from static64-74.dsl-blr.eth.net ([61.11.64.74]:24324 "EHLO
+	linmail.globaledgesoft.com") by vger.kernel.org with ESMTP
+	id S261272AbVALSDp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 13:03:45 -0500
+Message-ID: <41E56442.1020808@globaledgesoft.com>
+Date: Wed, 12 Jan 2005 23:24:10 +0530
+From: krishna <krishna.c@globaledgesoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: lirc-list-admin@lists.sourceforge.net,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: lirc.conf for 6710V00099B
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Jan 2005, Christoph Hellwig wrote:
+Hi,
 
-> These smaller systems are more likely x86/x86_64 machines ;-)
+I have soldered LIRC serial.
 
-But they will not have been build in 1998 either like the machine I used
-for the i386 tests. Could you do some tests on contemporary x86/x86_64
-SMP systems with large memory?
+I am able to see pulses by using xmode2.
+
+But I am not able to do irrecord.
+
+Might be my lirc.conf is not right.
+
+My remote model is 6710V00099B.
+My remote make is LG.
+
+Does any one has lirc.conf file for this Remote.
+
+regards,
+Krishna Chaitanya
+

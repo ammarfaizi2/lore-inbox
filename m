@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268702AbUIQLbk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268697AbUIQLbm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268702AbUIQLbk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 07:31:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268698AbUIQL2i
+	id S268697AbUIQLbm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 07:31:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268708AbUIQLaz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 07:28:38 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:12450 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S268699AbUIQL1V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 07:27:21 -0400
-Message-ID: <414ACA14.1000608@grupopie.com>
-Date: Fri, 17 Sep 2004 12:27:16 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: top hogs CPU in 2.6: kallsyms_lookup is very slow
-References: <200409161428.27425.vda@port.imtp.ilyichevsk.odessa.ua> <200409161457.08544.vda@port.imtp.ilyichevsk.odessa.ua> <20040916121747.GQ9106@holomorphy.com> <200409171201.15158.vda@port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200409171201.15158.vda@port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 17 Sep 2004 07:30:55 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:10215 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S268697AbUIQL3M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 07:29:12 -0400
+Date: Fri, 17 Sep 2004 04:28:31 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Stelian Pop <stelian@popies.net>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC, 2.6] a simple FIFO implementation
+Message-Id: <20040917042831.253fe8df.pj@sgi.com>
+In-Reply-To: <20040917102413.GA3089@crusoe.alcove-fr>
+References: <20040913135253.GA3118@crusoe.alcove-fr>
+	<20040915153013.32e797c8.akpm@osdl.org>
+	<20040916064320.GA9886@deep-space-9.dsnet>
+	<20040916000438.46d91e94.akpm@osdl.org>
+	<20040916104535.GA3146@crusoe.alcove-fr>
+	<20040916100050.17a9b341.akpm@osdl.org>
+	<20040916180908.GB9886@deep-space-9.dsnet>
+	<20040916171817.78ab4430.akpm@osdl.org>
+	<20040917102413.GA3089@crusoe.alcove-fr>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.27.0.10; VDF: 6.27.0.65; host: bipbip)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko wrote:
-> On Thursday 16 September 2004 15:17, William Lee Irwin III wrote:
->>Did the kallsyms patches reduce the cpu overhead from get_wchan()?
-> 
-> 
-> Yes. top does not hog CPU anymore. It takes even a liitle bit *less*
-> CPU than in 2.4 now.
+Stelian wrote:
+> A third and I hope final version of the patch follows.
 
-Great!
-
-I was the one who wrote those patches, so I'm glad to know that they 
-actually made a difference in real world workloads (like using "top").
-
-Reading /proc/kallsyms should be a lot faster too, although there is no 
-comparison with 2.4 kernel, because there where no kallsyms there. It 
-can be compared with previous 2.6 kernels, though.
+The struct kfifo is quite a bit more readable - nice.
 
 -- 
-Paulo Marques - www.grupopie.com
-
-To err is human, but to really foul things up requires a computer.
-Farmers' Almanac, 1978
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

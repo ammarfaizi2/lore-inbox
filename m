@@ -1,64 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262537AbVCPHCJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262538AbVCPHH4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262537AbVCPHCJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 02:02:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262540AbVCPHCJ
+	id S262538AbVCPHH4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 02:07:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262539AbVCPHH4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 02:02:09 -0500
-Received: from ZIVLNX17.UNI-MUENSTER.DE ([128.176.188.79]:972 "EHLO
-	ZIVLNX17.uni-muenster.de") by vger.kernel.org with ESMTP
-	id S262537AbVCPHCB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 02:02:01 -0500
-From: Borislav Petkov <petkov@uni-muenster.de>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: 2.6.11-mm3: BUG: atomic counter underflow at: rpcauth_destroy
-Date: Wed, 16 Mar 2005 08:02:17 +0100
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-References: <200503152321.52799.petkov@uni-muenster.de> <1110930779.22062.13.camel@lade.trondhjem.org>
-In-Reply-To: <1110930779.22062.13.camel@lade.trondhjem.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 16 Mar 2005 02:07:56 -0500
+Received: from fire.osdl.org ([65.172.181.4]:7908 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262538AbVCPHHs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 02:07:48 -0500
+Date: Tue, 15 Mar 2005 23:07:36 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, rohit.seth@intel.com
+Subject: Re: [PATCH] Reading deterministic cache parameters and exporting it
+ in /sysfs
+Message-Id: <20050315230736.6faa3734.akpm@osdl.org>
+In-Reply-To: <20050315152448.A1697@unix-os.sc.intel.com>
+References: <20050315152448.A1697@unix-os.sc.intel.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503160802.17462.petkov@uni-muenster.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 16 March 2005 00:52, Trond Myklebust wrote:
-> ty den 15.03.2005 Klokka 23:21 (+0100) skreiv Borislav Petkov:
-> > After some rookie debugging I think I've found the evildoer:
-> >
-> > rpcauth_create used to have a line that inits rpc_auth->au_count to one
-> > atomically. This line is now missing so when you release the rpc
-> > authentication handle, the au_count underflows. Here's a fix:
-> >
-> > Signed-off-by: Borislav Petkov <petkov@uni-muenster.de>
-> >
-> > --- net/sunrpc/auth.c.orig 2005-03-15 22:34:58.000000000 +0100
-> > +++ net/sunrpc/auth.c 2005-03-15 22:36:23.000000000 +0100
-> > @@ -70,6 +70,7 @@ rpcauth_create(rpc_authflavor_t pseudofl
-> >   auth = ops->create(clnt, pseudoflavor);
-> >   if (!auth)
-> >    return NULL;
-> > + atomic_set(&auth->au_count, 1);
-> >   if (clnt->cl_auth)
-> >    rpcauth_destroy(clnt->cl_auth);
-> >   clnt->cl_auth = auth;
+Venkatesh Pallipadi <venkatesh.pallipadi@intel.com> wrote:
 >
-> The correct fix for this has already been committed to Linus' bitkeeper
-> repository. See
->
-> http://linux.bkbits.net:8080/linux-2.6/cset@42332338Oz6uYqdnuwFBM5JHXlBCCQ?
->nav=index.html|ChangeSet@-4d
->
-> Cheers,
->   Trond
+>  The attached patch adds support for using cpuid(4) instead of cpuid(2), to get 
+>  CPU cache information in a deterministic way for Intel CPUs, whenever 
+>  supported.
 
-Please, excuse the noise :) Just saw ChangeSet 1.2009.4.29 :
-RPC: struct rpc_auth initialization and destruction code cleanup. Now I get 
-it, thanks.
+- find_num_cache_leaves can be marked __init
 
-Regards,
-Boris.
+- Please look for other __init opportunities.  That's quite a lot of code.
+
+- Some functions have a space before the ( and some don't:
+
+	+static ssize_t show_size (struct _cpuid4_info *this_leaf, char *buf)
+
+  omitting the space is preferred.
+
+- Don't cast the return value of kmalloc:
+
++	cpuid4_info[cpu] = (struct _cpuid4_info *)kmalloc(
++	    sizeof(struct _cpuid4_info) * num_cache_leaves, GFP_KERNEL);
+
+- Sometimes there's a space after an `if', sometimes not.
+
++		if(cpuid4_info[i])
+
+  a space is preferred.
+
+- kfree(NULL) is permitted:
+
++	if(cpuid4_info[i])
++		kfree(cpuid4_info[i]);
++	if(cache_kobject[i])
++		kfree(cache_kobject[i]);
++	if(index_kobject[i])
++		kfree(index_kobject[i]);
+
+  (in several places)
+
+
+Once you've worked through the design issues with davej, please upissue the
+patch, thanks.
+

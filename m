@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265288AbUFAVBP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265234AbUFAVEt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265288AbUFAVBP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 17:01:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265261AbUFAVBO
+	id S265234AbUFAVEt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 17:04:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265274AbUFAVEs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 17:01:14 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:26123 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265288AbUFAVA6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 17:00:58 -0400
-Date: Tue, 1 Jun 2004 22:00:52 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.6 synclink_cs.c
-Message-ID: <20040601220051.G31301@flint.arm.linux.org.uk>
-Mail-Followup-To: Paul Fulghum <paulkf@microgate.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040527174509.GA1654@quadpro.stupendous.org> <1085769769.2106.23.camel@deimos.microgate.com> <20040528160612.306c22ab.akpm@osdl.org> <1086123182.2171.15.camel@deimos.microgate.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1086123182.2171.15.camel@deimos.microgate.com>; from paulkf@microgate.com on Tue, Jun 01, 2004 at 03:53:02PM -0500
+	Tue, 1 Jun 2004 17:04:48 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:16102 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S265240AbUFAVDN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 17:03:13 -0400
+Date: Tue, 1 Jun 2004 22:03:12 +0100 (BST)
+From: jsimmons@pentafluge.infradead.org
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: Eduard Bloch <edi@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: keyboard problem with 2.6.6
+In-Reply-To: <20040530140350.GA2053@ucw.cz>
+Message-ID: <Pine.LNX.4.56.0406012201240.23458@pentafluge.infradead.org>
+References: <xb7r7t2b3mb.fsf@savona.informatik.uni-freiburg.de>
+ <20040530111847.GA1377@ucw.cz> <xb71xl2b0to.fsf@savona.informatik.uni-freiburg.de>
+ <20040530124353.GB1496@ucw.cz> <20040530135445.GA7571@zombie.inka.de>
+ <20040530140350.GA2053@ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: 0.3 (/)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (0.3 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 NO_REAL_NAME           From: does not include a real name
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 01, 2004 at 03:53:02PM -0500, Paul Fulghum wrote:
-> Patch to drivers/char/pcmcia/synclink_cs.c against 2.6.6
-> to cleanup properly on errors during
-> driver initialization.
 
-To put my PCMCIA hat on, are you sure you should be registering with
-a subsystem which can cause you to create tty devices before you've
-registered with the tty subsystem?
+> > For examle, I wish to create two terminals with my system, using two
+> > monitors (on dual-head video card), two keyboards and two mices. I can
+> > do the first part (X manages it well) but not beeing able to use
+> > different input devices for different users simply SUCKS.
+> > But http://linuxconsole.sourceforge.net/ lets me hope.
+> 
+> I wrote most of the input handling in that project. It's what is in 2.6 now.
 
-Eg, what could happen if you register with PCMCIA, PCMCIA hands you
-a card to drive and register a tty for, and you do all of that
-_before_ you've registered with the tty subsystem?
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Yeap. The majority of the fbdev stuff went in from this project as well. 
+The linuxconsole project is using the current input layer with multiple 
+users with no problems.

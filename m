@@ -1,49 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263238AbRE2HpS>; Tue, 29 May 2001 03:45:18 -0400
+	id <S261392AbRE2ILu>; Tue, 29 May 2001 04:11:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263235AbRE2Ho7>; Tue, 29 May 2001 03:44:59 -0400
-Received: from [209.10.41.242] ([209.10.41.242]:23248 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S263232AbRE2Hov>;
-	Tue, 29 May 2001 03:44:51 -0400
-Message-ID: <3B135166.E061B01F@idcomm.com>
-Date: Tue, 29 May 2001 01:36:06 -0600
-From: "D. Stimits" <stimits@idcomm.com>
-Reply-To: stimits@idcomm.com
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.15-config.2 i686)
-X-Accept-Language: en
+	id <S261401AbRE2ILk>; Tue, 29 May 2001 04:11:40 -0400
+Received: from fungus.teststation.com ([212.32.186.211]:40698 "EHLO
+	fungus.svenskatest.se") by vger.kernel.org with ESMTP
+	id <S261392AbRE2ILc>; Tue, 29 May 2001 04:11:32 -0400
+Date: Tue, 29 May 2001 10:11:09 +0200 (CEST)
+From: Urban Widmark <urban@teststation.com>
+To: Daniel Rose <daniel.rose@datalinesolutions.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: (via-rhine.c problem) 2.4.5 and pppd/pppoe
+In-Reply-To: <991110870.912.3.camel@rocket>
+Message-ID: <Pine.LNX.4.30.0105290928240.31793-100000@cola.teststation.com>
 MIME-Version: 1.0
-To: kernel-list <linux-kernel@vger.kernel.org>
-Subject: Re: bzdisk broken in 2.4.5?
-In-Reply-To: <3B12E8B4.238DCD11@idcomm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"D. Stimits" wrote:
-> 
-> I've tried on two separate machines to test out 2.4.5 through the "make
-> bzdisk" boot floppy, and it fails on both (the compile succeeds, but
-> boot never gets to LILO, it simply gives "400" and a repeating list of
-> AX, BX, CX, and DX registers). Both are scsi aic7xxx, but use different
-> controllers, and have scsi directly compiled in. One machine is based on
-> RH 7.1 beta, the other on RH 7.1. Both are x86 SMP, with motherboard and
-> all hardware being different. Using the same kernel through a
-> "mkbootdisk" works, only "make bzdisk" fails. Can anyone here verify
-> that "make bzdisk" will create a bootable floppy (I did try an entire
-> box of different floppies) on 2.4.5+? Especially, can anyone verify this
-> for SMP and/or purely scsi machines? If scsi, do you use aic7xxx?
-> 
-> D. Stimits, stimits@idcomm.com
+On 29 May 2001, Daniel Rose wrote:
 
-I found some references to bzdisk breaking in 2.3.28, followed by a fix.
-Checking /usr/src/linux/arch/i386/boot/bootsect.S, the fix has remained
-and has not been lost. See:
-http://web.gnu.walfield.org/mail-archive/linux-kernel/1999-November/1818.html
+> Ok, I have decided the problem lays in via-rhine.c, the ethernet driver
+> for my card. The second boot finds the mac address as 00's all the time,
+> regardless of whether the driver is compiled as a module, or monolith.
 
-However, something else must have changed since then to cause the image
-size to go over its maximum. Has bzdisk being abandoned (or at least
-ignored)?
+Do you boot something else in between? Like win98? There is a known
+problem with the via-rhine driver not being able to restart some versions
+of the card after win98 has shut it down. Perhaps some bioses do similar
+clever things.
 
-D. Stimits, stimits@idcomm.com
+This seems to only happen with newer chips that have power management
+support. If you don't boot into win98, perhaps you can play with bios
+settings until the driver is fixed (or fix the driver of course).
+
+Which type of via-rhine do you have? (manufacturer, model of card)
+When you boot what does dmesg say about eth0? (or lspci -n)
+
+
+D-Link makes a card called DFE-530TX. If you have that it can be one of
+(at least) 2 different versions. Could you in addition to sending lspci
+info identify which of these images match best?
+
+DFE-530TX REV-A1 (vt3043, PCI ID 1106:3043)
+http://www.intozgc.com/2001jrsc/200103/200103image/26%B5%DA%B6%FE%D6%D6.jpg
+
+DFE-530TX REV-B1 (hopefully vt6102, PCI ID 1106:3065 but I'm not sure)
+http://www.intozgc.com/2001jrsc/200103/200103image/26%D5%FD%C6%B7.jpg
+
+or this which is also called B1 ... but a chip with different markings.
+http://www.intozgc.com/2001jrsc/200103/200103image/26%B5%DA%D2%BB%D6%D6.jpg
+
+This page tries to explain something about card versions, but I don't
+speak the language (which ever it is).
+http://www.intozgc.com/2001jrsc/200103/20010326.htm
+
+I think the conclusion is DL10030A -> REV-B1, DL10030 -> REV-A1.
+
+/Urban
+

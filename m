@@ -1,73 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261758AbTJFVQN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 17:16:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbTJFVQN
+	id S262069AbTJFV0z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 17:26:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbTJFV0y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 17:16:13 -0400
-Received: from astra.telenet-ops.be ([195.130.132.58]:17619 "EHLO
-	astra.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S261758AbTJFVQJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 17:16:09 -0400
-From: Thomas Elsen <rivy@rivy.org>
-To: rjwalsh@durables.org, wangdi@clusterfs.com, akpm@osdl.org
-Subject: [PATCH][2.6-test6-mm4]8139too poll controller
-Date: Mon, 6 Oct 2003 23:15:58 +0200
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
+	Mon, 6 Oct 2003 17:26:54 -0400
+Received: from itaqui.terra.com.br ([200.176.3.19]:46279 "EHLO
+	itaqui.terra.com.br") by vger.kernel.org with ESMTP id S262069AbTJFV0x
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 17:26:53 -0400
+Message-ID: <3F81DEE5.9000600@terra.com.br>
+Date: Mon, 06 Oct 2003 18:30:13 -0300
+From: Felipe W Damasio <felipewd@terra.com.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310062315.58397.rivy@rivy.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-fbdev-devel@lists.sourceforge.net
+Subject: [PATCH] Leak in vesafb
+Content-Type: multipart/mixed;
+ boundary="------------080804060503020707040900"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds poll-controller functionality to the 8139too driver. It has 
-been tested with kgdb-over-ethernet.
+This is a multi-part message in MIME format.
+--------------080804060503020707040900
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Thomas
+	Hi Andrew,
 
+	Patch against 2.6.0-test6.
 
---- 8139too.c.orig	2003-10-06 22:56:03.000000000 +0200
-+++ 8139too.c	2003-10-06 22:48:08.000000000 +0200
-@@ -618,6 +618,10 @@
- static void rtl8139_hw_start (struct net_device *dev);
- static struct ethtool_ops rtl8139_ethtool_ops;
+	Releases a previous request'ed_mem_region. Found by smatch.
 
-+#ifdef CONFIG_NET_POLL_CONTROLLER
-+static void rtl8139_rx_poll (struct net_device *dev);
-+#endif
-+
- #ifdef USE_IO_OPS
+	Since it didn't checked the return value of request_region, I'm not 
+sure we should free it here...since (as it says on the driver), 
+"vgacon probably has this region already".
 
- #define RTL_R8(reg)		inb (((unsigned long)ioaddr) + (reg))
-@@ -970,6 +974,10 @@
- 	dev->tx_timeout = rtl8139_tx_timeout;
- 	dev->watchdog_timeo = TX_TIMEOUT;
+	Andrew, I'd appreciate you could review this..
 
-+#ifdef CONFIG_NET_POLL_CONTROLLER
-+	dev->poll_controller = rtl8139_rx_poll;
-+#endif
-+
- 	/* note: the hardware is not capable of sg/csum/highdma, however
- 	 * through the use of skb_copy_and_csum_dev we enable these
- 	 * features
-@@ -2388,6 +2396,15 @@
- 	return &tp->stats;
- }
+	Thanks.
 
-+#ifdef CONFIG_NET_POLL_CONTROLLER
-+static void rtl8139_rx_poll (struct net_device *dev)
-+{
-+	disable_irq(dev->irq);
-+	rtl8139_interrupt(dev->irq, (void *)dev, 0);
-+	enable_irq(dev->irq);
-+}
-+#endif
-+
- /* Set or clear the multicast filter for this adaptor.
-    This routine is not state sensitive and need not be SMP locked. */
+Felipe
+
+--------------080804060503020707040900
+Content-Type: text/plain;
+ name="vesafb-leak.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="vesafb-leak.patch"
+
+--- linux-2.6.0-test6/drivers/video/vesafb.c.orig	2003-10-06 18:22:13.000000000 -0300
++++ linux-2.6.0-test6/drivers/video/vesafb.c	2003-10-06 18:23:35.000000000 -0300
+@@ -366,8 +366,10 @@
  
+ 	fb_alloc_cmap(&fb_info.cmap, video_cmap_len, 0);
+ 
+-	if (register_framebuffer(&fb_info)<0)
++	if (register_framebuffer(&fb_info)<0) {
++		release_mem_region(vesafb_fix.smem_start, vesafb_fix.smem_len);
+ 		return -EINVAL;
++	}
+ 
+ 	printk(KERN_INFO "fb%d: %s frame buffer device\n",
+ 	       fb_info.node, fb_info.fix.id);
+
+--------------080804060503020707040900--
 

@@ -1,32 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310287AbSCABOI>; Thu, 28 Feb 2002 20:14:08 -0500
+	id <S292520AbSCAAeW>; Thu, 28 Feb 2002 19:34:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310277AbSCABKj>; Thu, 28 Feb 2002 20:10:39 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59920 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310291AbSCABIF>; Thu, 28 Feb 2002 20:08:05 -0500
-Subject: Re: Kernel Panics on IDE Initialization
-To: augustus@linuxhardware.org (Kristopher Kersey)
-Date: Fri, 1 Mar 2002 01:22:55 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0202272325350.20225-100000@penguin.linuxhardware.org> from "Kristopher Kersey" at Feb 27, 2002 11:34:30 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S293487AbSCAAaW>; Thu, 28 Feb 2002 19:30:22 -0500
+Received: from are.twiddle.net ([64.81.246.98]:31124 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S310273AbSCAA0W>;
+	Thu, 28 Feb 2002 19:26:22 -0500
+Date: Thu, 28 Feb 2002 16:24:22 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Hubertus Franke <frankeh@watson.ibm.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, torvalds@transmeta.com,
+        matthew@hairy.beasts.org, bcrl@redhat.com, david@mysql.com,
+        wli@holomorphy.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Lightweight userspace semaphores...
+Message-ID: <20020228162422.A947@twiddle.net>
+Mail-Followup-To: Hubertus Franke <frankeh@watson.ibm.com>,
+	Rusty Russell <rusty@rustcorp.com.au>, torvalds@transmeta.com,
+	matthew@hairy.beasts.org, bcrl@redhat.com, david@mysql.com,
+	wli@holomorphy.com, linux-kernel@vger.kernel.org
+In-Reply-To: <E16eT9h-0000kE-00@wagner.rustcorp.com.au> <20020225100025.A1163@elinux01.watson.ibm.com> <20020227112417.3a302d31.rusty@rustcorp.com.au> <20020227105311.C838@elinux01.watson.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16gbl9-0001wj-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020227105311.C838@elinux01.watson.ibm.com>; from frankeh@watson.ibm.com on Wed, Feb 27, 2002 at 10:53:11AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On two seperate motherboards that I have been testing, the ABIT
-> KR7A-RAID and the SOYO FIRE DRAGON, 2.4 kernels panic on boot up during
-> IDE initialization.  I don't really know how to track down the problem but
-> now that I've seen it on two boards I'm a bit worried.  This does not
-> happen with 2.2 kernels so it is 2.4 specific.  I have tested with 2.4.17
-> and 2.4.18 pre releases.  I will try to field any questions to solve the
+On Wed, Feb 27, 2002 at 10:53:11AM -0500, Hubertus Franke wrote:
+> As stated above, I allocate a kernel object <kulock_t> on demand and
+> hash it. This way I don't have to pin any user address. What does everybody
+> think about the merit of this approach versus the pinning approach?
+[...]
+> In your case, can the lock be allocated at different
+> virtual addresses in the various address spaces.
 
-Try 2.4.18 proper and 2.4.18-ac2 - we fixed at least one oops caused by
-controllers and mishandling of new revisions not in our tables. If it
-still fails send me the pci data for them
+I think this is a relatively important feature.  It may not be
+possible to use the same virtual address in different processes.
+
+
+r~

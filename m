@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318742AbSIEWfp>; Thu, 5 Sep 2002 18:35:45 -0400
+	id <S318749AbSIEWkb>; Thu, 5 Sep 2002 18:40:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318743AbSIEWfp>; Thu, 5 Sep 2002 18:35:45 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:51668 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S318742AbSIEWfo>;
-	Thu, 5 Sep 2002 18:35:44 -0400
-Message-ID: <1031265571.3d77dd23caec4@imap.linux.ibm.com>
-Date: Thu,  5 Sep 2002 15:39:31 -0700
-From: Nivedita Singhvi <niv@us.ibm.com>
-To: Troy Wilson <tcw@tempest.prismnet.com>
-Cc: jamal <hadi@cyberus.ca>, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
-References: <200209052211.g85MBFdm099387@tempest.prismnet.com>
-In-Reply-To: <200209052211.g85MBFdm099387@tempest.prismnet.com>
+	id <S318750AbSIEWkb>; Thu, 5 Sep 2002 18:40:31 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:24537 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S318749AbSIEWka>;
+	Thu, 5 Sep 2002 18:40:30 -0400
+Message-ID: <1031265878.3d77de5627864@imap.linux.ibm.com>
+Date: Thu,  5 Sep 2002 18:44:38 -0400
+From: mannthey@us.ibm.com
+To: gone@us.ibm.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20pre5 not booting on numa-q with CONFIG_MULTIQUAD
+References: <200209052221.g85MLAQ04867@w-gaughen.beaverton.ibm.com>
+In-Reply-To: <200209052221.g85MLAQ04867@w-gaughen.beaverton.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 User-Agent: Internet Messaging Program (IMP) 3.0
-X-Originating-IP: 9.65.20.67
+X-Originating-IP: 9.47.18.119
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Troy Wilson <tcw@tempest.prismnet.com>:
+Quoting Patricia Gaughen <gone@us.ibm.com>:
 
-> > Do you have any stats from the hardware that could show
-> > retransmits etc;
 > 
->   I'll gather netstat -s after runs with and without TSO enabled.
-> Anything else you'd like to see?
-
-Troy, this is pointing out the obvious, but make sure
-you have the before stats as well :)...
-
-> > have you tested this with zero copy as well (sendfile)
+> Hi,
 > 
->   Yes.  My webserver is Apache 2.0.36, which uses sendfile for
-> anything
-> over 8k in size.  But, iirc, Apache sends the http headers using
-> writev.
+> 2.4.20pre4 booted fine for me, but 2.4.20pre5 is not booting on the numa-q 
+> boxes when I turn on CONFIG_MULTIQUAD.  I've included the messages that I see
 
-SpecWeb99 doesnt execute the path that might benefit the 
-most from this patch - sendmsg() of large files - large writes
-going down..
+Hello Pat,
+  I am not familiar with this are of the code either but I found a while loop
+if some recent pci changes that seemed backwards.  The following patch should
+allow you to boot.
 
-thanks,
-Nivedita
+
+diff -urN linux-2.4.19/drivers/pci/pci.c linux-2.4.20-pre5/drivers/pci/pci.c
+--- linux-2.4.20-pre5/drivers/pci/pci.c      Sat Sep  7 06:29:04 2002
++++ linux-2.4.20-pre5-test/drivers/pci/pci.c Sat Sep  7 06:10:26 2002
+@@ -586,7 +586,7 @@
+                i + 1, /* PCI BAR # */
+                pci_resource_len(pdev, i), pci_resource_start(pdev, i),
+                pdev->slot_name);
+-       while(--i <= 0)
++       while(--i >= 0)
+                pci_release_region(pdev, i);
+
+        return -EBUSY;
+
+Keith
 
 

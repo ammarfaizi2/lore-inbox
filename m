@@ -1,72 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318211AbSHGKiS>; Wed, 7 Aug 2002 06:38:18 -0400
+	id <S317194AbSHGKp6>; Wed, 7 Aug 2002 06:45:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318216AbSHGKiS>; Wed, 7 Aug 2002 06:38:18 -0400
-Received: from ns.suse.de ([213.95.15.193]:42770 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S318211AbSHGKiQ>;
-	Wed, 7 Aug 2002 06:38:16 -0400
-Date: Wed, 7 Aug 2002 12:41:53 +0200
-From: Andi Kleen <ak@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andi Kleen <ak@suse.de>, Alan Cox <alan@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: 64bit clean drivers was Re: Linux 2.4.20-pre1
-Message-ID: <20020807124153.A8592@wotan.suse.de>
-References: <200208062329.g76NTqP30962@devserv.devel.redhat.com.suse.lists.linux.kernel> <p73vg6nhtsb.fsf@oldwotan.suse.de> <1028721043.18478.265.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1028721043.18478.265.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.22.1i
+	id <S317302AbSHGKp6>; Wed, 7 Aug 2002 06:45:58 -0400
+Received: from dsl-213-023-062-133.arcor-ip.net ([213.23.62.133]:31751 "EHLO
+	spot.local") by vger.kernel.org with ESMTP id <S317194AbSHGKp6>;
+	Wed, 7 Aug 2002 06:45:58 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Feiler <kiza@gmx.net>
+To: Brad Hards <bhards@bigpond.net.au>, Greg KH <greg@kroah.com>
+Subject: Re: 2.4.19, USB_HID only works compiled in, not as module
+Date: Wed, 7 Aug 2002 12:50:33 +0200
+User-Agent: KMail/1.4.1
+Cc: Tyler Longren <tyler@captainjack.com>, LKML <linux-kernel@vger.kernel.org>,
+       vojtech@suse.cz
+References: <20020805003427.7e7fc9f4.tyler@captainjack.com> <20020805165601.GA27503@kroah.com> <200208060702.29360.bhards@bigpond.net.au>
+In-Reply-To: <200208060702.29360.bhards@bigpond.net.au>
+X-PGP-KeyID: 0x561D4FD2
+X-PGP-Key: http://www.lionking.org/~kiza/pgpkey.shtml
+X-Species: Snow Leopard
+X-Operating-System: Linux i686
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200208071250.44353.kiza@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 07, 2002 at 12:50:43PM +0100, Alan Cox wrote:
-> On Wed, 2002-08-07 at 11:01, Andi Kleen wrote:
-> > Can you explain this further. How else do you propose to get rid of 
-> > unmaintained-and-absolutely-hopeless-on-64bit drivers in the configuration? 
-> > I definitely do not want to get bug reports about these not working on x86-64.
-> 
-> I don't want a tree where every driver has seventeen lines of if IBM and
-> not 64bit || parisc || x86 || !x86_64 || ia64) && (!wednesdayafternoon)
-> 
-> Its *unmaintainable*.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I don't see why it is unmaintainable. What is so bad with these ifs? 
-64bit cleanness is just another dependency, nothing magic and fundamentally
-hard.
+Hello all,
 
-I admit it is a bit ugly to hardcode CONFIG_X86_64 here, I would actually
-prefer an generic CONFIG_64BIT
+I have another addition to this thread. I found the same problem happening to 
+my analog joystick. It's connected with a SBLive gameport. Compiling the 
+driver into the kernel (or using 2.4.18 with the driver as module) gives:
 
-At least for i386 it should make no difference at all.
+gameport0: Emu10k1 Gameport at 0xd000 size 8 speed 1242 kHz
+input0: Analog 3-axis 4-button joystick at gameport0.0 [TSC timer, 898 MHz 
+clock, 832 ns res]
 
-If you object to the ifdefs I can turn it into 
-dep_tristate  ... $CONFIG_X86_32 (or CONFIG_I386 and add this)
+Compiling this driver as a module with 2.4.19:
 
-(unfortunately there is no dep_tristate ... !$CONFIG_64BIT) 
-Alternatively CONFIG_NO_64BIT to work around this issue.
+analog.c: Unknown joystick device found  (data=0x2, gameport0), probably n
+ot analog joystick.
 
-> 
-> The sparc64 people don't do it, the mips people don't do it, the ia64
-> people don't do it, wtf should you get to fill config.in with crap
+So maybe the hid mouse problem is not withing the USB code, but somewhere 
+else?
 
-The main reason I'm doing this is that unlike IA64,alpha,mips (sorry no
-offense to these ports) x86-64 is aimed at the mass market. I will
-not invoke the A..T... word, but having a configuration where a good
-chunk of the drivers do not work is just not acceptable for x86-64 where
-even non kernel hackers will likely recompile the kernels. I tried
-to fix it for some of the drivers but some are obviously hopeless without
-major work.
+- -Oliver
 
-> The _ISA stuff makes sense, thats sensible, but the rest - when people
-> moan we tell em to fix the drivers.
+- -- 
+Oliver Feiler  <kiza@(gmx(pro).net|lionking.org|claws-and-paws.com)>
+http://www.lionking.org/~kiza/  <--   homepage
+PGP-key ID 0x561D4FD2    --> /pgpkey.shtml
+http://www.lionking.org/~kiza/journal/
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
-I don't think it is very nice. Some of these actually compile, just with
-thousands of warnings, but will oops very quickly likely after first load.
-I prefer to disable them. That is much nicer to the user.
-
-
--Andi
+iD8DBQE9UPuEOpifZVYdT9IRAljnAJ9HiUvxhxlMCn57GUzIMAiJuKX31ACeKDeO
+UtsuM3T23F5hXUCvPGANoBE=
+=3pMD
+-----END PGP SIGNATURE-----
 

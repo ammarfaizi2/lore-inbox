@@ -1,65 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266245AbUIVQnp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266243AbUIVQwW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266245AbUIVQnp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 12:43:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266249AbUIVQno
+	id S266243AbUIVQwW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 12:52:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266249AbUIVQwW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 12:43:44 -0400
-Received: from relay.pair.com ([209.68.1.20]:58895 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S266245AbUIVQnm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 12:43:42 -0400
-X-pair-Authenticated: 24.126.73.164
-Message-ID: <4151AB3D.3040003@kegel.com>
-Date: Wed, 22 Sep 2004 09:41:33 -0700
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en, de-de
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: arjanv@redhat.com
-Subject: Re: 2.6.8 link failure for powerpc-970?
-References: <414E93BC.4080107@kegel.com> <1095669339.2800.3.camel@laptop.fenrus.com> <4150EF69.1060007@kegel.com>
-In-Reply-To: <4150EF69.1060007@kegel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 22 Sep 2004 12:52:22 -0400
+Received: from mail.humboldt.co.uk ([81.2.65.18]:28083 "EHLO
+	mail.humboldt.co.uk") by vger.kernel.org with ESMTP id S266243AbUIVQwV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 12:52:21 -0400
+Subject: Re: [PATCH][2.6] Add command function to struct i2c_adapter
+From: Adrian Cox <adrian@humboldt.co.uk>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       sensors@stimpy.netroedge.com, Michael Hunold <hunold-ml@web.de>,
+       Greg KH <greg@kroah.com>
+In-Reply-To: <9e4733910409220907727056b4@mail.gmail.com>
+References: <414F111C.9030809@linuxtv.org>
+	 <20040921154111.GA13028@kroah.com> <41506099.8000307@web.de>
+	 <41506D78.6030106@web.de> <1095843365.18365.48.camel@localhost>
+	 <20040922102938.M15856@linux-fr.org> <1095854048.18365.75.camel@localhost>
+	 <20040922122848.M14129@linux-fr.org>
+	 <9e47339104092208403d9de6f4@mail.gmail.com>
+	 <1095868579.18365.105.camel@localhost>
+	 <9e4733910409220907727056b4@mail.gmail.com>
+Content-Type: text/plain
+Message-Id: <1095871863.18365.129.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 22 Sep 2004 17:51:04 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Kegel wrote:
->> On Mon, 2004-09-20 at 10:24, Dan Kegel wrote:
->>
->>> I'm trying to verify that I can build toolchains and compile
->>> and link kernels for a large set of CPU types using simple kernel 
->>> config files.
->>> I'm also somewhat foolishly trying to do all this with gcc-3.4.2.
->>> So any problems I run into are a bit hard to pin down to
->>> compiler, kernel, or user error, since this is mostly new territory 
->>> for me.  ...
+On Wed, 2004-09-22 at 17:07, Jon Smirl wrote:
+> On Wed, 22 Sep 2004 16:56:19 +0100, Adrian Cox <adrian@humboldt.co.uk> wrote:
+> > Would it do for a display device to expose read-only EDID data through
+> > sysfs, or do you need I2C level access to DDC from userspace?
 > 
-> arch/ppc64/kernel/built-in.o(.text+0xdc44): In function `.sys32_ipc':
-> : undefined reference to `.compat_sys_shmctl'
- > ...
+> For my purpose of decoding the EDID read only access is fine. 
+> 
+> But I do know there are programs that use the user space I2C drivers
+> to control extended monitor functions. Some monitors let you set
+> brightnesss, contrast, on/off via the I2C link.
 
-Could it be a config problem?  My config file was from 'allnoconfig', I think, and has
-$ egrep 'SYSV|COMPAT' .config
-CONFIG_COMPAT=y
-# CONFIG_SYSVIPC is not set
-compat_sys_shmctl is in ipc/compat.c, and is enabled by CONFIG_SYSVIPC_COMPAT,
-which depends on CONFIG_SYSVIPC, which is off.
+In which case you will need the current mechanism, with the class
+mechanism to stop sensor drivers probing the bus.
 
-The reference to compat_sys_shmctl seems to be in
-./arch/ia64/ia32/sys_ia32.c
-./arch/ppc64/kernel/sys_ppc32.c
-./arch/x86_64/ia32/ipc32.c
-./arch/s390/kernel/compat_linux.c
-and appears to not be conditioned on CONFIG_SYSVIPC_COMPAT.
-Seems like linking problems are expected unless you turn on
-CONFIG_SYSVIPC and CONFIG_SYSVIPC_COMPAT.
+- Adrian Cox
+Humboldt Solutions Ltd.
 
-I turned 'em on and am trying again.
-- Dan
 
--- 
-My technical stuff: http://kegel.com
-My politics: see http://www.misleader.org for examples of why I'm for regime change

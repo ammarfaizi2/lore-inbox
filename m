@@ -1,61 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266572AbUHaFE5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266615AbUHaFF6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266572AbUHaFE5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 01:04:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266585AbUHaFE4
+	id S266615AbUHaFF6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 01:05:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266603AbUHaFFy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 01:04:56 -0400
-Received: from mproxy.gmail.com ([216.239.56.249]:34109 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S266572AbUHaFEy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 01:04:54 -0400
-Message-ID: <54b5dbf5040830220435b14550@mail.gmail.com>
-Date: Mon, 30 Aug 2004 22:04:51 -0700
-From: asterix the gual <asterixthegaul@gmail.com>
-Reply-To: asterix the gual <asterixthegaul@gmail.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Re: [linux-usb-devel] Re: Summarizing the PWC driver questions/answers
-In-Reply-To: <1093786799.27934.28.camel@localhost.localdomain>
+	Tue, 31 Aug 2004 01:05:54 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:3852 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S266585AbUHaFFm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 01:05:42 -0400
+Date: Tue, 31 Aug 2004 07:05:19 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Ryan Cumming <ryan@spitfire.gotdns.org>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: TG3(Tigoon) & Kernel 2.4.27
+Message-ID: <20040831050519.GE564@alpha.home.local>
+References: <412B5B35.7020701@apartia.fr> <20040825044551.GH1456@alpha.home.local> <20040824233648.53eb7c30.davem@redhat.com> <200408301814.41346.ryan@spitfire.gotdns.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <6.1.2.0.2.20040827215445.01c4ddb0@inet.uni2.dk>
-	 <Pine.LNX.4.61.0408272259450.2771@dragon.hygekrogen.localhost>
-	 <6.1.2.0.2.20040827233253.01c36210@inet.uni2.dk>
-	 <200408280113.27530.oliver@neukum.org> <1093786799.27934.28.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200408301814.41346.ryan@spitfire.gotdns.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One more to Gregkh's Q&A
+On Mon, Aug 30, 2004 at 06:14:38PM -0700, Ryan Cumming wrote:
+> On Tuesday 24 August 2004 23:36, you wrote:
+> > I pity the poor fool who wishes to netboot his system using
+> > a tg3 card and use an nfsroot with Debian.  Kind of hard to
+> > get the card firmware from the filesystem in that case.
+> initramfs?
+> 
+> > The tg3 firmware is just a bunch of MIPS instructions.
+> > I guess if I ran objdump --disassemble on the image and
+> > used the output of that in the tg3 driver and "compiled
+> > that source" they'd be happy.  And this makes the situation
+> > even more ludicrious.
+> For GPL compliance, no, that wouldn't work. The GPL states:
+> "The source code for a work means the preferred form of the work for making 
+> modifications to it."
+> 
+> Which is likely C or at least assembly with label names and comments in this 
+> case.
 
-Q. Is there anyother way to support the binary only driver?
-A. Yes. You can maintain a separate linux-pwc tree with the necessary hooks :)
+It would have taken less time for the people who removed the firmware and
+will assure support for their users to disassemble this code and put labels
+and comments in it. When I was 16, I totally disassembled my PC's bios (8kB)
+commented it and labelled it to the point of making it re-assemblable. It
+did not take very much time (a week-end), and it was crappy x86 code with
+unaligned and mangled code/data + hard-coded stack values for the "calls"
+without any RAM usage. Here you have about 2kB of clean MIPS code which is
+about 500 instructions (500 lines). I doubt anyone knowing mips assembly
+enough would spend more than a week-end putting comments and labels in it.
 
+Now another possibility would be for those zealots to replace the firmware
+by an open-source one such as http://alteon.shareable.org/ which BTW contains
+all the tools needed for the dirty work.
 
+Anyway, this thread is getting boring...
 
+Regards,
+Willy
 
-On Sun, 29 Aug 2004 14:40:00 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Sad, 2004-08-28 at 00:13, Oliver Neukum wrote:
-> > Keeping drivers against the wishes of the authors in the tree would
-> > be very troubling for the future. I can assure you that no maintainer
-> > will lightly pull a driver in this way.
-> 
-> Then the kernel community is no longer fit to use my code. So you should
-> remove everything I've written from Linus kernel too. I'll maintain my
-> own kernel.
-> 
-> Oh gosh, look I've just crippled Linus tree and stolen his project.
-> Thats *WHY* you can't just rip drivers out. A license was granted, for
-> ever. You can certainly remove him from maintainers, and if he insists
-> from the author credits.
-> 
-> Alan
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->

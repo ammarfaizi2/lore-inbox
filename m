@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268248AbUJLBsV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268323AbUJLBtO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268248AbUJLBsV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 21:48:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268323AbUJLBsV
+	id S268323AbUJLBtO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 21:49:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268535AbUJLBtO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 21:48:21 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:4356 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S268248AbUJLBr7
+	Mon, 11 Oct 2004 21:49:14 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:59140 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S268323AbUJLBtB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 21:47:59 -0400
-Date: Tue, 12 Oct 2004 02:47:56 +0100 (BST)
+	Mon, 11 Oct 2004 21:49:01 -0400
+Date: Tue, 12 Oct 2004 02:48:57 +0100 (BST)
 From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4: "console=" parameter ignored
-Message-ID: <Pine.LNX.4.58L.0410120132390.27716@blysk.ds.pg.gda.pl>
+Subject: [PATCH] 2.6: "console=" parameter ignored
+Message-ID: <Pine.LNX.4.58L.0410120221490.27716@blysk.ds.pg.gda.pl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -43,42 +43,44 @@ I've observed this problem with a DECstation system using ttyS3 -- its
 default console device from the firmware's point of view.
 
  The solution is to restore the setting of "console=" upon
-unregister_console().  Here is a patch that works for me -- run-time
-tested with a snapshot of 2.4.26.  I've prepared a coresponding patch for
-2.6, that I'll send separately.
+unregister_console().  This made a snapshot of 2.4.26 work for me.  I
+wasn't able to test the changes with 2.6 because DECstation drivers don't
+support it yet, but the code responsible for console selection appears
+functionally the same.  So I've concluded it needs the same change.  
+Here's a patch.
 
  Please apply.
 
   Maciej
 
-patch-mips-2.4.26-20040809-console-0
-diff -up --recursive --new-file linux-mips-2.4.26-20040809.macro/kernel/printk.c linux-mips-2.4.26-20040809/kernel/printk.c
---- linux-mips-2.4.26-20040809.macro/kernel/printk.c	2003-12-18 03:57:27.000000000 +0000
-+++ linux-mips-2.4.26-20040809/kernel/printk.c	2004-09-25 20:54:21.000000000 +0000
-@@ -95,6 +95,7 @@ static unsigned long log_end;			/* Index
- static unsigned long logged_chars;		/* Number of chars produced since last read+clear operation */
+patch-mips-2.6.9-rc2-20040920-console-0
+diff -up --recursive --new-file linux-mips-2.6.9-rc2-20040920.macro/kernel/printk.c linux-mips-2.6.9-rc2-20040920/kernel/printk.c
+--- linux-mips-2.6.9-rc2-20040920.macro/kernel/printk.c	2004-08-25 04:01:41.000000000 +0000
++++ linux-mips-2.6.9-rc2-20040920/kernel/printk.c	2004-10-11 23:31:29.000000000 +0000
+@@ -108,6 +108,7 @@ struct console_cmdline
+ #define MAX_CMDLINECONSOLES 8
  
- struct console_cmdline console_cmdline[MAX_CMDLINECONSOLES];
+ static struct console_cmdline console_cmdline[MAX_CMDLINECONSOLES];
 +static int selected_console = -1;
  static int preferred_console = -1;
  
  /* Flag: console code may call schedule() */
-@@ -140,12 +141,12 @@ static int __init console_setup(char *st
+@@ -173,12 +174,12 @@ int __init add_preferred_console(char *n
  	for(i = 0; i < MAX_CMDLINECONSOLES && console_cmdline[i].name[0]; i++)
  		if (strcmp(console_cmdline[i].name, name) == 0 &&
  			  console_cmdline[i].index == idx) {
 -				preferred_console = i;
 +				selected_console = i;
- 				return 1;
+ 				return 0;
  		}
  	if (i == MAX_CMDLINECONSOLES)
- 		return 1;
+ 		return -E2BIG;
 -	preferred_console = i;
 +	selected_console = i;
  	c = &console_cmdline[i];
  	memcpy(c->name, name, sizeof(c->name));
- 	c->options = options;
-@@ -586,6 +587,9 @@ void register_console(struct console * c
+ 	c->name[sizeof(c->name) - 1] = 0;
+@@ -745,6 +746,9 @@ void register_console(struct console * c
  	int     i;
  	unsigned long flags;
  
@@ -88,7 +90,7 @@ diff -up --recursive --new-file linux-mips-2.4.26-20040809.macro/kernel/printk.c
  	/*
  	 *	See if we want to use this console driver. If we
  	 *	didn't select a console we take the first one
-@@ -675,7 +679,7 @@ int unregister_console(struct console * 
+@@ -835,7 +839,7 @@ int unregister_console(struct console * 
  	 * would prevent fbcon from taking over.
  	 */
  	if (console_drivers == NULL)

@@ -1,106 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbUFQSep@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbUFQSfi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261426AbUFQSep (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 14:34:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbUFQSep
+	id S261610AbUFQSfi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 14:35:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbUFQSfh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 14:34:45 -0400
-Received: from S01060007e97748c4.vn.shawcable.net ([24.86.2.57]:23709 "EHLO
-	qworks.ca") by vger.kernel.org with ESMTP id S261426AbUFQSeW (ORCPT
+	Thu, 17 Jun 2004 14:35:37 -0400
+Received: from mail.homelink.ru ([81.9.33.123]:28381 "EHLO eltel.net")
+	by vger.kernel.org with ESMTP id S261610AbUFQSfR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 14:34:22 -0400
-Date: Thu, 17 Jun 2004 11:30:31 -0700
-From: Chris Jones <cjones@sutus.com>
-To: linux-kernel@vger.kernel.org
-Subject: Problems during assembly of Kernel Module.
-Message-ID: <20040617183031.GA6981@qworks.ca>
+	Thu, 17 Jun 2004 14:35:17 -0400
+Date: Thu, 17 Jun 2004 22:35:14 +0400
+From: Andrew Zabolotny <zap@homelink.ru>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Backlight and LCD module patches [1]
+Message-Id: <20040617223514.2e129ce9.zap@homelink.ru>
+Organization: home
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: #%`a@cSvZ:n@M%n/to$C^!{JE%'%7_0xb("Hr%7Z0LDKO7?w=m~CU#d@-.2yO<l^giDz{>9
+ epB|2@pe{%4[Q3pw""FeqiT6rOc>+8|ED/6=Eh/4l3Ru>qRC]ef%ojRz;GQb=uqI<yb'yaIIzq^NlL
+ rf<gnIz)JE/7:KmSsR[wN`b\l8:z%^[gNq#d1\QSuya1(
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Rand: 11996
-User-Agent: Mutt/1.5.6+20040523i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-Hello all;
+I've tried to fulfill all the requirements that various people presented to
+the previous version of this patch; this and the following letter contains
+the fixed version of the patch that is proposed to be included into the
+mainstream kernel.
 
-After quite some effort investigation and discussion on the crossgcc
-mailing group.
+--
+Greetings,
+   Andrew
 
-I decided to bring my problem here.
+This patch adds the class_device_find() function, which can be used
+to find a class_device by its name. The function was originally
+written by Greg Kroah-Hartman.
 
-I am trying to compile a kernel module for a mips32 chip.
+Also it fixes the class_rename() function to accept 'const char *'
+argument as the new class device name.
 
-I am having problems with the <asm/uaccess.h> (asm-mips/uaccess) inline 
-assembly routines for both get_user() and put_user().
+Signed-off-by: Andrew Zabolotny <zap@homelink.ru>
 
-Both of these generate inline assembly. In specific a line:
-
-   j    2b
-
-My mips compiler does not like this very much and complains loudly:
-
-   /tmp/ccw6NzZv.s: Assembler messages:
-   /tmp/ccw6NzZv.s:128: Error: Cannot branch to symbol in another
-   section.
-
-
-This program seems to compile FINE on x86 since the x86 assembly seems
-to have been re-written and put in arch/i386/lib/getuser.S and the
-functions __get_user() in <asm-x86/uaccess.h> seems to be obsolete.
-
-I have included a sample module using one of these calls to demonstrate
-the problem. I have tried several different cross-compilers and one
-native mips compiler all giving the same complaint on the "j  2b"
-instruction.
-
-I am definitely NOT a kernel module expert, but have done my best to
-track down the problem and give a sample program.
-
-Any help would be much appreciated.
-
-Cheers,
-
-      -=chris
-
-x86 -> x86:
--------------
-gcc -I/location_of_my_kernel_includes -DMODULE -D__KERNEL__ -c
-moduletest.c
-
-x86 -> mips:
--------------
-mipsel-unknown-linux-gnu-gcc -I/location_of_my_kernel_includes -DMODULE
--D__KERNEL__ -mips32 -c moduletest.c
-
-mips -> mips:
--------------
-gcc -I/location_of_my_kernel_inclues -mips32  -DMODULE -D__KERNEL__ -c
-moduletest.c
-
-
-#include <linux/kernel.h>
-#include <linux/module.h>
-
-
-#include <linux/ppp_channel.h>
-
-
-int init_module() {
-      int j=1;
-      unsigned long data;
-      int foo = 1024;
-      data = &foo;
-      //OFFENDING k_call -> get_user() : See <asm/uaccess.h>
-      // Generates "j 2b" assembly
-      get_user(j,(int *)data);
-      return 0;
-}
-
-void cleanup_module() {
-}
-
--- 
-                  Chris Jones | Software Developer | Sutus, Inc.
-                 t: +1.604.987.8866 x 2204 | e: cjones@sutus.com
+--- linux-2.6.7-rc3/drivers/base/class.c	2004-06-11 02:39:19.000000000 +0400
++++ linux/drivers/base/class.c	2004-06-17 21:51:11.000000000 +0400
+@@ -359,7 +359,7 @@
+ 	class_device_put(class_dev);
+ }
+ 
+-int class_device_rename(struct class_device *class_dev, char *new_name)
++int class_device_rename(struct class_device *class_dev, const char *new_name)
+ {
+ 	int error = 0;
+ 
+@@ -379,6 +379,33 @@
+ 	return error;
+ }
+ 
++/**
++ * class_device_find - find a struct class_device in a specific class
++ * @class: the class to search
++ * @class_id: the class_id to search for
++ *
++ * Iterates through the list of all class devices registered to a class. If
++ * the class_id is found, its reference count is incremented and returned to
++ * the caller. If the class_id does not match any existing struct class_device
++ * registered to this struct class, then NULL is returned.
++ */
++struct class_device * class_device_find(struct class *class, const char *class_id)
++{
++	struct class_device *class_dev;
++	struct class_device *found = NULL;
++
++	down_read(&class->subsys.rwsem);
++	list_for_each_entry(class_dev, &class->children, node) {
++		if (strcmp(class_dev->class_id, class_id) == 0) {
++			found = class_device_get(class_dev);
++			break;
++		}
++	}
++	up_read(&class->subsys.rwsem);
++
++	return found;
++}
++
+ struct class_device * class_device_get(struct class_device *class_dev)
+ {
+ 	if (class_dev)
+@@ -391,7 +418,6 @@
+ 	kobject_put(&class_dev->kobj);
+ }
+ 
+-
+ int class_interface_register(struct class_interface *class_intf)
+ {
+ 	struct class * parent;
+@@ -470,6 +496,8 @@
+ EXPORT_SYMBOL(class_device_put);
+ EXPORT_SYMBOL(class_device_create_file);
+ EXPORT_SYMBOL(class_device_remove_file);
++EXPORT_SYMBOL(class_device_rename);
++EXPORT_SYMBOL(class_device_find);
+ 
+ EXPORT_SYMBOL(class_interface_register);
+ EXPORT_SYMBOL(class_interface_unregister);
+--- linux-2.6.7-rc3/include/linux/device.h	2004-06-11 02:39:37.000000000 +0400
++++ linux/include/linux/device.h	2004-06-17 21:52:32.000000000 +0400
+@@ -212,8 +212,9 @@
+ extern int class_device_add(struct class_device *);
+ extern void class_device_del(struct class_device *);
+ 
+-extern int class_device_rename(struct class_device *, char *);
++extern int class_device_rename(struct class_device *, const char *);
+ 
++extern struct class_device * class_device_find(struct class *class, const char *class_id);
+ extern struct class_device * class_device_get(struct class_device *);
+ extern void class_device_put(struct class_device *);
+ 

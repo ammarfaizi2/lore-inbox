@@ -1,103 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265536AbUBFREA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 12:04:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265530AbUBFREA
+	id S265557AbUBFRXZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 12:23:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265555AbUBFRXZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 12:04:00 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:46976 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S265536AbUBFRD5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 12:03:57 -0500
-Date: Fri, 6 Feb 2004 12:05:55 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: "Hefty, Sean" <sean.hefty@intel.com>
-cc: Troy Benjegerdes <hozer@hozed.org>,
+	Fri, 6 Feb 2004 12:23:25 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:21700 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S265558AbUBFRXE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 12:23:04 -0500
+To: root@chaos.analogic.com
+Cc: "Hefty, Sean" <sean.hefty@intel.com>, Troy Benjegerdes <hozer@hozed.org>,
        infiniband-general@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: RE: [Infiniband-general] Getting an Infiniband access layer in
- theLinux kernel
-In-Reply-To: <C1B7430B33A4B14F80D29B5126C5E9470326258C@orsmsx401.jf.intel.com>
-Message-ID: <Pine.LNX.4.53.0402061150100.3862@chaos>
+Subject: Re: [Infiniband-general] Getting an Infiniband access layer in theLinux kernel
 References: <C1B7430B33A4B14F80D29B5126C5E9470326258C@orsmsx401.jf.intel.com>
+	<Pine.LNX.4.53.0402061150100.3862@chaos>
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@topspin.com>
+Date: 06 Feb 2004 09:23:00 -0800
+In-Reply-To: <Pine.LNX.4.53.0402061150100.3862@chaos>
+Message-ID: <52smhounpn.fsf@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 06 Feb 2004 17:23:02.0156 (UTC) FILETIME=[DFB02CC0:01C3ECD5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Feb 2004, Hefty, Sean wrote:
+    Richard> If some major changes are being considered, I think it's
+    Richard> time to get rid of the:
 
-> On Thu, Feb 5, 2004 at 05:11:00PM -0800, Troy Benjegerdes wrote:
-> >On Thu, Feb 05, 2004 at 02:26:46PM -0800, Hefty, Sean wrote:
-> >> Personally, I'm amazed that professional developers have to discuss
-> or
-> >> defend modular, portable code.
-> >
-> >You're new to linux-kernel, aren't you? ;)
->
-> I was not trying to be condescending.  My point was that I think that
-> everyone on this list knows the purpose and benefits behind an
-> abstraction layer.  It's not something that needed to be discussed any
-> further.
->
-> I also understand that code in the Linux 2.6 kernel does not need
-> certain abstractions.  And I agree that because we are targeting the 2.6
-> kernel specifically, the existing code, some of which was developed 3-5
-> years ago, should be updated based on what the 2.6 kernel provides.
->
-> We want to continue to discuss specific details about what's needed to
-> add the code into the kernel.  Here's a list of modifications that I
-> think are needed so far:
->
-> * Update the code to make direct calls for atomic operations.
-> * Verify the use of spinlock calls.
-> * Reformat the code for tab spacing and curly brace usage.
-> * Elimination of typedefs.
->
-> And, yes, knowing some of these issues up front will save the trouble of
-> submitting code that will be immediately rejected.
+    Richard> do { } while(0) stuff that permiates a lot of MACROS and
+    Richard> just use the { } as they were designed.
 
-If some major changes are being considered, I think it's time
-to get rid of the:
+    Richard> Before everybody screams, think. It's perfectly correct
+    Richard> to start a new "program unit" without a conditional
+    Richard> expression.  You just add a curley-brace, then close the
+    Richard> brace when you are though.
 
-do {  } while(0) stuff that permiates a lot of MACROS and just
-use the { } as they were designed.
+This is totally, totally wrong.  If you get rid of do { } while (0),
+then you can't use the macro in an if statement.  Read any C FAQ for
+details, or try the following:
 
-Before everybody screams, think. It's perfectly correct to
-start a new "program unit" without a conditional expression.
-You just add a curley-brace, then close the brace when you
-are though.
+    #define MAC(x) { x = x + 1; }
 
-For example (from linux/wait.h):
+    int main() {
+      int x = 0;
 
-/*
- * Debugging macros.  We eschew `do { } while (0)' because gcc can generate
- * spurious .aligns.
- */
-#if WAITQUEUE_DEBUG
-#define WQ_BUG()	BUG()
-#define CHECK_MAGIC(x)		\
- do {								\
-		if ((x) != (long)&(x)) {			\
-			printk("bad magic %lx (should be %lx), ",	\
-				(long)x, (long)&(x));			\
-			WQ_BUG();					\
-		}							\
-    } while (0)
+      if (1)
+        MAC(x);
+      else
+        x = x - 1;
+    }
 
-Surely, this was some kind of work-around for some compiler bug
-in a compiler you are not even allowed to use anymore for the
-newer kernels.
+I get the following (correct) error:
 
-All you need is the '{}' and none of the 'do' stuff. Since we
-are still allowed to use old compilers in old kernels, I'm
-nor suggesting that the headers in 2.4.xxx be changed, just the
-new stuff, 2.6
+    $ gcc a.c
+    a.c: In function `main':
+    a.c:8: syntax error before "else"
+    $ gcc --version
+    gcc (GCC) 3.2.3 20030502 (Red Hat Linux 3.2.3-20)
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+because
 
+    if (1)
+        { x = x + 1 } ; /* <-- note semicolon
+    else
+        x = x - 1;
 
+is not correct C.
+
+By the way, it is possible to use parentheses and commas for some
+simple macros, so for example the following is OK:
+
+    #define MAC(x) ( x = x + 1, x = x * 2 )
+
+    int main() {
+      int x = 0;
+
+      if (1)
+        MAC(x);
+      else
+        x = x - 1;
+    }
+
+However I don't see anything wrong with the perfectly standard "do { }
+while (0)" idiom.  Certainly if some compiler generates worse code for
+that construct that just a plain { }, _that_ is a compiler bug that we
+shouldn't have to work around.
+
+ - Roland

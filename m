@@ -1,182 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265034AbSJRGoN>; Fri, 18 Oct 2002 02:44:13 -0400
+	id <S265014AbSJRGne>; Fri, 18 Oct 2002 02:43:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265035AbSJRGoN>; Fri, 18 Oct 2002 02:44:13 -0400
-Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:9222 "EHLO
-	rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id <S265034AbSJRGoD>; Fri, 18 Oct 2002 02:44:03 -0400
-From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
-Organization: Universitaet Regensburg, Klinikum
-To: linux-kernel@vger.kernel.org
-Date: Fri, 18 Oct 2002 08:49:00 +0200
-MIME-Version: 1.0
-Content-type: Multipart/Mixed; boundary=Message-Boundary-15528
-Subject: almost a patch for 2.4.19: /proc/sys/kernel/time
-Message-ID: <3DAFCAFA.14078.1E75B2@localhost>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
-X-Content-Conformance: HerringScan-0.12/Sophos-3.62+2.10+2.03.098+07 October 2002+76757@20021018.063548Z
+	id <S265025AbSJRGne>; Fri, 18 Oct 2002 02:43:34 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:52675 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S265014AbSJRGnd>;
+	Fri, 18 Oct 2002 02:43:33 -0400
+Date: Thu, 17 Oct 2002 23:41:52 -0700 (PDT)
+Message-Id: <20021017.234152.32199647.davem@redhat.com>
+To: ak@muc.de
+Cc: peter@chubb.wattle.id.au, bcrl@redhat.com, trond.myklebust@fys.uio.no,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] statfs64 no longer missing
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021018063129.GA24682@averell>
+References: <15791.21383.361727.533851@wombat.chubb.wattle.id.au>
+	<20021018061701.GA18925@clusterfs.com>
+	<20021018063129.GA24682@averell>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Andi Kleen <ak@muc.de>
+   Date: Fri, 18 Oct 2002 08:31:29 +0200
 
---Message-Boundary-15528
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+   > Wasn't Dave Miller just saying that passing "long" between user-space
+   > and the kernel is just a bad idea?  Should we use "__u32" and "__u64"
+   > here instead?
+   
+   This is architecture specific, where it is ok.
 
-Hello,
-
-I have a patch known as "PPSkit" that converts the kernel to use an 
-internal time base of nanoseconds for wall time...
-
-Some time ago (1999) I implemented a new sysctl directory 
-/proc/sys/kernel/time that allows fixing some of the oddities having to 
-do with time (e.g. setting the timezone, preventing the kernel from 
-doing RTC updates, forcing the kernel to do RTC updates when the clock 
-is set, etc.)
-
-With the recent discussion about "HZ", I decided to implement 
-/proc/sys/kernel/time/Hz as read-only variable.
-
-I'll attach a part of the patch against 2.4.19 that was ripped out of 
-"PPSpatch-2.4.19.gz" (that I uploaded today to the kernel master 
-directory ...kernel.org:/pub/linux/daemons/ntp/PPS). The file is time-
-sysctl.diff (6kB).
-
-The patch against kernel/time.c will not work, but that's only lines to 
-add. Leave out all variables that you don't know, and you should still 
-get a working subset.
-
-The documentation refers to the "PPSkit" version, so ignore any 
-"nanosecond", or read it as "microsecond". I'd like to hear some 
-comments about the idea.
-
-Please mail directly to me too as I'm nut subscribed to linux-kernel.
-
-Thanks & regards,
-Ulrich Windl
-
-
---Message-Boundary-15528
-Content-type: Application/Octet-stream; name="time-sysctl.diff"; type=Text
-Content-disposition: attachment; filename="time-sysctl.diff"
-Content-transfer-encoding: BASE64
-
-SW5kZXg6IGluY2x1ZGUvbGludXgvc3lzY3RsLmgKPT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQpSQ1MgZmlsZTog
-L3Jvb3QvTGludXhDVlMvS2VybmVsL2luY2x1ZGUvbGludXgvc3lzY3RsLmgsdgpyZXRyaWV2
-aW5nIHJldmlzaW9uIDEuMS4xLjcKcmV0cmlldmluZyByZXZpc2lvbiAxLjEuMS43LjIuMgpk
-aWZmIC11IC1yMS4xLjEuNyAtcjEuMS4xLjcuMi4yCi0tLSBpbmNsdWRlL2xpbnV4L3N5c2N0
-bC5oCTE4IEF1ZyAyMDAyIDIwOjEyOjA4IC0wMDAwCTEuMS4xLjcKKysrIGluY2x1ZGUvbGlu
-dXgvc3lzY3RsLmgJMTcgT2N0IDIwMDIgMjA6MDI6MDUgLTAwMDAJMS4xLjEuNy4yLjIKQEAg
-LTEyNCw4ICsxMjQsMjAgQEAKIAlLRVJOX0NPUkVfVVNFU19QSUQ9NTIsCQkvKiBpbnQ6IHVz
-ZSBjb3JlIG9yIGNvcmUuJXBpZCAqLwogCUtFUk5fVEFJTlRFRD01MywJLyogaW50OiB2YXJp
-b3VzIGtlcm5lbCB0YWludGVkIGZsYWdzICovCiAJS0VSTl9DQURQSUQ9NTQsCQkvKiBpbnQ6
-IFBJRCBvZiB0aGUgcHJvY2VzcyB0byBub3RpZnkgb24gQ0FEICovCisJS0VSTl9USU1FPTU1
-LAkJLyogZGlyZWN0b3J5OiB0aW1lICovCiB9OwogCisvKiBLRVJOX1RJTUUgbmFtZXM6ICov
-CitlbnVtCit7CisJS0VSTl9USU1FX1RJTUVaT05FPTEsCQkvKiBzdHJ1Y3Q6IHRpbWV6b25l
-ICovCisJS0VSTl9USU1FX1JUQ19VUERBVEU9MiwJCS8qIGludDogcnRjX3VwZGF0ZSAqLwor
-CUtFUk5fVElNRV9SVENfUlVOU19MT0NBTFRJTUU9MywJLyogaW50OiBydGNfcnVuc19sb2Nh
-bHRpbWUgKi8KKwlLRVJOX1RJTUVfVElNRV9USUNLPTQsCQkvKiBpbnQ6IHRpbWVfdGljayAq
-LworCUtFUk5fVElNRV9USUNLQURKPTUsCQkvKiBpbnQ6IHRpY2thZGogKi8KKwlLRVJOX1RJ
-TUVfSFo9NiwJCQkvKiBpbnQ6IEhaICovCisJS0VSTl9USU1FX1BQU19WQVI9OTksCQkvKiBz
-dHJ1Y3QgcHBzX3ZhcjogcHBzICovCit9OwogCiAvKiBDVExfVk0gbmFtZXM6ICovCiBlbnVt
-CiMgdGhlIGZvbGxvd2luZyBwYXRjaCB3YXMgZWRpdGVkIQpJbmRleDoga2VybmVsL3RpbWUu
-Ywo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09ClJDUyBmaWxlOiAvcm9vdC9MaW51eENWUy9LZXJuZWwva2VybmVs
-L3RpbWUuYyx2CnJldHJpZXZpbmcgcmV2aXNpb24gMS4xLjEuNApyZXRyaWV2aW5nIHJldmlz
-aW9uIDEuMS4xLjQuMi4zCmRpZmYgLXUgLXIxLjEuMS40IC1yMS4xLjEuNC4yLjMKLS0tIGtl
-cm5lbC90aW1lLmMJMTggQXVnIDIwMDIgMjA6MTI6MTQgLTAwMDAJMS4xLjEuNAorKysga2Vy
-bmVsL3RpbWUuYwkxNyBPY3QgMjAwMiAyMDowNjoyMCAtMDAwMAkxLjEuMS40LjIuMwpAQCAt
-NywyOCArNywxODUgQEAKKy8qIERlZmluZSBlbnRyaWVzIGZvciBgdGltZScgc3ViZGlyZWN0
-b3J5LiAqLworc3RhdGljIC8qIGNvbnN0ICovIGludAlzeXNjdGxfdHpfbWluCT0gLTEyICog
-NjA7CitzdGF0aWMgLyogY29uc3QgKi8gaW50CXN5c2N0bF90el9tYXgJPSAgMTIgKiA2MDsK
-K3N0YXRpYyAvKiBjb25zdCAqLyBpbnQJc3lzY3RsX3plcm8JPSAwOworc3RhdGljIC8qIGNv
-bnN0ICovIGludAlzeXNjdGxfb25lCT0gMTsKK3N0YXRpYyAvKiBjb25zdCAqLyBpbnQJc3lz
-Y3RsX25vX21heAk9IDEgPDwgMzA7CitzdGF0aWMgLyogY29uc3QgKi8gaW50CXN5c2N0bF90
-aWNrX21pbgk9IDkgKiAoTkFOT1NFQ09ORC8xMC9oeik7CitzdGF0aWMgLyogY29uc3QgKi8g
-aW50CXN5c2N0bF90aWNrX21heAk9IDExICogKE5BTk9TRUNPTkQvMTAvaHopOworc3RhdGlj
-IC8qIGNvbnN0ICovIGludAlzeXNjdGxfdGlja2Fkal9tYXggPSAoTkFOT1NFQ09ORC9oeikg
-LyA0Oworc3RhdGljIC8qIGNvbnN0ICovIGludAlzeXNjdGxfaHogPSBIWjsKKworY3RsX3Rh
-YmxlIGtlcm5fdGltZV90YWJsZVtdID0geworCS8qIFdhcm5pbmc6IGBgc3lzX3R6LnR6X2Rz
-dHRpbWUnJyBpc24ndCBjaGVja2VkIHByb3Blcmx5ICovCisJe0tFUk5fVElNRV9USU1FWk9O
-RSwgInRpbWV6b25lIiwgJnN5c190eiwgc2l6ZW9mKHN5c190eiksCisJIDA2NDQsIE5VTEws
-ICZwcm9jX2RvaW50dmVjX21pbm1heCwgTlVMTCwgTlVMTCwKKwkgJnN5c2N0bF90el9taW4s
-ICZzeXNjdGxfdHpfbWF4fSwKKwl7S0VSTl9USU1FX1JUQ19SVU5TX0xPQ0FMVElNRSwgInJ0
-Y19ydW5zX2xvY2FsdGltZSIsCisJICZydGNfcnVuc19sb2NhbHRpbWUsIHNpemVvZihydGNf
-cnVuc19sb2NhbHRpbWUpLAorCSAwNjQ0LCBOVUxMLCAmcHJvY19kb2ludHZlY19taW5tYXgs
-IE5VTEwsIE5VTEwsCisJICZzeXNjdGxfemVybywgJnN5c2N0bF9vbmV9LAorCXtLRVJOX1RJ
-TUVfUlRDX1VQREFURSwgInJ0Y191cGRhdGUiLCAmcnRjX3VwZGF0ZSwgc2l6ZW9mKHJ0Y191
-cGRhdGUpLAorCSAwNjQ0LCBOVUxMLCAmcHJvY19kb2ludHZlY19taW5tYXgsIE5VTEwsIE5V
-TEwsCisJICZzeXNjdGxfemVybywgJnN5c2N0bF9ub19tYXh9LAorCXtLRVJOX1RJTUVfVElN
-RV9USUNLLCAidGltZV90aWNrIiwgJnRpbWVfdGljaywgc2l6ZW9mKHRpbWVfdGljayksCisJ
-IDA2NDQsIE5VTEwsICZwcm9jX2RvaW50dmVjX21pbm1heCwgTlVMTCwgTlVMTCwKKwkgJnN5
-c2N0bF90aWNrX21pbiwgJnN5c2N0bF90aWNrX21heH0sCisJe0tFUk5fVElNRV9USUNLQURK
-LCAidGlja2FkaiIsICZ0aWNrYWRqLCBzaXplb2YodGlja2FkaiksCisJIDA2NDQsIE5VTEws
-ICZwcm9jX2RvaW50dmVjX21pbm1heCwgTlVMTCwgTlVMTCwKKwkgJnN5c2N0bF9vbmUsICZz
-eXNjdGxfdGlja2Fkal9tYXh9LAorCXtLRVJOX1RJTUVfSFosICJIeiIsICZzeXNjdGxfaHos
-IHNpemVvZihzeXNjdGxfaHopLAorCSAwNDQ0LCBOVUxMLCAmcHJvY19kb2ludHZlY30sCisj
-aWZkZWYgQ09ORklHX05UUAorI2lmZGVmIENPTkZJR19OVFBfUFBTCisJLyogdGhpcyBlbnRy
-eSBpcyBmb3IgZGVidWdnaW5nIChleHBlcmltZW50YWwpICovCisJe0tFUk5fVElNRV9QUFNf
-VkFSLCAicHBzIiwgJnBwcywgc2l6ZW9mKHBwcyksCisJIDA0NDQsIE5VTEwsICZwcm9jX2Rv
-aW50dmVjfSwKKyNlbmRpZgorI2VuZGlmCisJezB9Cit9OworCkluZGV4OiBEb2N1bWVudGF0
-aW9uL3N5c2N0bC9rZXJuZWwudHh0Cj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KUkNTIGZpbGU6IC9yb290L0xp
-bnV4Q1ZTL0tlcm5lbC9Eb2N1bWVudGF0aW9uL3N5c2N0bC9rZXJuZWwudHh0LHYKcmV0cmll
-dmluZyByZXZpc2lvbiAxLjEuMS4yCnJldHJpZXZpbmcgcmV2aXNpb24gMS4xLjEuMi42LjIK
-ZGlmZiAtdSAtcjEuMS4xLjIgLXIxLjEuMS4yLjYuMgotLS0gRG9jdW1lbnRhdGlvbi9zeXNj
-dGwva2VybmVsLnR4dAkxMyBEZWMgMjAwMSAxODo0ODo0OSAtMDAwMAkxLjEuMS4yCisrKyBE
-b2N1bWVudGF0aW9uL3N5c2N0bC9rZXJuZWwudHh0CTE3IE9jdCAyMDAyIDIwOjE0OjIxIC0w
-MDAwCTEuMS4xLjIuNi4yCkBAIC00MCw2ICs0MCw3IEBACiAtIHNnLWJpZy1idWZmICAgICAg
-ICAgICAgICAgICBbIGdlbmVyaWMgU0NTSSBkZXZpY2UgKHNnKSBdCiAtIHNobW1heCAgICAg
-ICAgICAgICAgICAgICAgICBbIHN5c3YgaXBjIF0KIC0gdGFpbnRlZAorLSB0aW1lCQkJICAg
-ICAgWyBkaXJlY3RvcnkgXQogLSB2ZXJzaW9uCiAtIHplcm8tcGFnZWQgICAgICAgICAgICAg
-ICAgICBbIFBQQyBvbmx5IF0KIApAQCAtMjE4LDYgKzIxOSwzNyBAQAogb24gdGhlIG1heGlt
-dW0gc2hhcmVkIG1lbW9yeSBzZWdtZW50IHNpemUgdGhhdCBjYW4gYmUgY3JlYXRlZC4KIFNo
-YXJlZCBtZW1vcnkgc2VnbWVudHMgdXAgdG8gMUdiIGFyZSBub3cgc3VwcG9ydGVkIGluIHRo
-ZSAKIGtlcm5lbC4gIFRoaXMgdmFsdWUgZGVmYXVsdHMgdG8gU0hNTUFYLgorCis9PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PQorCit0aW1lOgorCit0aW1lL0h6IChyL28pOgorCUludGVuZGVkIHRvIHJldmVhbCB0aGUg
-dmFsdWUgb2YgSFogdG8gdXNlciBwcm9ncmFtcy4KKwordGltZS9wcHMgKHIvbyk6CisJKGV4
-cGVyaW1lbnRhbCkgVXNlZCB0byByZXZlYWwgdGhlIGludGVybmFscyBvZiBgYHN0cnVjdCBw
-cHMnJworCit0aW1lL3J0Y19ydW5zX2xvY2FsdGltZSAoci93KToKKwlTZXQgdG8gYGAxJycg
-aWYgUlRDIGlzIHNldCB0byBsb2NhbCB0aW1lCisKK3RpbWUvcnRjX3VwZGF0ZSAoci93KToK
-KwlBbW91bnQgb2Ygc2Vjb25kcyBhZnRlciB3aGljaCB0aGUgUlRDIGlzIHVwZGF0ZWQgZnJv
-bSBzeXN0ZW0gdGltZQorCWlmIGBgU1RBX1VOU1lOQycnIGluIGBgdGltZV9zdGF0dXMnJyBp
-cyBjbGVhcmVkLiAgV2hlbiBzZXR0aW5nIHRoZQorCXN5c3RlbSB0aW1lIGRpcmVjdGx5LCBp
-dCB3aWxsIGJlIHVwZGF0ZWQgdGhlIG5leHQgc2Vjb25kLgorCVNldHRpbmcgYGBydGNfdXBk
-YXRlJycgdG8gYSB2YWx1ZSA8PSAwLCB0aGUgUlRDIGlzIG5vdCB1cGRhdGVkLgorCit0aW1l
-L3RpY2thZGogKHIvdyk6CisJQW1vdW50IG9mIG5hbm9zZWNvbmRzIHRoYXQgd2lsbCBiZSB1
-c2VkIHRvIGFkanVzdCBhIHdyb25nIGNsb2NrCisJZ3JhZHVhbGx5ICh1c2luZyBgYGFkanRp
-bWUoKScnKS4KKwordGltZS90aW1lX3RpY2sgKHIvdyk6CisJQW1vdW50IG9mIG5hbm9zZWNv
-bmRzIHRvIGFkZCBldmVyeSB0aW1lciBpbnRlcnJ1cHQuCisKK3RpbWUvdGltZXpvbmUgKHIv
-dyk6CisJVHdvIHZhbHVlcyBkZXNjcmliaW5nIHRoZSB0aW1lIHpvbmUgb2Zmc2V0IHdlc3Qg
-b2YgR01UIGluIG1pbnV0ZXMsCisJYW5kIHdoZXRoZXIgZGF5bGlnaHQgc2F2aW5nIHRpbWUg
-aXMgYWN0aXZlIChyZXF1aXJlZCB0byBjb252ZXJ0CisJa2VybmVsIHRpbWUgdG8gbG9jYWwg
-dGltZSkuCiAKID09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09CiAKSW5kZXg6IGtlcm5lbC9zeXNjdGwuYwo9PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09ClJDUyBmaWxlOiAvcm9vdC9MaW51eENWUy9LZXJuZWwva2VybmVsL3N5c2N0bC5jLHYK
-cmV0cmlldmluZyByZXZpc2lvbiAxLjEuMS4xMQpyZXRyaWV2aW5nIHJldmlzaW9uIDEuMS4x
-LjExLjIuMQpkaWZmIC11IC1yMS4xLjEuMTEgLXIxLjEuMS4xMS4yLjEKLS0tIGtlcm5lbC9z
-eXNjdGwuYwkxOCBBdWcgMjAwMiAyMDoxMjoxNCAtMDAwMAkxLjEuMS4xMQorKysga2VybmVs
-L3N5c2N0bC5jCTE5IEF1ZyAyMDAyIDIwOjM2OjAxIC0wMDAwCTEuMS4xLjExLjIuMQpAQCAt
-MTQsNiArMTQsNyBAQAogICogQWRkZWQgcHJvY19kb3Vsb25ndmVjX21pbm1heCwgMDkvMDgv
-OTksIENhcmxvcyBILiBCYXVlci4KICAqIENoYW5nZWQgbGlua2VkIGxpc3RzIHRvIHVzZSBs
-aXN0LmggaW5zdGVhZCBvZiBsaXN0cy5oLCAwMi8yNC8wMCwgQmlsbAogICogIFdlbmRsaW5n
-LgorICogQWRkZWQgYHRpbWUnIHN1YmRpcmVjdG9yeSwgMTEvMDkvOTksIFVscmljaCBXaW5k
-bAogICogVGhlIGxpc3RfZm9yX2VhY2goKSBtYWNybyB3YXNuJ3QgYXBwcm9wcmlhdGUgZm9y
-IHRoZSBzeXNjdGwgbG9vcC4KICAqICBSZW1vdmVkIGl0IGFuZCByZXBsYWNlZCBpdCB3aXRo
-IG9sZGVyIHN0eWxlLCAwMy8yMy8wMCwgQmlsbCBXZW5kbGluZwogICovCkBAIC0xMDgsNiAr
-MTA5LDcgQEAKIAl7IHJvb3RfdGFibGUsIExJU1RfSEVBRF9JTklUKHJvb3RfdGFibGVfaGVh
-ZGVyLmN0bF9lbnRyeSkgfTsKIAogc3RhdGljIGN0bF90YWJsZSBrZXJuX3RhYmxlW107Citl
-eHRlcm4gY3RsX3RhYmxlIGtlcm5fdGltZV90YWJsZVtdOwogc3RhdGljIGN0bF90YWJsZSB2
-bV90YWJsZVtdOwogI2lmZGVmIENPTkZJR19ORVQKIGV4dGVybiBjdGxfdGFibGUgbmV0X3Rh
-YmxlW107CkBAIC0yNTYsNiArMjU4LDcgQEAKIAl7S0VSTl9TMzkwX1VTRVJfREVCVUdfTE9H
-R0lORywidXNlcnByb2Nlc3NfZGVidWciLAogCSAmc3lzY3RsX3VzZXJwcm9jZXNzX2RlYnVn
-LHNpemVvZihpbnQpLDA2NDQsTlVMTCwmcHJvY19kb2ludHZlY30sCiAjZW5kaWYKKwl7S0VS
-Tl9USU1FLCAidGltZSIsIE5VTEwsIDAsIDA1NTUsIGtlcm5fdGltZV90YWJsZX0sCiAJezB9
-CiB9OwogCg==
-
---Message-Boundary-15528--
+Well, it would be nice if we could put this into
+asm-generic/statfs64.h and use portable types like
+u64 et al.

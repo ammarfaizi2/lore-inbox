@@ -1,36 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261367AbTDHNK5 (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 09:10:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbTDHNK5 (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 09:10:57 -0400
-Received: from angband.namesys.com ([212.16.7.85]:49295 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP id S261367AbTDHNK5 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 09:10:57 -0400
-Date: Tue, 8 Apr 2003 17:22:29 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Jurriaan <thunder7@xs4all.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: cannot mount reiserfs-partition with 2.4.21-pre7 (works fine with 2.5.*)
-Message-ID: <20030408172229.B12020@namesys.com>
-References: <20030408104328.GA1264@middle.of.nowhere>
+	id S261380AbTDHNVO (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 09:21:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261382AbTDHNVO (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 09:21:14 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:43665 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261380AbTDHNVN (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 09:21:13 -0400
+Subject: Re: [LTP] Re: Same syscall is defined to different numbers on 3
+	different archs(was Re: Makefile  issue)
+From: Paul Larson <plars@linuxtestproject.org>
+To: Werner Almesberger <wa@almesberger.net>
+Cc: Andi Kleen <ak@suse.de>, Robert Williamson <robbiew@us.ibm.com>,
+       lkml <linux-kernel@vger.kernel.org>, aniruddha.marathe@wipro.com,
+       ltp-list@lists.sourceforge.net
+In-Reply-To: <20030407232302.D19288@almesberger.net>
+References: <OF51DE965A.FDCB6DBE-ON85256D01.005201B1-86256D01.005610CF@pok.ibm.com.suse.
+	lists.linux.kernel> <p73vfxqxpz4.fsf@oldwotan.suse.de> 
+	<20030407232302.D19288@almesberger.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-bNfi/CyAaWVOSNxmEOXl"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 08 Apr 2003 08:30:50 -0500
+Message-Id: <1049808651.30732.113.camel@plars>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030408104328.GA1264@middle.of.nowhere>
-User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-On Tue, Apr 08, 2003 at 12:43:28PM +0200, Jurriaan wrote:
+--=-bNfi/CyAaWVOSNxmEOXl
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> If there's anything I can do to help, please let me know.
+On Mon, 2003-04-07 at 21:23, Werner Almesberger wrote:
+> Andi Kleen wrote:
+> > #include </path/to/kernel/source/include/asm-<arch>/unistd.h>
+> > (you need the version in the kernel source because many glibc packagers
+> > in their infinite wisdom use an old outdated copy of asm/ usually from
+> > the last stable kernel only)=20
+>=20
+> Do we need a /proc/syscalls ? :-)
+I don't think so.  Apps should be accessing things through libraries
+anyway.  The only reason we don't in some cases like this is that it's
+new and not in libs on any distro yet.  Besides, I don't think having a
+/proc/syscalls would be any better than having to do ifdefs or use
+kernel headers.
 
-Please show output of "fdisk -l /dev/hdd" and 
-"debugreiserfs /dev/hdd2".
-2.5 works fine because it lacks this new check (yet).
+-Paul Larson
 
-Thank you.
 
-Bye,
-    Oleg
+--=-bNfi/CyAaWVOSNxmEOXl
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEABECAAYFAj6SzwoACgkQbkpggQiFDqfjYACdHOCcUOjf0hlpzcpQTTxAz6vl
+e8kAnjtt93zNjRoNU+JjyFuXe5v6zNIP
+=gVPp
+-----END PGP SIGNATURE-----
+
+--=-bNfi/CyAaWVOSNxmEOXl--
+

@@ -1,71 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263735AbUFBRr7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263752AbUFBRsW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263735AbUFBRr7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 13:47:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263752AbUFBRr7
+	id S263752AbUFBRsW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 13:48:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263756AbUFBRsW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 13:47:59 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:38296 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S263735AbUFBRrz (ORCPT
+	Wed, 2 Jun 2004 13:48:22 -0400
+Received: from [194.85.238.98] ([194.85.238.98]:23250 "EHLO school.ioffe.ru")
+	by vger.kernel.org with ESMTP id S263752AbUFBRsR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 13:47:55 -0400
-Date: Wed, 2 Jun 2004 19:46:53 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Greg KH <greg@kroah.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Pavel Machek <pavel@suse.cz>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
-       Ingo Molnar <mingo@elte.hu>, Andrea Arcangeli <andrea@suse.de>,
-       Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH] explicitly mark recursion count
-Message-ID: <20040602174653.GB30427@wohnheim.fh-wedel.de>
-References: <20040602142748.GA25939@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020743260.3403@ppc970.osdl.org> <20040602150440.GA26474@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020807270.3403@ppc970.osdl.org> <20040602152741.GC26474@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020839230.3403@ppc970.osdl.org> <20040602161721.GA29296@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020921220.3403@ppc970.osdl.org> <20040602171732.GA30427@wohnheim.fh-wedel.de> <20040602173200.GA12254@kroah.com>
+	Wed, 2 Jun 2004 13:48:17 -0400
+Date: Wed, 2 Jun 2004 21:48:10 +0400
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.7-rc2: open() hangs on ReiserFS with SELinux enabled
+Message-ID: <20040602174810.GA31263@school.ioffe.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040602173200.GA12254@kroah.com>
 User-Agent: Mutt/1.3.28i
+From: mitya@school.ioffe.ru (Dmitry Baryshkov)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 June 2004 10:32:00 -0700, Greg KH wrote:
-> On Wed, Jun 02, 2004 at 07:17:32PM +0200, J?rn Engel wrote:
-> > 
-> > Leaves usb_audio_recurseunit() as the only function in question, that
-> > one could actually be sane, although it looks rather interesting:
-> > WARNING: trivial recursion detected:
-> >        0  usb_audio_recurseunit
-> > WARNING: recursion detected:
-> >       16  usb_audio_selectorunit
-> >        0  usb_audio_recurseunit
-> > WARNING: multiple recursions around usb_audio_recurseunit()
-> > WARNING: recursion detected:
-> >        0  usb_audio_recurseunit
-> >        0  usb_audio_processingunit
-> > 
-> > Greg, can you say whether this construct makes sense?
-> 
-> Well it's sane only if you think that USB descriptors can be sane :)
-> 
-> Anyway, this loop will always terminate as we have a finite sized USB
-> descriptor that this function is parsing.  As to how many times we will
-> recurse, I don't really know as I haven't spent much time looking into
-> the different messed up USB audio devices out there on the market...
-> 
-> Sorry I can't be of more help, but I don't think you need to worry about
-> this function.
+Hello,
 
-That's ok.  At least you can talk about that code without obvious
-disgust, which is a quality criterium in itself.
+I tried enabling SELinux on my Linux-box, using ReiserFS as /, kernel
+2.6.7-rc2.
 
-Leaves exactly one multiply recursive function we might want to keep.
-So I just won't worry too much and ignore the warnings about it, fine.
+After relabeling and rebooting in non-enforcing mode everything worked
+well, exept the fact, that new files on reiserfs filesystems don't get
+security attributes.
 
-Jörn
+So I added 'fs_use_xattr reiserfs system_u:object_r:fs_t;' to the policy,
+rebooted and found, that mount hangs during opening of /etc/mtab~<pid>
+(even in non-enforcing mode).
+
+If I remove that line from SELinux policy, systems boots up OK.
+
+Here are last lines from #strace mount / -o remount :
+
+=== Cut ===
+open("/etc/mtab~202", O_WRONLY|O_CREAT|O_LARGEFILE, 0600audit(1085949484.378:0): avc:  denied  { write } for  pid=202 exe=/bin/mount name=etc dev=hda5 ino=91 scontext=system_u:system_r:kernel_t tcontext=system_u:object_r:etc_t tclass=dir
+audit(1085949484.378:0): avc:  denied  { add_name } for  pid=202 exe=/bin/mount name=etc dev=hda5 ino=91 scontext=system_u:system_r:kernel_t tcontext=system_u:object_r:etc_t tclass=dir
+audit(1085949484.378:0): avc:  denied  { create } for  pid=202 exe=/bin/mount name=mtab~202 dev=hda5 ino=91 scontext=system_u:system_r:kernel_t tcontext=system_u:object_r:etc_t tclass=file
+=== Cut ===
+
+Tell me, if I need to provide any additional info.
 
 -- 
-ticks = jiffies;
-while (ticks == jiffies);
-ticks = jiffies;
--- /usr/src/linux/init/main.c
+With best wishes
+Dmitry Baryshkov

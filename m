@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292020AbSBAUx6>; Fri, 1 Feb 2002 15:53:58 -0500
+	id <S292021AbSBAU4O>; Fri, 1 Feb 2002 15:56:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292018AbSBAUxf>; Fri, 1 Feb 2002 15:53:35 -0500
-Received: from rakis.net ([207.8.143.12]:7842 "EHLO egg.rakis.net")
-	by vger.kernel.org with ESMTP id <S292015AbSBAUx3>;
-	Fri, 1 Feb 2002 15:53:29 -0500
-Date: Fri, 1 Feb 2002 15:53:28 -0500 (EST)
-From: Greg Boyce <gboyce@rakis.net>
-X-X-Sender: gboyce@egg
-To: gmack@innerfire.net
-Cc: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Machines misreporting Bogomips 
-In-Reply-To: <Pine.LNX.4.21.0202011258150.12383-100000@innerfire.net>
-Message-ID: <Pine.LNX.4.42.0202011549090.5498-100000@egg>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S292019AbSBAU4B>; Fri, 1 Feb 2002 15:56:01 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:47527 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S292001AbSBAUyy>;
+	Fri, 1 Feb 2002 15:54:54 -0500
+Date: Fri, 1 Feb 2002 15:54:51 -0500
+From: Jeff Garzik <garzik@havoc.gtf.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Peter Monta <pmonta@pmonta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Continuing /dev/random problems with 2.4
+Message-ID: <20020201155451.A4843@havoc.gtf.org>
+In-Reply-To: <20020201031744.A32127@asooo.flowerfire.com> <1012582401.813.1.camel@phantasy> <a3enf3$93p$1@cesium.transmeta.com> <20020201202334.72F921C5@www.pmonta.com> <20020201153346.B2497@havoc.gtf.org> <3C5AFD4B.4010803@zytor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C5AFD4B.4010803@zytor.com>; from hpa@zytor.com on Fri, Feb 01, 2002 at 12:40:43PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The machine is actually slower.  That's how I noticed the problem.
-> >
-> > Underclocking dosen't seem likely due to the difference in speed.  It's 4
-> > bogomips instead of 500.  The machine is running at about the speed of a
-> > 386 (I believe that's about right).  It almost seems as if someone turned
-> > off the turbo button.  But of course I haven't seen one of those since my
-> > old 486 :)
-> >
-> > --
-> > Greg Boyce
-> >
-> >
->
-> Could they be running with cache disabled in the bios?
->
+On Fri, Feb 01, 2002 at 12:40:43PM -0800, H. Peter Anvin wrote:
+> Jeff Garzik wrote:
+> > Even if you think you have a good true source of random noise, you need
+> > to run good fitness tests on the data to ensure it's truly random.
 
-The machine is reporting that the cache is enabled.  Even if this was
-true, I have trouble believing that turning on the cache would result in a
-50,000% increase in speed (4 bogomips compared to 500).
+> The i810 user-space code already should do this, though, right?  Could one
+> simply point the existing rngd at /dev/dsp instead?
 
-I have a feeling that I'm going to have to chalk this one up to hardware
-failure.  Another kind soul suggested it could be ECC memory reporting a
-continual string of 1 bit failures.
+Theoretically yes.  rngd is tuned right now for i810's byte-at-a-time
+device, but it would be simple to make the code more generic, or simply
+use a faster device in a slower byte-at-a-time mode.
 
---
-Greg Boyce
+	Jeff
 
 
 

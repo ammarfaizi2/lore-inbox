@@ -1,60 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266445AbUGJVjh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266450AbUGJVnT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266445AbUGJVjh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 17:39:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266448AbUGJVjh
+	id S266450AbUGJVnT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 17:43:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266449AbUGJVnT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 17:39:37 -0400
-Received: from 66-79-15-219.clec.nworla.commercial.madisonriver.net ([66.79.15.219]:6529
-	"EHLO lade.trondhjem.org") by vger.kernel.org with ESMTP
-	id S266445AbUGJVix convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 17:38:53 -0400
-Subject: Re: umount() and NFS races in 2.4.26
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Thomas Moestl <moestl@ibr.cs.tu-bs.de>, linux-kernel@vger.kernel.org,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20040709143242.GB11168@logos.cnet>
-References: <20040708180709.GA7704@timesink.dyndns.org>
-	 <20040709143242.GB11168@logos.cnet>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1089495528.5406.10.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 10 Jul 2004 16:38:48 -0500
+	Sat, 10 Jul 2004 17:43:19 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:1271 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S266448AbUGJVnQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 17:43:16 -0400
+Message-ID: <40F062F1.5020105@comcast.net>
+Date: Sat, 10 Jul 2004 17:43:13 -0400
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040630)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Fawad Lateef <fawad_lateef@yahoo.com>
+CC: ebiederm@xmission.com, linux-kernel@vger.kernel.org
+Subject: Re: Need help in creating 8GB RAMDISK
+References: <20040710142647.73810.qmail@web20827.mail.yahoo.com>
+In-Reply-To: <20040710142647.73810.qmail@web20827.mail.yahoo.com>
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På fr , 09/07/2004 klokka 09:32, skreiv Marcelo Tosatti:
-> > - The NFS async unlink code (fs/nfs/unlink.c) does keep a dentry for
-> >   later asynchronous processing, but the mount point is unbusied via
-> >   path_release() once sys_unlink() returns (fs/namei.c). While it
-> >   does a dget() on the dentry, this is insufficient to prevent an
-> >   umount(); when one would happen in the right time window, it seems
-> >   that it would initially get past the busy check:
-> > 	if (atomic_read(&mnt->mnt_count) == 2 || flags & MNT_DETACH) {
-> >   (fs/namespace.c, do_umount()), but invalidate_inodes() in kill_super()
-> >   (fs/super.c) would then fail because of the inode referenced from
-> >   the dentry needed for the async unlink (which cannot be removed
-> >   by shrink_dcache_parent() because the NFS code did dget() it).
-> > 
-> >   Please note that this problem is only conjectured, as it turned out
-> >   to not be our culprit. It looks not completely trivial to fix to me,
-> >   I believe it might require some changes that would affect other FS
-> >   implementations. It is not a true SMP race, if it exists it would
-> >   affect UP systems as well.
-> 
-> Trond?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Known problem, but a fix is not trivial since the unlink() procedure
-does not take a nameidata structure argument (which would be needed in
-order to figure out which vfs_mount struct to mntget()).
 
-If someone can figure out a way to fix it, then a patch would be
-welcome, but I'm on holiday until the Linux Kernel Summit starts, so
-don't expect any immediate action from me...
 
-Cheers,
- Trond
+Fawad Lateef wrote:
+|>ebiederm@xmission.com (Eric W. Biederman) writes:
+
+| Actually I need 7GB RAMDISK to use with my Caching
+| Drive Project. I have to use RAMDISK of 7GB or more
+| for the Caching purpose. The Architecture is like Disk
+| Caching Disk (DCD), but here I hav to use RAMDISK.
+
+What does this project do?
+
+|
+| I created RAMDISK using physical address as I hav
+| reserved all RAM above 1GB for my RAMDISK, but I am
+| not able to create RAMDISK of 7GB as a single Drive.
+|
+| Is there any Idea regarding this ????
+|
+| Fawad Lateef
+|
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFA8GLwhDd4aOud5P8RAl4AAJ4u4G6oSp8QSfWOrRsvCUtyPRA4mgCfc/jP
+f11sCX/hVbpU28p7zCF1E2g=
+=FR6S
+-----END PGP SIGNATURE-----

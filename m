@@ -1,45 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286575AbRLUVIs>; Fri, 21 Dec 2001 16:08:48 -0500
+	id <S286581AbRLUVKi>; Fri, 21 Dec 2001 16:10:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286577AbRLUVIb>; Fri, 21 Dec 2001 16:08:31 -0500
-Received: from fmfdns02.fm.intel.com ([132.233.247.11]:44509 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S286575AbRLUVIY>; Fri, 21 Dec 2001 16:08:24 -0500
-Message-ID: <59885C5E3098D511AD690002A5072D3C42D814@orsmsx111.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Pavel Machek'" <pavel@suse.cz>,
-        Kimio Suganuma <k-suganuma@mvj.biglobe.ne.jp>
-Cc: linux-kernel@vger.kernel.org, large-discuss@lists.sourceforge.net,
-        Heiko Carstens <Heiko.Carstens@de.ibm.com>,
-        Jason McMullan <jmcmullan@linuxcare.com>,
-        Anton Blanchard <antonb@au1.ibm.com>,
-        Greg Kroah-Hartman <ghartman@us.ibm.com>, rusty@rustcorp.com.au
-Subject: RE: [ANNOUNCE] HotPlug CPU patch against 2.5.0
-Date: Fri, 21 Dec 2001 13:08:13 -0800
+	id <S286577AbRLUVK0>; Fri, 21 Dec 2001 16:10:26 -0500
+Received: from 213-97-199-90.uc.nombres.ttd.es ([213.97.199.90]:8320 "HELO
+	fargo") by vger.kernel.org with SMTP id <S286579AbRLUVKD> convert rfc822-to-8bit;
+	Fri, 21 Dec 2001 16:10:03 -0500
+From: "David Gomez" <davidge@viadomus.com>
+Date: Fri, 21 Dec 2001 22:09:09 +0100 (CET)
+X-X-Sender: <huma@fargo>
+To: Dan Kegel <dkegel@ixiacom.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: re: Linux 2.4.17
+In-Reply-To: <3C23988D.47A96760@ixiacom.com>
+Message-ID: <Pine.LNX.4.33.0112212203460.1184-100000@fargo>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Pavel Machek [mailto:pavel@suse.cz]
-> > This patch works on s390, s390x, x86 and ia64 architectures.
-> > It can also be applied against 2.4.16 with a little modification.
-> > 
-> > Down CPU
-> > echo 0 > /proc/sys/kernel/cpu/<id>/online
-> > 
-> > Up CPU
-> > echo 1 > /proc/sys/kernel/cpu/<id>/online
-> 
-> Such patches are neccessary for ACPI S3/S4 sleep support. It 
-> would be nice to
-> apply them soon.
 
-They are???
+> > final:
+> >
+> > - Fix more loopback deadlocks                   (Andrea Arcangeli)
+> > - Make Alpha with Nautilus chipset and
+> >   Irongate chipset configuration compile
+> >   correctly                                     (Michal Jaegermann)
+> >
+> > rc2:
+> >
+> > - Fix potential oops with via-rhine             (Andrew Morton)
+> > - sysvfs: mark inodes as bad in case of read
+> > ...
+>
+> Um, what happened to the idea of 'no changes between the last
+> release candidate and final'?
 
-How so?
+I think the policy is 'not to add unnecessary changes' , not 'no changes'.
 
-Regards -- Andy
+> I'm disappointed; I thought we were entering a new era of
+> release discipline in the stable kernel.
+
+I'd be dissapointed if Marcelo had released and stable kernel still
+with the loopback deadlocks. And i don't think the alpha compile fix is
+going to break anything.
+
+
+
+David Gómez
+
+"The question of whether computers can think is just like the question of
+ whether submarines can swim." -- Edsger W. Dijkstra
+
+
+

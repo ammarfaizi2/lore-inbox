@@ -1,35 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284532AbRLERhB>; Wed, 5 Dec 2001 12:37:01 -0500
+	id <S284527AbRLERmb>; Wed, 5 Dec 2001 12:42:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284536AbRLERgv>; Wed, 5 Dec 2001 12:36:51 -0500
-Received: from 12-224-36-149.client.attbi.com ([12.224.36.149]:28179 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S284532AbRLERgq>;
-	Wed, 5 Dec 2001 12:36:46 -0500
-Date: Wed, 5 Dec 2001 09:35:53 -0800
-From: Greg KH <greg@kroah.com>
-To: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.14 USB problem
-Message-ID: <20011205093553.F27826@kroah.com>
-In-Reply-To: <20011205133551.A4770@grobbebol.xs4all.nl>
+	id <S284531AbRLERmW>; Wed, 5 Dec 2001 12:42:22 -0500
+Received: from [209.249.147.248] ([209.249.147.248]:38149 "EHLO
+	proxy1.addr.com") by vger.kernel.org with ESMTP id <S284527AbRLERmH>;
+	Wed, 5 Dec 2001 12:42:07 -0500
+Date: Wed, 5 Dec 2001 11:54:50 -0500
+From: Daniel Gryniewicz <dang@fprintf.net>
+To: John Clemens <john@deater.net>
+Cc: cory.bell@usa.net, linux-kernel@vger.kernel.org
+Subject: Re: IRQ Routing Problem on ALi Chipset Laptop (HP Pavilion N5425)
+Message-Id: <20011205115450.6c66664d.dang@fprintf.net>
+In-Reply-To: <Pine.LNX.4.33.0112051127390.27471-100000@pianoman.cluster.toy>
+In-Reply-To: <1007541620.2340.2.camel@localhost.localdomain>
+	<Pine.LNX.4.33.0112051127390.27471-100000@pianoman.cluster.toy>
+X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011205133551.A4770@grobbebol.xs4all.nl>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Wed, 07 Nov 2001 14:40:29 -0800
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 05, 2001 at 01:35:51PM +0000, Roeland Th. Jansen wrote:
+On Wed, 5 Dec 2001 11:41:44 -0500 (EST)
+John Clemens <john@deater.net> wrote:
+
+<snip>
+
+> > ACPI seems to work on my laptop (detects ACPI resources, thermal
+> > zone, etc), but if I "cat /proc/acpi/events" and press the suspend or
+> > power buttons, I don't get anything. On my old NEC Versa LX, I'd get a
+> > few junk chars for each press (been a while since I tried it, though). I
+> > don't see any interrupts on IRQ 9, either.
 > 
-> hoe somebody has some use for this info.
+> I'm not 100% sure how ACPI works, period. I've got it up and running, but
+> about the only thing it does seem to report correctly is battery life
+> (and, I assume, it uses ACPI idle..)..  everything else appears to be just
+> window dressing for now.. not sure if that's a limitation of hardware or
+> the linux ACPI implementation.
 
-You might want to let the driver's author know about this.  His email
-address is in the usb-storage.c and the MAINTAINER files.
+I have an N5415, and am using your k7 patch (thanks much!).  I don't use USB,
+so I didn't try or comment on your patch.  However, I was never able to get
+ACPI to work.  If I compiled it in without APM compiled in, it always hung on
+boot.  So, I have only APM, which doesn't even show the battery life
+correctly.  Whether or not I can suspend, knowing battery life would be an
+improvement.  Is there something special I have to do to get ACPI to work? 
+(I'm currently using 2.4.13-ac7-preempt-k7, but I've tried 2.4.1[56] also, as
+well as many earlier kernels.)
 
-thanks,
+Daniel
+--- 
+Recursion n.:
+        See Recursion.
+                        -- Random Shack Data Processing Dictionary
 
-greg k-h

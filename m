@@ -1,57 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263077AbTE0Dde (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 23:33:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263084AbTE0Dde
+	id S263078AbTE0DgT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 23:36:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263084AbTE0DgT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 23:33:34 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:27824 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S263077AbTE0Ddd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 23:33:33 -0400
-Date: Tue, 27 May 2003 00:44:46 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] IDE config correctness (was: Linux 2.4.21-rc4)
-In-Reply-To: <3ED2C16D.6090904@gmx.net>
-Message-ID: <Pine.LNX.4.55L.0305270043150.32094@freak.distro.conectiva>
-References: <Pine.LNX.4.55L.0305261734320.21581@freak.distro.conectiva>
- <3ED2C16D.6090904@gmx.net>
+	Mon, 26 May 2003 23:36:19 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1733 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263078AbTE0DgS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 23:36:18 -0400
+Message-ID: <3ED2E03E.80004@pobox.com>
+Date: Mon, 26 May 2003 23:49:18 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Zwane Mwaikambo <zwane@linuxpower.ca>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: [PATCH] xirc2ps_cs irq return fix
+References: <200305252318.h4PNIPX4026812@hera.kernel.org>	 <3ED16351.7060904@pobox.com>	 <Pine.LNX.4.50.0305252051570.28320-100000@montezuma.mastecende.com> <1053992128.17129.15.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <1053992128.17129.15.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
+> On Llu, 2003-05-26 at 02:00, Zwane Mwaikambo wrote:
+> 
+>>My interpretation of it is the PCMCIA controller was triggering interrupts 
+>>on exit and the link handler for the card was still installed even after 
+>>the netdevice was down.
+> 
+> 
+> This is exactly what will happen all the time on PCMCIA devices. The
+> edge triggered interrupt will cause an IRQ to float around every remove
+> of the device on most hardware
+> 
+> The fix is basically correct, although the odd floating IRQ ought to be
+> cleaned up by the heuristics being fixed in the core IRQ disaster
+> detector
 
-It seems Alan still has some very important fixes pending. If so, I'll
-release -rc5 tomorrow with your stuff.
 
-Otherwise it will have to wait for .22-pre.
+huh?
 
-On Tue, 27 May 2003, Carl-Daniel Hailfinger wrote:
+If the fix is correct, we need to do a bombing run that adds the 
+following code to each driver,
 
-> Marcelo Tosatti wrote:
-> > Hi,
-> >
-> > Here goes -rc4, hopefully fixing all problems now.
-> >
-> > rc5 will only be released in case of REALLY bad problems.
->
-> Not really a bad problem, but CONFIG_PDC202XX_BURST should be selectable
-> even if CONFIG_BLK_DEV_PDC202XX_OLD=m
-> You decide if this goes into 2.4.21. I do not feel strongly about it.
->
-> >   o Cset exclude: c-d.hailfinger.kernel.2003@gmx.net|ChangeSet|20030526190224|33683
-> >   o Really fix xconfig breakage
->
-> My fix for the xconfig breakage also included this IDE config fix. When
-> you excluded the cset, it got lost.
->
-> Attached is the diff on top of your tree.
->
->
-> Regards,
-> Carl-Daniel
->
+	if (!netif_device_present(dev))
+		return IRQ_HANDLED;
+
+but of course the irq _wasn't_ handled by the driver.  Silly, isn't it?
+
+I still maintain it needs to be fixed elsewhere.  Touching every driver 
+for this is just not scalable, in addition to pointing the finger at the 
+pcmcia core instead of individual drivers.
+
+	Jeff
+
+

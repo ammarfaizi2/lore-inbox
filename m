@@ -1,74 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317498AbSHLIjL>; Mon, 12 Aug 2002 04:39:11 -0400
+	id <S317587AbSHLInU>; Mon, 12 Aug 2002 04:43:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317540AbSHLIjL>; Mon, 12 Aug 2002 04:39:11 -0400
-Received: from mail.zmailer.org ([62.240.94.4]:20962 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id <S317498AbSHLIjK>;
-	Mon, 12 Aug 2002 04:39:10 -0400
-Date: Mon, 12 Aug 2002 11:42:58 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: "Dhr N. Van Alphen" <mastex@servicez.org>
-Cc: Jim Roland <jroland@roland.net>, linux-kernel@vger.kernel.org
-Subject: Re: The spam problem.
-Message-ID: <20020812084258.GT32427@mea-ext.zmailer.org>
-References: <027104643010c82DTVMAIL11@smtp.cwctv.net> <5.1.0.14.2.20020812064112.00b6b9c0@pop.gmx.net> <004e01c241bb$816847e0$2102a8c0@gespl2k1> <001c01c241bd$37fbabe0$0200010a@jennifer>
+	id <S317590AbSHLInU>; Mon, 12 Aug 2002 04:43:20 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:5112 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317587AbSHLInT>; Mon, 12 Aug 2002 04:43:19 -0400
+Subject: Re: [patch] tls-2.5.31-C3
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel@vger.kernel.org, julliard@winehq.com, ldb@ldb.ods.org
+In-Reply-To: <20020812182325.52324305.sfr@canb.auug.org.au>
+References: <20020812173404.39d3abab.sfr@canb.auug.org.au>
+	<Pine.LNX.4.44.0208121205170.2561-100000@localhost.localdomain> 
+	<20020812182325.52324305.sfr@canb.auug.org.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 12 Aug 2002 11:08:16 +0100
+Message-Id: <1029146896.16216.113.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <001c01c241bd$37fbabe0$0200010a@jennifer>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Good morning,
-
-Please refrain from fights on email issues while I am asleep..
-DaveM is in California, I am in Finland.  About 9-10 hours
-time difference there.  (depending on our personal rythms, also.)
-
-On Mon, Aug 12, 2002 at 07:00:46AM +0200, Dhr N. Van Alphen wrote:
-> cause there would be many non-members who wanna post bugs but can't because
-> they dont have access maybe?
+On Mon, 2002-08-12 at 09:23, Stephen Rothwell wrote:
+> > you can save/restore 0x40 in kernel-space if you need to no problem.
+> I guess I could around every BIOS call ...
 > 
-> I suggest too block every email adres wich sends crap, easy done.
+> Also, Alan (Cox) will say that's OK until he does APM on SMP on broken
+> BIOS's :-)
 
- Consider:
-    - Number of faked source addresses
-    - Number of cases using somebody's address
-    - Number of throw-away addresses
-    - How many times they use  HOTMAIL/YAHOO/EMAIL/MAIL/... addresses ?
+SMP actually makes no difference. I have full SMP APM working on my test
+boxes now. However pre-empt and SMP are the same problem space
 
-  I think I will stick to the (weakish) method of matching texts in
-  message body (and sometimes on headers)..
+> We could also just say that we no longer support those broken BIOS's ...
+> 
+> > so you are using the kernel's GDT in real mode as well?
 
-  I just reviewed Majordomo's BOUNCE log.  It is bouncing (into oblivion)
-  practically every posting from HOTMAIL (because of Received: header 
-  text: "from mail pickup service", which appears also in a number of
-  looped messages..)
+Yes. APM calls are made by all sorts of processes.
 
-  Over past 3 days  Majordomo  has trapped ONE of those money-scam
-  letters.   A lot more of various other spams have been blocked.
-  Messages with HTML content don't make it into VGER at all, which
-  should give a very big clue to legitimate posters making a mistake
-  of posting such.
+> No. The problem is that there are some BIOS's that contain code that (even
+> though they are called in protected mode) load 0x40 into ds and expect to
+> be able to reference stuff ...  Causes really interesting OOPSs :-(
 
+Which does mean you can steal the old TLS value and put it back across
+the calls just by changing the TLS data for that process. For that
+matter on Windows emulation I thought Windows also needed 0x40 to be the
+same offset as the BIOS does so can't we leave it hardwired ?
 
-  I am very worried of trapping too much.  A bit of leakage is (to me)
-  accptable, but similar amounts of falsely trapped ones I don't like.
-
-  I also receive so much spam directly, that I don't always detect every
-  instance when it is leaking thru VGER's lists.   If you want to raise
-  the attention of VGERs postmasters, I suggest you forward it to:
-
-              postmaster@vger.kernel.org
-
-  with subject: "leaked spam"
-
-  Also, in case of non-english spam, I would like to receive suggestions
-  for PERL RE patterns matching juicy keywords in the messages.
-  (To me Chinese or Russian texts are just line noise...)
-
-> Niek van alphen
-> mastex@servicez.org
-
-/Matti Aarnio

@@ -1,128 +1,164 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265682AbUGGX2K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265684AbUGGXgR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265682AbUGGX2K (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 19:28:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265690AbUGGX2J
+	id S265684AbUGGXgR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 19:36:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265689AbUGGXgR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 19:28:09 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:53130 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S265682AbUGGX16 (ORCPT
+	Wed, 7 Jul 2004 19:36:17 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:34793 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265684AbUGGXgL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 19:27:58 -0400
-Date: Thu, 8 Jul 2004 01:27:57 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: "David S. Miller" <davem@redhat.com>,
-       Stephen Hemminger <shemminger@osdl.org>, jamie@shareable.org,
-       netdev@oss.sgi.com, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org, ALESSANDRO.SUARDI@ORACLE.COM
-Subject: preliminary conclusions regarding window size issues
-Message-ID: <20040707232757.GA14471@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	"David S. Miller" <davem@redhat.com>,
-	Stephen Hemminger <shemminger@osdl.org>, jamie@shareable.org,
-	netdev@oss.sgi.com, linux-net@vger.kernel.org,
-	linux-kernel@vger.kernel.org, ALESSANDRO.SUARDI@ORACLE.COM
+	Wed, 7 Jul 2004 19:36:11 -0400
+Date: Wed, 7 Jul 2004 16:35:32 -0700
+From: Mike Kravetz <kravetz@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: viro@math.psu.edu, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] task name handling in proc fs
+Message-ID: <20040707233532.GD4314@w-mikek2.beaverton.ibm.com>
+References: <20040701220510.GA6164@w-mikek2.beaverton.ibm.com> <20040701151935.1f61793c.akpm@osdl.org> <20040701224215.GC5090@w-mikek2.beaverton.ibm.com> <20040701160335.229cfe03.akpm@osdl.org> <20040707215246.GB4314@w-mikek2.beaverton.ibm.com> <20040707151134.05fc1e07.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20040707151134.05fc1e07.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Two things:
+On Wed, Jul 07, 2004 at 03:11:34PM -0700, Andrew Morton wrote:
+> 
+> I don't think the basename logic should be in this function.
+> 
 
-1) packages.gentoo.org is currently unreachable by 2.6.7-recent.
-This has been confirmed from several places, very easy to reproduce. Bug has
-been filed with gentoo to fix their firewall.
-
-2) What Alessandro Suardi sees is highly similar, except that he has it with
-*all* remotes, except for google.it and a very small number of other
-servers.
-
-This is what Alessandro saw going out. We artificially lowered the MTU
-because of possible tunelling loss:
-
-01:03:36.323132 192.168.1.3.33992 > 213.244.168.210.10000: S [tcp sum ok] 3497585848:3497585848(0) 
-	win 5440 <mss 1360,sackOK,timestamp 2311996 0,nop,wscale 7> 
-	(DF) (ttl 64, id 43908, len 60)
-01:03:36.396660 213.244.168.210.10000 > 192.168.1.3.33992: S [tcp sum ok] 3030562636:3030562636(0) 
-	ack 3497585849 win 5792 <mss 1452,sackOK,timestamp  2142457957 2311996,nop,wscale 0> 
-	(DF) (ttl 53, id 0, len 60)
-01:03:36.396719 192.168.1.3.33992 > 213.244.168.210.10000: . [tcp sum ok]
-	ack 1 win 42 <nop,nop,timestamp 2312084 2142457957> 
-	(DF) (ttl 64, id 43909, len 52)
-
-Perfect SYN, SYN|ACK, ACK.
-
-01:03:36.397362 192.168.1.3.33992 > 213.244.168.210.10000: P 1:463(462) ack 1 win 42 
-	<nop,nop,timestamp 2312085 2142457957> 
-	(DF) (ttl 64, id 43910, len 514)
-
-The GET request.
-
-01:03:36.497588 213.244.168.210.10000 > 192.168.1.3.33992: . [tcp sum ok] ack 463 
-	win 6432 <nop,nop,timestamp 2142457967 2312085> 
-	(DF) (ttl 53, id 59171, len 52) 
-
-And acked by my server. This trace is identical to what I see on the
-receiving end:
-
-29.84 62.211.168.xx.33992 > 213.244.168.210.10000: S [tcp sum ok] 3497585848:3497585848(0) 
-	win 5440 <mss 1360,sackOK,timestamp 2311996 0,nop,wscale 7> 
-	(DF) (ttl 50, id 43908, len 60)
-29.84 213.244.168.210.10000 > 62.211.168.xx.33992: S [tcp sum ok] 3030562636:3030562636(0) 
-	ack 3497585849 win 5792 <mss 1460,sackOK,timestamp 2142457957 2311996,nop,wscale 0>  
-	(DF) (ttl 64, id 0, len 60)
-29.93 62.211.168.xx.33992 > 213.244.168.210.10000: . [tcp sum ok] 1:1(0) 
-	ack 1 win 42 <nop,nop,timestamp 2312084 2142457957> 
-	(DF) (ttl 50, id 43909, len 52)
-
-29.95 62.211.168.xx.33992 > 213.244.168.210.10000: P [tcp sum ok] 1:463(462)
-	ack 1 win 42 <nop,nop,timestamp 2312085 2142457957> 
-	(DF) (ttl 50, id 43910, len 514)
-29.95 213.244.168.210.10000 > 62.211.168.xx.33992: . [tcp sum ok] 1:1(0) 
-	ack 463 win 6432 <nop,nop,timestamp 2142457967 2312085> 
-	(DF) (ttl 64, id 59171, len 52)
-
-Except for TTL and NAT, this is identical.
-
->From here, things start to differ. I measure that I send out:
-
-29.95 213.244.168.210.10000 > 62.211.168.xx.33992: . [tcp sum ok] 1:1349(1348) 
-	ack 463 win 6432 <nop,nop,timestamp 2142457967 2312085> 
-	(DF) (ttl 64, id 59172, len 1400)
-29.95 213.244.168.210.10000 > 62.211.168.xx.33992: P [tcp sum ok] 1349:2697(1348) 
-	ack 463 win 6432 <nop,nop,timestamp 2142457967 2312085> 
-	(DF) (ttl 64, id 59173, len 1400)
-
-This next packet is a repeat, because no ACK:
-
-30.23 213.244.168.210.10000 > 62.211.168.xx.33992: . [tcp sum ok] 1:1349(1348) 
-	ack 463 win 6432 <nop,nop,timestamp 2142457996 2312085> 
-	(DF) (ttl 64, id 59174, len 1400)
-
-ad nauseam. Alessandro never sees these packets! After a while, he
-disconnects, which happens pretty normally. From another trace (NOTE!):
-
-00:38:21.326397 192.168.1.3.33285 > 213.244.168.210.10000: F 420:420(0) 
-	ack 1 win 45 <nop,nop,timestamp 796784 2142304361> 
-	(DF)
-00:38:21.410353 213.244.168.210.10000 > 192.168.1.3.33285: . 
-	ack 421 win 6432 <nop,nop,timestamp 2142306461 796784> 
-	(DF)
-	
-We've tried with wscale=0,1,2 and these all work. Things go wrong for
-wscale>=3. My current feeling is that some kind of QoS device is
-interfering, and that the 'wscale gets stuffed' theory is wrong in this
-case.
-
-I recall that 'Packeteer' QoS devices try to mess with windows.
-
-Alessandro has this DSL modem, which crashed once during testing.
-http://www.usr.com/support/product-template.asp?prod=9003
-
-So we're not done debugging.
+OK - Here is another version.
 
 -- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+Mike
+
+
+diff -Naur linux-2.6.7/fs/exec.c linux-2.6.7.ptest2/fs/exec.c
+--- linux-2.6.7/fs/exec.c	Wed Jun 16 05:19:13 2004
++++ linux-2.6.7.ptest2/fs/exec.c	Wed Jul  7 23:30:47 2004
+@@ -786,11 +786,35 @@
+ 	spin_unlock(&files->file_lock);
+ }
+ 
++void get_task_comm(char *buf, struct task_struct *tsk)
++{
++	/* buf must be at least sizeof(tsk->comm) in size */
++	task_lock(tsk);
++	memcpy(buf, tsk->comm, sizeof(tsk->comm));
++	task_unlock(tsk);
++}
++
++void set_task_comm(struct task_struct *tsk, char *buf)
++{
++	/* buf must be null terminated and <= sizeof(tsk->comm) */
++	int i;
++
++	task_lock(tsk);
++	for(i=0; i<sizeof(tsk->comm); i++) {
++		tsk->comm[i] = *buf++;
++		if (!tsk->comm[i])
++			break;
++	}
++	tsk->comm[sizeof(tsk->comm)-1] = '\0';	/* just in case */
++	task_unlock(tsk);
++}
++
+ int flush_old_exec(struct linux_binprm * bprm)
+ {
+ 	char * name;
+ 	int i, ch, retval;
+ 	struct files_struct *files;
++	char tcomm[sizeof(current->comm)];
+ 
+ 	/*
+ 	 * Make sure we have a private signal table and that
+@@ -826,15 +850,18 @@
+ 
+ 	if (current->euid == current->uid && current->egid == current->gid)
+ 		current->mm->dumpable = 1;
++
+ 	name = bprm->filename;
+ 	for (i=0; (ch = *(name++)) != '\0';) {
+ 		if (ch == '/')
+ 			i = 0;
+ 		else
+-			if (i < 15)
+-				current->comm[i++] = ch;
++			if (i < (sizeof(tcomm) - 1))
++				tcomm[i++] = ch;
+ 	}
+-	current->comm[i] = '\0';
++	tcomm[i] = '\0';
++
++	set_task_comm(current, tcomm);
+ 
+ 	flush_thread();
+ 
+diff -Naur linux-2.6.7/fs/proc/array.c linux-2.6.7.ptest2/fs/proc/array.c
+--- linux-2.6.7/fs/proc/array.c	Wed Jun 16 05:19:36 2004
++++ linux-2.6.7.ptest2/fs/proc/array.c	Wed Jul  7 17:41:28 2004
+@@ -88,10 +88,13 @@
+ {
+ 	int i;
+ 	char * name;
++	char tcomm[sizeof(p->comm)];
++
++	get_task_comm(tcomm, p);
+ 
+ 	ADDBUF(buf, "Name:\t");
+-	name = p->comm;
+-	i = sizeof(p->comm);
++	name = tcomm;
++	i = sizeof(tcomm);
+ 	do {
+ 		unsigned char c = *name;
+ 		name++;
+@@ -308,14 +311,11 @@
+ 	int num_threads = 0;
+ 	struct mm_struct *mm;
+ 	unsigned long long start_time;
++	char tcomm[sizeof(task->comm)];
+ 
+ 	state = *get_task_state(task);
+ 	vsize = eip = esp = 0;
+-	task_lock(task);
+-	mm = task->mm;
+-	if(mm)
+-		mm = mmgrab(mm);
+-	task_unlock(task);
++	mm = get_task_mm(task);
+ 	if (mm) {
+ 		down_read(&mm->mmap_sem);
+ 		vsize = task_vsize(mm);
+@@ -324,6 +324,7 @@
+ 		up_read(&mm->mmap_sem);
+ 	}
+ 
++	get_task_comm(tcomm, task);
+ 	wchan = get_wchan(task);
+ 
+ 	sigemptyset(&sigign);
+@@ -361,7 +362,7 @@
+ %lu %lu %lu %lu %lu %ld %ld %ld %ld %d %ld %llu %lu %ld %lu %lu %lu %lu %lu \
+ %lu %lu %lu %lu %lu %lu %lu %lu %d %d %lu %lu\n",
+ 		task->pid,
+-		task->comm,
++		tcomm,
+ 		state,
+ 		ppid,
+ 		pgid,
+diff -Naur linux-2.6.7/include/linux/sched.h linux-2.6.7.ptest2/include/linux/sched.h
+--- linux-2.6.7/include/linux/sched.h	Wed Jun 16 05:18:57 2004
++++ linux-2.6.7.ptest2/include/linux/sched.h	Tue Jul  6 22:39:25 2004
+@@ -868,6 +868,9 @@
+ extern long do_fork(unsigned long, unsigned long, struct pt_regs *, unsigned long, int __user *, int __user *);
+ extern struct task_struct * copy_process(unsigned long, unsigned long, struct pt_regs *, unsigned long, int __user *, int __user *);
+ 
++extern void set_task_comm(struct task_struct *, char *);
++extern void get_task_comm(char *, struct task_struct *);
++
+ #ifdef CONFIG_SMP
+ extern void wait_task_inactive(task_t * p);
+ #else

@@ -1,25 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271061AbUJUXXJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271090AbUJUXb6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271061AbUJUXXJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 19:23:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271051AbUJUXXG
+	id S271090AbUJUXb6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 19:31:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271095AbUJUX1r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 19:23:06 -0400
-Received: from gprs214-34.eurotel.cz ([160.218.214.34]:54659 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S271114AbUJUXUq (ORCPT
+	Thu, 21 Oct 2004 19:27:47 -0400
+Received: from gprs214-34.eurotel.cz ([160.218.214.34]:55939 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S271090AbUJUX0x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 19:20:46 -0400
-Date: Fri, 22 Oct 2004 01:20:17 +0200
+	Thu, 21 Oct 2004 19:26:53 -0400
+Date: Fri, 22 Oct 2004 01:23:13 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: Michal Semler <cijoml@volny.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Hibernation and time and dhcp
-Message-ID: <20041021232017.GA7260@elf.ucw.cz>
-References: <200410202045.24388.cijoml@volny.cz> <20041021230151.GA24980@elf.ucw.cz>
+To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Cc: Kendall Bennett <KendallB@scitechsoft.com>, linux-kernel@vger.kernel.org,
+       linux-fbdev-devel@lists.sourceforge.net, stefandoesinger@gmx.at
+Subject: Re: [Linux-fbdev-devel] Re: Generic VESA framebuffer driver and Video card BOOT?
+Message-ID: <20041021232313.GB8376@elf.ucw.cz>
+References: <88056F38E9E48644A0F562A38C64FB60032879CA@scsmsx403.amr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041021230151.GA24980@elf.ucw.cz>
+In-Reply-To: <88056F38E9E48644A0F562A38C64FB60032879CA@scsmsx403.amr.corp.intel.com>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -27,58 +28,31 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > with 2.6.9 hibernation to disk finally works! Thanks
-> > To ram it still don't work, system starts with lcd disabled - but it is 
-> > another story.
-> > 
-> > I have now this problem - when I hibernate and then system is started up in 
-> > other company, it don't update time and shows still for example 14:00 - when 
-> > I rehibernate for example in 20:00 - could you ask bios for current time? 
-> > It's better to have bad time about few seconds instead of hours.
-> > 
-> > Same problem with dhcp - it should ask for IP when rehibernate.
+> >> I have done some experiments with this video post stuff.
+> >> I think this should be done using x86 emulator rather than doing 
+> >> in real mode. The reason being, with an userlevel emulator 
+> >we can call
+> >> it at different times during resume. The current real mode videopost
+> >> does 
+> >
+> >Actually Ole Rohne has patch that allows you to call real mode any
+> >time you want.
 > 
-> Known bug and I posted patch at least to acpi list few hours ago.
+> Yes. I tried Ole's patch. That helped on one of my laptops. But, on 
+> the other one it doesn't work. It goes into real mode but never returns.
+> Both systems had Radeom 9000M cards, but one with older version of the 
+> firmware (didn't work) and one with newer version.
+> 
+> IIRC, even Stefan had similar problems with Ole's patch.
 
-Here it is...
+It did not work for me, either, but I verified that it works as
+expected if I comment out actuall call of BIOS. So the problem is not
+with Ole's patch but with bios, and it may be the same if you emulate
+it...
 
-							Pavel
-
---- clean/arch/i386/kernel/time.c	2004-10-01 00:29:59.000000000 +0200
-+++ linux/arch/i386/kernel/time.c	2004-10-19 15:16:14.000000000 +0200
-@@ -319,7 +319,7 @@
- 	return retval;
- }
- 
--static long clock_cmos_diff;
-+static long clock_cmos_diff, sleep_start;
- 
- static int time_suspend(struct sys_device *dev, u32 state)
- {
-@@ -328,6 +328,7 @@
- 	 */
- 	clock_cmos_diff = -get_cmos_time();
- 	clock_cmos_diff += get_seconds();
-+	sleep_start = get_cmos_time();
- 	return 0;
- }
- 
-@@ -335,10 +336,13 @@
- {
- 	unsigned long flags;
- 	unsigned long sec = get_cmos_time() + clock_cmos_diff;
-+	unsigned long sleep_length = get_cmos_time() - sleep_start;
-+
- 	write_seqlock_irqsave(&xtime_lock, flags);
- 	xtime.tv_sec = sec;
- 	xtime.tv_nsec = 0;
- 	write_sequnlock_irqrestore(&xtime_lock, flags);
-+	jiffies += sleep_length * HZ;
- 	return 0;
- }
- 
-
-
+[Of course, it will not crash whole system when emulated, but system
+without video is not too good, either].
+								Pavel
 -- 
 People were complaining that M$ turns users into beta-testers...
 ...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

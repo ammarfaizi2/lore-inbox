@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264116AbUDRFBo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Apr 2004 01:01:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264118AbUDRFBo
+	id S264120AbUDRFFh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Apr 2004 01:05:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264125AbUDRFFh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Apr 2004 01:01:44 -0400
-Received: from florence.buici.com ([206.124.142.26]:40576 "HELO
-	florence.buici.com") by vger.kernel.org with SMTP id S264116AbUDRFBn
+	Sun, 18 Apr 2004 01:05:37 -0400
+Received: from florence.buici.com ([206.124.142.26]:40832 "HELO
+	florence.buici.com") by vger.kernel.org with SMTP id S264120AbUDRFFc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Apr 2004 01:01:43 -0400
-Date: Sat, 17 Apr 2004 22:01:41 -0700
+	Sun, 18 Apr 2004 01:05:32 -0400
+Date: Sat, 17 Apr 2004 22:05:30 -0700
 From: Marc Singer <elf@buici.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Marc Singer <elf@buici.com>, linux-kernel@vger.kernel.org
-Subject: Re: NFS and kernel 2.6.x
-Message-ID: <20040418050141.GA19414@flea>
-References: <20040415185355.1674115b.akpm@osdl.org> <1082084048.7141.142.camel@lade.trondhjem.org> <20040416045924.GA4870@linuxace.com> <1082093346.7141.159.camel@lade.trondhjem.org> <pan.2004.04.17.16.44.00.630010@smurf.noris.de> <1082225747.2580.18.camel@lade.trondhjem.org> <20040417183219.GB3856@flea> <1082228313.2580.25.camel@lade.trondhjem.org> <20040417222258.GA12893@flea> <1082249866.3619.43.camel@lade.trondhjem.org>
+To: William Lee Irwin III <wli@holomorphy.com>, Marc Singer <elf@buici.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: vmscan.c heuristic adjustment for smaller systems
+Message-ID: <20040418050530.GB19414@flea>
+References: <20040417193855.GP743@holomorphy.com> <20040417212958.GA8722@flea> <20040417213333.GS743@holomorphy.com> <20040417215257.GA9691@flea> <20040418010616.GT743@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1082249866.3619.43.camel@lade.trondhjem.org>
+In-Reply-To: <20040418010616.GT743@holomorphy.com>
 User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 17, 2004 at 05:57:46PM -0700, Trond Myklebust wrote:
-> On Sat, 2004-04-17 at 15:22, Marc Singer wrote:
-> > I have a data point for comparison.
-> > 
-> > I'm copying a 40MiB file over NFS.  In five trials, the mean transfer
-> > times are
-> > 
-> >   UDP (v2):  48.5s
-> >   TCP (v3):  52.7s
+On Sat, Apr 17, 2004 at 06:06:16PM -0700, William Lee Irwin III wrote:
+> On Sat, Apr 17, 2004 at 02:33:33PM -0700, William Lee Irwin III wrote:
+> >> This doesn't match your first response. Anyway, this one is gets
+> >> scrapped. I guess if swappiness solves it, then so much the better.
 > 
-> Against what kind of server on what kind of network, with what kind of
-> mount options?
-> The above would be quite reasonable performance on a 10Mbit network
-> against a filer or a Linux server with the (insecure) "async" option
-> set.
+> On Sat, Apr 17, 2004 at 02:52:57PM -0700, Marc Singer wrote:
+> > Huh?  Where do you see a discrepency?  I don't think I claimed that
+> > the test program performance changed.  The noticeable difference is in
+> > interactivity once the page cache fills.  IMHO, 30 seconds to do a
+> > file listing on /proc is extreme.
+> 
+> Oh, sorry, it was unclear to me that the test changed anything but
+> swappiness (i.e. I couldn't tell they included the patch etc.)
 
-Client is a 200MHz ARM; server is a Linux host running 2.6.3 with the
-kernel nfs daemon; network is 100Mib.  There is nothing else on the
-network except intermittent broadband traffic.  Async is set on the
-server side.
+Ah, OK.  Now I understand your confusion.  Based on the numbers, it is
+clear that your last patch does exactly the same thing as setting
+swappiness.  It is true that I didn't apply it.  Still, I think that
+your change is worth consideration since setting swappiness to zero is
+such a blunt solution.  I apologize for not making this clear before.
 
-While I have seen much worse performance in the last couple of weeks,
-I cannot blame NFS when I look at the numbers.
- 
+

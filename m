@@ -1,26 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289299AbSAVSBT>; Tue, 22 Jan 2002 13:01:19 -0500
+	id <S289326AbSAVSB7>; Tue, 22 Jan 2002 13:01:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289290AbSAVSAJ>; Tue, 22 Jan 2002 13:00:09 -0500
-Received: from mgr1.xmission.com ([198.60.22.201]:42767 "EHLO
-	mgr1.xmission.com") by vger.kernel.org with ESMTP
-	id <S289272AbSAVSAA>; Tue, 22 Jan 2002 13:00:00 -0500
-Content-Transfer-Encoding: 7BIT
-X-Originating-IP: [128.110.56.153]
-Subject: Athlon PSE/AGP Bug
-Content-Type: text/plain; charset=US-ASCII
-Date: Tue, 22 Jan 2002 10:59:59 -0700
-To: linux-kernel@vger.kernel.org
-User-Agent: IMHO/0.98.2 (Webmail for Roxen)
-MIME-Version: 1.0
-From: Ben Carrell <ben@xmission.com>
-Message-Id: <E16T5DE-0003Fg-00@mail.xmission.com>
+	id <S289314AbSAVSBu>; Tue, 22 Jan 2002 13:01:50 -0500
+Received: from ns.suse.de ([213.95.15.193]:44296 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S289290AbSAVSBb>;
+	Tue, 22 Jan 2002 13:01:31 -0500
+Date: Tue, 22 Jan 2002 19:01:29 +0100
+From: Dave Jones <davej@suse.de>
+To: Robert Schwebel <robert@schwebel.de>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] AMD Elan patch
+Message-ID: <20020122190129.A21203@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Robert Schwebel <robert@schwebel.de>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0112311900380.3056-100000@callisto.local> <Pine.LNX.4.33.0201221545350.21377-100000@callisto.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0201221545350.21377-100000@callisto.local>; from robert@schwebel.de on Tue, Jan 22, 2002 at 03:47:32PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just curious if using 4k page tables versus 4mb has an effect on
-performance?
+On Tue, Jan 22, 2002 at 03:47:32PM +0100, Robert Schwebel wrote:
+ > 
+ > I have another patch from Sven Geggus in the pipeline which makes it
+ > possible to change the CPU's clock frequency on the fly.
 
--Ben Carrell
-ben@xmission.com
+ It would probably be a good idea to make this fit the cpufreq
+ API that Russell King, myself and a few others created.
+ It's in the ARM Linux CVS with the modulename cpufreq.
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

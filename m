@@ -1,49 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261621AbVDCJDc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261422AbVDCJQX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261621AbVDCJDc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 05:03:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbVDCJDc
+	id S261422AbVDCJQX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 05:16:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbVDCJQX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 05:03:32 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:52895 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261621AbVDCJD3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 05:03:29 -0400
-Date: Sun, 3 Apr 2005 01:01:39 -0800
-From: Paul Jackson <pj@engr.sgi.com>
-To: Paul Jackson <pj@engr.sgi.com>
-Cc: mingo@elte.hu, kenneth.w.chen@intel.com, torvalds@osdl.org,
-       nickpiggin@yahoo.com.au, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] sched: auto-tune migration costs [was: Re: Industry db
- benchmark result on recent 2.6 kernels]
-Message-Id: <20050403010139.275b8ece.pj@engr.sgi.com>
-In-Reply-To: <20050402215332.79ff56cc.pj@engr.sgi.com>
-References: <200504020100.j3210fg04870@unix-os.sc.intel.com>
-	<20050402145351.GA11601@elte.hu>
-	<20050402215332.79ff56cc.pj@engr.sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 3 Apr 2005 05:16:23 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:3601 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261422AbVDCJQW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 05:16:22 -0400
+Date: Sun, 3 Apr 2005 10:16:13 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Fix u32 vs. pm_message_t in arm
+Message-ID: <20050403101612.B29918@flint.arm.linux.org.uk>
+Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
+	kernel list <linux-kernel@vger.kernel.org>
+References: <20050329191543.GA8309@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050329191543.GA8309@elf.ucw.cz>; from pavel@ucw.cz on Tue, Mar 29, 2005 at 09:15:43PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Earlier, Paul wrote:
-> Note the first 3 chars of the panic message "4.5".  This looks like it
-> might be the [00]-[01] entry of Ingo's table, flushed out when the
-> newlines of the panic came through.
+On Tue, Mar 29, 2005 at 09:15:43PM +0200, Pavel Machek wrote:
+> This fixes u32 vs. pm_message_t confusion in arm. I was not able to
+> even compile it, but it should not cause any problems. Please apply,
 
-For the record, the above speculation is probably wrong.
-
-More likely, the first six characters "4.5(0)" of my quoted panic
-message came out some time before the panic, and represent the the
-[0]-[1] entry of the table.  These six chars came out at approx.
-nine minutes into the calculation, and the timer panic'd the system at
-ten minutes.  I didn't look at the screen between the 9th and 10th
-minute, to realize that it had finally computed one table entry.
+Applied, thanks.
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265366AbRGEPN6>; Thu, 5 Jul 2001 11:13:58 -0400
+	id <S265385AbRGEPR6>; Thu, 5 Jul 2001 11:17:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265361AbRGEPNx>; Thu, 5 Jul 2001 11:13:53 -0400
-Received: from mta4.srv.hcvlny.cv.net ([167.206.5.10]:42733 "EHLO
-	mta4.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S265347AbRGEPM6>; Thu, 5 Jul 2001 11:12:58 -0400
-Date: Thu, 05 Jul 2001 11:12:56 -0400
-From: Alan Shutko <ats@acm.org>
-Subject: Re: VM Requirement Document - v0.0
-In-Reply-To: <0107051704000H.03760@starship>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Xavier Bestel <xavier.bestel@free.fr>, Dan Maas <dmaas@dcine.com>,
-        linux-kernel@vger.kernel.org, Tom spaziani <digiphaze@deming-os.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Rik van Riel <riel@conectiva.com.br>
-Message-id: <8766d7s93s.fsf@wesley.springies.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) Emacs/21.0.103
-In-Reply-To: <fa.jprli0v.qlofoc@ifi.uio.no> <0107051502510F.03760@starship>
- <994341617.2070.1.camel@nomade> <0107051704000H.03760@starship>
+	id <S265381AbRGEPRs>; Thu, 5 Jul 2001 11:17:48 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:33033 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265385AbRGEPRh>; Thu, 5 Jul 2001 11:17:37 -0400
+Date: Thu, 5 Jul 2001 08:17:04 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Helge Hafting <helgehaf@idb.hist.no>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [Acpi] Re: ACPI fundamental locking problems
+In-Reply-To: <3B442354.BCA61010@idb.hist.no>
+Message-ID: <Pine.LNX.4.33.0107050810400.22053-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips <phillips@bonn-fries.net> writes:
 
-> Also, notice that the scenario we were originally discussing, the off-hours 
-> updatedb, doesn't normally happen on laptops because they tend to be 
-> suspended at that time.
+On Thu, 5 Jul 2001, Helge Hafting wrote:
+>
+> I am fine with "You have to use initrd (or similiar) _if_ you want this
+> feature."
 
-No, even worse, it happens when you open the laptop for the first time
-in the morning, thanks to anacron.
+Nope.
 
--- 
-Alan Shutko <ats@acm.org> - In a variety of flavors!
-For children with short attention spans: boomerangs that don't come back.
+I do not want to maintain two interfaces. If we make user space the way to
+do these things, then we will do pretty much most of the driver setup etc
+in user space. We'd have to: we'd enter user space before drivers have had
+a chance to initialize, exactly because "features like these" can change
+the device mappings etc.
+
+And I don't want to have two completely different bootup paths.
+
+> But please don't make initrd mandatory for those of us who don't
+> need ACPI, don't need dhcp before mounting disks and so on.
+
+You would never even know the difference. You'd do a "make bzImage", and
+the default filesystem would just be embedded into the image. By default
+it probably doesn't need to do much - although things like the BIOS DPMI
+scan etc would surely be good to get rid of.
+
+Why complain about that?
+
+			Linus
+

@@ -1,57 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285118AbRL0Nhm>; Thu, 27 Dec 2001 08:37:42 -0500
+	id <S286274AbRL0Nry>; Thu, 27 Dec 2001 08:47:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286268AbRL0Nhd>; Thu, 27 Dec 2001 08:37:33 -0500
-Received: from fungus.teststation.com ([212.32.186.211]:41221 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id <S285118AbRL0NhW>; Thu, 27 Dec 2001 08:37:22 -0500
-Date: Thu, 27 Dec 2001 14:37:16 +0100 (CET)
-From: Urban Widmark <urban@teststation.com>
-X-X-Sender: <puw@cola.teststation.com>
-To: "Eshwar D - CTD, Chennai." <deshwar@ctd.hcltech.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: SMBFS reading & Time sync problem
-In-Reply-To: <EF836A380096D511AD9000B0D021B52746370A@narmada.ctd.hcltech.com>
-Message-ID: <Pine.LNX.4.33.0112271359390.25461-100000@cola.teststation.com>
+	id <S285134AbRL0Nrf>; Thu, 27 Dec 2001 08:47:35 -0500
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:33937 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S286272AbRL0Nra>; Thu, 27 Dec 2001 08:47:30 -0500
+Date: 27 Dec 2001 13:41:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <8FeKiRymw-B@khms.westfalen.de>
+In-Reply-To: <Pine.LNX.4.33L.0112211913360.28489-100000@duckman.distro.conectiva>
+Subject: Re: Configure.help editorial policy
+X-Mailer: CrossPoint v3.12d.kh8 R/C435
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <20011221134034.B11147@thyrsus.com> <Pine.LNX.4.33L.0112211913360.28489-100000@duckman.distro.conectiva>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Dec 2001, Eshwar D - CTD, Chennai. wrote:
+riel@conectiva.com.br (Rik van Riel)  wrote on 21.12.01 in <Pine.LNX.4.33L.0112211913360.28489-100000@duckman.distro.conectiva>:
 
-> Hai,
-> 	I am using kernel version 2.4.2. and samba version is 2.2.0. and
+> On Fri, 21 Dec 2001, Eric S. Raymond wrote:
+>
+> > What, and *encourage* non-uniform terminology?  No, I won't do that.
+> > Better to have a single standard set of abbreviations, no matter how
+> > ugly, than this.
+>
+> Last I checked the purpose of language was _communication_.
+>
+> Better use words people understand.
 
-2.4.3 may have a fix for this if the size of the file changes. Upgrade to
-a newer kernel and see if this doesn't work better there.
+People in general *don't* understand the current so-called "established  
+practice", because not only is it inconsistent with all of the rest of the  
+world, it's also inconsistent with itself.
 
-smbfs does not really support this kind of sharing anyway. It caches
-things without having an "oplock" on the server. Without an oplock it
-should always re-read everything (hard to do for mmap'ed files).
+A few specialists such as you or me understand those terms in those few  
+areas we are familiar with.
 
-There is also an assumption in a lot of the code that the file does not
-change on the server.
+> Also, the kB vs KiB mess is so ambiguous and complex that
+
+What is ambiguous or complex about it?
+
+> As a last point, we shouldn't forget about the inconsistent
+> way in which the marketing departments of hardware vendors
+> apply these units to their products.
+
+Do you know of *any* case where KiB and friends have been applied  
+inconsistently? You may not be arguing the side you seem to want to be  
+arguing here ...
+
+> In many cases binary
+> and decimal units are mixed, leading to something which is
+> impossible to "get right".  Disk space would be one example
+> of this, but I'm sure there are more.
+
+I have no idea why you think it is impossible to get right. It is fairly  
+easy to get right. Of course, that means using different numbers, but then  
+I've been saying for more than a decade that those numbers are a lie.
 
 
->  To avoid this problem my suggestion is
-> 
-> 	1. While every write the modified time to be notified to sever by
-> sending SMBsetattr.
-
-That will cut the transfer rate in half (roughly) and there is no
-guarantee that it will work as some servers do not seem to respond with
-the recently written attributes.
-
-I don't think that is the best way to do this. oplocks + proper
-invalidation should be a lot safer. Setting attributes depends on the
-clocks of the machines being somewhat in sync.
-
-
-Please test 2.4.17 (or a more recent kernel from your vendor). If that
-doesn't work could you then send me a testprogram/script that triggers
-this. Thanks.
-
-/Urban
-
+MfG Kai

@@ -1,52 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261496AbVBRUlg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261504AbVBRUtw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261496AbVBRUlg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 15:41:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261484AbVBRUlf
+	id S261504AbVBRUtw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 15:49:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbVBRUtw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 15:41:35 -0500
-Received: from fire.osdl.org ([65.172.181.4]:15013 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261482AbVBRUlV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 15:41:21 -0500
-Date: Fri, 18 Feb 2005 12:41:04 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Kay Sievers <kay.sievers@vrfy.org>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com, david@fubar.dk
-Subject: Re: [PATCH] add I/O error uevent for block devices
-Message-Id: <20050218124104.7e141bef.akpm@osdl.org>
-In-Reply-To: <20050218201713.GA9084@vrfy.org>
-References: <20050218083316.GA6619@vrfy.org>
-	<20050218014621.0b453232.akpm@osdl.org>
-	<20050218124503.GA7705@vrfy.org>
-	<20050218110232.6512f0fb.akpm@osdl.org>
-	<20050218201713.GA9084@vrfy.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 18 Feb 2005 15:49:52 -0500
+Received: from 83-216-143-24.alista342.adsl.metronet.co.uk ([83.216.143.24]:27842
+	"EHLO devzero.co.uk") by vger.kernel.org with ESMTP id S261484AbVBRUtt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 15:49:49 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Kjartan Maraas <kmaraas@broadpark.no>
+Subject: Re: [ACPI] Re: Call for help: list of machines with working S3
+Date: Fri, 18 Feb 2005 20:49:11 +0000
+User-Agent: KMail/1.7.91
+Cc: Lorenzo Colitti <lorenzo@colitti.com>,
+       Matthew Garrett <mjg59@srcf.ucam.org>, Pavel Machek <pavel@suse.cz>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>, seife@suse.de, rjw@sisk.pl
+References: <20050214211105.GA12808@elf.ucw.cz> <200502151742.55362.s0348365@sms.ed.ac.uk> <1108563926.4986.3.camel@localhost.localdomain>
+In-Reply-To: <1108563926.4986.3.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502182049.11088.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kay Sievers <kay.sievers@vrfy.org> wrote:
+On Wednesday 16 Feb 2005 14:25, Kjartan Maraas wrote:
+> tir, 15,.02.2005 kl. 17.42 +0000, skrev Alistair John Strachan:
+> > On Tuesday 15 Feb 2005 16:16, Lorenzo Colitti wrote:
+> > [snip]
+> >
+> > > Ok, here is the output from dmidecode (Debian package) and from lspci.
+> > > I don't have acpidmp and I don't know where to get it, but if you think
+> > > it's necessary I can download it if you tell me where to find it.
+> >
+> > Find below a diff of my dmidecode output versus Lorenzo's. Nothing much
+> > to call home about.
 >
-> On Fri, Feb 18, 2005 at 11:02:32AM -0800, Andrew Morton wrote:
-> > Kay Sievers <kay.sievers@vrfy.org> wrote:
-> > >
-> > >  > - there are numerous other places where an I/O error can be detected:
-> > >  >   grep the tree for b_end_io and bio_end_io.
-> > > 
-> > >  You mean the mmap and direct-io stuff?
-> > 
-> > direct-io, certainly.  Also reiserfs, xfs, ntfs, ext3, jfs and possibly md
-> > have their own I/O completion handlers.
-> 
-> Hmm, ok. Any idea how to propagate errors like this in a saner way? Some of
-> these places don't even log errors and spreading uevents all over the place
-> doesn't sounds like the best idea.
-> 
+> I've attached a diff against Lorenzo's too. Only difference is that my
+> laptop is a nc4010, and looking here it's clear that this model doesn't
+> support APM at least. I also have non-working S3. It behaves just like
+> the entry in the ubuntu wiki for the nc6000 in all three cases with a
+> full system running at least. I'll try init=/bin/sh later to see if that
+> helps and if it does experiment with removing modules one by one...
 
-I guess you should add some new generic function
-handle_block_io_error(bdev, rw, sector) in ll_rw_blk.c and do whatever you
-need to do inside that.  Move the ratelimited printk there, too.
+Got it. Sorry for the radio silence, I've been busy for a few days.
 
+I discovered that either the i2c_core.ko or i2c_i801.ko modules cause the hang 
+on resume! If you stop the entire i2c subsystem from being loaded by hotplug 
+(note this is the BUS driver, not the sensors driver!), then resume works 
+perfectly! Presumably there's a bug in the resuming of this module.
+
+In other news, USB devices only work after I remove uhci_hcd and ehci_hcd and 
+reload them.
+
+The s3_bios workaround allows video to kind of work, but I can't use anything 
+other than vga=normal (vesafb results in corruption), and the screen is no 
+longer artificially resized to fill the LCD, it's native res and centered 
+(which sure is annoying).
+
+Kjartan, I hope you isolate the driver causing you problems, as it seems these 
+machines can be made, even if it is a bit of a headache.
+
+Lorenzo, thanks for your kernel config. It made it a lot easier to debug this 
+problem.
+
+-- 
+Cheers,
+Alistair.
+
+personal:   alistair()devzero!co!uk
+university: s0348365()sms!ed!ac!uk
+student:    CS/CSim Undergraduate
+contact:    1F2 55 South Clerk Street,
+            Edinburgh. EH8 9PP.

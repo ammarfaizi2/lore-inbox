@@ -1,39 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262366AbSI2B1U>; Sat, 28 Sep 2002 21:27:20 -0400
+	id <S262367AbSI2BnC>; Sat, 28 Sep 2002 21:43:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262367AbSI2B1U>; Sat, 28 Sep 2002 21:27:20 -0400
-Received: from mxzilla1.xs4all.nl ([194.109.6.54]:29963 "EHLO
-	mxzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S262366AbSI2B1S>; Sat, 28 Sep 2002 21:27:18 -0400
-Date: Sun, 29 Sep 2002 03:32:39 +0200 (CEST)
-From: Yuri van Oers <yvanoers@xs4all.nl>
-To: video4linux-list@redhat.com, <linux-kernel@vger.kernel.org>
-Subject: [ANNOUNCEMENT] RivaTV 0.8.1
-Message-ID: <20020929033041.M92414-100000@xs1.xs4all.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262368AbSI2BnC>; Sat, 28 Sep 2002 21:43:02 -0400
+Received: from mnh-1-16.mv.com ([207.22.10.48]:17925 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S262367AbSI2BnC>;
+	Sat, 28 Sep 2002 21:43:02 -0400
+Message-Id: <200209290250.VAA04231@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Shawn Starr <spstarr@sh0n.net>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>
+Subject: Re: [PROBLEM] 2.5.39 - might_sleep() exception - ACPI/APIC, UML compile issues on MP 2000+ 
+In-Reply-To: Your message of "Sat, 28 Sep 2002 21:26:48 -0400."
+             <200209282126.48790.spstarr@sh0n.net> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 28 Sep 2002 21:50:28 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+spstarr@sh0n.net said:
+> I don't get that error anymore but UML won't compile: 
 
+The 2.5.39 UML doesn't build.  I'm working on it.
 
-RivaTV version 0.8.1 has been released.
-
-The RivaTV project is trying to produce Linux drivers for graphics boards
-with nVidia chips that have a video-in feature.
-
-Changes in this release:
-
-  This release includes support for GeForce 4, a lot of new cards and
-several bugfixes. Also, tuner support has been improved and RivaTV now
-comes with the relevant BTTV modules to get your tuner going - simply and
-easily. Finally, the installation process tries to detect pitfalls
-preventing the use of RivaTV on your machine.
-
-Everyone is strongly encouraged to update to this version!
-
-Regards,
-
-RivaTV team
+				Jeff
 

@@ -1,96 +1,151 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267582AbTBLPFQ>; Wed, 12 Feb 2003 10:05:16 -0500
+	id <S266965AbTBLPQT>; Wed, 12 Feb 2003 10:16:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267581AbTBLPFQ>; Wed, 12 Feb 2003 10:05:16 -0500
-Received: from compsciinn-gw.customer.ALTER.NET ([157.130.84.134]:19624 "EHLO
-	picard.csi-inc.com") by vger.kernel.org with ESMTP
-	id <S267259AbTBLPFN>; Wed, 12 Feb 2003 10:05:13 -0500
-Message-ID: <044101c2d2a9$4fcdf980$f6de11cc@black>
-From: "Mike Black" <mblack@csi-inc.com>
-To: "Stephan van Hienen" <raid@a2000.nu>,
-       "Peter Chubb" <peter@chubb.wattle.id.au>
-Cc: <linux-kernel@vger.kernel.org>, <linux-raid@vger.kernel.org>,
-       <bernard@biesterbos.nl>, <ext2-devel@lists.sourceforge.net>
-References: <Pine.LNX.4.53.0302060059210.6169@ddx.a2000.nu> <Pine.LNX.4.53.0302060123150.6169@ddx.a2000.nu> <Pine.LNX.4.53.0302060211030.6169@ddx.a2000.nu> <15937.50001.367258.485512@wombat.chubb.wattle.id.au> <Pine.LNX.4.53.0302061915390.17629@ddx.a2000.nu> <15945.31516.492846.870265@wombat.chubb.wattle.id.au> <Pine.LNX.4.53.0302121129480.13462@ddx.a2000.nu>
-Subject: Re: raid5 2TB+ NO GO ?
-Date: Wed, 12 Feb 2003 10:13:33 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	id <S267143AbTBLPQT>; Wed, 12 Feb 2003 10:16:19 -0500
+Received: from yorktown.msoe.edu ([155.92.194.37]:12304 "EHLO
+	yorktown.msoe.edu") by vger.kernel.org with ESMTP
+	id <S266965AbTBLPQR>; Wed, 12 Feb 2003 10:16:17 -0500
+Message-ID: <1045063317.366.1.camel@tranquility>
+From: "Kline, Jonathan" <klinej@msoe.edu>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>
+Subject: Re: 2.5.60 atkbd oops (Decoded)
+Date: Wed, 12 Feb 2003 09:21:57 -0600
+X-Mailer: Internet Mail Service (5.5.2653.19)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I did a 12x180G and as I recall was unable to do 13x180G as it overflowed during mke2fs.  This was a year ago though so I don't know
-if that's been improved since then.
+On Tue, 2003-02-11 at 21:50, Kline, Jonathan wrote:
+> Running a Compaq Armada E500 (PIII 850, 256MB Ram), and 2.5.Feb 11
+> 21:35:45 tranquility kernel: [ACPI Debug] String: _L09:  Exit
+> Feb 11 21:35:45 tranquility kernel:  printing eip:
+> Feb 11 21:35:45 tranquility kernel: c021b209
+> Feb 11 21:35:45 tranquility kernel: Oops: 0000
+> Feb 11 21:35:45 tranquility kernel: CPU:    0
+> Feb 11 21:35:45 tranquility kernel: EIP:    0060:[<c021b209>]    Not
+> tainted
+> Feb 11 21:35:45 tranquility kernel: EFLAGS: 00010246
+> Feb 11 21:35:45 tranquility kernel: eax: 00000000   ebx: 8172d550   ecx:
+> 00000000   edx: 00000006
+> Feb 11 21:35:45 tranquility kernel: esi: 8172d550   edi: c12bbda8   ebp:
+> c12bbd50   esp: c12bbd4c
+> Feb 11 21:35:45 tranquility kernel: ds: 007b   es: 007b   ss: 0068
+> Feb 11 21:35:45 tranquility kernel: Process events/0 (pid: 3,
+> threadinfo=c12ba000 task=c12bec40)
+> Feb 11 21:35:45 tranquility kernel: Stack: c12bbd7c c12bbd68 c0219d27
+> 8172d550 c12bbd7c c12bbda8 8172d550 c12bbd98 
+> Feb 11 21:35:45 tranquility kernel:        c022a3aa 8172d550 c0236bba
+> c12bbda8 00010000 c04064ad c04064a4 0000005e 
+> Feb 11 21:35:45 tranquility kernel:        c12bbdac c12bbdac 8172d550
+> c12bbdc8 c023061a 8172d550 c12bbda8 00000000 
+> Feb 11 21:35:45 tranquility kernel: Call Trace: [<c0219d27>] 
+> [<c022a3aa>]  [<c0236bba>]  [<c023061a>]  [<c02265fa>]  [<c02309ee>] 
+> [<c0230d
+> 48>]  [<c022a760>]  [<c0226500>]  [<c02340c5>]  [<c023443e>] 
+> [<c02352b3>]  [<c020c2da>]  [<c0204895>]  [<c01370b5>]  [<c020485b>] 
+> [<c0136c
+> e8>]  [<c0124b10>]  [<c0124b10>]  [<c0136ad0>]  [<c010825d>] 
+> Feb 11 21:35:45 tranquility kernel: Code: 80 3b aa 0f 44 c3 5b 5d c3 a1
+> b4 74 4c c0 eb f6 55 89 e5 8b 
+> Feb 11 21:36:00 tranquility kernel:  <4>atkbd.c: Unknown key (set 2,
+> scancode 0x154, on isa0060/serio0) released.
+> Feb 11 21:39:28 tranquility syslogd 1.4.1#11: restart.
+> Feb 11 21:39:28 tranquility kernel: klogd 1.4.1#11, log source =
+> /proc/kmsg started.
+> Feb 11 21:39:28 tranquility kernel: Cannot find map file.
+> Feb 11 21:39:28 tranquility kernel: No module symbols loaded - kernel
+> modules not enabled. 
+> Feb 11 21:39:28 tranquility kernel: Linux version 2.5.60
+> (klinej@tranquility) (gcc version 3.2.2) #0 Mon Feb 10 16:52:23 CST 2003
+> Feb 11 21:39:28 tranquility kernel: Video mode to be used for restore is
+> f00
+> Feb 11 21:39:28 tranquility kernel: BIOS-provided physical RAM map:
+> 60, this oops occurs at moderately random intervals, mainly in X, while
+> switching windows/screens. WM is blackbox, w/ bbkeys and bbpager.
+> Keyboard becomes unuseable. Complete kernel config available if needed,
+> as well as stack traces and possibly a rebote stack dump.
+> 
+> 
+> Cheers
+     -v /usr/local/src/linux-2.5.60/vmlinux (specified)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.5.60-jak1/ (default)
+     -m /boot/System.map-2.5.60-jak1 (default)
 
-I've got 13 of these with one drive marked as a spare:
-Disk /dev/sda: 255 heads, 63 sectors, 22072 cylinders
-Units = cylinders of 16065 * 512 bytes
+Error (regular_file): read_ksyms stat /proc/ksyms failed
+No modules in ksyms, skipping objects
+No ksyms, skipping lsmod
+Error (regular_file): read_system_map stat /boot/System.map-2.5.60-jak1
+failed
+Feb 11 22:25:05 tranquility kernel: c021b209
+Feb 11 22:25:05 tranquility kernel: Oops: 0000
+Feb 11 22:25:05 tranquility kernel: CPU:    0
+Feb 11 22:25:05 tranquility kernel: EIP:    0060:[<c021b209>]    Not
+tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+Feb 11 22:25:05 tranquility kernel: EFLAGS: 00010246
+Feb 11 22:25:05 tranquility kernel: eax: 00000000   ebx: 8172d550   ecx:
+00000000   edx: 00000006
+Feb 11 22:25:05 tranquility kernel: esi: 8172d550   edi: c12bbda8   ebp:
+c12bbd50   esp: c12bbd4c
+Feb 11 22:25:05 tranquility kernel: ds: 007b   es: 007b   ss: 0068
+Feb 11 22:25:05 tranquility kernel: Stack: c12bbd7c c12bbd68 c0219d27
+8172d550 c12bbd7c c12bbda8 8172d550 c12bbd98 
+Feb 11 22:25:05 tranquility kernel:        c022a3aa 8172d550 c0236bba
+c12bbda8 00010000 c04064ad c04064a4 0000005e 
+Feb 11 22:25:05 tranquility kernel:        c12bbdac c12bbdac 8172d550
+c12bbdc8 c023061a 8172d550 c12bbda8 00000000 
+Feb 11 22:25:05 tranquility kernel: Call Trace: [<c0219d27>] 
+[<c022a3aa>]  [<c0236bba>]  [<c023061a>]  [<c02265fa>]  [<c02309ee>] 
+[<c0230d48>
+[<c0124b10>]  [<c0124b10>]  [<c0136ad0>]  [<c010825d>] 
+Feb 11 22:25:05 tranquility kernel: Code: 80 3b aa 0f 44 c3 5b 5d c3 a1
+b4 74 4c c0 eb f6 55 89 e5 8b 
 
-  Device Boot    Start       End    Blocks   Id  System
-/dev/sda1             1     22072 177293308+  fd  Linux raid autodetect
 
-   Number   Major   Minor   RaidDevice State
-      0       8      177        0      active sync   /dev/sdl1
-      1       8       17        1      active sync   /dev/sdb1
-      2       8       33        2      active sync   /dev/sdc1
-      3       8        1        3      active sync   /dev/sda1
-      4       8       49        4      active sync   /dev/sdd1
-      5       8       65        5      active sync   /dev/sde1
-      6       8       81        6      active sync   /dev/sdf1
-      7       8       97        7      active sync   /dev/sdg1
-      8       8      113        8      active sync   /dev/sdh1
-      9       8      129        9      active sync   /dev/sdi1
-     10       8      145       10      active sync   /dev/sdj1
-     11       8      161       11      active sync   /dev/sdk1
-     12      65       49       12        /dev/sdt1
+>>EIP; c021b209 <sha1_transform+1639/16e0>   <=====
 
------ Original Message -----
-From: "Stephan van Hienen" <raid@a2000.nu>
-To: "Peter Chubb" <peter@chubb.wattle.id.au>
-Cc: <linux-kernel@vger.kernel.org>; <linux-raid@vger.kernel.org>; <bernard@biesterbos.nl>; <ext2-devel@lists.sourceforge.net>
-Sent: Wednesday, February 12, 2003 5:39 AM
-Subject: Re: raid5 2TB+ NO GO ?
+Trace; c0219d27 <sha1_transform+157/16e0>
+Trace; c022a3aa <twofish_encrypt+9da/ae0>
+Trace; c0236bba <zlib_inflate_flush+aa/188>
+Trace; c023061a <aes_decrypt+bca/1680>
+Trace; c02265fa <twofish_setkey+3b9a/6f70>
+Trace; c02309ee <aes_decrypt+f9e/1680>
+Trace; c0230d48 <aes_decrypt+12f8/1680>
+Trace; c0124b10 <io_apic_set_pci_routing+270/2e0>
+Trace; c0124b10 <io_apic_set_pci_routing+270/2e0>
+Trace; c0136ad0 <register_proc_table+40/130>
+Trace; c010825d <show_regs+14d/158>
+
+Code;  c021b209 <sha1_transform+1639/16e0>
+00000000 <_EIP>:
+Code;  c021b209 <sha1_transform+1639/16e0>   <=====
+   0:   80 3b aa                  cmpb   $0xaa,(%ebx)   <=====
+Code;  c021b20c <sha1_transform+163c/16e0>
+   3:   0f 44 c3                  cmove  %ebx,%eax
+Code;  c021b20f <sha1_transform+163f/16e0>
+   6:   5b                        pop    %ebx
+Code;  c021b210 <sha1_transform+1640/16e0>
+   7:   5d                        pop    %ebp
+Code;  c021b211 <sha1_transform+1641/16e0>
+   8:   c3                        ret    
+Code;  c021b212 <sha1_transform+1642/16e0>
+   9:   a1 b4 74 4c c0            mov    0xc04c74b4,%eax
+Code;  c021b217 <sha1_transform+1647/16e0>
+   e:   eb f6                     jmp    6 <_EIP+0x6>
+Code;  c021b219 <sha1_transform+1649/16e0>
+  10:   55                        push   %ebp
+Code;  c021b21a <sha1_transform+164a/16e0>
+  11:   89 e5                     mov    %esp,%ebp
+Code;  c021b21c <sha1_transform+164c/16e0>
+  13:   8b 00                     mov    (%eax),%eax
 
 
-> On Wed, 12 Feb 2003, Peter Chubb wrote:
->
-> > >>>>> "Stephan" == Stephan van Hienen <raid@a2000.nu> writes:
-> >
-> > Stephan,
-> > Just noticed you're using raid5 --- I don't believe that level
-> > 5 will work, as its data structures and  internal algorithms are
-> > 32-bit only.  I've done no work on it to make it work (I've been
-> > waiting for the rewrite in 2.5), and don't have time to do anything now.
-> >
-> > You could try making sector in the struct stripe_head a sector_t, but
-> > I'm pretty sure you'll run into other problems.
-> >
-> > I only managed to get raid 0 and linear to work when I was testing.
->
-> ok clear, so no raid5 for 2TB+ then :(
->
-> looks like i have to remove some hd's then
->
-> what will be the limit ?
->
-> 13*180GB in raid5 ?
-> or 12*180GB in raid5 ?
->
->     Device Size : 175823296 (167.68 GiB 180.09 GB)
->
-> 13* will give me 1,97TiB but will there be an internal raid5 problem ?
-> (since it will be 13*180GB to be adressed)
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-raid" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
+
+
+-- 
+Jonathan Kline <klinej@msoe.edu>
+Milwaukee School of engineering

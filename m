@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263987AbTCWXPD>; Sun, 23 Mar 2003 18:15:03 -0500
+	id <S263989AbTCWXQ3>; Sun, 23 Mar 2003 18:16:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263989AbTCWXPD>; Sun, 23 Mar 2003 18:15:03 -0500
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:39695 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S263987AbTCWXO5>; Sun, 23 Mar 2003 18:14:57 -0500
-Date: Mon, 24 Mar 2003 00:25:57 +0100 (CET)
+	id <S263990AbTCWXQ3>; Sun, 23 Mar 2003 18:16:29 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:17423 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S263989AbTCWXQT>; Sun, 23 Mar 2003 18:16:19 -0500
+Date: Mon, 24 Mar 2003 00:27:20 +0100 (CET)
 From: Roman Zippel <zippel@linux-m68k.org>
 X-X-Sender: roman@serv
 To: linux-kernel@vger.kernel.org, <aebr@win.tue.nl>,
        Andrew Morton <akpm@digeo.com>, Christoph Hellwig <hch@infradead.org>
-Subject: [PATCH 1/3] revert register_chrdev_region change
-Message-ID: <Pine.LNX.4.44.0303240023420.9053-100000@serv>
+Subject: [PATCH 2/3] restore character device hash
+Message-ID: <Pine.LNX.4.44.0303240026010.9059-100000@serv>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -20,353 +20,296 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-This patch removes Andries dev patch, which was unfortunately merged.
-It doesn't really help to manage a large number of character devices.
-Besides of this the unregister_chrdev() function is buggy (it just
-removes a random region).
-There is no unregister_chrdev_region function.
-Unless kdev_t is 64bit, MAX_CHRDEV is still needed to check the input
-argument to register_chrdev().
-Dynamic majors have to be allocated from the end of the available number 
-space (or from a fixed range) and not at a random number (MAX_PROBE_HASH).
+This patch restores the character device hash, which will is more
+suitable to manage a large number of character devices.
+I used the chance to add a grep-friendly prefix to the char_device
+members.
 
 bye, Roman
 
-diff -Nur -X /opt/home/roman/nodiff linux-2.5-dev1/drivers/char/tty_io.c linux-2.5-dev2/drivers/char/tty_io.c
---- linux-2.5-dev1/drivers/char/tty_io.c	2003-03-23 18:08:49.000000000 +0100
-+++ linux-2.5-dev2/drivers/char/tty_io.c	2003-03-23 18:20:14.000000000 +0100
-@@ -2118,8 +2118,7 @@
- 	if (driver->flags & TTY_DRIVER_INSTALLED)
- 		return 0;
+diff -Nur -X /opt/home/roman/nodiff linux-2.5-dev2/fs/char_dev.c linux-2.5-dev3/fs/char_dev.c
+--- linux-2.5-dev2/fs/char_dev.c	2003-03-23 18:28:37.000000000 +0100
++++ linux-2.5-dev3/fs/char_dev.c	2003-03-23 19:09:13.000000000 +0100
+@@ -23,10 +23,114 @@
  
--	error = register_chrdev_region(driver->major, driver->minor_start,
--				       driver->num, driver->name, &tty_fops);
-+	error = register_chrdev(driver->major, driver->name, &tty_fops);
- 	if (error < 0)
- 		return error;
- 	else if(driver->major == 0)
-diff -Nur -X /opt/home/roman/nodiff linux-2.5-dev1/fs/char_dev.c linux-2.5-dev2/fs/char_dev.c
---- linux-2.5-dev1/fs/char_dev.c	2003-03-23 18:08:54.000000000 +0100
-+++ linux-2.5-dev2/fs/char_dev.c	2003-03-23 18:28:37.000000000 +0100
-@@ -19,183 +19,122 @@
- 
- #ifdef CONFIG_KMOD
- #include <linux/kmod.h>
-+#include <linux/tty.h>
-+
-+/* serial module kmod load support */
-+struct tty_driver *get_tty_driver(kdev_t device);
-+#define is_a_tty_dev(ma)	(ma == TTY_MAJOR || ma == TTYAUX_MAJOR)
-+#define need_serial(ma,mi) (get_tty_driver(mk_kdev(ma,mi)) == NULL)
+ /* serial module kmod load support */
+ struct tty_driver *get_tty_driver(kdev_t device);
+-#define is_a_tty_dev(ma)	(ma == TTY_MAJOR || ma == TTYAUX_MAJOR)
++#define isa_tty_dev(ma)	(ma == TTY_MAJOR || ma == TTYAUX_MAJOR)
+ #define need_serial(ma,mi) (get_tty_driver(mk_kdev(ma,mi)) == NULL)
  #endif
  
--#define MAX_PROBE_HASH 255	/* random */
-+struct device_struct {
-+	const char * name;
-+	struct file_operations * fops;
-+};
- 
- static rwlock_t chrdevs_lock = RW_LOCK_UNLOCKED;
-+static struct device_struct chrdevs[MAX_CHRDEV];
- 
--static struct char_device_struct {
--	struct char_device_struct *next;
--	unsigned int major;
--	unsigned int baseminor;
--	int minorct;
--	const char *name;
--	struct file_operations *fops;
--} *chrdevs[MAX_PROBE_HASH];
--
--/* index in the above */
--static inline int major_to_index(int major)
--{
--	return major % MAX_PROBE_HASH;
--}
--
--/* get char device names in somewhat random order */
- int get_chrdev_list(char *page)
- {
--	struct char_device_struct *cd;
--	int i, len;
++#define HASH_BITS	6
++#define HASH_SIZE	(1UL << HASH_BITS)
++#define HASH_MASK	(HASH_SIZE-1)
++static struct list_head cdev_hashtable[HASH_SIZE];
++static spinlock_t cdev_lock = SPIN_LOCK_UNLOCKED;
++static kmem_cache_t *cdev_cachep;
++
++#define alloc_cdev() \
++	 ((struct char_device *) kmem_cache_alloc(cdev_cachep, SLAB_KERNEL))
++#define destroy_cdev(cdev) kmem_cache_free(cdev_cachep, (cdev))
++
++static void init_once(void *foo, kmem_cache_t *cachep, unsigned long flags)
++{
++	struct char_device *cdev = (struct char_device *) foo;
++
++	if ((flags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
++	    SLAB_CTOR_CONSTRUCTOR)
++		memset(cdev, 0, sizeof(*cdev));
++}
++
++void __init cdev_cache_init(void)
++{
 +	int i;
-+	int len;
- 
- 	len = sprintf(page, "Character devices:\n");
--
++	struct list_head *head = cdev_hashtable;
++
++	i = HASH_SIZE;
++	do {
++		INIT_LIST_HEAD(head);
++		head++;
++		i--;
++	} while (i);
++
++	cdev_cachep = kmem_cache_create("cdev_cache",
++					 sizeof(struct char_device),
++					 0, SLAB_HWCACHE_ALIGN, init_once,
++					 NULL);
++	if (!cdev_cachep)
++		panic("Cannot create cdev_cache SLAB cache");
++}
++
++/*
++ * Most likely _very_ bad one - but then it's hardly critical for small
++ * /dev and can be fixed when somebody will need really large one.
++ */
++static inline unsigned long hash(dev_t dev)
++{
++	unsigned long tmp = dev;
++	tmp = tmp + (tmp >> HASH_BITS) + (tmp >> HASH_BITS*2);
++	return tmp & HASH_MASK;
++}
++
++static struct char_device *cdfind(dev_t dev, struct list_head *head)
++{
++	struct list_head *p;
++	struct char_device *cdev;
++
++	list_for_each(p, head) {
++		cdev = list_entry(p, struct char_device, cd_hash);
++		if (cdev->cd_dev == dev) {
++			atomic_inc(&cdev->cd_count);
++			return cdev;
++		}
++	}
++	return NULL;
++}
++
++struct char_device *cdget(dev_t dev)
++{
++	struct list_head * head = cdev_hashtable + hash(dev);
++	struct char_device *cdev, *new_cdev;
++
++	spin_lock(&cdev_lock);
++	cdev = cdfind(dev, head);
++	spin_unlock(&cdev_lock);
++	if (cdev)
++		return cdev;
++
++	new_cdev = alloc_cdev();
++	if (!new_cdev)
++		return NULL;
++	atomic_set(&new_cdev->cd_count, 1);
++	new_cdev->cd_dev = dev;
++
++	spin_lock(&cdev_lock);
++	cdev = cdfind(dev, head);
++	if (!cdev) {
++		list_add(&new_cdev->cd_hash, head);
++		spin_unlock(&cdev_lock);
++		return new_cdev;
++	}
++	spin_unlock(&cdev_lock);
++	destroy_cdev(new_cdev);
++	return cdev;
++}
++
++void cdput(struct char_device *cdev)
++{
++	if (atomic_dec_and_lock(&cdev->cd_count, &cdev_lock)) {
++		list_del(&cdev->cd_hash);
++		spin_unlock(&cdev_lock);
++		destroy_cdev(cdev);
++	}
++}
++
+ struct device_struct {
+ 	const char * name;
+ 	struct file_operations * fops;
+@@ -44,8 +148,7 @@
  	read_lock(&chrdevs_lock);
--	for (i = 0; i < ARRAY_SIZE(chrdevs) ; i++) {
--		for (cd = chrdevs[i]; cd; cd = cd->next)
-+	for (i = 0; i < MAX_CHRDEV ; i++) {
-+		if (chrdevs[i].fops) {
- 			len += sprintf(page+len, "%3d %s\n",
--				       cd->major, cd->name);
--	}
--	read_unlock(&chrdevs_lock);
--
--	return len;
--}
--
--/*
-- * Return the function table of a device, if present.
-- * Increment the reference count of module in question.
-- */
--static struct file_operations *
--lookup_chrfops(unsigned int major, unsigned int minor)
--{
--	struct char_device_struct *cd;
--	struct file_operations *ret = NULL;
--	int i;
--
--	i = major_to_index(major);
--
--	read_lock(&chrdevs_lock);
--	for (cd = chrdevs[i]; cd; cd = cd->next) {
--		if (major == cd->major &&
--		    minor - cd->baseminor < cd->minorct) {
--			ret = fops_get(cd->fops);
--			break;
-+				       i, chrdevs[i].name);
+ 	for (i = 0; i < MAX_CHRDEV ; i++) {
+ 		if (chrdevs[i].fops) {
+-			len += sprintf(page+len, "%3d %s\n",
+-				       i, chrdevs[i].name);
++			len += sprintf(page+len, "%3d %s\n", i, chrdevs[i].name);
  		}
  	}
  	read_unlock(&chrdevs_lock);
--
--	return ret;
-+	return len;
+@@ -53,14 +156,13 @@
  }
  
  /*
-- * Return the function table of a device, if present.
-- * Load the driver if needed.
-- * Increment the reference count of module in question.
-+ *	Return the function table of a device.
-+ *	Load the driver if needed.
-+ *	Increment the reference count of module in question.
-  */
- static struct file_operations *
- get_chrfops(unsigned int major, unsigned int minor)
- {
--	struct file_operations *ret = NULL;
-+	struct file_operations *ret;
- 
--	if (!major)
-+	if (!major || major >= MAX_CHRDEV)
- 		return NULL;
- 
--	ret = lookup_chrfops(major, minor);
--
-+	read_lock(&chrdevs_lock);
-+	ret = fops_get(chrdevs[major].fops);
-+	read_unlock(&chrdevs_lock);
- #ifdef CONFIG_KMOD
-+	if (ret && is_a_tty_dev(major)) {
-+		lock_kernel();
-+		if (need_serial(major,minor)) {
-+			/* Force request_module anyway, but what for? */
-+			/* The reason is that we may have a driver for
-+			   /dev/tty1 already, but need one for /dev/ttyS1. */
-+			fops_put(ret);
-+			ret = NULL;
-+		}
-+		unlock_kernel();
-+	}
- 	if (!ret) {
--		char name[32];
-+		char name[20];
- 		sprintf(name, "char-major-%d", major);
- 		request_module(name);
- 
- 		read_lock(&chrdevs_lock);
--		ret = lookup_chrfops(major, minor);
-+		ret = fops_get(chrdevs[major].fops);
- 		read_unlock(&chrdevs_lock);
- 	}
- #endif
- 	return ret;
- }
- 
--/*
-- * Register a single major with a specified minor range
+- *	Return the function table of a device.
+- *	Load the driver if needed.
+- *	Increment the reference count of module in question.
 - */
--int register_chrdev_region(unsigned int major, unsigned int baseminor,
--			   int minorct, const char *name,
--			   struct file_operations *fops)
-+int register_chrdev(unsigned int major, const char *name,
-+		    struct file_operations *fops)
+-static struct file_operations *
+-get_chrfops(unsigned int major, unsigned int minor)
++	Return the function table of a device.
++	Load the driver if needed.
++	Increment the reference count of module in question.
++*/
++static struct file_operations * get_chrfops(unsigned int major, unsigned int minor)
  {
--	struct char_device_struct *cd, **cp;
--	int ret = 0;
--	int i;
--
--	/* temporary */
- 	if (major == 0) {
--		read_lock(&chrdevs_lock);
--		for (i = ARRAY_SIZE(chrdevs)-1; i > 0; i--)
--			if (chrdevs[i] == NULL)
--				break;
--		read_unlock(&chrdevs_lock);
--
--		if (i == 0)
--			return -EBUSY;
--		ret = major = i;
--	}
--
--	cd = kmalloc(sizeof(struct char_device_struct), GFP_KERNEL);
--	if (cd == NULL)
--		return -ENOMEM;
--
--	cd->major = major;
--	cd->baseminor = baseminor;
--	cd->minorct = minorct;
--	cd->name = name;
--	cd->fops = fops;
--
--	i = major_to_index(major);
--
-+		write_lock(&chrdevs_lock);
-+		for (major = MAX_CHRDEV-1; major > 0; major--) {
-+			if (chrdevs[major].fops == NULL) {
-+				chrdevs[major].name = name;
-+				chrdevs[major].fops = fops;
-+				write_unlock(&chrdevs_lock);
-+				return major;
-+			}
-+		}
-+		write_unlock(&chrdevs_lock);
-+		return -EBUSY;
-+	}
-+	if (major >= MAX_CHRDEV)
-+		return -EINVAL;
- 	write_lock(&chrdevs_lock);
--	for (cp = &chrdevs[i]; *cp; cp = &(*cp)->next)
--		if ((*cp)->major > major ||
--		    ((*cp)->major == major && (*cp)->baseminor >= baseminor))
--			break;
--	if (*cp && (*cp)->major == major &&
--	    (*cp)->baseminor < baseminor + minorct) {
--		ret = -EBUSY;
--	} else {
--		cd->next = *cp;
--		*cp = cd;
-+	if (chrdevs[major].fops && chrdevs[major].fops != fops) {
-+		write_unlock(&chrdevs_lock);
-+		return -EBUSY;
- 	}
-+	chrdevs[major].name = name;
-+	chrdevs[major].fops = fops;
- 	write_unlock(&chrdevs_lock);
--
--	return ret;
-+	return 0;
+-	struct file_operations *ret;
++	struct file_operations *ret = NULL;
+ 
+ 	if (!major || major >= MAX_CHRDEV)
+ 		return NULL;
+@@ -69,12 +171,10 @@
+ 	ret = fops_get(chrdevs[major].fops);
+ 	read_unlock(&chrdevs_lock);
+ #ifdef CONFIG_KMOD
+-	if (ret && is_a_tty_dev(major)) {
++	if (ret && isa_tty_dev(major)) {
+ 		lock_kernel();
+ 		if (need_serial(major,minor)) {
+ 			/* Force request_module anyway, but what for? */
+-			/* The reason is that we may have a driver for
+-			   /dev/tty1 already, but need one for /dev/ttyS1. */
+ 			fops_put(ret);
+ 			ret = NULL;
+ 		}
+@@ -93,8 +193,7 @@
+ 	return ret;
  }
  
 -int register_chrdev(unsigned int major, const char *name,
 -		    struct file_operations *fops)
--{
--	return register_chrdev_region(major, 0, 256, name, fops);
--}
--
--/* todo: make void - error printk here */
- int unregister_chrdev(unsigned int major, const char * name)
++int register_chrdev(unsigned int major, const char * name, struct file_operations *fops)
  {
--	struct char_device_struct *cd, **cp;
--	int ret = 0;
--	int i;
--
--	i = major_to_index(major);
--
-+	if (major >= MAX_CHRDEV)
-+		return -EINVAL;
- 	write_lock(&chrdevs_lock);
--	for (cp = &chrdevs[i]; *cp; cp = &(*cp)->next)
--		if ((*cp)->major == major)
--			break;
--	if (!*cp || strcmp((*cp)->name, name))
--		ret = -EINVAL;
--	else {
--		cd = *cp;
--		*cp = cd->next;
--		kfree(cd);
-+	if (!chrdevs[major].fops || strcmp(chrdevs[major].name, name)) {
-+		write_unlock(&chrdevs_lock);
-+		return -EINVAL;
- 	}
-+	chrdevs[major].name = NULL;
-+	chrdevs[major].fops = NULL;
- 	write_unlock(&chrdevs_lock);
--
--	return ret;
-+	return 0;
+ 	if (major == 0) {
+ 		write_lock(&chrdevs_lock);
+diff -Nur -X /opt/home/roman/nodiff linux-2.5-dev2/fs/dcache.c linux-2.5-dev3/fs/dcache.c
+--- linux-2.5-dev2/fs/dcache.c	2003-03-23 18:08:54.000000000 +0100
++++ linux-2.5-dev3/fs/dcache.c	2003-03-23 18:30:01.000000000 +0100
+@@ -1563,6 +1563,7 @@
+ EXPORT_SYMBOL(d_genocide);
+ 
+ extern void bdev_cache_init(void);
++extern void cdev_cache_init(void);
+ 
+ void __init vfs_caches_init(unsigned long mempages)
+ {
+@@ -1583,4 +1584,5 @@
+ 	files_init(mempages); 
+ 	mnt_init(mempages);
+ 	bdev_cache_init();
++	cdev_cache_init();
+ }
+diff -Nur -X /opt/home/roman/nodiff linux-2.5-dev2/fs/devfs/base.c linux-2.5-dev3/fs/devfs/base.c
+--- linux-2.5-dev2/fs/devfs/base.c	2003-03-23 18:08:54.000000000 +0100
++++ linux-2.5-dev3/fs/devfs/base.c	2003-03-23 18:30:01.000000000 +0100
+@@ -2016,6 +2016,7 @@
+     if ( S_ISCHR (de->mode) )
+     {
+ 	inode->i_rdev = to_kdev_t(de->u.cdev.dev);
++	inode->i_cdev = cdget(de->u.cdev.dev);
+     }
+     else if ( S_ISBLK (de->mode) )
+     {
+diff -Nur -X /opt/home/roman/nodiff linux-2.5-dev2/fs/inode.c linux-2.5-dev3/fs/inode.c
+--- linux-2.5-dev2/fs/inode.c	2003-03-23 18:20:14.000000000 +0100
++++ linux-2.5-dev3/fs/inode.c	2003-03-23 18:30:01.000000000 +0100
+@@ -128,6 +128,7 @@
+ 		memset(&inode->i_dquot, 0, sizeof(inode->i_dquot));
+ 		inode->i_pipe = NULL;
+ 		inode->i_bdev = NULL;
++		inode->i_cdev = NULL;
+ 		inode->i_rdev = to_kdev_t(0);
+ 		inode->i_security = NULL;
+ 		if (security_inode_alloc(inode)) {
+@@ -241,6 +242,10 @@
+ 		inode->i_sb->s_op->clear_inode(inode);
+ 	if (inode->i_bdev)
+ 		bd_forget(inode);
++	else if (inode->i_cdev) {
++		cdput(inode->i_cdev);
++		inode->i_cdev = NULL;
++	}
+ 	inode->i_state = I_CLEAR;
  }
  
- /*
-@@ -229,20 +168,10 @@
- const char *cdevname(kdev_t dev)
- {
- 	static char buffer[40];
--	const char *name = "unknown-char";
--	unsigned int major = major(dev);
--	unsigned int minor = minor(dev);
--	int i = major_to_index(major);
--	struct char_device_struct *cd;
--
--	read_lock(&chrdevs_lock);
--	for (cd = chrdevs[i]; cd; cd = cd->next)
--		if (cd->major == major)
--			break;
--	if (cd)
--		name = cd->name;
--	sprintf(buffer, "%s(%d,%d)", name, major, minor);
--	read_unlock(&chrdevs_lock);
-+	const char * name = chrdevs[major(dev)].name;
- 
-+	if (!name)
-+		name = "unknown-char";
-+	sprintf(buffer, "%s(%d,%d)", name, major(dev), minor(dev));
- 	return buffer;
+@@ -1310,6 +1315,7 @@
+ 	if (S_ISCHR(mode)) {
+ 		inode->i_fop = &def_chr_fops;
+ 		inode->i_rdev = to_kdev_t(rdev);
++		inode->i_cdev = cdget(rdev);
+ 	} else if (S_ISBLK(mode)) {
+ 		inode->i_fop = &def_blk_fops;
+ 		inode->i_rdev = to_kdev_t(rdev);
+@@ -1318,6 +1324,5 @@
+ 	else if (S_ISSOCK(mode))
+ 		inode->i_fop = &bad_sock_fops;
+ 	else
+-		printk(KERN_DEBUG "init_special_inode: bogus i_mode (%o)\n",
+-		       mode);
++		printk(KERN_DEBUG "init_special_inode: bogus i_mode (%o)\n", mode);
  }
-diff -Nur -X /opt/home/roman/nodiff linux-2.5-dev1/fs/inode.c linux-2.5-dev2/fs/inode.c
---- linux-2.5-dev1/fs/inode.c	2003-03-23 18:08:54.000000000 +0100
-+++ linux-2.5-dev2/fs/inode.c	2003-03-23 18:20:14.000000000 +0100
-@@ -145,7 +145,7 @@
- 		mapping->assoc_mapping = NULL;
- 		mapping->backing_dev_info = &default_backing_dev_info;
- 		if (sb->s_bdev)
--			mapping->backing_dev_info = sb->s_bdev->bd_inode->i_mapping->backing_dev_info;
-+			inode->i_data.backing_dev_info = sb->s_bdev->bd_inode->i_mapping->backing_dev_info;
- 		memset(&inode->u, 0, sizeof(inode->u));
- 		inode->i_mapping = mapping;
- 	}
-diff -Nur -X /opt/home/roman/nodiff linux-2.5-dev1/include/linux/fs.h linux-2.5-dev2/include/linux/fs.h
---- linux-2.5-dev1/include/linux/fs.h	2003-03-23 18:08:55.000000000 +0100
-+++ linux-2.5-dev2/include/linux/fs.h	2003-03-23 18:20:14.000000000 +0100
-@@ -1055,10 +1055,7 @@
- extern void blk_run_queues(void);
+diff -Nur -X /opt/home/roman/nodiff linux-2.5-dev2/include/linux/fs.h linux-2.5-dev3/include/linux/fs.h
+--- linux-2.5-dev2/include/linux/fs.h	2003-03-23 18:20:14.000000000 +0100
++++ linux-2.5-dev3/include/linux/fs.h	2003-03-23 19:01:56.000000000 +0100
+@@ -331,6 +331,12 @@
+ 	struct address_space	*assoc_mapping;	/* ditto */
+ };
  
- /* fs/char_dev.c */
--extern int register_chrdev_region(unsigned int, unsigned int, int,
--				  const char *, struct file_operations *);
--extern int register_chrdev(unsigned int, const char *,
--			   struct file_operations *);
-+extern int register_chrdev(unsigned int, const char *, struct file_operations *);
- extern int unregister_chrdev(unsigned int, const char *);
- extern int chrdev_open(struct inode *, struct file *);
- 
-diff -Nur -X /opt/home/roman/nodiff linux-2.5-dev1/include/linux/major.h linux-2.5-dev2/include/linux/major.h
---- linux-2.5-dev1/include/linux/major.h	2003-03-23 22:19:03.000000000 +0100
-+++ linux-2.5-dev2/include/linux/major.h	2003-03-23 18:22:44.000000000 +0100
-@@ -160,6 +160,13 @@
- #define IBM_FS3270_MAJOR	228
- 
- /*
-+ * Important: Don't change this to 256.  Major number 255 is and must be
-+ * reserved for future expansion into a larger dev_t space.
-+ */
-+#define MAX_CHRDEV		255
-+#define MAX_BLKDEV		255
++struct char_device {
++	struct list_head	cd_hash;
++	atomic_t		cd_count;
++	dev_t			cd_dev;
++};
 +
-+/*
-  * Tests for SCSI devices.
-  */
+ struct block_device {
+ 	struct list_head	bd_hash;
+ 	atomic_t		bd_count;
+@@ -382,6 +388,7 @@
+ 	struct list_head	i_devices;
+ 	struct pipe_inode_info	*i_pipe;
+ 	struct block_device	*i_bdev;
++	struct char_device	*i_cdev;
  
+ 	unsigned long		i_dnotify_mask; /* Directory notify events */
+ 	struct dnotify_struct	*i_dnotify; /* for directory notifications */
+@@ -1039,6 +1046,8 @@
+ extern int bd_acquire(struct inode *inode);
+ extern void bd_forget(struct inode *inode);
+ extern void bdput(struct block_device *);
++extern struct char_device *cdget(dev_t);
++extern void cdput(struct char_device *);
+ extern int blkdev_open(struct inode *, struct file *);
+ extern int blkdev_close(struct inode *, struct file *);
+ extern struct file_operations def_blk_fops;
+diff -Nur -X /opt/home/roman/nodiff linux-2.5-dev2/kernel/ksyms.c linux-2.5-dev3/kernel/ksyms.c
+--- linux-2.5-dev2/kernel/ksyms.c	2003-03-23 18:08:56.000000000 +0100
++++ linux-2.5-dev3/kernel/ksyms.c	2003-03-23 18:30:01.000000000 +0100
+@@ -203,6 +203,8 @@
+ EXPORT_SYMBOL(set_blocksize);
+ EXPORT_SYMBOL(sb_set_blocksize);
+ EXPORT_SYMBOL(sb_min_blocksize);
++EXPORT_SYMBOL(cdget);
++EXPORT_SYMBOL(cdput);
+ EXPORT_SYMBOL(bdget);
+ EXPORT_SYMBOL(bdput);
+ EXPORT_SYMBOL(bd_claim);
 

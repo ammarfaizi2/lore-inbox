@@ -1,60 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265982AbSKKJZa>; Mon, 11 Nov 2002 04:25:30 -0500
+	id <S265987AbSKKJiQ>; Mon, 11 Nov 2002 04:38:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265983AbSKKJZ3>; Mon, 11 Nov 2002 04:25:29 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:10650 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S265982AbSKKJZ2>;
-	Mon, 11 Nov 2002 04:25:28 -0500
-Date: Mon, 11 Nov 2002 10:31:23 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, "David S. Miller" <davem@redhat.com>
-cc: Christoph Hellwig <hch@infradead.org>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
+	id <S265988AbSKKJiP>; Mon, 11 Nov 2002 04:38:15 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:3508 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S265987AbSKKJiP>;
+	Mon, 11 Nov 2002 04:38:15 -0500
+Date: Mon, 11 Nov 2002 01:43:28 -0800 (PST)
+Message-Id: <20021111.014328.87369858.davem@redhat.com>
+To: geert@linux-m68k.org
+Cc: alan@lxorguk.ukuu.org.uk, hch@infradead.org, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org, dledford@redhat.com
 Subject: Re: [PATCH] NCR53C9x ESP: C99 designated initializers
-In-Reply-To: <1036939080.1005.10.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.GSO.4.21.0211111029030.20946-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.GSO.4.21.0211111029030.20946-100000@vervain.sonytel.be>
+References: <1036939080.1005.10.camel@irongate.swansea.linux.org.uk>
+	<Pine.GSO.4.21.0211111029030.20946-100000@vervain.sonytel.be>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10 Nov 2002, Alan Cox wrote:
-> On Sun, 2002-11-10 at 10:27, Geert Uytterhoeven wrote:
-> ut soft reset.
-> >   */
-> > -int esp_reset(Scsi_Cmnd *SCptr, unsigned int how)
-> > +int esp_reset(Scsi_Cmnd *SCptr)
-> >  {
-> >  	struct NCR_ESP *esp = (struct NCR_ESP *) SCptr->host->hostdata;
-> >  
-> >  	(void) esp_do_resetbus(esp, esp->eregs);
-> > -	return SCSI_RESET_PENDING;
-> > +	wait_event(esp->reset_queue, (esp->resetting_bus == 0));
-> > +
-> > +	return SUCCESS;
-> >  }
-> 
-> Reset is called with the lock held surely. How can the wait_event be
-> right ? 
+   From: Geert Uytterhoeven <geert@linux-m68k.org>
+   Date: Mon, 11 Nov 2002 10:31:23 +0100 (MET)
 
-I don't know. I just ported the Sun/SPARC ESP SCSI driver changes in 2.5.45 to
-the NCR53C9x ESP SCSI drivers. If you're right, the same bug is present in
-esp.c.
+[ Doug, you should just care about my eh_reset callback comments ]
 
-Dave?
+   On 10 Nov 2002, Alan Cox wrote:
+   > Reset is called with the lock held surely. How can the wait_event be
+   > right ? 
+   
+   I don't know. I just ported the Sun/SPARC ESP SCSI driver changes in 2.5.45 to
+   the NCR53C9x ESP SCSI drivers. If you're right, the same bug is present in
+   esp.c.
+   
+   Dave?
+   
+That's a little inconvenient.
 
-BTW, what about merging esp.c and NCR53C9x.c?
+I have to wait for an interrupt from the chip to know the RESET
+started by the eh_reset_bus_handler code is done, and I'm certainly
+not going to spin there for 5 seconds or however long it decides to
+take. :-)
 
-Gr{oetje,eeting}s,
+Either eh_reset_bus_handler needs to be allowed to sleep, or it needs
+to be changed so that an "RESET in progress, please wait" status can
+be returned.
 
-						Geert
+Doug?
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+   BTW, what about merging esp.c and NCR53C9x.c?
+   
+I don't have the time to abstract away all of the various DMA portion
+of the ESP chip handling to allow that.  There are 12 different
+combinations of ESP + DMA controller combinations on Sparc, so if you
+do the changes you'll need to test that :-)
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+Franks a lot,
+David S. Miller
+davem@redhat.com

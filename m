@@ -1,101 +1,145 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316380AbSETVPb>; Mon, 20 May 2002 17:15:31 -0400
+	id <S316385AbSETVQw>; Mon, 20 May 2002 17:16:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316382AbSETVPa>; Mon, 20 May 2002 17:15:30 -0400
-Received: from [212.42.230.145] ([212.42.230.145]:17581 "EHLO
-	pomo.hostsharing.net") by vger.kernel.org with ESMTP
-	id <S316380AbSETVP3>; Mon, 20 May 2002 17:15:29 -0400
-Date: Mon, 20 May 2002 23:15:26 +0200
-From: Michael Hoennig <michael@hostsharing.net>
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Cc: pollard@tomcat.admin.navo.hpc.mil, linux-kernel@vger.kernel.org
-Subject: Re: suid bit on directories
-Message-Id: <20020520231526.12e24b48.michael@hostsharing.net>
-In-Reply-To: <200205201928.OAA13328@tomcat.admin.navo.hpc.mil>
-Organization: http://www.hostsharing.net
-X-Mailer: Sylpheed version 0.7.4claws (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S316386AbSETVQv>; Mon, 20 May 2002 17:16:51 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:31220 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S316385AbSETVQq>; Mon, 20 May 2002 17:16:46 -0400
+Subject: [PATCH] 2.4-ac: more scheduler updates (2/3)
+From: Robert Love <rml@tech9.net>
+To: alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1021928919.925.314.camel@sinai>
+Content-Type: multipart/mixed; boundary="=-/KLhwB+aKPbR91f1JIVz"
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 20 May 2002 14:16:22 -0700
+Message-Id: <1021929382.9901.4.camel@sinai>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jesse,
 
-> > of course not, but many features have to be used carefully, like the
-> > suid bit on files too!
-> 
-> That CAN be audited. Putting a suid on a directory CAN'T.
+--=-/KLhwB+aKPbR91f1JIVz
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Of course it can. You can easily list all files with this flag set.
+Alan,
 
-> > I don't want to make the bahaviour or a suid bit on directories the
-> > default! I just would like it as a mount option, or even something
-> > which you have to compile into the kernel.
-> 
-> Once mounted/compiled in you have lost control.
+This patch further cleans up the notion of maximum priority / maximum RT
+priority and sets the stage for the user to set any value they choose. 
+This patch does _not_ export any configure settings and it results in
+the same object code as before.
 
-How do you come to that conclusion? Even if it were the case: I don't
-force you to use this mount option.
+If you did not like the previous version of this (which created
+configure settings) then hopefully this version should be acceptable. 
+It is in 2.5 now.
 
-> > Why do you ignore my example? In my example the use who runs the
-> > webserver owns all the files, that is wrong. With the suid bit on
-> > directories, this could be fixed. 
-> 
-> That is NOT wrong. The files belong to the server. Not a user. I've been
-> running a server that way for years.
+This depends on the first patch (chunk #1) since we move
+sched_find_first_set around.  Otherwise the changes are orthogonal.
 
-Files can only belong to users, not to server processes.
+Patch is against 2.4.19-pre8-ac5, please apply.
 
-> And ANY user can put files into YOUR directory. Even files you don't
-> want there. AND you can't tell who did it.
-
-Nope. Only httpd and the user who should onw the files (the User of the
-VirtualHost) can reach the directory in my case. Nobody else can even
-reach it.
-
-> Remember - with this facility any penetration of of a server suddenly
-> becomes a penetration of every user with such a directory.
-
-With the rights of wwwrun/httpd you can do more damange in this case than
-with the rights of one user. In this case that are  special accounts for
-running CGIs etc. 
-
-> > > How are you going to control it?
-> > 
-> > Only the owner of the directories can set this flag. There is nothing
-> > to control. 
-> 
-> Ah - so I can put files into your directory, and suddenly they are owned
-> by you. 
-
-You would not even reach this directory. That is assured because it is
-child of a dir owned by me:httpd which is child of a directory owned by
-httpd:mygroup - in neither case rights for others.
-
-> Also remember what happens when a hard link is created in the
-> directory... The file changes ownership. That will then change the owner
-> of ANY file on the filesystem. I believe this can happen with sgid
-> directories too
-
-good point to pay attention to, but you are wrong
+	Robert Love
 
 
-> > You don't! You just let it to the users to give access to there files
-> > to whomever you want. My case is similar.
-> 
-> NOT the same situation. The OWNER of the file gives ACCESS to files. 
+--=-/KLhwB+aKPbR91f1JIVz
+Content-Disposition: attachment; filename=sched-maxrtprio-rml-2.4.19-pre8-ac5-1.patch
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/x-patch; name=sched-maxrtprio-rml-2.4.19-pre8-ac5-1.patch;
+	charset=ISO-8859-1
 
-I coudl set up a cronjob which copies the files in the directories and
-deletes the originals. It's the same, just delayed.
+diff -urN linux-2.4.19-pre8-ac5-rml/include/asm-i386/bitops.h linux/include=
+/asm-i386/bitops.h
+--- linux-2.4.19-pre8-ac5-rml/include/asm-i386/bitops.h	Mon May 20 14:07:09=
+ 2002
++++ linux/include/asm-i386/bitops.h	Mon May 20 14:08:56 2002
+@@ -428,7 +428,7 @@
+  * unlikely to be set. It's guaranteed that at least one of the 140
+  * bits is cleared.
+  */
+-static inline int sched_find_first_bit(unsigned long *b)
++static inline int _sched_find_first_bit(unsigned long *b)
+ {
+ 	if (unlikely(b[0]))
+ 		return __ffs(b[0]);
+diff -urN linux-2.4.19-pre8-ac5-rml/include/linux/sched.h linux/include/lin=
+ux/sched.h
+--- linux-2.4.19-pre8-ac5-rml/include/linux/sched.h	Mon May 20 14:07:07 200=
+2
++++ linux/include/linux/sched.h	Mon May 20 14:10:19 2002
+@@ -162,6 +162,36 @@
+ extern int current_is_keventd(void);
+=20
+ /*
++ * Priority of a process goes from 0..MAX_PRIO-1, valid RT
++ * priority is 0..MAX_RT_PRIO-1, and SCHED_OTHER tasks are
++ * in the range MAX_RT_PRIO..MAX_PRIO-1. Priority values
++ * are inverted: lower p->prio value means higher priority.
++ *
++ * The MAX_RT_USER_PRIO value allows the actual maximum
++ * RT priority to be separate from the value exported to
++ * user-space.  This allows kernel threads to set their
++ * priority to a value higher than any user task. Note:
++ * MAX_RT_PRIO must not be smaller than MAX_USER_RT_PRIO.
++ */
++
++#define MAX_USER_RT_PRIO	100
++#define MAX_RT_PRIO		MAX_USER_RT_PRIO
++
++#define MAX_PRIO		(MAX_RT_PRIO + 40)
++
++/*
++ * The maximum RT priority is configurable.  If the resulting
++ * bitmap is 160-bits , we can use a hand-coded routine which
++ * is optimal.  Otherwise, we fall back on a generic routine for
++ * finding the first set bit from an arbitrarily-sized bitmap.
++ */
++#if MAX_PRIO < 160 && MAX_PRIO > 127
++#define sched_find_first_bit(map)	_sched_find_first_bit(map)
++#else
++#define sched_find_first_bit(map)	find_first_bit(map, MAX_PRIO)
++#endif
++
++/*
+  * The default fd array needs to be at least BITS_PER_LONG,
+  * as this is the granularity returned by copy_fdset().
+  */
+@@ -478,8 +508,8 @@
+     addr_limit:		KERNEL_DS,					\
+     exec_domain:	&default_exec_domain,				\
+     lock_depth:		-1,						\
+-    prio:		120,						\
+-    static_prio:	120,						\
++    prio:		MAX_PRIO-20,					\
++    static_prio:	MAX_PRIO-20,					\
+     policy:		SCHED_OTHER,					\
+     cpus_allowed:	-1,						\
+     mm:			NULL,						\
+diff -urN linux-2.4.19-pre8-ac5-rml/kernel/sched.c linux/kernel/sched.c
+--- linux-2.4.19-pre8-ac5-rml/kernel/sched.c	Mon May 20 14:07:07 2002
++++ linux/kernel/sched.c	Mon May 20 14:08:47 2002
+@@ -26,20 +26,6 @@
+ #include <linux/kernel_stat.h>
+=20
+ /*
+- * Priority of a process goes from 0 to 139. The 0-99
+- * priority range is allocated to RT tasks, the 100-139
+- * range is for SCHED_OTHER tasks. Priority values are
+- * inverted: lower p->prio value means higher priority.
+- *=20
+- * MAX_USER_RT_PRIO allows the actual maximum RT priority
+- * to be separate from the value exported to user-space.
+- * NOTE: MAX_RT_PRIO must not be smaller than MAX_USER_RT_PRIO.
+- */
+-#define MAX_RT_PRIO		100
+-#define MAX_USER_RT_PRIO	100
+-#define MAX_PRIO		(MAX_RT_PRIO + 40)
+-
+-/*
+  * Convert user-nice values [ -20 ... 0 ... 19 ]
+  * to static priority [ MAX_RT_PRIO..MAX_PRIO-1 ],
+  * and back.
 
-Anyway, when I find time in the next weeks, I will try this patch and post
-it.  I will do it as a mount option.  Nobody is forced to use it ;-)
+--=-/KLhwB+aKPbR91f1JIVz--
 
-	Michael
-
--- 
-Hostsharing eG / c/o Michael Hönnig / Boytinstr. 10 / D-22143 Hamburg
-phone:+49/40/67581419 / mobile:+49/177/3787491 / fax:++49/40/67581426
-http://www.hostsharing.net ---> Webhosting Spielregeln selbst gemacht

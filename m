@@ -1,72 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130647AbRBPWPp>; Fri, 16 Feb 2001 17:15:45 -0500
+	id <S131019AbRBPWSz>; Fri, 16 Feb 2001 17:18:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130730AbRBPWPg>; Fri, 16 Feb 2001 17:15:36 -0500
-Received: from et-gw.etinc.com ([207.252.1.2]:21515 "EHLO etinc.com")
-	by vger.kernel.org with ESMTP id <S130647AbRBPWP0>;
-	Fri, 16 Feb 2001 17:15:26 -0500
-Message-Id: <5.0.0.25.0.20010216170349.01efc030@mail.etinc.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0
-Date: Fri, 16 Feb 2001 17:27:31 -0500
-To: jesse@cats-chateau.net, A.J.Scott@casdn.neu.edu,
-        "Andrew Scott" <A.J.Scott@casdn.neu.edu>, linux-kernel@vger.kernel.org
-From: Dennis <dennis@etinc.com>
-Subject: Re: Linux stifles innovation...
-In-Reply-To: <01021613494900.00295@tabby>
-In-Reply-To: <3A8CF1FE.16672.10105D@localhost>
- <3A8CF1FE.16672.10105D@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S131033AbRBPWSp>; Fri, 16 Feb 2001 17:18:45 -0500
+Received: from lowell.missioncriticallinux.com ([208.51.139.16]:45888 "EHLO
+	jerrell.lowell.mclinux.com") by vger.kernel.org with ESMTP
+	id <S131019AbRBPWS2>; Fri, 16 Feb 2001 17:18:28 -0500
+Date: Fri, 16 Feb 2001 17:33:54 -0500 (EST)
+From: Richard Jerrell <jerrell@missioncriticallinux.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] mm/memory.c, 2.4.1 : memory leak with swap cache
+Message-ID: <Pine.LNX.4.21.0102151648530.1390-200000@jerrell.lowell.mclinux.com>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="17458952-1346124290-982275034=:1390"
+Content-ID: <Pine.LNX.4.21.0102151740300.1390@jerrell.lowell.mclinux.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 02:48 PM 02/16/2001, Jesse Pollard wrote:
->On Fri, 16 Feb 2001, Andrew Scott wrote:
-> >On 15 Feb 2001, at 9:49, fsnchzjr wrote:
-> >
-> >> Watch Microsoft's Jim Allchin go Linux-bashing!!!
-> >> Nice little article on how we're all going to die of herpes from our
-> >> repeated exposition to Linux...
-> >> 
-> http://news.cnet.com/investor/news/newsitem/0-9900-1028-4825719-RHAT.html?ta
-> >> g=ltnc
-> >
-> >That's about as self-serving a statement as I've ever seen. If this
-> >'Jim Alchin' actually believes what he's saying, he's got to be one
-> >of the worlds biggest fools, and if he doesn't believe what he's
-> >saying, well there aren't too many words that would accurately
-> >describe what he is.
-> >
-> >It's pretty funny in some ways, e.g. "We can build a better product
-> >than Linux...", which begs the question, "Well, why don't you?".
-> >Perhaps it costs too much?
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-objective, arent we?
+--17458952-1346124290-982275034=:1390
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.21.0102151740301.1390@jerrell.lowell.mclinux.com>
 
-There is much truth to the concept, although Microsoft should not be ones 
-to comment on it as such.
+2.4.1 has a memory leak (temporary) where anonymous memory pages that have
+been moved into the swap cache will stick around after their vma has been
+unmapped by the owning process.  These pages are not free'd in free_pte()
+because they are still referenced by the page cache.  In addition, if the
+pages are dirty, they will be written out to the swap device before they
+are reclaimed even though the owning process no longer will be using the
+pages.
 
-For example, if there were six different companies that marketed ethernet 
-drivers for the eepro100, you'd have a choice of which one to buy..perhaps 
-with different "features" that were of value to you. Instead, you have 
-crappy GPL code that locks up under load, and its not worth spending 
-corporate dollars to fix it because you have to give away your work for 
-free under GPL. And since there is a "free" driver that most people can 
-use, its not worth building a better mousetrap either because the market is 
-too small. So, the handful of users with problems get to "fit it 
-themselves", most of whom cant of course.
+free_pte in mm/memory.c has been modified to check to see if the page is
+only being referenced by the swap cache (and possibly buffers).  If so,
+the buffers (if existant) are free'd and the page and swap cache
+entry are removed immediately.
 
-Theres also the propensity for mediocre stuff to get into the kernel 
-because some half-baked programmer was willing to contribute some code. The 
-50% of the kernel that remains "experimental" ad infinitum is evidence of that.
+Rich Jerrell
+jerrell@missioncriticallinux.com
 
-The biggest thing that the linux community does to stifle innovation is to 
-bash commercial vendors trying to make a profit by whining endlessly about 
-"sourceless" distributions and recommending "open-source" solutions even 
-when they are wholly inferior. You're only hurting yourselves in the long 
-run. In that respect MS is correct, because those with the dollars to 
-innovate will stay away.
+--17458952-1346124290-982275034=:1390
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="2.4.1-paging-fix-15.02.01.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.21.0102151710340.1390@jerrell.lowell.mclinux.com>
+Content-Description: 
+Content-Disposition: ATTACHMENT; FILENAME="2.4.1-paging-fix-15.02.01.patch"
 
-DB
-
+ZGlmZiAtLXJlY3Vyc2l2ZSAtdSAtTiBsaW51eC0yLjQuMS9tbS9tZW1vcnku
+YyBsaW51eC0yLjQuMS1wYWdpbmctZml4L21tL21lbW9yeS5jDQotLS0gbGlu
+dXgtMi40LjEvbW0vbWVtb3J5LmMJU2F0IEphbiAyNyAyMjoxMjozNSAyMDAx
+DQorKysgbGludXgtMi40LjEtcGFnaW5nLWZpeC9tbS9tZW1vcnkuYwlUaHUg
+RmViIDE1IDEzOjM2OjA2IDIwMDENCkBAIC0yODEsNiArMjg1LDMzIEBADQog
+CQlyZXR1cm4gMTsNCiAJfQ0KIAlzd2FwX2ZyZWUocHRlX3RvX3N3cF9lbnRy
+eShwdGUpKTsNCisJew0KKwkJaW50IG51bSwgdGFyZ2V0ID0gMTsNCisJCXN0
+cnVjdCBwYWdlICpwYWdlID0gbG9va3VwX3N3YXBfY2FjaGUocHRlX3RvX3N3
+cF9lbnRyeShwdGUpKTsNCisJCSAgICAgICAgICAgICAgICAgICAgLyogcmV0
+dXJucyB0aGUgcGFnZSBhbmQgdGFrZXMgYSByZWZlcmVuY2UgKi8NCisJCQ0K
+KwkJaWYgKCFwYWdlIHx8ICghVkFMSURfUEFHRShwYWdlKSkgfHwgUGFnZVJl
+c2VydmVkKHBhZ2UpKQ0KKwkJCXJldHVybiAwOw0KKwkJDQorCQludW0gPSBh
+dG9taWNfcmVhZCgmcGFnZS0+Y291bnQpOw0KKwkJaWYocGFnZS0+YnVmZmVy
+cykgdGFyZ2V0Kys7CQkvKiAxIGNvdW50IGlmIHdlIGhhdmUgYnVmZmVycyAq
+Lw0KKwkJaWYoUGFnZVN3YXBDYWNoZShwYWdlKSkgdGFyZ2V0Kys7CS8qIDEg
+Y291bnQgZm9yIHRoZSBwYWdlIGNhY2hlICovDQorCQkJCQkJCS8qIDEgY291
+bnQgZm9yIG91ciByZWZlcmVuY2UgICovDQorDQorCQlpZigobnVtID09IHRh
+cmdldCkgJiYgUGFnZVN3YXBDYWNoZShwYWdlKSkgew0KKwkJCS8qIFN3YXBD
+YWNoZSBlbnRyeSBpcyB0aGUgb25seSB0aGluZyByZWZlcmVuY2luZyB0aGlz
+IHBhZ2UgICAqLw0KKwkJCS8qIChhbmQgbWF5YmUgYnVmZmVycykgYXNpZGVz
+IGZyb20gdXMsIHNvIHRvIHByZXZlbnQgaXQgZnJvbSAqLw0KKwkJCS8qIHNp
+dHRpbmcgYXJvdW5kIGFuZCB3YXN0aW5nIHRpbWUvbWVtb3J5LCB0aHJvdyBp
+dCBhd2F5ICAgICAqLw0KKwkJCWlmKChwYWdlLT5idWZmZXJzKSkgew0KKwkJ
+CQlpZighdHJ5X3RvX2ZyZWVfYnVmZmVycyhwYWdlLDEpKSB7CS8qIENhbid0
+IGdldCByaWQgb2YgYnVmZmVycyAgICovDQorCQkJCQlwYWdlX2NhY2hlX3Jl
+bGVhc2UocGFnZSk7CS8qIGdldCByaWQgb2Ygb3VyIHJlZmVyZW5jZSAgICov
+DQorCQkJCQlyZXR1cm4gMDsJCQkvKiBhbmQgbGV0IHNvbWVvbmUgZWxzZSBk
+byBpdCAqLw0KKwkJCQl9DQorCQkJfQ0KKwkJCWZyZWVfcGFnZV9hbmRfc3dh
+cF9jYWNoZShwYWdlKTsJLyogRXhwZWN0cyB0aGUgcGFnZSB0byBiZSBtYXBw
+ZWQsIHNvIHdpbGwgKi8NCisJCQlyZXR1cm4gMTsJCQkvKiBhY2NvdW50IGZv
+ciB0aGUgcmVmZXJlbmNlIHdlIGhhdmUgICAgICAqLw0KKwkJfQ0KKwl9DQog
+CXJldHVybiAwOw0KIH0NCiANCg==
+--17458952-1346124290-982275034=:1390--

@@ -1,34 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318879AbSHLXuG>; Mon, 12 Aug 2002 19:50:06 -0400
+	id <S318881AbSHMACt>; Mon, 12 Aug 2002 20:02:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318880AbSHLXuG>; Mon, 12 Aug 2002 19:50:06 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:45572 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S318879AbSHLXuF>;
-	Mon, 12 Aug 2002 19:50:05 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: "Dhr N. Van Alphen" <mastex@servicez.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.5.31 make menuconfig 
-In-reply-to: Your message of "Mon, 12 Aug 2002 20:26:23 +0200."
-             <008401c2422d$c34de9e0$0200010a@jennifer> 
+	id <S318882AbSHMACt>; Mon, 12 Aug 2002 20:02:49 -0400
+Received: from surf.cadcamlab.org ([156.26.20.182]:10373 "EHLO
+	surf.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S318881AbSHMACt>; Mon, 12 Aug 2002 20:02:49 -0400
+Date: Mon, 12 Aug 2002 19:03:00 -0500
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+       Greg Banks <gnb@alphalink.com.au>, linux-kernel@vger.kernel.org,
+       kbuild-devel@lists.sourceforge.net
+Subject: Re: [patch] config language dep_* enhancements
+Message-ID: <20020813000300.GE761@cadcamlab.org>
+References: <Pine.LNX.4.44.0208120924320.5882-100000@chaos.physics.uiowa.edu> <Pine.LNX.4.44.0208121959360.8911-100000@serv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 13 Aug 2002 09:52:24 +1000
-Message-ID: <5003.1029196344@ocs3.intra.ocs.com.au>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0208121959360.8911-100000@serv>
+User-Agent: Mutt/1.4i
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Aug 2002 20:26:23 +0200, 
-"Dhr N. Van Alphen" <mastex@servicez.org> wrote:
->After unpacking kernel 2.5.31 source and running 'make menuconfig"
->its fails with this error:
->
->In file included from /usr/include/netinet/in.h:212,
->                 from fixdep.c:107:
->/usr/include/bits/socket.h:298: asm/socket.h: No such file or directory
->make[1]: *** [fixdep] Error 1
 
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0007.3/0587.html
+[Roman Zippel]
+> with the latest modifications this can be written as:
+> 
+> dep_tristate NEW !OLD
+> dep_tristate OLD !NEW
+> 
+> This still has the back reference and you have to run 'make config'
+> twice to change NEW from n to y.
 
+I don't see this as a big problem.  Most people don't use the bare
+Configure script anyway, except for 'make oldconfig'.
+
+With the ! patch, Menuconfig does the right thing here.
+
+> It's possible to fix this:
+> 
+> tristate DRV
+> if [ DRV == y ]; then
+>   choice OLD NEW
+> fi
+> if [ DRV == m ]; then
+>   dep_tristate NEW DRV
+>   dep_tristate OLD DRV
+> fi
+
+Simpler and perhaps more intuitive:
+
+tristate DRV
+dep_mbool DRV_OLD DRV
+
+dep_mbool COMMON_OPT DRV
+dep_mbool OLD_OPT1 DRV_OLD
+dep_mbool OLD_OPT2 DRV_OLD
+dep_mbool NEW_OPT1 DRV !DRV_OLD
+dep_mbool NEW_OPT2 DRV !DRV_OLD
+
+I don't see a real need for a separate symbol announcing DRV_NEW.  Let
+the Makefile cope.
+
+Peter

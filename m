@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272742AbTG1IfA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 04:35:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272744AbTG1Ie7
+	id S272737AbTG1IlH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 04:41:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272750AbTG1IjO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 04:34:59 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:30882
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S272742AbTG1Ieu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 04:34:50 -0400
-Message-ID: <1059382204.3f24e3bc32d56@kolivas.org>
-Date: Mon, 28 Jul 2003 18:50:04 +1000
-From: Con Kolivas <kernel@kolivas.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] sched-2.6.0-test1-G6, interactivity changes
-References: <Pine.LNX.4.44.0307280921360.3537-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.44.0307280921360.3537-100000@localhost.localdomain>
+	Mon, 28 Jul 2003 04:39:14 -0400
+Received: from lidskialf.net ([62.3.233.115]:39895 "EHLO beyond.lidskialf.net")
+	by vger.kernel.org with ESMTP id S272749AbTG1IiU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 04:38:20 -0400
+From: Andrew de Quincey <adq_dvb@lidskialf.net>
+To: Marcelo Penna Guerra <eu@marcelopenna.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH] nvidia nforce 1.0-261 nvnet for kernel 2.5
+Date: Mon, 28 Jul 2003 09:53:34 +0100
+User-Agent: KMail/1.5.2
+Cc: Rahul Karnik <rahul@genebrew.com>, lkml <linux-kernel@vger.kernel.org>,
+       Laurens <masterpe@xs4all.nl>
+References: <200307262309.20074.adq_dvb@lidskialf.net> <3F2477C4.2000105@pobox.com> <200307272011.51631.eu@marcelopenna.org>
+In-Reply-To: <200307272011.51631.eu@marcelopenna.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.1
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307280953.34933.adq_dvb@lidskialf.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Ingo Molnar <mingo@elte.hu>:
+On Monday 28 July 2003 00:11, Marcelo Penna Guerra wrote:
+> No luck here, Jeff ... if the hardware is really based on AMD8111 as it
+> appears to be (i2c and ide are similar), they surelly changed more
+> registers. It'll take some time to RE it.
 
-> 
-> On Mon, 28 Jul 2003, Con Kolivas wrote:
-> 
-> > On Sun, 27 Jul 2003 23:40, Ingo Molnar wrote:
-> > >  - further increase timeslice granularity
-> > 
-> > For a while now I've been running a 1000Hz 2.4 O(1) kernel tree that
-> > uses timeslice granularity set to MIN_TIMESLICE which has stark
-> > smoothness improvements in X. I've avoided promoting this idea because
-> > of the theoretical drop in throughput this might cause. I've not been
-> > able to see any detriment in my basic testing of this small granularity,
-> > so I was curious to see what you throught was a reasonable lower limit?
-> 
-> it's a hard question. The 25 msecs in -G6 is probably too low.
+Hmm, If they had licensed it, I don't see why they would have changed the 
+registers that much; they didn't for the other hardware they licensed. 
+Judging by the size of nvnetlib.o, there isn't really that much to it (which 
+is nice from an RE point of view)
 
-Just another thought on that is to make sure they don't get requeued to start 
-with just 2 ticks left - which would happen to all nice 0 tasks running their 
-full timeslice. Here is what I'm doing in O10:
-
-+	} else if (!((task_timeslice(p) - p->time_slice) %
-+		TIMESLICE_GRANULARITY) && (p->time_slice > MIN_TIMESLICE) &&
-+		(p->array == rq->active)) {
-
-Con

@@ -1,39 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262716AbVAKLNJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262719AbVAKLSn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262716AbVAKLNJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 06:13:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262721AbVAKLNJ
+	id S262719AbVAKLSn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 06:18:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262721AbVAKLSn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 06:13:09 -0500
-Received: from imap3.nextra.sk ([195.168.1.92]:41988 "EHLO tic.nextra.sk")
-	by vger.kernel.org with ESMTP id S262716AbVAKLM7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 06:12:59 -0500
-Message-ID: <41E3B4FE.8000507@rainbow-software.org>
-Date: Tue, 11 Jan 2005 12:14:06 +0100
-From: Ondrej Zary <linux@rainbow-software.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: Pierre Ossman <drzeus-list@drzeus.cx>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       stephen_pollei@comcast.net, rmk+lkml@arm.linux.org.uk
-Subject: Re: [2.6 patch] remove SPF-using wbsd lists from MAINTAINERS
-References: <20050110184307.GB2903@stusta.de> <1105382033.12054.90.camel@localhost.localdomain> <41E2F1BD.1020407@drzeus.cx> <20050110220426.GF2903@stusta.de> <41E3001C.6020304@drzeus.cx> <20050110224238.GB29578@stusta.de>
-In-Reply-To: <20050110224238.GB29578@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 11 Jan 2005 06:18:43 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:64268 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S262719AbVAKLSl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 06:18:41 -0500
+Subject: Re: [PATCH 0/6] 2.4.19-rc1 stack reduction patches
+From: Arjan van de Ven <arjan@infradead.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Badari Pulavarty <pbadari@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050111074949.GE18796@logos.cnet>
+References: <1105378550.4000.132.camel@dyn318077bld.beaverton.ibm.com>
+	 <1105429144.3917.0.camel@laptopd505.fenrus.org>
+	 <20050111074949.GE18796@logos.cnet>
+Content-Type: text/plain
+Date: Tue, 11 Jan 2005 12:18:31 +0100
+Message-Id: <1105442311.3917.25.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> Thinking about it:
-> mailout.stusta.mhn.de has two IP addresses.
-> Do you try some lookups of it's 10.150.127.10 address???
+On Tue, 2005-01-11 at 05:49 -0200, Marcelo Tosatti wrote:
+> On Tue, Jan 11, 2005 at 08:39:03AM +0100, Arjan van de Ven wrote:
+> > On Mon, 2005-01-10 at 09:35 -0800, Badari Pulavarty wrote:
+> > > Hi Marcelo,
+> > > 
+> > > I re-worked all the applicable stack reduction patches for 2.4.19-rc1.
+> > 
+> > is it really worth doing this sort of thing for 2.4 still? It's a matter
+> > of risk versus gain... not sure this sort of thing is still worth it in
+> > the deep-maintenance 2.4 tree
+> 
+> Well it seems the s390 fellows are seeing stack overflows, which are serious
+> enough. Have you noticed that?
 
-That's a private class A IP address which should never appear on the 
-internet. Looks like DNS configuration is broken somewhere.
+well.. is anyone using 2.4.2X mainline on s390, or is ibm making their
+s390 customers use vendor kernels instead? 
+(the people brave enough to not use those kernels might very well be
+using 2.6 by now)
 
--- 
-Ondrej Zary
+Just trying to get a feeling for who if anyone will benefit inclusion of
+such patches, because if that is "just about nobody" then they might
+well not be worth the risk.
+
+

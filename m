@@ -1,63 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132888AbRDENIO>; Thu, 5 Apr 2001 09:08:14 -0400
+	id <S132891AbRDENLk>; Thu, 5 Apr 2001 09:11:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132889AbRDENID>; Thu, 5 Apr 2001 09:08:03 -0400
-Received: from cr502987-a.rchrd1.on.wave.home.com ([24.42.47.5]:45577 "EHLO
-	the.jukie.net") by vger.kernel.org with ESMTP id <S132888AbRDENHo>;
-	Thu, 5 Apr 2001 09:07:44 -0400
-Date: Thu, 5 Apr 2001 09:06:20 -0400 (EDT)
-From: Bart Trojanowski <bart@jukie.net>
-To: =?iso-8859-1?Q?Sarda=F1ons=2C_Eliel?= 
-	<Eliel.Sardanons@philips.edu.ar>
-cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: asm/unistd.h
-In-Reply-To: <A0C675E9DC2CD411A5870040053AEBA0284170@MAINSERVER>
-Message-ID: <Pine.LNX.4.30.0104050901500.13496-100000@localhost>
+	id <S132893AbRDENLa>; Thu, 5 Apr 2001 09:11:30 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:34432 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S132891AbRDENLO> convert rfc822-to-8bit; Thu, 5 Apr 2001 09:11:14 -0400
+Date: Thu, 5 Apr 2001 09:09:41 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: David Woodhouse <dwmw2@infradead.org>
+cc: Matti Aarnio <matti.aarnio@zmailer.org>, Bart Trojanowski <bart@jukie.net>,
+        Manoj Sontakke <manojs@sasken.com>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: which gcc version? 
+In-Reply-To: <25567.986473592@redhat.com>
+Message-ID: <Pine.LNX.3.95.1010405085122.9110B-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Apr 2001, Sardañons, Eliel wrote:
+On Thu, 5 Apr 2001, David Woodhouse wrote:
 
-> I'm taking a look at the linux code and I don't understand how do you
-> programm...mmm (?) may be i'm a stupid why in include/asm/unistd.h in some
-> macros you use this:
->
-> do {
-> ...
-> } while (0)
+> 
+> matti.aarnio@zmailer.org said:
+> > 	To think of it, there really should be explicitely callable
+> > 	versions of these with LinuxKernel names for them, not gcc
+> > 	builtins.   That way people would *know* they are doing
+> > 	something, which is potentially very slow.
+> > 	(And the API would not change from underneath them.) 
+> 
+> Like include/asm-*/div64.h::do_div()?
+> 
 
-This is a very useful trick.
+Some, perhaps all, of the recent requirements for a 64 bit division
+can be handled with the (Intel) 32-bit division because only the
+dividend is 64 bits, and the division can be unsigned, i.e.
 
-If you define a macro such as:
+HIGHLONG = 0x08		; Depends upon caller's stack.
+LOWLONG  = 0x0C
+DIVISOR  = 0x10
 
-#define foo(x) do_one(x); do_two(x); do_three(x)
+		movl	HIGHLONG(%esp), %edx
+		movl	LOWLLONG(%esp), %eax
+		movl	DIVISOR(%esp), %ecx
+		divl	%ecx,%eax
 
-you may later be compelled to call it in an if statement:
+... returns a longword in %eax
 
-if(condition)
-  foo(something);
+This could be an __inline__ function. Most other stuff can be reduced
+with shifts before a 32-bit divide.
 
-note that it would not do what you want as it will only execute do_one(x)
-conditionally but do_two(x) and do_three(x) would always be done.
+64 bit signed division is a bitch in any 32-bit machine because it's
+done just line 4th grade long division. There are remainders that have
+to carried, etc.
 
-However a do{ ... } while(0) is a nice convenient block which is
-guaranteed to execute once.  The compiler (with a -O flag) will not
-generate any extra code for the do{}while(0) so its just a macro building
-aid.
-
-So you ask: "why not just use a { ... } to define a macro".  I don't
-remember the case for this but I know it's there.  It has to do with a
-complicated if/else structure where a simple {} breaks.
 
 Cheers,
-Bart.
+Dick Johnson
 
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
 
--- 
-	WebSig: http://www.jukie.net/~bart/sig/
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
 
 

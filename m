@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130188AbRAESsk>; Fri, 5 Jan 2001 13:48:40 -0500
+	id <S129538AbRAESwa>; Fri, 5 Jan 2001 13:52:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131560AbRAESsa>; Fri, 5 Jan 2001 13:48:30 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:56326 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S130188AbRAESsT>; Fri, 5 Jan 2001 13:48:19 -0500
-Date: Fri, 5 Jan 2001 14:56:40 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: MM/VM todo list
-In-Reply-To: <Pine.LNX.4.21.0101051505430.1295-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0101051454230.2859-100000@freak.distro.conectiva>
+	id <S131560AbRAESwV>; Fri, 5 Jan 2001 13:52:21 -0500
+Received: from athena.intergrafix.net ([206.245.154.69]:17679 "HELO
+	athena.intergrafix.net") by vger.kernel.org with SMTP
+	id <S129593AbRAESwH>; Fri, 5 Jan 2001 13:52:07 -0500
+Date: Fri, 5 Jan 2001 13:52:03 -0500 (EST)
+From: Admin Mailing Lists <mlist@intergrafix.net>
+To: linux-kernel@vger.kernel.org
+Cc: reiserfs-list@namesys.com
+Subject: Re: reiserfs patch for 2.4.0-final
+In-Reply-To: <E14Ebqr-0008E5-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10101051351450.323-100000@athena.intergrafix.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Fri, 5 Jan 2001, Rik van Riel wrote:
+thanx everybody
 
-> Probably 2.5 era:
-> * VM: physical->virtual reverse mapping, so we can do much
->   better page aging with less CPU usage spikes 
-> * VM: move all the global VM variables, lists, etc. into the
->   pgdat struct for better NUMA scalability
-> * VM: per-node kswapd for NUMA
-> * VM: thrashing control, maybe process suspension with some
->   forced swapping ?             (trivial only in theory)
-> * VM: experiment with different active lists / aging pages
->   of different ages at different rates + other page replacement
->   improvements
-> * VM: Quality of Service / fairness / ... improvements
-  * VM: Use kiobuf IO in VM instead buffer_head IO. 
+-Tony
+.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
+Anthony J. Biacco                       Network Administrator/Engineer
+thelittleprince@asteroid-b612.org       Intergrafix Internet Services
+
+    "Dream as if you'll live forever, live as if you'll die today"
+http://www.asteroid-b612.org                http://www.intergrafix.net
+.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
+
+On Fri, 5 Jan 2001, Alan Cox wrote:
+
+> > Is ext2 upgradable to reiserfs or ext3?
+> 
+> You can live up and downgrade between ext2 and ext3. For ext2->reiser and back
+> you need to backup/restore or use a new partition currently - unless someone
+> has tools I've not seen
+> 
+> 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

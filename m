@@ -1,60 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318991AbSHWRxC>; Fri, 23 Aug 2002 13:53:02 -0400
+	id <S319007AbSHWSNH>; Fri, 23 Aug 2002 14:13:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319007AbSHWRxB>; Fri, 23 Aug 2002 13:53:01 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:26377
+	id <S319035AbSHWSNH>; Fri, 23 Aug 2002 14:13:07 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:27657
 	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S318991AbSHWRxB>; Fri, 23 Aug 2002 13:53:01 -0400
-Date: Fri, 23 Aug 2002 10:42:43 -0700 (PDT)
+	id <S319007AbSHWSNG>; Fri, 23 Aug 2002 14:13:06 -0400
+Date: Fri, 23 Aug 2002 11:16:16 -0700 (PDT)
 From: Andre Hedrick <andre@linux-ide.org>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: "Adam J. Richter" <adam@yggdrasil.com>, jgarzik@mandrakesoft.com,
-       ebiederm@xmission.com, linux-kernel@vger.kernel.org
-Subject: Re: IDE-flash device and hard disk on same controller
-In-Reply-To: <Pine.LNX.4.10.10208231002220.14761-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.10.10208231040200.14761-100000@master.linux-ide.org>
+To: Markus Plail <plail@web.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20-pre4-ac1
+In-Reply-To: <87d6s9a7pa.fsf@plailis.homelinux.net>
+Message-ID: <Pine.LNX.4.10.10208231116000.14761-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Aug 2002, Andre Hedrick wrote:
 
-> On Fri, 23 Aug 2002, Russell King wrote:
-> 
-> > On Fri, Aug 23, 2002 at 12:45:03AM -0700, Andre Hedrick wrote:
-> > > This is where JG's hard work and my time with him explaining it will help
-> > > most.  Also case where RMK's ARM toys do fun things and the assumption by
-> > > the driver that POST is valid is DEAD WRONG.  I will repeat the assumption
-> > > of my code about POST is DEAD WRONG!  POST like events happen at different
-> > > times for various archs.
-> > 
-> > Yet more FUD.  Andre - go away and come back once you've calmed down.
-> > 
-> > Maybe its because you don't actually understand my IDE hardware.  I
-> > dunno.  But you are "DEAD WRONG" about the crap you've written above.
-> > 
-> > Completely.
-> 
-> NO, I just misreferenced you because you was asked to help in a situation
-> with G Britton, as you have refreshed my memory with a hammer.
-> 
-> So I apologize for mixing events and people.
-> 
-> The point still stands, there are case where the OS is launched,
-> regardless of bootloading, where devices can be lost if the time limits
-> are not followed.  In the case where my memory failed, you reminded me the
-> device took 40 secs to spinup.
+I have the problem fixed but I want to verify twice.
 
-Oh I forgot to add, I said "POST-Like" events.
-If Execute Diagnostics is never issues w/ the prior reset of the
-devices/bus we do not have a quantified state the system should be left in
-at bootloading.
 
-Therefore I suspect the device is compliant and the HOST is bad.
+On Fri, 23 Aug 2002, Markus Plail wrote:
 
-Cheers,
+> Hi Alan!
+> 
+> * Alan Cox writes:
+> >The HP merge is now down to 3503 lines pending
+> >IDE status
+> >	Chasing two reports of strange ide-scsi crashes
+> 
+> As the problem still exists with this version, I fiddled a bit with
+> different kernel option. I realized that the problem only occurs, when
+> I have DMA enabled. As soon as I disable it, I can mount CD-ROM/DVDs
+> without the formerly reported kernel oops.
+> 
+> Hope it helps
+> regards
+> Markus
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 Andre Hedrick
 LAD Storage Consulting Group

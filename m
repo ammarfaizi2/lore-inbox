@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264221AbRFMVKt>; Wed, 13 Jun 2001 17:10:49 -0400
+	id <S264230AbRFMVOB>; Wed, 13 Jun 2001 17:14:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264230AbRFMVKj>; Wed, 13 Jun 2001 17:10:39 -0400
-Received: from mailhost.idcomm.com ([207.40.196.14]:15759 "EHLO
-	mailhost.idcomm.com") by vger.kernel.org with ESMTP
-	id <S264221AbRFMVK0>; Wed, 13 Jun 2001 17:10:26 -0400
-Message-ID: <3B27D6FE.8CE2A92A@idcomm.com>
-Date: Wed, 13 Jun 2001 15:11:26 -0600
-From: "D. Stimits" <stimits@idcomm.com>
-Reply-To: stimits@idcomm.com
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1-xfs-2 i686)
+	id <S264238AbRFMVNv>; Wed, 13 Jun 2001 17:13:51 -0400
+Received: from atlrel2.hp.com ([156.153.255.202]:51398 "HELO atlrel2.hp.com")
+	by vger.kernel.org with SMTP id <S264230AbRFMVNm>;
+	Wed, 13 Jun 2001 17:13:42 -0400
+Message-ID: <3B27D7A2.854DF5D1@fc.hp.com>
+Date: Wed, 13 Jun 2001 15:14:10 -0600
+From: Khalid Aziz <khalid@fc.hp.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.5 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: kernel-list <linux-kernel@vger.kernel.org>
-Subject: bzDisk compression Q; boot debug Q
+To: Mark Mokryn <mark@sangate.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SMP module compilation on UP?
+In-Reply-To: <3B276DDE.A19F60DF@sangate.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First I have a question about the compression of bzDisk. While trying to
-debug the reason for a modular boot failure versus a successful
-non-module boot (XFS filesystem for root), I found that I can mount my
-initial ramdisk on loopback as a means of examining which modules are
-available to it. However, it doesn't actually point out which modules
-were loaded at the time when a filesystem mount fails. Viewing ramdisk
-is via:
-gzip -dc your.img > somefile
-mount -o loop somefile somedir
+Mark Mokryn wrote:
+> 
+> Hi,
+> 
+> Is it possible to build an SMP module on a machine running a UP kernel
+> (or vice versa)? We of course get unresolved symbols during module load
+> due to the smp prefix on the ksyms, and haven't seen how to get around
+> it. (Defining __SMP__ does not cut it, though I believe this used to
+> work a while ago).
+> 
 
-Question 1, how hard would it be to cause failure of mount of root
-filesystem to also output a list of current modules it has loaded?
+Why not just run an SMP kernel on UP machine? Yes, there may be minor
+performance penalty but that may be irrelevant for you if it lets you
+build and load SMP modules on that machine. With a UP kernel running,
+you will be able to build SMP modules but not load them.
 
-Question 2, apparently ramdisk uses gzip compression; the name of the
-kernel from make bzImage seems to maybe refer to bzip2 compression. Is
-the kernel image using gzip or bzip2 compression for bzImage? Would
-anything be gained in reducing boot size requirements by running bzip2
-compression for any initial ramdisk, versus gzip compression?
+-- 
+Khalid
 
-D. Stimits, stimits@idcomm.com
+====================================================================
+Khalid Aziz                             Linux Development Laboratory
+(970)898-9214                                        Hewlett-Packard
+khalid@fc.hp.com                                    Fort Collins, CO

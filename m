@@ -1,103 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317743AbSIAVFt>; Sun, 1 Sep 2002 17:05:49 -0400
+	id <S318020AbSIAVY1>; Sun, 1 Sep 2002 17:24:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318009AbSIAVFt>; Sun, 1 Sep 2002 17:05:49 -0400
-Received: from sisko.nothing-on.tv ([213.208.99.114]:40848 "EHLO
-	mail.cvsnt.org") by vger.kernel.org with ESMTP id <S317743AbSIAVFs>;
-	Sun, 1 Sep 2002 17:05:48 -0400
-Message-ID: <3D7282F3.2090001@nothing-on.tv>
-Date: Sun, 01 Sep 2002 22:13:23 +0100
-From: Tony Hoyle <tmh@nothing-on.tv>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020615 Debian/1.0.0-3
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
+	id <S318035AbSIAVY1>; Sun, 1 Sep 2002 17:24:27 -0400
+Received: from [216.38.156.94] ([216.38.156.94]:33286 "EHLO
+	mail.networkfab.com") by vger.kernel.org with ESMTP
+	id <S318020AbSIAVYZ>; Sun, 1 Sep 2002 17:24:25 -0400
+Date: Sun, 1 Sep 2002 14:28:34 -0700
+From: Dmitri <dmitri@users.sourceforge.net>
+To: "Bjoern A. Zeeb" <bzeeb-lists@lists.zabbadoz.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops in pl2303 driver
-References: <3D7117D3.5080100@nothing-on.tv> <20020901005124.GA15259@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Razor-id: 8a1504f3dc600461f8bcd812234f3c1228e12939
+Subject: Re: 2.5.3x SMP boot prob
+Message-ID: <20020901212834.GC1470@usb.networkfab.com>
+Mail-Followup-To: "Bjoern A. Zeeb" <bzeeb-lists@lists.zabbadoz.net>,
+	linux-kernel@vger.kernel.org
+References: <Pine.BSF.4.44.0209012207000.988-100000@e0-0.zab2.int.zabbadoz.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="xesSdrSSBC0PokLI"
+Content-Disposition: inline
+In-Reply-To: <Pine.BSF.4.44.0209012207000.988-100000@e0-0.zab2.int.zabbadoz.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> 
-> I'm guessing thie is 2.4.20-pre5?  If so can you try the following two
-> patches that I just sent off to Marcelo:
-> 	http://www.kernel.org/pub/linux/kernel/people/gregkh/usb/2.4/usb-usbserial-2.4.20-pre5.patch
-> and
-> 	http://www.kernel.org/pub/linux/kernel/people/gregkh/usb/2.4/usb-pl2303-2.4.20-pre5.patch
-> 
-> and let me know if that solves the problem for you or not?
-> 
->
-No change (new oops appended... looks the same as the old one basically)
 
-I also tried 2.5.32 and got exactly the same oops.
+--xesSdrSSBC0PokLI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-To reproduce...  type 'cat /dev/ttyUSB0' and hit control-C.
+Quoting Bjoern A. Zeeb <bzeeb-lists@lists.zabbadoz.net>:
 
-I have tried removing all modules except the USB serial related ones and 
-get exactly the same, so I think the references to 'mousedev' are bogus 
-in the oops (the taint is from the VMWare modules but I get the same 
-without them so I don't think they're affecting anything).
+> bad: schedule() with irqs disabled!
+> d7fcdf70 c0315af6 c02e2900 c011d42e 0000000a 00000400 c0253f1f d7fcdfa8
+>        00000000 00000000 00000001 c029e2f9 c0253f08 00000001 00000000 d7f=
+ce9e0
+>        00000000 00000000 00000000 00000000 c02a0c15 00000282 c02869bc d7f=
+d1f7c
+> Call Trace: [<c011d42e>] [<c011d420>]
 
-Tony
+I saw similar problems yesterday, on 2.5.32 SMP, freshly pulled from
+bk://linuxusb.bkbits.net/usb-2.5. They are still in the log, and if anyone
+is interested I can find them and run them through ksymoops. I actually
+did that quickly when I saw them first, but I didn't save the decoded
+trace.
 
-Sep  1 22:04:49 spock kernel: Unable to handle kernel NULL pointer 
-dereference at virtual address 00000014
-Sep  1 22:04:49 spock kernel: d48a1344
-Sep  1 22:04:49 spock kernel: *pde = 00000000
-Sep  1 22:04:49 spock kernel: Oops: 0000
-Sep  1 22:04:49 spock kernel: CPU:    0
-Sep  1 22:04:49 spock kernel: EIP: 
-0010:[mousedev:__insmod_mousedev_O/lib/modules/2.4.20-pre5/kernel/drivers/+-298172/96] 
-    Tainted: PF
-Sep  1 22:04:49 spock kernel: EFLAGS: 00010087
-Sep  1 22:04:49 spock kernel: eax: cf63b000   ebx: 00000000   ecx: 
-cf4ebc00   edx: 00000000
-Sep  1 22:04:49 spock kernel: esi: cf7ad440   edi: 00000000   ebp: 
-00000246   esp: ce45bd80
-Sep  1 22:04:49 spock kernel: ds: 0018   es: 0018   ss: 0018
-Sep  1 22:04:49 spock kernel: Process cat (pid: 912, stackpage=ce45b000)
-Sep  1 22:04:49 spock kernel: Stack: 00000000 cf7ad440 00000000 00000282 
-d48a2b10 cf7ad440 cf7ad444 cf7ad440
-Sep  1 22:04:49 spock kernel:        00000286 cf7021c0 00000001 00000000 
-ce731400 cf70826c d48a1fe2 cf7ad440
-Sep  1 22:04:49 spock kernel:        cf4ebc00 ffffffff cf4ebc1c cf4ebc00 
-cf70826c d4891146 cf7ad440 d4920f39
-Sep  1 22:04:49 spock kernel: Call Trace: 
-[mousedev:__insmod_mousedev_O/lib/modules/2.4.20-pre5/kernel/drivers/+-292080/96] 
-[mousedev:__insmod_mousedev_O/lib/modules/2.4.20-pre5/kernel/drivers/+-294942/96] 
-[mousedev:__insmod_mousedev_O/lib/modules/2.4.20-pre5/kernel/drivers/+-364218/96] 
-[<d4920f39>] [<d491a36f>]
-Sep  1 22:04:49 spock kernel:   [<d491a42b>] [release_dev+576/1232] 
-[__free_pages+27/32] [free_page_and_swap_cache+51/64] [__free_pte+64/80] 
-[zap_page_range+403/576]
-Sep  1 22:04:49 spock kernel: Code: 8b 52 14 8b 42 e8 8b 7a ec 25 00 00 
-00 2f 0d 00 00 80 01 89
+Dmitri
 
+--=20
+163. When planning an expedition, I will choose a route for my forces
+  that does not go through thick, leafy terrain conveniently located
+  near the rebel camp.
+  ("Evil Overlord" by Peter Anspach and John VanSickl)
 
- >>eax; cf63b000 <_end+f371cbc/14587d1c>
- >>ecx; cf4ebc00 <_end+f2228bc/14587d1c>
- >>esi; cf7ad440 <_end+f4e40fc/14587d1c>
- >>esp; ce45bd80 <_end+e192a3c/14587d1c>
+--xesSdrSSBC0PokLI
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Trace; d491a42b <[parport_pc]__module_parm_verbose_probing+4cd/9fa>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
-Code;  00000000 Before first symbol
-00000000 <_EIP>:
-Code;  00000000 Before first symbol
-    0:   8b 52 14                  mov    0x14(%edx),%edx
-Code;  00000003 Before first symbol
-    3:   8b 42 e8                  mov    0xffffffe8(%edx),%eax
-Code;  00000006 Before first symbol
-    6:   8b 7a ec                  mov    0xffffffec(%edx),%edi
-Code;  00000009 Before first symbol
-    9:   25 00 00 00 2f            and    $0x2f000000,%eax
-Code;  0000000e Before first symbol
-    e:   0d 00 00 80 01            or     $0x1800000,%eax
-Code;  00000013 Before first symbol
-   13:   89 00                     mov    %eax,(%eax)
+iD8DBQE9coaCXksyLpO6T4IRAhS0AJsH77z6hyDPe/92qPFonriAz1+IxACgh+32
+g18X4rCq2DG1Xc6Zgkm742w=
+=xt+1
+-----END PGP SIGNATURE-----
 
+--xesSdrSSBC0PokLI--

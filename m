@@ -1,59 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268807AbUHaThZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267209AbUHaTcW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268807AbUHaThZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 15:37:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268955AbUHaThP
+	id S267209AbUHaTcW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 15:32:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267223AbUHaTbm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 15:37:15 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:59264 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S268807AbUHaTc2 (ORCPT
+	Tue, 31 Aug 2004 15:31:42 -0400
+Received: from fw.osdl.org ([65.172.181.6]:42145 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268944AbUHaT21 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 15:32:28 -0400
-Message-Id: <200408311931.i7VJV8kt028102@laptop11.inf.utfsm.cl>
-To: Pavel Machek <pavel@ucw.cz>
-cc: David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
-       Chris Wedgwood <cw@f00f.org>, viro@parcelfarce.linux.theplanet.co.uk,
-       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
-       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4 
-In-Reply-To: Message from Pavel Machek <pavel@ucw.cz> 
-   of "Tue, 31 Aug 2004 10:21:44 +0200." <20040831082144.GA535@elf.ucw.cz> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
-Date: Tue, 31 Aug 2004 15:31:07 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Tue, 31 Aug 2004 15:28:27 -0400
+Date: Tue, 31 Aug 2004 12:26:36 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel@vger.kernel.org, linux-acpi@intel.com
+Subject: Re: 2.6.9-rc1-mm2
+Message-Id: <20040831122636.15b07a4e.akpm@osdl.org>
+In-Reply-To: <230680000.1093978386@flay>
+References: <20040830235426.441f5b51.akpm@osdl.org>
+	<230680000.1093978386@flay>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> said:
-> David Masover <ninja@slaphack.com> said:
-
-[...]
-
-> > Just want to extract the tar file?  Maybe something like
-> > cat foo.tgz/gunzip
-> > In which case (of course) foo.tgz/gunzip has exactly the same directory
-> > contents as foo.tgz
+"Martin J. Bligh" <mbligh@aracnet.com> wrote:
+>
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2.6.9-rc1-mm2/
+> > 
+> > Nothing particularly noteworthy here.  Some seriously bad scheduler
+> > performance with SMT and HT was fixed up, as was the
+> > fails-to-read-the-last-4k-of-a-file brown bag.
 > 
-> Yes, that would work.
+> Something is borked in ACPI:
 > 
-> > In fact, for just about any syntax anyone could suggest, I can't really
-> > see why you can't just replace all weird symbols with a slash and a
-> > symbol.  Instead of
-> > 	foo.tgz#utar
-> > you have
-> > 	foo.tgz/#/utar
-> > Only difference is, some things which used to require special tools can
-> > now be serviced by less than what's in busybox.
+> drivers/built-in.o(.text+0x1cf2c): In function `acpi_pci_root_add':
+> /root/linux/2.6.9-rc1-mm2/drivers/acpi/pci_root.c:270: undefined reference to `pci_acpi_scan_root'
 > 
-> That would work, too. I do not get your comment about busybox.
+> Didn't actually realise I had ACPI config'ed in, so will just get rid of
+> it, but though you might want to know.
 
-You do need extra tools anyway, placing them in the kernel is cheating (and
-absolutely pointless, IMHO).
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+I assume this is due to the ACPI Kconfig circular dependency?

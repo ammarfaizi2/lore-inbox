@@ -1,55 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261951AbUJZEuv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261974AbUJZEqY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261951AbUJZEuv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 00:50:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262134AbUJZErJ
+	id S261974AbUJZEqY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 00:46:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbUJZBiK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 00:47:09 -0400
-Received: from gate.crashing.org ([63.228.1.57]:51672 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262077AbUJZEmr (ORCPT
+	Mon, 25 Oct 2004 21:38:10 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:985 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262100AbUJZBYH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 00:42:47 -0400
-Subject: [PATCH] ppc64: Fix new mpic driver on some POWER3
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+	Mon, 25 Oct 2004 21:24:07 -0400
+Subject: Re: [patch] scheduler: active_load_balance fixes
+From: Darren Hart <dvhltc@us.ibm.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
+Cc: Nick Piggin <piggin@cyberone.com.au>, lkml <linux-kernel@vger.kernel.org>,
+       Matt Dobson <colpatch@us.ibm.com>, Martin J Bligh <mbligh@aracnet.com>,
+       Rick Lindsley <ricklind@us.ibm.com>
+In-Reply-To: <20041024023709.2e99cb6d.akpm@osdl.org>
+References: <1098488173.2854.13.camel@farah.beaverton.ibm.com>
+	 <4179EC91.2070100@cyberone.com.au>  <20041024023709.2e99cb6d.akpm@osdl.org>
 Content-Type: text/plain
-Date: Tue, 26 Oct 2004 14:39:40 +1000
-Message-Id: <1098765580.5154.15.camel@gaston>
+Content-Transfer-Encoding: 7bit
+Date: Mon, 25 Oct 2004 15:37:29 -0700
+Message-Id: <1098743849.23374.44.camel@farah.beaverton.ibm.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+On Sun, 2004-10-24 at 02:37 -0700, Andrew Morton wrote:
+> Nick Piggin <piggin@cyberone.com.au> wrote:
+> >
+> > 
+> > 
+> > Darren Hart wrote:
+> > 
+> > >The following patch against the latest mm fixes several problems with
+> > >active_load_balance().
+> > >
+> > >
+> > 
+> > This seems much better. Andrew can you put this into -mm please.
+> > 
+> 
+> Whenever we touch the load balancing we get sad little reports about
+> performance regressions two months later.  How do we gain confidence in
+> this change?
+> 
 
-On machines using the "ISU" mecanism for the MPIC, the new driver didn't properly
-calculate the new interrupt count when an ISU was added. That would cause later on 
-failure to request interrupts in the offending range.
-
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-
-Index: linux-work/arch/ppc64/kernel/mpic.c
-===================================================================
---- linux-work.orig/arch/ppc64/kernel/mpic.c	2004-10-26 10:32:23.000000000 +1000
-+++ linux-work/arch/ppc64/kernel/mpic.c	2004-10-26 14:36:00.464755000 +1000
-@@ -580,11 +580,13 @@
- void __init mpic_assign_isu(struct mpic *mpic, unsigned int isu_num,
- 			    unsigned long phys_addr)
- {
-+	unsigned int isu_first = isu_num * mpic->isu_size;
-+
- 	BUG_ON(isu_num >= MPIC_MAX_ISU);
- 
- 	mpic->isus[isu_num] = ioremap(phys_addr, MPIC_IRQ_STRIDE * mpic->isu_size);
--	if ((isu_num + mpic->isu_size) > mpic->num_sources)
--		mpic->num_sources = isu_num + mpic->isu_size;
-+	if ((isu_first + mpic->isu_size) > mpic->num_sources)
-+		mpic->num_sources = isu_first + mpic->isu_size;
- }
- 
- void __init mpic_setup_cascade(unsigned int irq, mpic_cascade_t handler,
+I ran kernbench and specjbb on a 16 way xeon ht numa machine (32 total
+sibling CPUs) and an 8 way ppc64 machine against 2.6.9-mm1 w/ and w/o my
+active_load_balance() patch.  Kernbench was marginally faster on each
+machine, and specjbb performed better on 64% of the tests.  SpecJBB is a
+bit erratic anyway, so I feel good about these numbers.
 
 
+Kernbench results below. (2.6.9-mm1-ab is the run with the
+active_load_balance patch).
+
+32 way xeon 
+2.6.9-mm1
+	Elapsed: 81.444s User: 1044.06s System: 138.008s CPU: 1451.2%
+2.6.9-mm1-ab
+	Elapsed: 81.372s User: 1037.842s System: 139.134s CPU: 1446%
+
+8 way ppc64
+2.6.9-mm1
+	Elapsed: 53.336s User: 352.932s System: 45.302s CPU: 746%
+2.6.9-mm1-ab
+	Elapsed: 53.24s User: 353.096s System: 44.98s CPU: 747%
+
+-- 
+Darren Hart
+IBM, Linux Technology Center
+503 578 3185
+dvhltc@us.ibm.com

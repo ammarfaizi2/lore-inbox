@@ -1,62 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264663AbSJTW4t>; Sun, 20 Oct 2002 18:56:49 -0400
+	id <S264667AbSJTXAw>; Sun, 20 Oct 2002 19:00:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264675AbSJTW4p>; Sun, 20 Oct 2002 18:56:45 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:18694 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S264663AbSJTWzO>;
-	Sun, 20 Oct 2002 18:55:14 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200210202301.g9KN1B7371667@saturn.cs.uml.edu>
-Subject: Re: [ANNOUNCE] procps 3.0.4
-To: riel@conectiva.com.br (Rik van Riel)
-Date: Sun, 20 Oct 2002 19:01:11 -0400 (EDT)
-Cc: acahalan@cs.uml.edu (Albert D. Cahalan), jgarzik@pobox.com (Jeff Garzik),
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44L.0210202032590.22993-100000@imladris.surriel.com> from "Rik van Riel" at Oct 20, 2002 08:35:07 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S264684AbSJTW7E>; Sun, 20 Oct 2002 18:59:04 -0400
+Received: from mail.gipiproject.org ([206.112.85.61]:62913 "EHLO mail.cdt.org")
+	by vger.kernel.org with ESMTP id <S264678AbSJTW6s>;
+	Sun, 20 Oct 2002 18:58:48 -0400
+Date: Sun, 20 Oct 2002 19:04:52 -0400 (EDT)
+From: Daniel Berlin <dberlin@dberlin.org>
+To: Robert Love <rml@tech9.net>
+Cc: Xavier Bestel <xavier.bestel@free.fr>, Ben Collins <bcollins@debian.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Bitkeeper outrage, old and new
+In-Reply-To: <1035154766.17029.311.camel@phantasy>
+Message-ID: <Pine.LNX.4.44.0210201904110.3548-100000@dberlin.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel writes:
-> On Sat, 19 Oct 2002, Albert D. Cahalan wrote:
 
->>> Can you be more specific?  What bugs do you see?
->>
->> There isn't error checking in the five_cpu_numbers function
->> to detect bad data. Not that bad data should ever happen; there
->> is a bug in the WOLK kernel.
->
-> Guess why the iowait stats are initialised to 0 ? ;)
->
-> We know that user, system, nice and idle are present
-> in every kernel and we bail out with an error if we
-> get less than 4 values for the CPU stats.
 
-The problem is not at all related to the IO-wait addition,
-and no you don't bail out with an error... procps 3 does
-bail out, elsewhere, causing the mistaken belief that procps 2
-runs correctly on a WOLK kernel. That's wrong; no procps runs
-correctly on a WOLK kernel.
+On 20 Oct 2002, Robert Love wrote:
 
-I mentioned the issue merely to avoid bogus bug reports.
-I don't want WOLK kernel users claiming that procps 2 works
-and procps 3 not; the truth is that neither one can work
-on a WOLK kernel.
+> On Sun, 2002-10-20 at 18:52, Daniel Berlin wrote:
+> 
+> > On Sunday, October 20, 2002, at 05:51  PM, Robert Love wrote:
+> > 
+> > > It is called copyright _assignment_ for a reason.  How the hell are two
+> > > people supposed to simultaneously own a copyright on the same work?
+> > >
+> > Joint authorship.
+> 
+> The FSF Copyright Assignment is not joint authorship, it is copyright
+> assignment.  They alone possess the work's copyright.
+Of course.
+But you asked "How the hell are two people supposed to simultaneously own 
+a copyright on the same work?"
+The answer is "Joint authorship".
 
->> I could make vmstat way faster if the kernel would provide the
->> number of tasks that are running, swapped out, blocked, etc.
->
-> I sent in a patch for that. I'll resend when Linus returns
-> from holidays.
-
-Great.
-
-jim.houston@attbi.com seems to have most of a patch for
-the %CPU problem. (tracking the data, but not reporting it)
-
-What about /proc/*/tty, an adopted-child flag, something for
-the kapmd-idle problem, /proc/*/threads/* files, etc. ?

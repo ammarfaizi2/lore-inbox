@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269107AbTGORV2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 13:21:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269120AbTGORV2
+	id S269085AbTGORVM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 13:21:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269106AbTGORVM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 13:21:28 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:3262 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S269107AbTGORVU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 13:21:20 -0400
-Date: Tue, 15 Jul 2003 13:36:25 -0400
-From: Ben Collins <bcollins@debian.org>
-To: linux-kernel@vger.kernel.org
-Subject: SVN linux-2.6 repo
-Message-ID: <20030715173625.GR20685@phunnypharm.org>
+	Tue, 15 Jul 2003 13:21:12 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:2198 "EHLO mail.jlokier.co.uk")
+	by vger.kernel.org with ESMTP id S269085AbTGORVK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 13:21:10 -0400
+Date: Tue, 15 Jul 2003 18:35:57 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Gerd Knorr <kraxel@suse.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Kernel List <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>
+Subject: Re: [patch] vesafb fix
+Message-ID: <20030715173557.GB1491@mail.jlokier.co.uk>
+References: <20030715141023.GA14133@bytesex.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030715141023.GA14133@bytesex.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've made a symlink from linux-2.6 to the linux-2.5 repo for the SVN
-checkouts. I am assuming that the 2.5 tree will simply be renamed to
-2.6, but I haven't heard back from Larry about that.
+Gerd Knorr wrote:
+>  * mtrr is enabled by default.  That should improve the vesafb
+>    performance alot.  Also added a option to disable mtrr.
 
-If you want, you can do:
+There used to be a vesafb problem with MTRRs when the framebuffer had
+an odd size: 2.5MB of RAM (my laptop has this).
 
-svn switch --relocate svn://svn.kernel.org/linux-2.5 \
-	svn://svn.kernel.org/linux-2.6
+It would create an MTRR for the first 0.5MB of the framebuffer, and
+then try to create another for the subsequent 2MB.
 
-To change to the new URL for an existing checkout, or checkout using the
-new URL of svn://svn.kernel.org/linux-2.6/trunk.
+The latter failed because it's not suitably aligned - i.e. there was a
+problem in th logic which splits non-power-of-two regions.
 
+Is that fixed these days?
 
-
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/
+Cheers,
+-- Jamie

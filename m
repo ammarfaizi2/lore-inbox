@@ -1,66 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317641AbSHHQMd>; Thu, 8 Aug 2002 12:12:33 -0400
+	id <S317642AbSHHQNH>; Thu, 8 Aug 2002 12:13:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317642AbSHHQMd>; Thu, 8 Aug 2002 12:12:33 -0400
-Received: from pop018pub.verizon.net ([206.46.170.212]:53906 "EHLO
-	pop018.verizon.net") by vger.kernel.org with ESMTP
-	id <S317641AbSHHQMc>; Thu, 8 Aug 2002 12:12:32 -0400
-Message-ID: <3D529927.2040609@verizon.net>
-Date: Thu, 08 Aug 2002 12:15:35 -0400
-From: "Anthony Russo., a.k.a. Stupendous Man" <anthony.russo@verizon.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Willy Tarreau <willy@w.ods.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19 BUG in page_alloc.c:91
-References: <3D51DB52.6000200@verizon.net> <1028810336.28882.18.camel@irongate.swansea.linux.org.uk> <3D52920B.8060601@verizon.net> <20020808160712.GA18664@alpha.home.local>
-X-Enigmail-Version: 0.62.4.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	id <S317643AbSHHQNH>; Thu, 8 Aug 2002 12:13:07 -0400
+Received: from mnh-1-06.mv.com ([207.22.10.38]:48132 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S317642AbSHHQNF>;
+	Thu, 8 Aug 2002 12:13:05 -0400
+Message-Id: <200208081719.MAA02461@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: context switch vs. signal delivery [was: Re: Accelerating user mode 
+In-Reply-To: Your message of "Thu, 08 Aug 2002 11:03:59 +0200."
+             <20020808110359.1aa8f4a1.us15@os.inf.tu-dresden.de> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Thu, 08 Aug 2002 12:19:59 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you very much. As I suspected, the tainted driver is
-the one I use for my NetGear ethernet card (not nvidia :)
-I have switched to using the standard netgear driver that
-comes with linux and won't taint the kernel. I am now
-rebooting and if the problem reoccurs I will follow up
-with an email.
+us15@os.inf.tu-dresden.de said:
+> The task is uncooperative and doesn't dequeue signals itself. When it
+> gets a signal it stops. The kernel then sees the signal and accepts it
+> using sigwaitinfo, at which point it is no longer pending in the task
+> either. The siginfo structure then provides the necessary info, i.e.
+> which fd caused the i/o.
 
-Thank you all for the support.
+I think this is more or less what I had in mind.  The thing that is missing
+is for sigwaitinfo to be able to dequeue another process' signals, which is
+where the shared signal queue would come in.
 
--- tony
+> If you have a magic aio descriptor, how does the task process read
+> signals from it and stop? 
 
-Willy Tarreau wrote:
+I was looking at this as a way of dequeueing signals from the other process.
+The task process would have the signal queued and wake up the kernel process
+as happens now.  The kernel process would have /proc/<task-pid>/sigqueue
+or something opened and would read siginfos from it.  Those would then be 
+dequeued from the task process.
 
->On Thu, Aug 08, 2002 at 11:45:15AM -0400, Anthony Russo., a.k.a. Stupendous Man wrote:
-> 
->  
->
->>Is there a way to tell which module it is that is setting the taint flag?
->>I can load each module one by one and check after each if the taint flag
->>is set, but I just need to know how to tell it is set.
->>    
->>
->
->Modinfo could help you by telling you the licence for each module.
->In the worst case, manually unload them all, and reload them one at a time.
->Modprobe will issue a warning when loading such a module.
->
->BTW, my apologies for doubting about a removed nvidia driver ;-)
->
->Regards,
->Willy
->
->
->  
->
+This almost suffices for getting page fault information, except that, for
+some reason, siginfo doesn't say whether the faulting access was a read or
+a write.
 
--- 
-"Surrender to the Void."
-<http://162.83.145.190:8080/%7Eapr/surrenderToTheVoid.mp3> -- John Lennon
+And now that I'm thinking about it, aio doesn't really come into it.  This
+would be strictly synchronous.
 
+				Jeff
 

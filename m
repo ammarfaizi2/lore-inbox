@@ -1,171 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262794AbVCPU6o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261427AbVCPVFh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262794AbVCPU6o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 15:58:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262795AbVCPU6o
+	id S261427AbVCPVFh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 16:05:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262796AbVCPVFh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 15:58:44 -0500
-Received: from ida.rowland.org ([192.131.102.52]:5636 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S262794AbVCPU6g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 15:58:36 -0500
-Date: Wed, 16 Mar 2005 15:58:30 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Kernel development list <linux-kernel@vger.kernel.org>
-cc: Greg KH <greg@kroah.com>, Patrick Mochel <mochel@digitalimplant.org>,
-       Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Locking changes to the driver-model core
-Message-ID: <Pine.LNX.4.44L0.0503161422440.639-100000@ida.rowland.org>
+	Wed, 16 Mar 2005 16:05:37 -0500
+Received: from smtp3.Stanford.EDU ([171.67.16.138]:1756 "EHLO
+	smtp3.Stanford.EDU") by vger.kernel.org with ESMTP id S261427AbVCPVFU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 16:05:20 -0500
+Message-ID: <42389F8D.7060002@chinook.stanford.edu>
+Date: Wed, 16 Mar 2005 13:05:17 -0800
+From: Max Kamenetsky <maxk@chinook.stanford.edu>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Kernel mm/rmap.c oops in 2.6.11.3
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH has said that he would like to remove the bus subsystem rwsem from 
-the driver model.  Here's a proposal for a way to accomplish that.  The 
-proposal is incomplete and requires changing the driver-model API a 
-little; I'd like to hear people's reactions and get suggestions on ways to 
-improve it.  (There's no patch with example code because it wouldn't be 
-functional yet.)
+I've been seeing the following bug lately when running some memory- and
+CPU-intensive MATLAB jobs.  MATLAB hangs, and commands like ps and top
+no longer work.  The only solution I've found is to reboot.  This
+happens intermittently, and here's what gets written to /var/log/syslog:
 
 
-We're concerned with buses together with the drivers and devices they
-manage.  The major data elements needing protection against simultaneous
-access are these lists:
-
-	The bus's list of all registered devices:
-		bus->devices,
-		device->bus_list
-
-	The bus's list of all registered drivers:
-		bus->drivers,
-		driver->kobj.kset
-
-	Each device's list of children:
-		device->children,
-		device->node
-
-	Each driver's list of devices it's bound to:
-		driver->devices,
-		device->driver_list
-
-In addition we want to have suitable mutual exclusion for calls to 
-drivers' callback functions, to avoid things like suspend() during 
-probe().
-
-The proposed solution is to add a new semaphore to struct device:
-
-		device->mutex
-
-and to add a spinlock and (following a suggestion from Dmitry) two version 
-numbers to struct bus_type:
-
-		bus->lock,
-		bus->devices_version,
-		bus->drivers_version
-
-Whenever the core invokes a driver callback function (probe, remove,
-shutdown, suspend, resume, and whatever else may be added) it will
-acquire device->mutex.  There are complications associated with probe and 
-remove, discussed below.
-
-Protecting the lists mentioned above involves holding the bus->lock
-spinlock during device_add, device_del, driver_register, and
-driver_unregister.  Here's the basic idea:
-
-     1.	When a device is added or deleted, the core holds
-	device->parent->mutex while moving device->node onto or off of the
-	device->parent->children list.  It holds device->mutex throughout
-	the entire operation (see below about locking rules).
-
-     2.	When a device is added or deleted, the core locks bus->lock
-	while moving device->bus_list onto or off of the bus->devices
-	list.  It also increments bus->devices_version.
-
-     3.	When a driver is added or deleted, the core locks bus->lock
-	while moving driver onto or off of the bus->drivers list.
-	(This will require adding a new list_head into struct 
-	device_driver rather than using the driver->kobj.kset
-	mechanism; I don't want to get into that here.)  It also
-	increments bus->drivers_version.
-
-     4.	While probing drivers for a newly-registered device, the core
-	will hold bus->lock while traversing the list of drivers and
-	while calling bus's match routine.  It will drop the lock
-	(and acquire device->mutex) will calling the probe() routine.
-	If the probe fails, after reacquiring bus->lock it will check
-	bus->drivers_version before proceding; if the version has
-	changed it will restart the list traversal from the beginning.
-	If the probe succeeds, after reacquiring bus->lock it will
-	add device->driver_list onto the driver->devices lists.
-
-     5.	Similarly, while probing devices for a newly-registered driver,
-	the core will hold bus->lock while traversing the list of devices
-	and while calling the match routine.  After a probe failure it
-	will check bus->devices_version before proceding; if the
-	version has changed it will restart the list traversal from the
-	beginning.
-
-     6.	Similar steps are used while unbinding devices from drivers.
-	Note that it's necessary to protect against the race between
-	unregistering a driver and probing it with a new device.  The
-	converse, unregistering a device while it is being probed by
-	a new driver, is already handled by device->mutex.
-
-There are a few subtle points I've left out, but this gives the general
-idea.  Note in particular that avoiding the use of a subsystem rwsem means
-that it's always possible to add or delete devices from within a probe,
-remove, or resume callback.
+Mar 16 12:35:19 chinook kernel: kernel BUG at mm/rmap.c:482!
+Mar 16 12:35:19 chinook kernel: invalid operand: 0000 [#1]
+Mar 16 12:35:19 chinook kernel: PREEMPT
+Mar 16 12:35:19 chinook kernel: Modules linked in: nvidia
+Mar 16 12:35:19 chinook kernel: CPU:    0
+Mar 16 12:35:19 chinook kernel: EIP:    0060:[<c014a477>]    Tainted: P
+       VLI
+Mar 16 12:35:19 chinook kernel: EFLAGS: 00010286   (2.6.11.3)
+Mar 16 12:35:19 chinook kernel: EIP is at page_remove_rmap+0x37/0x50
+Mar 16 12:35:19 chinook kernel: eax: ffffffff   ebx: 00005000   ecx:
+00000006
+edx: c16a9920
+Mar 16 12:35:19 chinook kernel: esi: e3db1e34   edi: 00008000   ebp:
+c16a9920
+esp: c8f4be54
+Mar 16 12:35:19 chinook kernel: ds: 007b   es: 007b   ss: 0068
+Mar 16 12:35:19 chinook kernel: Process MATLAB (pid: 30685,
+threadinfo=c8f4a000
+task=ec1a9a80)
+Mar 16 12:35:19 chinook kernel: Stack: c013e418 00005000 c0142ed6
+c16a9920 00000
+007 c0565a20 00000001 354c9067
+Mar 16 12:35:19 chinook kernel:        00000000 99388000 c0565578
+99788000 e0f80
+994 99390000 00000000 c0143043
+Mar 16 12:35:19 chinook kernel:        c0565578 e0f80990 99388000
+00008000 00000
+000 99388000 e0f80994 99390000
+Mar 16 12:35:19 chinook kernel: Call Trace:
+Mar 16 12:35:19 chinook kernel:  [<c013e418>] mark_page_accessed+0x28/0x30
+Mar 16 12:35:19 chinook kernel:  [<c0142ed6>] zap_pte_range+0x166/0x280
+Mar 16 12:35:19 chinook kernel:  [<c0143043>] zap_pmd_range+0x53/0x70
+Mar 16 12:35:19 chinook kernel:  [<c014309a>] zap_pud_range+0x3a/0x60
+Mar 16 12:35:19 chinook kernel:  [<c0143130>] unmap_page_range+0x70/0x90
+Mar 16 12:35:19 chinook kernel:  [<c0143246>] unmap_vmas+0xf6/0x210
+Mar 16 12:35:19 chinook kernel:  [<c0147bbb>] unmap_region+0x7b/0xf0
+Mar 16 12:35:19 chinook kernel:  [<c0147ea6>] do_munmap+0x116/0x180
+Mar 16 12:35:19 chinook kernel:  [<c0147f54>] sys_munmap+0x44/0x70
+Mar 16 12:35:19 chinook kernel:  [<c01027db>] syscall_call+0x7/0xb
+Mar 16 12:35:19 chinook kernel: Code: 75 33 83 42 08 ff 0f 98 c0 84 c0
+74 1a 8b
+42 08 40 78 18 c7 44 24 04 ff ff ff ff c7 04 24 10 00 00 00 e8 9d f5 fe
+ff 83 c4
+   08 c3 <0f> 0b e2 01 7d a1 42 c0 eb de 0f 0b df 01 7d a1 42 c0 eb c3 90
+Mar 16 12:35:19 chinook kernel:  <6>note: MATLAB[30685] exited with
+preempt_count 2
+Mar 16 12:35:19 chinook kernel: scheduling while atomic:
+MATLAB/0x00000002/30685
+Mar 16 12:35:19 chinook kernel:  [<c040d3a2>] schedule+0x522/0x530
+Mar 16 12:35:19 chinook kernel:  [<c040e19d>]
+rwsem_down_read_failed+0x9d/0x190
+Mar 16 12:35:19 chinook kernel:  [<c012d414>] .text.lock.futex+0x7/0xf3
+Mar 16 12:35:19 chinook kernel:  [<c02a6e80>] vt_console_print+0x60/0x300
+Mar 16 12:35:19 chinook kernel:  [<c012d2b4>] do_futex+0x64/0xa0
+Mar 16 12:35:19 chinook kernel:  [<c0117527>]
+__call_console_drivers+0x57/0x60
+Mar 16 12:35:19 chinook kernel:  [<c012d3de>] sys_futex+0xee/0x100
+Mar 16 12:35:19 chinook kernel:  [<c0117a58>] release_console_sem+0x98/0xf0
+Mar 16 12:35:19 chinook kernel:  [<c0115178>] mm_release+0x98/0xa0
+Mar 16 12:35:19 chinook kernel:  [<c0118ed9>] exit_mm+0x19/0x110
+Mar 16 12:35:19 chinook kernel:  [<c0103d60>] do_invalid_op+0x0/0xd0
+Mar 16 12:35:19 chinook kernel:  [<c0119910>] do_exit+0xa0/0x3d0
+Mar 16 12:35:19 chinook kernel:  [<c0103d60>] do_invalid_op+0x0/0xd0
+Mar 16 12:35:19 chinook kernel:  [<c010399d>] die+0x18d/0x190
+Mar 16 12:35:19 chinook kernel:  [<c0103e0e>] do_invalid_op+0xae/0xd0
+Mar 16 12:35:19 chinook kernel:  [<c014a477>] page_remove_rmap+0x37/0x50
+Mar 16 12:35:19 chinook kernel:  [<c012872b>]
+rcu_process_callbacks+0x3b/0x40
+Mar 16 12:35:19 chinook kernel:  [<c011c416>] tasklet_action+0x46/0x70
+Mar 16 12:35:19 chinook kernel:  [<c011c1b8>] __do_softirq+0x78/0x90
+Mar 16 12:35:19 chinook kernel:  [<c0104ba8>] do_IRQ+0x28/0x40
+Mar 16 12:35:19 chinook kernel:  [<c0177691>] __mark_inode_dirty+0xd1/0x1c0
+Mar 16 12:35:19 chinook kernel:  [<c01031ef>] error_code+0x2b/0x30
+Mar 16 12:35:19 chinook kernel:  [<c014a477>] page_remove_rmap+0x37/0x50
+Mar 16 12:35:19 chinook kernel:  [<c013e418>] mark_page_accessed+0x28/0x30
+Mar 16 12:35:19 chinook kernel:  [<c0142ed6>] zap_pte_range+0x166/0x280
+Mar 16 12:35:19 chinook kernel:  [<c0143043>] zap_pmd_range+0x53/0x70
+Mar 16 12:35:19 chinook kernel:  [<c014309a>] zap_pud_range+0x3a/0x60
+Mar 16 12:35:19 chinook kernel:  [<c0143130>] unmap_page_range+0x70/0x90
+Mar 16 12:35:19 chinook kernel:  [<c0143246>] unmap_vmas+0xf6/0x210
+Mar 16 12:35:19 chinook kernel:  [<c0147bbb>] unmap_region+0x7b/0xf0
+Mar 16 12:35:19 chinook kernel:  [<c0147ea6>] do_munmap+0x116/0x180
+Mar 16 12:35:19 chinook kernel:  [<c0147f54>] sys_munmap+0x44/0x70
+Mar 16 12:35:19 chinook kernel:  [<c01027db>] syscall_call+0x7/0xb
 
 
-Now for the hard part.  We've added a whole tree of semaphores in the form
-of driver->mutex.  The rule for preventing deadlocks is:
+I haven't tried 2.6.11.4 yet, but based on what I see in the changelog,
+nothing related to the above seems to have been changed.
 
-	Whenever a parent and a child are both locked, the parent's lock
-	must be acquired first.
+Thanks,
+      Max
 
-The trouble comes in step 1 above.  When adding or deleting a device, the 
-core needs device->parent->mutex to be locked.  There are two choices: The 
-core can acquire the parent's lock or it can demand that the caller 
-already own it.
+P.S.  Please cc me on replies as I don't usually read the mailing list.
 
-The first choice is simpler and would require no change to most drivers.  
-They won't need to do any special locking; they just call device_add or
-device_del as they do now.
-
-The second choice is necessary whenever a device is registered or
-unregistered during a probe or remove.  This happens all the time for
-bridge drivers, where the child lives on a different bus from the parent.  
-For example, consider a PCI SCSI adapter driver that registers the SCSI
-host device during its probe routine.  It turns out also that having the
-second choice available, while perhaps not strictly necessary, makes life
-much easier for the USB subsystem.
-
-The best way I can think of to cope with this is to have two separate
-entry points for device_add (and likewise for device_del).  device_add
-itself is used when the caller does not own device->parent->mutex, and
-__device_add is used when the caller does own it.  (This leaves open the
-question of whether a caller of __device_add must also own device->mutex;  
-for simplicity let's say that it must.)
-
-Implementing this change will require alterations to various bridge
-drivers (like the SCSI core) and the USB core.  It shouldn't require
-changing very much else.
-
-
-The proposal has an additional advantage.  There are a few spots outside
-the driver-model core where the kernel iterates over the devices owned by
-a particular parent or belonging to a particular bus.  (For an interesting
-example, see check_dev() and next_dev() in arch/parisc/kernel/drivers.c.)  
-I don't know whether these spots are protected against changes to the
-device list while they run, but with the new device->mutex locks it would
-be easy to add such protection.
-
-
-No doubt there's a bunch of stuff I haven't considered or am not aware of.  
-Not to mention the part I glossed over about making the driver list not 
-use driver->kobj.kset.  Comments are welcome.
-
-Alan Stern
 

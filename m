@@ -1,54 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266017AbTFWNML (ORCPT <rfc822;willy@w.ods.org>);
+	id S266018AbTFWNML (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 23 Jun 2003 09:12:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266018AbTFWNKy
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266003AbTFWNKf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 09:10:54 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:29881 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S266019AbTFWNIl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 09:08:41 -0400
-Date: Mon, 23 Jun 2003 06:22:31 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Larry McVoy <lm@bitmover.com>, Stephan von Krawczynski <skraw@ithnet.com>,
-       jgarzik@pobox.com, lawrence@the-penguin.otak.com,
-       linux-kernel@vger.kernel.org
+	Mon, 23 Jun 2003 09:10:35 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:56754 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S266014AbTFWMwi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 08:52:38 -0400
+To: hps@intermeta.de
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
-Message-ID: <20030623132231.GC6715@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Larry McVoy <lm@bitmover.com>,
-	Stephan von Krawczynski <skraw@ithnet.com>, jgarzik@pobox.com,
-	lawrence@the-penguin.otak.com, linux-kernel@vger.kernel.org
-References: <20030619165916.GA14404@work.bitmover.com> <20030620001217.G6248@almesberger.net> <20030620120910.3f2cb001.skraw@ithnet.com> <20030620142436.GB14404@work.bitmover.com> <20030620143012.GC14404@work.bitmover.com> <20030620163349.GG17563@work.bitmover.com> <20030621142048.2ae63afa.skraw@ithnet.com> <20030621133831.GA10089@work.bitmover.com> <1056358467.29264.41.camel@passion.cambridge.redhat.com>
-Mime-Version: 1.0
+References: <063301c32c47$ddc792d0$3f00a8c0@witbe>
+	<1056027789.3ef1b48d3ea2e@support.tuxbox.dk>
+	<03061908145500.25179@tabby> <20030619141443.GR29247@fs.tum.de>
+	<bcsolt$37m$2@news.cistron.nl>
+	<20030619165916.GA14404@work.bitmover.com>
+	<20030620001217.G6248@almesberger.net>
+	<20030620120910.3f2cb001.skraw@ithnet.com>
+	<20030620142436.GB14404@work.bitmover.com>
+	<20030620162719.GA4368@hh.idb.hist.no>
+	<bd12o3$5t5$2@tangens.hometree.net>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 23 Jun 2003 15:06:26 +0200
+In-Reply-To: <bd12o3$5t5$2@tangens.hometree.net>
+Message-ID: <m3r85lj63x.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1056358467.29264.41.camel@passion.cambridge.redhat.com>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 23, 2003 at 09:54:27AM +0100, David Woodhouse wrote:
-> It's not just access to the source code of the software -- it runs
-> deeper than that. To be honest, I consider hiding and restrictively
-> licensing your code to be largely analogous to security by obscurity --
-> it tends to work to a large extent but it's a poor substitute for
-> _really_ fixing the problem, by being able to offer your customers a
-> decent service and making them want to stay with you. 
-> 
-> The increasing prevalence of Free Software means that the industry is
-> more and more about _services_ rather than products...
+"Henning P. Schmiedehausen" <hps@intermeta.de> writes:
 
-The one flaw in this argument and all of those which say basically "services
-is the answer" is that it only works if you produce crappy software which
-needs servicing.  
+> Most of the stuff in the Linux kernel (and Userland) is marked as
+> "Version 0.1. 0.7beta. alpha-release. 0.2.1testing. 1.2-pre". And so
+> on. You won't find many OpenSource developers that call their product
+> "Version 3.1" Because they're afraid to bite the bullet a do a
+> release.
+
+Probably you'd like RH version numbering scheme more?
+Do you think there is a big difference between, say, RH or Mandrake 9,
+and Debian 3 (not sure about exact numbers)?
+
+>  With a commercial OS, you get a release version on which you
+> can build. Sure it has bugs. Sure, some of the code _is_ alpha
+> quality. But that's what a vendor is for.
+
+A vendor is for releasing alpha quality code? Well...
+
+> No it does not. It simply has no political or ideological reasons not
+> to talk to other companies, sign NDAs and spend money.  If Sun wants a
+> "state of the art" driver for nVidia chips, they call nVidia, draft up
+> an agreement, get access to the nVidia docs and build such a
+> driver. The main problem of the "open-source" movement is that
+> "beggars" attitute. If it costs money, we won't use it.
+
+Not the money is the problem. I don't think the documentation costs
+(much) money anyway. The NDA is the problem - why would you want
+documentation if it prohibits you from releasing your (source) code?
+
+> Check the level of support of _current_ graphics chips in Linux. You
+> get a halfway decent ATI support, "bad, bad, bad closed source" but
+> performance-wise very good nVidia support
+
+Never worked for me reliably.
+
+My experience is that under Linux no binary-only kernel modules work
+reliably. Not that it's much different with (the) other OSes.
 -- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Krzysztof Halasa
+Network Administrator

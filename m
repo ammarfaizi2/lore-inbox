@@ -1,35 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264382AbUEMSbQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264385AbUEMScT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264382AbUEMSbQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 14:31:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264386AbUEMSbQ
+	id S264385AbUEMScT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 14:32:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264389AbUEMScS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 14:31:16 -0400
-Received: from fw.osdl.org ([65.172.181.6]:50592 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264382AbUEMSbP (ORCPT
+	Thu, 13 May 2004 14:32:18 -0400
+Received: from village.ehouse.ru ([193.111.92.18]:784 "EHLO mail.ehouse.ru")
+	by vger.kernel.org with ESMTP id S264385AbUEMScK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 14:31:15 -0400
-Date: Thu, 13 May 2004 11:30:28 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jari Ruusu <jariruusu@users.sourceforge.net>
-Cc: michal@logix.cz, jmorris@redhat.com, davem@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] Support for VIA PadLock crypto engine
-Message-Id: <20040513113028.085194a3.akpm@osdl.org>
-In-Reply-To: <40A37118.ED58E781@users.sourceforge.net>
-References: <Xine.LNX.4.44.0405120933010.10943-100000@thoron.boston.redhat.com>
-	<Pine.LNX.4.53.0405121546200.24118@maxipes.logix.cz>
-	<40A37118.ED58E781@users.sourceforge.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 13 May 2004 14:32:10 -0400
+From: "Sergey S. Kostyliov" <rathamahata@php4.ru>
+Reply-To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] befs (4/5): typo fix
+Date: Thu, 13 May 2004 22:20:43 +0400
+User-Agent: KMail/1.6.1
+Cc: Will Dyson <will_dyson@pobox.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <E1BOL04-0003ou-01@mail.ehouse.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jari Ruusu <jariruusu@users.sourceforge.net> wrote:
->
->  The cryptoloop implementation is busted in more than one way, so it is
->  useless for security needs:
+Fix really old typo in config help
 
-Is dm-crypt any better?
+===== fs/Kconfig 1.55 vs edited =====
+--- 1.55/fs/Kconfig	Mon May 10 15:25:57 2004
++++ edited/fs/Kconfig	Thu May 13 20:17:22 2004
+@@ -1025,7 +1025,7 @@
+ 	  style features such as file ownership and permissions.
+ 
+ config BEFS_FS
+-	tristate "BeOS file systemv(BeFS) support (read only) (EXPERIMENTAL)"
++	tristate "BeOS file system (BeFS) support (read only) (EXPERIMENTAL)"
+ 	depends on EXPERIMENTAL
+ 	select NLS
+ 	help
+
+-- 
+                   Best regards,
+                   Sergey S. Kostyliov <rathamahata@php4.ru>
+                   Public PGP key: http://sysadminday.org.ru/rathamahata.asc
+

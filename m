@@ -1,23 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267413AbUG2CPH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267414AbUG2CQb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267413AbUG2CPH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 22:15:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267417AbUG2CPG
+	id S267414AbUG2CQb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 22:16:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267419AbUG2CQb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 22:15:06 -0400
-Received: from babyruth.hotpop.com ([38.113.3.61]:39581 "EHLO
-	babyruth.hotpop.com") by vger.kernel.org with ESMTP id S267413AbUG2COX
+	Wed, 28 Jul 2004 22:16:31 -0400
+Received: from babyruth.hotpop.com ([38.113.3.61]:19615 "EHLO
+	babyruth.hotpop.com") by vger.kernel.org with ESMTP id S267414AbUG2COi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 22:14:23 -0400
+	Wed, 28 Jul 2004 22:14:38 -0400
 From: "Antonino A. Daplas" <adaplas@hotpop.com>
 Reply-To: adaplas@pol.net
 To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 1/5] [FBCON]: Differentiate bits_per_pixel from color depth
-Date: Thu, 29 Jul 2004 10:04:04 +0800
+Subject: [PATCH 3/5] [FBDEV]: ATTN: Maintainers - Set correct hardware capabilities
+Date: Thu, 29 Jul 2004 10:04:21 +0800
 User-Agent: KMail/1.5.4
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Kars de Jong <jongk@linux-m68k.org>,
-       Linux Fbdev development list 
+Cc: Linux Fbdev development list 
 	<linux-fbdev-devel@lists.sourceforge.net>,
        linux-kernel@vger.kernel.org
 MIME-Version: 1.0
@@ -25,7 +23,7 @@ Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200407291004.04094.adaplas@hotpop.com>
+Message-Id: <200407291004.21338.adaplas@hotpop.com>
 X-HotPOP: -----------------------------------------------
                    Sent By HotPOP.com FREE Email
              Get your FREE POP email at www.HotPOP.com
@@ -33,644 +31,665 @@ X-HotPOP: -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Geert,
+With David Eger's patch for advertising hardware capabilities
+to fbcon, only a few drivers so far have been converted to do
+just that.  As a result, scrolling speed of some drivers will
+not be optimal (SCROLL_REDRAW). The patch adds the correct
+flags for all drivers (except for matroxfb -leave this to
+Petr-, and a few drivers that are not ported yet to 2.6).
 
-1. If you remember this thread (HP300 support checked in), one concern
-was how to support framebuffers with bpp == 8 but color depth < 8
-(chunky layout). I suggested to use the fields in var->{red|green|blue}
-to differentiate between bits_per_pixel and depth. Included is a patch
-that does that.
-
-(The above assumes background/foreground of 0/1.  If hardware needs a different
-value, such as 0 - black, 0xff - white, just indicate TRUECOLOR or DIRECTCOLOR
-and set info->pseudopalette correctly in xxxfb_setcolreg().)
-
-The patch will break the following drivers when in monochrome since they do not
-set the proper color bitfields. I've included a fix in patch #2.
-
-68328fb
-bw2fb
-cirrusfb
-dnfb
-macfb
-stifb
-tx3912fb
-
-2. Besides the change above, support for the inverse and underline attribute is
-added in monochrome mode.  One should get text which are underlined/reversed
-if the corresponding attribute is set.
-
-3. Because vt.c uses a 16-color palette, use fbcon_default_cmap if framebuffer
-can do less than 16 colors.  In 4 colors, display will be grayscaled. In 8 colors,
-display should have the same colors as a 16-color console but will lack brightness/
-intensity.
-
-4. Fix monochrome logo drawing.
-
-5. Reduce code of fbcon_putc so it just calls fbcon_putcs.
+*Majority of changes is FBINFO_FLAG_DEFAULT -> FBINFO_DEFAULT
 
 Tony
 
 Signed-off-by: Antonino Daplas <adaplas@pol.net>
 
- drivers/char/vt.c             |   34 +++--
- drivers/video/cfbimgblt.c     |    2
- drivers/video/console/fbcon.c |  243 +++++++++++++++++++++++++-----------------
- drivers/video/fbmem.c         |   46 +++++--
- include/linux/fb.h            |    3
- 5 files changed, 208 insertions(+), 120 deletions(-)
+ 68328fb.c     |    2 +-
+ acornfb.c     |    2 +-
+ amifb.c       |    5 ++++-
+ asiliantfb.c  |    2 +-
+ bw2.c         |    2 +-
+ cg14.c        |    2 +-
+ cg3.c         |    2 +-
+ cg6.c         |    3 ++-
+ chipsfb.c     |    2 +-
+ clps711xfb.c  |    2 +-
+ controlfb.c   |    2 +-
+ cyber2000fb.c |    2 +-
+ epson1355fb.c |    2 +-
+ ffb.c         |    2 +-
+ fm2fb.c       |    2 +-
+ g364fb.c      |    2 +-
+ gbefb.c       |    2 +-
+ hgafb.c       |    2 +-
+ hitfb.c       |    2 +-
+ hpfb.c        |    2 +-
+ igafb.c       |    2 +-
+ imsttfb.c     |    5 ++++-
+ kyro/fbdev.c  |    2 +-
+ leo.c         |    2 +-
+ macfb.c       |    2 +-
+ maxinefb.c    |    2 +-
+ neofb.c       |    6 +++++-
+ offb.c        |    2 +-
+ p9100.c       |    2 +-
+ platinumfb.c  |    2 +-
+ pm2fb.c       |    3 ++-
+ pmag-ba-fb.c  |    2 +-
+ pmagb-b-fb.c  |    2 +-
+ pvr2fb.c      |    2 +-
+ pxafb.c       |    2 +-
+ q40fb.c       |    2 +-
+ radeonfb.c    |    2 +-
+ sa1100fb.c    |    2 +-
+ sgivwfb.c     |    2 +-
+ sstfb.c       |    2 +-
+ stifb.c       |    2 +-
+ tcx.c         |    2 +-
+ tdfxfb.c      |    6 +++++-
+ tgafb.c       |    3 ++-
+ tridentfb.c   |    5 ++++-
+ tx3912fb.c    |    2 +-
+ valkyriefb.c  |    2 +-
+ 47 files changed, 67 insertions(+), 47 deletions(-)
 
-diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/char/vt.c linux-2.6.8-rc2-mm1/drivers/char/vt.c
---- linux-2.6.8-rc2-mm1-orig/drivers/char/vt.c	2004-07-28 19:54:09.990631160 +0000
-+++ linux-2.6.8-rc2-mm1/drivers/char/vt.c	2004-07-28 19:56:09.951394352 +0000
-@@ -599,6 +599,17 @@ static inline void save_screen(int currc
-  *	Redrawing of screen
-  */
- 
-+static void clear_buffer_attributes(int currcons)
-+{
-+	unsigned short *p = (unsigned short *) origin;
-+	int count = screenbuf_size/2;
-+	int mask = hi_font_mask | 0xff;
-+
-+	for (; count > 0; count--, p++) {
-+		scr_writew((scr_readw(p)&mask) | (video_erase_char&~mask), p);
-+	}
-+}
-+
- void redraw_screen(int new_console, int is_switch)
- {
- 	int redraw = 1;
-@@ -636,9 +647,21 @@ void redraw_screen(int new_console, int 
- 
- 	if (redraw) {
- 		int update;
-+		int old_was_color = vc_cons[currcons].d->vc_can_do_color;
-+
- 		set_origin(currcons);
- 		update = sw->con_switch(vc_cons[currcons].d);
- 		set_palette(currcons);
-+		/*
-+		 * If console changed from mono<->color, the best we can do
-+		 * is to clear the buffer attributes. As it currently stands,
-+		 * rebuilding new attributes from the old buffer is not doable
-+		 * without overly complex code. 
-+		 */
-+		 if (old_was_color != vc_cons[currcons].d->vc_can_do_color) {
-+			update_attr(currcons);
-+			clear_buffer_attributes(currcons);
-+		}
- 		if (update && vcmode != KD_GRAPHICS)
- 			do_update_region(currcons, origin, screenbuf_size/2);
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/68328fb.c linux-2.6.8-rc2-mm1/drivers/video/68328fb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/68328fb.c	2004-07-29 00:06:11.605818720 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/68328fb.c	2004-07-29 00:06:31.435804104 +0000
+@@ -466,7 +466,7 @@ int __init mc68x328fb_init(void)
+ 		fb_info.var.red.offset = fb_info.var.green.offset = fb_info.var.blue.offset = 0;
  	}
-@@ -2652,17 +2675,6 @@ int __init vty_init(void)
+ 	fb_info.pseudo_palette = &mc68x328fb_pseudo_palette;
+-	fb_info.flags = FBINFO_FLAG_DEFAULT;
++	fb_info.flags = FBINFO_DEFAULT | FBINFO_HWACCEL_YPAN;
  
- #ifndef VT_SINGLE_DRIVER
+ 	fb_alloc_cmap(&fb_info.cmap, 256, 0);
  
--static void clear_buffer_attributes(int currcons)
--{
--	unsigned short *p = (unsigned short *) origin;
--	int count = screenbuf_size/2;
--	int mask = hi_font_mask | 0xff;
--
--	for (; count > 0; count--, p++) {
--		scr_writew((scr_readw(p)&mask) | (video_erase_char&~mask), p);
--	}
--}
--
- /*
-  *	If we support more console drivers, this function is used
-  *	when a driver wants to take over some existing consoles
-diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/cfbimgblt.c linux-2.6.8-rc2-mm1/drivers/video/cfbimgblt.c
---- linux-2.6.8-rc2-mm1-orig/drivers/video/cfbimgblt.c	2004-07-28 19:52:46.522320272 +0000
-+++ linux-2.6.8-rc2-mm1/drivers/video/cfbimgblt.c	2004-07-28 19:56:09.953394048 +0000
-@@ -325,7 +325,7 @@ void cfb_imageblit(struct fb_info *p, co
- 		else 
- 			slow_imageblit(image, p, dst1, fgcolor, bgcolor,
- 					start_index, pitch_index);
--	} else if (image->depth <= bpp) 
-+	} else
- 		color_imageblit(image, p, dst1, start_index, pitch_index);
- }
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/acornfb.c linux-2.6.8-rc2-mm1/drivers/video/acornfb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/acornfb.c	2004-07-28 19:50:54.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/acornfb.c	2004-07-29 00:06:31.437803800 +0000
+@@ -1010,7 +1010,7 @@ static void __init acornfb_init_fbinfo(v
+ 	first = 0;
  
-diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/console/fbcon.c linux-2.6.8-rc2-mm1/drivers/video/console/fbcon.c
---- linux-2.6.8-rc2-mm1-orig/drivers/video/console/fbcon.c	2004-07-28 19:52:36.095905328 +0000
-+++ linux-2.6.8-rc2-mm1/drivers/video/console/fbcon.c	2004-07-28 19:56:09.955393744 +0000
-@@ -406,6 +406,57 @@ int set_con2fb_map(int unit, int newidx)
- /*
-  * Accelerated handlers.
-  */
-+static inline int get_color(struct vc_data *vc, struct fb_info *info,
-+			    u16 c, int is_fg)
-+{
-+	struct display *p = &fb_display[fg_console];
-+	int depth = fb_get_color_depth(info);
-+	int color = 0;
-+
-+	if (depth != 1)
-+		color = (is_fg) ? attr_fgcol((vc->vc_hi_font_mask) ? 9 : 8, c)
-+			: attr_bgcol((vc->vc_hi_font_mask) ? 13 : 12, c);
-+
-+	switch (depth) {
-+	case 1: 
-+	{
-+		/* 0 or 1 */
-+		int fg = (info->fix.visual != FB_VISUAL_MONO01) ? 1 : 0;
-+		int bg = (info->fix.visual != FB_VISUAL_MONO01) ? 0 : 1;
-+		int reverse = attr_reverse(c, p->inverse);
-+
-+		color = (is_fg) ? (reverse) ? bg : fg : (reverse) ? fg : bg;
-+		break;
-+	}	
-+	case 2:
-+		/*
-+		 * Scale down 16-colors to 4 colors. Default 4-color palette
-+		 * is grayscale.
-+		 */
-+		color /= 4;
-+		break;
-+	case 3:
-+		/*
-+		 * Last 8 entries of default 16-color palette is a more intense
-+		 * version of the first 8 (i.e., same chrominance, different
-+		 * luminance).
-+		 */
-+		color &= 7;
-+		break;
-+	}
-+
-+	return color;
-+}
-+
-+static inline int is_underline(struct fb_info *info, u16 c) 
-+{
-+	int underline = 0;
-+
-+	if (fb_get_color_depth(info) == 1)
-+		underline = attr_underline(c);
-+	return underline;
-+}
-+
- void accel_bmove(struct vc_data *vc, struct fb_info *info, int sy, 
- 		int sx, int dy, int dx, int height, int width)
- {
-@@ -456,13 +507,19 @@ void accel_putcs(struct vc_data *vc, str
- 	unsigned int shift_low = 0, mod = vc->vc_font.width % 8;
- 	unsigned int shift_high = 8, pitch, cnt, size, k;
- 	unsigned int idx = vc->vc_font.width >> 3;
-+	unsigned int underline = is_underline(info, scr_readw(s));
- 	struct fb_image image;
--	u8 *src, *dst;
-+	u8 *src, *dst, *buf = NULL;
-+	
-+	if (underline) {
-+		buf = kmalloc(cellsize, GFP_KERNEL);
-+		if (!buf)
-+			return;
-+	}
-+
-+	image.fg_color = get_color(vc, info, scr_readw(s), 1);
-+	image.bg_color = get_color(vc, info, scr_readw(s), 0);
+ 	fb_info.fbops		= &acornfb_ops;
+-	fb_info.flags		= FBINFO_FLAG_DEFAULT;
++	fb_info.flags		= FBINFO_DEFAULT | FBINFO_HWACCEL_YPAN;
+ 	fb_info.pseudo_palette	= current_par.pseudo_palette;
  
--	image.fg_color = attr_fgcol((vc->vc_hi_font_mask) ? 9 : 8,
--				    scr_readw(s));
--	image.bg_color = attr_bgcol((vc->vc_hi_font_mask) ? 13 : 12,
--				    scr_readw(s));
- 	image.dx = xx * vc->vc_font.width;
- 	image.dy = yy * vc->vc_font.height;
- 	image.height = vc->vc_font.height;
-@@ -492,9 +549,18 @@ void accel_putcs(struct vc_data *vc, str
- 			while (k--) {
- 				src = vc->vc_font.data + (scr_readw(s++)&
- 							  charmask)*cellsize;
-+					
-+				if (underline) {
-+					int offset = (vc->vc_font.height < 10) ? 1 : 2;
-+
-+					memcpy(buf, src, cellsize);
-+					memset(buf + cellsize - offset, 0xff,
-+					       offset * width);
-+					src = buf;
-+				}
- 				move_unaligned(info, &info->pixmap, dst, pitch,
--					       src, idx, image.height,
--					       shift_high, shift_low, mod);
-+						       src, idx, image.height,
-+						       shift_high, shift_low, mod);
- 				shift_low += mod;
- 				dst += (shift_low >= 8) ? width : width - 1;
- 				shift_low &= 7;
-@@ -504,8 +570,16 @@ void accel_putcs(struct vc_data *vc, str
- 			while (k--) {
- 				src = vc->vc_font.data + (scr_readw(s++)&
- 							  charmask)*cellsize;
-+				if (underline) {
-+					int offset = (vc->vc_font.height < 10) ? 1 : 2;
-+
-+					memcpy(buf, src, cellsize);
-+					memset(buf + cellsize - offset, 0xff,
-+					       offset * width);
-+					src = buf;
-+				}
- 				move_aligned(info, &info->pixmap, dst, pitch,
--					     src, idx, image.height);
-+						     src, idx, image.height);
- 				dst += width;
- 			}
- 		}
-@@ -513,6 +587,7 @@ void accel_putcs(struct vc_data *vc, str
- 		image.dx += cnt * vc->vc_font.width;
- 		count -= cnt;
+ 	strcpy(fb_info.fix.id, "Acorn");
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/amifb.c linux-2.6.8-rc2-mm1/drivers/video/amifb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/amifb.c	2004-07-28 19:51:13.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/amifb.c	2004-07-29 00:06:31.440803344 +0000
+@@ -1307,6 +1307,8 @@ static int amifb_set_par(struct fb_info 
+ 		info->fix.ywrapstep = 1;
+ 		info->fix.xpanstep = 0;
+ 		info->fix.ypanstep = 0;
++		info->flags = FBINFO_DEFAULT | FBINFO_HWACCEL_YWRAP |
++		    FBINFO_READS_FAST; /* override SCROLL_REDRAW */
+ 	} else {
+ 		info->fix.ywrapstep = 0;
+ 		if (par->vmode & FB_VMODE_SMOOTH_XPAN)
+@@ -1314,6 +1316,7 @@ static int amifb_set_par(struct fb_info 
+ 		else
+ 			info->fix.xpanstep = 16<<maxfmode;
+ 		info->fix.ypanstep = 1;
++		info->flags = FBINFO_DEFAULT | FBINFO_HWACCEL_YPAN;
  	}
-+	kfree(buf);
+ 	return 0;
  }
+@@ -2382,7 +2385,7 @@ default_chipset:
  
- void accel_clear_margins(struct vc_data *vc, struct fb_info *info,
-@@ -738,7 +813,7 @@ static void fbcon_init(struct vc_data *v
- 	}
- 	if (p->userfont)
- 		charcnt = FNTCHARCNT(p->fontdata);
--	vc->vc_can_do_color = info->var.bits_per_pixel != 1;
-+	vc->vc_can_do_color = (fb_get_color_depth(info) != 1);
- 	vc->vc_complement_mask = vc->vc_can_do_color ? 0x7700 : 0x0800;
- 	if (charcnt == 256) {
- 		vc->vc_hi_font_mask = 0;
-@@ -781,9 +856,15 @@ static void fbcon_init(struct vc_data *v
+ 	fb_info.fbops = &amifb_ops;
+ 	fb_info.par = &currentpar;
+-	fb_info.flags = FBINFO_FLAG_DEFAULT;
++	fb_info.flags = FBINFO_DEFAULT;
  
- 	if (logo) {
- 		/* Need to make room for the logo */
--		int cnt;
-+		int cnt, erase = vc->vc_video_erase_char;
- 		int step;
+ 	if (!fb_find_mode(&fb_info.var, &fb_info, mode_option, ami_modedb,
+ 			  NUM_TOTAL_MODES, &ami_modedb[defmode], 4)) {
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/asiliantfb.c linux-2.6.8-rc2-mm1/drivers/video/asiliantfb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/asiliantfb.c	2004-07-28 19:50:54.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/asiliantfb.c	2004-07-29 00:06:31.441803192 +0000
+@@ -524,7 +524,7 @@ static void __init init_asiliant(struct 
+ 	p->fix.smem_start	= addr;
+ 	p->var			= asiliantfb_var;
+ 	p->fbops		= &asiliantfb_ops;
+-	p->flags		= FBINFO_FLAG_DEFAULT;
++	p->flags		= FBINFO_DEFAULT;
  
-+		/*
-+		 * remove underline attribute from erase character 
-+		 * if black and white framebuffer.
-+		 */
-+		if (fb_get_color_depth(info) == 1)
-+			erase &= ~0x400;
- 		logo_height = fb_prepare_logo(info);
- 		logo_lines = (logo_height + vc->vc_font.height - 1) /
- 			     vc->vc_font.height;
-@@ -797,8 +878,7 @@ static void fbcon_init(struct vc_data *v
- 			save = kmalloc(logo_lines * new_cols * 2, GFP_KERNEL);
- 			if (save) {
- 				int i = cols < new_cols ? cols : new_cols;
--				scr_memsetw(save, vc->vc_video_erase_char,
--					    logo_lines * new_cols * 2);
-+				scr_memsetw(save, erase, logo_lines * new_cols * 2);
- 				r = q - step;
- 				for (cnt = 0; cnt < logo_lines; cnt++, r += i)
- 					scr_memcpyw(save + cnt * new_cols, r, 2 * i);
-@@ -818,7 +898,7 @@ static void fbcon_init(struct vc_data *v
- 			}
- 		}
- 		scr_memsetw((unsigned short *) vc->vc_origin,
--			    vc->vc_video_erase_char,
-+			    erase,
- 			    vc->vc_size_row * logo_lines);
+ 	fb_alloc_cmap(&p->cmap, 256, 0);
  
- 		if (CON_IS_VISIBLE(vc) && vt_cons[vc->vc_num]->vc_mode == KD_TEXT) {
-@@ -927,55 +1007,6 @@ static void fbcon_clear(struct vc_data *
- 		accel_clear(vc, info, real_y(p, sy), sx, height, width);
- }
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/bw2.c linux-2.6.8-rc2-mm1/drivers/video/bw2.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/bw2.c	2004-07-29 00:06:11.606818568 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/bw2.c	2004-07-29 00:06:31.442803040 +0000
+@@ -351,7 +351,7 @@ static void bw2_init_one(struct sbus_dev
  
--static void fbcon_putc(struct vc_data *vc, int c, int ypos, int xpos)
--{
--	struct fb_info *info = registered_fb[(int) con2fb_map[vc->vc_num]];
--	unsigned short charmask = vc->vc_hi_font_mask ? 0x1ff : 0xff;
--	unsigned int scan_align = info->pixmap.scan_align - 1;
--	unsigned int buf_align = info->pixmap.buf_align - 1;
--	unsigned int width = (vc->vc_font.width + 7) >> 3;
--	int bgshift = (vc->vc_hi_font_mask) ? 13 : 12;
--	int fgshift = (vc->vc_hi_font_mask) ? 9 : 8;
--	struct display *p = &fb_display[vc->vc_num];
--	unsigned int size, pitch;
--	struct fb_image image;
--	u8 *src, *dst;
--
--	if (!info->fbops->fb_blank && console_blanked)
--		return;
--	if (info->state != FBINFO_STATE_RUNNING)
--		return;
--
--	if (vt_cons[vc->vc_num]->vc_mode != KD_TEXT)
--		return;
--
--	image.dx = xpos * vc->vc_font.width;
--	image.dy = real_y(p, ypos) * vc->vc_font.height;
--	image.width = vc->vc_font.width;
--	image.height = vc->vc_font.height;
--	image.fg_color = attr_fgcol(fgshift, c);
--	image.bg_color = attr_bgcol(bgshift, c);
--	image.depth = 1;
--
--	src = vc->vc_font.data + (c & charmask) * vc->vc_font.height * width;
--
--	pitch = width + scan_align;
--	pitch &= ~scan_align;
--	size = pitch * vc->vc_font.height;
--	size += buf_align;
--	size &= ~buf_align;
--
--	dst = fb_get_buffer_offset(info, &info->pixmap, size);
--	image.data = dst;
--
--	if (info->pixmap.outbuf)
--		fb_iomove_buf_aligned(info, &info->pixmap, dst, pitch, src, width, image.height);
--	else
--		fb_sysmove_buf_aligned(info, &info->pixmap, dst, pitch, src, width, image.height);
--
--	info->fbops->fb_imageblit(info, &image);
--}
--
- static void fbcon_putcs(struct vc_data *vc, const unsigned short *s,
- 			int count, int ypos, int xpos)
- {
-@@ -993,15 +1024,19 @@ static void fbcon_putcs(struct vc_data *
- 	accel_putcs(vc, info, s, count, real_y(p, ypos), xpos);
- }
+ 	all->par.fbsize = PAGE_ALIGN(linebytes * all->info.var.yres);
  
-+static void fbcon_putc(struct vc_data *vc, int c, int ypos, int xpos)
-+{
-+	fbcon_putcs(vc, (const unsigned short *) &c, 1, ypos, xpos);
-+}
-+
- static void fbcon_cursor(struct vc_data *vc, int mode)
- {
- 	struct fb_info *info = registered_fb[(int) con2fb_map[vc->vc_num]];
- 	unsigned short charmask = vc->vc_hi_font_mask ? 0x1ff : 0xff;
--	int bgshift = (vc->vc_hi_font_mask) ? 13 : 12;
--	int fgshift = (vc->vc_hi_font_mask) ? 9 : 8;
- 	struct display *p = &fb_display[vc->vc_num];
- 	int w = (vc->vc_font.width + 7) >> 3, c;
--	int y = real_y(p, vc->vc_y);
-+	int y = real_y(p, vc->vc_y), fg, bg;
-+	int underline;
- 	struct fb_cursor cursor;
+-	all->info.flags = FBINFO_FLAG_DEFAULT;
++	all->info.flags = FBINFO_DEFAULT;
+ 	all->info.fbops = &bw2_ops;
+ #if defined(CONFIG_SPARC32)
+ 	if (sdev)
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/cg14.c linux-2.6.8-rc2-mm1/drivers/video/cg14.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/cg14.c	2004-05-10 02:33:20.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/cg14.c	2004-07-29 00:06:31.443802888 +0000
+@@ -550,7 +550,7 @@ static void cg14_init_one(struct sbus_de
+ 	all->par.mode = MDI_8_PIX;
+ 	all->par.ramsize = (is_8mb ? 0x800000 : 0x400000);
+ 
+-	all->info.flags = FBINFO_FLAG_DEFAULT;
++	all->info.flags = FBINFO_DEFAULT | FBINFO_HWACCEL_YPAN;
+ 	all->info.fbops = &cg14_ops;
+ 	all->info.currcon = -1;
+ 	all->info.par = &all->par;
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/cg3.c linux-2.6.8-rc2-mm1/drivers/video/cg3.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/cg3.c	2004-05-10 02:32:52.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/cg3.c	2004-07-29 00:06:31.444802736 +0000
+@@ -398,7 +398,7 @@ static void cg3_init_one(struct sbus_dev
+ 		sbus_ioremap(&sdev->resource[0], CG3_REGS_OFFSET,
+ 			     sizeof(struct cg3_regs), "cg3 regs");
+ 
+-	all->info.flags = FBINFO_FLAG_DEFAULT;
++	all->info.flags = FBINFO_DEFAULT;
+ 	all->info.fbops = &cg3_ops;
+ #ifdef CONFIG_SPARC32
+ 	all->info.screen_base = (char *)
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/cg6.c linux-2.6.8-rc2-mm1/drivers/video/cg6.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/cg6.c	2004-05-10 02:32:26.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/cg6.c	2004-07-29 00:06:31.456800912 +0000
+@@ -712,7 +712,8 @@ static void cg6_init_one(struct sbus_dev
+ 		sbus_ioremap(&sdev->resource[0], CG6_FHC_OFFSET,
+ 			     sizeof(u32), "cgsix fhc");
+ 
+-	all->info.flags = FBINFO_FLAG_DEFAULT;
++	all->info.flags = FBINFO_DEFAULT | FBINFO_HWACCEL_IMAGEBLIT |
++                          FBINFO_HWACCEL_COPYAREA | FBINFO_HWACCEL_FILLRECT;
+ 	all->info.fbops = &cg6_ops;
+ #ifdef CONFIG_SPARC32
+ 	all->info.screen_base = (char *)
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/chipsfb.c linux-2.6.8-rc2-mm1/drivers/video/chipsfb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/chipsfb.c	2004-07-28 19:51:13.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/chipsfb.c	2004-07-29 00:06:31.457800760 +0000
+@@ -362,7 +362,7 @@ static void __init init_chips(struct fb_
+ 	p->var = chipsfb_var;
+ 
+ 	p->fbops = &chipsfb_ops;
+-	p->flags = FBINFO_FLAG_DEFAULT;
++	p->flags = FBINFO_DEFAULT;
+ 
+ 	fb_alloc_cmap(&p->cmap, 256, 0);
+ 
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/clps711xfb.c linux-2.6.8-rc2-mm1/drivers/video/clps711xfb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/clps711xfb.c	2004-05-10 02:32:02.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/clps711xfb.c	2004-07-29 00:06:31.458800608 +0000
+@@ -372,7 +372,7 @@ int __init clps711xfb_init(void)
+ 	strcpy(cfb->fix.id, "clps711x");
+ 
+ 	cfb->fbops		= &clps7111fb_ops;
+-	cfb->flags		= FBINFO_FLAG_DEFAULT;
++	cfb->flags		= FBINFO_DEFAULT;
+ 
+ 	clps711x_guess_lcd_params(cfb);
+ 
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/controlfb.c linux-2.6.8-rc2-mm1/drivers/video/controlfb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/controlfb.c	2004-05-10 02:32:21.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/controlfb.c	2004-07-29 00:06:31.459800456 +0000
+@@ -1010,7 +1010,7 @@ static void __init control_init_info(str
+ 	info->par = &p->par;
+ 	info->fbops = &controlfb_ops;
+ 	info->pseudo_palette = p->pseudo_palette;
+-        info->flags = FBINFO_FLAG_DEFAULT;
++        info->flags = FBINFO_DEFAULT | FBINFO_HWACCEL_YPAN;
+ 	info->screen_base = (char *) p->frame_buffer + CTRLFB_OFF;
+ 
+ 	fb_alloc_cmap(&info->cmap, 256, 0);
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/cyber2000fb.c linux-2.6.8-rc2-mm1/drivers/video/cyber2000fb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/cyber2000fb.c	2004-07-15 12:26:34.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/cyber2000fb.c	2004-07-29 00:06:31.461800152 +0000
+@@ -1281,7 +1281,7 @@ cyberpro_alloc_fb_info(unsigned int id, 
+ 	cfb->fb.var.accel_flags	= FB_ACCELF_TEXT;
+ 
+ 	cfb->fb.fbops		= &cyber2000fb_ops;
+-	cfb->fb.flags		= FBINFO_FLAG_DEFAULT;
++	cfb->fb.flags		= FBINFO_DEFAULT | FBINFO_HWACCEL_YPAN;
+ 	cfb->fb.pseudo_palette	= (void *)(cfb + 1);
+ 
+ 	fb_alloc_cmap(&cfb->fb.cmap, NR_PALETTE, 0);
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/epson1355fb.c linux-2.6.8-rc2-mm1/drivers/video/epson1355fb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/epson1355fb.c	2004-05-10 02:31:59.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/epson1355fb.c	2004-07-29 00:06:31.462800000 +0000
+@@ -507,7 +507,7 @@ int __init e1355fb_init(void)
+ 	fb_info.gen.parsize = sizeof(struct e1355_par);
+ 	fb_info.gen.info.switch_con = &fbgen_switch;
+ 	fb_info.gen.info.updatevar = &fbgen_update_var;
+-	fb_info.gen.info.flags = FBINFO_FLAG_DEFAULT;
++	fb_info.gen.info.flags = FBINFO_DEFAULT;
+ 	/* This should give a reasonable default video mode */
+ 	fbgen_get_var(&disp.var, -1, &fb_info.gen.info);
+ 	fbgen_do_set_var(&disp.var, 1, &fb_info.gen);
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/ffb.c linux-2.6.8-rc2-mm1/drivers/video/ffb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/ffb.c	2004-05-10 02:33:22.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/ffb.c	2004-07-29 00:06:31.463799848 +0000
+@@ -1027,7 +1027,7 @@ static void ffb_init_one(int node, int p
+ 	all->par.prom_node = node;
+ 	all->par.prom_parent_node = parent;
+ 
+-	all->info.flags = FBINFO_FLAG_DEFAULT;
++	all->info.flags = FBINFO_DEFAULT;
+ 	all->info.fbops = &ffb_ops;
+ 	all->info.screen_base = (char *) all->par.physbase + FFB_DFB24_POFF;
+ 	all->info.currcon = -1;
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/fm2fb.c linux-2.6.8-rc2-mm1/drivers/video/fm2fb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/fm2fb.c	2004-05-10 02:32:28.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/fm2fb.c	2004-07-29 00:06:31.464799696 +0000
+@@ -280,7 +280,7 @@ static int __devinit fm2fb_probe(struct 
+ 	info->pseudo_palette = info->par;
+ 	info->par = NULL;
+ 	info->fix = fb_fix;
+-	info->flags = FBINFO_FLAG_DEFAULT;
++	info->flags = FBINFO_DEFAULT;
+ 
+ 	if (register_framebuffer(info) < 0) {
+ 		fb_dealloc_cmap(&info->cmap);
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/g364fb.c linux-2.6.8-rc2-mm1/drivers/video/g364fb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/g364fb.c	2004-05-10 02:32:00.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/g364fb.c	2004-07-29 00:06:31.465799544 +0000
+@@ -241,7 +241,7 @@ int __init g364fb_init(void)
+ 	fb_info.screen_base = (char *) G364_MEM_BASE;	/* virtual kernel address */
+ 	fb_info.var = fb_var;
+ 	fb_info.fix = fb_fix;
+-	fb_info.flags = FBINFO_FLAG_DEFAULT;
++	fb_info.flags = FBINFO_DEFAULT | FBINFO_HWACCEL_YPAN;
+ 
+ 	fb_alloc_cmap(&fb_info.cmap, 255, 0);
+ 
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/gbefb.c linux-2.6.8-rc2-mm1/drivers/video/gbefb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/gbefb.c	2004-07-15 12:26:34.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/gbefb.c	2004-07-29 00:06:31.466799392 +0000
+@@ -1135,7 +1135,7 @@ int __init gbefb_init(void)
+ 	fb_info.currcon = -1;
+ 	fb_info.fbops = &gbefb_ops;
+ 	fb_info.pseudo_palette = pseudo_palette;
+-	fb_info.flags = FBINFO_FLAG_DEFAULT;
++	fb_info.flags = FBINFO_DEFAULT;
+ 	fb_info.screen_base = gbe_mem;
+ 	fb_alloc_cmap(&fb_info.cmap, 256, 0);
+ 
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/hgafb.c linux-2.6.8-rc2-mm1/drivers/video/hgafb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/hgafb.c	2004-07-15 12:26:34.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/hgafb.c	2004-07-29 00:06:31.467799240 +0000
+@@ -558,7 +558,7 @@ int __init hgafb_init(void)
+ 	hga_fix.smem_start = VGA_MAP_MEM(hga_vram_base);
+ 	hga_fix.smem_len = hga_vram_len;
+ 
+-	fb_info.flags = FBINFO_FLAG_DEFAULT;
++	fb_info.flags = FBINFO_DEFAULT | FBINFO_HWACCEL_YPAN;
+ 	fb_info.var = hga_default_var;
+ 	fb_info.fix = hga_fix;
+ 	fb_info.monspecs.hfmin = 0;
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/hitfb.c linux-2.6.8-rc2-mm1/drivers/video/hitfb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/hitfb.c	2004-05-10 02:32:00.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/hitfb.c	2004-07-29 00:06:31.468799088 +0000
+@@ -321,7 +321,7 @@ int __init hitfb_init(void)
+ 	fb_info.var = hitfb_var;
+ 	fb_info.fix = hitfb_fix;
+ 	fb_info.pseudo_palette = pseudo_palette;
+-	fb_info.flags = FBINFO_FLAG_DEFAULT;
++	fb_info.flags = FBINFO_DEFAULT | FBINFO_HWACCEL_YPAN;
+ 
+ 	fb_info.screen_base = (void *)hitfb_fix.smem_start;
+ 
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/hpfb.c linux-2.6.8-rc2-mm1/drivers/video/hpfb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/hpfb.c	2004-05-10 02:32:37.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/hpfb.c	2004-07-29 00:06:31.469798936 +0000
+@@ -151,7 +151,7 @@ int __init hpfb_init_one(unsigned long b
+ 	 *	Let there be consoles..
+ 	 */
+ 	fb_info.fbops = &hpfb_ops;
+-	fb_info.flags = FBINFO_FLAG_DEFAULT;
++	fb_info.flags = FBINFO_DEFAULT;
+ 	fb_info.var   = hpfb_defined;
+ 	fb_info.fix   = hpfb_fix;
+ 	fb_info.screen_base = (char *)hpfb_fix.smem_start;	// FIXME
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/igafb.c linux-2.6.8-rc2-mm1/drivers/video/igafb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/igafb.c	2004-05-10 02:32:38.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/igafb.c	2004-07-29 00:06:31.470798784 +0000
+@@ -357,7 +357,7 @@ static int __init iga_init(struct fb_inf
+                 video_cmap_len = 256;
+ 
+ 	info->fbops = &igafb_ops;
+-	info->flags = FBINFO_FLAG_DEFAULT;
++	info->flags = FBINFO_DEFAULT;
+ 
+ 	fb_alloc_cmap(&info->cmap, video_cmap_len, 0);
+ 
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/imsttfb.c linux-2.6.8-rc2-mm1/drivers/video/imsttfb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/imsttfb.c	2004-07-28 19:50:54.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/imsttfb.c	2004-07-29 00:06:31.471798632 +0000
+@@ -1442,7 +1442,10 @@ init_imstt(struct fb_info *info)
+ 	info->var.pixclock = 1000000 / getclkMHz(par);
+ 
+ 	info->fbops = &imsttfb_ops;
+-	info->flags = FBINFO_FLAG_DEFAULT;
++	info->flags = FBINFO_DEFAULT |
++                      FBINFO_HWACCEL_COPYAREA |
++	              FBINFO_HWACCEL_FILLRECT |
++	              FBINFO_HWACCEL_YPAN;
+ 
+ 	fb_alloc_cmap(&info->cmap, 0, 0);
+ 
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/kyro/fbdev.c linux-2.6.8-rc2-mm1/drivers/video/kyro/fbdev.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/kyro/fbdev.c	2004-07-28 19:50:54.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/kyro/fbdev.c	2004-07-29 00:06:31.472798480 +0000
+@@ -712,7 +712,7 @@ static int __devinit kyrofb_probe(struct
+ 	info->fix		= kyro_fix;
+ 	info->par		= currentpar;
+ 	info->pseudo_palette	= (void *)(currentpar + 1);
+-	info->flags		= FBINFO_FLAG_DEFAULT;
++	info->flags		= FBINFO_DEFAULT;
+ 
+ 	SetCoreClockPLL(deviceInfo.pSTGReg, pdev);
+ 
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/leo.c linux-2.6.8-rc2-mm1/drivers/video/leo.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/leo.c	2004-05-10 02:33:13.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/leo.c	2004-07-29 00:06:31.473798328 +0000
+@@ -588,7 +588,7 @@ static void leo_init_one(struct sbus_dev
+ 		sbus_ioremap(&sdev->resource[0], LEO_OFF_LX_CURSOR,
+ 			     sizeof(struct leo_cursor), "leolx cursor");
+ 
+-	all->info.flags = FBINFO_FLAG_DEFAULT;
++	all->info.flags = FBINFO_DEFAULT | FBINFO_HWACCEL_YPAN;
+ 	all->info.fbops = &leo_ops;
+ 	all->info.currcon = -1;
+ 	all->info.par = &all->par;
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/macfb.c linux-2.6.8-rc2-mm1/drivers/video/macfb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/macfb.c	2004-07-29 00:06:11.611817808 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/macfb.c	2004-07-29 00:06:31.475798024 +0000
+@@ -950,7 +950,7 @@ void __init macfb_init(void)
+ 	fb_info.var		= macfb_defined;
+ 	fb_info.fix		= macfb_fix;
+ 	fb_info.pseudo_palette	= pseudo_palette;
+-	fb_info.flags		= FBINFO_FLAG_DEFAULT;
++	fb_info.flags		= FBINFO_DEFAULT;
+ 
+ 	fb_alloc_cmap(&fb_info.cmap, video_cmap_len, 0);
  	
- 	if (mode & CM_SOFTBACK) {
-@@ -1016,7 +1051,7 @@ static void fbcon_cursor(struct vc_data 
- 		fbcon_set_origin(vc);
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/maxinefb.c linux-2.6.8-rc2-mm1/drivers/video/maxinefb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/maxinefb.c	2004-05-10 02:32:26.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/maxinefb.c	2004-07-29 00:06:31.475798024 +0000
+@@ -159,7 +159,7 @@ int __init maxinefb_init(void)
+ 	fb_info.screen_base = (char *) maxinefb_fix.smem_start;
+ 	fb_info.var = maxinefb_defined;
+ 	fb_info.fix = maxinefb_fix;
+-	fb_info.flags = FBINFO_FLAG_DEFAULT;
++	fb_info.flags = FBINFO_DEFAULT;
  
-  	c = scr_readw((u16 *) vc->vc_pos);
--
-+	underline = is_underline(info, c);
- 	cursor.image.data = vc->vc_font.data + ((c & charmask) * (w * vc->vc_font.height));
- 	cursor.set = FB_CUR_SETCUR;
- 	cursor.image.depth = 1;
-@@ -1032,11 +1067,13 @@ static void fbcon_cursor(struct vc_data 
- 	case CM_MOVE:
- 	case CM_DRAW:
- 		info->cursor.enable = 1;
--		
--		if (info->cursor.image.fg_color != attr_fgcol(fgshift, c) ||
--	    	    info->cursor.image.bg_color != attr_bgcol(bgshift, c)) {
--			cursor.image.fg_color = attr_fgcol(fgshift, c);
--			cursor.image.bg_color = attr_bgcol(bgshift, c);
-+		fg = get_color(vc, info, c, 1);
-+		bg = get_color(vc, info, c, 0);
-+
-+		if (info->cursor.image.fg_color != fg ||
-+		    info->cursor.image.bg_color != bg) {
-+			cursor.image.fg_color = fg;
-+			cursor.image.bg_color = bg;
- 			cursor.set |= FB_CUR_SETCMAP;
- 		}
- 		
-@@ -1060,9 +1097,11 @@ static void fbcon_cursor(struct vc_data 
- 		}
+ 	fb_alloc_cmap(&fb_info.cmap, 256, 0);
  
- 		if ((cursor.set & FB_CUR_SETSIZE) || ((vc->vc_cursor_type & 0x0f) != p->cursor_shape)
--		    || info->cursor.mask == NULL) {
-+		    || info->cursor.mask == NULL || info->cursor.ul != attr_underline(c) ||
-+		    info->cursor.rev != attr_reverse(c, p->inverse)) {
- 			char *mask = kmalloc(w*vc->vc_font.height, GFP_ATOMIC);
- 			int cur_height, size, i = 0;
-+			u8 msk = 0xff;
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/neofb.c linux-2.6.8-rc2-mm1/drivers/video/neofb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/neofb.c	2004-07-15 12:26:34.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/neofb.c	2004-07-29 00:06:31.477797720 +0000
+@@ -2055,7 +2055,11 @@ static struct fb_info *__devinit neo_all
+ 	info->fix.accel = id->driver_data;
  
- 			if (!mask)	return;	
- 		
-@@ -1070,6 +1109,11 @@ static void fbcon_cursor(struct vc_data 
- 				kfree(info->cursor.mask);
- 			info->cursor.mask = mask;
- 	
-+			info->cursor.ul = attr_underline(c);
-+			info->cursor.rev = attr_reverse(c, p->inverse);
-+
-+			if (info->cursor.rev)
-+				msk = 0;
- 			p->cursor_shape = vc->vc_cursor_type & 0x0f;
- 			cursor.set |= FB_CUR_SETSHAPE;
- 
-@@ -1096,10 +1140,14 @@ static void fbcon_cursor(struct vc_data 
- 			}
- 			size = (vc->vc_font.height - cur_height) * w;
- 			while (size--)
--				mask[i++] = 0;
-+				mask[i++] = ~msk;
- 			size = cur_height * w;
--			while (size--)
--				mask[i++] = 0xff;
-+			if (info->cursor.ul) 
-+				msk = ~msk;
-+			if (info->cursor.ul)
-+				msk = ~msk;
-+			while (size--) 
-+				mask[i++] = msk;
- 		}
-         	info->cursor.rop = ROP_XOR;
- 		info->fbops->fb_cursor(info, &cursor);
-@@ -1140,7 +1188,7 @@ static void fbcon_set_disp(struct fb_inf
- 	if (p->userfont)
- 		charcnt = FNTCHARCNT(p->fontdata);
- 
--	vc->vc_can_do_color = info->var.bits_per_pixel != 1;
-+	vc->vc_can_do_color = (fb_get_color_depth(info) != 1);
- 	vc->vc_complement_mask = vc->vc_can_do_color ? 0x7700 : 0x0800;
- 	if (charcnt == 256) {
- 		vc->vc_hi_font_mask = 0;
-@@ -1897,6 +1945,10 @@ static int fbcon_switch(struct vc_data *
- 		info->flags &= ~FBINFO_MISC_MODESWITCH;
- 	}
- 
-+	info->var.xoffset = info->var.yoffset = p->yscroll = 0;
-+	vc->vc_can_do_color = (fb_get_color_depth(info) != 1);
-+	vc->vc_complement_mask = vc->vc_can_do_color ? 0x7700 : 0x0800;
-+
- 	switch (p->scrollmode) {
- 	case SCROLL_WRAP_MOVE:
- 		scrollback_phys_max = p->vrows - vc->vc_rows;
-@@ -2320,26 +2372,31 @@ static struct fb_cmap palette_cmap = {
- static int fbcon_set_palette(struct vc_data *vc, unsigned char *table)
- {
- 	struct fb_info *info = registered_fb[(int) con2fb_map[vc->vc_num]];
--	int i, j, k;
-+	int i, j, k, depth;
- 	u8 val;
- 
--	if (!vc->vc_can_do_color
--	    || (!info->fbops->fb_blank && console_blanked))
-+	if (!info->fbops->fb_blank && console_blanked)
- 		return -EINVAL;
--	for (i = j = 0; i < 16; i++) {
--		k = table[i];
--		val = vc->vc_palette[j++];
--		palette_red[k] = (val << 8) | val;
--		val = vc->vc_palette[j++];
--		palette_green[k] = (val << 8) | val;
--		val = vc->vc_palette[j++];
--		palette_blue[k] = (val << 8) | val;
--	}
--	if (info->var.bits_per_pixel <= 4)
--		palette_cmap.len = 1 << info->var.bits_per_pixel;
--	else
-+	depth = fb_get_color_depth(info);
-+	if (depth > 3) {
-+		for (i = j = 0; i < 16; i++) {
-+			k = table[i];
-+			val = vc->vc_palette[j++];
-+			palette_red[k] = (val << 8) | val;
-+			val = vc->vc_palette[j++];
-+			palette_green[k] = (val << 8) | val;
-+			val = vc->vc_palette[j++];
-+			palette_blue[k] = (val << 8) | val;
-+		}
- 		palette_cmap.len = 16;
--	palette_cmap.start = 0;
-+		palette_cmap.start = 0;
-+	/*
-+	 * If framebuffer is capable of less than 16 colors,
-+	 * use default palette of fbcon.
-+	 */
-+	} else 
-+		fb_copy_cmap(fb_default_cmap(1 << depth), &palette_cmap, 0);
-+
- 	return fb_set_cmap(&palette_cmap, 1, info);
+ 	info->fbops = &neofb_ops;
+-	info->flags = FBINFO_FLAG_DEFAULT;
++	info->flags = FBINFO_DEFAULT |
++	              FBINFO_HWACCEL_IMAGEBLIT |
++                      FBINFO_HWACCEL_FILLRECT |
++                      FBINFO_HWACCEL_COPYAREA |
++                      FBINFO_HWACCEL_YPAN;
+ 	info->pseudo_palette = (void *) (par + 1);
+ 	return info;
  }
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/offb.c linux-2.6.8-rc2-mm1/drivers/video/offb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/offb.c	2004-05-10 02:33:20.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/offb.c	2004-07-29 00:06:31.478797568 +0000
+@@ -527,7 +527,7 @@ static void __init offb_init_fb(const ch
+ 	info->screen_base = ioremap(address, fix->smem_len);
+ 	info->par = par;
+ 	info->pseudo_palette = (void *) (info + 1);
+-	info->flags = FBINFO_FLAG_DEFAULT;
++	info->flags = FBINFO_DEFAULT;
  
-@@ -2546,8 +2603,6 @@ static void fbcon_modechanged(struct fb_
- 	p = &fb_display[vc->vc_num];
+ 	fb_alloc_cmap(&info->cmap, 256, 0);
  
- 	info->var.xoffset = info->var.yoffset = p->yscroll = 0;
--	vc->vc_can_do_color = info->var.bits_per_pixel != 1;
--	vc->vc_complement_mask = vc->vc_can_do_color ? 0x7700 : 0x0800;
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/p9100.c linux-2.6.8-rc2-mm1/drivers/video/p9100.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/p9100.c	2004-05-10 02:32:54.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/p9100.c	2004-07-29 00:06:31.479797416 +0000
+@@ -297,7 +297,7 @@ static void p9100_init_one(struct sbus_d
+ 		sbus_ioremap(&sdev->resource[0], 0,
+ 			     sizeof(struct p9100_regs), "p9100 regs");
  
- 	if (CON_IS_VISIBLE(vc)) {
- 		cols = info->var.xres / vc->vc_font.width;
-diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/fbmem.c linux-2.6.8-rc2-mm1/drivers/video/fbmem.c
---- linux-2.6.8-rc2-mm1-orig/drivers/video/fbmem.c	2004-07-28 19:52:27.143266336 +0000
-+++ linux-2.6.8-rc2-mm1/drivers/video/fbmem.c	2004-07-28 19:56:09.957393440 +0000
-@@ -428,6 +428,24 @@ static int ofonly __initdata = 0;
- #endif
+-	all->info.flags = FBINFO_FLAG_DEFAULT;
++	all->info.flags = FBINFO_DEFAULT;
+ 	all->info.fbops = &p9100_ops;
+ #ifdef CONFIG_SPARC32
+ 	all->info.screen_base = (char *)
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/platinumfb.c linux-2.6.8-rc2-mm1/drivers/video/platinumfb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/platinumfb.c	2004-05-10 02:32:28.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/platinumfb.c	2004-07-29 00:06:31.480797264 +0000
+@@ -311,7 +311,7 @@ static void __devinit platinum_init_info
+ 	/* Fill fb_info */
+ 	info->fbops = &platinumfb_ops;
+ 	info->pseudo_palette = pinfo->pseudo_palette;
+-        info->flags = FBINFO_FLAG_DEFAULT;
++        info->flags = FBINFO_DEFAULT;
+ 	info->screen_base = (char *) pinfo->frame_buffer + 0x20;
  
- /*
-+ * Helpers
-+ */
-+
-+int fb_get_color_depth(struct fb_info *info)
-+{
-+	struct fb_var_screeninfo *var = &info->var;
-+
-+	if (var->green.length == var->blue.length &&
-+	    var->green.length == var->red.length &&
-+	    !var->green.offset && !var->blue.offset &&
-+	    !var->red.offset)
-+		return var->green.length;
-+	else
-+		return (var->green.length + var->red.length +
-+			var->blue.length);
-+}
-+
-+/*
-  * Drawing helpers.
-  */
- void fb_iomove_buf_aligned(struct fb_info *info, struct fb_pixmap *buf,
-@@ -646,9 +664,12 @@ static void fb_set_logo(struct fb_info *
- 			       const struct linux_logo *logo, u8 *dst,
- 			       int depth)
- {
--	int i, j, shift;
-+	int i, j, k, fg = 1;
- 	const u8 *src = logo->data;
--	u8 d, xor = 0;
-+	u8 d, xor = (info->fix.visual == FB_VISUAL_MONO01) ? 0xff : 0;
-+
-+	if (fb_get_color_depth(info) == 3)
-+		fg = 7;
+ 	fb_alloc_cmap(&info->cmap, 256, 0);
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/pm2fb.c linux-2.6.8-rc2-mm1/drivers/video/pm2fb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/pm2fb.c	2004-07-15 12:26:34.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/pm2fb.c	2004-07-29 00:06:31.482796960 +0000
+@@ -1124,7 +1124,8 @@ static int __devinit pm2fb_probe(struct 
+ 	info->fbops		= &pm2fb_ops;
+ 	info->fix		= pm2fb_fix; 	
+ 	info->pseudo_palette	= (void *)(default_par + 1); 
+-	info->flags		= FBINFO_FLAG_DEFAULT;
++	info->flags		= FBINFO_DEFAULT |
++                                  FBINFO_HWACCEL_YPAN;
  
- 	switch (depth) {
- 	case 4:
-@@ -662,17 +683,14 @@ static void fb_set_logo(struct fb_info *
- 				}
- 			}
- 		break;
--	case ~1:
--		xor = 0xff;
- 	case 1:
- 		for (i = 0; i < logo->height; i++) {
--			shift = 7;
--			d = *src++ ^ xor;
--			for (j = 0; j < logo->width; j++) {
--				*dst++ = (d >> shift) & 1;
--				shift = (shift-1) & 7;
--				if (shift == 7)
--					d = *src++ ^ xor;
-+			for (j = 0; j < logo->width; src++) {
-+				d = *src ^ xor;
-+				for (k = 7; k >= 0; k--) {
-+					*dst++ = ((d >> k) & 1) ? fg : 0;
-+					j++;
-+				}
- 			}
- 		}
- 		break;
-@@ -734,7 +752,7 @@ int fb_prepare_logo(struct fb_info *info
- 	}
+ #ifndef MODULE
+ 	if (!mode)
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/pmag-ba-fb.c linux-2.6.8-rc2-mm1/drivers/video/pmag-ba-fb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/pmag-ba-fb.c	2004-05-10 02:33:20.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/pmag-ba-fb.c	2004-07-29 00:06:31.483796808 +0000
+@@ -142,7 +142,7 @@ int __init pmagbafb_init_one(int slot)
+ 	info->var = pmagbafb_defined;
+ 	info->fix = pmagbafb_fix; 
+ 	info->screen_base = pmagbafb_fix.smem_start;
+-	info->flags = FBINFO_FLAG_DEFAULT;
++	info->flags = FBINFO_DEFAULT;
  
- 	/* Return if no suitable logo was found */
--	fb_logo.logo = fb_find_logo(info->var.bits_per_pixel);
-+	fb_logo.logo = fb_find_logo(fb_get_color_depth(info));
+ 	fb_alloc_cmap(&fb_info.cmap, 256, 0);
  	
- 	if (!fb_logo.logo || fb_logo.logo->height > info->var.yres) {
- 		fb_logo.logo = NULL;
-@@ -761,7 +779,7 @@ int fb_show_logo(struct fb_info *info)
- 	if (fb_logo.logo == NULL || info->state != FBINFO_STATE_RUNNING)
- 		return 0;
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/pmagb-b-fb.c linux-2.6.8-rc2-mm1/drivers/video/pmagb-b-fb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/pmagb-b-fb.c	2004-05-10 02:32:39.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/pmagb-b-fb.c	2004-07-29 00:06:31.483796808 +0000
+@@ -145,7 +145,7 @@ int __init pmagbbfb_init_one(int slot)
+ 	info->var = pmagbbfb_defined;
+ 	info->fix = pmagbbfb_fix;
+ 	info->screen_base = pmagbbfb_fix.smem_start; 
+-	info->flags = FBINFO_FLAG_DEFAULT;
++	info->flags = FBINFO_DEFAULT;
  
--	image.depth = fb_logo.depth;
-+	image.depth = 8;
- 	image.data = fb_logo.logo->data;
+ 	fb_alloc_cmap(&fb_info.cmap, 256, 0);
  
- 	if (fb_logo.needs_cmapreset)
-@@ -782,7 +800,7 @@ int fb_show_logo(struct fb_info *info)
- 		info->pseudo_palette = palette;
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/pvr2fb.c linux-2.6.8-rc2-mm1/drivers/video/pvr2fb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/pvr2fb.c	2004-05-10 02:32:00.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/pvr2fb.c	2004-07-29 00:06:31.484796656 +0000
+@@ -795,7 +795,7 @@ static int __init pvr2fb_common_init(voi
+ 	fb_info->fix		= pvr2_fix;
+ 	fb_info->par		= currentpar;
+ 	fb_info->pseudo_palette	= (void *)(fb_info->par + 1);
+-	fb_info->flags		= FBINFO_FLAG_DEFAULT;
++	fb_info->flags		= FBINFO_DEFAULT | FBINFO_HWACCEL_YPAN;
+ 
+ 	if (video_output == VO_VGA)
+ 		defmode = DEFMODE_VGA;
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/pxafb.c linux-2.6.8-rc2-mm1/drivers/video/pxafb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/pxafb.c	2004-07-28 19:50:54.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/pxafb.c	2004-07-29 00:06:31.486796352 +0000
+@@ -1040,7 +1040,7 @@ static struct pxafb_info * __init pxafb_
+ 	fbi->fb.var.vmode	= FB_VMODE_NONINTERLACED;
+ 
+ 	fbi->fb.fbops		= &pxafb_ops;
+-	fbi->fb.flags		= FBINFO_FLAG_DEFAULT;
++	fbi->fb.flags		= FBINFO_DEFAULT;
+ 	fbi->fb.node		= -1;
+ 	fbi->fb.currcon		= -1;
+ 
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/q40fb.c linux-2.6.8-rc2-mm1/drivers/video/q40fb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/q40fb.c	2004-07-15 12:26:34.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/q40fb.c	2004-07-29 00:06:31.487796200 +0000
+@@ -105,7 +105,7 @@ static int __init q40fb_probe(struct dev
+ 	info->var = q40fb_var;
+ 	info->fix = q40fb_fix;
+ 	info->fbops = &q40fb_ops;
+-	info->flags = FBINFO_FLAG_DEFAULT;  /* not as module for now */
++	info->flags = FBINFO_DEFAULT;  /* not as module for now */
+ 	info->pseudo_palette = info->par;
+ 	info->par = NULL;
+ 	info->screen_base = (char *) q40fb_fix.smem_start;
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/radeonfb.c linux-2.6.8-rc2-mm1/drivers/video/radeonfb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/radeonfb.c	2004-07-28 19:51:13.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/radeonfb.c	2004-07-29 00:06:31.489795896 +0000
+@@ -2250,7 +2250,7 @@ static int __devinit radeon_set_fbinfo (
+ 	info->currcon = -1;
+ 	info->par = rinfo;
+ 	info->pseudo_palette = rinfo->pseudo_palette;
+-        info->flags = FBINFO_FLAG_DEFAULT;
++        info->flags = FBINFO_DEFAULT | FBINFO_HWACCEL_YPAN;
+         info->fbops = &radeonfb_ops;
+         info->screen_base = (char *)rinfo->fb_base;
+ 
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/sa1100fb.c linux-2.6.8-rc2-mm1/drivers/video/sa1100fb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/sa1100fb.c	2004-07-28 19:50:54.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/sa1100fb.c	2004-07-29 00:06:31.491795592 +0000
+@@ -1673,7 +1673,7 @@ static struct sa1100fb_info * __init sa1
+ 	fbi->fb.var.vmode	= FB_VMODE_NONINTERLACED;
+ 
+ 	fbi->fb.fbops		= &sa1100fb_ops;
+-	fbi->fb.flags		= FBINFO_FLAG_DEFAULT;
++	fbi->fb.flags		= FBINFO_DEFAULT;
+ 	fbi->fb.monspecs	= monspecs;
+ 	fbi->fb.currcon		= -1;
+ 	fbi->fb.pseudo_palette	= (fbi + 1);
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/sgivwfb.c linux-2.6.8-rc2-mm1/drivers/video/sgivwfb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/sgivwfb.c	2004-05-10 02:32:30.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/sgivwfb.c	2004-07-29 00:06:31.493795288 +0000
+@@ -790,7 +790,7 @@ int __init sgivwfb_init(void)
+ 	fb_info.fbops = &sgivwfb_ops;
+ 	fb_info.pseudo_palette = pseudo_palette;
+ 	fb_info.par = &default_par;
+-	fb_info.flags = FBINFO_FLAG_DEFAULT;
++	fb_info.flags = FBINFO_DEFAULT;
+ 
+ 	fb_info.screen_base = ioremap_nocache((unsigned long) sgivwfb_mem_phys, sgivwfb_mem_size);
+ 	if (!fb_info.screen_base) {
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/sstfb.c linux-2.6.8-rc2-mm1/drivers/video/sstfb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/sstfb.c	2004-07-28 19:50:54.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/sstfb.c	2004-07-29 00:06:31.494795136 +0000
+@@ -1473,7 +1473,7 @@ static int __devinit sstfb_probe(struct 
+ 	f_ddprintk("membase_phys: %#lx\n", fix->smem_start);
+ 	f_ddprintk("fbbase_virt: %p\n", info->screen_base);
+ 
+-	info->flags	= FBINFO_FLAG_DEFAULT;
++	info->flags	= FBINFO_DEFAULT;
+ 	info->fbops	= &sstfb_ops;
+ 	info->currcon	= -1;
+ 	info->pseudo_palette = &all->pseudo_palette;
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/stifb.c linux-2.6.8-rc2-mm1/drivers/video/stifb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/stifb.c	2004-07-29 00:06:11.613817504 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/stifb.c	2004-07-29 00:06:31.496794832 +0000
+@@ -1325,7 +1325,7 @@ stifb_init_fb(struct sti_struct *sti, in
+ 	strcpy(fix->id, "stifb");
+ 	info->fbops = &stifb_ops;
+ 	info->screen_base = (void*) REGION_BASE(fb,1);
+-	info->flags = FBINFO_FLAG_DEFAULT;
++	info->flags = FBINFO_DEFAULT;
+ 	info->currcon = -1;
+ 
+ 	/* This has to been done !!! */
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/tcx.c linux-2.6.8-rc2-mm1/drivers/video/tcx.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/tcx.c	2004-05-10 02:31:55.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/tcx.c	2004-07-29 00:06:31.497794680 +0000
+@@ -412,7 +412,7 @@ static void tcx_init_one(struct sbus_dev
+ 		all->par.mmap_map[i].poff = sdev->reg_addrs[j].phys_addr;
  	}
  
--	if (fb_logo.depth == 4) {
-+	if (fb_logo.depth <= 4) {
- 		logo_new = kmalloc(fb_logo.logo->width * fb_logo.logo->height, 
- 				   GFP_KERNEL);
- 		if (logo_new == NULL) {
-diff -uprN linux-2.6.8-rc2-mm1-orig/include/linux/fb.h linux-2.6.8-rc2-mm1/include/linux/fb.h
---- linux-2.6.8-rc2-mm1-orig/include/linux/fb.h	2004-07-28 19:54:25.415286256 +0000
-+++ linux-2.6.8-rc2-mm1/include/linux/fb.h	2004-07-28 19:56:09.959393136 +0000
-@@ -376,6 +376,8 @@ struct fb_cursor {
- 	__u16 set;		/* what to set */
- 	__u16 enable;		/* cursor on/off */
- 	__u16 rop;		/* bitop operation */
-+	__u16 ul;               /* underlined? */
-+	__u16 rev;              /* reversed? */
- 	const char *mask;	/* cursor mask bits */
- 	struct fbcurpos hot;	/* cursor hot spot */
- 	struct fb_image	image;	/* Cursor image */
-@@ -653,6 +655,7 @@ extern void fb_sysmove_buf_aligned(struc
- 				u32 height);
- extern void fb_load_cursor_image(struct fb_info *);
- extern void fb_set_suspend(struct fb_info *info, int state);
-+extern int fb_get_color_depth(struct fb_info *info);
+-	all->info.flags = FBINFO_FLAG_DEFAULT;
++	all->info.flags = FBINFO_DEFAULT;
+ 	all->info.fbops = &tcx_ops;
+ #ifdef CONFIG_SPARC32
+ 	all->info.screen_base = (char *)
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/tdfxfb.c linux-2.6.8-rc2-mm1/drivers/video/tdfxfb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/tdfxfb.c	2004-07-28 19:50:54.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/tdfxfb.c	2004-07-29 00:06:31.498794528 +0000
+@@ -1253,7 +1253,11 @@ static int __devinit tdfxfb_probe(struct
+ 	info->fix		= tdfx_fix; 	
+ 	info->par		= default_par;
+ 	info->pseudo_palette	= (void *)(default_par + 1); 
+-	info->flags		= FBINFO_FLAG_DEFAULT;
++	info->flags		= FBINFO_DEFAULT |
++                                  FBINFO_HWACCEL_COPYAREA |
++                                  FBINFO_HWACCEL_FILLRECT |
++                                  FBINFO_HWACCEL_IMAGEBLIT |
++	                          FBINFO_HWACCEL_YPAN;
  
- extern struct fb_info *registered_fb[FB_MAX];
- extern int num_registered_fb;
+ #ifndef MODULE
+ 	if (!mode_option)
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/tgafb.c linux-2.6.8-rc2-mm1/drivers/video/tgafb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/tgafb.c	2004-07-15 12:26:34.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/tgafb.c	2004-07-29 00:06:31.500794224 +0000
+@@ -1426,7 +1426,8 @@ tgafb_pci_register(struct pci_dev *pdev,
+ 	pci_read_config_byte(pdev, PCI_REVISION_ID, &all->par.tga_chip_rev);
+ 
+ 	/* Setup framebuffer.  */
+-	all->info.flags = FBINFO_FLAG_DEFAULT;
++	all->info.flags = FBINFO_DEFAULT | FBINFO_HWACCEL_COPYAREA |
++                          FBINFO_HWACCEL_IMAGEBLIT | FBINFO_HWACCEL_FILLRECT;
+ 	all->info.fbops = &tgafb_ops;
+ 	all->info.screen_base = (char *) all->par.tga_fb_base;
+ 	all->info.currcon = -1;
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/tridentfb.c linux-2.6.8-rc2-mm1/drivers/video/tridentfb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/tridentfb.c	2004-07-15 12:26:34.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/tridentfb.c	2004-07-29 00:06:31.502793920 +0000
+@@ -1149,7 +1149,10 @@ static int __devinit trident_pci_probe(s
+ 	fb_info.fbops = &tridentfb_ops;
+ 
+ 
+-	fb_info.flags = FBINFO_FLAG_DEFAULT;
++	fb_info.flags = FBINFO_DEFAULT | FBINFO_HWACCEL_YPAN;
++#ifdef CONFIG_FB_TRIDENT_ACCEL
++	fb_info.flags |= FBINFO_HWACCEL_COPYAREA | FBINFO_HWACCEL_FILLRECT;
++#endif
+ 	fb_info.pseudo_palette = pseudo_pal;
+ 
+ 	if (!fb_find_mode(&default_var,&fb_info,mode,NULL,0,NULL,bpp))
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/tx3912fb.c linux-2.6.8-rc2-mm1/drivers/video/tx3912fb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/tx3912fb.c	2004-07-29 00:06:11.614817352 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/tx3912fb.c	2004-07-29 00:06:31.503793768 +0000
+@@ -299,7 +299,7 @@ int __init tx3912fb_init(void)
+ 	fb_info.var = tx3912fb_var;
+ 	fb_info.fix = tx3912fb_fix;
+ 	fb_info.pseudo_palette = pseudo_palette;
+-	fb_info.flags = FBINFO_FLAG_DEFAULT;
++	fb_info.flags = FBINFO_DEFAULT;
+ 
+ 	/* Clear the framebuffer */
+ 	memset((void *) fb_info.fix.smem_start, 0xff, fb_info.fix.smem_len);
+diff -uprN linux-2.6.8-rc2-mm1-orig/drivers/video/valkyriefb.c linux-2.6.8-rc2-mm1/drivers/video/valkyriefb.c
+--- linux-2.6.8-rc2-mm1-orig/drivers/video/valkyriefb.c	2004-07-28 19:51:13.000000000 +0000
++++ linux-2.6.8-rc2-mm1/drivers/video/valkyriefb.c	2004-07-29 00:06:31.504793616 +0000
+@@ -540,7 +540,7 @@ static void __init valkyrie_init_info(st
+ {
+ 	info->fbops = &valkyriefb_ops;
+ 	info->screen_base = (char *) p->frame_buffer + 0x1000;
+-	info->flags = FBINFO_FLAG_DEFAULT;
++	info->flags = FBINFO_DEFAULT;
+ 	info->pseudo_palette = p->pseudo_palette;
+ 	fb_alloc_cmap(&info->cmap, 256, 0);
+ 	info->par = &p->par;
 
 

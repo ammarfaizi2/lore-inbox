@@ -1,54 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263082AbVCQOgJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262161AbVCQOpg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263082AbVCQOgJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 09:36:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263078AbVCQOgI
+	id S262161AbVCQOpg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 09:45:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262178AbVCQOpg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 09:36:08 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:56784 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263084AbVCQOfw (ORCPT
+	Thu, 17 Mar 2005 09:45:36 -0500
+Received: from gw.alcove.fr ([81.80.245.157]:64746 "EHLO smtp.fr.alcove.com")
+	by vger.kernel.org with ESMTP id S262161AbVCQOpY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 09:35:52 -0500
-Subject: Re: Why no bigphysarea in mainline?
-From: Dave Hansen <haveblue@us.ibm.com>
-To: michael@ellerman.id.au
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       PPC64 External List <linuxppc64-dev@ozlabs.org>
-In-Reply-To: <200503172057.06570.michael@ellerman.id.au>
-References: <200503172057.06570.michael@ellerman.id.au>
-Content-Type: text/plain
-Date: Thu, 17 Mar 2005 06:35:32 -0800
-Message-Id: <1111070132.19021.31.camel@localhost>
+	Thu, 17 Mar 2005 09:45:24 -0500
+Date: Thu, 17 Mar 2005 15:45:22 +0100
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Larry McVoy <lm@bitmover.com>
+Subject: BKCVS broken ?
+Message-ID: <20050317144522.GK22936@hottah.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Larry McVoy <lm@bitmover.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-03-17 at 20:57 +1100, Michael Ellerman wrote:
-> I realise bigphysarea is a bit of a hack, but it's no where near as
-> big a hack as using mem=X to limit the kernel's memory and then using
-> the rest of memory for your device driver.
+The current bkcvs export is broken, several recent changesets are
+missing from it.
 
-Well, the fact that you can get away with that is a coincidence.  What
-if you have 4GB of RAM on an x86 machine, you do mem=3G, and you start
-using that top GB of memory for your driver?  You eventually write into
-the PCI config space.  Ooops.  You get strange errors that way.
+This occurs at least in the mm/ directory, but I haven't verified
+if other directories are not affected. I detected this problem
+because the head of bkcvs doesn't compile anymore and shows errors
+in mm/* missing symbols.
 
-Doing mem= for drivers isn't just a hack, it's *WRONG*.  It's a ticking
-time bomb that magically happens to work on some systems.  It will not
-work consistently on a discontiguous memory system, or a memory hotplug
-system.
+One example:
 
-> If no one has any fundamental objections I think it'd be good to get
-> this merged into mainline so people start using it rather than mem=X
-> hacks. To that end please let me know what you think is wrong with
-> the patch as it stands (below).
+Take this changeset from Changeset,v:
+-------------------------------------------------------------
+1.27702
+log
+@[PATCH] orphaned pagecache memleak fix
 
-Could you give some examples of drivers which are in the kernel that
-could benefit from this patch?  We don't tend to put things like this
-in, unless they have actual users.  We don't tend to change code for
-out-of-tree users, either.
+Chris found that with data journaling a reiserfs pagecache may be truncate
+while still pinned.  The truncation removes the page->mapping, but the page
+is still listed in the VM queues because it still has buffers.  Then during
+the journaling process, a buffer is marked dirty and that sets the PG_dirty
+bitflag as well (in mark_buffer_dirty).  After that the page is leaked
+because it's both dirty and without a mapping.
 
--- Dave
+So we must allow pages without mapping and dirty to reach the PagePrivate
+check.  The page->mapping will be checked again right after the PagePrivate
+check.
 
+Signed-off-by: Andrea Arcangeli <andrea@@suse.de>
+Signed-off-by: Andrew Morton <akpm@@osdl.org>
+Signed-off-by: Linus Torvalds <torvalds@@osdl.org>
+
+BKrev: 4234d7beMW4wcFI6ltxdMMhApwDmuA
+-------------------------------------------------------------
+
+Looking at
+http://linux.bkbits.net:8080/linux-2.6/gnupatch@4234d7beMW4wcFI6ltxdMMhApwDmuA
+shows this changeset should contain a delta for mm/vmscan.c
+
+However, mm/vmscan.c,v contains:
+-------------------------------------------------------------
+head    1.238;  
+access;
+symbols;
+locks; strict; 
+comment @ * @;
+expand  @o@;
+
+
+1.238
+date    2005.03.10.17.06.39;    author pj;      state Exp;
+branches;
+next    1.237;  
+....
+1.238
+log
+@cpusets - big numa cpu and memory placement
+
+(Logical change 1.27465)
+@
+-------------------------------------------------------------
+
+The 'Logical change 1.27702' is missing from the file...
+
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

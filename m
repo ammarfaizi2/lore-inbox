@@ -1,60 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269688AbUHZXec@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269664AbUHZXdY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269688AbUHZXec (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 19:34:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269762AbUHZXdo
+	id S269664AbUHZXdY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 19:33:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269762AbUHZX3S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 19:33:44 -0400
-Received: from jib.isi.edu ([128.9.128.193]:54144 "EHLO jib.isi.edu")
-	by vger.kernel.org with ESMTP id S269688AbUHZXc5 (ORCPT
+	Thu, 26 Aug 2004 19:29:18 -0400
+Received: from fw.osdl.org ([65.172.181.6]:32936 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269784AbUHZX1s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 19:32:57 -0400
-Date: Thu, 26 Aug 2004 16:32:53 -0700
-From: Craig Milo Rogers <rogers@isi.edu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Termination of the Philips Webcam Driver (pwc)
-Message-ID: <20040826233244.GA1284@isi.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Thu, 26 Aug 2004 19:27:48 -0400
+Date: Thu, 26 Aug 2004 16:24:51 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: viro@parcelfarce.linux.theplanet.co.uk
+cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Rik van Riel <riel@redhat.com>, Diego Calleja <diegocg@teleline.es>,
+       jamie@shareable.org, christophe@saout.de, christer@weinigel.se,
+       spam@tnonline.net, akpm@osdl.org, wichert@wiggy.net, jra@samba.org,
+       reiser@namesys.com, hch@lst.de, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, flx@namesys.com,
+       reiserfs-list@namesys.com
+Subject: Re: [some sanity for a change] possible design issues for hybrids
+In-Reply-To: <20040826225308.GC21964@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.58.0408261619230.2304@ppc970.osdl.org>
+References: <Pine.LNX.4.44.0408261356330.27909-100000@chimarrao.boston.redhat.com>
+ <200408262128.41326.vda@port.imtp.ilyichevsk.odessa.ua>
+ <Pine.LNX.4.58.0408261132150.2304@ppc970.osdl.org>
+ <20040826191323.GY21964@parcelfarce.linux.theplanet.co.uk>
+ <20040826203228.GZ21964@parcelfarce.linux.theplanet.co.uk>
+ <Pine.LNX.4.58.0408261344150.2304@ppc970.osdl.org>
+ <20040826212853.GA21964@parcelfarce.linux.theplanet.co.uk>
+ <Pine.LNX.4.58.0408261436480.2304@ppc970.osdl.org>
+ <20040826223625.GB21964@parcelfarce.linux.theplanet.co.uk>
+ <Pine.LNX.4.58.0408261538030.2304@ppc970.osdl.org>
+ <20040826225308.GC21964@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	As a third party, I issue a plea for mediation.
 
-	Over on the linux-usb-devel mailing list, a spat has arisin
-between the Linux 2.6 USB maintainer, Greg K-H, and Nemosoft, the
-author of the driver (drivers/usb/media/pwc*) for certain
-Philips-based Web cameras.  As a result, Nemosoft has asked that his
-driver be removed from the Linux 2.6 kernel.
 
-	The driver is structured as two modules: an open-source
-module, included in the standard Linux kernel for years, which
-controls the basic operations of the camera chip, and a closed-source
-module, distributed in object format independently of the Linux
-kernel, that provides decompression services for proprietary codecs
-that are used for higher-resolution modes in some Web cameras based on
-this chip family.  A hook in the open-source driver allows
-decompression modules (codec modules) (which may, after all, be either
-open source or proprietary) to register with the main driver.
+On Thu, 26 Aug 2004 viro@parcelfarce.linux.theplanet.co.uk wrote:
+> 
+> What dentry->d_mountpoint?  No such thing...
 
-	Citing the fact that the only current use of the hook was to
-register a non-open-source module, and citing a policy statement by
-Linux Torvalds (see the discussion on the linux-usb-devel archive for
-details), Greg K-H removed the hook from Nemosoft's in-kernel driver,
-and Nemosoft withdrew his driver from Linux.
+Sorry - set "dentry->d_mounted++" + "add vfsmount/dentry to hashes".
 
-	As a not uninterested bystander (I just invested $200 of my
-personal money in Logitech web cameras on the strength of the pwc
-driver, based on Web research only two days old now!), I appeal for
-higher-level arbitration in this issue.  I, personally, would prefer a
-pure open-source kernel, and in fact, Nemosoft posted that he has at
-this time the opportunity to discuss with Philips the possibility of
-open-sourcing the codecs involved.  However, Greg K-H's unilateral
-decision to excise the pwc codec hook has so infuriated Nemosoft that,
-unless another maintainer for this driver steps forth, we may be left
-with no Linux support at all for this popular family of web cameras.
+Yes, it's not a direct list off the dentry, but it effectively is the same
+thing.
 
-					Craig Milo Rogers
+So basically: the "d_mounted++" just makes sure we get into
+"lookup_mnt()". That's where we will usually find the actual mount thing.
+
+And that's also where the special case comes in: if we _don't_ find the 
+mount thing there, that's where we need to create it. That will only 
+happen if somebody looks it up using another namespace, though, so it 
+should be rare.
+
+And when it does happen, we can just create a new vfsmount - we have all
+the information there (we'll have to walk the per-inode-or-whatever
+vfsmount list to find all the information to populate the thing with, of
+course. But we need that list _anyway_, so it should be a fairly 
+straightforward special case).
+
+			Linus

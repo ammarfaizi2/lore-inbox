@@ -1,744 +1,292 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261857AbTBSXXq>; Wed, 19 Feb 2003 18:23:46 -0500
+	id <S262500AbTBSXaT>; Wed, 19 Feb 2003 18:30:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262038AbTBSXXp>; Wed, 19 Feb 2003 18:23:45 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:38881 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S261857AbTBSXXf>; Wed, 19 Feb 2003 18:23:35 -0500
-Subject: Re: [PATCH][RFC] Proposal for a new watchdog interface using sysfs
-From: Rusty Lynch <rusty@linux.co.intel.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Pavel Machek <pavel@ucw.cz>, lkml <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@osdl.org>, Dave Jones <davej@codemonkey.org.uk>,
-       Daniel Pittman <daniel@rimspace.net>
-In-Reply-To: <1045274042.2961.4.camel@irongate.swansea.linux.org.uk>
-References: <1045106216.1089.16.camel@vmhack>
-	<1045160506.1721.22.camel@vmhack> <20030213230408.GA121@elf.ucw.cz>
-	<1045260726.1854.7.camel@irongate.swansea.linux.org.uk>
-	<20030214213542.GH23589@atrey.karlin.mff.cuni.cz>
-	<1045264651.13488.40.camel@vmhack> 
-	<1045274042.2961.4.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 18 Feb 2003 21:24:15 -0800
-Message-Id: <1045632256.2974.76.camel@vmhack>
-Mime-Version: 1.0
+	id <S262602AbTBSXaT>; Wed, 19 Feb 2003 18:30:19 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27142 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262500AbTBSXaI>; Wed, 19 Feb 2003 18:30:08 -0500
+Date: Wed, 19 Feb 2003 15:35:39 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Chris Wedgwood <cw@f00f.org>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Ingo Molnar <mingo@elte.hu>
+Subject: doublefault debugging (was Re: Linux v2.5.62 --- spontaneous reboots)
+In-Reply-To: <20030218230150.GA15657@f00f.org>
+Message-ID: <Pine.LNX.4.44.0302191527400.9786-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My original proposal raised a couple of issues with sysfs that make it
-difficult to move completely from the current watchdog model documented in 
-watchdog-api to a completely sysfs based implementation.
 
-Specifically, sysfs needs:
-* persistent file permissions
-* a way to forward ioctl's or in some way represent a device node in sysfs
+Ok, I wrote up this doublefault task-gate handler which has gotten some
+very very minimal testing, and which is probably totally buggered on SMP
+machines etc, but which has caught at least one double-fault on one of my
+test-machines (which I forced to double-fault by making %esp contain an
+invalid value in kernel mode).
 
-Both of these are non-trivial topics that from what I understand are being
-addressed, but will not be arriving soon.  
+If the reboot is due to a triple-fault, this may give out some debugging 
+information and then lock up hard instead of rebooting.
 
->From the feedback that I have heard, it is my understanding that people are 
-not put off by the concept of a sysfs representation of watchdog 
-devices/drivers as I have described with the class based approach, but we 
-need to support the existing char device as described in watchdog-api.txt, 
-and it would be nice if each driver did not have to re-implement the miscdevice
-code (open/close/ioctl/etc.)
+Change the "ptr_ok()" to match your hardware (or just make it do
 
-The following patch adds the ability for the watchdog infrastructure code
-to register as _the_ watchdog misc device, and forward appropriate calls
-to the first watchdog device to register with the infrastructure.
+	#define ptr_ok(x) (1)
 
-This approach is just as functional as the current model since we currently
-only allow the first driver to call misc_register with the watchdog minor
-to successfully register.  Once sysfs has persistent file permissions
-and the ability to forward ioctl's, then then miscdevice code can be removed
-from base.c and the drivers will not need to be touched.
+since I only really wrote it that way due to debugging the damn thing).
 
-    --rustyl
+Anyway, this patch should apply pretty directly on top of 2.5.62, and if 
+you run UP it might even work. So apply this, and try to crash the 
+machine, and see if it spits out any interesting information.
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1032  -> 1.1038 
-#	drivers/char/watchdog/Makefile	1.5     -> 1.8    
-#	include/linux/watchdog.h	1.4     -> 1.8    
-#	               (new)	        -> 1.4     drivers/char/watchdog/base.c
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/02/12	rusty@penguin.co.intel.com	1.1033
-# Adding a common infrastructure for watchdog timers to implement
-# a sysfs interface
-# --------------------------------------------
-# 03/02/13	rusty@penguin.co.intel.com	1.1034
-# Moving wdt_device from a platform_device to a sys_device,
-# making stop/start/keepalive be write-only, and removing the get_enable
-# and set_enable callbacks.
-# --------------------------------------------
-# 03/02/13	rusty@penguin.co.intel.com	1.1035
-# Changes that should have been adde to the last changeset
-# --------------------------------------------
-# 03/02/13	rusty@penguin.co.intel.com	1.1036
-# Reworked the watchdog infrastructure implementation to use the sysfs
-# class concept.
-# --------------------------------------------
-# 03/02/19	rusty@penguin.co.intel.com	1.1037
-# Added support for /dev/watchdog by registering the first watchdog
-# as a miscdevice using the watchdog minor.  Also added a new callback
-# to enable the firmware version of the watchdog to be queried as 
-# specified in watchdog-api.txt.
-# --------------------------------------------
-# 03/02/19	rusty@penguin.co.intel.com	1.1038
-# Removed the dummy1 and dummy2 testing files
-# --------------------------------------------
-#
-diff -Nru a/drivers/char/watchdog/Makefile b/drivers/char/watchdog/Makefile
---- a/drivers/char/watchdog/Makefile	Wed Feb 19 13:05:58 2003
-+++ b/drivers/char/watchdog/Makefile	Wed Feb 19 13:05:58 2003
-@@ -7,6 +7,8 @@
- # watchdog dies or is 'borrowed' for some reason the software watchdog
- # still gives you some cover.
+NOTE NOTE NOTE! When the double-fault happens, the machine as-is will be 
+COMPLETELY DEAD! Don't try to access "current" or anything like that, 
+since the stack is scrogged. That's why it gets the state by actually 
+reading the current value of gdt, and following it to the TSS structure.
+
+If this approach works, we can try to make the doublefault handling less 
+prone to lock up the machine (ie kill the offending task and continuing),  
+but in the meantime at least it should avoid having things like stack 
+errors result in triple faults and reboots.
+
+Improvements welcome (and boy was this a bitch to debug).
+
+		Linus
+
+-----
+===== arch/i386/kernel/Makefile 1.35 vs edited =====
+--- 1.35/arch/i386/kernel/Makefile	Tue Feb 18 18:59:01 2003
++++ edited/arch/i386/kernel/Makefile	Wed Feb 19 11:56:49 2003
+@@ -6,7 +6,8 @@
  
-+obj-y += base.o
+ obj-y	:= process.o semaphore.o signal.o entry.o traps.o irq.o vm86.o \
+ 		ptrace.o i8259.o ioport.o ldt.o setup.o time.o sys_i386.o \
+-		pci-dma.o i386_ksyms.o i387.o dmi_scan.o bootflag.o
++		pci-dma.o i386_ksyms.o i387.o dmi_scan.o bootflag.o \
++		doublefault.o
+ 
+ obj-y				+= cpu/
+ obj-y				+= timers/
+===== arch/i386/kernel/head.S 1.24 vs edited =====
+--- 1.24/arch/i386/kernel/head.S	Tue Feb 18 18:58:53 2003
++++ edited/arch/i386/kernel/head.S	Wed Feb 19 11:56:50 2003
+@@ -476,6 +476,13 @@
+ 	.quad 0x00009a0000000000	/* 0xc0 APM CS 16 code (16 bit) */
+ 	.quad 0x0040920000000000	/* 0xc8 APM DS    data */
+ 
++	.quad 0x0000000000000000	/* 0xd0 - unused */
++	.quad 0x0000000000000000	/* 0xd8 - unused */
++	.quad 0x0000000000000000	/* 0xe0 - unused */
++	.quad 0x0000000000000000	/* 0xe8 - unused */
++	.quad 0x0000000000000000	/* 0xf0 - unused */
++	.quad 0x0000000000000000	/* 0xf8 - GDT entry 31: double-fault TSS */
 +
- obj-$(CONFIG_PCWATCHDOG) += pcwd.o
- obj-$(CONFIG_ACQUIRE_WDT) += acquirewdt.o
- obj-$(CONFIG_ADVANTECH_WDT) += advantechwdt.o
-diff -Nru a/drivers/char/watchdog/base.c b/drivers/char/watchdog/base.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/drivers/char/watchdog/base.c	Wed Feb 19 13:05:58 2003
-@@ -0,0 +1,578 @@
-+/*
-+ * base.c
-+ *
-+ * Base watchdog timer infrastructure
-+ *
-+ * Copyright (C) 2003 Rusty Lynch <rusty@linux.co.intel.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the
-+ * Free Software Foundation; either version 2 of the License, or (at your
-+ * option) any later version.
-+ *
-+ * THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
-+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY 
-+ * AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL 
-+ * THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
-+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
-+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
-+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
-+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
-+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
-+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-+ *
-+ * You should have received a copy of the GNU General Public License along
-+ * with this program; if not, write to the Free Software Foundation, Inc.,
-+ * 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ * Send feedback to <rusty@linux.co.intel.com>
-+ */
+ #if CONFIG_SMP
+ 	.fill (NR_CPUS-1)*GDT_ENTRIES,8,0 /* other CPU's GDT */
+ #endif
+===== arch/i386/kernel/traps.c 1.44 vs edited =====
+--- 1.44/arch/i386/kernel/traps.c	Sat Feb 15 19:30:17 2003
++++ edited/arch/i386/kernel/traps.c	Wed Feb 19 11:56:50 2003
+@@ -775,7 +775,7 @@
+ }
+ #endif
+ 
+-#define _set_gate(gate_addr,type,dpl,addr) \
++#define _set_gate(gate_addr,type,dpl,addr,seg) \
+ do { \
+   int __d0, __d1; \
+   __asm__ __volatile__ ("movw %%dx,%%ax\n\t" \
+@@ -785,7 +785,7 @@
+ 	:"=m" (*((long *) (gate_addr))), \
+ 	 "=m" (*(1+(long *) (gate_addr))), "=&a" (__d0), "=&d" (__d1) \
+ 	:"i" ((short) (0x8000+(dpl<<13)+(type<<8))), \
+-	 "3" ((char *) (addr)),"2" (__KERNEL_CS << 16)); \
++	 "3" ((char *) (addr)),"2" ((seg) << 16)); \
+ } while (0)
+ 
+ 
+@@ -797,22 +797,27 @@
+  */
+ void set_intr_gate(unsigned int n, void *addr)
+ {
+-	_set_gate(idt_table+n,14,0,addr);
++	_set_gate(idt_table+n,14,0,addr,__KERNEL_CS);
+ }
+ 
+ static void __init set_trap_gate(unsigned int n, void *addr)
+ {
+-	_set_gate(idt_table+n,15,0,addr);
++	_set_gate(idt_table+n,15,0,addr,__KERNEL_CS);
+ }
+ 
+ static void __init set_system_gate(unsigned int n, void *addr)
+ {
+-	_set_gate(idt_table+n,15,3,addr);
++	_set_gate(idt_table+n,15,3,addr,__KERNEL_CS);
+ }
+ 
+ static void __init set_call_gate(void *a, void *addr)
+ {
+-	_set_gate(a,12,3,addr);
++	_set_gate(a,12,3,addr,__KERNEL_CS);
++}
 +
++static void __init set_task_gate(unsigned int n, unsigned int gdt_entry)
++{
++	_set_gate(idt_table+n,5,0,0,(gdt_entry<<3));
+ }
+ 
+ 
+@@ -843,7 +848,7 @@
+ 	set_system_gate(5,&bounds);
+ 	set_trap_gate(6,&invalid_op);
+ 	set_trap_gate(7,&device_not_available);
+-	set_trap_gate(8,&double_fault);
++	set_task_gate(8,GDT_ENTRY_DOUBLEFAULT_TSS);
+ 	set_trap_gate(9,&coprocessor_segment_overrun);
+ 	set_trap_gate(10,&invalid_TSS);
+ 	set_trap_gate(11,&segment_not_present);
+===== arch/i386/kernel/cpu/common.c 1.17 vs edited =====
+--- 1.17/arch/i386/kernel/cpu/common.c	Sat Dec 28 09:17:17 2002
++++ edited/arch/i386/kernel/cpu/common.c	Wed Feb 19 11:56:50 2003
+@@ -490,6 +490,10 @@
+ 	load_TR_desc();
+ 	load_LDT(&init_mm.context);
+ 
++	/* Set up doublefault TSS pointer in the GDT */
++	__set_tss_desc(cpu, GDT_ENTRY_DOUBLEFAULT_TSS, &doublefault_tss);
++	cpu_gdt_table[cpu][GDT_ENTRY_DOUBLEFAULT_TSS].b &= 0xfffffdff;
 +
-+#include <linux/module.h>
+ 	/* Clear %fs and %gs. */
+ 	asm volatile ("xorl %eax, %eax; movl %eax, %fs; movl %eax, %gs");
+ 
+===== include/asm-i386/desc.h 1.12 vs edited =====
+--- 1.12/include/asm-i386/desc.h	Sat Dec 28 09:18:49 2002
++++ edited/include/asm-i386/desc.h	Wed Feb 19 11:56:51 2003
+@@ -42,10 +42,12 @@
+ 	"rorl $16,%%eax" \
+ 	: "=m"(*(n)) : "a" (addr), "r"(n), "ir"(limit), "i"(type))
+ 
+-static inline void set_tss_desc(unsigned int cpu, void *addr)
++static inline void __set_tss_desc(unsigned int cpu, unsigned int entry, void *addr)
+ {
+-	_set_tssldt_desc(&cpu_gdt_table[cpu][GDT_ENTRY_TSS], (int)addr, 235, 0x89);
++	_set_tssldt_desc(&cpu_gdt_table[cpu][entry], (int)addr, 235, 0x89);
+ }
++
++#define set_tss_desc(cpu,addr) __set_tss_desc(cpu, GDT_ENTRY_TSS, addr)
+ 
+ static inline void set_ldt_desc(unsigned int cpu, void *addr, unsigned int size)
+ {
+===== include/asm-i386/processor.h 1.39 vs edited =====
+--- 1.39/include/asm-i386/processor.h	Fri Feb 14 18:24:10 2003
++++ edited/include/asm-i386/processor.h	Wed Feb 19 11:56:51 2003
+@@ -83,6 +83,7 @@
+ extern struct cpuinfo_x86 boot_cpu_data;
+ extern struct cpuinfo_x86 new_cpu_data;
+ extern struct tss_struct init_tss[NR_CPUS];
++extern struct tss_struct doublefault_tss;
+ 
+ #ifdef CONFIG_SMP
+ extern struct cpuinfo_x86 cpu_data[];
+===== include/asm-i386/segment.h 1.5 vs edited =====
+--- 1.5/include/asm-i386/segment.h	Sat Dec 28 09:18:49 2002
++++ edited/include/asm-i386/segment.h	Wed Feb 19 11:56:52 2003
+@@ -37,6 +37,13 @@
+  *  23 - APM BIOS support
+  *  24 - APM BIOS support
+  *  25 - APM BIOS support 
++ *
++ *  26 - unused
++ *  27 - unused
++ *  28 - unused
++ *  29 - unused
++ *  30 - unused
++ *  31 - TSS for double fault handler
+  */
+ #define GDT_ENTRY_TLS_ENTRIES	3
+ #define GDT_ENTRY_TLS_MIN	6
+@@ -64,10 +71,12 @@
+ #define GDT_ENTRY_PNPBIOS_BASE		(GDT_ENTRY_KERNEL_BASE + 6)
+ #define GDT_ENTRY_APMBIOS_BASE		(GDT_ENTRY_KERNEL_BASE + 11)
+ 
++#define GDT_ENTRY_DOUBLEFAULT_TSS	31
++
+ /*
+- * The GDT has 25 entries but we pad it to cacheline boundary:
++ * The GDT has 32 entries
+  */
+-#define GDT_ENTRIES 28
++#define GDT_ENTRIES 32
+ 
+ #define GDT_SIZE (GDT_ENTRIES * 8)
+ 
+--- /dev/null	2002-08-30 16:31:37.000000000 -0700
++++ ./arch/i386/kernel/doublefault.c	2003-02-19 15:26:44.000000000 -0800
+@@ -0,0 +1,65 @@
++#include <linux/mm.h>
++#include <linux/sched.h>
 +#include <linux/init.h>
-+#include <linux/device.h>
-+#include <linux/watchdog.h>
++#include <linux/init_task.h>
++#include <linux/fs.h>
 +
-+#include <linux/miscdevice.h>
++#include <asm/uaccess.h>
++#include <asm/pgtable.h>
++#include <asm/desc.h>
 +
-+#ifdef DEBUG
-+#define trace(format, args...) \
-+        printk(KERN_INFO "%s(" format ")\n", __FUNCTION__ , ## args)
-+#define dbg(format, arg...)				\
-+		 printk (KERN_DEBUG "%s: " format "\n",	\
-+			 __FUNCTION__, ## arg);
-+#else
-+#define trace(format, arg...) do { } while (0)
-+#define dbg(format, arg...) do { } while (0)
-+#endif
++#define DOUBLEFAULT_STACKSIZE (1024)
++static unsigned long doublefault_stack[DOUBLEFAULT_STACKSIZE];
++#define STACK_START (unsigned long)(doublefault_stack+DOUBLEFAULT_STACKSIZE)
 +
-+#define crit(format, arg...) \
-+                printk(KERN_CRIT "%s: " format "\n", \
-+		       __FUNCTION__ , ## arg)
++#define ptr_ok(x) ((x) > 0xc0000000 && (x) < 0xc1000000)
 +
-+static struct watchdog_driver *miscdev = 0;
-+static int expect_close = 0;
-+
-+static DECLARE_MUTEX(watchdog_sem);
-+
-+static int miscdev_open(struct inode *inode, struct file *file)
++static void doublefault_fn(void)
 +{
-+	trace("%p, %p", inode, file);
-+	if (!miscdev || !miscdev->ops->start)
-+		return -ENODEV;
++	struct Xgt_desc_struct gdt_desc = {0, 0};
++	unsigned long gdt, tss;
 +
-+	if (miscdev->ops->start(miscdev))
-+		return -EBUSY;
++	__asm__ __volatile__("sgdt %0": "=m" (gdt_desc): :"memory");
++	gdt = gdt_desc.address;
 +
-+	return 0;
-+}
++	printk("double fault, gdt at %08lx [%d bytes]\n", gdt, gdt_desc.size);
 +
-+static int miscdev_release(struct inode *inode, struct file *file)
-+{
-+	trace("%p, %p", inode, file);
-+	if (!miscdev || !miscdev->ops->stop)
-+		return -ENODEV;
-+	
-+	if (!expect_close) {
-+		crit("watchdog device closed unexpectedly, allowing timeout!");
-+		return 0;
-+	}
++	if (ptr_ok(gdt)) {
++		gdt += GDT_ENTRY_TSS << 3;
++		tss = *(u16 *)(gdt+2);
++		tss += *(u8 *)(gdt+4) << 16;
++		tss += *(u8 *)(gdt+7) << 24;
++		printk("double fault, tss at %08lx\n", tss);
 +
-+	if (miscdev->ops->stop(miscdev, 0))
-+		return -EBUSY;
++		if (ptr_ok(tss)) {
++			struct tss_struct *t = (struct tss_struct *)tss;
 +
-+	return 0;
-+}
++			printk("eip = %08lx, esp = %08lx\n", t->eip, t->esp);
 +
-+static ssize_t miscdev_write(struct file *file, const char *data, 
-+			     size_t len, loff_t *ppos)
-+{
-+	trace("%p, %p, %i, %p", file, data, len, ppos);
-+	int nway;
-+
-+	/*  Can't seek (pwrite) on this device  */
-+	if (ppos != &file->f_pos)
-+		return -ESPIPE;
-+
-+	if (!miscdev || !miscdev->ops->keepalive)
-+		return -ENODEV;
-+
-+	/*
-+	 *	Refresh the timer.
-+	 */
-+	if(len) {
-+
-+		if (miscdev->ops->get_nowayout && 
-+		    miscdev->ops->get_nowayout(miscdev, &nway)  == 0 && 
-+		    nway == 0) {
-+			size_t i;
-+
-+			/* In case it was set long ago */
-+			expect_close = 0;
-+
-+			for (i = 0; i != len; i++) {
-+				char c;
-+
-+				if (get_user(c, data + i))
-+					return -EFAULT;
-+				dbg("looking for magic char: %c", c);
-+				if (c == 'V')
-+					expect_close = 1;
-+			}
-+		}
-+		miscdev->ops->keepalive(miscdev);
-+		return 1;
-+	}
-+	return 0;
-+}
-+
-+static int miscdev_ioctl(struct inode *inode, struct file *file,
-+			 unsigned int cmd, unsigned long arg)
-+{
-+	int tmp;
-+	static struct watchdog_info ident = {
-+		.identity = "Watchdog Device",
-+	};
-+
-+	trace("%p, %p, %i, %li", inode, file, cmd, arg);
-+	if (!miscdev)
-+		return -ENODEV;	
-+
-+	switch (cmd) {
-+	default:
-+		return -ENOTTY;
-+	case WDIOC_GETSUPPORT:
-+		if (miscdev->ops->get_firmware_version && 
-+		    !miscdev->ops->get_firmware_version(miscdev, &tmp))
-+			ident.firmware_version = tmp;
-+			
-+		if (miscdev->ops->get_options && 
-+		    !miscdev->ops->get_options(miscdev, &tmp))
-+			ident.options = tmp;		
-+			
-+		if(copy_to_user((struct watchdog_info *)arg, &ident, 
-+				sizeof(ident)))
-+			return -EFAULT;
-+		return 0;		
-+	case WDIOC_GETSTATUS:
-+		if (!miscdev->ops->get_status || 
-+		    miscdev->ops->get_status(miscdev, &tmp))
-+			return -EFAULT;
-+
-+		if(copy_to_user((struct watchdog_info *)arg,&tmp,sizeof(tmp)))
-+			return -EFAULT;
-+		
-+		return 0;
-+	case WDIOC_GETBOOTSTATUS:
-+		if (!miscdev->ops->get_bootstatus || 
-+		    miscdev->ops->get_bootstatus(miscdev, &tmp))
-+			return -EFAULT;
-+
-+		if(copy_to_user((struct watchdog_info *)arg,&tmp,sizeof(tmp)))
-+			return -EFAULT;
-+		
-+		return 0;
-+	case WDIOC_GETTEMP:
-+		if (!miscdev->ops->get_temperature || 
-+		    miscdev->ops->get_temperature(miscdev, &tmp))
-+			return -EFAULT;
-+
-+		if(copy_to_user((struct watchdog_info *)arg,&tmp,sizeof(tmp)))
-+			return -EFAULT;
-+		
-+		return 0;
-+	case WDIOC_SETOPTIONS:
-+		if (get_user(tmp, (int *)arg))
-+			return -EFAULT;
-+
-+		if (tmp & WDIOS_DISABLECARD) {
-+			if (!miscdev->ops->stop || 
-+			    miscdev->ops->stop(miscdev, 0))
-+				return -EFAULT;			
-+		}
-+
-+		if (tmp & WDIOS_ENABLECARD) {
-+			if (!miscdev->ops->start || 
-+			    miscdev->ops->start(miscdev))
-+				return -EFAULT;			
-+		}
-+
-+		if (tmp & WDIOS_TEMPPANIC) {
-+			if (!miscdev->ops->set_temppanic || 
-+			    miscdev->ops->set_temppanic(miscdev, 1))
-+				return -EFAULT;			
-+		}
-+
-+		return 0;
-+	case WDIOC_KEEPALIVE:
-+		if (!miscdev->ops->keepalive || 
-+		    miscdev->ops->keepalive(miscdev))
-+			return -EFAULT;
-+
-+		return 0;
-+	case WDIOC_SETTIMEOUT:
-+		if (!miscdev->ops->set_timeout)
-+			return -EFAULT;
-+		if (get_user(tmp, (int *)arg))
-+			return -EFAULT;
-+		if (tmp < 1)
-+			return -EINVAL;
-+
-+		if (miscdev->ops->set_timeout(miscdev, tmp))
-+			return -EFAULT;
-+
-+		if (!miscdev->ops->keepalive || 
-+		    miscdev->ops->keepalive(miscdev))
-+			return -EFAULT;
-+
-+		return 0;
-+	case WDIOC_GETTIMEOUT:
-+		if (!miscdev->ops->get_timeout || 
-+		    miscdev->ops->get_timeout(miscdev, &tmp))
-+			return -EFAULT;
-+
-+		if(copy_to_user((struct watchdog_info *)arg,&tmp,sizeof(tmp)))
-+			return -EFAULT;
-+		
-+		return 0;
-+	}
-+}
-+
-+static struct file_operations watchdog_fops = {
-+	.owner		= THIS_MODULE,
-+	.write		= miscdev_write,
-+	.ioctl		= miscdev_ioctl,
-+	.open		= miscdev_open,
-+	.release	= miscdev_release,
-+};
-+
-+static struct miscdevice watchdog_miscdev = {
-+	.minor		= WATCHDOG_MINOR,
-+	.name		= "Watchdog Timer",
-+	.fops		= &watchdog_fops,
-+};
-+
-+ssize_t start_store(struct device_driver *d, const char *buf, size_t count)
-+{
-+	struct watchdog_driver *w = to_watchdog_driver(d);
-+
-+	trace("%p, %p, %i", d, buf, count);
-+	if (!(w->ops->start))
-+		return -ENODEV;
-+
-+	if ((w->ops->start)(w))
-+		return -EFAULT;
-+
-+	return count;
-+}
-+DRIVER_ATTR(start,S_IWUSR,NULL,start_store);
-+
-+ssize_t stop_store(struct device_driver *d, const char *buf, size_t count)
-+{
-+	struct watchdog_driver *w = to_watchdog_driver(d);
-+
-+	trace("%p, %p, %i", d, buf, count);
-+	if (!(w->ops->stop))
-+		return -ENODEV;
-+
-+	if ((w->ops->stop)(w, buf))
-+		return -EFAULT;
-+
-+	return count;
-+}
-+DRIVER_ATTR(stop,S_IWUSR,NULL,stop_store);
-+
-+ssize_t timeout_show(struct device_driver *d, char *buf)
-+{
-+	int timeout;
-+	struct watchdog_driver *w = to_watchdog_driver(d);
-+
-+	trace("%p, %p", d, buf);
-+	if (!(w->ops->get_timeout))
-+		return -ENODEV;
-+
-+	if((w->ops->get_timeout)(w, &timeout))
-+		return -EFAULT;
-+
-+	return sprintf(buf, "%i\n", timeout);
-+}
-+ssize_t timeout_store(struct device_driver *d, const char *buf, size_t count)
-+{
-+	int timeout;
-+	struct watchdog_driver *w = to_watchdog_driver(d);
-+
-+	trace("%p, %p, %i", d, buf, count);
-+	if (!(w->ops->set_timeout))
-+		return -ENODEV;
-+
-+	if (!sscanf(buf,"%i",&timeout))
-+		return -EINVAL;
-+
-+	if ((w->ops->set_timeout)(w, timeout))
-+		return -EFAULT;
-+
-+	return count;
-+}
-+DRIVER_ATTR(timeout,S_IRUGO|S_IWUSR,timeout_show,timeout_store);
-+
-+ssize_t keepalive_store(struct device_driver *d, const char *buf, size_t count)
-+{
-+	struct watchdog_driver *w = to_watchdog_driver(d);
-+
-+	trace("%p, %p, %i", d, buf, count);
-+	if (!(w->ops->keepalive))
-+		return -ENODEV;
-+
-+	if ((w->ops->keepalive)(w))
-+		return -EFAULT;
-+
-+	return count;
-+}
-+DRIVER_ATTR(keepalive,S_IWUSR,NULL,keepalive_store);
-+
-+ssize_t nowayout_show(struct device_driver *d, char *buf)
-+{
-+	int nowayout;
-+	struct watchdog_driver *w = to_watchdog_driver(d);
-+
-+	trace("%p, %p", d, buf);
-+	if (!(w->ops->get_nowayout))
-+		return -ENODEV;
-+
-+	if ((w->ops->get_nowayout)(w, &nowayout))
-+		return -EFAULT;
-+
-+	return sprintf(buf, "%i\n", nowayout);
-+}
-+ssize_t nowayout_store(struct device_driver *d, const char *buf, size_t count)
-+{
-+	int nowayout;
-+	struct watchdog_driver *w = to_watchdog_driver(d);
-+
-+	trace("%p, %p, %i", d, buf, count);
-+	if (!(w->ops->set_nowayout))
-+		return -ENODEV;
-+
-+	if (!sscanf(buf,"%i",&nowayout))
-+		return -EINVAL;
-+
-+	if ((w->ops->set_nowayout)(w, nowayout))
-+		return -EFAULT;
-+
-+	return count;
-+}
-+DRIVER_ATTR(nowayout,S_IRUGO|S_IWUSR,nowayout_show,nowayout_store);
-+
-+ssize_t status_show(struct device_driver *d, char *buf)
-+{
-+	int status;
-+	struct watchdog_driver *w = to_watchdog_driver(d);
-+
-+	trace("%p, %p", d, buf);
-+	if (!(w->ops->get_status))
-+		return -ENODEV;
-+
-+	if ((w->ops->get_status)(w, &status))
-+		return -EFAULT;
-+
-+	return sprintf(buf, "0x%08x\n", status);
-+}
-+DRIVER_ATTR(status,S_IRUGO,status_show,NULL);
-+
-+ssize_t bootstatus_show(struct device_driver *d, char *buf)
-+{
-+	int bootstatus;
-+	struct watchdog_driver *w = to_watchdog_driver(d);
-+
-+	trace("%p, %p", d, buf);
-+	if (!(w->ops->get_bootstatus))
-+		return -ENODEV;
-+
-+	if ((w->ops->get_bootstatus)(w, &bootstatus))
-+		return -EFAULT;
-+
-+	return sprintf(buf, "0x%08x\n", bootstatus);
-+}
-+DRIVER_ATTR(bootstatus,S_IRUGO,bootstatus_show,NULL);
-+
-+ssize_t options_show(struct device_driver *d, char *buf)
-+{
-+	int options;
-+	struct watchdog_driver *w = to_watchdog_driver(d);
-+
-+	trace("%p, %p", d, buf);
-+	if (!(w->ops->get_options))
-+		return -ENODEV;
-+
-+	if ((w->ops->get_options)(w, &options))
-+		return -EFAULT;
-+
-+	return sprintf(buf, "0x%08x\n", options);
-+}
-+DRIVER_ATTR(options,S_IRUGO,options_show,NULL);
-+
-+ssize_t temperature_show(struct device_driver *d, char *buf)
-+{
-+	int temperature;
-+	struct watchdog_driver *w = to_watchdog_driver(d);
-+
-+	trace("%p, %p", d, buf);
-+	if (!(w->ops->get_temperature))
-+		return -ENODEV;
-+
-+	if ((w->ops->get_temperature)(w, &temperature))
-+		return -EFAULT;
-+
-+	return sprintf(buf, "%i\n", temperature);
-+}
-+DRIVER_ATTR(temperature,S_IRUGO,temperature_show,NULL);
-+
-+ssize_t temppanic_show(struct device_driver *d, char *buf)
-+{
-+	int temppanic;
-+	struct watchdog_driver *w = to_watchdog_driver(d);
-+
-+	trace("%p, %p", d, buf);
-+	if (!(w->ops->get_temppanic))
-+		return -ENODEV;
-+
-+	if ((w->ops->get_temppanic)(w, &temppanic))
-+		return -EFAULT;
-+
-+	return sprintf(buf, "%i\n", temppanic);
-+}
-+ssize_t temppanic_store(struct device_driver *d, const char *buf, size_t count)
-+{
-+	int temppanic;
-+	struct watchdog_driver *w = to_watchdog_driver(d);
-+
-+	trace("%p, %p, %i", d, buf, count);
-+	if (!(w->ops->set_temppanic))
-+		return -ENODEV;
-+
-+	if (!sscanf(buf,"%i",&temppanic))
-+		return -EINVAL;
-+
-+	if ((w->ops->set_temppanic)(w, temppanic))
-+		return -EFAULT;
-+
-+	return count;
-+}
-+DRIVER_ATTR(temppanic,S_IRUGO|S_IWUSR,temppanic_show,temppanic_store);
-+
-+ssize_t firmware_version_show(struct device_driver *d, char *buf)
-+{
-+	int version;
-+	struct watchdog_driver *w = to_watchdog_driver(d);
-+
-+	trace("%p, %p", d, buf);
-+	if (!(w->ops->get_firmware_version))
-+		return -ENODEV;
-+
-+	if ((w->ops->get_firmware_version)(w, &version))
-+		return -EFAULT;
-+
-+	return sprintf(buf, "0x%08x\n", version);
-+}
-+DRIVER_ATTR(firmware_version,S_IRUGO,firmware_version_show,NULL);
-+
-+static int watchdog_create_default_files(struct watchdog_driver *d)
-+{
-+	driver_create_file(&(d->driver), &driver_attr_start);
-+	driver_create_file(&(d->driver), &driver_attr_stop);
-+	driver_create_file(&(d->driver), &driver_attr_timeout);
-+	driver_create_file(&(d->driver), &driver_attr_keepalive);
-+	driver_create_file(&(d->driver), &driver_attr_nowayout);
-+	driver_create_file(&(d->driver), &driver_attr_status);
-+	driver_create_file(&(d->driver), &driver_attr_bootstatus);
-+	driver_create_file(&(d->driver), &driver_attr_options);
-+	driver_create_file(&(d->driver), &driver_attr_temperature);
-+	driver_create_file(&(d->driver), &driver_attr_temppanic);
-+	driver_create_file(&(d->driver), &driver_attr_firmware_version);
-+
-+	return 0;
-+}
-+
-+static void watchdog_remove_default_files(struct watchdog_driver *d)
-+{
-+	driver_remove_file(&(d->driver), &driver_attr_start);
-+	driver_remove_file(&(d->driver), &driver_attr_stop);
-+	driver_remove_file(&(d->driver), &driver_attr_timeout);
-+	driver_remove_file(&(d->driver), &driver_attr_keepalive);
-+	driver_remove_file(&(d->driver), &driver_attr_nowayout);
-+	driver_remove_file(&(d->driver), &driver_attr_status);
-+	driver_remove_file(&(d->driver), &driver_attr_bootstatus);
-+	driver_remove_file(&(d->driver), &driver_attr_options);
-+	driver_remove_file(&(d->driver), &driver_attr_temperature);
-+	driver_remove_file(&(d->driver), &driver_attr_temppanic);
-+	driver_remove_file(&(d->driver), &driver_attr_firmware_version);
-+}
-+
-+int watchdog_driver_register(struct watchdog_driver *d) 
-+{
-+	int rv;
-+
-+	down(&watchdog_sem);
-+	rv = driver_register(&(d->driver));
-+	if (!rv)
-+		rv = watchdog_create_default_files(d);
-+
-+	dbg("miscdev  pointing to %s",miscdev? miscdev->driver.name:"nobody");
-+	if (!miscdev) { 
-+		if (misc_register(&watchdog_miscdev) == 0) {
-+			dbg("registered %s as the miscdev", d->driver.name);
-+			miscdev = d;
-+		} else {
-+			crit("%s failed misc_register()", d->driver.name);
++			printk("eax = %08lx, ebx = %08lx, ecx = %08lx, edx = %08lx\n",
++				t->eax, t->ebx, t->ecx, t->edx);
++			printk("esi = %08lx, edi = %08lx\n",
++				t->esi, t->edi);
 +		}
 +	}
-+	up(&watchdog_sem);
 +
-+	return rv;
++	for (;;) /* nothing */;
 +}
 +
-+void watchdog_driver_unregister(struct watchdog_driver *d)
-+{
-+	down(&watchdog_sem);
-+	if (d && miscdev == d) {
-+		dbg("deregistering %s as the misc device", d->driver.name);
-+		misc_deregister(&watchdog_miscdev);
-+	}
-+	
-+	driver_unregister(&(d->driver));
-+	watchdog_remove_default_files(d);
-+	up(&watchdog_sem);
-+}
++struct tss_struct doublefault_tss __cacheline_aligned = {
++	.esp0		= STACK_START,
++	.ss0		= __KERNEL_DS,
++	.ldt		= 0,
++	.bitmap		= INVALID_IO_BITMAP_OFFSET,
++	.io_bitmap	= { [0 ... IO_BITMAP_SIZE ] = ~0 },
 +
-+struct device_class watchdog_devclass = {
-+        .name		= "watchdog",
++	.eip		= (unsigned long) doublefault_fn,
++	.eflags		= 0x00000082,
++	.esp		= STACK_START,
++	.es		= __USER_DS,
++	.cs		= __KERNEL_CS,
++	.ss		= __KERNEL_DS,
++	.ds		= __USER_DS,
++
++	.__cr3		= __pa(swapper_pg_dir)
 +};
-+
-+static int __init watchdog_init(void)
-+{
-+	int ret = 0;
-+
-+	trace();
-+	ret = devclass_register(&watchdog_devclass);
-+	if (ret)
-+		return -ENODEV;
-+
-+	return 0;
-+}
-+
-+static void __exit watchdog_exit(void)
-+{
-+	trace();
-+	
-+	if (miscdev)
-+		misc_deregister(&watchdog_miscdev);
-+
-+	devclass_unregister(&watchdog_devclass);
-+}
-+
-+module_init(watchdog_init);
-+module_exit(watchdog_exit);
-+EXPORT_SYMBOL_GPL(watchdog_driver_register);
-+EXPORT_SYMBOL_GPL(watchdog_driver_unregister);
-+EXPORT_SYMBOL_GPL(watchdog_devclass);
-diff -Nru a/include/linux/watchdog.h b/include/linux/watchdog.h
---- a/include/linux/watchdog.h	Wed Feb 19 13:05:58 2003
-+++ b/include/linux/watchdog.h	Wed Feb 19 13:05:58 2003
-@@ -10,9 +10,17 @@
- #define _LINUX_WATCHDOG_H
- 
- #include <linux/ioctl.h>
-+#include <linux/device.h>
- 
- #define	WATCHDOG_IOCTL_BASE	'W'
- 
-+#define to_watchdog_driver(n) container_of(n, struct watchdog_driver, driver)
-+
-+struct watchdog_driver;
-+struct watchdog_ops;
-+
-+extern struct device_class watchdog_devclass;
-+
- struct watchdog_info {
- 	__u32 options;		/* Options the card/driver supports */
- 	__u32 firmware_version;	/* Firmware version of the card */
-@@ -45,5 +53,30 @@
- #define	WDIOS_DISABLECARD	0x0001	/* Turn off the watchdog timer */
- #define	WDIOS_ENABLECARD	0x0002	/* Turn on the watchdog timer */
- #define	WDIOS_TEMPPANIC		0x0004	/* Kernel panic on temperature trip */
-+
-+struct watchdog_driver {
-+	struct watchdog_ops *ops;
-+	struct device_driver driver;
-+};
-+
-+struct watchdog_ops {
-+	int (*start)(struct watchdog_driver *);
-+	int (*stop)(struct watchdog_driver *, const char *);
-+	int (*keepalive)(struct watchdog_driver *);
-+	int (*get_timeout)(struct watchdog_driver *, int *);
-+	int (*set_timeout)(struct watchdog_driver *, int);
-+	int (*get_nowayout)(struct watchdog_driver *, int *);
-+	int (*set_nowayout)(struct watchdog_driver *, int);
-+	int (*get_status)(struct watchdog_driver *, int *);
-+	int (*get_bootstatus)(struct watchdog_driver *, int *);
-+	int (*get_options)(struct watchdog_driver *, int *);
-+	int (*get_temperature)(struct watchdog_driver *, int *);
-+	int (*get_temppanic)(struct watchdog_driver *, int *);
-+	int (*set_temppanic)(struct watchdog_driver *, int);
-+	int (*get_firmware_version)(struct watchdog_driver *, int *);
-+};
-+
-+int  watchdog_driver_register(struct watchdog_driver *);
-+void watchdog_driver_unregister(struct watchdog_driver *);
- 
- #endif  /* ifndef _LINUX_WATCHDOG_H */
 

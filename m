@@ -1,42 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135589AbRDSNe6>; Thu, 19 Apr 2001 09:34:58 -0400
+	id <S135671AbRDSNgi>; Thu, 19 Apr 2001 09:36:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135673AbRDSNet>; Thu, 19 Apr 2001 09:34:49 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:7693 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135589AbRDSNee>; Thu, 19 Apr 2001 09:34:34 -0400
-Subject: Re: Cross-referencing frenzy
-To: dalgoda@ix.netcom.com
-Date: Thu, 19 Apr 2001 14:36:29 +0100 (BST)
+	id <S135672AbRDSNg2>; Thu, 19 Apr 2001 09:36:28 -0400
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:26127 "EHLO
+	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
+	id <S135671AbRDSNgJ>; Thu, 19 Apr 2001 09:36:09 -0400
+Date: Thu, 19 Apr 2001 15:33:58 +0200
+From: Kurt Garloff <garloff@suse.de>
+To: "Robert G. Brown" <rgb@phy.duke.edu>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010419062318.F21159@thune.mrc-home.com> from "Mike Castle" at Apr 19, 2001 06:23:18 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14qEbo-0007Dj-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: FPE's
+Message-ID: <20010419153358.E22869@garloff.etpnet.phys.tue.nl>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	"Robert G. Brown" <rgb@phy.duke.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0104181920140.32745-100000@ganesh.phy.duke.edu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="Dzs2zDY0zgkG72+7"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.30.0104181920140.32745-100000@ganesh.phy.duke.edu>; from rgb@phy.duke.edu on Wed, Apr 18, 2001 at 07:23:52PM -0400
+X-Operating-System: Linux 2.2.16 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TUE/NL, SuSE/FRG
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > For example, one symbol that I saw was CONFIG_EXT2_CHECK, which is code
-> > that used to be enabled in the kernel, but is currently #ifdef'd out with
-> > the above symbol.  When Ted changed this, he wasn't sure whether we would
-> 
-> How about something besides CONFIG_ then?  Like maybe DEV_CONFIG_ or DEV_.
-> 
-> The CONFIG_ name space should be reserved for things that can be configured
-> via the config mechanism.
 
-If you add one line you can make it part of the CONFIG_ name space. That is
-why it uses CONFIG_. CONFIG_ is a valuable debugging tool too. You also can't
-reliably deduce a symbol is dead if its only in source because the source code
-may be building for 2.0/2.2/2.4 and the symbol may be relevant only in some
-cases. It isnt that simple.
+--Dzs2zDY0zgkG72+7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Its a valuable list, but it simply isnt going to be possible to do much by
-hand validate.
+On Wed, Apr 18, 2001 at 07:23:52PM -0400, Robert G. Brown wrote:
+> A question recently arose on the beowulf list about determining the
+> largest possible float or double (or the smallest) that would not
+> overflow (or underflow) on a general system, which on the beowulf list
+> is not unreasonably a general linux/gnu system.
 
-Alan
+less /usr/lib/gcc-lib/i?86-*-linux/2.95.3/include/float.h
+and look for FLT_MIN/MAX and DBL_MIN/MAX.
 
+Regards,
+--=20
+Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+GPG key: See mail header, key servers         Linux kernel development
+SuSE GmbH, Nuernberg, FRG                               SCSI, Security
+
+--Dzs2zDY0zgkG72+7
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4g (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE63ulFxmLh6hyYd04RAvQoAJ9dhSY0CiOSltH+FhPPR1nNaGIaSgCg0zEX
+Iir3NeiCh/W03dWX9x6eZ3Y=
+=rD7U
+-----END PGP SIGNATURE-----
+
+--Dzs2zDY0zgkG72+7--

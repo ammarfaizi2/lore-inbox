@@ -1,67 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272865AbRISVc4>; Wed, 19 Sep 2001 17:32:56 -0400
+	id <S274197AbRISVr7>; Wed, 19 Sep 2001 17:47:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274197AbRISVcq>; Wed, 19 Sep 2001 17:32:46 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:23547 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S272865AbRISVc3>;
-	Wed, 19 Sep 2001 17:32:29 -0400
-Date: Wed, 19 Sep 2001 23:28:18 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        linux-kernel@vger.kernel.org
-Subject: Re: pre12 VM doubts and patch
-Message-ID: <20010919232818.T720@athlon.random>
-In-Reply-To: <Pine.LNX.4.21.0109191850370.1133-100000@localhost.localdomain> <Pine.LNX.4.21.0109192026280.1502-100000@localhost.localdomain>
-Mime-Version: 1.0
+	id <S272718AbRISVrt>; Wed, 19 Sep 2001 17:47:49 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:35845 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S274199AbRISVrh>; Wed, 19 Sep 2001 17:47:37 -0400
+Subject: Re: Request: removal of fs/fs.h/super_block.u to enable partition
+To: swansma@yahoo.com (Mark Swanson)
+Date: Wed, 19 Sep 2001 22:52:52 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <3BA8F6EC.E3D73C87@yahoo.com> from "Mark Swanson" at Sep 19, 2001 03:50:04 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0109192026280.1502-100000@localhost.localdomain>; from hugh@veritas.com on Wed, Sep 19, 2001 at 08:42:39PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15jpH2-0003wz-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 19, 2001 at 08:42:39PM +0100, Hugh Dickins wrote:
-> --- 2.4.10-pre12/mm/swap_state.c	Wed Sep 19 14:05:54 2001
-> +++ linux/mm/swap_state.c	Mon Sep 17 06:30:26 2001
-> @@ -23,6 +23,17 @@
->   */
->  static int swap_writepage(struct page *page)
->  {
-> +	/* One for the page cache, one for this user, one for page->buffers */
-> +	if (page_count(page) > 2 + !!page->buffers)
+> > You are not going to stop a tired sysadmin doing something daft. You can
+> > certainly create a GPL'd raw partition as a file fs (I believe someone did
+> > that so INN could mmap raw on a device)
+> > 
+> > However you don't need to remove anything for that
+> 
+> But I can't distribute the file fs with my application,
+> because I can't expect my
+> user base to patch and recompile their kernel just so they can run
+> my application.
+> 
+> Perhaps what is needed is an 'inuse' filesystem or a way to make 
+> filesystem modules without patching the kernel. 
 
-this is racy, you have to spin_lock(&pagecache_lock) before you can
-expect the page_count() stays constant. then after you checked the page
-has count == 1, you must atomically drop it from the pagecache so it's
-not visible anymore to the swapin lookups.
+Apart from the fact that the interface is source level you already can
+distribute, compile and merge file systems without patching the kernel.
 
-Another way to fix the race is to change lookup_swap_cache to do
-find_lock_page instead of find_get_page, and then check the page is
-still a swapcachepage after you got it locked (that was the old way,
-somebody changed it and introduced the race, I like lookup_swap_cache to
-use find_get_page so I dropped such check to fix it, it was a minor
-optimization but yes probably worthwhile to reintroduce after addressing
-this race in one of the two ways described).
+It seems to be a user space issue not a kernel one. Your app can amend
+/etc/mtab when it creates and shuts down. 
 
-It is also buggy, if something it should be "page_count(page) != 1" (not
-!= 2).
-
-> +		goto in_use;
-> +	if (swap_count(page) > 1)
-> +		goto in_use;
-> +
-> +	delete_from_swap_cache_nolock(page);
-> +	UnlockPage(page);
-> +	return 0;
-> +
-> +in_use:
->  	rw_swap_page(WRITE, page);
->  	return 0;
->  }
-
-
-Andrea
+Alan

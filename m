@@ -1,45 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287405AbRL3NSL>; Sun, 30 Dec 2001 08:18:11 -0500
+	id <S287404AbRL3NQV>; Sun, 30 Dec 2001 08:16:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287408AbRL3NR6>; Sun, 30 Dec 2001 08:17:58 -0500
-Received: from law2-f124.hotmail.com ([216.32.181.124]:49675 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S287403AbRL3NR2>;
-	Sun, 30 Dec 2001 08:17:28 -0500
-X-Originating-IP: [203.195.140.58]
-From: "Tulika Pradhan" <tulikapradhan@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: tulikapradhan@hotmail.com
-Date: Sun, 30 Dec 2001 13:17:22 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <LAW2-F1244ZDgC81Tbd00011fbd@hotmail.com>
-X-OriginalArrivalTime: 30 Dec 2001 13:17:22.0803 (UTC) FILETIME=[51196430:01C19134]
+	id <S287402AbRL3NQL>; Sun, 30 Dec 2001 08:16:11 -0500
+Received: from oker.escape.de ([194.120.234.254]:22360 "EHLO oker.escape.de")
+	by vger.kernel.org with ESMTP id <S287399AbRL3NPx>;
+	Sun, 30 Dec 2001 08:15:53 -0500
+Date: Sun, 30 Dec 2001 14:13:42 +0100 (CET)
+From: Matthias Kilian <kili@outback.escape.de>
+To: <linux-kernel@vger.kernel.org>
+cc: Matthias Kilian <kili@outback.escape.de>
+Subject: [PATCH] tmpfs+inittar, replacement for initrd
+Message-ID: <Pine.LNX.4.30.0110272244390.28573-100000@outback.escape.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The following patch (for linux-2.4.17) enables the kernel to use tmpfs and
+an optionally compressed tar file instead of an initrd.
+
+Instead of the /linuxrc-method, inittar completely relies on the "new"
+method (pivot_root/chroot).
+
+Since the patch is rather large, you can find it here:
+
+http://www.escape.de/users/outback/linux/patch-2.4.17-inittar.gz
+
+Note that it has only be compiled and tested on i386. I'd like to hear of
+experiences on other platforms.
 
 
-hi,
+Contents of the patch:
+- splitup of drivers/block/rd.c into rd.c (the ramdisk), rdload.c (ramdisk
+  loader), crdload.c (loader for compressed ramdisks/tar files), irdload.c
+  (initrd/inittar specific stuff).
+- a small tar extractor (drivers/block/tar.c).
+- create and mount a tmpfs as root fs (fs/super.c, mount_tmpfs_root()).
+- configuration stuff for the above.
 
-i am compiling kernel 2.4.2 and using that to boot my PC (using lilo).
-i get the error
 
-Uncompressing Linux......
+Goals:
 
-ran out of input data ...
+- First, just use the benefits of tmpfs and the simplicity of a tar file
+  instead of an old ramdisk and a *real* file system image. Since inittar
+  can be enabled/disabled in .config, it may even be an option for 2.4
+  kernels.
 
-System Halted !
+- For futures kernel versions (2.5 or 2.6), inittar could completely
+  replace the old initrd and the whole rd stuff. I don't see who needs a
+  ramdisk when there's a tmpfs.
 
-how can i get rid of this problem. i haven't added any new code in the 
-kernel. it is the existing kernel-2.4.2 from redhat7.1
+- Still another option would make booting via tmpfs/inittar mandatory
+  (IIRC, linus suggested this some time ago). This would allow for large
+  cleanups in mount_root() (super.c), including root_dev and
+  real_root_dev.
 
-Please cc reply to my account as i have not subscribed to the mailing list.
 
-thanks,
+Credits:
 
-tulika
+- David L. Parsley, for lots of design suggestions (such as splitup of
+  rd.c)
+- Jason A. Pattie for testing and submitting bug reports
 
-_________________________________________________________________
-Chat with friends online, try MSN Messenger: http://messenger.msn.com
+
+Some additional thoughts and instructions:
+
+http://www.escape.de/users/outback/linux/index_en.html#inittar
+
+or (german)
+
+http://www.escape.de/users/outback/linux/index.html#inittar
+
+
+Ciao,
+	Kili
+
+ps: please cc: answers to my address
 

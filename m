@@ -1,40 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261158AbUL1SSF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261185AbUL1SVz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261158AbUL1SSF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Dec 2004 13:18:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261185AbUL1SSF
+	id S261185AbUL1SVz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Dec 2004 13:21:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbUL1SVz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Dec 2004 13:18:05 -0500
-Received: from wproxy.gmail.com ([64.233.184.199]:6081 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261158AbUL1SSD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Dec 2004 13:18:03 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=LhWbmREao/G3k64vPsMzicf65okSN11ocoAIKzYich6hZvE5RaVL2iYoU+n5JzLEN4TGrCDiVJDYuWr/YNSpiO88f5qKZp9ZNaOvQHOs6In/ewZ3uXqWgb2+8WA9VIOibRlatjBbN78vXXv9kUHiDNFgYgeUo4eMc5P7CJaadzQ=
-Message-ID: <d4cc500a04122810186b7457eb@mail.gmail.com>
-Date: Tue, 28 Dec 2004 20:18:03 +0200
-From: Garik E <kiragon@gmail.com>
-Reply-To: Garik E <kiragon@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: stale POSIX flock
+	Tue, 28 Dec 2004 13:21:55 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:60590
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261185AbUL1SVy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Dec 2004 13:21:54 -0500
+Date: Tue, 28 Dec 2004 10:20:26 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Manuel Perez Ayala <mperaya@alcazaba.unex.es>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: TG3 support broken on PPC (PowerMac G4)
+Message-Id: <20041228102026.0ec40a5a.davem@davemloft.net>
+In-Reply-To: <1104217668.41d10644a57f7@alcazaba.unex.es>
+References: <1104217668.41d10644a57f7@alcazaba.unex.es>
+X-Mailer: Sylpheed version 1.0.0rc (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, 28 Dec 2004 08:07:48 +0100
+Manuel Perez Ayala <mperaya@alcazaba.unex.es> wrote:
 
-I've got a strange bug:
-POSIX lock is left in system after process termination.
-After some debugging I found that filp->f_count entry at the end of
-sys_fctl64 function is 1(???) and subsequent call to fput releases
-file sturcture, but leaves POSIX lock.
-I've added check for FL_POSIX flag to locks_remove_flock and the problem stoped.
-This bug happens very often on my environment, but user mode setup is
-a multi-process/multi-threaded application, so I have no clue how to
-reduce it to a simple testing program.
+> Disconnecting: Corrupted MAC on input.
+> lost connection
 
-I work with enterprise linux 3, IBM xSeries345, Pentium4 3000 x2,  2GB RAM
+That message is from ssh, and it indicates data corruption
+on the TCP connection.
+
+I have a similar report on x86_64 from Alan Cox.  What does
+the kernel say when the module is loaded?  In particular
+the lines from the kernel logs which describe the exact tg3
+chip revision.

@@ -1,188 +1,181 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266468AbUA2VtJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 16:49:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266470AbUA2VtI
+	id S266409AbUA2WC5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 17:02:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266441AbUA2WC5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 16:49:08 -0500
-Received: from lanshark.nersc.gov ([128.55.16.114]:27524 "EHLO
-	lanshark.nersc.gov") by vger.kernel.org with ESMTP id S266468AbUA2VrD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 16:47:03 -0500
-Message-ID: <40197D93.40104@lbl.gov>
-Date: Thu, 29 Jan 2004 13:39:31 -0800
-From: Thomas Davis <tadavis@lbl.gov>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040124
-X-Accept-Language: en-us, en
+	Thu, 29 Jan 2004 17:02:57 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:676 "EHLO intra.cyclades.com")
+	by vger.kernel.org with ESMTP id S266409AbUA2WCw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 17:02:52 -0500
+Date: Thu, 29 Jan 2004 18:41:52 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.4.25-pre8
+Message-ID: <Pine.LNX.4.58L.0401291833160.1304@logos.cnet>
 MIME-Version: 1.0
-To: gene.heskett@verizon.net
-CC: Burton Windle <bwindle@fint.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Can't boot a 2.6 kernel..
-References: <40195C71.8080608@lbl.gov> <Pine.LNX.4.58.0401291527180.1094@morpheus> <401972BF.60203@lbl.gov> <200401291632.15712.gene.heskett@verizon.net>
-In-Reply-To: <200401291632.15712.gene.heskett@verizon.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'll summarize again for everyone
 
-getting a prebuilt kernel from http://people.redhat.com/arjanv (2.6.1-1.141smp) and installing it - will not boot.
+Hi,
 
-picking athlon in 2.6.1, and 2.6.2rc2 - will not boot.
+This release contains a big USB merge, architecture updates
+(Alpha, SPARC, x86/64), SCSI driver updates (cpqarray and MPT fusion),
+smbfs support for CIFS Unix extensions and large files (backported from 2.6),
+"ACPICA" merge and ACPI fixes, merge jgarzik's net driver fixes, amongst
+others.
 
-picking i386 in 2.6.1 and 2.6.2rc2, and making it brain dead - will not boot.
+This is probably the last -pre.
 
-doing "make allmodconfig" - setting to athlon - will not boot.
-doing "make allyesconfig" - setting to athlon - will not boot.
+Detailed changelog follows,
 
-thomas
+Summary of changes from v2.4.25-pre7 to v2.4.25-pre8
+============================================
 
-Gene Heskett wrote:
-> On Thursday 29 January 2004 15:53, Thomas Davis wrote:
-> 
->>Not it.
->>
->>#
->># Processor type and features
->>#
->>CONFIG_X86_PC=y
->># CONFIG_X86_VOYAGER is not set
->># CONFIG_X86_NUMAQ is not set
->># CONFIG_X86_SUMMIT is not set
->># CONFIG_X86_BIGSMP is not set
->># CONFIG_X86_VISWS is not set
->># CONFIG_X86_GENERICARCH is not set
->># CONFIG_X86_ES7000 is not set
->>CONFIG_M386=y <-- pretty old hardware???
->># CONFIG_M486 is not set
->># CONFIG_M586 is not set
->># CONFIG_M586TSC is not set
->># CONFIG_M586MMX is not set
->># CONFIG_M686 is not set
->># CONFIG_MPENTIUMII is not set
->># CONFIG_MPENTIUMIII is not set
->># CONFIG_MPENTIUM4 is not set
->># CONFIG_MK6 is not set
->># CONFIG_MK7 is not set
->># CONFIG_MK8 is not set
->># CONFIG_MELAN is not set
->># CONFIG_MCRUSOE is not set
->># CONFIG_MWINCHIPC6 is not set
->># CONFIG_MWINCHIP2 is not set
->># CONFIG_MWINCHIP3D is not set
->># CONFIG_MCYRIXIII is not set
->># CONFIG_MVIAC3_2 is not set
->>CONFIG_X86_GENERIC=y <---
-> 
-> I'm running on an old athlon, (MK7 above) and I do not have the above 
-> option set.
-> I'm also working "stably" on 2.6.2-rc2-mm1.
-> 
->>CONFIG_X86_L1_CACHE_SHIFT=7
->>CONFIG_RWSEM_GENERIC_SPINLOCK=y
->>CONFIG_X86_PPRO_FENCE=y
->>CONFIG_X86_F00F_BUG=y
->>CONFIG_X86_INTEL_USERCOPY=y
->>CONFIG_HPET_TIMER=y
->># CONFIG_HPET_EMULATE_RTC is not set
->>CONFIG_SMP=y
->>CONFIG_NR_CPUS=8
->>CONFIG_PREEMPT=y
->>CONFIG_X86_LOCAL_APIC=y
->>CONFIG_X86_IO_APIC=y
->>CONFIG_X86_MCE=y
->>CONFIG_X86_MCE_NONFATAL=y
->>CONFIG_X86_MCE_P4THERMAL=y
->>CONFIG_TOSHIBA=m
->>CONFIG_I8K=m
->>CONFIG_MICROCODE=m
->>CONFIG_X86_MSR=m
->>CONFIG_X86_CPUID=m
->>CONFIG_EDD=m
->>CONFIG_NOHIGHMEM=y
->># CONFIG_HIGHMEM4G is not set
->># CONFIG_HIGHMEM64G is not set
->>CONFIG_MATH_EMULATION=y
->>CONFIG_MTRR=y
->>CONFIG_EFI=y
->>CONFIG_BOOT_IOREMAP=y
->>
->>next.
->>
->>Burton Windle wrote:
->>
->>>What about CPU selection? Compiling for a P4 when you have a P2
->>>will cause the same symptom.
->>>
->>>
->>>--
->>>Burton Windle                           bwindle@fint.org
->>>
->>>On Thu, 29 Jan 2004, Thomas Davis wrote:
->>>
->>>>Erik Mouw wrote:
->>>>
->>>>>On Thu, Jan 29, 2004 at 11:18:09AM -0800, Thomas Davis wrote:
->>>>>
->>>>>>Ok, I'm trying to get a 2.6 kernel to boot on my desktop here at
->>>>>>work.
->>>>>>
->>>>>>I have tried 3 different kernels - 2.6.1, 2.6.2rc1, and arjanv's
->>>>>>2.6.1 kernel.
->>>>>>
->>>>>>After the grub prompt, I get the grub kernel description, and
->>>>>>then..
->>>>>>
->>>>>>Nothing. Nada. Zip. Zilch.
->>>>>>
->>>>>>2.4 kernels boot and works fine; I've attached the dmesg output
->>>>>>of one of it's boots.
->>>>>>
->>>>>>Any ideas on what to try?
->>>>>
->>>>>I hope you read the post-halloween document, especially the part
->>>>>about "Known gotchas"? See
->>>>>http://www.codemonkey.org.uk/docs/post-halloween-2.6.txt
->>>>
->>>>Not it.
->>>>
->>>>[root@lanshark linux-2.6.1]# egrep
->>>>CONFIG_VGA\|CONFIG_INPUT\|CONFIG_VGA_CONSOLE\|CONFIG_VT_CONSOLE
->>>>.config CONFIG_INPUT=y
->>>>CONFIG_INPUT_MOUSEDEV=m
->>>>CONFIG_INPUT_MOUSEDEV_PSAUX=y
->>>>CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
->>>>CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
->>>>CONFIG_INPUT_JOYDEV=m
->>>>CONFIG_INPUT_TSDEV=m
->>>>CONFIG_INPUT_TSDEV_SCREEN_X=240
->>>>CONFIG_INPUT_TSDEV_SCREEN_Y=320
->>>>CONFIG_INPUT_EVDEV=m
->>>>CONFIG_INPUT_EVBUG=m
->>>>CONFIG_INPUT_KEYBOARD=y
->>>>CONFIG_INPUT_MOUSE=y
->>>>CONFIG_INPUT_JOYSTICK=y
->>>>CONFIG_INPUT_JOYDUMP=m
->>>>CONFIG_INPUT_TOUCHSCREEN=y
->>>>CONFIG_INPUT_MISC=y
->>>>CONFIG_INPUT_PCSPKR=m
->>>>CONFIG_INPUT_UINPUT=m
->>>>CONFIG_VT_CONSOLE=y
->>>>CONFIG_VGA_CONSOLE=y
->>>>
->>>>-
->>>>To unsubscribe from this list: send the line "unsubscribe
->>>>linux-kernel" in the body of a message to
->>>>majordomo@vger.kernel.org
->>>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>>>Please read the FAQ at  http://www.tux.org/lkml/
->>
->>-
->>To unsubscribe from this list: send the line "unsubscribe
->>linux-kernel" in the body of a message to majordomo@vger.kernel.org
->>More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+<drb:med.co.nz>:
+  o USB Storage: patch to unusual_devs.h for Pentax Optio 330GS camera
+
+<emoore:lsil.com>:
+  o SCSI fusion driver update - version 2.05.11.01
+
+<felipe_alfaro:linuxmail.org>:
+  o USB Storage: unusual_devs.h patch for Trumpion MP3 player
+
+<francis.wiran:hp.com>:
+  o cpqarray update
+
+<khali:linux-fr.org>:
+  o Fix bus reset in i2c-philips-par
+
+<ladis:linux-mips.org>:
+  o fix console_cmdline to match declaration
+
+<len.brown:intel.com>:
+  o [ACPI] ACPICA 20040116 from Bob Moore
+  o [ACPI] move zero initialized data to .bss from Jes Sorensen
+  o [ACPI] handle system with NULL DSDT and valid XDSDT from ia64 via Alex Williamson
+
+<marcelo:logos.cnet>:
+  o Dave Jones: Fix XFS misplaced "!" (not)
+  o Cset exclude: johnstul@us.ibm.com|ChangeSet|20031206183542|49434
+  o Add missing drivers/video/it8181fb.c (IT8181 framebuffer driver)
+  o Changed EXTRAVERSION to -pre8
+  o PC300: check copy_to_user() return value
+
+<michael.krauth:web.de>:
+  o USB: unusual-devs.h Patch for Kyocera Finecam L3
+
+<rth:kanga.twiddle.home>:
+  o [ALPHA] Tidy ELF_HWCAP and ELF_PLATFORM
+
+<steve:navaho.co.uk>:
+  o ALIM7101 watchdog honour NOWAYOUT flag
+
+<tritol:trilogic.cz>:
+  o USB: unusual_devs entry for Netac USB-CF
+
+<urban.widmark:enlight.net>:
+  o smbfs: struct with smb_ functions (1/3)
+  o smbfs: CIFS Unix Extensions (2/3)
+  o smbfs: Large File Support (3/3)
+
+<xose:wanadoo.es>:
+  o [netdrvr ns83820] s/PREPARE_TQUEUE/INIT_TQUEUE/
+
+<yuasa:hh.iij4u.or.jp>:
+  o Added PCI device ID for it8181fb
+
+Adrian Bunk:
+  o fix via-ircc.c .text.exit error
+  o small hptraid.c fix
+  o pc300_drv.c: mark a function pointer as __devexit_p
+
+Alan Stern:
+  o USB storage: unusual_devs.h change
+  o USB Storage: another unneeded unusual_devs entry
+  o USB Storage: another unusual_devs entry
+  o USB Storage: unusual_devs.h update
+
+Andi Kleen:
+  o x86-64 merge
+
+Arnaud Quette:
+  o USB: disable hiddev support for MGE UPSs
+
+Ben Collins:
+  o [SPARC64]: Add CONFIG_DEBUG_BOOTMEM option
+  o [SPARC64]: Correctly mask the physical address for remapping the kernel TLB's
+  o [SPARC/SBUS/FLASH]: Fix some "unused var" warnings
+
+Chas Williams:
+  o [ATM]: [horizon] avoid warning about limited range of data type
+
+David Brownell:
+  o USB gadget: <linux/usb_gadget.h> updates [1/7]
+  o USB gadget: add file_storage gadget driver [2/7]
+  o USB gadget: add goku_udc (Toshiba TC86C001) [3/7]
+  o USB gadget: gadget build/config updates [4/7]
+  o USB gadget: gadget zero driver updates [5/7]
+  o USB gadget: ethernet gadget updates [6/7]
+  o USB gadget: net2280 controller driver updates [7/7]
+  o USB: EHCI support on MIPS
+  o USB: ehci update:  1/3, misc
+  o USB: ehci update:  2/3, microframe scanning
+  o USB:  ehci update:  3/3, highspeed iso rewrite
+
+David S. Miller:
+  o [SPARC64]: Fix double patch in head.S
+
+David Stevens:
+  o [MULTICAST]: multicast loop with include filters fix
+
+David T. Hollis:
+  o USB: Remove standalone AX8817x driver
+  o USB: Remove standalone AX8817x  driver Config.in entry
+
+Greg Kroah-Hartman:
+  o USB: add test for B4000000 to ir-usb driver to fix build issue on some archs
+  o USB: add support for the Clie PEG-TJ25 device
+
+Herbert Xu:
+  o USB Storage: revert freecom dvd-rw fx-50 usb-ide patch
+
+Hirofumi Ogawa:
+  o [netdrvr 8139cp] fix NAPI race
+
+Jeff Garzik:
+  o [tokenring olympic] use memset_io to fix certain platforms
+
+Krzysztof Halasa:
+  o warning fix: remove unused do_gettimeoffset_cyclone() when !CONFIG_X86_SUMMIT
+  o Remove dead CONFIG_BLK_DEV_IDE_MODES
+
+Mikael Pettersson:
+  o 2.4.25-pre7 load_LDT() bug in setup.c
+
+Oliver Neukum:
+  o USB: memory allocations in storage code path for 2.4
+  o USB: 2.4 memory deadlock avoidance
+
+Pete Zaitcev:
+  o USB: Patch for usb-storage in 2.4
+  o USB: fix 2.4 usbdevfs race
+
+Randy Dunlap:
+  o repair scsi/pcmcia modules so that they can build by only including scsi_module.c for non-PCMCIA builds
+
+Rusty Russell:
+  o Add 2.6 module_param() compatibility macros
+
+Stephen Hemminger:
+  o Make xircom cardbus handle shared irq
+
+Wolfgang Muees:
+  o USB: auerswald driver: add a new device
 

@@ -1,89 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262577AbTDQU2h (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 16:28:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262578AbTDQU2h
+	id S262423AbTDQU1F (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 16:27:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262549AbTDQU1F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 16:28:37 -0400
-Received: from [12.47.58.203] ([12.47.58.203]:58834 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S262577AbTDQU2f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 16:28:35 -0400
-Date: Thu, 17 Apr 2003 13:41:03 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Neil Schemenauer <nas@arctrix.com>
-Cc: linux-kernel@vger.kernel.org, axboe@suse.de, conman@kolivas.net
-Subject: Re: [PATCH][CFT] new IO scheduler for 2.4.20
-Message-Id: <20030417134103.4e69fc1b.akpm@digeo.com>
-In-Reply-To: <20030417172818.GA8848@glacier.arctrix.com>
-References: <20030417172818.GA8848@glacier.arctrix.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 17 Apr 2003 16:27:05 -0400
+Received: from opersys.com ([64.40.108.71]:8965 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S262423AbTDQU1D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 16:27:03 -0400
+Message-ID: <3E9F0FD5.595B000B@opersys.com>
+Date: Thu, 17 Apr 2003 16:34:29 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+CC: "'Martin Hicks'" <mort@wildopensource.com>,
+       "'Daniel Stekloff'" <dsteklof@us.ibm.com>,
+       "'Patrick Mochel'" <mochel@osdl.org>,
+       "'Randy.Dunlap'" <rddunlap@osdl.org>, "'hpa@zytor.com'" <hpa@zytor.com>,
+       "'pavel@ucw.cz'" <pavel@ucw.cz>,
+       "'jes@wildopensource.com'" <jes@wildopensource.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'wildos@sgi.com'" <wildos@sgi.com>,
+       "'Tom Zanussi'" <zanussi@us.ibm.com>
+Subject: Re: [patch] printk subsystems
+References: <A46BBDB345A7D5118EC90002A5072C780C26308A@orsmsx116.jf.intel.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 17 Apr 2003 20:40:25.0661 (UTC) FILETIME=[931B5ED0:01C30521]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Schemenauer <nas@arctrix.com> wrote:
->
-> Hi all,
-> 
-> Recently I was bitten badly by bad IO scheduler behavior on an important
-> Linux server.  An easy way to trigger this problem is to start a
-> streaming write process:
-> 
->     while :
->     do
->             dd if=/dev/zero of=foo bs=1M count=512 conv=notrunc
->     done
 
-That's a local DoS.
+"Perez-Gonzalez, Inaky" wrote:
+> But you don't need to provide buffers, because normally the data
+> is already in the kernel, so why need to copy it to another buffer
+> for delivery?
 
-> and then try doing a bunch of small reads:
-> 
->     time (find kernel-tree -type f | xargs cat > /dev/null)
+There is no copying going on. As with kue, you have to have a
+packaged structure somewhere to send to the recipient. As per
+your code:
++       _m4 = kmalloc (sizeof (*_m4), GFP_KERNEL);
++       memcpy (_m4, &m4, sizeof (m4));
++       _m4->kue.flags = KUE_KFREE;
++       kue_send_event (&_m4->kue);
 
-Awful, isn't it?
+_m4 and m4 are placeholders that must exist before being queued,
+there's just no way around that. With relayfs you would do:
+relay_write(channel_id, &m4, , time_delta_offset);
 
-> +int elevator_neil_merge(request_queue_t *q, struct request **req,
+When the channel buffer is mmap'ed in the user-process' address space,
+all that is needed is a write() with a pointer to the buffer for it
+to go to storage. There is zero-copying going on here.
 
-This is a nice looking patch!
+Plus, kue uses lists with next & prev pointers. That simply won't
+scale if you have a buffer filling at the rate of 10,000 events/s.
+Also, at that rate, you simply can't wait on the reader to read
+events one-by-one until you can reuse the structure where you
+stored the data to be read. The data has to be secured in the buffer
+at the return of the logging function (relay_write() in the case of
+relayfs) and the reader has to read events by the thousand every
+time.
 
-> ...
-> +	unsigned int expire_time = jiffies - 1*HZ;
-> ...
-> +		if (time_before(__rq->start_time, expire_time)) {
-> +			break;
-> +		}
+> This is where I think relayfs is doing too much, and that is the
+> reason why I implemented the kue stuff. It is very lightweight
+> and does almost the same [of course, it is not bidirectional, but
+> still nobody asked for that].
 
-It has a deadline component.  One second is probably too long.
+relayfs is there to solve the data transfer problems for the most
+demanding of applications. Sending a few messages here and there
+isn't really a problem. Sending messages/events/what-you-want-to-call-it
+by the thousand every second, while using as little locking as possible
+(lockless-logging is implemented in the case of relayfs' buffer handling
+routines), and providing per-cpu buffering requires a different beast.
 
-> +	if (!*req && rw == READ) {
-> +		long extra_writes = write_sectors - read_sectors;
-> +		/*
-> +		 * If there are more writes than reads in the queue then put
-> +		 * read requests ahead of the extra writes.  This prevents
-> +		 * writes from starving reads.
-> +		 */
-> +		entry = q->queue_head.prev;
-> +		while (extra_writes > 0 && entry != head) {
-> +			__rq = blkdev_entry_to_request(entry);
-> +			if (__rq->cmd == WRITE)
-> +				extra_writes -= __rq->nr_sectors;
-> +			entry = entry->prev;
-> +		}
-> +		*req = blkdev_entry_to_request(entry);
+Karim
 
-One suggestion I'd make here is to not count "sectors" at all.  Just count
-requests.
-
-See, the code at present is assuming that 100 discrete requests are
-equivalent to a single 100 sector request.  And that is most definitely not
-the case.  A 100 sector request is worth (guess) just two discontiguous
-requests.
-
-
-I'd be interested in seeing some comparative benchmark results with the above
-DoS attack.  And contest numbers too...
-
+===================================================
+                 Karim Yaghmour
+               karim@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

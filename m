@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130257AbRBGUbY>; Wed, 7 Feb 2001 15:31:24 -0500
+	id <S129850AbRBGUbY>; Wed, 7 Feb 2001 15:31:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129812AbRBGUbO>; Wed, 7 Feb 2001 15:31:14 -0500
-Received: from ns.caldera.de ([212.34.180.1]:44299 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S129850AbRBGUbE>;
-	Wed, 7 Feb 2001 15:31:04 -0500
-Date: Wed, 7 Feb 2001 21:30:57 +0100
-Message-Id: <200102072030.VAA06500@ns.caldera.de>
-From: Christoph Hellwig <hch@caldera.de>
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.1-ac5
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <E14Qav9-0001EL-00@the-village.bc.nu>
-User-Agent: tin/1.4.1-19991201 ("Polish") (UNIX) (Linux/2.2.14 (i686))
+	id <S130257AbRBGUbF>; Wed, 7 Feb 2001 15:31:05 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:8069 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129812AbRBGUan>; Wed, 7 Feb 2001 15:30:43 -0500
+Date: Wed, 7 Feb 2001 15:30:07 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: davej@suse.de, Alan Cox <alan@redhat.com>, becker@scyld.com,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Hamachi not doing pci_enable before reading resources
+In-Reply-To: <3A81AAA4.318BCD4E@mandrakesoft.com>
+Message-ID: <Pine.LNX.3.95.1010207152715.2498A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <E14Qav9-0001EL-00@the-village.bc.nu> you wrote:
->
-> 	ftp://ftp.kernel.org/pub/linux/kernel/people/alan/2.4/
->
-> 	Known problem: AIC7xxx doesn't work with some adaptec controllers
-> 	still
->
-> 2.4.1-ac5
->
-> [snip]
+On Wed, 7 Feb 2001, Jeff Garzik wrote:
 
-Hi Alan,
+> "Richard B. Johnson" wrote:
+> > A PCI device does not and should not be enabled to probe for resources!
+> 
+> Some PCI devices do not -have- resources until pci_enable_device() is
+> called, hence the rule.
+> 
 
-now that -ac grows that huge, could you put out incremental patches?
+I stand by my statement. PCI devices that require resources are
+required to provide read/write registers indicating these resources
+whether or not the enable bits are set. This is mandatory. 
 
-	Christoph
 
--- 
-Whip me.  Beat me.  Make me maintain AIX.
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130875AbRBCBPy>; Fri, 2 Feb 2001 20:15:54 -0500
+	id <S129439AbRBCBVF>; Fri, 2 Feb 2001 20:21:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130874AbRBCBPf>; Fri, 2 Feb 2001 20:15:35 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:62980 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129048AbRBCBPL>; Fri, 2 Feb 2001 20:15:11 -0500
-Message-ID: <3A7B5B84.A6A3211E@transmeta.com>
-Date: Fri, 02 Feb 2001 17:14:44 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S130873AbRBCBU4>; Fri, 2 Feb 2001 20:20:56 -0500
+Received: from main.cyclades.com ([209.128.87.2]:8203 "EHLO cyclades.com")
+	by vger.kernel.org with ESMTP id <S129439AbRBCBUt>;
+	Fri, 2 Feb 2001 20:20:49 -0500
+Date: Fri, 2 Feb 2001 17:20:31 -0800 (PST)
+From: Ivan Passos <lists@cyclades.com>
+To: Ion Badulescu <ionut@moisil.cs.columbia.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18: weird eepro100 msgs
+In-Reply-To: <200102022335.f12NZ8F11589@moisil.dev.hydraweb.com>
+Message-ID: <Pine.LNX.4.10.10102021719120.3255-100000@main.cyclades.com>
 MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-CC: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-        Richard Gooch <rgooch@atnf.csiro.au>, linux-kernel@vger.kernel.org
-Subject: Re: CPU capabilities -- an update proposal
-In-Reply-To: <Pine.LNX.4.21.0102022217350.7240-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins wrote:
+
+On Fri, 2 Feb 2001, Ion Badulescu wrote:
+
+> On Fri, 2 Feb 2001 15:01:05 -0800 (PST), Ivan Passos <lists@cyclades.com> wrote:
 > 
-> I wonder (you or hpa may very quickly point out why this is stupid
-> and impossible), could we move the identify_cpu() calls into
-> cpu_init()?  I used to think it was called too early for that, but
-> now I see it's already using current, smp_processor_id(), printk().
+> > Sometimes when I reboot the system, as soon as the eepro100 module is
+> > loaded, I start to get these msgs on the screen:
+> > 
+> > eth0: card reports no resources.
+> > eth0: card reports no RX buffers.
+> > eth0: card reports no resources.
+> > eth0: card reports no RX buffers.
+> > eth0: card reports no resources.
+> > eth0: card reports no RX buffers.
+> > (...)
 > 
+> Does the following patch, taken from 2.4.1, help?
 
-I like that idea.  I think it would clean up a lot of crud.
+I'm currently testing. I'll get back to you soon (have to reboot the
+system a lot to make sure it's really solved ... :)).
 
-	-hpa
+Thanks for the quick response!!
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Later,
+Ivan
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

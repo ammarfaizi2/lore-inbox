@@ -1,29 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266577AbTGKBPH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 21:15:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266578AbTGKBPH
+	id S269745AbTGKBTS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 21:19:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269746AbTGKBTS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 21:15:07 -0400
-Received: from jive.SoftHome.net ([66.54.152.27]:12264 "HELO jive.SoftHome.net")
-	by vger.kernel.org with SMTP id S266577AbTGKBPG (ORCPT
+	Thu, 10 Jul 2003 21:19:18 -0400
+Received: from jive.SoftHome.net ([66.54.152.27]:9378 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id S269745AbTGKBTQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 21:15:06 -0400
+	Thu, 10 Jul 2003 21:19:16 -0400
 From: imunity@softhome.net
 To: linux-kernel@vger.kernel.org
-Subject: USB-UHCI Fatal Error for all 2.5 kernels and 2.5.75 in RedHat v9.0
-Date: Thu, 10 Jul 2003 19:29:47 -0600
+Subject: DEVPTS Fatal error to many file types mounted. All 2.5 kernels
+Date: Thu, 10 Jul 2003 19:33:58 -0600
 Mime-Version: 1.0
 Content-Type: text/plain; format=flowed; charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 X-Originating-IP: [216.3.8.130]
-Message-ID: <courier.3F0E130B.000035DE@softhome.net>
+Message-ID: <courier.3F0E1406.00003C8A@softhome.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+During the INIT phase after the inital kernel bootup! 
 
-For soem reason right after the boot of the 2.5 kernels right when the INIT 
-starts the USB-UHCI fails for  the HID devices. 
+I am using RH 9.0 on a Dell Laptop c840 Latitude. 
 
-If I reconfigure the kernel without HID it still fails?  Maybe I need to 
-modify the modules.conf in the /etc dir or something?
+Is this devpts not part of the 2.5 kernels?  Maybe I need to remove it from 
+the modules.conf file in the /etc dir? 
+
+
+WHat has Happened to the "modversions.h" file in the 2.5 kernels.  Some 
+applications need that source file in order to compile correctly!!

@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbRAEQ4p>; Fri, 5 Jan 2001 11:56:45 -0500
+	id <S131058AbRAEQ7P>; Fri, 5 Jan 2001 11:59:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130883AbRAEQ4h>; Fri, 5 Jan 2001 11:56:37 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:14074 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129183AbRAEQ4Y>; Fri, 5 Jan 2001 11:56:24 -0500
-Date: Fri, 5 Jan 2001 14:54:53 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Chris Evans <chris@scary.beasts.org>
-cc: Chris Mason <mason@suse.com>, reiserfs-list@namesys.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: reiserfs patch for 2.4.0-final
-In-Reply-To: <Pine.LNX.4.30.0101051555240.28552-100000@ferret.lmh.ox.ac.uk>
-Message-ID: <Pine.LNX.4.21.0101051454110.1295-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130883AbRAEQ7F>; Fri, 5 Jan 2001 11:59:05 -0500
+Received: from passion.cambridge.redhat.com ([172.16.18.67]:26753 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S131090AbRAEQ6u>; Fri, 5 Jan 2001 11:58:50 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20010105085514.A12902@bluemug.com> 
+In-Reply-To: <20010105085514.A12902@bluemug.com>  <Pine.LNX.4.31.0101040954040.10387-100000@dlang.diginsite.com> <E14EEr4-000697-00@the-village.bc.nu> 
+To: Mike Touloumtzis <miket@bluemug.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        David Lang <david.lang@digitalinsight.com>,
+        Daniel Phillips <phillips@innominate.de>,
+        Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
+Subject: Re: Journaling: Surviving or allowing unclean shutdown? 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 05 Jan 2001 16:57:42 +0000
+Message-ID: <11503.978713862@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Jan 2001, Chris Evans wrote:
-> On Fri, 5 Jan 2001, Chris Mason wrote:
-> 
-> > > Could someone create one single patch for the 2.4.0 ?
-> > >
-> > I put all the code into CVS, and Yura is making the official patch now.
-> 
-> Since 2.4.0 final should fix a few i/o performance issues
-> (particuarly under heavy write loads), a quick few ext2 vs.
-> reiserfs benchmarks would make very interesting reading ;-)
 
-An easy way to gain a performance edge on ext2 would
-be to do proper write clustering in the reiserfs
-->writepage() function...  </hint>
+miket@bluemug.com said:
+>  Many newer cell phones, even low spec ones, will have a software
+> power switch (usually with a hardware override after about 5 seconds
+> of continuous press).  There are many other concessions that need to
+> be made to power efficiency, like the ability to toggle power to even
+> very minor peripherals and chips (not only each CPU and DSP, but the
+> bus controllers and UARTs connecting things together).  These things
+> sell in the millions, so their designers can easily budget the custom
+> logic.
 
-regards,
+Even if it only costs pennies - why on earth would someone want to add 
+logic to a board when they could just fix the software?
 
-Rik
+It soon adds up when you ship a million units.
+
 --
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to loose...
+dwmw2
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

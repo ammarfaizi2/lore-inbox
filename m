@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270634AbTGNPCt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 11:02:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270217AbTGNPBT
+	id S270655AbTGNO54 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 10:57:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270634AbTGNO5z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 11:01:19 -0400
-Received: from pub237.cambridge.redhat.com ([213.86.99.237]:16113 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id S270062AbTGNPAM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 11:00:12 -0400
-Subject: Re: [PATCH] jffs2 super.o for 2.6.0-test1
-From: David Woodhouse <dwmw2@infradead.org>
-To: Ben Collins <bcollins@debian.org>
-Cc: Jamey Hicks <jamey.hicks@hp.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20030714151059.GL450@phunnypharm.org>
-References: <1058194498.3333.100.camel@vimes.crl.hpl.hp.com>
-	 <20030714151059.GL450@phunnypharm.org>
+	Mon, 14 Jul 2003 10:57:55 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:34754
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S270647AbTGNOzo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 10:55:44 -0400
+Subject: Re: Linux v2.6.0-test1
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: John Bradford <john@grabjohn.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org
+In-Reply-To: <Pine.LNX.4.55L.0307141055530.18257@freak.distro.conectiva>
+References: <200307141139.h6EBd09g000700@81-2-122-30.bradfords.org.uk>
+	 <1058182417.561.47.camel@dhcp22.swansea.linux.org.uk>
+	 <Pine.LNX.4.55L.0307141055530.18257@freak.distro.conectiva>
 Content-Type: text/plain
-Message-Id: <1058195695.27293.12.camel@passion.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.1 (dwmw2) 
-Date: Mon, 14 Jul 2003 16:14:56 +0100
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1058195269.561.72.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 14 Jul 2003 16:07:50 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-07-14 at 16:10, Ben Collins wrote:
-> On Mon, Jul 14, 2003 at 10:54:58AM -0400, Jamey Hicks wrote:
-> > 
-> > Trivial patch to reenable jffs2 for 2.6.0-test1.
+On Llu, 2003-07-14 at 14:56, Marcelo Tosatti wrote:
+> > Then you'll just have to wait a few months
 > 
-> Seems this might be better, to keep it from being a re-occuring
-> problem.
+> I will start looking at 2.4 security fixes which are not applied in 2.6.
+> 
+> If someone is already doing that, please tell me.
 
-I'm as happy just to ditch all pretence of compatibility in the
-Makefile; it isn't a problem for merging because I can just ignore it on
-updates or do it by hand on the _rare_ occasion that I add a new file.
-
-I thought I'd already done that, to be honest.
-
--- 
-dwmw2
+I'm working on the recent exec and proc stuff. strncpy needs people who can
+do their native asm though.
 

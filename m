@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262339AbUEAQSh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262311AbUEAQ0r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262339AbUEAQSh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 May 2004 12:18:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262311AbUEAQSh
+	id S262311AbUEAQ0r (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 May 2004 12:26:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262380AbUEAQ0q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 May 2004 12:18:37 -0400
-Received: from rrcs-central-24-123-144-118.biz.rr.com ([24.123.144.118]:16737
-	"EHLO zso-proxy.zeusinc.com") by vger.kernel.org with ESMTP
-	id S262422AbUEAQP5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 May 2004 12:15:57 -0400
-Subject: Re: Large page support in the Linux Kernel?
-From: Tom Sightler <ttsig@tuxyturvy.com>
-To: Buddy Lumpkin <b.lumpkin@comcast.net>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <S262103AbUEAJXe/20040501092334Z+498@vger.kernel.org>
-References: <S262103AbUEAJXe/20040501092334Z+498@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1083428150.3810.18.camel@localhost.localdomain>
+	Sat, 1 May 2004 12:26:46 -0400
+Received: from [12.177.129.25] ([12.177.129.25]:48323 "EHLO
+	ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
+	id S262311AbUEAQ0p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 May 2004 12:26:45 -0400
+Date: Sat, 1 May 2004 13:09:05 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: linux-kernel@vger.kernel.org, user-mode-linux-devel@sourceforge.net
+Subject: [PATCH] UML/x86_64
+Message-ID: <20040501170905.GA7655@ccure.user-mode-linux.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-1) 
-Date: Sat, 01 May 2004 12:15:50 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-05-01 at 05:28, Buddy Lumpkin wrote:
-> Lastly, I know I have mentioned Oracle and Solaris a lot. Please don't flame
-> me for this, I think the points I am trying to make are reasonable.
+UML has been ported to x86_64.  The patch for 2.6.4 is available at
+	http://www.user-mode-linux.org/mirror/uml-patch-x86-64-2.6.4.bz2
 
-The only reason to be flamed is that you didn't seem to do much research
-before posting.  RHEL 2.1 has supported a feature called "BigPages"
-specifically used for Oracle for quite a while.  Good documentation on
-how to set this up can be found from Redhat, Oracle, and a quick Google
-search.
+Note that this is separate from the 2.6.4 UML patch, and must be
+applied to a 2.6.4 + uml-patch-2.6.4 tree.  It will remain separate
+until I get it all merged cleanly into my tree.  At that point, the
+separate x86_64 patch will disappear.
 
-See
-http://www.puschitz.com/TuningLinuxForOracle.shtml#UsingLargeMemoryPages
-for instructions on how to set it up.  Basically you pass a kernel
-parameter to tell the system how much memory to allocate as big pages
-and the kernel reserves this memory for it's use.
+This patch is fairly nasty in places, and the build is also fairly
+unclean, so avert your eyes if you are squeamish.  This will get
+better as I merge it into my pool.
 
-RHEL 3.0 and current 2.6 kernel support a newer variant called Hugetlb
-which seems similar from a user perspective but I'm not sure of the
-implementation details.  It more dynamic, you can decrease or increase
-memory allocated to Hugetlb's via /proc athough, you can't always grow
-it (the kernel has to be able to allocate contiguous segments to grow
-the system).  I'm not aware of any instruction in the community about
-how to set this up, but Oracle's Metalink provides complete
-instructions.  I'm already using it on my five production Oracle
-instances and have had no problems with it.
+The nastiness aside, it does build and you do get a robust UML.
 
-Later,
-Tom
+My thanks go to PathScale (pathscale.com) for sponsoring this work and
+providing access to hardware to make it possible.
 
+Finally, as I do the merge (and afterwards), I need access to an
+Opteron to make sure I don't break this port.  So, if anyone has such
+a box that I can have access to, let me know.
 
+				Jeff

@@ -1,33 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316363AbSEOKIy>; Wed, 15 May 2002 06:08:54 -0400
+	id <S316364AbSEOKL1>; Wed, 15 May 2002 06:11:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316364AbSEOKIx>; Wed, 15 May 2002 06:08:53 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:21745 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S316363AbSEOKIx>; Wed, 15 May 2002 06:08:53 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <1021396159.823.59.camel@sinai> 
-To: Robert Love <rml@tech9.net>
-Cc: blenderman@wanadoo.be, linux-kernel@vger.kernel.org
-Subject: Re: SMP doc problem 
-Mime-Version: 1.0
+	id <S316365AbSEOKL0>; Wed, 15 May 2002 06:11:26 -0400
+Received: from c90136.upc-c.chello.nl ([212.187.90.136]:62093 "EHLO
+	peder.flower") by vger.kernel.org with ESMTP id <S316364AbSEOKLZ>;
+	Wed, 15 May 2002 06:11:25 -0400
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19pre8-ac3 -- thread_info?
+In-Reply-To: <200205141244.g4ECi6P29886@devserv.devel.redhat.com>
+Organization: Jan at Appel
+From: Jan Nieuwenhuizen <janneke@gnu.org>
+Date: Wed, 15 May 2002 12:11:24 +0200
+Message-ID: <87ptzxlnzn.fsf@peder.flower>
+User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.2
+ (i386-debian-linux-gnu)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 15 May 2002 11:08:36 +0100
-Message-ID: <1306.1021457316@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox <alan@redhat.com> writes:
 
-rml@tech9.net said:
->  Just add it.  Or do `MAKE="make -jN" make whatever" 
+> The usual IDE merge comments apply. Please treat this tree with care.
 
-Just using 'make -j3' when building the kernel should suffice, with recent 
-versions of make.
+Hi,
 
---
-dwmw2
+It seems that 2.4.19pre8-ac3 introduced the use of thread_info, but
+it's not defined in sched.h?
 
+Greetings,
+Jan.
+
+gcc -D__KERNEL__ -I/var/src/linux-2.4/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4    -nostdinc -I /usr/lib/gcc-lib/i386-linux/2.95.4/include -DKBUILD_BASENAME=sched  -fno-omit-frame-pointer -O2 -c -o sched.o sched.c
+sched.c: In function `migration_thread':
+sched.c:1595: structure has no member named `thread_info'
+sched.c:1600: structure has no member named `thread_info'
+sched.c:1606: structure has no member named `thread_info'
+sched.c:1574: warning: `cpu_src' might be used uninitialized in this function
+make[2]: *** [sched.o] Error 1
+
+
+-- 
+Jan Nieuwenhuizen <janneke@gnu.org> | GNU LilyPond - The music typesetter
+http://www.xs4all.nl/~jantien       | http://www.lilypond.org
 

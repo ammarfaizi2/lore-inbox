@@ -1,75 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280126AbSAPRPR>; Wed, 16 Jan 2002 12:15:17 -0500
+	id <S279798AbSAPRRq>; Wed, 16 Jan 2002 12:17:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281214AbSAPRO5>; Wed, 16 Jan 2002 12:14:57 -0500
-Received: from noodles.codemonkey.org.uk ([62.49.180.5]:40839 "EHLO
-	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id <S279798AbSAPROt>; Wed, 16 Jan 2002 12:14:49 -0500
-Date: Wed, 16 Jan 2002 17:16:04 +0000
-From: Dave Jones <davej@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Linux 2.5.2-dj1
-Message-ID: <20020116171604.A29530@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
+	id <S280588AbSAPRRg>; Wed, 16 Jan 2002 12:17:36 -0500
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:5291 "EHLO
+	zcars0m9.ca.nortel.com") by vger.kernel.org with ESMTP
+	id <S279798AbSAPRRZ>; Wed, 16 Jan 2002 12:17:25 -0500
+Message-ID: <3C45B715.926A0BA0@nortelnetworks.com>
+Date: Wed, 16 Jan 2002 12:23:33 -0500
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: mcuss@cdlsystems.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Measuring execution time
+In-Reply-To: <Pine.LNX.4.33.0201151409270.1744-100000@barbarella.hawaga.org.uk> <042f01c19e13$6da6f4f0$160e10ac@hades>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Resyncing up with Linus & fix build errors,
-I'll resync with Marcelo next time, along with the other
-pending items people have sent me. I'll also start pushing
-bits to Linus again real soon.
+Mark Cuss wrote:
 
-Patch against 2.5.2 vanilla is available from:
-ftp://ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.5/
+> I am working on optimizing some software and would like to be able to
+> measure how long an instruction takes (down to the clock cycle of the CPU).
+> I recall reading somewhere about a kernel time measurement called a "Jiffy"
+> and figured that it would probably apply to this.
+> 
+> If anyone has any tips on how to figure out how to do this I'd really
+> appreciate it.
 
- -- Davej.
+Jiffies are quite coarse-grained.  On x86 you want the rdtsc instruction, while
+on ppc you want mfrtcu/mfrtcl or mftbu/mftb depending on the version of the
+chip.  These are used as inline assembly, and if you do a google search you
+should be able to find code snippets.
 
-2.5.2-dj1
-o   Merge 2.5.2 final.
-o   Merge 2.5.3pre1
-o   Numerous compile fixes.				(Various)
-o   Fix crc32 JFFS2 problem.				(Russell King)
-o   Remove left over ARM bits from 2.5.1-dj15.		(Me)
-o   Mips Magnum fb compile fix.				(Me)
-o   Update to sched-I3					(Ingo Molnar)
-o   Add missing cp1250 file.				(Me)
-
-
-2.5.1-dj15
-o   Merge selective bits of 2.4.18pre3ac1 & ac2
-    | Drop rmap (except for rate-limit oom_kill change),
-    | IDE changes & 32bit uid quota
-o   Add 'nowayout' module param for watchdogs.		(Matt Domsch)
-o   BSD partition fixes.				(Andries Brouwer)
-o   wavelan_cs update					(Jean Tourrilhes)
-o   Numerous LVM fixes.					(andersg)
-o   Prevent ramdisk buffercache corruption.		(Andrea Arcangeli)
-o   MS_ASYNC implementation.				(Andrea, Andrew Morton)
-o   Truncate blocks when prepare_write() fails.		(Andrea, Andrew Morton)
-o   winbond-840 OOM handling.				(Manfred Spraul)
-o   Natsemi OOM handling.				(Manfred Spraul)
-o   Eliminate some stalls in i386 syscall path.		(Alex Khripin)
-o   Export release_console_sem()			(Andrew Morton)
-o   Remove bogus sbp2 changes.				(Christoph Hellwig)
-o   Remove i386 mmu_context.h				(Me)
-o   Remove reiserfs build warnings.			(Me)
-o   Fix ignorance of SCSI I/O errors.			(Peter Osterlund)
-o   Fix IDE floppy thinko.				(Luc Van Oostenryck)
-o   Radeonfb compile fixes.				(Erik Andersen)
-o   Radeonfb flat panel support.			(Michael Clark)
-o   Remove bogus extraneous return.			(Paul Gortmaker)
-o   Fix potential oom-killer race.			(Andres Salomon)
-o   Fix bio + highmem bounce BUG().			(Jens Axboe)
-o   PATH_MAX fixes.					(Rusty Russell)
-o   Frame buffer _setcolreg changes.			(James Simmons)
-
+Chris
 
 -- 
-Dave Jones.                    http://www.codemonkey.org.uk
-SuSE Labs.
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

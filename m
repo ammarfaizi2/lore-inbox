@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285691AbRLHACa>; Fri, 7 Dec 2001 19:02:30 -0500
+	id <S285673AbRLGXzd>; Fri, 7 Dec 2001 18:55:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285693AbRLHACP>; Fri, 7 Dec 2001 19:02:15 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:57105 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S285691AbRLHAB6>; Fri, 7 Dec 2001 19:01:58 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: highmem question
-Date: 7 Dec 2001 16:01:33 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9url8t$nmo$1@cesium.transmeta.com>
-In-Reply-To: <Pine.LNX.4.30.0112071404280.29154-100000@mustard.heime.net>
+	id <S285674AbRLGXzY>; Fri, 7 Dec 2001 18:55:24 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:4879 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S285673AbRLGXzL>; Fri, 7 Dec 2001 18:55:11 -0500
+Message-ID: <3C1156CD.8DC2938@delusion.de>
+Date: Sat, 08 Dec 2001 00:54:53 +0100
+From: "Udo A. Steinberg" <reality@delusion.de>
+Organization: Disorganized
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.1-pre6 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+To: Andrew Morton <akpm@zip.com.au>
+CC: "David C. Hansen" <haveblue@us.ibm.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: release() locking
+In-Reply-To: <3C10D83E.81261D74@delusion.de> <3C10FDCF.D8E473A0@zip.com.au> <3C11394D.90101@us.ibm.com> <3C113D78.F324F1B9@delusion.de> <3C113FB1.2000AFF1@zip.com.au> <3C1147F2.4070103@us.ibm.com> <3C114E14.F6DC7937@delusion.de> <3C115196.1D5D87A5@zip.com.au>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.30.0112071404280.29154-100000@mustard.heime.net>
-By author:    Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-In newsgroup: linux.dev.kernel
+Andrew Morton wrote:
 > 
-> I heard that himem slows down systems.
+> Hum.  send_data() requires that local interrupts be enabled.
+> 
+> Does this fix it?
 
-It does, because it's a hack to extend 32-bit machines beyond their
-architectural lifetime.
+[Patch snipped]
 
-> - How much memory can Linux use without highmem enabled? (I've heard it's
->   1GB, but Linux found 1,2GB without ...)
+Yes, that fixes it. Thanks! Please submit it to Linus for inclusion
+in pre7.
 
-On i386, it supports 896 MB without HIGHMEM.
-
-> - How much is a system slowed down?
-
-Depends completely on your application mix and amount of RAM -- and
-whether or not you're using 4G or 64G HIGHMEM, the latter being more
-severe across a whole bunch of axes.
-
-> - How can this be fixed? I've heard it's a PCI issue (stuff being memory
->   mapped above the 2GB limit?)
-
-Go to a 64-bit CPU architecture.
-
-	-hpa
-
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+Regards,
+Udo.

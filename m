@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263807AbTDNU6r (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 16:58:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263813AbTDNU62 (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 16:58:28 -0400
-Received: from smtp1.wanadoo.fr ([193.252.22.25]:46147 "EHLO
-	mwinf0604.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S263807AbTDNU6V (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 16:58:21 -0400
-From: Duncan Sands <baldrick@wanadoo.fr>
+	id S263769AbTDNU41 (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 16:56:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263767AbTDNU41 (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 16:56:27 -0400
+Received: from smtp015.mail.yahoo.com ([216.136.173.59]:4105 "HELO
+	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263769AbTDNU40 (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 16:56:26 -0400
+From: Michael Buesch <fsdeveloper@yahoo.de>
 To: Dave Jones <davej@codemonkey.org.uk>
-Subject: Re: BUGed to death
-Date: Mon, 14 Apr 2003 23:10:05 +0200
-User-Agent: KMail/1.5.1
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@digeo.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-References: <80690000.1050351598@flay> <200304142240.41999.baldrick@wanadoo.fr> <20030414210211.GB7831@suse.de>
-In-Reply-To: <20030414210211.GB7831@suse.de>
+Subject: Re: 2.5 'what to expect' document.
+Date: Mon, 14 Apr 2003 23:08:03 +0200
+User-Agent: KMail/1.5
+References: <20030414193138.GA24870@suse.de>
+In-Reply-To: <20030414193138.GA24870@suse.de>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200304142310.05110.baldrick@wanadoo.fr>
+Message-Id: <200304142308.03553.fsdeveloper@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> BUG_ON is already marked unlikely.
-> See include/linux/kernel.h
->
-> The costs here are doing the actual checks, nothing to do with
-> the branch prediction.
+On Monday 14 April 2003 21:31, Dave Jones wrote:
+> Extra tainting.
+> ~~~~~~~~~~~~~~~
+> Running certain AMD processors in SMP boxes is out of spec, and will taint
+> the kernel with the 'S' flag.  Running 2 Athlon XPs for example may seem to
+> work fine, but may also introduce difficult to pin down bugs.
+> In time it's likely this tainting will be extended to cover other out of
+> spec cases.
 
-Some places don't seem to know about BUG_ON, for example
-(from include/linux/skbuff.h):
+Will it be implemented in future to taint the kernel if CPU is overclocked?
 
-static inline char *__skb_pull(struct sk_buff *skb, unsigned int len)
-{
-        skb->len -= len;
-        if (skb->len < skb->data_len)
-                BUG();
-        return skb->data += len;
-}
+-- 
+Regards Michael Buesch.
+http://www.8ung.at/tuxsoft
+
+$ cat /dev/zero > /dev/null
+/dev/null: That's *not* funny! :(
+

@@ -1,37 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289140AbSANXAe>; Mon, 14 Jan 2002 18:00:34 -0500
+	id <S289149AbSANXAg>; Mon, 14 Jan 2002 18:00:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289161AbSANXAZ>; Mon, 14 Jan 2002 18:00:25 -0500
-Received: from lacrosse.corp.redhat.com ([12.107.208.154]:48448 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S289227AbSANXAJ>; Mon, 14 Jan 2002 18:00:09 -0500
-Date: Mon, 14 Jan 2002 18:00:08 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org
-Subject: Re: Penelope builds a kernel
-Message-ID: <20020114180007.D30639@redhat.com>
-In-Reply-To: <20020114165909.A20808@thyrsus.com> <20020114173542.C30639@redhat.com> <20020114173854.C23081@thyrsus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020114173854.C23081@thyrsus.com>; from esr@thyrsus.com on Mon, Jan 14, 2002 at 05:38:54PM -0500
+	id <S289156AbSANXA0>; Mon, 14 Jan 2002 18:00:26 -0500
+Received: from [203.6.240.4] ([203.6.240.4]:63753 "HELO
+	cbus613-server4.colorbus.com.au") by vger.kernel.org with SMTP
+	id <S289167AbSANXAJ>; Mon, 14 Jan 2002 18:00:09 -0500
+Message-ID: <370747DEFD89D2119AFD00C0F017E66156A8DC@cbus613-server4.colorbus.com.au>
+From: Robert Lowery <Robert.Lowery@colorbus.com.au>
+To: george anzinger <george@mvista.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: [2.4.17/18pre] VM and swap - it's really unusable
+Date: Tue, 15 Jan 2002 09:59:45 +1100
+X-Mailer: Internet Mail Service (5.5.2653.19)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 14, 2002 at 05:38:54PM -0500, Eric S. Raymond wrote:
-> Point out one and I'll fix it.  I'm not satisfied that you have
-> understood what fetchmail is doing yet.
+Google is your fried ;)
 
-Really?  Why am I the one receiving bounces from FETCHMAIL-DAEMON 
-when subscribers to mailing lists misconfigure their boxes?  I am 
-completely unable to fix the problem, or even notify the user that 
-they are *losing* mail due to the broken design you came up with.  
-Meanwhile, I see you involved in lots of pointless threads on l-k 
-without understanding the typical usage patterns of kernels and 
-how distros actually support them.
+I believe Dawson Engler engler@csl.Stanford.EDU is the man to contact.  More
+info about their project can be found at http://hands.stanford.edu/linux/
 
-		-ben
--- 
-Fish.
+You would probably need to give him an example of the bad code you are
+trying to catch
+
+-Robert
+
+> -----Original Message-----
+> From: george anzinger [mailto:george@mvista.com]
+> Sent: Tuesday, January 15, 2002 6:52 AM
+> To: Robert Lowery
+> Cc: linux-kernel@vger.kernel.org; andrea@suse.de
+> Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+> 
+> 
+> Robert Lowery wrote:
+> > 
+> > >I question this because it is too risky to apply. There is 
+> no way any
+> > >distribution or production system could ever consider applying the
+> > >preempt kernel and ship it in its next kernel update 2.4. 
+> You never know
+> > >if a driver will deadlock because it is doing a test and 
+> set bit busy
+> > >loop by hand instead of using spin_lock and you cannot 
+> audit all the
+> > >device drivers out there.
+> > 
+> > Quick question from a kernel newbie.
+> > 
+> > Could this audit be partially automated by the Stanford 
+> Checker? or would
+> > there
+> > be too many false positives from other similar looping code?
+> > 
+> > -Robert
+> Sounds like a REALLY good thing (tm) to me.  How do we get them
+> interested?
+> -- 
+> George           george@mvista.com
+> High-res-timers: http://sourceforge.net/projects/high-res-timers/
+> Real time sched: http://sourceforge.net/projects/rtsched/
+> 

@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264746AbUFBDIQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265108AbUFBDvG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264746AbUFBDIQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 23:08:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264785AbUFBDIQ
+	id S265108AbUFBDvG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 23:51:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265280AbUFBDvF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 23:08:16 -0400
-Received: from stat1.steeleye.com ([65.114.3.130]:30216 "EHLO
-	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S264746AbUFBDIO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 23:08:14 -0400
-Message-ID: <40BD444D.2070305@steeleye.com>
-Date: Tue, 01 Jun 2004 23:06:53 -0400
-From: Paul Clements <paul.clements@steeleye.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] nbd: fix device names
-References: <4034FDD0.33BC57AF@SteelEye.com>	<40BC8C49.4020602@steeleye.com> <20040601163234.029af1b6.akpm@osdl.org>
-In-Reply-To: <20040601163234.029af1b6.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Jun 2004 23:51:05 -0400
+Received: from c3p0.cc.swin.edu.au ([136.186.1.30]:24332 "EHLO swin.edu.au")
+	by vger.kernel.org with ESMTP id S265108AbUFBDvA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 23:51:00 -0400
+To: Valdis.Kletnieks@vt.edu
+Cc: FabF <fabian.frederick@skynet.be>,
+       Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
+       linux-kernel@vger.kernel.org
+From: Tim Connors <tconnors+linuxkernel1086148031@astro.swin.edu.au>
+Subject: Re:  why swap at all? 
+In-reply-to: <200406011902.i51J2mZ3016721@turing-police.cc.vt.edu>
+References: <E1BUwEH-00030X-00@calista.eckenfels.6bone.ka-ip.net>            <1086114982.2278.5.camel@localhost.localdomain> <200406011902.i51J2mZ3016721@turing-police.cc.vt.edu>
+X-Face: "/6m>=uJ8[yh+S{nuW'%UG"H-:QZ$'XRk^sOJ/XE{d/7^|mGK<-"*e>]JDh/b[aqj)MSsV`X1*pA~Uk8C:el[*2TT]O/eVz!(BQ8fp9aZ&RM=Ym&8@.dGBW}KDT]MtT"<e(`rn*-w$3tF&:%]KHf"{~`X*i]=gqAi,ScRRkbv&U;7Aw4WvC
+X-Face-Author: David Bonde mailto:i97_bed@i.kth.se.REMOVE.THIS.TO.REPLY -- If you want to use it please also use this Authorline.
+Message-ID: <slrn-0.9.7.4-13727-23491-200406021347-tc@hexane.ssi.swin.edu.au>
+Date: Wed, 2 Jun 2004 13:50:42 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Paul Clements <paul.clements@steeleye.com> wrote:
+Valdis.Kletnieks@vt.edu said on Tue, 01 Jun 2004 15:02:48 -0400:
+> --==_Exmh_482188856P
+> Content-Type: text/plain; charset=us-ascii
 > 
->>It seems more appropriate to call the devices "nbX" rather than "nbdX",
->>since that's what the device nodes are actually named.
+> On Tue, 01 Jun 2004 20:36:23 +0200, FabF said:
 > 
+> > I guess we have a design problem right here.We could add per-process
+> > swappiness attribute.That swap thread becomes boring coz we're looking
+> > globally what's going wrong locally.
 > 
-> This affects /proc/partitions, /proc/diskstats, and probably other things. 
+> Hmm.. do we need to worry about the same DoS issues we need to worry about with
+> mlock and friends?  I know I can trust myself to not do stupid things to said
+> flags on my laptop (well... not twice anyhow ;).  On the other hand, I have
+> systems with clueless users, and the even more dangerous half-clued users.  And
+> then I have a bunch of machines in our security lab, where Bad Things happen
+> all the time... 
 
-Network block devices don't actually show up in /proc/partitions, but 
-you have a valid point that the other uses would change. Although, I 
-think it's a change for the better.
+I do often get frustrated that the DoS card is brought up to kill a
+potentially useful solution. I think there should be a flag in KConfig
+saying "This machine will be a server"/"This machine will be mostly a
+single user desktop machine". In the latter, you can enable all these
+vm/etc heuristics that will help out mozilla/X/your favourite
+bloat-ware, but potentially enable a DoS attack, and in the former,
+you stay conservative.
 
-> I think it's too late to change it.
+I can't rememeber the situation that I was last annoyed by someone
+saying "but what about a DoS?"...
 
-Fair enough. I can live with this discrepancy, although I think nbd is 
-the only block device driver that has this problem. That's the only 
-reason I sent the patch along...just trying to make nbd consistent with 
-all the other device drivers.
-
-Thanks,
-Paul
+-- 
+TimC -- http://astronomy.swin.edu.au/staff/tconnors/
+Entropy requires no maintenance.
+                -- Markoff Chaney

@@ -1,145 +1,288 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263401AbUC3BYg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 20:24:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263413AbUC3BYg
+	id S263399AbUC3BY0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 20:24:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263413AbUC3BY0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 20:24:36 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:7728 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S263401AbUC3BYW (ORCPT
+	Mon, 29 Mar 2004 20:24:26 -0500
+Received: from fmr06.intel.com ([134.134.136.7]:35211 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S263399AbUC3BYQ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 20:24:22 -0500
-Date: Mon, 29 Mar 2004 16:27:40 -0800
-From: Paul Jackson <pj@sgi.com>
-To: colpatch@us.ibm.com
-Cc: linux-kernel@vger.kernel.org, mbligh@aracnet.com, akpm@osdl.org,
-       wli@holomorphy.com, haveblue@us.ibm.com
-Subject: Re: [PATCH] mask ADT: new mask.h file [2/22]
-Message-Id: <20040329162740.0ca8f6d5.pj@sgi.com>
-In-Reply-To: <1080606618.6742.89.camel@arrakis>
-References: <20040329041253.5cd281a5.pj@sgi.com>
-	<1080606618.6742.89.camel@arrakis>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 29 Mar 2004 20:24:16 -0500
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: [ACPI] [BKPATCH] ACPI for 2.6
+Date: Tue, 30 Mar 2004 09:23:28 +0800
+Message-ID: <571ACEFD467F7749BC50E0A98C17CDD803300BBE@PDSMSX403.ccr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [ACPI] [BKPATCH] ACPI for 2.6
+Thread-Index: AcQTl3RbZqR8l+K3QOeT2j6BHf3BxQAQxHsgAHZFS1AADqDtwAABjAyg
+From: "Li, Shaohua" <shaohua.li@intel.com>
+To: "Manpreet Singh" <Manpreet.Singh@efi.com>,
+       "Moore, Robert" <robert.moore@intel.com>,
+       "Brown, Len" <len.brown@intel.com>,
+       "Linus Torvalds" <torvalds@osdl.org>
+Cc: "Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "ACPI Developers" <acpi-devel@lists.sourceforge.net>
+X-OriginalArrivalTime: 30 Mar 2004 01:23:37.0718 (UTC) FILETIME=[A080C160:01C415F5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew wrote (of my recommendation to not use the mask type directly):
-> Is this necessary, or just convenient?
+Hi,
+I think ACPI should provide user interface to enable 'Wake' GPE before
+entering sleep. User can select which devices can wake up system. We
+have a track http://bugme.osdl.org/show_bug.cgi?id=1415 for this issue.
 
-Technically as you suspect, just convenient, except in the case of the
-mask_of_bit() macro, as you observe.
-
-I was adhering to the K.I.S.S. school here - just tell the user one
-recommended way of using things, suppressing my engineering urge to
-explain alternatives that had no real advantages.
-
-> This paragraph seems a bit unclear.
-
-That's an understatment.  I left out a 'not' and didn't
-explain half the cases.  See my updates, below.
-
-> I think that it wouldn't be terribly ugly to split out the 1 unsigned
-> long special cases (bitmap_and, bitmap_or, etc) with #ifdefs.
-
-Do you have in mind an ifdef per function, or putting
-several functions inside an ifdef?  If you think it
-looks better - show us the code ;).
-
-> test_and_set_bit((bit), (mask)._m) ?
-
-yup.
-
-Here's my cumulative patch of changes that I have gained so far
-from your excellent feedback, and a couple I've noticed:
-
-diff -Nru a/include/linux/mask.h b/include/linux/mask.h
---- a/include/linux/mask.h	Mon Mar 29 17:21:41 2004
-+++ b/include/linux/mask.h	Mon Mar 29 17:21:41 2004
-@@ -62,7 +62,7 @@
-  *     Don't use mask.h directly - use cpumask.h and nodemask.h.
-  *
-  * The available mask operations and their rough meaning in the
-- * case that "nbits == 8 * sizeof(single unsigned long)" are:
-+ * case that "nbits == BITS_PER_LONG" are:
-  *
-  * __mask(nbits)			Use to define new *mask types
-  * mask_setbit(bit, mask)		mask |= bit
-@@ -70,7 +70,7 @@
-  * mask_setall(mask, nbits)		mask = ~0UL
-  * mask_clearall(mask)			mask = 0UL
-  * mask_isset(bit, mask)		Is bit set in mask?
-- * mask_test_and_set(bit, mask)		mask | bit ? 0 : mask |= bit
-+ * mask_test_and_set(bit, mask)		mask & bit ? 1 : (mask |= bit, 0)
-  * mask_and(dst, src1, src2)		dst = src1 & src2
-  * mask_or(dst, src1, src2)		dst = src1 | src2
-  * mask_xor(dst, src1, src2)		dst = src1 ^ src2
-@@ -155,8 +155,10 @@
-  *
-  * The underlying bitmap.c operations such as bitmap_and() and
-  *   bitmap_or() don't follow this model.  They don't assume
-- *   the precondition that unused bits are zero, and they do
-+ *   the precondition that unused bits are zero, and they do not
-  *   mask off any unused portion of input masks in most cases.
-+ *   The bitmap operations that produce Boolean or scalar results,
-+ *   such as for empty, full and weight, _do_ filter out unused bits.
-  *   However the underlying bitop.h operations, such as set_bit()
-  *   and clear_bit(), do no sanitizing of their inputs, depending
-  *   heavily on preconditions.
-@@ -234,7 +236,7 @@
- 	test_bit((bit), (mask)._m)
- 
- #define mask_test_and_set(bit, mask)					\
--	test_and_set_bit(bit, (mask)._m)
-+	test_and_set_bit((bit), (mask)._m)
- 
- #define mask_and(dst, src1, src2)					\
- do {									\
-diff -Nru a/lib/bitmap.c b/lib/bitmap.c
---- a/lib/bitmap.c	Mon Mar 29 17:21:41 2004
-+++ b/lib/bitmap.c	Mon Mar 29 17:21:41 2004
-@@ -47,7 +47,7 @@
- int bitmap_equal(const unsigned long *bitmap1,
- 		const unsigned long *bitmap2, int bits)
- {
--	int k, lim = bits/BITS_PER_LONG;;
-+	int k, lim = bits/BITS_PER_LONG;
- 	for (k = 0; k < lim; ++k)
- 		if (bitmap1[k] != bitmap2[k])
- 			return 0;
-@@ -63,7 +63,7 @@
- 
- void bitmap_complement(unsigned long *dst, const unsigned long *src, int bits)
- {
--	int k, lim = bits/BITS_PER_LONG;;
-+	int k, lim = bits/BITS_PER_LONG;
- 	for (k = 0; k < lim; ++k)
- 		dst[k] = ~src[k];
- 
-@@ -149,7 +149,7 @@
- int bitmap_intersects(const unsigned long *bitmap1,
- 				const unsigned long *bitmap2, int bits)
- {
--	int k, lim = bits/BITS_PER_LONG;;
-+	int k, lim = bits/BITS_PER_LONG;
- 	for (k = 0; k < lim; ++k)
- 		if (bitmap1[k] & bitmap2[k])
- 			return 1;
-@@ -165,7 +165,7 @@
- int bitmap_subset(const unsigned long *bitmap1,
- 				const unsigned long *bitmap2, int bits)
- {
--	int k, lim = bits/BITS_PER_LONG;;
-+	int k, lim = bits/BITS_PER_LONG;
- 	for (k = 0; k < lim; ++k)
- 		if (bitmap1[k] & ~bitmap2[k])
- 			return 0;
-
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Thanks,
+David
+> -----Original Message-----
+> From: acpi-devel-admin@lists.sourceforge.net [mailto:acpi-devel-
+> admin@lists.sourceforge.net] On Behalf Of Manpreet Singh
+> Sent: Tuesday, March 30, 2004 8:28 AM
+> To: Moore, Robert; Brown, Len; Linus Torvalds
+> Cc: Kernel Mailing List; ACPI Developers
+> Subject: RE: [ACPI] [BKPATCH] ACPI for 2.6
+> 
+> Hi Bob,
+> 
+> What I mean is that I see that the system goes into S3 suspend with
+all
+> GPEs
+> being disabled. So the bitvector 'WakeEnable' has a value of 0. Now,
+on my
+> I/O controller, PME_EN: which enables PME#s to assert a wake-up event
+is
+> also
+> off which is what I'd like to see enabled for wake on LAN (etherwake)
+to
+> work.
+> 
+> How is WakeEnable initialized? Does it depend on certain BIOS table
+> entries?
+> 
+> Forgive my n00b questions if they sound trivial.
+> 
+> Thanks,
+> Manpreet.
+> 
+> 
+> -----Original Message-----
+> From: Moore, Robert [mailto:robert.moore@intel.com]
+> Sent: Monday, March 29, 2004 9:33 AM
+> To: Manpreet Singh; Brown, Len; Linus Torvalds
+> Cc: Kernel Mailing List; ACPI Developers
+> Subject: RE: [ACPI] [BKPATCH] ACPI for 2.6
+> 
+> 
+> 
+> What makes you think that *all* GPEs are disabled?
+> 
+> Here is the relevant code:
+> 
+>         /*
+>          * 1) Disable all runtime GPEs
+>          * 2) Enable all wakeup GPEs
+>          */
+>         Status = AcpiHwLowLevelWrite (8, GpeRegisterInfo->WakeEnable,
+>                 &GpeRegisterInfo->EnableAddress);
+> 
+> The "WakeEnable" field is setup such that only the WAKE GPEs are
+> enabled.
+> 
+> Unless you are saying that "WakeEnable" is not initialized correctly.
+> 
+> Please clarify.
+> 
+> Bob
+> 
+> 
+> -----Original Message-----
+> From: acpi-devel-admin@lists.sourceforge.net
+> [mailto:acpi-devel-admin@lists.sourceforge.net] On Behalf Of Manpreet
+> Singh
+> Sent: Saturday, March 27, 2004 1:19 AM
+> To: Brown, Len; Linus Torvalds
+> Cc: Kernel Mailing List; ACPI Developers
+> Subject: RE: [ACPI] [BKPATCH] ACPI for 2.6
+> 
+> Hi Len,
+> 
+> This patch on 2.6.5-rc2 certainly helps with a "spurious" interrupt
+> problem
+> that I was seeing on a 2.6.4 kernel. It seems that we don't initialize
+> GPEs
+> unless they are needed for a resume.
+> 
+> But, in the function call "acpi_hw_prepare_gpes_for_sleep", it seems
+> that
+> currently *all* GPEs get disabled, some of which I would consider wake
+> up
+> events, like the PME enable bit that enables an S3 resume using a
+magic
+> packet. That doesn't allow wake on LAN to work properly. Is there way
+to
+> pick/specify the wake up events or does it come from the BIOS tables?
+> 
+> Also, if I have the console on a serial port, I don't get the console
+> back
+> after an S3 resume.
+> 
+> Actually, I am new to the ACPI list. If this is not the right place
+for
+> these
+> queries, please let me know.
+> 
+> Thanks,
+> Manpreet.
+> 
+> 
+> -----Original Message-----
+> From: acpi-devel-admin@lists.sourceforge.net
+> [mailto:acpi-devel-admin@lists.sourceforge.net]On Behalf Of Len Brown
+> Sent: Friday, March 26, 2004 4:59 PM
+> To: Linus Torvalds
+> Cc: Kernel Mailing List; ACPI Developers
+> Subject: [ACPI] [BKPATCH] ACPI for 2.6
+> 
+> 
+> Hi Linus, please do a
+> 
+> 	bk pull bk://linux-acpi.bkbits.net/linux-acpi-release-2.6.5
+> 
+> 	Three significant interrupt fixes.
+> 
+> thanks,
+> -Len
+> 
+> ps. a plain patch is also available here:
+>
+ftp://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2
+> .6.5/
+> acpi-20040326-2.6.5.diff.gz
+> 
+> This will update the following files:
+> 
+>  arch/i386/kernel/acpi/boot.c      |   18 +
+>  drivers/acpi/ec.c                 |    4
+>  drivers/acpi/events/evgpe.c       |   11 -
+>  drivers/acpi/events/evgpeblk.c    |  242 ++++++++++++++++++++++----
+>  drivers/acpi/events/evmisc.c      |   43 ++--
+>  drivers/acpi/events/evxfevnt.c    |   25 ++
+>  drivers/acpi/executer/excreate.c  |   16 +
+>  drivers/acpi/executer/exdump.c    |    1
+>  drivers/acpi/executer/exresnte.c  |    5
+>  drivers/acpi/executer/exstoren.c  |    1
+>  drivers/acpi/hardware/hwgpe.c     |   98 ++++++----
+>  drivers/acpi/hardware/hwsleep.c   |   22 +-
+>  drivers/acpi/namespace/nsaccess.c |    9
+>  drivers/acpi/namespace/nsdump.c   |    1
+>  drivers/acpi/namespace/nseval.c   |    9
+>  drivers/acpi/namespace/nssearch.c |    6
+>  drivers/acpi/namespace/nsutils.c  |    2
+>  drivers/acpi/namespace/nsxfeval.c |   26 +-
+>  drivers/acpi/osl.c                |   21 ++
+>  drivers/acpi/pci_link.c           |   18 +
+>  drivers/acpi/resources/rsaddr.c   |   13 -
+>  drivers/acpi/utilities/utglobal.c |   42 ++--
+>  drivers/acpi/utilities/utmisc.c   |    5
+>  include/acpi/acconfig.h           |    2
+>  include/acpi/acglobal.h           |    2
+>  include/acpi/achware.h            |    4
+>  include/acpi/aclocal.h            |    7
+>  include/acpi/actypes.h            |   84 +++++----
+>  include/acpi/acutils.h            |    1
+>  29 files changed, 537 insertions(+), 201 deletions(-)
+> 
+> through these ChangeSets:
+> 
+> <len.brown@intel.com> (04/03/26 1.1608.1.56)
+>    [ACPI] Linux specific updates from ACPICA 20040326
+>    "acpi_wake_gpes_always_on" boot flag for old GPE behaviour
+> 
+> <len.brown@intel.com> (04/03/26 1.1608.1.55)
+>    [ACPI] ACPICA 20040326 from Bob Moore
+> 
+>    Implemented support for "wake" GPEs via interaction between
+>    GPEs and the _PRW methods.  Every GPE that is pointed to by
+>    one or more _PRWs is identified as a WAKE GPE and by default
+>    will no longer be enabled at runtime.  Previously, we were
+>    blindly enabling all GPEs with a corresponding _Lxx or _Exx
+>    method - but most of these turn out to be WAKE GPEs anyway.
+>    We believe this has been the cause of thousands of
+>    "spurious" GPEs on some systems.
+> 
+>    This new GPE behavior is can be reverted to the original
+>    behavior (enable ALL GPEs at runtime) via a runtime flag.
+> 
+>    Fixed a problem where aliased control methods could not
+>    access objects properly.  The proper scope within the
+>    namespace was not initialized (transferred to the target of
+>    the aliased method) before executing the target method.
+> 
+>    Fixed a potential race condition on internal object
+>    deletion on the return object in AcpiEvaluateObject.
+> 
+>    Integrated a fix for resource descriptors where both
+>    _MEM and _MTP were being extracted instead of just _MEM.
+>    (i.e. bitmask was incorrectly too wide, 0x0F instead of 0x03.)
+> 
+>    Added a special case for ACPI_ROOT_OBJECT in AcpiUtGetNodeName,
+>    preventing a fault in some cases.
+> 
+>    Updated Notify() values for debug statements in evmisc.c
+> 
+>    Return proper status from AcpiUtMutexInitialize,
+>    not just simply AE_OK.
+> 
+> <len.brown@intel.com> (04/03/26 1.1608.1.54)
+>    [ACPI] proposed fix for non-identity-mapped SCI override
+>    http://bugme.osdl.org/show_bug.cgi?id=2366
+> 
+> <len.brown@intel.com> (04/03/25 1.1608.1.53)
+>    [ACPI] PCI interrupt link routing (Luming Yu)
+>    use _PRS to determine resource type for _SRS
+>    fixes HP Proliant servers
+>    http://bugzilla.kernel.org/show_bug.cgi?id=1590
+> 
+> 
+> 
+> 
+> 
+> 
+> -------------------------------------------------------
+> This SF.Net email is sponsored by: IBM Linux Tutorials
+> Free Linux tutorial presented by Daniel Robbins, President and CEO of
+> GenToo technologies. Learn everything from fundamentals to system
+> administration.http://ads.osdn.com/?ad_id=1470&alloc_id=3638&op=click
+> _______________________________________________
+> Acpi-devel mailing list
+> Acpi-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/acpi-devel
+> 
+> 
+> -------------------------------------------------------
+> This SF.Net email is sponsored by: IBM Linux Tutorials
+> Free Linux tutorial presented by Daniel Robbins, President and CEO of
+> GenToo technologies. Learn everything from fundamentals to system
+> administration.http://ads.osdn.com/?ad_id70&alloc_id638&op=ick
+> _______________________________________________
+> Acpi-devel mailing list
+> Acpi-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/acpi-devel
+> 
+> 
+> -------------------------------------------------------
+> This SF.Net email is sponsored by: IBM Linux Tutorials
+> Free Linux tutorial presented by Daniel Robbins, President and CEO of
+> GenToo technologies. Learn everything from fundamentals to system
+> administration.http://ads.osdn.com/?ad_id70&alloc_id638&op=ick
+> _______________________________________________
+> Acpi-devel mailing list
+> Acpi-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/acpi-devel

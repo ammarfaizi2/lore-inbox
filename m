@@ -1,60 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262169AbTHTTbM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 15:31:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262180AbTHTTbL
+	id S262146AbTHTTfj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 15:35:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262150AbTHTTfj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 15:31:11 -0400
-Received: from webmail.altiris.com ([64.90.198.5]:16989 "EHLO
-	webmail.altiris.com") by vger.kernel.org with ESMTP id S262169AbTHTTbK convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 15:31:10 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: 48-bit Drives Incorrectly reporting 255 Heads?
-Date: Wed, 20 Aug 2003 13:31:08 -0600
-Message-ID: <88A7BC80FA2797498AF6D865CAD3EA43180E95@iceman.altiris.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 48-bit Drives Incorrectly reporting 255 Heads?
-Thread-Index: AcNnUZHIlzrV20pMQz2H5RAqp7PARg==
-From: "John Riggs" <jriggs@altiris.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 20 Aug 2003 19:31:09.0328 (UTC) FILETIME=[9B600900:01C36751]
+	Wed, 20 Aug 2003 15:35:39 -0400
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:7429 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id S262146AbTHTTff (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 15:35:35 -0400
+Date: Wed, 20 Aug 2003 21:35:18 +0200
+From: Jurriaan <thunder7@xs4all.nl>
+To: Svetoslav Slavtchev <galia@st-peter.stw.uni-erlangen.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6 test3-bk7 & -mm3 : HPT374 - cable missdetection, lock-ups
+Message-ID: <20030820193518.GA1547@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
+References: <1061384019.3f436f531a333@secure.st-peter.stw.uni-erlangen.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1061384019.3f436f531a333@secure.st-peter.stw.uni-erlangen.de>
+X-Message-Flag: Still using Outlook? Please Upgrade to real software!
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  With the 2.4.20 kernel, I have a 40GB disk with 240 heads, with 48-bit
-mode enabled. The Linux ide driver automatically declares that anything
-with 48-bit mode enabled has 255 heads. This is a problem, as I am
-writing a utility to fix up a Windows PBR, and the PBR relies on the
-head count as counted by the BIOS.
-  The Linux code in question is in ide-disk.c:
+From: Svetoslav Slavtchev <galia@st-peter.stw.uni-erlangen.de>
+Date: Wed, Aug 20, 2003 at 02:53:39PM +0200
+> Hi
+> 
+> first test run of 2.6 on Epox 8k9a3+ VIA KT400 VT8235, 
+> HPT374 and 4 IBM Deskstar GXP120 80Gb on each chanel as master
+> Mandrake-cooker gcc-3.3.1
+> 
+> the 3rd and the 4th chanel of the HPT374 are saying that the used cable
+> is 40 wires, so it forces the drives in UDMA33 which i think causes the lock-
+> ups several seconds after booting in runlevel 1
+> 
+As far as I know, I have no problems with my 3rd channel on my Epox
+8K9A3+ motherboard. I've got a WD 80 Gb disk (8 Mb cache model) on it.
 
-  if (id->cfs_enable_2 & 0x0400) {
-    .
-    drive->head = drive->bios_head = 255;
-    .
-  }
+However, I've noticed something else.
 
-  What I would like to do is change the above to:
+As soon as I type 
 
-  if (id->cfs_enable_2 & 0x0400) {
-    .
-    drive->head = 255;
-    .
-  }
+cat /proc/ide/hpt366
 
-  Thereby not changing the bios head count. My initial tests seem to
-have worked okay, with the correct geometry getting reported. Can
-anybody point out to me why this will break something else?
-  Two more specific questions are:
-    1) Will this break drives > 137 GB?
-    2) Why would the head count be set to 255 in the first place?
+I get hit by the dreaded 'status=0x58 .... hdi interrupt lost' thing.
+It tries to reset ide4, but keeps telling 'interrupt lost' and finally I
+have to use the reset button. If I never cat /proc/ide/hpt366 I can run
+the system for a week at a time, where hdi is part of a raid-0 partition
+that contains both /home and my newsspool - so it's used frequently.
 
-Thank you,
-John Riggs
+Kind regards,
+Jurriaan
+-- 
+Carson heaved a sigh. "Easley tried to kill you. You retaliate by calling
+yourself Jim Harrison. It seems a subtle revenge. Perhaps I'm stupid..."
+	Jack Vance - The Deadly Isles
+Debian (Unstable) GNU/Linux 2.6.0-test3-mm3 4259 bogomips 1.04 0.41

@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132304AbRAYXLf>; Thu, 25 Jan 2001 18:11:35 -0500
+	id <S132176AbRAYXQP>; Thu, 25 Jan 2001 18:16:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135339AbRAYXLP>; Thu, 25 Jan 2001 18:11:15 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:48906 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S129393AbRAYXLM>; Thu, 25 Jan 2001 18:11:12 -0500
-Date: Thu, 25 Jan 2001 23:11:09 +0000 (GMT)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Ookhoi <ookhoi@dds.nl>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: pcmcia delay causes bootp not to work
-In-Reply-To: <20010126000007.U21704@ookhoi.dds.nl>
-Message-ID: <Pine.LNX.4.30.0101252310370.2734-100000@imladris.demon.co.uk>
+	id <S131850AbRAYXQF>; Thu, 25 Jan 2001 18:16:05 -0500
+Received: from detroit.gci.com ([205.140.80.57]:10765 "EHLO daytona.gci.com")
+	by vger.kernel.org with ESMTP id <S129169AbRAYXP7>;
+	Thu, 25 Jan 2001 18:15:59 -0500
+Message-ID: <BF9651D8732ED311A61D00105A9CA31503515880@berkeley.gci.com>
+From: Leif Sawyer <lsawyer@gci.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Daniel Phillips <phillips@innominate.de>,
+        Thunder from the hill <thunder@ngforever.de>, alex@foogod.com
+Subject: RE: named streams, extended attributes, and posix
+Date: Thu, 25 Jan 2001 14:15:47 -0900
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+alex@foogod.com [alex@foogod.com] wrote:
+> Here's an idea: streams/etc are reached by appending 
+> "/.../xxx" or some such to paths, thus:
+>   for streamname on /dir/file, we have "/dir/file/.../streamname" 
+>  for a directory /dir/dir, we get /dir/dir/.../streamname" 
+>    -- "..." is a special subdirectory of any directories which have 
 
-Er... no, don't try that patch. It'll oops. Try this instead.
+An interesting point to note here would be that
+the directory '...'  has been used for many years to 'hide' things
+from un-skilled sysadmins.
 
---- drivers/pcmcia/yenta.c	2000/12/05 13:30:42	1.1.2.23
-+++ drivers/pcmcia/yenta.c	2001/01/25 23:10:35
-@@ -859,7 +859,8 @@
- 	socket->tq_task.data = socket;
- 
- 	MOD_INC_USE_COUNT;
--	schedule_task(&socket->tq_task);
-+	//	schedule_task(&socket->tq_task);
-+	yenta_open_bh(socket);
- 
- 	return 0;
- }
+In other words, warez ftp sites pop up all over the place, and this
+directory name is pretty close to being the number one stash point,
+right next to ".. "
 
-
---
-dwmw2
 
 
 -

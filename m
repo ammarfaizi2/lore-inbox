@@ -1,63 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262005AbUCLHrD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 02:47:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbUCLHrD
+	id S262007AbUCLHuM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 02:50:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbUCLHuM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 02:47:03 -0500
-Received: from www.npw.net ([193.96.40.17]:34267 "EHLO mail.npw.net")
-	by vger.kernel.org with ESMTP id S262005AbUCLHrA (ORCPT
+	Fri, 12 Mar 2004 02:50:12 -0500
+Received: from fw.osdl.org ([65.172.181.6]:1518 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262007AbUCLHuI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 02:47:00 -0500
-Message-ID: <40516AE8.2030000@npw.net>
-Date: Fri, 12 Mar 2004 08:46:48 +0100
-From: Philipp Baer <phbaer@npw.net>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Kernel oops
-References: <404E41A7.80707@npw.net> <20040309151106.468cf467.akpm@osdl.org>
-In-Reply-To: <20040309151106.468cf467.akpm@osdl.org>
-X-Enigmail-Version: 0.83.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 12 Mar 2004 02:50:08 -0500
+Date: Thu, 11 Mar 2004 23:50:09 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4-mm1
+Message-Id: <20040311235009.212d69f2.akpm@osdl.org>
+In-Reply-To: <16465.20264.563965.518274@notabene.cse.unsw.edu.au>
+References: <20040310233140.3ce99610.akpm@osdl.org>
+	<16465.3163.999977.302378@notabene.cse.unsw.edu.au>
+	<20040311172244.3ae0587f.akpm@osdl.org>
+	<16465.20264.563965.518274@notabene.cse.unsw.edu.au>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Neil Brown <neilb@cse.unsw.edu.au> wrote:
+>
+> On Thursday March 11, akpm@osdl.org wrote:
+> > 
+> > Tried adding earlyprintk=vga?
+> > 
+> > If that works, judicious addition of printks will narrow it down.
+> 
+> It doesn't.
+> 
+> I've tried compiling with SMP - no go.
+> I've tried with gcc-2.95 (instead of 3.3.2).  Still no go.
 
-Andrew Morton wrote:
+Your .config works happily here.
 
-|>I have a strage problem with the kernel version 2.6.3. Whensoever
-|>chkrootkit is run, the following kernel oops is thrown:
-|
-|
-| Could you try this patch?
+> I thought I might try selectively removing patches, but it isn't clear
+> what order the borken-out patches were applied it.
+> If you have an ordered list, I can try a binary search.
 
-[...]
+See the `series' file in the broken-out directory.
 
-Ok, we've patched all systems and the oops seems to have gone.
-Great (and especially really fast) done, thanks!
+> Or if you can suggest some patches that I can try backing out....
 
+Maybe turn off -mregparm?  Or back off the 4g/4g patches?  Maybe they broke
+non-4:4 code comehow.
 
-ciao, phb
-
-- --
-Philipp Baer <phbaer@npw.net> [http://www.npw.net/]
-gnupg-fingerprint: 16C7 84E8 5C5F C3D6 A8F1  A4DC E4CB A9A9 F5FA FF5D
-
-``Only two things are infinite, the universe and human stupidity,
-and I'm not sure about the former.'' -- A. Einstein
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFAUWrn5MupqfX6/10RAifAAKDyz48/OV6Mlj4WOwrjOAzQO900BgCfU4+L
-A+iBN6afg3cvpbrWfnaKQZw=
-=rTG3
------END PGP SIGNATURE-----

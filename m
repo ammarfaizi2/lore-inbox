@@ -1,69 +1,75 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317424AbSFDJRG>; Tue, 4 Jun 2002 05:17:06 -0400
+	id <S317463AbSFDJTZ>; Tue, 4 Jun 2002 05:19:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317463AbSFDJRF>; Tue, 4 Jun 2002 05:17:05 -0400
-Received: from boden.synopsys.com ([204.176.20.19]:58823 "HELO
-	boden.synopsys.com") by vger.kernel.org with SMTP
-	id <S317424AbSFDJRF>; Tue, 4 Jun 2002 05:17:05 -0400
-Date: Tue, 4 Jun 2002 11:16:46 +0200
-From: Alex Riesen <Alexander.Riesen@synopsys.com>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Announce: Kernel Build for 2.5, release 3.0 is available
-Message-ID: <20020604091646.GB29455@riesen-pc.gr05.synopsys.com>
-Reply-To: Alexander.Riesen@synopsys.com
-Mail-Followup-To: Keith Owens <kaos@ocs.com.au>,
-	kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <27953.1023071705@kao2.melbourne.sgi.com> <11725.1023166408@kao2.melbourne.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S317464AbSFDJTY>; Tue, 4 Jun 2002 05:19:24 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:24537 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S317463AbSFDJTX>; Tue, 4 Jun 2002 05:19:23 -0400
+Date: Tue, 4 Jun 2002 11:19:19 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Marcelo Tosatti <marcelo@conectiva.com.br>, <bcollins@debian.org>,
+        <andreas.bombe@munich.netsurf.de>,
+        <linux1394-devel@lists.sourceforge.net>
+cc: linux-kernel@vger.kernel.org
+Subject: [patch] disable CONFIG_IEEE1394_PCILYNX_PORTS config option
+Message-ID: <Pine.NEB.4.44.0206041108400.8847-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Got this trying to compile 2.5.20 with Debian's gcc 2.95.4.
-Why it took the system-wide zlib.h?
+Hi Marcelo,
 
-$ make -f Makefile-2.5 fs/isofs/compress.o KBUILD_QUIET=
-...
-scripts/pp_makefile5  --type=CC --target=fs/isofs/compress.o --src=fs/isofs/compress.c --srctree=999 --flags='-Ifs/isofs -I- -D__KERNEL__ -Iinclude/ -I.tmp_include/src_000/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2    -fomit-frame-pointer -march=i686 -nostdinc -iwithprefix include  -DKBUILD_OBJECT=isofs -DKBUILD_BASENAME=compress -DMODULE   '
-In file included from /export/home/riesen-pc0/riesen/compile/v2.5/fs/isofs/compress.c:38:
-include/linux/zlib.h:34: zconf.h: No such file or directory
+IMHO it gives a bad picture of the quality of Linux if a stable kernel
+contains options that doesn't compile. CONFIG_IEEE1394_PCILYNX_PORTS
+doesn't compile (the error message is at the end of the mail) and Andreas
+Bombe stated in a private mail to me four months ago that it shouldn't
+have been a public option.
 
-On Tue, Jun 04, 2002 at 02:53:28PM +1000, Keith Owens wrote:
-> On Mon, 03 Jun 2002 12:35:05 +1000, 
-> Keith Owens <kaos@ocs.com.au> wrote:
-> >Release 3.0 of kernel build for kernel 2.5 (kbuild 2.5) is available.
-> >http://sourceforge.net/projects/kbuild/, package kbuild-2.5, download
-> >release 3.0.
-> 
-> New files:
-> 
-> kbuild-2.5-core-16
->   Changes from core-15.
-> 
->     Override some command line variables to ensure that they are changed.
-> 
->     Replace -nostdinc with Russell King's version.
-> 
->     Print full filename in warning message.
-> 
->     Correct lock filename.
-> 
->     Correct unmap old db (sparc64 SEGV).
-> 
->     Tweak dirty flag checking.
-> 
-> kbuild-2.5-common-2.5.20-2.
->   Changes from common-2.5.20-1.
-> 
->     Correct drivers/acpi/Makefile.in, Arnd Bergmann.
->    
-> kbuild-2.5-s390-2.5.20-1.
-> kbuild-2.5-s390x-2.5.20-1.
-> 
->     Arnd Bergmann.
-> 
-> -
+My patch doesn't do any harm because currently the kernel doesn't compile
+when this option is enabled and if someone fixes pcilynx.c it's pretty
+trivial to revert this patch.
+
+
+
+--- drivers/ieee1394/Config.in.old	Fri May  3 11:11:06 2002
++++ drivers/ieee1394/Config.in	Fri May  3 11:12:18 2002
+@@ -12,7 +12,7 @@
+ 	dep_tristate '  Texas Instruments PCILynx support' CONFIG_IEEE1394_PCILYNX $CONFIG_IEEE1394
+ 	if [ "$CONFIG_IEEE1394_PCILYNX" != "n" ]; then
+ 	    bool '    Use PCILynx local RAM' CONFIG_IEEE1394_PCILYNX_LOCALRAM
+-	    bool '    Support for non-IEEE1394 local ports' CONFIG_IEEE1394_PCILYNX_PORTS
++#	    bool '    Support for non-IEEE1394 local ports' CONFIG_IEEE1394_PCILYNX_PORTS
+ 	fi
+ 	dep_tristate '  OHCI-1394 support' CONFIG_IEEE1394_OHCI1394 $CONFIG_IEEE1394
+
+
+
+
+
+TIA
+Adrian
+
+
+
+<--  snip  -->
+
+gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.4/linux-full/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe
+-mpreferred-stack-boundary=2 -march=k6   -nostdinc -I
+/usr/lib/gcc-lib/i386-linux/2.95.4/include -DKBUILD_BASENAME=pcilynx  -c -o pcilynx.o pcilynx.c
+pcilynx.c: In function `mem_open':
+pcilynx.c:647: `num_of_cards' undeclared (first use in this function)
+pcilynx.c:647: (Each undeclared identifier is reported only once
+pcilynx.c:647: for each function it appears in.)
+pcilynx.c:647: `cards' undeclared (first use in this function)
+pcilynx.c: In function `aux_poll':
+pcilynx.c:706: `cards' undeclared (first use in this function)
+make[3]: *** [pcilynx.o] Error 1
+make[3]: Leaving directory
+`/home/bunk/linux/kernel-2.4/linux-full/drivers/ieee1394'
+
+<--  snip  -->
+

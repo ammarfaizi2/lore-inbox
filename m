@@ -1,65 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261182AbVC0RTk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261191AbVC0R0a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261182AbVC0RTk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 12:19:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261213AbVC0RTk
+	id S261191AbVC0R0a (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 12:26:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261213AbVC0R0a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 12:19:40 -0500
-Received: from colin2.muc.de ([193.149.48.15]:13068 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S261182AbVC0RTf (ORCPT
+	Sun, 27 Mar 2005 12:26:30 -0500
+Received: from colin2.muc.de ([193.149.48.15]:29965 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S261191AbVC0R00 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 12:19:35 -0500
-Date: 27 Mar 2005 19:19:34 +0200
-Date: Sun, 27 Mar 2005 19:19:34 +0200
+	Sun, 27 Mar 2005 12:26:26 -0500
+Date: 27 Mar 2005 19:26:25 +0200
+Date: Sun, 27 Mar 2005 19:26:25 +0200
 From: Andi Kleen <ak@muc.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Andrew Morton <akpm@osdl.org>, cryptoapi@lists.logix.cz,
-       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
-       jmorris@redhat.com, herbert@gondor.apana.org.au
-Subject: Re: [PATCH] API for true Random Number Generators to add entropy (2.6.11)
-Message-ID: <20050327171934.GB18506@muc.de>
-References: <20050315133644.GA25903@beast> <20050324042708.GA2806@beast> <20050323203856.17d650ec.akpm@osdl.org> <m1y8cc3mj1.fsf@muc.de> <424324F1.8040707@pobox.com>
+To: Christophe Saout <christophe@saout.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: x86-64 preemption fix from IRQ and BKL in 2.6.12-rc1-mm2
+Message-ID: <20050327172625.GC18506@muc.de>
+References: <20050324044114.5aa5b166.akpm@osdl.org> <1111778785.14840.13.camel@leto.cs.pocnet.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <424324F1.8040707@pobox.com>
+In-Reply-To: <1111778785.14840.13.camel@leto.cs.pocnet.net>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> We -used- to need data from RNG directly into the kernel randomness 
+On Fri, Mar 25, 2005 at 08:26:25PM +0100, Christophe Saout wrote:
+> Fortunately the kernel locked up and there was no data corruption.
+> 
+> I've got PREEMPT and PREEMPT_BKL enabled under UP.
+> 
+> I just took a look at the change and found this:
+> 
+> x86-64 does this (in entry.S):
+> 
+>         bt   $9,EFLAGS-ARGOFFSET(%rsp)  /* interrupts off? */
+>         jnc   retint_restore_args
+>         movl $PREEMPT_ACTIVE,threadinfo_preempt_count(%rcx)
+>         sti
+>         call schedule
+>         cli
+>         GET_THREAD_INFO(%rcx)
+>         movl $0,threadinfo_preempt_count(%rcx)
+>         jmp exit_intr
+> 
+> while i386 does this:
+> 
+>         testl $IF_MASK,EFLAGS(%esp)     # interrupts off (exception path) ?
+>         jz restore_all
+>         call preempt_schedule_irq
+>         jmp need_resched
+> 
+> preempt_schedule_irq is not an i386 specific function and seems to take
+> special care of BKL preemption and since reiserfs does use the BKL to do
+> certain things I think this actually might be the problem...?
 
-Are you sure? I dont think there was ever code to do this in
-mainline. There might have been something in -ac*, but not mainline.
+Hmm, preempt_schedule_irq is not in mainline as far as I can see.
+My patches are always for mainline; i dont do a special
+patch kit for -mm*
 
-> pool.  The consensus was that the FIPS testing should be moved to userspace.
+It looks like a unfortunate interaction with some other patches
+in mm. Andrew, can you disable CONFIG_PREEMPT on x86-64 in
+mm for now?
 
-Consensus from whom? And who says the FIPS testing is useful anyways?
+Just calling preempt_schedule_irq may also work, 
+but most likely the patch that introduces that function needs
+careful reading if it does not require more support from architectures.
+BTW I suspect it will break other archs too...
 
-I think you just need to trust the random generator, it is like
-you need to trust any other piece of hardware in your machine. Or do you 
-check regularly if you mov instruction still works? @)
+> Unfortunately I don't have a amd64 machine to play with, so can somebody
+> please check this?
 
-I think it is a trade off between easy to use and saving of 
-resources and overly paranoia. With an user space solution
-which near nobody uses currently (I am not aware of 
-any distribution that runs that daemon)
-it means most people wont have hardware supported randomness
-in their ssh, and I think that is a big drawback.
-
-Also I dont like the memory consumption of the daemon. It needs
-at least 20+k for kernel stack, page tables etc. I know
-a lot of people dont care about memory usage anymore, but I still
-do.  It is not a lot of memory, but bloat does usually not come in big
-pieces but in small amounts of a time. And the code to do it
-from kernel space is really simple. 
-
-And it would suddenly make a lot of peoples ssh/https etc. more secure, 
-which is a good thing. Probably would help Linux security a lot 
-more than all these crazy - "ABI, what ABI?" - buffer overflow 
-workarounds.
-
-If you are really paranoid you can always turn off the sysctl
-and do it from userspace. 
+How did you generate the crash dumps above then?
 
 -Andi

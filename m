@@ -1,186 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262170AbTEUIaa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 04:30:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262171AbTEUIa3
+	id S262171AbTEUIaf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 04:30:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbTEUIaf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 04:30:29 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:58642 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262170AbTEUIaY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 04:30:24 -0400
-Date: Wed, 21 May 2003 09:43:17 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net, kaos@ocs.com.au,
-       James.Bottomley@steeleye.com, mort@wildopensource.com,
-       davidm@napali.hpl.hp.com, jun.nakajima@intel.com, tomita@cinet.co.jp
-Subject: Re: [Lse-tech] cpu-2.5.69-bk14-1
-Message-ID: <20030521094317.A6612@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-	kaos@ocs.com.au, James.Bottomley@steeleye.com,
-	mort@wildopensource.com, davidm@napali.hpl.hp.com,
-	jun.nakajima@intel.com, tomita@cinet.co.jp
-References: <20030520170331.GK29926@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030520170331.GK29926@holomorphy.com>; from wli@holomorphy.com on Tue, May 20, 2003 at 10:03:31AM -0700
+	Wed, 21 May 2003 04:30:35 -0400
+Received: from smtp3.wanadoo.fr ([193.252.22.25]:61852 "EHLO
+	mwinf0602.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S262171AbTEUIab convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 04:30:31 -0400
+Date: Wed, 21 May 2003 10:43:30 +0200
+Subject: Re: PATCH: usb-uhci: interrupt out with urb->interval 0  [linux-usb-devel]
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Mime-Version: 1.0 (Apple Message framework v552)
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+To: Pete Zaitcev <zaitcev@redhat.com>
+From: Frode Isaksen <fisaksen@bewan.com>
+In-Reply-To: <20030430180050.A17797@devserv.devel.redhat.com>
+Message-Id: <4C4FDF7A-8B68-11D7-A60F-003065EF6010@bewan.com>
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Apple Mail (2.552)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 20, 2003 at 10:03:31AM -0700, William Lee Irwin III wrote:
-> Extended cpumasks for larger systems. Now featuring bigsmp, Summit,
-> and Voyager updates in addition to PC-compatible, NUMA-Q, and SN2
-> bits from SGI.
 
-Here's the PPC32 UP bits.  I'll look into SMP once it starts to actually
-compile again.
+Le jeudi, 1 mai 2003, à 00:00 Europe/Paris, Pete Zaitcev a écrit :
+
+>> Date: Wed, 30 Apr 2003 14:38:58 +0200
+>> From: Frode Isaksen <fisaksen@bewan.com>
+>
+>> I have tested the patch with the Unicorn (ST70137) adsl usb chip and 
+>> it
+>> is ok. Thanks...
+>
+>> Do you think it will be in the official 2.4.21 kernel ?
+>
+> This is a question to Greg Kroah. He wanted to put brakes on
+> it due to insufficient testing. Personally, I do not agree.
+> I think we should put it into -rc2 and see if anything breaks
+> (which is unlikely in this case). But ultimately it's his call.
+
+I just downloaded 2.4.21-rc2, and the patch is not in...
+Is it any hope for it to be in the official 2.4.21 kernel at all ???
+For your information, my router with an adsl usb modem has run with 
+this patch for weeks now.
+
+Thanks,
+
+Frode
+
+>
+> -- Pete
+>
+>
 
 
---- 1.26/arch/ppc/kernel/irq.c	Sun Apr 27 13:56:50 2003
-+++ edited/arch/ppc/kernel/irq.c	Tue May 20 11:43:43 2003
-@@ -44,6 +44,7 @@
- #include <linux/proc_fs.h>
- #include <linux/random.h>
- #include <linux/seq_file.h>
-+#include <linux/cpumask.h>
- 
- #include <asm/uaccess.h>
- #include <asm/bitops.h>
-@@ -567,24 +568,35 @@
- #define DEFAULT_CPU_AFFINITY 0x00000001
- #endif
- 
--unsigned int irq_affinity [NR_IRQS] =
--	{ [0 ... NR_IRQS-1] = DEFAULT_CPU_AFFINITY };
-+#define HEX_DIGITS (2*sizeof(cpumask_t))
- 
--#define HEX_DIGITS 8
-+cpumask_t irq_affinity[NR_IRQS] = { [0 ... NR_IRQS-1] = CPU_MASK_ALL };
- 
--static int irq_affinity_read_proc (char *page, char **start, off_t off,
-+static int irq_affinity_read_proc(char *page, char **start, off_t off,
- 			int count, int *eof, void *data)
- {
-+	cpumask_t tmp = irq_affinity[(long)data];
-+	int k, len = 0;
-+
- 	if (count < HEX_DIGITS+1)
- 		return -EINVAL;
--	return sprintf (page, "%08x\n", irq_affinity[(int)data]);
-+
-+	for (k = 0; k < sizeof(cpumask_t)/sizeof(unsigned long); ++k) {
-+		int j = sprintf(page, "%04hx", (u16)cpus_coerce(tmp));
-+		len += j;
-+		page += j;
-+		cpus_shift_right(tmp, tmp, 16);
-+	}
-+	
-+	len += sprintf(page, "\n");
-+	return len;
- }
- 
--static unsigned int parse_hex_value (const char *buffer,
-+static unsigned int parse_hex_value(const char *buffer,
- 		unsigned long count, unsigned long *ret)
- {
--	unsigned char hexnum [HEX_DIGITS];
--	unsigned long value;
-+	unsigned char hexnum[HEX_DIGITS];
-+	cpumask_t value = CPU_MASK_NONE;
- 	int i;
- 
- 	if (!count)
-@@ -598,10 +610,9 @@
- 	 * Parse the first 8 characters as a hex string, any non-hex char
- 	 * is end-of-string. '00e1', 'e1', '00E1', 'E1' are all the same.
- 	 */
--	value = 0;
--
- 	for (i = 0; i < count; i++) {
- 		unsigned int c = hexnum[i];
-+		int k;
- 
- 		switch (c) {
- 			case '0' ... '9': c -= '0'; break;
-@@ -610,18 +621,21 @@
- 		default:
- 			goto out;
- 		}
--		value = (value << 4) | c;
-+		cpus_shift_left(value, value, 4);
-+		for (k = 0; k < 4; ++k)
-+			if (test_bit(k, (unsigned long *)&c))
-+				cpu_set(k, value);
- 	}
- out:
- 	*ret = value;
- 	return 0;
- }
- 
--static int irq_affinity_write_proc (struct file *file, const char *buffer,
-+static int irq_affinity_write_proc(struct file *file, const char *buffer,
- 					unsigned long count, void *data)
- {
--	int irq = (int) data, full_count = count, err;
--	unsigned long new_value;
-+	int irq = (long)data, full_count = count, err;
-+	cpumask_t new_value, tmp;
- 
- 	if (!irq_desc[irq].handler->set_affinity)
- 		return -EIO;
-@@ -638,29 +652,42 @@
- 	 * are actually logical cpu #'s then we have no problem.
- 	 *  -- Cort <cort@fsmlabs.com>
- 	 */
--	if (!(new_value & cpu_online_map))
-+	cpus_and(tmp, new_value, cpu_online_map);
-+	if (cpus_empty(tmp))
- 		return -EINVAL;
- 
- 	irq_affinity[irq] = new_value;
--	irq_desc[irq].handler->set_affinity(irq, new_value);
--
-+	irq_desc[irq].handler->set_affinity(irq,
-+			cpumask_of_cpu(first_cpu(new_value)));
- 	return full_count;
- }
- 
--static int prof_cpu_mask_read_proc (char *page, char **start, off_t off,
-+static int prof_cpu_mask_read_proc(char *page, char **start, off_t off,
- 			int count, int *eof, void *data)
- {
--	unsigned long *mask = (unsigned long *) data;
-+	cpumask_t *tmp = (cpumask_t *)data;
-+	int k, len = 0;
-+	
- 	if (count < HEX_DIGITS+1)
- 		return -EINVAL;
--	return sprintf (page, "%08lx\n", *mask);
-+
-+	for (k = 0; k < sizeof(cpumask_t)/sizeof(unsigned long); ++k) {
-+		int j = sprintf(page, "%04hx", (u16)cpus_coerce(*tmp));
-+		len += j;
-+		page += j;
-+		cpus_shift_right(*tmp, *tmp, 16);
-+	}
-+
-+	len += sprintf(page, "\n");
-+	return len;
- }
- 
- static int prof_cpu_mask_write_proc (struct file *file, const char *buffer,
- 					unsigned long count, void *data)
- {
--	unsigned long *mask = (unsigned long *) data, full_count = count, err;
--	unsigned long new_value;
-+	cpumask_t *mask = (cpumask_t *)data;
-+	unsigned long full_count = count, err;
-+	cpumask_t new_value;
- 
- 	err = parse_hex_value(buffer, count, &new_value);
- 	if (err)
+diff -urN -X dontdiff linux-2.4.21-rc1/drivers/usb/host/usb-uhci.c 
+linux-2.4.21-rc1-nip/drivers/usb/host/usb-uhci.c
+--- linux-2.4.21-rc1/drivers/usb/host/usb-uhci.c	2003-04-24 
+10:52:56.000000000 -0700
++++ linux-2.4.21-rc1-nip/drivers/usb/host/usb-uhci.c	2003-04-29 
+12:43:28.000000000 -0700
+@@ -2430,9 +2430,9 @@
+
+  _static int process_interrupt (uhci_t *s, struct urb *urb)
+  {
+-	int i, ret = -EINPROGRESS;
++	int ret = -EINPROGRESS;
+  	urb_priv_t *urb_priv = urb->hcpriv;
+-	struct list_head *p = urb_priv->desc_list.next;
++	struct list_head *p;
+  	uhci_desc_t *desc = list_entry (urb_priv->desc_list.prev, 
+uhci_desc_t, desc_list);
+
+  	int actual_length;
+@@ -2440,8 +2440,8 @@
+
+  	//dbg("urb contains interrupt request");
+
+-	for (i = 0; p != &urb_priv->desc_list; p = p->next, i++)	// Maybe we 
+allow more than one TD later ;-)
+-	{
++	// Maybe we allow more than one TD later ;-)
++	while ((p = urb_priv->desc_list.next) != &urb_priv->desc_list) {
+  		desc = list_entry (p, uhci_desc_t, desc_list);
+
+  		if (is_td_active(desc)) {
+

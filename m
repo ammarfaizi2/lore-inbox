@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265808AbUHOONq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266692AbUHOOOO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265808AbUHOONq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 10:13:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266692AbUHOONq
+	id S266692AbUHOOOO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 10:14:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266701AbUHOOOO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 10:13:46 -0400
-Received: from quechua.inka.de ([193.197.184.2]:44774 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S265808AbUHOONo (ORCPT
+	Sun, 15 Aug 2004 10:14:14 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:52368 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S266692AbUHOOOK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 10:13:44 -0400
-Date: Sun, 15 Aug 2004 16:13:42 +0200
-From: Bernd Eckenfels <be-mail2004@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove obsolete HEAD in top Makefile
-Message-ID: <20040815141342.GB30572@lina.inka.de>
-References: <E1BwJne-0006M7-00@calista.eckenfels.6bone.ka-ip.net> <411F58DF.2070002@greatcn.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <411F58DF.2070002@greatcn.org>
-User-Agent: Mutt/1.5.6+20040722i
+	Sun, 15 Aug 2004 10:14:10 -0400
+Message-ID: <411F7067.8040305@colorfullife.com>
+Date: Sun, 15 Aug 2004 16:17:11 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Lameter <clameter@sgi.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: page fault fastpath: Increasing SMP scalability by introducing
+ pte
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 15, 2004 at 08:36:47PM +0800, Coywolf Qi Hunt wrote:
-> >iff it is not using it you need to remove it in the next line, too.
-> Nah, I'm only removing HEAD, not head-y. :p
+Christoph wrote:
 
-If you remove this line:
-head-y += $(HEAD)
+>Well this is more an idea than a real patch yet. The page_table_lock
+>becomes a bottleneck if more than 4 CPUs are rapidly allocating and using
+>memory. "pft" is a program that measures the performance of page faults on
+>SMP system. It allocates memory simultaneously in multiple threads thereby
+>causing lots of page faults for anonymous pages.
+>
+>  
+>
+Very odd. Why do you see a problem with the page_table_lock but no 
+problem from the mmap semaphore?
+The page fault codepath acquires both.
+How often is the page table lock acquired per page fault? Just once or 
+multiple spin_lock calls per page fault? Is the problem contention or 
+cache line trashing?
 
-then head-y is undefined, and could therefore be removed, too. I dont know
-what HEAD was used for, and where does it come from. But since the 2.4 code
-uses head in a compareable way (i.e. only in that location with toetally
-differen s tructure) I am not sure if it is not needed.
+Do you have profile/lockmeter output? Is the down_read() in 
+do_page_fault() a hot spot, too?
 
-Can you explain what it was used for and why it can be removed now?
-
-Gruss
-Bernd
--- 
-  (OO)      -- Bernd_Eckenfels@Mörscher_Strasse_8.76185Karlsruhe.de --
- ( .. )      ecki@{inka.de,linux.de,debian.org}  http://www.eckes.org/
-  o--o     1024D/E383CD7E  eckes@IRCNet  v:+497211603874  f:+497211606754
-(O____O)  When cryptography is outlawed, bayl bhgynjf jvyy unir cevinpl!
+--
+    Manfred

@@ -1,46 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265517AbUFCRik@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265542AbUFCRik@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265517AbUFCRik (ORCPT <rfc822;willy@w.ods.org>);
+	id S265542AbUFCRik (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 3 Jun 2004 13:38:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264965AbUFCRhS
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265517AbUFCRh5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 13:37:18 -0400
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:65339 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S264367AbUFCRep (ORCPT
+	Thu, 3 Jun 2004 13:37:57 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:32393 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264307AbUFCRfD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 13:34:45 -0400
-Date: Thu, 3 Jun 2004 10:34:38 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Jan Kasprzak <kas@informatics.muni.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Stock IA64 kernel on SGI Altix 350
-Message-Id: <20040603103438.24115ac2.pj@sgi.com>
-In-Reply-To: <20040603170147.GK10708@fi.muni.cz>
-References: <20040603170147.GK10708@fi.muni.cz>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 3 Jun 2004 13:35:03 -0400
+Date: Thu, 3 Jun 2004 19:34:54 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "Jeff V. Merkey" <jmerkey@drdos.com>, linux-kernel@vger.kernel.org
+Subject: Re: submit_bh leaves interrupts on upon return
+Message-ID: <20040603173454.GU1946@suse.de>
+References: <40BE93DC.6040501@drdos.com> <20040603085002.GG28915@suse.de> <40BF8E1F.1060009@drdos.com> <20040603165250.GO1946@suse.de> <40BF9124.6080807@drdos.com> <20040603170328.GQ1946@suse.de> <Pine.LNX.4.58.0406031025070.3403@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0406031025070.3403@ppc970.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am routinely building and booting *-mm kernels on Altix systems.  For
-example, the 2.6.7-rc2-mm2 kernel I made from Andrews patch set of last
-night works fine.  His patch set 2.6.7-rc2-mm1 had "issues", but
-apparently not just on Altix.
+On Thu, Jun 03 2004, Linus Torvalds wrote:
+> 
+> 
+> On Thu, 3 Jun 2004, Jens Axboe wrote:
+> 
+> > On Thu, Jun 03 2004, Jeff V. Merkey wrote:
+> > >
+> > > Sounds like I need to move to 2.6. I noticed the elevator is coalescing 
+> > > quite well, and since I am posting mostly continguous runs of sectors, 
+> > > what ends up at the adapter level would probably not change much much 
+> > > between 2.4 and 2.6 since I am maxing out the driver request queues as 
+> > > it is (255 pending requests of 32 scatter/gather elements of 256 sector 
+> > > runs). 2.6 might help but I suspect it will only help alleviate the 
+> > > submission overhead, and not make much difference on performance since 
+> > > the 3Ware card does have an upward limit on outstanding I/O requests.
+> > 
+> > That's correct, it just helps you diminish the submission overhead by
+> > pushing down 256 sector entities in one go. So as long as you're io
+> > bound it won't give you better io performance, of course. If you are
+> > doing 400MiB/sec it should help you out, though.
+> 
+> Well, if Jeff does almost exclusively contiguous stuff and submits them in
+> order, then the coalescing will make sure that even on 2.4.x the queues
+> don't get too long, and he probably won't see the pathological cases.
 
-I'd guess that Linus's kernels, such as 2.6.7-rc2, unpatched, are ok too,
-but I don't have actual experience with them of late.
-
-I don't know about the kernel/ports/ia64/v2.[46] patches.  I am not
-adding any such for my work, at least not lately.
-
-> Is there a better list to report this than lkml?
-
-Probably - but I don't know where.
+At 255 pending requests (see above), it will get somewhat bad. So even
+if 2.4 copes, it will spend more sys time than 2.6 for this work load
+for sure. The queues will get long even for mainly contig submissions,
+but of course the time spent in the io scheduler will not be too bad
+since it's scanned backwards. And call frequency will be 32 times as
+big...
 
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Jens Axboe
+

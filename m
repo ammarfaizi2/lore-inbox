@@ -1,161 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265773AbUHNXtm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265492AbUHOAVZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265773AbUHNXtm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 19:49:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265789AbUHNXtm
+	id S265492AbUHOAVZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 20:21:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265521AbUHOAVZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 19:49:42 -0400
-Received: from smtp-vbr1.xs4all.nl ([194.109.24.21]:32015 "EHLO
-	smtp-vbr1.xs4all.nl") by vger.kernel.org with ESMTP id S265773AbUHNXta
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 19:49:30 -0400
-From: Sebastian =?iso-8859-1?q?K=FCgler?= <sebas@vizZzion.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Compile fixes for various fb drivers
-Date: Sun, 15 Aug 2004 01:49:13 +0200
-User-Agent: KMail/1.6.2
+	Sat, 14 Aug 2004 20:21:25 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:60584 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S265492AbUHOAVX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Aug 2004 20:21:23 -0400
+Message-ID: <411EAC81.2030703@grupopie.com>
+Date: Sun, 15 Aug 2004 01:21:21 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_5TqHBtzMhPTcSnZ"
-Message-Id: <200408150149.14663.sebas@vizZzion.org>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@muc.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] Latency Tracer, voluntary-preempt-2.6.8-rc4-O6
+References: <8634.1092485844@ocs3.ocs.com.au>
+In-Reply-To: <8634.1092485844@ocs3.ocs.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.27.0.4; VDF: 6.27.0.10; host: bipbip)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Keith Owens wrote:
+> On Sat, 14 Aug 2004 05:50:50 +0100, 
+> Paulo Marques <pmarques@grupopie.com> wrote:
+> 
+>>Well, I found some time and decided to give it a go :)
+> 
+> 
+> This patch regresses some recent changes to kallsyms which handle
+> aliased symbols, IOW symbols with the same address.  The speed up is
+> very good, but it has two problems with repeated addresses.
 
---Boundary-00=_5TqHBtzMhPTcSnZ
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Oops, I didn't realize that there could be repeated addresses :(
 
-Hi,
+I did a test running 500000 lookups with the original function and my 
+own and compared the results from both functions looking for any 
+differences. The test program was fed from /proc/kallsyms from my 
+machine. Because there were no aliases there, the result was ok and I 
+felt confident about the algorithm.
 
-fb_copy_cmap has changed in 2.6.8.1, but the change is not reflected in all=
-=20
-drivers, this updates the respective framebuffer drivers.
+Anyway, at first glance your patch looks right, and I don't think there 
+will be any performance implications from it, unless there can be 
+thousands of aliases for the same address :)
 
-The patch is against vanilla 2.6.8.1.
+-- 
+Paulo Marques - www.grupopie.com
 
-Signed-off-by: Sebastian K=FCgler <sebas@vizZzion.org>
-
-kind regards,
-=2D-=20
-sebas
-=2D - - - - - - - - - -
-http://vizZzion.org
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-mathematician, n.: Some one who believes imaginary things appear right befo=
-re=20
-your i's.
-
-
---Boundary-00=_5TqHBtzMhPTcSnZ
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="fb-patch.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="fb-patch.diff"
-
-diff -uprN -X dontdiff linux-2.6.8.1/drivers/video/atafb.c linux-2.6.8.1-fb/drivers/video/atafb.c
---- linux-2.6.8.1/drivers/video/atafb.c	2004-08-14 12:54:50.000000000 +0200
-+++ linux-2.6.8.1-fb/drivers/video/atafb.c	2004-08-15 01:24:33.000000000 +0200
-@@ -2539,7 +2539,7 @@ atafb_get_cmap(struct fb_cmap *cmap, int
- 		return fb_get_cmap(cmap, kspc, fbhw->getcolreg, info);
- 	else
- 		if (fb_display[con].cmap.len) /* non default colormap ? */
--			fb_copy_cmap(&fb_display[con].cmap, cmap, kspc ? 0 : 2);
-+			fb_copy_cmap(&fb_display[con].cmap, cmap);
- 		else
- 			fb_copy_cmap(fb_default_cmap(1<<fb_display[con].var.bits_per_pixel),
- 				     cmap, kspc ? 0 : 2);
-diff -uprN -X dontdiff linux-2.6.8.1/drivers/video/cyberfb.c linux-2.6.8.1-fb/drivers/video/cyberfb.c
---- linux-2.6.8.1/drivers/video/cyberfb.c	2004-08-14 12:54:48.000000000 +0200
-+++ linux-2.6.8.1-fb/drivers/video/cyberfb.c	2004-08-15 01:23:52.000000000 +0200
-@@ -937,7 +937,7 @@ static int cyberfb_get_cmap(struct fb_cm
- 		return(fb_get_cmap(cmap, kspc, Cyber_getcolreg, info));
- 	} else if (fb_display[con].cmap.len) { /* non default colormap? */
- 		DPRINTK("Use console cmap\n");
--		fb_copy_cmap(&fb_display[con].cmap, cmap, kspc ? 0 : 2);
-+		fb_copy_cmap(&fb_display[con].cmap, cmap);
- 	} else {
- 		DPRINTK("Use default cmap\n");
- 		fb_copy_cmap(fb_default_cmap(1<<fb_display[con].var.bits_per_pixel),
-diff -uprN -X dontdiff linux-2.6.8.1/drivers/video/retz3fb.c linux-2.6.8.1-fb/drivers/video/retz3fb.c
---- linux-2.6.8.1/drivers/video/retz3fb.c	2004-08-14 12:56:01.000000000 +0200
-+++ linux-2.6.8.1-fb/drivers/video/retz3fb.c	2004-08-15 01:25:15.000000000 +0200
-@@ -1277,7 +1277,7 @@ static int retz3fb_get_cmap(struct fb_cm
- 	if (con == info->currcon) /* current console? */
- 		return(fb_get_cmap(cmap, kspc, retz3_getcolreg, info));
- 	else if (fb_display[con].cmap.len) /* non default colormap? */
--		fb_copy_cmap(&fb_display[con].cmap, cmap, kspc ? 0 : 2);
-+		fb_copy_cmap(&fb_display[con].cmap, cmap);
- 	else
- 		fb_copy_cmap(fb_default_cmap(1<<fb_display[con].var.bits_per_pixel),
- 			     cmap, kspc ? 0 : 2);
-diff -uprN -X dontdiff linux-2.6.8.1/drivers/video/S3triofb.c linux-2.6.8.1-fb/drivers/video/S3triofb.c
---- linux-2.6.8.1/drivers/video/S3triofb.c	2004-08-14 12:56:23.000000000 +0200
-+++ linux-2.6.8.1-fb/drivers/video/S3triofb.c	2004-08-15 01:23:11.000000000 +0200
-@@ -220,7 +220,7 @@ static int s3trio_get_cmap(struct fb_cma
-     if (con == info->currcon) /* current console? */
- 	return fb_get_cmap(cmap, kspc, s3trio_getcolreg, info);
-     else if (fb_display[con].cmap.len) /* non default colormap? */
--	fb_copy_cmap(&fb_display[con].cmap, cmap, kspc ? 0 : 2);
-+	fb_copy_cmap(&fb_display[con].cmap, cmap);
-     else
- 	fb_copy_cmap(fb_default_cmap(1 << fb_display[con].var.bits_per_pixel),
- 		     cmap, kspc ? 0 : 2);
-diff -uprN -X dontdiff linux-2.6.8.1/drivers/video/sis/sis_main.c linux-2.6.8.1-fb/drivers/video/sis/sis_main.c
---- linux-2.6.8.1/drivers/video/sis/sis_main.c	2004-08-14 12:55:47.000000000 +0200
-+++ linux-2.6.8.1-fb/drivers/video/sis/sis_main.c	2004-08-15 01:20:32.000000000 +0200
-@@ -1641,12 +1641,12 @@ sisfb_get_cmap(struct fb_cmap *cmap, int
- 
- 	} else if(display->cmap.len) {
- 
--		fb_copy_cmap(&display->cmap, cmap, kspc ? 0 : 2);
-+		fb_copy_cmap(&display->cmap, cmap);
- 
- 	} else {
- 
- 		int size = sisfb_get_cmap_len(&display->var);
--		fb_copy_cmap(fb_default_cmap(size), cmap, kspc ? 0 : 2);
-+		fb_copy_cmap(fb_default_cmap(size), cmap);
- 
- 	}
- 
-@@ -1671,7 +1671,7 @@ sisfb_set_cmap(struct fb_cmap *cmap, int
- 	if(con == ivideo->currcon) {
- 		return fb_set_cmap(cmap, kspc, sisfb_setcolreg, info);
- 	} else {
--		fb_copy_cmap(cmap, &display->cmap, kspc ? 0 : 1);
-+		fb_copy_cmap(cmap, &display->cmap);
- 	}
- 
- 	return 0;
-diff -uprN -X dontdiff linux-2.6.8.1/drivers/video/sun3fb.c linux-2.6.8.1-fb/drivers/video/sun3fb.c
---- linux-2.6.8.1/drivers/video/sun3fb.c	2004-08-14 12:54:51.000000000 +0200
-+++ linux-2.6.8.1-fb/drivers/video/sun3fb.c	2004-08-15 01:24:51.000000000 +0200
-@@ -306,7 +306,7 @@ static int sun3fb_get_cmap(struct fb_cma
- 	if (con == info->currcon) /* current console? */
- 		return fb_get_cmap(cmap, kspc, sun3fb_getcolreg, info);
- 	else if (fb_display[con].cmap.len) /* non default colormap? */
--		fb_copy_cmap(&fb_display[con].cmap, cmap, kspc ? 0 : 2);
-+		fb_copy_cmap(&fb_display[con].cmap, cmap);
- 	else
- 		fb_copy_cmap(fb_default_cmap(1<<fb_display[con].var.bits_per_pixel), cmap, kspc ? 0 : 2);
- 	return 0;
-diff -uprN -X dontdiff linux-2.6.8.1/drivers/video/virgefb.c linux-2.6.8.1-fb/drivers/video/virgefb.c
---- linux-2.6.8.1/drivers/video/virgefb.c	2004-08-14 12:55:09.000000000 +0200
-+++ linux-2.6.8.1-fb/drivers/video/virgefb.c	2004-08-15 01:22:38.000000000 +0200
-@@ -1615,7 +1615,7 @@ static int virgefb_get_cmap(struct fb_cm
- 		return(fb_get_cmap(cmap, kspc, fbhw->getcolreg, info));
- 	} else if (fb_display[con].cmap.len) { /* non default colormap? */
- 		DPRINTK("Use console cmap\n");
--		fb_copy_cmap(&fb_display[con].cmap, cmap, kspc ? 0 : 2);
-+		fb_copy_cmap(&fb_display[con].cmap, cmap);
- 	} else {
- 		DPRINTK("Use default cmap\n");
- 		fb_copy_cmap(fb_default_cmap(fb_display[con].var.bits_per_pixel==8 ? 256 : 16),
-
---Boundary-00=_5TqHBtzMhPTcSnZ--

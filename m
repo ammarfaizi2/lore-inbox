@@ -1,171 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129640AbQLHDjl>; Thu, 7 Dec 2000 22:39:41 -0500
+	id <S129455AbQLHDs1>; Thu, 7 Dec 2000 22:48:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129455AbQLHDjb>; Thu, 7 Dec 2000 22:39:31 -0500
-Received: from [203.26.242.120] ([203.26.242.120]:12050 "EHLO
-	marina.lowendale.com.au") by vger.kernel.org with ESMTP
-	id <S129429AbQLHDjU>; Thu, 7 Dec 2000 22:39:20 -0500
-Date: Fri, 8 Dec 2000 14:34:31 +1100 (EST)
-From: Neale Banks <neale@lowendale.com.au>
-To: Stephen Rothwell <sfr@linuxcare.com>
-cc: linux-kernel@vger.kernel.org
-Subject: 2.2.18pre21 oops reading /proc/apm
-Message-ID: <Pine.LNX.4.05.10012081420090.15256-300000@marina.lowendale.com.au>
+	id <S129429AbQLHDsR>; Thu, 7 Dec 2000 22:48:17 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:28420 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129455AbQLHDsG>; Thu, 7 Dec 2000 22:48:06 -0500
+Message-ID: <3A3051C0.F3F909C1@timpanogas.org>
+Date: Thu, 07 Dec 2000 20:13:04 -0700
+From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Organization: TRG, Inc.
+X-Mailer: Mozilla 4.7 [en] (WinNT; I)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="449546482-880597739-976246134=:15256"
-Content-ID: <Pine.LNX.4.05.10012081433270.15256@marina.lowendale.com.au>
+To: davej@suse.de
+CC: Rainer Mager <rmager@vgkk.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Signal 11
+In-Reply-To: <Pine.LNX.4.21.0012080217400.12383-100000@neo.local>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
 
---449546482-880597739-976246134=:15256
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.05.10012081433271.15256@marina.lowendale.com.au>
+Dave,
 
-Hi Stephen,
+I think there may be a case when a process forks, that the MMU or some
+other subsystem is either not setting the page bits correctly, or
+mapping in a bad page.  It's a LEVEL I bug in 2.4 is this is the case,
+BTW.  In core dumps (I've looked at 2 of them from SSH) it barfs right
+after executing fork() or one of the exec functions and at some places
+in the code where there's not any obvious coding bugs.  Looks like some
+type of mapping problem.  I reported it three months ago, but it was
+pretty much ignored.
 
-I presume this should be going to you, as the person named in
-arch/i386/kernel/apm.c - if not please redirect/ignore as appropriate.
+Linus needs to add this one to the pre-12 list -- looks like some type
+of mapping bug.
 
-I compiled the Debian distribution of 2.2.18pre21 source on and for a
-AcerNote-950, with APM enabled.
+Jeff
 
-All is fine except that I can reliably "oops" it simply by trying to read
-from /proc/apm (e.g. cat /proc/apm).
-
-oops output and ksymoops-2.3.4 output is attached.
-
-Is there anything else I can contribute?
-
-Thanks,
-Neale.
-
---449546482-880597739-976246134=:15256
-Content-Type: TEXT/PLAIN; NAME="apm-oops00.txt"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.05.10012081428540.15256@marina.lowendale.com.au>
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME="apm-oops00.txt"
-
-VW5hYmxlIHRvIGhhbmRsZSBrZXJuZWwgcGFnaW5nIHJlcXVlc3QgYXQgdmly
-dHVhbCBhZGRyZXNzIDAwMDAzZWI4DQpjdXJyZW50LT50c3MuY3IzID0gMDI1
-NzcwMDAsICVjcjMgPSAwMjU3NzAwMA0KKnBkZSA9IDAwMDAwMDAwDQpPb3Bz
-OiAwMDAyDQpDUFU6ICAgIDANCkVJUDogICAgMDA1MDpbPDAwMDA4MTg1Pl0N
-CkVGTEFHUzogMDAwMTAwMDYNCmVheDogMDAwMDYzY2IgICBlYng6IDAwMDAw
-MDAwICAgZWN4OiAwMDAwMDEyZiAgIGVkeDogMDAwMGZmZmYNCmVzaTogMDAw
-MDAwZmYgICBlZGk6IGMyNWMwMzkxICAgZWJwOiAwMDAwM2VhYyAgIGVzcDog
-YzI1YzNlYWUNCmRzOiAwMDU4ICAgZXM6IDAwMDAgICBzczogMDAxOA0KUHJv
-Y2VzcyBjYXQgKHBpZDogNTU3LCBwcm9jZXNzIG5yOiA1OCwgc3RhY2twYWdl
-PWMyNWMzMDAwKQ0KU3RhY2s6IDNmMzAwMDAwIDAwNTAwMGZmIDAwMDEzZWMw
-IDAwMDAwMDAwIDgzMjg1MzBhIDAwMDAwMDQ4IGZmZmYwMDAwIDYxZGFmZmZm
-IA0KICAgICAgIDAwMTBjMDEwIGZmZmYwMDAwIDNmMzBmZmZmIDAwMThjMjVj
-IDAwMTgwMDAwIDUxZjEwMDAwIDAwZmZjMDFhIGZmZmYwMDAwIA0KICAgICAg
-IGZmZmZmZmZmIDAyOTJmZmZmIDAwMDAwMDAwIDAwMDBjMjBiIDYzY2VjMDE0
-IDUzMGFjMDEwIDAwMDEwMDAwIDAwMDAwMDAwIA0KQ2FsbCBUcmFjZTogQmFk
-IEVTUCB2YWx1ZS4NCkNvZGU6IDwxPlVuYWJsZSB0byBoYW5kbGUga2VybmVs
-IHBhZ2luZyByZXF1ZXN0IGF0IHZpcnR1YWwgYWRkcmVzcyAwMDAwODE4NQ0K
-Y3VycmVudC0+dHNzLmNyMyA9IDAyNTc3MDAwLCAlY3IzID0gMDI1NzcwMDAN
-CipwZGUgPSAwMDAwMDAwMA0KT29wczogMDAwMA0KQ1BVOiAgICAwDQpFSVA6
-ICAgIDAwMTA6WzxjMDEwOGJlMz5dDQpFRkxBR1M6IDAwMDEwMDQ2DQplYXg6
-IDAwMDA4MTg1ICAgZWJ4OiAwMDAwMDAwMCAgIGVjeDogYzI1YzNlNzIgICBl
-ZHg6IGMyNWMzZTcyDQplc2k6IGMyNWMzZWFlICAgZWRpOiBjMjVjM2YwZSAg
-IGVicDogYzI1YzIwMDAgICBlc3A6IGMyNWMzZTFlDQpkczogMDAxOCAgIGVz
-OiAwMDE4ICAgc3M6IDAwMTgNClByb2Nlc3MgY2F0IChwaWQ6IDU1NywgcHJv
-Y2VzcyBucjogNTgsIHN0YWNrcGFnZT1jMjVjMzAwMCkNClN0YWNrOiBjMjZk
-NGJmOCBjMjVjMjAwMCBjMDFlYmQ0ZSBjMDEwOGM0NCBjMjVjM2U3MiBjMDFh
-NTg1NiBjMDFhNzFjZSAwMDAwMDAwMiANCiAgICAgICAwMDAwMDAwMCBjMDEw
-ZGUzYyBjMDFhNzFjZSBjMjVjM2U3MiAwMDAwMDAwMiBjMjVjMjAwMCAwMDAw
-MDBmZiBjMjVjMDM5MSANCiAgICAgICAwMDAwM2VhYyBjMjZkNGJmOCBjMDEw
-ODhiNSBjMjVjM2U3MiAwMDAwMDAwMiAwMDAwMDAwMCAwMDAwMDEyZiAwMDAw
-ZmZmZiANCkNhbGwgVHJhY2U6IEJhZCBFU1AgdmFsdWUuDQpDb2RlOiA4YSAw
-NCAwMyAyNSBmZiAwMCAwMCAwMCA1MCA2OCA0ZSA1OCAxYSBjMCBlOCA0YSA5
-YyAwMCAwMCA4MyANCg==
---449546482-880597739-976246134=:15256
-Content-Type: TEXT/PLAIN; NAME="apm-oops00-dec.txt"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.05.10012081428541.15256@marina.lowendale.com.au>
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME="apm-oops00-dec.txt"
-
-a3N5bW9vcHMgMi4zLjQgb24gaTU4NiAyLjIuMThwcmUyMS4gIE9wdGlvbnMg
-dXNlZA0KICAgICAtViAoZGVmYXVsdCkNCiAgICAgLWsgL3Byb2Mva3N5bXMg
-KGRlZmF1bHQpDQogICAgIC1sIC9wcm9jL21vZHVsZXMgKGRlZmF1bHQpDQog
-ICAgIC1vIC9saWIvbW9kdWxlcy8yLjIuMThwcmUyMS8gKGRlZmF1bHQpDQog
-ICAgIC1tIC9ib290L1N5c3RlbS5tYXAtMi4yLjE4cHJlMjEgKGRlZmF1bHQp
-DQoNCldhcm5pbmc6IFlvdSBkaWQgbm90IHRlbGwgbWUgd2hlcmUgdG8gZmlu
-ZCBzeW1ib2wgaW5mb3JtYXRpb24uICBJIHdpbGwNCmFzc3VtZSB0aGF0IHRo
-ZSBsb2cgbWF0Y2hlcyB0aGUga2VybmVsIGFuZCBtb2R1bGVzIHRoYXQgYXJl
-IHJ1bm5pbmcNCnJpZ2h0IG5vdyBhbmQgSSdsbCB1c2UgdGhlIGRlZmF1bHQg
-b3B0aW9ucyBhYm92ZSBmb3Igc3ltYm9sIHJlc29sdXRpb24uDQpJZiB0aGUg
-Y3VycmVudCBrZXJuZWwgYW5kL29yIG1vZHVsZXMgZG8gbm90IG1hdGNoIHRo
-ZSBsb2csIHlvdSBjYW4gZ2V0DQptb3JlIGFjY3VyYXRlIG91dHB1dCBieSB0
-ZWxsaW5nIG1lIHRoZSBrZXJuZWwgdmVyc2lvbiBhbmQgd2hlcmUgdG8gZmlu
-ZA0KbWFwLCBtb2R1bGVzLCBrc3ltcyBldGMuICBrc3ltb29wcyAtaCBleHBs
-YWlucyB0aGUgb3B0aW9ucy4NCg0KVW5hYmxlIHRvIGhhbmRsZSBrZXJuZWwg
-cGFnaW5nIHJlcXVlc3QgYXQgdmlydHVhbCBhZGRyZXNzIDAwMDAzZWI4DQpj
-dXJyZW50LT50c3MuY3IzID0gMDI1NzcwMDAsICVjcjMgPSAwMjU3NzAwMA0K
-KnBkZSA9IDAwMDAwMDAwDQpPb3BzOiAwMDAyDQpDUFU6ICAgIDANCkVJUDog
-ICAgMDA1MDpbPDAwMDA4MTg1Pl0NClVzaW5nIGRlZmF1bHRzIGZyb20ga3N5
-bW9vcHMgLXQgZWxmMzItaTM4NiAtYSBpMzg2DQpFRkxBR1M6IDAwMDEwMDA2
-DQplYXg6IDAwMDA2M2NiICAgZWJ4OiAwMDAwMDAwMCAgIGVjeDogMDAwMDAx
-MmYgICBlZHg6IDAwMDBmZmZmDQplc2k6IDAwMDAwMGZmICAgZWRpOiBjMjVj
-MDM5MSAgIGVicDogMDAwMDNlYWMgICBlc3A6IGMyNWMzZWFlDQpkczogMDA1
-OCAgIGVzOiAwMDAwICAgc3M6IDAwMTgNClByb2Nlc3MgY2F0IChwaWQ6IDU1
-NywgcHJvY2VzcyBucjogNTgsIHN0YWNrcGFnZT1jMjVjMzAwMCkNClN0YWNr
-OiAzZjMwMDAwMCAwMDUwMDBmZiAwMDAxM2VjMCAwMDAwMDAwMCA4MzI4NTMw
-YSAwMDAwMDA0OCBmZmZmMDAwMCA2MWRhZmZmZiANCiAgICAgICAwMDEwYzAx
-MCBmZmZmMDAwMCAzZjMwZmZmZiAwMDE4YzI1YyAwMDE4MDAwMCA1MWYxMDAw
-MCAwMGZmYzAxYSBmZmZmMDAwMCANCiAgICAgICBmZmZmZmZmZiAwMjkyZmZm
-ZiAwMDAwMDAwMCAwMDAwYzIwYiA2M2NlYzAxNCA1MzBhYzAxMCAwMDAxMDAw
-MCAwMDAwMDAwMCANCkNhbGwgVHJhY2U6IEJhZCBFU1AgdmFsdWUuDQpDb2Rl
-OiA8MT5VbmFibGUgdG8gaGFuZGxlIGtlcm5lbCBwYWdpbmcgcmVxdWVzdCBh
-dCB2aXJ0dWFsIGFkZHJlc3MgMDAwMDgxODUNCldhcm5pbmcgKE9vcHNfY29k
-ZSk6IHRyYWlsaW5nIGdhcmJhZ2UgaWdub3JlZCBvbiBDb2RlOiBsaW5lDQog
-IFRleHQ6ICdDb2RlOiA8MT5VbmFibGUgdG8gaGFuZGxlIGtlcm5lbCBwYWdp
-bmcgcmVxdWVzdCBhdCB2aXJ0dWFsIGFkZHJlc3MgMDAwMDgxODUnDQogIEdh
-cmJhZ2U6ICdVbmFibGUgdG8gaGFuZGxlIGtlcm5lbCBwYWdpbmcgcmVxdWVz
-dCBhdCB2aXJ0dWFsIGFkZHJlc3MgMDAwMDgxODUnDQpXYXJuaW5nIChPb3Bz
-X2NvZGVfdmFsdWVzKTogQ29kZSBsb29rcyBsaWtlIG1lc3NhZ2UsIG5vdCBo
-ZXggZGlnaXRzLiAgTm8gZGlzYXNzZW1ibHkgYXR0ZW1wdGVkLg0KDQo+PkVJ
-UDsgMDAwMDgxODUgQmVmb3JlIGZpcnN0IHN5bWJvbCAgIDw9PT09PQ0KDQpj
-dXJyZW50LT50c3MuY3IzID0gMDI1NzcwMDAsICVjcjMgPSAwMjU3NzAwMA0K
-KnBkZSA9IDAwMDAwMDAwDQpPb3BzOiAwMDAwDQpDUFU6ICAgIDANCkVJUDog
-ICAgMDAxMDpbPGMwMTA4YmUzPl0NCkVGTEFHUzogMDAwMTAwNDYNCmVheDog
-MDAwMDgxODUgICBlYng6IDAwMDAwMDAwICAgZWN4OiBjMjVjM2U3MiAgIGVk
-eDogYzI1YzNlNzINCmVzaTogYzI1YzNlYWUgICBlZGk6IGMyNWMzZjBlICAg
-ZWJwOiBjMjVjMjAwMCAgIGVzcDogYzI1YzNlMWUNCmRzOiAwMDE4ICAgZXM6
-IDAwMTggICBzczogMDAxOA0KUHJvY2VzcyBjYXQgKHBpZDogNTU3LCBwcm9j
-ZXNzIG5yOiA1OCwgc3RhY2twYWdlPWMyNWMzMDAwKQ0KU3RhY2s6IGMyNmQ0
-YmY4IGMyNWMyMDAwIGMwMWViZDRlIGMwMTA4YzQ0IGMyNWMzZTcyIGMwMWE1
-ODU2IGMwMWE3MWNlIDAwMDAwMDAyIA0KICAgICAgIDAwMDAwMDAwIGMwMTBk
-ZTNjIGMwMWE3MWNlIGMyNWMzZTcyIDAwMDAwMDAyIGMyNWMyMDAwIDAwMDAw
-MGZmIGMyNWMwMzkxIA0KICAgICAgIDAwMDAzZWFjIGMyNmQ0YmY4IGMwMTA4
-OGI1IGMyNWMzZTcyIDAwMDAwMDAyIDAwMDAwMDAwIDAwMDAwMTJmIDAwMDBm
-ZmZmIA0KQ2FsbCBUcmFjZTogQmFkIEVTUCB2YWx1ZS4NCkNvZGU6IDhhIDA0
-IDAzIDI1IGZmIDAwIDAwIDAwIDUwIDY4IDRlIDU4IDFhIGMwIGU4IDRhIDlj
-IDAwIDAwIDgzIA0KDQo+PkVJUDsgYzAxMDhiZTMgPHNob3dfcmVnaXN0ZXJz
-KzIxMy8yNDQ+ICAgPD09PT09DQpDb2RlOyAgYzAxMDhiZTMgPHNob3dfcmVn
-aXN0ZXJzKzIxMy8yNDQ+DQowMDAwMDAwMCA8X0VJUD46DQpDb2RlOyAgYzAx
-MDhiZTMgPHNob3dfcmVnaXN0ZXJzKzIxMy8yNDQ+ICAgPD09PT09DQogICAw
-OiAgIDhhIDA0IDAzICAgICAgICAgICAgICAgICAgbW92ICAgICglZWJ4LCVl
-YXgsMSksJWFsICAgPD09PT09DQpDb2RlOyAgYzAxMDhiZTYgPHNob3dfcmVn
-aXN0ZXJzKzIxNi8yNDQ+DQogICAzOiAgIDI1IGZmIDAwIDAwIDAwICAgICAg
-ICAgICAgYW5kICAgICQweGZmLCVlYXgNCkNvZGU7ICBjMDEwOGJlYiA8c2hv
-d19yZWdpc3RlcnMrMjFiLzI0ND4NCiAgIDg6ICAgNTAgICAgICAgICAgICAg
-ICAgICAgICAgICBwdXNoICAgJWVheA0KQ29kZTsgIGMwMTA4YmVjIDxzaG93
-X3JlZ2lzdGVycysyMWMvMjQ0Pg0KICAgOTogICA2OCA0ZSA1OCAxYSBjMCAg
-ICAgICAgICAgIHB1c2ggICAkMHhjMDFhNTg0ZQ0KQ29kZTsgIGMwMTA4YmYx
-IDxzaG93X3JlZ2lzdGVycysyMjEvMjQ0Pg0KICAgZTogICBlOCA0YSA5YyAw
-MCAwMCAgICAgICAgICAgIGNhbGwgICA5YzVkIDxfRUlQKzB4OWM1ZD4gYzAx
-MTI4NDAgPHByaW50ayswLzE2MD4NCkNvZGU7ICBjMDEwOGJmNiA8c2hvd19y
-ZWdpc3RlcnMrMjI2LzI0ND4NCiAgMTM6ICAgODMgMDAgMDAgICAgICAgICAg
-ICAgICAgICBhZGRsICAgJDB4MCwoJWVheCkNCg0KDQozIHdhcm5pbmdzIGlz
-c3VlZC4gIFJlc3VsdHMgbWF5IG5vdCBiZSByZWxpYWJsZS4NCg==
---449546482-880597739-976246134=:15256--
+davej@suse.de wrote:
+> 
+> On Thu, 7 Dec 2000, Jeff V. Merkey wrote:
+> 
+> > It's related to some change in 2.4 vs. 2.2.  There are other programs
+> > affected other than X, SSH also get's spurious signal 11's now and again
+> > with 2.4 and glibc <= 2.1 and it does not occur on 2.2.
+> 
+> <AOL>
+> 
+> I've begun to get a bit paranoid about my K6-2 500 box.
+> 
+> Various processes have been getting random signals after heavy CPU usage.
+> Playing an MPEG movie, kernel compile, or even just some small apps
+> compiling sometimes. Just for the record, this isn't an OOM situation,
+> I've watched this box with half its memory free or in buffers left
+> unattended, and suddenly a compile will just die.
+> 
+> I replaced the CPU with a brand new K6-2. Problem remained.
+> Next suspect was faulty RAM. Despite having passed a memtest, I
+> swapped out the DIMMs for some known good ones.
+> Suspecting cooling problems, I added some case fans.
+> Next came a bigger power supply. Still the problems.
+> The latest last ditch attempt to make this box stable has been
+> to attach the biggest fan I could find that would fit a socket 7 CPU.
+> 
+> And still the problems are there.
+> The only remaining suspect would be a flaky motherboard.
+> But then comes the real killer : This box is rock solid under 2.2
+> 
+> *boggle*
+> 
+> I'm not sure exactly when this started, but I think I first noticed
+> it around test5 or so, but didn't suspect the kernel at the time.
+> 
+> I've tried kernels compiled with everything from 2.91.66 when this
+> was a Redhat box, to gcc 2.95.2 (from Debian woody) when I installed
+> debian on it.  If this is a compiler bug, it's one that no compiler
+> I've tried seems to be immune from.
+> 
+> regards,
+> 
+> Davej.
+> 
+> --
+> | Dave Jones <davej@suse.de>  http://www.suse.de/~davej
+> | SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

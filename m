@@ -1,99 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262473AbUCWLHe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 06:07:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262476AbUCWLHe
+	id S262481AbUCWLLg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 06:11:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262478AbUCWLLf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 06:07:34 -0500
-Received: from box.punkt.pl ([217.8.180.66]:31759 "HELO box.punkt.pl")
-	by vger.kernel.org with SMTP id S262473AbUCWLH2 (ORCPT
+	Tue, 23 Mar 2004 06:11:35 -0500
+Received: from dialpool3-198.dial.tijd.com ([62.112.12.198]:34945 "EHLO
+	precious.kicks-ass.org") by vger.kernel.org with ESMTP
+	id S262485AbUCWLLS convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 06:07:28 -0500
-Message-ID: <40601966.3010706@punkt.pl>
-Date: Tue, 23 Mar 2004 12:03:02 +0100
-From: |TEcHNO| <techno@punkt.pl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-gb, ja, pl
-MIME-Version: 1.0
+	Tue, 23 Mar 2004 06:11:18 -0500
+From: Jan De Luyck <lkml@kcore.org>
 To: linux-kernel@vger.kernel.org
-Subject: [2.4.x][2.6.x]EIO AP-1600 ATA133 Controller Card 
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [Linux-fbdev-devel] Re: [PATCH] Sysfs for framebuffer
+Date: Tue, 23 Mar 2004 12:11:00 +0100
+User-Agent: KMail/1.6.1
+Cc: Greg KH <greg@kroah.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Kronos <kronos@kronoz.cjb.net>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>
+References: <20040320174956.GA3177@dreamland.darkstar.lan> <1079909446.911.165.camel@gaston> <20040322195720.GA27480@kroah.com>
+In-Reply-To: <20040322195720.GA27480@kroah.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200403231211.09334.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I recently bought this card, hopeing that it woudl work under linux, 
-even the manufacurers page say's so. But afer installing it I found out 
-that both 2.4.22, 2.4.25 and 2.6.4 fail to work with it correctly. They 
-all report:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-SiI680: IDE controller at PCI slot 00:0d.0
-PCI: Found IRQ 9 for device 00:0d.0
-PCI: Sharing IRQ 9 with 00:09.0
-SiI680: chipset revision 2
-SiI680: not 100% native mode: will probe irqs later
-SiI680: BASE CLOCK == 133
-     ide2: MMIO-DMA , BIOS settings: hde:pio, hdf:pio
-     ide3: MMIO-DMA , BIOS settings: hdg:pio, hdh:pio
-hda: ST330621A, ATA DISK drive
-hdb: ST3120026A, ATA DISK drive
-blk: queue c0526860, I/O limit 4095Mb (mask 0xffffffff)
-blk: queue c052699c, I/O limit 4095Mb (mask 0xffffffff)
-hdc: ST3120026A, ATA DISK drive
-blk: queue c0526cb4, I/O limit 4095Mb (mask 0xffffffff)
-hdf: PLEXTOR CD-R PX-W2410A, ATAPI CD/DVD-ROM drive
-hdf: set_drive_speed_status: status=0x41 { DriveReady Error }
-hdf: set_drive_speed_status: error=0x04
-hdf: set_drive_speed_status: status=0x41 { DriveReady Error }
-hdf: set_drive_speed_status: error=0x04
-hdf: set_drive_speed_status: status=0x41 { DriveReady Error }
-hdf: set_drive_speed_status: error=0x04
-hdh: LG CD-RW CED-8083B, ATAPI CD/DVD-ROM drive
-hdh: set_drive_speed_status: status=0x51 { DriveReady SeekComplete Error }
-hdh: set_drive_speed_status: error=0x04
-hdh: set_drive_speed_status: status=0x51 { DriveReady SeekComplete Error }
-hdh: set_drive_speed_status: error=0x04
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-ide2 at 0xc8810e80-0xc8810e87,0xc8810e8a on irq 9
-ide3 at 0xc8810ec0-0xc8810ec7,0xc8810eca on irq 9
+On Monday 22 March 2004 20:57, Greg KH wrote:
+> On Mon, Mar 22, 2004 at 09:50:46AM +1100, Benjamin Herrenschmidt wrote:
+> > > I prefere graphics myself. Display sounds to generic. That is what
+> > > video and graphics output is piped to. Since fbdev doesn't handle video
+> > > ouput normally this is kind of fuzzy sounding.
+> >
+> > I still prefer display...
+>
+> Bah, I don't want to argue here.  I've applied Kronos's patch as is to
+> my device-2.6 tree which will end up in the next -mm release.
+>
+> I'll hold off forwarding this patch to Linus until after 2.6.5 is out,
+> so that gives everyone a few days in which to argue the name a bunch and
+> then send me a patch that changes it to the decided apon name (if it is
+> to be changed.)
 
-sometimes it's a bit diffrent(ie. last time hdf reported hdh error, and 
-hdh none), but the CD's work (read and write alike).
-If I connect some HDD's they report hdh error, and then a number of 
-other errors (which I don't have written, but they look like data 
-gathering information errors). Sometimes it even detects my HDD's as 2TB 
-drives and such (after reporting some errors) but even watinga lot 
-didn't prove to help, it simply stops somewhere there.
+- From a users point of view: if there are only to be framebuffer devices listed 
+in this class, why not call it just what it is: "Framebuffer" ? Naming it 
+after something it is only in a broad sense makes no sense to me. I'd be 
+looking in /sys/.../framebuffer instead of /sys/.../graphics or /display.
 
-The chipset is exactly Sil0680ACL144. Controller BIOS 3.0.77.
+Display would be the EDID info of my screen (physical), and graphics... 
+well... I'd half expect something like capture cards to be there...
 
-lspci -vvvvv
+Just my 0.02EUR.
 
-00:0d.0 Unknown mass storage controller: CMD Technology Inc PCI0680 (rev 02)
-         Subsystem: CMD Technology Inc PCI0680
-         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR+ FastB2B-
-         Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium 
- >TAbort+ <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 64, cache line size 01
-         Interrupt: pin A routed to IRQ 9
-         Region 0: I/O ports at c400 [size=8]
-         Region 1: I/O ports at c000 [size=4]
-         Region 2: I/O ports at bc00 [size=8]
-         Region 3: I/O ports at b800 [size=4]
-         Region 4: I/O ports at b400 [size=16]
-         Region 5: Memory at dffffe00 (32-bit, non-prefetchable) [size=256]
-         Expansion ROM at dff00000 [disabled] [size=512K]
-         Capabilities: [60] Power Management version 2
-                 Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                 Status: D0 PME-Enable- DSel=0 DScale=2 PME-
+Jan
 
-Hope this helps, I'm nto subscribed so pleas CC: to me.
-I'm willing to help in testing of any patches etc.
+- -- 
+patent:
+	A method of publicizing inventions so others can copy them.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
--- 
-pozdrawiam     |"Help me master, I felt the burning twilight behind
-techno@punkt.pl|those gates of stell..." --Perihelion, Prophecy Sequence
+iD8DBQFAYBtMUQQOfidJUwQRAugBAJ4jSuhjpzr2jySPGmc6yk4lYflILgCfTB0M
+nA8OHiWcRfjRllgoxC/KJBY=
+=I8ag
+-----END PGP SIGNATURE-----

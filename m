@@ -1,42 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292178AbSBUNQp>; Thu, 21 Feb 2002 08:16:45 -0500
+	id <S292367AbSBUNSe>; Thu, 21 Feb 2002 08:18:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292292AbSBUNQe>; Thu, 21 Feb 2002 08:16:34 -0500
-Received: from adsl-62-128-214-206.iomart.com ([62.128.214.206]:18315 "EHLO
-	server1.i-a.co.uk") by vger.kernel.org with ESMTP
-	id <S292178AbSBUNQY>; Thu, 21 Feb 2002 08:16:24 -0500
-Date: Thu, 21 Feb 2002 13:16:09 +0000
-From: Andy Jeffries <lkml@andyjeffries.co.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: HPT372 on KR7A-RAID
-Message-Id: <20020221131609.6cbf0029.lkml@andyjeffries.co.uk>
-In-Reply-To: <E16dtBF-0006tG-00@the-village.bc.nu>
-In-Reply-To: <20020221091319.37e74cba.lkml@andyjeffries.co.uk>
-	<E16dtBF-0006tG-00@the-village.bc.nu>
-Organization: Scramdisk Linux
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S292363AbSBUNSP>; Thu, 21 Feb 2002 08:18:15 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:23044 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292292AbSBUNRy>; Thu, 21 Feb 2002 08:17:54 -0500
+Subject: Re: SMP problems
+To: fernando@quatro.com.br
+Date: Thu, 21 Feb 2002 13:32:19 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (LKML)
+In-Reply-To: <004a01c1bad5$dd4a02a0$c50016ac@spps.com.br> from "Fernando Korndorfer" at Feb 21, 2002 09:47:02 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16dtKd-0006ur-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Feb 2002 13:22:37 +0000 (GMT), Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > I don't know if this has been fixed in 2.4.17/18, if it has...sorry! :-)
-> 
-> Its fixed in 2.4.18-ac at least, and I think in 2.4.18-rc2. Give that a
-> go and check its ok
+>         I'm having some problems copiling the latest kernel with SMP (and
+> w/o too). If I boot a SMP-enabled kernel, the system hangs after detecting
+> the second CPU. and I can't compile the kernel w/o SMP support (it causes a
+> lot of 'redefinitions'...). Can anyone help me?
 
-I'll pass this on to my boss who is the one with the board.
+make distclean when switching between SMP and non SMP builds. If the box
+is hanging on detecting both processors then
 
-Cheers,
-
-
--- 
-Andy Jeffries
-Linux/PHP Programmer
-
-- Windows Crash HOWTO: compile the code below in VC++ and run it!
-main (){for(;;){printf("Hung up\t\b\b\b\b\b\b");}}
+-	If its a dual Athlon switch to MP 1.1 tables in the BIOS
+-	Otherwise try specifying "noapic"

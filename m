@@ -1,61 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262149AbVCDGkD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbVCDGkh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262149AbVCDGkD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 01:40:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262155AbVCDGkD
+	id S262453AbVCDGkh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 01:40:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262155AbVCDGkh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 01:40:03 -0500
-Received: from fire.osdl.org ([65.172.181.4]:58279 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262149AbVCDGgN (ORCPT
+	Fri, 4 Mar 2005 01:40:37 -0500
+Received: from bender.bawue.de ([193.7.176.20]:47832 "EHLO bender.bawue.de")
+	by vger.kernel.org with ESMTP id S262444AbVCDGh0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 01:36:13 -0500
-Date: Thu, 3 Mar 2005 22:34:21 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Russell Miller <rmiller@duskglow.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: auditing subsystem
-Message-ID: <20050304063421.GS28536@shell0.pdx.osdl.net>
-References: <200503032218.12062.rmiller@duskglow.com>
+	Fri, 4 Mar 2005 01:37:26 -0500
+Date: Fri, 4 Mar 2005 07:37:17 +0100
+From: Joerg Sommrey <jo@sommrey.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [SATA] libata-dev queue updated
+Message-ID: <20050304063717.GA12203@sommrey.de>
+Mail-Followup-To: Joerg Sommrey <jo@sommrey.de>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <3Ds62-5AS-3@gated-at.bofh.it> <200503022034.j22KYppm010967@bear.sommrey.de> <422641AF.8070309@pobox.com> <20050303193229.GA10265@sommrey.de> <4227DF76.3030401@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200503032218.12062.rmiller@duskglow.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <4227DF76.3030401@pobox.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Russell Miller (rmiller@duskglow.com) wrote:
-> I've been doing a lot of research on this, and I keep coming up with things 
-> that don't work, have been abandoned, or are almost impossible to find or get 
-> working.  So I'll ask here.  Maybe one of the ultra-elightened linux gods 
-> will have a ready answer.
+On Thu, Mar 03, 2005 at 11:09:26PM -0500, Jeff Garzik wrote:
+> Joerg Sommrey wrote:
+> >On Wed, Mar 02, 2005 at 05:43:59PM -0500, Jeff Garzik wrote:
+> >
+> >>Joerg Sommrey wrote:
+> >>
+> >>>Jeff Garzik wrote:
+> >>>
+> >>>>Patch:
+> >>>>http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/2.6.11-rc5-bk4-libata-dev1.patch.bz2
+> >>>
+> >>>
+> >>>Still not usable here.  The same errors as before when backing up:
+> >>
+> >>Please try 2.6.11 without any patches.
+> >
+> >Plain 2.6.11 doesn't work either.  All of 2.6.10-ac11, 2.6.11-rc5,
+> >2.6.11-rc5 + 2.6.11-rc5-bk4-libata-dev1.patch and 2.6.11 fail with the
+> >same symptoms. 
+> >
+> >Reverting to stable 2.6.10-ac8 :-)
+> 
+> Does reverting the attached patch in 2.6.11 (apply with patch -R) fix 
+> things?
+> 
 
-You'll have better luck using linux-audit list.
-
-> I want to be able to audit system calls - I want to log when files are opened, 
-> created, changed, deleted, etc.  Preferably I would like to do it without 
-> having to apply kernel patches, using vanilla (or close to vanilla) kernel.  
-> If this isn't possible, my net preference is to use a module.  If this isn't 
-> possible, well, I'll do what I have to.
-
-No patches needed (although you will want 2.6.11 because the inode filter
-was busted, and you'll likely want to use it), for opened anyway.  You'll
-need an additional auditfs patch for created/deleted/changed(for more
-than just knowing open w/ write access) and it's not a stable patch yet.
-
-> I notice there is a CONFIG_AUDIT option.  Is this what I am looking for, and 
-> how do I use it?  /dev/audit seems not to work...
-
-You'll need auditd, auditctl, and some rules to capture what you care
-about.
-
-For example:
-
-To watch accesses to /etc/passwd (not creation/deletion events).
-
-# auditd
-# auditctl -a entry,possible -S open
-# auditctl -a exit,always -S open -F inode=(inode of /etc/passwd)
+Still the same with this patch reverted.
+-jo
 
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+-rw-r--r--  1 jo users 63 2005-03-04 07:32 /home/jo/.signature

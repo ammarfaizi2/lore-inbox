@@ -1,486 +1,99 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315609AbSEIE2Q>; Thu, 9 May 2002 00:28:16 -0400
+	id <S315610AbSEIEbd>; Thu, 9 May 2002 00:31:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315610AbSEIE2P>; Thu, 9 May 2002 00:28:15 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:3489 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S315609AbSEIE2L>;
-	Thu, 9 May 2002 00:28:11 -0400
-Date: Thu, 9 May 2002 00:28:10 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: "H. Peter Anvin" <hpa@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: initramfs unpacker
-Message-ID: <Pine.GSO.4.21.0205090017180.12789-100000@weyl.math.psu.edu>
+	id <S315611AbSEIEbc>; Thu, 9 May 2002 00:31:32 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18440 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315610AbSEIEba>;
+	Thu, 9 May 2002 00:31:30 -0400
+Message-ID: <3CD9FC4C.CDF47565@zip.com.au>
+Date: Wed, 08 May 2002 21:34:20 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Daniel Pittman <daniel@rimspace.net>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.5.14..
+In-Reply-To: <Pine.LNX.4.44.0205060811360.2540-100000@home.transmeta.com> <87n0va0yf0.fsf@enki.rimspace.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Aplogies for delay - there was more RL crap than I'd like...
-Anyway, here's promised initramfs unpacking code.  The only exported
-function below (unpack_to_rootfs(buf, len)) handles the format described
-in v3 of your specification.  Basically, it's an FSM that understands
-how to do (incremental) cpio -i and code feeding it with data - straight
-from buffer or ugzipped.  No intermediate files, no nothing - we just
-have inflate.c flush_window() feeding the next chunk into FSM.
+Daniel Pittman wrote:
+> 
+> On Mon, 6 May 2002, Linus Torvalds wrote:
+> > On Mon, 6 May 2002, Daniel Pittman wrote:
+> >>
+> >> From the look of the changelog at least a few of the file corruption
+> >> bugs with ext3, 2k block file systems and 2.5 have been fixed. Should
+> >> I expect this release to address the problems I was seeing?
+> >
+> > "Expect" is too strong a word. I'd say "hope" - a number of truncate
+> > bugs were fixed, but whether that was what bit you, nobody knows.
+> >
+> > I suspect the real answer is that we'd love for you to test things
+> > out, but that if it ends up being too painful to recover if the
+> > problems happen again, you probably shouldn't..
+> 
+> Right. I got brave enough to test it on a real, live system after
+> extensive fake testing. It seems to work well, at least so far as
+> running the same workload that cause massive file corruption correctly.
 
-	Now, whether we want to always hijack the mechainsm for passing
-initrd images or use a separate section (or both, for that matter) is
-a separate story.  In any case, init.c code should just call unpack_to_rootfs()
-for the image in memory, no matter how it got there.  After VFS caches are
-initialized, that is...
+hmm.
 
-	BTW, AFAICS code will get simpler if we kill the alignment requirement
-for cpio chunks.  Maybe it's worth doing...
+> So, I believe that 2.5.14 is working correctly with 2k ext3 filesystems,
+> at least for minimal use. I didn't do any sort of extreme load testing
+> or anything like that, being cautious about it.
 
-#include <linux/init.h>
-#include <linux/fs.h>
-#include <linux/slab.h>
+I've been testing 2.5.14 pretty hard for a couple of days.
 
-static void __init error(char *x)
-{
-	panic("populate_root: %s\n", x);
-}
+ext2, ext3-ordered, ext3-writeback (all with small blocks) are solid.
 
-static void __init *malloc(int size)
-{
-	return kmalloc(size, GFP_KERNEL);
-}
+reiserfs and vfat are solid.
 
-static void __init free(void *where)
-{
-	kfree(where);
-}
+JFS deadlocks (see the BUGBUG comment in jfs_txnmgr.c - it happens).  I've
+asked the JFS guys for help on this; possibly the code can just be removed:
+the buffer-based writeout which I replaced wouldn't have written the
+pages anyway...
 
-asmlinkage long sys_mkdir(char *name, int mode);
-asmlinkage long sys_mknod(char *name, int mode, dev_t dev);
-asmlinkage long sys_symlink(char *old, char *new);
-asmlinkage long sys_link(char *old, char *new);
-asmlinkage long sys_write(int fd, void *buf, ssize_t size);
-asmlinkage long sys_chown(char *name, uid_t uid, gid_t gid);
-asmlinkage long sys_lchown(char *name, uid_t uid, gid_t gid);
-asmlinkage long sys_fchown(int fd, uid_t uid, gid_t gid);
-asmlinkage long sys_chmod(char *name, mode_t mode);
-asmlinkage long sys_fchmod(int fd, mode_t mode);
+ext3-journalled is not happy.
 
-/* link hash */
+There's a locking bug between try_to_free_buffers and buffer_insert_inode_queue
+which never seems to trigger.  I've got that fixed.
 
-static struct hash {
-	int ino, minor, major;
-	struct hash *next;
-	char *name;
-} *head[32];
+There's a known race between unmount and writeback which is probably
+impossible to trigger.  (see the FIXME at __sync_list).  Testing the
+fix for that at present.
 
-static inline int hash(int major, int minor, int ino)
-{
-	unsigned long tmp = ino + minor + (major << 3);
-	tmp += tmp >> 5;
-	return tmp & 31;
-}
+The "sync" functions aren't right.  Pages which are both dirty and
+under writeback are not correctly waited upon.  This is a minor
+correctness thing which nobody would notice.  Still thinking
+about the best way to close this.
 
-static char __init *find_link(int major, int minor, int ino, char *name)
-{
-	struct hash **p, *q;
-	for (p = head + hash(major, minor, ino); *p; p = &(*p)->next) {
-		if ((*p)->ino != ino)
-			continue;
-		if ((*p)->minor != minor)
-			continue;
-		if ((*p)->major != major)
-			continue;
-		return (*p)->name;
-	}
-	q = (struct hash *)malloc(sizeof(struct hash));
-	if (!q)
-		error("can't allocate link hash entry");
-	q->ino = ino;
-	q->minor = minor;
-	q->major = major;
-	q->name = name;
-	q->next = NULL;
-	*p = q;
-	return NULL;
-}
+So unless you're a JFS or ext3-journalled user, 2.5.14 is OK.
 
-static void __init free_hash(void)
-{
-	struct hash **p, *q;
-	for (p = head; p < head + 32; p++) {
-		while (*p) {
-			q = *p;
-			*p = q->next;
-			free(q);
-		}
-	}
-}
+> On reboot, I got an assertion in ext3, though, and the following BUG
+> trace. So, something still isn't well, but it seems to be getting it
+> much more right. :)
+> 
+> ...
+> 
+> >>EIP; c015cf45 <journal_dirty_metadata+13d/174>   <=====
+> 
+> ...
+> Code;  c015cf45 <journal_dirty_metadata+13d/174>   <=====
+>    0:   0f 0b                     ud2a      <=====
+> Code;  c015cf47 <journal_dirty_metadata+13f/174>
+>    2:   60                        pusha
+> Code;  c015cf48 <journal_dirty_metadata+140/174>
+>    3:   04 40                     add    $0x40,%al
 
-/* cpio header parsing */
+04 60 -> line 1120.  Yup, I get that one too.  I assume you were
+testing with data=journal.
 
-static __initdata unsigned long ino, major, minor, nlink;
-static __initdata mode_t mode;
-static __initdata unsigned long body_len, name_len;
-static __initdata uid_t uid;
-static __initdata gid_t gid;
-static __initdata dev_t rdev;
+Thanks again...
 
-static void __init parse_header(char *s)
-{
-	unsigned long parsed[12];
-	char buf[9];
-	int i;
-
-	buf[8] = '\0';
-	for (i = 0, s += 6; i < 12; i++, s += 8) {
-		memcpy(buf, s, 8);
-		parsed[i] = simple_strtoul(buf, NULL, 16);
-	}
-	ino = parsed[0];
-	mode = parsed[1];
-	uid = parsed[2];
-	gid = parsed[3];
-	nlink = parsed[4];
-	body_len = parsed[6];
-	major = parsed[7];
-	minor = parsed[8];
-	rdev = MKDEV(parsed[9], parsed[10]);
-	name_len = parsed[11];
-}
-
-/* FSM */
-
-enum state {
-	Start,
-	Collect,
-	GotHeader,
-	SkipIt,
-	GotName,
-	CopyFile,
-	GotSymlink,
-	Reset
-} state, next_state;
-
-char *victim;
-unsigned count;
-loff_t this_header, next_header;
-
-static inline void eat(unsigned n)
-{
-	victim += n;
-	this_header += n;
-	count -= n;
-}
-
-#define N_ALIGN(len) ((((len) + 1) & ~3) + 2)
-
-static __initdata char *collected;
-static __initdata int remains;
-static __initdata char *collect;
-
-static void __init read_into(char *buf, unsigned size, enum state next)
-{
-	if (count >= size) {
-		collected = victim;
-		eat(size);
-		state = next;
-	} else {
-		collect = collected = buf;
-		remains = size;
-		next_state = next;
-		state = Collect;
-	}
-}
-
-static __initdata char *header_buf, *symlink_buf, *name_buf;
-
-static int __init do_start(void)
-{
-	read_into(header_buf, 110, GotHeader);
-	return 0;
-}
-
-static int __init do_collect(void)
-{
-	unsigned n = remains;
-	if (count < n)
-		n = count;
-	memcpy(collect, victim, n);
-	eat(n);
-	collect += n;
-	if (remains -= n)
-		return 1;
-	state = next_state;
-	return 0;
-}
-
-static int __init do_header(void)
-{
-	parse_header(collected);
-	next_header = this_header + N_ALIGN(name_len) + body_len;
-	next_header = (next_header + 3) & ~3;
-	if (name_len <= 0 || name_len > PATH_MAX)
-		state = SkipIt;
-	else if (S_ISLNK(mode)) {
-		if (body_len > PATH_MAX)
-			state = SkipIt;
-		else {
-			collect = collected = symlink_buf;
-			remains = N_ALIGN(name_len) + body_len;
-			next_state = GotSymlink;
-			state = Collect;
-		}
-	} else if (body_len && !S_ISREG(mode))
-		state = SkipIt;
-	else
-		read_into(name_buf, N_ALIGN(name_len), GotName);
-	return 0;
-}
-
-static int __init do_skip(void)
-{
-	if (this_header + count <= next_header) {
-		eat(count);
-		return 1;
-	} else {
-		eat(next_header - this_header);
-		state = next_state;
-		return 0;
-	}
-}
-
-static int __init do_reset(void)
-{
-	while(count && *victim == '\0')
-		eat(1);
-	if (count && (this_header & 3))
-		error("broken padding");
-	return 1;
-}
-
-static int __init maybe_link(void)
-{
-	if (nlink >= 2) {
-		char *old = find_link(major, minor, ino, collected);
-		if (old)
-			return (sys_link(old, collected) < 0) ? -1 : 1;
-	}
-	return 0;
-}
-
-static __initdata int wfd;
-
-static int __init do_name(void)
-{
-	state = SkipIt;
-	next_state = Start;
-	if (strcmp(collected, "TRAILER!!!") == 0) {
-		free_hash();
-		next_state = Reset;
-		return 0;
-	}
-	printk(KERN_INFO "-> %s\n", collected);
-	if (S_ISREG(mode)) {
-		if (maybe_link() >= 0) {
-			wfd = sys_open(collected, O_WRONLY|O_CREAT, mode);
-			if (wfd >= 0) {
-				sys_fchown(wfd, uid, gid);
-				sys_fchmod(wfd, mode);
-				state = CopyFile;
-			}
-		}
-	} else if (S_ISDIR(mode)) {
-		sys_mkdir(collected, mode);
-		sys_chown(collected, uid, gid);
-	} else if (S_ISBLK(mode) || S_ISCHR(mode) ||
-		   S_ISFIFO(mode) || S_ISSOCK(mode)) {
-		if (maybe_link() == 0) {
-			sys_mknod(collected, mode, rdev);
-			sys_chown(collected, uid, gid);
-		}
-	} else
-		panic("populate_root: bogus mode: %o\n", mode);
-	return 0;
-}
-
-static int __init do_copy(void)
-{
-	if (count >= body_len) {
-		sys_write(wfd, victim, body_len);
-		sys_close(wfd);
-		eat(body_len);
-		state = SkipIt;
-		return 0;
-	} else {
-		sys_write(wfd, victim, count);
-		body_len -= count;
-		eat(count);
-		return 1;
-	}
-}
-
-static int __init do_symlink(void)
-{
-	collected[N_ALIGN(name_len) + body_len] = '\0';
-	sys_symlink(collected + N_ALIGN(name_len), collected);
-	sys_lchown(collected, uid, gid);
-	state = SkipIt;
-	next_state = Start;
-	return 0;
-}
-
-static __initdata int (*actions[])(void) = {
-	[Start]		do_start,
-	[Collect]	do_collect,
-	[GotHeader]	do_header,
-	[SkipIt]	do_skip,
-	[GotName]	do_name,
-	[CopyFile]	do_copy,
-	[GotSymlink]	do_symlink,
-	[Reset]		do_reset,
-};
-
-static int __init write_buffer(char *buf, unsigned len)
-{
-	count = len;
-	victim = buf;
-
-	while (!actions[state]())
-		;
-	return len - count;
-}
-
-static void __init flush_buffer(char *buf, unsigned len)
-{
-	int written;
-	while ((written = write_buffer(buf, len)) < len) {
-		char c = buf[written];
-		if (c == '0') {
-			buf += written;
-			len -= written;
-			state = Start;
-			continue;
-		} else
-			error("junk in compressed archive");
-	}
-}
-
-/*
- * gzip declarations
- */
-
-#define OF(args)  args
-
-#ifndef memzero
-#define memzero(s, n)     memset ((s), 0, (n))
-#endif
-
-typedef unsigned char  uch;
-typedef unsigned short ush;
-typedef unsigned long  ulg;
-
-#define WSIZE 0x8000    /* window size--must be a power of two, and */
-			/*  at least 32K for zip's deflate method */
-
-static uch *inbuf;
-static uch *window;
-
-static unsigned insize;  /* valid bytes in inbuf */
-static unsigned inptr;   /* index of next byte to be processed in inbuf */
-static unsigned outcnt;  /* bytes in output buffer */
-static long bytes_out;
-
-#define get_byte()  (inptr < insize ? inbuf[inptr++] : -1)
-		
-/* Diagnostic functions (stubbed out) */
-#define Assert(cond,msg)
-#define Trace(x)
-#define Tracev(x)
-#define Tracevv(x)
-#define Tracec(c,x)
-#define Tracecv(c,x)
-
-#define STATIC static
-
-static void flush_window(void);
-static void error(char *m);
-static void gzip_mark(void **);
-static void gzip_release(void **);
-
-#include "../lib/inflate.c"
-
-static void __init gzip_mark(void **ptr)
-{
-}
-
-static void __init gzip_release(void **ptr)
-{
-}
-
-/* ===========================================================================
- * Write the output window window[0..outcnt-1] and update crc and bytes_out.
- * (Used for the decompressed data only.)
- */
-static void __init flush_window(void)
-{
-	ulg c = crc;         /* temporary variable */
-	unsigned n;
-	uch *in, ch;
-
-	flush_buffer(window, outcnt);
-	in = window;
-	for (n = 0; n < outcnt; n++) {
-		ch = *in++;
-		c = crc_32_tab[((int)c ^ ch) & 0xff] ^ (c >> 8);
-	}
-	crc = c;
-	bytes_out += (ulg)outcnt;
-	outcnt = 0;
-}
-
-void unpack_to_rootfs(char *buf, unsigned len)
-{
-	int written;
-	header_buf = malloc(110);
-	symlink_buf = malloc(PATH_MAX + N_ALIGN(PATH_MAX) + 1);
-	name_buf = malloc(N_ALIGN(PATH_MAX));
-	window = malloc(WSIZE);
-	if (!window || !header_buf || !symlink_buf || !name_buf)
-		error("can't allocate buffers");
-	state = Start;
-	this_header = 0;
-	while (len) {
-		loff_t saved_offset = this_header;
-		if (*buf == '0' && !(this_header & 3)) {
-			state = Start;
-			written = write_buffer(buf, len);
-			buf += written;
-			len -= written;
-			continue;
-		} else if (!*buf) {
-			buf++;
-			len--;
-			this_header++;
-			continue;
-		}
-		this_header = 0;
-		insize = len;
-		inbuf = buf;
-		inptr = 0;
-		outcnt = 0;		/* bytes in output buffer */
-		bytes_out = 0;
-		crc = (ulg)0xffffffffL; /* shift register contents */
-		makecrc();
-		if (gunzip())
-			error("ungzip failed");
-		if (state != Reset)
-			error("junk in gzipped archive");
-		this_header = saved_offset + inptr;
-		buf += inptr;
-		len -= inptr;
-	}
-	free(window);
-	free(name_buf);
-	free(symlink_buf);
-	free(header_buf);
-}
-
+-

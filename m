@@ -1,33 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283756AbRLISrt>; Sun, 9 Dec 2001 13:47:49 -0500
+	id <S283757AbRLISt7>; Sun, 9 Dec 2001 13:49:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283757AbRLISrj>; Sun, 9 Dec 2001 13:47:39 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:32517 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S283756AbRLISrf> convert rfc822-to-8bit; Sun, 9 Dec 2001 13:47:35 -0500
-Date: Sun, 9 Dec 2001 15:31:10 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: victor1 torres <camel_3@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops on 2.4.17-pre6 at boot time
-In-Reply-To: <F1388zNcyEmmKETmXwE000140d7@hotmail.com>
-Message-ID: <Pine.LNX.4.21.0112091530120.24301-100000@freak.distro.conectiva>
+	id <S283761AbRLIStt>; Sun, 9 Dec 2001 13:49:49 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:23091 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S283757AbRLIStd>; Sun, 9 Dec 2001 13:49:33 -0500
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: torvalds@transmeta.com, marcelo@kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Linux/i386 boot protocol version 2.03
+In-Reply-To: <200112090922.BAA11252@tazenda.transmeta.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 09 Dec 2001 11:29:33 -0700
+In-Reply-To: <200112090922.BAA11252@tazenda.transmeta.com>
+Message-ID: <m17krww8ky.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"H. Peter Anvin" <hpa@zytor.com> writes:
 
-Could you please give more details?
+> The following patch is a fairly small and fully backwards compatible
+> change to the i386 boot protocol.  It makes the maximum legal initrd
+> address explicitly available to the boot loader, so it doesn't have to
+> guess.  To make matters worse, the current documentation specifies
+> 0x3C000000 as the top address (exclusive), but the real address is
+> 0x38000000.
+> 
+> This patch:
+> 
+> a) Bumps the boot protocol version number to 2.03;
+> b) Adds a field to the boot header which contains the maximum legal
+>    initrd address;
+> c) Slightly reorganizes a couple of macros to make (b) possible;
+> d) Documents this change and the actual behaviour for previous
+>    protocol versions.
 
-Which machine do you have, how have you compiled your kernel, which
-kernel worked previously, etc...
+This looks reasonable. 
 
-On Sun, 9 Dec 2001, victor1 torres wrote:
+A couple of notes:
+1) The minimum safe ramdisk address is 8MB (since 2.4.10).  On low
+   mem machines you can get away with placing a ramdisk lower.  But we
+   don't do any checking in our initial 8MB memory map.
+2) If we use units of kilobytes instead of bytes for this we don't
+   loose any precision and gain the ability to put a ramdisk in high
+   memory without bumping the protocol version.
+3) If we are going to export the maximum address we should also export
+   the minimum address.
 
-> I compìled the kernel and the modules but on my computer it would just hang 
-> and not get past the >Uncompressing Linux. Ok kernel booting<
-> And after that it just lock´s my computer.
+Eric
 

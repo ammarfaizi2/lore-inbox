@@ -1,42 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263204AbUGRJbK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263467AbUGRJ5s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263204AbUGRJbK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jul 2004 05:31:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263429AbUGRJbK
+	id S263467AbUGRJ5s (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jul 2004 05:57:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263540AbUGRJ5s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jul 2004 05:31:10 -0400
-Received: from damned.travellingkiwi.com ([81.6.239.220]:43185 "EHLO
-	ballbreaker.travellingkiwi.com") by vger.kernel.org with ESMTP
-	id S263204AbUGRJbD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jul 2004 05:31:03 -0400
-Message-ID: <40FA4328.4060304@travellingkiwi.com>
-Date: Sun, 18 Jul 2004 10:30:16 +0100
-From: Hamie <hamish@travellingkiwi.com>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040605)
+	Sun, 18 Jul 2004 05:57:48 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:3295 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S263467AbUGRJ5p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jul 2004 05:57:45 -0400
+Message-ID: <40FA498D.7040309@t-online.de>
+Date: Sun, 18 Jul 2004 11:57:33 +0200
+From: "Harald Dunkel" <harald.dunkel@t-online.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a3) Gecko/20040717
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: ide-cs using 100% CPU
-Content-Type: text/plain; charset=us-ascii; format=flowed
+CC: Harald Dunkel <harald.dunkel@t-online.de>
+Subject: Re: amd64, 2.6.7: several problems
+References: <40FA1A69.4090902@t-online.de>
+In-Reply-To: <40FA1A69.4090902@t-online.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-ID: bHhLtqZdgedJx7bwpA1bo1-Vqp36Ro42VHVSVrRhqUqm6xPDkmpkYt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a thinkpad r50p, 1.6GHz CPU, 512MB memory running kernel 
-2.6.7-mm4 (Also tried 2.6.7, 2.6.6, 2.6.4 and a few others).
+Harald Dunkel wrote:
+> 
+> Next powernow-k8 refuses to load on my PC:
+> 
+> # modprobe powernow-k8
+> FATAL: Error inserting powernow_k8 
+> (/lib/modules/2.6.7/kernel/arch/x86_64/kernel/cpufreq/powernow-k8.ko): 
+> No such device
+> 
+> This is strange. AFAIK all amd64 CPUs do have Powernow.
+> The ACPI modules (expecially processor), freq_table and cpuid
+> were all loaded. Whats wrong here?
+> 
 
-When reading from CF card (using ide-cs) the system is really stodgy and 
-consumes 100% CPU. Almost all of it waitIO according to top...
+PS: dmesg said
 
-Now it's not the fact that I get lots of waitIO, but AFAIUI if a system 
-uses truckloads of waitIO, that should just mean that the system is idle 
-but there's some IO going on & a process is waiting for it to complete 
-(e.g. the way AIX does it).
+powernow-k8: Found 1 AMD Athlon 64 / Opteron processors (version 1.00.09b)
+powernow-k8: BIOS error - no PSB
 
-Other processes should still be able to get CPU without any problems, 
-but my experience is that under Linux if waitio is due to reading the CF 
-card, the system essentially stops... The mouse still moves (Under X), 
-but... unwillingly... Jerking around all over the place...
+I found this in powernow-k8.c.
 
-Anyone know why this happens? Something busy waiting? (BUt that should 
-show as system cpu right?) or something taking out really long locks?
+:
+if (powernow_k8_cpu_init_acpi(data)) {
+	/*
+	 * Use the PSB BIOS structure. This is only availabe on
+	 * an UP version, and is deprecated by AMD.
+	 */
+
+	if (pol->cpu != 0) {
+:
+:
+
+i.e. PSB is deprecated. Only if some lookup via ACPI fails, then
+the kernel tries PSB. If this fails, too, then it prints an error
+message.
+
+The problem is, why does the kernel print an error message
+just about the deprecated PSB, if some ACPI stuff doesn't work
+as expected?
+
+Would it be possible to add a warning message to
+powernow_k8_cpu_init_acpi(), saying something like
+
+	powernow-k8: initialization via ACPI failed,
+		trying deprecated PSB structure
+
+
+Regards
+
+Harri
+

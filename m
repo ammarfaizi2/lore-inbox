@@ -1,69 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131964AbRADSXu>; Thu, 4 Jan 2001 13:23:50 -0500
+	id <S131541AbRADSYa>; Thu, 4 Jan 2001 13:24:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131541AbRADSXm>; Thu, 4 Jan 2001 13:23:42 -0500
-Received: from ntx.cix.co.uk ([194.153.15.116]:10257 "EHLO nvlonlx01.nv.london")
-	by vger.kernel.org with ESMTP id <S131964AbRADSXb>;
-	Thu, 4 Jan 2001 13:23:31 -0500
-Date: Thu, 4 Jan 2001 18:20:51 +0000 (UTC)
-From: Mo McKinlay <mmckinlay@gnu.org>
-To: David Lang <david.lang@digitalinsight.com>
-cc: Mo McKinlay <mmckinlay@gnu.org>, Chris Wedgwood <cw@f00f.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	id <S132069AbRADSYM>; Thu, 4 Jan 2001 13:24:12 -0500
+Received: from a203-167-249-89.reverse.clear.net.nz ([203.167.249.89]:51213
+	"HELO metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S131541AbRADSXw>; Thu, 4 Jan 2001 13:23:52 -0500
+Date: Fri, 5 Jan 2001 07:23:50 +1300
+From: Chris Wedgwood <cw@f00f.org>
+To: Mo McKinlay <mmckinlay@gnu.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        David Lang <david.lang@digitalinsight.com>,
         Daniel Phillips <phillips@innominate.de>,
-        Helge Hafting <helgehaf@idb.hist.no>, <linux-kernel@vger.kernel.org>
+        Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
 Subject: Re: Journaling: Surviving or allowing unclean shutdown?
-In-Reply-To: <Pine.LNX.4.31.0101041018430.10387-100000@dlang.diginsite.com>
-Message-ID: <Pine.LNX.4.30.0101041820200.967-100000@nvws005.nv.london>
-Organization: inter/open Labs
-X-URL: http://www.interopen.org/
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20010105072350.B31025@metastasis.f00f.org>
+In-Reply-To: <20010105071053.A31025@metastasis.f00f.org> <Pine.LNX.4.30.0101041813310.967-100000@nvws005.nv.london>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.30.0101041813310.967-100000@nvws005.nv.london>; from mmckinlay@gnu.org on Thu, Jan 04, 2001 at 06:15:26PM +0000
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, Jan 04, 2001 at 06:15:26PM +0000, Mo McKinlay wrote:
 
-Today, David Lang (david.lang@digitalinsight.com) wrote:
+    Indeed - but unplugging your VCR from the wall won't harm it.
 
-  > On Thu, 4 Jan 2001, Mo McKinlay wrote:
-  >
-  > >   > The off button need not and _does not_ remove power instantly (if at
-  > >   > all) on many appliances.
-  > >
-  > > Indeed - but unplugging your VCR from the wall won't harm it. Everyone
-  > > knows the power button on a TV/VCR/etc doesn't actually kill the power,
-  > > just reduce consumption (i.e., standby mode). But unplugging it at the
-  > > wall doesn't have any detrimental effects - doing that to a PC will.
-  >
-  > if you change that statement to "usually won't harm it" I agree with you
-  > (I have had a VCR eat a tape when this was done)
+I disagree -- I have experience to the contrary.
 
-Crikey. Most people would consider that a fault in the VCR.
+Powering down a VCR whilst recording can damage the tape or even
+worse have the tap get jammed in the video. I have also had a TV die
+because it was unpowered from the mains without being switched off
+first.
 
-Just goes to show how far removed from appliances PCs currently are.
-
-- -- 
-Mo McKinlay
-mmckinlay@gnu.org
-- -------------------------------------------------------------------------
-GnuPG/PGP Key: pub  1024D/76A275F9 2000-07-22
+Sure, these things don't always happen -- but they sometimes do. I
+would argue things like VCRs and TVs are just more tolerant than more
+complex systems -- not immune.
 
 
 
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjpUvwcACgkQRcGgB3aidfkR3wCfVTY9NJY8irZ5BNxgQ1jrQWsP
-3jIAnjVpIdJtOb66Q1wK451QPH00Q7wH
-=90Eb
------END PGP SIGNATURE-----
-
+  --cw
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

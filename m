@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267306AbUJRU6J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267352AbUJRVCV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267306AbUJRU6J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 16:58:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267352AbUJRU6I
+	id S267352AbUJRVCV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 17:02:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267409AbUJRVCU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 16:58:08 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:32393 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S267306AbUJRU5z
+	Mon, 18 Oct 2004 17:02:20 -0400
+Received: from rproxy.gmail.com ([64.233.170.196]:57680 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S267352AbUJRVCG convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 16:57:55 -0400
-Date: Mon, 18 Oct 2004 15:57:04 -0500
-From: Jake Moilanen <moilanen@austin.ibm.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, Anton Blanchard <anton@samba.org>,
-       Paul Mackerras <paulus@samba.org>
-Subject: [PATCH] ppc64: VMX memsetting incorrect size
-Message-ID: <20041018155704.036a674d@localhost>
-Organization: LTC
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Mon, 18 Oct 2004 17:02:06 -0400
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=Wf90oU+6NqXnwGexlgeFXJ9PvVJvhrbJ1OVAPcMCbXw1KuZ6KuhprJ0KeKtSN+EN1xyGEesDYw2gkmcMHR9rarcRQ5qP6B6NI8KHE344T/fvB4G+DEb9XUyJjFfgTzC3tnlYbqsrmi5No7ASuVvPLzPN7xsEPEb3jVWqZV1uDD0
+Message-ID: <7aaed09104101814026a75f8ec@mail.gmail.com>
+Date: Mon, 18 Oct 2004 23:02:02 +0200
+From: =?ISO-8859-1?Q?Espen_Fjellv=E6r_Olsen?= <espenfjo@gmail.com>
+Reply-To: =?ISO-8859-1?Q?Espen_Fjellv=E6r_Olsen?= <espenfjo@gmail.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.9-rc4-mm1 amd64 Computer crashes on "Freeing unused kernel memory: 200k"
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fixup of an incorrect memset() size for vmx in restore_sigcontext.
+I recently got a new AMD64 3400+ computer, i'm installing gentoo from
+the gentoo-amd64-livecd.
+All goes well, until i try to boot my newly compiled kernel.
+I't stops at "Freeing unused kernel memory: 200k", no oopses or other
+information.
+I compiled it with gcc-3.3.4.
 
-Signed-off-by: Jake Moilanen <moilanen@austin.ibm.com>
 
----
+Just ask and i'll try to give you more information about my system.
 
-
-diff -puN arch/ppc64/kernel/signal.c~vmx_memset_size arch/ppc64/kernel/signal.c
---- linux-2.6-bk/arch/ppc64/kernel/signal.c~vmx_memset_size	Mon Oct 18 15:39:34 2004
-+++ linux-2.6-bk-moilanen/arch/ppc64/kernel/signal.c	Mon Oct 18 15:39:47 2004
-@@ -210,7 +210,7 @@ static long restore_sigcontext(struct pt
- 	if (v_regs != 0 && (regs->msr & MSR_VEC) != 0)
- 		err |= __copy_from_user(current->thread.vr, v_regs, 33 * sizeof(vector128));
- 	else if (current->thread.used_vr)
--		memset(&current->thread.vr, 0, 33);
-+		memset(&current->thread.vr, 0, 33 * sizeof(vector128));
- 	/* Always get VRSAVE back */
- 	if (v_regs != 0)
- 		err |= __get_user(current->thread.vrsave, (u32 __user *)&v_regs[33]);
-
-_
+-- 
+Mvh / Best regards
+Espen Fjellvær Olsen
+espenfjo@gmail.com
+Norway

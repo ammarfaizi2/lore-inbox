@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263688AbUDGOro (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 10:47:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263698AbUDGOro
+	id S263698AbUDGOu4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 10:50:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263702AbUDGOu4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 10:47:44 -0400
-Received: from mail0.epfl.ch ([128.178.50.57]:40712 "HELO mail0.epfl.ch")
-	by vger.kernel.org with SMTP id S263688AbUDGOrk convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 10:47:40 -0400
-Date: Wed, 7 Apr 2004 16:47:38 +0200
-From: Gregoire Favre <Gregoire.Favre@freesurf.ch>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.5-mm2 don't compil (sr)
-Message-ID: <20040407144738.GA7822@magma.epfl.ch>
+	Wed, 7 Apr 2004 10:50:56 -0400
+Received: from ns.suse.de ([195.135.220.2]:6110 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263698AbUDGOus (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Apr 2004 10:50:48 -0400
+Date: Wed, 7 Apr 2004 16:50:41 +0200
+From: Andi Kleen <ak@suse.de>
+To: Anton Blanchard <anton@samba.org>
+Cc: david@gibson.dropbear.id.au, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       benh@kernel.crashing.org, paulus@samba.org,
+       linuxppc64-dev@lists.linuxppc.org
+Subject: Re: RFC: COW for hugepages
+Message-Id: <20040407165041.23d8d82a.ak@suse.de>
+In-Reply-To: <20040407142748.GO26474@krispykreme>
+References: <20040407074239.GG18264@zax>
+	<20040407143447.4d8f08af.ak@suse.de>
+	<20040407142748.GO26474@krispykreme>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1i
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, 8 Apr 2004 00:27:48 +1000
+Anton Blanchard <anton@samba.org> wrote:
 
-I got this:
+>  
+> > Implementing this for ppc64 only is just wrong. Before you do this 
+> > I would suggest to factor out the common code in the various hugetlbpage
+> > implementations and then implement it in common code.
+> 
+> I could say a similar thing about your i386 specific largepage modifications
+> in the NUMA api :)
 
-  CC      drivers/scsi/sr.o
-drivers/scsi/sr.c: In function `scsi_cd_get':
-drivers/scsi/sr.c:128: error: structure has no member named `kobj'
-drivers/scsi/sr.c: In function `scsi_cd_put':
-drivers/scsi/sr.c:135: error: structure has no member named `kobj'
-drivers/scsi/sr.c: In function `sr_probe':
-drivers/scsi/sr.c:554: error: structure has no member named `kobj'
-drivers/scsi/sr.c:555: error: structure has no member named `kobj'
-drivers/scsi/sr.c: In function `sr_kobject_release':
-drivers/scsi/sr.c:904: error: structure has no member named `kobj'
-drivers/scsi/sr.c:904: warning: type defaults to `int' in declaration of `__mptr'
-drivers/scsi/sr.c:904: warning: initialization from incompatible pointer type
-drivers/scsi/sr.c:904: error: structure has no member named `kobj'
-make[2]: *** [drivers/scsi/sr.o] Error 1
-make[1]: *** [drivers/scsi] Error 2
-make: *** [drivers] Error 2
+All they did was to modify the code to lazy faulting. That is architecture specific
 
-2.6.5 compil just fine ;-)
+(and add the mpol code, but that was pretty minor) 
 
-	Grégoire
-__________________________________________________________________________
-http://algebra.epfl.ch/greg ICQ:16624071 mailto:Gregoire.Favre@freesurf.ch
+COW is a different thing though.
+
+> 
+> We should probably look at making lots of the arch specific hugetlb code
+> common but im not sure we want that to become a prerequisite for merging
+> NUMA API and hugepage COW.
+
+That would just make the merging later harder. Making it common first and then
+adding features would be better.
+
+-Andi

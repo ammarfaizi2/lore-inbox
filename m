@@ -1,50 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131587AbRDMSXK>; Fri, 13 Apr 2001 14:23:10 -0400
+	id <S131590AbRDMTgo>; Fri, 13 Apr 2001 15:36:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131588AbRDMSW7>; Fri, 13 Apr 2001 14:22:59 -0400
-Received: from postfix1-2.free.fr ([213.228.0.130]:15620 "HELO
-	postfix1-2.free.fr") by vger.kernel.org with SMTP
-	id <S131587AbRDMSWk>; Fri, 13 Apr 2001 14:22:40 -0400
-From: Fabien CHEVALIER <fabchev4@free.fr>
-Reply-To: fabchev4@free.fr
-Date: Fri, 13 Apr 2001 20:20:15 +0000
-X-Mailer: KMail [version 1.1.99]
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_R5ZQES649JHM0KX2QNRG"
-To: video4linux-list@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH- new driver] Maxi Radio FM 2 driver (GemTek)
-MIME-Version: 1.0
-Message-Id: <01041320201500.00782@localhost.localdomain>
+	id <S131638AbRDMTge>; Fri, 13 Apr 2001 15:36:34 -0400
+Received: from fenrus.demon.co.uk ([158.152.228.152]:50324 "EHLO
+	amadeus.home.nl") by vger.kernel.org with ESMTP id <S131590AbRDMTgS>;
+	Fri, 13 Apr 2001 15:36:18 -0400
+Message-Id: <m14o9LX-000Od4C@amadeus.home.nl>
+Date: Fri, 13 Apr 2001 20:35:07 +0100 (BST)
+From: arjan@fenrus.demon.nl (Arjan van de Ven)
+To: P.Flinders@ftel.co.uk (Paul Flinders)
+Subject: Re: Help with Fasttrack/100 Raid on Linux
+cc: linux-kernel@vger.kernel.org
+X-Newsgroups: fenrus.linux.kernel
+In-Reply-To: <Pine.LNX.4.10.10104122052210.4564-100000@master.linux-ide.org> <3AD6B422.EEC092F0@ftel.co.uk>
+User-Agent: tin/pre-1.4-981002 ("Phobia") (UNIX) (Linux/2.2.18pre19 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <3AD6B422.EEC092F0@ftel.co.uk> you wrote:
+> Andre Hedrick wrote:
 
---------------Boundary-00=_R5ZQES649JHM0KX2QNRG
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8bit
+> However as far as I can see everyone who has a FastTrak which is "stuck"
+> in RAID mode[1] would be happy if it worked as a normal IDE controller
+> in Linux, which is (usually?) not the case - eg on the MSI board where
+> only the first channel is seen.
 
+I have a patch to work around that. However the better solution would be to
+have a native driver for the raid; I plan to start working on that next
+week...
 
-Hi,
-
-I've wrote this driver for my Maxi Radio Fm 2 card.
-I hope it can be usefull for somebody.
-This card uses a GemTek chip, but the GemTek driver wasn't working very well :
-the card was left uninitialized, and so it didn't mute.
-
-I didn't wrote a patch for the GemTek driver because the protocol to change 
-frequency is different.
-
-This patch is for 2.4.3 kernel - nobody but me tested it yet...
-
-Please CC your answers as my 56 k modem can't bear the list!
---------------Boundary-00=_R5ZQES649JHM0KX2QNRG
-Content-Type: application/x-gzip;
-  name="patch-maxifm2-v0.12-2.4.3.gz"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment; filename="patch-maxifm2-v0.12-2.4.3.gz"
-
-‹‚X×:
---------------Boundary-00=_R5ZQES649JHM0KX2QNRG--
+Greetings,
+  Arjan van de Ven

@@ -1,67 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291279AbSAaUbb>; Thu, 31 Jan 2002 15:31:31 -0500
+	id <S291281AbSAaUil>; Thu, 31 Jan 2002 15:38:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291278AbSAaUbX>; Thu, 31 Jan 2002 15:31:23 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:31878 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S291277AbSAaUbS>;
-	Thu, 31 Jan 2002 15:31:18 -0500
-Date: Thu, 31 Jan 2002 15:31:15 -0500
-From: Jeff Garzik <garzik@havoc.gtf.org>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        pavel@atrey.karlin.mff.cuni.cz
-Subject: Re: crc32 and lib.a (was Re: [PATCH] nbd in 2.5.3 does not
-Message-ID: <20020131153115.A5370@havoc.gtf.org>
-In-Reply-To: <107F105A2B71@vcnet.vc.cvut.cz>
+	id <S291283AbSAaUig>; Thu, 31 Jan 2002 15:38:36 -0500
+Received: from smtp3.vol.cz ([195.250.128.83]:31750 "EHLO smtp3.vol.cz")
+	by vger.kernel.org with ESMTP id <S291281AbSAaUiT>;
+	Thu, 31 Jan 2002 15:38:19 -0500
+Date: Thu, 31 Jan 2002 12:49:43 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Greg KH <greg@kroah.com>
+Cc: mochel@osdl.org, linux-usb-devel@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] driverfs support for USB - take 2
+Message-ID: <20020131124942.A37@toy.ucw.cz>
+In-Reply-To: <20020130002418.GB21784@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <107F105A2B71@vcnet.vc.cvut.cz>; from VANDROVE@vc.cvut.cz on Thu, Jan 31, 2002 at 09:27:35PM +0100
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20020130002418.GB21784@kroah.com>; from greg@kroah.com on Tue, Jan 29, 2002 at 04:24:18PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 31, 2002 at 09:27:35PM +0100, Petr Vandrovec wrote:
-> On 31 Jan 02 at 13:47, Jeff Garzik wrote:
-> > On Thu, Jan 31, 2002 at 02:24:46PM +0100, Petr Vandrovec wrote:
-> > >     I've got strange idea and tried to build diskless machine around
-> > > 2.5.3... Besides problem with segfaulting crc32 (it is initialized after 
-> > > net/ipv4/ipconfig.c due to lib/lib.a being a library... I had to hardcode
-> > > lib/crc32.o before --start-group in main Makefile, but it is another
-> > > story)
-> > 
-> > Would you be willing to cook up a patch for this problem?
-> > 
-> > I ran into this too.  It was solved by setting CONFIG_CRC32=n and
-> > letting the Makefile rules pull it in...  but lib/lib.a needs to be
-> > lib/lib.o really.
-> 
-> Unfortunately during conversion I found that there is lib/bust_spinlocks.c,
-> which is always included in lib.a, is always compiled, even if architecture
-> provides its own bust_spinlocks function.
+Hi!
 
-Yep
+>  static int __init device_init_root(void)
+>  {
+> -	/* initialize parent bus lists */
+> -	return iobus_register(&device_root);
+> +	device_root = kmalloc(sizeof(*device_root),GFP_KERNEL);
+> +	if (!device_root)
+> +		return -ENOMEM;
+> +	memset(device_root,0,sizeof(*device_root));
+> +	strcpy(device_root->bus_id,"root");
+> +	strcpy(device_root->name,"System Root");
+> +	return device_register(device_root);
+>  }
 
+Why don't you leave device_root allocated statically?
 
-> As no other module in lib/ uses module_init() initalization, it looks
-> to me like that we should move crc32.c from lib/ to kernel/, instead of
-> turning lib.a into lib.o.
+> @@ -1430,9 +1419,11 @@
+>  		return NULL;
+>  	list_add_tail(&b->node, &pci_root_buses);
+>  
+> -	sprintf(b->iobus.bus_id,"pci%d",bus);
+> -	strcpy(b->iobus.name,"Host/PCI Bridge");
+> -	iobus_register(&b->iobus);
+> +	b->dev = kmalloc(sizeof(*(b->dev)),GFP_KERNEL);
+Uff...				~~~~~~~~~ would not "struct device" (or
+what should it be) look better?
 
-Having lib.a is really a special case, and we can easily fix that by
-fixing bust_spinlocks, not by moving what is truly a library routine to
-somewhere other than lib/
+> +	memset(b->dev,0,sizeof(*(b->dev)));
 
-
-> But of course if there is consensus that I should convert lib/lib.a
-> into lib/lib.o, I can either create Config.in symbol 
-> CONFIG_NEED_GENERIC_BUST_SPINLOCK, or add HAVE_ARCH_BUST_SPINLOCK #define
-> into some of i386, ia64, mips64, s390 and s390x architecture dependent
-> headers.
-
-Implementing HAVE_ARCH_BUST_SPINLOCK would follow kernel convention
-quite nicely...
-
-	Jeff
-
+								Pavel
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 

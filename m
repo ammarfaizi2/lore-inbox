@@ -1,60 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbVCaIz4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbVCaJHU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261197AbVCaIz4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 03:55:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261200AbVCaIz4
+	id S261206AbVCaJHU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 04:07:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbVCaJHT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 03:55:56 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:26773 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261197AbVCaIzu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 03:55:50 -0500
-Date: Thu, 31 Mar 2005 10:55:41 +0200
-From: Ingo Molnar <mingo@elte.hu>
+	Thu, 31 Mar 2005 04:07:19 -0500
+Received: from 62-15-228-226.inversas.jazztel.es ([62.15.228.226]:9904 "EHLO
+	servint.tedial.com") by vger.kernel.org with ESMTP id S261206AbVCaJGz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 04:06:55 -0500
+From: Antonio Larrosa =?iso-8859-1?q?Jim=E9nez?= <antlarr@tedial.com>
+Organization: Tedial
 To: linux-kernel@vger.kernel.org
-Cc: Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>
-Subject: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-25
-Message-ID: <20050331085541.GA21306@elte.hu>
-References: <20050325145908.GA7146@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: SCSI I/O error generating a kernel (parport? reiserfs?) bug (2.4.21-99)
+Date: Thu, 31 Mar 2005 11:06:52 +0200
+User-Agent: KMail/1.8
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20050325145908.GA7146@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-Id: <200503311106.52574.antlarr@tedial.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-i have released the -V0.7.41-25 Real-Time Preemption patch, which can be 
-downloaded from the usual place:
+Last night I saw an I/O error in a RAID device on a SuSE 9.0 system (with the 
+stock 2.4.21-99 kernel, not tainted). I don't know if it's useful for anyone 
+given that the kernel has changed much since then, but I report it just in 
+case the problem is still in there.
 
-   http://redhat.com/~mingo/realtime-preempt/
+I find strange that the backtrace (below) talks about parport being a SCSI I/O 
+error, so maybe it's not related to the SCSI problem, but since at the end it 
+mentions reiserfs, it makes me wonder.
 
-this release tries to stabilize things some more. In particular i've 
-changed 'nocheck' semaphores to not be included in any PI or debugging 
-logic. This makes them pretty much stateless and compatible. XFS seems 
-to be working much better with this approach, and maybe some of the 
-other problematic subsystems (USB/firewire) will improve too.
+Btw, the RAID is on a cciss controller.
 
-there's also a latency tracer fix which should cure some of the 
-'truncated traces' problems.
+Greetings,
 
-i've also included Trond Myklebust's NFS client patch which should 
-reduce latencies in that area (on PREEMPT_DESKTOP/VOLUNTARY kernels - 
-under PREEMPT_RT the whole NFS code was fully preemptable already).  
-It's experimental so be careful if you are using NFS.
+These are the contents of the syslog:
 
-to create a -V0.7.41-25 tree from scratch, the patching order is:
+Mar 31 04:33:51 baja1 kernel: sym0:1:0: HOST RESET operation started.
+Mar 31 04:33:51 baja1 kernel: sym0:1:0: HOST RESET operation failed.
+Mar 31 04:34:01 baja1 kernel: scsi: device set offline - command error recover 
+failed: host 0 channel 0 id 1 lun 0
+Mar 31 04:34:01 baja1 kernel: SCSI disk error : host 0 channel 0 id 1 lun 0 
+return code = 6050000
+Mar 31 04:34:01 baja1 kernel:  I/O error: dev 08:01, sector 419350704
+(some more like these)
+Mar 31 04:34:01 baja1 kernel:  I/O error: dev 08:01, sector 419354320
+Mar 31 04:34:01 baja1 kernel: SCSI disk error : host 0 channel 0 id 1 lun 0 
+return code = 6050000
+Mar 31 04:34:01 baja1 kernel:  I/O error: dev 08:01, sector 419350592
+Mar 31 04:34:01 baja1 kernel: SCSI disk error : host 0 channel 0 id 1 lun 0 
+return code = 6050000
+Mar 31 04:34:01 baja1 kernel:  I/O error: dev 08:01, sector 419348920
+Mar 31 04:34:01 baja1 kernel: SCSI disk error : host 0 channel 0 id 1 lun 0 
+return code = 6050000
+Mar 31 04:34:01 baja1 kernel:  I/O error: dev 08:01, sector 419348904
+Mar 31 04:34:01 baja1 kernel: SCSI disk error : host 0 channel 0 id 1 lun 0 
+return code = 6050000
+Mar 31 04:34:01 baja1 kernel:  I/O error: dev 08:01, sector 419348880
+Mar 31 04:34:01 baja1 kernel: SCSI disk error : host 0 channel 0 id 1 lun 0 
+return code = 6050000
+Mar 31 04:34:01 baja1 kernel:  I/O error: dev 08:01, sector 419350544
+Mar 31 04:34:01 baja1 kernel: SCSI disk error : host 0 channel 0 id 1 lun 0 
+return code = 6030000
+Mar 31 04:34:01 baja1 kernel:  I/O error: dev 08:01, sector 419350672
+Mar 31 04:34:01 baja1 kernel: journal-601, buffer write failed
+Mar 31 04:34:01 baja1 kernel: kernel BUG at prints.c:334!
+Mar 31 04:34:01 baja1 kernel: invalid operand: 0000 2.4.21-99-default #1 Wed 
+Sep 24 13:30:51 UTC 2003
+Mar 31 04:34:01 baja1 kernel: CPU:    0
+Mar 31 04:34:01 baja1 kernel: EIP:    0010:
+[parport:__insmod_parport_O/lib/modules/2.4.21-99-default/kernel/dri+4224300968/96]   
+Not tainted
+Mar 31 04:34:01 baja1 kernel: EIP:    0010:[<ce4937a8>]    Not tainted
+Mar 31 04:34:01 baja1 kernel: EFLAGS: 00010282
+Mar 31 04:34:01 baja1 kernel: eax: 00000024  ebx: c1d04800  ecx: c1619e90 edx: 
+ce4ae97a
+Mar 31 04:34:01 baja1 kernel: esi: d0235840  edi: 00000012  ebp: c1d04800 esp: 
+c1619e8c
+Mar 31 04:34:01 baja1 kernel: ds: 0018  es: 0018  ss: 0018
+Mar 31 04:34:01 baja1 kernel: Process kupdated (pid: 6, stackpage=c1619000)
+Mar 31 04:34:01 baja1 kernel: Stack: ce4ae97a ce4af3c0 ce4ac5c0 c1619eac 
+00000000 ce49e759 c1d04800 ce4ac5c0
+Mar 31 04:34:01 baja1 kernel:        00000002 e08d1000 00000005 d0235858 
+00000003 00000000 cc109ea0 0ba7d59f
+Mar 31 04:34:01 baja1 kernel:        c1d04800 0ba7d59f 00000004 ce4a3458 
+c1d04800 d0235840 00000001 e08d9104
+Mar 31 04:34:01 baja1 kernel: Call Trace:    
+[parport:__insmod_parport_O/lib/modules/2.4.21-99-default/kernel/dri+4224412026/96]
+[parport:__insmod_parport_O/lib/modules/2.4.21-99-default/kernel/dri+4224414656/96] 
+[parport:__insmod_parport_O/lib/modules/2.4.21-99-default/kernel/dri+4224402880/96] 
+[parport:__insmod_parport_O/lib/modules/2.4.21-99-default/kernel/dri+4224345945/96] 
+[parport:__insmod_parport_O/lib/modules/2.4.21-99-default/kernel/dri+4224402880/96]
+Mar 31 04:34:01 baja1 kernel: Call Trace:    [<ce4ae97a>] [<ce4af3c0>] 
+[<ce4ac5c0>] [<ce49e759>] [<ce4ac5c0>]
+Mar 31 04:34:01 baja1 kernel:  
+[parport:__insmod_parport_O/lib/modules/2.4.21-99-default/kernel/dri+4224365656/96] 
+[parport:__insmod_parport_O/lib/modules/2.4.21-99-default/kernel/dri+4224360643/96] 
+[parport:__insmod_parport_O/lib/modules/2.4.21-99-default/kernel/dri+4224288605/96] 
+[sync_supers+407/464] [sync_old_buffers+14/64] [kupdate+294/384]
+Mar 31 04:34:01 baja1 kernel:  [<ce4a3458>] [<ce4a20c3>] [<ce49075d>] 
+[<c014a077>] [<c0148eee>] [<c01491d6>]
+Mar 31 04:34:01 baja1 kernel:  [rest_init+0/32] [rest_init+0/32] 
+[arch_kernel_thread+35/48] [kupdate+0/384]
+Mar 31 04:34:01 baja1 kernel:  [<c0105000>] [<c0105000>] [<c0107333>] 
+[<c01490b0>]
+Mar 31 04:34:01 baja1 kernel: Modules: [(reiserfs:<ce480060>:<ce4b0d94>)]
+Mar 31 04:34:01 baja1 kernel: Code: 0f 0b 4e 01 80 e9 4a ce b8 89 e9 4a ce 68 
+c0 f3 4a ce 85 db
 
-  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.11.tar.bz2
-  http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.12-rc1.bz2
-  http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.12-rc1-V0.7.41-25
-
-	Ingo
+--
+Antonio Larrosa
+antlarr@tedial.com
+TEDIAL - Tecnologías Digitales Audiovisuales, S.L.
+Parque Tecnológico de Andalucía

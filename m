@@ -1,42 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315264AbSD3XhW>; Tue, 30 Apr 2002 19:37:22 -0400
+	id <S315267AbSD3Xlv>; Tue, 30 Apr 2002 19:41:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315269AbSD3XhV>; Tue, 30 Apr 2002 19:37:21 -0400
-Received: from fmr01.intel.com ([192.55.52.18]:63710 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S315264AbSD3XhU>;
-	Tue, 30 Apr 2002 19:37:20 -0400
-Message-ID: <D9223EB959A5D511A98F00508B68C20C0724CDAD@ORSMSX108>
-From: "Woodruff, Robert J" <woody@co.intel.com>
-To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] InfiniBand S/W project started on SourceForge
-Date: Tue, 30 Apr 2002 16:37:15 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S315268AbSD3Xlu>; Tue, 30 Apr 2002 19:41:50 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:51913 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S315267AbSD3Xlt>;
+	Tue, 30 Apr 2002 19:41:49 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Wed, 1 May 2002 01:41:41 +0200 (MEST)
+Message-Id: <UTC200204302341.g3UNffd25525.aeb@smtp.cwi.nl>
+To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: [WIP] Apacer SmartMedia driver
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+I just got myself an Apacer SM/CF combo reader, USB 07c4:a109.
+The CF part is supported in the stock kernel (by datafab.c),
+the SM part is not.
+This evening I wrote a read-only driver; hope to add the
+writing part soon.
+If anyone has information (or a Linux driver) I'd like to hear.
 
-	An InfiniBand S/W project has been open on sourceforge.net
-http://sourceforge.net/projects/infiniband.
+Andries
 
-	The site contains early reference code for an
-	             InfiniBand Transport and OS infrastructure 
-	             Virtual NIC Driver
-	              IP LAN emulation driver that runs over InfiniBand
-	              SCSI RDMA Protocol (SRP) driver
-	              VIPL
 
-	The project  intends to develop a production ready InfiniBand S/W
-stack (using the existing code as a reference)
-	and solicits participation from all interested parties in industry
-and the Linux community at large.  The goal of the project
-	is to produce an InfiniBand S/W OS infrastructure worthy of
-inclusion in standard Linux distributions. 
-
-	Refer to the Home Page on the SourceForge project for project
-descriptions, details, and a list of contacts. 
+[Another interesting point is Olympus. Do I understand
+correctly that Olympus put its name in the CIS, that moreover
+many SM readers refuse to write the CIS, and that an Olympus
+camera will say "Card Error" when it doesn't find the string
+"OLYMPUS", so that Olympus can sell SM cards at a higher price?]
 

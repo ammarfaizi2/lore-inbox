@@ -1,67 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271331AbRHTQRx>; Mon, 20 Aug 2001 12:17:53 -0400
+	id <S271365AbRHTQVY>; Mon, 20 Aug 2001 12:21:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271335AbRHTQRs>; Mon, 20 Aug 2001 12:17:48 -0400
-Received: from bigglesworth.mail.be.easynet.net ([212.100.160.67]:27142 "EHLO
-	bigglesworth.mail.be.easynet.net") by vger.kernel.org with ESMTP
-	id <S271331AbRHTQQf>; Mon, 20 Aug 2001 12:16:35 -0400
-Message-ID: <001601c12993$930fc4a0$0200a8c0@home.lan>
-From: "Chris Pockele" <chrisp@newmail.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: sound crashes in 2.4
-Date: Mon, 20 Aug 2001 18:17:14 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2615.200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
+	id <S271361AbRHTQVN>; Mon, 20 Aug 2001 12:21:13 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:29085 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S271352AbRHTQVH>; Mon, 20 Aug 2001 12:21:07 -0400
+Date: Mon, 20 Aug 2001 10:20:52 -0600
+Message-Id: <200108201620.f7KGKqw01274@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
+Subject: [PATCH] devfs v188 available
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  Hi, all. Version 188 of my devfs patch is now available from:
+http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
+The devfs FAQ is also available here.
 
-> >
-> >     2.4.8 dies after ~1/2 minute of mpg123 playback,
-> >     with tty switching freeze, and typing out
-> >     continuously (i`d say infinitely) call trace.
-> >
-> >         ac7 acts this way too, but before death
-> >     sound stalls *some* times, i then each time restart
-> >     the proggie which emits it. This pattern survives
-> >     4-5 stalls, after which - final trace dump.
-> >
-> >     gcc-2.95.3, sb16 - genuine, vanilla ac7, vanilla
-> >     2.4.8.
-> 
+Patch directly available from:
+ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.4/devfs-patch-current.gz
 
-I have the same problems with an ALS007 card (in a 486 system).
-The card is correctly recognized and set up by the PnP drivers.
+AND:
+ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.4/devfs-patch-current.gz
 
-The system freezes completely when using sound (no ping replies
-anymore), and it's not a CPU/motherboard/RAM issue
-(it compiles kernels without any problems), it occurs while
-playing MP3's, while playing LxDoom ( now i have an excuse
-to play Doom, testing the Linux sound drivers ;) ).
-The time after which it crashes is variable, sometimes it crashes
-immediately, sometimes it crashes after 5 minutes.
-Sometimes, it also stalls a few times before finally crashing.
+This is against 2.4.9. Highlights of this release:
 
-Having persistant DMA buffers enabled/disabled doesn't change
-anything (the machine has 16MB of RAM), and the problem occurs
-both when using modules or compiled-in drivers.
+- Updated major masks in fs/devfs/util.c up to Linus' "no new majors"
+  proclamation. Block: were 126 now 122 free, char: were 26 now 19 free
 
-Both 2.4.8 and 2.4.9 have this problem (these are the ones I tried).
-Btw on 2.2.x i get DMA (output) timeout errors (and broken sound).
+- Updated README from master HTML file
 
-There is also another "issue":
-the ISAPnP code calls "CMI8330 quirk".  As i have no such
-card, i thought this was related to the problem.  After
-commenting it out in quirks.c and recompiling, the quirk
-was not called anymore, but it didn't solve the problem.
+- Removed remnant of multi-mount support in <devfs_mknod>
 
-greets
+- Removed unused DEVFS_FL_SHOW_UNREG flag
 
+				Regards,
 
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269002AbUHMFYl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269003AbUHMF1C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269002AbUHMFYl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 01:24:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269003AbUHMFYl
+	id S269003AbUHMF1C (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 01:27:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269004AbUHMF1C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 01:24:41 -0400
-Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:47783
-	"EHLO acheron.informatik.uni-muenchen.de") by vger.kernel.org
-	with ESMTP id S269002AbUHMFYj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 01:24:39 -0400
-Message-ID: <411C5096.9060103@bio.ifi.lmu.de>
-Date: Fri, 13 Aug 2004 07:24:38 +0200
-From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Robert M. Stockmann" <stock@stokkie.net>
-Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-References: <Pine.LNX.4.44.0408130433350.22953-100000@hubble.stokkie.net>
-In-Reply-To: <Pine.LNX.4.44.0408130433350.22953-100000@hubble.stokkie.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 13 Aug 2004 01:27:02 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:41622 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S269003AbUHMF05 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 01:26:57 -0400
+Subject: Re: [patch] Latency Tracer, voluntary-preempt-2.6.8-rc4-O6
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+In-Reply-To: <20040812235116.GA27838@elte.hu>
+References: <20040726082330.GA22764@elte.hu>
+	 <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu>
+	 <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu>
+	 <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu>
+	 <20040801193043.GA20277@elte.hu> <20040809104649.GA13299@elte.hu>
+	 <20040810132654.GA28915@elte.hu>  <20040812235116.GA27838@elte.hu>
+Content-Type: text/plain
+Message-Id: <1092374851.3450.13.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 13 Aug 2004 01:27:31 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert M. Stockmann wrote:
+On Thu, 2004-08-12 at 19:51, Ingo Molnar wrote:
+> i've uploaded the latest version of the voluntary-preempt patch:
+>      
+>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc4-O6
 
-> Now listen up Jens, i don't do default, i like to know what went
+My results with -O6 confirm Florian's results that when xrun_debug is
+off, mlockall() does not produce a long non-preemptible section at all,
+but does cause xruns in jackd.  I have no idea how this is possible.
 
-So instead of using the default which works you choose to select your
-own method which does not work. And then you complain, and you don't
-do that in alt.os.linux.suse or similar, but in comp.os.linux.advocacy
-just telling how you disappointed you are and how much better Mandrake ist.
-Sorry man, but this sound very much like a troll trying to start another
-"this distribution is better than that one" flame war and not someone
-asking for help or technical background information.
-
-> grundliche engineerung
-
-Wow wow, now you better be careful what you say next.
-
--- 
-Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
-Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
-LMU, Amalienstr. 17           Phone: +49 89 2180-4049
-80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
+Lee
 

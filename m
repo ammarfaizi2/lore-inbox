@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265722AbSJTA5c>; Sat, 19 Oct 2002 20:57:32 -0400
+	id <S265717AbSJTAwv>; Sat, 19 Oct 2002 20:52:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265723AbSJTA5b>; Sat, 19 Oct 2002 20:57:31 -0400
-Received: from orion.netbank.com.br ([200.203.199.90]:59657 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id <S265722AbSJTA5b>; Sat, 19 Oct 2002 20:57:31 -0400
-Date: Sat, 19 Oct 2002 22:03:31 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ipv4: only produce one record in fib_seq_show
-Message-ID: <20021020010331.GB15254@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-References: <20021019233236.GI14009@conectiva.com.br> <20021019.165451.110952098.davem@redhat.com> <20021020000943.GL14009@conectiva.com.br> <20021019.173806.111570656.davem@redhat.com>
+	id <S265722AbSJTAwv>; Sat, 19 Oct 2002 20:52:51 -0400
+Received: from mnh-1-30.mv.com ([207.22.10.62]:41733 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S265717AbSJTAwu>;
+	Sat, 19 Oct 2002 20:52:50 -0400
+Message-Id: <200210200203.VAA04444@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Andi Kleen <ak@muc.de>, john stultz <johnstul@us.ibm.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       george anzinger <george@mvista.com>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       Bill Davidsen <davidsen@tmr.com>
+Subject: Re: [PATCH] linux-2.5.43_vsyscall_A0 
+In-Reply-To: Your message of "Sun, 20 Oct 2002 02:15:40 +0200."
+             <20021020001540.GR23930@dualathlon.random> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021019.173806.111570656.davem@redhat.com>
-User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
+Date: Sat, 19 Oct 2002 21:03:09 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sat, Oct 19, 2002 at 05:38:06PM -0700, David S. Miller escreveu:
->    From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
->    Date: Sat, 19 Oct 2002 21:09:43 -0300
->    
->    What about the CONFIG_IP_PROC_FS idea? Does it sounds reasonable or
->    is it utter crap? :-)
-> 
-> I don't know, it might be useful for someone.
+andrea@suse.de said:
+> What I suggested is an arch specific syscall to shutdown vsyscalls
+> enterely for the current task and its childs, 
 
-Gigi Duru? :-)
+Then I misunderstood.
 
-> The question is if it is worth the effort ;)
+> the vsyscall will call
+> into the real syscall with sysenter, and you will be able to
+> revirtualize gettimeofday/time like you do on x86 with ptrace. 
 
-We'll, if everybody stopped using net-tools and started using iproute2 the
-world would be a better place and most of those proc stuff could just go away,
-till this beautiful day the ones that use iproute2 and don't use any program
-that touches /proc/net can have a smaller image to cram in their embedded toys.
-Oh, and I'll use it for our installer disks as well 8)
+And the task-specific fixmap entry would point to a page that makes the normal
+system call?
 
-- Arnaldo
+> what do you mean that uml needs the vsyscalls more than the other
+> archs? 
+
+Because its system calls are much slower than the host's.  It would benefit
+more from vsyscalls.
+
+> I much prefer you to keep trapping the gettimeofday and time with
+> ptrace after shutting down the vsyscalls for the current task, it's so
+> much cleaner. 
+
+And so much slower.
+
+> The overhead of ptrace cannot be your point, if that
+> overhead is a showstopper uml isn't an option in the first place.
+
+I don't plan on using ptrace forever.  That overhead is going to shrink, and
+vsyscalls are one way to make it shrink.
+
+I intend to make UML perform by grabbing whatever improvements from wherever
+I can get them, and if I can't get vsyscalls because they're not virtualizable,
+then, from my point of view, their design is broken.
+
+				Jeff
+

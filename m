@@ -1,36 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129547AbQLDMIh>; Mon, 4 Dec 2000 07:08:37 -0500
+	id <S129413AbQLDMJH>; Mon, 4 Dec 2000 07:09:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129541AbQLDMI1>; Mon, 4 Dec 2000 07:08:27 -0500
-Received: from isis.its.uow.edu.au ([130.130.68.21]:60822 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S129413AbQLDMIU>; Mon, 4 Dec 2000 07:08:20 -0500
-Message-ID: <3A2B82E8.26BCC5B1@uow.edu.au>
-Date: Mon, 04 Dec 2000 22:41:28 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test12-pre3 i586)
-X-Accept-Language: en
+	id <S129541AbQLDMJA>; Mon, 4 Dec 2000 07:09:00 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:12110 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129413AbQLDMIf>; Mon, 4 Dec 2000 07:08:35 -0500
+Subject: Re: [PATCH] i810_audio 2.4.0-test11
+To: pavel@suse.cz (Pavel Machek)
+Date: Mon, 4 Dec 2000 11:37:03 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        tjeerd.mulder@fujitsu-siemens.com (Tjeerd Mulder),
+        torvalds@transmeta.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20001203222300.B165@bug.ucw.cz> from "Pavel Machek" at Dec 03, 2000 10:23:00 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: Mike Galbraith <mikeg@wen-online.de>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: test12-pre4: BUG at swap.c:271!
-In-Reply-To: <Pine.Linu.4.10.10012040930550.654-100000@mikeg.weiden.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E142tvc-0003je-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith wrote:
+> > Tjeerd. I deliberately applied only small bits of your patch before because
+> > the mono mode stuff clutters the driver horribly and is not in the right place.
+> > It belongs in the application/libraries
 > 
-> Hi,
-> 
-> When stressing swap (virgin test12-pre4), I encounter the repeatable
-> oops below once load builds to heavy.  The vmscan.c:UnlockPage(page)
-> addition sets it off.  Appears 100% repeatable.
-> 
+> Then you should kill parts of drivers/usb/audio - it contains format conversions.
 
-Same here.
+Definitely we should
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

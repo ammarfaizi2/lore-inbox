@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283223AbRLRAda>; Mon, 17 Dec 2001 19:33:30 -0500
+	id <S283265AbRLRAev>; Mon, 17 Dec 2001 19:34:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283265AbRLRAdV>; Mon, 17 Dec 2001 19:33:21 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:59143 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S283223AbRLRAdI>;
-	Mon, 17 Dec 2001 19:33:08 -0500
-Date: Mon, 17 Dec 2001 22:32:53 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Ingo Molnar <mingo@elte.hu>, Benjamin LaHaise <bcrl@redhat.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: mempool design
-In-Reply-To: <20011217165845.C2431@athlon.random>
-Message-ID: <Pine.LNX.4.33L.0112172232180.15741-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S283269AbRLRAel>; Mon, 17 Dec 2001 19:34:41 -0500
+Received: from web14909.mail.yahoo.com ([216.136.225.61]:36616 "HELO
+	web14909.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S283267AbRLRAeW>; Mon, 17 Dec 2001 19:34:22 -0500
+Message-ID: <20011218003418.468.qmail@web14909.mail.yahoo.com>
+Date: Tue, 18 Dec 2001 13:34:18 +1300 (NZDT)
+From: =?iso-8859-1?q?Kirk=20Alexander?= <kirkalx@yahoo.co.nz>
+Subject: Re: your mail
+To: =?ISO-8859-1?Q? "G=E9rard=5FRoudier" ?= <groudier@free.fr>
+Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20011214172419.Q1591-100000@gerard>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Dec 2001, Andrea Arcangeli wrote:
-> On Mon, Dec 17, 2001 at 06:21:53PM +0100, Ingo Molnar wrote:
-> > On Mon, 17 Dec 2001, Andrea Arcangeli wrote:
-> >
-> > > This whole long thread can be resumed in two points:
-> > >
-> > > 1	mempool reserved memory is "wasted" i.e. not usable as cache
-> >
-> > reservations, as in Ben's published (i know, incomplete) implementation,
-> > are 'wasted' as well.
->
-> yes, I was referring only about his long term design arguments.
+ --- Gérard_Roudier <groudier@free.fr> wrote: > 
+> 
+[snip]
+> 
+> You may let me know if sym53c8xx_2 still works with 810 rev 2.
+> 
 
-Long term design arguments don't have to make the short-term
-implementation any more complex. I guess you presented a nice
-argument to go with the more flexible solution.
 
-cheers,
 
-Rik
--- 
-Shortwave goes a long way:  irc.starchat.net  #swl
+I tried the sym53c8xx_2 driver, put a fair load on the system (lots of sync'ing
+and swapping) and didn't seem to have any trouble.
 
-http://www.surriel.com/		http://distro.conectiva.com/
+Cheers,
+ Kirk Alexander
+
 

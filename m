@@ -1,83 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270584AbRHQToC>; Fri, 17 Aug 2001 15:44:02 -0400
+	id <S270618AbRHQToW>; Fri, 17 Aug 2001 15:44:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270618AbRHQTnx>; Fri, 17 Aug 2001 15:43:53 -0400
-Received: from e24.nc.us.ibm.com ([32.97.136.230]:65186 "EHLO
-	e24.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S270584AbRHQTni>; Fri, 17 Aug 2001 15:43:38 -0400
-Date: Fri, 17 Aug 2001 12:42:46 -0700 (PDT)
-From: Brian Beattie <bbeattie@sequent.com>
-To: Christoph Hellwig <hch@ns.caldera.de>
-cc: Brian Beattie <bbeattie@sequent.com>, linux-kernel@vger.kernel.org
-Subject: Re: md/multipath: Multipath, Multiport support and prototype patch
- for round robin routing (fwd)
-Message-ID: <Pine.PTX.4.10.10108171239370.25286-100000@eng2.beaverton.ibm.com>
+	id <S270639AbRHQToN>; Fri, 17 Aug 2001 15:44:13 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:57341 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S270618AbRHQToG>; Fri, 17 Aug 2001 15:44:06 -0400
+Message-ID: <3B7D703C.E2517636@mvista.com>
+Date: Fri, 17 Aug 2001 12:27:56 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: root@chaos.analogic.com
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Strange macros set HZ value for timer channel zero
+In-Reply-To: <Pine.LNX.3.95.1010817091911.6570A-100000@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Having a little trouble wity the email setup oin my laptop, (the first
-mail was sent on 7/23 but hid in my laptop untill I came back from
-vacation 8/15 :) ).
-
-Anyway here is my reply while I work on the laptop :).
-
-Brian Beattie
-IBM Linux Technology Center - MPIO/SAN
-bbeattie@sequent.com
-503.578.5899  Des2-3C-5
-
----------- Forwarded message ----------
-Date: Thu, 16 Aug 2001 17:42:24 -0700
-From: Brian Beattie <bbeattie@beaverton.ibm.com>
-To: Christoph Hellwig <hch@ns.caldera.de>
-Cc: Brian Beattie <bbeattie@beaverton.ibm.com>, linux-kernel@vger.kernel.org,
-     mingo@redhat.com
-Subject: Re: md/multipath: Multipath,
-     Multiport support and prototype patch for round robin routing
-
-On Wed, Aug 15, 2001 at 10:34:53PM +0200, Christoph Hellwig wrote:
-> In article <20010723133242.B970@dyn9-47-16-69.des.beaverton.ibm.com> you wrote:
-
+"Richard B. Johnson" wrote:
 > 
-> The second comment actually goes to you, Brian:  could you please try to
-> create unified diffs (diff -u)?  It's sooo much easier to read..
+> To whomever maintains the timer code, greetings.
 > 
-
-I'm just back from vacation and still getting back into the groove,
-I'll try to do that and post it in a day or two.
-
-
-> > + 
-> > + static struct multipath_dev_table multipath_dev_template = {
-> > +         "",
-> > + 	{
-> > + 		{MULTIPATH_ROUTING, "routing", NULL, sizeof(int), 0644,
-> > + 			NULL, &proc_dointvec},
+> When using Linux on the AMD SC520 chip, the system time will
+> not be correct because the PIT clock is 1.1882 MHz instead of
+> the usual 1.19318 MHz. Therefore, I put a conditional value
+> in ../linux/include/asm/timex.h .
 > 
-> Shouldn't this be a property of the md device, instead of a sysctl?
-> I planned to write that information in the md superblock for my design.
-
-I'm not sure what you mean here.  This is not a really complete thing
-here.  Adding the information to the superblock sounds, like a good idea,
-but I'm also looking at dynamically modifying the operating parameters.
-
+> #ifndef _ASMi386_TIMEX_H
+> #define _ASMi386_TIMEX_H
 > 
-> 	Christoph
+> #include <linux/config.h>
+> #include <asm/msr.h>
+> #ifdef SC520
+> #define CLOCK_TICK_RATE 1188200 /* Underlying HZ */
+> #else
+> #define CLOCK_TICK_RATE 1193180 /* Underlying HZ */
+> #endif
 > 
-> -- 
-> Of course it doesn't work. We've performed a software upgrade.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Something is wrong! I now gain 3 hours in a 12 hour period. There
+> are some calculations performed somewhere that result in the
+> wrong divisor for the timer (PIT). I don't understand any of the
+> SHIFT stuff, nor FINE_TUNE stuff. It all seems bogus although
+> it might be the "new math" that's biting me.
+> 
+> The correct value for 100 Hz should be 1188200/100 = 11882 = 0x2e6a
+> for the divisor. If I hard-code the value as a divisor in
+> /usr/src/linux/arch/i386/kernel/i8259.c,  it works. If I use the
+> #defines and macros in the headers, it doesn't.
+> 
+Seems hard to believe.  Try this:
 
--- 
-Brian Beattie
-IBM Linux Technology Center - MPIO/SAN
-bbeattie@sequent.com
-503.578.5899  Des2-3C-5
+cd ../arch/i386/kernel
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.7-hr/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe  -march=i586    -c -o i8259.o
+i8259.c -E
 
+(note the -E, the rest of the line is just cut from the make output, I
+usually make from a shell in emacs so all this output is available... 
+If you are cutting this line from this message, make sure you change the
+-I path to match your kernel location.)
+
+now exit i8259.c and search for your new number, i.e. 118820.  (Or if
+that fails search for "init_IRQ" and look at the outb_p in there.)  For
+the old 1192180 I find:
+
+	outb_p(0x34,0x43);		 
+	outb_p(((1193180  + 100 /2) / 100 )  & 0xff , 0x40);	 
+	outb(((1193180  + 100 /2) / 100 )  >> 8 , 0x40);	 
+
+Seems like the new number should do just what you need here.  The
+calibration in time.c is a little wonky, but that will not give the
+errors you are seeing, nor would your change of LATCH (I assume this is
+what you changed in i8259.c) affect that wonky stuff.
+
+Oh, by the way, you will want to purge i8259.o as make will assume it is
+up to date and try to merge it as a *.o file, which will fail rather
+badly.
+
+George

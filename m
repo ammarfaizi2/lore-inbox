@@ -1,78 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261307AbVCZVvf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261312AbVCZV5p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261307AbVCZVvf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Mar 2005 16:51:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261312AbVCZVve
+	id S261312AbVCZV5p (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Mar 2005 16:57:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbVCZV5p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Mar 2005 16:51:34 -0500
-Received: from [212.160.85.18] ([212.160.85.18]:4362 "EHLO
-	pc90.rabka.sdi.tpnet.pl") by vger.kernel.org with ESMTP
-	id S261307AbVCZVv3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Mar 2005 16:51:29 -0500
-Message-ID: <4245D8A9.1070406@dubielvitrum.pl>
-Date: Sat, 26 Mar 2005 22:48:25 +0100
-From: Leszek Dubiel <Leszek.Dubiel@dubielvitrum.pl>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: pl, en-us, en
-MIME-Version: 1.0
+	Sat, 26 Mar 2005 16:57:45 -0500
+Received: from exosec.net1.nerim.net ([62.212.114.195]:45871 "EHLO
+	mail-out1.exosec.net") by vger.kernel.org with ESMTP
+	id S261312AbVCZV5j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Mar 2005 16:57:39 -0500
+Date: Sat, 26 Mar 2005 22:57:33 +0100
+From: Willy Tarreau <wtarreau@exosec.fr>
 To: linux-kernel@vger.kernel.org
-Subject: IDE driver + kernel compilation options == disc detection
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Subject: linux-2.4.29-hf6 fixes 4 vulnerabilities
+Message-ID: <20050326215733.GA31786@exosec.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-DubielVitrum: delivered
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-I would like somebody more experienced to help me, because even though I 
-have read a lot about IDE kernel driver I didn't manage to find any 
-answer for the question I describe below. I have asked for quite time on 
-other groups but nobody helped me. I have gone through google on groups 
-and even if the problem of disk geometry was discussed a lot I didn't 
-find an answer.
+Here's the sixth hotfix for linux-2.4.29 :
 
-My system is Debian Woody. May disks are both set to LBA and I don't 
-change anything during experiment. On Ide0 and Ide1 there are two 
-identical Samsung disks 120Gb. Both have identical parameters in Bios. 
-Samsung documentation states that CHS=232632/16/63. On both are 
-identical partions (sfdisk -d /dev/hda | sfdisk /dev/hdc).
+   http://linux.exosec.net/kernel/2.4-hf/
 
-Now I compile the kernel twice -- first time I use original config of 
-Debian Woody, and then I start from scratch.
-Kernel version is 2.4.18.
+Note: this update fixes 2 oopses and 4 security vulnerabilities and is in
+sync with 2.4.30-rc3 :
 
-With first kernel (original from Debian Woody) discs are seen as:
+    CAN-2005-0400: kernel memory leak in ext2 mkdir()
+    CAN-2005-0750: bluetooth range checking bug
+    CAN-2005-0794: potential DOS in load_elf_library.
+    CAN-2005-0815: range checking flaws in isofs
 
-hda: 234493056 sectors (120060 MB) w/8192KiB Cache, CHS=232632/16/63
-hdc: 234493056 sectors (120060 MB) w/8192KiB Cache, CHS=232632/16/63
+Users of 2.4.29 and 2.4.29-hf up to and including hf5 are encouraged to
+upgrade either to -hf6 or to plain 2.4.30 when it emerges.
 
-while on my kernel it looks like:
+You'll find appended to this mail the small changelog from hf5.
 
-hda: 234493056 sectors (120060 MB) w/8192KiB Cache, CHS=14596/255/63
-hdc: 234493056 sectors (120060 MB) w/8192KiB Cache, CHS=232632/16/63
+Regards,
+Willy
 
+--
 
-Why during the second boot kernel didn't detect drive hda correctly? I 
-think the ide driver in both kernels is identical, so why discs are seen 
-differently? I know that disk geometry is only for lilo and [cfs]disk, 
-but kernel should be deterministic and detect disks always the same...
+Changelog From 2.4.29-hf5 to 2.4.29-hf6 (semi-automated)
+---------------------------------------
+'+' = added ; '-' = removed
 
-I ask you to help me, because I've been searching for answer quite a 
-long and no howtos, no lkml archives, no other resources gave me
-any hint to get an answer.
+Note: this update fixes 2 oopses and 4 security vulnerabilities :
 
-Thank you in advance.
-
-Leszek Dubiel
-www.glass.biz
-Poland
-
-PS. I know that I can work around this problem, I know how to force 
-cfdisk and lilo. The only thing I don't know is "WHY" they didn't get 
-detected the same with both kernels.
+    CAN-2005-0400: kernel memory leak in ext2 mkdir()
+    CAN-2005-0750: bluetooth range checking bug
+    CAN-2005-0794: potential DOS in load_elf_library.
+    CAN-2005-0815: range checking flaws in isofs
 
 
++ atm_get_addr-signedness-fix-1                                  (Simon Horman)
 
+  [PATCH] Backport v2.6 ATM copy-to-user signedness fix.
+  The signdness fix for atm_get_addr() in  2.6 seems to be needed for 2.4 as
+  well. This relates to the bugs reported in this document :
+  http://www.guninski.com/where_do_you_want_billg_to_go_today_3.html
 
++ af_bluetooth-checks-unsigned-only-1                         (marcel holtmann)
 
+  CAN-2005-0750: Fix af_bluetooth range checking bug, discovered by Ilja van
+  Sprundel <ilja@suresec.org>
+
++ ext2-mkdir-leaks-kernel-memory-1                              (mathieu lafon)
+
+  CAN-2005-0400: ext2 mkdir() directory entry random kernel memory leak.
+  I think I have discovered a potential security problem in ext2: when a new
+  directory is created, the ext2 block written to disk is not initialized.
+  An information leak can then be found after the two directory entries ('.'
+  and '..') or in the name buffer of each entry (struct ext2_dir_entry_2).
+  
++ load_elf_library-potential-dos-2                                 (Herbert Xu)
+
+  CAN-2005-0794: Potential DOS in load_elf_library.
+  Yichen Xie <yxie@cs.stanford.edu> points out that load_elf_library can
+  modify `elf_phdata' before freeing it. Contains latest mismerge fix from
+  Andreas Arens.
+
++ isofs-range-checking-flaws-1                                   (chris wright)
+
+  [PATCH] isofs: Handle corupted rock-ridge info slightly better.
+  Michal Zalewski <lcamtuf@dione.ids.pl> discovers range checking flaws in
+  iso9660 filesystem. CAN-2005-0815 is assigned to this issue.
+ 
++ degraded-soft-raid1-can-corrupt-data-1                           (Neil Brown)
+
+  [PATH] md: allow degraded raid1 array to resync after an unclean shutdown.
+  If a raid1 array has more than two devices, and not all are working,
+  then it will not resync after an unclean shutdown (as it will think
+  that it should reconstruct a failed drive, and will find there aren't
+  any spares...). Problem found by Mario Holbe.
+
++ usb-serial_write-oops-1                                        (Pete Zaitcev)
+
+  [PATCH] USB: fix oops in serial_write
+  When I split the __serial_write off serial_write, the former took the NULL
+  check away with it. However, the new serial_write still has an reference
+  remaining in down(&port->sem). Joachim Nilsson corrected me.
+
++ link_path_walk-refcount-problem-1                                (Greg Banks)
+
+  [PATCH] link_path_walk refcount problem allows umount of active filesystem
+  Following an absolute symlink opens a window during which the filesystem
+  containing the symlink has an outstanding dentry count and no outstanding
+  vfsmount count.  A umount() of the filesystem can (incorrectly) proceed,
+  resulting in the "Busy inodes after unmount" message and an oops shortly
+  thereafter.
+  
++ netlink-multicast-bind-race-1                                    (Herbert Xu)
+
+  [NETLINK]: Fix multicast bind/autobind race.
+  Now it is possible for netlink_bind to race against netlink_autobind running
+  on the same socket on another CPU.  The result would be a socket that's on
+  mc_list with groups set to zero. This socket will be left on the list even
+  after it is destroyed. The fix is to remove the zeroing in netlink_autobind.
+
++ tun-check-for-underflow-1                                   (Patrick McHardy)
+
+  [TUN]: Fix check for underflow. Backport fix from 2.6.x.
+
++ tcp-bic-reset-cwnd-on-loss-1                              (Stephen Hemminger)
+
+  [TCP]: BIC not binary searching correctly. 2.4 version of same fix as 2.6.11.
+  The problem is that BIC is supposed to reset the cwnd to the last loss value
+  rather than ssthresh when loss is detected.  The correct code (from the BIC
+  TCP code for Web100) is in this patch.
+
++ useless-f_count-leaves-fs-busy-1                                 (Neil Brown)
+
+  [PATCH] nlm: fix f_count leak
+  I can't see any reason for this file->f_count++.  Removing it fixes a bug
+  which leaves an exported filesystem busy (and so unmountable) if a callback
+  for a lock held on that filesystem ever failed. Found by Terence Rokop.
+
+--
 

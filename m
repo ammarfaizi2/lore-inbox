@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310222AbSCFWBq>; Wed, 6 Mar 2002 17:01:46 -0500
+	id <S310261AbSCFWFG>; Wed, 6 Mar 2002 17:05:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310219AbSCFWBh>; Wed, 6 Mar 2002 17:01:37 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5133 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310222AbSCFWBY>;
-	Wed, 6 Mar 2002 17:01:24 -0500
-Message-ID: <3C8691C9.30FA3C29@mandrakesoft.com>
-Date: Wed, 06 Mar 2002 17:01:45 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ion Badulescu <ionut@cs.columbia.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] starfire net driver update for 2.4.19pre2
-In-Reply-To: <Pine.LNX.4.44.0203061652050.31906-100000@age.cs.columbia.edu>
+	id <S310240AbSCFWE4>; Wed, 6 Mar 2002 17:04:56 -0500
+Received: from gull.mail.pas.earthlink.net ([207.217.120.84]:22182 "EHLO
+	gull.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S310283AbSCFWEm>; Wed, 6 Mar 2002 17:04:42 -0500
+Date: Wed, 6 Mar 2002 17:09:51 -0500
+To: gyro@zeta-soft.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Performance issue on dual Athlon MP
+Message-ID: <20020306170951.A31564@rushmore>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ion Badulescu wrote:
-> 
-> On Wed, 6 Mar 2002, Jeff Garzik wrote:
-> 
-> > There is a bugfix, which I will make locally before submitting:
-> > PCI_COMMAND_INVALIDATE should be enabled -after- messing with
-> > PCI_CACHE_LINE_SIZE.
-> 
-> I didn't find anything in the starfire chipset's documentation about this,
-> so is there a deeper reason for this ordering? As far as I know, most if
-> not all x86 PCI chipsets silently map MWI to MW, so it should only matter
-> for non-x86 plaforms, right?
+> I have a dual Athlon MP box (Tyan S2460 Tiger MP, 1.53 GHz, 2.5 GB Corsair
+> PC2100).  The initial installation was of SuSE 7.3, but I have upgraded to
+> 2.4.17 with Andrea's 3.5 GB userspace patch.
 
-More PCI than a Starfire requirement.
+> Is this a known problem with 2.4.17 and/or the 3.5 GB userspace patch?  I
+> have not tried turning off the 3.5 GB config option (`CONFIG_05GB').  I do
+> have `CONFIG_MK7' set.
 
-And there are plenty of ia32 platforms that benefit from MWI, too. 
-Often its server mobos that support MWI, but some cheaper ones do too.
+The configuration I would try first on 2.4.19pre1aa1 with 2.5 GB of RAM is 
+CONFIG_3GB=y and CONFIG_NOHIGHMEM=y.  If that causes some other problem,
+I'd go with CONFIG_2GB, then finally CONFIG_1GB.  Each config changes
+the user/kernel memory split.  The loads I've run suggest for best 
+performance:
 
+	CONFIG_2GB > CONFIG_1GB > CONFIG_05GB
 
-> And, in general, are there any other tricks one can do to speed up the PCI
-> transactions on non-x86 platforms? I'm still getting occasional overruns
-> on sparc64 (card receiving packets faster than it can push them over PCI),
-> which is somewhat disturbing..
+On my 1GB box, I've been running CONFIG_2GB for a couple months and 
+performance is great.  Only lingering question for me is the handling
+of oom.  Oom hasn't caused be a problem, but I haven't seen the oom
+killer do it's work when I create an oom condition.
 
-Dynamically tune your RX and TX DMA burst settings when you notice these
-conditions...  It is indeed possible to saturate PCI bus bandwidth.
+BTW, Andrew Morton's read_latency2 patch is a winner.  The read_latency2
+diff I use on my 2.4.19pre1aa1 boxes is at:
 
-	Jeff
-
+http://home.earthlink.net/~rwhron/kernel/read_latency2-2.4.19pre1aa1.diff
 
 -- 
-Jeff Garzik      | Usenet Rule #2 (John Gilmore): "The Net interprets
-Building 1024    | censorship as damage and routes around it."
-MandrakeSoft     |
+Randy Hron
+

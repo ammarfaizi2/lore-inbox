@@ -1,61 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267712AbTACWyC>; Fri, 3 Jan 2003 17:54:02 -0500
+	id <S267711AbTACWus>; Fri, 3 Jan 2003 17:50:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267713AbTACWyC>; Fri, 3 Jan 2003 17:54:02 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:39943
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S267712AbTACWyB>; Fri, 3 Jan 2003 17:54:01 -0500
-Date: Fri, 3 Jan 2003 15:01:51 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Richard Stallman <rms@gnu.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Gauntlet Set NOW!
-In-Reply-To: <E18UYTG-0004yu-00@fencepost.gnu.org>
-Message-ID: <Pine.LNX.4.10.10301031425590.421-100000@master.linux-ide.org>
+	id <S267706AbTACWus>; Fri, 3 Jan 2003 17:50:48 -0500
+Received: from elixir.e.kth.se ([130.237.48.5]:2568 "EHLO elixir.e.kth.se")
+	by vger.kernel.org with ESMTP id <S267711AbTACWuq>;
+	Fri, 3 Jan 2003 17:50:46 -0500
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Richard Stallman <rms@gnu.org>, efault@gmx.de, Hell.Surfers@cwctv.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: Nvidia and its choice to read the GPL "differently"
+References: <E18UYTD-0004ye-00@fencepost.gnu.org>
+	<20030103212817.A11278@infradead.org>
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: 03 Jan 2003 23:59:13 +0100
+In-Reply-To: Christoph Hellwig's message of "Fri, 3 Jan 2003 21:28:17 +0000"
+Message-ID: <yw1x8yy1on5q.fsf@gladiusit.e.kth.se>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Christoph Hellwig <hch@infradead.org> writes:
 
-Richard,
+> Calling it GNU/Linux is 1984-style changing of history, though.
 
-I am going to sell and ship binary only models which is solely a protocol.
-One which is in a working group and is not an offical document but will be
-ratified soon.
+Yeah, the GNU project was started in 1984.
 
-I will not release the source code period.  It is not a derived work.
-It can and will be capable of running it on other unixs as well has have a
-version for microsoft and maybe apple.
-
-The API and boundary will execute all kernel operations and calls outside
-of the core protocol.  There is no hardware period.  It is pure software.
-I am prepared to show the the source of the API callers; however, given
-the anal nature of the review I expect.  I need a few more days to extract
-every damn possible kernel function or caller that is even close to my
-property.  The object generated from that file will then be linked with a
-private closed source library, which may or may not be setup under LGPL.
-
-This would be the Library GPL and not the updated Lesser GPL.
-But I am not prepared to set this position yet.
-
-Are you prepared to SUE me ?
-Are you prepared to SUE others like me ?
-Are you prepared to SUE every company in Silicon Valley for embedded ?
-Are you prepared to SUE every settop box vendor ?
-
-Either, put up or walk on this issue.
-
-Fear, Threats, and Intimidation resulting from a willful grey zone so
-clearly and cleverly designed by yourself is not acceptable.
-
-Since I am in a position of loosing revenue today because of this silly
-issue of usage of headers and not any inline code inside them, I will seek
-counter damages if I am forced into litigation.
-
-Regards,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
+-- 
+Måns Rullgård
+mru@users.sf.net

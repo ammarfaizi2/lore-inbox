@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262202AbVATRp3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbVATRtz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262202AbVATRp3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 12:45:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbVATRp2
+	id S261298AbVATRtz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 12:49:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261383AbVATRty
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 12:45:28 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:38333 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S262232AbVATRpB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 12:45:01 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.11-rc1-mm2: CONFIG_SMP=n compile error
-Date: Thu, 20 Jan 2005 18:44:59 +0100
-User-Agent: KMail/1.7.1
-Cc: Adrian Bunk <bunk@stusta.de>, ak@suse.de, linux-kernel@vger.kernel.org
-References: <20050119213818.55b14bb0.akpm@osdl.org> <20050120065318.GA3170@stusta.de> <20050119231210.51a24cbc.akpm@osdl.org>
-In-Reply-To: <20050119231210.51a24cbc.akpm@osdl.org>
+	Thu, 20 Jan 2005 12:49:54 -0500
+Received: from fw.osdl.org ([65.172.181.6]:58266 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261298AbVATRtA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 12:49:00 -0500
+Date: Thu, 20 Jan 2005 09:48:47 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Peter Chubb <peterc@gelato.unsw.edu.au>, Chris Wedgwood <cw@f00f.org>,
+       Andrew Morton <akpm@osdl.org>, paulus@samba.org,
+       linux-kernel@vger.kernel.org, tony.luck@intel.com,
+       dsw@gelato.unsw.edu.au, benh@kernel.crashing.org,
+       linux-ia64@vger.kernel.org, hch@infradead.org, wli@holomorphy.com,
+       jbarnes@sgi.com
+Subject: Re: [patch 1/3] spinlock fix #1, *_can_lock() primitives
+In-Reply-To: <20050120164038.GA15874@elte.hu>
+Message-ID: <Pine.LNX.4.58.0501200947440.8178@ppc970.osdl.org>
+References: <16878.9678.73202.771962@wombat.chubb.wattle.id.au>
+ <20050119092013.GA2045@elte.hu> <16878.54402.344079.528038@cargo.ozlabs.ibm.com>
+ <20050120023445.GA3475@taniwha.stupidest.org> <20050119190104.71f0a76f.akpm@osdl.org>
+ <20050120031854.GA8538@taniwha.stupidest.org> <16879.29449.734172.893834@wombat.chubb.wattle.id.au>
+ <Pine.LNX.4.58.0501200747230.8178@ppc970.osdl.org> <20050120160839.GA13067@elte.hu>
+ <Pine.LNX.4.58.0501200823010.8178@ppc970.osdl.org> <20050120164038.GA15874@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501201845.00653.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, 20 of January 2005 08:12, Andrew Morton wrote:
-> Adrian Bunk <bunk@stusta.de> wrote:
-> >
-> > arch/i386/kernel/nmi.c:130: error: `cpu_callin_map' undeclared (first use in this function)
+
+
+On Thu, 20 Jan 2005, Ingo Molnar wrote:
 > 
-> --- 25/arch/i386/kernel/nmi.c~i386-x86-64-fix-smp-nmi-watchdog-race-fix	2005-01-19 23:03:08.946815320 -0800
-> +++ 25-akpm/arch/i386/kernel/nmi.c	2005-01-19 23:05:07.968721240 -0800
-> @@ -117,8 +117,10 @@ int __init check_nmi_watchdog (void)
->  	/* FIXME: Only boot CPU is online at this stage.  Check CPUs
->             as they come up. */
->  	for (cpu = 0; cpu < NR_CPUS; cpu++) {
-> +#ifdef CONFIG_SMP
->  		if (!cpu_isset(cpu, cpu_callin_map))
->  			continue;
-> +#endif
->  		if (nmi_count(cpu) - prev_nmi_count[cpu] <= 5) {
->  			printk("CPU#%d: NMI appears to be stuck!\n", cpu);
->  			nmi_active = 0;
-> diff -puN include/asm-i386/smp.h~i386-x86-64-fix-smp-nmi-watchdog-race-fix include/asm-i386/smp.h
+> You are right about UP, and the patch below adds the UP variants. It's
+> analogous to the existing wrapping concept that UP 'spinlocks' are
+> always unlocked on UP. (spin_can_lock() is already properly defined on
+> UP too.)
 
-Similar fix is necessary for x86-64, it appears.
+Looking closer, it _looks_ like the spinlock debug case never had a 
+"spin_is_locked()" define at all. Or am I blind? Maybe UP doesn't 
+want/need it after all?
 
-Greets,
-RJW
-
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+		Linus

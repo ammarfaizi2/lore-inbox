@@ -1,70 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130216AbQJ2S2B>; Sun, 29 Oct 2000 13:28:01 -0500
+	id <S130260AbQJ2SdF>; Sun, 29 Oct 2000 13:33:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130260AbQJ2S1v>; Sun, 29 Oct 2000 13:27:51 -0500
-Received: from lolita.speakeasy.net ([216.254.0.13]:21320 "HELO
-	lolita.speakeasy.net") by vger.kernel.org with SMTP
-	id <S130216AbQJ2S1m>; Sun, 29 Oct 2000 13:27:42 -0500
-Message-ID: <39FC78BF.90607@speakeasy.org>
-Date: Sun, 29 Oct 2000 11:21:35 -0800
-From: Miles Lane <miles@speakeasy.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-test10 i686; en-US; m18) Gecko/20001025
-X-Accept-Language: en
+	id <S131315AbQJ2Scp>; Sun, 29 Oct 2000 13:32:45 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:24048 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S130260AbQJ2Scc>;
+	Sun, 29 Oct 2000 13:32:32 -0500
+Date: Sun, 29 Oct 2000 13:32:24 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Paul Mackerras <paulus@linuxcare.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: page->mapping == 0
+In-Reply-To: <Pine.LNX.4.10.10010290957570.18939-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0010291308260.27484-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Rui Sousa <rsousa@grad.physics.sunysb.edu>,
-        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: Blocked processes <=> Elevator starvation?
-In-Reply-To: <20001027134603.A513@suse.de> <Pine.LNX.4.21.0010280408520.1157-100000@localhost.localdomain> <20001027202710.A825@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
 
-> On Sat, Oct 28 2000, Rui Sousa wrote:
-> 
->> After adding
->> 
->> #define ELEVATOR_HOLE_MERGE     3
->> 
->> to linux/include/linux/elevator.h it compiled ok.
-> 
-> 
-> Oops sorry, I'm on the road so the patch was extracted
-> from my packet writing tree (and not my regular tree).
-> 
-> 
->> There were still some stalls but they only lasted a couple of
->> seconds. The patch did make a difference and for the better.
-> 
-> 
-> Ok, still needs a bit of work. Thanks for the feedback.
 
-Have you resolved this problem completely, now?
+On Sun, 29 Oct 2000, Linus Torvalds wrote:
 
-I am testing the USB Storage support with my ORB backup
-drive.  When I run:
+> approach for 2.4.x where we just re-test against the file size in multiple
+> places where this can happen - but it would be nicer to handle this more
+> cleanly.
 
-	dd if=/dev/zero of=/dev/sda bs=1k count=2G
+One possible way is to access page->mapping _only_ under the page lock
+and in cases when we call ->i_mapping->a_ops->foo check the ->mapping
+before the method call.
 
-The drive gets data quickly for about thirty seconds.
-Then the throughput drops off to about ten percent
-of its previous transfer rate.  This dropoff appears to
-be due to conflict over accessing filesystems.  Specifically,
-I have USB_STORAGE_DEBUG enabled, which shoots a ton of
-debugging output into my kernel log.  When the throughput
-to the ORB drive falls off, all writing to the syslog
-ceases.  At least, that's what "tail -f" shows.
+> There are a few details that still elude me, the main one being the big
+> question about why this started happening to so many people just recently.
+> The bug is not new, and yet it's become obvious only in the last few
+> weeks.
 
-I would be happy to test any patches you have for this
-problem.
+And original truncate() problems went undetected since...? Pattern looks
+very similar. Petr posted bug reports long time ago - back then they
+were ignored since they involved vmware. In both cases we had persistent
+problems caught by few people who were using not-too-common combinations
+(innd on 2.4 boxen, for example) and at some point the shit had hit the
+fan big way. No amount of testing can prove that there is no bugs and all
+such...
 
-I hope this helps,
+I would expect problems with truncate, mmap, rename, POSIX locks, fasync,
+ptrace and mount go unnoticed for _long_. Ditto for parts of procfs
+proper that are not exercised by ps and friends. Sigh...
 
-	Miles
+Maybe something along the lines of BTS might be useful, hell knows.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

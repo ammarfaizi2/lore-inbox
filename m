@@ -1,98 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267184AbTBPQM6>; Sun, 16 Feb 2003 11:12:58 -0500
+	id <S267120AbTBPQRN>; Sun, 16 Feb 2003 11:17:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267203AbTBPQM6>; Sun, 16 Feb 2003 11:12:58 -0500
-Received: from 12-237-214-24.client.attbi.com ([12.237.214.24]:14620 "EHLO
-	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S267184AbTBPQMz>;
-	Sun, 16 Feb 2003 11:12:55 -0500
-Message-ID: <3E4FBAD0.4040808@acm.org>
-Date: Sun, 16 Feb 2003 10:22:40 -0600
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021204
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Corey Minyard <cminyard@mvista.com>,
-       Werner Almesberger <wa@almesberger.net>,
-       Zwane Mwaikambo <zwane@holomorphy.com>, suparna@in.ibm.com,
-       Kenneth Sumrall <ken@mvista.com>, linux-kernel@vger.kernel.org,
-       lkcd-devel@lists.sourceforge.net
-Subject: Re: Kexec, DMA, and SMP
-References: <3E4914CA.6070408@mvista.com> <m1of5ixgun.fsf@frodo.biederman.org>	<3E4A578C.7000302@mvista.com> <m13cmty2kq.fsf@frodo.biederman.org>	<3E4A70EA.4020504@mvista.com> <20030214001310.B2791@almesberger.net>	<3E4CFB11.1080209@mvista.com> <20030214151001.F2092@almesberger.net>	<3E4D3419.1070207@mvista.com>	<Pine.LNX.4.50.0302141420220.3518-100000@montezuma.mastecende.com>	<20030214164436.H2092@almesberger.net> <3E4D4ADF.3070109@mvista.com> <m17kc26pxs.fsf@frodo.biederman.org>
-In-Reply-To: <m17kc26pxs.fsf@frodo.biederman.org>
-X-Enigmail-Version: 0.71.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267143AbTBPQRM>; Sun, 16 Feb 2003 11:17:12 -0500
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:50119 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id <S267120AbTBPQRL>; Sun, 16 Feb 2003 11:17:11 -0500
+Date: Sun, 16 Feb 2003 17:27:00 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: =?iso-8859-1?Q?Ga=EBl?= Le Mignot <kilobug@freesurf.fr>
+Cc: Larry McVoy <lm@work.bitmover.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: openbkweb-0.0
+Message-ID: <20030216162700.GA24184@wohnheim.fh-wedel.de>
+References: <20030214235724.GA24139@work.bitmover.com> <Pine.LNX.4.44.0302151207390.13273-100000@xanadu.home> <20030215181211.GA12315@work.bitmover.com> <plopm3wuk02soi.fsf@drizzt.kilobug.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <plopm3wuk02soi.fsf@drizzt.kilobug.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sun, 16 February 2003 15:42:21 +0100, Gaël Le Mignot wrote:
+> 
+> By threating to use patents to prevent us for ever using the same idea
+> as you do (even if they grew up in our own minds), you've just added a
+> last proof to the fact that you don't care at all about Free Software,
+> and even  Open Source  or the  Linux kernel, but  just care  about the
+> money you can earn.
 
-Eric W. Biederman wrote:
+Money is a valid concern. Developers want to eat too, they might even
+have families. So let's put things into perspective.
 
-|Corey Minyard <cminyard@mvista.com> writes:
-|
-|>|
-|>|(So adding a special mode to the power management code may
-|>|be too much overhead. Besides, sometimes, you can just pull
-|>|a reset line, and don't have to do anything even remotely
-|>|related to power management.)
-|>
-|>True, I didn't mean the high-level power management code directly.  
-But the
-|>PCI API defines a suspend operation that could take a special mode for 
-this.
-|
-|
-|The generic device api has a shutdown method for this.  And in the non 
-panic
-|case we use it.  Not a lot of devices have it implemented but it exists.
-|
-|And except that it doesn't have a restriction that it can't block is pretty
-|much what you want.
+The market for Linux developers (Linux as in the kernel) consists
+mainly of the big processor and/or server manufacturers. Some
+developers work directly for them, some indirectly through a
+distributor.
 
-That's a pretty big restriction.  Plus, you can't claim spinlocks.
+Processors and Servers are hardware, so those manufacturers basically
+give Linux away for free, but have you pay for the hardware
+afterwards. In the end, they make damn sure that you (yes, you) pay
+for Linux development.
 
-The panic shutdown is different from an orderly shutdown.  What the 
-current shutdown does is probably not what you want.
+For SCM, there is no attached hardware. This is not just a different
+piece of software, it is a different business model. The customers pay
+for the software directly or not at all. Therefore a free software
+model has very little funding.
 
-|
-|>Or maybe a new field in the PCI structure (and equivalent for other 
-things, if
-|>there are any).  But the suspend and resume operations should at least 
-give
-|>a good idea where its needed and how to use it.
-|
-|
-|The API is already done...
-
-The API is not done for panics.  There's no call that has the proper 
-semantics.
-
-|
-|
-|We just don't trust the dying kernel enough to use it during a panic.
-
-I don't understand this.  If you can't trust a dying kernel to properly 
-shut down devices, how can you trust it to boot a new kernel?  And (much 
-worse) if you don't shut down the devices, how can you trust the new 
-kernel to execute properly?  I know there are levels of trust here, but 
-I'd much rather have the kernel lockup during the reboot than have a 
-chance of a new kernel booting that could behave incorrectly.  In 
-general, the chance of behaving incorrectly is MUCH worse than a sure 
-lockup, especially in systems that must be reliable.
-
-- -Corey
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQE+T7rOIXnXXONXERcRAksfAJ9kVRD2S9OK5siBqAPMkbfi2iS2fgCeM3hw
-Fjp2LXiNEURU+HNrByOGVBQ=
-=5sxh
------END PGP SIGNATURE-----
+The result of this is clearly visible. CVS is far from generating
+income for the developers. This means less developers and most of
+those work in their free time. Development is slow.
+Bitkeeper has paying customers and generated some $4M already, which
+is used to pay developers. The result is faster development. While
+started later than CVS, Bitkeeper is already closer to the goal.
 
 
+I don't like the bitkeeper license any more than you, but I have to
+admit that Larry has figured out a way to fund SCM. And that helps the
+Free Software movement, too. Now most people working on SCM projects
+have a common idea, where to go. This helps to coordinate people and
+speeds up development.
+
+Larry knows this and is concerned about his income, but even with
+software patents and such he will have a hard time to slow development
+down more than he accelerated it by creating Bitkeeper. So calm down,
+thing are not any worse than they would be without Larry.
+
+Jörn
+
+-- 
+If you're willing to restrict the flexibility of your approach,
+you can almost always do something better.
+-- John Carmack

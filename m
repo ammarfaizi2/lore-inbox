@@ -1,56 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261209AbULRR5o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbULRSGD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261209AbULRR5o (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Dec 2004 12:57:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261210AbULRR5o
+	id S261210AbULRSGD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Dec 2004 13:06:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261213AbULRSGD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Dec 2004 12:57:44 -0500
-Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:51643 "EHLO mta1.cl.cam.ac.uk")
-	by vger.kernel.org with ESMTP id S261209AbULRR5m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Dec 2004 12:57:42 -0500
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Andi Kleen <ak@suse.de>, Rik van Riel <riel@redhat.com>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org,
-       Ian Pratt <Ian.Pratt@cl.cam.ac.uk>, Steven.Hand@cl.cam.ac.uk,
-       Christian.Limpach@cl.cam.ac.uk, Keir.Fraser@cl.cam.ac.uk,
-       Ian.Pratt@cl.cam.ac.uk
-Subject: Re: arch/xen is a bad idea 
-In-reply-to: Your message of "Fri, 17 Dec 2004 08:05:52 PST."
-             <20041217160552.GZ771@holomorphy.com> 
-Date: Sat, 18 Dec 2004 17:57:22 +0000
-From: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
-Message-Id: <E1CfipX-0005cs-00@mta1.cl.cam.ac.uk>
+	Sat, 18 Dec 2004 13:06:03 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1951 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261210AbULRSFv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Dec 2004 13:05:51 -0500
+Date: Sat, 18 Dec 2004 13:02:26 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: James Pearson <james-p@moving-picture.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: Reducing inode cache usage on 2.4?
+Message-ID: <20041218150226.GC31040@logos.cnet>
+References: <41C316BC.1020909@moving-picture.com> <20041217151228.GA17650@logos.cnet> <41C37AB6.10906@moving-picture.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41C37AB6.10906@moving-picture.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, Dec 14, 2004 at 07:59:50PM +0100, Andi Kleen wrote:
-> > I suspect xen64 will be rather different from xen32 anyways
-> > because as far as I can see the tricks Xen32 uses to be
-> > fast (segment limits) just plain don't work on 64bit
-> > because the segments don't extend into 64bit space.
-> > So having both in one architecture may also end up messy.
-> > And i386 and x86-64 are in many pieces very different anyways,
-> > I have my doubts that trying to mesh them together in arch/xen
-> > will be very pretty.
+On Sat, Dec 18, 2004 at 12:32:54AM +0000, James Pearson wrote:
+> Marcelo Tosatti wrote:
+> >
+> >>Or am I looking in completely the wrong place i.e. the inode cache is 
+> >>not the problem?
+> >
+> >
+> >No, in your case the extreme inode/dcache sizes indeed seem to be a 
+> >problem. 
+> >The default kernel shrinking ratio can be tuned for enhanced reclaim 
+> >efficiency.
+> >
+> >
+> >>xfs_inode         931428 931428    408 103492 103492    1 :  124   62
+> >>dentry_cache      499222 518850    128 17295 17295    1 :  252  126
+> >
+> >
+> >vm_vfs_scan_ratio:
+> >------------------
+> >is what proportion of the VFS queues we will scan in one go.
+> >A value of 6 for vm_vfs_scan_ratio implies that 1/6th of the
+> >unused-inode, dentry and dquot caches will be freed during a
+> >normal aging round.
+> >Big fileservers (NFS, SMB etc.) probably want to set this
+> >value to 3 or 2.
+> >
+> >The default value is 6.
+> >=============================================================
+> >
+> >Tune /proc/sys/vm/vm_vfs_scan_ratio increasing the value to 10 and so on 
+> >and examine the results.
 > 
-> I have an inkling that the xen implementors may have plots of
-> additional architecture ports. If it really is x86/x86-64 -only it
-> isn't worth bothering with a separate arch/ dir, but it would be if it
-> were ported to a large number of architectures.
+> Thanks for the info - but doesn't increasing the value of 
+> vm_vfs_scan_ratio mean that less of the caches will be freed?
 
-For non x86 architectures, the changes required are typically
-much less, and it makes sense to integrate them into the normal
-architecture tree. This is what has been done with ia64, and will
-be done with ppc. i386 and x86_64 are a special case where the
-extensive changes required justify having an arch xen directory
-with i386 and x86_64 subtrees beneath it (although many files are
-just linked from the normal architecture).
+Right - what I said was wrong - its the other way around:
+Decreasing the value increases the percentage of VFS caches scanned at each "aging pass".
 
-> Maybe they're modelling it after UML which has its own arch/ dir but
-> then grabs assorted things from other architectures; in that event I
-> wouldn't consider it so misguided.
+Now Andrew's changed the ageing round pass. 
 
-Yep, that's the model, for the x86 family.
+Quoting him "If the machine is full of unmapped clean pagecache pages the kernel 
+won't even try to reclaim inodes".
 
-Ian
+vm_vfs_scan_ratio now is more meaningful. 
+
+kswapd is awaken as soon as a zone's low watermark is reached, and will
+work to free pages until it reaches the zone's high watermark.
+
+There are three zones: DMA (1) , Normal (2) and Highmem (3).
+
+ * On machines where it is needed (eg PCs) we divide physical memory
+ * into multiple physical zones. On a PC we have 3 zones:
+ *
+ * ZONE_DMA       < 16 MB       ISA DMA capable memory
+ * ZONE_NORMAL  16-896 MB       direct mapped by the kernel
+ * ZONE_HIGHMEM  > 896 MB       only page cache and user processes
+
+So these thresolds are used to calculate each zone's min, low and high
+watermarks using the following calculation (mm/page_alloc.c):
+
+	mask = (realsize / zone_balance_ratio[j]);
+	if (mask < zone_balance_min[j])
+     	mask = zone_balance_min[j];
+              else if (mask > zone_balance_max[j])
+                        mask = zone_balance_max[j];
+                zone->watermarks[j].min = mask;
+                zone->watermarks[j].low = mask*2;
+                zone->watermarks[j].high = mask*3;
+
+To trigger the normal aging round earlier the "low" watermark has to be increased,
+but you better increase the "high" watermark which makes kswapd work up longer
+until such high free page watermark is reached, one can try for example
+
+ zone->watermarks[j].high = mask*4
+
+But hopefully you wont need such modification (it would be nice if they were all boot 
+configurable BTW) with Andrew's change.

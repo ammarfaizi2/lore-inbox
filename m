@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287907AbSAPVab>; Wed, 16 Jan 2002 16:30:31 -0500
+	id <S287919AbSAPVcJ>; Wed, 16 Jan 2002 16:32:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287896AbSAPVaZ>; Wed, 16 Jan 2002 16:30:25 -0500
-Received: from roc-24-95-199-137.rochester.rr.com ([24.95.199.137]:31982 "EHLO
-	filestore.kroptech.com") by vger.kernel.org with ESMTP
-	id <S287882AbSAPVaC>; Wed, 16 Jan 2002 16:30:02 -0500
-Message-ID: <056c01c19ed4$f0e77300$02c8a8c0@kroptech.com>
-From: "Adam Kropelin" <akropel1@rochester.rr.com>
-To: "Andrea Arcangeli" <andrea@suse.de>, <linux-kernel@vger.kernel.org>
-Cc: "Rik van Riel" <riel@conectiva.com.br>
-In-Reply-To: <20020116200459.E835@athlon.random>
-Subject: Re: Rik spreading bullshit about VM
-Date: Wed, 16 Jan 2002 16:29:54 -0500
+	id <S287918AbSAPVcA>; Wed, 16 Jan 2002 16:32:00 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:16143 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S287881AbSAPVbw>;
+	Wed, 16 Jan 2002 16:31:52 -0500
+Date: Wed, 16 Jan 2002 19:31:42 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: christian e <cej@ti.com>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: aa works for me..rrmap didn't
+In-Reply-To: <3C45ED3A.7060403@ti.com>
+Message-ID: <Pine.LNX.4.33L.0201161923450.32617-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-X-OriginalArrivalTime: 16 Jan 2002 21:29:55.0516 (UTC) FILETIME=[F0E947C0:01C19ED4]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-<snip>
->I don't have a single bugreport about the current 2.4.18pre2aa2 VM (except 
->perhaps the bdflush wakeup that seems to be a little too late and that deals to 
->lower numbers with slow write load etc.., fixable with bdflush tuning). 
+On Wed, 16 Jan 2002, christian e wrote:
 
-I don't know if this is a reference to the issue I reported under the "Writeout in
-recent kernels..." thread or not. If not, my apologies for clogging up this new
-"discussion".
+> I think that's about it ;-)
+>
+> And I did the echo 500 > /proc/sys/vm/vm_mapped_ratio with the aa patch..
 
-As reported[0] in the above-mentioned thread, the bdflush tuning parameters
-you suggested made no difference in my test case other than slightly adjusting
-the temporal relationship between writeout and file transfer. -aa still performs
-slightly worse than both 2.4.17 stock and -rmap. 2.4.13-ac7 currently beats
-all competitors.
+Ahhhhh ok.
 
---Adam
+I think your workload (leaving a huge process inactive for
+a few minutes, then switching desktops to that process)
+really does need a special VM tuning knob.
 
-[0] http://www.kroptech.com:8300/mailimport/showmsg.php?msg_id=49746&db_name=linux_kernel
+I guess I'll add a knob like this to the -rmap VM.
+
+I'll try to keep it a bit simpler than vm_max_mapped too,
+it would seem it's possible to set vm_max_mapped so high
+that the box will refuse swapping under any circumstance
+and the box will just crash if you have too much RAM ;)))
+(then again, root can always do this)
+
+regards,
+
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,75 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263102AbTKESjd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 13:39:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbTKESjc
+	id S263090AbTKEShM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 13:37:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263098AbTKEShM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 13:39:32 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:56247 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S263102AbTKESjY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 13:39:24 -0500
-Date: Wed, 5 Nov 2003 19:34:00 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: "Alexandra N. Kossovsky" <sasha@oktet.ru>
-Cc: linux-kernel@vger.kernel.org, ShuChen <shuchen@realtek.com.tw>,
-       netdev@oss.sgi.com
-Subject: Re: r8169 with big-endian (patch)
-Message-ID: <20031105193400.A12375@electric-eye.fr.zoreil.com>
-References: <20031105104625.D26209@oktet.ru>
-Mime-Version: 1.0
+	Wed, 5 Nov 2003 13:37:12 -0500
+Received: from web11304.mail.yahoo.com ([216.136.131.207]:7186 "HELO
+	web11304.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263090AbTKEShH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Nov 2003 13:37:07 -0500
+Message-ID: <20031105183611.86413.qmail@web11304.mail.yahoo.com>
+Date: Wed, 5 Nov 2003 10:36:11 -0800 (PST)
+From: Alex Deucher <agd5f@yahoo.com>
+Subject: Re: Suspend and AGP in 2.6.0-test9
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20031105104625.D26209@oktet.ru>; from sasha@oktet.ru on Wed, Nov 05, 2003 at 10:46:26AM +0300
-X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+See these pages:
+http://cpbotha.net/dri_resume.html
 
-Alexandra N. Kossovsky <sasha@oktet.ru> :
-[...]
-> Here is the patch to make RTL-8169 PCI Gbit ethernet card to work with
-> big-endian host. The patch is against 2.4.22 kernel.
+you will need a patch for your agp chipset as well, although it seems
+just re-running the configure() call should work, at least so the page
+claims for intel and via chips.
 
-Please Cc: such patches to netdev@oss.sgi.com as well as jgarzik@pobox.com.
+Alex
 
-[...]
-> @@ -664,19 +675,21 @@
->  	}
->  
->  	tp->TxDescArrays =
-> -	    kmalloc(NUM_TX_DESC * sizeof (struct TxDesc) + 256, GFP_KERNEL);
-> +	    pci_alloc_consistent(tp->pci_dev,
-> +				 NUM_TX_DESC * sizeof (struct TxDesc) + 256, 
-> +				 &tp->TxDescDmaAddrs);
-> -	TxPhyAddr = virt_to_bus(tp->TxDescArrays);
-> -	diff = 256 - (TxPhyAddr - ((TxPhyAddr >> 8) << 8));
-> -	TxPhyAddr += diff;
-> +	diff = 256 - (tp->TxDescDmaAddrs - ((tp->TxDescDmaAddrs >> 8) << 8));
-> +	tp->TxDescDmaAddr = tp->TxDescDmaAddrs + diff;
->  	tp->TxDescArray = (struct TxDesc *) (tp->TxDescArrays + diff);
+------------------------------
 
-Remove the alignment stuff. pci_alloc_consistent() does it for you,
-see Documentation/DMA-mapping.txt:
-[...]
-The cpu return address and the DMA bus master address are both
-guaranteed to be aligned to the smallest PAGE_SIZE order which
-is greater than or equal to the requested size.  This invariant
+Hi!
+
+2.6.0-test9 is the first kernel with *almost* working suspend to ram
+and suspend to disk.
+
+Well, almost, because when i run X with AGP support enabled i can't
+resume - either it hangs forever after displaying "Waiting for DMAs to
+settle down..." message or it reboots right after displaying it.
+When i force using of PCI bus for acceleration, then suspend (to ram as
+well as to disk) with resume works perfectly - but of course, with
+disabled
+agp everything is significantly slower.
+
+So, my question is - is it known (and not fixable :) bug or it's
+something weird and shouldn't happen ? As fair as I googled for similar
+problems I have found that people usually have problems with DRI, it
+looks
+like agp works ok for most of them :) However, on my laptop disabling
+DRI doesn't help.
+
+I have Dell Lattitude D600 with:
+- ATI Technologies Inc Radeon R250 Lf [Radeon Mobility 9000 M9]
+- Intel Corp. 82855PM Processor to AGP Controllerntel Corp. 82855PM
+- Latest BIOS (A06)
+
+Here is full output from dmesg, lspci and my current kernel config:
+
+http://student.uci.agh.edu.pl/~fahren/dmesg
+http://student.uci.agh.edu.pl/~fahren/lspci
+http://student.uci.agh.edu.pl/~fahren/config.gz
 
 
-@@ -684,12 +697,18 @@
-[...]
--       tp->RxBufferRings = kmalloc(RX_BUF_SIZE * NUM_RX_DESC, GFP_KERNEL);
-+       tp->RxBufferRings = pci_alloc_consistent(tp->pci_dev,
-+                                                RX_BUF_SIZE * NUM_RX_DESC,
-+                                                &tp->RxBufferDmas);
+I've tried both 2.6.0-test9 and 2.6.0-test9-mm1 with:
+- XFree's radeon drivers (from XFree86's cvs) -
+As i already wrote, everything work ok untill i load intel-agp
+module (or don't force "BusType" to "PCI" in XF86Config) - enabling/
+disabling DRI doesn't seem to affect anything.
 
-You don't want consistent mapping for the data buffer.
-Either you pci_map_single() the whole kmalloced() area and you sync it
-when needed or you turn this code into usual, per skb, pci_map_single()
-calls and you remove the big Rx data buffer.
+- ATI's fglrx drivers (ver. 3.2.8) - the same, with enabled
+"UseInternalAGPGART" i can't resume. When disabled and without loaded
+intel-agp module i can.
 
---
-Ueimor
+I'm suspending by writing to /proc/acpi/sleep - writing to
+/sys/power/state returns nice "call trace" screen.
+On older versions of kernel (<= 2.6.0-test8*) suspend just doesn't work
+- /proc/acpi/sleep behaves like /dev/null :)
+
+If anyone know sollution for it *please* let me know. :>
+
+BTW, standby mode doesn't work at all (and never had on 2.6.0-test* for
+me, with 2.4 it is ok) - it goes to sleep, but when resuming it hangs
+after displaying "PM: Finishing up."
+
+
+Maciej Freudenheim.
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@xxxxxxxxxxxxxxx
+More majordomo info at http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at http://www.tux.org/lkml/
+
+__________________________________
+Do you Yahoo!?
+Protect your identity with Yahoo! Mail AddressGuard
+http://antispam.yahoo.com/whatsnewfree

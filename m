@@ -1,70 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282693AbRLQTxn>; Mon, 17 Dec 2001 14:53:43 -0500
+	id <S282664AbRLQTyD>; Mon, 17 Dec 2001 14:54:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282691AbRLQTxd>; Mon, 17 Dec 2001 14:53:33 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2573 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S282664AbRLQTxO>;
-	Mon, 17 Dec 2001 14:53:14 -0500
-Date: Mon, 17 Dec 2001 19:53:12 +0000
-From: Joel Becker <jlbec@evilplan.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: O_DIRECT wierd behavior..
-Message-ID: <20011217195312.K31706@parcelfarce.linux.theplanet.co.uk>
-Mail-Followup-To: Joel Becker <jlbec@evilplan.org>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011217181840.G2431@athlon.random> <Pine.LNX.4.21.0112171757530.2812-100000@localhost.localdomain> <3C1E400B.A4D25F9D@zip.com.au> <9vlgsd$1b7$1@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <9vlgsd$1b7$1@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Dec 17, 2001 at 07:26:05PM +0000
-X-Burt-Line: Trees are cool.
+	id <S282691AbRLQTxy>; Mon, 17 Dec 2001 14:53:54 -0500
+Received: from fmfdns02.fm.intel.com ([132.233.247.11]:57066 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S282664AbRLQTxk>; Mon, 17 Dec 2001 14:53:40 -0500
+Message-ID: <59885C5E3098D511AD690002A5072D3C42D7FD@orsmsx111.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'otto.wyss@bluewin.ch'" <otto.wyss@bluewin.ch>,
+        Alexander Viro <viro@math.psu.edu>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: Booting a modular kernel through a multiple streams file
+Date: Mon, 17 Dec 2001 11:53:34 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 17, 2001 at 07:26:05PM +0000, Linus Torvalds wrote:
-> Andrew Morton  <akpm@zip.com.au> wrote:
-> >I take that to mean that if an error occurs, we return that
-> >error regardless of how much was written.
-> 
-> I disagree.
-> 
-> Note that writing 15 characters out of 30 is also a "successful write" -
-> it's just a _partial_ write.
-> 
-> >Which makes sense.  Consider this code:
-> >
-> >	open(file)
-> >	write(100k)
-> >	close(fd)
-> >
-> >if the write gets an IO error halfway through, it looks like
-> >the caller never gets to hear about it at present.
+> From: Otto Wyss [mailto:otto.wyss@bluewin.ch]
+> You have to admit that a multiple streams file format 
+> (regardless which kind)
+> would be a good solution to the booting of a modular kernel. 
+> Anyway this format
+> has to be supported by the kernel itself and in some extend 
+> by any boot loader.
+> So anybody has to write a kernel module for the cpio/tar 
+> format and help with
+> implementing it into  boot loaders. Maybe you could give some help. 
 
-	IIRC, SUS states that if a fatal error occurred causing the
-partial write, that error will be returned on the next write or upon
-close().  Thus:
+I don't think multiple streams is a good idea, but did you all see the patch
+by Christian Koenig to let the bootloader load modules? That seems to solve
+the problem nicely.
 
-	/* Smart program handles partial writes */
-	write(100k); = 50k
-	write(remaining 50k); = -1/ENOSPC|EIO|etc
-
-or:
-
-	/* Dumb program doesn't handle partial write */
-	write(100k); = 50k
-	close(fd); = -1/EIO
-	
-Joel
-
--- 
-
-Life's Little Instruction Book #444
-
-	"Never underestimate the power of a kind word or deed."
-
-			http://www.jlbec.org/
-			jlbec@evilplan.org
+Regards -- Andy

@@ -1,56 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261428AbSIWWkf>; Mon, 23 Sep 2002 18:40:35 -0400
+	id <S261427AbSIWWjL>; Mon, 23 Sep 2002 18:39:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261430AbSIWWkf>; Mon, 23 Sep 2002 18:40:35 -0400
-Received: from magic.adaptec.com ([208.236.45.80]:47858 "EHLO
-	magic.adaptec.com") by vger.kernel.org with ESMTP
-	id <S261428AbSIWWke>; Mon, 23 Sep 2002 18:40:34 -0400
-Date: Mon, 23 Sep 2002 16:44:58 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Konstantin Kletschke <konsti@ludenkalle.de>, linux-kernel@vger.kernel.org
-Subject: Re: Quick aic7xxx bug hunt...
-Message-ID: <2678680816.1032821098@aslan.btc.adaptec.com>
-In-Reply-To: <3D8F934F.7000606@mandrakesoft.com>
-References: <20020923180017.GA16270@sexmachine.doom>
- <2539730816.1032808544@aslan.btc.adaptec.com>
- <3D8F874B.3070301@mandrakesoft.com>
- <2640410816.1032818062@aslan.btc.adaptec.com>
- <3D8F934F.7000606@mandrakesoft.com>
-X-Mailer: Mulberry/3.0.0a4 (Linux/x86)
+	id <S261428AbSIWWjK>; Mon, 23 Sep 2002 18:39:10 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:34044 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S261427AbSIWWjE>;
+	Mon, 23 Sep 2002 18:39:04 -0400
+Message-ID: <3D8F993E.81D33FE8@mvista.com>
+Date: Mon, 23 Sep 2002 18:44:14 -0400
+From: "Mark A. Greer" <mgreer@mvista.com>
+Organization: MontaVista Software, Inc.
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.8-26mdk i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: davidm@hpl.hp.com
+CC: linux-kernel@vger.kernel.org, steiner@sgi.com, davidm@napali.hpl.hp.com
+Subject: Re: can we drop early_serial_setup()?
+References: <200209200459.g8K4xJcW011057@napali.hpl.hp.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Great, I stand corrected.  Looks like 2.5 code is ancient then?
+David,
 
-Yes.  I didn't do the original port and am now just finishing up my
-port to 2.5.X.
+Sorry for the delay, we've had email problems most of last week.
 
-> comments on the 2.4 code:
-> * the 1000us delay in ahc_reset needs to be turned into a sleep, instead
-> all paths to that function [AFAICS] can sleep.  likewise for the huge
-> delay in ahc_acquire_seeprom.
+Yes, we can get rid of the early_serial_setup() in ev64260_setup.c, no
+problem there.  I'm very busy on some other things right now but I'll try
+to get to that soon.  If you can't wait, go ahead and make the change and
+I will test it for you.
 
-For all of these delays, I'd be more than happy to make them all into
-sleeps if I can tell, from inside ahc_delay() if I'm in a context where
-it is safe to sleep.  On the other platforms that this core code runs on
-I'm usually not in a context where it is safe to sleep, so I don't want
-to switch to using a different driver primitive.
-
-> * PCI posting?  (aic7xxx_core.c, line 1322, the last statement in the
-> function...)
-> 
->                  ahc_outb(ahc, CLRINT, CLRSCSIINT);
-
-I don't care when the write occurs only that it will occur eventually.
-The buffer will get flushed eventually so there is no need to call
-ahc_flush_device_writes().
-
+Mark
 --
-Justin
+
+David Mosberger wrote:
+
+> The early_serial_setup() routine was broken during the big serial
+> clean up that happened a while ago.  I fixed this problem for ia64 by
+> introducing a new routine called early_register_port() (see below).
+> It serves the same purpose as early_serial_setup(), with the only
+> difference being that the argument passed to it is now a "uart_port"
+> structure (instead of a "serial_struct").  Russell King suggested to
+> get rid of early_serial_setup() alltogether, since it is broken anyhow
+> and serves no purpose anymore.  However, as far as I can tell, there
+> are two places left which use this routine:
+>
+>         arch/ia64/sn/kernel/setup.c
+>         arch/ppc/platforms/ev64260_setup.c
+>
+> It's should be easy to convert these files to early_register_port(),
+> but since I can't test the platform's in question (PPC and SGI SN
+> machine), I'd like to know whether it's OK to drop
+> early_serial_setup() now.  If someone wants some hints on how to do
+> the conversion, let me know (sample code is in 8250_hcdp.c).
+>
+> Thanks,
+>
+>         --david
+>
+> int __init early_register_port (struct uart_port *port)
+> {
+>         if (port->line >= ARRAY_SIZE(serial8250_ports))
+>                 return -ENODEV;
+>
+>         serial8250_isa_init_ports();    /* force ISA defaults */
+>         serial8250_ports[port->line].port = *port;
+>         serial8250_ports[port->line].port.ops = &serial8250_pops;
+>         return 0;
+> }
+

@@ -1,49 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261296AbUDGXwe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 19:52:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbUDGXwe
+	id S261262AbUDGXzE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 19:55:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbUDGXzA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 19:52:34 -0400
-Received: from main.gmane.org ([80.91.224.249]:45785 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261262AbUDGXwd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 19:52:33 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Wed, 7 Apr 2004 19:55:00 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:49638 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261262AbUDGXyG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Apr 2004 19:54:06 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
 To: linux-kernel@vger.kernel.org
-From: Joshua Kwan <joshk@triplehelix.org>
-Subject: Re: [2.4] bttv and sparc64
-Date: Wed, 07 Apr 2004 16:52:29 -0700
-Message-ID: <pan.2004.04.07.23.52.28.330544@triplehelix.org>
-References: <pan.2004.04.06.23.39.42.565881@triplehelix.org> <873c7gl0rv.fsf@bytesex.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: adsl-68-126-186-145.dsl.pltn13.pacbell.net
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
+Subject: [PATCH] obsolete asm/hdreg.h [4/5]
+Date: Thu, 8 Apr 2004 00:23:35 +0200
+User-Agent: KMail/1.5.3
+Cc: linux-ide@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200404080023.35285.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 07 Apr 2004 09:12:20 +0200, Gerd Knorr wrote:
 
-> Joshua Kwan <joshk@triplehelix.org> writes:
-> 
->> Many modules on sparc64 seem to require I2C support to
->> compile correctly. Why do they not depend on CONFIG_I2C?
-> 
-> In my source tree bttv (correctly) depends on CONFIG_I2C_ALGOBIT ...
-> 
-> eskarina kraxel ~# grep BT848 /work/bk/2.4/linux-2.4.23/drivers/media/video/Config.in
-> dep_tristate '  BT848 Video For Linux' CONFIG_VIDEO_BT848 $CONFIG_VIDEO_DEV $CONFIG_PCI $CONFIG_I2C_ALGOBIT $CONFIG_SOUND
+[IDE] asm-ia64/ide.h: use unsigned long instead of ide_ioreg_t
 
-This is true, but none of the options below CONFIG_I2C are visible to
-sparc64 at all. (It's a broken dep, at least as far as I can see. I can't
-find anything in the menuconfig system for ARCH=sparc64 about I2C.)
+ linux-2.6.5-root/include/asm-ia64/ide.h |   12 +++++-------
+ 1 files changed, 5 insertions(+), 7 deletions(-)
 
-Clue me in, anyone?
+diff -puN include/asm-ia64/ide.h~ia64_ide_ioreg_t include/asm-ia64/ide.h
+--- linux-2.6.5/include/asm-ia64/ide.h~ia64_ide_ioreg_t	2004-04-06 14:21:09.569520960 +0200
++++ linux-2.6.5-root/include/asm-ia64/ide.h	2004-04-06 14:23:48.618341864 +0200
+@@ -25,8 +25,7 @@
+ # endif
+ #endif
+ 
+-static __inline__ int
+-ide_default_irq (ide_ioreg_t base)
++static inline int ide_default_irq(unsigned long base)
+ {
+ 	switch (base) {
+ 	      case 0x1f0: return isa_irq_to_vector(14);
+@@ -40,8 +39,7 @@ ide_default_irq (ide_ioreg_t base)
+ 	}
+ }
+ 
+-static __inline__ ide_ioreg_t
+-ide_default_io_base (int index)
++static inline unsigned long ide_default_io_base(int index)
+ {
+ 	switch (index) {
+ 	      case 0: return 0x1f0;
+@@ -55,10 +53,10 @@ ide_default_io_base (int index)
+ 	}
+ }
+ 
+-static __inline__ void
+-ide_init_hwif_ports (hw_regs_t *hw, ide_ioreg_t data_port, ide_ioreg_t ctrl_port, int *irq)
++static inline void ide_init_hwif_ports(hw_regs_t *hw, unsigned long data_port,
++				       unsigned long ctrl_port, int *irq)
+ {
+-	ide_ioreg_t reg = data_port;
++	unsigned long reg = data_port;
+ 	int i;
+ 
+ 	for (i = IDE_DATA_OFFSET; i <= IDE_STATUS_OFFSET; i++) {
 
--- 
-Joshua Kwan
-
+_
 

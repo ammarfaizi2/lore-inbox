@@ -1,92 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261848AbUKZTU1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262366AbUKZT0G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261848AbUKZTU1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 14:20:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262308AbUKZTUY
+	id S262366AbUKZT0G (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 14:26:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261227AbUKZTVq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 14:20:24 -0500
+	Fri, 26 Nov 2004 14:21:46 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:62401 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262298AbUKZTTq (ORCPT
+	by vger.kernel.org with ESMTP id S262298AbUKZTU0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:19:46 -0500
-From: David Brownell <david-b@pacbell.net>
-To: linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] [PATCH] Ohci-hcd: fix endless loop
-Date: Fri, 26 Nov 2004 08:38:10 -0800
-User-Agent: KMail/1.7.1
-Cc: Colin Leroy <colin@colino.net>, linux-kernel@vger.kernel.org,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Greg KH <greg@kroah.com>
-References: <20041125191726.5ca95299@jack.colino.net>
-In-Reply-To: <20041125191726.5ca95299@jack.colino.net>
+	Fri, 26 Nov 2004 14:20:26 -0500
+Message-ID: <41A7483F.9010302@pobox.com>
+Date: Fri, 26 Nov 2004 10:14:07 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Jesper Juhl <juhl-lkml@dif.dk>
+CC: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: Any reason why we don't initialize all members of struct Xgt_desc_struct
+ in doublefault.c ?
+References: <Pine.LNX.4.61.0411250011160.3447@dragon.hygekrogen.localhost>
+In-Reply-To: <Pine.LNX.4.61.0411250011160.3447@dragon.hygekrogen.localhost>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200411260838.10508.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 25 November 2004 10:17, Colin Leroy wrote:
-> Hi, 
+Jesper Juhl wrote:
+> Yes, this is nitpicking, but I just can't leave small corners like this 
+> unpolished ;)
 > 
-> Following patch fixes an endless loop that happens after having
-> slept and resumed my iBook with a linux-wlan-ng controller plugged in,
-> removed the stick and plugged it back (getting "IRQ lossage" message).
-
-The infinite loop means that something trashed the stack, yes?
-
-The "limit-- < -1000" test below should never be able to succeed
-unless the previous "limit-- == 0" test got trashed by having
-something obliterate the stack.  Possibly the driver for that WLAN
-adapter.  Once that happens, all kinds of things will misbehave...
-
-If you got the "IRQ INTR_SF lossage" diagnostic, there's clearly
-some problem with IRQ handling after the resume ... is the iBook
-firmware (or hardware) doing wierd stuff so that the normal PCI
-IRQ calls stopped working?
-
-And for that matter, "limit" is unsigned, so you must be getting
-(and ignoring) some compiler warnings too.
-
-This is not a good patch; not accepted.
-
-- Dave
-
-
-> Signed-off-by: Colin Leroy <colin@colino.net>
-> --- a/drivers/usb/host/ohci-hcd.c	2004-11-25 19:00:25.000000000 +0100
-> +++ b/drivers/usb/host/ohci-hcd.c	2004-11-25 19:08:59.000000000 +0100
-> @@ -375,6 +375,11 @@
->  		spin_unlock_irqrestore (&ohci->lock, flags);
->  		set_current_state (TASK_UNINTERRUPTIBLE);
->  		schedule_timeout (1);
-> +		if (limit-- < -1000) {
-> +			ohci_warn (ohci, "Couldn't recover\n");
-> +			ohci_restart(ohci);
-> +			goto bail;
-> +		}
->  		goto rescan;
->  	case ED_IDLE:		/* fully unlinked */
->  		if (list_empty (&ed->td_list)) {
-> @@ -396,6 +401,7 @@
->  	dev->ep [epnum] = NULL;
->  done:
->  	spin_unlock_irqrestore (&ohci->lock, flags);
-> +bail:
->  	return;
->  }
->  
+> in arch/i386/kernel/doublefault.c you will find this (line 20) :
 > 
+> struct Xgt_desc_struct gdt_desc = {0, 0};
 > 
-> -------------------------------------------------------
-> SF email is sponsored by - The IT Product Guide
-> Read honest & candid reviews on hundreds of IT Products from real users.
-> Discover which products truly live up to the hype. Start reading now. 
-> http://productguide.itmanagersjournal.com/
-> _______________________________________________
-> linux-usb-devel@lists.sourceforge.net
-> To unsubscribe, use the last form field at:
-> https://lists.sourceforge.net/lists/listinfo/linux-usb-devel
+> but, struct Xgt_desc_struct has 3 members, 
 > 
+> struct Xgt_desc_struct {
+>         unsigned short size;
+>         unsigned long address __attribute__((packed));
+>         unsigned short pad;
+> } __attribute__ ((packed));
+> 
+> so why only initialize two of them explicitly?
+
+'pad' is a dummy variable... nobody cares about its value.
+
+	Jeff
+
+

@@ -1,59 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319060AbSHFKyR>; Tue, 6 Aug 2002 06:54:17 -0400
+	id <S319058AbSHFLAU>; Tue, 6 Aug 2002 07:00:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319064AbSHFKyR>; Tue, 6 Aug 2002 06:54:17 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:25350 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S319060AbSHFKyQ>; Tue, 6 Aug 2002 06:54:16 -0400
-Message-ID: <3D4FAA87.8040303@evision.ag>
-Date: Tue, 06 Aug 2002 12:52:55 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en, pl, ru
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: martin@dalecki.de, Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-       linux-kernel@vger.kernel.org, torvalds@transmeta.com
+	id <S319059AbSHFLAU>; Tue, 6 Aug 2002 07:00:20 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:29130 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S319058AbSHFLAS>;
+	Tue, 6 Aug 2002 07:00:18 -0400
+Date: Tue, 6 Aug 2002 13:03:54 +0200
+From: Jens Axboe <axboe@suse.de>
+To: martin@dalecki.de
+Cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com
 Subject: Re: [PATCH] 2.5.30 IDE 113
-References: <13A77E76028@vcnet.vc.cvut.cz> <3D4FA2F8.2050305@evision.ag> <20020806104238.GB1132@suse.de> <3D4FA845.90702@evision.ag> <20020806105450.GD1323@suse.de>
-Content-Type: text/plain; charset=US-ASCII;
-Content-Transfer-Encoding: 7BIT
+Message-ID: <20020806110354.GE1323@suse.de>
+References: <13AC5F92253@vcnet.vc.cvut.cz> <20020806104414.GC1132@suse.de> <3D4FA924.3030601@evision.ag>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D4FA924.3030601@evision.ag>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Jens Axboe napisa?:
-> On Tue, Aug 06 2002, Marcin Dalecki wrote:
+On Tue, Aug 06 2002, Marcin Dalecki wrote:
+> Uz.ytkownik Jens Axboe napisa?:
+> >On Tue, Aug 06 2002, Petr Vandrovec wrote:
+> >
+> >>>After all ide_raw_taskfile only gets used for REQ_SPECIAL request
+> >>>types. This does *not* contain normal data request from block IO.
+> >>>As of master slave issues - well we have the data pre allocated per
+> >>>device not per channel! If q->request_fn would properly return the
+> >>>error count instead of void, we could even get rid ot the
+> >>>checking for rq->errors after finishment... But well that's
+> >>>entierly different story.
+> >>
+> >>For example do_cmd_ioctl() invokes ide_raw_taskfile, without any locking.
+> >>Two programs, both issuing HDIO_DRIVE_CMD at same time, will compete
+> >>over one drive->srequest struct: you'll get same drive->srequest structure
+> >>submitted twice to blk_insert_request (hm, Jens, will this trigger
+> >>BUG, or will this just damage request list?).
+> >
+> >
+> >Just silently damage request list. We _could_ easily add code to detect
+> >this, but it's not been a problem in the past so not worth looking for.
+> >
+> >AFAICS, Petr is completely right wrt this race.
 > 
->>Uz.ytkownik Jens Axboe napisa?:
->>
->>>On Tue, Aug 06 2002, Marcin Dalecki wrote:
->>>
->>>
->>>>device not per channel! If q->request_fn would properly return the
->>>>error count instead of void, we could even get rid ot the
->>>>checking for rq->errors after finishment... But well that's
->>>>entierly different story.
->>>
->>>
->>>That's nonsense! What exactly would you return from a request_fn after
->>>having queued, eg, 20 commands? Error count is per request, anything
->>>else would be stupid.
->>
->>Returning the error count in the case q->request_fn is called for
->>a self submitted request like for example REQ_SPECIAL would be handy and 
->>well defined. For the cumulative case it would of course make sense to 
->>return the cumulative error count. Tough not very meaningfull, it would
->>indicate the occurrence of the error very fine.
+> For the ioctl case yes. But:
 > 
-> 
-> It's much nicer to maintain a sane API that doesn't depend on stuff like
-> the above. Cumulative error count, come on, you can't possibly be
-> serious?!
+> 1. We already look for blk_queue_empty there.
+> 2. We have just to deal properly with the queue plugging there
+> to close it up.
 
-Hey don't get me wrong - I *do not* suggest adding it becouse I don't 
-think we are going to change the "eat as many as possible requests" 
-instead of "eat one request" semantics of the q->reuqest_fn().
-OK?
+I don't know what you mean here. Clearly this is an ide problem. If you
+have a statically allocated request, you _must_ serialize that yourself.
+
+> 3. I will just add spin locking on ide_lock to maintain that no two
+> ioctl can overlapp at all.
+
+Agrh god no. So you'll spin waiting for the ioctl to complete?
+
+>From ide_raw_taskfile(), the right way to do it is:
+
+	struct request *rq = blk_get_request(...);
+
+This gets _everything_ right.
+
+BTW, _glad to see you got rid of the horrible insert-and-execute stuff
+in ide_raw_taskfile(). That was a layering violation.
+
+> OK?
+
+Not likely :-)
+
+-- 
+Jens Axboe
 

@@ -1,33 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267423AbTBNUiY>; Fri, 14 Feb 2003 15:38:24 -0500
+	id <S267440AbTBNUqB>; Fri, 14 Feb 2003 15:46:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267432AbTBNUiY>; Fri, 14 Feb 2003 15:38:24 -0500
-Received: from dns.toxicfilms.tv ([150.254.37.24]:61710 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP
-	id <S267423AbTBNUiX>; Fri, 14 Feb 2003 15:38:23 -0500
-Date: Fri, 14 Feb 2003 21:48:16 +0100 (CET)
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-To: linux-kernel@vger.kernel.org
-Subject: creating incremental diffs
-Message-ID: <Pine.LNX.4.51.0302142147360.12353@dns.toxicfilms.tv>
+	id <S267442AbTBNUqB>; Fri, 14 Feb 2003 15:46:01 -0500
+Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:49844 "EHLO
+	mailsorter.ma.tmpw.net") by vger.kernel.org with ESMTP
+	id <S267440AbTBNUqA>; Fri, 14 Feb 2003 15:46:00 -0500
+Message-ID: <61DB42B180EAB34E9D28346C11535A78066CD7A8@nocmail101.ma.tmpw.net>
+From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
+To: "'John Bradford'" <john@grabjohn.com>, linux-kernel@vger.kernel.org
+Subject: RE: Sparc IDE in 2.4.20
+Date: Fri, 14 Feb 2003 15:55:33 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> 
+> Is IDE known to be broken on Sparc in 2.4.20?  I just got this compile
+> failiure:
+> 
 
-let's say i want to create an incremental diff between
-2.4.21pre4aa1 and aa2.
+Yes,  Try Alan's 2.4.21-preX for Sparc updates, as I believe some fixes were
+fed in there. 
 
-how do i do that?
-
-Regards,
-Maciej Soltysiak
-
------BEGIN GEEK CODE BLOCK-----
-VERSION: 3.1
-GIT/MU d-- s:- a-- C++ UL++++$ P L++++ E- W- N- K- w--- O! M- V- PS+ PE++
-Y+ PGP- t+ 5-- X+ R tv- b DI+ D---- G e++>+++ h! y?
------END GEEK CODE BLOCK-----
+B.

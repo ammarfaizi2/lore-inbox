@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266710AbRHCJjB>; Fri, 3 Aug 2001 05:39:01 -0400
+	id <S266914AbRHCJtc>; Fri, 3 Aug 2001 05:49:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269386AbRHCJiw>; Fri, 3 Aug 2001 05:38:52 -0400
-Received: from host-216-226-192-4.interpacket.net ([216.226.192.4]:62216 "HELO
-	iliganet-ipgi.iligan.com") by vger.kernel.org with SMTP
-	id <S266710AbRHCJif>; Fri, 3 Aug 2001 05:38:35 -0400
-Date: Fri, 3 Aug 2001 18:02:48 +0800 (PHT)
-From: rtviado <root@iligan.com>
-X-X-Sender: <root@localhost.localdomain>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: load balancing on more than 1 default routes
-In-Reply-To: <3B6A2B9A.6E88D0E8@theOffice.net>
-Message-ID: <Pine.LNX.4.33.0108031752040.907-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267542AbRHCJtX>; Fri, 3 Aug 2001 05:49:23 -0400
+Received: from rcum.uni-mb.si ([164.8.2.10]:46853 "EHLO rcum.uni-mb.si")
+	by vger.kernel.org with ESMTP id <S266914AbRHCJtG>;
+	Fri, 3 Aug 2001 05:49:06 -0400
+Date: Fri, 03 Aug 2001 11:49:14 +0200
+From: David Balazic <david.balazic@uni-mb.si>
+Subject: Linux can't find partitions , again
+To: linux-kernel@vger.kernel.org, testers-list@redhat.com
+Message-id: <3B6A739A.7D6197CD@uni-mb.si>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
+Yesterday I did "nothing" (*) and then linux didn't boot anymore.
+It couldn't mount the root FS.
+After I fixed that , it couldn't turn on the swap partition.
 
-Hello,
+This really pisses me off ! ( I am cool now, you should see me yesterday )
 
-	I just want to ask if there is a facility in the kernel that load
-balance to different default routes, since i'm using this routes for
-uplink purposes only (my downlink is via satellite, it doesn't matter
-where i send my packets uplink as long as it reaches the internet
-backbone).
+The problem was that the partitions were renumbered "randomly"
+and linux just can not deal with that. Before linux named the root FS
+partition hda6, but now he names it hda7. Off course the kernel still looks
+for hda6 and fails. After I fix LILO , it boots, but fails to turn on the swap
+as it was renamed from hda7 to hda5. I edit /etc/fstab and all is well.
+Until next time.
 
-for example
+This has bitten me and my neighbour enough times that I wrote a kernel patch
+to fix ( 99% fix ) the first problem ( root-FS ) and I don't write kernel patches
+every week !
+I didn't address the second problem ( swap ).
 
-	in my box, I have routes as describe below
+The patch works by scanning all known partitions for a matching ext2 UUID ( or label ).
+Maybe a simpler solution would be to search the partition list for a particular
+disk ( hda ) for a partition which has a particular (start,size) pair ? ( less disk access, 
+FS-type neutral , would work for the swap problem too )
 
-	destination	gateway		netmask
-	default         isp1 		0.0.0.0
-	default		isp2		0.0.0.0
+Patch available at
+http://linux-patches.rock-projects.com/v2.2-f/uuid.html
 
-Want i want is for the kernel to load balance (e.g round robin) uplink
-packets to isp1 and isp2. If this in is not possible in the current
-kernel, where in the kernel source files can i start hacking to make this
-possible?
+Opinions ?
 
+* - I created a partition on the free part of the disk, but after a minute
+I changed my mind an deleted it. I used the Disk Administrator tools undwr win2000
 
-TIA
 -- 
-Rodel T. Viado
-System Administrator
-Iligan Global Access Network Inc.
-
-You can look at my resume and Online Certification at:
-http://www.brainbench.com/transcript.jsp?pid=1404199
-
-
-
+David Balazic
+--------------
+"Be excellent to each other." - Bill & Ted
+- - - - - - - - - - - - - - - - - - - - - -

@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261722AbTCGSrJ>; Fri, 7 Mar 2003 13:47:09 -0500
+	id <S261718AbTCGS4S>; Fri, 7 Mar 2003 13:56:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261726AbTCGSrJ>; Fri, 7 Mar 2003 13:47:09 -0500
-Received: from mx.laposte.net ([213.30.181.11]:18831 "EHLO mx.laposte.net")
-	by vger.kernel.org with ESMTP id <S261722AbTCGSrI>;
-	Fri, 7 Mar 2003 13:47:08 -0500
-Subject: Re: 2.5.64p5 No USB support when APIC mode enabled
-From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
-To: linux-kernel@vger.kernel.org
-Cc: Meino Christian Cramer <mccramer@s.netic.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-bA0DbPHt1yOVKI/vGXVl"
-Organization: 
-Message-Id: <1047063457.1947.2.camel@rousalka>
+	id <S261705AbTCGS4S>; Fri, 7 Mar 2003 13:56:18 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:9477 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261718AbTCGS4R>; Fri, 7 Mar 2003 13:56:17 -0500
+Date: Fri, 7 Mar 2003 19:06:49 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Andries.Brouwer@cwi.nl
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] register_blkdev
+Message-ID: <20030307190648.A13594@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andries.Brouwer@cwi.nl, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org
+References: <UTC200303071849.h27Ineg11598.aeb@smtp.cwi.nl>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
-Date: 07 Mar 2003 19:57:37 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <UTC200303071849.h27Ineg11598.aeb@smtp.cwi.nl>; from Andries.Brouwer@cwi.nl on Fri, Mar 07, 2003 at 07:49:40PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Mar 07, 2003 at 07:49:40PM +0100, Andries.Brouwer@cwi.nl wrote:
+> The following patch does the following:
+> 
+> - static const char *blkdevs[MAX_BLKDEV]; disappears
+> - get_blkdev_list, (un)register_blkdev, __bdevname
+>   are moved from block_dev.c to genhd.c
+> - the third "fops" parameter of register_blkdev was unused;
+>   now removed everywhere
+> - zillions of places had printk("cannot get major") upon
+>   error return from register_blkdev; removed all of these
+>   and inserted a single printk in register_blkdev.
 
---=-bA0DbPHt1yOVKI/vGXVl
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-| I got "No dma on first hard drive" as bug id 15 ???
-| As that, what you intended, Nicolas ???
-
-Sorry, stupid me, I'm mixing up my bugs.
-
-See bug 10 instead :
-
-http://bugzilla.kernel.org/show_bug.cgi?id=3D10
-
-Regards,
-
---=20
-Nicolas Mailhot
-
---=-bA0DbPHt1yOVKI/vGXVl
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+aOuhI2bVKDsp8g0RAjsqAKCByjTZjZN784z7a1m8PZsKpFrp0ACgnSMj
-2Sfw8U4wMKSCtKFROLrdsTg=
-=CQUF
------END PGP SIGNATURE-----
-
---=-bA0DbPHt1yOVKI/vGXVl--
+IMHO that's a bad change, (un)register_blkdev should just go away
+completly.
 

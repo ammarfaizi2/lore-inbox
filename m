@@ -1,29 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266683AbUG1Who@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266685AbUG1WeG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266683AbUG1Who (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 18:37:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266752AbUG1WhT
+	id S266685AbUG1WeG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 18:34:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266603AbUG1WdF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 18:37:19 -0400
-Received: from mail.tpgi.com.au ([203.12.160.61]:44745 "EHLO mail.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S266683AbUG1WeQ (ORCPT
+	Wed, 28 Jul 2004 18:33:05 -0400
+Received: from mail.tpgi.com.au ([203.12.160.113]:25763 "EHLO mail.tpgi.com.au")
+	by vger.kernel.org with ESMTP id S266531AbUG1Wbt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 18:34:16 -0400
+	Wed, 28 Jul 2004 18:31:49 -0400
 Subject: Re: [Patch] Per kthread freezer flags
 From: Nigel Cunningham <ncunningham@linuxmail.org>
 Reply-To: ncunningham@linuxmail.org
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1091053822.1844.4.camel@teapot.felipe-alfaro.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040728142026.79860177.akpm@osdl.org>
 References: <1090999301.8316.12.camel@laptop.cunninghams>
 	 <20040728142026.79860177.akpm@osdl.org>
-	 <1091053822.1844.4.camel@teapot.felipe-alfaro.com>
 Content-Type: text/plain
-Message-Id: <1091053646.8867.21.camel@laptop.cunninghams>
+Message-Id: <1091053501.8867.18.camel@laptop.cunninghams>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 29 Jul 2004 08:27:26 +1000
+Date: Thu, 29 Jul 2004 08:25:01 +1000
 Content-Transfer-Encoding: 7bit
 X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
@@ -31,23 +29,36 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi.
 
-On Thu, 2004-07-29 at 08:30, Felipe Alfaro Solana wrote:
-> On Wed, 2004-07-28 at 14:20 -0700, Andrew Morton wrote:
+On Thu, 2004-07-29 at 07:20, Andrew Morton wrote:
+> hm.  In some ways I'd prefer to see new
+> create_singlethread_workqueue_freezer(char *) or whatever, rather than
+> adding an extra argument.  That's neater, smaller code and
+> forward-compatible.
 > 
-> > wrt your "Add missing refrigerator support" patch: I'll suck that up, but
-> > be aware that there's a big i2o patch in -mm which basically rips out the
-> > driver which you just fixed up.  Perhaps you can send Markus Lidel
-> > <Markus.Lidel@shadowconnect.com> and I a fix for that version of the driver
-> > sometime?
+> But then again, the advantage of breaking the build for unconverted code is
+> that it makes people think about what their threads should be doing, so
+> let's go your way.
 > 
-> BTW, the "Add missing refrigerator support" breaks ACPI S3 and S4
-> support for me (2.6.8-rc2-bk7) and my laptop (NEC Chrom@). When
-> resuming, my 3c59x CardBus NIC is not powered up forcing me to eject it,
-> then plug it again.
+> The one concern I'd have is that $RANDOM_KERNEL_DEVELOPER probably doesn't
+> have a clue whether or not his kernel thread should be setting PF_NOFREEZE.
+> What are the guidelines here?
 
-Hmm. I'll take a look. Those patches are straight out of current
-suspend2 and have been in there for some time. Perhaps I just don't have
-any users who have that config.
+If a process might be/is needed to get the image to the storage device,
+it should be NOFREEZE. (Thus, USB threads might be NOFREEZE to allow for
+USB storage, likewise for SCSI). When I get an NFS writer done, the
+threads for network cards could probably be made NOFREEZE too. Things
+like kjournald don't need to run during suspend (even if we're writing
+to a swapfile in an ext3 partition), so can be 0 for now (SYNCTHREAD
+later).
+
+> wrt your "Add missing refrigerator support" patch: I'll suck that up, but
+> be aware that there's a big i2o patch in -mm which basically rips out the
+> driver which you just fixed up.  Perhaps you can send Markus Lidel
+> <Markus.Lidel@shadowconnect.com> and I a fix for that version of the driver
+> sometime?
+
+I've just started following your mm patches, and will do updates for
+last nights release shortly.
 
 Regards,
 

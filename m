@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129478AbRCHTuI>; Thu, 8 Mar 2001 14:50:08 -0500
+	id <S129470AbRCHTxI>; Thu, 8 Mar 2001 14:53:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129470AbRCHTts>; Thu, 8 Mar 2001 14:49:48 -0500
-Received: from pat.uio.no ([129.240.130.16]:13520 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S129072AbRCHTti>;
-	Thu, 8 Mar 2001 14:49:38 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: andreas.helke@lionbioscience.com (Andreas Helke),
-        linux-kernel@vger.kernel.org, nfs@sourceforge.net,
-        sg_info@lionbioscience.com, kirschh@lionbioscienc.com
-Subject: Re: :Redhat [Bug 30944] - Kernel 2.4.0 and Kernel 2.2.18: with some programs
-In-Reply-To: <E14ahiC-0001JG-00@the-village.bc.nu>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Content-Type: text/plain; charset=US-ASCII
-Date: 08 Mar 2001 20:49:00 +0100
-In-Reply-To: Alan Cox's message of "Wed, 7 Mar 2001 17:26:54 +0000 (GMT)"
-Message-ID: <shsy9ug3utv.fsf@charged.uio.no>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+	id <S129506AbRCHTw7>; Thu, 8 Mar 2001 14:52:59 -0500
+Received: from e22.nc.us.ibm.com ([32.97.136.228]:32997 "EHLO
+	e22.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S129470AbRCHTwt>; Thu, 8 Mar 2001 14:52:49 -0500
+Importance: Normal
+Subject: Kernel stress testing coverage
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.4a  July 24, 2000
+Message-ID: <OF6900214E.F6A2F64E-ON85256A09.006A7125@raleigh.ibm.com>
+From: "Paul Larson" <plars@us.ibm.com>
+Date: Thu, 8 Mar 2001 13:52:21 -0600
+X-MIMETrack: Serialize by Router on D04NMS24/04/M/IBM(Release 5.0.6 |December 14, 2000) at
+ 03/08/2001 02:52:23 PM
 MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+I'm looking for some advice from all of you that know and understand the
+Linux kernel so well.  I'm not a kernel developer, but I want to do some
+verification work on it, namely stress testing to begin with.  I'm working
+on putting together a suite of tests to test the linux kernels under stress
+loads for extended runs.  I'll be doing these tests on a mixture of
+machines, but most of my focus will be on 2-way, 4-way and 8-way smp
+machines.
+We've been using some open source tools such as bonnie (for filesystem
+stress), but I welcome suggestions for others that will provide good
+coverage.  To fill in the gaps, we'll probably be developing our own
+testcases.  We have no problems generating mixed loads, and even maxing out
+8-way SMP servers for long periods of time, but to be useful, I want to
+make sure that whatever tests we are running are getting good coverage of
+the kernel code.
+Is there any way to see what pieces of the kernel or even percentage we are
+hitting with any given test?  I've heard of tools like gcov for doing this
+with applications, but the kernel itself seems like it might require
+something more.  Are there any ideas you can suggest for writing tests that
+will hit as much code as possible in any given section of the kernel like
+FS, MM, Scheduler, IPC?  What major sections (like those I previously
+mentioned) should I be focused on trying to hit?
+All the tests we are writing will be open source of course, and I welcome
+any input you may provide.
 
-     > Irix at least used to have an export option to do mappings to
-     > keep clients that had 32/64bit inode problems happy. Do those
-     > help ?
+Thanks,
+Paul Larson
+Please reply to: plars@us.ibm.com
 
-No. The problem here is a Linux one: NFS uses 32/64-bit unsigned
-cookies, whereas glibc expects 64-bit *signed* offsets. Even with the
-'32bitclients' export option, IRIX spits out cookies such as
-'0xfeebdaed'. These confuse glibc because the VFS exports most of them
-as 32-bit offsets that are sign-extended to 64-bits (the one exception
-to this rule being the last dirent in the series which gets filled
-directly with the 64-bit file->f_pos).
-
-My last patch for this simply ensures that the NFS layer does a
-pseudo-'64-bit sign extension' on such cookies:
-
-   cookie --> (0xffffffff00000000 ^ cookie)
-
-This mimics what happens in filldir64() for all cookies, and is of
-course reversible due to the use of xor.
-
-I've been testing it out at Connectathon, and it does indeed seem to
-work as expected...
-
-Cheers,
-  Trond

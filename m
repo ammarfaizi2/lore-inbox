@@ -1,34 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264844AbSLaTDh>; Tue, 31 Dec 2002 14:03:37 -0500
+	id <S264839AbSLaTC4>; Tue, 31 Dec 2002 14:02:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264853AbSLaTDh>; Tue, 31 Dec 2002 14:03:37 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:51374 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S264844AbSLaTDe>;
-	Tue, 31 Dec 2002 14:03:34 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Tue, 31 Dec 2002 20:11:59 +0100 (MET)
-Message-Id: <UTC200212311911.gBVJBxe03777.aeb@smtp.cwi.nl>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.50 responsiveness
+	id <S264814AbSLaTC4>; Tue, 31 Dec 2002 14:02:56 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:63198 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S264786AbSLaTCz> convert rfc822-to-8bit; Tue, 31 Dec 2002 14:02:55 -0500
+From: David Schwartz <davids@webmaster.com>
+To: <davidsen@tmr.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.63 (1077) - Licensed Version
+Date: Tue, 31 Dec 2002 11:11:18 -0800
+In-Reply-To: <Pine.LNX.3.96.1021231095710.10544A-100000@gatekeeper.tmr.com>
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+Mime-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Message-ID: <20021231191120.AAA19490@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fetched Solaris 9 CDROM images yesterday, unpacked, copied, etc.
-Manipulating these 600+ MB files totally kills the machine
-(with 256 MB memory). Keystrokes are reacted to after half a minute.
-It is impossible to use the mouse since the kernel is too slow
-to accept mouse packets within its self-imposed timeout, so that
-the logs are full of
-psmouse.c: Lost synchronization, throwing 1 bytes away.
-psmouse.c: Lost synchronization, throwing 3 bytes away.
-psmouse.c: Lost synchronization, throwing 1 bytes away.
-psmouse.c: Lost synchronization, throwing 3 bytes away.
-The clock lost somewhat over 10 minutes.
 
-This is really primitive behaviour.
+On Tue, 31 Dec 2002 10:03:14 -0500 (EST), Bill Davidsen wrote:
+>On Tue, 31 Dec 2002, David Schwartz wrote:
 
-Andries
+>>II don't expect anyone to GPL unless they think they get more benefit 
+>>from
+>>GPLing than the potential harm done. People GPL code because they want to
+>>'donate' it to improve the open source movement, community, and code base.
+>>Attempting to arm twist such donations is worse than foolish. You think the
+>>open source community should be a bunch of bullies? Convince people open
+>>source is best, and avoid them if they don't agree.
+
+>Certainly anyone who has had a problem, posted an oops, and been told that
+>no one will even look at a dump from a system with the nvidia driver might
+>think they were being bullied...
+
+	There's a difference between people thinking they are being bullied and 
+being a bunch of bullies. ;)
+
+	I would hope that the situation would be explained politely -- kind of like 
+this:  "Unfortunately, with closed-source software, only someone who has the 
+source code can debug it. If you can replicate the problem without any 
+closed-source drivers, we'll do our best to help you. But if you can only 
+replicate the problem with a closed-source module installed, odds are the 
+problem is in that module, and even if it wasn't, we couldn't track it down."
+
+	That doesn't really seem like bullying and helps to clarify the 
+disadvantages of using closed-source software.
+
+	DS
 
 
-[everything vanilla - no settings changed, no hdparm used]

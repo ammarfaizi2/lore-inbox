@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135270AbRDLTcd>; Thu, 12 Apr 2001 15:32:33 -0400
+	id <S135280AbRDLTiu>; Thu, 12 Apr 2001 15:38:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135273AbRDLTcU>; Thu, 12 Apr 2001 15:32:20 -0400
-Received: from front7.grolier.fr ([194.158.96.57]:53452 "EHLO
-	front7.grolier.fr") by vger.kernel.org with ESMTP
-	id <S135276AbRDLTaw> convert rfc822-to-8bit; Thu, 12 Apr 2001 15:30:52 -0400
-Date: Thu, 12 Apr 2001 18:19:52 +0200 (CEST)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@club-internet.fr>
-To: ernte23@gmx.de
-cc: linux-kernel@vger.kernel.org
-Subject: Re: scanner problem
-In-Reply-To: <3AD5C2BB.A2C82354@gmx.de>
-Message-ID: <Pine.LNX.4.10.10104121812410.1240-100000@linux.local>
+	id <S135279AbRDLTgf>; Thu, 12 Apr 2001 15:36:35 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:3081 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S135271AbRDLTfo>; Thu, 12 Apr 2001 15:35:44 -0400
+Date: Thu, 12 Apr 2001 14:53:45 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, Alexander Viro <viro@math.psu.edu>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: generic_osync_inode() broken?
+In-Reply-To: <Pine.LNX.4.31.0104121228550.20191-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0104121451180.3059-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Thu, 12 Apr 2001, Linus Torvalds wrote:
 
-On Thu, 12 Apr 2001 ernte23@gmx.de wrote:
-
-> hi,
+> On Thu, 12 Apr 2001, Marcelo Tosatti wrote:
+> >
+> > Comments?
+> >
+> > --- fs/inode.c~	Thu Mar 22 16:04:13 2001
+> > +++ fs/inode.c	Thu Apr 12 15:18:22 2001
+> > @@ -347,6 +347,11 @@
+> >  #endif
+> >
+> >  	spin_lock(&inode_lock);
+> > +	while (inode->i_state & I_LOCK) {
+> > +		spin_unlock(&inode_lock);
+> > +		__wait_on_inode(inode);
+> > +		spin_lock(&inode_lock);
+> > +	}
+> >  	if (!(inode->i_state & I_DIRTY))
+> >  		goto out;
+> >  	if (datasync && !(inode->i_state & I_DIRTY_DATASYNC))
 > 
-> when trying to scan with xsane and "agfa snapscan 1236s", i get the
-> following message:
+> Ehh.
 > 
-> Attached scsi generic sg2 at scsi0, channel 0, id 5, lun 0, type 6
-> sym53c895-0-<5,*>: target did not report SYNC.
+> Why not just lock the inode around the thing?
+> 
+> The above looks rather ugly.
 
-This message is just a warning. If your scanner does not support
-synchronous data transfers, then it is ok. You may want to check the doc
-of the device on this point.
+You mean writing a function called "lock_inode()" or whatever to basically
+do what I did ? 
 
-> sym53c895-0-<5,0>: extraneous data discarded.
-> sym53c895-0-<5,0>: COMMAND FAILED (89 0) @cff3d000.
 
-This is the way the driver signals data overrun. Btw, I never used xsane.
-If this tool has some trace mode that tells what SCSI commands are sent to
-the device, this would help to get such traces.
-
-> what can i do about this?
-
-At least, try to catch the SCSI commands that are sent to the device, and
-report them.
-
-  Gérard.
 

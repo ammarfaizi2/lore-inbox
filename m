@@ -1,19 +1,20 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290468AbSAQVOA>; Thu, 17 Jan 2002 16:14:00 -0500
+	id <S290469AbSAQVPU>; Thu, 17 Jan 2002 16:15:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290467AbSAQVNx>; Thu, 17 Jan 2002 16:13:53 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:57227 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S290466AbSAQVNf>;
-	Thu, 17 Jan 2002 16:13:35 -0500
-Date: Thu, 17 Jan 2002 13:12:24 -0800 (PST)
-Message-Id: <20020117.131224.108809922.davem@redhat.com>
-To: fabien.ribes@cgey.com
+	id <S290467AbSAQVPE>; Thu, 17 Jan 2002 16:15:04 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:58251 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S290466AbSAQVN5>;
+	Thu, 17 Jan 2002 16:13:57 -0500
+Date: Thu, 17 Jan 2002 13:12:46 -0800 (PST)
+Message-Id: <20020117.131246.55833023.davem@redhat.com>
+To: elenstev@mesatop.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops in sock_poll
+Subject: Re: 2.5.3-pre1 build error and possible fix for
+ net/ipv4/netfilter/ip_fw_compat_redir.c
 From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3C470105.ED9DDCE@cgey.com>
-In-Reply-To: <3C470105.ED9DDCE@cgey.com>
+In-Reply-To: <200201171609.JAA25941@tstac.esa.lanl.gov>
+In-Reply-To: <200201171609.JAA25941@tstac.esa.lanl.gov>
 X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
@@ -22,8 +23,4 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Can you reproduce this with a more recent kernel?  Anything
->=2.4.9 (this includes all Red Hat errata kernels therefore)
-would be sufficient.
-
-And also please provide a full decoded OOPS log as well, thanks.
+Yes, this is the fix I've already sent to Linus.

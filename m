@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261501AbUKWSs2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261506AbUKWSjH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261501AbUKWSs2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 13:48:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261517AbUKWSjW
+	id S261506AbUKWSjH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 13:39:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261511AbUKWSg2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 13:39:22 -0500
-Received: from mail.kroah.org ([69.55.234.183]:42963 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261492AbUKWSi3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 13:38:29 -0500
-Date: Tue, 23 Nov 2004 10:38:14 -0800
-From: Greg KH <greg@kroah.com>
-To: Johannes Erdfelt <johannes@erdfelt.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [openib-general] Re: [PATCH][RFC/v1][4/12] Add InfiniBand SA (Subnet Administration) query support
-Message-ID: <20041123183813.GA31068@kroah.com>
-References: <20041122713.SDrx8l5Z4XR5FsjB@topspin.com> <20041122713.g6bh6aqdXIN4RJYR@topspin.com> <20041122222507.GB15634@kroah.com> <527jodbgqo.fsf@topspin.com> <20041123064120.GB22493@kroah.com> <52hdnh83jy.fsf@topspin.com> <20041123072944.GA22786@kroah.com> <20041123175246.GD4217@sventech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041123175246.GD4217@sventech.com>
-User-Agent: Mutt/1.5.6i
+	Tue, 23 Nov 2004 13:36:28 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45489 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261524AbUKWSeV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 13:34:21 -0500
+Message-ID: <41A3829C.4060901@pobox.com>
+Date: Tue, 23 Nov 2004 13:34:04 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Alan Chandler <alan@chandlerfamily.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: ide-cd problem
+References: <200411201842.15091.alan@chandlerfamily.org.uk> <200411211025.11629.alan@chandlerfamily.org.uk> <200411211613.54713.alan@chandlerfamily.org.uk> <200411220752.28264.alan@chandlerfamily.org.uk> <20041122080122.GM26240@suse.de>
+In-Reply-To: <20041122080122.GM26240@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 23, 2004 at 09:52:46AM -0800, Johannes Erdfelt wrote:
-> On Mon, Nov 22, 2004, Greg KH <greg@kroah.com> wrote:
-> > To be straightforward, either drop the RCU code completely, or change
-> > the license of your code.  
-> 
-> Or compile against non-GPL RCU code, right?
+Jens Axboe wrote:
+>  		/* packet command */
+> -		HWIF(drive)->OUTB(WIN_PACKETCMD, IDE_COMMAND_REG);
+> +		spin_lock_irqsave(&ide_lock, flags);
+> +		HWIF(drive)->OUTBSYNC(drive, WIN_PACKETCMD, IDE_COMMAND_REG);
+> +		ndelay(400);
+> +		spin_unlock_irqrestore(&ide_lock, flags);
+>  		return (*handler) (drive);
 
-No.  RCU is covered by a patent that only allows for it to be
-implemented in GPL licensed code.  If you want to use RCU in non-GPL
-code, you need to sign a license agreement with the holder of the RCU
-patent.
 
-This was all covered a few years ago when the RCU code first went into
-the kernel tree.  See the lkml archives for details.
+FWIW this ndelay(400) is required by the spec, when you submit a command.
 
-So the very usage of RCU in the code is the issue here, not the fact
-that it is being linked against a GPL licensed header file.
+	Jeff
 
-This isn't a GPL interpretation here, but a patent license agreement
-issue.  Sorry for not being clearer the first time around, I thought
-everyone was aware of this issue by now.
 
-thanks,
-
-greg k-h

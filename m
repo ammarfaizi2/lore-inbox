@@ -1,32 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275445AbRIZSYL>; Wed, 26 Sep 2001 14:24:11 -0400
+	id <S275442AbRIZS2B>; Wed, 26 Sep 2001 14:28:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275439AbRIZSYB>; Wed, 26 Sep 2001 14:24:01 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:63577 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S275444AbRIZSXq>; Wed, 26 Sep 2001 14:23:46 -0400
-Date: Wed, 26 Sep 2001 14:24:11 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Locking comment on shrink_caches()
-Message-ID: <20010926142411.G8223@redhat.com>
-In-Reply-To: <E15mHjL-0000t8-00@the-village.bc.nu> <Pine.LNX.4.33.0109261003480.8327-200000@penguin.transmeta.com> <200109261743.f8QHhPU08423@vindaloo.ras.ucalgary.ca>
-Mime-Version: 1.0
+	id <S275454AbRIZS1v>; Wed, 26 Sep 2001 14:27:51 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:62664 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S275449AbRIZS1k>; Wed, 26 Sep 2001 14:27:40 -0400
+From: James Washer <e2big@us.ibm.com>
+Message-Id: <200109261827.f8QIRlk05044@crg8.beaverton.ibm.com>
+Subject: Kernel text getting corrupted 
+To: linux-kernel@vger.kernel.org
+Date: Wed, 26 Sep 2001 11:27:47 -0700 (PDT)
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200109261743.f8QHhPU08423@vindaloo.ras.ucalgary.ca>; from rgooch@ras.ucalgary.ca on Wed, Sep 26, 2001 at 11:43:25AM -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 26, 2001 at 11:43:25AM -0600, Richard Gooch wrote:
-> BTW: your code had horrible control-M's on each line. So the compiler
-> choked (with a less-than-helpful error message). Of course, cat t.c
-> showed nothing amiss. Fortunately emacs doesn't hide information.
 
-You must be using some kind of broken MUA -- neither mutt nor pine 
-resulted in anything with a trace of 0x0d in it.
+We've got a strange one. We're seeing system crashes where memory, including 
+kernel text (executable) pages, is being corrupted. If you have any idea what 
+might be causing this, or if you've seen this yourself, or if you have ideas 
+on how to debug it, please let us know.
 
-		-ben
+The corrupting data consist of 16  individual bytes, each at an 8-byte offset, 
+8 byte aligned. (see data below for an example)
+
+Here's the data...  The first column marks the offset within the page, the 2nd 
+column is the corrupted data, the 3rd column is the expected/correct data
+Note, that the 0->0 is likely also corruption, but happenned to overwrite a zero 
+with a zero
+
+0xca0 a0 24 =========
+0xca8 c0 8b =========
+0xcb0 12 8f =========
+0xcb8 00 53 =========
+0xcc0 22 04 =========
+0xcc8 4d c0 =========
+0xcd0 61 5b =========
+0xcd8 69 57 =========
+0xce0 74 c0 =========
+0xce8 41 10 =========
+0xcf0 00 18 =========
+0xcf8 00 11 =========
+0xd00 00 00
+0xd08 00 24 =========
+0xd10 10 83 =========
+0xd18 4d 19 =========
+
+FYI. 
+Hardware is ~1GHz PIII, 512MB, UP, eepro100 nic, ide drives
+Software linux2.4.8,no modules, eepro100,  only 512MB of swap, serial ports 
+	are HEAVILY used.
+
+please cc e2big@us.ibm.com and jbarkal@us.ibm.com ( if you don't mind )
+-- 
+Jim Washer
+

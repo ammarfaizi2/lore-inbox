@@ -1,61 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264863AbUEYOP2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264870AbUEYO1b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264863AbUEYOP2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 10:15:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264864AbUEYOP2
+	id S264870AbUEYO1b (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 10:27:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264873AbUEYO1b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 10:15:28 -0400
-Received: from postman1.arcor-online.net ([151.189.20.156]:12228 "EHLO
-	postman.arcor.de") by vger.kernel.org with ESMTP id S264863AbUEYOP0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 10:15:26 -0400
-Subject: synaptics touchpad is still 'jumpy' in 2.6.7-rc1
-From: Thorsten Hirsch <thorstenhirsch@arcor.de>
-To: "linux kernel mailing list (lkml)" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1085494126.9350.23.camel@minime.hirsch.lan>
+	Tue, 25 May 2004 10:27:31 -0400
+Received: from mail.ccur.com ([208.248.32.212]:52491 "EHLO exchange.ccur.com")
+	by vger.kernel.org with ESMTP id S264870AbUEYO13 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 10:27:29 -0400
+Date: Tue, 25 May 2004 10:27:28 -0400
+From: Joe Korty <joe.korty@ccur.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: markh@compro.net, linux-kernel@vger.kernel.org
+Subject: Re: mlockall and mmap of IO devices don't mix
+Message-ID: <20040525142728.GA10738@tsunami.ccur.com>
+Reply-To: joe.korty@ccur.com
+References: <20031003214411.GA25802@rudolph.ccur.com> <40ADE959.822F1C23@compro.net> <20040521191326.58100086.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 25 May 2004 16:08:46 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040521191326.58100086.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again.
+On Fri, May 21, 2004 at 07:13:26PM -0700, Andrew Morton wrote:
+> Mark Hounschell <markh@compro.net> wrote:
+> >
+> > Joe Korty wrote:
+> > > 
+> > > 2.6.0-test6: the use of mlockall(2) in a process that has mmap(2)ed
+> > > the registers of an IO device will hang that process uninterruptibly.
+> > > The task runs in an infinite loop in get_user_pages(), invoking
+> > > follow_page() forever.
+> > > 
+> > > Using binary search I discovered that the problem was introduced
+> > > in 2.5.14, specifically in ChangeSetKey
+> > > 
+> > >     zippel@linux-m68k.org|ChangeSet|20020503210330|37095
+> > > 
+> > 
+> > I know this is an old thread but can anyone tell me if this problem is
+> > resolved in the current 2.6.6 kernel? 
+> > 
+> 
+> There's an utterly ancient patch in -mm which might fix this.
+> 
+> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.6/2.6.6-mm4/broken-out/get_user_pages-handle-VM_IO.patch
 
-The title says it. My synaptics touchpad is still jumpy and I also get
-those out-of-sync errors in dmesg:
+[ 2nd send -- corporate email system in the throes of being scrambled / updated ]
 
-Synaptics driver lost sync at byte 4
-Synaptics driver lost sync at byte 1
-Synaptics driver lost sync at byte 1
-Synaptics driver lost sync at byte 4
-Synaptics driver lost sync at byte 1
-Synaptics driver lost sync at byte 1
-Synaptics driver lost sync at byte 1
-Synaptics driver resynced.
-psmouse.c: TouchPad at isa0060/serio2/input0 lost synchronization,
-throwing 2 bytes away.
-[...and again and again...]
+Andrew,
+I have been using this patch for ages.  Any chance of it being forwared to
+the official tree?
 
-I know of the pcilink patch for ACPI, Len Brown has posted, but this one
-doesn't do the trick for me. I also tried 2.6.6-mm5 and 2.6.7-rc1 (where
-this patch is already included), but still get the same results.
-
-I even don't know if it's ACPI-related, because the only thing that
-makes it seem to be so is that the battery data (gkrellm monitor and
-also /proc/acpi/battery) is broken, e.g. remaining capacity is going to
-values >10000mWh for the moment when my touchpad is out of sync. But
-then when syncing back the ACPI battery data is okay again, too.
-But my point is, that when using the kernel parameter acpi=off I still
-have the same problems with my touchpad.
-
-My hardware is also okay as I've got no problems at all with kernel
-2.4.x.
-
-Bye.
-Thorsten
--- 
-PGP public key:
-http://home.arcor.de/thorstenhirsch/thirschatwebde.asc
-
+Regards,
+Joe

@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317366AbSHJX4q>; Sat, 10 Aug 2002 19:56:46 -0400
+	id <S317373AbSHKAAA>; Sat, 10 Aug 2002 20:00:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317373AbSHJX4q>; Sat, 10 Aug 2002 19:56:46 -0400
-Received: from faui02.informatik.uni-erlangen.de ([131.188.30.102]:25500 "EHLO
-	faui02.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id <S317366AbSHJX4p>; Sat, 10 Aug 2002 19:56:45 -0400
-Date: Sun, 11 Aug 2002 01:13:44 +0200
-From: Richard Zidlicky <rz@linux-m68k.org>
-To: Daniel Egger <degger@fhm.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mmapping large files hits swap in 2.4?
-Message-ID: <20020811011344.A1299@linux-m68k.org>
-References: <1028913975.3832.14.camel@sonja.de.interearth.com> <20020810141201.A1868@linux-m68k.org> <1028996245.8172.19.camel@sonja.de.interearth.com>
+	id <S317385AbSHJX77>; Sat, 10 Aug 2002 19:59:59 -0400
+Received: from mail013.syd.optusnet.com.au ([210.49.20.171]:38115 "EHLO
+	mail013.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id <S317373AbSHJX77>; Sat, 10 Aug 2002 19:59:59 -0400
+Date: Sun, 11 Aug 2002 10:03:40 +1000
+From: Pete de Zwart <dezwart@froob.net>
+To: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+Subject: Re: 2.4.19: drivers/usb/printer.c usblpX on fire
+Message-ID: <20020811000340.GF27819@niflheim>
+References: <200208092200.RAA34736@tomcat.admin.navo.hpc.mil>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1028996245.8172.19.camel@sonja.de.interearth.com>; from degger@fhm.edu on Sat, Aug 10, 2002 at 06:17:25PM +0200
+In-Reply-To: <200208092200.RAA34736@tomcat.admin.navo.hpc.mil>
+User-Agent: Mutt/1.3.28i
+X-environment: Linux niflheim 2.4.19 i686 /dev/pts/2
+X-Url: http://froob.net/~dezwart/
+X-Organisation: Froob Networks
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 10, 2002 at 06:17:25PM +0200, Daniel Egger wrote:
-> Am Sam, 2002-08-10 um 14.12 schrieb Richard Zidlicky:
-> 
-> > seems like you are doing something else, like hitting all
-> > of the file.
->  
-> > # uname -a
-> > Linux sirizidl.dialin.rrze.uni-erlangen.de 2.4.18 #27 Wed Jul 24 17:25:39 CEST 2002 m68k unknown
->  
-> > main()
-> > {
-> >   char *area;
-> >   int fd=open("/msrc/linux/distr/cd.image", O_RDWR);
-> >   area = mmap (0, 168088*4096, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-> >   if (area == -1) perror("mmap");
-> > }
-> 
-> Heh. Well of course I'm also trying to use the memory I mmaped. :)
-> It is just that it seems the mmaped region is not really bakked by
-> the underlying file but by swap space which was exactly what I 
-> was trying to avoid by using a file.
+Cool, thanx Jesse, I always wondered what the history was behind it and
+how to achieve it.
 
-still works as expected for me, accessing a 650 MB file with only 
-about 350 MB swap is no problem. It takes some time on that old
-m68k box but clearly dominated by HD read time.. a compilation 
-runing in the background doesn't seem to make any difference
-at all.
+Here is another query:
 
-Richard
+If each printer had their own set of error codes, what would be the way to
+implement their display from the kernel?
+
+Would each printer have to have their own module if they had a non-standard
+list of error codes or would we simply ignore them and state that the
+ill conforming printer is on fire?
+
+	Pete de Zwart.
+
+-- 
+The real reason your computer crashed, thanx to the BOFH:
+"Your processor does not develop enough heat."

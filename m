@@ -1,87 +1,89 @@
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S267877AbTBVLH5>; Sat, 22 Feb 2003 06:07:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S267881AbTBVLH5>; Sat, 22 Feb 2003 06:07:57 -0500
-Received: from [217.78.76.157] ([217.78.76.157]:260 "HELO n2now419.com") by vger.kernel.org with SMTP id <S267877AbTBVLHw> convert rfc822-to-8bit; Sat, 22 Feb 2003 06:07:52 -0500
-From: "MRS CEDIA ESTRADA" <estrada_11@linuxmail.org>
-Reply-To: estrada71@phantomemail.com
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S268937AbTBWVVK>; Sun, 23 Feb 2003 16:21:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S268943AbTBWVVK>; Sun, 23 Feb 2003 16:21:10 -0500
+Received: from rrcs-nys-24-97-132-21.biz.rr.com ([24.97.132.21]:41977 "EHLO smc-ex2.smc.com") by vger.kernel.org with ESMTP id <S268937AbTBWVVI>; Sun, 23 Feb 2003 16:21:08 -0500
+Date: Sun, 23 Feb 2003 21:30:54 GMT
+From: "Rarwen" <GenerateMoreSalesNow0223@yahoo.com>
+X-Priority: 3
 To: linux-kernel@vger.kernel.org
-Date: Sat, 22 Feb 2003 00:16:26 +0100
-Subject: MRS CEDIA ESTRADA
-X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <20030222110752Z267877-29901+895@vger.kernel.org>
+Subject: >>>15.4 MILLION EMAIL ADDRESSES...PLUS OVER $2,000 WORTH OF FREE EMAIL MARKETING SOFTWARE!
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <SMC-EX2hjM8osI5gECk00005657@smc-ex2.smc.com>
+X-OriginalArrivalTime: 23 Feb 2003 21:28:44.0173 (UTC) FILETIME=[8ADC73D0:01C2DB82]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Return-Path: <linux-kernel-owner+ralf=40linux-mips.org@vger.kernel.org>
 X-Envelope-To: </home/ralf/ralf> (uid 501)
 Original-Recipient: rfc822;ralf@linux-mips.org
 
-Dear Sir, 
-
-My name is CEDIA D.ESTRADA,The wife of Mr. JOSEPH 
-ESTRADA, the former President of Philippines located 
-in the South East Asia. 
-
-My husband was recently impeached from office by a 
-backed uprising of mass demonstrators and the Senate. 
-
-My husband is presently in jail and facing trial on 
-charges of corruption, embezzlement, and the 
-mysterious 
-
-charge of plunder which might lead to death sentence. 
-The present government is forcing my husband out of 
-manila to avoid demonstration by his supporter. 
-
-During my husband's regime as president of Philippine, 
-I realized some reasonable amount of money from 
-various deals that I successfully executed. I have 
-plans to invest this money for my children's future on real 
-estate and industrial production. My husband is not 
-aware of this because I wish to do it secretly for 
-now. 
-
-Before my husband was impeached, I secretly siphoned 
-the sum of $30,000,000 million USD 
-(Thirty million United states dollars) out of 
-Philippines and deposited the money with a security 
-firm that transports valuable goods and consignments 
-through diplomatic means. I also declared that the 
-consignment was solid gold and my foreign business 
-partner owned it. 
-
-I am contacting you because I want you to go to the 
-security company and claim the money on my behalf 
-since I have declared that the consignment belong to 
-my foreign business partner. You shall also be 
-required to assist me in investment in your country. 
-
-I hope to trust you as a God fearing person who will 
-not sit on this money when you claim it, rather assist me 
-properly, I expect you to declare what percentage of 
-the total money you will take for your assistance. 
-
-When I receive your positive response I will let you 
-know where the security company is 
-and the payment pin code to claim the money which is 
-very important. 
-
-For now, let all our communication is by e-mail 
-because my line are right now connected to the 
-Philippines Telecommunication Network services. Please 
-
-also send me your telephone and fax number. 
-
-I will ask my son contact you to give you more details 
-on after i have received a responce from you.
-
-Thank you and God bless you and family. 
 
 
-MRS CEDIA ESTRADA 
+WOULD YOU LIKE TO HAVE YOUR MESSAGE SEEN BY 
+OVER 15.4 MILLION OPT-IN, TARGETED PROSPECTS DAILY?
+
+Below contains all the information you will ever need to market 
+your product or service on the Internet.
+
+If you have a product, service, or message that you would like to get 
+out to Thousands, Hundreds of Thousands, or even Millions of people, 
+you have several options. Traditional methods include print advertising,
+direct mail, radio, and television advertising. They are all effective, but 
+they all have two catches: They're EXPENSIVE and TIME 
+CONSUMING. Not only that, you only get ONE SHOT at making 
+your message heard by the right people. Also, Internet Search Engine 
+Submissions, Classified Ads, Newsgroup Postings simply DO NOT 
+WORK effectively.
+
+Now this has all changed!
+
+Thanks to the top programmers in the world and their NEW EMAIL
+TECHNOLOGY, You can send millions of email messages daily for 
+FREE...Without getting terminated from your current Internet connection!
+
+It's very simple to do and you can be increasing your sales within minutes 
+of installing this new extraordinary software!
+
+Besides...It's the only real way to advertise on the Internet that works...Period!
+
+>>>WE WILL SUPPLY YOU WITH OVER 15.4 MILLION OPT-IN EMAIL 
+ADDRESSES TO GET YOU STARTED RIGHT AWAY!
+
+>>>PLUS FREE EMAIL ADDRESS DOWNLOADS FOR LIFE!
+
+>>>ALSO, YOU WILL RECEIVE $2,000 WORTH OF EMAIL 
+MARKETING SOFTWARE FREE!
+
+Including......
+
+BROADCAST EMAIL SENDING SOFTWARE...(send millions of email 
+advertisements daily with a few clicks of your mouse, without getting 
+your ISP trerminated. We used the same software to send you this email)
+
+EMAIL EXTRACTION SOFTWARE...(retrieve new targeted email 
+addresses daily. Hundreds of thousands of them)
+
+LIST MANAGEMENT SOFTWARE...(keep your lists clean, opt-in 
+and manage all your remove requests, leads, sales etc...)
+ 
+and much...much more!
+
+Hurry...This extraordinary offer ends soon!
+
+To find out more information, Do not respond by email. Instead, click 
+on the link below or copy and paste the exact web site address below 
+into your Internet browser. 
+
+http://www.farthereaches.biz/504305/addresses.htm
 
 
 
 
-
+______________________________________________________
+Want to be removed from our email list?
+You were sent this email because you used our Opt-in service.
+We hope you enjoy reading our messages. However, if you'd rather 
+not receive future e-mails from us, Click on the link below
+http://www.farthereaches.biz/504305/remove.htm 
+Thank you for your cooperation
+_______________________________________________________

@@ -1,65 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129415AbQLSRSa>; Tue, 19 Dec 2000 12:18:30 -0500
+	id <S129257AbQLSRWa>; Tue, 19 Dec 2000 12:22:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129573AbQLSRSU>; Tue, 19 Dec 2000 12:18:20 -0500
-Received: from munchkin.spectacle-pond.org ([209.192.197.45]:22283 "EHLO
-	munchkin.spectacle-pond.org") by vger.kernel.org with ESMTP
-	id <S129415AbQLSRSC>; Tue, 19 Dec 2000 12:18:02 -0500
-Date: Tue, 19 Dec 2000 11:53:00 -0500
-From: Michael Meissner <meissner@spectacle-pond.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Anuradha Ratnaweera <anuradha@gnu.org>,
-        Ulrich Drepper <drepper@cygnus.com>,
-        "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.18 signal.h
-Message-ID: <20001219115300.A4144@munchkin.spectacle-pond.org>
-In-Reply-To: <20001215205721.I17781@inspiron.random> <Pine.LNX.4.21.0012161337220.1433-100000@bee.lk> <20001216145242.C25150@inspiron.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20001216145242.C25150@inspiron.random>; from andrea@suse.de on Sat, Dec 16, 2000 at 02:52:42PM +0100
+	id <S129370AbQLSRWU>; Tue, 19 Dec 2000 12:22:20 -0500
+Received: from TSX-PRIME.MIT.EDU ([18.86.0.76]:4501 "HELO tsx-prime.MIT.EDU")
+	by vger.kernel.org with SMTP id <S129257AbQLSRWF>;
+	Tue, 19 Dec 2000 12:22:05 -0500
+Date: Tue, 19 Dec 2000 11:51:24 -0500
+Message-Id: <200012191651.LAA02207@tsx-prime.MIT.EDU>
+From: "Theodore Y. Ts'o" <tytso@MIT.EDU>
+To: Kurt Garloff <garloff@suse.de>
+CC: "Theodore Y. Ts'o" <tytso@MIT.EDU>,
+        Linux kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: Kurt Garloff's message of Tue, 19 Dec 2000 12:49:48 +0100,
+	<20001219124948.P17777@garloff.suse.de>
+Subject: Re: /dev/random: really secure?
+Phone: (781) 391-3464
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 16, 2000 at 02:52:42PM +0100, Andrea Arcangeli wrote:
-> On Sat, Dec 16, 2000 at 01:53:50PM +0600, Anuradha Ratnaweera wrote:
-> > GCC will complain the absence of a statement after `out1:out2:`, but not
-> > two complains for `out1' and `out2', because they form a single entity.
-> 
-> I understand the formal specs (the email from Michael is very clear). What I'm
-> saying is that as the `dummy' statement is redoundant information but you're
-> requiring us to put it to build a labeled-statement, you could been even more
-> lazy and not define the labeled-statement as a statement so requiring us to put
-> a dummy statement after every label. That would been the same kind of issue
-> we're facing right now (but of course defining a labeled-statement as a
-> statement and allowing recursion makes the formal specs even simpler so that
-> probably wouldn't happen that easily).
+   Date: Tue, 19 Dec 2000 12:49:48 +0100
+   From: Kurt Garloff <garloff@suse.de>
 
-Basically, that's the way Dennis Ritchie decided it should be 26-27 years ago
-(C emerged between 1972 and 1973, according to the published history).  It may
-be that C's ancestor languages (B and BCPL) had the same syntax, but since I've
-never used them, I can't say.  Ultimately, all syntax is arbitrary, merely an
-agreement between language designers, implementers, standards committees and
-users.  FWIW, it is rather low on my radar screen.  If I had a magic Delorean
-and could go back in time to make some changes, I would:
+   On Mon, Dec 18, 2000 at 04:33:13PM -0500, Theodore Y. Ts'o wrote:
+   > Note that writing to /dev/random does *not* update the entropy estimate,
+   > for this very reason.  The assumption is that inputs to the entropy
+   > estimator have to be trusted, and since /dev/random is typically
+   > world-writeable, it is not so trusted.
 
-   1)	Make all stdio functions consistant in taking the FILE * argument as
-	the first argument.
+   It should not be world-writeable, IMHO. So the only one who can feed entropy
+   there is root, who should know aht (s)he's doing ...
+   Here (SuSE Linux 7.x), it is 644:
+   crw-r--r--    1 root     root       1,   8 Dec 17 22:41 /dev/random
+   crw-r--r--    1 root     root       1,   9 Dec 17 22:41 /dev/urandom
 
-   2)	Make && and || have the proper priority.
+No, writing to /dev/random does not feed update entropy estimate.  It
+does mix data into the pool, but the mixing algorithm is designed so
+that you can do no harm by mixing any data into the pool --- even nasty
+data chosen by an attacker.  Hence, allowing someone to write into
+/dev/random is perfectly safe; it can cause no damage, and might improve
+things.  That's why /dev/random should be world-writeable.
 
-   3)	Make plain char and bitfields unsigned by default, add signed keyword
-	to the original language.
+There is a separate ioctl which requires root privs to atomically mix
+data into the pool and update the entropy estimate.  That's the
+interface which is supposed to be used by trusted daemons which pull
+data from various hardware devices, and feed them into /dev/random.
 
-   4)	Allow optional trailing ',' in enumeration lists.
+Note that in this case, the trusted daemon is supposed to estimate the
+amount of entropy which it is feeding into the system.  That's because
+the daemon may be able to use much more sophisticated entropy estimation
+systems, including ones which may require large amounts of CPU time (for
+example, to do FFT's, trial compression of the data, etc.).
 
--- 
-Michael Meissner, Red Hat, Inc.  (GCC group)
-PMB 198, 174 Littleton Road #3, Westford, Massachusetts 01886, USA
-Work:	  meissner@redhat.com		phone: +1 978-486-9304
-Non-work: meissner@spectacle-pond.org	fax:   +1 978-692-4482
+					- Ted
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

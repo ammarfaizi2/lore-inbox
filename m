@@ -1,117 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263320AbTIAW17 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 18:27:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263322AbTIAW17
+	id S263343AbTIAWae (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 18:30:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263348AbTIAWae
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 18:27:59 -0400
-Received: from fw.osdl.org ([65.172.181.6]:8839 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263320AbTIAW1z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 18:27:55 -0400
-Date: Mon, 1 Sep 2003 15:28:09 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Dale E Martin" <dmartin@cliftonlabs.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: repeatable, hard lockup on boot in linux-2.6.0-test4 (more
- details)
-Message-Id: <20030901152809.0311f46f.akpm@osdl.org>
-In-Reply-To: <20030901195706.GA853@cliftonlabs.com>
-References: <20030901182359.GA871@cliftonlabs.com>
-	<20030901120412.2047eeff.akpm@osdl.org>
-	<20030901195706.GA853@cliftonlabs.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 1 Sep 2003 18:30:34 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:48135 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263343AbTIAWa1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 18:30:27 -0400
+Date: Mon, 1 Sep 2003 23:30:23 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@osdl.org>
+Subject: Re: Fix up power managment in 2.6
+Message-ID: <20030901233023.F22682@flint.arm.linux.org.uk>
+Mail-Followup-To: Pavel Machek <pavel@suse.cz>,
+	Linus Torvalds <torvalds@osdl.org>,
+	kernel list <linux-kernel@vger.kernel.org>,
+	Patrick Mochel <mochel@osdl.org>
+References: <20030831232812.GA129@elf.ucw.cz> <Pine.LNX.4.44.0309010925230.7908-100000@home.osdl.org> <20030901211220.GD342@elf.ucw.cz> <20030901225243.D22682@flint.arm.linux.org.uk> <20030901221920.GE342@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030901221920.GE342@elf.ucw.cz>; from pavel@suse.cz on Tue, Sep 02, 2003 at 12:19:20AM +0200
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Dale E Martin" <dmartin@cliftonlabs.com> wrote:
->
-> > Are you able to plug any PS/2 devices into the machine, see if that makes
->  > a difference?
+On Tue, Sep 02, 2003 at 12:19:20AM +0200, Pavel Machek wrote:
+> > Please don't - that means undoing all the work I've put in to make
+> > ARM work again, and I don't have time to play silly games like this.
 > 
->  Yes, plugging in a PS/2 mouse in addition to the USB mouse does allow the
->  machine to boot up.  (Just tried it, thanks for the suggestion.)
+> Okay, so Patrick broke ARM and you fixed it. But he also broke i386 and
+> x86-64; and it is not at all clear that his "newer" version is better
+> than the old one. [Really, what's the advantage? AFAICS it is more
+> complicated and less flexible, putting "suspend" method to bus as
+> oppossed to device].
 
-OK, don't go away yet ;)
+I don't think PCI device support broke - Pat seems to have fixed up
+all that fairly nicely, so the driver model change should be
+transparent.
 
-Could you please add this patch and see how far it gets?  If you're keen,
-keep adding more DB() statements, narrow it down further?
+The main advantage from a driver writers point of view is the disposal
+of the "level" argument.  (Doesn't really affect x86, PCI drivers never
+had visibility of this.)
 
+However, I'll let the PPC people justify the real reason for the driver
+model change, since it was /their/ requirement that caused it, and I'm
+not going to fight their battles for them.  (although I seem to be doing
+exactly that while wasting my time here.)
 
- drivers/input/serio/i8042.c |   23 ++++++++++++++++++-----
- include/linux/kernel.h      |    1 +
- 2 files changed, 19 insertions(+), 5 deletions(-)
+It's about time that the people in the PPC community, who were the main
+guys pushing for the driver model change, spoke up and justified this.
 
-diff -puN drivers/input/serio/i8042.c~a drivers/input/serio/i8042.c
---- 25/drivers/input/serio/i8042.c~a	2003-09-01 15:24:02.000000000 -0700
-+++ 25-akpm/drivers/input/serio/i8042.c	2003-09-01 15:25:31.000000000 -0700
-@@ -831,36 +831,49 @@ int __init i8042_init(void)
- {
- 	int i;
- 
-+	DB();
- 	dbg_init();
- 
-+	DB();
- 	if (i8042_platform_init())
- 		return -EBUSY;
- 
- 	i8042_aux_values.irq = I8042_AUX_IRQ;
- 	i8042_kbd_values.irq = I8042_KBD_IRQ;
- 
-+	DB();
- 	if (i8042_controller_init())
- 		return -ENODEV;
- 
-+	DB();
- 	if (i8042_dumbkbd)
- 		i8042_kbd_port.write = NULL;
- 
--	for (i = 0; i < 4; i++)
-+	for (i = 0; i < 4; i++) {
-+		DB();
- 		i8042_init_mux_values(i8042_mux_values + i, i8042_mux_port + i, i);
-+	}
- 
--	if (!i8042_nomux && !i8042_check_mux(&i8042_aux_values))
--		for (i = 0; i < 4; i++)
-+	if (!i8042_nomux && !i8042_check_mux(&i8042_aux_values)) {
-+		for (i = 0; i < 4; i++) {
-+			DB();
- 			i8042_port_register(i8042_mux_values + i, i8042_mux_port + i);
--	else 
--		if (!i8042_noaux && !i8042_check_aux(&i8042_aux_values))
-+		}
-+	} else {
-+		if (!i8042_noaux && !i8042_check_aux(&i8042_aux_values)) {
-+			DB();
- 			i8042_port_register(&i8042_aux_values, &i8042_aux_port);
-+		}
-+	}
- 
-+	DB();
- 	i8042_port_register(&i8042_kbd_values, &i8042_kbd_port);
- 
- 	init_timer(&i8042_timer);
- 	i8042_timer.function = i8042_timer_func;
- 	mod_timer(&i8042_timer, jiffies + I8042_POLL_PERIOD);
- 
-+	DB();
- 	register_reboot_notifier(&i8042_notifier);
- 
- 	return 0;
-diff -puN include/linux/kernel.h~a include/linux/kernel.h
---- 25/include/linux/kernel.h~a	2003-09-01 15:24:02.000000000 -0700
-+++ 25-akpm/include/linux/kernel.h	2003-09-01 15:25:55.000000000 -0700
-@@ -236,4 +236,5 @@ extern void BUILD_BUG(void);
- #define __FUNCTION__ (__func__)
- #endif
- 
-+#define DB() printk("%s:%d\n", __FILE__, __LINE__)
- #endif
-
-_
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

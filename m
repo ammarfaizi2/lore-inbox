@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262303AbSKRSvY>; Mon, 18 Nov 2002 13:51:24 -0500
+	id <S262602AbSKRS6a>; Mon, 18 Nov 2002 13:58:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262506AbSKRSvY>; Mon, 18 Nov 2002 13:51:24 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:26100 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262303AbSKRSvX>;
-	Mon, 18 Nov 2002 13:51:23 -0500
-Message-ID: <3DD937CB.2030304@us.ibm.com>
-Date: Mon, 18 Nov 2002 10:56:11 -0800
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Davide Libenzi <davidel@xmailserver.org>
-CC: Andrew Morton <akpm@digeo.com>, William Lee Irwin III <wli@holomorphy.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Robert Love <rml@tech9.net>,
-       riel@surriel.com, akpm@zip.com.au
-Subject: Re: unusual scheduling performance
-References: <Pine.LNX.4.44.0211181031400.979-100000@blue1.dev.mcafeelabs.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S263968AbSKRS6a>; Mon, 18 Nov 2002 13:58:30 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:19934 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S262602AbSKRS63>;
+	Mon, 18 Nov 2002 13:58:29 -0500
+Date: Mon, 18 Nov 2002 19:02:00 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Ricardo Galli <gallir@uib.es>
+Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+Subject: Re: PATCH: Recognize Tualatin cache size in 2.4.x
+Message-ID: <20021118190200.GA20936@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Ricardo Galli <gallir@uib.es>, linux-kernel@vger.kernel.org,
+	marcelo@conectiva.com.br
+References: <200211171549.gAHFnSrE021923@mnm.uib.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200211171549.gAHFnSrE021923@mnm.uib.es>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi wrote:
-> On Mon, 18 Nov 2002, Andrew Morton wrote:
->> fs/eventpoll.c |    2 ++
->> 1 files changed, 2 insertions(+)
->>
->>--- 25/fs/eventpoll.c~hey	Mon Nov 18 10:13:40 2002
->>+++ 25-akpm/fs/eventpoll.c	Mon Nov 18 10:14:01 2002
->>@@ -328,6 +328,8 @@ void eventpoll_release(struct file *file
->> 	if (list_empty(lsthead))
->> 		return;
->>
->>+	printk("hey!\n");
->>+
-> 
-> Andrew, if you don't use epoll there's no way you get there. The function
-> eventpoll_file_init() initialize the list at each file* init in
-> fs/file_table.c
-> If you're not using epoll and you get there, someone is screwing up the
-> data inside the struct file
+On Sun, Nov 17, 2002 at 04:55:22PM +0100, Ricardo Galli wrote:
+ > Marcelo,
+ > 	please attach this patch to recognise the Tualatin processors' 
+ > cache. 
+ > 
+ > I think this has been already discussed in the list, and DaveJ 
+ > also applied it in his tree and/or 2.5.x. It is documented by
+ > Intel.
 
-That little tidbit isn't even in .47.  Is that patch against one of 
-the 2.5.47-mm's?
+I sent Marcelo a patch containing this and other IDs.
+He wants to take it for .21pre1
+
+It's purely cosmetic, so that's fine with me..
+
+		Dave
 
 -- 
-Dave Hansen
-haveblue@us.ibm.com
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,75 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269204AbUICHWL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269113AbUICH1r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269204AbUICHWL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 03:22:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269264AbUICHWK
+	id S269113AbUICH1r (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 03:27:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269247AbUICH1q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 03:22:10 -0400
-Received: from castle.nmd.msu.ru ([193.232.112.53]:25864 "HELO
-	castle.nmd.msu.ru") by vger.kernel.org with SMTP id S269204AbUICHVi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 03:21:38 -0400
-Message-ID: <20040903112133.A1834@castle.nmd.msu.ru>
-Date: Fri, 3 Sep 2004 11:21:33 +0400
-From: Andrey Savochkin <saw@saw.sw.com.sg>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: exec: atomic MAY_EXEC check and SUID/SGID handling
-References: <20040902174521.A13656@castle.nmd.msu.ru> <20040902133109.H1973@build.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <20040902133109.H1973@build.pdx.osdl.net>; from "Chris Wright" on Thu, Sep 02, 2004 at 01:31:09PM
+	Fri, 3 Sep 2004 03:27:46 -0400
+Received: from smtp804.mail.sc5.yahoo.com ([66.163.168.183]:35671 "HELO
+	smtp804.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S269113AbUICH1o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 03:27:44 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
+Subject: Re: [2.6.8.1-mm1][input] - IBM TouchPad support added? Which patch is this? - Unsure still
+Date: Fri, 3 Sep 2004 02:27:42 -0500
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <200408170349.44626.shawn.starr@rogers.com> <200408170801.00068.dtor_core@ameritech.net> <41381972.8080600@bio.ifi.lmu.de>
+In-Reply-To: <41381972.8080600@bio.ifi.lmu.de>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200409030227.42441.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 02, 2004 at 01:31:09PM -0700, Chris Wright wrote:
-> * Andrey Savochkin (saw@saw.sw.com.sg) wrote:
-> > There is a time window between permission(MAY_EXEC) check in
-> > open_exec() and S_ISUID check plus bprm->e_uid setting in prepare_binprm().
-> > And S_ISUID is checked and bprm->e_uid is copied from the inode without
-> > any serialization with attribute updates.
+On Friday 03 September 2004 02:12 am, Frank Steiner wrote:
+> Dmitry Torokhov wrote:
+> > On Tuesday 17 August 2004 03:02 am, Shawn Starr wrote:
 > > 
-> > That means that some executable may have permissions
-> > -rwxr-xr-x    root     disk     /bin/file
-> > at the moment of MAY_EXEC check and
-> > -rwsr-x---    root     disk     /bin/file
-> > at the moment of S_ISUID check, providing lucky users starting /bin/file at
-> > the moment of permission change with a setuid-root program.
+> >>Sorry, I stand corrected. I don't know where this patch is added from which 
+> >>enables the touchpad to act as a 'button press'.
+> >>
 > > 
-> > It's arguable whether it's a big security issue, but certainly such behavior
-> > is not what administrators may expect.
+> > 
+> > mousedev now does tap emulation for touchpads working in absolute mode
+> > (Synaptics) so you don't need to use psmouse.proto= parameter to force
+> > it in PS/2 compatibility mode. Use mousedev.tap_time= option to control
+> > it.
+> > 
+> > The patch is only in -mm at the moment.
 > 
-> If you can find a way for a user to exploit this it's an issue.  Looks
+> Can that patch be downloaded somewhere to patch against 2.6.8.1? I don't
+> have any tapping support for my synaptic touchpad on my compaq laptop after
+> switching from 2.4 to 2.6.
+> It seems that most of the patches at http://www.geocities.com/dt_or/input/2_6_7/
+> are already in 2.6.8.1: Just the tapping stuff seems to be missing. And
+> I can't extract your patch from the 2.6.9-rc1-mm2 stuff, because it seems
+> to be mixed with some other patches there.
+> Is there a sole version of this patch fir 2.6.8.1 somewhere?
+> 
 
-Exploiting it requires waiting for the administrator to change file
-permissions...  May be, some social engineering.
-But THERE IS a race, which may result in user having more permissions than
-he is expected to have.
-I'm not comfortable living with such a race.
+No, I don't think I have one... If you are using BitKeeper, yo could just do:
 
-Instead of
-	inode->i_mode = attr->ia_mode;
-we can write inode_setattr() as
-	inode->i_mode |= 06777;
-	inode->i_mode &= attr->ia_mode;
+	bk pull bk://dtor.bkbits.net/input
 
-Will it be easily exploitable?  I guess, no.
-Will I be comfortable if the code is vulnerable in this way?  No.
+But have you tried installing XFree86/XOrg Synaptics driver
+(http://w1.894.telia.com/~u89404340/touchpad/index.html)?
+It does support tapping just fine...
 
-> like it's not, and doesn't warrant such a big change as your patch.
-> The fact that you introduce a new field and then almost always supply it
-> with NULL is a clue that it's not the right direction IMO.  Something
-> simple (as you mentioned) that grabs i_sem and rechecks during suid
-> setup in binprm_prepare is sufficient.  Worth it?  Guess I'm not
-> convinced.
-
-I explained my arguments against re-checking permissions:
- - the locking convention where ->permission() method may be called with or
-   without i_sem doesn't look suberb;
- - it's better to avoid calling permission() with the same arguments for
-   the second time, especially if it does something complicated in
-   security_inode_permission(), with ACLs or in case of a remote filesystem.
-
-	Andrey
+-- 
+Dmitry

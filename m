@@ -1,84 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262471AbUKDXGe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262496AbUKDXGd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262471AbUKDXGe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 18:06:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262468AbUKDWgR
+	id S262496AbUKDXGd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 18:06:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262479AbUKDWg3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 17:36:17 -0500
-Received: from ppsw-6.csi.cam.ac.uk ([131.111.8.136]:20364 "EHLO
-	ppsw-6.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S262471AbUKDWS3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 17:18:29 -0500
-Date: Thu, 4 Nov 2004 22:18:21 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: linux-os@analogic.com
-cc: Giuseppe Bilotta <bilotta78@hotpop.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.6.9 won't allow a write to a NTFS file-system.
-In-Reply-To: <Pine.LNX.4.60.0411042216340.5130@hermes-1.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.60.0411042218120.5130@hermes-1.csi.cam.ac.uk>
-References: <Pine.LNX.4.61.0411041054370.4818@chaos.analogic.com>
- <MPG.1bf47baa1b621da0989706@news.gmane.org> <Pine.LNX.4.61.0411041158010.5193@chaos.analogic.com>
- <Pine.LNX.4.60.0411042216340.5130@hermes-1.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
+	Thu, 4 Nov 2004 17:36:29 -0500
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:47620 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP id S262349AbUKDWV3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 17:21:29 -0500
+Date: Thu, 4 Nov 2004 22:21:22 +0000
+From: John Levon <levon@movementarian.org>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>, Jack Steiner <steiner@sgi.com>,
+       linux-kernel@vger.kernel.org, edwardsg@sgi.com, dipankar@in.ibm.com
+Subject: Re: contention on profile_lock
+Message-ID: <20041104222122.GA55794@compsoc.man.ac.uk>
+References: <200411021152.16038.jbarnes@engr.sgi.com> <20041104201257.GA14786@holomorphy.com> <200411041249.21718.jbarnes@engr.sgi.com> <200411041355.27228.jbarnes@engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200411041355.27228.jbarnes@engr.sgi.com>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Graham Coxon - Happiness in Magazines
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1CPpyu-000LZ0-9W*HGxjWiPdRbU*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Nov 2004, Anton Altaparmakov wrote:
+On Thu, Nov 04, 2004 at 01:55:27PM -0800, Jesse Barnes wrote:
 
-> On Thu, 4 Nov 2004, linux-os wrote:
-> > On Thu, 4 Nov 2004, Giuseppe Bilotta wrote:
-> > > linux-os wrote:
-> > > > 
-> > > > Hello anybody maintaining NTFS,
-> > > > 
-> > > > I can't write to a NTFS file-system.
-> > > > 
-> > > > /proc/mounts shows it's mounted RW:
-> > > > /dev/sdd1 /mnt ntfs
-> > > > rw,uid=0,gid=0,fmask=0177,dmask=077,nls=utf8,errors=continue,mft_zone_multiplier=1
-> > > > 0 0
-> > > > 
-> > > > .config shows RW support.
-> > > > 
-> > > > CONFIG_NTFS_FS=m
-> > > > # CONFIG_NTFS_DEBUG is not set
-> > > > CONFIG_NTFS_RW=y
-> > > > 
-> > > > Errno is 1 (Operation not permitted), even though root.
-> > > 
-> > > What are trying to write? AFAIK, the (new) NTFS module only
-> > > allows one kind of writing: overwriting an existing file, as
-> > > long as its size doesn't change.
-> > 
-> > Huh? Are we talking about the same thing? I'm talking about
-> > the NTFS that Windows/NT and later versions puts on its
-> > file-systems. I use an USB external disk with my M$ Laptop
-> > and I have always been able to transfer data to/from
-> > my machines using that drive. Now I can't. The drive it
-> > writable under M$, but I can't even delete anything
-> > (no permission for root) under Linux.
-> 
-> You must have had it formatted as VFAT in the past.  There is now way you 
+> +/* Oprofile timer tick hook */
+> +int (*oprofile_timer_notify)(struct pt_regs *);
 
-s/now/no/
+How is the module going to access this if you don't EXPORT_SYMBOL_GPL()
+it ?
 
-> were writing to an NTFS drive from Linux (unless you were using Captive 
-> NTFS or one of the commercially available drivers).
-> 
-> Best regards,
-> 
-> 	Anton
-> 
+Do you have some specific objection to keeping the register/unregister
+functions as I showed?
 
-Best regards,
-
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+john

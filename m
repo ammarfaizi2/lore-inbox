@@ -1,60 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266525AbUBETEz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 14:04:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266515AbUBETCi
+	id S266515AbUBETFO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 14:05:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266508AbUBETFN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 14:02:38 -0500
-Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:28429 "EHLO
-	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
-	id S266508AbUBETAA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 14:00:00 -0500
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-Date: Thu, 5 Feb 2004 21:51:03 +0300
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.2-mm1 [: make xconfig crash in Mdk 10.0 beta2]
-Message-ID: <20040205185103.GD5320@localhost.localdomain>
+	Thu, 5 Feb 2004 14:05:13 -0500
+Received: from gprs146-93.eurotel.cz ([160.218.146.93]:1921 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S266526AbUBETEf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 14:04:35 -0500
+Date: Thu, 5 Feb 2004 20:03:49 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Alok Mooley <rangdi@yahoo.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>, Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: Active Memory Defragmentation: Our implementation & problems
+Message-ID: <20040205190349.GC294@elf.ucw.cz>
+References: <20040204191829.57468.qmail@web9704.mail.yahoo.com> <Pine.LNX.4.53.0402041427270.2947@chaos>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <Pine.LNX.4.53.0402041427270.2947@chaos>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is it in Mandrake only or generic problem?
+Hi!
 
------ Forwarded message from  -----
+> > If this is an Intel x86 machine, it is impossible
+> > > for pages
+> > > to get fragmented in the first place. The hardware
+> > > allows any
+> > > page, from anywhere in memory, to be concatenated
+> > > into linear
+> > > virtual address space. Even the kernel address space
+> > > is virtual.
+> > > The only time you need physically-adjacent pages is
+> > > if you
+> > > are doing DMA that is more than a page-length at a
+> > > time. The
+> > > kernel keeps a bunch of those pages around for just
+> > > that
+> > > purpose.
+> > >
+> > > So, if you are making a "memory defragmenter", it is
+> > > a CPU time-sink.
+> > > That's all.
+> >
+> > What if the external fragmentation increases so much
+> > that it is not possible to find a large sized block?
+> > Then, is it not better to defragment rather than swap
+> > or fail?
+> >
+> > -Alok
+> 
+> All "blocks" are the same size, i.e., PAGE_SIZE. When RAM
+> is tight the content of a page is written to the swap-file
+> according to a least-recently-used protocol. This frees
+> a page. Pages are allocated to a process only one page at
+> a time. This prevents some hog from grabbing all the memory
+> in the machine. Memory allocation and physical page allocation
+> are two different things, I can malloc() a gigabyte of RAM on
+> a machine. It only gets allocated when an attempt is made
+> to access a page.
 
-Date: Thu, 5 Feb 2004 21:48:17 +0300
-To: cooker@linux-mandrake.com
-Subject: make xconfig crasj in beta2
-User-Agent: Mutt/1.5.5.1i
-
-{pts/0}% makelinux xconfig
-make: Entering directory `/home/bor/src/linux-2.6.2-mm1'
-  HOSTCC  scripts/fixdep
-  SHIPPED scripts/kconfig/zconf.tab.h
-  HOSTCC  scripts/kconfig/conf.o
-sed < /home/bor/src/linux-2.6.2-mm1/scripts/kconfig/lkc_proto.h >
-scripts/kconfig/lkc_defs.h 's/P(\([^,]*\),.*/#define \1 (\*\1_p)/'
-  HOSTCC  scripts/kconfig/kconfig_load.o
-  HOSTCC  scripts/kconfig/mconf.o
-/usr/lib/qt3//bin/moc -i
-/home/bor/src/linux-2.6.2-mm1/scripts/kconfig/qconf.h -o
-scripts/kconfig/qconf.moc
-  HOSTCXX scripts/kconfig/qconf.o
-  SHIPPED scripts/kconfig/zconf.tab.c
-  SHIPPED scripts/kconfig/lex.zconf.c
-  HOSTCC  -fPIC scripts/kconfig/zconf.tab.o
-  HOSTLLD -shared scripts/kconfig/libkconfig.so
-  HOSTLD  scripts/kconfig/qconf
-scripts/kconfig/qconf arch/i386/Kconfig
-make[2]: *** [xconfig] Segmentation fault
-make[1]: *** [xconfig] Error 2
-make: *** [xconfig] Error 2
-make: Leaving directory `/home/bor/src/linux-2.6.2-mm1'
-
-this is with patch that fixes make xconfig in separate build directory
-(it is still broken); but it worked just fine before.
-
------ End forwarded message -----
+Alok is right. kernel needs to do kmalloc(8K) from time to time. And
+notice that kernel uses 4M tables.
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

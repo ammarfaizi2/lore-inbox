@@ -1,71 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbVAaLVR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbVAaLea@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261857AbVAaLVR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 06:21:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbVAaLVR
+	id S261151AbVAaLea (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 06:34:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261152AbVAaLe3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 06:21:17 -0500
-Received: from wproxy.gmail.com ([64.233.184.203]:41255 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261857AbVAaLVM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 06:21:12 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:from;
-        b=EBEgjyJv4PT47tuYMJiKZbHNFMtR5+GIyHgCmfMk5Y0MgJWgfNODz4wwMxxxWi6nrkf3am4ZDyDhdag6xQOiYUc3E8cst0odwmxwiWY2TrFHFbDmt+cpVYRUTN1p8wZ+MxyPny90VoCSkEHC0ao0Gb9FgRFoK589lGvmJXOcs7g=
-Date: Mon, 31 Jan 2005 06:21:06 -0500
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>, Sean Neakums <sneakums@zork.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Fw: Re: 2.6.11-rc2-mm2
-Message-ID: <20050131112106.GA3494@samarkand.rivenstone.net>
-Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Andrew Morton <akpm@osdl.org>, Sean Neakums <sneakums@zork.net>,
-	linux-kernel@vger.kernel.org
-References: <20050129163117.1626d404.akpm@osdl.org> <1107155510.5905.2.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1107155510.5905.2.camel@gaston>
-User-Agent: Mutt/1.4i
-From: Joseph Fannin <jfannin@gmail.com>
+	Mon, 31 Jan 2005 06:34:29 -0500
+Received: from arnor.apana.org.au ([203.14.152.115]:28932 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261151AbVAaLeY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 06:34:24 -0500
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: okir@suse.de (Olaf Kirch)
+Subject: Re: [PATCH] arp_queue: serializing unlink + kfree_skb
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Organization: Core
+In-Reply-To: <20050131102920.GC4170@suse.de>
+X-Newsgroups: apana.lists.os.linux.netdev
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
+Message-Id: <E1CvZo6-0001Bz-00@gondolin.me.apana.org.au>
+Date: Mon, 31 Jan 2005 22:33:26 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 31, 2005 at 06:11:50PM +1100, Benjamin Herrenschmidt wrote:
-> On Sat, 2005-01-29 at 16:31 -0800, Andrew Morton wrote:
-> It seems -mm2 definitely has some problems regarding loading of modules,
-> it pretty much fails loading all of them for me with some
-> kobject_register errors, I haven't really found out what was up, but
-> then, I didn't have much time neither.
+Olaf Kirch <okir@suse.de> wrote:
 > 
-> radeonfb built-in operations seem to be ok on my PowerBook3,5 (ATI M9
-> based), I'll try on a PowerBook5,4 (same as yours) tomorrow hopefully.
+> The problem is that IBM testing was hitting the assertion in kfree_skb
+> that checks that the skb has been removed from any list it was on
+> ("kfree_skb passed an skb still on a list").
+
+That must've be some testing to catch this :)
+ 
+> One possible fix here would be to add an smp_wmb after the __skb_unlink
+> and a smp_rmb before the assertion in __kfree_skb, as in the attached
+> patch.
 > 
-> Does the machine hang with the screen completely cleared ? Do you see
-> the penguin logo ? Did you try just using pmac_defconfig ?
+> Does this make sense?
 
-    I'm getting a blank screen with radeonfb on two boxes here as
-well. One is a beige g3, the other is i386; both have PCI Radeon 7000s
-with radeonfb non-modular. 
+It makes sense.  However, I'm not sure whether we want to add a read
+barrier to the common path in kfree_skb just for a debugging test.
+If it was only for the skb->list test we could move the read barrier
+inside the if and reread skb->list if it were non-NULL.
 
-    On the PC I could see the earliest kernel messages in VGA text
-mode before radeonfb took over and the screen went blank -- no
-penguin, and the logo is enabled.  Booting with radeonfb:off seemed to
-work except for the module problem in -rc2-mm2:
+What you've done is expose a much bigger problem in Linux.  We're
+using atomic integers to signal that we're done with an object.
+The object is usually represented by a piece of memory.
 
-    On the ppc box I tried both -rc2-mm1 and -rc2-mm2.  Both hung and
-then rebooted after 3 minutes, so it seems to be panicing somewhere.
-I backed the massive-radeonfb patch out of -mm2 and radeonfb worked,
-so I got as far as the module thing again.
+The problem is that in most of the places where we do this (and that's
+not just in the networking systems), there are no memory barriers between
+the last reference to that object and the decrease on the atomic counter.
 
-    So yeah, it's possible that there's something in -mm1 that panics
-my ppc, and radeonfb is just making a blank screen, but it seems more
-likely that radeonfb is panicing.  I tried to get netconsole working
-on both machines, but it didn't work out for unrelated reasons.
+For example, in this particular case, a more sinister (but probably
+impossible for sk_buff objects) problem would be for the list removal
+itself to be delayed until after the the kfree_skb.  This could
+potentially mean that we're reading/writing memory that's already
+been freed.
 
-    Hopefully I'll have more time to poke at this tomorrow; maybe this
-is helpful somehow.
+Perhaps we should always add a barrier to such operations.  So
+kfree_skb would become
+
+	if (atomic_read(&skb->users) != 1) {
+		smp_mb__before_atomic_dec();
+		if (!atomic_dec_and_test(&skb->users))
+			return;
+	}
+	__kfree_skb(skb);
+
+Cheers,
 -- 
-Joseph Fannin
-jfannin@gmail.com
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

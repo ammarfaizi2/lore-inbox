@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264050AbTE0Sbr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 14:31:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264052AbTE0Sbr
+	id S264045AbTE0S36 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 14:29:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264082AbTE0S36
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 14:31:47 -0400
-Received: from h2.prohosting.com.ua ([217.106.231.81]:461 "EHLO
-	h2.prohosting.com.ua") by vger.kernel.org with ESMTP
-	id S264050AbTE0Sbl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 14:31:41 -0400
-From: Artemio <artemio@artemio.net>
-To: linux-kernel@vger.kernel.org
+	Tue, 27 May 2003 14:29:58 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:38662 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S264045AbTE0S3D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 14:29:03 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+To: Artemio <artemio@artemio.net>, linux-kernel@vger.kernel.org
 Subject: Re: HELP: No framebuffer option in config
-Date: Tue, 27 May 2003 21:40:04 +0300
-User-Agent: KMail/1.5
-References: <200305272130.50993.artemio@artemio.net> <200305272041.44518.m.c.p@wolk-project.de>
-In-Reply-To: <200305272041.44518.m.c.p@wolk-project.de>
+Date: Tue, 27 May 2003 20:41:44 +0200
+User-Agent: KMail/1.5.2
+References: <200305272130.50993.artemio@artemio.net>
+In-Reply-To: <200305272130.50993.artemio@artemio.net>
+Organization: Working Overloaded Linux Kernel
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200305272139.31315.artemio@artemio.net>
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - h2.prohosting.com.ua
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [0 0]
-X-AntiAbuse: Sender Address Domain - artemio.net
+Content-Disposition: inline
+Message-Id: <200305272041.44518.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Tuesday 27 May 2003 20:30, Artemio wrote:
 
-> please do this:
+Hi Artemio,
+
+> Hello.
 >
-> 1. make menuconfig
-> 2. Code maturity level options  --->
-> 3. [*] Prompt for development and/or incomplete code/drivers
->
-> after selecting 3rd, you should see it in: "Console drivers"
+> I have a clean 2.4.20 kernel.
+> I run "make menuconfig" but I can't see the "Frame-buffer support" section
+> in "Console drivers" menu.
+please do this:
 
-THANKS!
+1. make menuconfig
+2. Code maturity level options  --->
+3. [*] Prompt for development and/or incomplete code/drivers
 
-Man, I should have guessed...
+after selecting 3rd, you should see it in: "Console drivers"
 
-Good luck!
+> What should I do to bring it back into config menu?
+please read above ;)
 
-Artemio.
+ciao, Marc
+

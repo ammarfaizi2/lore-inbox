@@ -1,51 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262558AbUCJXiW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 18:38:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262565AbUCJXiV
+	id S262883AbUCJXlH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 18:41:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262765AbUCJXlH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 18:38:21 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:18359 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S262558AbUCJXiU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 18:38:20 -0500
-Message-ID: <404FA6AC.7040009@linux.co.intel.com>
-Date: Wed, 10 Mar 2004 17:37:16 -0600
-From: James Ketrenos <jketreno@linux.co.intel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: jt@hpl.hp.com, Christoph Hellwig <hch@infradead.org>,
-       "David S. Miller" <davem@redhat.com>, netdev@oss.sgi.com,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6] Intersil Prism54 wireless driver
-References: <20040304023524.GA19453@bougret.hpl.hp.com> <20040310165548.A24693@infradead.org> <20040310172114.GA8867@bougret.hpl.hp.com> <404F5097.4040406@pobox.com> <20040310175200.GA9531@bougret.hpl.hp.com> <404F5744.1040201@pobox.com>
-In-Reply-To: <404F5744.1040201@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Mar 2004 18:41:07 -0500
+Received: from main.gmane.org ([80.91.224.249]:53996 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262883AbUCJXkK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 18:40:10 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Framebuffer with nVidia GeForce 2 Go on Dell Inspiron 8200
+Date: Wed, 10 Mar 2004 23:38:02 +0000 (UTC)
+Message-ID: <c2o8sp$h3j$1@sea.gmane.org>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ppp-69-130.29-151.libero.it
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+Date: Thu, 11 Mar 2004 00:37:58 +0100
+Message-ID: <MPG.1ab9c538eb2f9b69989681@news.gmane.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+X-Newsreader: MicroPlanet Gravity v2.60
 
- > Yes, it would be good to end the cycle of re-implementing 802.11 over
- > and over again ;-)
+Hello,
 
-< snip >
+I have recently started to migrate to Linux on my DELL laptop; 
+everything is going pretty smoothly, but one thing I can't seem to 
+enable is the framebuffer to take advantage, in console, of the high 
+resolution my video card and monitor can afford.
 
- > * start working on generic 802.11 stack in wireless-2.6 queue
+The video card is an nVidia GeForce 2 Go, on a Dell Inspiron 8200, 
+and the monitor is their UXGA monitor (1600x1200). The system BIOS is 
+version A11, which means the video card BIOS is up to version 
+3.11.01.44.D1.
 
-As we're currently walking the path of implementing the same thing for the 
-IPW2100 driver,  being able to re-use this code would be _very nice_.
+The system I'm running is a Debian testing/unstable updated every two 
+or three days.
 
-I'd like to get WEP into IPW2100 as soon as possible, and would like to do so in 
-a way that would make transitioning to a common 802.11 layer seamless (or at 
-least reasonably isolated).  Any suggestions on how to best do this, or where we 
-might be able to help, would be much appreciated.
+I tried the following things with the kernels 2.4.22, 2.6.0, 2.6.1, 
+2.6.2, 2.6.3 (self-compiled) more or less always with the same 
+results:
 
-I'm very interested in these discussions, so if they move to or are being 
-discussed on another list (besides netdev), please let me know where.
+1. The vga framebuffer works. I can even bring the monitor to 800x600 
+in tweaked VGA mode.
 
-Thanks,
-James
+2. The VESA framebuffer does not work. Apparently, the card is not 
+detected as VESA-compatible. (I'm not 100% sure about this --how can 
+I check if this is indeed the case?)
+
+3. The Riva framebuffer doesn't work either. It detects the video 
+card all right, understands that I'm running on a laptop and thus 
+with an LCD monitor, but as soon as I "touch" it (be it even just 
+with a fbset -i to find the information), the screen goes blank or 
+has some very funny graphical effects (fade to black in the middle, 
+etc). The system doesn't lock up (I can still blind-type and reset 
+it), but I can't use it.
+
+Does anybody know what could be wrong?
+
+
+The only thing which I can think of is that even Windows drivers have 
+problems with this particular setup; the only documentation I could 
+find on the matter is here
+
+http://www.laptopvideo2go.com/
+
+(Go to "Dell laptop owners")
+
+HTH,
+
+-- 
+Giuseppe "Oblomov" Bilotta
+
+Can't you see
+It all makes perfect sense
+Expressed in dollar and cents
+Pounds shillings and pence
+                  (Roger Waters)
+

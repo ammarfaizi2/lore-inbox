@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267561AbTGaTbs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 15:31:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267724AbTGaTbs
+	id S269036AbTGaTvM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 15:51:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274860AbTGaTvM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 15:31:48 -0400
-Received: from 101.24.177.216.inaddr.G4.NET ([216.177.24.101]:11670 "EHLO
-	sparrow.stearns.org") by vger.kernel.org with ESMTP id S267561AbTGaTbr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 15:31:47 -0400
-Date: Thu, 31 Jul 2003 15:31:41 -0400 (EDT)
-From: William Stearns <wstearns@pobox.com>
-X-X-Sender: wstearns@sparrow
-Reply-To: William Stearns <wstearns@pobox.com>
-To: crh@samba.org, Matt Domsch <Matt_Domsch@Dell.com>
-cc: ML-linux-kernel <linux-kernel@vger.kernel.org>,
-       William Stearns <wstearns@pobox.com>
-Subject: Re: Follow-up: Linux, Dell Access Point, and the GPL.
-In-Reply-To: <20030731190521.A29009@dp.samba.org>
-Message-ID: <Pine.LNX.4.44.0307311525070.24707-100000@sparrow>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Thu, 31 Jul 2003 15:51:12 -0400
+Received: from HDOfa-02p5-177.ppp11.odn.ad.jp ([61.196.11.177]:15525 "HELO
+	hokkemirin.dyndns.org") by vger.kernel.org with SMTP
+	id S269036AbTGaTvJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 15:51:09 -0400
+Date: Fri, 01 Aug 2003 04:50:07 +0900 (JST)
+Message-Id: <20030801.045007.74743017.whatisthis@jcom.home.ne.jp>
+To: linux-kernel@vger.kernel.org
+Subject: [usb] Can't detect connected device w/ VT6206
+From: Kyuma Ohta <whatisthis@jcom.home.ne.jp>
+X-Mailer: Mew version 4.0.56 on Emacs 21.3 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good afternoon, Chris,
+Hi,
+I'm using VIA KT400+ as mainboard,it includes VIA VT6206 as USB 2.0 I/F.
+When using kernel (2.4/2.6), this chip is probed as uhci or ehci,
+but connected device (i.e. gamepad,serial adapter) is not detected as
+right device.
 
-On Thu, 31 Jul 2003 crh@samba.org wrote:
+-------
+whatisthis@merchior:~$ lspci
+00:00.0 Host bridge: VIA Technologies, Inc. VT8377 [KT400 AGP] Host Bridge (rev 80)
+00:01.0 PCI bridge: VIA Technologies, Inc.: Unknown device b198
+00:09.0 Multimedia audio controller: C-Media Electronics Inc CM8738 (rev 10)
+00:0a.0 Multimedia controller: Philips Semiconductors SAA7134 (rev 01)
+00:10.0 USB Controller: VIA Technologies, Inc. USB (rev 80)
+00:10.1 USB Controller: VIA Technologies, Inc. USB (rev 80)
+00:10.2 USB Controller: VIA Technologies, Inc. USB (rev 80)
+00:10.3 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 82)
+00:11.0 ISA bridge: VIA Technologies, Inc. VT8235 ISA Bridge
+00:11.1 IDE interface: VIA Technologies, Inc. VT82C586/B/686A/B PIPC Bus Master IDE (rev 06)
+00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT8233 AC97 Audio Controller (rev 50)
+00:13.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
+00:14.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host Controller (rev 46)
+01:00.0 VGA compatible controller: nVidia Corporation NV11 [GeForce2 MX/MX 400] (rev b2)
+whatisthis@merchior:~$ lsusb
+Bus 001 Device 001: ID 0000:0000  
+------------
+ I'm using usbmgr or hotplug,results is same.
+ What's wrong ? :-(
 
-> [Apology: I'm not subscribed to the LKML, so please CC me on any replies.]
-> 
-> Last June, Colm MacCárthaigh reported that he had requested the Linux
-> kernel sources used to build the kernel for the Dell 1184 wireless access
-
-	Had you considered getting in touch with the Dell tech team leader 
-first before posting to Linux-kernel?  If you had been subscribed to 
-Linux-kernel you would have known that Matt Domsch is a semi-regular 
-contributor and quite willing to look into issues like this.
-	I've CC'd him.  Please consider getting in touch with him first in 
-the future before trying to get the entire linux-kernel list involved.  He 
-may or may not have the answers you need, but at least he'd be more able 
-to identify the right person to contact.
-	Cheers,
-	- Bill
-
----------------------------------------------------------------------------
-William Stearns (wstearns@pobox.com).  Mason, Buildkernel, freedups, p0f,
-rsync-backup, ssh-keyinstall, dns-check, more at:   http://www.stearns.org
-Linux articles at:                         http://www.opensourcedigest.com
---------------------------------------------------------------------------
-
+Regards,
+Ohta

@@ -1,65 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267048AbRG1UBu>; Sat, 28 Jul 2001 16:01:50 -0400
+	id <S267053AbRG1UaQ>; Sat, 28 Jul 2001 16:30:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267053AbRG1UBj>; Sat, 28 Jul 2001 16:01:39 -0400
-Received: from color.sics.se ([193.10.66.199]:20961 "EHLO color.sics.se")
-	by vger.kernel.org with ESMTP id <S267048AbRG1UBb>;
-	Sat, 28 Jul 2001 16:01:31 -0400
-Message-ID: <3B631A00.8E860DC1@sics.se>
-Date: Sat, 28 Jul 2001 22:01:04 +0200
-From: Thiemo Voigt <thiemo@sics.se>
-Organization: SICS
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: kuznet@ms2.inr.ac.ru
-CC: Sridhar Samudrala <samudrala@us.ibm.com>, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-        lartc@mailman.ds9a.nl, diffserv-general@lists.sourceforge.net,
-        rusty@rustcorp.com.au
-Subject: Re: [PATCH] Inbound Connection Control mechanism: Prioritized Accept
-In-Reply-To: <200107281912.XAA17362@ms2.inr.ac.ru>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S267074AbRG1UaG>; Sat, 28 Jul 2001 16:30:06 -0400
+Received: from schiele.swm.uni-mannheim.de ([134.155.20.124]:37256 "EHLO
+	schiele.swm.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id <S267053AbRG1U34>; Sat, 28 Jul 2001 16:29:56 -0400
+Date: Sat, 28 Jul 2001 22:29:43 +0200
+From: Robert Schiele <rschiele@uni-mannheim.de>
+To: Philip Blundell <philb@gnu.org>
+Cc: Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: 2.4.8-pre1 build error in drivers/parport/parport_pc.c
+Message-ID: <20010728222943.A24586@schiele.swm.uni-mannheim.de>
+In-Reply-To: <01072619531103.06728@localhost.localdomain> <20010727101241.A15014@schiele.swm.uni-mannheim.de> <rschiele@uni-mannheim.de> <E15QX7a-0000gl-00@kings-cross.london.uk.eu.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="azLHFNyN32YCQGCU"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.16i
+In-Reply-To: <E15QX7a-0000gl-00@kings-cross.london.uk.eu.org>; from philb@gnu.org on Sat, Jul 28, 2001 at 05:39:22PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-kuznet@ms2.inr.ac.ru wrote:
 
-> Hello!
->
-> > Low priority connections can clog the accept queue only when there are no
-> > high priority connection requests coming along. As soon as a slot becomes empty
-> > in the accept queue, it becomes available for a high priority connection.
->
-> And in presence of persistent low priority traffic, high priority connection
-> will not have any chances to take this slot. When high priority connection
-> arrives all the slots are permanently busy with low ones.
->
-> > If that happens, TCP SYN policing can be employed to limit the rate of low
-> > priority connections getting into accept queue.
->
+--azLHFNyN32YCQGCU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The aim of TCP SYN policing is to prevent server overload by discarding
-connection requests early when the server system is about to reach overload.
-One of the indicators of overload might be that the accept queue is
-close to being filled up, there is little CPU time etc.
-In these cases, TCP SYN policing should adapt (i.e. lower) the acceptance rates.
-In such an adaptive  system, the accept queue is not supposed to be completely
-filled, thus low priority connections are not able to starve high priority
-connections. By the way, different acceptance rates can be given
-to different priority classes.
+On Sat, Jul 28, 2001 at 05:39:22PM +0100, Philip Blundell wrote:
+> I think you did miss the vital point: this will probably break with=20
+> CONFIG_PARPORT_OTHER.
 
-A more detailed discussion than on the website can be found
-in the paper "In-kernel mechanisms for adaptive  control of
-overloaded web servers", available at
-http://wwwtgs.cs.utwente.nl/Docs/eunice/summerschool/papers/programme.html
-This paper discusses TCP SYN policing and prioritized listen queue.
+No this cannot happen. These functions are only used from source files
+that also include parport_pc.h. If this were not the case, it would
+have been a bug anyway.
 
+>=20
+> Declaring them "extern inline" in parport_pc.h is exactly the right thing=
+ to=20
+> do.  What do you think is wrong with that?
 
-Cheers,
-Thiemo
+The "extern" was only an escape for the case that the compiler cannot
+inline the function. Due to the fact, that current gcc has "static
+inline" it is better to use this, because with "static inline" we do
+not need to keep a global symbol just for the case the compiler is not
+capable to inline the function in some place.
 
+Let's turn the tables: What do you think is wrong with "static
+inline"? In my opinion it's a much cleaner solution than "extern
+inline".
 
+Robert
+
+--=20
+Robert Schiele			mailto:rschiele@uni-mannheim.de
+Tel./Fax: +49-621-10059		http://webrum.uni-mannheim.de/math/rschiele/
+
+--azLHFNyN32YCQGCU
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iQEVAwUBO2Mgt8QAnns5HcHpAQGJCAgApoPZJ+sVSS5pnGyy8Y7Pnbcwc0Jz0BmM
+/lnJ2vz3IWR49l6CwetXz15XqxELs1mCoKPoiA10y6gO7Vou4KxizdqED+KG7JJp
+qqOfwGxJjTnYv7rcJ9AmqttfFK8u6VFWpcEBpu2EhXiV/BOLhiYWSN/wOhuUf+vd
+yRidbhbSCVKK1aPbbinYKbGwT60B2zZB/yCYygEqbKyFSKqhAouFfQbnwA6RG1kd
+mnh7zTMzW9KcppyvdK9LjmyRyXquXnGz9ffnIpPKCXQY7SgPqd/OrV5zJPVBtDJG
+2O7iJaJlpHR7y04GbSJ399P55kvUEDud5slwkyafPFbbUYPtOo2AhA==
+=OlPk
+-----END PGP SIGNATURE-----
+
+--azLHFNyN32YCQGCU--

@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318859AbSIISzX>; Mon, 9 Sep 2002 14:55:23 -0400
+	id <S318839AbSIISxI>; Mon, 9 Sep 2002 14:53:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318860AbSIISzX>; Mon, 9 Sep 2002 14:55:23 -0400
-Received: from [209.173.6.49] ([209.173.6.49]:34436 "EHLO comet.linuxguru.net")
-	by vger.kernel.org with ESMTP id <S318859AbSIISzO>;
-	Mon, 9 Sep 2002 14:55:14 -0400
-Date: Mon, 9 Sep 2002 07:59:57 -0400
-To: linux-kernel@vger.kernel.org
-Cc: jonathan@buzzard.org.uk
-Subject: [PATCH] IRQ patch for Toshiba Char Driver in 2.5.34
-Message-ID: <20020909115956.GA23290@comet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: James Blackwell <jblack@linuxguru.net>
+	id <S318846AbSIISwS>; Mon, 9 Sep 2002 14:52:18 -0400
+Received: from windsormachine.com ([206.48.122.28]:55816 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id <S318839AbSIISvF>; Mon, 9 Sep 2002 14:51:05 -0400
+Date: Mon, 9 Sep 2002 14:55:26 -0400 (EDT)
+From: Mike Dresser <mdresser_l@windsormachine.com>
+To: Thunder from the hill <thunder@lightweight.ods.org>
+cc: <jbradford@dial.pipex.com>,
+       Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: ide drive dying?
+In-Reply-To: <Pine.LNX.4.44.0209091209060.3793-100000@hawkeye.luckynet.adm>
+Message-ID: <Pine.LNX.4.33.0209091453320.22622-100000@router.windsormachine.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Somewhere around 2.5.31 the method for setting and clearing interrupts
-changed:
+On Mon, 9 Sep 2002, Thunder from the hill wrote:
 
-From-                     To-
-save_flags(flags);        local_irq_save(flags);
-cli();
+> Hi,
+>
+> On Sun, 8 Sep 2002 jbradford@dial.pipex.com wrote:
+> > I have *never* lost data to a Maxtor disk.  I have had IBM, Fujitsu,
+> > Western Digital, and DEC drives all fail on me before.
+>
+> I can't confirm that. Yes, IBM failed, Fujitsu is often IBM, DEC isn't any
+> better either. But Western... I'm still having some quite old Western
+> drives, aged several years, a lot more than they guaranteed. They still
 
-restore_flags(flags);     local_irq_restore(flags);
+WDC AC21600H.
 
+Best damn drive ever made by any company.
 
-Though bordering on trivial, including toshiba support with stock 2.5.34
-fails to compile, which this patch seems to fix. This patch fixes this
-issue and has worked reliably for me under 2.5.31, though it is untested on
-2.5.32 and 2.5.33 because I didn't manage to get those to work. 
+I've got maybe 40 of these left in the systems here.  They're coming up on
+7-8 years old.
 
-A note to those that are a bit rough on kernel patch newbies.... submitting 
-a kernel patch for the very first time is a rather intimidating experience
-so please don't chew my head off unless its absolutely necessary. 
+Sure, they're dog slow.  Sure, they're pretty small(1.6 gig)
 
+But they're rock stable and solid.  I use them for boot drives for old
+servers, and for the old Windows PC's
 
+Mike
 
-
--- 
-GnuPG fingerprint AAE4 8C76 58DA 5902 761D  247A 8A55 DA73 0635 7400
-James Blackwell  --  Director http://www.linuxguru.net

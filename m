@@ -1,48 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318285AbSHPJ7x>; Fri, 16 Aug 2002 05:59:53 -0400
+	id <S318275AbSHPJ53>; Fri, 16 Aug 2002 05:57:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318281AbSHPJ7w>; Fri, 16 Aug 2002 05:59:52 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:28170 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S318285AbSHPJ7w>; Fri, 16 Aug 2002 05:59:52 -0400
-Date: Fri, 16 Aug 2002 12:03:34 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Suparna Bhattacharya <suparna@in.ibm.com>
-Cc: Benjamin LaHaise <bcrl@redhat.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       Pavel Machek <pavel@elf.ucw.cz>, linux-kernel@vger.kernel.org,
-       linux-aio@kvack.org
-Subject: Re: aio-core why not using SuS? [Re: [rfc] aio-core for 2.5.29 (Re: async-io API registration for 2.5.29)]
-Message-ID: <20020816100334.GP14394@dualathlon.random>
-References: <1028223041.14865.80.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0208010924050.14765-100000@home.transmeta.com> <20020801140112.G21032@redhat.com> <20020815235459.GG14394@dualathlon.random> <20020815214225.H29874@redhat.com> <20020816150945.A1832@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020816150945.A1832@in.ibm.com>
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S318281AbSHPJ53>; Fri, 16 Aug 2002 05:57:29 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:16610 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S318275AbSHPJ52>;
+	Fri, 16 Aug 2002 05:57:28 -0400
+Date: Fri, 16 Aug 2002 12:02:00 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] user-vm-unlock-2.5.31-A2
+In-Reply-To: <20020816040902.A31570@kushida.apsleyroad.org>
+Message-ID: <Pine.LNX.4.44.0208161153060.3509-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 16, 2002 at 03:09:46PM +0530, Suparna Bhattacharya wrote:
-> Also, wasn't the fact that the API was designed to support both POSIX 
-> and completion port style semantics, another reason for a different 
-> (lightweight) in-kernel api? The c10k users of aio are likely to find 
-> the latter model (i.e.  completion ports) more efficient.
 
-if it's handy for you, can you post a link to the API defined by
-POSIX and completion ports so I can read them too and not only SuS?
+On Fri, 16 Aug 2002, Jamie Lokier wrote:
 
-btw, I don't see why there are so many API doing the same thing, I think
-for the goodness of linux it would be nice to standardize and recommend
-one of these user API so new software will use the API we recommend now,
-rather than choosing almost randomly every time. So the rest will be
-backwards compatibilty stuff for apps ported from other OS, and it will
-be worthwhile to have the kernel API to match what we recommend as user
-API.
+> > like i said in the original email, the point of CLONE_DETACHED is to avoid
+> > the waitpid() overhead. I also said that exit notification is done via
+> > mutexes (futexes).
+> 
+> How?  Scenario:
+> 
+>    1. a thread calls a 3rd party library which was _not_ compiled with
+>       threading in mind.  (It shouldn't have to be).
+>
+>    2. 3rd party library sends itself a SIGABRT; perhaps an assertion
+>       failed.  (Variants: SIGFPE, library does execve(), etc.)
+> 
+>    3. thread exits....   but the mutex was _not_ released
 
-Andrea
+this is a simple and well-defined thing: if the thread exits by calling
+the exit() function then libc calls the exit_thread_group() syscall [part
+of my POSIX signals patch] and zaps all threads. This is a very clearly
+defined thing in POSIX.
+
+SIGABRT/SIGFPE if uncaught cause a segmentation fault that zaps all
+threads (the kernel does this zapping). [note that for this you'll have to
+use the POSIX signals patch i mentioned earlier.]
+
+>    4. I _want_ to report the death to other thread, without having
+>       to poll all my children in my main event loop.
+
+POSIX says that in this case (when eg. non-threaded POSIX code calls
+exit()) all threads must exit and a status code is sent to the parent of
+the threaded application. And this is precisely how it works.
+
+> This is a very legitimate and useful kind of thread death, and it's
+> perfectly safe too.  (Not pthreads-conformant, but clone() is useful for
+> more than just pthreads).
+
+as long as you are using libc there are certain POSIX rules that must be
+followed. NGPT has to do the same.
+
+non-POSIX programming methods like JVMs can still implement *any*
+semantics - but your whole example is based on POSIX issues like exit() or
+default signal handlers, not Java.
+
+	Ingo
+

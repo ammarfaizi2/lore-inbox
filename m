@@ -1,44 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261568AbSLCPMf>; Tue, 3 Dec 2002 10:12:35 -0500
+	id <S261530AbSLCPLP>; Tue, 3 Dec 2002 10:11:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261573AbSLCPMe>; Tue, 3 Dec 2002 10:12:34 -0500
-Received: from service.sh.cvut.cz ([147.32.127.214]:16597 "EHLO
-	service.sh.cvut.cz") by vger.kernel.org with ESMTP
-	id <S261568AbSLCPMd>; Tue, 3 Dec 2002 10:12:33 -0500
-Date: Tue, 3 Dec 2002 16:18:19 +0100 (CET)
-From: Martin Kacer <M.Kacer@sh.cvut.cz>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Compile errors in 2.5.50 (bttv, mpu401, fb)
-Message-ID: <Pine.LNX.4.21.0212031610010.15302-100000@nightmare.sh.cvut.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261568AbSLCPLP>; Tue, 3 Dec 2002 10:11:15 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:43785 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261530AbSLCPLO>;
+	Tue, 3 Dec 2002 10:11:14 -0500
+Date: Tue, 3 Dec 2002 08:18:54 -0800
+From: Greg KH <greg@kroah.com>
+To: Romain Lievin <rlievin@free.fr>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] tiglusb
+Message-ID: <20021203161854.GE20844@kroah.com>
+References: <20021202204517.GA9161@free.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021202204517.GA9161@free.fr>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all:
+On Mon, Dec 02, 2002 at 09:45:17PM +0100, Romain Lievin wrote:
+> Hi Greg,
+> 
+> I have a patch against 2.4.20 for syncing modifications done on the 2.5.50 to 
+> the 2.4.20. Can I send it to you ?
+> 
+> I have also another patch on 2.5.50 (clean-up).
 
-I tried 2.5.50 yesterday and encountered three compile errors. One of them
-(bttv-driver) was already discussed here, I know nothing about the other
-two.
+Feel free to send them all to me.
 
-Sorry if it was already reported, I do not read the mailing list very
-carefuly. :-)
+thanks,
 
-Also sorry that I have no time now to make patches. And, in fact, I am not
-able to do so (excpet the second one VERY SIMPLE case), since I do not
-know what the source should be.
-
-1) drivers/media/video/bttv-cards.c - AUDC_CONFIG_PINNACLE constant
-- already known and patched!
-
-2) sound/oss/mpu401.h - line #10
-return type of the function is void in the header but should be int
-according the actual source file
-
-3) include/video/fbcon.h - line #666 (and neighbouring)
-non-existant members of struct display are referenced
-
-Good luck...
-   - M -
-
+greg k-h

@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131508AbRDFLyp>; Fri, 6 Apr 2001 07:54:45 -0400
+	id <S131562AbRDFMA5>; Fri, 6 Apr 2001 08:00:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131509AbRDFLyf>; Fri, 6 Apr 2001 07:54:35 -0400
-Received: from t2.redhat.com ([199.183.24.243]:41204 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S131508AbRDFLyU>; Fri, 6 Apr 2001 07:54:20 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <Pine.LNX.4.30.0104051751410.20174-100000@andrew.triumf.ca> 
-In-Reply-To: <Pine.LNX.4.30.0104051751410.20174-100000@andrew.triumf.ca> 
-To: Andrew Daviel <advax@triumf.ca>
+	id <S131563AbRDFMAq>; Fri, 6 Apr 2001 08:00:46 -0400
+Received: from e22.nc.us.ibm.com ([32.97.136.228]:10121 "EHLO
+	e22.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S131562AbRDFMAd>; Fri, 6 Apr 2001 08:00:33 -0400
+Date: Fri, 6 Apr 2001 17:31:29 +0530
+From: Maneesh Soni <smaneesh@in.ibm.com>
+To: Tom Leete <tleete@mountain.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: syslog insmod please! 
+Subject: Re: [PATCH] Re: Race in fs/proc/generic.c:make_inode_number()
+Message-ID: <20010406173129.A14391@in.ibm.com>
+Reply-To: smaneesh@in.ibm.com
+In-Reply-To: <3ACBFF4C.97AA345F@mountain.net> <3ACC82DA.11D76D45@mountain.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 06 Apr 2001 12:53:35 +0100
-Message-ID: <693.986558015@redhat.com>
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <3ACC82DA.11D76D45@mountain.net>; from tleete@mountain.net on Thu, Apr 05, 2001 at 10:36:10AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Just a couple of points:
 
-andrew@andrew.triumf.ca said:
->  Is there a good reason why insmod should not call syslog() to log any
-> module that gets installed ? I know things like bttv get very verbose
-> in the module itself, and I tried patching insmod to log the first
-> argument and it seemed to work for me.
+On Thu, Apr 05, 2001 at 10:36:10AM -0400, Tom Leete wrote:
+[...]
+> +spinlock_t proc_alloc_map_lock = RW_LOCK_UNLOCKED;
+> +
+Why not make this static?
+Initializer should be SPIN_LOCK_UNLOCKED.
 
-Consider "insmod unix.o".
-
-I'm not wonderfully impressed with the way that you can't load the FPU 
-emulation module on ARM at the moment without having some form of FPU 
-emulation in your kernel already, either :)
-
---
-dwmw2
-
-
+Maneesh Soni
+Linux Technology Center,
+IBM Bangalore.

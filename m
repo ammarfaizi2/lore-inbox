@@ -1,59 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262499AbUEGCw5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262476AbUEGCwq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262499AbUEGCw5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 22:52:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262605AbUEGCw5
+	id S262476AbUEGCwq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 22:52:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbUEGCwp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 22:52:57 -0400
-Received: from web14929.mail.yahoo.com ([216.136.225.94]:64679 "HELO
-	web14929.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262499AbUEGCww (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 22:52:52 -0400
-Message-ID: <20040507025252.38914.qmail@web14929.mail.yahoo.com>
-Date: Thu, 6 May 2004 19:52:52 -0700 (PDT)
-From: Jon Smirl <jonsmirl@yahoo.com>
-Subject: Is it possible to implement interrupt time printk's reliably?
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Keith Packard <keithp@keithp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 6 May 2004 22:52:45 -0400
+Received: from fw.osdl.org ([65.172.181.6]:21122 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262476AbUEGCwo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 22:52:44 -0400
+Date: Thu, 6 May 2004 19:52:23 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Bruce Guenter <bruceg@em.ca>
+Cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: 2.6.6-rc3-mm2
+Message-Id: <20040506195223.017cd7f6.akpm@osdl.org>
+In-Reply-To: <20040506214635.GA29187@em.ca>
+References: <20040505013135.7689e38d.akpm@osdl.org>
+	<20040506214635.GA29187@em.ca>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Problem:
-1) Some operations on graphics cards cannot be stopped once they are started.
-It's not reasonable to turn interrupts off around these operations.
-2) Kernel developers want console printk's to work from interrupt routines.
+Bruce Guenter <bruceg@em.ca> wrote:
+>
+> On Wed, May 05, 2004 at 01:31:35AM -0700, Andrew Morton wrote:
+> > Move-saved_command_line-to-init-mainc.patch
+> >   Move saved_command_line to init/main.c
+> 
+> This patch appears to be breaking serial console for me.  Reverting this
+> patch with patch -R makes it work again.  I can't tell from the contents
+> of the patch why it causes problems, but it does.  I'd be happy to
+> provide any further details if required.
 
-How do you fix this situation?
+Thanks for narrowing it down - I'd been meaning to look into the serial
+console problem.
 
-1) Grpahics driver has started non-restartable operation. For example
-transferring a bitmap. This is not an automatic DMA operation, CPU involvement
-is needed.
-2) Interrupt happens
-3) Printk happens from interrupt.
-
-Now we're stuck. The graphics chip is in a non-interruptible state and printk
-wants to use it.
-
-We need some mechanism to get back to the driver code and finish the
-non-restartable operation before the printk can be allowed to proceed.
-
-Another solution also comes to mind. Mark the appropriate sections in the video
-driver with BEGIN/END_INT_PRINTK. Then add a kernel build option to convert
-these macros to en/disable interrupts if interrupt time printk's are allowed.
-Would it be acceptable to disable interrupts for signifcant time on a
-development kernel where the developer is printk'ing from interrupts?
-
-
-=====
-Jon Smirl
-jonsmirl@yahoo.com
-
-
-	
-		
-__________________________________
-Do you Yahoo!?
-Win a $20,000 Career Makeover at Yahoo! HotJobs  
-http://hotjobs.sweepstakes.yahoo.com/careermakeover 
+Rusty, can you have a ponder please?

@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264477AbTFYNqT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 09:46:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264488AbTFYNqT
+	id S264507AbTFYNul (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 09:50:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264509AbTFYNul
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 09:46:19 -0400
-Received: from ens0.eris.dera.gov.uk ([128.98.1.1]:49682 "HELO
-	ns0.eris.dera.gov.uk") by vger.kernel.org with SMTP id S264477AbTFYNqS
+	Wed, 25 Jun 2003 09:50:41 -0400
+Received: from heavymos.kumin.ne.jp ([61.114.158.133]:11142 "HELO
+	emerald.kumin.ne.jp") by vger.kernel.org with SMTP id S264507AbTFYNuk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 09:46:18 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Mark Watts <m.watts@eris.qinetiq.com>
-Organization: QinetiQ
-To: linux-kernel@vger.kernel.org
-Subject: Finding out what cards a driver supports...
-Date: Wed, 25 Jun 2003 14:53:02 +0100
-User-Agent: KMail/1.4.3
+	Wed, 25 Jun 2003 09:50:40 -0400
+Message-Id: <200306251404.AA00005@prism.kumin.ne.jp>
+From: Seiichi Nakashima <nakasima@kumin.ne.jp>
+Date: Wed, 25 Jun 2003 23:04:42 +0900
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux-2.5.73 compile error
+In-Reply-To: <20030624163548.GA3914@kroah.com>
+References: <20030624163548.GA3914@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200306251453.02690.m.watts@eris.qinetiq.com>
+X-Mailer: AL-Mail32 Version 1.13
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi.
 
+>> I update to linux-2.5.73 from linux-2.5.72.
+>> compile error occured.
+>
+>Search the archives for the patch, or just enable CONFIG_HOTPLUG
+>
 
-How would I find out what network cards a particular driver supports? 
-(particularly the tg3 / bcm5700 driver in 2.4.x)
+I update to 2.5.73 from 2.5.72, and I used a same .config parameter.
+but compile error occured.
+Is CONFIG_HOTPLUG a mandatory parameter? I think it is not.
 
-Cheers,
+Now, I update to 2.5.73 + bk3, it compile and boot up fine.
 
-Mark.
+thank you.
 
-- -- 
-Mark Watts
-Senior Systems Engineer
-QinetiQ TIM
-St Andrews Road, Malvern
-GPG Public Key ID: 455420ED
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE++ak+Bn4EFUVUIO0RAptXAKDb5aI05z67Unsc6Zq6X7uszU6rFgCfbdED
-TY7HkpiIsM9QbduHLe/kLZQ=
-=U8rr
------END PGP SIGNATURE-----
-
+--------------------------------
+  Seiichi Nakashima
+  Email   nakasima@kumin.ne.jp
+--------------------------------

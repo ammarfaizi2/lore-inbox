@@ -1,52 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262758AbTKEJAu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 04:00:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262760AbTKEJAt
+	id S262762AbTKEJTG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 04:19:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262765AbTKEJTG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 04:00:49 -0500
-Received: from vitelus.com ([64.81.243.207]:53150 "EHLO vitelus.com")
-	by vger.kernel.org with ESMTP id S262758AbTKEJAs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 04:00:48 -0500
-Date: Wed, 5 Nov 2003 00:58:17 -0800
-From: Aaron Lehmann <aaronl@vitelus.com>
-To: linux-kernel@vger.kernel.org
-Subject: Badness in as_completed_request
-Message-ID: <20031105085817.GH21853@vitelus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Wed, 5 Nov 2003 04:19:06 -0500
+Received: from mail-06.iinet.net.au ([203.59.3.38]:64130 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S262762AbTKEJTC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Nov 2003 04:19:02 -0500
+Message-ID: <3FA8C07E.4050703@cyberone.com.au>
+Date: Wed, 05 Nov 2003 20:18:54 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Aaron Lehmann <aaronl@vitelus.com>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: Badness in as_completed_request
+References: <20031105085817.GH21853@vitelus.com>
+In-Reply-To: <20031105085817.GH21853@vitelus.com>
+Content-Type: multipart/mixed;
+ boundary="------------040408050105070507090905"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been seeing this about every day for the past month or so, while
-tracking 2.6.0-test*. Usually by the time I feel like reporting it I'm
-a few revisions behind and decide to upgrade before complaining about
-it. Now I'm running -test9 and it still happens. This happens every
-few day or so under normal load and every few minutes under high I/O
-load. I'm running an x86 system with a 3ware RAID5:
+This is a multi-part message in MIME format.
+--------------040408050105070507090905
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Badness in as_completed_request at drivers/block/as-iosched.c:919
-Call Trace:
- [<c021675d>] as_completed_request+0x1ad/0x1e0
- [<c020f84f>] elv_completed_request+0x1f/0x30
- [<c0211a4c>] __blk_put_request+0x3c/0xc0
- [<c0212902>] end_that_request_last+0x52/0xa0
- [<c0238b72>] scsi_end_request+0xb2/0xe0
- [<c0238f0b>] scsi_io_completion+0x1bb/0x470
- [<c02437ea>] sd_rw_intr+0x5a/0x1e0
- [<c02351db>] scsi_finish_command+0x7b/0xc0
- [<c011feeb>] update_wall_time+0xb/0x40
- [<c02350ee>] scsi_softirq+0xae/0xe0
- [<c011c250>] do_softirq+0x90/0xa0
- [<c010ab05>] do_IRQ+0xc5/0xe0
- [<c0105000>] _stext+0x0/0x30
- [<c01090a8>] common_interrupt+0x18/0x20
- [<c0105000>] _stext+0x0/0x30
- [<c0106e13>] default_idle+0x23/0x30
- [<c0106e7c>] cpu_idle+0x2c/0x40
- [<c035c69f>] start_kernel+0x13f/0x150
- [<c035c430>] unknown_bootoption+0x0/0x100
+   
+
+Aaron Lehmann wrote:
+
+>I've been seeing this about every day for the past month or so, while
+>tracking 2.6.0-test*. Usually by the time I feel like reporting it I'm
+>a few revisions behind and decide to upgrade before complaining about
+>it. Now I'm running -test9 and it still happens. This happens every
+>few day or so under normal load and every few minutes under high I/O
+>load. I'm running an x86 system with a 3ware RAID5:
+>
+>Badness in as_completed_request at drivers/block/as-iosched.c:919
+>
+
+This warning is harmless. Here is a patch against 2.6.0-test9-mm2.
+Please test that kernel as it has a few other important as-iosched
+fixes. Thanks.
+
+
+--------------040408050105070507090905
+Content-Type: text/plain;
+ name="as-warn-fix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="as-warn-fix.patch"
+
+ linux-2.6-npiggin/drivers/block/as-iosched.c |    2 --
+ 1 files changed, 2 deletions(-)
+
+diff -puN drivers/block/as-iosched.c~as-warn-fix drivers/block/as-iosched.c
+--- linux-2.6/drivers/block/as-iosched.c~as-warn-fix	2003-11-05 20:16:42.000000000 +1100
++++ linux-2.6-npiggin/drivers/block/as-iosched.c	2003-11-05 20:16:58.000000000 +1100
+@@ -965,8 +965,6 @@ static void as_completed_request(request
+ 		return;
+ 
+ 	if (ad->changed_batch && ad->nr_dispatched == 1) {
+-		WARN_ON(ad->batch_data_dir == arq->is_sync);
+-
+ 		kblockd_schedule_work(&ad->antic_work);
+ 		ad->changed_batch = 0;
+ 
+
+_
+
+--------------040408050105070507090905--
 

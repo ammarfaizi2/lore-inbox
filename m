@@ -1,46 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317550AbSHCMat>; Sat, 3 Aug 2002 08:30:49 -0400
+	id <S317552AbSHCMbp>; Sat, 3 Aug 2002 08:31:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317552AbSHCMat>; Sat, 3 Aug 2002 08:30:49 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:4310 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S317550AbSHCMas>; Sat, 3 Aug 2002 08:30:48 -0400
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200208031233.g73CXUB02612@devserv.devel.redhat.com>
-Subject: Re: context switch vs. signal delivery [was: Re: Accelerating user mode
-To: mingo@elte.hu
-Date: Sat, 3 Aug 2002 08:33:30 -0400 (EDT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), rz@linux-m68k.org (Richard Zidlicky),
-       jdike@karaya.com (Jeff Dike), alan@redhat.com (Alan Cox),
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0208031332120.7531-100000@localhost.localdomain> from "Ingo Molnar" at Aug 03, 2002 01:38:24 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S317559AbSHCMbo>; Sat, 3 Aug 2002 08:31:44 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:26609 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317552AbSHCMbo>; Sat, 3 Aug 2002 08:31:44 -0400
+Subject: Re: modem support under Linux
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Robert Love <rml@tech9.net>
+Cc: Hell.Surfers@cwctv.net, linux-kernel@vger.kernel.org
+In-Reply-To: <1028332468.14922.905.camel@sinai>
+References: <003813645230282DTVMAIL2@smtp.cwctv.net> 
+	<1028332468.14922.905.camel@sinai>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 03 Aug 2002 14:52:58 +0100
+Message-Id: <1028382778.31718.45.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> actually the opposite is true, on a 2.2 GHz P4:
-> 
->   $ ./lat_sig catch
->   Signal handler overhead: 3.091 microseconds
-> 
->   $ ./lat_ctx -s 0 2
->   2 0.90
-> 
-> ie. *process to process* context switches are 3.4 times faster than signal
-> delivery. Ie. we can switch to a helper thread and back, and still be
-> faster than a *single* signal.
+On Sat, 2002-08-03 at 00:54, Robert Love wrote:
+> In the kernel, modems are handled by the serial driver (drivers/serial/)
+> or some PCI/winmodem cruft that emulates a serial driver.
 
-Thats interesting indeed. I'd not tried it with the O(1) scheduler.
+One or two people did it like that. That doesn't mean its the right
+approach. You can run the modem stack in user space which is easier to
+debug and nicer to work with and use ptys to provide the virtual serial
+driver
 
-> signals are in essence 'lightweight' threads created and destroyed for the
-> purpose of a single asynchronous event, it's IMO a very inefficient and
-> baroque concept for almost anything (but debugging and a number of very
-> special uses). I'd guess that with a sane threading library a helper
-> thread is faster for almost everything.
-
-Which would argue UML ought to have a positively microkernel view of
-syscalls - sending a message ?

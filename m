@@ -1,52 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268013AbTCFLsz>; Thu, 6 Mar 2003 06:48:55 -0500
+	id <S267778AbTCFMWS>; Thu, 6 Mar 2003 07:22:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268016AbTCFLsz>; Thu, 6 Mar 2003 06:48:55 -0500
-Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:53725 "EHLO
-	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S268013AbTCFLsx>; Thu, 6 Mar 2003 06:48:53 -0500
-Date: Thu, 6 Mar 2003 12:59:07 +0100
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Andrew Morton <akpm@digeo.com>
-Cc: vda@port.imtp.ilyichevsk.odessa.ua, joe@tmsusa.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Oops in 2.5.64
-Message-ID: <20030306125907.S629@nightmaster.csn.tu-chemnitz.de>
-References: <3E66E782.5010502@tmsusa.com> <20030305223638.77c22cb7.akpm@digeo.com> <200303060749.h267nPu01086@Port.imtp.ilyichevsk.odessa.ua> <20030306001457.7537e37a.akpm@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20030306001457.7537e37a.akpm@digeo.com>; from akpm@digeo.com on Thu, Mar 06, 2003 at 12:14:57AM -0800
-X-Spam-Score: -29.3 (-----------------------------)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18qu1z-00014a-00*7Xnzoj7pmeU*
+	id <S267795AbTCFMWR>; Thu, 6 Mar 2003 07:22:17 -0500
+Received: from draco.cus.cam.ac.uk ([131.111.8.18]:11242 "EHLO
+	draco.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S267778AbTCFMWQ>; Thu, 6 Mar 2003 07:22:16 -0500
+Date: Thu, 6 Mar 2003 12:32:48 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cantab.net>
+To: Szakacsits Szabolcs <szaka@sienet.hu>
+cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-ntfs-dev@lists.sourceforge.net
+Subject: Re: [Linux-NTFS-Dev] ntfs OOPS (2.5.63)
+In-Reply-To: <Pine.LNX.4.30.0303060716390.28143-100000@divine.city.tvnet.hu>
+Message-ID: <Pine.SOL.3.96.1030306122732.1983B-100000@draco.cus.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Thu, Mar 06, 2003 at 12:14:57AM -0800, Andrew Morton wrote:
-> Cannot we just stick:
+On Thu, 6 Mar 2003, Szakacsits Szabolcs wrote:
+> On Wed, 5 Mar 2003, Randy.Dunlap wrote:
 > 
-> 	#define inline	__inline__ __attribute__((always_inline))
+> > > Could you try to turn on debugging in the NTFS driver (compile option in the
+> > > menus), then once ntfs module is loaded (or otherwise anytime) as root do:
+> > >
+> > > echo -1 > /proc/sys/fs/ntfs-debug
+> > >
+> > > Then mount and to the directory changes. Assuming that you get the bug again
+> > > could you send me the captured kernel log output? (Note there will be
+> > > massive amounts of output.)
+> > >
+> > > The code looks ok and I can't reproduce here so it would be helpful to see
+> > > if there are any oddities on your partition. Just to make sure it is not the
+> > > compiler, could you do a "make fs/ntfs/inode.S" and send me that as well?
+> > >
+> > > Thanks,
+> >
+> > Anton,
+> >
+> > I'll get to this in another day or so.
+> >
+> > The help text for NTFS_DEBUG says to use 1 to enable it
+> > or 0 to disable it.  What does -1 do?
 > 
-> in kernel.h?
+> Same as 1. However I doubt NTFS_DEBUG gives any useful in your case
+> and if you had some NTFS "oddities" then it would be reproducible.
+> 
+> What would be really useful is to disassemble __ntfs_init_inode what I
+> asked 2 days ago (note, not the above 'make fs/ntfs/inode.S' because
+> it will not tell what machine code you have on disk), your .config and
+> exact CPU version (cat /proc/cpuinfo).
 
-I second this, because that's how we actually use this keyword in
-the kernel. We don't mean "please inline, if you can" but
-actually "inline it, or I'll force you harder!".
+Yes it will, unless you suspect the assembler to get it wrong which is
+highly unlikely. All compiler bugs I have ever seen have been quite well
+visible in the .S assembler file.
 
-It doesn't look like at first glance, but it actually is the
-cleanest solution for recent GCCs.
+The .S file is the only easy way to find out which the faulting
+instruction from the oops output is and once you know the instruction you
+reverse compile to know which C statement it was and once you know that
+you know which variable was NULL/random value and then you can start
+looking for the answer to "how the fsck did that happen?"... (-; At least
+I have managed to find and fix quite a few bugs using that approach
+before. But without the .S file + oops output it is impossible to do as my
+compiler/.config would mean the oops output is not too useful in
+combination with my own .S file...
 
-Even better would be a "-Winline-limit=X" to warn for the cases,
-where we should review the tradeoff.
+Cheers,
 
-Regards
-
-Ingo Oeser
+	Anton
 -- 
-Marketing ist die Kunst, Leuten Sachen zu verkaufen, die sie
-nicht brauchen, mit Geld, was sie nicht haben, um Leute zu
-beeindrucken, die sie nicht moegen.
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+

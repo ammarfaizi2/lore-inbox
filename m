@@ -1,73 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277687AbRKAC0U>; Wed, 31 Oct 2001 21:26:20 -0500
+	id <S277700AbRKACcK>; Wed, 31 Oct 2001 21:32:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277692AbRKAC0L>; Wed, 31 Oct 2001 21:26:11 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:32504
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S277687AbRKAC0A>; Wed, 31 Oct 2001 21:26:00 -0500
-Date: Wed, 31 Oct 2001 18:26:32 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Merging several patches - Tips and Tricks
-Message-ID: <20011031182632.D15598@mikef-linux.matchmail.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	id <S277702AbRKACcA>; Wed, 31 Oct 2001 21:32:00 -0500
+Received: from oyster.morinfr.org ([62.4.22.234]:5248 "EHLO oyster.morinfr.org")
+	by vger.kernel.org with ESMTP id <S277700AbRKACbw>;
+	Wed, 31 Oct 2001 21:31:52 -0500
+Date: Thu, 1 Nov 2001 03:32:21 +0100
+From: Guillaume Morin <guillaume@morinfr.org>
+To: Neil Spring <nspring@zarathustra.saavie.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] TCP ECN bits and TCP_RESERVED_BITS macro
+Message-ID: <20011101033221.A627@morinfr.org>
+Mail-Followup-To: Neil Spring <nspring@zarathustra.saavie.org>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011031152717.A25584@morinfr.org> <20011031154305.A11081@cs.washington.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20011031154305.A11081@cs.washington.edu>
 User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Dans un message du 31 oct à 15:43, Neil Spring écrivait :
+> The line in your patch:
+> 
+> > -#define TCP_HP_BITS (~(TCP_RESERVED_BITS|TCP_FLAG_PSH)|TCP_FLAG_ECE|TCP_FLAG_CWR)
+> > +#define TCP_HP_BITS (~(TCP_RESERVED_BITS|TCP_FLAG_PSH))
+> 
+> is, I believe, a very bad idea.  This preprocessor constant
+> is used so that exceptional ECN processing (to handle ECE
+> or CWR) can be done on the slow path.  This change would
+> almost certainly break Linux's ECN implementation.
 
-Recently I was asked how I was able to merge a few moderately large patches
-together.
+Well it is not. I already had that discussion in private with someone
+else. 
+In previous versions (changed in a 14pre), there was two definitions for
+TCP_HP_BITS. Now there is _just_ this one.
 
-Here's basically what I told him:
-############
-Here's what I did instead of manually fixing the reject...
+~(OLD_TCP_RESERVED_BITS)|TCP_FLAG_ECE_|TCP_FLAG_CWR == ~(NEW_TCP_RESERVED_BITS)
 
-You need three kernel trees for this...
+with
+OLD_TCP_RESERVED_BITS = __constant_htonl(0x0FC00000),
+NEW_TCP_RESERVED_BITS = __constant_htonl(0x0F000000),
 
-2.4.13.vanilla
-2.4.13-ac5 (or whatever -ac)
-2.4.13-freeswan
+So you see that I did _not_ change the value of TCP_HP_BITS. You surely
+have noticed that change was not 'needed' since 
+~(NEW_TCP_RESERVED_BITS) == (~(NEW_TCP_RESERVED_BITS)|TCP_FLAG_ECE|TCP_FLAG_CWR)
 
-ln -s /usr/src/lk2.4/2.4.13-freeswan /usr/src/linux (for freeswan patching
-   proceedure)
-cd /usr/src/freeswan-1.91
-make insert (no problems with 2.4.13)
-cd /usr/src/lk2.4/2.4.13freeswan-1.91
-patch 2.4.13-ac5 (two rejects)
-cd /usr/src/lk2.4
+But it is _much_ cleaner that way (at least imho)
 
-diff -U1 2.4.13.vanilla/Documentation/Configure.help \
-  2.4.13-ac5/Documentation/Configure.help > 2.4.13-ac5-Configure.help-U1.patch
-  
-mv 2.4.13-freeswan/Documentation/Configure.help~ \
-  2.4.13-freeswan/Documentation/Configure.help
-    
-cd 2.4.13-freeswan
-patch -p1 < ../2.4.13-ac5-Configure.help-U1.patch
-    
-(no rejects!)
+> I see no "2" patch to netfilter code.
 
-Rinse and repeat...
+As I've stated, this change fixes the unclean target. Furthermore, some
+cosmetic changes must be done to the LOG targets. It is trivial and
+should be posted to netfilter-devel. I will do it as soon as this patch
+will be accepted. But if you want to see a preview of those, just drop
+me a message.
 
-Ok, here's the idea.  Normally, diff uses 3 lines of context, this can cause
-it to create larger chunks within the patch, and patch won't split these
-hunks up to try to get it to apply.  So, if you have smaller chunks and more
-of them, it has a much better chance of being able to integrate it...
-######
+Regards,
 
-This proceedure is working for me, but I am rather new to the whole process.
-Is there another way that doesn't require so many trees, and disk space?
+-- 
+Guillaume Morin <guillaume@morinfr.org>
 
-I'd like people to post their tips and tricks, so maybe we can point to it
-when the topic comes up again.  Or, maybe a web site would be better...
-
-Note, none of this will help if the actual code will patch together, but
-won't work afterwards...
-
-Mike
+          5 years from now everyone will be running free GNU on their
+           200 MIPS, 64M SPARCstation-5 (Andy Tanenbaum, 30 Jan 1992)

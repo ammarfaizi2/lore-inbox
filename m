@@ -1,50 +1,139 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313976AbSDFEsh>; Fri, 5 Apr 2002 23:48:37 -0500
+	id <S313054AbSDFG2m>; Sat, 6 Apr 2002 01:28:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313986AbSDFEs1>; Fri, 5 Apr 2002 23:48:27 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:17414 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S313976AbSDFEsR>;
-	Fri, 5 Apr 2002 23:48:17 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: kbuild-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
-Subject: kbuild 2.5 problems with netfilter linking
+	id <S313080AbSDFG2d>; Sat, 6 Apr 2002 01:28:33 -0500
+Received: from [216.167.37.170] ([216.167.37.170]:15635 "EHLO cob427.dn.net")
+	by vger.kernel.org with ESMTP id <S313054AbSDFG22>;
+	Sat, 6 Apr 2002 01:28:28 -0500
+Date: Sat, 6 Apr 2002 11:58:00 +0530
+From: "Sapan J . Bhatia" <lists@corewars.org>
+To: marcelo@conectiva.com.br, andrea@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] revision: POLL_OUT for ttys, serial drivers
+Message-ID: <20020406115800.A1421@corewars.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 06 Apr 2002 14:48:02 +1000
-Message-ID: <15086.1018068482@ocs3.intra.ocs.com.au>
+Content-Type: multipart/mixed; boundary="cWoXeonUoKmBZSoM"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Operating-System: Linux corewars 2.4.18
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-AKA - Rusty shoots himself in the foot :)
 
-kbuild 2.5 defines
+--cWoXeonUoKmBZSoM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
- -DKBUILD_OBJECT=module, the name of the module the object is linked
-    into, without the trailing '.o' and without any paths.  If the
-    object is a free standing module or is linked into vmlinux then the
-    "module" name is the object itself.  Automatically generated.
+    Hi!
 
-This variable is aimed at standardizing boot and module parameters, so
-'insmod foo option=value' and booting with 'foo.option=value' will have
-exactly the same effect.  Rusty already has code to do this and is
-waiting for kbuild 2.5 to go in.
+This revised version of the patch includes a fix for serial.c as well, 
+since it had the same problem, and a minor change in the second fix.
+Please use this version instead of the previous one.
 
-Alas netfilter has objects that are linked into multiple modules,
-$(ip_nf_compat-objs) is linked into both ipfwadm and ipchains so
-KBUILD_OBJECT is ambiguous.  Two possible solutions -
+      Cheers,
+    Sapan
 
-* Change netfilter so the objects are not linked twice.  That will
-  require $(ip_nf_compat-objs) to be a module in its own right with
-  extra exported symbols.
+--cWoXeonUoKmBZSoM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="tty_bugs.diff"
 
-* Change kbuild 2.5 to detect multi linked objects and not set
-  KBUILD_OBJECT for those objects.  It follows that multi linked
-  objects cannot have module or boot parameters, so change modules.h to
-  barf on MODULE_PARM() and __setup() when KBUILD_OBJECT is not
-  defined.
+--- /tmp/work/linux/drivers/char/serial.c	Tue Feb 26 01:07:57 2002
++++ /usr/src/linux-2.4.18/drivers/char/serial.c	Sat Apr  6 11:29:22 2002
+@@ -57,6 +57,10 @@
+  * 10/00: add in optional software flow control for serial console.
+  *	  Kanoj Sarcar <kanoj@sgi.com>  (Modified by Theodore Ts'o)
+  *
++ *  4/02: added TTY_DO_WRITE_WAKEUP to enable n_tty to send POLL_OUTS
++ *        to waiting processes
++ *        Sapan Bhatia <sapan@corewars.org>
++ *
+  */
+ 
+ static char *serial_version = "5.05c";
+@@ -3233,6 +3237,7 @@
+ #ifdef SERIAL_DEBUG_OPEN
+ 	printk("rs_open ttys%d successful...", info->line);
+ #endif
++	set_bit(TTY_DO_WRITE_WAKEUP, &tty->flags);
+ 	return 0;
+ }
+ 
+--- /tmp/work/linux/drivers/char/pty.c	Fri Dec 21 23:11:54 2001
++++ /usr/src/linux-2.4.18/drivers/char/pty.c	Thu Mar 21 20:26:01 2002
+@@ -5,6 +5,10 @@
+  *
+  *  Added support for a Unix98-style ptmx device.
+  *    -- C. Scott Ananian <cananian@alumni.princeton.edu>, 14-Jan-1998
++ *  Added TTY_DO_WRITE_WAKEUP to enable n_tty to send POLL_OUT to
++ *      waiting writers -- Sapan Bhatia <sapan@corewars.org>
++ *
++ *
+  */
+ 
+ #include <linux/config.h>
+@@ -331,6 +335,8 @@
+ 	clear_bit(TTY_OTHER_CLOSED, &tty->link->flags);
+ 	wake_up_interruptible(&pty->open_wait);
+ 	set_bit(TTY_THROTTLED, &tty->flags);
++	set_bit(TTY_DO_WRITE_WAKEUP, &tty->flags);
++
+ 	/*  Register a slave for the master  */
+ 	if (tty->driver.major == PTY_MASTER_MAJOR)
+ 		tty_register_devfs(&tty->link->driver,
+--- /tmp/work/linux/drivers/char/n_tty.c	Fri Apr  6 23:12:55 2001
++++ /usr/src/linux-2.4.18/drivers/char/n_tty.c	Sat Mar 30 12:39:14 2002
+@@ -23,6 +23,11 @@
+  * 2000/01/20   Fixed SMP locking on put_tty_queue using bits of 
+  *		the patch by Andrew J. Kroll <ag784@freenet.buffalo.edu>
+  *		who actually finally proved there really was a race.
++ *
++ * 2002/03/18   Implemented n_tty_wakeup to send SIGIO POLL_OUTs to
++ *		waiting writing processes-Sapan Bhatia <sapan@corewars.org>.
++ *		Also fixed a bug in BLOCKING mode where write_chan returns
++ *		EAGAIN
+  */
+ 
+ #include <linux/types.h>
+@@ -711,6 +716,22 @@
+ 	return 0;
+ }
+ 
++/*
++ * Required for the ptys, serial driver etc. since processes
++ * that attach themselves to the master and rely on ASYNC
++ * IO must be woken up
++ */
++
++static void n_tty_write_wakeup(struct tty_struct *tty)
++{
++	if (tty->fasync)
++	{
++ 		set_bit(TTY_DO_WRITE_WAKEUP, &tty->flags);
++		kill_fasync(&tty->fasync, SIGIO, POLL_OUT);
++	}
++	return;
++}
++
+ static void n_tty_receive_buf(struct tty_struct *tty, const unsigned char *cp,
+ 			      char *fp, int count)
+ {
+@@ -1157,6 +1178,8 @@
+ 			while (nr > 0) {
+ 				ssize_t num = opost_block(tty, b, nr);
+ 				if (num < 0) {
++					if (num == -EAGAIN)
++						break;
+ 					retval = num;
+ 					goto break_out;
+ 				}
+@@ -1236,6 +1259,6 @@
+ 	normal_poll,		/* poll */
+ 	n_tty_receive_buf,	/* receive_buf */
+ 	n_tty_receive_room,	/* receive_room */
+-	0			/* write_wakeup */
++	n_tty_write_wakeup	/* write_wakeup */
+ };
+ 
 
-I am tending towards the second solution.
-
+--cWoXeonUoKmBZSoM--

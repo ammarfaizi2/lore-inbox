@@ -1,44 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266495AbUHSPVX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266521AbUHSPZV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266495AbUHSPVX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 11:21:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266527AbUHSPRh
+	id S266521AbUHSPZV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 11:25:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266254AbUHSPZT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 11:17:37 -0400
-Received: from albireo.ucw.cz ([81.27.203.89]:2437 "EHLO albireo.ucw.cz")
-	by vger.kernel.org with ESMTP id S266521AbUHSPOn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 11:14:43 -0400
-Date: Thu, 19 Aug 2004 17:14:44 +0200
-From: Martin Mares <mj@ucw.cz>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: fsteiner-mail@bio.ifi.lmu.de, linux-kernel@vger.kernel.org,
-       kernel@wildsau.enemy.org, diablod3@gmail.com
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Message-ID: <20040819151444.GA13984@ucw.cz>
-References: <d577e5690408190004368536e9@mail.gmail.com> <4124A024.nail7X62HZNBB@burner> <20040819131026.GA9813@ucw.cz> <4124AD46.nail80H216HKB@burner> <20040819135614.GA12634@ucw.cz> <4124B314.nail8221CVOE9@burner> <20040819141442.GC13003@ucw.cz> <4124BD14.90603@bio.ifi.lmu.de> <20040819150010.GB13501@ucw.cz> <4124C19A.nail83H218WLS@burner>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 19 Aug 2004 11:25:19 -0400
+Received: from mailr.eris.qinetiq.com ([128.98.1.9]:20908 "HELO
+	qinetiq-tim.net") by vger.kernel.org with SMTP id S266380AbUHSPYs convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 11:24:48 -0400
+From: Mark Watts <m.watts@eris.qinetiq.com>
+Organization: QinetiQ
+To: linux-kernel@vger.kernel.org
+Subject: scsi disk question
+Date: Thu, 19 Aug 2004 16:22:22 +0100
+User-Agent: KMail/1.6.1
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <4124C19A.nail83H218WLS@burner>
-User-Agent: Mutt/1.3.28i
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200408191622.22588.m.watts@eris.qinetiq.com>
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.27.0.6; VDF: 6.27.0.21; host: mailr.qinetiq-tim.net)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> >So, case closed, it seems. Any other arguments, Joerg?
-> 
-> No, of course not. But it makes no sense to discuss things again that just have 
-> been discussed in full detail on other mailing lists.
 
-You are ranting about SUSE (and the incompetentness of other Linux people)
-on _this_ mailing list, so bring the facts _here_ (or at least the pointers
-to them). Waving hands and blaming people without mentioning what exactly
-did they do wrong is (1) impolite, (2) wasting bandwidth.
+When IDE drives are detected by Linux, it prints the following:
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-Lottery -- a tax on people who can't do math.
+hda: 40132503 sectors (20547 MB) w/1819KiB Cache, CHS=39813/16/63, UDMA(133)
+
+Is there any way to get similar info on a SCSI drive?
+I'm particularly interested in finding out how much cache my scsi drives 
+have...
+
+Cheers,
+
+Mark.
+
+- -- 
+Mark Watts
+Senior Systems Engineer
+QinetiQ Trusted Information Management
+Trusted Solutions and Services group
+GPG Public Key ID: 455420ED
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBJMWuBn4EFUVUIO0RAjyQAJ4qZ/7taWhBgdeLqPtfrPc6/57jrwCfchcq
+bevNY58JQLDV/BXTtJnu2wQ=
+=X10F
+-----END PGP SIGNATURE-----

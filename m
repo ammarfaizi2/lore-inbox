@@ -1,101 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbVCCPUj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261220AbVCCP3Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261211AbVCCPUj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 10:20:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbVCCPUi
+	id S261220AbVCCP3Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 10:29:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbVCCP3P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 10:20:38 -0500
-Received: from 13.2-host.augustakom.net ([80.81.2.13]:61584 "EHLO phoebee.mail")
-	by vger.kernel.org with ESMTP id S261211AbVCCPU0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 10:20:26 -0500
-Date: Thu, 3 Mar 2005 16:20:21 +0100
-From: Martin Zwickel <martin.zwickel@technotrend.de>
-To: sounak chakraborty <sounakrin@yahoo.co.in>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: architecture to implement communication between static kernel
- with dynamic module
-Message-ID: <20050303162021.1839dad4@phoebee>
-In-Reply-To: <20050303150901.71989.qmail@web53301.mail.yahoo.com>
-References: <20050303150901.71989.qmail@web53301.mail.yahoo.com>
-X-Mailer: Sylpheed-Claws 0.9.12cvs53 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Linux Phoebee 2.6.7-rc2-mm2 i686 Intel(R) Pentium(R) 4
- CPU 2.40GHz
-X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
- ?J0GVZ4&
-Organization: Technotrend AG
+	Thu, 3 Mar 2005 10:29:15 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:49412 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261220AbVCCP3L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 10:29:11 -0500
+Date: Thu, 3 Mar 2005 16:29:08 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Luca Risolia <luca.risolia@studio.unibo.it>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: status of the USB w9968cf.c driver in kernel 2.6?
+Message-ID: <20050303152908.GC4608@stusta.de>
+References: <20050228231430.GW4021@stusta.de> <1109699163.4224aa5b1e4dc@posta.studio.unibo.it>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
- boundary="Signature_Thu__3_Mar_2005_16_20_21_+0100_h.RdMgq+/08ZB63f";
- protocol="application/pgp-signature"; micalg=pgp-sha1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1109699163.4224aa5b1e4dc@posta.studio.unibo.it>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature_Thu__3_Mar_2005_16_20_21_+0100_h.RdMgq+/08ZB63f
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+On Tue, Mar 01, 2005 at 06:46:03PM +0100, Luca Risolia wrote:
+> Scrive Adrian Bunk <bunk@stusta.de>: 
+>  
+> > I noticed the following regarding the drivers/usb/media/ov511.c driver: 
+>                                                           ^^^^^^^ 
+> > - it's not updated compared to upstream: 
+>  
+> Could you provide more details? 
 
-On Thu, 3 Mar 2005 15:09:01 +0000 (GMT)
-sounak chakraborty <sounakrin@yahoo.co.in> bubbled:
+Sorry, my fault.
+I confused this with a different driver.
 
-> there is one my_own module
-> which i will insert whenever i like through=20
-> insmod.
-> thus when the module is loaded it will create a proc
-> file=20
->=20
-> now i want to send the structure variable of
-> task_struct
-> i.e p to the module from the kernel at point when the
-> execution passes
-> through forking a new process i.e=20
-> at the function do_fork() in fork.c in linux/kernel
-> folder
->=20
-> how to do this
->=20
-> how can i call the module from that point  (i.e in
-> do_fork())
-> and pass the task_struct *p as parameter to the module
->=20
-> can i declare an arbitary name in fork.c of my module
-> and compile the new kernel?
-> i think i cannot since i am inserting a dynamic module
-> to a static kernel executable
-> and how does the kernel will know that this module
-> will be attached later to it.
-> it will show errors while compiling the new modified
-> kernel
->=20
-> can you help me ?
-> what path i must take
-> thanks=20
-> sounak=20
->=20
+> > - there's no w9968cf-vpp module in the kernel sources 
+>  
+> w9968cf-vpp is an optional, gpl'ed module, which can not be included in the 
+> mainline kernel, as I explained in the documentation of the driver. 
 
-Some kind of callback registration would do the job.
+  Please keep in mind that official kernels do not include the second 
+  module for performance purposes.
 
-Regards,
-Martin
+What exactly does this mean?
 
---=20
-MyExcuse:
-Cow-tippers tipped a cow onto the server.
+Is it useful or not?
 
-Martin Zwickel <martin.zwickel@technotrend.de>
-Research & Development
+> Regards, 
+>       Luca 
 
-TechnoTrend AG <http://www.technotrend.de>
+cu
+Adrian
 
---Signature_Thu__3_Mar_2005_16_20_21_+0100_h.RdMgq+/08ZB63f
-Content-Type: application/pgp-signature
+-- 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-iD8DBQFCJys1mjLYGS7fcG0RAtcQAJ43V5253k1ZwtX0XmcOZPHg4u8zhwCbBNGi
-rwWO37JR0CIaifA7lgUxaC0=
-=cnJL
------END PGP SIGNATURE-----
-
---Signature_Thu__3_Mar_2005_16_20_21_+0100_h.RdMgq+/08ZB63f--

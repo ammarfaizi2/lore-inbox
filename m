@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312337AbSCUBiX>; Wed, 20 Mar 2002 20:38:23 -0500
+	id <S312339AbSCUBuz>; Wed, 20 Mar 2002 20:50:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312338AbSCUBiO>; Wed, 20 Mar 2002 20:38:14 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:15634 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S312337AbSCUBh5>;
-	Wed, 20 Mar 2002 20:37:57 -0500
-Date: Wed, 20 Mar 2002 17:36:59 -0800
-From: Greg KH <greg@kroah.com>
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19pre3-ac4: ATTRIB_NORET
-Message-ID: <20020321013659.GI7736@kroah.com>
-In-Reply-To: <E16nje1-0002oN-00@the-village.bc.nu> <3C990E9E.CC23F0AA@eyal.emu.id.au>
+	id <S312340AbSCUBug>; Wed, 20 Mar 2002 20:50:36 -0500
+Received: from jalon.able.es ([212.97.163.2]:2443 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S312339AbSCUBuX>;
+	Wed, 20 Mar 2002 20:50:23 -0500
+Date: Thu, 21 Mar 2002 02:50:16 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCHSET] Linux 2.4.19-pre4-jam1
+Message-ID: <20020321015016.GA1665@werewolf.able.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Wed, 20 Feb 2002 20:09:18 -0800
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.3.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 21, 2002 at 09:35:10AM +1100, Eyal Lebedinsky wrote:
-> BTW, this undef is still around too:
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.19-pre3-ac4/kernel/drivers/hotplug/ibmphp.o
-> depmod:         IO_APIC_get_PCI_irq_vector
+Hi all...
 
-Can you send me your .config?  The symbol is exported properly in -ac4,
-but it seems that some .configs allow the ibmphp driver to be built,
-even though they should not be.
+Fresh new version...
 
-thanks,
+Some bits are getting into mainline (aic-6.2.5, linear layout for mmap...)
+so it is time to get new things.
 
-greg k-h
+Changes:
+- Switch to Andrew split version of vm-32
+- Add IDE help missing in mainline
+- Some bits for kernel size reduction: shared zlib, BUG changes
+- The usual bproc update: 3.1.9
+
+The rest (O1-sched-K3, mini-lowlatency, read-latency) remain the same.
+
+URL:
+http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.19-pre4-jam1.tar.gz
+http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.19-pre4-jam1/
+
+Have fun...
+
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release cooker (Cooker) for i586
+Linux werewolf 2.4.19-pre4-jam1 #1 SMP Thu Mar 21 02:05:01 CET 2002 i686

@@ -1,33 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130615AbQLYXZO>; Mon, 25 Dec 2000 18:25:14 -0500
+	id <S130884AbQLYXbj>; Mon, 25 Dec 2000 18:31:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130884AbQLYXZE>; Mon, 25 Dec 2000 18:25:04 -0500
-Received: from ns.caldera.de ([212.34.180.1]:34825 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S130615AbQLYXYx>;
-	Mon, 25 Dec 2000 18:24:53 -0500
-Date: Mon, 25 Dec 2000 23:53:33 +0100
-From: Christoph Hellwig <hch@caldera.de>
-To: torvalds@transmeta.com
+	id <S131185AbQLYXb2>; Mon, 25 Dec 2000 18:31:28 -0500
+Received: from ns.caldera.de ([212.34.180.1]:37385 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S130884AbQLYXbW>;
+	Mon, 25 Dec 2000 18:31:22 -0500
+Date: Mon, 25 Dec 2000 23:59:51 +0100
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: torvalds@transmeta.com, mauelshagen@sistina.com
 Cc: linux-kernel@vger.kernel.org, lvm-devel@sistina.com
-Subject: [PATCH] LVM includes userlevel headers
-Message-ID: <20001225235333.A22731@caldera.de>
-Mail-Followup-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-	lvm-devel@sistina.com
+Subject: [PATCH][RFC] LVM proc fix
+Message-ID: <20001225235950.A23247@caldera.de>
+Mail-Followup-To: torvalds@transmeta.com, mauelshagen@sistina.com,
+	linux-kernel@vger.kernel.org, lvm-devel@sistina.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+Hi Linus & Heinz,
 
-LVM 0.9 that just rolled into 2.4-test includes userlevel headers -
-just to use constants from there to dublicate kernel functions.
+there has been some discussion about the LVM /proc #ifdefs in
+Linux 2.4.0-test13pre4 (LVM 0.9).  How about just removing
+CONFIG_LVM_PROC_FS? - beople that use LVM and procfs usually do
+not care for the few extra bytes.
 
-The first patch fixes that and the second changes the toplevel Makefile
-to search only the kernel and gcc (for stdarg.h) includes to prevent such
-accidents.
+Patch attached.
 
 	Christoph
 
@@ -35,125 +35,234 @@ accidents.
 Whip me.  Beat me.  Make me maintain AIX.
 
 
-diff -uNr --exclude-from=dontdiff linux-2.4.0-test13-pre4/drivers/md/lvm-snap.c linux/drivers/md/lvm-snap.c
---- linux-2.4.0-test13-pre4/drivers/md/lvm-snap.c	Mon Dec 25 19:21:16 2000
-+++ linux/drivers/md/lvm-snap.c	Mon Dec 25 23:59:50 2000
-@@ -214,10 +214,10 @@
- 	memset(lv_COW_table, 0, blksize_snap);
- 	for ( ; is < lv_snap->lv_remap_ptr; is++, id++) {
- 		/* store new COW_table entry */
--		lv_COW_table[id].pv_org_number = LVM_TO_DISK64(lvm_pv_get_number(vg, lv_snap->lv_block_exception[is].rdev_org));
--		lv_COW_table[id].pv_org_rsector = LVM_TO_DISK64(lv_snap->lv_block_exception[is].rsector_org);
--		lv_COW_table[id].pv_snap_number = LVM_TO_DISK64(lvm_pv_get_number(vg, lv_snap->lv_block_exception[is].rdev_new));
--		lv_COW_table[id].pv_snap_rsector = LVM_TO_DISK64(lv_snap->lv_block_exception[is].rsector_new);
-+		lv_COW_table[id].pv_org_number = cpu_to_le64(lvm_pv_get_number(vg, lv_snap->lv_block_exception[is].rdev_org));
-+		lv_COW_table[id].pv_org_rsector = cpu_to_le64(lv_snap->lv_block_exception[is].rsector_org);
-+		lv_COW_table[id].pv_snap_number = cpu_to_le64(lvm_pv_get_number(vg, lv_snap->lv_block_exception[is].rdev_new));
-+		lv_COW_table[id].pv_snap_rsector = cpu_to_le64(lv_snap->lv_block_exception[is].rsector_new);
- 	}
- }
+diff -uNr --exclude-from=dontdiff linux-2.4.0-test13-pre4/Documentation/Configure.help linux/Documentation/Configure.help
+--- linux-2.4.0-test13-pre4/Documentation/Configure.help	Mon Dec 25 19:21:14 2000
++++ linux/Documentation/Configure.help	Mon Dec 25 23:55:07 2000
+@@ -1450,15 +1450,6 @@
+   want), say M here and read Documentation/modules.txt. The module
+   will be called lvm-mod.o.
  
-@@ -268,10 +268,10 @@
- 	blocks[0] = (snap_pe_start + COW_table_sector_offset) >> (blksize_snap >> 10);
+-Logical Volume Manager /proc file system information
+-CONFIG_LVM_PROC_FS
+-  If you say Y here, you are able to access overall Logical Volume
+-  Manager, Volume Group, Logical and Physical Volume information in
+-  /proc/lvm.
+-
+-  To use this option, you have to check, that the "/proc file system
+-  support" (CONFIG_PROC_FS) is enabled too.
+-
+ Multiple devices driver support
+ CONFIG_BLK_DEV_MD
+   This driver lets you combine several hard disk partitions into one
+diff -uNr --exclude-from=dontdiff linux-2.4.0-test13-pre4/drivers/md/Config.in linux/drivers/md/Config.in
+--- linux-2.4.0-test13-pre4/drivers/md/Config.in	Sun Nov 26 17:23:18 2000
++++ linux/drivers/md/Config.in	Mon Dec 25 23:55:07 2000
+@@ -17,6 +17,5 @@
+ fi
  
- 	/* store new COW_table entry */
--	lv_COW_table[idx_COW_table].pv_org_number = LVM_TO_DISK64(lvm_pv_get_number(vg, lv_snap->lv_block_exception[idx].rdev_org));
--	lv_COW_table[idx_COW_table].pv_org_rsector = LVM_TO_DISK64(lv_snap->lv_block_exception[idx].rsector_org);
--	lv_COW_table[idx_COW_table].pv_snap_number = LVM_TO_DISK64(lvm_pv_get_number(vg, snap_phys_dev));
--	lv_COW_table[idx_COW_table].pv_snap_rsector = LVM_TO_DISK64(lv_snap->lv_block_exception[idx].rsector_new);
-+	lv_COW_table[idx_COW_table].pv_org_number = cpu_to_le64(lvm_pv_get_number(vg, lv_snap->lv_block_exception[idx].rdev_org));
-+	lv_COW_table[idx_COW_table].pv_org_rsector = cpu_to_le64(lv_snap->lv_block_exception[idx].rsector_org);
-+	lv_COW_table[idx_COW_table].pv_snap_number = cpu_to_le64(lvm_pv_get_number(vg, snap_phys_dev));
-+	lv_COW_table[idx_COW_table].pv_snap_rsector = cpu_to_le64(lv_snap->lv_block_exception[idx].rsector_new);
+ dep_tristate ' Logical volume manager (LVM) support' CONFIG_BLK_DEV_LVM $CONFIG_MD
+-dep_mbool '   LVM information in proc filesystem' CONFIG_LVM_PROC_FS $CONFIG_BLK_DEV_LVM
  
- 	length_tmp = iobuf->length;
- 	iobuf->length = blksize_snap;
-diff -uNr --exclude-from=dontdiff linux-2.4.0-test13-pre4/include/linux/lvm.h linux/include/linux/lvm.h
---- linux-2.4.0-test13-pre4/include/linux/lvm.h	Mon Dec 25 19:21:15 2000
-+++ linux/include/linux/lvm.h	Tue Dec 26 00:01:23 2000
-@@ -57,6 +57,8 @@
-  *    26/06/2000 - implemented snapshot persistency and resizing support
-  *    02/11/2000 - added hash table size member to lv structure
-  *    12/11/2000 - removed unneeded timestamp definitions
-+ *    24/12/2000 - removed LVM_TO_{CORE,DISK}*, use cpu_{from, to}_le*
-+ *                 instead - Christoph Hellwig
+ endmenu
+diff -uNr --exclude-from=dontdiff linux-2.4.0-test13-pre4/drivers/md/lvm.c linux/drivers/md/lvm.c
+--- linux-2.4.0-test13-pre4/drivers/md/lvm.c	Mon Dec 25 19:21:16 2000
++++ linux/drivers/md/lvm.c	Mon Dec 25 23:55:07 2000
+@@ -139,6 +139,7 @@
+  *                 lvm_proc_get_global_info()
+  *    02/11/2000 - implemented /proc/lvm/ hierarchy
+  *    07/12/2000 - make sure lvm_make_request_fn returns correct value - 0 or 1 - NeilBrown
++ *    25/12/2000 - fix procfs #defines - Christoph Hellwig
   *
   */
  
-@@ -67,7 +69,6 @@
- #define	_LVM_KERNEL_H_VERSION	"LVM 0.9 (13/11/2000)"
+@@ -224,7 +225,7 @@
  
- #include <linux/version.h>
--#include <endian.h>
+ static int lvm_chr_ioctl(struct inode *, struct file *, uint, ulong);
+ 
+-#if defined CONFIG_LVM_PROC_FS && defined CONFIG_PROC_FS
++#ifdef CONFIG_PROC_FS
+ int lvm_proc_read_vg_info(char *, char **, off_t, int, int *, void *);
+ int lvm_proc_read_lv_info(char *, char **, off_t, int, int *, void *);
+ int lvm_proc_read_pv_info(char *, char **, off_t, int, int *, void *);
+@@ -347,7 +348,7 @@
+ static spinlock_t lvm_lock = SPIN_LOCK_UNLOCKED;
+ static spinlock_t lvm_snapshot_lock = SPIN_LOCK_UNLOCKED;
+ 
+-#if defined CONFIG_LVM_PROC_FS && defined CONFIG_PROC_FS
++#ifdef CONFIG_PROC_FS
+ static struct proc_dir_entry *lvm_proc_dir = NULL;
+ static struct proc_dir_entry *lvm_proc_vg_subdir = NULL;
+ struct proc_dir_entry *pde = NULL;
+@@ -433,7 +434,7 @@
+ 		&lvm_chr_fops, NULL);
+ #endif
+ 
+-#if defined CONFIG_LVM_PROC_FS && defined CONFIG_PROC_FS
++#ifdef CONFIG_PROC_FS
+ 	lvm_proc_dir = create_proc_entry (LVM_DIR, S_IFDIR, &proc_root);
+ 	if (lvm_proc_dir != NULL) {
+ 		lvm_proc_vg_subdir = create_proc_entry (LVM_VG_SUBDIR, S_IFDIR, lvm_proc_dir);
+@@ -521,7 +522,7 @@
+ 	blksize_size[MAJOR_NR] = NULL;
+ 	hardsect_size[MAJOR_NR] = NULL;
+ 
+-#if defined CONFIG_LVM_PROC_FS && defined CONFIG_PROC_FS
++#ifdef CONFIG_PROC_FS
+ 	remove_proc_entry(LVM_GLOBAL, lvm_proc_dir);
+ 	remove_proc_entry(LVM_VG_SUBDIR, lvm_proc_dir);
+ 	remove_proc_entry(LVM_DIR, &proc_root);
+@@ -1263,7 +1264,7 @@
+ }
+ 
+ 
+-#if defined CONFIG_LVM_PROC_FS && defined CONFIG_PROC_FS
++#ifdef CONFIG_PROC_FS
+ /*
+  * Support functions /proc-Filesystem
+  */
+@@ -1452,8 +1453,6 @@
+ 	else
+ 		return count;
+ } /* lvm_proc_get_global_info() */
+-#endif /* #if defined CONFIG_LVM_PROC_FS && defined CONFIG_PROC_FS */
+-
  
  /*
-  * preprocessor definitions
-@@ -323,51 +324,6 @@
- 	COW_table_entries_per_PE = LVM_GET_COW_TABLE_CHUNKS_PER_PE(vg, lv); \
- 	COW_table_chunks_per_PE = ( COW_table_entries_per_PE * sizeof(lv_COW_table_disk_t) / SECTOR_SIZE + lv->lv_chunk_size - 1) / lv->lv_chunk_size; \
- 	COW_table_entries_per_PE - COW_table_chunks_per_PE;})
--
--
--/* to disk and to core data conversion macros */
--#if __BYTE_ORDER == __BIG_ENDIAN
--
--#define LVM_TO_CORE16(x) ( \
--        ((uint16_t)((((uint16_t)(x) & 0x00FFU) << 8) | \
--                    (((uint16_t)(x) & 0xFF00U) >> 8))))
--
--#define LVM_TO_DISK16(x) LVM_TO_CORE16(x)
--
--#define LVM_TO_CORE32(x) ( \
--        ((uint32_t)((((uint32_t)(x) & 0x000000FFU) << 24) | \
--                    (((uint32_t)(x) & 0x0000FF00U) << 8))) \
--                    (((uint32_t)(x) & 0x00FF0000U) >> 8))) \
--                    (((uint32_t)(x) & 0xFF000000U) >> 24))))
--
--#define LVM_TO_DISK32(x) LVM_TO_CORE32(x)
--
--#define LVM_TO_CORE64(x) \
--        ((uint64_t)((((uint64_t)(x) & 0x00000000000000FFULL) << 56) | \
--                    (((uint64_t)(x) & 0x000000000000FF00ULL) << 40) | \
--                    (((uint64_t)(x) & 0x0000000000FF0000ULL) << 24) | \
--                    (((uint64_t)(x) & 0x00000000FF000000ULL) <<  8) | \
--                    (((uint64_t)(x) & 0x000000FF00000000ULL) >>  8) | \
--                    (((uint64_t)(x) & 0x0000FF0000000000ULL) >> 24) | \
--                    (((uint64_t)(x) & 0x00FF000000000000ULL) >> 40) | \
--                    (((uint64_t)(x) & 0xFF00000000000000ULL) >> 56))) 
--
--#define LVM_TO_DISK64(x) LVM_TO_CORE64(x)
--
--#elif __BYTE_ORDER == __LITTLE_ENDIAN
--
--#define LVM_TO_CORE16(x) x
--#define LVM_TO_DISK16(x) x
--#define LVM_TO_CORE32(x) x
--#define LVM_TO_DISK32(x) x
--#define LVM_TO_CORE64(x) x
--#define LVM_TO_DISK64(x) x
--
--#else
--
--#error "__BYTE_ORDER must be defined as __LITTLE_ENDIAN or __BIG_ENDIAN"
--
--#endif /* #if __BYTE_ORDER == __BIG_ENDIAN */
+  * provide VG information
+@@ -1530,7 +1529,7 @@
  
+ 	return sz;
+ }
+-
++#endif /* CONFIG_PROC_FS */
  
  /*
-
-
---- linux-2.4.0-test13-pre4/Makefile	Mon Dec 25 19:21:14 2000
-+++ linux/Makefile	Mon Dec 25 23:30:03 2000
-@@ -85,7 +85,8 @@
- # standard CFLAGS
- #
+  * block device support function for /usr/src/linux/drivers/block/ll_rw_blk.c
+@@ -1989,7 +1988,7 @@
+ 		&lvm_chr_fops, NULL);
+ #endif
  
--CPPFLAGS := -D__KERNEL__ -I$(HPATH)
-+GCCINCDIR = $(shell gcc -print-search-dirs | sed -ne 's/install: \(.*\)/\1include/gp')
-+CPPFLAGS := -D__KERNEL__ -nostdinc -I$(HPATH) -I$(GCCINCDIR)
+-#if defined CONFIG_LVM_PROC_FS && defined CONFIG_PROC_FS
++#ifdef CONFIG_PROC_FS
+ 	lvm_do_create_proc_entry_of_vg ( vg_ptr);
+ #endif
  
- CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing
- AFLAGS := -D__ASSEMBLY__ $(CPPFLAGS)
+@@ -2021,7 +2020,9 @@
+ 		for (p = 0; p < vg_ptr->pv_max; p++) {
+ 			if ( ( pv_ptr = vg_ptr->pv[p]) == NULL) {
+ 				ret = lvm_do_pv_create(arg, vg_ptr, p);
++#ifdef CONFIG_PROC_FS
+ 				lvm_do_create_proc_entry_of_pv ( vg_ptr, pv_ptr);
++#endif
+ 				if ( ret != 0) return ret;
+ 	
+ 				/* We don't need the PE list
+@@ -2091,7 +2092,7 @@
+ 	if (copy_from_user(vg_name, arg, sizeof(vg_name)) != 0)
+ 		return -EFAULT;
+ 
+-#if defined CONFIG_LVM_PROC_FS && defined CONFIG_PROC_FS
++#ifdef CONFIG_PROC_FS
+ 	lvm_do_remove_proc_entry_of_vg ( vg_ptr);
+ #endif
+ 
+@@ -2115,7 +2116,7 @@
+ 		strncpy(pv_ptr->vg_name, vg_name, NAME_LEN);
+ 	}
+ 
+-#if defined CONFIG_LVM_PROC_FS && defined CONFIG_PROC_FS
++#ifdef CONFIG_PROC_FS
+ 	lvm_do_create_proc_entry_of_vg ( vg_ptr);
+ #endif
+ 
+@@ -2179,7 +2180,7 @@
+ 	devfs_unregister (vg_devfs_handle[vg_ptr->vg_number]);
+ #endif
+ 
+-#if defined CONFIG_LVM_PROC_FS && defined CONFIG_PROC_FS
++#ifdef CONFIG_PROC_FS
+ 	lvm_do_remove_proc_entry_of_vg ( vg_ptr);
+ #endif
+ 
+@@ -2211,7 +2212,7 @@
+ 		       lvm_name, __LINE__);
+ 		return -ENOMEM;
+ 	}
+-	if (copy_from_user(pv_ptr, pvp, sizeof(pv_t)) != 0) {
++	if (copy_pv_from_user(pv_ptr, pvp) != 0) {
+ 		return -EFAULT;
+ 	}
+ 	/* We don't need the PE list
+@@ -2237,7 +2238,7 @@
+ static int lvm_do_pv_remove(vg_t *vg_ptr, ulong p) {
+ 	pv_t *pv_ptr = vg_ptr->pv[p];
+ 
+-#if defined CONFIG_LVM_PROC_FS && defined CONFIG_PROC_FS
++#ifdef CONFIG_PROC_FS
+ 	lvm_do_remove_proc_entry_of_pv ( vg_ptr, pv_ptr);
+ #endif
+ 	vg_ptr->pe_total -=
+@@ -2442,7 +2443,7 @@
+ 	}
+ #endif
+ 
+-#if defined CONFIG_LVM_PROC_FS && defined CONFIG_PROC_FS
++#ifdef CONFIG_PROC_FS
+ 	lvm_do_create_proc_entry_of_lv ( vg_ptr, lv_ptr);
+ #endif
+ 
+@@ -2564,7 +2565,7 @@
+ 	devfs_unregister(lv_devfs_handle[lv_ptr->lv_number]);
+ #endif
+ 
+-#if defined CONFIG_LVM_PROC_FS && defined CONFIG_PROC_FS
++#ifdef CONFIG_PROC_FS
+ 	lvm_do_remove_proc_entry_of_lv ( vg_ptr, lv_ptr);
+ #endif
+ 
+@@ -2914,13 +2915,13 @@
+ 		if ( (lv_ptr = vg_ptr->lv[l]) == NULL) continue;
+ 		if (lv_ptr->lv_dev == lv->lv_dev)
+ 		{
+-#if defined CONFIG_LVM_PROC_FS && defined CONFIG_PROC_FS
++#ifdef CONFIG_PROC_FS
+ 			lvm_do_remove_proc_entry_of_lv ( vg_ptr, lv_ptr);
+ #endif
+ 			strncpy(lv_ptr->lv_name,
+ 				lv_req->lv_name,
+ 				NAME_LEN);
+-#if defined CONFIG_LVM_PROC_FS && defined CONFIG_PROC_FS
++#ifdef CONFIG_PROC_FS
+ 			lvm_do_create_proc_entry_of_lv ( vg_ptr, lv_ptr);
+ #endif
+ 			break;
+@@ -3002,7 +3003,7 @@
+ } /* lvm_do_pv_status() */
+ 
+ 
+-
++#ifdef CONFIG_PROC_FS
+ /*
+  * create a /proc entry for a logical volume
+  */
+@@ -3074,7 +3075,6 @@
+ /*
+  * create a /proc entry for a volume group
+  */
+-#if defined CONFIG_LVM_PROC_FS && defined CONFIG_PROC_FS
+ void lvm_do_create_proc_entry_of_vg ( vg_t *vg_ptr) {
+ 	int l, p;
+ 	pv_t *pv_ptr;
+@@ -3133,8 +3133,7 @@
+ 		remove_proc_entry(vg_ptr->vg_name, lvm_proc_vg_subdir);
+ 	}
+ }
+-#endif
+-
++#endif /* CONFIG_PROC_FS */
+ 
+ /*
+  * support function initialize gendisk variables
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

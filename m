@@ -1,80 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263521AbTDYJhu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 05:37:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263522AbTDYJhu
+	id S263522AbTDYJiN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 05:38:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263535AbTDYJiN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 05:37:50 -0400
-Received: from lopsy-lu.misterjones.org ([62.4.18.26]:49681 "EHLO
-	young-lust.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
-	id S263521AbTDYJhs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 05:37:48 -0400
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] scsi_to_dma_dir
-Organization: Metropolis -- Nowhere
-X-Attribution: maz
-Reply-to: mzyngier@freesurf.fr
-From: Marc Zyngier <mzyngier@freesurf.fr>
-Date: 25 Apr 2003 11:48:00 +0200
-Message-ID: <wrpu1cmsyb3.fsf@hina.wild-wind.fr.eu.org>
-MIME-Version: 1.0
+	Fri, 25 Apr 2003 05:38:13 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:62901 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S263522AbTDYJiM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 05:38:12 -0400
+Date: Fri, 25 Apr 2003 00:51:03 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Werner Almesberger <wa@almesberger.net>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Matthias Schniedermeyer <ms@citd.de>, Marc Giger <gigerstyle@gmx.ch>,
+       linux-kernel <linux-kernel@vger.kernel.org>, pat@suwalski.net
+Subject: Re: [Bug 623] New: Volume not remembered.
+Message-ID: <20030424225103.GC1198@elf.ucw.cz>
+References: <21660000.1051114998@[10.10.2.4]> <20030423164558.GA12202@citd.de> <1508310000.1051116963@flay> <20030423183413.C1425@almesberger.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030423183413.C1425@almesberger.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James,
+Hi!
 
-Christoph suggested that I send you the following patch, rather than
-having it in the aha1740 driver... It adds scsi_to_dma_dir, similar to
-scsi_to_{sbus,pci}_dir.
+> > Actually, I agree with the submitter. Having the volume default to 0
+> > is stupid - userspace tools are all very well, but no substitute for
+> > sensible kernel defaults.
+> 
+> You've obviously never been to a meeting/conference and booted
+> a Linux notebook with a kernel that sets things to a non-zero
+> default :-)
+> 
+> If the default is to turn up also the microphone (and to enable
+> it in the first place), you might notice that even apparently
 
-It is conditionnaly defined on CONFIG_EISA or CONFIG_MCA, because most
-non-PCI archs are still including asm-generic/dma-mapping.h and its
-bunch of PCI functions...
+So don't enable the microphone unless /dev/dsp is open for reading...
 
-Patch is against 2.5.68.
-
-Thanks,
-
-        M.
-
-===== drivers/scsi/scsi.h 1.73 vs edited =====
---- 1.73/drivers/scsi/scsi.h	Fri Apr 18 17:58:55 2003
-+++ edited/drivers/scsi/scsi.h	Thu Apr 24 18:40:31 2003
-@@ -67,6 +67,32 @@
- #endif
- #endif
- 
-+#if defined(CONFIG_EISA) || defined(CONFIG_MCA)
-+/*
-+ * XXX FIXME :
-+ *  
-+ * We should be able to have this unconditionnaly
-+ * defined. Unfortunately, most non-PCI architectures are still
-+ * including asm-generic/dma-mapping.h, which has lots of references
-+ * to PCI functions...
-+ */
-+#include <linux/dma-mapping.h>
-+#if ((SCSI_DATA_UNKNOWN == DMA_BIDIRECTIONAL) && (SCSI_DATA_WRITE == DMA_TO_DEVICE) && (SCSI_DATA_READ == DMA_FROM_DEVICE) && (SCSI_DATA_NONE == DMA_NONE))
-+#define scsi_to_dma_dir(scsi_dir)   ((enum dma_data_direction)(scsi_dir))
-+#else
-+extern __inline__ enum dma_data_direction scsi_to_dma_dir(unsigned char scsi_dir)
-+{
-+        if (scsi_dir == SCSI_DATA_UNKNOWN)
-+                return DMA_BIDIRECTIONAL;
-+        if (scsi_dir == SCSI_DATA_WRITE)
-+                return DMA_TO_DEVICE;
-+        if (scsi_dir == SCSI_DATA_READ)
-+                return DMA_FROM_DEVICE;
-+        return DMA_NONE;
-+}
-+#endif
-+#endif
-+
- /*
-  * Some defs, in case these are not defined elsewhere.
-  */
-
+								Pavel
 -- 
-Places change, faces change. Life is so very strange.
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

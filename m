@@ -1,74 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279307AbRJWHc1>; Tue, 23 Oct 2001 03:32:27 -0400
+	id <S279311AbRJWHfR>; Tue, 23 Oct 2001 03:35:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279308AbRJWHcS>; Tue, 23 Oct 2001 03:32:18 -0400
-Received: from fe090.worldonline.dk ([212.54.64.152]:52748 "HELO
-	fe090.worldonline.dk") by vger.kernel.org with SMTP
-	id <S279307AbRJWHcG>; Tue, 23 Oct 2001 03:32:06 -0400
-Date: Tue, 23 Oct 2001 09:32:30 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Ken Ashcraft <kash@stanford.edu>
-Cc: linux-kernel@vger.kernel.org, mc@cs.Stanford.EDU,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [CHECKER] Probable Security Errors in 2.4.12-ac3
-Message-ID: <20011023093230.I638@suse.de>
-In-Reply-To: <Pine.GSO.4.33.0110202220470.963-100000@saga5.Stanford.EDU>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="J2SCkAp4GZ/dPZZf"
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.33.0110202220470.963-100000@saga5.Stanford.EDU>
+	id <S279310AbRJWHfH>; Tue, 23 Oct 2001 03:35:07 -0400
+Received: from pa92.nowy-targ.sdi.tpnet.pl ([217.97.37.92]:60912 "EHLO
+	nt.kegel.com.pl") by vger.kernel.org with ESMTP id <S279309AbRJWHet>;
+	Tue, 23 Oct 2001 03:34:49 -0400
+Message-ID: <000c01c15ba6$2c850b60$72da4dd5@abi>
+From: "Albert Bartoszko" <abartoszko@nt.kegel.com.pl>
+To: "Alexander Viro" <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.21.0110220242290.2294-100000@weyl.math.psu.edu>
+Subject: Re: [PATCH] binfmt_misc.c, kernel-2.4.12
+Date: Tue, 23 Oct 2001 11:28:08 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> ...............
+> Check that your modules.conf contains
+>
+> post-install binfmt_misc mount -t binfmt_misc none /proc/sys/binfmt_misc
+> pre-remove binfmt_misc umount /proc/sys/binfmt_misc
+>
+Yes, now contains, and mount, umount and binfmt work propely.
+This should be documented in sources
 
---J2SCkAp4GZ/dPZZf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+xx:/tmp# egrep -Hr "mount[[:space:]]+-t[[:space:]]+binfmt_misc"
+/usr/src/linux
+xx:/tmp#
 
-On Sat, Oct 20 2001, Ken Ashcraft wrote:
-> ---------------------------------------------------------
-> [BUG] needs upper bound
-> /home/kash/linux/2.4.12/drivers/cdrom/cdrom.c:2019:mmc_ioctl: ERROR:RANGE:2012:2019: [LOOP] Looping on user length "nr" set by 'copy_from_user':2018 [linkages -> 2018:nr=nframes -> 2012:ra:start] [distance=26]
-> 			lba = ra.addr.lba;
-> 		else
-> 			return -EINVAL;
-> 
-> 		/* FIXME: we need upper bound checking, too!! */
-> Start --->
-> 		if (lba < 0 || ra.nframes <= 0)
-> 			return -EINVAL;
-> 
-> 		/*
-> 		 * start with will ra.nframes size, back down if alloc fails
-> 		 */
-> 		nr = ra.nframes;
-> Error --->
-> 		do {
-> 			cgc.buffer = kmalloc(CD_FRAMESIZE_RAW * nr, GFP_KERNEL);
-> 			if (cgc.buffer)
-> 				break;
-
-Here's a fix for that. Linus, please apply.
-
--- 
-Jens Axboe
+But I still  can't unload module (unmounted):
+#rmmod binfmt_misc
+binfmt_misc: Device or resource busy
 
 
---J2SCkAp4GZ/dPZZf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=cd-cdda-1
 
---- drivers/cdrom/cdrom.c~	Tue Oct 23 09:28:35 2001
-+++ drivers/cdrom/cdrom.c	Tue Oct 23 09:29:23 2001
-@@ -2009,7 +2009,7 @@
- 			return -EINVAL;
- 
- 		/* FIXME: we need upper bound checking, too!! */
--		if (lba < 0 || ra.nframes <= 0)
-+		if (lba < 0 || ra.nframes <= 0 || ra.nframes > 64)
- 			return -EINVAL;
- 
- 		/*
-
---J2SCkAp4GZ/dPZZf--

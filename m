@@ -1,205 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbULMWd4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261285AbULMWg3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261210AbULMWd4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 17:33:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbULMWYL
+	id S261285AbULMWg3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 17:36:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbULMWfD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 17:24:11 -0500
-Received: from h142-az.mvista.com ([65.200.49.142]:51608 "HELO
-	xyzzy.farnsworth.org") by vger.kernel.org with SMTP id S261212AbULMWSO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 17:18:14 -0500
-From: "Dale Farnsworth" <dale@farnsworth.org>
-Date: Mon, 13 Dec 2004 15:18:13 -0700
-To: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
-Cc: Ralf Baechle <ralf@linux-mips.org>, Russell King <rmk@arm.linux.org.uk>,
-       Manish Lachwani <mlachwani@mvista.com>,
-       Brian Waite <brian@waitefamily.us>,
-       "Steven J. Hill" <sjhill@realitydiluted.com>
-Subject: [PATCH 4/6] mv643xx_eth: Convert from pci_map_* to dma_map_* interface
-Message-ID: <20041213221813.GD19951@xyzzy>
-References: <20041213220949.GA19609@xyzzy>
+	Mon, 13 Dec 2004 17:35:03 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:22491 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261346AbULMWcF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 17:32:05 -0500
+Date: Mon, 13 Dec 2004 23:31:53 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Mark Johnson <Mark_H_Johnson@RAYTHEON.COM>,
+       Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       "K.R. Foley" <kr@cybsft.com>, LKML <linux-kernel@vger.kernel.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-6
+Message-ID: <20041213223153.GA6793@elte.hu>
+References: <OF737A0ECF.4ECB9A35-ON86256F65.006249D6@raytheon.com> <1102722147.3300.7.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041213220949.GA19609@xyzzy>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <1102722147.3300.7.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch replaces the use of the pci_map_* functions with the
-corresponding dma_map_* functions.
 
-Signed-off-by: Dale Farnsworth <dale@farnsworth.org>
+* Steven Rostedt <rostedt@goodmis.org> wrote:
 
-Index: linux-2.5-marvell-submit/drivers/net/mv643xx_eth.c
-===================================================================
---- linux-2.5-marvell-submit.orig/drivers/net/mv643xx_eth.c	2004-12-13 14:30:34.651531163 -0700
-+++ linux-2.5-marvell-submit/drivers/net/mv643xx_eth.c	2004-12-13 14:30:37.436993510 -0700
-@@ -154,9 +154,9 @@
- 			pkt_info.byte_cnt += 8;
- 		}
- 		pkt_info.buf_ptr =
--		    pci_map_single(0, skb->data,
-+		    dma_map_single(NULL, skb->data,
- 				   dev->mtu + ETH_HLEN + 4 + 2 + EXTRA_BYTES,
--				   PCI_DMA_FROMDEVICE);
-+				   DMA_FROM_DEVICE);
- 		pkt_info.return_info = skb;
- 		if (eth_rx_return_buff(mp, &pkt_info) != ETH_OK) {
- 			printk(KERN_ERR
-@@ -340,11 +340,11 @@
- 		 */
- 		if (pkt_info.return_info) {
- 			if (skb_shinfo(pkt_info.return_info)->nr_frags)
--				pci_unmap_page(NULL, pkt_info.buf_ptr,
--					pkt_info.byte_cnt, PCI_DMA_TODEVICE);
-+				dma_unmap_page(NULL, pkt_info.buf_ptr,
-+					pkt_info.byte_cnt, DMA_TO_DEVICE);
- 			else
--				pci_unmap_single(NULL, pkt_info.buf_ptr,
--					pkt_info.byte_cnt, PCI_DMA_TODEVICE);
-+				dma_unmap_single(NULL, pkt_info.buf_ptr,
-+					pkt_info.byte_cnt, DMA_TO_DEVICE);
- 
- 			dev_kfree_skb_irq((struct sk_buff *)
- 					  pkt_info.return_info);
-@@ -359,8 +359,8 @@
- 						"counter is corrupted");
- 			mp->tx_ring_skbs--;
- 		} else 
--			pci_unmap_page(NULL, pkt_info.buf_ptr,
--					pkt_info.byte_cnt, PCI_DMA_TODEVICE);
-+			dma_unmap_page(NULL, pkt_info.buf_ptr,
-+					pkt_info.byte_cnt, DMA_TO_DEVICE);
- 
- 
- 	}
-@@ -827,7 +827,8 @@
- 	mp->tx_desc_area_size = size;
- 
- 	/* Assumes allocated ring is 16 bytes alligned */
--	mp->p_tx_desc_area = pci_alloc_consistent(NULL, size, &mp->tx_desc_dma);
-+	mp->p_tx_desc_area = dma_alloc_coherent(NULL, size, &mp->tx_desc_dma,
-+								GFP_KERNEL);
- 	if (!mp->p_tx_desc_area) {
- 		printk(KERN_ERR "%s: Cannot allocate Tx Ring (size %d bytes)\n",
- 		       dev->name, size);
-@@ -847,16 +848,16 @@
- 
- 	/* Assumes allocated ring is 16 bytes aligned */
- 
--	mp->p_rx_desc_area = pci_alloc_consistent(NULL, size, &mp->rx_desc_dma);
-+	mp->p_rx_desc_area = dma_alloc_coherent(NULL, size, &mp->rx_desc_dma,
-+								GFP_KERNEL);
- 
- 	if (!mp->p_rx_desc_area) {
- 		printk(KERN_ERR "%s: Cannot allocate Rx ring (size %d bytes)\n",
- 		       dev->name, size);
- 		printk(KERN_ERR "%s: Freeing previously allocated TX queues...",
- 		       dev->name);
--		pci_free_consistent(0, mp->tx_desc_area_size,
--				    (void *) mp->p_tx_desc_area,
--				    mp->tx_desc_dma);
-+		dma_free_coherent(NULL, mp->tx_desc_area_size,
-+				    mp->p_tx_desc_area, mp->tx_desc_dma);
- 		return -ENOMEM;
- 	}
- 	memset(mp->p_rx_desc_area, 0, size);
-@@ -921,8 +922,8 @@
- 		printk("%s: Error on Tx descriptor free - could not free %d"
- 		     " descriptors\n", dev->name,
- 		     mp->tx_ring_skbs);
--	pci_free_consistent(0, mp->tx_desc_area_size,
--			    (void *) mp->p_tx_desc_area, mp->tx_desc_dma);
-+	dma_free_coherent(0, mp->tx_desc_area_size,
-+			    mp->p_tx_desc_area, mp->tx_desc_dma);
- }
- 
- static void mv64340_eth_free_rx_rings(struct net_device *dev)
-@@ -951,9 +952,8 @@
- 		       "%s: Error in freeing Rx Ring. %d skb's still"
- 		       " stuck in RX Ring - ignoring them\n", dev->name,
- 		       mp->rx_ring_skbs);
--	pci_free_consistent(0, mp->rx_desc_area_size,
--			    (void *) mp->p_rx_desc_area,
--			    mp->rx_desc_dma);
-+	dma_free_coherent(NULL, mp->rx_desc_area_size,
-+			    mp->p_rx_desc_area, mp->rx_desc_dma);
- }
- 
- /*
-@@ -1016,13 +1016,11 @@
- 	while (eth_tx_return_desc(mp, &pkt_info) == ETH_OK) {
- 		if (pkt_info.return_info) {
- 			if (skb_shinfo(pkt_info.return_info)->nr_frags) 
--                                 pci_unmap_page(NULL, pkt_info.buf_ptr,
--                                             pkt_info.byte_cnt,
--                                             PCI_DMA_TODEVICE);
-+                                 dma_unmap_page(NULL, pkt_info.buf_ptr,
-+                                             pkt_info.byte_cnt, DMA_TO_DEVICE);
- 			else
--                                 pci_unmap_single(NULL, pkt_info.buf_ptr,
--                                             pkt_info.byte_cnt,
--                                             PCI_DMA_TODEVICE);
-+                                 dma_unmap_single(NULL, pkt_info.buf_ptr,
-+                                             pkt_info.byte_cnt, DMA_TO_DEVICE);
- 
- 			dev_kfree_skb_irq((struct sk_buff *)
-                                                   pkt_info.return_info);
-@@ -1030,8 +1028,8 @@
-                         if (mp->tx_ring_skbs != 0)
-                                 mp->tx_ring_skbs--;
-                 } else 
--                       pci_unmap_page(NULL, pkt_info.buf_ptr, pkt_info.byte_cnt,
--                                      PCI_DMA_TODEVICE);
-+                       dma_unmap_page(NULL, pkt_info.buf_ptr,
-+					pkt_info.byte_cnt, DMA_TO_DEVICE);
- 	}
- 
- 	if (netif_queue_stopped(dev) &&
-@@ -1163,8 +1161,8 @@
- 			}
- 		}
- 		pkt_info.byte_cnt = skb->len;
--		pkt_info.buf_ptr = pci_map_single(0, skb->data, skb->len,
--		                                  PCI_DMA_TODEVICE);
-+		pkt_info.buf_ptr = dma_map_single(NULL, skb->data, skb->len,
-+							  DMA_TO_DEVICE);
- 		pkt_info.return_info = skb;
- 		status = eth_port_send(mp, &pkt_info);
- 		if ((status == ETH_ERROR) || (status == ETH_QUEUE_FULL))
-@@ -1177,8 +1175,8 @@
- 
-                 /* first frag which is skb header */
-                 pkt_info.byte_cnt = skb_headlen(skb);
--                pkt_info.buf_ptr = pci_map_single(0, skb->data,
--                                        skb_headlen(skb), PCI_DMA_TODEVICE);
-+                pkt_info.buf_ptr = dma_map_single(NULL, skb->data,
-+                                        skb_headlen(skb), DMA_TO_DEVICE);
-                 pkt_info.return_info = 0;
-                 pkt_info.cmd_sts = ETH_TX_FIRST_DESC;
- 
-@@ -1231,9 +1229,9 @@
-                         }
-                         pkt_info.byte_cnt = this_frag->size;
- 
--                        pkt_info.buf_ptr = pci_map_page(NULL, this_frag->page,
-+                        pkt_info.buf_ptr = dma_map_page(NULL, this_frag->page,
-                                         this_frag->page_offset,
--                                        this_frag->size, PCI_DMA_TODEVICE);
-+                                        this_frag->size, DMA_TO_DEVICE);
- 
-                         status = eth_port_send(mp, &pkt_info);
- 
-@@ -1253,8 +1251,8 @@
- 	pkt_info.cmd_sts = ETH_TX_ENABLE_INTERRUPT | ETH_TX_FIRST_DESC |
- 							ETH_TX_LAST_DESC;
- 	pkt_info.byte_cnt = skb->len;
--	pkt_info.buf_ptr = pci_map_single(0, skb->data, skb->len,
--							PCI_DMA_TODEVICE);
-+	pkt_info.buf_ptr = dma_map_single(NULL, skb->data, skb->len,
-+								DMA_TO_DEVICE);
- 	pkt_info.return_info = skb;
- 	status = eth_port_send(mp, &pkt_info);
- 	if ((status == ETH_ERROR) || (status == ETH_QUEUE_FULL))
+> [RFC] Has there been previously any thought of adding priority
+> inheriting wait queues. [...]
+
+this will make sense at a certain point.
+
+> [...] it would really help to solve the problem of a high priority
+> process waiting for an interrupt that can be starved by other high
+> priority processes.
+
+the primary use i think would be kernel-internal task <-> task
+waitqueues such as the futex queues, to transport the effects of RT
+priorities across waitqueues as well. IRQ related waitqueues are a nice
+'side-effect'.
+
+another next step would be to transport PI effects to userspace code,
+for user-controlled synchronization objects such as futexes or e.g. SysV
+semaphores.
+
+	Ingo

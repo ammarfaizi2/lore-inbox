@@ -1,62 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264620AbSLaSEK>; Tue, 31 Dec 2002 13:04:10 -0500
+	id <S264631AbSLaSME>; Tue, 31 Dec 2002 13:12:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264631AbSLaSEK>; Tue, 31 Dec 2002 13:04:10 -0500
-Received: from mta5.snfc21.pbi.net ([206.13.28.241]:17883 "EHLO
-	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S264620AbSLaSEJ>; Tue, 31 Dec 2002 13:04:09 -0500
-Date: Tue, 31 Dec 2002 10:18:47 -0800
-From: David Brownell <david-b@pacbell.net>
-Subject: patch -- mempool buglet (?)
-To: mingo@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Message-id: <3E11DF87.4090901@pacbell.net>
-MIME-version: 1.0
-Content-type: multipart/mixed; boundary="Boundary_(ID_3x0onUuOOPQHtsSSMqFJXg)"
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+	id <S264649AbSLaSME>; Tue, 31 Dec 2002 13:12:04 -0500
+Received: from tomts16.bellnexxia.net ([209.226.175.4]:33715 "EHLO
+	tomts16-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S264631AbSLaSMD>; Tue, 31 Dec 2002 13:12:03 -0500
+Date: Tue, 31 Dec 2002 13:19:42 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@dell
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: networking for linux PDAs
+Message-ID: <Pine.LNX.4.44.0212311314550.2126-100000@dell>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
 
---Boundary_(ID_3x0onUuOOPQHtsSSMqFJXg)
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
+  from some recent postings on a sharp zaurus related list
+(and some experimentation on my part with my zaurus 5500),
+there's a small problem with networking via USB hotplug
+to a Z in its cradle.
 
-I noticed this when reading the mempool code ... looked
-wrong to me, it was using kfree() not the de-allocator
-matching the allocation it just made.  This is on a fault
-path that likely doesn't get much use.
+  when one plugs in the Z to the USB port, here's what i 
+get in /var/log/messages
 
-Compiles, untested, "looks right".
+Dec 31 12:39:19 dell kernel: hub.c: new USB device 00:1f.2-1, assigned address 6
+Dec 31 12:39:19 dell kernel: CDCEther.c: eth1: Sharp SL Series 
+Dec 31 12:39:19 dell /etc/hotplug/net.agent: invoke ifup eth1
+Dec 31 12:39:22 dell /etc/hotplug/usb.agent: Setup acm CDCEther usbnet for USB product 4dd/8004/0
 
-- Dave
+  this is not correct, since this is activating the net interface
+eth1, rather than usb0, the correct interface.
 
---Boundary_(ID_3x0onUuOOPQHtsSSMqFJXg)
-Content-type: text/plain; name=mempool.patch
-Content-transfer-encoding: 7BIT
-Content-disposition: inline; filename=mempool.patch
+  apparently, the problem is that the CDCEther module is, as
+someone pointed out to me, getting in the way.  one proposed
+solution is to add CDCEther to /etc/hotplug/blacklist.
 
---- mm/mempool.c-dist	Tue Dec 31 10:03:51 2002
-+++ mm/mempool.c	Tue Dec 31 10:04:24 2002
-@@ -142,14 +142,14 @@
- 		element = pool->alloc(gfp_mask, pool->pool_data);
- 		if (!element)
- 			goto out;
- 		spin_lock_irqsave(&pool->lock, flags);
- 		if (pool->curr_nr < pool->min_nr)
- 			add_element(pool, element);
--		else
--			kfree(element);		/* Raced */
-+		else 	/* Raced */
-+			pool->free(element, pool->pool_data);
- 	}
- out_unlock:
- 	spin_unlock_irqrestore(&pool->lock, flags);
- out:
- 	return 0;
- }
+  in any case, what is the preferred way around this?  clearly, 
+there seems to be conflict between CDCEther.o and usbnet.o,
+at least in this case.
 
---Boundary_(ID_3x0onUuOOPQHtsSSMqFJXg)--
+  thoughts?
+
+rday
+

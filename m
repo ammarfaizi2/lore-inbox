@@ -1,79 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266287AbUFUQAV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266291AbUFUQCi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266287AbUFUQAV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 12:00:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266288AbUFUQAV
+	id S266291AbUFUQCi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 12:02:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266279AbUFUQCh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 12:00:21 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47558 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266287AbUFUQAO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 12:00:14 -0400
-Date: Mon, 21 Jun 2004 12:53:13 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Steven Dake <sdake@mvista.com>, Stian Jordet <liste@jordet.nu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       sct@redhat.logos.cnet, Andrew Morton <akpm@osdl.org>
-Subject: Re: [2.4] page->buffers vanished in journal_try_to_free_buffers()
-Message-ID: <20040621155313.GA12559@logos.cnet>
-References: <1075832813.5421.53.camel@chevrolet.hybel> <Pine.LNX.4.58L.0402052139420.16422@logos.cnet> <1078225389.931.3.camel@buick.jordet> <1087232825.28043.4.camel@persist.az.mvista.com> <20040615131650.GA13697@logos.cnet> <1087322198.8117.10.camel@persist.az.mvista.com> <20040617131600.GB3029@logos.cnet> <1087830410.2719.53.camel@sisko.scot.redhat.com>
+	Mon, 21 Jun 2004 12:02:37 -0400
+Received: from main.gmane.org ([80.91.224.249]:22431 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S266293AbUFUQC1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 12:02:27 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Brian S. Stephan" <stephanb@msoe.edu>
+Subject: Re: 2.6.7-ck1
+Date: Mon, 21 Jun 2004 11:02:21 -0500
+Message-ID: <cb70qe$35t$1@sea.gmane.org>
+References: <200406162122.51430.kernel@kolivas.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1087830410.2719.53.camel@sisko.scot.redhat.com>
-User-Agent: Mutt/1.5.5.1i
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: mke7-188.nconnect.net
+User-Agent: KNode/0.7.90
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Stephen,
+Con Kolivas wrote:
 
-On Mon, Jun 21, 2004 at 04:06:50PM +0100, Stephen C. Tweedie wrote:
-> Hi,
+> Patchset update. The focus of this patchset is on system responsiveness
+> with emphasis on desktops, but the scope of scheduler changes now makes
+> this patch suitable to servers as well.
 > 
-> On Thu, 2004-06-17 at 14:16, Marcelo Tosatti wrote:
-> 
-> > Stephen, Andrew, do you have any idea how the buffers could have vanished
-> > under us with the page locked? That should not be possible. 
-> 
-> No, especially not on UP as Frank reported.  
-> 
-> > I dont see how this "page->buffers = NULL" could be caused by hardware problem, 
-> > which is usually one or two bit flip.
-> 
-> We don't know for sure that it's page->buffers.  If we have gone round
-> the bh->b_this_page loop already, we could have ended up following the
-> pointers either to an invalid bh, or to one that's not on the current
-> page.  So it could also be the previous buffer's b_this_page that got
-> clobbered, rather than page->buffers.
-> 
-> That's possible in this case, but it's still a bit surprising that we'd
-> *always* get a NULL pointer rather than some other random pointer as a
-> result. 
+> http://kernel.kolivas.org
 
-I dont remember seeing any case which was not a NULL pointer dereference.
+Dear Con,
+I've been having odd problems with a USB device using your patchset (or
+specifically, staircase). I applied the staircase7.1 patch as well. On
+boot, an already plugged in device is not identified:
 
-> The buffer-ring debug patch that you posted looks like the obvious way
-> to dig further into this.  If that doesn't get anyway, we can also trap
-> the case where following bh->b_this_page gives us a buffer whose b_page
-> is on a different page.
+usb 2-2: new low speed USB device using address 3
+usbhid: probe of 2-2:1.0 failed with error -5
 
-Fine.  Just printing out bh->b_page at debug_page() will allow us to verify that, yes?
+Furthermore, a USB mouse is also on the bus, but it is identified fine.
+Reinserting the other device still doesn't work:
 
---- transaction.c.orig  2004-06-21 12:50:01.090082264 -0300
-+++ transaction.c       2004-06-21 12:50:45.574319632 -0300
-@@ -1704,9 +1704,9 @@ void debug_page(struct page *p)
-                 p->index, atomic_read(&p->count), p->flags);
-  
-        while (bh) {
--               printk(KERN_ERR "%s: bh b_next:%p blocknr:%lu b_list:%u state:%lx\n",
-+               printk(KERN_ERR "%s: bh b_next:%p blocknr:%lu b_list:%u state:%lx b_page:%p\n",
-                        __FUNCTION__, bh->b_next, bh->b_blocknr, bh->b_list,
--                               bh->b_state);
-+                               bh->b_state, bh->b_page);
-                bh = bh->b_this_page;
-        }
- }
+usb 2-2: new low speed USB device using address 3
+usbhid: probe of 2-2:1.0 failed with error -5
+Adding 377516k swap on /dev/sda2.  Priority:-1 extents:1
+XFS mounting filesystem hda1
+Ending clean XFS mount for filesystem: hda1
+usb 2-2: USB disconnect, address 3
+usb 2-2: new low speed USB device using address 4
+usbhid: probe of 2-2:1.0 failed with error -5
 
+Everything works fine in 2.6.7:
 
+usb 2-2: new low speed USB device using address 3
+drivers/usb/input/hid-core.c: ctrl urb status -32 received
+input: USB HID v1.00 Joystick [6666:0667] on usb-0000:00:10.0-2
+
+At first I thought this was just a strict staircase problem, but I then
+enabled usbfs and the joystick is attached fine with -ck1, so maybe it's
+just a subtle timing issue?
+
+Thought I would make the report and see if it uncovered anything, -ck runs
+great. :)
+
+Brian
 

@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261277AbTI3Kee (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 06:34:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbTI3Kee
+	id S261250AbTI3Kaj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 06:30:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbTI3Kai
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 06:34:34 -0400
-Received: from main.gmane.org ([80.91.224.249]:57750 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261277AbTI3Ked (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 06:34:33 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Tue, 30 Sep 2003 06:30:38 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:42952 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S261250AbTI3Kah (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 06:30:37 -0400
+Date: Tue, 30 Sep 2003 12:28:39 +0200 (CEST)
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Message-Id: <200309301028.h8UASdTI004280@burner.fokus.fraunhofer.de>
 To: linux-kernel@vger.kernel.org
-From: Andreas Schwarz <usenet.2117@andreas-s.net>
-Subject: Re: ERR in /proc/interrupts
-Date: Tue, 30 Sep 2003 10:34:31 +0000 (UTC)
-Message-ID: <slrnbnin20.41m.usenet.2117@home.andreas-s.net>
-References: <slrnbnijq7.41m.usenet.2117@home.andreas-s.net> <3F795816.7050805@g-house.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: slrn/0.9.8.0 (Linux)
+Subject: Kernel includefile bug not fixed after a year :-(
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian wrote:
-> Andreas Schwarz wrote:
->> I get a very high ERR count in /proc/interrupts. If I move my USB mouse
->> the number increases.
->> 
->> What does ERR mean? Nothing good, I suppose?
->> 
->
-> ../Documentation/filesystems/proc.txt says:
->
-> ERR is incremented in the case of errors in the IO-APIC bus (the bus 
-> that connects the CPUs in a SMP system. This means that an error has 
-> been detected, the IO-APIC automatically retry the transmission, so it 
-> should not be a big problem, but you should read the SMP-FAQ.
+A year after I did report this inconsistency, it is still not fixed
 
-I don't have a SMP kernel. I compiled the kernel with IO APIC support,
-but disabled it later with the noapic kernel boot option.
+If include/scsi/scsi.h is included without __KERNEL__ #defined, then this
+error message apears.
+
+/usr/src/linux/include/scsi/scsi.h:172: parse error before "u8"
+/usr/src/linux/include/scsi/scsi.h:172: warning: no semicolon at end of struct 
+or union
+/usr/src/linux/include/scsi/scsi.h:173: warning: data definition has no type or 
+storage class
+
+Is there no interest in user applications for kernel features or is there just
+no kernel maintainer left over who makes the needed work?
+
+
+Hints:
+
+-	A type named "u8" is superfluous (even with __KERNEL__ #defined)
+	because we have a standard type uint8_t
+
+-	Kernel include files should be checked for use compliance with level 
+	compilations on a regular base. It is the duty of the persons who
+	make changes to make sure that their changes don't break things.
+
+Jörg
 
 -- 
-AVR-Tutorial, über 350 Links
-Forum für AVRGCC und MSPGCC
--> http://www.mikrocontroller.net
-
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
+ URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

@@ -1,28 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261955AbREQP7u>; Thu, 17 May 2001 11:59:50 -0400
+	id <S261960AbREQQEk>; Thu, 17 May 2001 12:04:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261959AbREQP7k>; Thu, 17 May 2001 11:59:40 -0400
-Received: from thagdal.cloud9.co.uk ([194.154.180.82]:40967 "EHLO
-	custard.cloud9.co.uk") by vger.kernel.org with ESMTP
-	id <S261955AbREQP72>; Thu, 17 May 2001 11:59:28 -0400
-Date: Thu, 17 May 2001 16:59:04 +0100
-From: James Fidell <james@cloud9.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: eepro100 rev 12 problems
-Message-ID: <20010517165904.C24712@gluttony.corp.cloud9.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S261959AbREQQEU>; Thu, 17 May 2001 12:04:20 -0400
+Received: from ws130.nomadiclab.com ([195.165.196.130]:60687 "HELO
+	ws130.nomadiclab.com") by vger.kernel.org with SMTP
+	id <S261960AbREQQEN>; Thu, 17 May 2001 12:04:13 -0400
+Date: Thu, 17 May 2001 19:04:06 +0300 (EEST)
+From: Teemu Rinta-aho <teemu.rinta-aho@nomadiclab.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: IPv6 and multiple interfaces
+Message-ID: <Pine.LNX.4.33.0105171856370.30834-100000@ws142.nomadiclab.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have two eepro100 interfaces in a machine, one rev 8, which works just
-fine, and another rev 12, which appears as a device when the kernel boots
-and can be configured with an IP address etc., but I can't get any data
-in or out of it.  All the other hardware looks like it's working fine and
-all my rev 8 cards work, so I'm led to ask, are there any known problems
-with eepro100 rev 12 cards under 2.2.18?
+I am running kernel 2.4.3 and I have run into problems
+with IPv6 when I want to use more than one network interface
+card simultaneously. IPv6 works fine with one interface
+but when I add another, it starts dropping packets on
+the first interface. This seems to be related with
+incoming Router Advertisement messages on the other
+interface. About 50% of the packets in ping6 start to
+get dropped after I put the other interface up.
 
-James
+I have added myself a small patch in ndisc.c so that
+there is only one default route in the routing table
+at any time. Without that things work even worse.
+
+I have not figured out what makes IPv6 drop packets.
+I would really appreciate if someone who knows
+Linux IPv6 code would contact me.
+
+BR,
+Teemu
+
+-- 
+
+-----------------------------------------------------------
+Teemu Rinta-aho                        teemu@nomadiclab.com
+NomadicLab, Ericsson Research               +358 9 299 3078
+FIN-02131 Espoo, Finland                   +358 40 562 3066
+-----------------------------------------------------------
+

@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266979AbSLWVH0>; Mon, 23 Dec 2002 16:07:26 -0500
+	id <S266981AbSLWVKv>; Mon, 23 Dec 2002 16:10:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266981AbSLWVH0>; Mon, 23 Dec 2002 16:07:26 -0500
-Received: from pacman.mweb.co.za ([196.2.45.77]:43143 "EHLO pacman.mweb.co.za")
-	by vger.kernel.org with ESMTP id <S266979AbSLWVHZ>;
-	Mon, 23 Dec 2002 16:07:25 -0500
-Subject: Re: nforce2 and agpgart
-From: Bongani Hlope <bonganilinux@mweb.co.za>
-To: "Carl D. Blake" <carl@boeckeler.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1040669417.4563.24.camel@vulcan>
-References: <1040669417.4563.24.camel@vulcan>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-uVfsH/YOI8WvfGcm8B8Q"
-Organization: 
-Message-Id: <1040678186.2237.4.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1-1mdk 
-Date: 23 Dec 2002 23:16:44 +0200
+	id <S266982AbSLWVKv>; Mon, 23 Dec 2002 16:10:51 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:50111 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S266981AbSLWVKu>;
+	Mon, 23 Dec 2002 16:10:50 -0500
+Date: Mon, 23 Dec 2002 22:17:43 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: "David S. Miller" <davem@redhat.com>
+cc: Russell King <rmk@arm.linux.org.uk>,
+       James Simmons <jsimmons@infradead.org>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [Linux-fbdev-devel] Type confusion in fbcon
+In-Reply-To: <1040677903.21606.0.camel@rth.ninka.net>
+Message-ID: <Pine.GSO.4.21.0212232217260.1694-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 23 Dec 2002, David S. Miller wrote:
+> On Mon, 2002-12-23 at 01:18, Geert Uytterhoeven wrote:
+> > That's because originally there was no fix.line_length field, and the line
+> > length was derived from var.xres_virtual and var.bits_per_pixel.
+> > 
+> > With some hardware, the line length must be a multiple of 32 or 64 bits, and we
+> > needed a way to specify that, so fix.line_length was introduced. If it was
+> > zero, user code should fallback to the old behavior.
+> 
+> And with some cards, the line length is constant.  Ie. to get to
+> "X, Y + 1" for a given "X, Y" you add a constant to your current
+> frame buffer pointer.
+> 
+> That is what fix.line_length is for right?
 
---=-uVfsH/YOI8WvfGcm8B8Q
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Yep.
 
-On Mon, 2002-12-23 at 20:50, Carl D. Blake wrote:
-> I'm having trouble getting agpgart support to work with an nforce2
-> chipset.  Is this supported on any kernels?  I'm running a Redhat 7.1
-> system with Redhat's 2.4.9-21 kernel.
+Gr{oetje,eeting}s,
 
-Try to use a newer kernel from Redhat, because that kernel was around
-looong before nforce was released. IIRC support for nforce2 was added
-around 2.4.19=20
+						Geert
 
---=20
-For future reference - don't anybody else try to send patches as vi
-scripts, please. Yes, it's manly, but let's face it, so is
-bungee-jumping with the cord tied to your testicles.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-                -- Linus
-
---=-uVfsH/YOI8WvfGcm8B8Q
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+B30qZMVU7+/5Em8RAlZbAKC+kahVr2KdtFWf4Piu+lveQjESyQCgnoI1
-+sV9pNz7AZrB9ru8eG0iQYo=
-=fL9o
------END PGP SIGNATURE-----
-
---=-uVfsH/YOI8WvfGcm8B8Q--
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

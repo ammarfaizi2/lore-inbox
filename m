@@ -1,80 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbVCWMQc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261540AbVCWMRH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261551AbVCWMQc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 07:16:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261540AbVCWMQc
+	id S261540AbVCWMRH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 07:17:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVCWMRH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 07:16:32 -0500
-Received: from alog0307.analogic.com ([208.224.222.83]:41381 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261552AbVCWMOZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 07:14:25 -0500
-Date: Wed, 23 Mar 2005 07:11:53 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: lseek on /proc/kmsg
-In-Reply-To: <Pine.LNX.4.61.0503230811020.21578@yvahk01.tjqt.qr>
-Message-ID: <Pine.LNX.4.61.0503230705110.11131@chaos.analogic.com>
-References: <Pine.LNX.4.61.0503221320090.5551@chaos.analogic.com>
- <Pine.LNX.4.61.0503222020470.32461@yvahk01.tjqt.qr>
- <Pine.LNX.4.61.0503221423560.6369@chaos.analogic.com>
- <Pine.LNX.4.61.0503222215310.19826@yvahk01.tjqt.qr>
- <Pine.LNX.4.61.0503221633230.7421@chaos.analogic.com>
- <Pine.LNX.4.61.0503230811020.21578@yvahk01.tjqt.qr>
+	Wed, 23 Mar 2005 07:17:07 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:44761 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261540AbVCWMQ7 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 07:16:59 -0500
+Date: Wed, 23 Mar 2005 12:16:54 +0000
+From: Willem Riede <osst@riede.org>
+Subject: Re: [2.6 patch] drivers/scsi/osst.c: remove unused code
+To: Adrian Bunk <bunk@stusta.de>
+Cc: osst-users@lists.sourceforge.net, James.Bottomley@SteelEye.com,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20050322215948.GP1948@stusta.de>
+In-Reply-To: <20050322215948.GP1948@stusta.de> (from bunk@stusta.de on Tue
+	Mar 22 16:59:48 2005)
+X-Mailer: Balsa 2.3.0
+Message-Id: <1111580214l.12349l.37l@serve.riede.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Mar 2005, Jan Engelhardt wrote:
+On 03/22/2005 04:59:48 PM, Adrian Bunk wrote:
+> Thanks to both the Coverity checker and GNU gcc, it was found that this 
+> variable is completely unused.
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
->
-> 1> Sure, read() needs to be modified to respect the file-position
-> 1> set by kmsg_seek(). I don't think you can get away with the
-> 1> call back into do_syslog.
->
-> 2>I'm not sure that seek makes any sense on that, since it is more like a
-> 2>pipe than a normal file..
->
-> Well, seek(fd, 0, SEEK_END) could be used to flush a pipe's buffers.
->
+And it is so obvious when your attention is drawn to it.
+The code that did use it moved to os_scsi_tape_flush() recently.
 
-Yep. That's what I tried to do. Just returns 0 and continues to
-contain all the cached data.
+James, could you make this change in BK too, please?
+
+Signed-off-by: Willem Riede <osst@riede.org>
+
+> --- linux-2.6.12-rc1-mm1-full/drivers/scsi/osst.c.old	2005-03-22 21:04:36.000000000 +0100
+> +++ linux-2.6.12-rc1-mm1-full/drivers/scsi/osst.c	2005-03-22 22:09:32.000000000 +0100
+> @@ -4770,9 +4770,6 @@ static int os_scsi_tape_close(struct ino
+>  {
+>  	int		      result = 0;
+>  	struct osst_tape    * STp    = filp->private_data;
+> -	struct scsi_request * SRpnt  = NULL;
+> -
+> -	if (SRpnt) scsi_release_request(SRpnt);
+>  
+>  	if (STp->door_locked == ST_LOCKED_AUTO)
+>  		do_door_lock(STp, 0);
+> 
 
 
-> 0>> +static loff_t kmsg_seek(struct file *filp, loff_t offset, int origin) {
-> 0>> +    if(origin != 2 /* SEEK_END */ || offset < 0) { return -ESPIPE; }
-> 3> "Allow" seeking past the end of the buffer?
->
-> Well, what does lseek(fd, >0, SEEK_END) do on normal files?
->
-
-Goes to the end plus offset. A subsequent read returns EOF
-or 0 depending upon your read mechanism. This is what I wanted
-to do but with no offset.
-
-Currently, I do this crap:
-
-     for(;;)
-     {
-         pfd.fd      = ifd;
-         pfd.events  = POLLIN;
-         pfd.revents = 0;
-         if(poll(&pfd, 1, 0) <= 0)
-             break;
-         (void)read(ifd, ibuf, BUF_LEN);
-     }
-
-I should be able to just lseek(ifd, 0 SEEK_END);
-
-> -- 
->
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.

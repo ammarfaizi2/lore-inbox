@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268171AbTB1Usg>; Fri, 28 Feb 2003 15:48:36 -0500
+	id <S261963AbTB1VFY>; Fri, 28 Feb 2003 16:05:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268175AbTB1Usg>; Fri, 28 Feb 2003 15:48:36 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:26532 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S268171AbTB1Usf>; Fri, 28 Feb 2003 15:48:35 -0500
-Date: Fri, 28 Feb 2003 12:49:45 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 423] New: make -j X bzImage gives a warning 
-Message-ID: <347860000.1046465385@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S263204AbTB1VFX>; Fri, 28 Feb 2003 16:05:23 -0500
+Received: from packet.digeo.com ([12.110.80.53]:28073 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261963AbTB1VFW>;
+	Fri, 28 Feb 2003 16:05:22 -0500
+Date: Fri, 28 Feb 2003 13:12:06 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
+Message-Id: <20030228131206.22fc077c.akpm@digeo.com>
+In-Reply-To: <Pine.LNX.4.44.0302281040190.8167-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0302281040190.8167-100000@localhost.localdomain>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-OriginalArrivalTime: 28 Feb 2003 21:15:33.0056 (UTC) FILETIME=[87625400:01C2DF6E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=423
+Ingo Molnar <mingo@elte.hu> wrote:
+>
+> 
+> this is the latest HT scheduler patch, against 2.5.63-BK.
 
-           Summary: make -j X bzImage gives a warning
-    Kernel Version: 2.5.63
-            Status: NEW
-          Severity: low	
-             Owner: zippel@linux-m68k.org
-         Submitter: mbligh@aracnet.com
+It's looking pretty good Ingo.
 
+- The "tbench starves everything else" problem is fixed.
 
-make -j X bzImage gives a warning:
+- The mm_struct leak is fixed
 
-make[1]: warning: jobserver unavailable: using -j1.  Add `+' to parent make
-rule.
+- As far as I can tell, the scheduler update no longer causes the
+  large "contest io_load" changes, wherein the streaming write made
+  lots more progress at the expense of the kernel compile.
 
-Can we get rid of this one way or the other?
+- The longstanding problem wherein a kernel build makes my X desktop
+  unusable is 90% fixed - it is still possible to trigger stalls, but
+  they are less severe, and you actually have to work at it a bit to
+  make them happen.
 
+Thanks.

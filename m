@@ -1,95 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267583AbUBSXsk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 18:48:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267589AbUBSXsk
+	id S267587AbUBSXxw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 18:53:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267589AbUBSXxw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 18:48:40 -0500
-Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:26614 "EHLO linux.local")
-	by vger.kernel.org with ESMTP id S267583AbUBSXsP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 18:48:15 -0500
-Date: Thu, 19 Feb 2004 08:42:13 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>
-Subject: Re: Non-GPL export of invalidate_mmap_range
-Message-ID: <20040219164213.GK1269@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20040216190927.GA2969@us.ibm.com> <200402191531.56618.phillips@arcor.de> <1077228402.2070.893.camel@sisko.scot.redhat.com> <200402191731.33473.phillips@arcor.de>
+	Thu, 19 Feb 2004 18:53:52 -0500
+Received: from 10fwd.cistron-office.nl ([62.216.29.197]:56554 "EHLO
+	smtp.cistron-office.nl") by vger.kernel.org with ESMTP
+	id S267587AbUBSXxt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 18:53:49 -0500
+Date: Fri, 20 Feb 2004 00:53:03 +0100
+From: Miquel van Smoorenburg <miquels@cistron.nl>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Miquel van Smoorenburg <miquels@cistron.nl>, Jens Axboe <axboe@suse.de>,
+       Andrew Morton <akpm@osdl.org>, linux-lvm@sistina.com,
+       linux-kernel@vger.kernel.org, thornber@redhat.com
+Subject: Re: IO scheduler, queue depth, nr_requests
+Message-ID: <20040219235303.GI32263@drinkel.cistron.nl>
+References: <20040216133047.GA9330@suse.de> <20040217145716.GE30438@traveler.cistron.net> <20040218235243.GA30621@drinkel.cistron.nl> <20040218172622.52914567.akpm@osdl.org> <20040219021159.GE30621@drinkel.cistron.nl> <20040218182628.7eb63d57.akpm@osdl.org> <20040219101519.GG30621@drinkel.cistron.nl> <20040219101915.GJ27190@suse.de> <20040219205907.GE32263@drinkel.cistron.nl> <40353E30.6000105@cyberone.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-In-Reply-To: <200402191731.33473.phillips@arcor.de>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <40353E30.6000105@cyberone.com.au> (from piggin@cyberone.com.au on Thu, Feb 19, 2004 at 23:52:32 +0100)
+X-Mailer: Balsa 2.0.16
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 19, 2004 at 05:31:33PM -0500, Daniel Phillips wrote:
-> Hi Stephen,
+On Thu, 19 Feb 2004 23:52:32, Nick Piggin wrote:
 > 
-> On Thursday 19 February 2004 17:06, Stephen C. Tweedie wrote:
-> > Hi,
-> >
-> > On Thu, 2004-02-19 at 20:56, Daniel Phillips wrote:
-> > > OpenGFS and Sistina GFS use zap_page_range directly, essentially doing
-> > > the same as invalidate_mmap_range but skipping any vmas belonging to
-> > > MAP_PRIVATE mmaps.
-> >
-> > Well, MAP_PRIVATE maps can contain shared pages too --- any page in a
-> > MAP_PRIVATE map that has been mapped but not yet written to is still
-> > shared, and still needs shot down on truncate().
 > 
-> Exactly, and we ought to take this opportunity to do that properly, which is 
-> easy.  I'm just curious how GPFS deals with this issue, or if it simply 
-> doesn't support MAP_PRIVATE.
+> Miquel van Smoorenburg wrote:
+> 
+> >On Thu, 19 Feb 2004 11:19:15, Jens Axboe wrote:
+> >
+> >>On Thu, Feb 19 2004, Miquel van Smoorenburg wrote:
+> >>
+> >>
+> >>>>Shouldn't the controller itself be performing the insertion?
+> >>>>
+> >>>Well, you would indeed expect the 3ware hardware to be smarter than
+> >>>that, but in its defence, the driver doesn't set sdev->simple_tags or
+> >>>sdev->ordered_tags at all. It just has a large queue on the host, in
+> >>>hardware.
+> >>>
+> >>A too large queue. IMHO the simple and correct solution to your problem
+> >>is to diminish the host queue (sane solution), or bump the block layer
+> >>queue size (dumb solution).
+> >>
+> >
+> >Well, I did that. Lowering the queue size of the 3ware controller to 64
+> >does help a bit, but performance is still not optimal - leaving it at 254
+> >and increasing the nr_requests of the queue to 512 helps the most.
+> >
+> >But the patch I posted does just as well, without any tuning. I changed
+> >it a little though - it only has the "new" behaviour (instead of blocking
+> >on allocating a request, allocate it, queue it, _then_ block) for WRITEs.
+> >That results in the best performance I've seen, by far.
+> >
+> >
+> 
+> That's because you are half introducing per-process limits.
+> 
+> >Now the style of my patch might be ugly, but what is conceptually wrong
+> >with allocating the request and queueing it, then block if the queue is
+> >full, versus blocking on allocating the request and keeping a bio
+> >"stuck" for quite some time, resulting in out-of-order requests to the
+> >hardware ?
+> >
+> >
+> 
+> Conceptually? The concept that you have everything you need to
+> continue and yet you block anyway is wrong.
 
-GPFS supports MAP_PRIVATE, but does not specify the behavior if you
-change the underlying file.  There are a number of things one can do,
-but one must keep in mind that different processes can MAP_PRIVATE the
-same file at different times, and that some processes might MAP_SHARED it
-at the same time that others MAP_PRIVATE it.  Here are the alternatives
-I can imagine:
+For reading, I agree. For writing .. ah well, English is not my first
+language, let's not argue about language semantics.
 
-1.	Any time a file changes, create a copy of the old version
-	for any MAP_PRIVATE vmas.  This would essentially create
-	a point-in-time copy of any file that a process mapped
-	MAP_PRIVATE.  This is arguably the most intuitive from the
-	user's standpoint, but (a) it would not be a small change and
-	(b) I haven't heard of anyone coming up with a good use for it.
-	Please enlighten me if I am missing a simple implementation or
-	compelling uses.
+> >Note that this is not an issue of '2 processes writing to 1 file', really.
+> >It's one process and pdflush writing the same dirty pages of the same file.
+> 
+> pdflush is a process though, that's all that matters.
 
-2.	Modify invalidate_mmap_range() to leave MAP_PRIVATE vmas.
-	as suggested by Daniel.  This would mean that a
-	process that had mapped a file MAP_PRIVATE and faulted
-	in parts of it would see different versions of the file
-	in different pages.  This should be straightforward to
-	implement, but in what situation is this skewed view of
-	the file useful?
+I understand that when the two processes are unrelated, the patch as I
+sent it will do the wrong thing.
 
-3.	Modify invalidate_mmap_range() to leave MAP_PRIVATE vmas,
-	but invalidate those pages in the vma that have not yet been
-	modified (that are not anonymous) as suggested by Stephen.
-	This would mean that a process that had mapped a file MAP_PRIVATE
-	and written on parts of it would see different versions of the
-	file in different pages.  Again, in what situation is this skewed
-	view of the file useful?
+But the thing is, you get this:
 
-5.	The current behavior, where the process's writes do not
-	flow through to the file, but all changes to the file are
-	visible to the writing process.
+- "dd" process writes requests
+- pdflush triggers to write dirty pages
+- too many pages are dirty so "dd" blocks as well to write synchronously
+- "dd" process triggers "queue full" but gets marked as "batching" so
+  can continue (get_request)
+- pdflush tries to submit one bio and gets blocked (get_request_wait)
+- "dd" continues, but that one bio from pdflush remains stuck for a while
 
-6.	Requiring that MAP_PRIVATE be applied only to unchanging
-	files, so that (for example) any change to the underlying
-	file removes that file from any MAP_PRIVATE address spaces.
-	Subsequent accesses would get a SEGV, rather than a
-	surprise from silently changing data.
+That's stupid, that one bio from pdflush should really be allowed on
+the queue, since "dd" is adding requests from the same source to it
+anyway.
 
-So, please help me out here...  What do applications that MAP_PRIVATE
-changing files really expect to happen?
+Perhaps writes from pdflush should be handled differently to prevent
+this specific case ?
 
-						Thanx, Paul
+Say, if pdflush adds request #128, don't mark it as batching, but
+let it block. The next process will be the one marked as batching
+and can continue. If pdflush tries to add a request > 128, allow it,
+but _then_ block it.
+
+Would something like that work ? Would it be a good idea to never mark
+a pdflush process as batching, or would that have a negative impact
+for some things ?
+
+Mike.

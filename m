@@ -1,32 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129758AbRCASZ0>; Thu, 1 Mar 2001 13:25:26 -0500
+	id <S129759AbRCAS1q>; Thu, 1 Mar 2001 13:27:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129759AbRCASZR>; Thu, 1 Mar 2001 13:25:17 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:42510 "EHLO
+	id <S129762AbRCAS1g>; Thu, 1 Mar 2001 13:27:36 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:44046 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129758AbRCASZE>; Thu, 1 Mar 2001 13:25:04 -0500
-Subject: Re: Stable Version?
-To: atm@pinky.penguinpowered.com (God)
-Date: Thu, 1 Mar 2001 18:28:01 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0103011008550.918-100000@scotch.homeip.net> from "God" at Mar 01, 2001 10:26:46 AM
+	id <S129759AbRCAS13>; Thu, 1 Mar 2001 13:27:29 -0500
+Subject: Re: The IO problem on multiple PCI busses
+To: benh@kernel.crashing.org (Benjamin Herrenschmidt)
+Date: Thu, 1 Mar 2001 18:30:05 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
+In-Reply-To: <19350124090521.18330@mailhost.mipsys.com> from "Benjamin Herrenschmidt" at Mar 01, 2001 04:33:37 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14YXo6-0008H7-00@the-village.bc.nu>
+Message-Id: <E14YXq3-0008Hy-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What version of the 2.4.x kernels is actually stable enough to use?  I
-> ask this because I see 2.4.2, but then the 2.4.2ac7 fix which from what I
-> have read on here, is a pretty important patch.   Is 2.4.2 or 2.4.1 stable
-> enough?  
+> I'm, of course open to any comments about this (in fact, I'd really like
+> some feedback). One thing is that we also need to find a way to pass
+> those infos to userland. Currently, we implement an arch-specific syscall
+> that allow to retreive the IO physical base of a given PCI bus. That may
+> be enough, but we may also want something that match more closely what we
 
-2.4.1 definitely isnt. 2.4.2 doesnt seem too bad for many users. In fact for
-lots of people its running quite nicely. Its by no means as stable as 2.2.18
-tho
-
+This is also a problem for mmio and to an extent other things on pa-risc.
+You might want to talk to Grant and the other HPPA hackers
 

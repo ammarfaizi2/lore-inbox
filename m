@@ -1,39 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262182AbVBQPOc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262272AbVBQPTe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262182AbVBQPOc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 10:14:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262226AbVBQPJ4
+	id S262272AbVBQPTe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 10:19:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262244AbVBQPOX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 10:09:56 -0500
-Received: from thunk.org ([69.25.196.29]:23207 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S262288AbVBQPHv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 10:07:51 -0500
-Date: Thu, 17 Feb 2005 10:05:06 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Pavel Machek <pavel@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BK] upgrade will be needed
-Message-ID: <20050217150506.GA6842@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Pavel Machek <pavel@suse.cz>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20050214020802.GA3047@bitmover.com> <200502142324.43269.gjury@inode.at> <20050214225704.GD16029@bitmover.com> <200502150029.15993.gjury@inode.at> <or7jla0vy4.fsf@livre.redhat.lsd.ic.unicamp.br> <20050217000032.GG3865@elf.ucw.cz> <Pine.LNX.4.62.0502171045130.30106@numbat.sonytel.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0502171045130.30106@numbat.sonytel.be>
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 17 Feb 2005 10:14:23 -0500
+Received: from cpe-24-94-57-164.stny.res.rr.com ([24.94.57.164]:4801 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262270AbVBQPNe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 10:13:34 -0500
+Date: Thu, 17 Feb 2005 10:13:26 -0500 (EST)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+Reply-To: rostedt@goodmis.org
+To: Ingo Molnar <mingo@elte.hu>
+cc: "David S. Miller" <davem@davemloft.net>, mgross@linux.intel.com,
+       linux-kernel@vger.kernel.org, Mark_H_Johnson@raytheon.com
+Subject: Re: queue_work from interrupt Real time preemption2.6.11-rc2-RT-V0.7.37-03
+In-Reply-To: <20050217075713.GB21621@elte.hu>
+Message-ID: <Pine.LNX.4.58.0502171002420.14536@localhost.localdomain>
+References: <200502141240.14355.mgross@linux.intel.com>
+ <200502141429.11587.mgross@linux.intel.com> <20050215104153.GB19866@elte.hu>
+ <200502151006.44809.mgross@linux.intel.com> <20050216051645.GB15197@elte.hu>
+ <20050216081143.50d0a9d6.davem@davemloft.net>
+ <Pine.LNX.4.58.0502161242180.14526@localhost.localdomain> <20050217075713.GB21621@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 17, 2005 at 10:46:41AM +0100, Geert Uytterhoeven wrote:
-> I don't know whether the kernel hackers that work for IBM use the `free'
-> version of BK or not, but if they do, s/OSDL/IBM/ and s/arch/ClearCase/ and
-> there's a problem...
 
-No, there's not a problem.
+Damn! I'm doing this from out of town and my pine setup had a reply to to
+another email account, and I didn't read this before I sent my previous
+response (so Please ignore it!)
 
-						- Ted
+On Thu, 17 Feb 2005, Ingo Molnar wrote:
+> * Steven Rostedt <rostedt@goodmis.org> wrote:
+>
+> > > See net/core/dev.c:softnet_data
+> >
+> > How about a design to put softirq's into domains. [...]
+>
+> just to make sure that the context of this discussion is not lost to
+> David and other readers of lkml. We are not redesigning softirqs in any
+> way, shape or form for the normal kernel - there they remain what they
+> are.
+>
+> This discussion is about seemless (automatic) extensions/modifications
+> to the softirq concept on PREEMPT_RT, for latency reduction purposes.
+> PREEMPT_SOFTIRQS is already such an extension.
+>
+
+I'm only working on your PREEMPT_RT extension, so I wasn't thinking about
+the mainline kernel.
+
+But I'll ask again from this context. What is the plan for softirqs on the
+PREEMPT_RT kernel? Are you going to thread them? Otherwise, what other way
+can you preempt different softirqs?
+
+I understand that the design of softirqs will not change for the mainline
+kernel, but what changes are going to be made wrt PREEMPT_RT? If they are
+going to be threaded, then grouping them would not be too much of a
+problem with simple #ifdefs around the code and keep the mainline
+untouched.
+
+I may be just confused, so please enlighten me :-)
+
+Thanks,
+
+-- Steve
+

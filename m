@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262056AbUCIQiP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 11:38:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbUCIQiP
+	id S262065AbUCIQkG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 11:40:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbUCIQkG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 11:38:15 -0500
-Received: from CPE0080c8c9b431-CM014280010574.cpe.net.cable.rogers.com ([24.112.162.124]:5907
-	"EHLO stargate.coplanar.net") by vger.kernel.org with ESMTP
-	id S262056AbUCIQiM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 11:38:12 -0500
-Message-ID: <404DF2EC.6030701@coplanar.net>
-Date: Tue, 09 Mar 2004 11:38:04 -0500
-From: Jeremy Jackson <jerj@coplanar.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-MIME-Version: 1.0
-To: "Ramy M. Hassan" <ramy@gawab.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Advanced storage management ( suggestion )
-References: <003801c402ea$44437190$ba10a8c0@ramy>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Mar 2004 11:40:06 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:8205
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262049AbUCIQij (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 11:38:39 -0500
+Date: Tue, 9 Mar 2004 17:39:20 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [lockup] Re: objrmap-core-1 (rmap removal for file mappings to avoid 4:4 in <=16G machines)
+Message-ID: <20040309163920.GN8193@dualathlon.random>
+References: <20040308202433.GA12612@dualathlon.random> <20040309105226.GA2863@elte.hu> <20040309110233.GA3819@elte.hu> <20040309155917.GH8193@dualathlon.random> <20040309160709.GA10577@elte.hu> <20040309160807.GA10778@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040309160807.GA10778@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ramy M. Hassan wrote:
-> I see many people interested in designing of new filesystems for
-> different purposes, and one of the common tasks all filesystem designers
-> will do is to manage device blocks. 
-
+On Tue, Mar 09, 2004 at 05:08:07PM +0100, Ingo Molnar wrote:
 > 
-> If you know of any similar effort, or any technical obstacle I am
-> missing , please let me know.
-
-Please take a look at EVMS before you reinvent the wheel here. 
-http://evms.sourceforge.net
-
+> * Ingo Molnar <mingo@elte.hu> wrote:
 > 
-> Ramy
+> > > this use more cpu than the previous one, but no other differences.
+> > 
+> > how fast is the system you tried this on? If it's faster than the 500
+> > MHz box i tried it on then please try the attached test-mmap3.c.
+> > (which is still not doing anything extreme.)
+> 
+> also, please run it on an UP kernel.
 
--- 
-Jeremy Jackson
-Coplanar Networks
-http://www.coplanar.net
-
+I will, thanks for the hint.

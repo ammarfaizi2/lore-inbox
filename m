@@ -1,83 +1,118 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129859AbQLGS3r>; Thu, 7 Dec 2000 13:29:47 -0500
+	id <S129846AbQLGSah>; Thu, 7 Dec 2000 13:30:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129846AbQLGS3h>; Thu, 7 Dec 2000 13:29:37 -0500
-Received: from alcove.wittsend.com ([130.205.0.20]:54789 "EHLO
-	alcove.wittsend.com") by vger.kernel.org with ESMTP
-	id <S129370AbQLGS3Y>; Thu, 7 Dec 2000 13:29:24 -0500
-Date: Thu, 7 Dec 2000 13:57:41 -0500
-From: "Michael H. Warfield" <mhw@wittsend.com>
-To: M Sweger <mikesw@whiterose.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: New CD-R high capacity drive specs are coming. (fwd)
-Message-ID: <20001207135741.E25411@alcove.wittsend.com>
-Mail-Followup-To: M Sweger <mikesw@whiterose.net>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0012071231500.10252-100000@whiterose.net>
-Mime-Version: 1.0
+	id <S130471AbQLGSaS>; Thu, 7 Dec 2000 13:30:18 -0500
+Received: from sun.rhrk.uni-kl.de ([131.246.137.50]:17538 "HELO
+	sun.rhrk.uni-kl.de") by vger.kernel.org with SMTP
+	id <S129846AbQLGSaM>; Thu, 7 Dec 2000 13:30:12 -0500
+Message-ID: <3A2FD00F.E7449D2D@student.uni-kl.de>
+Date: Thu, 07 Dec 2000 18:59:43 +0100
+From: strieder@student.uni-kl.de
+Organization: Universität Kaiserslautern
+X-Mailer: Mozilla 4.74 [de] (X11; U; Linux 2.2.16 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: SCSI modules and kmod
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.2i
-In-Reply-To: <Pine.LNX.4.21.0012071231500.10252-100000@whiterose.net>; from mikesw@whiterose.net on Thu, Dec 07, 2000 at 12:33:35PM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 07, 2000 at 12:33:35PM -0500, M Sweger wrote:
+Hello,
 
-> Hi,
+the problem is, that SCSI hostadapter modules seem not to be loaded
+automatically, whenever there is another hostadaptor active already, or
+if IDE SCSI emulation is enabled.
 
->    See the article below.
+Loading automatically is usually done via having kmod load the virtual
+module "scsi_hostadapter", which is usually translated by modprobe via
+an entry in /etc/modules.conf to the right module to be loaded. This
+doesn't happen in my case. Instead there is a message from modprobe,
+that module block-major-8 (/dev/sda...) could not be loaded, so there is
+something tried.
 
-> I just read that the specs are out for three different types of CD-R
-> drives in terms of disk capacity and speeds from Constellation 3D,and it
-> is heading towards manufacturing. It's great for movies and coporate
-> archiving, but was degraded for the consumer market -- Nothing above
-> 5Gb/side for the consumer whereas for the coporate it's 200Gb/side. I
-> don't think it will  compete for the PC market unless the disk capacities
-> are upped! Probably purposely degraded so that you can't copy a HDTV DVD
-> to your PC CD-R disk. Here is the 
-> <a href="http://biz.yahoo.com/bw/001207/ny_constel.html">link </a>
+The following is from linux/drivers/scsi/scsi.c:
 
-	Look at those specs closely and you may understand a little
-better.  The "consumer" device is for the small 45mm discs (about the
-size of the credit card CD's or the little MO music discs).
+int scsi_register_module(int module_type, void * ptr)
+{
+    switch(module_type)
+    {
+    case MODULE_SCSI_HA:
+        return scsi_register_host((Scsi_Host_Template *) ptr);
+ 
+        /* Load upper level device handler of some kind */
+    case MODULE_SCSI_DEV:
+#ifdef CONFIG_KMOD
+        if (scsi_hosts == NULL)
+            request_module("scsi_hostadapter");
+#endif
+        return scsi_register_device_module((struct Scsi_Device_Template
+*) ptr);
+        /* The rest of these are not yet implemented */
+ 
+        /* Load constants.o */
+    case MODULE_SCSI_CONST:
+ 
+        /* Load specialized ioctl handler for some device.  Intended for
+         * cdroms that have non-SCSI2 audio command sets. */
+    case MODULE_SCSI_IOCTL:
+ 
+    default:
+        return 1;
+    }
+} 
 
-	The CD sized (120mm) discs are the 32 Gig per side "VCR" devices.
-They've always said (first announcement well over a year ago) that
-they would focus first on the small disc r/w format for the consumer.
-My bet would be that the CD sized drives and the 32 Gig FMD discs
-would not be far behind.
+It seems to be the case that scsi_hosts != NULL holds, whenever ide-scsi
+is enabled. This prevents other (real) SCSI adapter drivers from being
+loaded automatically.
 
-	The 200Gig devices are a whopping 300mm!  That's 2-1/2 the
-diameter of the current CD format.  That's a 12" platter we are talking
-about here.  That will be NICE for large centers with large data demands
-(kiss them tapes GOOD BY) but I don't see it on MY desk top!  :-)
+What could be done? 
 
-	So it's strictly a physical packaging and production issue.  I can
-certainly see where they would want to roll that little 1.8" format out
-the door for the consumer market first.  Lots of us would love to have
-the larger 5-1/2" format and I'm sure it won't be far behind, but
-you have to choose your initial devices carefully to avoid over
-burdening your startup production.
+Perhaps it is better to try first to find the device. If that fails try
+to load the module, then try once again to register the device.
 
-	I certainly wouldn't call it "degraded for the consumer market"
-any more than I would call those little MO discs "degraded for the
-consumer market".  Those little discs are likely to be perfect for the
-consumer market (Radio Shack "pop a disc from your pocket into a player"
-crowd).  That form factor would also be fantastic for PDAs, handhelds,
-and small laptops.
+In other words changing the case of the function above like the
+following could perhaps do it.
 
-	I don't see any real conspiracy here, just some sensible business
-and production planning (gee, how refreshing).
+    int regdevresult;
+....
+    case MODULE_SCSI_DEV:
+#ifdef CONFIG_KMOD
+        if (scsi_hosts == NULL)
+          {
+            request_module("scsi_hostadapter");
+            return scsi_register_device_module((struct
+Scsi_Device_Template *) ptr);
+          }
+#endif
+        regdevresult = scsi_register_device_module((struct
+Scsi_Device_Template *) ptr);
+#ifdef CONFIG_KMOD
+        if (regdevresult != 0) /* is this the right case? */
+            request_module("scsi_hostadapter");
+        regdevresult = scsi_register_device_module((struct
+Scsi_Device_Template *) ptr);
+#endif
+        return regdevresult;
 
-	Mike
--- 
- Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
-  (The Mad Wizard)      |  (678) 463-0932   |  http://www.wittsend.com/mhw/
-  NIC whois:  MHW9      |  An optimist believes we live in the best of all
- PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
+This would be the first time I really change the kernel, so I thought
+it'd be better to ask, if this could work before losing too much time.
 
+The only change in behaviour will be that trying to access a SCSI device
+that isn't there will result in as many calls to modprobe as accesses
+are tried. The current code will only show this, if scsi_hosts == NULL
+and remains so after loading the module. This is not a major change, and
+it will happen just in cases of misconfiguration of the system.
+
+It is important that the kernel tries to tell modprobe that it looks for
+a SCSI hostadapter. "modprobe" itself can do a lot more with that, e.g.
+loading multiple SCSI drivers, loading other modules, etc.
+
+Please CC me in answers, I'm not in the list.
+
+Bernd Strieder
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

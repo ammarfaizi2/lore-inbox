@@ -1,64 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264873AbTFCJ5B (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 05:57:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264875AbTFCJ5B
+	id S264882AbTFCKGw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 06:06:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264884AbTFCKGw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 05:57:01 -0400
-Received: from camus.xss.co.at ([194.152.162.19]:39950 "EHLO camus.xss.co.at")
-	by vger.kernel.org with ESMTP id S264873AbTFCJ5A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 05:57:00 -0400
-Message-ID: <3EDC7411.3090207@xss.co.at>
-Date: Tue, 03 Jun 2003 12:10:25 +0200
-From: Andreas Haumer <andreas@xss.co.at>
-Organization: xS+S
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Delaney, Pam" <pdelaney@lsil.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Misleading comment for CONFIG_FUSION (LSI fusion MPT driver)
-References: <87C66143ACFCAA499B8301ECBC8C30230A5B49@exw-elk.ks.lsil.com>
-In-Reply-To: <87C66143ACFCAA499B8301ECBC8C30230A5B49@exw-elk.ks.lsil.com>
-X-Enigmail-Version: 0.74.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+	Tue, 3 Jun 2003 06:06:52 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:19027 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S264882AbTFCKGv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 06:06:51 -0400
+Date: Tue, 3 Jun 2003 03:20:34 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: adam@yggdrasil.com, linux-kernel@vger.kernel.org
+Subject: Re: Counter-kludge for 2.5.x hanging when writing to block device
+Message-Id: <20030603032034.20202091.akpm@digeo.com>
+In-Reply-To: <20030603100255.GJ482@suse.de>
+References: <200306030848.h538mwE22282@freya.yggdrasil.com>
+	<20030603091018.GI482@suse.de>
+	<20030603030023.69d39d6e.akpm@digeo.com>
+	<20030603100255.GJ482@suse.de>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 03 Jun 2003 10:20:18.0163 (UTC) FILETIME=[BB1FFC30:01C329B9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Hi,
-
-Delaney, Pam wrote:
-> Hello Andreas,
+Jens Axboe <axboe@suse.de> wrote:
 >
-> Thanks for the heads up.
-> The remarks are obsolete and need to be stricken.
-> They will be removed from my code base.
->
-Thank you!
+>  > b) it should check that there are still requests in flight after parking
+>  >    itself on the waitqueue rather than relying on the timeout.
+> 
+>  This is important, would be much nicer to pass in the backing dev. This
+>  is a big problem, imho. It's broken right now.
 
-And many thanks for your work on this driver!
-It's really a fine piece of software, well documented,
-a joy to read the source code (IMHO)!
+The throttling is not really a per-device concept.  It is a "global"
+concept.
 
-- - andreas
+If a process has written to a really slow device and has encountered
+throttling due to exceeded dirty memory limits, we _do_ want to wake that
+process up (to reevaluate the system state) if a bunch of writes terminate
+against a fast device.
 
-- --
-Andreas Haumer                     | mailto:andreas@xss.co.at
-*x Software + Systeme              | http://www.xss.co.at/
-Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
-A-1100 Vienna, Austria             | Fax: +43-1-6060114-71
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+There is a fixed amount of system memory which the administrator has
+dedicated to buffering of dirty-and-writeback data and I believe that not
+discriminating between different bandwidth devices will give the overall
+lowest latency.  This may be wrong, and maybe we do want to throttle tasks
+which write to slow devices more heavily.
 
-iD8DBQE+3HQMxJmyeGcXPhERAnkcAJ9eL+/ayz1x4i+uw0EoOEQtkqiPlACeJTMM
-8VwX27LLd3PSYh1pCWR7WHE=
-=/waB
------END PGP SIGNATURE-----
+Or place the device's nominal bandwidth in the backing_dev_info, account
+for dirty memory on a per-queue basis and limit the permissible amount of
+dirty memory against slower devices.  That's probably not too hard to do
+but I'm not sure that the combination of slow and fast devices both under
+heavy writeout at the same time is common enough to justify it.
 

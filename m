@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285303AbRLNBbN>; Thu, 13 Dec 2001 20:31:13 -0500
+	id <S285308AbRLNBgy>; Thu, 13 Dec 2001 20:36:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285304AbRLNBbD>; Thu, 13 Dec 2001 20:31:03 -0500
-Received: from vortex.physik.uni-konstanz.de ([134.34.143.44]:9490 "EHLO
-	vortex.physik.uni-konstanz.de") by vger.kernel.org with ESMTP
-	id <S285303AbRLNBay>; Thu, 13 Dec 2001 20:30:54 -0500
-Message-Id: <200112140130.fBE1Ujs19271@vortex.physik.uni-konstanz.de>
-Content-Type: text/plain; charset=US-ASCII
-From: space-00002@vortex.physik.uni-konstanz.de
-Organization: Universitaet Konstanz/Germany
-To: linux-kernel@vger.kernel.org
-Subject: Re: buffer/memory strangeness in 2.4.16; fixed in 2.4.17-rc1
-Date: Fri, 14 Dec 2001 02:30:46 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <200111291201.fATC1pd04206@lists.us.dell.com> 
+	id <S285305AbRLNBgn>; Thu, 13 Dec 2001 20:36:43 -0500
+Received: from ns.suse.de ([213.95.15.193]:62990 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S285309AbRLNBga>;
+	Thu, 13 Dec 2001 20:36:30 -0500
+Date: Fri, 14 Dec 2001 02:36:29 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Kimio Suganuma <k-suganuma@mvj.biglobe.ne.jp>
+Cc: Russell King <rmk@arm.linux.org.uk>, <linux-kernel@vger.kernel.org>,
+        <large-discuss@lists.sourceforge.net>,
+        Heiko Carstens <Heiko.Carstens@de.ibm.com>,
+        Jason McMullan <jmcmullan@linuxcare.com>,
+        Anton Blanchard <antonb@au1.ibm.com>,
+        Greg Kroah-Hartman <ghartman@us.ibm.com>, <rusty@rustcorp.com.au>
+Subject: Re: [ANNOUNCE] HotPlug CPU patch against 2.5.0
+In-Reply-To: <20011213161734.5B4F.K-SUGANUMA@mvj.biglobe.ne.jp>
+Message-ID: <Pine.LNX.4.33.0112140218440.27641-100000@Appserv.suse.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 13 Dec 2001, Kimio Suganuma wrote:
 
-just to let you know the problem described below seems to have been fixed in 
-2.4.17-rc1. It behaves as it should. Great work!
+> There is no /proc/sys/cpu directory on the latest kernel, and
+> I guess someone is thinking the structure under the directory,
+> right?
 
-Cheers,
-	Jan
+The current /proc/sys/cpu/ sysctls have been added as part of
+Russell's cpu frequency scaling work. Currently, only the ARM
+specific bits are merged. There are generic bits and x86 bits
+waiting to be merged at some point..
 
-On Thursday 29 November 2001 21:39, you wrote:
-> Hi,
->
-> I am experiencing a bit of strange system behaviour in a vanilla 2.4.16
-> kernel (2.95.3, very stable machine etc.)
->
-> I noticed, that after running for a while (day) I had significantly less
-> memory available for my simulation program than right after booting.
-> Looking at the problem using 'xosview' (or 'free'), I noticed that there
-> was a large number of MBs filled with 'buffers' that did not get wiped when
-> other programs need the memory. The system seems to rather kill an
-> 'offender' than clean out buffers.
->
-> Right after booting, I can allocate about 650MBs memory using the little
-> program attached below. After a day (or after running updatedb), under the
-> same conditions, even in single user mode with only a shell running (!)
-> this is not possible anymore and the program (below), trying to allocate
-> only 300-400MBs, gets killed by the system after making it unresponsive for
-> many seconds.
->
-> Apparently this problem occurs after running 'updatedb', which fills 'free
-> memory' and generates lots of filled cache and buffers on my system.
->
-> This sort of behaviour must have been introduced after 2.4.13, which does
-> not show these problems.
+The x86 part of this work uses the same framework, and was
+done by myself and Arjan van de Ven. It's almost in a state
+ready for merging also.
+
+If you're interested in looking at this, it's in cvs..
+cvs -d:pserver:cvs@pubcvs.arm.linux.org.uk:/mnt/src/cvsroot login
+cvs -d:pserver:cvs@pubcvs.arm.linux.org.uk:/mnt/src/cvsroot checkout
+cpufreq
+
+> echo 1 > /proc/sys/cpu/<cpu-id>/online
+>   or
+> Which is the right way?
+
+This one looks most sensible to me, and fits in with the
+current scheme nicely.
+
+regards,
+Dave.
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+

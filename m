@@ -1,77 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317525AbSHLIV5>; Mon, 12 Aug 2002 04:21:57 -0400
+	id <S317498AbSHLIjL>; Mon, 12 Aug 2002 04:39:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317536AbSHLIV5>; Mon, 12 Aug 2002 04:21:57 -0400
-Received: from dsl-213-023-043-075.arcor-ip.net ([213.23.43.75]:26023 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S317525AbSHLIVy>;
-	Mon, 12 Aug 2002 04:21:54 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Larry McVoy <lm@bitmover.com>, Rik van Riel <riel@conectiva.com.br>
-Subject: Re: large page patch (fwd) (fwd)
-Date: Mon, 12 Aug 2002 10:22:26 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linus Torvalds <torvalds@transmeta.com>, frankeh@watson.ibm.com,
-       davidm@hpl.hp.com, David Mosberger <davidm@napali.hpl.hp.com>,
-       "David S. Miller" <davem@redhat.com>, gh@us.ibm.com,
-       Martin.Bligh@us.ibm.com, William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org
-References: <1029113179.16236.101.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44L.0208112041110.23404-100000@imladris.surriel.com> <20020811165003.F17310@work.bitmover.com>
-In-Reply-To: <20020811165003.F17310@work.bitmover.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17eAT4-0001n3-00@starship>
+	id <S317540AbSHLIjL>; Mon, 12 Aug 2002 04:39:11 -0400
+Received: from mail.zmailer.org ([62.240.94.4]:20962 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id <S317498AbSHLIjK>;
+	Mon, 12 Aug 2002 04:39:10 -0400
+Date: Mon, 12 Aug 2002 11:42:58 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: "Dhr N. Van Alphen" <mastex@servicez.org>
+Cc: Jim Roland <jroland@roland.net>, linux-kernel@vger.kernel.org
+Subject: Re: The spam problem.
+Message-ID: <20020812084258.GT32427@mea-ext.zmailer.org>
+References: <027104643010c82DTVMAIL11@smtp.cwctv.net> <5.1.0.14.2.20020812064112.00b6b9c0@pop.gmx.net> <004e01c241bb$816847e0$2102a8c0@gespl2k1> <001c01c241bd$37fbabe0$0200010a@jennifer>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <001c01c241bd$37fbabe0$0200010a@jennifer>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 12 August 2002 01:50, Larry McVoy wrote:
-> On Sun, Aug 11, 2002 at 08:42:16PM -0300, Rik van Riel wrote:
-> > On 12 Aug 2002, Alan Cox wrote:
-> > 
-> > > Unfortunately the USA forces people to deal with this crap. I'd hope SGI
-> > > would be decent enough to explicitly state they will license this stuff
-> > > freely for GPL use
-> > 
-> > I seem to remember Apple having a clause for this in
-> > their Darwin sources, forbidding people who contribute
-> > code from suing them about patent violations due to
-> > the code they themselves contributed.
+  Good morning,
+
+Please refrain from fights on email issues while I am asleep..
+DaveM is in California, I am in Finland.  About 9-10 hours
+time difference there.  (depending on our personal rythms, also.)
+
+On Mon, Aug 12, 2002 at 07:00:46AM +0200, Dhr N. Van Alphen wrote:
+> cause there would be many non-members who wanna post bugs but can't because
+> they dont have access maybe?
 > 
-> IBM has a fantastic clause in their open source license.  The license grants
-> you various rights to use, etc., and then goes on to say something in 
-> the termination section (I think) along the lines of 
-> 
-> 	In the event that You or your affiliates instigate patent, trademark,
-> 	and/or any other intellectual property suits, this license terminates
-> 	as of the filing date of said suit[s].
-> 
-> You get the idea.  It's basically "screw me, OK, then screw you too" language.
+> I suggest too block every email adres wich sends crap, easy done.
 
-Yes.  I would like to add my current rmap optimization work, if it is worthy
-for the usual reasons, to the kernel under a DPL license which is in every
-respect the GPL, except that it adds one additional restriction along the
-lines:
+ Consider:
+    - Number of faked source addresses
+    - Number of cases using somebody's address
+    - Number of throw-away addresses
+    - How many times they use  HOTMAIL/YAHOO/EMAIL/MAIL/... addresses ?
 
-  "If you enforce a patent against a user of this code, or you have a
-   beneficial relationship with someone who does, then your licence to
-   use or distribute this code is automatically terminated"
+  I think I will stick to the (weakish) method of matching texts in
+  message body (and sometimes on headers)..
 
-with more language to extend the protection to the aggregate work, and to
-specify that we are talking about enforcement of patents concerned with any
-part of the aggregate work.  Would something like that fly?
+  I just reviewed Majordomo's BOUNCE log.  It is bouncing (into oblivion)
+  practically every posting from HOTMAIL (because of Received: header 
+  text: "from mail pickup service", which appears also in a number of
+  looped messages..)
 
-In other words, use copyright law as a lever against patent law.
+  Over past 3 days  Majordomo  has trapped ONE of those money-scam
+  letters.   A lot more of various other spams have been blocked.
+  Messages with HTML content don't make it into VGER at all, which
+  should give a very big clue to legitimate posters making a mistake
+  of posting such.
 
-This would tend to provide protection against 'our friends', who on the one
-hand, depend on Linux in their businesses, and on the other hand, do seem to
-be holding large portfolios of equivalently stupid patents.
 
-As far as protection against those who would have no intention or need to use
-the aggregate work anyway, that's an entirely separate question.  Frankly, I
-enjoy the sport of undermining a patent much more when it is held by someone
-who is not a friend.
+  I am very worried of trapping too much.  A bit of leakage is (to me)
+  accptable, but similar amounts of falsely trapped ones I don't like.
 
--- 
-Daniel
+  I also receive so much spam directly, that I don't always detect every
+  instance when it is leaking thru VGER's lists.   If you want to raise
+  the attention of VGERs postmasters, I suggest you forward it to:
+
+              postmaster@vger.kernel.org
+
+  with subject: "leaked spam"
+
+  Also, in case of non-english spam, I would like to receive suggestions
+  for PERL RE patterns matching juicy keywords in the messages.
+  (To me Chinese or Russian texts are just line noise...)
+
+> Niek van alphen
+> mastex@servicez.org
+
+/Matti Aarnio

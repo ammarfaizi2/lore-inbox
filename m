@@ -1,56 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262340AbVAOVrr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262337AbVAOVrs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262340AbVAOVrr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 16:47:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262337AbVAOVpk
+	id S262337AbVAOVrs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 16:47:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262344AbVAOVpM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 16:45:40 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:13528 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S262340AbVAOVnD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 16:43:03 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: 2.6.10-mm3: swsusp: out of memory on resume (was: Re: Ho ho ho - Linux v2.6.10)
-Date: Sat, 15 Jan 2005 22:43:21 +0100
-User-Agent: KMail/1.7.1
-Cc: hugang@soulinfo.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0412241434110.17285@ppc970.osdl.org> <20050114143400.GA27657@hugang.soulinfo.com> <200501141825.42407.rjw@sisk.pl>
-In-Reply-To: <200501141825.42407.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Sat, 15 Jan 2005 16:45:12 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:25873 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262337AbVAOVkW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jan 2005 16:40:22 -0500
+Date: Sat, 15 Jan 2005 22:40:17 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org, ak@suse.de,
+       discuss@x86-64.org
+Subject: [2.6 patch] i386/x86_64 msr.c: make two functions static (fwd)
+Message-ID: <20050115214017.GA4274@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200501152243.21483.rjw@sisk.pl>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, 14 of January 2005 18:25, Rafael J. Wysocki wrote:
-> On Friday, 14 of January 2005 15:34, hugang@soulinfo.com wrote:
-> > On Thu, Jan 13, 2005 at 07:09:24PM +0100, Rafael J. Wysocki wrote:
-> > > Hi,
-> > > 
-> > > 
-> > > Has this patch been ported to x86_64?  Or is there a newer version of it anywhere,
-> > > or an alternative?
-> > > 
-> > 
-> > Ok, Here is a new patch with x86_64 support, But I have not machine, So
-> > Need someone test it. 
-> 
-> OK, I will.
+The patch forwarded below (already ACK'ed by H. Peter Anvin) still 
+applies and compiles against 2.6.11-rc1-mm1.
 
-I have tested it and it works well.  For me, it speeds up the resume process significantly,
-so I vote for including it into -mm (at least ;-)).  I'll be testing it further to see if it really
-solves my "out of memory" problems on resume.
-
-Greets,
-RJW
+Please apply.
 
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+----- Forwarded message from Adrian Bunk <bunk@stusta.de> -----
+
+Date:	Mon, 6 Dec 2004 01:41:35 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org, ak@suse.de, discuss@x86-64.org
+Subject: [2.6 patch] i386/x86_64 msr.c: make two functions static
+
+The patch below makes two needlessly global functions static.
+
+
+diffstat output:
+ arch/i386/kernel/msr.c   |    4 ++--
+ arch/x86_64/kernel/msr.c |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.10-rc2-mm4-full/arch/i386/kernel/msr.c.old	2004-12-06 01:23:13.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/arch/i386/kernel/msr.c	2004-12-06 01:23:26.000000000 +0100
+@@ -291,7 +291,7 @@
+ 	.notifier_call = msr_class_cpu_callback,
+ };
+ 
+-int __init msr_init(void)
++static int __init msr_init(void)
+ {
+ 	int i, err = 0;
+ 	i = 0;
+@@ -328,7 +328,7 @@
+ 	return err;
+ }
+ 
+-void __exit msr_exit(void)
++static void __exit msr_exit(void)
+ {
+ 	int cpu = 0;
+ 	for_each_online_cpu(cpu)
+--- linux-2.6.10-rc2-mm4-full/arch/x86_64/kernel/msr.c.old	2004-12-06 01:23:35.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/arch/x86_64/kernel/msr.c	2004-12-06 01:23:48.000000000 +0100
+@@ -255,7 +255,7 @@
+ 	.open = msr_open,
+ };
+ 
+-int __init msr_init(void)
++static int __init msr_init(void)
+ {
+ 	if (register_chrdev(MSR_MAJOR, "cpu/msr", &msr_fops)) {
+ 		printk(KERN_ERR "msr: unable to get major %d for msr\n",
+@@ -266,7 +266,7 @@
+ 	return 0;
+ }
+ 
+-void __exit msr_exit(void)
++static void __exit msr_exit(void)
+ {
+ 	unregister_chrdev(MSR_MAJOR, "cpu/msr");
+ }
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+----- End forwarded message -----
+

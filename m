@@ -1,38 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266200AbSKONJ6>; Fri, 15 Nov 2002 08:09:58 -0500
+	id <S266122AbSKONLD>; Fri, 15 Nov 2002 08:11:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266236AbSKONJ6>; Fri, 15 Nov 2002 08:09:58 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:31751 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266200AbSKONJ5>; Fri, 15 Nov 2002 08:09:57 -0500
-Date: Fri, 15 Nov 2002 13:16:45 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: in-kernel linking issues
-Message-ID: <20021115131645.A2168@flint.arm.linux.org.uk>
-Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
-	linux-kernel@vger.kernel.org
-References: <p73wunfv5b0.fsf@oldwotan.suse.de> <20021115084757.A640A2C145@lists.samba.org> <20021115045146.A23944@twiddle.net>
+	id <S266236AbSKONLD>; Fri, 15 Nov 2002 08:11:03 -0500
+Received: from point41.gts.donpac.ru ([213.59.116.41]:35076 "EHLO orbita1.ru")
+	by vger.kernel.org with ESMTP id <S266122AbSKONLB>;
+	Fri, 15 Nov 2002 08:11:01 -0500
+Date: Fri, 15 Nov 2002 16:16:59 +0300
+From: Andrey Panin <pazke@orbita1.ru>
+To: Osamu Tomita <tomita@cinet.co.jp>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: PC-9800 patch for 2.5.47-ac4: not merged yet (14/15) serial
+Message-ID: <20021115131659.GA552@pazke.ipt>
+Mail-Followup-To: Osamu Tomita <tomita@cinet.co.jp>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <3DD4E2D5.AEF13F1@cinet.co.jp> <3DD4F166.8E25E202@cinet.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="C7zPtVaVf+AK4Oqc"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021115045146.A23944@twiddle.net>; from rth@twiddle.net on Fri, Nov 15, 2002 at 04:51:46AM -0800
+In-Reply-To: <3DD4F166.8E25E202@cinet.co.jp>
+User-Agent: Mutt/1.4i
+X-Uname: Linux pazke 2.2.17 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 15, 2002 at 04:51:46AM -0800, Richard Henderson wrote:
-> to be used like so
-> 
-> 	ld -T z.ld -shared -o z.so z.o
 
-I'm slightly worried about this.  For things like shared libraries to be
-relocatable on ARM on current toolchains, you need to build with -fPIC.
-This introduces a measurable overhead to all code execution which our
-current model does not.  (Namely all symbol references go via the GOT
-table.)
+--C7zPtVaVf+AK4Oqc
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+On =D0=9F=D1=82=D0=BD, =D0=9D=D0=BE=D1=8F 15, 2002 at 10:06:46 +0900, Osamu=
+ Tomita wrote:
+> This is for serial port and onboard modem support.
+
+> @@ -376,7 +378,12 @@
+>  			    ((port->min =3D=3D 0x2f8) ||
+>  			     (port->min =3D=3D 0x3f8) ||
+>  			     (port->min =3D=3D 0x2e8) ||
+> +#ifndef CONFIG_PC9800
+>  			     (port->min =3D=3D 0x3e8)))
+> +#else
+> +			     (port->min =3D=3D 0x3e8) ||
+> +			     (port->min =3D=3D 0x8b0)))
+> +#endif
+>  				return 0;
+>  	}
+
+Why 0x8b0 should be added here ?
+Is it one of default iobase value for C-bus PNP modems ?
+
+--=20
+Andrey Panin            | Embedded systems software developer
+pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
+--C7zPtVaVf+AK4Oqc
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.1 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE91PPLBm4rlNOo3YgRAjeVAKCNFrZXD3fddv1yS1vIw6aQOLsRWACdFNxY
+iLT1lt4/TD53/kAJlCx9uUo=
+=7BF9
+-----END PGP SIGNATURE-----
+
+--C7zPtVaVf+AK4Oqc--

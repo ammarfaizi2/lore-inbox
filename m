@@ -1,29 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313190AbSD3RhV>; Tue, 30 Apr 2002 13:37:21 -0400
+	id <S313680AbSD3R5J>; Tue, 30 Apr 2002 13:57:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313205AbSD3RhV>; Tue, 30 Apr 2002 13:37:21 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:46853 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S313190AbSD3RhU>; Tue, 30 Apr 2002 13:37:20 -0400
-Date: Tue, 30 Apr 2002 10:37:10 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: "Neal D. Becker" <nbecker@hns.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.11 error fbcon-cfg8.c
-In-Reply-To: <x883cxd4ba6.fsf@rpppc1.md.hns.com>
-Message-ID: <Pine.LNX.4.10.10204301036410.14139-100000@www.transvirtual.com>
+	id <S313747AbSD3R5J>; Tue, 30 Apr 2002 13:57:09 -0400
+Received: from ns1.affordablehost.com ([206.104.238.105]:21951 "HELO
+	callisto.affordablehost.com") by vger.kernel.org with SMTP
+	id <S313680AbSD3R5I>; Tue, 30 Apr 2002 13:57:08 -0400
+Message-ID: <3CCEDAF8.5030809@keyed-upsoftware.com>
+Date: Tue, 30 Apr 2002 12:57:12 -0500
+From: David Stroupe <dstroupe@keyed-upsoftware.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020313
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: printk in interrupt handler
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-BlackHole: Version 0.9.75 by Chris Kennedy (C) 2002
+X-BlackHole-Sender: (null)
+X-BlackHole-Relay: 12.238.66.88
+X-BlackHole-Match: No Match
+X-BlackHole-Info: (null)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am writing a device driver that responds to interrupts on my custom 
+device.  I have a user-space application that talks to this driver.  I 
+am debugging the user space code using gdb.  If I place a breakpoint in 
+my user code at the first instruction that should be executed after 
+receipt of an interrupt, I get my breakpoint.  Within my driver I have 
+printk's placed in the handler and in the blocked read instruction that 
+would give me additional info about the source of the interrupt, irq 
+status register etc, byt these printk's never appear.  Obviously since 
+the blocked I/O releases, these instructions must be getting executed. 
+ Are these printk commands not flushed due to the debugger's influence? 
+ Is there a way for me to flush them more quickly so that I may view 
+them with dmesg (or looking at the messages file)?
 
-> gcc -D__KERNEL__ -I/usr/src/linux-2.5.11/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon    -DKBUILD_BASENAME=fbcon_cfb8  -DEXPORT_SYMTAB -c fbcon-cfb8.c
-> fbcon-cfb8.c: In function `fbcon_cfb8_bmove':
-> fbcon-cfb8.c:55: structure has no member named `screen_base'
+TIA
 
-Grab patch 
+-- 
+Best regards,
+David Stroupe
+Keyed-Up Software
 
-http://www.transvirtual.com/~jsimmons/fbdev_fixs.diff
 

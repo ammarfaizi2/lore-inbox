@@ -1,72 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263344AbTI2NX7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 09:23:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263345AbTI2NX7
+	id S263341AbTI2NUY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 09:20:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263342AbTI2NUY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 09:23:59 -0400
-Received: from iucha.net ([209.98.146.184]:5697 "EHLO mail.iucha.net")
-	by vger.kernel.org with ESMTP id S263344AbTI2NX4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 09:23:56 -0400
-Date: Mon, 29 Sep 2003 08:23:55 -0500
-To: Jaroslav Kysela <perex@suse.cz>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.0-test6
-Message-ID: <20030929132355.GA1206@iucha.net>
-Mail-Followup-To: Jaroslav Kysela <perex@suse.cz>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3V7upXqbjpZ4EhLz"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org>
-X-message-flag: Microsoft: Where do you want to go today? Nevermind, you are coming with us!
-X-gpg-key: http://iucha.net/florin_iucha.gpg
-X-gpg-fingerprint: 41A9 2BDE 8E11 F1C5 87A6  03EE 34B3 E075 3B90 DFE4
-User-Agent: Mutt/1.5.4i
-From: florin@iucha.net (Florin Iucha)
+	Mon, 29 Sep 2003 09:20:24 -0400
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:57003 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S263341AbTI2NUV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 09:20:21 -0400
+Date: Mon, 29 Sep 2003 09:20:12 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: John Bradford <john@grabjohn.com>
+cc: Rob Landley <rob@landley.net>, Larry McVoy <lm@bitmover.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: log-buf-len dynamic
+In-Reply-To: <200309291124.h8TBOlam000872@81-2-122-30.bradfords.org.uk>
+Message-ID: <Pine.LNX.4.44.0309290919200.5758-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 29 Sep 2003, John Bradford wrote:
 
---3V7upXqbjpZ4EhLz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> 'Enhanced' is, of course, a complete understatement.  What I am
+> suggesting is basicaly adding A.I. functionality to diff and patch, to
+> the point where they can merge three pieces of C code as efficiently
+> as a good developer can.
 
-On Sat, Sep 27, 2003 at 06:27:35PM -0700, Linus Torvalds wrote:
->=20
-[snip]
-> arm, s390, ia64, x86-64, and ppc64 updates. USB, pcmcia and i2c stuff. An=
-d=20
-> a fair amount of janitorial.
+In short, you want to implement the "graduate student
+algorithm" in software ?
 
-I can no longer select my soundcard: In test5 it was configured by
-CONFIG_SND_CS46XX! This option is no longer available in test6 (make
-menuconfig does not offer me the opportunity).
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 
-It happened between test5-bk11 (option set/module build) and bk13
-(option not available).
-
-Please, give my sound option back!
-florin
-
---=20
-
-Don't question authority: they don't know either!
-
---3V7upXqbjpZ4EhLz
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/eDJrNLPgdTuQ3+QRApi6AJ4kzcS+XiwCDU+5yNSZiRnYPJQZlACfXvZc
-lB/DpoaJxe3bINE+vonZqh8=
-=k1uC
------END PGP SIGNATURE-----
-
---3V7upXqbjpZ4EhLz--

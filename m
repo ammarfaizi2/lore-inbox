@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266756AbUHCRaD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266741AbUHCRbr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266756AbUHCRaD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 13:30:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266749AbUHCRaD
+	id S266741AbUHCRbr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 13:31:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266580AbUHCRbr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 13:30:03 -0400
-Received: from sampa7.prodam.sp.gov.br ([200.230.190.107]:28939 "EHLO
-	sampa7.prodam.sp.gov.br") by vger.kernel.org with ESMTP
-	id S266756AbUHCR3v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 13:29:51 -0400
-Date: Tue, 3 Aug 2004 14:14:33 -0300
-From: "Luiz Fernando N. Capitulino" <lcapitulino@prefeitura.sp.gov.br>
-To: Lei Yang <leiyang@nec-labs.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       kernelnewbies <kernelnewbies@nl.linux.org>
-Subject: Re: Problem installing cloop
-Message-ID: <20040803171433.GC925@lorien.prodam>
-Mail-Followup-To: Lei Yang <leiyang@nec-labs.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	kernelnewbies <kernelnewbies@nl.linux.org>
-References: <1091563549.5487.62.camel@bijar.nec-labs.com>
+	Tue, 3 Aug 2004 13:31:47 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:29692 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S266748AbUHCRbg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 13:31:36 -0400
+Subject: Re: [RFC] dev_acpi: device driver for userspace access to ACPI
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Alex Williamson <alex.williamson@hp.com>
+Cc: acpi-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1091552426.4981.103.camel@tdi>
+References: <1091552426.4981.103.camel@tdi>
+Content-Type: text/plain
+Message-Id: <1091554271.27397.5327.camel@nighthawk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1091563549.5487.62.camel@bijar.nec-labs.com>
-User-Agent: Mutt/1.4.2i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 03 Aug 2004 10:31:11 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2004-08-03 at 10:00, Alex Williamson wrote:
+>    This is by no means ready for release, but I wanted to get a sanity
+> check.  I'm still stuck on this idea that userspace needs access to ACPI
+> namespace.  Manageability apps might use this taking inventory of
+> devices not exposed by other means, things like X can locate chipset
+> components that don't live in PCI space, there's even the possibility of
+> making user space drivers.
 
- Hi Lei,
+The only thing that worries me about a patch like this is that it
+encourages people to write arch-specific tools that have no chance of
+working on multiple platforms.  
 
-Em Tue, Aug 03, 2004 at 01:05:50PM -0700, Lei Yang escreveu:
+Right now, on ppc64, we have a system for making direct calls into the
+firmware, as well as a copy of the firmware's device-tree exported to
+userspace.  This means that we have userspace applications that do very
+generic things like counting CPUs, or activating memory in very
+arch-specific ways.  
 
-| I was trying to get
-| cloop-2.0.1 built and installed on a SuSe 9.1 box with kernel version
-| 2.6.5 . I followed all the instructions in    
-| http://www.knopper.net/download/knoppix/cloop.README
+Creating more of these interfaces encourages more of these arch-specific
+applications, and what we end up with are lots of tools that only work
+on Intel platforms or IBM ppc, but not Linux in general.
 
- Well, I did a cleanup in the cloop code, merged it in 2.6.7, and
-enabled it in Kconfig:
+So, what kinds of generic, arch-independent interfaces should we
+implement in the kernel that would reduce the need for something like
+your driver?
 
- The patch is here:
+-- Dave
 
-http://www.telecentros.sp.gov.br/capitulino/patches/linux/2.6/cloop/2.6.7/
 
- I did it for another project some weeks ago, sorry for not posting
-it here before (But, as far as I can remember, I sent it to knopper).
-
-PS: Its a patch again't the kernel, you will have to get the standard
-tools from knopper page.
-
- Hope it helps,
-
--- 
-Luiz Fernando N. Capitulino
-<http://www.telecentros.sp.gov.br>

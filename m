@@ -1,73 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288996AbSANUDC>; Mon, 14 Jan 2002 15:03:02 -0500
+	id <S289032AbSANU3e>; Mon, 14 Jan 2002 15:29:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288999AbSANUBt>; Mon, 14 Jan 2002 15:01:49 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:19702 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S288954AbSANUAT>; Mon, 14 Jan 2002 15:00:19 -0500
-Message-ID: <3C433862.D1BF2D37@mvista.com>
-Date: Mon, 14 Jan 2002 11:58:26 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Stephan von Krawczynski <skraw@ithnet.com>
-CC: Andrew Morton <akpm@zip.com.au>, alan@lxorguk.ukuu.org.uk,
-        zippel@linux-m68k.org, rml@tech9.net, ken@canit.se,
-        arjan@fenrus.demon.nl, landley@trommello.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <E16PvKx-00005L-00@the-village.bc.nu>
-		<200201140033.BAA04292@webserver.ithnet.com>
-		<E16PvKx-00005L-00@the-village.bc.nu>
-		<20020114104532.59950d86.skraw@ithnet.com>
-		<3C42AD48.FCFD6056@zip.com.au> <20020114124755.3b2d6a4d.skraw@ithnet.com>
+	id <S289024AbSANU2U>; Mon, 14 Jan 2002 15:28:20 -0500
+Received: from h24-71-103-168.ss.shawcable.net ([24.71.103.168]:63752 "HELO
+	discworld.dyndns.org") by vger.kernel.org with SMTP
+	id <S289022AbSANU01>; Mon, 14 Jan 2002 15:26:27 -0500
+Date: Mon, 14 Jan 2002 14:26:05 -0600
+From: Charles Cazabon <linux@discworld.dyndns.org>
+To: linux-kernel@vger.kernel.org
+Cc: "Eric S. Raymond" <esr@thyrsus.com>, arjan@fenrus.demon.nl
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
+Message-ID: <20020114142605.A4702@twoflower.internal.do>
+In-Reply-To: <20020114132618.G14747@thyrsus.com> <m16QCNJ-000OVeC@amadeus.home.nl> <20020114145035.E17522@thyrsus.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020114145035.E17522@thyrsus.com>; from esr@thyrsus.com on Mon, Jan 14, 2002 at 02:50:35PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephan von Krawczynski wrote:
+Eric S. Raymond <esr@thyrsus.com> wrote:
+> arjan@fenrus.demon.nl <arjan@fenrus.demon.nl>:
+> > Of course there are other settings that do have impact (CPU type mostly,
+> > maybe memory layout) but other than that... distros already ship several
+> > binary versions (last I counted Red Hat ships 11 or so with RHL72) to
+> > account for CPU type and amount etc.
 > 
-> On Mon, 14 Jan 2002 02:04:56 -0800
-> Andrew Morton <akpm@zip.com.au> wrote:
-> 
-> > Stephan von Krawczynski wrote:
-> > >
-> > > ...
-> > > Unfortunately me have neither of those. This would mean I cannot benefit
-> from> > _these_ patches, but instead would need _others_
-> [...]
-> >
-> > In 3c59x.c, probably the biggest problem will be the call to issue_and_wait()
-> > in boomerang_start_xmit().  On a LAN which is experiencing heavy collision
-> rates> this can take as long as 2,000 PCI cycles (it's quite rare, and possibly
-> an> erratum).  It is called under at least two spinlocks.
-> >
-> > In via-rhine, wait_for_reset() can busywait for up to ten milliseconds.
-> > via_rhine_tx_timeout() calls it from under a spinlock.
-> >
-> > In eepro100.c, wait_for_cmd_done() can busywait for one millisecond
-> > and is called multiple times under spinlock.
-> 
-> Did I get that right, as long as spinlocked no sense in conditional_schedule()
-> ?
-> 
-> > Preemption will help _some_ of this, but by no means all, or enough.
-> 
-> Maybe we should really try to shorten the lock-times _first_. You mentioned a
-> way to find the bad guys?
+> OK.  Scenario #2:
 
-Apply the preempt patch and then the preempt-stats patch.  Follow
-instructions that come with the stats patch.  It will report on the
-longest preempt disable times since the last report.  You need to
-provide a load that will exercise the bad code, but it will tell you
-which, where, and how bad.  Note: it measures preempt off time, NOT how
-long it took to get to some task, i.e. it does not depend on requesting
-preemption at the worst possible time.
+Hmm.  This scenario seems totally bogus.
+
+[...]
+> Some time back he set up a Linux box for Joe Foonly over at Joe's
+> Garage.  Joe calls him back and says "Hey, kid, I gotta problem here.
+> Lot of hits on that website and the machine's getting sluggish when
+> I'm doing my books with GnuCash on it at the same time.
+[...]
+> the box is
+> an older machine, a 586-based PCI/ISA hybrid from around 1995, and
+> only has 32MiB of memory in it.
+[...]
+
+Hmmm, 32MiB of RAM on a 586-class machine, and its doing useful work as both a
+webserver and running GnuCash?  Care to construct something more real-world?
+
+Even at that:
+
+> Melvin thinks this is no problem, he'll start by building a new kernel
+> with some stuff trimmed out to leave more RAM for userspace.  But...
+> uh oh!  He nuked that source tree because free disk was getting kind
+> of tight, and the .config went with it.  Looks like Melvin's going to
+> have to reconstruct his configuration by hand.
+> 
+> "Crap." Melvin thinks.  "I don't remember what kind of network card I
+> compiled in.  Am I going to have to open this puppy up just to eyeball
+> the hardware?"
+
+Uh, no.  Try `lsmod`.
+
+> Autoconfigure saves the day.
+
+Autoconfigure not necessary; read the output of lsmod, or read modules.conf.
+Problem solved.
+
+Charles
 -- 
-George           george@mvista.com
-High-res-timers: http://sourceforge.net/projects/high-res-timers/
-Real time sched: http://sourceforge.net/projects/rtsched/
+-----------------------------------------------------------------------
+Charles Cazabon                            <linux@discworld.dyndns.org>
+GPL'ed software available at:  http://www.qcc.sk.ca/~charlesc/software/
+-----------------------------------------------------------------------

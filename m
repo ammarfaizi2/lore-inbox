@@ -1,62 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261729AbUCPVmj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 16:42:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbUCPVmj
+	id S261719AbUCPVmV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 16:42:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261725AbUCPVmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 16:42:39 -0500
-Received: from mail.tpgi.com.au ([203.12.160.61]:21219 "EHLO mail4.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S261729AbUCPVmf (ORCPT
+	Tue, 16 Mar 2004 16:42:21 -0500
+Received: from pop.gmx.net ([213.165.64.20]:12184 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261719AbUCPVmU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 16:42:35 -0500
-Subject: Re: Remove pmdisk from kernel
-From: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Reply-To: ncunningham@users.sourceforge.net
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>
-In-Reply-To: <20040316101715.GA2175@elf.ucw.cz>
-References: <20040315195440.GA1312@elf.ucw.cz>
-	 <20040315125357.3330c8c4.akpm@osdl.org> <20040315205752.GG258@elf.ucw.cz>
-	 <20040315132146.24f935c2.akpm@osdl.org>
-	 <1079379519.5350.20.camel@calvin.wpcb.org.au>
-	 <20040316005618.GB1883@elf.ucw.cz>
-	 <1079393256.2043.5.camel@calvin.wpcb.org.au>
-	 <20040316101715.GA2175@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1079465824.3403.23.camel@calvin.wpcb.org.au>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5-2.norlug 
-Date: Wed, 17 Mar 2004 08:37:04 +1300
+	Tue, 16 Mar 2004 16:42:20 -0500
+X-Authenticated: #8834078
+From: Dominik Karall <dominik.karall@gmx.net>
+To: Valdis.Kletnieks@vt.edu
+Subject: Re: NVIDIA and 2.6.4?
+Date: Tue, 16 Mar 2004 22:55:51 +0100
+User-Agent: KMail/1.6.1
+References: <405082A2.5040304@blueyonder.co.uk> <200403162149.41018.dominik.karall@gmx.net> <200403162119.i2GLJ9uY014711@turing-police.cc.vt.edu>
+In-Reply-To: <200403162119.i2GLJ9uY014711@turing-police.cc.vt.edu>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
+Message-Id: <200403162255.52087.dominik.karall@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Tuesday 16 March 2004 22:19, you wrote:
+> On Tue, 16 Mar 2004 21:49:40 +0100, Dominik Karall <dominik.karall@gmx.net>  
+said:
+> > can you let me know how to compile the nvidia drivers for 4KSTACK? cause
+> > in the 2.6.5-rc1-mm1 is no more option to deactivate 4KSTACK.
+>
+> Get the 2.6.5-rc1-mm1-broken-out.tar.bz2, untar it, then
+>
+> patch -p1 -R < broken-out/4k-stacks-always-on.patch
+>
+> Yes, the *right* thing would be for NVidia to fix the binary.  However,
+> this is a lot more expedient than waiting. :)
 
-On Tue, 2004-03-16 at 23:17, Pavel Machek wrote:
-> Hmm, you are right that with dead nfs server, kill -SIGSTOP will fail
-> on ls, and similary current refrigerator will fail. I think we can
-> live with that.
-> 
-> I agree that two-stage suspend is probably neccessary (userland first,
-> kernel than); but that should be possible without that big changes,
-> right?
+thx, works now with 8k stack size :)
 
-It would certainly be simple to change to a two stage freeze. I don't
-think I've tried that, so I'll cut the code and give it a try.
-
-Regards,
-
-Nigel
--- 
-Nigel Cunningham
-C/- Westminster Presbyterian Church Belconnen
-61 Templeton Street, Cook, ACT 2614.
-+61 (2) 6251 7727(wk); +61 (2) 6253 0250 (home)
-
-Evolution (n): A hypothetical process whereby infinitely improbable events occur 
-with alarming frequency, order arises from chaos, and no one is given credit.
-
+greets

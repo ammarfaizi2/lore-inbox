@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278986AbRKFKwA>; Tue, 6 Nov 2001 05:52:00 -0500
+	id <S278932AbRKFKvk>; Tue, 6 Nov 2001 05:51:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278968AbRKFKvu>; Tue, 6 Nov 2001 05:51:50 -0500
-Received: from humbolt.nl.linux.org ([131.211.28.48]:39057 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S278962AbRKFKvl>; Tue, 6 Nov 2001 05:51:41 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Andrew Morton <akpm@zip.com.au>, Alexander Viro <viro@math.psu.edu>
-Subject: Re: [Ext2-devel] disk throughput
-Date: Tue, 6 Nov 2001 11:52:49 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        Mike Fedyk <mfedyk@matchmail.com>, lkml <linux-kernel@vger.kernel.org>,
-        ext2-devel@lists.sourceforge.net
-In-Reply-To: <3BE647F4.AD576FF2@zip.com.au> <Pine.GSO.4.21.0111050904000.23204-100000@weyl.math.psu.edu> <3BE71131.59BA0CFC@zip.com.au>
-In-Reply-To: <3BE71131.59BA0CFC@zip.com.au>
+	id <S278986AbRKFKva>; Tue, 6 Nov 2001 05:51:30 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:20488 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S278962AbRKFKvO>; Tue, 6 Nov 2001 05:51:14 -0500
+Subject: Re: Using %cr2 to reference "current"
+To: hpa@zytor.com (H. Peter Anvin)
+Date: Tue, 6 Nov 2001 10:58:21 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <9s82rl$k51$1@cesium.transmeta.com> from "H. Peter Anvin" at Nov 05, 2001 11:18:13 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011106105138Z16653-12382+40@humbolt.nl.linux.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E1613vx-00005r-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On November 5, 2001 11:22 pm, Andrew Morton wrote:
-> - The seek distance-versus-cost equation has changed.  Take a look
->   at a graph of seek distance versus time.  Once you've decided to
->   seek ten percent of the distance across the disk, a 90% seek only
->   takes twice as long.
+> Is using %cr2 really faster than the old implementation, or is there
+> another reason?  It seems that the alignment constraints on the stack
+> still remains, since the %esp solution still remains in places...
 
-Do you have such a graph handy?
+The stack is no longer aligned. We allocate two pages and disturb the stack
+by upto 1.5K. We slab the task structs.
 
---
-Daniel
+> It might also be worth considering a segment-register based
+> implementation instead.  The reason we're not using %fs and %gs in the
+> kernel anymore is because of the setup slowness, but perhaps using
+> them (use %fs since it's much more likely to be NULL and thus faster
+> to restore) would be faster than using %cr2?
+
+It may be. Likewise its not clear if %cr2 should hold current or a cpu ident
+pointer (so you dont reload on switch of task). This needs more
+benchmarking. Its in current -ac to verify the theory is correct not the
+tuning.

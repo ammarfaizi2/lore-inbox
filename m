@@ -1,136 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264666AbTIDFL0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 01:11:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264670AbTIDFL0
+	id S264695AbTIDFJt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 01:09:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264667AbTIDFJt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 01:11:26 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:15120
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S264666AbTIDFLW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 01:11:22 -0400
-Date: Wed, 3 Sep 2003 21:55:31 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Brien <admin@brien.com>
-cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org
-Subject: Re: SATA probe delay on boot
-In-Reply-To: <20030903175427.14172.h003.c000.wm@mail.brien.com.criticalpath.net>
-Message-ID: <Pine.LNX.4.10.10309032154430.13722-100000@master.linux-ide.org>
+	Thu, 4 Sep 2003 01:09:49 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:27819 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264695AbTIDFJs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 01:09:48 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 3 Sep 2003 22:03:59 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Nagendra Singh Tomar <nagendra_tomar@adaptec.com>
+cc: Jamie Lokier <jamie@shareable.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       Kars de Jong <jongk@linux-m68k.org>,
+       Linux/m68k kernel mailing list 
+	<linux-m68k@lists.linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
+In-Reply-To: <Pine.LNX.4.44.0309032134040.25093-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.56.0309032200010.2146@bigblue.dev.mdolabs.com>
+References: <Pine.LNX.4.44.0309032134040.25093-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 3 Sep 2003, Nagendra Singh Tomar wrote:
 
-I will get around to adding in the rest of the secret sauce.
-I has everything to do with determining the state of the PHY at boot.
+> Jamie,
+> 	Just wondered if the store buffer is snooped in some
+> architectures. In that case I believe the OS need not do anything for
+> serialization (except for aliases, if they do not hit the same cache line).
+> In x86 store buffer is not snooped which leads to all these serialization
+> issues (other CPUs looking at stale value of data which is in the store
+> buffer of some other CPU).
+> Pl correct me if I have got anything wrong/
 
-Andre Hedrick
-LAD Storage Consulting Group
+To avoid the so called 'load hazard' (that, BTW, triggers read over
+writes, that are not allowed in x86) you have two options. Snoop the write
+buffer or flush it upon L1 miss. Otherwise you might end up getting stale
+data from L2.
 
-On Wed, 3 Sep 2003, Brien wrote:
 
-> Bartlomiej,
-> 
-> "ide3=noprobe" doesn't make a noticable difference, but
-> I'll tell what happens with the patch when I get home
-> and am able to try it 
-> 
-> (just so you know it may be several hours before I'm
-> able to reply again)
-> 
-> Thanks much,
-> 
-> Brien
-> 
-> On Thu, 4 Sep 2003 01:53:07 +0200, Bartlomiej
-> Zolnierkiewicz wrote:
-> 
-> > On Thursday 04 of September 2003 01:18,
-> admin@brien.com
-> > wrote:
-> > > Hi,
-> > 
-> > Hi,
-> > 
-> > > I have a Sil3112A SATA controller, which linux works
-> > OK
-> > > with. It supports RAID (up to 4 devices), but I'm
-> > using
-> > > BASE option -- only 1 hard drive.
-> > >
-> > > My question is regarding a 15-20 second delay which
-> > > normally occurs every time I boot, unless I pass the
-> > 
-> > Please try attached patch and send dmesg output (with
-> > patch applied).
-> > Patch is against current 2.6-bk tree, but should apply
-> > to any recent
-> > 2.4.x or 2.6.x kernels.
-> > 
-> > diff -puN drivers/ide/ide-probe.c~ide-siimage-wait
-> > drivers/ide/ide-probe.c
-> > ---
-> >
-> linux-2.6.0-test4-bk5/drivers/ide/ide-probe.c~ide-siimage-wait	2003-09-04 01:34:02.285489272 +0200
-> > +++
-> >
-> linux-2.6.0-test4-bk5-root/drivers/ide/ide-probe.c	2003-09-04 01:47:58.145419248 +0200
-> > @@ -56,6 +56,8 @@
-> >  #include <asm/uaccess.h>
-> >  #include <asm/io.h>
-> >  
-> > +#define DEBUG
-> > +
-> >  /**
-> >   *	generic_id		-	add a generic drive id
-> >   *	@drive:	drive to make an ID block for
-> > @@ -345,7 +347,16 @@ static int actual_try_to_identify
-> > (ide_d
-> >  		}
-> >  		/* give drive a breather */
-> >  		ide_delay_50ms();
-> > -	} while ((hwif->INB(hd_status)) & BUSY_STAT);
-> > +		s = hwif->INB(hd_status);
-> > +		if (s == 0xff) {
-> > +#ifdef DEBUG
-> > +			printk("%s: status == 0xff\n", drive->name);
-> > +#endif
-> > +			return 1;
-> > +		}
-> > +		if ((s & BUSY_STAT) == 0)
-> > +			break;
-> > +	} while (1);
-> >  
-> >  	/* wait for IRQ and DRQ_STAT */
-> >  	ide_delay_50ms();
-> > 
-> > _
-> > 
-> > > options ide3=0 - ide9=0 to fill up the device
-> table. I
-> > > think I have to do this because if I do only ide3=0
-> > > (where the device would be), it uses ide4, and so
-> on.
-> > I
-> > > have GRUB set up to do this automatically, but it's
-> > not
-> > > exactly adequate (,is it?). So I was wondering if
-> > > there're any other ways to get the same affect. Is
-> or
-> > > could there be an option to simply disable the
-> probing
-> > > of the one specific device/channel every time?
-> > 
-> > "ide3=noprobe" doesnt work?
-> > 
-> > --bartlomiej
-> 
-> Brien
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+
+- Davide
 

@@ -1,37 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272736AbRIWTYb>; Sun, 23 Sep 2001 15:24:31 -0400
+	id <S272818AbRIWUBY>; Sun, 23 Sep 2001 16:01:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272773AbRIWTYV>; Sun, 23 Sep 2001 15:24:21 -0400
-Received: from d-dialin-1785.addcom.de ([62.96.166.105]:13040 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S272736AbRIWTYR>; Sun, 23 Sep 2001 15:24:17 -0400
-Date: Sun, 23 Sep 2001 21:24:11 +0200 (CEST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: <kai@vaio>
-To: "Garst R. Reese" <reese@isn.net>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: do we need 10 copies?
-In-Reply-To: <3BAE2283.41E7E8E8@isn.net>
-Message-ID: <Pine.LNX.4.33.0109232106020.14414-100000@vaio>
+	id <S272817AbRIWUBP>; Sun, 23 Sep 2001 16:01:15 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:30483 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S272773AbRIWUBF>; Sun, 23 Sep 2001 16:01:05 -0400
+Subject: Re: [PATCH] tty canonical mode: nicer erase behaviour
+To: zefram@fysh.org
+Date: Sun, 23 Sep 2001 21:05:56 +0100 (BST)
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+In-Reply-To: <E15kyyG-0000mq-00@dext.rous.org> from "zefram@fysh.org" at Sep 23, 2001 02:26:16 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15lFVk-0000Ex-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 23 Sep 2001, Garst R. Reese wrote:
+> One of the long-standing problems preventing Unix from being a
+> user-friendly desktop OS is its handling of erase keys.  There are
 
-> This table (512 bytes) and the code to implement crc-ccit is replicated
-> in 10 drivers. ppp-async even exports it. Surely there is a better way.
+Not a kernel space issue
 
-As for the ISDN code (4 copies), there is the plan to use a a common HDLC
-en/decoding module, however that's a 2.5 thing. I'll take a look if I can
-find a generic solution then, but it might turn out difficult - having a
-module of its own just for that table wastes nearly a page, so that's
-probably worse than the current state of affairs.
+> often two such keys on a keyboard (Backspace and Delete), and which one
+> works depends very much on context -- many text editing programs will
+> only accept one of the erase-related characters (^H and ^?), and the
 
---Kai
+They do different things, they are different keys.
 
-
-
-
+Erase character policy is precisely defined by posix. Fix problem apps. 
+Debian set a policy on this a long time back and have done wonders since

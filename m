@@ -1,66 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292389AbSBUOLr>; Thu, 21 Feb 2002 09:11:47 -0500
+	id <S292385AbSBUOKg>; Thu, 21 Feb 2002 09:10:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292388AbSBUOLi>; Thu, 21 Feb 2002 09:11:38 -0500
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:64270 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S292387AbSBUOLV>; Thu, 21 Feb 2002 09:11:21 -0500
-Date: Thu, 21 Feb 2002 15:11:14 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-To: Giacomo Catenazzi <cate@debian.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: linux kernel config converter
-In-Reply-To: <3C74F5F8.3000201@debian.org>
-Message-ID: <Pine.LNX.4.21.0202211456380.2650-100000@serv>
+	id <S292387AbSBUOK0>; Thu, 21 Feb 2002 09:10:26 -0500
+Received: from xsmtp.ethz.ch ([129.132.97.6]:10698 "EHLO xfe3.d.ethz.ch")
+	by vger.kernel.org with ESMTP id <S292385AbSBUOKL>;
+	Thu, 21 Feb 2002 09:10:11 -0500
+Message-ID: <3C74FF03.8070502@debian.org>
+Date: Thu, 21 Feb 2002 15:06:59 +0100
+From: Giacomo Catenazzi <cate@debian.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011128 Netscape6/6.2.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: andersen@codepoet.org, Roman Zippel <zippel@linux-m68k.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: linux kernel config converter
+In-Reply-To: <fa.fsgrt4v.1bngh9t@ifi.uio.no> <fa.hp69onv.i7qtq3@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 21 Feb 2002 14:10:09.0810 (UTC) FILETIME=[78AD0F20:01C1BAE1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Thu, 21 Feb 2002, Giacomo Catenazzi wrote:
 
-> 1) default: Eric proposed to include defaults in configuration,
->     but it seems that is a bad things, and defaults should be arch
->     specific. (I don't remember the discussion, but you can
->     parse the kbuild list, torque.net time)
+Jeff Garzik wrote:
 
-The defaults are just 1:1 representation of the current define_xxx
-statements. These can be of course later moved or depreciated or whatever.
+> Erik Andersen wrote:
+> 
+>>I like this.  It's simple, its clean, and it keeps all the
+>>information in one spot.  I think we can go a bit farther here
+>>and add in a list of the .c files that enabling this feature
+>>should add to the Makefile (per the current
+>>    obj-$(CONFIG_FOO)            += foo.o
+>>stuff in the current Makefile).
+> 
+> Seriously, yep, that's exactly where we eventually want to be:  all
+> config, makefile, and help text info in one place.  To add a new net
+> driver, I want to be able to simply add two files, driver.c and
+> driver.conf, and be done with it.
 
-> 2) One of the problem in actual configure are the dependencies.
->     FOO depend on BAR and BEER.
->     Wat are the possible value of FOO if BAR=m, BEER=y.
->     In kernel we have some drivers thet need foo to be n or y,
->     in other cases: n or m.
->     The logical operators hide the true dependency table.
->     (don't expect developers read the docs: the logical operators
->     seems like C operators, so they use like C, but they forget
->     the third case (=m) ).
 
-For most cases I've seen it can be very simply defined with:
-	(a && b && ...) = min(a, b, ...)
-	(a || b || ...) = max(a, b, ...)
-	for 'n'=0, 'm'=1, 'y'=2
+with kbuild-2.5 this can be done easy. We should maintain
+the syntax of kbuild-2.5 (or a subset).
 
-I have to check the other cases and I haven't look too closely, yet, but
-e.g. in this case it goes wrong:
+But the makefile/makefile.in will remain: not all code
+in kernel is drivers, and for the non drivers makefile/config.in
+IMHO it is better to have 'central' (per directory/per type)
+config and makefile files.
 
-config: FB_MATROX_G450
-  dep_tristate
-    prompt:       G450/G550 second head support
-    dep: (VT? && EXPERIMENTAL? && FB? && EXPERIMENTAL? && PCI? && FB_MATROX??!=n && FB_MATROX_G100?)
+ 
+	giacomo
 
-CONFIG_FB_MATROX_G450 can be defined to 'y' and CONFIG_FB_MATROX to 'm',
-the result is that the build goes wrong. By removing '!=n' above rule
-would produce the correct result.
-Do you have some real examples?
-
-> Do you use the python identation mode?
-
-No python. Just c, flex and bison. :-)
-
-bye, Roman
 

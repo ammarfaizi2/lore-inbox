@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262331AbTKRDED (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 22:04:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbTKRDED
+	id S262324AbTKRDSk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 22:18:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262349AbTKRDSj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 22:04:03 -0500
-Received: from imap.gmx.net ([213.165.64.20]:9362 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262331AbTKRDEB (ORCPT
+	Mon, 17 Nov 2003 22:18:39 -0500
+Received: from rth.ninka.net ([216.101.162.244]:6016 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S262324AbTKRDSj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 22:04:01 -0500
-X-Authenticated: #15936885
-Message-ID: <3FB98C18.8090305@gmx.net>
-Date: Tue, 18 Nov 2003 04:03:52 +0100
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030821
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: netdev@oss.sgi.com, Brad House <brad_mssw@gentoo.org>
-Subject: Re: forcedeth: version 0.17 available
-References: <3FB807A3.8010207@gmx.net>
-In-Reply-To: <3FB807A3.8010207@gmx.net>
-X-Enigmail-Version: 0.76.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+	Mon, 17 Nov 2003 22:18:39 -0500
+Date: Mon, 17 Nov 2003 19:18:17 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: Christopher Cyrus <dust_ml@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ipchains crashing in 2.6.0-test9
+Message-Id: <20031117191817.60ebda93.davem@redhat.com>
+In-Reply-To: <20031117220931.79fdd609.dust_ml@gmx.de>
+References: <20031117220931.79fdd609.dust_ml@gmx.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Carl-Daniel Hailfinger wrote:
->
-> version 0.17 of forcedeth for Linux 2.4 and 2.6 is available at
-> http://www.hailfinger.org/carldani/linux/patches/forcedeth/
+On Mon, 17 Nov 2003 22:09:31 +0100
+Christopher Cyrus <dust_ml@gmx.de> wrote:
 
-The patches for Linux 2.4 were malformed. Corrected versions have been
-uploaded a few hours ago.
-Thanks to Brad House for spotting this.
+> My masqueradeing with ipchains causes a system freeze after the first
+> transmittet packages with my 2.6.0-test9.
+> perhaps anyone is using this "ancient technology", too. ;)
 
+This is definitely fixed in the current 2.6.x sources, please
+give it a try.
 
-Regards,
-Carl-Daniel
-
+(And please in the future post this kind of report to the networking
+ and netfilter mailing lists, thanks.)

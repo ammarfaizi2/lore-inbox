@@ -1,37 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269354AbRHLQJd>; Sun, 12 Aug 2001 12:09:33 -0400
+	id <S269356AbRHLQMd>; Sun, 12 Aug 2001 12:12:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269355AbRHLQJY>; Sun, 12 Aug 2001 12:09:24 -0400
-Received: from mailgate.FH-Aachen.DE ([149.201.10.254]:12789 "EHLO
-	mailgate.fh-aachen.de") by vger.kernel.org with ESMTP
-	id <S269354AbRHLQJO>; Sun, 12 Aug 2001 12:09:14 -0400
-Posted-Date: Sun, 12 Aug 2001 18:04:08 +0100 (WEST)
-Date: Sun, 12 Aug 2001 18:09:20 +0200
-From: f5ibh <f5ibh@db0bm.ampr.org>
-Message-Id: <200108121609.SAA05624@db0bm.ampr.org>
-To: linux-kernel@vger.kernel.org
-Subject: nVidia Riva frame buffers and resolution selection
+	id <S269355AbRHLQMX>; Sun, 12 Aug 2001 12:12:23 -0400
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:9351 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S269356AbRHLQMJ>;
+	Sun, 12 Aug 2001 12:12:09 -0400
+Message-ID: <3B76AAD9.702EE37D@pobox.com>
+Date: Sun, 12 Aug 2001 09:12:09 -0700
+From: J Sloan <jjs@pobox.com>
+Organization: J S Concepts
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Max Schattauer <smax@smaximum.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: tun device: File descriptor in bad state(77)
+In-Reply-To: <3B769CA4.11035.A9DFE2@localhost>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Some bits changed under vtun at 2.4.6 IIRC.
 
-I use both 2.2pre20 and 2.4.8-ac1.
-I've a Riva TNT2 card.
-I use frame buffers with both.
-With 2.4, there is a nVidia Riva support, not with 2.2.
-I've a big display and I use a resolution of 1024 x 768.
+I patched vtun for my own use with patches from
+Kevin Fleming, made rpms, and called it 2.4a.
+It's been working fine here -
 
-With 2.2, it is unaccelerated but I cat set all the VT the same resolution at
-once with 'vga=0x318' in an append line of lilo of with grub.
+Perhaps someone else on the vtun team can
+offer more recent information.
 
-With 2.4, the only way I've found is to use fbset in a start script,
-unfortunately, this does not switch all the VT ay once ; especially the screen
-with no login (i.e. the syslog I redirect to tty12).
+cu
 
-Is there a mean to switch all the VT to the same resolution when the nVidia
-Riva frame buffer is activated.
-------------
-Regards
-		Jean-Luc
+jjs
+
+Max Schattauer wrote:
+
+> Hi there!
+>
+> I graded up from kernel 2.4.5 to 2.4.8 and now have trouble with
+> vtund 2.5b1 and tun 1.1.
+>
+> vtund[532]: Session st_sm[217.230.44.100:1577] opened
+> vtund[532]: Can't allocate tun device. File descriptor in bad state(77)
+> vtund[532]: Session st_sm closed
+>
+> Also
+>
+> root:~# cat /dev/net/tun
+> cat: /dev/net/tun: File descriptor in bad state
+>
+> Tried to recompile both packages and created a new device but
+> without effect.
+>
+> Best regards,
+>
+> Max
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

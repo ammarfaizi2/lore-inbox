@@ -1,67 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262192AbTKNIoU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 03:44:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbTKNIoU
+	id S262224AbTKNI6p (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 03:58:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbTKNI6p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 03:44:20 -0500
-Received: from port-213-148-149-130.reverse.qsc.de ([213.148.149.130]:19978
-	"EHLO eumucln02.muc.eu.mscsoftware.com") by vger.kernel.org with ESMTP
-	id S262192AbTKNIoS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 03:44:18 -0500
-In-Reply-To: <shsislof1n4.fsf@charged.uio.no>
-Subject: Re: nfs_statfs: statfs error = 116
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Jesse Pollard <jesse@cats-chateau.net>,
-       Linux kernel <linux-kernel@vger.kernel.org>, root@chaos.analogic.com
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OFC480E5CC.3BE734ED-ONC1256DDE.002F74B5-C1256DDE.002FF160@mscsoftware.com>
-From: Martin.Knoblauch@mscsoftware.com
-Date: Fri, 14 Nov 2003 09:43:39 +0100
-X-MIMETrack: Serialize by Router on EUMUCLN02/MSCsoftware(Release 6.0.2CF1|June 9, 2003) at
- 11/14/2003 09:45:04 AM
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	Fri, 14 Nov 2003 03:58:45 -0500
+Received: from pc7.prs.nunet.net ([199.249.167.77]:57616 "HELO
+	patternassociates.com") by vger.kernel.org with SMTP
+	id S262224AbTKNI6o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 03:58:44 -0500
+Date: 14 Nov 2003 08:58:41 -0000
+Message-ID: <20031114085841.28270.qmail@patternassociates.com>
+From: rico-linux-kernel@patternassociates.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: serverworks usb under 2.4.22
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-
-
-
-Trond Myklebust <trond.myklebust@fys.uio.no> wrote on 11/13/2003 09:34:55
-PM:
-
-> >>>>> " " == Jesse Pollard <jesse@cats-chateau.net> writes:
+>From:	Ingo Oeser <ioe-lkml@rameria.de>
+>Date:	Fri, 14 Nov 2003 08:51:00 +0100
+>...
+>I for one need to pass "noapic" on the kernel command line. Otherwise
+>the IRQ routing is broken, I can't get the USB IRQ and the kernel complains.
+>a lot about a broken APIC IRQ routing.
 >
->      > ESTALE should occur whenever the client looses connection to
->      > the server, or thinks it has lost connection.
->
-> No it should not.
->
-> Cheers,
->   Trond
-Hi Trond,
+>My board is an ASUS CUR-CLS. The chipset there is "ServerWorks LE".
 
- just by incident I found one reason when an user space application can get
-the ESTALE in our setup (Linux client RH-2.4.20-18.7smp, Solaris 2.8
-Server). I accidentally run iozone on two clients with the output file
-being the same and residing on the NFS Server. Pure luser error, but it
-produced ESTALE pretty much reproducibly.
+Ingo,
 
-B^HCheers
-Martin
---
-Martin Knoblauch
-Senior System Architect
-MSC.software GmbH
-Am Moosfeld 13
-D-81829 Muenchen, Germany
+My ServerWorks HE chipset is a close cousin.  The common BIOS was written
+by Intergraph, and marketed by Phoenix.  It somehow fails to communicate
+its decisions about IRQ routing to Linux.  One may get lucky by moving
+hardware around but, with the following patch, you are guaranteed use
+of the chipset USB while still enjoying the IO-APIC.  Patch has been
+necessary from 2.4.0 through 2.4.17 and, by the sounds of it, to current
+2.4 versions.
 
-e-mail: martin.knoblauch@mscsoftware.com
-http://www.mscsoftware.com
-Phone/Fax: +49-89-431987-189 / -7189
-Mobile: +49-174-3069245
+You must edit the patch to use the correct IRQ for your hardware config
+(11 in my case).  To determine the IRQ, access USB hardware while
+monitoring interrupt counts in /proc/stat
 
-
+--------start of patch--------------------------------------------------
+*** usb-ohci.c.orig	Mon Dec 31 11:35:13 2001
+--- usb-ohci.c	Mon Dec 31 12:10:39 2001
+***************
+*** 2581,2601 ****
+--- 2581,2605 ----
+  
+  	mem_base = ioremap_nocache (mem_resource, mem_len);
+  	if (!mem_base) {
+  		err("Error mapping OHCI memory");
+  		return -EFAULT;
+  	}
+  
+  	/* controller writes into our memory */
+  	pci_set_master (dev);
+  
++ #if 0
+  	return hc_found_ohci (dev, dev->irq, mem_base, id);
++ #else
++ 	return hc_found_ohci (dev,       11, mem_base, id);
++ #endif
+  } 
+  
+  /*-------------------------------------------------------------------------*/
+  
+  /* may be called from interrupt context [interface spec] */
+  /* may be called without controller present */
+  /* may be called with controller, bus, and devices active */
+  
+  static void __devexit
+  ohci_pci_remove (struct pci_dev *dev)
+--------end of patch--------------------------------------------------

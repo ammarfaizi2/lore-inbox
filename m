@@ -1,76 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316788AbSHTKY0>; Tue, 20 Aug 2002 06:24:26 -0400
+	id <S316792AbSHTKer>; Tue, 20 Aug 2002 06:34:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316792AbSHTKY0>; Tue, 20 Aug 2002 06:24:26 -0400
-Received: from [62.40.73.125] ([62.40.73.125]:18402 "HELO Router")
-	by vger.kernel.org with SMTP id <S316788AbSHTKYZ>;
-	Tue, 20 Aug 2002 06:24:25 -0400
-Date: Tue, 20 Aug 2002 12:28:16 +0200
-From: Jan Hudec <bulb@cimice.maxinet.cz>
-To: Jean-Eric Cuendet <Jean-Eric.Cuendet@linkvest.com>
-Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
-Subject: Re: Pages swapped out even when free memory available...
-Message-ID: <20020820102816.GC6981@vagabond>
-Mail-Followup-To: Jan Hudec <bulb@cimice.maxinet.cz>,
-	Jean-Eric Cuendet <Jean-Eric.Cuendet@linkvest.com>,
-	linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
-References: <61FEFD6522F0F142B36E3F6CE511A4F01D37CC@hermes.linkvest.com>
-Mime-Version: 1.0
+	id <S316795AbSHTKer>; Tue, 20 Aug 2002 06:34:47 -0400
+Received: from mta06bw.bigpond.com ([139.134.6.96]:12787 "EHLO
+	mta06bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S316792AbSHTKeq>; Tue, 20 Aug 2002 06:34:46 -0400
+Message-ID: <3D621BF8.F1242760@bigpond.com>
+Date: Tue, 20 Aug 2002 20:37:44 +1000
+From: Allan Duncan <allan.d@bigpond.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.4.20-pre4 blows away Xwindows with Matrox G400 and DRM
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <61FEFD6522F0F142B36E3F6CE511A4F01D37CC@hermes.linkvest.com>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 15, 2002 at 09:53:40AM +0200, Jean-Eric Cuendet wrote:
-> Hi,
-> I have a program in which I manage myself the swapping of elements from memory to disk.
-> So I dont want the kernel to swap out some pages. Ill do it if quite no more free memory is available.
+It was OK with pre2, went straight to pre4.
+Upon running startx I get a fraction of a second of activity before
+I'm plunged into an instant reboot.  Inspection of the XFree86.0.log
+shows the first and last lines as:
+XFree86 Version 4.2.0 (Red Hat Linux release: 4.2.0-8) / X Window System
+(protocol Version 11, revision 0, vendor release 6600)
+Release Date: 23 January 2002
+        If the server is older than 6-12 months, or if your card is
+        newer than the above date, look for a newer version before
+        reporting problems.  (See http://www.XFree86.Org/)
+Build Operating System: Linux 2.4.17-0.13smp i686 [ELF]
+Build Host: daffy.perf.redhat.com
+...
+(==) MGA(0): Write-combining range (0xd8000000,0x2000000)
+(II) MGA(0): vgaHWGetIOBase: hwp->IOBase is 0x03d0, hwp->PIOOffset is 0x0000
+(--) MGA(0): 16 DWORD fifo
+(==) MGA(0): Default visual is TrueColor
+(II) MGA(0): [drm] bpp: 16 depth: 16
+(II) MGA(0): [drm] Sarea 2200+664: 2864
+drmOpenDevice: minor is 0
+drmOpenDevice: node name is /dev/dri/card0
+drmOpenDevice: open result is -1, (No such device)
+drmOpenDevice: Open failed
+drmOpenDevice: minor is 0
+drmOpenDevice: node name is /dev/dri/card0
+drmOpenDevice: open result is -1, (No such device)
+drmOpenDevice: Open failed
+<EOF>
 
-Don't do it. In user-land, you simply don't have the info kernel does.
-Gimp tries to do things like this and results are truly horrible.
-It forces machine in deep swap if you set the cache large, while with
-small cache the actual size does not matter much as kernel takes care of
-the real caching.
+A good start continues on:
+drmOpenDevice: minor is 0
+drmOpenDevice: node name is /dev/dri/card0
+drmOpenDevice: open result is 7, (OK)
+drmGetBusid returned ''
+(II) MGA(0): [drm] loaded kernel module for "mga" driver
+(II) MGA(0): [drm] created "mga" driver at busid "PCI:1:0:0"
+(II) MGA(0): [drm] added 8192 byte SAREA at 0xe08e2000
+(II) MGA(0): [drm] mapped SAREA 0xe08e2000 to 0x40016000
+(II) MGA(0): [drm] framebuffer handle = 0xd8000000
+(II) MGA(0): [drm] added 1 reserved context for kernel
+(II) MGA(0): [agp] Mode 0x1f000201 [AGP 0x1106/0x3099; Card 0x102b/0x0525]
 
-You should rather open a file you want to swap in, mmap it and only keep
-minimum data in other memory. Only reason to do even this may be, that
-the data may get too large to fit in swap. For all other reasons you
-should just let kernel do it's work.
+Selection from my config:
+CONFIG_AGP=m
+# CONFIG_AGP_INTEL is not set
+# CONFIG_AGP_I810 is not set
+CONFIG_AGP_VIA=y
+# CONFIG_AGP_AMD is not set
+# CONFIG_AGP_SIS is not set
+# CONFIG_AGP_ALI is not set
+# CONFIG_AGP_SWORKS is not set
+CONFIG_DRM=y
+# CONFIG_DRM_OLD is not set
 
-> I tried to use MAP_LOCKED when calling mmap, but without success. Is it implemented in Linux?
-> Is there a way to lock pages in memory so they are not swapped?
+#
+# DRM 4.1 drivers
+#
+CONFIG_DRM_NEW=y
+# CONFIG_DRM_TDFX is not set
+# CONFIG_DRM_R128 is not set
+# CONFIG_DRM_RADEON is not set
+# CONFIG_DRM_I810 is not set
+CONFIG_DRM_MGA=m
 
-You need to be root to lock pages in memory, since nasty DOS attacks are
-possible when you can lock pages in memory.
-
-> Is there a way to say to the kernel to reload swapped out pages back in memory?
-
-Read it.
-
-> If I read back all my memory, will all the swap be back in the memory?
-
-It may not even fit in! Ususaly the swap space is larger then memory and
-malloc will happily give you blocks that don't fit in memory.
-
-> Is it enough to read ione byte/page to reload the entire page in memory?
-
-Yes.
-
-> Is it possible to tell the kernel the maximum amount of disk cache it
-> should use?
-
-No. Because term "disk cache" is not even well defined in linux.
-
-There is just a page cache. Pages in the page cache can be mapped (to
-any number processes, including none) and they can be anonymous or part
-of files (which is orthogonal to mapping). The most recently used pages
-are always kept in, no matter weather they are mapped and no matter
-weather they belong to files. It's simple and efficient. And it's a
-reason why it does not pay to try to be clever. Just rely on it to do
-it's work.
-
--------------------------------------------------------------------------------
-						 Jan 'Bulb' Hudec <bulb@ucw.cz>
+Hardware:
+Althon 1600+ XP, Matrox G400, VIA KT266A

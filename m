@@ -1,195 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283481AbRLTSz7>; Thu, 20 Dec 2001 13:55:59 -0500
+	id <S286328AbRLTS57>; Thu, 20 Dec 2001 13:57:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286328AbRLTSzu>; Thu, 20 Dec 2001 13:55:50 -0500
-Received: from mailbox.egenera.com ([208.51.147.22]:37393 "EHLO
-	mailbox.egenera.com") by vger.kernel.org with ESMTP
-	id <S283481AbRLTSzd>; Thu, 20 Dec 2001 13:55:33 -0500
-Message-ID: <3C2233D2.853EC05C@egenera.com>
-Date: Thu, 20 Dec 2001 13:54:10 -0500
-From: "Philip R. Auld" <prauld@egenera.com>
-Organization: Egenera Inc.
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S286327AbRLTS5u>; Thu, 20 Dec 2001 13:57:50 -0500
+Received: from web12308.mail.yahoo.com ([216.136.173.106]:16902 "HELO
+	web12308.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S286341AbRLTS5m>; Thu, 20 Dec 2001 13:57:42 -0500
+Message-ID: <20011220185741.7324.qmail@web12308.mail.yahoo.com>
+Date: Thu, 20 Dec 2001 10:57:41 -0800 (PST)
+From: Stephen Cameron <smcameron@yahoo.com>
+Subject: [PATCH] cciss 2.5.1 for 2.5.1
 To: linux-kernel@vger.kernel.org
-Subject: SMP race in munmap/ftruncate paths
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-	
-	It looks like there is an SMP locking problem and race
-the munmap and truncate paths.  I've hit this problem using a tree
-based on the redhat 2.4.7-10 kernel, which in turn is 2.4.7-ac3 plus
-some other patches. It looks like 2.4.16 still has these issues although 
-this code has changed a bit.
+I wrote:
+> [...]
+> > Here is a new patch against 2.5.1-pre11:
+> > http://www.geocities.com/smcameron/cciss_2.5.0_for_2.5.1-pre11.patch.gz
+> > Having played with it some more, I see it is seriously flawed
+> in the area of SCSI tape support and locking. [...]
 
+Ok.  I think I fixed all that.  (Main problem was how I was allocating
+my commands for SCSI side of the driver, this bug has been there a 
+long time, I'm surprised it lasted as long as it did without me seeing it.)
 
-The problem seems to be here:
+I tested it with 2 tape drives going simultaneously 
+on a 2 processor system, which was embarassingly 
+fatal for the previous.drivers.
 
-filemap.c
+http://www.geocities.com/smcameron/cciss_2.5.1_for_2.5.1.patch.gz
 
-311 static inline void set_page_dirty(struct page * page)
-312 {
-313         if (!test_and_set_bit(PG_dirty, &page->flags))
-314                 __set_page_dirty(page);
-315 }
+About the prior patch, 
+had some complaint that first arg of pci_*_consistent was NULL in
+some places in the driver.  So I included comments explaining why
+it is that way. (Documentation/DMA-mapping.txt says this is 
+permissible.)
 
+Another complaint that various explicit initializations 
+to NULL or 0 should be left up to the compiler.  Whatever.
+Change them if you must.
 
-and here
-
-333 
-334 static inline void truncate_complete_page(struct page *page)
-335 {
-336         int (*flushpage) (struct page *, unsigned long);
-337         
-338         flushpage = page->mapping->a_ops->flushpage;
-339         if (!flushpage)
-340                 flushpage = block_flushpage;
-341         
-342         /* Leave it on the LRU if it gets converted into anonymous buffers
-*/
-343         if (!page->buffers || flushpage(page, 0))
-344                 lru_cache_del(page);
-345 
-346         /*
-347          * We remove the page from the page cache _after_ we have
-348          * destroyed all buffer-cache references to it. Otherwise some
-349          * other process might think this inode page is not in the
-350          * page cache and creates a buffer-cache alias to it causing
-351          * all sorts of fun problems ...  
-352          */
-353         ClearPageDirty(page);
-354         remove_inode_page(page);
-355         page_cache_release(page);
-356 }
-
-The page->flags dirty bit is manipulated while the pagecache lock is not 
-held. In the second case later assume the page is not marked dirty.
-
-
-We get here like from munmap via the pte code:
-
-           0xc0246cbb stext_lock+0x164f
-0xdb4f3efc 0xc012ca72 __set_page_dirty+0x32 (0xc203e944)
-0xdb4f3f5c 0xc01299c5 zap_page_range+0x2ed (0xf303fb40, 0x4021f000, 0x40183000)
-0xdb4f3f98 0xc012c093 do_munmap+0x1d7 (0xf303fb40, 0x4021f000, 0x40182fa1,... 
-0xdb4f3fbc 0xc012c13f sys_munmap+0x37 (0x4021f000, 0x40182fa1, 0x401ea094, ...
-           0xc01070af system_call+0x33
-
-In this back trace the process is now waiting on the PAGECACHE_LOCK(page) lock. 
-
-
-The other process in this race hits BUG in __remove_inode_pages:
-
-
-0xf7d21ef8 0xc012c7f3 __remove_inode_page+0xf (0xc203e944)
-0xd36ede28 0xc012c894 remove_inode_page+0x54 (0xc203e944, 0x0)
-0xd36ede6c 0xc012ce11 truncate_list_pages+0x231 (0xd36ede94)
-0xd36ede98 0xc012cf23 truncate_inode_pages+0x8b (0xf2c80ef8, 0x24, 0x0)
-0xd36eded4 0xc012a8c4 vmtruncate+0xb8 (0xf2c80e40, 0x24, 0x0)
-0xd36edef8 0xc0152c37 inode_setattr+0x2b (0xf2c80e40, 0xd36edf64)
-0xd36edf14 0xc016e652 reiserfs_setattr+0x76 (0xf2dd68c0, 0xd36edf64)
-0xd36edf3c 0xc0152dbd notify_change+0x79 (0xf2dd68c0, 0xd36edf64)
-0xd36edf8c 0xc013ae29 do_truncate+0x61 (0xf2dd68c0, 0x24, 0x0)
-0xd36edfbc 0xc013b12b sys_ftruncate+0x12f (0x3, 0x24, 0x401ea094, 0xbffff778...
-           0xc01070af system_call+0x33
-
-
-Basically what happens is:
-
-cpu0 doing truncate			cpu1 doing munmap
-...					...	
-truncate_inode_pages ->
-->truncate_list_pages(dirty-list)
-clear page dirty bit			
-					->set_page_dirty
-					test_and_set_bit(PG_dirty, &page->flags)
-->remove_inode_page			->__set_page_dirty
-lock (pg_cache_lock)			
-lock (mapping->page_lock)
-->__remove_inode_pages			lock (pg_cache_lock)->spin
-	if (pageDirty) BUG
-
-
-
-Below is a patch against the 2.4.7-ac3+ tree that fixes the set_page_dirty
-half. This will fix this instance, but there may be others because of the 
-space between the clear bit and lock in the other path. The BKL _is_ held
-on the truncate path, but not on the munmap path. Maybe this is the real
-problem?
+An excerpt from the patch:
+Thu Dec 20 09:43:04 CST 2001
+v. 2.5.1       * Fixed longstanding problem in allocation of SCSI commands
+                 which meant physical addresses of cmds for tape drives could
+                 be wrong.  Problem showed easily if 2 tape drives used
+                 simultaneously, though in theory it could show with only 1
+                 tape drive.
+               * Fixed races/deadlocks resulting from first attempt
+                 at removing io_request_lock
+               * Changed pci_alloc_consistent call in cciss_scsi.c so
+                 that the SCSI command pool would be guaranteed to have
+                 addresses that fit through the 32 bit command register.
+Thu Dec 13 16:39:05 CST 2001
+v. 2.5.0       * Removal of io_request_lock for 2.5.x kernels.
+               * no longer sets block_size to zero for volumes where
+                 read capacity fails (caused div by zero)
+               * reset MAXSGENTRIES back to 31 (controllers reject 32)
+Thu Oct  4 14:29:15 CDT 2001  Changelog begins.
+v. 2.4.21      * Added support for SCSI tape drives (Steve Cameron)
+               * Added support for dynamically adding and removing
+                 logical volumes, This implies that the disk index
+                 ("x" in /dev/cciss/c*b*dx*) is no longer a contiguous
+                 sequential series (e.g. 0,1,2,3) as it now maps to logical
+                 volume numbers directly and thus there may be gaps.
+                 (Charles White)
+-- steve
 
 
 
 
-Cheers,
 
-
-Phil
-
-
-Index: include/linux/mm.h
-===================================================================
-RCS file: /build/vault/linux2.4/include/linux/mm.h,v
-retrieving revision 1.6
-diff -u -r1.6 mm.h
---- include/linux/mm.h	2001/12/10 17:27:34	1.6
-+++ include/linux/mm.h	2001/12/20 17:25:14
-@@ -310,8 +310,7 @@
- 
- static inline void set_page_dirty(struct page * page)
- {
--	if (!test_and_set_bit(PG_dirty, &page->flags))
--		__set_page_dirty(page);
-+	__set_page_dirty(page);
- }
- 
- /*
-Index: mm/filemap.c
-===================================================================
-RCS file: /build/vault/linux2.4/mm/filemap.c,v
-retrieving revision 1.5
-diff -u -r1.5 filemap.c
---- mm/filemap.c	2001/10/19 03:48:00	1.5
-+++ mm/filemap.c	2001/12/20 18:08:45
-@@ -241,17 +241,22 @@
- 	pg_lock = PAGECACHE_LOCK(page);
- 	spin_lock(pg_lock);
- 
--	mapping = page->mapping;
--	spin_lock(&mapping->page_lock);
-+	if (!test_and_set_bit(PG_dirty, &page->flags)){
-+		mapping = page->mapping;
-+		spin_lock(&mapping->page_lock);
-+		
-+		list_del(&page->list);
-+		list_add(&page->list, &mapping->dirty_pages);
- 
--	list_del(&page->list);
--	list_add(&page->list, &mapping->dirty_pages);
-+		spin_unlock(&mapping->page_lock);
-+       	spin_unlock(pg_lock);
- 
--	spin_unlock(&mapping->page_lock);
-+		if (mapping->host)
-+			mark_inode_dirty_pages(mapping->host);
-+		return;
-+	}
-+		
- 	spin_unlock(pg_lock);
--
--	if (mapping->host)
--		mark_inode_dirty_pages(mapping->host);
- }
- 
- /**
-
-
-------------------------------------------------------
-Philip R. Auld, Ph.D.                  Technical Staff 
-Egenera Corp.                        pauld@egenera.com
-165 Forest St, Marlboro, MA 01752        (508)786-9444
+__________________________________________________
+Do You Yahoo!?
+Check out Yahoo! Shopping and Yahoo! Auctions for all of
+your unique holiday gifts! Buy at http://shopping.yahoo.com
+or bid at http://auctions.yahoo.com

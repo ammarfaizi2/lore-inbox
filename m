@@ -1,91 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290872AbSARXdu>; Fri, 18 Jan 2002 18:33:50 -0500
+	id <S290878AbSARXku>; Fri, 18 Jan 2002 18:40:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290874AbSARXdj>; Fri, 18 Jan 2002 18:33:39 -0500
-Received: from mnh-1-25.mv.com ([207.22.10.57]:42508 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S290872AbSARXd2>;
-	Fri, 18 Jan 2002 18:33:28 -0500
-Message-Id: <200201182335.SAA05269@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
+	id <S290879AbSARXkb>; Fri, 18 Jan 2002 18:40:31 -0500
+Received: from smtpsrv1.isis.unc.edu ([152.2.1.138]:42173 "EHLO
+	smtpsrv1.isis.unc.edu") by vger.kernel.org with ESMTP
+	id <S290878AbSARXkU>; Fri, 18 Jan 2002 18:40:20 -0500
+Date: Fri, 18 Jan 2002 18:40:15 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Re: [uml-devel] new virtualization syscall to improve uml performance?
+Subject: Re: ext3-2.4-0.9.16
+Message-ID: <20020118234015.GA3694@opeth.ath.cx>
+In-Reply-To: <3C3E7F89.AB2F629@zip.com.au> <1011395469.850.8.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 18 Jan 2002 18:35:53 -0500
-From: Jeff Dike <jdike@karaya.com>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="W/nzBZO5zC0uMSeA"
+Content-Disposition: inline
+In-Reply-To: <1011395469.850.8.camel@phantasy>
+User-Agent: Mutt/1.3.25i
+From: Dan Chen <crimsun@email.unc.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-baccala@freesoft.org said:
-> First, kudos to everyone who worked on user mode linux. 
 
-Thanks!
+--W/nzBZO5zC0uMSeA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Anyway, I was reading about the design of UML, and it seems to me that
-> its performance could be improved by adding a split privilege concept
-> to Linux processes.  A "normal" process would be "privileged".
-> However, to support things like UML, a new syscall could put the
-> process into "unprivileged" mode, which would cause any traps or
-> faults (like syscalls or SEGVs) to drop the process into "privileged"
-> mode at a controlled entry point.
+Similar experience here. Has withstood abuse on my UP and SMP machines
+(a variety of 2.4.17 and 2.4.18-pre4). Thanks!
 
-This is an interesting idea.  All signals would have to drop you back into
-privileged mode, and syscalls would invoke the SIGTRAP handler (I'm not
-that fond of this, but it works and it's more or less the way syscall
-interception is done now (the process SIGTRAP handler isn't called, but
-the tracer is woken up with the child being sent a SIGTRAP)).
+On Fri, Jan 18, 2002 at 06:10:29PM -0500, Robert Love wrote:
+> On Fri, 2002-01-11 at 01:00, Andrew Morton wrote:
+> > A small ext3 update.  It fixes a few hard-to-hit but potentially
+> > serious problems.  The patch is against 2.4.18-pre3, and is also
+> > applicable to 2.4.17.
+>=20
+> I didn't see any feedback so I wanted to confirm success on my
+> 2.4.18-pre4 UP machine.  Survived prolonged use and some initial
+> stressing.  Good job.
 
-I was planning on adding a new slow syscall path (enabled with 
-PTRACE_SIGSYSCALL or something) which delivers a SIGTRAP to the process and 
-turns off PTRACE_SIGSYSCALL for the duration of the handler.
+--=20
+Dan Chen                 crimsun@email.unc.edu
+GPG key:   www.unc.edu/~crimsun/pubkey.gpg.asc
 
-Your idea would result in basically the same code, but with a much more 
-sensible interface to it.  Mine would add yet another wart to ptrace, making
-it even more toadlike than it is now.  The notion of two process privilege
-levels is much cleaner and more general.
+--W/nzBZO5zC0uMSeA
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-> Adding an extra bit to the mmap/
-> mprotect protection flags could specify memory mappings only
-> accessible from privileged mode.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-And this knocks off another problem.  This would allow UML to unmap kernel
-text and data while in unprivileged mode without the huge performance penalty
-it has now with mprotecting it by hand.
+iD8DBQE8SLJfMwVVFhIHlU4RAvzfAJ0RA4+8gR47n5q/Zr6HrnIy/o52ZgCfcrrN
+xzc93KJuUVuZEmfVmN/gh8w=
+=zKGQ
+-----END PGP SIGNATURE-----
 
-Though, since processes are normally in privileged mode, I would turn that
-flag around and say that in unprivileged mode, only specially marked mappings
-are available.
-
-This possibly ties in well with something else I have planned.  By adding
-an interface to create, manipulate, and destroy address spaces, it will
-be possible for one thread to have a pool of address spaces available to it
-which it can switch between as needed.  This will allow UML to have one
-host thread per virtual processor (instead of one per UML thread, currently)
-and one address space per UML thread, and switch the one host process from
-address space to address space on each context switch.  This would solve
-a bunch of UML problems in one shot.
-
-Another thing I was trying to figure out how to do cleanly once this is 
-working is putting the UML kernel in its own address space.  This would
-give UML processes the full 3G address space they expect and make UML
-completely invisible to them.  Of course, the problem is how do you switch
-address spaces on every signal and system call.
-
-Let's say there's a new system call, unprivilege(), and it optionally takes
-an address space handle (which would be a file descriptor).  Then, any 
-switch back to privileged mode would first switch back to that address space.
-This seems clean to me.
-
-One thing that's unclear to me is how you enter unprivileged mode in the
-first place.  I guess you'd specify a procedure in the unprivilege() and
-it would be called in unprivileged mode.
-
-This looks like a very good idea to me and it seems like it would cleanly
-solve a bunch of problems for UML.
-
-				Jeff
-
-
-
-
+--W/nzBZO5zC0uMSeA--

@@ -1,69 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263525AbTDMOhX (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 10:37:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263529AbTDMOhX (for <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Apr 2003 10:37:23 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:11489 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S263525AbTDMOhW (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Apr 2003 10:37:22 -0400
-Date: Sun, 13 Apr 2003 07:49:06 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 578] New: gdth driver unresolved symbols 
-Message-ID: <244100000.1050245346@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id S263530AbTDMOnM (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 10:43:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263532AbTDMOnM (for <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Apr 2003 10:43:12 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:43250 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S263530AbTDMOnL (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Apr 2003 10:43:11 -0400
+Subject: Re: 2.5.67-mm2
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+In-Reply-To: <20030413151232.D672@nightmaster.csn.tu-chemnitz.de>
+References: <20030412180852.77b6c5e8.akpm@digeo.com>
+	 <20030413151232.D672@nightmaster.csn.tu-chemnitz.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-RIlFG6ONcUo8zNug1Y3Z"
+Organization: Red Hat, Inc.
+Message-Id: <1050245689.1422.11.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
+Date: 13 Apr 2003 16:54:49 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-http://bugme.osdl.org/show_bug.cgi?id=578
+--=-RIlFG6ONcUo8zNug1Y3Z
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-           Summary: gdth driver unresolved symbols
-    Kernel Version: 2.5.67
-            Status: NEW
-          Severity: blocking
-             Owner: andmike@us.ibm.com
-         Submitter: hostmaster@taunusstein.net
+On Sun, 2003-04-13 at 15:12, Ingo Oeser wrote:
+> Hi Andrew,
+> hi lists readers,
+>=20
+> On Sat, Apr 12, 2003 at 06:08:52PM -0700, Andrew Morton wrote:
+> > +gfp_repeat.patch
+> >=20
+> >  Implement __GFP_REPEAT: so we can consolidate lots of alloc-with-retry=
+ code.
+>=20
+> What about reworking the semantics of kmalloc()?
+>=20
+> Many users of kmalloc get the flags and size reversed (major
+> source of hard to find bugs), so wouldn't it be simpler to have:
 
+that in itself is easy to find btw; just give every GFP_* an extra
+__GFP_REQUIRED bit and then check inside kmalloc for that bit (MSB?) to
+be set.....
 
-Distribution: Debian Woody
-Hardware Environment: All
-Software Environment: All
-Compiler: gcc 2.95.4
+--=-RIlFG6ONcUo8zNug1Y3Z
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Problem Description:
-unresolved symbols in gdth driver
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-Steps to reproduce:
-.config contains
-CONFIG_SCSI_GDTH=m
+iD8DBQA+mXo5xULwo51rQBIRAo9GAKCgDFFIXqa8x6RDNkwxm3awj9WpjgCffJbG
+/DfJRIqObd1wzlktC0xxz8k=
+=DBbY
+-----END PGP SIGNATURE-----
 
-/sbin/depmod -ae -F System.map  2.5.67
-shows
-scsi_get_command and scsi_put_command
-as unresolved
-
-Solution:
-Apply following patch:
-
---- linux-2.5.67/drivers/scsi/scsi_syms.c.orig  2003-04-13 08:40:04.794555992 +0200
-+++ linux-2.5.67/drivers/scsi/scsi_syms.c       2003-04-13 08:41:09.093781024 +0200
-@@ -78,6 +78,8 @@
- EXPORT_SYMBOL(scsi_slave_detach);
- EXPORT_SYMBOL(scsi_device_get);
- EXPORT_SYMBOL(scsi_device_put);
-+EXPORT_SYMBOL(scsi_get_command);
-+EXPORT_SYMBOL(scsi_put_command);
- EXPORT_SYMBOL(scsi_add_device);
- EXPORT_SYMBOL(scsi_remove_device);
- EXPORT_SYMBOL(scsi_set_device_offline);
-
-driver compiles without any problems then.
-aha152x driver may have same problem, but I did not verify that, because I do
-not have such a SCSI card.
-
-
+--=-RIlFG6ONcUo8zNug1Y3Z--

@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263192AbREWSCy>; Wed, 23 May 2001 14:02:54 -0400
+	id <S263196AbREWSLY>; Wed, 23 May 2001 14:11:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263194AbREWSCo>; Wed, 23 May 2001 14:02:44 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:60000 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S263192AbREWSCf>; Wed, 23 May 2001 14:02:35 -0400
-Date: Wed, 23 May 2001 18:34:19 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
-Subject: Re: DVD blockdevice buffers
-Message-ID: <20010523183419.I27177@redhat.com>
-In-Reply-To: <20010518210226.A7147@moserv.hasi> <20010518212531.A6763@suse.de> <9e7ain$lis$1@penguin.transmeta.com>
-Mime-Version: 1.0
+	id <S263195AbREWSLP>; Wed, 23 May 2001 14:11:15 -0400
+Received: from ns2.radioschefer.ch ([62.2.224.35]:63247 "EHLO
+	ns2.radioschefer.ch") by vger.kernel.org with ESMTP
+	id <S263194AbREWSLE>; Wed, 23 May 2001 14:11:04 -0400
+Message-ID: <3B0BFD7F.B32695C8@bluewin.ch>
+Date: Wed, 23 May 2001 20:12:15 +0200
+From: Stephan Brauss <sbrauss@bluewin.ch>
+X-Mailer: Mozilla 4.75 [de]C-CCK-MCD DT  (Win95; U)
+X-Accept-Language: de
+MIME-Version: 1.0
+To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.4 kernel freeze
+In-Reply-To: <Pine.LNX.4.10.10105231215280.11617-100000@coffee.psychology.mcmaster.ca>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <9e7ain$lis$1@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, May 19, 2001 at 07:36:07PM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello,
 
-On Sat, May 19, 2001 at 07:36:07PM -0700, Linus Torvalds wrote:
+> what do you mean by freeze?  in theory, the fact that the irq
+I cannot ping the machine anymore, no Ooops, no kernel messages, the
+attached screen is freezed (which implies that no more interrupts
+are handled, right?)
 
-> Right now we don't try to aggressively drop streaming pages, but it's
-> possible. Using raw devices is a silly work-around that should not be
-> needed, and this load shows a real problem in current Linux (one soon to
-> be fixed, I think - Andrea already has some experimental patches for the
-> page-cache thing).
+> for those slots is shared with arbitrary onboard peripherals
+> shouldn't matter, since PCI devices can all share irq's.
+Yes... And it is not the problem, as I make use of interrupt 
+sharing on the first three slots.
 
-Right.  I'd like to see buffered IO able to work well --- apart from
-the VM issues, it's the easiest way to allow the application to take
-advantage of readahead.  However, there's one sticking point we
-encountered, which is applications which write to block devices in
-units smaller than a page.  Small block writes get magically
-transformed into read/modify/write cycles if you shift the block
-devices into the page cache.
+> I guess it would be valuable to compare the boot messages
+>From 2.2.19 and 2.4.4?
 
-Of course, we could just say "then don't do that" and be done with it
---- after all, we already have this behaviour when writing to regular
-files.
-
---Stephen
+> under these conditions, since a real freeze implies that the 
+> kernel is adjusting irq routing incorrectly...
+Yes, one could think. But I checked that interrupt handling basically
+works for slots 4+5 with "cat /proc/interrupts". As soon as
+I start a larger ftp data transfer over an ethernet adapter in
+one of these slots the problem occurs.

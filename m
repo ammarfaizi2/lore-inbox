@@ -1,54 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262031AbTCLVGk>; Wed, 12 Mar 2003 16:06:40 -0500
+	id <S262043AbTCLVID>; Wed, 12 Mar 2003 16:08:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262037AbTCLVGk>; Wed, 12 Mar 2003 16:06:40 -0500
-Received: from rth.ninka.net ([216.101.162.244]:47303 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id <S262031AbTCLVGi>;
-	Wed, 12 Mar 2003 16:06:38 -0500
-Subject: Re: named vs 2.5.64-mm5
-From: "David S. Miller" <davem@redhat.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: jjs <jjs@tmsusa.com>, linux-kernel@vger.kernel.org,
-       James Morris <jmorris@intercode.com.au>
-In-Reply-To: <20030312113126.703de259.akpm@digeo.com>
-References: <3E6F7C78.1040302@tmsusa.com>
-	 <20030312113126.703de259.akpm@digeo.com>
-Content-Type: text/plain
+	id <S262045AbTCLVID>; Wed, 12 Mar 2003 16:08:03 -0500
+Received: from zeke.inet.com ([199.171.211.198]:64921 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id <S262043AbTCLVH5>;
+	Wed, 12 Mar 2003 16:07:57 -0500
+Message-ID: <3E6FA426.2020601@inet.com>
+Date: Wed, 12 Mar 2003 15:18:30 -0600
+From: Eli Carter <eli.carter@inet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Larry McVoy <lm@bitmover.com>
+CC: Nicolas Pitre <nico@cam.org>, Sam Ravnborg <sam@ravnborg.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
+References: <20030312201416.GA2433@mars.ravnborg.org> <Pine.LNX.4.44.0303121542010.14172-100000@xanadu.home> <20030312205859.GG7275@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1047503813.17931.2.camel@rth.ninka.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 12 Mar 2003 13:16:53 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-03-12 at 11:31, Andrew Morton wrote:
-> The changelog has:
+Larry McVoy wrote:
+> On Wed, Mar 12, 2003 at 03:46:58PM -0500, Nicolas Pitre wrote:
 > 
-> # --------------------------------------------
-> # 03/03/08      jmorris@intercode.com.au        1.1083
-> # [NET]: Nuke SO_BSDCOMPAT.
-> # --------------------------------------------
+>>It seems that some things that should have been attributed to me (or others)
+>>are listed as from torvalds too.
+>>
+>>Example: drivers/char/tty_io.c
+>>
+>>revision 1.59
+>>date: 2003/03/04 02:13:05;  author: torvalds;  state: Exp;  lines: +4 -6
+>>small tty irq race fix
+>>
+>>(Logical change 1.8144)
 > 
-> Maybe James can tell us what is going on here.
 > 
-> We should at least place a cap on the number of times that message
-> is printed.
+> Yeah, I'm almost there, I'm pretty sure that what is happening is that 
+> the user name is being picked up from the changeset which is current in
+> the path.  We extract the user name and put it in the comments but I 
+> don't see where we set $LOGNAME before doing the ci.
+> 
+> So here's a question.  Suppose we have a series of deltas being clumped
+> together in a file.  All made by different people.  Whose name wins?
+> My gut is to sort them, run them through uniq -c, and take the top one.
+> The other idea is to count up lines inserted/deleted over each delta
+> and take the user who has done the most work.
+> 
+> Thoughts?
 
-Feel free to send a patch for that.
+Another option:
+Choose the name that _removed_ the most lines.
 
-SO_BSDCOMPAT has had ZERO side effects since 2.0.x, and it's been
-thus scheduled to be removed for years.  It was merely a binary
-state passed in and out of the kernel to the user and had no effect
-on socket behavior at all.
+Reward the desired behaviour. ;)
 
-Any application still referencing this ancient thing either expects
-some kind of different behavior from setting SO_BSDCOMPAT non-zero,
-or really doesn't rely on anything at all.
+Wha?  Right, back to work.
 
-Since SO_BSDCOMPAT has had zero side effects for 5 or so years, this
-means that the safe change is to remove all references to SO_BSDCOMPAT
-that exist in any application.
+Eli
+--------------------. "If it ain't broke now,
+Eli Carter           \                  it will be soon." -- crypto-gram
+eli.carter(a)inet.com `-------------------------------------------------
 

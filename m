@@ -1,143 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265285AbUEZBtx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265284AbUEZBym@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265285AbUEZBtx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 21:49:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265287AbUEZBtx
+	id S265284AbUEZBym (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 21:54:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265286AbUEZBym
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 21:49:53 -0400
-Received: from holomorphy.com ([207.189.100.168]:48275 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265285AbUEZBtW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 21:49:22 -0400
-Date: Tue, 25 May 2004 18:49:18 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Cc: mochel@digitalimplant.org
-Subject: Crusoe longrun utility LFS fixes
-Message-ID: <20040526014918.GU1833@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, mochel@digitalimplant.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Tue, 25 May 2004 21:54:42 -0400
+Received: from CPE-203-45-91-55.nsw.bigpond.net.au ([203.45.91.55]:28141 "EHLO
+	mudlark.pw.nest") by vger.kernel.org with ESMTP id S265284AbUEZByi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 21:54:38 -0400
+Message-ID: <40B3F8B4.50800@aurema.com>
+Date: Wed, 26 May 2004 11:53:56 +1000
+From: Peter Williams <peterw@aurema.com>
+Organization: Aurema Pty Ltd
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Hubertus Franke <frankeh@watson.ibm.com>
+CC: Shailabh Nagar <nagar@watson.ibm.com>, kanderso@redhat.com,
+       Rik van Riel <riel@redhat.com>,
+       Chandra Seetharaman <sekharan@us.ibm.com>, limin@sgi.com, jlan@sgi.com,
+       linux-kernel@vger.kernel.org, jh@sgi.com, Paul Jackson <pj@sgi.com>,
+       gh@us.ibm.com, Erik Jacobson <erikj@subway.americas.sgi.com>,
+       ralf@suse.de, Vivek Kashyap <kashyapv@us.ibm.com>,
+       lse-tech@lists.sourceforge.net, mason@suse.com
+Subject: Re: Minutes from 5/19 CKRM/PAGG discussion
+References: <Pine.LNX.4.44.0405241404080.22438-100000@chimarrao.boston.redhat.com>	<40B2534E.3040302@watson.ibm.com> <40B2A78E.3060302@aurema.com> <40B2CB0E.8030606@aurema.com> <40B3641F.508@watson.ibm.com>
+In-Reply-To: <40B3641F.508@watson.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pat recently brought up that some changes around 2.6.5 affected the
-longrun utility at http://kernel.org/pub/linux/utils/cpu/crusoe/
-The following patch against the longrun utility makes it LFS clean
-and to work according to Pat's testing.
+Hubertus Franke wrote:
+> Peter Williams wrote:
+> 
+>> Peter Williams wrote:
+>>
+>>> Hubertus Franke wrote:
+>>>
+>>>>
+>>>> One important input the PAGG team could give is some real
+>>>> examples where actually multiple associations to different groups
+>>>> is required and help us appreciate that position and let us
+>>>> see how this would/could be done in CKRM.
+>>>
+>>>
+>>>
+>>>
+>>> One example would be the implementation of CPU sets (or pools) a la 
+>>> Solaris where there are named CPU pools to which processors and 
+>>> processes are assigned.   Processors can be moved between CPU pools 
+>>> and when this happens it is necessary to visit all the processes that 
+>>> are assigned to the pools involved (one losing and one gaining the 
+>>> processor) and change their CPU affinity masks to reflect the new 
+>>> assignment of processors.  PAGG would be ideal for implementing this.
+>>>
+>>> At the same time, a resource management client could be controlling 
+>>> resources allocated to processes based on some other criteria such as 
+>>> the real user or the application being run without regard to which 
+>>> CPU pool they are running in.
+>>
+>>
+>>
+>> Additionally, it seems to me that even within the field of resource 
+>> management it is not necessarily the case that the same grouping is 
+>> required for different resource types e.g. the grouping for control of 
+>> CPU resources might be different to the grouping for control of 
+>> network bandwidth allocation or disk space or disk I/O bandwidth, etc.
+>>
+>> Peter
+> 
+> 
+> Correct, that is in principle possible. We went through this discussion 
+> on the mailing list  .. (Rik, Shailabh help me out here) and decided 
+> that mostly that is
 
-This fix exonerates the microcode driver and/or the LFS-related changes
-post-2.6.5 from causing the issue, which was -EINVAL from pread() in
-post-2.6.5 kernels.
+Mostly isn't good enough :-)
 
+> not being required. The extra overhead of putting that we deemed 
+> unnecessary.
 
--- wli
+I think that this would be minimal.
 
+> 
+> Instead, if really desired, one would require a different classtype for 
+> each of those groupings. Note however, our entire infrastructure already 
+> supports that in that RCFS would pick these specialized class types up, 
+> provide the proper hierarchy as an FS subdirectory structure. For us it 
+> was mainly a question how we can get the most out of the initial 
+> prototype without having general users have to go and specify all kinds 
+> of hierarchies, i.e. one per resource.
 
---- longrun/Makefile.orig	2004-05-25 17:59:05.000000000 -0700
-+++ longrun/Makefile	2004-05-25 18:09:59.000000000 -0700
-@@ -1,7 +1,11 @@
-+DEFINES:=_XOPEN_SOURCE=500 _LARGEFILE_SOURCE _LARGEFILE64_SOURCE _FILE_OFFSET_BITS=64
-+CFLAGS:=-g -O2 -W -Wall $(addprefix -D, $(DEFINES))
-+CC:=gcc
-+
- all: longrun README
- 
- longrun: longrun.c
--	gcc -g -O2 -W -Wall -o longrun longrun.c
-+	$(CC) $(CFLAGS) $^ -o $@
- 
- README: longrun.1
- 	groff -Tascii -man longrun.1 | col -bx > README
---- longrun/longrun.c.orig	2004-05-25 17:57:43.000000000 -0700
-+++ longrun/longrun.c	2004-05-25 18:29:55.000000000 -0700
-@@ -32,7 +32,6 @@
- #include <string.h>
- #include <sys/io.h>
- #include <sys/sysmacros.h>
--#define __USE_UNIX98	/* for pread/pwrite */
- #include <unistd.h>
- 
- #define MSR_DEVICE "/dev/cpu/0/msr"
-@@ -124,7 +123,7 @@
- {
- 	int nb;
- 
--	nb = open(LR_NORTHBRIDGE, O_RDONLY);
-+	nb = open64(LR_NORTHBRIDGE, O_RDONLY);
- 	if (nb < 0) {
- 		error_warn("error opening %s", LR_NORTHBRIDGE);
- 		if (errno == ENOENT) {
-@@ -132,18 +131,18 @@
- 		}
- 		exit(1);
- 	}
--	if (pread(nb, atm, 1, ATM_ADDRESS) != 1) {
-+	if (pread64(nb, atm, 1, ATM_ADDRESS) != 1) {
- 		error_die("error reading %s", LR_NORTHBRIDGE);
- 	}
- 	close(nb);
- }
- 
- /* note: if an output is NULL, then don't set it */
--void read_msr(long address, int *lower, int *upper)
-+void read_msr(off64_t address, int *lower, int *upper)
- {
- 	uint32_t data[2];
- 
--	if (pread(msr_fd, &data, 8, address) != 8) {
-+	if (pread64(msr_fd, &data, 8, address) != 8) {
- 		error_die("error reading %s", msr_device);
- 	}
- 
-@@ -151,24 +150,24 @@
- 	if (upper) *upper = data[1];
- }
- 
--void write_msr(long address, int lower, int upper)
-+void write_msr(off64_t address, int lower, int upper)
- {
- 	uint32_t data[2];
- 
- 	data[0] = (uint32_t) lower;
- 	data[1] = (uint32_t) upper;
- 
--	if (pwrite(msr_fd, &data, 8, address) != 8) {
-+	if (pwrite64(msr_fd, &data, 8, address) != 8) {
- 		error_die("error writing %s", msr_device);
- 	}
- }
- 
- /* note: if an output is NULL, then don't set it */
--void read_cpuid(long address, int *eax, int *ebx, int *ecx, int *edx)
-+void read_cpuid(off64_t address, int *eax, int *ebx, int *ecx, int *edx)
- {
- 	uint32_t data[4];
- 
--	if (pread(cpuid_fd, &data, 16, address) != 16) {
-+	if (pread64(cpuid_fd, &data, 16, address) != 16) {
- 		error_die("error reading %s", cpuid_device);
- 	}
- 
-@@ -404,7 +403,7 @@
- 		exit(1);
- 	}
- 
--	if ((cpuid_fd = open(cpuid_device, O_RDWR)) < 0) {
-+	if ((cpuid_fd = open64(cpuid_device, O_RDWR)) < 0) {
- 		error_warn("error opening %s", cpuid_device);
- 		if (errno == ENODEV) {
- 			fprintf(stderr, "make sure your kernel was compiled with CONFIG_X86_CPUID=y\n");
-@@ -412,7 +411,7 @@
- 		exit(1);
- 	}
- 
--	if ((msr_fd = open(msr_device, O_RDWR)) < 0) {
-+	if ((msr_fd = open64(msr_device, O_RDWR)) < 0) {
- 		error_warn("error opening %s", msr_device);
- 		if (errno == ENODEV) {
- 			fprintf(stderr, "make sure your kernel was compiled with CONFIG_X86_MSR=y\n");
+If that is what you want (and it's not an unreasonable desire) there is 
+nothing to stop CKRM from imposing this view of the world on top but you 
+shouldn't be forcing this view on others.  I.e. it's easy to consolidate 
+separate grouping mechanisms to have a common grouping for all 
+KernelObjects but it would be very close to impossible to try to present 
+separate groupings for each KernelObject if there was only one 
+underlying grouping.
+
+Peter
+-- 
+Dr Peter Williams, Chief Scientist                peterw@aurema.com
+Aurema Pty Limited                                Tel:+61 2 9698 2322
+PO Box 305, Strawberry Hills NSW 2012, Australia  Fax:+61 2 9699 9174
+79 Myrtle Street, Chippendale NSW 2008, Australia http://www.aurema.com
+

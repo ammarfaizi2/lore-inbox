@@ -1,167 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261654AbUKOSgQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261662AbUKOSlZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261654AbUKOSgQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 13:36:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbUKOSgQ
+	id S261662AbUKOSlZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 13:41:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261663AbUKOSlZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 13:36:16 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:2004 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261654AbUKOSgJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 13:36:09 -0500
-Date: Mon, 15 Nov 2004 12:35:57 -0600
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [Patch] export sched_setscheduler() for kernel module use
-Message-ID: <4198F70D.mailxMSZ11J00J@aqua.americas.sgi.com>
-User-Agent: nail 10.6 11/15/03
+	Mon, 15 Nov 2004 13:41:25 -0500
+Received: from dfw-gate3.raytheon.com ([199.46.199.232]:59936 "EHLO
+	dfw-gate3.raytheon.com") by vger.kernel.org with ESMTP
+	id S261662AbUKOSlS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 13:41:18 -0500
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
+From: Mark_H_Johnson@raytheon.com
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.25-1
+Date: Mon, 15 Nov 2004 12:40:08 -0600
+Message-ID: <OFCFA96E95.192AA15E-ON86256F4D.00668D28-86256F4D.00668D43@raytheon.com>
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 11/15/2004 12:40:11 PM
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: dcn@sgi.com (Dean Nelson)
+Content-type: text/plain; charset=US-ASCII
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch exports sched_setscheduler() so that it can be used by a kernel
-module to set a kthread's scheduling policy and associated parameters.
+Didn't see an announcement for V0.7.26, so I'll post this summary
+under this title.
 
-Signed-off-by: Dean Nelson <dcn@sgi.com>
+Built today with V0.7.26-4 without any problems. System booted up
+and telnet 5 was uneventful as well.
 
+Ran two series of tests with latencytest and my stress tests with
+the following results:
 
-Index: linux-2.6/include/linux/sched.h
-===================================================================
---- linux-2.6.orig/include/linux/sched.h	2004-11-12 09:40:26.000000000 -0600
-+++ linux-2.6/include/linux/sched.h	2004-11-15 06:49:02.000000000 -0600
-@@ -727,6 +727,7 @@
- extern int task_nice(const task_t *p);
- extern int task_curr(const task_t *p);
- extern int idle_cpu(int cpu);
-+extern int sched_setscheduler(pid_t, int, struct sched_param *);
- 
- void yield(void);
- 
-Index: linux-2.6/kernel/sched.c
-===================================================================
---- linux-2.6.orig/kernel/sched.c	2004-11-12 09:40:26.000000000 -0600
-+++ linux-2.6/kernel/sched.c	2004-11-15 06:48:58.000000000 -0600
-@@ -2938,7 +2938,7 @@
- 	 */
- 	rq = task_rq_lock(p, &flags);
- 	/*
--	 * The RT priorities are set via setscheduler(), but we still
-+	 * The RT priorities are set via sched_setscheduler(), but we still
- 	 * allow the 'normal' nice value to be set - but as expected
- 	 * it wont have any effect on scheduling until the task is
- 	 * not SCHED_NORMAL:
-@@ -3072,26 +3072,22 @@
- 		p->prio = p->static_prio;
- }
- 
--/*
-- * setscheduler - change the scheduling policy and/or RT priority of a thread.
-+/**
-+ * sched_setscheduler - change the scheduling policy and/or RT priority of
-+ * a thread.
-+ * @pid: the pid in question.
-+ * @policy: new policy.
-+ * @param: structure containing the new RT priority.
-  */
--static int setscheduler(pid_t pid, int policy, struct sched_param __user *param)
-+int sched_setscheduler(pid_t pid, int policy, struct sched_param *param)
- {
--	struct sched_param lp;
--	int retval = -EINVAL;
-+	int retval;
- 	int oldprio, oldpolicy = -1;
- 	prio_array_t *array;
- 	unsigned long flags;
- 	runqueue_t *rq;
- 	task_t *p;
- 
--	if (!param || pid < 0)
--		goto out_nounlock;
--
--	retval = -EFAULT;
--	if (copy_from_user(&lp, param, sizeof(struct sched_param)))
--		goto out_nounlock;
--
- 	/*
- 	 * We play safe to avoid deadlocks.
- 	 */
-@@ -3117,9 +3113,10 @@
- 	 * 1..MAX_USER_RT_PRIO-1, valid priority for SCHED_NORMAL is 0.
- 	 */
- 	retval = -EINVAL;
--	if (lp.sched_priority < 0 || lp.sched_priority > MAX_USER_RT_PRIO-1)
-+	if (param->sched_priority < 0 ||
-+	    param->sched_priority > MAX_USER_RT_PRIO-1)
- 		goto out_unlock;
--	if ((policy == SCHED_NORMAL) != (lp.sched_priority == 0))
-+	if ((policy == SCHED_NORMAL) != (param->sched_priority == 0))
- 		goto out_unlock;
- 
- 	retval = -EPERM;
-@@ -3130,7 +3127,7 @@
- 	    !capable(CAP_SYS_NICE))
- 		goto out_unlock;
- 
--	retval = security_task_setscheduler(p, policy, &lp);
-+	retval = security_task_setscheduler(p, policy, param);
- 	if (retval)
- 		goto out_unlock;
- 	/*
-@@ -3149,7 +3146,7 @@
- 		deactivate_task(p, task_rq(p));
- 	retval = 0;
- 	oldprio = p->prio;
--	__setscheduler(p, policy, lp.sched_priority);
-+	__setscheduler(p, policy, param->sched_priority);
- 	if (array) {
- 		__activate_task(p, task_rq(p));
- 		/*
-@@ -3166,20 +3163,33 @@
- 	task_rq_unlock(rq, &flags);
- out_unlock:
- 	read_unlock_irq(&tasklist_lock);
--out_nounlock:
- 	return retval;
- }
-+EXPORT_SYMBOL_GPL(sched_setscheduler);
-+
-+int do_sched_setscheduler(pid_t pid, int policy, struct sched_param __user *param)
-+{
-+	struct sched_param lparam;
-+
-+	if (!param || pid < 0)
-+		return -EINVAL;
-+
-+	if (copy_from_user(&lparam, param, sizeof(struct sched_param)))
-+		return -EFAULT;
-+
-+	return sched_setscheduler(pid, policy, &lparam);
-+}
- 
- /**
-  * sys_sched_setscheduler - set/change the scheduler policy and RT priority
-  * @pid: the pid in question.
-- * @policy: new policy
-+ * @policy: new policy.
-  * @param: structure containing the new RT priority.
-  */
- asmlinkage long sys_sched_setscheduler(pid_t pid, int policy,
- 				       struct sched_param __user *param)
- {
--	return setscheduler(pid, policy, param);
-+	return do_sched_setscheduler(pid, policy, param);
- }
- 
- /**
-@@ -3189,7 +3199,7 @@
-  */
- asmlinkage long sys_sched_setparam(pid_t pid, struct sched_param __user *param)
- {
--	return setscheduler(pid, -1, param);
-+	return do_sched_setscheduler(pid, -1, param);
- }
- 
- /**
+[1] Appear to have a new symptom of 200 usec delays at raw_read_unlock
+which doesn't make any sense to me. Have included a latency trace
+at the end of this message with an example. An occasional 100 usec
+hit I understand (disk DMA) but I don't recall seeing this symptom
+before.
+
+[2] Still get the symptoms with truncated trace output and bad
+ping responses. Refer to my previous messages for examples.
+
+[3] The logging script (sleep 5 seconds, record data if slept for
+over 10 seconds) was triggered about 30 times in an hour of testing.
+None have the huge load average values reported last time but
+several have 1 minute load averages above 15 (expect 6-8).
+
+[4] All of the tests have bursts of long application level delays.
+I'll be running another test program to see if I can find anything
+with the user level tracing. Disk activity seems to make it worse
+but all the tests had at least one CPU delay over a millisecond.
+There seems to be a "short" (well > 500 usec) delay related to
+disk reads and a longer one for disk writes.
+
+[5] System after testing was done had a major "time shift"
+as noted in the system log.
+
+Nov 15 12:33:55 dws77 ntpd[2359]: synchronized to 192.52.216.4, stratum=3
+Nov 15 12:33:57 dws77 ntpd[2359]: synchronized to 192.52.216.1, stratum=2
+Nov 15 12:33:36 dws77 ntpd[2359]: time reset -21.466037 s
+Nov 15 12:33:36 dws77 ntpd[2359]: frequency error -512 PPM exceeds
+tolerance 500 PPM
+
+No crashes nor any major stability problems.
+  --Mark
+
+--- 200 usec latency example ---
+preemption latency trace v1.0.7 on 2.6.10-rc1-mm3-RT-V0.7.26-4
+-------------------------------------------------------
+ latency: 206 us, entries: 12 (12)   |   [VP:0 KP:1 SP:1 HP:1 #CPUS:2]
+    -----------------
+    | task: kjournald/1209, uid:0 nice:0 policy:0 rt_prio:0
+    -----------------
+ => started at: __down_mutex+0x3f/0x300 <c032d9af>
+ => ended at:   __down_mutex+0x1a6/0x300 <c032db16>
+=======>
+ 1209 80000000 0.000ms (+0.002ms): __down_mutex (__spin_lock)
+ 1209 80000000 0.002ms (+0.001ms): _raw_spin_lock (__down_mutex)
+ 1209 80000000 0.004ms (+0.000ms): _raw_spin_lock (__down_mutex)
+ 1209 80000000 0.004ms (+0.000ms): do_nmi (__down_mutex)
+ 1209 80000000 0.005ms (+0.000ms): do_nmi (mcount)
+ 1209 80000000 0.005ms (+0.000ms): do_nmi (<00200286>)
+ 1209 80000000 0.006ms (+0.000ms): profile_hook (profile_tick)
+ 1209 80000000 0.006ms (+0.000ms): _raw_read_lock (profile_hook)
+ 1209 80000000 0.007ms (+0.196ms): _raw_read_unlock (profile_tick)
+ 1209 80000000 0.204ms (+0.001ms): set_new_owner (__down_mutex)
+ 1209 80000000 0.205ms (+0.000ms): _raw_spin_unlock (__down_mutex)
+ 1209 80000000 0.205ms (+0.000ms): _raw_spin_unlock (__down_mutex)
+

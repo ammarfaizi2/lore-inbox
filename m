@@ -1,76 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261567AbTIYASV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Sep 2003 20:18:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261614AbTIYASV
+	id S261602AbTIYANY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Sep 2003 20:13:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261614AbTIYANY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Sep 2003 20:18:21 -0400
-Received: from fw.osdl.org ([65.172.181.6]:43193 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261567AbTIYAST (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Sep 2003 20:18:19 -0400
-Date: Wed, 24 Sep 2003 17:18:15 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andries Brouwer <aebr@win.tue.nl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: rfc: test whether a device has a partition table
-In-Reply-To: <20030924235041.GA21416@win.tue.nl>
-Message-ID: <Pine.LNX.4.44.0309241710380.1688-100000@home.osdl.org>
+	Wed, 24 Sep 2003 20:13:24 -0400
+Received: from smtp1.fre.skanova.net ([195.67.227.94]:12282 "EHLO
+	smtp1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S261602AbTIYANX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Sep 2003 20:13:23 -0400
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Andrew Morton <akpm@osdl.org>, Zilvinas Valinskas <zilvinas@gemtek.lt>,
+       alistair@devzero.co.uk, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.6.0-test5-mm4
+References: <20030922013548.6e5a5dcf.akpm@osdl.org>
+	<200309221317.42273.alistair@devzero.co.uk>
+	<20030922143605.GA9961@gemtek.lt>
+	<20030922115509.4d3a3f41.akpm@osdl.org>
+	<m2oexc345m.fsf@p4.localdomain> <20030922214526.GD2983@ucw.cz>
+From: Peter Osterlund <petero2@telia.com>
+Date: 25 Sep 2003 02:13:04 +0200
+In-Reply-To: <20030922214526.GD2983@ucw.cz>
+Message-ID: <m2u171ene7.fsf@p4.localdomain>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Vojtech Pavlik <vojtech@suse.cz> writes:
 
-On Thu, 25 Sep 2003, Andries Brouwer wrote:
+> On Mon, Sep 22, 2003 at 11:27:17PM +0200, Peter Osterlund wrote:
+> > Andrew Morton <akpm@osdl.org> writes:
+> > 
+> > > Zilvinas Valinskas <zilvinas@gemtek.lt> wrote:
+> > > >
+> > > > Btw Andrew ,
+> > > > 
+> > > > this change  "Synaptics" -> "SynPS/2" - breaks driver synaptic driver
+> > > > from http://w1.894.telia.com/~u89404340/touchpad/index.html. 
+> > > > 
+> > > > 
+> > > > -static char *psmouse_protocols[] = { "None", "PS/2", "PS2++", "PS2T++", "GenPS/
+> > > > 2", "ImPS/2", "ImExPS/2", "Synaptics"}; 
+> > > > +static char *psmouse_protocols[] = { "None", "PS/2", "PS2++", "PS2T++", "GenPS/2", "ImPS/2", "ImExPS/2", "SynPS/2"};
+> > > 
+> > > You mean it breaks the XFree driver?  Is it just a matter of editing
+> > > XF86Config to tell it the new protocl name?
+> > 
+> > It breaks the event device auto detection, which works by parsing
+> > /proc/bus/input/devices. The protocol name is hard coded so you can't
+> > just change the XF86Config file.
+> > 
+> > > Either way, it looks like a change which should be reverted?
+> > 
+> > I think the new protocol name is better, so why not just fix the X
+> > driver instead. Here is a fixed version:
+> > 
+> > http://w1.894.telia.com/~u89404340/touchpad/synaptics-0.11.4.tar.bz2
 > 
-> Ha, Linus - didn't you know I am always right?
+> I'd suggest the driver either checks the BUS/VENDOR/DEVICE ids or the
+> bitfields for the pad, not the name. Names are unreliable ...
 
-Yeah, sure. But ...
+OK, this is now implemented in version 0.11.5, which I just uploaded
+to my web site. This version also adds support for the new events
+ABS_TOOL_WIDTH, BTN_TOOL_FINGER, BTN_TOOL_DOUBLETAP and
+BTN_TOOL_TRIPLETAP.
 
-> But being right in theory - like you say, I have repeated these
-> things for many years - is not enough to submit a kernel patch.
-> The post of today was prompted by a mail about
-> certain USB devices:
-> 
-> > On closer examination it seems to be the partition table
-> > which is read ok (as one partition) on W2K and XP
-> > but Linux (both 2.4 and 2.6) gets really confused and
-> > thinks there are 4 malformed partitions.
-
-So? There's a bug, and we'll fix it. 
-
-The _worst_ thing that can happen is that you have four extra (totally 
-bogus) partitions, and you end up using the whole device.
-
-That's my point about partitioning - not that it's necessarily perfect, 
-but even when it _isn't_ perfect, it's no worse than not partitioning at 
-all.
-
-I know you don't want the kernel to partition at all. But I don't see your 
-point. 
-
-> > Linux probably needs to handle this situation more
-> > gracefully. A local police force bought a bunch of
-> > these devices for Linux based forensic work. They
-> > are a bit disappointed at the moment.
-> 
-> So, now not only theory but also practice is involved, and
-> we must do something.
-
-Why don't they just read the whole device, if that is what they want to
-do?
-
-So we have two cases:
- a) we have a bug in the partitioning code, and don't parse the partition 
-    table right:
-	- let's fix the bug
- b) people don't want to read the partition info at all, as it's bogus
-	- use the whole-device node.
-
-In neither case is your "the kernel shouldn't guess" argument the answer, 
-as far as I can see. And in both cases you _can_ fix it up in user mode if 
-you know how, so clearly the kernel was no worse off guessing.
-
-		Linus
-
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

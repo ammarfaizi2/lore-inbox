@@ -1,90 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136131AbREGOM7>; Mon, 7 May 2001 10:12:59 -0400
+	id <S136135AbREGOhi>; Mon, 7 May 2001 10:37:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136132AbREGOMt>; Mon, 7 May 2001 10:12:49 -0400
-Received: from switch.datavakten.no ([195.159.40.3]:10510 "HELO
-	switch.datavakten.no") by vger.kernel.org with SMTP
-	id <S136131AbREGOMi>; Mon, 7 May 2001 10:12:38 -0400
-From: =?us-ascii?Q?Oyvind_Jagtnes?= <oyvind@datavakten.no>
+	id <S136136AbREGOh2>; Mon, 7 May 2001 10:37:28 -0400
+Received: from css-1.cs.iastate.edu ([129.186.3.24]:8197 "EHLO
+	css-1.cs.iastate.edu") by vger.kernel.org with ESMTP
+	id <S136135AbREGOhM>; Mon, 7 May 2001 10:37:12 -0400
+Date: Mon, 7 May 2001 09:37:09 -0500 (CDT)
+From: "C.Praveen" <cpraveen@cs.iastate.edu>
 To: <linux-kernel@vger.kernel.org>
-Subject: RE: 2.4.4-ac5 aic7xxx causes hang on my machine
-Date: Mon, 7 May 2001 15:58:30 +0200
-Message-ID: <FPEPKOJDLAJALEILAKEOAEAFCCAA.oyvind@datavakten.no>
+Subject: Crash
+Message-ID: <Pine.HPX.4.31.0105070927560.4184-100000@beast.cs.iastate.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <Pine.LNX.4.20.0105070800360.142-200000@bigandy>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It works fine on my dual ppro 200 (not sure what mobo). Here is lcpci:
+Hello,
 
-00:00.0 Host bridge: Intel Corporation 440FX - 82441FX PMC [Natoma] (rev 02)
-00:06.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100] (rev
-01)
-00:07.0 ISA bridge: Intel Corporation 82371SB PIIX3 ISA [Natoma/Triton II]
-(rev 01)
-00:07.1 IDE interface: Intel Corporation 82371SB PIIX3 IDE [Natoma/Triton
-II]
-00:09.0 SCSI storage controller: Adaptec AIC-7880U
-00:11.0 VGA compatible controller: S3 Inc. 86c764/765 [Trio32/64/64V+]
+Is it possible to screw up the hardware entirely from software? I made
+some changes to the 2.4.2 kernel to support save/restore of the event
+counters. It crashed and does not come up at all, what i would like to
+know is if there is any way to screw the board from software in such a way
+that power off and power on does not bring it up ?.
 
-It has 2 atlas iv disks attached + 3 ide disks. Boots from ide and running
-scsi disks in lvm.
+Its a dual pentium-3 machine. The power supply is gone also, the power
+supply from the crashed machine does not bring up another normal computer,
+also power supply from normal computer does not bring up crashed computer.
+so there must be something really wrong with the motherboard. Id like to
+know if it was because of me ..., is it possible to do things to the
+motherboard from software (I did change things in the kernel, timer ISR
+also), that wont boot the machine at all when power turned off and then on
+?. from aboce is it very likely that the power supply went out and took
+the board with it ??
 
-Oyvind Jagtnes
+and by "doesnt come up" i meant, totally blank, no output at all
+absolutely
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Andy Carlson
-Sent: 7. mai 2001 15:04
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.4-ac5 aic7xxx causes hang on my machine
+*Any* help/comments please!
 
+Praveen C
 
-I have a dual ppro 200MHZ W6LI motherboard.  I put 2.4.4-ac5 on last
-night, and the machine hung at Freeing unused Kernel memory.  I
-selectively backed off what I thought were relevant patches.  I got to
-aic7xxx, and ac5 without it worked. I attached /proc/scsi/aic7xxx/0.
-
-Andy Carlson                           |\      _,,,---,,_
-naclos@swbell.net                ZZZzz /,`.-'`'    -.  ;-;;,_
-BJC Health System                     |,4-  ) )-,_. ,\ (  `'-'
-St. Louis, Missouri                  '---''(_/--'  `-'\_)
-Cat Pics: http://andyc.dyndns.org
-
-On Mon, 7 May 2001, Christoph Rohland wrote:
-
-> Hi,
->
-> The appended patch does it's own accounting of shmem pages and adjust
-> the page cache size to take these into account. So now again you will
-> see shmem pages as used in top/vmstat etc. This confused a lot of
-> people.
->
-> There is a uncertainty in the calculations since the vm may drop pages
-> behind shmem and the number of shmem pages is estimated too high. This
-> especially happens on truncate because first the page cache is reduced
-> and later the shmem readjusts it's count.
->
-> To prevent negative cache sizes the adjustment is only done if
-> shmem_nrpages > page_cache_size.
->
-> The latter part of the patch (all the init.c files) also exports the
-> shmem page number to the shared memory field in meminfo. This means a
-> change in semantics of this field but apparently a lot of people
-> interpret this field exactly this way and it was not used any more
->
-> The patches are on top of my encapsulation patch.
->
-> Greetings
-> 		Christoph
->
 

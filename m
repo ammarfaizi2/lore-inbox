@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261744AbVCOSYK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbVCOS25@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261744AbVCOSYK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 13:24:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbVCOSVt
+	id S261724AbVCOS25 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 13:28:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbVCOS0P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 13:21:49 -0500
-Received: from fed1rmmtao02.cox.net ([68.230.241.37]:63148 "EHLO
-	fed1rmmtao02.cox.net") by vger.kernel.org with ESMTP
-	id S261701AbVCOSVM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 13:21:12 -0500
-Date: Tue, 15 Mar 2005 11:20:47 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] ppc32: Fix a typo on 8260
-Message-ID: <20050315182047.GV8345@smtp.west.cox.net>
+	Tue, 15 Mar 2005 13:26:15 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:13966 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261741AbVCOSZN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 13:25:13 -0500
+Subject: Re: [RFC][PATCH] new timeofday core subsystem (v. A3)
+From: john stultz <johnstul@us.ibm.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
+       paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, Patricia Gaughen <gone@us.ibm.com>,
+       Chris McDermott <lcm@us.ibm.com>, Max Asbock <masbock@us.ibm.com>,
+       mahuja@us.ibm.com, Nishanth Aravamudan <nacc@us.ibm.com>,
+       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
+       Anton Blanchard <anton@samba.org>, donf@us.ibm.com
+In-Reply-To: <Pine.LNX.4.58.0503142116320.16655@schroedinger.engr.sgi.com>
+References: <1110590655.30498.327.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.58.0503142116320.16655@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Date: Tue, 15 Mar 2005 10:25:06 -0800
+Message-Id: <1110911106.30498.457.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This fixes a lingering typo in arch/ppc/boot/simple/m8260_tty.c
+On Mon, 2005-03-14 at 21:37 -0800, Christoph Lameter wrote:
+> Note that similarities exist between the posix clock and the time sources.
+> Will all time sources be exportable as posix clocks?
 
-Signed-off-by: Tom Rini <trini@kernel.crashing.org>
+At this point I'm not familiar enough with the posix clocks interface to
+say, although its probably outside the scope of the initial timeofday
+rework.
 
-diff -urN linux-2.6.11/arch/ppc/boot/simple/m8260_tty.c linuxppc-2.6.11/arch/ppc/boot/simple/m8260_tty.c
---- linux-2.6.11/arch/ppc/boot/simple/m8260_tty.c	2005-03-02 00:37:54.000000000 -0700
-+++ linuxppc-2.6.11/arch/ppc/boot/simple/m8260_tty.c	2005-03-15 08:56:44.000000000 -0700
-@@ -159,7 +159,7 @@
- 	sccp->scc_sccm = 0;
- 	sccp->scc_scce = 0xffff;
- 	sccp->scc_dsr = 0x7e7e;
--	sccp->scc_pmsr = 0x3000;
-+	sccp->scc_psmr = 0x3000;
- 
- 	/* Wire BRG1 to SCC1.  The console driver will take care of
- 	 * others.
+Do you have a link that might explain the posix clocks spec and its
+intent?
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+thanks
+-john
+

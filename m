@@ -1,97 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265177AbTBJVTR>; Mon, 10 Feb 2003 16:19:17 -0500
+	id <S265222AbTBJVWL>; Mon, 10 Feb 2003 16:22:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265197AbTBJVTR>; Mon, 10 Feb 2003 16:19:17 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:42963 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S265177AbTBJVTP>;
-	Mon, 10 Feb 2003 16:19:15 -0500
-Subject: [PATCH] linux-2.5.60_cyclone-fixes_A1
-From: john stultz <johnstul@us.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@digeo.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1044912403.989.4.camel@w-jstultz2.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 10 Feb 2003 13:26:44 -0800
-Content-Transfer-Encoding: 7bit
+	id <S265242AbTBJVWL>; Mon, 10 Feb 2003 16:22:11 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:51404 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S265222AbTBJVWK>; Mon, 10 Feb 2003 16:22:10 -0500
+Message-ID: <D9223EB959A5D511A98F00508B68C20C17F1C835@orsmsx108.jf.intel.com>
+From: "Fleischer, Julie N" <julie.n.fleischer@intel.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Cc: posixtest-discuss@lists.sourceforge.net
+Subject: [ANNOUNCE] Open POSIX Test Suite 0.2.0 Released
+Date: Mon, 10 Feb 2003 13:31:46 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, All,
+Release 0.2.0 of the Open POSIX Test Suite is now available at
+http://posixtest.sourceforge.net.  This second release contains POSIX
+conformance tests for 50-80% of the POSIX functions of threads, signals, and
+semaphores.  It also contains the full timers suite (tags TMR and CS)
+released in 0.1.0 with bug fixes.
 
-        This patch "fixes" the timer_cyclone code by having it
-initialize fast_gettimeoffset_quotient and cpu_khz in the same manner as
-timer_tsc. This is required for enabling the timer_cyclone code on the
-x440. 
+The release notes that appear on download describe how to compile and run
+these tests.
 
-Ideally fast_gettimeoffset_quotient would not be used outside timer_tsc
-and cpu_khz would be initialized generically outside the timer
-subsystem. I have patches to do this, but they touch quite a bit of
-generic code, and I'd rather not make the timer_cyclone enablement
-(patch to follow) depend on these larger changes. 
+The README page and the Open POSIX Test Suite website (above) give more
+information on the project goals and progress as well as information on how
+to contribute or contact us if you are interested.
 
-Please apply.
+Many thanks to Jim Houston and other members of the POSIX testing community
+for their bug fixes, patches, and suggestions on how to improve the 0.1.0
+suite.
 
-thanks
--john
+The Open POSIX Test Suite is an open source test suite with the goal of
+creating conformance test suites, as well as potentially functional and
+stress test suites, to the functions described in the IEEE Std 1003.1-2001
+System Interfaces specification.  Initial work is focusing on timers,
+threads, semaphores, signals, and message queues.
 
-diff -Nru a/arch/i386/kernel/timers/timer_cyclone.c b/arch/i386/kernel/timers/timer_cyclone.c
---- a/arch/i386/kernel/timers/timer_cyclone.c	Mon Feb 10 13:21:37 2003
-+++ b/arch/i386/kernel/timers/timer_cyclone.c	Mon Feb 10 13:21:37 2003
-@@ -17,6 +17,8 @@
- #include <asm/fixmap.h>
- 
- extern spinlock_t i8253_lock;
-+extern unsigned long fast_gettimeoffset_quotient;
-+extern unsigned long calibrate_tsc(void);
- 
- /* Number of usecs that the last interrupt was delayed */
- static int delay_at_last_interrupt;
-@@ -142,6 +144,28 @@
- 			printk(KERN_ERR "Summit chipset: Counter not counting! DISABLED\n");
- 			cyclone_timer = 0;
- 			return -ENODEV;
-+		}
-+	}
-+
-+	/* init fast_gettimeoffset_quotent and cpu_khz.
-+	 * XXX - This should really be done elsewhere, 
-+	 * 		and in a more generic fashion. -johnstul@us.ibm.com
-+	 */
-+	if (cpu_has_tsc) {
-+		unsigned long tsc_quotient = calibrate_tsc();
-+		if (tsc_quotient) {
-+			fast_gettimeoffset_quotient = tsc_quotient;
-+			/* report CPU clock rate in Hz.
-+			 * The formula is (10^6 * 2^32) / (2^32 * 1 / (clocks/us)) =
-+			 * clock/second. Our precision is about 100 ppm.
-+			 */
-+			{	unsigned long eax=0, edx=1000;
-+				__asm__("divl %2"
-+		       		:"=a" (cpu_khz), "=d" (edx)
-+        	       		:"r" (tsc_quotient),
-+	                	"0" (eax), "1" (edx));
-+				printk("Detected %lu.%03lu MHz processor.\n", cpu_khz / 1000, cpu_khz % 1000);
-+			}
- 		}
- 	}
- 
-diff -Nru a/arch/i386/kernel/timers/timer_tsc.c b/arch/i386/kernel/timers/timer_tsc.c
---- a/arch/i386/kernel/timers/timer_tsc.c	Mon Feb 10 13:21:37 2003
-+++ b/arch/i386/kernel/timers/timer_tsc.c	Mon Feb 10 13:21:37 2003
-@@ -130,7 +130,7 @@
- #define CALIBRATE_LATCH	(5 * LATCH)
- #define CALIBRATE_TIME	(5 * 1000020/HZ)
- 
--static unsigned long __init calibrate_tsc(void)
-+unsigned long __init calibrate_tsc(void)
- {
-        /* Set the Gate high, disable speaker */
- 	outb((inb(0x61) & ~0x02) | 0x01, 0x61);
+Feel free to contact posixtest-discuss@lists.sourceforge.net if you would
+like further information.
+
+- JF
 
 
 
+**These views are not necessarily those of my employer.**

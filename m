@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263201AbUJ2KIu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263208AbUJ2KKU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263201AbUJ2KIu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 06:08:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263210AbUJ2KIu
+	id S263208AbUJ2KKU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 06:10:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263210AbUJ2KKT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 06:08:50 -0400
+	Fri, 29 Oct 2004 06:10:19 -0400
 Received: from courier.cs.helsinki.fi ([128.214.9.1]:64167 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S263201AbUJ2KEC
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S263208AbUJ2KEm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 06:04:02 -0400
-Subject: [PATCH 2/3] net: use netdev_ioaddr in natsemi
+	Fri, 29 Oct 2004 06:04:42 -0400
+Subject: [PATCH 3/3] net: use netdev_ioaddr in 8139too
 From: Pekka Enberg <penberg@cs.helsinki.fi>
 To: davem@davemloft.net
 Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-In-Reply-To: <1099044278.9566.2.camel@localhost>
+In-Reply-To: <1099044315.9566.4.camel@localhost>
 References: <1099044244.9566.0.camel@localhost>
-	 <1099044278.9566.2.camel@localhost>
-Date: Fri, 29 Oct 2004 13:05:15 +0300
-Message-Id: <1099044315.9566.4.camel@localhost>
+	 <1099044278.9566.2.camel@localhost>  <1099044315.9566.4.camel@localhost>
+Date: Fri, 29 Oct 2004 13:05:55 +0300
+Message-Id: <1099044355.9566.6.camel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
@@ -25,341 +25,404 @@ X-Mailer: Evolution 2.0.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch converts natsemi driver to use netdev_ioaddr.
+This patch converts 8139too driver to use netdev_ioaddr.
+
+Not tested as I don't have access to the hardware right now.  Compiles and
+passes sparse checks.
 
 Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
 ---
 
- natsemi.c |   75 ++++++++++++++++++++++++++++----------------------------------
- 1 files changed, 35 insertions(+), 40 deletions(-)
+ 8139too.c |  101 +++++++++++++++++++++++++++++++-------------------------------
+ 1 files changed, 52 insertions(+), 49 deletions(-)
 
-Index: 2.6.10-rc1-mm1/drivers/net/natsemi.c
+Index: 2.6.10-rc1-mm1/drivers/net/8139too.c
 ===================================================================
---- 2.6.10-rc1-mm1.orig/drivers/net/natsemi.c	2004-10-29 11:07:52.000000000 +0300
-+++ 2.6.10-rc1-mm1/drivers/net/natsemi.c	2004-10-29 11:38:30.000000000 +0300
-@@ -770,15 +770,10 @@
- static int netdev_get_eeprom(struct net_device *dev, u8 *buf);
- static struct ethtool_ops ethtool_ops;
+--- 2.6.10-rc1-mm1.orig/drivers/net/8139too.c	2004-10-29 12:02:27.132401800 +0300
++++ 2.6.10-rc1-mm1/drivers/net/8139too.c	2004-10-29 12:18:14.406394264 +0300
+@@ -570,7 +570,6 @@
+ };
  
--static inline void __iomem *ns_ioaddr(struct net_device *dev)
--{
--	return (void __iomem *) dev->base_addr;
--}
--
- static void move_int_phy(struct net_device *dev, int addr)
- {
- 	struct netdev_private *np = netdev_priv(dev);
--	void __iomem *ioaddr = ns_ioaddr(dev);
+ struct rtl8139_private {
+-	void *mmio_addr;
+ 	int drv_flags;
+ 	struct pci_dev *pci_dev;
+ 	u32 msg_enable;
+@@ -614,7 +613,7 @@
+ MODULE_PARM_DESC (media, "8139too: Bits 4+9: force full duplex, bit 5: 100Mbps");
+ MODULE_PARM_DESC (full_duplex, "8139too: Force full duplex for board(s) (1)");
+ 
+-static int read_eeprom (void *ioaddr, int location, int addr_len);
++static int read_eeprom (void __iomem *ioaddr, int location, int addr_len);
+ static int rtl8139_open (struct net_device *dev);
+ static int mdio_read (struct net_device *dev, int phy_id, int location);
+ static void mdio_write (struct net_device *dev, int phy_id, int location,
+@@ -731,6 +730,16 @@
+ static const unsigned int rtl8139_tx_config =
+ 	TxIFG96 | (TX_DMA_BURST << TxDMAShift) | (TX_RETRY << TxRetryShift);
+ 
++static void rtl8139_cleanup_iomem (struct net_device *dev)
++{
++#ifndef USE_IO_OPS
 +	void __iomem *ioaddr = netdev_ioaddr(dev);
- 	int target = 31;
- 
- 	/* 
-@@ -1073,7 +1068,7 @@
- static int mii_getbit (struct net_device *dev)
++
++	if (ioaddr)
++		iounmap(ioaddr);
++#endif /* !USE_IO_OPS */
++}
++
+ static void __rtl8139_cleanup_dev (struct net_device *dev)
  {
- 	int data;
--	void __iomem *ioaddr = ns_ioaddr(dev);
-+	void __iomem *ioaddr = netdev_ioaddr(dev);
+ 	struct rtl8139_private *tp = netdev_priv(dev);
+@@ -740,10 +749,7 @@
+ 	assert (tp->pci_dev != NULL);
+ 	pdev = tp->pci_dev;
  
- 	writel(MII_ShiftClk, ioaddr + EECtrl);
- 	data = readl(ioaddr + EECtrl);
-@@ -1085,7 +1080,7 @@
- static void mii_send_bits (struct net_device *dev, u32 data, int len)
- {
- 	u32 i;
--	void __iomem *ioaddr = ns_ioaddr(dev);
-+	void __iomem *ioaddr = netdev_ioaddr(dev);
+-#ifndef USE_IO_OPS
+-	if (tp->mmio_addr)
+-		iounmap (tp->mmio_addr);
+-#endif /* !USE_IO_OPS */
++	rtl8139_cleanup_iomem(dev);
  
- 	for (i = (1 << (len-1)); i; i >>= 1)
- 	{
-@@ -1141,7 +1136,7 @@
- static int mdio_read(struct net_device *dev, int reg)
- {
- 	struct netdev_private *np = netdev_priv(dev);
--	void __iomem *ioaddr = ns_ioaddr(dev);
-+	void __iomem *ioaddr = netdev_ioaddr(dev);
- 
- 	/* The 83815 series has two ports:
- 	 * - an internal transceiver
-@@ -1156,7 +1151,7 @@
- static void mdio_write(struct net_device *dev, int reg, u16 data)
- {
- 	struct netdev_private *np = netdev_priv(dev);
--	void __iomem *ioaddr = ns_ioaddr(dev);
-+	void __iomem *ioaddr = netdev_ioaddr(dev);
- 
- 	/* The 83815 series has an internal transceiver; handle separately */
- 	if (dev->if_port == PORT_TP)
-@@ -1168,7 +1163,7 @@
- static void init_phy_fixup(struct net_device *dev)
- {
- 	struct netdev_private *np = netdev_priv(dev);
--	void __iomem *ioaddr = ns_ioaddr(dev);
-+	void __iomem *ioaddr = netdev_ioaddr(dev);
- 	int i;
- 	u32 cfg;
- 	u16 tmp;
-@@ -1280,7 +1275,7 @@
- static int switch_port_external(struct net_device *dev)
- {
- 	struct netdev_private *np = netdev_priv(dev);
--	void __iomem *ioaddr = ns_ioaddr(dev);
-+	void __iomem *ioaddr = netdev_ioaddr(dev);
- 	u32 cfg;
- 
- 	cfg = readl(ioaddr + ChipConfig);
-@@ -1313,7 +1308,7 @@
- static int switch_port_internal(struct net_device *dev)
- {
- 	struct netdev_private *np = netdev_priv(dev);
--	void __iomem *ioaddr = ns_ioaddr(dev);
-+	void __iomem *ioaddr = netdev_ioaddr(dev);
- 	int i;
- 	u32 cfg;
- 	u16 bmcr;
-@@ -1414,7 +1409,7 @@
- 	u16 pmatch[3];
- 	u16 sopass[3];
- 	struct netdev_private *np = netdev_priv(dev);
--	void __iomem *ioaddr = ns_ioaddr(dev);
-+	void __iomem *ioaddr = netdev_ioaddr(dev);
- 
- 	/*
- 	 * Resetting the chip causes some registers to be lost.
-@@ -1485,7 +1480,7 @@
- static void natsemi_reload_eeprom(struct net_device *dev)
- {
- 	struct netdev_private *np = netdev_priv(dev);
--	void __iomem *ioaddr = ns_ioaddr(dev);
-+	void __iomem *ioaddr = netdev_ioaddr(dev);
- 	int i;
- 
- 	writel(EepromReload, ioaddr + PCIBusCfg);
-@@ -1505,7 +1500,7 @@
- 
- static void natsemi_stop_rxtx(struct net_device *dev)
- {
--	void __iomem * ioaddr = ns_ioaddr(dev);
-+	void __iomem * ioaddr = netdev_ioaddr(dev);
- 	struct netdev_private *np = netdev_priv(dev);
- 	int i;
- 
-@@ -1527,7 +1522,7 @@
- static int netdev_open(struct net_device *dev)
- {
- 	struct netdev_private *np = netdev_priv(dev);
--	void __iomem * ioaddr = ns_ioaddr(dev);
-+	void __iomem * ioaddr = netdev_ioaddr(dev);
- 	int i;
- 
- 	/* Reset the chip, just in case. */
-@@ -1576,7 +1571,7 @@
- static void do_cable_magic(struct net_device *dev)
- {
- 	struct netdev_private *np = netdev_priv(dev);
--	void __iomem *ioaddr = ns_ioaddr(dev);
-+	void __iomem *ioaddr = netdev_ioaddr(dev);
- 
- 	if (dev->if_port != PORT_TP)
- 		return;
-@@ -1621,7 +1616,7 @@
- {
- 	u16 data;
- 	struct netdev_private *np = netdev_priv(dev);
--	void __iomem * ioaddr = ns_ioaddr(dev);
-+	void __iomem * ioaddr = netdev_ioaddr(dev);
- 
- 	if (dev->if_port != PORT_TP)
- 		return;
-@@ -1640,7 +1635,7 @@
- static void check_link(struct net_device *dev)
- {
- 	struct netdev_private *np = netdev_priv(dev);
--	void __iomem * ioaddr = ns_ioaddr(dev);
-+	void __iomem * ioaddr = netdev_ioaddr(dev);
- 	int duplex;
- 	u16 bmsr;
-        
-@@ -1701,7 +1696,7 @@
- static void init_registers(struct net_device *dev)
- {
- 	struct netdev_private *np = netdev_priv(dev);
--	void __iomem * ioaddr = ns_ioaddr(dev);
-+	void __iomem * ioaddr = netdev_ioaddr(dev);
- 
- 	init_phy_fixup(dev);
- 
-@@ -1780,7 +1775,7 @@
- {
- 	struct net_device *dev = (struct net_device *)data;
- 	struct netdev_private *np = netdev_priv(dev);
--	void __iomem * ioaddr = ns_ioaddr(dev);
-+	void __iomem * ioaddr = netdev_ioaddr(dev);
- 	int next_tick = 5*HZ;
- 
- 	if (netif_msg_timer(np)) {
-@@ -1868,7 +1863,7 @@
- static void tx_timeout(struct net_device *dev)
- {
- 	struct netdev_private *np = netdev_priv(dev);
--	void __iomem * ioaddr = ns_ioaddr(dev);
-+	void __iomem * ioaddr = netdev_ioaddr(dev);
- 
- 	disable_irq(dev->irq);
- 	spin_lock_irq(&np->lock);
-@@ -2068,7 +2063,7 @@
- static int start_tx(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct netdev_private *np = netdev_priv(dev);
--	void __iomem * ioaddr = ns_ioaddr(dev);
-+	void __iomem * ioaddr = netdev_ioaddr(dev);
- 	unsigned entry;
- 
- 	/* Note: Ordering is important here, set the field with the
-@@ -2162,7 +2157,7 @@
- {
- 	struct net_device *dev = dev_instance;
- 	struct netdev_private *np = netdev_priv(dev);
--	void __iomem * ioaddr = ns_ioaddr(dev);
-+	void __iomem * ioaddr = netdev_ioaddr(dev);
- 	int boguscnt = max_interrupt_work;
- 	unsigned int handled = 0;
- 
-@@ -2224,7 +2219,7 @@
- 	int boguscnt = np->dirty_rx + RX_RING_SIZE - np->cur_rx;
- 	s32 desc_status = le32_to_cpu(np->rx_head_desc->cmd_status);
- 	unsigned int buflen = np->rx_buf_sz;
--	void __iomem * ioaddr = ns_ioaddr(dev);
-+	void __iomem * ioaddr = netdev_ioaddr(dev);
- 
- 	/* If the driver owns the next entry it's a new packet. Send it up. */
- 	while (desc_status < 0) { /* e.g. & DescOwn */
-@@ -2312,7 +2307,7 @@
- static void netdev_error(struct net_device *dev, int intr_status)
- {
- 	struct netdev_private *np = netdev_priv(dev);
--	void __iomem * ioaddr = ns_ioaddr(dev);
-+	void __iomem * ioaddr = netdev_ioaddr(dev);
- 
- 	spin_lock(&np->lock);
- 	if (intr_status & LinkChange) {
-@@ -2371,7 +2366,7 @@
- 
- static void __get_stats(struct net_device *dev)
- {
--	void __iomem * ioaddr = ns_ioaddr(dev);
-+	void __iomem * ioaddr = netdev_ioaddr(dev);
- 	struct netdev_private *np = netdev_priv(dev);
- 
- 	/* The chip only need report frame silently dropped. */
-@@ -2404,7 +2399,7 @@
- #define HASH_TABLE	0x200
- static void __set_rx_mode(struct net_device *dev)
- {
--	void __iomem * ioaddr = ns_ioaddr(dev);
-+	void __iomem * ioaddr = netdev_ioaddr(dev);
- 	struct netdev_private *np = netdev_priv(dev);
- 	u8 mc_filter[64]; /* Multicast hash filter */
- 	u32 rx_mode;
-@@ -2450,7 +2445,7 @@
- 	/* synchronized against open : rtnl_lock() held by caller */
- 	if (netif_running(dev)) {
- 		struct netdev_private *np = netdev_priv(dev);
--		void __iomem * ioaddr = ns_ioaddr(dev);
-+		void __iomem * ioaddr = netdev_ioaddr(dev);
- 
- 		disable_irq(dev->irq);
- 		spin_lock(&np->lock);
-@@ -2612,7 +2607,7 @@
- static int netdev_set_wol(struct net_device *dev, u32 newval)
- {
- 	struct netdev_private *np = netdev_priv(dev);
--	void __iomem * ioaddr = ns_ioaddr(dev);
-+	void __iomem * ioaddr = netdev_ioaddr(dev);
- 	u32 data = readl(ioaddr + WOLCmd) & ~WakeOptsSummary;
- 
- 	/* translate to bitmasks this chip understands */
-@@ -2642,7 +2637,7 @@
- static int netdev_get_wol(struct net_device *dev, u32 *supported, u32 *cur)
- {
- 	struct netdev_private *np = netdev_priv(dev);
--	void __iomem * ioaddr = ns_ioaddr(dev);
-+	void __iomem * ioaddr = netdev_ioaddr(dev);
- 	u32 regval = readl(ioaddr + WOLCmd);
- 
- 	*supported = (WAKE_PHY | WAKE_UCAST | WAKE_MCAST | WAKE_BCAST
-@@ -2678,7 +2673,7 @@
- static int netdev_set_sopass(struct net_device *dev, u8 *newval)
- {
- 	struct netdev_private *np = netdev_priv(dev);
--	void __iomem * ioaddr = ns_ioaddr(dev);
-+	void __iomem * ioaddr = netdev_ioaddr(dev);
- 	u16 *sval = (u16 *)newval;
- 	u32 addr;
- 
-@@ -2710,7 +2705,7 @@
- static int netdev_get_sopass(struct net_device *dev, u8 *data)
- {
- 	struct netdev_private *np = netdev_priv(dev);
--	void __iomem * ioaddr = ns_ioaddr(dev);
-+	void __iomem * ioaddr = netdev_ioaddr(dev);
- 	u16 *sval = (u16 *)data;
- 	u32 addr;
- 
-@@ -2894,7 +2889,7 @@
- 	int j;
- 	u32 rfcr;
- 	u32 *rbuf = (u32 *)buf;
--	void __iomem * ioaddr = ns_ioaddr(dev);
-+	void __iomem * ioaddr = netdev_ioaddr(dev);
- 
- 	/* read non-mii page 0 of registers */
- 	for (i = 0; i < NATSEMI_PG0_NREGS/2; i++) {
-@@ -2944,7 +2939,7 @@
- {
- 	int i;
- 	u16 *ebuf = (u16 *)buf;
--	void __iomem * ioaddr = ns_ioaddr(dev);
-+	void __iomem * ioaddr = netdev_ioaddr(dev);
- 
- 	/* eeprom_read reads 16 bits, and indexes by 16 bits */
- 	for (i = 0; i < NATSEMI_EEPROM_SIZE/2; i++) {
-@@ -3016,7 +3011,7 @@
- 
- static void enable_wol_mode(struct net_device *dev, int enable_intr)
- {
--	void __iomem * ioaddr = ns_ioaddr(dev);
-+	void __iomem * ioaddr = netdev_ioaddr(dev);
- 	struct netdev_private *np = netdev_priv(dev);
- 
- 	if (netif_msg_wol(np))
-@@ -3049,7 +3044,7 @@
- 
- static int netdev_close(struct net_device *dev)
- {
--	void __iomem * ioaddr = ns_ioaddr(dev);
-+	void __iomem * ioaddr = netdev_ioaddr(dev);
- 	struct netdev_private *np = netdev_priv(dev);
- 
- 	if (netif_msg_ifdown(np))
-@@ -3126,7 +3121,7 @@
- static void __devexit natsemi_remove1 (struct pci_dev *pdev)
- {
- 	struct net_device *dev = pci_get_drvdata(pdev);
--	void __iomem * ioaddr = ns_ioaddr(dev);
-+	void __iomem * ioaddr = netdev_ioaddr(dev);
- 
- 	unregister_netdev (dev);
+ 	/* it's ok to call this even if we have no regions to free */
  	pci_release_regions (pdev);
-@@ -3164,7 +3159,7 @@
+@@ -754,7 +760,7 @@
+ }
+ 
+ 
+-static void rtl8139_chip_reset (void *ioaddr)
++static void rtl8139_chip_reset (void __iomem *ioaddr)
+ {
+ 	int i;
+ 
+@@ -774,7 +780,7 @@
+ static int __devinit rtl8139_init_board (struct pci_dev *pdev,
+ 					 struct net_device **dev_out)
+ {
+-	void *ioaddr;
++	void __iomem *ioaddr;
+ 	struct net_device *dev;
+ 	struct rtl8139_private *tp;
+ 	u8 tmp8;
+@@ -855,9 +861,8 @@
+ 	pci_set_master (pdev);
+ 
+ #ifdef USE_IO_OPS
+-	ioaddr = (void *) pio_start;
++	ioaddr = (void __iomem *) pio_start;
+ 	dev->base_addr = pio_start;
+-	tp->mmio_addr = ioaddr;
+ 	tp->regs_len = pio_len;
+ #else
+ 	/* ioremap MMIO region */
+@@ -867,8 +872,7 @@
+ 		rc = -EIO;
+ 		goto err_out;
+ 	}
+-	dev->base_addr = (long) ioaddr;
+-	tp->mmio_addr = ioaddr;
++	dev->base_addr = (__force long) ioaddr;
+ 	tp->regs_len = mmio_len;
+ #endif /* USE_IO_OPS */
+ 
+@@ -945,7 +949,7 @@
+ 	struct net_device *dev = NULL;
+ 	struct rtl8139_private *tp;
+ 	int i, addr_len, option;
+-	void *ioaddr;
++	void __iomem *ioaddr;
+ 	static int board_idx = -1;
+ 	u8 pci_rev;
+ 
+@@ -981,7 +985,7 @@
+ 	assert (dev != NULL);
+ 	tp = netdev_priv(dev);
+ 
+-	ioaddr = tp->mmio_addr;
++	ioaddr = netdev_ioaddr(dev);
+ 	assert (ioaddr != NULL);
+ 
+ 	addr_len = read_eeprom (ioaddr, 0, 8) == 0x8129 ? 8 : 6;
+@@ -1018,7 +1022,6 @@
+ 
+ 	/* note: tp->chipset set in rtl8139_init_board */
+ 	tp->drv_flags = board_info[ent->driver_data].hw_flags;
+-	tp->mmio_addr = ioaddr;
+ 	tp->msg_enable =
+ 		(debug < 0 ? RTL8139_DEF_MSG_ENABLE : ((1 << debug) - 1));
+ 	spin_lock_init (&tp->lock);
+@@ -1150,11 +1153,11 @@
+ #define EE_READ_CMD		(6)
+ #define EE_ERASE_CMD	(7)
+ 
+-static int __devinit read_eeprom (void *ioaddr, int location, int addr_len)
++static int __devinit read_eeprom (void __iomem *ioaddr, int location, int addr_len)
+ {
+ 	int i;
+ 	unsigned retval = 0;
+-	void *ee_addr = ioaddr + Cfg9346;
++	void __iomem * ee_addr = ioaddr + Cfg9346;
+ 	int read_cmd = location | (EE_READ_CMD << addr_len);
+ 
+ 	writeb (EE_ENB & ~EE_CS, ee_addr);
+@@ -1219,7 +1222,7 @@
+ 
+ #ifdef CONFIG_8139TOO_8129
+ /* Syncronize the MII management interface by shifting 32 one bits out. */
+-static void mdio_sync (void *mdio_addr)
++static void mdio_sync (void __iomem *mdio_addr)
+ {
+ 	int i;
+ 
+@@ -1234,17 +1237,17 @@
+ 
+ static int mdio_read (struct net_device *dev, int phy_id, int location)
+ {
+-	struct rtl8139_private *tp = netdev_priv(dev);
++	void __iomem *ioaddr = netdev_ioaddr(dev);
+ 	int retval = 0;
+ #ifdef CONFIG_8139TOO_8129
+-	void *mdio_addr = tp->mmio_addr + Config4;
++	void __iomem * mdio_addr = ioaddr + Config4;
+ 	int mii_cmd = (0xf6 << 10) | (phy_id << 5) | location;
+ 	int i;
+ #endif
+ 
+ 	if (phy_id > 31) {	/* Really a 8139.  Use internal registers. */
+ 		return location < 8 && mii_2_8139_map[location] ?
+-		    readw (tp->mmio_addr + mii_2_8139_map[location]) : 0;
++		    readw (ioaddr + mii_2_8139_map[location]) : 0;
+ 	}
+ 
+ #ifdef CONFIG_8139TOO_8129
+@@ -1276,15 +1279,14 @@
+ static void mdio_write (struct net_device *dev, int phy_id, int location,
+ 			int value)
+ {
+-	struct rtl8139_private *tp = netdev_priv(dev);
+ #ifdef CONFIG_8139TOO_8129
+-	void *mdio_addr = tp->mmio_addr + Config4;
++	void __iomem *mdio_addr = netdev_ioaddr(dev) + Config4;
+ 	int mii_cmd = (0x5002 << 16) | (phy_id << 23) | (location << 18) | value;
+ 	int i;
+ #endif
+ 
+ 	if (phy_id > 31) {	/* Really a 8139.  Use internal registers. */
+-		void *ioaddr = tp->mmio_addr;
++		void __iomem *ioaddr = netdev_ioaddr(dev);
+ 		if (location == 0) {
+ 			RTL_W8 (Cfg9346, Cfg9346_Unlock);
+ 			RTL_W16 (BasicModeCtrl, value);
+@@ -1321,7 +1323,7 @@
+ {
+ 	struct rtl8139_private *tp = netdev_priv(dev);
+ 	int retval;
+-	void *ioaddr = tp->mmio_addr;
++	void __iomem *ioaddr = netdev_ioaddr(dev);
+ 
+ 	retval = request_irq (dev->irq, rtl8139_interrupt, SA_SHIRQ, dev->name, dev);
+ 	if (retval)
+@@ -1378,7 +1380,7 @@
+ static void rtl8139_hw_start (struct net_device *dev)
+ {
+ 	struct rtl8139_private *tp = netdev_priv(dev);
+-	void *ioaddr = tp->mmio_addr;
++	void __iomem *ioaddr = netdev_ioaddr(dev);
+ 	u32 i;
+ 	u8 tmp;
+ 
+@@ -1480,7 +1482,7 @@
+ 				  struct rtl8139_private *tp)
+ {
+ 	int linkcase;
+-	void *ioaddr = tp->mmio_addr;
++	void __iomem *ioaddr = netdev_ioaddr(dev);
+ 
+ 	/* This is a complicated state machine to configure the "twister" for
+ 	   impedance/echos based on the cable length.
+@@ -1564,7 +1566,7 @@
+ 
+ static inline void rtl8139_thread_iter (struct net_device *dev,
+ 				 struct rtl8139_private *tp,
+-				 void *ioaddr)
++				 void __iomem *ioaddr)
+ {
+ 	int mii_lpa;
+ 
+@@ -1634,7 +1636,7 @@
+ 			break;
+ 
+ 		rtnl_lock ();
+-		rtl8139_thread_iter (dev, tp, tp->mmio_addr);
++		rtl8139_thread_iter (dev, tp, netdev_ioaddr(dev));
+ 		rtnl_unlock ();
+ 	}
+ 
+@@ -1672,7 +1674,7 @@
+ static void rtl8139_tx_timeout (struct net_device *dev)
+ {
+ 	struct rtl8139_private *tp = netdev_priv(dev);
+-	void *ioaddr = tp->mmio_addr;
++	void __iomem *ioaddr = netdev_ioaddr(dev);
+ 	int i;
+ 	u8 tmp8;
+ 	unsigned long flags;
+@@ -1717,7 +1719,7 @@
+ static int rtl8139_start_xmit (struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct rtl8139_private *tp = netdev_priv(dev);
+-	void *ioaddr = tp->mmio_addr;
++	void __iomem *ioaddr = netdev_ioaddr(dev);
+ 	unsigned int entry;
+ 	unsigned int len = skb->len;
+ 
+@@ -1759,7 +1761,7 @@
+ 
+ static void rtl8139_tx_interrupt (struct net_device *dev,
+ 				  struct rtl8139_private *tp,
+-				  void *ioaddr)
++				  void __iomem *ioaddr)
+ {
+ 	unsigned long dirty_tx, tx_left;
+ 
+@@ -1829,7 +1831,7 @@
+ 
+ /* TODO: clean this up!  Rx reset need not be this intensive */
+ static void rtl8139_rx_err (u32 rx_status, struct net_device *dev,
+-			    struct rtl8139_private *tp, void *ioaddr)
++			    struct rtl8139_private *tp, void __iomem *ioaddr)
+ {
+ 	u8 tmp8;
+ #ifdef CONFIG_8139_OLD_RX_RESET
+@@ -1924,9 +1926,10 @@
+ }
+ #endif
+ 
+-static void rtl8139_isr_ack(struct rtl8139_private *tp)
++static void rtl8139_isr_ack(struct net_device *dev)
+ {
+-	void *ioaddr = tp->mmio_addr;
++	struct rtl8139_private *tp = netdev_priv(dev);
++	void __iomem *ioaddr = netdev_ioaddr(dev);
+ 	u16 status;
+ 
+ 	status = RTL_R16 (IntrStatus) & RxAckBits;
+@@ -1945,7 +1948,7 @@
+ static int rtl8139_rx(struct net_device *dev, struct rtl8139_private *tp,
+ 		      int budget)
+ {
+-	void *ioaddr = tp->mmio_addr;
++	void __iomem *ioaddr = netdev_ioaddr(dev);
+ 	int received = 0;
+ 	unsigned char *rx_ring = tp->rx_ring;
+ 	unsigned int cur_rx = tp->cur_rx;
+@@ -2054,11 +2057,11 @@
+ 		cur_rx = (cur_rx + rx_size + 4 + 3) & ~3;
+ 		RTL_W16 (RxBufPtr, (u16) (cur_rx - 16));
+ 
+-		rtl8139_isr_ack(tp);
++		rtl8139_isr_ack(dev);
+ 	}
+ 
+ 	if (unlikely(!received || rx_size == 0xfff0))
+-		rtl8139_isr_ack(tp);
++		rtl8139_isr_ack(dev);
+ 
+ #if RTL8139_DEBUG > 1
+ 	DPRINTK ("%s: Done rtl8139_rx(), current %4.4x BufAddr %4.4x,"
+@@ -2083,7 +2086,7 @@
+ 
+ static void rtl8139_weird_interrupt (struct net_device *dev,
+ 				     struct rtl8139_private *tp,
+-				     void *ioaddr,
++				     void __iomem *ioaddr,
+ 				     int status, int link_changed)
+ {
+ 	DPRINTK ("%s: Abnormal interrupt, status %8.8x.\n",
+@@ -2123,7 +2126,7 @@
+ static int rtl8139_poll(struct net_device *dev, int *budget)
+ {
+ 	struct rtl8139_private *tp = netdev_priv(dev);
+-	void *ioaddr = tp->mmio_addr;
++	void __iomem *ioaddr = netdev_ioaddr(dev);
+ 	int orig_budget = min(*budget, dev->quota);
+ 	int done = 1;
+ 
+@@ -2159,9 +2162,9 @@
+ static irqreturn_t rtl8139_interrupt (int irq, void *dev_instance,
+ 			       struct pt_regs *regs)
+ {
+-	struct net_device *dev = (struct net_device *) dev_instance;
++	struct net_device *dev = dev_instance;
+ 	struct rtl8139_private *tp = netdev_priv(dev);
+-	void *ioaddr = tp->mmio_addr;
++	void __iomem *ioaddr = netdev_ioaddr(dev);
+ 	u16 status, ackstat;
+ 	int link_changed = 0; /* avoid bogus "uninit" warning */
+ 	int handled = 0;
+@@ -2237,7 +2240,7 @@
+ static int rtl8139_close (struct net_device *dev)
+ {
+ 	struct rtl8139_private *tp = netdev_priv(dev);
+-	void *ioaddr = tp->mmio_addr;
++	void __iomem *ioaddr = netdev_ioaddr(dev);
+ 	int ret = 0;
+ 	unsigned long flags;
+ 
+@@ -2300,7 +2303,7 @@
+ static void rtl8139_get_wol(struct net_device *dev, struct ethtool_wolinfo *wol)
+ {
+ 	struct rtl8139_private *np = netdev_priv(dev);
+-	void *ioaddr = np->mmio_addr;
++	void __iomem *ioaddr = netdev_ioaddr(dev);
+ 
+ 	spin_lock_irq(&np->lock);
+ 	if (rtl_chip_info[np->chipset].flags & HasLWake) {
+@@ -2334,7 +2337,7 @@
+ static int rtl8139_set_wol(struct net_device *dev, struct ethtool_wolinfo *wol)
+ {
+ 	struct rtl8139_private *np = netdev_priv(dev);
+-	void *ioaddr = np->mmio_addr;
++	void __iomem *ioaddr = netdev_ioaddr(dev);
+ 	u32 support;
+ 	u8 cfg3, cfg5;
+ 
+@@ -2441,7 +2444,7 @@
+ 	regs->version = RTL_REGS_VER;
+ 
+ 	spin_lock_irq(&np->lock);
+-	memcpy_fromio(regbuf, np->mmio_addr, regs->len);
++	memcpy_fromio(regbuf, netdev_ioaddr(dev), regs->len);
+ 	spin_unlock_irq(&np->lock);
+ }
+ #endif /* CONFIG_8139TOO_MMIO */
+@@ -2502,7 +2505,7 @@
+ static struct net_device_stats *rtl8139_get_stats (struct net_device *dev)
+ {
+ 	struct rtl8139_private *tp = netdev_priv(dev);
+-	void *ioaddr = tp->mmio_addr;
++	void __iomem *ioaddr = netdev_ioaddr(dev);
+ 	unsigned long flags;
+ 
+ 	if (netif_running(dev)) {
+@@ -2521,7 +2524,7 @@
+ static void __set_rx_mode (struct net_device *dev)
+ {
+ 	struct rtl8139_private *tp = netdev_priv(dev);
+-	void *ioaddr = tp->mmio_addr;
++	void __iomem *ioaddr = netdev_ioaddr(dev);
+ 	u32 mc_filter[2];	/* Multicast hash filter */
+ 	int i, rx_mode;
+ 	u32 tmp;
+@@ -2582,7 +2585,7 @@
  {
  	struct net_device *dev = pci_get_drvdata (pdev);
- 	struct netdev_private *np = netdev_priv(dev);
--	void __iomem * ioaddr = ns_ioaddr(dev);
-+	void __iomem * ioaddr = netdev_ioaddr(dev);
+ 	struct rtl8139_private *tp = netdev_priv(dev);
+-	void *ioaddr = tp->mmio_addr;
++	void __iomem *ioaddr = netdev_ioaddr(dev);
+ 	unsigned long flags;
  
- 	rtnl_lock();
- 	if (netif_running (dev)) {
+ 	pci_save_state (pdev);
 
 
 

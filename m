@@ -1,83 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131698AbRAVLYS>; Mon, 22 Jan 2001 06:24:18 -0500
+	id <S130154AbRAVL7q>; Mon, 22 Jan 2001 06:59:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132106AbRAVLYI>; Mon, 22 Jan 2001 06:24:08 -0500
-Received: from [203.36.158.121] ([203.36.158.121]:48015 "EHLO kabuki.eyep.net")
-	by vger.kernel.org with ESMTP id <S131698AbRAVLXx>;
-	Mon, 22 Jan 2001 06:23:53 -0500
+	id <S131498AbRAVL7g>; Mon, 22 Jan 2001 06:59:36 -0500
+Received: from [213.221.172.237] ([213.221.172.237]:13326 "EHLO
+	smtp-relay2.barrysworld.com") by vger.kernel.org with ESMTP
+	id <S130154AbRAVL7T>; Mon, 22 Jan 2001 06:59:19 -0500
+Date: Mon, 22 Jan 2001 11:58:26 +0000
+From: Scaramanga <scaramanga@barrysworld.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: Firewall netlink question...
-From: Daniel Stone <daniel@kabuki.eyep.net>
-To: scaramanga@barrysworld.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010122102600.A4458@lemsip.lan>
-In-Reply-To: <20010122073343.A3839@lemsip.lan>  
-	<Pine.LNX.4.21.0101221045380.25503-100000@titan.lahn.de>  
-	<20010122102600.A4458@lemsip.lan>
-Content-Type: text/plain
-X-Mailer: Evolution (0.8 - Preview Release)
-Date: 22 Jan 2001 22:28:41 +1100
+Message-ID: <20010122115826.A11297@lemsip.lan>
+Reply-To: scaramanga@barrysworld.com
+In-Reply-To: <20010122073343.A3839@lemsip.lan> <Pine.LNX.4.21.0101221045380.25503-100000@titan.lahn.de> <20010122102600.A4458@lemsip.lan> <E14Kf9W-0008PJ-00@kabuki.eyep.net>
 Mime-Version: 1.0
-Message-Id: <E14Kf9W-0008PJ-00@kabuki.eyep.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <E14Kf9W-0008PJ-00@kabuki.eyep.net>; from daniel@kabuki.eyep.net on Mon, Jan 22, 2001 at 11:28:41 +0000
+X-Mailer: Balsa 1.0.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Jan 2001 10:26:00 +0000, Scaramanga wrote:
-> Looking at the code it seemed to do the same thing as the old netlink, but
-> with more complexity, to what end though, i couldnt tell, was only a brief
-> skim.
+Hi,
 
-So you can do whatever you want with it.
+> This is true. This is called ipqmpd or something similar and written by
+> Harald Welte, yes?
+> Your best option is to either check out libipq (can be found in the
+> directory of the same name in the iptables sources), which provides
+> clean C interfaces, or the PERL interface, available from
+> http://www.intercode.com.au/jamesm/
 
-> > $ sed -n -e '1874,1876p' /usr/src/linux-2.4.0/Documentation/Configure.help
-> > CONFIG_IP_NF_QUEUE
-> >   Netfilter has the ability to queue packets to user space: the
-> >   netlink device can be used to access them using this driver.
-> > 
-> > $ lynx /usr/share/doc/iptables/html/packet-filtering-HOWTO-7.html
-> > 
+Yeah, I think that was the one.
+
+
+>> What was wrong with the firewall netlink? My re-implementation works great
+>> here. I can't see why anything else would be needed, QUEUE seems twice as
+>> complex. Unless with QUEUE the userspce applications can make decisions on
+>> what to do with the packet? In which case, it would be far too inefficient
+>> for an application like mine, where all i need is to be able to read the
+>> IP datagrams..
 > 
-> Yeah, after some quick googling and freshmeating, i came accross a daemon
-> that picked up these QUEUEd packets and multiplexed them to various child
-> processes, which seemed very innefcient, the documentation said something
-> about QUEUE not being multicast in nature, like the old firewall netlink.
+> It can modify and then reinject the packet if it so wishes.
 
-This is true. This is called ipqmpd or something similar and written by
-Harald Welte, yes?
-Your best option is to either check out libipq (can be found in the
-directory of the same name in the iptables sources), which provides
-clean C interfaces, or the PERL interface, available from
-http://www.intercode.com.au/jamesm/
+Excellent, I didn't pick up on that, with the cursory glance at the code i took.
 
-> What was wrong with the firewall netlink? My re-implementation works great
-> here. I can't see why anything else would be needed, QUEUE seems twice as
-> complex. Unless with QUEUE the userspce applications can make decisions on
-> what to do with the packet? In which case, it would be far too inefficient
-> for an application like mine, where all i need is to be able to read the
-> IP datagrams..
+I wonder, would there be any interest/point in my NETLINK module, which
+provides a backward compatible netlink interface. There are a good few
+apps out there which rely on it, and its nice not to have to run a daemon
+and install a new library, and re-write them just to continue using them...
 
-It can modify and then reinject the packet if it so wishes.
+--
+// Gianni Tedesco <scaramanga@barrysworld.com>
+Fingerprint: FECC 237F B895 0379 62C4  B5A9 D83B E2B0 02F3 7A68
+Key ID: 02F37A68
 
-> Am I missing something totally obvious?
-
-It just does more stuff. A plane is far more complex than a car, but
-with an added feature - it also flies above the ground.
-
-> Regards
-
--- 
-Daniel Stone
-Linux Kernel Developer
-daniel@kabuki.eyep.net
-
------BEGIN GEEK CODE BLOCK-----
-Version: 3.1
-G!>CS d s++:- a---- C++ ULS++++$>B P---- L+++>++++ E+(joe)>+++ W++ N->++ !o
-K? w++(--) O---- M- V-- PS+++ PE- Y PGP>++ t--- 5-- X- R- tv-(!) b+++ DI+++ 
-D+ G e->++ h!(+) r+(%) y? UF++
-------END GEEK CODE BLOCK------
-
-
+egg.microsoft.com: Remote operating system guess: Solaris 2.6 - 2.7
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

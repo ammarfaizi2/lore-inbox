@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263315AbTGTIPZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 04:15:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263590AbTGTIPZ
+	id S263542AbTGTILO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 04:11:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263462AbTGTILN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 04:15:25 -0400
-Received: from [213.39.233.138] ([213.39.233.138]:42943 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S263315AbTGTIPW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 04:15:22 -0400
-Date: Sun, 20 Jul 2003 10:27:05 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: Re: [2.6 patch] remove bouncing digilnux list from MAINTAINERS
-Message-ID: <20030720082705.GB25468@wohnheim.fh-wedel.de>
-References: <20030720013251.GB14128@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030720013251.GB14128@fs.tum.de>
-User-Agent: Mutt/1.3.28i
+	Sun, 20 Jul 2003 04:11:13 -0400
+Received: from CPE-203-51-35-8.nsw.bigpond.net.au ([203.51.35.8]:42992 "EHLO
+	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP id S263542AbTGTILB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 04:11:01 -0400
+Message-ID: <3F1A5214.CEF2913A@eyal.emu.id.au>
+Date: Sun, 20 Jul 2003 18:25:56 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.22-pre7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22pre7aa1: net/bluetooth/cmtp/core.c failure
+References: <20030719013223.GA31330@dualathlon.random>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 July 2003 03:32:51 +0200, Adrian Bunk wrote:
+Andrea Arcangeli wrote:
 > 
-> The patch below removes a bouncing mailing list for an orphaned driver 
-> from MAINTAINERS.
+> URL:
 > 
->  W:	http://www.digi.com
-> -L:	digilnux@dgii.com
+>         http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.22pre7aa1.bz2
+>         http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.22pre7aa1/
 
-Did you try s/dgii/digi/ already?
+gcc -D__KERNEL__ -I/data2/usr/local/src/linux-2.4-pre-aa/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+-fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686
+-malign-functions=4 -DMODULE -DMODVERSIONS -include
+/data2/usr/local/src/linux-2.4-pre-aa/include/linux/modversions.h 
+-nostdinc -iwithprefix include -DKBUILD_BASENAME=core  -c -o core.o
+core.c
+core.c: In function `cmtp_session':
+core.c:301: structure has no member named `nice'
+make[3]: *** [core.o] Error 1
+make[3]: Leaving directory
+`/data2/usr/local/src/linux-2.4-pre-aa/net/bluetooth/cmtp'
 
-Jörn
-
--- 
-The competent programmer is fully aware of the strictly limited size of
-his own skull; therefore he approaches the programming task in full
-humility, and among other things he avoids clever tricks like the plague. 
--- Edsger W. Dijkstra
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

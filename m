@@ -1,378 +1,208 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314149AbSFDPrY>; Tue, 4 Jun 2002 11:47:24 -0400
+	id <S314444AbSFDPx4>; Tue, 4 Jun 2002 11:53:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314381AbSFDPrX>; Tue, 4 Jun 2002 11:47:23 -0400
-Received: from vivi.uptime.at ([62.116.87.11]:30381 "EHLO vivi.uptime.at")
-	by vger.kernel.org with ESMTP id <S314149AbSFDPrU>;
-	Tue, 4 Jun 2002 11:47:20 -0400
-Reply-To: <o.pitzeier@uptime.at>
-From: "Oliver Pitzeier" <o.pitzeier@uptime.at>
-To: "'Jan-Benedict Glaw'" <jbglaw@lug-owl.de>, <linux-kernel@vger.kernel.org>
-Cc: <axp-kernel-list@redhat.com>
-Subject: RE: kernel 2.5.20 on alpha (RE: [patch] Re: kernel 2.5.18 on alpha)
-Date: Tue, 4 Jun 2002 17:47:10 +0200
-Organization: =?us-ascii?Q?UPtime_Systemlosungen?=
-Message-ID: <002801c20bdf$199a2460$010b10ac@sbp.uptime.at>
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_0029_01C20BEF.DD22F460"
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-In-Reply-To: <20020604142207.GN20788@lug-owl.de>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+	id <S314451AbSFDPxz>; Tue, 4 Jun 2002 11:53:55 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:16890 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S314444AbSFDPxy>; Tue, 4 Jun 2002 11:53:54 -0400
+Subject: [PATCH] scheduler hints
+From: Robert Love <rml@tech9.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 04 Jun 2002 08:53:54 -0700
+Message-Id: <1023206034.912.89.camel@sinai>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+So I went ahead and implemented scheduler hints on top of the O(1)
+scheduler. 
 
-------=_NextPart_000_0029_01C20BEF.DD22F460
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+I tried to find a decent paper on the web covering scheduler hints
+(sometimes referred to as hint-based scheduling) but could not find
+anything worthwhile.  Solaris, for example, implements scheduler hints
+so perhaps the "Solaris Internals" book has some information. 
 
-Jan Benedict Glaw wrote:
-[ ... ]
-> > PS: Anybody want's the patches???
-> 
-> /me
+Basically, scheduler hints are a way for a program to give a "hint" to
+the scheduler about its present behavior in the hopes of the scheduler
+subsequently making better scheduling decisions.  After all, who knows
+better than the application what it is about to do? 
 
-OK, I attached the patches:
-a small part is from: Anton Blanchard;
-a big part from: Ivan Kokshaysky
-a small part from: me...
+For example, consider a group of SCHED_RR threads that share a
+semaphore.  Before one of the threads were to acquire the semaphore, it
+could give a "hint" to the scheduler to increase its remaining timeslice
+in order to ensure it could complete its work and drop the semaphore
+before being preempted.  Since, if it were preempted, it would just end
+up being rescheduled as the other real-time threads would eventually
+block on the held semaphore. 
 
-And I took an idea from: "davidm@napali.hpl.hp.com" (See the
-2.5.20 Changelog)
+Other hints could be "I am interactive" or "I am a batch (i.e. cpu hog)
+task" or "I am cache hot: try to keep me on this CPU". 
 
--Oliver
+The scheduler tries hard to figure out the three qualities and it is
+usually right, although perhaps it can react quicker to these hints than
+it can figure things out on its own.  If nothing else, this serves as a
+useful tool for determining just how accurate our O(1) scheduler is.
 
-------=_NextPart_000_0029_01C20BEF.DD22F460
-Content-Type: application/octet-stream;
-	name="kernel-2.5.20.alpha.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="kernel-2.5.20.alpha.patch"
+I am not necessarily suggesting this for inclusion; it is more of a
+"just for fun" thing that turned into something with what I am actually
+seeing improvements, so I post it here for others to see.
 
-diff -r -C2 tarballs/linux-2.5.20/arch/alpha/kernel/osf_sys.c =
-linux-2.5.20/arch/alpha/kernel/osf_sys.c=0A=
-*** tarballs/linux-2.5.20/arch/alpha/kernel/osf_sys.c	Mon Jun  3 =
-03:44:37 2002=0A=
---- linux-2.5.20/arch/alpha/kernel/osf_sys.c	Tue Jun  4 11:19:48 2002=0A=
-***************=0A=
-*** 34,37 ****=0A=
---- 34,38 ----=0A=
-  #include <linux/types.h>=0A=
-  #include <linux/ipc.h>=0A=
-+ #include <linux/namei.h>=0A=
-  =0A=
-  #include <asm/fpu.h>=0A=
-diff -r -C2 tarballs/linux-2.5.20/arch/alpha/kernel/pci.c =
-linux-2.5.20/arch/alpha/kernel/pci.c=0A=
-*** tarballs/linux-2.5.20/arch/alpha/kernel/pci.c	Mon Jun  3 03:44:41 =
-2002=0A=
---- linux-2.5.20/arch/alpha/kernel/pci.c	Tue Jun  4 11:19:48 2002=0A=
-***************=0A=
-*** 191,200 ****=0A=
-  #undef GB=0A=
-  =0A=
-! static void __init=0A=
-  pcibios_init(void)=0A=
-  {=0A=
-! 	if (!alpha_mv.init_pci)=0A=
-! 		return;=0A=
-! 	alpha_mv.init_pci();=0A=
-  }=0A=
-  =0A=
---- 191,200 ----=0A=
-  #undef GB=0A=
-  =0A=
-! static int __init=0A=
-  pcibios_init(void)=0A=
-  {=0A=
-! 	if (alpha_mv.init_pci)=0A=
-! 		alpha_mv.init_pci();=0A=
-! 	return 0;=0A=
-  }=0A=
-  =0A=
-diff -r -C2 tarballs/linux-2.5.20/arch/alpha/kernel/signal.c =
-linux-2.5.20/arch/alpha/kernel/signal.c=0A=
-*** tarballs/linux-2.5.20/arch/alpha/kernel/signal.c	Mon Jun  3 03:44:49 =
-2002=0A=
---- linux-2.5.20/arch/alpha/kernel/signal.c	Tue Jun  4 11:19:48 2002=0A=
-***************=0A=
-*** 19,22 ****=0A=
---- 19,23 ----=0A=
-  #include <linux/stddef.h>=0A=
-  #include <linux/tty.h>=0A=
-+ #include <linux/binfmts.h>=0A=
-  =0A=
-  #include <asm/bitops.h>=0A=
-diff -r -C2 tarballs/linux-2.5.20/drivers/pci/pci-driver.c =
-linux-2.5.20/drivers/pci/pci-driver.c=0A=
-*** tarballs/linux-2.5.20/drivers/pci/pci-driver.c	Mon Jun  3 03:44:51 =
-2002=0A=
---- linux-2.5.20/drivers/pci/pci-driver.c	Tue Jun  4 16:46:39 2002=0A=
-***************=0A=
-*** 193,197 ****=0A=
-  }=0A=
-  =0A=
-! subsys_initcall(pci_driver_init);=0A=
-  =0A=
-  EXPORT_SYMBOL(pci_match_device);=0A=
---- 193,197 ----=0A=
-  }=0A=
-  =0A=
-! arch_initcall(pci_driver_init);=0A=
-  =0A=
-  EXPORT_SYMBOL(pci_match_device);=0A=
-diff -r -C2 tarballs/linux-2.5.20/fs/mpage.c linux-2.5.20/fs/mpage.c=0A=
-*** tarballs/linux-2.5.20/fs/mpage.c	Mon Jun  3 03:44:44 2002=0A=
---- linux-2.5.20/fs/mpage.c	Tue Jun  4 14:30:34 2002=0A=
-***************=0A=
-*** 13,16 ****=0A=
---- 13,17 ----=0A=
-  #include <linux/kernel.h>=0A=
-  #include <linux/module.h>=0A=
-+ #include <linux/kdev_t.h>=0A=
-  #include <linux/bio.h>=0A=
-  #include <linux/fs.h>=0A=
-diff -r -C2 tarballs/linux-2.5.20/include/asm-alpha/bitops.h =
-linux-2.5.20/include/asm-alpha/bitops.h=0A=
-*** tarballs/linux-2.5.20/include/asm-alpha/bitops.h	Mon Jun  3 03:44:49 =
-2002=0A=
---- linux-2.5.20/include/asm-alpha/bitops.h	Tue Jun  4 11:19:49 2002=0A=
-***************=0A=
-*** 316,319 ****=0A=
---- 316,333 ----=0A=
-  }=0A=
-  =0A=
-+ /*=0A=
-+  * fls: find last bit set.=0A=
-+  */=0A=
-+ #if defined(__alpha_cix__) && defined(__alpha_fix__)=0A=
-+ static inline int fls(int word)=0A=
-+ {=0A=
-+ 	long result;=0A=
-+ 	__asm__("ctlz %1,%0" : "=3Dr"(result) : "r"(word & 0xffffffff));=0A=
-+ 	return 64 - result;=0A=
-+ }=0A=
-+ #else=0A=
-+ #define fls	generic_fls=0A=
-+ #endif=0A=
-+ =0A=
-  /* Compute powers of two for the given integer.  */=0A=
-  static inline int floor_log2(unsigned long word)=0A=
-diff -r -C2 tarballs/linux-2.5.20/include/asm-alpha/mc146818rtc.h =
-linux-2.5.20/include/asm-alpha/mc146818rtc.h=0A=
-*** tarballs/linux-2.5.20/include/asm-alpha/mc146818rtc.h	Mon Jun  3 =
-03:44:39 2002=0A=
---- linux-2.5.20/include/asm-alpha/mc146818rtc.h	Tue Jun  4 12:39:46 2002=0A=
-***************=0A=
-*** 25,27 ****=0A=
---- 25,29 ----=0A=
-  })=0A=
-  =0A=
-+ #define RTC_IRQ 8=0A=
-+ =0A=
-  #endif /* __ASM_ALPHA_MC146818RTC_H */=0A=
-diff -r -C2 tarballs/linux-2.5.20/include/asm-alpha/page.h =
-linux-2.5.20/include/asm-alpha/page.h=0A=
-*** tarballs/linux-2.5.20/include/asm-alpha/page.h	Mon Jun  3 03:44:52 =
-2002=0A=
---- linux-2.5.20/include/asm-alpha/page.h	Tue Jun  4 12:07:23 2002=0A=
-***************=0A=
-*** 16,23 ****=0A=
-  =0A=
-  extern void clear_page(void *page);=0A=
-! #define clear_user_page(page, vaddr)	clear_page(page)=0A=
-  =0A=
-  extern void copy_page(void * _to, void * _from);=0A=
-! #define copy_user_page(to, from, vaddr)	copy_page(to, from)=0A=
-  =0A=
-  #ifdef STRICT_MM_TYPECHECKS=0A=
---- 16,23 ----=0A=
-  =0A=
-  extern void clear_page(void *page);=0A=
-! #define clear_user_page(page, vaddr, pg)	clear_page(page)=0A=
-  =0A=
-  extern void copy_page(void * _to, void * _from);=0A=
-! #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)=0A=
-  =0A=
-  #ifdef STRICT_MM_TYPECHECKS=0A=
-***************=0A=
-*** 96,101 ****=0A=
-  #define __va(x)			((void *)((unsigned long) (x) + PAGE_OFFSET))=0A=
-  #ifndef CONFIG_DISCONTIGMEM=0A=
-! #define virt_to_page(kaddr)	(mem_map + (__pa(kaddr) >> PAGE_SHIFT))=0A=
-! #define VALID_PAGE(page)	(((page) - mem_map) < max_mapnr)=0A=
-  #endif /* CONFIG_DISCONTIGMEM */=0A=
-  =0A=
---- 96,105 ----=0A=
-  #define __va(x)			((void *)((unsigned long) (x) + PAGE_OFFSET))=0A=
-  #ifndef CONFIG_DISCONTIGMEM=0A=
-! #define pfn_to_page(pfn)	(mem_map + (pfn))=0A=
-! #define page_to_pfn(page)	((unsigned long)((page) - mem_map))=0A=
-! #define virt_to_page(kaddr)	pfn_to_page(__pa(kaddr) >> PAGE_SHIFT)=0A=
-! =0A=
-! #define pfn_valid(pfn)		((pfn) < max_mapnr)=0A=
-! #define virt_addr_valid(kaddr)	pfn_valid(__pa(kaddr) >> PAGE_SHIFT)=0A=
-  #endif /* CONFIG_DISCONTIGMEM */=0A=
-  =0A=
-diff -r -C2 tarballs/linux-2.5.20/include/asm-alpha/pgtable.h =
-linux-2.5.20/include/asm-alpha/pgtable.h=0A=
-*** tarballs/linux-2.5.20/include/asm-alpha/pgtable.h	Mon Jun  3 =
-03:44:45 2002=0A=
---- linux-2.5.20/include/asm-alpha/pgtable.h	Tue Jun  4 12:10:18 2002=0A=
-***************=0A=
-*** 180,188 ****=0A=
-  #if defined(CONFIG_ALPHA_GENERIC) || \=0A=
-      (defined(CONFIG_ALPHA_EV6) && !defined(USE_48_BIT_KSEG))=0A=
-! #define PHYS_TWIDDLE(phys) \=0A=
-!   ((((phys) & 0xc0000000000UL) =3D=3D 0x40000000000UL) \=0A=
-!   ? ((phys) ^=3D 0xc0000000000UL) : (phys))=0A=
-  #else=0A=
-! #define PHYS_TWIDDLE(phys) (phys)=0A=
-  #endif=0A=
-  =0A=
---- 180,189 ----=0A=
-  #if defined(CONFIG_ALPHA_GENERIC) || \=0A=
-      (defined(CONFIG_ALPHA_EV6) && !defined(USE_48_BIT_KSEG))=0A=
-! #define KSEG_PFN	(0xc0000000000UL >> PAGE_SHIFT)=0A=
-! #define PHYS_TWIDDLE(pfn) \=0A=
-!   ((((pfn) & KSEG_PFN) =3D=3D (0x40000000000UL >> PAGE_SHIFT)) \=0A=
-!   ? ((pfn) ^=3D KSEG_PFN) : (pfn))=0A=
-  #else=0A=
-! #define PHYS_TWIDDLE(pfn) (pfn)=0A=
-  #endif=0A=
-  =0A=
-***************=0A=
-*** 200,209 ****=0A=
-  =0A=
-  #ifndef CONFIG_DISCONTIGMEM=0A=
-  #define mk_pte(page, pgprot)						\=0A=
-  ({									\=0A=
-  	pte_t pte;							\=0A=
-  									\=0A=
-! 	pte_val(pte) =3D ((unsigned long)(page - mem_map) << 32) |	\=0A=
-! 		       pgprot_val(pgprot);				\=0A=
-  	pte;								\=0A=
-  })=0A=
---- 201,211 ----=0A=
-  =0A=
-  #ifndef CONFIG_DISCONTIGMEM=0A=
-+ #define pte_pfn(pte)	(pte_val(pte) >> 32)=0A=
-+ #define pte_page(pte)	pfn_to_page(pte_pfn(pte))=0A=
-  #define mk_pte(page, pgprot)						\=0A=
-  ({									\=0A=
-  	pte_t pte;							\=0A=
-  									\=0A=
-! 	pte_val(pte) =3D (page_to_pfn(page) << 32) | pgprot_val(pgprot);	\=0A=
-  	pte;								\=0A=
-  })=0A=
-***************=0A=
-*** 220,227 ****=0A=
-  	pte;									\=0A=
-  })=0A=
-  #endif=0A=
-  =0A=
-! extern inline pte_t mk_pte_phys(unsigned long physpage, pgprot_t =
-pgprot)=0A=
-! { pte_t pte; pte_val(pte) =3D (PHYS_TWIDDLE(physpage) << =
-(32-PAGE_SHIFT)) | pgprot_val(pgprot); return pte; }=0A=
-  =0A=
-  extern inline pte_t pte_modify(pte_t pte, pgprot_t newprot)=0A=
---- 222,239 ----=0A=
-  	pte;									\=0A=
-  })=0A=
-+ #define pte_page(x)							\=0A=
-+ ({									\=0A=
-+ 	unsigned long kvirt;						\=0A=
-+ 	struct page * __xx;						\=0A=
-+ 									\=0A=
-+ 	kvirt =3D (unsigned long)__va(pte_val(x) >> (32-PAGE_SHIFT));	\=0A=
-+ 	__xx =3D virt_to_page(kvirt);					\=0A=
-+ 									\=0A=
-+ 	__xx;								\=0A=
-+ })=0A=
-  #endif=0A=
-  =0A=
-! extern inline pte_t pfn_pte(unsigned long physpfn, pgprot_t pgprot)=0A=
-! { pte_t pte; pte_val(pte) =3D (PHYS_TWIDDLE(physpfn) << 32) | =
-pgprot_val(pgprot); return pte; }=0A=
-  =0A=
-  extern inline pte_t pte_modify(pte_t pte, pgprot_t newprot)=0A=
-***************=0A=
-*** 234,251 ****=0A=
-  { pgd_val(*pgdp) =3D _PAGE_TABLE | ((((unsigned long) pmdp) - =
-PAGE_OFFSET) << (32-PAGE_SHIFT)); }=0A=
-  =0A=
-- #ifndef CONFIG_DISCONTIGMEM=0A=
-- #define pte_page(x)	(mem_map+(unsigned long)((pte_val(x) >> 32)))=0A=
-- #else=0A=
-- #define pte_page(x)							\=0A=
-- ({									\=0A=
-- 	unsigned long kvirt;						\=0A=
-- 	struct page * __xx;						\=0A=
-- 									\=0A=
-- 	kvirt =3D (unsigned long)__va(pte_val(x) >> (32-PAGE_SHIFT));	\=0A=
-- 	__xx =3D virt_to_page(kvirt);					\=0A=
-- 									\=0A=
-- 	__xx;								\=0A=
-- })=0A=
-- #endif=0A=
-  =0A=
-  extern inline unsigned long=0A=
---- 246,249 ----=0A=
-diff -r -C2 tarballs/linux-2.5.20/include/asm-alpha/tlb.h =
-linux-2.5.20/include/asm-alpha/tlb.h=0A=
-*** tarballs/linux-2.5.20/include/asm-alpha/tlb.h	Mon Jun  3 03:44:48 =
-2002=0A=
---- linux-2.5.20/include/asm-alpha/tlb.h	Tue Jun  4 11:19:48 2002=0A=
-***************=0A=
-*** 1 ****=0A=
---- 1,15 ----=0A=
-+ #ifndef _ALPHA_TLB_H=0A=
-+ #define _ALPHA_TLB_H=0A=
-+ =0A=
-+ #define tlb_start_vma(tlb, vma)			do { } while (0)=0A=
-+ #define tlb_end_vma(tlb, vma)			do { } while (0)=0A=
-+ #define tlb_remove_tlb_entry(tlb, pte, addr)	do { } while (0)=0A=
-+ =0A=
-+ #define tlb_flush(tlb)				flush_tlb_mm((tlb)->mm)=0A=
-+ =0A=
-  #include <asm-generic/tlb.h>=0A=
-+ =0A=
-+ #define pte_free_tlb(tlb,pte)			pte_free(pte)=0A=
-+ #define pmd_free_tlb(tlb,pmd)			pmd_free(pmd)=0A=
-+  =0A=
-+ #endif=0A=
-diff -r -C2 tarballs/linux-2.5.20/include/linux/bio.h =
-linux-2.5.20/include/linux/bio.h=0A=
-*** tarballs/linux-2.5.20/include/linux/bio.h	Mon Jun  3 03:44:52 2002=0A=
---- linux-2.5.20/include/linux/bio.h	Tue Jun  4 12:56:40 2002=0A=
-***************=0A=
-*** 129,134 ****=0A=
-   * will die=0A=
-   */=0A=
-! #define bio_to_phys(bio)	(page_to_phys(bio_page((bio))) + (unsigned =
-long) bio_offset((bio)))=0A=
-! #define bvec_to_phys(bv)	(page_to_phys((bv)->bv_page) + (unsigned =
-long) (bv)->bv_offset)=0A=
-  =0A=
-  /*=0A=
---- 129,134 ----=0A=
-   * will die=0A=
-   */=0A=
-! #define bio_to_phys(bio)	((page_to_pfn(bio_page((bio))) << PAGE_SHIFT) =
-+ (unsigned long) bio_offset((bio)))=0A=
-! #define bvec_to_phys(bv)	((page_to_pfn((bv)->bv_page) << PAGE_SHIFT) + =
-(unsigned long) (bv)->bv_offset)=0A=
-  =0A=
-  /*=0A=
+You use scheduler hints in a program by doing something like, 
 
-------=_NextPart_000_0029_01C20BEF.DD22F460--
+        sched_hint(hint)
 
+where `hint' is currently one or more of:
+
+        HINT_TIME - task needs some more quanta, boost
+        remaining timeslice
+
+        HINT_INTERACTIVE - task is interactive, give it a
+        small priority bonus to help.
+
+        HINT_BATCH - task is a batch-processed task, give
+        it a small priority penalty to be fair.
+
+Right now the code makes no attempt to be fair - a program giving
+HINT_TIME now will not receive some sort of penalty later.  Thus
+sched_hint requires CAP_SYS_NICE.  This really is not what we want; we
+need any arbitrary task to be able to give these hints.  Since the
+current solution is not fair, however, we cannot sanely do that.
+
+A patch for 2.5.20 is attached.  A patch for 2.4 + O(1) scheduler as
+well as a lame example program can be had at:
+
+	ftp://ftp.kernel.org/pub/linux/kernel/people/rml/sched/scheduler-hints
+
+Any comments or suggestions are welcome.  Thanks,
+
+        Robert Love
+
+diff -urN linux-2.5.20/arch/i386/kernel/entry.S linux/arch/i386/kernel/entry.S
+--- linux-2.5.20/arch/i386/kernel/entry.S	Sun Jun  2 18:44:44 2002
++++ linux/arch/i386/kernel/entry.S	Mon Jun  3 13:48:43 2002
+@@ -785,6 +785,7 @@
+ 	.long sys_futex		/* 240 */
+ 	.long sys_sched_setaffinity
+ 	.long sys_sched_getaffinity
++	.long sys_sched_hint
+ 
+ 	.rept NR_syscalls-(.-sys_call_table)/4
+ 		.long sys_ni_syscall
+diff -urN linux-2.5.20/include/asm-i386/unistd.h linux/include/asm-i386/unistd.h
+--- linux-2.5.20/include/asm-i386/unistd.h	Sun Jun  2 18:44:51 2002
++++ linux/include/asm-i386/unistd.h	Mon Jun  3 13:48:59 2002
+@@ -247,6 +247,7 @@
+ #define __NR_futex		240
+ #define __NR_sched_setaffinity	241
+ #define __NR_sched_getaffinity	242
++#define __NR_sched_hint		243
+ 
+ /* user-visible error numbers are in the range -1 - -124: see <asm-i386/errno.h> */
+ 
+diff -urN linux-2.5.20/include/linux/sched.h linux/include/linux/sched.h
+--- linux-2.5.20/include/linux/sched.h	Sun Jun  2 18:44:41 2002
++++ linux/include/linux/sched.h	Mon Jun  3 17:10:10 2002
+@@ -116,6 +116,13 @@
+ #endif
+ 
+ /*
++ * Scheduling Hints
++ */
++#define HINT_TIME		1	/* increase remaining timeslice */
++#define HINT_INTERACTIVE	2	/* interactive task: prio bonus */
++#define HINT_BATCH		4	/* batch task: prio penalty */
++
++/*
+  * Scheduling policies
+  */
+ #define SCHED_OTHER		0
+diff -urN linux-2.5.20/kernel/sched.c linux/kernel/sched.c
+--- linux-2.5.20/kernel/sched.c	Sun Jun  2 18:44:44 2002
++++ linux/kernel/sched.c	Mon Jun  3 17:09:09 2002
+@@ -1143,7 +1143,7 @@
+ 				policy != SCHED_OTHER)
+ 			goto out_unlock;
+ 	}
+-	
++
+ 	/*
+ 	 * Valid priorities for SCHED_FIFO and SCHED_RR are
+ 	 * 1..MAX_USER_RT_PRIO, valid priority for SCHED_OTHER is 0.
+@@ -1336,6 +1336,64 @@
+ 	return real_len;
+ }
+ 
++/*
++ * sys_sched_hint - give the scheduler a hint to (hopefully) provide
++ * better scheduling behavior.  For example, if a task is about
++ * to acquire a highly contended resource, it would be wise to
++ * increase its remaining timeslice to ensure it could drop the
++ * resource before being preempted.
++ *
++ * `hint' is the hint to the scheduler, defined in include/linux/sched.h
++ */
++asmlinkage int sys_sched_hint(unsigned long hint)
++{
++	int ret = -EINVAL;
++	unsigned long flags;
++	runqueue_t *rq;
++
++	/*
++	 * Requiring CAP_SYS_NICE is an issue: we really want any task
++	 * to be able to give the scheduler a `hint' but we have no
++	 * way of ensuring fairness.  The compromise is to require
++	 * some sort of permission... you may want to get rid of this.
++	 */
++	if (!capable(CAP_SYS_NICE))
++		return -EPERM;
++
++	rq = task_rq_lock(current, &flags);
++
++	if (hint & HINT_TIME) {
++		current->time_slice = MAX_TIMESLICE;
++		/*
++		 * we may have run out of timeslice and have been
++		 * put on the expired runqueue: if so, fix that.
++		 */
++		if (unlikely(current->array != rq->active)) {
++			dequeue_task(current, current->array);
++			enqueue_task(current, rq->active);
++		}
++		ret = 0;
++	}
++
++	if (hint & HINT_INTERACTIVE) {
++		dequeue_task(current, current->array);
++		current->sleep_avg = MAX_SLEEP_AVG;
++		current->prio = effective_prio(current);
++		enqueue_task(current, rq->active);
++		ret = 0;
++	} else if (hint & HINT_BATCH) {
++		dequeue_task(current, current->array);
++		current->sleep_avg = 0;
++		current->prio = effective_prio(current);
++		enqueue_task(current, rq->active);
++		ret = 0;
++	}
++
++	task_rq_unlock(rq, &flags);
++
++	return ret;
++}
++
+ asmlinkage long sys_sched_yield(void)
+ {
+ 	runqueue_t *rq;
+@@ -1376,6 +1434,7 @@
+ 
+ 	return 0;
+ }
++
+ asmlinkage long sys_sched_get_priority_max(int policy)
+ {
+ 	int ret = -EINVAL;
 

@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263003AbRFGTeZ>; Thu, 7 Jun 2001 15:34:25 -0400
+	id <S263015AbRFGTgp>; Thu, 7 Jun 2001 15:36:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263012AbRFGTeP>; Thu, 7 Jun 2001 15:34:15 -0400
-Received: from turnover.lancs.ac.uk ([148.88.17.220]:243 "EHLO
-	helium.chromatix.org.uk") by vger.kernel.org with ESMTP
-	id <S263003AbRFGTeF>; Thu, 7 Jun 2001 15:34:05 -0400
-Message-Id: <l0313031db7458697459b@[192.168.239.105]>
-In-Reply-To: <Pine.LNX.4.21.0106071435580.1156-100000@freak.distro.conectiva>
-In-Reply-To: <l0313031cb745811cfc17@[192.168.239.105]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Thu, 7 Jun 2001 20:31:53 +0100
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: [PATCH] Reap dead swap cache earlier v2
-Cc: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+	id <S263022AbRFGTgf>; Thu, 7 Jun 2001 15:36:35 -0400
+Received: from mailhost.idcomm.com ([207.40.196.14]:28132 "EHLO
+	mailhost.idcomm.com") by vger.kernel.org with ESMTP
+	id <S263015AbRFGTgP>; Thu, 7 Jun 2001 15:36:15 -0400
+Message-ID: <3B1FD7D3.62093F2B@idcomm.com>
+Date: Thu, 07 Jun 2001 13:36:51 -0600
+From: "D. Stimits" <stimits@idcomm.com>
+Reply-To: stimits@idcomm.com
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2smp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: kernel-list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.6 pre1 and 2.4.5 CONFIG_IP_NF_COMPAT_IPCHAINS missing?
+In-Reply-To: <3B1FD356.5EB55F1D@idcomm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >As suggested by Linus, I've cleaned the reapswap code to be contained
->> >inside an inline function. (yes, the if statement is really ugly)
->>
->> I can't seem to find the patch which adds this behaviour to the background
->> scanning.
->
->I've just sent Linus a patch to free swap cache pages at the time we free
->the last pte. (requested by himself)
->
->With it applied we should get the old behaviour back again.
->
->I can put it on my webpage if you wish.
-
-Just copy it to me so I can replace the dead-swap hacks you introduced earlier.
-
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-
-The key to knowledge is not to rely on people to teach you it.
-
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
+"D. Stimits" wrote:
+> 
+> I know somewhere there is a menuconfig item corresponding to
+> CONFIG_IP_NF_COMPAT_IPCHAINS, and that selecting various other iptables
+> options can make this item disappear and no longer be selectable. But I
+> have fished all over, have set config to give devel and incomplete
+> items, tried turning on or off anything possibly related to iptables,
+> and cannot find this item in the make menuconfig. It still exists in
+> Documentation/Configure.help, so I assume this has not yet been removed
+> from available kernel compile options. I've been searching for the means
+> to interactively select this item, with no luck. Can anyone tell me if
+> ipchains compatibility has been removed from current config options? If
+> not, how it can be selected, or if it is broken?
+> 
+> D. Stimits, stimits@idcomm.com
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 
+Nevermind, I found the item in question. Turns out that the option is
+added to the config menu, but not under the item that activated the
+option...most of the way down the menu instead, so I didn't see it.
+
+D. Stimits, stimits@idcomm.com

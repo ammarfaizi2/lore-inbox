@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266837AbUJWF6L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267595AbUJWF6N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266837AbUJWF6L (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 01:58:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267595AbUJWF46
+	id S267595AbUJWF6N (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 01:58:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267367AbUJWF4d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 01:56:58 -0400
-Received: from [211.58.254.17] ([211.58.254.17]:42128 "EHLO hemosu.com")
-	by vger.kernel.org with ESMTP id S266837AbUJWEY2 (ORCPT
+	Sat, 23 Oct 2004 01:56:33 -0400
+Received: from fw.osdl.org ([65.172.181.6]:44991 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267612AbUJWEZo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 00:24:28 -0400
-Date: Sat, 23 Oct 2004 13:24:22 +0900
-From: Tejun Heo <tj@home-tj.org>
-To: rusty@rustcorp.com.au, mochel@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [RFC/PATCH] Per-device parameter support (2/16)
-Message-ID: <20041023042421.GC3456@home-tj.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Sat, 23 Oct 2004 00:25:44 -0400
+Date: Fri, 22 Oct 2004 21:25:31 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Roland McGrath <roland@redhat.com>
+cc: Andrew Morton <akpm@osdl.org>, Jesse Barnes <jbarnes@engr.sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Fw: BUG_ONs in signal.c?
+In-Reply-To: <200410230414.i9N4Edia027359@magilla.sf.frob.com>
+Message-ID: <Pine.LNX.4.58.0410222121040.2101@ppc970.osdl.org>
+References: <200410230414.i9N4Edia027359@magilla.sf.frob.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- dp_02_param_array_bug.diff
-
- This is the 2nd patch of 16 patches for devparam.
-
- This patches fixes param_array_set() to not use arr->max as nump
-argument of param_array.  If arr->max is used as nump and the
-configuration variable is exported writeable in the syfs, the size of
-the array will be limited by the smallest number of elements
-specified.  One side effect is that as the actual number of elements
-is not recorded anymore when nump is NULL, all elements should be
-printed when referencing the corresponding sysfs node.  I don't think
-that will cause any problem.
 
 
-Signed-off-by: Tejun Heo <tj@home-tj.org>
+On Fri, 22 Oct 2004, Roland McGrath wrote:
+>
+> Once group_exit is set, it should never be cleared and group_exit_code
+> should never be changed.
 
+Hmm? Another signal that kills another thread, but isn't a core-dump 
+signal, will go through the __group_complete_signal() code in 
+kernel/signal.c, and do
 
-Index: linux-devparam-export/kernel/params.c
-===================================================================
---- linux-devparam-export.orig/kernel/params.c	2004-10-22 17:13:33.000000000 +0900
-+++ linux-devparam-export/kernel/params.c	2004-10-23 11:09:28.000000000 +0900
-@@ -302,9 +302,10 @@ int param_array(const char *name,
- int param_array_set(const char *val, struct kernel_param *kp)
- {
- 	struct kparam_array *arr = kp->arg;
-+	unsigned int t;
- 
- 	return param_array(kp->name, val, 1, arr->max, arr->elem,
--			   arr->elemsize, arr->set, arr->num ?: &arr->max);
-+			   arr->elemsize, arr->set, arr->num ?: &t);
- }
- 
- int param_array_get(char *buffer, struct kernel_param *kp)
+                        p->signal->group_exit_code = sig;
+
+adn the only locking there is the siglock/tasklist_lock as far as I can 
+see.
+
+So as far as I can tell, I see
+
+	coredump thread			other thread
+	===============			============
+
+	do_coredump()
+	current->signal->group_exit_code = exit_code
+	coredump_wait(mm);
+
+					/* gets fatal non-coredump signal */
+					current->signal->group_exit_code = sig;
+	...
+	BUG_ON(current->signal->group_exit_code != exit_code);
+	!!BOOM!!
+
+No?
+
+		Linus

@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264956AbRFUNcQ>; Thu, 21 Jun 2001 09:32:16 -0400
+	id <S264958AbRFUNeQ>; Thu, 21 Jun 2001 09:34:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264958AbRFUNcL>; Thu, 21 Jun 2001 09:32:11 -0400
-Received: from [64.64.109.142] ([64.64.109.142]:44818 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S264956AbRFUNbf>; Thu, 21 Jun 2001 09:31:35 -0400
-Message-ID: <3B31F70D.70208DDD@didntduck.org>
-Date: Thu, 21 Jun 2001 09:30:53 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.76 [en] (WinNT; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: rafael@viewpoint.no
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Unable to handle kernel NULL pointer dereference at virtual address 
- - 2.4.5
-In-Reply-To: <auto-000000272718@viventus.no>
+	id <S264961AbRFUNeG>; Thu, 21 Jun 2001 09:34:06 -0400
+Received: from elektra.higherplane.net ([203.37.52.137]:31929 "EHLO
+	elektra.higherplane.net") by vger.kernel.org with ESMTP
+	id <S264958AbRFUNd5>; Thu, 21 Jun 2001 09:33:57 -0400
+Date: Thu, 21 Jun 2001 23:50:25 +1000
+From: john slee <indigoid@higherplane.net>
+To: "Dmitry A. Fedorov" <D.A.Fedorov@inp.nsk.su>
+Cc: Balbir Singh <balbir_soni@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Is it useful to support user level drivers
+Message-ID: <20010621235025.J30872@higherplane.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.SGI.4.10.10106211833390.3193032-100000@Sky.inp.nsk.su>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rafael Martinez wrote:
-> 
-> Hello
-> 
-> I have got a error in my syslog about a Null pointer in the kernel:
-> 
-> Kernel 2.4.5
-> glibc 2.2.12
-> gcc version 2.96 20000731 (Red Hat Linux 7.0)
-> 
-> Modell: ISP2150
-> Motherboard: L440GX+ DP
-> CPU: 2 x Intel Pentium III (Coppermine) 850 MHz L2 cache: 256K / Bus: 100 MHz
-> RAM: 256 MB
-> SCSI controller: Adaptec AIC-7896/7 Ultra2
+On Thu, Jun 21, 2001 at 06:38:09PM +0700, Dmitry A. Fedorov wrote:
+> kernel module to delivery hardware interrupts to user space
+> programs. Hardware interrupts (IRQ) are accessible by
+> character devices /dev/irq[0-15]. Interrupts delivered by
+> signals and select(2)/poll(2)
 
-Please run oops messages through ksymoops before posting them here.  The
-message is meaningless without knowing what symbols are mapped to what
-address.  See linux/Documentation/oops-tracing.txt.
+i believe libgpio uses the existing usb/iee1394/serial/parallel
+interfaces to provide a limited userspace driver capability.  gphoto2
+uses this to support a LOT of digital cameras entirely in userspace...
 
---
+obviously this concept isn't covering everything but it sure covers a
+lot of bases.  also depends on what you understand a "driver" to be...
+from a "common user"'s perspective it just means "it makes my WinWidget
+work!"
 
-				Brian Gerst
+it's similar to what you describe above in that there's a kernel
+interface, but it's more specific than /dev/irq5.  this is good in that
+you don't want a different usb driver for every userspace usb device
+driver...
+
+http://sourceforge.net/projects/gphoto/ (i think)
+
+j.
+
+-- 
+"Bobby, jiggle Grandpa's rat so it looks alive, please" -- gary larson

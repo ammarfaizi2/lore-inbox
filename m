@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261182AbTFFLpZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 07:45:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbTFFLpZ
+	id S261245AbTFFLxd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 07:53:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261249AbTFFLxd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 07:45:25 -0400
-Received: from smtp4.clb.oleane.net ([213.56.31.20]:3747 "EHLO
-	smtp4.clb.oleane.net") by vger.kernel.org with ESMTP
-	id S261182AbTFFLpY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 07:45:24 -0400
-Subject: Re: 2.5.70-bk10 oops when trying to mount root from raid-1 device
-From: Nicolas Mailhot <Nicolas.Mailhot@laposte.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-A3s3KYGTDCTqobdaQl9i"
-Organization: Adresse personelle
-Message-Id: <1054900735.1992.1.camel@ulysse.olympe.o2t>
+	Fri, 6 Jun 2003 07:53:33 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:24837 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S261245AbTFFLxd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 07:53:33 -0400
+Date: Fri, 6 Jun 2003 16:06:35 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Margit Schubert-While <margitsw@t-online.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PCI cache line messages 2.4/2.5
+Message-ID: <20030606160635.A2743@jurassic.park.msu.ru>
+References: <5.1.0.14.2.20030605172023.05514098@pop.t-online.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.92 (1.3.92-1) (Preview Release)
-Date: 06 Jun 2003 13:58:55 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <5.1.0.14.2.20030605172023.05514098@pop.t-online.de>; from margitsw@t-online.de on Thu, Jun 05, 2003 at 05:23:54PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jun 05, 2003 at 05:23:54PM +0200, Margit Schubert-While wrote:
+> With what (if any) consequences under 2.4 ?
+> Shouldn't it be fixed for 2.4.21 ?
 
---=-A3s3KYGTDCTqobdaQl9i
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+More likely for early 2.4.22-pre. In the worst case you'd
+end up enabling MWI with cacheline size = 0, which
+should be a no-op on any sane hardware.
 
-This looks suspiciously like
-
-http://bugzilla.kernel.org/show_bug.cgi?id=3D760
-
-Cheers,
-
---=20
-Nicolas Mailhot
-
---=-A3s3KYGTDCTqobdaQl9i
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA+4IH+I2bVKDsp8g0RAqpiAJ9KUtHXmd/v6V5tnRinM/4WmHFC2wCfYvav
-IZNnxYnCjccLNMoSr2zLGxU=
-=MEvD
------END PGP SIGNATURE-----
-
---=-A3s3KYGTDCTqobdaQl9i--
-
+Ivan.

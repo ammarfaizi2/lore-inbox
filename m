@@ -1,45 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269662AbUJHAVK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267657AbUJHAgj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269662AbUJHAVK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 20:21:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269886AbUJGW57
+	id S267657AbUJHAgj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 20:36:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269886AbUJHAck
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 18:57:59 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:18185 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S269876AbUJGWqr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 18:46:47 -0400
-Date: Fri, 8 Oct 2004 00:46:40 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Andries Brouwer <aebr@win.tue.nl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: mmap specification - was: ... select specification
-Message-ID: <20041007224640.GC7047@pclin040.win.tue.nl>
-References: <4164EBF1.3000802@nortelnetworks.com> <Pine.LNX.4.61.0410071244150.304@hibernia.jakma.org> <001601c4ac72$19932760$161b14ac@boromir> <Pine.LNX.4.61.0410071346040.304@hibernia.jakma.org> <001c01c4ac76$fb9fd190$161b14ac@boromir> <1097156727.31753.44.camel@localhost.localdomain> <001f01c4ac8b$35849710$161b14ac@boromir> <1097160628.31614.68.camel@localhost.localdomain> <20041007215834.GA7047@pclin040.win.tue.nl> <CE341A74-18B0-11D9-ABEB-000393ACC76E@mac.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CE341A74-18B0-11D9-ABEB-000393ACC76E@mac.com>
-User-Agent: Mutt/1.4.1i
-X-Spam-DCC: : kweetal.tue.nl 1074; Body=1 Fuz1=1 Fuz2=1
+	Thu, 7 Oct 2004 20:32:40 -0400
+Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:35955 "HELO
+	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S269896AbUJHAWk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 20:22:40 -0400
+Message-ID: <4165DDB4.1070806@yahoo.com.au>
+Date: Fri, 08 Oct 2004 10:22:12 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.1) Gecko/20040726 Debian/1.7.1-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: colpatch@us.ibm.com
+CC: Paul Jackson <pj@sgi.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Andrew Morton <akpm@osdl.org>, ckrm-tech@lists.sourceforge.net,
+       LSE Tech <lse-tech@lists.sourceforge.net>,
+       LKML <linux-kernel@vger.kernel.org>, simon.derr@bull.net,
+       frankeh@watson.ibm.com
+Subject: Re: [RFC PATCH] scheduler: Dynamic sched_domains
+References: <1097110266.4907.187.camel@arrakis>	 <4164A664.9040005@yahoo.com.au> <1097186290.17473.13.camel@arrakis>
+In-Reply-To: <1097186290.17473.13.camel@arrakis>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 07, 2004 at 06:32:43PM -0400, Kyle Moffett wrote:
+Matthew Dobson wrote:
 
->>>"References within the address range starting at pa and continuing
->>> for len bytes to whole pages following the end of an object shall
->>> result in delivery of a SIGBUS signal."
-> 
-> The last bit of the SuS text means:
-> 
-> pa <-- len --> eof <-> page boundary
-> 
-> Anywhere from pa to page boundary will generate SIGBUS.
+>On Wed, 2004-10-06 at 19:13, Nick Piggin wrote:
+>
+>>Matthew Dobson wrote:
+>>
+>
+>>>This should allow us to support hotplug more easily, simply removing the
+>>>domain belonging to the going-away CPU, rather than throwing away the
+>>>whole domain tree and rebuilding from scratch.
+>>>
+>>Although what we have in -mm now should support CPU hotplug just fine.
+>>The hotplug guys really seem not to care how disruptive a hotplug
+>>operation is.
+>>
+>
+>I wasn't trying to imply that CPU hotplug isn't supported right now. 
+>But it is currently a very disruptive operation, throwing away the
+>entire sched_domains & sched_groups tree and then rebuilding it from
+>scratch just to remove a single CPU!  I also understand that this is
+>supposed to be a rare event (CPU hotplug), but that doesn't mean it
+>*has* to be a slow, disruptive event. :)
+>
+>
 
-The POSIX text is clear to me, and Linux is compliant.
-On the other hand, I have no idea what you try to say.
+Well no... but it already is disruptive :)
 
-Andries
+>
+>>> This should also allow
+>>>us to support multiple, independent (ie: no shared root) domain trees
+>>>which will facilitate isolated CPU groups and exclusive domains.  I also
+>>>
+>>Hmm, what was my word for them... yeah, disjoint. We can do that now,
+>>see isolcpus= for a subset of the functionality you want (doing larger
+>>exclusive sets would probably just require we run the setup code once
+>>for each exclusive set we want to build).
+>>
+>
+>The current code doesn't, to my knowledge support multiple isolated
+>domains.  You can set up a single 'isolated' group with boot time
+>options, but you can't set up *multiple* isolated groups, nor is there
+>the ability to do any partitioning/isolation at runtime.  This was more
+>of the motivation for my code than the hotplug simplification.  That was
+>more of a side-benefit.
+>
+>
+
+No, the isolcpus= option allows you to set up n *single CPU* isolated
+domains. You currently can't setup isolated groups with multiple CPUs
+in them, no. You can't do runtime partitioning either.
+
+I think both would be pretty trivial to do though with the current
+code though.
+
+>
+>>>hope this will allow us to leverage the existing topology infrastructure
+>>>to build domains that closely resemble the physical structure of the
+>>>machine automagically, thus making supporting interesting NUMA machines
+>>>and SMT machines easier.
+>>>
+>>>This patch is just a snapshot in the middle of development, so there are
+>>>certainly some uglies & bugs that will get fixed.  That said, any
+>>>comments about the general design are strongly encouraged.  Heck, any
+>>>feedback at all is welcome! :) 
+>>>
+>>>Patch against 2.6.9-rc3-mm2.
+>>>
+>>This is what I did in my first (that nobody ever saw) implementation of
+>>sched domains. Ie. no sched_groups, just use sched_domains as the balancing
+>>object... I'm not sure this works too well.
+>>
+>>For example, your bottom level domain is going to basically be a redundant,
+>>single CPU on most topologies, isn't it?
+>>
+>>Also, how will you do overlapping domains that SGI want to do (see
+>>arch/ia64/kernel/domain.c in -mm kernels)?
+>>
+>>node2 wants to balance between node0, node1, itself, node3, node4.
+>>node4 wants to balance between node2, node3, itself, node5, node6.
+>>etc.
+>>
+>>I think your lists will get tangled, no?
+>>
+>
+>Yes.  I have to put my thinking cap on snug, but I don't think my
+>version would support this kind of setup.  It sounds, from Jesse's
+>follow up to your mail, that this is not a requirement, though.  I'll
+>take a closer look at the IA64 code and see if it would be supported or
+>if I could make some small changes to support it.
+>
+>
+
+I they might find that it will be a requirement. If not now, then soon.
+Your periodic balancing happens from the timer interrupt as you know...
+that means pulling a cacheline off every CPU.
+
+But anyway..
+
+>Thanks for the feedback!!
+>
+
+OK... I still don't know exactly how your system is an improvement over what
+we have, but I'll try to be open minded :)
+

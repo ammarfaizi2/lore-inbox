@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262325AbREUB7G>; Sun, 20 May 2001 21:59:06 -0400
+	id <S262334AbREUCK7>; Sun, 20 May 2001 22:10:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262330AbREUB64>; Sun, 20 May 2001 21:58:56 -0400
-Received: from are.twiddle.net ([64.81.246.98]:14598 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S262325AbREUB6j>;
-	Sun, 20 May 2001 21:58:39 -0400
-Date: Sun, 20 May 2001 18:58:21 -0700
-From: Richard Henderson <rth@twiddle.net>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <andrewm@uow.edu.au>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        linux-kernel@vger.kernel.org
-Subject: Re: alpha iommu fixes
-Message-ID: <20010520185821.B19096@twiddle.net>
-Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
-	Andrea Arcangeli <andrea@suse.de>,
-	Andrew Morton <andrewm@uow.edu.au>,
-	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010518214617.A701@jurassic.park.msu.ru> <20010519155502.A16482@athlon.random> <20010519231131.A2840@jurassic.park.msu.ru> <20010520044013.A18119@athlon.random> <3B07AF49.5A85205F@uow.edu.au> <20010520154958.E18119@athlon.random> <20010520181803.I18119@athlon.random> <15112.26992.591864.905111@pizda.ninka.net>
+	id <S262341AbREUCKt>; Sun, 20 May 2001 22:10:49 -0400
+Received: from mclean.mail.mindspring.net ([207.69.200.57]:46124 "EHLO
+	mclean.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S262334AbREUCKl>; Sun, 20 May 2001 22:10:41 -0400
+Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
+From: Robert "M." Love <rml@tech9.net>
+To: Jes Sorensen <jes@sunsite.dk>
+Cc: John Cowan <jcowan@reutershealth.com>, esr@thyrsus.com,
+        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+In-Reply-To: <d31ypj1r4y.fsf@lxplus015.cern.ch>
+In-Reply-To: <20010505192731.A2374@thyrsus.com>
+	<d33da9tjjw.fsf@lxplus015.cern.ch> <20010513112543.A16121@thyrsus.com>
+	<d3d79awdz3.fsf@lxplus015.cern.ch> <20010515173316.A8308@thyrsus.com>
+	<d3wv7eptuz.fsf@lxplus015.cern.ch> <3B054500.2090408@reutershealth.com> 
+	<d31ypj1r4y.fsf@lxplus015.cern.ch>
+Content-Type: text/plain
+X-Mailer: Evolution/0.10 (Preview Release)
+Date: 20 May 2001 22:10:49 -0400
+Message-Id: <990411054.773.0.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <15112.26992.591864.905111@pizda.ninka.net>; from davem@redhat.com on Sun, May 20, 2001 at 06:03:44PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 20, 2001 at 06:03:44PM -0700, David S. Miller wrote:
-> But for the time being, everyone assumes address zero is not valid and
-> it shouldn't be too painful to reserve the first page of DMA space
-> until we fix this issue.
+On 21 May 2001 02:29:17 +0200, Jes Sorensen wrote:
+> John> Au contraire.  It is very reasonable to have both python and
+> John> python2 installed.  Having two different gcc versions installed
+> John> is a big pain in the arse.
+> 
+> It's not unreasonable to have both installed, it's unreasonable to
+> require it.
+> 
+> Eric seems to think he can tell every distributor to ship Python2
+> tomorrow. Well it's a fine dream but it's not going to happen; <snip>
 
-Indeed, virtually all PCI systems have legacy PeeCee compatibility crap
-handing out in low i/o memory, and we don't use the first megabyte or so.
+I think this is a very important point, and one I agree with.  I tend to
+let my distribution handle stuff like python.  now, I use RedHat's
+on-going devel, RawHide. it is not using python2.  in fact, since
+switching to python2 may break old stuff, I don't expect python2 until
+8.0. that wont be for 9 months.  90% of RedHat's configuration tools, et
+al, are written in python1 and they just are not going to change on
+someone's whim.
 
+im not installing python2 from source just so i can run some new config
+utility.
 
-r~
+(on another note, about the coexist issue: am i going to have a python
+and python2 binary? so now the config tool will find which to use, ala
+the kgcc mess? great)
+
+-- 
+Robert M. Love
+rml@ufl.edu
+rml@tech9.net
+

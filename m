@@ -1,31 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288017AbSABXmf>; Wed, 2 Jan 2002 18:42:35 -0500
+	id <S288003AbSABXk5>; Wed, 2 Jan 2002 18:40:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288009AbSABXk7>; Wed, 2 Jan 2002 18:40:59 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54287 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S287984AbSABXkk>; Wed, 2 Jan 2002 18:40:40 -0500
-Subject: Re: [PATCH][RFC] AMD Elan patch
-To: hpa@zytor.com (H. Peter Anvin)
-Date: Wed, 2 Jan 2002 23:50:54 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), davej@suse.de (Dave Jones),
-        robert@schwebel.de (Robert Schwebel),
-        linux-kernel@vger.kernel.org (Linux Kernel List),
-        wingel@hog.ctrl-c.liu.se (Christer Weinigel),
-        jason@mugwump.taiga.com (Jason Sodergren),
-        anders@alarsen.net (Anders Larsen), rkaiser@sysgo.de
-In-Reply-To: <3C33918E.7080409@zytor.com> from "H. Peter Anvin" at Jan 02, 2002 03:02:38 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S288016AbSABXj3>; Wed, 2 Jan 2002 18:39:29 -0500
+Received: from ns.suse.de ([213.95.15.193]:49156 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S288017AbSABXhz>;
+	Wed, 2 Jan 2002 18:37:55 -0500
+Date: Thu, 3 Jan 2002 00:37:53 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Lionel Bouton <Lionel.Bouton@free.fr>
+Cc: <esr@thyrsus.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ISA slot detection on PCI systems?
+In-Reply-To: <3C3398E1.4080904@free.fr>
+Message-ID: <Pine.LNX.4.33.0201030035230.5131-100000@Appserv.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16Lv9q-000643-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It's end of lifed in this particular product, does that mean the core 
-> itself won't find itself embedded in something? ...
+On Thu, 3 Jan 2002, Lionel Bouton wrote:
 
-I think we can be confident of that yes
+> > If /proc/dmi were to go in soon, at least I *could* rely on it in 2.6.
+> If in rc.sysinit a call to "dmidecode > /var/run/dmi" were to go in the
+> user space 2.6 kernel build dependancies in Documentation/Changes,
+> you'll be on the same level.
+
+Could even be done as part of Al's early-userspace, thus removing the
+reliance upon vendors to do it.  Does imply that you're building 2.6 on a
+2.6 enabled distro though.
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+

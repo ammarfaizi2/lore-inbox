@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132422AbRCZL1l>; Mon, 26 Mar 2001 06:27:41 -0500
+	id <S132416AbRCZLbV>; Mon, 26 Mar 2001 06:31:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132421AbRCZL1b>; Mon, 26 Mar 2001 06:27:31 -0500
-Received: from fireball.blast.net ([207.162.131.33]:51726 "EHLO
-	fireball.blast.net") by vger.kernel.org with ESMTP
-	id <S132416AbRCZL1T>; Mon, 26 Mar 2001 06:27:19 -0500
-Message-ID: <3ABF2679.B1E50DD7@voicenet.com>
-Date: Mon, 26 Mar 2001 06:22:33 -0500
-From: Uncle George <gatgul@voicenet.com>
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.14-7.0 alpha)
-X-Accept-Language: en
+	id <S132424AbRCZLbL>; Mon, 26 Mar 2001 06:31:11 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:38547 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id <S132416AbRCZLbA>; Mon, 26 Mar 2001 06:31:00 -0500
+Date: Mon, 26 Mar 2001 20:30:16 +0900
+Message-ID: <3dc0ojhz.wl@frostrubin.open.nm.fujitsu.co.jp>
+From: Tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: [BUG] vmalloc_area_pages() in 2.4.2-ac25
+In-Reply-To: <E14hQaE-0001AK-00@the-village.bc.nu>
+In-Reply-To: <E14hQaE-0001AK-00@the-village.bc.nu>
+User-Agent: Wanderlust/2.4.0 (Rio) EMY/1.13.9 (Art is long, life is short)
+ SLIM/1.14.3 (篠原ともえ) APEL/10.2 MULE
+ XEmacs/21.2 (beta46) (Urania) (i586-kondara-linux)
 MIME-Version: 1.0
-To: andre@linux-ide.org, ahedrick@atipa.com, andre@suse.com,
-        linux-kernel@vger.kernel.org
-Subject: slow latencies on IDE disk drives( controller? )
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am processing sound data on /dev/dsp. Generally the ~61k devive buffer
-is enough to keep the device satiated && gives the program time to fill
-up the device buffer when there is 16k of buffer space that needs to be
-filled.
 
-But on occasion the /dev/dsp device "slurrs" ( sounds like what happens
-when the speed of a tape recorder slows down due to a finger placed down
-on the capstain ) unexpectedly. This was eventually traced to the usage
-of an IDE disk drive. using the scsi drive does not cause the problem to
-manifest itself( at least my ears say so ). but using "dd if=/dev/hda4
-of=/dev/null ) does immediately cause the slurring to happen.
+  vmalloc_area_pages() in 2.4.2-ac25 seems to be broken. It calls
+spin_lock(&init_mm.page_table_lock) twice and causes system hang.
 
 
-I think I can create a simple pgm to demo this problem, but the DATA
-file that gets feed into /dev/dsp is a little large for e-mail.
 
+inline int vmalloc_area_pages (unsigned long address, unsigned long size,
+                               int gfp_mask, pgprot_t prot)
+{
+	pgd_t * dir;
+	unsigned long end = address + size;
+	int ret;
 
-/gat
-
+	dir = pgd_offset_k(address);
+	flush_cache_all();
+>>>>	spin_lock(&init_mm.page_table_lock);	
+	do {
+		pmd_t *pmd;
+		
+>>>>		spin_lock(&init_mm.page_table_lock);	/* pmd_alloc requires this */
+		pmd = pmd_alloc(&init_mm, dir, address);
+		spin_unlock(&init_mm.page_table_lock);
+		ret = -ENOMEM;

@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129761AbQLCLbi>; Sun, 3 Dec 2000 06:31:38 -0500
+	id <S129908AbQLCLyw>; Sun, 3 Dec 2000 06:54:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130007AbQLCLb3>; Sun, 3 Dec 2000 06:31:29 -0500
-Received: from mx6.port.ru ([194.67.23.42]:56849 "EHLO mx6.port.ru")
-	by vger.kernel.org with ESMTP id <S129761AbQLCLbV>;
-	Sun, 3 Dec 2000 06:31:21 -0500
-From: "Guennadi Liakhovetski" <gvlyakh@mail.ru>
-To: "Mike Dresser" <mdresser@windsormachine.com>, linux-kernel@vger.kernel.org
-Subject: Re[2]: DMA !NOT ONLY! for triton again...
+	id <S129909AbQLCLym>; Sun, 3 Dec 2000 06:54:42 -0500
+Received: from tazenda.demon.co.uk ([158.152.220.239]:4356 "EHLO
+	tazenda.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S129908AbQLCLyg>; Sun, 3 Dec 2000 06:54:36 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999 (debian)
+To: Chris Wedgwood <cw@f00f.org>
+cc: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>,
+        Donald Becker <becker@scyld.com>, Francois Romieu <romieu@cogenit.fr>,
+        Russell King <rmk@arm.linux.org.uk>, Ivan Passos <lists@cyclades.com>,
+        linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [RFC] Configuring synchronous interfaces in Linux 
+In-Reply-To: Message from Chris Wedgwood <cw@f00f.org> 
+   of "Sun, 03 Dec 2000 18:47:12 +1300." <20001203184712.C1630@metastasis.f00f.org> 
+In-Reply-To: <Pine.LNX.3.96.1001202130202.1450B-100000@mandrakesoft.mandrakesoft.com> <jgarzik@mandrakesoft.mandrakesoft.com> <E142IrA-0007hG-00@kings-cross.london.uk.eu.org>  <20001203184712.C1630@metastasis.f00f.org> 
 Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [195.44.222.205]
-In-Reply-To: <3A27C052.EFBA6D6A@windsormachine.com>
-Reply-To: "Guennadi Liakhovetski" <gvlyakh@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E142Wt2-00031c-00@f5.mail.ru>
-Date: Sun, 03 Dec 2000 14:00:52 +0300
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 03 Dec 2000 11:10:59 +0000
+From: Philip Blundell <philb@gnu.org>
+Message-Id: <E142X2p-0003Kc-00@kings-cross.london.uk.eu.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------Original Message-----An interesting addition:
-I've just got a reply from WD - they say my disk only supports PIO4 and not DMA...
-> I'm taking the case off the machine right now, i can guarantee you its not UDMA compatible, simply because this thing was made in early1997. :)
-> 
-> Here we go:
-> 
-> MDL WDAC21600-00H
-> P/N 99-004199-000
-> CCC F3 20 FEB 97
-> DCM: BHBBKLP
-> 
-> I've got various of these hard drives in service, for the last 4 years.  Many run in windows pc's, and DMA mode in osr2 and newer, works, and is noticeablely faster.
-> 
-> Guennadi Liakhovetski wrote:
-> 
-> > Glad all this discussion helped at least one of us:-))
-> >
-> > As for me, as I already mentioned in my last posting - I don't know why BIOS makes the difference (as in your case) if ide.txt says it shouldn't?! Ok, chipset, perhaps, is fine. But what about the hard drive? You told you had WDC AC21600H. Can you PLEASE check waht CCC is marked on its label? PLEASE! I am trying to get an answer from WD on this, but not yet alas...
-> >
-> > And - COME ON, GUYS! - somebody MUST know the answer - how to spot the guilty one - kernel configuration / BIOS / chipset / disk???
-> >
-> > Guennadi
-> >
-> > > back in, started playing in the bios.  Finally fixed it.  I was getting > the same operation not permitted, that you
-> > > were,until i got that bios setting. But it's making me
-> > > wonder if it's something similar in your bios!
-> > > I know it wasn't the actual UDMA setting in the bios, i'm
-> > > wondering what it was though.  I'll put a keyboard on it,
-> > > and poke around tonight or this weekend.
-> 
-> 
+>Does it? At which point? To me it looks like it calls dev->do_ioctl
+>or am I missing something?
+
+It uses SIOCSIFMAP, which (I think) winds up in dev.c here:
+
+	case SIOCSIFMAP:
+			if (dev->set_config) {
+				if (!netif_device_present(dev))
+					return -ENODEV;
+				return dev->set_config(dev,&ifr->ifr_map);
+			}
+			return -EOPNOTSUPP;
+	
+p.
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

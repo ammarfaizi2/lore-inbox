@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129473AbQKGV1M>; Tue, 7 Nov 2000 16:27:12 -0500
+	id <S129474AbQKGVhC>; Tue, 7 Nov 2000 16:37:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129474AbQKGV1C>; Tue, 7 Nov 2000 16:27:02 -0500
-Received: from 3dyn217.com21.casema.net ([212.64.94.217]:17157 "HELO
-	home.ds9a.nl") by vger.kernel.org with SMTP id <S129473AbQKGV0p>;
-	Tue, 7 Nov 2000 16:26:45 -0500
-Date: Tue, 7 Nov 2000 23:20:47 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: congrats! Re: test11-pre1
-Message-ID: <20001107232047.A2178@home.ds9a.nl>
-Mail-Followup-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.10.10011071301580.6012-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre4i
-In-Reply-To: <Pine.LNX.4.10.10011071301580.6012-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Nov 07, 2000 at 01:06:27PM -0800
+	id <S129593AbQKGVgx>; Tue, 7 Nov 2000 16:36:53 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:8064 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129474AbQKGVgp>; Tue, 7 Nov 2000 16:36:45 -0500
+Date: Tue, 7 Nov 2000 16:36:30 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: David Lang <david.lang@digitalinsight.com>
+cc: Tim Riker <Tim@Rikers.org>, Jes Sorensen <jes@linuxcare.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: non-gcc linux? (was Re: Where did kgcc go in 2.4.0-test10?)
+In-Reply-To: <Pine.LNX.4.21.0011071405380.8417-100000@dlang.diginsite.com>
+Message-ID: <Pine.LNX.3.95.1001107163405.2798A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 07, 2000 at 01:06:27PM -0800, Linus Torvalds wrote:
+On Tue, 7 Nov 2000, David Lang wrote:
+
+> Dick Johnson,
+>   earlier in the discussion there was a post of the 'incompatabilities'
+> that were noted and one of the replies to that listed several c99 tools
+> available to do the same job with the c99 syntax, so there are at least
+> some cases where things are done the gcc-only way instead of the c99 way.
 > 
-> Mostly driver updates.
+> nobody is suggesting that the kernel loose functionality to achieve
+> portability, the suggestion was mearly to be portable where possible and
+> clearly mark the places where gcc-isms are used and why.
 > 
-> With a few notable exceptions: two rather subtle MM race conditions that
-> happened with SMP and highmem respectively. And the FXCSR and file locking
-> that was already discussed on the list.
+> David Lang
 
-Shouldn't you be having a party right now? Anyhow, congratulations so far
-with the IPO, also to hpa & cow-orkers. I hope the stock still does as well
-after 6 months :-)
+Sure, but certain c99 things, like `pragma` tend to be global to
+a file so they look like they might work, but then tend to have
+other unwanted side effects (pack comes to mind).
 
-Regards,
 
-bert hubert
+Cheers,
+Dick Johnson
 
--- 
-PowerDNS                     Versatile DNS Services  
-Trilab                       The Technology People   
-'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
+Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

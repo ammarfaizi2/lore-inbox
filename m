@@ -1,45 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261825AbVAYF5E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261826AbVAYGAX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261825AbVAYF5E (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 00:57:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbVAYF5E
+	id S261826AbVAYGAX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 01:00:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbVAYGAW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 00:57:04 -0500
-Received: from mail.kroah.org ([69.55.234.183]:44507 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261825AbVAYF5B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 00:57:01 -0500
-Date: Mon, 24 Jan 2005 21:56:51 -0800
-From: Greg KH <greg@kroah.com>
-To: Jirka Kosina <jikos@jikos.cz>
-Cc: Patrick Mochel <mochel@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix bad locking in drivers/base/driver.c
-Message-ID: <20050125055651.GA1987@kroah.com>
-References: <Pine.LNX.4.58.0501241921310.5857@twin.jikos.cz>
+	Tue, 25 Jan 2005 01:00:22 -0500
+Received: from pimout3-ext.prodigy.net ([207.115.63.102]:4496 "EHLO
+	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S261826AbVAYGAT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 01:00:19 -0500
+Date: Mon, 24 Jan 2005 21:59:01 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Terence Ripperda <tripperda@nvidia.com>
+Cc: Keith Owens <kaos@ocs.com.au>, davidm@hpl.hp.com, bgerst@didntduck.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: inter_module_get and __symbol_get
+Message-ID: <20050125055901.GA14453@taniwha.stupidest.org>
+References: <16885.30810.787188.591830@napali.hpl.hp.com> <30494.1106606658@ocs3.ocs.com.au> <20050125053104.GF1716@hygelac>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0501241921310.5857@twin.jikos.cz>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20050125053104.GF1716@hygelac>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 24, 2005 at 07:25:19PM +0100, Jirka Kosina wrote:
-> Hi,
-> 
-> there has been (for quite some time) a bug in function driver_unregister() 
-> - the lock/unlock sequence is protecting nothing and the actual 
-> bus_remove_driver() is called outside critical section.
-> 
-> Please apply.
+On Mon, Jan 24, 2005 at 11:31:04PM -0600, Terence Ripperda wrote:
 
-No, please read the comment in the code about why this is the way it is.
-The code is correct as is.
+> this is probably a stupid question, but how are weak references
+> used?
 
-Also, please CC the driver core maintainer next time for patches like
-this so I don't miss them when they go by.
+the linker sets them to zero, so "if (foo) { ... }" works nicely
 
-thanks,
-
-greg k-h
+it does mean if a module that set foo to non-zero is loaded, we need
+to zero it again when it's unloaded or else we have stale bogus
+pointers left around

@@ -1,148 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267595AbUHTHEZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267598AbUHTHLC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267595AbUHTHEZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 03:04:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267597AbUHTHEZ
+	id S267598AbUHTHLC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 03:11:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267597AbUHTHLC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 03:04:25 -0400
-Received: from ozlabs.org ([203.10.76.45]:37062 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S267595AbUHTHEU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 03:04:20 -0400
-MIME-Version: 1.0
+	Fri, 20 Aug 2004 03:11:02 -0400
+Received: from adicia.telenet-ops.be ([195.130.132.56]:37583 "EHLO
+	adicia.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S267605AbUHTHIr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 03:08:47 -0400
+Date: Fri, 20 Aug 2004 09:09:00 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [WATCHDOG] v2.6.8.1 watchdog-patches
+Message-ID: <20040820070900.GI4908@infomag.infomag.iguana.be>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16677.41654.992265.563552@cargo.ozlabs.ibm.com>
-Date: Fri, 20 Aug 2004 17:05:26 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: akpm@osdl.org
-Cc: Olof Johansson <olof@austin.ibm.com>, anton@samba.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] PPC64 Better little-endian bitops
-X-Mailer: VM 7.18 under Emacs 21.3.1
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Below patch reuses the big-endian bitops for the little endian ones, and
-moves the ext2_{set,clear}_bit_atomic functions to be truly atomic
-instead of lock based.
+Hi Linus, Andrew,
 
-This requires that the bitmaps passed to the ext2_* bitop functions
-are 8-byte aligned.  I have been assured that they will be 512-byte or
-1024-byte aligned, and sparc and ppc32 also impose an alignment
-requirement on the bitmap.
+please do a
 
-Signed-off-by: Olof Johansson <olof@austin.ibm.com>
-Signed-off-by: Paul Mackerras <paulus@samba.org>
+	bk pull http://linux-watchdog.bkbits.net/linux-2.6-watchdog
 
-diff -puN include/asm-ppc64/bitops.h~ext2-set-bit include/asm-ppc64/bitops.h
---- linux-2.5/include/asm-ppc64/bitops.h~ext2-set-bit	2004-08-18 12:04:43.208963520 -0500
-+++ linux-2.5-olof/include/asm-ppc64/bitops.h	2004-08-18 15:11:57.088963696 -0500
-@@ -22,6 +22,15 @@
-  * it will be a bad memory reference since we want to store in chunks
-  * of unsigned long (64 bits here) size.
-  *
-+ * There are a few little-endian macros used mostly for filesystem bitmaps,
-+ * these work on similar bit arrays layouts, but byte-oriented:
-+ *
-+ *   |7...0|15...8|23...16|31...24|39...32|47...40|55...48|63...56|
-+ *
-+ * The main difference is that bit 3-5 in the bit number field needs to be
-+ * reversed compared to the big-endian bit fields. This can be achieved
-+ * by XOR with 0b111000 (0x38).
-+ *
-  * This program is free software; you can redistribute it and/or
-  * modify it under the terms of the GNU General Public License
-  * as published by the Free Software Foundation; either version
-@@ -306,71 +315,34 @@ static __inline__ int test_le_bit(unsign
- 	return (ADDR[nr >> 3] >> (nr & 7)) & 1;
- }
+This will update the following files:
+
+ Documentation/watchdog/pcwd-watchdog.txt |    3 ++-
+ include/linux/compat_ioctl.h             |    6 ++++--
+ 2 files changed, 6 insertions(+), 3 deletions(-)
+
+through these ChangeSets:
+
+<arnd@arndb.de> (04/08/20 1.1838)
+   [WATCHDOG] v2.6.8.1 compat_ioctl-patch
+   
+   The watchdog ioctl interface is defined correctly for 32 bit emulation,
+   although WIOC_GETSUPPORT was not marked as such, for an unclear reason.
+   WDIOC_SETTIMEOUT and WDIOC_GETTIMEOUT were added in may 2002 to the
+   code but never to the ioctl list. This adds all three definitions.
+   
+   Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+   Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+
+<fl@fl.priv.at> (04/08/20 1.1839)
+   [WATCHDOG] pcwd-watchdog.txt-patch
+   
+   Fix example program in pcwd-watchdog.txt document.
+
+
+The ChangeSets can also be looked at on:
+	http://linux-watchdog.bkbits.net:8080/linux-2.6-watchdog
+
+For completeness, I added the patches below.
+
+Greetings,
+Wim.
+
+================================================================================
+diff -Nru a/include/linux/compat_ioctl.h b/include/linux/compat_ioctl.h
+--- a/include/linux/compat_ioctl.h	2004-08-20 09:06:54 +02:00
++++ b/include/linux/compat_ioctl.h	2004-08-20 09:06:54 +02:00
+@@ -592,13 +592,15 @@
+ COMPATIBLE_IOCTL(ATMTCP_REMOVE)
+ COMPATIBLE_IOCTL(ATMMPC_CTRL)
+ COMPATIBLE_IOCTL(ATMMPC_DATA)
+-/* Big W */
+-/* WIOC_GETSUPPORT not yet implemented -E */
++/* Watchdog */
++COMPATIBLE_IOCTL(WDIOC_GETSUPPORT)
+ COMPATIBLE_IOCTL(WDIOC_GETSTATUS)
+ COMPATIBLE_IOCTL(WDIOC_GETBOOTSTATUS)
+ COMPATIBLE_IOCTL(WDIOC_GETTEMP)
+ COMPATIBLE_IOCTL(WDIOC_SETOPTIONS)
+ COMPATIBLE_IOCTL(WDIOC_KEEPALIVE)
++COMPATIBLE_IOCTL(WDIOC_SETTIMEOUT)
++COMPATIBLE_IOCTL(WDIOC_GETTIMEOUT)
+ /* Big R */
+ COMPATIBLE_IOCTL(RNDGETENTCNT)
+ COMPATIBLE_IOCTL(RNDADDTOENTCNT)
+diff -Nru a/Documentation/watchdog/pcwd-watchdog.txt b/Documentation/watchdog/pcwd-watchdog.txt
+--- a/Documentation/watchdog/pcwd-watchdog.txt	2004-08-20 09:06:56 +02:00
++++ b/Documentation/watchdog/pcwd-watchdog.txt	2004-08-20 09:06:56 +02:00
+@@ -35,7 +35,8 @@
+ #include <unistd.h>
+ #include <fcntl.h>
+ #include <sys/ioctl.h>
+-#include <linux/pcwd.h>
++#include <linux/types.h>
++#include <linux/watchdog.h>
  
-+#define test_and_clear_le_bit(nr, addr) \
-+	test_and_clear_bit((nr) ^ 0x38, (addr))
-+#define test_and_set_le_bit(nr, addr) \
-+	test_and_set_bit((nr) ^ 0x38, (addr))
-+
- /*
-  * non-atomic versions
-  */
--static __inline__ void __set_le_bit(unsigned long nr, unsigned long *addr)
--{
--	unsigned char *ADDR = (unsigned char *)addr;
+ int fd;
  
--	ADDR += nr >> 3;
--	*ADDR |= 1 << (nr & 0x07);
--}
--
--static __inline__ void __clear_le_bit(unsigned long nr, unsigned long *addr)
--{
--	unsigned char *ADDR = (unsigned char *)addr;
--
--	ADDR += nr >> 3;
--	*ADDR &= ~(1 << (nr & 0x07));
--}
--
--static __inline__ int __test_and_set_le_bit(unsigned long nr, unsigned long *addr)
--{
--	int mask, retval;
--	unsigned char *ADDR = (unsigned char *)addr;
--
--	ADDR += nr >> 3;
--	mask = 1 << (nr & 0x07);
--	retval = (mask & *ADDR) != 0;
--	*ADDR |= mask;
--	return retval;
--}
--
--static __inline__ int __test_and_clear_le_bit(unsigned long nr, unsigned long *addr)
--{
--	int mask, retval;
--	unsigned char *ADDR = (unsigned char *)addr;
--
--	ADDR += nr >> 3;
--	mask = 1 << (nr & 0x07);
--	retval = (mask & *ADDR) != 0;
--	*ADDR &= ~mask;
--	return retval;
--}
-+#define __set_le_bit(nr, addr) \
-+	__set_bit((nr) ^ 0x38, (addr))
-+#define __clear_le_bit(nr, addr) \
-+	__clear_bit((nr) ^ 0x38, (addr))
-+#define __test_and_clear_le_bit(nr, addr) \
-+	__test_and_clear_bit((nr) ^ 0x38, (addr))
-+#define __test_and_set_le_bit(nr, addr) \
-+	__test_and_set_bit((nr) ^ 0x38, (addr))
- 
- #define ext2_set_bit(nr,addr) \
--	__test_and_set_le_bit((nr),(unsigned long*)addr)
-+	__test_and_set_le_bit((nr), (unsigned long*)addr)
- #define ext2_clear_bit(nr, addr) \
--	__test_and_clear_le_bit((nr),(unsigned long*)addr)
-+	__test_and_clear_le_bit((nr), (unsigned long*)addr)
-+
-+#define ext2_set_bit_atomic(lock, nr, addr) \
-+	test_and_set_le_bit((nr), (unsigned long*)addr)
-+#define ext2_clear_bit_atomic(lock, nr, addr) \
-+	test_and_clear_le_bit((nr), (unsigned long*)addr)
- 
--#define ext2_set_bit_atomic(lock, nr, addr)		\
--	({						\
--		int ret;				\
--		spin_lock(lock);			\
--		ret = ext2_set_bit((nr), (addr));	\
--		spin_unlock(lock);			\
--		ret;					\
--	})
--
--#define ext2_clear_bit_atomic(lock, nr, addr)		\
--	({						\
--		int ret;				\
--		spin_lock(lock);			\
--		ret = ext2_clear_bit((nr), (addr));	\
--		spin_unlock(lock);			\
--		ret;					\
--	})
- 
- #define ext2_test_bit(nr, addr)      test_le_bit((nr),(unsigned long*)addr)
- #define ext2_find_first_zero_bit(addr, size) \

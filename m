@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267605AbUGWKju@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267617AbUGWKnw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267605AbUGWKju (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 06:39:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267615AbUGWKjt
+	id S267617AbUGWKnw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 06:43:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267618AbUGWKnw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 06:39:49 -0400
-Received: from math.ut.ee ([193.40.5.125]:46576 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S267605AbUGWKjs (ORCPT
+	Fri, 23 Jul 2004 06:43:52 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:33960 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S267617AbUGWKnv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 06:39:48 -0400
-Date: Fri, 23 Jul 2004 13:39:46 +0300 (EEST)
-From: Meelis Roos <mroos@linux.ee>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: serial8250: too much work for irq4
-Message-ID: <Pine.GSO.4.44.0407231336130.18996-100000@math.ut.ee>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 23 Jul 2004 06:43:51 -0400
+Date: Fri, 23 Jul 2004 12:42:46 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Rudo Thomas <rudo@matfyz.cz>, Matt Heler <lkml@lpbproductions.com>
+Subject: [patch] voluntary-preempt-2.6.8-rc2-I3
+Message-ID: <20040723104246.GA2752@elte.hu>
+References: <20040721211826.GB30871@elte.hu> <20040721223749.GA2863@yoda.timesys> <20040722100657.GA14909@elte.hu> <20040722160055.GA4837@ss1000.ms.mff.cuni.cz> <20040722161941.GA23972@elte.hu> <20040722172428.GA5632@ss1000.ms.mff.cuni.cz> <20040722175457.GA5855@ss1000.ms.mff.cuni.cz> <20040722180142.GC30059@elte.hu> <20040722180821.GA377@elte.hu> <20040722181426.GA892@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040722181426.GA892@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Often when I use my PC (Celeron 900 with i815 chipset) as a serial
-console for pther computers (mostly Suns), I get dmesg full of lines
 
-serial8250: too much work for irq4
+i've uploaded the -I3 voluntary-preempt patch:
 
-This might or might not be the cause of garbled output from the Sun -
-many characters are dropped.
+  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc2-I3
 
-I turned off PREEMPT and 4KSTACKS and recompiled, this doesn't change
-anything.
+it mainly fixes an ext3 livelock that could result in long delays during
+heavy commit traffic.
 
-Load is normal desktop use, sometimes background compilations. IDE disk
-is in DMA mode.
-
-           CPU0
-  0:   62787447          XT-PIC  timer
-  1:       1474          XT-PIC  i8042
-  2:          0          XT-PIC  cascade
-  7:        631          XT-PIC  parport0
-  8:          4          XT-PIC  rtc
-  9:          0          XT-PIC  acpi, Intel 82801BA-ICH2, tr1
- 10:       5251          XT-PIC  uhci_hcd
- 11:    5455136          XT-PIC  uhci_hcd, eth0, r128@PCI:3:0:0
- 14:     382770          XT-PIC  ide0
- 15:         68          XT-PIC  ide1
-NMI:       4322
-LOC:   62795747
-ERR:         74
-MIS:          0
-
-
--- 
-Meelis Roos (mroos@linux.ee)
+	Ingo
 

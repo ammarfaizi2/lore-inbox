@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266555AbUIWUmR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266560AbUIWUmR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266555AbUIWUmR (ORCPT <rfc822;willy@w.ods.org>);
+	id S266560AbUIWUmR (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 23 Sep 2004 16:42:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266674AbUIWUlm
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266555AbUIWUlx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 16:41:42 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:21191 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S266555AbUIWUZD
+	Thu, 23 Sep 2004 16:41:53 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:57225 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S266560AbUIWUZA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 16:25:03 -0400
-Subject: [patch 03/26]  char/dtlk: replace 	schedule_timeout()/dtlk_delay() with msleep_interruptible()
+	Thu, 23 Sep 2004 16:25:00 -0400
+Subject: [patch 02/26]  char/cyclades: replace 	schedule_timeout() with msleep_interruptible()
 To: akpm@digeo.com
 Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, nacc@us.ibm.com
 From: janitor@sternwelten.at
-Date: Thu, 23 Sep 2004 22:25:01 +0200
-Message-ID: <E1CAa9F-0007pK-Sz@sputnik>
+Date: Thu, 23 Sep 2004 22:24:58 +0200
+Message-ID: <E1CAa9D-0007mL-31@sputnik>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -23,87 +23,48 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Any comments would be appreciated. 
 
-Description: Use msleep_interruptible() instead of schedule_timeout() /
-dtlk_delay() to guarantee the task delays as expected. Removes the
-definition/prototype of dtlk_delay().
+Description: Use msleep_interruptible() instead of schedule_timeout()
+to guarantee the task delays as expected.
 
 Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
 
 Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
 ---
 
- linux-2.6.9-rc2-bk7-max/drivers/char/dtlk.c |   19 +++++--------------
- 1 files changed, 5 insertions(+), 14 deletions(-)
+ linux-2.6.9-rc2-bk7-max/drivers/char/cyclades.c |    9 +++------
+ 1 files changed, 3 insertions(+), 6 deletions(-)
 
-diff -puN drivers/char/dtlk.c~msleep_interruptible-drivers_char_dtlk drivers/char/dtlk.c
---- linux-2.6.9-rc2-bk7/drivers/char/dtlk.c~msleep_interruptible-drivers_char_dtlk	2004-09-21 21:08:00.000000000 +0200
-+++ linux-2.6.9-rc2-bk7-max/drivers/char/dtlk.c	2004-09-21 21:08:00.000000000 +0200
-@@ -107,7 +107,6 @@ static struct file_operations dtlk_fops 
- };
- 
- /* local prototypes */
--static void dtlk_delay(int ms);
- static int dtlk_dev_probe(void);
- static struct dtlk_settings *dtlk_interrogate(void);
- static int dtlk_readable(void);
-@@ -146,7 +145,7 @@ static ssize_t dtlk_read(struct file *fi
- 			return i;
- 		if (file->f_flags & O_NONBLOCK)
- 			break;
--		dtlk_delay(100);
-+		msleep_interruptible(100);
- 	}
- 	if (retries == loops_per_jiffy)
- 		printk(KERN_ERR "dtlk_read times out\n");
-@@ -191,7 +190,7 @@ static ssize_t dtlk_write(struct file *f
- 				   rate to 500 bytes/sec, but that's
- 				   still enough to keep up with the
- 				   speech synthesizer. */
--				dtlk_delay(1);
-+				msleep_interruptible(1);
- 			else {
- 				/* the RDY bit goes zero 2-3 usec
- 				   after writing, and goes 1 again
-@@ -212,7 +211,7 @@ static ssize_t dtlk_write(struct file *f
- 		if (file->f_flags & O_NONBLOCK)
- 			break;
- 
--		dtlk_delay(1);
-+		msleep_interruptible(1);
- 
- 		if (++retries > 10 * HZ) { /* wait no more than 10 sec
- 					      from last write */
-@@ -351,8 +350,7 @@ static int __init dtlk_init(void)
- static void __exit dtlk_cleanup (void)
- {
- 	dtlk_write_bytes("goodbye", 8);
--	current->state = TASK_INTERRUPTIBLE;
--	schedule_timeout(5 * HZ / 10);		/* nap 0.50 sec but
-+	msleep_interruptible(500);		/* nap 0.50 sec but
- 						   could be awakened
- 						   earlier by
- 						   signals... */
-@@ -368,13 +366,6 @@ module_exit(dtlk_cleanup);
- 
- /* ------------------------------------------------------------------------ */
- 
--/* sleep for ms milliseconds */
--static void dtlk_delay(int ms)
--{
--	current->state = TASK_INTERRUPTIBLE;
--	schedule_timeout((ms * HZ + 1000 - HZ) / 1000);
--}
--
- static int dtlk_readable(void)
- {
- #ifdef TRACING
-@@ -431,7 +422,7 @@ static int __init dtlk_dev_probe(void)
- 			/* posting an index takes 18 msec.  Here, we
- 			   wait up to 100 msec to see whether it
- 			   appears. */
--			dtlk_delay(100);
-+			msleep_interruptible(100);
- 			dtlk_has_indexing = dtlk_readable();
- #ifdef TRACING
- 			printk(", indexing %d\n", dtlk_has_indexing);
+diff -puN drivers/char/cyclades.c~msleep_interruptible-drivers_char_cyclades drivers/char/cyclades.c
+--- linux-2.6.9-rc2-bk7/drivers/char/cyclades.c~msleep_interruptible-drivers_char_cyclades	2004-09-21 21:07:58.000000000 +0200
++++ linux-2.6.9-rc2-bk7-max/drivers/char/cyclades.c	2004-09-21 21:07:58.000000000 +0200
+@@ -2717,8 +2717,7 @@ cy_wait_until_sent(struct tty_struct *tt
+ #ifdef CY_DEBUG_WAIT_UNTIL_SENT
+ 	    printk("Not clean (jiff=%lu)...", jiffies);
+ #endif
+-	    current->state = TASK_INTERRUPTIBLE;
+-	    schedule_timeout(char_time);
++	    msleep_interruptible(msecs_to_jiffies(char_time));
+ 	    if (signal_pending(current))
+ 		break;
+ 	    if (timeout && time_after(jiffies, orig_jiffies + timeout))
+@@ -2729,8 +2728,7 @@ cy_wait_until_sent(struct tty_struct *tt
+ 	// Nothing to do!
+     }
+     /* Run one more char cycle */
+-    current->state = TASK_INTERRUPTIBLE;
+-    schedule_timeout(char_time * 5);
++    msleep_interruptible(jiffies_to_msecs(char_time * 5));
+ #ifdef CY_DEBUG_WAIT_UNTIL_SENT
+     printk("Clean (jiff=%lu)...done\n", jiffies);
+ #endif
+@@ -2860,8 +2858,7 @@ cy_close(struct tty_struct *tty, struct 
+     if (info->blocked_open) {
+ 	CY_UNLOCK(info, flags);
+         if (info->close_delay) {
+-            current->state = TASK_INTERRUPTIBLE;
+-            schedule_timeout(info->close_delay);
++            msleep_interruptible(jiffies_to_msecs(info->close_delay));
+         }
+         wake_up_interruptible(&info->open_wait);
+ 	CY_LOCK(info, flags);
 _

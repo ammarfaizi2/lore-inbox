@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271515AbRIFR1H>; Thu, 6 Sep 2001 13:27:07 -0400
+	id <S271518AbRIFR1h>; Thu, 6 Sep 2001 13:27:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271518AbRIFR0t>; Thu, 6 Sep 2001 13:26:49 -0400
+	id <S271522AbRIFR11>; Thu, 6 Sep 2001 13:27:27 -0400
 Received: from humbolt.nl.linux.org ([131.211.28.48]:6665 "EHLO
 	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S271515AbRIFR0c>; Thu, 6 Sep 2001 13:26:32 -0400
+	id <S271518AbRIFR1U>; Thu, 6 Sep 2001 13:27:20 -0400
 Content-Type: text/plain; charset=US-ASCII
 From: Daniel Phillips <phillips@bonn-fries.net>
-To: "M. Edward Borasky" <znmeb@aracnet.com>, <linux-kernel@vger.kernel.org>
+To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        Stephan von Krawczynski <skraw@ithnet.com>
 Subject: Re: page_launder() on 2.4.9/10 issue
-Date: Thu, 6 Sep 2001 19:33:49 +0200
+Date: Thu, 6 Sep 2001 19:34:41 +0200
 X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <HBEHIIBBKKNOBLMPKCBBOEMFDKAA.znmeb@aracnet.com>
-In-Reply-To: <HBEHIIBBKKNOBLMPKCBBOEMFDKAA.znmeb@aracnet.com>
+Cc: riel@conectiva.com.br, jaharkes@cs.cmu.edu, marcelo@conectiva.com.br,
+        linux-kernel@vger.kernel.org,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+In-Reply-To: <20010906171049.4d40da02.skraw@ithnet.com> <598996561.999793086@[10.132.112.53]>
+In-Reply-To: <598996561.999793086@[10.132.112.53]>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <20010906172646Z16127-26183+18@humbolt.nl.linux.org>
+Message-Id: <20010906172741Z16140-26183+20@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On September 6, 2001 03:54 pm, M. Edward Borasky wrote:
-> I'm relatively new to the Linux kernel world and even newer to the list, so
-> forgive me if I'm asking a silly question or making a silly comment. It
-> seems to me, from what I've seen of this discussion so far, that the only
-> way one "tunes" Linux kernels at the moment is by changing code and
-> rebuilding the kernel. That is, there are few "tunables" that one can set,
-> based on one's circumstances, to optimize kernel performance for a specific
-> application or environment.
+On September 6, 2001 05:18 pm, Alex Bligh - linux-kernel wrote:
+> --On Thursday, September 06, 2001 5:10 PM +0200 Stephan von Krawczynski 
+> <skraw@ithnet.com> wrote:
 > 
-> Every other operating system that I've done performance tuning on, starting
-> with Xerox CP-V in 1974, had such tunables and tools to set them. And quite
-> often, some of the tuning parameters can be set "on the fly", simply by
-> knowing the correct memory location to set and poking a new value into it.
+> > (or default = 1024) gives such a ridicolously bad
+> > performance
+> 
+> I know. I am trying to ensure we have the problem definitively
+> identified, either from /proc/memareas, or by showing it
+> goes away if you change rsize/wsize. I am NOT proposing
+> it as a fix.
 
-We typically use proc for this, sometimes combined with an ioctl.  Some of 
-these settings are standard in the kernel (bdflush, others) but more often 
-you will have to apply a patch.
-
-> No one "memory management scheme", for example, can be all things to all
-> tasks, and it seems to me that giving users tools to measure and control the
-> behavior of memory management, *preferably without having to recompile and
-> reboot*, should be a major priority if Linux is to succeed in a wide variety
-> of applications.
-
-Linus doesn't seem to like like having tuning knobs appear where a better 
-algorithm should be used instead.  Leaving the knobs out makes people work 
-harder to come up with solutions that don't need them.
+Are rsize/wsize expressed in bytes?  In which case you'd want them to be 4096 
+for this test.
 
 --
 Daniel

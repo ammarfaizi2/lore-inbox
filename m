@@ -1,59 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292375AbSBYWlz>; Mon, 25 Feb 2002 17:41:55 -0500
+	id <S292377AbSBYWli>; Mon, 25 Feb 2002 17:41:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292368AbSBYWll>; Mon, 25 Feb 2002 17:41:41 -0500
-Received: from [208.48.139.185] ([208.48.139.185]:10920 "HELO
-	forty.greenhydrant.com") by vger.kernel.org with SMTP
-	id <S292370AbSBYWkX>; Mon, 25 Feb 2002 17:40:23 -0500
-Date: Mon, 25 Feb 2002 14:40:15 -0800
-From: David Rees <dbr@greenhydrant.com>
-To: linux-kernel@vger.kernel.org
+	id <S292373AbSBYWkT>; Mon, 25 Feb 2002 17:40:19 -0500
+Received: from smtpsrv1.isis.unc.edu ([152.2.1.138]:17538 "EHLO
+	smtpsrv1.isis.unc.edu") by vger.kernel.org with ESMTP
+	id <S292368AbSBYWjN>; Mon, 25 Feb 2002 17:39:13 -0500
+Date: Mon, 25 Feb 2002 17:38:52 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Linux 2.4.18 - Full tarball is OK
-Message-ID: <20020225144015.A32006@greenhydrant.com>
-Mail-Followup-To: David Rees <dbr@greenhydrant.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200202252149.g1PLnwe13182@directcommunications.net>
+Message-ID: <20020225223852.GA9212@opeth.ath.cx>
+In-Reply-To: <200202252149.g1PLnwe13182@directcommunications.net> <E16fTkG-0006VG-00@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="wRRV7LY7NUeQGEoC"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200202252149.g1PLnwe13182@directcommunications.net>; from chris@directcommunications.net on Mon, Feb 25, 2002 at 09:49:58PM +0000
+In-Reply-To: <E16fTkG-0006VG-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.27i
+From: Dan Chen <crimsun@email.unc.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 25, 2002 at 09:49:58PM +0000, Chris Funderburg wrote:
-> 
-> FYI - The full tarball already has the missing patch...
-> 
-> So, I think, it's only patch-2.4.18 that has the problem...
 
-Uh, no, it doesn't.  Using linux-2.4.18.tar.bz2 dated Feb 25, 2002 11:40am:
+--wRRV7LY7NUeQGEoC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff -urN linux-2.4.18-rc4/Makefile linux-2.4.18/Makefile
---- linux-2.4.18-rc4/Makefile	Mon Feb 25 14:35:52 2002
-+++ linux-2.4.18/Makefile	Mon Feb 25 11:37:52 2002
-@@ -1,7 +1,7 @@
- VERSION = 2
- PATCHLEVEL = 4
- SUBLEVEL = 18
--EXTRAVERSION = -rc4
-+EXTRAVERSION =
- 
- KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
- 
-diff -urN linux-2.4.18-rc4/fs/binfmt_elf.c linux-2.4.18/fs/binfmt_elf.c
---- linux-2.4.18-rc4/fs/binfmt_elf.c	Mon Feb 25 14:35:55 2002
-+++ linux-2.4.18/fs/binfmt_elf.c	Mon Feb 25 11:38:08 2002
-@@ -564,9 +564,6 @@
- 			// printk(KERN_WARNING "ELF: Ambiguous type, using
-ELF\n");
- 			interpreter_type = INTERPRETER_ELF;
- 		}
--	} else {
--		/* Executables without an interpreter also need a
-personality  */
--		SET_PERSONALITY(elf_ex, ibcs2_interpreter);
- 	}
- 
- 	/* OK, we are done with that, now set up the arg stuff,
+On Mon, Feb 25, 2002 at 10:37:20PM +0000, Alan Cox wrote:
+> > FYI - The full tarball already has the missing patch...
+> > So, I think, it's only patch-2.4.18 that has the problem...
+>=20
+> Argh thats the worst possible case. That means you can't do a single corr=
+ect
+> 2.4.18- patch=20
+>=20
+> If so Marcelo can you put up 2.4.18-fixed patch and a borked-fixed diff ?
+
+cdub_ and I just checked: the 18-final tarball, patch, and incr are all
+missing the fix in fs/binfmt_elf.c
+
+--=20
+Dan Chen                 crimsun@email.unc.edu
+GPG key:   www.unc.edu/~crimsun/pubkey.gpg.asc
+
+--wRRV7LY7NUeQGEoC
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8erz8MwVVFhIHlU4RAtYHAJ9H6uBBZChZhM1RVDUkL/VNaPfnNQCfeZfD
+FMc1mhoFREgO90XH5Y9j240=
+=WwC4
+-----END PGP SIGNATURE-----
+
+--wRRV7LY7NUeQGEoC--

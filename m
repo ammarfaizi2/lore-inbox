@@ -1,69 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261581AbVCNQmL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261566AbVCNQnP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261581AbVCNQmL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 11:42:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261566AbVCNQmK
+	id S261566AbVCNQnP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 11:43:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbVCNQnO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 11:42:10 -0500
-Received: from moraine.clusterfs.com ([66.96.26.190]:48598 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S261583AbVCNQlk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 11:41:40 -0500
-Date: Mon, 14 Mar 2005 11:41:37 -0500
-From: Andreas Dilger <adilger@shaw.ca>
-To: Dan Stromberg <strombrg@dcs.nac.uci.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: huge filesystems
-Message-ID: <20050314164137.GC1451@schnapps.adilger.int>
-Mail-Followup-To: Dan Stromberg <strombrg@dcs.nac.uci.edu>,
-	linux-kernel@vger.kernel.org
-References: <pan.2005.03.09.18.53.47.428199@dcs.nac.uci.edu>
+	Mon, 14 Mar 2005 11:43:14 -0500
+Received: from styx.suse.cz ([82.119.242.94]:19181 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S261566AbVCNQnD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 11:43:03 -0500
+Date: Mon, 14 Mar 2005 17:43:42 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Michael Tokarev <mjt@tls.msk.ru>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: mouse&keyboard with 2.6.10+
+Message-ID: <20050314164342.GA1735@ucw.cz>
+References: <4235683E.1020403@tls.msk.ru> <42357AE0.4050805@tls.msk.ru> <20050314142847.GA4001@ucw.cz> <4235B367.3000506@tls.msk.ru> <20050314162537.GA2716@ucw.cz> <4235BDFD.1070505@tls.msk.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <pan.2005.03.09.18.53.47.428199@dcs.nac.uci.edu>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+In-Reply-To: <4235BDFD.1070505@tls.msk.ru>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 09, 2005  10:53 -0800, Dan Stromberg wrote:
-> The group I work in has been experimenting with GFS and Lustre, and I did
-> some NBD/ENBD experimentation on my own, described at
-> http://dcs.nac.uci.edu/~strombrg/nbd.html
+On Mon, Mar 14, 2005 at 07:38:21PM +0300, Michael Tokarev wrote:
+
+> >>>Can you try 'usb-handoff' on the kernel command line?
+> >>
+> >>The problem has nothing to do with USB per se, as far as I can see.
+> >>PS2 keyboard and mouse does not work when the USB subsystem (incl.
+> >>usbcore) is not loaded.  And the problem is with PS2 keyboard/mouse,
+> >>not with USB one which works just fine.
+> > 
+> >Of course. Nevertheless 'usb-handoff' tells the BIOS not to meddle
+> >with the PS/2 interfaces, too. 
 > 
-> My question is, what is the current status of huge filesystems - IE,
-> filesystems that exceed 2 terabytes, and hopefully also exceeding 16
-> terabytes?
+> Oh me bad, I should listen to whatever is being said, instead of doing
+> my stupid guesses...  Just rebooted into 2.6.11.3 with usb-handoff and
+> both the keyboard and mouse are Just Works, and psmouse driver loads
+> almost immediately too.
+> 
+> Also, it works just fine after turning off USB Keyboard and Mouse
+> support in BIOS and without usb-handoff kernel parameter.
+> 
+> In 2.6.9 (it works just fine too, problem happens with 2.6.10 and up
+> only), there's no such parameter in drivers/pci/quirks.c.  Hmm.
 
-Lustre has run with filesystems up to 400TB (where it hits a Lustre limit
-that should be removed shortly for a 900TB filesystem being deployed).
-The caveat is that Lustre is made up of individual block devices and
-filesystems of only 2TB or less in size.
+Any chance the order of module loading changed between the two versions?
+I see you have 'psmouse' as a module. If i8042 (and psmouse) are loaded
+after uhci-hcd (or ohci-hcd), the problem will disappear, too.
 
-> Am I correct in assuming that the usual linux buffer cache only goes to 16
-> terabytes?
+> So is this a bios/mobo problem,
 
-That is the block device limit, and also the file limit for 32-bit systems,
-imposed by the size of a single VM mapping 2^32 * PAGE_SIZE.
+Yes.
 
-> Does the FUSE API (or similar) happen to allow surpassing either the 2T or
-> 16T limits?
+> or can it be solved in kernel somehow?
 
-Some 32-bit systems (PPC?) may allow larger PAGE_SIZE and will have a
-larger limit for a single VM mapping.  For 64-bit platforms there is no 
-2^32 limit for page->index and this also removes the 16TB limit.
+We could have usb-handoff by default.
 
-> What about the "LBD" patches - what limits are involved there, and have
-> they been rolled into a Linus kernel, or one or more vendor kernels?
-
-These are part of stock 2.6 kernels.  The caveat here is that there have
-been some problems reported (with ext3 at least) for filesystems > 2TB
-so I don't think it has really been tested very much.
-
-Cheers, Andreas
---
-Andreas Dilger
-http://members.shaw.ca/adilger/             http://members.shaw.ca/golinux/
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,84 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132578AbRDQMnP>; Tue, 17 Apr 2001 08:43:15 -0400
+	id <S132595AbRDQNAi>; Tue, 17 Apr 2001 09:00:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132587AbRDQMnG>; Tue, 17 Apr 2001 08:43:06 -0400
-Received: from lacrosse.corp.redhat.com ([207.175.42.154]:59500 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S132578AbRDQMnA>; Tue, 17 Apr 2001 08:43:00 -0400
-Date: Tue, 17 Apr 2001 13:42:57 +0100
-From: Tim Waugh <twaugh@redhat.com>
-To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-Cc: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
-Subject: Re: Is printing broke on sparc ?
-Message-ID: <20010417134257.J29490@redhat.com>
-In-Reply-To: <Pine.LNX.4.32.0104161752010.18324-100000@filesrv1.baby-dragons.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="up2r7mkFEYHJ3y+X"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.32.0104161752010.18324-100000@filesrv1.baby-dragons.com>; from babydr@baby-dragons.com on Mon, Apr 16, 2001 at 05:54:41PM -0700
+	id <S132604AbRDQNA3>; Tue, 17 Apr 2001 09:00:29 -0400
+Received: from relay.freedom.net ([207.107.115.209]:17424 "HELO relay")
+	by vger.kernel.org with SMTP id <S132595AbRDQNAL>;
+	Tue, 17 Apr 2001 09:00:11 -0400
+X-Freedom-Envelope-Sig: linux-kernel@vger.kernel.org AQF+qYQWL+poCAkiwOPeAKohobsTPpAnr/SU0K/8ToqomYMNiUKJ3KNx
+Date: Tue, 17 Apr 2001 06:58:54 -0600
+Old-From: cacook@freedom.net
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: DPT PM3755F Fibrechannel Host Adapter
+Content-Type: text/plain; charset = "us-ascii" 
+Content-Transfer-Encoding: 7bit
+From: cacook@freedom.net
+Message-Id: <20010417130019Z132595-682+791@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+So no one is willing or able to help me with this problem?  I have invested much time and effort toward switching from Win2k to Linux, but if I can't get fibrechannel working it's not going to happen.
 
---up2r7mkFEYHJ3y+X
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Applying the patch & compiling went fine.  But the new kernel doesn't recognize the FC host adapter (though the bios does) and there is no dpt_i20 module so I can't insmod.  I don't know how to tell whether the driver is in the kernel.  Maybe I'm just not smart enough for Linux.
 
-On Mon, Apr 16, 2001 at 05:54:41PM -0700, Mr. James W. Laferriere wrote:
+ver_linux 
+Linux hydra.darkmatter.com 2.4.2-0.1.49 #1 Sun Apr 15 18:12:33 MDT 2001 i686
+unknown 
 
-> # /etc/printcap
-> #
-> # Please don't edit this file directly unless you know what you are doing!
-> # Be warned that the control-panel printtool requires a very strict forma=
-t!
-> # Look at the printcap(5) man page for more info.
-> #
-> # This file can be edited with the printtool in the control-panel.
->=20
-> ##PRINTTOOL3## LOCAL POSTSCRIPT 300x300 letter {} PostScript Default {}
-> lp:\
-> 	:sd=3D/var/spool/lpd/lp:\
-> 	:mx#0:\
-> 	:sh:\
-> 	:lp=3D/dev/lp0:\
-> 	:if=3D/var/spool/lpd/lp/filter:
-[...]
-> /c#eodiecnyotai rhernili s to rpaemn
->                                     s eehpo o-.ROLPR0 roif{\=3Dsl:x
->                                                                  	/p:ao/lr
+Gnu C                  2.96 
+Gnu make               3.79.1 
+binutils               2.10.91.0.2 
+util-linux             2.10r 
+modutils               2.4.2 
+e2fsprogs              1.19 
+reiserfsprogs          3.x.0b 
+PPP                    2.4.0 
+isdn4k-utils           3.1pre1 
+Linux C Library        2.2.2 
+Dynamic linker (ldd)   2.2.2 
+Procps                 2.0.7 
+Net-tools              1.57 
+Console-tools          0.3.3 
+Sh-utils               2.0 
+Modules Loaded         via82cxxx_audio ac97_codec binfmt_misc autofs
+nls_iso8859-1 nls_cp437 
 
-This looks like characters are getting missed out, rather than
-anything getting garbled.  The above characters all appear in
-/etc/printcap in the order shown.  Obviously there isn't enough
-redundancy in /etc/printcap for the print-out to be useful despite
-that. :-)
 
-Please try adjusting the 'udelay (1)' lines in
-drivers/parport/ieee1284_ops.c:parport_ieee1284_write_compat to be
-larger delays (for example, try replacing the 1s with 2s, or 5s, and
-see if that makes things better).
 
-Let me know what you need to change to get it working.
+-------- Original Message --------
+Subject: Re: DPT PM3755F Fibrechannel Host Adapter
+Date: Mon, 16 Apr 2001 08:51:57 -0600
+From: cacook@freedom.net
+To: Marko Kreen <marko@l-t.ee>
+CC: linux-kernel@vger.kernel.org
+In-Reply-To: <20010414233426Z131976-682+268@vger.kernel.org> <20010415020433.B13190@l-t.ee>
 
-Thanks,
-Tim.
-*/
+Thank you Marko.  This was exactly what I was looking for.  And thank you very much Omar Kilani for the retrofit.  But kernel doesn't recognize the adapter.
 
---up2r7mkFEYHJ3y+X
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Installed the patch, compiled, installed, & everything seemed to go fine.  Booted to IDE... no problems, except the DPT HA wasn't recognized.  There was no mention of the DPT in messages, either recognized as hardware, nor to load the driver.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+I am running an MSI KT7Turbo mobo with Athlon 850.  Six PCI & no IDE.  DPT PM3755F fibrechannel host adapter is in the first slot & has two Cheetahs attached.  Outfit works fine in Winders2k.  Trying to move to kernel 2.4.2, in RedHat Wolverine.
 
-iD8DBQE63DpRONXnILZ4yVIRArPSAKCg8k4cFKsNQ/7TyOC8r6gI+So0RQCglu1F
-juullPUtHxeJWlNiFCSX5vU=
-=hePd
------END PGP SIGNATURE-----
+Please help.
+--
+C.
 
---up2r7mkFEYHJ3y+X--
+The best way out is always through.
+      - Robert Frost  A Servant to Servants, 1914
+
+
+Marko Kreen wrote:
+
+> On Sat, Apr 14, 2001 at 05:33:02PM -0600, cacook@freedom.net wrote:
+> > I have been unable to set up a module for my DPT fibrechannel host adapter, partly through unavailability, and partly through inexperience.
+>
+> There is a nice suppary of current DPT driver status on Kernel
+> Traffic #113:
+>
+> http://kt.zork.net/kernel-traffic/kt20010330_113.html#3
+>
+> --
+> marko
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

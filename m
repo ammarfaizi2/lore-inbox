@@ -1,63 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262564AbTKRN0K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 08:26:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262603AbTKRN0K
+	id S262608AbTKRN23 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 08:28:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262652AbTKRN22
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 08:26:10 -0500
-Received: from gprs147-139.eurotel.cz ([160.218.147.139]:16257 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S262564AbTKRN0G (ORCPT
+	Tue, 18 Nov 2003 08:28:28 -0500
+Received: from gaia.cela.pl ([213.134.162.11]:30981 "EHLO gaia.cela.pl")
+	by vger.kernel.org with ESMTP id S262608AbTKRN2V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 08:26:06 -0500
-Date: Tue, 18 Nov 2003 14:26:34 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Jens Axboe <axboe@suse.de>
-Cc: Guillaume Chazarain <guichaz@yahoo.fr>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cfq + io priorities
-Message-ID: <20031118132634.GB470@elf.ucw.cz>
-References: <SRLGXA875SP047EDQLEC055ZHDZX2V.3fae1da3@monpc> <20031109113928.GN2831@suse.de> <20031113125427.GB643@openzaurus.ucw.cz> <20031117081407.GI888@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031117081407.GI888@suse.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Tue, 18 Nov 2003 08:28:21 -0500
+Date: Tue, 18 Nov 2003 14:26:41 +0100 (CET)
+From: Maciej Zenczykowski <maze@cela.pl>
+To: Christian Axelsson <smiler@lanil.mine.nu>
+cc: Pontus Fuchs <pof@users.sourceforge.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: Announce: ndiswrapper
+In-Reply-To: <3FBA15B7.7030906@lanil.mine.nu>
+Message-ID: <Pine.LNX.4.44.0311181422300.29639-100000@gaia.cela.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > OTOH it might make sense to make "nice" command set
-> > both by default.
-> 
-> Yes, I can probably be talked into that.
-
-Good.
-
-> > > > > these end values are "special" - 0 means the process is only allowed to
-> > > > > do io if the disk is idle, and 20 means the process io is considered
-> > > > 
-> > > > So a process with ioprio == 0 can be forever starved. As it's not
-> > > 
-> > > Yes
+> Pontus Fuchs wrote:
+> > Hi,
 > > 
-> > If semaphore is held over disk io somewhere (quota code? journaling?)
-> > you have ugly possibility of priority inversion there.
+> > Since some vendors refuses to release specs or even a binary
+> > Linux-driver for their WLAN cards I desided to try to solve it myself by
+> > making a kernel module that can load Ndis (windows network driver API)
+> > drivers. I'm not trying to implement all of the Ndis API but rather
+> > implement the functions needed to get these unsupported cards working.
 > 
-> Indeed yes. That's a general problem with all the io priorities though,
-> RT io might end up waiting for nice 10 io etc. Dunno what to do about
-> this yet...
+> Sounds like a plan!
 
-Well, traditional (== scheduler) solution is not to have idle classes
-and not guarantee anything about realtime classes.
+Definetely agree - question though, are you loading these drivers into 
+ring 0 (kernel space)?  As far as I know linux only supports ring 0 
+(kernel) and 3 (userspace).  However this would seem to be the perfect 
+place to load the binary modules in ring 1 (or even userspace if that was 
+possible...).  I can't say I trust any binary only and/or windows driver 
+to not make a mess of my kernel :)  actually the driver may actually be 
+errorless - it's just designed for a different operating system and thus 
+some unexplainable misshaps could easily happen...
 
-At least idle class can not be used to hold important semaphore
-forever (even low-priority prosses receive enough time not to hold
-important semaphores too long)... I believe you should do the same (==
-get rid of idle class for now, and clearly state that realtime ones
-are not _guaranteed_ anything).
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+While we're at it, loading binary only modules into ring 1 would probably 
+also be a good idea for the NV module et al.  Although I have no idea how 
+hard it would be to make ring 1 function (and whether there actually is 
+any point to doing it in ring 1 instead of ring 3 with iopl/ioperm anyway) 
+and how big the performance penalty for non-ring 0 would be...
+
+Cheers,
+MaZe.
+
+

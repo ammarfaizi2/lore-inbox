@@ -1,73 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266597AbUGKN4r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266598AbUGKOEr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266597AbUGKN4r (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 09:56:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266598AbUGKN4r
+	id S266598AbUGKOEr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 10:04:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266599AbUGKOEr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 09:56:47 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:16137 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S266597AbUGKN4n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 09:56:43 -0400
-Date: Sun, 11 Jul 2004 14:56:39 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: binutils woes
-Message-ID: <20040711145639.A23328@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-References: <20040701175231.B8389@flint.arm.linux.org.uk>
+	Sun, 11 Jul 2004 10:04:47 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63155 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266598AbUGKOEp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jul 2004 10:04:45 -0400
+Date: Sun, 11 Jul 2004 15:04:45 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Andi Kleen <ak@muc.de>
+Cc: Matthew Wilcox <willy@debian.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: serious performance regression due to NX patch
+Message-ID: <20040711140445.GB5889@parcelfarce.linux.theplanet.co.uk>
+References: <2giKE-67F-1@gated-at.bofh.it> <2gIc8-6pd-29@gated-at.bofh.it> <2gJ8a-72b-11@gated-at.bofh.it> <2gJhY-776-21@gated-at.bofh.it> <2gJrv-7kp-5@gated-at.bofh.it> <2gLD2-qn-3@gated-at.bofh.it> <m3wu1a8xzv.fsf@averell.firstfloor.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040701175231.B8389@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Thu, Jul 01, 2004 at 05:52:31PM +0100
+In-Reply-To: <m3wu1a8xzv.fsf@averell.firstfloor.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 01, 2004 at 05:52:31PM +0100, Russell King wrote:
-> On ARM, we appear to have somewhat of a problem with binutils.  At
-> least the following binutils suffer from a problem whereby it is
-> possible to create programs which contain undefined symbols:
+On Sun, Jul 11, 2004 at 03:38:44PM +0200, Andi Kleen wrote:
+> Matthew Wilcox <willy@debian.org> writes:
+> 
+> > On Sun, Jul 11, 2004 at 03:02:25AM -0700, Andrew Morton wrote:
+> >> Apropos of nothing much, CONFIG_X86 would be preferreed here, but x86_64
+> >> defines that too.
+> >
+> > IMO, x86-64 should stop defining CONFIG_X86.  It's far more common
+> > to say "X86 && !X86_64" than it is to say X86.  How about defining
+> > CONFIG_X86_COMMON and migrating usage of X86 to X86_COMMON?
+> 
+> Definitely not in 2.6 because it has far too much potential to 
+> add subtle bugs, and that is not appropiate for a stable release. 
+> In 2.7 maybe.
+> 
+> Buy I would prefer to just add an truly i386 specific define 
+> like Andrew proposed.
 
-Ok, here's the latest version of the patch.  It shouldn't complain
-on Sparc64, and neither should it complain while linking the
-.tmp_vmlinux* objects - the original regexp on the objdump --syms
-output was catching the weak kallsyms symbols.
-
-The only issue with this is that, when a problem is detected, the
-reported symbols will also include the Sparc64 register symbols.
-
-===== Makefile 1.500 vs edited =====
---- 1.500/Makefile	Tue Jun 29 15:44:49 2004
-+++ edited/Makefile	Sun Jul 11 14:52:37 2004
-@@ -534,6 +534,8 @@
- 
- #	set -e makes the rule exit immediately on error
- 
-+#	Note: Ensure that there are no undefined symbols in the final
-+#	linked image.  Not doing this can lead to silent link failures.
- define rule_vmlinux__
- 	+set -e;							\
- 	$(if $(filter .tmp_kallsyms%,$^),,				\
-@@ -545,6 +547,12 @@
- 	$(if $($(quiet)cmd_vmlinux__),					\
- 	  echo '  $($(quiet)cmd_vmlinux__)' &&) 			\
- 	$(cmd_vmlinux__);						\
-+	if $(OBJDUMP) --syms $@ | egrep -q '^([^R]|R[^E]|RE[^G])[^w]*\*UND\*'; then	\
-+		echo 'ldchk: $@: final image has undefined symbols:';	\
-+		$(NM) $@ | sed 's/^ *U \(.*\)/  \1/p;d';		\
-+		$(RM) -f $@;						\
-+		exit 1;							\
-+	fi;								\
- 	echo 'cmd_$@ := $(cmd_vmlinux__)' > $(@D)/.$(@F).cmd
- endef
- 
-
+We already had an i386 specific define.  You chose to hijack it.
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

@@ -1,70 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268870AbUHLXFB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268864AbUHLXB4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268870AbUHLXFB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 19:05:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268869AbUHLXC0
+	id S268864AbUHLXB4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 19:01:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268854AbUHLXBz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 19:02:26 -0400
-Received: from rav-az.mvista.com ([65.200.49.157]:35625 "EHLO
-	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
-	id S268868AbUHLW7U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 18:59:20 -0400
-Subject: Re: [Linux-cluster] Re: [cgl_discussion] Re: [dcl_discussion]
-	Clustersummit materials
-From: Steven Dake <sdake@mvista.com>
-Reply-To: sdake@mvista.com
-To: Lars Marowsky-Bree <lmb@suse.de>
-Cc: Chris Wright <chrisw@osdl.org>,
-       Discussion of clustering software components including
-	 GFS <linux-cluster@redhat.com>,
-       dcl_discussion@osdl.org, "Walker, Bruce J" <bruce.walker@hp.com>,
-       linux-kernel@vger.kernel.org, cgl_discussion@osdl.org
-In-Reply-To: <20040812203738.GK9722@marowsky-bree.de>
-References: <3689AF909D816446BA505D21F1461AE4C75110@cacexc04.americas.cpqcorp.net>
-	 <1092249962.4717.21.camel@persist.az.mvista.com>
-	 <20040812095736.GE4096@marowsky-bree.de>
-	 <1092332536.7315.1.camel@persist.az.mvista.com>
-	 <20040812203738.GK9722@marowsky-bree.de>
-Content-Type: text/plain; charset=UTF-8
-Organization: MontaVista Software, Inc.
-Message-Id: <1092351549.7315.5.camel@persist.az.mvista.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 12 Aug 2004 15:59:10 -0700
-Content-Transfer-Encoding: 8bit
+	Thu, 12 Aug 2004 19:01:55 -0400
+Received: from apollo.tuxdriver.com ([24.172.12.4]:61457 "EHLO
+	ra.tuxdriver.com") by vger.kernel.org with ESMTP id S268873AbUHLXA2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 19:00:28 -0400
+Message-ID: <411BF6A5.2030306@tuxdriver.com>
+Date: Thu, 12 Aug 2004 19:00:53 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Patrick Mansfield <patmans@us.ibm.com>
+CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       James.Bottomley@SteelEye.com
+Subject: Re: [patch] 2.6 -- add IOI Media Bay to SCSI quirk list
+References: <200408122137.i7CLbGU13688@ra.tuxdriver.com> <20040812225118.GA20904@beaverton.ibm.com>
+In-Reply-To: <20040812225118.GA20904@beaverton.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-08-12 at 13:37, Lars Marowsky-Bree wrote:
-> On 2004-08-12T10:42:16,
->    Steven Dake <sdake@mvista.com> said:
-> 
-> > agreed...  Transis in kernel would be a fine alternative to openais gmi
-> > in kernel.
-> > 
-> > Speaking of transis, is the code posted anywhere?  I'd like to have a
-> > look.
-> 
-> It's not yet at the final location, but we put up what we got at
-> http://wiki.trick.ca/linux-ha/Transis .
-> 
-> 
-Lars
+Patrick Mansfield wrote:
 
-Thanks for posting transis.  I had a look at the examples and API.  The
-API is of course different then openais and focused on client/server
-architecture.
+>We seem to be getting quite a few of these. In theory we could add a line
+>like this for every multi-lun SCSI device.
+>  
+>
 
-I tried a performance test by sending a 64k message, and then receiving
-it 10 times with two nodes.  This operation takes about 5 seconds on my
-hardware which is 128k/sec.  I was expecting more like 8-10MB/sec.  Is
-there anything that can be done to improve the performance?
+Isn't that what the quirk list is for?
 
-Thanks
--steve
+>Can you instead try booting with scsi_mod.max_luns=8 (or such) or build
+>with SCSI_MULTI_LUN enabled?
+>  
+>
 
-Certainly a different sort of API then openais...
+That works for my box, but what about for others?  Like those who may 
+have both a multi-lun device and a single-lun device that hangs on a 
+non-zero lun?  What about the average luser who can't be bothered to 
+hack-up his startup scripts or *gasp* rebuild his kernel?
 
-> Sincerely,
->     Lars Marowsky-Brée <lmb@suse.de>
+It seems like the quirk list is there for a reason.  If we start 
+rejecting certain devices, then what is the criteria for a device to 
+actually make it on the list?
 
+John

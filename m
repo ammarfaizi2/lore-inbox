@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313384AbSDQUFd>; Wed, 17 Apr 2002 16:05:33 -0400
+	id <S313224AbSDQUDn>; Wed, 17 Apr 2002 16:03:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313668AbSDQUFc>; Wed, 17 Apr 2002 16:05:32 -0400
-Received: from mole.bio.cam.ac.uk ([131.111.36.9]:47129 "EHLO
-	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S313384AbSDQUFb>; Wed, 17 Apr 2002 16:05:31 -0400
-Message-Id: <5.1.0.14.2.20020417210154.00adde30@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 17 Apr 2002 21:05:21 +0100
-To: John Covici <covici@ccs.covici.com>
-From: Anton Altaparmakov <aia21@cantab.net>
-Subject: Re: 2.5.8 nbd.c doesn't compile
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <m33cxuw23g.fsf@ccs.covici.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S313384AbSDQUDm>; Wed, 17 Apr 2002 16:03:42 -0400
+Received: from dobit2.rug.ac.be ([157.193.42.8]:39111 "EHLO dobit2.rug.ac.be")
+	by vger.kernel.org with ESMTP id <S313224AbSDQUDk>;
+	Wed, 17 Apr 2002 16:03:40 -0400
+Date: Wed, 17 Apr 2002 22:03:35 +0200 (MEST)
+From: Frank Cornelis <Frank.Cornelis@rug.ac.be>
+To: <linux-kernel@vger.kernel.org>
+cc: <Frank.Cornelis@elis.rug.ac.be>
+Subject: ptrace & trap flag
+Message-ID: <Pine.GSO.4.31.0204172154290.29364-100000@eduserv.rug.ac.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Compilation is already fixed in the current bitkeeper tree 
-(linux.bkbits.net/linux-2.5). so you can either get that or you can apply 
-the patch I posted this morning fixing this problem.
+Hey,
 
-You can find the patch in the archives:
+I wonder if anyone can help me out on this one.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=101897350106638&w=2
+When I ptrace a program and it has a breakpoint in it (int3) I can detect
+that using PTRACE_SETOPTIONS with the option PTRACE_O_TRACESYSGOOD and
+detection happens through !(WSTOPSIG(status) & 0x80).
+But, when I ptrace a program and that program contains next code,
+	pushfl
+	popl %eax
+	orl 0x100, %eax
+	pushl %eax
+	popfl
+thus setting the trap flag, then I still can detect the 'real' SIGTRAP
+using !(WSTOPSIG(status) & 0x80), but when I do a PTRACE_SYSCALL on the
+process, following SIGTRAPs always occur on the same EIP.
+Clearing the X86_EFLAGS_TF of that process won't help it to make the
+process continue 'till a next instruction.
+Can anyone help me out?
+The only thing I found is that the TF also makes the RF to be on.
 
-Note patch compiles but is otherwise untested.
+Please CC me; I'm not on the mailing list.
 
-Best regards,
-
-Anton
-
-At 20:34 17/04/02, John Covici wrote:
->When I try to compile 2.5.8 with nbd as a module, I get lots of error
->saying structure has no member queue_lock .
->
->Any assistance would be appreciated.
->
->--
->          John Covici
->          covici@ccs.covici.com
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+Thanks in advance, Frank.
 

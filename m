@@ -1,61 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271673AbRH0I7r>; Mon, 27 Aug 2001 04:59:47 -0400
+	id <S271674AbRH0JOJ>; Mon, 27 Aug 2001 05:14:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271309AbRH0I7h>; Mon, 27 Aug 2001 04:59:37 -0400
-Received: from b73254.upc-b.chello.nl ([212.83.73.254]:36364 "EHLO
-	kleintje.nozone.nl") by vger.kernel.org with ESMTP
-	id <S271673AbRH0I7V>; Mon, 27 Aug 2001 04:59:21 -0400
-Date: Mon, 27 Aug 2001 10:59:36 +0200 (CEST)
-From: Tony den Haan <tony@chello.nl>
+	id <S271678AbRH0JN7>; Mon, 27 Aug 2001 05:13:59 -0400
+Received: from www.heureka.co.at ([195.64.11.111]:61705 "EHLO
+	www.heureka.co.at") by vger.kernel.org with ESMTP
+	id <S271675AbRH0JNt>; Mon, 27 Aug 2001 05:13:49 -0400
+Date: Mon, 27 Aug 2001 11:13:39 +0200
+From: David Schmitt <david@heureka.co.at>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.8/9 panic on serial with MSI-694D MB
-Message-ID: <Pine.LNX.4.21.0108271052440.14250-100000@kleintje.nozone.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: ISSUE: DFE530-TX REV-A3-1 times out on transmit
+Message-ID: <20010827111339.A10126@www.heureka.co.at>
+In-Reply-To: <20010824162425.D27794@www.heureka.co.at> <Pine.LNX.4.10.10108251801480.13314-100000@ada.teststation.com> <20010827102740.A9557@www.heureka.co.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010827102740.A9557@www.heureka.co.at>
+User-Agent: Mutt/1.3.20i
+Organization: Heureka - Der EDV-Dienstleister
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+Hi!
 
-i ran into strange problem with2.4.9 panics, first only sometimes, later
-on it just wouldn't boot at all.
+sorry for replying on my on message.
 
-VP_IDE: VIA vt82c686a (rev 22) IDE UDMA66 controller on pci00:07.1
-        ide0: BM-DMA at 0x9000-0x9007, BIOS settings hda:DMA, hdb:pio
-        ide1: BM-DMA at 0x9008-0x900f, BIOS settings hdc:pio, hdd:pio
-Unable to handle kernel NULL pointer dereference at virtual address
-00000018
- printing eip:
-00000018
-*pde = 00000000
-Oops: 0000
-CPU:    1
-EIP:    0010:[<00000018>]
-EFLAGS: 00010246
-eax: 00000000 ebx: c01051d0 ecx: c15f6000 edx: c15f6000
-esi: c15f6000 edi: c01051d0 ebp: 00000000 esp: c15f7fb0
-ds: 0018  es: 0018  ss: 0018
-Process swapper (pid: 0, stackpage=c15f7000)
-Stack:  c0105262 00000002 00000000 00000000 c0247a4a c02a0e80 00000000
-        c0199b77 00000000 0000000d 00000000 00000000 c016956e c1443000
-        00000001 c02a0e0a 00000000 00000000
-Call Trace: [c0105262>] [<c0199b77>] [<c016966e>]
+On Mon, Aug 27, 2001 at 10:27:40AM +0200, David Schmitt wrote:
+> On Sat, Aug 25, 2001 at 07:05:26PM +0200, Urban Widmark wrote:
+> > On Fri, 24 Aug 2001, David Schmitt wrote:
+> > > 	Reloading the module doesn't help either. Only a reboot
+> > > 	reenables network connectivity.
+> > 
+> > There is a patch in the 2.4.8-acX kernels that fixes a problem with
+> > reseting the card when it is first used. I can't say that I know that it
+> > fixes anything you are seeing, but it could be worth trying.
+> 
+> Ok, I will try that too and report back.
 
-Code: Bad EIP value
-Kernel panicL Attempted to kill the idle task!
-In idle task - not syncing
-
-all attempts came up with same 0018
-
-this is where serial gets initialized, removing serial support from kernel
-fixed the problem
-
-it's SMP PIII system with via82Cxx chipset, no special hardware added.
-2.4.5 did ok.
-
-any thoughts? hints what to look at?
-
-tony
+Nope. Using the patched via-rhine.c from 2.4.8-ac12 didn't help.
 
 
+Regards, David Schmitt
+-- 
+Sponsored by heureKA, Austria (http://www.heureka.co.at)

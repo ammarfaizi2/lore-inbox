@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129319AbQKJInX>; Fri, 10 Nov 2000 03:43:23 -0500
+	id <S129061AbQKJIpN>; Fri, 10 Nov 2000 03:45:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129741AbQKJInN>; Fri, 10 Nov 2000 03:43:13 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:15011 "EHLO
+	id <S129097AbQKJIpD>; Fri, 10 Nov 2000 03:45:03 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:29860 "EHLO
 	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S129319AbQKJInJ>; Fri, 10 Nov 2000 03:43:09 -0500
+	id <S129061AbQKJIoy>; Fri, 10 Nov 2000 03:44:54 -0500
 From: Christoph Rohland <cr@sap.com>
-To: mingo@elte.hu
-Cc: Larry McVoy <lm@bitmover.com>,
-        Michael Rothwell <rothwell@holly-springs.nc.us>,
-        richardj_moore@uk.ibm.com, linux-kernel@vger.kernel.org
+To: Michael Rothwell <rothwell@holly-springs.nc.us>
+Cc: Larry McVoy <lm@bitmover.com>, richardj_moore@uk.ibm.com,
+        linux-kernel@vger.kernel.org
 Subject: Re: [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI)
-In-Reply-To: <Pine.LNX.4.21.0011091654030.2995-100000@elte.hu>
+In-Reply-To: <80256991.007632DE.00@d06mta06.portsmouth.uk.ibm.com>
+	<3A09C725.6CFA0EE2@holly-springs.nc.us> <qwwn1f9lhdg.fsf@sap.com>
+	<20001108235312.H22781@work.bitmover.com> <qwwzoj9k02h.fsf@sap.com>
+	<3A0A968B.85A6770E@holly-springs.nc.us>
 Organisation: SAP LinuxLab
-Date: 10 Nov 2000 09:42:30 +0100
-In-Reply-To: Ingo Molnar's message of "Thu, 9 Nov 2000 17:03:12 +0100 (CET)"
-Message-ID: <qwwlmusjk09.fsf@sap.com>
+Date: 10 Nov 2000 09:44:38 +0100
+In-Reply-To: Michael Rothwell's message of "Thu, 09 Nov 2000 07:20:27 -0500"
+Message-ID: <qwwhf5gjjwp.fsf@sap.com>
 User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo,
+Hi Michael,
 
-On Thu, 9 Nov 2000, Ingo Molnar wrote:
+On Thu, 09 Nov 2000, Michael Rothwell wrote:
+> Christoph Rohland wrote:
+>> And then I don't see the value of Linux anymore.
 > 
-> On Wed, 8 Nov 2000, Larry McVoy wrote:
-> 
->> smart about that stuff, are least it seems so to me; he seems to be
->> well aware that 99.9999% of the hardware in the world isn't big
->> iron and never will be, so something approximating 99% of the
->> effort should be going towards the common platforms, not the
->> uncommon ones.
-> 
-> yep, this is true. Still Linux appears to perform remarkably well on
-> so-called 'big iron'.
+> Same as before -- freedom and low cost. The primary advantae of
+> Linux over other OSes is the GPL.
 
-Thanks Ingo, I agree to this and also agree that we should try to be
-able to run (mostly) everything from the same code base and I think
-that's Linux does a great job on this.
-
-Having a seperated code base for 0.0001% of mission critical servers
-will lead to very bad availability or very high development cost at
-least. In the worst (and not so unprobable) case it will lead to a lot
-of games with licenses and 'intellectual property'. This would mean
-that Linux fails to deliver on its promises IMHO.
+And you would loose exactly these two points for high end servers.
 
 Greetings
 		Christoph
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

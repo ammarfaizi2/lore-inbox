@@ -1,116 +1,139 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261338AbSJPTFz>; Wed, 16 Oct 2002 15:05:55 -0400
+	id <S261337AbSJPTKv>; Wed, 16 Oct 2002 15:10:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261337AbSJPTFx>; Wed, 16 Oct 2002 15:05:53 -0400
-Received: from ra.abo.fi ([130.232.213.1]:56041 "EHLO ra.abo.fi")
-	by vger.kernel.org with ESMTP id <S261335AbSJPTFN>;
-	Wed, 16 Oct 2002 15:05:13 -0400
-Date: Wed, 16 Oct 2002 22:11:07 +0300 (EEST)
-From: Marcus Alanen <maalanen@ra.abo.fi>
-To: Andrew Morton <akpm@digeo.com>
-cc: linux-kernel@vger.kernel.org, <trivial@rustcorp.com.au>
-Subject: [patch, 2.5] highmem.c HASHED_PAGE_VIRTUAL unnecessary pool_lock
-Message-ID: <Pine.LNX.4.44.0210162157051.14143-100000@tuxedo.abo.fi>
+	id <S261341AbSJPTKv>; Wed, 16 Oct 2002 15:10:51 -0400
+Received: from c3po.netscape.com ([205.217.237.46]:43979 "EHLO netscape.com")
+	by vger.kernel.org with ESMTP id <S261337AbSJPTKt>;
+	Wed, 16 Oct 2002 15:10:49 -0400
+Message-ID: <3DADBB15.9030200@netscape.com>
+Date: Wed, 16 Oct 2002 12:16:37 -0700
+From: jgmyers@netscape.com (John Myers)
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2a) Gecko/20020910
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Davide Libenzi <davidel@xmailserver.org>
+CC: Dan Kegel <dank@kegel.com>, Benjamin LaHaise <bcrl@redhat.com>,
+       Shailabh Nagar <nagar@watson.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@digeo.com>,
+       David Miller <davem@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Stephen Tweedie <sct@redhat.com>
+Subject: Re: [PATCH] async poll for 2.5
+References: <Pine.LNX.4.44.0210151608350.1554-100000@blue1.dev.mcafeelabs.com>
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms050103010807030802060308"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-pool_lock is equivalent to kmap_lock, so remove pool_lock.
+This is a cryptographically signed message in MIME format.
 
-When kmap_lock is taken, so will pool_lock be taken in 
-set_page_address => we are already protected by kmap_lock. 
-set_page_address must be made static due to this, but this is no 
-problem since all callers are in highmem.c anyway.
+--------------ms050103010807030802060308
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Note, flush_all_zero_pkmaps and especially map_new_virtual are a bit 
-slow due to linear scanning of pkmap_count. map_new_virtual could be 
-done in O(1). But perhaps it's not worth the trouble to create two 
-sets of very different highmem.c routines for some speedup in the 
-HASHED_PAGE_VIRTUAL configuration...
+Davide Libenzi wrote:
 
-Marcus
+>Typical
+>applications that uses multiplex interfaces uses only one task (
+>eventually for each CPU ) that handles many connections.
+>
+As I mentioned before, this only works if you have the luxury of being 
+able to write your application and its supporting libraries from 
+scratch.  If you don't have that luxury, you need additional threads in 
+order to isolate the latency caused by blocking operations.
+
+>Yes, you have
+>a lock to be acquired but this is a price you have to pay as soon as you
+>choose threads.
+>  
+>
+You have to pay for the lock needed to receive the events.  What I am 
+objecting to is having to pay again for a second lock (and condition 
+variable) to redistribute those events from the thread they were 
+received on to the thread they will be processed on.  An interface that 
+supports multithreading well will permit events to be delivered directly 
+to the threads that need to process them.
+
+io_getevents() is an example of an interface that support multithreaded 
+callers well.  Since the divvying up is done in the kernel, the 
+information exists for its implementation to be later refined to be more 
+intelligent about when to deliver which events to which threads.  For 
+example, the interface can later implement CPU affinity of events and 
+concurrency control.
 
 
-diff -Naurd --exclude-from=/home/maalanen/linux/base/diff_exclude linus-2.5.43/include/linux/mm.h msa-2.5.43/include/linux/mm.h
---- linus-2.5.43/include/linux/mm.h	Wed Oct 16 16:31:16 2002
-+++ msa-2.5.43/include/linux/mm.h	Wed Oct 16 17:55:58 2002
-@@ -308,7 +308,6 @@
- 
- #if defined(HASHED_PAGE_VIRTUAL)
- void *page_address(struct page *page);
--void set_page_address(struct page *page, void *virtual);
- void page_address_init(void);
- #endif
- 
-diff -Naurd --exclude-from=/home/maalanen/linux/base/diff_exclude linus-2.5.43/mm/highmem.c msa-2.5.43/mm/highmem.c
---- linus-2.5.43/mm/highmem.c	Mon Oct  7 22:25:30 2002
-+++ msa-2.5.43/mm/highmem.c	Wed Oct 16 18:51:35 2002
-@@ -48,9 +48,18 @@
-  *    since the last TLB flush - so we can't use it.
-  *  n means that there are (n-1) current users of it.
-  */
-+
-+#if defined(HASHED_PAGE_VIRTUAL)
-+void set_page_address(struct page *page, void *virtual);
-+#endif
-+
- #ifdef CONFIG_HIGHMEM
- static int pkmap_count[LAST_PKMAP];
- static unsigned int last_pkmap_nr;
-+/*
-+ * protects pkmap_count
-+ * protects page_address_pool if hashed virtual pages
-+ */
- static spinlock_t kmap_lock __cacheline_aligned_in_smp = SPIN_LOCK_UNLOCKED;
- 
- pte_t * pkmap_page_table;
-@@ -503,7 +512,6 @@
-  * page_address_map freelist, allocated from page_address_maps.
-  */
- static struct list_head page_address_pool;	/* freelist */
--static spinlock_t pool_lock;			/* protects page_address_pool */
- 
- /*
-  * Hash table bucket
-@@ -545,7 +553,7 @@
- 	return ret;
- }
- 
--void set_page_address(struct page *page, void *virtual)
-+static void set_page_address(struct page *page, void *virtual)
- {
- 	unsigned long flags;
- 	struct page_address_slot *pas;
-@@ -557,11 +565,9 @@
- 	if (virtual) {		/* Add */
- 		BUG_ON(list_empty(&page_address_pool));
- 
--		spin_lock_irqsave(&pool_lock, flags);
- 		pam = list_entry(page_address_pool.next,
- 				struct page_address_map, list);
- 		list_del(&pam->list);
--		spin_unlock_irqrestore(&pool_lock, flags);
- 
- 		pam->page = page;
- 		pam->virtual = virtual;
-@@ -575,9 +581,7 @@
- 			if (pam->page == page) {
- 				list_del(&pam->list);
- 				spin_unlock_irqrestore(&pas->lock, flags);
--				spin_lock_irqsave(&pool_lock, flags);
- 				list_add_tail(&pam->list, &page_address_pool);
--				spin_unlock_irqrestore(&pool_lock, flags);
- 				goto done;
- 			}
- 		}
-@@ -600,7 +604,6 @@
- 		INIT_LIST_HEAD(&page_address_htable[i].lh);
- 		spin_lock_init(&page_address_htable[i].lock);
- 	}
--	spin_lock_init(&pool_lock);
- }
- 
- #endif	/* defined(CONFIG_HIGHMEM) && !defined(WANT_PAGE_VIRTUAL) */
+--------------ms050103010807030802060308
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIK7TCC
+A4UwggLuoAMCAQICAlvfMA0GCSqGSIb3DQEBBAUAMIGTMQswCQYDVQQGEwJVUzELMAkGA1UE
+CBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5l
+IEluYzEZMBcGA1UECxMQQU9MIFRlY2hub2xvZ2llczEnMCUGA1UEAxMeSW50cmFuZXQgQ2Vy
+dGlmaWNhdGUgQXV0aG9yaXR5MB4XDTAyMDYwMTIwMjIyM1oXDTAyMTEyODIwMjIyM1owfTEL
+MAkGA1UEBhMCVVMxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5lIEluYzEXMBUGCgmSJomT8ixk
+AQETB2pnbXllcnMxIzAhBgkqhkiG9w0BCQEWFGpnbXllcnNAbmV0c2NhcGUuY29tMRMwEQYD
+VQQDEwpKb2huIE15ZXJzMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDsB5tbTLWFycke
+FKQwy1MTNx7SFtehB26RBx2gT+6+5/sYfXuLmBOuEOU2646fK0tz4rFOXfR8TcLfxOp3anh2
+3pKDAnBEOp5u75bEIwY5nteR0opdni/CTeyCfJ1uPuYdNKTYC088GwbpzhBRE8n1APHXCBgv
+bnGAuuYw/BqDtwIDAQABo4H8MIH5MA4GA1UdDwEB/wQEAwIFIDAdBgNVHSUEFjAUBggrBgEF
+BQcDAgYIKwYBBQUHAwQwQwYJYIZIAYb4QgENBDYWNElzc3VlZCBieSBOZXRzY2FwZSBDZXJ0
+aWZpY2F0ZSBNYW5hZ2VtZW50IFN5c3RlbSA0LjUwHwYDVR0RBBgwFoEUamdteWVyc0BuZXRz
+Y2FwZS5jb20wHwYDVR0jBBgwFoAUKduyLYN+f4sju8LMZrk56CnzAoYwQQYIKwYBBQUHAQEE
+NTAzMDEGCCsGAQUFBzABhiVodHRwOi8vY2VydGlmaWNhdGVzLm5ldHNjYXBlLmNvbS9vY3Nw
+MA0GCSqGSIb3DQEBBAUAA4GBAHhQSSAs8Vmute2hyZulGeFAZewLIz+cDGBOikFTP0/mIPmC
+leog5JnWRqXOcVvQhqGg91d9imNdN6ONBE9dNkVDZPiVcgJ+J3wc+htIAc1duKc1CD3K6CM1
+ouBbe4h4dhLWvyLWIcPPXNiGIBhA0PqoZlumSN3wlWdRqMaTC4P0MIIDhjCCAu+gAwIBAgIC
+W+AwDQYJKoZIhvcNAQEEBQAwgZMxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UE
+BxMNTW91bnRhaW4gVmlldzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRkwFwYDVQQL
+ExBBT0wgVGVjaG5vbG9naWVzMScwJQYDVQQDEx5JbnRyYW5ldCBDZXJ0aWZpY2F0ZSBBdXRo
+b3JpdHkwHhcNMDIwNjAxMjAyMjIzWhcNMDIxMTI4MjAyMjIzWjB9MQswCQYDVQQGEwJVUzEb
+MBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRcwFQYKCZImiZPyLGQBARMHamdteWVyczEj
+MCEGCSqGSIb3DQEJARYUamdteWVyc0BuZXRzY2FwZS5jb20xEzARBgNVBAMTCkpvaG4gTXll
+cnMwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMkrxhwWBuZImCjNet4bJ6Vdv/iXgHQs
+oXf8wdBaJZ2X6jJ17ZzlSha9mmwt3Z9H8LFfVdS+dz29ri1fBuvf0rcxPWdZkKi6HDag2yNV
+f3CV+650RlyzuQr2RNeirkKvaocmakRdplHRw81Txxoi5sCMrkVPmRWA35ILnNbn6sTvAgMB
+AAGjgf0wgfowDwYDVR0PAQH/BAUDAweAADAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUH
+AwQwQwYJYIZIAYb4QgENBDYWNElzc3VlZCBieSBOZXRzY2FwZSBDZXJ0aWZpY2F0ZSBNYW5h
+Z2VtZW50IFN5c3RlbSA0LjUwHwYDVR0RBBgwFoEUamdteWVyc0BuZXRzY2FwZS5jb20wHwYD
+VR0jBBgwFoAUKduyLYN+f4sju8LMZrk56CnzAoYwQQYIKwYBBQUHAQEENTAzMDEGCCsGAQUF
+BzABhiVodHRwOi8vY2VydGlmaWNhdGVzLm5ldHNjYXBlLmNvbS9vY3NwMA0GCSqGSIb3DQEB
+BAUAA4GBAExH0StQaZ/phZAq9PXm8btBCaH3FQsH+P58+LZF/DYQRw/XL+a3ieI6O+YIgMrC
+sQ+vtlCGqTdwvcKhjjgzMS/ialrV0e2COhxzVmccrhjYBvdF8Gzi/bcDxUKoXpSLQUMnMdc3
+2Dtmo+t8EJmuK4U9qCWEFLbt7L1cLnQvFiM4MIID1jCCAz+gAwIBAgIEAgAB5jANBgkqhkiG
+9w0BAQUFADBFMQswCQYDVQQGEwJVUzEYMBYGA1UEChMPR1RFIENvcnBvcmF0aW9uMRwwGgYD
+VQQDExNHVEUgQ3liZXJUcnVzdCBSb290MB4XDTAxMDYwMTEyNDcwMFoXDTA0MDYwMTIzNTkw
+MFowgZMxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UEBxMNTW91bnRhaW4gVmll
+dzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRkwFwYDVQQLExBBT0wgVGVjaG5vbG9n
+aWVzMScwJQYDVQQDEx5JbnRyYW5ldCBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwgZ8wDQYJKoZI
+hvcNAQEBBQADgY0AMIGJAoGBAOLvXyx2Q4lLGl+z5fiqb4svgU1n/71KD2MuxNyF9p4sSSYg
+/wAX5IiIad79g1fgoxEZEarW3Lzvs9IVLlTGbny/2bnDRtMJBYTlU1xI7YSFmg47PRYHXPCz
+eauaEKW8waTReEwG5WRB/AUlYybr7wzHblShjM5UV7YfktqyEkuNAgMBAAGjggGCMIIBfjBN
+BgNVHR8ERjBEMEKgQKA+hjxodHRwOi8vd3d3MS51cy1ob3N0aW5nLmJhbHRpbW9yZS5jb20v
+Y2dpLWJpbi9DUkwvR1RFUm9vdC5jZ2kwHQYDVR0OBBYEFCnbsi2Dfn+LI7vCzGa5Oegp8wKG
+MGYGA1UdIARfMF0wRgYKKoZIhvhjAQIBBTA4MDYGCCsGAQUFBwIBFipodHRwOi8vd3d3LmJh
+bHRpbW9yZS5jb20vQ1BTL09tbmlSb290Lmh0bWwwEwYDKgMEMAwwCgYIKwYBBQUHAgEwWAYD
+VR0jBFEwT6FJpEcwRTELMAkGA1UEBhMCVVMxGDAWBgNVBAoTD0dURSBDb3Jwb3JhdGlvbjEc
+MBoGA1UEAxMTR1RFIEN5YmVyVHJ1c3QgUm9vdIICAaMwKwYDVR0QBCQwIoAPMjAwMTA2MDEx
+MjQ3MzBagQ8yMDAzMDkwMTIzNTkwMFowDgYDVR0PAQH/BAQDAgEGMA8GA1UdEwQIMAYBAf8C
+AQEwDQYJKoZIhvcNAQEFBQADgYEASmIO2fpGdwQKbA3d/tIiOZkQCq6ILYY9V4TmEiQ3aftZ
+XuIRsPmfpFeGimkfBmPRfe4zNkkQIA8flxcsJ2w9bDkEe+JF6IcbVLZgQW0drgXznfk6NJrj
+e2tMcfjrqCuDsDWQTBloce3wYyJewlvsIHq1sFFz6QfugWd2eVP3ldQxggKmMIICogIBATCB
+mjCBkzELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3
+MRswGQYDVQQKExJBbWVyaWNhIE9ubGluZSBJbmMxGTAXBgNVBAsTEEFPTCBUZWNobm9sb2dp
+ZXMxJzAlBgNVBAMTHkludHJhbmV0IENlcnRpZmljYXRlIEF1dGhvcml0eQICW+AwCQYFKw4D
+AhoFAKCCAWEwGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMDIx
+MDE2MTkxNjM3WjAjBgkqhkiG9w0BCQQxFgQUGxl5WBGA1sE3dPOQBygeSG/FS2owUgYJKoZI
+hvcNAQkPMUUwQzAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcNAwICAUAw
+BwYFKw4DAgcwDQYIKoZIhvcNAwICASgwga0GCyqGSIb3DQEJEAILMYGdoIGaMIGTMQswCQYD
+VQQGEwJVUzELMAkGA1UECBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxGzAZBgNVBAoT
+EkFtZXJpY2EgT25saW5lIEluYzEZMBcGA1UECxMQQU9MIFRlY2hub2xvZ2llczEnMCUGA1UE
+AxMeSW50cmFuZXQgQ2VydGlmaWNhdGUgQXV0aG9yaXR5AgJb3zANBgkqhkiG9w0BAQEFAASB
+gI8sbyGpABO8c+rFgGhNX5MTk5Y7gyKh6WuAmafSbY8elaSaXTyLC1y2xsrtLgBa0uWIfJgP
+e61/LabcrX8vBhn/4XTK9nJolpTZNoH2E7y3FvvADH5wV7hP+15TxEl0noFzMnC45+PoyVR0
+1uJMiKLN1Gn72AeCPljp4MCdWl9qAAAAAAAA
+--------------ms050103010807030802060308--
 

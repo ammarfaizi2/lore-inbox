@@ -1,44 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268778AbUHaRiW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265701AbUHaRmA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268778AbUHaRiW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 13:38:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265086AbUHaRiW
+	id S265701AbUHaRmA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 13:42:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265086AbUHaRmA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 13:38:22 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:51392 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S268795AbUHaRef (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 13:34:35 -0400
-Date: Tue, 31 Aug 2004 19:34:25 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Linus Torvalds <torvalds@osdl.org>, coreteam@netfilter.org
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netfilter-devel@lists.netfilter.org
-Subject: 2.6.9-rc1: missing netfilter help texts
-Message-ID: <20040831173425.GE3466@fs.tum.de>
-References: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org>
+	Tue, 31 Aug 2004 13:42:00 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:1782 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S265999AbUHaRlL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 13:41:11 -0400
+Subject: Re: What policy for BUG_ON()?
+From: Albert Cahalan <albert@users.sf.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       bunk@fs.tum.de, arjanv@redhat.com, axboe@suse.de
+In-Reply-To: <Pine.LNX.4.58.0408310945580.2295@ppc970.osdl.org>
+References: <1093964782.434.7054.camel@cube>
+	 <Pine.LNX.4.58.0408310945580.2295@ppc970.osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1093973977.434.7097.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 31 Aug 2004 13:39:37 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following new netfilter options lack help texts:
-- IP_NF_CT_ACCT
-- IP_NF_MATCH_SCTP
-- IP_NF_CT_PROTO_SCTP
+On Tue, 2004-08-31 at 12:52, Linus Torvalds wrote:
+> On Tue, 31 Aug 2004, Albert Cahalan wrote:
+> > 
+> > The normal expectation for non-debug builds
+> > would be this:
+> > 
+> > #define BUG_ON(x)
+> 
+> No, this is bad, for one big reason: it generates compiler
+> warnings if 'x' happens to be the only thing that uses some value.
+...
+> This is generally why you should have macros like this not
+> become empty, but become something that the compiler can
+> compile away. Which is why I'd much rather see
+> 
+> 	#define BUG_ON(x) (void)(x)
+> 
+> regardless of any side-effect issues - it's a way to let the
+> compiler optimize the thing away, but still show that
+> something was used at least "conceptually"..
 
-Could someone add the help texts?
+Expensive function calls won't get optimized away unless you
+mark them __attribute__((__const__)) or __attribute__((__pure__)).
+(perhaps that should be encouraged)
 
-TIA
-Adrian
+Then of course the compiler must assume that the function
+really needed the arguments it was passed, and that it
+might have modified memory, and so on.
 
--- 
+Eh, how about a BUG_ON_WITH_SIDE_EFFECT() macro?
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

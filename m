@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263459AbTH0PVO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 11:21:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263453AbTH0PVO
+	id S263420AbTH0PNa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 11:13:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263419AbTH0PNa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 11:21:14 -0400
-Received: from mail.gondor.com ([212.117.64.182]:2321 "EHLO moria.gondor.com")
-	by vger.kernel.org with ESMTP id S263459AbTH0PVA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 11:21:00 -0400
-Date: Wed, 27 Aug 2003 17:20:52 +0200
-From: Jan Niehusmann <jan@gondor.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
+	Wed, 27 Aug 2003 11:13:30 -0400
+Received: from wildsau.idv.uni.linz.at ([213.157.128.253]:44952 "EHLO
+	wildsau.idv.uni.linz.at") by vger.kernel.org with ESMTP
+	id S263420AbTH0PN2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 11:13:28 -0400
+From: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>
+Message-Id: <200308271511.h7RFBFHu017520@wildsau.idv.uni.linz.at>
+Subject: Re: usb-storage: how to ruin your hardware(?)
+In-Reply-To: <200308221044.h7MAicrR005239@wildsau.idv.uni.linz.at>
+To: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>
+Date: Wed, 27 Aug 2003 17:11:14 +0200 (MET DST)
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Promise IDE patches
-Message-ID: <20030827152052.GB25198@gondor.com>
-References: <20030826223158.GA25047@gondor.com> <200308270054.27375.bzolnier@elka.pw.edu.pl> <1061996391.22825.39.camel@dhcp23.swansea.linux.org.uk> <20030827151227.GA25198@gondor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030827151227.GA25198@gondor.com>
-X-Request-PGP: http://gondor.com/key.asc
-User-Agent: Mutt/1.5.4i
+X-Mailer: ELM [version 2.4ME+ PL100 (25)]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 27, 2003 at 05:12:27PM +0200, Jan Niehusmann wrote:
-> What do you think about a check in __ide_do_rw_disk? calling
-> lba_28_rw_disk or chs_rw_disk when the block address doesn't fit in
-> 28bit is surely wrong and should return an error. 
+> > "after the first write the flash device failed entirely". That doen't 
+> 
+> no, I wrote several data to it, like partitioning it, writing /dev/zero
+> to it and so on. I moved it from computer to computer to try booting from
+> it, installed lilo on it and so on. After several hours of messing around
+> with the device, it failed.
 
-Sorry - I didn't notice that this straight forward distinction is only
-possible in the CONFIG_IDE_TASKFILE_IO case. 
+okidok.... I got an new flashdisk from the vendor, but managed to ruin
+it again. anyway, I also managed to repair it again. the vendor ships
+a seperate formating-tool, which will repair the device, even when you
+get "SCSI sense key errors".
 
-Jan
+however, I still don't understand what's going on and *why* it is not
+allowed to format the drive "at will". I'd also would like to know how
+this vendor supplied formating-tool works. Possibly some vendor-specific
+usb-commands to ... do what? hm. I can only guess.
+
+I purchased another driver (TraxData, USB-1, 6 euros cheaper and it
+my mainboard can even boot from this device).
+
+by the way: the manufacturer is Panram, www.panram.com.tw/ ... does anyone
+of you have experience with them? Is it likely that one gets documentation
+from them?
+
+thx
+h.rosmanith
 

@@ -1,60 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130399AbRAaLjm>; Wed, 31 Jan 2001 06:39:42 -0500
+	id <S131339AbRAaLkm>; Wed, 31 Jan 2001 06:40:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130673AbRAaLjc>; Wed, 31 Jan 2001 06:39:32 -0500
-Received: from styx.suse.cz ([195.70.145.226]:54268 "EHLO kerberos.suse.cz")
-	by vger.kernel.org with ESMTP id <S130399AbRAaLjZ>;
-	Wed, 31 Jan 2001 06:39:25 -0500
-Date: Wed, 31 Jan 2001 12:39:19 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: David Raufeisen <david@fortyoz.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VT82C686A corruption with 2.4.x
-Message-ID: <20010131123919.A1399@suse.cz>
-In-Reply-To: <Pine.LNX.4.21.0101301716490.3105-100000@ns-01.hislinuxbox.com> <Pine.LNX.4.21.0101301755330.3205-200000@ns-01.hislinuxbox.com> <20010131083642.A964@suse.cz> <20010130235525.A7513@fortyoz.org>
+	id <S131341AbRAaLkZ>; Wed, 31 Jan 2001 06:40:25 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:2052 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S131339AbRAaLkR>;
+	Wed, 31 Jan 2001 06:40:17 -0500
+Message-ID: <20010129225007.A1214@bug.ucw.cz>
+Date: Mon, 29 Jan 2001 22:50:08 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>
+Cc: leitner@fefe.de
+Subject: Re: sendfile+zerocopy: fairly sexy (nothing to do with ECN)
+In-Reply-To: <3A726087.764CC02E@uow.edu.au> <200101271854.VAA02845@ms2.inr.ac.ru> <3A73AF7B.6610B559@uow.edu.au> <20010128143748.A9767@convergence.de> <20010128152725.A13600@gruyere.muc.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010130235525.A7513@fortyoz.org>; from david@fortyoz.org on Tue, Jan 30, 2001 at 11:55:25PM -0800
+X-Mailer: Mutt 0.93i
+In-Reply-To: <20010128152725.A13600@gruyere.muc.suse.de>; from Andi Kleen on Sun, Jan 28, 2001 at 03:27:25PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 30, 2001 at 11:55:25PM -0800, David Raufeisen wrote:
-> On Wednesday, 31 January 2001, at 08:36:42 (+0100),
-> Vojtech Pavlik wrote:
-> 
-> > Hi!
-> > 
-> > 1) You don't seem to have any drives on the VIA controller. If this is
-> > true, I don't think this can be a VIA IDE driver problem.
-> >
-> 
-> Hi, Are you referring to Mark or me?
+Hi!
 
-I was referring to David D.W. Downey, the one who started this thread.
-He was in the To: fiels, you and Mark were in Cc:
+> Advantage of Tulip and AMD is that they perform much better in my experience
+> on half duplex Ethernet than other cards because they a modified 
+> patented backoff scheme. Without it Linux 2.1+ tends to suffer badly from
+> ethernet congestion by colliding with the own acks, probably because it 
+> sends too fast.
 
-> > 2) In your original message you suggest bs=1024M, which isn't a very
-> > good idea, even on a 768 MB system. Here with bs=1024k it seems to run
-> > fine.
-> >
-> > 3) You sent next to none VIA related debugging info. lspci -v itself
-> > isn't much valuable because I don't get the register contents. Also
-> > hdparm -i of the drives attached to the VIA chip would be useful. Plus
-> > also the contents of /proc/ide/via.
-> 
-> I didn't supply anything either, even though my configuration works great it
-> might prove useful to someone comparing:
-
-Sorry, this message indeed was directed to someone else. Thanks for your
-info, anyway, it's always useful to have some positive evidence that the
-thing does work for people.
-
+Is that real problem? If so, some strategic delay loop should do the
+trick...
+								Pavel
 -- 
-Vojtech Pavlik
-SuSE Labs
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317622AbSIEOvw>; Thu, 5 Sep 2002 10:51:52 -0400
+	id <S317624AbSIEPFT>; Thu, 5 Sep 2002 11:05:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317623AbSIEOvw>; Thu, 5 Sep 2002 10:51:52 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:39430 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S317622AbSIEOvw>; Thu, 5 Sep 2002 10:51:52 -0400
-Date: Thu, 5 Sep 2002 16:56:10 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Mike Isely <isely@pobox.com>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       "Henning P. Schmiedehausen" <hps@intermeta.de>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.20-pre5-ac2: Promise Controller LBA48 DMA fixed
-Message-ID: <20020905145610.GW24323@louise.pinerecords.com>
-References: <200209051435.g85EZZ6H022915@pincoya.inf.utfsm.cl> <Pine.LNX.4.44.0209050937100.10556-100000@grace.speakeasy.net>
+	id <S317628AbSIEPFT>; Thu, 5 Sep 2002 11:05:19 -0400
+Received: from thumper2.emsphone.com ([199.67.51.102]:55174 "EHLO
+	thumper2.emsphone.com") by vger.kernel.org with ESMTP
+	id <S317624AbSIEPFR>; Thu, 5 Sep 2002 11:05:17 -0400
+Date: Thu, 5 Sep 2002 10:09:50 -0500
+From: Andrew Ryan <genanr@emsphone.com>
+To: linux-kernel@vger.kernel.org
+Subject: ARP and alias IPs
+Message-ID: <20020905150949.GA8112@thumper2.emsphone.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0209050937100.10556-100000@grace.speakeasy.net>
 User-Agent: Mutt/1.4i
-X-OS: GNU/Linux 2.4.20-pre1/sparc SMP
-X-Uptime: 10 days, 7:39
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But in the future, if I post more fixes to the IDE driver (probably 
-> won't), I'll sanitize as I go along.
+The linux implementation of ARP is causing me problems.  Linux sends out an
+ARP request with the default interface as the sender address, rather than then
+interface the request came on. 
 
->From what Andre said in the past I've gathered he's very much ok with
-code sanitizing and cleanups... Knock yourself out if you please.
+For example
 
-> I find it amusing that a post from me which describes evidence of
-> completely broken Promise controller DMA goes unresponded to, yet there
-> are concerns about whether to spell code as "a != b" or "!(a == b)".
+eth0   10.1.1.100
+eth0:1 192.16.1.101 
 
-Well, your patch is obviously correct -- there's not much to comment on.
+and an ARP is received on 192.16.1.101, linux responds with
+10.1.1.100 as the source address in the ARP request, rather than 192.16.1.101
+(which FreeBSD, Solaris, and tru64 do).  To me, this is just plain wrong. 
+The sender address should be an address on the subnet that the request came
+from, not a different one.  Is there any way to fix this?
 
-T.
+Andy

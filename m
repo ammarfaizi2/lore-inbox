@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129909AbQLEXVv>; Tue, 5 Dec 2000 18:21:51 -0500
+	id <S130671AbQLEXXN>; Tue, 5 Dec 2000 18:23:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129912AbQLEXVm>; Tue, 5 Dec 2000 18:21:42 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:6662 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129909AbQLEXVe>; Tue, 5 Dec 2000 18:21:34 -0500
-From: Peter Samuelson <peter@cadcamlab.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14893.28991.629652.495045@wire.cadcamlab.org>
-Date: Tue, 5 Dec 2000 16:50:39 -0600 (CST)
-To: Tigran Aivazian <tigran@veritas.com>
+	id <S129738AbQLEXXD>; Tue, 5 Dec 2000 18:23:03 -0500
+Received: from tstac.esa.lanl.gov ([128.165.46.3]:27405 "EHLO
+	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
+	id <S130649AbQLEXWs>; Tue, 5 Dec 2000 18:22:48 -0500
+From: Steven Cole <scole@lanl.gov>
+Reply-To: scole@lanl.gov
+Date: Tue, 5 Dec 2000 15:47:15 -0700
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="us-ascii"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <E143QAI-0000GI-00@the-village.bc.nu>
+In-Reply-To: <E143QAI-0000GI-00@the-village.bc.nu>
+Subject: Re: 2.4.0-test12-pre4 + cs46xx + KDE 2.0 = frozen system
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch-2.4.0-test12-pre5] optimized get_empty_filp()
-In-Reply-To: <20001205160014.G6567@cadcamlab.org>
-	<Pine.LNX.4.21.0012052229190.1683-100000@penguin.homenet>
-X-Mailer: VM 6.75 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
-X-Face: ?*2Jm8R'OlE|+C~V>u$CARJyKMOpJ"^kNhLusXnPTFBF!#8,jH/#=Iy(?ehN$jH
-        }x;J6B@[z.Ad\Be5RfNB*1>Eh.'R%u2gRj)M4blT]vu%^Qq<t}^(BOmgzRrz$[5
-        -%a(sjX_"!'1WmD:^$(;$Q8~qz\;5NYji]}f.H*tZ-u1}4kJzsa@id?4rIa3^4A$
+MIME-Version: 1.0
+Message-Id: <00120515471500.00866@spc.esa.lanl.gov>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 05 December 2000 15:02, Alan Cox wrote:
+>
+> > cs461x: Card found at 0xf8ffe000 and 0xf8e00000, IRQ 18
+> > cs461x: Unknown card (FFFFFFFF:FFFFFFFF) at 0xf8ffe000/0xf8e00000, IRQ 18
+>
+> This gets garbage back when it reads the vendor subids. I dont at this
+> point see it being a sound bug but a pci layer bug
 
-  [Peter Samuelson]
-> > Whether a memset of 92 bytes (on 32-bit arch), plus an
-> > atomic_set(), are worth deserializing, I do not know.
+I just repeated some of my earlier tests, and I was _wrong_ about 
+2.4.0-test11-ac1 working with KDE on my machine.  I probably didn't
+do the make modules, make modules_install properly, and as a result,
+did not have sound and KDE came up properly.  For test11-ac1, the
+relevant section of messages is the same as above, and ac1 freezes
+on the KDE 2.0 startup.
 
-[Tigran Aivazian]
-> Of course, they are worth it. Actually, I don't understand how can
-> you even doubt it?
+I did confirm that 2.4.0-test11(final) works properly with sound and KDE 2.0.
 
-Clearly we are talking at cross-purposes here.  I do realize that
-spin_lock+spin_unlock have a non-zero cost.
+I do think its rather odd that these test12-pre3,4,5 kernels all work with
+GNOME and the CD player works then.  KDE 2.0 is doing something different
+at the "Loading the panel" stage that causes this bug to surface.
 
-The question is whether or not it is worth taking a lock again (with
-that non-zero cost) to achieve the gain of doing the 92-byte memset and
-the atomic_set in parallel with other CPUs.  In other words, by locking
-and unlocking twice, you reduce the contention on the lock.  Is this,
-however, worth the extra cycles and bus traffic?  I don't know.
+If there any config options or tests I can do, please let me know.  I'm 
+looking into the serial console thing.
 
-> Even a single cycle of code executed for _no reason_ must be removed,
-> if for no other reason than to make the code easier to understand and
-> prevent people from asking questions like "why does X do Y for no
-> reason?"
-
-Taken to its logical conclusion, you are arguing for Linux 2.0.x SMP.
-Nobody takes any locks at all, except the BKL at kernel entry points.
-Clearly that is suboptimal for contention.
-
-Peter
+Steven
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

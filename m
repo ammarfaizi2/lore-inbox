@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266772AbUFRTsa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262361AbUFSB2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266772AbUFRTsa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 15:48:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266596AbUFRTpE
+	id S262361AbUFSB2R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 21:28:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbUFSB2R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 15:45:04 -0400
-Received: from fw.osdl.org ([65.172.181.6]:17798 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266613AbUFRTlL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 15:41:11 -0400
-Date: Fri, 18 Jun 2004 12:43:51 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz, vojtech@ucw.cz
-Subject: Re: [PATCH 8/11] serio sysfs integration
-Message-Id: <20040618124351.76872a71.akpm@osdl.org>
-In-Reply-To: <200406180750.26570.dtor_core@ameritech.net>
-References: <200406180335.52843.dtor_core@ameritech.net>
-	<200406180342.11056.dtor_core@ameritech.net>
-	<20040618023853.5d4ee96a.akpm@osdl.org>
-	<200406180750.26570.dtor_core@ameritech.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Fri, 18 Jun 2004 21:28:17 -0400
+Received: from disk.smurf.noris.de ([192.109.102.53]:41920 "EHLO
+	server.smurf.noris.de") by vger.kernel.org with ESMTP
+	id S262361AbUFSB2P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 21:28:15 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Newsgroups: smurf.list.linux.kernel
+Subject: Re: [PATCH] Stop printk printing non-printable chars
+Date: Sat, 19 Jun 2004 03:23:35 +0200
+Organization: {M:U} IT Consulting
+Message-ID: <pan.2004.06.19.01.23.34.471323@smurf.noris.de>
+References: <20040618205355.GA5286@newtoncomputing.co.uk> <Pine.LNX.4.58.0406181407330.6178@ppc970.osdl.org> <Pine.LNX.4.56.0406190032290.17899@jjulnx.backbone.dif.dk>
+NNTP-Posting-Host: kiste.smurf.noris.de
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Trace: server.smurf.noris.de 1087608215 21297 192.109.102.35 (19 Jun 2004 01:23:35 GMT)
+X-Complaints-To: smurf@noris.de
+NNTP-Posting-Date: Sat, 19 Jun 2004 01:23:35 +0000 (UTC)
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov <dtor_core@ameritech.net> wrote:
->
-> description 	- i8042 Aux Port
-> driver		- psmouse
-> legacy_position	- isa0060/serio1 (take from serio's phys, can be used
-> to match with /proc/bus/input/devices).
-> 
-> Every driver will have a set of custom attributes that will be documented
-> on one by one basis. Btw, where would you document it? Documentation
-> directory entry? Something else?
+Hi, Jesper Juhl wrote:
 
-Conceivably one could attempt to document it via module_parm_desc in each
-driver, but I presume that won't work for a host of reasons.
+> [ printing control characters as "meaningful" C escapes ]
+> or am I not making sense?
 
-So yup, a succinct description in Documentation/input/ would be great.
+No, you're not. ;-)
+
+Reason: They're not intended to be meaningful. If the kernel prints them,
+the reason isn't that somebody actually used an \a or \v in there, so
+doing that isn't helpful. (Quick, what's the ASCII for \v?)
+
+-- 
+Matthias Urlichs

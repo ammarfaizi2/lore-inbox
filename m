@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318760AbSICLge>; Tue, 3 Sep 2002 07:36:34 -0400
+	id <S318265AbSICLxw>; Tue, 3 Sep 2002 07:53:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318756AbSICLge>; Tue, 3 Sep 2002 07:36:34 -0400
-Received: from smtp.comcast.net ([24.153.64.2]:28982 "EHLO smtp.comcast.net")
-	by vger.kernel.org with ESMTP id <S318760AbSICLgd>;
-	Tue, 3 Sep 2002 07:36:33 -0400
-Date: Tue, 03 Sep 2002 07:48:36 -0400
-From: Jerry McBride <mcbrides9@comcast.net>
-Subject: Can't find qt libs...
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       "kde-linux@mail.kde.org" <kde-linux@mail.kde.org>
-Message-id: <0H1V0080X1S3C3@mtaout03.icomcast.net>
-Organization: TEAM LINUX
-MIME-version: 1.0
-X-Mailer: Sylpheed version 0.8.0claws (GTK+ 1.2.8; )
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-X-message-flag: Join the Wave and install Linux
+	id <S318289AbSICLxw>; Tue, 3 Sep 2002 07:53:52 -0400
+Received: from vivi.uptime.at ([62.116.87.11]:46540 "EHLO mail.uptime.at")
+	by vger.kernel.org with ESMTP id <S318265AbSICLxw> convert rfc822-to-8bit;
+	Tue, 3 Sep 2002 07:53:52 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Pitzeier <o.pitzeier@uptime.at>
+Organization: UPtime system solutions
+To: axp-kernel-list@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.5.33 successfully compiled
+Date: Tue, 3 Sep 2002 13:57:48 +0200
+User-Agent: KMail/1.4.2
+Cc: axp-kernel-list@redhat.com
+References: <200209031259.46719.o.pitzeier@uptime.at>
+In-Reply-To: <200209031259.46719.o.pitzeier@uptime.at>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209031357.48241.o.pitzeier@uptime.at>
+X-MailScanner: Nothing found, baby
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 03 September 2002 12:59, Oliver Pitzeier wrote:
+[ ... ]
+> It compiled successfull. I have not yet tried to reboot the machine because
+> it is used currently...
 
-Why is it that after I successfully compile qt3 and kde3.0.x... that I can
-never go back and
-recompile the beast without kde's ./configure scripts not being able to
-find qt3?? it acts like a
-onetime shot at compiling and then never again. 
+OK. I was in an error! I didn't saw the error because of a "make -j2"...
 
-It's a pain in the ass. What's the skinny, if any one knows?
+I'll try to fix it now...
 
 -- 
+Oliver Pitzeier
+UNIX Administrator
+-
+Linux 2.4.19 i686     Load: 0.08 0.02 0.03
 
-*************************************************************************
-*****
-                     Registered Linux User Number 185956
-          http://groups.google.com/groups?hl=en&safe=off&group=linux
-    7:28am  up 174 days, 12:37,  5 users,  load average: 0.82, 0.63, 0.67

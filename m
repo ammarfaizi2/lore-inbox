@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbVBXQoU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261844AbVBXQqa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261598AbVBXQoU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 11:44:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbVBXQoU
+	id S261844AbVBXQqa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 11:46:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262405AbVBXQqa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 11:44:20 -0500
-Received: from keetweej.xs4all.nl ([213.84.46.114]:3524 "EHLO
+	Thu, 24 Feb 2005 11:46:30 -0500
+Received: from keetweej.xs4all.nl ([213.84.46.114]:3525 "EHLO
 	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
-	id S261598AbVBXQoQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 11:44:16 -0500
-Date: Thu, 24 Feb 2005 17:44:15 +0100
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Rog?rio Brito <rbrito@ime.usp.br>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11rc4: irq 5, nobody cared
-Message-ID: <20050224164407.GC5138@vanheusden.com>
-References: <20050220164010.GA17806@ime.usp.br> <421CF352.2090200@tmr.com>
+	id S261844AbVBXQqX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 11:46:23 -0500
+Date: Thu, 24 Feb 2005 17:46:22 +0100
+To: linux-os <linux-os@analogic.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: accept() fails with EINTER
+Message-ID: <20050224164620.GD5138@vanheusden.com>
+References: <Pine.LNX.4.61.0502231009380.5342@chaos.analogic.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <421CF352.2090200@tmr.com>
+In-Reply-To: <Pine.LNX.4.61.0502231009380.5342@chaos.analogic.com>
 Organization: www.unixexpert.nl
 Read-Receipt-To: <folkert@vanheusden.com>
 X-Chameleon-Return-To: folkert@vanheusden.com
@@ -30,30 +30,14 @@ From: folkert@vanheusden.com (Folkert van Heusden)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >>My linux laptop says:
-> >>irq 5: nobody cared!
-> >(...)
-> >>Does anyone care? :-)
-> >Well, I'm getting similar stack traces with my system and those are sure
-> >scary, but it seems that my e-mails to the list are simply ignored,
-> >unfortunately.
-> I posted a similar thing, but the problem is not that you get the 
-> message. It means your hardware generated an unexpected interrupt. The 
-> kernel is reporting that fact as it should.
-> The problem I had (not resolved) is that after the message
->   DISABLING IRQ NN
-> I continued to get interrupts! So the logic to disable the IRQ is not 
-> working correctly.
+> Trying to run an old server with a new kernel. A connection
+> fails with "interrupted system call" as soon as a client
+> attempts to connect. A trap in the code to continue
+> works, but subsequent send() and recv() calls fail in
+> the same way.
 
-In my case, the interrupt should NOT be disabled as my WIFI-interface is
-behind it (via ndiswrappers).
-
-> as you note, because the hardware is generating the condition, no one 
-> seems to care, even though there clearly is a problem in the disable 
-> logic. I found a way to fix my hardware thanks to some pointers I got, 
-> so I'm running, but I haven't heard that the base problem is fixed.
-
-Aight.
+Weren't you supposed to just 'try again' when receiving EINTR (or
+EAGAIN)?
 
 
 Folkert van Heusden

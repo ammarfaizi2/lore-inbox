@@ -1,52 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310644AbSCHBsg>; Thu, 7 Mar 2002 20:48:36 -0500
+	id <S310641AbSCHBqg>; Thu, 7 Mar 2002 20:46:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310642AbSCHBs0>; Thu, 7 Mar 2002 20:48:26 -0500
-Received: from asooo.flowerfire.com ([63.254.226.247]:18827 "EHLO
-	asooo.flowerfire.com") by vger.kernel.org with ESMTP
-	id <S310640AbSCHBsO>; Thu, 7 Mar 2002 20:48:14 -0500
-Date: Thu, 7 Mar 2002 19:47:58 -0600
-From: Ken Brownfield <brownfld@irridia.com>
-To: John Jasen <jjasen1@umbc.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Recommendations about a 100/10 NIC
-Message-ID: <20020307194758.A5904@asooo.flowerfire.com>
-In-Reply-To: <20020306111502.D8107@asooo.flowerfire.com> <Pine.SGI.4.31L.02.0203061234520.6241227-100000@irix2.gl.umbc.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.SGI.4.31L.02.0203061234520.6241227-100000@irix2.gl.umbc.edu>; from jjasen1@umbc.edu on Wed, Mar 06, 2002 at 12:36:24PM -0500
+	id <S310640AbSCHBq1>; Thu, 7 Mar 2002 20:46:27 -0500
+Received: from maillog.promise.com.tw ([210.244.60.166]:15608 "EHLO
+	maillog.promise.com.tw") by vger.kernel.org with ESMTP
+	id <S310641AbSCHBqO>; Thu, 7 Mar 2002 20:46:14 -0500
+Message-ID: <00b901c1c642$e7b6e9b0$59cca8c0@hank>
+From: "Hank Yang" <hanky@promise.com.tw>
+To: <arjanv@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <014701c1c5b6$a0dfb620$59cca8c0@hank> <3C873F96.C91E3591@redhat.com>
+Subject: Re: [PATCH] Submitting PROMISE IDE Controllers Driver Patch
+Date: Fri, 8 Mar 2002 09:45:15 +0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The SMC cards used to be Tulip before epic.  I had the same module
-problems with epic too, so we had to go to EE from Tulip when that
-happened. :(
+Hello.
 
-I suspect a lot of the problems depend on the motherboard or
-architecture, as well as the switching hardware.
+    That's because the linux-kernel misunderstand the raid controller
+to IDE controller. If do so, The raid driver will be unstable when
+be loaded.
 
--- 
-Ken.
-brownfld@irridia.com
+    So we must to prevent the raio controller to be as IDE controller
+here.
 
-On Wed, Mar 06, 2002 at 12:36:24PM -0500, John Jasen wrote:
-| On Wed, 6 Mar 2002, Ken Brownfield wrote:
-| 
-| > Haven't had any issues at all with eepro100 or e100 under production
-| > load for years.  Since Tulip went out of the mainstream (poor Digital)
-| > the EtherExpress has been the most stable everywhere I've been.  I've
-| > written too many scripts for 3Com boxes that grep dmesg for "fatal"
-| > errors and unload/reload the 3com module.
-| 
-| Ran into problems with Intel EtherExpress cards under Alpha a while back,
-| and I've had a _lot_ of problems with the revision of the EtherExpress
-| built into motherboards, versus the intel or kernel drivers for them.
-| 
-| My stock recommendation is thus SMC EtherPower II cards.
-| 
-| --
-| -- John E. Jasen (jjasen1@umbc.edu)
-| -- In theory, theory and practise are the same. In practise, they aren't.
+Regards
+Hank Yang.
+
+----- Original Message -----
+From: "Arjan van de Ven" <arjanv@redhat.com>
+To: "Hank Yang" <hanky@promise.com.tw>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Thursday, March 07, 2002 6:23 PM
+Subject: Re: [PATCH] Submitting PROMISE IDE Controllers Driver Patch
+
+
+>
+> >   {DEVID_PDC20268,"PDC20268", PCI_PDC202XX, ATA66_PDC202XX,
+INIT_PDC202XX,
+> > NULL,  {{0x00,0x00,0x00}, {0x00,0x00,0x00}}, OFF_BOARD, 16 },
+> > - /* Promise used a different PCI ident for the raid card apparently to
+try
+> > and
+> > -    prevent Linux detecting it and using our own raid code. We want to
+> > detect
+> > -    it for the ataraid drivers, so we have to list both here.. */
+> > - {DEVID_PDC20268R,"PDC20268", PCI_PDC202XX, ATA66_PDC202XX,
+INIT_PDC202XX,
+> > NULL,  {{0x00,0x00,0x00}, {0x00,0x00,0x00}}, OFF_BOARD, 16 },
+>
+>
+> Interesting. So you remove support for the raid drivers. Why ?
+>
+> More places where you do this:
+>
+> > @@ -774,7 +784,8 @@
+> >        IDE_PCI_DEVID_EQ(d->devid, DEVID_PDC20265) ||
+> >        IDE_PCI_DEVID_EQ(d->devid, DEVID_PDC20267) ||
+> >        IDE_PCI_DEVID_EQ(d->devid, DEVID_PDC20268) ||
+> > -      IDE_PCI_DEVID_EQ(d->devid, DEVID_PDC20268R) ||
+> > +      IDE_PCI_DEVID_EQ(d->devid, DEVID_PDC20269) ||
+> > +      IDE_PCI_DEVID_EQ(d->devid, DEVID_PDC20275) ||
+> >        IDE_PCI_DEVID_EQ(d->devid, DEVID_AEC6210) ||
+> >        IDE_PCI_DEVID_EQ(d->devid, DEVID_AEC6260) ||
+>
+> > diff -urN linux-2.4.18.org/include/linux/pci_ids.h
+> > linux/include/linux/pci_ids.h
+> > --- linux-2.4.18.org/include/linux/pci_ids.h Tue Feb 26 03:38:13 2002
+> > +++ linux/include/linux/pci_ids.h Wed Feb 27 19:45:18 2002
+> > @@ -603,7 +603,6 @@
+> >  #define PCI_DEVICE_ID_PROMISE_20246 0x4d33
+> >  #define PCI_DEVICE_ID_PROMISE_20262 0x4d38
+> >  #define PCI_DEVICE_ID_PROMISE_20268 0x4d68
+> > -#define PCI_DEVICE_ID_PROMISE_20268R 0x6268
+> >  #define PCI_DEVICE_ID_PROMISE_20269 0x4d69
+> >  #define PCI_DEVICE_ID_PROMISE_20275 0x1275
+> >  #define PCI_DEVICE_ID_PROMISE_5300 0x5300
+> .org/lkml/
+

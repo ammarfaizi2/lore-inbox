@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315748AbSGOTXb>; Mon, 15 Jul 2002 15:23:31 -0400
+	id <S317622AbSGOTZ1>; Mon, 15 Jul 2002 15:25:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317616AbSGOTXa>; Mon, 15 Jul 2002 15:23:30 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:45838 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S315748AbSGOTX3>;
-	Mon, 15 Jul 2002 15:23:29 -0400
-Date: Mon, 15 Jul 2002 12:25:35 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] agpgart changes for 2.5.25
-Message-ID: <20020715192535.GB31167@kroah.com>
-References: <20020715190806.GA31167@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020715190806.GA31167@kroah.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Mon, 17 Jun 2002 18:07:19 -0700
+	id <S317623AbSGOTZ1>; Mon, 15 Jul 2002 15:25:27 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:11527 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S317622AbSGOTZX>; Mon, 15 Jul 2002 15:25:23 -0400
+Date: Mon, 15 Jul 2002 15:22:54 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: David Weinehall <tao@acc.umu.se>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Future of Kernel tree 2.0 ............
+In-Reply-To: <20020713234920.GP29001@khan.acc.umu.se>
+Message-ID: <Pine.LNX.3.96.1020715151754.25239B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 15, 2002 at 12:08:06PM -0700, Greg KH wrote:
-> Hi,
-> 
-> These changesets have the latest agpgart code from the -dj tree, and
-> I've tried to rename the files to something that makes more sense.
-> 
-> 
-> Pull from:  http://linuxusb.bkbits.net/agpgart-2.5
+On Sun, 14 Jul 2002, David Weinehall wrote:
 
-For the people who aren't using bitkeeper, these patches can be found
-at:
-http://www.kernel.org/pub/linux/kernel/people/gregkh/misc/agpgart-1-2.5.25.patch
-http://www.kernel.org/pub/linux/kernel/people/gregkh/misc/agpgart-2-2.5.25.patch
-http://www.kernel.org/pub/linux/kernel/people/gregkh/misc/agpgart-3-2.5.25.patch
-http://www.kernel.org/pub/linux/kernel/people/gregkh/misc/agpgart-4-2.5.25.patch
+> Really, there is little reason to worry; my contribution to the
+> development of 2.5 (and a forthcoming 2.6/2.7/2.8/...) would probably
+> not be much larger were I to drop maintenance of the 2.0-tree. Possibly,
+> Marcello and Linus would receive a few more odd fixes for typos and
+> the Config-files, and maybe some MCA-related fixes, but as things stand
+> right now, the fact that I only have a dialup-connection stands between
+> me and serious development (<subliminal message>anyone care to sponsor a
+> faster connection or hire me?</subliminal message>)
 
-thanks,
+Out of curiousity, just what will UML run? Can you run 2.0 kernels under
+UML? Older than that? Your mention about the pain of upgrading strikes
+home.
 
-greg k-h
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

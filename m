@@ -1,66 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264399AbTKMT2o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 14:28:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264400AbTKMT2o
+	id S264401AbTKMTaw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 14:30:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264405AbTKMTav
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 14:28:44 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:60049 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S264399AbTKMT2n
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 14:28:43 -0500
-Date: Thu, 13 Nov 2003 11:28:39 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Andrew Walrond <andrew@walrond.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel.bkbits.net off the air
-Message-ID: <20031113192839.GA13330@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org
-References: <fa.eto0cvm.1v20528@ifi.uio.no> <200311131010.27315.andrew@walrond.org> <20031113162712.GA2462@work.bitmover.com> <200311131917.11773.andrew@walrond.org>
+	Thu, 13 Nov 2003 14:30:51 -0500
+Received: from dd1234.kasserver.com ([81.209.148.157]:52183 "EHLO
+	dd1234.kasserver.com") by vger.kernel.org with ESMTP
+	id S264401AbTKMTat (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Nov 2003 14:30:49 -0500
+Date: Thu, 13 Nov 2003 19:30:43 +0000
+From: Jochen Voss <voss@seehuhn.de>
+To: "Nakajima, Jun" <jun.nakajima@intel.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: invalid SMP mptable on Toshiba Satellite 2430-301
+Message-ID: <20031113193043.GA1366@seehuhn.de>
+References: <7F740D512C7C1046AB53446D37200173618736@scsmsx402.sc.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="EeQfGwPcQSOJBaQU"
 Content-Disposition: inline
-In-Reply-To: <200311131917.11773.andrew@walrond.org>
-User-Agent: Mutt/1.4i
+In-Reply-To: <7F740D512C7C1046AB53446D37200173618736@scsmsx402.sc.intel.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 13, 2003 at 07:17:11PM +0000, Andrew Walrond wrote:
-> And I still maintain that a stripped out, redistributable, clone/pull only 
-> binary tool without the restrictive license would be a real smart business 
-> move.
 
-I'm trying to see why.
+--EeQfGwPcQSOJBaQU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Our commercial customers don't care about this so there isn't any business
-incentive there.
+Hello,
 
-The actual BK users don't care about this, they use BK.
+On Thu, Nov 13, 2003 at 10:56:34AM -0800, Nakajima, Jun wrote:
+> Which kernel is this?
+It is 2.6.0-test9 source from Debian, which Herbert Xu's patch
+to make it boot.
 
-The BK detractors aren't going to touch anything that we produce, they are 
-convinced we're out to do them harm somehow.
+> In 2.6 we don't look at the MPS table if ACPI is
+> available. Or ACPI detection is failing?
+How do I check this?  The calling chain which leads to the "BIOS bug,
+MP table errors detected!" message is described in my original report
 
-So who's left?
+    http://www.ussg.iu.edu/hypermail/linux/kernel/0311.1/0894.html
 
-And a better question is why doesn't some open source person do this?  All 
-you need to do is create a network daemon which responds to clone requests
-and pull requests.  The clone request sends across a tarball and the client
-side untars it.  The pull request sends a changeset key (which was sent in
-the last clone/pull) and gets a tarball of new/changed files, the new 
-top of trunk changeset key, and a list of renames.  Actually the easier way
-is to do it more like diff does, for each file that has been changed, send
-across a "delete this file and any directories the deletion leaves empty"
-list, and then you unpack the tarball on top of the tree.
+Other relevant information:
 
-This would be easy to build but I don't see it solving anything.  All it
-does is act as a replacement for rsync.  It doesn't have revision history,
-you can't do diffs, etc.  As soon as this exists, people will ask you
-for all the other features.  Which is why I don't want to build it, I
-don't want to get sucked into the "please rebuild BK as a GPLed product"
-business.
+the full dmesg output: http://seehuhn.de/comp/dmesg-2.6.0-test9
+my kernel config file: http://seehuhn.de/comp/config-2.6.0-test9
+Herbert's patch: http://www.ussg.iu.edu/hypermail/linux/kernel/0311.1/0879.=
+html
 
-What am I missing?
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+I hope this helps,
+Jochen
+--=20
+http://seehuhn.de/
+
+--EeQfGwPcQSOJBaQU
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/s9vif+iD8yEbECURApj2AKC2BNF1E7hyO2wg/5+HDgvMGxxvtwCfSoQ+
+yS1+TMQmRLJ+KvkXyXxqrgg=
+=SFwS
+-----END PGP SIGNATURE-----
+
+--EeQfGwPcQSOJBaQU--

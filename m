@@ -1,66 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261948AbUL0Tfp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261951AbUL0Tiz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261948AbUL0Tfp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 14:35:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbUL0Tfp
+	id S261951AbUL0Tiz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 14:38:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261952AbUL0Tiz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 14:35:45 -0500
-Received: from rproxy.gmail.com ([64.233.170.201]:3624 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261948AbUL0Tfj convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 14:35:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=bQL7iSoYCIYOob/p6CtOsGyMTw1w1MV0NaPGd2cHdp6w0Dh0uT4U7rzPfIUVYQD6lUjPvbHBbXR+MfsJ57djyIoIDFJzXdw1yxIGMaLF4PzBw8hIxj/LWn3SFpCpA/UknnsaO6fvrTHrMQTz0pZe1uFxlKtvkmT6PVrMM1YAX90=
-Message-ID: <d5a95e6d04122711355a0a9b04@mail.gmail.com>
-Date: Mon, 27 Dec 2004 16:35:38 -0300
-From: Diego <foxdemon@gmail.com>
-Reply-To: Diego <foxdemon@gmail.com>
-To: Michelle Konzack <linux4michelle@freenet.de>
-Subject: Re: About NFS4 in kernel 2.6.9
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20041227192508.GC18869@freenet.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-References: <d5a95e6d04122711183596d0c8@mail.gmail.com>
-	 <20041227192508.GC18869@freenet.de>
+	Mon, 27 Dec 2004 14:38:55 -0500
+Received: from anchor-post-31.mail.demon.net ([194.217.242.89]:12047 "EHLO
+	anchor-post-31.mail.demon.net") by vger.kernel.org with ESMTP
+	id S261951AbUL0Tix (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 14:38:53 -0500
+Message-ID: <41D064D0.6050509@transtec.demon.co.uk>
+Date: Mon, 27 Dec 2004 19:38:56 +0000
+From: AJM <ajm@transtec.demon.co.uk>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040804 Netscape/7.2 (ax)
+X-Accept-Language: en-gb, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Module Names - Hyphen Converted to Underscore
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First sorry about my poor english. I read in internet that it´s best
-if i recompile NFS4 as module, so i did it. But i have this error
-message. I dont know wht to do. when i do make xconfig, in filesystem,
-i have checked all that have NFS and RPC, but it insist in not work.
+I have compiled stock (kernel.org) 2.6.3 and 2.6.9 kernels which exhibit 
+the following unusual behaviour on module loading: If the kernel module 
+has a hyphen in its name, then this appears to be translated into an 
+underscore by the kernel, such that, for example after "insmod 3w-xxxx", 
+lsmod shows "3w_xxxx", "rmmod 3w-xxxx" fails but "rmmod 3w_xxxx" succeeds.
 
+The distribution I am compiling the kernels under is Mandrake 10.0, and 
+if I compile the 2.6.3-4mdk kernel source supplied with the distribution 
+  then this problem does not arise.
 
-On Mon, 27 Dec 2004 20:25:08 +0100, Michelle Konzack
-<linux4michelle@freenet.de> wrote:
-> Hello Diego,
-> 
-> Am 2004-12-27 16:18:00, schrieb Diego:
-> 
-> > Iniciando NFS4 idmapd: FATAL: Module sunrpc not found.
-> > FATAL: Error running install command for sunrpc
-> >
-> > I dont know what is the problem, whem i recompile the kernel, i
-> > compile support to NFSv4. Somebody help me, please.
-> > Thanks for your help.
-> 
-> The output told you that it does not find "sunrpc" so you
-> need ot compile it for your kernel. What do you mean ?
-> 
-> > Diego.
-> 
-> Greetings
-> Michelle
-> 
-> --
-> Linux-User #280138 with the Linux Counter, http://counter.li.org/
-> Michelle Konzack   Apt. 917                  ICQ #328449886
->                   50, rue de Soultz         MSM LinuxMichi
-> 0033/3/88452356    67100 Strasbourg/France   IRC #Debian (irc.icq.com)
-> 
-> 
->
+A Google search reveals a number of similar problems, but with no 
+explanation other than possible typing errors.
+
+Any suggestions as to why this is happening?
+
+Thanks in advance,
+
+Jonathan.

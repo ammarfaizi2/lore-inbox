@@ -1,38 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263414AbRFAIVg>; Fri, 1 Jun 2001 04:21:36 -0400
+	id <S263412AbRFAI31>; Fri, 1 Jun 2001 04:29:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263413AbRFAIV0>; Fri, 1 Jun 2001 04:21:26 -0400
-Received: from se1.cogenit.fr ([195.68.53.173]:10248 "EHLO cogenit.fr")
-	by vger.kernel.org with ESMTP id <S263412AbRFAIVP>;
-	Fri, 1 Jun 2001 04:21:15 -0400
-Date: Fri, 1 Jun 2001 10:21:09 +0200
-From: Francois Romieu <romieu@cogenit.fr>
-To: Emmanuel Varagnat <varagnat@crm.mot.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sk_buff question
-Message-ID: <20010601102109.A6400@se1.cogenit.fr>
-In-Reply-To: <3B166A44.F1A8B0A@crm.mot.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=unknown-8bit
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B166A44.F1A8B0A@crm.mot.com>; from varagnat@crm.mot.com on Thu, May 31, 2001 at 05:59:00PM +0200
-X-Organisation: Marie's fan club
+	id <S263413AbRFAI3S>; Fri, 1 Jun 2001 04:29:18 -0400
+Received: from phoenix.datrix.co.za ([196.37.220.5]:27760 "EHLO
+	phoenix.datrix.co.za") by vger.kernel.org with ESMTP
+	id <S263412AbRFAI3E>; Fri, 1 Jun 2001 04:29:04 -0400
+Date: Fri, 1 Jun 2001 10:29:39 +0200 (SAST)
+From: Marcin Kowalski <kowalski@datrix.co.za>
+To: alan@lxorguk.ukuu.org.uk
+cc: vichu@digitalme.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.5 VM
+In-Reply-To: <E155bG5-0008AX-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10106011028150.6653-100000@webman.medikredit.co.za>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Emmanuel Varagnat <varagnat@crm.mot.com> écrit :
-> I need to had a header to the data in the sk_buff.
-> But what to do if there is no enough space left at the head ?
+Hi
 
-I assume "alloc+copy" isn't the expected answer, is it ?
+I found this post of interest. I have 1.1 Gig of RAM but only 800mb of
+Swap as I expect NOT to use that much memory... Could this be the cause of
+the machines VERY erratic behaviour??? Kernel Panics, HUGE INOde and
+Dcache.... ??
 
-> I saw skb_copy_expand, but it gives me a new sk_buff. Is there
-> a way to expand the headroom and keep the pointer on the sk_buff ?
+Regards
+MarCin
 
-pskb_expand_head maybe.
 
--- 
-Ueimor 
+-------------------------------------
+#    Marcin Kowalski                # 
+      On_Linux Developer.
+       ->Datrix Solutions.<-
+	
+	Tel. 770-6146
+#	Cel. 082-400-7603           #
+-------------------------------------
+
+On Thu, 31 May 2001 alan@lxorguk.ukuu.org.uk wrote:
+
+> > My system has 128 Meg of Swap and RAM.
+> 
+> Linus 2.4.0 notes are quite clear that you need at least twice RAM of swap
+> with 2.4.
+> 
+> Marcelo is working to change that but right now you are running something 
+> explicitly explained as not going to work as you want
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+

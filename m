@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262258AbSJOA7i>; Mon, 14 Oct 2002 20:59:38 -0400
+	id <S262263AbSJOBAL>; Mon, 14 Oct 2002 21:00:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262263AbSJOA7i>; Mon, 14 Oct 2002 20:59:38 -0400
-Received: from tapu.f00f.org ([66.60.186.129]:22435 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S262258AbSJOA7h>;
-	Mon, 14 Oct 2002 20:59:37 -0400
-Date: Mon, 14 Oct 2002 18:05:31 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Daniele Lugli <genlogic@inrete.it>, linux-kernel@vger.kernel.org
-Subject: Re: unhappy with current.h
-Message-ID: <20021015010531.GA11639@tapu.f00f.org>
-References: <20021014202404.GA10777@tapu.f00f.org> <Pine.LNX.4.44L.0210142159580.22993-100000@imladris.surriel.com>
+	id <S262273AbSJOBAK>; Mon, 14 Oct 2002 21:00:10 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:20944 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S262263AbSJOBAG>; Mon, 14 Oct 2002 21:00:06 -0400
+Subject: Re: [Lse-tech] Re: [rfc][patch] Memory Binding API v0.3 2.5.41
+From: john stultz <johnstul@us.ibm.com>
+To: Matt <colpatch@us.ibm.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+       LSE Tech <lse-tech@lists.sourceforge.net>,
+       Andrew Morton <akpm@zip.com.au>, Michael Hohnbaum <hohnbaum@us.ibm.com>
+In-Reply-To: <3DAB6385.9000207@us.ibm.com>
+References: <3DAB5DF2.5000002@us.ibm.com>
+	<2004595005.1034616026@[10.10.2.3]>  <3DAB6385.9000207@us.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 14 Oct 2002 17:55:53 -0700
+Message-Id: <1034643354.19094.149.camel@cog>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L.0210142159580.22993-100000@imladris.surriel.com>
-User-Agent: Mutt/1.4i
-X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 14, 2002 at 10:00:26PM -0200, Rik van Riel wrote:
+On Mon, 2002-10-14 at 17:38, Matthew Dobson wrote:
+> Also, right now, memblks map to nodes in a straightforward manner (1-1 
+> on NUMA-Q, the only architecture that has defined them).  It will likely 
+> look the same on most architectures, too.
 
-> Would it be a good idea to add -Wshadow to the kernel compile
-> options by default ?
+Just an FYI: I believe the x440 breaks this assumption. 
 
-Yes, I think so.  Last time I tried this it produced quite a bit of
-output.
+There are 2 chunks on the first CEC. The current discontig patch for it
+has to drop the second chunk (anything over 3.5G on the first CEC) in
+order to work w/ the existing code. However, that will probably need to
+be addressed at some point, so be aware that this might affect you as
+well. 
 
+thanks
+-john
 
-  --cw

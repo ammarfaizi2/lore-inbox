@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265367AbRF2BBZ>; Thu, 28 Jun 2001 21:01:25 -0400
+	id <S265372AbRF2BBP>; Thu, 28 Jun 2001 21:01:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265371AbRF2BBP>; Thu, 28 Jun 2001 21:01:15 -0400
-Received: from [62.81.160.203] ([62.81.160.203]:40940 "EHLO smtp3.eresmas.com")
-	by vger.kernel.org with ESMTP id <S265367AbRF2BBA>;
-	Thu, 28 Jun 2001 21:01:00 -0400
-Date: Fri, 29 Jun 2001 02:54:21 -0400
+	id <S265371AbRF2BAz>; Thu, 28 Jun 2001 21:00:55 -0400
+Received: from [62.81.160.203] ([62.81.160.203]:39148 "EHLO smtp3.eresmas.com")
+	by vger.kernel.org with ESMTP id <S265367AbRF2BAv>;
+	Thu, 28 Jun 2001 21:00:51 -0400
+Date: Fri, 29 Jun 2001 02:54:08 -0400
 From: Ignacio Monge <ignaciomonge@navegalia.com>
 To: linux-kernel@vger.kernel.org
-Subject: Configure and compile errors in 2.4.5ac20 and 2.4.5ac21
-Message-Id: <20010629025421.6d021d7a.ignaciomonge@navegalia.com>
+Subject: Configure and compile errors in 2.4.5ac20 and 1.4.5ac21
+Message-Id: <20010629025408.24b0374b.ignaciomonge@navegalia.com>
 X-Mailer: Sylpheed version 0.5.0pre2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII

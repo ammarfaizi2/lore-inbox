@@ -1,30 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284153AbRLFRSp>; Thu, 6 Dec 2001 12:18:45 -0500
+	id <S284147AbRLFRSF>; Thu, 6 Dec 2001 12:18:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285051AbRLFRSa>; Thu, 6 Dec 2001 12:18:30 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:32014 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S284153AbRLFRSL>; Thu, 6 Dec 2001 12:18:11 -0500
-Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
-To: stoffel@casc.com (John Stoffel)
-Date: Thu, 6 Dec 2001 17:25:48 +0000 (GMT)
-Cc: riel@conectiva.com.br (Rik van Riel), landley@trommello.org (Rob Landley),
-        esr@thyrsus.com (Eric S. Raymond), linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
-In-Reply-To: <15375.41990.439405.8024@gargle.gargle.HOWL> from "John Stoffel" at Dec 06, 2001 11:59:50 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S285051AbRLFRRz>; Thu, 6 Dec 2001 12:17:55 -0500
+Received: from mail.xmailserver.org ([208.129.208.52]:57349 "EHLO
+	mail.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S284147AbRLFRRm>; Thu, 6 Dec 2001 12:17:42 -0500
+Date: Thu, 6 Dec 2001 09:28:45 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Rusty Russell <rusty@rustcorp.com.au>,
+        "David S. Miller" <davem@redhat.com>, <lm@bitmover.com>,
+        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>, <lars.spam@nocrew.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, <hps@intermeta.de>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: SMP/cc Cluster description
+In-Reply-To: <Pine.LNX.4.33L.0112061223520.1282-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.40.0112060922060.1603-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16C2HM-0002JR-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So has anyone had time to test the Python version 1.5 based CML2 that
-> was posted?  Would that make it more acceptable?
+On Thu, 6 Dec 2001, Rik van Riel wrote:
 
-For 2.5 its a great leap forward. For 2.4 its irrelevant. Its simply not the
-way stable kernel trees are run, even for people who think they are above
-the rules and traditions
+> On Wed, 5 Dec 2001, Davide Libenzi wrote:
+> > On Thu, 6 Dec 2001, Rusty Russell wrote:
+> >
+> > > I'd love to say that I can solve this with RCU, but it's vastly non-trivial
+> > > and I haven't got code, so I'm not going to say that. 8)
+> >
+> > Lockless algos could help if we're able to have "good" quiescent point
+> > inside the kernel. Or better have a good quiescent infrastructure to
+> > have lockless code to plug in.
+>
+> Machines get dragged down by _uncontended_ locks, simply
+> due to cache line ping-pong effects.
+
+Rik, i think you're confused about lockless algos.
+It's not an rwlock where the reader has to dirty a cacheline in any case,
+the reader simply does _not_ write any cache line accessing the
+list/hash/tree or whatever you use.
+These algo uses barries and all changes are done when the system walk
+through a quiescent state by flushing a list-of-changes.
+Drawback, you've to be able to tollerate stale data.
+
+
+
+- Davide
+
+

@@ -1,32 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276343AbRI1WPm>; Fri, 28 Sep 2001 18:15:42 -0400
+	id <S276345AbRI1WPW>; Fri, 28 Sep 2001 18:15:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276346AbRI1WPc>; Fri, 28 Sep 2001 18:15:32 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:56331 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S276343AbRI1WP3>; Fri, 28 Sep 2001 18:15:29 -0400
-Subject: Re: 2.4.9-ac16 good perfomer?
-To: linux4u@wanadoo.es (Pau Aliagas)
-Date: Fri, 28 Sep 2001 23:20:08 +0100 (BST)
-Cc: riel@conectiva.com.br (Rik van Riel), davidsen@tmr.com (bill davidsen),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0109282109590.10387-100000@pau.intranet.ct> from "Pau Aliagas" at Sep 28, 2001 09:14:22 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S276343AbRI1WPM>; Fri, 28 Sep 2001 18:15:12 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11268 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S276345AbRI1WPE>; Fri, 28 Sep 2001 18:15:04 -0400
+Date: Fri, 28 Sep 2001 15:14:54 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Martin J. Bligh" <fletch@aracnet.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Patches to enable ia32 NUMA system (32 proc)
+In-Reply-To: <200109282157.OAA07885@gormenghast.vista>
+Message-ID: <Pine.LNX.4.33.0109281512280.4166-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15n5zM-00006b-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> idle for some time, for instance after the screensaver has been running
-> during lunch time; it takes a few seconds moving from desktop to desktop
-> til it "swaps in" applications again. Maybe we are throwing away pages too
-> aggressively?
 
--ac is throwing away dcache too aggressively currently, that needs
-addressing in part by pruning the dcache and inode cache more smartly
+On Fri, 28 Sep 2001, Martin J. Bligh wrote:
+>
+> I've got rid of a few bugs (including my mail formatter). I think I've changed
+> what you wanted changed in here. I've also updated them to go against 2.4.10.
+> Please let me know of anything else you want changed.
 
-Alan
+The only thing I reacted to in these patches is:
+
+> diff -urN virgin-2.4.10/init/main.c numa-2.4.10/init/main.c
+> --- virgin-2.4.10/init/main.c	Thu Sep 20 21:02:01 2001
+> +++ numa-2.4.10/init/main.c	Thu Sep 27 11:57:21 2001
+> @@ -490,9 +490,19 @@
+>
+>  #else
+>
+> +/* Where the IO area was mapped on multiquad, always 0 otherwise */
+> +void *xquad_portio = NULL;
+...
+
+This is _definitely_ the wrong place to have magic x86-only code.
+
+Why don't you just move that into the top of smp_boot_cpus()?
+
+		Linus
+

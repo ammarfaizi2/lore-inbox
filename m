@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317751AbSFLRqA>; Wed, 12 Jun 2002 13:46:00 -0400
+	id <S317752AbSFLRyi>; Wed, 12 Jun 2002 13:54:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317752AbSFLRp7>; Wed, 12 Jun 2002 13:45:59 -0400
-Received: from inet-mail1.oracle.com ([148.87.2.201]:52438 "EHLO
-	inet-mail1.oracle.com") by vger.kernel.org with ESMTP
-	id <S317751AbSFLRp6>; Wed, 12 Jun 2002 13:45:58 -0400
-Date: Wed, 12 Jun 2002 12:18:39 -0700 (PDT)
-From: Lance Larsh <llarsh@oracle.com>
-X-X-Sender: <llarsh@llarsh-pc3.us.oracle.com>
-To: <linux-kernel@vger.kernel.org>
-cc: <marcelo@conectiva.com.br>
-Subject: [PATCH] arch/i386/kernel/bluesmoke.c, kernel 2.4.18
-Message-ID: <Pine.LNX.4.33.0206121202150.22214-100000@llarsh-pc3.us.oracle.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317753AbSFLRyh>; Wed, 12 Jun 2002 13:54:37 -0400
+Received: from ns.suse.de ([213.95.15.193]:50193 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S317752AbSFLRyg>;
+	Wed, 12 Jun 2002 13:54:36 -0400
+Date: Wed, 12 Jun 2002 19:54:36 +0200
+From: Dave Jones <davej@suse.de>
+To: Lance Larsh <llarsh@oracle.com>
+Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+Subject: Re: [PATCH] arch/i386/kernel/bluesmoke.c, kernel 2.4.18
+Message-ID: <20020612195436.I30645@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Lance Larsh <llarsh@oracle.com>, linux-kernel@vger.kernel.org,
+	marcelo@conectiva.com.br
+In-Reply-To: <Pine.LNX.4.33.0206121202150.22214-100000@llarsh-pc3.us.oracle.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jun 12, 2002 at 12:18:39PM -0700, Lance Larsh wrote:
+ > In the i386 machine check exception handler, MSR_IA32_MCi_ADDR is not
+ > output correctly.  Instead, MSR_IA32_MCi_STATUS is output a second time in
+ > its place.
 
-In the i386 machine check exception handler, MSR_IA32_MCi_ADDR is not
-output correctly.  Instead, MSR_IA32_MCi_STATUS is output a second time in
-its place.
+Should be already fixed in .19pre10
 
--Lance
+        Dave
 
-
---- 2.4.18/arch/i386/kernel/bluesmoke.c	Mon Nov 12 09:59:43 2001
-+++ 2.4.18-fix/arch/i386/kernel/bluesmoke.c	Wed Jun 12 10:30:12 2002
-@@ -47,7 +47,7 @@
- 			{
- 				rdmsr(MSR_IA32_MC0_ADDR+i*4, alow, ahigh);
- 				printk(" at %08x%08x", 
--					high, low);
-+					ahigh, alow);
- 			}
- 			printk("\n");
- 			/* Clear it */
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,72 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264797AbTBYAch>; Mon, 24 Feb 2003 19:32:37 -0500
+	id <S264799AbTBYAon>; Mon, 24 Feb 2003 19:44:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264799AbTBYAch>; Mon, 24 Feb 2003 19:32:37 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:52462 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S264797AbTBYAcf>;
-	Mon, 24 Feb 2003 19:32:35 -0500
-Message-ID: <3E5ABBC1.8050203@us.ibm.com>
-Date: Mon, 24 Feb 2003 16:41:37 -0800
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: "Martin J. Bligh" <mbligh@aracnet.com>, Gerrit Huizenga <gh@us.ibm.com>
-Subject: Horrible L2 cache effects from kernel compile
+	id <S264822AbTBYAon>; Mon, 24 Feb 2003 19:44:43 -0500
+Received: from bitmover.com ([192.132.92.2]:2688 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S264799AbTBYAom>;
+	Mon, 24 Feb 2003 19:44:42 -0500
+Date: Mon, 24 Feb 2003 16:54:51 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: Server shipments [was Re: Minutes from Feb 21 LSE Call]
+Message-ID: <20030225005451.GC12146@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+References: <20030222231552.GA31268@work.bitmover.com> <3610000.1045957443@[10.10.2.4]> <20030224045616.GB4215@work.bitmover.com> <48940000.1046063797@[10.10.2.4]> <20030224065826.GA5665@work.bitmover.com> <1630000.1046072374@[10.10.2.4]> <20030224161716.GC5665@work.bitmover.com> <12680000.1046105345@[10.10.2.4]> <20030225004113.GB12146@work.bitmover.com> <351250000.1046133664@flay>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <351250000.1046133664@flay>
+User-Agent: Mutt/1.4i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was testing Martin Bligh's kernbench (a kernel compile with
--j(2*NR_CPUS)) and using DCU_MISS_OUTSTANDING as the counter event.
+On Mon, Feb 24, 2003 at 04:41:04PM -0800, Martin J. Bligh wrote:
+> > More data from news.com.
+> > 
+> > Dell has 19% of the server market with $531M/quarter in sales[1] over
+> > 212,750 machines per quarter[2].
+> > 
+> > That means that the average sale price for a server from Dell was $2495.
+> > 
+> > The average sale price of all servers from all companies is $9347.
+> > 
+> > I still don't see the big profits touted by the scaling fanatics, anyone
+> > care to explain it?
+> 
+> Sigh. If you're so convinced that there's no money in larger systems,
+> why don't you write to Sam Palmisano and explain to him the error of
+> his ways? I'm sure IBM has absolutely no market data to go on ...
 
-The surprising thing?  d_lookup() accounts for 8% of the time spent
-waiting for an L2 miss.
-
-__copy_to_user_ll should be trashing a lot of cachelines, but d_lookup()
-is strange.
-
-Counter 0 counted DCU_MISS_OUTSTANDING events (number of cycles while
-DCU miss outstanding) with a unit mask of 0x00 (Not set) count 10000
-c017d78c 72929    1.92175     start_this_handle
-c0139b60 75317    1.98468     vm_enough_memory
-c0138cd4 75367    1.986       do_no_page
-c01ccae0 79475    2.09425     atomic_dec_and_lock
-c0117320 80918    2.13227     scheduler_tick
-c0176338 90851    2.39402     ext3_dirty_inode
-c013cc38 132228   3.48434     page_remove_rmap
-c0176557 148116   3.90301     .text.lock.inode
-c013cae0 156345   4.11985     page_add_rmap
-c012c964 157716   4.15598     find_get_page
-c015797c 314165   8.27857     d_lookup
-c01cc948 334779   8.82177     __copy_to_user_ll
-
-a snippet from d_lookup(), annotated.  I've seen oprofile be off by a
-line here, but we can be pretty sure it is in this area.
-		...
-		smp_read_barrier_depends();
-		/* 106 0.002793% */
-		dentry = list_entry(tmp, struct dentry, d_hash);
-
-		/* if lookup ends up in a different bucket
-		 * due to concurrent rename, fail it
-		 */
-		/* 154991 4.084% */
-		if (unlikely(dentry->d_bucket != head))
-			break;
-
-		/* to avoid race if dentry keep coming back to original
-		 * bucket due to double moves
-		 */
-		/* 634 0.01671% */
-		if (unlikely(++lookup_count > max_dentries))
-			break;
-		...
-
+Numbers talk, bullshit walks.  Got shoes?
 -- 
-Dave Hansen
-haveblue@us.ibm.com
-
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263246AbTFGQ0O (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 12:26:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263250AbTFGQ0O
+	id S262598AbTFGQ35 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 12:29:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263250AbTFGQ35
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 12:26:14 -0400
-Received: from granite.he.net ([216.218.226.66]:59652 "EHLO granite.he.net")
-	by vger.kernel.org with ESMTP id S263246AbTFGQ0O (ORCPT
+	Sat, 7 Jun 2003 12:29:57 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:48132 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S262598AbTFGQ34 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 12:26:14 -0400
-Date: Sat, 7 Jun 2003 09:07:43 -0700
-From: Greg KH <greg@kroah.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: James Morris <jmorris@intercode.com.au>, pam.delaney@lsil.com,
+	Sat, 7 Jun 2003 12:29:56 -0400
+Date: Sat, 7 Jun 2003 18:43:30 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] compile fix for MPT Fusion driver for 2.5.70 bk
-Message-ID: <20030607160743.GA17624@kroah.com>
-References: <Mutt.LNX.4.44.0306060154230.2735-100000@excalibur.intercode.com.au> <20030607114543.GG15311@fs.tum.de>
+Subject: Re: __user annotations
+Message-ID: <20030607164330.GA20312@mars.ravnborg.org>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+	linux-kernel@vger.kernel.org
+References: <20030607143219.U626@nightmaster.csn.tu-chemnitz.de> <Pine.LNX.4.44.0306070917150.2840-100000@home.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030607114543.GG15311@fs.tum.de>
+In-Reply-To: <Pine.LNX.4.44.0306070917150.2840-100000@home.transmeta.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 07, 2003 at 01:45:44PM +0200, Adrian Bunk wrote:
-> -			pdev2 = pci_peek_next_dev(pdev);
-> +			pdev2 = (pdev) != pci_dev_g(&pci_devices) ? pci_dev_g((pdev)->global_list.next) : NULL;
+On Sat, Jun 07, 2003 at 09:25:43AM -0700, Linus Torvalds wrote:
+> 
+> You can even have user pointers _inside_ the structure: because "sparse" 
 
-This will not work, as pci_devices is no longer exported in Linus's bk
-tree.
+Since we start to know your checker by the name sparse, why not
+call the default executable sparse?
 
-As for removing all the old compatibility stuff, that's up to the
-maintainer of the driver.
+	Sam
 
-thanks,
-
-greg k-h
+===== Makefile 1.21 vs edited =====
+--- 1.21/Makefile	Tue Jun  3 03:15:27 2003
++++ edited/Makefile	Sat Jun  7 18:41:15 2003
+@@ -2,7 +2,7 @@
+ CFLAGS=-g -Wall
+ AR=ar
+ 
+-PROGRAMS=test-lexing test-parsing obfuscate check
++PROGRAMS=test-lexing test-parsing obfuscate sparse
+ 
+ LIB_H=    token.h parse.h lib.h symbol.h scope.h expression.h target.h
+ 
+@@ -22,7 +22,7 @@
+ obfuscate: obfuscate.o $(LIB_FILE)
+ 	gcc -o $@ $< $(LIB_FILE)
+ 
+-check: check.o $(LIB_FILE)
++sparse: check.o $(LIB_FILE)
+ 	gcc -o $@ $< $(LIB_FILE)
+ 
+ $(LIB_FILE): $(LIB_OBJS)

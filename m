@@ -1,40 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129207AbQJaAbg>; Mon, 30 Oct 2000 19:31:36 -0500
+	id <S129416AbQJaAjn>; Mon, 30 Oct 2000 19:39:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129416AbQJaAbR>; Mon, 30 Oct 2000 19:31:17 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:53372 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129207AbQJaAbF>; Mon, 30 Oct 2000 19:31:05 -0500
-Date: Tue, 31 Oct 2000 01:30:46 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Steve Pratt/Austin/IBM <slpratt@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com, linux-mm@kvack.org
-Subject: Re: [PATCH] 2.4.0-test10-pre6  TLB flush race in establish_pte
-Message-ID: <20001031013046.M21935@athlon.random>
-In-Reply-To: <OFB4731A18.0D8D8BC1-ON85256988.0074562B@raleigh.ibm.com>
-Mime-Version: 1.0
+	id <S129797AbQJaAje>; Mon, 30 Oct 2000 19:39:34 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:53770 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129416AbQJaAj2>; Mon, 30 Oct 2000 19:39:28 -0500
+Message-ID: <39FE14AD.F7A55335@transmeta.com>
+Date: Mon, 30 Oct 2000 16:39:09 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10-pre3 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
+MIME-Version: 1.0
+To: users@kernel.org
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: kernel.org cryptographic software policy change
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OFB4731A18.0D8D8BC1-ON85256988.0074562B@raleigh.ibm.com>; from slpratt@us.ibm.com on Mon, Oct 30, 2000 at 03:31:22PM -0600
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 30, 2000 at 03:31:22PM -0600, Steve Pratt/Austin/IBM wrote:
-> [..] no patch ever
-> appeared. [..]
+Hi everyone,
 
-You didn't followed l-k closely enough as the strict fix was submitted two
-times but it got not merged. (maybe because it had an #ifdef __s390__ that was
-_necessary_ by that time?)
+The U.S. government further liberalized the handling of cryptographic
+Open Source software in the new crypto regulations dated 2000-10-19.  As
+a result, I have consulted with our lawyer and we no longer feel that it
+is necessary to require that object code be derived from source code only
+available on kernel.org; as long as it is available for free.
 
-You can find the old and now useless patch here:
+Thus, the new kernel.org policy on cryptographic software is:
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.4/2.4.0-test5/tlb-flush-smp-race-1
+Cryptographic software may only be uploaded if it is Open Source; and, if
+binary, the source code is available on for free via the Internet.
 
-Andrea
+The legal notice w.r.t. encryption software is revised to read as
+follows:
+
+This site includes publicly available encryption source code which,
+together with object code resulting from the compiling of publicly
+available
+source code, may be exported from the United States under License
+Exception
+"TSU" pursuant to 15 CFR Section 740.13(e).
+
+This change is effective immediately.
+
+	-hpa
+
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

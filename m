@@ -1,56 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261493AbTDKSPl (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 14:15:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbTDKSPl (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 14:15:41 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:46297 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261493AbTDKSPk (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 14:15:40 -0400
-Date: Fri, 11 Apr 2003 11:12:45 -0700
-From: Greg KH <greg@kroah.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net,
-       message-bus-list@redhat.com, Daniel Stekloff <dsteklof@us.ibm.com>
+	id S261521AbTDKSTw (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 14:19:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbTDKSTw (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 14:19:52 -0400
+Received: from fed1mtao03.cox.net ([68.6.19.242]:59288 "EHLO
+	fed1mtao03.cox.net") by vger.kernel.org with ESMTP id S261521AbTDKSTt (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 14:19:49 -0400
+Message-ID: <3E970A00.2050204@cox.net>
+Date: Fri, 11 Apr 2003 11:31:28 -0700
+From: "Kevin P. Fleming" <kpfleming@cox.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4a) Gecko/20030401
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-hotplug-devel@lists.sourceforge.net
+CC: linux-kernel@vger.kernel.org, message-bus-list@redhat.com
 Subject: Re: [ANNOUNCE] udev 0.1 release
-Message-ID: <20030411181245.GD1821@kroah.com>
-References: <20030411032424.GA3688@kroah.com> <Pine.LNX.4.44.0304111939310.12110-100000@serv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0304111939310.12110-100000@serv>
-User-Agent: Mutt/1.4.1i
+References: <20030411172011.GA1821@kroah.com> <200304111746.h3BHk9hd001736@81-2-122-30.bradfords.org.uk> <20030411182313.GG25862@wind.cocodriloo.com>
+In-Reply-To: <20030411182313.GG25862@wind.cocodriloo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 11, 2003 at 08:02:41PM +0200, Roman Zippel wrote:
-> On Thu, 10 Apr 2003, Greg KH wrote:
+Antonio Vargas wrote:
+
+> On Fri, Apr 11, 2003 at 06:46:09PM +0100, John Bradford wrote:
 > 
-> > I'd like to finally announce the previously vapor-ware udev program that
-> > I've talked a lot about with a lot of people over the past months.  The
-> > first, very rough cut is at:
-> > 	kernel.org/pub/linux/utils/kernel/hotplug/udev-0.1.tar.gz
-> 
-> Is there a special reason why you call mknod?
+>>>>- Performance. What happens if you plug in 4000 disks at once?
+>>>
+>>>You crash your power supply :)
+>>
+>>[Puzzle]
+>>
+>>Say the power supply had five 5.25" drive power connecters, how many 1
+>>into 3 power cable splitters would you need to connect all 4000 disks?
+>>
 
-I was lazy and trying to get this to work :)
+OK, this is all fun and games, but this is a valid point. All it takes for the 
+driver for a Fibre Channel host adapter to load, and enumerate the devices it 
+can see. In a matter of seconds many hundreds or thousands of disk devices could 
+be registered with the kernel.
 
-> Otherwise you could simply do:
-> 
-> 	syscall(SYS_mknod, name, S_IFBLK | mode, dev); 
+This is definitely an issue that will need to be addressed, and I think Oliver's 
+suggestion of using a pipe (i'm going to say it: like devfs did :-) to forward 
+the events to /sbin/hotplug in a FIFO fashion makes some sense. I have also been 
+considering this issue from another angle; I am working on userspace partition 
+discovery, which will be driven by /sbin/hotplug (and udev, probably). I have 
+concerns that the following scenario will cause problems, if not extreme problems:
 
-Yes, I'll switch to this way soon, just have to make sure my version of
-dev stays the same size as the kernel's version...
+- kernel driver finds an IDE drive, registers it and the hotplug event happens
+- udev gets called and gives it device node /dev/discs/disc0 (or whatever)
+- /sbin/hotplug calls userspace partition discovery, which opens the device and 
+scans for partitions
+- if any partitions are found, they are registered with the kernel using 
+device-mapper ioctls
+- because these new "mapped sections" of the drive are _also_ usable block 
+devices in their own right, they generate hotplug events
+- because these hotplug events are for new block devices, userspace partition 
+discovery will get called _again_ to handle them (it may not find anything (the 
+normal case), but this model will support nearly infinite levels of partitioning 
+on any block device supported by the kernel)
 
-> > Yes, I know there's still a lot of work to do (serialization, symlinks,
-> > hooking hotplug so that others can also use it, etc.) but it's a first
-> > step :)
-> 
-> To help serialization and perfomance issues, it might help to add a daemon 
-> mode to hotplug. The kernel calls hotplug with a pipe from which it reads 
-> the event data, after a certain timeout it can close the pipe and exit.
+What happens if these secondary hotplug events occur while /sbin/hotplug has not 
+yet finished processing the first one? Ignoring locking/race issues for the 
+moment, I'm concerned about memory consumption as many layers of 
+hotplug/udev/kpartx/etc. are running processing these events.
 
-Yes, this is probably what is going to happen soon.
+Of course, another possibility I'll look into this weekend is to actually have 
+kpartx run as a daemon and receive messages over D-BUS, instead of being invoked 
+directly by /sbin/hotplug. This would mean it could serialize the events itself 
+and reduce some of the load (if D-BUS supports message queueing, which I believe 
+it does).
 
-thanks,
+Actually, here's another thought: have the kernel continue to call /sbin/hotplug 
+for every event, just as it does now. However, /sbin/hotplug would do _nothing_ 
+but translate that into D-BUS messages and post them. udev, kpartx, etc. would 
+all just be D-BUS clients that would respond to their messages as they are received.
 
-greg k-h

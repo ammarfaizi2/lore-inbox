@@ -1,39 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261230AbVAHS0B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261244AbVAHS0N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261230AbVAHS0B (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 13:26:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261244AbVAHS0B
+	id S261244AbVAHS0N (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 13:26:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVAHS0N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 13:26:01 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:43971 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261230AbVAHSZ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 13:25:58 -0500
-Date: Sat, 8 Jan 2005 18:25:17 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Make pipe data structure be a circular list of pages, rather than
-In-Reply-To: <Pine.LNX.4.58.0501070910000.2272@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.44.0501081821510.4823-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Sat, 8 Jan 2005 13:26:13 -0500
+Received: from [213.146.154.40] ([213.146.154.40]:46034 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261244AbVAHS0H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 13:26:07 -0500
+Date: Sat, 8 Jan 2005 18:25:55 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: ross@lug.udel.edu
+Cc: "Jack O'Quin" <joq@io.com>, Chris Wright <chrisw@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
+       paul@linuxaudiosystems.com, arjanv@redhat.com, mingo@elte.hu,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+Message-ID: <20050108182555.GA31512@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>, ross@lug.udel.edu,
+	Jack O'Quin <joq@io.com>, Chris Wright <chrisw@osdl.org>,
+	Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
+	paul@linuxaudiosystems.com, arjanv@redhat.com, mingo@elte.hu,
+	alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+References: <200501071620.j07GKrIa018718@localhost.localdomain> <1105132348.20278.88.camel@krustophenia.net> <20050107134941.11cecbfc.akpm@osdl.org> <20050107221059.GA17392@infradead.org> <20050107142920.K2357@build.pdx.osdl.net> <87mzvkxxck.fsf@sulphur.joq.us> <20050108165657.GA21760@jose.lug.udel.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050108165657.GA21760@jose.lug.udel.edu>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Jan 2005, Linus Torvalds wrote:
+On Sat, Jan 08, 2005 at 11:56:57AM -0500, ross@lug.udel.edu wrote:
+> On Sat, Jan 08, 2005 at 12:12:59AM -0600, Jack O'Quin wrote:
+> > I find it hard to understand why some of you think PAM is an adequate
+> > solution.  As currently deployed, it is poorly documented and nearly
+> > impossible for non-experts to administer securely.  On my Debian woody
+> > system, when I login from the console I get one fairly sensible set of
+> > ulimit values, but from gdm I get a much more permissive set (with
+> > ulimited mlocking, BTW).  Apparently, this is because the `gdm' PAM
+> > config includes `session required pam_limits.so' but the system comes
+> > with an empty /etc/security/limits.conf.  I'm just guessing about that
+> > because I can't find any decent documentation for any of this crap.
+> > 
+> > Remember, if something is difficult to administer, it's *not* secure.
 > 
-> Hmm.. Are there really any other guarantees than the atomicity guarantee 
-> for a PIPE_BUF transfer? I don't see any in SuS..
-> 
-> That said, existing practice obviously always trumps paper standards, and 
-> yes, coalescing is possible.
+> Not to mention that not everyone chooses to use PAM for precisely this
+> reason.  Slackware has never included PAM and probably never will.
+> My audio workstation has worked swell with the 2.4+caps solution and
+> the 2.6+LSM solution.  PAM would break me ::-(
 
-Would a kernel build with "make -j18" count as existing practice?
-Immediately hangs for me...
-
-Hugh
-
+you can set rmlimits as well without pam.  it's just more complicated.
+But hey, it was you who didn't want to use it :)

@@ -1,39 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132488AbRD1E3a>; Sat, 28 Apr 2001 00:29:30 -0400
+	id <S132732AbRD1E5O>; Sat, 28 Apr 2001 00:57:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132512AbRD1E3U>; Sat, 28 Apr 2001 00:29:20 -0400
-Received: from juicer24.bigpond.com ([139.134.6.34]:38372 "EHLO
-	mailin3.email.bigpond.com") by vger.kernel.org with ESMTP
-	id <S132488AbRD1E3I>; Sat, 28 Apr 2001 00:29:08 -0400
-Message-Id: <m14t8Vj-001QOfC@mozart>
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Martin Clausen <martin@ostenfeld.dk>
-Cc: netfilter-devel@lists.samba.org, linux-kernel@vger.kernel.org,
-        James Morris <jmorris@intercode.com.au>
-Subject: Re: Kernel Oops when using the Netfilter QUEUE target 
-In-Reply-To: Your message of "Fri, 27 Apr 2001 00:48:01 +0200."
-             <20010427004801.A3464@ostenfeld.dk> 
-Date: Fri, 27 Apr 2001 23:42:15 +1000
+	id <S132738AbRD1E5F>; Sat, 28 Apr 2001 00:57:05 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:39946 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S132732AbRD1E4w>;
+	Sat, 28 Apr 2001 00:56:52 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200104280455.f3S4tQ8336512@saturn.cs.uml.edu>
+Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Sat, 28 Apr 2001 00:55:26 -0400 (EDT)
+Cc: vojtech@suse.cz (Vojtech Pavlik), viro@math.psu.edu (Alexander Viro),
+        andrea@suse.de (Andrea Arcangeli), alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0104270951270.2067-100000@penguin.transmeta.com> from "Linus Torvalds" at Apr 27, 2001 09:52:19 AM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20010427004801.A3464@ostenfeld.dk> you write:
-> On Wed, Apr 25, 2001 at 04:24:46PM +1000, James Morris wrote:
-> > Please try the patch below.
-> 
-> So i did and it seems to work just fine (= no more oops') under 2.4.3/2.4.2-a
+Linus Torvalds writes:
 
-James,  I only glanced at the patch, but IIRC it just did
-route_me_harder() on everything.  This is, unfortunately, no longer
-"Best Practice": the prevailing trend is to reroute only when
-something has actually been changed, to avoid overriding the socket
-binding, etc.
+> The buffer cache is "virtual" in the sense that /dev/hda is a
+> completely separate name-space from /dev/hda1, even if there
+> is some physical overlap.
 
-See mangle for an example (store old values, see if they changed).  I
-think this would be more complex, but still possible in your case, no?
-
-Thanks,
-Rusty.
---
-Premature optmztion is rt of all evl. --DK
+So the aliasing problems and elevator algorithm confusion remain?
+Is this ever likely to change, and what is with the 1 kB assumptions?
+(Hmmm, cruft left over from the 1 kB Minix filesystem blocks?)

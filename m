@@ -1,175 +1,205 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265900AbRFYSXC>; Mon, 25 Jun 2001 14:23:02 -0400
+	id <S265901AbRFYSlP>; Mon, 25 Jun 2001 14:41:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265898AbRFYSWm>; Mon, 25 Jun 2001 14:22:42 -0400
-Received: from aslan.scsiguy.com ([63.229.232.106]:20242 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S265900AbRFYSWk>; Mon, 25 Jun 2001 14:22:40 -0400
-Message-Id: <200106251822.f5PIMTU05229@aslan.scsiguy.com>
-To: Keith Owens <kaos@ocs.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Cleanup kbuild for aic7xxx 
-In-Reply-To: Your message of "Sat, 23 Jun 2001 15:22:43 +1000."
-             <13603.993273763@ocs3.ocs-net> 
-Date: Mon, 25 Jun 2001 12:22:29 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S265902AbRFYSlF>; Mon, 25 Jun 2001 14:41:05 -0400
+Received: from mail.bartnet.net ([12.149.177.6]:13737 "EHLO mail.bartnet.net")
+	by vger.kernel.org with ESMTP id <S265901AbRFYSk4>;
+	Mon, 25 Jun 2001 14:40:56 -0400
+Content-Type: Multipart/Mixed;
+  charset="iso-8859-1";
+  boundary="------------Boundary-00=_NY0IW53DXWICG2XDTF78"
+From: JorgP <jorgp@bartnet.net>
+To: linux-kernel@vger.kernel.org
+Subject: problems with my plexwriter 8/4/32A drive..
+Date: Mon, 25 Jun 2001 13:35:11 -0500
+X-Mailer: KMail [version 1.2]
+MIME-Version: 1.0
+Message-Id: <01062513351102.01166@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Ignoring aic7xxx for the moment, kernel build has problems with _all_
->files that are both generated and shipped.  Perhaps if I explain the
->problems, you will understand why the changes were done.
 
-Okay.
+--------------Boundary-00=_NY0IW53DXWICG2XDTF78
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
->Suppose you have files "base" and "gen" where "gen" is generated from
->"base".  In the ideal case only "base" is shipped and all users create
->"gen" on their own system.  That covers most generated files and has no
->timestamp or source repository problems.
+I am using AMD 1.2Gig w/ 512Meg Ram, MSI 6330-K7ProA motherboard.
 
-Okay.
+hda: QUANTUM FIREBALLP LM10.2, ATA DISK drive
+hdb: IBM-DPTA-372050, ATA DISK drive
+hdc: ATAPI 52X CDROM, ATAPI CD/DVD-ROM drive
+hdd: PLEXTOR CD-R PX-W8432T, ATAPI CD/DVD-ROM drive
 
->OTOH suppose the process to convert "base" to "gen" requires utilities
->that not every user is expected to install.  Then it makes sense to
->ship "gen" as well as "base" but it must be done so that it satisfies
->several kbuild requirements.
->
->(1) All kernel source trees from the top level maintainers (LT, AC, DM)
->    must be complete.
->
->    Users must not have to have to search other sites for missing
->    headers or sources.  The fact that several architectures will not
->    work out of the box which violates this requirement is no excuse
->    for ignoring it.
->
->    This means that "gen" must be included in LT, AC and DM trees.
->    Anybody wanting to maintain their own patches against a master tree
->    or to supply a source tree for downstream users must therefore
->    include "gen" in their source control system.  Omit "gen" and
->    downstream users are forced to generate it which defeats the
->    purpose of shipping it.
+base install is Mandrake 8.0 from CD
+it did not work and then tried latest cooker kernel 2.4.5-8 same thing.
+I have also tried redhat 7.1 with all recommended updates 2.4.3-12 kernel 
+same thing.
 
-Sure.
+using ide-scsi module.
+SCSI subsystem driver Revision: 1.00
+scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+  Vendor: PLEXTOR   Model: CD-R   PX-W8432T  Rev: 1.09
+  Type:   CD-ROM                             ANSI SCSI revision: 02
 
->(2) Generated files must not be overwritten in place.
->
->    When "gen" is shipped and also overwritten in place then anybody
->    who regenerates the file (for whatever reason) runs the risk of
->    spurious differences appearing in their patches.  Particularly when
->    the generating process depends on tools which can vary from one
->    user to another.
->
->    For example, the collating order of identically keyed entries in a
->    db database depends on the version of libdb, this has already
->    generated a spurious patch against aic7xxx in the -ac tree.  The
->    order of sort entries for text depends on the user's locale.  When
->    you rely on external tools you can never guarantee that every
->    user's version of those tools will produce exactly the same output
->    as your version.  The result can be logically identical but be
->    physically different, diff only cares about physical differences,
->    hence the spurious patches.
->
->    Some source control systems mark the master files as read only to
->    prevent accidental editing of the inputs, you have to register that
->    you want to modify the file before you can edit it.  Any generated
->    file that is overwritten in place will break on these systems.
->
->    When generated files are overwritten in place it adds uncertainty
->    when you are building multiple kernels from a single source tree.
->    If the previous compile overwrote "gen", is the result always valid
->    for the next compile?  If make mrproper does not reset to a
->    pristine kernel then the results are unreliable.  make mrproper can
->    only erase generated files, it cannot reset them to their shipped
->    state unless shipped and generated are separate files.
->
->    The only solution to the problems above is to ship "gen" as
->    "gen_shipped" and either copy "gen_shipped" to "gen" (no special
->    tools required) or ignore "gen_shipped" and generate "gen" directly
->    from "base" (needs special tools).  Never overwrite generated files
->    in place.
+when trying to mount a CD in the plextor the system accesses the drive for a 
+few seconds then hangs the process hangs and can not be killed.
+If I use X-CD-Roast it tries to access the drive and after a few seconds the 
+CPU goes to 100% usage and hangs the machine, have to hard reset it can not 
+sys-req it either.
 
-I think this is the crux of our where we disagree.  The generated file
-in this case should only be overwritten by those developing the driver.
-We've already agreed that the mechanism used in 6.1.5 of the aic7xxx
-driver (always regenerage) cannot work.  Therefore the predominant
-case, and in my opinion the only case you need to concern yourself with,
-is building the kernel from the vendor generated file.
+The other CD-Rom drive works great.
 
-Consider for a moment, the "old" aic7xxx driver.  It does not ship with
-the tools to rebuild its firmware even though it does ship with firmware
-source.  There has never been the option to rebuild the firmware so no-one
-has.  The build system doesn't attempt to verify that the firmware is
-up to date via an MD5 checksum or by any other means.  The generated
-firmware file is treated like a regular old header file that came from
-the vendor (i.e. Doug Ledford).
+This setup works great under a dual boot of Windows 2000, and I can access 
+the drive and burn CD's all day long.
 
-The only issue with the above case was the occasional post from the
-brave soul that wanted to hack the firmware themselves.  Rather than
-force them to scour the web looking for how to update the firmware
-(the usual result was a hit on aicasm in the FreeBSD distribution which
-they then ported to Linux), I chose to ship the tools and optionally
-have them integrated into the build.
+cdrecord --scanbus see's the drive the until the first time I try to access 
+it the drive, then cdrecord --scanbus hangs.
 
-In this scenario, I would argue that overwriting the files in place
-is the correct strategy.  For the developer that choses to build
-the firmware, timestamp based "up to date" behavior is correct,
-the last firmware file you've generated/tested is already in the correct
-place for generating patches, and, as a developer, you understand
-how to use your revision control software so the fact that this file
-is generated is not a concern.
+Cdrecord 1.9 (i686-pc-linux-gnu) Copyright (C) 1995-2000 Jörg Schilling
+Linux sg driver version: 3.1.17
+Using libscg version 'schily-0.1'
+scsibus0:
+        0,0,0     0) 'PLEXTOR ' 'CD-R   PX-W8432T' '1.09' Removable CD-ROM
+        0,1,0     1) *
+        0,2,0     2) *
+        0,3,0     3) *
+        0,4,0     4) *
+        0,5,0     5) *
+        0,6,0     6) *
+        0,7,0     7) *
 
->(3) Files must not be generated unless the user changes something
->    related to "gen", users who are not working on "gen" must not be
->    forced to regenerate, they may not have the tools.  This is an
->    obvious statement but how do you check if they have changed
->    anything?
+I will attach my dmesg...
 
-If they don't have the tools, checking to see if they have changed
-something is worthless.  If they do have the tools and understand the
-consequences of what they are doing, they can check a box during
-config.  If you care about dependencies (i.e. you are a developer),
-timestamp based dependencies are certainly sufficient.  You may get
-one extra build after a patch, but the build will succeed.
+Please help.
+Thanks
+Jorg
+--------------Boundary-00=_NY0IW53DXWICG2XDTF78
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="dmesg.txt"
+Content-Transfer-Encoding: base64
+Content-Description: My dmesg output
+Content-Disposition: attachment; filename="dmesg.txt"
 
->(4) Users who are working on "base" must be supported by kbuild.
->
->    Not only must kbuild protect users who are not working on "base",
->    it must also support those who are working on "base".  They should
->    not have to explicitly make anything, it should be automatic.
->
->    The only thing that cannot be easily automated is the generation of
->    the shipped files and their md5sums, only the coder knows when they
->    are about to ship the files.
+TGludXggdmVyc2lvbiAyLjQuMy0xMiAocm9vdEBwb3JreS5kZXZlbC5yZWRoYXQuY29tKSAoZ2Nj
+IHZlcnNpb24gMi45NiAyMDAwMDczMSAoUmVkIEhhdCBMaW51eCA3LjEgMi45Ni04NSkpICMxIEZy
+aSBKdW4gOCAxMzozNTozMCBFRFQgMjAwMQpCSU9TLXByb3ZpZGVkIHBoeXNpY2FsIFJBTSBtYXA6
+CiBCSU9TLWU4MjA6IDAwMDAwMDAwMDAwMDAwMDAgLSAwMDAwMDAwMDAwMDlmYzAwICh1c2FibGUp
+CiBCSU9TLWU4MjA6IDAwMDAwMDAwMDAwOWZjMDAgLSAwMDAwMDAwMDAwMGEwMDAwIChyZXNlcnZl
+ZCkKIEJJT1MtZTgyMDogMDAwMDAwMDAwMDBmMDAwMCAtIDAwMDAwMDAwMDAxMDAwMDAgKHJlc2Vy
+dmVkKQogQklPUy1lODIwOiAwMDAwMDAwMDAwMTAwMDAwIC0gMDAwMDAwMDAxZmZmMDAwMCAodXNh
+YmxlKQogQklPUy1lODIwOiAwMDAwMDAwMDFmZmYwMDAwIC0gMDAwMDAwMDAxZmZmMzAwMCAoQUNQ
+SSBOVlMpCiBCSU9TLWU4MjA6IDAwMDAwMDAwMWZmZjMwMDAgLSAwMDAwMDAwMDIwMDAwMDAwIChB
+Q1BJIGRhdGEpCiBCSU9TLWU4MjA6IDAwMDAwMDAwZmZmZjAwMDAgLSAwMDAwMDAwMTAwMDAwMDAw
+IChyZXNlcnZlZCkKT24gbm9kZSAwIHRvdGFscGFnZXM6IDEzMTA1Ngp6b25lKDApOiA0MDk2IHBh
+Z2VzLgp6b25lKDEpOiAxMjY5NjAgcGFnZXMuCnpvbmUoMik6IDAgcGFnZXMuCktlcm5lbCBjb21t
+YW5kIGxpbmU6IGF1dG8gQk9PVF9JTUFHRT1saW51eCBybyByb290PTM0NyBCT09UX0ZJTEU9L2Jv
+b3Qvdm1saW51ei0yLjQuMy0xMiBoZGQ9aWRlLXNjc2kKaWRlX3NldHVwOiBoZGQ9aWRlLXNjc2kK
+SW5pdGlhbGl6aW5nIENQVSMwCkRldGVjdGVkIDEzMzEuNjEwIE1IeiBwcm9jZXNzb3IuCkNvbnNv
+bGU6IGNvbG91ciBWR0ErIDgweDI1CkNhbGlicmF0aW5nIGRlbGF5IGxvb3AuLi4gMjY1NC4yMCBC
+b2dvTUlQUwpNZW1vcnk6IDUwOTA4OGsvNTI0MjI0ayBhdmFpbGFibGUgKDEyNDZrIGtlcm5lbCBj
+b2RlLCAxMDY1NmsgcmVzZXJ2ZWQsIDkzayBkYXRhLCAyMjhrIGluaXQsIDBrIGhpZ2htZW0pCkRl
+bnRyeS1jYWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6IDY1NTM2IChvcmRlcjogNywgNTI0Mjg4IGJ5
+dGVzKQpCdWZmZXItY2FjaGUgaGFzaCB0YWJsZSBlbnRyaWVzOiAzMjc2OCAob3JkZXI6IDUsIDEz
+MTA3MiBieXRlcykKUGFnZS1jYWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6IDEzMTA3MiAob3JkZXI6
+IDgsIDEwNDg1NzYgYnl0ZXMpCklub2RlLWNhY2hlIGhhc2ggdGFibGUgZW50cmllczogMzI3Njgg
+KG9yZGVyOiA2LCAyNjIxNDQgYnl0ZXMpClZGUzogRGlza3F1b3RhcyB2ZXJzaW9uIGRxdW90XzYu
+NS4wIGluaXRpYWxpemVkCkNQVTogQmVmb3JlIHZlbmRvciBpbml0LCBjYXBzOiAwMTgzZjlmZiBj
+MWM3ZjlmZiAwMDAwMDAwMCwgdmVuZG9yID0gMgpJbnRlbCBtYWNoaW5lIGNoZWNrIGFyY2hpdGVj
+dHVyZSBzdXBwb3J0ZWQuCkludGVsIG1hY2hpbmUgY2hlY2sgcmVwb3J0aW5nIGVuYWJsZWQgb24g
+Q1BVIzAuCkNQVTogTDEgSSBDYWNoZTogNjRLICg2NCBieXRlcy9saW5lKSwgRCBjYWNoZSA2NEsg
+KDY0IGJ5dGVzL2xpbmUpCkNQVTogTDIgQ2FjaGU6IDI1NksgKDY0IGJ5dGVzL2xpbmUpCkNQVTog
+QWZ0ZXIgdmVuZG9yIGluaXQsIGNhcHM6IDAxODNmOWZmIGMxYzdmOWZmIDAwMDAwMDAwIDAwMDAw
+MDAwCkNQVTogICAgIEFmdGVyIGdlbmVyaWMsIGNhcHM6IDAxODNmOWZmIGMxYzdmOWZmIDAwMDAw
+MDAwIDAwMDAwMDAwCkNQVTogICAgICAgICAgICAgQ29tbW9uIGNhcHM6IDAxODNmOWZmIGMxYzdm
+OWZmIDAwMDAwMDAwIDAwMDAwMDAwCkNQVTogQU1EIEF0aGxvbih0bSkgUHJvY2Vzc29yIHN0ZXBw
+aW5nIDAyCkVuYWJsaW5nIGZhc3QgRlBVIHNhdmUgYW5kIHJlc3RvcmUuLi4gZG9uZS4KQ2hlY2tp
+bmcgJ2hsdCcgaW5zdHJ1Y3Rpb24uLi4gT0suCkNoZWNraW5nIGZvciBwb3BhZCBidWcuLi4gT0su
+ClBPU0lYIGNvbmZvcm1hbmNlIHRlc3RpbmcgYnkgVU5JRklYCm10cnI6IHYxLjQwICgyMDAxMDMy
+NykgUmljaGFyZCBHb29jaCAocmdvb2NoQGF0bmYuY3Npcm8uYXUpCm10cnI6IGRldGVjdGVkIG10
+cnIgdHlwZTogSW50ZWwKUENJOiBQQ0kgQklPUyByZXZpc2lvbiAyLjEwIGVudHJ5IGF0IDB4ZmIy
+NTAsIGxhc3QgYnVzPTEKUENJOiBVc2luZyBjb25maWd1cmF0aW9uIHR5cGUgMQpQQ0k6IFByb2Jp
+bmcgUENJIGhhcmR3YXJlClVua25vd24gYnJpZGdlIHJlc291cmNlIDA6IGFzc3VtaW5nIHRyYW5z
+cGFyZW50ClBDSTogVXNpbmcgSVJRIHJvdXRlciBWSUEgWzExMDYvMDY4Nl0gYXQgMDA6MDcuMApQ
+Q0k6IEZvdW5kIElSUSAxMCBmb3IgZGV2aWNlIDAwOjA3LjIKUENJOiBUaGUgc2FtZSBJUlEgdXNl
+ZCBmb3IgZGV2aWNlIDAwOjA3LjMKQXBwbHlpbmcgVklBIFBDSSBsYXRlbmN5IHBhdGNoIChmb3Vu
+ZCBWVDgyQzY4NkIpLgppc2FwbnA6IFNjYW5uaW5nIGZvciBQblAgY2FyZHMuLi4KaXNhcG5wOiBO
+byBQbHVnICYgUGxheSBkZXZpY2UgZm91bmQKTGludXggTkVUNC4wIGZvciBMaW51eCAyLjQKQmFz
+ZWQgdXBvbiBTd2Fuc2VhIFVuaXZlcnNpdHkgQ29tcHV0ZXIgU29jaWV0eSBORVQzLjAzOQpJbml0
+aWFsaXppbmcgUlQgbmV0bGluayBzb2NrZXQKYXBtOiBCSU9TIHZlcnNpb24gMS4yIEZsYWdzIDB4
+MDcgKERyaXZlciB2ZXJzaW9uIDEuMTQpClN0YXJ0aW5nIGtzd2FwZCB2MS44CnB0eTogNTEyIFVu
+aXg5OCBwdHlzIGNvbmZpZ3VyZWQKYmxvY2s6IHF1ZXVlZCBzZWN0b3JzIG1heC9sb3cgMzM4MDc0
+a0IvMjA3MDAya0IsIDEwMjQgc2xvdHMgcGVyIHF1ZXVlClJBTURJU0sgZHJpdmVyIGluaXRpYWxp
+emVkOiAxNiBSQU0gZGlza3Mgb2YgNDA5Nksgc2l6ZSAxMDI0IGJsb2Nrc2l6ZQpVbmlmb3JtIE11
+bHRpLVBsYXRmb3JtIEUtSURFIGRyaXZlciBSZXZpc2lvbjogNi4zMQppZGU6IEFzc3VtaW5nIDMz
+TUh6IHN5c3RlbSBidXMgc3BlZWQgZm9yIFBJTyBtb2Rlczsgb3ZlcnJpZGUgd2l0aCBpZGVidXM9
+eHgKVlBfSURFOiBJREUgY29udHJvbGxlciBvbiBQQ0kgYnVzIDAwIGRldiAzOQpWUF9JREU6IGNo
+aXBzZXQgcmV2aXNpb24gNgpWUF9JREU6IG5vdCAxMDAlIG5hdGl2ZSBtb2RlOiB3aWxsIHByb2Jl
+IGlycXMgbGF0ZXIKVlBfSURFOiBWSUEgdnQ4MmM2ODZiIChyZXYgNDApIElERSBVRE1BMTAwIGNv
+bnRyb2xsZXIgb24gcGNpMDA6MDcuMQogICAgaWRlMDogQk0tRE1BIGF0IDB4ZDAwMC0weGQwMDcs
+IEJJT1Mgc2V0dGluZ3M6IGhkYTpETUEsIGhkYjpETUEKICAgIGlkZTE6IEJNLURNQSBhdCAweGQw
+MDgtMHhkMDBmLCBCSU9TIHNldHRpbmdzOiBoZGM6RE1BLCBoZGQ6RE1BCmhkYTogUVVBTlRVTSBG
+SVJFQkFMTFAgTE0xMC4yLCBBVEEgRElTSyBkcml2ZQpoZGI6IElCTS1EUFRBLTM3MjA1MCwgQVRB
+IERJU0sgZHJpdmUKaGRjOiBBVEFQSSA1MlggQ0RST00sIEFUQVBJIENEL0RWRC1ST00gZHJpdmUK
+aGRkOiBQTEVYVE9SIENELVIgUFgtVzg0MzJULCBBVEFQSSBDRC9EVkQtUk9NIGRyaXZlCmlkZTAg
+YXQgMHgxZjAtMHgxZjcsMHgzZjYgb24gaXJxIDE0CmlkZTEgYXQgMHgxNzAtMHgxNzcsMHgzNzYg
+b24gaXJxIDE1CmhkYTogMjAwNjYyNTEgc2VjdG9ycyAoMTAyNzQgTUIpIHcvMTkwMEtpQiBDYWNo
+ZSwgQ0hTPTEyNDkvMjU1LzYzLCBVRE1BKDMzKQpoZGI6IDQwMDg4MTYwIHNlY3RvcnMgKDIwNTI1
+IE1CKSB3LzE5NjFLaUIgQ2FjaGUsIENIUz0yNDk1LzI1NS82MywgVURNQSgzMykKUGFydGl0aW9u
+IGNoZWNrOgogaGRhOiBoZGExCiBoZGI6IGhkYjEgPCBoZGI1IGhkYjYgaGRiNyBoZGI4ID4KRmxv
+cHB5IGRyaXZlKHMpOiBmZDAgaXMgMS40NE0KRkRDIDAgaXMgYSBwb3N0LTE5OTEgODIwNzcKU2Vy
+aWFsIGRyaXZlciB2ZXJzaW9uIDUuMDVhICgyMDAxLTAzLTIwKSB3aXRoIE1BTllfUE9SVFMgTVVM
+VElQT1JUIFNIQVJFX0lSUSBTRVJJQUxfUENJIElTQVBOUCBlbmFibGVkCnR0eVMwMCBhdCAweDAz
+ZjggKGlycSA9IDQpIGlzIGEgMTY1NTBBCnR0eVMwMSBhdCAweDAyZjggKGlycSA9IDMpIGlzIGEg
+MTY1NTBBClJlYWwgVGltZSBDbG9jayBEcml2ZXIgdjEuMTBkCm1kIGRyaXZlciAwLjkwLjAgTUFY
+X01EX0RFVlM9MjU2LCBNRF9TQl9ESVNLUz0yNwptZC5jOiBzaXplb2YobWRwX3N1cGVyX3QpID0g
+NDA5NgphdXRvZGV0ZWN0aW5nIFJBSUQgYXJyYXlzCmF1dG9ydW4gLi4uCi4uLiBhdXRvcnVuIERP
+TkUuCk5FVDQ6IExpbnV4IFRDUC9JUCAxLjAgZm9yIE5FVDQuMApJUCBQcm90b2NvbHM6IElDTVAs
+IFVEUCwgVENQLCBJR01QCklQOiByb3V0aW5nIGNhY2hlIGhhc2ggdGFibGUgb2YgNDA5NiBidWNr
+ZXRzLCAzMktieXRlcwpUQ1A6IEhhc2ggdGFibGVzIGNvbmZpZ3VyZWQgKGVzdGFibGlzaGVkIDMy
+NzY4IGJpbmQgMzI3NjgpCkxpbnV4IElQIG11bHRpY2FzdCByb3V0ZXIgMC4wNiBwbHVzIFBJTS1T
+TQpORVQ0OiBVbml4IGRvbWFpbiBzb2NrZXRzIDEuMC9TTVAgZm9yIExpbnV4IE5FVDQuMC4KVkZT
+OiBNb3VudGVkIHJvb3QgKGV4dDIgZmlsZXN5c3RlbSkgcmVhZG9ubHkuCkZyZWVpbmcgdW51c2Vk
+IGtlcm5lbCBtZW1vcnk6IDIyOGsgZnJlZWQKQWRkaW5nIFN3YXA6IDUxNDA0MGsgc3dhcC1zcGFj
+ZSAocHJpb3JpdHkgLTEpCnVzYi5jOiByZWdpc3RlcmVkIG5ldyBkcml2ZXIgdXNiZGV2ZnMKdXNi
+LmM6IHJlZ2lzdGVyZWQgbmV3IGRyaXZlciBodWIKdXNiLXVoY2kuYzogJFJldmlzaW9uOiAxLjI1
+MSAkIHRpbWUgMTM6NTE6NDQgSnVuICA4IDIwMDEKdXNiLXVoY2kuYzogSGlnaCBiYW5kd2lkdGgg
+bW9kZSBlbmFibGVkClBDSTogRm91bmQgSVJRIDEwIGZvciBkZXZpY2UgMDA6MDcuMgpQQ0k6IFRo
+ZSBzYW1lIElSUSB1c2VkIGZvciBkZXZpY2UgMDA6MDcuMwp1c2ItdWhjaS5jOiBVU0IgVUhDSSBh
+dCBJL08gMHhkNDAwLCBJUlEgMTAKdXNiLXVoY2kuYzogRGV0ZWN0ZWQgMiBwb3J0cwp1c2IuYzog
+bmV3IFVTQiBidXMgcmVnaXN0ZXJlZCwgYXNzaWduZWQgYnVzIG51bWJlciAxCmh1Yi5jOiBVU0Ig
+aHViIGZvdW5kCmh1Yi5jOiAyIHBvcnRzIGRldGVjdGVkClBDSTogRm91bmQgSVJRIDEwIGZvciBk
+ZXZpY2UgMDA6MDcuMwpQQ0k6IFRoZSBzYW1lIElSUSB1c2VkIGZvciBkZXZpY2UgMDA6MDcuMgp1
+c2ItdWhjaS5jOiBVU0IgVUhDSSBhdCBJL08gMHhkODAwLCBJUlEgMTAKdXNiLXVoY2kuYzogRGV0
+ZWN0ZWQgMiBwb3J0cwp1c2IuYzogbmV3IFVTQiBidXMgcmVnaXN0ZXJlZCwgYXNzaWduZWQgYnVz
+IG51bWJlciAyCmh1Yi5jOiBVU0IgaHViIGZvdW5kCmh1Yi5jOiAyIHBvcnRzIGRldGVjdGVkCmhk
+YzogQVRBUEkgNDhYIENELVJPTSBkcml2ZSwgMTI4a0IgQ2FjaGUsIFVETUEoMzMpClVuaWZvcm0g
+Q0QtUk9NIGRyaXZlciBSZXZpc2lvbjogMy4xMgpTQ1NJIHN1YnN5c3RlbSBkcml2ZXIgUmV2aXNp
+b246IDEuMDAKc2NzaTAgOiBTQ1NJIGhvc3QgYWRhcHRlciBlbXVsYXRpb24gZm9yIElERSBBVEFQ
+SSBkZXZpY2VzCiAgVmVuZG9yOiBQTEVYVE9SICAgTW9kZWw6IENELVIgICBQWC1XODQzMlQgIFJl
+djogMS4wOQogIFR5cGU6ICAgQ0QtUk9NICAgICAgICAgICAgICAgICAgICAgICAgICAgICBBTlNJ
+IFNDU0kgcmV2aXNpb246IDAyCldpbmJvbmQgU3VwZXItSU8gZGV0ZWN0aW9uLCBub3cgdGVzdGlu
+ZyBwb3J0cyAzRjAsMzcwLDI1MCw0RSwyRSAuLi4KU01TQyBTdXBlci1JTyBkZXRlY3Rpb24sIG5v
+dyB0ZXN0aW5nIFBvcnRzIDJGMCwgMzcwIC4uLgpwYXJwb3J0MDogUEMtc3R5bGUgYXQgMHgzNzgg
+W1BDU1BQLEVQUF0KcGFycG9ydDA6IGNwcF9kYWlzeTogYWE1NTAwZmYoMzgpCnBhcnBvcnQwOiBh
+c3NpZ25fYWRkcnM6IGFhNTUwMGZmKDM4KQpwYXJwb3J0MDogY3BwX2RhaXN5OiBhYTU1MDBmZigz
+OCkKcGFycG9ydDA6IGFzc2lnbl9hZGRyczogYWE1NTAwZmYoMzgpCnBhcnBvcnRfcGM6IFZpYSA2
+ODZBIHBhcmFsbGVsIHBvcnQ6IGlvPTB4Mzc4CmlwX2Nvbm50cmFjayAoNDA5NSBidWNrZXRzLCAz
+Mjc2MCBtYXgpClBQUCBnZW5lcmljIGRyaXZlciB2ZXJzaW9uIDIuNC4xClBQUCBCU0QgQ29tcHJl
+c3Npb24gbW9kdWxlIHJlZ2lzdGVyZWQKUFBQIERlZmxhdGUgQ29tcHJlc3Npb24gbW9kdWxlIHJl
+Z2lzdGVyZWQKVmlhIDY4NmEgYXVkaW8gZHJpdmVyIDEuMS4xNGIKUENJOiBBc3NpZ25lZCBJUlEg
+MTAgZm9yIGRldmljZSAwMDowNy41CmFjOTdfY29kZWM6IEFDOTcgQXVkaW8gY29kZWMsIGlkOiAw
+eDQ5NDM6MHg0NTExIChJQ0UxMjMyKQp2aWE4MmN4eHg6IGJvYXJkICMxIGF0IDB4REMwMCwgSVJR
+IDEwCnZpYV9hdWRpbzogaWdub3JpbmcgZHJhaW4gcGxheWJhY2sgZXJyb3IgLTExCmhkYzogdGlt
+ZW91dCB3YWl0aW5nIGZvciBETUEKaWRlX2RtYXByb2M6IGNoaXBzZXQgc3VwcG9ydGVkIGlkZV9k
+bWFfdGltZW91dCBmdW5jIG9ubHk6IDE0CmhkYzogc3RhdHVzIHRpbWVvdXQ6IHN0YXR1cz0weGQw
+IHsgQnVzeSB9CmhkYzogZHJpdmUgbm90IHJlYWR5IGZvciBjb21tYW5kCmhkYzogQVRBUEkgcmVz
+ZXQgY29tcGxldGUKUFBQOiBWSiBkZWNvbXByZXNzaW9uIGVycm9yClBQUDogVkogZGVjb21wcmVz
+c2lvbiBlcnJvcgpoZGM6IHRpbWVvdXQgd2FpdGluZyBmb3IgRE1BCmlkZV9kbWFwcm9jOiBjaGlw
+c2V0IHN1cHBvcnRlZCBpZGVfZG1hX3RpbWVvdXQgZnVuYyBvbmx5OiAxNApoZGM6IHN0YXR1cyB0
+aW1lb3V0OiBzdGF0dXM9MHhkMCB7IEJ1c3kgfQpoZGM6IGRyaXZlIG5vdCByZWFkeSBmb3IgY29t
+bWFuZApoZGM6IEFUQVBJIHJlc2V0IGNvbXBsZXRlCg==
 
-The assumption should be that the generated firmware is destined to
-be shipped.  Those fixing firmware bugs will want to get their changes
-tested by others.  Those requiring special firmware behavior will
-ship those changes in their produce or internal kernel release.
-
->The current aic7xxx kbuild violates (1)-(3).
-
-1 is only violated for distributions that were caught up by the build
-behavior in 6.1.5.  This behavior was a bug and that bug has been corrected.
-The only distributor I know of that *may* have been affected by this is SGI.
-I'll be contacting them to fix their distribution.
-
-2 is not an issue unless you happen to have an uncorrected tree from SGI.
-Bulding the firmware was only a requirement for a short time in the new
-driver, and has never been a requirement for the old driver.  I think
-the sucess of the old driver validates that this scheme works without
-any of the complexity of your proposal.
-
-3 is not violated now either.  The build system may offer a warning,
-but I have no concern with having that warning removed.  If anything,
-your proposed scheme makes it more difficult to get the proper depency
-semantics if you are really tryin to work on the firmware - the release
-process is now separated from the standard build.  I contend that the
-only reason people have been building the firmware is due to fallout
-related to the old build scheme.  The new scheme avoids this, in effect,
-by moving/deleting files forcing the correction of a few screwed up
-revision control repositories.  Email to the distributors seems a much
-simpler way to correct this last remaining problem.
-
---
-Justin
+--------------Boundary-00=_NY0IW53DXWICG2XDTF78--

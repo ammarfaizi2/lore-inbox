@@ -1,72 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265317AbTL0EiP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Dec 2003 23:38:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265319AbTL0EiP
+	id S265315AbTL0Esj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 23:48:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265316AbTL0Esj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Dec 2003 23:38:15 -0500
-Received: from tolkor.sgi.com ([198.149.18.6]:39655 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id S265317AbTL0EiI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Dec 2003 23:38:08 -0500
-Date: Fri, 26 Dec 2003 22:37:23 -0600 (CST)
-From: Eric Sandeen <sandeen@sgi.com>
-X-X-Sender: sandeen@stout.americas.sgi.com
-To: Jerry Haltom <jhaltom@feedbackplusinc.com>
-cc: linux-xfs@oss.sgi.com, <linux-kernel@vger.kernel.org>
-Subject: Re: XFS filesystem corruption: 2.6.0. Massive failure. With raid5
-In-Reply-To: <1072425031.737.9.camel@osaka>
-Message-ID: <Pine.LNX.4.44.0312262229500.31226-100000@stout.americas.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 26 Dec 2003 23:48:39 -0500
+Received: from amber.ccs.neu.edu ([129.10.116.51]:57584 "EHLO
+	amber.ccs.neu.edu") by vger.kernel.org with ESMTP id S265315AbTL0Esi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Dec 2003 23:48:38 -0500
+Subject: Re: 2.6.0 sound output - wierd effects
+From: Stan Bubrouski <stan@ccs.neu.edu>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: azarah@nosferatu.za.org,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+In-Reply-To: <2060000.1072483186@[10.10.2.4]>
+References: <1080000.1072475704@[10.10.2.4]>
+	 <1072479167.21020.59.camel@nosferatu.lan>  <1480000.1072479655@[10.10.2.4]>
+	 <1072480660.21020.64.camel@nosferatu.lan>  <1640000.1072481061@[10.10.2.4]>
+	 <1072482611.21020.71.camel@nosferatu.lan>  <2060000.1072483186@[10.10.2.4]>
+Content-Type: text/plain
+Message-Id: <1072500516.12203.2.camel@duergar>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 26 Dec 2003 23:48:37 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Dec 2003, Jerry Haltom wrote:
-
-> This has happened twice now. Massive XFS file system corruption. The
-> system is running on a 3ware card in Raid5 config. / is XFS. Cannot
-> mount:
+On Fri, 2003-12-26 at 18:59, Martin J. Bligh wrote:
+> I'll play with it - should narrow things down. However, fundamentally,
+> it used to work in 2.5.74, and is broken as of test3 ... that strongly
+> implies to me there's a kernel problem. I'd rather fix OSS emulation
+> if possible, and save everybody migrating to 2.6 from this pain ... ;-)
 > 
-> XFS: log has mismatchd uuid - can't recover
-> XFS: failed to find log head
-> XFS: log mount/recovery/failed
 
-Either a corrupt log, or a misstated external log, it seems.
+Please do, while it would be nice if OSS could be dropped altogether
+there are a great many commercial and closed source apps that we all
+need and only currently work with OSS.  For example flash player for
+linux and real player, not to mention a myrid of open source apps that
+have yet to move to ALSA support.  Right now its virtually impossible to
+live with a kernel with no OSS for people like me who require use of
+these apps on a daily basis.
 
-Ah, on irc you said only the first part of the uuid was off,
-that's a bit odd.  Knowing the actual numbers would be very
-helpful.  Perhaps the raid swizzled some bits?
+-sb
 
-> xfs_repair lets me know a lot of stuff, and:
+
+> M.
 > 
-> * ERROR: mismathced uuid in log
-> * SB: some long number
-> * log: a slightly different long number
-
-Those numbers may be important, without the real output this isn't very
-helpful.
-
-> It doesn't work.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
-> xfs_logprint -t /dev/sda4 produces a lot of illegal type errors and ends
-> up with Segmentation fault (uh oh).
-
-Hm, so the log was in very bad shape.  I don't know how it got there;
-it may or may not be xfs's fault, but it shouldn't segfault.  If you have
-the core file maybe we can take a look.
-
-> I could fix it by forcing hte logs clean, that is what I did the first
-> time this happened. However, I lost a lot of files last time, and this
-> shouldn't happen. So here it is for you guys. I am hanging out in #xfs
-> on irc.freenode.net if anybody wants to check it out.
-
-Sounds like you've already repaired it and whacked the log, so no use
-now.  It would also be interesting to know if any I/O or other errors
-occurred in the system before the problems.  You might also run without
-the nvidia driver* for a while and see if things go better.
-
--Eric
-
-*info gleaned from irc
 

@@ -1,65 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261847AbTANIyN>; Tue, 14 Jan 2003 03:54:13 -0500
+	id <S261854AbTANJJi>; Tue, 14 Jan 2003 04:09:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261854AbTANIyN>; Tue, 14 Jan 2003 03:54:13 -0500
-Received: from atlas.inria.fr ([138.96.66.22]:42183 "EHLO atlas.inria.fr")
-	by vger.kernel.org with ESMTP id <S261847AbTANIyM>;
-	Tue, 14 Jan 2003 03:54:12 -0500
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Nicolas Turro <Nicolas.Turro@sophia.inria.fr>
-Organization: SEMIR - INRIA Sophia Antipolis
-To: Soeren Sonnenburg <kernel@nn7.de>
-Subject: Re: Bug report : i810_audio, compaq evo 410c, 2.4.20
-Date: Tue, 14 Jan 2003 10:02:56 +0100
-User-Agent: KMail/1.4.3
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Hugo Haas <hugo@larve.net>
-References: <1042497413.1223.21.camel@sun>
-In-Reply-To: <1042497413.1223.21.camel@sun>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200301141002.56498.Nicolas.Turro@sophia.inria.fr>
+	id <S261857AbTANJJi>; Tue, 14 Jan 2003 04:09:38 -0500
+Received: from AMarseille-201-1-3-195.abo.wanadoo.fr ([193.253.250.195]:25969
+	"EHLO zion.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S261854AbTANJJh>; Tue, 14 Jan 2003 04:09:37 -0500
+Subject: Re: Linux 2.4.21-pre3-ac4
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Ross Biro <rossb@google.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Alan Cox <alan@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E23696A.9040006@google.com>
+References: <200301121807.h0CI7Qp04542@devserv.devel.redhat.com>
+	 <1042399796.525.215.camel@zion.wanadoo.fr>
+	 <1042403235.16288.14.camel@irongate.swansea.linux.org.uk>
+	 <1042401074.525.219.camel@zion.wanadoo.fr>  <3E230A4D.6020706@google.com>
+	 <1042484609.30837.31.camel@zion.wanadoo.fr>  <3E23114E.8070400@google.com>
+	 <1042491409.586.4.camel@zion.wanadoo.fr> <3E233160.3040901@google.com>
+	 <3E23696A.9040006@google.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1042535903.586.44.camel@zion.wanadoo.fr>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 14 Jan 2003 10:18:23 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, 2003-01-14 at 02:35, Ross Biro wrote:
+> Ross Biro wrote:
+> 
+> >>>
+> >>> This is technically a spec violation, but it's probably safe.  I'm 
+> >>> going to send an email to a couple of the drive manufacturers and 
+> >>> see what they think.
+> >>>   
+> >>
+> I just heard back from one ide controller chip vendor and they think we 
+> should disable PCI write posting.  From the tone of the response, I 
+> believe that they may not have thought of this before and it may be a 
+> problem in their non-opensource drivers as well.
 
-Le Lundi 13 Janvier 2003 23:36, Soeren Sonnenburg a écrit :
-> > I have laptops here (compaq evo 410c) that freeze completely while
-> > playing sound (using mpg123, for example). The crash is random, it may
-> > freeze as soon as playback start of after a few minutes.
->
-> All I can say is me too... It seems as if the sound card is doing irq
-> sharing and strongly dislikes that... at least for me sound works for some
-> seconds then starts to stutter and crashes somewhen (within 30sec) later.
->
-> I was using kernel 2.4.18 (from debian woody).
->
-> I also tried alsa but some behaviour.
->
-> I saw that someone said he got it working, see:
->  http://larve.net/people/hugo/2002/12/evo410
+Argh... Well, I don't think that's a solution unfortunately. The
+"posting" can be done at various level down the path to the device and
+we don't always know how to (or want to) tweak it to disable any kind of
+posting. It can be done on P2P bridges, it can be done in the host
+bridge (for which we may have no specs in some cases) and it can be done
+at the CPU level (not couting the IDE chipset itself that might want to
+play tricks).
+
+So what can we do at this point ? I beleive the only sane solution is to
+provide that hwif->IOSYNC. Normal PCI-DMA controllers setting it to
+dma_base by default, I know what to do for ide-pmac, others will have to
+find some way to get it right for their platform (legacy x86 IO ports
+might not be a problem as Alan pointed those IOs are fully synchronous).
+Maybe we shall initialize that to some default provided by asm/ide.h (I
+don't like that much though).
+
+Ben.
 
 
-I already contacted Hugo, in fact, he didn't manage to make the sound working 
-either.
-
-> But I could not find out how.
->
-> It would be pretty nice if APM / ACPI worked for the evo ... did you
-> try it yet ?
-
-Nope
-
-
-N. Turro
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE+I9JAty/HpgyBIboRAk/QAJ9mXgMY6dZJdoySupvGhwOfrPHoPQCg1SuL
-teIziSbKZzmUdM6WqO+/N0Y=
-=nvzU
------END PGP SIGNATURE-----

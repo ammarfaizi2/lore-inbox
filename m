@@ -1,231 +1,712 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266527AbTBCOl7>; Mon, 3 Feb 2003 09:41:59 -0500
+	id <S266627AbTBCOqn>; Mon, 3 Feb 2003 09:46:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266535AbTBCOl7>; Mon, 3 Feb 2003 09:41:59 -0500
-Received: from d06lmsgate-5.uk.ibm.com ([195.212.29.5]:7349 "EHLO
-	d06lmsgate-5.uk.ibm.com") by vger.kernel.org with ESMTP
-	id <S266527AbTBCOlh>; Mon, 3 Feb 2003 09:41:37 -0500
+	id <S266702AbTBCOqY>; Mon, 3 Feb 2003 09:46:24 -0500
+Received: from d12lmsgate-4.de.ibm.com ([194.196.100.237]:36295 "EHLO
+	d12lmsgate-4.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S266627AbTBCOoE>; Mon, 3 Feb 2003 09:44:04 -0500
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Organization: IBM Deutschland GmbH
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] s390 fixes (3/12).
-Date: Mon, 3 Feb 2003 15:48:11 +0100
+Subject: [PATCH] s390 fixes (10/12).
+Date: Mon, 3 Feb 2003 15:50:23 +0100
 User-Agent: KMail/1.5
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200302031548.11449.schwidefsky@de.ibm.com>
+Message-Id: <200302031550.23872.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-updates for s390 dasd driver
+updates for s390 scsi support
 
-Some problems have been found in the dasd error handling code, they
-are fixed by the update to dasd_3990_erp.c.
-
-Dasd is one of only two remaining drivers that use the null 
-elevator instead of iosched. Appearantly, the null elevator
-has some bitrot and can result in random data loss. For now,
-we just don't use it.
-diff -urN linux-2.5.59/drivers/s390/block/dasd.c 
-linux-2.5.59-s390/drivers/s390/block/dasd.c
---- linux-2.5.59/drivers/s390/block/dasd.c	Fri Jan 17 03:22:06 2003
-+++ linux-2.5.59-s390/drivers/s390/block/dasd.c	Mon Feb  3 15:00:38 2003
-@@ -7,7 +7,7 @@
-  * Bugreports.to..: <Linux390@de.ibm.com>
-  * (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 1999-2001
-  *
-- * $Revision: 1.71 $
-+ * $Revision: 1.74 $
-  *
-  * History of changes (starts July 2000)
-  * 11/09/00 complete redesign after code review
-@@ -1656,17 +1656,20 @@
- 	device->request_queue = kmalloc(sizeof (request_queue_t), GFP_KERNEL);
- 	if (device->request_queue == NULL)
- 		return -ENOMEM;
-+	memset(device->request_queue, 0, sizeof(request_queue_t));
- 	device->request_queue->queuedata = device;
- 	rc = blk_init_queue(device->request_queue, do_dasd_request,
- 			    &device->request_queue_lock);
- 	if (rc)
- 		return rc;
-+#if 0
- 	elevator_exit(device->request_queue);
- 	rc = elevator_init(device->request_queue, &elevator_noop);
- 	if (rc) {
- 		blk_cleanup_queue(device->request_queue);
- 		return rc;
- 	}
-+#endif
- 	blk_queue_hardsect_size(device->request_queue, device->bp_block);
- 	max = device->discipline->max_blocks << device->s2b_shift;
- 	blk_queue_max_sectors(device->request_queue, max);
-diff -urN linux-2.5.59/drivers/s390/block/dasd_3990_erp.c 
-linux-2.5.59-s390/drivers/s390/block/dasd_3990_erp.c
---- linux-2.5.59/drivers/s390/block/dasd_3990_erp.c	Fri Jan 17 03:22:39 2003
-+++ linux-2.5.59-s390/drivers/s390/block/dasd_3990_erp.c	Mon Feb  3 15:00:38 
-2003
-@@ -5,7 +5,7 @@
-  * Bugreports.to..: <Linux390@de.ibm.com>
-  * (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 2000, 2001
-  *
-- * $Revision: 1.19 $
-+ * $Revision: 1.20 $
-  *
-  * History of changes:
-  * 05/14/01 fixed PL030160GTO (BUG() in erp_action_5)
-@@ -454,7 +454,7 @@
+- remove bogus header file
+- add a definition for free_dma() to make scsi.c work
+diff -urN linux-2.5.59/include/asm-s390/dma.h 
+linux-2.5.59-s390/include/asm-s390/dma.h
+--- linux-2.5.59/include/asm-s390/dma.h	Fri Jan 17 03:22:42 2003
++++ linux-2.5.59-s390/include/asm-s390/dma.h	Mon Feb  3 15:16:16 2003
+@@ -13,4 +13,6 @@
  
- 	} else {
+ #define MAX_DMA_ADDRESS         0x80000000
  
--		if (sense[25] & 0x1D) {	/* state change pending */
-+		if (sense[25] == 0x1D) {	/* state change pending */
- 
- 			DEV_MESSAGE(KERN_INFO, device, "%s",
- 				    "waiting for state change pending " "int");
-@@ -464,6 +464,10 @@
- 		} else {
- 
- 			/* no state change pending - retry */
-+			DEV_MESSAGE (KERN_INFO, device, 
-+				     "redriving request immediately, "
-+				     "%d retries left", 
-+				     erp->retries);
- 			erp->status = DASD_CQR_QUEUED;
- 		}
- 	}
-@@ -2273,27 +2277,41 @@
- {
- 
- 	dasd_device_t *device = cqr->device;
-+	struct ccw1 *ccw;
- 
- 	/* allocate additional request block */
- 	dasd_ccw_req_t *erp;
- 
--	erp = dasd_alloc_erp_request((char *) &cqr->magic, 1, 0, cqr->device);
-+	erp = dasd_alloc_erp_request((char *) &cqr->magic, 2, 0, cqr->device);
- 	if (IS_ERR(erp)) {
--		DEV_MESSAGE(KERN_ERR, device, "%s",
--			    "Unable to allocate ERP request");
--		cqr->status = DASD_CQR_FAILED;
-+                if (cqr->retries <= 0) {
-+		        DEV_MESSAGE(KERN_ERR, device, "%s",
-+				    "Unable to allocate ERP request");
-+			cqr->status = DASD_CQR_FAILED;
-+                        cqr->stopclk = get_clock ();
-+		} else {
-+                        DEV_MESSAGE (KERN_ERR, device,
-+                                     "Unable to allocate ERP request "
-+				     "(%i retries left)",
-+                                     cqr->retries);
-+			dasd_set_timer(device, (HZ << 3));
-+                }
- 		return cqr;
- 	}
- 
- 	/* initialize request with default TIC to current ERP/CQR */
--	erp->cpaddr->cmd_code = CCW_CMD_TIC;
--	erp->cpaddr->cda = (long) (cqr->cpaddr);
-+	ccw = erp->cpaddr;
-+	ccw->cmd_code = CCW_CMD_NOOP;
-+	ccw->flags = CCW_FLAG_CC;
-+	ccw++;
-+	ccw->cmd_code = CCW_CMD_TIC;
-+	ccw->cda      = (long)(cqr->cpaddr);
- 	erp->function = dasd_3990_erp_add_erp;
--	erp->refers = cqr;
--	erp->device = cqr->device;
--	erp->magic = cqr->magic;
--	erp->expires = 0;
--	erp->retries = 256;
-+	erp->refers   = cqr;
-+	erp->device   = cqr->device;
-+	erp->magic    = cqr->magic;
-+	erp->expires  = 0;
-+	erp->retries  = 256;
- 
- 	erp->status = DASD_CQR_FILLED;
- 
-@@ -2362,7 +2380,7 @@
- 	}
- 
- 	/* check sense data; byte 0-2,25,27 */
--	if (!((strncmp(cqr1->dstat->ecw, cqr2->dstat->ecw, 3) == 0) &&
-+	if (!((memcmp (cqr1->dstat->ecw, cqr2->dstat->ecw, 3) == 0) &&
- 	      (cqr1->dstat->ecw[27] == cqr2->dstat->ecw[27]) &&
- 	      (cqr1->dstat->ecw[25] == cqr2->dstat->ecw[25]))) {
- 
-@@ -2549,7 +2567,7 @@
- 
- 	if (erp->retries > 0) {
- 
--		char *sense = erp->dstat->ecw;
-+		char *sense = erp->refers->dstat->ecw;
- 
- 		/* check for special retries */
- 		if (erp->function == dasd_3990_erp_action_4) {
-@@ -2680,35 +2698,9 @@
- 		dasd_log_ccw(erp, 1, cpa);
- 
- 	/* enqueue added ERP request */
--	if ((erp != cqr) && (erp->status == DASD_CQR_FILLED)) {
-+	if (erp->status == DASD_CQR_FILLED) {
- 		erp->status = DASD_CQR_QUEUED;
- 		list_add(&erp->list, &device->ccw_queue);
--	} else {
--		if ((erp->status == DASD_CQR_FILLED) || (erp != cqr)) {
--			/* something strange happened - log the error and throw a BUG() */
--			DEV_MESSAGE(KERN_ERR, device, "%s",
--				    "Problems with ERP chain!!! BUG");
++#define free_dma(x)
++
+ #endif /* _ASM_DMA_H */
+diff -urN linux-2.5.59/include/asm-s390/fsf.h 
+linux-2.5.59-s390/include/asm-s390/fsf.h
+--- linux-2.5.59/include/asm-s390/fsf.h	Fri Jan 17 03:22:45 2003
++++ linux-2.5.59-s390/include/asm-s390/fsf.h	Thu Jan  1 01:00:00 1970
+@@ -1,326 +0,0 @@
+-/*
+- * header file for FCP adapter driver for IBM eServer zSeries
+- *
+- * Authors:
+- *      Martin Peschke <mpeschke@de.ibm.com>
+- *      Raimund Schroeder <raimund.schroeder@de.ibm.com>
+- *      Aron Zeh <arzeh@de.ibm.com>
+- *      Wolfgang Taphorn <taphorn@de.ibm.com>
+- *
+- * Copyright (C) 2002 IBM Entwicklung GmbH, IBM Corporation
+- */
 -
--			/* print current erp_chain */
--			DEV_MESSAGE(KERN_DEBUG, device, "%s",
--				    "ERP chain at END of ERP-ACTION");
--			{
--				dasd_ccw_req_t *temp_erp = NULL;
--				for (temp_erp = erp;
--				     temp_erp != NULL;
--				     temp_erp = temp_erp->refers) {
+-#ifndef FSF_H
+-#define FSF_H
 -
--					DEV_MESSAGE(KERN_DEBUG, device,
--						    "	   erp %p (function %p)"
--						    " refers to %p",
--						    temp_erp,
--						    temp_erp->function,
--						    temp_erp->refers);
--				}
--			}
--			BUG();
--		}
+-#define FSF_QTCB_VERSION1			0x00000001
+-#define FSF_QTCB_CURRENT_VERSION		FSF_QTCB_VERSION1
 -
- 	}
+-/* FSF commands */
+-#define	FSF_QTCB_FCP_CMND			0x00000001
+-#define	FSF_QTCB_ABORT_FCP_CMND			0x00000002
+-#define	FSF_QTCB_OPEN_PORT_WITH_DID		0x00000005
+-#define	FSF_QTCB_OPEN_LUN			0x00000006
+-#define	FSF_QTCB_CLOSE_LUN			0x00000007
+-#define	FSF_QTCB_CLOSE_PORT			0x00000008
+-#define	FSF_QTCB_CLOSE_PHYSICAL_PORT		0x00000009
+-#define	FSF_QTCB_SEND_ELS			0x0000000B
+-#define	FSF_QTCB_SEND_GENERIC			0x0000000C
+-#define	FSF_QTCB_EXCHANGE_CONFIG_DATA		0x0000000D
+-
+-/* FSF QTCB types */
+-#define FSF_IO_COMMAND				0x00000001
+-#define FSF_SUPPORT_COMMAND			0x00000002
+-#define FSF_CONFIG_COMMAND			0x00000003
+-
+-/* association between FSF command and FSF QTCB type */
+-u32 fsf_qtcb_type[] = {
+-	[ FSF_QTCB_FCP_CMND ]			= FSF_IO_COMMAND,
+-	[ FSF_QTCB_ABORT_FCP_CMND ]		= FSF_SUPPORT_COMMAND,
+-	[ FSF_QTCB_OPEN_PORT_WITH_DID ] 	= FSF_SUPPORT_COMMAND,
+-	[ FSF_QTCB_OPEN_LUN ]			= FSF_SUPPORT_COMMAND,
+-	[ FSF_QTCB_CLOSE_LUN ]			= FSF_SUPPORT_COMMAND,
+-	[ FSF_QTCB_CLOSE_PORT ]			= FSF_SUPPORT_COMMAND,
+-	[ FSF_QTCB_CLOSE_PHYSICAL_PORT ]	= FSF_SUPPORT_COMMAND,
+-	[ FSF_QTCB_SEND_ELS ]			= FSF_SUPPORT_COMMAND,
+-	[ FSF_QTCB_SEND_GENERIC ]		= FSF_SUPPORT_COMMAND,
+-	[ FSF_QTCB_EXCHANGE_CONFIG_DATA ]	= FSF_CONFIG_COMMAND
+-};
+-
+-/* FSF protocol stati */
+-#define FSF_PROT_GOOD				0x00000001
+-#define FSF_PROT_QTCB_VERSION_ERROR		0x00000010
+-#define FSF_PROT_SEQ_NUMB_ERROR			0x00000020
+-#define FSF_PROT_UNSUPP_QTCB_TYPE		0x00000040
+-#define FSF_PROT_HOST_CONNECTION_INITIALIZING	0x00000080
+-#define FSF_PROT_FSF_STATUS_PRESENTED		0x00000100
+-#define FSF_PROT_DUPLICATE_REQUEST_ID		0x00000200
+-#define FSF_PROT_LINK_DOWN                      0x00000400
+-#define FSF_PROT_REEST_QUEUE                    0x00000800
+-#define FSF_PROT_ERROR_STATE			0x01000000
+-
+-/* FSF stati */
+-#define FSF_GOOD				0x00000000
+-#define FSF_PORT_ALREADY_OPEN			0x00000001
+-#define FSF_LUN_ALREADY_OPEN			0x00000002
+-#define FSF_PORT_HANDLE_NOT_VALID		0x00000003
+-#define FSF_LUN_HANDLE_NOT_VALID		0x00000004
+-#define FSF_HANDLE_MISMATCH			0x00000005
+-#define FSF_SERVICE_CLASS_NOT_SUPPORTED		0x00000006
+-#define FSF_FCPLUN_NOT_VALID			0x00000009
+-//#define FSF_ACCESS_DENIED			0x00000010
+-#define FSF_ACCESS_TYPE_NOT_VALID		0x00000011
+-#define FSF_LUN_IN_USE				0x00000012
+-#define FSF_COMMAND_ABORTED_ULP			0x00000020
+-#define FSF_COMMAND_ABORTED_ADAPTER		0x00000021
+-#define FSF_FCP_COMMAND_DOES_NOT_EXIST		0x00000022
+-#define FSF_DIRECTION_INDICATOR_NOT_VALID	0x00000030
+-#define FSF_INBOUND_DATA_LENGTH_NOT_VALID	0x00000031	/* FIXME: obsolete? */
+-#define FSF_OUTBOUND_DATA_LENGTH_NOT_VALID	0x00000032	/* FIXME: obsolete? */
+-#define FSF_CMND_LENGTH_NOT_VALID		0x00000033
+-#define FSF_MAXIMUM_NUMBER_OF_PORTS_EXCEEDED	0x00000040
+-#define FSF_MAXIMUM_NUMBER_OF_LUNS_EXCEEDED	0x00000041
+-#define FSF_REQUEST_BUF_NOT_VALID		0x00000042
+-#define FSF_RESPONSE_BUF_NOT_VALID		0x00000043
+-#define FSF_ELS_COMMAND_REJECTED		0x00000050
+-#define FSF_GENERIC_COMMAND_REJECTED		0x00000051
+-//#define FSF_AUTHORIZATION_FAILURE		0x00000053
+-#define FSF_PORT_BOXED				0x00000059
+-//#define FSF_LUN_BOXED				0x0000005A
+-#define FSF_ADAPTER_STATUS_AVAILABLE		0x000000AD
+-#define FSF_FCP_RSP_AVAILABLE			0x000000AF
+-#define FSF_UNKNOWN_COMMAND			0x000000E2
+-//#define FSF_ERROR				0x000000FF 
+-
+-/* FSF status qualifier, recommendations */
+-#define FSF_SQ_NO_RECOM				0x00
+-#define FSF_SQ_FCP_RSP_AVAILABLE		0x01
+-#define FSF_SQ_RETRY_IF_POSSIBLE		0x02
+-#define FSF_SQ_ULP_DEPENDENT_ERP_REQUIRED	0x03
+-#define FSF_SQ_INVOKE_LINK_TEST_PROCEDURE	0x04
+-#define FSF_SQ_ULP_PROGRAMMING_ERROR		0x05
+-#define FSF_SQ_COMMAND_ABORTED			0x06
+-#define FSF_SQ_NO_RETRY_POSSIBLE		0x07
+-
+-/* FSF status qualifier (most significant 4 bytes), local link down */
+-#define FSF_PSQ_LINK_NOLIGHT			0x00000004
+-#define FSF_PSQ_LINK_WRAPPLUG			0x00000008
+-#define FSF_PSQ_LINK_NOFCP			0x00000010
+-
+-/* payload size in status read buffer */
+-#define FSF_STATUS_READ_PAYLOAD_SIZE		4032
+-
+-/* status types in status read buffer */
+-#define FSF_STATUS_READ_PORT_CLOSED		0x00000001
+-#define FSF_STATUS_READ_INCOMING_ELS		0x00000002
+-#define FSF_STATUS_READ_BIT_ERROR_THRESHOLD	0x00000004
+-#define FSF_STATUS_READ_LINK_DOWN		0x00000005	/* FIXME: really? */
+-#define FSF_STATUS_READ_LINK_UP          	0x00000006
+-
+-/* status subtypes in status read buffer */
+-#define FSF_STATUS_READ_SUB_CLOSE_PHYS_PORT	0x00000001
+-#define FSF_STATUS_READ_SUB_ERROR_PORT		0x00000002
+-
+-/* topologie that is detected by the adapter */
+-#define FSF_TOPO_ERROR				0x00000000
+-#define FSF_TOPO_P2P				0x00000001
+-#define FSF_TOPO_FABRIC				0x00000002
+-#define FSF_TOPO_AL				0x00000003
+-#define FSF_TOPO_FABRIC_VIRT			0x00000004
+-
+-/* data direction for FCP commands */
+-#define FSF_DATADIR_WRITE			0x00000001
+-#define FSF_DATADIR_READ			0x00000002
+-#define FSF_DATADIR_READ_WRITE			0x00000003
+-#define FSF_DATADIR_CMND			0x00000004
+-
+-/* fc service class */
+-#define FSF_CLASS_1				0x00000001
+-#define FSF_CLASS_2				0x00000002
+-#define FSF_CLASS_3				0x00000003
+-
+-struct fsf_queue_designator;
+-struct fsf_status_read_buffer;
+-struct fsf_port_closed_payload;
+-struct fsf_bit_error_payload;
+-union fsf_prot_status_qual;
+-struct fsf_qual_version_error;
+-struct fsf_qual_sequence_error;
+-struct fsf_qtcb_prefix;
+-struct fsf_qtcb_header;
+-struct fsf_qtcb_bottom_config;
+-struct fsf_qtcb_bottom_support;
+-struct fsf_qtcb_bottom_io;
+-union fsf_qtcb_bottom;
+-
+-typedef struct fsf_queue_designator {
+-	u8			cssid;
+-	u8			chpid;
+-	u8			hla;
+-	u8			ua;
+-	u32			res1;
+-} __attribute__ ((packed)) fsf_queue_designator_t;
+-
+-typedef struct fsf_port_closed_payload {
+-	fsf_queue_designator_t	queue_designator;
+-	u32			port_handle;
+-} __attribute__ ((packed)) fsf_port_closed_payload_t;
+-
+-typedef struct fsf_bit_error_payload {
+-	u32			res1;
+-	u32			link_failure_error_count;
+-	u32			loss_of_sync_error_count;
+-	u32			loss_of_signal_error_count;
+-	u32			primitive_sequence_error_count;
+-	u32			invalid_transmission_word_error_count;
+-	u32			crc_error_count;
+-	u32			primitive_sequence_event_timeout_count;
+-	u32			elastic_buffer_overrun_error_count;
+-	u32			fcal_arbitration_timeout_count;
+-	u32			advertised_receive_b2b_credit;
+-	u32			current_receive_b2b_credit;
+-	u32			advertised_transmit_b2b_credit;
+-	u32			current_transmit_b2b_credit;
+-} __attribute__ ((packed)) fsf_bit_error_payload_t;
+-
+-typedef struct fsf_status_read_buffer {
+-        u32			status_type;
+-        u32			status_subtype;
+-        u32			length;
+-        u32			res1;
+-        fsf_queue_designator_t	queue_designator;
+-        u32			d_id;
+-        u32			class;
+-        u64			fcp_lun;
+-        u8			res3[24];
+-        u8			payload[FSF_STATUS_READ_PAYLOAD_SIZE];
+-} __attribute__ ((packed)) fsf_status_read_buffer_t;
+-
+-typedef struct fsf_qual_version_error {
+-	u32			fsf_version;
+-	u32			res1[3];
+-} __attribute__ ((packed)) fsf_qual_version_error_t;
+-
+-typedef struct fsf_qual_sequence_error {
+-	u32			exp_req_seq_no;
+-	u32			res1[3];
+-} __attribute__ ((packed)) fsf_qual_sequence_error_t;
+-
+-typedef struct fsf_qual_locallink_error {
+-	u32			code;
+-	u32			res1[3];
+-} __attribute__ ((packed)) fsf_qual_locallink_error_t;
+-
+-typedef union fsf_prot_status_qual {
+-	fsf_qual_version_error_t	version_error;
+-	fsf_qual_sequence_error_t	sequence_error;
+-	fsf_qual_locallink_error_t	locallink_error;
+-} __attribute__ ((packed)) fsf_prot_status_qual_t;
+-
+-typedef struct fsf_qtcb_prefix {
+-	u64			req_id;
+-	u32			qtcb_version;
+-	u32			ulp_info;
+-	u32			qtcb_type;
+-	u32			req_seq_no;
+-	u32			prot_status;
+-	fsf_prot_status_qual_t	prot_status_qual;
+-	u8			res1[20];
+-} __attribute__ ((packed)) fsf_qtcb_prefix_t;
+-
+-typedef struct fsf_qtcb_header {
+-	u64			req_handle;
+-	u32			fsf_command;
+-	u32			res1;
+-	u32			port_handle;
+-	u32			lun_handle;
+-	u32			res2;
+-	u32			fsf_status;
+-	u32			fsf_status_qual[4];
+-//	fsf_status_qual_t	fsf_status_qual;	FIXME: define union
+-	u8			res3[28];
+-	u16			log_start;
+-	u16			log_length;
+-	u8			res4[16];
+-} __attribute__ ((packed)) fsf_qtcb_header_t;
+-
+-typedef u64 fsf_wwn_t;
+-
+-typedef struct fsf_nport_serv_param {
+-	u8			common_serv_param[16];
+-	fsf_wwn_t		wwpn;
+-	fsf_wwn_t		wwnn;
+-	u8			class1_serv_param[16];
+-	u8			class2_serv_param[16];
+-	u8			class3_serv_param[16];
+-	u8			class4_serv_param[16];
+-	u8			vendor_version_level[16];
+-	u8			res1[16];
+-} __attribute__ ((packed)) fsf_nport_serv_param_t;
+-
+-typedef struct fsf_plogi {
+-	u32			code;
+-	fsf_nport_serv_param_t	serv_param;
+-} __attribute__ ((packed)) fsf_plogi_t;
+-
+-#define FSF_FCP_CMND_SIZE	288
+-#define FSF_FCP_RSP_SIZE	128
+-
+-typedef struct fsf_qtcb_bottom_io {
+-	u32			data_direction;
+-	u32			service_class;
+-	u8			res1[8];
+-	u32			fcp_cmnd_length;
+-	u8			res2[12];
+-	u8			fcp_cmnd[FSF_FCP_CMND_SIZE];
+-	u8			fcp_rsp[FSF_FCP_RSP_SIZE];
+-	u8			res3[64];
+-} __attribute__ ((packed)) fsf_qtcb_bottom_io_t;
+-
+-typedef struct fsf_qtcb_bottom_support {
+-	u8			res1[16];
+-	u32			d_id;
+-	u32			res2;
+-	u64			fcp_lun;
+-	u64			res3;
+-	u64			req_handle;
+-	u32			service_class;
+-	u8			res4[3];
+-	u8			timeout;
+-	u8			res5[184];
+-	u32			els1_length;
+-	u32			els2_length;
+-	u64			res6;
+-	u8			els[256];
+-} __attribute__ ((packed)) fsf_qtcb_bottom_support_t;
+-
+-typedef struct fsf_qtcb_bottom_config {
+-	u32			lic_version;
+-	u32			res1;
+-	u32			high_qtcb_version;
+-	u32			low_qtcb_version;
+-	u32			max_qtcb_size;
+-	u8			res2[12];
+-	u32			fc_topology;
+-	u32			fc_link_speed;
+-	u32			adapter_type;
+-	u32			peer_d_id;
+-	u8			res3[12];
+-	u32			s_id;
+-	fsf_nport_serv_param_t	nport_serv_param;
+-	u8			res4[320];
+-} __attribute__ ((packed)) fsf_qtcb_bottom_config_t;
+-
+-typedef union fsf_qtcb_bottom {
+-	fsf_qtcb_bottom_io_t		io;
+-	fsf_qtcb_bottom_support_t	support;
+-	fsf_qtcb_bottom_config_t	config;
+-} fsf_qtcb_bottom_t;
+-
+-typedef struct fsf_qtcb {
+-	fsf_qtcb_prefix_t	prefix;
+-	fsf_qtcb_header_t	header;
+-	fsf_qtcb_bottom_t	bottom;
+-} __attribute__ ((packed)) fsf_qtcb_t;
+-
+-#endif	/* FSF_H */
+diff -urN linux-2.5.59/include/asm-s390x/dma.h 
+linux-2.5.59-s390/include/asm-s390x/dma.h
+--- linux-2.5.59/include/asm-s390x/dma.h	Fri Jan 17 03:22:01 2003
++++ linux-2.5.59-s390/include/asm-s390x/dma.h	Mon Feb  3 15:16:16 2003
+@@ -13,4 +13,6 @@
+    We use the existing DMA zone mechanism to handle this. */
+ #define MAX_DMA_ADDRESS         0x80000000
  
- 	return erp;
-diff -urN linux-2.5.59/drivers/s390/block/dasd_ioctl.c 
-linux-2.5.59-s390/drivers/s390/block/dasd_ioctl.c
---- linux-2.5.59/drivers/s390/block/dasd_ioctl.c	Fri Jan 17 03:22:17 2003
-+++ linux-2.5.59-s390/drivers/s390/block/dasd_ioctl.c	Mon Feb  3 15:00:38 2003
-@@ -263,7 +263,7 @@
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EACCES;
- 
--	device = = bdev->bd_disk->private_data;
-+	device = bdev->bd_disk->private_data;
- 	if (device == NULL)
- 		return -ENODEV;
- 
-@@ -279,7 +279,7 @@
- {
- 	dasd_device_t *device;
- 
--	device = = bdev->bd_disk->private_data;
-+	device = bdev->bd_disk->private_data;
- 	if (device == NULL)
- 		return -ENODEV;
- 
++#define free_dma(x)
++
+ #endif /* _ASM_DMA_H */
+diff -urN linux-2.5.59/include/asm-s390x/fsf.h 
+linux-2.5.59-s390/include/asm-s390x/fsf.h
+--- linux-2.5.59/include/asm-s390x/fsf.h	Fri Jan 17 03:22:01 2003
++++ linux-2.5.59-s390/include/asm-s390x/fsf.h	Thu Jan  1 01:00:00 1970
+@@ -1,326 +0,0 @@
+-/*
+- * header file for FCP adapter driver for IBM eServer zSeries
+- *
+- * Authors:
+- *      Martin Peschke <mpeschke@de.ibm.com>
+- *      Raimund Schroeder <raimund.schroeder@de.ibm.com>
+- *      Aron Zeh <arzeh@de.ibm.com>
+- *      Wolfgang Taphorn <taphorn@de.ibm.com>
+- *
+- * Copyright (C) 2002 IBM Entwicklung GmbH, IBM Corporation
+- */
+-
+-#ifndef FSF_H
+-#define FSF_H
+-
+-#define FSF_QTCB_VERSION1			0x00000001
+-#define FSF_QTCB_CURRENT_VERSION		FSF_QTCB_VERSION1
+-
+-/* FSF commands */
+-#define	FSF_QTCB_FCP_CMND			0x00000001
+-#define	FSF_QTCB_ABORT_FCP_CMND			0x00000002
+-#define	FSF_QTCB_OPEN_PORT_WITH_DID		0x00000005
+-#define	FSF_QTCB_OPEN_LUN			0x00000006
+-#define	FSF_QTCB_CLOSE_LUN			0x00000007
+-#define	FSF_QTCB_CLOSE_PORT			0x00000008
+-#define	FSF_QTCB_CLOSE_PHYSICAL_PORT		0x00000009
+-#define	FSF_QTCB_SEND_ELS			0x0000000B
+-#define	FSF_QTCB_SEND_GENERIC			0x0000000C
+-#define	FSF_QTCB_EXCHANGE_CONFIG_DATA		0x0000000D
+-
+-/* FSF QTCB types */
+-#define FSF_IO_COMMAND				0x00000001
+-#define FSF_SUPPORT_COMMAND			0x00000002
+-#define FSF_CONFIG_COMMAND			0x00000003
+-
+-/* association between FSF command and FSF QTCB type */
+-u32 fsf_qtcb_type[] = {
+-	[ FSF_QTCB_FCP_CMND ]			= FSF_IO_COMMAND,
+-	[ FSF_QTCB_ABORT_FCP_CMND ]		= FSF_SUPPORT_COMMAND,
+-	[ FSF_QTCB_OPEN_PORT_WITH_DID ] 	= FSF_SUPPORT_COMMAND,
+-	[ FSF_QTCB_OPEN_LUN ]			= FSF_SUPPORT_COMMAND,
+-	[ FSF_QTCB_CLOSE_LUN ]			= FSF_SUPPORT_COMMAND,
+-	[ FSF_QTCB_CLOSE_PORT ]			= FSF_SUPPORT_COMMAND,
+-	[ FSF_QTCB_CLOSE_PHYSICAL_PORT ]	= FSF_SUPPORT_COMMAND,
+-	[ FSF_QTCB_SEND_ELS ]			= FSF_SUPPORT_COMMAND,
+-	[ FSF_QTCB_SEND_GENERIC ]		= FSF_SUPPORT_COMMAND,
+-	[ FSF_QTCB_EXCHANGE_CONFIG_DATA ]	= FSF_CONFIG_COMMAND
+-};
+-
+-/* FSF protocol stati */
+-#define FSF_PROT_GOOD				0x00000001
+-#define FSF_PROT_QTCB_VERSION_ERROR		0x00000010
+-#define FSF_PROT_SEQ_NUMB_ERROR			0x00000020
+-#define FSF_PROT_UNSUPP_QTCB_TYPE		0x00000040
+-#define FSF_PROT_HOST_CONNECTION_INITIALIZING	0x00000080
+-#define FSF_PROT_FSF_STATUS_PRESENTED		0x00000100
+-#define FSF_PROT_DUPLICATE_REQUEST_ID		0x00000200
+-#define FSF_PROT_LINK_DOWN                      0x00000400
+-#define FSF_PROT_REEST_QUEUE                    0x00000800
+-#define FSF_PROT_ERROR_STATE			0x01000000
+-
+-/* FSF stati */
+-#define FSF_GOOD				0x00000000
+-#define FSF_PORT_ALREADY_OPEN			0x00000001
+-#define FSF_LUN_ALREADY_OPEN			0x00000002
+-#define FSF_PORT_HANDLE_NOT_VALID		0x00000003
+-#define FSF_LUN_HANDLE_NOT_VALID		0x00000004
+-#define FSF_HANDLE_MISMATCH			0x00000005
+-#define FSF_SERVICE_CLASS_NOT_SUPPORTED		0x00000006
+-#define FSF_FCPLUN_NOT_VALID			0x00000009
+-//#define FSF_ACCESS_DENIED			0x00000010
+-#define FSF_ACCESS_TYPE_NOT_VALID		0x00000011
+-#define FSF_LUN_IN_USE				0x00000012
+-#define FSF_COMMAND_ABORTED_ULP			0x00000020
+-#define FSF_COMMAND_ABORTED_ADAPTER		0x00000021
+-#define FSF_FCP_COMMAND_DOES_NOT_EXIST		0x00000022
+-#define FSF_DIRECTION_INDICATOR_NOT_VALID	0x00000030
+-#define FSF_INBOUND_DATA_LENGTH_NOT_VALID	0x00000031	/* FIXME: obsolete? */
+-#define FSF_OUTBOUND_DATA_LENGTH_NOT_VALID	0x00000032	/* FIXME: obsolete? */
+-#define FSF_CMND_LENGTH_NOT_VALID		0x00000033
+-#define FSF_MAXIMUM_NUMBER_OF_PORTS_EXCEEDED	0x00000040
+-#define FSF_MAXIMUM_NUMBER_OF_LUNS_EXCEEDED	0x00000041
+-#define FSF_REQUEST_BUF_NOT_VALID		0x00000042
+-#define FSF_RESPONSE_BUF_NOT_VALID		0x00000043
+-#define FSF_ELS_COMMAND_REJECTED		0x00000050
+-#define FSF_GENERIC_COMMAND_REJECTED		0x00000051
+-//#define FSF_AUTHORIZATION_FAILURE		0x00000053
+-#define FSF_PORT_BOXED				0x00000059
+-//#define FSF_LUN_BOXED				0x0000005A
+-#define FSF_ADAPTER_STATUS_AVAILABLE		0x000000AD
+-#define FSF_FCP_RSP_AVAILABLE			0x000000AF
+-#define FSF_UNKNOWN_COMMAND			0x000000E2
+-//#define FSF_ERROR				0x000000FF 
+-
+-/* FSF status qualifier, recommendations */
+-#define FSF_SQ_NO_RECOM				0x00
+-#define FSF_SQ_FCP_RSP_AVAILABLE		0x01
+-#define FSF_SQ_RETRY_IF_POSSIBLE		0x02
+-#define FSF_SQ_ULP_DEPENDENT_ERP_REQUIRED	0x03
+-#define FSF_SQ_INVOKE_LINK_TEST_PROCEDURE	0x04
+-#define FSF_SQ_ULP_PROGRAMMING_ERROR		0x05
+-#define FSF_SQ_COMMAND_ABORTED			0x06
+-#define FSF_SQ_NO_RETRY_POSSIBLE		0x07
+-
+-/* FSF status qualifier (most significant 4 bytes), local link down */
+-#define FSF_PSQ_LINK_NOLIGHT			0x00000004
+-#define FSF_PSQ_LINK_WRAPPLUG			0x00000008
+-#define FSF_PSQ_LINK_NOFCP			0x00000010
+-
+-/* payload size in status read buffer */
+-#define FSF_STATUS_READ_PAYLOAD_SIZE		4032
+-
+-/* status types in status read buffer */
+-#define FSF_STATUS_READ_PORT_CLOSED		0x00000001
+-#define FSF_STATUS_READ_INCOMING_ELS		0x00000002
+-#define FSF_STATUS_READ_BIT_ERROR_THRESHOLD	0x00000004
+-#define FSF_STATUS_READ_LINK_DOWN		0x00000005	/* FIXME: really? */
+-#define FSF_STATUS_READ_LINK_UP          	0x00000006
+-
+-/* status subtypes in status read buffer */
+-#define FSF_STATUS_READ_SUB_CLOSE_PHYS_PORT	0x00000001
+-#define FSF_STATUS_READ_SUB_ERROR_PORT		0x00000002
+-
+-/* topologie that is detected by the adapter */
+-#define FSF_TOPO_ERROR				0x00000000
+-#define FSF_TOPO_P2P				0x00000001
+-#define FSF_TOPO_FABRIC				0x00000002
+-#define FSF_TOPO_AL				0x00000003
+-#define FSF_TOPO_FABRIC_VIRT			0x00000004
+-
+-/* data direction for FCP commands */
+-#define FSF_DATADIR_WRITE			0x00000001
+-#define FSF_DATADIR_READ			0x00000002
+-#define FSF_DATADIR_READ_WRITE			0x00000003
+-#define FSF_DATADIR_CMND			0x00000004
+-
+-/* fc service class */
+-#define FSF_CLASS_1				0x00000001
+-#define FSF_CLASS_2				0x00000002
+-#define FSF_CLASS_3				0x00000003
+-
+-struct fsf_queue_designator;
+-struct fsf_status_read_buffer;
+-struct fsf_port_closed_payload;
+-struct fsf_bit_error_payload;
+-union fsf_prot_status_qual;
+-struct fsf_qual_version_error;
+-struct fsf_qual_sequence_error;
+-struct fsf_qtcb_prefix;
+-struct fsf_qtcb_header;
+-struct fsf_qtcb_bottom_config;
+-struct fsf_qtcb_bottom_support;
+-struct fsf_qtcb_bottom_io;
+-union fsf_qtcb_bottom;
+-
+-typedef struct fsf_queue_designator {
+-	u8			cssid;
+-	u8			chpid;
+-	u8			hla;
+-	u8			ua;
+-	u32			res1;
+-} __attribute__ ((packed)) fsf_queue_designator_t;
+-
+-typedef struct fsf_port_closed_payload {
+-	fsf_queue_designator_t	queue_designator;
+-	u32			port_handle;
+-} __attribute__ ((packed)) fsf_port_closed_payload_t;
+-
+-typedef struct fsf_bit_error_payload {
+-	u32			res1;
+-	u32			link_failure_error_count;
+-	u32			loss_of_sync_error_count;
+-	u32			loss_of_signal_error_count;
+-	u32			primitive_sequence_error_count;
+-	u32			invalid_transmission_word_error_count;
+-	u32			crc_error_count;
+-	u32			primitive_sequence_event_timeout_count;
+-	u32			elastic_buffer_overrun_error_count;
+-	u32			fcal_arbitration_timeout_count;
+-	u32			advertised_receive_b2b_credit;
+-	u32			current_receive_b2b_credit;
+-	u32			advertised_transmit_b2b_credit;
+-	u32			current_transmit_b2b_credit;
+-} __attribute__ ((packed)) fsf_bit_error_payload_t;
+-
+-typedef struct fsf_status_read_buffer {
+-        u32			status_type;
+-        u32			status_subtype;
+-        u32			length;
+-        u32			res1;
+-        fsf_queue_designator_t	queue_designator;
+-        u32			d_id;
+-        u32			class;
+-        u64			fcp_lun;
+-        u8			res3[24];
+-        u8			payload[FSF_STATUS_READ_PAYLOAD_SIZE];
+-} __attribute__ ((packed)) fsf_status_read_buffer_t;
+-
+-typedef struct fsf_qual_version_error {
+-	u32			fsf_version;
+-	u32			res1[3];
+-} __attribute__ ((packed)) fsf_qual_version_error_t;
+-
+-typedef struct fsf_qual_sequence_error {
+-	u32			exp_req_seq_no;
+-	u32			res1[3];
+-} __attribute__ ((packed)) fsf_qual_sequence_error_t;
+-
+-typedef struct fsf_qual_locallink_error {
+-	u32			code;
+-	u32			res1[3];
+-} __attribute__ ((packed)) fsf_qual_locallink_error_t;
+-
+-typedef union fsf_prot_status_qual {
+-	fsf_qual_version_error_t	version_error;
+-	fsf_qual_sequence_error_t	sequence_error;
+-	fsf_qual_locallink_error_t	locallink_error;
+-} __attribute__ ((packed)) fsf_prot_status_qual_t;
+-
+-typedef struct fsf_qtcb_prefix {
+-	u64			req_id;
+-	u32			qtcb_version;
+-	u32			ulp_info;
+-	u32			qtcb_type;
+-	u32			req_seq_no;
+-	u32			prot_status;
+-	fsf_prot_status_qual_t	prot_status_qual;
+-	u8			res1[20];
+-} __attribute__ ((packed)) fsf_qtcb_prefix_t;
+-
+-typedef struct fsf_qtcb_header {
+-	u64			req_handle;
+-	u32			fsf_command;
+-	u32			res1;
+-	u32			port_handle;
+-	u32			lun_handle;
+-	u32			res2;
+-	u32			fsf_status;
+-	u32			fsf_status_qual[4];
+-//	fsf_status_qual_t	fsf_status_qual;	FIXME: define union
+-	u8			res3[28];
+-	u16			log_start;
+-	u16			log_length;
+-	u8			res4[16];
+-} __attribute__ ((packed)) fsf_qtcb_header_t;
+-
+-typedef u64 fsf_wwn_t;
+-
+-typedef struct fsf_nport_serv_param {
+-	u8			common_serv_param[16];
+-	fsf_wwn_t		wwpn;
+-	fsf_wwn_t		wwnn;
+-	u8			class1_serv_param[16];
+-	u8			class2_serv_param[16];
+-	u8			class3_serv_param[16];
+-	u8			class4_serv_param[16];
+-	u8			vendor_version_level[16];
+-	u8			res1[16];
+-} __attribute__ ((packed)) fsf_nport_serv_param_t;
+-
+-typedef struct fsf_plogi {
+-	u32			code;
+-	fsf_nport_serv_param_t	serv_param;
+-} __attribute__ ((packed)) fsf_plogi_t;
+-
+-#define FSF_FCP_CMND_SIZE	288
+-#define FSF_FCP_RSP_SIZE	128
+-
+-typedef struct fsf_qtcb_bottom_io {
+-	u32			data_direction;
+-	u32			service_class;
+-	u8			res1[8];
+-	u32			fcp_cmnd_length;
+-	u8			res2[12];
+-	u8			fcp_cmnd[FSF_FCP_CMND_SIZE];
+-	u8			fcp_rsp[FSF_FCP_RSP_SIZE];
+-	u8			res3[64];
+-} __attribute__ ((packed)) fsf_qtcb_bottom_io_t;
+-
+-typedef struct fsf_qtcb_bottom_support {
+-	u8			res1[16];
+-	u32			d_id;
+-	u32			res2;
+-	u64			fcp_lun;
+-	u64			res3;
+-	u64			req_handle;
+-	u32			service_class;
+-	u8			res4[3];
+-	u8			timeout;
+-	u8			res5[184];
+-	u32			els1_length;
+-	u32			els2_length;
+-	u64			res6;
+-	u8			els[256];
+-} __attribute__ ((packed)) fsf_qtcb_bottom_support_t;
+-
+-typedef struct fsf_qtcb_bottom_config {
+-	u32			lic_version;
+-	u32			res1;
+-	u32			high_qtcb_version;
+-	u32			low_qtcb_version;
+-	u32			max_qtcb_size;
+-	u8			res2[12];
+-	u32			fc_topology;
+-	u32			fc_link_speed;
+-	u32			adapter_type;
+-	u32			peer_d_id;
+-	u8			res3[12];
+-	u32			s_id;
+-	fsf_nport_serv_param_t	nport_serv_param;
+-	u8			res4[320];
+-} __attribute__ ((packed)) fsf_qtcb_bottom_config_t;
+-
+-typedef union fsf_qtcb_bottom {
+-	fsf_qtcb_bottom_io_t		io;
+-	fsf_qtcb_bottom_support_t	support;
+-	fsf_qtcb_bottom_config_t	config;
+-} fsf_qtcb_bottom_t;
+-
+-typedef struct fsf_qtcb {
+-	fsf_qtcb_prefix_t	prefix;
+-	fsf_qtcb_header_t	header;
+-	fsf_qtcb_bottom_t	bottom;
+-} __attribute__ ((packed)) fsf_qtcb_t;
+-
+-#endif	/* FSF_H */
 

@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279472AbRKAS2b>; Thu, 1 Nov 2001 13:28:31 -0500
+	id <S279499AbRKASeC>; Thu, 1 Nov 2001 13:34:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279473AbRKAS2V>; Thu, 1 Nov 2001 13:28:21 -0500
-Received: from jive.SoftHome.net ([66.54.152.27]:6292 "EHLO softhome.net")
-	by vger.kernel.org with ESMTP id <S279472AbRKAS2I>;
-	Thu, 1 Nov 2001 13:28:08 -0500
-Message-ID: <3BE194BB.7090207@softhome.net>
-Date: Thu, 01 Nov 2001 18:30:19 +0000
-From: Ricardo Martins <thecrown@softhome.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en, pt
+	id <S279502AbRKASdx>; Thu, 1 Nov 2001 13:33:53 -0500
+Received: from www.transvirtual.com ([206.14.214.140]:23818 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S279499AbRKASdh>; Thu, 1 Nov 2001 13:33:37 -0500
+Date: Thu, 1 Nov 2001 10:33:22 -0800 (PST)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Tim Waugh <twaugh@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: driver initialisation order problem
+In-Reply-To: <3BE15BF0.C6FB873C@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.10.10111011014500.2293-100000@transvirtual.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: "unkillable processes" in linux 2.4.11 to 2.4.14-pre6
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm using Linux kernel 2.4.10, and since the fatidic 2.4.11 release ( i
-tried 2.4.11 (one day :)))) 2.4.12, 2.4.13 and 2.4.14-pre6) I get the
-same bug on and on (that means I can reproduce the experience and obtain
-the same results).
 
-Procedure
-In X windows (version 4.1.0 compiled from the sources) when writing
-"exit" in xterm to close the terminal emulator, the window freezes, and
-from that moment on, every process becomes "unkillable", including xterm
-and X (ps also freezes), and there's no way to shutdown GNU/Linux in a
-sane way (must hit reset or poweroff).
+> > drivers/char/joystick/turbografx.c
+> > drivers/char/joystick/db9.c
+> > drivers/char/joystick/gamecon.c
+> 
+> don't have a good answer.  maybe move 'em to drivers/input :)
 
-Environment
-I used Glibc 2.2.4 and GCC 3.0.1 (tried with 2.95.3, obtained the same
-results).
+I suggested that before. Linus didn't like that. Actually in time you will
+see all input devices moved to drivers/input. It will become more and
+more a mess if we don't. I have various devices such as touchscreens,
+keyboard, joysticks etc that are serial devices. It is such a nasty hack
+at present to reach into char/joytsick to get something like a touchscreen
+working. IMO we should have things in the following order:
 
-The odd thing is, that with the same configuration, kernel 2.4.10 works
-just fine, but every other release since then ends up doing the same
-thing (the system can't maintain integrity after writing "exit" and
-hiting enter in xterm).
+/drivers/serial 	-> Yes I plan a rewrite of the serial layer.
+/drivers/parport
+/drivers/usb
 
-Please help me, I getting slightly mad with the situation.
+/driver/input		
+/driver/char		-> The future console system will be inptu api
+			   based so input needs to be first.		
 
-Ricardo Martins
+
+Things like hardware protocols, USB, RS232 should come first. Then char
+devices like input and things in char come next.
+
 
 

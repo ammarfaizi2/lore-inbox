@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129130AbQKAGA6>; Wed, 1 Nov 2000 01:00:58 -0500
+	id <S131334AbQKAGNu>; Wed, 1 Nov 2000 01:13:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129655AbQKAGAr>; Wed, 1 Nov 2000 01:00:47 -0500
-Received: from ns1.crl.go.jp ([133.243.3.1]:40929 "EHLO ns1.crl.go.jp")
-	by vger.kernel.org with ESMTP id <S129130AbQKAGAh>;
-	Wed, 1 Nov 2000 01:00:37 -0500
-Date: Wed, 1 Nov 2000 15:00:34 +0900 (JST)
-From: Tom Holroyd <tomh@po.crl.go.jp>
-To: kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: test10 compile fails on alpha
-Message-ID: <Pine.LNX.4.10.10011011439380.372-100000@holly.crl.go.jp>
+	id <S131349AbQKAGNk>; Wed, 1 Nov 2000 01:13:40 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:7180 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131334AbQKAGN2>; Wed, 1 Nov 2000 01:13:28 -0500
+Message-ID: <39FFB429.FA0B58CC@transmeta.com>
+Date: Tue, 31 Oct 2000 22:11:53 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10-pre3 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Peter Samuelson <peter@cadcamlab.org>
+CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: test10-pre7
+In-Reply-To: <39FF0A71.FE05FAEB@gromco.com> <Pine.LNX.4.10.10010311018180.7083-100000@penguin.transmeta.com> <8tn5q9$iu5$1@cesium.transmeta.com> <20001031211506.E1041@wire.cadcamlab.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2
--fomit-frame-pointer -fno-strict-aliasing -pipe -mno-fp-regs -ffixed-8
--mcpu=ev6 -Wa,-mev6    -c -o binfmt_elf.o binfmt_elf.c
-binfmt_elf.c: In function `create_elf_tables':
-binfmt_elf.c:166: `CLOCKS_PER_SEC' undeclared (first use in this function)
-binfmt_elf.c:166: (Each undeclared identifier is reported only once
-binfmt_elf.c:166: for each function it appears in.)
+Peter Samuelson wrote:
+> 
+> To Keith, Michael and me, the cleanest way to remove duplicates is
+> $(sort).  Since some object files must *not* be sorted, we came up with
+> a simple, readable way to declare that certain things had to come in a
+> certain order -- the idea being that most of the time it would not be
+> needed.  Linus disagrees that our solution is simple, readable or
+> otherwise desirable.  That's basically the whole issue in a nutshell.
+> 
 
-Um, is there any reason why you don't just use HZ instead of
-CLOCKS_PER_SEC (which is pretty much Hz by definition)?
-All the arches seem to define it as HZ anyway.
+I would tend to agree with Linus on that.  If that's truly what you're
+doing, it would be rather nonobvious.
 
---- linux/include/asm-alpha/#param.h    Wed Nov  1 14:11:11 2000
-+++ linux/include/asm-alpha/param.h     Wed Nov  1 14:54:59 2000
-@@ -26,5 +26,9 @@
- #endif
- 
- #define MAXHOSTNAMELEN 64      /* max length of hostname */
-+
-+#ifdef __KERNEL__
-+# define CLOCKS_PER_SEC HZ      /* frequency at which times() counts */
-+#endif
- 
- #endif /* _ASM_ALPHA_PARAM_H */
+But the question, perhaps, is when does ordering matter.  I'm a little
+concerned about things highly dependent on link ordering.
 
+	-hpa
 
-Also CONFIG_ALPHA_LARGE_VMALLOC is not recognized by "make xconfig".
-
-Dr. Tom Holroyd
-"I am, as I said, inspired by the biological phenomena in which
-chemical forces are used in repetitious fashion to produce all
-kinds of weird effects (one of which is the author)."
-	-- Richard Feynman, _There's Plenty of Room at the Bottom_
-
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

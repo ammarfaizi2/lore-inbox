@@ -1,64 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312616AbSCZTPd>; Tue, 26 Mar 2002 14:15:33 -0500
+	id <S312317AbSCZT04>; Tue, 26 Mar 2002 14:26:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312626AbSCZTPY>; Tue, 26 Mar 2002 14:15:24 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:16704 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S312616AbSCZTPU>; Tue, 26 Mar 2002 14:15:20 -0500
-Date: Tue, 26 Mar 2002 20:15:02 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [patch] mmap bug with drivers that adjust vm_start
-Message-ID: <20020326201502.J13052@dualathlon.random>
-In-Reply-To: <20020325230046.A14421@redhat.com> <20020326174236.B13052@dualathlon.random> <20020326135703.B25375@redhat.com>
+	id <S312450AbSCZT0q>; Tue, 26 Mar 2002 14:26:46 -0500
+Received: from 209-VALL-X7.libre.retevision.es ([62.83.213.209]:34568 "EHLO
+	ragnar-hojland.com") by vger.kernel.org with ESMTP
+	id <S312317AbSCZT0l>; Tue, 26 Mar 2002 14:26:41 -0500
+Date: Tue, 26 Mar 2002 20:26:16 +0100
+From: Ragnar Hojland Espinosa <ragnar@jazzfree.com>
+To: Thomas Habets <thomas@habets.pp.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: mtime changeable on immutable files (a bug, isn't it?)
+Message-ID: <20020326202616.C2539@ragnar-hojland.com>
+In-Reply-To: <02032519245700.00785@marvin>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+Organization: Mediocrity Naysayers Ltd
+X-Homepage: http://lightside.eresmas.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 26, 2002 at 01:57:03PM -0500, Benjamin LaHaise wrote:
-> On Tue, Mar 26, 2002 at 05:42:36PM +0100, Andrea Arcangeli wrote:
-> > However if the patch is needed it means the ->mmap also must do the
-> > do_munmap stuff by hand internally, which is very ugly given we also did
-> > our own do_munmap in a completly different region (the one requested by
-> > the user).
-> 
-> At least my own code checks for that and fails if there is a mapping 
-> already placed at the fixed address it needs to use.  If we're paranoid, 
+On Mon, Mar 25, 2002 at 07:24:57PM +0100, Thomas Habets wrote:
+> You can touch(1) an immutable file, which changes its mtime. Since you can't
+> change the permission bits of the inode, you shouldn't be able to change the
+> mtime, correct?
 
-Ok, so it's safe.
+You could reason that since the immutable flag is set at i_mode, and i_mode
+stores file modes, it should be legal to change the inode (mtime) as long as
+you do not change the contents of the file.
 
-> we could BUG() on getting a vma back from the new find_vma_prepare call.
+Or at least that that would be the intention of chattr, if you re-read the
+page:
 
-yes, it sounds a good idea to verify there's no other mapping in the way
-of the relocation (until a better fix is implemented), it's a slow path
-so we won't hurt performance.
+       A  file with the i' attribute cannot be modified: it can<AD>
+       not be deleted or renamed, no link can be created to  this
+       file  and  no  data  can  be written to the file. Only the
+       superuser can set or clear this attribute.
 
-> 
-> > Our do_munmap should not happen if we place the mapping
-> > elsewhere. If possible I would prefer to change those drivers to
-> > advertise their enforced vm_start with a proper callback, the current
-> > way is halfway broken still. BTW, which are those drivers, and why they
-> > needs to enforce a certain vm_start (also despite MAP_FIXED that they
-> > cannot check within the ->mmap callback)?
-> 
-> Video drivers, others that require specific alignment (4MB pages for 
-> example).  Historically, the mmap call has been the hook for doing this, 
-> hence the comment in do_mmap from davem.  Unless there's a really good 
-> reason for changing the hook, I don't see doing so as providing much 
-> benefit other than making source compatibility hard.
-
-The good reason, is that currently we're literally corrupting the
-userspace with the senseless do_munmap call in the add<->addr+len area
-before the ->mmap lowlevel callback. And such an munmap is certainly not
-required to maintain source and binary compatibility (otherwise it would
-be insane in the first place :).
-
-Andrea
+Even if you obviate the inode/file difference, by changing mtime you aren't
+either deleting, renaming, linking or writing data to the file, so you are
+consistent to the pubished documentation.
+-- 
+____/|  Ragnar Højland      Freedom - Linux - OpenGL |    Brainbench MVP
+\ o.O|  PGP94C4B2F0D27DE025BE2302C104B78C56 B72F0822 | for Unix Programming
+ =(_)=  "Thou shalt not follow the NULL pointer for  | (www.brainbench.com)
+   U     chaos and madness await thee at its end."      [15 pend. Mar 10]

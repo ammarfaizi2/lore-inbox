@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272411AbTG3Aef (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 20:34:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272416AbTG3Aef
+	id S272216AbTG3Au6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 20:50:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272416AbTG3Au6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 20:34:35 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:29969 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S272411AbTG3Aee (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 20:34:34 -0400
-Date: Tue, 29 Jul 2003 20:22:56 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.22-pre9
-In-Reply-To: <Pine.LNX.4.55L.0307291700490.24730@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.53.0307292020280.11053@montezuma.mastecende.com>
-References: <Pine.LNX.4.55L.0307291700490.24730@freak.distro.conectiva>
+	Tue, 29 Jul 2003 20:50:58 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:24755
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S272216AbTG3Au5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 20:50:57 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] O11int for interactivity
+Date: Wed, 30 Jul 2003 10:55:23 +1000
+User-Agent: KMail/1.5.2
+Cc: Andrew Morton <akpm@osdl.org>
+References: <200307301038.49869.kernel@kolivas.org>
+In-Reply-To: <200307301038.49869.kernel@kolivas.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307301055.23950.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Jul 2003, Marcelo Tosatti wrote:
+On Wed, 30 Jul 2003 10:38, Con Kolivas wrote:
+> Update to the interactivity patches. Not a massive improvement but
+> more smoothing of the corners.
 
-> Here goes -pre9, yet another step in 2.4.22 direction.
-> 
-> It contains a bunch of Netfilter fixes, set of IEEE1394 fixes, couple of
-> knfsd fixes amongst others.
-> 
-> Expect -pre10 tomorrow.
+Woops my bad. Seems putting things even at the start of the expired array can 
+induce a corner case. Will post an O11.1 in a few mins to back out that part.
 
-Marcelo, thanks for picking up the pace, but please slow down a tad, 
-people still need to test these things...
+Con
 
--- 
-function.linuxpower.ca

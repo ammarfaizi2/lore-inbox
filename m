@@ -1,45 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268228AbUHTPQ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268174AbUHTPQ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268228AbUHTPQ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 11:16:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268174AbUHTPGs
+	id S268174AbUHTPQ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 11:16:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268183AbUHTPGm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 11:06:48 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:60367 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267243AbUHTPEO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 11:04:14 -0400
-Date: Fri, 20 Aug 2004 11:02:57 -0400
-From: Alan Cox <alan@redhat.com>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Hugh Dickins <hugh@veritas.com>, arjanv@redhat.com, alan@redhat.com,
-       greg@kroah.com, linux-kernel@vger.kernel.org, riel@redhat.com,
-       sct@redhat.com
-Subject: Re: PF_MEMALLOC in 2.6
-Message-ID: <20040820150257.GC6812@devserv.devel.redhat.com>
-References: <Pine.LNX.4.44.0408191320320.17508-100000@localhost.localdomain> <4125B111.2040308@yahoo.com.au> <20040820014005.73383a43@lembas.zaitcev.lan> <200408201650.07513.oliver@neukum.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 20 Aug 2004 11:06:42 -0400
+Received: from czf-prosek6.supernetwork.cz ([81.31.22.46]:1920 "EHLO
+	noodles.netw") by vger.kernel.org with ESMTP id S267358AbUHTPCU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 11:02:20 -0400
+From: Jan Spitalnik <jan@spitalnik.net>
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+Subject: Re: 2.6.8.1 slews system clock
+Date: Fri, 20 Aug 2004 17:02:01 +0200
+User-Agent: KMail/1.7
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200408201527.07126.jan@spitalnik.net> <Pine.LNX.4.53.0408201601200.12519@gockel.physik3.uni-rostock.de>
+In-Reply-To: <Pine.LNX.4.53.0408201601200.12519@gockel.physik3.uni-rostock.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <200408201650.07513.oliver@neukum.org>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200408201702.01287.jan@spitalnik.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 20, 2004 at 04:50:07PM +0200, Oliver Neukum wrote:
-> > This is what made me suspect that it's the diry memory writeout problem.
-> > It's just like how it was on 2.4 before Alan added PF_MEMALLOC.
-> 
-> If we add PF_MEMALLOC, do we solve the issue or make it only less
-> likely? Isn't there a need to limit users of the reserves in number?
+Dne pá 20. srpna 2004 16:02 Tim Schmielau napsal(a):
+> On Fri, 20 Aug 2004, Jan Spitalnik wrote:
+> > after updating kernel to 2.6.8.1 the system clock slews by 1 second every
+> > 10 seconds into future. I tried turning off ACPI, but that had no effect.
+> >
+> > root@largo:~# ntpdate tik.cesnet.cz;sleep 10;ntpdate tik.cesnet.cz
+> > 20 Aug 13:55:01 ntpdate[5315]: step time server 195.113.144.201 offset
+> > -24.488611 sec
+> > 20 Aug 13:55:13 ntpdate[5321]: step time server 195.113.144.201 offset
+> > -1.042110 sec
+> >
+> > on second machine the effect is opposite, ie the clock slews backwards.
+> > Any ideas?
+>
+> Which was the last kernel that worked?
 
-PF_MEMALLOC won't recurse. You might run out of memory however. The old
-world scsi drivers run in the thread of the I/O so are protected already
-by PF_MEMALLOC in those cases, its the thread nature of the USB driver which
-makes it more fun. Unless 2.6 vm is radically different I think PF_MEMALLOC
-is the right thing to set although it would always eventually be better to
-find out who is guilty of the blocking allocation that recurses.
+2.6.7 didn't exhibit this problem. I will test 2.6.8-rc's to find which one 
+caused this regression. 
 
-Are any of the VM guys considering PF_LOGALLOC so you can trace it down 8)
+-- 
+Jan Spitalnik
+jan@spitalnik.net
 

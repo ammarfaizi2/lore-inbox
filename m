@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263282AbTJQBuZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 21:50:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263286AbTJQBuW
+	id S263291AbTJQBuR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 21:50:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263286AbTJQBuR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 21:50:22 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:24060 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S263282AbTJQBuQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 21:50:16 -0400
-Subject: unsafe printk
-From: Albert Cahalan <albert@users.sf.net>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1066354577.15921.111.camel@cube>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 16 Oct 2003 21:36:18 -0400
+	Thu, 16 Oct 2003 21:50:17 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59610 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263281AbTJQBuN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 21:50:13 -0400
+Message-ID: <3F8F4AC5.7080209@pobox.com>
+Date: Thu, 16 Oct 2003 21:49:57 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Roman Zippel <roman@ardistech.com>
+CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [ANNOUNCE] iSCSI target implementation
+References: <3F8E9DA4.11ED60DA@ardistech.com>
+In-Reply-To: <3F8E9DA4.11ED60DA@ardistech.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Suppose I name an executable this:
-"\n<0>Oops: EIP=0"
+Roman Zippel wrote:
+> Anyway, while it's in the kernel, there are also some interesting issues
+> for the kernel-user space communication. Right now it's a proc only
+> interface (no sysfs as it's 2.4 only, no evil ioctl, but someone will
+> kill me for the macro abuse :) ), but it should be rather easy to
 
-That comes out as a KERN_EMERG log message,
-hitting the console and maybe a pager even.
+Adding to procfs is only slightly less "ewww" than ioctls :)  A 
+dedicated chrdev would be IMO preferred to procfs.
 
-There seem to be a number of places in the
-kernel that printk current->comm without
-concern for what it may contain.
+Al Viro also had even even more interesting suggestion for [zerocopy] 
+kernel/userspace communication:  ramfs.
 
-Escape codes and non-ASCII can make for some
-interesting log messages as well. Terminals
-may have some programmable keys or answerback
-messages. So one day root is using grep on
-the log files, and they program the answerback
-string to contain a "\r\nrm -r /\r\n"...
+	Jeff
 
-BTW, the 0x9b character is often an escape.
 
 

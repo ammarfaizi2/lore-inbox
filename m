@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266265AbUBJSpi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 13:45:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266267AbUBJSoR
+	id S266246AbUBJShl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 13:37:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266237AbUBJShT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 13:44:17 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:14802 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266175AbUBJSmz (ORCPT
+	Tue, 10 Feb 2004 13:37:19 -0500
+Received: from mail.kroah.org ([65.200.24.183]:58006 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266240AbUBJSfe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 13:42:55 -0500
-Date: Tue, 10 Feb 2004 10:42:50 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Martin Diehl <lists@mdiehl.de>
+	Tue, 10 Feb 2004 13:35:34 -0500
+Date: Tue, 10 Feb 2004 10:35:39 -0800
+From: Greg KH <greg@kroah.com>
+To: Mike Bell <kernel@mikebell.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Patch] dma_sync_to_device
-Message-Id: <20040210104250.11e95c87.davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0402101815550.2349-100000@notebook.home.mdiehl.de>
-References: <Pine.LNX.4.44.0402101815550.2349-100000@notebook.home.mdiehl.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Subject: Re: devfs vs udev, thoughts from a devfs user
+Message-ID: <20040210183539.GJ28111@kroah.com>
+Reply-To: linux-kernel@vger.kernel.org
+References: <20040210113417.GD4421@tinyvaio.nome.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040210113417.GD4421@tinyvaio.nome.ca>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Feb 2004 18:31:40 +0100 (CET)
-Martin Diehl <lists@mdiehl.de> wrote:
+On Tue, Feb 10, 2004 at 03:34:18AM -0800, Mike Bell wrote:
+> I've been reading a lot lately about udev and how it's both very
+> different to and much better than devfs, and with _most_ of the reasons
+> given, I can't see how either is the case. I'd like to lay out why I
+> think that is.
 
-> last fall we agreed there is a dma call missing to sync streaming out dma 
-> mappings before giving the buffer back to the device. I've sent you a 
-> patch which you liked IIRC. However, I wasn't repeatedly polling you for 
-> actually inclusion due to the 2.6 stabilization period.
-> 
-> Anyway, I see now other related stuff (like dma_pool patches) getting in
-> so I'm wondering whether it might be the right moment now - right after 
-> 2.6.3-final I'd suggest. So let me resend and ask for application. I've 
-> just retested with 2.6.3-rc2 and verified the old patch still applies 
-> cleanly and works as expected.
+One final comment:  Can you implement a persistent device naming scheme
+using devfs today?  If so, please show me how you would:
+	- always name a USB printer the same /dev name no matter when it
+	  is discovered by the USB core (before or after any other USB
+	  printer.)
+	- always name your SCSI disk the same /dev name no matter where
+	  in the scsi probe sequence it is (yank it out and plug it into
+	  another place in your scsi rack.)
 
-Believe it or not your work still sits deep in my inbox waiting for my backlog
-to work on back to it.
+This is the main problem that udev solves.  The fact that it also gives
+you a dynamic /dev is just extra goodness.
 
-I'll try to get to this again.
+thanks,
+
+greg k-h

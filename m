@@ -1,96 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287550AbSALVjG>; Sat, 12 Jan 2002 16:39:06 -0500
+	id <S287518AbSALVtQ>; Sat, 12 Jan 2002 16:49:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287518AbSALVjA>; Sat, 12 Jan 2002 16:39:00 -0500
-Received: from albatross.mail.pas.earthlink.net ([207.217.120.120]:34450 "EHLO
-	albatross.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S287550AbSALViM>; Sat, 12 Jan 2002 16:38:12 -0500
-Date: Sat, 12 Jan 2002 16:41:56 -0500
-To: Andrea Arcangeli <andrea@suse.de>
+	id <S287516AbSALVtG>; Sat, 12 Jan 2002 16:49:06 -0500
+Received: from svr3.applink.net ([206.50.88.3]:61707 "EHLO svr3.applink.net")
+	by vger.kernel.org with ESMTP id <S287256AbSALVs5>;
+	Sat, 12 Jan 2002 16:48:57 -0500
+Message-Id: <200201122148.g0CLmfSr008317@svr3.applink.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Timothy Covell <timothy.covell@ashavan.org>
+Reply-To: timothy.covell@ashavan.org
+To: "Prof. Brand " <brand@jupiter.cs.uni-dortmund.de>,
+        timothy.covell@ashavan.org
+Subject: Re: strange kernel message when hacking the NIC driver
+Date: Sat, 12 Jan 2002 15:44:50 -0600
+X-Mailer: KMail [version 1.3.2]
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 1-2-3 GB
-Message-ID: <20020112164156.A7069@earthlink.net>
-In-Reply-To: <20020112004528.A159@earthlink.net> <20020112125625.E1482@inspiron.school.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020112125625.E1482@inspiron.school.suse.de>; from andrea@suse.de on Sat, Jan 12, 2002 at 12:56:25PM +0100
-From: rwhron@earthlink.net
+In-Reply-To: <200201122137.g0CLbDR26750@jupiter.cs.uni-dortmund.de>
+In-Reply-To: <200201122137.g0CLbDR26750@jupiter.cs.uni-dortmund.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Based on some of the comments in the thread, here
-is what I came up with for Configure.help.
+On Saturday 12 January 2002 15:37, Prof. Brand  wrote:
+> Timothy Covell <timothy.covell@ashavan.org> said:
+> > On Friday 11 January 2002 06:07, David S. Miller wrote:
+> > >    From: Timothy Covell <timothy.covell@ashavan.org>
+> > >    Date: Fri, 11 Jan 2002 05:55:20 -0600
+> > >
+> > >    Let me clarify what I said earlier.  You cannot have
+> > >    identical MAC addresses on two different NICs.
+> > >
+> > > There is nothing illegal about that at all.  As long at
+> > > the NICs live on different subnets, it is perfectly fine.
+> > > In fact this is pretty common on Sun machines.
+> >
+> > True.  I was assuming that the context of the post was
+> > that the NICs were on the same network link.
+>
+> This is not the typical setup...
+>
+> > Solaris _defaults_ to using the MAC address from the
+> > primary (hostname) NIC for the rest of them.
+>
+> Sun sets the MAC from the machine ID on all network interfaces by
+> default. Not Solaris, AFAIU it is done by the PROM.
+>
+> >                                              IMHO, this
+> > is a really stupid thing to do, and  I disable it tout de suite
+> > when given a choice.   Of course, if you like it, then
+> > why don't you try to convince Linus to change his mind
+> > about it?
+>
+> Why should DaveM convince Linus to get Sun to change their mind on NIC
+> setup?
 
-Also, in the patch, I had 3GB as the default config
-option.  It may be safer to have 1GB as the default
-configure option to match the mainline.
+You have it backwards.  If you all seem to like the Sun way of doing things,
+then Linus should change Linux to do likewise.
 
---- linux.aa2/Documentation/Configure.help      Fri Jan 11 20:57:58 2002
-+++ linux/Documentation/Configure.help  Sat Jan 12 16:29:21 2002
-@@ -376,6 +376,59 @@
-   Select this if you have a 32-bit processor and more than 4
-   gigabytes of physical RAM.
+>
+> Especially if it works just fine for 99.95% of Suns, and has the bonus that
+> you can track each machine by a _single_ MAC, even if you change NICs or
+> add more?
 
-+# Choice: maxvm
-+Maximum Virtual Memory
-+CONFIG_1GB
-+  If you have 4 Gigabytes of physical memory or less, you can change
-+  where the where the kernel maps high memory.  If you have less
-+  than 1 gigabyte of physical memory, you should disable
-+  CONFIG_HIGHMEM4G because you don't need the choices below.
-+
-+  If you have a large amount of physical memory, all of it may not
-+  be "permanently mapped" by the kernel. The physical memory that
-+  is not permanently mapped is called "high memory".
-+
-+  The numbers in the configuration options are not precise because
-+  of the kernel's vmalloc() area, and the PCI space on motherboards
-+  may vary as well.  Typically there will 128 megabytes less
-+  "user memory" mapped than the number in the configuration option.
-+  Saying that another way, "high memory" will usually start 128
-+  megabytes lower than the configuration option.
-+
-+  Selecting "05GB" results in a "3.5GB/0.5GB" kernel/user split:
-+  3.5 gigabytes are kernel mapped so each process sees a 3.5
-+  gigabyte virtual memory space and the remaining part of the 4
-+  gigabyte virtual memory space is used by the kernel to permanently
-+  map as much physical memory as possible.  On a system with 1 gigabyte
-+  of physical memory, you may get 384 megabytes of "user memory" and
-+  640 megabytes of "high memory" with this selection.
-+
-+  Selecting "1GB" results in a "3GB/1GB" kernel/user split:
-+  3 gigabytes are mapped so each process sees a 3 gigabyte virtual
-+  memory space and the remaining part of the 4 gigabyte virtual memory
-+  space is used by the kernel to permanently map as much physical
-+  memory as possible.  On a system with 1 gigabyte of memory, you may
-+  get 896 MB of "user memory" and 128 megabytes of "high memory"
-+
-+  Selecting "2GB" results in a "2GB/2GB" kernel/user split:
-+  2 gigabytes are mapped so each process sees a 2 gigabyte virtual
-+  memory space and the remaining part of the 4 gigabyte virtual memory
-+  space is used by the kernel to permanently map as much physical
-+  memory as possible.  On a system with 1 to 1.75 gigabytes of
-+  physical memory, this option have all make it so no memory is
-+  mapped as "high memory".
-+
-+  Selecting "3GB" results in a "1GB/3GB" kernel/user split:
-+  1 gigabyte is mapped so each process sees a 1 gigabyte virtual
-+  memory space and the remaining part of the 4 gigabytes of virtual
-+  memory space is used by the kernel to permanently map as much
-+  physical memory as possible.
-+
-+  Options "2GB" and "3GB" may expose bugs that were dormant in
-+  certain hardware and possibly even the kernel.
-+
-+  If unsure, say "1GB".
-+
- HIGHMEM I/O support
- CONFIG_HIGHIO
-   If you want to be able to do I/O to high memory pages, say Y.
+If you are already keeping a MAC <--> Host table, then it's not very hard to
+expand it to keep track of other NICs.   That is, of course, if you care about
+tracking your inventory.   
 
 -- 
-Randy Hron
-
+timothy.covell@ashavan.org.

@@ -1,72 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261739AbVCGK3L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261746AbVCGKbs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261739AbVCGK3L (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 05:29:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbVCGK3L
+	id S261746AbVCGKbs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 05:31:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbVCGKbr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 05:29:11 -0500
-Received: from mail.fh-wedel.de ([213.39.232.198]:50113 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S261739AbVCGK3B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 05:29:01 -0500
-Date: Mon, 7 Mar 2005 11:28:43 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: "Edgar, Bob" <Bob.Edgar@commerzbankib.com>
-Cc: "'Jesper Juhl'" <juhl-lkml@dif.dk>, Steve French <sfrench@us.ibm.com>,
-       Luca Tettamanti <kronos@kronoz.cjb.net>,
-       samba-technical <samba-technical@lists.samba.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Domen Puncer <domen@coderock.org>
-Subject: Re: [PATCH] whitespace cleanups for fs/cifs/file.c
-Message-ID: <20050307102843.GB2198@wohnheim.fh-wedel.de>
-References: <9D248E1E43ABD411A9B600508BAF6E9B0C737269@xmx7fraib.fra.ib.commerzbank.com>
+	Mon, 7 Mar 2005 05:31:47 -0500
+Received: from mail.suse.de ([195.135.220.2]:30371 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261741AbVCGKan (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 05:30:43 -0500
+Date: Mon, 7 Mar 2005 11:30:41 +0100
+From: Karsten Keil <kkeil@suse.de>
+To: domen@coderock.org
+Cc: akpm@osdl.org, c.lucas@ifrance.com, isdn4linux@listserv.isdn4linux.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 5/8] drivers/isdn/tpam/*: convert to pci_register_driver
+Message-ID: <20050307103041.GA11673@pingi3.kke.suse.de>
+Mail-Followup-To: domen@coderock.org, akpm@osdl.org,
+	c.lucas@ifrance.com, isdn4linux@listserv.isdn4linux.de,
+	linux-kernel@vger.kernel.org
+References: <20050306223813.129381ED3D@trashy.coderock.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <9D248E1E43ABD411A9B600508BAF6E9B0C737269@xmx7fraib.fra.ib.commerzbank.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20050306223813.129381ED3D@trashy.coderock.org>
+Organization: SuSE Linux AG
+X-Operating-System: Linux 2.6.8-24.10-default i686
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 March 2005 10:26:40 +0100, Edgar, Bob wrote:
+On Sun, Mar 06, 2005 at 11:38:12PM +0100, domen@coderock.org wrote:
 > 
-> I lurk on the list and didn't comment last time but there is one aspect
-> of this patch that I think is "bad" style. The function declaration should
-> not be on the same line with the type. Why? Try to find the file where a
-> function is defined instead of used. If you grep "^funcname" you'll find
-> it quite simply. The same is true in YFE (mine being vi) /^funcname gets
-> me there in one shot.
+> convert from pci_module_init to pci_register_driver
 > 
-> This may not seem an important thing but when you are coming into a
-> project cold and don't know how anything works or where it lives it
-> can be very important. Consider trying to find where some common
-> function from a library is defined in a project with sever 1000 files.
+> Signed-off-by: Christophe Lucas <c.lucas@ifrance.com>
+> Signed-off-by: Domen Puncer <domen@coderock.org>
+> ---
+> 
+> 
+>  kj-domen/drivers/isdn/tpam/tpam_main.c |    2 +-
+>  1 files changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff -puN drivers/isdn/tpam/tpam_main.c~pci_register_driver-drivers_isdn_tpam drivers/isdn/tpam/tpam_main.c
+> --- kj/drivers/isdn/tpam/tpam_main.c~pci_register_driver-drivers_isdn_tpam	2005-03-05 16:12:25.000000000 +0100
+> +++ kj-domen/drivers/isdn/tpam/tpam_main.c	2005-03-05 16:12:25.000000000 +0100
+> @@ -278,7 +278,7 @@ static struct pci_driver tpam_driver = {
+>  static int __init tpam_init(void) {
+>  	int ret;
+>  	
+> -	ret = pci_module_init(&tpam_driver);
+> +	ret = pci_register_driver(&tpam_driver);
+>  	if (ret)
+>  		return ret;
+>  	printk(KERN_INFO "TurboPAM: %d card%s found, driver loaded.\n", 
 
-This point has been discussed before, also regarding Jesper's work.
-In short, Linus prefers the style you dislike, but doesn't enforce
-things too rigidly.  Imo the "grep" argument doesn't really matter and
-both styles have advantages sometimes.
 
-Now to solve some of your problems a different way (in vim style):
-o $ make tags
-o $ vi foo.c
-o move over any function
-o ^]
-o ^t
-o :ts
+Note:
 
-o $ vi bar.c
-o move over any identifier
-o *
-o #
-
-Works like a charm for me.  lxr is still slightly better, but the
-lacking integration into my editor makes is inferior in 99.9% of all
-cases.
-
-Jörn
+All changes to code drivers/isdn/tpam are obsolate, since the code is
+obsolate and I already sent a complete remove patch.
 
 -- 
-Data expands to fill the space available for storage.
--- Parkinson's Law
+Karsten Keil
+SuSE Labs
+ISDN development

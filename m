@@ -1,83 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316076AbSEJNSM>; Fri, 10 May 2002 09:18:12 -0400
+	id <S315760AbSEJNOH>; Fri, 10 May 2002 09:14:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316077AbSEJNSL>; Fri, 10 May 2002 09:18:11 -0400
-Received: from smtp-out-1.wanadoo.fr ([193.252.19.188]:38143 "EHLO
-	mel-rto1.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S316076AbSEJNSL>; Fri, 10 May 2002 09:18:11 -0400
-Message-ID: <3CDBC87A.7030609@wanadoo.fr>
-Date: Fri, 10 May 2002 15:17:46 +0200
-From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020417
-X-Accept-Language: en-us, en
+	id <S315796AbSEJNOG>; Fri, 10 May 2002 09:14:06 -0400
+Received: from smtp1.home.se ([195.66.35.200]:12482 "EHLO smtp1.home.se")
+	by vger.kernel.org with ESMTP id <S315760AbSEJNOG>;
+	Fri, 10 May 2002 09:14:06 -0400
+Message-ID: <002101c1f824$67baa1c0$0319450a@sandos>
+From: =?iso-8859-1?Q?John_B=E4ckstrand?= <sandos@home.se>
+To: "Zwane Mwaikambo" <zwane@linux.realnet.co.sz>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0205101147290.6271-100000@netfinity.realnet.co.sz>
+Subject: Re: sb16 isa non-pnp problems
+Date: Fri, 10 May 2002 15:12:58 +0200
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: [Fwd: Re: 2.5.15 hangs at partition check]
-Content-Type: multipart/mixed;
- boundary="------------030604020801010207060703"
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030604020801010207060703
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Martin
-
-Your spam filter looks a little aggressive. Wanadoo is the internet 
-access service of France Telecom (two thirds of French subscribers).
-
->  - These recipients of your message have been processed by the mail server:
-> vanl@megsinet.net; Failed; 5.3.0 (other or undefined mail system status)
-> 
->     Remote MTA a.mx.core.com: network error
-> 
-> 
->  - SMTP protocol diagnostic: 550 5.7.1 *** Your mailserver[193.252.19.188]is relaying spam ***
-> 
-
--- 
-Pierre
-------------------------------------------------
-  Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-------------------------------------------------
-
---------------030604020801010207060703
-Content-Type: message/rfc822;
- name="Re: 2.5.15 hangs at partition check"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="Re: 2.5.15 hangs at partition check"
+----- Original Message -----
+From: "Zwane Mwaikambo" <zwane@linux.realnet.co.sz>
+To: "John Bäckstrand" <sandos@home.se>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Friday, May 10, 2002 11:48 AM
+Subject: Re: sb16 isa non-pnp problems
 
 
->From - Fri May 10 14:37:04 2002
-X-Mozilla-Status2: 00000000
-Message-ID: <3CDBBEEF.3010008@wanadoo.fr>
-Date: Fri, 10 May 2002 14:37:03 +0200
-From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020417
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "M.H.VanLeeuwen" <vanl@megsinet.net>
-Subject: Re: 2.5.15 hangs at partition check
-In-Reply-To: <3CDBA8AF.4A4C2178@megsinet.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+> I wouldn't mind seeing the dmesg+oops of a 2.4.18ish
+kernel with
+> kernel ISAPNP. As well as /proc/isapnp before loading
+the module, and if
+> possible /proc/dma and /proc/ioports after loading.
 
-M.H.VanLeeuwen wrote:
-> Does 2.5.15 really report your drives as hde: and hdg: ???
+They all look normal, afaics, and its probably not a
+linux-pnp problem, since we found the problem. It was
+the overdrive CPU causing problems. Works fne with the
+original DX33. This was also the case in windows.
+Suspecting wrong voltage to the cpu, ah well. Thanks
+anyway =)
 
-Yes, double-checked. It reports correctly hdc (ide1) as a CD/DVD-ROM, 
-hde (ide2) and hdg (ide3). No difference with 2.5.14
-
--- 
-Pierre
-------------------------------------------------
-  Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-------------------------------------------------
+---
+John Bäckstrand
 
 
---------------030604020801010207060703--
 

@@ -1,32 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282798AbRK0ErH>; Mon, 26 Nov 2001 23:47:07 -0500
+	id <S282803AbRK0Eti>; Mon, 26 Nov 2001 23:49:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282796AbRK0Eq5>; Mon, 26 Nov 2001 23:46:57 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:48138 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S282798AbRK0Eqp>;
-	Mon, 26 Nov 2001 23:46:45 -0500
-Date: Tue, 27 Nov 2001 15:37:40 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Robert Love <rml@tech9.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] proc-based cpu affinity user interface
-Message-ID: <20011127153740.A13824@krispykreme>
-In-Reply-To: <1006831902.842.0.camel@phantasy>
+	id <S282802AbRK0Et1>; Mon, 26 Nov 2001 23:49:27 -0500
+Received: from zero.tech9.net ([209.61.188.187]:35849 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S282800AbRK0EtV>;
+	Mon, 26 Nov 2001 23:49:21 -0500
+Subject: Re: a nohup-like interface to cpu affinity
+From: Robert Love <rml@tech9.net>
+To: Linux maillist account <l-k@mindspring.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <5.0.2.1.2.20011126231737.009f0ec0@pop.mindspring.com>
+In-Reply-To: <E16744i-0004zQ-00@localhost>
+	<Pine.LNX.4.33.0111220951240.2446-300000@localhost.localdomain>
+	<1006472754.1336.0.camel@icbm> <E16744i-0004zQ-00@localhost> 
+	<5.0.2.1.2.20011126231737.009f0ec0@pop.mindspring.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.1+cvs.2001.11.14.08.58 (Preview Release)
+Date: 26 Nov 2001 23:49:48 -0500
+Message-Id: <1006836589.842.4.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1006831902.842.0.camel@phantasy>
-User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2001-11-26 at 23:41, Linux maillist account wrote:
+> Robert and Ingo,
+> A nohup-like interface to the cpu affinity service would be useful.  It 
+> could work like the following example:
+> 
+>     $ cpuselect -c 1,3-5 gcc -c module.c
+> 
+> which would restrict this instantiation of gcc and all of its children to 
+> cpus 1,3,4, and 5.  This tool can be implemented in a few lines of C, with
+> either /proc or syscall as the underlying implementation.
 
-> Attached is my procfs-based implementation of a user interface for
-> getting and setting a task's CPU affinity.  Patch is against 2.4.16. 
+I can see the use for this, but you can also just do `echo whatever >
+/proc/123/affinity' once it is running ... not a big deal.
 
-Have you seen Andrew Mortons cpus_allowed patch?
+It is automatically inherited by its children.
 
-http://www.zipworld.com.au/~akpm/linux/cpus_allowed.patch
+> On another subject -- capabilities -- any process should be able to reduce 
+> the number of cpus in its own cpu affinity mask without any special
+> permission.  To add cpus to a reduced mask, or to change the cpu affinity
+> mask of other processes, should  require the appropriate capability, be it
+> CAP_SYS_NICE, CAP_SYS_ADMIN, or whatever is decided.
 
-Anton
+My patch already does this.  If the user writing the affinity entry is
+the same as the user of the task in question, everything is fine.  If
+the user possesses the CAP_SYS_NICE bit, he can set any task's
+affinity.  See the patch.
+
+	Robert Love
+

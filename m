@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbVBHAfc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbVBHAj0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261361AbVBHAfc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 19:35:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbVBHAfc
+	id S261366AbVBHAj0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 19:39:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbVBHAjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 19:35:32 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:49091 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261361AbVBHAf2 (ORCPT
+	Mon, 7 Feb 2005 19:39:25 -0500
+Received: from mail.kroah.org ([69.55.234.183]:1701 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261346AbVBHAjU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 19:35:28 -0500
-Date: Mon, 7 Feb 2005 16:34:19 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: colpatch@us.ibm.com, mbligh@aracnet.com, pwil3058@bigpond.net.au,
-       frankeh@watson.ibm.com, dipankar@in.ibm.com,
-       ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
-       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
-       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
-       linux-kernel@vger.kernel.org, Simon.Derr@bull.net, ak@suse.de,
-       sivanich@sgi.com
-Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-Message-Id: <20050207163419.5eceb474.pj@sgi.com>
-In-Reply-To: <20050207162024.23380cd6.akpm@osdl.org>
-References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
-	<20040805190500.3c8fb361.pj@sgi.com>
-	<247790000.1091762644@[10.10.2.4]>
-	<200408061730.06175.efocht@hpce.nec.com>
-	<20040806231013.2b6c44df.pj@sgi.com>
-	<411685D6.5040405@watson.ibm.com>
-	<20041001164118.45b75e17.akpm@osdl.org>
-	<20041001230644.39b551af.pj@sgi.com>
-	<20041002145521.GA8868@in.ibm.com>
-	<415ED3E3.6050008@watson.ibm.com>
-	<415F37F9.6060002@bigpond.net.au>
-	<821020000.1096814205@[10.10.2.4]>
-	<20041003083936.7c844ec3.pj@sgi.com>
-	<834330000.1096847619@[10.10.2.4]>
-	<1097014749.4065.48.camel@arrakis>
-	<420800F5.9070504@us.ibm.com>
-	<20050207162024.23380cd6.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 7 Feb 2005 19:39:20 -0500
+Date: Mon, 7 Feb 2005 16:20:22 -0800
+From: Greg KH <greg@kroah.com>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org
+Subject: Re: [PATCH] pci_raw_ops should use unsigned args
+Message-ID: <20050208002022.GC28803@kroah.com>
+References: <1107457685.12618.23.camel@eeyore>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1107457685.12618.23.camel@eeyore>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew wrote:
-> OK, I'll add cpusets to the 2.6.12 queue.
+On Thu, Feb 03, 2005 at 12:08:05PM -0700, Bjorn Helgaas wrote:
+> Convert pci_raw_ops to use unsigned segment (aka domain),
+> bus, and devfn.  With the previous code, various ia64 config
+> accesses fail due to segment sign-extension problems.
+> 
+> ia64:
+>     - With a signed seg >= 0x8, unwanted sign-extension occurs when
+>       "seg << 28" is cast to u64 in PCI_SAL_EXT_ADDRESS()
+>     - PCI_SAL_EXT_ADDRESS(): cast to u64 *before* shifting; otherwise
+>       "seg << 28" is evaluated as unsigned int (32 bits) and gets
+>       truncated when seg > 0xf
+>     - pci_sal_read(): validate "value" ptr as other arches do
+>     - pci_sal_{read,write}(): return -EINVAL rather than SAL error status
+> 
+>  arch/i386/pci/direct.c     |   12 ++++++----
+>  arch/i386/pci/mmconfig.c   |    6 +++--
+>  arch/i386/pci/numa.c       |    6 +++--
+>  arch/i386/pci/pcbios.c     |    6 +++--
+>  arch/ia64/pci/pci.c        |   53 ++++++++++++++++++---------------------------
+>  arch/x86_64/pci/mmconfig.c |    8 ++++--
+>  include/linux/pci.h        |    6 +++--
+>  7 files changed, 51 insertions(+), 46 deletions(-)
+> 
+> Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
 
-I'd like that ;).
+Applied, thanks.
 
-Thank-you, Matthew, for the work you put into making sense of this.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.650.933.1373, 1.925.600.0401
+greg k-h

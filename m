@@ -1,80 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261775AbVAHATp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261723AbVAHAW4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261775AbVAHATp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 19:19:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261620AbVAHATR
+	id S261723AbVAHAW4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 19:22:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbVAHAUK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 19:19:17 -0500
-Received: from mail.tyan.com ([66.122.195.4]:6151 "EHLO tyanweb.tyan")
-	by vger.kernel.org with ESMTP id S261762AbVAHARP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 19:17:15 -0500
-Message-ID: <3174569B9743D511922F00A0C943142307291358@TYANWEB>
-From: YhLu <YhLu@tyan.com>
-To: jamesclv@us.ibm.com
-Cc: Andi Kleen <ak@muc.de>, Matt Domsch <Matt_Domsch@dell.com>,
-       linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       suresh.b.siddha@intel.com
-Subject: RE: 256 apic id for amd64
-Date: Fri, 7 Jan 2005 16:28:49 -0800 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
+	Fri, 7 Jan 2005 19:20:10 -0500
+Received: from stat16.steeleye.com ([209.192.50.48]:48611 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261713AbVAGXTz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 18:19:55 -0500
+Subject: Re: [PATCH 2.6] cciss typo fix
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: mike.miller@hp.com
+Cc: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <20050107230103.GB26037@beardog.cca.cpqcorp.net>
+References: <20050107230103.GB26037@beardog.cca.cpqcorp.net>
 Content-Type: text/plain
+Date: Fri, 07 Jan 2005 18:19:28 -0500
+Message-Id: <1105139968.4151.26.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Then sepertate that into init_amd and init_intel.
+On Fri, 2005-01-07 at 17:01 -0600, mike.miller@hp.com wrote:
+> -		*total_size = be32_to_cpu(*((__be32 *) &buf->total_size[0]))+1;
+> -		*block_size = be32_to_cpu(*((__be32 *) &buf->block_size[0]));
+> +		*total_size = be32_to_cpu(*((__u32 *) &buf->total_size[0]))+1;
+> +		*block_size = be32_to_cpu(*((__u32 *) &buf->block_size[0]));
 
-YH
+I don't think that's a typo.  It was introduced by this patch:
 
------Original Message-----
-From: James Cleverdon [mailto:jamesclv@us.ibm.com] 
-Sent: Friday, January 07, 2005 4:13 PM
-To: YhLu
-Cc: Andi Kleen; Matt Domsch; linux-kernel@vger.kernel.org;
-discuss@x86-64.org; suresh.b.siddha@intel.com
-Subject: Re: 256 apic id for amd64
+ChangeSet 1.1988.24.79 2004/10/06 07:55:02 viro@www.linux.org.uk
+  [PATCH] cciss endianness and iomem annotations
+ 
+The idea being that BE and LE numbers should be annotated differently,
+so the __be32 annotations look correct to me.  I think sparse will warn
+if you make this change.
 
-Clustered APIC systems need the phys_proc_id to come from the APIC ID 
-register.  Intel prefers that non-clustered systems get their 
-phys_proc_id from the cpuid opcode.
-
-So, using c->x86_apicid is unlikely to satisfy both parties.
+James
 
 
-On Friday 07 January 2005 04:04 pm, YhLu wrote:
-> arch/x86_64/kernel/setup.c
->
-> static void __init detect_ht(struct cpuinfo_x86 *c)
->
->                 phys_proc_id[cpu] = phys_pkg_id(index_msb);
->
-> --->
-> 			  Phy_proc_id[cpu] = cpu_to_node[cpu];
-> Or
->    	      // that is initial apicid
->           phys_proc_id[cpu] = c->x86_apicid >>
-> hweight32(c->x86_num_cores - 1);
->
-> YH
->
-> -----Original Message-----
-> From: Andi Kleen [mailto:ak@muc.de]
-> Sent: Friday, January 07, 2005 2:18 PM
-> To: YhLu
-> Cc: Matt Domsch; linux-kernel@vger.kernel.org; discuss@x86-64.org;
-> jamesclv@us.ibm.com; suresh.b.siddha@intel.com
-> Subject: Re: 256 apic id for amd64
->
-> On Fri, Jan 07, 2005 at 01:44:19PM -0800, YhLu wrote:
-> > Can you consider to use c->x86_apicid to get phy_proc_id, that is
-> > initial apicid.?
->
-> Where?
->
-> -Andi
-
--- 
-James Cleverdon
-IBM LTC (xSeries Linux Solutions)
-{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot comm

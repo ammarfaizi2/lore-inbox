@@ -1,33 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310435AbSCGSAv>; Thu, 7 Mar 2002 13:00:51 -0500
+	id <S310433AbSCGSDt>; Thu, 7 Mar 2002 13:03:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310436AbSCGSAj>; Thu, 7 Mar 2002 13:00:39 -0500
-Received: from magic.adaptec.com ([208.236.45.80]:30693 "EHLO
-	magic.adaptec.com") by vger.kernel.org with ESMTP
-	id <S310435AbSCGSA1>; Thu, 7 Mar 2002 13:00:27 -0500
-Message-ID: <F8D30FF32B23D61198B9009027D61DB32FC209@otcexc01.otc.adaptec.com>
-From: "Bonds, Deanna" <Deanna_Bonds@adaptec.com>
-To: "'Michael T. Babcock'" <mbabcock@fibrespeed.net>,
-        linux-kernel@vger.kernel.org
-Subject: RE: Changing subsystem priorities
-Date: Thu, 7 Mar 2002 13:00:09 -0500 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	id <S310434AbSCGSDj>; Thu, 7 Mar 2002 13:03:39 -0500
+Received: from dspnet.claranet.fr ([212.43.196.92]:34321 "HELO
+	dspnet.fr.eu.org") by vger.kernel.org with SMTP id <S310433AbSCGSDV>;
+	Thu, 7 Mar 2002 13:03:21 -0500
+Date: Thu, 7 Mar 2002 19:02:34 +0100
+From: Jean-Luc Leger <reiga@dspnet.fr.eu.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Petition Against Official Endorsement of BitKeeper by Linux Maintainers
+Message-ID: <20020307190234.T20273@dspnet.fr.eu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Mar 07, 2002 at 04:51:56PM +0000, Henning P. Schmiedehausen wrote:
+> Larry McVoy <lm@bitmover.com> writes:
+> >	# extract all the patches from 2.5.0 onward.
+> >	bk prs -hrv2.5.0.. |  while read x
+> >	do	bk export -tpatch -r$i > ~ftp/patches/patch-$i
+> >	done
+> [henning@henning henning]$ bk prs -hrv2.5.0.. |  while read x
+> while: Expression Syntax.
+> You obviously just _underlined_ the point, Larry.
+> ...
+> It's tcsh; before you ask.
 
+tss ..
 
-> -----Original Message-----
-> From: Michael T. Babcock [mailto:mbabcock@fibrespeed.net]
-> 
-> For what its worth, the system in question is running 2.2.20 until I
-> find stable drivers for my DPT SmartRaid V controller for 2.4.x.
-A little off topic, but since I am the maintainer of the dpt_i2o driver,
-what do you find unstable about the 2.4.* version.  It has been through our
-qualification several times and is now imbedded in the kernel.  If you know
-of any instability please let me know so I can fix it.
+by the way, shouldn't it be "$x" in the second line ?
+or am I missing something ?
 
-Deanna
+	JL

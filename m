@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267505AbTBDWko>; Tue, 4 Feb 2003 17:40:44 -0500
+	id <S267506AbTBDWkz>; Tue, 4 Feb 2003 17:40:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267506AbTBDWko>; Tue, 4 Feb 2003 17:40:44 -0500
-Received: from tomts19.bellnexxia.net ([209.226.175.73]:28822 "EHLO
-	tomts19-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S267505AbTBDWkn>; Tue, 4 Feb 2003 17:40:43 -0500
-Date: Tue, 4 Feb 2003 17:48:44 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@dell
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: cleanup of filesystems menu
-In-Reply-To: <Pine.LNX.4.33L2.0302041302420.6174-100000@dragon.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.44.0302041746230.17535-100000@dell>
+	id <S267509AbTBDWkz>; Tue, 4 Feb 2003 17:40:55 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:59861 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S267506AbTBDWky>;
+	Tue, 4 Feb 2003 17:40:54 -0500
+Message-ID: <8A9A5F4E6576D511B98F00508B68C20A1508E565@orsmsx106.jf.intel.com>
+From: "Shureih, Tariq" <tariq.shureih@intel.com>
+To: "'Banai Zoltan'" <bazooka@vekoll.vein.hu>, linux-kernel@vger.kernel.org
+Subject: RE: CPU detection
+Date: Tue, 4 Feb 2003 14:50:19 -0800 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Feb 2003, Randy.Dunlap wrote:
+Did you check the obvious such as your BIOS is set to the right cpu
+frequency?
+It's possible you BIOS was reset and the CPU multiplier is not set
+correctly.
 
-> Here are my comments on the filesystem menu:
-> 
-> That "FS_POSIX_ACL" line is very odd.
-> What can be done about/with it?
+When the system boots, what does the BIOS report the CPU as?
+Intel Celeron running at: ??
 
-beats me.  i don't invent 'em, i just organize 'em.
- 
-> Quota and Automounter:  are they filesystems?
-> I know, you didn't change that.
-> Anyway, they are more like FS options or tools.
+Try that first.
 
-again, i'm open to suggestions.  since this was just
-a first attempt, i only moved stuff around within the
-same menu for now.  i'm not sure where else these would
-go.
- 
-> I would put the list under "Miscellaneous filesystems"
-> in alphabetical order.
+--
+Tariq Shureih
+Intel Corporation
+Opinions are my own and don't represent my employer
 
-easy enough.
+-----Original Message-----
+From: Banai Zoltan [mailto:bazooka@vekoll.vein.hu] 
+Sent: Tuesday, February 04, 2003 10:26 AM
+To: linux-kernel@vger.kernel.org
+Subject: CPU detection
 
- 
-> Did you modify "Network File Systems" or "Partition Types"?
+Hi!
 
-nope.
-
-> Anyway, they are sort of in historical order and I would
-> put them in alpha order too unless there's some
-> compelling reason not to do that.
-
-also easy.
-
-rday
-
+I have a Toshiba Satelite S2210CDT.
+There is a problem with detecting CPU frequency.
+It runs on 258Mhz, but it is an 500Mhz Celeron kernels 2.4.19-pre7-ac4
+and 2.4.20.
+i attach the configs and the output of lscpi, /proc/cpu
+-- 
+Udv,
+Banai Zoltan

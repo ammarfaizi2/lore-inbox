@@ -1,53 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266294AbUFUPmY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266287AbUFUQAV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266294AbUFUPmY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 11:42:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266284AbUFUPmY
+	id S266287AbUFUQAV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 12:00:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266288AbUFUQAV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 11:42:24 -0400
-Received: from gate.crashing.org ([63.228.1.57]:15007 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S266283AbUFUPlu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 11:41:50 -0400
-Subject: Re: [Patch]: Fix rivafb's NV_ARCH_
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Guido Guenther <agx@sigxcpu.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040621071159.GA7017@bogon.ms20.nix>
-References: <20040601041604.GA2344@bogon.ms20.nix>
-	 <1086064086.1978.0.camel@gaston> <20040601135335.GA5406@bogon.ms20.nix>
-	 <20040616070326.GE28487@bogon.ms20.nix>
-	 <20040620192549.GA4307@bogon.ms20.nix> <1087791100.24157.9.camel@gaston>
-	 <20040621071159.GA7017@bogon.ms20.nix>
-Content-Type: text/plain
-Message-Id: <1087832204.22683.11.camel@gaston>
+	Mon, 21 Jun 2004 12:00:21 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47558 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266287AbUFUQAO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 12:00:14 -0400
+Date: Mon, 21 Jun 2004 12:53:13 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Steven Dake <sdake@mvista.com>, Stian Jordet <liste@jordet.nu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       sct@redhat.logos.cnet, Andrew Morton <akpm@osdl.org>
+Subject: Re: [2.4] page->buffers vanished in journal_try_to_free_buffers()
+Message-ID: <20040621155313.GA12559@logos.cnet>
+References: <1075832813.5421.53.camel@chevrolet.hybel> <Pine.LNX.4.58L.0402052139420.16422@logos.cnet> <1078225389.931.3.camel@buick.jordet> <1087232825.28043.4.camel@persist.az.mvista.com> <20040615131650.GA13697@logos.cnet> <1087322198.8117.10.camel@persist.az.mvista.com> <20040617131600.GB3029@logos.cnet> <1087830410.2719.53.camel@sisko.scot.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 21 Jun 2004 10:36:44 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1087830410.2719.53.camel@sisko.scot.redhat.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-06-21 at 02:11, Guido Guenther wrote:
-> On Sun, Jun 20, 2004 at 11:11:41PM -0500, Benjamin Herrenschmidt wrote:
-> > On Sun, 2004-06-20 at 14:25, Guido Guenther wrote:
-> > > Hi,
-> > > On Wed, Jun 16, 2004 at 09:03:27AM +0200, Guido Guenther wrote:
-> > > > here's another piece of rivafb fixing that helps the driver on ppc
-> > > > pbooks again a bit further. It corrects several wrong NV_ARCH_20
-> > > > settings which are actually NV_ARCH_10 as determined by the PCIId.
-> > > Any comments on this patch?
-> > 
-> > I don't, but did you ask on the linux-fbdev list ?
-> I've sent a patch to James several weeks ago that removes the complete
-> table with NV_ARCH_ mappings and uses PCI-IDs instead. He applied it to
-> the fbdev tree, but it didn't end up in Linus tree yet.
-> This patch just fixes what's obviously wrong. More cleanup to come once
-> rivafb is in a usable shape for me again.
+Hi Stephen,
 
-Ok, well, it looks good to me. There is no active maintainer for rivafb
-so, I suppose if nobody complains of breakage, it should be fine.
+On Mon, Jun 21, 2004 at 04:06:50PM +0100, Stephen C. Tweedie wrote:
+> Hi,
+> 
+> On Thu, 2004-06-17 at 14:16, Marcelo Tosatti wrote:
+> 
+> > Stephen, Andrew, do you have any idea how the buffers could have vanished
+> > under us with the page locked? That should not be possible. 
+> 
+> No, especially not on UP as Frank reported.  
+> 
+> > I dont see how this "page->buffers = NULL" could be caused by hardware problem, 
+> > which is usually one or two bit flip.
+> 
+> We don't know for sure that it's page->buffers.  If we have gone round
+> the bh->b_this_page loop already, we could have ended up following the
+> pointers either to an invalid bh, or to one that's not on the current
+> page.  So it could also be the previous buffer's b_this_page that got
+> clobbered, rather than page->buffers.
+> 
+> That's possible in this case, but it's still a bit surprising that we'd
+> *always* get a NULL pointer rather than some other random pointer as a
+> result. 
 
-Ben.
+I dont remember seeing any case which was not a NULL pointer dereference.
+
+> The buffer-ring debug patch that you posted looks like the obvious way
+> to dig further into this.  If that doesn't get anyway, we can also trap
+> the case where following bh->b_this_page gives us a buffer whose b_page
+> is on a different page.
+
+Fine.  Just printing out bh->b_page at debug_page() will allow us to verify that, yes?
+
+--- transaction.c.orig  2004-06-21 12:50:01.090082264 -0300
++++ transaction.c       2004-06-21 12:50:45.574319632 -0300
+@@ -1704,9 +1704,9 @@ void debug_page(struct page *p)
+                 p->index, atomic_read(&p->count), p->flags);
+  
+        while (bh) {
+-               printk(KERN_ERR "%s: bh b_next:%p blocknr:%lu b_list:%u state:%lx\n",
++               printk(KERN_ERR "%s: bh b_next:%p blocknr:%lu b_list:%u state:%lx b_page:%p\n",
+                        __FUNCTION__, bh->b_next, bh->b_blocknr, bh->b_list,
+-                               bh->b_state);
++                               bh->b_state, bh->b_page);
+                bh = bh->b_this_page;
+        }
+ }
+
 
 

@@ -1,94 +1,336 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314592AbSD0FEv>; Sat, 27 Apr 2002 01:04:51 -0400
+	id <S314596AbSD0Fck>; Sat, 27 Apr 2002 01:32:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314596AbSD0FEv>; Sat, 27 Apr 2002 01:04:51 -0400
-Received: from relais.videotron.ca ([24.201.245.36]:54779 "EHLO
-	VL-MS-MR005.sc1.videotron.ca") by vger.kernel.org with ESMTP
-	id <S314592AbSD0FEu>; Sat, 27 Apr 2002 01:04:50 -0400
-From: "Enrico Demarin" <enricod@videotron.ca>
-To: "'Richard Thrapp'" <rthrapp@sbcglobal.net>,
-        "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: RE: The tainted message
-Date: Sat, 27 Apr 2002 01:06:07 -0700
-Message-ID: <00b201c1edc2$62c8f520$0340a8c0@shodan2>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-In-Reply-To: <1019883102.8819.48.camel@wizard>
-Importance: Normal
+	id <S314597AbSD0Fcj>; Sat, 27 Apr 2002 01:32:39 -0400
+Received: from surf.viawest.net ([216.87.64.26]:25309 "EHLO surf.viawest.net")
+	by vger.kernel.org with ESMTP id <S314596AbSD0Fch>;
+	Sat, 27 Apr 2002 01:32:37 -0400
+Date: Fri, 26 Apr 2002 22:32:31 -0700
+From: A Guy Called Tyketto <tyketto@wizard.com>
+To: Dave Jones <davej@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.10-dj1
+Message-ID: <20020427053231.GA13688@wizard.com>
+In-Reply-To: <20020427030823.GA21608@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux/2.5.7 (i686)
+X-uptime: 10:07pm  up  3:48,  2 users,  load average: 0.00, 0.04, 0.12
+X-RSA-KeyID: 0xE9DF4D85
+X-DSA-KeyID: 0xE319F0BF
+X-GPG-Keys: see http://www.wizard.com/~tyketto/pgp.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well a smart user could eliminate the tainted stuff and get support
-anyway. 
+On Sat, Apr 27, 2002 at 04:08:23AM +0100, Dave Jones wrote:
+> Clear out the pending patch queue, and merge up to Linus' latest
+> in order to have a base to continue pushing bits from.
+> 
+> As usual,..
+> Patch against 2.5.10 vanilla is available from:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.5/
+> 
+> Merged patch archive: http://www.codemonkey.org.uk/patches/merged/
+> 
+> Check http://www.codemonkey.org.uk/Linux-2.5.html before reporting
+> known bugs that are also in mainline.
 
-What's the point of having such a message ? I think it's trivial to get
-rid of it anyway.
+        Got this when I gave it a compile:
 
-- Enrico 
+gcc -D__KERNEL__ -I/usr/src/linux-2.5.10/include -Wall -Wstrict-prototypes 
+-Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe 
+-mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -DMODULE 
+-DMODVERSIONS -include /usr/src/linux-2.5.10/include/linux/modversions.h  
+-nostdinc -I /usr/lib/gcc-lib/i386-slackware-linux/2.95.3/include 
+-DKBUILD_BASENAME=sr_vendor  -c -o sr_vendor.o sr_vendor.c
+rm -f scsi_mod.o
+ld -m elf_i386  -r -o scsi_mod.o scsi.o hosts.o scsi_ioctl.o constants.o 
+scsicam.o scsi_proc.o scsi_error.o scsi_queue.o scsi_lib.o scsi_merge.o 
+scsi_scan.o scsi_syms.o
+gcc -D__KERNEL__ -I/usr/src/linux-2.5.10/include -Wall -Wstrict-prototypes 
+-Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe 
+-mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -DMODULE 
+-DMODVERSIONS -include /usr/src/linux-2.5.10/include/linux/modversions.h  
+-nostdinc -I /usr/lib/gcc-lib/i386-slackware-linux/2.95.3/include 
+-DKBUILD_BASENAME=ide_scsi  -c -o ide-scsi.o ide-scsi.c
+ide-scsi.c:837: unknown field `abort' specified in initializer
+ide-scsi.c:837: warning: initialization from incompatible pointer type
+ide-scsi.c:838: unknown field `reset' specified in initializer
+ide-scsi.c:838: warning: initialization from incompatible pointer type
+make[2]: *** [ide-scsi.o] Error 1
+make[2]: Leaving directory `/usr/src/linux-2.5.10/drivers/scsi'
+make[1]: *** [_modsubdir_scsi] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.5.10/drivers'
+make: *** [_mod_drivers] Error 2
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Richard Thrapp
-Sent: April 26, 2002 9:52 PM
-To: linux-kernel; alan@lxorguk.ukuu.org.uk
-Subject: The tainted message
+        Config as follows:
 
+CONFIG_X86=y
+CONFIG_ISA=y
+CONFIG_UID16=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_NET=y
+CONFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_MODULES=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+CONFIG_MK7=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=6
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_USE_3DNOW=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MCE_NONFATAL=y
+CONFIG_X86_MCE_P4THERMAL=y
+CONFIG_X86_MSR=m
+CONFIG_X86_CPUID=m
+CONFIG_HIGHMEM4G=y
+CONFIG_HIGHPTE=y
+CONFIG_HIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_PREEMPT=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_AOUT=m
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=m
+CONFIG_PM=y
+CONFIG_APM=y
+CONFIG_APM_DO_ENABLE=y
+CONFIG_APM_CPU_IDLE=y
+CONFIG_APM_DISPLAY_BLANK=y
+CONFIG_APM_RTC_IS_GMT=y
+CONFIG_APM_REAL_MODE_POWER_OFF=y
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_CML1=m
+CONFIG_PARPORT_PC_FIFO=y
+CONFIG_PNP=m
+CONFIG_ISAPNP=m
+CONFIG_BLK_DEV_FD=m
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_PACKET=m
+CONFIG_PACKET_MMAP=y
+CONFIG_NETFILTER=y
+CONFIG_NETFILTER_DEBUG=y
+CONFIG_UNIX=m
+CONFIG_INET=y
+CONFIG_SYN_COOKIES=y
+CONFIG_IP_NF_CONNTRACK=m
+CONFIG_IP_NF_FTP=m
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_MATCH_LIMIT=m
+CONFIG_IP_NF_MATCH_MAC=m
+CONFIG_IP_NF_MATCH_MARK=m
+CONFIG_IP_NF_MATCH_MULTIPORT=m
+CONFIG_IP_NF_MATCH_TOS=m
+CONFIG_IP_NF_MATCH_LENGTH=m
+CONFIG_IP_NF_MATCH_TTL=m
+CONFIG_IP_NF_MATCH_TCPMSS=m
+CONFIG_IP_NF_MATCH_STATE=m
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_IP_NF_TARGET_MIRROR=m
+CONFIG_IP_NF_NAT=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=m
+CONFIG_IP_NF_TARGET_REDIRECT=m
+CONFIG_IP_NF_NAT_LOCAL=y
+CONFIG_IP_NF_NAT_FTP=m
+CONFIG_IP_NF_MANGLE=m
+CONFIG_IP_NF_TARGET_TOS=m
+CONFIG_IP_NF_TARGET_MARK=m
+CONFIG_IP_NF_TARGET_LOG=m
+CONFIG_IP_NF_TARGET_TCPMSS=m
+CONFIG_IP_NF_COMPAT_IPCHAINS=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_BLK_DEV_IDECD=m
+CONFIG_BLK_DEV_IDEFLOPPY=m
+CONFIG_BLK_DEV_IDESCSI=m
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_VIA82CXXX=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_SCSI=m
+CONFIG_BLK_DEV_SD=m
+CONFIG_SD_EXTRA_DEVS=40
+CONFIG_BLK_DEV_SR=m
+CONFIG_BLK_DEV_SR_VENDOR=y
+CONFIG_SR_EXTRA_DEVS=2
+CONFIG_CHR_DEV_SG=m
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_PCI=y
+CONFIG_EEPRO100=m
+CONFIG_PPP=m
+CONFIG_PPP_ASYNC=m
+CONFIG_PPP_SYNC_TTY=m
+CONFIG_PPP_DEFLATE=m
+CONFIG_PPP_BSDCOMP=m
+CONFIG_NET_TULIP=y
+CONFIG_TULIP=m
+CONFIG_TULIP_MMIO=y
+CONFIG_DE4X5=m
+CONFIG_INPUT=y
+CONFIG_INPUT_KEYBDEV=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_EVDEV=y
+CONFIG_GAMEPORT=m
+CONFIG_SOUND_GAMEPORT=m
+CONFIG_GAMEPORT_FM801=m
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_I8042_REG_BASE=60
+CONFIG_I8042_KBD_IRQ=1
+CONFIG_I8042_AUX_IRQ=12
+CONFIG_SERIO_SERPORT=y
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=m
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_PRINTER=m
+CONFIG_WATCHDOG=y
+CONFIG_WATCHDOG_NOWAYOUT=y
+CONFIG_SOFT_WATCHDOG=m
+CONFIG_NVRAM=m
+CONFIG_RTC=y
+CONFIG_AGP=y
+CONFIG_AGP_VIA=y
+CONFIG_DRM=y
+CONFIG_DRM_R128=y
+CONFIG_DRM_RADEON=y
+CONFIG_REISERFS_FS=m
+CONFIG_HFS_FS=m
+CONFIG_EXT3_FS=y
+CONFIG_JBD=y
+CONFIG_JBD_DEBUG=y
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_MINIX_FS=m
+CONFIG_PROC_FS=y
+CONFIG_DEVFS_FS=y
+CONFIG_DEVFS_MOUNT=y
+CONFIG_DEVFS_DEBUG=y
+CONFIG_DEVPTS_FS=y
+CONFIG_EXT2_FS=y
+CONFIG_NFS_FS=m
+CONFIG_NFS_V3=y
+CONFIG_NFSD=m
+CONFIG_NFSD_V3=y
+CONFIG_SUNRPC=m
+CONFIG_LOCKD=m
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=m
+CONFIG_ZISOFS_FS=m
+CONFIG_PARTITION_ADVANCED=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="cp437"
+CONFIG_NLS_CODEPAGE_437=m
+CONFIG_NLS_CODEPAGE_850=m
+CONFIG_NLS_CODEPAGE_852=m
+CONFIG_NLS_CODEPAGE_863=m
+CONFIG_NLS_ISO8859_1=m
+CONFIG_NLS_ISO8859_15=m
+CONFIG_VGA_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB_ATY=y
+CONFIG_FB_ATY_CT=y
+CONFIG_FB_RADEON=y
+CONFIG_FB_ATY128=y
+CONFIG_FBCON_ADVANCED=y
+CONFIG_FBCON_CFB8=y
+CONFIG_FBCON_CFB16=y
+CONFIG_FBCON_CFB24=y
+CONFIG_FBCON_CFB32=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+CONFIG_SOUND=m
+CONFIG_SOUND_PRIME=m
+CONFIG_SOUND_OSS=m
+CONFIG_SOUND_VMIDI=m
+CONFIG_SOUND_SB=m
+CONFIG_SOUND_YM3812=m
+CONFIG_SND=m
+CONFIG_SND_SEQUENCER=m
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=m
+CONFIG_SND_PCM_OSS=m
+CONFIG_SND_SEQUENCER_OSS=m
+CONFIG_SND_DEBUG=y
+CONFIG_SND_DEBUG_MEMORY=y
+CONFIG_SND_DEBUG_DETECT=y
+CONFIG_SND_MPU401=m
+CONFIG_SND_ENS1371=m
+CONFIG_SND_FM801=m
+CONFIG_USB=m
+CONFIG_USB_DEBUG=y
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_BANDWIDTH=y
+CONFIG_USB_EHCI_HCD=m
+CONFIG_USB_UHCI=m
+CONFIG_USB_UHCI_ALT=m
+CONFIG_USB_STORAGE=m
+CONFIG_USB_STORAGE_DEBUG=y
+CONFIG_DEBUG_KERNEL=y
+CONFIG_DEBUG_SLAB=y
+CONFIG_DEBUG_IOVIRT=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_DEBUG_SPINLOCK=y
+CONFIG_ZLIB_INFLATE=m
+CONFIG_ZLIB_DEFLATE=m
 
-I originally took this up with Keith Owens, but he said I should bring
-the discussion here since the message was chosen here (although I  could
-not find where in the archives), and that he might change it if I get
-the approval of Alan Cox.
-
-I just discovered semi-recently (a couple of months ago) that newer
-versions of modutils have an insmod that prints out the tainted warnings
-for non-GPL licenses.  While I agree that printing a warning when
-installing a non-GPLed module is important to inform the user that their
-kernel is no longer supported by the kernel maintainers, I have issues
-with the exact message printed.
-
-First of all, the current tainted message is not really useful. 
-"Warning: Loading %s will taint the kernel..." isn't very informative at
-all.  Most people don't know what it means to "taint the  kernel".  It's
-a vague phrase in English, and only if you know the current kernel
-source (or at least some of the semi-recent discussions on kernel
-tainting) is its meaning clear.  As a matter of fact, it makes it sound
-like the module has a virus in it that has just infected your kernel. 
-As Linux becomes more common for non-experts, it becomes even more
-important for error and informational messages to be clear.
-
-Secondly, loading the module doesn't actually 'taint' the kernel, but
-instead it mostly invalidates your chances for support from the core
-kernel maintainers.
-
-Thirdly, the warning that loading the module "will" taint the kernel is
-an inaccurate use of tense.  It implies that the module wasn't loaded
-(which might be true at that time from the point of view of the code,
-but is not true from the point of view of the user, which is who the
-message is written for).  I have actually had bug reports where users
-complain that a module won't load because of the tense of this message.
-
-I would like to propose that a clearer, more direct message be used. 
-Something like "Warning: kernel maintainers may not support your kernel
-since you have loaded %s: %s%s\n" would be much more informative and
-correct.
-
-Opinions?  Comments?
-
-Thanks!
-
--- Richard Thrapp
-
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in the body of a message to majordomo@vger.kernel.org More majordomo
-info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+                                                        BL.
+-- 
+Brad Littlejohn                         | Email:        tyketto@wizard.com
+Unix Systems Administrator,             |           tyketto@ozemail.com.au
+Web + NewsMaster, BOFH.. Smeghead! :)   |   http://www.wizard.com/~tyketto
+  PGP: 1024D/E319F0BF 6980 AAD6 7329 E9E6 D569  F620 C819 199A E319 F0BF
 

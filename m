@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265647AbRGCJJz>; Tue, 3 Jul 2001 05:09:55 -0400
+	id <S265659AbRGCJbs>; Tue, 3 Jul 2001 05:31:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265655AbRGCJJp>; Tue, 3 Jul 2001 05:09:45 -0400
-Received: from [210.82.190.10] ([210.82.190.10]:28169 "HELO mx.linux.net.cn")
-	by vger.kernel.org with SMTP id <S265647AbRGCJJn>;
-	Tue, 3 Jul 2001 05:09:43 -0400
-Date: Tue, 3 Jul 2001 15:48:00 +0800
-From: Fang Han <dfbb@linux.net.cn>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: RFC: modules and 2.5
-Message-ID: <20010703154759.A1409@dfbbb.cn.mvd>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3B415489.77425364@mandrakesoft.com> <20010703075050.B15457@dev.sportingbet.com>
+	id <S265660AbRGCJbi>; Tue, 3 Jul 2001 05:31:38 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:40464 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S265659AbRGCJbe>; Tue, 3 Jul 2001 05:31:34 -0400
+Date: Tue, 3 Jul 2001 11:29:58 +0200
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Blesson Paul <blessonpaul@usa.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: [OT] Re: shared memory problem
+Message-ID: <20010703112958.L639@arthur.ubicom.tudelft.nl>
+In-Reply-To: <20010703084924.4981.qmail@nwcst314.netaddress.usa.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010703075050.B15457@dev.sportingbet.com>; from sean@dev.sportingbet.com on Tue, Jul 03, 2001 at 07:50:50AM +0100
-Organization: None
-X-Attribution: dfbb
+In-Reply-To: <20010703084924.4981.qmail@nwcst314.netaddress.usa.net>; from blessonpaul@usa.net on Tue, Jul 03, 2001 at 02:49:24AM -0600
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If you build the drivers in, but forget to comment out the initrd line in
-> /etc/lilo.conf, the machine panics because it tries to load the module for
-> something that is already a builtin.
-> 
-The only way to solve it smothly need to modify the bootloader, When the 
-bootloader like lilo or grub ( it is more powerful ) can read the module from the root partition directly. Your problem will be sloved.
+On Tue, Jul 03, 2001 at 02:49:24AM -0600, Blesson Paul wrote:
+>                      I have some confusion regarding key in shmget(). Let I
+> have two shared memory variables. For the first one, I put key "99" and the
+> size is 1024. Next, I put key "199" for the second variable  and size 1024.
+> Will the two shared memory area overwrite each other. How can I gurranty. Is
+> the Linux kernel    or the developer who should care about this problem
 
-BTW: Is there any system or tools can patch kernel in binary level, It means
-     that user doesn't need download the whole kernel RPM or TGZ, It just need
-     an patch to patch the current kernel's binary. I think it is useful for
-     novice & end user.
+No, the segments will not overwrite each other, see man shmget and get
+"Advanced programming in the UNIX environment" by Richard Stevens.
 
-Regards
 
-dfbb
+Erik
 
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263292AbRFAPR4>; Fri, 1 Jun 2001 11:17:56 -0400
+	id <S263397AbRFAPSq>; Fri, 1 Jun 2001 11:18:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263557AbRFAPRq>; Fri, 1 Jun 2001 11:17:46 -0400
-Received: from pop.gmx.net ([194.221.183.20]:49894 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S263292AbRFAPRg>;
-	Fri, 1 Jun 2001 11:17:36 -0400
-Date: Fri, 1 Jun 2001 17:17:29 +0200
-From: Jonas Diemer <diemer@gmx.de>
+	id <S263557AbRFAPS0>; Fri, 1 Jun 2001 11:18:26 -0400
+Received: from grobbebol.xs4all.nl ([194.109.248.218]:37187 "EHLO
+	grobbebol.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S263397AbRFAPSR>; Fri, 1 Jun 2001 11:18:17 -0400
+Date: Fri, 1 Jun 2001 15:17:05 +0000
+From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
 To: linux-kernel@vger.kernel.org
-Subject: VIA timer bug
-Message-Id: <20010601171729.656e9a15.diemer@gmx.de>
-X-Mailer: Sylpheed version 0.4.66 (GTK+ 1.2.9; i686-pc-linux-gnu)
+Subject: ethernet still quits
+Message-ID: <20010601151705.A526@grobbebol.xs4all.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+X-OS: Linux grobbebol 2.4.5 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+2.4.5 :
 
-I hope this is the right place for my request. I have heard about a VIA sytem timer bug.
+when quote some xfers have taken place, the realtek card dies here.
 
-I have a Via KX-133 (for athlon) board and the following problem:
+Jun  1 14:58:12 grobbebol kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Jun  1 14:58:12 grobbebol kernel: eth0: Tx timed out, lost interrupt?  TSR=0x3, ISR=0x3, t=1303.
+Jun  1 14:58:14 grobbebol kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Jun  1 14:58:14 grobbebol kernel: eth0: Tx timed out, lost interrupt?  TSR=0x3, ISR=0x3, t=103.
+Jun  1 14:58:28 grobbebol kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Jun  1 14:58:28 grobbebol kernel: eth0: Tx timed out, lost interrupt?  TSR=0x3, ISR=0x3, t=103.
+Jun  1 14:58:30 grobbebol kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Jun  1 14:58:30 grobbebol kernel: eth0: Tx timed out, lost interrupt?  TSR=0x3, ISR=0x3, t=123.
+Jun  1 14:58:32 grobbebol kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Jun  1 14:58:32 grobbebol kernel: eth0: Tx timed out, lost interrupt?  TSR=0x3, ISR=0x3, t=103.
 
-Once the bug is triggered, the system timer goes crazy (i think it is the system timer, i am not sure). following things happen then: X blanks the screen all the time, licq auto-aways or auto-disconnects...
+etc. only rebooting helps.
 
-the bug is triggered by high disk throughput (copying large amounts of data from one hd to another) and it often occurs during open-gl.
+hardware BP6, non OC, happens with older kernels as well sometimes.
 
 
-I have heard, that there is a patch since 2.4.4-ac?, so i upgraded to 2.4.5, but the bug still occurs. do i have to set up something in make menuconfig? if so, what?
-
--regards, Jonas Diemer
-
-PS: I have NOT subscribed to the list, so please CC me your response.
-
-PPS: Sorry for posting twice, the first posting lacked a subject entry.
+-- 
+Grobbebol's Home                   |  Don't give in to spammers.   -o)
+http://www.xs4all.nl/~bengel       | Use your real e-mail address   /\
+Linux 2.2.16 SMP 2x466MHz / 256 MB |        on Usenet.             _\_v  

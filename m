@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265325AbSLPGSJ>; Mon, 16 Dec 2002 01:18:09 -0500
+	id <S265333AbSLPGTI>; Mon, 16 Dec 2002 01:19:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265333AbSLPGSJ>; Mon, 16 Dec 2002 01:18:09 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:59445
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S265325AbSLPGSI>; Mon, 16 Dec 2002 01:18:08 -0500
-Date: Mon, 16 Dec 2002 01:28:35 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Scott Robert Ladd <scott@coyotegulch.com>
-cc: Robert Love <rml@tech9.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: /proc/cpuinfo and hyperthreading
-In-Reply-To: <FKEAJLBKJCGBDJJIPJLJEEKADLAA.scott@coyotegulch.com>
-Message-ID: <Pine.LNX.4.50.0212160126110.12535-100000@montezuma.mastecende.com>
-References: <FKEAJLBKJCGBDJJIPJLJEEKADLAA.scott@coyotegulch.com>
+	id <S265368AbSLPGTI>; Mon, 16 Dec 2002 01:19:08 -0500
+Received: from [212.209.10.215] ([212.209.10.215]:44255 "EHLO miranda.axis.se")
+	by vger.kernel.org with ESMTP id <S265333AbSLPGTH>;
+	Mon, 16 Dec 2002 01:19:07 -0500
+Message-ID: <3C6BEE8B5E1BAC42905A93F13004E8AB017DE52E@mailse01.axis.se>
+From: Mikael Starvik <mikael.starvik@axis.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: Compiling iproute2(w/HTB patch) for 2.5.51
+Date: Mon, 16 Dec 2002 07:26:55 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Dec 2002, Scott Robert Ladd wrote:
+I have the exact same problem with sysklogd and I found 
+that linux/module.h has a lot of new includes in 2.5 
+that indirectly brings in a lot of .h files that 
+shouldn't be included from userspace. 
 
-> But later in the boot, it also states:
->
-> Dec 15 11:51:18 Tycho kernel: SMP motherboard not detected.
->
-> Something just doesn't look right about this.
+Because of this you get both the compilers definition 
+of FD_SET etc and the kernels version. I have not yet 
+had the time to find out how to solve this but the 
+solution is either to remove some includes or to add 
+more #ifdef __KERNEL__. 
 
-Thats just the MP table parsing code whining. Which is ok since you're
-using ACPI... hmm then again...
+Question 1: Should it at all be possible to compile 
+applications with 2.5.x headers? 
 
-if (!smp_found_config) {
-                printk(KERN_NOTICE "SMP motherboard not detected.\n");
-                smpboot_clear_io_apic_irqs();
-                phys_cpu_present_map = 1;
-                if (APIC_init_uniprocessor())
+Question 2: Is there any chance that we can remove 
+or #ifdef some includes in module.h (e.g. sched.h)? 
 
-
--- 
-function.linuxpower.ca
+/Mikael

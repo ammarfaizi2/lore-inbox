@@ -1,112 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262212AbVAECnE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262217AbVAECn6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262212AbVAECnE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 21:43:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262217AbVAECnE
+	id S262217AbVAECn6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 21:43:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262220AbVAECn6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 21:43:04 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12187 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262212AbVAECmr
+	Tue, 4 Jan 2005 21:43:58 -0500
+Received: from out004pub.verizon.net ([206.46.170.142]:33214 "EHLO
+	out004.verizon.net") by vger.kernel.org with ESMTP id S262217AbVAECnr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 21:42:47 -0500
-Message-ID: <41DB5417.8020608@pobox.com>
-Date: Tue, 04 Jan 2005 21:42:31 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
+	Tue, 4 Jan 2005 21:43:47 -0500
+Message-ID: <41DB5476.9040103@cwazy.co.uk>
+Date: Tue, 04 Jan 2005 21:44:06 -0500
+From: Jim Nelson <james4765@cwazy.co.uk>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Eric Mudama <edmudama@gmail.com>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       Albert Lee <albertcc@tw.ibm.com>, IDE Linux <linux-ide@vger.kernel.org>,
-       Doug Maxey <dwm@maxeymade.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: libata PATA support - work items?
-References: <006301c4ee5c$49e6a230$95714109@tw.ibm.com>	 <311601c9050101111929aef5ba@mail.gmail.com>  <41DB299C.3030405@pobox.com> <1104886199.17176.115.camel@localhost.localdomain>
-In-Reply-To: <1104886199.17176.115.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Brian Gerst <bgerst@didntduck.org>
+CC: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, paulus@samba.org
+Subject: Re: [PATCH 0/7] ppc: remove cli()/sti() from arch/ppc/*
+References: <20050104214048.21749.85722.89116@localhost.localdomain> <41DB4E99.3060200@didntduck.org>
+In-Reply-To: <41DB4E99.3060200@didntduck.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [209.158.220.243] at Tue, 4 Jan 2005 20:43:46 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> That means
-> - Hotplug (controller and disk)
+Brian Gerst wrote:
 
-mostly either there, or easy to add
+> James Nelson wrote:
+>
+>> This series of patches is to remove the last cli()/sti() function 
+>> calls in arch/ppc.
+>>
+>> These are the only instances in active code that grep could find.
+>
+>
+> Are you sure none of these need real spinlocks instead of just 
+> disabling interrupts?
+>
+> -- 
+>                 Brian Gerst
+>
+These are for single-processor systems, mostly evaluation boards and 
+embedded processors.  I coudn't find any reference to multiprocessor 
+setups for the processors in question after a peruse of the code or a 
+quick google on the boards in question.
 
-> - CHS
-
-nod
-
-
-> - "Not quite generic" IDE DMA (eg CS5520)
-> - VDMA (eg CS5520)
-
-existing hooks can handle these
-
-
-> - IORDY timers (not handled well in drivers/ide but needed)
-
-I think I know what this is.
-
-
-> - Funky Maxtor "LBA48.. maybe" oddments
-
-details?
-
-
-> - Missing slave detection
-
-Not missing, master/slave has been working for ages.  Needed for 
-combined mode, where a SATA device can appear as a slave.
-
-
-> - Controller errata hooks (modes, drives, timings, "dont touch during an
-> I/O" etc)
-
-Controller hooks for most situations already exist, for the most part. 
-Device hooks are what is lacking.
-
-
-> - Drive nIEN bugs
-
-ditto above ("device hooks are lacking")
-
-
-> - No nIEN cases
-
-already handled in at least one case (AHCI)
-
-
-> - Drives that don't do some DMA/modes right
-
-easily doable with existing hooks
-
-
-> - Crazy shit "Don't DMA from the page below 640K" (not handled by
-> drivers/ide but an AMD errata
-> 	fixed by using a PS/2 mouse)
-
-heh, interesting
-
-
-> - Serialize (RZ1000, CMD640, some 469, etc)
-
-non-trivial but doable (and planned-for)
-
-
-> - Bandwidth arbiter (not in drivers/ide but needed)
-
-interesting
-
-
-> - Non PCI shared IRQ mess 8(
-
-details?
-
-Thanks,
-
-	Jeff
-
+Jim

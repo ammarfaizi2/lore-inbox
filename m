@@ -1,56 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282164AbRKWPNR>; Fri, 23 Nov 2001 10:13:17 -0500
+	id <S282165AbRKWPQh>; Fri, 23 Nov 2001 10:16:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282161AbRKWPNH>; Fri, 23 Nov 2001 10:13:07 -0500
-Received: from hermes.domdv.de ([193.102.202.1]:25102 "EHLO zeus.domdv.de")
-	by vger.kernel.org with ESMTP id <S282165AbRKWPNC>;
-	Fri, 23 Nov 2001 10:13:02 -0500
-Message-ID: <XFMail.20011123161123.ast@domdv.de>
-X-Mailer: XFMail 1.5.1 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S282152AbRKWPQ1>; Fri, 23 Nov 2001 10:16:27 -0500
+Received: from mailsorter.in.tmpw.net ([63.121.29.25]:51490 "EHLO
+	mailsorter.in.tmpw.net") by vger.kernel.org with ESMTP
+	id <S282165AbRKWPQR>; Fri, 23 Nov 2001 10:16:17 -0500
+Message-ID: <3AB544CBBBE7BF428DA7DBEA1B85C79C01101912@nocmail.ma.tmpw.net>
+From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
+To: "'Norm Dressler'" <ndressler@dinmar.com>, linux-kernel@vger.kernel.org
+Subject: RE: Sparc64 Compiles OK, but won't boot new kernel
+Date: Fri, 23 Nov 2001 10:16:03 -0500
 MIME-Version: 1.0
-In-Reply-To: <Pine.LNX.4.33.0111231546190.18284-100000@localhost.localdomain>
-Date: Fri, 23 Nov 2001 16:11:23 +0100 (CET)
-Organization: D.O.M. Datenverarbeitung GmbH
-From: Andreas Steinmetz <ast@domdv.de>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: RE: [bug] broken loopback fs in 2.4.15-ish kernels?
-Cc: linux-kernel@vger.kernel.org
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I did experiment with romfs on 2.4.15pre7 which did not work (initrd loader
-detected romfs, I could loop mount it but the kernel didn't root mount it).
-Funny enough using ext2 did work as expected. Maybe there's a common reason.
+I've been manually gzipping the kernel for Sparc64, just gzip the built
+kernel, and copy to your boot partition.  Then follow the normal setup
+steps, and This works fine.  There is an initial size limit IIRC, of about
+over 2mb.  Trimming it down, and gzipping has been working great for me.  
 
-On 23-Nov-2001 Ingo Molnar wrote:
-> 
-> just noticed that rpm -i kernel-2.4.9-13.i386.rpm does not work anymore
-> because a corrupted initrd gets created by mkinitrd. It smelled like
-> pagecache corruption so i did not experiment much. This was with
-> 2.4.15-pre9. Once i booted back into a 2.4.13-based kernel and re-did the
-> rpm -i, the initrd was created correctly.
-> 
-> things are pretty recent:
-> 
->  [root@mars root]# rpm -q mkinitrd
->  mkinitrd-3.2.6-1
->  [root@mars root]# rpm -q rpm
->  rpm-4.0.3-1.03
-> 
-> anyone seeing anything similar?
-> 
->       Ingo
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Hope this helps,
+Bruce H.
 
-Andreas Steinmetz
-D.O.M. Datenverarbeitung GmbH
+-----Original Message-----
+From: Norm Dressler [mailto:ndressler@dinmar.com]
+Sent: Friday, November 23, 2001 10:09 AM
+To: linux-kernel@vger.kernel.org
+Subject: Sparc64 Compiles OK, but won't boot new kernel
+
+
+Hi,
+
+I have been able to successfully compile the 2.4.14 and 2.4.15 kernels
+for Sparc64 but each gives me an error on boot-up:
+
+Image to large for Destination  (twice)
+
+It then kicks me back to the silo prompt.  My kernel is trimmed back
+quite a bit and there isn't a lot there.  
+
+It's not a compressed kernel -- should it be?  How do I do that since
+the bzImage make is missing from the Sparc64 makefiles?
+
+I am using Redhat 6.2 on an Enterprise 4000, 4 Ultrasparc-II CPU's and
+2Gb of Ram.
+
+Any suggestions??
+
+Norm
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

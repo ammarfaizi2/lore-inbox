@@ -1,62 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263662AbUCPJZJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 04:25:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263702AbUCPJZJ
+	id S263744AbUCPJa7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 04:30:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263746AbUCPJa7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 04:25:09 -0500
-Received: from gate.crashing.org ([63.228.1.57]:28894 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S263662AbUCPJZB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 04:25:01 -0500
-Subject: [PATCH] g5: Fix iommu vs. pci_device_to_OF_node
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Dan Burcaw <dburcaw@terrasoftsolutions.com>
+	Tue, 16 Mar 2004 04:30:59 -0500
+Received: from fmr06.intel.com ([134.134.136.7]:44753 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S263744AbUCPJav (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 04:30:51 -0500
+Subject: Re: [2.6.4] USB malfunction on ACPI resume
+From: Len Brown <len.brown@intel.com>
+To: Niel Lambrechts <antispam@absamail.co.za>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615F5223@hdsmsx402.hd.intel.com>
+References: <A6974D8E5F98D511BB910002A50A6647615F5223@hdsmsx402.hd.intel.com>
 Content-Type: text/plain
-Message-Id: <1079419564.1966.235.camel@gaston>
+Organization: 
+Message-Id: <1079421944.2400.76.camel@dhcppc4>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 16 Mar 2004 17:46:04 +1100
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 16 Mar 2004 02:25:44 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+how about if you remove the ehci_hcd module before suspending?
 
-The g5 iommu code would fill the "iommu_table" member of whatever
-device node was pointed to by pcidev->sysdata during boot. However,
-the ppc64 kernel fills that with a pointer to the PHB node which is
-later replaced "lazily" with a pointer to the real node when calling
-pci_device_to_OF_node(). In this case, we were thus "losign" the
-iommu_table pointer. Typical symptom: loss of the SATA when looking
-at it's /proc entry.
+-Len
 
-This fixes it by forcing the update to the final sysdata pointer
-when filling up the iommu_table pointers. The "lazy" thing is useless
-on pmac anyway.
-
-Please apply,
-Ben.
-
-===== arch/ppc64/kernel/pmac_iommu.c 1.1 vs edited =====
---- 1.1/arch/ppc64/kernel/pmac_iommu.c	Sat Feb 28 09:44:57 2004
-+++ edited/arch/ppc64/kernel/pmac_iommu.c	Tue Mar 16 17:45:10 2004
-@@ -289,8 +289,11 @@
- 	 * things simple. Setup all PCI devices to point to this table
- 	 */
- 	while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
--		dn = PCI_GET_DN(dev);
--
-+		/* We must use pci_device_to_OF_node() to make sure that
-+		 * we get the real "final" pointer to the device in the
-+		 * pci_dev sysdata and not the temporary PHB one
-+		 */
-+		struct device_node *dn = pci_device_to_OF_node(dev);
- 		if (dn)
- 			dn->iommu_table = &iommu_table_pmac;
- 	}
+On Sun, 2004-03-14 at 16:46, Niel Lambrechts wrote:
+> My Thinkpad R50P (Intel 82855PM with Speedstep 1.7GHz) shows the
+> following badness when resuming after an ACPI suspend - even if
+> hotplug
+> and usb modules were never started beforehand: 
+> 
+> Mar 12 01:22:42 localhost kernel: 0 at 41
+> Mar 12 01:22:42 localhost kernel: ehci_hcd 0000:00:1d.7: capability
+> d49a4140 at
+> 41                                                                   
+> Mar 12 01:22:42 localhost last message repeated 1266
+> times                 Mar 12 01:22:42 localhost kernel: 0 at
+> 41                                  Mar 12 01:22:42 localhost kernel:
+> ehci_hcd 0000:00:1d.7: capability d49a4140 at
+> 41                                                                    
+> times                  Mar 12 01:22:43 localhost kernel: Kernel
+> logging
+> (proc) stopped by user.
+> 
+> This is repeated many many times -> CPU usage jumps to 100% (due to
+> ehci_hcd module) and klogd becomes very busy with the above nonsense.
+> 
+> I cannot remove ehci_hcd, any attempt to rmmod will just hang, only
+> resolve is to reboot.
+> 
+> Niel
+> 
+> 
+> Controller:
+> -----------
+> 00:1d.0 USB Controller: Intel Corp. 82801DB USB (Hub #1) (rev 01)
+> 00:1d.1 USB Controller: Intel Corp. 82801DB USB (Hub #2) (rev 01)
+> 00:1d.2 USB Controller: Intel Corp. 82801DB USB (Hub #3) (rev 01)
+> 00:1d.7 USB Controller: Intel Corp. 82801DB USB2 (rev 01)
+> 
 
 

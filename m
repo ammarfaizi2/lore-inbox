@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266365AbUBLQH3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 11:07:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266498AbUBLQH3
+	id S266499AbUBLQPG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 11:15:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266502AbUBLQPG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 11:07:29 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:9088 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S266365AbUBLQH2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 11:07:28 -0500
-Date: Thu, 12 Feb 2004 16:17:17 GMT
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200402121617.i1CGHH2c000275@81-2-122-30.bradfords.org.uk>
-To: Robin Rosenberg <robin.rosenberg.lists@dewire.com>,
-       Jamie Lokier <jamie@shareable.org>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200402121655.39709.robin.rosenberg.lists@dewire.com>
-References: <20040209115852.GB877@schottelius.org>
- <20040212004532.GB29952@hexapodia.org>
- <20040212085451.GC20898@mail.shareable.org>
- <200402121655.39709.robin.rosenberg.lists@dewire.com>
-Subject: Re: JFS default behavior (was: UTF-8 in file systems? xfs/extfs/etc.)
+	Thu, 12 Feb 2004 11:15:06 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:25995 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S266499AbUBLQPC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 11:15:02 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Thu, 12 Feb 2004 08:15:01 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Christoph Hellwig <hch@infradead.org>
+cc: RANDAZZO@ddc-web.com, <linux-kernel@vger.kernel.org>
+Subject: Re: Semaphore with timeout....
+In-Reply-To: <20040212135328.A2434@infradead.org>
+Message-ID: <Pine.LNX.4.44.0402120806260.1760-100000@bigblue.dev.mdolabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Definitely a good reason.  It seem many assume file names are a local thing,
-> but this is not so. Now consider the case with an external firewire
-> disk or memory stick created on a machine with iso-8859-1 as the system character
-> set and e.g xfs as the file system. What happens when I hook it up to a new redhat
-> installation that thinks file names are best stored as utf8? Most non-ascii
-> file names aren't even legal in utf8.
+On Thu, 12 Feb 2004, Christoph Hellwig wrote:
 
-Another thing to consider is that you can encode the same character in
-several ways using utf8, so two filenames could have different byte
-strings, but evaluate to the same set of unicode characters.
+> On Thu, Feb 12, 2004 at 08:22:04AM -0500, RANDAZZO@ddc-web.com wrote:
+> > 
+> > In reference to loadable kernel modules... (drivers)
+> > 
+> > Is there a semaphore call that will either release with token or a specified
+> > amt of time....
+> 
+> There's no down_timeout.  Unfortunately - at least the qlogic fibrechannel
+> driver would love to have a primitive for that.
+> 
+> Look at drivers/scsi/qla2xxx/qla_os.c:qla2x00_down_timeout() for a horrible
+> hack to emulate one.
 
-John.
+Why wouldn't, a timer with a timer function that does signal_wake_up() 
+plus a down_interruptible(), work for this?
+
+
+
+- Davide
+
+
+

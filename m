@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266163AbUBCW6P (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 17:58:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266171AbUBCW6P
+	id S266157AbUBCW5f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 17:57:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266163AbUBCW5f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 17:58:15 -0500
-Received: from fw.osdl.org ([65.172.181.6]:60109 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266163AbUBCW6K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 17:58:10 -0500
-Date: Tue, 3 Feb 2004 14:59:29 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: kernel@kolivas.org, linux-kernel@vger.kernel.org, josh@stack.nl
-Subject: Re: [PATCH] 2.6.1 Hyperthread smart "nice" 2
-Message-Id: <20040203145929.01a96d9b.akpm@osdl.org>
-In-Reply-To: <20040203105758.GA7783@elte.hu>
-References: <200401291917.42087.kernel@kolivas.org>
-	<200402022027.10151.kernel@kolivas.org>
-	<20040202103122.GA29402@elte.hu>
-	<200402032152.46481.kernel@kolivas.org>
-	<20040203105758.GA7783@elte.hu>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 3 Feb 2004 17:57:35 -0500
+Received: from smtp803.mail.sc5.yahoo.com ([66.163.168.182]:52878 "HELO
+	smtp803.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266157AbUBCW5d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 17:57:33 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Juergen Stuber <stuber@loria.fr>, linux-kernel@vger.kernel.org
+Subject: Re: [PROBLEM] 2.6.2-rc1-bk1 Synaptics touchpad on IBM T30 not detected
+Date: Tue, 3 Feb 2004 17:57:26 -0500
+User-Agent: KMail/1.5.4
+References: <86u127khxf.fsf@loria.fr>
+In-Reply-To: <86u127khxf.fsf@loria.fr>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200402031757.27269.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> wrote:
+On Tuesday 03 February 2004 03:49 pm, Juergen Stuber wrote:
+> eb  3 20:34:12 freitag kernel: i8042.c: Detected active multiplexing
+> controller, rev 10.12. Feb  3 20:34:12 freitag kernel: serio: i8042
+> AUX0 port at 0x60,0x64 irq 12 Feb  3 20:34:12 freitag kernel: serio:
+> i8042 AUX1 port at 0x60,0x64 irq 12 Feb  3 20:34:12 freitag kernel:
+> serio: i8042 AUX2 port at 0x60,0x64 irq 12 Feb  3 20:34:12 freitag
+> kernel: serio: i8042 AUX3 port at 0x60,0x64 irq 12 Feb  3 20:34:12
+> freitag kernel: serio: i8042 KBD port at 0x60,0x64 irq 1 Feb  3
+> 20:34:12 freitag kernel: input: AT Translated Set 2 keyboard on
+> isa0060/serio0
 >
-> * Con Kolivas <kernel@kolivas.org> wrote:
-> 
-> > At least it appears Intel are well aware of the priority problem, but
-> > full priority support across logical cores is not likely. However I
-> > guess these new instructions are probably enough to work with if
-> > someone can do the coding.
-> 
-> these instructions can be used in the idle=poll code instead of rep-nop. 
-> This way idle-wakeup can be done via the memory bus in essence, and the
-> idle threads wont waste CPU time. (right now idle=poll wastes lots of
-> cycles on HT boxes and is thus unusable.)
+> and later, supposedly when psmouse is loaded, 4 times
+>
+> Feb  3 20:34:12 freitag kernel: atkbd.c: Unknown key released
+> (translated set 2, code 0x7a on isa0060/serio0). Feb  3 20:34:12
+> freitag kernel: atkbd.c: This is an XFree86 bug. It shouldn't access
+> hardware directly.
 
-The code to do this was merged quite a while ago.  See
-arch/i386/kernel/process.c:mwait_idle().
+As a workaround try booting with i8042.nomux kernel option. Also, could you
+please #define DEBUG in drivers/input/serio/i8042.c and post your dmesg?
 
-I was hoping to see a spinlock patch using mwait(), but nothing yet..
+Thank you.
+
+-- 
+Dmitry

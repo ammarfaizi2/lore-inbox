@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265329AbUATJon (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 04:44:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265332AbUATJon
+	id S265314AbUATJq5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 04:46:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265316AbUATJq5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 04:44:43 -0500
-Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:59070 "EHLO
-	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S265329AbUATJoi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 04:44:38 -0500
-Message-Id: <5.1.0.14.2.20040120204119.032e6ba8@171.71.163.14>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 20 Jan 2004 20:44:29 +1100
-To: Andreas Hartmann <andihartmann@freenet.de>
-From: Lincoln Dale <ltd@cisco.com>
-Subject: Re: TG3: very high CPU usage
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <buirni$2t4$1@A88a8.a.pppool.de>
-References: <fa.e29fqcc.sick10@ifi.uio.no>
- <fa.g9joqss.1nneajs@ifi.uio.no>
- <fa.e29fqcc.sick10@ifi.uio.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Tue, 20 Jan 2004 04:46:57 -0500
+Received: from www.tammen.de ([62.225.14.106]:20997 "EHLO mail.tammen.de")
+	by vger.kernel.org with ESMTP id S265314AbUATJqc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 04:46:32 -0500
+From: Heinz Ulrich Stille <hus@design-d.de>
+Organization: design_d gmbh
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ALSA vs. OSS
+Date: Tue, 20 Jan 2004 10:46:13 +0100
+User-Agent: KMail/1.5.94
+References: <1074532714.16759.4.camel@midux> <microsoft-free.87vfn7bzi1.fsf@eicq.dnsalias.org> <1074536486.5955.412.camel@castle.bigfiber.net>
+In-Reply-To: <1074536486.5955.412.camel@castle.bigfiber.net>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Message-Id: <200401201046.24172.hus@design-d.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[you may want to use linux-net@vger.kernel.org instead of linux-kernel; its 
-possible that the tg3 folk lost your email in the flood]
+On Monday 19 January 2004 19:21, Travis Morgan wrote:
+> I have a soundblaster Live Value card. I can no longer control the
 
-At 08:17 PM 20/01/2004, Andreas Hartmann wrote:
->Hi,
->
->I searched for tg3 in lkml and found one more posting, dealing with these 
->problems (subject):
->
->bcm5705 with tg3 driver and high rx load -> bad system responsiveness
->
->There really seems to be a problem. Ronald Wahl pointed out, that the 
->driver from
->http://www.broadcom.com/drivers/downloaddrivers.php does not have the 
->problem. Maybe, we could both look for drivers from the hardware producer 
->and test them? I will do it when I'm back at work in two weeks.
+I also have a SB Live!, and it doesn't work with ALSA at all - the AC97
+codec doesn't load. I haven't taken the time to track it down as it does
+work just fine with OSS (under SMP at that).
 
-how exactly are you "triggering" the high CPU load?  i.e. what is the 
-server doing?  file-sharing?  NFS?  CIFS?  something else?
+> output level through my digital out. With OSS my PCM volume used to
+> affect both the headphone jack and the digital out. With ALSA it affects
+> only the headphone jack.
 
-i have LOTS of IBM xSeries servers (IBM x335, x345, x440), all of which 
-have Broadcom BCM 5700 (tg3) NICs.
-i drive them all at wire-rate gig-e with iSCSI.
+That's a purely firmware thing with this card; you should just have to
+load the right patches. I don't know whether there is a loader utility
+for alsa, though. Perhaps the old utils will work?
 
-i'm yet to see any 'excessive' CPU load associated with tg3 relative to 
-tigon2 (AceNIC2) and Intel e1000 NICs.
+Anyway, even if it's not working for me at the moment, it's still the
+superior architecture; just wait until the bugs affecting your specific
+situation are ironed out and userland utilities are available...
 
+MfG, Ulrich
 
-cheers,
-
-lincoln.
-
+-- 
+Heinz Ulrich Stille / Tel.: +49-541-9400463 / Fax: +49-541-9400450
+design_d gmbh / Lortzingstr. 2 / 49074 Osnabrück / www.design-d.de

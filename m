@@ -1,34 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129272AbRBPJ2j>; Fri, 16 Feb 2001 04:28:39 -0500
+	id <S129379AbRBPJc7>; Fri, 16 Feb 2001 04:32:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129379AbRBPJ2T>; Fri, 16 Feb 2001 04:28:19 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:24590 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S129272AbRBPJ2R>; Fri, 16 Feb 2001 04:28:17 -0500
-Message-ID: <3A8CF261.59FAC3E5@idb.hist.no>
-Date: Fri, 16 Feb 2001 10:26:57 +0100
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: no, da, en
+	id <S129769AbRBPJct>; Fri, 16 Feb 2001 04:32:49 -0500
+Received: from orange.csi.cam.ac.uk ([131.111.8.77]:16043 "EHLO
+	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S129379AbRBPJcl>; Fri, 16 Feb 2001 04:32:41 -0500
+Date: Fri, 16 Feb 2001 09:32:34 +0000 (GMT)
+From: James Sutherland <jas88@cam.ac.uk>
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 8139 full duplex?
+In-Reply-To: <200102160858.JAA02472@cave.bitwizard.nl>
+Message-ID: <Pine.SOL.4.21.0102160930050.26108-100000@orange.csi.cam.ac.uk>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux stifles innovation...
-In-Reply-To: <FF2E85D46133D3119868006008AC264808D0FBDA@MAIL1>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-They are wrong about linux stifling innovation, there
-is plenty of innovation in linux itself.
+On Fri, 16 Feb 2001, Rogier Wolff wrote:
 
-On the other hand:
-''I can't imagine something that could be worse than this 
-for the software business and the intellectual-property business.''
+> 
+> Hi All,
+> 
+> I have a bunch of computers with 8139 cards. When I moved the cables
+> over from my hub to my new switch all the "full duplex" lights came on
+> immediately.
 
-Sure.  Linux *is* bad for the IP business.  Open source outcompetes it!
-I see no problem with that though.  And those who want to get
-paid for computing work?  No problem.  There is always support.
+That's what you would expect: they will auto-negotiate full duplex, in the
+same way they would negotiate 10 or 100 Mbit/sec.
 
-Helge Hafting
+> Would this mean that the driver/card already were in full-duplex?
+
+No, that's not possible. They just automatically configured for the
+best performance available - in this case, full duplex.
+
+> That would explain me seeing way too many collisions on that old hub
+> (which obviously doesn't support full-duplex).
+
+No, it would just prevent your card working. Large numbers of collisions
+are normal during fast transfers across a hub.
+
+
+James.
+

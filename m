@@ -1,46 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265405AbTIEUMv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 16:12:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265411AbTIEUMv
+	id S265951AbTIEU11 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 16:27:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265905AbTIEU10
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 16:12:51 -0400
-Received: from ida.rowland.org ([192.131.102.52]:24836 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S265405AbTIEUMs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 16:12:48 -0400
-Date: Fri, 5 Sep 2003 16:12:47 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Andreas Dilger <adilger@clusterfs.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: How can I force a read to hit the disk?
-In-Reply-To: <20030905121522.B30448@schatzie.adilger.int>
-Message-ID: <Pine.LNX.4.44L0.0309051610190.678-100000@ida.rowland.org>
+	Fri, 5 Sep 2003 16:27:26 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:18863
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S265951AbTIEUY5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 16:24:57 -0400
+Message-ID: <3F58F0F7.4090105@redhat.com>
+Date: Fri, 05 Sep 2003 13:24:23 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030904 Thunderbird/0.2a
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: today's futex changes
+X-Enigmail-Version: 0.81.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Sep 2003, Andreas Dilger wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> On Sep 05, 2003  13:46 -0400, Alan Stern wrote:
-> > My kernel module for Linux-2.6 needs to be able to verify that the media 
-> > on which a file resides actually is readable.  How can I do that?
-> > 
-> > It would certainly suffice to use the normal VFS read routines, if there
-> > was some way to force the system to actually read from the device rather
-> > than just returning data already in the cache.  So I guess it would be 
-> > enough to perform an fdatasync for the file and then invalidate the file's 
-> > cache entries.  How does one invalidate a file's cache entries?  Does 
-> > filemap_flush() perform both these operations for you?
-> 
-> If you open the file with O_DIRECT, it should read/write directly on the
-> disk, and it will also invalidate any existing cache for the read/written
-> area.
+... broke NPTL.  Tests which worked with previous kernels fail now.  One
+test eventually succeeded, but the process somehow got stuck for about
+30-40 seconds.  Then it finished.  Running strace showed a call to
+clone() as the last operation but there were other threads running at
+that time.
 
-If I set the O_DIRECT bit in filp->flags just for the duration of a call
-to vfs_read(), will that accomplish what I want?
+I tried to login (via ssh) into the system when the process hang and
+this, too, was delayed and succeeded immediately when the strace'd
+process continued.
 
-Alan Stern
+I haven't looked at the changes made and wouldn't expect to understand
+all the details either.  And I can understand if you don't want to run
+the glibc test suite.  What I can offer are statically linked versions
+of the tests.  One is here:
+
+  http://people.redhat.com/drepper/tst-cond2.bz2
+
+358572ec100de9b27833d6c4ee5ecdb5  tst-cond2
+
+
+Let me know if you need more help.
+
+- -- 
+- --------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE/WPD32ijCOnn/RHQRApLUAJ9SiIelIOnUA/pOmol04AaM+hMvaQCgoA86
+VNLbS7nFXoVggjDtWAJxZ5g=
+=tNkI
+-----END PGP SIGNATURE-----
 

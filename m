@@ -1,56 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317189AbSGXNVb>; Wed, 24 Jul 2002 09:21:31 -0400
+	id <S317148AbSGXNTV>; Wed, 24 Jul 2002 09:19:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317182AbSGXNVb>; Wed, 24 Jul 2002 09:21:31 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:1496 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id <S317189AbSGXNUz>; Wed, 24 Jul 2002 09:20:55 -0400
-Date: Wed, 24 Jul 2002 15:23:36 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: <martin@dalecki.de>
-cc: Ingo Molnar <mingo@elte.hu>, <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [patch] irqlock patch 2.5.27-H4
-In-Reply-To: <3D3EA801.5090608@evision.ag>
-Message-ID: <Pine.SOL.4.30.0207241522270.15605-100000@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317152AbSGXNTU>; Wed, 24 Jul 2002 09:19:20 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:64249 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S317148AbSGXNTT>; Wed, 24 Jul 2002 09:19:19 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <Pine.LNX.4.44.0207192019230.1639-100000@chaos.physics.uiowa.edu> 
+References: <Pine.LNX.4.44.0207192019230.1639-100000@chaos.physics.uiowa.edu> 
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: John Levon <movement@marcelothewonderpenguin.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: kbuild - building a module/target from multiple directories 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 24 Jul 2002 14:21:59 +0100
+Message-ID: <25869.1027516919@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Wed, 24 Jul 2002, Marcin Dalecki wrote:
+kai@tp1.ruhr-uni-bochum.de said:
+>  Basically, use only one Makefile and
+> 	blah-objs := blah_init.o blahstuff/blah1.o blahstuff/blah2.o ... 
 
-> Bartlomiej Zolnierkiewicz wrote:
-> > On Wed, 24 Jul 2002, Ingo Molnar wrote:
-> >
-> >
-> >>the latest irqlock patch can be found at:
-> >>
-> >>   http://redhat.com/~mingo/remove-irqlock-patches/remove-irqlock-2.5.27-H4
-> >>
-> >>Changes in -H4:
-> >>
-> >> - fix the cli()/sti() hack in ide/main.c, per Marcin Dalecki's
-> >>   suggestion. [this leaves the tty layer as the only remaining subsystem
-> >>   that still has cli()/sti() related hacks.]
-> >
-> >
-> > Hi Ingo,
-> >
-> > Marcin's suggestions will bring you nowhere.
-> >
-> > You should remove all these locking from ide_unregister_subdriver()
-> > because in 100% cases it is already called with ide_lock held.
->
-> Indeed they can be just removed.
+Er, don't the dependencies get screwed then, because it fails to create 
+.blahstuff/blah1.o.flags, etc.?
 
-[bugging mode still on ;-)))]
 
-No, they _have to_ be removed, you introduced bug with your fix.
-
-Regards
 --
-Bartlomeij
+dwmw2
+
 

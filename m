@@ -1,96 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265820AbUBJLQh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 06:16:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265821AbUBJLQh
+	id S265823AbUBJLWa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 06:22:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265826AbUBJLWa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 06:16:37 -0500
-Received: from dsl-082-083-128-026.arcor-ip.net ([82.83.128.26]:50057 "EHLO
-	server1.intern.kubla.de") by vger.kernel.org with ESMTP
-	id S265820AbUBJLQf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 06:16:35 -0500
-Date: Tue, 10 Feb 2004 12:16:33 +0100
-From: Dominik Kubla <dominik@kubla.de>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Dominik Kubla <dominik@kubla.de>, Nick Craig-Wood <ncw1@axis.demon.co.uk>,
-       Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org
-Subject: Re: Does anyone still care about BSD ptys?
-Message-ID: <20040210111632.GA1229@intern.kubla.de>
-References: <c07c67$vrs$1@terminus.zytor.com> <20040209092915.GA11305@axis.demon.co.uk> <20040209124739.GC1738@mail.shareable.org> <20040209134005.GA15739@axis.demon.co.uk> <Pine.LNX.4.53.0402090853020.8894@chaos> <20040209175119.GC1795@intern.kubla.de> <Pine.LNX.4.53.0402091327020.9986@chaos>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0402091327020.9986@chaos>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Tue, 10 Feb 2004 06:22:30 -0500
+Received: from math.ut.ee ([193.40.5.125]:49341 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S265823AbUBJLW2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 06:22:28 -0500
+Date: Tue, 10 Feb 2004 13:22:25 +0200 (EET)
+From: Meelis Roos <mroos@linux.ee>
+To: Takashi Iwai <tiwai@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.3-rc1: snd_intel8x0 still too fast
+In-Reply-To: <s5hhdy02is7.wl@alsa2.suse.de>
+Message-ID: <Pine.GSO.4.44.0402101256450.4333-100000@math.ut.ee>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 09, 2004 at 01:27:24PM -0500, Richard B. Johnson wrote:
-> On Mon, 9 Feb 2004, Dominik Kubla wrote:
-> 
-> > On Mon, Feb 09, 2004 at 09:00:24AM -0500, Richard B. Johnson wrote:
-> > > > On Mon, Feb 09, 2004 at 07:17:27AM +0000, H. Peter Anvin wrote:
-> > > > > Does anyone still care about old-style BSD ptys, i.e. /dev/pty*?
-> > >
-> > > Only people who want to log-in from the network..... Of course
-> > > you could force a re-write of all the stuff like telnet, adding
-> > > another layer of bugs that'll take another N years to find and
-> > > remove.
+> > Today mplayer was OK when I tested, didn't retry KDE login. But the
+> > kernel is the same, I have not rebooted inbetween.
+>
+> weird...  cpufreq is running?
+
+No, it's a desktop Celeron 900.
+
+> > Did try twice:
 > >
-> > What are you talking about?  On my system (Debian Sid) there are no BSD
-> > pty's (i removed the device nodes) and everything works without even a
-> > recompile.
+> > intel8x0_measure_ac97_clock: measured 50040 usecs
+> > intel8x0: clocking to 41146
 > >
-> > Regards,
-> >   Dominik
-> 
-> 
-> Really? Then you don't have anybody trying to log-in
-> from the network using telnet, then do you?
+> > intel8x0_measure_ac97_clock: measured 49395 usecs
+> > intel8x0: clocking to 41145
+>
+> and now you got the correct output?
+> if so, you can pass the value via ac97_clock option.
 
-Really? How do you diagnose my system without even logging in?
+I did retest things more toroughly today after I booted up 2.6.3-rc2. I
+focused on testing KDE login since this is known to break. Startup
+scripts (discover) loaded also i810_audio, I unloaded it.
 
-[kubla@duron] telnet server1
-Trying 192.168.xxx.xxx...
-Connected to server1.intern.kubla.de.
-Escape character is '^]'.
-[SSL - attempting to switch on SSL]
-[SSL - handshake starting]
-[SSL - OK]
-Password: 
-Last login: Tue Feb 10 12:03:36 2004 from duron.intern.kubla.de on pts/0
-Linux server1 2.6.0-1-k7 #2 Sun Jan 11 17:06:46 EST 2004 i686 GNU/Linux
+Plain bootup gave
+PCI: Setting latency timer of device 0000:00:1f.5 to 64
+intel8x0_measure_ac97_clock: measured 49671 usecs
+intel8x0: clocking to 41136
 
-The programs included with the Debian GNU/Linux system are free software;
-the exact distribution terms for each program are described in the
-individual files in /usr/share/doc/*/copyright.
+and it did not work. Unloading and reloading snd-intel8x0 gave
+PCI: Setting latency timer of device 0000:00:1f.5 to 64
+intel8x0_measure_ac97_clock: measured 49281 usecs
+intel8x0: clocking to 41139
 
-Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
-permitted by applicable law.
-You have mail.
-[kubla@server1] tty
-/dev/pts/0
-[kubla@server1] ls -l /dev/pts/0
-crw-------    1 kubla    tty      136,   0 Feb 10 12:08 /dev/pts/0
+and it still did not work (way too fast, probably even more than twice).
+Now I tried
+modprobe snd-intel8x0 ac97_clock=41140
+It loads silently but still does not work.
 
+Now I started to suspect that loading i810_audio might screw things up.
+Removed the module and rebooted, no i810_audio loaded, still the same.
 
-> The BSD virtual terminals go in pairs, /dev/ptyp* /dev/ttyp*
-...
-> Here, rjohnson is logged in using telnet. The code is so common
-> that there is even some C runtime library support in later
-> C libraries, it's called forkpty(). `man forkpty`. It does a lot
-> of the dirty-work of using BSD virtual terminals.
+Reproduced the problem with mplayer too. It depends on the input file
+bitrate!
 
-Try removing you BSD pty's and most likely you will see that telnetd
-happily uses System V pty's. If not then you should really update your
-telnetd.  Both netkit-telnetd and telnetd-ssl, which is derived from it,
-can use System V-ptys since at least 5 years, probably even longer.
-If both BSD and System V pty's are present on the system, the code will use
-BSD. (That's why i removed the BSD pty's in the first place!)
+mplayer /usr/share/sounds/KDE_Startup.wav
+gives the same very fast sound since it's a 22 KHz mono sample.
 
-Regards,
-  Dominik
+mplayer -srate 48000 /usr/share/sounds/KDE_Startup.wav
+works fine. Same applies to all files.
+
+So maybe it's a userspace resampling issue? I see that the hardware
+talks 44 KHz.
+
 -- 
-"Conversion, fastidious Goddess, loves blood better than brick, and feasts
-most subtly on the human will."
--- Virginia Woolf, "Mrs. Dalloway"
+Meelis Roos (mroos@linux.ee)
+
+

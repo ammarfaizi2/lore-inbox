@@ -1,66 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269991AbUJHObL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269988AbUJHOct@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269991AbUJHObL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 10:31:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269993AbUJHObK
+	id S269988AbUJHOct (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 10:32:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269992AbUJHOct
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 10:31:10 -0400
-Received: from h151_115.u.wavenet.pl ([217.79.151.115]:7110 "EHLO
-	alpha.polcom.net") by vger.kernel.org with ESMTP id S269991AbUJHOai
+	Fri, 8 Oct 2004 10:32:49 -0400
+Received: from upop2.tiscalinet.es ([212.166.64.98]:185 "EHLO
+	netmail.tiscali.es") by vger.kernel.org with ESMTP id S269988AbUJHOcm convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 10:30:38 -0400
-Date: Fri, 8 Oct 2004 16:30:31 +0200 (CEST)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Make gcc -align options .config-settable
-In-Reply-To: <200410081710.58766.vda@port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Pine.LNX.4.60.0410081618530.10253@alpha.polcom.net>
-References: <2KBq9-2S1-15@gated-at.bofh.it> <m3pt3t9zaj.fsf@averell.firstfloor.org>
- <200410081710.58766.vda@port.imtp.ilyichevsk.odessa.ua>
+	Fri, 8 Oct 2004 10:32:42 -0400
+Date: Fri, 8 Oct 2004 07:28:03 -0700
+Message-ID: <41073AF30000D0C8@pop2.es.tisadm.net>
+From: "Mr.Gordon" <wgordonttt4@tiscali.es>
+Subject: FROM MR. GORDON.
+Reply-To: info_gordons@yahoo.co.uk
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Oct 2004, Denis Vlasenko wrote:
+Dear Sir/Madam,
 
-> On Friday 08 October 2004 12:20, Andi Kleen wrote:
->> Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> writes:
->>> Resend.
->>>
->>> With all alignment options set to 1 (minimum alignment),
->>> I've got 5% smaller vmlinux compared to one built with
->>> default code alignment.
->>>
->>> Rediffed against 2.6.9-rc3.
->>> Please apply.
->>
->> I agree with the basic idea (the big alignments also always annoy
->> me when I look at disassembly), but I think your CONFIG options
->> are far too complicated. I don't think anybody will go as far as
->> to tune loops vs function calls.
->>
->> I would just do a single CONFIG_NO_ALIGNMENTS that sets everything to
->> 1, that should be enough.
->
-> For me, yes, but there are people which are slightly less obsessed
-> with code size than me.
->
-> They might want to say "try to align to 16 bytes if
-> it costs less than 5 bytes" etc.
->
-> Also bencmarking people may do little research on real usefulness of
-> various kinds of alignment.
+Do accept my sincere apologies if my mail does not meet your personal ethics.
+I will introduce myself as Gordon a staff in the accounts management section
+of a well-known bank here in the United Kingdom.
 
-I think that removing aligns completly will be very bad. I am Gentoo user 
-and I set my user space CFLAGS for all system to -falign-loops 
--fno-align-<everything else>. I did not tested it in depth, but my simple 
-tests show that unaligning loops is a very bad idea. Unaligning functions 
-is safer since small and fast functions should be always inlined.
+One of our accounts with holding balance of £15,000,000(Fifteen Million
+British Pounds) has been dormant and has not been operated for the past
+4 years. 
+
+>From my investigations and confirmations, the owner of this account a foreigner
+by name Austin Martins died in August 2000 and since then nobody has done
+anything as regards the claiming of this money because he has no family
+members who are aware of the existence of neither the account nor the funds.
+Also Information from the National Immigration states that he was also single
+on entry into the UK.
+
+I have secretly discussed this matter with some of the bank officials and
+we have agreed to find a reliable foreign partner to deal with. We thus
+propose to do business with you, standing in as the next of kin of these
+funds from the deceased and funds released to you after due processes have
+been followed.
+
+This transaction is totally free of risk and troubles as the fund is a legitimate
+and does not originate from drug, money laundry, terrorism or any other
+illegal act.
+
+On your interest, let me hear from you.
+
+Regards,
+
+Gordon.
 
 
-Thanks,
+DISCLAIMER:
+This message contains confidential information and is intended only for
+Specified addressee. If you are not the named addressee you should not Disseminate,
+distribute or copy this e-mail. The sender therefore does not accept Liability
+for any errors or omissions in the contents of this message, which Arise
+as a result of e-mail transmission. Please note that we reserve the Right
+to monitor and read any emails sent and received under the Telecommunications
+(Lawful Business Practice) (Interception of Communications) Regulations
+2000.
 
-Grzegorz Kulewski
+
+
+
+Envíanos tus fotos digitales. 
+Te las revelamos en papel de máxima calidad y te las llevamos a la puerta
+de casa. 
+¡Verás qué cómodo!
+
+http://foto.tiscali.es
+
+
 

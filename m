@@ -1,547 +1,456 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264920AbSKRVyX>; Mon, 18 Nov 2002 16:54:23 -0500
+	id <S264901AbSKRVvr>; Mon, 18 Nov 2002 16:51:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265003AbSKRVyX>; Mon, 18 Nov 2002 16:54:23 -0500
-Received: from dexter.citi.umich.edu ([141.211.133.33]:3968 "EHLO
-	dexter.citi.umich.edu") by vger.kernel.org with ESMTP
-	id <S264920AbSKRVvX>; Mon, 18 Nov 2002 16:51:23 -0500
-Date: Mon, 18 Nov 2002 16:58:19 -0500 (EST)
-From: Chuck Lever <cel@citi.umich.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux NFS List <nfs@lists.sourceforge.net>
-Subject: [PATCH] NFS O_DIRECT update
-Message-ID: <Pine.LNX.4.44.0211181656570.1518-100000@dexter.citi.umich.edu>
+	id <S264939AbSKRVvq>; Mon, 18 Nov 2002 16:51:46 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:1277 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S264901AbSKRVug>;
+	Mon, 18 Nov 2002 16:50:36 -0500
+Message-ID: <3DD9620F.8DECACBB@mvista.com>
+Date: Mon, 18 Nov 2002 13:56:31 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: [PATCH 3/3] High-res-timers part 3 (posix to hrposix) take 15
+References: <3DB9A314.6CECA1AC@mvista.com>
+Content-Type: multipart/mixed;
+ boundary="------------B244D14603D73D997D018B60"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-this patch brings NFS O_DIRECT support up to "compiles, and even works a
-little" status.  there is still some optimization and testing left to do,
-but by and large, this is the final implementation.
 
-against 2.5.48.
+This is a multi-part message in MIME format.
+--------------B244D14603D73D997D018B60
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
 
-diff -ruN 04-set_page_dirty/fs/nfs/direct.c 05-odirect/fs/nfs/direct.c
---- 04-set_page_dirty/fs/nfs/direct.c	Sun Nov 17 23:29:54 2002
-+++ 05-odirect/fs/nfs/direct.c	Mon Nov 18 12:10:36 2002
-@@ -35,10 +35,12 @@
+This patch adds the two POSIX clocks CLOCK_REALTIME_HR and
+CLOCK_MONOTONIC_HR to the posix clocks & timers package.  A
+small change is made in sched.h and the rest of the patch is
+against .../kernel/posix_timers.c.
+
+Concerns and on going work:
+
+The kernel interface to the signal delivery code and it's
+need for &regs causes the nanosleep and clock_nanosleep code
+to be very messy.  The supplied interface works for the x86
+platform and provides the hooks for other platforms to
+connect (see .../include/asm-i386/signal.h for details), but
+a much cleaner solution is desired.
+
+This patch guards against overload by limiting the repeat
+interval of timers to a fixed value (currently 0.5 ms).  A
+suggested change, and one I am working on, is to not put the
+timer back in the timer list until the user's signal handler
+has completed processing the current expiry.  This requires
+a call back from the signal completion code, again a
+platform dependent thing, BUT it has the advantage of
+automatically adjusting the interval to match the hardware,
+the system overhead and the current load.  In all cases, the
+standard says we need to account for the overruns, but by
+not getting the timer interrupt code involved in useless
+spinning, we just bump the overrun, saving a LOT of
+overhead.
+
+This patch fixes the high resolution timer resolution at 1
+micro second.  Should this number be a CONFIG option?
+
+I think it would be a "good thing"=AE to move the NTP stuff to
+the jiffies clock.  This would allow the wall clock/ jiffies
+clock difference to be a "fixed value" so that code that
+needed this would not have to read two clocks.  Setting the
+wall clock would then just be an adjustment to this "fixed
+value".  It would also eliminate the problem of asking for a
+wall clock offset and getting a jiffies clock offset.  This
+issue is what causes the current 2.5.46 system to fail the
+simple:
+
+time sleep 60
+
+test (any value less than 60 seconds violates the standard
+in that it implies a timer expired early).
+
+Patch is against 2.5.48
+
+These patches as well as the POSIX clocks & timers patch are
+available on the project site:
+http://sourceforge.net/projects/high-res-timers/
+
+The 3 parts to the high res timers are:
+ core      The core kernel (i.e. platform independent)
+changes
+ i386      The high-res changes for the i386 (x86) platform
+*hrposix   The changes to the POSIX clocks & timers patch to
+           use high-res timers
+
+Please apply.
+-- =
+
+George Anzinger   george@mvista.com
+High-res-timers: =
+
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml
+--------------B244D14603D73D997D018B60
+Content-Type: text/plain; charset=us-ascii;
+ name="hrtimers-hrposix-2.5.48-1.0.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="hrtimers-hrposix-2.5.48-1.0.patch"
+
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.48-i386/include/linux/sched.h linux/include/linux/sched.h
+--- linux-2.5.48-i386/include/linux/sched.h	Mon Nov 18 12:32:31 2002
++++ linux/include/linux/sched.h	Mon Nov 18 12:47:31 2002
+@@ -289,6 +289,9 @@
+ 	int it_sigev_signo;		 /* signo word of sigevent struct */
+ 	sigval_t it_sigev_value;	 /* value word of sigevent struct */
+ 	unsigned long it_incr;		/* interval specified in jiffies */
++#ifdef CONFIG_HIGH_RES_TIMERS
++        int it_sub_incr;                /* sub jiffie part of interval */
++#endif
+ 	struct task_struct *it_process;	/* process to send signal to */
+ 	struct timer_list it_timer;
+ };
+diff -urP -I \$Id:.*Exp \$ -X /usr/src/patch.exclude linux-2.5.48-i386/kernel/posix-timers.c linux/kernel/posix-timers.c
+--- linux-2.5.48-i386/kernel/posix-timers.c	Mon Nov 18 12:32:31 2002
++++ linux/kernel/posix-timers.c	Mon Nov 18 12:47:31 2002
+@@ -23,6 +23,7 @@
+ #include <linux/posix-timers.h>
+ #include <linux/compiler.h>
+ #include <linux/id_reuse.h>
++#include <linux/hrtime.h>
+ 
+ #ifndef div_long_long_rem
+ #include <asm/div64.h>
+@@ -33,7 +34,7 @@
+ 		       result; })
+ 
+ #endif	 /* ifndef div_long_long_rem */
+-
++#define CONFIGURE_MIN_INTERVAL 500000
+ /*
+  * Management arrays for POSIX timers.	 Timers are kept in slab memory
+  * Timer ids are allocated by an external routine that keeps track of the
+@@ -156,6 +157,7 @@
+ 
+ int do_posix_clock_monotonic_settime(struct timespec *tp);
+ 
++IF_HIGH_RES(static int high_res_guard = 0;)
+ /* 
+  * Initialize everything, well, just everything in Posix clocks/timers ;)
   */
- 
- #include <linux/config.h>
-+#include <linux/errno.h>
- #include <linux/sched.h>
- #include <linux/kernel.h>
- #include <linux/file.h>
--#include <linux/errno.h>
-+#include <linux/pagemap.h>
-+
- #include <linux/nfs_fs.h>
- #include <linux/nfs_page.h>
- #include <linux/sunrpc/clnt.h>
-@@ -48,33 +50,39 @@
- 
- #define NFSDBG_FACILITY		(NFSDBG_PAGECACHE | NFSDBG_VFS)
- #define VERF_SIZE		(2 * sizeof(__u32))
-+#define MAX_DIRECTIO_SIZE	(4096UL << PAGE_SHIFT)
- 
- 
- /**
-- * nfs_get_user_pages - find and set up page representing user buffer
-- * addr: user-space address of target buffer
-- * size: total size in bytes of target buffer
-+ * nfs_get_user_pages - find and set up pages representing user buffer
-+ * @vec: pointer to vector that defines I/O buffer
-  * @pages: returned array of page struct pointers underlying target buffer
-- * write: whether or not buffer is target of a write operation
-+ * rw: whether or not buffer is target of a write operation
-  */
- static inline int
--nfs_get_user_pages(unsigned long addr, size_t size,
--		struct page ***pages, int rw)
-+nfs_get_user_pages(int rw, const struct iovec *vec, struct page ***pages)
- {
-+	unsigned long addr = (unsigned long) vec->iov_base;
-+	size_t size = vec->iov_len;
- 	int result = -ENOMEM;
--	unsigned page_count = (unsigned) size >> PAGE_SHIFT;
--	unsigned array_size = (page_count * sizeof(struct page *)) + 2U;
-+	unsigned long page_count;
-+	size_t array_size;
- 
--	*pages = (struct page **) kmalloc(array_size, GFP_KERNEL);
-+	/* set an arbitrary limit to prevent arithmetic overflow */
-+	if (size > MAX_DIRECTIO_SIZE)
-+		return -EFBIG;
-+
-+	page_count = (addr + size + PAGE_SIZE - 1) >> PAGE_SHIFT;
-+	page_count -= addr >> PAGE_SHIFT;
-+
-+	array_size = (page_count * sizeof(struct page *));
-+	*pages = kmalloc(array_size, GFP_KERNEL);
- 	if (*pages) {
- 		down_read(&current->mm->mmap_sem);
- 		result = get_user_pages(current, current->mm, addr,
--					page_count, (rw == WRITE), 0,
-+					page_count, (rw == READ), 0,
- 					*pages, NULL);
- 		up_read(&current->mm->mmap_sem);
--		if (result < 0)
--			printk(KERN_ERR "%s: get_user_pages result %d\n",
--					__FUNCTION__, result);
- 	}
- 	return result;
+@@ -174,6 +176,15 @@
+ 	posix_timers_cache = kmem_cache_create("posix_timers_cache",
+ 		sizeof(struct k_itimer), 0, 0, 0, 0);
+ 	idr_init(&posix_timers_id);
++	IF_HIGH_RES(clock_realtime.res = CONFIG_HIGH_RES_RESOLUTION;
++		    register_posix_clock(CLOCK_REALTIME_HR,&clock_realtime);
++		    clock_monotonic.res = CONFIG_HIGH_RES_RESOLUTION;
++		    register_posix_clock(CLOCK_MONOTONIC_HR,&clock_monotonic);
++		    high_res_guard = nsec_to_arch_cycles(CONFIGURE_MIN_INTERVAL);
++		);
++#ifdef	 final_clock_init
++	final_clock_init();	  // defined by arch header file
++#endif
+ 	return 0;
  }
-@@ -84,142 +92,229 @@
-  * @pages: array of page struct pointers underlying target buffer
-  */
- static inline void
--nfs_free_user_pages(struct page **pages, unsigned count)
-+nfs_free_user_pages(struct page **pages)
+ 
+@@ -214,8 +225,23 @@
+ 	 * We trust that the optimizer will use the remainder from the 
+ 	 * above div in the following operation as long as they are close. 
+ 	 */
+-	return	0;
++	return	 (nsec_to_arch_cycles(nsec % (NSEC_PER_SEC / HZ)));
++}
++#ifdef CONFIG_HIGH_RES_TIMERS
++static void tstotimer(struct itimerspec * time, struct k_itimer * timer)
++{
++	int res = posix_clocks[timer->it_clock].res;
++
++	timer->it_timer.sub_expires = tstojiffie(&time->it_value,
++						 res,
++						 &timer->it_timer.expires);
++	timer->it_sub_incr = tstojiffie(&time->it_interval,
++					res,
++					(unsigned long*) &timer->it_incr);
++	if ((unsigned long)timer->it_incr > MAX_JIFFY_OFFSET)
++		timer->it_incr = MAX_JIFFY_OFFSET;
+ }
++#else
+ static void tstotimer(struct itimerspec * time, struct k_itimer * timer)
  {
-+	kfree(pages);
+ 	int res = posix_clocks[timer->it_clock].res;
+@@ -228,6 +254,7 @@
+ }
+  
+ 
++#endif
+ 
+ /* PRECONDITION:
+  * timr->it_lock must be locked
+@@ -265,6 +292,47 @@
+ 	}
+ }
+ 
++#ifdef CONFIG_HIGH_RES_TIMERS
++/*
++ * This bit of code is to protect the system from being consumed by
++ * repeating timer expirations.	 We detect overrun and adjust the
++ * next time to be at least high_res_guard out. We clock the overrun
++ * but only AFTER the next expire as it has not really happened yet.
++ *
++ * Careful, only do this if the timer repeat time is less than
++ * high_res_guard AND we have fallen behind.
++
++ * All this will go away with signal delivery callback...
++ */
++
++static inline void  do_overrun_protect(struct k_itimer *timr)
++{
++	timr->it_overrun_deferred = 0;
++
++	if (! timr->it_incr &&
++	    (high_res_guard > timr->it_sub_incr)){
++		int offset = quick_update_jiffies_sub( timr->it_timer.expires);
++
++		offset -= timr->it_timer.sub_expires;
++		// touch_nmi_watchdog();
++		offset += high_res_guard;
++		if (offset <= 0){
++			return;
++		}
++		// expire time is in the past (or within the guard window)
++
++		timr->it_overrun_deferred = (offset / timr->it_sub_incr) - 1;
++		timr->it_timer.sub_expires += 
++			offset - (offset % timr->it_sub_incr);
++				     
++		while ((timr->it_timer.sub_expires -  cycles_per_jiffies) >= 0){
++			timr->it_timer.sub_expires -= cycles_per_jiffies;
++			timr->it_timer.expires++;
++		}
++	}
 +}
 +
-+/**
-+ * nfs_iov2pagelist - convert one iov to a list of page requests
-+ * rw: direction (read or write)
-+ * @file: file struct of target file
-+ * @iov: pointer to vector that defines I/O buffer
-+ * offset: where in file to begin the read
-+ * @pages: array of mapped pages to use for this I/O
-+ * @requests: append new page requests to this list head
-+ */
-+static int
-+nfs_iov2pagelist(int rw, struct file *file, const struct iovec *iov,
-+		loff_t offset, struct page **pages, struct list_head *requests)
-+{
-+	struct inode *inode = file->f_dentry->d_inode;
-+	struct rpc_cred *cred = nfs_file_cred(file);
-+	unsigned long user_addr = (unsigned long) iov->iov_base;
-+	size_t bytes = iov->iov_len;
-+
-+	unsigned pg_offset = user_addr & ~PAGE_MASK;
- 	unsigned page = 0;
-+	int tot_bytes = 0;
++#endif
+ /* 
+  * Notify the task and set up the timer for the next expiration (if applicable).
+  * This function requires that the k_itimer structure it_lock is taken.
+@@ -277,7 +345,8 @@
  
--	while (count--)
--		page_cache_release(pages[page++]);
-+	while (bytes) {
-+		struct nfs_page *new;
-+		unsigned pg_bytes;
-+
-+		pg_bytes = PAGE_SIZE - pg_offset;
-+		if (pg_bytes > bytes)
-+			pg_bytes = bytes;
-+
-+		/*
-+		 * XXX: deadlock may occur if an application decides to
-+		 *      try direct I/O into a region of an mmap'd file.
-+		 *      andrew morton suggests not locking the page here.
-+		 *      more study required to understand the problem.
-+		 */
-+		lock_page(pages[page]);
-+
-+		new = nfs_create_request(cred, inode, pages[page],
-+					 pg_offset, pg_bytes);
-+		if (IS_ERR(new)) {
-+			nfs_release_list(requests);
-+			nfs_free_user_pages(pages);
-+			return PTR_ERR(new);
-+		}
- 
--	kfree(pages);
-+		new->wb_index = offset >> PAGE_SHIFT;
-+		new->wb_offset = offset & ~PAGE_MASK;
-+		nfs_lock_request(new);
-+		/* nfs_pagein expects the page to be unlocked during
-+		 * completion, while nfs_flush wants the pages to be
-+		 * unlocked before submission */
-+		if (rw == WRITE)
-+			unlock_page(pages[page]);
-+		nfs_list_add_request(new, requests);
-+
-+		offset += pg_bytes;
-+		tot_bytes += pg_bytes;
-+		bytes -= pg_bytes;
-+		page++;
-+
-+		/* after the first page */
-+		pg_offset = 0;
-+	}
-+
-+	return tot_bytes;
+ 	/* Set up the timer for the next interval (if there is one) */
+ 	if ((interval = timr->it_incr) == 0){
+-		{
++		IF_HIGH_RES(if(timr->it_sub_incr == 0)
++			){
+ 			set_timer_inactive(timr);
+ 			return;
+ 		}
+@@ -285,6 +354,13 @@
+ 	if (interval > (unsigned long) LONG_MAX)
+ 		interval = LONG_MAX;
+ 	timr->it_timer.expires += interval;
++	IF_HIGH_RES(timr->it_timer.sub_expires += timr->it_sub_incr;
++		    if ((timr->it_timer.sub_expires - cycles_per_jiffies) >= 0){
++			    timr->it_timer.sub_expires -= cycles_per_jiffies;
++			    timr->it_timer.expires++;
++		    }
++		    do_overrun_protect(timr);
++		);
+ 	add_timer(&timr->it_timer);
  }
  
- /**
-- * nfs_iov2pagelist - convert an array of iovecs to a list of page requests
-- * @inode: inode of target file
-- * @cred: credentials of user who requested I/O
-+ * nfs_direct_read_async - Read directly using asynchronous RPC
-+ * @file: target file
-  * @iov: array of vectors that define I/O buffer
-  * offset: where in file to begin the read
-  * nr_segs: size of iovec array
-- * @requests: append new page requests to this list head
-+ *
-+ * Flush out pending writes in the page cache first so we pick up changes
-+ * made by non-direct writers.  Then convert the iovecs into a list of NFS
-+ * page requests, and page them in.
-  */
- static int
--nfs_iov2pagelist(int rw, const struct inode *inode,
--		const struct rpc_cred *cred,
--		const struct iovec *iov, loff_t offset,
--		unsigned long nr_segs, struct list_head *requests)
-+nfs_direct_read_async(struct file *file, const struct iovec *iov,
-+		loff_t offset, unsigned long nr_segs)
- {
-+	LIST_HEAD(requests);
-+	struct page **pages;
-+	struct inode *inode = file->f_dentry->d_inode;
- 	unsigned seg;
-+	int result;
- 	int tot_bytes = 0;
--	struct page **pages;
+@@ -543,17 +619,39 @@
  
--	/* for each iovec in the array... */
-+	/* push any pending non-direct writes so our reads see them */
-+	result = nfs_wb_all(inode);
-+	if (result < 0) {
-+		result = file->f_error;
-+		file->f_error = 0;
-+		return result;
-+	}
-+
- 	for (seg = 0; seg < nr_segs; seg++) {
--		const unsigned long user_addr =
--					(unsigned long) iov[seg].iov_base;
--		size_t bytes = iov[seg].iov_len;
--		unsigned int pg_offset = (user_addr & ~PAGE_MASK);
--		int page_count, page = 0;
-+		const struct iovec *vec = &iov[seg];
-+		int page_count;
+ 	do {
+ 		expires = timr->it_timer.expires;  
++		IF_HIGH_RES(sub_expires = timr->it_timer.sub_expires);
+ 	} while ((volatile long)(timr->it_timer.expires) != expires);
  
--		page_count = nfs_get_user_pages(user_addr, bytes, &pages, rw);
-+		page_count = nfs_get_user_pages(READ, vec, &pages);
- 		if (page_count < 0) {
--			nfs_release_list(requests);
-+			nfs_release_list(&requests);
-+			nfs_free_user_pages(pages);
- 			return page_count;
- 		}
++	IF_HIGH_RES(write_lock(&xtime_lock);
++		    update_jiffies_sub());
+ 	if (expires && timer_pending(&timr->it_timer)){
+ 		expires -= jiffies;
++		IF_HIGH_RES(sub_expires -=  sub_jiffie());
+ 	}else{
+ 		sub_expires = expires = 0;
+ 	}
++	IF_HIGH_RES( write_unlock(&xtime_lock));
  
--		/* ...build as many page requests as required */
--		while (bytes > 0) {
--			struct nfs_page *new;
--			const unsigned int pg_bytes = (bytes > PAGE_SIZE) ?
--							PAGE_SIZE : bytes;
--
--			new = nfs_create_request((struct rpc_cred *) cred,
--						 (struct inode *) inode,
--						 pages[page],
--						 pg_offset, pg_bytes);
--			if (IS_ERR(new)) {
--				nfs_free_user_pages(pages, page_count);
--				nfs_release_list(requests);
--				return PTR_ERR(new);
--			}
--			new->wb_index = offset;
--			nfs_list_add_request(new, requests);
--
--			/* after the first page */
--			pg_offset = 0;
--			offset += PAGE_SIZE;
--			tot_bytes += pg_bytes;
--			bytes -= pg_bytes;
--			page++;
-+		result = nfs_iov2pagelist(READ, file, vec, offset, pages,
-+				&requests);
-+		if (result <= 0) {
-+			nfs_release_list(&requests);
-+			nfs_free_user_pages(pages);
-+			return result;
-+		}
-+		tot_bytes += result;
-+
-+		result = nfs_pagein_list(&requests,
-+					NFS_SERVER(inode)->rpages);
-+		if (result < 0) {
-+			tot_bytes = result;
-+			nfs_free_user_pages(pages);
-+			break;
-+		}
-+
-+		while (page_count--) {
-+			struct page *page = pages[page_count];
-+
-+			page_cache_get(page);
-+			wait_on_page_locked(page);
-+			if (PageError(page))
-+				tot_bytes = -EIO;
-+			else
-+				set_page_dirty(page);
-+			page_cache_release(page);
- 		}
+ 	jiffies_to_timespec(expires, &cur_setting->it_value);
+ 	jiffies_to_timespec(timr->it_incr, &cur_setting->it_interval);
  
--		/* don't release pages here -- I/O completion will do that */
--		nfs_free_user_pages(pages, 0);
-+		nfs_free_user_pages(pages);
-+
-+		if (tot_bytes < 0)
-+			break;
++	IF_HIGH_RES(cur_setting->it_value.tv_nsec += 
++		    arch_cycles_to_nsec( sub_expires);
++		    if (cur_setting->it_value.tv_nsec < 0){
++			    cur_setting->it_value.tv_nsec += NSEC_PER_SEC;
++			    cur_setting->it_value.tv_sec--;
++		    }
++		    if ((cur_setting->it_value.tv_nsec - NSEC_PER_SEC) >= 0){
++			    cur_setting->it_value.tv_nsec -= NSEC_PER_SEC;
++			    cur_setting->it_value.tv_sec++;
++		    }
++		    cur_setting->it_interval.tv_nsec += 
++		    arch_cycles_to_nsec(timr->it_sub_incr);
++		    if ((cur_setting->it_interval.tv_nsec - NSEC_PER_SEC) >= 0){
++			    cur_setting->it_interval.tv_nsec -= NSEC_PER_SEC;
++			    cur_setting->it_interval.tv_sec++;
++		    }
++		);	     
+ 	if (cur_setting->it_value.tv_sec < 0){
+ 		cur_setting->it_value.tv_nsec = 1;
+ 		cur_setting->it_value.tv_sec = 0;
+@@ -699,6 +797,7 @@
+ 
+ 	/* disable the timer */
+ 	timr->it_incr = 0;
++	IF_HIGH_RES(timr->it_sub_incr = 0);
+ 	/* 
+ 	 * careful here.  If smp we could be in the "fire" routine which will
+ 	 * be spinning as we hold the lock.  But this is ONLY an SMP issue.
+@@ -723,6 +822,7 @@
+ 	if ((new_setting->it_value.tv_sec == 0) &&
+ 	    (new_setting->it_value.tv_nsec == 0)) {
+ 		timr->it_timer.expires = 0;
++		IF_HIGH_RES(timr->it_timer.sub_expires = 0 );
+ 		return 0;
  	}
  
- 	return tot_bytes;
- }
- 
- /**
-- * do_nfs_direct_IO - Read or write data without caching
-- * @inode: inode of target file
-- * @cred: credentials of user who requested I/O
-+ * nfs_direct_write_async - Write directly using asynchronous RPC
-+ * @file: file struct of target file
-  * @iov: array of vectors that define I/O buffer
-  * offset: where in file to begin the read
-  * nr_segs: size of iovec array
-  *
-- * Break the passed-in iovec into a series of page-sized or smaller
-- * requests, where each page is mapped for direct user-land I/O.
-- *
-- * For each of these pages, create an NFS page request and
-- * append it to an automatic list of page requests.
-+ * Convert the iovecs into a list of NFS page requests, then flush
-+ * them out.  Invalidate any cached pages for this file so that normal
-+ * accessors will see these changes.
-  *
-- * When all page requests have been queued, start the I/O on the
-- * whole list.  The underlying routines coalesce the pages on the
-- * list into a bunch of asynchronous "r/wsize" network requests.
-+ * nfs_writeback_done will emit COMMIT requests should they be required.
-  *
-- * I/O completion automatically unmaps and releases the pages.
-+ * O_SYNC for files and "sync" for file systems causes STABLE writes
-+ * that are sent one at a time.  This is for applications that have
-+ * ultra-strict write ordering requirements.
-  */
- static int
--do_nfs_direct_IO(int rw, const struct inode *inode,
--		const struct rpc_cred *cred, const struct iovec *iov,
-+nfs_direct_write_async(struct file *file, const struct iovec *iov,
- 		loff_t offset, unsigned long nr_segs)
+@@ -743,10 +843,12 @@
+ 	 * For some reason the timer does not fire immediately if expires is
+ 	 * equal to jiffies, so the timer callback function is called directly.
+ 	 */
++#ifndef	 CONFIG_HIGH_RES_TIMERS
+ 	if (timr->it_timer.expires == jiffies) {
+ 		posix_timer_fire(timr);
+ 		return 0;
+ 	}
++#endif
+ 	timr->it_overrun_deferred = 
+ 		timr->it_overrun_last = 
+ 		timr->it_overrun = 0;
+@@ -808,6 +910,7 @@
+ static inline int do_timer_delete(struct k_itimer  *timer)
  {
- 	LIST_HEAD(requests);
--	int result, tot_bytes;
-+	struct page **pages;
-+	struct inode *inode = file->f_dentry->d_inode;
-+	unsigned seg;
-+	int result;
-+	int tot_bytes = 0;
-+	int flags = IS_SYNC(inode) ? FLUSH_STABLE | FLUSH_WAIT : FLUSH_WAIT;
- 
--	result = nfs_iov2pagelist(rw, inode, cred, iov, offset, nr_segs,
--								&requests);
--	if (result < 0)
--		return result;
--	tot_bytes = result;
-+	for (seg = 0; seg < nr_segs; seg++) {
-+		const struct iovec *vec = &iov[seg];
-+		int page_count;
- 
--	switch (rw) {
--	case READ:
--		if (IS_SYNC(inode) || (NFS_SERVER(inode)->rsize < PAGE_SIZE)) {
--			result = nfs_direct_read_sync(inode, cred, iov, offset, nr_segs);
-+		page_count = nfs_get_user_pages(WRITE, vec, &pages);
-+		if (page_count < 0) {
-+			nfs_release_list(&requests);
-+			nfs_free_user_pages(pages);
-+			return page_count;
-+		}
-+
-+		result = nfs_iov2pagelist(WRITE, file, vec, offset,
-+							pages, &requests);
-+		if (result <= 0) {
-+			nfs_free_user_pages(pages);
-+			tot_bytes = result;
- 			break;
- 		}
--		result = nfs_pagein_list(&requests, NFS_SERVER(inode)->rpages);
--		nfs_wait_for_reads(&requests);
--		break;
--	case WRITE:
--		if (IS_SYNC(inode) || (NFS_SERVER(inode)->wsize < PAGE_SIZE))
--			result = nfs_direct_write_sync(inode, cred, iov, offset, nr_segs);
--		else
--			result = nfs_flush_list(&requests,
--					NFS_SERVER(inode)->wpages, FLUSH_WAIT);
-+		tot_bytes += result;
- 
--		/* invalidate cache so non-direct readers pick up changes */
--		invalidate_inode_pages((struct inode *) inode);
--		break;
--	default:
--		result = -EINVAL;
--		break;
-+		result = nfs_flush_list(&requests,
-+					NFS_SERVER(inode)->wpages, flags);
-+
-+		while (page_count--) {
-+			struct page *page = pages[page_count];
-+
-+			page_cache_get(page);
-+			wait_on_page_writeback(page);
-+			if (PageError(page))
-+				tot_bytes = -EIO;
-+			page_cache_release(page);
-+		}
-+		nfs_free_user_pages(pages);
-+
-+		if (result < 0) {
-+			tot_bytes = result;
-+			break;
-+		}
+ 	timer->it_incr = 0;
++	IF_HIGH_RES(timer->it_sub_incr = 0);
+ #ifdef CONFIG_SMP
+ 	if ( timer_active(timer) && ! del_timer(&timer->it_timer)){
+ 		/*
+@@ -905,8 +1008,25 @@
+ 		return clock->clock_get(tp);
  	}
  
--	if (result < 0)
--		return result;
-+	/* cause any non-direct readers to pick up our writes */
-+	invalidate_inode_pages(inode->i_mapping);
- 	return tot_bytes;
- }
- 
-@@ -233,27 +328,39 @@
-  *
-  * The inode's i_sem is no longer held by the VFS layer before it calls
-  * this function to do a write.
-+ *
-+ * For now, NFS O_DIRECT returns -EINVAL when r/wsize is smaller than
-+ * PAGE_SIZE.
-  */
- int
- nfs_direct_IO(int rw, struct file *file, const struct iovec *iov,
- 		loff_t offset, unsigned long nr_segs)
- {
--	/* None of this works yet, so prevent it from compiling. */
--#if 0
--	int result;
--	struct dentry *dentry = file->f_dentry;
--	const struct inode *inode = dentry->d_inode->i_mapping->host;
--	const struct rpc_cred *cred = nfs_file_cred(file);
--#endif
--
--	dfprintk(VFS, "NFS: direct_IO(%s) (%s/%s) off/no(%Lu/%lu)\n",
--				((rw == READ) ? "READ" : "WRITE"),
--				dentry->d_parent->d_name.name,
--				dentry->d_name.name, offset, nr_segs);
-+	int result = -EINVAL;
-+	struct inode *inode = file->f_dentry->d_inode;
- 
--	result = do_nfs_direct_IO(rw, inode, cred, iov, offset, nr_segs);
-+	switch (rw) {
-+	case READ:
-+		dfprintk(VFS, "NFS: direct_IO(read) (%s) off/no(%Lu/%lu)\n",
-+			file->f_dentry->d_name.name, offset, nr_segs);
-+
-+		if (NFS_SERVER(inode)->rpages)
-+			result = nfs_direct_read_async(file, iov, offset,
-+					nr_segs);
-+		break;
-+	case WRITE:
-+		dfprintk(VFS, "NFS: direct_IO(write) (%s) off/no(%Lu/%lu)\n",
-+			file->f_dentry->d_name.name, offset, nr_segs);
-+
-+		if (NFS_SERVER(inode)->wpages)
-+			result = nfs_direct_write_async(file, iov, offset,
-+					nr_segs);
-+		break;
-+	default:
-+		break;
++#ifdef CONFIG_HIGH_RES_TIMERS
++	{
++		unsigned long flags;
++		write_lock_irqsave(&xtime_lock, flags);
++		update_jiffies_sub();
++		update_real_wall_time();  
++		tp->tv_sec = xtime.tv_sec;
++		tp->tv_nsec = xtime.tv_nsec;
++		tp->tv_nsec += arch_cycles_to_nsec(sub_jiffie());
++		write_unlock_irqrestore(&xtime_lock, flags);
++		if ( tp->tv_nsec >  NSEC_PER_SEC ){
++			tp->tv_nsec -= NSEC_PER_SEC ;
++			tp->tv_sec++;
++		}
 +	}
- 
--	dfprintk(VFS, "NFS: direct_IO result = %d\n", result);
-+	dfprintk(VFS, "NFS: direct_IO result=%d\n", result);
- 
- 	return result;
- }
-diff -ruN 04-set_page_dirty/fs/nfs/pagelist.c 05-odirect/fs/nfs/pagelist.c
---- 04-set_page_dirty/fs/nfs/pagelist.c	Mon Nov 18 11:50:13 2002
-+++ 05-odirect/fs/nfs/pagelist.c	Mon Nov 18 11:58:19 2002
-@@ -163,9 +163,7 @@
- 	while (!list_empty(list)) {
- 		struct nfs_page *req = nfs_list_entry(list);
- 
--		nfs_list_remove_request(req);
--
--		page_cache_release(req->wb_page);
-+		list_del_init(&req->wb_list);
- 
- 		/* Release struct file or cached credential */
- 		nfs_clear_request(req);
-@@ -222,37 +220,6 @@
++#else
+ 	do_gettimeofday((struct timeval*)tp);
+ 	tp->tv_nsec *= NSEC_PER_USEC;
++#endif
+ 	return 0;
  }
  
- /**
-- * nfs_wait_for_reads - wait for outstanding requests to complete
-- * @head: list of page requests to wait for
-- */
--int
--nfs_wait_for_reads(struct list_head *head)
--{
--	struct list_head *p = head->next;
--	unsigned int res = 0;
--
--	while (p != head) {
--		struct nfs_page *req = nfs_list_entry(p);
--		int error;
--
--		if (!NFS_WBACK_BUSY(req))
--			continue;
--
--		req->wb_count++;
--		error = nfs_wait_on_request(req);
--		if (error < 0)
--			return error;
--		nfs_list_remove_request(req);
--		nfs_clear_request(req);
--		nfs_page_free(req);
--
--		p = head->next;
--		res++;
--	}
--	return res;
--}
--
--/**
-  * nfs_coalesce_requests - Split coalesced requests out from a list.
-  * @head: source list
-  * @dst: destination list
-diff -ruN 04-set_page_dirty/fs/nfs/write.c 05-odirect/fs/nfs/write.c
---- 04-set_page_dirty/fs/nfs/write.c	Mon Nov 18 11:50:13 2002
-+++ 05-odirect/fs/nfs/write.c	Mon Nov 18 12:07:21 2002
-@@ -321,7 +321,7 @@
- /*
-  * Insert a write request into an inode
-  */
--static inline void
-+static void
- nfs_inode_remove_request(struct nfs_page *req)
+@@ -921,8 +1041,9 @@
  {
- 	struct nfs_inode *nfsi;
-@@ -331,7 +331,11 @@
- 	spin_lock(&nfs_wreq_lock);
- 	inode = req->wb_inode;
- 	nfsi = NFS_I(inode);
--	radix_tree_delete(&nfsi->nfs_page_tree, req->wb_index);
-+	/* O_DIRECT writes are never added to the radix tree */
-+	if (radix_tree_delete(&nfsi->nfs_page_tree, req->wb_index) < 0) {
-+		spin_unlock(&nfs_wreq_lock);
-+		return;
-+	}
- 	nfsi->npages--;
- 	if (!nfsi->npages) {
- 		spin_unlock(&nfs_wreq_lock);
+ 	long sub_sec;
+ 	u64 jiffies_64_f;
++	IF_HIGH_RES(long sub_jiff_offset;)
+ 
+-#if (BITS_PER_LONG > 32) 
++#if (BITS_PER_LONG > 32) && !defined(CONFIG_HIGH_RES_TIMERS)
+ 
+ 	jiffies_64_f = jiffies_64;
+ 
+@@ -936,6 +1057,8 @@
+ 		read_lock_irqsave(&xtime_lock, flags);
+ 		jiffies_64_f = jiffies_64;
+ 
++		IF_HIGH_RES(sub_jiff_offset =	
++			    quick_update_jiffies_sub(jiffies));
+ 
+ 		read_unlock_irqrestore(&xtime_lock, flags);
+ 	}
+@@ -944,14 +1067,34 @@
+ 	do {
+ 		jiffies_f = jiffies;
+ 		barrier();
++		IF_HIGH_RES(
++			sub_jiff_offset = 
++			quick_update_jiffies_sub(jiffies_f));
+ 		jiffies_64_f = jiffies_64;
+ 	} while (unlikely(jiffies_f != jiffies));
+ 
++#else /* 64 bit long and high-res but no SMP if I did the Venn right */
++	do {
++		jiffies_64_f = jiffies_64;
++		barrier();
++		sub_jiff_offset = quick_update_jiffies_sub(jiffies_64_f);
++	} while (unlikely(jiffies_64_f != jiffies_64));
+ 
+ #endif
+-	tp->tv_sec = div_long_long_rem(jiffies_64_f,HZ,&sub_sec);
++	/*
++	 * Remember that quick_update_jiffies_sub() can return more
++	 * than a jiffies worth of cycles...
++	 */
++	IF_HIGH_RES(
++		while ( unlikely(sub_jiff_offset > cycles_per_jiffies)){
++			sub_jiff_offset -= cycles_per_jiffies;
++			jiffies_64_f++;
++		}
++		)
++		tp->tv_sec = div_long_long_rem(jiffies_64_f,HZ,&sub_sec);
+ 
+ 	tp->tv_nsec = sub_sec * (NSEC_PER_SEC / HZ);
++	IF_HIGH_RES(tp->tv_nsec += arch_cycles_to_nsec(sub_jiff_offset));
+ 	return 0;
+ }
+ 
+@@ -1110,6 +1253,7 @@
+ 			 * del_timer_sync() will return 0, thus
+ 			 * active is zero... and so it goes.
+ 			 */
++			IF_HIGH_RES(new_timer.sub_expires = )
+ 
+ 				tstojiffie(&t,
+ 					   posix_clocks[which_clock].res,
+@@ -1131,9 +1275,15 @@
+ 	}
+ 	if (active && rmtp ) {
+ 		unsigned long jiffies_f = jiffies;
++		IF_HIGH_RES(
++			long sub_jiff = 
++			quick_update_jiffies_sub(jiffies_f));
+ 
+ 		jiffies_to_timespec(new_timer.expires - jiffies_f, &t);
+ 
++		IF_HIGH_RES(t.tv_nsec += 
++			    arch_cycles_to_nsec(new_timer.sub_expires -
++						sub_jiff));
+ 		while (t.tv_nsec < 0){
+ 			t.tv_nsec += NSEC_PER_SEC;
+ 			t.tv_sec--;
+Binary files linux-2.5.48-i386/usr/gen_init_cpio and linux/usr/gen_init_cpio differ
+Binary files linux-2.5.48-i386/usr/initramfs_data.cpio.gz and linux/usr/initramfs_data.cpio.gz differ
+
+--------------B244D14603D73D997D018B60--
 

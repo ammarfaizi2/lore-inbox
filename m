@@ -1,82 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261652AbTITIIq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Sep 2003 04:08:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbTITIIq
+	id S261669AbTITIdq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Sep 2003 04:33:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261671AbTITIdq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Sep 2003 04:08:46 -0400
-Received: from mx2.undergrid.net ([64.174.245.170]:27546 "EHLO
-	mail.undergrid.net") by vger.kernel.org with ESMTP id S261652AbTITIIp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Sep 2003 04:08:45 -0400
-Date: Sat, 20 Sep 2003 01:07:30 -0700
-From: "Jeremy T. Bouse" <Jeremy.Bouse@undergrid.net>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Problems with airo/airo_cs since test4-bk2
-Message-ID: <20030920080730.GB10200@UnderGrid.net>
-Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>
-References: <20030919030037.GA5581@UnderGrid.net> <1064077301.14771.1.camel@sven>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="A6N2fC+uXW/VQSAv"
+	Sat, 20 Sep 2003 04:33:46 -0400
+Received: from lidskialf.net ([62.3.233.115]:19938 "EHLO beyond.lidskialf.net")
+	by vger.kernel.org with ESMTP id S261669AbTITIdp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Sep 2003 04:33:45 -0400
+From: Andrew de Quincey <adq_dvb@lidskialf.net>
+To: Allen Martin <AMartin@nvidia.com>, "'Merlin Hughes'" <lnx@merlin.org>
+Subject: Re: [PATCH] 2.4.23-pre4 add support for udma6 to nForce IDE drive  r
+Date: Sat, 20 Sep 2003 09:33:48 +0100
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org
+References: <8F12FC8F99F4404BA86AC90CD0BFB04F039F714A@mail-sc-6.nvidia.com>
+In-Reply-To: <8F12FC8F99F4404BA86AC90CD0BFB04F039F714A@mail-sc-6.nvidia.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1064077301.14771.1.camel@sven>
-X-GPG-Debian: 1024D/29AB4CDD  C745 FA35 27B4 32A6 91B3 3935 D573 D5B1 29AB 4CDD
-X-GPG-General: 1024D/62DBDF62  E636 AB22 DC87 CD52 A3A4 D809 544C 4868 62DB DF62
-User-Agent: Mutt/1.5.4i
-X-MailScanner: Found to be clean
+Message-Id: <200309200933.48696.adq_dvb@lidskialf.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday 20 September 2003 00:49, Allen Martin wrote:
+> > Interesting; lots of ACPI edge-triggered interrupts:
+> >
+> >   dagda:~# cat /proc/interrupts
+> >              CPU0
+> >     0:     519365    IO-APIC-edge  timer
+> >     1:      16713    IO-APIC-edge  keyboard
+> >     2:          0          XT-PIC  cascade
+> >     8:          4    IO-APIC-edge  rtc
+> >     9:          0   IO-APIC-level  acpi
+> >    14:     863415    IO-APIC-edge  ide0
+> >    15:     201651    IO-APIC-edge  ide1
+> >    19:     306188   IO-APIC-level  nvidia
+> >    20:      57261   IO-APIC-level  usb-ohci, eth0
+> >    21:          0   IO-APIC-level  ehci_hcd, NVidia nForce2
+> >    22:          3   IO-APIC-level  usb-ohci, ohci1394
+> >   NMI:          0
+> >   LOC:     519312
+> >   ERR:          0
+> >   MIS:          0
+>
+> Your interrupts look fine, this is the way they should be.
+>
+> > ... but no stability problems since the primary drive has been
+> > running at UDMA133. Earlier UDMA100 freezes were completely
+> > repeatable; identical kernel, just without your two patches.
+>
+> You can try downgrading your drive to udma5 to see if udma6 really does
+> make it more stable (hdparm -X udma5 /dev/hdX) but I can't think of any
+> reason why it should.
+>
+> > I take it that I should boot with noapic in future to be safe.
+>
+> I've been telling people to disable APIC / ACPI because of the interrupt
+> problem, but your interrupts are fine, so I'd leave it alone.  I'm curious,
+> what version BIOS do you have?
 
---A6N2fC+uXW/VQSAv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+ACPI/APIC should work on most nforce/nforce2 boards in 2.4.22 upwards. If not, 
+let me know, and I'll look into it.
 
-On Sun, Sep 21, 2003 at 03:01:41AM +1000, Sven Dowideit wrote:
-> On Fri, 2003-09-19 at 13:00, Jeremy T. Bouse wrote:
-> > 	Since test4-bk2 I've still had increasing problems with the
-> > airo/airo_cs driver... test4-bk2 operates but generates an awful lot of
-> > frame errors... I've tried test5-bk1 , bk3 and bk5 and they fail to even
-> > be able to associate with the AP at all and totally unusable... As soon
-> > as the driver and/or card are removed it causes an oops unlike earlier
-> > test versions which would just lock the whole machine up...
-> i have a cisco 340 in my thinkpad t21 that has been fine so far
-> (especially after Rusty fixed the detection problems)
-
-	Hmm... with test4-bk2 I have on the average twice as many frame errors
-as I do packets being sent it seems... The test5-bk[135] I've tried
-won't even associate with the APs... I would think it was a problem with
-the AP but it's two different AP units (brands and models) as well it
-worked fine with the older 2.4.20 kernel...
-
-> >=20
-> > 	Has anyone else been noticing these problems with a Cisco Aironet 350?
-> > I've got it in a Sony Vaio PCG-C1MWP and use it on two networks which
-> > use either a LinkSys WAP11 or an Orinoco AP-1000 with the same
-> > results...
-> >=20
-> > 	Regards,
-> > 	Jeremy
->=20
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
---A6N2fC+uXW/VQSAv
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/bArCzbdYcZyFNB8RAtqCAJ96zezvDa4oGVS5Xew27o1V/jiPSQCgwEbz
-XMIlbqnXfdUFssbVUyHc8Gk=
-=mREI
------END PGP SIGNATURE-----
-
---A6N2fC+uXW/VQSAv--

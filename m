@@ -1,92 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265494AbUEVAXV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264857AbUEUX6E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265494AbUEVAXV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 20:23:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265114AbUEVAE2
+	id S264857AbUEUX6E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 19:58:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265171AbUEUXva
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 20:04:28 -0400
-Received: from mail.fastclick.com ([205.180.85.17]:53720 "EHLO
-	mail.fastclick.net") by vger.kernel.org with ESMTP id S265067AbUEUXnA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 19:43:00 -0400
-Message-ID: <40AE93E0.7060308@fastclick.com>
-Date: Fri, 21 May 2004 16:42:24 -0700
-From: "Brett E." <brettspamacct@fastclick.com>
-Reply-To: brettspamacct@fastclick.com
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
+	Fri, 21 May 2004 19:51:30 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:39613 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S264375AbUEUXdB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 19:33:01 -0400
+Date: Thu, 20 May 2004 11:43:39 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: "Jinu M." <jinum@esntechnologies.co.in>
+cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org,
+       "Surendra I." <surendrai@esntechnologies.co.in>
+Subject: Re: protecting source code in 2.6
+In-Reply-To: <1118873EE1755348B4812EA29C55A97222FD0D@esnmail.esntechnologies.co.in>
+Message-ID: <Pine.LNX.4.53.0405201128460.3465@chaos>
+References: <1118873EE1755348B4812EA29C55A97222FD0D@esnmail.esntechnologies.co.in>
 MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-CC: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: How can I optimize a process on a NUMA architecture(x86-64 specifically)?
-References: <1Y6yr-eM-11@gated-at.bofh.it> <1YbRm-4iF-11@gated-at.bofh.it><1Yma3-4cF-3@gated-at.bofh.it> <1YmjP-4jX-37@gated-at.bofh.it><1YmMN-4Kh-17@gated-at.bofh.it> <1Yn67-50q-7@gated-at.bofh.it> <m3lljld1v1.fsf@averell.firstfloor.org> <93090000.1085171530@flay>
-In-Reply-To: <93090000.1085171530@flay>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
+On Thu, 20 May 2004, Jinu M. wrote:
 
->>"Martin J. Bligh" <mbligh@aracnet.com> writes:
->>
->>
->>>For any given situation, you can come up with a scheduler mod that improves
->>>things. The problem is making something generic that works well in most
->>>cases. 
->>
->>The point behind numa api/numactl is that if the defaults
->>don't work well enough you can tune it by hand to be better.
->>
->>There are some setups which can be significantly improved with some
->>hand tuning, although in many cases the default behaviour is good enough
->>too.
-> 
-> 
-> Oh, I'm not denying it can make things better ... just 90% of the people
-> who want to try it would be better off leaving it the hell alone ;-)
-> 
-> M.
-> 
+> Hi All,
+>
+> We are developing a block device driver on linux-2.6.x kernel. We want
+> to distribute our driver as sum of source code and librabry/object code.
+>
+[SNIPPED...]
 
-Right now, 5 processes are running taking up a good deal of the CPU 
-doing memory-intensive work(cacheing) and I notice that none of the 
-processes seem to have CPU affinity.  top shows they execute pseudo 
-randomly on the CPU's.
+If it executes INSIDE the kernel, i.e., becomes part of a module,
+it executes with no protection whatsoever. It is, therefore,
+capable of destroying anything in the kernel including anything
+the kernel can touch. Therefore, such a secret blob of code
+can destroy all the user's work. It can even propagate to other
+machines over the network and infect them. In short, it can
+be a worm, Trojan Horse, or other dangerous, even "Microsoft-like"
+infection. If it's not, it will be blamed anyway.
 
+There are no secret methods of interfacing to proprietary
+hardware. One can only use the methods provided by the target
+CPU and its associated hardware components. Anybody who thinks
+that their hardware interface code represents protected intellectual
+property doesn't have a clue what intellectual property is.
 
-At this point I'd like to decrease the number of processes to 4 and test 
-performance with and without setting CPU & memory allocation affinity.
+If you have some magic unpublished algorithms in your driver,
+they shouldn't be there. They should be in a user-mode library
+that interfaces with the driver. In this manner, you keep your
+secret algorithms to yourselves, protecting your intellectual
+property, while publishing your interface code that executes,
+unprotected, in the kernel.
 
-I've read the archives and I'm not sure how to get numactl running, both 
-.5 and .6 versions give me:
+So, either provide the source-code for your driver or go away.
+There are very few persons who will allow you to insert secret
+code into their kernels where it could destroy everything of
+value to them.
 
-# numactl --show
-No NUMA support available on this system.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5557.45 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-despite using kernel 2.6.6.
-
-running numactl under strace gives me:
-
-32144 sched_getaffinity(32144, 16,  { 0 }) = 8
-32144 syscall_239(0, 0, 0, 0, 0, 0, 0x401e30, 0x401e30, 0x401e30, 
-0x401e30, 0x401e30, 0x401e30, 0x401e30, 0x401e30, 0x401e30, 0x401e30, 
-0x401e30, 0x401e30, 0x401e30, 0x401e30, 0x401e30, 0x401e30, 0x401e30, 
-0x401e30, 0x401e30, 0x401e30, 0x401e30, 0x401e30, 0x401e30, 0x401e30, 
-0x401e30, 0x401e30) = -1 (errno 38)
-32144 fstat(1, {st_mode=S_IFCHR|0620, st_rdev=makedev(136, 53), ...}) = 0
-32144 mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, 
--1, 0) = 0x2a9556c000
-32144 write(1, "No NUMA support available on thi"..., 42) = 42
-32144 munmap(0x2a9556c000, 4096)        = 0
-32144 exit_group(1)                     = ?
-
-
-In case someone might have ran into this before.
-
-
-
-Thanks,
-
-Brett
 

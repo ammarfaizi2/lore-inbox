@@ -1,72 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbVAMAyR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261461AbVAMAeY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261431AbVAMAyR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 19:54:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261497AbVAMAm5
+	id S261461AbVAMAeY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 19:34:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbVALWBs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 19:42:57 -0500
-Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:15266 "HELO
-	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261450AbVAMAm0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 19:42:26 -0500
-Message-ID: <41E5C3E6.90906@yahoo.com.au>
-Date: Thu, 13 Jan 2005 11:42:14 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christoph Lameter <clameter@sgi.com>
-CC: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, ak@muc.de,
-       hugh@veritas.com, linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, benh@kernel.crashing.org
-Subject: Re: page table lock patch V15 [0/7]: overview
-References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain> <Pine.LNX.4.58.0411221424580.22895@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0411221429050.20993@ppc970.osdl.org> <Pine.LNX.4.58.0412011539170.5721@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0412011545060.5721@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0501041129030.805@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0501041137410.805@schroedinger.engr.sgi.com> <m1652ddljp.fsf@muc.de> <Pine.LNX.4.58.0501110937450.32744@schroedinger.engr.sgi.com> <41E4BCBE.2010001@yahoo.com.au> <20050112014235.7095dcf4.akpm@osdl.org> <Pine.LNX.4.58.0501120833060.10380@schroedinger.engr.sgi.com> <20050112104326.69b99298.akpm@osdl.org> <41E5AFE6.6000509@yahoo.com.au> <20050112153033.6e2e4c6e.akpm@osdl.org> <41E5B7AD.40304@yahoo.com.au> <Pine.LNX.4.58.0501121552170.12669@schroedinger.engr.sgi.com> <41E5BC60.3090309@yahoo.com.au> <Pine.LNX.4.58.0501121611590.12872@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.58.0501121611590.12872@schroedinger.engr.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 12 Jan 2005 17:01:48 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:39078 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S261493AbVALVs0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 16:48:26 -0500
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+In-Reply-To: <20051121347.GcISM37CLpmJtFzr@topspin.com>
+X-Mailer: Roland's Patchbomber
+Date: Wed, 12 Jan 2005 13:47:56 -0800
+Message-Id: <20051121347.GID20pY2t5GaCSiw@topspin.com>
+Mime-Version: 1.0
+To: akpm@osdl.org
+From: Roland Dreier <roland@topspin.com>
+X-SA-Exim-Connect-IP: 127.0.0.1
+X-SA-Exim-Mail-From: roland@topspin.com
+Subject: [PATCH][9/18] InfiniBand/core: add QP number to work completion struct
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on eddore)
+X-OriginalArrivalTime: 12 Jan 2005 21:47:58.0563 (UTC) FILETIME=[618C2330:01C4F8F0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> On Thu, 13 Jan 2005, Nick Piggin wrote:
-> 
-> 
->>>Pointer operations and word size operations are atomic. So this is mostly
->>>okay.
->>>
->>>The issue arises on architectures that have a large pte size than the
->>>wordsize. This is only on i386 PAE mode and S/390. S/390 falls back to
->>>the page table lock  for these operations. PAE mode should do the same and
->>>not use atomic ops if they cannot be made to work in a reasonable manner.
->>>
->>
->>Yep well you should be OK then. Your implementation has the advantage
->>that it only instantiates previously clear ptes... hmm, no I'm wrong,
->>your ptep_set_access_flags path modifies an existing pte. I think this
->>can cause subtle races in copy_page_range, and maybe other places,
->>can't it?
-> 
-> 
-> ptep_set_access_flags is only used after acquiring the page_table_lock and
-> does not clear a pte. That is safe. The only critical thing is if a pte
-> would be cleared while holding the page_table_lock. That used to occur in
-> the swapper code but we modified that.
-> 
+InfiniBand spec rev 1.2 compliance: add local qp number to
+work completion structure.
 
-I mean what used to be the ptep_set_access_flags path. Where you are
-now modifying a pte without the ptl. However after a second look, it
-seems like that won't be a problem.
+Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
+Signed-off-by: Roland Dreier <roland@topspin.com>
 
-> There is still an issue as Hugh rightly observed. One cannot rely on a
-> read of a pte/pud/pmd being atomic if the pte is > word size. This occurs
-> for all higher levels in handle_mm_fault. Thus we would need to either
-> acuire the page_table_lock for some architectures or provide primitives
-> get_pgd, get_pud etc that take the page_table_lock on PAE mode. ARGH.
-> 
-
-Yes I know. I would say that having arch-definable accessors for the
-page tables wouldn't be a bad idea anyway, and the flexibility may
-come in handy for other things.
-
-It would be a big, annoying patch though :(
+--- linux/drivers/infiniband/include/ib_verbs.h	(revision 1466)
++++ linux/drivers/infiniband/include/ib_verbs.h	(revision 1468)
+@@ -352,6 +352,7 @@
+ 	u32			vendor_err;
+ 	u32			byte_len;
+ 	__be32			imm_data;
++	u32			qp_num;
+ 	u32			src_qp;
+ 	int			wc_flags;
+ 	u16			pkey_index;
+--- linux/drivers/infiniband/core/mad.c	(revision 1466)
++++ linux/drivers/infiniband/core/mad.c	(revision 1468)
+@@ -2026,6 +2026,7 @@
+ 			wc.slid = IB_LID_PERMISSIVE;
+ 			wc.sl = 0;
+ 			wc.dlid_path_bits = 0;
++			wc.qp_num = IB_QP0;
+ 			local->mad_priv->header.recv_wc.wc = &wc;
+ 			local->mad_priv->header.recv_wc.mad_len =
+ 						sizeof(struct ib_mad);
+--- linux/drivers/infiniband/hw/mthca/mthca_cq.c	(revision 1466)
++++ linux/drivers/infiniband/hw/mthca/mthca_cq.c	(revision 1468)
+@@ -444,6 +444,8 @@
+ 		spin_lock(&(*cur_qp)->lock);
+ 	}
+ 
++	entry->qp_num = (*cur_qp)->qpn;
++
+ 	if (is_send) {
+ 		wq = &(*cur_qp)->sq;
+ 		wqe_index = ((be32_to_cpu(cqe->wqe) - (*cur_qp)->send_wqe_offset)
 

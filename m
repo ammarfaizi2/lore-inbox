@@ -1,101 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261969AbTE2Hap (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 03:30:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbTE2Hap
+	id S261970AbTE2Hni (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 03:43:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261989AbTE2Hni
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 03:30:45 -0400
-Received: from granite.he.net ([216.218.226.66]:7175 "EHLO granite.he.net")
-	by vger.kernel.org with ESMTP id S261969AbTE2Han (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 03:30:43 -0400
-Date: Thu, 29 May 2003 00:30:16 -0700
-From: Greg KH <greg@kroah.com>
-To: Hanna Linder <hannal@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, mochel@osdl.org
-Subject: Re: [RFT/C 2.5.70] Input class hook up to driver model/sysfs
-Message-ID: <20030529073016.GC5603@kroah.com>
-References: <175110000.1054083891@w-hlinder>
+	Thu, 29 May 2003 03:43:38 -0400
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:36527 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP id S261970AbTE2Hng
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 03:43:36 -0400
+Date: Thu, 29 May 2003 09:56:36 +0200
+From: Kristian Peters <kristian.peters@korseby.net>
+To: frahm@irsamc.ups-tlse.fr
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21-rc5: DMA disabled for IDE Cdrom, works with 2.4.20
+Message-Id: <20030529095636.693610bb.kristian.peters@korseby.net>
+In-Reply-To: <200305272133.h4RLXlN1000712@albireo.free.fr>
+References: <200305272133.h4RLXlN1000712@albireo.free.fr>
+X-Mailer: Sylpheed version 0.8.10claws13 (GTK+ 1.2.10; i386-debian-linux-gnu)
+X-Operating-System: i686-debian-linux-gnu 2.4.21-rc2
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <175110000.1054083891@w-hlinder>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 27, 2003 at 06:04:51PM -0700, Hanna Linder wrote:
-> 
-> root@w-hlinder2 root]# tree /sys/class/input
-> /sys/class/input
-> |-- mouse0
-> |   `-- dev
-> `-- mouse1
->     `-- dev
+frahm@irsamc.ups-tlse.fr schrieb:
+> 2.4.21-rc5: DMA disabled for IDE Cdrom, works with 2.4.20
 
-What happened to /sys/class/input/mice?  It should be present too.
+Just a me too. I already posted that issue to the list but without any answer. So I gave it up.
 
-Looks good, Al's point about not just calling kfree() on the kobject is
-correct, but you copied my tty code which has the same bug :)
+I'm getting no errors which you're encountering but I'm now unable to read/burn cds in DMA mode which is very slow.
+Curious what changes (it's there since -pre5) might have triggered that.
 
-Another minor comment:
-> -	devfs_remove("input/event%d", evdev->minor);
-> +	input_unregister_class_dev("input/event%d", evdev->minor);
->  	evdev_table[evdev->minor] = NULL;
->  	kfree(evdev);
->  }
-> @@ -94,8 +94,10 @@ static int evdev_release(struct inode * 
->  	if (!--list->evdev->open) {
->  		if (list->evdev->exist)
->  			input_close_device(&list->evdev->handle);
-> -		else
-> +		else{
-> +			input_unregister_class_dev("input/event%d", list->evdev->minor);
->  			evdev_free(list->evdev);
-> +		}
->  	}
->  
->  	kfree(list);
-> @@ -374,6 +376,12 @@ static struct file_operations evdev_fops
->  	.flush =	evdev_flush
->  };
->  
-> +static struct input_class_interface intf = {
-> +	.name = 	"input/event%d",
-> +	.mode = 	S_IFCHR | S_IRUGO | S_IWUSR,
-> +	.minor_base = 	EVDEV_MINOR_BASE,
-> +};
-> +
->  static struct input_handle *evdev_connect(struct input_handler *handler, struct input_dev *dev, struct input_device_id *id)
->  {
->  	struct evdev *evdev;
-> @@ -402,8 +410,8 @@ static struct input_handle *evdev_connec
->  
->  	evdev_table[minor] = evdev;
->  
-> -	devfs_mk_cdev(MKDEV(INPUT_MAJOR, EVDEV_MINOR_BASE + minor),
-> -			S_IFCHR|S_IRUGO|S_IWUSR, "input/event%d", minor);
-> +	intf.minor = minor;
-> +	input_register_class_dev(dev, &intf);
->  
->  	return &evdev->handle;
->  }
-> @@ -417,8 +425,10 @@ static void evdev_disconnect(struct inpu
->  	if (evdev->open) {
->  		input_close_device(handle);
->  		wake_up_interruptible(&evdev->wait);
-> -	} else
-> +	} else {
-> +		input_unregister_class_dev("input/event%d", evdev->minor);
->  		evdev_free(evdev);
-> +	}
->  }
+hdb: LTN485, ATAPI CD/DVD-ROM drive
+hdd: Hewlett-Packard CD-Writer Plus 9100b, ATAPI CD/DVD-ROM drive
+00:14.1 IDE interface: Intel Corp. 82371AB PIIX4 IDE (rev 01)
 
-You use "input/event%d" 4 times in the above code.  Any way of just
-passing the struct input_class_interface into
-input_unregister_class_dev() so that you don't have to specify the name
-more than once anywhere?
+# hdparm -d1 -X34 /dev/hdb
 
-thanks,
+/dev/hdb:
+ setting using_dma to 1 (on)
+ HDIO_SET_DMA failed: Operation not permitted
+ setting xfermode to 34 (multiword DMA mode2)
+ using_dma    =  0 (off)
 
-greg k-h
+$ cat /usr/src/linux/.config| grep IDE | grep -v ^# 
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_STROKE=y
+CONFIG_BLK_DEV_IDECD=m
+CONFIG_BLK_DEV_IDEFLOPPY=y
+CONFIG_BLK_DEV_IDESCSI=m
+CONFIG_IDE_TASK_IOCTL=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_BLK_DEV_IDEDMA_FORCED=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_IDEDMA_ONLYDISK=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_VIDEO_DEV=m
+CONFIG_VIDEO_PROC_FS=y
+CONFIG_VIDEO_BT848=m
+CONFIG_VIDEO_SELECT=y
+CONFIG_VIDEO_SELECT=y
+
+$ cat /usr/src/linux/.config| grep DMA | grep -v ^#
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_BLK_DEV_IDEDMA_FORCED=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_IDEDMA_ONLYDISK=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_SOUND_DMAP=y
+
+-- 
+
+  :... [snd.science] ...:
+ ::                             _o)
+ :: http://www.korseby.net      /\\
+ ::                            _\_V
+  :.........................:

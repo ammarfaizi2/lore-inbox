@@ -1,60 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131880AbQKTObp>; Mon, 20 Nov 2000 09:31:45 -0500
+	id <S131768AbQKTOgP>; Mon, 20 Nov 2000 09:36:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131879AbQKTObg>; Mon, 20 Nov 2000 09:31:36 -0500
-Received: from users.portal.ru ([195.16.96.19]:45065 "EHLO users.portal.ru")
-	by vger.kernel.org with ESMTP id <S131844AbQKTObZ>;
-	Mon, 20 Nov 2000 09:31:25 -0500
-Message-ID: <3A192EBC.F5B048F2@cyberplat.ru>
-Date: Mon, 20 Nov 2000 17:01:32 +0300
-From: Oleg Makarenko <omakarenko@cyberplat.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18-21 i686)
-X-Accept-Language: ru, en
+	id <S131797AbQKTOf4>; Mon, 20 Nov 2000 09:35:56 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:14604 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S131768AbQKTOfr>;
+	Mon, 20 Nov 2000 09:35:47 -0500
+Mail-Copies-To: never
+To: cturner@quark.analogic.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Defective Red Hat Distribution poorly represents Linux
+In-Reply-To: <Pine.LNX.3.95.1001120084920.580A-100000@quark.analogic.com>
+From: Andreas Jaeger <aj@suse.de>
+Date: 20 Nov 2000 15:05:44 +0100
+In-Reply-To: <Pine.LNX.3.95.1001120084920.580A-100000@quark.analogic.com>
+Message-ID: <hobsvakabr.fsf@gee.suse.de>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Capitol Reef)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.2.18pre22: ppa_fail(3) from ppa_wait at line 319
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With 2.2.18pre22 I get a lot of scsidisk I/O errors on my parallel port
-zip.
+>>>>> Charles Turner, Ph D writes:
 
-All pervious versions of 2.2.18pre worked fine. The problem is 100%
-reproducible and occurs
-after a long period of inactivity (10 or more minutes)
+ > I tried to help a friend this weekend convert to Linux.
+ > He lives in Upstate New York, so it was a long trip from
+ > Cambridge, Massachusetts.
 
-compiled with #define PPA_DEBUG 1 I get:
+ > I was terribly wrong. This Red Hat version is irrevocably defective.
 
-ppa_fail(3) from ppa_wait at line 319
+This list is about problems with the Linux kernel and not with
+specific distributions.  Please report this directly to the
+distribution maker, it's totally off-topic here.
 
-if you need more information please contact me directly as I am not on
-the list
-
-the following partial reversal patch seems to help (but I am not sure it
-is correct):
-
---- ppa.c.2.2.18pre22   Mon Nov 20 16:54:36 2000
-+++ ppa.c       Mon Nov 20 16:54:54 2000
-@@ -690,7 +690,7 @@
-            }
-        }
-        /* Now check to see if the drive is ready to comunicate */
--       r = ppa_wait(host_no); /* need ppa_wait() - PJC */
-+      r = (r_str(ppb) & 0xf0);
-        /* If not, drop back down to the scheduler and wait a timer tick
-*/
-        if (!(r & 0x80))
-            return 0;
-
-
-
-Oleg
-
-
-
+Andreas
+-- 
+ Andreas Jaeger
+  SuSE Labs aj@suse.de
+   private aj@arthur.inka.de
+    http://www.suse.de/~aj
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

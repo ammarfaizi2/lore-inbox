@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129208AbQKUJrk>; Tue, 21 Nov 2000 04:47:40 -0500
+	id <S129691AbQKUJyW>; Tue, 21 Nov 2000 04:54:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129691AbQKUJra>; Tue, 21 Nov 2000 04:47:30 -0500
-Received: from www.gmx.net ([194.221.183.50]:2581 "HELO www10.gmx.net")
-	by vger.kernel.org with SMTP id <S129208AbQKUJrQ>;
-	Tue, 21 Nov 2000 04:47:16 -0500
-Date: Tue, 21 Nov 2000 10:17:09 +0100 (MET)
-To: egger@suse.de
-Cc: linux-kernel@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB: Wacom Graphire mouse wheel does not work anymore
-From: karl.gustav@gmx.net
-MIME-Version: 1.0
-In-Reply-To: <20001121021309.F1F145962@Nicole.muc.suse.de>
-Message-ID: <8129.974798229@www10.gmx.net>
-X-Priority: 3 (Normal)
-X-Authenticated-Sender: #0001826769@gmx.net
-X-Mailer: WWW-Mail 1.5 (Global Message Exchange)
-X-Authenticated-IP: [194.138.37.36]
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	id <S130130AbQKUJyM>; Tue, 21 Nov 2000 04:54:12 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:26794 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S129691AbQKUJyD>;
+	Tue, 21 Nov 2000 04:54:03 -0500
+Date: Tue, 21 Nov 2000 10:23:59 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200011210923.KAA17750@harpo.it.uu.se>
+To: linux-kernel@vger.kernel.org
+Subject: [Announce] Version 1.6 of x86 performance counters driver
+Cc: mucci@cs.utk.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I used the IMPS/2 compatible mouse emulation of the wacom driver
-> > (/dev/input/mice).
-> 
->  Don't do that. It's evil. Use the xinput driver instead.
+Version 1.6 of my x86 performance-monitoring counters driver is
+now available at http://www.csd.uu.se/~mikpe/linux/perfctr/.
 
-Hm, there is no stable xinput driver available for XFree 4.0 and xinput
-does not support the wheel, too :-(
+Summary of changes since version 1.5:
+Version 1.6, 2000-11-21
+- Updated for kernels 2.4.0-test11 and 2.2.18pre22.
+- Preliminary implementation of /proc/self/perfctr as a more direct
+  way of accessing one's virtual perfctrs. (If this works out,
+  the /dev/perfctr interface to vperfctrs will be phased out.)
+  The driver can still be built as an autoloadable module.
+  (For now, only supported in 2.2.18pre22 and 2.4.0-test11.)
+- Some user-space library API changes to accommodate /proc/self/perfctr.
+- The per-process virtual TSC is no longer restarted from zero
+  when the perfctrs are reprogrammed, which allows it to be used
+  as a high-res per-process clock (i.e. gethrvtime()).
+- Rewrote the `command' example application to use perfctr inheritance
+  instead of the recently removed "remote control" facility.
+- WinChip documentation updates and corrections.
 
-K.
 
--- 
-Sent through GMX FreeMail - http://www.gmx.net
+/ Mikael Pettersson
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

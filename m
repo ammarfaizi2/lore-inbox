@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267009AbRHMTvg>; Mon, 13 Aug 2001 15:51:36 -0400
+	id <S267053AbRHMTt4>; Mon, 13 Aug 2001 15:49:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267018AbRHMTv0>; Mon, 13 Aug 2001 15:51:26 -0400
-Received: from mta3n.bluewin.ch ([195.186.1.212]:28237 "EHLO mta3n.bluewin.ch")
-	by vger.kernel.org with ESMTP id <S267009AbRHMTvS>;
-	Mon, 13 Aug 2001 15:51:18 -0400
-Message-ID: <3B776EA500038438@mta3n.bluewin.ch> (added by postmaster@bluewin.ch)
-From: "Per Jessen" <per@computer.org>
-To: "Linux Kernel List" <linux-kernel@vger.kernel.org>,
-        "Mircea Ciocan" <mirceac@interplus.ro>
-Date: Mon, 13 Aug 2001 22:00:00 +0200
-Reply-To: "Per Jessen" <per@computer.org>
-X-Mailer: PMMail 98 Professional (2.01.1600) For Windows 95 (4.0.1212)
+	id <S267018AbRHMTtq>; Mon, 13 Aug 2001 15:49:46 -0400
+Received: from mail-klh.telecentrum.de ([213.69.31.130]:61960 "EHLO
+	mail-klh.telecentrum.de") by vger.kernel.org with ESMTP
+	id <S267009AbRHMTth>; Mon, 13 Aug 2001 15:49:37 -0400
+Message-ID: <3B782F19.53010F57@topit.de>
+Date: Mon, 13 Aug 2001 21:48:41 +0200
+From: Ronald Jeninga <rj@topit.de>
+Reply-To: rj@topit.de
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+To: Mircea Ciocan <mirceac@interplus.ro>
+CC: Linux Kernel List <linux-kernel@vger.kernel.org>
 Subject: Re: Is there something that can be done against this ???
+In-Reply-To: <E15WK98-0007gd-00@the-village.bc.nu> <3B7822E5.9AE35D4A@interplus.ro>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Aug 2001 22:20:08 +0300, Mircea Ciocan wrote:
+I'll have to dissapoint you, worked perfect over here
+(Kernel 2.2.19, ld version 2.9.5 (with BFD 2.9.5.0.24), libc-2.1.3-141).
 
->	OK, I realized is a hoax, I should look at the code first then cry the
->wolf is comming :), but anyhow this crap is VERY effective in
->demonstrating to a clueless IT manager that Linux is oh, sooo easy to
->break in.
+feeling uncomfortable,
 
-This is an EXCELLENT comment - we need to be concerned not just about fact, 
-but also about perception. For those of you in admin jobs with clueless
-IT managers watching over your shoulder, this is a real challenge. Hopefully,
-since you have *already* adopted Linux, you'll be able to prove that
-this particular script was no threat to Linux.
+Ronald
 
 
->	So at least to learn something from this, is there a way to stop
->completly that crap ???
->		My apologies to get you disturbed.
-
-I think you did rightly so. No apologies needed.
-
-
-regards,
-Per Jessen
-
-regards,
-Per Jessen, Zurich
-http://www.enidan.com - home of the J1 serial console.
-
-Windows 2001: "I'm sorry Dave ...  I'm afraid I can't do that."
-
-
+Mircea Ciocan wrote:
+> 
+>         The attached piece of script kiddie shit is the first one that worked
+> flawlessly on my Mandrake box :((( ( kernel 2.4.7ac2, glibc-2.2.3 ),
+> instant root access !!!.
+>         I was stunned, and it seem that is the beginning of a Linux Code Red
+> lookalike worm :(((( using that exploit, probably this is not the most
+> apropriate place to send this, but I'm not subscribed to the glibc
+> mailing list and I just hope that some glibc hackers are on linux kernel
+> list also and they see that and do something before we join the ranks of
+> M$.
+> 
+>                 Dead worried,
+> 
+>                 Mircea C.
+> 
+> P.S. Please tell me that I'm just being parnoid and that crap didn't
+> work on your systems with a lookalike configuration.
+> 
+>   --------------------------------------------------------------------------------
+>                Name: smile.sh
+>    smile.sh    Type: Bourne Shell Program (application/x-sh)
+>            Encoding: quoted-printable

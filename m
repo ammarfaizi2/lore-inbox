@@ -1,43 +1,24 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284848AbRLRT6z>; Tue, 18 Dec 2001 14:58:55 -0500
+	id <S284905AbRLRUGN>; Tue, 18 Dec 2001 15:06:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284908AbRLRTtg>; Tue, 18 Dec 2001 14:49:36 -0500
-Received: from [212.159.14.225] ([212.159.14.225]:29427 "HELO
-	murphys.services.quay.plus.net") by vger.kernel.org with SMTP
-	id <S284855AbRLRTtH>; Tue, 18 Dec 2001 14:49:07 -0500
-Date: Tue, 18 Dec 2001 19:47:55 +0000
-From: "J.P. Morris" <jpm@it-he.org>
+	id <S284860AbRLRUF4>; Tue, 18 Dec 2001 15:05:56 -0500
+Received: from vzn1-22.ce.ftel.net ([206.24.95.226]:48273 "EHLO spinics.net")
+	by vger.kernel.org with ESMTP id <S284812AbRLRUFv>;
+	Tue, 18 Dec 2001 15:05:51 -0500
+From: ellis@spinics.net
+Message-Id: <200112182006.fBIK6Qh11757@spinics.net>
+Subject: Block device size limit
 To: linux-kernel@vger.kernel.org
-Subject: Re: AIC7850 panic (post 2.4.14)
-Message-Id: <20011218194755.7d1f8e5e.jpm@it-he.org>
-X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Date: Tue, 18 Dec 2001 12:06:26 -0800 (PST)
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+It looks like a block device only has a 32 bit field to hold
+the sector number.  Does this limit a filesystem to 2^32
+sectors?
 
-> I had the exact same problem with this chipset (Adaptec 2904), but I 
-> increased the "Initial bus reset delay" from 150 ms to 250 and solved it.
-
-I've tried that, and also reducing TCQs to 8 as suggested elsewhere.
-Unfortunately it hasn't solved the problem, it just takes longer to die.
-
-> By the way, do you have cdrom's attached to your scsi card? Beware, 
-> since 2.5.1-pre8 (at least) the PC will hang solid if I try to mount a 
-> data cd. Up to 2.5.1-pre11 the problem remains. Can you verify this 
-> (without mounting any disk, of course)?
-
-Yes, the card drives a CDROM unit and a DVD-RAM drive.
-However I don't intend to try 2.5 for a good few months yet.
-
-> Regards,
-
--- 
-JP Morris - aka DOUG the Eagle (Dragon) -=UDIC=-  doug@it-he.org
-Fun things to do with the Ultima games            http://www.it-he.org
-Developing a U6/U7 clone                          http://ire.it-he.org
-d+++ e+ N+ T++ Om U1234!56!7'!S'!8!9!KA u++ uC+++ uF+++ uG---- uLB----
-uA--- nC+ nR---- nH+++ nP++ nI nPT nS nT wM- wC- y a(YEAR - 1976)

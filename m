@@ -1,54 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262803AbTCKDwm>; Mon, 10 Mar 2003 22:52:42 -0500
+	id <S262804AbTCKEAx>; Mon, 10 Mar 2003 23:00:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262806AbTCKDwm>; Mon, 10 Mar 2003 22:52:42 -0500
-Received: from adsl-67-114-192-42.dsl.pltn13.pacbell.net ([67.114.192.42]:17419
-	"EHLO mx1.corp.rackable.com") by vger.kernel.org with ESMTP
-	id <S262803AbTCKDwl>; Mon, 10 Mar 2003 22:52:41 -0500
-Message-ID: <3E6D5FDB.6000306@rackable.com>
-Date: Mon, 10 Mar 2003 20:02:35 -0800
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	id <S262805AbTCKEAx>; Mon, 10 Mar 2003 23:00:53 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:59660 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S262804AbTCKEAw>; Mon, 10 Mar 2003 23:00:52 -0500
+Date: Tue, 11 Mar 2003 04:11:32 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: "Randy.Dunlap" <randy.dunlap@verizon.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] vt_ioctl() stack size reduction (v2)
+In-Reply-To: <3E6D4E8C.46002A13@verizon.net>
+Message-ID: <Pine.LNX.4.44.0303110410560.17590-100000@phoenix.infradead.org>
 MIME-Version: 1.0
-To: herbert@13thfloor.at
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.21-pre5 adaptec updates ...
-References: <20030310234428.GB31279@www.13thfloor.at>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 Mar 2003 04:03:18.0470 (UTC) FILETIME=[2609BE60:01C2E783]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Poetzl wrote:
 
->updated the linux-2.4.21-pre5 aic7xxx driver
->and added aic79xx U320 driver support from
->adaptec source code.
->
->aic7xxx version 6.2.10 (adaptec)
->aic79xx version 1.1.0 (adaptec)
->
->patch can be downloaded from
->http://www.13thfloor.at/Patches/
->
->please CC any replies to me personally, because
->I'm not subscribed to lkml.
->
->  
->
-  Hopefully 2.4.21 will pickup the aic79xx updates from the ac tree. 
- Otherwise this is going to cause a lot of noise on the list.  Both tyan 
-and intel switched to the aic79xx  for their Xeon 533 FSB motherboard 
-refreshes.  I'd bet that many of the other mobo mfg are doing the same.
+> Hi,
+> 
+> This patch (to 2.5.64) reduces stack size usage in
+>   drivers/char/vt_ioctl.c::vt_ioctl()
+> from 0x334 bytes to 0xec bytes (P4, UP, gcc 2.96).
+> 
+> James, are you the maintainer of this module?
 
--- 
-There is no such thing as obsolete hardware.
-Merely hardware that other people don't want.
-(The Second Rule of Hardware Acquisition)
-Sam Flory  <sflory@rackable.com>
-
-
+Yes. Sorry I have been busy fbdev hacking. Looks good. I will test and 
+apply to my BK tree.
+ 
+> Comments, anyone?
+> 
+> Thanks to Ingo Oeser for one suggestion -- applied.
 

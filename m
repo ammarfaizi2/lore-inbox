@@ -1,80 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261193AbTEESS5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 14:18:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbTEESS5
+	id S261212AbTEESYz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 14:24:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbTEESYz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 14:18:57 -0400
-Received: from ns.suse.de ([213.95.15.193]:26376 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261193AbTEESSy (ORCPT
+	Mon, 5 May 2003 14:24:55 -0400
+Received: from port-212-202-172-137.reverse.qdsl-home.de ([212.202.172.137]:15512
+	"EHLO jackson.localnet") by vger.kernel.org with ESMTP
+	id S261212AbTEESYx convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 14:18:54 -0400
-Date: Mon, 5 May 2003 20:31:23 +0200
-From: Karsten Keil <kkeil@suse.de>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: alan@lxorguk.ukuu.org.uk, kai@tp1.ruhr-uni-bochum.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: ISDN massive packet drops while DVD burn/verify
-Message-ID: <20030505183123.GA31871@pingi3.kke.suse.de>
-Mail-Followup-To: Stephan von Krawczynski <skraw@ithnet.com>,
-	alan@lxorguk.ukuu.org.uk, kai@tp1.ruhr-uni-bochum.de,
-	linux-kernel@vger.kernel.org
-References: <20030416151221.71d099ba.skraw@ithnet.com> <Pine.LNX.4.44.0304161056430.5477-100000@chaos.physics.uiowa.edu> <20030419193848.0811bd90.skraw@ithnet.com> <1050789691.3955.17.camel@dhcp22.swansea.linux.org.uk> <20030505164653.GA30015@pingi3.kke.suse.de> <20030505192652.7f17ea9e.skraw@ithnet.com>
+	Mon, 5 May 2003 14:24:53 -0400
+Date: Mon, 05 May 2003 20:40:36 +0200 (CEST)
+Message-Id: <20030505.204036.596526358.rene.rebe@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21-rc1 VM swaps out too much
+From: Rene Rebe <rene.rebe@gmx.net>
+In-Reply-To: <20030503.215534.846937682.rene.rebe@gmx.net>
+References: <20030503.215534.846937682.rene.rebe@gmx.net>
+X-Mailer: Mew version 3.1 on XEmacs 21.4.12 (Portable Code)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030505192652.7f17ea9e.skraw@ithnet.com>
-User-Agent: Mutt/1.4i
-Organization: SuSE Linux AG
-X-Operating-System: Linux 2.4.20-4GB i686
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Spam-Score: -26.1 (--------------------------)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19CktI-0006cf-EY*CEwmUvvBIbI*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 05, 2003 at 07:26:52PM +0200, Stephan von Krawczynski wrote:
-> On Mon, 5 May 2003 18:46:53 +0200
-> Karsten Keil <kkeil@suse.de> wrote:
-> 
-> > > How did we manage to become that bad?
-> > 
-> > Its not so bad, the problem is how do you tune the system. If you prefer to
-> > not interrupt the IDE transfers, which seems to be the default case, you
-> > loose IRQ latency, which doesn't matter in much cases, but not on
-> > this. You can tune it (hdparm work also with cdwriters, since
-> > even if it use ide-scsi, the underlying driver is the ide driver.
-> 
-> You mean UDMA 2 does not make it (which I had in the test case)?
-> 
-> # hdparm -i /dev/hdc
-> 
-> /dev/hdc:
-> 
->  Model=SONY DVD RW DRU-500A, FwRev=2.0c, SerialNo=DA5B9D3D
->  Config={ Fixed Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
->  RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
->  BuffType=unknown, BuffSize=0kB, MaxMultSect=0
->  (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
->  IORDY=on/off, tPIO={min:180,w/IORDY:120}, tDMA={min:120,rec:120}
->  PIO modes:  pio0 pio1 pio2 pio3 pio4 
->  DMA modes:  mdma0 mdma1 mdma2 
->  UDMA modes: udma0 udma1 *udma2 
->  AdvancedPM=no
->  Drive conforms to: device does not report version:  4 5 6
-> 
+Hi,
 
-No the mode doesn't matter so much here, what give
+2.5.68 is much smoother, quite less swap is used, my editors are not
+pulled out of the swap all the time:
 
-hdparm -v /dev/hdc
+$ free
+             total       used       free     shared    buffers     cached
+Mem:        515848     505804      10044          0      92808     173876
+-/+ buffers/cache:     239120     276728
+Swap:       524624      35612     489012
+
+Linux version 2.5.68 (root@jackson) (gcc version 3.2.2) #2 Sun May 4 00:20:13 CEST 2003
+
+20:39:52 up 1 day, 20:17,  2 users,  load average: 3.31, 3.36, 3.19
 
 
-> > This all don't say that here maybe also other problems around, but I have no
-> > better explanation.
+On: Sat, 03 May 2003 21:55:34 +0200 (CEST),
+    Rene Rebe <rene.rebe@gmx.net> wrote:
+> Hi all,
 > 
-> Hm, this looks like the unresolved sleeping AVM Fritz2 syndrome to me: no idea
-> of what's really going on ...
+> somewhere in the 2.4.21-xx series (currently running -rc1 here) seems
+> to be a VM regression, that results in quite hefty swap-outs. The box
+> is an Athlon-XP with 512MB RAM, running batched gcc jobs (distribution
+> builds taking three days and more...). But the box is used a normal
+> workstation, too. My normal desktop programs constantly need to get
+> swapped-in - quite annoying. This only start to happen after an uptime
+> of a day.
+> 
+> So the CPU:
+> 
+> vendor_id       : AuthenticAMD
+> cpu family      : 6
+> model           : 6
+> model name      : AMD Athlon(tm) 4 Processor
+> stepping        : 2
+> cpu MHz         : 1460.481
+> cache size      : 256 KB
+> 
+> $ cat /proc/meminfo
+>         total:    used:    free:  shared: buffers:  cached:
+> Mem:  527351808 519213056  8138752        0 88793088 328437760
+> Swap: 537214976 184963072 352251904
+> MemTotal:       514992 kB
+> MemFree:          7948 kB
+> MemShared:           0 kB
+> Buffers:         86712 kB
+> Cached:         252328 kB
+> SwapCached:      68412 kB
+> Active:         276828 kB
+> Inactive:       177468 kB
+> HighTotal:           0 kB
+> HighFree:            0 kB
+> LowTotal:       514992 kB
+> LowFree:          7948 kB
+> SwapTotal:      524624 kB
+> SwapFree:       343996 kB
+> 
+> $ uptime
+>  21:52:41 up 4 days, 23:55,  4 users,  load average: 2.14, 2.47, 2.32
+> 
+> $ cat /proc/version
+> Linux version 2.4.21-rc1 (root@jackson) (gcc version 3.2.2) #1 Mon Apr 28 00:36:17 CEST 2003
+> 
+> More data available on request.
+> 
+> - René
 
-Hmm, don't remember this issue at the moment.
+- René
 
--- 
-Karsten Keil
-SuSE Labs
-ISDN development
+--  
+René Rebe - Europe/Germany/Berlin
+e-mail:   rene@rocklinux.org, rene.rebe@gmx.net
+web:      http://www.rocklinux.org/people/rene http://gsmp.tfh-berlin.de/rene/
+
+Anyone sending unwanted advertising e-mail to this address will be
+charged $25 for network traffic and computing time. By extracting my
+address from this message or its header, you agree to these terms.

@@ -1,75 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261308AbVCYAu0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261410AbVCYB66@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261308AbVCYAu0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 19:50:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbVCYAt1
+	id S261410AbVCYB66 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 20:58:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261304AbVCYAtQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 19:49:27 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:60176 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261310AbVCYATh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 19:19:37 -0500
-Date: Fri, 25 Mar 2005 01:19:35 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: chas@cmf.nrl.navy.mil
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: [2.6 patch] net/atm/resources.c: remove __free_atm_dev
-Message-ID: <20050325001935.GI3966@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 24 Mar 2005 19:49:16 -0500
+Received: from mail-in-01.arcor-online.net ([151.189.21.41]:35778 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261309AbVCYASM convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 19:18:12 -0500
+Date: Fri, 25 Mar 2005 01:23:17 +0100 (CET)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Andi Kleen <ak@muc.de>
+Cc: Bodo Eggert <7eggert@gmx.de>, linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.11.5] atkbd: suppress debug output (was: printk with
+ anti-cluttering-feature)
+In-Reply-To: <m1is3l3v25.fsf@muc.de>
+Message-ID: <Pine.LNX.4.58.0503250111240.4258@be1.lrz>
+References: <Pine.LNX.4.58.0503200528520.2804@be1.lrz> <m1is3l3v25.fsf@muc.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There's no need for a function that only calls kfree.
+On Mon, 21 Mar 2005, Andi Kleen wrote:
+> Bodo Eggert <7eggert@gmx.de> writes:
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> > atkbd.c: Keyboard on isa0060/serio0 reports too many keys pressed.
+> >  (I'm using a keyboard switch and a IBM PS/2 keyboard)
+> 
+> This one should be just taken out. It is as far as I can figure out
+> completely useless and happens on most machines.
 
----
+Signed-off-by: Bodo Eggert <7eggert@gmx.de>
 
- net/atm/resources.c |   11 +++--------
- 1 files changed, 3 insertions(+), 8 deletions(-)
-
---- linux-2.6.12-rc1-mm1-full/net/atm/resources.c.old	2005-03-23 18:21:31.000000000 +0100
-+++ linux-2.6.12-rc1-mm1-full/net/atm/resources.c	2005-03-23 18:22:05.000000000 +0100
-@@ -44,11 +44,6 @@
- 	return dev;
- }
- 
--static void __free_atm_dev(struct atm_dev *dev)
--{
--	kfree(dev);
--}
--
- static struct atm_dev *__atm_dev_lookup(int number)
- {
- 	struct atm_dev *dev;
-@@ -90,7 +85,7 @@
- 		if ((inuse = __atm_dev_lookup(number))) {
- 			atm_dev_put(inuse);
- 			spin_unlock(&atm_dev_lock);
--			__free_atm_dev(dev);
-+			kfree(dev);
- 			return NULL;
- 		}
- 		dev->number = number;
-@@ -119,7 +114,7 @@
- 		spin_lock(&atm_dev_lock);
- 		list_del(&dev->dev_list);
- 		spin_unlock(&atm_dev_lock);
--		__free_atm_dev(dev);
-+		kfree(dev);
- 		return NULL;
+--- linux-2.6.11/drivers/input/keyboard/atkbd.c	2005-03-20 21:50:52.000000000 +0100
++++ linux-2.6.11.new/drivers/input/keyboard/atkbd.c	2005-03-25 01:06:50.000000000 +0100
+@@ -320,7 +320,9 @@ static irqreturn_t atkbd_interrupt(struc
+ 			atkbd_report_key(&atkbd->dev, regs, KEY_HANJA, 3);
+ 			goto out;
+ 		case ATKBD_RET_ERR:
++#ifdef ATKBD_DEBUG
+ 			printk(KERN_DEBUG "atkbd.c: Keyboard on %s reports too many keys pressed.\n", serio->phys);
++#endif
+ 			goto out;
  	}
  
-@@ -148,7 +143,7 @@
-                 }
-         }
- 
--	__free_atm_dev(dev);
-+	kfree(dev);
- }
- 
- void shutdown_atm_dev(struct atm_dev *dev)
+-- 
+If you can't remember, then the claymore IS pointed at you. 
 
+Friﬂ, Spammer: billing@mclchnfa.info nkFWbu@volksgemeinschaft.org
+ sparing@fuoje43.com w@7eggert.dyndns.org service@xsalez.org

@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261701AbTCDVtA>; Tue, 4 Mar 2003 16:49:00 -0500
+	id <S261427AbTCDWCu>; Tue, 4 Mar 2003 17:02:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261855AbTCDVtA>; Tue, 4 Mar 2003 16:49:00 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:65287 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id <S261701AbTCDVs7>; Tue, 4 Mar 2003 16:48:59 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200303042200.h24M09Y2006001@81-2-122-30.bradfords.org.uk>
-Subject: Re: [PATCH] Avoid PC(?) specific cascade dma reservation in
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Tue, 4 Mar 2003 22:00:09 +0000 (GMT)
-Cc: johan.adolfsson@axis.com, marcelo@conectiva.com.br, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1046818415.12231.14.camel@irongate.swansea.linux.org.uk> from "Alan Cox" at Mar 04, 2003 10:53:35 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261523AbTCDWCu>; Tue, 4 Mar 2003 17:02:50 -0500
+Received: from packet.digeo.com ([12.110.80.53]:47781 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261427AbTCDWCt>;
+	Tue, 4 Mar 2003 17:02:49 -0500
+Date: Tue, 4 Mar 2003 14:09:18 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Mark Wong <markw@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.63-mm2
+Message-Id: <20030304140918.4092f09b.akpm@digeo.com>
+In-Reply-To: <1046815078.12931.79.camel@ibm-b>
+References: <20030302180959.3c9c437a.akpm@digeo.com>
+	<1046815078.12931.79.camel@ibm-b>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 04 Mar 2003 22:13:12.0501 (UTC) FILETIME=[3F06BE50:01C2E29B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I guess the reservation of dma channel 4 for "cascade" is
-> > PC or chipset specific and we don't have such a thing in the 
-> > CRIS (ETRAX100LX) chip and channel 4 clashes with external dma0.
-> > Perhaps a better fix is to #ifdef on something else or remove 
-> > the cascade stuff entirely from this file, but I leave that
-> > to those who know better.
-> > Have no other arch been bitten by this?
+Mark Wong <markw@osdl.org> wrote:
+>
+> It appears something is conflicting with the old Adapatec AIC7xxx.  My
+> system halts when it attempts to probe the devices (I think it's that.) 
+> So I started using the new AIC7xxx driver and all is well.  I don't see
+> any messages to the console that points to any causes.  Is there
+> someplace I can look for a clue to the problem?
 > 
-> I don't know of any PC cards that can support ISA DMA channel 4
+> I actually didn't realize I was using the old driver and have no qualms
+> about not using it, but if it'll help someone else, I can help gather
+> information.
 
-As far as I know, there is no pin defined for request or
-acknowledgement of DMA channel 4 on the ISA bus - or am I missing
-something?
+There are "fixes" in that driver in Linus's tree.  I suggest you revert to
+the 2.5.63 version of aic7xxx_old.c, see if that fixes it.
 
-John.

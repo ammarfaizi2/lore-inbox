@@ -1,55 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261502AbVAXLwv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261499AbVAXL4e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261502AbVAXLwv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 06:52:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbVAXLwv
+	id S261499AbVAXL4e (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 06:56:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbVAXL4e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 06:52:51 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:14853 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261502AbVAXLwt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 06:52:49 -0500
-Subject: Re: RFC: [2.6 patch] let BLK_DEV_UB depend on USB_STORAGE=n
-From: David Woodhouse <dwmw2@infradead.org>
-To: Greg KH <greg@kroah.com>
-Cc: Adrian Bunk <bunk@stusta.de>, mdharm-usb@one-eyed-alien.net,
-       zaitcev@yahoo.com, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050119220707.GM4151@kroah.com>
-References: <20041220001644.GI21288@stusta.de>
-	 <20041220003146.GB11358@kroah.com> <20041223024031.GO5217@stusta.de>
-	 <20050119220707.GM4151@kroah.com>
-Content-Type: text/plain
-Date: Mon, 24 Jan 2005 11:48:51 +0000
-Message-Id: <1106567331.6480.43.camel@localhost.localdomain>
+	Mon, 24 Jan 2005 06:56:34 -0500
+Received: from irulan.endorphin.org ([80.68.90.107]:3849 "EHLO
+	irulan.endorphin.org") by vger.kernel.org with ESMTP
+	id S261499AbVAXL4a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 06:56:30 -0500
+Date: Mon, 24 Jan 2005 12:56:24 +0100
+To: akpm@osdl.org, jmorris@redhat.com, linux-kernel@vger.kernel.org
+Subject: [PATCH 01/04] Adding cipher mode context information to crypto_tfm
+Message-ID: <20050124115624.GA21457@ghanima.endorphin.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.6i
+From: Fruhwirth Clemens <clemens-dated-1107431785.31e3@endorphin.org>
+X-Delivery-Agent: TMDA/0.92 (Kauai King)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-01-19 at 14:07 -0800, Greg KH wrote:
-> I have been running with just the code portion of this patch for a while
-> now, with good results (no Kconfig changes.)
-> 
-> Pete and Matt, do you mind me applying the following portion of the
-> patch to the kernel tree?
-> 
-> > -#if !defined(CONFIG_BLK_DEV_UB) && !defined(CONFIG_BLK_DEV_UB_MODULE)
-> >  UNUSUAL_DEV(  0x0781, 0x0002, 0x0009, 0x0009, 
-> >  		"Sandisk",
-> >  		"ImageMate SDDR-31",
-> >  		US_SC_DEVICE, US_PR_DEVICE, NULL,
-> >  		US_FL_IGNORE_SER ),
-> > -#endif
+This patch adds the ability for a cipher mode to store cipher mode specific
+information in crypto_tfm. This is necessary for LRW's precomputed
+GF-multiplication tables.
 
-Urgh. Please do. Code which may compile differently in the kernel image
-according to which _modules_ are configured at the time is horrid, and
-should be avoided.
-
--- 
-dwmw2
-
+Signed-off-by: Fruhwirth Clemens <clemens@endorphin.org>
+ 
+--- 0/crypto/api.c	2005-01-20 10:15:22.000000000 +0100
++++ 1/crypto/api.c	2005-01-20 10:15:40.000000000 +0100
+@@ -3,6 +3,7 @@
+  *
+  * Copyright (c) 2002 James Morris <jmorris@intercode.com.au>
+  * Copyright (c) 2002 David S. Miller (davem@redhat.com)
++ * Copyright (c) 2004 Clemens Fruhwirth <clemens@endorphin.org>
+  *
+  * Portions derived from Cryptoapi, by Alexander Kjeldaas <astor@fast.no>
+  * and Nettle, by Niels M�ller.
+@@ -23,6 +24,14 @@
+ LIST_HEAD(crypto_alg_list);
+ DECLARE_RWSEM(crypto_alg_sem);
+ 
++static inline int crypto_cmctx_size(u32 flags) 
++{
++	switch(flags & CRYPTO_TFM_MODE_MASK) {
++		default:
++			return 0;
++	}
++}
++
+ static inline int crypto_alg_get(struct crypto_alg *alg)
+ {
+ 	return try_module_get(alg->cra_module);
+@@ -121,16 +130,18 @@
+ {
+ 	struct crypto_tfm *tfm = NULL;
+ 	struct crypto_alg *alg;
++	int tfm_size;
+ 
+ 	alg = crypto_alg_mod_lookup(name);
+ 	if (alg == NULL)
+ 		goto out;
+ 	
+-	tfm = kmalloc(sizeof(*tfm) + alg->cra_ctxsize, GFP_KERNEL);
++	tfm_size = sizeof(*tfm) + alg->cra_ctxsize + crypto_cmctx_size(flags);
++	tfm = kmalloc(tfm_size, GFP_KERNEL);
+ 	if (tfm == NULL)
+ 		goto out_put;
+ 
+-	memset(tfm, 0, sizeof(*tfm) + alg->cra_ctxsize);
++	memset(tfm, 0, tfm_size);
+ 	
+ 	tfm->__crt_alg = alg;
+ 	
+@@ -156,7 +167,7 @@
+ void crypto_free_tfm(struct crypto_tfm *tfm)
+ {
+ 	struct crypto_alg *alg = tfm->__crt_alg;
+-	int size = sizeof(*tfm) + alg->cra_ctxsize;
++	int size = sizeof(*tfm) + alg->cra_ctxsize + crypto_cmctx_size(tfm->crt_cipher.cit_mode);
+ 
+ 	crypto_exit_ops(tfm);
+ 	crypto_alg_put(alg);
+--- 0/crypto/internal.h	2005-01-20 10:15:22.000000000 +0100
++++ 1/crypto/internal.h	2005-01-20 10:15:40.000000000 +0100
+@@ -47,6 +47,11 @@
+ 	return (void *)&tfm[1];
+ }
+ 
++static inline void *crypto_tfm_cmctx(struct crypto_tfm *tfm)
++{
++	return ((char *)&tfm[1]) + tfm->__crt_alg->cra_ctxsize;
++}
++
+ struct crypto_alg *crypto_alg_lookup(const char *name);
+ 
+ /* A far more intelligent version of this is planned.  For now, just

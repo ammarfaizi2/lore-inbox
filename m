@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262437AbSJKNeZ>; Fri, 11 Oct 2002 09:34:25 -0400
+	id <S262441AbSJKNg1>; Fri, 11 Oct 2002 09:36:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262439AbSJKNeZ>; Fri, 11 Oct 2002 09:34:25 -0400
-Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:30863 "EHLO
-	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S262437AbSJKNeY>; Fri, 11 Oct 2002 09:34:24 -0400
-Date: Fri, 11 Oct 2002 10:39:51 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Pavel Machek <pavel@ucw.cz>
-cc: Troy Benjegerdes <hozer@hozed.org>, Larry McVoy <lm@bitmover.com>,
-       Hans Reiser <reiser@namesys.com>, walt <wa1ter@hotmail.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: New BK License Problem?
-In-Reply-To: <20021010231924.A211@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.44L.0210111037480.22735-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262444AbSJKNg1>; Fri, 11 Oct 2002 09:36:27 -0400
+Received: from holomorphy.com ([66.224.33.161]:62080 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S262441AbSJKNg0>;
+	Fri, 11 Oct 2002 09:36:26 -0400
+Date: Fri, 11 Oct 2002 06:38:42 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.41-mm3
+Message-ID: <20021011133842.GX10722@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>
+References: <3DA699AA.BBA05716@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DA699AA.BBA05716@digeo.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Oct 2002, Pavel Machek wrote:
+On Fri, Oct 11, 2002 at 02:28:10AM -0700, Andrew Morton wrote:
+> url: http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.41/2.5.41-mm3/
 
-> 4) have widely-usable CVS replacement.
+This paride driver seems to have been missed with all the sector_t
+and sector_div() business.
 
-Subversion is a CVS replacement already.
-
-Why aren't you using it, Pavel ?
-
-> > It costs a lot of money to do what we are doing, we know exactly how
-> > much, and a GPLed answer won't support those costs.  We have to do
-> > what
->
-> Even if *you* stopped developping bitkeeper, there would be plenty of
-> other people to develop it, into way better product.
->
-> If you don't think GPLed bitkeeper can not be developed, then I do not
-> know why you are trying to kill subversion.
-
-Pavel, I know you want to kill bitkeeper.  However, whining
-isn't going to achieve that. Turning subversion into a better
-tool than bitkeeper might...
-
-I think Ben Collins already has a script to extract changesets
-from the kernel tree using just CSSC as a tool. Why don't you
-help him get those changesets imported into Subversion ?
-
-regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://distro.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
-
+--- akpm-2.5.41-3/drivers/block/paride/pf.c	2002-10-11 06:09:31.000000000 -0700
++++ wli-2.5.41-3/drivers/block/paride/pf.c	2002-10-11 06:38:16.000000000 -0700
+@@ -369,11 +369,11 @@
+ 		return -EINVAL;
+ 	capacity = get_capacity(pf->disk);
+ 	if (capacity < PF_FD_MAX) {
+-		g.cylinders = capacity / (PF_FD_HDS * PF_FD_SPT);
++		g.cylinders = sector_div(capacity, PF_FD_HDS * PF_FD_SPT);
+ 		g.heads = PF_FD_HDS;
+ 		g.sectors = PF_FD_SPT;
+ 	} else {
+-		g.cylinders = capacity / (PF_HD_HDS * PF_HD_SPT);
++		g.cylinders = sector_div(capacity, PF_HD_HDS * PF_HD_SPT);
+ 		g.heads = PF_HD_HDS;
+ 		g.sectors = PF_HD_SPT;
+ 	}

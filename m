@@ -1,49 +1,109 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278712AbRJ3XSo>; Tue, 30 Oct 2001 18:18:44 -0500
+	id <S276647AbRJ3XZe>; Tue, 30 Oct 2001 18:25:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278736AbRJ3XSe>; Tue, 30 Oct 2001 18:18:34 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:32080 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S278724AbRJ3XSQ>; Tue, 30 Oct 2001 18:18:16 -0500
-Date: Wed, 31 Oct 2001 00:18:47 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: pre5 VM livelock
-Message-ID: <20011031001847.F1340@athlon.random>
-In-Reply-To: <3BDF1999.CAF5D101@mandrakesoft.com> <Pine.LNX.4.33.0110301436550.1188-100000@penguin.transmeta.com>
-Mime-Version: 1.0
+	id <S278736AbRJ3XZP>; Tue, 30 Oct 2001 18:25:15 -0500
+Received: from chiark.greenend.org.uk ([195.224.76.132]:26634 "EHLO
+	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
+	id <S274806AbRJ3XZN>; Tue, 30 Oct 2001 18:25:13 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.LNX.4.33.0110301436550.1188-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Oct 30, 2001 at 02:49:27PM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
+Message-ID: <wwvady8vhfs.fsf@rjk.greenend.org.uk>
+Date: Tue, 30 Oct 2001 23:25:43 +0000
+X-Face: h[Hh-7npe<<b4/eW[]sat,I3O`t8A`(ej.H!F4\8|;ih)`7{@:A~/j1}gTt4e7-n*F?.Rl^
+     F<\{jehn7.KrO{!7=:(@J~]<.[{>v9!1<qZY,{EJxg6?Er4Y7Ng2\Ft>Z&W?r\c.!4DXH5PWpga"ha
+     +r0NzP?vnz:e/knOY)PI-
+X-Boydie: NO
+From: Richard Kettlewell <rjk@greenend.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: problem with ide-scsi and IDE tape drive
+X-Mailer: VM 6.92 under 21.4 (patch 1) "Copyleft" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 30, 2001 at 02:49:27PM -0800, Linus Torvalds wrote:
-> 
-> On Tue, 30 Oct 2001, Jeff Garzik wrote:
-> >
-> > Key symptoms:  Free swab 0Kb according to sysrq-m, and several processes
-> > in run state according to sysrq-t.
-> 
-> What are the stack traces for the processes (ie "Ctrl-ScrollLock")
-> 
-> It actually _sounds_ like you're out-of-memory for real, you have no swap
-> left, and you have only four pages in the swap cache which implies that
-> the system has tried very very hard to get rid of the pages you _did_
-> write to swap.
-> 
-> That, in turn, sounds like a memory leak. You've got 38578 pages on the
+Hi,
 
-I agree it's oom, I think it's the infinite loop, it probably thinks
-this memory is freeable but maybe it's all anonymous mlocked memory, or
-maybe there's no swap at all that is equivalent for the vm.
+I have a Seagate STT20000A IDE tape drive, which I am trying to use
+with the ide-scsi driver.  It worked well enough when moving data
+around to repartition recently, but I have discovered a repeatable
+problem.
 
-I think it's not reproducible in -aa.
+If I try and save a tar to the tape twice in succession, rewinding and
+reading forward to the same point each time first, the second attempt
+fails (details below).
 
-Andrea
+I originally found this under 2.2.19, and upgraded to 2.4.13 to see if
+the problem was still there when running more recent code.  It is.
+
+Here is a script which demonstrates the problem for me:
+
+    #! /bin/sh
+    set -e
+    TAPE=/dev/nst0
+    hsize=512
+
+    set -x
+
+    mt -f $TAPE rewind
+    echo "tape 1" | dd conv=sync of=$TAPE bs=$hsize count=1
+
+    for x in 1 2 3; do
+      mt -f $TAPE rewind
+      dd if=$TAPE of=/dev/null bs=$hsize
+      date
+      tar -c -b 20 -f $TAPE /boot
+    done
+
+Here's what the output looks like:
+
+    sfere# ./t
+    + mt -f /dev/nst0 rewind
+    + dd conv=sync of=/dev/nst0 bs=512 count=1
+    + echo 'tape 1'
+    0+1 records in
+    1+0 records out
+    + mt -f /dev/nst0 rewind
+    + dd if=/dev/nst0 of=/dev/null bs=512
+    1+0 records in
+    1+0 records out
+    + date
+    Tue Oct 30 23:15:01 GMT 2001
+    + tar -c -b 20 -f /dev/nst0 /boot
+    tar: Removing leading `/' from absolute path names in the archive
+    + mt -f /dev/nst0 rewind
+    + dd if=/dev/nst0 of=/dev/null bs=512
+    1+0 records in
+    1+0 records out
+    + date
+    Tue Oct 30 23:15:36 GMT 2001
+    + tar -c -b 20 -f /dev/nst0 /boot
+    tar: Removing leading `/' from absolute path names in the archive
+    tar: Cannot write to /dev/nst0: I/O error
+    tar: Error is not recoverable: exiting now
+
+The behaviour is extremely consistent - the second invocation of tar
+always fails.
+
+I rebuilt st.o and ide-scsi.o with the debugging macros enabled.  The
+resulting kernel output is 80Kb long, and rather than fill everyone's
+inboxes I've put it at:
+
+ftp://ftp.chiark.greenend.org.uk/users/richardk/tapelog.txt
+
+Some possibly-relevant version numbers:
+
+    sfere# uname -a
+    Linux sfere 2.4.13 #1 Sun Oct 28 12:13:17 GMT 2001 i586 unknown
+    sfere# tar --version
+    tar (GNU tar) 1.12
+
+    Copyright (C) 1988, 92, 93, 94, 95, 96, 97 Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions.  There is NO
+    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+    Written by John Gilmore and Jay Fenlason.
+    sfere# mt --version
+    GNU mt version 2.4.2
+
+ttfn/rjk

@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129450AbQJ3SSF>; Mon, 30 Oct 2000 13:18:05 -0500
+	id <S129408AbQJ3SSP>; Mon, 30 Oct 2000 13:18:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129466AbQJ3SRz>; Mon, 30 Oct 2000 13:17:55 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:20745 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129450AbQJ3SRl>;
-	Mon, 30 Oct 2000 13:17:41 -0500
-From: joeja@mindspring.com
-Date: Mon, 30 Oct 2000 13:17:03 -0500
-To: ebiederm@xmission.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Re: /proc & xml data
-Message-ID: <Springmail.105.972929823.0.26378900@springmail.com>
-X-Originating-IP: 206.132.209.113
+	id <S129466AbQJ3SSF>; Mon, 30 Oct 2000 13:18:05 -0500
+Received: from ns.caldera.de ([212.34.180.1]:40453 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S129408AbQJ3SRy>;
+	Mon, 30 Oct 2000 13:17:54 -0500
+Date: Mon, 30 Oct 2000 19:17:12 +0100
+From: Christoph Hellwig <hch@caldera.de>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        sct@redhat.com
+Subject: Re: [PATCH] kiobuf/rawio fixes for 2.4.0-test10-pre6
+Message-ID: <20001030191712.B27664@caldera.de>
+Mail-Followup-To: Jeff Garzik <jgarzik@mandrakesoft.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org, sct@redhat.com
+In-Reply-To: <20001027222143.A8059@caldera.de> <200010272123.OAA21478@penguin.transmeta.com> <20001030124513.A28667@caldera.de> <39FDAD99.47FA6A54@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <39FDAD99.47FA6A54@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Mon, Oct 30, 2000 at 12:19:21PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Um, I'd have to say that putting one value in a file with a directory as a grouping would probably be a nightmare to maintain as well as navigate through.  In essance you could end up with more files in the /proc than on the rest of the filesystem filesystem (excluding the /dev dir). It would start to have the whole proc tree look like something from /proc/sys/net/ipv4.  Although the  /proc/sys/net/ipv4 probably needs to have one value in a file as some of these are settable on from the console, other fiels that are not changable (like /proc/meminfo, proc/cpuinfo etc) would be a waste in one value per file.  
-
-Isn't the /proc supposed to be a 'friendly' interface into the kernel?
-
-Anyway it was a more of a question.  
-
->  I
-> was wondering if anyone had ever considered storing some of the data in
-> xml format rather than its current format?  Things like /proc/meminfo
-> and cpuinfo may work good in this format as then it would be easy to
-> write a generic xml parser that could then be used to parse any of the
-> data. "MemTotal:  %8lu kB\n"
+On Mon, Oct 30, 2000 at 12:19:21PM -0500, Jeff Garzik wrote:
+> Christoph Hellwig wrote:
+> > +Locking down user memory and doing mass storage device IO with it is not
+> > +the only purpose of kiobufs.  Another use for kiobufs is allowing
+> > +user-space mmaping dma memory, e.g in sound drivers.  To do so you
+> > +need to lock-down kernel virtual memory and refernece it using kiobufs.
+> > +The code that does exactly this is not yet in the kernel - get Stephen
+> > +Tweedie's kiobuf patchset if you want to use this.
 > 
-> In the case of the meminfo it would be a matter of changing the lines in
-> fs/proc/array.c  function get_meminfo(char * buffer) from
-> 
-> "MemTotal:  %8lu kB\n"
-> 
-> to something like
-> 
-> "%8lu kB\n"
+> Take a look at drivers/sound/via82cxxx_audio.c.  How can that mmap be
+> improved by using kiobufs?
 
-The general consensus is that if we have a major reorganization, in proc
-the rule will be one value per file.  And let directories do the grouping.
+I think so - but you need Stephen's kvmap patch, that is in the same
+patchset the forward-ported fixes are
+(at ftp://ftp.linux.org.uk/pub/linux/sct/fs/raw-io/)
 
-Eric
+An very nice example is included.
 
+	Christoph
+
+-- 
+Always remember that you are unique.  Just like everyone else.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

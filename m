@@ -1,51 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317668AbSGUI4i>; Sun, 21 Jul 2002 04:56:38 -0400
+	id <S317669AbSGUJBp>; Sun, 21 Jul 2002 05:01:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317669AbSGUI4i>; Sun, 21 Jul 2002 04:56:38 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:38282 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S317668AbSGUI4g>;
-	Sun, 21 Jul 2002 04:56:36 -0400
-Date: Sun, 21 Jul 2002 10:58:36 +0200 (CEST)
+	id <S317671AbSGUJBp>; Sun, 21 Jul 2002 05:01:45 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:6614 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S317669AbSGUJBn>;
+	Sun, 21 Jul 2002 05:01:43 -0400
+Date: Sun, 21 Jul 2002 11:03:44 +0200 (CEST)
 From: Ingo Molnar <mingo@elte.hu>
 Reply-To: Ingo Molnar <mingo@elte.hu>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [patch] context-switching & LDT fixes, 2.5.27
-Message-ID: <Pine.LNX.4.44.0207211041130.3168-100000@localhost.localdomain>
+Subject: Re: [patch] context-switching & LDT fixes, 2.5.27
+In-Reply-To: <Pine.LNX.4.44.0207211041130.3168-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0207211103280.3486-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-the attached patch [against yesterday's LDT fix patch ontop of 2.5.27]
-fixes a number of x86 LDT related SMP bugs in the context-switching code:
+here's the full patch against 2.5.27:
 
- - update mm->context atomically wrt. context-switching. The segment 
-   semaphore alone is not enough, since the context-switching code does
-   not use it. Without this fix a thread on another CPU might see an
-   inconsistent ->count or ->ldt value, causing either to load the default
-   5-entry LDT descriptor with an incorrect size, or loading a non-default
-   LDT descriptor.
-
- - copy_ldt() must not printk on an allocation error - it's relatively
-   easy to trigger this message.
-
- - copy_ldt() does not have to set new->size to 0 - it's 0 already in 
-   this codepath.
-
- - introduce load_LDT_nolock to have maximum performance in the
-   context-switch codepath, which path is IRQ and preempt-locked already.
-
- - fix preempt bugs in clean_LDT() and alloc_ldt().
-
-non-x86 architectures should not be affected by this patch. x86 SMP and UP
-kernels compile, boot & work just fine.
-
-	Ingo
-
---- linux/arch/i386/kernel/cpu/common.c.orig	Sun Jul 21 10:31:54 2002
+diff -rNu linux-2.5.27-vanilla/arch/i386/kernel/cpu/common.c linux/arch/i386/kernel/cpu/common.c
+--- linux-2.5.27-vanilla/arch/i386/kernel/cpu/common.c	Sun Jul 21 11:01:25 2002
 +++ linux/arch/i386/kernel/cpu/common.c	Sun Jul 21 10:32:02 2002
 @@ -454,7 +454,7 @@
  	 */
@@ -56,7 +34,8 @@ kernels compile, boot & work just fine.
  		BUG();
  	enter_lazy_tlb(&init_mm, current, nr);
  
---- linux/arch/i386/kernel/ldt.c.orig	Sun Jun  9 07:27:36 2002
+diff -rNu linux-2.5.27-vanilla/arch/i386/kernel/ldt.c linux/arch/i386/kernel/ldt.c
+--- linux-2.5.27-vanilla/arch/i386/kernel/ldt.c	Sun Jun  9 07:27:36 2002
 +++ linux/arch/i386/kernel/ldt.c	Sun Jul 21 10:58:21 2002
 @@ -49,17 +49,20 @@
  		memcpy(newldt, pc->ldt, oldsize*LDT_ENTRY_SIZE);
@@ -103,29 +82,47 @@ kernels compile, boot & work just fine.
  	mm->context.size = 0;
  	old_mm = current->mm;
  	if (old_mm && old_mm->context.size > 0) {
---- linux/include/linux/init_task.h.orig	Sun Jul 21 10:32:21 2002
-+++ linux/include/linux/init_task.h	Sun Jul 21 10:48:25 2002
-@@ -18,6 +18,10 @@
- 	fd_array:	{ NULL, } 			\
- }
+diff -rNu linux-2.5.27-vanilla/include/asm-i386/desc.h linux/include/asm-i386/desc.h
+--- linux-2.5.27-vanilla/include/asm-i386/desc.h	Sun Jun  9 07:26:24 2002
++++ linux/include/asm-i386/desc.h	Sun Jul 21 10:30:57 2002
+@@ -82,17 +82,18 @@
  
-+#ifndef INIT_CONTEXT
-+# define INIT_CONTEXT { }
-+#endif
+ static inline void clear_LDT(void)
+ {
+-	int cpu = smp_processor_id();
++	int cpu = get_cpu();
 +
- #define INIT_MM(name) \
- {			 				\
- 	mm_rb:		RB_ROOT,			\
-@@ -27,6 +31,8 @@
- 	mmap_sem:	__RWSEM_INITIALIZER(name.mmap_sem), \
- 	page_table_lock: SPIN_LOCK_UNLOCKED, 		\
- 	mmlist:		LIST_HEAD_INIT(name.mmlist),	\
-+	page_table_lock: SPIN_LOCK_UNLOCKED, 		\
-+	context:	INIT_CONTEXT,			\
+ 	set_ldt_desc(cpu, &default_ldt[0], 5);
+ 	__load_LDT(cpu);
++	put_cpu();
  }
  
- #define INIT_SIGNALS {	\
---- linux/include/asm-i386/mmu.h.orig	Sun Jun  9 07:30:36 2002
+ /*
+  * load one particular LDT into the current CPU
+  */
+-static inline void load_LDT (mm_context_t *pc)
++static inline void load_LDT_nolock(mm_context_t *pc, int cpu)
+ {
+-	int cpu = smp_processor_id();
+ 	void *segments = pc->ldt;
+ 	int count = pc->size;
+ 
+@@ -103,6 +104,13 @@
+ 		
+ 	set_ldt_desc(cpu, segments, count);
+ 	__load_LDT(cpu);
++}
++
++static inline void load_LDT (mm_context_t *pc)
++{
++	spin_lock_irq(&pc->lock);
++	load_LDT_nolock(pc, smp_processor_id());
++	spin_unlock_irq(&pc->lock);
+ }
+ 
+ #endif /* !__ASSEMBLY__ */
+diff -rNu linux-2.5.27-vanilla/include/asm-i386/mmu.h linux/include/asm-i386/mmu.h
+--- linux-2.5.27-vanilla/include/asm-i386/mmu.h	Sun Jun  9 07:30:36 2002
 +++ linux/include/asm-i386/mmu.h	Sun Jul 21 10:49:00 2002
 @@ -6,11 +6,16 @@
   * we put the segment information here.
@@ -146,46 +143,8 @@ kernels compile, boot & work just fine.
  
 +#define INIT_CONTEXT { lock: SPIN_LOCK_UNLOCKED }
  #endif
---- linux/include/asm-i386/desc.h.orig	Sun Jul 21 10:16:25 2002
-+++ linux/include/asm-i386/desc.h	Sun Jul 21 10:30:57 2002
-@@ -82,15 +82,17 @@
- 
- static inline void clear_LDT(void)
- {
--	int cpu = smp_processor_id();
-+	int cpu = get_cpu();
-+
- 	set_ldt_desc(cpu, &default_ldt[0], 5);
- 	__load_LDT(cpu);
-+	put_cpu();
- }
- 
- /*
-  * load one particular LDT into the current CPU
-  */
--static inline void load_LDT_no_preempt (mm_context_t *pc, int cpu)
-+static inline void load_LDT_nolock(mm_context_t *pc, int cpu)
- {
- 	void *segments = pc->ldt;
- 	int count = pc->size;
-@@ -103,12 +105,12 @@
- 	set_ldt_desc(cpu, segments, count);
- 	__load_LDT(cpu);
- }
-+
- static inline void load_LDT (mm_context_t *pc)
- {
--	int cpu = get_cpu();
--
--	load_LDT_no_preempt(pc, cpu);
--	put_cpu();
-+	spin_lock_irq(&pc->lock);
-+	load_LDT_nolock(pc, smp_processor_id());
-+	spin_unlock_irq(&pc->lock);
- }
- 
- #endif /* !__ASSEMBLY__ */
---- linux/include/asm-i386/mmu_context.h.orig	Sun Jul 21 10:15:50 2002
+diff -rNu linux-2.5.27-vanilla/include/asm-i386/mmu_context.h linux/include/asm-i386/mmu_context.h
+--- linux-2.5.27-vanilla/include/asm-i386/mmu_context.h	Sun Jun  9 07:26:26 2002
 +++ linux/include/asm-i386/mmu_context.h	Sun Jul 21 10:50:54 2002
 @@ -40,23 +40,28 @@
  		/* Re-load page tables */
@@ -196,7 +155,7 @@ kernels compile, boot & work just fine.
  		 * has a non-default LDT.
  		 */
 -		if (next->context.size+prev->context.size)
--			load_LDT_no_preempt(&next->context, cpu);
+-			load_LDT(&next->context);
 +		if (next->context.size + prev->context.size) {
 +			_raw_spin_lock(&next->context.lock);
 +			load_LDT_nolock(&next->context, cpu);
@@ -215,11 +174,33 @@ kernels compile, boot & work just fine.
  			 * tlb flush IPI delivery. We must reload %cr3.
  			 */
  			load_cr3(next->pgd);
--			load_LDT_no_preempt(&next->context, cpu);
+-			load_LDT(&next->context);
 +			_raw_spin_lock(&next->context.lock);
 +			load_LDT_nolock(&next->context, cpu);
 +			_raw_spin_unlock(&next->context.lock);
  		}
  	}
  #endif
+diff -rNu linux-2.5.27-vanilla/include/linux/init_task.h linux/include/linux/init_task.h
+--- linux-2.5.27-vanilla/include/linux/init_task.h	Sun Jun  9 07:27:21 2002
++++ linux/include/linux/init_task.h	Sun Jul 21 11:04:46 2002
+@@ -18,6 +18,10 @@
+ 	fd_array:	{ NULL, } 			\
+ }
+ 
++#ifndef INIT_CONTEXT
++# define INIT_CONTEXT { }
++#endif
++
+ #define INIT_MM(name) \
+ {			 				\
+ 	mm_rb:		RB_ROOT,			\
+@@ -27,6 +31,7 @@
+ 	mmap_sem:	__RWSEM_INITIALIZER(name.mmap_sem), \
+ 	page_table_lock: SPIN_LOCK_UNLOCKED, 		\
+ 	mmlist:		LIST_HEAD_INIT(name.mmlist),	\
++	context:	INIT_CONTEXT,			\
+ }
+ 
+ #define INIT_SIGNALS {	\
 

@@ -1,53 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268201AbUHKT6v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268206AbUHKUGw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268201AbUHKT6v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 15:58:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268200AbUHKT6v
+	id S268206AbUHKUGw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 16:06:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268209AbUHKUGw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 15:58:51 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:52171 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268197AbUHKT6s (ORCPT
+	Wed, 11 Aug 2004 16:06:52 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:42209 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S268206AbUHKUGt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 15:58:48 -0400
-From: Daniel Phillips <phillips@redhat.com>
-Organization: Red Hat
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [ANNOUNCE] Minneapolis Cluster Summit Wrapup
-Date: Wed, 11 Aug 2004 15:58:57 -0400
-User-Agent: KMail/1.6.2
-Cc: linux-fsdevel@vger.kernel.org, ssic-linux-devel@lists.sourceforge.net,
-       linux-cluster@redhat.com, linux-ha@lists.linux-ha.org,
-       cgl_discussion@lists.osdl.org, dcl_discussion@lists.osdl.org
-MIME-Version: 1.0
+	Wed, 11 Aug 2004 16:06:49 -0400
+Date: Wed, 11 Aug 2004 22:06:47 +0200
+From: Sascha Wilde <wilde@sha-bang.de>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, "David N. Welton" <davidw@eidetix.com>,
+       James Lamanna <jamesl@appliedminds.com>
+Subject: Re: 2.6 kernel won't reboot on AMD system - 8042 problem?
+Message-ID: <20040811200647.GA864@kenny.sha-bang.local>
+References: <4112A626.1000706@appliedminds.com> <41133FE1.2040906@eidetix.com> <20040808121837.GA912@kenny.sha-bang.local> <200408081005.14832.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408111558.57898.phillips@redhat.com>
+In-Reply-To: <200408081005.14832.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+On Sun, Aug 08, 2004 at 10:05:14AM -0500, Dmitry Torokhov wrote:
+> On Sunday 08 August 2004 07:18 am, Sascha Wilde wrote:
+> > 
+> > I just did some further testing, the problem here is exactly the same
+> > as Davids.  And thinking about the exact point of failure and that
+> > Davids reboot problem is related to the keyboard being attached or not
+> > I realized what causes the problems for me:
+> > 
+> > I have a keyboard attached to the PS/2 port, but my mouse is attached
+> > to USB.  So I pluged in a PS/2 mouse, and guess what?  The box
+> > rebooted!
+> > 
+> > Well, this is by no means a solution, but I think it's pretty clear
+> > now, what exactly causes the trouble.  Now we have to find out, why
+> > the i8042 code in 2.6.x breaks things on sertain hardware when there
+> > are not devices present in all ports, while in 2.4.x everything went
+> > well... 
+> > 
+> 
+> You could also try out the following scenario: remove your USB mouse and
+> _do not_ plug PS/2 one... What you might be seeing is another case of USB
+> Legacy emulation thingy getting in your way.
 
-The Minneapolis Cluster Summit came and went 10 days ago, with excellent 
-attendance and high-quality interaction all round.  Over the last few 
-days I've been collecting slide presentations and related material onto 
-this page:
+Just tried it, but I can't see anything special -- keyboard works and
+the box hangs on reboot, everything as usual...
 
-   http://sources.redhat.com/cluster/events/summit2004/presentations.html
-
-Unfortunately, due to manpower limitations and short lead time, we 
-weren't able to arrange for audio recordings, which would have been 
-great since both presentations and discussion were packed full of 
-useful material.  I guess this means we have to do it again next year, 
-this time with a tape recorder!  As for the results... discussion 
-continues on linux-cluster and other mailing lists, please judge for 
-yourself.
-
-   https://www.redhat.com/mailman/listinfo/linux-cluster
-   http://lists.osdl.org/mailman/listinfo/cgl_discussion
-   http://lists.osdl.org/mailman/listinfo/dcl_discussion
-
-Regards,
-
-Daniel
+cheers
+sascha
+-- 
+Sascha Wilde
+"Gimme about 10 seconds to think for a minute..."

@@ -1,88 +1,140 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262905AbSLFOsg>; Fri, 6 Dec 2002 09:48:36 -0500
+	id <S262924AbSLFOt4>; Fri, 6 Dec 2002 09:49:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262884AbSLFOsg>; Fri, 6 Dec 2002 09:48:36 -0500
-Received: from perl6.de ([62.141.33.238]:23738 "EHLO
-	silo.imperial-resistance.de") by vger.kernel.org with ESMTP
-	id <S262876AbSLFOsc>; Fri, 6 Dec 2002 09:48:32 -0500
-Message-ID: <45154.::ffff:195.36.75.26.1039187671.squirrel@silo.imperial-resistance.de>
-Date: Fri, 6 Dec 2002 16:14:31 +0100 (CET)
-Subject: [Fwd: [2.5.50]BUILD ERROR drivers/built-in.o]
-From: "Christian Setzer" <baum@imperial-resistance.de>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <3DF0BA33.AA0D4F01@partner.bmw.de>
-References: <3DF0BA33.AA0D4F01@partner.bmw.de>
-X-Priority: 3
-Importance: Normal
-X-MSMail-Priority: Normal
-Reply-To: baum@imperial-resistance.de
-X-Mailer: SquirrelMail (version 1.3.1 [DEVEL])
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="----=_20021206161431_12672"
+	id <S262937AbSLFOtz>; Fri, 6 Dec 2002 09:49:55 -0500
+Received: from [195.223.140.107] ([195.223.140.107]:62849 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S262924AbSLFOts>;
+	Fri, 6 Dec 2002 09:49:48 -0500
+Date: Fri, 6 Dec 2002 15:57:19 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@digeo.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Norman Gaywood <norm@turing.une.edu.au>, linux-kernel@vger.kernel.org
+Subject: Re: Maybe a VM bug in 2.4.18-18 from RH 8.0?
+Message-ID: <20021206145718.GL1567@dualathlon.random>
+References: <3DEFF69F.481AB823@digeo.com> <20021206011733.GF1567@dualathlon.random> <3DEFFEAA.6B386051@digeo.com> <20021206014429.GI1567@dualathlon.random> <20021206021559.GK9882@holomorphy.com> <20021206022853.GJ1567@dualathlon.random> <20021206024140.GL9882@holomorphy.com> <3DF034BB.D5F863B5@digeo.com> <20021206054804.GK1567@dualathlon.random> <3DF049F9.6F83D13@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DF049F9.6F83D13@digeo.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_20021206161431_12672
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+On Thu, Dec 05, 2002 at 10:55:53PM -0800, Andrew Morton wrote:
+> Andrea Arcangeli wrote:
+> > 
+> > the
+> > algorithm is autotuned at boot and depends on the zone sizes, and it
+> > applies to the dma zone too with respect to the normal zone, the highmem
+> > case is just one of the cases that the fix for the general problem
+> > resolves,
+> 
+> Linus's incremental min will protect ZONE_DMA in the same manner.
 
+of how many bytes?
 
- gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
--fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=pentium4
--Iarch/i386/mach-generic -nostdinc -iwithprefix include
--DKBUILD_BASENAME=version -DKBUILD_MODNAME=version   -c -o
-init/version.o init/version.c
-   ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o
-init/do_mounts.o init/initramfs.o
-        ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o
---start-group  usr/built-in.o  arch/i386/kernel/built-in.o
-arch/i386/mm/built-in.o  arch/i386/mach-generic/built-in.o
-kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o
-security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a 
-drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o
-net/built-in.o --end-group  -o .tmp_vmlinux1
-drivers/built-in.o: In function `kd_nosound':
-drivers/built-in.o(.text+0x177d6): undefined reference to `input_event'
-drivers/built-in.o(.text+0x177f8): undefined reference to `input_event'
-drivers/built-in.o: In function `kd_mksound':
-drivers/built-in.o(.text+0x17897): undefined reference to `input_event'
-drivers/built-in.o: In function `kbd_bh':
-drivers/built-in.o(.text+0x185f3): undefined reference to `input_event'
-drivers/built-in.o(.text+0x18616): undefined reference to `input_event'
-drivers/built-in.o(.text+0x18635): more undefined references to
-`input_event' follow
-drivers/built-in.o: In function `kbd_connect':
-drivers/built-in.o(.text+0x18b8f): undefined reference to
-`input_open_device'
-drivers/built-in.o: In function `kbd_disconnect':
-drivers/built-in.o(.text+0x18bbb): undefined reference to
-`input_close_device'
-drivers/built-in.o: In function `kbd_init':
-drivers/built-in.o(.init.text+0x119b): undefined reference to
-`input_register_handler'
-make[1]: *** [.tmp_vmlinux1] Error 1
-make: *** [vmlinux] Error 2
+> 
+> > and you're totally wrong saying that mlocking 700m on a 4G box
+> > could kill it.
+> 
+> It is possible to mlock 700M of the normal zone on a 4G -aa kernel.
+> I can't immediately think of anything apart from vma's which will
+> make it fall over, but it will run like crap.
 
+you're missing the whole point. the vma are zone-normal users. You're
+saying that you can run out of ZONE_NORMAL if you run
+alloc_page(GFP_KERNEL) for some hundred thousand times. Yeah that's not
+a big news.
 
+I'm saying you *can't* run out of zone-normal due highmem allocations so
+if you run alloc_pages(GFP_HIGHMEM), period.
 
-------=_20021206161431_12672
-Content-Type: text/x-vcard; name="christian.setzer.vcf"
-Content-Disposition: attachment; filename="christian.setzer.vcf"
+that's a completely different thing.
 
-begin:vcard 
-n:Setzer;Christian
-tel;work:089 382-41158
-x-mozilla-html:FALSE
-adr:;;;;;;
-version:2.1
-email;internet:Christian.Setzer@partner.bmw.de
-x-mozilla-cpt:;20000
-fn:Christian Setzer
-end:vcard
+I thought you understood what the problem is, not sure why you say you
+can run out of zone-normal running 100000 times alloc_page(GFP_KERNEL),
+that has *nothing* to do with the bug we're discussing here, if you
+don't want to run out of zone-normal after 100000 GFP_KERNEL page
+allocations you can only drop the zone-normal.
 
+The bug we're discussing here is that w/o my fix you will run out of
+zone-normal despite you didn't start allocating zone-normal yet and
+despite you still have 60G free in the highmem zone. This is what the
+patch prevents, nothing more nothing less.
 
-------=_20021206161431_12672--
+And it's not so much specific to google, they were just unlucky
+triggering it, as said just allocate plenty of pagetables (they are
+highmem capable in my tree and 2.5) or swapoff -a, and you'll run in the
+very same scenario that needs my fix in all normal workloads that
+allocates some more than some hunded mbytes of ram.
 
+And this is definitely a generic problem, not even specific to linux,
+it's an OS wide design problem while dealing with the balancing of
+different zones that have overlapping but not equivalent capabilities,
+it even applies to zone-dma with respect to zone-normal and zone-highmem
+and there's no other fix around it at the moment.
+
+Mainline fixes it in a very weak way, it reserves a few meges only,
+that's not nearly enough if you need to allocate more than one more
+inode etc... The lowmem reservation must allow the machine to do
+interesting workloads for the whole uptime, not to defer the failure of
+a few seconds. A few megs aren't nearly enough.
+
+If interesting workloads needs huge zone-normal, just reserve more of it
+at boot and they will work. if all the zone-normal isn't enough you fall
+into a totally different problem, that is the zone-normal existence in
+the first place and it has nothing to do with this bug, and you can fix
+the other problem only by dropping the zone-normal (of course if you do
+that you will in turn fix this problem too, but the problems are
+different).
+
+The only alternate fix is to be able to migrate pagetables (1st level
+only, pte) and all the other highmem capable allocations at runtime
+(pagecache, shared memory etc..). Which is clearly not possible in 2.5
+and 2.4.
+
+Once that will be possible/implemented my fix can go away and you can
+simply migrate the highmem capable allocations from zone-normal to
+highmem. That would be the only alternate and also dynamic/superior fix
+but it's not feasible at the moment, at the very least not in 2.4. It
+would also have some performance implications, I'm sure lots of people
+prefers to throw away 500M of ram in a 32G machine than riskying to
+spend the cpu time in memcopies, so it would not be *that* superior, it
+would be inferior in some ways.
+
+Reserving 500M of ram on a 32G machine doesn't really matter at all, so
+the current fix is certainly the best thing we can do for 2.4, and for
+2.5 too unless you want to implement highmem migration for all highmem
+capable kernel objects (which would work fine too).
+
+Also your possible multiplicator via sysctl remains a much inferior to
+my fix that is able to cleanly enforce classzone-point-of-view
+watermarks (not fixed watermarks), you would need to change
+multiplicator depending on zone size and depending on the zone to make
+it equivalent, so yes, you could implement it equivally but it would be
+much less clean and readable than my current code (and more hardly
+tunable with a kernel paramter at boot like my current fix is).
+
+> > 2.5 misses this important fix too btw.
+> 
+> It does not appear to be an important fix at all.  There have been
+
+well if you ignore it people can use my tree, I personally need that fix
+for myself on big boxes so I'm going to retain it in one form or
+another (the form in mainline is too weak as said and just adding a
+multiplicator would not be equivalent as said above).
+
+> 2.5 has much bigger problems than this - radix_tree nodes and pte_chains
+> in particular.
+
+I'm not saying there aren't bigger problems in 2.5, but I don't classify
+this one as a minor one, infact it was a showstopper for a long time in
+2.4 (one of the last ones), until I fixed it and it still is a problem
+because the 2.4 fix is way too weak (a few megs aren't enough to
+guarantee big workloads to succeed).
+
+Andrea

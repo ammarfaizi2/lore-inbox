@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313305AbSGMNiu>; Sat, 13 Jul 2002 09:38:50 -0400
+	id <S313537AbSGMNli>; Sat, 13 Jul 2002 09:41:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313419AbSGMNit>; Sat, 13 Jul 2002 09:38:49 -0400
-Received: from [62.70.58.70] ([62.70.58.70]:14731 "EHLO mail.pronto.tv")
-	by vger.kernel.org with ESMTP id <S313305AbSGMNis> convert rfc822-to-8bit;
-	Sat, 13 Jul 2002 09:38:48 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: Muli Ben-Yehuda <mulix@actcom.co.il>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: PATCH: compile the kernel with -Werror
-Date: Sat, 13 Jul 2002 15:41:37 +0200
-User-Agent: KMail/1.4.1
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-References: <20020713102615.H739@alhambra.actcom.co.il>
-In-Reply-To: <20020713102615.H739@alhambra.actcom.co.il>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207131541.37310.roy@karlsbakk.net>
+	id <S313558AbSGMNlh>; Sat, 13 Jul 2002 09:41:37 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:30446 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S313537AbSGMNle>; Sat, 13 Jul 2002 09:41:34 -0400
+Subject: Re: Future of Kernel tree 2.0 ............
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: c0330 <c0330@yingwa.edu.hk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E17TUXf-0000Ow-00@ited.yingwa.edu.hk>
+References: <E17TUXf-0000Ow-00@ited.yingwa.edu.hk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 13 Jul 2002 15:53:26 +0100
+Message-Id: <1026572006.9956.106.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 13 July 2002 09:26, Muli Ben-Yehuda wrote:
-> A full kernel compilation, especially when using the -j switch to
-> make, can cause warnings to "fly off the screen" without the user
-> noticing them. For example, wli's patch lazy_buddy.2.5.25-1 of today
-> had a missing return statement in a function returning non void, which
-> the compiler probably complained about but the warning got lost in the
-> noise (a little birdie told me wli used -j64).
+On Sat, 2002-07-13 at 22:35, c0330 wrote:
+>   Will kernel tree 2.0 stop developing and regard historical after the release 
+> of 2.6?  I think we would put our focus on much more newer kernel. And I found 
+> this may confuse the newbies, because they don't know much about versioning in 
+> Kernel.
 
-Why not add a menu item under kernel hacking?
+Why should you care ? 2.0 can continue to slowly and cautiously get
+critical bug fixes between now and the end of time providing someone
+cares enough to do the work. There are plenty of 2.0 boxes employed as
+routers, print servers, intranet dialins etc which will probably only
+become 2.4 boxes when the hardware is taken out of service.
 
-roy
-
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
-
-Computers are like air conditioners.
-They stop working when you open Windows.
+I can't speak for David Weinehall's experience, and I know he does a lot
+more chasing down of bug reports than I bother to with 2.2 but in my
+experience maintaining a very stable kernel tree like 2.2 is nowdays is
+not a massive workload. It primarily consists of sending emails out
+which say "no"
 

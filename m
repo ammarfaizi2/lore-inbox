@@ -1,77 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130120AbQLNDYE>; Wed, 13 Dec 2000 22:24:04 -0500
+	id <S130613AbQLND0Y>; Wed, 13 Dec 2000 22:26:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130613AbQLNDXo>; Wed, 13 Dec 2000 22:23:44 -0500
-Received: from ip252.uni-com.net ([205.198.252.252]:65285 "HELO www.nondot.org")
-	by vger.kernel.org with SMTP id <S130120AbQLNDXe>;
-	Wed, 13 Dec 2000 22:23:34 -0500
-Date: Wed, 13 Dec 2000 20:53:37 -0600 (CST)
-From: Chris Lattner <sabre@nondot.org>
+	id <S132164AbQLND0O>; Wed, 13 Dec 2000 22:26:14 -0500
+Received: from 513.holly-springs.nc.us ([216.27.31.173]:64289 "EHLO
+	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
+	id <S130613AbQLNDZ4>; Wed, 13 Dec 2000 22:25:56 -0500
+Message-ID: <3A383635.6EB5CF68@holly-springs.nc.us>
+Date: Wed, 13 Dec 2000 21:53:41 -0500
+From: Michael Rothwell <rothwell@holly-springs.nc.us>
+X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.18pre25 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: Alexander Viro <viro@math.psu.edu>
-Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Lattner <sabre@nondot.org>,
+        Jamie Lokier <lk@tantalophile.demon.co.uk>,
         "Mohammad A. Haque" <mhaque@haque.net>, Ben Ford <ben@kalifornia.com>,
         linux-kernel@vger.kernel.org, orbit-list@gnome.org,
         korbit-cvs@lists.sourceforge.net
 Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
-In-Reply-To: <Pine.GSO.4.21.0012132050140.6300-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.21.0012132043350.24483-100000@www.nondot.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <Pine.GSO.4.21.0012132037110.6300-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alexander Viro wrote:
+> p9fs exists.  I didn't see these patches since August, but probably I can poke
+> Roman into porting it to the current tree.  9P is quite simple and unlike
+> CORBA it had been designed for taking kernel stuff to userland.  Besides,
+> authors definitely understand UNIX...
 
-> > Err... how about this:  Give me two or three kORBit syscalls and I can get
-> > rid of all the other 100+ syscalls!  :) 
-
-> Like it ioctl() does it? Number of entry points is _not_ an issue. Diversity
-> of the API is. Technically, kernel has 1 (_o_n_e_) entry point as far as
-> userland is concerned. int 0x80 on x86. Can't beat that, can you?
-
-Err shame on you, don't forget about lcall and exceptions, and interrupts,
-and... That is technically more than _o_n_e_ "entry point".  :)  Oh wait,
-what about sysenter/exit too? :)
-
-No I can't beat that.  But if you look at the hack job of a system call
-table we have, you can see that there is no _really_ standard way of
-passing parameters.  Oh sure, most of the time, stuff is passed in
-registers.  Sometimes we get a pointer to an argument struct.  Because of
-this wonderful design we get all kinds of stuff like sys_oldumount vs
-sys_umount and others...
-
-> Yes, standard RPC mechanism would be nice. No, CORBA is not a good candidate -
-> too baroque and actually known to lead to extremely tasteless APIs being
-> implemented over it. Yes, I mean GNOME. So sue me.
-
-Hrm... because I'm stupid, please explain how CORBA is too baroque...  I
-have no problem with you not liking GNOME... you're a kernel hacker, so
-you're not supposed to like GUI's.  :)  [just kidding!!!] CORBA doesn't
-preclude nasty APIs any more than C does.  It also doesn't preclude *nice*
-APIs that are upgradable and extensible in the future (and that means
-without breaking backwards compatibility).  Please don't tell me that OOP
-is bad... or else we will have the eviscerate the VFS layer from the
-kernel (amount other subsystems)... :)
-
-> I would take 9P over that any day, thank you very much.
-
-Like I mentioned in a previous email, CORBA does not preclude 9P.  What
-it does buy you though, is compatibility with LOTS of preexisting CORBA
-tools.  How much development infrastructure is there for 9P?  I thought
-so.  :)
-
-For one of our demos, we ran a file server on a remote linux box (that we 
-just had a user account on), mounted it on a kORBit'ized box, and ran
-programs on SPARC Solaris that accessed the kORBit'ized linux box's file
-syscalls.  If nothing else, it's pretty nifty what you can do in little
-code...
-
--Chris
-
-http://www.nondot.org/~sabre/os/
-http://www.nondot.org/MagicStats/
-http://korbit.sourceforge.net/
-
+I would side with Viro here. Just as we would all cringe if MSFT added
+COM/ActiveX support to the NT kernel, us Unix folks cringe at the
+thought of adding CORBA to the kernel. However, that doesn't mean that
+we dislike the idea of exporting kernel services and interfaces for use
+in userland. And Plan9 seems to have some rather elegant and efficient
+methods for doing that. In Plan9, everything really is a file! It's as
+if they got a chance to do Unix again, and they did it consistently this
+time.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

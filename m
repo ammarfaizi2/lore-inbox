@@ -1,73 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315239AbSFJNv5>; Mon, 10 Jun 2002 09:51:57 -0400
+	id <S315406AbSFJODa>; Mon, 10 Jun 2002 10:03:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315257AbSFJNvO>; Mon, 10 Jun 2002 09:51:14 -0400
-Received: from bitshadow.namesys.com ([212.16.7.71]:26496 "EHLO namesys.com")
-	by vger.kernel.org with ESMTP id <S315266AbSFJNuU>;
-	Mon, 10 Jun 2002 09:50:20 -0400
-Date: Mon, 10 Jun 2002 17:42:55 +0400
-From: Hans Reiser <reiser@bitshadow.namesys.com>
-Message-Id: <200206101342.g5ADgtq6003842@bitshadow.namesys.com>
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        reiserfs-dev@namesys.com
-Subject: [BK] [2.5] reiserfs changeset 1 of 15 for 2.5.21
+	id <S315370AbSFJOBb>; Mon, 10 Jun 2002 10:01:31 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:18525 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S315335AbSFJOBN>; Mon, 10 Jun 2002 10:01:13 -0400
+To: Thunder from the hill <thunder@ngforever.de>
+Cc: David Woodhouse <dwmw2@infradead.org>, Dave Jones <davej@suse.de>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+        <linux-kernel@vger.kernel.org>, <chaffee@cs.berkeley.edu>
+Subject: Re: [patch] fat/msdos/vfat crud removal
+In-Reply-To: <Pine.LNX.4.44.0206091417250.8715-100000@hawkeye.luckynet.adm>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 10 Jun 2002 07:51:22 -0600
+Message-ID: <m1zny3utr9.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a changeset 1 out of 15.
+Thunder from the hill <thunder@ngforever.de> writes:
 
-You can pull it from bk://namesys.com/bk/reiser3-linux-2.5
-Or use plain text patch at the end of this message.
+> Hi,
+> 
+> On Sun, 9 Jun 2002, David Woodhouse wrote:
+> > Er, no. If you randomly reassign errno values, the world breaks.
+> > Don't even contemplate it.
+> 
+> I meant adding. Not just errno, even PF_..., etc.
+> 
+> > To that end, we should put '#ifndef __KERNEL__ #error' into all kernel
+> > headers, and C libraries should maintain a _separate_ set of headers which
+> > contain only the ABI definitions and are suitable for userspace. I believe 
+> > dietlibc already does this, and recent Red Hat distributions contain a 
+> > 'glibc-kernheaders' package with a slightly-sanitised version of kernel 
+> > headers, which should become more sanitised over time.
+> 
+> I wouldn't call dietlibc an HighEnd open end API.
 
-   It fixes reiserfs tail and direntry alignment bug on filesystems converted
-   from 3.5.x to 3.6.x.
+All linux libc's do this.  glibc, dietlibc, and uclibc.
 
-Chris Mason spent a lot of efforts in helping to convert this changeset to
-Linus-compatible form.
+Beyond this if you really object you can come up with a set of header
+that just describe the kernel/user space ABI, and build them so either
+the kernel or user space can use them.  And then this ABI-headers
+package can be used to hold the common definitions.
 
-Diffstat:
- namei.c           |    2 +-
- tail_conversion.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+Until someone builds a kernel-abi-headers package everyone will do it
+by copying the appropriate headers periodically.
 
-Plaintext patch:
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.594   -> 1.595  
-#	 fs/reiserfs/namei.c	1.36    -> 1.37   
-#	fs/reiserfs/tail_conversion.c	1.21    -> 1.22   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/05/30	green@angband.namesys.com	1.595
-# tail_conversion.c, namei.c:
-#   fix reiserfs tail and direntry alignment bug on filesystems converted from 3.5.x to 3.6.x.
-# --------------------------------------------
-#
-diff -Nru a/fs/reiserfs/namei.c b/fs/reiserfs/namei.c
---- a/fs/reiserfs/namei.c	Thu May 30 18:42:15 2002
-+++ b/fs/reiserfs/namei.c	Thu May 30 18:42:15 2002
-@@ -463,7 +463,7 @@
-     } else
- 	buffer = small_buf;
- 
--    paste_size = (old_format_only (dir->i_sb)) ? (DEH_SIZE + namelen) : buflen;
-+    paste_size = (get_inode_sd_version (dir) == STAT_DATA_V1) ? (DEH_SIZE + namelen) : buflen;
- 
-     /* fill buffer : directory entry head, name[, dir objectid | , stat data | ,stat data, dir objectid ] */
-     deh = (struct reiserfs_de_head *)buffer;
-diff -Nru a/fs/reiserfs/tail_conversion.c b/fs/reiserfs/tail_conversion.c
---- a/fs/reiserfs/tail_conversion.c	Thu May 30 18:42:15 2002
-+++ b/fs/reiserfs/tail_conversion.c	Thu May 30 18:42:15 2002
-@@ -214,7 +214,7 @@
-     copy_item_head (&s_ih, PATH_PITEM_HEAD(p_s_path));
- 
-     tail_len = (n_new_file_size & (n_block_size - 1));
--    if (!old_format_only (p_s_sb))
-+    if (get_inode_sd_version (p_s_inode) == STAT_DATA_V2)
- 	round_tail_len = ROUND_UP (tail_len);
-     else
- 	round_tail_len = tail_len;
+Eric

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316641AbSE0Oyh>; Mon, 27 May 2002 10:54:37 -0400
+	id <S316644AbSE0PBH>; Mon, 27 May 2002 11:01:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316643AbSE0Oyg>; Mon, 27 May 2002 10:54:36 -0400
-Received: from jalon.able.es ([212.97.163.2]:28667 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S316641AbSE0Oyf>;
-	Mon, 27 May 2002 10:54:35 -0400
-Date: Mon, 27 May 2002 16:54:20 +0200
+	id <S316649AbSE0PBG>; Mon, 27 May 2002 11:01:06 -0400
+Received: from jalon.able.es ([212.97.163.2]:62715 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S316644AbSE0PBG>;
+	Mon, 27 May 2002 11:01:06 -0400
+Date: Mon, 27 May 2002 17:00:48 +0200
 From: "J.A. Magallon" <jamagallon@able.es>
 To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
 Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
         Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [PATCH][RFC] PentiumPro/II split in x86 config
-Message-ID: <20020527145420.GA6738@werewolf.able.es>
+Subject: [PATCH][RFC] gcc3 arch options
+Message-ID: <20020527150048.GC6738@werewolf.able.es>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
@@ -21,98 +21,50 @@ X-Mailer: Balsa 1.3.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Hi.
 
-Patch below splits the config build option for PentiumPro and PentiumII
-to make them different, so gcc (see next patch) can generate pII
-specific code. It also kills the lock errata protection in PII code, so
-it only applies to PPro, not PII.
+Patch below adds support for newer gcc -march code generation options.
+It adds options for pentium-mmx, pentium-pro, pentium2, pentium3 and pentium4.
+(note: pII part depends or previous patch).
+It just what Luca Barbieri did adding PII.
 
-Due to Alan's advice, it also adds a check that will panic if a PII or
-higher kernel is run on a PPro or lesser (plz, I put that code in the
-place I thought it was the best, but probably I'm wrong...).
+I have been running a PII optmized kernel on a dual PII@400 box and nothing
+has broken for 2 days....
 
-It still keeps -march=i686. I will change it on a next patch.
+Patch follows:
 
-Comments ?
-
-Patch follows (91-split-ppro-config):
-
---- linux-2.4.18/arch/i386/Makefile.orig	2002-05-26 01:26:40.000000000 +0200
-+++ linux-2.4.18/arch/i386/Makefile	2002-05-26 01:28:52.000000000 +0200
-@@ -50,6 +50,10 @@
- CFLAGS += -march=i686
+--- linux-2.4.19-pre8-jam4/arch/i386/Makefile.orig	2002-05-26 11:39:23.000000000 +0200
++++ linux-2.4.19-pre8-jam4/arch/i386/Makefile	2002-05-26 11:43:06.000000000 +0200
+@@ -43,23 +43,23 @@
  endif
  
-+ifdef CONFIG_MPENTIUMII
-+CFLAGS += -march=i686
-+endif
-+
+ ifdef CONFIG_M586MMX
+-CFLAGS += -march=i586
++CFLAGS += $(shell if $(CC) -march=pentium-mmx -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-march=pentium-mmx"; else echo "-march=i586"; fi)
+ endif
+ 
+ ifdef CONFIG_M686
+-CFLAGS += -march=i686
++CFLAGS += $(shell if $(CC) -march=pentium-pro -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-march=pentium-pro; else echo "-march=i686"; fi)
+ endif
+ 
+ ifdef CONFIG_MPENTIUMII
+-CFLAGS += -march=i686
++CFLAGS += $(shell if $(CC) -march=pentium2 -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-march=pentium2"; else echo "-march=i686"; fi)
+ endif
+ 
  ifdef CONFIG_MPENTIUMIII
- CFLAGS += -march=i686
+-CFLAGS += -march=i686
++CFLAGS += $(shell if $(CC) -march=pentium3 -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-march=pentium3"; else echo "-march=i686"; fi)
  endif
---- linux-2.4.18/arch/i386/config.in.orig	2002-05-26 01:29:01.000000000 +0200
-+++ linux-2.4.18/arch/i386/config.in	2002-05-26 01:29:41.000000000 +0200
-@@ -32,7 +32,8 @@
- 	 586/K5/5x86/6x86/6x86MX		CONFIG_M586 \
- 	 Pentium-Classic			CONFIG_M586TSC \
- 	 Pentium-MMX				CONFIG_M586MMX \
--	 Pentium-Pro/Celeron/Pentium-II		CONFIG_M686 \
-+	 Pentium-Pro			CONFIG_M686 \
-+	 Pentium-II/Celeron		CONFIG_MPENTIUMII \
- 	 Pentium-III/Celeron(Coppermine)	CONFIG_MPENTIUMIII \
- 	 Pentium-4				CONFIG_MPENTIUM4 \
- 	 K6/K6-II/K6-III			CONFIG_MK6 \
-@@ -99,6 +99,13 @@
-    define_bool CONFIG_X86_USE_PPRO_CHECKSUM y
-    define_bool CONFIG_X86_PPRO_FENCE y
- fi
-+if [ "$CONFIG_MPENTIUMII" = "y" ]; then
-+   define_int  CONFIG_X86_L1_CACHE_SHIFT 5
-+   define_bool CONFIG_X86_TSC y
-+   define_bool CONFIG_X86_GOOD_APIC y
-+   define_bool CONFIG_X86_PGE y
-+   define_bool CONFIG_X86_USE_PPRO_CHECKSUM y
-+fi
- if [ "$CONFIG_MPENTIUMIII" = "y" ]; then
-    define_int  CONFIG_X86_L1_CACHE_SHIFT 5
-    define_bool CONFIG_X86_TSC y
---- linux-2.4.18/arch/i386/defconfig.orig	2002-05-26 01:34:19.000000000 +0200
-+++ linux-2.4.18/arch/i386/defconfig	2002-05-26 01:34:48.000000000 +0200
-@@ -27,6 +27,7 @@
- # CONFIG_M586TSC is not set
- # CONFIG_M586MMX is not set
- # CONFIG_M686 is not set
-+# CONFIG_MPENTIUMII is not set
- CONFIG_MPENTIUMIII=y
- # CONFIG_MPENTIUM4 is not set
- # CONFIG_MK6 is not set
---- linux/arch/i386/kernel/setup.c.orig	2002-05-27 00:32:58.000000000 +0200
-+++ linux/arch/i386/kernel/setup.c	2002-05-27 00:46:36.000000000 +0200
-@@ -2092,6 +2092,14 @@
  
- extern void trap_init_f00f_bug(void);
+ ifdef CONFIG_MPENTIUM4
+-CFLAGS += -march=i686
++CFLAGS += $(shell if $(CC) -march=pentium4 -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-march=pentium4"; else echo "-march=i686"; fi)
+ endif
  
-+static void __init check_intel_compat(struct cpuinfo_x86 *c)
-+{
-+#if defined(CONFIG_MPENTIUMII) || defined(CONFIG_MPENTIUMIII) || defined(CONFIG_MPENTIUM4)
-+	if (c->x86 <= 5)
-+		panic("Kernel is unsafe/incompatible with this CPU model. Check your build settings !\n");
-+#endif
-+}
-+
- static void __init init_intel(struct cpuinfo_x86 *c)
- {
- #ifndef CONFIG_M686
-@@ -2100,6 +2108,8 @@
- 	char *p = NULL;
- 	unsigned int l1i = 0, l1d = 0, l2 = 0, l3 = 0; /* Cache sizes */
- 
-+	check_intel_compat(c);
-+
- #ifndef CONFIG_M686
- 	/*
- 	 * All current models of Pentium and Pentium with MMX technology CPUs
+ ifdef CONFIG_MK6
+
 
 -- 
 J.A. Magallon                           #  Let the source be with you...        

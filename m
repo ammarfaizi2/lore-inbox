@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263597AbTHJLMi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 07:12:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263738AbTHJLKr
+	id S263355AbTHJLJz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 07:09:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263590AbTHJLJz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 07:10:47 -0400
-Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:36620 "EHLO
+	Sun, 10 Aug 2003 07:09:55 -0400
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:34060 "EHLO
 	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id S263597AbTHJLKA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 07:10:00 -0400
-Date: Sun, 10 Aug 2003 20:10:09 +0900 (JST)
-Message-Id: <20030810.201009.77128484.yoshfuji@linux-ipv6.org>
+	id S263355AbTHJLJu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 07:09:50 -0400
+Date: Sun, 10 Aug 2003 20:09:58 +0900 (JST)
+Message-Id: <20030810.200958.132808552.yoshfuji@linux-ipv6.org>
 To: davem@redhat.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 7/9] convert drivers/scsi to virt_to_pageoff()
+Subject: [PATCH 5/9] convert drivers/ide to virt_to_pageoff()
 From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
 	<yoshfuji@linux-ipv6.org>
 In-Reply-To: <20030810020444.48cb740b.davem@redhat.com>
@@ -33,134 +33,74 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[7/9] convert drivers/scsi to virt_to_pageoff().
- 
-Index: linux-2.6/drivers/scsi/3w-xxxx.c
+[5/9] convert drivers/ide to virt_to_pageoff().
+
+Index: linux-2.6/drivers/ide/ide-dma.c
 ===================================================================
-RCS file: /home/cvs/linux-2.5/drivers/scsi/3w-xxxx.c,v
-retrieving revision 1.34
-diff -u -r1.34 3w-xxxx.c
---- linux-2.6/drivers/scsi/3w-xxxx.c	17 Jul 2003 17:43:53 -0000	1.34
-+++ linux-2.6/drivers/scsi/3w-xxxx.c	10 Aug 2003 09:30:32 -0000
-@@ -2112,7 +2112,7 @@
- 	if (cmd->request_bufflen == 0)
- 		return 0;
- 
--	mapping = pci_map_page(pdev, virt_to_page(cmd->request_buffer), ((unsigned long)cmd->request_buffer & ~PAGE_MASK), cmd->request_bufflen, dma_dir);
-+	mapping = pci_map_page(pdev, virt_to_page(cmd->request_buffer), virt_to_pageoff(cmd->request_buffer), cmd->request_bufflen, dma_dir);
- 
- 	if (mapping == 0) {
- 		printk(KERN_WARNING "3w-xxxx: tw_map_scsi_single_data(): pci_map_page() failed.\n");
-Index: linux-2.6/drivers/scsi/ide-scsi.c
-===================================================================
-RCS file: /home/cvs/linux-2.5/drivers/scsi/ide-scsi.c,v
-retrieving revision 1.80
-diff -u -r1.80 ide-scsi.c
---- linux-2.6/drivers/scsi/ide-scsi.c	18 Jul 2003 20:29:54 -0000	1.80
-+++ linux-2.6/drivers/scsi/ide-scsi.c	10 Aug 2003 09:30:32 -0000
-@@ -761,8 +761,8 @@
- 		printk ("ide-scsi: %s: building DMA table for a single buffer (%dkB)\n", drive->name, pc->request_transfer >> 10);
- #endif /* IDESCSI_DEBUG_LOG */
- 		bh->bi_io_vec[0].bv_page = virt_to_page(pc->scsi_cmd->request_buffer);
-+		bh->bi_io_vec[0].bv_offset = virt_to_pageoff(pc->scsi_cmd->request_buffer);
- 		bh->bi_io_vec[0].bv_len = pc->request_transfer;
--		bh->bi_io_vec[0].bv_offset = (unsigned long) pc->scsi_cmd->request_buffer & ~PAGE_MASK;
- 		bh->bi_size = pc->request_transfer;
+RCS file: /home/cvs/linux-2.5/drivers/ide/ide-dma.c,v
+retrieving revision 1.60
+diff -u -r1.60 ide-dma.c
+--- linux-2.6/drivers/ide/ide-dma.c	7 Aug 2003 07:35:12 -0000	1.60
++++ linux-2.6/drivers/ide/ide-dma.c	10 Aug 2003 08:40:52 -0000
+@@ -255,7 +255,7 @@
+ #endif
+ 		memset(&sg[nents], 0, sizeof(*sg));
+ 		sg[nents].page = virt_to_page(virt_addr);
+-		sg[nents].offset = (unsigned long) virt_addr & ~PAGE_MASK;
++		sg[nents].offset = virt_to_pageoff(virt_addr);
+ 		sg[nents].length = 128  * SECTOR_SIZE;
+ 		nents++;
+ 		virt_addr = virt_addr + (128 * SECTOR_SIZE);
+@@ -263,7 +263,7 @@
  	}
- 	return first_bh;
-Index: linux-2.6/drivers/scsi/megaraid.c
+ 	memset(&sg[nents], 0, sizeof(*sg));
+ 	sg[nents].page = virt_to_page(virt_addr);
+-	sg[nents].offset = (unsigned long) virt_addr & ~PAGE_MASK;
++	sg[nents].offset = virt_to_pageoff(virt_addr);
+ 	sg[nents].length =  sector_count  * SECTOR_SIZE;
+ 	nents++;
+ 
+Index: linux-2.6/drivers/ide/arm/icside.c
 ===================================================================
-RCS file: /home/cvs/linux-2.5/drivers/scsi/megaraid.c,v
-retrieving revision 1.43
-diff -u -r1.43 megaraid.c
---- linux-2.6/drivers/scsi/megaraid.c	17 Jul 2003 17:43:53 -0000	1.43
-+++ linux-2.6/drivers/scsi/megaraid.c	10 Aug 2003 09:30:32 -0000
-@@ -2275,8 +2275,7 @@
- 	if( !cmd->use_sg ) {
+RCS file: /home/cvs/linux-2.5/drivers/ide/arm/icside.c,v
+retrieving revision 1.8
+diff -u -r1.8 icside.c
+--- linux-2.6/drivers/ide/arm/icside.c	19 May 2003 17:48:30 -0000	1.8
++++ linux-2.6/drivers/ide/arm/icside.c	10 Aug 2003 08:40:52 -0000
+@@ -233,7 +233,7 @@
  
- 		page = virt_to_page(cmd->request_buffer);
--
--		offset = ((unsigned long)cmd->request_buffer & ~PAGE_MASK);
-+		offset = virt_to_pageoff(cmd->request_buffer);
- 
- 		scb->dma_h_bulkdata = pci_map_page(adapter->dev,
- 						  page, offset,
-Index: linux-2.6/drivers/scsi/qlogicfc.c
+ 		memset(sg, 0, sizeof(*sg));
+ 		sg->page   = virt_to_page(rq->buffer);
+-		sg->offset = ((unsigned long)rq->buffer) & ~PAGE_MASK;
++		sg->offset = virt_to_pageoff(rq->buffer);
+ 		sg->length = rq->nr_sectors * SECTOR_SIZE;
+ 		nents = 1;
+ 	} else {
+Index: linux-2.6/drivers/ide/ppc/pmac.c
 ===================================================================
-RCS file: /home/cvs/linux-2.5/drivers/scsi/qlogicfc.c,v
-retrieving revision 1.34
-diff -u -r1.34 qlogicfc.c
---- linux-2.6/drivers/scsi/qlogicfc.c	17 Jul 2003 17:43:53 -0000	1.34
-+++ linux-2.6/drivers/scsi/qlogicfc.c	10 Aug 2003 09:30:32 -0000
-@@ -1283,8 +1283,7 @@
- 		}
- 	} else if (Cmnd->request_bufflen && Cmnd->sc_data_direction != PCI_DMA_NONE) {
- 		struct page *page = virt_to_page(Cmnd->request_buffer);
--		unsigned long offset = ((unsigned long)Cmnd->request_buffer &
--					~PAGE_MASK);
-+		unsigned long offset = virt_to_pageoff(Cmnd->request_buffer);
- 		dma_addr_t busaddr = pci_map_page(hostdata->pci_dev,
- 						  page, offset,
- 						  Cmnd->request_bufflen,
-@@ -1927,8 +1926,7 @@
- 	 */
- 	busaddr = pci_map_page(hostdata->pci_dev,
- 			       virt_to_page(&hostdata->control_block),
--			       ((unsigned long) &hostdata->control_block &
--				~PAGE_MASK),
-+			       virt_to_pageoff(&hostdata->control_block),
- 			       sizeof(hostdata->control_block),
- 			       PCI_DMA_BIDIRECTIONAL);
- 
-Index: linux-2.6/drivers/scsi/sg.c
-===================================================================
-RCS file: /home/cvs/linux-2.5/drivers/scsi/sg.c,v
-retrieving revision 1.54
-diff -u -r1.54 sg.c
---- linux-2.6/drivers/scsi/sg.c	17 Jul 2003 17:43:53 -0000	1.54
-+++ linux-2.6/drivers/scsi/sg.c	10 Aug 2003 09:30:33 -0000
-@@ -1813,7 +1813,7 @@
- 					break;
- 			}
- 			sclp->page = virt_to_page(p);
--			sclp->offset = (unsigned long) p & ~PAGE_MASK;
-+			sclp->offset = virt_to_pageoff(p);
- 			sclp->length = ret_sz;
- 
- 			SCSI_LOG_TIMEOUT(5, printk("sg_build_build: k=%d, a=0x%p, len=%d\n",
-Index: linux-2.6/drivers/scsi/sym53c8xx.c
-===================================================================
-RCS file: /home/cvs/linux-2.5/drivers/scsi/sym53c8xx.c,v
-retrieving revision 1.39
-diff -u -r1.39 sym53c8xx.c
---- linux-2.6/drivers/scsi/sym53c8xx.c	18 Jul 2003 16:56:15 -0000	1.39
-+++ linux-2.6/drivers/scsi/sym53c8xx.c	10 Aug 2003 09:30:33 -0000
-@@ -1162,8 +1162,7 @@
- 
- 	mapping = pci_map_page(pdev,
- 			       virt_to_page(cmd->request_buffer),
--			       ((unsigned long)cmd->request_buffer &
--				~PAGE_MASK),
-+			       virt_to_pageoff(cmd->request_buffer),
- 			       cmd->request_bufflen, dma_dir);
- 	__data_mapped(cmd) = 1;
- 	__data_mapping(cmd) = mapping;
-Index: linux-2.6/drivers/scsi/arm/scsi.h
-===================================================================
-RCS file: /home/cvs/linux-2.5/drivers/scsi/arm/scsi.h,v
-retrieving revision 1.2
-diff -u -r1.2 scsi.h
---- linux-2.6/drivers/scsi/arm/scsi.h	19 May 2003 17:48:30 -0000	1.2
-+++ linux-2.6/drivers/scsi/arm/scsi.h	10 Aug 2003 09:30:33 -0000
-@@ -23,7 +23,7 @@
- 	BUG_ON(bufs + 1 > max);
- 
- 	sg->page   = virt_to_page(SCp->ptr);
--	sg->offset = ((unsigned int)SCp->ptr) & ~PAGE_MASK;
-+	sg->offset = virt_to_pageoff(SCp->ptr);
- 	sg->length = SCp->this_residual;
- 
- 	if (bufs)
+RCS file: /home/cvs/linux-2.5/drivers/ide/ppc/pmac.c,v
+retrieving revision 1.13
+diff -u -r1.13 pmac.c
+--- linux-2.6/drivers/ide/ppc/pmac.c	6 Jul 2003 19:33:43 -0000	1.13
++++ linux-2.6/drivers/ide/ppc/pmac.c	10 Aug 2003 08:40:52 -0000
+@@ -971,7 +971,7 @@
+ 	if (sector_count > 127) {
+ 		memset(&sg[nents], 0, sizeof(*sg));
+ 		sg[nents].page = virt_to_page(virt_addr);
+-		sg[nents].offset = (unsigned long) virt_addr & ~PAGE_MASK;
++		sg[nents].offset = virt_to_pageoff(virt_addr);
+ 		sg[nents].length = 127  * SECTOR_SIZE;
+ 		nents++;
+ 		virt_addr = virt_addr + (127 * SECTOR_SIZE);
+@@ -979,7 +979,7 @@
+ 	}
+ 	memset(&sg[nents], 0, sizeof(*sg));
+ 	sg[nents].page = virt_to_page(virt_addr);
+-	sg[nents].offset = (unsigned long) virt_addr & ~PAGE_MASK;
++	sg[nents].offset = virt_to_pageoff(virt_addr);
+ 	sg[nents].length =  sector_count  * SECTOR_SIZE;
+ 	nents++;
+    
 
 -- 
 Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>

@@ -1,61 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284903AbRLKGFn>; Tue, 11 Dec 2001 01:05:43 -0500
+	id <S284906AbRLKG3V>; Tue, 11 Dec 2001 01:29:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284905AbRLKGFd>; Tue, 11 Dec 2001 01:05:33 -0500
-Received: from zero.tech9.net ([209.61.188.187]:14343 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S284903AbRLKGFS>;
-	Tue, 11 Dec 2001 01:05:18 -0500
-Subject: Re: [PATCH] console close race fix resend
+	id <S284908AbRLKG3M>; Tue, 11 Dec 2001 01:29:12 -0500
+Received: from zero.tech9.net ([209.61.188.187]:15879 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S284906AbRLKG3E>;
+	Tue, 11 Dec 2001 01:29:04 -0500
+Subject: Re: [RFC] Multiprocessor Control Interfaces
 From: Robert Love <rml@tech9.net>
-To: gordo@pincoya.com
-Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-In-Reply-To: <20011210191630.A13679@furble>
-In-Reply-To: <1008035512.4287.1.camel@phantasy> 
-	<20011210191630.A13679@furble>
+To: Jason Baietto <jason.baietto@ccur.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1008015291.15138.0.camel@soybean>
+In-Reply-To: <1008015291.15138.0.camel@soybean>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Evolution/1.0.0.99+cvs.2001.12.06.08.57 (Preview Release)
-Date: 11 Dec 2001 01:05:18 -0500
-Message-Id: <1008050718.4287.11.camel@phantasy>
+Date: 11 Dec 2001 01:29:07 -0500
+Message-Id: <1008052151.4300.18.camel@phantasy>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2001-12-10 at 22:16, Gordon Oliver wrote:
+On Mon, 2001-12-10 at 15:14, Jason Baietto wrote:
 
-> and (c) appears to still have a race... You should extract
-> the value from the structure inside the lock, otherwise you
-> will still race with con_close (though perhaps a smaller race)
-> but since the call to acquire_console_sem() can sleep, the
-> vt handle you have may be stale.
-
-Ehh, I don't think so.  Here is the whole patched function:
-
-static void con_flush_chars(struct tty_struct *tty)
-{
-	struct vt_struct *vt = (struct vt_struct *)tty->driver_data;
-	if (in_interrupt())	/* from flush_to_ldisc */
-		return;
-	pm_access(pm_con);
-	acquire_console_sem();
-	if (vt)
-		set_cursor(vt->vc_num);
-	release_console_sem();
-}
-
-When we check vt, it isn't stale.  vt is a _pointer_ to the data so that
-first reference against it is guaranteed to grab the correct value.  The
-only possible race is between the if and the set_cursor, but that isn't
-an issue because we acquired the console semaphore.  There is no race
-here.
-
-> > Please, for all that is righteous, apply.
+> I'm currently working on adding multiprocessor control interfaces
+> to Linux.  My current efforts can be found here:
 > 
-> please fix it better first...
-> (unless I am mistaken).
+>    http://www.ccur.com/realtime/oss
+> 
+> These are clean-room implementations of similar tools that have
+> been available in our proprietary *nix for quite some time, and
+> so the interfaces have a fair amount of mileage under their belts.
+> Note that the scope is somewhat wider than just MP.
 
-Thus, unless I am mistaken, it is fine.  Please, apply.
+Ahh, very neat.  This is a useful tool.
+
+One idea would be to allow users to set CPUs processes _can't_ run on. 
+On high-end systems sometimes a CPU is affined to a particular IRQ (say,
+network interface).  Another situation is where you bind a RT task to a
+given CPU.  In these situations, you want everything else to _not_ run
+on the CPUs.  I.e., `run --bind=!1' (note its easy to generate the
+bitmask here too, by ANDing the inverse of the given CPU against -1).
+
+At any rate, what is needed most is to standardize on an interface for
+these scheduling mechanisms.  I guess its just CPU affinity we have to
+go ... since not much progress was made of my (proc-based) method vs.
+Ingo's (syscall-based) method, at this point either of the two being
+merged would make me happy.
+
+> These services rely upon Robert Love's CPU Affinity patch
+> (version 2.4.16-1 was used for testing) which is available here:
+> 
+>    http://www.kernel.org/pub/linux/kernel/people/rml/cpu-affinity/v2.4/
+
+I assume you have no problems with it ... I think I'd like to add the
+change that the CPUs reported correspond to the physical CPU number and
+not the logical value we derive.  On x86 this won't make a difference,
+but its a proper method I suspect.
 
 	Robert Love
 

@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263522AbTDTEBe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 00:01:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263523AbTDTEBe
+	id S263524AbTDTEiV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 00:38:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263525AbTDTEiV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 00:01:34 -0400
-Received: from corb.mc.mpls.visi.com ([208.42.156.1]:20660 "EHLO
-	corb.mc.mpls.visi.com") by vger.kernel.org with ESMTP
-	id S263522AbTDTEBd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 00:01:33 -0400
-Subject: May be off topic: ioctl I_SETSIG S_INPUT setting not valid for a named
- pipe?
-To: linux-kernel@vger.kernel.org
-Date: Sat, 19 Apr 2003 23:13:33 -0500 (CDT)
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	Sun, 20 Apr 2003 00:38:21 -0400
+Received: from ohsmtp03.ogw.rr.com ([65.24.7.38]:49829 "EHLO
+	ohsmtp03.ogw.rr.com") by vger.kernel.org with ESMTP id S263524AbTDTEiV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Apr 2003 00:38:21 -0400
+Message-ID: <000701c306f6$cf100180$0200a8c0@satellite>
+From: "Dave Mehler" <dmehler26@woh.rr.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.5.68 kernel no initrd
+Date: Sun, 20 Apr 2003 00:39:19 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20030420041333.56A8376CA2@isis.visi.com>
-From: jlb@visi.com (Joel L. Breazeale)
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a set of programs which practically demonstrate the I_SETSIG ioctl
-command does not work with the S_INPUT constant for a named pipe.  The errno
-value returned by the ioctl call is 22.  Two kernel versions demonstrating
-this problem are 2.4.18-3 and 2.4.20-9.
+Hello,
+    Ok, i should learn to leave well enough alone, but i don't. After
+successfully installing a monolithic 2.5.67 kernel i decided i wanted
+modules, so i made them, and what happened, it hung after the initrd
+initialized. So, when 2.5.68 came out i of course grab it, compile/install
+it without a hitch, but for one thing, as of now make install did not make
+an initrd for that install. Does anyone know how to make this manually, it
+won't boot without one?
+Thanks.
+Dave.
 
-I have already sent the details of this problem, including the sample
-programs, in a message on 14 Apr 2003 with a subject of "PROBLEM: ioctl()
-I_SETSIG S_INPUT option fails on a FIFO" to this mailing list.  I would be
-glad to send to anyone upon request.
-
-Here are my questions:
-
-  * Is the above ioctl deprecated for named pipes?
-  * Who is the maintainer of this functionality (who presonally is
-    willing to receive a problem report on this matter)?
-
-[I would greatly appreciate a personal e-mail on this subject as I may be
-dropping from this mailing list shortly due to volume and apparently lack
-of interest in this subject.]
-
-Thank you,
-Joel Breazeale

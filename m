@@ -1,106 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267879AbUIJDbY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266163AbUIJDem@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267879AbUIJDbY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 23:31:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267685AbUIJD3C
+	id S266163AbUIJDem (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 23:34:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267793AbUIJDcN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 23:29:02 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:27322 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S267879AbUIJD1i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 23:27:38 -0400
-Message-Id: <200409100322.i8A3MTCV004574@localhost.localdomain>
-To: Hans Reiser <reiser@namesys.com>
-cc: Paul Jakma <paul@clubi.ie>, "Theodore Ts'o" <tytso@mit.edu>,
-       Robin Rosenberg <robin.rosenberg.lists@dewire.com>,
-       William Stearns <wstearns@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: silent semantic changes in reiser4 (brief attempt to document the idea ofwhat reiser4 wants to do with metafiles and why 
-In-Reply-To: Message from Hans Reiser <reiser@namesys.com> 
-   of "Thu, 09 Sep 2004 17:57:11 MST." <4140FBE7.6020704@namesys.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
-Date: Thu, 09 Sep 2004 23:22:29 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Thu, 9 Sep 2004 23:32:13 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:59405 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S266163AbUIJDbO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 23:31:14 -0400
+Date: Fri, 10 Sep 2004 13:30:55 +1000
+To: Alex Riesen <fork0@users.sourceforge.net>,
+       "David S. Miller" <davem@davemloft.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com
+Subject: Re: 2.6.9-rc1+bk: assertion tcp_get_pcount failed at net/ipv4/tcp_input.c
+Message-ID: <20040910033055.GA26790@gondor.apana.org.au>
+References: <20040909111233.GA3987@steel.home>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="UlVJffcvxoiEqYs2"
+Content-Disposition: inline
+In-Reply-To: <20040909111233.GA3987@steel.home>
+User-Agent: Mutt/1.5.6+20040722i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser <reiser@namesys.com> said:
-> Paul Jakma wrote:
-> > On Thu, 9 Sep 2004, Hans Reiser wrote:
 
-[...]
+--UlVJffcvxoiEqYs2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> >> Putting \ into filenames makes windows compatibility less trivial.
+On Thu, Sep 09, 2004 at 11:12:33AM +0000, Alex Riesen wrote:
+> The box froze after being left for some time (some 10 hours) unattended.
+> The only thing in I could find in logs was:
+> 
+> Sep  8 22:30:18 steel kernel: KERNEL: assertion ((int)tcp_get_pcount(&tp->lost_out) >= 0) failed at net/ipv4/tcp_input.c (2422)
+> Sep  8 22:30:18 steel kernel: Leak l=4294967295 4
 
-> > Err, I think Ted used \ as an example of how to escape |. It is not 
-> > part of the filename.
+Looks like the factor isn't set early enough.  Can you please check
+that you had the changeset titled
 
-> It is not part of it at one level, but in the shell it is part of it.
+[TCP]: Make sure SKB tso factor is setup early enough.
 
-What are you talking about?
+from davem?
 
-> >> Putting | into filenames seems like asking for trouble with shells.
-
-> > I think that was Ted's precise reason for arguing that | be used. Did 
-> > you even read his rationale? :)
-
-> That trouble is desirable?
-
-He didn't say that at all. He said that '|' in filenames is currently
-troublesome, so nobody will do it. Besides, '|' is dangerous in some
-contexts, so it will probably already be filtered out where it might do
-damage without any further work. This is important, you can't expect
-everybody rewrite all their applications/web sites just because somebody
-might be fooling around with Reiser4 to check it out.
-
->                            Yes, I can understand why he might not want 
-> things to work well.;-)
-
-It is very clear that you don't even try to understand criticism.
-
-> >> If you think \| is user friendly, oh god, people like you are the 
-> >> reason why Unix is hated by many.
-
-It isn't. Ted's point is that the alternatives are much worse. Perhaps
-using "meta" or something like that is friendlier at first sight, but if
-your box is throroughly 0wn3d as a result, I'm sure your impression of
-friendliness will radically change.
-
-> > I think he was arguing | (not \|) is the least worst seperator to use.
-
-Exactly.
-
-> >> Rather few people understand closure though, so I don't expect to do 
-> >> well in the politics of this.
-
-Sorry for you, but either you convince the head kernel hackers (including
-Ted, BTW) that you are right. And they are very hard to convince, only hope
-is to present clear, clean solutions to the problems they raise. Nobody has
-done so in this flamewar, AFAICS. Politics has very little to do with this.
-
-> >>                               It is a bit like being for free trade, 
-> >> most people will never understand why it is so important because 
-> >> their mental gifts are in other matters,
-
-Here you aren't talking to the counterpart of Joe Sixpack, you are trying
-to convince the Economics Department of an ivy-league university that your
-ideas on economics are right and they don't know what they are talking
-about. Possible, but I'd call it somewhat unlikely.
-
-> > Lots of people understand why free-trade is important. It's taught in 
-> > introductory economics/business classes in secondary school.
-
-> Have you looked at the political process at all? Or by lots of people, 
-> do you mean a sizable minority?
-
-Again, no political process in sight.
-
-Please stop the handwawing, and address the core issues: Locking, POSIX
-compatibility (or convince people that POSIX is wrong), costs of
-implementing this (no, not just kernel implementation; also new
-applications, application changes required, user/sysadmin retraining, etc).
+If you did, then please apply the following patch and tell us what
+the resulting messages.
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+--UlVJffcvxoiEqYs2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=p
+
+===== include/net/tcp.h 1.87 vs edited =====
+--- 1.87/include/net/tcp.h	2004-09-10 01:51:02 +10:00
++++ edited/include/net/tcp.h	2004-09-10 13:24:25 +10:00
+@@ -30,6 +30,7 @@
+ #include <linux/slab.h>
+ #include <linux/cache.h>
+ #include <linux/percpu.h>
++#include <linux/rtnetlink.h>
+ #include <net/checksum.h>
+ #include <net/sock.h>
+ #include <net/snmp.h>
+@@ -1195,6 +1196,7 @@
+  */
+ static inline int tcp_skb_pcount(struct sk_buff *skb)
+ {
++	BUG_TRAP(TCP_SKB_CB(skb)->tso_factor);
+ 	return TCP_SKB_CB(skb)->tso_factor;
+ }
+ 
+
+--UlVJffcvxoiEqYs2--

@@ -1,77 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264292AbTKZTIh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 14:08:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264297AbTKZTIg
+	id S264287AbTKZTHX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 14:07:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264292AbTKZTHX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 14:08:36 -0500
-Received: from c-67-165-242-194.client.comcast.net ([67.165.242.194]:20748
-	"HELO c-67-165-242-194.client.comcast.net") by vger.kernel.org
-	with SMTP id S264292AbTKZTId (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 14:08:33 -0500
-Message-ID: <79z992$5r$s7bt$$o51-e--59-0@g00bf>
-From: "Consuelo Meeks" <uvpdmwi@yahoo.com>
-Reply-To: "Consuelo Meeks" <uvpdmwi@yahoo.com>
-To: linux-kernel@vger.kernel.org
-Subject: Alprazolam.m Vicodin.n Valium.m Xanax.x ev
-Date: Wed, 26 Nov 03 22:12:52 GMT
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="A695DD.7.A_._"
-X-Priority: 3
-X-MSMail-Priority: Normal
+	Wed, 26 Nov 2003 14:07:23 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:13585
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S264287AbTKZTHW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 14:07:22 -0500
+Date: Wed, 26 Nov 2003 11:07:18 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.0-test10-mm1
+Message-ID: <20031126190718.GB1566@mis-mike-wstn.matchmail.com>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org
+References: <20031125211518.6f656d73.akpm@osdl.org> <20031126085123.A1952@infradead.org> <20031126044251.3b8309c1.akpm@osdl.org> <20031126130936.A5275@infradead.org> <20031126052900.17542bb3.akpm@osdl.org> <20031126132505.C5477@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031126132505.C5477@infradead.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 26, 2003 at 01:25:05PM +0000, Christoph Hellwig wrote:
+> On Wed, Nov 26, 2003 at 05:29:00AM -0800, Andrew Morton wrote:
+> > But I do not think that making a single kernel symbol inaccessible is an
+> > appropriate way of resolving a GPFS licensing dispute.
+> 
+> well, GFPS is a derived work with or without it.  It's just that I remember
+> we had that agreement about merging it only with the _GPL export.  In fact
+> I'm pretty sure Paul told something about GPLed distributed filesystems from
+> IBM in that context..
 
---A695DD.7.A_._
-Content-Type: text/plain;
-Content-Transfer-Encoding: quoted-printable
-
-Many Specials running this week
-
-THE RE.AL THING
-not like the other sites that 
-imitate these products.
-
-No hidd.en char.ges - Fast Delivery
-
-Vic.odin Val.ium Xan.ax
-
-Via.gra Diaz.epam Alpra.zolam
-
-So.ma Fior.icet Amb.ien
-
-Stil.nox Ult.ram Zo.loft
-
-Clon.azepam At.ivan Tr.amadol
-
-Xeni.cal Cele.brex Vi.oxx
-
-Pro.zac Bus.par Much M.ore....
-
-http://www.dealsforu.biz/l/110/index.htm
-
-
-
-
-
-
-If you have recieved this in error
-please use
-http://www.dealsforu.biz/optout.html
-
-
-
-
-
-
-
-cbbzawaolntqyv aj lfsmnvu
-  yl
-o tbuan wrrxlreq wqxwn q xesded 
-
---A695DD.7.A_._--
-
+Are you trying to say that something that was ported from AIX is a derived
+work because it has to read kernel internals to get its job done?

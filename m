@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261934AbSI3GLL>; Mon, 30 Sep 2002 02:11:11 -0400
+	id <S261935AbSI3GRQ>; Mon, 30 Sep 2002 02:17:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261935AbSI3GLL>; Mon, 30 Sep 2002 02:11:11 -0400
-Received: from mailout07.sul.t-online.com ([194.25.134.83]:37351 "EHLO
-	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S261934AbSI3GLK> convert rfc822-to-8bit; Mon, 30 Sep 2002 02:11:10 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Kernel panic/exception dump support in 2.5?
-Date: Mon, 30 Sep 2002 08:16:20 +0200
-User-Agent: KMail/1.4.3
-Organization: WOLK - Working Overloaded Linux Kernel
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200209300816.20040.m.c.p@wolk-project.de>
+	id <S261936AbSI3GRQ>; Mon, 30 Sep 2002 02:17:16 -0400
+Received: from dp.samba.org ([66.70.73.150]:4256 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S261935AbSI3GRP>;
+	Mon, 30 Sep 2002 02:17:15 -0400
+Date: Mon, 30 Sep 2002 16:22:43 +1000
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Orinoco Development List <orinoco-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Orinoco-devel] Re: Orinoco driver update
+Message-ID: <20020930062243.GH10265@zax>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Orinoco Development List <orinoco-devel@lists.sourceforge.net>,
+	linux-kernel@vger.kernel.org
+References: <20020927025227.GC1898@zax> <3D94B7F5.6030401@pobox.com> <20020930050846.GG10265@zax> <3D97E30E.50703@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D97E30E.50703@pobox.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Randy,
+On Mon, Sep 30, 2002 at 01:37:18AM -0400, Jeff Garzik wrote:
+> David,
+> 
+> Linus applied 0.13a and that fixes things, thanks.
+> 
+> Two quick comments:
+> * you need pci_set_drvdata(pdev,NULL) after pci_disable_disable in your 
+> pci_driver::remove hook
 
-> | On Sun, 2002-09-29 at 21:42, Shawn Starr wrote:
-> | >
-> | > It would really be nice if I could capture kernel exceptions/and oopsies
-> | > on a file, or over a network connection. Redirecting console=lp0 to
-> | > printer doesnt really let me paste dumps to LKML =)
-> | >
-> | > Any solutions? Will we have a way to properly dump kernel failures
-> | > (exceptions/oopies) somewhere?
-> |
-> | The netdump patch can do this, including the actual kernel image
-> | -
+Ok, I've added that before kfree()ing the net_device structure in both
+orinoco_pci.c and orinoco_plx.c
 
-> Is this something different from netconsole?
-> Where can I find netdump?
-netdump == netconsole.
+> * I think it would look better to remove the struct pci_driver ->suspend 
+> and ->resume hook references, if they are NULL (0)...
 
-Find it here: http://people.redhat.com/mingo/netconsole-patches/
-
-Another work done by Ingo =) ... Works great, is a part of WOLK too.
+Hmm... I'd kind of prefer to leave them there, to remind me that the
+suspend/resume hooks need to be implemented.
 
 -- 
-Kind regards
-        Marc-Christian Petersen
-
-http://sourceforge.net/projects/wolk
-
-PGP/GnuPG Key: 1024D/569DE2E3DB441A16
-Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
-Key available at www.keyserver.net. Encrypted e-mail preferred.
+David Gibson			| For every complex problem there is a
+david@gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

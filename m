@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263991AbSJTTAb>; Sun, 20 Oct 2002 15:00:31 -0400
+	id <S264021AbSJTTKn>; Sun, 20 Oct 2002 15:10:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264001AbSJTTAb>; Sun, 20 Oct 2002 15:00:31 -0400
-Received: from www.consumerprivacyguide.org ([206.112.85.61]:64446 "EHLO
-	mail.cdt.org") by vger.kernel.org with ESMTP id <S263991AbSJTTAa>;
-	Sun, 20 Oct 2002 15:00:30 -0400
-Date: Sun, 20 Oct 2002 15:06:34 -0400 (EDT)
-From: Daniel Berlin <dberlin@dberlin.org>
-To: Ben Collins <bcollins@debian.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Richard Stallman <rms@gnu.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Bitkeeper outrage, old and new
-In-Reply-To: <20021020154609.GD696@phunnypharm.org>
-Message-ID: <Pine.LNX.4.44.0210201505330.3420-100000@dberlin.org>
+	id <S264625AbSJTTKm>; Sun, 20 Oct 2002 15:10:42 -0400
+Received: from as8-6-1.ens.s.bonet.se ([217.215.92.25]:62482 "EHLO
+	zoo.weinigel.se") by vger.kernel.org with ESMTP id <S264021AbSJTTKi>;
+	Sun, 20 Oct 2002 15:10:38 -0400
+To: Alan Cox <alan@redhat.com>
+Cc: miura@da-cha.org (Hiroshi Miura), davej@suse.de, hpa@zytor.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: workaround for Cyrix MediaGX/NSC Geode companion CS5510/5520 PIT latch bug
+References: <20021017170344.0C87C11782A@triton2>
+	<200210201719.g9KHJeC21138@devserv.devel.redhat.com>
+From: Christer Weinigel <christer@weinigel.se>
+Date: 20 Oct 2002 21:16:41 +0200
+In-Reply-To: <200210201719.g9KHJeC21138@devserv.devel.redhat.com>
+Message-ID: <878z0shqee.fsf@zoo.weinigel.se>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox <alan@redhat.com> writes:
 
-
-On Sun, 20 Oct 2002, Ben Collins wrote:
-
-> On Sat, Oct 19, 2002 at 07:28:43PM -0400, Jeff Garzik wrote:
+> > with this patch, timejumps or timebacks don't occurs.
+> > This patch also removes dodgy_tsc() workaround.
 > > 
-> > 
-> > At the potential cost of getting flamed, I think it is worth pointing 
-> > out that the FSF's copyright assignment policy on several of their 
-> > projects is _very_ anti-freedom.  You are required to relinquish all 
-> > your rights to your contributions, in exchange for the hope that the FSF 
-> > will protect them.
+> > this patch tried on mini note-PC CASSIOPEIA FIVA http://www.casio.co.jp/mpc/103/
+> > you can get spec from http://www.da-cha.org/fiva/fiva.html
 > 
-> Jeff, they don't force you, they require it to be turned over to them
-> for inclusion in the FSF proper upstream source. Also, it doesn't mean
-> that you lose your rights to the original piece. You can still reuse
-> your own source as the copyright owner.
-Not quite.
-The reason you can reuse is only because they grant the right to use (and 
-sublicense, etc) back to you as part of the contract.
-You are *not* the copyright owner anymore, however.
+> Excellent. My wife has a 5520 based system and I can test it there too. Dave
+> if Windows always generates that delayed sequence (which btw the docs say
+> the delay is required...) it may explain the similar VIA weirdness
 
+I have seen a similar problem with a Geode SC1200 based system which
+basically is a GX1 and a CS5530 integrated on one chip.  I'm starting
+to wonder if the same bug has popped up again in the newer chip.
 
+Unfortunately, I haven't got access to the troublesome system anymore
+so I can't test the patch.
+
+  /Christer
+
+-- 
+"Just how much can I get away with and still go to heaven?"
+
+Freelance consultant specializing in device driver programming for Linux 
+Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se

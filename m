@@ -1,63 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280171AbRJaLoK>; Wed, 31 Oct 2001 06:44:10 -0500
+	id <S280172AbRJaLpK>; Wed, 31 Oct 2001 06:45:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280174AbRJaLoA>; Wed, 31 Oct 2001 06:44:00 -0500
-Received: from aloha.egartech.com ([62.118.81.133]:58373 "HELO
-	mx02.egartech.com") by vger.kernel.org with SMTP id <S280171AbRJaLnu>;
-	Wed, 31 Oct 2001 06:43:50 -0500
-Message-ID: <3BDFE4A3.309D66CE@egartech.com>
-Date: Wed, 31 Oct 2001 14:46:43 +0300
-From: Kirill Ratkin <kratkin@egartech.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9 i686)
-X-Accept-Language: en
+	id <S280174AbRJaLpB>; Wed, 31 Oct 2001 06:45:01 -0500
+Received: from as4-1-7.has.s.bonet.se ([217.215.31.238]:59541 "EHLO
+	k-7.stesmi.com") by vger.kernel.org with ESMTP id <S280172AbRJaLou>;
+	Wed, 31 Oct 2001 06:44:50 -0500
+Message-ID: <3BDFE45A.6000601@stesmi.com>
+Date: Wed, 31 Oct 2001 12:45:30 +0100
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Michael Rozhavsky <mrozhavsky@opticalaccess.com>
+To: Mark Atwood <mra@pobox.com>
 CC: linux-kernel@vger.kernel.org
-Subject: Re: Call kernel function from module
-In-Reply-To: <01103112311302.00794@nemo> <3BDFD866.E6E997CC@egartech.com> <20011031133438.O24143@opticalaccess.com>
-Content-Type: text/plain; charset=koi8-r
+Subject: Re: Identify IDE device?
+In-Reply-To: <m3pu74k4v5.fsf@khem.blackfedora.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 31 Oct 2001 11:44:19.0534 (UTC) FILETIME=[606D26E0:01C16201]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-Michael Rozhavsky wrote:
+> Is there a way, via an ioctl call, or something to identify what
+> specific IDE hard disk or other IDE device is hooked up to the IDE
+> controller?
 > 
-> [snip]
-> >
-> > Hi! Could somebody help me? I added several functions (not sys calls) to
-> > kernel as hardcoded part. Then I write modules which will be call these
-> > functions. But when I load module insmod says me 'can't resolve symbol
-> > my_func_name'.
-> > I exported all my functions in netsyms.c file. Do you know how I can see
-> > my function?
+> I'm really hoping to be able to determine something like "/dev/hda is
+> a Maxtor 96147H6".
 > 
-> use EXPORT_SYMBOL macro from include/module.h
-Yes. I added it in netsyms.c and I see all my functions in System.map
-file. (into ksyms too)
+> 
 
-#ifdef CONFIG_BATON
-#include <linux/baton.h>
-EXPORT_SYMBOL(baton_init);
-EXPORT_SYMBOL(baton_register_hook);
-EXPORT_SYMBOL(baton_unregister_hook);
-#endif
+hdparm -i /dev/hda
 
-> 
-> >
-> > Regards,
-> > Niktar.
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> Best regards.
-> 
-> --
->    Michael Rozhavsky                    Tel:    +972-4-9936248
->    mrozhavsky@opticalaccess.com         Fax:    +972-4-9890564
->    Optical Access
->    Senior Software Engineer             www.opticalaccess.com
+// Stefan
+
+

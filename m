@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265022AbSJPOvw>; Wed, 16 Oct 2002 10:51:52 -0400
+	id <S265018AbSJPOub>; Wed, 16 Oct 2002 10:50:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265024AbSJPOvw>; Wed, 16 Oct 2002 10:51:52 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:9740 "EHLO probity.mcc.ac.uk")
-	by vger.kernel.org with ESMTP id <S265022AbSJPOvu>;
-	Wed, 16 Oct 2002 10:51:50 -0400
-Date: Wed, 16 Oct 2002 15:57:28 +0100
-From: John Levon <levon@movementarian.org>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: willy@debian.org, akpm@digeo.com
-Subject: Re: Linux v2.5.43
-Message-ID: <20021016145728.GA78571@compsoc.man.ac.uk>
-References: <Pine.LNX.4.44.0210152040540.1708-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0210152040540.1708-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan *181pc0-000Cob-00*4zjUyQmTfMQ* (Manchester Computing, University of Manchester)
+	id <S265022AbSJPOub>; Wed, 16 Oct 2002 10:50:31 -0400
+Received: from c16688.thoms1.vic.optusnet.com.au ([210.49.244.54]:12490 "EHLO
+	kolivas.net") by vger.kernel.org with ESMTP id <S265018AbSJPOua>;
+	Wed, 16 Oct 2002 10:50:30 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Con Kolivas <conman@kolivas.net>
+Reply-To: conman@kolivas.net
+To: "John Stoffel" <stoffel@lucent.com>
+Subject: Re: [BENCHMARK] 2.5.43 with contest
+Date: Thu, 17 Oct 2002 00:56:13 +1000
+User-Agent: KMail/1.4.3
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <1034749489.3dad063203723@kolivas.net> <15789.31874.550728.696896@gargle.gargle.HOWL>
+In-Reply-To: <15789.31874.550728.696896@gargle.gargle.HOWL>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210170056.16385.conman@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 15, 2002 at 08:44:10PM -0700, Linus Torvalds wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> John Levon <levon@movementarian.org>:
->   o oprofile - core
+On Thu, 17 Oct 2002 12:49 am, John Stoffel wrote:
+> Con,
+>
+> Why are you bothering to show the older 2.5.3x series of kernels, but
+> dropping the 2.4.18 results?  Wouldn't it make sense to see how the
+> latest kernels in each section were doing?
 
-Note that anybody actually wanting to use the thing needs an additional
-fix like the below, or most of the samples end up being dropped on the
-floor.
+My main interest in doing these is to help 2.5 development as 2.4 is not 
+changing dramatically anywhere in the near future. As the number of data 
+points increase the ability to sift through the information will decrease. 
+The comparison to 2.4 kernels has been made in the past and I felt that 
+showing the progression of 2.5 would be more helpful as the change made by 
+each step could be quantified. I dont mind posting a full set of benchmarks 
+but people are less likely to read through a huge set of data trying to find 
+the relevant information.  If someone feels I am in error I would be happy to 
+change what I'm doing.
 
-Matthew, can we submit the proper fix (using cond_resched ?) at some
-point ?
+Cheers,
+Con.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
-thanks
-john
-
-
---- linux-linus/fs/locks.c	Sat Sep 28 15:56:28 2002
-+++ linux/fs/locks.c	Wed Oct  2 04:15:54 2002
-@@ -727,11 +727,11 @@
- 	}
- 	unlock_kernel();
- 
--	if (found)
--		yield();
--
- 	if (new_fl->fl_type == F_UNLCK)
- 		return 0;
-+
-+	if (found)
-+		yield();
- 
- 	lock_kernel();
- 	for_each_lock(inode, before) {
+iD8DBQE9rX4NF6dfvkL3i1gRAq8oAJ9QwnsPvNx4P7MDZdDWJOonA/HDUgCfTKj3
+hReHZbmbXsCjCkuEJwOrDpQ=
+=lun1
+-----END PGP SIGNATURE-----

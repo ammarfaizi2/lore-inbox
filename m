@@ -1,49 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318949AbSICVqZ>; Tue, 3 Sep 2002 17:46:25 -0400
+	id <S318950AbSICVrU>; Tue, 3 Sep 2002 17:47:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318951AbSICVqY>; Tue, 3 Sep 2002 17:46:24 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:40199 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S318949AbSICVqW>; Tue, 3 Sep 2002 17:46:22 -0400
-Message-ID: <3D752E38.EF352F48@zip.com.au>
-Date: Tue, 03 Sep 2002 14:48:40 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
-X-Accept-Language: en
+	id <S318951AbSICVrU>; Tue, 3 Sep 2002 17:47:20 -0400
+Received: from pD9E23EAA.dip.t-dialin.net ([217.226.62.170]:5250 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S318950AbSICVqe>; Tue, 3 Sep 2002 17:46:34 -0400
+Date: Tue, 3 Sep 2002 15:51:13 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Hacksaw <hacksaw@hacksaw.org>
+cc: Thunder from the hill <thunder@lightweight.ods.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH - change to blkdev->queue calling triggers BUG in md.c 
+In-Reply-To: <200209032132.g83LWKOO020742@habitrail.home.fools-errant.com>
+Message-ID: <Pine.LNX.4.44.0209031535510.3373-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
 MIME-Version: 1.0
-To: Rasmus Andersen <rasmus@jaquet.dk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: __func__ in 2.5.33?
-References: <20020903225229.A24108@jaquet.dk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rasmus Andersen wrote:
-> 
-> Hi,
-> 
-> I trying to compile the SX driver for the 2.5.33 kernel, I got a
-> lot of warnings looking like (this is from a test program, not
-> the driver itself)
-> 
-> test.c: In function `main':
-> test.c:6: called object is not a function
-> test.c:6: parse error before string constant
-> 
-> This seems to stem from the recent __FUNCTION__ vs. __func__
-> change in kernel.h and the SX driver's use of __FUNCTION__ in the
-> following construct
-> 
-> #define func_enter() sx_dprintk (SX_DEBUG_FLOW, "sx: enter " __FUNCTION__ "\n")
-> 
+Hi,
 
-The parenthesised (__func__) is there to force you to not try to
-perform this string pasting.  Support for __FUNCTION__ pasting is
-being phased out of gcc.
+On Tue, 3 Sep 2002, Hacksaw wrote:
+> > Disk-backed raid config storage can do that just as well. I don't
+> > really think a partition table is the thing you'll want in order to
+> > store your raid config.
+> 
+> Additionally, I want the OS to be able to do what it wants with the
+> disk, which may well mean logically dividing the disks presented by the
+> RAID into logical partitions.
 
-You need:
+We're going cyclic. All over. I think I've made my point, and you've made 
+yours. Yet I could live with my raid(s). IMO you can handle it all at the 
+level of clueful hardware presenting virtual hardware to your OS.
 
-#define func_enter() sx_dprintk (SX_DEBUG_FLOW, "sx: enter %s\n", __FUNCTION__)
+> In fact, the two systems (RAID controller and OS) should not have
+> anything to do with each other. The OS should just see disks, and the
+> controller should just see raw data for it to put where ever the OS says
+> to put it.
+
+I agree for more than a hundred percent. And I think the OS shouldn't have 
+to bother with disk slicing where it's not necessary.
+
+> And yes you can resize disks, especially if you don't mind hosing the
+> data thereon.
+
+I've meant to say "physical disks". I'm happily aware of raid virtual disk 
+resizing.
+
+> > (I still wonder how often you resize your partitions, per second.)
+> 
+> Not often. I probably changed disk setup once a week. Even still, I want it to 
+> take me almost zero time, and the RAID as a whole must remain up at all times, 
+> 24/7.
+
+Enough time to back up the stuff.
+
+> The theory doesn't match my experience. Maybe ten years from now it
+> will. But I doubt it seriously.
+
+I'm not talking about all the stuff that's on the market right now. I'm 
+talking about the good stuff which we should evolve within the next few 
+years in order to get proper support for our requirements.
+
+> In ten years I think we'll have PC's shipping with 4TiB disks that are
+> still damned slow.
+
+I'm still talking about raid here.
+
+> And my time could include every developer. At $250 an hour, 70 idle
+> developers = $17,500 for an hour of down time.
+
+My response is: don't watch the script work.
+
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
+

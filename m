@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129072AbRBIVxK>; Fri, 9 Feb 2001 16:53:10 -0500
+	id <S129564AbRBIWNo>; Fri, 9 Feb 2001 17:13:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129448AbRBIVwv>; Fri, 9 Feb 2001 16:52:51 -0500
-Received: from cs.columbia.edu ([128.59.16.20]:5085 "EHLO cs.columbia.edu")
-	by vger.kernel.org with ESMTP id <S129072AbRBIVwJ>;
-	Fri, 9 Feb 2001 16:52:09 -0500
-Date: Fri, 9 Feb 2001 13:52:01 -0800 (PST)
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: Jes Sorensen <jes@linuxcare.com>
-cc: Manfred Spraul <manfred@colorfullife.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>, Alan Cox <alan@redhat.com>,
-        <linux-kernel@vger.kernel.org>, Donald Becker <becker@scyld.com>
-Subject: Re: [PATCH] starfire reads irq before pci_enable_device.
-In-Reply-To: <d38znfwmzq.fsf@lxplus015.cern.ch>
-Message-ID: <Pine.LNX.4.30.0102091349410.31024-100000@age.cs.columbia.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129865AbRBIWNe>; Fri, 9 Feb 2001 17:13:34 -0500
+Received: from saloma.stu.rpi.edu ([128.113.199.230]:57604 "HELO
+	incandescent.mp3revolution.net") by vger.kernel.org with SMTP
+	id <S129564AbRBIWNV>; Fri, 9 Feb 2001 17:13:21 -0500
+From: dilinger@mp3revolution.net
+Date: Fri, 9 Feb 2001 17:13:15 -0500
+To: Zach Brown <zab@zabbo.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] maestro3 still oopses?
+Message-ID: <20010209171315.A2938@incandescent.mp3revolution.net>
+In-Reply-To: <20010208223103.A432@incandescent.mp3revolution.net> <20010209115148.B20335@tetsuo.zabbo.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20010209115148.B20335@tetsuo.zabbo.net>; from zab@zabbo.net on Fri, Feb 09, 2001 at 11:51:48AM -0500
+X-Operating-System: Linux incandescent 2.4.2-pre2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9 Feb 2001, Jes Sorensen wrote:
+I'm running it now, looks good.  :)
 
-> Manfred> What about changing the default for rx_copybreak instead?
-> Manfred> Set it to 1536 on ia64 and Alpha, 0 for the rest.  tulip and
-> Manfred> eepro100 use that aproach.
+On Fri, Feb 09, 2001 at 11:51:48AM -0500, Zach Brown wrote:
 > 
-> Inefficient, my patch will make the unused code path disappear during
-> compilation, what you suggest results in an extra branch and unused
-> code.
-
-Yes, but I'd rather let people turn off the always-copy behavior by simply 
-changing rx_copybreak. The unused code is not really that much of a deal, 
-it's only a few lines.
-
-Ion
+> > The maestro3 driver, included in 2.4.2-pre2 (which I assume is the
+> > same as maestro3-2.4-20010204.tar.gz, I haven't bothered to try it;
+> > I'm perfectly happy w/ my patch), oopses upon shutdown.
+> 
+> the maestro3 snapshot in 2.4.2pre2 is not up to date.  I imagine it came
+> from alan, who got the jan30 patch, but didn't get the trivial feb 04
+> patch that fixes the oops you're seeing.
+> 
+> the proper patch to 2.4.2-pre2 (and 2.4ac-current, presumably)
+> is attached.  Does it fix you problem?  [it tries to do so without
+> duplicating code, you'll notice.]
+> 
+> - z
+> 
 
 -- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
-
+"... being a Linux user is sort of like living in a house inhabited
+by a large family of carpenters and architects. Every morning when
+you wake up, the house is a little different. Maybe there is a new
+turret, or some walls have moved. Or perhaps someone has temporarily
+removed the floor under your bed." - Unix for Dummies, 2nd Edition
+        -- found in the .sig of Rob Riggs, rriggs@tesser.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,76 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266280AbUFPM4y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266288AbUFPM5S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266280AbUFPM4y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 08:56:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266283AbUFPM4t
+	id S266288AbUFPM5S (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 08:57:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266283AbUFPM5I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 08:56:49 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:25768 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S266280AbUFPMzr
+	Wed, 16 Jun 2004 08:57:08 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31655 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266288AbUFPMzW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 08:55:47 -0400
-Subject: Re: JFS compilation fix [was Re: Linux 2.6.7]
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
+	Wed, 16 Jun 2004 08:55:22 -0400
+Message-ID: <40D0432A.1080006@pobox.com>
+Date: Wed, 16 Jun 2004 08:55:06 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Zilvinas Valinskas <zilvinas@gemtek.lt>
+CC: Linus Torvalds <torvalds@osdl.org>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040616080740.GC23998@louise.pinerecords.com>
-References: <Pine.LNX.4.58.0406152253390.6392@ppc970.osdl.org>
-	 <20040616080740.GC23998@louise.pinerecords.com>
-Content-Type: text/plain
-Message-Id: <1087390524.29047.10.camel@shaggy.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 16 Jun 2004 07:55:24 -0500
+Subject: Re: Linux 2.6.7 (stty rows 50 columns 140 reports : No such device
+ or address)
+References: <Pine.LNX.4.58.0406152253390.6392@ppc970.osdl.org> <20040616095805.GC14936@gemtek.lt>
+In-Reply-To: <20040616095805.GC14936@gemtek.lt>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-06-16 at 03:07, Tomas Szepe wrote:
-> Here's a trivial patch to fix JFS compilation in 2.6.7.  The error
-> only happens in specific configs -- one such config can be found here:
-> http://www.pinerecords.com/kala/_nonpub/.config.louise26
+Zilvinas Valinskas wrote:
+> On Compaq N800 EVO notebook with a radeonfb enabled - stty failes to
+> adjust terminal size. strace log attached. Under 2.6.5/2.6.6 it used to
+> work. 
+> 
+> relevant part:
+> 
+> open("/dev/vc/1", O_RDONLY|O_NONBLOCK|O_LARGEFILE) = 3
+> fcntl64(3, F_GETFL)                     = 0x8800 (flags
+> O_RDONLY|O_NONBLOCK|O_LARGEFILE)
+> fcntl64(3, F_SETFL, O_RDONLY|O_LARGEFILE) = 0
+> ioctl(3, SNDCTL_TMR_TIMEBASE or TCGETS, {B38400 opost isig icanon echo
+> ...}) = 0
+> ioctl(3, TIOCGWINSZ, {ws_row=65, ws_col=175, ws_xpixel=0, ws_ypixel=0})
+> = 0
+> ioctl(3, TIOCSWINSZ, {ws_row=50, ws_col=175, ws_xpixel=0, ws_ypixel=0})
+> = -1 ENXIO (No such device or address)
+> write(2, "/bin/stty: ", 11)             = 11
+> write(2, "/dev/vc/1", 9)                = 9
+> open("/usr/share/locale/locale.alias", O_RDONLY) = 4
+> 
+> 
+> it makes no difference when doing :
+> 
+> stty rows 50 columns 140 
+> or
+> stty rows 50 columns 140 -F /dev/vc/1 ... 
+> 
+> Exactly same error.
 
-I don't know why gcc-3.2.2 doesn't complain about this one, as I have
-compiled this numerous times.
 
-Your patch has an unnecessary include of jfs_dtree.h.  jfs_dtree.h is
-included by jfs_inline.h, and is not needed in jfs_dtree.c.
+huh, I wonder if this is why reset(1) doesn't fully reset the terminal, 
+like it used to ...
 
-> I don't have the time to narrow the problem down to the config
-> entry that gets jfs_dtree.c to include jfs_dtree.h (jfs_dtree.c
-> itself doesn't have any relevat ifdefs).
+	Jeff
 
-My guess is the config entry is CONFIG_JFS_FS. :^)
-
-Here's the patch without the unneeded include:
-----------------------------------------------
-JFS: move declaration of temp_table to beginning of block
-
-Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
-
-diff -urp linux-2.6.7/fs/jfs/jfs_dtree.c linux/fs/jfs/jfs_dtree.c
---- linux-2.6.7/fs/jfs/jfs_dtree.c	2004-06-16 07:38:20.244688936 -0500
-+++ linux/fs/jfs/jfs_dtree.c	2004-06-16 07:46:38.210986552 -0500
-@@ -374,6 +374,8 @@ static u32 add_index(tid_t tid, struct i
- 		return index;
- 	}
- 	if (index == (MAX_INLINE_DIRTABLE_ENTRY + 1)) {
-+		struct dir_table_slot temp_table[12];
-+
- 		/*
- 		 * It's time to move the inline table to an external
- 		 * page and begin to build the xtree
-@@ -385,7 +387,6 @@ static u32 add_index(tid_t tid, struct i
- 		 * Save the table, we're going to overwrite it with the
- 		 * xtree root
- 		 */
--		struct dir_table_slot temp_table[12];
- 		memcpy(temp_table, &jfs_ip->i_dirtable, sizeof(temp_table));
- 
- 		/*
-
--- 
-David Kleikamp
-IBM Linux Technology Center
 

@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265443AbRGGVzU>; Sat, 7 Jul 2001 17:55:20 -0400
+	id <S266599AbRGGWAa>; Sat, 7 Jul 2001 18:00:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266595AbRGGVzK>; Sat, 7 Jul 2001 17:55:10 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:5392 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S265443AbRGGVzA>;
-	Sat, 7 Jul 2001 17:55:00 -0400
-Date: Sat, 7 Jul 2001 23:54:54 +0200
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Mike Touloumtzis <miket@bluemug.com>, linux-kernel@vger.kernel.org
-Subject: Re: [Acpi] Re: ACPI fundamental locking problems
-Message-ID: <20010707235329.A10256@pcep-jamie.cern.ch>
-In-Reply-To: <Pine.LNX.4.33.0107040956310.1668-100000@penguin.transmeta.com> <9i6oga$jk1$1@pccross.average.org> <3B46F3CE.9002ABAB@mandrakesoft.com> <20010707144032.C19529@mayotte>
+	id <S266600AbRGGWAK>; Sat, 7 Jul 2001 18:00:10 -0400
+Received: from zero.tech9.net ([209.61.188.187]:64004 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S266599AbRGGWAF>;
+	Sat, 7 Jul 2001 18:00:05 -0400
+Subject: OOM: A Success Report
+From: Robert Love <rml@tech9.net>
+To: linux-kernel@vger.kernel.org
+Cc: riel@conectiva.com.br
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.10.99 (Preview Release)
+Date: 07 Jul 2001 18:00:08 -0400
+Message-Id: <994543220.1749.0.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010707144032.C19529@mayotte>; from miket@bluemug.com on Sat, Jul 07, 2001 at 02:40:32PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Touloumtzis wrote:
-> > > Doesn't the approach "treat a chunk of data built into bzImage as
-> > > populated ramfs" look cleaner?  No need to fiddle with tar format,
-> > > no copying data from place to place.
-> > 
-> > So tell me, how do you populate ramfs without a format which tells you
-> > what path and which permissions to assign each file?  That's exactly
-> > what tar is.
-> 
-> Would it be possible to use a cramfs image in vmlinux (i.e. real
-> filesystem image, not an in-kernel-structures fs like ramfs), and map
-> it directly from the kernel image (it would have to be suitably aligned,
-> of course)?
-> 
-> This would allow demand paging of files in the image (not too important
-> for a minimal boot fs, admittedly), and would allow text pages to be
-> dropped under VM pressure (nice for a fs which holds substantial amounts
-> of boot-time-only code).
+i thought it would be nice to finally hear something good about the OOM
+killer.
 
-Yes that would work, and it would work on machines with less RAM too.
-You would want to remove the cramfs filesystem code when you're done though.
+i am testing Evolution (Ximian's GNOME emailer/groupware app), and the
+latest Evolution cvs-snapshot went crazy when trying to copy a mail
+folder.  my load averaged spiked, swap filled, and then i ran out of
+memory.
 
--- Jamie
+*poof*, Evolution was killed, and everything returned to normal.
+
+kernel showed:
+Out of Memory: Killed process 1296 (evolution-mail).
+Out of Memory: Killed process 1296 (evolution-mail).
+Out of Memory: Killed process 1296 (evolution-mail).
+Out of Memory: Killed process 1302 (evolution-mail).
+Out of Memory: Killed process 1303 (evolution-mail).
+Out of Memory: Killed process 1306 (evolution-mail).
+Out of Memory: Killed process 1307 (evolution-mail).
+
+now, i dont know if the load average spiking was evolution's fault, or
+not...but everything seemed to work. Good job.
+
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
+

@@ -1,57 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274885AbTGaW5m (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 18:57:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274886AbTGaW5l
+	id S274888AbTGaW7T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 18:59:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274898AbTGaW7S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 18:57:41 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:23514 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S274885AbTGaW52 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 18:57:28 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Andrew Morton <akpm@osdl.org>
-Date: Fri, 1 Aug 2003 00:57:05 +0200
+	Thu, 31 Jul 2003 18:59:18 -0400
+Received: from dyn-ctb-210-9-244-141.webone.com.au ([210.9.244.141]:11524 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S274888AbTGaW5u
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 18:57:50 -0400
+Message-ID: <3F299EA2.9020409@cyberone.com.au>
+Date: Fri, 01 Aug 2003 08:56:34 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030618 Debian/1.3.1-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: Any reason why install_page and zap_page_range are not 
-Cc: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <8D6237B7B88@vcnet.vc.cvut.cz>
+To: Oliver Neukum <oliver@neukum.org>
+CC: Jamie Lokier <jamie@shareable.org>, Con Kolivas <kernel@kolivas.org>,
+       Andrew Morton <akpm@osdl.org>, Johoho <johoho@hojo-net.de>,
+       wodecki@gmx.de, Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] O10int for interactivity
+References: <200307280112.16043.kernel@kolivas.org> <200307311743.17370.kernel@kolivas.org> <20030731145937.GD6410@mail.jlokier.co.uk> <200307311724.12738.oliver@neukum.org>
+In-Reply-To: <200307311724.12738.oliver@neukum.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 31 Jul 03 at 15:16, Andrew Morton wrote:
-> "Petr Vandrovec" <VANDROVE@vc.cvut.cz> wrote:
-> >   And second missing thing is zap_page_range - we need way to tell
-> > that specified page is not mapped anywhere (mostly for debugging
-> > purposes). At worst install_page with PROT_NONE protection can be 
-> > used for that, but it seems natural that if there should be no page 
-> > there, we should just put nothing to the pagetables instead of some 
-> > fake page. And for large ranges doing one 200MB zap_page_range is
-> > much faster than doing 50000 install_pages.
-> 
-> zap_page_range() sounds like an odd thing to be exporting.  If we had an
 
-Currently we are doing an identity do_mmap_pgoff() over the region to 
-flush page tables currently. It works very nice with 2.6.x kernels. 
-Unfortunately 2.4.x do not merge regions this mmap split back together :-( 
-Fortunately we can just remap whole original region to merge VMAs back 
-together when we think that there is too many VMAs around.
 
-> in-kernel module which needed it then OK.  Do you have plans in that
-> direction?
+Oliver Neukum wrote:
 
-Probably not, we are happy with distributing modules together with
-product, so while module has to support wide range of kernels, it
-can support only one version of our product... It looks like that it
-is better this way for both us (we can do incompatible changes) and 
-for customers too (they do not have to use latest kernels).
+>>>This part interests me. It would seem that either 
+>>>1. The AS scheduler should not bother waiting at all if the process is not 
+>>>going to wake up in that time
+>>>
+>>How about something as simple as: if process sleeps, and AS scheduler
+>>is waiting since last request from that process, AS scheduler stops
+>>waiting immediately?
+>>
 
-Thanks for exporting install_page. 
-                                                Best regards,
-                                                    Petr Vandrovec
-                                                    
+No its fine if the process were to sleep on something. Its the
+amount of time between IOs that is important (and is measured).
+Makes no difference if the process is computing something or
+waiting for something really.
+
+>>
+>>In other words, a hook in the process scheduler when a process goes to
+>>sleep, to tell the AS scheduler to stop waiting.
+>>
+>>Although this would not always be optimal, for many cases the point of
+>>AS is that the process is continuing to run, not sleeping, and will
+>>issue another request shortly.
+>>
+>
+>How do you tell which task dirtied the page?
+>Wouldn't giving a bonus to tasks doing file io achieve the same purpose?
+>Also, isn't quickly waking up tasks more important?
+>
+
+With AS, it doesn't matter what task created the IO, its what
+task will have to wait on it. In the case of async writes, we
+don't care about them anyway because the pagecache means they
+get done a long way behind the instruction pointer of the
+process anyway, so they'll be nicely layed out anyway.
+
 

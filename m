@@ -1,104 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262179AbTEENL3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 09:11:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262182AbTEENL3
+	id S262177AbTEENLU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 09:11:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262179AbTEENLU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 09:11:29 -0400
-Received: from tomts7.bellnexxia.net ([209.226.175.40]:22253 "EHLO
-	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S262179AbTEENLX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 09:11:23 -0400
-Subject: 2.5.68-mmX: Drowning in irq 7: nobody cared!
-From: Shane Shrybman <shrybman@sympatico.ca>
-To: linux-kernel <linux-kernel@vger.kernel.org>
+	Mon, 5 May 2003 09:11:20 -0400
+Received: from elin.scali.no ([62.70.89.10]:34181 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id S262177AbTEENLR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 09:11:17 -0400
+Subject: Re: The disappearing sys_call_table export.
+From: Terje Eggestad <terje.eggestad@scali.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Arjan van de Ven <arjanv@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       D.A.Fedorov@inp.nsk.su
+In-Reply-To: <1052133402.29361.2.camel@dhcp22.swansea.linux.org.uk>
+References: <1052122784.2821.4.camel@pc-16.office.scali.no>
+	 <20030505092324.A13336@infradead.org>
+	 <1052127216.2821.51.camel@pc-16.office.scali.no>
+	 <1052133402.29361.2.camel@dhcp22.swansea.linux.org.uk>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1052141029.2527.27.camel@mars.goatskin.org>
+Organization: Scali AS
+Message-Id: <1052141018.2821.163.camel@pc-16.office.scali.no>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 05 May 2003 09:23:49 -0400
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 05 May 2003 15:23:39 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 2003-05-05 at 13:16, Alan Cox wrote:
+> On Llu, 2003-05-05 at 10:33, Terje Eggestad wrote:
+> > 1. performance is everything. 
+> 
+> Then you can live with building custom patched kernels
+> 
 
-I am getting a lot of these in the logs. This is with the ALSA emu10k1
-driver for a SB live card. This is a x86, UP, KT133 system with preempt
-enabled. The system seems to be running fine.
+If there was numerous issues, sure. But every time we get to the point
+where it seem that that is necessary we find a workaround. 
+Right now, this is the ONLY issue we got.. 
+  
 
-handlers:
-[<d8986540>] (gcc2_compiled.+0x0/0x390 [snd_emu10k1])
-irq 7: nobody cared!
-Call Trace:
- [<c010c5c2>] handle_IRQ_event+0xa2/0x110
- [<c010c7c0>] do_IRQ+0xa0/0x130
- [<c010b14c>] common_interrupt+0x18/0x20
- [<c012048c>] do_softirq+0x3c/0xa0
- [<c010c826>] do_IRQ+0x106/0x130
- [<c010b14c>] common_interrupt+0x18/0x20
- [<c0108884>] default_idle+0x24/0x30
- [<c0114e55>] apm_cpu_idle+0x125/0x170
- [<c0114d30>] apm_cpu_idle+0x0/0x170
- [<c0108860>] default_idle+0x0/0x30
- [<c0108902>] cpu_idle+0x32/0x50
- [<c0105000>] _stext+0x0/0x60
- [<c02c46be>] start_kernel+0x15e/0x170
+> > 2. We're making a MPI library, and as such we don't have any control
+> > with the application. 
+> 
+> LD_PRELOAD
+> 
 
-handlers:
-[<d8986540>] (gcc2_compiled.+0x0/0x390 [snd_emu10k1])
-irq 7: nobody cared!
-Call Trace:
- [<c010c5c2>] handle_IRQ_event+0xa2/0x110
- [<c010c7c0>] do_IRQ+0xa0/0x130
- [<c010b14c>] common_interrupt+0x18/0x20
- [<c012048c>] do_softirq+0x3c/0xa0
- [<c010c826>] do_IRQ+0x106/0x130
- [<c010b14c>] common_interrupt+0x18/0x20
- [<c01203dd>] current_kernel_time+0xd/0x40
- [<c015f4d5>] inode_update_time+0x15/0x90
- [<c01fd188>] memcpy_toiovec+0x68/0xb0
- [<c0132af0>] generic_file_aio_write_nolock+0x390/0x9c0
- [<c01fb9f7>] kfree_skbmem+0x17/0x20
- [<c011b0f0>] autoremove_wake_function+0x0/0x40
- [<c01f86dc>] sock_recvmsg+0x8c/0xb0
- [<c013318f>] generic_file_write_nolock+0x6f/0x90
- [<c0119cec>] __wake_up+0x1c/0x40
- [<c0134737>] __alloc_pages+0x97/0x3a0
- [<c0134a33>] __alloc_pages+0x393/0x3a0
- [<c01f97f2>] sys_recvfrom+0xa2/0x100
- [<c01f9836>] sys_recvfrom+0xe6/0x100
- [<c0134a5a>] __get_free_pages+0x1a/0x50
- [<c0134481>] free_hot_cold_page+0x21/0xf0
- [<c0133350>] generic_file_writev+0x30/0x50
- [<c014933d>] do_readv_writev+0x1bd/0x260
- [<c0148e30>] do_sync_write+0x0/0xb0
- [<c01f9ecf>] sys_socketcall+0x15f/0x1f0
- [<c0149474>] vfs_writev+0x44/0x50
- [<c01494e8>] sys_writev+0x28/0x40
- [<c010a7df>] syscall_call+0x7/0xb
+IN general LD_PRELOAD is fun for testing and academic programs, but not
+for production code. 
 
-           CPU0       
-  0:   45130454          XT-PIC  timer
-  1:       6730          XT-PIC  i8042
-  2:          0          XT-PIC  cascade
-  5:     278881          XT-PIC  uhci-hcd, uhci-hcd
-  7:     128713          XT-PIC  EMU10K1
-  8:          1          XT-PIC  rtc
- 10:     983196          XT-PIC  ide2, ide3, bttv0
- 11:    3031816          XT-PIC  eth0
- 12:         60          XT-PIC  i8042, i8042, i8042, i8042
- 14:      67179          XT-PIC  ide0
- 15:        520          XT-PIC  ide1
-NMI:          0 
-LOC:   45131802 
-ERR:        182
-MIS:          0
+In specific you run into a problem with how fortran 90 compilers do
+dynamical arrays. It's very compiler dependent.  
 
-BTW: What about the 4 i8042's on irq 12. Is this normal/OK?
+> > 3c. It's therefore necessary for HW to access user pages.
+> 
+> Like TV cards do. That isnt hard
+>  
 
-Regards,
+nobody said it is. 
 
-Shane
+> > 4. In order to to 3, the user pages must be pinned down. 
+> > 5. the way MPI is written, it's not using a special malloc() to allocate
+> > the send receive buffers. It can't since it would break language binding
+> > to fortran. Thus ANY writeable user page may be used.
+> 
+> Well not all the pages are guaranteed DMAable, so I guess you already
+> lost.
+>  
+
+Nope. The drivers test to see if the page is DMAable, and do a copy if
+necessary. Most of the high performance interconnects NIC's do 64 bit
+PCI.  
+
+> > 10. kernel patches are impractical, I must be able to do this with std
+> > stock, redhat, AND suse kernels.   
+> 
+> So you want every vendor to screw up their kernels and the base kernel
+> for an obscure (but fun) corner case. Thats not a rational choice is it.
+> You want "performance is everything" you pay the price, don't make
+> everyone suffer.
+
+No! I don't disagree with removing the export of the syscall_table!
+
+I just want the "proper mechanism" indicated by Arjan in the changelog.
+Pls read this thread. There are legitimate uses to having syscall
+hooks/notifications, either you think mine is or not.    
+
+-- 
+_________________________________________________________________________
+
+Terje Eggestad                  mailto:terje.eggestad@scali.no
+Scali Scalable Linux Systems    http://www.scali.com
+
+Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
+P.O.Box 150, Oppsal                     +47 975 31 574  (MOBILE)
+N-0619 Oslo                     fax:    +47 22 62 89 51
+NORWAY            
+_________________________________________________________________________
 

@@ -1,29 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318591AbSIBXgZ>; Mon, 2 Sep 2002 19:36:25 -0400
+	id <S318599AbSIBXj1>; Mon, 2 Sep 2002 19:39:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318599AbSIBXgZ>; Mon, 2 Sep 2002 19:36:25 -0400
-Received: from 62-190-218-163.pdu.pipex.net ([62.190.218.163]:14084 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S318591AbSIBXgY>; Mon, 2 Sep 2002 19:36:24 -0400
-Date: Tue, 3 Sep 2002 00:48:23 +0100
-From: jbradford@dial.pipex.com
-Message-Id: <200209022348.g82NmNwY000237@darkstar.example.net>
-To: linux-kernel@vger.kernel.org
-Subject: Recoverable RAM disk
+	id <S318601AbSIBXj1>; Mon, 2 Sep 2002 19:39:27 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:15772 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S318599AbSIBXj0>; Mon, 2 Sep 2002 19:39:26 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 2 Sep 2002 16:48:08 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Stupid anti-spam testings...
+In-Reply-To: <20020902233230.GC5834@mea-ext.zmailer.org>
+Message-ID: <Pine.LNX.4.44.0209021645250.1614-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 3 Sep 2002, Matti Aarnio wrote:
 
-I know I brought up the subject of a recoverable RAM disk some time ago, (basically, a RAM disk that survives warm boots, and that can be made bootable itself), but this might actually be a good way to implement it...
+> On Mon, Sep 02, 2002 at 04:28:37PM -0600, Andreas Dilger wrote:
+> ...
+> > > Folks,  when you deploy that kind of testers, DO VERIFY THAT THEY
+> > > HAVE SANE CACHES!  A positive result shall be cached for at least
+> > > two hours, a negative result shall be cached for at least 30 minutes.
+> >
+> > Do you know if this is one of the default checks from spamassassin?
+>
+>   No idea.  I have seen these coming from Exim 4.10, Exim-something,
+>   some sendmail milter (whatever that is), etc..
+>
+>   Apparently the idea (which I have thought of long ago, and rejected
+>   as incomplete) has caught, and has multiple implementations...
 
-This article:
+Personally i don't think this kind of tests are going to reduce the spam
+that much but a simple lookup in the subscribers database might help
+reducing the smtp-test traffic only for non-subscriber addresses.
 
-http://hedera.linuxnews.pl/_news/2002/09/03/_long/1445.html
 
-demonstrates making a RAM disk using graphics card memory.
 
-Now, the video ram would presumably survive a warm boot in most cases, so if we could implement this idea in kernel space, we could keep a kernel image and root filesystem in the last 12 Mb or so of graphics RAM, and warm boot very quickly.
+- Davide
 
-John.
+

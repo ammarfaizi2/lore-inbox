@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262401AbTCIEI5>; Sat, 8 Mar 2003 23:08:57 -0500
+	id <S262397AbTCIEVk>; Sat, 8 Mar 2003 23:21:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262402AbTCIEI5>; Sat, 8 Mar 2003 23:08:57 -0500
-Received: from chii.cinet.co.jp ([61.197.228.217]:40576 "EHLO
+	id <S262417AbTCIEVk>; Sat, 8 Mar 2003 23:21:40 -0500
+Received: from yuzuki.cinet.co.jp ([61.197.228.219]:48000 "EHLO
 	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S262401AbTCIEIZ>; Sat, 8 Mar 2003 23:08:25 -0500
-Date: Sun, 9 Mar 2003 13:18:31 +0900
+	id <S262397AbTCIEVY>; Sat, 8 Mar 2003 23:21:24 -0500
+Date: Sun, 9 Mar 2003 13:31:30 +0900
 From: Osamu Tomita <tomita@cinet.co.jp>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] PC-9800 subarch. support for 2.5.64-ac3 (6/20) DMA
-Message-ID: <20030309041831.GG1231@yuzuki.cinet.co.jp>
+Subject: [PATCH] PC-9800 subarch. support for 2.5.64-ac3 (15/20) RTC
+Message-ID: <20030309043130.GP1231@yuzuki.cinet.co.jp>
 References: <20030309035245.GA1231@yuzuki.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -22,333 +22,416 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is the patch to support NEC PC-9800 subarchitecture
-against 2.5.64-ac3. (6/20)
+against 2.5.64-ac3. (15/20)
 
-DMA support for PC98.
-For fix differences of IO port assign and memory addressing.
-PC98 has 'page register' to expand DMA accesible address.
+Support RTC for PC98, using mach-* scheme.
+Replace set_rtc_mmss() and get_cmos_time().
 
 Regards,
 Osamu Tomita
 
 
-diff -Nru linux/include/asm-i386/dma.h linux98/include/asm-i386/dma.h
---- linux/include/asm-i386/dma.h	2002-07-21 04:52:59.000000000 +0900
-+++ linux98/include/asm-i386/dma.h	2002-08-17 22:15:06.000000000 +0900
-@@ -10,6 +10,9 @@
+diff -Nru linux-2.5.63/arch/i386/kernel/time.c linux98-2.5.63/arch/i386/kernel/time.c
+--- linux-2.5.63/arch/i386/kernel/time.c	2003-02-25 04:05:32.000000000 +0900
++++ linux98-2.5.63/arch/i386/kernel/time.c	2003-03-04 20:51:39.000000000 +0900
+@@ -55,12 +55,15 @@
+ #include <asm/processor.h>
+ #include <asm/timer.h>
  
+-#include <linux/mc146818rtc.h>
++#include "mach_time.h"
++
+ #include <linux/timex.h>
  #include <linux/config.h>
- #include <linux/spinlock.h>	/* And spinlocks */
-+#ifdef CONFIG_X86_PC9800
-+#include <asm/pc9800_dma.h>
-+#else /* !CONFIG_X86_PC9800 */
- #include <asm/io.h>		/* need byte IO */
- #include <linux/delay.h>
  
-@@ -72,8 +75,10 @@
+ #include <asm/arch_hooks.h>
  
- #define MAX_DMA_CHANNELS	8
++#include "io_ports.h"
++
+ extern spinlock_t i8259A_lock;
+ int pit_latch_buggy;              /* extern */
  
-+#ifndef CONFIG_X86_PC9800
- /* The maximum address that we can perform a DMA transfer to on this platform */
- #define MAX_DMA_ADDRESS      (PAGE_OFFSET+0x1000000)
-+#endif
+@@ -138,69 +141,13 @@
+ 	clock_was_set();
+ }
  
- /* 8237 DMA controllers */
- #define IO_DMA1_BASE	0x00	/* 8 bit slave DMA, channels 0..3 */
-@@ -295,4 +300,6 @@
- #define isa_dma_bridge_buggy 	(0)
+-/*
+- * In order to set the CMOS clock precisely, set_rtc_mmss has to be
+- * called 500 ms after the second nowtime has started, because when
+- * nowtime is written into the registers of the CMOS clock, it will
+- * jump to the next second precisely 500 ms later. Check the Motorola
+- * MC146818A or Dallas DS12887 data sheet for details.
+- *
+- * BUG: This routine does not handle hour overflow properly; it just
+- *      sets the minutes. Usually you'll only notice that after reboot!
+- */
+ static int set_rtc_mmss(unsigned long nowtime)
+ {
+-	int retval = 0;
+-	int real_seconds, real_minutes, cmos_minutes;
+-	unsigned char save_control, save_freq_select;
++	int retval;
+ 
+ 	/* gets recalled with irq locally disabled */
+ 	spin_lock(&rtc_lock);
+-	save_control = CMOS_READ(RTC_CONTROL); /* tell the clock it's being set */
+-	CMOS_WRITE((save_control|RTC_SET), RTC_CONTROL);
+-
+-	save_freq_select = CMOS_READ(RTC_FREQ_SELECT); /* stop and reset prescaler */
+-	CMOS_WRITE((save_freq_select|RTC_DIV_RESET2), RTC_FREQ_SELECT);
+-
+-	cmos_minutes = CMOS_READ(RTC_MINUTES);
+-	if (!(save_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD)
+-		BCD_TO_BIN(cmos_minutes);
+-
+-	/*
+-	 * since we're only adjusting minutes and seconds,
+-	 * don't interfere with hour overflow. This avoids
+-	 * messing with unknown time zones but requires your
+-	 * RTC not to be off by more than 15 minutes
+-	 */
+-	real_seconds = nowtime % 60;
+-	real_minutes = nowtime / 60;
+-	if (((abs(real_minutes - cmos_minutes) + 15)/30) & 1)
+-		real_minutes += 30;		/* correct for half hour time zone */
+-	real_minutes %= 60;
+-
+-	if (abs(real_minutes - cmos_minutes) < 30) {
+-		if (!(save_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD) {
+-			BIN_TO_BCD(real_seconds);
+-			BIN_TO_BCD(real_minutes);
+-		}
+-		CMOS_WRITE(real_seconds,RTC_SECONDS);
+-		CMOS_WRITE(real_minutes,RTC_MINUTES);
+-	} else {
+-		printk(KERN_WARNING
+-		       "set_rtc_mmss: can't update from %d to %d\n",
+-		       cmos_minutes, real_minutes);
+-		retval = -1;
+-	}
+-
+-	/* The following flags have to be released exactly in this order,
+-	 * otherwise the DS12887 (popular MC146818A clone with integrated
+-	 * battery and quartz) will not reset the oscillator and will not
+-	 * update precisely 500 ms later. You won't find this mentioned in
+-	 * the Dallas Semiconductor data sheets, but who believes data
+-	 * sheets anyway ...                           -- Markus Kuhn
+-	 */
+-	CMOS_WRITE(save_control, RTC_CONTROL);
+-	CMOS_WRITE(save_freq_select, RTC_FREQ_SELECT);
++	retval = mach_set_rtc_mmss(nowtime);
+ 	spin_unlock(&rtc_lock);
+ 
+ 	return retval;
+@@ -226,9 +173,9 @@
+ 		 * on an 82489DX-based system.
+ 		 */
+ 		spin_lock(&i8259A_lock);
+-		outb(0x0c, 0x20);
++		outb(0x0c, PIC_MASTER_OCW3);
+ 		/* Ack the IRQ; AEOI will end it automatically. */
+-		inb(0x20);
++		inb(PIC_MASTER_POLL);
+ 		spin_unlock(&i8259A_lock);
+ 	}
  #endif
+@@ -242,14 +189,16 @@
+ 	 */
+ 	if ((time_status & STA_UNSYNC) == 0 &&
+ 	    xtime.tv_sec > last_rtc_update + 660 &&
+-	    (xtime.tv_nsec / 1000) >= 500000 - ((unsigned) TICK_SIZE) / 2 &&
+-	    (xtime.tv_nsec / 1000) <= 500000 + ((unsigned) TICK_SIZE) / 2) {
++	    (xtime.tv_nsec / 1000)
++			>= USEC_AFTER - ((unsigned) TICK_SIZE) / 2 &&
++	    (xtime.tv_nsec / 1000)
++			<= USEC_BEFORE + ((unsigned) TICK_SIZE) / 2) {
+ 		if (set_rtc_mmss(xtime.tv_sec) == 0)
+ 			last_rtc_update = xtime.tv_sec;
+ 		else
+ 			last_rtc_update = xtime.tv_sec - 600; /* do it again in 60 s */
+ 	}
+-	    
++
+ #ifdef CONFIG_MCA
+ 	if( MCA_bus ) {
+ 		/* The PS/2 uses level-triggered interrupts.  You can't
+@@ -330,43 +279,15 @@
+ /* not static: needed by APM */
+ unsigned long get_cmos_time(void)
+ {
+-	unsigned int year, mon, day, hour, min, sec;
+-	int i;
++	unsigned long retval;
  
-+#endif /* CONFIG_X86_PC9800 */
+ 	spin_lock(&rtc_lock);
+-	/* The Linux interpretation of the CMOS clock register contents:
+-	 * When the Update-In-Progress (UIP) flag goes from 1 to 0, the
+-	 * RTC registers show the second which has precisely just started.
+-	 * Let's hope other operating systems interpret the RTC the same way.
+-	 */
+-	/* read RTC exactly on falling edge of update flag */
+-	for (i = 0 ; i < 1000000 ; i++)	/* may take up to 1 second... */
+-		if (CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP)
+-			break;
+-	for (i = 0 ; i < 1000000 ; i++)	/* must try at least 2.228 ms */
+-		if (!(CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP))
+-			break;
+-	do { /* Isn't this overkill ? UIP above should guarantee consistency */
+-		sec = CMOS_READ(RTC_SECONDS);
+-		min = CMOS_READ(RTC_MINUTES);
+-		hour = CMOS_READ(RTC_HOURS);
+-		day = CMOS_READ(RTC_DAY_OF_MONTH);
+-		mon = CMOS_READ(RTC_MONTH);
+-		year = CMOS_READ(RTC_YEAR);
+-	} while (sec != CMOS_READ(RTC_SECONDS));
+-	if (!(CMOS_READ(RTC_CONTROL) & RTC_DM_BINARY) || RTC_ALWAYS_BCD)
+-	  {
+-	    BCD_TO_BIN(sec);
+-	    BCD_TO_BIN(min);
+-	    BCD_TO_BIN(hour);
+-	    BCD_TO_BIN(day);
+-	    BCD_TO_BIN(mon);
+-	    BCD_TO_BIN(year);
+-	  }
 +
- #endif /* _ASM_DMA_H */
-diff -Nru linux/include/asm-i386/pc9800_dma.h linux98/include/asm-i386/pc9800_dma.h
---- linux/include/asm-i386/pc9800_dma.h	1970-01-01 09:00:00.000000000 +0900
-+++ linux98/include/asm-i386/pc9800_dma.h	2002-08-17 21:15:01.000000000 +0900
-@@ -0,0 +1,238 @@
-+/* $Id: dma.h,v 1.7 1992/12/14 00:29:34 root Exp root $
-+ * linux/include/asm/dma.h: Defines for using and allocating dma channels.
-+ * Written by Hennus Bergman, 1992.
-+ * High DMA channel support & info by Hannu Savolainen
-+ * and John Boyd, Nov. 1992.
++	retval = mach_get_cmos_time();
++
+ 	spin_unlock(&rtc_lock);
+-	if ((year += 1900) < 1970)
+-		year += 100;
+-	return mktime(year, mon, day, hour, min, sec);
++
++	return retval;
+ }
+ 
+ /* XXX this driverfs stuff should probably go elsewhere later -john */
+diff -Nru linux/include/asm-i386/mach-default/mach_time.h linux98/include/asm-i386/mach-default/mach_time.h
+--- linux/include/asm-i386/mach-default/mach_time.h	1970-01-01 09:00:00.000000000 +0900
++++ linux98/include/asm-i386/mach-default/mach_time.h	2003-03-04 20:52:21.000000000 +0900
+@@ -0,0 +1,122 @@
++/*
++ *  include/asm-i386/mach-default/mach_time.h
++ *
++ *  Machine specific set RTC function for generic.
++ *  Split out from time.c by Osamu Tomita <tomita@cinet.co.jp>
 + */
++#ifndef _MACH_TIME_H
++#define _MACH_TIME_H
 +
-+#ifndef _ASM_PC9800_DMA_H
-+#define _ASM_PC9800_DMA_H
++#include <linux/mc146818rtc.h>
 +
-+#include <linux/config.h>
-+#include <asm/io.h>		/* need byte IO */
-+#include <linux/delay.h>
-+
-+
-+#ifdef HAVE_REALLY_SLOW_DMA_CONTROLLER
-+#define dma_outb	outb_p
-+#else
-+#define dma_outb	outb
-+#endif
-+
-+#define dma_inb		inb
++/* for check timing call set_rtc_mmss() 500ms     */
++/* used in arch/i386/time.c::do_timer_interrupt() */
++#define USEC_AFTER	500000
++#define USEC_BEFORE	500000
 +
 +/*
-+ * NOTES about DMA transfers:
++ * In order to set the CMOS clock precisely, set_rtc_mmss has to be
++ * called 500 ms after the second nowtime has started, because when
++ * nowtime is written into the registers of the CMOS clock, it will
++ * jump to the next second precisely 500 ms later. Check the Motorola
++ * MC146818A or Dallas DS12887 data sheet for details.
 + *
-+ *  controller 1: channels 0-3, byte operations, ports 00-1F
-+ *  controller 2: channels 4-7, word operations, ports C0-DF
-+ *
-+ *  - ALL registers are 8 bits only, regardless of transfer size
-+ *  - channel 4 is not used - cascades 1 into 2.
-+ *  - channels 0-3 are byte - addresses/counts are for physical bytes
-+ *  - channels 5-7 are word - addresses/counts are for physical words
-+ *  - transfers must not cross physical 64K (0-3) or 128K (5-7) boundaries
-+ *  - transfer count loaded to registers is 1 less than actual count
-+ *  - controller 2 offsets are all even (2x offsets for controller 1)
-+ *  - page registers for 5-7 don't use data bit 0, represent 128K pages
-+ *  - page registers for 0-3 use bit 0, represent 64K pages
-+ *
-+ * DMA transfers are limited to the lower 16MB of _physical_ memory.  
-+ * Note that addresses loaded into registers must be _physical_ addresses,
-+ * not logical addresses (which may differ if paging is active).
-+ *
-+ *  Address mapping for channels 0-3:
-+ *
-+ *   A23 ... A16 A15 ... A8  A7 ... A0    (Physical addresses)
-+ *    |  ...  |   |  ... |   |  ... |
-+ *    |  ...  |   |  ... |   |  ... |
-+ *    |  ...  |   |  ... |   |  ... |
-+ *   P7  ...  P0  A7 ... A0  A7 ... A0   
-+ * |    Page    | Addr MSB | Addr LSB |   (DMA registers)
-+ *
-+ *  Address mapping for channels 5-7:
-+ *
-+ *   A23 ... A17 A16 A15 ... A9 A8 A7 ... A1 A0    (Physical addresses)
-+ *    |  ...  |   \   \   ... \  \  \  ... \  \
-+ *    |  ...  |    \   \   ... \  \  \  ... \  (not used)
-+ *    |  ...  |     \   \   ... \  \  \  ... \
-+ *   P7  ...  P1 (0) A7 A6  ... A0 A7 A6 ... A0   
-+ * |      Page      |  Addr MSB   |  Addr LSB  |   (DMA registers)
-+ *
-+ * Again, channels 5-7 transfer _physical_ words (16 bits), so addresses
-+ * and counts _must_ be word-aligned (the lowest address bit is _ignored_ at
-+ * the hardware level, so odd-byte transfers aren't possible).
-+ *
-+ * Transfer count (_not # bytes_) is limited to 64K, represented as actual
-+ * count - 1 : 64K => 0xFFFF, 1 => 0x0000.  Thus, count is always 1 or more,
-+ * and up to 128K bytes may be transferred on channels 5-7 in one operation. 
-+ *
++ * BUG: This routine does not handle hour overflow properly; it just
++ *      sets the minutes. Usually you'll only notice that after reboot!
 + */
-+
-+#define MAX_DMA_CHANNELS	4
-+
-+/* The maximum address that we can perform a DMA transfer to on this platform */
-+#define MAX_DMA_ADDRESS      (~0UL)
-+
-+/* 8237 DMA controllers */
-+#define IO_DMA_BASE		0x01
-+
-+/* DMA controller registers */
-+#define DMA_CMD_REG			((IO_DMA_BASE)+0x10) /* command register (w) */
-+#define DMA_STAT_REG		((IO_DMA_BASE)+0x10) /* status register (r) */
-+#define DMA_REQ_REG			((IO_DMA_BASE)+0x12) /* request register (w) */
-+#define DMA_MASK_REG		((IO_DMA_BASE)+0x14) /* single-channel mask (w) */
-+#define DMA_MODE_REG		((IO_DMA_BASE)+0x16) /* mode register (w) */
-+#define DMA_CLEAR_FF_REG	((IO_DMA_BASE)+0x18) /* clear pointer flip-flop (w) */
-+#define DMA_TEMP_REG		((IO_DMA_BASE)+0x1A) /* Temporary Register (r) */
-+#define DMA_RESET_REG		((IO_DMA_BASE)+0x1A) /* Master Clear (w) */
-+#define DMA_CLR_MASK_REG	((IO_DMA_BASE)+0x1C) /* Clear Mask */
-+#define DMA_MASK_ALL_REG	((IO_DMA_BASE)+0x1E) /* all-channels mask (w) */
-+
-+#define DMA_PAGE_0			0x27	/* DMA page registers */
-+#define DMA_PAGE_1			0x21
-+#define DMA_PAGE_2			0x23
-+#define DMA_PAGE_3			0x25
-+
-+#define DMA_Ex_PAGE_0		0xe05	/* DMA Extended page reg base */
-+#define DMA_Ex_PAGE_1		0xe07
-+#define DMA_Ex_PAGE_2		0xe09
-+#define DMA_Ex_PAGE_3		0xe0b
-+
-+#define DMA_MODE_READ	0x44	/* I/O to memory, no autoinit, increment, single mode */
-+#define DMA_MODE_WRITE	0x48	/* memory to I/O, no autoinit, increment, single mode */
-+#define DMA_AUTOINIT	0x10
-+
-+extern spinlock_t  dma_spin_lock;
-+
-+static __inline__ unsigned long claim_dma_lock(void)
++static inline int mach_set_rtc_mmss(unsigned long nowtime)
 +{
-+	unsigned long flags;
-+	spin_lock_irqsave(&dma_spin_lock, flags);
-+	return flags;
-+}
++	int retval = 0;
++	int real_seconds, real_minutes, cmos_minutes;
++	unsigned char save_control, save_freq_select;
 +
-+static __inline__ void release_dma_lock(unsigned long flags)
-+{
-+	spin_unlock_irqrestore(&dma_spin_lock, flags);
-+}
++	save_control = CMOS_READ(RTC_CONTROL); /* tell the clock it's being set */
++	CMOS_WRITE((save_control|RTC_SET), RTC_CONTROL);
 +
-+/* enable/disable a specific DMA channel */
-+static __inline__ void enable_dma(unsigned int dmanr)
-+{
-+	dma_outb(dmanr,  DMA_MASK_REG);
-+}
++	save_freq_select = CMOS_READ(RTC_FREQ_SELECT); /* stop and reset prescaler */
++	CMOS_WRITE((save_freq_select|RTC_DIV_RESET2), RTC_FREQ_SELECT);
 +
-+static __inline__ void disable_dma(unsigned int dmanr)
-+{
-+	dma_outb(dmanr | 4,  DMA_MASK_REG);
-+}
++	cmos_minutes = CMOS_READ(RTC_MINUTES);
++	if (!(save_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD)
++		BCD_TO_BIN(cmos_minutes);
 +
-+/* Clear the 'DMA Pointer Flip Flop'.
-+ * Write 0 for LSB/MSB, 1 for MSB/LSB access.
-+ * Use this once to initialize the FF to a known state.
-+ * After that, keep track of it. :-)
-+ * --- In order to do that, the DMA routines below should ---
-+ * --- only be used while holding the DMA lock ! ---
-+ */
-+static __inline__ void clear_dma_ff(unsigned int dmanr)
-+{
-+	dma_outb(0,  DMA_CLEAR_FF_REG);
-+}
++	/*
++	 * since we're only adjusting minutes and seconds,
++	 * don't interfere with hour overflow. This avoids
++	 * messing with unknown time zones but requires your
++	 * RTC not to be off by more than 15 minutes
++	 */
++	real_seconds = nowtime % 60;
++	real_minutes = nowtime / 60;
++	if (((abs(real_minutes - cmos_minutes) + 15)/30) & 1)
++		real_minutes += 30;		/* correct for half hour time zone */
++	real_minutes %= 60;
 +
-+/* set mode (above) for a specific DMA channel */
-+static __inline__ void set_dma_mode(unsigned int dmanr, char mode)
-+{
-+	dma_outb(mode | dmanr,  DMA_MODE_REG);
-+}
-+
-+/* Set only the page register bits of the transfer address.
-+ * This is used for successive transfers when we know the contents of
-+ * the lower 16 bits of the DMA current address register, but a 64k boundary
-+ * may have been crossed.
-+ */
-+static __inline__ void set_dma_page(unsigned int dmanr, unsigned int pagenr)
-+{
-+	unsigned char low=pagenr&0xff;
-+	unsigned char hi=pagenr>>8;
-+
-+	switch(dmanr) {
-+		case 0:
-+			dma_outb(low, DMA_PAGE_0);
-+			dma_outb(hi, DMA_Ex_PAGE_0);
-+			break;
-+		case 1:
-+			dma_outb(low, DMA_PAGE_1);
-+			dma_outb(hi, DMA_Ex_PAGE_1);
-+			break;
-+		case 2:
-+			dma_outb(low, DMA_PAGE_2);
-+			dma_outb(hi, DMA_Ex_PAGE_2);
-+			break;
-+		case 3:
-+			dma_outb(low, DMA_PAGE_3);
-+			dma_outb(hi, DMA_Ex_PAGE_3);
-+			break;
++	if (abs(real_minutes - cmos_minutes) < 30) {
++		if (!(save_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD) {
++			BIN_TO_BCD(real_seconds);
++			BIN_TO_BCD(real_minutes);
++		}
++		CMOS_WRITE(real_seconds,RTC_SECONDS);
++		CMOS_WRITE(real_minutes,RTC_MINUTES);
++	} else {
++		printk(KERN_WARNING
++		       "set_rtc_mmss: can't update from %d to %d\n",
++		       cmos_minutes, real_minutes);
++		retval = -1;
 +	}
++
++	/* The following flags have to be released exactly in this order,
++	 * otherwise the DS12887 (popular MC146818A clone with integrated
++	 * battery and quartz) will not reset the oscillator and will not
++	 * update precisely 500 ms later. You won't find this mentioned in
++	 * the Dallas Semiconductor data sheets, but who believes data
++	 * sheets anyway ...                           -- Markus Kuhn
++	 */
++	CMOS_WRITE(save_control, RTC_CONTROL);
++	CMOS_WRITE(save_freq_select, RTC_FREQ_SELECT);
++
++	return retval;
 +}
 +
-+/* Set transfer address & page bits for specific DMA channel.
-+ * Assumes dma flipflop is clear.
-+ */
-+static __inline__ void set_dma_addr(unsigned int dmanr, unsigned int a)
++static inline unsigned long mach_get_cmos_time(void)
 +{
-+	set_dma_page(dmanr, a>>16);
-+	dma_outb( a & 0xff, ((dmanr&3)<<2) + IO_DMA_BASE );
-+	dma_outb( (a>>8) & 0xff, ((dmanr&3)<<2) + IO_DMA_BASE );
++	unsigned int year, mon, day, hour, min, sec;
++	int i;
++
++	/* The Linux interpretation of the CMOS clock register contents:
++	 * When the Update-In-Progress (UIP) flag goes from 1 to 0, the
++	 * RTC registers show the second which has precisely just started.
++	 * Let's hope other operating systems interpret the RTC the same way.
++	 */
++	/* read RTC exactly on falling edge of update flag */
++	for (i = 0 ; i < 1000000 ; i++)	/* may take up to 1 second... */
++		if (CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP)
++			break;
++	for (i = 0 ; i < 1000000 ; i++)	/* must try at least 2.228 ms */
++		if (!(CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP))
++			break;
++	do { /* Isn't this overkill ? UIP above should guarantee consistency */
++		sec = CMOS_READ(RTC_SECONDS);
++		min = CMOS_READ(RTC_MINUTES);
++		hour = CMOS_READ(RTC_HOURS);
++		day = CMOS_READ(RTC_DAY_OF_MONTH);
++		mon = CMOS_READ(RTC_MONTH);
++		year = CMOS_READ(RTC_YEAR);
++	} while (sec != CMOS_READ(RTC_SECONDS));
++	if (!(CMOS_READ(RTC_CONTROL) & RTC_DM_BINARY) || RTC_ALWAYS_BCD)
++	  {
++	    BCD_TO_BIN(sec);
++	    BCD_TO_BIN(min);
++	    BCD_TO_BIN(hour);
++	    BCD_TO_BIN(day);
++	    BCD_TO_BIN(mon);
++	    BCD_TO_BIN(year);
++	  }
++	if ((year += 1900) < 1970)
++		year += 100;
++
++	return mktime(year, mon, day, hour, min, sec);
 +}
 +
-+
-+/* Set transfer size (max 64k for DMA1..3, 128k for DMA5..7) for
-+ * a specific DMA channel.
-+ * You must ensure the parameters are valid.
-+ * NOTE: from a manual: "the number of transfers is one more
-+ * than the initial word count"! This is taken into account.
-+ * Assumes dma flip-flop is clear.
-+ * NOTE 2: "count" represents _bytes_ and must be even for channels 5-7.
-+ */
-+static __inline__ void set_dma_count(unsigned int dmanr, unsigned int count)
-+{
-+	count--;
-+	dma_outb( count & 0xff, ((dmanr&3)<<2) + 2 + IO_DMA_BASE );
-+	dma_outb( (count>>8) & 0xff, ((dmanr&3)<<2) + 2 + IO_DMA_BASE );
-+}
-+
-+
-+/* Get DMA residue count. After a DMA transfer, this
-+ * should return zero. Reading this while a DMA transfer is
-+ * still in progress will return unpredictable results.
-+ * If called before the channel has been used, it may return 1.
-+ * Otherwise, it returns the number of _bytes_ left to transfer.
++#endif /* !_MACH_TIME_H */
+diff -Nru linux/include/asm-i386/mach-pc9800/mach_time.h linux98/include/asm-i386/mach-pc9800/mach_time.h
+--- linux/include/asm-i386/mach-pc9800/mach_time.h	1970-01-01 09:00:00.000000000 +0900
++++ linux98/include/asm-i386/mach-pc9800/mach_time.h	2003-03-04 20:52:02.000000000 +0900
+@@ -0,0 +1,100 @@
++/*
++ *  include/asm-i386/mach-pc9800/mach_time.h
 + *
-+ * Assumes DMA flip-flop is clear.
++ *  Machine specific set RTC function for PC-9800.
++ *  Written by Osamu Tomita <tomita@cinet.co.jp>
 + */
-+static __inline__ int get_dma_residue(unsigned int dmanr)
-+{
-+	/* using short to get 16-bit wrap around */
-+	unsigned short count;
++#ifndef _MACH_TIME_H
++#define _MACH_TIME_H
 +
-+	count = 1 + dma_inb(((dmanr&3)<<2) + 2 + IO_DMA_BASE);
-+	count += dma_inb(((dmanr&3)<<2) + 2 + IO_DMA_BASE) << 8;
-+	
-+	return count;
++#include <linux/bcd.h>
++#include <linux/upd4990a.h>
++
++/* for check timing call set_rtc_mmss() */
++/* used in arch/i386/time.c::do_timer_interrupt() */
++/*
++ * Because PC-9800's RTC (NEC uPD4990A) does not allow setting
++ * time partially, we always have to read-modify-write the
++ * entire time (including year) so that set_rtc_mmss() will
++ * take quite much time to execute.  You may want to relax
++ * RTC resetting interval (currently ~11 minuts)...
++ */
++#define USEC_AFTER	1000000
++#define USEC_BEFORE	0
++
++static inline int mach_set_rtc_mmss(unsigned long nowtime)
++{
++	int retval = 0;
++	int real_seconds, real_minutes, cmos_minutes;
++	struct upd4990a_raw_data data;
++
++	upd4990a_get_time(&data, 1);
++	cmos_minutes = BCD2BIN(data.min);
++
++	/*
++	 * since we're only adjusting minutes and seconds,
++	 * don't interfere with hour overflow. This avoids
++	 * messing with unknown time zones but requires your
++	 * RTC not to be off by more than 15 minutes
++	 */
++	real_seconds = nowtime % 60;
++	real_minutes = nowtime / 60;
++	if (((abs(real_minutes - cmos_minutes) + 15) / 30) & 1)
++		real_minutes += 30;	/* correct for half hour time zone */
++	real_minutes %= 60;
++
++	if (abs(real_minutes - cmos_minutes) < 30) {
++		u8 temp_seconds = (real_seconds / 10) * 16 + real_seconds % 10;
++		u8 temp_minutes = (real_minutes / 10) * 16 + real_minutes % 10;
++
++		if (data.sec != temp_seconds || data.min != temp_minutes) {
++			data.sec = temp_seconds;
++			data.min = temp_minutes;
++			upd4990a_set_time(&data, 1);
++		}
++	} else {
++		printk(KERN_WARNING
++		       "set_rtc_mmss: can't update from %d to %d\n",
++		       cmos_minutes, real_minutes);
++		retval = -1;
++	}
++
++	/* uPD4990A users' manual says we should issue Register Hold
++	 * command after reading time, or future Time Read command
++	 * may not work.  When we have set the time, this also starts
++	 * the clock.
++	 */
++	upd4990a_serial_command(UPD4990A_REGISTER_HOLD);
++
++	return retval;
 +}
 +
++static inline unsigned long mach_get_cmos_time(void)
++{
++	int i;
++	u8 prev, cur;
++	unsigned int year;
++	struct upd4990a_raw_data data;
 +
-+/* These are in kernel/dma.c: */
-+extern int request_dma(unsigned int dmanr, const char * device_id);	/* reserve a DMA channel */
-+extern void free_dma(unsigned int dmanr);	/* release it again */
++	/* Connect uPD4990A's DATA OUT pin to its 1Hz reference clock. */
++	upd4990a_serial_command(UPD4990A_REGISTER_HOLD);
 +
-+/* From PCI */
++	/* Catch rising edge of reference clock.  */
++	prev = ~UPD4990A_READ_DATA();
++	for (i = 0; i < 1800000; i++) { /* may take up to 1 second... */
++		__asm__ ("outb %%al,%0" : : "N" (0x5f)); /* 0.6usec delay */
++		cur = UPD4990A_READ_DATA();
++		if (!(prev & cur & 1))
++			break;
++		prev = ~cur;
++	}
 +
-+#ifdef CONFIG_PCI
-+extern int isa_dma_bridge_buggy;
-+#else
-+#define isa_dma_bridge_buggy 	(0)
-+#endif
++	upd4990a_get_time(&data, 0);
 +
-+#endif /* _ASM_PC9800_DMA_H */
-diff -Nru linux/include/asm-i386/scatterlist.h linux98/include/asm-i386/scatterlist.h
---- linux/include/asm-i386/scatterlist.h	2002-04-15 04:18:52.000000000 +0900
-+++ linux98/include/asm-i386/scatterlist.h	2002-04-17 10:37:22.000000000 +0900
-@@ -1,6 +1,8 @@
- #ifndef _I386_SCATTERLIST_H
- #define _I386_SCATTERLIST_H
- 
-+#include <linux/config.h>
++	if ((year = BCD2BIN(data.year) + 1900) < 1995)
++		year += 100;
++	return mktime(year, data.mon, BCD2BIN(data.mday), BCD2BIN(data.hour),
++			BCD2BIN(data.min), BCD2BIN(data.sec));
++}
 +
- struct scatterlist {
-     struct page		*page;
-     unsigned int	offset;
-@@ -8,6 +10,10 @@
-     unsigned int	length;
- };
- 
-+#ifdef CONFIG_X86_PC9800
-+#define ISA_DMA_THRESHOLD (0xffffffff)
-+#else
- #define ISA_DMA_THRESHOLD (0x00ffffff)
-+#endif
- 
- #endif /* !(_I386_SCATTERLIST_H) */
-diff -Nru linux/kernel/dma.c linux98/kernel/dma.c
---- linux/kernel/dma.c	2002-08-11 10:41:22.000000000 +0900
-+++ linux98/kernel/dma.c	2002-08-21 09:53:59.000000000 +0900
-@@ -9,6 +9,7 @@
-  *   [It also happened to remove the sizeof(char *) == sizeof(int)
-  *   assumption introduced because of those /proc/dma patches. -- Hennus]
-  */
-+#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/kernel.h>
- #include <linux/errno.h>
-@@ -62,10 +63,12 @@
- 	{ 0, 0 },
- 	{ 0, 0 },
- 	{ 0, 0 },
-+#ifndef CONFIG_X86_PC9800
- 	{ 1, "cascade" },
- 	{ 0, 0 },
- 	{ 0, 0 },
- 	{ 0, 0 }
-+#endif
- };
- 
- 
++#endif /* !_MACH_TIME_H */

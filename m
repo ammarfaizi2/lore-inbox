@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266867AbRGYKcI>; Wed, 25 Jul 2001 06:32:08 -0400
+	id <S266906AbRGYKlT>; Wed, 25 Jul 2001 06:41:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266870AbRGYKbt>; Wed, 25 Jul 2001 06:31:49 -0400
-Received: from maile.telia.com ([194.22.190.16]:23523 "EHLO maile.telia.com")
-	by vger.kernel.org with ESMTP id <S266867AbRGYKbk>;
-	Wed, 25 Jul 2001 06:31:40 -0400
-Date: Wed, 25 Jul 2001 12:37:45 +0200
-From: =?iso-8859-1?Q?Andr=E9?= Dahlqvist <andre.dahlqvist@telia.com>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] i2c update to 2.6.0 for 2.4.7
-Message-ID: <20010725123745.A28979@telia.com>
-Mail-Followup-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010725024629.E2308@werewolf.able.es> <20010724192805.A695@opus.bloom.county> <20010725105716.A6980@werewolf.able.es>
+	id <S266888AbRGYKk7>; Wed, 25 Jul 2001 06:40:59 -0400
+Received: from sundiver.zdv.Uni-Mainz.DE ([134.93.174.136]:23278 "HELO
+	duron.intern.kubla.de") by vger.kernel.org with SMTP
+	id <S266884AbRGYKkr>; Wed, 25 Jul 2001 06:40:47 -0400
+Date: Wed, 25 Jul 2001 12:40:48 +0200
+From: Dominik Kubla <kubla@sciobyte.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Paul Jakma <paul@clubi.ie>, Dominik Kubla <kubla@sciobyte.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Arp problem
+Message-ID: <20010725124048.A9264@intern.kubla.de>
+In-Reply-To: <E15PBLE-00012l-00@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20010725105716.A6980@werewolf.able.es>
+In-Reply-To: <E15PBLE-00012l-00@the-village.bc.nu>
 User-Agent: Mutt/1.3.18i
-X-Unexpected-Header: The Spanish Inquisition
+X-No-Archive: yes
+Restrict: no-external-archive
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-J . A . Magallon <jamagallon@able.es> wrote:
+On Wed, Jul 25, 2001 at 12:11:52AM +0100, Alan Cox wrote:
+> > however, in the interests of flexibility and kindness to admins who
+> > have to deal with legacy setups, is or would it be possible to make
+> > linux be able to fully route packets between interfaces bound to the
+> > same device?
+> 
+> Turn on ip forwarding, turn off ip redirect sending. It can all be done
+> via /proc.
 
-> Correct, the original patch generator skips them, both in 2.6.0 and latest cvs.
-> Why ?
+But that turns off all ip redirect sending, which may pose different
+problems.  Kind of sledgehammer approach wouldn't you agree?  If somebody
+were to produce a patch that allowed full routing between aliased interfaces
+without turning off ip redirect sending, would you accept this?
 
-Did you perhaps forget the  --new-file flag to diff?
+Dominik
 -- 
+ScioByte GmbH, Zum Schiersteiner Grund 2, 55127 Mainz (Germany)
+Phone: +49 6131 550 117  Fax: +49 6131 610 99 16
 
-André Dahlqvist <andre.dahlqvist@telia.com>
+GnuPG: 717F16BB / A384 F5F1 F566 5716 5485  27EF 3B00 C007 717F 16BB

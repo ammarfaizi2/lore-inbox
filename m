@@ -1,44 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264183AbUFBVOc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264184AbUFBVP7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264183AbUFBVOc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 17:14:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264182AbUFBVOc
+	id S264184AbUFBVP7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 17:15:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264182AbUFBVP7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 17:14:32 -0400
-Received: from fw.osdl.org ([65.172.181.6]:33735 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264184AbUFBVNS (ORCPT
+	Wed, 2 Jun 2004 17:15:59 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:63616 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264188AbUFBVPw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 17:13:18 -0400
-Date: Wed, 2 Jun 2004 14:13:13 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>, Arjan van de Ven <arjanv@redhat.com>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>
-Subject: Re: [announce] [patch] NX (No eXecute) support for x86, 2.6.7-rc2-bk2
-In-Reply-To: <20040602205025.GA21555@elte.hu>
-Message-ID: <Pine.LNX.4.58.0406021411030.3403@ppc970.osdl.org>
-References: <20040602205025.GA21555@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 2 Jun 2004 17:15:52 -0400
+Date: Wed, 2 Jun 2004 22:15:44 +0100
+From: Alasdair G Kergon <agk@redhat.com>
+To: Andreas Dilger <adilger@clusterfs.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2/5: Device-mapper: kcopyd
+Message-ID: <20040602211544.GT6302@agk.surrey.redhat.com>
+Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
+	Andreas Dilger <adilger@clusterfs.com>,
+	linux-kernel@vger.kernel.org
+References: <20040602154129.GO6302@agk.surrey.redhat.com> <20040602161541.GB15785@schnapps.adilger.int>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040602161541.GB15785@schnapps.adilger.int>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jun 02, 2004 at 10:15:41AM -0600, Andreas Dilger wrote:
+> It might be nice to have a brief comment here explaining what this is
+> and how it is supposed to be used.
 
+  A daemon for copying regions of block devices around in an efficient
+  manner.  Multiple destinations can be specified for a copy.
+  Designed to perform well both with many small chunks or few large chunks.
 
-On Wed, 2 Jun 2004, Ingo Molnar wrote:
-> 
-> If the NX feature is supported by the CPU then the patched kernel turns
-> on NX and it will enforce userspace executability constraints such as a
-> no-exec stack and no-exec mmap and data areas. This means less chance
-> for stack overflows and buffer-overflows to cause exploits.
-
-Just out of interest - how many legacy apps are broken by this? I assume 
-it's a non-zero number, but wouldn't mind to be happily surprised.
-
-And do we have some way of on a per-process basis say "avoid NX because
-this old version of Oracle/flash/whatever-binary-thing doesn't run with
-it"?
-
-		Linus
+Alasdair
+-- 
+agk@redhat.com

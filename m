@@ -1,90 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262939AbSJBCuC>; Tue, 1 Oct 2002 22:50:02 -0400
+	id <S261677AbSJBCtC>; Tue, 1 Oct 2002 22:49:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262938AbSJBCuB>; Tue, 1 Oct 2002 22:50:01 -0400
-Received: from c16598.thoms1.vic.optusnet.com.au ([210.49.243.217]:34533 "HELO
-	pc.kolivas.net") by vger.kernel.org with SMTP id <S262939AbSJBCuA>;
-	Tue, 1 Oct 2002 22:50:00 -0400
-Message-ID: <1033527322.3d9a601aa7795@kolivas.net>
-Date: Wed,  2 Oct 2002 12:55:22 +1000
-From: Con Kolivas <conman@kolivas.net>
-To: Jens Axboe <axboe@suse.de>
-Cc: Mike Galbraith <efault@gmx.de>, Andrew Morton <akpm@digeo.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BENCHMARK] 2.5.39-mm1
-References: <3D9976D9.C06466B@digeo.com> <200209301941.41627.conman@kolivas.net> <20021001101520.GB20878@suse.de> <3D9976D9.C06466B@digeo.com> <5.1.0.14.2.20021001190123.00b3cdc8@pop.gmx.net> <20021001172200.GH5755@suse.de>
-In-Reply-To: <20021001172200.GH5755@suse.de>
+	id <S262935AbSJBCtC>; Tue, 1 Oct 2002 22:49:02 -0400
+Received: from cliff.cse.wustl.edu ([128.252.166.5]:64496 "EHLO
+	cliff.cse.wustl.edu") by vger.kernel.org with ESMTP
+	id <S261677AbSJBCtB>; Tue, 1 Oct 2002 22:49:01 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15770.24570.170414.576715@samba.doc.wustl.edu>
+Date: Tue, 1 Oct 2002 21:54:50 -0500
+From: Krishnakumar B <kitty@cse.wustl.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Keyboard problems with Linux-2.5.40
+X-Mailer: VM 7.07 under Emacs 21.2.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Jens Axboe <axboe@suse.de>:
+Hi,
 
-> On Tue, Oct 01 2002, Mike Galbraith wrote:
-> > At 10:19 PM 10/1/2002 +1000, Con Kolivas wrote:
-> > >On Tuesday 01 Oct 2002 8:20 pm, Andrew Morton wrote:
-> > >> Jens Axboe wrote:
-> > >> > On Mon, Sep 30 2002, Andrew Morton wrote:
-[snip]
-> > >> > >
-> > >> > > I think I'll set fifo_batch to 16 again...
-> > >> >
-> > >> > As not to compare oranges and apples, I'd very much like to see a
-> > >> > 2.5.39-mm1 vs 2.5.39-mm1 with fifo_batch=16. Con, would you do that?
-> > >> > Thanks!
-> > >>
-> > >> The presence of /proc/sys/vm/fifo_batch should make that pretty easy.
-> > >
-> > >Thanks. That made it a lot easier and faster, and made me curious enough
-> to
-> > >create a family or very interesting results. All these are with
-> 2.5.39-mm1
-> > >with fifo_batch set to 1->16, average of three runs. The first result is
-[snip]
-> > >What's most interesting is the variation was small until the number was
-> <8;
-> > >then the variation between runs increased. Dare I say it there appears to
-> 
-> > >be
-> > >a sweet spot in the results.
-> > 
-> > What's more interesting (methinks) is the huge difference between 32 and 
-> > 16.  Have you played with values between 32 and 16?  (/me wonders if 
-> > there's a cliff or a gentle slope)
-> 
-> As I wrote in response, the difference is that 16 == seek_cost. So
-> fifo_batch of 16 will allow 1 seek, fifo_batch of 32 will allow two.
-> This is the reason for the big drop at that point. I would expect 31 to
-> be pretty close to 16.
+I am using a MS Natural Pro Keyboard with a PS/2 adapter (if I use it as a
+USB keyboard I am not able to use it to select the kernel to load i.e use
+the keyboard before the kernel is loaded, anybody know how to get around
+this ? ) under Linux-2.5.40. I have mapped the multimedia keys available
+under this keyboard to start some applications under X. I am having
+problems with a couple of keys being unrecognized and one key producing
+duplicate behaviour as another. Specifically, I have the following in my
+.xmodmaprc file:
 
-Ok well I've got the answer to both questions. I've removed the other results
-from this email for clarity, and here is a more complete family (average of 2 or
-3 runs):
+/----[ .xmodmap-samba ]
+| ! .xmodmap-samba -- Customize Microsoft Natural Pro PC keyboard -*- xrdb -*-
+| !
+| ! last modified:  19-Oct-2001  Fri  15:03
+| 
+| ! Use the fancy buttons to do some tasks
+| !
+| keycode 144 = XF86AudioPrev
+| keycode 153 = XF86AudioNext
+| keycode 160 = XF86AudioMute
+| keycode 161 = XF86Calculator
+| keycode 162 = XF86AudioPlay
+| keycode 164 = XF86AudioStop
+| keycode 174 = XF86AudioLowerVolume
+| keycode 176 = XF86AudioRaiseVolume
+| keycode 178 = XF86HomePage
+| keycode 223 = XF86Standby
+| keycode 229 = XF86Search
+| keycode 230 = XF86Favorites
+| keycode 231 = XF86Refresh
+| keycode 232 = XF86Stop
+| keycode 233 = XF86Forward
+| keycode 234 = XF86Back
+| keycode 235 = XF86MyComputer
+| keycode 236 = XF86Mail
+| keycode 237 = XF86AudioMedia
+| 
+\----
 
-io_load:
-Kernel                  Time            CPU%            Ratio
-2539mm1fb01             125.4           60              1.85
-2539mm1fb02             112.7           65              1.66
-2539mm1fb04             146.4           51              2.16
-2539mm1fb08             109.1           68              1.61
-2539mm1fb10             204.3           63              3.02
-2539mm1fb12             210.3           60              3.10
-2539mm1fb14             192.6           66              2.85
-2539mm1fb16             131.2           57              1.94
-2539mm1fb18             209.7           61              3.10
-2539mm1fb20             221.8           57              3.27
-2539mm1fb22             262.3           48              3.88
-2539mm1fb24             264.0           48              3.90
-2539mm1fb26             258.7           50              3.82
-2539mm1fb28             307.4           42              4.54
-2539mm1fb30             319.4           40              4.71
-2539mm1fb31             294.4           44              4.34
-2539mm1fb32             239.5           32              3.54
+I get the following in my kernel logs when I press XF86AudioMedia or
+XF86Refresh. And the window manager doesn't do anything i.e it doesn't
+start XMMS or reload the page under the browser
 
-For my machine at least it appears that falling outside the powers of 2 is not good.
+atkbd.c: Unknown key (set 2, scancode 0x150, on isa0060/serio0) pressed.
+atkbd.c: Unknown key (set 2, scancode 0x150, on isa0060/serio0) released.
+atkbd.c: Unknown key (set 2, scancode 0x120, on isa0060/serio0) pressed.
+atkbd.c: Unknown key (set 2, scancode 0x120, on isa0060/serio0) released.
+atkbd.c: Unknown key (set 2, scancode 0x120, on isa0060/serio0) pressed.
+atkbd.c: Unknown key (set 2, scancode 0x120, on isa0060/serio0) released.
+atkbd.c: Unknown key (set 2, scancode 0x150, on isa0060/serio0) pressed.
+atkbd.c: Unknown key (set 2, scancode 0x150, on isa0060/serio0) released.
 
-Con
+Also when I press XF86AudioLowerVolume, I get the same behaviour as
+XF86HomePage i.e another instance of the browser is started. All other keys
+work fine.
+
+Can someone help me with this annoying problem ? Is there any package that
+I should upgrade ? Have the keycodes for this keyboard changed with the new
+kernel or have I miscompiled the kernel ? None of these problems occur with
+Linux-2.4.19.
+
+I am not on this list. So please CC me on any replies.
+
+-kitty.
+
+-- 
+Krishnakumar B <kitty at cs dot wustl dot edu>
+Distributed Object Computing Laboratory, Washington University in St.Louis

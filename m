@@ -1,33 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135977AbREGXjZ>; Mon, 7 May 2001 19:39:25 -0400
+	id <S135981AbREGXxV>; Mon, 7 May 2001 19:53:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135979AbREGXjP>; Mon, 7 May 2001 19:39:15 -0400
-Received: from edtn006530.hs.telusplanet.net ([161.184.137.180]:56846 "EHLO
-	mail.harddata.com") by vger.kernel.org with ESMTP
-	id <S135977AbREGXi7>; Mon, 7 May 2001 19:38:59 -0400
-Date: Mon, 7 May 2001 17:38:55 -0600
-From: Michal Jaegermann <michal@harddata.com>
-To: linux-kernel@vger.kernel.org
-Subject: Troubles with 8139too and 2.2.19
-Message-ID: <20010507173855.A1205@mail.harddata.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S136008AbREGXxK>; Mon, 7 May 2001 19:53:10 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:56072 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S135981AbREGXwx>; Mon, 7 May 2001 19:52:53 -0400
+Date: Mon, 7 May 2001 16:52:42 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: page_launder() bug
+In-Reply-To: <Pine.LNX.4.21.0105071848210.7515-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0105071645070.7915-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It looks like tha 8139too, at least in 2.2.19, works fine when there
-is one such card around but with NICs it detects both but fails to
-set the second one correctly (complaints about incorrect IRQ, memory,
-... - you name it).  Does anybody has some ideas what is going on here?
 
-This was observed on Alpha, BTW, but this tidbit is likely not relevant
-and, yes, we used pairs of other NICs before on similar machines.
+On Mon, 7 May 2001, Marcelo Tosatti wrote:
+> 
+> So the "dead_swap_page" logic is _not_ buggy and you are full of shit when
+> telling Alan to revert the change. (sorry, I could not avoid this one)
 
-Alternate rtl8139 module from that kernel cannot detect D-link DFE-538
-card.  A version of this driver from http://www.scyld.com seems to be ok
-(at least both cards start) once you will get it to compile. :-)
+Well, the problem is that the patch _is_ buggy. 
 
-  Michal
+swap_writepage() does it right. And dead_swap_page does it wrong. It
+doesn't look at the swap counts, for one thing.
+
+The patch should be reverted. The fact that other parts of the system do
+it _right_ is not an argument for mm/vmscan.c to do it wrong.
+
+What do you expect me to do? The patch is buggy. It should be reverted.
+What's your problem?
+
+		Linus
+

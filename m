@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317341AbSHNMQT>; Wed, 14 Aug 2002 08:16:19 -0400
+	id <S317624AbSHNMUx>; Wed, 14 Aug 2002 08:20:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317580AbSHNMQT>; Wed, 14 Aug 2002 08:16:19 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:8976 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S317341AbSHNMQS>; Wed, 14 Aug 2002 08:16:18 -0400
-Date: Wed, 14 Aug 2002 13:20:11 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Arnd Bergmann <arnd@bergmann-dalldorf.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: S390 vs S390x, was Re: [kbuild-devel] Re: [patch] kernel config 3/N - move sound into drivers/media
-Message-ID: <20020814132011.A13932@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Arnd Bergmann <arnd@bergmann-dalldorf.de>,
-	linux-kernel@vger.kernel.org
-References: <20020814043558.GN761@cadcamlab.org> <Pine.LNX.4.44.0208132342560.32010-100000@chaos.physics.uiowa.edu> <20020814054945.GO761@cadcamlab.org> <200208141256.27680.arnd@bergmann-dalldorf.de>
+	id <S317767AbSHNMUx>; Wed, 14 Aug 2002 08:20:53 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:59387 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S317624AbSHNMUw>; Wed, 14 Aug 2002 08:20:52 -0400
+X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20020814.11334845@knigge.local.net> 
+References: <20020814.11334845@knigge.local.net>  <3D450B0F.4090901@yahoo.com> <200208141109.g7EB9hp15788@Port.imtp.ilyichevsk.odessa.ua> 
+To: Michael Knigge <Michael.Knigge@set-software.de>
+Cc: Stas Sergeev <stssppnn@yahoo.com>, vda@port.imtp.ilyichevsk.odessa.ua,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] New PC-Speaker driver 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200208141256.27680.arnd@bergmann-dalldorf.de>; from arnd@bergmann-dalldorf.de on Wed, Aug 14, 2002 at 12:56:27PM +0200
+Date: Wed, 14 Aug 2002 13:24:19 +0100
+Message-ID: <20850.1029327859@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 14, 2002 at 12:56:27PM +0200, Arnd Bergmann wrote:
-> It's not logical, but it tends to help because it's what's meant most
-> of the time. I don't know a single place in the kernel where you want
-> to test for (CONFIG_ARCH_S390 && !CONFIG_ARCH_S390X).
 
-BTW, ho much differences are between arch/s390 and arch/s390x?  Is there
-any chance it could use the same #ifdef __LP64__ trick parisc uses for
-its 32 and 64bit versions?  so far every file I've looked at was duplicated
-exactly in s390 and s390x.
+Michael.Knigge@set-software.de said:
+> > Well, there is (currently) no intention to get it into the mainstream
+> > kernel so don't treat it too seriously.
+
+> Oh, I would love to see that thing in the Standard-Kernel....
+
+Wait for people to stop using the 8254 timer for timer ticks, and you can 
+have it all to yourself -- the timer abuse is the main reason the driver
+was never suitable for inclusion.
+
+Actually, now that HZ is easier to vary, you can switch it to a power of 2 
+and use the RTC for it, again leaving you the 8254 for your own nefarious 
+purposes.
+
+--
+dwmw2
+
 

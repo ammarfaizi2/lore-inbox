@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267319AbTAQEHo>; Thu, 16 Jan 2003 23:07:44 -0500
+	id <S267282AbTAQEEX>; Thu, 16 Jan 2003 23:04:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267334AbTAQEHo>; Thu, 16 Jan 2003 23:07:44 -0500
-Received: from h55p111.delphi.afb.lu.se ([130.235.187.184]:53656 "EHLO
-	gagarin.0x63.nu") by vger.kernel.org with ESMTP id <S267319AbTAQEHn>;
-	Thu, 16 Jan 2003 23:07:43 -0500
-Date: Fri, 17 Jan 2003 05:16:28 +0100
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.59
-Message-ID: <20030117041628.GB1794@h55p111.delphi.afb.lu.se>
-References: <8B67F2E2D93ED5118D6E00508BB8D127011C3ED0@exmsb04.curtin.edu.au> <Pine.LNX.4.44.0301162211410.19302-100000@chaos.physics.uiowa.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0301162211410.19302-100000@chaos.physics.uiowa.edu>
-User-Agent: Mutt/1.5.3i
-From: Anders Gustafsson <andersg@0x63.nu>
-X-Scanner: exiscan *18ZNvg-0000xl-00*VHeb6F8ydRA* (0x63.nu)
+	id <S267308AbTAQEEX>; Thu, 16 Jan 2003 23:04:23 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:1925 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S267282AbTAQEEV>;
+	Thu, 16 Jan 2003 23:04:21 -0500
+Date: Thu, 16 Jan 2003 20:08:37 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Carl Gherardi <C.Gherardi@curtin.edu.au>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RE: Linux 2.5.59
+In-Reply-To: <8B67F2E2D93ED5118D6E00508BB8D127011C3ED0@exmsb04.curtin.edu.au>
+Message-ID: <Pine.LNX.4.33L2.0301162007080.11494-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 16, 2003 at 10:12:23PM -0600, Kai Germaschewski wrote:
-> > ./scripts/kconfig/mconf arch/i386/Kconfig
-> > arch/i386/Kconfig:1185: can't open file "drivers/eisa/Kconfig"
-> > make: *** [menuconfig] Error 1
-> 
-> 	bk -r get -q
-> 
-> or just
-> 
-> 	bk get drivers/eisa
-> 
-> in this case. I guess this is becoming a FAQ.
+On Fri, 17 Jan 2003, Carl Gherardi wrote:
 
-It would be cool if the the Makefile let make knew about these dependencies
-so they would be checked out automagically.
+| Hey all,
+|
+| Just done a bk pull and got this
+|
+| # make mrproper; make menuconfig
+| ....
+| gcc  -o scripts/lxdialog/lxdialog scripts/lxdialog/checklist.o
+| scripts/lxdialog/menubox.o scripts/lxdialog/textbox.o
+| scripts/lxdialog/yesno.o scripts/lxdialog/inputbox.o scripts/lxdialog/util.o
+| scripts/lxdialog/lxdialog.o scripts/lxdialog/msgbox.o -lncurses
+| ./scripts/kconfig/mconf arch/i386/Kconfig
+| arch/i386/Kconfig:1185: can't open file "drivers/eisa/Kconfig"
+| make: *** [menuconfig] Error 1
+
+Hm, that's odd.  That file is in the downloaded .bz2 file.
+
+I would pull again or do 'bk changes -R' or some other bk
+command to check its integrity.
+
+Or maybe it's just not 'got' (checked out) by bk...
 
 -- 
-Anders Gustafsson - andersg@0x63.nu - http://0x63.nu/
+~Randy
+

@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270588AbTGTAPP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 20:15:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270589AbTGTAPP
+	id S270572AbTGTAMI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 20:12:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270583AbTGTAMG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 20:15:15 -0400
-Received: from mithril.c-zone.net ([63.172.74.235]:51468 "EHLO mail.c-zone.net")
-	by vger.kernel.org with ESMTP id S270588AbTGTANM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 20:13:12 -0400
-Message-ID: <3F19E241.6030603@c-zone.net>
-Date: Sat, 19 Jul 2003 17:28:49 -0700
-From: jiho@c-zone.net
-Organization: Kidding of Course
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Bitkeeper
+	Sat, 19 Jul 2003 20:12:06 -0400
+Received: from h80ad2503.async.vt.edu ([128.173.37.3]:10402 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S270572AbTGTALL (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jul 2003 20:11:11 -0400
+Message-Id: <200307200026.h6K0Q8bF018135@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: linux-kernel@vger.kernel.org
+Subject: Re: Bitkeeper 
+In-Reply-To: Your message of "Sat, 19 Jul 2003 17:10:05 PDT."
+             <3F19DDDD.9020900@tupshin.com> 
+From: Valdis.Kletnieks@vt.edu
 References: <20030718204405.GA658@work.bitmover.com> <MDEHLPKNGKAHNMBLJOLKOEIFEHAA.davids@webmaster.com> <20030718222702.GC658@work.bitmover.com> <20030719204219.GG7977@fs.tum.de> <20030719215740.GD24197@work.bitmover.com> <20030719222838.GB6942@fs.tum.de> <20030719223956.GG24197@work.bitmover.com> <20030719234519.GC6942@fs.tum.de> <20030720000232.GA28055@work.bitmover.com>
-In-Reply-To: <20030720000232.GA28055@work.bitmover.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+            <3F19DDDD.9020900@tupshin.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-351921371P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Sat, 19 Jul 2003 20:26:08 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
-> Let's try and simplify this because having a legal discussion is pointless.
-> Our position is that we gave something out for free with an understanding
-> that you wouldn't reverse engineer it.  Regardless of your legal rights or
-> lack thereof, should you attempt to reverse engineer BK we'll simply stop
-> giving BK out for free.  See?  Simple.
+--==_Exmh_-351921371P
+Content-Type: text/plain; charset=us-ascii
 
-Now that *is* legal, and reasonable (in the legal sense) as well.
+On Sat, 19 Jul 2003 17:10:05 PDT, Tupshin Harper said:
+
+> No, it's not simple (and this part, unlike much of the rest of this 
+> discussion, is relevant to this list). If you stopped giving it out for 
+> free, then it would cease to be a viable tool for Linux development.
+
+It's called "Killing the goose that lays the golden eggs".
+
+And although Larry has his philanthropic side, if he has to decide between
+"helping Linux development" and "making sure the bills get paid".....
 
 
--- Jim Howard  <jiho@c-zone.net>
+--==_Exmh_-351921371P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/GeGfcC3lWbTT17ARAhdTAJsFvB6VI9bfJ9N8i2ZZ2DAKZTpASQCeI/ID
+0DX2Q2aIf/RG+DDL6svebXg=
+=Dldo
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-351921371P--

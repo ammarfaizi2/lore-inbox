@@ -1,74 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262373AbTJNSwV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 14:52:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbTJNSvh
+	id S262928AbTJNSps (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 14:45:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263472AbTJNSps
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 14:51:37 -0400
-Received: from tux.rsn.bth.se ([194.47.143.135]:60800 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id S262373AbTJNSus (ORCPT
+	Tue, 14 Oct 2003 14:45:48 -0400
+Received: from nondot.cs.uiuc.edu ([128.174.245.159]:63673 "EHLO nondot.org")
+	by vger.kernel.org with ESMTP id S262928AbTJNSor (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 14:50:48 -0400
-Subject: Re: NULL pointer dereference in sysfs_hash_and_remove()
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-In-Reply-To: <20031013163200.43e5d1bf.shemminger@osdl.org>
-References: <1065220892.31749.39.camel@tux.rsn.bth.se>
-	 <20031013163200.43e5d1bf.shemminger@osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-0aUiYSDu5jwesMQwEtGO"
-Message-Id: <1066157445.740.2.camel@tux.rsn.bth.se>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 14 Oct 2003 20:50:45 +0200
+	Tue, 14 Oct 2003 14:44:47 -0400
+Date: Tue, 14 Oct 2003 14:00:54 -0500 (CDT)
+From: Chris Lattner <sabre@nondot.org>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [x86] Access off the bottom of stack causes a segfault?
+In-Reply-To: <Pine.LNX.4.56.0310141136080.2098@bigblue.dev.mdolabs.com>
+Message-ID: <Pine.LNX.4.44.0310141358420.4165-100000@nondot.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > Generated code:
+> >         .intel_syntax
+> > ...
+> > main:
+> >         mov DWORD PTR [%ESP - 16004], %EBP    # Save EBP to stack
+>                          ^^^^^^^^^^^^
+>
+> Yes, this is the problem (even Windows does that IIRC).
 
---=-0aUiYSDu5jwesMQwEtGO
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Ok, I realize what's going on here.  The question is, why does the linux
+kernel consider this to be a bug?  Where (in the X86 specs) is it
+documented that it's illegal to access off the bottom of the stack?
 
-On Tue, 2003-10-14 at 01:32, Stephen Hemminger wrote:
-> On Sat, 04 Oct 2003 00:41:32 +0200
-> Martin Josefsson <gandalf@wlug.westbo.se> wrote:
->=20
-> > Hi
-> >=20
-> > I compiled 2.6.0-test6 and ran it on a laptop with cardbus.
-> > I have an Xircom NIC and if I remove it during operation I get the bug
-> > below.
-> >=20
-> > I have yenta_socket and xircom_cb loaded as modules.
->=20
->=20
-> The driver was setting the statistics pointer after registration had occu=
-rred,
-> so on unregister the network code was removing a non-existent sysfs direc=
-tory.
->=20
-> Try this please.
+My compiler does a nice leaf function optimization where it does not even
+bother to adjust the stack for leaf functions, which eliminates the adds
+and subtracts entirely from these (common) functions.  This completely
+invalidates the optimization.
 
-I've applied this patch and=20
-"[PATCH] sysfs -- don't crash if removing non-existant attribute group"
-and now it works great.
+Since I'm going to have to live with lots of preexisting kernels, it looks
+like I'm going to have to disable it entirely, which is disappointing.
+I'm still curious though why this is thought to be illegal.
 
-Thanks.
+-Chris
 
---=20
-/Martin
+-- 
+http://llvm.cs.uiuc.edu/
+http://www.nondot.org/~sabre/Projects/
 
---=-0aUiYSDu5jwesMQwEtGO
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/jEWFWm2vlfa207ERAhF8AKCAFiUOZUmcxjEvEmpw9uA7w+nk5wCdEwG+
-xk/Ch/NO8NUa/06vTa1S/yA=
-=g+ip
------END PGP SIGNATURE-----
-
---=-0aUiYSDu5jwesMQwEtGO--

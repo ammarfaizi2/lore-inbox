@@ -1,61 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281118AbRKOWDt>; Thu, 15 Nov 2001 17:03:49 -0500
+	id <S280984AbRKOWF3>; Thu, 15 Nov 2001 17:05:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281124AbRKOWDj>; Thu, 15 Nov 2001 17:03:39 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:21001 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S281118AbRKOWDa>; Thu, 15 Nov 2001 17:03:30 -0500
-Message-ID: <3BF43B8E.51A809D1@zip.com.au>
-Date: Thu, 15 Nov 2001 14:02:54 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Stephen C. Tweedie" <sct@redhat.com>
-CC: lkml <linux-kernel@vger.kernel.org>, Neil Brown <neilb@cse.unsw.edu.au>
-Subject: Re: synchronous mounts
-In-Reply-To: <3BF376EC.EA9B03C8@zip.com.au>,
-		<3BF376EC.EA9B03C8@zip.com.au>; from akpm@zip.com.au on Thu, Nov 15, 2001 at 12:03:57AM -0800 <20011115214525.C14221@redhat.com>
+	id <S281125AbRKOWFV>; Thu, 15 Nov 2001 17:05:21 -0500
+Received: from ppp01.ts1-1.NewportNews.visi.net ([209.8.196.1]:14332 "EHLO
+	blimpo.internal.net") by vger.kernel.org with ESMTP
+	id <S280971AbRKOWFJ>; Thu, 15 Nov 2001 17:05:09 -0500
+Date: Thu, 15 Nov 2001 17:04:59 -0500
+From: Ben Collins <bcollins@debian.org>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Bug in ext3
+Message-ID: <20011115170459.I329@visi.net>
+In-Reply-To: <20011115092452.Z329@visi.net> <3BF3F9ED.17D55B35@zip.com.au>, <3BF3F9ED.17D55B35@zip.com.au> <20011115153442.A329@visi.net> <3BF42A1A.5AE96A78@zip.com.au>, <3BF42A1A.5AE96A78@zip.com.au> <20011115160232.H329@visi.net> <3BF42F47.FA3B7657@zip.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3BF42F47.FA3B7657@zip.com.au>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Stephen C. Tweedie" wrote:
+On Thu, Nov 15, 2001 at 01:10:31PM -0800, Andrew Morton wrote:
 > 
-> Hi,
+> Are you running a current version of e2fsprogs?  1.25?
 > 
-> On Thu, Nov 15, 2001 at 12:03:57AM -0800, Andrew Morton wrote:
-> > Linux is not syncing write() data for files on synchronously mounted
-> > filesystems, and it isn't syncing write() data for ext2/3 files which
-> > are operating under `chattr +S'.
+> If you are, then this indicates that the filesystem has has_journal
+> set, but it doesn't have a journal inode.  That is certainly something
+> which e2fsck should detect and fix.  This may be a fsck bug.
 > 
-> In the past, chattr +S and mount -o sync always resulted in sync
-> metadata with no guarantees about data.
-> 
-> I'm not sure this makes much sense, but it's what has always happened.
-> For directories, the behaviour is fine, in particular as it gives us
-> the same directory sync consistency semantics as synchronous BSD UFS.
-> 
-> It's not clear to me that chattr/mount sync options make _any_ sense
-> for regular file metadata.  Rather than tightening up the semantics,
-> I'd actually prefer to restrict them so that they only apply to
-> directories.  Users who set the sync bits are usually doing so for
-> applications like MTAs where it's directory syncing which is
-> what matters: the apps typically fsync the files themselves, anyway.
-> 
+> You should be able to fix this with `tune2fs -O ^has-journal' on
+> the unmounted or readonly fs.
 
-OK, that makes sense.  Thanks.  The `mount' and `chattr' manpages
-need updating...
+Actually, it's 1.18. I'll upgrade e2fsprogs. At the same time, would it
+not be prudent to make ext3 fail to mount if it cannot setup the
+journal? If it decides to keep going in the event that there is no
+journal, it should not break like it did.
 
-So shall we try to nail this down?  Synchronous mounts and chattr +S
-provide synchronous semantics for directory contents, diretory metadata
-and directory inodes only.  And fsync() will write out a file's data,
-metadata and inode?
 
-If this is correct then there are a few places where ext2 is
-syncing stuff unnecessarily - file indirect blocks, etc.  Not
-very important at this stage I guess.
+Ben
 
--
+-- 
+ .----------=======-=-======-=========-----------=====------------=-=-----.
+/                   Ben Collins    --    Debian GNU/Linux                  \
+`  bcollins@debian.org  --  bcollins@openldap.org  --  bcollins@linux.com  '
+ `---=========------=======-------------=-=-----=-===-======-------=--=---'

@@ -1,179 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265114AbTAPCeP>; Wed, 15 Jan 2003 21:34:15 -0500
+	id <S266771AbTAPCnH>; Wed, 15 Jan 2003 21:43:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266514AbTAPCeP>; Wed, 15 Jan 2003 21:34:15 -0500
-Received: from almesberger.net ([63.105.73.239]:274 "EHLO host.almesberger.net")
-	by vger.kernel.org with ESMTP id <S265114AbTAPCeM>;
-	Wed, 15 Jan 2003 21:34:12 -0500
-Date: Wed, 15 Jan 2003 23:42:58 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: kuznet@ms2.inr.ac.ru, Roman Zippel <zippel@linux-m68k.org>,
-       kronos@kronoz.cjb.net, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Migrating net/sched to new module interface
-Message-ID: <20030115234258.E1521@almesberger.net>
-References: <20030115063349.A1521@almesberger.net> <20030116013125.ACE0F2C0A3@lists.samba.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030116013125.ACE0F2C0A3@lists.samba.org>; from rusty@rustcorp.com.au on Thu, Jan 16, 2003 at 12:12:25PM +1100
+	id <S266809AbTAPCnH>; Wed, 15 Jan 2003 21:43:07 -0500
+Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:50895
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP
+	id <S266771AbTAPCnC>; Wed, 15 Jan 2003 21:43:02 -0500
+Date: Wed, 15 Jan 2003 21:51:48 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
+To: Richard Stallman <rms@gnu.org>
+cc: mark@mark.mielke.cc, <galibert@pobox.com>,
+       lkml <linux-kernel@vger.kernel.org>, <dax@gurulabs.com>,
+       <lm@bitmover.com>, <root@chaos.analogic.com>,
+       <pollard@admin.navo.hpc.mil>, <R.E.Wolff@BitWizard.nl>,
+       <jalvo@mbay.net>
+Subject: Re: [OFFTOPIC] RMS and reactions to him
+In-Reply-To: <E18Ywxg-0001ME-00@fencepost.gnu.org>
+Message-ID: <Pine.LNX.4.44.0301152026350.1403-100000@xanadu.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> Deprecating every module, and rewriting their initialization routines
-> is ambitious beyond the scale of anything you have mentioned.
+On Wed, 15 Jan 2003, Richard Stallman wrote:
 
-Well, it has happened before, e.g. sleep_on is now deprecated,
-cli() doesn't give the comprehensive protection it used to,
-holding spinlocks while sleeping used to be frowned upon, but
-it's only recently that it moved to being forbidden, etc.
+> The people who worked on Linux, the kernel, have plenty to be proud
+> of.  They don't need to get credit for the GNU system too.  Hundreds
+> of people worked to build the GNU system before 1991.  For their sake,
+> I focus on what we did together, not on what I myself did.
+> 
+> Calling the system "Linux" denies these people the basis for their
+> pride.  Calling the system "GNU/Linux" gives recognition to all of
+> them, as well as to the people who have worked on Linux.
 
-And the people making the new rules didn't go and fix every
-module in existence. You may get this kind of responsibility
-only if you actually break the old interface, but that's not
-what I'm suggesting to do.
+Calling the system "Linux" does not deny anyone's pride.  In fact a lot of
+people who worked on Linux the kernel might think the name "Linux" only
+makes the connection to Linus Torvalds and leave everybody else in the
+shade... but surprisingly enough all those people just don't feel that way.
 
-> And remember why we're doing it: for a fairly obscure race condition.
+Now if you look at "Red Hat Linux" the distribution, they put a lot of work
+into packaging and bundling everything.  But hey, some other companies like
+Mandrake appeared from nowhere, borrowed on what Red Hat has done since it's
+free software after all, and redistributed a mostly unchanged distribution
+(at least originally) but under the name "Mandrake Linux" instead.  Yet we
+don't see Red Hat making a big fuss about that either.
 
-No, I want to do this to fix the reason for the fix for the
-obscure race condition :-)
+It's also strange that Cygnus distributed a large package called "CygWin"  
+and not "GNU/CygWin", isn't it?  Still that package contains a large
+percentage of pure GNU/FSF code...
 
-Also, all this smells of a fundamental design problem: modules
-aren't the only things that can become unavailable. So why
-construct a special mechanism that only applies to modules ?
+A name is a really bad place to try to credit people or organizations - it's
+simply not meant for that.  A name must be nice, short and catchy.  It's not
+something rational that you can define with all sort of reasoning for using
+a slash or other punctuations, if the word "Linux" should go first or last,
+how it should be parsed, etc.  People don't give a damn about the meaning of
+a name, they just want it to sound nice.
 
-> So we go from:
+The problem with "GNU/Linux" is simple: it sucks.  It's not elegant, and
+it's longer than simply "Linux".  It's like people calling themselves "Al"  
+or "Ben" instead of "Alexander" or"Benjamin".  You can't put rational
+semantics into a name -- this is not something that depends on grammar,
+science, or number of lines of code, or anything else.
 
-Yes. Note that the problem case only occurs if you have more than
-one registration that could block you for a long time. Otherwise,
-you just take that one first, and sleep on all the others.
+The free software community finally completed the GNU system.  This system
+is nowadays called simply "Linux".  And that name was chosen by that
+community who put the system together, which community I'm sure contains a
+significant number of people who were original GNU contributors.  Yet there
+is only _one_ person out of the hundreds who seems to be left out by the
+"Linux" name and tries to go against the crowd...
 
-Otherwise, things get messy, I admit. But that's not a new problem
-either, e.g.
+If you really want the GNU project to be more widely known to the world,
+you'll need to use some other more effective ways to promote free software.  
+Trying to force the name "GNU/Linux"  will never stick for many reasons,
+even if it's only for something as irrational as "it sucks".
 
-> int init(void)
-> {
-> 	if (!register_foo(&foo))
-> 		return -err;
-> 	if (!register_bar(&bar)) {
-> 		unregister_foo(&foo);
-> 		return -err;
-> 	}
-> 	return 0;
-> }
+Hey, I live in Canada and therefore I'm a Canadian.  But last time I checked
+Canada was still located in North America.  Yet there are a bunch of people
+living south in a country that is also only a part of America, even smaller
+in size, but they are calling themselves Americans just like if they owned
+it all.  Of course calling those people "United-Statians" might have sucked
+a bit.  But hey, we admit it's been common usage even if it's geographically
+inaccurate and go on with life.
 
-What if unregister_foo fails, because somebody already started
-to use the foo interface ? If "block until it works" is a valid
-answer, you could probably use this also for the unload case.
+I, for one, admit and recognize all the effort and work the GNU project did
+and I really enjoy exercising my freedom of running the GNU system on my
+hardware.  This, however, won't make me call this system "GNU/Linux"  
+regardless.  And this has absolutely nothing to do with trying to deny
+credits to the GNU project.
 
-This would actually work even with the current interface: just
-make the module exit function sleep until all references are
-gone. This means than rmmod might take a looong time, but is
-this really a problem ? If a module wishes to accelerate its
-demise, it can always add errors exits. If the interface doesn't
-provide error exits, this is again a general problem, and
-actually one of the interface.
 
-If there's a really nasty case, where you absolutely can't
-afford to sleep, you need to change the service to split
-"deregister" into:
+Nicolas
 
- - prepare_deregister (like "deregister", but reversible)
- - commit_deregister
- - undo_deregister
-
-But there probably aren't many cases where you'd really need
-this.
-
-> Something like this?
-
-Yes, for instance. Or use atomic operations.
-
-> Now, if someone tries to remove a module, but it's busy, you get a
-> window of spurious failure, even though the module isn't actually
-> removed.
-
-Correct. But does this matter ? After all, we were prepared to
-get failures if the removal succeeds anyway. So this is not a
-new race condition.
-
-> Secondly, there is often no way of returning a value which
-> says "I'm going away, act as if I'm not here": only the level above
-> can sanely know what it would do if this were not found.
-
-Okay, my approach usually puts the responsibility of finally giving
-up in user space. If user space just ignores the error, and keeps
-the thing open anyway, you're in for a long wait. But that's not
-different from opening some device and never releasing it. In
-either case, your module becomes un-unloadable, unless you kill
-the user-space hog. Again, not a new problem.
-
-> On a busy system, they're never not being used.  Your unload routine
-> would always fail.  Same with netfilter modules.
-
-But they're only active for a short time, so the deregistration
-could just sleep.
-
-> It also puts the (minimal) burden in the right place: in the interface
-> coder's lap, not the interface user's lap.
-
-Well, both need to cooperate. And I don't see why the interface
-coder should have to know whether its users are modules or not,
-while the interface user, who is implicitly very aware if he's
-a module or not, shouldn't.
-
-Also note that this isn't just a module problem. Instead of
-tripping over code that all of a sudden isn't there, one may
-well trip over a data structure that has just been removed. In
-either case, you need to get the synchronization right. What
-I'm proposing is simply to make those two cases more similar,
-such that handling one case correctly also handles the other
-one.
-
-Example:
-
-struct foo *my_data;
-
-int foo_callback()
-{
-	do_something(my_data->blah);
-	...
-}
-
-void foo_exit()
-{
-	deregister(...);
-	kfree(my_data);
-	...
-}
-
-So if "deregister" allows callbacks after it returns, you'll
-still end up getting your oops every once in a while.
-
-Now make this a non-module, and if foo_exit or some equivalent
-can be called for some other reason (e.g. power-down,
-hotplugging, etc.), you a) still have the same problem, and b)
-all the miracle protection of try_module_get has vanished. So
-you have to do the synchronization twice, i.e. on both sides
-of the interface.
-
-> Unfortunately, I don't have the patience to explain this once for
-> every kernel developer.
-
-Sorry for being so persistent. But I really think the module
-situation is rapidly approaching the point where just fixing
-the next bug isn't good enough, but where we need to get back
-to the drawing board, look at the larger picture, and then
-work towards a cleaner solution.
-
-Also, although the task may seem daunting, don't forget that
-even the BLK wasn't removed in a day :-)
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/

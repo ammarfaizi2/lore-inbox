@@ -1,86 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262776AbVAQLtv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262777AbVAQL4a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262776AbVAQLtv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 06:49:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262777AbVAQLtv
+	id S262777AbVAQL4a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 06:56:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262778AbVAQL4a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 06:49:51 -0500
-Received: from gprs215-56.eurotel.cz ([160.218.215.56]:42651 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262776AbVAQLts (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 06:49:48 -0500
-Date: Mon, 17 Jan 2005 12:49:27 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: torvalds@osdl.org, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: sparse refuses to work due to stdarg.h
-Message-ID: <20050117114927.GD1354@elf.ucw.cz>
-References: <20050116224922.GA4454@elf.ucw.cz> <20050117044955.GA8092@mars.ravnborg.org>
+	Mon, 17 Jan 2005 06:56:30 -0500
+Received: from sommereik.ii.uib.no ([129.177.16.236]:38814 "EHLO
+	sommereik.ii.uib.no") by vger.kernel.org with ESMTP id S262777AbVAQL4Z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 06:56:25 -0500
+Date: Mon, 17 Jan 2005 12:55:42 +0100
+From: Jan-Frode Myklebust <Jan-Frode.Myklebust@bccs.uib.no>
+To: Jakob Oestergaard <jakob@unthought.net>,
+       Christoph Hellwig <hch@infradead.org>,
+       David Greaves <david@dgreaves.com>, Jan Kasprzak <kas@fi.muni.cz>,
+       linux-kernel@vger.kernel.org, kruty@fi.muni.cz
+Subject: Re: XFS: inode with st_mode == 0
+Message-ID: <20050117115542.GA28901@ii.uib.no>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Christoph Hellwig <hch@infradead.org>,
+	David Greaves <david@dgreaves.com>, Jan Kasprzak <kas@fi.muni.cz>,
+	linux-kernel@vger.kernel.org, kruty@fi.muni.cz
+References: <20041209125918.GO9994@fi.muni.cz> <20041209135322.GK347@unthought.net> <20041209215414.GA21503@infradead.org> <20041221184304.GF16913@fi.muni.cz> <20041222084158.GG347@unthought.net> <20041222182344.GB14586@infradead.org> <41E80C1F.3070905@dgreaves.com> <20050114182308.GE347@unthought.net> <20050116135112.GA24814@infradead.org> <20050117100746.GI347@unthought.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050117044955.GA8092@mars.ravnborg.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050117100746.GI347@unthought.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > I'm probably doing something wrong, but... how do I force it to work?
-> > I'm pretty sure it worked before, I'm not sure what changed in my
-> > config.
+On Mon, Jan 17, 2005 at 11:07:46AM +0100, Jakob Oestergaard wrote:
 > 
-> kbuild was changed to reliably pick up the stdarg.h for the gcc used.
-> Two issues has popped up:
-> 1) sparse did not support -isystem dir
-> 	- fixed a few days ago, and fix is at sparse.bkbits.net
+> Where should I begin?  ;)
 
-Thanks, I installed -01-17 version.
+Guess we've been struggeling with much of the same problems..
 
-> 2) misconfigured gcc's that report a wrong directory when using
-> gcc -print-file-name=include
-> The directory given must include stdarg.h - otherwise gcc config is
-> broken.
+> -------
+> Scenario 2: Mailservers:
+>   Running XFS on mailqueue:
 
-That seems to be ok here:
+The 2.6.10-1.737_FC3 + 's/posix_lock_file/posix_lock_file_wait/' on
+fs/nfs/file.c seems stable on our mailserver running XFS on
+mail queue and spool (mbox). 4 days of uptime! 
 
-pavel@amd:~$ gcc -print-file-name=include
-/usr/lib/gcc-lib/i486-linux/3.3.5/include
-pavel@amd:~$ gcc --version
-gcc (GCC) 3.3.5 (Debian 1:3.3.5-5)
-Copyright (C) 2003 Free Software Foundation, Inc.
-This is free software; see the source for copying conditions.  There
-is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.
+> 
+> =======
+> Resolution to the storage server problem:
+>  2.6.8.1 UP is stable (but oopses regularly after memory allocation
+>  failures)
 
-pavel@amd:~$ ls /usr/lib/gcc-lib/i486-linux/3.3.5/
-SYSCALLS.c.X  cc1plus       crtbegin.o    crtbeginT.o   crtendS.o
-libgcc.a      libgcc_s.so   libstdc++.so  specs
-cc1           collect2      crtbeginS.o   crtend.o      include
-libgcc_eh.a   libstdc++.a   libsupc++.a
-pavel@amd:~$ ls /usr/lib/gcc-lib/i486-linux/3.3.5/include/st
-stdarg.h   stdbool.h  stddef.h
-pavel@amd:~$ ls /usr/lib/gcc-lib/i486-linux/3.3.5/include/stdarg.h
-/usr/lib/gcc-lib/i486-linux/3.3.5/include/stdarg.h
-pavel@amd:~$
+My XFS-fileserver ran 2.6.9-rc3 stable since october 25. Got lots of
+"possible deadlock in kmem_alloc (mode:0xd0)" this weekend, so I
+upgraded to plain 2.6.10. Seems OK so far. 
 
-but now I'm getting:
+> 
+> Hardware on all servers: IBM x335 and x345.
 
-pavel@amd:/usr/src/linux-cvs$ make C=2
-  CHK     include/linux/version.h
-  CHECK   scripts/mod/empty.c
-make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
-  CHECK   init/main.c
-/usr/lib/gcc-lib/i486-linux/3.3.5/include/asm/posix_types.h:29:35: warning: no newline at end of file
-/usr/lib/gcc-lib/i486-linux/3.3.5/include/asm/posix_types.h:13:11: error: unable to open 'features.h'
-make[1]: *** [init/main.o] Error 1
-make: *** [init] Error 2
-pavel@amd:/usr/src/linux-cvs$
+Mail servers: Dell 2650, IBM ServeRAID 6M, EXP400.
+File servers: IBM x330, qla2300, infortrend eonstor.
 
-Any ideas?
-								Pavel
+All running Whitebox/centos RHEL clone.
 
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+
+  -jf

@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285352AbSBDSe6>; Mon, 4 Feb 2002 13:34:58 -0500
+	id <S282845AbSBDSrk>; Mon, 4 Feb 2002 13:47:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285023AbSBDSes>; Mon, 4 Feb 2002 13:34:48 -0500
-Received: from dsl-65-186-161-49.telocity.com ([65.186.161.49]:16648 "EHLO
-	nic.osagesoftware.com") by vger.kernel.org with ESMTP
-	id <S282845AbSBDSee>; Mon, 4 Feb 2002 13:34:34 -0500
-Message-Id: <4.3.2.7.2.20020204133252.00c50f00@mail.osagesoftware.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Mon, 04 Feb 2002 13:34:40 -0500
-To: lkml <linux-kernel@vger.kernel.org>
-From: David Relson <relson@osagesoftware.com>
-Subject: Re: How to check the kernel compile options ?
-In-Reply-To: <a3mjhc$qba$1@cesium.transmeta.com>
-In-Reply-To: <3C5EB070.4370181B@uni-mb.si>
- <3C5EB070.4370181B@uni-mb.si>
- <4.3.2.7.2.20020204124812.00aec590@mail.osagesoftware.com>
+	id <S282902AbSBDSra>; Mon, 4 Feb 2002 13:47:30 -0500
+Received: from ns.suse.de ([213.95.15.193]:42002 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S282845AbSBDSrU>;
+	Mon, 4 Feb 2002 13:47:20 -0500
+Date: Mon, 4 Feb 2002 19:47:19 +0100
+From: Dave Jones <davej@suse.de>
+To: "Daniel E. Shipton" <dshipton@vrac.iastate.edu>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.3-dj2
+Message-ID: <20020204194719.C11789@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	"Daniel E. Shipton" <dshipton@vrac.iastate.edu>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020204154800.A13519@suse.de> <1012841649.8335.6.camel@regatta>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1012841649.8335.6.camel@regatta>; from dshipton@vrac.iastate.edu on Mon, Feb 04, 2002 at 10:54:09AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 01:22 PM 2/4/02, you wrote:
->Followup to:  <4.3.2.7.2.20020204124812.00aec590@mail.osagesoftware.com>
->By author:    David Relson <relson@osagesoftware.com>
->In newsgroup: linux.dev.kernel
-> >
-> > I remember discussion of that patch some time ago and the main complaint
-> > about it was that it increases the size of the kernel, i.e. vmlinuz.  Why
-> > not put the need info in a module?  Doing that would enable the following
-> > command:
-> >
-> >          zgrep CONFIG_PROC /lib/modules/`uname -r`/config.gz
-> >
-> > (or something similar).
-> >
->
->Uhm, no.  The problem with it is that you're using kernel memory
->because you're not willing to manage userspace competently, so modules
->(in fact, *using modules at all*) would be right out.
+On Mon, Feb 04, 2002 at 10:54:09AM -0600, Daniel E. Shipton wrote:
 
-Yeah, it does have the undesirable dependency on modules, doesn't it?
+ > /home/kernel/linux-2.5/include/linux/highmem.h:21: warning: implicit
+ > declaration of function `bh_offset'
 
+ Quick fix: add #include <linux/fs.h> to include/linux/highmem.h
+ This is horrible though, I think its time to take another close
+ look at fs.h
 
->I have had in my /sbin/installkernel a clause to save .config as
->config-<foo> when I install vmlinuz-<foo>; I believe anyone not doing
->that[1] is, quite frankly, a moron.
-
-Why not a simple patch for "make install" to do this?
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

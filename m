@@ -1,47 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266413AbTGERCJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 13:02:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266414AbTGERCJ
+	id S266452AbTGERJz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 13:09:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266456AbTGERJy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 13:02:09 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:1951 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266413AbTGERCH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 13:02:07 -0400
-Date: Sat, 5 Jul 2003 10:16:26 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-cc: benh@kernel.crashing.org,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <linuxppc-dev@lists.linuxppc.org>, <linuxppc64-dev@lists.linuxppc.org>
-Subject: Re: [PATCH 2.5.73] Signal stack fixes #1 introduce PF_SS_ACTIVE
-In-Reply-To: <20030705104428.GA19311@wohnheim.fh-wedel.de>
-Message-ID: <Pine.LNX.4.44.0307051013140.5900-100000@home.osdl.org>
+	Sat, 5 Jul 2003 13:09:54 -0400
+Received: from arbi.Informatik.uni-oldenburg.de ([134.106.1.7]:15890 "EHLO
+	arbi.Informatik.Uni-Oldenburg.DE") by vger.kernel.org with ESMTP
+	id S266452AbTGERJe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jul 2003 13:09:34 -0400
+Subject: PATCH 2.4.21 nfsroot.c buffercheck
+To: linux-kernel@vger.kernel.org (kernel linux)
+Date: Sat, 5 Jul 2003 19:24:01 +0200 (MEST)
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E19YqlV-000ITc-00@grossglockner.Informatik.Uni-Oldenburg.DE>
+From: "Walter Harms" <Walter.Harms@Informatik.Uni-Oldenburg.DE>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Liste,
+this patches fixes a wrong bordercheck  and simplifies it.
+Strings with NFS_MAXPATHLEN would pass in the old code.
 
-On Sat, 5 Jul 2003, Jörn Engel wrote:
-> 
-> Except that the patch didn't match the description.  My test loops
-> just as happily as before and the conditional part of give_sigsegv is
-> pointless now.  That might really break some threading stuff.
+walter
 
-Hmm? I tried it, and for me it does:
 
-	torvalds@home:~> ./a.out 
-	SIGNAL .... 11
-	Segmentation fault
-
-but I have to admit that I didn't even try it before my kernel change, so 
-maybe it worked for me before too ;)
-
-There could easily be glibc version issues here, ie maybe your library 
-sets SA_NOMASK and mine doesn't.
-
-		Linus
+--- fs/nfs/nfsroot.c.org        2003-07-03 23:23:18.000000000 +0200
++++ fs/nfs/nfsroot.c    2003-07-03 23:36:51.000000000 +0200
+@@ -207,7 +207,8 @@
+ {
+        char buf[NFS_MAXPATHLEN];
+        char *cp;
+-
++       int ret;
++
+        /* Set some default values */
+        memset(&nfs_data, 0, sizeof(nfs_data));
+        nfs_port          = -1;
+@@ -230,14 +231,15 @@
+        /* Override them by options set on kernel command-line */
+        root_nfs_parse(name, buf);
+ 
+-       cp = system_utsname.nodename;
+-       if (strlen(buf) + strlen(cp) > NFS_MAXPATHLEN) {
+-               printk(KERN_ERR "Root-NFS: Pathname for remote directory too long.\n");
+-               return -1;
+-       }
+-       sprintf(nfs_path, buf, cp);
++       ret=snprintf(nfs_path,NFS_MAXPATHLEN, buf, system_utsname.nodename);
+ 
+-       return 1;
++       if (ret < NFS_MAXPATHLEN) 
++               return 1;
++        else {
++               printk(KERN_ERR "Root-NFS: Pathname for remote directory too long.\n");
++               return -1;
++       }
++
+ }
+ 
 

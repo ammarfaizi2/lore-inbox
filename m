@@ -1,48 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267446AbRHAPxr>; Wed, 1 Aug 2001 11:53:47 -0400
+	id <S266400AbRHAPyH>; Wed, 1 Aug 2001 11:54:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266579AbRHAPx1>; Wed, 1 Aug 2001 11:53:27 -0400
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:36247 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S266400AbRHAPxS>;
-	Wed, 1 Aug 2001 11:53:18 -0400
-Message-ID: <3B682593.AB3D143C@candelatech.com>
-Date: Wed, 01 Aug 2001 08:51:47 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
-X-Accept-Language: en
+	id <S266579AbRHAPx6>; Wed, 1 Aug 2001 11:53:58 -0400
+Received: from patr530-a156.otenet.gr ([212.205.215.156]:20108 "EHLO
+	Paradise.NotHere") by vger.kernel.org with ESMTP id <S266400AbRHAPxj>;
+	Wed, 1 Aug 2001 11:53:39 -0400
+Date: Wed, 1 Aug 2001 18:53:15 +0300 (EEST)
+From: Steve Stavropoulos <steve@math.upatras.gr>
+X-X-Sender: <steve@Paradise.NotHere>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: hdparm seg faults (promise PCI ide controller)
+Message-ID: <Pine.LNX.4.33.0108011826310.5073-100000@Paradise.NotHere>
 MIME-Version: 1.0
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-CC: Thomas Zehetbauer <thomasz@hostmaster.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: tulip driver still broken
-In-Reply-To: <20010731001907.A21982@hostmaster.org> <3B66B13B.28BD0324@nortelnetworks.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Friesen wrote:
-> 
-> Thomas Zehetbauer wrote:
-> >
-> > My genuine digital network interface card ceased to work with the tulip
-> > driver contained in kernel revisions >= 2.4.4 and the development driver from
-> > sourceforge.net.
-> 
-> How is the sourceforge driver different than the one at www.scyld.com?
-> 
+I couldn't make the second channel on my Promise PCI ide controller
+(pdc20262, the udma66 model) to use DMA. When I did that
+(hdparm -d1 /dev/hdg) I would get some messages in /var/log/messages
+saying that the kernel waits the drive to enable dma (or something like
+that) and the system would become unresponsive for some periods of time.
+The situation would revert to normal only after a hdparm -d0 /dev/hdg.
+The output of `cat /proc/ide/pdc202xx` was (and still is):
+                                PDC20262 Chipset.
+------------------------------- General Status ---------------------------------
+Burst Mode                           : enabled
+Host Mode                            : Normal
+Bus Clocking                         : 33 PCI Internal
+IO pad select                        : 8 mA
+Status Polling Period                : 4
+Interrupt Check Status Polling Delay : 2
+--------------- Primary Channel ---------------- Secondary Channel -------------
+                enabled                          enabled
+66 Clocking     enabled                          disabled
+           Mode PCI                         Mode PCI
+                FIFO Empty                       FIFO Empty
+--------------- drive0 --------- drive1 -------- drive0 ---------- drive1 ------
+DMA enabled:    yes              yes             no                no
+DMA Mode:       UDMA 4           NOTSET          NOTSET            NOTSET
+PIO Mode:       PIO 4            NOTSET           NOTSET            NOTSET
 
-Becker (Scyld) has only recently gotten his drivers to even compile
-on 2.4 kernel, and they are still beta quality for 2.4, evidently.
 
-There seem to be attempts to keep the drivers in sync, functionally,
-but the architectures have diverged quite a lot...
+The first drive0 is /dev/hde which is using dma without any problems, the
+/dev/hdg, which I'm talking about, is the drive 0 in the second channel (I
+have tried in that position a Pioneer DVD and a ASUS cdrom).
+ I thought that a bios upgrade of the promise controller would help
+things and so I did it, I put the latest bios from promise. But an
+unpleasant surprise was waiting for me when I rebooted my machine and
+tried to use hdparm. hdparm will seg fault with EVERY device I try. The
+output is this:
+------
+# hdparm /dev/hdg
 
-Ben
+/dev/hdg:
+Segmentation fault (core dumped)
+------
+If I boot in my old RedHat 6.2 (kernel 2.4.something) it will not seg
+fault, but I won't be able to use dma on the second channel of the promise
+controller. In RedHat 7.1 which I'm using with kernel 2.4.7 (I 've tried
+and past kernel versions) I ALWAYS get a seg fault and core dumped (no
+messages from the kernel).
+gdb says:
+------------------
+# gdb `which hdparm` core
+GNU gdb 5.0rh-5 Red Hat Linux 7.1
+Copyright 2001 Free Software Foundation, Inc.
+GDB is free software, covered by the GNU General Public License, and you
+are
+welcome to change it and/or distribute copies of it under certain
+conditions.
+Type "show copying" to see the conditions.
+There is absolutely no warranty for GDB.  Type "show warranty" for
+details.
+This GDB was configured as "i386-redhat-linux"...
+(no debugging symbols found)...
+Core was generated by `hdparm /dev/hdg'.
+Program terminated with signal 11, Segmentation fault.
+Reading symbols from /lib/i686/libc.so.6...done.
+Loaded symbols for /lib/i686/libc.so.6
+Reading symbols from /lib/ld-linux.so.2...done.
+Loaded symbols for /lib/ld-linux.so.2
+#0  0x0804a02e in sync ()
+(gdb) bt
+#0  0x0804a02e in sync ()
+#1  0x00000000 in ?? ()
+(gdb)
+------------
+Can I do anything more to debug the problem with gdb?
 
--- 
-Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+

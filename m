@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270037AbRHGCYk>; Mon, 6 Aug 2001 22:24:40 -0400
+	id <S270040AbRHGC0u>; Mon, 6 Aug 2001 22:26:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270038AbRHGCY3>; Mon, 6 Aug 2001 22:24:29 -0400
-Received: from sunny-legacy.pacific.net.au ([210.23.129.40]:30658 "EHLO
+	id <S270039AbRHGC0k>; Mon, 6 Aug 2001 22:26:40 -0400
+Received: from sunny-legacy.pacific.net.au ([210.23.129.40]:49602 "EHLO
 	sunny.pacific.net.au") by vger.kernel.org with ESMTP
-	id <S270037AbRHGCYQ>; Mon, 6 Aug 2001 22:24:16 -0400
-Subject: Re: /proc/<n>/maps growing...
+	id <S270040AbRHGC0d>; Mon, 6 Aug 2001 22:26:33 -0400
+Subject: Re: [LONGish] Brief analysis of VMAs (was: /proc/<n>/maps getting
 From: David Luyer <david_luyer@pacific.net.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, Chris Wedgwood <cw@f00f.org>,
-        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0108061019280.8972-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0108061019280.8972-100000@penguin.transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E15Tk4u-0000wy-00@the-village.bc.nu>
+In-Reply-To: <E15Tk4u-0000wy-00@the-village.bc.nu>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Evolution/0.12.99 (Preview Release)
-Date: 07 Aug 2001 12:24:05 +1000
-Message-Id: <997151045.10551.11.camel@typhaon>
+Date: 07 Aug 2001 12:26:40 +1000
+Message-Id: <997151200.10551.15.camel@typhaon>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 06 Aug 2001 10:20:15 -0700, Linus Torvalds wrote:
-> 2.4.x _does_ merge. Look for yourself. It doesn't merge mprotects, no. And
-> why should glibc do mprotect() for a malloc() call? Electric Fence, yes.
-> glibc, no.
+On 06 Aug 2001 14:05:52 +0100, Alan Cox wrote:
+> > Yes, that's what's happening above.  And it's what's causing the
+> > splits in the vmas.  So basically evolution-mail is doing exactly what
+> > your test program was doing, and causing exactly the same thing.
+> > 
+> > Seems strange that glibc would do this unless there was some performance
+> > reason on past kernels to do it?
+> 
+> Are you sure thats not evolution being built with a debugging malloc of
+> some kind ?
 
-What glibc does (when it decided to allocate in this way) is:
+Yes, as per cw's e-mail it's just how malloc() works in some cases on
+glibc.  Allocate 2 * sz (where sz is a relatively large amount compared
+to the amount being malloc()'d), free up the 'sz' which is not aligned
+to a multiple of 'sz', and the gradually mprotect(PROT_READ|PROT_WRITE)
+the memory it's allocated initially with PROT_NONE and MAP_NORESERVE.
 
-mmap(NULL,2*sz,PROT_NONE,MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE,-1,0)
-
-free up 1*sz of space which isn't sz-aligned (presumably to prevent
-fragmentation of its pools, now I think about it)
-
-allocate out bits of the block mprotecting them as PROT_READ|PROT_WRITE
-as it goes
-
-Typically it's releasing multiples of 4kb at a time just like it brk()s
-multiples of 4kb at a time.  glibc doesn't catch accesses right down to
-the byte but does catch accesses which are 'way off'.  But really, yes,
-you're right - if it's not catching everything it shouldn't catch
-anything, since it's not its job.  Unless the MAP_NORESERVE with
-PROT_NONE is saving the system from even thinking about the unused parts
-of the large slab glibc has just grabbed, in which case there is some
-reason glibc should do things the way it does.
+And mprotect() responds by splitting up the vmas and never merging them
+back together.
 -- 
 David Luyer                                     Phone:   +61 3 9674 7525
 Engineering Projects Manager   P A C I F I C    Fax:     +61 3 9699 8693

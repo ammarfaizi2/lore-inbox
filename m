@@ -1,57 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262611AbREVQXz>; Tue, 22 May 2001 12:23:55 -0400
+	id <S262027AbREVQXO>; Tue, 22 May 2001 12:23:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262590AbREVQXp>; Tue, 22 May 2001 12:23:45 -0400
-Received: from dhcp04.gb.nrao.edu ([192.33.116.206]:18180 "EHLO
-	mobilix.atnf.CSIRO.AU") by vger.kernel.org with ESMTP
-	id <S262576AbREVQXe>; Tue, 22 May 2001 12:23:34 -0400
-Date: Tue, 22 May 2001 12:23:29 -0400
-Message-Id: <200105221623.f4MGNTa02164@mobilix.atnf.CSIRO.AU>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Tony Hoyle <tmh@magenta-netlogic.com>
-Cc: "Brent D. Norris" <brent@biglinux.tccw.wku.edu>,
-        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-net@vger.kernel.org, linux-scsi@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-hams@vger.kernel.org,
-        linux-ppp@vger.kernel.org
-Subject: Re: ECN is on!
-In-Reply-To: <3B0A8D16.2050400@magenta-netlogic.com>
-In-Reply-To: <15114.18990.597124.656559@pizda.ninka.net>
-	<Pine.LNX.4.30.0105220649530.17291-100000@biglinux.tccw.wku.edu>
-	<200105221306.f4MD6Pi00360@mobilix.ras.ucalgary.ca>
-	<3B0A8D16.2050400@magenta-netlogic.com>
+	id <S262580AbREVQXE>; Tue, 22 May 2001 12:23:04 -0400
+Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:17813 "EHLO
+	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id <S262576AbREVQWu>; Tue, 22 May 2001 12:22:50 -0400
+Date: Tue, 22 May 2001 12:22:39 -0400
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Me <bodnar42@bodnar42.dhs.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] include/linux/coda.h
+Message-ID: <20010522122239.A32535@cs.cmu.edu>
+Mail-Followup-To: David Woodhouse <dwmw2@infradead.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Me <bodnar42@bodnar42.dhs.org>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <E152DEZ-0001y7-00@the-village.bc.nu> <26524.990547044@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <26524.990547044@redhat.com>; from dwmw2@infradead.org on Tue, May 22, 2001 at 04:57:24PM +0100
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tony Hoyle writes:
-> Richard Gooch wrote:
-> 
-> > In fact, hopefully he's still in a dark mood, and he may take up the
-> > suggestion to bounce mails of the following type:
-> > - MIME encoded
-> > - HTML encoded
-> > - quoted printables (those stupid "=20" things are particuarly hard to
-> >   read).
-> 
-> Surely it'd be better to get the list to filter them through stripmime?
-> 
-> I'd be tempted to put a message at the top at the same time:
-> "*WARNING* The message below was sent by someone too clueless to 
-> configure their email client properly"
+On Tue, May 22, 2001 at 04:57:24PM +0100, David Woodhouse wrote:
+> The kernel compiles quite happily with compilers which aren't targetted 
+> specifically at Linux -- the CODA compatibility cruft being the one 
+> exception. I often just comment out the CODA includes from <linux/fs.h> to 
+> get round the same problem.
 
-Well, while that would be somewhat satisfying, there is a problem if
-the message gets corrupted by this. And since some people send to the
-list without being subscribed (or, like me, have duplicate filtering),
-they'll never see that their message was mangled as it passed through
-the list.
+Well, the original idea for having all that compatibility cruft in
+coda.h was that the identical header could be used both by userspace,
+and as part of the kernel code of all Coda ports.
 
-Nope, a bounce is better. If you're going to do these things, feedback
-is essential. The bounce isn't meant to offend the sender, it's
-designed to let them know what's happening.
+But with problems like these popping up and the silly thing is just
+turning into an unmaintainable mess of #ifdef bloat.
 
-				Regards,
+#include <linux/coda.h> can be taken out of linux/fs.h when I change a
+few lines of code. In fact with those changes all Coda related headers
+can be moved from include/linux/ to fs/coda/, although coda.h contains
+the 'exported interface' and should probably remain in include/linux.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+At least this will solve your problem as long as Coda isn't compiled
+into the kernel, but not the reported problem of compiling a Linux
+kernel on a different (Coda supported) OS without using a properly
+configured cross-compiler.
+
+I will try cleaning things up by having a common 'coda.h' for all
+platforms (and userspace) and platform specific 'coda_types.h' files
+which define missing types and such. It would definitely get rid of a
+lot of the bloat, and probably make things somewhat easier to maintain.
+
+Jan
+
+btw. Coda is not an acronym, no need to capitalize it.
+

@@ -1,70 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265024AbRGWXkG>; Mon, 23 Jul 2001 19:40:06 -0400
+	id <S265149AbRGWXnq>; Mon, 23 Jul 2001 19:43:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265042AbRGWXj4>; Mon, 23 Jul 2001 19:39:56 -0400
-Received: from oboe.it.uc3m.es ([163.117.139.101]:53257 "EHLO oboe.it.uc3m.es")
-	by vger.kernel.org with ESMTP id <S265024AbRGWXjh>;
-	Mon, 23 Jul 2001 19:39:37 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200107232339.f6NNdXB30979@oboe.it.uc3m.es>
-Subject: what's the semaphore in requests for?
-To: "linux kernel" <linux-kernel@vger.kernel.org>
-Date: Tue, 24 Jul 2001 01:39:33 +0200 (MET DST)
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S265042AbRGWXng>; Mon, 23 Jul 2001 19:43:36 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:13446 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S265193AbRGWXnU>;
+	Mon, 23 Jul 2001 19:43:20 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15196.46734.280781.653712@pizda.ninka.net>
+Date: Mon, 23 Jul 2001 16:43:10 -0700 (PDT)
+To: Andrew Friedley <saai@swbell.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: pppoe patch in 2.4.7 results - still problem
+In-Reply-To: <000901c112d6$a1a30000$0200a8c0@loki>
+In-Reply-To: <000901c112d6$a1a30000$0200a8c0@loki>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-What's the semaphore field in requests for?  Are driver writers supposed
-to be using it?
 
-The reason I ask is that I've been chasing an smp bug in a block driver
-of mine for a week.  The bug only shows up in 2.4 kernels (not in same
-code under 2.2.18) and only with smp ("nosmp" squashes it).  It only
-shows up when running dd in user space copying from my device to
-a disk device.  It doesn't show when copying to /dev/null.
+Andrew Friedley writes:
+ > In response to the pppoe patch to try to fix panics with pppoe and smp:
+ > When running napster/napigator from a windows machine on my LAN, the router
+ > running 2.4.7 still panics.  It has not been long enough to tell if the
+ > "random" panics have been fixed for sure, but so far, so good - 1 day, 4
+ > hour uptime right now.  Here is a paste of a napster-induced panic with
+ > kernel 2.4.7 followed by the ksymoops output.
 
-The symptom is a complete kernel lockup. Not even sysreq works.
-It's driving me crazy. It sems to get very easy to trigger in 2.4.6,
-while it was hard or impossible to trigger back in 2.4.0 and 2.4.1.
+This looks like perhaps a specific problem with the 8139too
+patches to support single-copy checksumming.  I could be wrong,
+but it looks nothing like the pppoe OOPS traces.
 
-I have added the sgi kdb stuff in order to get a handle. For a while I
-was getting some ouches from the nmi watchdog saying that one cpu was
-locked, followed by a jump into the kdb monitor. But I'm not getting that
-now.  In any case I haven't learned how to use kdb properly yet, so
-I couldn't make out much from the stack info.
-
-The bug maybe shows on write from a local disk to the device too, but
-it's at least 10 times as hard to trigger that way.  It does NOt trigger
-when writing to the device from /dev/zero.  I'm not sure it shows in all
-my smp machines either ..  most of them have been slightly unstable
-under 2.4.* anyway, locking up on timescales of 1 day to a week.  Could
-be apic (asus and dell bx), but I was running my own machine noapic and
-it didn't affect the bug.
-
-The block driver is largely in userspace. All the kernel half does
-is transfer requests to a local queue (with the io lock still held, of
-course). The userspace daemon cycles continously doing ioctls that
-copy the requests (bh by bh) into userspace, where its treated via
-some networking calls, then return an ack via another ioctl. 
-
-The drivers local queue is protected by a semaphore.  The thing that
-puzzles me is that the bug shows only when copying to a disk device,
-not to /dev/null, through userspace! Is it that the lifetime of a
-request is much longer than expected?
-
-I have some impression that the bug is dependent on speed too. If I
-limit the speed of the device, I think I don't see the bug - but
-definitive results are very hard to come by because I have to copy
-about 2GB from the device to be sure of triggering it.
-
-Oh well, if anyone has any insight or any plans for further hunting,
-please let me know.
-
-Peter
+Later,
+David S. Miller
+davem@redhat.com

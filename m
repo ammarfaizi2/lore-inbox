@@ -1,65 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264478AbTFIPjr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 11:39:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264479AbTFIPjr
+	id S264476AbTFIPtF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 11:49:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264483AbTFIPtF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 11:39:47 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:15368 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S264478AbTFIPjq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 11:39:46 -0400
-Date: Mon, 9 Jun 2003 08:53:09 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Frank Cusack <fcusack@fcusack.com>
-cc: Trond Myklebust <trond.myklebust@fys.uio.no>, <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] nfs_unlink() race (was: nfs_refresh_inode: inode number
- mismatch)
-In-Reply-To: <20030609065141.A9781@google.com>
-Message-ID: <Pine.LNX.4.44.0306090848080.12683-100000@home.transmeta.com>
+	Mon, 9 Jun 2003 11:49:05 -0400
+Received: from a172-183.dialup.iol.cz ([194.228.183.172]:4224 "EHLO
+	penguin.localdomain") by vger.kernel.org with ESMTP id S264476AbTFIPtC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 11:49:02 -0400
+Date: Mon, 9 Jun 2003 16:58:35 +0200 (CEST)
+From: =?iso-8859-2?Q?Marcel_=A9ebek?= <sebek64@post.cz>
+X-X-Sender: sebek@penguin
+To: chris.ricker@genetics.utah.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Documentation/Changes
+Message-ID: <Pine.LNX.4.56.0306091541160.515@penguin>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Good job.
+this trivial patch fixes file Documentation/Changes in 2.5.70 kernel.
 
-On Mon, 9 Jun 2003, Frank Cusack wrote:
-> 
-> 1) Don't unhash the dentry after silly-renaming.  In 2.2, each fs is
->    responsible for doing a d_delete(), in 2.4 it happens in the VFS and
->    I think it was just an oversight that the 2.4 VFS doesn't consider
->    sillyrename (considering the code and comments that are cruft).
-> 
->    This preserves the unlinked-but-open semantic, but breaks rmdir.  So
->    it's not a clear winner from a semantics POV.  dentry->d_count is
->    always correct, which sounds like a plus.
-> 
->    The patch to make this work is utterly simple, which is a big plus.
 
-I think your #1 is "obviously correct", but the fact that it breaks rmdir 
-sounds like a bummer. However, since it only breaks rmdir when 
-silly-renames exist - and since silly-renames should only happen when you 
-have a file descriptor still open - I'd be inclined to say that this is 
-the right behaviour.
+========================================================================
+diff -urN linux-2.5.70/Documentation/Changes linux-2.5.70-new/Documentation/Changes
+--- linux-2.5.70/Documentation/Changes	Mon Jun  9 16:01:32 2003
++++ linux-2.5.70-new/Documentation/Changes	Mon Jun  9 16:02:55 2003
+@@ -141,7 +141,7 @@
+ root of the Linux source for more information.
 
-> 2b) Since this is really only a problem when the parent dir goes away,
->     do the same as above but only scan the queue in nfs_rmdir(), and
->     mark any entries whose d_parent is "us".
-> 
->     I've included this in favor of (2a) because it's simpler and should
->     give better performance in the common case.
+ Module-Init-Tools
+---------
++-----------------
 
-This sounds like a hack, even if it happens to work.
+ A new module loader is now in the kernel that requires module-init-tools
+ to use.  It is backward compatible with the 2.4.x series kernels.
+@@ -300,8 +300,8 @@
+ --------
+ o  <ftp://ftp.kernel.org/pub/linux/utils/kernel/ksymoops/v2.4/>
 
-I dunno. I'm personally inclined to prefer (1), since that seems to just
-fix a bug in the VFS layer and doesn't introduce any conceptual
-complexity. But I think I'd let Trond make the final decision, I don't 
-hate (2b) enough to say "over my dead body!".
+-Modutils
+---------
++Module-Init-Tools
++-----------------
+ o  <ftp://ftp.kernel.org/pub/linux/kernel/people/rusty/modules/>
 
-Trond?
+ Mkinitrd
+========================================================================
 
-		Linus
+-- 
+Marcel Sebek - sebek64 at post dot cz
+
 

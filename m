@@ -1,79 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262145AbUCDU4c (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 15:56:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262147AbUCDU4c
+	id S262124AbUCDUyc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 15:54:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262137AbUCDUyc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 15:56:32 -0500
-Received: from kinesis.swishmail.com ([209.10.110.86]:63245 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S262145AbUCDU4Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 15:56:24 -0500
-Message-ID: <40479AD2.60909@techsource.com>
-Date: Thu, 04 Mar 2004 16:08:34 -0500
-From: Timothy Miller <miller@techsource.com>
+	Thu, 4 Mar 2004 15:54:32 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:47087 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262124AbUCDUyZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 15:54:25 -0500
+Message-ID: <40479774.9070308@mvista.com>
+Date: Thu, 04 Mar 2004 12:54:12 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Peter Williams <peterw@aurema.com>
-CC: Bill Davidsen <davidsen@tmr.com>, Rik van Riel <riel@surriel.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] O(1) Entitlement Based Scheduler
-References: <Pine.LNX.3.96.1040228161308.8661A-100000@gatekeeper.tmr.com> <40412A6D.6060800@aurema.com>
-In-Reply-To: <40412A6D.6060800@aurema.com>
+To: "Amit S. Kale" <amitkale@emsyssoft.com>
+CC: Andrew Morton <akpm@osdl.org>, ak@suse.de, pavel@ucw.cz,
+       linux-kernel@vger.kernel.org, piggy@timesys.com,
+       trini@kernel.crashing.org
+Subject: Re: kgdb support in vanilla 2.6.2
+References: <20040204230133.GA8702@elf.ucw.cz.suse.lists.linux.kernel> <200403041036.58827.amitkale@emsyssoft.com> <20040303211850.05d44b4a.akpm@osdl.org> <200403041059.43439.amitkale@emsyssoft.com>
+In-Reply-To: <200403041059.43439.amitkale@emsyssoft.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Peter Williams wrote:
-
+Amit S. Kale wrote:
+> On Thursday 04 Mar 2004 10:48 am, Andrew Morton wrote:
 > 
-> The O(1) Entitlement Based Scheduler places the equivalent restrictions 
-> on setting task attributes (i.e. shares and caps) as are placed on using 
-> nice and renice.  I.e. ordinary users can only change settings on their 
-> own processes and only if the change is more restricting than the 
-> current setting.  In particular, they cannot increase a task's shares 
-> only decrease them, they can impose or reduce a cap but not release or 
-> increase it and they can change a soft cap to a hard cap but cannot 
-> change a hard cap to a soft cap.
+>>"Amit S. Kale" <amitkale@emsyssoft.com> wrote:
+>>
+>>>Flashing keyboard lights is easy on x86 and x86_64 platforms.
+>>
+>>Please, no keyboards.  Some people want to be able to use kgdboe
+>>to find out why machine number 324 down the corridor just died.
+>>
+>>How about just doing
+>>
+>>
+>>char *why_i_crashed;
+>>
+>>
+>>{
+>>	...
+>>	if (expr1)
+>>		why_i_crashed = "hit a BUG";
+>>	else if (expr2)
+>>		why_i_crashed = "divide by zero";
+>>	else ...
+>>}
+>>
+>>then provide a gdb macro which prints out the string at *why_i_crashed?
 > 
-> Additionally, only root can change the scheduler's tuning parameters.
 > 
-> I hope this alleviates your concerns,
+> If we can afford to do this (in terms of actions that can be done with the 
+> machine being unstable) we can certainly print a console message through gdb.
 
+Not once you are connected to gdb.  The "O" packet can only be sent if the 
+program (i.e. kernel) is running as far as gdb knows.  So you could preceed a 
+connection with this, but could not used it after gdb knows the kernel is stopped.
+> 
+> A stub is free to send console messages to gdb at any time. We can send a 
+> "'O'hex(Page fault at 0x1234)" packet to gdb regardless of whether 
+> CONFIG_KGDB_CONSOLE is configured in. This way kgdb will send this packet to 
+> gdb and then immediately report a segfault/trap. To a user it'll appear as a 
+> message printed from gdb "Page fault at 0x1234" followed by gdb showing a 
+> SIGSEGV etc. The gdb console message should print information other than a 
+> signal number.
+> 
+> -Amit
+> 
 
-I, for one, never had any such concerns.  My concern was about the 
-unpriveledged user begin unable to run certain applications under load 
-without prior approval.
-
-Two philosophical points:
-
-1) Perhaps we are trying too hard to please everyone.  As Linus said, 
-perfect is the enemy of good.  A good scheduler won't work perfectly for 
-everyone's application, but it will work very well for the most 
-important ones.  Perhaps people writing schedulers should compete based 
-on overall throughput and latency, rather than on how well it runs xmms 
-(and other such apps).
-
-2) Perhaps certain apps like xmms are 'broken' can be rewritten to 
-behave better with the new scheduler.  For instance, more buffering, 
-separating the mp3 decoding thread from the thread that feeds 
-/dev/audio, more efficient decoder, a decoder that voluntarily sleeps 
-when it's 'done enough', so that it doesn't get knocked down to a lower 
-priority, a decoder that 'cheats' on audio quality just to maintain low 
-CPU usage when it finds itself being preempted, etc.
-
-
-It bears mentioning that many applications work well with 2.4 because 
-they evolved to work well with the 2.4 scheduler.  The 2.6 scheduler is 
-different.  We shouldn't constrain 2.6 for the sake of old apps.  Those 
-old apps should be rewritten to adapt to the new environment.  "Working 
-well under 2.6" doesn't require any more adaptation than with 2.4, but 
-it does require _different_ adaptation.
-
-This isn't to speak negatively of Con and Nick and others who have 
-attempted to improve upon the 2.6 scheduler.  If they can make old apps 
-work well without impacting the potential that new apps can get out of 
-2.6, then more power to them!
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

@@ -1,30 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271997AbRIDQph>; Tue, 4 Sep 2001 12:45:37 -0400
+	id <S272002AbRIDQsr>; Tue, 4 Sep 2001 12:48:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272008AbRIDQpZ>; Tue, 4 Sep 2001 12:45:25 -0400
-Received: from ra.abo.fi ([130.232.213.1]:51700 "EHLO ra.abo.fi")
-	by vger.kernel.org with ESMTP id <S272002AbRIDQot>;
-	Tue, 4 Sep 2001 12:44:49 -0400
-From: Mikko Huhtala <mhuhtala@abo.fi>
+	id <S272003AbRIDQsh>; Tue, 4 Sep 2001 12:48:37 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:13828 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S272002AbRIDQsc>;
+	Tue, 4 Sep 2001 12:48:32 -0400
+Date: Tue, 4 Sep 2001 13:48:33 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: "John L. Males" <jlmales@softhome.net>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Question Re AC Patch with VM Tuneable Parms for now
+In-Reply-To: <3B943CB0.14656.754C73@localhost>
+Message-ID: <Pine.LNX.4.33L.0109041347370.7626-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15253.1002.189305.674221@barley.abo.fi>
-Date: Tue, 4 Sep 2001 19:40:10 +0300
-To: linux-kernel@vger.kernel.org
-Subject: NFS to Irix server broken again in 2.4.9
-X-Mailer: VM 6.93 under Emacs 20.7.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 4 Sep 2001, John L. Males wrote:
 
-Don't know if this is well-known already. The 2.4.9 kernel NFS client
-does not see all files/directories mounted from an Irix 6.5 NFS server
-(the 32/64-bit cookie problem). Changing NFS versions from 3 to 2 does
-not help. 2.4.8 client works for me, but the problem is apparently
-back in 2.4.9. I am running 2.4.9 with MOSIX 1.3.0 patches, but I do
-not think that those are the cause of the problem.
+> Can someone advise me if the "Make several vm behaviours tunable for
+> now" as of the 2.4.9-ac4 patch are implemented in the kernel .config
+> file?
 
+Some info can be found on http://linux-mm.org/wiki/moin.cgi/PageAging
+(IIRC, but could also be another page on the wiki).
 
-Mikko Huhtala
+cheers,
+
+Rik
+-- 
+IA64: a worthy successor to i860.
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

@@ -1,61 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264218AbUD0RnK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264250AbUD0Rjs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264218AbUD0RnK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 13:43:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264213AbUD0RnJ
+	id S264250AbUD0Rjs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 13:39:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264231AbUD0RjH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 13:43:09 -0400
-Received: from FE-mail04.albacom.net ([213.217.149.84]:57490 "EHLO
-	FE-mail04.sfg.albacom.net") by vger.kernel.org with ESMTP
-	id S264248AbUD0RhL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 13:37:11 -0400
-Message-ID: <001201c42c7e$4c60f2e0$0200a8c0@arrakis>
-Reply-To: "Marco Cavallini" <linux@koansoftware.com>
-From: "Marco Cavallini" <linux@koansoftware.com>
-To: "Sam Ravnborg" <sam@ravnborg.org>
-Cc: "Greg KH" <greg@kroah.com>, <linux-kernel@vger.kernel.org>
-References: <005c01c42b82$60d82f60$0200a8c0@arrakis> <20040426185612.GB28530@kroah.com> <003501c42c24$06e87940$0200a8c0@arrakis> <20040427171737.GB2465@mars.ravnborg.org>
-Subject: Re: Problem with CONFIG_USB_SL811HS
-Date: Tue, 27 Apr 2004 19:37:21 +0200
-Organization: Koan s.a.s.
+	Tue, 27 Apr 2004 13:39:07 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:8596 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S264222AbUD0Re7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 13:34:59 -0400
+Message-ID: <408E99EB.6050203@namesys.com>
+Date: Tue, 27 Apr 2004 10:35:39 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Matthias Andree <ma+rfs@dt.e-technik.uni-dortmund.de>
+CC: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: I oppose Chris and Jeff's patch to add an unnecessary	additional
+ namespace to ReiserFS
+References: <1082750045.12989.199.camel@watt.suse.com> <408D3FEE.1030603@namesys.com> <1083000711.30344.44.camel@watt.suse.com> <408D51C4.7010803@namesys.com> <1083006783.30344.102.camel@watt.suse.com> <20040426204037.GA21455@merlin.emma.line.org>
+In-Reply-To: <20040426204037.GA21455@merlin.emma.line.org>
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1409
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In Linux-2.4.26 the problem is in 
-drivers/usb/host/Makefile
+Matthias Andree wrote:
 
-After this block....
-subdir-$(CONFIG_USB_OHCI_AT91) += host
-ifeq ($(CONFIG_USB_OHCI_AT91),y)
- obj-y += host/usb-ohci.o
-endif
-
-...I added this...
-######## Begin new code MCK ##########
-subdir-$(CONFIG_USB_SL811HS) += host
-ifeq ($(CONFIG_USB_SL811HS),y)
- obj-y += host/hc_sl811.o
-endif
-subdir-$(CONFIG_USB_SL811HS_ALT) += host
-ifeq ($(CONFIG_USB_SL811HS_ALT),y)
- obj-y += host/sl811.o
-endif
-######## End new code MCK ##########
-
-There are also minor modifications, but I'm still working on this driver.
-Marco Cavallini
-==============================================
-Koan s.a.s. - Software Engineering  (x86 and ARM)
-Linux solutions for Embedded and Real-Time Software
-  - Intel PCA Developer Network member
-Via Pascoli, 3  - 24121 Bergamo - ITALIA
-Tel./Fax (++39) +35 - 255.235 - www.koansoftware.com
-==============================================
+>
+>If so, the whole discussion is about getting out of the frying pan and
+>into the fire. The traditional approach will then be standards compliant
+>but be out-of-band and outside of the file system name space, the new
+>approach will be outside of the standards, requiring application
+>developers to produce a Linux and a POSIX version.
+>
+>Or am I barking up the wrong tree?
+>
+>  
+>
+There is always friction between standards and innovation.  One should 
+comply with standards unless genuinely innovating.

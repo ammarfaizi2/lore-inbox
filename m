@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266128AbUIECoN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266133AbUIECxZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266128AbUIECoN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 22:44:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266136AbUIECoN
+	id S266133AbUIECxZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 22:53:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266136AbUIECxZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 22:44:13 -0400
-Received: from rproxy.gmail.com ([64.233.170.207]:51251 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S266128AbUIECnB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 22:43:01 -0400
-Message-ID: <9e4733910409041943490b9587@mail.gmail.com>
-Date: Sat, 4 Sep 2004 22:43:01 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: lkml <linux-kernel@vger.kernel.org>, Jaroslav Kysela <perex@suse.cz>
-Subject: Intel ICH - sound/pci/intel8x0.c
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 4 Sep 2004 22:53:25 -0400
+Received: from smtp806.mail.sc5.yahoo.com ([66.163.168.185]:36447 "HELO
+	smtp806.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266133AbUIECxY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 22:53:24 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: external firewire dvd writer
+Date: Sat, 4 Sep 2004 21:53:19 -0500
+User-Agent: KMail/1.6.2
+Cc: Clemens Schwaighofer <cs@tequila.co.jp>
+References: <413A799C.1000505@tequila.co.jp> <413A7B61.2000603@tequila.co.jp>
+In-Reply-To: <413A7B61.2000603@tequila.co.jp>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200409042153.20030.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The joystick PCI ID table in intel8x0.c is not correct. Joysticks and
-MIDI ports are ISA devices and need be located by manual probing. This
-ID table needs to be removed. Joystick and MIDI ports do not have PCI
-IDs.
+On Saturday 04 September 2004 09:35 pm, Clemens Schwaighofer wrote:
+> Clemens Schwaighofer wrote:
+> | Hi,
+> |
+> | I have an external Pioneer DVD writer which I connect via Firewire to my
+> | laptop. So when I turn it on I get this in my dmesg:
+> 
+> and I idiot totaly forgot to give the key information :)
+> 
+> its a 2.6.8.1-mm4 kernel, but I had the same issue with a vaniall
+> 2.6.8.1 kernel
+> 
 
-The PCI IDs in this table are for the ISA bridge chips, not the
-joystick port.  These PC IDs should belong to the PCI bus driver. If I
-fix the PCI bus driver to claim these like it should, joystick support
-won't work any more.
-
-static struct pci_device_id snd_intel8x0_joystick_ids[] = {
-        { 0x8086, 0x2410, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },    /* 82801AA */
-        { 0x8086, 0x2420, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },    /* 82901AB */
-        { 0x8086, 0x2440, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 }, /* ICH2 */
-        { 0x8086, 0x244c, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 }, /* ICH2M */
-        { 0x8086, 0x248c, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },    /* ICH3 */
-        // { 0x8086, 0x7195, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 }, /* 440MX */
-        // { 0x1039, 0x7012, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 }, /* SI7012 */
-        { 0x10de, 0x01b2, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },    /* NFORCE */
-        { 0x10de, 0x006b, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },    /* NFORCE2 */
-        { 0x10de, 0x00db, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },    /* NFORCE3 */
-        { 0, }
-};
-
-2410	82801AA ISA Bridge (LPC)
-2420	82801AB ISA Bridge (LPC)
-2440	82801BA ISA Bridge (LPC)
-244c	82801BAM ISA Bridge (LPC)
-248c	82801CAM ISA Bridge (LPC)
-01b2	nForce ISA Bridge
+Did you compile SCSI CD-ROM support? If you did try loading sr_mod. Works 
+fine here, just don't forget to rmmod sr_mod before turning off the DVD
+as it seems that there is a problem with hot removal either in sr_mod or
+in firewire system (I am inclned to say its sr_mod as sd_mod seems to
+handle surprise removal OK).
 
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+Dmitry

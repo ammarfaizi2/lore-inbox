@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262341AbVCBRRZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262342AbVCBRDS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262341AbVCBRRZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 12:17:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262363AbVCBRPE
+	id S262342AbVCBRDS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 12:03:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbVCBRBu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 12:15:04 -0500
-Received: from rproxy.gmail.com ([64.233.170.205]:50804 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262341AbVCBRM5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 12:12:57 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=UPTU7dDvyfsmQbEVr3LQntOADKA9B52gnOzqAaBNvzoZkmCczrZ8hhCJ7Ez7X10Sdb4abKuNAtEB5/RIN8n92aKDCzm/S+7GJ5PIUui65goPhvMAfCuBQjoZyZmlQsWnYvMpz3LwoocIImu28vKHA2JoXHaEJTEVK+i2aAU3FWM=
-Message-ID: <d120d50005030209123b8db1ae@mail.gmail.com>
-Date: Wed, 2 Mar 2005 12:12:53 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: "MIGUELANXO@telefonica.net" <MIGUELANXO@telefonica.net>
-Subject: Re: 2.6.11: touchpad unresponsive
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3d668208.82083d66@teleline.es>
+	Wed, 2 Mar 2005 12:01:50 -0500
+Received: from imf24aec.mail.bellsouth.net ([205.152.59.72]:12212 "EHLO
+	imf24aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S262360AbVCBQ7R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 11:59:17 -0500
+Date: Wed, 2 Mar 2005 10:58:49 -0600
+From: Tommy Reynolds <Tommy.Reynolds@MegaCoder.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: compilation problem of modules
+Message-Id: <20050302105849.1423f7f7.Tommy.Reynolds@MegaCoder.com>
+In-Reply-To: <4225EBD4.8090302@osdl.org>
+References: <20050302145907.17666.qmail@web53306.mail.yahoo.com>
+	<4225EBD4.8090302@osdl.org>
+X-Mailer: Sylpheed version 1.9.4 (GTK+ 2.4.14; i686-redhat-linux-gnu)
+X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$
+ t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl
+ 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <3d668208.82083d66@teleline.es>
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Wed__2_Mar_2005_10_58_49_-0600_UgiVMaugjnJFKVJk"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 02 Mar 2005 16:55:59 +0100, MIGUELANXO@telefonica.net
-<MIGUELANXO@telefonica.net> wrote:
-> I just compiled 2.6.11 from 2.6.10 config using 'make oldconfig',
-> activate new options to default values (i.e. set "main kernel lock
-> preemtive" to YES).
-> 
-> Booting X in new kernel makes my touchpad very unresponsive. I can't
-> click any longer in the touchpad area, and the touchpad doesn't response
-> when moving in small increments, so the whole experience is quite bad.
-> 
+--Signature=_Wed__2_Mar_2005_10_58_49_-0600_UgiVMaugjnJFKVJk
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-If it is identified as an ALPS touchpad you can try installing Peter
-Osterlund's Synaptics X driver:
+Uttered "Randy.Dunlap" <rddunlap@osdl.org>, spake thus:
 
-           http://web.telia.com/~u89404340/touchpad/
+> compile/build is wrong.
+> a minimum 2.4 kernel build needs at least:
+>=20
+> gcc -c -D__KERNEL__ -DMODULE -O2 -nostdinc proc.c
 
-Alternatively you can restore 2.6.10 behavior with psmouse.proto=exps
-boot option (if psmouse is a module add "options psmouse proto=exps"
-to your /etc/modprobe.conf).
+Don't forget the kernel headers!
 
--- 
-Dmitry
+# gcc -c -D__KERNEL__ -DMODULE -O2 -I/usr/src/linux/include -nostdinc proc.c
+
+and, if you have module symbol versioning turned on, you'll need still more!
+
+--Signature=_Wed__2_Mar_2005_10_58_49_-0600_UgiVMaugjnJFKVJk
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQFCJfDN/0ydqkQDlQERAsBZAJ41pHl9ipogZjotNePgCq9GFFX5rQCeMTZ1
+2jnibU3pUQhYuMz8mxV80eQ=
+=oWYL
+-----END PGP SIGNATURE-----
+
+--Signature=_Wed__2_Mar_2005_10_58_49_-0600_UgiVMaugjnJFKVJk--

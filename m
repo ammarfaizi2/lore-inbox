@@ -1,87 +1,290 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266715AbRGTHsE>; Fri, 20 Jul 2001 03:48:04 -0400
+	id <S266726AbRGTILB>; Fri, 20 Jul 2001 04:11:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266706AbRGTHrz>; Fri, 20 Jul 2001 03:47:55 -0400
-Received: from titan.golden.net ([199.166.210.90]:15572 "EHLO titan.golden.net")
-	by vger.kernel.org with ESMTP id <S266715AbRGTHrl>;
-	Fri, 20 Jul 2001 03:47:41 -0400
-From: "John L. Males" <software_iq@TheOffice.net>
-Organization: Toronto, Ontario, Canada
-To: linux-kernel@vger.kernel.org
-Date: Fri, 20 Jul 2001 03:47:43 -0500
+	id <S266730AbRGTIKw>; Fri, 20 Jul 2001 04:10:52 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:38671 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S266726AbRGTIKn>; Fri, 20 Jul 2001 04:10:43 -0400
+Date: Fri, 20 Jul 2001 01:10:33 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrew Morton <andrewm@uow.edu.au>
+cc: Niels Kristian Bech Jensen <nkbj@image.dk>,
+        "Linux kernel developer's mailing list" 
+	<linux-kernel@vger.kernel.org>
+Subject: Re: Oops in 2.4.7-pre9.
+In-Reply-To: <3B57D541.10312D18@uow.edu.au>
+Message-ID: <Pine.LNX.4.31.0107200104290.718-100000@p4.transmeta.com>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Linux Kernel 2.2.19 Available Memory Bug
-Reply-to: software_iq@TheOffice.net
-Message-ID: <3B57A9DF.10547.A92B31@localhost>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Hello,
-
-Please note I am not on the Kernel Mailing List so do try to copy me
-in with any reply, questions, clarifications, confirmations, et al on
-this bug report.
-
-Before I forget I am using SuSE 6.4 with most of the updates from the
-base applied, most meaning I generally lag a bit behind at times.  I
-am NOT using the SuSE kernel due to bugs introduced into the SuSE
-kernel with the SuSE patches/enhancements.  I am using the Linus
-2.2.19 Kernel with the OpenWall patches.  System is AMD K6-2 500
-based system.  The version of gcc was 2.95.2 to compile the kernel.
-
-The bug I am reporting is that when one sets the amount of memory,
-i.e. 128M, 256M; at the time of booting the 2.2.19 kernel the "Total
-Memory" as reported by KDE, "free", etc is short by a important
-amount.  To be more specific I will detail the results of "free"
-below against the "mem" value passed to the kernel.  Please note for
-the purposes of this test I always had 256MB or ram (2x128MB)
-installed in my system.  The BIOS reports total system memory as
-262144K.
-
-"mem=256m"
-***************
-
-KDE reports 251.09 Total System memory, or 263290880 bytes.
-
-"free -m" indicates "Total Memory" as 251
-"free -k" indicates "Total Memory" as 257120
-"free -k" indicates "Total Memory" as 263290880
-
-The exact same vaules as noted above are indicated for "mem=262144k",
-and "mem=268435546" (256 X 1024 x 1024).
-
-"mem=128m"
-***************
-
-"free -m" indicates "Total Memory" as 124
-"free -k" indicates "Total Memory" as 127344
-"free -k" indicates "Total Memory" as 130400256
 
 
-Regards,
+On Fri, 20 Jul 2001, Andrew Morton wrote:
+>
+> I tested various other possible problems, such as making
+> /sbin/hotplug an elf executable and it looks OK, apart from
+> the /proc problem.
 
-John L. Males
-Software I.Q. Consulting
-Toronto, Ontario
-Canada
-20 July 2001 03:47
-mailto:software_iq@TheOffice.net
-mailto:jlmales@softhome.net
+Actually, there's a double stupidity in the dumpable testing: it should
+really test that the process has a VM, but it should also make sure to
+lock that access properly.
 
------BEGIN PGP SIGNATURE-----
-Version: PGPfreeware 6.5.8 for non-commercial use 
-<http://www.pgp.com>
+This ends up being even more of an issue for ptrace, I think. Sorry for
+the screw-up.  I think the real fix should be something along the lines of
+this (actually, we should move the whole ptrace executable test into
+ptrace_dumpable: right now x86 is the only one that gets the subtle and
+unlikely race with a ptrace and a suid executable right with the memory
+access ordering things).
 
-iQA/AwUBO1fwKPLzhJbmoDZ+EQKQowCfcqeGPdpduaFpTQO1P9XaOlJccHEAn20p
-v0V59vV7rrFEvMQCLwzXyO2V
-=Ezn3
------END PGP SIGNATURE-----
+		Linus
+
+----
+diff -u --recursive --new-file pre9/linux/arch/alpha/kernel/ptrace.c linux/arch/alpha/kernel/ptrace.c
+--- pre9/linux/arch/alpha/kernel/ptrace.c	Fri Jul 20 01:02:50 2001
++++ linux/arch/alpha/kernel/ptrace.c	Fri Jul 20 01:01:43 2001
+@@ -267,7 +267,7 @@
+ 		ret = -EPERM;
+ 		if (child == current)
+ 			goto out;
+-		if ((!child->mm->dumpable ||
++		if ((!ptrace_dumpable(child) ||
+ 		     (current->uid != child->euid) ||
+ 		     (current->uid != child->suid) ||
+ 		     (current->uid != child->uid) ||
+diff -u --recursive --new-file pre9/linux/arch/arm/kernel/ptrace.c linux/arch/arm/kernel/ptrace.c
+--- pre9/linux/arch/arm/kernel/ptrace.c	Fri Jul 20 01:02:50 2001
++++ linux/arch/arm/kernel/ptrace.c	Fri Jul 20 01:01:43 2001
+@@ -596,7 +596,7 @@
+ 	if (request == PTRACE_ATTACH) {
+ 		if (child == current)
+ 			goto out_tsk;
+-		if ((!child->mm->dumpable ||
++		if ((!ptrace_dumpable(child) ||
+ 		    (current->uid != child->euid) ||
+ 		    (current->uid != child->suid) ||
+ 		    (current->uid != child->uid) ||
+diff -u --recursive --new-file pre9/linux/arch/cris/kernel/ptrace.c linux/arch/cris/kernel/ptrace.c
+--- pre9/linux/arch/cris/kernel/ptrace.c	Fri Jul 20 01:02:51 2001
++++ linux/arch/cris/kernel/ptrace.c	Fri Jul 20 01:01:43 2001
+@@ -117,7 +117,7 @@
+ 	if (request == PTRACE_ATTACH) {
+ 		if (child == current)
+ 			goto out_tsk;
+-		if ((!child->mm->dumpable ||
++		if ((!ptrace_dumpable(child) ||
+ 		    (current->uid != child->euid) ||
+ 		    (current->uid != child->suid) ||
+ 		    (current->uid != child->uid) ||
+diff -u --recursive --new-file pre9/linux/arch/i386/kernel/ptrace.c linux/arch/i386/kernel/ptrace.c
+--- pre9/linux/arch/i386/kernel/ptrace.c	Fri Jul 20 01:02:52 2001
++++ linux/arch/i386/kernel/ptrace.c	Fri Jul 20 01:01:43 2001
+@@ -176,7 +176,7 @@
+ 	 	    (current->gid != child->gid)) && !capable(CAP_SYS_PTRACE))
+ 			goto out_tsk;
+ 		rmb();
+-		if (!child->mm->dumpable && !capable(CAP_SYS_PTRACE))
++		if (!ptrace_dumpable(child) && !capable(CAP_SYS_PTRACE))
+ 			goto out_tsk;
+ 		/* the same process cannot be attached many times */
+ 		if (child->ptrace & PT_PTRACED)
+diff -u --recursive --new-file pre9/linux/arch/ia64/kernel/ptrace.c linux/arch/ia64/kernel/ptrace.c
+--- pre9/linux/arch/ia64/kernel/ptrace.c	Fri Jul 20 01:02:52 2001
++++ linux/arch/ia64/kernel/ptrace.c	Fri Jul 20 01:01:43 2001
+@@ -770,7 +770,7 @@
+ 	if (request == PTRACE_ATTACH) {
+ 		if (child == current)
+ 			goto out_tsk;
+-		if ((!child->mm->dumpable ||
++		if ((!ptrace_dumpable(child) ||
+ 		    (current->uid != child->euid) ||
+ 		    (current->uid != child->suid) ||
+ 		    (current->uid != child->uid) ||
+diff -u --recursive --new-file pre9/linux/arch/m68k/kernel/ptrace.c linux/arch/m68k/kernel/ptrace.c
+--- pre9/linux/arch/m68k/kernel/ptrace.c	Fri Jul 20 01:02:52 2001
++++ linux/arch/m68k/kernel/ptrace.c	Fri Jul 20 01:01:43 2001
+@@ -120,7 +120,7 @@
+ 	if (request == PTRACE_ATTACH) {
+ 		if (child == current)
+ 			goto out_tsk;
+-		if ((!child->mm->dumpable ||
++		if ((!ptrace_dumpable(child) ||
+ 		    (current->uid != child->euid) ||
+ 		    (current->uid != child->suid) ||
+ 		    (current->uid != child->uid) ||
+diff -u --recursive --new-file pre9/linux/arch/mips/kernel/ptrace.c linux/arch/mips/kernel/ptrace.c
+--- pre9/linux/arch/mips/kernel/ptrace.c	Fri Jul 20 01:02:52 2001
++++ linux/arch/mips/kernel/ptrace.c	Fri Jul 20 01:01:43 2001
+@@ -68,7 +68,7 @@
+ 	if (request == PTRACE_ATTACH) {
+ 		if (child == current)
+ 			goto out_tsk;
+-		if ((!child->mm->dumpable ||
++		if ((!ptrace_dumpable(child) ||
+ 		    (current->uid != child->euid) ||
+ 		    (current->uid != child->suid) ||
+ 		    (current->uid != child->uid) ||
+diff -u --recursive --new-file pre9/linux/arch/mips64/kernel/ptrace.c linux/arch/mips64/kernel/ptrace.c
+--- pre9/linux/arch/mips64/kernel/ptrace.c	Fri Jul 20 01:02:52 2001
++++ linux/arch/mips64/kernel/ptrace.c	Fri Jul 20 01:01:43 2001
+@@ -64,7 +64,7 @@
+ 	if (request == PTRACE_ATTACH) {
+ 		if (child == current)
+ 			goto out_tsk;
+-		if ((!child->mm->dumpable ||
++		if ((!ptrace_dumpable(child) ||
+ 		    (current->uid != child->euid) ||
+ 		    (current->uid != child->suid) ||
+ 		    (current->uid != child->uid) ||
+@@ -338,7 +338,7 @@
+ 	if (request == PTRACE_ATTACH) {
+ 		if (child == current)
+ 			goto out_tsk;
+-		if ((!child->mm->dumpable ||
++		if ((!ptrace_dumpable(child) ||
+ 		    (current->uid != child->euid) ||
+ 		    (current->uid != child->suid) ||
+ 		    (current->uid != child->uid) ||
+diff -u --recursive --new-file pre9/linux/arch/parisc/kernel/ptrace.c linux/arch/parisc/kernel/ptrace.c
+--- pre9/linux/arch/parisc/kernel/ptrace.c	Fri Jul 20 01:02:52 2001
++++ linux/arch/parisc/kernel/ptrace.c	Fri Jul 20 01:01:43 2001
+@@ -63,7 +63,7 @@
+ 	if (request == PTRACE_ATTACH) {
+ 		if (child == current)
+ 			goto out_tsk;
+-		if ((!child->mm->dumpable ||
++		if ((!ptrace_dumpable(child) ||
+ 		    (current->uid != child->euid) ||
+ 		    (current->uid != child->suid) ||
+ 		    (current->uid != child->uid) ||
+diff -u --recursive --new-file pre9/linux/arch/ppc/kernel/ptrace.c linux/arch/ppc/kernel/ptrace.c
+--- pre9/linux/arch/ppc/kernel/ptrace.c	Fri Jul 20 01:02:53 2001
++++ linux/arch/ppc/kernel/ptrace.c	Fri Jul 20 01:01:43 2001
+@@ -120,7 +120,7 @@
+ 	if (request == PTRACE_ATTACH) {
+ 		if (child == current)
+ 			goto out_tsk;
+-		if ((!child->mm->dumpable ||
++		if ((!ptrace_dumpable(child) ||
+ 		    (current->uid != child->euid) ||
+ 		    (current->uid != child->suid) ||
+ 		    (current->uid != child->uid) ||
+diff -u --recursive --new-file pre9/linux/arch/s390/kernel/ptrace.c linux/arch/s390/kernel/ptrace.c
+--- pre9/linux/arch/s390/kernel/ptrace.c	Fri Jul 20 01:02:53 2001
++++ linux/arch/s390/kernel/ptrace.c	Fri Jul 20 01:01:43 2001
+@@ -235,7 +235,7 @@
+ 	{
+ 		if (child == current)
+ 			goto out;
+-		if ((!child->mm->dumpable ||
++		if ((!ptrace_dumpable(child) ||
+ 		     (current->uid != child->euid) ||
+ 		     (current->uid != child->suid) ||
+ 		     (current->uid != child->uid) ||
+diff -u --recursive --new-file pre9/linux/arch/s390x/kernel/ptrace.c linux/arch/s390x/kernel/ptrace.c
+--- pre9/linux/arch/s390x/kernel/ptrace.c	Fri Jul 20 01:02:53 2001
++++ linux/arch/s390x/kernel/ptrace.c	Fri Jul 20 01:01:43 2001
+@@ -249,7 +249,7 @@
+ 	{
+ 		if (child == current)
+ 			goto out;
+-		if ((!child->mm->dumpable ||
++		if ((!ptrace_dumpable(child) ||
+ 		     (current->uid != child->euid) ||
+ 		     (current->uid != child->suid) ||
+ 		     (current->uid != child->uid) ||
+@@ -435,7 +435,7 @@
+ 	{
+ 		if (child == current)
+ 			goto out;
+-		if ((!child->mm->dumpable ||
++		if ((!ptrace_dumpable(child) ||
+ 		     (current->uid != child->euid) ||
+ 		     (current->uid != child->suid) ||
+ 		     (current->uid != child->uid) ||
+diff -u --recursive --new-file pre9/linux/arch/sh/kernel/ptrace.c linux/arch/sh/kernel/ptrace.c
+--- pre9/linux/arch/sh/kernel/ptrace.c	Fri Jul 20 01:02:53 2001
++++ linux/arch/sh/kernel/ptrace.c	Fri Jul 20 01:01:43 2001
+@@ -184,7 +184,7 @@
+ 	 	    (tsk->gid != child->gid)) && !capable(CAP_SYS_PTRACE))
+ 			goto out_tsk;
+ 		rmb();
+-		if (!child->mm->dumpable && !capable(CAP_SYS_PTRACE))
++		if (!ptrace_dumpable(child) && !capable(CAP_SYS_PTRACE))
+ 			goto out_tsk;
+ 		/* the same process cannot be attached many times */
+ 		if (child->ptrace & PT_PTRACED)
+diff -u --recursive --new-file pre9/linux/arch/sparc/kernel/ptrace.c linux/arch/sparc/kernel/ptrace.c
+--- pre9/linux/arch/sparc/kernel/ptrace.c	Fri Jul 20 01:02:53 2001
++++ linux/arch/sparc/kernel/ptrace.c	Fri Jul 20 01:01:43 2001
+@@ -327,7 +327,7 @@
+ 			pt_error_return(regs, EPERM);
+ 			goto out_tsk;
+ 		}
+-		if((!child->mm->dumpable ||
++		if((!ptrace_dumpable(child) ||
+ 		    (current->uid != child->euid) ||
+ 		    (current->uid != child->uid) ||
+ 		    (current->uid != child->suid) ||
+diff -u --recursive --new-file pre9/linux/arch/sparc64/kernel/ptrace.c linux/arch/sparc64/kernel/ptrace.c
+--- pre9/linux/arch/sparc64/kernel/ptrace.c	Fri Jul 20 01:02:54 2001
++++ linux/arch/sparc64/kernel/ptrace.c	Fri Jul 20 01:01:43 2001
+@@ -177,7 +177,7 @@
+ 			pt_error_return(regs, EPERM);
+ 			goto out_tsk;
+ 		}
+-		if ((!child->mm->dumpable ||
++		if ((!ptrace_dumpable(child) ||
+ 		     (current->uid != child->euid) ||
+ 		     (current->uid != child->uid) ||
+ 		     (current->uid != child->suid) ||
+diff -u --recursive --new-file pre9/linux/fs/proc/base.c linux/fs/proc/base.c
+--- pre9/linux/fs/proc/base.c	Fri Jul 20 01:03:03 2001
++++ linux/fs/proc/base.c	Fri Jul 20 00:59:38 2001
+@@ -670,7 +670,7 @@
+ 	inode->u.proc_i.task = task;
+ 	inode->i_uid = 0;
+ 	inode->i_gid = 0;
+-	if (ino == PROC_PID_INO || task->mm->dumpable) {
++	if (ino == PROC_PID_INO || ptrace_dumpable(task)) {
+ 		inode->i_uid = task->euid;
+ 		inode->i_gid = task->egid;
+ 	}
+diff -u --recursive --new-file pre9/linux/include/linux/mm.h linux/include/linux/mm.h
+--- pre9/linux/include/linux/mm.h	Tue Jul  3 15:42:55 2001
++++ linux/include/linux/mm.h	Fri Jul 20 00:59:22 2001
+@@ -442,6 +442,7 @@
+ extern int access_process_vm(struct task_struct *tsk, unsigned long addr, void *buf, int len, int write);
+ extern int ptrace_readdata(struct task_struct *tsk, unsigned long src, char *dst, int len);
+ extern int ptrace_writedata(struct task_struct *tsk, char * src, unsigned long dst, int len);
++extern int ptrace_dumpable(struct task_struct *tsk);
+
+ /*
+  * On a two-level page table, this ends up being trivial. Thus the
+diff -u --recursive --new-file pre9/linux/kernel/ptrace.c linux/kernel/ptrace.c
+--- pre9/linux/kernel/ptrace.c	Mon Mar 19 12:35:08 2001
++++ linux/kernel/ptrace.c	Fri Jul 20 00:58:46 2001
+@@ -16,6 +16,19 @@
+ #include <asm/pgtable.h>
+ #include <asm/uaccess.h>
+
++int ptrace_dumpable(struct task_struct *task)
++{
++	int dumpable = 0;
++	struct mm_struct *mm;
++
++	task_lock(task);
++	mm = task->mm;
++	if (mm)
++		dumpable = mm->dumpable;
++	task_unlock(task);
++	return dumpable;
++}
++
+ /*
+  * Access another process' address space, one page at a time.
+  */
 

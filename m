@@ -1,34 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281719AbRK0RJd>; Tue, 27 Nov 2001 12:09:33 -0500
+	id <S281663AbRK0RNd>; Tue, 27 Nov 2001 12:13:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281678AbRK0RJR>; Tue, 27 Nov 2001 12:09:17 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:19839 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S281663AbRK0RIt>; Tue, 27 Nov 2001 12:08:49 -0500
-Date: Tue, 27 Nov 2001 12:08:49 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Rob Myers <rob.myers@gtri.gatech.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: netgear ga621 / ns83820
-Message-ID: <20011127120848.A19568@redhat.com>
-In-Reply-To: <1006876165.12853.22.camel@ransom>
-Mime-Version: 1.0
+	id <S281678AbRK0RNY>; Tue, 27 Nov 2001 12:13:24 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:7442 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S281759AbRK0RNH>; Tue, 27 Nov 2001 12:13:07 -0500
+Message-ID: <3C03C96D.B3ACA982@zip.com.au>
+Date: Tue, 27 Nov 2001 09:12:13 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ahmed Masud <masud@googgun.com>
+CC: "'lkml'" <linux-kernel@vger.kernel.org>
+Subject: Re: Unresponiveness of 2.4.16
+In-Reply-To: <Pine.LNX.4.33.0111261825340.15932-100000@xanadu.home> <000901c17723$b641c990$8604a8c0@googgun.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1006876165.12853.22.camel@ransom>; from rob.myers@gtri.gatech.edu on Tue, Nov 27, 2001 at 10:49:25AM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 27, 2001 at 10:49:25AM -0500, Rob Myers wrote:
-> am i wrong in thinking that the ns83820 driver in 2.4.16 should support
-> this card?
+Ahmed Masud wrote:
 > 
-> has anyone else had any success making this card work with the netgear
-> driver since 2.4.10?
+> Just to add to the above something I've experienced:
+> 
+> 2.4.12 - 2.4.14 on a number of AMD Athelon 900 with 256 MB
+> RAM doing serial I/O would miss data while any DISK writes would
+> occure.
 
-No, fibre is not supported as I've not encountered any test hardware yet.  
-It shouldn't be much work to get it going, though.
+Two possibilities suggest themselves:
 
-		-ben
+- Interrupt latency.   Last time I checked (a year ago), the worst-case
+  interrupt latency of the IDE drivers was 80 microseconds on a 500MHz PII.
+  That was with `hdparm -u 1'.   That's pretty good.
+
+  Could you please confirm that you're using `hdparm -u 1' against the
+  relevant disk?
+
+- The serial port is working OK, but the application which is handling
+  serial IO is blocked on a disk read (something got paged out), and
+  that disk read fails to complete by the time the serial port buffer
+  fills up.
+
+  I'll send you a patch which makes the VM less inclined to page things
+  out in the presence of heavy writes, and which decreases read
+  latencies.
+
+Thanks.

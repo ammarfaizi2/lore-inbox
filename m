@@ -1,46 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264646AbSLaRwO>; Tue, 31 Dec 2002 12:52:14 -0500
+	id <S264624AbSLaR5P>; Tue, 31 Dec 2002 12:57:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264654AbSLaRwO>; Tue, 31 Dec 2002 12:52:14 -0500
-Received: from ool-4351594a.dyn.optonline.net ([67.81.89.74]:33550 "EHLO
-	buggy.badula.org") by vger.kernel.org with ESMTP id <S264646AbSLaRwN>;
-	Tue, 31 Dec 2002 12:52:13 -0500
-Date: Tue, 31 Dec 2002 13:00:38 -0500
-Message-Id: <200212311800.gBVI0cM15151@buggy.badula.org>
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>
+	id <S264631AbSLaR5O>; Tue, 31 Dec 2002 12:57:14 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:20430 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
+	id <S264624AbSLaR5N>; Tue, 31 Dec 2002 12:57:13 -0500
+Date: Tue, 31 Dec 2002 10:11:50 -0800
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [PATCH] generic device DMA (dma_pool update)
+To: James Bottomley <James.Bottomley@steeleye.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: NIC with polling support
-In-Reply-To: <87el7yrvso.fsf@Login.CERT.Uni-Stuttgart.DE>
-User-Agent: tin/1.5.12-20020427 ("Sugar") (UNIX) (Linux/2.4.20 (i586))
+Message-id: <3E11DDE6.7050601@pacbell.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en, fr
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+References: <200212311723.gBVHNS502319@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 31 Dec 2002 17:35:19 +0100, Florian Weimer <Weimer@cert.uni-stuttgart.de> wrote:
-> Dear all,
+James Bottomley wrote:
+> David Brownell said:
 > 
-> I guess I'm severe need of a 100BaseTX NIC with polling support in the
-> driver.
+>>The same is true of the slab code, which is a better allocator.  Why
+>>should kernels require an extra allocator, when pci_pool can safely be
+>>eliminated on quite a few systems? 
 > 
-> A special application requires processing of 40,000 packets/second or
-> more, and the interrupt load currently kills the machine (i.e. no
-> scheduling during peak load).
 > 
-> Any suggestions which card I should use?  The driver has to be open
-> source, and the card shouldn't be too expensive (i.e. in the usual
-> price range of brand 100BaseTX NICs).
+> I agree in principle.  But the way to get this to work is to allow the slab 
+> allocater to specify its getpages and freepages in the same way as ctor and 
+> dtor, so it can be fed by dma_alloc_coherent.  Then you can wrapper the slab 
+> allocator to be used across all platforms (rather than only those which are 
+> coherent and have no IOMMU).
 
-As far as I can tell, no driver in 2.4 supports NAPI (aka polling support)
-with the exception of the tg3 driver -- but that's a GigE card.
+Nobody's done that yet, and it's been a couple years now since that point
+was made as a desirable evolution path for pci_pool.  In fact the first
+(only!) step on that path was the dma_pool update I just posted.
 
-The Adapter DuraLAN/Starfire driver (which I maintain) has been modified to
-support NAPI, but those changes have not yet been included in the official
-kernel. I can mail you the patch, if you want to give it a try. The cards
-are on the expensive side, but not overly so (about $100/port).
+Modifying the slab allocator like that means passing extra parameters around
+(for dma_addr_t), causing extra register pressure even for non-dma allocations.
+I have a hard time seeing that not slow things down, even on x86 (etc) where
+we know we can already get all the benefits of the slab allocator without any
+changes to that critical code.
 
-Ion
 
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
+> The benefit mempool has over slab is its guaranteed minimum pool size and 
+> hence guaranteed non-failing allocations as long as you manage pool resizing 
+> correctly.  I suppose this is primarily useful for storage devices, which 
+> sometimes need memory that cannot be obtained from doing I/O.
+
+Yes:  not all drivers need (or want) such a memory-reservation layer.
+
+
+> However, you can base mempool off slab modified to use dma_alloc_coherent() 
+> and get the benefits of everything.
+
+I'd say instead that drivers which happen to need the protection against
+failures that mempool provides can safely layer that behavior on top of
+any allocator they want.  (Modulo that buglet, which requires them to be
+layered on top of kmalloc.)
+
+Which means that the mempool discussion is just a detour, it's not an
+implementation tool for any kind of dma_pool but is instead an option
+for drivers (in block i/o paths) to use on top of a dma_pool allocator.
+
+- Dave
+
+

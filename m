@@ -1,58 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276162AbRJCMm1>; Wed, 3 Oct 2001 08:42:27 -0400
+	id <S276159AbRJCMoh>; Wed, 3 Oct 2001 08:44:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276159AbRJCMmS>; Wed, 3 Oct 2001 08:42:18 -0400
-Received: from janeway.cistron.net ([195.64.65.23]:12557 "EHLO
-	janeway.cistron.net") by vger.kernel.org with ESMTP
-	id <S276153AbRJCMmK>; Wed, 3 Oct 2001 08:42:10 -0400
-Date: Wed, 3 Oct 2001 14:42:36 +0200
-From: Wichert Akkerman <wichert@cistron.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        linux-lvm@sistina.com
-Subject: Re: [linux-lvm] Re: partition table read incorrectly
-Message-ID: <20011003144236.A31796@cistron.nl>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	linux-kernel@vger.kernel.org, linux-lvm@sistina.com
-In-Reply-To: <20011002202934.G14582@wiggy.net> <E15oUUf-0005Xw-00@the-village.bc.nu> <20011002220053.H14582@wiggy.net> <20011002150820.N8954@turbolinux.com> <20011003142633.A16089@cistron.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011003142633.A16089@cistron.nl>; from wichert@cistron.nl on Wed, Oct 03, 2001 at 02:26:33PM +0200
+	id <S276170AbRJCMo1>; Wed, 3 Oct 2001 08:44:27 -0400
+Received: from hermes.toad.net ([162.33.130.251]:51117 "EHLO hermes.toad.net")
+	by vger.kernel.org with ESMTP id <S276166AbRJCMoY>;
+	Wed, 3 Oct 2001 08:44:24 -0400
+Subject: Re: [PATCH] PnPBIOS additional fixes
+To: linux-kernel@vger.kernel.org
+Date: Wed, 3 Oct 2001 08:44:23 -0400 (EDT)
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <20011003124423.78EAB58B@thanatos.toad.net>
+From: jdthood@home.dhs.org (Thomas Hood)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> # uname -a
+> Linux crusoe.alcove-fr 2.4.10-ac4 #2 Wed Oct 3 11:20:19 CEST 2001 i586 unknown
+> # cd /proc/bus/pnp
+> # ls
+> boot  devices
 
-Here are the first 512 bytes for the disk which the kernel gets
-wrong (/dev/sdb):
+Good ...
 
-000000 48 4d 01 00 00 00 00 00 00 04 00 00 00 10 00 00
-000010 00 10 00 00 00 20 00 00 00 80 00 00 00 a0 00 00
-000020 00 48 01 00 00 f0 01 00 00 00 41 00 47 59 75 35
-000030 50 30 6a 63 58 57 45 42 74 38 64 44 74 70 51 6d
-000040 31 6a 50 38 57 41 31 4e 5a 46 39 65 00 00 00 00
-000050 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-*
-0000a0 00 00 00 00 00 00 00 00 00 00 00 00 76 67 5f 75
-0000b0 73 65 72 00 00 00 00 00 00 00 00 00 00 00 00 00
-0000c0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-*
-000120 00 00 00 00 00 00 00 00 00 00 00 00 63 6c 6f 75
-000130 64 31 30 30 31 37 38 30 32 30 38 00 00 00 00 00
-000140 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-*
-0001a0 00 00 00 00 00 00 00 00 00 00 00 00 08 00 00 00
-0001b0 01 00 00 00 01 00 00 00 02 00 00 00 70 90 23 02
-0001c0 01 00 00 00 00 20 00 00 1b 11 00 00 80 00 00 00
-0001d0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-*
-0001f0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 55 aa
+> # ls boot/
+> 00  01  02  03  04  05  06  07  08  09  0b  0c  0d  0e
+> # cat devices 
+> 00	020cd041	06:01:00	0003
+> 01	010cd041	05:00:00	0003
+> 02	0002d041	08:01:01	0003
+> 03	0000d041	08:00:01	0003
+> 04	0001d041	08:02:01	0003
+> 05	000bd041	08:03:01	0003
+> 06	0303d041	09:00:00	0003
+> 07	040cd041	0b:80:00	0003
+> 08	0008d041	04:01:00	0003
+> 09	030ad041	06:04:00	0003
+> 0b	020cd041	05:00:00	0003
+> 0c	020cd041	05:00:00	0003
+> 0d	030ed041	06:05:00	0180
+> 0e	130fd041	09:02:00	0088
+> # cat boot/* > /dev/null
+> # lspnp -b
+> 00 PNP0c02 bridge controller: ISA
+> 01 PNP0c01 memory controller: RAM
+> 02 PNP0200 system peripheral: DMA controller
+> 03 PNP0000 system peripheral: programmable interrupt controller
+> 04 PNP0100 system peripheral: system timer
+> 05 PNP0b00 system peripheral: real time clock
+> 06 PNP0303 input device: keyboard
+> 07 PNP0c04 reserved: other
+> 08 PNP0800 multimedia controller: audio
+> 09 PNP0a03 bridge controller: PCI
+> 0b PNP0c02 memory controller: RAM
+> 0c PNP0c02 memory controller: RAM
+> 0d PNP0e03 bridge controller: PCMCIA
+> 0e PNP0f13 input device: mouse
+> # lspnp   
+> 00 PNP0c02 bridge controller: ISA
+> 01 PNP0c01 memory controller: RAM
+> 02 PNP0200 system peripheral: DMA controller
+> 03 PNP0000 system peripheral: programmable interrupt controller
+> 04 PNP0100 system peripheral: system timer
+> 05 PNP0b00 system peripheral: real time clock
+> 06 PNP0303 input device: keyboard
+> 07 PNP0c04 reserved: other
+> 08 PNP0800 multimedia controller: audio
+> 09 PNP0a03 bridge controller: PCI
+> 0b PNP0c02 memory controller: RAM
+> 0c PNP0c02 memory controller: RAM
+> 0d PNP0e03 bridge controller: PCMCIA
+> 0e PNP0f13 input device: mouse
 
-Wichert.
+Also, "lspnp -bv" should work and "lspnp -v" should fail.
 
+Thanks for testing.
 -- 
-  _________________________________________________________________
- /       Nothing is fool-proof to a sufficiently talented fool     \
-| wichert@wiggy.net                   http://www.liacs.nl/~wichert/ |
-| 1024D/2FA3BC2D 576E 100B 518D 2F16 36B0  2805 3CB8 9250 2FA3 BC2D |
+Thomas Hood
+(Don't reply to the From: address but to jdthood_AT_yahoo.co.uk)

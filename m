@@ -1,42 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264586AbUEaJ1y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbUEaJtk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264586AbUEaJ1y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 05:27:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264588AbUEaJ1y
+	id S261205AbUEaJtk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 05:49:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbUEaJtk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 05:27:54 -0400
-Received: from fw.osdl.org ([65.172.181.6]:63619 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264586AbUEaJ1x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 05:27:53 -0400
-Date: Mon, 31 May 2004 02:27:13 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Peter Osterlund <petero2@telia.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       trond.myklebust@fys.uio.no
-Subject: Re: Linux 2.6.7-rc2
-Message-Id: <20040531022713.1e6985ef.akpm@osdl.org>
-In-Reply-To: <m3y8n93qak.fsf@telia.com>
-References: <Pine.LNX.4.58.0405292349110.1632@ppc970.osdl.org>
-	<m3y8n93qak.fsf@telia.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 31 May 2004 05:49:40 -0400
+Received: from web51007.mail.yahoo.com ([206.190.38.138]:29064 "HELO
+	web51007.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261205AbUEaJtj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 May 2004 05:49:39 -0400
+Message-ID: <20040531094939.74138.qmail@web51007.mail.yahoo.com>
+Date: Mon, 31 May 2004 02:49:39 -0700 (PDT)
+From: Shobhit Mathur <shobhitmmathur@yahoo.com>
+Subject: [LKML]kmalloc -contiguous locations ?
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Osterlund <petero2@telia.com> wrote:
->
->  If I put "#if 0" around the *wdata assignment in nfs_writepage_sync,
->  the stack usage goes down to 36, so it looks like gcc is building a
->  temporary structure on the stack and then copies the whole thing to
->  *wdata.
+Hello,
 
-aww, crap.
+I would like to know whether kmalloc() guarantees
+virtually contiguous memory locations ? 
+Is there a limit on the amount of contiguous memory
+that can be returned by kmalloc() ?
 
->  Does this construct save stack space for any version of gcc? Maybe the
->  code should be changed to do a memset() followed by explicit
->  initialization of the non-zero member variables instead.
+- Thank you
 
-yes, we should do that.
+- Shobhit Mathur
+
+
+	
+		
+__________________________________
+Do you Yahoo!?
+Friends.  Fun.  Try the all-new Yahoo! Messenger.
+http://messenger.yahoo.com/ 

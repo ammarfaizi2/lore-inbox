@@ -1,33 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132120AbRA0I1s>; Sat, 27 Jan 2001 03:27:48 -0500
+	id <S132248AbRA0I3a>; Sat, 27 Jan 2001 03:29:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131943AbRA0I1j>; Sat, 27 Jan 2001 03:27:39 -0500
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:31029 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S132119AbRA0I1b>; Sat, 27 Jan 2001 03:27:31 -0500
-Message-ID: <3A721322.56E4A161@ngforever.de>
-Date: Fri, 26 Jan 2001 17:15:30 -0700
+	id <S132109AbRA0I3W>; Sat, 27 Jan 2001 03:29:22 -0500
+Received: from moutvdom00.kundenserver.de ([195.20.224.149]:27977 "EHLO
+	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S132125AbRA0I1s>; Sat, 27 Jan 2001 03:27:48 -0500
+Message-ID: <3A720BDF.A9AAC58A@ngforever.de>
+Date: Fri, 26 Jan 2001 16:44:31 -0700
 From: Thunder from the hill <thunder@ngforever.de>
 X-Mailer: Mozilla 4.76 [en]C-CCK-MCD QXW03240  (WinNT; U)
 X-Accept-Language: de,en-US
 MIME-Version: 1.0
-To: James Sutherland <jas88@cam.ac.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: hotmail not dealing with ECN
-In-Reply-To: <Pine.SOL.4.21.0101261139150.15526-100000@orange.csi.cam.ac.uk>
+To: "Michael B. Trausch" <fd0man@crosswinds.net>, linux-kernel@vger.kernel.org
+CC: "Steven N. Hirsch" <shirsch@adelphia.net>,
+        "David S. Miller" <davem@redhat.com>
+Subject: Re: hotmail can't deal with ECN
+In-Reply-To: <Pine.LNX.4.21.0101260149180.11818-100000@fd0man.accesstoledo.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Every single connection to ECN-broken sites would work as normal - it
-> would just take an extra few seconds. Instead of "Hotmail doesn't
-> work!" it becomes "Hrm... Hotmail is fscking slow, but Yahoo is fine. I'll
-> use Yahoo". A few million of those, and suddenly Hotmail isn't so hot...
-I think Yahoo's cables will become hot then instead. And hot cables mean
-slower connections.
-So what?
+> Don't they understand that Linux is actually a system that is growing to
+> be very popular?
+That's why they ignore and don't support it.
 
 Thunder
 ---

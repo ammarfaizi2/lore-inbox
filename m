@@ -1,86 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263429AbTC2OxU>; Sat, 29 Mar 2003 09:53:20 -0500
+	id <S263430AbTC2PBT>; Sat, 29 Mar 2003 10:01:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263430AbTC2OxU>; Sat, 29 Mar 2003 09:53:20 -0500
-Received: from klesk.etc.utt.ro ([193.226.10.1]:19160 "EHLO klesk.etc.utt.ro")
-	by vger.kernel.org with ESMTP id <S263429AbTC2OxS>;
-	Sat, 29 Mar 2003 09:53:18 -0500
-Message-ID: <56648.194.138.39.56.1048950517.squirrel@webmail.etc.utt.ro>
-Date: Sat, 29 Mar 2003 17:08:37 +0200 (EET)
-Subject: Re: Compile error 2.5.66-mm1 (haven't tried with 2.5.66 vanilla)
-From: "Szonyi Calin" <sony@etc.utt.ro>
-To: <bwindle@fint.org>
-In-Reply-To: <Pine.LNX.4.43.0303290950390.470-100000@morpheus>
-References: <44829.194.138.39.56.1048947941.squirrel@webmail.etc.utt.ro>
-        <Pine.LNX.4.43.0303290950390.470-100000@morpheus>
-X-Priority: 3
-Importance: Normal
-Cc: <linux-kernel@vger.kernel.org>
-X-Mailer: SquirrelMail (version 1.2.8)
+	id <S263433AbTC2PBS>; Sat, 29 Mar 2003 10:01:18 -0500
+Received: from ns.avalon.ru ([195.209.229.227]:38218 "EHLO smtp.avalon.ru")
+	by vger.kernel.org with ESMTP id <S263430AbTC2PBS> convert rfc822-to-8bit;
+	Sat, 29 Mar 2003 10:01:18 -0500
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: fixme: possibly bug in some sch_* qdiscs?
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+Date: Sat, 29 Mar 2003 18:12:12 +0300
+Message-ID: <E1B7C89B8DCB084C809A22D7FEB90B384095@frodo.avalon.ru>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: fixme: possibly bug in some sch_* qdiscs?
+Thread-Index: AcL2BZM+86EVewkGQc+3orAwc2LBoQ==
+From: "Dimitry V. Ketov" <Dimitry.Ketov@avalon.ru>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks
+The matter of problem is:
+Some qdiscs (e.g sch_prio) don't destory their filter lists, when
+someone deletes qdisc from interface without explicit filter deleting
+before:
+# tc qdisc add dev eth0 root handle 1: prio
+# tc filter add dev eth0 parent 1: pref 1 protocol ip u32 match icmp
+type 8 0xff classid 1:1
+# tc qdisc del dev eth0 root
+As i see (fixme), last tc command forces rtnetlink code to call
+tc_get_qdisc() from net/sched/sch_api.c, which in turn, calls
+qdisc_destroy() from net/sched/sch_generic.c, which calls qdisc
+operations'  reset(), then destroy(), then frees memory if needed.
+Unfortunately prio_destroy() from net/sched/sch_prio.c code does not
+implement (i start digging 2.4.18 code, then checked 2.4.20, then
+2.5.66) explicit destroying its filter_list from private data, and losts
+that pointer.
+I think it causes memory leackage, when we repeating 'tc qdisc del'
+operation without explicit 'tc filter del' operations. Next obvious
+effect, that in turn cls_u32.o module does not decrement its usage
+counter, but increment it on each 'tc filter add' command. And, at some
+circumstances 'tc filter show' command shows a few filters, after I
+added only one! (think it sees last filters from previous instances of
+sch_prio)
+Fortunately but only sch_cbq.c, sch_atm.c do their destroy() in the
+right way...
+Which kernel maintainer I need to contact with to fix that problem (if
+it is the problem, of course ;)
 
-"Sleepy" Calin :-) (seem that I forgot to atach the config)
-
-
-Burton Windle said:
-> http://bugzilla.kernel.org/show_bug.cgi?id=499
->
-> --
-> Burton Windle                           burton@fint.org
-> Linux: the "grim reaper of innocent orphaned children."
->           from /usr/src/linux-2.4.18/init/main.c:461
->
->
-> On Sat, 29 Mar 2003, Sony Calin wrote:
->
->> Hello
->>
->> Compiling 2.5.66-mm1 gives me the following error
->>
->>    ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o
->> init/mounts.o init/initramfs.o
->>         ld -m elf_i386  -T arch/i386/vmlinux.lds.s
->> arch/i386/kernel/head.o
->> arch/i386/kernel/init_task.o   init/built-in.o --start-group
->> usr/built-in.o  arch/i386/kernel/built-in.o
->> arch/i386/mm/built-in.o  arch/i386/mach-default/built-in.o
->> kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o
->> security/built-in.o  crypto/built-in.o  lib/lib.a
->> arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o
->> arch/i386/pci/built-in.o  net/built-in.o --end-group  -o
->> .tmp_vmlinux1
->> sound/built-in.o: In function `cs4232_pnp_remove':
->> sound/built-in.o(.text+0xaf51): undefined reference to `local symbols
->> in discarded section .exit.text'
->> make: *** [.tmp_vmlinux1] Error 1
->>
->> Program versions and config are atached.
->>
->> Bye
->> Calin
->>
->> --
->> # fortune
->> fortune: write error on /dev/null - please empty the bit bucket
->>
->>
->>
-
--- 
-# fortune
-fortune: write error on /dev/null --- please empty the bit bucket
-
-
------------------------------------------
-This email was sent using SquirrelMail.
-   "Webmail for nuts!"
-http://squirrelmail.org/
-
-
+Dmitry.

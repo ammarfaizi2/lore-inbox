@@ -1,20 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135706AbRDXSCg>; Tue, 24 Apr 2001 14:02:36 -0400
+	id <S135708AbRDXSEQ>; Tue, 24 Apr 2001 14:04:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135708AbRDXSC1>; Tue, 24 Apr 2001 14:02:27 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:52752 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S135704AbRDXSCQ>; Tue, 24 Apr 2001 14:02:16 -0400
-Date: Tue, 24 Apr 2001 15:02:00 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
+	id <S135704AbRDXSEG>; Tue, 24 Apr 2001 14:04:06 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:24449 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S135707AbRDXSDv>; Tue, 24 Apr 2001 14:03:51 -0400
+Date: Tue, 24 Apr 2001 14:03:44 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
 To: Chin-Tser Huang <chuang@cs.utexas.edu>
-Cc: <alad@hss.hns.com>, <JColgan@safestory.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Greetings!
+cc: alad@hss.hns.com, JColgan@safestory.com, linux-kernel@vger.kernel.org
+Subject: Re: Greetings! <kill children first>
 In-Reply-To: <Pine.GSO.4.33.0104241253470.178-100000@fugue.cs.utexas.edu>
-Message-ID: <Pine.LNX.4.33.0104241501300.17635-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.3.95.1010424135734.18005A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -23,19 +22,18 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 On Tue, 24 Apr 2001, Chin-Tser Huang wrote:
 
 > Because there was a mail whose subject is "Children first in fork".
+> 
 
-> > 1 in 6 children are victimized before the age of 16.
+Gotta watch out for source-code that uses a 'reaper' to kill children
+from SIGCHLD. We'll get auto-mail from pervert.snuffer.com.
 
-Considering these statistics, I'm all for running children
-first after fork ...
+Cheers,
+Dick Johnson
 
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
 
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
 

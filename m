@@ -1,41 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262605AbTDAPi6>; Tue, 1 Apr 2003 10:38:58 -0500
+	id <S262597AbTDAPhS>; Tue, 1 Apr 2003 10:37:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262608AbTDAPi6>; Tue, 1 Apr 2003 10:38:58 -0500
-Received: from imr1.ericy.com ([208.237.135.240]:54007 "EHLO imr1.ericy.com")
-	by vger.kernel.org with ESMTP id <S262605AbTDAPi5>;
-	Tue, 1 Apr 2003 10:38:57 -0500
-From: "Philippe Meloche (LMC)" <Philippe.Meloche@ericsson.ca>
-To: davidel@xmailserver.org
-Cc: linux-kernel@vger.kernel.org
-Message-ID: <3E89B55F.1010207@lmc.ericsson.se>
-Date: Tue, 01 Apr 2003 10:50:55 -0500
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20021120 Netscape/7.01
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-Subject: Process limits for epoll tests
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262600AbTDAPhS>; Tue, 1 Apr 2003 10:37:18 -0500
+Received: from [198.107.178.126] ([198.107.178.126]:38163 "EHLO
+	fairfax-66.promisemark.com") by vger.kernel.org with ESMTP
+	id <S262597AbTDAPhR>; Tue, 1 Apr 2003 10:37:17 -0500
+Date: Tue, 1 Apr 2003 10:48:14 -0500
+To: "Grover, Andrew" <andrew.grover@intel.com>,
+       Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5.66] Enormous interrupt load with ACPI
+Message-ID: <20030401154808.GA3899@bittwiddlers.com>
+References: <F760B14C9561B941B89469F59BA3A84725A239@orsmsx401.jf.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <F760B14C9561B941B89469F59BA3A84725A239@orsmsx401.jf.intel.com>
+User-Agent: Mutt/1.5.4i
+From: Matthew Harrell <lists-sender-14a37a@bittwiddlers.com>
+X-Delivery-Agent: TMDA/0.68 (Shut Out)
+X-Primary-Address: mharrell@bittwiddlers.com
+Reply-To: Matthew Harrell 
+	  <mharrell-dated-1049644100.21de6f@bittwiddlers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-We tried to reproduce the tests you've done with /dev/epoll and we've 
-come to ask us some questions.
+I'll have to check for the polarity and trigger but I have essentially the
+same problem.  I've just been running without acpi on my laptop for months
+since it won't work with it.  In my case, though, I do have the sound card
+on the same interrupt
 
-1. How did you managed httperf to perform more than 1024 connections 
-when it's using select() ?
+{25}: cat /proc/interrupts 
+           CPU0       
+  0:   11772951          XT-PIC  timer
+  1:         28          XT-PIC  i8042
+  2:          0          XT-PIC  cascade
+  8:          4          XT-PIC  rtc
+  9:         51          XT-PIC  VIA8233
+ 10:        263          XT-PIC  uhci-hcd, uhci-hcd, eth0
+ 11:     506669          XT-PIC  ENE Technology Inc CB1410 Cardbus Contr, eth1
+ 12:         35          XT-PIC  i8042
+ 14:      89289          XT-PIC  ide0
+ 15:          1          XT-PIC  ide1
+NMI:          0 
+LOC:          0 
+ERR:          0
+MIS:          0
 
-2. Did you get some errors like client-timeout or connections reset when 
-you were doing your tests ?
 
-3. How much time did a burst test ( 27000 connections and 2 calls per 
-connection ) last and how many sample did httperf
-    took during those tests.
+And my laptop freezes solid when I try to even run with acpi on.  I think
+I even fixed my acpi dsdt table but I haven't been able to check due to this
+other problem
 
-Thanks a lot
 
-Philippe Meloche
-philippe.meloche@lmc.ericsson.se
+
+
+> polarity 1 = active high
+> trigger 3 = level
+> 
+> Can you look at /proc/interrupts and tell me if irq 9 is shared with
+> anyone else, especially PCI devices?
+
+-- 
+  Matthew Harrell                           Microwaves frizz your heir...
+  Bit Twiddlers, Inc.
+  mharrell@bittwiddlers.com     

@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268762AbUJKK3n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268771AbUJKKx3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268762AbUJKK3n (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 06:29:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268765AbUJKK3n
+	id S268771AbUJKKx3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 06:53:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268775AbUJKKx3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 06:29:43 -0400
-Received: from smtp.sys.beep.pl ([195.245.198.13]:60941 "EHLO smtp.sys.beep.pl")
-	by vger.kernel.org with ESMTP id S268762AbUJKK3k convert rfc822-to-8bit
+	Mon, 11 Oct 2004 06:53:29 -0400
+Received: from a26.t1.student.liu.se ([130.236.221.26]:55231 "EHLO
+	mail.drzeus.cx") by vger.kernel.org with ESMTP id S268771AbUJKKx1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 06:29:40 -0400
-From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Organization: SelfOrganizing
-To: linux-kernel@vger.kernel.org
-Subject: Re: udev: what's up with old /dev ?
-Date: Mon, 11 Oct 2004 12:29:01 +0200
-User-Agent: KMail/1.7.1
-References: <200410102315.i9ANF7OI019460@hacksaw.org> <047CCB21-1B66-11D9-96AD-000D9352858E@linuxmail.org>
-In-Reply-To: <047CCB21-1B66-11D9-96AD-000D9352858E@linuxmail.org>
+	Mon, 11 Oct 2004 06:53:27 -0400
+Message-ID: <416A6623.9000105@drzeus.cx>
+Date: Mon, 11 Oct 2004 12:53:23 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040919)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200410111229.02054.arekm@pld-linux.org>
-X-Authenticated-Id: arekm 
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Choosing scatter/gather limits
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 11 of October 2004 11:14, Felipe Alfaro Solana wrote:
-> On Oct 11, 2004, at 01:15, Hacksaw wrote:
-> >> The very first thing init does is open /dev/console, and if it doesn't
-> >> exist the entire boot hangs.
-> >
-> > This raises a question: Would it be a useful thing to make a modified
-> > init
-> > that could run udev before it does anything else?
->
-> FC3t2 boots from an "initrd" image that, among other things, mounts a
-> tmpfs over "/dev" and creates "console", "null", "pts" and then
-> proceeds to load "init".
-... and it ignores root= kernel cmdline option. rootfs is hardcoded in initrd 
-which is very ugly.
+I've been adding scatter/gather support for the MMC host driver I'm 
+writing. I cannot find any documentation on how to chose the limits though.
 
-Creating /dev entries on rootfs from initrd without hardcoding rootfs device 
-is quite problematic.
--- 
-Arkadiusz Mi¶kiewicz                    PLD/Linux Team
-http://www.t17.ds.pwr.wroc.pl/~misiek/  http://ftp.pld-linux.org/
+The device is an ISA device capable of DMA and PIO transfers. The 
+scatter/gather system seems to be designed for PCI but I figured it 
+could be used here aswell. Should save the time needed to shuffle stuff 
+into a common buffer (or doing a lot of requests).
+
+When in DMA mode the maximum segment size is 64kB (since ISA DMA cannot 
+transfer larger blocks). The maximum sector limit should perhaps be 128 
+then. I don't know if 512 bytes per sector is something you can rely on. 
+The MMC cards can (in theory) choose any sector size they want.
+
+In PIO mode the segment size and sector count doesn't have an upper 
+limit. I just traverse the scatter list as I read data.
+
+The segment counts are also unlimited since these parts are handled in 
+software.
+
+So how do I choose these values? The segment counts affect memory usage 
+(since I have to allocate the scatterlist) but the others are just a 
+matter of how much data can be stuffed into one request. Should they be 
+set to 0xffffffff then?
+
+Rgds
+Pierre Ossman

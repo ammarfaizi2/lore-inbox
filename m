@@ -1,61 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264602AbTLKJK6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 04:10:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264604AbTLKJK6
+	id S264829AbTLKJVJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 04:21:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264830AbTLKJVJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 04:10:58 -0500
-Received: from mail05.inetu.net ([209.235.192.122]:6924 "EHLO mail05.inetu.net")
-	by vger.kernel.org with ESMTP id S264602AbTLKJK4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 04:10:56 -0500
-Message-ID: <01f101c3bfc8$246948f0$00f7fea9@unisoft.net>
-From: "san" <sanjeev@unisoftindia.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: nmi_watchdog_disable
-Date: Thu, 11 Dec 2003 14:51:03 +0530
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Thu, 11 Dec 2003 04:21:09 -0500
+Received: from massena-4-82-67-197-146.fbx.proxad.net ([82.67.197.146]:46235
+	"EHLO perso.free.fr") by vger.kernel.org with ESMTP id S264829AbTLKJVH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 04:21:07 -0500
+From: Duncan Sands <baldrick@free.fr>
+To: David Brownell <david-b@pacbell.net>
+Subject: Re: [linux-usb-devel] Re: [OOPS,  usbcore, releaseintf] 2.6.0-test10-mm1
+Date: Thu, 11 Dec 2003 10:21:05 +0100
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+References: <Pine.LNX.4.44L0.0312081754480.2034-100000@ida.rowland.org> <200312101854.44636.baldrick@free.fr> <3FD77766.4060305@pacbell.net>
+In-Reply-To: <3FD77766.4060305@pacbell.net>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200312111021.05518.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi mates
+On Wednesday 10 December 2003 20:43, David Brownell wrote:
+> Duncan Sands wrote:
+> > On Wednesday 10 December 2003 18:34, David Brownell wrote:
+> >>>Unfortunately, usb_physical_reset_device calls usb_set_configuration
+> >>>which takes dev->serialize.
+> >>
+> >>Not since late August it doesn't ...
+> >
+> > In current 2.5 bitkeeper it does.
+>
+> usb_physical_reset_device() does not call usb_set_configuration()
+> except in the known-broken (for other reasons too!) "firmware changed"
+> path.  Known-broken, but not yet removed since nobody has reported
+> running into that or the other deadlock; the real fix is force
+> re-enumeration of the device.
 
-Greetings to everybody
+Still, it could be changed into a call to usb_physical_set_configuration
+while we're waiting for a real fix, right?
 
-I am a newbie to compile this linux kernel compilation.
+Ciao,
 
-I am trying to compile the kernel which supported ARM processor
-(SA1110-Assabet)
-
-While compiling i am getting the error as followed.
-
-CC      init/version.o
-LD      init/built-in.o
-LD      .tmp_vmlinux1
-arch/arm/mach-sa1100/built-in.o(.text+0xdf8): In function
-sa11x0_pm_prepare':
-undefined reference to `nmi_watchdog_disable'
-arch/arm/mach-sa1100/built-in.o(.text+0xe10): In function
-sa11x0_pm_finish':
-undefined reference to `nmi_watchdog_enable'
-make: *** [.tmp_vmlinux1] Error 1
-
-
-1. when i was grepping the nmi_watchdog i found this in nmi.c files located
-at arch/i386/kernel
-  arch/ppc/kernel folders , but it is not available at arm folder.
-
-2. Why do i need power managment, even if i am disabling it in .config using
-make menuconfig.
-
-any patches or nmi.c for arm processor.?
-
-
-regds
-san
-
-
-
+Duncan.

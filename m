@@ -1,62 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266643AbUGLL6m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266658AbUGLMB2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266643AbUGLL6m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 07:58:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266655AbUGLL6m
+	id S266658AbUGLMB2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 08:01:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266725AbUGLMB2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 07:58:42 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:31158 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S266643AbUGLL6g (ORCPT
+	Mon, 12 Jul 2004 08:01:28 -0400
+Received: from mail.dif.dk ([193.138.115.101]:40681 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S266658AbUGLMB0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 07:58:36 -0400
-Date: Mon, 12 Jul 2004 13:50:03 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Daniel Phillips <phillips@istop.com>, sdake@mvista.com,
-       David Teigland <teigland@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Minneapolis Cluster Summit, July 29-30
-Message-ID: <20040712115003.GV3933@marowsky-bree.de>
-References: <200407050209.29268.phillips@redhat.com> <200407101657.06314.phillips@redhat.com> <1089501890.19787.33.camel@persist.az.mvista.com> <200407111544.25590.phillips@istop.com> <20040711210624.GC3933@marowsky-bree.de> <1089615523.2806.5.camel@laptop.fenrus.com> <20040712100547.GF3933@marowsky-bree.de> <20040712101107.GA31013@devserv.devel.redhat.com> <20040712102124.GH3933@marowsky-bree.de> <20040712102818.GB31013@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040712102818.GB31013@devserv.devel.redhat.com>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.6i
+	Mon, 12 Jul 2004 08:01:26 -0400
+Date: Mon, 12 Jul 2004 14:00:00 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Roger Luethi <rl@hellgate.ch>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: via-rhine breaks with recent Linus kernels : probe of 0000:00:09.0
+ failed with error -5
+In-Reply-To: <20040712115408.GA31854@k3.hellgate.ch>
+Message-ID: <Pine.LNX.4.56.0407121357320.24721@jjulnx.backbone.dif.dk>
+References: <8A43C34093B3D5119F7D0004AC56F4BC082C7F9E@difpst1a.dif.dk>
+ <20040712080933.GA9221@k3.hellgate.ch> <Pine.LNX.4.56.0407121317130.24721@jjulnx.backbone.dif.dk>
+ <20040712115408.GA31854@k3.hellgate.ch>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2004-07-12T12:28:19,
-   Arjan van de Ven <arjanv@redhat.com> said:
+On Mon, 12 Jul 2004, Roger Luethi wrote:
 
-> > Sure, but the network IO is isolated from the main process via a _very
-> > careful_ non-blocking IO using sockets library, so that works out well.
-> ... which of course never allocates skb's ? ;)
+> On Mon, 12 Jul 2004 13:27:17 +0200, Jesper Juhl wrote:
+> > Making this change to 2.6.8-rc1 has no effect for me :
+> >
+> [...]
+> >
+> > But, copying the driver from 2.6.7-mm7 to 2.6.8-rc1 works like a charm.
+> Thanks. <sigh> Not knowing the cause, especially considering that the
+> bug mysteriously vanished on my box makes me nervous. That there is a
+> serious problem in a mainline -rc doubly so.
+> I'll try to reproduce on a different box as soon as I get around to
+> it, hopefully tonight. If you could help tracking down the culprit
+> in via-rhine that would be great. Basically, the differences between
+> those drivers are 9 experimental patches I posted on June 15 on netdev
+> (attached).
 
-No, the interprocess communication does not; it's local sockets. I think
-Alan (Robertson) even has a paper on this. It's really quite well
-engineered, with a non-blocking poll() implementation based on signals
-and stuff. Oh well.
+Sure thing, I'll start testing those and see if I can track it down. I'll
+get back to you as soon as possible - I might not get the time to test it
+completely today, but at least tomorrow I should have the time for it.
 
-> > But again, I'd rather like to see this solved (memory pools for
-> > userland, PF_ etc), because it's relevant for many scenarios requiring
-> PF_ is not enough really ;) 
-> You need to force GFP_NOFS etc for several critical parts, and well, by
-> being in kernel you can avoid a bunch of these allocations for real, and/or
-> influence their GFP flags
-
-True enough, but I'm somewhat unhappy with this still. So whenever we
-have something like that we need to move it into the kernel space?
-(pvmove first, and now the clustering etc.) Can't we come up with a way
-to export this flag to user-space?
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-High Availability & Clustering	    \ ever tried. ever failed. no matter.
-SUSE Labs, Research and Development | try again. fail again. fail better.
-SUSE LINUX AG - A Novell company    \ 	-- Samuel Beckett
-
+--
+Jesper Juhl <juhl-lkml@dif.dk>

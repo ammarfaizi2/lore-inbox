@@ -1,100 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261344AbUJXAwl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261350AbUJXBEl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261344AbUJXAwl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 20:52:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbUJXAwk
+	id S261350AbUJXBEl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 21:04:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbUJXBEk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 20:52:40 -0400
-Received: from p508EF532.dip.t-dialin.net ([80.142.245.50]:61570 "EHLO
-	oscar.local.net") by vger.kernel.org with ESMTP id S261372AbUJXAvp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 20:51:45 -0400
-Date: Sun, 24 Oct 2004 02:51:42 +0200
-From: Patrick Mau <mau@oscar.ping.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Wrong calculation of load average ?
-Message-ID: <20041024005142.GA26209@oscar.prima.de>
-Reply-To: Patrick Mau <mau@oscar.ping.de>
+	Sat, 23 Oct 2004 21:04:40 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:52120 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261350AbUJXBEg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 21:04:36 -0400
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Florian Schmidt <mista.tapas@gmx.net>
+Cc: Timothy Miller <miller@techsource.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041022010212.53117f35@mango.fruits.de>
+References: <4176E08B.2050706@techsource.com>
+	 <20041022010212.53117f35@mango.fruits.de>
+Content-Type: text/plain
+Date: Sat, 23 Oct 2004 21:04:34 -0400
+Message-Id: <1098579874.29081.135.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo everyone,
+On Fri, 2004-10-22 at 01:02 +0200, Florian Schmidt wrote:
+> Maybe a graphics card is too coslty to develop and implement. I would really
+> like to see such a project for an open soundcard. I mean how expensive can
+> it be to slap a dsp plus some DA/AD's on a pci board? A simple 4in/4out card
+> doing up to 48/16 or even 96/24 could probably be developed much cheaper
+> than a graphics card. And it could serve as a test on how people would react
+> to such an "open" hardware product.
 
-I'm using a BK snapshot of linux 2.6 from today and have a strange
-problem with an otherwise stable SMP System. The calculated load average
-seems to "wrap around".
+I think Florian is on to something.  The market for pro audio hardware
+is WAY more forgiving than 3D cards.  There are many, many smaller
+companies doing quite well.  This is still a business where some guy in
+his garage in Utah (MetaSonix) designs and builds effects pedals by
+hand, and a band like U2 will hear one somewhere and immediately send
+their people down to scoop up every MetaSonix box in NYC...  Unlike in
+the computer industry, people are not easily fooled by hype and
+marketing, they are professionals and know what sounds good.
 
-The exact kernel version is:
-Linux oscar 2.6.10-2.6bk #1 SMP Sat Oct 23 16:45:50 CEST 2004
+The big players are companies like DigiDesign and MoTU, where what
+people really need is the software, but they bundle it with
+sometimes-good, sometimes-bad, always-overpriced hardware so it's a
+little harder to figure out how hard you are being screwed.  The
+DigiDesign Mbox for example is the absolute entry-level Pro Tools rig.
+It consists of a crappy USB (!) sound interface, 2 in/2 out, no DSP,
+plus a dumbed down version their software of course, and they charge
+like $450 for it.  If you want something decent, say a FireWire
+interface with analog pres and a SHARC DSP, you are looking at
+$800-2000.
 
-Below is the output of a looping 'cat /proc/loadavg'.
-The load drops to near-zero and then wraps to 1024. 
+They are making money hand over fist.  A good chunk of the market is
+people who _need_ a DAW, and cost is often no object.  Even the most
+Luddite recording engineers, people who master to analog tape and get
+their vocal sound by plugging the mic into a crappy guitar amp, have to
+use Pro Tools to edit and track because the alternative is things like
+"window edits", where you literally cut out a square of tape with a
+razor to splice in a new take.
 
-I already looked at the code involved but I am unable to see how this
-could happen. Timer interrupts are occuring on both CPU's:
+Ever heard of an "iLok" aka a "Pro Tools Key"?  It's a USB
+authentication key that you can buy at almost any music store.  Because,
+of course, once you have the Pro Tools rig, if you want to do things
+like sync to SMPTE, or import another file format, please insert your
+key and have your credit card ready...
 
-root@oscar] cat /proc/interrupts
-CPU0       CPU1
-17159225   17408595    IO-APIC-edge  timer
+I could go on and on, but I think you get the picture - there is a huge
+market out there, dominated by crappy software, bundled with good
+hardware.  It's like if the Microsoft tax were 75%.  On the other hand
+there is a lot of _amazing_ proprietary software that is not tied to any
+hardware.  And of course there are some great Linux audio apps.
+Unfortunately there is no "open" audio hardware available, and currently
+with the exception of RME Linux audio users are mostly stuck with the
+low end stuff.
 
-The system is a dual P3 450Mhz (Asus P2B-DS), ACPI not compiled in,
-Preempt disabled, no regparams, but 4K stacks. 2.6.9 vanilla did not
-show these symptoms. System performance is not affected at all, but exim
-refuses to deliver mail ;)
+For example, no FireWire audio interfaces are supported, because the
+people who make them make WAY too much money selling software upgrades.
+So we are stuck reverse engineering consumer and semi-pro soundcards.
+The ALSA developers are too busy fixing stupid bugs caused by the
+chronic lack of docs for crappy integrated sound hardware, and vendors
+who release completely different and incompatible variations of their
+cheap laptop AC97 card, just to make it a few cents cheaper...  no one
+has had the time, inclination, and ability to reverse engineer a real
+device.  Besides, reverse engineering even simple devices like sound
+cards is a losing battle, as soon as you figure it out then hardware
+makers find some new corner to cut...
 
-The gcc used is:
-[root@oscar] gcc --version
-gcc (GCC) 3.3.5 (Debian 1:3.3.5-1)
+If there were one decent, sub-$500 piece of open sound hardware (no
+offense to RME but they are definitely at the high end of the market) it
+would sell like hotcakes.  People on LAU would be lining up around the
+block, Windows and Mac users too.  There are more than a few would-be
+Linux audio systems integrators, who _know_ they could do better than
+the proprietary folks, but are waiting for any acceptable hardware to
+become available.
 
-I also tried a gcc 3.4 branch, but that didn't help either.
-This report is based on a kernel compiled with gcc 3.3
+How much would a 6in/6out FireWire interface, with XLR and 1/4"
+connections on the chassis or via a dongle, decent DA/AD converters, and
+a SHARC DSP cost to produce?  A guitar level input with trim, like on
+the old Tascam 4-tracks, would be a very nice feature; many cards claim
+you can plug a guitar into them but the impedance is wrong.  You could
+offer a version with more DSP power, and worse quality DAC/ADC, for low
+powered/embedded/stomp box apps, and maybe one with better converters
+and less DSP power for high end systems. 
 
-[root@oscar] /opt/gcc/bin/gcc --version
-gcc (GCC) 3.4.3 20041017 (prerelease)
+Anyway, my point is that Nvidia and ATI are very, very good at what they
+do.  Digi & their ilk were the first to market, made a killing and are
+now fat and lazy and resting on their laurels, just begging to be taken
+down...
 
-I'd appreciate any comments,
-Patrick
+;-P
 
-[root@oscar] while true ; do cat /proc/loadavg ; sleep 10 ; done
-112.95 1.94 2.54 1/139 25916
-94.81 1.71 2.46 1/139 25918
-79.47 1.49 2.38 1/139 25920
-66.56 1.29 2.31 1/139 25925
-55.56 1.08 2.23 1/139 25927
-46.25 0.88 2.15 1/139 25929
-38.59 0.74 2.09 1/139 25931
-31.89 0.55 2.01 1/139 25933
-26.21 0.36 1.94 1/139 25935
-21.41 0.19 1.86 2/139 25937
-17.35 0.02 1.79 1/139 25939	<--- here
-13.92 1006.85 1.72 1/139 25941
-11.01 973.53 1.64 1/139 25943
-8.55 941.31 1.57 1/139 25945
-6.46 910.15 1.50 1/139 25947
-4.70 880.02 1.43 7/139 25949
-3.28 850.89 1.37 1/139 25960
-2.16 822.74 1.31 1/139 25970
-1.14 795.50 1.25 1/142 25981
-0.41 769.19 1.20 1/140 25983	<--- and here
-941.66 743.72 1.13 1/158 26114
-796.19 719.08 1.07 1/140 26164
-673.09 695.25 1.01 1/140 26167
-568.84 672.19 0.95 1/140 26169
-480.61 649.89 0.88 1/140 26171
-405.95 628.33 0.82 1/140 26173
-342.77 607.48 0.76 1/140 26175
-289.30 587.31 0.69 1/139 26177
-244.14 567.82 0.64 1/139 26179
-205.91 548.97 0.58 1/139 26181
-173.48 530.73 0.52 1/139 26183
-146.04 513.09 0.46 1/139 26185
-122.82 496.03 0.40 1/139 26187
-103.17 479.53 0.35 3/139 26189
-86.77 463.63 0.30 1/139 26194
-72.81 448.23 0.26 2/139 26196
-60.85 433.31 0.20 1/139 26198
+Lee
+
 

@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264919AbUE0SNH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264941AbUE0SPO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264919AbUE0SNH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 14:13:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264923AbUE0SNG
+	id S264941AbUE0SPO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 14:15:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264933AbUE0SPN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 14:13:06 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36062 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264919AbUE0SNE
+	Thu, 27 May 2004 14:15:13 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:34973 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264923AbUE0SPJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 14:13:04 -0400
-Date: Thu, 27 May 2004 19:13:02 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: FabF <fabian.frederick@skynet.be>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+	Thu, 27 May 2004 14:15:09 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Thu, 27 May 2004 11:15:06 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: viro@parcelfarce.linux.theplanet.co.uk
+cc: FabF <fabian.frederick@skynet.be>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
 Subject: Re: [2.6.7-rc1-mm1] lp int copy_to_user replaced
-Message-ID: <20040527181301.GR12308@parcelfarce.linux.theplanet.co.uk>
-References: <1085679127.2070.21.camel@localhost.localdomain> <20040527180118.GQ12308@parcelfarce.linux.theplanet.co.uk> <1085681215.2070.27.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1085681215.2070.27.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040527180118.GQ12308@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.58.0405271106240.12678@bigblue.dev.mdolabs.com>
+References: <1085679127.2070.21.camel@localhost.localdomain>
+ <20040527180118.GQ12308@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 27, 2004 at 08:06:55PM +0200, FabF wrote:
-> On Thu, 2004-05-27 at 20:01, viro@parcelfarce.linux.theplanet.co.uk
-> wrote:
-> > On Thu, May 27, 2004 at 07:32:08PM +0200, FabF wrote:
-> > > Andrew,
-> > > 
-> > > 	Here's a patch to have standard __put_user for integer transfers in lp
-> > > driver.Is it correct ?
-> > 
-> > What the hell for?  copy_to_user()/copy_from_user() is perfectly OK here.
-> > 
-> And why the hell use generic functions when we have neat small type
-> exchange macros ?
+On Thu, 27 May 2004 viro@parcelfarce.linux.theplanet.co.uk wrote:
 
-We have different definitions of "neat", apparently.
+> On Thu, May 27, 2004 at 07:32:08PM +0200, FabF wrote:
+> > Andrew,
+> > 
+> > 	Here's a patch to have standard __put_user for integer transfers in lp
+> > driver.Is it correct ?
+> 
+> What the hell for?  copy_to_user()/copy_from_user() is perfectly OK here.
+
+Andrew love __put_user() against __copy_to_user() :-) We had a similar 
+discussion last week.
+
+
+
+- Davide
+

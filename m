@@ -1,68 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265901AbUBPUdg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 15:33:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265902AbUBPUdg
+	id S265843AbUBPUjG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 15:39:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265896AbUBPUjF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 15:33:36 -0500
-Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:56502 "EHLO
-	mailout.schmorp.de") by vger.kernel.org with ESMTP id S265901AbUBPUdM
+	Mon, 16 Feb 2004 15:39:05 -0500
+Received: from pfepb.post.tele.dk ([195.41.46.236]:35191 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S265843AbUBPUjD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 15:33:12 -0500
-Date: Mon, 16 Feb 2004 21:33:10 +0100
-From: Marc Lehmann <pcg@schmorp.de>
-To: bert hubert <ahu@ds9a.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: UTF-8 practically vs. theoretically in the VFS API
-Message-ID: <20040216203310.GF17015@schmorp.de>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>, linux-kernel@vger.kernel.org
-References: <200402150006.23177.robin.rosenberg.lists@dewire.com> <20040214232935.GK8858@parcelfarce.linux.theplanet.co.uk> <200402150107.26277.robin.rosenberg.lists@dewire.com> <Pine.LNX.4.58.0402141827200.14025@home.osdl.org> <20040216183616.GA16491@schmorp.de> <Pine.LNX.4.58.0402161040310.30742@home.osdl.org> <4031197C.1040909@pobox.com> <200402161948.i1GJmJi5000299@81-2-122-30.bradfords.org.uk> <Pine.LNX.4.58.0402161141140.30742@home.osdl.org> <20040216202142.GA5834@outpost.ds9a.nl>
+	Mon, 16 Feb 2004 15:39:03 -0500
+Date: Mon, 16 Feb 2004 21:54:31 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Olaf Hering <olh@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: some combinations of make targets do not work anymore
+Message-ID: <20040216205431.GB2977@mars.ravnborg.org>
+Mail-Followup-To: Olaf Hering <olh@suse.de>,
+	linux-kernel@vger.kernel.org
+References: <20040128180111.GA23021@suse.de> <20040128194549.GB2695@mars.ravnborg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040216202142.GA5834@outpost.ds9a.nl>
-X-Operating-System: Linux version 2.4.24 (root@cerebro) (gcc version 2.95.4 20011002 (Debian prerelease)) 
+In-Reply-To: <20040128194549.GB2695@mars.ravnborg.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 16, 2004 at 09:21:42PM +0100, bert hubert <ahu@ds9a.nl> wrote:
-> The remaining zit is that all these represent '..':
+On Wed, Jan 28, 2004 at 08:45:49PM +0100, Sam Ravnborg wrote:
+> On Wed, Jan 28, 2004 at 07:01:11PM +0100, Olaf Hering wrote:
+> > 
+> > Stuff like that used to work with 2.4 kernels, 2.6.2-rc2-mm2 runs make
+> > oldconfig and depmod, but 'all' and 'modules_install' is not executed.
+> > Bug or feature? target is ppc32.
+> 
+> Unexpected to say it. I have noticed some time ago, but since noone complained...
+> I will take a look.
 
-No, they don't. Read the UTF-8 definition...
+Hi Olaf.
 
-> This in itself is not a problem, the kernel will only recognize 2E 2E as the
-> real .., but it does show that 'document.doc' might be encoded in a myriad
-> ways.
+I took a look at this. The logic that I introduced when moving the *config
+target to scripts/kconfig/Makefile had this side-effect.
+To fix it I have to do too much changes to the top-level Makefile - and I do
+not see such a big benefit here.
 
-No, it can only be encoded in exactly one way *in UTF-8*. It can of course
-be encoded differently in other encodings, but in UTF-8, there is only a
-single representation. There are no ambiguities.
+So unless someone comes with good arguments I will let the current non-optimal
+behaviour stay.
 
-> So some guidance about using only the simplest possible encoding might be
-> sensible, if we don't want the kernel to know about utf-8.
-
-Fortunately, this has all already been taken care of, and is not a problem.
-
-I mean, the _definition_ of UTF-8 works. Wether specific applications
-(wether in the kernel or apps) work is a different question. But at
-least the specification is rather clear.
-
-Compare this to the URL definition, which only hints that you don't know
-the encoding, and therefore, the interpretation as text, of a URL unless
-you have an extra channel that communicates it.
-
-While possible, this channel does not exist in practise, creating big
-problems for people writing i18n-ized web applications.
-
-The thing is that the kernel certainly _works_ on a very basic level, but
-I think the situaiton can be improved by making it clear how to interpret
-filenames, which currently is not the case.
-
--- 
-      -----==-                                             |
-      ----==-- _                                           |
-      ---==---(_)__  __ ____  __       Marc Lehmann      +--
-      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
-      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
-    The choice of a GNU generation                       |
-                                                         |
+	Sam

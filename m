@@ -1,52 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261220AbUCKMXz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 07:23:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbUCKMXz
+	id S261215AbUCKMbG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 07:31:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbUCKMbG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 07:23:55 -0500
-Received: from amazone.ujf-grenoble.fr ([193.54.238.254]:59076 "EHLO
-	amazone.ujf-grenoble.fr") by vger.kernel.org with ESMTP
-	id S261220AbUCKMXw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 07:23:52 -0500
-From: Mickael Marchand <marchand@kde.org>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.4-mm1
-Date: Thu, 11 Mar 2004 13:23:38 +0100
-User-Agent: KMail/1.6.1
-Cc: linux-kernel@vger.kernel.org
-References: <20040310233140.3ce99610.akpm@osdl.org> <200403111017.33363.marchand@kde.org> <20040311030607.22706063.akpm@osdl.org>
-In-Reply-To: <20040311030607.22706063.akpm@osdl.org>
-MIME-Version: 1.0
+	Thu, 11 Mar 2004 07:31:06 -0500
+Received: from 68-184-155-122.cpe.ga.charter.com ([68.184.155.122]:61965 "EHLO
+	wally.rdlg.net") by vger.kernel.org with ESMTP id S261215AbUCKMbB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 07:31:01 -0500
+Date: Thu, 11 Mar 2004 07:31:00 -0500
+From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: NVIDIA and 2.6.4?
+Message-ID: <20040311123100.GE17760@rdlg.net>
+Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="lkTb+7nhmha7W+c3"
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200403111323.39014.marchand@kde.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[snip]
-> > while I am at it, I am running a 64 bits kernel with 32 bits debian
-> > testing and it seems some ioctl conversion fails
-> > that happened with all 2.6 I tried.
-> > here is the relevant kernel messages part :
-> > ioctl32(dmsetup:26199): Unknown cmd fd(3) cmd(c134fd00){01} arg(0804c0b0)
-> > on /dev/mapper/control
->
-> The device mapper version 1 ioctl interface was removed.  Perhaps you need
-> to update your dm tools?
-the debian tools are built with ioctlv4 (and compat for v1)
-I also tried with my own compiled dm tools from source without success
 
-> > ioctl32(fsck.reiserfs:201): Unknown cmd fd(4) cmd(80081272){00}
-> > arg(ffffdab8) on /dev/ide/host0/bus0/target0/lun0/part4
->
-> Is this something which 2.6 has always done, or is it new behaviour?
-always since 2.6 IIRC
+--lkTb+7nhmha7W+c3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> reiserfs ioctl translation appears to be incomplete...
-ha :)
 
-thanks,
-Mik
+
+  I'm trying to use the NVIDIA driver so I can play NWN and some other
+games which won't run with the stock XFree (xserver-xfree86_4.3.0-5)=20
+driver.  When I run "make" in the NVIDIA_kernel directory I get alot of
+undefined variables:
+
+/lib/modules/2.6.4/build/include/asm/mpspec.h:20: error: `MAX_MP_BUSSES' un=
+declared here (not in a function)
+/lib/modules/2.6.4/build/include/asm/mpspec.h:20: error: conflicting types =
+for `mp_bus_id_to_type'
+/lib/modules/2.6.4/build/include/asm/mpspec.h:8: error: previous declaratio=
+n of `mp_bus_id_to_type'
+/lib/modules/2.6.4/build/include/asm/mpspec.h:22: error: `MAX_IRQ_SOURCES' =
+undeclared here (not in a function)
+/lib/modules/2.6.4/build/include/asm/mpspec.h:24: error: `MAX_MP_BUSSES' un=
+declared here (not in a function)
+/lib/modules/2.6.4/build/include/asm/mpspec.h:24: error: conflicting types =
+for `mp_bus_id_to_pci_bus'
+/lib/modules/2.6.4/build/include/asm/mpspec.h:12: error: previous declarati=
+on of `mp_bus_id_to_pci_bus'
+/lib/modules/2.6.4/build/include/asm/mpspec.h:50: error: `MAX_APICS' undecl=
+ared here (not in a function)
+
+And that's just for starters.  Does anyone know if there's a way to get
+this to compile cleanly or is it SoL until a new driver is released
+(running 1.0.4191 currently).
+
+:wq!
+---------------------------------------------------------------------------
+Robert L. Harris                     | GPG Key ID: E344DA3B
+                                         @ x-hkp://pgp.mit.edu
+DISCLAIMER:
+      These are MY OPINIONS ALONE.  I speak for no-one else.
+
+Life is not a destination, it's a journey.
+  Microsoft produces 15 car pileups on the highway.
+    Don't stop traffic to stand and gawk at the tragedy.
+
+--lkTb+7nhmha7W+c3
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAUFwE8+1vMONE2jsRAqOKAJ9nqocO43+LxM/4o5E8iSuCOxtZAQCfehhx
+BSlAwZr9Bk/pewg9uDx8oCQ=
+=yCSD
+-----END PGP SIGNATURE-----
+
+--lkTb+7nhmha7W+c3--

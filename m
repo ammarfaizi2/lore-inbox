@@ -1,55 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265802AbUGDV5G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265805AbUGDWBn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265802AbUGDV5G (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 17:57:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265805AbUGDV5G
+	id S265805AbUGDWBn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 18:01:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265808AbUGDWBn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 17:57:06 -0400
-Received: from fw.osdl.org ([65.172.181.6]:58537 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265802AbUGDV5D (ORCPT
+	Sun, 4 Jul 2004 18:01:43 -0400
+Received: from smtp08.web.de ([217.72.192.226]:28323 "EHLO smtp08.web.de")
+	by vger.kernel.org with ESMTP id S265805AbUGDWBm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 17:57:03 -0400
-Date: Sun, 4 Jul 2004 14:55:42 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: hch@infradead.org, linux-kernel@vger.kernel.org,
-       olaf+list.linux-kernel@olafdietsche.de
-Subject: Re: procfs permissions on 2.6.x
-Message-Id: <20040704145542.4d1723f5.akpm@osdl.org>
-In-Reply-To: <20040704213527.GV12308@parcelfarce.linux.theplanet.co.uk>
-References: <20040703202242.GA31656@MAIL.13thfloor.at>
-	<20040703202541.GA11398@infradead.org>
-	<20040703133556.44b70d60.akpm@osdl.org>
-	<20040703210407.GA11773@infradead.org>
-	<20040703143558.5f2c06d6.akpm@osdl.org>
-	<20040704213527.GV12308@parcelfarce.linux.theplanet.co.uk>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 4 Jul 2004 18:01:42 -0400
+From: Bernd Schubert <bernd-schubert@web.de>
+To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: 2.6.7: sk98lin unload oops
+Date: Mon, 5 Jul 2004 00:01:35 +0200
+User-Agent: KMail/1.6.2
+References: <200407041342.18821.bernd-schubert@web.de> <200407042028.59047.bernd-schubert@web.de> <20040704184404.GA7262@infradead.org>
+In-Reply-To: <20040704184404.GA7262@infradead.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200407050001.46489.bernd-schubert@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-viro@parcelfarce.linux.theplanet.co.uk wrote:
->
-> On Sat, Jul 03, 2004 at 02:35:58PM -0700, Andrew Morton wrote:
-> > > Because it turns the question what permissions a procfs file has into
-> > > a lottery game.  He only changes the incore inode owner and as soon as
-> > > the inode is reclaimed the old ones return.
-> > 
-> > procfs inodes aren't reclaimable.
-> 
-> WTF do you mean "not reclaimable"?
 
-Got confused.
+> Sorry, it's for Linus' current BK tree.  I've attached three files that
+> you should be able to just copy over your regular 2.6.7 tree:
 
->  They do get freed under memory pressure
-> and recreated on later lookups.
+Thanks, this driver compiles fine.
 
-Some do.  On my test box 1000-odd /proc inodes get allocated and fully
-freed on each `ls -R /proc'.  65 /proc inodes are freed during `ls -lR
-/proc/net'.  So maybe it isn't working completely.
 
-But proc_notify_change() copies the inode's uid, gid and mode into the
-proc_dir_entry, so they get correctly initialised when the inode is
-reinstantiated, so afaict we have no bug here.
+[from your other mail]
+> the previous one) makes it work unless you change the interface name
+> manually, but as Linux explicitly allows that the interface is
+> fundamentally broken and probably should just go away.
+
+Unfortunality we rename all interfaces using ifrename to make sure that the 
+interface names won't change with different kernel versions (we have this 
+problem when we switch between 2.4. and 2.6.). So it is normal that the oops 
+occurs on unloading the modules?
+
+
+Btw, on 22th June I got another skge.c patch from Herbert Xu to fix another 
+oops:
+
+http://lkml.org/lkml/2004/6/22/44
+
+This patch applies fine on top of your new versions (with 400 lines offset), 
+maybe this patch should also be included into the current BK tree?
+
+Thanks a lot,
+	Bernd

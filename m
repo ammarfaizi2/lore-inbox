@@ -1,32 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317351AbSFCK1s>; Mon, 3 Jun 2002 06:27:48 -0400
+	id <S317353AbSFCKcY>; Mon, 3 Jun 2002 06:32:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317352AbSFCK1r>; Mon, 3 Jun 2002 06:27:47 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:38156 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S317351AbSFCK1q>; Mon, 3 Jun 2002 06:27:46 -0400
-Message-ID: <3CFB36BF.2040605@evision-ventures.com>
-Date: Mon, 03 Jun 2002 11:28:31 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
-X-Accept-Language: en-us, pl
+	id <S317354AbSFCKcX>; Mon, 3 Jun 2002 06:32:23 -0400
+Received: from dsl-213-023-039-253.arcor-ip.net ([213.23.39.253]:56735 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S317353AbSFCKcX>;
+	Mon, 3 Jun 2002 06:32:23 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Martin Dalecki <dalecki@evision-ventures.com>,
+        Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] TRIVIAL: rwhron@earthlink.net: remove space in cache names
+Date: Mon, 3 Jun 2002 12:31:47 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+In-Reply-To: <E17El4U-0007ha-00@wagner.rustcorp.com.au> <3CFAFCB0.5030304@evision-ventures.com>
 MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-CC: Anthony Spinillo <tspinillo@linuxmail.org>, linux-kernel@vger.kernel.org
-Subject: Re: INTEL 845G Chipset IDE Quandry
-In-Reply-To: <20020602101628.4230.qmail@linuxmail.org> <3CFA73C3.9010902@evision-ventures.com> <20020602233043.A11698@ucw.cz> <3CFAF4A0.5010702@evision-ventures.com> <20020603104747.C13158@ucw.cz> <3CFB231E.7010806@evision-ventures.com> <20020603113753.B13637@ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17Ep7r-0000sV-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
+On Monday 03 June 2002 07:20, Martin Dalecki wrote:
+> Rusty Russell wrote:
+> > rwhron@earthlink.net: remove space in _proc_slabinfo cache_name:
+> >   Most /proc/slabinfo cache_names are in the format:
+> >   cache_name.  There are a couple with spaces in the
+> >   name, which is inconsistent and requires a special case
+> >   when scripting.
+> >   
+> >   Changes "fasync cache" and "file lock cache" to have
+> >   the usual underscore.
+> >   
+> >   Tested on 2.5.18.  Applies to 2.4.19-pre8 with offset.
+> 
+> If you are looking in this area already plese remove
+> the completely redundant and inconsistently used cache
+> suffix for some entry names too. Slabinfo is about allocation
+> caches and nothing else.
 
-> The PCI code under normal circumstances can fix the allocation problems
-> by itself (without any special quirks code), but in this case it simply
-> fails. Do you still have the original e-mail with the dmesg? I'd like to
-> look at that again ...
+Amen.
 
-No becouse It wasn't directed at me.
-
+-- 
+Daniel

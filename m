@@ -1,54 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267137AbTGGRSC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 13:18:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267139AbTGGRSC
+	id S267121AbTGGRVx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 13:21:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267151AbTGGRVx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 13:18:02 -0400
-Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:6930 "HELO
-	smtp805.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S267137AbTGGRSA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 13:18:00 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Peter Berg Larsen <pebl@math.ku.dk>
-Subject: Re: [PATCH] Synaptics: support for pass-through port (stick)
-Date: Mon, 7 Jul 2003 12:34:02 -0500
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
-References: <Pine.LNX.4.40.0307071308310.28730-100000@shannon.math.ku.dk>
-In-Reply-To: <Pine.LNX.4.40.0307071308310.28730-100000@shannon.math.ku.dk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Mon, 7 Jul 2003 13:21:53 -0400
+Received: from 69-55-72-144.ppp.netsville.net ([69.55.72.144]:56756 "EHLO
+	tiny.suse.com") by vger.kernel.org with ESMTP id S267121AbTGGRTu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 13:19:50 -0400
+Subject: Re: [BUG] heavy disk access sometimes freezes 2.5.73-mm[123]
+From: Chris Mason <mason@suse.com>
+To: Thomas Schlichter <schlicht@uni-mannheim.de>, green@namesys.com
+Cc: "Barry K. Nathan" <barryn@pobox.com>, Andrew Morton <akpm@osdl.org>,
+       Nick Piggin <piggin@cyberone.com.au>, linux-kernel@vger.kernel.org
+In-Reply-To: <200307071758.45702.schlicht@uni-mannheim.de>
+References: <20030703090541.GB5044@ip68-101-124-193.oc.oc.cox.net>
+	 <20030706193722.79352bc3.akpm@osdl.org>
+	 <20030707033058.GA2860@ip68-4-255-84.oc.oc.cox.net>
+	 <200307071758.45702.schlicht@uni-mannheim.de>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1057599193.20904.1352.camel@tiny.suse.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 07 Jul 2003 13:33:13 -0400
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307071234.02595.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 07 July 2003 06:44 am, Peter Berg Larsen wrote:
-> On Sun, 6 Jul 2003, Dmitry Torokhov wrote:
-> > +	/* adjust the touchpad to child's choice of protocol */
-> > +	child = port->private;
-> > +	if (child && child->type >= PSMOUSE_GENPS) {
->
-> Not type > PSMOUSE_GENPS ?
->
+On Mon, 2003-07-07 at 11:58, Thomas Schlichter wrote:
+> On Monday 07 July 2003 05:30, Barry K. Nathan wrote:
+> > On Sun, Jul 06, 2003 at 07:37:22PM -0700, Andrew Morton wrote:
+> > > Nick Piggin <piggin@cyberone.com.au> wrote:
+> > >
+> > > Barry says the problem started with 2.5.73-mm1.  There was a reiserfs
+> > > patch added in that kernel.
+> > >
+> > > Does a `patch -R' of this fix it up?
+> >
+> > [patch snipped]
+> >
+> > Yes, backing that patch out fixes it.
+> 
+> I had similar problems with my reiserfs root FS. For me backing out only the 
+> second chunk of the patch made it, too. I've attached the patch I used for 
+> that. If someone sees something really bad I'm doing with this please write, 
+> because I'm playing with my root FS... ;-)
 
-We have this code in psmouse-base.c ...
+> diff -u linux-2.5.74-mm2/fs/reiserfs/tail_conversion.c.orig linux-2.5.74-mm2/fs/reiserfs/tail_conversion.c
+> --- linux-2.5.74-mm2/fs/reiserfs/tail_conversion.c.orig	2003-06-23 09:26:10.000000000 -0700
+> +++ linux-2.5.74-mm2/fs/reiserfs/tail_conversion.c	2003-06-23 09:26:10.000000000 -0700
+> @@ -190,9 +190,6 @@ unmap_buffers(struct page *page, loff_t 
+>          }
+>  	bh = next ;
+>        } while (bh != head) ;
+> -      if ( PAGE_SIZE == bh->b_size ) {
+> -	ClearPageDirty(page);
+> -      }
+>      }
+>    } 
+>  }
 
-        if (psmouse->pktcnt == 3 + (psmouse->type >= PSMOUSE_GENPS)) {
-                psmouse_process_packet(psmouse, regs);
-                psmouse->pktcnt = 0;
-                goto out;
-        }
+Heh, you read my mind.  It makes more sense for this hunk to be causing
+problems than the first one.  Still we should be allowed to clear the
+dirty bit since we've cleaned all the buffers on the page.
 
-..or am I misreading it?
-
-I will check what can be done with 0xAA 0x00 before we decide to rescan 
-later this evening.
-
-Dmitry
-
+-chris
 
 

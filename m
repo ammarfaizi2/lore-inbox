@@ -1,59 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269569AbRHLXa7>; Sun, 12 Aug 2001 19:30:59 -0400
+	id <S269568AbRHLX2J>; Sun, 12 Aug 2001 19:28:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269570AbRHLXat>; Sun, 12 Aug 2001 19:30:49 -0400
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:19218 "EHLO
-	mailout04.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S269569AbRHLXag>; Sun, 12 Aug 2001 19:30:36 -0400
-Message-Id: <200108122330.f7CNUfV21320@jordan.goethel.local>
+	id <S269569AbRHLX2B>; Sun, 12 Aug 2001 19:28:01 -0400
+Received: from demai05.mw.mediaone.net ([24.131.1.56]:27597 "EHLO
+	demai05.mw.mediaone.net") by vger.kernel.org with ESMTP
+	id <S269568AbRHLX1t>; Sun, 12 Aug 2001 19:27:49 -0400
+Message-Id: <200108122327.f7CNRvh15403@demai05.mw.mediaone.net>
 Content-Type: text/plain; charset=US-ASCII
-From: Sven Goethel <sgoethel@jausoft.com>
-Organization: Jausoft - Sven Goethel Software Development
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.8-ac2
-Date: Mon, 13 Aug 2001 01:30:40 +0200
-X-Mailer: KMail [version 1.2.3]
-In-Reply-To: <20010813002110.A24677@lightning.swansea.linux.org.uk>
-In-Reply-To: <20010813002110.A24677@lightning.swansea.linux.org.uk>
+From: Brian <hiryuu@envisiongames.net>
+To: Andrew Morton <akpm@zip.com.au>
+Subject: Re: multiply NULL pointer
+Date: Sun, 12 Aug 2001 19:28:14 -0400
+X-Mailer: KMail [version 1.3]
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3B72BA01.34D2A67F@pcsystems.de> <3B770C04.C8FDD6E6@zip.com.au>
+In-Reply-To: <3B770C04.C8FDD6E6@zip.com.au>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Would that bug also affect httpd (read-heavy), or is it limited to 
+write-heavy tasks?
 
-On Monday 13 August 2001 01:21, Alan Cox wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/alan/2.4/
+Thanks,
+	-- Brian
+
+On Sunday 12 August 2001 07:06 pm, Andrew Morton wrote:
+> Nico Schottelius wrote:
+> > Hello!
+> >
+> > Running a p2 400 mhz box with a 3com 3c905, with
+> > _very_ heavy nfs traffic and disc io the following NULL
+> > pointers were produced. I attached the whole dmesg output.
+> > If more informations are needed, I will send them.
+> >
+> > After every NULL pointer printed on the console
+> > I took a new dmesg, so the one with the highest number
+> > should be relevant.
 >
-> 		 Intermediate diffs are available from
-> 			http://www.bzimage.org
+> Please tell us exactly which kernel you're using.  It appears
+> to be a flavour of 2.4.7 with ext3, yes?
 >
+> Also, please take the very first oops output which occurs
+> after a reboot and feed that into
 >
-
-1st of all - thanxs to ac and all the others for all the great work
-
-sorry for my - ehm - ignorance
-
-i just want to ask you (sorry for this consumer behavior)
-if you intend to integrate the xfs filesystem in your ac-series
-
-also .. do you know if it is planed to integrate the xfs fs
-into the main branch of the kernel ?
-
-thanxs in advance
-
-cheers, sven
-- -- 
-mailto:sgoethel@jausoft.com
-www   : http://www.jausoft.com ; pgp: http://www.jausoft.com/gpg/
-voice : +49-521-2399440 ; fax : +49-521-2399442
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7dxGgHdOA30NoFAARAqVtAJ9CuMvt47bbzo0QJMmpWO6gozBuQgCfUW9M
-UCwRBHAEqaKdRMjABA+9KwQ=
-=3Swd
------END PGP SIGNATURE-----
+> 	ksymoops -m System.map < oops-trace-file.txt
+>
+> Make sure you have the correct System.map!
+>
+> The fact that your bdflush and kupdate daemons have gone zombie
+> suggests that the kernel died in the new buffer flushing code.
+> There was a bug fixed in that area late in the 2.4.8-pre series.
+>
+> From memory, the bug was a missing test for a null bh in
+> fs/buffer.c:sync_old-buffers():
+>
+>         for (;;) {
+>                 struct buffer_head *bh;
+>
+>                 spin_lock(&lru_list_lock);
+>                 bh = lru_list[BUF_DIRTY];
+>                 if (!bh || time_before(jiffies, bh->b_flushtime))
+>                     ^^^^^^
+>
+> You should try 2.4.8.
+>
+> -
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

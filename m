@@ -1,38 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312412AbSCYMR5>; Mon, 25 Mar 2002 07:17:57 -0500
+	id <S312410AbSCYMV0>; Mon, 25 Mar 2002 07:21:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312411AbSCYMRq>; Mon, 25 Mar 2002 07:17:46 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39174 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S312408AbSCYMRl>; Mon, 25 Mar 2002 07:17:41 -0500
-Subject: Re: ANN: New NTFS driver (2.0.0/TNG) now finished.
-To: flar@pants.nu (Brad Boyer)
-Date: Mon, 25 Mar 2002 12:32:47 +0000 (GMT)
-Cc: dwmw2@infradead.org (David Woodhouse),
-        aia21@cam.ac.uk (Anton Altaparmakov), linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-In-Reply-To: <20020325115026.1FCAD24DB5@marcus.pants.nu> from "Brad Boyer" at Mar 25, 2002 03:50:26 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S312414AbSCYMVQ>; Mon, 25 Mar 2002 07:21:16 -0500
+Received: from catv7012.extern.kun.nl ([131.174.117.12]:28301 "EHLO
+	luna.ellen.dexterslabs.com") by vger.kernel.org with ESMTP
+	id <S312410AbSCYMVI>; Mon, 25 Mar 2002 07:21:08 -0500
+Date: Mon, 25 Mar 2002 13:21:02 +0100 (CET)
+From: <danny@mailmij.org>
+To: <cooker@linux-mandrake.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [Cooker] (RFC) Supermount 2
+In-Reply-To: <001d01c1d3ec$2e914720$b0d3fea9@pcs686>
+Message-ID: <Pine.LNX.4.33.0203251316560.26580-100000@luna.ellen.dexterslabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16pTeZ-0000PD-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> file unaligned.h. I suspect that at least some of
-> these allow for an exception handler to fake the
-> capability in user space programs, but that isn't
-> something you can allow inside the kernel.
 
-The Linux kernel assumes and requires that a processor handles alignment
-faults and fixups in kernel space. 
+On Mon, 25 Mar 2002, Matthew D. Pitts wrote:
+> 
+> I am starting to plan a new version of Supermount. I have some things I want to try out in it, and I will list them in this message. I am willing to accept any and all input on what I am wanting to call Supermount 2.
+> Planned features of Supermount 2:
+> 
+> 1) Auto-detection of filesystem type. 
+Meaning we will finally have CD-tracks visualized as WAV files? like CD-fs 
+does? Same goes for multisession disks.
+> 
+> 2) Supermount modules for each filesystem type.
+How is this on performance (first check for fs type than loading module? 
+than disk is removed, unloading module and loading another one?)
 
-This is done because there are many cases where an object is almost always
-aligned and it is faster to assume alignment than to mess around with every
-single chunk of data. Its tuned so those alignment traps should not be
-occurring at a high rate.
+> 
+> 3) Built-in support for packet-writing. ( i.e. insert packet-writing formatted disk and it loads appropriate kernel modules. )
+> 
+> There may be other features added if there is an interest in them. I will need assistance with the packet-writing support. I am only planning to do this for the 2.5.x and later kernels, so if anyone else wishes to back-port it to an older kerenl series, by all means do so. I have wanted to make some kind of contribution to this project for some time and I feel that this is something that will be useful.
+> 
+What about doing it in userspace? I remember seeing Alan Cox writing he 
+had a proof of concept of something like this on some ftp server (sorry, 
+cannot remember where).
 
-Alan
+
+> I am going to be making my prelminary code available to whomever wishes to see it once I get my Linux box back up.
+sure
+
+
+
+Danny
+
+> 
+> Matthew D. Pitts
+> 
+

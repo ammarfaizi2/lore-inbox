@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292727AbSBUTPu>; Thu, 21 Feb 2002 14:15:50 -0500
+	id <S292728AbSBUTQe>; Thu, 21 Feb 2002 14:16:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292728AbSBUTPk>; Thu, 21 Feb 2002 14:15:40 -0500
-Received: from web10706.mail.yahoo.com ([216.136.130.214]:47884 "HELO
-	web10706.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S292727AbSBUTP3>; Thu, 21 Feb 2002 14:15:29 -0500
-Message-ID: <20020221191528.96395.qmail@web10706.mail.yahoo.com>
-Date: Thu, 21 Feb 2002 11:15:28 -0800 (PST)
-From: David Chase <lmdracos@yahoo.com>
-Subject: General causes of oops'es?
-To: linux-kernel@vger.kernel.org
+	id <S292729AbSBUTQL>; Thu, 21 Feb 2002 14:16:11 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61192 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292728AbSBUTQF>; Thu, 21 Feb 2002 14:16:05 -0500
+Subject: Re: AIC7XXX 6.2.5 driver
+To: gibbs@scsiguy.com (Justin T. Gibbs)
+Date: Thu, 21 Feb 2002 19:30:19 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), axboe@suse.de (Jens Axboe),
+        scarfoglio@arpacoop.it (Carlo Scarfoglio),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <200202211909.g1LJ9mI48542@aslan.scsiguy.com> from "Justin T. Gibbs" at Feb 21, 2002 12:09:48 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16dyv5-0007xz-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+> included in certain 2.4.18-pre kernels which was the cause of the patch
+> not working for him.  I can only assume you ran into the same problem.
+> My patch was relative to 2.4.17, not a more recent, yet unblessed, kernel.
 
-I'm wondering what generally can cause an oops.  I've
-been having a lot lately, and instead of bothering you
-all with it, I'd rather try to narrow down the problem
-myself.
+Relative to 2.4.18-rc would be good
 
-In general, what can cause an oops?  Hardware failure?
- Memory problems?  Can erroneous data (ie from data
-corruption on a drive, possibly corrupting a binary
-that causes an oops?) be the cause of the oops?  My
-boot drive's been unmounted a few times the past month
-improperly, and had a few data integrity issues. 
-Could that cause it?
+> As to the CMD640 patch.  Can you let me know why you believe it breaks
+> the CMD640?  The current scheme leaks transactions on the bus and *will*
 
-Could a specific piece of running software cause an
-oops involving another process?
+The CMD640 can't do 32bit config space access stuff - thats why the code
+is there to hack around it. That code needs to know or check what pci
+config mode it should have used.
 
-Could it have anything to do with tune'ing an ext2 fs
-to include ext3 journalling support (that is, should
-the whole fs have been ext3 to begin with?  would this
-cause problems?)?
+> Information about the SCSI mid-layer changes were posted to the SCSI list
+> and I believe CC'd to you.  If you need that information again, I'd be
+> happy to resend it.
 
-The system is a Dual Celeron on an Abit BP6, 256MB
-medium-grade RAM, Debian 2.2 (upgraded to unstable)
-and kernel 2.4.17 compiled with ext3 support (and no
-debugging support for ext3).
-
-It seems to oops a lot with regards to kswapd.
-
-Thanks in advance, and please cc: me any replies to this!
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Sports - Coverage of the 2002 Olympic Games
-http://sports.yahoo.com
+The midlayer stuff Im more than happy with

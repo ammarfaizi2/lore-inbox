@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267402AbTACA7c>; Thu, 2 Jan 2003 19:59:32 -0500
+	id <S267385AbTACA4T>; Thu, 2 Jan 2003 19:56:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267406AbTACA7c>; Thu, 2 Jan 2003 19:59:32 -0500
-Received: from smtp-101.nerim.net ([62.4.16.101]:38412 "EHLO kraid.nerim.net")
-	by vger.kernel.org with ESMTP id <S267405AbTACA7b>;
-	Thu, 2 Jan 2003 19:59:31 -0500
-Message-ID: <3E14E196.9050004@inet6.fr>
-Date: Fri, 03 Jan 2003 02:04:22 +0100
-From: Lionel Bouton <Lionel.Bouton@inet6.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021203
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Teodor Iacob <Teodor.Iacob@astral.kappa.ro>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: UDMA 133 on a 40 pin cable
-References: <20030102182932.GA27340@linux.kappa.ro> <1041536269.24901.47.camel@irongate.swansea.linux.org.uk> <3E14B698.8030107@inet6.fr> <3E14BFD4.7000909@google.com> <20030102224246.GA429@linux.kappa.ro>
-In-Reply-To: <20030102224246.GA429@linux.kappa.ro>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267387AbTACA4S>; Thu, 2 Jan 2003 19:56:18 -0500
+Received: from pop.gmx.net ([213.165.65.60]:50574 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S267385AbTACA4R>;
+	Thu, 2 Jan 2003 19:56:17 -0500
+Message-Id: <5.1.1.6.2.20030103015917.00ccb3e0@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
+Date: Fri, 03 Jan 2003 02:01:33 +0100
+To: rms@gnu.org
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: Nvidia and its choice to read the GPL "differently"
+Cc: Hell.Surfers@cwctv.net, linux-kernel@vger.kernel.org
+In-Reply-To: <E18UAEy-00046n-00@fencepost.gnu.org>
+References: <5.1.1.6.2.20030101084621.00cdf9f8@pop.gmx.net>
+ <5.1.1.6.2.20030101084621.00cdf9f8@pop.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Teodor Iacob wrote:
-
->Ok then after all .. what I see on my box could be a stupid IDE controller?
->  
+At 01:38 PM 1/2/2003 -0500, Richard Stallman wrote:
+>     Yup.  It's high time they realized that Linux exists today solely 
+> because a
+>     lazy Finnish student conned a bunch of folks into doing his homework.
+>]
 >
+>That's a colorful way of saying that Linux was developed by Linus
+>Torvalds.
 
-Chip bug, unknown chip revision with different register layout needing 
-reverse engineering (or did VIA learn that providing specs enlarge their 
-market share ?) or plain driver bug.
-I don't think ATA66+ controllers can be within spec if they don't detect 
-40 vs 80 pin cables.
+Nope, it was a colorful way of saying 'pbbbbt'  ;-)
 
-LB.
+         -Mike
 

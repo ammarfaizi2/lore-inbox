@@ -1,55 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262197AbTKCTcT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 14:32:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262592AbTKCTcT
+	id S263119AbTKCTfq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 14:35:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263125AbTKCTfq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 14:32:19 -0500
-Received: from natsmtp01.rzone.de ([81.169.145.166]:57051 "EHLO
-	natsmtp01.rzone.de") by vger.kernel.org with ESMTP id S262197AbTKCTcR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 14:32:17 -0500
-Message-ID: <3FA6AD3E.5090706@softhome.net>
-Date: Mon, 03 Nov 2003 20:32:14 +0100
-From: "Ihar 'Philips' Filipau" <filia@softhome.net>
-Organization: Home Sweet Home
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: How provoke call stack trace
-References: <NRWh.pL.3@gated-at.bofh.it>
-In-Reply-To: <NRWh.pL.3@gated-at.bofh.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 3 Nov 2003 14:35:46 -0500
+Received: from dsl093-039-041.pdx1.dsl.speakeasy.net ([66.93.39.41]:44260 "EHLO
+	raven.beattie-home.net") by vger.kernel.org with ESMTP
+	id S263119AbTKCTfj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Nov 2003 14:35:39 -0500
+Subject: Re: Things that Longhorn seems to be doing right
+From: Brian Beattie <beattie@beattie-home.net>
+To: Valdis.Kletnieks@vt.edu
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200311021715.hA2HFXr5026778@turing-police.cc.vt.edu>
+References: <1067778693.1315.76.camel@kokopelli> 
+	<200311021715.hA2HFXr5026778@turing-police.cc.vt.edu>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 03 Nov 2003 14:35:35 -0500
+Message-Id: <1067888137.869.26.camel@kokopelli>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2003-11-02 at 12:15, Valdis.Kletnieks@vt.edu wrote:
+> On Sun, 02 Nov 2003 08:11:32 EST, Brian Beattie <beattie@beattie-home.net>  said:
+> 
+> > for storage might be feasible soon.  The idea is that you have a
+> > permanent store, using raid or raid-like redundancy and file versioning
+> > so that nothing is ever deleted, you just keep adding drives and
+> > replacing those that fail.  Of course you'd need some geographic
+> > diversity and a way for storage to migrate to newer "file stores" to
+> > really work, but just think, no more backups to fail...ever!   
+> 
+> This may be very nice for the high end, but getting "geographic diversity"
+> means you have to get space in a colo of some sort (unless you're a big enough
+> site that you have another building of your own at least a mile or two away),
+> and bandwidth between the two sites.
 
-   Thanks to every one!
-   Already looking into the source code.
+I don't know about anytime soon and it woudl be a real paradyne(sp?)
+shift.  As it is right now home many home users do backups ate all.  The
+replication could well be rather low bandwidth, more to CYA in the event
+of a fire of natural disaster, and really a secondary issue.  What
+intriques me, is the notion of a permanent file store that is never
+deleted.
 
-P.S.
-   But it looks like ppc (as of 2.4.22) doesn't implement it.
-   But still BUG() on ppc prints stack trace... I'm just no specialist 
-in cpu exception handling. especially on ppc :-(
-
-Ihar 'Philips' Filipau wrote:
-> Hello All!
-> 
->    [ Simple question. Probably FAQ - but I cannot find it. ]
-> 
->    How can I print call stack trace, just like BUG() does?
->    But without asm(".long 0") as BUG() does.
-> 
->    Is there any function which can be used by module to just investigate 
-> some given call path?
-> 
+I have no idea if this will every make sense, but I notice, that I
+always have more disk than will fit on any backup media I can afford. 
+So this is really just a "what if?" thought.
 
 -- 
-Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
---                                                           _ _ _
-  "... and for $64000 question, could you get yourself       |_|*|_|
-    vaguely familiar with the notion of on-topic posting?"   |_|_|*|
-                                 -- Al Viro @ LKML           |*|*|*|
+Brian Beattie            | Experienced kernel hacker/embedded systems
+beattie@beattie-home.net | programmer, direct or contract, short or
+www.beattie-home.net     | long term, available immediately.
+
+"Honor isn't about making the right choices.
+It's about dealing with the consequences." -- Midori Koto
 

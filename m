@@ -1,71 +1,252 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbVATULN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261392AbVATUNZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261358AbVATULN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 15:11:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbVATULM
+	id S261392AbVATUNZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 15:13:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbVATUNY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 15:11:12 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:63250 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261358AbVATULG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 15:11:06 -0500
-Date: Thu, 20 Jan 2005 20:10:59 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Greg KH <greg@kroah.com>
-Cc: Kumar Gala <kumar.gala@freescale.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: serial8250_init and platform_device
-Message-ID: <20050120201059.I13242@flint.arm.linux.org.uk>
-Mail-Followup-To: Greg KH <greg@kroah.com>,
-	Kumar Gala <kumar.gala@freescale.com>,
-	Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <20050120154420.D13242@flint.arm.linux.org.uk> <736677C2-6B16-11D9-BD44-000393DBC2E8@freescale.com> <20050120193845.H13242@flint.arm.linux.org.uk> <20050120195058.GA8835@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050120195058.GA8835@kroah.com>; from greg@kroah.com on Thu, Jan 20, 2005 at 11:50:58AM -0800
+	Thu, 20 Jan 2005 15:13:24 -0500
+Received: from relay1.tiscali.de ([62.26.116.129]:21390 "EHLO
+	webmail.tiscali.de") by vger.kernel.org with ESMTP id S261392AbVATUNG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 15:13:06 -0500
+Message-ID: <41F010C9.6040201@tiscali.de>
+Date: Thu, 20 Jan 2005 21:12:57 +0100
+From: Matthias-Christian Ott <matthias.christian@tiscali.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: linux@brodo.de, jun.nakajima@intel.com, venkatesh.pallipadi@intel.com,
+       nanhai.zou@intel.com
+Subject: [BUG?]: cpufreqency scaling - wrong frequency detected
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 20, 2005 at 11:50:58AM -0800, Greg KH wrote:
-> On Thu, Jan 20, 2005 at 07:38:45PM +0000, Russell King wrote:
-> > 
-> > Greg - the name is constructed from "name" + "id num" thusly:
-> > 
-> > 	serial8250
-> > 	serial82500
-> > 	serial82501
-> > 	serial82502
-> > 
-> > When "name" ends in a number, it gets rather confusing.  Can we have
-> > an optional delimiter in there when we append the ID number, maybe
-> > something like a '.' or ':' ?
-> 
-> Sure, that's fine with me.  Someone send me a patch :)
+Hi!
+The Kernel cpufrequency scaling modul seems to have a bug, it displays 
+the frequency of 14,60 Ghz. I don't enabled debugging in the config, but 
+I hope this information can help you. I don't know if it's really a bug, 
+so I send it to the mailing list instead of reporting it to the bugzilla 
+bugtracking system. if you need additional information, I'll compile a 
+Kernel with cpufreq debugging.
 
-Like this?
--
+Matthias-Christian Ott
 
-Separate platform device name from platform device number such that
-names ending with numbers aren't confusing.
+[fox@iceowl ~]$ cat /proc/version
+Linux version 2.6.11-rc1-bk7-ott (root@iceowl.ott.dyndns.info) 
+(gcc-Version 3.4.3) #1 SMP Thu Jan 20 16:18:06 CET 2005
 
-Signed-off-by: Russell King <rmk@arm.linux.org.uk>
+[root@iceowl ~]# dmesg
+ACPI: RSDP (v000 MSISYS                                ) @ 0x000f7550
+ACPI: RSDT (v001 MSISYS MSI ACPI 0x42302e31 AWRD 0x00000000) @ 0x17ff3000
+ACPI: FADT (v001 MSISYS MSI ACPI 0x42302e31 AWRD 0x00000000) @ 0x17ff3040
+ACPI: MADT (v001 MSISYS AWRDACPI 0x42302e31 AWRD 0x00000000) @ 0x17ff6c40
+ACPI: DSDT (v001 MSISYS AWRDACPI 0x00001000 MSFT 0x0100000c) @ 0x00000000
+ACPI: PM-Timer IO Port: 0x4008
+ACPI: Local APIC address 0xfee00000
+ACPI: LAPIC (acpi_id[0x00] lapic_id[0x00] enabled)
+Processor #0 15:1 APIC version 20
+ACPI: IOAPIC (id[0x02] address[0xfec00000] gsi_base[0])
+IOAPIC[0]: apic_id 2, version 32, address 0xfec00000, GSI 0-23
+ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 high level)
+ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 high level)
+ACPI: IRQ0 used by override.
+ACPI: IRQ2 used by override.
+ACPI: IRQ9 used by override.
+Enabling APIC mode:  Flat.  Using 1 I/O APICs
+Using ACPI (MADT) for SMP configuration information
+Built 1 zonelists
+Kernel command line: root=/dev/discs/disc0/part1 video=vesafb:ywrap,mtrr 
+vga=0x318 elevator=cfq ro mem=393152K
+[..]
+CPU: After generic identify, caps: 3febfbff 00000000 00000000 00000000 
+00000000 00000000 00000000
+CPU: After vendor identify, caps: 3febfbff 00000000 00000000 00000000 
+00000000 00000000 00000000
+CPU: Trace cache: 12K uops, L1 D cache: 8K
+CPU: L2 cache: 256K
+CPU: Hyper-Threading is disabled
+CPU: After all inits, caps: 3febfbff 00000000 00000000 00000080 00000000 
+00000000 00000000
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+CPU0: Intel P4/Xeon Extended MCE MSRs (12) available
+CPU0: Thermal monitoring enabled
+Enabling fast FPU save and restore... done.
+Enabling unmasked SIMD FPU exception support... done.
+Checking 'hlt' instruction... OK.
+CPU0: Intel(R) Pentium(R) 4 CPU 1.80GHz stepping 02
+per-CPU timeslice cutoff: 731.50 usecs.
+[..]
+Total of 1 processors activated (3563.52 BogoMIPS).
+ENABLING IO-APIC IRQs
+..TIMER: vector=0x31 pin1=2 pin2=-1
+Brought up 1 CPUs
+CPU0 attaching sched-domain:
+ domain 0: span 1
+  groups: 1
+  domain 1: span 1
+   groups: 1
+[..]
+ACPI: Subsystem revision 20041210
+    ACPI-1138: *** Error: Method execution failed [\STRC] (Node 
+d7fc3660), AE_AML_BUFFER_LIMIT
+    ACPI-1138: *** Error: Method execution failed [\_SB_.PCI0._INI] 
+(Node d7fc7420), AE_AML_BUFFER_LIMIT
+ACPI: Interpreter enabled
+ACPI: Using IOAPIC for interrupt routing
+ACPI: PCI Root Bridge [PCI0] (00:00)
+PCI: Probing PCI hardware (bus 00)
+PCI: Transparent bridge - 0000:00:1e.0
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.HUB0._PRT]
+ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 6 7 9 10 *11 12 14 15)
+ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 6 7 9 10 11 *12 14 15)
+ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 5 6 7 9 10 *11 12 14 15)
+ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 6 7 9 10 *11 12 14 15)
+ACPI: PCI Interrupt Link [LNKE] (IRQs 3 4 5 6 7 9 10 *11 12 14 15)
+ACPI: PCI Interrupt Link [LNKF] (IRQs 3 4 5 6 7 9 10 *11 12 14 15)
+ACPI: PCI Interrupt Link [LNK0] (IRQs 3 4 *5 6 7 9 10 11 12 14 15)
+ACPI: PCI Interrupt Link [LNK1] (IRQs 3 4 5 6 7 9 10 *11 12 14 15)
+[..]
+ACPI: Power Button (FF) [PWRF]
+ACPI: Sleep Button (CM) [SLPB]
+ACPI: Fan [FAN] (on)
+ACPI: CPU0 (power states: C1[C1] C2[C2])
+ACPI: Processor [CPU0] (supports 2 throttling states)
+ACPI: Thermal Zone [THRM] (22 C)
+[..]
+p4-clockmod: P4/Xeon(TM) CPU On-Demand Clock Modulation available
+[..]
 
---- orig/drivers/base/platform.c	Wed Jan 12 10:11:20 2005
-+++ linux/drivers/base/platform.c	Thu Jan 20 20:08:53 2005
-@@ -131,7 +131,7 @@ int platform_device_register(struct plat
- 	pdev->dev.bus = &platform_bus_type;
- 
- 	if (pdev->id != -1)
--		snprintf(pdev->dev.bus_id, BUS_ID_SIZE, "%s%u", pdev->name, pdev->id);
-+		snprintf(pdev->dev.bus_id, BUS_ID_SIZE, "%s.%u", pdev->name, pdev->id);
- 	else
- 		strlcpy(pdev->dev.bus_id, pdev->name, BUS_ID_SIZE);
- 
+[root@iceowl ~]# cat /proc/cpuinfo
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 1
+model name      : Intel(R) Pentium(R) 4 CPU 1.80GHz
+stepping        : 2
+cpu MHz         : 1800.257
+cache size      : 256 KB
+physical id     : 0
+siblings        : 1
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge 
+mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
+bogomips        : 3563.52
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+[root@iceowl ~]# cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq
+14600000
+
+[root@iceowl ~]# cat 
+/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies
+3650000 5475000 7300000 9125000 10950000 12775000 14600000
+
+[root@iceowl ~]# cat /home/fox/builds/kernel/kernel-2.6.10-rc1-ott/config
+[..]
+CONFIG_X86_PC=y
+[..]
+CONFIG_MPENTIUM4=y
+[..]
+CONFIG_X86_GENERIC=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=7
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_GENERIC_CALIBRATE_DELAY=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_HPET_TIMER=y
+CONFIG_SMP=y
+CONFIG_NR_CPUS=4
+CONFIG_SCHED_SMT=y
+CONFIG_PREEMPT=y
+CONFIG_PREEMPT_BKL=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_TSC=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MCE_NONFATAL=m
+CONFIG_X86_MCE_P4THERMAL=y
+CONFIG_TOSHIBA=m
+CONFIG_I8K=m
+[..]
+CONFIG_PM=y
+# CONFIG_PM_DEBUG is not set
+CONFIG_SOFTWARE_SUSPEND=y
+CONFIG_PM_STD_PARTITION=""
+[..]
+CONFIG_ACPI=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_SLEEP=y
+CONFIG_ACPI_SLEEP_PROC_FS=y
+CONFIG_ACPI_AC=y
+CONFIG_ACPI_BATTERY=y
+CONFIG_ACPI_BUTTON=y
+CONFIG_ACPI_VIDEO=y
+CONFIG_ACPI_FAN=y
+CONFIG_ACPI_PROCESSOR=y
+CONFIG_ACPI_THERMAL=y
+CONFIG_ACPI_ASUS=m
+CONFIG_ACPI_IBM=m
+CONFIG_ACPI_TOSHIBA=m
+CONFIG_ACPI_BLACKLIST_YEAR=0
+# CONFIG_ACPI_DEBUG is not set
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_X86_PM_TIMER=y
+# CONFIG_ACPI_CONTAINER is not set
+[..]
+CONFIG_CPU_FREQ=y
+# CONFIG_CPU_FREQ_DEBUG is not set
+CONFIG_CPU_FREQ_STAT=m
+CONFIG_CPU_FREQ_STAT_DETAILS=y
+# CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE is not set
+CONFIG_CPU_FREQ_DEFAULT_GOV_USERSPACE=y
+CONFIG_CPU_FREQ_GOV_PERFORMANCE=y
+CONFIG_CPU_FREQ_GOV_POWERSAVE=y
+CONFIG_CPU_FREQ_GOV_USERSPACE=y
+CONFIG_CPU_FREQ_GOV_ONDEMAND=y
+CONFIG_CPU_FREQ_TABLE=y
+[..]
+CONFIG_X86_ACPI_CPUFREQ=y
+CONFIG_X86_POWERNOW_K6=m
+CONFIG_X86_POWERNOW_K7=m
+CONFIG_X86_POWERNOW_K7_ACPI=y
+CONFIG_X86_POWERNOW_K8=m
+CONFIG_X86_POWERNOW_K8_ACPI=y
+CONFIG_X86_GX_SUSPMOD=m
+CONFIG_X86_SPEEDSTEP_CENTRINO=m
+CONFIG_X86_SPEEDSTEP_CENTRINO_ACPI=y
+CONFIG_X86_SPEEDSTEP_CENTRINO_TABLE=y
+CONFIG_X86_SPEEDSTEP_ICH=m
+CONFIG_X86_SPEEDSTEP_SMI=m
+CONFIG_X86_P4_CLOCKMOD=y
+CONFIG_X86_CPUFREQ_NFORCE2=m
+CONFIG_X86_LONGRUN=m
+CONFIG_X86_LONGHAUL=m
+[..]
+# CONFIG_X86_ACPI_CPUFREQ_PROC_INTF is not set
+CONFIG_X86_SPEEDSTEP_LIB=y
+CONFIG_X86_SPEEDSTEP_RELAXED_CAP_CHECK=y
+[..]
+
+

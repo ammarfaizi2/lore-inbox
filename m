@@ -1,54 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261374AbVBHBVl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbVBHBbG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261374AbVBHBVl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 20:21:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261379AbVBHBVi
+	id S261375AbVBHBbG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 20:31:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261371AbVBHBbF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 20:21:38 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:5772 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261374AbVBHBVd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 20:21:33 -0500
-Date: Mon, 7 Feb 2005 17:15:02 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Andrew Morton <akpm@osdl.org>
-cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: prezeroing V6 [2/3]: ScrubD
-In-Reply-To: <20050207170947.239f8696.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0502071710580.30068@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0501211228430.26068@schroedinger.engr.sgi.com>
- <1106828124.19262.45.camel@hades.cambridge.redhat.com> <20050202153256.GA19615@logos.cnet>
- <Pine.LNX.4.58.0502071127470.27951@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0502071131260.27951@schroedinger.engr.sgi.com>
- <20050207163035.7596e4dd.akpm@osdl.org> <Pine.LNX.4.58.0502071646170.29971@schroedinger.engr.sgi.com>
- <20050207170947.239f8696.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 7 Feb 2005 20:31:05 -0500
+Received: from arnor.apana.org.au ([203.14.152.115]:7686 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261375AbVBHBar
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 20:30:47 -0500
+Date: Tue, 8 Feb 2005 12:29:29 +1100
+To: "David S. Miller" <davem@davemloft.net>
+Cc: mirko.parthey@informatik.tu-chemnitz.de, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, yoshfuji@linux-ipv6.org, shemminger@osdl.org
+Subject: [IPSEC] Move dst->child loop from dst_ifdown to xfrm_dst_ifdown
+Message-ID: <20050208012929.GA30659@gondor.apana.org.au>
+References: <20050131162201.GA1000@stilzchen.informatik.tu-chemnitz.de> <20050205052407.GA17266@gondor.apana.org.au> <20050204213813.4bd642ad.davem@davemloft.net> <20050205061110.GA18275@gondor.apana.org.au> <20050204221344.247548cb.davem@davemloft.net> <20050205064643.GA29758@gondor.apana.org.au> <20050205201044.1b95f4e8.davem@davemloft.net> <20050206065117.GC16057@gondor.apana.org.au>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="nFreZHaLTZJo0R7j"
+Content-Disposition: inline
+In-Reply-To: <20050206065117.GC16057@gondor.apana.org.au>
+User-Agent: Mutt/1.5.6+20040722i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Feb 2005, Andrew Morton wrote:
 
-> > Look at the early posts. I plan to put that up on the web. I have some
-> > stats attached to the end of this message from an earlier post.
->
-> But that's a patch-specific microbenchmark, isn't it?  Has this work been
-> benchmarked against real-world stuff?
+--nFreZHaLTZJo0R7j
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-No its a page fault benchmark. Dave Miller has done some kernel compiles
-and I have some benchmarks here that I never posted because they do not
-show any material change as far as I can see. I will be posting that soon
-when this is complete (also need to do the same for the atomic page fault
-ops and the prefaulting patch).
+On Sun, Feb 06, 2005 at 05:51:17PM +1100, herbert wrote:
+> 
+> The idea is to move the check into dst->ops->ifdown.  By definition
+> ipv6_dst_ifdown will only see rt6_info entries.  So dst_dev_event
+> will become
 
-> > > Should we be managing the kernel threads with the kthread() API?
-> >
-> > What would you like to manage?
->
-> Startup, perhaps binding the threads to their cpus too.
+Here are the patches to do this.  Do they look sane?
 
-That is all already controllable in the same way as the swapper. Each
-memory node is bound to a set of cpus. This may be controlled by the
-NUMA node configuration. F.e. for nodes without cpus.
+This one moves the dst->child processing from dst_ifdown into
+xfrm_dst_ifdown.
+
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+--nFreZHaLTZJo0R7j
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=dst-patch-1
+
+===== net/core/dst.c 1.26 vs edited =====
+--- 1.26/net/core/dst.c	2005-02-06 14:23:59 +11:00
++++ edited/net/core/dst.c	2005-02-08 12:11:39 +11:00
+@@ -220,31 +220,26 @@
+  *
+  * Commented and originally written by Alexey.
+  */
+-static void dst_ifdown(struct dst_entry *dst, int unregister)
++static inline void dst_ifdown(struct dst_entry *dst, int unregister)
+ {
+ 	struct net_device *dev = dst->dev;
+ 
++	if (dst->ops->ifdown)
++		dst->ops->ifdown(dst, unregister);
++
+ 	if (!unregister) {
+ 		dst->input = dst_discard_in;
+ 		dst->output = dst_discard_out;
+-	}
+-
+-	do {
+-		if (unregister) {
+-			dst->dev = &loopback_dev;
+-			dev_hold(&loopback_dev);
++	} else {
++		dst->dev = &loopback_dev;
++		dev_hold(&loopback_dev);
++		dev_put(dev);
++		if (dst->neighbour && dst->neighbour->dev == dev) {
++			dst->neighbour->dev = &loopback_dev;
+ 			dev_put(dev);
+-			if (dst->neighbour && dst->neighbour->dev == dev) {
+-				dst->neighbour->dev = &loopback_dev;
+-				dev_put(dev);
+-				dev_hold(&loopback_dev);
+-			}
++			dev_hold(&loopback_dev);
+ 		}
+-
+-		if (dst->ops->ifdown)
+-			dst->ops->ifdown(dst, unregister);
+-	} while ((dst = dst->child) && dst->flags & DST_NOHASH &&
+-		 dst->dev == dev);
++	}
+ }
+ 
+ static int dst_dev_event(struct notifier_block *this, unsigned long event, void *ptr)
+===== net/xfrm/xfrm_policy.c 1.63 vs edited =====
+--- 1.63/net/xfrm/xfrm_policy.c	2005-01-19 07:08:19 +11:00
++++ edited/net/xfrm/xfrm_policy.c	2005-02-08 12:10:47 +11:00
+@@ -1027,6 +1027,20 @@
+ 	dst->xfrm = NULL;
+ }
+ 
++static void xfrm_dst_ifdown(struct dst_entry *dst, int unregister)
++{
++	struct net_device *dev = dst->dev;
++
++	if (!unregister)
++		return;
++
++	while ((dst = dst->child) && dst->xfrm && dst->dev == dev) {
++		dst->dev = &loopback_dev;
++		dev_hold(&loopback_dev);
++		dev_put(dev);
++	}
++}
++
+ static void xfrm_link_failure(struct sk_buff *skb)
+ {
+ 	/* Impossible. Such dst must be popped before reaches point of failure. */
+@@ -1150,6 +1164,8 @@
+ 			dst_ops->check = xfrm_dst_check;
+ 		if (likely(dst_ops->destroy == NULL))
+ 			dst_ops->destroy = xfrm_dst_destroy;
++		if (likely(dst_ops->ifdown == NULL))
++			dst_ops->ifdown = xfrm_dst_ifdown;
+ 		if (likely(dst_ops->negative_advice == NULL))
+ 			dst_ops->negative_advice = xfrm_negative_advice;
+ 		if (likely(dst_ops->link_failure == NULL))
+@@ -1181,6 +1197,7 @@
+ 			dst_ops->kmem_cachep = NULL;
+ 			dst_ops->check = NULL;
+ 			dst_ops->destroy = NULL;
++			dst_ops->ifdown = NULL;
+ 			dst_ops->negative_advice = NULL;
+ 			dst_ops->link_failure = NULL;
+ 			dst_ops->get_mss = NULL;
+
+--nFreZHaLTZJo0R7j--

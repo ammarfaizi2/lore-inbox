@@ -1,61 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266564AbTBKWFN>; Tue, 11 Feb 2003 17:05:13 -0500
+	id <S266755AbTBKWG7>; Tue, 11 Feb 2003 17:06:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266718AbTBKWFN>; Tue, 11 Feb 2003 17:05:13 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:54914 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S266564AbTBKWFL>;
-	Tue, 11 Feb 2003 17:05:11 -0500
-Subject: Re: [PATCH] 2/3 ACPI resource handling
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Bjorn Helgaas <bjorn_helgaas@hp.com>
-Cc: "Grover, Andrew" <andrew.grover@intel.com>, t-kochi@bq.jp.nec.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       acpi-devel@lists.sourceforge.net
-In-Reply-To: <200302111459.35380.bjorn_helgaas@hp.com>
-References: <200302111459.35380.bjorn_helgaas@hp.com>
-Content-Type: text/plain
-Organization: Open Source Devlopment Lab
-Message-Id: <1045001693.17351.62.camel@dell_ss3.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 11 Feb 2003 14:14:54 -0800
+	id <S266765AbTBKWG7>; Tue, 11 Feb 2003 17:06:59 -0500
+Received: from impact.colo.mv.net ([199.125.75.20]:61396 "EHLO
+	impact.colo.mv.net") by vger.kernel.org with ESMTP
+	id <S266755AbTBKWG6>; Tue, 11 Feb 2003 17:06:58 -0500
+Message-ID: <3E49762E.3030002@bogonomicon.net>
+Date: Tue, 11 Feb 2003 16:16:14 -0600
+From: Bryan Andersen <bryan@bogonomicon.net>
+Organization: Bogonomicon
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: walt <wa1ter@hotmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.21-pre4-ac3 hangs at reboot
+References: <3E47E257.3000904@hotmail.com> <1044913493.2077.2.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-02-11 at 13:59, Bjorn Helgaas wrote:
-> Note that this contains a couple structure copies; don't know your
-> philosophy on those.
-> 
-> Bjorn
-> 
-> 
-> diff -ur acpi-2/drivers/acpi/resources/rsxface.c acpi-3/drivers/acpi/resources/rsxface.c
-> --- acpi-2/drivers/acpi/resources/rsxface.c	2003-02-09 22:13:47.000000000 -0700
-> +++ acpi-3/drivers/acpi/resources/rsxface.c	2003-02-09 22:13:52.000000000 -0700
-> @@ -316,3 +316,65 @@
->  	status = acpi_rs_set_srs_method_data (device_handle, in_buffer);
->  	return_ACPI_STATUS (status);
->  }
-> +
-> +
-> +#define copy_field(out, in, field)	out->field = in->field
-> +#define copy_address(out, in)					\
-> +	copy_field(out, in, resource_type);			\
-> +	copy_field(out, in, producer_consumer);			\
-> +	copy_field(out, in, decode);				\
-> +	copy_field(out, in, min_address_fixed);			\
-> +	copy_field(out, in, max_address_fixed);			\
-> +	copy_field(out, in, attribute);				\
-> +	copy_field(out, in, granularity);			\
-> +	copy_field(out, in, min_address_range);			\
-> +	copy_field(out, in, max_address_range);			\
-> +	copy_field(out, in, address_translation_offset);	\
-> +	copy_field(out, in, address_length);			\
-> +	copy_field(out, in, resource_source);
+The fix in patch-2.4.21-pre4-ac4 looks like it works to remove the 
+reboot hang.  I ran it thourgh a few reboots to test.  Thanks.
 
-If ACPI just used normal (ie short) variable names, then ugly macros
-like this would not be necessary.
+As a side note I still see the "Rebooting..." message before the md: 
+messages.
+
+- Bryan
+
+Alan Cox wrote:
+> On Mon, 2003-02-10 at 17:33, walt wrote:
+>>Actually this problem started with ac2.  All seems to work well until I
+>>reboot the machine with 'shutdown' or 'reboot' or 'ctl-alt-del'.
+>>
+>>The machine shuts down properly to the point where all filesystems
+>>are remounted readonly, which is the point where I normally see an
+>>immediate reboot.  Starting with pre4-ac2 I just get an indefinite
+>>hang instead of the reboot.
+
 
 

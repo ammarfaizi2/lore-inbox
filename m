@@ -1,46 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbVAGB7i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261223AbVAGB6w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261211AbVAGB7i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 20:59:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261158AbVAGB7I
+	id S261223AbVAGB6w (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 20:58:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261158AbVAGB4n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 20:59:08 -0500
-Received: from kweetal.tue.nl ([131.155.3.6]:42765 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S261211AbVAGB6g (ORCPT
+	Thu, 6 Jan 2005 20:56:43 -0500
+Received: from fw.osdl.org ([65.172.181.6]:26290 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261182AbVAGB4U (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 20:58:36 -0500
-Date: Fri, 7 Jan 2005 02:58:28 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
+	Thu, 6 Jan 2005 20:56:20 -0500
+Date: Thu, 6 Jan 2005 17:56:07 -0800
+From: Andrew Morton <akpm@osdl.org>
 To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH][3/4] let's kill verify_area - convert kernel/compat.c to access_ok()
-Message-ID: <20050107015828.GA4396@pclin040.win.tue.nl>
-References: <Pine.LNX.4.61.0501070155050.3430@dragon.hygekrogen.localhost>
+Cc: juhl-lkml@dif.dk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][0/4] let's kill verify_area
+Message-Id: <20050106175607.6b15b8e3.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0501070246160.3430@dragon.hygekrogen.localhost>
+References: <Pine.LNX.4.61.0501070212560.3430@dragon.hygekrogen.localhost>
+	<20050106172624.7cc2a142.akpm@osdl.org>
+	<Pine.LNX.4.61.0501070246160.3430@dragon.hygekrogen.localhost>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0501070155050.3430@dragon.hygekrogen.localhost>
-User-Agent: Mutt/1.4.2i
-X-Spam-DCC: : 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 07, 2005 at 02:18:44AM +0100, Jesper Juhl wrote:
-
-> Here's a patch to convert verify_area to access_ok in kernel/compat.c
+Jesper Juhl <juhl-lkml@dif.dk> wrote:
+>
+> On Thu, 6 Jan 2005, Andrew Morton wrote:
 > 
-> diff -up linux-2.6.10-bk9-orig/kernel/compat.c linux-2.6.10-bk9/kernel/compat.c
-> --- linux-2.6.10-bk9-orig/kernel/compat.c	2005-01-06 22:19:13.000000000 +0100
-> +++ linux-2.6.10-bk9/kernel/compat.c	2005-01-07 02:06:00.000000000 +0100
-> @@ -26,16 +26,16 @@
->  
->  int get_compat_timespec(struct timespec *ts, const struct compat_timespec __user *cts)
->  {
-> -	return (verify_area(VERIFY_READ, cts, sizeof(*cts)) ||
-> +	return (access_ok(VERIFY_READ, cts, sizeof(*cts)) ||
->  			__get_user(ts->tv_sec, &cts->tv_sec) ||
-> -			__get_user(ts->tv_nsec, &cts->tv_nsec)) ? -EFAULT : 0;
-> +			__get_user(ts->tv_nsec, &cts->tv_nsec)) ? 0 : -EFAULT;
->  }
+> > Jesper Juhl <juhl-lkml@dif.dk> wrote:
+> > >
+> > > verify_area() if just a wrapper for access_ok() (or similar function or 
+> > > dummy function) for all arch's.
+> > 
+> > This sounds more like "let's kill Andrew".  I count 489 instances in the
+> > tree.  Please don't expect this activity to take top priority ;)
+> > 
+> Heh, right, there's an aspect I hadn't really considered.
+> I'm not expecting top priority, not at all. This is nowhere near being 
+> anything important, just something that should happen eventually - so I 
+> thought, why not just deprecate it now and let it be cleaned up over time 
+> (and I'll do my share, don't worry :)
+> 
+> Accept the patch if you think it makes sense, drop it if you think it does 
+> not (or should wait). 
 
-This is not an equivalent transformation.
+The way to do this is to fix up the callers first, in just ten or so
+patches.  Then mark the function deprecated when most of the conversion is
+done.
+
+If we deprecate the functions first then 10000 people send small fixes via
+various snaky routes and it's really hard to coordinate the overlapping
+fixes.  The s/MODULE_PARM/module_param/ stuff did that, because we made it
+warn first, then I held the big sweep patch off for 2.6.11.

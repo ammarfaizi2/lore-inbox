@@ -1,52 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317221AbSFXBcX>; Sun, 23 Jun 2002 21:32:23 -0400
+	id <S317217AbSFXBdC>; Sun, 23 Jun 2002 21:33:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317217AbSFXBcW>; Sun, 23 Jun 2002 21:32:22 -0400
-Received: from mta5.snfc21.pbi.net ([206.13.28.241]:15759 "EHLO
-	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S317215AbSFXBcV>; Sun, 23 Jun 2002 21:32:21 -0400
-Date: Sun, 23 Jun 2002 18:34:22 -0700
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: driverfs is not for everything! (was:  [PATCH] /proc/scsi/map)
-To: "Grover, Andrew" <andrew.grover@intel.com>
-Cc: "'Nick Bellinger'" <nickb@attheoffice.org>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, Patrick Mochel <mochel@osdl.org>
-Message-id: <3D16771E.2010401@pacbell.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-References: <59885C5E3098D511AD690002A5072D3C02AB7F52@orsmsx111.jf.intel.com>
+	id <S317219AbSFXBdB>; Sun, 23 Jun 2002 21:33:01 -0400
+Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:4603 "EHLO
+	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
+	id <S317217AbSFXBdA>; Sun, 23 Jun 2002 21:33:00 -0400
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15638.30407.605257.563235@wombat.chubb.wattle.id.au>
+Date: Mon, 24 Jun 2002 11:32:55 +1000
+To: Jeff Meininger <jeffm@boxybutgood.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: loopback block device 'offset' - 2GB limit?
+In-Reply-To: <708520218@toto.iv>
+X-Mailer: VM 7.04 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+X-Face: .slVUC18R`%{j(W3ztQe~*ATzet;h`*Wv33MZ]*M,}9AP<`+C=U)c#NzI5vK!0^d#6:<_`a
+ {#.<}~(T^aJ~]-.C'p~saJ7qZXP-$AY==]7,9?WVSH5sQ}g3,8j>u%@f$/Z6,WR7*E~BFY.Yjw,H6<
+ F.cEDj2$S:kO2+-5<]afj@kC!:uw\(<>lVpk)lPZs+2(=?=D/TZPG+P9LDN#1RRUPxdX
+Comments: Hyperbole mail buttons accepted, v04.18.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is the device PHYSICALLY hooked up to the computer? If not, it shouldn't be
-> in devicefs.
 
-What's "devicefs" -- some new filesystem?  Or a mis/re-naming of "driverfs"?
-I assume you don't mean "devfs".
+>>>>> "Jeff" == Jeff Meininger <jeffm@boxybutgood.com> writes:
+
+Jeff> struct loop_info has a 32-bit 'int' offset (for x86 anyway), so
+Jeff> it might require something tricky.  
+
+The Large Block Device patch enables this.  There'll be a patch
+against 2.5.24 coming soon.
 
 
-> The device tree (for which devicefs is the fs representation) was originally
-> meant to enable good device power management and configuration. 
-
-Surely a driver using IP-over-wire like iSCSI is no less deserving of appearing
-in "driverfs" than one whose driver uses custom-protocol-over-a-"wire" like USB,
-FireWire, FC, IR, SCSI, or Bluetooth?  I don't see why some disks (for example)
-should deserve to be "more equal than others" -- and approved to be in driverfs.
-
-Admittedly some of those may have few power management concerns beyond basic
-startup/shutdown sequencing.  But the configuration management issues won't
-go away just because a driver talks to a device over some more generalized
-notion of wire.  I suspect those are probably more important, long-term, than
-the power management hooks.  I seem to recall other operating systems starting
-out with a device/driver tree well before power management existed, and was
-surprised when I noticed Linux didn't have one yet.
-
-No, of course driverfs isn't for everything.  But if it's not for all drivers,
-then what's it for -- just power management?
-
-- Dave
-
+PeterC

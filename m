@@ -1,209 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261909AbVACWRh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261904AbVACWV0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261909AbVACWRh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 17:17:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbVACWQB
+	id S261904AbVACWV0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 17:21:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261903AbVACWO6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 17:16:01 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:42934 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261925AbVACWJh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 17:09:37 -0500
-Date: Mon, 3 Jan 2005 22:29:22 +0100 (CET)
-From: Manfred Spraul <manfred@colorfullife.com>
-X-X-Sender: manfred@dbl.q-ag.de
-To: akpm@osdl.org
-cc: torvalds@osdl.org, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] periodically scan redzone entries and slab control structures
-Message-ID: <Pine.LNX.4.44.0501032223360.1865-100000@dbl.q-ag.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 3 Jan 2005 17:14:58 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:7858 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261948AbVACWNB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 17:13:01 -0500
+Subject: Re: starting with 2.7
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, "Theodore Ts'o" <tytso@mit.edu>,
+       Bill Davidsen <davidsen@tmr.com>, Adrian Bunk <bunk@stusta.de>,
+       Diego Calleja <diegocg@teleline.es>, Willy Tarreau <willy@w.ods.org>,
+       wli@holomorphy.com, aebr@win.tue.nl, solt2@dns.toxicfilms.tv,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <41D99C5F.50803@osdl.org>
+References: <20050103134727.GA2980@stusta.de>
+	 <Pine.LNX.3.96.1050103115639.27655A-100000@gatekeeper.tmr.com>
+	 <20050103183621.GA2885@thunk.org>
+	 <20050103185927.C3442@flint.arm.linux.org.uk>  <41D99C5F.50803@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1104785548.13582.22.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 03 Jan 2005 21:06:15 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The redzone words are only checked during alloc and free - thus objects
-that are never/rarely freed are not checked at all.
+On Llu, 2005-01-03 at 19:26, Randy.Dunlap wrote:
+> Agreed.  We (whoever "we" are) have erred too much on longer
+> cycles for stability, but it's not working out as hoped IMO.
 
-The attached patch adds a periodic scan over all objects and checks for
-wrong redzone data or corrupted bufctl lists.
+After 2.6.9-ac its clear that the long 2.6.9 process worked very badly.
+While 2.6.10 is looking much better its long period meant the allegedly
+"official" base kernel was a complete pile of insecure donkey turd for
+months. That doesn't hurt most vendor users but it does hurt those
+trying to do stuff on the base kernels very badly.
 
-Most changes are under #ifdef DEBUG, the only exception is a trivial
-correction for the initial timeout calculation: divide the cachep address
-by L1_CACHE_BYTES before the mod - the low order bits are always 0.
-
-Signed-Off-By: Manfred Spraul <manfred@colorfullife.com>
-
-// $Header$
-// Kernel Version:
-//  VERSION = 2
-//  PATCHLEVEL = 6
-//  SUBLEVEL = 10
-//  EXTRAVERSION =
---- 2.6/mm/slab.c	2004-12-29 15:35:54.000000000 +0100
-+++ build-2.6/mm/slab.c	2005-01-03 21:15:55.318889423 +0100
-@@ -170,7 +170,7 @@
-  */
-
- #define BUFCTL_END	(((kmem_bufctl_t)(~0U))-0)
--#define BUFCTL_FREE	(((kmem_bufctl_t)(~0U))-1)
-+#define BUFCTL_ALLOC	(((kmem_bufctl_t)(~0U))-1)
- #define	SLAB_LIMIT	(((kmem_bufctl_t)(~0U))-2)
-
- /* Max number of objs-per-slab for caches which use off-slab slabs.
-@@ -336,6 +336,7 @@
- #if DEBUG
- 	int			dbghead;
- 	int			reallen;
-+	unsigned long		redzonetest;
- #endif
- };
-
-@@ -351,6 +352,7 @@
-  */
- #define REAPTIMEOUT_CPUC	(2*HZ)
- #define REAPTIMEOUT_LIST3	(4*HZ)
-+#define REDZONETIMEOUT		(300*HZ)
-
- #if STATS
- #define	STATS_INC_ACTIVE(x)	((x)->num_active++)
-@@ -1417,7 +1419,11 @@
- 	}
-
- 	cachep->lists.next_reap = jiffies + REAPTIMEOUT_LIST3 +
--					((unsigned long)cachep)%REAPTIMEOUT_LIST3;
-+					((unsigned long)cachep/L1_CACHE_BYTES)%REAPTIMEOUT_LIST3;
-+#if DEBUG
-+	cachep->redzonetest = jiffies + REDZONETIMEOUT +
-+					((unsigned long)cachep/L1_CACHE_BYTES)%REDZONETIMEOUT;
-+#endif
-
- 	/* Need the semaphore to access the chain. */
- 	down(&cache_chain_sem);
-@@ -2014,7 +2020,7 @@
- 			slabp->inuse++;
- 			next = slab_bufctl(slabp)[slabp->free];
- #if DEBUG
--			slab_bufctl(slabp)[slabp->free] = BUFCTL_FREE;
-+			slab_bufctl(slabp)[slabp->free] = BUFCTL_ALLOC;
- #endif
- 		       	slabp->free = next;
- 		}
-@@ -2152,7 +2158,7 @@
- 		objnr = (objp - slabp->s_mem) / cachep->objsize;
- 		check_slabp(cachep, slabp);
- #if DEBUG
--		if (slab_bufctl(slabp)[objnr] != BUFCTL_FREE) {
-+		if (slab_bufctl(slabp)[objnr] != BUFCTL_ALLOC) {
- 			printk(KERN_ERR "slab: double free detected in cache '%s', objp %p.\n",
- 						cachep->name, objp);
- 			BUG();
-@@ -2380,7 +2386,7 @@
- 	slabp->inuse++;
- 	next = slab_bufctl(slabp)[slabp->free];
- #if DEBUG
--	slab_bufctl(slabp)[slabp->free] = BUFCTL_FREE;
-+	slab_bufctl(slabp)[slabp->free] = BUFCTL_ALLOC;
- #endif
- 	slabp->free = next;
- 	check_slabp(cachep, slabp);
-@@ -2586,6 +2592,86 @@
-
- EXPORT_SYMBOL(kmem_cache_size);
-
-+#if DEBUG
-+static void check_slabuse(kmem_cache_t *cachep, struct slab *slabp)
-+{
-+	int i;
-+
-+	if (!(cachep->flags & SLAB_RED_ZONE))
-+		return;	/* no redzone data to check */
-+
-+	for (i=0;i<cachep->num;i++) {
-+		void *objp = slabp->s_mem + cachep->objsize * i;
-+		unsigned long red1, red2;
-+
-+		red1 = *dbg_redzone1(cachep, objp);
-+		red2 = *dbg_redzone2(cachep, objp);
-+
-+		/* simplest case: marked as inactive */
-+		if (red1 == RED_INACTIVE && red2 == RED_INACTIVE)
-+			continue;
-+
-+		/* tricky case: if the bufctl value is BUFCTL_ALLOC, then
-+		 * the object is either allocated or somewhere in a cpu
-+		 * cache. The cpu caches are lockless and there might be
-+		 * a concurrent alloc/free call, thus we must accept random
-+		 * combinations of RED_ACTIVE and _INACTIVE
-+		 */
-+		if (slab_bufctl(slabp)[i] == BUFCTL_ALLOC &&
-+				(red1 == RED_INACTIVE || red1 == RED_ACTIVE) &&
-+				(red2 == RED_INACTIVE || red2 == RED_ACTIVE))
-+			continue;
-+
-+		printk(KERN_ERR "slab %s: redzone mismatch in slabp %p, objp %p, bufctl 0x%x\n",
-+				cachep->name, slabp, objp, slab_bufctl(slabp)[i]);
-+		print_objinfo(cachep, objp, 2);
-+	}
-+}
-+
-+/*
-+ * Perform a self test on all slabs from a cache
-+ */
-+static void check_redzone(kmem_cache_t *cachep)
-+{
-+	struct list_head *q;
-+	struct slab *slabp;
-+
-+	check_spinlock_acquired(cachep);
-+
-+	list_for_each(q,&cachep->lists.slabs_full) {
-+		slabp = list_entry(q, struct slab, list);
-+
-+		if (slabp->inuse != cachep->num) {
-+			printk(KERN_INFO "slab %s: wrong slabp found in full slab chain at %p (%d/%d).\n",
-+					cachep->name, slabp, slabp->inuse, cachep->num);
-+		}
-+		check_slabp(cachep, slabp);
-+		check_slabuse(cachep, slabp);
-+	}
-+	list_for_each(q,&cachep->lists.slabs_partial) {
-+		slabp = list_entry(q, struct slab, list);
-+
-+		if (slabp->inuse == cachep->num || slabp->inuse == 0) {
-+			printk(KERN_INFO "slab %s: wrong slab found in partial chain at %p (%d/%d).\n",
-+					cachep->name, slabp, slabp->inuse, cachep->num);
-+		}
-+		check_slabp(cachep, slabp);
-+		check_slabuse(cachep, slabp);
-+	}
-+	list_for_each(q,&cachep->lists.slabs_free) {
-+		slabp = list_entry(q, struct slab, list);
-+
-+		if (slabp->inuse != 0) {
-+			printk(KERN_INFO "slab %s: wrong slab found in free chain at %p (%d/%d).\n",
-+					cachep->name, slabp, slabp->inuse, cachep->num);
-+		}
-+		check_slabp(cachep, slabp);
-+		check_slabuse(cachep, slabp);
-+	}
-+}
-+
-+#endif
-+
- struct ccupdate_struct {
- 	kmem_cache_t *cachep;
- 	struct array_cache *new[NR_CPUS];
-@@ -2769,6 +2855,12 @@
-
- 		drain_array_locked(searchp, ac_data(searchp), 0);
-
-+#if DEBUG
-+		if(time_before(searchp->redzonetest, jiffies)) {
-+			searchp->redzonetest = jiffies + REDZONETIMEOUT;
-+			check_redzone(searchp);
-+		}
-+#endif
- 		if(time_after(searchp->lists.next_reap, jiffies))
- 			goto next_unlock;
-
+Alan
 

@@ -1,69 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262228AbUCGQuW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Mar 2004 11:50:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262229AbUCGQuW
+	id S262229AbUCGQxf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Mar 2004 11:53:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262240AbUCGQxd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Mar 2004 11:50:22 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:62955 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262228AbUCGQuQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Mar 2004 11:50:16 -0500
-Date: Sun, 7 Mar 2004 17:49:53 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: Sam Ravnborg <sam@ravnborg.org>, lkml <linux-kernel@vger.kernel.org>,
-       "kbuild-devel@lists.sourceforge.net" 
-	<kbuild-devel@lists.sourceforge.net>
-Subject: Re: External kernel modules, second try
-Message-ID: <20040307164953.GB14967@devserv.devel.redhat.com>
-References: <1078620297.3156.139.camel@nb.suse.de> <20040307125348.GA2020@mars.ravnborg.org> <1078664629.9812.1.camel@laptop.fenrus.com> <1078667199.3594.50.camel@nb.suse.de> <1078668091.9106.1.camel@laptop.fenrus.com> <20040307160527.GA2027@mars.ravnborg.org> <20040307160824.GA14967@devserv.devel.redhat.com> <1078677922.3615.47.camel@e136.suse.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="hHWLQfXTYDoKhP50"
-Content-Disposition: inline
-In-Reply-To: <1078677922.3615.47.camel@e136.suse.de>
-User-Agent: Mutt/1.4.1i
+	Sun, 7 Mar 2004 11:53:33 -0500
+Received: from diale166.ppp.lrz-muenchen.de ([129.187.28.166]:55274 "EHLO
+	karin.de.interearth.com") by vger.kernel.org with ESMTP
+	id S262229AbUCGQx3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Mar 2004 11:53:29 -0500
+In-Reply-To: <20040307155146.GN22479@fs.tum.de>
+References: <20040226225131.GX5499@fs.tum.de> <A93036A2-68C5-11D8-A46E-000A9597297C@fhm.edu> <20040227205446.GZ5499@fs.tum.de> <DC71BC17-69DC-11D8-BD1F-000A9597297C@fhm.edu> <20040307155146.GN22479@fs.tum.de>
+Mime-Version: 1.0 (Apple Message framework v612)
+Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-1--560468044"
+Message-Id: <15DC502C-7058-11D8-A5B4-000A9597297C@fhm.edu>
+Content-Transfer-Encoding: 7bit
+Cc: linux-net@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       jgarzik@pobox.com
+From: Daniel Egger <degger@fhm.edu>
+Subject: Re: [2.6 patch] MAINTAINERS: remove LAN media entry
+Date: Sun, 7 Mar 2004 17:54:23 +0100
+To: Adrian Bunk <bunk@fs.tum.de>
+X-Pgp-Agent: GPGMail 1.0.1 (v33, 10.3)
+X-Mailer: Apple Mail (2.612)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---hHWLQfXTYDoKhP50
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--Apple-Mail-1--560468044
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 
-On Sun, Mar 07, 2004 at 05:45:22PM +0100, Andreas Gruenbacher wrote:
-> > From a distribution kernel pov; I already ship a subset of files for building
-> > modules against (basically include/, the KConfig and makefiles), which only
-> > not 100% works because I don't ship vmlinux.
-> 
-> We have tried that with our latest round of kernels (still 2.4), and the
-> results have been mixed. You need various headers outside include/ for
+On Mar 7, 2004, at 4:51 pm, Adrian Bunk wrote:
 
-2.6 has the biggest offender (scsi) fixed.
+> It's a question whether removing drivers from a stable kernel series is
+> a good idea, but the following is definitely correct:
 
-> some obscure external modules. Amazingly there are even external modules
-> that make use of kernel C files.
+It would be nevertheless nice though if someone would actually confirm
+that the drivers work at all. And even more it would be really cool to
+know where to find the tools to control the modus operandi and whether
+they work at all.
 
-I can't imagine that being the case anymore, and for sure it won't be binary
-only ones ;)
+I have one of those cards is a pretty obscure machine but lacking a
+T-1/E-1 connection I cannot test it over here.
 
+Servus,
+       Daniel
 
-> ), the default being the running kernel. The Red Hat kernel has had a
-> partial solution for merging autoconf.h.
-
-It's a gross hack that we thankfully got rid of finally!
-
---hHWLQfXTYDoKhP50
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+--Apple-Mail-1--560468044
+content-type: application/pgp-signature; x-mac-type=70674453;
+	name=PGP.sig
+content-description: This is a digitally signed message part
+content-disposition: inline; filename=PGP.sig
+content-transfer-encoding: 7bit
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Version: GnuPG v1.2.4 (Darwin)
 
-iD8DBQFAS1KwxULwo51rQBIRAr3GAJ9VPtT/WX4pP6BHGZKENbViEtdphQCdGKMf
-N9lwzonNbjzi9zDjyISumPM=
-=KEWa
+iQEVAwUBQEtTxDBkNMiD99JrAQJmrwgAj/d8Cq1I3cfMImVtmFzgC01CqtwTOU7a
+pa0G3gzI1gql9TyVWJD1Wx7ujOZOz+vBdDPV5FwvIFdBwzALAPZfanNUWUWbz6O4
+FHPAMTKheSorMBay4lb1rXhFnSR49ds1MnVz0uz/Tt5rkhlGQUivHX9UrMrk84yn
+LJGJgHbVQjTnODsL2G5qQ9MQs+SGxiJ8g6O5wvd2TQV3+lDnc0Eq4iHZMgxJ93WI
+JdsrUyqCYIab4m3EdYxaLxxLFXoqZmxKeuGtcSfFrAyltD63+QPeo9IIYS8Mox4/
+phtnfKJQrAWzPeQivuaiAGhE7fPDP54gP/iWqe92yqsg2VAQ75JXNA==
+=P3Gp
 -----END PGP SIGNATURE-----
 
---hHWLQfXTYDoKhP50--
+--Apple-Mail-1--560468044--
+

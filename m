@@ -1,46 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135790AbRDTEJo>; Fri, 20 Apr 2001 00:09:44 -0400
+	id <S135791AbRDTELo>; Fri, 20 Apr 2001 00:11:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135792AbRDTEJf>; Fri, 20 Apr 2001 00:09:35 -0400
-Received: from pipt.oz.cc.utah.edu ([155.99.2.7]:61166 "EHLO
-	pipt.oz.cc.utah.edu") by vger.kernel.org with ESMTP
-	id <S135790AbRDTEJX>; Fri, 20 Apr 2001 00:09:23 -0400
-Date: Thu, 19 Apr 2001 22:07:22 -0600 (MDT)
-From: james rich <james.rich@m.cc.utah.edu>
-To: Matthew Wilcox <willy@ldl.fc.hp.com>
-cc: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org,
-        parisc-linux@parisc-linux.org
-Subject: Re: OK, let's try cleaning up another nit. Is anyone paying attention?
-In-Reply-To: <20010419211749.I4217@zumpano.fc.hp.com>
-Message-ID: <Pine.GSO.4.05.10104192201330.8316-100000@pipt.oz.cc.utah.edu>
+	id <S135792AbRDTELe>; Fri, 20 Apr 2001 00:11:34 -0400
+Received: from fencepost.gnu.org ([199.232.76.164]:32264 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S135791AbRDTELS>; Fri, 20 Apr 2001 00:11:18 -0400
+Date: Fri, 20 Apr 2001 00:11:20 -0400 (EDT)
+From: Pavel Roskin <proski@gnu.org>
+X-X-Sender: <proski@portland>
+To: Gunther Mayer <Gunther.Mayer@t-online.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: PNP BIOS and parport_pc - dma found but not used
+In-Reply-To: <3ADF20F4.2FBBE8DF@t-online.de>
+Message-ID: <Pine.LNX.4.33.0104192348510.1119-100000@portland>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Apr 2001, Matthew Wilcox wrote:
+Hello, Gunther!
 
-> On Thu, Apr 19, 2001 at 11:00:09PM -0400, Eric S. Raymond wrote:
-> > What is the right procedure for doing changes like this?  Is "don't
-> > touch that tree" a permanent condition, or am I going to get a chance
-> > to clean up the global CONFIG_ namespace after your next merge-down?
-> 
+On Thu, 19 Apr 2001, Gunther Mayer wrote:
 
-[snip]
+> > PnPBIOS: Parport found PNPBIOS PNP0401 at io=0378,0778 irq=7 dma=-1
+>                                                                ^^^^^^ culprit !
 
-> My preference would be for you to fetch our tree 
+For some reason I'm not getting that message anymore. PnPBIOS is in the
+kernel, parport_pc is a module. This time I rebooted with the parport_pc
+module already installed, as opposed to the first time when I compiled and
+inserted it without a reboot.
 
-> and submit patches to us, which will get to Linus in the fullness of time.
+I'm puzzled. Just in case, it's my .config:
+http://www.red-bean.com/~proski/linux/config
 
-Truly this is not meant to be negative - don't take it as such.
+Anyway, the result is still the same, just without this message.
 
-Doesn't this seem a little like the problems occurring with lvm right now?
-A separate tree maintained with the maintainers not wanting others
-submitting patches that conflict with their particular tree?  It seems
-that any project should be able to submit any patch against The One True
-Tree: Linus' tree.
+> 1) Search for the right two-digit PNP handle for device "0104d041":
 
-James Rich
-james.rich@m.cc.utah.edu
+this is 01.
+
+>    cat /proc/bus/pnb/devices
+
+01      0104d041        07:01:00        0080
+02      0105d041        07:00:02        0180
+06      0007d041        01:02:00        0003
+08      010cd041        05:00:00        0003
+09      0000d041        08:00:01        0003
+0a      0001d041        08:02:01        0003
+0b      000bd041        08:03:01        0003
+0c      0303d041        09:00:00        000b
+0d      040cd041        0b:01:00        0003
+0e      0002d041        08:01:01        0003
+0f      0008d041        08:80:00        0003
+10      030ad041        06:04:00        0003
+11      020cd041        08:80:ff        0003
+
+> 2) Send cat /proc/bus/pnp/01 | od -tx1
+
+0000000 2a 00 00 22 80 00 47 01 78 03 78 03 00 08 47 01
+0000020 78 07 78 07 00 08 79 00 30 2a 0a 00 22 80 00 47
+0000040 01 bc 03 bc 03 00 03 47 01 bc 07 bc 07 00 03 30
+0000060 2a 0a 00 22 80 00 47 01 78 03 78 03 00 08 47 01
+0000100 78 07 78 07 00 08 30 2a 0a 00 22 20 00 47 01 78
+0000120 02 78 02 00 08 47 01 78 06 78 06 00 08 38 79 00
+0000140 79 00
+
+Settings:
+Parallel port mode: ECP+EPP
+ECP DMA select: 3
+
+-- 
+Regards,
+Pavel Roskin
 

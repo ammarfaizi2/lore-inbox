@@ -1,45 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287794AbSA2AGR>; Mon, 28 Jan 2002 19:06:17 -0500
+	id <S287828AbSA2AH5>; Mon, 28 Jan 2002 19:07:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287817AbSA2AGH>; Mon, 28 Jan 2002 19:06:07 -0500
-Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:13336 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S287794AbSA2AFx>; Mon, 28 Jan 2002 19:05:53 -0500
-Date: Mon, 28 Jan 2002 19:05:51 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Jesper Juhl <jju@dif.dk>
-Cc: "'linux-kernel@vger.kernel.org '" <linux-kernel@vger.kernel.org>
-Subject: Re: Encountered a Null Pointer Problem on the SCSI Layer
-Message-ID: <20020128190551.A4236@devserv.devel.redhat.com>
-In-Reply-To: <8A43C34093B3D5119F7D0004AC56F4BCC3448C@difpst1a.dif.dk>
+	id <S287817AbSA2AHr>; Mon, 28 Jan 2002 19:07:47 -0500
+Received: from zero.tech9.net ([209.61.188.187]:11278 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S287809AbSA2AHi>;
+	Mon, 28 Jan 2002 19:07:38 -0500
+Subject: Re: Rik van Riel's vm-rmap
+From: Robert Love <rml@tech9.net>
+To: Louis Garcia <louisg00@bellsouth.net>
+Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+In-Reply-To: <1012262826.1634.1.camel@tiger>
+In-Reply-To: <Pine.LNX.4.33L.0201280613510.32617-100000@imladris.surriel.com> 
+	<1012262826.1634.1.camel@tiger>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 28 Jan 2002 19:12:45 -0500
+Message-Id: <1012263182.817.9.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <8A43C34093B3D5119F7D0004AC56F4BCC3448C@difpst1a.dif.dk>; from jju@dif.dk on Tue, Jan 29, 2002 at 12:57:02AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Jesper Juhl <jju@dif.dk>
-> Date: Tue, 29 Jan 2002 00:57:02 +0100
+On Mon, 2002-01-28 at 19:07, Louis Garcia wrote:
+> Does this patch work well with Andrew's low-latency patch?
 
-> > -       if (!dpnt)
-> > +       if (!dpnt->device)
-> >                 return NULL;    /* No such device */
-> 
-> Maybe I don't understand this right, but shouldn't that be 
-> 
-> if (!dpnt || !dpnt->device)
->         return NULL;    /* No such device */
+There will be failed hunks in the VM code (specifically vmscan.c), but
+you can safely ignore them.  So, yes, it works.
 
-In both cases, the code is like this:
+	Robert Love
 
-  dpnt = &rscsi_disks[dev_nr];
-  if (!dpnt->device)
-    return NULL;
-
-So, it is unlikely that dpnt would be zero. It could be if rscsi_disks
-were NULL, and in such case whole logics is toast.
-
--- Pete

@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265315AbUG0Mz6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265199AbUG0NPE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265315AbUG0Mz6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 08:55:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265199AbUG0Mz6
+	id S265199AbUG0NPE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 09:15:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265215AbUG0NPE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 08:55:58 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:9679 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S265776AbUG0Mzv (ORCPT
+	Tue, 27 Jul 2004 09:15:04 -0400
+Received: from ozlabs.org ([203.10.76.45]:31192 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S265199AbUG0NPA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 08:55:51 -0400
-Date: Tue, 27 Jul 2004 14:55:39 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
-Subject: Re: [PATCH] Kconfig.debug: combine Kconfig debug options
-In-Reply-To: <20040723231158.068d4685.rddunlap@osdl.org>
-Message-ID: <Pine.GSO.4.58.0407271451130.19529@waterleaf.sonytel.be>
-References: <20040723231158.068d4685.rddunlap@osdl.org>
+	Tue, 27 Jul 2004 09:15:00 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16646.21807.210253.45979@cargo.ozlabs.ibm.com>
+Date: Tue, 27 Jul 2004 08:14:23 -0500
+From: Paul Mackerras <paulus@samba.org>
+To: jschopp@austin.ibm.com
+Cc: akpm@osdl.org, anton@samba.org, linuxppc64-dev@lists.linuxppc.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cpu hotplug ppc64 bug
+In-Reply-To: <410594FF.5040307@austin.ibm.com>
+References: <410594FF.5040307@austin.ibm.com>
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Jul 2004, Randy.Dunlap wrote:
-> . localizes the following symbols in lib/Kconfig.debug:
->     DEBUG_KERNEL, MAGIC_SYSRQ, DEBUG_SLAB, DEBUG_SPINLOCK,
->     DEBUG_SPINLOCK_SLEEP, DEBUG_HIGHMEM, DEBUG_BUGVERBOSE,
->     DEBUG_INFO
+Joel Schopp writes:
 
-Which architecture does _not_ use DEBUG_KERNEL or DEBUG_SLAB? The list is quite
-long... Aren't these generic?
+> On Power4 and earlier hardware there is no need to clear the CPPR (see 
+> RPAp 479 section 18.5.4.7.2 for what little info there is on the CPPR) 
+> when stopping a cpu. On hardware that uses Power5 an undocumented change 
+> has been made that requires the CPPR to be cleared if an isolate is to 
+> be done on the stopped cpu. So the following patch lets cpu hotplug work 
+> on the recent hardware.
 
-Perhaps DEBUG_SPINLOCK can depend on just SMP only? Or do people want to debug
-spinlock code on machines that don't have SMP?
+>  void cpu_die(void)
+>  {
+>  	local_irq_disable();
+> +	/* Some hardware requires clearing the CPPR, while other hardware does not
+> +	 * it is safe either way
+> +	 */
+> +	pSeriesLP_cppr_info(0, 0);
+>  	rtas_stop_self();
 
-Perhaps DEBUG_HIGHMEM can depend on just HIGHMEM only?
+I wanted to do this a bit differently - I was going to make cpu_die be
+a platform-specific function called via a ppc_md function pointer,
+rather than putting very pseries-specific stuff in smp.c, which is
+used on all platforms.  But having been on vacation and then
+travelling, I haven't got to it yet.
 
-(didn't check the whole list) Perhaps the first instance of DEBUG_INFO
-can depend on !SUPERH64 && !USERMODE only?
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Paul.

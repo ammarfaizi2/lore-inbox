@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264428AbUEMTMi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264429AbUEMTNm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264428AbUEMTMi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 15:12:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264429AbUEMTMi
+	id S264429AbUEMTNm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 15:13:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264432AbUEMTNm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 15:12:38 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:11275 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S264428AbUEMTMg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 15:12:36 -0400
-Subject: Re: 2.6.6-mm2 foibles
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: gene.heskett@verizon.net
-Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <200405131442.27573.gene.heskett@verizon.net>
-References: <200405131442.27573.gene.heskett@verizon.net>
-Content-Type: text/plain
-Message-Id: <1084475560.1793.0.camel@teapot.felipe-alfaro.com>
+	Thu, 13 May 2004 15:13:42 -0400
+Received: from mtagate7.de.ibm.com ([195.212.29.156]:39901 "EHLO
+	mtagate7.de.ibm.com") by vger.kernel.org with ESMTP id S264429AbUEMTMx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 15:12:53 -0400
+Date: Thu, 13 May 2004 21:12:48 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: s390 patches for 2.6.6 / 2.6.6-mm2.
+Message-ID: <20040513191247.GA2916@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-1) 
-Date: Thu, 13 May 2004 21:12:40 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-05-13 at 20:42, Gene Heskett wrote:
-> Greetings;
-> 
-> I just booted to a 2.6.6-mm2 kernel, and discoverd I had no sound.  So 
-> I logged back out of x, and found I had no keyboard!  ssh'd in from 
-> the firewall and rebooted it.
-> 
-> Both sound, and the backswitch from x were working perfectly up to and 
-> including 2.6.6.
+Hi Andrew,
+the bug fixes for s390 are heaping up again. 6 patches this time, the
+biggest is the network driver patch. Business as usual...
 
-I'm also having problems with 2.6.6-mm2 and losing my keyboard. After
-logging into X, after a while, the keyboard stops responding. However,
-my USB mouse still works.
+1) s390 core changes.
+2) Common i/o layer fixes.
+3) dasd driver fixes.
+4) 3270 console fixes.
+5) zfcp host adapter fixes.
+6) network driver fixes.
+
+Patches apply against BitKeeper and 2.6.6-mm2 (#1 with hunks but it
+works).  By the way I'm having trouble with the scheduler changes in
+cset 1.1608.1.32 "balance-on-clone". I was able to track it down
+to find_idlest_cpu, it returns 3 on a system with only 1 cpu ?!?
+I still have to figure out why this happens.
+
+blue skies,
+  Martin.
 

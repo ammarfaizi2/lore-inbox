@@ -1,53 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262813AbSLZJdI>; Thu, 26 Dec 2002 04:33:08 -0500
+	id <S262824AbSLZJh2>; Thu, 26 Dec 2002 04:37:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262824AbSLZJdI>; Thu, 26 Dec 2002 04:33:08 -0500
-Received: from packet.digeo.com ([12.110.80.53]:33197 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262813AbSLZJdI>;
-	Thu, 26 Dec 2002 04:33:08 -0500
-Message-ID: <3E0ACEBC.D06B1BAB@digeo.com>
-Date: Thu, 26 Dec 2002 01:41:16 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.52 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: conman@kolivas.net
-CC: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [BENCHMARK] 2.5.53-mm1 with contest
-References: <200212261934.36086.conman@kolivas.net>
-Content-Type: text/plain; charset=us-ascii
+	id <S262826AbSLZJh2>; Thu, 26 Dec 2002 04:37:28 -0500
+Received: from 205-158-62-139.outblaze.com ([205.158.62.139]:3521 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP
+	id <S262824AbSLZJh1>; Thu, 26 Dec 2002 04:37:27 -0500
+Message-ID: <20021226094537.20498.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 26 Dec 2002 09:41:16.0810 (UTC) FILETIME=[EFE39EA0:01C2ACC2]
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: akpm@digeo.com, ciarrocchi@linuxmail.org
+Cc: vda@port.imtp.ilyichevsk.odessa.ua, conman@kolivas.net,
+       riel@conectiva.com.br, linux-kernel@vger.kernel.org
+Date: Thu, 26 Dec 2002 17:45:37 +0800
+Subject: Re: Poor performance with 2.5.52, load and process in D state
+X-Originating-Ip: 193.76.202.244
+X-Originating-Server: ws5-2.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
+From: Andrew Morton <akpm@digeo.com>
+
+> Paolo Ciarrocchi wrote:
+> > 
+> > > it appears that this benefit came from the special usercopy code.
+> > > What sort of CPU are you using?
+> > 
+> > It is a PIII@800.
 > 
-> ...
-> process_load:
-> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-> 2.5.52 [3]              84.4    79      17      19      1.26
-> 2.5.52-mm1 [7]          91.0    79      18      19      1.36
-> 2.5.52-mm2 [7]          90.3    79      18      19      1.35
-> 2.5.53 [7]              86.9    77      18      21      1.30
-> 2.5.53-mm1 [7]          117.1   58      47      40      1.75
-> Big change in the balance here in process_load. Probably a better balance
-> really given that process_load runs 4*num_cpus processes, and the kernel
-> compile is make -j (4*num_cpus)
+> hm, don't know.  I built the latest postgres locally.  Perhaps the
+> alignment of some application buffer is different.
 
-Presumably the run-child-first change.  process_load is complex.  I
-haven't looked into its dynamics and I'm not sure what, if anything,
-we can conclude from this test.
- 
-> ...
-> The SMP results seem to fluctuate too much between runs even with the average
-> of 7 runs. I'm wondering whether I should even bother with them any more as
-> they dont add any useful information as far as I can see. Comments on this
-> would be appreciated. Andrew?
+I don't know. 
+I've built the osdb test while I've just installed postgres
+from the Mandrake 9 standard installation (so i586.rpm).
 
-Well for the sorts of things which you are interested in, SMP is not the
-target market, shall we say?
+May be we are using different version of postgres...
 
-Is the variability seen in other kernels (especially 2.4)?  If not then
-we'd need to find out what causes it.
+Anyway, my test show that there is a lack of performance 
+in 2.5.* is the kernel fits in a machine with low memory,
+any hint ?
+
+And probably the "standard" swappiness value is not the 
+optimal, I'd like to see a few tests with the contest
+tool ;-)
+
+
+      Ciao,
+               Paolo
+-- 
+______________________________________________
+http://www.linuxmail.org/
+Now with POP3/IMAP access for only US$19.95/yr
+
+Powered by Outblaze

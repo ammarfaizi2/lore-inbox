@@ -1,15 +1,15 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262528AbTENPVz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 11:21:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262530AbTENPVy
+	id S262525AbTENPVU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 11:21:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262526AbTENPVU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 11:21:54 -0400
-Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:48584 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP id S262528AbTENPVt
+	Wed, 14 May 2003 11:21:20 -0400
+Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:56262 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP id S262525AbTENPVR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 11:21:49 -0400
-Message-ID: <20030514153353.7802.qmail@linuxmail.org>
+	Wed, 14 May 2003 11:21:17 -0400
+Message-ID: <20030514153440.14381.qmail@linuxmail.org>
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
@@ -18,11 +18,11 @@ X-Mailer: MIME-tools 5.41 (Entity 5.404)
 From: "Dean McEwan" <dean_mcewan@linuxmail.org>
 To: root@chaos.analogic.com
 Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Date: Wed, 14 May 2003 15:33:50 +0000
+Date: Wed, 14 May 2003 15:34:40 +0000
 Subject: Re: Digital Rights Management - An idea (limited lease, renting,
-    expiration, verification) NON HARDWARE BASED.
+    expiration, verification) NON HARWARE BASED.
 X-Originating-Ip: 213.120.30.217
-X-Originating-Server: ws5-6.us4.outblaze.com
+X-Originating-Server: ws5-8.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 

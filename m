@@ -1,76 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263544AbTLONfN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 08:35:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263571AbTLONfM
+	id S263606AbTLONu2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 08:50:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263609AbTLONu2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 08:35:12 -0500
-Received: from pf138.torun.sdi.tpnet.pl ([213.76.207.138]:38418 "EHLO
-	centaur.culm.net") by vger.kernel.org with ESMTP id S263544AbTLONfE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 08:35:04 -0500
-From: Witold Krecicki <adasi@kernel.pl>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: raid0 slower than devices it is assembled of?
-Date: Mon, 15 Dec 2003 14:34:54 +0100
-User-Agent: KMail/1.5.93
-MIME-Version: 1.0
+	Mon, 15 Dec 2003 08:50:28 -0500
+Received: from bristol.phunnypharm.org ([65.207.35.130]:51929 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S263606AbTLONu0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 08:50:26 -0500
+Date: Mon, 15 Dec 2003 08:27:20 -0500
+From: Ben Collins <bcollins@debian.org>
+To: Sergey Vlasov <vsu@altlinux.ru>
+Cc: linux-kernel@vger.kernel.org, bitkeeper-users@bitmover.com
+Subject: Re: RFC - tarball/patch server in BitKeeper
+Message-ID: <20031215132720.GX7308@phunnypharm.org>
+References: <20031214172156.GA16554@work.bitmover.com> <2259130000.1071469863@[10.10.2.4]> <20031215151126.3fe6e97a.vsu@altlinux.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200312151434.54886.adasi@kernel.pl>
+In-Reply-To: <20031215151126.3fe6e97a.vsu@altlinux.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got / on linux-raid0 on 2.6.0-t11-cset-20031209_2107:
-<cite>
-/dev/md/1:
-        Version : 00.90.01
-  Creation Time : Thu Sep 11 22:04:54 2003
-     Raid Level : raid0
-     Array Size : 232315776 (221.55 GiB 237.89 GB)
-   Raid Devices : 2
-  Total Devices : 2
-Preferred Minor : 1
-    Persistence : Superblock is persistent
+On Mon, Dec 15, 2003 at 03:11:26PM +0300, Sergey Vlasov wrote:
+> On Sun, 14 Dec 2003 22:31:04 -0800 Martin J. Bligh wrote:
+> 
+> > One thing that I've wished for in the past which looks like it *might*
+> > be trivial to do is to grab a raw version of the patch you already
+> > put out in HTML format, eg if I surf down changesets and get to a page
+> > like this:
+> > 
+> > http://linus.bkbits.net:8080/linux-2.5/patch@1.1522?nav=index.html|ChangeSet@-2w|cset@1.1522
+> > 
+> > except it got html formatted, so I can't play with it easily. Is there
+> > any way to provide the raw format of that? If not, or you don't want to,
+> > no problem - would just be convenient. This isn't a open source vs not
+> > issue, it's just I often want one fix without the whole tree, and it'd
+> > be a convenient place to grab it.
+> 
+> You almost can do this now - in most cases, copying the text from
+> Mozilla gives a good patch. The only problem is that the HTML
+> generation code seems to have a bug - it correctly escapes '<' as
+> "&lt;" and '>' as "&gt;", but does not escape '&' as "&amp;", and this
+> occasionally leads to problems.
+> 
+> I see another missing feature - there does not seem to be a way to
+> order the changesets by the order of merging them into the tree. E.g.
+> when you look at the linux-2.4 changesets, you will now find XFS all
+> over the place - even before 2.4.23, while it really has been merged
+> after 2.4.23.
 
-    Update Time : Mon Dec 15 12:55:48 2003
-          State : clean, no-errors
- Active Devices : 2
-Working Devices : 2
- Failed Devices : 0
-  Spare Devices : 0
+You don't seem to understand how bitkeeper works then. Back when the XFS
+tree was cloned from the 2.4 tree, it began it's own "branch". Over time
+it has merged code from the 2.4 tree, and it's work has occured over
+this same time.
 
-     Chunk Size : 64K
+When XFS was merged back into the 2.4 tree, it retains all of that
+history in sort of a split road looking branch/merge.
 
-    Number   Major   Minor   RaidDevice State
-       0       8        3        0      active sync   /dev/sda3
-       1       8       19        1      active sync   /dev/sdb3
-           UUID : b66633c2:ff11f60d:00119f8d:7bb9fc6c
-         Events : 0.357
-</cite>
-Disks are two ST3120026AS connected to sii3112a controller, driven by sata_sil 
-'patched' so no limit for block size is applied (it's not needed for it). 
+You wont be able to get an "XFS changeset".
 
-Those are results of hdparm -tT on drives:
-<cite>
-/dev/md/1:
- Timing buffer-cache reads:   128 MB in  0.40 seconds =323.28 MB/sec
- Timing buffered disk reads:  64 MB in  1.75 seconds = 36.47 MB/sec
-/dev/sda:
- Timing buffer-cache reads:   128 MB in  0.41 seconds =309.23 MB/sec
- Timing buffered disk reads:  64 MB in  1.46 seconds = 43.87 MB/sec
-/dev/sdb:
- Timing buffer-cache reads:   128 MB in  0.41 seconds =315.32 MB/sec
- Timing buffered disk reads:  64 MB in  1.23 seconds = 52.04 MB/sec
-</cite>
-What seems strange to me is that second drive is faster than first one 
-(devices are symmetrical, sd[a,b]2 is swapspace (not mounted at time of 
-test), sd[a,b]1 is /boot (raid1)).
-What is even stranger is that raid0 which should be faster than single drive, 
-is pretty much slower- what's the reason of that?
 -- 
-Witold Krêcicki (adasi) adasi [at] culm.net
-GPG key: 7AE20871
-http://www.culm.net
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+WatchGuard - http://www.watchguard.com/

@@ -1,58 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266453AbUHFCWa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267446AbUHFC1n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266453AbUHFCWa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 22:22:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267978AbUHFCWa
+	id S267446AbUHFC1n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 22:27:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267904AbUHFC1n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 22:22:30 -0400
-Received: from smtp100.mail.sc5.yahoo.com ([216.136.174.138]:17290 "HELO
-	smtp100.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266453AbUHFCWW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 22:22:22 -0400
-Message-ID: <4112EB57.2020003@yahoo.com.au>
-Date: Fri, 06 Aug 2004 12:22:15 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.1) Gecko/20040726 Debian/1.7.1-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rik van Riel <riel@redhat.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] RSS ulimit enforcement for 2.6.8
-References: <Pine.LNX.4.44.0408052056160.8229-100000@dhcp83-102.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0408052056160.8229-100000@dhcp83-102.boston.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Aug 2004 22:27:43 -0400
+Received: from holomorphy.com ([207.189.100.168]:48583 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267446AbUHFC1l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 22:27:41 -0400
+Date: Thu, 5 Aug 2004 19:27:34 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andy Isaacson <adi@hexapodia.org>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       "Mr. Berkley Shands" <berkley@cse.wustl.edu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Severe I/O performance regression 2.6.6 to 2.6.7 or 2.6.8-rc3
+Message-ID: <20040806022734.GN17188@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andy Isaacson <adi@hexapodia.org>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	"Mr. Berkley Shands" <berkley@cse.wustl.edu>,
+	linux-kernel@vger.kernel.org
+References: <41126811.7020607@dssimail.com> <20040805172531.GC17188@holomorphy.com> <4112917A.3080003@cse.wustl.edu> <20040805204615.GJ17188@holomorphy.com> <20040805223319.GA18155@logos.cnet> <20040806020930.GA23072@hexapodia.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040806020930.GA23072@hexapodia.org>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
+At some point in the past, I wrote:
+>>> Some form of changelogging to enumerate what the contents of the
+>>> 2.6.6-bk6 -> 2.6.6-bk7 delta are and to reconstruct intermediate points
+>>> between 2.6.6-bk6 and 2.6.6-bk7 is needed.
 
->On Thu, 5 Aug 2004, Andrew Morton wrote:
->
->
->>Good question.  What I'm groping for here is some definition of what we
->>actually want the feature to _do_.  Once we have that, and have suitably
->>argued about it, we can then go off and see if the patch actually does it.
->>
->
->What I want the feature to do is allow users to set an
->RSS rlimit to prevent a process from hogging up all the
->machine's memory.
->
->I am not looking for a hard memory limit, since that
->would just cause extra IO, which has bad consequences
->for the rest of the system.
->
->In addition, I would like the patch to be relatively
->low impact, not giving us much maintenance overhead or
->much runtime overhead.
->
->If anybody has good reasons for needing hard per-process
->RSS limits, let us know.  So far I haven't seen anybody
->with a workload that somehow requires a hard limit.
->
->
-FWIW, I like Rik's approach. One tiny request might be just to do the
-patch underneath the thrashing control patch so it can be sent to Linus
-earlier.
+On Thu, Aug 05, 2004 at 09:09:30PM -0500, Andy Isaacson wrote:
+> If you're willing to use bk, it's trivial.  Each changeset refers to a
+> particular state of the tree.  If "bk -r check -acv" reports no errors,
+> and "bk changes -r+ -d:KEY:" reports a particular key, you are
+> guaranteed that your tree state matches exactly the state of anyone else
+> who has that key at any point in the past. [1]
+> So if the -bkX creation script doesn't already, it should "bk changes
+> -r+ -d:KEY: > key-bk$X" when it creates the tarball.  Then anyone can
+> "bk clone -r`cat key-bk7` linux-2.5 linux-2.6-bk7" and duplicate the
+> -bk7 state of the tree, and then "bk changes -L ../linux-2.6-bk6" to
+> find the list of changesets differing.
 
+Once we get there, there must be some way to construct intermediate
+points between those two faithful at the very least to the snapshot
+ordering if not true chronological ordering.
+
+
+On Thu, Aug 05, 2004 at 07:33:19PM -0300, Marcelo Tosatti wrote:
+>> Indeed its nasty, the problem is there is no tagging in the main BK
+>> repository representing the -bk tree's. It shouldnt be too hard to
+>> do something about this? I can't think of anything which could help...
+
+On Thu, Aug 05, 2004 at 09:09:30PM -0500, Andy Isaacson wrote:
+> Tagging isn't the answer for snapshots.  Rather, the snapshot metadata
+> needs to include the cset key at the snapshot instant.
+> [1] well, caveat -- bk isn't cryptographically secure, so probably a
+>     motivated attacker could construct a tree which would pass this test
+>     but have different contents.  This wouldn't allow the attacker to
+>     push invalid contents to other trees, just to have different
+>     contents in their tree.
+
+Yes, this would be very helpful.
+
+
+-- wli

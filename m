@@ -1,48 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262034AbTKTUtB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 15:49:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbTKTUtB
+	id S262092AbTKTUyb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 15:54:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262110AbTKTUyb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 15:49:01 -0500
-Received: from kinesis.swishmail.com ([209.10.110.86]:28685 "HELO
-	kinesis.swishmail.com") by vger.kernel.org with SMTP
-	id S262034AbTKTUs7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 15:48:59 -0500
-Message-ID: <3FBD27A0.50803@techsource.com>
-Date: Thu, 20 Nov 2003 15:44:16 -0500
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Justin Cormack <justin@street-vision.com>
-CC: Jesse Pollard <jesse@cats-chateau.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: OT: why no file copy() libc/syscall ??
-References: <1068512710.722.161.camel@cube> <03111209360001.11900@tabby>	<20031120172143.GA7390@deneb.enyo.de>  <03112013081700.27566@tabby> <1069357453.26642.93.camel@lotte.street-vision.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 20 Nov 2003 15:54:31 -0500
+Received: from users.ccur.com ([208.248.32.211]:46057 "HELO rudolph.ccur.com")
+	by vger.kernel.org with SMTP id S262092AbTKTUy3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 15:54:29 -0500
+Date: Thu, 20 Nov 2003 15:54:25 -0500
+From: Joe Korty <joe.korty@ccur.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.6.0-test9-mm4-lockmeter-preemption
+Message-ID: <20031120205424.GA5912@rudolph.ccur.com>
+Reply-To: Joe Korty <joe.korty@ccur.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+11/20/2003: base is 2.6.0-test9-mm4
+ o Fix lockmeter under preemption (i386 only)
+ o Fix compile warnings in kernel/lockmeter.c
 
+Joe
 
-Justin Cormack wrote:
-> On Thu, 2003-11-20 at 19:08, Jesse Pollard wrote:
-
-> If you really want a filesystem that supports efficient copying you
-> probably want it to have the equivalent of COW blocks, so that a copy
-> just sets up a few pointers, and the copy only happens when the original
-> or copied files are changed.
-> 
-> But basically you wont get a syscall until you have a filesystem with
-> semantics that only maps onto this sort of operation.
-
-
-This could be a problem if COW causes you to run out of space when 
-writing to the file.
-
-This could also be a benefit if, for whatever reason, you have lots of 
-copies of the same file that you never change.  But that sounds somewhat 
-pointless to me.
-
+diff -ura base/arch/i386/Kconfig new/arch/i386/Kconfig
+--- base/arch/i386/Kconfig	2003-11-20 14:47:30.000000000 -0500
++++ new/arch/i386/Kconfig	2003-11-20 15:01:21.000000000 -0500
+@@ -1300,7 +1300,7 @@
+ 	  
+ config LOCKMETER
+ 	bool "Kernel lock metering"
+-	depends on SMP && !PREEMPT
++	depends on SMP
+ 	help
+ 	  Say Y to enable kernel lock metering, which adds overhead to SMP locks,
+ 	  but allows you to see various statistics using the lockstat command.
+diff -ura base/include/asm-i386/spinlock.h new/include/asm-i386/spinlock.h
+--- base/include/asm-i386/spinlock.h	2003-11-20 14:47:30.000000000 -0500
++++ new/include/asm-i386/spinlock.h	2003-11-20 15:14:20.000000000 -0500
+@@ -270,10 +270,12 @@
+ 	return 0;
+ 
+ slow_path:
++	preempt_disable();
+ 	_metered_spin_lock(lock);
+ 	if (atomic_dec_and_test(atomic))
+ 		return 1;
+ 	_metered_spin_unlock(lock);
++	preempt_enable();
+ 	return 0;
+ }
+ 
+diff -ura base/kernel/lockmeter.c new/kernel/lockmeter.c
+--- base/kernel/lockmeter.c	2003-11-20 14:47:30.000000000 -0500
++++ new/kernel/lockmeter.c	2003-11-20 15:20:20.000000000 -0500
+@@ -23,6 +23,7 @@
+ #include <linux/vmalloc.h>
+ #include <linux/spinlock.h>
+ #include <linux/utsname.h>
++#include <linux/module.h>
+ #include <asm/system.h>
+ #include <asm/uaccess.h>
+ 

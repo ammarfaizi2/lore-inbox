@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262068AbTKGWmU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 17:42:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbTKGW04
+	id S261801AbTKGWm0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 17:42:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262055AbTKGW03
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:26:56 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:15062 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S264647AbTKGV7e (ORCPT
+	Fri, 7 Nov 2003 17:26:29 -0500
+Received: from ns.suse.de ([195.135.220.2]:35284 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264117AbTKGMrP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 16:59:34 -0500
-Date: Fri, 7 Nov 2003 16:22:36 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: nico@xanadu.home
-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	<arvidjaar@mail.ru>
-cc: =?koi8-r?Q?=22?=Larry McVoy=?koi8-r?Q?=22=20?= <lm@bitmover.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: linux.bkbits.net down=?koi8-r?Q?=3F?=
-In-Reply-To: <E1AHiDl-0000It-00.arvidjaar-mail-ru@f20.mail.ru>
-Message-ID: <Pine.LNX.4.44.0311071620000.26538-100000@xanadu.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 7 Nov 2003 07:47:15 -0500
+Date: Fri, 7 Nov 2003 13:46:11 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: bill davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
+Message-ID: <20031107124611.GB506@suse.de>
+References: <boe6in$f4q$1@gatekeeper.tmr.com> <Pine.LNX.4.44.0311061143300.1842-100000@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0311061143300.1842-100000@home.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Nov 2003, [koi8-r] "Andrey Borzenkov[koi8-r] "  wrote:
+On Thu, Nov 06 2003, Linus Torvalds wrote:
+> > I'm not sure what you meant by faster, so don't think I'm disagreeing
+> > with you.
+> 
+> Faster as in "it uses DMA for everything, so you can actually burn at full 
+> speed without having to worry about it or sucking up CPU".
 
-> 
-> 
-> 
-> -----Original Message-----
-> 
-> > 
-> > bkbits is definitely up but we did switch T1 providers recently.
-> > That included changing the routes in the backbone.  The only thing I can
-> > think of is that your part of the backbone does not have a route for us.
-> > We're 192.132.92.*, see if you can traceroute to us.
-> > 
-> 
-> I can't traceroute behind NAT firewall but I can ping it no problems:
-> 
-> root@student8:/#> ping linux.bkbits.net
-> linux.bkbits.net is alive
-> 
-> the problem is attempt to enter any repository there (linux-2.5, linux-2.4
-> or the third, I forgot) just times out.
+And it doesn't do unnecessary data copies either. Not as important as
+the DMA issue, but still not completely uninteresting on slower boxes.
 
-See if the URLs that fail on you contain the 8080 port specifier.
-Most probably your firewall is blocking those.
-
-
-Nicolas
+-- 
+Jens Axboe
 

@@ -1,65 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129445AbRAXV6q>; Wed, 24 Jan 2001 16:58:46 -0500
+	id <S129718AbRAXV70>; Wed, 24 Jan 2001 16:59:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129718AbRAXV6g>; Wed, 24 Jan 2001 16:58:36 -0500
-Received: from isis.telemach.net ([213.143.65.10]:12042 "HELO
-	isis.telemach.net") by vger.kernel.org with SMTP id <S129445AbRAXV6Y>;
-	Wed, 24 Jan 2001 16:58:24 -0500
-Message-ID: <3A6F5004.D8954FA4@telemach.net>
-Date: Wed, 24 Jan 2001 22:58:28 +0100
-From: Jure Pecar <pegasus@telemach.net>
-Organization: Select Technology
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test10 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S132894AbRAXV7R>; Wed, 24 Jan 2001 16:59:17 -0500
+Received: from web11602.mail.yahoo.com ([216.136.172.54]:8455 "HELO
+	web11602.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S129718AbRAXV7G>; Wed, 24 Jan 2001 16:59:06 -0500
+Message-ID: <20010124215905.19584.qmail@web11602.mail.yahoo.com>
+Date: Wed, 24 Jan 2001 13:59:05 -0800 (PST)
+From: Tom <freyason@yahoo.com>
+Subject: eepro100 problems with embedded Intel PRO/100 VM NIC
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0 hangs with PIII i815e system
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The eepro100 driver appears to have timeout problems with the
+Intel PRO/100 VM network card. I have such a card embedded in
+my work machine.
+
+The NIC has a 82562-equivalent controller chip. 
+The eepro100 driver does correctly initialize the network card and
+network traffic does work for a time until I start receiving the
+following messages:
 
 
-> Recently, i got a new and shiny PIII 700Mhz, 64MB box, with Intel 
-> motherboard based on the i815e chipset, with intergrated 
-> NIC/Audio/Graphic. 
+Jan 24 14:53:08 morpheus kernel: eepro100: wait_for_cmd_done timeout!
+Jan 24 14:53:42 morpheus last message repeated 12 times
+Jan 24 14:53:53 morpheus last message repeated 5 times
+Jan 24 14:53:55 morpheus kernel: mtrr: 0x44000000,0x2000000 overlaps
+existing 0x44000000,0x400000
+Jan 24 14:54:29 morpheus kernel: eepro100: wait_for_cmd_done timeout!
+Jan 24 14:54:46 morpheus last message repeated 7 times
 
-> The machine ran smoothly with the supplied 2.2.16 kernel, yet i decided 
-> to upgrade to 2.4.0. 
+/proc/pci reports the NIC as such:
 
-> But since upgrading to 2.4.0, i have random, unexpected lock-ups, and that 
-> means TOTAL lock-up, no console switching, no SysRQ key, nothing responds. 
+  Bus  2, device   8, function  0:
+    Ethernet controller: Intel Unknown device (rev 1).
+      Vendor id=8086. Device id=2449.
+      Medium devsel.  Fast back-to-back capable.  IRQ 10.  Master
+Capable.  Late
+ncy=66.  Min Gnt=8.Max Lat=56.
+      Non-prefetchable 32 bit memory at 0x40100000 [0x40100000].
+      I/O at 0x1400 [0x1401].
 
-> I first tried removing all of the(probably troublemaking) i81x features, 
-> ICH2 audio driver, DRI and AGP were all moved out of the kernel, yet 
-> lockups still occour. 
+What is strange is the mtrr error. I do run X with /dev/agpgart without
+any problems, but network will stop working after a while.
 
-> If i can point at a common cause, all these lock-ups except one occoured 
-> while downloading something, and in all cases squid 2.2. was running. 
+Intel had released the drivers for the Intel PRO/100 VM card for 2.2
+series kernel, but I would really rather run 2.4 to take adcvantage of
+all the new hardware support.
 
-> I include the kernel config file, and kernel bootup messages,hopefully, it 
-> will help debugging the problem 
+If you need more information or wish to reply back, please reply to my
+e-mail address rather than the list.
 
-I can only confirm that strange things are happening indeed with intel's
-D815EEA board and 2.4.0 kernels. I have 15 such boxen (and lot more to
-come next month), all with exact same configuration, yet 10 of these are
-working ok, of other 5 one cant even reach a couple of hours of uptime,
-other four managed 2 days uptime so far. They all have installed redhat7
-with their rawhide 2.4.0-0.43 kernel rpm. So far all 15 boxen stand
-idle, i just ping them from time to time to check if they're still up.
-I really _really_ hope this is a hardware problem. One weird thing i
-came up with is that all boxen that were crashing have noticeably warmer
-cpu heatsinks that those which dont crash, yet all fans were spinning as
-they should. So could this be something in the kernel? There are
-absolutely no mesgs ni logs indicating that something is wrong... 
+Thanks!
 
-All suggestions welcome.
+Tom
 
---
-
-Jure Pecar
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Auctions - Buy the things you want at great prices. 
+http://auctions.yahoo.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

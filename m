@@ -1,78 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbUK2Q5g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261177AbUK2RFG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261763AbUK2Q5g (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 11:57:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261762AbUK2Q5g
+	id S261177AbUK2RFG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 12:05:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261268AbUK2RFG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 11:57:36 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:38105 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261763AbUK2Q5d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 11:57:33 -0500
-Date: Mon, 29 Nov 2004 11:57:01 -0500
-From: Dave Jones <davej@redhat.com>
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: MTRR vesafb and wrong X performance
-Message-ID: <20041129165701.GA903@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Gerd Knorr <kraxel@bytesex.org>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <1101338139.1780.9.camel@PC3.dom.pl> <20041124171805.0586a5a1.akpm@osdl.org> <1101419803.1764.23.camel@PC3.dom.pl> <87is7ogb93.fsf@bytesex.org> <20041129154006.GB3898@redhat.com> <20041129162242.GA25668@bytesex>
+	Mon, 29 Nov 2004 12:05:06 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:26118 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261177AbUK2RFB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 12:05:01 -0500
+Date: Mon, 29 Nov 2004 18:04:58 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: hugang@soulinfo.com, akpm@digeo.com, linux-kernel@vger.kernel.org
+Subject: Re: ppcfix.diff
+Message-ID: <20041129170458.GA9908@stusta.de>
+References: <20041129154041.GB4616@hugang.soulinfo.com> <Pine.LNX.4.53.0411291742450.30846@yvahk01.tjqt.qr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041129162242.GA25668@bytesex>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.53.0411291742450.30846@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(loony with broken SPF mailfilter removed from Cc)
-		
-On Mon, Nov 29, 2004 at 05:22:42PM +0100, Gerd Knorr wrote:
+On Mon, Nov 29, 2004 at 05:42:59PM +0100, Jan Engelhardt wrote:
+> >Please apply this patch, to fix compile error in debian woody.
+> >$gcc -v
+> >Reading specs from /usr/lib/gcc-lib/powerpc-linux/2.95.4/specs
+> >gcc version 2.95.4 20011002 (Debian prerelease)
+> 
+> Is 2.95.*4* supported, after all?
 
- > > vesafb is assuming that the memory used in the current screen mode
- > > xres*yres*depth rounded up to nearest power of 2, is the amount of
- > > ram the card has, which is not just wrong, it's dumb.
- > 
- > It used to do that, but doesn't any more in 2.6.10-rc2.  Check the
- > current code please.
+2.95.4 is the version the post-2.95.3 snapshot of the gcc 2.95 
+identifies itself. There was no official 2.95.4 and I don't know what is 
+supported on ppc, but at least on i386, it is supported.
 
-ah, I was looking at a 2.6.9 tree, my apologies.
+> Jan Engelhardt
 
-but..
+cu
+Adrian
 
-    if (mtrr) {
-        int temp_size = size_total;
-        /* Find the largest power-of-two */
-        while (temp_size & (temp_size - 1))
-                    temp_size &= (temp_size - 1);
+-- 
 
-                /* Try and find a power of two to add */
-        while (temp_size && mtrr_add(vesafb_fix.smem_start, temp_size, MTRR_TYPE_WRCOMB, 1)==-EINVAL) {
-            temp_size >>= 1;
-        }
-    }
-
-size_total is calculated thus:
-
-    size_total = screen_info.lfb_size * 65536;
-    if (vram_total)
-        size_total = vram_total * 1024 * 1024;
-    if (size_total < size_vmode)
-        size_total = size_vmode;
-
-
-where is screen_info.lfb_size set ?
-
- > > If vesafb can't get it right, maybe it shouldn't be
- > > attempted to do it in the half-assed way it currently does.
- > 
- > Well, 2.6.10-rc1 + newer should get it right now.  We can't do much
- > about BIOS bugs through, other than maybe disabling mtrr by default
- > if too many machines are affected.
-
-or blacklist if there aren't too many perhaps?
-
-		Dave
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

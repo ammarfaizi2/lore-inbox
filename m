@@ -1,41 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262047AbTCRADg>; Mon, 17 Mar 2003 19:03:36 -0500
+	id <S262013AbTCRAAE>; Mon, 17 Mar 2003 19:00:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262048AbTCRADg>; Mon, 17 Mar 2003 19:03:36 -0500
-Received: from holomorphy.com ([66.224.33.161]:28892 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S262047AbTCRADf>;
-	Mon, 17 Mar 2003 19:03:35 -0500
-Date: Mon, 17 Mar 2003 16:14:05 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] O(1) proc_pid_readdir
-Message-ID: <20030318001405.GS20188@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Manfred Spraul <manfred@colorfullife.com>,
-	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-References: <20030316213516.GM20188@holomorphy.com> <Pine.LNX.4.44.0303170719410.15476-100000@localhost.localdomain> <20030317070334.GO20188@holomorphy.com> <3E761124.8060402@colorfullife.com>
+	id <S262023AbTCRAAE>; Mon, 17 Mar 2003 19:00:04 -0500
+Received: from 217-125-129-224.uc.nombres.ttd.es ([217.125.129.224]:31981 "HELO
+	cocodriloo.com") by vger.kernel.org with SMTP id <S262013AbTCRAAD>;
+	Mon, 17 Mar 2003 19:00:03 -0500
+From: wind@cocodriloo.com
+Date: Tue, 18 Mar 2003 01:12:10 +0100
+To: Andrew Morton <akpm@digeo.com>
+Cc: wind@cocodriloo.com, bzzz@tmi.comex.ru, riel@surriel.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4 vm, program load, page faulting, ...
+Message-ID: <20030318001210.GH11526@wind.cocodriloo.com>
+References: <20030317151004.GR20188@holomorphy.com> <Pine.LNX.4.44.0303171100300.2571-100000@chimarrao.boston.redhat.com> <20030317165223.GA11526@wind.cocodriloo.com> <m3hea2gcoz.fsf@lexa.home.net> <20030317140506.686282a5.akpm@digeo.com> <20030317230839.GG11526@wind.cocodriloo.com> <20030317152855.388b643f.akpm@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3E761124.8060402@colorfullife.com>
+In-Reply-To: <20030317152855.388b643f.akpm@digeo.com>
 User-Agent: Mutt/1.3.28i
-Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
->> The NMI oopses are mostly decoded by hand b/c in-kernel (and other)
->> backtrace decoders can't do it automatically. I might have to generate
->> some fresh data, with some kind of hack (e.g. hand-coded NMI-based kind
->> of smp_call_function) to trace the culprit and not just the victim.
->> The victims were usually stuck in fork() or exit().
+On Mon, Mar 17, 2003 at 03:28:55PM -0800, Andrew Morton wrote:
+> wind@cocodriloo.com wrote:
+> >
+> > > This is all a bit dubious for several reasons.  Most particularly, the
+> > > up-front instantiation of the pages in pagetables makes unneeded pages harder
+> > > to reclaim.  It would be really neat if someone could try putting the
+> > > madvise(MADV_WILLNEED) into glibc and test that.  Maybe on a 2.4 kernel.
+> > 
+> > 
+> > something like this one?
+> > 
+> 
+> No, not at all.  I meant a patch against glibc, not against the kernel!
+> 
+> Like this:
+> 
+> 	map = mmap(..., PROT_EXEC, ...);
+> +	if (getenv("MAP_PREFAULT"))
+> +		madvise(map, length, MADV_WILLNEED);
 
-On Mon, Mar 17, 2003 at 07:17:08PM +0100, Manfred Spraul wrote:
-> Could you check if the attached test app triggers the NMI oopser?
 
-Sure, no problem.
+I know what you mean, but right now it's far easier hacking the
+kernel than libc, at least if running a uml-kernel ;)
 
+Anyways, I booted my patch but I don't know if it's working, because
+I've got no test machine to try it on... but, it didn't freak out
+so I think it works :)))
 
--- wli
+As for the libc patch, I think it can be easier to make an
+exec-prefault.so library and LD_PRELOAD it, at least for testing
+purposes.
+
+If you could tell me the locking is right, I might try patching my
+physical machine 2.4.19-ck4 with the kernel patch just to see if it
+works.

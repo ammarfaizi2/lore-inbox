@@ -1,78 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266897AbUG1MjY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266895AbUG1Mlm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266897AbUG1MjY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 08:39:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266895AbUG1MjX
+	id S266895AbUG1Mlm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 08:41:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266898AbUG1Mll
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 08:39:23 -0400
-Received: from main.gmane.org ([80.91.224.249]:17053 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S266896AbUG1MjG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 08:39:06 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-Mail-Followup-To: linux-kernel@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-From: Benjamin Rutt <rutt.4+news@osu.edu>
-Subject: Re: clearing filesystem cache for I/O benchmarks
-Date: Wed, 28 Jul 2004 08:38:59 -0400
-Message-ID: <87k6wocnmk.fsf@osu.edu>
-References: <87vfgeuyf5.fsf@osu.edu> <20040726002524.2ade65c3.akpm@osdl.org>
- <87pt6iq5u2.fsf@osu.edu> <20040726234005.597a94db.akpm@osdl.org>
- <4106013E.30408@namesys.com> <87vfg9nyqv.fsf@osu.edu>
- <410698FA.40400@namesys.com>
+	Wed, 28 Jul 2004 08:41:41 -0400
+Received: from lists.us.dell.com ([143.166.224.162]:55218 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S266895AbUG1MlT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 08:41:19 -0400
+Date: Wed, 28 Jul 2004 07:40:10 -0500
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: David Balazic <david.balazic@hermes.si>
+Cc: Dave Jones <davej@redhat.com>, Andries Brouwer <aebr@win.tue.nl>,
+       Jeff Garzik <jgarzik@pobox.com>, Pavel Machek <pavel@suse.cz>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Weird:  30 sec delay during early boot
+Message-ID: <20040728124010.GA16423@lists.us.dell.com>
+References: <B1ECE240295BB146BAF3A94E00F2DBFF0901F6@piramida.hermes.si>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: dhcp065-025-157-254.columbus.rr.com
-Mail-Copies-To: nobody
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
-Cancel-Lock: sha1:Fo2XpDAbdoXrvGv+wZuj+7k2u3U=
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ew6BAiZeqk4r7MaW"
+Content-Disposition: inline
+In-Reply-To: <B1ECE240295BB146BAF3A94E00F2DBFF0901F6@piramida.hermes.si>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser <reiser@namesys.com> writes:
 
-> fsync performance gives you different performance.  Better to write
-> more stuff to flush the cache.
+--ew6BAiZeqk4r7MaW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I'm trying to understand how that would work.  Let's take an example
-of a 64GB file that I'm writing out from scratch.  I start a timer
-before writing.  With my fsync() way of testing, I expect to stop the
-timer the moment last byte has been written and fsync() has been
-called.
+On Wed, Jul 28, 2004 at 02:16:19PM +0200, David Balazic wrote:
+> The same delay as before.
+>=20
+> I built 2.6.8-rc1 first, then patched and issued a "make bzImage";
+> maybe it did not compile all the new stuff ?
 
-I gather you're saying that continuing writing past the 64GB mark,
-causing LRU expiration of the last bytes of the 64GB bytes from write
-buffers is a more fair way to test, versus just calling fsync() once
-at the end.  I'm happy to write my benchmarks this way too, except I
-need to know two configuration values now:
+No, it didn't work for Jeff either, and I've been gone on vacation/OLS
+the past couple weeks, just now getting back into normal work mode.  I
+haven't forgotten about you.
 
-1) when to stop the timer?
-2) how much more to write past 64GB?
+The crazy thing is, the early real mode code has issued a "Get Disk
+Type" (int13 fn15) command for ages, so I suspect it's not being slow for
+disk 80 or 81, but for one of the higher values.  From setup.S:
 
->>  Not including
->>fsync() time would only test the ability of the various parts of the
->>I/O systems to do write buffering.  It's easy to do lots of write
->>buffering, if you buy enough memory.  Forcing the disks to write is
->>the only fair way to compare writes between I/O systems.
->>  
->>
-> It isn't fair.  fsync is a different code path, and may be less
-> efficient.  Or more, depending on the fs.  reiser4 is currently not
-> well optimized for fsync, maybe next year I will change that but not
-> this week....
+# Check that there IS a hd1 :-)
+        movw    $0x01500, %ax
+        movb    $0x81, %dl
+        int     $0x13
+        jc      no_disk1
+        cmpb    $3, %ah
+        je      is_disk1
 
-I think we agree that forcing the disks to write all of the data
-before the timer stops is a fair way to compare between filesystems.
-Otherwise we're "almost" measuring disk throughput, except for what
-has been write-buffered...a real gray area.  But I think you're
-pointing out that the results could be different depending on whether
-the fsync() method or your "write past the intented amount" method for
-flushing is used.  I'd be happy to run these benchmarks both ways, as
-long as I knew how.  If you can help me answer my above questions,
-I'll run them both ways.
+This is all I was trying to accomplish with that test patch.
+
+David, you had said before that by downgrading your BIOS you no longer
+saw the delay.  Is this not still true?
+
+You also mentioned that Grub made different calls.  I'll check that
+out too.
 
 Thanks,
--- 
-Benjamin Rutt
+Matt
 
+--=20
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
+
+--ew6BAiZeqk4r7MaW
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFBB56qIavu95Lw/AkRAvjDAKCT6nCybJa4OX6JMLpJXb1++g4vBwCfYDY3
+LT7cZTbYHhkg12+mpYe74bI=
+=m6tZ
+-----END PGP SIGNATURE-----
+
+--ew6BAiZeqk4r7MaW--

@@ -1,78 +1,148 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313421AbSEYEbo>; Sat, 25 May 2002 00:31:44 -0400
+	id <S313477AbSEYEdG>; Sat, 25 May 2002 00:33:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313492AbSEYEbo>; Sat, 25 May 2002 00:31:44 -0400
-Received: from jwhite-home.codeweavers.com ([209.240.253.22]:23664 "EHLO
-	jwhiteh.whitesen.org") by vger.kernel.org with ESMTP
-	id <S313421AbSEYEbm>; Sat, 25 May 2002 00:31:42 -0400
-Subject: isofs unhide option:  troubles with Wine
-From: Jeremy White <jwhite@codeweavers.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+	id <S313505AbSEYEdF>; Sat, 25 May 2002 00:33:05 -0400
+Received: from relay03.valueweb.net ([216.219.253.237]:44816 "EHLO
+	relay03.valueweb.net") by vger.kernel.org with ESMTP
+	id <S313477AbSEYEdC>; Sat, 25 May 2002 00:33:02 -0400
+Message-ID: <3CEF139A.1572367C@opersys.com>
+Date: Sat, 25 May 2002 00:31:22 -0400
+From: Karim Yaghmour <karim@opersys.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
+MIME-Version: 1.0
+To: Larry McVoy <lm@bitmover.com>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Andrea Arcangeli <andrea@e-mind.com>, Dan Kegel <dank@kegel.com>,
+        Andrew Morton <akpm@zip.com.au>, Hugh Dickins <hugh@veritas.com>,
+        Christoph Rohland <cr@sap.com>, Jens Axboe <axboe@suse.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
+In-Reply-To: <Pine.LNX.4.44.0205241440210.28644-100000@home.transmeta.com> <3CEEC729.74625C2B@opersys.com> <20020524162228.D28795@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 24 May 2002 23:30:29 -0500
-Message-Id: <1022301029.2443.28.camel@jwhiteh>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
 
-When installing Microsoft Office with Wine, we find that some
-MS CDs have certain files marked as hidden on the CD.
+Larry McVoy wrote:
+> Eben Moglen is the lawyer for the FSF, right?  So he's hardly objective
+> about this topic, right?  Isn't his point to try and get everything to
+> be GPLed?
 
-With the default isofs mount options, these files are
-completely inaccessible.  (Relevant code is in 
-fs/isofs/namei.c, and dir.c; search for unhide).
+As I said, the FSF and Eben's public message are not the entire story,
+but only part of it.
 
-You're forced to remount the CD with the -unhide option
-to make these files visible.
+> So?  Eben is not objective on the topic, FSMlabs holds the patents, if you
+> listen to what Eben says, that's meaningless.  He is not a judge, he is not
+> objective, he's got a particular ax to grind.  That's fine, except for one
+> thing: he doesn't hold the patent.  So if you are going to listen to anyone,
+> I'd be listening to FSMlabs.
 
-Now, forgive me if I've overlooked TFM, but I did not
-find any discussion of the unhide option in the archives
-I could search.
+Exactly, so would I. Except that they haven't been very verbose. All we
+ever got from them  was "speak to your lawyer". Sure that's fair enough,
+but my entire point is: This uncertainty and lack of clarity is hurting
+Linux very badly.
 
-Further, imho, the unhide code is incorrectly implemented
-in Linux.
+> > One last thing: Clearly, if non-GPL applications were not allowed
+> > with Linux, we wouldn't be talking today. The same holds for non-GPL
+> > RT apps.
+> 
+> Ahh, I get it.  I think I see the problem.  You are applying GPL rules
+> to the RTLinux patent.  You're saying that the boundary where the patent
+> applies stops at the same place as the boundary where the GPL stops.
 
-The use of the 'hide' bit in Windows has no good parallel in
-Linux.  The current implementation treats a hidden file
-as if it didn't exist at all, there is no possible way 
-a user space program can see that file.  In Windows, the
-file just is hidden from 'normal' programs, you can still
-get to the file if you work hard enough.
+Not really. I'm saying that Linux is in deep-shit (sorry for the wording)
+because of this patent and until someone gets rid of it, other OSes will
+be chosen instead of it.
 
-Further, I hypothesize (perhaps wrongly) that the only use
-of this hidden bit is on Windows CDs, and largely on MS
-Office CDs, and so I think it is reasonable for me to
-call for a change.  (Understand, I'm trying to help
-very basic users to use MS Office; for them to have to
-su to root, umount, and then mount -o unhide, is a pretty tough thing
-to ask.  See the following article to see why I'm so upset about this:
-    http://biz.yahoo.com/fo/020523/linux_gets_friendlier_1.html)
+It matters little whether I look at this from the copyright perspective
+or from the patent perspective. What I'm trying to highlight is that the
+current real-time Linux patent/copyright situation is killing Linux in
+an entire application field.
 
-Unfortunately, I don't have a strong feeling for what the
-'right' solution is.  I see several options:
+It doesn't matter if we agree/disagree with any of the players involved,
+whether it be me, Victor, the FSF, Moglen, Linus, or God konws who. What
+I'm pointing out is that the current situation is killing Linux in an
+entire application field and that it needs to be sorted out.
 
-    1.  Invert the logic of the option, make it 'hide' instead
-        of unhide, and so unhide is the default.
+> I'll bet that is the cause of all the confusion.  The patent and the
+> GPL have no correlation.  It's completely up to FSMlabs to define what
+> is an application and what is not.  And it's a very reasonable thing
+> for them to consider everything which runs on top of the RTLinux substrate
+> to be required to be covered by the GPL.  That's certainly within their
+> rights.
 
-    2.  Make it possible to set this mount option from user
-        space (I don't like this, but it would get me around
-        the problem).
+It most certainly is. I have no disagreement with you there.
 
-    3.  Make it so that isofs/dir.c still strips out hidden
-        files, but enable isofs/namei.c to return a hidden file that
-        is opened directly by name.
+>  You can't take the GPL rules and impose that on his patent
+> license, the two have nothing to do with each other.  He who holds
+> the patent makes the rules.
 
-I am willing to submit a patch to implement the appropriate solution.
+Again, I agree. I don't question any of this and I perfectly understand
+the copyright/patent laws involved.
 
-Comments and opinions are greatly appreciated; please copy me directly
-though, as I am not subscribed.
+> I think the bottom line is that the RT idea that Victor came up with is
+> pretty cool,
 
-Thanks,
+Well, here I disagree. "came up with" is very strong wording. Care to
+look at a paper by Stodolsky, Chen, and Bershad entitled "Fast Interrupt
+Priority Management in Operating System Kernels" published in 1993 as
+part of the Usenix Microkernels and Other Kernel Architectures Symposium.
+That is one paper that describes the software emulation of interrupts.
 
-Jeremy
+In fact, this paper is so crucial to RTLinux that Barbanov writes the
+following about it in his masters thesis:
+"It turns out that using software interrupts [23], together with several
+other techniques, it is nevertheless possible to modify Linux so as to
+overcome these problems. The idea to use software interrupts so that a
+general-purpose operating system could coexist with a hard real-time
+system is due to Victor Yodaiken (personal communications)."
 
+Curiously, though, this paper is recognized by Barbanov as a pilar of
+the RTLinux technique, it is never mentionned in the literature reference
+to the patent.
+
+> it is obviously something that you want, and so you get to
+> live with those rules.  Listening to a lawyer's opinion, when that
+> lawyer works for the FSF and is charged with furthering the cause of
+> the FSF, that's just asking for trouble.  He isn't going to give you
+> an unbiased view.  I think Victor's suggestion is good - if you want to
+> know what the rules are, consult your own lawyer.
+
+I have no problem consulting the lawyer. What I am saying is that
+developers who have to fear being sued over their use of an OS
+because of loose patents will simply avoid using the OS altogether
+and stick with the established OSes who never got anyone in trouble
+(or, at least, the majority of people).
+
+> As someone who's been down this path pretty extensively, I do not think
+> that you are seeing it clearly, you are mixing the patent and the GPL
+> and you are not entitled to do that.  FSMlabs has to play by the GPL
+> rules for any modifications they make to the kernel, but you have to
+> play by their rules if you use their patent.  You can't apply the GPL
+> rules and expect those to override the patent rules, it doesn't work
+> like that.
+
+Thanks for taking the time to explain, but I think the issues go
+far beyond copyright and patent applicability. The issues goes to
+the heart of developers' perception of a technology. Today, most
+developers who take a deep look at using Linux for real-time apps
+simply avoid it. We can choose to look at this from whichever
+perspective we want. The bottom line is that Linux is just no being
+used in those apps. And the one main reason we got to this is the
+existence of the patent. As simplistic as it may sound, take the
+patent away and the entire problem disappears. No more fuss about
+GLP/non-GPL and no more fuss about which abstraction is allowed,
+processes, kernels, modules etc.
+
+Cheers,
+
+Karim
+
+===================================================
+                 Karim Yaghmour
+               karim@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

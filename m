@@ -1,71 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261263AbULHQ6g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261265AbULHRCb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261263AbULHQ6g (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 11:58:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbULHQ6g
+	id S261265AbULHRCb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 12:02:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbULHRCb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 11:58:36 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:27577 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261263AbULHQ6V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 11:58:21 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-6
-From: Lee Revell <rlrevell@joe-job.com>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
-       Esben Nielsen <simlo@phys.au.dk>
-In-Reply-To: <41B7314E.1050904@cybsft.com>
-References: <20041117124234.GA25956@elte.hu>
-	 <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu>
-	 <20041122005411.GA19363@elte.hu> <20041123175823.GA8803@elte.hu>
-	 <20041124101626.GA31788@elte.hu> <20041203205807.GA25578@elte.hu>
-	 <20041207132927.GA4846@elte.hu> <20041207141123.GA12025@elte.hu>
-	 <41B6839B.4090403@cybsft.com> <20041208083447.GB7720@elte.hu>
-	 <41B726D1.6030009@cybsft.com> <1102522720.30593.3.camel@krustophenia.net>
-	 <41B7314E.1050904@cybsft.com>
-Content-Type: text/plain
-Date: Wed, 08 Dec 2004 11:58:16 -0500
-Message-Id: <1102525097.30593.20.camel@krustophenia.net>
+	Wed, 8 Dec 2004 12:02:31 -0500
+Received: from fw.osdl.org ([65.172.181.6]:12749 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261265AbULHRCV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Dec 2004 12:02:21 -0500
+Date: Wed, 8 Dec 2004 09:02:16 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Chris Wright <chrisw@osdl.org>, dave@sr71.net,
+       linux-kernel@vger.kernel.org, Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: oops in proc_pid_stat() on task->real_parent?
+Message-ID: <20041208090216.N2357@build.pdx.osdl.net>
+References: <1102467332.19465.197.camel@localhost> <20041207220016.6917ee6f.akpm@osdl.org> <20041207220753.E469@build.pdx.osdl.net> <20041207221821.068568f4.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20041207221821.068568f4.akpm@osdl.org>; from akpm@osdl.org on Tue, Dec 07, 2004 at 10:18:21PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-12-08 at 10:52 -0600, K.R. Foley wrote:
-> Lee Revell wrote:
-> > On Wed, 2004-12-08 at 10:07 -0600, K.R. Foley wrote:
+* Andrew Morton (akpm@osdl.org) wrote:
+> Chris Wright <chrisw@osdl.org> wrote:
+> >
+> > * Andrew Morton (akpm@osdl.org) wrote:
+> > > yup, we fixed that one.
 > > 
-> >>I am still confused about one thing, unrelated to this. If RT tasks 
-> >>never expire and thus are never moved to the expired array??? Does that 
-> >>imply that we never switch the active and expired arrays? If so how do 
-> >>tasks that do expire get moved back into the active array?
+> > I thought the same thing, but this oops is from proc_pid_stat, not
+> > proc_pid_status.  The code is now in do_task_stat(), and the oops is
+> > within the orignal tasklist lock (instead of dropping and reaquiring the
+> > lock).  So, might be fixed, but if so, I think for a different reason.
 > > 
-> > 
-> > I think that RT tasks use a completely different scheduling mechanism
-> > that bypasses the active/expired array.
-> > 
-> > Lee
-> > 
-> > 
-> Please don't misunderstand. I am not arguing with you because obviously 
-> I am not really intimate with this code, but if the above statement is 
-> true then I am even more confused than I thought. I don't see any such 
-> distinctions in the scheduler code. In fact it looks to me like the 
-> whole scheduler is built on the premise of allowing RT tasks to be just 
-> like other tasks with a few exceptions, one of which is that RT tasks 
-> never hit the expired task array.
+> 
+> Ah, thanks.
+> 
+> I'm not sure that the holding of tasklist_lock is going to save us there. 
+> But then, Manfred recently did an audit, so I'm probably missing something.
+> 
+> Manfred, should we do this?
 
-No, you are probably right, I am the one who is confused.
+Yeah, I wondered the same.  Although I don't see why pid_alive() check
+would be useful if it's the real_parent that's gone.  Dave mentioned
+that he's got slab poisoning enabled, and the real_parent pointer was
+valid (i.e. not 6b6b6b6b).  So wouldn't tasklist_lock serialize against
+exiting real_parent?
 
-Lee
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

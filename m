@@ -1,40 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261884AbTIHCbt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 22:31:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261899AbTIHCbt
+	id S261885AbTIHCnK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 22:43:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261899AbTIHCnK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 22:31:49 -0400
-Received: from ns1.open.org ([199.2.104.1]:64403 "EHLO open.org")
-	by vger.kernel.org with ESMTP id S261884AbTIHCbs (ORCPT
+	Sun, 7 Sep 2003 22:43:10 -0400
+Received: from dp.samba.org ([66.70.73.150]:52137 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S261885AbTIHCnD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 22:31:48 -0400
-Message-ID: <3F5B87E2.6040501@open.org>
-Date: Sun, 07 Sep 2003 19:32:50 +0000
-From: Hal <pshbro@open.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030816
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: BUG: in 2.6.0-test4-bk8 and bk9 involving handling of ethernet interfaces
-X-Enigmail-Version: 0.76.4.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 7 Sep 2003 22:43:03 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Re-xmit: Modules: Be stricter recognizing init&exit sesections
+Date: Mon, 08 Sep 2003 12:38:21 +1000
+Message-Id: <20030908024303.3C9372C241@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When i was finishing up using a cross over cable to transfer data from 
-my desktop to my labtop I notied an odd thing. After I ifconfig eth0 
-down to close the interface on my desktop runing 2.6.0-test4-bk8 it 
-froze all my ttys and ptys. I upgraded to bk9 and got the same thing.
+Linus, please apply.
 
-To repeat the bug one will need two computers and a cross over cable. 
-Connect the two computers, ifconfig the interfaces on each computer. 
-Give them both an ip and then ifconfig up them both. Now to get the bug 
-ifconfig the interface on the computer runing a 2.6 kernel down and 
-hopefully there will be a system freeze.
+Name: .init sections must start with .init
+Status: Booted on 2.6.0-test4-bk9
 
-For more information im using a Net Gear fa311 ethernet NIC with the 
-Natsemi ethernet drivers.
+D: Someone pointed out that -ffunction-sections can cause a function
+D: called "init<something>" to be put in the init section, and discarded.
+D: This hurts PARISC badly.  Get more fussy with identifying them.
+
+--- 1.86/kernel/module.c	Wed Jun 11 00:55:09 2003
++++ edited/kernel/module.c	Thu Jun 12 15:46:13 2003
+@@ -1194,7 +1194,8 @@
+ 			if ((s->sh_flags & masks[m][0]) != masks[m][0]
+ 			    || (s->sh_flags & masks[m][1])
+ 			    || s->sh_entsize != ~0UL
+-			    || strstr(secstrings + s->sh_name, ".init"))
++			    || strncmp(secstrings + s->sh_name,
++				       ".init", 5) == 0)
+ 				continue;
+ 			s->sh_entsize = get_offset(&mod->core_size, s);
+ 			DEBUGP("\t%s\n", secstrings + s->sh_name);
+@@ -1209,7 +1210,8 @@
+ 			if ((s->sh_flags & masks[m][0]) != masks[m][0]
+ 			    || (s->sh_flags & masks[m][1])
+ 			    || s->sh_entsize != ~0UL
+-			    || !strstr(secstrings + s->sh_name, ".init"))
++			    || strncmp(secstrings + s->sh_name,
++				       ".init", 5) != 0)
+ 				continue;
+ 			s->sh_entsize = (get_offset(&mod->init_size, s)
+ 					 | INIT_OFFSET_MASK);
+@@ -1413,7 +1415,7 @@
+ 		}
+ #ifndef CONFIG_MODULE_UNLOAD
+ 		/* Don't load .exit sections */
+-		if (strstr(secstrings+sechdrs[i].sh_name, ".exit"))
++		if (strncmp(secstrings+sechdrs[i].sh_name, ".exit", 5) == 0)
+ 			sechdrs[i].sh_flags &= ~(unsigned long)SHF_ALLOC;
+ #endif
+ 	}
+
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 

@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270301AbTGRSbW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 14:31:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270292AbTGRSbV
+	id S270296AbTGRSaG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 14:30:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270301AbTGRSaG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 14:31:21 -0400
-Received: from pop.gmx.net ([213.165.64.20]:42171 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S270302AbTGRSbL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 14:31:11 -0400
-Message-Id: <5.2.1.1.2.20030718202746.01af5828@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
-Date: Fri, 18 Jul 2003 20:49:45 +0200
-To: Davide Libenzi <davidel@xmailserver.org>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: [PATCH] O6int for interactivity
-Cc: Wiktor Wodecki <wodecki@gmx.net>, Nick Piggin <piggin@cyberone.com.au>,
-       Con Kolivas <kernel@kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.55.0307180951050.5608@bigblue.dev.mcafeelabs.co
- m>
-References: <5.2.1.1.2.20030718174433.01b12878@pop.gmx.net>
- <5.2.1.1.2.20030718120229.01a8fcf0@pop.gmx.net>
- <5.2.1.1.2.20030718071656.01af84d0@pop.gmx.net>
- <200307170030.25934.kernel@kolivas.org>
- <200307170030.25934.kernel@kolivas.org>
- <5.2.1.1.2.20030718071656.01af84d0@pop.gmx.net>
- <5.2.1.1.2.20030718120229.01a8fcf0@pop.gmx.net>
- <5.2.1.1.2.20030718174433.01b12878@pop.gmx.net>
+	Fri, 18 Jul 2003 14:30:06 -0400
+Received: from ip67-95-245-82.z245-95-67.customer.algx.net ([67.95.245.82]:54285
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S270296AbTGRSaD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 14:30:03 -0400
+Date: Fri, 18 Jul 2003 11:45:12 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Greg KH <greg@kroah.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Hotplug Oops Re: Linux v2.6.0-test1
+Message-ID: <20030718184512.GD2289@matchmail.com>
+Mail-Followup-To: Greg KH <greg@kroah.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030716014650.GB2681@matchmail.com> <20030716023150.GA2302@kroah.com> <20030716201512.GA1821@matchmail.com> <20030718023141.GC5828@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030718023141.GC5828@kroah.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 09:52 AM 7/18/2003 -0700, Davide Libenzi wrote:
->On Fri, 18 Jul 2003, Mike Galbraith wrote:
->
-> > Telling to not mess with my kernel threads seems to have fixed it here...
-> > no stalls during the whole contest run.  New contest numbers attached.
->
->It is ok to use unfairness towards kernel threads to avoid starvation. We
->control them. It is right to apply uncontrolled unfairness to userspace
->tasks though.
+On Thu, Jul 17, 2003 at 07:31:41PM -0700, Greg KH wrote:
+> On Wed, Jul 16, 2003 at 01:15:12PM -0700, Mike Fedyk wrote:
+> > Ok, I only see it when the system is booting, and after looking at the    
+> > hotplug script in init.d there is different behaviour on boot, and on later   
+> > invocations.                               
+> 
+> This is really wierd.  I can't see anything strange in your logs, until
+> the oops :)
 
-In this case, it appears that the lowered priority was causing 
-trouble.  One test run isn't enough to say 100%, but what I read out of the 
-numbers is that at least kswapd needs to be able to preempt.
+It looks like it's a bug in the core code because when I was testing 2.5.70,
+it was on a athlon XP pr2600, and the via-rhine module oopsed (because it
+was started before the usb modules), and then it would hang.
 
-wrt the uncontrolled unfairness, I've muttered about this before.  I've 
-also tried (quite) a few things, but nothing yet has been good enough to... 
-require trashing that I couldn't do here ;-)
+I didn't report it because I wasn't able to capture the oops. :(
 
-         -Mike 
+I'll do more to try to reproduce manually without the hotplug scripts.
+(I'll bet it has something to do with one of the hotplug modules being
+loaded).
 
+Mike

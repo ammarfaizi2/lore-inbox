@@ -1,54 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261525AbUKJJ1t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbUKJJ3o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261525AbUKJJ1t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 04:27:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261527AbUKJJ1t
+	id S261552AbUKJJ3o (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 04:29:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbUKJJ3o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 04:27:49 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:9139 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261525AbUKJJ1r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 04:27:47 -0500
-Date: Wed, 10 Nov 2004 10:27:39 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: davids@webmaster.com, cfriesen@nortelnetworks.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox +code
-In-Reply-To: <1100041582.16689.0.camel@localhost.localdomain>
-Message-ID: <Pine.GSO.4.61.0411101024270.17015@waterleaf.sonytel.be>
-References: <MDEHLPKNGKAHNMBLJOLKAELDPKAA.davids@webmaster.com>
- <1100041582.16689.0.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 10 Nov 2004 04:29:44 -0500
+Received: from ns9.hostinglmi.net ([213.194.149.146]:32923 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S261552AbUKJJ3K
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 04:29:10 -0500
+Date: Wed, 10 Nov 2004 10:11:16 +0100
+From: DervishD <lkml@dervishd.net>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: is killing zombies possible w/o a reboot?
+Message-ID: <20041110091116.GF29302@DervishD>
+Mail-Followup-To: Bill Davidsen <davidsen@tmr.com>,
+	=?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>,
+	linux-kernel@vger.kernel.org
+References: <20041104211138.GB25290@DervishD> <41915353.1070507@tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <41915353.1070507@tmr.com>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Nov 2004, Alan Cox wrote:
-> On Maw, 2004-11-09 at 20:23, David Schwartz wrote:
-> > 	Yes, they do. The whole point of the "additional restrictions" clause is to
-> > *prohibit* other contracts or obligations that act to restrict your ability
-> > to exercise the rights under the GPL.
-> 
-> Correct. But you can exercise your rights under the GPL in this case. 
+    Hi Bill :)
 
-Let's slightly modify the parameters...
+ * Bill Davidsen <davidsen@tmr.com> dixit:
+> >    Probably it won't do. If the zombies are there due to a signal
+> >delivery problem, sending a SIGCHLD to the parent will (probably)
+> >solve the problem. But the common case is that the parent is screwed
+> >up or simply so badly programmed that the only way of getting rid of
+> >the zombies is to kill the parent...
+> Wait a minute, in another message you just suggested that a SIGCHLD to 
+> init would cause the status to be reaped.
 
-What if someone would offer you binaries (under the GPL) if you sign a contract
-that you will have to pay 100000 EUR (or 100000000 EUR, or ...) if you exercise
-your rights under the GPL?
+    I don't consider init the parent of such processes. It just
+'adopts' them when the real parent doesn't care for them. I was
+talking, in the paragraph above, about the *real* parent. I don't see
+any contradiction, although sending SIGCHLD to a program that has not
+waited for a children is risky: if the programmer was so clueless
+that children were not waited for in the first place, chances are
+that SIGCHLD handling is damaged, too.
 
-According to your reasoning, this is allowed, since you can still exercise your
-rights under the GPL. But in practice this would mean that someone found out
-how to take GPL software, and not give back...
+> >    Anyway I suppose that sending the SIGCHLD won't do any harm so it
+> >may be worth trying.
+> It won't hurt init, but some processes do use the SIGCHLD to trigger a 
+> wait(), which might hang the parent.
 
-Gr{oetje,eeting}s,
+    If a parent does 'wait()' instead of 'waitpid', that's lazy
+programming. The signal won't hurt anyway: if the parent blocks (bug
+in the program), then a 'kill -9' is the correct medication (it's
+what I use for buggy programs), the children are reparented to init
+and correctly handled (because a good init should, IMHO, use waitpid
+instead of wait). Let's say that sending SIGCHLD is 'mostly harmless'
+;))
 
-						Geert
+    Raúl Núñez de Arenas Coronado
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-- 
+Linux Registered User 88736
+http://www.dervishd.net & http://www.pleyades.net/

@@ -1,39 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319026AbSH1WSI>; Wed, 28 Aug 2002 18:18:08 -0400
+	id <S319034AbSH1WUY>; Wed, 28 Aug 2002 18:20:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319027AbSH1WSH>; Wed, 28 Aug 2002 18:18:07 -0400
-Received: from gull.mail.pas.earthlink.net ([207.217.120.84]:4767 "EHLO
-	gull.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S319026AbSH1WSG>; Wed, 28 Aug 2002 18:18:06 -0400
-Date: Wed, 28 Aug 2002 18:26:59 -0400
-To: akpm@zip.com.au
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.32-mm1
-Message-ID: <20020828222659.GA16858@rushmore>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: rwhron@earthlink.net
+	id <S319035AbSH1WUY>; Wed, 28 Aug 2002 18:20:24 -0400
+Received: from dsl-213-023-022-149.arcor-ip.net ([213.23.22.149]:35020 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S319034AbSH1WUW>;
+	Wed, 28 Aug 2002 18:20:22 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Andrew Morton <akpm@zip.com.au>
+Subject: Re: MM patches against 2.5.31
+Date: Thu, 29 Aug 2002 00:04:46 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>,
+       lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+References: <3D644C70.6D100EA5@zip.com.au> <E17k9dO-0002tR-00@starship> <3D6D3AA4.31A4AD3A@zip.com.au>
+In-Reply-To: <3D6D3AA4.31A4AD3A@zip.com.au>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17kAvf-0002tx-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.5.32-mm1 fixes some page allocation failures on 3.75 GB
-quad xeon.  2.5.32 vanilla had a lot of these:
+On Wednesday 28 August 2002 23:03, Andrew Morton wrote:
+> Daniel Phillips wrote:
+> > 
+> > Going right back to basics, what do you suppose is wrong with the 2.4
+> > strategy of always doing the lru removal in free_pages_ok?
+> 
+> That's equivalent to what we have at present, which is:
+> 
+> 	if (put_page_testzero(page)) {
+> 		/* window here */
+> 		lru_cache_del(page);
+> 		__free_pages_ok(page, 0);
+> 	}
+> 
+> versus:
+> 
+> 	spin_lock(lru lock);
+> 	page = list_entry(lru, ...);
+> 	if (page_count(page) == 0)
+> 		continue;
+> 	/* window here */
+> 	page_cache_get(page);
+> 	page_cache_release(page);	/* double-free */
 
-page allocation failure. order:0, mode:0x50
+Indeed it is.  In 2.4.19 we have:
 
-The page alloc failures began showing up in the first few minutes
-of testing (dbench).  2.5.32 stopped responding after about 4
-hours of testing.
+(vmscan.c: shrink_cache)                        (page_alloc.c: __free_pages)
 
-2.5.32-mm1 has been testing for over 14 hours with no
-page allocation failures.
+365       if (unlikely(!page_count(page)))
+366               continue;
+					        444         if (!PageReserved(page) && put_page_testzero(page))
+          [many twisty paths, all different]
+511       /* effectively free the page here */
+512       page_cache_release(page);
+					        445                 __free_pages_ok(page, order);
+                                                [free it again just to make sure]
 
-2.5.32 didn't have page alloc failures on uniprocessor 384 MB 
-machine during 22 hours of testing.
+So there's no question that the race is lurking in 2.4.  I noticed several
+more paths besides the one above that look suspicious as well.  The bottom
+line is, 2.4 needs a fix along the lines of my suggestion or Christian's,
+something that can actually be proved.
+
+It's a wonder that this problem manifests so rarely in practice.
+
 -- 
-Randy Hron
-http://home.earthlink.net/~rwhron/kernel/bigbox.html
-
+Daniel

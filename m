@@ -1,48 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266805AbTBXLf3>; Mon, 24 Feb 2003 06:35:29 -0500
+	id <S266716AbTBXLba>; Mon, 24 Feb 2003 06:31:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266839AbTBXLf3>; Mon, 24 Feb 2003 06:35:29 -0500
-Received: from trappist.elis.rug.ac.be ([157.193.67.1]:58045 "EHLO
-	trappist.elis.rug.ac.be") by vger.kernel.org with ESMTP
-	id <S266805AbTBXLf2>; Mon, 24 Feb 2003 06:35:28 -0500
-Date: Mon, 24 Feb 2003 12:45:35 +0100 (CET)
-From: fcorneli@elis.rug.ac.be
-To: linux-kernel@vger.kernel.org
-cc: Frank.Cornelis@elis.rug.ac.be
-Subject: [PATCH] entry.S ALIGNs, kernel 2.5.62
-Message-ID: <Pine.LNX.4.44.0302241239450.1016-100000@tom.elis.rug.ac.be>
+	id <S266735AbTBXLba>; Mon, 24 Feb 2003 06:31:30 -0500
+Received: from draco.cus.cam.ac.uk ([131.111.8.18]:44218 "EHLO
+	draco.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S266716AbTBXLb3>; Mon, 24 Feb 2003 06:31:29 -0500
+Date: Mon, 24 Feb 2003 11:41:41 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cantab.net>
+To: Christoph Hellwig <hch@infradead.org>
+cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
+Subject: Re: [ANN] NTFS 2.1.1a for kernel 2.4.20 released
+In-Reply-To: <20030224113350.A3452@infradead.org>
+Message-ID: <Pine.SOL.3.96.1030224113630.3583G-100000@draco.cus.cam.ac.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 24 Feb 2003, Christoph Hellwig wrote:
+> On Mon, Feb 24, 2003 at 11:12:39AM +0000, Anton Altaparmakov wrote:
+> > NTFS 2.1.1a is now released for kernel 2.4.20. This fixes both the
+> > reported hangs and improves the handling of compressed files so that the
+> > warning message people keep reporting is now gone. (Note the hangs were
+> > specific to the 2.4.x kernel ntfs versions. 2.5.x kernel ntfs versions
+> > are not affected.)
+> 
+> This:
+> 
+> @@ -8,6 +8,7 @@ enum km_type {
+>         KM_USER0,
+> 	KM_USER1,
+> 	KM_BH_IRQ,
+> +       KM_BIO_IRQ,
+> 	KM_TYPE_NR
+> };
+> 
+> is bogus.  You should be using KM_BH_IRQ.
 
-Since the ENTRY macro offers an ALIGN directive we can remove some 
-obsolete ALIGNs from entry.S.
+I believe that wouldn't work because the ntfs code using KM_BIO_IRQ is in
+the asynchronous i/o completion handler during which time KM_BH_IRQ may
+well be in use. At least I don't think it is worth the risk using it...
+Have a look at what the ntfs code does in
+fs/ntfs/aops.c::ntfs_end_buffer_async_read() for example. 
 
-BTW: arch/i386/kernel/ptrace.c:do_syscall_trace has regparm(3). Shouldn't 
-that be 2?
+> And btw, 2.4.21-pre now has ->alloc_inode and ->destroy_inode, use them :)
 
-Frank.
+Cool, but the patch is for 2.4.20... But thanks for the pointer. Once
+2.4.21 is out we will move to them. That will make the 2.4.x and 2.5.x
+drivers more simillar at the same time. (-: Once the iget5_locked()
+patches go in the drivers will become almost identical which will be very
+cool...
 
---- entry.S.orig	2003-02-24 12:34:34.000000000 +0100
-+++ entry.S	2003-02-24 12:35:07.000000000 +0100
-@@ -228,7 +228,6 @@
- #define SYSENTER_RETURN 0xffffe010
- 
- 	# sysenter call handler stub
--	ALIGN
- ENTRY(sysenter_entry)
- 	sti
- 	pushl $(__USER_DS)
-@@ -271,7 +270,6 @@
- 
- 
- 	# system call handler stub
--	ALIGN
- ENTRY(system_call)
- 	pushl %eax			# save orig_eax
- 	SAVE_ALL
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

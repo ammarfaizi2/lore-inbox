@@ -1,57 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263847AbTF2Tra (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 15:47:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264792AbTF2Tr3
+	id S262577AbTF2TpV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 15:45:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbTF2TpV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 15:47:29 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22423 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263847AbTF2TqB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 15:46:01 -0400
-Date: Sun, 29 Jun 2003 21:00:20 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: rmoser <mlmoser@comcast.net>
+	Sun, 29 Jun 2003 15:45:21 -0400
+Received: from 015.atlasinternet.net ([212.9.93.15]:15312 "EHLO
+	antoli.gallimedina.net") by vger.kernel.org with ESMTP
+	id S263633AbTF2Tok (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 15:44:40 -0400
+From: Ricardo Galli <gallir@uib.es>
+Organization: UIB
+To: Jamie Lokier <jamie@shareable.org>
+Subject: Re: Dell vs. GPL
+Date: Sun, 29 Jun 2003 21:58:52 +0200
+User-Agent: KMail/1.5.2
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: File System conversion -- ideas
-Message-ID: <20030629200020.GH27348@parcelfarce.linux.theplanet.co.uk>
-References: <200306291011.h5TABQXB000391@81-2-122-30.bradfords.org.uk> <20030629132807.GA25170@mail.jlokier.co.uk> <3EFEEF8F.7050607@post.pl> <20030629192847.GB26258@mail.jlokier.co.uk> <20030629194215.GG27348@parcelfarce.linux.theplanet.co.uk> <200306291545410600.02136814@smtp.comcast.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <200306291624.47221.gallir@uib.es> <20030629195003.GF26258@mail.jlokier.co.uk>
+In-Reply-To: <20030629195003.GF26258@mail.jlokier.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200306291545410600.02136814@smtp.comcast.net>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200306292158.52878.gallir@uib.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 29, 2003 at 03:45:41PM -0400, rmoser wrote:
-
-> >> seen this written by many people who choose to use ext3.  Thus proving
-> >> that there is value in in-place filesystem conversion :)
+On Sunday 29 June 2003 21:50, Jamie Lokier shaped the electrons to shout:
+> Ricardo Galli wrote:
+> > Indeed. Those people don't realise that their "copyright" law is
+> > different to the almost the rest of the world.
 > >
-> >Uh-huh.  You want to get in-kernel conversion between ext* and reiserfs?
-> >With recoverable state if aborted?  Get real.
-> 
-> no, in-kernel conversion between everything.  You don't think it can be done?
-> It's not that difficult a problem to manage data like that :D
+> > In most of Europe there in no "The Copyright", but "authors' or
+> > moral rights" ("derechos de autor", "droit d'auteur") and
+> > "exploitation rights" (or economic rights).
+> >
+> > Author/moral rights cannot be jeopardized.
+>
+> Except when the work is a computer program.  Check the law sometime!
+>
+> I recall there is a special exception for computer programs in either
+> UK or EU law - I forget which, perhaps both.  This exception means
+> that if I compose some music for a publisher, I cannot give up moral
+> rights to the work - which means I always have a right to be credited
+> as author or something like that, and nobody can take that away.
+> However, if I compose a computer program for a publisher, my moral
+> right to be credited _is_ taken away.
+>
+> This _only_ applies to computer programmers.  Bah!
 
-I think that I will believe it when I see the patchset implementing it.
-Provided that it will be convincing enough.  Other than that...  Not
-really.  You will need code for each pair of filesystems, since
-convertor will need to know *both* layouts.  No amount of handwaving
-is likely to work around that.  And we have what, something between
-10 and 20 local filesystems?  Have fun...
+IANAL, but I cant read:
 
-If you want your idea to be considered seriously - take reiserfs code,
-take ext3 code, copy both to userland and put together a conversion
-between them.  Both ways.  That, by definition, is easier than doing
-it in kernel - you have the same code available and none of the limitations/
-interaction with other stuff.  When you have it working, well, time to
-see what extra PITA will come from making it coexist with other parts
-of kernel (and with much more poor runtime environment).
+http://europa.eu.int/scadplus/leg/en/lvb/l26027.htm
 
-AFAICS, it is _very_ hard to implement.  Even outside of the kernel.
-If you can get it done - well, that might do a lot for having the
-idea considered seriously.  "Might" since you need to do it in a way
-that would survive transplantation into the kernel _and_ would scale
-better that O((number of filesystem types)^2).
+--------------
+Council Directive 91/250/EEC of 14 May 1991 on the legal protection of 
+computer programmes. 
+
+3.1 Obligation on Member States to protect computer programmes, by copyright, 
+as literary works within the meaning of the Berne Convention for the
+Protection of Literary and Artistic Works.
+
+...
+
+3.3 In general, the author of a computer programme is the natural or legal 
+person or group of natural persons who created it. Where collective works are 
+recognized by the legislation of a Member State, the person considered by the 
+legislation of that Member State to have created the work is deemed to be its 
+author. In the case of a programme created by a group of natural persons, the 
+exclusive rights are owned jointly. Where a computer programme is created by 
+an employee in the execution of his duties or following the instructions 
+given by his employer, the employer alone will be entitled to exercise all 
+economic rights in the programme, unless otherwise provided for by contract.
+^^^^^^^^^^^^^^^
+
+
+Note that it only mentions "economic rights".
+
+
+-- 
+  ricardo galli       GPG id C8114D34

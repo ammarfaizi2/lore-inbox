@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313319AbSDYS7v>; Thu, 25 Apr 2002 14:59:51 -0400
+	id <S313317AbSDYS5o>; Thu, 25 Apr 2002 14:57:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313325AbSDYS7u>; Thu, 25 Apr 2002 14:59:50 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:45818 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S313319AbSDYS7u>;
-	Thu, 25 Apr 2002 14:59:50 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	id <S313319AbSDYS5o>; Thu, 25 Apr 2002 14:57:44 -0400
+Received: from barrichello.cs.ucr.edu ([138.23.169.5]:20714 "HELO
+	barrichello.cs.ucr.edu") by vger.kernel.org with SMTP
+	id <S313317AbSDYS5n>; Thu, 25 Apr 2002 14:57:43 -0400
+Date: Thu, 25 Apr 2002 11:57:38 -0700 (PDT)
+From: John Tyner <jtyner@cs.ucr.edu>
+To: <dwmw2@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Add AM29F040B Support
+Message-ID: <Pine.LNX.4.30.0204251151340.17102-100000@hill.cs.ucr.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15560.20999.615343.77064@napali.hpl.hp.com>
-Date: Thu, 25 Apr 2002 11:59:19 -0700
-To: Christopher Yeoh <cyeoh@samba.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        linux-kernel@vger.kernel.org, anton@samba.org, paulus@samba.org
-Subject: Re: [PATCH] SIGURG incorrectly delivered to process
-In-Reply-To: <15550.24352.446276.774799@gargle.gargle.HOWL>
-X-Mailer: VM 7.03 under Emacs 21.1.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiVirus: scanned for viruses by AMaViS perl-6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Thu, 18 Apr 2002 15:52:32 +1000, Christopher Yeoh <cyeoh@samba.org> said:
+Below is a patch that adds support for the AMD AM29F040B flash chip.
+Hopefully, pine doesn't destory it.
 
-  Christopher> If a process is sent a SIGURG signal and it is blocking
-  Christopher> SIGURG signals, when the process subsequently unblocks
-  Christopher> SIGURG signals it will be terminated even if it is set
-  Christopher> to the default action (SIG_DFL) which is specified by
-  Christopher> SUSv3 to ignore that signal.
+diff -urN linux_2_4_devel/drivers/mtd/chips/jedec_probe.c linux-new/drivers/mtd/chips/jedec_probe.c
+--- linux_2_4_devel/drivers/mtd/chips/jedec_probe.c     Wed Apr 24 10:49:08 2002
++++ linux-new/drivers/mtd/chips/jedec_probe.c   Tue Apr  9 15:43:38 2002
+@@ -34,6 +34,7 @@
+ #define AM29LV800BT    0x22DA
+ #define AM29LV160DT    0x22C4
+ #define AM29LV160DB    0x2249
++#define AM29F040B       0x00A4
 
-Looks like a correct fix to me.  I made this change to the ia64 tree.
+ /* Atmel */
+ #define AT49BV16X4     0x00c0
+@@ -183,6 +184,15 @@
+                          ERASEINFO(0x08000,1),
+                          ERASEINFO(0x02000,2),
+                          ERASEINFO(0x04000,1)
++               }
++       }, {
++               mfr_id: MANUFACTURER_AMD,
++               dev_id: AM29F040B,
++               name: "AMD AM29F040B",
++               DevSize: 19,
++               NumEraseRegions: 1,
++               regions: {
++                       ERASEINFO( 0x010000, 8 )
+                }
+        }, {
+                mfr_id: MANUFACTURER_AMD,
 
-Thanks,
 
-	--david
+

@@ -1,105 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261791AbUDEHph (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 03:45:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261792AbUDEHph
+	id S261793AbUDEHse (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 03:48:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262986AbUDEHse
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 03:45:37 -0400
-Received: from ozlabs.org ([203.10.76.45]:44422 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261791AbUDEHoP (ORCPT
+	Mon, 5 Apr 2004 03:48:34 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:27441 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261793AbUDEHsa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 03:44:15 -0400
-Date: Mon, 5 Apr 2004 17:41:20 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org,
-       linuxppc64-dev@lists.linuxppc.org
-Subject: Fix bug in PPC64 hugepage support
-Message-ID: <20040405074120.GA13844@zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Andrew Morton <akpm@osdl.org>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org,
-	linuxppc64-dev@lists.linuxppc.org
+	Mon, 5 Apr 2004 03:48:30 -0400
+Date: Mon, 5 Apr 2004 00:46:46 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, mbligh@aracnet.com,
+       akpm@osdl.org, wli@holomorphy.com, haveblue@us.ibm.com,
+       colpatch@us.ibm.com
+Subject: Re: [PATCH] mask ADT: new mask.h file [2/22]
+Message-Id: <20040405004646.146ae51c.pj@sgi.com>
+In-Reply-To: <20040405000528.513a4af8.pj@sgi.com>
+References: <20040329041253.5cd281a5.pj@sgi.com>
+	<1081128401.18831.6.camel@bach>
+	<20040405000528.513a4af8.pj@sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew, please apply.  Came across this nasty bug while working on
-some hugepage extensions.
+In my previous reply to Rusty, I wrote:
+> 	    struct cpumap { DECLARE_BITMAP(bits, NR_CPUS); };
+> 	    struct cpumask s, d1, d2;
+> 	    bitmap_or(s.bits, d1.bits, d2.bits);
 
-The PPC64 version of is_aligned_hugepage_range() is buggy.  It is
-supposed to test not only that the given range is hugepage aligned,
-but that it lies within the address space allowed for hugepages.  We
-were checking only that the given range intersected the hugepage
-range, not that it lay entirely within it.  This patch fixes the
-problem and changes the name of some macros to make it less likely to
-make that misunderstanding again.
+Brain dead code alert (as well as a typo alert for the 'cpumap') - that
+last line needs to be:
 
+	    bitmap_or(s.bits, d1.bits, d2.bits, NR_CPUS);
 
-Index: working-2.6/arch/ppc64/mm/hugetlbpage.c
-===================================================================
---- working-2.6.orig/arch/ppc64/mm/hugetlbpage.c	2004-04-05 14:04:36.000000000 +1000
-+++ working-2.6/arch/ppc64/mm/hugetlbpage.c	2004-04-05 17:29:59.477683088 +1000
-@@ -230,7 +230,8 @@
- 		return -EINVAL;
- 	if (addr & ~HPAGE_MASK)
- 		return -EINVAL;
--	if (! is_hugepage_only_range(addr, len))
-+	if (! (within_hugepage_low_range(addr, len)
-+	       || within_hugepage_high_range(addr, len)) )
- 		return -EINVAL;
- 	return 0;
- }
-@@ -300,9 +301,9 @@
- 
- int prepare_hugepage_range(unsigned long addr, unsigned long len)
- {
--	if (is_hugepage_high_range(addr, len))
-+	if (within_hugepage_high_range(addr, len))
- 		return 0;
--	else if (is_hugepage_low_range(addr, len))
-+	else if (within_hugepage_low_range(addr, len))
- 		return open_32bit_htlbpage_range(current->mm);
- 
- 	return -EINVAL;
-Index: working-2.6/include/asm-ppc64/page.h
-===================================================================
---- working-2.6.orig/include/asm-ppc64/page.h	2004-04-05 15:36:38.440651616 +1000
-+++ working-2.6/include/asm-ppc64/page.h	2004-04-05 17:23:02.572693960 +1000
-@@ -40,15 +40,19 @@
- #define ARCH_HAS_HUGEPAGE_ONLY_RANGE
- #define ARCH_HAS_PREPARE_HUGEPAGE_RANGE
- 
--#define is_hugepage_low_range(addr, len) \
-+#define touches_hugepage_low_range(addr, len) \
- 	(((addr) > (TASK_HPAGE_BASE_32-(len))) && ((addr) < TASK_HPAGE_END_32))
--#define is_hugepage_high_range(addr, len) \
-+#define touches_hugepage_high_range(addr, len) \
- 	(((addr) > (TASK_HPAGE_BASE-(len))) && ((addr) < TASK_HPAGE_END))
-+#define within_hugepage_low_range(addr, len) (((addr) >= TASK_HPAGE_BASE_32) \
-+	  && ((addr)+(len) <= TASK_HPAGE_END_32) && ((addr)+(len) >= (addr)))
-+#define within_hugepage_high_range(addr, len) (((addr) >= TASK_HPAGE_BASE) \
-+	  && ((addr)+(len) <= TASK_HPAGE_END) && ((addr)+(len) >= (addr)))
- 
- #define is_hugepage_only_range(addr, len) \
--	(is_hugepage_high_range((addr), (len)) || \
-+	(touches_hugepage_high_range((addr), (len)) || \
- 	 (current->mm->context.low_hpages \
--	  && is_hugepage_low_range((addr), (len))))
-+	  && touches_hugepage_low_range((addr), (len))))
- #define hugetlb_free_pgtables free_pgtables
- #define HAVE_ARCH_HUGETLB_UNMAPPED_AREA
- 
+Which is why the 60 odd cpumask and nodemask specific operation macros
+exist, to avoid having to explicitly specify the bitsize on each call
 
+In other words, I understand that the following three possibilities
+exist for coding these masks:
 
+    /* specify bitsize both on declarations and operations */
+    struct cpumask { DECLARE_BITMAP(bits, NR_CPUS); };
+    struct cpumask s, d1, d2;
+    bitmap_or(s.bits, d1.bits, d2.bits, NR_CPUS);	/* explicit bitsize */
+
+or:
+
+    /* specify bitsize on declaration; use specialized operations */
+    struct cpumask { DECLARE_BITMAP(bits, NR_CPUS); };
+    struct cpumask s, d1, d2;
+    cpus_or(s.bits, d1.bits, d2.bits);			/* 'cpu' implies NR_CPUS */
+
+or:
+
+    /* carry the bitsize in the structure [pseudo C alert] */
+    struct mask { int nbits = NR_CPUS; DECLARE_BITMAP(bits, NR_CPUS); };
+    struct mask s, d1, d2;
+    mask_or(s.bits, d1.bits, d2.bits);			/* mask_* ops get size from struct */
+
+Am I missing any choices?  Which do you prefer?
+
+I understand that the kernel currently does the 2nd choice, encoding the
+bitsize in the operation name.
+
+My personal preference is to continue doing this 2nd choice.
 
 -- 
-David Gibson			| For every complex problem there is a
-david AT gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

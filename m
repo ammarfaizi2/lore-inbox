@@ -1,77 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262546AbUKWDDi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262471AbUKWC6s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262546AbUKWDDi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 22:03:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262481AbUKWCtN
+	id S262471AbUKWC6s (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 21:58:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262550AbUKWC4i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 21:49:13 -0500
-Received: from [211.58.254.17] ([211.58.254.17]:32140 "EHLO hemosu.com")
-	by vger.kernel.org with ESMTP id S261187AbUKWCry (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 21:47:54 -0500
-Date: Tue, 23 Nov 2004 11:47:52 +0900
-From: Tejun Heo <tj@home-tj.org>
-To: greg@kroah.com, rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.10-rc2 2/4] module sysfs: expand module_attribute methods
-Message-ID: <20041123024752.GC7326@home-tj.org>
-References: <20041123024537.GA7326@home-tj.org>
-Mime-Version: 1.0
+	Mon, 22 Nov 2004 21:56:38 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:34833 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S262500AbUKWCzk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 21:55:40 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] problem of cont_prepare_write()
+References: <877joexjk5.fsf@devron.myhome.or.jp>
+	<20041122024654.37eb5f3d.akpm@osdl.org>
+	<87ekimw1uj.fsf@devron.myhome.or.jp>
+	<20041122134344.3b2cb489.akpm@osdl.org>
+	<87k6sdwbhy.fsf@devron.myhome.or.jp>
+	<20041122183006.5ef3b41c.akpm@osdl.org>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Tue, 23 Nov 2004 11:55:31 +0900
+In-Reply-To: <20041122183006.5ef3b41c.akpm@osdl.org> (Andrew Morton's
+ message of "Mon, 22 Nov 2004 18:30:06 -0800")
+Message-ID: <87brdpw9y4.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041123024537.GA7326@home-tj.org>
-User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 23, 2004 at 11:45:37AM +0900, Tejun Heo wrote:
-> 02_module_attribute_extension.patch
-> 	Modify module_attribute show/store methods to accept self
-> 	argument to enable further extensions.
+Andrew Morton <akpm@osdl.org> writes:
 
+>> But, it's not required... yes?
+>
+> yes, it's needed in theory - see generic_file_buffered_write().  I'm trying
+> to remember why...
+>
+> I think the only problem which that is solving is that the filesystem may
+> have left some blocks in the file outside i_size.  That's a minor
+> consistency issue which a fsck will fix up.  But I guess a subsequent lseek
+> may permit unwritten disk blocks to be read.
+>
+> This problem is present whenever ->prepare_write() is called and we really
+> shouldn't be open-coding it everywhere.
 
-Signed-off-by: Tejun Heo <tj@home-tj.org>
+I see. Thanks.
 
+>> Anyway, fixed patch is the following.
+>
+> Thanks. Does it pass all your testing?
 
-Index: linux-export/include/linux/module.h
-===================================================================
---- linux-export.orig/include/linux/module.h	2004-11-23 11:31:32.000000000 +0900
-+++ linux-export/include/linux/module.h	2004-11-23 11:32:13.000000000 +0900
-@@ -48,8 +48,9 @@ struct module;
- 
- struct module_attribute {
-         struct attribute attr;
--        ssize_t (*show)(struct module *, char *);
--        ssize_t (*store)(struct module *, const char *, size_t count);
-+        ssize_t (*show)(struct module_attribute *, struct module *, char *);
-+        ssize_t (*store)(struct module_attribute *, struct module *,
-+			 const char *, size_t count);
- };
- 
- struct module_kobject
-Index: linux-export/kernel/module.c
-===================================================================
---- linux-export.orig/kernel/module.c	2004-11-23 11:31:32.000000000 +0900
-+++ linux-export/kernel/module.c	2004-11-23 11:32:13.000000000 +0900
-@@ -651,7 +651,8 @@ void symbol_put_addr(void *addr)
- }
- EXPORT_SYMBOL_GPL(symbol_put_addr);
- 
--static ssize_t show_refcnt(struct module *mod, char *buffer)
-+static ssize_t show_refcnt(struct module_attribute *mattr,
-+			   struct module *mod, char *buffer)
- {
- 	/* sysfs holds a reference */
- 	return sprintf(buffer, "%u\n", module_refcount(mod)-1);
-Index: linux-export/kernel/params.c
-===================================================================
---- linux-export.orig/kernel/params.c	2004-11-23 11:31:32.000000000 +0900
-+++ linux-export/kernel/params.c	2004-11-23 11:32:13.000000000 +0900
-@@ -691,7 +691,7 @@ static ssize_t module_attr_show(struct k
- 	if (!try_module_get(mk->mod))
- 		return -ENODEV;
- 
--	ret = attribute->show(mk->mod, buf);
-+	ret = attribute->show(attribute, mk->mod, buf);
- 
- 	module_put(mk->mod);
- 
+Sorry, no. I'm still compiling kernel. I'll report the result of test
+to you (probably few hours).
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

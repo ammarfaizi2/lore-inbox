@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287475AbSAEDOq>; Fri, 4 Jan 2002 22:14:46 -0500
+	id <S286187AbSAEDtD>; Fri, 4 Jan 2002 22:49:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287480AbSAEDOg>; Fri, 4 Jan 2002 22:14:36 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:62477
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S287475AbSAEDOV>; Fri, 4 Jan 2002 22:14:21 -0500
-Date: Fri, 4 Jan 2002 19:11:22 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Wayne Stidolph <wayne@stidolph.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: No ATA-133 support from Promise, yet
-In-Reply-To: <3C364683.5060707@stidolph.com>
-Message-ID: <Pine.LNX.4.10.10201041907400.20881-100000@master.linux-ide.org>
+	id <S287493AbSAEDsy>; Fri, 4 Jan 2002 22:48:54 -0500
+Received: from mx7.sac.fedex.com ([199.81.194.38]:50953 "EHLO
+	mx7.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S286187AbSAEDsl>; Fri, 4 Jan 2002 22:48:41 -0500
+Date: Sat, 5 Jan 2002 11:48:33 +0800 (SGT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+cc: Jeff Chua <jchua@fedex.com>
+Message-ID: <Pine.LNX.4.43.0201051146430.13715-100000@boston.corp.fedex.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/05/2002
+ 11:48:36 AM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/05/2002
+ 11:48:38 AM,
+	Serialize complete at 01/05/2002 11:48:39 AM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/05/2002
+ 11:48:39 AM
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Jan 2002, Wayne Stidolph wrote:
 
-> Just FYI, the chipset page, http://www.linux-ide.org/chipsets.html, says 
-> " These companies have support for ATA-133 chipsets in Linux." and 
-> includes Promise Technologies, linking to their Ultra133 TX2. However, I 
-> purchased the Ultra133 TX2 and found it doesn't work under Linux (at 
-> least with my ATA100 UDMA 5 disks; can't enable *any* DMA modes). 
-> Promise tech support acknowledged the problem and advised me to return 
-> the board; they say 'we don't have any drivers yet, and we do not have 
-> an estimate of when those might be available.'
-> 
-> Wayne Stdiolph
-> 
+I posted this before, but still no response from anyone (lkml or scsi)
 
-Please see www.linuxdiskcert.org.
+I can't get the aic7xxx to work on the HP LH4r ...
 
-This is the first time ever Linux has failed to lead the way because of
-patch submission refusal from the folks above.
+Linux version 2.4.18pre1
 
-Please goto IRC Server irc.kernelnewbies.org and join the #kernelnewbies
-channel.  There are a list of forks Linux has take as a direct result of
-many of the core developers becoming frustrated with the process.
+Message is ...
 
-Some day in the future I will attempt a resubmission.
+        aic7xxx: PCI Device 1:2:0 failed memory mapped test
+        ahc_pci:1:2:0: No SCB space found
+        Trying to free free IRQ18
 
-Regards,
+However it worked fine on the HP LH6000r ...
 
-Andre Hedrick
-CEO/President, LAD Storage Consulting Group
-Linux ATA Development
-Linux Disk Certification Project
+        scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.4
+                <Adaptec 2940 Ultra SCSI adapter>
+                aic7880: Ultra Wide Channel A, SCSI Id=7, 16/253 SCBs
+
+Any help is very much appreciated.
+
+
+
+Thanks,
+Jeff
+[ jchua@fedex.com ]
 

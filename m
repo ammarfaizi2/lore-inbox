@@ -1,57 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262701AbRE3KNc>; Wed, 30 May 2001 06:13:32 -0400
+	id <S262703AbRE3K11>; Wed, 30 May 2001 06:27:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262702AbRE3KNV>; Wed, 30 May 2001 06:13:21 -0400
-Received: from sunrise.pg.gda.pl ([153.19.40.230]:23961 "EHLO
-	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S262701AbRE3KNK>; Wed, 30 May 2001 06:13:10 -0400
-From: Andrzej Krzysztofowicz <ankry@pg.gda.pl>
-Message-Id: <200105301011.MAA17517@sunrise.pg.gda.pl>
-Subject: Re: [PATCH] net #3
-To: dwmw2@infradead.org (David Woodhouse)
-Date: Wed, 30 May 2001 12:11:37 +0200 (MET DST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), andrewm@uow.edu.au,
-        p_gortmaker@yahoo.com, linux-kernel@vger.kernel.org (kernel list)
-In-Reply-To: <29071.991213917@redhat.com> from "David Woodhouse" at May 30, 2001 10:11:57 AM
-Reply-To: ankry@green.mif.pg.gda.pl
-X-Mailer: ELM [version 2.5 PL2]
+	id <S262706AbRE3K1Q>; Wed, 30 May 2001 06:27:16 -0400
+Received: from saarinen.org ([203.79.82.14]:62109 "EHLO vimfuego.saarinen.org")
+	by vger.kernel.org with ESMTP id <S262703AbRE3K1H>;
+	Wed, 30 May 2001 06:27:07 -0400
+From: "Juha Saarinen" <juha@saarinen.org>
+To: <mingo@elte.hu>, <linux-kernel@vger.kernel.org>
+Cc: <linux-smp@vger.kernel.org>, "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
+Subject: RE: [patch] ioapic-2.4.5-A1
+Date: Wed, 30 May 2001 22:26:16 +1200
+Message-ID: <045001c0e8f2$f5774d20$0a01a8c0@den2>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+In-Reply-To: <Pine.LNX.4.33.0105291306470.3146-200000@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David Woodhouse wrote:"
-> 
-> ankry@green.mif.pg.gda.pl said:
-> > -#ifdef CONFIG_ISAPNP 
-> > +#if defined(CONFIG_ISAPNP) || (defined(CONFIG_ISAPNP_MODULE) && defined(MODULE)) 
-> 
-> The result here would be a 3c509 module which differs depending on whether 
-> the ISAPNP module happened to be compiled at the same time or not. 
+The attachment didn't survive... please try again.
 
-I'm just thinking whether the ISA PnP hardware related modules should depend
-on isa-pnp.o at all 
-(I mean having different behaviour of a the SAME (compiled) module depending
-on whether isa-pnp.o is available or not)
+-- Juha
 
-It is just adding some persistent pointers for isa-pnp functions to the
-kernel and teaching the modules to use request_module(). Probably also some
-hacking to keep away from already used ISA PnP hardware during
-initialization...
-
-Also implementing "nopnp" option should be mandatory, IMHO.
-
-> The ISAPNP-specific parts of the code aren't large. Please consider
-> including them unconditionally instead. 
-
-I see no objection if __init for modules is implemented...
-
-Andrzej
--- 
-=======================================================================
-  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
-  phone (48)(58) 347 14 61
-Faculty of Applied Phys. & Math.,   Technical University of Gdansk
+:: -----Original Message-----
+:: From: linux-smp-owner@vger.kernel.org 
+:: [mailto:linux-smp-owner@vger.kernel.org] On Behalf Of Ingo Molnar
+:: Sent: Tuesday, 29 May 2001 23:11
+:: To: linux-kernel@vger.kernel.org
+:: Cc: linux-smp@vger.kernel.org; Alan Cox
+:: Subject: [patch] ioapic-2.4.5-A1
+:: 
+:: 
+:: 
+:: the attached ioapic-2.4.5-A1 patch includes a number of 
+:: important IO-APIC
+:: related fixes (against 2.4.5-ac3):
+:: 
+::  - correctly handle bridged devices that are not listed in 
+:: the mptable
+::    directly. This fixes eg. dual-port eepro100 devices on 
+:: Compaq boxes
+::    with such PCI layout:
+:: 
+::     -+-[0d]---0b.0
+::      +-[05]-+-02.0
+::      |      \-0b.0
+::      \-[00]-+-02.0
+::             +-03.0-[01]--+-04.0    <=== eth0
+::             |            \-05.0    <=== eth1
+::             +-0b.0
+::             +-0c.0
+::             +-0d.0
+::             +-0e.0
+::             +-0f.0
+::             +-14.0
+::             +-14.1
+::             +-19.0
+::             +-1a.0
+::             \-1b.0
+:: 
+::    without the patch the eepro100 devices get misdetected as 
+:: XT-PIC IRQs
+::    and their interrupts are stuck.
+:: 
+::  - the srcbus entry in the mptable does not have to be 
+:: translated into
+::    a PCI-bus value.
+:: 
+::  - add more APIC versions to the whitelist
+:: 
+::  - initialize mp_bus_id_to_pci_bus[] correctly, so that we can detect
+::    nonlisted/bridged PCI busses more accurately.
+:: 
+:: the patch should only affect systems that were not working properly
+:: before, but it might break broken-mptable systems - we'll see.
+:: 
+:: 	Ingo
+:: 
 

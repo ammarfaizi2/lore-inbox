@@ -1,58 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268217AbRIBUG1>; Sun, 2 Sep 2001 16:06:27 -0400
+	id <S268957AbRIBUWL>; Sun, 2 Sep 2001 16:22:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268813AbRIBUGR>; Sun, 2 Sep 2001 16:06:17 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:50849 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S268217AbRIBUGE>;
-	Sun, 2 Sep 2001 16:06:04 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Sun, 2 Sep 2001 20:05:45 GMT
-Message-Id: <200109022005.UAA20596@vlet.cwi.nl>
-To: Andries.Brouwer@cwi.nl, viro@math.psu.edu
-Subject: Re: [RFC] lazy allocation of struct block_device
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
+	id <S269174AbRIBUWB>; Sun, 2 Sep 2001 16:22:01 -0400
+Received: from draal.physics.wisc.edu ([128.104.137.82]:19332 "EHLO
+	draal.physics.wisc.edu") by vger.kernel.org with ESMTP
+	id <S268957AbRIBUVo>; Sun, 2 Sep 2001 16:21:44 -0400
+Date: Sun, 2 Sep 2001 15:21:37 -0500
+From: Bob McElrath <mcelrath+linux@draal.physics.wisc.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Editing-in-place of a large file
+Message-ID: <20010902152137.L23180@draal.physics.wisc.edu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="TXIPBuAs4GDcsx9K"
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> How many bits should a dev_t have? Well, enough.
 
-> Enough for what? To cover all currently supported devices?
+--TXIPBuAs4GDcsx9K
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Enough to avoid the hassles that one has when dev_t is too small.
+I would like to take an extremely large file (multi-gigabyte) and edit
+it by removing a chunk out of the middle.  This is easy enough by
+reading in the entire file and spitting it back out again, but it's
+hardly efficent to read in an 8GB file just to remove a 100MB segment.
 
-dev_t is a communication channel - you come with a cookie
-and get a device in return.
+Is there another way to do this?
 
-Now NFS uses a 64-bit dev_t. If you choose a smaller one
-then you have to invent some mapping between your 16 or 32 bits
-and the 64 of NFS. I have not myself used systems that use a
-64-bit dev_t (except for my own Linux machine :-) but have seen
-systems with 32 bits divided 8+24 or 12+20 or 14+18 or 16+16,
-so your mapping may have to depend on what is on the other side.
-Not difficult, but annoying. A hassle for the sysadm.
-There is no hassle with 64-bit dev_t.
+Is it possible to modify the inode structure of the underlying
+filesystem to free blocks in the middle?  (What to do with the half-full
+blocks that are left?)  Has anyone written a tool to do something like
+this?
 
-In reality nobody wants a dev_t. We want a string.
-A device path that gives the bus and SCSI ID or USB address
-or internet URL plus protocol where to find this device.
-But such a device path is large and of unknown shape.
-Current user space software cannot easily handle such new objects.
-Life becomes simpler if a disk on my local ethernet that
-requires a password before use can be accessed as /dev/eda
-not different from /dev/hda. Some as yet unspecified attach()
-system call can turn device paths into numbers (dev_t),
-and a following mknod() can attach a Unix filename to the number.
-You see that in such a setup the dev_t is a handle, maybe a
-pointer, not unlike the filehandles that NFS uses.
-If your machine has more than 1 GB of memory, maybe you want
-to use more than 32 bits for your handle.
+Is there a way to do this in a filesystem-independent manner?
 
-The above is just fiction - I don't know how devices will be handled
-in the future. But I find it very easy to conjure up scenarios
-where having 64-bit dev_t would be very useful in order to make
-sure that our current body of programs keeps working also in new
-circumstances.
+Thanks,
+-- Bob
 
-Andries
+Bob McElrath (rsmcelrath@students.wisc.edu)=20
+Univ. of Wisconsin at Madison, Department of Physics
+
+--TXIPBuAs4GDcsx9K
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.1 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjuSlNEACgkQjwioWRGe9K3DzgCgh+FCYf5rXWizoCsG7hY4ul8e
+VTEAn33UdmzGxPsyvTsGAkjrUB54KAGp
+=8Zsa
+-----END PGP SIGNATURE-----
+
+--TXIPBuAs4GDcsx9K--

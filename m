@@ -1,64 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265146AbRFZWzo>; Tue, 26 Jun 2001 18:55:44 -0400
+	id <S265147AbRFZXEf>; Tue, 26 Jun 2001 19:04:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265148AbRFZWzh>; Tue, 26 Jun 2001 18:55:37 -0400
-Received: from web14805.mail.yahoo.com ([216.136.224.221]:55812 "HELO
-	web14805.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S265146AbRFZWza>; Tue, 26 Jun 2001 18:55:30 -0400
-Message-ID: <20010626225415.26347.qmail@web14805.mail.yahoo.com>
-Date: Tue, 26 Jun 2001 15:54:15 -0700 (PDT)
-From: siva kumar <mobi_linux@yahoo.com>
-Subject: Regrading signal/sigaction.
-To: linux-kernel@vger.kernel.org
+	id <S265148AbRFZXEZ>; Tue, 26 Jun 2001 19:04:25 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:25604 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S265147AbRFZXEL>;
+	Tue, 26 Jun 2001 19:04:11 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200106262304.f5QN410198287@saturn.cs.uml.edu>
+Subject: Re: EXT2 Filesystem permissions (bug)?
+To: ken@canit.se (Kenneth Johansson)
+Date: Tue, 26 Jun 2001 19:04:01 -0400 (EDT)
+Cc: hpa@zytor.com (H. Peter Anvin), linux-kernel@vger.kernel.org
+In-Reply-To: <3B390B48.D444B7C5@canit.se> from "Kenneth Johansson" at Jun 27, 2001 12:23:04 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Kenneth Johansson writes:
 
-Is it possible to pass any local variable as an
-argument in the signal handler function.Basically I
-want to print the value of the local variable in the
-signal handler function.
+> Do linux even support the sticky bit (t) I can't see a reason
+> to use it, why would I want the file to be stored in the swap ?? 
 
-In the below program I want to print the value of a in
-the timeout function(siganl handler), whenever the
-Alaram signal send.
+It is not currently supported. Swapping out executables would
+be very nice when using an NFS or CD-ROM filesystem, because
+swap space is much faster.
 
+> Also I think S (setuid but no execute bit) have something to
+> do with file locking but I'am not shure exactly how it works. 
 
-Your comment are welcomed.
-
-My prototype code is:
-
-#include<stdio.h>
-#include<signal.h>
-void timeout(int signo,int a)
-{
-        printf ("timeout");
-        printf("the value is %d and %d",signo,a);
-}
- 
-main()
-{
-        int a =5;
-        struct sigaction act,oact;
-        act.sa_handler = timeout;
-        sigemptyset(&act.sa_mask);
-        act.sa_flags = 0;
-        sigaction(SIGALRM, &act, &oact);
- 
-        alarm(10);
-        sleep(10);
- 
-}
-
-Thanks,
-siva.s
-
-
-__________________________________________________
-Do You Yahoo!?
-Get personalized email addresses from Yahoo! Mail - only $35 
-a year!  http://personal.mail.yahoo.com/
+Yeah, if you mount with mandatory locking enabled it does stuff.
+It's a UNIX feature.

@@ -1,46 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262437AbTFJLlq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 07:41:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbTFJLlq
+	id S262422AbTFJLoH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 07:44:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262456AbTFJLoH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 07:41:46 -0400
-Received: from kempelen.iit.bme.hu ([152.66.241.120]:6876 "EHLO
-	kempelen.iit.bme.hu") by vger.kernel.org with ESMTP id S262316AbTFJLlm
+	Tue, 10 Jun 2003 07:44:07 -0400
+Received: from sea2-f56.sea2.hotmail.com ([207.68.165.56]:48389 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S262422AbTFJLoB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 07:41:42 -0400
-Date: Tue, 10 Jun 2003 13:55:22 +0200 (MET DST)
-From: =?ISO-8859-2?Q?P=E1sztor_Szil=E1rd?= <silicon@inf.bme.hu>
+	Tue, 10 Jun 2003 07:44:01 -0400
+X-Originating-IP: [203.51.24.94]
+X-Originating-Email: [redph0enix@hotmail.com]
+From: "Red Phoenix" <redph0enix@hotmail.com>
 To: linux-kernel@vger.kernel.org
-cc: linux-net@vger.kernel.org, Adrian Bunk <bunk@fs.tum.de>,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: [2.5 patch] let COMX depend on PROC_FS
-In-Reply-To: <20030608175850.A9513@infradead.org>
-Message-ID: <Pine.GSO.4.00.10306101347450.1700-100000@kempelen.iit.bme.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: SNARE and C2 auditing under 2.5.x
+Date: Tue, 10 Jun 2003 23:57:39 +1200
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <Sea2-F56iZAtGYkNUTv0001fda1@hotmail.com>
+X-OriginalArrivalTime: 10 Jun 2003 11:57:40.0839 (UTC) FILETIME=[7E85D770:01C32F47]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig:
-> > The proc_get_inode link problem only affects the modular build of 
-> > comx.c .
-> 
-> But it's still broken :)  This just shows no one actually tested
-> it with actual hardware.
+Sorry for the late reply - I've only just spotted the May 21 thread.
 
-I'm the current "maintainter" of the comx drivers (seriously lacked time up
-to now), so it's me to flame if you have some spare fuel. And forgive me for
-having forgot to update the maintainer line in comx.c (comx-* are fine). :)
+>I may be repeating this question, but is there an effort to brigning
+>snare code to 2.5.x?
 
-The drivers are used by some hundreds of cards today but we tell users to
-get the small kernelpatch from www.itc.hu and the patch, among other things,
-exports proc_get_inode. There was a process to integrate the patch into the
-mainstream kernel last year but, due to lack of time on my part, it was
-suspended. I hope to be able to pick the line up again and clean things up.
+If people are interested, then definitely!
 
-s.
-          ------------------------------------------------------------
-          |  Programmers don't die, they just GOSUB without RETURN.  |
-          ------------------------------------------------------------
+I'm about 80% of the way through a kernel-patch version of snare, and have 
+it working nicely on a 2.4.18 based system. I'm just about to try and 
+re-apply the changes to 2.4.20 tonight.
+
+For those that don't know, Snare is a C2-style auditing capability, roughly 
+analagous to Solaris BSM, or the Windows EventLog subsystem. Until recently, 
+Snare existed as a kernel module that used sys_call_table to overlay 
+auditing functionality on a bunch of system calls (yes, I know - it should 
+be the 8th deadly sin ;). It's now being retooled as a kernel patch.
+
+I've heard through the grapevine that Snare is a required part of the US DoD 
+Common Operating Environment for Linux installations, has been evaluated by 
+mitre.org, was one of the apps in the 'use of open source tools in the DoD' 
+report that came out a while back, is in use inside the Aussie intelligence 
+community (no jokes about contradictions please ;), was recently featured at 
+SANS, and is also part of RH Adv Server... so it's probably becoming too 
+popular to run as a 'two occasional developers' project - at least for the 
+kernel components.
+
+Although I've been working with audit logs on a bunch of systems for 
+many-a-year, my kernel experience is limited, so although the RH kernel team 
+has helped out in the past, and AC has offered to cast an eye or two over 
+the code, it's probably time that we consider including more capable hands 
+in the development process - any assistance, or suggestions on the way 
+forward, would definitely be welcome!
+
+Regards,
+
+Leigh. (please cc me in replies - Leigh [dot] Purdie at intersectalliance 
+DOT com)
+
+.. sorry in advance for any hotmail crud below - front-line spam defence..
+
+_________________________________________________________________
+MSN 8 helps eliminate e-mail viruses. Get 2 months FREE*. 
+http://join.msn.com/?page=features/virus
 

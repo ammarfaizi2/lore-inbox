@@ -1,72 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261211AbTH2NOy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 09:14:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261200AbTH2NOy
+	id S261200AbTH2NX1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 09:23:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbTH2NX0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 09:14:54 -0400
-Received: from mx0.gmx.de ([213.165.64.100]:63982 "HELO mx0.gmx.net")
-	by vger.kernel.org with SMTP id S261211AbTH2NOx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 09:14:53 -0400
-Date: Fri, 29 Aug 2003 15:14:52 +0200 (MEST)
-From: Felix Seeger <felix.seeger@gmx.de>
-To: Nikita Danilov <Nikita@Namesys.COM>
-Cc: linux-kernel@vger.kernel.org
+	Fri, 29 Aug 2003 09:23:26 -0400
+Received: from gw-nl3.philips.com ([212.153.190.5]:10421 "EHLO
+	gw-nl3.philips.com") by vger.kernel.org with ESMTP id S261200AbTH2NW7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 09:22:59 -0400
+Message-ID: <3F4F5401.1070401@basmevissen.nl>
+Date: Fri, 29 Aug 2003 15:24:17 +0200
+From: Bas Mevissen <ml@basmevissen.nl>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Subject: Re: Reiser4 snapshot problems
-X-Priority: 3 (Normal)
-X-Authenticated-Sender: #0005429946@gmx.net
-X-Authenticated-IP: [217.80.179.227]
-Message-ID: <5222.1062162892@www21.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.22-ac1
+References: <200308291258.h7TCwmU24496@devserv.devel.redhat.com>
+In-Reply-To: <200308291258.h7TCwmU24496@devserv.devel.redhat.com>
+X-Enigmail-Version: 0.76.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 29 August 2003 14:28, you wrote:
-> Felix Seeger writes:
->  > Hi
->  >
->  > I am trying out Reiser4 snapshot from August 26th.
->  > I've putted my kde cvs sources on the new partition and compile from
->  > reiser4 now.
->  >
->  > After some time processes hang when accessing this disk. I cannot do
->  > anything on it but I also don't get any errormessage.
->
-> If there anything in /var/log/messages, or wherever your kernel log is
-> stored?
-No, nothing. At least in messages, kern.log and syslog.
+Alan Cox wrote:
 
-But I found the problem. My old dir (on a reiser3 partition) was:
-~/download/kde3/cvs which got renamed to old_cvs
-My new reiser4 dir is
-~/download/kde3/new_cvs
+>>Are patches that made it into 2.4.22 removed from this (long) list? 
+> 
+> 
+> No, its just a history of what was added each time. Much of what is in it
+> is in Marcelo's tree now, some other bits are in the "duh ..." bucket as
+> well 8)
+> 
 
-Since there are some full paths (maybe from make) I created a symlink
-~/download/kde3/cvs
+So it is very hard to find out what the patch really contains (except 
+for listing the files of course). Some idea to find out what change sets 
+are in?
 
-I removed that link and readded the one to the old partition, all make
-processes stopped and I can access the partition again.
-Note that I cannot reproduce this if I create just the symlink. That works
-fine here, maybe I have to run make again to get the problem back.
+> 
+>>What are the criteria for patches to become included in this patch series?
+> 
+> Because I feel like adding them 8)
+> 
+
+How do you feel about adding things like Alsa and swsuspend-for-2.4? I 
+would say that it are nice-to-haves for a lot of people from hardware 
+support and functionality point of view. Not to say that both are 
+examples of what both individual users as distribution makers might want 
+to add to their kernels.
+
+Regards,
+
+Bas.
 
 
->  > Umount, bash autocomletion and things like that don't work. Normal df
->  > and mount are working btw.
->
-> Nikita.
 
-have fun
-Felix
 
--- 
-COMPUTERBILD 15/03: Premium-e-mail-Dienste im Test
---------------------------------------------------
-1. GMX TopMail - Platz 1 und Testsieger!
-2. GMX ProMail - Platz 2 und Preis-Qualitätssieger!
-3. Arcor - 4. web.de - 5. T-Online - 6. freenet.de - 7. daybyday - 8. e-Post
 

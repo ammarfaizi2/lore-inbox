@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261586AbUKGNhZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261615AbUKGNnD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261586AbUKGNhZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 08:37:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbUKGNhZ
+	id S261615AbUKGNnD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 08:43:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261616AbUKGNnD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 08:37:25 -0500
-Received: from frankvm.xs4all.nl ([80.126.170.174]:23691 "EHLO
-	janus.localdomain") by vger.kernel.org with ESMTP id S261586AbUKGNhN
+	Sun, 7 Nov 2004 08:43:03 -0500
+Received: from i216230.ppp.asahi-net.or.jp ([61.125.216.230]:30863 "EHLO
+	zeta.miyonet.org") by vger.kernel.org with ESMTP id S261615AbUKGNnA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 08:37:13 -0500
-Date: Sun, 7 Nov 2004 14:37:11 +0100
-From: Frank van Maarseveen <frankvm@xs4all.nl>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Adrian Bunk <bunk@stusta.de>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bloat
-Message-ID: <20041107133711.GA3310@janus>
-References: <Pine.LNX.4.58.0411041546160.1229@gradall.private.brainfood.com> <Pine.LNX.4.58.0411041353360.2187@ppc970.osdl.org> <Pine.LNX.4.58.0411041734100.1229@gradall.private.brainfood.com> <Pine.LNX.4.58.0411041544220.2187@ppc970.osdl.org> <20041105014146.GA7397@pclin040.win.tue.nl> <Pine.LNX.4.58.0411050739190.2187@ppc970.osdl.org> <20041106120716.GA9144@pclin040.win.tue.nl> <Pine.LNX.4.58.0411060922260.2223@ppc970.osdl.org> <20041106193605.GL1295@stusta.de> <20041106214147.GA9663@pclin040.win.tue.nl>
+	Sun, 7 Nov 2004 08:43:00 -0500
+Date: Sun, 07 Nov 2004 22:42:28 +0900 (JST)
+Message-Id: <20041107.224228.846935770.kaz@earth.email.ne.jp>
+To: liudeyan@gmail.com
+Cc: taka@valinux.co.jp, jimtabor@adsl-64-217-116-74.dsl.hstntx.swbell.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]tar filesystem for 2.6.10-rc1-mm3(easily access tar
+ file)
+From: Kazuto MIYOSHI <kaz@earth.email.ne.jp>
+In-Reply-To: <20041107.172838.74752953.taka@valinux.co.jp>
+	<aad1205e0411062306690c21f8@mail.gmail.com>
+References: <418DCB2F.2030303@adsl-64-217-116-74.dsl.hstntx.swbell.net>
+	<aad1205e041106233274e78428@mail.gmail.com>
+	<20041107.172838.74752953.taka@valinux.co.jp>
+X-Mailer: Mew version 4.0.54 on XEmacs 21.4.8 (Honest Recruiter)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041106214147.GA9663@pclin040.win.tue.nl>
-User-Agent: Mutt/1.4.1i
-X-Subliminal-Message: Use Linux!
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 06, 2004 at 10:41:47PM +0100, Andries Brouwer wrote:
-> 
-> I have one or two unused functions inside #if 0 in sddr09.c.
-> Finding out the proper hardware details was nontrivial,
-> it would be a pity to throw the knowledge away.
 
-Of course nobody likes to throw away hard work. However, code that isn't
-used tends to be unmaintained. So it might be outdated when (and if)
-it gets used in the future. A web page indexed by search engines is a
-excellent way to preserve knowledge.
+Hi,
 
-The existence of unused code in the kernel will probably make not much
-of a difference for future development. But it pollutes the source so
-IMHO we could do without many of these:
+I am surprised that good old thing is appearing on 2.6 :-)
+Hirokazu already pointed out some issues, and my major concern for
+the code is that tar archiving mechanism is duplicated (embedded)
+into the kernel directly.
 
-$ find -name '*.[ch]' |xargs grep '^#if 0'|wc
-   2491    7202   97634					(2.6.9-rc3)
+BTW, have you looked at LUFS? (Linux Userland Filesystem)
+I have not look at it closely, but it sounds it may help you.
 
--- 
-Frank
+Best Regards,
+--
+Kazuto Miyoshi   kaz@earth.email.ne.jp

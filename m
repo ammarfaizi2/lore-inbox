@@ -1,34 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264321AbUEIJXY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264283AbUEIJbs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264321AbUEIJXY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 May 2004 05:23:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264326AbUEIJXX
+	id S264283AbUEIJbs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 May 2004 05:31:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264325AbUEIJbs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 May 2004 05:23:23 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49360 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264321AbUEIJXX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 May 2004 05:23:23 -0400
-Date: Sun, 9 May 2004 10:23:20 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       dipankar@in.ibm.com, manfred@colorfullife.com, davej@redhat.com,
-       wli@holomorphy.com, Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       maneesh@in.ibm.com
-Subject: Re: dentry bloat.
-Message-ID: <20040509092320.GZ17014@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.58.0405082143340.1592@ppc970.osdl.org> <Pine.LNX.4.44.0405091058300.2106-100000@poirot.grange>
+	Sun, 9 May 2004 05:31:48 -0400
+Received: from smtp.mailix.net ([216.148.213.132]:5186 "EHLO smtp.mailix.net")
+	by vger.kernel.org with ESMTP id S264283AbUEIJbr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 May 2004 05:31:47 -0400
+Date: Sun, 9 May 2004 11:31:39 +0200
+From: Alex Riesen <fork0@users.sourceforge.net>
+To: Len Brown <len.brown@intel.com>
+Cc: Bob Gill <gillb4@telusplanet.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-ID: <20040509093139.GA1377@steel.home>
+Reply-To: Alex Riesen <fork0@users.sourceforge.net>
+Mail-Followup-To: Alex Riesen <fork0@users.sourceforge.net>,
+	Len Brown <len.brown@intel.com>, Bob Gill <gillb4@telusplanet.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <A6974D8E5F98D511BB910002A50A6647615FAE21@hdsmsx403.hd.intel.com> <1084071367.2326.62.camel@dhcppc4>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0405091058300.2106-100000@poirot.grange>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1084071367.2326.62.camel@dhcppc4>
+User-Agent: Mutt/1.5.6i
+X-SA-Exim-Mail-From: fork0@users.sourceforge.net
+Subject: Re: hdc: lost interrupt ide-cd: cmd 0x3 timed out ...
+Content-Type: text/plain; charset=us-ascii
+X-Spam-Report: *  0.5 RCVD_IN_NJABL_DIALUP RBL: NJABL: dialup sender did non-local SMTP
+	*      [80.140.216.160 listed in dnsbl.njabl.org]
+	*  0.1 RCVD_IN_NJABL RBL: Received via a relay in dnsbl.njabl.org
+	*      [80.140.216.160 listed in dnsbl.njabl.org]
+	*  0.1 RCVD_IN_SORBS RBL: SORBS: sender is listed in SORBS
+	*      [80.140.216.160 listed in dnsbl.sorbs.net]
+	*  2.5 RCVD_IN_DYNABLOCK RBL: Sent directly from dynamic IP address
+	*      [80.140.216.160 listed in dnsbl.sorbs.net]
+X-SA-Exim-Version: 3.1 (built Thu Oct 23 13:26:47 PDT 2003)
+X-SA-Exim-Scanned: Yes
+X-uvscan-result: clean (1BMkeq-0001LT-Rn)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 09, 2004 at 11:10:30AM +0200, Guennadi Liakhovetski wrote:
+Len Brown, Sun, May 09, 2004 04:56:07 +0200:
+> On Fri, 2004-05-07 at 15:41, Bob Gill wrote:
+> > OK, great!  Adding acpi=noirq to the kernel line made the lost
+> > interrupt problem go away.
+> 
+> Bob, Alex,
+> (or anybody else with a SIS-961 that now requires acpi=noirq),
+> 
+> I need some info to find out why your system recently broke.
+> 
 
-> [OT, educational]: Do "." and ".." actually take dentries?
+will do as soon as I get access to the box again. Monday, that is
 
-No.

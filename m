@@ -1,41 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264507AbTEPRU4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 13:20:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264508AbTEPRU4
+	id S264498AbTEPRSb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 13:18:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbTEPRSb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 13:20:56 -0400
-Received: from pimout4-ext.prodigy.net ([207.115.63.103]:53133 "EHLO
-	pimout4-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S264507AbTEPRUz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 13:20:55 -0400
-From: Eugene Weiss <eweiss@sbcglobal.net>
-Reply-To: eweiss@sbcglobal.net
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] submount: another removeable media handler
-Date: Fri, 16 May 2003 10:31:47 -0400
-User-Agent: KMail/1.5
-References: <200305160106.37274.eweiss@sbcglobal.net> <20030516113304.GK32559@Synopsys.COM>
-In-Reply-To: <20030516113304.GK32559@Synopsys.COM>
-MIME-Version: 1.0
+	Fri, 16 May 2003 13:18:31 -0400
+Received: from [193.10.185.236] ([193.10.185.236]:4874 "HELO
+	smtp.dormnet.his.se") by vger.kernel.org with SMTP id S264498AbTEPRSa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 13:18:30 -0400
+Date: Fri, 16 May 2003 19:28:34 +0200
+From: Andreas Henriksson <andreas@fjortis.info>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.69-mm6
+Message-ID: <20030516172834.GA9774@foo>
+References: <20030516015407.2768b570.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="yrj/dFKFPuw6o+aM"
 Content-Disposition: inline
-Message-Id: <200305161027.20045.eweiss@sbcglobal.net>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20030516015407.2768b570.akpm@digeo.com>
+X-gpg-key: http://fjortis.info/andreas_henriksson.gpg
+X-gpg-fingerprint: C51F 9B43 4390 95BB A22E  16F2 00EF 6094 449E 0434
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> how is it different from what automounter does?
+--yrj/dFKFPuw6o+aM
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 
-Autofs works by creating a special filesystem above the vfs layer, and passing 
-requests and data back and forth.   Submount actually does much less than 
-this- it puts a special filesystem underneath the real one, and the only 
-things it returns to the VFS layer are error messages.  It handles no IO 
-operations whatsoever.
+Hi!
 
-Peter Anvin has called using the automounter for removeable media "abuse."
-Submount is designed for it.
+I had to remove "static" from the agp_init-function in
+drivers/char/agp/backend.c to get the kernel to link (when building
+Intel 810 Framebuffer into the kernel).
 
+I also got unresolved symbols for two modules.
+arch/i386/kernel/suspend.ko: enable_sep_cpu, default_ldt, init_tss
+arch/i386/kernel/apm.ko: save_processor_state, restore_processor_state
 
+Regards,
+Andreas Henriksson
+
+--yrj/dFKFPuw6o+aM
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE+xR/CAO9glESeBDQRApDYAJ9K8lh2ePhOyHuoxj4A1AEVjoVNpACguI+5
+YDr6+BtNJCcHBMu9bMfj1eQ=
+=bwlX
+-----END PGP SIGNATURE-----
+
+--yrj/dFKFPuw6o+aM--

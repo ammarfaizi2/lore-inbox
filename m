@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262289AbSLAT7p>; Sun, 1 Dec 2002 14:59:45 -0500
+	id <S262038AbSLATzu>; Sun, 1 Dec 2002 14:55:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262317AbSLAT7p>; Sun, 1 Dec 2002 14:59:45 -0500
-Received: from d10-262.dialup.ncport.ru ([213.134.222.10]:3076 "EHLO ask-me.ru")
-	by vger.kernel.org with ESMTP id <S262289AbSLAT7o>;
-	Sun, 1 Dec 2002 14:59:44 -0500
-Date: Wed, 27 Nov 2002 23:06:26 +0300
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: PCMCIA 3Com card dies after suspend
-Message-ID: <20021127200626.GA581@ask-me.ru>
-Mail-Followup-To: =?koi8-r?B?0JzQsNC60YHQuNC8INCb0LDQv9GI0LjQvQ==?= <max@ask-me.ru>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.4.18
-From: Max Lapshin <max@ask-me.ru>
+	id <S262289AbSLATzu>; Sun, 1 Dec 2002 14:55:50 -0500
+Received: from modemcable017.51-203-24.mtl.mc.videotron.ca ([24.203.51.17]:60888
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S262038AbSLATzt>; Sun, 1 Dec 2002 14:55:49 -0500
+Date: Sun, 1 Dec 2002 15:06:32 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Steven Barnhart <lilobooter@linuxmail.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux v2.5.50-sb1
+In-Reply-To: <20021201193453.29958.qmail@linuxmail.org>
+Message-ID: <Pine.LNX.4.50.0212011504180.10730-100000@montezuma.mastecende.com>
+References: <20021201193453.29958.qmail@linuxmail.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo. I have 3CCFE575BT pcmcia network card in my Compaq Armada 7360 DMT.
-It dies after suspend with the following messages:
+On Sun, 1 Dec 2002, Steven Barnhart wrote:
 
- eth0: command 0x5800 did not complete! Status=0xffff
- eth0: command 0x2804 did not complete! Status=0xffff
+> I have released a patch-set for 2.5.50: 2.5.50-sb1. This is my first
+> patch-set so please tell me what to do differently, and such and please
+> test it! Feel free to e-mail me with your comments. This patch contains
+> some minor fixes and such including that annoying quirks.c bug. Have fun
+> hacking!
 
-Machine is almost blocked during these messages and I need to replug it.
-It is really annoying. Donald Becker told me, this is a bug in PCMCIA
-code, so I've posted this message here.
+You may have uploaded the wrong file by accident, that one only contains
+changelog comments and the one diff for /Makefile.
 
-P.S. If there will be any answers, please CC me, because I'm not 
-subscribed to the list.
+Regards,
+	Zwane
+-- 
+function.linuxpower.ca

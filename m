@@ -1,65 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270346AbTHQQBo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 12:01:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270332AbTHQQBo
+	id S270327AbTHQQNI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 12:13:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270332AbTHQQNI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 12:01:44 -0400
-Received: from 5.Red-80-32-157.pooles.rima-tde.net ([80.32.157.5]:5897 "EHLO
-	smtp.newipnet.com") by vger.kernel.org with ESMTP id S270328AbTHQQBl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 12:01:41 -0400
-Message-ID: <200308171759540391.00AA8CAB@192.168.128.16>
-In-Reply-To: <1061134091.21886.40.camel@dhcp23.swansea.linux.org.uk>
-References: <Pine.LNX.3.96.1030728222606.21100A-100000@gatekeeper.tmr.com>
- <20030728213933.F81299@coredump.scriptkiddie.org>
- <200308171509570955.003E4FEC@192.168.128.16>
- <200308171516090038.0043F977@192.168.128.16>
- <1061127715.21885.35.camel@dhcp23.swansea.linux.org.uk>
- <200308171555280781.0067FB36@192.168.128.16>
- <1061134091.21886.40.camel@dhcp23.swansea.linux.org.uk>
-X-Mailer: Calypso Version 3.30.00.00 (4)
-Date: Sun, 17 Aug 2003 17:59:54 +0200
-From: "Carlos Velasco" <carlosev@newipnet.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Lamont Granquist" <lamont@scriptkiddie.org>,
-       "Bill Davidsen" <davidsen@tmr.com>,
-       "David S. Miller" <davem@redhat.com>, bloemsaa@xs4all.nl,
-       "Marcelo Tosatti" <marcelo@conectiva.com.br>, netdev@oss.sgi.com,
-       linux-net@vger.kernel.org, layes@loran.com, torvalds@osdl.org,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-Content-Type: text/plain; charset="us-ascii"
+	Sun, 17 Aug 2003 12:13:08 -0400
+Received: from mail1.ati.com ([209.50.91.165]:25508 "EHLO mail1.ati.com")
+	by vger.kernel.org with ESMTP id S270327AbTHQQNF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 12:13:05 -0400
+Message-ID: <328A30E823B7D511A0BF00065B042A3B0172D80D@fgl00exh01.fgl.atitech.com>
+From: Alexander Stohr <AlexanderS@ati.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Filip Sneppe <filip.sneppe@yucom.be>
+Cc: faith@valinux.com, DRI Devel <dri-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Date: Sun, 17 Aug 2003 18:12:49 +0200
+Subject: RE: [Dri-devel] Re: 2.4.22-rc2 unresolved symbols in drm/sis.o wh
+	en CONFIG_AGP=m
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+X-Mailer: Internet Mail Service (5.5.2653.19)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17/08/2003 at 16:28 Alan Cox wrote:
+why wont the module compilation still pass
+when SIS fb configuration flags from the
+Linux kernel configuration are missing?
 
->Linux doesn't issue "bad" requests. Linux will reply when it is
->asked for an address that it owns, as per RFC826, unless you chose
->to change the behaviour with things like arpfilter.
+sorry if that requirement is already
+mentioned in the readme. i am just wondering.
 
-We are not talking about ARP Replies, we are talking about ARP
-Requests.
-You can see the Richard post here, same issue I reported several weeks
-ago:
-http://marc.theaimsgroup.com/?l=linux-net&m=106094924813337&w=2
+-Alex.
 
-==
-	On eth0, we see:
-
-11:23:55.650514 0:4:75:ca:c4:ef Broadcast arp 42: arp who-has
-10.10.10.1
-tell 212.xxx.yyy.9
-==
-
-Linux is sending an ARP Request to a LAN where the source IP address of
-the packet has not any sense in that IP network.
-And, at least, 2 RFCs are stating that other devices should not reply
-to this packet. Currently know Cisco, Foundry; possibly others, and
-possibly others coming as ARP storms are not desired.
-
-Regards,
-Carlos Velasco
+> -----Original Message-----
+> From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
+> Sent: Sunday, August 17, 2003 17:48
+> To: Filip Sneppe
+> Cc: faith@valinux.com; DRI Devel; Linux Kernel Mailing List
+> Subject: [Dri-devel] Re: 2.4.22-rc2 unresolved symbols in 
+> drm/sis.o when
+> CONFIG_AGP=m
+> 
+> 
+> On Sul, 2003-08-17 at 16:39, Filip Sneppe wrote:
+> > Hi,
+> > 
+> > I get this on Debian Sarge at the end of a "make modules_install":
+> > 
+> > depmod: *** Unresolved symbols in
+> > /lib/modules/2.4.22-rc2/kernel/drivers/char/drm/sis.o
+> > depmod:         sis_malloc_Ra3329ed5
+> > depmod:         sis_free_Rced25333
+> 
+> SIS DRM requires SIS frame buffer, known problem
+> 
+> 
+> 
+> -------------------------------------------------------
+> This SF.Net email sponsored by: Free pre-built ASP.NET sites including
+> Data Reports, E-commerce, Portals, and Forums are available now.
+> Download today and enter to win an XBOX or Visual Studio .NET.
+> http://aspnet.click-url.com/go/psa00100003ave/direct;at.aspnet
+_072303_01/01
+_______________________________________________
+Dri-devel mailing list
+Dri-devel@lists.sourceforge.net
+https://lists.sourceforge.net/lists/listinfo/dri-devel
 
 

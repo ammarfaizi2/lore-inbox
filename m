@@ -1,40 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261226AbVAMQoY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261221AbVAMRAl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261226AbVAMQoY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 11:44:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbVAMQnZ
+	id S261221AbVAMRAl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 12:00:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261217AbVAMQmu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 11:43:25 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:26852 "EHLO
+	Thu, 13 Jan 2005 11:42:50 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:32996 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261221AbVAMQkz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 11:40:55 -0500
-Subject: Re: [PATCH] do_brk() needs mmap_sem write-locked
+	id S261228AbVAMQlK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 11:41:10 -0500
+Subject: Re: thoughts on kernel security issues
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Andrew Morton <akpm@osdl.org>,
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, davej@redhat.com,
+       marcelo.tosatti@cyclades.com, greg@kroah.com, chrisw@osdl.org,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0501120800500.2373@ppc970.osdl.org>
-References: <20050112002117.GA27653@logos.cnet>
-	 <Pine.LNX.4.58.0501120800500.2373@ppc970.osdl.org>
+In-Reply-To: <20050112182838.2aa7eec2.akpm@osdl.org>
+References: <20050112094807.K24171@build.pdx.osdl.net>
+	 <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org>
+	 <20050112185133.GA10687@kroah.com>
+	 <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org>
+	 <20050112161227.GF32024@logos.cnet>
+	 <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org>
+	 <20050112205350.GM24518@redhat.com>
+	 <Pine.LNX.4.58.0501121750470.2310@ppc970.osdl.org>
+	 <20050112182838.2aa7eec2.akpm@osdl.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1105626859.4624.18.camel@localhost.localdomain>
+Message-Id: <1105627639.4644.26.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 13 Jan 2005 15:36:21 +0000
+Date: Thu, 13 Jan 2005 15:36:30 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2005-01-12 at 16:03, Linus Torvalds wrote:
-> if that warning ever triggers, mmap_sem will now be locked, and that will 
-> cause problems. So I suspect it's better to do
+On Iau, 2005-01-13 at 02:28, Andrew Morton wrote:
+> For the above reasons I see no need to delay publication of local DoS holes
+> at all.  The only thing for which we need to provide special processing is
+> privilege escalation bugs.
 > 
-> 	if (down_read_trylock(&mm->mmap_sem)) {
-> 		WARN_ON(1);
-> 		up_read(&mm->mmap_sem);
+> Or am I missing something?
 
-Better to leave the lock held and remember the error then drop it at the
-end - anything else means the WARN_ON case is a security hole.
+Universities and web hosting companys see the DoS issue rather
+differently sometimes. (Once we have Xen in the tree we'll have a good
+answer)
 

@@ -1,185 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319165AbSHMXBa>; Tue, 13 Aug 2002 19:01:30 -0400
+	id <S319163AbSHMXBd>; Tue, 13 Aug 2002 19:01:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319164AbSHMXAu>; Tue, 13 Aug 2002 19:00:50 -0400
-Received: from donkeykong.gpcc.itd.umich.edu ([141.211.2.163]:33019 "EHLO
+	id <S319158AbSHMXAD>; Tue, 13 Aug 2002 19:00:03 -0400
+Received: from donkeykong.gpcc.itd.umich.edu ([141.211.2.163]:55803 "EHLO
 	donkeykong.gpcc.itd.umich.edu") by vger.kernel.org with ESMTP
-	id <S319121AbSHMW65>; Tue, 13 Aug 2002 18:58:57 -0400
-Date: Tue, 13 Aug 2002 19:02:46 -0400 (EDT)
+	id <S319106AbSHMW7t>; Tue, 13 Aug 2002 18:59:49 -0400
+Date: Tue, 13 Aug 2002 19:03:36 -0400 (EDT)
 From: "Kendrick M. Smith" <kmsmith@umich.edu>
 X-X-Sender: kmsmith@rastan.gpcc.itd.umich.edu
 To: linux-kernel@vger.kernel.org, <nfs@lists.sourceforge.net>
-Subject: patch 16/38: CLIENT: add ->setup_{write,commit}() for async write,
- part 1
-Message-ID: <Pine.SOL.4.44.0208131902210.25942-100000@rastan.gpcc.itd.umich.edu>
+Subject: patch 18/38: CLIENT: move nfs_async_handle_jukebox() into ->unlink_done()
+Message-ID: <Pine.SOL.4.44.0208131903120.25942-100000@rastan.gpcc.itd.umich.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This is a nontrivial change to the NFS client.
+In NFSv3, an RPC is retried if the special error NFSERR_JUKEBOX is
+received.  This generic bit of postprocessing happens invisibly for
+synchronous RPC's, but in the async case, the ->tk_exit callback
+must call nfs_async_handle_jukebox() by hand.
 
-This patch does for the async WRITE and COMMIT paths what patch 14
-did for the async READ path, by changing 'struct nfs_write_data'
-so that the v2- and v3-specific parts are moved into a private area,
-with room for a v4-specific part in parallel.  None of the logic is
-changed.
+In NFSv4, we also need generic postprocessing of async RPC's, but
+the details are different.  Therefore, we don't want to call
+nfs_async_handle_jukebox(); we want to call a different, NFSv4-specific
+routine.  Therefore, we want to move calls to nfs_async_handle_jukebox()
+out of the "generic" NFS code and into NFSv3-specific routines.  This
+has already been done for async READ and WRITE in the preceding patches,
+but there is still one outstanding case: the async REMOVE in sillyrename.
 
---- old/fs/nfs/write.c	Sat Aug 10 23:12:28 2002
-+++ new/fs/nfs/write.c	Sat Aug 10 23:12:22 2002
-@@ -72,12 +72,19 @@ struct nfs_write_data {
- 	struct rpc_task		task;
- 	struct inode		*inode;
- 	struct rpc_cred		*cred;
--	struct nfs_writeargs	args;		/* argument struct */
--	struct nfs_writeres	res;		/* result struct */
- 	struct nfs_fattr	fattr;
- 	struct nfs_writeverf	verf;
- 	struct list_head	pages;		/* Coalesced requests we wish to flush */
- 	struct page		*pagevec[NFS_WRITE_MAXIOV];
-+	union {
-+		struct {
-+			struct nfs_writeargs args;
-+			struct nfs_writeres  res;
-+		} v3;
-+#ifdef CONFIG_NFS_V4
-+		/* NFSv4 data to come here... */
-+#endif
-+	} u;
- };
+This patch removes nfs_async_handle_jukebox() from the async sillyrename
+path, and puts in the NFSv3 ->unlink_done() rpc_op.
 
- /*
-@@ -106,7 +113,6 @@ static __inline__ struct nfs_write_data
- 	if (p) {
- 		memset(p, 0, sizeof(*p));
- 		INIT_LIST_HEAD(&p->pages);
--		p->args.pages = p->pagevec;
+--- old/include/linux/nfs_xdr.h	Sat Aug 10 23:39:47 2002
++++ new/include/linux/nfs_xdr.h	Tue Aug  6 10:16:09 2002
+@@ -365,7 +365,7 @@ struct nfs_rpc_ops {
+ 	int	(*remove)  (struct inode *, struct qstr *);
+ 	int	(*unlink_setup)  (struct rpc_message *,
+ 			    struct dentry *, struct qstr *);
+-	void	(*unlink_done) (struct dentry *, struct rpc_message *);
++	int	(*unlink_done) (struct dentry *, struct rpc_task *);
+ 	int	(*rename)  (struct inode *, struct qstr *,
+ 			    struct inode *, struct qstr *);
+ 	int	(*link)    (struct inode *, struct inode *, struct qstr *);
+--- old/fs/nfs/unlink.c	Wed Jul 24 16:03:31 2002
++++ new/fs/nfs/unlink.c	Tue Aug  6 10:09:43 2002
+@@ -123,13 +123,12 @@ nfs_async_unlink_done(struct rpc_task *t
+ 	struct dentry		*dir = data->dir;
+ 	struct inode		*dir_i;
+
+-	if (nfs_async_handle_jukebox(task))
+-		return;
+ 	if (!dir)
+ 		return;
+ 	dir_i = dir->d_inode;
+ 	nfs_zap_caches(dir_i);
+-	NFS_PROTO(dir_i)->unlink_done(dir, &task->tk_msg);
++	if (NFS_PROTO(dir_i)->unlink_done(dir, task))
++		return;
+ 	put_rpccred(data->cred);
+ 	data->cred = NULL;
+ 	dput(dir);
+--- old/fs/nfs/proc.c	Sat Aug 10 23:39:47 2002
++++ new/fs/nfs/proc.c	Tue Aug  6 10:15:51 2002
+@@ -312,13 +312,16 @@ nfs_proc_unlink_setup(struct rpc_message
+ 	return 0;
+ }
+
+-static void
+-nfs_proc_unlink_done(struct dentry *dir, struct rpc_message *msg)
++static int
++nfs_proc_unlink_done(struct dentry *dir, struct rpc_task *task)
+ {
++	struct rpc_message *msg = &task->tk_msg;
++
+ 	if (msg->rpc_argp) {
+ 		NFS_CACHEINV(dir->d_inode);
+ 		kfree(msg->rpc_argp);
  	}
- 	return p;
- }
-@@ -864,10 +870,10 @@ nfs_write_rpcsetup(struct list_head *hea
- 	/* Set up the RPC argument and reply structs
- 	 * NB: take care not to mess about with data->commit et al. */
-
--	pages = data->args.pages;
-+	pages = data->pagevec;
- 	count = 0;
- 	while (!list_empty(head)) {
--		struct nfs_page *req = nfs_list_entry(head->next);
-+		req = nfs_list_entry(head->next);
- 		nfs_list_remove_request(req);
- 		nfs_list_add_request(req, &data->pages);
- 		*pages++ = req->wb_page;
-@@ -876,13 +882,14 @@ nfs_write_rpcsetup(struct list_head *hea
- 	req = nfs_list_entry(data->pages.next);
- 	data->inode = req->wb_inode;
- 	data->cred = req->wb_cred;
--	data->args.fh     = NFS_FH(req->wb_inode);
--	data->args.offset = page_offset(req->wb_page) + req->wb_offset;
--	data->args.pgbase = req->wb_offset;
--	data->args.count  = count;
--	data->res.fattr   = &data->fattr;
--	data->res.count   = count;
--	data->res.verf    = &data->verf;
-+	data->u.v3.args.fh     = NFS_FH(req->wb_inode);
-+	data->u.v3.args.offset = page_offset(req->wb_page) + req->wb_offset;
-+	data->u.v3.args.pgbase = req->wb_offset;
-+	data->u.v3.args.pages  = pages;
-+	data->u.v3.args.count  = count;
-+	data->u.v3.res.fattr   = &data->fattr;
-+	data->u.v3.res.count   = count;
-+	data->u.v3.res.verf    = &data->verf;
++	return 0;
  }
 
+ static int
+--- old/fs/nfs/nfs3proc.c	Sat Aug 10 23:39:47 2002
++++ new/fs/nfs/nfs3proc.c	Tue Aug  6 10:15:40 2002
+@@ -387,16 +398,20 @@ nfs3_proc_unlink_setup(struct rpc_messag
+ 	return 0;
+ }
 
-@@ -920,14 +927,14 @@ nfs_flush_one(struct list_head *head, st
- 	/* Set up the argument struct */
- 	nfs_write_rpcsetup(head, data);
- 	if (nfsvers < 3)
--		data->args.stable = NFS_FILE_SYNC;
-+		data->u.v3.args.stable = NFS_FILE_SYNC;
- 	else if (stable) {
- 		if (!nfsi->ncommit)
--			data->args.stable = NFS_FILE_SYNC;
-+			data->u.v3.args.stable = NFS_FILE_SYNC;
- 		else
--			data->args.stable = NFS_DATA_SYNC;
-+			data->u.v3.args.stable = NFS_DATA_SYNC;
- 	} else
--		data->args.stable = NFS_UNSTABLE;
-+		data->u.v3.args.stable = NFS_UNSTABLE;
-
- 	/* Finalize the task. */
- 	rpc_init_task(task, clnt, nfs_writeback_done, flags);
-@@ -940,16 +947,16 @@ nfs_flush_one(struct list_head *head, st
- #else
- 	msg.rpc_proc = NFSPROC_WRITE;
- #endif
--	msg.rpc_argp = &data->args;
--	msg.rpc_resp = &data->res;
-+	msg.rpc_argp = &data->u.v3.args;
-+	msg.rpc_resp = &data->u.v3.res;
- 	msg.rpc_cred = data->cred;
-
- 	dprintk("NFS: %4d initiated write call (req %s/%Ld, %u bytes @ offset %Lu)\n",
- 		task->tk_pid,
- 		inode->i_sb->s_id,
- 		(long long)NFS_FILEID(inode),
--		(unsigned int)data->args.count,
--		(unsigned long long)data->args.offset);
-+		(unsigned int)data->u.v3.args.count,
-+		(unsigned long long)data->u.v3.args.offset);
-
- 	rpc_clnt_sigmask(clnt, &oldset);
- 	rpc_call_setup(task, &msg, 0);
-@@ -1003,8 +1010,8 @@ static void
- nfs_writeback_done(struct rpc_task *task)
+-static void
+-nfs3_proc_unlink_done(struct dentry *dir, struct rpc_message *msg)
++static int
++nfs3_proc_unlink_done(struct dentry *dir, struct rpc_task *task)
  {
- 	struct nfs_write_data	*data = (struct nfs_write_data *) task->tk_calldata;
--	struct nfs_writeargs	*argp = &data->args;
--	struct nfs_writeres	*resp = &data->res;
-+	struct nfs_writeargs	*argp = &data->u.v3.args;
-+	struct nfs_writeres	*resp = &data->u.v3.res;
- 	struct inode		*inode = data->inode;
- 	struct nfs_page		*req;
- 	struct page		*page;
-@@ -1128,11 +1135,11 @@ nfs_commit_rpcsetup(struct list_head *he
++	struct rpc_message *msg = &task->tk_msg;
+ 	struct nfs_fattr	*dir_attr;
 
- 	data->inode	  = inode;
- 	data->cred	  = first->wb_cred;
--	data->args.fh     = NFS_FH(inode);
--	data->args.offset = start;
--	data->res.count   = data->args.count = (u32)len;
--	data->res.fattr   = &data->fattr;
--	data->res.verf    = &data->verf;
-+	data->u.v3.args.fh     = NFS_FH(inode);
-+	data->u.v3.args.offset = start;
-+	data->u.v3.res.count   = data->u.v3.args.count = (u32)len;
-+	data->u.v3.res.fattr   = &data->fattr;
-+	data->u.v3.res.verf    = &data->verf;
++	if (nfs_async_handle_jukebox(task))
++		return 1;
+ 	if (msg->rpc_argp) {
+ 		dir_attr = (struct nfs_fattr*)msg->rpc_resp;
+ 		nfs_refresh_inode(dir->d_inode, dir_attr);
+ 		kfree(msg->rpc_argp);
+ 	}
++	return 0;
  }
 
- /*
-@@ -1169,8 +1176,8 @@ nfs_commit_list(struct list_head *head,
- 	task->tk_release = nfs_writedata_release;
-
- 	msg.rpc_proc = NFS3PROC_COMMIT;
--	msg.rpc_argp = &data->args;
--	msg.rpc_resp = &data->res;
-+	msg.rpc_argp = &data->u.v3.args;
-+	msg.rpc_resp = &data->u.v3.res;
- 	msg.rpc_cred = data->cred;
-
- 	dprintk("NFS: %4d initiated commit call\n", task->tk_pid);
-@@ -1198,7 +1205,7 @@ static void
- nfs_commit_done(struct rpc_task *task)
- {
- 	struct nfs_write_data	*data = (struct nfs_write_data *)task->tk_calldata;
--	struct nfs_writeres	*resp = &data->res;
-+	struct nfs_writeres	*resp = &data->u.v3.res;
- 	struct nfs_page		*req;
- 	struct inode		*inode = data->inode;
-
+ static int
 

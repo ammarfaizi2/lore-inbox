@@ -1,18 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268979AbUIHC0W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268980AbUIHC0k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268979AbUIHC0W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 22:26:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268977AbUIHC0W
+	id S268980AbUIHC0k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 22:26:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268977AbUIHC0h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 22:26:22 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:50879 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S268972AbUIHC0O (ORCPT
+	Tue, 7 Sep 2004 22:26:37 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:55999 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S268975AbUIHC0S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 22:26:14 -0400
-Message-Id: <200409080015.i880Fald003078@localhost.localdomain>
+	Tue, 7 Sep 2004 22:26:18 -0400
+Message-Id: <200409080007.i880745c002997@localhost.localdomain>
 To: David Lang <david.lang@digitalinsight.com>
 cc: Christer Weinigel <christer@weinigel.se>, Hans Reiser <reiser@namesys.com>,
-       David Masover <ninja@slaphack.com>, Spam <spam@tnonline.net>,
+       David Masover <ninja@slaphack.com>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Spam <spam@tnonline.net>,
        Tonnerre <tonnerre@thundrix.ch>, Linus Torvalds <torvalds@osdl.org>,
        Pavel Machek <pavel@ucw.cz>, Jamie Lokier <jamie@shareable.org>,
        Chris Wedgwood <cw@f00f.org>, viro@parcelfarce.linux.theplanet.co.uk,
@@ -22,51 +23,66 @@ cc: Christer Weinigel <christer@weinigel.se>, Hans Reiser <reiser@namesys.com>,
        ReiserFS List <reiserfs-list@namesys.com>
 Subject: Re: silent semantic changes with reiser4 
 In-Reply-To: Message from David Lang <david.lang@digitalinsight.com> 
-   of "Tue, 07 Sep 2004 15:56:08 MST." <Pine.LNX.4.60.0409071552070.10789@dlang.diginsite.com> 
+   of "Tue, 07 Sep 2004 15:36:27 MST." <Pine.LNX.4.60.0409071528200.10789@dlang.diginsite.com> 
 X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
-Date: Tue, 07 Sep 2004 20:15:36 -0400
+Date: Tue, 07 Sep 2004 20:07:04 -0400
 From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 David Lang <david.lang@digitalinsight.com> said:
-> On Tue, 8 Sep 2004, Christer Weinigel wrote:
-> > David Lang <david.lang@digitalinsight.com> writes:
+> so far the best answer that I've seen is a slight varient of what Hans is 
+> proposing for the 'file-as-a-directory'
 
-[...]
+> make the base file itself be a serialized version of all the streams and 
+> if you want the 'main' stream open file/. (or some similar varient)
 
-> > So what happens if I have a text file foo.txt and add an author
-> > attribute to it?  When I read foo.txt the next time it's supposed to
-> > give me a serialized version with both the contents of foo.txt _and_
-> > the author attribute?
-> >
-> > That would definitely confuse me.
-> >
-> > Or did I misunderstand something?
+Serialized how? cpio(1), tar(1), cat(1)ed together, ...? Ship it via FTP or
+something, how do you unpack on a traditional filesystem? On a wacky
+filesystem?
 
-> good point. under my scheme you would need to access foo.txt/foo.txt or 
-> foo.txt/. instead of just foo.txt
+Note that this has the same performance implications as the targzfilesystem
+concept, just the other way around: Instead of unpacking on the fly it is
+packing on the fly. And paying a (possibly huge) cost for "simple, everyday
+operations" in some cases that can't be distinguished from ones where there
+is no such cost is very wrong to me.
 
-> I guess my way would work if there is a way to know that a file has been 
-> extended
+> this doesn't address the hard-link issue,
 
-Out of the question if you want to use legacy tools.
+It has to be solved!
 
->          (or if you just make it a habit of opening the file/file instead 
-> of just file) but not for random additions of streams to otherwise normal 
-> files.
+>                                           but it should handle the backup 
+> problems (your backup software just goes through the files and what it 
+> gets is suitable for backups).
 
-And then a file called foo inside directory foo will have to be refered to
-as foo/foo/foo...
+But how do you recreate the original "files" later? You only get the
+serialized version back. Even worse, if you unpack on top of the original
+wacky file, you'd get a wacky file, where the main stream is the serialized
+version of the original... Rinse and repeat. [Shudder]
 
-> Oh well, it seemed like a easy fix (and turned out to be to easy to be 
-> practical)
+> you will ask what serializer to user, and my answer is to let one of the 
+> streams tell you, and have the kernel make a call out to userspace to 
+> execute the appropriate program (note that this means that tar is not put 
+> into the kernel)
 
-My gut feeling is that this whole concept is too messed up to be sorted
-out. That something can easily be done given whatever underlying structure
-there is doesn't make it worthwhile to do it. Just as it is absurdly easy
-to allow hard links to directories if you look at how they are implemented,
-but the consecuences aren't that easy to live with.
+If I want to see it serialized via tar(1), and you via cpio(1), and
+somebody else via "take the icon stream, discard everything else", how do
+you handle that?
+
+> in fact it may make sense to just open file/file to get at the 'main' 
+> stream of the file (there may be cases where the concept of a single main 
+> stream may not make sense)
+
+What do you do then?
+
+> so if this solves the tool/backup problem
+
+It makes it much worse, AFAICS.
+
+>                                            then we can look and figure out 
+> if there's a reasonable way to solve the hard-link problem
+
+Right. And if none is found, can we drop this madness?
 -- 
 Dr. Horst H. von Brand                   User #22616 counter.li.org
 Departamento de Informatica                     Fono: +56 32 654431

@@ -1,20 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261798AbUDNWPY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 18:15:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbUDNWPY
+	id S261857AbUDNWQv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 18:16:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261897AbUDNWQu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 18:15:24 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:34465 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S261798AbUDNWPU (ORCPT
+	Wed, 14 Apr 2004 18:16:50 -0400
+Received: from palrel11.hp.com ([156.153.255.246]:27825 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S261857AbUDNWQq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 18:15:20 -0400
-Date: Wed, 14 Apr 2004 15:15:18 -0700
+	Wed, 14 Apr 2004 18:16:46 -0400
+Date: Wed, 14 Apr 2004 15:16:45 -0700
 To: "David S. Miller" <davem@redhat.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>, irda-users@lists.sourceforge.net
-Subject: IrDA patches for 2.6.6
-Message-ID: <20040414221518.GA5434@bougret.hpl.hp.com>
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6 IrDA] Fix handling of RD:RSP
+Message-ID: <20040414221645.GC5434@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -27,71 +26,45 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi David,
-
-	This is the latest batch of IrDA patches from Stephen. It
-seems to me that he is running out of things to clean up in the IrDA
-stack ;-) I added a few other patches from Martin and me for good
-measure.
-	Please send that through the channels...
-
-	Jean
-
--------------------------------------------------------------
-
-[FEATURE] : Add a new feature to the IrDA stack
-[CORRECT] : Fix to have the correct/expected behaviour
-[CRITICA] : Fix potential kernel crash
-
-ir265_vlsi_proc.diff :
-~~~~~~~~~~~~~~~~~~~~
-		<Patch from Stephen Hemminger>
-	o [FEATURE] Convert vlsi_ir /proc/driver to single seq_file method.
-
 ir265_rd_rsp_retry.diff :
 ~~~~~~~~~~~~~~~~~~~~~~~
 		<Patch from Martin Diehl>
 	o [CORRECT] Fix handling of RD:RSP to be spec compliant
 
-ir265_donauboe_crc.diff :
-~~~~~~~~~~~~~~~~~~~~~~~
-		<Patch from Stephen Hemminger>
-	o [FEATURE] Get rid of local CRC table, use standard one
 
-irXXX_irlan_print_ret.diff :
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-		<Patch from Stephen Hemminger>
-	o [FEATURE] Move print_ret_code from a global to local to avoid
-		namespace pollution.
-
-irXXX_irlan_handle_filter.diff :
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		<Patch from Stephen Hemminger>
-	o [FEATURE] Change name of handle_filter_request to
-		irlan_filter_request to avoid namespace pollution.
-
-irXXX_irlan_common_cleanup.diff :
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		<Patch from Stephen Hemminger>
-	o [FEATURE] Minor type changes in irlan_common for clarity:
-        - use const
-        - init and exit can be static
-        - use skb_queue_purge to flush queue
-        - get rid of noisy old comment
-
-ir265_irlan_eth_cleanup-2.diff :
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	o [FEATURE] Use IrTTP flow control to stop/wake netif
-		<Patch from Stephen Hemminger>
-	o [CORRECT] Change irlan_eth device initialization:
-        *bug* address never set in DIRECT mode because access not set
-              in alloc_netdev -> irlan_eth_setup path
-        + make eth_XXX handles static and provide alloc_irlandev hook
-        + use netdev_priv (and get rid of truly impossible ASSERT's)
-        + use skb_queue_purge
-
-irXXX_irlan_sleep.diff :
-~~~~~~~~~~~~~~~~~~~~~~
-		<Patch from Stephen Hemminger>
-	o [CORRECT] gets rid of interruptible_sleep_on.
-
+diff -u -p linux/net/irda/irlap_event.d0.c linux/net/irda/irlap_event.c
+--- linux/net/irda/irlap_event.d0.c	Wed Apr  7 18:54:24 2004
++++ linux/net/irda/irlap_event.c	Wed Apr  7 18:54:33 2004
+@@ -2236,6 +2236,14 @@ static int irlap_state_sclose(struct irl
+ 		irlap_disconnect_indication(self, LAP_DISC_INDICATION);
+ 		break;
+ 	case RECV_DM_RSP:
++		/* IrLAP-1.1 p.82: in SCLOSE, S and I type RSP frames
++		 * shall take us down into default NDM state, like DM_RSP
++		 */
++	case RECV_RR_RSP:
++	case RECV_RNR_RSP:
++	case RECV_REJ_RSP:
++	case RECV_SREJ_RSP:
++	case RECV_I_RSP:
+ 		/* Always switch state before calling upper layers */
+ 		irlap_next_state(self, LAP_NDM);
+ 
+@@ -2253,6 +2261,17 @@ static int irlap_state_sclose(struct irl
+ 		irlap_disconnect_indication(self, LAP_DISC_INDICATION);
+ 		break;
+ 	default:
++		/* IrLAP-1.1 p.82: in SCLOSE, basically any received frame
++		 * with pf=1 shall restart the wd-timer and resend the rd:rsp
++		 */
++		if (info != NULL  &&  info->pf) {
++			del_timer(&self->wd_timer);
++			irlap_wait_min_turn_around(self, &self->qos_tx);
++			irlap_send_rd_frame(self);
++			irlap_start_wd_timer(self, self->wd_timeout);
++			break;		/* stay in SCLOSE */
++		}
++
+ 		IRDA_DEBUG(1, "%s(), Unknown event %d, (%s)\n", __FUNCTION__,
+ 			   event, irlap_event[event]);
+ 

@@ -1,98 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268609AbUIXJ1e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268648AbUIXJaq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268609AbUIXJ1e (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 05:27:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268637AbUIXJ1d
+	id S268648AbUIXJaq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 05:30:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268646AbUIXJaq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 05:27:33 -0400
-Received: from barclay.balt.net ([195.14.162.78]:53468 "EHLO barclay.balt.net")
-	by vger.kernel.org with ESMTP id S268609AbUIXJ1S (ORCPT
+	Fri, 24 Sep 2004 05:30:46 -0400
+Received: from holomorphy.com ([207.189.100.168]:37342 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S268648AbUIXJag (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 05:27:18 -0400
-Date: Fri, 24 Sep 2004 12:25:47 +0300
-From: Zilvinas Valinskas <zilvinas@gemtek.lt>
-To: Patrick McHardy <kaber@trash.net>
-Cc: Mathieu B?rard <Mathieu.Berard@crans.org>, linux-kernel@vger.kernel.org
-Subject: Re: Oops with racoon and linux-2.6.9-rc2-mm1
-Message-ID: <20040924092546.GA14850@gemtek.lt>
-Reply-To: Zilvinas Valinskas <zilvinas@gemtek.lt>
-References: <41520074.3080706@crans.org> <41524CEE.2020508@trash.net>
+	Fri, 24 Sep 2004 05:30:36 -0400
+Date: Fri, 24 Sep 2004 02:30:06 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc2-mm3
+Message-ID: <20040924093006.GY9106@holomorphy.com>
+References: <20040924014643.484470b1.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41524CEE.2020508@trash.net>
-X-Attribution: Zilvinas
-X-Url: http://www.gemtek.lt/
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <20040924014643.484470b1.akpm@osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Seems like the same patch is missing from linux 2.6.9-rc2-bk8 too.
-As reported this solves the problem in mm tree ...
+On Fri, Sep 24, 2004 at 01:46:43AM -0700, Andrew Morton wrote:
+> - This is a quick not-very-well-tested release - it can't be worse than
+>   2.6.9-rc2-mm2, which had a few networking problems.
+> - Added Dmitry Torokhov's input system tree to the -mm bk tree lineup.
+> +512x-altix-timer-interrupt-livelock-fix-vs-269-rc2-mm2.patch
+>  profiler speedup
 
-BR
+Hmm, it's more that the profiler failed to meet a hard RT deadline
+(yes, Linux has some of those) i.e. finishing its work before the next
+timer interrupt occurs. I suppose a speedup is the nature of the fix...
 
 
-On Thu, Sep 23, 2004 at 06:11:26AM +0200, Patrick McHardy wrote:
-> Should be fixed by this patch.
-> 
-> Regards
-> Patrick
-> 
-> Mathieu B?rard wrote:
-> 
-> >Hi,
-> >
-> >I get this Oops using racoon and linux 2.6.9-rc2-mm1,
-> >though everything run smoothly with a 2.6.8 kernel.
-> >
-> >Here the oops (copied by hand):
-> >
-> >Warning: kfree_skb on hard IRQ 000000c0
-> >scheduling while atomic: racoon/0xffffff00/1680
-> >[<c027c7bb>] schedule+0x32b/0x480
-> >[<c0114a4a>] sys_sched_yield+0x1a/0x20
-> >[<c0153e3b>] coredump_wait+0x2b/0x90
-> >[<c0153f6a>] do_coredump+0xca/0x1a1
-> >[<c0132d1d>] buffered_rmqueue+0xdd/0x1b0
-> >[<c0128290>] autoremove_wake_function+0x0/0x50
-> >[<c011f365>] __dequeue_signal+0xe5/0x150
-> >[<c011f3f3>] dequeue_signal+0x23/0x90
-> >[<c0120b8d>] get_signal_to_deliver+0x24d/0x300
-> >[<c0103c6f>] do_signal+0x8f/0x160
-> >[<c015a2e0>] __pollwait+0x0/0xc0
-> >[<c0227687>] sys_recv+0x37/0x40
-> >[<c010618c>] do_IRQ+0xec/0x190
-> >[<c0112a90>] do_page_fault+0x0/0x575
-> >[<c0103d77>] do_notify_resume+0x37/0x3c
-> >[<c0103f1a>] work_notifysig+0x13/0x15
-> >Kernel panic - not syncing: Aiee, killing interrupt handler!
-> >
-> 
+On Fri, Sep 24, 2004 at 01:46:43AM -0700, Andrew Morton wrote:
+> +sparc32-early-tick_ops.patch
+>  Avoid early oops on sparc32 with the zaphod scheduler
 
-> # This is a BitKeeper generated diff -Nru style patch.
-> #
-> # ChangeSet
-> #   2004/09/23 06:05:52+02:00 kaber@coreworks.de 
-> #   [XFRM]: Fix unbalanced spin_unlock_bh
-> #   
-> #   Signed-off-by: Patrick McHardy <kaber@trash.net>
-> # 
-> # net/xfrm/xfrm_state.c
-> #   2004/09/23 06:05:25+02:00 kaber@coreworks.de +0 -1
-> #   [XFRM]: Fix unbalanced spin_unlock_bh
-> #   
-> #   Signed-off-by: Patrick McHardy <kaber@trash.net>
-> # 
-> diff -Nru a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
-> --- a/net/xfrm/xfrm_state.c	2004-09-23 06:07:23 +02:00
-> +++ b/net/xfrm/xfrm_state.c	2004-09-23 06:07:23 +02:00
-> @@ -592,7 +592,6 @@
->  		list_for_each_entry(x, xfrm_state_bydst+i, bydst) {
->  			if (x->km.seq == seq) {
->  				xfrm_state_hold(x);
-> -				spin_unlock_bh(&xfrm_state_lock);
->  				return x;
->  			}
->  		}
+This is probably sparc64; I've not been doing much with -mm on sparc32
+apart from compiletests in favor of chasing longer-term issues e.g.
+HyperSPARC DMA, SMP, etc., largely using mainline point releases.
 
+
+-- wli

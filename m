@@ -1,60 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263239AbTFXSYp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 14:24:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262430AbTFXSYp
+	id S264265AbTFXSYH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 14:24:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264279AbTFXSYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 14:24:45 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:43025 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263239AbTFXSYc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 14:24:32 -0400
-Date: Tue, 24 Jun 2003 14:31:16 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Willy Tarreau <willy@w.ods.org>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Undo aic7xxx changes (now rc7+aic20030603)
-In-Reply-To: <20030620220331.GA1100@alpha.home.local>
-Message-ID: <Pine.LNX.3.96.1030624142334.6519H-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 24 Jun 2003 14:24:07 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:11136 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S264265AbTFXSYC (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 14:24:02 -0400
+Message-Id: <200306241837.h5OIbv7D002198@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: chas3@users.sourceforge.net
+Cc: Paul Rolland <rol@as2917.net>, "'Martin J. Bligh'" <mbligh@aracnet.com>,
+       "'Rick A. Hohensee'" <rickh@capaccess.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Alan Cox has been... 
+In-Reply-To: Your message of "Tue, 24 Jun 2003 12:02:31 EDT."
+             <200306241604.h5OG4csG002476@ginger.cmf.nrl.navy.mil> 
+From: Valdis.Kletnieks@vt.edu
+References: <200306241604.h5OG4csG002476@ginger.cmf.nrl.navy.mil>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-2028629329P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 24 Jun 2003 14:37:56 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 21 Jun 2003, Willy Tarreau wrote:
+--==_Exmh_-2028629329P
+Content-Type: text/plain; charset=us-ascii
 
-> On Fri, Jun 20, 2003 at 06:13:53PM -0300, Marcelo Tosatti wrote:
-> > > Actually, without another copy of the data on a different system to
-> > > verify it with, you can't know that for sure. It could easily be getting
-> > > to the tape (the actual media) just fine, but then get corrupted during
-> > > the verify readback.
-> > 
-> > Right. Stephan, if you could use a bit of your time to isolate the problem
-> > I would be VERY grateful.
-> 
-> I remember Stephan once said that he used tar to verify the tape, and that for
-> one backup, he did several tests showing corruption on different files. Altough
-> that doesn't mean that the tape is written totally correctly, it at proves that
-> there's at least a read corruption.
-> 
-> I think that comparing multiple reads to find a pattern in corruption offsets
-> (if any) is the only thing he could do (not speaking about mixing read/writes
-> with good/bad kernels). Of course, storing several times 70GB on disk is not
-> easy, but at least a 16 bits checksum for each 1kB block would result on about
-> 140 MB files, which will be "easier" to compare. It could be enough to check
-> for empty blocks, duplicated blocks or totally random ones.
+On Tue, 24 Jun 2003 12:02:31 EDT, chas williams said:
 
-Actually, to find problems like this, a change to cpio would be useful:
+> with about 5e9 people in the world, there must be 4 others somewhere.
 
-  find /home | cpio -oB -Hcrc >/dev/st0
+(originally said about Usenet):
 
-as an example. When reading back you will see errors from the CRC on each
-file. I use cpio for this reason in some cases where knowing it's right
-is critical.
+"There is no theory so bizarre and implausible that somebody, somewhere,
+won't subscribe to it.  The proof is left as an exercise for your killfile" 
+	-- Author Unknown
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+--==_Exmh_-2028629329P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE++JqDcC3lWbTT17ARAkb6AJ0X5E9a6OhI3kJCbfhoHMK2REpCrQCg0+82
+GCx0oQGKB6SSjlP0Czo36DE=
+=uOkd
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-2028629329P--

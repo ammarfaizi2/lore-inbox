@@ -1,173 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130194AbRAVWiQ>; Mon, 22 Jan 2001 17:38:16 -0500
+	id <S130167AbRAVWjC>; Mon, 22 Jan 2001 17:39:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130167AbRAVWiH>; Mon, 22 Jan 2001 17:38:07 -0500
-Received: from femail3.rdc1.on.home.com ([24.2.9.90]:39163 "EHLO
-	femail3.rdc1.on.home.com") by vger.kernel.org with ESMTP
-	id <S129806AbRAVWhw>; Mon, 22 Jan 2001 17:37:52 -0500
-Message-ID: <3A6CB620.469A15A9@Home.net>
-Date: Mon, 22 Jan 2001 17:37:20 -0500
-From: Shawn Starr <Shawn.Starr@Home.net>
-Organization: Visualnet
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre9 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jorge Nerin <comandante@zaralinux.com>
-CC: linux-kernel@vger.kernel.org, linux-smp@vger.kernel.org
-Subject: Re: kernel BUG at slab.c:1542!(2.4.1-pre9)
-In-Reply-To: <3A6C5058.C5AA7681@zaralinux.com>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+	id <S131339AbRAVWir>; Mon, 22 Jan 2001 17:38:47 -0500
+Received: from mail.valinux.com ([198.186.202.175]:49420 "EHLO
+	mail.valinux.com") by vger.kernel.org with ESMTP id <S130167AbRAVWil>;
+	Mon, 22 Jan 2001 17:38:41 -0500
+Date: Mon, 22 Jan 2001 14:37:40 -0800
+From: "H . J . Lu" <hjl@valinux.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+        NFS maillist <nfs@lists.sourceforge.net>
+Subject: Re: [NFS] [CFT] Improved RPC congestion handling for 2.4.0 (and 2.2.18)
+Message-ID: <20010122143740.A31589@valinux.com>
+In-Reply-To: <14904.54852.334762.889784@charged.uio.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <14904.54852.334762.889784@charged.uio.no>; from trond.myklebust@fys.uio.no on Thu, Dec 14, 2000 at 03:16:36PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is not a kernel bug, This is a bug in the XFree86 TrueType rendering
-extention. This has been discussed on the Xpert XFree86 mailing list. There
-is a fix in the works (depends on the TrueType fonts your using).
+On Thu, Dec 14, 2000 at 03:16:36PM +0100, Trond Myklebust wrote:
+> 
+> Hi,
+> 
+>    One of the things we've been lacking in the Linux implementation of
+> RPC is the 'ping' routine. The latter is used on most *NIX
+> implementations in order to test whether or not the RPC server is
+> alive. To do so, it simply calls procedure-0 (the NULL procedure),
+> which is always set up to return the value 0 and therefore acts more
+> or less like the icmp 'ping'.
+> 
+>   The appended patch implements such a routine, and uses it to improve
+> our congestion control, by allowing the entire set of pending requests
+> to inquire whether or not the server is alive, and then to sleep for 5
+> seconds before retrying. This is done if and only if we get a major
+> RPC timeout and we see that the client Van Jacobson congestion control
+> can no longer throttle back the number of pending requests.
+> 
+>   This is more accurate than the current system of just retrying each
+> request, and waiting for 5 seconds if icmp fails, because the ping
+> directly tests whether the server is up and responding to
+> requests. Furthermore, unlike the retried requests, the packet length
+> of a ping request is always short, so we don't fall prone to issues of
+> udp fragmentation messing up the test. Finally, because all pending
+> requests are made to wait on a single ping rather than bombarding the
+> server with retries, it avoids further congestion to the network.
 
-Unless otherwise, Im using 2.4.1-pre9 with no such faults (XFree86 CVS
-X11R6.5.1 merge sources) not 4.0.2 stable.
+I got a report which indicates it may not be a good idea, especially
+for UDP. Suppose you have a lousy LAN or NFS UDP server for whatever
+reason, some NFS/UDP packets may get lost very easily while a ping
+request may get through. In that case, the rpc ping may slow down
+the NFS client over UDP significantly.
 
-Shawn.
 
-Jorge Nerin wrote:
-
-
-> Hello, this is perfectly reproductable, fresh RH7.0 kernel 2.4.1-pre9
-> compiled with kgcc, and the same bug in pre1, pre4 & pre9. I only need
-> to run xfontsel and the xfs dies, every time, prefectly reproductable.
->
-> Using XFree86-xfs-4.0.1-1, and this XFree packages:
-> XFree86-4.0.1-1
-> XFree86-tools-4.0.1-1
-> XFree86-xdm-4.0.1-1
-> XFree86-libs-4.0.1-1
-> XFree86-xfs-4.0.1-1
-> XFree86-75dpi-fonts-4.0.1-1
-> XFree86-SVGA-3.3.6-33
-> XFree86-twm-4.0.1-1
-> XFree86-VGA16-3.3.6-33
-> XFree86-Xnest-4.0.1-1
-> XFree86-devel-4.0.1-1
-> XFree86-V4L-4.0.1-1
->
-> Pentium 2x200mmx 96mb ram, voodoo 3 200pci, more info as requested, and
-> also some patches are welcome.
->
-> ksymoops 2.3.4 on i586 2.4.1-pre9.  Options used
->      -V (default)
->      -k /proc/ksyms (default)
->      -l /proc/modules (default)
->      -o /lib/modules/2.4.1-pre9/ (default)
->      -m /usr/src/linux/System.map (default)
->
-> Warning: You did not tell me where to find symbol information.  I will
-> assume that the log matches the kernel and modules that are running
-> right now and I'll use the default options above for symbol resolution.
-> If the current kernel and/or modules do not match the log, you can get
-> more accurate output by telling me the kernel version and where to find
-> map, modules, ksyms etc.  ksymoops -h explains the options.
->
-> activating NMI Watchdog ... done.
-> cpu: 0, clocks: 668150, slice: 222716
-> cpu: 1, clocks: 668150, slice: 222716
-> 8139too Fast Ethernet driver 0.9.13 loaded
-> invalid operand: 0000
-> CPU:    1
-> EIP:    0010:[<c012c056>]
-> Using defaults from ksymoops -t elf32-i386 -a i386
-> EFLAGS: 00010292
-> eax: 0000001b   ebx: c27cc680   ecx: 00000008   edx: c5802ca0
-> esi: 00000003   edi: c4310000   ebp: c4310000   esp: c4311de4
-> ds: 0018   es: 0018   ss: 0018
-> Process xfs (pid: 909, stackpage=c4311000)
-> Stack: c01e97a5 c01e9825 00000606 c27cc680 00000003 c4310000 c4310000
-> c0111d3b
->        c5fe3f0c 000001a8 c0196cfa 0003fff4 00000003 00000000 c5c96c20
-> c4310000
->        00000ff0 00000206 c01963fe 0003fff0 00000003 c2f8a164 0003ffec
-> c01d1550
-> Call Trace: [<c0111d3b>] [<c0196cfa>] [<c01963fe>] [<c01d1550>]
-> [<c01d167e>] [<c01d1550>] [<c0193fad>]
->        [<c01d1550>] [<c0194260>] [<c01942e2>] [<c0134763>] [<c01348c9>]
-> [<c0108fc7>]
-> Code: 0f 0b 83 c4 0c 90 8d 74 26 00 31 c0 5b 5e 5f 5d 83 c4 0c c3
->
-> >>EIP; c012c056 <kmalloc+112/128>   <=====
-> Trace; c0111d3b <smp_call_function_interrupt+1f/34>
-> Trace; c0196cfa <alloc_skb+102/1a0>
-> Trace; c01963fe <sock_alloc_send_skb+72/12c>
-> Trace; c01d1550 <unix_stream_sendmsg+0/310>
-> Trace; c01d167e <unix_stream_sendmsg+12e/310>
-> Trace; c01d1550 <unix_stream_sendmsg+0/310>
-> Trace; c0193fad <sock_sendmsg+81/a4>
-> Trace; c01d1550 <unix_stream_sendmsg+0/310>
-> Trace; c0194260 <sock_readv_writev+8c/98>
-> Trace; c01942e2 <sock_writev+36/40>
-> Trace; c0134763 <do_readv_writev+183/254>
-> Trace; c01348c9 <sys_writev+41/54>
-> Trace; c0108fc7 <system_call+37/40>
-> Code;  c012c056 <kmalloc+112/128>
-> 00000000 <_EIP>:
-> Code;  c012c056 <kmalloc+112/128>   <=====
->    0:   0f 0b                     ud2a      <=====
-> Code;  c012c058 <kmalloc+114/128>
->    2:   83 c4 0c                  add    $0xc,%esp
-> Code;  c012c05b <kmalloc+117/128>
->    5:   90                        nop
-> Code;  c012c05c <kmalloc+118/128>
->    6:   8d 74 26 00               lea    0x0(%esi,1),%esi
-> Code;  c012c060 <kmalloc+11c/128>
->    a:   31 c0                     xor    %eax,%eax
-> Code;  c012c062 <kmalloc+11e/128>
->    c:   5b                        pop    %ebx
-> Code;  c012c063 <kmalloc+11f/128>
->    d:   5e                        pop    %esi
-> Code;  c012c064 <kmalloc+120/128>
->    e:   5f                        pop    %edi
-> Code;  c012c065 <kmalloc+121/128>
->    f:   5d                        pop    %ebp
-> Code;  c012c066 <kmalloc+122/128>
->   10:   83 c4 0c                  add    $0xc,%esp
-> Code;  c012c069 <kmalloc+125/128>
->   13:   c3                        ret
->
-> 1 warning issued.  Results may not be reliable.
->
-> kernel BUG at slab.c:1542!
-> invalid operand: 0000
-> CPU:    1
-> EIP:    0010:[kmalloc+274/296]
-> EFLAGS: 00010292
-> eax: 0000001b   ebx: c27cc680   ecx: 00000008   edx: c5802ca0
-> esi: 00000003   edi: c4310000   ebp: c4310000   esp: c4311de4
-> ds: 0018   es: 0018   ss: 0018
-> Process xfs (pid: 909, stackpage=c4311000)
-> Stack: c01e97a5 c01e9825 00000606 c27cc680 00000003 c4310000 c4310000
-> c0111d3b
->        c5fe3f0c 000001a8 c0196cfa 0003fff4 00000003 00000000 c5c96c20
-> c4310000
->        00000ff0 00000206 c01963fe 0003fff0 00000003 c2f8a164 0003ffec
-> c01d1550
-> Call Trace: [smp_call_function_interrupt+31/52] [alloc_skb+258/416]
-> [sock_alloc_send_skb+114/300] [unix_stream_sendmsg+0/784]
-> [unix_stream_sendmsg+302/784] [unix_stream_sendmsg+0/784]
-> [sock_sendmsg+129/164]
->        [unix_stream_sendmsg+0/784] [sock_readv_writev+140/152]
-> [sock_writev+54/64] [do_readv_writev+387/596] [sys_writev+65/84]
-> [system_call+55/64]
->
-> Code: 0f 0b 83 c4 0c 90 8d 74 26 00 31 c0 5b 5e 5f 5d 83 c4 0c c3
->
-> --
-> Jorge Nerin
-> <comandante@zaralinux.com>
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-
+H.J.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

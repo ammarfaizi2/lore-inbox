@@ -1,72 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263662AbTJZVAq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Oct 2003 16:00:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263667AbTJZVAq
+	id S262540AbTJZVqR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Oct 2003 16:46:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbTJZVqR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Oct 2003 16:00:46 -0500
-Received: from mail-in-02.arcor-online.net ([151.189.21.42]:10672 "EHLO
-	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
-	id S263662AbTJZVAp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Oct 2003 16:00:45 -0500
-From: Daniel Phillips <phillips@arcor.de>
-To: Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: [PATCH] ide write barrier support
-Date: Sun, 26 Oct 2003 23:06:53 +0200
-User-Agent: KMail/1.5.3
-Cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20031013140858.GU1107@suse.de> <200310231920.39888.phillips@arcor.de> <3F986276.4010409@cyberone.com.au>
-In-Reply-To: <3F986276.4010409@cyberone.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 26 Oct 2003 16:46:17 -0500
+Received: from gozer.dminteractive.com ([66.18.16.178]:27828 "EHLO
+	gozer.dminteractive.com") by vger.kernel.org with ESMTP
+	id S262540AbTJZVqP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Oct 2003 16:46:15 -0500
+Date: Sun, 26 Oct 2003 15:46:13 -0600
+From: Mike <logan@dct.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6 cryptoloop+cdrom
+Message-ID: <20031026214613.GA28254@gozer.dminteractive.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-Message-Id: <200310262206.53904.phillips@arcor.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 24 October 2003 01:21, Nick Piggin wrote:
-> Daniel Phillips wrote:
-> > To keep the downstream queues full, we must submit write barriers to all
-> > the downstream devices and not wait for completion.  That is, as soon as
-> > a barrier is issued to a given downstream device we can start passing
-> > through post-barrier writes to it.
-> >
-> > Assuming this is worth doing, how do we issue N barriers to the downstream
-> > devices when we have only one incoming barrier write?
->
-> You would do this in the multipath code, wouldn't you?
+Heyas,
 
-Not entirely within the multipath virtual device, that's the problem.  If it 
-could stay somehow all within one device driver then ok, but since we want to 
-build this modularly, as a device mapper target, there are API issues.
+Has anyone been able to create encrypted cdroms with cryptoloop in 2.6? Since the initial patches for 2.5.x were released, I've been trying without success.
 
-> Anyway, I might be missing something, but I don't think draining the
-> queue will guarantee that writeback caches will go to permanent storage.
+dd if=/dev/urandom of=test bs=1MB count=50
+losetup /dev/loop0 test -e blowfish
+mkfs -t ext2 -b 2048 /dev/loop0
+mount /dev/loop0 /mnt
+# copy some files
+umount /mnt ; losetup -d /dev/loop0
 
-We moved on from the IDE writeback problem a while back, this is about SCSI 
-multipath, and the idea is to keep the SCSI device queues full so that 
-barrier requests can flow through instead of stalling.
+cdrecord -v speed=12 dev=/dev/cdrom test
 
-To be honest, after poring through the SCSI docs I'm not sure whether SCSI 
-supports the behavior I want, which is for dma transfers on post-barrier 
-requests to run in parallel with media transfers of pre-barrier requests.
+losetup /dev/loop0 /dev/cdrom -e blowfish ; mount /dev/loop0 /mnt
 
-With SCSI there are two mechanisms that could be used to implement barriers, 
-ordered commands and task lists; patches posted to date use the first method.  
-The ordered method sets an attribute on a SCSI write command that says "must 
-be executed in order submitted" implying that all previously submitted 
-commands have to finish before the ordered command begins to execute.  (Note, 
-this is not necessarily optimal if the barrier is just supposed to separate 
-two groups of writes and the order within the second group doesn't matter.  
-Also, it implements a stronger barrier than just read/write, so reads will be 
-blocked as well.)  What is not clear to me is whether or not the drive is 
-allowed to read the buffer into its cache before the ordered command becomes 
-active.  I'd appreciate comments from any SCSI gurus that happen to be 
-reading.
+mount: block device /dev/loop0 is write-protected, mounting read-only
+mount: wrong fs type, bad option, bad superblock on /dev/loop0,
+       or too many mounted file systems
 
-Regards,
+dmesg shows:
+   hdc: cdrom_read_intr: data underrun (4 blocks)
+   end_request: I/O error, dev hdc, sector 2
+   EXT2-fs: unable to read superblock
 
-Daniel
+With the loop device setup, I can cat /dev/loop0 > /tmp/test, then mount the file.
 
+Most of the docs I've read have been for 2.4, but I'm able to use partitions and obviously files, so I don't think anything is missing... Tried various block sizes (1024-4096), various file systems (ext2, ext3, vfat), ide-scsi enabled or disabled and other ciphers like aes.
+
+I'm using debian/testing. mount/util-linux have both been put on hold and stock util-linux 2.12 installed.
+
+Any info would be appreciated, but please cc me as I'm not on the list.
+
+Thanks,
+
+Mike

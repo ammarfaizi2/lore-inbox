@@ -1,59 +1,69 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317577AbSFIIs4>; Sun, 9 Jun 2002 04:48:56 -0400
+	id <S317581AbSFIJAq>; Sun, 9 Jun 2002 05:00:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317582AbSFIIsz>; Sun, 9 Jun 2002 04:48:55 -0400
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:29702 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317577AbSFIIsz>; Sun, 9 Jun 2002 04:48:55 -0400
-Date: Sun, 9 Jun 2002 09:48:49 +0100
-From: Russell King <rmk@arm.linux.org.uk>
+	id <S317582AbSFIJAp>; Sun, 9 Jun 2002 05:00:45 -0400
+Received: from mail.parknet.co.jp ([210.134.213.6]:46862 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP
+	id <S317581AbSFIJAo>; Sun, 9 Jun 2002 05:00:44 -0400
 To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: PCI DMA to small buffers on cache-incoherent arch
-Message-ID: <20020609094849.A30062@flint.arm.linux.org.uk>
-In-Reply-To: <20020608.222942.111546622.davem@redhat.com> <200206090633.g596XZI472183@saturn.cs.uml.edu>
-Mime-Version: 1.0
+Cc: linux-kernel@vger.kernel.org, chaffee@cs.berkeley.edu
+Subject: Re: [patch] fat/msdos/vfat crud removal
+In-Reply-To: <200206090603.g5963FA458690@saturn.cs.uml.edu>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Sun, 09 Jun 2002 18:00:30 +0900
+Message-ID: <871ybgddxt.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 09, 2002 at 02:33:35AM -0400, Albert D. Cahalan wrote:
-> For device --> memory DMA:
+"Albert D. Cahalan" <acahalan@cs.uml.edu> writes:
+
+> Use the packed attribute on the struct, along with
+> the right types. I don't think you need get_unaligned
+> with a packed struct, because gcc will know that it
+> needs to emit code for unaligned data.
 > 
-> 1. write back cache lines that cross unaligned boundries
-
-What if some of the cache lines inside the DMA region are dirty and...
-
-> 2. start the DMA
-
-get evicted now when the CPU is doing something else?
-
-> 3. invalidate the above cache lines
-> 4. invalidate cache lines that are fully inside the DMA
-
-You really need to:
-
- 1. write back cache lines that cross unaligned boundries
- 3. invalidate the above cache lines
- 2. start the DMA
- 4. invalidate cache lines that are fully inside the DMA
-
-which is precisely we do on ARM.
-
-> For memory --> device DMA:
+> At the very least you can get rid of the cast.
 > 
-> 1. write back all cache lines affected by the DMA
-> 2. start the DMA
-> 3. invalidate the above cache lines
+> Before:
+> logical_sector_size = le16_to_cpu(get_unaligned((u16*)&b->sector_size));
+> 
+> After:
+> logical_sector_size = le16_to_cpu(b->sector_size);
+> 
+> The new struct:
+> 
+> /* Note the end: __attribute__ ((packed)) */
+> struct fat_boot_sector {
+>         char    ignored[3];     /* Boot strap short or near jump */
+>         __u64   system_id;      /* Name - can be used to special case
+>                                    partition manager volumes */
+>         __u16   sector_size;    /* bytes per logical sector */
+>         __u8    cluster_size;   /* sectors/cluster */
+>         __u16   reserved;       /* reserved sectors */
+>         __u8    fats;           /* number of FATs */
+>         __u16   dir_entries;    /* root directory entries */
+>         __u16   sectors;        /* number of sectors */
+>         __u8    media;          /* media code */
+>         __u16   fat_length;     /* sectors/FAT */
+>         __u16   secs_track;     /* sectors per track */
+>         __u16   heads;          /* number of heads */
+>         __u32   hidden;         /* hidden sectors (unused) */
+>         __u32   total_sect;     /* number of sectors (if sectors == 0) */
+> 
+>         /* The following fields are only used by FAT32 */
+>         __u32   fat32_length;   /* sectors/FAT */
+>         __u16   flags;          /* bit 8: fat mirroring, low 4: active fat */
+>         __u16   version;        /* major, minor filesystem version */
+>         __u32   root_cluster;   /* first cluster in root directory */
+>         __u16   info_sector;    /* filesystem info sector */
+>         __u16   backup_boot;    /* backup boot sector */
+>         __u16   reserved2[6];   /* Unused */
+> } __attribute__ ((packed)) ;
 
-What's the point of (3) ?  The data in memory hasn't been changed by DMA.
-What if we were writing out a page that was mmaped into a process, and
-the process wrote to that page while we were DMAing ?
-
+BTW, is this safe on other of i386 (ex. mips etc.)? I'm not sure.
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

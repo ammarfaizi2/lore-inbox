@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130154AbQKLGKr>; Sun, 12 Nov 2000 01:10:47 -0500
+	id <S130188AbQKLGQ7>; Sun, 12 Nov 2000 01:16:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130188AbQKLGKh>; Sun, 12 Nov 2000 01:10:37 -0500
-Received: from uberbox.mesatop.com ([208.164.122.11]:56836 "EHLO
-	uberbox.mesatop.com") by vger.kernel.org with ESMTP
-	id <S130154AbQKLGK3>; Sun, 12 Nov 2000 01:10:29 -0500
-From: Steven Cole <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Addition to ECN documentation in Configure.help
-Date: Sat, 11 Nov 2000 23:10:24 -0700
-X-Mailer: KMail [version 1.1.95.2]
-Content-Type: text/plain
-MIME-Version: 1.0
-Message-Id: <00111123102400.01425@localhost.localdomain>
-Content-Transfer-Encoding: 8bit
+	id <S130208AbQKLGQu>; Sun, 12 Nov 2000 01:16:50 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:58128 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S130188AbQKLGQf>;
+	Sun, 12 Nov 2000 01:16:35 -0500
+Date: Sun, 12 Nov 2000 07:16:17 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Daniel R Risacher <magnus@alum.mit.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] CDROMPLAYTRKIND translation in sr_ioctl.c for idescsi
+Message-ID: <20001112071617.M964@suse.de>
+In-Reply-To: <200011120255.eAC2tZI19943@risacher.yi.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200011120255.eAC2tZI19943@risacher.yi.org>; from magnus@alum.mit.edu on Sat, Nov 11, 2000 at 09:55:35PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a little patchlet which adds to the new documentation
-for CONFIG_INET_ECN in Configure.help.  This patch applies to 
-2.4.0-test11-pre3.  
+On Sat, Nov 11 2000, Daniel R Risacher wrote:
+> Summary:
+> 
+> Many audio-cdrom-playing programs don't work correctly with ATAPI
+> CDROM drives under ide-scsi translation, because ATAPI doesn't support
+> the PLAYAUDIO_TI command. The ide-cd driver handles this by
+> transforming CDROMPLAYTRKIND ioctls into something that the ATAPI
+> drive will understand, but this mechanism is bypassed when using
+> ide-scsi translation.
 
-         Steven
+Yup
 
-diff -urN linux/Documentation/Configure.help.orig \
-linux/Documentation/Configure.help
---- linux/Documentation/Configure.help.orig     Sat Nov 11 21:41:55 2000
-+++ linux/Documentation/Configure.help  Sat Nov 11 22:50:31 2000
-@@ -2067,6 +2067,14 @@
-   writing) you will have to disable this option, either by saying N now
-   or by using the sysctl.
+> This patch creates a new kernel option,
+> CONFIG_SCSI_IDESCSI_WORKAROUND, that is available whenever ide-scsi
+> translation is enabled. Enabling this new option includes a
+> tranlation mechanism into the SCSI CDROM (sr) driver similar to the
+> mechanism in the ide-cd driver.
+> 
+> Hopefully this will make life much easier for those of us who use
+> ide-scsi for CDROM drives. It is essentially the same thing as the
+> patch I posted for 2.2.12 on 19 Oct 1999, but updated for 2.4.0-test9.
+> This probably isn't the most elegant solution, but maybe it'll help
+> some people out until Jens figures out something better.
 
-+  ECN may be disabled with:
-+  echo 0 > /proc/sys/net/ipv4/tcp_ecn
-+
-+  ECN may be re-enabled with:
-+  echo 1 > /proc/sys/net/ipv4/tcp_ecn
-+
-+  Explicit Congestion Notification is more fully documented in RFC2481.
-+
-   If in doubt, say N.
+I would take this patch, if you made it a fall back path when
+PLAYAUDIO_TI fails with 05/20/00 sense. That makes a lot more sense
+to me (pun intended) than a config option. What do you think, will
+you do that?
 
- SYN flood protection
+For 2.5 the CD-ROM setup will be feature based. This is all supported
+by newer drives, but it should be possible to make pseudo feature
+profiles for older drives. This has the advantage that we always
+'know' what is supported and what is not -- no more trial and error.
+
+-- 
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

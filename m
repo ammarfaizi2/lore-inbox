@@ -1,58 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267365AbSKPVYQ>; Sat, 16 Nov 2002 16:24:16 -0500
+	id <S267368AbSKPV2F>; Sat, 16 Nov 2002 16:28:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267366AbSKPVYQ>; Sat, 16 Nov 2002 16:24:16 -0500
-Received: from suonpaa.iki.fi ([62.236.96.196]:56539 "EHLO
-	oberon.erasmus.jurri.net") by vger.kernel.org with ESMTP
-	id <S267365AbSKPVYP>; Sat, 16 Nov 2002 16:24:15 -0500
-To: "J.E.J. Bottomley" <James.Bottomley@steeleye.com>
-Cc: Gregoire Favre <greg@ulima.unil.ch>, linux-kernel@vger.kernel.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.5.47-ac5:undefined reference to `boot_gdt_table'
-References: <200211161526.gAGFQbq02692@localhost.localdomain>
-From: Samuli Suonpaa <suonpaa@iki.fi>
-Date: Sat, 16 Nov 2002 23:30:07 +0200
-In-Reply-To: <200211161526.gAGFQbq02692@localhost.localdomain> ("J.E.J.
- Bottomley"'s message of "Sat, 16 Nov 2002 10:26:36 -0500")
-Message-ID: <87el9l42zk.fsf@puck.erasmus.jurri.net>
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2
- (i386-debian-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8bit
+	id <S267369AbSKPV2F>; Sat, 16 Nov 2002 16:28:05 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:14326 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S267368AbSKPV2E>; Sat, 16 Nov 2002 16:28:04 -0500
+Date: Sat, 16 Nov 2002 22:34:55 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: rmk@arm.linux.org.uk, nico@cam.org,
+       Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, John Kim <john@larvalstage.com>,
+       trivial@rustcorp.com.au
+Subject: [PATCH][2.5.33] trivial compile fix for include/asm-arm/arch-pxa/pxa-regs.h (fwd)
+Message-ID: <20021116213455.GH28356@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"J.E.J. Bottomley" <James.Bottomley@steeleye.com> writes:
->>   	ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s arch/i386/kernel/
->> head.o \ arch/i386/kernel/init_task.o  init/built-in.o --start-group
->> usr/built-in.o  \ arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o
->>  \ arch/i386/mach-generic/built-in.o  kernel/built-in.o  mm/built-in.o
->>  fs/built-in.o  \ ipc/built-in.o  security/built-in.o  crypto/
->> built-in.o  drivers/built-in.o  \ sound/built-in.o  arch/i386/pci/
->> built-in.o  net/built-in.o  lib/lib.a  \ arch/i386/lib/lib.a
->> --end-group  -o .tmp_vmlinux1 \ arch/i386/kernel/built-in.o(.data+0x15a
->> 5): In function `gdt_48': : undefined \
->>                 reference to `boot_gdt_table' make: ***
->> [.tmp_vmlinux1] Error 1
-> I think this is because -ac5 has X86_TRAMPOLINE dependent on
-> X86_LOCAL_APIC.
+The obviously correct patch in the forwarded mail below isn't in 2.5.47.
 
-> If you change
->
-> config X86_TRAMPOLINE
-> 	bool
-> 	depends on SMP || (VOYAGER && SMP) || X86_LOCAL_APIC
->
-> to
->
-> 	depends on SMP
->
-> in arch/i386/Kconfig
->
-> does this fix the problem?
+Please apply
+Adrian
 
-Worked here, at least.
 
-Suonp‰‰...
+----- Forwarded message from John Kim <john@larvalstage.com> -----
+
+Date: Sun, 1 Sep 2002 15:52:36 -0400 (EDT)
+From: John Kim <john@larvalstage.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH][2.5.33] trivial compile fix for include/asm-arm/arch-pxa/pxa-regs.h
+
+
+This is a simple compile fix patch for 2.5.33.
+
+John Kim
+
+
+diff -Naur linux-2.5.33/include/asm-arm/arch-pxa/pxa-regs.h linux-2.5.33-new/include/asm-arm/arch-pxa/pxa-regs.h
+--- linux-2.5.33/include/asm-arm/arch-pxa/pxa-regs.h	Sun Sep  1 15:00:00 2002
++++ linux-2.5.33-new/include/asm-arm/arch-pxa/pxa-regs.h	Sun Sep  1 15:11:01 2002
+@@ -362,7 +362,7 @@
+ #define LSR_OE		(1 << 1)	/* Overrun Error */
+ #define LSR_DR		(1 << 0)	/* Data Ready */
+
+-#define MCR_LOOP	(1 << 4)	*/
++#define MCR_LOOP	(1 << 4)
+ #define MCR_OUT2	(1 << 3)	/* force MSR_DCD in loopback mode */
+ #define MCR_OUT1	(1 << 2)	/* force MSR_RI in loopback mode */
+ #define MCR_RTS		(1 << 1)	/* Request to Send */
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+----- End forwarded message -----
+

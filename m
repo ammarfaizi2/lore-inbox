@@ -1,73 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319211AbSIDQb6>; Wed, 4 Sep 2002 12:31:58 -0400
+	id <S319212AbSIDQce>; Wed, 4 Sep 2002 12:32:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319209AbSIDQb6>; Wed, 4 Sep 2002 12:31:58 -0400
-Received: from fed1mtao01.cox.net ([68.6.19.244]:28395 "EHLO
-	fed1mtao01.cox.net") by vger.kernel.org with ESMTP
-	id <S319211AbSIDQb5>; Wed, 4 Sep 2002 12:31:57 -0400
-Date: Wed, 4 Sep 2002 09:57:43 -0700
-From: Matt Porter <porter@cox.net>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: Tom Rini <trini@kernel.crashing.org>, Craig Arsenault <penguin@wombat.ca>,
-       linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
-Subject: Re: consequences of lowering "MAX_LOW_MEM"?
-Message-ID: <20020904095743.A27144@home.com>
-References: <20020904142636.GL761@opus.bloom.county> <137715274.1031128333@[10.10.2.3]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <137715274.1031128333@[10.10.2.3]>; from Martin.Bligh@us.ibm.com on Wed, Sep 04, 2002 at 08:32:15AM -0700
+	id <S319215AbSIDQce>; Wed, 4 Sep 2002 12:32:34 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45323 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S319212AbSIDQc2>; Wed, 4 Sep 2002 12:32:28 -0400
+Date: Wed, 4 Sep 2002 09:36:42 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Suparna Bhattacharya <suparna@in.ibm.com>
+cc: Jens Axboe <axboe@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: One more bio for for floppy users in 2.5.33..
+In-Reply-To: <200209040725.g847PrUv089710@northrelay01.pok.ibm.com>
+Message-ID: <Pine.LNX.4.44.0209040930110.1779-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 04, 2002 at 08:32:15AM -0700, Martin J. Bligh wrote:
+
+On Wed, 4 Sep 2002, Suparna Bhattacharya wrote:
 > 
-> >> In 2.4.x (currently using 2.4.18), for PPC, there is a value for
-> >> "MAX_LOW_MEM" defined in "arch/ppc/mm/pgtable.c" as 768MB RAM.  Any
-> >> memory above 768MB is considered "high" memory.  Now our problem is
-> >> that we have 1024MB of onboard RAM on our card.  I do *NOT* wish to
-> >> compile with "CONFIG_HIGHMEM" set to true (see below for why), but i
-> >> do wish to have full use of the 1024MB of RAM onboard, or at least
-> >> 992MB which is the minimum for our app.
-> >> So what I did was just change "MAX_LOW_MEM" to be 0x3E000000
-> >> (0x30000000), ie. change it to 992 from 768.   I recompiled and tested
-> >> our application.  Things seemed to be running normal with a max of
-> >> 992MB of RAM.
-> >>
-> >> Is this a potential problem, or will this cause some lurking bug that
-> >> anyone can think of?  (ie. I'm sure "MAX_LOW_MEM" was set to 768MB for
-> >> a reason, but what is that reason).   We don't want to move higher
-> >> than 1Gig RAM for now, so are we going to be okay doing what I
-> >> describe above?  Any suggestions or comments as to why that's a very
-> >> bad idea would be greatly appreciated.  Again, this is for a
-> >> PPC-specific board, I'm not sure what the x86 architecture's low
-> >> memory max is.
-> 
-> I think you'll find yourself with no virtual address space left to
-> do vmalloc / fixmap / kmap type stuff. Or at least you would on i386,
-> I presume it's the same for ppc. Sounds like you may have left
-> yourself enough space for fixmap & kmap, but any calls to vmalloc
-> will probably fail ?
+> Oh yes, even I had this fixed this in the bio traversal patches 
+> I had posted (had this in the core patch, and mentioned it 
+> in the description in the note :) ), guess it went unnoticed.
 
-Correct.  The solution, in the context of the linuxppc_2_4_devel tree,
-is to do the following:
+Well, I've never seen a "this should go in" about it.
 
-        Enable "Prompt for advanced kernel configuration options"
-        Enable "High memory support"
-        Enable "Set maximum low memory" and set to 0x40000000
-        Enable "Set custom kernel base address" and set to 0xa0000000
+Also, it was apparently mixed up with the "bio splitup" stuff, which was 
+discussed at least with Jens, and I feel strongly that we shouldn't split, 
+we should build up. Jens was working on exactly that.
 
-Note that highmem support will not be used in his case (he didn't
-want to use it), because PAGE_OFFSET is at 0xa0000000 and
-MAX_LOW_MEM is at 1GB.  With this configuration, VMALLOC_START
-will be at 0xe0000000 + VMALLOC_OFFSET leaving ample vmalloc
-space for most applications.  All system memory is mapped as
-lowmem .
+In other words, I absolutely hate the fact that a major bug-fix was 
+ (a) not marked as such and sent to me
+and
+ (b) mixed up with experimental work for other drivers
 
-Regards,
--- 
-Matt Porter
-porter@cox.net
-This is Linux Country. On a quiet night, you can hear Windows reboot.
+Even now (assuming I hadn't fixed it on my own), I would have preferred to
+get that fix separately, as it would have impacted the floppy driver, for
+example (the fix broke the floppy driver even more than it was before,
+because the floppy driver was stupidly trying to work around the original
+bug by hand).
+
+Imagine what a horror it is to figure out why a large experimental patch 
+breaks an existing driver? My first reaction would have been to just throw 
+the large new patch away, since it obviously broke the floppy even more. 
+Instead, if I had been passed the bug-fix only, and the floppy had broken 
+worse that it was originally, it would have been absolutely _obvious_ 
+where the problem was.
+
+In short: please please PLEASE keep fixes to existing code separate from 
+new stuff. It makes everything easier, and I have absolutely no problems 
+with applying "obvious fixes" even if they might break something else.
+
+In contrast, the new stuff I really don't know if it should go in at all, 
+considering that it's trivial (and CPU-efficient) to build up legal bio 
+request on the fly and _not_ depend on splitting them later (or at least 
+making splitting a special thing only used by things like MD and other 
+such indirection layers).
+
+			Linus
+

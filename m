@@ -1,108 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268185AbUHYSVP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268186AbUHYS2s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268185AbUHYSVP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 14:21:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268186AbUHYSVP
+	id S268186AbUHYS2s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 14:28:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268197AbUHYS2s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 14:21:15 -0400
-Received: from mail.kroah.org ([69.55.234.183]:29843 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S268185AbUHYSVI (ORCPT
+	Wed, 25 Aug 2004 14:28:48 -0400
+Received: from mail.tmr.com ([216.238.38.203]:49669 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S268186AbUHYS2p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 14:21:08 -0400
-Date: Wed, 25 Aug 2004 11:19:51 -0700
-From: Greg KH <greg@kroah.com>
-To: Jon Smirl <jonsmirl@yahoo.com>
-Cc: Jesse Barnes <jbarnes@engr.sgi.com>, Martin Mares <mj@ucw.cz>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH] add PCI ROMs to sysfs
-Message-ID: <20040825181951.GA30125@kroah.com>
-References: <20040825174238.GA26714@kroah.com> <20040825180607.10858.qmail@web14930.mail.yahoo.com>
+	Wed, 25 Aug 2004 14:28:45 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Date: Wed, 25 Aug 2004 14:29:18 -0400
+Organization: TMR Associates, Inc
+Message-ID: <cgilcs$21o$1@gatekeeper.tmr.com>
+References: <200408232101.i7NL1c26024662@falcon10.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040825180607.10858.qmail@web14930.mail.yahoo.com>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1093458141 2104 192.168.12.100 (25 Aug 2004 18:22:21 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+In-Reply-To: <200408232101.i7NL1c26024662@falcon10.austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 25, 2004 at 11:06:06AM -0700, Jon Smirl wrote:
-> Final version, I hope, includes short decription and Signed-off-by at
-> top of patch.
+Doug Maxey wrote:
+> On Mon, 23 Aug 2004 16:25:17 EDT, Bill Davidsen wrote:
+> 
+>>permission to open. This allows the admin to put in any filter desired,
+>>know about vendor commands, etc. It also allows various security
+>>setups,  the group can be on the user (trusted users) or on a setgid
+>>program  (which limits the security issues).
+> 
+> 
+>   Down such path lies madness :)   This list would have to be maintained for
+>   most every model, of every drive, for every manufacturer.  The list could
+>   conceivably change weekly, if not sooner.  This could change, of course, if
+>   the use of linux would become as ubiquitous as the dominant redmond produnt, 
+>   and the manufacturers would supply the "mini-port" driver bits, as it were.
+> 
+>   The theory is wonderful.  Until there is enough "clout" to change the 
+>   manufacturers participation, it is probably futile. :-/
 
-Hm, one comment.  I must have missed something in all of the different
-versions of this patch, but why are you changing this code:
+But you don't need magic vendor commands to read and write disk (or 
+tape), you can do it with the base commands defined in SCSI-II. You only 
+need filter lists for special cases where (a) you really do want vendor 
+commands and (b) there's some reason to allow this to normal users.
 
-> diff -Nru a/drivers/pci/proc.c b/drivers/pci/proc.c
-> --- a/drivers/pci/proc.c	Wed Aug 25 13:56:18 2004
-> +++ b/drivers/pci/proc.c	Wed Aug 25 13:56:18 2004
-> @@ -16,7 +16,6 @@
->  #include <asm/uaccess.h>
->  #include <asm/byteorder.h>
->  
-> -static int proc_initialized;	/* = 0 */
->  
->  static loff_t
->  proc_bus_pci_lseek(struct file *file, loff_t off, int whence)
-> @@ -387,9 +386,6 @@
->  	struct proc_dir_entry *de, *e;
->  	char name[16];
->  
-> -	if (!proc_initialized)
-> -		return -EACCES;
-> -
->  	if (!(de = bus->procdir)) {
->  		if (pci_name_bus(name, bus))
->  			return -EEXIST;
-> @@ -425,9 +421,6 @@
->  {
->  	struct proc_dir_entry *de = bus->procdir;
->  
-> -	if (!proc_initialized)
-> -		return -EACCES;
-> -
->  	if (!de) {
->  		char name[16];
->  		sprintf(name, "%02x", bus->number);
-> @@ -583,6 +576,7 @@
->  {
->  	return seq_open(file, &proc_bus_pci_devices_op);
->  }
-> +
->  static struct file_operations proc_bus_pci_dev_operations = {
->  	.open		= proc_bus_pci_dev_open,
->  	.read		= seq_read,
-> @@ -593,16 +587,20 @@
->  static int __init pci_proc_init(void)
->  {
->  	struct proc_dir_entry *entry;
-> -	struct pci_dev *dev = NULL;
-> +	struct pci_dev *pdev = NULL;
-> +
->  	proc_bus_pci_dir = proc_mkdir("pci", proc_bus);
-> +
->  	entry = create_proc_entry("devices", 0, proc_bus_pci_dir);
->  	if (entry)
->  		entry->proc_fops = &proc_bus_pci_dev_operations;
-> -	proc_initialized = 1;
-> -	while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
-> -		pci_proc_attach_device(dev);
-> +
-> +	while ((pdev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, pdev)) != NULL) {
-> +		pci_proc_attach_device(pdev);
->  	}
-> +
->  	legacy_proc_init();
-> +
->  	return 0;
->  }
+I doubt that you need magic for any of the other obvious devices like 
+SCSI scanners, ZIP and LS120 drives using ATA access rather than 
+ide-floppy or ide-scsi, etc. I could be wrong on scanners, the setup 
+commands may be more dangerous than I think.
 
-I see some gratitous whitespace changes, and the removal of the
-proc_initialized flag.  Why do we need to get rid of that flag?
+To write CD unfortunately does seem to take more than I want the average 
+user to do.
 
-thanks,
-
-greg k-h
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

@@ -1,45 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268838AbUIMPk7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267657AbUIMPUH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268838AbUIMPk7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 11:40:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268565AbUIMPj4
+	id S267657AbUIMPUH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 11:20:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268464AbUIMPSI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 11:39:56 -0400
-Received: from bay0-pcs1.bay0.hotmail.com ([65.54.241.181]:18582 "EHLO
-	bay0-pcs1.bay0.hotmail.com") by vger.kernel.org with ESMTP
-	id S268845AbUIMPjQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 11:39:16 -0400
-Date: Mon, 13 Sep 2004 08:39:15 -0700 (PDT)
-Message-Id: <200409131539.i8DFdFko012045@bay0-pcs1.bay0.hotmail.com>
-To: linux-kernel@vger.kernel.org
-From: MSN Hotmail <msn_newsletters@hotmail.com>
-Subject: Nowrap bgcolor
+	Mon, 13 Sep 2004 11:18:08 -0400
+Received: from [209.88.178.130] ([209.88.178.130]:2804 "EHLO constg.qlusters")
+	by vger.kernel.org with ESMTP id S268255AbUIMPIw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 11:08:52 -0400
+Message-ID: <4145B750.6060900@qlusters.com>
+Date: Mon, 13 Sep 2004 18:05:52 +0300
+From: Constantine Gavrilov <constg@qlusters.com>
+Reply-To: Constantine Gavrilov <constg@qlusters.com>
+Organization: Qlusters
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Originating-IP: [65.54.241.181]
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Christoph Hellwig <hch@infradead.org>
+CC: bugs@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: Calling syscalls from x86-64 kernel results in a crash on Opteron
+ machines
+References: <4145A8E1.8010409@qlusters.com> <20040913153803.A27282@infradead.org>
+In-Reply-To: <20040913153803.A27282@infradead.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear MSN Newsletter customer,
- 
-You have received this mail because you have replied to an unmonitored alias.
-For assistance with your newsletter subscription, please select one of the following options:
- 
-Manage (subscribe or unsubscribe)your newsletter subscriptions via our website.
-http://newsletters.msn.com/
- 
-OR
- 
-Visit MSN Newsletter Technical Support to report a problem.
-http://newsletters.msn.com/support.asp
- 
-OR
- 
-Visit MSN Newsletter Feedback to provide any additional feedback or ask
-questions about MSN Newsletters.
-http://newsletters.msn.com/feedback.asp
- 
-Best,
-MSN Newsletter Staff
-http://newsletters.msn.com
+Christoph Hellwig wrote:
+
+>On Mon, Sep 13, 2004 at 05:04:17PM +0300, Constantine Gavrilov wrote:
+>  
+>
+>>Hello:
+>>
+>>We have a piece of kernel code that calls some system calls in kernel 
+>>context (
+>>    
+>>
+>
+>Which you shouldn't do in the first place.
+>  
+>
+
+Function kernel_thread() on i386 is implemented by putting the args to 
+appropriate regs and calling int 0x80, resulting in a system call 
+clone() on i386.
+
+I have also found the "syscall" instruction in x86-64 kernel specific 
+code (it does not call _syscall() macros directly, though). So, 
+"shouldn't do" is a bit too strong.
+
+What I am writing is an application, and not interface. As such, it is 
+not much different from its requierements from a user-space application. 
+If user-space application may call system calls, why a kernel space 
+application cannot?
+
+And BTW, kernel-space applications have their own place even if the 
+concept seems foreign to you.
+
+-- 
+----------------------------------------
+Constantine Gavrilov
+Kernel Developer
+Qlusters Software Ltd
+1 Azrieli Center, Tel-Aviv
+Phone: +972-3-6081977
+Fax:   +972-3-6081841
+----------------------------------------
+
+

@@ -1,84 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261850AbULJWQR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261854AbULJWSU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261850AbULJWQR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 17:16:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261848AbULJWOf
+	id S261854AbULJWSU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 17:18:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbULJWQn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 17:14:35 -0500
-Received: from 4.Red-80-32-108.pooles.rima-tde.net ([80.32.108.4]:7040 "EHLO
-	gimli") by vger.kernel.org with ESMTP id S261843AbULJWMq (ORCPT
+	Fri, 10 Dec 2004 17:16:43 -0500
+Received: from ns1.g-housing.de ([62.75.136.201]:62166 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S261847AbULJWPC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 17:12:46 -0500
-Message-ID: <41BA201C.9090103@sombragris.com>
-Date: Fri, 10 Dec 2004 23:15:56 +0100
-From: Miguel Angel Flores <maf@sombragris.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: en
+	Fri, 10 Dec 2004 17:15:02 -0500
+Message-ID: <41BA1FE3.3020108@g-house.de>
+Date: Fri, 10 Dec 2004 23:14:59 +0100
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: de-DE, de, en-us, en
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] aic7xxx driver warning
-Content-Type: multipart/mixed;
- boundary="------------070407090409060202070507"
+To: linux-kernel@vger.kernel.org
+CC: felix-linuxkernel@fefe.de
+Subject: Re: ipv6 getting more and more broken
+References: <20041209024649.GA26553@codeblau.de>
+In-Reply-To: <20041209024649.GA26553@codeblau.de>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070407090409060202070507
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Hi all,
+felix-linuxkernel@fefe.de schrieb:
+> ipv6 is broken for me with 2.6.9 (worked great with 2.6.7, less good but
+> still workable with 2.6.8).  Here are the symptoms:
 
-These are two possible patches for the 2.6.10rc3. The patches correct a 
-compiler warning when CONFIG_HIGHMEM64G is not defined.
+i *felt* something was wrong around 2.6.8.1 or 2.6.9 but i tried to blame
+my (free) tunnel broker. having 2.6.10-BK for a while now, everything is
+back to normal. link-local addresses assigned, radvd is working too.
 
-Both patches works well. "Opt1" is the Alan Cox way and "Opt2" is the 
-MaF way :-)
+> Also, I would like to have a way to do mss clamping for IPv6.  I am
+> running a Linux based PPPoE router using 6to4, and would like to
+> route IPv6 to the LAN behind it, but TCP connections keep getting stuck.
 
-Cheers,
-MaF
+hm, no issues here. mss clamping is described very often, but i never
+really needed it. my ipv6 clients are working fine ;)
 
---------------070407090409060202070507
-Content-Type: text/x-patch;
- name="aic7xxx.opt1.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="aic7xxx.opt1.patch"
+Christian.
+- --
+BOFH excuse #221:
 
-diff -r -u linux-2.6.10rc3/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c linux-2.6.10rc3-maf/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c
---- linux-2.6.10rc3/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c	2004-12-05 20:02:40.000000000 +0100
-+++ linux-2.6.10rc3-maf/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c	2004-12-10 21:21:57.000000000 +0100
-@@ -226,7 +226,7 @@
- 	}
- 	pci_set_master(pdev);
- 
--	mask_39bit = 0x7FFFFFFFFFULL;
-+	mask_39bit = (dma_addr_t)0x7FFFFFFFFFULL;
- 	if (sizeof(dma_addr_t) > 4
- 	 && ahc_linux_get_memsize() > 0x80000000
- 	 && pci_set_dma_mask(pdev, mask_39bit) == 0) {
+The mainframe needs to rest.  It's getting old, you know.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
---------------070407090409060202070507
-Content-Type: text/x-patch;
- name="aic7xxx.opt2.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="aic7xxx.opt2.patch"
-
-diff -r -u linux-2.6.10rc3/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c linux-2.6.10rc3-maf/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c
---- linux-2.6.10rc3/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c	2004-12-05 20:02:40.000000000 +0100
-+++ linux-2.6.10rc3-maf/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c	2004-12-10 21:31:51.000000000 +0100
-@@ -226,10 +226,10 @@
- 	}
- 	pci_set_master(pdev);
- 
--	mask_39bit = 0x7FFFFFFFFFULL;
- 	if (sizeof(dma_addr_t) > 4
- 	 && ahc_linux_get_memsize() > 0x80000000
- 	 && pci_set_dma_mask(pdev, mask_39bit) == 0) {
-+		mask_39bit = (dma_addr_t)0x7FFFFFFFFFULL;
- 		ahc->flags |= AHC_39BIT_ADDRESSING;
- 		ahc->platform_data->hw_dma_mask = mask_39bit;
- 	} else {
-
---------------070407090409060202070507--
+iD8DBQFBuh/j+A7rjkF8z0wRAqTeAJ9+wV+hN7SQdqJvTqd5QVfs32SuDgCePh0e
+ZGUUSKv1plfZg2TNvmihQPU=
+=UpiK
+-----END PGP SIGNATURE-----

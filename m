@@ -1,51 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262220AbVAOF7V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262224AbVAOGWg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262220AbVAOF7V (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 00:59:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262221AbVAOF7V
+	id S262224AbVAOGWg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 01:22:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262247AbVAOGWg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 00:59:21 -0500
-Received: from rproxy.gmail.com ([64.233.170.207]:3619 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262220AbVAOF7L (ORCPT
+	Sat, 15 Jan 2005 01:22:36 -0500
+Received: from gate.crashing.org ([63.228.1.57]:10165 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262224AbVAOGWe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 00:59:11 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=MjVMecholSdXIzrdS6XdG/eOspR/Qhu6FBDM4HrS0cfqzp8oV1tuoAIAn0uyXgJJAc5O/OpdvWQU1mJqtUH7hg3MzbHZZc8jHjLO4nFaf+56fHQAfv6sCYXn2krFE9uftkz2UfrbnF0YIchZfMiBBd7PHQRmlTaPbTtuYgfKf90=
-Message-ID: <9e4733910501142159c3a13a7@mail.gmail.com>
-Date: Sat, 15 Jan 2005 00:59:08 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Andi Kleen <ak@muc.de>
-Subject: Re: chasing the four level page table
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <m1brbrwc89.fsf@muc.de>
+	Sat, 15 Jan 2005 01:22:34 -0500
+Subject: Re: [PATCH 1/1] pci: Block config access during BIST (resend)
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andi Kleen <ak@muc.de>, brking@us.ibm.com,
+       Paul Mackerras <paulus@samba.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1105750898.9222.101.camel@localhost.localdomain>
+References: <41E3086D.90506@us.ibm.com>
+	 <1105454259.15794.7.camel@localhost.localdomain>
+	 <20050111173332.GA17077@muc.de>
+	 <1105626399.4664.7.camel@localhost.localdomain>
+	 <20050113180347.GB17600@muc.de>
+	 <1105641991.4664.73.camel@localhost.localdomain>
+	 <20050113202354.GA67143@muc.de>
+	 <1105645491.4624.114.camel@localhost.localdomain>
+	 <20050113215044.GA1504@muc.de>
+	 <1105743914.9222.31.camel@localhost.localdomain>
+	 <20050115014440.GA1308@muc.de>
+	 <1105750898.9222.101.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Sat, 15 Jan 2005 17:20:12 +1100
+Message-Id: <1105770012.27411.72.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
-References: <9e47339105010609175dabc381@mail.gmail.com>
-	 <9e4733910501061205354c9508@mail.gmail.com>
-	 <20050106214159.GG16373@redhat.com>
-	 <9e47339105010721225c0cfb32@mail.gmail.com>
-	 <csa0kn$4eg$1@terminus.zytor.com> <m1brbrwc89.fsf@muc.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 15 Jan 2005 05:24:54 +0100, Andi Kleen <ak@muc.de> wrote:
-> it wants to get at a AGP page outside get_user_pages doesn't work for
-> this because the AGP hole is often outside mem_map. For that a
-> nice helper is missing.
+On Sat, 2005-01-15 at 01:01 +0000, Alan Cox wrote:
+> On Sad, 2005-01-15 at 01:44, Andi Kleen wrote:
+> > Then it won't work with this BIST hardware anyways - if it tries
+> > to read config space of a device that is currently in BIST 
+> > it will just get a bus abort and no useful information.
 > 
-> I'm not 100% we really want a helper because it's rather obscure
-> requirement, unlikely to be useful for others, and it may be better
-> to keep it in DRM.
+> So it should wait to preseve a sane API at least for a short while and
+> if the user hasn't specified O_NDELAY. Its a compatibility consideration
+> 
+> > The only point of this whole patch exercise is to avoid the bus abort
+> > to satisfy the more strict hardware error checking on PPC64. On PCs
+> > it really won't make any difference.
+> 
+> I thought Ben wanted to do this for other PPC stuff ?
 
-Wouldn't it be better as a helper where the memory management people
-maintain it? For example I only work on x86, are there cross platform
-issues? Also, the DRM code is missing the page_table_lock around the
-calls too.
+Yes. On various models, I can turn off some ASIC cells, some of them
+being PCI devices. I do that dynamically for power management typically.
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+Depending on the chipset, tapping one of those "disabled" cells with
+config space accesses results in either all 1's or a lockup. On the
+former, I currently do nothing special (but that cause problems with
+various distro HW detection/configuration tools or the possible problem
+with X you mentioned, among others), on the later, I have a special
+filter in my pmac low level config space access routines to block access
+to those sleeping devices (and currently to return all 1's).
+
+I'm pretty sure similar situations can happen on other archs when
+pushing a bit on power management, especially things like handhelds
+(though not much of them are PCI based for now).
+
+That's why a "generic" mecanism to hide such devices while providing
+cached data on config space read's would be useful to me as well.
+
+Ben.
+
+

@@ -1,169 +1,179 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262940AbVCQBfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262951AbVCQBoj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262940AbVCQBfL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 20:35:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262951AbVCQBfL
+	id S262951AbVCQBoj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 20:44:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262959AbVCQBoi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 20:35:11 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:64191 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S262940AbVCQBes (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 20:34:48 -0500
-Date: Wed, 16 Mar 2005 17:33:48 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-cc: Dave Hansen <haveblue@us.ibm.com>, Andi Kleen <ak@muc.de>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Mel Gorman <mel@csn.ul.ie>, linux-ia64@vger.kernel.org
-Subject: Re: [PATCH] add a clear_pages function to clear pages of higher
- order
-In-Reply-To: <200503111008.12134.vda@port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Pine.LNX.4.58.0503161720570.1787@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0503101229420.13911@schroedinger.engr.sgi.com>
- <1110490683.24355.17.camel@localhost> <Pine.LNX.4.58.0503101702120.15940@schroedinger.engr.sgi.com>
- <200503111008.12134.vda@port.imtp.ilyichevsk.odessa.ua>
+	Wed, 16 Mar 2005 20:44:38 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:3324 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262951AbVCQBoW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 20:44:22 -0500
+Message-ID: <4238E0EA.8040101@mvista.com>
+Date: Wed, 16 Mar 2005 17:44:10 -0800
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: gene.heskett@verizon.net
+CC: linux-kernel@vger.kernel.org,
+       Linux and Kernel Video <video4linux-list@redhat.com>
+Subject: Re: tvtime audio vs pcHDTV-3000 card and pvHDTV-1.6 software
+References: <200503162015.37331.gene.heskett@verizon.net>
+In-Reply-To: <200503162015.37331.gene.heskett@verizon.net>
+Content-Type: multipart/mixed;
+ boundary="------------020606040400080502020304"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Mar 2005, Denis Vlasenko wrote:
 
-> Andi Kleen (iirc) says that non-temporal stores seem to be
-> big win in microbenchmarks (and I second that), but they are
-> a net loss when we are going to use zeroed page just after
-> zeroing. He recommends avoid using non-temporal stores
->
-> With this new page prezeroing infrastructure, that argument
-> most likely is not right anymore. Especially clearing of
-> high-order pages definitely will benefit from NT stores
-> because they do not kill L1 data cache in the process.
->
-> I don't have K8 and therefore cannot be 100% sure, but
-> I really doubt that K8 optimize "rep stosq" into _NT_ stores.
+This is a multi-part message in MIME format.
+--------------020606040400080502020304
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hmm. That would be interesting to know and may be necessary to justify
-the continued existence of this patch. I tried to get some numbers on
-the performance wins for zeroing larger pages with the patch as is (no
-NT stores) and came up with:
+Heavens, no need to clean the tree at all.  Just add "-X <file> to your diff.  I 
+have attached what I use for <file>.  It is likely over kill, but should do...
 
-Processor				Performance Increase
-----------------------------------------------------------------
-Itanium 2 1.3Ghz M1/R5			1.5%
-AMD Athlon 64 3200+ i386 mode		3%
-AMD Athlon 64 3200+ x86_64 mode		3.3%
+-g
 
-(this is if the zeroing engine is the cpu of course. Prezeroing
-may be done through some DMA gizmo independent of the cpu)
+Gene Heskett wrote:
+> Greetings;
+> 
+> I've spent a goodly part of the last 3 hours rebooting, to find out 
+> where this audio control function died, and I think now I can point 
+> an accusatory finger at the 2.6.11.2 patch with some degree of 
+> certainty.
+> 
+> The scenario goes like this:
+> 
+> reboot to 2.6.11-rc5, everything works flawlessly except the 1394 
+> stuff, that kernel didn't have it built in yet.
+> 
+> reboot to 2.6.11+bk-ieee1394.patch  everything works flawlessly
+> 
+> reboot to 2.6.11.1+bk-ieee1394.patch everything works flawlessly
+> 
+> reboot to 2.6.11.2+bk-ieee1394.patch tvtime has no volume control, and 
+> the sound gets very very tinny about 1 second after it starts
+> 
+> This scenario continues up to and includeing 2.6.11.4.
+> 
+> So now my next question is, how to I clean up those src trees so that 
+> a diff actually outputs only the src code differences, thereby 
+> allowing a simple diff -urN (or whatever is the recommended command 
+> line to do a recursive diff on the whole maryann) to disclose the 
+> real diffs.  In other words, is a simple 'make clean' sufficient?
+> 
+> I got the impression from a comment that was made, that quite a body 
+> of work was actually done, in the i2c area, that somehow does not 
+> show in the changelog, nor in that simple little 10 line patch that 
+> was 2.6.11.2.  And how that little patch could be responsible for 
+> breaking this boggles what tiny little miniscule piece of a mind I 
+> have left at this point.
+> 
+> If thats the case, then how did it get into my src code tree since the 
+> exact same 2.6.11.tar.gz was used as the base for applying each of 
+> the incrementals to each of the src trees I now have sitting 
+> in /usr/src?  Good question that...
+> 
+> Unforch, the 2.6.11 plain tree has not, in this case been built yet as 
+> it got accidently nuked by a missfire of my 'buildit26' script, which 
+> normally moves a base version tree out of the way before it unpacks a 
+> fresh copy, and then renames that tree to be the current version and 
+> then restores the base tree to its original name.
+> 
+> Thats not the one I want to use as the 'gold standard' anyway. 
+> 2.6.11.1 works, and 2.6.11.2 doesn't.  So at this point, 2.6.11.1 is 
+> the 'gold standard'.
+> 
+> But, both the 2.6.11.1 and the 2.6.11.2 trees are as built, and the
+> diff I got was far larger than forgetting to apply the 
+> bk-ieee1394.patch to one of them would account for.  Many tens of 
+> kilobytes in fact.
+> 
+> Please throw me a bone here folks.
+> 
 
-Itanium has more extensive optimization capabilities and
-seems to be able to better cope with the loop logic for regular
-clear_page. Thus the improvement is even less on Itanium.
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
 
-Numbers obtained with the following patch that allows to get performance
-data from /proc/meminfo on zeroing performance (just divide Cycles by
-Pages for clear_page and clear_pages):
+--------------020606040400080502020304
+Content-Type: text/plain;
+ name="patch.exclude"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch.exclude"
 
-Index: linux-2.6.11/mm/page_alloc.c
-===================================================================
---- linux-2.6.11.orig/mm/page_alloc.c	2005-03-16 17:12:51.000000000 -0800
-+++ linux-2.6.11/mm/page_alloc.c	2005-03-16 17:17:28.000000000 -0800
-@@ -633,13 +633,33 @@ void fastcall free_cold_page(struct page
- 	free_hot_cold_page(page, 1);
- }
+*.o
+*.i
+.*
+*.*~
+*~
+*.rej
+*.orig
+*.orig.*
+#*
+*#
+*.ver
+ETAGS
+TAGS
+tags
+*.map
+*.s
+*.a
+*X
+*Y
 
--static inline void prep_zero_page(struct page *page, int order, int gfp_flags)
-+void prep_zero_page(struct page *page, unsigned int order, unsigned int gfp_flags)
- {
- 	int i;
-+	unsigned long t1;
+*.*X
+*.*Y
+SCCS
+CVS
+*.*,*
+dwarf2-defs.h
+kconfig
+configs.c
+defconfig
+mkdep
+split-include
+tkparse
+vmlinux
+consolemap_deftbl.c
+tkparse.c
+classlist.h
+crc32table.h
+devlist.h
+config
+autoconf.h
+compile.h
+version.h
+kconfig.tk
+soundmodem
+defkeymap.c
+patest
+asm
+boot
+conmakehash
+gen-devlist
+modversions.h
+elfconfig.h
+asm_offsets.h
+*.old
+cscope.*
+*.so
+gen_crc32table
+docproc
+fixdep
+kallsyms
+mk_elfconfig
+modpost
+pnmtologo
+initramfs_data.*
+gen_init_cpio
 
- 	BUG_ON((gfp_flags & (__GFP_WAIT | __GFP_HIGHMEM)) == __GFP_HIGHMEM);
-+
-+#ifdef CONFIG_CLEAR_PAGES
-+	if (!PageHighMem(page) && order>4) {
-+		unsigned long t;
-+
-+		t1=get_cycles();
-+		clear_pages(page_address(page), order);
-+		t = get_cycles() - t1;
-+		add_page_state(clear_pages_cycles, t);
-+		add_page_state(clear_pages_order, 1 << order);
-+		inc_page_state(clear_pages_nr);
-+		return;
-+	}
-+#endif
-+
-+	t1=get_cycles();
- 	for(i = 0; i < (1 << order); i++)
- 		clear_highpage(page + i);
-+	add_page_state(clear_page_cycles, get_cycles() - t1);
-+	add_page_state(clear_page_order, 1 << order);
-+	inc_page_state(clear_page_nr);
- }
 
- /*
-Index: linux-2.6.11/include/linux/page-flags.h
-===================================================================
---- linux-2.6.11.orig/include/linux/page-flags.h	2005-03-16 17:12:51.000000000 -0800
-+++ linux-2.6.11/include/linux/page-flags.h	2005-03-16 17:13:02.000000000 -0800
-@@ -131,6 +131,13 @@ struct page_state {
- 	unsigned long allocstall;	/* direct reclaim calls */
-
- 	unsigned long pgrotated;	/* pages rotated to tail of the LRU */
-+
-+	unsigned long clear_page_nr;	/* Nr of clear_page request */
-+	unsigned long clear_page_cycles; /* Cycles spent in clear_page */
-+	unsigned long clear_page_order;	/* Sum of orders */
-+	unsigned long clear_pages_nr;	/* Nr of clear_pages requests */
-+	unsigned long clear_pages_cycles;	/* Nr of cycles in clear_pages */
-+	unsigned long clear_pages_order;	/* Sum of orders */
- };
-
- extern void get_page_state(struct page_state *ret);
-Index: linux-2.6.11/fs/proc/proc_misc.c
-===================================================================
---- linux-2.6.11.orig/fs/proc/proc_misc.c	2005-03-16 17:12:50.000000000 -0800
-+++ linux-2.6.11/fs/proc/proc_misc.c	2005-03-16 17:22:18.000000000 -0800
-@@ -127,7 +127,7 @@ static int meminfo_read_proc(char *page,
- 	unsigned long allowed;
- 	struct vmalloc_info vmi;
-
--	get_page_state(&ps);
-+	get_full_page_state(&ps);
- 	get_zone_counts(&active, &inactive, &free);
-
- /*
-@@ -168,7 +168,13 @@ static int meminfo_read_proc(char *page,
- 		"PageTables:   %8lu kB\n"
- 		"VmallocTotal: %8lu kB\n"
- 		"VmallocUsed:  %8lu kB\n"
--		"VmallocChunk: %8lu kB\n",
-+		"VmallocChunk: %8lu kB\n"
-+		"ClearPage #   %8lu\n"
-+		"ClearPage Pgs %8lu\n"
-+		"ClearPage Cyc %8lu\n"
-+		"ClearPages #  %8lu\n"
-+		"ClearPages Pg %8lu\n"
-+		"ClearPages Cy %8lu\n",
- 		K(i.totalram),
- 		K(i.freeram),
- 		K(i.bufferram),
-@@ -191,7 +197,13 @@ static int meminfo_read_proc(char *page,
- 		K(ps.nr_page_table_pages),
- 		(unsigned long)VMALLOC_TOTAL >> 10,
- 		vmi.used >> 10,
--		vmi.largest_chunk >> 10
-+		vmi.largest_chunk >> 10,
-+		ps.clear_page_nr,
-+		ps.clear_page_order,
-+		ps.clear_page_cycles,
-+		ps.clear_pages_nr,
-+		ps.clear_pages_order,
-+		ps.clear_pages_cycles
- 		);
-
- 		len += hugetlb_report_meminfo(page + len);
+--------------020606040400080502020304--
 

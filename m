@@ -1,60 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263081AbSJaUxU>; Thu, 31 Oct 2002 15:53:20 -0500
+	id <S263137AbSJaUxp>; Thu, 31 Oct 2002 15:53:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263137AbSJaUxU>; Thu, 31 Oct 2002 15:53:20 -0500
-Received: from warden-p.diginsite.com ([208.29.163.248]:18127 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S263081AbSJaUxT>; Thu, 31 Oct 2002 15:53:19 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: "David C. Hansen" <haveblue@us.ibm.com>
-Cc: "Robert L. Harris" <Robert.L.Harris@rdlg.net>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Date: Thu, 31 Oct 2002 12:49:50 -0800 (PST)
-Subject: Re: Reiser vs EXT3
-In-Reply-To: <1036090969.4272.59.camel@nighthawk>
-Message-ID: <Pine.LNX.4.44.0210311248030.25405-100000@dlang.diginsite.com>
+	id <S263178AbSJaUxp>; Thu, 31 Oct 2002 15:53:45 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:15375 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id <S263137AbSJaUxl>;
+	Thu, 31 Oct 2002 15:53:41 -0500
+Message-ID: <3DC199B5.8DDE2FE1@redhat.com>
+Date: Thu, 31 Oct 2002 15:59:34 -0500
+From: Dave Anderson <anderson@redhat.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-e.3.genterprise i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: "Matt D. Robinson" <yakker@aparity.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
+Subject: Re: What's left over.
+References: <Pine.LNX.4.44.0210311015380.1410-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-note that breaking up this locking bottleneckhas been done in the 2.5
-kernel series so when 2.6 is released this should be much less significant
-(Q2 2003 is the current thought, but don't count on it until it's out)
 
-David Lang
+On Thu, 31 Oct 2002, Linus Torvalds wrote:
 
-On 31 Oct 2002, David C. Hansen wrote:
+>  - included features kill off (potentially better) projects.
+>
+>         There's a big "inertia" to features. It's often better to keep
+>         features _off_ the standard kernel if they may end up being
+>         further developed in totally new directions.
+>
+>         In particular when it comes to this project, I'm told about
+>         "netdump", which doesn't try to dump to a disk, but over the net.
+>         And quite frankly, my immediate reaction is to say "Hell, I
+>         _never_ want the dump touching my disk, but over the network
+>         sounds like a great idea".
+>
+> To me this says "LKCD is stupid". Which means that I'm not going to apply
+> it, and I'm going to need some real reason to do so - ie being proven
+> wrong in the field.
+>
+> (And don't get me wrong - I don't mind getting proven wrong. I change my
+> opinions the way some people change underwear. And I think that's ok).
 
-> Date: 31 Oct 2002 11:02:49 -0800
-> From: David C. Hansen <haveblue@us.ibm.com>
-> To: Robert L. Harris <Robert.L.Harris@rdlg.net>
-> Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-> Subject: Re: Reiser vs EXT3
->
-> On Thu, 2002-10-31 at 06:19, Robert L. Harris wrote:
-> >
-> >   Still working on that replacement mail server and a new rumor has hit
-> > the mix.  It follows that reiserfs is much faster than ext3 (made ext3,
-> > not converted from ext2 if it matters) and this is causing some
-> > problems.  On a 200Gig filesystem is this truely an issue?
->
-> ext3 has some SMP scalability problems.  The BKL is used to protect many
-> journal operations, and we see huge amounts of CPU spent spinning on it
-> on 4/8/16 proc machines.  So much CPU, that it masks anything else we're
-> doing on the system.  But, on a single-proc or just a 2-way, you
-> probably won't see much of this to be significant.
->
-> We haven't tested reiser extensively here, but from what I've seen it
-> scales much, much better than ext3 (as does jfs and probably xfs too).
-> --
-> Dave Hansen
-> haveblue@us.ibm.com
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+It would be most unfortunate if the existance of netdump is used as a
+reason to deny LKCD's inclusion, or to simply dismiss LKCD as stupid.
+
+On Thu, 31 Oct 2002, Matt D. Robinson wrote:
+
+> We want to see this in the kernel, frankly, because it's a pain
+> in the butt keeping up with your kernel revisions and everything
+> else that goes in that changes.  And I'm sure SuSE, UnitedLinux and
+> (hopefully) Red Hat don't want to spend their time having to roll
+> this stuff in each and every time you roll a new kernel.
+
+While Red Hat advocates Ingo's netdump option, we have customer
+requests that are requiring us to look at LKCD disk-based dumps as an
+alternative, co-existing dump mechanism.  Since the two methods are not mutually
+exclusive, LKCD will never kill off netdump -- nor certainly vice-versa.  We're
+all just looking for a better means to be able to
+provide support to our customers, not to mention its value as a
+development aid.
+
+Dave Anderson
+Red Hat, Inc.
+
+
+

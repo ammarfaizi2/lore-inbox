@@ -1,106 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262725AbTIHQdM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 12:33:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262734AbTIHQdM
+	id S262771AbTIHQjv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 12:39:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262984AbTIHQjv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 12:33:12 -0400
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:44435 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id S262725AbTIHQdK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 12:33:10 -0400
-Message-ID: <3F5CB08C.2040307@pacbell.net>
-Date: Mon, 08 Sep 2003 09:38:36 -0700
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
+	Mon, 8 Sep 2003 12:39:51 -0400
+Received: from sweetums.bluetronic.net ([24.199.150.42]:2711 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id S262771AbTIHQjs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 12:39:48 -0400
+Date: Mon, 8 Sep 2003 12:36:39 -0400 (EDT)
+From: Ricky Beam <jfbeam@bluetronic.net>
+To: Vagn Scott <vagn@ranok.com>
+cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>, <torvalds@osdl.org>
+Subject: [PATCH] BINFMT_ZFLAT (was [2.6.0-test4] boolean symbol BINFMT_ZFLAT
+ tested for 'm'? test forced to 'n')
+In-Reply-To: <E19vpC0-0000BJ-00@Maya.ny.ranok.com>
+Message-ID: <Pine.GSO.4.33.0309081230160.13584-200000@sweetums.bluetronic.net>
 MIME-Version: 1.0
-To: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-CC: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] IDE:PORTS ALREADY IN USE | USB: irq 11: nobody
- cared! | loop pcmcia_core.ko which needs pcmcia_core.ko | 2.6.0-test4 cset
- 20030906_2214
-References: <200309072132.15278.arekm@pld-linux.org>
-In-Reply-To: <200309072132.15278.arekm@pld-linux.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-1271212614-1063038999=:13584"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arkadiusz Miskiewicz wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-> 4) USB no longer working. Was working fine in vanilla test4.
+---559023410-1271212614-1063038999=:13584
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-I'm suspecting this is because of a change to make UHCI
-initialization more closely match what EHCI and OHCI do:
-kick out pre-OS (BIOS/SMM/...) boot time hooks, then reset.
+On Sat, 6 Sep 2003, Vagn Scott wrote:
+>scripts/kconfig/conf -s arch/i386/Kconfig
+>boolean symbol BINFMT_ZFLAT tested for 'm'? test forced to 'n'
 
-Try changing uhci_reset() so it calls hc_reset() first,
-and then does the config space write to get rid of "legacy
-support mode".   That's the sequence it used before, which
-seems odd because it's resetting hardware that it's not yet
-responsible for.  Maybe the hc_reset() code should turn off
-that legacy mode, and do some IRQ blocking.
+Hear ya go...
 
+# This is a BitKeeper patch.  What follows are the unified diffs for the
+# set of deltas contained in the patch.  The rest of the patch, the part
+# that BitKeeper cares about, is below these diffs. (actually, attached)
+# User:	jfbeam
+# Host:	troz.com
+# Root:	/usr/src/linux-2.6-bk
 
-> drivers/usb/host/uhci-hcd.c: USB Universal Host Controller Interface driver 
-> v2.1
-> uhci-hcd 0000:00:11.2: UHCI Host Controller
-> irq 11: nobody cared!
-> Call Trace:
->  [<c010cbdb>] __report_bad_irq+0x2b/0x90
->  [<c010ccd4>] note_interrupt+0x64/0xa0
->  [<c010cf6e>] do_IRQ+0x12e/0x140
->  [<c010b49c>] common_interrupt+0x18/0x20
->  [<c0124603>] do_softirq+0x43/0xa0
->  [<c010cf48>] do_IRQ+0x108/0x140
->  [<c010b49c>] common_interrupt+0x18/0x20
->  [<c01add8c>] pci_bus_write_config_word+0x5c/0x80
->  [<cf9f94a0>] uhci_reset+0x40/0x50 [uhci_hcd]
+--- 1.5/lib/Kconfig	Thu Jun 19 13:06:56 2003
++++ 1.6/lib/Kconfig	Sun Sep  7 04:33:24 2003
+@@ -18,7 +18,7 @@
+ config ZLIB_INFLATE
+ 	tristate
+ 	default y if CRAMFS=y || PPP_DEFLATE=y || JFFS2_FS=y || ZISOFS_FS=y || BINFMT_ZFLAT=y || CRYPTO_DEFLATE=y
+-	default m if CRAMFS=m || PPP_DEFLATE=m || JFFS2_FS=m || ZISOFS_FS=m || BINFMT_ZFLAT=m || CRYPTO_DEFLATE=m
++	default m if CRAMFS=m || PPP_DEFLATE=m || JFFS2_FS=m || ZISOFS_FS=m || CRYPTO_DEFLATE=m
 
-There's the problem ... at least with your hardware and BIOS;
-it worked OK on mine.
+ config ZLIB_DEFLATE
+ 	tristate
 
-Seems that whatever mode the hardware is in at that point,
-it feels free to send an un-asked-for IRQ.
+--Ricky
 
 
->  [<cf8a6a32>] usb_hcd_pci_probe+0x192/0x480 [usbcore]
->  [<c01b176b>] pci_device_probe_static+0x4b/0x60
->  [<c01b18d6>] __pci_device_probe+0x36/0x50
->  [<c01b191c>] pci_device_probe+0x2c/0x50
->  [<c01f5dad>] bus_match+0x3d/0x70
->  [<c01f5f00>] driver_attach+0x70/0xb0
->  [<c01f6201>] bus_add_driver+0xa1/0xc0
->  [<c01f6651>] driver_register+0x31/0x40
->  [<c01b1b9e>] pci_register_driver+0x5e/0x90
->  [<cf8e90c7>] uhci_hcd_init+0xc7/0x143 [uhci_hcd]
->  [<c0137043>] sys_init_module+0x123/0x270
->  [<c010b32f>] syscall_call+0x7/0xb
-> 
-> handlers:
-> [<cf91c4b0>] (snd_via82xx_interrupt+0x0/0x110 [snd_via82xx])
-> Disabling IRQ #11
-> uhci-hcd 0000:00:11.2: irq 11, io base 0000d400
-> uhci-hcd 0000:00:11.2: new USB bus registered, assigned bus number 1
-> hub 1-0:0: USB hub found
-> hub 1-0:0: 2 ports detected
-> uhci-hcd 0000:00:11.3: UHCI Host Controller
-> uhci-hcd 0000:00:11.3: irq 11, io base 0000d800
-> uhci-hcd 0000:00:11.3: new USB bus registered, assigned bus number 2
-> hub 2-0:0: USB hub found
-> hub 2-0:0: 2 ports detected
-> hub 1-0:0: debounce: port 1: delay 100ms stable 4 status 0x301
-> hub 1-0:0: new USB device on port 1, assigned address 2
-> usb 1-1: control timeout on ep0out
-> uhci-hcd 0000:00:11.2: Unlink after no-IRQ?  Different ACPI or APIC settings may help.
+---559023410-1271212614-1063038999=:13584
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="zflat.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.GSO.4.33.0309081236390.13584@sweetums.bluetronic.net>
+Content-Description: BK send patch
+Content-Disposition: attachment; filename="zflat.patch"
 
-Unclear why it's now not receiving IRQ 11 ... it's fair to
-disable IRQ #11 when there's no IRQ handler for it, but at that
-point there is a handler and I'd sure expect it to work.  Which
-suggests there is a second IRQ-related problem here.
-
-- Dvae
-
-
-
+VGhpcyBCaXRLZWVwZXIgcGF0Y2ggY29udGFpbnMgdGhlIGZvbGxvd2luZyBj
+aGFuZ2VzZXRzOg0KMS4xMTY2DQoNCiMgVGhpcyBpcyBhIEJpdEtlZXBlciBw
+YXRjaC4gIFdoYXQgZm9sbG93cyBhcmUgdGhlIHVuaWZpZWQgZGlmZnMgZm9y
+IHRoZQ0KIyBzZXQgb2YgZGVsdGFzIGNvbnRhaW5lZCBpbiB0aGUgcGF0Y2gu
+ICBUaGUgcmVzdCBvZiB0aGUgcGF0Y2gsIHRoZSBwYXJ0DQojIHRoYXQgQml0
+S2VlcGVyIGNhcmVzIGFib3V0LCBpcyBiZWxvdyB0aGVzZSBkaWZmcy4NCiMg
+VXNlcjoJamZiZWFtDQojIEhvc3Q6CXRyb3ouY29tDQojIFJvb3Q6CS91c3Iv
+c3JjL2xpbnV4LTIuNi1iaw0KDQojDQojLS0tIDEuNS9saWIvS2NvbmZpZwlU
+aHUgSnVuIDE5IDEzOjA2OjU2IDIwMDMNCiMrKysgMS42L2xpYi9LY29uZmln
+CVN1biBTZXAgIDcgMDQ6MzM6MjQgMjAwMw0KI0BAIC0xOCw3ICsxOCw3IEBA
+DQojIGNvbmZpZyBaTElCX0lORkxBVEUNCiMgCXRyaXN0YXRlDQojIAlkZWZh
+dWx0IHkgaWYgQ1JBTUZTPXkgfHwgUFBQX0RFRkxBVEU9eSB8fCBKRkZTMl9G
+Uz15IHx8IFpJU09GU19GUz15IHx8IEJJTkZNVF9aRkxBVD15IHx8IENSWVBU
+T19ERUZMQVRFPXkNCiMtCWRlZmF1bHQgbSBpZiBDUkFNRlM9bSB8fCBQUFBf
+REVGTEFURT1tIHx8IEpGRlMyX0ZTPW0gfHwgWklTT0ZTX0ZTPW0gfHwgQklO
+Rk1UX1pGTEFUPW0gfHwgQ1JZUFRPX0RFRkxBVEU9bQ0KIysJZGVmYXVsdCBt
+IGlmIENSQU1GUz1tIHx8IFBQUF9ERUZMQVRFPW0gfHwgSkZGUzJfRlM9bSB8
+fCBaSVNPRlNfRlM9bSB8fCBDUllQVE9fREVGTEFURT1tDQojIA0KIyBjb25m
+aWcgWkxJQl9ERUZMQVRFDQojIAl0cmlzdGF0ZQ0KIw0KDQojIERpZmYgY2hl
+Y2tzdW09NjA5YzhkMTANCg0KDQojIFBhdGNoIHZlcnM6CTEuMw0KIyBQYXRj
+aCB0eXBlOglSRUdVTEFSDQoNCj09IENoYW5nZVNldCA9PQ0KdG9ydmFsZHNA
+YXRobG9uLnRyYW5zbWV0YS5jb218Q2hhbmdlU2V0fDIwMDIwMjA1MTczMDU2
+fDE2MDQ3fGMxZDExYTQxZWQwMjQ4NjQNCmpmYmVhbUB0cm96LmNvbXxDaGFu
+Z2VTZXR8MjAwMzA5MDYwMjI1NTZ8MDk4MzQNCkQgMS4xMTY2IDAzLzA5LzA3
+IDA0OjMzOjQzLTA0OjAwIGpmYmVhbUB0cm96LmNvbSArMSAtMA0KQiB0b3J2
+YWxkc0BhdGhsb24udHJhbnNtZXRhLmNvbXxDaGFuZ2VTZXR8MjAwMjAyMDUx
+NzMwNTZ8MTYwNDd8YzFkMTFhNDFlZDAyNDg2NA0KQw0KYyBbUEFUQ0hdIEJJ
+TkZNVF9aRkxBVCBjYW5ub3QgYmUgJ20nDQpLIDk5NjENClAgQ2hhbmdlU2V0
+DQotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0NCg0KMGEwDQo+IHppcHBlbEBsaW51eC1tNjhrLm9yZ1t0b3J2YWxk
+c118bGliL0tjb25maWd8MjAwMjEwMzAwNDMyMzh8MzI0NDl8NzI1YjE2MTEy
+OTgyYTJlZSBqZmJlYW1AdHJvei5jb218bGliL0tjb25maWd8MjAwMzA5MDcw
+ODMzMjR8NjU0NTENCg0KPT0gbGliL0tjb25maWcgPT0NCnppcHBlbEBsaW51
+eC1tNjhrLm9yZ1t0b3J2YWxkc118bGliL0tjb25maWd8MjAwMjEwMzAwNDMy
+Mzh8MzI0NDl8NzI1YjE2MTEyOTgyYTJlZQ0KZ3JlZ0Brcm9haC5jb218bGli
+L0tjb25maWd8MjAwMzA2MTkxNzA2NTZ8MDEzMjUNCkQgMS42IDAzLzA5LzA3
+IDA0OjMzOjI0LTA0OjAwIGpmYmVhbUB0cm96LmNvbSArMSAtMQ0KQiB0b3J2
+YWxkc0BhdGhsb24udHJhbnNtZXRhLmNvbXxDaGFuZ2VTZXR8MjAwMjAyMDUx
+NzMwNTZ8MTYwNDd8YzFkMTFhNDFlZDAyNDg2NA0KQw0KYyBCSU5GTVRfWkZM
+QVQgaXMgYm9vbA0KSyA2NTQ1MQ0KTyAtcnctcnctci0tDQpQIGxpYi9LY29u
+ZmlnDQotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0NCg0KRDIxIDENCkkyMSAxDQoJZGVmYXVsdCBtIGlmIENSQU1G
+Uz1tIHx8IFBQUF9ERUZMQVRFPW0gfHwgSkZGUzJfRlM9bSB8fCBaSVNPRlNf
+RlM9bSB8fCBDUllQVE9fREVGTEFURT1tDQoNCiMgUGF0Y2ggY2hlY2tzdW09
+OThhMzJjOGINCg==
+---559023410-1271212614-1063038999=:13584--

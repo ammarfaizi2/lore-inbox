@@ -1,25 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275891AbSIULKF>; Sat, 21 Sep 2002 07:10:05 -0400
+	id <S275893AbSIULPi>; Sat, 21 Sep 2002 07:15:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275898AbSIULKF>; Sat, 21 Sep 2002 07:10:05 -0400
-Received: from host-217-146-2-126.warsun.com ([217.146.2.126]:1295 "HELO
-	coolre4977.com") by vger.kernel.org with SMTP id <S275891AbSIULKF> convert rfc822-to-8bit;
-	Sat, 21 Sep 2002 07:10:05 -0400
-From: "VIVIAN ONYEKWERE" <vivianonye@excite.com>
-Reply-To: vivianonye001@usa.com
-Date: Thu, 19 Sep 2002 17:06:52 -0600
-Subject: urgent attention
-X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <20020921111005Z275891-685+51312@vger.kernel.org>
-To: unlisted-recipients:; (no To-header on input)
+	id <S275898AbSIULPi>; Sat, 21 Sep 2002 07:15:38 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:38157 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S275893AbSIULPh>; Sat, 21 Sep 2002 07:15:37 -0400
+Date: Sat, 21 Sep 2002 12:20:41 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Bernd Eckenfels <ecki-news2002-09@lina.inka.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Linux Hardened Device Drivers Project
+Message-ID: <20020921122041.A27150@flint.arm.linux.org.uk>
+References: <Pine.LNX.4.10.10209201753310.25090-100000@master.linux-ide.org> <E17shi3-00083J-00@sites.inka.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E17shi3-00083J-00@sites.inka.de>; from ecki-news2002-09@lina.inka.de on Sat, Sep 21, 2002 at 12:41:59PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   ATTN: INTRODUTION I am Princess Vivian Onyekwere, daughter of Chief Oti Onyekwer, the king of Ogoni Kingdom. Iam 25 Years old and a graduate of Mass Communication. My Father was the king of Ogoni Kingdom the highest oil Producing area in Nigeria. He was in charge of Reviving royalties from the multi-national oil Companies and government on behalf of the oil Producing communities in Nigeria. After the hanging of The Ogoni Nine (9) including Ken Saro Wiwa by the late Dictator General Sani Abacha, my father suffered Stroke and died November 15th lastyear. But before his death, he called me and told me he has twenty Three Million Five Hundred and Sixty Thousand Dollars(USD23,560,000.00) cash in his Possession, Specially deposited in a Security company here. He advised me not to tell anybody except my mother who is the last wife of the (8) eight wives that he married. My mother did not bear any male child for him. Which implies that all my fathers' properties, companies' e.t.c, we have no share in them because my mother has No male child according to African Tradition. My father there fore secretly gave me all the relevant Documents of the said money, and told me that I should Use this money with my mother and my younger sisters Because he knows that traditionally, if he dies we Cannot get anything, as inheritance. He importantly Advised me that I should seek foreign assistance’s and that I should not invest this money here in Nigeria Because of his other wives and male children who happen to be my elders. I am soliciting for your immediate assistance to get a bungalow for us, wherein Will live with my mother and two younger sisters and Further advise me where and how I will invest the balance money overseas, possibly on products of your Company and other profitable ventures. I believe that by the special grace of God, you will help us move this money out of Nigeria to any country of your Choice where we can invest this money judiciously with you. You are entitled to a reasonable part of this Money based o!
-n our agreement, and God will bless you as you help us. Please reply through my e-mail Looking Forward to hear from you as soon as possible. Best regard, 
+On Sat, Sep 21, 2002 at 12:41:59PM +0200, Bernd Eckenfels wrote:
+> In article <Pine.LNX.4.10.10209201753310.25090-100000@master.linux-ide.org> you wrote:
+> > Regardless, it takes (fill in the blank) to boldly ask people to add APIs
+> > for an industry who is only interested in using and not contributing.
+> 
+> There is more than one industry interested in it. It simply sucks if your
+> kernel panic only because you remove a SCSI cable. IT also sucks if your
+> kernel panics only vecause you have a bad block on a Disk.
 
+Both of which I'd classify as bugs.  I recently submitted a few patches
+that fix some of the idiotic or bad error handling in the 2.4 SCSI
+layer.  Although they didn't completely fix some of the problems, it
+did highlight some of the problem areas.
+
+> On the other hand, the reason this has not
+> happend just shows us, that it is not trivial to find a second person which
+> understands hardware's error behaviour.
+
+Or people with broken hardware don't report that the error paths are
+broken; they just fix their hardware.
+
+I have a Syquest 270MB drive here.  Bought from new, but it has never
+worked 100% properly.  It mostly complains about media errors and the
+like.  After several rounds with Syquest, I lost faith in it.  However,
+I still have it.  Why?
+
+I keep test filesystems on the cartridges.  Perfect when I want to run
+some tests that could well take out a filesystem, or when I want to test
+out the SCSI error handling.  That's how I found that the 2.4 SCSI error
+handling code has the possibility to eat disks alive when it encounters
+an error.
+
+Would extra API's have helped find this?  Would it have made the driver
+more stable?  Would it have caught the bug in my SCSI driver that caused
+it not to request sense on error and therefore throw the SCSI subsystem
+into a never-ending loop?  The answers are: no, no, no.
+
+Would testing with broken hardware have found this?  Would it make the
+driver more stable?  Yes, and yes.
+
+IMO, driver stability comes with testing and review by people who know
+both the hardware _and_ who know the kernel API inside out.  There seems
+to be a lack the latter, and a lack of people with broken hardware for
+the former.
+
+So next time when your hard disk develops media errors, or your network
+card starts corrupting data, think about whether it would be a useful
+test device to someone.  (Obviously not if its completely 100% dead.)
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283287AbRLDT3N>; Tue, 4 Dec 2001 14:29:13 -0500
+	id <S283288AbRLDTad>; Tue, 4 Dec 2001 14:30:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283282AbRLDT1j>; Tue, 4 Dec 2001 14:27:39 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:14505
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S283311AbRLDTYk>; Tue, 4 Dec 2001 14:24:40 -0500
-Date: Tue, 4 Dec 2001 12:24:37 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Stefan Smietanowski <stesmi@stesmi.com>
-Cc: linux-kernel@vger.kernel.org
+	id <S282910AbRLDT3T>; Tue, 4 Dec 2001 14:29:19 -0500
+Received: from t2.redhat.com ([199.183.24.243]:18418 "HELO mail.redhat.de")
+	by vger.kernel.org with SMTP id <S283286AbRLDT24>;
+	Tue, 4 Dec 2001 14:28:56 -0500
+Date: Tue, 4 Dec 2001 20:28:54 +0100 (CET)
+From: Bernhard Rosenkraenzer <bero@redhat.de>
+X-X-Sender: brosenkr@bochum.stuttgart.redhat.com
+To: "Eric S. Raymond" <esr@thyrsus.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
+        <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@caldera.de>,
+        Keith Owens <kaos@ocs.com.au>, <kbuild-devel@lists.sourceforge.net>,
+        <torvalds@transmeta.com>
 Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
-Message-ID: <20011204192437.GU17651@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <20011204181337.GL17651@cpe-24-221-152-185.az.sprintbbd.net> <E16BKGx-0002y5-00@the-village.bc.nu> <20011204182713.GO17651@cpe-24-221-152-185.az.sprintbbd.net> <3C0D21D8.8090509@stesmi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C0D21D8.8090509@stesmi.com>
-User-Agent: Mutt/1.3.24i
+In-Reply-To: <20011204123831.J16578@thyrsus.com>
+Message-ID: <Pine.LNX.4.42.0112042028080.10518-100000@bochum.stuttgart.redhat.com>
+X-Spam-From: abuse@localhost
+X-Spam-To: uce@ftc.gov
+X-Subliminal-Message: Microsoft sucks! Update your system to Linux today! (http://www.redhat.com/download/)
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 04, 2001 at 08:19:52PM +0100, Stefan Smietanowski wrote:
-> Hi.
-> 
-> >But they can't install python2?  I _think_ there's src.rpms on
-> >Python.org that will install as python2 even...
-> 
-> Usually a src.rpm installs a source, not a program :)
+On Tue, 4 Dec 2001, Eric S. Raymond wrote:
 
-Compiling rpms is arguably simpiler than a kernel.  rpm --recompile
-foo.src.rpm, I think even :)
+> Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> > > I'm pretty sure that's true any more, Alan.  Red Hat shipped Python 2 in
+> > > 7.1, so the RPM-based distros like KRUD and Mandrake have had it for
+> > > seven months. Debian had it before that.   
+> > 
+> > RH shipped python2 beginning RH 7.2.
+> 
+> Eh?  I'm going to go check my old 7.1 CDs...
+
+We shipped python2 as an extra package ever since 7.1, but it's not in any 
+of the default installs because the standard tools still use python 1.5.x 
+for compatibility reasons.
+
+LLaP
+bero
 
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+This message is provided to you under the terms outlined at
+http://www.bero.org/terms.html
+

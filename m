@@ -1,95 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270207AbRIFJvX>; Thu, 6 Sep 2001 05:51:23 -0400
+	id <S272441AbRIFKO6>; Thu, 6 Sep 2001 06:14:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272441AbRIFJvM>; Thu, 6 Sep 2001 05:51:12 -0400
-Received: from p071.n01.ham.access.is-europe.net ([195.179.168.71]:1028 "HELO
-	spot.local") by vger.kernel.org with SMTP id <S270207AbRIFJu4>;
-	Thu, 6 Sep 2001 05:50:56 -0400
-Date: Thu, 6 Sep 2001 11:52:22 +0200
-From: Oliver Feiler <kiza@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: Problems with ALI15X3 IDE driver in 2.4.9
-Message-ID: <20010906115222.A337@munich.netsurf.de>
+	id <S272442AbRIFKOs>; Thu, 6 Sep 2001 06:14:48 -0400
+Received: from [195.66.192.167] ([195.66.192.167]:33797 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S272441AbRIFKOk>; Thu, 6 Sep 2001 06:14:40 -0400
+Date: Thu, 6 Sep 2001 13:12:33 +0300
+From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+X-Mailer: The Bat! (v1.44)
+Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+Organization: IMTP
+X-Priority: 3 (Normal)
+Message-ID: <1114728919.20010906131233@port.imtp.ilyichevsk.odessa.ua>
+To: Rick Hohensee <humbubba@smarty.smart.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+In-Reply-To: <200109060151.VAA29489@smarty.smart.net>
+In-Reply-To: <200109060151.VAA29489@smarty.smart.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Operating-System: Linux 2.4.9 i686
-X-Species: Snow Leopard
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+>>#define min2(a,b) ({ \
+>>    typeof(a) __a = (a); \
+>>    typeof(b) __b = (b); \
+>>    if( sizeof(a) != sizeof(b) ) BUG(); \
+>>    if( ~(typeof(a))0 > 0 && ~(typeof(b))0 < 0) BUG(); \
+>>    if( ~(typeof(a))0 < 0 && ~(typeof(b))0 > 0) BUG(); \
+>>    (__a < __b) ? __a : __b; \
+>>    })
+>>
+>>#define min3(type,a,b) ({ \
+>>    type __a = (a); \
+>>    type __b = (b); \
+>>    if( sizeof(a) > sizeof(type) ) BUG(); \
+>>    if( sizeof(b) > sizeof(type) ) BUG(); \
+>>    (__a < __b) ? __a : __b; \
+>>    })
 
-	I'm experiencing the following problems with the ALI IDE driver. The
-board used is a Asus P5A-B (lspci, see end of mail). The kernel was upgraded
-from 2.4.5 to 2.4.9. The new Kernel shows three problems that seem to be
-related to the IDE interface more or less.
+RH> DesJardin's argument is finely crafted, but does this support it? Is min3
+RH> intended to be what Linus was talking about?
 
-	1. There is a strange probe for device "hde". There is no other IDE 
-controller in the system.
+My min2 requires types to be the same size and sign (after char/short->int
+promotion - C always does that, seems we cannot control it - run
+my test program and you'll see). If type is changed elsewhere later, min2
+will barf - and this is good for preventing hard to track bugs.
 
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-ALI15X3: IDE controller on PCI bus 00 dev 78
-PCI: No IRQ known for interrupt pin A of device 00:0f.0.
-ALI15X3: chipset revision 193
-ALI15X3: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xb800-0xb807, BIOS settings: hda:DMA, hdb:DMA
-    ide1: BM-DMA at 0xb808-0xb80f, BIOS settings: hdc:pio, hdd:pio
-hda: QUANTUM FIREBALL ST1.6A, ATA DISK drive
-hdb: IBM-DTLA-305030, ATA DISK drive
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-hde: probing with STATUS(0xff) instead of ALTSTATUS(0x08)
-hde: IRQ probe failed (0xfffffef8)
-hde: probing with STATUS(0xff) instead of ALTSTATUS(0x75)
-hde: IRQ probe failed (0xfffffef8)
-hde: no response (status = 0xff), resetting drive
-hde: IRQ probe failed (0xfffffef8)
-hde: no response (status = 0xff)
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hda: 3153024 sectors (1614 MB) w/81KiB Cache, CHS=782/64/63, UDMA(33)
-hdb: 60036480 sectors (30739 MB) w/380KiB Cache, CHS=3737/255/63, UDMA(33)
+Min3 is more permissive but requires programmer to indicate type
+explicitly. However, it will bite you when you try convert long to
+int, so it will catch some bugs too when someone decide to change
+type of the variable.
 
+Can you make better min? Another min addressing different type of bug?
+It could be interesting. (We have similar issues with "less than" and
+the like ops)
 
-	2. There are occasional "timeout waiting for DMA" messages in the 
-syslog and the system freezes for a couple of seconds.
+Don't know what Linus originally intended. I thought my two cents
+might be useful.
 
-Sep  6 11:32:21 spot kernel: hda: timeout waiting for DMA
-Sep  6 11:32:21 spot kernel: ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-Sep  6 11:32:21 spot kernel: hda: status error: status=0x5a { DriveReady SeekComplete DataRequest Index }
-Sep  6 11:32:21 spot kernel: hda: drive not ready for command
+RH> isn't what Linus was saying simply something like...
 
+RH> #define min(type,a,b)           (type) a < (type) b ? (type) a : (type) b;
 
-	3. The system has an ancient floppy tape drive that uses the ftape 
-driver. It used to work fine until now. As of 2.4.9 the system completely 
-locks up when I try to access the tape drive. No syslog messages, only reset 
-brings it back alive.
+Looks too dangerous to me. Double evaluation of a and b, no ()
+around them...
 
+RH> Looking at the trade-offs should account for the simplicity.
 
-	All this never showed up in 2.4.5 as I can remember. Nothing in the 
-system's hardware configuration was changed. I'll be thankful for any ideas, 
-especially the tape drive problem. Below is the output of lspci.
-
-Bye
-
-Oliver
-
-
-00:00.0 Host bridge: Acer Laboratories Inc. M1541 (rev 04)
-00:01.0 PCI bridge: Acer Laboratories Inc. M5243 (rev 04)
-00:02.0 USB Controller: Acer Laboratories Inc. M5237 (rev 03)
-00:03.0 Bridge: Acer Laboratories Inc. M7101
-00:07.0 ISA bridge: Acer Laboratories Inc. M1533 (rev c3)
-00:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd. 8029
-00:0a.0 Ethernet controller: Silicon Integrated Systems: Unknown device 0900 (rev 02)
-00:0b.0 Network controller: AVM Audiovisuelles MKTG & Computer System GmbH A1 ISDN [Fritz] (rev 02)
-00:0f.0 IDE interface: Acer Laboratories Inc. M5229 (rev c1)
-
-
-
+Ifs inside my min2 and min3 optimize out to nothing. Checked that.
 -- 
-Oliver Feiler                                               kiza@gmx.net
-http://www.lionking.org/~kiza/pgpkey              PGP key ID: 0x561D4FD2
-http://www.lionking.org/~kiza/
+Best regards,
+VDA
+mailto:VDA@port.imtp.ilyichevsk.odessa.ua
+http://port.imtp.ilyichevsk.odessa.ua/vda/
+
+

@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268071AbTBMPfp>; Thu, 13 Feb 2003 10:35:45 -0500
+	id <S268066AbTBMPow>; Thu, 13 Feb 2003 10:44:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268072AbTBMPfo>; Thu, 13 Feb 2003 10:35:44 -0500
-Received: from mons.uio.no ([129.240.130.14]:47812 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S268071AbTBMPfo>;
-	Thu, 13 Feb 2003 10:35:44 -0500
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.60 NFS FSX
-References: <20030213152742.GA1560@codemonkey.org.uk>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 13 Feb 2003 16:45:27 +0100
-In-Reply-To: <20030213152742.GA1560@codemonkey.org.uk>
-Message-ID: <shs4r78yyjs.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S268067AbTBMPow>; Thu, 13 Feb 2003 10:44:52 -0500
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:24750 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id <S268066AbTBMPov>; Thu, 13 Feb 2003 10:44:51 -0500
+Date: Thu, 13 Feb 2003 16:54:32 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Paul Larson <plars@linuxtestproject.org>
+Cc: Edesio Costa e Silva <edesio@ieee.org>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Edesio Costa e Silva <edesio@task.com.br>
+Subject: Re: 2.5.60 cheerleading...
+Message-ID: <20030213155432.GA30401@wohnheim.fh-wedel.de>
+References: <3E4A6DBD.8050004@pobox.com> <1045075415.22295.46.camel@plars> <20030212173300.A31055@master.softaplic.com.br> <1045150153.28493.10.camel@plars>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1045150153.28493.10.camel@plars>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Dave Jones <davej@codemonkey.org.uk> writes:
+On Thu, 13 February 2003 09:29:12 -0600, Paul Larson wrote:
+> 
+> If Linus really is building and booting every kernel prior to release,
+> it would be quick and simple to add a fast subset of LTP to the mix and
+> do a quick regression run.  It's convenient, fast and could save a lot
+> of headaches for a lot of people later on.
 
-     > 2.5.60's NFS seems to have various issues.  (2.5.60 client,
-     > 2.4.21pre3 server)
+The problem I see with this approach is that "a lot of people" scales
+far better than Linus.
 
-     > - I ran an fsx and an fsstress in parallel.
-     >   Client rebooted after 2-3 minutes.
+Saving 100 people a day of work by offloading it to Linus is quite an
+optimisation, but it doesn't optimize the overall development speed.
 
-I know. There's memory corruption going on somewhere, but I'm not sure
-exactly where.
+Let the crowd build the kernel, see the breakage and fix it up, until
+we get back to -preX and -rcY kernels.
 
-     > - fsx on its own, after quite a while, this happens..
+Jörn
 
-Also known. It's a bit odd really: the reads fail due to some form of
-corruption, but the writes are OK. Means that when you later come to
-compare the '.fsxgood' file to the 'bad' file, then things look OK.
-
-I'm a bit confused w.r.t. both these issues. Neither occur on the
-2.4.x platform despite the fact that the code is more or less the
-same. This is why I suspect an IPv4 socket problem.
-
-Cheers,
-  Trond
+-- 
+Victory in war is not repetitious.
+-- Sun Tzu

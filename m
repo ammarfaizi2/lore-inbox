@@ -1,79 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262236AbTJNIfk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 04:35:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262240AbTJNIfk
+	id S262056AbTJNIgn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 04:36:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262057AbTJNIgn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 04:35:40 -0400
-Received: from [213.229.38.66] ([213.229.38.66]:54475 "HELO mail.falke.at")
-	by vger.kernel.org with SMTP id S262236AbTJNIfi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 04:35:38 -0400
-Message-ID: <3F8BB43A.9050808@winischhofer.net>
-Date: Tue, 14 Oct 2003 10:30:50 +0200
-From: Thomas Winischhofer <thomas@winischhofer.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
-X-Accept-Language: en-us, en, de, de-de, de-at, sv
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-CC: James Simmons <jsimmons@infradead.org>, Olaf Hering <olh@suse.de>,
-       Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: gcc -msoft-float [Was: Linux 2.6.0-test7 - stability freeze]
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 14 Oct 2003 04:36:43 -0400
+Received: from adsl-216-103-111-100.dsl.snfc21.pacbell.net ([216.103.111.100]:30361
+	"EHLO www.piet.net") by vger.kernel.org with ESMTP id S262056AbTJNIgj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 04:36:39 -0400
+Subject: Re: Circular Convolution scheduler
+From: Piet Delaney <piet@www.piet.net>
+To: George Anzinger <george@mvista.com>
+Cc: Clayton Weaver <cgweav@email.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <3F833C06.7000802@mvista.com>
+References: <20031006161733.24441.qmail@email.com> 
+	<3F833C06.7000802@mvista.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 14 Oct 2003 01:37:23 -0700
+Message-Id: <1066120643.25020.121.camel@www.piet.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You wrote:
- >drivers/built-in.o(.text+0x5c24f7):drivers/video/sis/sis_main.c:655: 
- >undefined \
- >reference to `__floatsidf' \
- >drivers/built-in.o(.text+0x5c2510):drivers/video/sis/sis_main.c:655: 
- >undefined \
- >reference to `__divdf3' \
- >drivers/built-in.o(.text+0x5c251b):drivers/video/sis/sis_main.c:656: 
- >undefined \
- >reference to `__floatsidf' \
- >drivers/built-in.o(.text+0x5c2534):drivers/video/sis/sis_main.c:656: 
- >undefined \
- >reference to `__divdf3' \
- >drivers/built-in.o(.text+0x5c2540):drivers/video/sis/sis_main.c:656: 
- >undefined \
- >reference to `__adddf3' \
- >drivers/built-in.o(.text+0x5c2554):drivers/video/sis/sis_main.c:656: 
- >undefined \
- >reference to `__adddf3' \
- >drivers/built-in.o(.text+0x5c255c):drivers/video/sis/sis_main.c:656: 
- >undefined \
- >reference to `__fixunsdfsi' \
- >drivers/built-in.o(.text+0x5c28b8):drivers/video/sis/sis_main.c:675: 
- >undefined \
- >reference to `__adddf3' \
- >drivers/built-in.o(.text+0x5c28d1):drivers/video/sis/sis_main.c:675: 
- >undefined \
- >reference to `__adddf3' \
- >drivers/built-in.o(.text+0x5c28ea):drivers/video/sis/sis_main.c:675: 
- >undefined \
- >reference to `__adddf3' drivers/built-in.o(.init.text+0x6252d): In 
- >function \
- >`sisfb_init': drivers/video/sis/sis_main.c:4450: undefined reference 
-to >`__floatsidf'
- >drivers/built-in.o(.init.text+0x6253f):drivers/video/sis/sis_main.c:4450: >undefined \
- >reference to `__divdf3' \
- >drivers/built-in.o(.init.text+0x62547):drivers/video/sis/sis_main.c:4450: >undefined \
- >reference to `__fixunsdfsi'
+On Tue, 2003-10-07 at 15:19, George Anzinger wrote:
+> Ok, I'll admit my ignorance.  What is circular convolution?  Where can 
+> I learn more?
 
+circular convolution is used with the Fast Fourier Transform.
+The frequency data goes from -N/2 ...0 ,,,, +N/2,
+multiplying in the frequency domain is the same as
+convolving in the time or space domain. The result of multiplying
+a time series by say a filter is the same as convolving it
+with the FFT of the filter. Both domains wrap around with the
+FFT, so the normal convolution associated with the Fourier
+transform is replace with the circular convolution.
 
-This is fixed in the latest version of sisfb I sent to James Simmons; 
-one more reason to merge the fbdev stuff...
+Many prediction algorithms are based on digital signal processing.
+The Kalman filter for example was used by Harvey for forecasting
+financial markets. The kernel likely has lots of time series that
+could be used for system identification for predicting how to best
+use system resources.
 
-Thomas
+I did a lot of work with them designing Reconstruction algorithms
+for Brain Scanners. 
 
+-piet
+> 
+> -g
+> 
+> Clayton Weaver wrote:
+> > Though the mechanism is doubtless familiar
+> > to signal processing and graphics implementers,
+> > it's probably not thought of much in a
+> > process scheduling contex (although there was
+> > the Evolution Scheduler of a few years ago,
+> > whose implementer may have had something like
+> > circular convolution in mind). It just seems to me
+> > (intuition) that the concept of what circular convolution does is akin to what we've been
+> > feeling around for with these ad hoc heuristic
+> > tweaks to the scheduler to adjust for interactivity
+> > and batch behavior, searching for an incremental self-adjusting mechanism that favors interactivity
+> > on demand.
+> > 
+> > I've never implemented a circular convolver in
+> > any context, so I was wondering if anyone who
+> > has thinks scheduler prioritization would be
+> > simpler if implemented directly as a circular convolution.
+> > 
+> > (If nothing else, it seems to me that the abstract model of what the schedule prioritizer is doing
+> > would be more coherent than it is with ad hoc
+> > code. This perhaps reduces the risk of unexpected side-effects of incremental tweaks to the scheduler. The behavior of an optimizer that implements
+> > an integer approximation of a known mathematical transform when you change its inputs is fairly predictable.)
+> > 
+> > Regards,
+> > 
+> > Clayton Weaver
+> > <mailto: cgweav@email.com>
+> > 
+> > 
+> 
+> -- 
+> George Anzinger   george@mvista.com
+> High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+> Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 -- 
-Thomas Winischhofer
-Vienna/Austria
-thomas AT winischhofer DOT net          *** http://www.winischhofer.net/
-twini AT xfree86 DOT org
-
-
+piet@www.piet.net
 

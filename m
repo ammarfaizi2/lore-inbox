@@ -1,58 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262115AbTHZSjS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 14:39:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262150AbTHZSjR
+	id S261713AbTHZSbt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 14:31:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262047AbTHZSbt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 14:39:17 -0400
-Received: from FORT-POINT-STATION.MIT.EDU ([18.7.7.76]:31202 "EHLO
-	fort-point-station.mit.edu") by vger.kernel.org with ESMTP
-	id S262115AbTHZSjN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 14:39:13 -0400
-Date: Tue, 26 Aug 2003 11:50:44 -0400
-From: Arvind Sankar <arvinds@MIT.EDU>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: vesafb mtrr setup question
-Message-ID: <20030826155044.GA27105@m66-080-18.mit.edu>
-References: <20030825194304.GA14893@m66-080-17.mit.edu> <1061912542.20846.50.camel@dhcp23.swansea.linux.org.uk>
+	Tue, 26 Aug 2003 14:31:49 -0400
+Received: from fw.osdl.org ([65.172.181.6]:63122 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261713AbTHZSbr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 14:31:47 -0400
+Date: Tue, 26 Aug 2003 11:34:29 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Steve Lord <lord@sgi.com>
+Cc: suparna@in.ibm.com, barryn@pobox.com, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, linux-xfs@oss.sgi.com
+Subject: Re: [BUG] 2.6.0-test4-mm1: NFS+XFS=data corruption
+Message-Id: <20030826113429.1440b0d0.akpm@osdl.org>
+In-Reply-To: <1061920640.25889.1404.camel@jen.americas.sgi.com>
+References: <20030824171318.4acf1182.akpm@osdl.org>
+	<20030825193717.GC3562@ip68-4-255-84.oc.oc.cox.net>
+	<20030825124543.413187a5.akpm@osdl.org>
+	<1061852050.25892.195.camel@jen.americas.sgi.com>
+	<20030826031412.72785b15.akpm@osdl.org>
+	<20030826110111.GA4750@in.ibm.com>
+	<20030826104458.448d1eea.akpm@osdl.org>
+	<1061920640.25889.1404.camel@jen.americas.sgi.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1061912542.20846.50.camel@dhcp23.swansea.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 26, 2003 at 04:42:23PM +0100, Alan Cox wrote:
-> On Llu, 2003-08-25 at 20:43, Arvind Sankar wrote:
-> > In the first place, the power of two computation computes the largest
-> > power of 2 that is _smaller_ than video_size, so it looks like an
-> > off-by-1 bug.
-> 
-> Not a bug - we don't know what lives above it so we can't extend the
-> mtrr safely
-> 
-Ah. On a side not, could you drop a quick hint as to how
-screen_info.lfb_size is obtained?
+Steve Lord <lord@sgi.com> wrote:
+>
+>  Does rpm use readv/writev though? Or does the nfs server? not sure
+>  how this change would affect the original problem report.
 
-In older (or just different?) versions of vesafb, the video_size was
-actually computed by multiplying xres, yres, and the bpp.
+The NFS server uses multisegment writev.  RPM was running at the other end
+of the ethernet, so it doesn't really matter what sort of write RPM
+is issuing.
 
-> > >         /* Try and find a power of two to add */
-> > >         while (temp_size && mtrr_add(video_base, temp_size, MTRR_TYPE_WRCOMB, 1)==-EINVAL) {
-> > >                 temp_size >>= 1;
-> > >         }
-> > > }
-> > 
-> > Secondly, what's the point of requesting a smaller write-combining
-> > segment that won't cover all the video memory being used?
-> 
-> Generally we don't use all the videoram. Its a heuristic rather than
-> perfection. You might want to play with improvements
-> 
-
-I thought the yres_virtual was computed based on how much video_ram was
-being used, so all of it _is_ being used, for scrollback?
-
--- arvind

@@ -1,93 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265736AbTAFCCk>; Sun, 5 Jan 2003 21:02:40 -0500
+	id <S265656AbTAFCJt>; Sun, 5 Jan 2003 21:09:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265754AbTAFCCk>; Sun, 5 Jan 2003 21:02:40 -0500
-Received: from ppp-217-133-216-158.dialup.tiscali.it ([217.133.216.158]:36227
-	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
-	id <S265736AbTAFCCi>; Sun, 5 Jan 2003 21:02:38 -0500
-Date: Mon, 6 Jan 2003 03:03:51 +0100
-From: Luca Barbieri <ldb@ldb.ods.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Fix sysenter (%ebp) fault handling
-Message-ID: <20030106020351.GA8074@ldb>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	Linux-Kernel ML <linux-kernel@vger.kernel.org>
+	id <S265681AbTAFCJt>; Sun, 5 Jan 2003 21:09:49 -0500
+Received: from vladimir.pegasys.ws ([64.220.160.58]:5650 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S265656AbTAFCJt>; Sun, 5 Jan 2003 21:09:49 -0500
+Date: Sun, 5 Jan 2003 18:18:20 -0800
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Honest does not pay here ...
+Message-ID: <20030106021820.GB4075@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <200301052021.MAA09932@adam.yggdrasil.com> <Pine.LNX.4.10.10301051223130.421-100000@master.linux-ide.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="TB36FDmn/VVEgNH/"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+In-Reply-To: <Pine.LNX.4.10.10301051223130.421-100000@master.linux-ide.org>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jan 05, 2003 at 12:29:16PM -0800, Andre Hedrick wrote:
+> Please list the files and functions you claim, under this decision.
+> If you are the sole copyright holder of a file it is clean and clear.
+> If you are not then you have a problem to settle with the joint owners.
+> I will ignore your claim on shared copyrights until you have a settlement,
+> if all persons holding copyright ownership agree with you then ...
+> 
+> How soon will there be a patch-war for everyone to stake a claim, and
+> screw the pooch ?
 
---TB36FDmn/VVEgNH/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Andre, you just made the point i've been thinking of for
+some time.  Let the people who object to having an interface
+for binary-only modules stake out their code.  If you have
+no code you have no legal standing.  Identify what code you
+won't allow the binary modules to use.
 
-Currently syscall_badsys is called to handle faults when reading the
-sixth parameter in sysenter; however that routine assumes that
-registers have already been pushed on the stack, and this is not the
-case (in other words, it will currently try to pop beyond the end of
-the thread stack).
+I'm a lurker here.  I just don't feel very itchy.  But if
+someone actually declares needed code off-limits for the
+binary modules i and others could very quickly develop
+serious itches to scratch.  The patch-war will be people
+replacing code belonging to the extremists.
 
-This patch adds a new "function", syscall_fault, that saves register
-and returns.
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
-The return value is changed to EFAULT, which seems more appropriate
-than ENOSYS.
-
-
-diff --exclude-from=3D/home/ldb/src/exclude -urNdp --exclude=3D'speedtouch.=
-*' --exclude=3D'atmsar.*' linux-2.5.54/arch/i386/kernel/entry.S linux-2.5.5=
-4-ldb/arch/i386/kernel/entry.S
---- linux-2.5.54/arch/i386/kernel/entry.S	2003-01-02 04:21:27.000000000 +01=
-00
-+++ linux-2.5.54-ldb/arch/i386/kernel/entry.S	2003-01-04 19:06:07.000000000=
- +0100
-@@ -253,11 +253,11 @@ ENTRY(sysenter_entry)
-  * Careful about security.
-  */
- 	cmpl $__PAGE_OFFSET-3,%ebp
--	jae syscall_badsys
-+	jae syscall_fault
- 1:	movl (%ebp),%ebp
- .section __ex_table,"a"
- 	.align 4
--	.long 1b,syscall_badsys
-+	.long 1b,syscall_fault
- .previous
-=20
- 	pushl %eax
-@@ -367,6 +373,14 @@ syscall_exit_work:
- 	jmp resume_userspace
-=20
- 	ALIGN
-+syscall_fault:
-+	pushl %eax			# save orig_eax
-+	SAVE_ALL
-+	GET_THREAD_INFO(%ebx)
-+	movl $-EFAULT,EAX(%esp)
-+	jmp resume_userspace
-+
-+	ALIGN
- syscall_badsys:
- 	movl $-ENOSYS,EAX(%esp)
- 	jmp resume_userspace
-
---TB36FDmn/VVEgNH/
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+GOQGdjkty3ft5+cRApJgAKCBuYekAjw7NrXTPDnaGp6CYc8sXACeOZaX
-6y1XNedehFjnHyWL0SnH+qI=
-=gFhw
------END PGP SIGNATURE-----
-
---TB36FDmn/VVEgNH/--
+		Remember Cernan and Schmitt

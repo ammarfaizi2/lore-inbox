@@ -1,81 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265427AbRF2QIj>; Fri, 29 Jun 2001 12:08:39 -0400
+	id <S266111AbRF2QVb>; Fri, 29 Jun 2001 12:21:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266107AbRF2QI3>; Fri, 29 Jun 2001 12:08:29 -0400
-Received: from spiral.extreme.ro ([212.93.159.205]:20608 "HELO
-	spiral.extreme.ro") by vger.kernel.org with SMTP id <S265427AbRF2QIU>;
-	Fri, 29 Jun 2001 12:08:20 -0400
-Date: Fri, 29 Jun 2001 19:10:14 +0300 (EEST)
-From: Dan Podeanu <pdan@spiral.extreme.ro>
-To: "Brent D. Norris" <brent@biglinux.tccw.wku.edu>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: A Possible 2.5 Idea, maybe?
-In-Reply-To: <Pine.LNX.4.33.0106290753340.25959-100000@biglinux.tccw.wku.edu>
-Message-ID: <Pine.LNX.4.33L2.0106291901550.14545-100000@spiral.extreme.ro>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266112AbRF2QVV>; Fri, 29 Jun 2001 12:21:21 -0400
+Received: from mail.ece.umn.edu ([128.101.168.129]:38791 "EHLO
+	mail.ece.umn.edu") by vger.kernel.org with ESMTP id <S266111AbRF2QVF>;
+	Fri, 29 Jun 2001 12:21:05 -0400
+Date: Fri, 29 Jun 2001 11:21:00 -0500
+From: Bob Glamm <glamm@mail.ece.umn.edu>
+To: linux-kernel@vger.kernel.org
+Subject: [SMP] 2.4.5-ac13 through ac18 dcache/NFS conflict
+Message-ID: <20010629112100.B2932@kittpeak.ece.umn.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Jun 2001, Brent D. Norris wrote:
+Just to follow up on this situation, I think I've tracked it down
+to a problem arising from a combination of SMP, the directory entry
+cache, and NFS client code.  After several 24-hour runs of 10 copies
+of
 
-> Recently one more than one subject there have been comments along the
-> lines of, "Do x, y and z because it would be great on desktops" and then
-> someone else will say "NO! becausing doing x, y, and z will make servers
-> run slow."  Then as a final note someone else will say "Do y and z, but
-> not x, because that will make my handheld linux project a lot better."
-> Now whatever is eventually decided in each discusion, normally one
-> group/user walks away feeling they are getting the shortend of the stick.
+  'find /nfs-mounted-directory -print > /dev/null' 
 
-Ok, this is a problem. Though it was sort of discussed before when someone
-came with the idea of creating a 'home' linux-kernel edition (yuck!).
+running simultaneously, the kernel stops or dies in fs/dcache.c
+(in dput() or d_lookup(), and it triggered the BUG() on
+line 129 once).
 
-> Now many of these things are configurable.  If it is the amount of
-> messages that the boot of the kernel makes or even the "motivation" and
-> actions that the VM takes.  It seems possible to configure the kernel so
-> that it would work optimally for each of the groups.  The problem is that
-> the code in these sections is having to work in too different of
-> situations.  Example : The VM is now somewhat more tweaked for servers
-> than it was previously.  Many people were concerned about the
-> "interactivity" of it.  Now it seems that it would be possible to change
-> the vm code so that it worked better for desktop users, but the
-> maintainers are not eager to do that because it would slow linux down in
-> the server market.
+Performing the same 10 finds on a locally mounted ext2 filesystem
+produces no lockups or hangs.
 
-Thats why we have /proc/... To echo things into it.
+-Bob
 
-> This all stems from one problem, which is a really great problem to have
-> if you must have a problem.  Linux is spreading to largely different
-> kinds of machines with many different purposes.  Microsoft solved this
-> problem by having several different kernels (NT code base for servers, 9x
-> code base for desktops, CE code base for handhelds), and this is somewhat
-> like what the "forking is a good thing" messge recommended for linux.  I
-> disagree with that concept though.  It is easy to see the trouble
-> microsoft is having with that and now they are trying to slowly merge the
-> two (NT,9x) together.
-
-Several kernel threads are hard to maintain, hard to evolve, hard to
-bugfix, modify patches, etc. Mainly, we should have a single kernel that
-can be tuned to fit people's needs.
-
-
-> Instead of forking the kernel or catering only to one group, instead why
-> not try this:  Using the new CML2 tools and rulesets, make it possible to
-> have the kernel configured for the type of job it will be doing?  Just
-> like CML2 asks our CPU type (i386, alpha, althon ...) and then goes out
-> and configures options for that, have it ask people "Is your machine a
-> server, workstation, embedded/handheld?" and configure things in the
-> kernel like the VM, bootup and others to optimize it for that job type?
-
-IMO, the Linux distributions out there should configure the kernel based
-on the type of system the (l[inux])user wants. Those who have the balls to
-compile their own system should know such things anyway. The rest, better
-rely on the distribution default and/or ask around and get some more
-info [the kernel configuration help is explicit enough anyway, given a
-decent level of common sense is used].
-
-
-Dan.
-
-
+> I've got a strange situation, and I'm looking for a little direction.
+> Quick summary: I get sporadic lockups running 2.4.5-ac13 on a
+> ServerWorks HE-SL board (SuperMicro 370DE6), 2 800MHz Coppermine CPUs,
+> 512M RAM, 512M+ swap.  Machine has 8 active disks, two as RAID 1,
+> 6 as RAID 5.  Swap is on RAID 1.  Machine also has a 100Mbit Netgear
+> FA310TX and an Intel 82559-based 100Mbit card.  SCSI controllers
+> are AIC-7899 (2) and AIC-7895 (1).  RAM is PC-133 ECC RAM; two
+> identical machines display these problems.
+> 
+> I've seen three variations of symptoms:
+> 
+>   1) Almost complete lockout - machine responds to interrupts (indeed,
+>      it can even complete a TCP connection) but no userspace code gets
+>      executed.  Alt-SysRq-* still works, console scrollback does not;
+>   2) Partial lockout - lock_kernel() seems to be getting called without
+>      a corresponding unlock_kernel().  This manifested as programs such
+>      as 'ps' and 'top' getting stuck in kernel space;
+>   3) Unkillable programs - a test program that allocates 512M of memory
+>      and touches every page; running two copies of this simultaneously
+>      repeatedly results in at least one of the copies getting stuck
+>      in 'raid1_alloc_r1bh'.
+> 
+> Symptom number 1 was present in 2.4.2-ac20 as well; symptoms 2 and 3
+> were observed under 2.4.5-ac13 only.  I never get any PANICs, only
+> these variety of deadlocks.  A reboot is the only way to resolve the
+> problem.
+> 
+> There seem to be two ways to manifest the problem.  As alluded to in
+> (3), running two copies of the memory eater simultaneously along with
+> calls to 'ps' and 'top' trigger the bug fairly quickly (within a minute
+> or two).  Another method to manifest the problem is to run multiple
+> copies of this script (I run 10 simultaneous copies):
+> 
+>   #!/bin/sh
+> 
+>   while /bin/true; do
+>     ssh remote-machine 'sleep 1'
+>   done
+> 
+> This script causes (1) in about a day or two.
+> 
+> If anyone has any suggestions about how to proceed to figure out what
+> the problem is (or if there is already a fix), please let me know.
+> I would be more than willing to provide a wide range of cooperation on
+> this problem.  I don't have a feel for where to go from here, and I'm
+> hoping that someone with more experience can give me some
+> assistance..

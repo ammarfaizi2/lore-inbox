@@ -1,132 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265756AbTIERcx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 13:32:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265768AbTIERcx
+	id S263078AbTIEScO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 14:32:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbTIEScN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 13:32:53 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:12558 "HELO
-	127.0.0.1") by vger.kernel.org with SMTP id S265756AbTIERcp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 13:32:45 -0400
+	Fri, 5 Sep 2003 14:32:13 -0400
+Received: from mta02-svc.ntlworld.com ([62.253.162.42]:17082 "EHLO
+	mta02-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id S263078AbTIEScJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 14:32:09 -0400
+From: James Clark <jimwclark@ntlworld.com>
+Reply-To: jimwclark@ntlworld.com
+To: Valdis.Kletnieks@vt.edu
+Subject: Re: Driver Model 2 Proposal - Linux Kernel Performance v Usability
+Date: Fri, 5 Sep 2003 19:31:09 +0100
+User-Agent: KMail/1.5
+References: <1062637356.846.3471.camel@cube> <200309042251.38514.jimwclark@ntlworld.com> <200309051752.h85HqYS0031240@turing-police.cc.vt.edu>
+In-Reply-To: <200309051752.h85HqYS0031240@turing-police.cc.vt.edu>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-From: insecure <insecure@mail.od.ua>
-Reply-To: insecure@mail.od.ua
-To: Michael Frank <mhf@linuxmail.org>, Yann Droneaud <yann.droneaud@mbda.fr>,
-       fruhwirth clemens <clemens-dated-1063536166.2852@endorphin.org>
-Subject: Re: nasm over gas?
-Date: Fri, 5 Sep 2003 20:28:37 +0300
-X-Mailer: KMail [version 1.4]
-Cc: linux-kernel@vger.kernel.org,
-       =?iso-8859-1?q?J=F6rn=20Engel?= <joern@wohnheim.fh-wedel.de>
-References: <20030904104245.GA1823@leto2.endorphin.org> <200309050128.47002.insecure@mail.od.ua> <200309052058.11982.mhf@linuxmail.org>
-In-Reply-To: <200309052058.11982.mhf@linuxmail.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200309052028.37367.insecure@mail.od.ua>
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309051931.09491.jimwclark@ntlworld.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 05 September 2003 15:59, Michael Frank wrote:
-> Just got another reply to this thread which helps to explain what I meant
-> by "better coders in 98+% of applications"
->
-> On Friday 05 September 2003 19:42, Jörn Engel wrote:
-> > How big is the .text of the asm and c variant?  If the text of yours
-> > is much bigger, you just traded 2fish performance for general
-> > performance.  Everything else will suffer from cache misses.  Forget
-> > your microbenchmark, your variant will make the machine slower.
+Valdis Kletnieks wrote:
 
-A random example form one small unrelated program (gcc 3.2):
+> So if 500 million people are productive 60% of the time and hosed 40% of
+> the time, and 5 million people are productive 95% of the time, the 60/40
+> model is better because 60% of 500M is more than 95% of 5M?
 
-main:
-        pushl   %ebp
-        pushl   %edi
-        pushl   %esi
-        pushl   %ebx
-        subl    $32, %esp
-        xorl    %ebp, %ebp
-        cmpl    $1, 52(%esp)
-        movl    $0, 20(%esp)
-        movl    $1000000, %edi      <----
-        movl    $1000000, 16(%esp)  <----
-        movl    $0, 12(%esp)
-        movl    $.LC27, 8(%esp)
-        je      .L274
-        movl    $1, %esi
-        cmpl    52(%esp), %esi
-        jge     .L272
+This is a good example of the kind of rubbish that is sometimes talked around 
+here. I've lost count of the number of times I've heard the 'Windows is SO 
+unstable argument' it almost seems like a religion. I would agree with what 
+you have said if Windows was actually unusable 40% of the time. Do you really 
+believe this figure? In reality it is much better than that as plainly the 
+majority of the WORLD are using it. I love Linux but I also use Windows. 
+Sorry to break your delusion, it ain't that bad.
 
-No sane human will do that.
+> Ask Joe User how he feels about NOT being able to add IPv6 support to
+> his existing system until his vendor says they'll do it for him, and then
+> look at when Linux had support.
 
-main:
-        pushl   %ebp
-        pushl   %edi
-        pushl   %esi
-        pushl   %ebx
-        subl    $32, %esp
-        xorl    %ebp, %ebp
-        cmpl    $1, 52(%esp)
-        movl    $0, 20(%esp)
-        movl    $1000000, %edi
-        movl    %edi, 16(%esp)	<-- save 4 bytes
-        movl    %ebp, 12(%esp)  <-- save 4 bytes
-        movl    $.LC27, 8(%esp)
-        je      .L274
-        movl    $1, %esi
-        cmpl    52(%esp), %esi
-        jge     .L272
+Its very true that in the Windows world you have to wait for Micro$oft 
+sometimes, it is even true that they probably hold back features so that can 
+put them in the next release and get you to pay for them. Why is this any 
+worse than expecting Joe User, who is a 'user' and not a 'developer' to 
+rebuild the most important bits of his OS and risk breaking the whole lot.
 
-And this is only from a cursory examination.
+This is not about Windows v Linux so please stop compraring what I have 
+proposed to Windows. This debate should be about Performance v Usability. 
+Source interfaces have ultimate performance, nobody has suggested, yet, that 
+they are easier for Joe User than a binary interface.
 
-> There is another technical argument - which I am not very familiar with:
-> Modern and future CPU's are optimized for high level languages, it is
-> just too troublesome to arrange all the instructions best-case for the
-> hardware to be well utilized.
+James
 
-You took marketspeak too seriously.
 
-> Back to my original message, my implied definition of "Better coders"
-> is the compromise between performance, development effort, stability
-> and security (and more).
->
-> It does not just refer to the best possible "perfect" code.
->
-> Let me give you a example of "best possible code" (to the best of my
-> ability):
->
-> I do mostly embedded applications,  years ago did consumer design for this
-> kind of Hong Kong made $19.99 gimmicks ($6 FOB) priced to be purchased
-> "on impulse" by joe consumer.
->
-> For one of those gimmicks, I used a 4bit running on 1.5V with 1K
-> instruction ROM and 64 nibbles RAM doing 32KIPS (32768 instructions per
-> second) to establish the speed of a tennis ball it was built into.
-> It required floating point calculations and display on a built-in
-> LCD display with 64 segments.
->
-> This takes __clever__ __optimized__ code, and is at least a week of work,
-> and affordable only in high-volume applications.
->
-> Consider, one week of work for what you can do in C using GLIBC within
-> 1 hour or less!
->
-> Now, please consider a real life (linux) system, which you use everyday,
-> of course you could make every piece of code "better" by hand coding and
-> optimizing, but what is the real benefit?
->
-> Assuming these millions of lines of C having been implemented in optimized
-> assembly, could it perform that much faster (if that is what you call
-> "better"), or would you use "half" the memory for the same job?
->
-> Now, what about it's stability and maintainability - not to mention COST,
-> even you could find all those great human coders?
->
-> Guess the pioneering days are over ;)
 
-What gives you an impression that anyone is going to rewrite linux in asm?
-I _only_ saying that compiler-generated asm is not 'good'. It's mediocre.
-Nothing more. I am not asm zealot.
--- 
-vda
+On Friday 05 Sep 2003 6:52 pm, you wrote:
+> On Thu, 04 Sep 2003 22:51:38 BST, James Clark said:
+> > FUD. It mostly works, sometimes it doesn't, but in total the number of
+> > working hours of PRODUCTIVE use from it is many orders of magnitude
+> > greater. Multiple the number of Windows users in the world by their
+> > working time and then do the same for Linux!
+>
+> So if 500 million people are productive 60% of the time and hosed 40% of
+> the time, and 5 million people are productive 95% of the time, the 60/40
+> model is better because 60% of 500M is more than 95% of 5M?
+>
+> What's wrong with this picture?
+>
+> > hence the OS could escape the niche box it currently is in. Please ask
+> > Joe User how he feels about rebuilding his whole OS to add IP6 support to
+> > an existing stable system etc.
+>
+> Ask Joe User how he feels about NOT being able to add IPv6 support to
+> his existing system until his vendor says they'll do it for him, and then
+> look at when Linux had support.
+>
+> http://www.ipv6.org/impl/linux.html
+> http://www.ipv6.org/impl/windows.html
+>
+> And most important, google around for +ipv6 +"craig metz", and look at when
+> *he* did the IPv6 work - and you were free to put the patches on your
+> system as soon as he posted them.
+>
+> Now as you were saying?
+

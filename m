@@ -1,40 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267866AbTBEIhs>; Wed, 5 Feb 2003 03:37:48 -0500
+	id <S267867AbTBEIjU>; Wed, 5 Feb 2003 03:39:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267867AbTBEIhs>; Wed, 5 Feb 2003 03:37:48 -0500
-Received: from phoenix.infradead.org ([195.224.96.167]:50439 "EHLO
+	id <S267868AbTBEIjU>; Wed, 5 Feb 2003 03:39:20 -0500
+Received: from phoenix.infradead.org ([195.224.96.167]:51719 "EHLO
 	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S267866AbTBEIhr>; Wed, 5 Feb 2003 03:37:47 -0500
-Date: Wed, 5 Feb 2003 08:47:17 +0000
+	id <S267867AbTBEIjT>; Wed, 5 Feb 2003 03:39:19 -0500
+Date: Wed, 5 Feb 2003 08:48:52 +0000
 From: Christoph Hellwig <hch@infradead.org>
 To: Greg KH <greg@kroah.com>
-Cc: torvalds@transmeta.com, linux-security-module@wirex.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] LSM changes for 2.5.59
-Message-ID: <20030205084717.A16212@infradead.org>
+Cc: linux-security-module@wirex.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] LSM changes for 2.5.59
+Message-ID: <20030205084852.B16212@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Greg KH <greg@kroah.com>, torvalds@transmeta.com,
-	linux-security-module@wirex.com, linux-kernel@vger.kernel.org
-References: <20030205041538.GA16823@kroah.com>
+	Greg KH <greg@kroah.com>, linux-security-module@wirex.com,
+	linux-kernel@vger.kernel.org
+References: <20030205041538.GA16823@kroah.com> <20030205041611.GB16823@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030205041538.GA16823@kroah.com>; from greg@kroah.com on Tue, Feb 04, 2003 at 08:15:38PM -0800
+In-Reply-To: <20030205041611.GB16823@kroah.com>; from greg@kroah.com on Tue, Feb 04, 2003 at 08:16:11PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 04, 2003 at 08:15:38PM -0800, Greg KH wrote:
-> Hi,
-> 
-> These changesets include some new LSM hooks, all of which have been sent
-> to lkml with no dissenting comments.  Some of these hooks are the same
-> ones I sent for 2.5.58, but were not picked up.  These include hooks for
-> syslog and sysctl, restores some previously lost hooks, and reworked the
-> hooks for the security structures for private files.
+On Tue, Feb 04, 2003 at 08:16:11PM -0800, Greg KH wrote:
+> diff -Nru a/fs/super.c b/fs/super.c
+> --- a/fs/super.c	Wed Feb  5 14:58:37 2003
+> +++ b/fs/super.c	Wed Feb  5 14:58:37 2003
+> @@ -610,6 +610,7 @@
+>  	struct file_system_type *type = get_fs_type(fstype);
+>  	struct super_block *sb = ERR_PTR(-ENOMEM);
+>  	struct vfsmount *mnt;
+> +	int error;
+>  
+>  	if (!type)
+>  		return ERR_PTR(-ENODEV);
+> @@ -620,6 +621,13 @@
+>  	sb = type->get_sb(type, flags, name, data);
+>  	if (IS_ERR(sb))
+>  		goto out_mnt;
+> + 	error = security_sb_kern_mount(sb);
+> + 	if (error) {
+> + 		up_write(&sb->s_umount);
+> + 		deactivate_super(sb);
+> + 		sb = ERR_PTR(error);
+> + 		goto out_mnt;
+> + 	}
 
-I still don't see the issue of each LSM module having to duplicate the list
-of sysctls beeing addressed.  Coul you please work something out for that
-before sending it for inclusion?
+it would be nice if you could follow the syle in this function/file
+and put the error handling code out of line.  This is a general
+complaint, btw - the LSM hooks seldomly follow the style of the
+code around :(
 

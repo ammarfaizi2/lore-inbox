@@ -1,84 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287341AbSALTUj>; Sat, 12 Jan 2002 14:20:39 -0500
+	id <S287348AbSALTVt>; Sat, 12 Jan 2002 14:21:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287348AbSALTUa>; Sat, 12 Jan 2002 14:20:30 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:15448 "EHLO
-	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S287341AbSALTUO>; Sat, 12 Jan 2002 14:20:14 -0500
-Date: Sat, 12 Jan 2002 19:22:23 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: rwhron@earthlink.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 1-2-3 GB
-In-Reply-To: <20020112125625.E1482@inspiron.school.suse.de>
-Message-ID: <Pine.LNX.4.21.0201121825200.1105-100000@localhost.localdomain>
+	id <S287342AbSALTVa>; Sat, 12 Jan 2002 14:21:30 -0500
+Received: from gumby.it.wmich.edu ([141.218.23.21]:8639 "EHLO
+	gumby.it.wmich.edu") by vger.kernel.org with ESMTP
+	id <S287348AbSALTVL>; Sat, 12 Jan 2002 14:21:11 -0500
+Message-ID: <005b01c19b9e$90a5af40$0501a8c0@psuedogod>
+From: "Ed Sweetman" <ed.sweetman@wmich.edu>
+To: <arjan@fenrus.demon.nl>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: "Rob Landley" <landley@trommello.org>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <E16PTIR-0002sL-00@the-village.bc.nu>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Date: Sat, 12 Jan 2002 14:23:00 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 12 Jan 2002, Andrea Arcangeli wrote:
-> 
-> for a fileserver (even more if in kernel like tux) it certainly make
-> sense to have as much direct mapped memory as possible, it is not the
-> recommended setup for a generic purpose kernel though. So I applied the
-> patch (except the prefix thing which is distribution specific). thanks,
 
-Please add in the patch below as well.  It needs some explanation!
-A few weeks ago we noticed a compiler bug: in both egcs-2.91.66 and
-gcc-2.95.3; not in RH 2.96-85; forget if I tried gcc-3.0, expect okay.
 
-If CONFIG_HIGHMEM64G (PAE: 3 levels of page table, 64-bit pte),
-the free_one_pgd code inlined in clear_page_tables is miscompiled:
-the loop is terminated by a "jle" signed comparison of addresses
-instead of a "jb" unsigned comparison.
+> Another example is in the network drivers. The 8390 core for one example
+> carefully disables an IRQ on the card so that it can avoid spinlocking on
+> uniprocessor boxes.
+>
+> So with pre-empt this happens
+>
+> driver magic
+> disable_irq(dev->irq)
+> PRE-EMPT:
+> [large periods of time running other code]
+> PRE-EMPT:
+> We get back and we've missed 300 packets, the serial port sharing
+> the IRQ has dropped our internet connection completely.
+>
+> ["Don't do that then" isnt a valid answer here. If I did hold a lock
+>  it would be for several milliseconds at a time anyway and would reliably
+>  trash performance this time
 
-Usually not a problem: but if you configure for 1GB of user virtual
-and 3GB of kernel virtual, and you have more than 1GB of physical
-memory (as you normally would if chose HIGHMEM64G), then there's
-a page at physical address 0x3ffff000, directly mapped to virtual
-address 0x7ffff000.  And if that page happens to get used for the
-pmd of a process, then on exit the free_one_pgd loop wraps over
-to carry on freeing "entries" at 0x80000000, 0x80000008, ...
-A lot of pmd_ERROR messages, but eventually an entry scrapes
-through the pmd_bad test and is wrongly freed, not so good.
+> There are numerous other examples in the kernel tree where the current
+code
+> knows that there is a small bounded time between two actions in kernel
+space
+> that do not have a sleep. They are not spin locked, and putting spin locks
+> everywhere will just trash performance. They are pure hardware
+interactions
+> so you can't automatically detect them.
 
-The patch below seems to be enough to convince egcs-2.91.66 and
-gcc-2.95.3 to use a "jb" comparison there.  I'm working on PIII,
-prefetchw() just a stub, if that makes any difference.
+hardware to hardware could have a higher priority than normal programs being
+run.   That way they're not preempted by simple programs, it would have to
+be purposely preempted by the user.
 
-This patch is not actually what we've used.  Paranoia (what other
-such bugs might there be?) drove me to set physical pages 0x3ffff
-and 0x40000 as Reserved in arch/i386/setup.c.  I don't think it's
-appropriate to force that level of paranoia on others; but anyone
-configuring 3GBK should remember that it's a less-travelled path.
+> That is why the pre-empt code is a much much bigger problem and task than
+the
+> low latency code.
 
-Hugh
-
---- 2.4.18pre2aa2/mm/memory.c	Sat Jan 12 18:01:36 2002
-+++ linux/mm/memory.c	Sat Jan 12 18:09:27 2002
-@@ -106,8 +106,7 @@
- 
- static inline void free_one_pgd(pgd_t * dir)
- {
--	int j;
--	pmd_t * pmd;
-+	pmd_t * pmd, * md, * emd;
- 
- 	if (pgd_none(*dir))
- 		return;
-@@ -118,9 +117,9 @@
- 	}
- 	pmd = pmd_offset(dir, 0);
- 	pgd_clear(dir);
--	for (j = 0; j < PTRS_PER_PMD ; j++) {
--		prefetchw(pmd+j+(PREFETCH_STRIDE/16));
--		free_one_pmd(pmd+j);
-+	for (md = pmd, emd = pmd + PTRS_PER_PMD; md < emd; md++) {
-+		prefetchw(md+(PREFETCH_STRIDE/16));
-+		free_one_pmd(md);
- 	}
- 	pmd_free(pmd);
- }
+Lowering the latency, sure the low latency code probably does nearly as well
+as the preempt patch.  that's fine.  Shortening the time locks are held by
+better code can help to a certain extent (unless a lot of the kernel code is
+poorly written, which i doubt).  at it's present state though,  my idea to
+fix the kernel would be to give parts of the kernel where locks are made,
+that shouldn't be broken normally, higher priorities.  That way we can
+distinguish between safe locks to preempt at and the ones that can do harm.
+But those people who require their app to be treated special can run it
+with -20 and preempt everything.   To me that makes sense.  Is there a
+reason why it doesn't?  Besides ethstetics.   the only way the ethsetic
+argument people are going to be pleased is if the kernel is designed from
+the ground up to be better latency and lock-wise.   A lot of people would
+like to not have to wait until that time in the meantime.
 

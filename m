@@ -1,60 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269473AbUJST2D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269602AbUJSTZ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269473AbUJST2D (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 15:28:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269596AbUJST01
+	id S269602AbUJSTZ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 15:25:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269596AbUJSTBD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 15:26:27 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:8392 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S269788AbUJSTWJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 15:22:09 -0400
-Date: Tue, 19 Oct 2004 21:18:17 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.9 page allocation failures?
-Message-ID: <20041019191817.GA13208@electric-eye.fr.zoreil.com>
-References: <Pine.LNX.4.61.0410191207000.10356@p500>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0410191207000.10356@p500>
-User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+	Tue, 19 Oct 2004 15:01:03 -0400
+Received: from portraits.wsisiz.edu.pl ([213.135.44.34]:54380 "EHLO
+	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
+	id S269607AbUJSSxk convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 14:53:40 -0400
+Date: Tue, 19 Oct 2004 20:53:09 +0200 (CEST)
+From: Lukasz Trabinski <lukasz@trabinski.net>
+X-X-Sender: lukasz@lt.wsisiz.edu.pl
+To: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: unregister_netdevice 2.6.9
+In-Reply-To: <20041020.022622.27982693.yoshfuji@linux-ipv6.org>
+Message-ID: <Pine.LNX.4.58LT.0410191953390.13480@lt.wsisiz.edu.pl>
+References: <Pine.LNX.4.58LT.0410191738420.2725@lt.wsisiz.edu.pl>
+ <20041020.022622.27982693.yoshfuji@linux-ipv6.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (portraits.wsisiz.edu.pl [0.0.0.0]); Tue, 19 Oct 2004 20:53:32 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin Piszcz <jpiszcz@lucidpixels.com> :
-[...]
-> lftp: page allocation failure. order:0, mode:0x20
->  [<c01391a7>] __alloc_pages+0x247/0x3b0
->  [<c0139328>] __get_free_pages+0x18/0x40
->  [<c013c9af>] kmem_getpages+0x1f/0xc0
->  [<c013d6f0>] cache_grow+0xc0/0x1a0
->  [<c013d99b>] cache_alloc_refill+0x1cb/0x210
->  [<c013de01>] __kmalloc+0x71/0x80
->  [<c036f463>] alloc_skb+0x53/0x100
->  [<c031f9f8>] e1000_alloc_rx_buffers+0x48/0xf0
->  [<c031f6fe>] e1000_clean_rx_irq+0x18e/0x440
+On Wed, 20 Oct 2004, YOSHIFUJI Hideaki / ???? wrote:
 
-If you are using TSO, try patch below by Herbert Xu (available
-from http://marc.theaimsgroup.com/?l=linux-netdev&m=109799935603132&w=3)
+> > whreis xxxx is name of sit device, created via script
+> 
+> Is your box acting as router, or host?
+> % sysctl -a |grep ipv6|grep forwarding
 
---- 1.67/net/ipv4/tcp_output.c	2004-10-01 13:56:45 +10:00
-+++ edited/net/ipv4/tcp_output.c	2004-10-17 18:58:47 +10:00
-@@ -455,8 +455,12 @@
- {
- 	struct tcp_opt *tp = tcp_sk(sk);
- 	struct sk_buff *buff;
--	int nsize = skb->len - len;
-+	int nsize;
- 	u16 flags;
-+
-+	nsize = skb_headlen(skb) - len;
-+	if (nsize < 0)
-+		nsize = 0;
- 
- 	if (skb_cloned(skb) &&
- 	    skb_is_nonlinear(skb) &&
+lt:~# sysctl -a |grep ipv6|grep forwarding
+net.ipv6.conf.atman6.forwarding = 0
+net.ipv6.conf.eth1.forwarding = 0
+net.ipv6.conf.eth0.forwarding = 0
+net.ipv6.conf.lo.forwarding = 0
+net.ipv6.conf.default.forwarding = 0
+net.ipv6.conf.all.forwarding = 0
 
+atman6 is sit device, ipv6 is loaded as module.
+
+
+> What is happend if you let the interface down and delete it before
+> becore rebooting?
+
+OK, if interface is down, system is rebooting correctly.
+
+I had made tests with shutdown interfaces, but i shutdowned wrong sit 
+interface. :( Sorry for that. 
+
+Anyway, ipip interfaces no need to be shutdown before reboot. Is it
+problem in sit_cleanup()?
+
+
+-- 
+£T

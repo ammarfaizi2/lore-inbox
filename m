@@ -1,36 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262400AbVCBSXv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262410AbVCBSYP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262400AbVCBSXv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 13:23:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262410AbVCBSXf
+	id S262410AbVCBSYP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 13:24:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbVCBSYE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 13:23:35 -0500
-Received: from rev.193.226.232.215.euroweb.hu ([193.226.232.215]:53934 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S262400AbVCBSRb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 13:17:31 -0500
-To: akpm@osdl.org
-CC: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: [request for inclusion] Filesystem in Userspace 
-Message-Id: <E1D6YPJ-0000Jv-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 02 Mar 2005 19:17:13 +0100
+	Wed, 2 Mar 2005 13:24:04 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:42985 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262413AbVCBSWI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 13:22:08 -0500
+Date: Wed, 2 Mar 2005 12:22:05 -0600
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       "Luck, Tony" <tony.luck@intel.com>
+Subject: Re: [PATCH/RFC] I/O-check interface for driver's error handling
+Message-ID: <20050302182205.GI1220@austin.ibm.com>
+References: <422428EC.3090905@jp.fujitsu.com> <42249A44.4020507@pobox.com> <Pine.LNX.4.58.0503010844470.25732@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0503010844470.25732@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6+20040818i
+From: Linas Vepstas <linas@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew!
+On Tue, Mar 01, 2005 at 08:49:45AM -0800, Linus Torvalds was heard to remark:
+> 
+> The new API is what _allows_ a driver to care. It doesn't handle DMA, but
+> I think that's because nobody knows how to handle it (ie it's probably
+> hw-dependent and all existign implementations would thus be
+> driver-specific anyway).
 
-Do you have any objections to merging FUSE in mainline kernel?
+?  
+We could add a call 
 
-It's been in -mm for the 2.6.11 cycle, and the same code was released
-a month ago as FUSE-2.2.  So it should have received a fair amount of
-testing, with no problems found so far.
+int pci_was_there_an_error_during_dma (struct pci_dev);
 
-The one originally merged into -mm already addressed all major issues
-that people found (most importantly the OOM deadlock thing), and
-though there were some minor changes in the interface since then, I
-feel that the current kernel interface will stand up to the test of
-time.
+right?  And it could return true/false, right?  I can certainly 
+do that today with ppc64.  I just can't tell you which dma triggered
+the problem.
 
-Thanks,
-Miklos
+> And yes, CLEARLY drivers will have to do all the heavy lifting. 
+
+well .. maybe.  On ppc64, we have one hack-ish solution for
+hotplug-capable but pci-error-unaware device drivers, and that
+is to hot unplug the driver, clear the pci error condition, and 
+and replug the driver.  Works great for ethernet; haven't tested 
+USB.
+
+I'm getting greif from the guys over here because my hack-ish code
+is hackish, and isn't arch-generic, and Paul Mackerras doesn't like it, 
+which is why Benh is threatening to re-write it, and etc. ... 
+which is why Seto is involved, and we're having this conversation ... 
+
+
+--linas
+

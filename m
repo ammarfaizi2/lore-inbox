@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285347AbRL2TQ7>; Sat, 29 Dec 2001 14:16:59 -0500
+	id <S285327AbRL2TTJ>; Sat, 29 Dec 2001 14:19:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285329AbRL2TQv>; Sat, 29 Dec 2001 14:16:51 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:34573 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S285269AbRL2TQi>;
-	Sat, 29 Dec 2001 14:16:38 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200112291916.WAA12108@ms2.inr.ac.ru>
-Subject: Re: NETIF_F_(SG|FRAGLIST|HIGHDMA) docs anywhere?
-To: stodden@in.tum.DE (Daniel Stodden)
-Date: Sat, 29 Dec 2001 22:16:21 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1009610172.2105.0.camel@bitch> from "Daniel Stodden" at Dec 29, 1 10:45:00 am
-X-Mailer: ELM [version 2.4 PL24]
+	id <S285316AbRL2TTA>; Sat, 29 Dec 2001 14:19:00 -0500
+Received: from waste.org ([209.173.204.2]:39121 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S285269AbRL2TSw>;
+	Sat, 29 Dec 2001 14:18:52 -0500
+Date: Sat, 29 Dec 2001 13:18:46 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Christer Weinigel <wingel@hog.ctrl-c.liu.se>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: The direction linux is taking
+In-Reply-To: <20011229190600.2556C36DE6@hog.ctrl-c.liu.se>
+Message-ID: <Pine.LNX.4.43.0112291313160.18183-100000@waste.org>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Sat, 29 Dec 2001, Christer Weinigel wrote:
 
-> 			so i guess supporting at least scatter/gather
-> should give some performance improvements in order to get rid of
-> skb_linearize() on xmit?
+> In article <Pine.LNX.4.43.0112291136350.18183-100000@waste.org> you write:
+> >If my understanding of the new kbuild and configure system is correct,
+> >make clean and dep should be largely unnecessary and it should be possible
+> >to build a patchbot that checks for incremental compilability:
+> >
+> >for the current kernel release:
+> >  unpack tree
+> >  build the tree with default options (unprivileged user, obviously)
+>
+> One thing that should not be forgotten is the risk of trojan horses
+> here, in practice the Makefile is a shell script, so to apply any
+> patch and the compile with it would be a bit dangerous.  It might be
+> possible to limit the patchbot to only accept code changes, but
+> that might remove most of the benefits.  Also, I don't know how much
+> magic one might do with a properly crafted #include statement, such
+> as "#include /etc/passwd" and then the error message will contain
+> the encypted password for root (shadow passwords fix this specific
+> problem, but you get the idea :-)
 
-I beg pardon but before strating to fight problems, it is necessary
-to force kernel to prepare something different of linear skbs. :-)
+I think we can devise a suitably secure jail environment, possibly using
+UML.
 
-What's about checksumming? Do you plan to ignore it?
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 
-
->			 since transmission is done completely by the
-> local cpu, all of F_SG/FRAGLIST/HIGHDMA look relatively easy to
-> implemement to me.=20
-
-I see no connection between "cpu locality" and frgamtn hadling at all.
-
-
-> frag_list seems to be the list involved with keeping track of ip
-> fragmentation. so dev->hard_start_xmit() with frag_list set would only
-> happen on routers or when??
-
-In stock kernels: _never_. Packets are not defragmented by routers,
-and netfilter linearizes everything in any case.
-
-Anyway, if the driver is able to provide some facility, why not to do this?
-
-> when is nr_frags>0? i've found some postings indicating sendfile(2) will
-> benefit here. is this the only case?
-
-Yes.
-
-Which means that the task is not so sexy. :-)
-
-Alexey

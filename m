@@ -1,40 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261282AbSIWT6z>; Mon, 23 Sep 2002 15:58:55 -0400
+	id <S261345AbSIWTST>; Mon, 23 Sep 2002 15:18:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261325AbSIWT6z>; Mon, 23 Sep 2002 15:58:55 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:23031 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP
-	id <S261282AbSIWT6x>; Mon, 23 Sep 2002 15:58:53 -0400
-Message-ID: <288F9BF66CD9D5118DF400508B68C446047589DF@orsmsx113.jf.intel.com>
-From: "Feldman, Scott" <scott.feldman@intel.com>
-To: "'Todor Todorov'" <ttodorov@web.de>, linux-kernel@vger.kernel.org
-Subject: RE: eepro100/e100 drivers fragment heavily
-Date: Mon, 23 Sep 2002 13:03:58 -0700
+	id <S261344AbSIWTRa>; Mon, 23 Sep 2002 15:17:30 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:21768 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S261340AbSIWTQ5>; Mon, 23 Sep 2002 15:16:57 -0400
+Date: Mon, 23 Sep 2002 15:14:38 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Peter Waechtler <pwaechtler@mac.com>
+cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org,
+       ingo Molnar <mingo@redhat.com>
+Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
+In-Reply-To: <4FBEDDB0-CEEB-11D6-8873-00039387C942@mac.com>
+Message-ID: <Pine.LNX.3.96.1020923150331.13351A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Todor Todorov wrote:
+On Mon, 23 Sep 2002, Peter Waechtler wrote:
 
-> The computer is a 
-> Dell Inspiron 8000 laptop with an internal Actiontec 
-> modem/nic combo pci card based on the Intel Pro chip, running 
-> Debian. I observed this behaviour with the eepro100 drivers 
-> in 2.4.19, 2.4.20-pre6 and 2.4.20-pre7 and e100 drivers in 
-> 2.4.20-pre6 and -pre7. Pulling data from the network is fine 
-> and fast though, only sending is a problem. The only hint I 
-> have of what migh be causing the problem is something I read 
-> in the specs of my NWAY SOHO switch - it would allow 
-> full-duplex 100 MBit/sec only based on auto negotiation, if a 
-> nic is in forced mode (say 100 MBit full-duplex), the swith 
-> will allow only 100 MBit half-duplex. I tried other high 
-> quality switches too, but the result was the same. 
+> Am Montag den, 23. September 2002, um 12:05, schrieb Bill Davidsen:
+> 
+> > On Sun, 22 Sep 2002, Larry McVoy wrote:
+> >
+> >> On Sun, Sep 22, 2002 at 08:55:39PM +0200, Peter Waechtler wrote:
+> >>> AIX and Irix deploy M:N - I guess for a good reason: it's more
+> >>> flexible and combine both approaches with easy runtime tuning if
+> >>> the app happens to run on SMP (the uncommon case).
+> >>
+> >> No, AIX and IRIX do it that way because their processes are so bloated
+> >> that it would be unthinkable to do a 1:1 model.
+> >
+> > And BSD? And Solaris?
+> 
+> Don't know. I don't have access to all those Unices. I could try FreeBSD.
 
-Please confirm that the switch and nic are both set to auto-neg, or both the
-switch and the nic forced to the same settings (i.e. 100/half).  We need to
-make sure both ends of the wire match.
+At your convenience.
+ 
+> According to http://www.kegel.com/c10k.html  Sun is moving to 1:1
+> and FreeBSD still believes in M:N
 
--scott
+Sun is total news to me, "moving to" may be in Solaris 9, Sol8 seems to
+still be N:M. BSD is as I thought.
+> 
+> MacOSX 10.1 does not support PROCESS_SHARED locks, tried that 5 minutes 
+> ago.
+
+Thank you for the effort. Hum, that's a bit of a surprise, at least to me. 
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

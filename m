@@ -1,42 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129436AbRAER07>; Fri, 5 Jan 2001 12:26:59 -0500
+	id <S131971AbRAER1j>; Fri, 5 Jan 2001 12:27:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130401AbRAER0t>; Fri, 5 Jan 2001 12:26:49 -0500
-Received: from msgrouter1.onetel.net.uk ([212.67.96.140]:54640 "EHLO
-	msgrouter1.onetel.net.uk") by vger.kernel.org with ESMTP
-	id <S129436AbRAER0a>; Fri, 5 Jan 2001 12:26:30 -0500
-Reply-To: <lar@cs.york.ac.uk>
-From: "Laramie Leavitt" <laramieleavitt@onetel.net.uk>
-To: "Linux Kernel" <linux-kernel@vger.kernel.org>
-Subject: 2.4 Kernel Lockup
-Date: Fri, 5 Jan 2001 17:29:33 -0000
-Message-ID: <JKEGJJAJPOLNIFPAEDHLAEJNCCAA.laramieleavitt@onetel.net.uk>
+	id <S131848AbRAER1a>; Fri, 5 Jan 2001 12:27:30 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:50182 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130401AbRAER1M>; Fri, 5 Jan 2001 12:27:12 -0500
+Subject: Re: Looking for maintainer of ENSONIQ SoundScape driver
+To: rankinc@zipworld.com.au
+Date: Fri, 5 Jan 2001 17:28:42 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org,
+        linux-sound@vger.kernel.org
+In-Reply-To: <200101051717.f05HH0A01471@wittsend.ukgateway.net> from "Chris Rankin" at Jan 05, 2001 05:17:00 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+Message-Id: <E14EafV-00085w-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > Look for request_resource/free_resource mismatches 
+> 
+> The detect_sscape_pnp() routine seems to expect check_region() to
+> allocate resources, although if that's true, it's rather cavalier
 
-I seem to be getting a rather odd kernel lockup on 2.4.
-I am using XFree 3.3.6 ( I believe ).
-
-Whenever I start X, my session starts up like normal,
-but soon locks HARD.  Is this a known issue?  I 
-suspected the fb stuff, and so I removed it and the 
-problem remains.
-
-Any ideas?  I can repeat it every single time.
-
-Laramie
-
+check_region tests they are free. Request_region allocates them (and in 2.4
+tests also)
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

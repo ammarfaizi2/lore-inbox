@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263016AbSKAQv6>; Fri, 1 Nov 2002 11:51:58 -0500
+	id <S265353AbSKARAZ>; Fri, 1 Nov 2002 12:00:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264997AbSKAQv6>; Fri, 1 Nov 2002 11:51:58 -0500
-Received: from www.microgate.com ([216.30.46.105]:62226 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP
-	id <S263016AbSKAQv6>; Fri, 1 Nov 2002 11:51:58 -0500
-Message-ID: <001a01c281c7$e99cfd50$0c00a8c0@diemos>
-From: "Paul Fulghum" <paulkf@microgate.com>
-To: <linux-kernel@vger.kernel.org>
-References: <Pine.GSO.4.21.0211011004050.20586-100000@weyl.math.psu.edu>            <Pine.LNX.4.44.0211011108320.10880-100000@ibm-ps850.purdueriots.com>            <20021101083243.E22577@work.bitmover.com> <20021101164421.22388.qmail@escalade.vistahp.com>
-Subject: Re: Linux without Linus was Re: What's left over.
-Date: Fri, 1 Nov 2002 10:58:31 -0600
+	id <S265365AbSKARAZ>; Fri, 1 Nov 2002 12:00:25 -0500
+Received: from ophelia.ess.nec.de ([193.141.139.8]:23681 "EHLO
+	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
+	id <S265353AbSKARAY> convert rfc822-to-8bit; Fri, 1 Nov 2002 12:00:24 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Erich Focht <efocht@ess.nec.de>
+To: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Michael Hohnbaum <hohnbaum@us.ibm.com>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5.45] NUMA Scheduler  (1/2)
+Date: Fri, 1 Nov 2002 18:06:36 +0100
+User-Agent: KMail/1.4.1
+Cc: mingo@elte.hu
+References: <1036107098.21647.104.camel@dyn9-47-17-164.beaverton.ibm.com> <1010470000.1036108344@flay>
+In-Reply-To: <1010470000.1036108344@flay>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211011806.36986.efocht@ess.nec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> The fact that Linus is here, leading this herd of cats,
->> is a gift to the world.  Try and imagine Linux without
->> him, it's not a pretty picture. 
-> 
-> What something like:
-> Virox...
+On Friday 01 November 2002 00:52, Martin J. Bligh wrote:
+> > Erich Focht has written scheduler extensions in support of
+> > NUMA systems.  These extensions are being used at customer
+> > sites.  I have branched off and done some similar NUMA scheduler
+> > extensions, though on a much smaller scale.  We have combined
+> > efforts and produced two patches which provide minimal NUMA
+> > scheduler capabilities.
+>
+> Just wanted to add that everyone that's been involved in this is
+> now in harmonious agreement about this combined solution.
 
-That's actually a pretty cool name.
+Yes, I'd like to confirm this, too. Just couldn't be online last night
+(european time) so I'm glad that Michael sent it all out. Happily
+we have a holiday over here today, after Helloween ;-)
 
-> ...Alanix
-
-Sounds too much like a Canadian musician.
-
-Oh well, back to hacking hairballs. Meow.
-
-Paul Fulghum, paulkf@microgate.com
-Microgate Corporation, www.microgate.com
+Regards,
+Erich
 

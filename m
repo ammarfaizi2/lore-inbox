@@ -1,81 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261200AbVABA0R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbVABAnu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261200AbVABA0R (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jan 2005 19:26:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbVABA0R
+	id S261204AbVABAnu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jan 2005 19:43:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbVABAnu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jan 2005 19:26:17 -0500
-Received: from gizmo01ps.bigpond.com ([144.140.71.11]:63883 "HELO
-	gizmo01ps.bigpond.com") by vger.kernel.org with SMTP
-	id S261200AbVABA0O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jan 2005 19:26:14 -0500
-Message-ID: <41D73FA2.4000705@bigpond.net.au>
-Date: Sun, 02 Jan 2005 11:26:10 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
+	Sat, 1 Jan 2005 19:43:50 -0500
+Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:23724 "HELO
+	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261204AbVABAnr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jan 2005 19:43:47 -0500
+Message-ID: <41D743BE.3060207@yahoo.com.au>
+Date: Sun, 02 Jan 2005 11:43:42 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: Andrew Morton <akpm@osdl.org>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>, kernel@kolivas.org,
-       solt2@dns.toxicfilms.tv, linux-kernel@vger.kernel.org
-Subject: Re: Trying out SCHED_BATCH
-References: <4d8e3fd304122923127167067c@mail.gmail.com> <m3mzw262cu.fsf@rajsekar.pc> <20041229232028.055f8786.akpm@osdl.org> <41D429C3.8010805@tmr.com>
-In-Reply-To: <41D429C3.8010805@tmr.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Andi Kleen <ak@muc.de>
+CC: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>
+Subject: Re: 2.5isms
+References: <20041231230624.GA29411@andromeda> <41D60C35.9000503@yahoo.com.au> <m1acrt7bqy.fsf@muc.de>
+In-Reply-To: <m1acrt7bqy.fsf@muc.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
-> Andrew Morton wrote:
+Andi Kleen wrote:
+> Nick Piggin <nickpiggin@yahoo.com.au> writes:
 > 
->> Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com> wrote:
+> 
+>>Justin Pryzby wrote:
 >>
->>> Andrew, what's your plan for the staircase scheduler ?
+>>>Hi all, I have more 2.5isms for the list.  ./fs/binfmt_elf.c:
+>>>  #ifdef CONFIG_X86_HT
+>>>                  /*
+>>>                   * In some cases (e.g. Hyper-Threading), we want to avoid L1
+>>>                   * evictions by the processes running on the same package. One
+>>>                   * thing we can do is to shuffle the initial stack for them.
+>>>                   *
+>>>                   * The conditionals here are unneeded, but kept in to make the
+>>>                   * code behaviour the same as pre change unless we have
+>>>                   * hyperthreaded processors. This should be cleaned up
+>>>                   * before 2.6
+>>>                   */
+>>>                  if (smp_num_siblings > 1)
+>>>                          STACK_ALLOC(p, ((current->pid % 64) << 7));
+>>>  #endif
+>>>
 >>
->>
->>
->> I have none, frankly.  I haven't seen any complaints about the current
->> scheduler.
->>
->> If someone can identify bad behaviour in the current scheduler which
->> staircase improves then please describe a tescase which the scheduler
->> developers can use to reproduce the situation.
+>>Can we just kill it? Or do it unconditionally? Or maybe better yet, wrap
+>>it properly in arch code?
 > 
 > 
-> Of course that may result in just another band-aid on the current 
-> scheduler rather than a change.
-> 
->>
->> If, after that, we deem that the problem cannot be feasibly fixed 
->> within the
->> context of the current scheduler and that the problem is sufficiently
->> serious to justify wholesale replacement of the scheduler then sure,
->> staircase is an option.
-> 
-> 
-> More to the point, was there a problem with plugable schedulers? It 
-> would be both technically and politically better to let people try, use, 
-> and write schedulers for special case loads, just as we have for io 
-> scheduling.
-> 
-> I didn't find staircase to be the solution to any of my problems, but it 
-> would be nice to let all the people who are improving schedulers have an 
-> easy way to try new ideas (easier than building a whole new kernel, that 
-> is).
-> 
+> You can't kill it without ruining performance on older HT CPUs.
+> I would just keep it, it fixes the problem perhaps with a small amount of 
+> code. A more generalized #ifdef may be a good idea (NEED_STACK_RANDOM)
+> may be a good idea, but it is not really a pressing need. Enabling 
+> it unconditionally may be an option, although it will make it harder
+> to repeat test runs on non hyperthreaded CPUs.
 
-At Con's request I've taken over responsibility for plugsched but I've 
-been away visiting relatives for the last week or so and, therefore, I'm 
-a little behind.  I hope to release a plugsched patch for 2.6.10 in the 
-next few days with a (work in progress) modification to share a lot more 
-code between schedulers so that the amount of work required to implement 
-new schedulers is reduced.
+Interesting. Yeah something like Arjan posted looks better then... having
+CONFIG_X86_HT in generic code is obviously pretty ugly.
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+I'm curious about a couple of points though. First, is that it is basically
+just adding a cache colouring to the stack, right? In that case why do only
+older HT CPUs have bad performance without it? And wouldn't it possibly make
+even non HT CPUs possibly slightly more efficient WRT caching the stacks of
+multiple processes?
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+Second, on what workloads does performance suffer, can you remember? I wonder
+if natural variations in the stack pointer as the program runs would mitigate
+the effect of this on all but micro benchmarks?
+
+But even if that were so so, it seems simple enough that I don't have any
+real problem with keeping it of course.
+
+Thanks,
+Nick

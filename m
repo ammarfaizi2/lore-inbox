@@ -1,93 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284171AbRLRQO4>; Tue, 18 Dec 2001 11:14:56 -0500
+	id <S284180AbRLRQT0>; Tue, 18 Dec 2001 11:19:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284176AbRLRQOs>; Tue, 18 Dec 2001 11:14:48 -0500
-Received: from noodles.codemonkey.org.uk ([62.49.180.5]:64919 "EHLO
-	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id <S284171AbRLRQOm>; Tue, 18 Dec 2001 11:14:42 -0500
-Date: Tue, 18 Dec 2001 16:16:25 +0000
-From: Dave Jones <davej@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.5.1-dj3
-Message-ID: <20011218161625.A16889@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S284177AbRLRQTQ>; Tue, 18 Dec 2001 11:19:16 -0500
+Received: from copper.ftech.net ([212.32.16.118]:50188 "EHLO relay5.ftech.net")
+	by vger.kernel.org with ESMTP id <S284176AbRLRQTA>;
+	Tue, 18 Dec 2001 11:19:00 -0500
+Message-ID: <7C078C66B7752B438B88E11E5E20E72E41A4@GENERAL.farsite.co.uk>
+From: Kevin Curtis <kevin.curtis@farsite.co.uk>
+To: "'Kai Germaschewski'" <kai@tp1.ruhr-uni-bochum.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: pci_enable_device reports IRQ routing conflict
+Date: Tue, 18 Dec 2001 16:16:16 -0000
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix up some merge errors, scoop up another bunch of pending fixes
-expected to hit Linus' tree soon, and drop some problem bits.
+Hi,
+	thanks for your advice.  Adding debug produced one other message in
+the Kernel log:
 
-Patch is available from:
-http://www.codemonkey.org.uk/patches/2.5/patch-2.5.1-dj3.diff.bz2
+IRQ for 00:0a.0:0 -> PIRQ 03, mask deb8, excl 0e20 -> newirq=9 -> got IRQ 10
+IRQ routing conflict for 00:0a.0, have irq 9, want irq 10
 
-On with the changelog..
+I think my testing shows that actual irq's assigned are as indicated by the
+"have irq" field.  And that as far as I can tell at the moment everything
+seems to work OK.
 
-Some of these fixes still haven't found their way back to Marcelo yet
-but should show up in 2.4.17-rc2 / 2.4.18pre1 with any luck.
+Regards
 
-2.5.1-dj3
-o   Drop Manfreds multithread coredump changes		(Me)
-    | They caused ltp waitpid05 regression on 2.5
-    | (Same patch is fine for 2.4)
-o   Intermezzo compile fix.				(Chris Wright)
-o   Fix ymfpci & hisax merge errors.			(Me)
-o   Drop ad1848 sound driver changes in favour of 2.5	(Me)
-o   Make hpfs work again.				(Al Viro)
-o   Alpha Jensen compile fixes.				(Ronald Lembcke)
-o   Make NCR5380 compile non modularly.			(Erik Andersen)
+Kevin
 
-
-2.5.1-dj2
-o   bio fixes for qlogicfas.			(brett@bad-sports.com)
-o   Correct x86 CPU helptext.			(Me)
-o   Fix serial.c __ISAPNP__ usage.		(Andrey Panin)
-o   Use better ide-floppy fixes.		(Jens Axboe)
-o   Make NFS 'fsx' proof.			(Trond Mykelbust)
-    | 2 races & 4 bugs, hopefully this is all.
-o   devfs update				(Richard Gooch)
-o   Backout early CPU init, needs more work.	(Me)
-    | This should fix several strange reports.
-o   drop new POSIX kill semantics for now	(Me)
-
-2.5.1-dj1
-o   Resync with 2.5.1
-    | drop reiserfs changes. 2.4's look to be more complete.
-o   Fix potential sysvfs oops.				(Christoph Hellwig)
-o   Loopback driver deadlock fix.			(Andrea Arcangeli)
-o   __devexit cleanups in drivers/net/			(Daniel Chen,
-    synclink, wdt_pci & via82cxxx_audio 		 John Tapsell)
-o   Configure.help updates				(Eric S. Raymond)
-o   Make reiserfs compile again.				(Me)
-o   bio changes for ide floppy					(Me)
-    | handle with care, compiles, but is unfinished.
-o   Make x86 identify_cpu() happen earlier			(Me)
-    | PPro errata workaround & APIC setup got a little
-    | cleaner as a result.
-o   Blink keyboard LEDs on panic				(From 2.4.13-ac)
-o   Change current->state frobbing to set_current_state()	(From 2.4.13-ac)
-o   Add MODULE_LICENSE tags for acpi,md.c,fmvj18x,		(From 2.4.13-ac)
-    atyfb & fbmem.
-
-2.5.1pre11-dj2
-o   Merge with 2.4.17rc1
-o   Activate out of order stores on IDT Winchips.		(From 2.4.13-ac)
-o   ICH2 APIC support						(From 2.4.13-ac)
-o   Activate Simple boot flag support				(From 2.4.13-ac)
-    | was merged in -dj1, but not mentioned.
-o   Remove matroxfb PLL debugging message.			(Me)
-
-2.5.1pre11-dj1
-o   Merge with 2.4.17pre8
-    Drop devfs changes. (Newer version in 2.5)
-o   Make ncr53c8xx bio aware.					(Me)
+-----Original Message-----
+From: Kai Germaschewski [mailto:kai@tp1.ruhr-uni-bochum.de]
+Sent: 17 December 2001 22:13
+To: Kevin Curtis
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: pci_enable_device reports IRQ routing conflict
 
 
--- 
-| Dave Jones.                    http://www.codemonkey.org.uk
-| SuSE Labs .
+On Mon, 17 Dec 2001, Kevin Curtis wrote:
+
+> However when I call pci_enable_device for the second card I get the
+> following kernel log message:
+> 
+> Dec 17 15:06:37 minion kernel: IRQ routing conflict for 00:0b.0, have irq
+9,
+> want irq 5
+
+This means that config space (supposedly set up by the BIOS) reports IRQ 9 
+for the device, but the IRQ router really routes it to IRQ 5.
+
+> The call didn't return an error, so I assume this was a non-fatal.  
+
+Well, the kernel currently ignores its knowledge about the router and 
+trusts the BIOS. Which most likely means that the IRQ won't work.
+
+(Note that in general you should access dev->irq only after calling 
+pci_enable_device())
+
+> Has anyone got any ideas where to look to debug this?
+
+#define DEBUG
+
+in arch/i386/kernel/pci-i386.h will give some debugging output on the next 
+boot, which should help.
+
+--Kai
+
+

@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274849AbRIUVsg>; Fri, 21 Sep 2001 17:48:36 -0400
+	id <S274851AbRIUVyH>; Fri, 21 Sep 2001 17:54:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274851AbRIUVs0>; Fri, 21 Sep 2001 17:48:26 -0400
-Received: from [208.129.208.52] ([208.129.208.52]:18960 "EHLO xmailserver.org")
-	by vger.kernel.org with ESMTP id <S274849AbRIUVsW>;
-	Fri, 21 Sep 2001 17:48:22 -0400
-Message-ID: <XFMail.20010921145218.davidel@xmailserver.org>
-X-Mailer: XFMail 1.5.0 on Linux
-X-Priority: 3 (Normal)
+	id <S274852AbRIUVx4>; Fri, 21 Sep 2001 17:53:56 -0400
+Received: from [194.213.32.137] ([194.213.32.137]:12548 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S274851AbRIUVxo>;
+	Fri, 21 Sep 2001 17:53:44 -0400
+Message-ID: <20010921235025.A308@bug.ucw.cz>
+Date: Fri, 21 Sep 2001 23:50:25 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: swsusp@lister.fornax.hu,
+        ACPI mailing list <acpi@phobos.fachschaften.tu-muenchen.de>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: New swsusp patch + Q: how to free memory?
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-In-Reply-To: <3BABB23C.D3BB1F6C@distributopia.com>
-Date: Fri, 21 Sep 2001 14:52:18 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-To: "Christopher K. St. John" <cks@distributopia.com>
-Subject: Re: /dev/yapoll : Re: [PATCH] /dev/epoll update ...
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+X-Mailer: Mutt 0.93i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-On 21-Sep-2001 Christopher K. St. John wrote:
-> Davide Libenzi wrote:
->> 
->> "Did you read and understood the /dev/epoll code ?"
->> 
-> 
->  Did you read and understand the Banga99 paper?
-> 
->  But this is getting silly. We've agreed that
-> you don't like the changes, and I have agreed
-> to implement some of them in a new patch.
+Here's new swsusp patch. It no longer adds signals (breaking ABI), and
+it now should work okay with journaling filesystems. Hardware state
+restore is (mostly) not done -- that's task for someone else, like
+ACPI.
 
-As you can see the Banga paper is between my references
-and that is a very good text.
-What i asked you, since you said that /dev/epoll users must fall
-back doing poll(), is when this happens.
-You said something that IMHO is wrong and i'd like to know if either
-i'm wrong or you are.
+Last big remaining problem is "how to free memory". What's currently
+in swsusp patch just does no work. Any advice wanted. Don't try with
+hard real-time tasks. (Funny question: should suspend be supported
+with such beasts around? ;-). Oh and we have some by-design problems
+with network. Maybe some packets will be sent twice.
 
+I wanted to free memory by eat_memory() followed by free_memory(), but
+that's big no-no from context swsusp is using.
+								Pavel
 
-
-
-- Davide
-
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

@@ -1,69 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264960AbUHJPcr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267486AbUHJPdC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264960AbUHJPcr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 11:32:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267486AbUHJPcq
+	id S267486AbUHJPdC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 11:33:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267483AbUHJPdB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 11:32:46 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:63146 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S264960AbUHJPaP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 11:30:15 -0400
-Subject: Re: 2.6.8-rc4-mm1 : Hard freeze due to ACPI
-From: Len Brown <len.brown@intel.com>
-To: eric.valette@free.fr
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Karol Kozimor <sziwan@hell.org.pl>
-In-Reply-To: <4118A500.1080306@free.fr>
-References: <41189098.4000400@free.fr>  <4118A500.1080306@free.fr>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1092151779.5028.40.camel@dhcppc4>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 10 Aug 2004 11:29:39 -0400
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Aug 2004 11:33:01 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:53922 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S267480AbUHJPca (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 11:32:30 -0400
+Date: Tue, 10 Aug 2004 17:28:04 +0200 (CEST)
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Message-Id: <200408101528.i7AFS4Dh014332@burner.fokus.fraunhofer.de>
+To: dwmw2@infradead.org, schilling@fokus.fraunhofer.de
+Cc: James.Bottomley@steeleye.com, alan@lxorguk.ukuu.org.uk, axboe@suse.de,
+       eric@lammerts.org, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-10 at 06:35, Eric Valette wrote:
-> Eric Valette wrote:
-> > I tried 2.6.8-rc4-mm1 on my ASUS L3800C laptop (radeon 7500),
-> defined > CONFIG_FB_MODE_HELPERS and I have got a hard freeze when
-> starting X and 
-> > framebuffer console with a lot of yellow dot on the bottom screen. 
-> > Suddently I hear the fan meaning the machine is dead
-> 
-> OK I've reverted the most suspect change 
-> (remove-unconditional-pci-acpi-irq-routing.patch) and it did not fix
-> the 
-> problem. As Karol Kozimor suspected ACPI, I then tried with acpi=off
-> and then it boot but I will burn my CPU as fans are ACPI controlled...
-> 
-> So it is probably due to the bk-acpi.patch and more precisely the 
-> difference between what was in 2.6.8-rc3-mm1 and 2.6.8-rc4-mm1.
-> 
-> Len, any proposal as candidate patches to revert?
 
-bk-acpi.patch is unchanged between 2.6.8-rc3-mm1 to 2.6.8-rc3-mm2
-So it would be interesting if you ran 2.6.8-rc3-mm2 to see if
-something else broke your system at that point, or if the breakage
-happened later.
+>From: David Woodhouse <dwmw2@infradead.org>
+>> Look into the mkisofs source, I even needed to include a comment in hope to
+>> prevent people from SuSE to convert legal and correct C code into a broken
+>> piece of code just because  they modify things they don't understand :-(
 
->From 2.6.8-rc3-mm2 to 2.6.8-rc4-mm1 there are only two additional
-patches in bk-acpi.patch.  I don't expect them to have any effect on
-your system, they are these two:
+>Funny that; they _all_ fail to co-operate, even though they all manage
+>to co-operate with most other upstream authors. It's probably best that
 
-asus_acpi.c from Karol
-http://linux-acpi.bkbits.net:8080/linux-acpi-test-2.6.7/gnupatch@4117a219yRjkVomavWT8WoMdRg7KHA
+Looks like you never asked other Authors :-(
 
-pci_link.c - resume fix from Nathan
-http://linux-acpi.bkbits.net:8080/linux-acpi-test-2.6.7/gnupatch@41114fe37ez5dnzmR96KT2DHr4-elA
+I received complaints about similat problem to the one I have from the author
+of xcdroast.
 
-I'll poke around the mm patch to see if anything else looks suspicious.
+Jörg
 
-cheers,
--Len
-
-
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
+ URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

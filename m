@@ -1,29 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279952AbRKDHBN>; Sun, 4 Nov 2001 02:01:13 -0500
+	id <S279958AbRKDHPr>; Sun, 4 Nov 2001 02:15:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279953AbRKDHBF>; Sun, 4 Nov 2001 02:01:05 -0500
-Received: from lsmls02.we.mediaone.net ([24.130.1.15]:19921 "EHLO
-	lsmls02.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S279952AbRKDHAz>; Sun, 4 Nov 2001 02:00:55 -0500
-Message-ID: <3BE4E835.CF85035B@kegel.com>
-Date: Sat, 03 Nov 2001 23:03:17 -0800
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Regression testing of 2.4.x before release?
+	id <S279963AbRKDHPh>; Sun, 4 Nov 2001 02:15:37 -0500
+Received: from 10cust182.starstream.net ([63.205.212.182]:65430 "HELO
+	10cust182.starstream.net") by vger.kernel.org with SMTP
+	id <S279958AbRKDHPY>; Sun, 4 Nov 2001 02:15:24 -0500
+Date: Sat, 3 Nov 2001 23:15:03 -0800
+From: Ted Deppner <ted@psyber.com>
+To: Dan Kegel <dank@kegel.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Regression testing of 2.4.x before release?
+Message-ID: <20011103231503.A16083@dondra.ofc.psyber.com>
+Reply-To: Ted Deppner <ted@psyber.com>
+In-Reply-To: <3BE4E835.CF85035B@kegel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3BE4E835.CF85035B@kegel.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get the impression that Alan stress-tests his kernels
-more than Linus does before releasing them.
+On Sat, Nov 03, 2001 at 11:03:17PM -0800, Dan Kegel wrote:
+> Would it be a Good Thing if Linus decided to make sure
+> his kernels pass all of Alan's stress tests before
+> releasing them?  (I'm talking e.g. 2.4.14-final, not 2.4.14-preX.)
 
-Would it be a Good Thing if Linus decided to make sure
-his kernels pass all of Alan's stress tests before
-releasing them?  (I'm talking e.g. 2.4.14-final, not 2.4.14-preX.)
+Yes it would.  It would be a better idea if everyone (including you and
+me) stress test those pre and final kernels too.
 
-- Dan
+-- 
+Ted Deppner
+http://www.psyber.com/~ted/

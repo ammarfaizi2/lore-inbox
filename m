@@ -1,80 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271820AbRHRMoT>; Sat, 18 Aug 2001 08:44:19 -0400
+	id <S270132AbRHRMyZ>; Sat, 18 Aug 2001 08:54:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271824AbRHRMoG>; Sat, 18 Aug 2001 08:44:06 -0400
-Received: from [203.117.131.2] ([203.117.131.2]:54003 "EHLO
-	gort.metaparadigm.com") by vger.kernel.org with ESMTP
-	id <S271822AbRHRMn5>; Sat, 18 Aug 2001 08:43:57 -0400
-Message-ID: <3B7E6301.50833345@metaparadigm.com>
-Date: Sat, 18 Aug 2001 20:43:45 +0800
-From: Michael Clark <michael@metaparadigm.com>
-Reply-To: michael@metaparadigm.com
-Organization: Metaparadigm Pte Ltd
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8 i686)
-X-Accept-Language: en
+	id <S270134AbRHRMyO>; Sat, 18 Aug 2001 08:54:14 -0400
+Received: from chmls20.mediaone.net ([24.147.1.156]:40440 "EHLO
+	chmls20.mediaone.net") by vger.kernel.org with ESMTP
+	id <S270132AbRHRMxy> convert rfc822-to-8bit; Sat, 18 Aug 2001 08:53:54 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Andy Stewart <andystewart@mediaone.net>
+Organization: Worcester Linux Users' Group
+To: Francois Romieu <romieu@cogenit.fr>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.4.9 locks up solidly with USB and SMP
+Date: Sat, 18 Aug 2001 08:54:06 -0400
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <01081800562800.08460@tux> <20010818125124.A8896@se1.cogenit.fr>
+In-Reply-To: <20010818125124.A8896@se1.cogenit.fr>
+Cc: andystewart@mediaone.net
 MIME-Version: 1.0
-To: Justin Guyett <justin@soze.net>
-CC: Jim Roland <jroland@roland.net>, linux-kernel@vger.kernel.org
-Subject: Re: Aliases
-In-Reply-To: <Pine.LNX.4.33.0108180245070.27721-100000@kobayashi.soze.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01081808540600.06887@tux>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin Guyett wrote:
 
-> presuming this isn't an ifconfig limit instead of a kernel limit, trying
-> "ifconfig eth0:x" works for x < 10000, anything > 10000 and x becomes
-> x%10000.
+Hello,
 
-must be a limit in your version of ifconfig.
+On Saturday 18 August 2001 06:51, Francois Romieu wrote:
+> Andy Stewart <andystewart@mediaone.net> :
+> [...]
+>
+> > With kernel version 2.4.9, my system locks up solidly when I run with
+> > SMP enabled and attempt to print anything to my USB printer.   I have
+> > seen this behavior for the last few kernel revs.
+>
+> Could you pass "nmi_watchdog=1" as an argument to the kernel during the
+> boot and see if you get an Oops this way ?
 
-# ifconfig --version
-net-tools 1.60
-ifconfig 1.42 (2001-04-13)
+I tried this and did not see any printout on my screen.  I waited over a 
+minute after the lockup before rebooting.  There's nothing in the system 
+log file, either.  Just hard lockup.  :-(
 
-# ifconfig lo:10001 127.0.0.2
-# ifconfig lo:20001 127.0.0.3
-# ifconfig lo:10001
-lo:10001  Link encap:Local Loopback  
-          inet addr:127.0.0.2  Mask:255.0.0.0
-          UP LOOPBACK RUNNING  MTU:16436  Metric:1
+Thank you for the suggestion.
 
-# ifconfig lo:20001  
-lo:20001  Link encap:Local Loopback  
-          inet addr:127.0.0.3  Mask:255.0.0.0
-          UP LOOPBACK RUNNING  MTU:16436  Metric:1
+Andy
 
-> However, 2.4 also has multiple addresses of the same type per device;
-> unfortunately it's fairly slow.  Adding or deleting addresses seems to
-> take ~5 seconds per 255 addresses on my machine, and listing addresses
-> takes about 1 second / 300 addresses on the same machine.
+-- 
+Andy Stewart
+Founder
+Worcester Linux Users' Group
+Worcester, MA, USA
+http://www.wlug.org
 
-I can raise 1000 interfaces in 1.6 seconds with 2.4.8 on a 500MHz PIII using my
-custom written ifconfig program designed for raising a batch of IPS in one go.
-I've actually got up to about 64000 IPs on one interface but performance
-degrades rapidly after about 8000 probably due to the kernel ip hash size - i
-didn't try any higher than this. Anybody wanting more than a Class B of ip
-aliases on one machine has gotta have some sort of problem so I don't think its
-really an issue.
-
-# time ./vifup -q -f ip.list internal
-available interfaces for internal network: eth1
-raised 1020 of 1020
-
-real	0m1.671s
-user	0m0.820s
-sys	0m0.850s
-
-> Also, listing addresses for another interface isn't any faster, which is
-> unfortunate; ip shouldn't need to check addresses of all interfaces just
-> to get the ones for the requested interface.
-
-It does need to. The kernel ioctl SIOCGIFCONF only lets you fetch info for all
-interfaces so you have to search through the whole lot to find the ones your
-interested in. This is a standard BSD interface - or is there a new interface
-used by ip??.
-
-~mc

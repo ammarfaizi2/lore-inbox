@@ -1,65 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289963AbSAWS6o>; Wed, 23 Jan 2002 13:58:44 -0500
+	id <S289968AbSAWTCO>; Wed, 23 Jan 2002 14:02:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289971AbSAWS6e>; Wed, 23 Jan 2002 13:58:34 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:12556 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S289963AbSAWS6R>;
-	Wed, 23 Jan 2002 13:58:17 -0500
-Date: Wed, 23 Jan 2002 16:57:58 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
+	id <S289971AbSAWTCE>; Wed, 23 Jan 2002 14:02:04 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:50602 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S289968AbSAWTBz>; Wed, 23 Jan 2002 14:01:55 -0500
 Subject: Re: [PATCH *] rmap VM, version 12
-In-Reply-To: <20020123.104438.71552152.davem@redhat.com>
-Message-ID: <Pine.LNX.4.33L.0201231650450.32617-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+To: riel@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OFB07135FF.E6C5BE7E-ON88256B4A.0068CB3F@boulder.ibm.com>
+From: "Badari Pulavarty" <badari@us.ibm.com>
+Date: Wed, 23 Jan 2002 11:02:37 -0800
+X-MIMETrack: Serialize by Router on D03NM044/03/M/IBM(Release 5.0.8 |June 18, 2001) at
+ 01/23/2002 12:01:44 PM
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Jan 2002, David S. Miller wrote:
 
->    From: Rik van Riel <riel@conectiva.com.br>
->    Date: Wed, 23 Jan 2002 15:14:42 -0200 (BRST)
->
->      - use fast pte quicklists on non-pae machines           (Andrea Arcangeli)
->
-> Does this work on SMP?  I remember they were turned off because
-> they were simply broken on SMP.
->
-> The problem is that when vmalloc() or whatever kernel mappings change
-> you have to update all the quicklist page tables to match.
+Does this explain why my SMP box does not boot with rmap12 ? It works fine
+with rmap11c.
 
-Actually, this is just using the pte_free_fast() and
-{get,free}_pgd_fast() functions on non-pae machines.
+Machine: 4x  500MHz Pentium Pro with 3GB RAM
 
-I think this should be safe, unless there is a way
-we could pagefault from inside interrupts (but I don't
-think we do that).
+When I tried to boot 2.4.17+rmap12, last message I see is
 
-OTOH, the -preempt people will want to add preemption
-protection from the fiddling with the local pte freelist ;)
+uncompressing linux ...
+booting ..
 
-> Andrea probably fixed this, I haven't looked at the patch.
-> If so, ignoreme.
 
-He doesn't seem to fix anything other than just switching
-on these options, but I guess this is safe since it's with
-the 00_ series of patches in -aa.
+Thanks,
+Badari
 
-(I don't have good experiences with 20_highmem-debug-8,
-with that patch in the system plain doesn't boot ;))
 
-regards,
 
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
+                                                                                                         
+                    "David S.                                                                            
+                    Miller"              To:     riel@conectiva.com.br                                   
+                    <davem@redhat.       cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org        
+                    com>                 Subject:     Re: [PATCH *] rmap VM, version 12                  
+                    Sent by:                                                                             
+                    owner-linux-mm                                                                       
+                    @kvack.org                                                                           
+                                                                                                         
+                                                                                                         
+                    01/23/02 10:44                                                                       
+                    AM                                                                                   
+                                                                                                         
+                                                                                                         
 
-http://www.surriel.com/		http://distro.conectiva.com/
+
+
+     - use fast pte quicklists on non-pae machines           (Andrea
+Arcangeli)
+
+Does this work on SMP?  I remember they were turned off because
+they were simply broken on SMP.
+
+The problem is that when vmalloc() or whatever kernel mappings change
+you have to update all the quicklist page tables to match.
+
+Andrea probably fixed this, I haven't looked at the patch.
+If so, ignoreme.
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/
+
+
+
 

@@ -1,530 +1,234 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313628AbSEEU7t>; Sun, 5 May 2002 16:59:49 -0400
+	id <S313660AbSEEVWo>; Sun, 5 May 2002 17:22:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313592AbSEEU6x>; Sun, 5 May 2002 16:58:53 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47881 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S313559AbSEEU6D>;
-	Sun, 5 May 2002 16:58:03 -0400
-Message-ID: <3CD59D64.80EDEAE9@zip.com.au>
-Date: Sun, 05 May 2002 14:00:20 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch 9/10] Fix concurrent writepage and readpage
+	id <S313661AbSEEVWn>; Sun, 5 May 2002 17:22:43 -0400
+Received: from harddata.com ([216.123.194.198]:41231 "EHLO mail.harddata.com")
+	by vger.kernel.org with ESMTP id <S313660AbSEEVWl>;
+	Sun, 5 May 2002 17:22:41 -0400
+Date: Sun, 5 May 2002 15:22:32 -0600
+From: Michal Jaegermann <michal@harddata.com>
+To: linux-kernel@vger.kernel.org
+Subject: Interrupt posted but not delivered
+Message-ID: <20020505152232.A11037@mail.harddata.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+I have troubles which look like an IRQ delivery failures on
+TYAN-S2466N-4M dual processor Athlon board.
 
-Pages under writeback are not locked.  So it is possible (and quite
-legal) for a page to be under readpage() while it is still under
-writeback.  For a partially uptodate page with blocksize <
-PAGE_CACHE_SIZE.
+More precisely this looks as follows. There is a 3Com 3c905C Tornado
+NIC built-in on the board.  It works, no problems, as long as it is
+alone. But we also have to add to that DLink DFE570 with four other
+ethernet ports which are using 'tulip' (or 'de4x5') driver.  This
+card, and video, are stuck into a raiser card.  I understand that
+this spells trouble but the whole thing have to fit into a 2U unit.
 
-When this happens, the read and write I/O completion handlers get
-confused over the shared BH_Async usage and the page ends up not
-getting PG_writeback cleared.  Truncate gets stuck in D state.
+The moment these extra ports show up 3c905C stops to work.  It is
+visible, and I configure it using a static IP address, but nothing
+gets through it and from /proc/interrupts it looks that it is not
+getting a single interrupt.  I can get tulip ports to work; at least
+with some raisers, and this may require an extra voodoo, but it
+is doable.  So far no luck with tornado as long as as tulips are
+present.  I tried few different kernels from 2.4 series (none from
+2.4.19pre yet, though) and results are invariably the same.  Options
+like 'noacpi' and/or 'pci=biosirq' do not improve anything.  There
+seem to be some conflict with USB which is not needed here.  Booting
+with 'nousb' seems to give somewhat saner results but still no dice.
 
-The patch separates the read and write I/O completion state.
+'lspci -tv' with a "good" raiser provides the following picture and
+I marked assigned IRQs (no conflicts on i/o ports as far as I can see).
 
-It also shuffles the buffer fields around.  Putting the
-commonly-accessed b_state at offset zero shrinks the kernel by a few
-hundred bytes because it can be accessed with indirect addressing, not
-indirect+indexed.
+-[00]-+-00.0  Advanced Micro Devices [AMD]: Unknown device 700c
+      +-01.0-[01]--
+      +-07.0  Advanced Micro Devices [AMD]: Unknown device 7440
+      +-07.1  Advanced Micro Devices [AMD]: Unknown device 7441
+      +-07.3  Advanced Micro Devices [AMD]: Unknown device 7443
+      +-08.0-[02]--+-04.0  Digital Equipment Corporation DECchip 21142/43
+								(IRQ 10)
+      |            +-05.0  Digital Equipment Corporation DECchip 21142/43
+								(IRQ 11)
+      |            +-06.0  Digital Equipment Corporation DECchip 21142/43
+								(IRQ 5)
+      |            \-07.0  Digital Equipment Corporation DECchip 21142/43
+								(IRQ 9)
+      +-09.0  nVidia Corporation Vanta [NV6]    (IRQ 11)
+      \-10.0-[03]--+-00.0  Advanced Micro Devices [AMD]: Unknown device 7449
+								(IRQ 10)
+                   \-08.0  3Com Corporation 3c905C-TX [Fast Etherlink] (IRQ 11)
 
+"Uknown devices" are:
+ 700c - host bridge
+ 7440 - ISA bridge
+ 7441 - IDE interface
+ 7443 - bridge of some kind
+ 7449 - USB controller
 
-=====================================
+Attempts to pass, rather long, 'pirq=...' line to kernel made tulips
+to behave somewhat "better" but nothing for 3com.  Maybe I have not
+done that properly with with four busses this seem to be 16 numbers.
+BTW, Tyan FAQ gives that (AGP slot is not used):
 
---- 2.5.13/fs/buffer.c~readpage-tweaks	Sun May  5 13:32:04 2002
-+++ 2.5.13-akpm/fs/buffer.c	Sun May  5 13:32:04 2002
-@@ -186,6 +186,12 @@ __clear_page_buffers(struct page *page)
- 	page_cache_release(page);
- }
- 
-+static void buffer_io_error(struct buffer_head *bh)
-+{
-+	printk(KERN_ERR "Buffer I/O error on device %s, logical block %ld\n",
-+			bdevname(bh->b_bdev), bh->b_blocknr);
-+}
-+
- /*
-  * Default synchronous end-of-IO handler..  Just mark it up-to-date and
-  * unlock the buffer. This is what ll_rw_block uses too.
-@@ -193,7 +199,7 @@ __clear_page_buffers(struct page *page)
- void end_buffer_io_sync(struct buffer_head *bh, int uptodate)
- {
- 	if (!uptodate)
--		printk("%s: I/O error\n", __FUNCTION__);
-+		buffer_io_error(bh);
- 	if (uptodate)
- 		set_buffer_uptodate(bh);
- 	else
-@@ -537,7 +543,11 @@ static void free_more_memory(void)
- 	yield();
- }
- 
--static void end_buffer_io_async(struct buffer_head *bh, int uptodate)
-+/*
-+ * I/O completion handler for block_read_full_page() and brw_page() - pages
-+ * which come unlocked at the end of I/O.
-+ */
-+static void end_buffer_async_read(struct buffer_head *bh, int uptodate)
- {
- 	static spinlock_t page_uptodate_lock = SPIN_LOCK_UNLOCKED;
- 	unsigned long flags;
-@@ -545,16 +555,18 @@ static void end_buffer_io_async(struct b
- 	struct page *page;
- 	int page_uptodate = 1;
- 
-+	BUG_ON(!buffer_async_read(bh));
-+
- 	if (!uptodate)
--		printk("%s: I/O error\n", __FUNCTION__);
-+		buffer_io_error(bh);
- 
--	if (uptodate)
-+	page = bh->b_page;
-+	if (uptodate) {
- 		set_buffer_uptodate(bh);
--	else
-+	} else {
- 		clear_buffer_uptodate(bh);
--	page = bh->b_page;
--	if (!uptodate)
- 		SetPageError(page);
-+	}
- 
- 	/*
- 	 * Be _very_ careful from here on. Bad things can happen if
-@@ -562,13 +574,13 @@ static void end_buffer_io_async(struct b
- 	 * decide that the page is now completely done.
- 	 */
- 	spin_lock_irqsave(&page_uptodate_lock, flags);
--	clear_buffer_async(bh);
-+	clear_buffer_async_read(bh);
- 	unlock_buffer(bh);
- 	tmp = bh;
- 	do {
- 		if (!buffer_uptodate(tmp))
- 			page_uptodate = 0;
--		if (buffer_async(tmp)) {
-+		if (buffer_async_read(tmp)) {
- 			if (buffer_locked(tmp))
- 				goto still_busy;
- 			if (!buffer_mapped(bh))
-@@ -584,13 +596,53 @@ static void end_buffer_io_async(struct b
- 	 */
- 	if (page_uptodate && !PageError(page))
- 		SetPageUptodate(page);
--	if (PageWriteback(page)) {
--		/* It was a write */
--		end_page_writeback(page);
-+	unlock_page(page);
-+	return;
-+
-+still_busy:
-+	spin_unlock_irqrestore(&page_uptodate_lock, flags);
-+	return;
-+}
-+
-+/*
-+ * Completion handler for block_write_full_page() - pages which are unlocked
-+ * during I/O, and which have PageWriteback cleared upon I/O completion.
-+ */
-+static void end_buffer_async_write(struct buffer_head *bh, int uptodate)
-+{
-+	static spinlock_t page_uptodate_lock = SPIN_LOCK_UNLOCKED;
-+	unsigned long flags;
-+	struct buffer_head *tmp;
-+	struct page *page;
-+
-+	BUG_ON(!buffer_async_write(bh));
-+
-+	if (!uptodate)
-+		buffer_io_error(bh);
-+
-+	page = bh->b_page;
-+	if (uptodate) {
-+		set_buffer_uptodate(bh);
- 	} else {
--		/* read */
--		unlock_page(page);
-+		clear_buffer_uptodate(bh);
-+		SetPageError(page);
-+	}
-+
-+	spin_lock_irqsave(&page_uptodate_lock, flags);
-+	clear_buffer_async_write(bh);
-+	unlock_buffer(bh);
-+	tmp = bh->b_this_page;
-+	while (tmp != bh) {
-+		if (buffer_async_write(tmp)) {
-+			if (buffer_locked(tmp))
-+				goto still_busy;
-+			if (!buffer_mapped(bh))
-+				BUG();
-+		}
-+		tmp = tmp->b_this_page;
- 	}
-+	spin_unlock_irqrestore(&page_uptodate_lock, flags);
-+	end_page_writeback(page);
- 	return;
- 
- still_busy:
-@@ -599,26 +651,39 @@ still_busy:
- }
- 
- /*
-- * If a page's buffers are under async writeout (end_buffer_io_async
-+ * If a page's buffers are under async readin (end_buffer_async_read
-  * completion) then there is a possibility that another thread of
-  * control could lock one of the buffers after it has completed
-  * but while some of the other buffers have not completed.  This
-- * locked buffer would confuse end_buffer_io_async() into not unlocking
-- * the page.  So the absence of BH_Async tells end_buffer_io_async()
-+ * locked buffer would confuse end_buffer_async_read() into not unlocking
-+ * the page.  So the absence of BH_Async_Read tells end_buffer_async_read()
-  * that this buffer is not under async I/O.
-  *
-  * The page comes unlocked when it has no locked buffer_async buffers
-  * left.
-  *
-- * The page lock prevents anyone starting new async I/O against any of
-+ * PageLocked prevents anyone starting new async I/O reads any of
-  * the buffers.
-+ *
-+ * PageWriteback is used to prevent simultaneous writeout of the same
-+ * page.
-+ *
-+ * PageLocked prevents anyone from starting writeback of a page which is
-+ * under read I/O (PageWriteback is only ever set against a locked page).
-  */
--inline void set_buffer_async_io(struct buffer_head *bh)
-+inline void mark_buffer_async_read(struct buffer_head *bh)
- {
--	bh->b_end_io = end_buffer_io_async;
--	set_buffer_async(bh);
-+	bh->b_end_io = end_buffer_async_read;
-+	set_buffer_async_read(bh);
- }
--EXPORT_SYMBOL(set_buffer_async_io);
-+EXPORT_SYMBOL(mark_buffer_async_read);
-+
-+inline void mark_buffer_async_write(struct buffer_head *bh)
-+{
-+	bh->b_end_io = end_buffer_async_write;
-+	set_buffer_async_write(bh);
-+}
-+EXPORT_SYMBOL(mark_buffer_async_write);
- 
- /*
-  * osync is designed to support O_SYNC io.  It waits synchronously for
-@@ -1207,10 +1272,13 @@ void create_empty_buffers(struct page *p
- 	tail->b_this_page = head;
- 
- 	spin_lock(&page->mapping->host->i_bufferlist_lock);
--	if (PageDirty(page)) {
-+	if (PageUptodate(page) || PageDirty(page)) {
- 		bh = head;
- 		do {
--			set_buffer_dirty(bh);
-+			if (PageDirty(page))
-+				set_buffer_dirty(bh);
-+			if (PageUptodate(page))
-+				set_buffer_uptodate(bh);
- 			bh = bh->b_this_page;
- 		} while (bh != head);
- 	}
-@@ -1308,12 +1376,18 @@ static int __block_write_full_page(struc
- 	 */
- 	do {
- 		if (block > last_block) {
--			clear_buffer_dirty(bh);
--			if (buffer_mapped(bh))
--				buffer_error();
-+			/*
-+			 * mapped buffers outside i_size will occur, because
-+			 * this page can be outside i_size when there is a
-+			 * truncate in progress.
-+			 *
-+			 * if (buffer_mapped(bh))
-+			 *	buffer_error();
-+			 */
- 			/*
- 			 * The buffer was zeroed by block_write_full_page()
- 			 */
-+			clear_buffer_dirty(bh);
- 			set_buffer_uptodate(bh);
- 		} else if (!buffer_mapped(bh) && buffer_dirty(bh)) {
- 			if (buffer_new(bh))
-@@ -1338,7 +1412,7 @@ static int __block_write_full_page(struc
- 			if (test_clear_buffer_dirty(bh)) {
- 				if (!buffer_uptodate(bh))
- 					buffer_error();
--				set_buffer_async_io(bh);
-+				mark_buffer_async_write(bh);
- 			} else {
- 				unlock_buffer(bh);
- 			}
-@@ -1356,7 +1430,7 @@ static int __block_write_full_page(struc
- 	 */
- 	do {
- 		struct buffer_head *next = bh->b_this_page;
--		if (buffer_async(bh)) {
-+		if (buffer_async_write(bh)) {
- 			submit_bh(WRITE, bh);
- 			nr_underway++;
- 		}
-@@ -1398,7 +1472,7 @@ recover:
- 	do {
- 		if (buffer_mapped(bh)) {
- 			lock_buffer(bh);
--			set_buffer_async_io(bh);
-+			mark_buffer_async_write(bh);
- 		} else {
- 			/*
- 			 * The buffer may have been set dirty during
-@@ -1410,7 +1484,7 @@ recover:
- 	} while (bh != head);
- 	do {
- 		struct buffer_head *next = bh->b_this_page;
--		if (buffer_mapped(bh)) {
-+		if (buffer_async_write(bh)) {
- 			set_buffer_uptodate(bh);
- 			clear_buffer_dirty(bh);
- 			submit_bh(WRITE, bh);
-@@ -1631,13 +1705,9 @@ int block_read_full_page(struct page *pa
- 
- 	/* Stage two: lock the buffers */
- 	for (i = 0; i < nr; i++) {
--		struct buffer_head * bh = arr[i];
-+		bh = arr[i];
- 		lock_buffer(bh);
--		if (buffer_uptodate(bh))
--			buffer_error();
--		if (buffer_dirty(bh))
--			buffer_error();
--		set_buffer_async_io(bh);
-+		mark_buffer_async_read(bh);
- 	}
- 
- 	/*
-@@ -1646,9 +1716,9 @@ int block_read_full_page(struct page *pa
- 	 * the underlying blockdev brought it uptodate (the sct fix).
- 	 */
- 	for (i = 0; i < nr; i++) {
--		struct buffer_head * bh = arr[i];
-+		bh = arr[i];
- 		if (buffer_uptodate(bh))
--			end_buffer_io_async(bh, 1);
-+			end_buffer_async_read(bh, 1);
- 		else
- 			submit_bh(READ, bh);
- 	}
-@@ -2074,9 +2144,15 @@ int brw_page(int rw, struct page *page,
- 		bh->b_blocknr = *(b++);
- 		bh->b_bdev = bdev;
- 		set_buffer_mapped(bh);
--		if (rw == WRITE)
-+		if (rw == WRITE) {
- 			set_buffer_uptodate(bh);
--		set_buffer_async_io(bh);
-+			clear_buffer_dirty(bh);
-+		}
-+		/*
-+		 * Swap pages are locked during writeout, so use
-+		 * buffer_async_read in strange ways.
-+		 */
-+		mark_buffer_async_read(bh);
- 		bh = bh->b_this_page;
- 	} while (bh != head);
- 
---- 2.5.13/drivers/block/ll_rw_blk.c~readpage-tweaks	Sun May  5 13:32:04 2002
-+++ 2.5.13-akpm/drivers/block/ll_rw_blk.c	Sun May  5 13:32:04 2002
-@@ -1598,10 +1598,12 @@ int submit_bh(int rw, struct buffer_head
- 	BUG_ON(!bh->b_end_io);
- 
- 	if ((rw == READ || rw == READA) && buffer_uptodate(bh))
--		printk("%s: read of uptodate buffer\n", __FUNCTION__);
-+		buffer_error();
- 	if (rw == WRITE && !buffer_uptodate(bh))
--		printk("%s: write of non-uptodate buffer\n", __FUNCTION__);
--		
-+		buffer_error();
-+	if (rw == READ && buffer_dirty(bh))
-+		buffer_error();
-+				
- 	set_buffer_req(bh);
- 
- 	/*
---- 2.5.13/fs/jbd/commit.c~readpage-tweaks	Sun May  5 13:32:04 2002
-+++ 2.5.13-akpm/fs/jbd/commit.c	Sun May  5 13:32:04 2002
-@@ -267,7 +267,7 @@ write_out_data_locked:
- sync_datalist_empty:
- 	/*
- 	 * Wait for all the async writepage data.  As they become unlocked
--	 * in end_buffer_io_async(), the only place where they can be
-+	 * in end_buffer_async_write(), the only place where they can be
- 	 * reaped is in try_to_free_buffers(), and we're locked against
- 	 * that.
- 	 */
---- 2.5.13/fs/jbd/transaction.c~readpage-tweaks	Sun May  5 13:32:04 2002
-+++ 2.5.13-akpm/fs/jbd/transaction.c	Sun May  5 13:32:04 2002
-@@ -905,8 +905,8 @@ out:
-  * The buffer is placed on the transaction's data list and is marked as
-  * belonging to the transaction.
-  *
-- * If `async' is set then the writebask will be initiated by the caller
-- * using submit_bh -> end_buffer_io_async.  We put the buffer onto
-+ * If `async' is set then the writebabk will be initiated by the caller
-+ * using submit_bh -> end_buffer_async_write.  We put the buffer onto
-  * t_async_datalist.
-  * 
-  * Returns error number or 0 on success.  
-@@ -1851,8 +1851,7 @@ static int journal_unmap_buffer(journal_
- 	}
- 
- zap_buffer:	
--	if (buffer_dirty(bh))
--		clear_buffer_dirty(bh);
-+	clear_buffer_dirty(bh);
- 	J_ASSERT_BH(bh, !buffer_jdirty(bh));
- 	clear_buffer_mapped(bh);
- 	clear_buffer_req(bh);
---- 2.5.13/include/linux/buffer_head.h~readpage-tweaks	Sun May  5 13:32:04 2002
-+++ 2.5.13-akpm/include/linux/buffer_head.h	Sun May  5 13:32:04 2002
-@@ -1,24 +1,24 @@
- /*
-  * include/linux/buffer_head.h
-  *
-- * Everything to do with buffer_head.b_state.
-+ * Everything to do with buffer_heads.
-  */
- 
- #ifndef BUFFER_FLAGS_H
- #define BUFFER_FLAGS_H
- 
--/* bh state bits */
- enum bh_state_bits {
--	BH_Uptodate,	/* 1 if the buffer contains valid data */
--	BH_Dirty,	/* 1 if the buffer is dirty */
--	BH_Lock,	/* 1 if the buffer is locked */
--	BH_Req,		/* 0 if the buffer has been invalidated */
--
--	BH_Mapped,	/* 1 if the buffer has a disk mapping */
--	BH_New,		/* 1 if the buffer is new and not yet written out */
--	BH_Async,	/* 1 if the buffer is under end_buffer_io_async I/O */
--	BH_JBD,		/* 1 if it has an attached journal_head */
-+	BH_Uptodate,	/* Contains valid data */
-+	BH_Dirty,	/* Is dirty */
-+	BH_Lock,	/* Is locked */
-+	BH_Req,		/* Has been submitted for I/O */
-+
-+	BH_Mapped,	/* Has a disk mapping */
-+	BH_New,		/* Disk mapping was newly created by get_block */
-+	BH_Async_Read,	/* Is under end_buffer_async_read I/O */
-+	BH_Async_Write,	/* Is under end_buffer_async_write I/O */
- 
-+	BH_JBD,		/* Has an attached ext3 journal_head */
- 	BH_PrivateStart,/* not a state bit, but the first bit available
- 			 * for private allocation by other entities
- 			 */
-@@ -32,28 +32,22 @@ struct buffer_head;
- typedef void (bh_end_io_t)(struct buffer_head *bh, int uptodate);
- 
- /*
-- * Try to keep the most commonly used fields in single cache lines (16
-- * bytes) to improve performance.  This ordering should be
-- * particularly beneficial on 32-bit processors.
-- * 
-- * We use the first 16 bytes for the data which is used in searches
-- * over the block hash lists (ie. getblk() and friends).
-- * 
-- * The second 16 bytes we use for lru buffer scans, as used by
-- * sync_buffers() and refill_freelist().  -- sct
-+ * Keep related fields in common cachelines.  The most commonly accessed
-+ * field (b_state) goes at the start so the compiler does not generate
-+ * indexed addressing for it.
-  */
- struct buffer_head {
- 	/* First cache line: */
--	sector_t b_blocknr;		/* block number */
--	unsigned short b_size;		/* block size */
--	struct block_device *b_bdev;
--
--	atomic_t b_count;		/* users using this block */
- 	unsigned long b_state;		/* buffer state bitmap (see above) */
-+	atomic_t b_count;		/* users using this block */
- 	struct buffer_head *b_this_page;/* circular list of page's buffers */
- 	struct page *b_page;		/* the page this bh is mapped to */
- 
--	char * b_data;			/* pointer to data block */
-+	sector_t b_blocknr;		/* block number */
-+	unsigned short b_size;		/* block size */
-+	char *b_data;			/* pointer to data block */
-+
-+	struct block_device *b_bdev;
- 	bh_end_io_t *b_end_io;		/* I/O completion */
-  	void *b_private;		/* reserved for b_end_io */
- 	struct list_head     b_inode_buffers; /* list of inode dirty buffers */
-@@ -91,6 +85,11 @@ static inline int test_clear_buffer_##na
- 	return test_and_clear_bit(BH_##bit, &(bh)->b_state);		\
- }									\
- 
-+/*
-+ * Emit the buffer bitops functions.   Note that there are also functions
-+ * of the form "mark_buffer_foo()".  These are higher-level functions which
-+ * do something in addition to setting a b_state bit.
-+ */
- BUFFER_FNS(Uptodate, uptodate)
- BUFFER_FNS(Dirty, dirty)
- TAS_BUFFER_FNS(Dirty, dirty)
-@@ -99,15 +98,12 @@ TAS_BUFFER_FNS(Lock, locked)
- BUFFER_FNS(Req, req)
- BUFFER_FNS(Mapped, mapped)
- BUFFER_FNS(New, new)
--BUFFER_FNS(Async, async)
--
--/*
-- * Utility macros
-- */
-+BUFFER_FNS(Async_Read, async_read)
-+BUFFER_FNS(Async_Write, async_write)
- 
- /*
-  * FIXME: this is used only by bh_kmap, which is used only by RAID5.
-- * Clean this up with blockdev-in-highmem infrastructure.
-+ * Move all that stuff into raid5.c
-  */
- #define bh_offset(bh)		((unsigned long)(bh)->b_data & ~PAGE_MASK)
- 
-@@ -152,8 +148,8 @@ void end_buffer_io_sync(struct buffer_he
- void buffer_insert_list(spinlock_t *lock,
- 			struct buffer_head *, struct list_head *);
- 
--/* reiserfs_writepage needs this */
--void set_buffer_async_io(struct buffer_head *bh);
-+void mark_buffer_async_read(struct buffer_head *bh);
-+void mark_buffer_async_write(struct buffer_head *bh);
- void invalidate_inode_buffers(struct inode *);
- void invalidate_bdev(struct block_device *, int);
- void __invalidate_buffers(kdev_t dev, int);
---- 2.5.13/fs/reiserfs/inode.c~readpage-tweaks	Sun May  5 13:32:04 2002
-+++ 2.5.13-akpm/fs/reiserfs/inode.c	Sun May  5 13:32:04 2002
-@@ -1916,7 +1916,7 @@ static inline void submit_bh_for_writepa
-     for(i = 0 ; i < nr ; i++) {
-         bh = bhp[i] ;
- 	lock_buffer(bh) ;
--	set_buffer_async_io(bh) ;
-+	mark_buffer_async_write(bh) ;
- 	/* submit_bh doesn't care if the buffer is dirty, but nobody
- 	** later on in the call chain will be cleaning it.  So, we
- 	** clean the buffer here, it still gets written either way.
+AGP                     IntB/IntC
+PCI Bus 1 slot 1 =      IntA
+PCI bus 1 slot 2 =      IntB
+PCI Bus 2 slot 1 =      IntA
+PCI bus 2 slot 2 =      IntB
+PCI bus 2 slot 3 =      IntC
+PCI bus 2 slot 4 =      IntD
+3COM LAN                IntD
 
--
+MP specs are v1.4 and I do not see a way to switch them to v1.1;
+at least not in BIOS.  Am I looking in wrong places?
+
+Here are what looks like relavant fragments of 'dmesg' (these are
+from 2.4.18 based kernel but they really do not differ elsewhere).
+
+127MB HIGHMEM available.
+found SMP MP-table at 000f71e0
+hm, page 000f7000 reserved twice.
+hm, page 000f8000 reserved twice.
+hm, page 0009f000 reserved twice.
+hm, page 000a0000 reserved twice.
+On node 0 totalpages: 262016
+zone(0): 4096 pages.
+zone(1): 225280 pages.
+zone(2): 32640 pages.
+Intel MultiProcessor Specification v1.4
+    Virtual Wire compatibility mode.
+OEM ID: TYAN     Product ID: PAULANER     APIC at: 0xFEE00000
+Processor #1 Pentium(tm) Pro APIC version 16
+Processor #0 Pentium(tm) Pro APIC version 16
+I/O APIC #2 Version 17 at 0xFEC00000.
+.........
+Total of 2 processors activated (6121.06 BogoMIPS).
+ENABLING IO-APIC IRQs
+Setting 2 in the phys_id_present_map
+...changing IO-APIC physical APIC ID to 2 ... ok.
+init IO_APIC IRQs
+ IO-APIC (apicid-pin) 2-0, 2-22, 2-23 not connected.
+..TIMER: vector=0x31 pin1=2 pin2=0
+number of MP IRQ sources: 22.
+number of IO-APIC #2 registers: 24.
+testing the IO APIC.......................
+
+IO APIC #2......
+.... register #00: 02000000
+.......    : physical APIC id: 02
+.... register #01: 00170011
+.......     : max redirection entries: 0017
+.......     : PRQ implemented: 0
+.......     : IO APIC version: 0011
+.... register #02: 00000000
+.......     : arbitration: 00
+.... IRQ redirection table:
+ NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:   
+ 00 000 00  1    0    0   0   0    0    0    00
+ 01 003 03  0    0    0   0   0    1    1    39
+ 02 003 03  0    0    0   0   0    1    1    31
+ 03 003 03  0    0    0   0   0    1    1    41
+ 04 003 03  0    0    0   0   0    1    1    49
+ 05 003 03  1    1    0   1   0    1    1    51
+ 06 003 03  0    0    0   0   0    1    1    59
+ 07 003 03  0    0    0   0   0    1    1    61
+ 08 003 03  0    0    0   0   0    1    1    69
+ 09 003 03  1    1    0   1   0    1    1    71
+ 0a 003 03  1    1    0   1   0    1    1    79
+ 0b 003 03  1    1    0   1   0    1    1    81
+ 0c 003 03  0    0    0   0   0    1    1    89
+ 0d 003 03  0    0    0   0   0    1    1    91
+ 0e 003 03  0    0    0   0   0    1    1    99
+ 0f 003 03  0    0    0   0   0    1    1    A1
+ 10 003 03  0    0    0   0   0    1    1    A9
+ 11 003 03  0    0    0   0   0    1    1    B1
+ 12 003 03  0    0    0   0   0    1    1    B9
+ 13 003 03  0    0    0   0   0    1    1    C1
+ 14 003 03  0    0    0   0   0    1    1    C9
+ 15 003 03  1    1    0   1   0    1    1    D1
+ 16 000 00  1    0    0   0   0    0    0    00
+ 17 000 00  1    0    0   0   0    0    0    00
+IRQ to pin mappings:
+IRQ0 -> 0:2
+IRQ1 -> 0:1
+IRQ3 -> 0:3
+IRQ4 -> 0:4
+IRQ5 -> 0:5
+IRQ6 -> 0:6
+IRQ7 -> 0:7
+IRQ8 -> 0:8
+IRQ9 -> 0:9
+IRQ10 -> 0:10
+IRQ11 -> 0:11
+IRQ12 -> 0:12
+IRQ13 -> 0:13
+IRQ14 -> 0:14
+IRQ15 -> 0:15
+IRQ16 -> 0:16
+IRQ17 -> 0:17
+IRQ18 -> 0:18
+IRQ19 -> 0:19
+IRQ20 -> 0:20
+IRQ21 -> 0:21
+.................................... done.
+..............
+PCI: Using IRQ router default [1022/7443] at 00:07.3
+BIOS failed to enable PCI standards compliance, fixing this error.
+..........
+Linux Tulip driver version 0.9.15-pre10 (Mar 8, 2002)
+tulip0:  EEPROM default media type Autosense.
+tulip0:  Index #0 - Media MII (#11) described by a 21142 MII PHY (3) block.
+tulip0:  MII transceiver #1 config 1000 status 786d advertising 01e1.
+eth0: Digital DS21143 Tulip rev 65 at 0xf8947000, 00:80:C8:CF:E0:DD, IRQ 10.
+tulip1:  EEPROM default media type Autosense.
+tulip1:  Index #0 - Media MII (#11) described by a 21142 MII PHY (3) block.
+tulip1:  MII transceiver #1 config 1000 status 7849 advertising 01e1.
+eth1: Digital DS21143 Tulip rev 65 at 0xf8949400, 00:80:C8:CF:E0:DE, IRQ 11.
+tulip2:  EEPROM default media type Autosense.
+tulip2:  Index #0 - Media MII (#11) described by a 21142 MII PHY (3) block.
+tulip2:  MII transceiver #1 config 1000 status 7849 advertising 01e1.
+eth2: Digital DS21143 Tulip rev 65 at 0xf894b800, 00:80:C8:CF:E0:DF, IRQ 5.
+tulip3:  EEPROM default media type Autosense.
+tulip3:  Index #0 - Media MII (#11) described by a 21142 MII PHY (3) block.
+tulip3:  MII transceiver #1 config 1000 status 7849 advertising 01e1.
+eth3: Digital DS21143 Tulip rev 65 at 0xf894dc00, 00:80:C8:CF:E0:E0, IRQ 9.
+3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
+03:08.0: 3Com PCI 3c905C Tornado at 0x3000. Vers LK1.1.16
+eth0: Setting full-duplex based on MII#1 link partner capability of 45e1.
+3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
+03:08.0: 3Com PCI 3c905C Tornado at 0x3000. Vers LK1.1.16
+
+and later after attempts to sent something through Tornado:
+
+NETDEV WATCHDOG: eth4: transmit timed out
+eth4: transmit timed out, tx_status 00 status e601.
+  diagnostics: net 0ccc media 8880 dma 0000003a.
+eth4: Interrupt posted but not delivered -- IRQ blocked by another device?
+  Flags; bus-master 1, dirty 16(0) current 16(0)
+  Transmit list 00000000 vs. f610c200.
+  0: @f610c200  length 8000002a status 0001002a
+  1: @f610c240  length 8000002a status 0001002a
+  2: @f610c280  length 8000002a status 0001002a
+  3: @f610c2c0  length 8000002a status 0001002a
+  4: @f610c300  length 8000002a status 0001002a
+  5: @f610c340  length 8000002a status 0001002a
+  6: @f610c380  length 8000002a status 0001002a
+  7: @f610c3c0  length 8000002a status 0001002a
+  8: @f610c400  length 8000002a status 0001002a
+  9: @f610c440  length 8000002a status 0001002a
+  10: @f610c480  length 8000002a status 0001002a
+  11: @f610c4c0  length 8000002a status 0001002a
+  12: @f610c500  length 8000002a status 0001002a
+  13: @f610c540  length 8000002a status 0001002a
+  14: @f610c580  length 8000002a status 8001002a
+  15: @f610c5c0  length 8000002a status 8001002a
+eth4: Resetting the Tx ring pointer.
+
+Any bright ideas what could/should be done here?
+
+  TIA,
+  Michal

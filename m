@@ -1,85 +1,120 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261386AbUCDBD4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 20:03:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261385AbUCDBDz
+	id S261225AbUCDBSw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 20:18:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbUCDBSw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 20:03:55 -0500
-Received: from dinsnail.net ([217.160.166.159]:41374 "EHLO heinz.dinsnail.net")
-	by vger.kernel.org with ESMTP id S261386AbUCDBDs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 20:03:48 -0500
-Date: Wed, 3 Mar 2004 23:53:05 +0100
-From: Michael Weiser <michael@weiser.dinsnail.net>
-To: Greg KH <greg@kroah.com>
-Cc: Ed Tomlinson <edt@aei.ca>, linux-hotplug-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] udev 021 release
-Message-ID: <20040303225305.GB30608@weiser.dinsnail.net>
-References: <20040303000957.GA11755@kroah.com> <20040303095615.GA89995@weiser.dinsnail.net> <200403030722.17632.edt@aei.ca> <20040303151433.GC25687@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040303151433.GC25687@kroah.com>
-User-Agent: Mutt/1.4.2.1i
-X-MailScanner: Found to be clean
+	Wed, 3 Mar 2004 20:18:52 -0500
+Received: from thumbler.kulnet.kuleuven.ac.be ([134.58.240.45]:40589 "EHLO
+	thumbler.kulnet.kuleuven.ac.be") by vger.kernel.org with ESMTP
+	id S261225AbUCDBSt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 20:18:49 -0500
+Message-ID: <4046840D.8020200@mech.kuleuven.ac.be>
+Date: Thu, 04 Mar 2004 02:19:09 +0100
+From: Panagiotis Issaris <panagiotis.issaris@mech.kuleuven.ac.be>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: thread creation problem
+Content-Type: multipart/mixed;
+ boundary="------------030504010904050302050803"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 03, 2004 at 07:14:33AM -0800, Greg KH wrote:
-> > > file creation. So my idea is to initialise /dev with some static files,
-> > > for hardware I know is there but hasn't had a driver loaded yet.  My
-> > > question is: Is there a nicer and more elegant way than just unpacking a
-> > > tarball into /dev before starting udevd? A tarball would also break a
-> > > (theoretical) use of dynamic major/minor numbers by the kernel.
-> > This item keeps coming up as the one feature that devfs has and udev
-> > does not.  It keeps getting dismissed.  Users seem to actually want it...
-> Users need to learn that the kernel is changing models from one which
-> automatically loaded modules when userspace tried to access the device,
-> to one where the proper modules are loaded when the hardware is found.
-Is this a general roadmap decision already made by all the developers or
-a proposal? If the latter I'd very much like to advocate for the old
-model.
+This is a multi-part message in MIME format.
+--------------030504010904050302050803
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Of course I sometimes need my kernel to adapt to new hardware and with
-USB and other hot-pluggable things I more often need to do it during
-runtime. But traditionally I've never had much of a problem just
-recompiling the kernel with support for the new hardware and just that
-new hardware before changing the machine. From this point of view I'd
-only need loadable modules for hot-pluggables and then only load, not
-unload.
+Hi,
 
-But the main feature of modules for me has always been to keep my kernel
-slim at runtime but also have modules for hardware I have in my machine
-but almost never use. This includes floppy and CD-ROM drives and sound
-hardware as well as meta-drivers such as ram disks or different
-filesystems. Changing the module logic for all of them would mean a lot
-of bloat elegantly avoided so far.
+Creating a thread and afterwards changing the priority and policy does 
+work. But setting the priority and policy when creating a thread doesn't 
+seem to work any more on 2.6.x/NPTL systems.
 
-If udev support for yet undriven but present hardware is so hard to
-implement I can certainly live with a partly static /dev. And I
-certainly don't want to stir the already rather emontional devfs
-advocacy. But this change in module sematics seems a bit too fundamental
-to me.
+After invoking the following:
+pthread_attr_init
+pthread_attr_setschedpolicy FIFO
+pthread_attr_setschedparam 99
+pthread_create
 
-> Note that this is a much more sane model due to removable devices, and
-> instances of multiple types of the same kind of devices in the same
-> system.
-I have to admit - I haven't become aware of the issue until recently
-when trying to switch from 2.4 to 2.6 and seeing that devfs is
-depreceated now. Where do the problems lie with the current model? (I
-don't mean devfs vs. udev now - I read the README.)
+The output of pthread_getschedparam within this thread seemed strange to me:
 
-> So no, udev is not going to handle this "issue" except in the case of
-> removable devices and their partitions.  Which is already working in
-> udev today.
-I don't really see the difference between a device I can physically
-remove and one I can remove the driver for. For example: udev works
-nicely for USB devices. But to do so the UHCI driver needs to be loaded.
-But if I almost never use USB, the whole USB subsystem might be
-something of a removeable device to me, only plugged into the kernel
-when needed. Instead of limiting the approach to physical devices, can't
-we expand our thinking to removable subsystems as done with modules
-nicely and elegantly up to now?
---
-bye, Micha
+./thr_prio_basic
+max priority 99
+policy: 0 priority: 0
+thread succesfully created
+
+LD_ASSUME_KERNEL=2.4.1  ./thr_prio_basic
+max priority 99
+policy: 1 priority: 99
+thread succesfully created
+
+Is it because of stricter POSIX compliance of NPTL?
+
+Using ltrace and strace didn't really make it clear to me what is going 
+wrong here.
+In the LinuxThread case, I could clearly see the cloning happening and 
+afterwards the calls to "sched_setscheduler". In the NPTL case, there is 
+just a call to clone with more params. No calls to change scheduler 
+params. Does one of the params  contain the scheduler options? If not, 
+how is the kernel supposed to get that information?
+
+I really don't understand why this is happing, any explanation is 
+greatly appreciated.
+
+With friendly regards,
+Takis
+
+PS: I wasn't sure if I should ask this on the glibc mailinglist or this 
+mailinglist. My apologies if this is off-topic.
+
+--------------030504010904050302050803
+Content-Type: text/x-c;
+ name="thr_prio_basic.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="thr_prio_basic.c"
+
+#include <string.h>
+#include <stdio.h>
+#include <pthread.h>
+#include <unistd.h>
+
+void* foo( void*p )
+{
+    int policy;
+    struct sched_param param;
+    if ( pthread_getschedparam( pthread_self(), &policy, &param ) == 0 )
+        printf( "policy: %d priority: %d\n", policy, param.sched_priority );
+}
+
+int main()
+{
+    pthread_t p;
+    struct sched_param param;
+    pthread_attr_t attr;
+    memset( &param, 0, sizeof( param ) );
+    param.sched_priority = sched_get_priority_max( SCHED_FIFO );
+#if 0
+    if ( sched_setscheduler( 0, SCHED_FIFO, &param ) == 0 )
+        printf( "succesfully selected FIFO scheduler\n" );
+#endif
+    printf( "max priority %d\n", param.sched_priority );
+    if ( pthread_attr_init( &attr ) )
+        printf( "problem attr init\n" );
+    if ( pthread_attr_setschedpolicy( &attr, SCHED_FIFO ) )
+        printf( "problem setschedpolicy\n" );
+    pthread_attr_setscope( &attr, PTHREAD_SCOPE_SYSTEM );
+    if ( pthread_attr_setschedparam( &attr, &param ) )
+        printf( "problem setschedparam\n" );
+    if ( pthread_create( &p, &attr, foo, 0 ) == 0 )
+        printf( "thread succesfully created\n" );
+    else
+        printf( "problem creating thread\n" );
+    pthread_attr_destroy( &attr );
+    usleep( 1000000UL );
+}
+
+--------------030504010904050302050803--

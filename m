@@ -1,50 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262372AbRENSlY>; Mon, 14 May 2001 14:41:24 -0400
+	id <S262371AbRENSuG>; Mon, 14 May 2001 14:50:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262374AbRENSlO>; Mon, 14 May 2001 14:41:14 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:4872 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S262372AbRENSlB>;
-	Mon, 14 May 2001 14:41:01 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200105141840.WAA16086@ms2.inr.ac.ru>
-Subject: Re: NETDEV_CHANGE events when __LINK_STATE_NOCARRIER is modified
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Mon, 14 May 2001 22:40:15 +0400 (MSK DST)
-Cc: andrewm@uow.edu.au, davem@redhat.COM, linux-kernel@vger.kernel.org
-In-Reply-To: <3B002001.AEEEE415@mandrakesoft.com> from "Jeff Garzik" at May 14, 1 02:12:17 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S262374AbRENSt5>; Mon, 14 May 2001 14:49:57 -0400
+Received: from [151.99.250.40] ([151.99.250.40]:10567 "EHLO
+	mail3.cs.interbusiness.it") by vger.kernel.org with ESMTP
+	id <S262371AbRENStp>; Mon, 14 May 2001 14:49:45 -0400
+From: Giulio Orsero <giulioo@pobox.com>
+To: jpabuyer@tecnoera.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Adaptec RAID SCSI 2100S
+Date: Mon, 14 May 2001 20:43:39 +0200
+Organization: nowhere
+In-Reply-To: Pine.LNX.4.33.0105132017430.27901-100000@baltazar.tecnoera.com
+X-Mailer: Forte Agent 1.8/32.548
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20010514184700.1D82A15D2C@i3.golden.dom>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+linux.adaptec.com is where they put linux stuff.
+Ask Deanna_Bonds@adaptec.com for the latest 2.4.x kernel patch/driver for dpt
+i2o controllers.
 
-> Note that using dev->name during probe was always incorrect.  Think
-> about the error case:
-...
-> So, using interface name in this manner was always buggy because it
-> conveys no useful information to the user.
-
-I used to think about cases of success. 8)
-In any case the question follows: do we have some another generic
-unique human-readable identifier? Only if device is PCI?
-
-
-Actually, I am puzzled mostly with Andrew's note about "simplicity".
-Andrew's patch was evidently much __simpler__ than yours, at least,
-it required one liner for each device and surely was not a "2.5 material".
-
-
-
-> I'm all for removing it...  I do not like removing it in a so-called
-> "stable" series, though.  alloc_etherdev() was enough to solve the race
-> and flush out buggy drivers using dev->name during probe.  Notice I did
-> not remove init_etherdev and fix it properly -- IMHO that is 2.5
-> material.
-
-Nope, guy. Fixing fatal bug is always material of released kernel.
-
-In any case the question remains: what is the sense of dev_probe_lock now?
-
-Alexey

@@ -1,62 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262626AbTJOKj0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 06:39:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262627AbTJOKj0
+	id S262633AbTJOKkV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 06:40:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262627AbTJOKkV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 06:39:26 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:13723 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S262626AbTJOKjZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 06:39:25 -0400
-Message-ID: <3F8D23DB.3070105@namesys.com>
-Date: Wed, 15 Oct 2003 14:39:23 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Norman Diamond <ndiamond@wta.att.ne.jp>
-CC: Wes Janzen <superchkn@sbcglobal.net>,
-       Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-       John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org,
-       nikita@namesys.com
-Subject: Re: Why are bad disk sectors numbered strangely, and what happens
- to them?
-References: <32a101c3916c$e282e330$5cee4ca5@DIAMONDLX60> <200310131014.h9DAEwY3000241@81-2-122-30.bradfords.org.uk> <33a201c39174$2b936660$5cee4ca5@DIAMONDLX60> <20031014064925.GA12342@bitwizard.nl> <3F8BA037.9000705@sbcglobal.net> <3F8BBC08.6030901@namesys.com> <00ed01c39306$b0277a90$3eee4ca5@DIAMONDLX60>
-In-Reply-To: <00ed01c39306$b0277a90$3eee4ca5@DIAMONDLX60>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Oct 2003 06:40:21 -0400
+Received: from gprs146-98.eurotel.cz ([160.218.146.98]:34177 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262633AbTJOKkM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 06:40:12 -0400
+Date: Wed, 15 Oct 2003 12:40:00 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: fs/proc/array.c Compile Error
+Message-ID: <20031015104000.GA446@elf.ucw.cz>
+References: <Pine.LNX.4.44.0310141204150.28049-100000@cherise>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0310141204150.28049-100000@cherise>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Norman Diamond wrote:
+Hi!
 
->Hans Reiser wrote:
->
->  
->
->>I think the problem is that many users don't know how to trigger the bad
->>sector remapping for the case where the drive can still remap, using
->>writes to the bad blocks, and probably our faq needs updating.
->>    
->>
->
->This is indeed one of the problems[*].  The other problem is that it seems
->to be absurdly difficult to find which file contains the bad sector.  Even
->though a file could have multiple hard links, it would be enough to get one
->pathname for the file, in order to know which file needs to be reconstructed
->from a source of good data.
->
->[* Of course I also wish that the original failing write had been detected
->by the drive, but this failure isn't software's fault.  I hope.]
->
->
->
->  
->
-badblocks program fixes that
+> As of this morning, I'm getting a neat compile error in fs/proc/array.c: 
+> 
+> fs/proc/array.c: In function `proc_pid_stat':
+> fs/proc/array.c:392: Unrecognizable insn:
+> (insn/i 711 995 989 (parallel[
+>             (set (reg:SI 0 eax)
+>                 (asm_operands ("") ("=a") 0[
+>                         (reg:DI 1 edx)
+>                     ]
+>                     [
+>                         (asm_input:DI ("A"))
+>                     ]  ("include/linux/times.h") 37))
+>             (set (reg:SI 1 edx)
+>                 (asm_operands ("") ("=d") 1[
+>                         (reg:DI 1 edx)
+>                     ]
+>                     [
+>                         (asm_input:DI ("A"))
+>                     ]  ("include/linux/times.h") 37))
+>             (clobber (reg:QI 19 dirflag))
+>             (clobber (reg:QI 18 fpsr))
+>             (clobber (reg:QI 17 flags))
+>         ] ) -1 (insn_list 705 (nil))
+>     (nil))
+> fs/proc/array.c:392: confused by earlier errors, bailing out
+> 
+> 
+> The GCC version I'm using is 
+> 
+> $ gcc -v
+> Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/2.96/specs
+> gcc version 2.96 20000731 (Red Hat Linux 7.3 2.96-110)
+> 
+> Any ideas? 
 
+Well, thats compiler internal error (I've seen lots of those during
+x86-64 development). Either fix your compiler (hard), or add
+"volatile"'s to the variables in function until it stops.
+
+								Pavel
+PS: Do you have diff between "linux-power" tree and linus available
+somewhere? On http://developer.osdl.org/~mochel/patches/ latest I see
+is -test5-mm3.
 -- 
-Hans
-
-
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

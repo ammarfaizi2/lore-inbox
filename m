@@ -1,59 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280580AbRKFVSH>; Tue, 6 Nov 2001 16:18:07 -0500
+	id <S280596AbRKFVQp>; Tue, 6 Nov 2001 16:16:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280583AbRKFVQ4>; Tue, 6 Nov 2001 16:16:56 -0500
-Received: from iris.ncsl.nist.gov ([129.6.57.209]:899 "EHLO iris.ncsl.nist.gov")
-	by vger.kernel.org with ESMTP id <S280597AbRKFVQq>;
-	Tue, 6 Nov 2001 16:16:46 -0500
-Date: Tue, 6 Nov 2001 16:16:46 -0500
-From: Martial MICHEL <martial@users.sourceforge.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.14 - loop.c uses "deactivate_page" that seems not to be defined
-Message-ID: <20011106161644.A25835@iris.ncsl.nist.gov>
-Reply-To: Martial MICHEL <martial@users.sourceforge.net>
+	id <S280594AbRKFVQZ>; Tue, 6 Nov 2001 16:16:25 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:34809 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S280587AbRKFVQR>;
+	Tue, 6 Nov 2001 16:16:17 -0500
+Date: Tue, 6 Nov 2001 14:15:21 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+Cc: Philip.Blundell@pobox.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] lp.c, eexpress.c jiffies cleanup
+Message-ID: <20011106141521.R3957@lynx.no>
+Mail-Followup-To: Tim Schmielau <tim@physik3.uni-rostock.de>,
+	Philip.Blundell@pobox.com, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0111062039440.23693-100000@gans.physik3.uni-rostock.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <Pine.LNX.4.30.0111062039440.23693-100000@gans.physik3.uni-rostock.de>; from tim@physik3.uni-rostock.de on Tue, Nov 06, 2001 at 09:04:51PM +0100
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	I just  downloaded  2.4.14 and tried to   compile it (using  a
-"make oldconfig"  out of the config  file from my old 2.4.8-ac12, then
-"make menuconfig") and the kernel seems not to  be able to link ("make
-install", after a normal "make dep") :
+On Nov 06, 2001  21:04 +0100, Tim Schmielau wrote:
+> In eexpress.c I also turned absolute jiffies number into multiples of HZ,
+> yet the resulting timeout values still do not always seem reasonable to
+> me.
 
---------------------
-ld -m elf_i386 -T /usr/src/linux-2.4.14/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o \
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
-         drivers/acpi/acpi.o drivers/parport/driver.o drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/char/agp/agp.o drivers/char/drm/drm.o drivers/ide/idedriver.o drivers/scsi/scsidrv.o drivers/cdrom/driver.o drivers/sound/sounddrivers.o drivers/pci/driver.o drivers/pnp/pnp.o drivers/video/video.o drivers/usb/usbdrv.o drivers/input/inputdrv.o drivers/i2c/i2c.o \
-        net/network.o \
-        /usr/src/linux-2.4.14/arch/i386/lib/lib.a /usr/src/linux-2.4.14/lib/lib.a /usr/src/linux-2.4.14/arch/i386/lib/lib.a \
-        --end-group \
-        -o vmlinux
-drivers/block/block.o: In function `lo_send':
-drivers/block/block.o(.text+0x8843): undefined reference to `deactivate_page'
-drivers/block/block.o(.text+0x88c8): undefined reference to `deactivate_page'
-make: *** [vmlinux] Error 1
---------------------
+I agree.  It seems very ugly.  I looked at a few drivers which loop 1 or 2
+jiffies, but to busy-loop for 1/10th of a second, or even 20 seconds
+is terribly bad.  I took a look at the functions scb_rdcmd() and
+scb_status() and they are only reading from an I/O port, so no chance
+of sleeping/blocking, just busy waiting.
 
-After doing a little  research the only place  where `deactivate_page'
-exists is inside the `./drivers/block/loop.c` file (lines 210 and 221)
-and  is  not defined  anywhere  else (seems to  me  it may  have to be
-defined in "kernel/ksyms.c", but it  is not). [For  now I does compile
-without loopback device.]
+> -	unsigned long int oldtime = jiffies;
+> -	while (scb_rdcmd(dev) && ((jiffies-oldtime)<10));
+> +	unsigned long timeout = jiffies + HZ/10;
+> +	while (scb_rdcmd(dev) && (time_before(jiffies, timeout)));
+>  	if (scb_rdcmd(dev)) {
+>  		printk("%s: command didn't clear\n", dev->name);
+>  	}
+> @@ -1598,16 +1598,16 @@
+>  #endif
+> -                oj = jiffies;
+> +                timeout = jiffies + 20*HZ;
+>                  while ((SCB_CUstat(scb_status(dev)) == 2) &&
+> -                       ((jiffies-oj) < 2000));
+> +                       time_before(jiffies, timeout));
+>  		if (SCB_CUstat(scb_status(dev)) == 2)
+>  			printk("%s: warning, CU didn't stop\n", dev->name);
+>                  lp->started &= ~(STARTED_CU);
 
-My architecture is SMP PII, with 1Gb of memory. If asked I can provide
-the .config file used (please  send me an e-mail directly  as I am not
-on this ML).
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 
-					Hope this helps,
-
--- 
-  Martial MICHEL
-E-mail    : martial@users.sourceforge.net
-Home page : http://www.loria.fr/~michel/
-PBM       : http://pbm.sourceforge.net/
-DLC       : http://dlc.sourceforge.net/

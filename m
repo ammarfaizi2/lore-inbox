@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261337AbREPXbc>; Wed, 16 May 2001 19:31:32 -0400
+	id <S262126AbREPXaw>; Wed, 16 May 2001 19:30:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261339AbREPXbX>; Wed, 16 May 2001 19:31:23 -0400
-Received: from mta07-svc.ntlworld.com ([62.253.162.47]:15496 "EHLO
-	mta07-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S261337AbREPXbN>; Wed, 16 May 2001 19:31:13 -0400
-From: Simon Geard <simon.geard@ntlworld.com>
-Date: Thu, 17 May 2001 01:32:12 +0100
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Subject: Problem with make xconfig and tcl/tk 8.3 (and fix)
+	id <S261339AbREPXac>; Wed, 16 May 2001 19:30:32 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:19213 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S261337AbREPXa2>; Wed, 16 May 2001 19:30:28 -0400
+Subject: Re: LANANA: To Pending Device Number Registrants
+To: geert@linux-m68k.org (Geert Uytterhoeven)
+Date: Thu, 17 May 2001 00:26:12 +0100 (BST)
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        jlundell@pobox.com (Jonathan Lundell),
+        jgarzik@mandrakesoft.com (Jeff Garzik),
+        jsimmons@transvirtual.com (James Simmons),
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        neilb@cse.unsw.edu.au (Neil Brown), hpa@transmeta.com (H. Peter Anvin),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
+        viro@math.psu.edu
+In-Reply-To: <Pine.LNX.4.05.10105160923370.23225-100000@callisto.of.borg> from "Geert Uytterhoeven" at May 16, 2001 09:24:40 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Message-Id: <01051701321300.01308@Granville>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E150AgG-0004bb-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have tcl/tk8.3.2 installed and make xconfig (for both 2.2.18 and 2.4.2) 
-just hang. I've been told by the listed maintainer that a new GUI is on its 
-way and the existing make xconfig is orphaned, but this does not solve the 
-immediate problem.
+> Are FireWire (and USB) disks always detected in the same order? Or does it
+> behave like ADB, where you never know which mouse/keyboard is which
+> mouse/keyboard?
 
-I have therefore fixed this problem myself and have patches for header.tk and 
-tail.tk if anyone is interested. Essentially the fix is to replace all the 
-'exec ...' commands with native Tcl ones. I have also enhanced the help 
-system so that the help is cached internally on startup and its existence is 
-used to control the state of the help button, this makes getting help much 
-faster and more reliable (RTFM messages are no longer needed). The help 
-itself now has a blue title that points back to the originating entry.
+USB disks are required (haha etc) to have serial numbers. Firewire similarly
+has unique disk identifiers.  
 
-I'm happy to provide these if anyone is interested, I have tested them with 
-tcl/tk8.2.0 as well and as far as I can see they work fine. The sizes are
-
-wc -l *patch*
-    322 header.tk.patch
-     39 tail.tk.patch-2.2.18
-     61 tail.tk.patch-2.4.2 
-
-
-I'm not subscribed to the list so please cc replies to me if you wish.
-
-Thanks,
-
-Simon Geard.

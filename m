@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261172AbTEHE44 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 00:56:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261174AbTEHE44
+	id S261166AbTEHEVk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 00:21:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbTEHEVk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 00:56:56 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:3858 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261172AbTEHE4z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 00:56:55 -0400
-Date: Thu, 8 May 2003 06:09:30 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] make <linux/blk.h> obsolete
-Message-ID: <20030508060930.B24325@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
-	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-References: <A46BBDB345A7D5118EC90002A5072C780C8FE1DC@orsmsx116.jf.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <A46BBDB345A7D5118EC90002A5072C780C8FE1DC@orsmsx116.jf.intel.com>; from inaky.perez-gonzalez@intel.com on Wed, May 07, 2003 at 07:57:16PM -0700
+	Thu, 8 May 2003 00:21:40 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:18071 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261166AbTEHEVj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 00:21:39 -0400
+Message-ID: <32847.4.64.196.31.1052368454.squirrel@www.osdl.org>
+Date: Wed, 7 May 2003 21:34:14 -0700 (PDT)
+Subject: Re: garbled oopsen
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: <akpm@digeo.com>
+In-Reply-To: <20030507184054.684e2bd0.akpm@digeo.com>
+References: <20030507180530.23d0e780.rddunlap@osdl.org>
+        <20030507184054.684e2bd0.akpm@digeo.com>
+X-Priority: 3
+Importance: Normal
+Cc: <rddunlap@osdl.org>, <linux-kernel@vger.kernel.org>
+X-Mailer: SquirrelMail (version 1.2.11)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 07, 2003 at 07:57:16PM -0700, Perez-Gonzalez, Inaky wrote:
-> > +/* this file is obsolete, please use <linux/blkdev.h> instead */
-> 
-> #warning this file is obsolete, please use <linux/blkdev.h> instead
-> 
-> At least is kind of more noisy and easy to spot when compiling ...
+> "Randy.Dunlap" <rddunlap@osdl.org> wrote:
+>>
+>> I have several oopses that are garbled.
+>
+> Use kgdb.
+>
+>> Can these be cleaned up in any reasonable way?
+>
+> It needs some additional spinlock in there.  People have moaned for over a
+> year, patches have been floating about but nobody has taken the time to
+> finish one off and submit it.
+>
+> It's never bothered me, because availability of a serial console equates to
+> availability of kgdb.
 
-See the postings earlier in this thread.  There's currently too many
-users around in the tree (but Adrian has a patch he'll hopefully
-submit soon)
+I'm more interested in having it clean for people who use 2.6.x.
+Yes, I can get by without it or by using kgdb, but that's not the point IMO.
+
+~Randy
+
+
 

@@ -1,85 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266610AbUAWR5Q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 12:57:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266614AbUAWR5Q
+	id S266624AbUAWSDf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 13:03:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266625AbUAWSDf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 12:57:16 -0500
-Received: from mail.parknet.co.jp ([210.171.160.6]:44046 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S266610AbUAWR5I
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 12:57:08 -0500
-To: Andreas Happe <andreashappe@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [net/8139cp] still crashes my notebook
-References: <slrnc104io.mp.andreashappe@flatline.ath.cx>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sat, 24 Jan 2004 02:56:56 +0900
-In-Reply-To: <slrnc104io.mp.andreashappe@flatline.ath.cx>
-Message-ID: <87vfn24kgn.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Fri, 23 Jan 2004 13:03:35 -0500
+Received: from ida.rowland.org ([192.131.102.52]:18948 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S266624AbUAWSDd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jan 2004 13:03:33 -0500
+Date: Fri, 23 Jan 2004 13:03:33 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Greg KH <greg@kroah.com>, Patrick Mochel <mochel@osdl.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: (as177)  Add class_device_unregister_wait() and
+ platform_device_unregister_wait() to the driver model core
+In-Reply-To: <Pine.LNX.4.58.0401230939170.2151@home.osdl.org>
+Message-ID: <Pine.LNX.4.44L0.0401231248510.856-100000@ida.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Happe <andreashappe@gmx.net> writes:
+On Fri, 23 Jan 2004, Linus Torvalds wrote:
 
-> hi,
+> On Fri, 23 Jan 2004, Alan Stern wrote:
+> >
+> > Since I haven't seen any progress towards implementing the 
+> > class_device_unregister_wait() and platform_device_unregister_wait() 
+> > functions, here is my attempt.
 > 
-> my notebook (hp/compaq nx7000) still crashes when using 8139cp (runs
-> rock solid with 8139too driver). The computer just locks up, there is no
-> dmesg output. This has happened since I've got this laptop (around
-> november '03).
+> So why would this not deadlock?
 
-It seems 8139cp.c has the race condition of rx_poll and interrupt.
-Does the following patch fix this problem?
+Kind of a general question, so I'll give a general answer.  This wouldn't
+deadlock for the same reason as anything else: People use it properly!
 
-NOTE, since I don't have this device, patch is untested. Sorry.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+> The reason we don't wait on things like this is that it's basically
+> impossible not to deadlock.
 
----
+That's an exaggeration.  There are places where it's _necessary_ to
+wait.  For example, consider this extract from a recent patch written by
+Greg KH:
 
- drivers/net/8139cp.c |   12 ++++++++++--
- 1 files changed, 10 insertions(+), 2 deletions(-)
++	/* FIXME change this when the driver core gets the
++	 * class_device_unregister_wait() call */
++	init_completion(&bus->released);
+ 	class_device_unregister(&bus->class_dev);
++	wait_for_completion(&bus->released);
 
-diff -puN drivers/net/8139cp.c~8139cp-napi-race-fix drivers/net/8139cp.c
---- linux-2.6.2-rc1/drivers/net/8139cp.c~8139cp-napi-race-fix	2004-01-24 02:22:36.000000000 +0900
-+++ linux-2.6.2-rc1-hirofumi/drivers/net/8139cp.c	2004-01-24 02:37:43.000000000 +0900
-@@ -615,8 +615,10 @@ rx_next:
- 		if (cpr16(IntrStatus) & cp_rx_intr_mask)
- 			goto rx_status_loop;
- 
--		netif_rx_complete(dev);
-+		local_irq_disable();
- 		cpw16_f(IntrMask, cp_intr_mask);
-+		__netif_rx_complete(dev);
-+		local_irq_enable();
- 
- 		return 0;	/* done */
- 	}
-@@ -643,6 +645,12 @@ cp_interrupt (int irq, void *dev_instanc
- 
- 	spin_lock(&cp->lock);
- 
-+	/* close possible race's with dev_close */
-+	if (unlikely(!netif_running(dev))) {
-+		cpw16(IntrMask, 0);
-+		goto out;
-+	}
-+
- 	if (status & (RxOK | RxErr | RxEmpty | RxFIFOOvr)) {
- 		if (netif_rx_schedule_prep(dev)) {
- 			cpw16_f(IntrMask, cp_norx_intr_mask);
-@@ -664,7 +672,7 @@ cp_interrupt (int irq, void *dev_instanc
- 
- 		/* TODO: reset hardware */
- 	}
--
-+out:
- 	spin_unlock(&cp->lock);
- 	return IRQ_HANDLED;
- }
+For the full patch, see 
+http://marc.theaimsgroup.com/?l=linux-usb-devel&m=107109069106188&w=2
 
-_
+The general context is that a module is trying to unload, but it can't
+until the release() callback for its device has finished.
+
+> There are damn good reasons why the kernel uses reference counting 
+> everywhere. Any other approach is broken.
+
+And sometimes a part of the kernel has to wait until the reference count
+drops to 0.  Instead of making everyone who needs to wait for a
+class_device or a platform_device roll their own completions, this
+provides a central facility.
+
+By the way, adding class_device_unregister_wait() has an excellent
+precedent.  The driver model core _already_ includes
+device_unregister_wait(), merged by Pat Mochel.  Are you saying that
+function shouldn't exist either?
+
+Alan Stern
+

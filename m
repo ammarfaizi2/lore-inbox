@@ -1,57 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317059AbSFWQ5n>; Sun, 23 Jun 2002 12:57:43 -0400
+	id <S317063AbSFWRDa>; Sun, 23 Jun 2002 13:03:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317063AbSFWQ5m>; Sun, 23 Jun 2002 12:57:42 -0400
-Received: from port5.ds1-sby.adsl.cybercity.dk ([212.242.169.198]:28199 "EHLO
-	trider-g7.fabbione.net") by vger.kernel.org with ESMTP
-	id <S317059AbSFWQ5l>; Sun, 23 Jun 2002 12:57:41 -0400
-Message-ID: <3D15FDFE.5010109@fabbione.net>
-Date: Sun, 23 Jun 2002 18:57:34 +0200
-From: Fabio Massimo Di Nitto <fabbione@fabbione.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020615 Debian/1.0.0-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Lars Magne Ingebrigtsen <larsi@gnus.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ALI15X3 (was: Problems with Maxtor 4G160J8 and 2.4.19-* +/- ac*)
-References: <m3ofe2vpa4.fsf@quimbies.gnus.org> <m3hejurrez.fsf@quimbies.gnus.org>
-X-Enigmail-Version: 0.62.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317066AbSFWRD3>; Sun, 23 Jun 2002 13:03:29 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:53514 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id <S317063AbSFWRD3>;
+	Sun, 23 Jun 2002 13:03:29 -0400
+Date: Sun, 23 Jun 2002 19:03:30 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.5.19] Oops during PCI scan on Alpha
+Message-ID: <20020623170330.GZ24903@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20020602.203916.21926462.davem@redhat.com> <Pine.LNX.4.33.0206040821100.654-100000@geena.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="rd/3IrB17klb+Ksj"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0206040821100.654-100000@geena.pdx.osdl.net>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux mail 2.4.18 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lars Magne Ingebrigtsen wrote:
 
->Lars Magne Ingebrigtsen <larsi@gnus.org> writes:
->  
->
->>ALI15X3: IDE controller on PCI bus 00 dev 20
->>PCI: No IRQ known for interrupt pin A of device 00:04.0. Please try using pci=biosirq.
->>ALI15X3: chipset revision 196
->>ALI15X3: not 100% native mode: will probe irqs later
->>    ide0: BM-DMA at 0xd400-0xd407, BIOS settings: hda:DMA, hdb:pio
->>    ide1: BM-DMA at 0xd408-0xd40f, BIOS settings: hdc:pio, hdd:DMA
->>    
->>
->
->After poking around a bit, it seems like the real problem might be
->with the ALI15X3 driver.  I disabled that driver, and now I can boot
->using 2.4.19-pre10-ac2.  Of course, that leaves me with no DMA...
->
->So -- is this a general problem with this driver, or does it only
->show up when using disks bigger than 128GiB?
->
->  
->
+--rd/3IrB17klb+Ksj
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-hi Lars,
-            now that you noticed this problem I did the same at home.
-I get a different problem in general (see [FREEZE] 24.19-pre10 + Promise)
-but I did like you suggested disabling the ALI driver and now everything
-is working just fine but no DMA.
+On Tue, 2002-06-04 08:50:11 -0700, Patrick Mochel <mochel@osdl.org>
+wrote in message <Pine.LNX.4.33.0206040821100.654-100000@geena.pdx.osdl.net=
+>:
+> On Sun, 2 Jun 2002, David S. Miller wrote:
+> >    From: Anton Blanchard <anton@samba.org>
+> >    Date: Mon, 3 Jun 2002 14:27:27 +1000
 
-Fabio
+[Order of grouped init calls]
 
+> early_arch
+> mem
+> subsys
+> arch
+> fs
+> device
+> late
+
+Just a dumb ass question: We're currently dealing with grouped init
+calls. Why don't we simply give them numbers like we do in
+/etc/rc<X>.d/S<YZ>startme.sh? That would possibly give an easier
+mechanism of keeping all those init calls in a sane order!?
+
+MfG, JBG
+
+--=20
+Jan-Benedict Glaw   .   jbglaw@lug-owl.de   .   +49-172-7608481
+	 -- New APT-Proxy written in shell script --
+	   http://lug-owl.de/~jbglaw/software/ap2/
+
+--rd/3IrB17klb+Ksj
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9Ff9hHb1edYOZ4bsRAqsJAJ0axRgyg7XG9AoUXtVl6TV73gF6zQCffY6F
++hyPgokKAZlTK7xwUNs7AYo=
+=bIX5
+-----END PGP SIGNATURE-----
+
+--rd/3IrB17klb+Ksj--

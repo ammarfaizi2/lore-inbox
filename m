@@ -1,68 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281707AbRLOCLR>; Fri, 14 Dec 2001 21:11:17 -0500
+	id <S281863AbRLOC0J>; Fri, 14 Dec 2001 21:26:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281717AbRLOCLI>; Fri, 14 Dec 2001 21:11:08 -0500
-Received: from fmfdns02.fm.intel.com ([132.233.247.11]:28867 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S281707AbRLOCK6>; Fri, 14 Dec 2001 21:10:58 -0500
-Message-ID: <C8C7DD4157F2D411AC7000A0C96B1522016C37D8@fmsmsx58.fm.intel.com>
-From: "Sottek, Matthew J" <matthew.j.sottek@intel.com>
-To: "'Benjamin LaHaise'" <bcrl@redhat.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: zap_page_range in a module
-Date: Fri, 14 Dec 2001 18:10:52 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+	id <S281836AbRLOCZ7>; Fri, 14 Dec 2001 21:25:59 -0500
+Received: from CPE-203-51-26-3.nsw.bigpond.net.au ([203.51.26.3]:39043 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S281835AbRLOCZw>; Fri, 14 Dec 2001 21:25:52 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Oliver Xymoron <oxymoron@waste.org>
+Cc: linux-kernel@vger.kernel.org, kaos@ocs.com.au
+Subject: Re: [PATCH] 2.5.1-pre10 #ifdef CONFIG_KMOD Cleanup Part II. 
+In-Reply-To: Your message of "Fri, 14 Dec 2001 10:38:17 MDT."
+             <Pine.LNX.4.40.0112141019100.11489-100000@waste.org> 
+Date: Sat, 15 Dec 2001 12:26:29 +1100
+Message-Id: <E16F3av-0003TC-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->On Fri, Dec 14, 2001 at 01:26:29PM -0800, Sottek, Matthew J wrote:
->> currently can only work when compiled into the kernel because I need 
->> zap_page_rage(). Is there an acceptable way for me to get equivalent
->> functionality in a module so that this will be more useful to the
->> general public?
+In message <Pine.LNX.4.40.0112141019100.11489-100000@waste.org> you write:
+> On Thu, 13 Dec 2001, Rusty Russell wrote:
+> 
+> > 2) Adds request_module_start()/request_module_end() macros, eg.
+> >
+> > 	struct protocol protoptr;
+> >
+> > 	request_module_start("proto-%u", protonum) {
+> > 		/* search for protocol, set protoptr. */
+> >
+> > 	} request_module_end(protoptr != NULL);
+> >
+> >    This loops once if !CONFIG_KMOD or protoptr != NULL after first
+> >    iteration, otherwise calls request_module and loops a second time.
+> 
+> Clever, but very un-C-like. Perhaps something like this:
+> 
+> do {
+>   /* search for protocol, set protoptr. */
+> } while (protoptr != NULL || request_module("proto-%u",protonum)==0);
+> 
+> ..with request_module returning -EBUSY if the module is already loaded.
 
->The vm does zap_page_range for you if you're implementing an
->mmap operation, 
+This can spin forever 8(.  I would love to have just a
+request_module_loop() macro, eg:
 
-It only does zap_page_range() when the memory map is being
-removed right?
+	request_module_loop("proto-%u", protonum) {
+		...
+	}
 
->otherwise vmalloc/vfree/vremap will take care of the details for
->you.  How is your code using zap_page_range?  It really shouldn't be.
+But it turns out not to be possible without more C 9x compliance
+(ie. local variable decls in for () loops).
 
-I will try to explain in it again in another way.
+> > 3) Adds a request_module_unless() macro, eg:
+> >
+> > 	protoptr = request_module_unless(protoptrs[proto],
+> > 					 "proto-%u", protonum);
+> 
+> Also weird.
 
-I have a 64k sliding "window" into a 1MB region. You can only access
-64k at a time then you have to switch the "bank" to access the next
-64k. Address 0xa0000-0xaffff is the 64k window. The actual 1MB of
-memory is above the top of memory and not directly addressable by the
-CPU, you have to go through the banks.
+Ack.  However, I was looking for positive suggestions 8)
 
-My driver implements the mmap file operation and does NOT do a
-remap_page_range(). I also install a zero_page fault handler.
-
-The client application then memory maps a 1MB region on the device
-file. When the client tries to access the first page, my fault
-handler is called and I remap_page_range() the 64k window
-and set the hardware such that the first 64k of memory is what
-can be viewed through the window.
-
-When the client gets to 64k + 1 my fault handler is triggered again.
-At this time I change the window to view the second 64k and do
-another remap_page_range() of the window to the second 64k in the
-vma.  HERE is the problem. I need to get rid of the area so that
-when the client reads from the first page my fault handler is
-triggered again. zap_page_range() works, but only from within the
-kernel.
-
-This seems like something that would have lots of uses, so I assume
-there is a way to do it that I just haven't discovered.
-Is there no driver doing something like this to give mutual exclusion
-to a memory mapped resource?
-
--Matt
-
+Thanks,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

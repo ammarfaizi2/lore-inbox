@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312772AbSDFUMo>; Sat, 6 Apr 2002 15:12:44 -0500
+	id <S312773AbSDFUNg>; Sat, 6 Apr 2002 15:13:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312773AbSDFUMn>; Sat, 6 Apr 2002 15:12:43 -0500
-Received: from zero.tech9.net ([209.61.188.187]:24582 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S312772AbSDFUMm>;
-	Sat, 6 Apr 2002 15:12:42 -0500
-Subject: Re: [PATCH] Clean up x86 interrupt entry code
-From: Robert Love <rml@tech9.net>
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3CAF54AA.1020303@didntduck.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 06 Apr 2002 15:11:54 -0500
-Message-Id: <1018123940.899.104.camel@phantasy>
+	id <S312790AbSDFUNf>; Sat, 6 Apr 2002 15:13:35 -0500
+Received: from 12-234-33-29.client.attbi.com ([12.234.33.29]:580 "HELO
+	top.worldcontrol.com") by vger.kernel.org with SMTP
+	id <S312773AbSDFUNd>; Sat, 6 Apr 2002 15:13:33 -0500
+From: brian@worldcontrol.com
+Date: Sat, 6 Apr 2002 12:09:18 -0800
+To: linux-kernel@vger.kernel.org
+Subject: more on 2.4.19pre... & swsusp
+Message-ID: <20020406200918.GA1535@top.worldcontrol.com>
+Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-No-Archive: yes
+X-Noarchive: yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-04-06 at 15:03, Brian Gerst wrote:
+I found a .config difference between my 2.4.19-pre5-ac3 setup
+and my 2.4.19-pre6 (swsusp v0.8 patched) setup.
 
-> -ENTRY(ret_from_intr)
-> -	GET_THREAD_INFO(%ebx)
-> -	init_ret_intr
-> +ret_from_intr:
-> +	preempt_stop
-> +	DEC_PRE_COUNT(%ebx)
+After making both the same, both generally oops in the same place
+as previously reported (oops via ksymoops previously posted).
 
-You removed GET_THREAD_INFO and there does not seem to be a
-replacement.  Is there some assurance *thread_info is now pointed to by
-%ebx here?
+Findings thus far:
 
-	Robert Love
+   swsusp says it doesn't need APM. But it does. at least so far
+   as menuconfig is concerned.
 
+   With apm loaded (or built) in the kernel swsusp says it can't
+   terminate/kill kapmd and gives up.
+
+   With apm *not* loaded in the kernel swsusp oopses as previously
+   reported.
+
+Nice repeatable behavior.
+
+Documentation/swsusp.txt which is repeatedly refered to does not
+exist, either in the ac version or the v0.8 patch.
+
+I have not been able to find the swsusp program which is also
+refered to.
+
+-- 
+Brian Litzinger <brian@worldcontrol.com>

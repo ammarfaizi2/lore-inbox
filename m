@@ -1,50 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261809AbREPHYN>; Wed, 16 May 2001 03:24:13 -0400
+	id <S261812AbREPH0X>; Wed, 16 May 2001 03:26:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261807AbREPHXx>; Wed, 16 May 2001 03:23:53 -0400
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:61712 "EHLO
-	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S261808AbREPHXq>; Wed, 16 May 2001 03:23:46 -0400
-Date: 16 May 2001 09:05:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <80x0j1hHw-B@khms.westfalen.de>
-In-Reply-To: <Pine.LNX.4.10.10105151448150.22038-100000@www.transvirtual.com>
+	id <S261808AbREPH0G>; Wed, 16 May 2001 03:26:06 -0400
+Received: from aeon.tvd.be ([195.162.196.20]:63080 "EHLO aeon.tvd.be")
+	by vger.kernel.org with ESMTP id <S261806AbREPHZT>;
+	Wed, 16 May 2001 03:25:19 -0400
+Date: Wed, 16 May 2001 09:23:23 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: "Timothy A. Seufert" <tas@appsig.com>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: LANANA: To Pending Device Number Registrants
-X-Mailer: CrossPoint v3.12d.kh6 R/C435
+In-Reply-To: <3B019F2E.7CC8C39A@appsig.com>
+Message-ID: <Pine.LNX.4.05.10105160921480.23225-100000@callisto.of.borg>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <20010515174339.A5599@sventech.com> <Pine.LNX.4.10.10105151448150.22038-100000@www.transvirtual.com>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jsimmons@transvirtual.com (James Simmons)  wrote on 15.05.01 in <Pine.LNX.4.10.10105151448150.22038-100000@www.transvirtual.com>:
-
-> > > I couldn't agree with you more. It gives me headaches at work. One note,
-> > > their is a except to the eth0 thing. USB to USB networking. It uses
-> > > usb0, etc. I personally which they use eth0.
+On Tue, 15 May 2001, Timothy A. Seufert wrote:
+> Linus Torvalds <torvalds@transmeta.com> wrote:
+> >On Tue, 15 May 2001, Alexander Viro wrote:
+> >> Driver can export a tree and we mount it on fb0. After that you have
+> >> the whole set - yes, /dev/fb0/colourspace, etc. - no problem. And no
+> >> need to do mknod, BTW. Yes, we'll need to use /dev/fb0/frame for
+> >> frame itself. BFD...
 > >
-> > USB to USB networking cables aren't ethernet.
->
-> I'm talking about a wireless connection. ipaq USB cradle to PC.
+> >Actually, we can just continue to use "/dev/fb0", which would continue to
+> >work the way ti has always worked.
+> >
+> >It's a mistake to think that a directory has to be a directory. Or to
+> >think that a device node has to be a device node. It's perfectly ok to
+> >just think of it as namespaces. So opening /dev/fb0 continues to open the
+> >"master fd", whatever that means (in this case, the actual frame
+> >buffer). The namespaces _under_ /dev/fb0 would be the control channels, or
+> >in fact _anything_ that the frame buffer driver wants to expose.
+> 
+> Why not take it a step further than just devices?  This is a perfect
+> model for supporting named forks.
+> 
+> In fact, I believe this is how MacOS X is exposing HFS+ named forks to
+> the UNIX side of things.  (HFS+ supports not just the old style
+> Macintosh data and resource forks but an arbitrary number of named
+> forks.)  So: you open "foo", you get what an older MacOS would consider
+> the "data" fork.  Open "foo/rsrc" and you get the resource fork.  Open
+> "foo/joesfork" and you get whatever Joe wanted to use a named fork for.
 
-I don't know about USB, but I do know about PPP.
+How to find out which forks are available? UNIX semantics for directories are
+that a directory is just a file that you open to get the directory contents.
+But if your `directory' is a file, you'll get the file's contents if you open
+it. Or should we open wigth O_DIRECTORY to get at the fork directory?
 
-The point is, Ethernet is *different* from PPP. The frame formats are  
-different, even the protocols (aside from IP) are different.
+Gr{oetje,eeting}s,
 
-It's similar to the difference between serial and parallel ports. Sure,  
-for some things, they're the same - but for others, they really aren't,  
-and that's why it makes sense to call the one ttyS0 and the other lp0.
+						Geert
 
-Similar for eth0 vs. ppp0.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Yes, both are network interfaces. But no, you don't do ARP on ppp0, for  
-example (you do LCP instead, and it does different stuff, too).
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 
-MfG Kai

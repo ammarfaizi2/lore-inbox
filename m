@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbUENRCQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261764AbUENRCn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261597AbUENRCQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 13:02:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbUENRCL
+	id S261764AbUENRCn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 13:02:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbUENRCW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 13:02:11 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:15772 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261597AbUENRAY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 13:00:24 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: elf@buici.com, rmk@arm.linux.org.uk
-Subject: Re: arm-lh7a40x IDE support in 2.6.6
-Date: Fri, 14 May 2004 18:52:25 +0200
-User-Agent: KMail/1.5.3
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <200405141840.04401.bzolnier@elka.pw.edu.pl>
-In-Reply-To: <200405141840.04401.bzolnier@elka.pw.edu.pl>
+	Fri, 14 May 2004 13:02:22 -0400
+Received: from nrao.edu ([192.33.115.2]:17796 "EHLO cv3.cv.nrao.edu")
+	by vger.kernel.org with ESMTP id S261764AbUENQ7j (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 12:59:39 -0400
+Message-ID: <40A4FAF3.4030103@nrao.edu>
+Date: Fri, 14 May 2004 12:59:31 -0400
+From: Rodrigo Amestica <ramestic@nrao.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: Re: query_module in 2.6
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200405141852.25816.bzolnier@elka.pw.edu.pl>
+X-MailScanner-Information: Please contact postmaster@cv.nrao.edu for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-4.9, required 7,
+	autolearn=not spam, BAYES_00 -4.90)
+X-MailScanner-From: ramestic@nrao.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Rusty,
 
-This code won't even compile it the current form:
-it uses ide_ioreg_t but I killed all users of ide_ioreg_t
-and obsoleted <asm/hdreg.h> braindamage.
+what do you mean by 'You shouldn't need to'? I'm working in a 2.4.x 
+platform and discover that I need to check for a module symbol. Then I 
+decided that I should do it in such a way that no changes will be 
+required at the moment of porting the code to 2.6, and then I came 
+across with this thread.
 
-On Friday 14 of May 2004 18:40, Bartlomiej Zolnierkiewicz wrote:
-> I was just porting my patches killing <asm/arch/ide.h> for
-> ARM to 2.6.6 when noticed that more work is needed now. :-(
->
-> arch/arm/mach-lh7a40x/ide-lpd7a40x.c
-> include/asm-arm/arch-lh7a40x/ide.h
-
-<...>
-
-> BTW does it even work as IDE polling code is not merged yet?
->
-> Bartlomiej
-
+What's the programmatical way of checking for the presence of symbol and 
+getting its address?
+-
+thanks,
+ Rodrigo

@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264641AbRFPSSF>; Sat, 16 Jun 2001 14:18:05 -0400
+	id <S264642AbRFPSTP>; Sat, 16 Jun 2001 14:19:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264642AbRFPSRz>; Sat, 16 Jun 2001 14:17:55 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:20749 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264641AbRFPSRj>; Sat, 16 Jun 2001 14:17:39 -0400
-Date: Sat, 16 Jun 2001 11:16:53 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Eric Smith <eric@brouhaha.com>,
-        linux-kernel@vger.kernel.org, arjanv@redhat.com, mj@ucw.cz
-Subject: Re: 2.4.2 yenta_socket problems on ThinkPad 240
-In-Reply-To: <3B2B9DA3.3E310BF7@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.21.0106161115320.9713-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264643AbRFPSTF>; Sat, 16 Jun 2001 14:19:05 -0400
+Received: from [209.250.53.83] ([209.250.53.83]:2308 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S264642AbRFPSS7>; Sat, 16 Jun 2001 14:18:59 -0400
+Date: Sat, 16 Jun 2001 13:12:37 -0500
+From: Steven Walter <srwalter@yahoo.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix warning in tdfxfb.c
+Message-ID: <20010616131237.A4378@hapablap.dyn.dhs.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Uptime: 1:11pm  up 19:39,  3 users,  load average: 3.16, 3.06, 2.74
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch is obviously correct.  It doesn't appear that tdfxfb has a
+maintainer, so I'm sending this patch to the list.  Nothing
+earth-shattering, it just removes a warning during build.
+-- 
+-Steven
+In a time of universal deceit, telling the truth is a revolutionary act.
+			-- George Orwell
 
-On Sat, 16 Jun 2001, Jeff Garzik wrote:
-> 
-> I am pretty lucky on Alpha, we already trust the kernel PCI code
-> implicitly by unconditionally defining pcibios_assign_all_busses to one.
-> :)
-
-Well, the _real_ advantage on the alpha side is that there are only a
-handful of systems, and those systems tend to be designed by an even
-smaller number of companies.
-
-That, in turn, makes it so easy to trust the kernel to have enough
-knowledge.
-
-		Linus
-
+--- tdfxfb.c~	Sat Jun 16 13:09:08 2001
++++ tdfxfb.c	Sat Jun 16 13:09:21 2001
+@@ -1892,7 +1892,7 @@
+        ((pdev->device == PCI_DEVICE_ID_3DFX_BANSHEE) ||
+ 	(pdev->device == PCI_DEVICE_ID_3DFX_VOODOO3) ||
+ 	(pdev->device == PCI_DEVICE_ID_3DFX_VOODOO5))) {
+-      char *name;
++      char *name = NULL;
+ 
+       fb_info.dev   = pdev->device;
+       switch (pdev->device) {

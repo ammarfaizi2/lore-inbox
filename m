@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272376AbRHYBNX>; Fri, 24 Aug 2001 21:13:23 -0400
+	id <S272379AbRHYB0Z>; Fri, 24 Aug 2001 21:26:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272377AbRHYBNN>; Fri, 24 Aug 2001 21:13:13 -0400
-Received: from apollo.wizard.ca ([204.244.205.22]:30738 "HELO apollo.wizard.ca")
-	by vger.kernel.org with SMTP id <S272376AbRHYBNJ>;
-	Fri, 24 Aug 2001 21:13:09 -0400
-Subject: Re: Will 2.6 require Python for any configuration ? (CML2)
-From: Michael Peddemors <michael@linuxmagic.com>
-To: "Ryan W. Maple" <ryan@guardiandigital.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010824133505.B78EB11D303@juggernaut.guardiandigital.com>
-In-Reply-To: <20010824133505.B78EB11D303@juggernaut.guardiandigital.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12 (Preview Release)
-Date: 24 Aug 2001 18:14:27 -0700
-Message-Id: <998702067.3695.15.camel@mistress>
+	id <S272380AbRHYB0P>; Fri, 24 Aug 2001 21:26:15 -0400
+Received: from sub.sonic.net ([208.201.224.8]:38438 "EHLO sub.sonic.net")
+	by vger.kernel.org with ESMTP id <S272379AbRHYB0D>;
+	Fri, 24 Aug 2001 21:26:03 -0400
+X-envelope-info: <dalgoda@ix.netcom.com>
+Date: Fri, 24 Aug 2001 18:26:11 -0700
+From: Mike Castle <dalgoda@ix.netcom.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [OT] Howl of soul...
+Message-ID: <20010824182611.E19082@thune.mrc-home.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E15aN8C-0006OH-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My 2 bits? I have been running Linux for a long long time now...  worked
-on hundreds (more likely thousands) of Linux Systems.. (Wish I would
-have catalogued the number) and I have never installed Python yet on a
-single system...  
+On Fri, Aug 24, 2001 at 09:00:40PM +0100, Alan Cox wrote:
+> There have been multiple reports of problems with drive failures on recent
+> IBM drives with lots of OS's.
 
-Seems like bloat to me to install a whole language to keep afront in
-Linux developments..
+The following makes me feel all warm and fuzzy:
 
+On Wed, Aug 08, 2001 at 06:12:40PM +0000, Linus Torvalds wrote:
+> [ Damn, maybe I should get one of those nice big 7200 rpm IBM drives ]
 
-On 24 Aug 2001 09:35:04 -0400, Ryan W. Maple wrote:
-> 
-> On Fri, 24 Aug 2001, Denis Perchine wrote:
-> 
-
+http://www.uwsg.indiana.edu/hypermail/linux/kernel/0108.1/0120.html
+   
+mrc
 -- 
-"Catch the Magic of Linux..."
---------------------------------------------------------
-Michael Peddemors - Senior Consultant
-LinuxAdministration - Internet Services
-NetworkServices - Programming - Security
-Wizard IT Services http://www.wizard.ca
-Linux Support Specialist - http://www.linuxmagic.com
---------------------------------------------------------
-(604)589-0037 Beautiful British Columbia, Canada
-
+     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
+    We are all of us living in the shadow of Manhattan.  -- Watchmen
+fatal ("You are in a maze of twisty compiler features, all different"); -- gcc

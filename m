@@ -1,61 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262445AbTEMSeW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 14:34:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262454AbTEMSeW
+	id S262499AbTEMSk4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 14:40:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262638AbTEMSkz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 14:34:22 -0400
-Received: from [216.148.213.132] ([216.148.213.132]:40425 "EHLO
-	smtp.mailix.net") by vger.kernel.org with ESMTP id S262445AbTEMSeS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 14:34:18 -0400
-Date: Tue, 13 May 2003 20:46:49 +0200
-From: Alex Riesen <fork0@users.sf.net>
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       David Hinds <dahinds@users.sourceforge.net>
-Subject: Re: 2.5.69+bk: "sleeping function called from illegal context" on card release while shutting down
-Message-ID: <20030513184649.GA1366@steel>
-Reply-To: Alex Riesen <fork0@users.sf.net>
+	Tue, 13 May 2003 14:40:55 -0400
+Received: from newweb.speedscript.com ([66.139.78.154]:21138 "EHLO
+	mail.speedscript.com") by vger.kernel.org with ESMTP
+	id S262499AbTEMSku (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 14:40:50 -0400
+Subject: Small sound/core fix
+From: Hal Duston <hduston@speedscript.com>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@diego.com, hch@lst.de
+Content-Type: text/plain
+Organization: 
+Message-Id: <1052852017.11514.40.camel@ulysseus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.4- 
+Date: 13 May 2003 13:53:37 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Paul,
+This fixes a bug that appears to have crept in between 
+2.5.69-mm1 and 2.5.69-mm2 with the "switch most remaining 
+drivers over to devfs_mk_bdev" patch
 
-your last suggestion (pcnet_close) helped. The previous patch was not
-enough, of course.
-I tried hard to reproduce it, and almost broke the card.
-No "wrong sleepers" seen anymore.
+Hal Duston
 
-Someone still has to remove the timer. It is not used anymore, in this
-file, at least.
-
--alex
-
---- a/drivers/net/pcmcia/pcnet_cs.c	2003-05-13 20:34:12.000000000 +0200
-+++ b/drivers/net/pcmcia/pcnet_cs.c	2003-05-13 20:34:08.000000000 +0200
-@@ -848,7 +848,7 @@ static int pcnet_event(event_t event, in
- 	link->state &= ~DEV_PRESENT;
- 	if (link->state & DEV_CONFIG) {
- 	    netif_device_detach(&info->dev);
--	    mod_timer(&link->release, jiffies + HZ/20);
-+	    pcnet_release(link);
- 	}
- 	break;
-     case CS_EVENT_CARD_INSERTION:
-@@ -1054,7 +1054,7 @@ static int pcnet_close(struct net_device
-     netif_stop_queue(dev);
-     del_timer(&info->watchdog);
-     if (link->state & DEV_STALE_CONFIG)
--	mod_timer(&link->release, jiffies + HZ/20);
-+	pcnet_release((u_long)link);
+--- linux-2.5.69-mm2/sound/core/info.c
++++ linux-2.5.69-mm2-fix/sound/core/info.c
+@@ -1080,7 +1080,7 @@
+ 	entry->p = p;
+ 	up(&info_mutex);
  
-     return 0;
- } /* pcnet_close */
+-	if (strncmp(name, "controlC", 8) == 0)	/* created in sound.c */
++	if (strncmp(name, "controlC", 8) != 0)	/* created in sound.c */
+ 		devfs_mk_cdev(MKDEV(_major, minor), mode, "snd/%s", name);
+ 	return entry;
+ }
+
+
 

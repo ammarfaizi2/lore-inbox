@@ -1,85 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262161AbTJ3Bea (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 20:34:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbTJ3Bea
+	id S262063AbTJ3B3h (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 20:29:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262098AbTJ3B3h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 20:34:30 -0500
-Received: from h1ab.lcom.net ([216.51.237.171]:13187 "EHLO digitasaru.net")
-	by vger.kernel.org with ESMTP id S262161AbTJ3Be2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 20:34:28 -0500
-Date: Wed, 29 Oct 2003 19:34:19 -0600
-From: Joseph Pingenot <trelane@digitasaru.net>
-To: Neil Brown <neilb@cse.unsw.edu.au>, Dax Kelson <dax@gurulabs.com>,
-       Hans Reiser <reiser@namesys.com>, andersen@codepoet.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Things that Longhorn seems to be doing right
-Message-ID: <20031030013418.GD3094@digitasaru.net>
-Reply-To: trelane@digitasaru.net
-Mail-Followup-To: Neil Brown <neilb@cse.unsw.edu.au>,
-	Dax Kelson <dax@gurulabs.com>, Hans Reiser <reiser@namesys.com>,
-	andersen@codepoet.org, linux-kernel@vger.kernel.org
-References: <3F9F7F66.9060008@namesys.com> <20031029224230.GA32463@codepoet.org> <3FA0475E.2070907@namesys.com> <1067466349.3077.274.camel@mentor.gurulabs.com> <20031030002005.GC3094@digitasaru.net> <16288.24913.844699.956689@notabene.cse.unsw.edu.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16288.24913.844699.956689@notabene.cse.unsw.edu.au>
-X-School: University of Iowa
-X-vi-or-emacs: vi *and* emacs!
-X-MSMail-Priority: High
-X-Priority: 1 (Highest)
-X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
-X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
-User-Agent: Mutt/1.5.4i
+	Wed, 29 Oct 2003 20:29:37 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53669 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262063AbTJ3B3f
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Oct 2003 20:29:35 -0500
+Message-ID: <3FA0696D.7030205@pobox.com>
+Date: Wed, 29 Oct 2003 20:29:17 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Patrik Wallstrom <pawal@blipp.com>
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] Re: SATA and 2.6.0-test9
+References: <20031027141531.GD15558@vic20.blipp.com> <20031027165809.GD19711@gtf.org> <20031027181052.GG32168@vic20.blipp.com>
+In-Reply-To: <20031027181052.GG32168@vic20.blipp.com>
+Content-Type: multipart/mixed;
+ boundary="------------010805040206070300030101"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From Neil Brown on Thursday, 30 October, 2003:
->On Wednesday October 29, trelane@digitasaru.net wrote:
->> Regardless, it's an interesting idea, and one which might be fruitful.  
->> I give you then two bits: our treatment of the tech and the reality of their
->>   tech:
->> 00: ISVAPOR | TAKESEROUSLY
->> 01: ISVAPOR | IGNORE
->> 10: NOTVAPOR | TAKESERIOUSLY
->> 11: NOTVAPOR | IGNORE
->> If we come up with a working implementation and it *is* just vaporware, then
->>   we're ahead.
->> We're way ahead.
->> If we merely dismiss it as vaporware and it turns out to be,
->> no net change.
->...snip...
->> Conclusion: best to take it seriously and work on it; those two cases
->>   are the most optimal.
->Sounds like the same argument that is used in "Pascal's Wager" for
->belief in God, and I seriously don't think the argument works in
->either case.  (note that I'm not making a statement about the
->conclusion in either case, only about the arguement).
+This is a multi-part message in MIME format.
+--------------010805040206070300030101
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-"Sounds like?"  Sure.  It kind of does, now that you mention it.
+Patrik Wallstrom wrote:
+> On Mon, 27 Oct 2003, Jeff Garzik wrote:
+> 
+> 
+>>>>Jeff Garzik:
+>>>>  o [libata] Merge Serial ATA core, and drivers for
+>>>>  o [libata] Integrate Serial ATA driver into kernel tree
+>>>
+>>>I am happy to see these in the kernel now, but I have yet to get them
+>>>working on my KT6 Delta KT600 motherboard with the VT8237 SATA
+>>>southbridge controller or even the Promise controller.
+>>
+>>Does it improve things, if you change ATA_FLAG_SRST to
+>>ATA_FLAG_SATA_RESET, in drivers/scsi/sata_via.c ?
+> 
+> 
+> It doesn't hang any more, but the only result is:
+> sata_via version 0.11
+> ata3: SATA max UDMA/133 cmd 0xD800 ctl 0xD402 bmdma 0xC800 irq 16
+> ata4: SATA max UDMA/133 cmd 0xD000 ctl 0xCC02 bmdma 0xC808 irq 16
+> ata3: thread exiting
+> scsi2 : sata_via
+> ata4: thread exiting
+> scsi3 : sata_via
 
-Regradless of the similarities and the validity of Pascal's argument, my
-  argument, I think, stands.  I outlined the four potential futures.  We
-  have control over only one bit, Microsoft has the other.  The tech sounds
-  nice, it is an interesting avenue to persue, Pascal aside.
+Duh...  I was missing a piece in libata-core.c, and clobbering some 
+information I needed.
 
-I don't see any reason why we *shouldn't* look at the problem and try to
-  do it.  What reasons do you see for not persuing the problem to its
-  inevitible implementation?
+Can you try this patch, and let me know if things change?
 
-I see big pitfalls in *not* looking at the problem.  In what respect are
-  the pitfalls of ignoring it as outlined by me invalid?
+	Jeff
 
-mfG,
 
-Joseph
 
--- 
-Joseph===============================================trelane@digitasaru.net
-"Asked by CollabNet CTO Brian Behlendorf whether Microsoft will enforce its
- patents against open source projects, Mundie replied, 'Yes, absolutely.'
- An audience member pointed out that many open source projects aren't
- funded and so can't afford legal representation to rival Microsoft's. 'Oh
- well,' said Mundie. 'Get your money, and let's go to court.' 
-Microsoft's patents only defensive? http://swpat.ffii.org/players/microsoft
+--------------010805040206070300030101
+Content-Type: text/plain;
+ name="patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch"
+
+===== drivers/scsi/libata-core.c 1.5 vs edited =====
+--- 1.5/drivers/scsi/libata-core.c	Wed Oct 22 22:25:32 2003
++++ edited/drivers/scsi/libata-core.c	Wed Oct 29 20:27:27 2003
+@@ -1339,9 +1339,13 @@
+ 		outb(ap->ctl, ioaddr->ctl_addr);
+ 
+ 	/* determine if device 0/1 are present */
+-	dev0 = ata_dev_devchk(ap, 0);
+-	if (slave_possible)
+-		dev1 = ata_dev_devchk(ap, 1);
++	if (ap->flags & ATA_FLAG_SATA_RESET)
++		dev0 = 1;
++	else {
++		dev0 = ata_dev_devchk(ap, 0);
++		if (slave_possible)
++			dev1 = ata_dev_devchk(ap, 1);
++	}
+ 
+ 	if (dev0)
+ 		devmask |= (1 << 0);
+===== drivers/scsi/sata_via.c 1.2 vs edited =====
+--- 1.2/drivers/scsi/sata_via.c	Tue Oct 21 23:13:54 2003
++++ edited/drivers/scsi/sata_via.c	Wed Oct 29 20:27:43 2003
+@@ -108,7 +108,7 @@
+ 	{
+ 		.sht		= &svia_sht,
+ 		.host_flags	= ATA_FLAG_SATA | ATA_FLAG_NO_LEGACY
+-				  | ATA_FLAG_SRST,
++				  | ATA_FLAG_SATA_RESET,
+ 		.pio_mask	= 0x03,	/* pio3-4 */
+ 		.udma_mask	= 0x7f,	/* udma0-6 ; FIXME */
+ 		.port_ops	= &svia_sata_ops,
+
+--------------010805040206070300030101--
+

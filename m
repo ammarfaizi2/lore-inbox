@@ -1,73 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265028AbUD3AIk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265032AbUD3AOP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265028AbUD3AIk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 20:08:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265034AbUD3AIh
+	id S265032AbUD3AOP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 20:14:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265033AbUD3AOP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 20:08:37 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:27352 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S265028AbUD3AI3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 20:08:29 -0400
-Date: Thu, 29 Apr 2004 18:55:14 -0700
-From: Matt Tolentino <metolent@snoqualmie.dp.intel.com>
-Message-Id: <200404300155.i3U1tEs3004947@snoqualmie.dp.intel.com>
-To: akpm@osdl.org, alex.williamson@hp.com, Matt_Domsch@dell.com
-Subject: Re: [patch 1/3] efivars driver update and move
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+	Thu, 29 Apr 2004 20:14:15 -0400
+Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:41101 "EHLO
+	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S265032AbUD3AON (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 20:14:13 -0400
+Message-Id: <5.1.0.14.2.20040430101224.04275210@171.71.163.14>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 30 Apr 2004 10:14:09 +1000
+To: Andy Isaacson <adi@hexapodia.org>
+From: Lincoln Dale <ltd@cisco.com>
+Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
+Cc: Andrew Morton <akpm@osdl.org>, Marc Singer <elf@buici.com>,
+       riel@redhat.com, brettspamacct@fastclick.com, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040429165116.GA24033@hexapodia.org>
+References: <20040428201924.719dfb68.akpm@osdl.org>
+ <20040428180038.73a38683.akpm@osdl.org>
+ <Pine.LNX.4.44.0404282143360.19633-100000@chimarrao.boston.redhat.com>
+ <20040428185720.07a3da4d.akpm@osdl.org>
+ <20040429022944.GA24000@buici.com>
+ <20040428193541.1e2cf489.akpm@osdl.org>
+ <20040429031059.GA26060@buici.com>
+ <20040428201924.719dfb68.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 02:51 AM 30/04/2004, Andy Isaacson wrote:
+>What I want is for purely sequential workloads which far exceed cache
+>size (dd, updatedb, tar czf /backup/home.nightly.tar.gz /home) to avoid
+>thrashing my entire desktop out of memory.  I DON'T CARE if the tar
+>completed in 45 minutes rather than 80.  (It wouldn't, anyways, because
+>it only needs about 5 MB of cache to get every bit of the speedup it was
+>going to get.)  But the additional latency when I un-xlock in the
+>morning is annoying, and there is no benefit.
+>
+>For a more useful example, ideally I *should not be able to tell* that
+>"dd if=/hde1 of=/hdf1" is running. [1]  There is *no* benefit to cacheing
+>more than about 2 pages, under this workload.  But with current kernels,
+>IME, that workload results in a gargantuan buffer cache and lots of
+>swapout of apps I was using 3 minutes ago.  I've taken to walking away
+>for some coffee, coming back when it's done, and "sudo swapoff
+>/dev/hda3; sudo swapon -a" to avoid the latency that is so annoying when
+>trying to use bloaty apps.
 
-> On Thu, 2004-04-29 at 15:19, Matt Domsch wrote:
-> > On Thu, Apr 29, 2004 at 01:50:54PM -0600, Alex Williamson wrote:
-> > > # stat BootOrder-8be4df61-93ca-11d2-aa0d-00e098032b8c\ /
-> > >   File: `BootOrder-8be4df61-93ca-11d2-aa0d-00e098032b8c /'
-> > 
-> > FWIW, my Intel Tiger2-based system doesn't have the space 
-> at the end...
-> > 
-> > >         *(short_name + strlen(short_name)) = '-';
-> > >         efi_guid_unparse(vendor_guid, short_name + 
-> strlen(short_name));
-> > >         *(short_name + strlen(short_name)) = ' ';
-> > 
-> > even though looking at this I would have expected it to...
-> 
->    Yeah, I'm not sure how you couldn't have a space at the end...
+the mechanism already exists; teach tar/dd and any other app that you don't 
+want to pollute the page-cache with data with to use O_DIRECT.
 
-That's odd. 
-
-> > Can you remove that last line and see what it does?  Best as I can
-> > tell, it isn't necessary or desired.
-> 
->    Yes, removing that last line above gets rid of the space, 
-> everything
-> looks right, and efibootmgr doesn't complain.  I'd attach a patch but
-> I'm curious if Matt T. had some reason for adding it.
-
-I had it in there because when I originally rewrote this 
-driver for sysfs it kept cutting off the last character.  I
-had to put it aside for a bit and just didn't take it out
-last week before I resent it.  I just retried it on local
-ia64 and x86 machines and it worked fine on both accounts
-without the extra space. 
-
-Andrew, can you please apply the following patch to remove 
-space?
-
-thanks,
-matt
+i suspect updatedb is a different case as its probably filling the system 
+with dcache/inode entries.
 
 
-diff -urN linux-2.6.6-rc3-clean/drivers/firmware/efivars.c linux-2.6.6-rc3/drivers/firmware/efivars.c
---- linux-2.6.6-rc3-clean/drivers/firmware/efivars.c	2004-04-27 18:36:33.000000000 -0700
-+++ linux-2.6.6-rc3/drivers/firmware/efivars.c	2004-04-29 16:31:48.052355632 -0700
-@@ -633,7 +633,6 @@
- 
- 	*(short_name + strlen(short_name)) = '-';
- 	efi_guid_unparse(vendor_guid, short_name + strlen(short_name));
--	*(short_name + strlen(short_name)) = ' ';
- 
- 	kobject_set_name(&new_efivar->kobj, short_name);
- 	kobj_set_kset_s(new_efivar, vars_subsys);
+cheers,
+
+lincoln.
+

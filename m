@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261907AbUEMB25@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261711AbUEMBbM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261907AbUEMB25 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 21:28:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbUEMB25
+	id S261711AbUEMBbM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 21:31:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbUEMBbM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 21:28:57 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:27618 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S261907AbUEMB2y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 21:28:54 -0400
-Date: Thu, 13 May 2004 10:27:51 +0900
-From: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
-Subject: Re: [ANNOUNCE] [PATCH] Node Hotplug Support
-In-reply-to: <1084167941.28602.478.camel@nighthawk>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: tokunaga.keiich@jp.fujitsu.com, linux-kernel@vger.kernel.org,
-       linux-hotplug-devel@lists.sourceforge.net,
-       lhns-devel@lists.sourceforge.net
-Message-id: <20040513102751.48c61d48.tokunaga.keiich@jp.fujitsu.com>
-Organization: FUJITSU LIMITED
-MIME-version: 1.0
-X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <20040508003904.63395ca7.tokunaga.keiich@jp.fujitsu.com>
- <1083944945.23559.1.camel@nighthawk>
- <20040510104725.7c9231ee.tokunaga.keiich@jp.fujitsu.com>
- <1084167941.28602.478.camel@nighthawk>
+	Wed, 12 May 2004 21:31:12 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:38087 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261711AbUEMBbJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 21:31:09 -0400
+Subject: Re: From Eric Anholt:
+From: Eric Anholt <eta@lclark.edu>
+To: DRI <dri-devel@lists.sourceforge.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200405112334.i4BNYdjO018918@turing-police.cc.vt.edu>
+References: <200405112211.i4BMBQDZ006167@hera.kernel.org>
+	 <20040511222245.GA25644@kroah.com>
+	 <Pine.LNX.4.58.0405120018360.3826@skynet>
+	 <200405112334.i4BNYdjO018918@turing-police.cc.vt.edu>
+Content-Type: text/plain
+Message-Id: <1084412350.774.75.camel@leguin>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 12 May 2004 18:39:10 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 09 May 2004 22:45:42 -0700
-Dave Hansen <haveblue@us.ibm.com> wrote:
-
-> On Sun, 2004-05-09 at 18:47, Keiichiro Tokunaga wrote:
-> > There is no NUMA support in the current code yet.  I'll post a
-> > rough patch to show my idea soon.  I'm thinking to regard a
-> > container device that has PXM as a NUMA node so far.
+On Tue, 2004-05-11 at 16:34, Valdis.Kletnieks@vt.edu wrote:
+> On Wed, 12 May 2004 00:20:51 BST, Dave Airlie said:
 > 
-> Don't you think it would be a good idea to work with some of the current
-> code, instead of trying to wrap around it?  
+> > I just looked at drm.h and nearly all the ioctls use int, this file is
+> > included in user-space applications also at the moment, I'm worried
+> > changing all ints to __u32 will break some of these, anyone on DRI list
+> > care to comment?
+> 
+> Is this a case where somebody is *really* including kernel headers in userspace
+> and we need to smack them, or are they using a copy that's been sanitized
+> (and possibly fixed)?
 
-Are you saying that LHNS should use the current NUMA code
-(or coming code in the future) to support NUMA node hotplug?
+These headers being discussed are what define the interface between
+userland and kernel, and nothing else.  They are included by both
+userland (libdrm, statically linked in the 3d drivers and in the X
+server) and kernel.
 
-> I'm sure Matt Dobson can give you some great ideas about things in the
-> current NUMA code that aren't hotplug safe.  That really needs to be
-> done before any other work, anyway.  
+-- 
+Eric Anholt                                eta@lclark.edu          
+http://people.freebsd.org/~anholt/         anholt@FreeBSD.org
 
-Thanks,
-Kei
+

@@ -1,54 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313773AbSHGVJg>; Wed, 7 Aug 2002 17:09:36 -0400
+	id <S293203AbSHGVPR>; Wed, 7 Aug 2002 17:15:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314083AbSHGVJg>; Wed, 7 Aug 2002 17:09:36 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:63724 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S313773AbSHGVJf>;
-	Wed, 7 Aug 2002 17:09:35 -0400
-Date: Wed, 7 Aug 2002 23:12:04 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Andries.Brouwer@cwi.nl
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Marcin Dalecki <dalecki@evision.ag>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [bug, 2.5.29, (not IDE)] partition table (not) corruption?
-In-Reply-To: <UTC200208071843.g77IhUc20546.aeb@smtp.cwi.nl>
-Message-ID: <Pine.LNX.4.44.0208072309320.5699-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312558AbSHGVPR>; Wed, 7 Aug 2002 17:15:17 -0400
+Received: from kweetal.tue.nl ([131.155.2.7]:21936 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S293203AbSHGVPR>;
+	Wed, 7 Aug 2002 17:15:17 -0400
+Date: Wed, 7 Aug 2002 23:18:56 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Kurt Garloff <kurt@garloff.de>, Christoph Hellwig <hch@lst.de>,
+       Linux kernel list <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH] conditionally re-enable per-disk stats, convert to seq_file
+Message-ID: <20020807211856.GB322@win.tue.nl>
+References: <20020806160848.A2413@lst.de> <20020807210225.GD31622@nbkurt.etpnet.phys.tue.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020807210225.GD31622@nbkurt.etpnet.phys.tue.nl>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Wed, 7 Aug 2002 Andries.Brouwer@cwi.nl wrote:
+> On Tue, Aug 06, 2002 at 04:08:48PM +0200, Christoph Hellwig wrote:
+> > This patch against 2.4.20-pre1 converts /proc/partitions to the seq_file
+> > interface as in 2.5, makes it report the sard-style extended disk
+> > statistics condititional on CONFIG_BLK_STATS and disables the gathering
+> > of those totally otherwise to not waste memory and processing power.
 
-> LILO without "linear" or "lba32" is inherently broken: it will talk CHS
-> at boot time to the BIOS and hence needs a geometry and install time,
-> and nobody knows the geometry required. So, if LILO doesnt break, this
-> is pure coincidence.
+But why in /proc/partitions ?
+Maybe /proc/partitions can go away eventually with all info available
+under driverfs or so. But for the time being, /proc/partitions is used,
+and some changes are planned to make identification of the devices
+involved easier.
+It is really ugly to stuff a lot of garbage into a file just because
+it happens to exist already. If you want disk statistics, why not
+put it in /proc/diskstatistics?
 
-well, lilo without linear worked for like years on this box ...
-
-> Since 2.5.30 many people will have a different geometry, so many people
-> will have to find grub or a recent LILO, or add "linear" to their old
-> LILO. This is all well understood - I just repeat it a few times in the
-> hope that that will reduce the amount of email.
-> 
-> But now you talk about vanilla 2.5.29, and I am surprised. Could you
-> send the kernel boot messages concerning that disk (dmesg | grep hd) for
-> 2.5.28 and 2.5.29 and 2.5.30?
-
-will do - it might have started in 2.5.28. But since i use the BK tree, i
-might have tested an 'almost 2.5.30' 2.5.29 BK tree.
-
-> And you talk about corruption, and I am surprised again. Have you
-> verified that there really was a difference? Or do you only suspect
-> corruption because LILO has problem? (In that case I can assure you that
-> there was no corruption.)
-
-you are right, there was no corruption most likely. And the IDE subsystem
-is most definitely innocent.
-
-	Ingo
-
+Andries

@@ -1,104 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262480AbSKCUN2>; Sun, 3 Nov 2002 15:13:28 -0500
+	id <S263216AbSKCUSU>; Sun, 3 Nov 2002 15:18:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262481AbSKCUN2>; Sun, 3 Nov 2002 15:13:28 -0500
-Received: from smtp-outbound.cwctv.net ([213.104.18.10]:44105 "EHLO
-	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S262480AbSKCUN0>;
-	Sun, 3 Nov 2002 15:13:26 -0500
-From: <Hell.Surfers@cwctv.net>
-To: vojtech@suse.cz, jgarzik@pobox.com, josh@stack.nl,
-       linux-kernel@vger.kernel.org, vojtech@suse.cz
-Date: Sun, 3 Nov 2002 20:19:19 +0000
-Subject: Re: Petition against kernel configuration options madness...
-MIME-Version: 1.0
-X-Mailer: Liberate TVMail 2.6
-Content-Type: multipart/mixed;
- boundary="1036354759206"
-Message-ID: <0e23310182003b2DTVMAIL11@smtp.cwctv.net>
-Sender: linux-kernel-owner@vger.kernel.org
-X-Mailing-List: linux-kernel@vger.kernel.org
-
-
---1036354759206
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-Then perhaps the internal speaker could be moved...
-
-Regards, Dean.
-
-On 	Sun, 3 Nov 2002 20:07:05 +0100 	Vojtech Pavlik <vojtech@suse.cz> wrote:
-
---1036354759206
-Content-Type: message/rfc822
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
-	 Sun, 3 Nov 2002 19:06:38 +0000
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262322AbSKCTAv>; Sun, 3 Nov 2002 14:00:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262325AbSKCTAv>; Sun, 3 Nov 2002 14:00:51 -0500
-Received: from twilight.ucw.cz ([195.39.74.230]:6075 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S262322AbSKCTAo>;
-	Sun, 3 Nov 2002 14:00:44 -0500
-Received: (from vojtech@localhost)
-	by twilight.ucw.cz (8.10.2/8.9.3) id gA3J75K08383;
-	Sun, 3 Nov 2002 20:07:05 +0100
-Date: Sun, 3 Nov 2002 20:07:05 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Jos Hulzink <josh@stack.nl>, linux-kernel@vger.kernel.org,
-	Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: Petition against kernel configuration options madness...
-Message-ID: <20021103200704.A8377@ucw.cz>
-References: <200211031809.45079.josh@stack.nl> <3DC56270.8040305@pobox.com>
+	id <S263280AbSKCUSU>; Sun, 3 Nov 2002 15:18:20 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:7949 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263216AbSKCUSS>; Sun, 3 Nov 2002 15:18:18 -0500
+Date: Sun, 3 Nov 2002 20:24:46 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Sam Ravnborg <sam@ravnborg.org>,
+       Kai Germaschewski <kai-germaschewski@uiowa.edu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5: troubles with piping make output
+Message-ID: <20021103202446.F5589@flint.arm.linux.org.uk>
+Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
+	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+	Sam Ravnborg <sam@ravnborg.org>,
+	Kai Germaschewski <kai-germaschewski@uiowa.edu>,
+	linux-kernel@vger.kernel.org
+References: <200211031122.gA3BMbp27805@Port.imtp.ilyichevsk.odessa.ua> <20021103182805.GA1057@mars.ravnborg.org> <200211031946.gA3JkIp29186@Port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.44.0211032106010.6949-100000@serv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3DC56270.8040305@pobox.com>; from jgarzik@pobox.com on Sun, Nov 03, 2002 at 12:52:48PM -0500
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0211032106010.6949-100000@serv>; from zippel@linux-m68k.org on Sun, Nov 03, 2002 at 09:10:54PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
-Precedence: bulk
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
 
-On Sun, Nov 03, 2002 at 12:52:48PM -0500, Jeff Garzik wrote:
-> Jos Hulzink wrote:
+On Sun, Nov 03, 2002 at 09:10:54PM +0100, Roman Zippel wrote:
+> > Looks like fflush() got forgotten somewhere ;)
 > 
-> >It took me about an hour to find out why my keyboard didn't work in 2.5.45. 
-> >Well... after all it seemed that I need to enable 4 ! options inside the 
-> >input configuration, just to get my default, nothing special PS/2 keyboard up 
-> >and running. Oh, and I didn't even have my not so fancy boring default PS/2 
-> >mouse configured then. Guys, being able to configure everything is nice, but 
-> >with the 2.5 kernel, things are definitely getting out of control IMHO.
-> >  
-> >
+> What shell are you using?
+> This is what should happen:
 > 
-> This is potentially becoming a FAQ...  I ran into this too, as did 
-> several people in the office.  People who compile custom kernels seem to 
-> run into this when they first jump into 2.5.x.  AT Keyboard support is 
-> definitely buried :/
+> $ make 2>&1 | tee
+> make[1]: `scripts/kconfig/conf' is up to date.
+> ./scripts/kconfig/conf -s arch/i386/Kconfig
+> #
+> # using defaults found in .config
+> #
+> *
+> * Restart config...
+> *
+> *
+> * Processor type and features
+> *
+> Processor family (386, 486, 586/K5/5x86/6x86/6x86MX, Pentium-Classic, Pentium-MMX, Pentium-Pro/Celeron/Pentium-II, Pentium-III/Celeron(Coppermine), Pentium-4, K6/K6-II/K6-III, Athlon/Duron/K7, Elan, Crusoe, Winchip-C6, Winchip-2, Winchip-2A/Winchip-3, CyrixIII/VIA-C3) [Pentium-Pro/Celeron/Pentium-II] (NEW) aborted!
 > 
-> Unfortunately I don't have any concrete suggestions for Vojtech (input 
-> subsystem maintainer), just a request that it becomes easier and more 
-> obvious how to configure the keyboard and mouse that is found on > 90% 
-> of all Linux users computers [IMO]...
+> Console input/output is redirected. Run 'make oldconfig' to update configuration.
+> 
+> make: *** [include/linux/autoconf.h] Error 1
 
-Too bad you don't have any suggestions. I completely agree this should
-be simplified, while I wouldn't be happy to lose the possibility of not
-compiling AT keyboard support in.
+No thanks.  That breaks my build scripts.  I don't want to go logging into
+multiple machines just to run make oldconfig when the old system worked
+perfectly well.
+
+"perfectly well" here means that make oldconfig worked over ssh, with the
+local end logging the stdout to a file as well as the terminal, with stdin
+from the terminal.  It is quite reasonable to expect the configuration to
+continue as normal.
+
+So, here's a patch that adds the necessary fflush to make this situation
+work (for me at least.)
+
+diff -u orig/scripts/kconfig/conf.c linux/scripts/kconfig/conf.c
+--- orig/scripts/kconfig/conf.c	Sat Nov  2 18:58:34 2002
++++ linux/scripts/kconfig/conf.c	Fri Nov  1 17:02:19 2002
+@@ -115,6 +115,7 @@
+ 			exit(1);
+ 		}
+ 	case ask_all:
++		fflush(stdout);
+ 		fgets(line, 128, stdin);
+ 		return;
+ 	case set_default:
+
 
 -- 
-Vojtech Pavlik
-SuSE Labs
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
---1036354759206--
-
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,80 +1,69 @@
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932366AbWCUJnA (ORCPT <rfc822;ralf@linux-mips.org>);
-	Tue, 21 Mar 2006 04:43:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbWCUJnA
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Mar 2006 04:43:00 -0500
-Received: from [210.83.202.9] ([210.83.202.9]:11416 "HELO virgilio.it")
-	by vger.kernel.org with SMTP id S932366AbWCUJm7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Mar 2006 04:42:59 -0500
-Message-ID: <F96A85E2.C668F2C@virgilio.it>
-Date: Tue, 21 Mar 2006 17:13:22 +0700
-Reply-To: "THANKS" <q_hossain@virgilio.it>
-From: "THANKS" <q_hossain@virgilio.it>
-User-Agent: Mozilla 3.04 (WinNT; I)
-X-Accept-Language: en-us
+X-Warning: Original message contained 8-bit characters, however during
+	   the SMTP transport session the receiving system did not announce
+	   capability of receiving 8-bit SMTP (RFC 1651-1653), and as this
+	   message does not have MIME headers (RFC 2045-2049) to enable
+	   encoding change, we had very little choice.
+X-Warning: We ASSUME it is less harmful to add the MIME headers, and
+	   convert the text to Quoted-Printable, than not to do so,
+	   and to strip the message to 7-bits.. (RFC 1428 Appendix A)
+X-Warning: We don't know what character set the user used, thus we had to
+	   write these MIME-headers with our local system default value.
 MIME-Version: 1.0
-To: "QUAZI HOSSAIN" <linux-kernel@vger.kernel.org>
-Subject: INTRODUCTION OF MYSELF
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+	id S1751424AbWCWJoH (ORCPT <rfc822;ralf@linux-mips.org>);
+	Thu, 23 Mar 2006 04:44:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751260AbWCWJoG
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 23 Mar 2006 04:44:06 -0500
+Received: from [85.238.164.32] ([85.238.164.32]:50700 "HELO 85.238.164.32")
+	by vger.kernel.org with SMTP id S1751451AbWCWJoF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Mar 2006 04:44:05 -0500
+X-Apparently-To: linux-kernel@vger.kernel.org
+X-Sieve: CMU Sieve 2.2
+Date: Sun, 23 Jan 2005 09:49:26 +0000
+From: "Alejandro Hardin" <AlejandroHardin06@mail2world.com>
+Message-Id: <CFE8.AA79.9Aqgrttd-003003eewhkxp@mac.com>
+X-Accept-Language: en,zh-TW,zh-CN,zh,ja,ko,tr,ru
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932366AbWCUJnA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751424AbWCWJoH@vger.kernel.org>
 
-Hello!
-
-Compliments
-
-I have been searching for a person whom we can jointly invest, Trust in and
-also solicit an honorable partnership with. 
-I want to confirm that your contact information was got from a web email
-directory. I represent a client who is interested in investing in your
-country in areas related to agriculture or any business of your choice, to
-initiate a proper and structured relationship. Please let me know what your
-response will be to an offer to receive investment funds in cash if; 
-
-1. The said fund amounts to US$38,500,000 (Eight Million, Five hundred
-Thousand US Dollars).
-
-2. The said fund is in cash and needs to be transferred in the same state,
-due to some covert reasons.
-
-3. The fund could be invested through your agency in the purchase of
-facility and assets for investment purposes within your country, in
-collaboration with the agency of the current brokers.
-
-4. This transaction will result in you being paid a commission of 10% off
-the investment capital.
-
-5. The fund owners desire absolute confidentiality and professionalism in
-the handling of this matter, due to risks of seizure of the fund and
-litigation if personalities are revealed. 
-
-The fund owners have interest to invest in any of the following industries,
-depending on which is most transparent, low risk, and average profit
-yielding: Power Generation, Telecommunication and Software Development, Film
-Production, Hardware Manufacturing and Export, Medicine, Construction or
-Real-Estate Development.
-Based upon the information provided above, I would like to know if you
-shall be able to assist in the nature of managing the investment fund. You
-must note that the fund can only be transferred in cash, therefore if you
-are in acceptance to participate with us in the investment of the fund, you
-shall also need to participate with us in the transfer of the fund in cash
-in the manner of receiving the fund in cash and depositing it in a Trusted
-account opened in favour of the investment to be established.
-And this account would serve as the base or operating account for the
-investment. I am obliged to believe that you would be able to understand the
-information above, and should you need further information, please do not
-hesitate to ask.
-Kindly confirm receipt of this email by sending all correspondence to: 
-quazihossain77@netscape.com
- 
-Sincerely,
-Quazi Hossain (Esq.)
-Tel: +871 763 591 465
-Fax: +871 763 591 466
+pijvgr
+Subject: Time, Money, Keeping you from earning the Degree you deserve? =
+- Alejandro
+X-Mailer: Forte Agent 1.91/32.564
 
 
+A Genuine University Degree in 4-6 weeks!
+
+Have you ever thought that the only thing stopping you from a great job=
+ and better pay was a few letters behind you name?
+Well now you can get them!
+
+BA      BSc      MA      MSc      MBA      PhD
+
+Within 4-6 weeks!
+No Study Required!
+100% Verifiable!
+
+These are real, genuine degrees that include Bachelors, Masters, MBA an=
+d Doctorate Degrees. They are fully verifiable and certified transcript=
+s are also available.=20
+
+
+Just call the number below.
+You=92ll thank me later=85
+
+1-813-436-5335
+24 hours a day, 7 days a week including Sundays and Holidays
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,103 +1,187 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269128AbTBWTZz>; Sun, 23 Feb 2003 14:25:55 -0500
+	id <S268530AbTBWTnF>; Sun, 23 Feb 2003 14:43:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269134AbTBWTZz>; Sun, 23 Feb 2003 14:25:55 -0500
-Received: from port326.ds1-brh.adsl.cybercity.dk ([217.157.160.207]:1904 "EHLO
-	mail.jaquet.dk") by vger.kernel.org with ESMTP id <S269128AbTBWTZv>;
-	Sun, 23 Feb 2003 14:25:51 -0500
-Date: Sun, 23 Feb 2003 20:35:27 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.62 and NFS, a BUG
-Message-ID: <20030223203526.A16183@jaquet.dk>
+	id <S268533AbTBWTnF>; Sun, 23 Feb 2003 14:43:05 -0500
+Received: from adsl-67-121-155-191.dsl.pltn13.pacbell.net ([67.121.155.191]:12005
+	"EHLO influx.triplehelix.org") by vger.kernel.org with ESMTP
+	id <S268530AbTBWTnC>; Sun, 23 Feb 2003 14:43:02 -0500
+From: Joshua Kwan <joshk@triplehelix.org>
+Date: Sun, 23 Feb 2003 11:52:00 -0800
+To: John Weber <weber@nyc.rr.com>
+Subject: Re: 2.5 weirdness
+Message-ID: <20030223195200.GA10668@triplehelix.org>
+References: <20030221221814.GA1316@triplehelix.org> <20030221152502.A9282@sonic.net> <3E592431.3080606@nyc.rr.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="qMm9M+Fa2AknHoGS"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="6sX45UoQRIJXqkqR"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-PGP-Key: http://www.jaquet.dk/rasmus/pubkey.asc
-X-PGP-Fingerprint: 925A 8E4B 6D63 1C22 BFB9  29CF 9592 4049 9E9E 26CE
+In-Reply-To: <3E592431.3080606@nyc.rr.com>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---qMm9M+Fa2AknHoGS
+--6sX45UoQRIJXqkqR
+Content-Type: multipart/mixed; boundary="lrZ03NoBR/3+SXJZ"
+Content-Disposition: inline
+
+
+--lrZ03NoBR/3+SXJZ
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi,
-
-I just booted 2.5.62 and got the following during boot/init:
-
-
-Unable to handle kernel NULL pointer dereference at virtual address 00000286
- printing eip:
-c0183e11
-*pde =3D 00000000
-Oops: 0000
-CPU:    0
-EIP:    0060:[<c0183e11>]    Not tainted
-EFLAGS: 00010203
-EIP is at d_alloc+0x51/0x370
-eax: 00000286   ebx: ca271e4c   ecx: 000000a1   edx: caa1780c
-esi: 00000286   edi: caa1780c   ebp: ca2f7c04   esp: ca2f7b7c
-ds: 007b   es: 007b   ss: 0068
-Process mount (pid: 224, threadinfo=3Dca2f6000 task=3Dca89f320)
-Stack: 0000029c 000000d0 00000038 00000000 cbf57148 ca2f6000 ca2f6000 00000=
-800=20
-       00000000 00000286 cbfef350 00000286 00000000 ca274d48 ca22e724 ca2f7=
-c04=20
-       fffffff4 ca274d48 ca22e724 ca2f7c04 c01790a9 ca22e724 ca2f7c04 00000=
-000=20
-Call Trace:
- [<c01790a9>] lookup_hash+0x89/0xd0
- [<c036c793>] rpc_rmdir+0x93/0xe0
- [<c0354d89>] rpc_destroy_client+0x29/0x80
- [<c035d1ff>] rpc_release_task+0x2af/0x4b0
- [<c0355eee>] call_decode+0xde/0x1d0
- [<c035c554>] __rpc_execute+0x514/0x5b0
- [<c035f513>] rpcauth_bindcred+0x83/0xd0
- [<c011e950>] default_wake_function+0x0/0x20
- [<c035537d>] rpc_call_sync+0xbd/0x100
- [<c035a950>] rpc_run_timer+0x0/0x1f0
- [<c0366e35>] rpc_register+0xc5/0x140
- [<c0110000>] handle_vm86_fault+0x50/0x8e0
- [<c036097e>] svc_register+0x26e/0x2e0
- [<c01494c5>] kmalloc+0x95/0xd0
- [<c03602ed>] svc_create+0x10d/0x120
- [<c01f3fb3>] lockd_up+0x73/0x180
- [<c01e332f>] nfs_fill_super+0x35f/0x3f0
- [<c016da82>] sget+0x242/0x300
- [<c0149401>] kmem_cache_alloc+0x71/0xa0
- [<c01e4fcc>] nfs_get_sb+0x1ac/0x240
- [<c016f12b>] do_kern_mount+0x5b/0xd0
- [<c018caf0>] do_add_mount+0xa0/0x1b0
- [<c018ce40>] do_mount+0x160/0x1b0
- [<c018ccda>] copy_mount_options+0xda/0xe0
- [<c018d396>] sys_mount+0xb6/0xf0
- [<c010c28f>] syscall_call+0x7/0xb
-
-Code: f3 a5 a8 02 74 02 66 a5 a8 01 74 01 a4 8b 45 04 c6 04 10 00=20
+On Sun, Feb 23, 2003 at 02:42:41PM -0500, John Weber wrote:
+> The problem is a little stranger than that.  On my system, cardmgr only=
 =20
+> "believes" a card is inserted twice if a card is in the pccard slot when=
+=20
+>  cardmgr is intially run.  Otherwise, cardmgr and the drivers appear to=
+=20
+> function correctly.  Josh, can you try this?
 
-Should further elaborations, ksymoops runs or such like be
-required, let me know. I am open for testing patches.
+This was true.
 
-Regards,
-  Rasmus
+Dominik's patch which is attached has fixed that for me, at least. This
+applies with some offset to 2.5.62, but it works.
 
---qMm9M+Fa2AknHoGS
+Regards
+Josh
+
+--=20
+New PGP public key: 0x27AFC3EE
+
+--lrZ03NoBR/3+SXJZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="pcmcia.patch"
+Content-Transfer-Encoding: quoted-printable
+
+diff -ruN linux-original/drivers/pcmcia/cs.c linux/drivers/pcmcia/cs.c
+--- linux-original/drivers/pcmcia/cs.c	2003-02-23 10:04:03.000000000 +0100
++++ linux/drivers/pcmcia/cs.c	2003-02-23 10:04:25.000000000 +0100
+@@ -337,13 +337,14 @@
+ 		return -ENOMEM;
+ 	memset(s_info, 0, cls_d->nsock * sizeof(socket_info_t));
+=20
++	cls_d->s_info =3D s_info;
++
+ 	/* socket initialization */
+ 	for (i =3D 0; i < cls_d->nsock; i++) {
+ 		socket_info_t *s =3D &s_info[i];
+=20
+-		cls_d->s_info[i] =3D s;
+ 		s->ss_entry =3D cls_d->ops;
+-		s->sock =3D i;
++		s->sock =3D i + cls_d->sock_offset;
+=20
+ 		/* base address =3D 0, map =3D 0 */
+ 		s->cis_mem.flags =3D 0;
+diff -ruN linux-original/drivers/pcmcia/pci_socket.c linux/drivers/pcmcia/p=
+ci_socket.c
+--- linux-original/drivers/pcmcia/pci_socket.c	2003-02-23 10:04:03.00000000=
+0 +0100
++++ linux/drivers/pcmcia/pci_socket.c	2003-02-23 10:04:25.000000000 +0100
+@@ -171,6 +171,16 @@
+ 	int err;
+ =09
+ 	memset(socket, 0, sizeof(*socket));
++
++	/* prepare class_data */
++	socket->cls_d.sock_offset =3D nr;
++	socket->cls_d.nsock =3D 1; /* yenta is 1, no other low-level driver uses
++			     this yet */
++	socket->cls_d.ops =3D &pci_socket_operations;
++	socket->cls_d.use_bus_pm =3D 1;
++	dev->dev.class_data =3D &socket->cls_d;
++
++	/* prepare pci_socket_t */
+ 	socket->dev =3D dev;
+ 	socket->op =3D ops;
+ 	pci_set_drvdata(dev, socket);
+@@ -186,18 +196,6 @@
+=20
+ int cardbus_register(struct pci_dev *p_dev)
+ {
+-	pci_socket_t *socket =3D pci_get_drvdata(p_dev);
+-	struct pcmcia_socket_class_data *cls_d;
+-
+-	if (!socket)
+-		return -EINVAL;
+-
+-	cls_d =3D &socket->cls_d;
+-	cls_d->nsock =3D 1; /* yenta is 1, no other low-level driver uses
+-			     this yet */
+-	cls_d->ops =3D &pci_socket_operations;
+-	cls_d->use_bus_pm =3D 1;
+-	p_dev->dev.class_data =3D cls_d;
+ 	return 0;
+ }
+=20
+@@ -227,14 +225,16 @@
+ static int cardbus_suspend (struct pci_dev *dev, u32 state)
+ {
+ 	pci_socket_t *socket =3D pci_get_drvdata(dev);
+-	pcmcia_suspend_socket (socket->pcmcia_socket);
++	if (socket && socket->cls_d.s_info)
++		pcmcia_suspend_socket (socket->cls_d.s_info);
+ 	return 0;
+ }
+=20
+ static int cardbus_resume (struct pci_dev *dev)
+ {
+ 	pci_socket_t *socket =3D pci_get_drvdata(dev);
+-	pcmcia_resume_socket (socket->pcmcia_socket);
++	if (socket && socket->cls_d.s_info)
++		pcmcia_resume_socket (socket->cls_d.s_info);
+ 	return 0;
+ }
+=20
+diff -ruN linux-original/drivers/pcmcia/pci_socket.h linux/drivers/pcmcia/p=
+ci_socket.h
+--- linux-original/drivers/pcmcia/pci_socket.h	2003-02-23 10:04:03.00000000=
+0 +0100
++++ linux/drivers/pcmcia/pci_socket.h	2003-02-23 10:04:25.000000000 +0100
+@@ -20,7 +20,6 @@
+ 	socket_cap_t cap;
+ 	spinlock_t event_lock;
+ 	unsigned int events;
+-	struct socket_info_t *pcmcia_socket;
+ 	struct work_struct tq_task;
+ 	struct timer_list poll_timer;
+=20
+diff -ruN linux-original/include/pcmcia/ss.h linux/include/pcmcia/ss.h
+--- linux-original/include/pcmcia/ss.h	2003-02-23 10:04:12.000000000 +0100
++++ linux/include/pcmcia/ss.h	2003-02-23 10:04:25.000000000 +0100
+@@ -145,12 +145,12 @@
+  *  Calls to set up low-level "Socket Services" drivers
+  */
+=20
+-#define MAX_SOCKETS_PER_DEV 8
+-
+ struct pcmcia_socket_class_data {
+ 	unsigned int nsock;			/* number of sockets */
++	unsigned int sock_offset;		/* socket # (which is
++	 * returned to driver) =3D sock_offset + (0, 1, .. , (nsock-1) */
+ 	struct pccard_operations *ops;		/* see above */
+-	void *s_info[MAX_SOCKETS_PER_DEV];	/* socket_info_t */
++	void *s_info;				/* socket_info_t */
+ 	unsigned int use_bus_pm;
+ };
+
+
+--lrZ03NoBR/3+SXJZ--
+
+--6sX45UoQRIJXqkqR
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQE+WSJ+lZJASZ6eJs4RAik+AKCeWZKwILNDQMem6o2L04P1T7Q+3ACeIpLB
-aJZFjIF8hCrX+jnakb/NWsI=
-=tdK7
+iD8DBQE+WSZgT2bz5yevw+4RArdfAKCOis9Hhk5ouaKy2YV9sHOpQyWcZgCdHIBq
+t0b2pOz/NeyJnztuc9C+O/U=
+=7y7U
 -----END PGP SIGNATURE-----
 
---qMm9M+Fa2AknHoGS--
+--6sX45UoQRIJXqkqR--

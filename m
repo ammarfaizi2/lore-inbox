@@ -1,76 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264371AbTEHBGY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 21:06:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264373AbTEHBGY
+	id S264362AbTEHBFE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 21:05:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264363AbTEHBFE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 21:06:24 -0400
-Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:15177 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S264371AbTEHBGW
+	Wed, 7 May 2003 21:05:04 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:30133 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264362AbTEHBFD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 21:06:22 -0400
-Subject: Re: 2.5.69 Interrupt Latency
-From: Paul Fulghum <paulkf@microgate.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030507152856.2a71601d.akpm@digeo.com>
-References: <1052323940.2360.7.camel@diemos>
-	 <1052336482.2020.8.camel@diemos>  <20030507152856.2a71601d.akpm@digeo.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1052353539.1495.11.camel@doobie>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 07 May 2003 19:25:39 -0500
-Content-Transfer-Encoding: 7bit
+	Wed, 7 May 2003 21:05:03 -0400
+Date: Thu, 8 May 2003 03:17:17 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Dave Peterson <dsp@llnl.gov>
+cc: <linux-kernel@vger.kernel.org>, <axboe@suse.de>, <davej@suse.de>
+Subject: Re: [PATCH] fixes for linked list bugs in block I/O code
+In-Reply-To: <200305071738.09209.dsp@llnl.gov>
+Message-ID: <Pine.SOL.4.30.0305080311330.21696-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-05-07 at 17:28, Andrew Morton wrote:
-> Paul Fulghum <paulkf@microgate.com> wrote:
+
+On Wed, 7 May 2003, Dave Peterson wrote:
+
+> On Wednesday 07 May 2003 05:26 pm, Bartlomiej Zolnierkiewicz wrote:
+> > On Wed, 7 May 2003, Dave Peterson wrote:
+> > > On Wednesday 07 May 2003 04:42 pm, Bartlomiej Zolnierkiewicz wrote:
+> > > > > ========== START OF 2.5.69 PATCH FOR drivers/block/ll_rw_blk.c
+> > > > > =========== --- ll_rw_blk.c.old     Wed May  7 15:55:18 2003
+> > > > > +++ ll_rw_blk.c.new     Wed May  7 16:01:56 2003
+> > > > > @@ -1721,6 +1721,7 @@
+> > > > >                                 break;
+> > > > >                         }
+> > > > >
+> > > > > +                       bio->bi_next = req->biotail->bi_next;
+> > > >
+> > > > This is simply wrong, look at the line below.
+> > > >
+> > > > >                         req->biotail->bi_next = bio;
+> > > >
+> > > > req->bio - first bio
+> > > > req->bio->bi_next - next bio
+> > > > ...
+> > > > req->biotail - last bio
+> > > >
+> > > > so req->biotail->bi_next should be NULL
+> > >
+> > > I believe it is correct.  Assuming that the list is initially in a
+> > > sane state, req->biotail->bi_next will be NULL immediately before
+> > > executing the statement that I added.  Therefore, my fix will set
+> > > bio->bi_next to NULL, which is what we want because bio becomes the
+> > > new end of the list.
 > >
-> > 2.5.69
-> > Latency 100-110usec (5x increase)
-> > Spikes from 5-10 milliseconds
-> > 
-> > This is all on a PCI adapter not sharing interrupts
-> > on a dual Pentium II-400 Netserver LC3.
-> > 
-> > Any ideas what happened?
-> 
-> Could be that some random piece of code forgot to reenable interrupts, and
-> things stay that way until they get reenabled again by schedule() or
-> syscall return.
-> 
-> One way of finding the culprit would be:
-> 
-> 	my_isr()
-> 	{
-> 		if (this interrupt is more than 5 milliseconds delayed)
-> 			dump_stack();
-> 	}
-> 
-> the stack dump will point up at the place where interrupts finally got
-> enabled.
+> > Yes, but bio->bi_next is a NULL already.
+>
+> I think assuming this is bad programming form.  You are assuming that
+> the memory allocator zeros out newly allocated memory.  Though your
 
-I'll give that a try tomorrow.
+No, it is not memory allocator but block layer.
+Look at bio_init(), there is bio->bi_next = NULL explicitly.
 
-> If you can describe what drivers are in use, and what workload triggers the
-> problem then it may be locatable by inspection.
+> assumption may be correct, it's always possible that this behavior will
+> change some day (perhaps for efficiency reasons), causing your code
+> to break.  In my opinion, the savings of a few cpu clock cycles that
+> you gain by omitting the initialization isn't worth compromising
+> the robustness of your code.
 
-It happens on both of the machines I tried (server and laptop).
-I think the only common hardware between the two is the net
-controller which is intel etherpro 100 based. I'll check tomorrow
-to be sure.
+Agreed, but not the case here (speaking 2.5).
+Better add check for bio->bi_next != NULL to catch improper usage.
 
-There was essentially no work load (no net traffic, no CPU
-intensive program, no disk activity). I was just doing simple
-loopback tests on our serial devices (PCI based on server
-and PC Card on laptop).
+--
+Bartlomiej
 
-Paul Fulghum
-paulkf@microgate.com
-
-
-
+> -Dave
 

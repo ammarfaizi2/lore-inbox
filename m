@@ -1,70 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261905AbUCPOrN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 09:47:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262220AbUCPOqA
+	id S262337AbUCPO6w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 09:58:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262271AbUCPO6P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 09:46:00 -0500
-Received: from styx.suse.cz ([82.208.2.94]:27521 "EHLO shadow.ucw.cz")
-	by vger.kernel.org with ESMTP id S261891AbUCPOT3 convert rfc822-to-8bit
+	Tue, 16 Mar 2004 09:58:15 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:52112 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262335AbUCPO4g
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 09:19:29 -0500
-Content-Transfer-Encoding: 7BIT
-Message-Id: <10794467762838@twilight.ucw.cz>
-Content-Type: text/plain; charset=US-ASCII
-Subject: [PATCH 1/44] Fix hid-core for devices with #usages < #values
-X-Mailer: gregkh_patchbomb_levon_offspring
-To: torvalds@osdl.org, vojtech@ucw.cz, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Date: Tue, 16 Mar 2004 15:19:36 +0100
-In-Reply-To: <20040316141703.GA5214@ucw.cz>
-From: Vojtech Pavlik <vojtech@suse.cz>
+	Tue, 16 Mar 2004 09:56:36 -0500
+Message-ID: <405714EB.9070802@us.ibm.com>
+Date: Tue, 16 Mar 2004 06:53:31 -0800
+From: Nivedita Singhvi <niv@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Madhavi <madhavis@sasken.com>
+CC: linux-kernel@vger.kernel.org, netdev <netdev@oss.sgi.com>
+Subject: Re: Receiving MLDv1 reports in a daemon
+References: <Pine.LNX.4.33.0403161630480.22718-100000@pcz-madhavis.sasken.com>
+In-Reply-To: <Pine.LNX.4.33.0403161630480.22718-100000@pcz-madhavis.sasken.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can pull this changeset from:
-	bk://kernel.bkbits.net/vojtech/input
+Madhavi wrote:
 
-===================================================================
+> I am trying to incorporate the functionality of MLDv1 into a daemon. This
+> would be in addition to the functionality already supported by the kernel
+> IPv6 stack.
 
-ChangeSet@1.1474.188.1, 2004-01-26 13:15:32+01:00, jamesl@appliedminds.com
-  input: Fix hid-core for devices that have less usages than values
-         in a hid report. We could iterate beyond the end of array of
-         usages before.
+The correct mailing list to post to in this case
+would be netdev@oss.sgi.com, the networking development
+mailing list (i.e. the place to catch the MLD author,
+for instance ;)).
+
+thanks,
+Nivedita
 
 
- hid-core.c |   11 +++++++++--
- 1 files changed, 9 insertions(+), 2 deletions(-)
 
-===================================================================
-
-diff -Nru a/drivers/usb/input/hid-core.c b/drivers/usb/input/hid-core.c
---- a/drivers/usb/input/hid-core.c	Tue Mar 16 13:20:15 2004
-+++ b/drivers/usb/input/hid-core.c	Tue Mar 16 13:20:15 2004
-@@ -224,6 +224,9 @@
- 	offset = report->size;
- 	report->size += parser->global.report_size * parser->global.report_count;
- 
-+	if (usages < parser->global.report_count)
-+		usages = parser->global.report_count;
-+
- 	if (usages == 0)
- 		return 0; /* ignore padding fields */
- 
-@@ -235,9 +238,13 @@
- 	field->application = hid_lookup_collection(parser, HID_COLLECTION_APPLICATION);
- 
- 	for (i = 0; i < usages; i++) {
--		field->usage[i].hid = parser->local.usage[i];
-+		int j = i;
-+		/* Duplicate the last usage we parsed if we have excess values */
-+		if (i >= parser->local.usage_index)
-+			j = parser->local.usage_index - 1;
-+		field->usage[i].hid = parser->local.usage[j];
- 		field->usage[i].collection_index =
--			parser->local.collection_index[i];
-+			parser->local.collection_index[j];
- 	}
- 
- 	field->maxusage = usages;
 

@@ -1,112 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289115AbSAGEeH>; Sun, 6 Jan 2002 23:34:07 -0500
+	id <S289111AbSAGEcH>; Sun, 6 Jan 2002 23:32:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289116AbSAGEd6>; Sun, 6 Jan 2002 23:33:58 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:2064 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S289115AbSAGEdw>; Sun, 6 Jan 2002 23:33:52 -0500
-Message-ID: <3C3923F5.485668AA@zip.com.au>
-Date: Sun, 06 Jan 2002 20:28:37 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: Alexander Viro <viro@math.psu.edu>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] truncate fixes
-In-Reply-To: <3C36DEA9.AEA2A402@zip.com.au>, <3C36DEA9.AEA2A402@zip.com.au>; <20020107043236.J1561@athlon.random> <3C391A96.63FDBA8@zip.com.au>,
-		<3C391A96.63FDBA8@zip.com.au>; from akpm@zip.com.au on Sun, Jan 06, 2002 at 07:48:38PM -0800 <20020107051259.L1561@athlon.random>
+	id <S289115AbSAGEb6>; Sun, 6 Jan 2002 23:31:58 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:24929 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S289111AbSAGEbn>; Sun, 6 Jan 2002 23:31:43 -0500
+Date: Mon, 7 Jan 2002 05:31:54 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Alexander Viro <viro@math.psu.edu>,
+        Linus Torvalds <torvalds@transmeta.com>, torrey.hoffman@myrio.com,
+        linux-kernel@vger.kernel.org,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        "Stephen C. Tweedie" <sct@redhat.com>,
+        Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: ramdisk corruption problems - was: RE: pivot_root and initrd kern el panic woes
+Message-ID: <20020107053154.M1561@athlon.random>
+In-Reply-To: <3C2EB208.B2BA7CBF@zip.com.au> <Pine.GSO.4.21.0112300129060.8523-100000@weyl.math.psu.edu>, <Pine.GSO.4.21.0112300129060.8523-100000@weyl.math.psu.edu>; <20011231010537.K1356@athlon.random> <3C36E6E8.628BF0BF@zip.com.au>, <3C36E6E8.628BF0BF@zip.com.au>; <20020107040828.H1561@athlon.random> <3C391AB1.21F8F48C@zip.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <3C391AB1.21F8F48C@zip.com.au>; from akpm@zip.com.au on Sun, Jan 06, 2002 at 07:49:05PM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> 
-> > (I think I'll add a buffer_mapped() test to this code as well.  It's
-> > a bit redundant because the fs shouldn't go setting BH_New and not
-> > BH_Mapped, but this code is _very_ rarely executed, and I haven't
-> > tested all filesystems...)
-> 
-> correct, it shouldn't be necessary. I wouldn't add it. if a fs breaks the
-> buffer_new semantics it's the one that should be fixed methinks.
+On Sun, Jan 06, 2002 at 07:49:05PM -0800, Andrew Morton wrote:
+> which is probably better than just ignoring it as we do at present.
+> I'll leave it as shown above unless there be objections.
 
-You mean "don't be lazy.  Audit all the filesystems"?  Sigh.  OK.
- 
-> >
-> > @@ -1633,12 +1660,22 @@ static int __block_prepare_write(struct
-> >          */
-> >         while(wait_bh > wait) {
-> >                 wait_on_buffer(*--wait_bh);
-> > -               err = -EIO;
-> >                 if (!buffer_uptodate(*wait_bh))
-> > -                       goto out;
-> > +                       return -EIO;
-> >         }
-> >         return 0;
-> >  out:
-> > +       bh = head;
-> > +       block_start = 0;
-> > +       do {
-> > +               if (buffer_new(bh) && buffer_mapped(bh) && !buffer_uptodate(bh)) {
-> > +                       memset(kaddr+block_start, 0, bh->b_size);
-> > +                       set_bit(BH_Uptodate, &bh->b_state);
-> > +                       mark_buffer_dirty(bh);
-> > +               }
-> > +               block_start += bh->b_size;
-> > +               bh = bh->b_this_page;
-> > +       } while (bh != head);
-> 
-> I found another problem,  we really need to keep track of which bh are
-> been created by us during the failing prepare_write (buffer_new right
-> now, not a long time ago), or we risk to corrupt data with a write
-> passing over many bh, where the first bh of the page contained vaild
-> data since a long time ago.  To do this: 1) we either keep track of it
-> on the kernel stack with some local variable or 2) we change
-> the buffer_new semantics so that they indicate an "instant buffer_new"
-> to clear just after checking it
+by design defintely better as shown than mainline. a MS_ASYNC currently
+doesn't work because the VM will never care flushing dirty mapped pages,
+first it will have to unmap them that will never happen unless there's
+low-on mem condition, while the filemap_fdatasync will ensure those
+pages will hit the disk asynchronously in a sane amount of time
+(depending on kupdate). MS_ASYNC manpage says an update is scheduled,
+currently it will instead never happen for example if the machine is
+idle and there's no vm swap etc... your change will fix it.
 
-Fair enough.  How does this (untested) approach look?
+> I'll wait until Marcelo looks like he has his head above water and
+> then send out the final version of the ramdisk, truncate and
+> fsync/msync patches, cc'ed to yourself and lkml.
 
+I'd like to release a new -aa within tomorrow afternoon with every known
+bug discussed in this thread fixed, so then I can concentrate back on
+another thing, so I'd like to get those new versions ASAP :)
 
-@@ -1600,6 +1627,7 @@ static int __block_prepare_write(struct 
-                if (block_start >= to)
-                        break;
-                if (!buffer_mapped(bh)) {
-+                       clear_bit(BH_New, &bh->b_state);
-                        err = get_block(inode, block, bh, 1);
-                        if (err)
-                                goto out;
-@@ -1633,12 +1661,30 @@ static int __block_prepare_write(struct 
-         */
-        while(wait_bh > wait) {
-                wait_on_buffer(*--wait_bh);
--               err = -EIO;
-                if (!buffer_uptodate(*wait_bh))
--                       goto out;
-+                       return -EIO;
-        }
-        return 0;
- out:
-+       /*
-+        * Zero out any newly allocated blocks to avoid exposing stale
-+        * data.  If BH_New is set, we know that the block was newly
-+        * allocated in the above loop.
-+        */
-+       bh = head;
-+       block_start = 0;
-+       do {
-+               if (buffer_new(bh)) {
-+                       if (buffer_uptodate(bh))
-+                               printk(KERN_ERR __FUNCTION__
-+                                       ": zeroing uptodate buffer!\n");
-+                       memset(kaddr+block_start, 0, bh->b_size);
-+                       set_bit(BH_Uptodate, &bh->b_state);
-+                       mark_buffer_dirty(bh);
-+               }
-+               block_start += bh->b_size;
-+               bh = bh->b_this_page;
-+       } while (bh != head);
-        return err;
- }
+for the buffer_new thing I guess it's simpler to just change the
+semantics of it rather than allocating ram on the stack.
+
+Andrea

@@ -1,62 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263700AbTEEQ6I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 12:58:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263720AbTEEQ4o
+	id S263681AbTEEQuu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 12:50:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263650AbTEEQus
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 12:56:44 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:4614 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S263700AbTEEQ4M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 12:56:12 -0400
-Subject: Re: [RFC] support for sysfs string based properties for SCSI (1/3)
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Greg KH <greg@kroah.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Patrick Mochel <mochel@osdl.org>, Mike Anderson <andmike@us.ibm.com>
-In-Reply-To: <20030505170202.GA1296@kroah.com>
-References: <1051989099.2036.7.camel@mulgrave>
-	<1051989565.2036.14.camel@mulgrave>  <20030505170202.GA1296@kroah.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 05 May 2003 12:08:35 -0500
-Message-Id: <1052154516.1888.33.camel@mulgrave>
+	Mon, 5 May 2003 12:50:48 -0400
+Received: from verein.lst.de ([212.34.181.86]:42503 "EHLO verein.lst.de")
+	by vger.kernel.org with ESMTP id S263760AbTEEQsS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 12:48:18 -0400
+Date: Mon, 5 May 2003 19:00:45 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] remove unused funcion proc_mknod
+Message-ID: <20030505190045.A22238@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-05-05 at 12:02, Greg KH wrote:
-> On Sat, May 03, 2003 at 02:19:23PM -0500, James Bottomley wrote:
-> > diff -Nru a/drivers/base/core.c b/drivers/base/core.c
-> > --- a/drivers/base/core.c	Sat May  3 14:18:21 2003
-> > +++ b/drivers/base/core.c	Sat May  3 14:18:21 2003
-> > @@ -42,6 +42,8 @@
-> >  
-> >  	if (dev_attr->show)
-> >  		ret = dev_attr->show(dev,buf);
-> > +	else if (dev->bus->show)
-> > +		ret = dev->bus->show(dev, buf, attr);
-> >  	return ret;
-> 
-> Can't you do this by using the class interface instead?
-
-I don't know, I haven't digested the class interface patches yet, since
-they just appeared this morning.
-
-> This also forces you to do a lot of string compares within the bus show
-> function (as your example did) which is almost as unwieldy as just
-> having individual show functions, right?  :)
-
-Nothing prevents users from doing it the callback way.  However,
-callbacks aren't a scaleable interface for properties that have to be
-shared and overridden.
-
-I agree string compares are unwieldy (and smack of XML), so I'm open to
-suggestions of a better way of doing it that has the same flexibility of
-the string method...
-
-James
+Not used currently and a rather bad idea in general..
 
 
+
+--- 1.21/fs/proc/generic.c	Fri Apr 25 17:46:19 2003
++++ edited/fs/proc/generic.c	Mon May  5 17:26:34 2003
+@@ -566,22 +566,6 @@
+ 	return ent;
+ }
+ 
+-struct proc_dir_entry *proc_mknod(const char *name, mode_t mode,
+-		struct proc_dir_entry *parent, kdev_t rdev)
+-{
+-	struct proc_dir_entry *ent;
+-
+-	ent = proc_create(&parent,name,mode,1);
+-	if (ent) {
+-		ent->rdev = rdev;
+-		if (proc_register(parent, ent) < 0) {
+-			kfree(ent);
+-			ent = NULL;
+-		}
+-	}
+-	return ent;
+-}
+-
+ struct proc_dir_entry *proc_mkdir(const char *name, struct proc_dir_entry *parent)
+ {
+ 	struct proc_dir_entry *ent;
+===== fs/proc/root.c 1.11 vs edited =====
+--- 1.11/fs/proc/root.c	Sat Sep 28 17:36:29 2002
++++ edited/fs/proc/root.c	Mon May  5 17:26:26 2003
+@@ -151,7 +151,6 @@
+ EXPORT_SYMBOL(proc_sys_root);
+ #endif
+ EXPORT_SYMBOL(proc_symlink);
+-EXPORT_SYMBOL(proc_mknod);
+ EXPORT_SYMBOL(proc_mkdir);
+ EXPORT_SYMBOL(create_proc_entry);
+ EXPORT_SYMBOL(remove_proc_entry);
+===== include/linux/proc_fs.h 1.15 vs edited =====
+--- 1.15/include/linux/proc_fs.h	Tue Aug 13 01:20:00 2002
++++ edited/include/linux/proc_fs.h	Mon May  5 17:26:44 2003
+@@ -133,8 +133,6 @@
+ 
+ extern struct proc_dir_entry *proc_symlink(const char *,
+ 		struct proc_dir_entry *, const char *);
+-extern struct proc_dir_entry *proc_mknod(const char *,mode_t,
+-		struct proc_dir_entry *,kdev_t);
+ extern struct proc_dir_entry *proc_mkdir(const char *,struct proc_dir_entry *);
+ 
+ static inline struct proc_dir_entry *create_proc_read_entry(const char *name,
+@@ -182,8 +180,6 @@
+ static inline void remove_proc_entry(const char *name, struct proc_dir_entry *parent) {};
+ static inline struct proc_dir_entry *proc_symlink(const char *name,
+ 		struct proc_dir_entry *parent,char *dest) {return NULL;}
+-static inline struct proc_dir_entry *proc_mknod(const char *name,mode_t mode,
+-		struct proc_dir_entry *parent,kdev_t rdev) {return NULL;}
+ static inline struct proc_dir_entry *proc_mkdir(const char *name,
+ 	struct proc_dir_entry *parent) {return NULL;}
+ 

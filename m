@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275615AbRI1BSo>; Thu, 27 Sep 2001 21:18:44 -0400
+	id <S275727AbRI1BWe>; Thu, 27 Sep 2001 21:22:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275635AbRI1BSe>; Thu, 27 Sep 2001 21:18:34 -0400
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:44419 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S275615AbRI1BSY>;
-	Thu, 27 Sep 2001 21:18:24 -0400
-Message-ID: <3BB3CFFA.F9021469@candelatech.com>
-Date: Thu, 27 Sep 2001 18:18:50 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-12 i686)
-X-Accept-Language: en
+	id <S275730AbRI1BWZ>; Thu, 27 Sep 2001 21:22:25 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:44042 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S275727AbRI1BWO>;
+	Thu, 27 Sep 2001 21:22:14 -0400
+Date: Thu, 27 Sep 2001 20:51:42 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Robert Macaulay <robert_macaulay@dell.com>,
+        Craig Kulesa <ckulesa@as.arizona.edu>, <linux-kernel@vger.kernel.org>,
+        Bob Matthews <bmatthews@redhat.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: highmem deadlock fix [was Re: VM in 2.4.10(+tweaks) vs.
+ 2.4.9-ac14/15(+stuff)]
+In-Reply-To: <20010928013730.Y14277@athlon.random>
+Message-ID: <Pine.LNX.4.33L.0109272050570.19147-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: How to debug PCI issues?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm working with a TYAN Tomcat board (i815, Ghz CPU).  It's in a 1U
-machine with a butterfly riser so that I get two riser connections to
-one PCI slot.  When I put Intel EEPRO nics in each slot, I can pass
-30Mbps of traffic on each NIC without dropping a single packet
-(In two days of running).
+On Fri, 28 Sep 2001, Andrea Arcangeli wrote:
 
-If I run 20Mbps on one of the DLINK ports, I'm fine, but if I run 10Mbps
-on two of the DLINK ports, I start seeing dropped packets on every
-interface, and port errors like RX-FIFO.
+> well this approch is much less finegrined...
 
-So, I'm thinking that the DLINK NIC must be screwing up the PCI
-bus somehow when more than one of it's interfaces is passing any
-significant traffic.  I have been able to run 10Mbps on all 8 ports
-of two DLINKs on an Intel EEA2 (i815) board, so I suspect the MB.
+I'd consider that a feature. Undocumented subtle stuff
+tends to break within 6 months, sometimes even due to
+changes made by the same person who did the original
+subtle trick.
 
-Does anyone have any ideas how to go about trouble-shooting this
-farther?
+cheers,
 
-Thanks,
-Ben
-
+Rik
 -- 
-Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+IA64: a worthy successor to i860.
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

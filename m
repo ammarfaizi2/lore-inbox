@@ -1,85 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267304AbUIOSJw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267303AbUIOSM7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267304AbUIOSJw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 14:09:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267310AbUIOSJr
+	id S267303AbUIOSM7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 14:12:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267324AbUIOSKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 14:09:47 -0400
-Received: from fw.osdl.org ([65.172.181.6]:3808 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267304AbUIOSHE (ORCPT
+	Wed, 15 Sep 2004 14:10:41 -0400
+Received: from mail.kroah.org ([69.55.234.183]:61902 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S267303AbUIOSB6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 14:07:04 -0400
-Date: Wed, 15 Sep 2004 11:06:57 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Being more anal about iospace accesses..
-In-Reply-To: <Pine.LNX.4.58.0409151045530.2333@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0409151059010.2333@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0409081543320.5912@ppc970.osdl.org>
- <Pine.LNX.4.58.0409150737260.2333@ppc970.osdl.org>
- <Pine.LNX.4.58.0409150859100.2333@ppc970.osdl.org> <20040915165450.GD6158@wohnheim.fh-wedel.de>
- <Pine.LNX.4.58.0409151004370.2333@ppc970.osdl.org> <20040915173236.GE6158@wohnheim.fh-wedel.de>
- <Pine.LNX.4.58.0409151045530.2333@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 15 Sep 2004 14:01:58 -0400
+Date: Wed, 15 Sep 2004 11:00:57 -0700
+From: Greg KH <greg@kroah.com>
+To: Marc Ballarin <Ballarin.Marc@gmx.de>
+Cc: "Giacomo A. Catenazzi" <cate@debian.org>, tonnerre@thundrix.ch,
+       icampbell@arcom.com, md@Linux.IT, linux-kernel@vger.kernel.org
+Subject: Re: udev is too slow creating devices
+Message-ID: <20040915180056.GA23257@kroah.com>
+References: <20040914213506.GA22637@kroah.com> <20040914214552.GA13879@wonderland.linux.it> <20040914215122.GA22782@kroah.com> <20040914224731.GF3365@dualathlon.random> <20040914230409.GA23474@kroah.com> <414849CE.8080708@debian.org> <1095258966.18800.34.camel@icampbell-debian> <20040915152019.GD24818@thundrix.ch> <4148637F.9060706@debian.org> <20040915185116.24fca912.Ballarin.Marc@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040915185116.24fca912.Ballarin.Marc@gmx.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 15 Sep 2004, Linus Torvalds wrote:
+On Wed, Sep 15, 2004 at 06:51:16PM +0200, Marc Ballarin wrote:
+> On Wed, 15 Sep 2004 17:45:03 +0200
+> "Giacomo A. Catenazzi" <cate@debian.org> wrote:
 > 
->    In short: if you don't go "ooh, that will simplify XXX", then you 
->    should just ignore the new interfaces.
+> > It is right.
+> > But an option --wait would be sufficient.
+> > This option will require modprobe to wait (with a timeout of
+> > x seconds) that hotplug event finish (so if device is created or
+> > not is no more a problem).
+> > Ideally this should be done modifing only hotplug and IMHO
+> > should be enabled by default.
+> 
+> At the moment th hotplug event finishes nothing is guaranteed. In fact,
+> the device node is never created at this point. All you know is that udev
+> will now *begin* to create the node. You don't know how long it will take
+> or if it will succeed at all.
+> As i understand, udev definitely has to be involved in this process. It
+> would need a way to inform modprobe of its state.
+> 
+> Maybe something like an udev state could be added. The script would
+> pass a cookie to modprobe, which would in turn pass it to the kernel (or
+> to udevd?), which would add it to the hotplug event. udev would then place
+> the cookie in a defined file that is checked by modprobe. If that cookie's
+> state is set to "done" modprobe would return and the script would
+> continue.
+> 
+> Example:
+> modprobe blah -c cookie-123
+> "cookie-123" is passed to the kernel and returned by all hotplug events
+> this modprobe triggers.
 
-Btw, to get an example of what _is_ simplified, look at 
-drivers/scsi/libata-core.c:
+Again, such tracking is pretty much impossible.
 
-	void ata_tf_load(struct ata_port *ap, struct ata_taskfile *tf)
-	{
-	        if (ap->flags & ATA_FLAG_MMIO)
-	                ata_tf_load_mmio(ap, tf);
-	        else
-	                ata_tf_load_pio(ap, tf);
-	}
+> udev will then place something like "cookie-123=>processing" in
+> /dev/udev-state.
+> modprobe is still running and will poll this file until it contains
+> "cookie-123=>finished". When that happens modprobe will tell udevd to
+> remove this entry and return succesfully. If the timeout is reached
+> modprobe will return an error code instead.
+> 
+> (Of course, modprobe could handle the cookie generation internally.)
+> 
+> This sound complicated and requires changes in many places. Maybe there is
+> an easier solution.
 
-and realize that "ata_tf_load_mmio()" and "ata_tf_load_pio()" are exactly 
-the SAME FUNCTION. Except one uses MMIO, the other uses PIO. With the new 
-setup, it literally collapses into one function, and code size goes down 
-pretty dramatically. Not to mention making the code more readable.
+There is, just run your stuff off of /etc/dev.d/ and stop relying on a
+device node to be present after modprobe returns.
 
-For another example of this (of the static kind), look at something like 
-drivers/net/8139too.c:
+thanks,
 
-	#ifdef USE_IO_OPS
-
-	#define RTL_R8(reg)             inb (((unsigned long)ioaddr) + (reg))
-	#define RTL_R16(reg)            inw (((unsigned long)ioaddr) + (reg))
-	#define RTL_R32(reg)            ((unsigned long) inl (((unsigned long)ioaddr) + (reg)))
-	...
-
-	#else
-
-	...
-	/* read MMIO register */
-	#define RTL_R8(reg)             readb (ioaddr + (reg))
-	#define RTL_R16(reg)            readw (ioaddr + (reg))
-	#define RTL_R32(reg)            ((unsigned long) readl (ioaddr + (reg)))
-
-see? In this case, USE_IO_OPS depends on a static configuration variable, 
-namely CONFIG_8139TOO_PIO. So the user at _compile_ time has to decide 
-whether he wants to use MMIO or PIO. See the Kconfig help file:
-
-          This instructs the driver to use programmed I/O ports (PIO) instead 
-          of PCI shared memory (MMIO).  This can possibly solve some problems
-          in case your mainboard has memory consistency issues.  If unsure,
-          say N.
-
-In other words, the new interface is not designed to replace the old ones,
-it's designed to help drivers like these, that either go to a lot of extra
-pain in order to support both methods, or then have a _static_ config
-option that makes it really hard for system vendors to just release one
-driver that knows when it needs to use PIO and when it needs MMIO.
-
-		Linus
+greg k-h

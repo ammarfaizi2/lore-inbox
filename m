@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273078AbTG3RZl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 13:25:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273079AbTG3RZk
+	id S273068AbTG3RYA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 13:24:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273078AbTG3RX7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 13:25:40 -0400
-Received: from ginger.cmf.nrl.navy.mil ([134.207.10.161]:20193 "EHLO
-	ginger.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id S273078AbTG3RZc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 13:25:32 -0400
-Message-Id: <200307301713.h6UHDFsG012606@ginger.cmf.nrl.navy.mil>
-To: =?iso-8859-15?B?Suly9G1lIEF1Z+k=?= <eguaj@free.fr>
-cc: linux-kernel@vger.kernel.org, davem@redhat.com
-Reply-To: chas3@users.sourceforge.net
-Subject: Re: [PATCH] fix 2.6.0-test1 *** Warning: "llc_oui" [net/sched/sch_atm.ko] undefined! 
-In-reply-to: Your message of "Fri, 25 Jul 2003 12:31:07 +0200."
-             <20030725103106.GB1670@satellite.workgroup.fr> 
-Date: Wed, 30 Jul 2003 13:10:32 -0400
-From: chas williams <chas@cmf.nrl.navy.mil>
-X-Spam-Score: () hits=-0.3
+	Wed, 30 Jul 2003 13:23:59 -0400
+Received: from washoe.rutgers.edu ([165.230.95.67]:5521 "EHLO
+	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S273068AbTG3RX6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 13:23:58 -0400
+Date: Wed, 30 Jul 2003 13:23:55 -0400
+From: Yaroslav Halchenko <yoh@onerussian.com>
+To: Sander van Malssen <svm@kozmix.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test2-bk3 phantom I/O errors
+Message-ID: <20030730172355.GA19688@washoe.rutgers.edu>
+References: <20030729153114.GA30071@washoe.rutgers.edu> <20030729135025.335de3a0.akpm@osdl.org> <20030730170432.GA692@kozmix.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030730170432.GA692@kozmix.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-please apply to 2.6 -- thanks
+And I was running patched kernel for a day so far - no errors were
+reported, so problem is really unpredictable. Probably the files which
+were causing this problem before moved on a harddrive since then so I
+can't reproduce the error. Hope it gives any hint
 
-In message <20030725103106.GB1670@satellite.workgroup.fr>,=?iso-8859-15?B?Suly9
-G1lIEF1Z+k=?= writes:
->Fix a typo in 'net/atm/Makefile' that gives a 'Warning: "llc_oui"
->[net/sched/sch_atm.ko] undefined!' when building modules:
+--Yarik
 
+On Wed, Jul 30, 2003 at 07:04:32PM +0200, Sander van Malssen wrote:
 
-[atm]: fix a typo in net/atm/Makefile (from eguaj@free.fr)
-
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1599  -> 1.1600 
-#	    net/atm/Makefile	1.10    -> 1.11   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/07/30	chas@relax.cmf.nrl.navy.mil	1.1600
-# fix a typo in net/atm/Makefile (from eguaj@free.fr)
-# --------------------------------------------
-#
-diff -Nru a/net/atm/Makefile b/net/atm/Makefile
---- a/net/atm/Makefile	Wed Jul 30 13:12:21 2003
-+++ b/net/atm/Makefile	Wed Jul 30 13:12:21 2003
-@@ -10,7 +10,7 @@
- atm-$(subst m,y,$(CONFIG_ATM_CLIP)) += ipcommon.o
- obj-$(CONFIG_ATM_BR2684) += br2684.o
- atm-$(subst m,y,$(CONFIG_ATM_BR2684)) += ipcommon.o
--atm-$(subst m,y,$CONFIG_NET_SCH_ATM)) += ipcommon.o
-+atm-$(subst m,y,$(CONFIG_NET_SCH_ATM)) += ipcommon.o
- atm-$(CONFIG_PROC_FS) += proc.o
- 
- obj-$(CONFIG_ATM_LANE) += lec.o
+> 
+> Buffer I/O error on device hda1, logical block 25361
+> Call Trace:
+>  [<c0150f02>] buffer_io_error+0x42/0x50
+>  [<c013b87d>] cache_grow+0x15d/0x260
+>  [<c0151601>] end_buffer_async_read+0xf1/0x110
+>  [<c0154330>] end_bio_bh_io_sync+0x30/0x40
+>  [<c015548e>] bio_endio+0x4e/0x80
+                                  .-.
+=------------------------------   /v\  ----------------------------=
+Keep in touch                    // \\     (yoh@|www.)onerussian.com
+Yaroslav Halchenko              /(   )\               ICQ#: 60653192
+                   Linux User    ^^-^^    [175555]

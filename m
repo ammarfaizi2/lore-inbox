@@ -1,88 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266250AbUIVREo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266427AbUIVRKJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266250AbUIVREo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 13:04:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266263AbUIVREo
+	id S266427AbUIVRKJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 13:10:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266457AbUIVRKJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 13:04:44 -0400
-Received: from mato.luukku.com ([193.209.83.251]:24272 "EHLO mato.luukku.com")
-	by vger.kernel.org with ESMTP id S266250AbUIVREl (ORCPT
+	Wed, 22 Sep 2004 13:10:09 -0400
+Received: from mail3.utc.com ([192.249.46.192]:5766 "EHLO mail3.utc.com")
+	by vger.kernel.org with ESMTP id S266427AbUIVRKD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 13:04:41 -0400
-Message-ID: <4151B0DB.A0DA0135@users.sourceforge.net>
-Date: Wed, 22 Sep 2004 20:05:31 +0300
-From: Jari Ruusu <jariruusu@users.sourceforge.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.22aa1r7 i686)
-X-Accept-Language: en
+	Wed, 22 Sep 2004 13:10:03 -0400
+Message-ID: <4151B1C8.5050807@cybsft.com>
+Date: Wed, 22 Sep 2004 12:09:28 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andries Brouwer <Andries.Brouwer@cwi.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: OOM & [OT] util-linux-2.12e
-References: <UTC200409192205.i8JM52C25370.aeb@smtp.cwi.nl> <41505AA1.A51DEE50@users.sourceforge.net> <20040921212620.GA15559@apps.cwi.nl>
-Content-Type: text/plain; charset=us-ascii
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Mark_H_Johnson@Raytheon.com
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm1-S3
+References: <20040907092659.GA17677@elte.hu> <20040907115722.GA10373@elte.hu> <1094597988.16954.212.camel@krustophenia.net> <20040908082050.GA680@elte.hu> <1094683020.1362.219.camel@krustophenia.net> <20040909061729.GH1362@elte.hu> <20040919122618.GA24982@elte.hu> <414F8CFB.3030901@cybsft.com> <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu> <20040922103340.GA9683@elte.hu>
+In-Reply-To: <20040922103340.GA9683@elte.hu>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries Brouwer wrote:
-> On Tue, Sep 21, 2004 at 07:45:21PM +0300, Jari Ruusu wrote:
-> > How about implementing /etc/fstab option parsing code that is compatible
-> > with existing libc /etc/fstab parsing code:
-> >
-> > defaults,noauto,comment=kudzu,rw
-> >                 ^^^^^^^^^^^^^
+Ingo Molnar wrote:
+> i've released the -S3 VP patch:
 > 
-> Is there such libc parsing code? Can you tell me which libc?
-> Which file? Invoked for what function calls?
+>    http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc2-mm1-S3
+> 
 
-man setmntent
+OK. Bad things seem to happen with this patch. Each time I booted it 
+(twice) several telnet connections get dropped before I get a prompt 
+(this is without any load on the system). The system SEEMED a bit less 
+responsive. I can't be sure about that because I booted it remotely. 
+After starting stress-kernel and logging out, I couldn't get back into 
+the system remotely. Telnet and ssh both would just hang indefinitely. 
+The console was still useable I think (according to my wife being my 
+remote hands and eyes.) I saw no indications in the log of any 
+unhappiness or any indications of why connections were dropping and 
+hanging. Also the highest latency reported was 252 usec.
 
-SYNOPSIS
-       #include <stdio.h>
-       #include <mntent.h>
-       FILE *setmntent(const char *filename, const char *type);
-       struct mntent *getmntent(FILE *filep);
-       int addmntent(FILE *filep, const struct mntent *mnt);
-       int endmntent(FILE *filep);
-       char *hasmntopt(const struct mntent *mnt, const char *opt);
+kr
 
-Mount is not the only piece of code that parses fstab. Even swapon and
-swapoff programs that are part of util-linux were broken by this change. The
-'comment=fubar' mount option requires two line change to mount.c, and most
-of all, does not break any existing fstab parsing code.
-
-Your fstab options comment change means that all code that parses fstab
-needs to be modified to understand the new comment separator sequence. If
-they are not modified, they will mis-parse the comment separator sequence
-and mis-parse options beyond the comment separator sequence.
-
-Not directly related to above, but you need to release new version of
-util-linux soon anyway. You intruduced this type of gems to util-linux-2.12e
-
---- util-linux-2.12d/mount/lomount.c	Sun Jul 11 20:26:41 2004
-+++ util-linux-2.12e/mount/lomount.c	Fri Sep 17 01:28:58 2004
-
-+	memset(&loopinfo64, 0, sizeof(loopinfo64));
- 
- 	close (fd);
----------------^^
-+
-+	if (i) {
-+		ioctl (fd, LOOP_CLR_FD, 0);
------------------------^^
-+		return 1;
-+	}
-+
- 	if (verbose > 1)
- 		printf(_("set_loop(%s,%s,%llu): success\n"),
- 		       device, file, offset);
- 	return 0;
--
-- fail:
--	(void) ioctl (fd, LOOP_CLR_FD, 0);
--	close (fd);
--	return 1;
- }
-
--- 
-Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD

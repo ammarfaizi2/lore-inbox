@@ -1,50 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263158AbUJ2ANM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263131AbUJ2AHn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263158AbUJ2ANM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 20:13:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263155AbUJ2AMg
+	id S263131AbUJ2AHn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 20:07:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263143AbUJ2ABT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 20:12:36 -0400
-Received: from smtp.knology.net ([24.214.63.101]:34472 "HELO smtp.knology.net")
-	by vger.kernel.org with SMTP id S263178AbUJ2AIs (ORCPT
+	Thu, 28 Oct 2004 20:01:19 -0400
+Received: from fw.osdl.org ([65.172.181.6]:50880 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263106AbUJ1Xv7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 20:08:48 -0400
-Subject: Re: [2.6 patch] net/typhoon.c: remove an unused function
-From: David Dillow <dave@thedillows.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20041028230629.GY3207@stusta.de>
-References: <20041028230629.GY3207@stusta.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 28 Oct 2004 20:08:39 -0400
-Message-Id: <1099008519.8952.26.camel@ori.thedillows.org>
+	Thu, 28 Oct 2004 19:51:59 -0400
+Date: Thu, 28 Oct 2004 16:51:58 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: James Cleverdon <jamesclv@us.ibm.com>
+Cc: Chris Wright <chrisw@osdl.org>, ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] clustered apic patch missing APIC_DFR_CLUSTER def
+Message-ID: <20041028165157.K2357@build.pdx.osdl.net>
+References: <20041028112715.D14339@build.pdx.osdl.net> <200410281635.23848.jamesclv@us.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-1) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200410281635.23848.jamesclv@us.ibm.com>; from jamesclv@us.ibm.com on Thu, Oct 28, 2004 at 04:35:23PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-29 at 01:06 +0200, Adrian Bunk wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> The patch below removes an unused function from drivers/net/typhoon.c
+* James Cleverdon (jamesclv@us.ibm.com) wrote:
+> Hmmm...  The patch containing APIC_DFR_CLUSTER and friends went
+> into the -mm tree in the June/July timeframe.  It must not have
+> been pushed with the main cluster patch.
 
-NAK -- I'd prefer to make it be used, which was the reason it was there
-in the first place... not sure why it wasn't...
+OK, looks like Andi just sent something similar (i dropped the l (ell), since
+it looked meant to be only 32bit).
 
-===== drivers/net/typhoon.c 1.25 vs edited =====
---- 1.25/drivers/net/typhoon.c	2004-10-21 18:42:58 -04:00
-+++ edited/drivers/net/typhoon.c	2004-10-28 20:06:45 -04:00
-@@ -1687,8 +1687,7 @@
- 		skb = rxb->skb;
- 		dma_addr = rxb->dma_addr;
+> You're right, we're using the generic version of
+> cpu_present_to_apicid().  The cluster one can go.
+
+This part resent (below).
+
+thanks,
+-chris
+
+Remove cluster_cpu_present_to_apicid(), it's defined but not used anywhere.
+
+Signed-off-by: Chris Wright <chrisw@osdl.org>
+
+===== arch/x86_64/kernel/genapic_cluster.c 1.1 vs edited =====
+--- 1.1/arch/x86_64/kernel/genapic_cluster.c	2004-10-28 00:39:50 -07:00
++++ edited/arch/x86_64/kernel/genapic_cluster.c	2004-10-28 11:18:10 -07:00
+@@ -57,14 +57,6 @@
+ 	apic_write_around(APIC_LDR, val);
+ }
  
--		rxaddr += sizeof(struct rx_desc);
--		rxaddr %= RX_ENTRIES * sizeof(struct rx_desc);
-+		typhoon_inc_rx_index(&rxaddr, 1);
+-static int cluster_cpu_present_to_apicid(int mps_cpu)
+-{
+-	if ((unsigned)mps_cpu < NR_CPUS)
+-		return (int)bios_cpu_apicid[mps_cpu];
+-	else
+-		return BAD_APICID;
+-}
+-
+ /* Start with all IRQs pointing to boot CPU.  IRQ balancing will shift them. */
  
- 		if(rx->flags & TYPHOON_RX_ERROR) {
- 			typhoon_recycle_rx_skb(tp, idx);
-
+ static cpumask_t cluster_target_cpus(void)

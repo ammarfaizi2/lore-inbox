@@ -1,58 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266425AbUIMInp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266457AbUIMIqu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266425AbUIMInp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 04:43:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266427AbUIMInp
+	id S266457AbUIMIqu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 04:46:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266459AbUIMIqu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 04:43:45 -0400
-Received: from web51603.mail.yahoo.com ([206.190.38.208]:6019 "HELO
-	web51603.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S266425AbUIMInn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 04:43:43 -0400
-Message-ID: <20040913084342.62705.qmail@web51603.mail.yahoo.com>
-Date: Mon, 13 Sep 2004 01:43:42 -0700 (PDT)
-From: ngo giang <ngohoanggiang1981dh@yahoo.com>
-Subject: Can not reboot when build kernel 
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 13 Sep 2004 04:46:50 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:30942 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S266457AbUIMIqm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 04:46:42 -0400
+Date: Mon, 13 Sep 2004 01:46:22 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: ak@suse.de, bcasavan@sgi.com, anton@samba.org,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: more numa maxnode confusions
+Message-Id: <20040913014622.3addde90.pj@sgi.com>
+In-Reply-To: <20040913001548.278bf672.akpm@osdl.org>
+References: <20040912200253.3d7a6ff5.pj@sgi.com>
+	<20040913065621.GB12185@wotan.suse.de>
+	<20040913001548.278bf672.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, 
+Andrew asked:
+> Revert what?
 
-I want to build kernel to support DiffServ service in
-Traffic Control.
+The immediate change Andi wants reverted only matters at present in
+Linus' bk tree.  My main cpuset patch in your *-mm tree already does the
+reversion in *-mm (unfortunately - collision details follow ...).
+
+So I presume that Linus' will apply Andi's reversion patch of earlier this
+evening to his bk tree.
+
+But then when you pull in Linus's latest bk changes into your linus.patch,
+this will collide with my main cpuset patch.
+
+Both patches will be trying to add back in the same line:
+
+	--maxnode;
+
+to get_nodes() in mm/mempolicy.c.
+
+My guess is that now that you and Linus know about this, you two can
+handle the collision by hand - both new lines of code agree on what's to
+be done: add the above line back in.
+
+But if there is some other permutation of patches that I can send that
+would be smoother, let me know.
+
+The one alternative I can think of that would allow everyone to put this
+back on autopilot and forget the details, would be to _remove_ the
+following segment of my cpusets-big-numa-cpu-and-memory-placement.patch:
+
+@@ -133,6 +134,7 @@ static int get_nodes(unsigned long *node
+ 	unsigned long nlongs;
+ 	unsigned long endmask;
  
-I did as following 
-......
-make rmproper
-make xconfig
-make dep
-make clean
-make bzImage
-make modules
-make modules_install
-cp arch/i386/boot/bzImage /boot/vmlinuz-2.4.26
-cp System.map /boot/System.map-2.4.26
++	--maxnode;
+ 	bitmap_zero(nodes, MAX_NUMNODES);
+ 	if (maxnode == 0 || !nmask)
+ 		return 0;
 
-and in grub.conf I typed :
+so that Andi's latest reversion path applied cleanly when it came back
+at you from Linus' bk tree.  But I understand that usually you like to
+layer new patches, not replace or edit existing ones.
 
-title kernel 2.4.26
-kernel /boot/vmlinuz-2.4.26
+Go ahead and remove the above segment, if that seems best to you.
 
-when I reboot I received a error as follow:
-
-Booting "kernel 2.4.26"
-kernel /boot/vmlinuz-2.4.26
-Error 15 : File not found 
-
-Can any one help me !
-Thanks you very much for help !
-
-
-		
-__________________________________
-Do you Yahoo!?
-Yahoo! Mail - Helps protect you from nasty viruses.
-http://promotions.yahoo.com/new_mail
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

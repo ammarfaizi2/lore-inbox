@@ -1,82 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261383AbSJNLWw>; Mon, 14 Oct 2002 07:22:52 -0400
+	id <S261587AbSJNLfI>; Mon, 14 Oct 2002 07:35:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261569AbSJNLWw>; Mon, 14 Oct 2002 07:22:52 -0400
-Received: from mailgate.imerge.co.uk ([195.217.208.100]:38393 "EHLO
-	imgserv04.imerge-bh.co.uk") by vger.kernel.org with ESMTP
-	id <S261383AbSJNLWu>; Mon, 14 Oct 2002 07:22:50 -0400
-Message-ID: <C0D45ABB3F45D5118BBC00508BC292DB9D4252@imgserv04>
-From: James Finnie <jf1@IMERGE.co.uk>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Problems diagnosing hard lockups in linux kernel
-Date: Mon, 14 Oct 2002 12:31:31 +0100
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S261590AbSJNLfI>; Mon, 14 Oct 2002 07:35:08 -0400
+Received: from mail.hometree.net ([212.34.181.120]:2182 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S261587AbSJNLfH>; Mon, 14 Oct 2002 07:35:07 -0400
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: Bitkeeper outragem, old and new
+Date: Mon, 14 Oct 2002 11:40:58 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <aoeaga$svr$1@forge.intermeta.de>
+References: <E180rX3-0005dL-00@fencepost.gnu.org> <20021013171840.B1011@work.bitmover.com> <20021014064922.GA16052@white.koehntopp.de>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1034595658 11674 212.34.181.4 (14 Oct 2002 11:40:58 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Mon, 14 Oct 2002 11:40:58 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Kristian Koehntopp <kris@koehntopp.de> writes:
 
-Hi guys,
+>You are pulling a Qt. By changing the license to BK to
+>discourage development of BK alternatives you made sure that
+>Subversion and other projects get plenty of new and highly
+>motivated developers - you actually encouraged the development
+>of BK alternatives just like the non-free license of Qt as the
+>foundation of KDE spawned the Gnome project.
 
-We are having real trouble diagnosing a hard lockup that we are seeing on
-our platform, which is based around the Natsemi Geode GX1 plus 5530A
-companion chip.  Also present on the board is a MacPhyter DP83815 rev C
-ethernet controller, and an IC Ensemble Envy 24 PCI-i2s controller.
+No. SCM simply isn't sexy enough to keep people interested. (See:
+"Mozilla"). Even Gnome didn't invent its own Qt. They used already
+existing Gtk.
 
-Our previous distro of software for the platform was based around RedHat 6.1
-+ newer GLIBC(RH71) (to fix PTHREADs buggyness).  The kernel in use was
-Linux 2.4.17 + a couple of very trivial cosmetic patches + the NatSemi
-framebuffer driver.  This combination works great.  
+Larry is completely right here and his business model works find for
+such a piece of vertical software like SCM.
 
-We wanted to switch to a RedHat 7.3 based system as we were slightly
-uncomfortable about running with everything compiled against a different
-GLIBC to that installed.  We kept the kernel and all drivers exactly the
-same, and changed just the RedHat RPMS.  Now we are seeing hard lockups on
-our boxen after around 12-20 hours!  The lockup is severe;  caps lock is
-dead, as is ping.  There is no OOPS. 
+	Regards
+		Henning
 
-In our attempts to debug this (now ongoing for 3 weeks) we've tried the
-following:
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
 
-* Upver kernel to latest 2.4.19 + 2.4.20preX patches incase we were seeing a
-known bug
-* Compile kernel with kgdb and MagicSysRq - neither of which we can actually
-get into as the lock is so severe
-* Run without the National framebuffer - similar frequency of locks is seen.
-Also see the problem when using VESA fb.  
-* change kernel compiler 
-
-We don't see this failure on other hardware - or at least not at anywhere
-near this level of incidence - hence we are suspecting that this is a kernel
-level lock, which is only now being exposed by the different utilization
-patterns created by the new userland stuff.  
-
-The only thing that seems to fix things at the moment is the complete
-removal of all the userland stuff... less than ideal for our application :-)
-
-Does anyone have any clue as to other ways we can investigate the lock when
-it occurs?  Are there any "hired guns" out there who would would be
-available to help us out with this?
-
-Thnaks in advance for any suggestions;
-
-
-James Finnie
-
-
-
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-Imerge Limited                          Tel :- +44 (0)1954 783600 
-Unit 6 Bar Hill Business Park           Fax :- +44 (0)1954 783601 
-Saxon Way                               Web :- http://www.imerge.co.uk 
-Bar Hill 
-Cambridge 
-CB3 8SL 
-United Kingdom 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-
-
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

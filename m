@@ -1,70 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267352AbTBLANk>; Tue, 11 Feb 2003 19:13:40 -0500
+	id <S262201AbTBLAUE>; Tue, 11 Feb 2003 19:20:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266967AbTBLANk>; Tue, 11 Feb 2003 19:13:40 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:48557 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S267649AbTBLAMP>; Tue, 11 Feb 2003 19:12:15 -0500
-Subject: [RESEND][PATCH] linux-2.5.60_timer-tsc-cleanups_A1
-From: john stultz <johnstul@us.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@digeo.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1045009173.987.18.camel@w-jstultz2.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 11 Feb 2003 16:19:33 -0800
+	id <S266718AbTBLAUE>; Tue, 11 Feb 2003 19:20:04 -0500
+Received: from 60.54.252.64.snet.net ([64.252.54.60]:23772 "EHLO
+	hotmale.blue-labs.org") by vger.kernel.org with ESMTP
+	id <S262201AbTBLAUC>; Tue, 11 Feb 2003 19:20:02 -0500
+Message-ID: <3E4994BE.2040101@blue-labs.org>
+Date: Tue, 11 Feb 2003 19:26:38 -0500
+From: David Ford <david+cert@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030209
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+CC: Kay Sievers <lkml@vrfy.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.60 defconfig+CONFIG_MODVERSIONS=y -> syntax error
+References: <Pine.LNX.4.44.0302101523130.3320-100000@chaos.physics.uiowa.edu>
+In-Reply-To: <Pine.LNX.4.44.0302101523130.3320-100000@chaos.physics.uiowa.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, All
+$ sed --version
+GNU sed version 4.0.5
 
-	This cleanup patch makes fast_gettimeoffset_quotient (a timer_tsc
-specific variable) static, and replaces its usage with cpu_khz, making
-it timer_opt independent.
+(patch works for me too)
 
-Please apply.
+-d
 
-thanks
--john
+Kai Germaschewski wrote:
 
-diff -Nru a/arch/i386/kernel/smpboot.c b/arch/i386/kernel/smpboot.c
---- a/arch/i386/kernel/smpboot.c	Tue Feb 11 16:12:33 2003
-+++ b/arch/i386/kernel/smpboot.c	Tue Feb 11 16:12:33 2003
-@@ -182,8 +182,6 @@
- 
- #define NR_LOOPS 5
- 
--extern unsigned long fast_gettimeoffset_quotient;
--
- /*
-  * accurate 64-bit/32-bit division, expanded to 32-bit divisions and 64-bit
-  * multiplication. Not terribly optimized but we need it at boot time only
-@@ -223,7 +221,8 @@
- 
- 	printk("checking TSC synchronization across %u CPUs: ", num_booting_cpus());
- 
--	one_usec = ((1<<30)/fast_gettimeoffset_quotient)*(1<<2);
-+	/* convert from kcyc/sec to cyc/usec */
-+	one_usec = cpu_khz / 1000;
- 
- 	atomic_set(&tsc_start_flag, 1);
- 	wmb();
-diff -Nru a/arch/i386/kernel/timers/timer_tsc.c b/arch/i386/kernel/timers/timer_tsc.c
---- a/arch/i386/kernel/timers/timer_tsc.c	Tue Feb 11 16:12:33 2003
-+++ b/arch/i386/kernel/timers/timer_tsc.c	Tue Feb 11 16:12:33 2003
-@@ -29,7 +29,7 @@
-  * Equal to 2^32 * (1 / (clocks per usec) ).
-  * Initialized in time_init.
-  */
--unsigned long fast_gettimeoffset_quotient;
-+static unsigned long fast_gettimeoffset_quotient;
- 
- static unsigned long get_offset_tsc(void)
- {
+>On Mon, 10 Feb 2003, Kay Sievers wrote:
+>
+>  
+>
+>>On Mon, Feb 10, 2003 at 02:49:36PM -0600, Kai Germaschewski wrote:
+>>    
+>>
+>>>On Mon, 10 Feb 2003, Kay Sievers wrote:
+>>>      
+>>>
+>>>>  ld:arch/i386/kernel/.tmp_time.ver:1: syntax error
+>>>>        
+>>>>
+>>>Interesting. Thanks for testing CONFIG_MODVERSIONS. I cannot reproduce it
+>>>here, unfortunately (not even with the same .config). What does
+>>>arch/i386/kernel/.tmp_time.ver look like?
+>>>      
+>>>
+>>pim:/usr/src/linux-2.5.60# cat arch/i386/kernel/.tmp_time.ver
+>>__crc_i = 0x_lock ;     ac2d2492
+>>    
+>>
+>
+>Okay, that's not a problem with ld, but (most likely) sed.
+>
+>I hope the appended patch fixes it. For the record, what version of sed do 
+>you have? (sed -V)
+>
+>--Kai
+>
+>
+>===== scripts/Makefile.build 1.27 vs edited =====
+>--- 1.27/scripts/Makefile.build	Sat Feb  8 14:30:33 2003
+>+++ edited/scripts/Makefile.build	Mon Feb 10 15:25:44 2003
+>@@ -94,7 +94,7 @@
+> 	else								      \
+> 		$(CPP) -D__GENKSYMS__ $(c_flags) $<			      \
+> 		| $(GENKSYMS) -k $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)	      \
+>-		| sed -n 's/\#define __ver_\(\w*\)\W*\(\w*\)/__crc_\1 = 0x\2 ;/gp' \
+>+		| sed -n 's/\#define __ver_\([^ 	]*\)[ 	]*\([^ 	]*\)/__crc_\1 = 0x\2 ;/gp' \
+> 		> $(@D)/.tmp_$(@F:.o=.ver);				      \
+> 									      \
+> 		$(LD) $(LDFLAGS) -r -o $@ $(@D)/.tmp_$(@F) 		      \
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>  
+>
 
+-- 
+I may have the information you need and I may choose only HTML.  It's up to you. Disclaimer: I am not responsible for any email that you send me nor am I bound to any obligation to deal with any received email in any given fashion.  If you send me spam or a virus, I may in whole or part send you 50,000 return copies of it. I may also publically announce any and all emails and post them to message boards, news sites, and even parody sites.  I may also mark them up, cut and paste, print, and staple them to telephone poles for the enjoyment of people without internet access.  This is not a confidential medium and your assumption that your email can or will be handled confidentially is akin to baring your backside, burying your head in the ground, and thinking nobody can see you butt nekkid and in plain view for miles away.  Don't be a cluebert, buy one from K-mart today.
+
+When it absolutely, positively, has to be destroyed overnight.
+                           AIR FORCE
 
 

@@ -1,37 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262328AbTINGAE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 02:00:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262329AbTINGAD
+	id S262188AbTINGZa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 02:25:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262314AbTINGZa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 02:00:03 -0400
-Received: from pat.uio.no ([129.240.130.16]:25226 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262328AbTINGAA (ORCPT
+	Sun, 14 Sep 2003 02:25:30 -0400
+Received: from fw.osdl.org ([65.172.181.6]:31670 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262188AbTINGZ3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 02:00:00 -0400
-To: Norbert Preining <preining@logic.at>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23-pre4 ide-scsi irq timeout
-References: <20030913220121.GA1727@gamma.logic.tuwien.ac.at>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 14 Sep 2003 01:59:45 -0400
-In-Reply-To: <20030913220121.GA1727@gamma.logic.tuwien.ac.at>
-Message-ID: <shs3cezap0u.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+	Sun, 14 Sep 2003 02:25:29 -0400
+Message-Id: <200309140625.h8E6PMT24138@mail.osdl.org>
+To: Nick Piggin <piggin@cyberone.com.au>
+cc: linux-kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: Nick's scheduler policy v15 
+In-Reply-To: Your message of "Sat, 13 Sep 2003 21:17:15 +1000."
+             <3F62FCBB.2020807@cyberone.com.au> 
+Date: Sat, 13 Sep 2003 23:25:22 -0700
+From: Cliff White <cliffw@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Norbert Preining <preining@logic.at> writes:
+> 
+> 
+> Nick Piggin wrote:
+> 
+> >
+> >
+> > Cliff White wrote:
+> >
+> >>> Hi,
+> >>> http://www.kerneltrap.org/~npiggin/v15/
+> >>>
+> >>>
+> >>
+> >> Here are results for several recent kernels for comparison.
+> >> the sched-rollup-nopolicy tests are still running. Performance of v15 
+> >> suffers as number of CPU's increase.
+> >> At 8 cpu's, delta is noticeable vs stock -test5
+> >> cliffw
+> >>
+> >
+> > OK, so it hasn't crashed? Do you have the profiles up?
+> 
+> 
+> Nevermind, I found them. It looks like its balancing way too much. I've
+> a few ideas. I should be getting time on a NUMA box there at OSDL soon, 
+> so I won't bother you with untested stuff. Thanks again for doing
+> these.
+> 
+It's not a bother, my robot slaves do all the work. 
+http://www.osdl.org/plm-cgi/plm
 
-     > I only have patched in cpufreq, nothing else, and I am running
-     > debian/sid.
+:)
+cliffw
 
-I saw the same thing, and have narrowed it down to a possible compiler
-bug. Just drop gcc-3.3, and all will be well.
-
-Cheers,
-  Trond
+> 

@@ -1,41 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266143AbUI0GAa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266136AbUI0GG0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266143AbUI0GAa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 02:00:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266149AbUI0GAa
+	id S266136AbUI0GG0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 02:06:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266149AbUI0GGZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 02:00:30 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:36877 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S266143AbUI0GA3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 02:00:29 -0400
-Date: Mon, 27 Sep 2004 07:00:23 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Lukas Hejtmanek <xhejtman@fi.muni.cz>, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>
-Subject: Re: 2.6.9-rc2-mm2 pcmcia oops
-Message-ID: <20040927070023.A30364@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Lukas Hejtmanek <xhejtman@fi.muni.cz>, linux-kernel@vger.kernel.org,
-	Greg KH <greg@kroah.com>
-References: <20040926221614.GB1466@mail.muni.cz> <20040926184327.79e05988.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040926184327.79e05988.akpm@osdl.org>; from akpm@osdl.org on Sun, Sep 26, 2004 at 06:43:27PM -0700
+	Mon, 27 Sep 2004 02:06:25 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:11967 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S266136AbUI0GGX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 02:06:23 -0400
+Date: Mon, 27 Sep 2004 15:08:09 +0900
+From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Subject: Re: acpi-devel@lists.sourceforge.net,
+ linux-ia64@vger.kernel.orgRe: [PATCH] Updated patches for PCI IRQ resource
+ deallocation support [3/3]
+In-reply-to: <Pine.LNX.4.53.0409251730580.2763@musoma.fsmlabs.com>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Greg Kroah-Hartmann <greg@kroah.com>, Len Brown <len.brown@intel.com>,
+       tony.luck@intel.com, Andrew Morton <akpm@osdl.org>
+Message-id: <4157AE49.7080306@jp.fujitsu.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7bit
+X-Accept-Language: ja
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; ja-JP; rv:1.4)
+ Gecko/20030624 Netscape/7.1 (ax)
+References: <2HRhX-6Ad-21@gated-at.bofh.it>
+ <Pine.LNX.4.53.0409251436390.2914@musoma.fsmlabs.com>
+ <Pine.LNX.4.53.0409251730580.2763@musoma.fsmlabs.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 26, 2004 at 06:43:27PM -0700, Andrew Morton wrote:
-> Well quirk_usb_early_handoff() should be __devinit, not __init.
+Zwane Mwaikambo wrote:
 
-I thought we got all those?  I guess the recent PCI quirk cleanup
-reintroduced these bugs.
+> On Sat, 25 Sep 2004, Zwane Mwaikambo wrote:
+> 
+>> Hmm, what happens here if that vector was queued just before the local irq 
+>> disable in spin_lock_irqsave(idesc->lock...) ? Then when we unlock we'll 
+>> call do_IRQ to handle the irq associated with that vector. I haven't seen 
+>> the usage but it appears that iosapic_unregister_intr requires some 
+>> serialisation.
+> 
+> Ignore this, i misread some of the code.
+> 
+> Thanks Kenji,
+> 	Zwane
+> 
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+OK.
+BTW, I was able to find a bug thanks to your comment :-)
+The following 'spin_lock(&iosapic_lock)' was missing. I'll update
+the patch.
+
+	if (unlikely(idesc->action)) {
+		iosapic_intr_info[vector].refcnt++;
+MISSING =>	spin_unlock(&iosapic_lock);
+		spin_unlock_irqrestore(&idesc->lock, flags);
+		printk(KERN_WARNING "Cannot unregister GSI. IRQ %u is still in use.\n", irq);
+		return;
+	}
+
+Thanks,
+Kenji Kaneshige
+
+

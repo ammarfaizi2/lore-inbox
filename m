@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314077AbSEFCee>; Sun, 5 May 2002 22:34:34 -0400
+	id <S314075AbSEFCeN>; Sun, 5 May 2002 22:34:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314078AbSEFCed>; Sun, 5 May 2002 22:34:33 -0400
-Received: from esteel10.client.dti.net ([209.73.14.10]:4267 "EHLO
-	shookay.newview.com") by vger.kernel.org with ESMTP
-	id <S314077AbSEFCeb>; Sun, 5 May 2002 22:34:31 -0400
-Date: Sun, 5 May 2002 22:34:19 -0400
-From: Mathieu Chouquet-Stringer <mathieu@newview.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4 as a router, when is it appropriate?
-Message-ID: <20020505223419.A27997@shookay.newview.com>
-Mail-Followup-To: Mathieu Chouquet-Stringer <mathieu@newview.com>,
-	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <3CD28FB8.40204@elegant-software.com> <20020503.130131.67111535.davem@redhat.com> <xltd6wako2f.fsf@shookay.newview.com> <20020505.191805.71496104.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S314077AbSEFCeM>; Sun, 5 May 2002 22:34:12 -0400
+Received: from mercury.lss.emc.com ([168.159.40.77]:63238 "EHLO
+	mercury.lss.emc.com") by vger.kernel.org with ESMTP
+	id <S314075AbSEFCeL>; Sun, 5 May 2002 22:34:11 -0400
+Message-ID: <FA2F59D0E55B4B4892EA076FF8704F553D1A37@srgraham.eng.emc.com>
+From: "chen, xiangping" <chen_xiangping@emc.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Kernel deadlock using nbd over acenic driver.
+Date: Sun, 5 May 2002 22:26:57 -0400 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 05, 2002 at 07:18:05PM -0700, David S. Miller wrote:
->    From: Mathieu Chouquet-Stringer <mathieu@newview.com>
->    Date: 05 May 2002 22:27:52 -0400
-> 
->    And what kind of traffic are you speaking of (I mean how much megs/teras
->    per day)?
->    
-> We're talking about several hundred kilo packet per second routing
-> over gigabit.
+Hi,
 
-Impressive (thanks for this quick reply).
--- 
-Mathieu Chouquet-Stringer              E-Mail : mathieu@newview.com
-    It is exactly because a man cannot do a thing that he is a
-                      proper judge of it.
-                      -- Oscar Wilde
+I encounter a deadlock situation when using nbd device over gigabit
+ethernet. The network card is 3c 985 giga card using acenic driver. When the
+network has some significant back ground traffic, even making a ext2 file
+system can not succeed. When the deadlock happens, the nbd client daemon
+just stuck in tcp_recvmsg() without receiving any data, and the sender
+threads continue to send out requests until the whole system hangs. Even I
+set the nbd client daemon SNDTIMEO, the nbd client daemon could not exit
+from tcp_recvmsg(). 
+
+Is there any known problem with the acenic driver? How can I identify it is
+a problem of the NIC driver, or somewhere else?
+
+Thanks for help!
+
+
+Xiangping Chen 

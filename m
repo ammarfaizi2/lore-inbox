@@ -1,31 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263968AbSJVQYA>; Tue, 22 Oct 2002 12:24:00 -0400
+	id <S263366AbSJVQ1x>; Tue, 22 Oct 2002 12:27:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264614AbSJVQYA>; Tue, 22 Oct 2002 12:24:00 -0400
-Received: from trillium-hollow.org ([209.180.166.89]:30858 "EHLO
-	trillium-hollow.org") by vger.kernel.org with ESMTP
-	id <S263968AbSJVQYA>; Tue, 22 Oct 2002 12:24:00 -0400
-To: ebiederm@xmission.com (Eric W. Biederman)
-cc: landley@trommello.org, Andy Pfiffer <andyp@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>, fastboot@osdl.org,
-       Werner Almesberger <wa@almesberger.net>
-Subject: Re: [Fastboot] [CFT] kexec syscall for 2.5.43 (linux booting linux) 
-In-Reply-To: Your message of "22 Oct 2002 10:02:03 MDT."
-             <m11y6itqbo.fsf@frodo.biederman.org> 
-Date: Tue, 22 Oct 2002 09:30:07 -0700
-From: erich@uruk.org
-Message-Id: <E1841ux-00027S-00@trillium-hollow.org>
+	id <S264614AbSJVQ1x>; Tue, 22 Oct 2002 12:27:53 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:39614 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S263366AbSJVQ1x>; Tue, 22 Oct 2002 12:27:53 -0400
+Date: Tue, 22 Oct 2002 14:33:48 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@duckman.distro.conectiva
+To: Andrew Morton <akpm@digeo.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-mm mailing list <linux-mm@kvack.org>
+Subject: Re: ZONE_NORMAL exhaustion (dcache slab)
+In-Reply-To: <3DB4855F.D5DA002E@digeo.com>
+Message-ID: <Pine.LNX.4.44L.0210221428060.1648-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 21 Oct 2002, Andrew Morton wrote:
 
-Well, of course, %ds is the implicit source/dest of all but a few memory
-referencing ops, so not loading that is bound to lead to trouble in most
-cases...
+> He had 3 million dentries and only 100k pages on the LRU,
+> so we should have been reclaiming 60 dentries per scanned
+> page.
+>
+> Conceivably the multiply in shrink_slab() overflowed, where
+> we calculate local variable `delta'.  But doubtful.
 
---
-    Erich Stefan Boleyn     <erich@uruk.org>     http://www.uruk.org/
-"Reality is truly stranger than fiction; Probably why fiction is so popular"
+What if there were no pages left to scan for shrink_caches ?
+
+Could it be possible that for some strange reason the machine
+ended up scanning 0 slab objects ?
+
+60 * 0 is still 0, after all ;)
+
+Rik
+-- 
+A: No.
+Q: Should I include quotations after my reply?
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

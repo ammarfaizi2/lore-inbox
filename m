@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317261AbSFSN5P>; Wed, 19 Jun 2002 09:57:15 -0400
+	id <S316668AbSFSODg>; Wed, 19 Jun 2002 10:03:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317884AbSFSN5O>; Wed, 19 Jun 2002 09:57:14 -0400
-Received: from parmenides.zen.co.uk ([212.23.8.69]:28691 "HELO
-	parmenides.zen.co.uk") by vger.kernel.org with SMTP
-	id <S317261AbSFSN5N>; Wed, 19 Jun 2002 09:57:13 -0400
-Message-ID: <3D108F2A.4080906@treblig.org>
-Date: Wed, 19 Jun 2002 15:03:22 +0100
-From: "Dave Gilbert (Home)" <gilbertd@treblig.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sylvain Le Briero <s.lebriero@free.fr>
-CC: Joshua Newton <jpnewton@speakeasy.net>, linux-kernel@vger.kernel.org
-Subject: Re: Incredible weirdness with eepro100?
-References: <1024420841.2631.14.camel@claymore.corona> <001c01c21798$f100e230$3d5e06c7@slebriero2>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317742AbSFSODf>; Wed, 19 Jun 2002 10:03:35 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:50185 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S316668AbSFSODe>;
+	Wed, 19 Jun 2002 10:03:34 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: "Robbert Kouprie" <robbert@radium.jvb.tudelft.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: The buggy APIC of the Abit BP6 
+In-reply-to: Your message of "Wed, 19 Jun 2002 15:23:13 +0200."
+             <005f01c21794$7702b520$020da8c0@nitemare> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 20 Jun 2002 00:03:19 +1000
+Message-ID: <25764.1024495399@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yep, a me-to I'm afraid.  We had the problem with an eepro100 on-board a 
-motherboard.  Worked fine except when we copied large files and then it 
-would start randomly timing out on smb/NFS.
+On Wed, 19 Jun 2002 15:23:13 +0200, 
+"Robbert Kouprie" <robbert@radium.jvb.tudelft.nl> wrote:
+>I know the hardware sucks bad, but what's wrong with trying to work
+>around the problem providing noone else is bugged by the workaround?
 
-Tried new kernels (2.4.16 I think was the last I tried); was mainly 
-using the Intel drivers that were in SuSE kernels.
+You do not have the data required to (a) detect the problem and (b)
+recover even if you could detect the problem.  The APIC bus has a
+single bit checksum, the APIC hardware detects single bit errors and
+does a retransmission.  It _cannot_ detect double bit errors, the bad
+data is accepted and processed with undefined side effects.
 
-In the end we gave up and put a 3com 3c905 in - it has been fine ever since.
+What you see in the logs for a BP6 are error messages for single bit
+errors that were recovered by the hardware.  You will never see
+messages for double bit errors, just unexplained oops and/or machine
+hangs.
 
-Dave
-
-P.S. I'm not in a situation to try anthing more withit since it is a 
-production server.
-
-
-
+Yes, I have a BP6 :(.
 

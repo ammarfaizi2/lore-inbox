@@ -1,254 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282047AbRKVHC1>; Thu, 22 Nov 2001 02:02:27 -0500
+	id <S282058AbRKVHJI>; Thu, 22 Nov 2001 02:09:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282051AbRKVHCU>; Thu, 22 Nov 2001 02:02:20 -0500
-Received: from posta2.elte.hu ([157.181.151.9]:27586 "HELO posta2.elte.hu")
-	by vger.kernel.org with SMTP id <S282047AbRKVHCG>;
-	Thu, 22 Nov 2001 02:02:06 -0500
-Date: Thu, 22 Nov 2001 09:59:47 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: <linux-kernel@vger.kernel.org>
-Cc: <linux-smp@vger.kernel.org>
-Subject: [patch] sched_[set|get]_affinity() syscall, 2.4.15-pre9
-Message-ID: <Pine.LNX.4.33.0111220951240.2446-300000@localhost.localdomain>
+	id <S282059AbRKVHI6>; Thu, 22 Nov 2001 02:08:58 -0500
+Received: from krista.yaroslavl.ru ([217.15.132.26]:10003 "EHLO
+	mailserv.rybinsk.ru") by vger.kernel.org with ESMTP
+	id <S282058AbRKVHIo>; Thu, 22 Nov 2001 02:08:44 -0500
+Date: Thu, 22 Nov 2001 10:08:34 +0300 (MSK)
+From: Dmitri Popov <popov@krista.ru>
+To: Robert Love <rml@tech9.net>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Documentation/Changes
+In-Reply-To: <1006361415.1307.3.camel@icbm>
+Message-ID: <Pine.LNX.4.31.0111221003100.24032-100000@popov.krista.ru>
 MIME-Version: 1.0
-Content-Type: MULTIPART/Mixed; BOUNDARY="8323328-295900366-1006347495=:10030"
-Content-ID: <Pine.LNX.4.33.0111211358200.10035@localhost.localdomain>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On 21 Nov 2001, Robert Love wrote:
 
---8323328-295900366-1006347495=:10030
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.33.0111211358201.10035@localhost.localdomain>
+> > I'd like to note that there is nothing abount quota tools in
+> > Documentation/Changes. I tried to use one of Alan Cox kernels some weeks
+> > ago, and was very surprised, when quota utilities 2.00 stopped working.
+> > And I didn't find any information about correct quota tools in all the
+> > source tree! At last I searched for the latest quota-tools in the Internet
+> > (ftp://atrey.karlin.mff.cuni.cz/pub/local/jack/quota/utils/)
+> > and installed it. Now it works. As I can understand, the current 2.4.*
+> > will also need new utilities.
+>
+> I believe Alan's tree had 32-bit quota support, which requires a
+> different version of quota-tools. If you return to Linus's tree, your
+> original version will work.
+>
+> For what its worth, Linus has finally merged much of Alan's tree into
+> his own, and is pretty much done as of 2.4.15-pre.  32-bit quotas were
+> _not_ merged.
 
+Thank you for this information. According to documentation, new
+quota-tools know about both old and new quota formats, so I don't need to
+downgrade now. My personal part of the problem is solved. But I can't
+didn't find any information about minimum quota-tools version in
+neither Linus's, nor Alan's kernel. Although versions of other utilities
+are listed in Changes.
 
-the attached set-affinity-A1 patch is relative to the scheduler
-fixes/cleanups in 2.4.15-pre9. It implements the following two
-new system calls:
+-- 
+Dmitri Popov, mailto:popov@krista.ru
 
- asmlinkage int sys_sched_set_affinity(pid_t pid, unsigned int mask_len,
-    unsigned long *new_mask_ptr);
-
- asmlinkage int sys_sched_get_affinity(pid_t pid, unsigned int
-    *user_mask_len_ptr, unsigned long *user_mask_ptr);
-
-as a testcase, softirq.c is updated to use this mechanizm, plus see the
-attached loop_affine.c code.
-
-the sched_set_affinity() syscall also ensures that the target process will
-run on the right CPU (or CPUs).
-
-I think this interface is the right way to expose user-selectable affinity
-to user-space - there are more complex affinity interfaces in existence,
-but i believe that the discovery of actual caching hierarchy is and should
-be up to a different mechanizm, i dont think it should be mixed into the
-affinity syscalls. Using a mask of linear CPU IDs is IMO sufficient to
-express user-space affinity wishes.
-
-There are no security issues wrt. cpus_allowed, so these syscalls are
-available to every process. (there are permission restrictions of course,
-similar to those of existing scheduler syscalls.)
-
-sched_get_affinity(pid, &mask_len, NULL) can be used to query the kernel's
-supported CPU bitmask length. This should help us in achieving a stable
-libc interface once we get over the 32/64 CPUs limit.
-
-the attached loop_affine.c code tests both syscalls:
-
- mars:~> ./loop_affine
- current process's affinity: 4 bytes mask, value 000000ff.
- trying to set process: affinity to 00000001.
- current process's affinity: 4 bytes mask, value 00000001.
- speed: 2162052 loops.
- speed: 2162078 loops.
- [...]
-
-i've tested the patch on both SMP and UP systems. On UP the syscalls are
-pretty pointless, but they show that the internal state of the scheduler
-folds nicely into the UP case as well:
-
- mars:~> ./loop_affine
- current process's affinity: 4 bytes mask, value 00000001.
- trying to set process: affinity to 00000001.
- current process's affinity: 4 bytes mask, value 00000001.
- speed: 2160880 loops.
- speed: 2160511 loops.
- [...]
-
-comments? Is there any reason to do a more complex interface than this?
-
-	Ingo
-
---8323328-295900366-1006347495=:10030
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="set-affinity-2.4.15-A1"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0111220959470.2446@localhost.localdomain>
-Content-Description: 
-Content-Disposition: attachment; filename="set-affinity-2.4.15-A1"
-
-LS0tIGxpbnV4L2tlcm5lbC9zY2hlZC5jLm9yaWcJV2VkIE5vdiAyMSAxMTox
-MjowNSAyMDAxDQorKysgbGludXgva2VybmVsL3NjaGVkLmMJV2VkIE5vdiAy
-MSAxMTo0NDo0MSAyMDAxDQpAQCAtMTExMiw2ICsxMTEyLDEzMiBAQA0KIAly
-ZXR1cm4gcmV0dmFsOw0KIH0NCiANCisvKg0KKyAqIHN5c19zY2hlZF9zZXRf
-YWZmaW5pdHkgLSBTZXQgdGhlIENQVSBhZmZpbml0eSBtYXNrLg0KKyAqDQor
-ICogQHBpZDogdGhlIFBJRCBvZiB0aGUgcHJvY2Vzcw0KKyAqIEBtYXNrX2xl
-bjogbGVuZ3RoIG9mIHRoZSBiaXRmaWVsZA0KKyAqIEBuZXdfbWFza19wdHI6
-IHVzZXItc3BhY2UgcG9pbnRlciB0byB0aGUgbmV3IENQVSBtYXNrIGJpdGZp
-ZWxkDQorICovDQorYXNtbGlua2FnZSBpbnQgc3lzX3NjaGVkX3NldF9hZmZp
-bml0eShwaWRfdCBwaWQsIHVuc2lnbmVkIGludCBtYXNrX2xlbiwgdW5zaWdu
-ZWQgbG9uZyAqbmV3X21hc2tfcHRyKQ0KK3sNCisJaW50IHJldCwgcmVzY2hl
-ZHVsZSA9IDA7DQorCXVuc2lnbmVkIGxvbmcgbmV3X21hc2s7DQorCXN0cnVj
-dCB0YXNrX3N0cnVjdCAqcDsNCisNCisJLyoNCisJICogUmlnaHQgbm93IHdl
-IHN1cHBvcnQgYW4gJ3Vuc2lnbmVkIGxvbmcnIGJpdG1hc2sgLSB0aGlzIGNh
-bg0KKwkgKiBiZSBleHRlbmRlZCB3aXRob3V0IGNoYW5naW5nIHRoZSBzeXNj
-YWxsIGludGVyZmFjZS4NCisJICovDQorCWlmIChtYXNrX2xlbiA8IHNpemVv
-ZihuZXdfbWFzaykpDQorCQlyZXR1cm4gLUVJTlZBTDsNCisNCisJaWYgKGNv
-cHlfZnJvbV91c2VyKCZuZXdfbWFzaywgbmV3X21hc2tfcHRyLCBzaXplb2Yo
-bmV3X21hc2spKSkNCisJCXJldHVybiAtRUZBVUxUOw0KKw0KKwluZXdfbWFz
-ayAmPSBjcHVfb25saW5lX21hcDsNCisJaWYgKCFuZXdfbWFzaykNCisJCXJl
-dHVybiAtRUlOVkFMOw0KKw0KKwlyZWFkX2xvY2tfaXJxKCZ0YXNrbGlzdF9s
-b2NrKTsNCisJc3Bpbl9sb2NrKCZydW5xdWV1ZV9sb2NrKTsNCisNCisJcmV0
-ID0gLUVTUkNIOw0KKwlwID0gZmluZF9wcm9jZXNzX2J5X3BpZChwaWQpOw0K
-KwlpZiAoIXApDQorCQlnb3RvIG91dF91bmxvY2s7DQorDQorCXJldCA9IC1F
-UEVSTTsNCisJaWYgKChjdXJyZW50LT5ldWlkICE9IHAtPmV1aWQpICYmIChj
-dXJyZW50LT5ldWlkICE9IHAtPnVpZCkgJiYNCisJCQkhY2FwYWJsZShDQVBf
-U1lTX05JQ0UpKQ0KKwkJZ290byBvdXRfdW5sb2NrOw0KKwlwLT5jcHVzX2Fs
-bG93ZWQgPSBuZXdfbWFzazsNCisJaWYgKCEocC0+Y3B1c19ydW5uYWJsZSAm
-IHAtPmNwdXNfYWxsb3dlZCkpIHsNCisJCWlmIChwID09IGN1cnJlbnQpDQor
-CQkJcmVzY2hlZHVsZSA9IDE7DQorI2lmZGVmIENPTkZJR19TTVANCisJCWVs
-c2UgIHsNCisJCQkvKg0KKwkJCSAqIElmIHJ1bm5pbmcgb24gYSBkaWZmZXJl
-bnQgQ1BVIHRoZW4NCisJCQkgKiB0cmlnZ2VyIGEgcmVzY2hlZHVsZSB0byBn
-ZXQgdGhlIHByb2Nlc3MNCisJCQkgKiBtb3ZlZCB0byBhIGxlZ2FsIENQVToN
-CisJCQkgKi8NCisJCQlwLT5uZWVkX3Jlc2NoZWQgPSAxOw0KKwkJCXNtcF9z
-ZW5kX3Jlc2NoZWR1bGUocC0+cHJvY2Vzc29yKTsNCisJCX0NCisjZW5kaWYN
-CisJfQ0KKwlyZXQgPSAwOw0KK291dF91bmxvY2s6DQorCXNwaW5fdW5sb2Nr
-KCZydW5xdWV1ZV9sb2NrKTsNCisJcmVhZF91bmxvY2tfaXJxKCZ0YXNrbGlz
-dF9sb2NrKTsNCisNCisJLyoNCisJICogUmVzY2hlZHVsZSBvbmNlIGlmIHRo
-ZSBjdXJyZW50IENQVSBpcyBub3QgaW4NCisJICogdGhlIGFmZmluaXR5IG1h
-c2suIChkbyB0aGUgcmVzY2hlZHVsZSBoZXJlIHNvDQorCSAqIHRoYXQga2Vy
-bmVsIGludGVybmFsIHByb2Nlc3NlcyBjYW4gY2FsbCB0aGlzDQorCSAqIGlu
-dGVyZmFjZSBhcyB3ZWxsLikNCisJICovDQorCWlmIChyZXNjaGVkdWxlKQ0K
-KwkJc2NoZWR1bGUoKTsNCisNCisJcmV0dXJuIHJldDsNCit9DQorDQorLyoN
-CisgKiBzeXNfc2NoZWRfZ2V0X2FmZmluaXR5IC0gU2V0IHRoZSBDUFUgYWZm
-aW5pdHkgbWFzay4NCisgKg0KKyAqIEBwaWQ6IHRoZSBQSUQgb2YgdGhlIHBy
-b2Nlc3MNCisgKiBAbWFza19sZW5fcHRyOiB1c2VyLXNwYWNlIHBvaW50ZXIg
-dG8gdGhlIGxlbmd0aCBvZiB0aGUgYml0ZmllbGQNCisgKiBAbmV3X21hc2tf
-cHRyOiB1c2VyLXNwYWNlIHBvaW50ZXIgdG8gdGhlIENQVSBtYXNrIGJpdGZp
-ZWxkDQorICovDQorYXNtbGlua2FnZSBpbnQgc3lzX3NjaGVkX2dldF9hZmZp
-bml0eShwaWRfdCBwaWQsIHVuc2lnbmVkIGludCAqdXNlcl9tYXNrX2xlbl9w
-dHIsIHVuc2lnbmVkIGxvbmcgKnVzZXJfbWFza19wdHIpDQorew0KKwl1bnNp
-Z25lZCBpbnQgbWFza19sZW4sIHVzZXJfbWFza19sZW47DQorCXVuc2lnbmVk
-IGxvbmcgbWFzazsNCisJc3RydWN0IHRhc2tfc3RydWN0ICpwOw0KKwlpbnQg
-cmV0Ow0KKw0KKwltYXNrX2xlbiA9IHNpemVvZihtYXNrKTsNCisNCisJaWYg
-KGNvcHlfZnJvbV91c2VyKCZ1c2VyX21hc2tfbGVuLCB1c2VyX21hc2tfbGVu
-X3B0ciwgc2l6ZW9mKHVzZXJfbWFza19sZW4pKSkNCisJCXJldHVybiAtRUZB
-VUxUOw0KKwlpZiAoY29weV90b191c2VyKHVzZXJfbWFza19sZW5fcHRyLCAm
-bWFza19sZW4sIHNpemVvZihtYXNrX2xlbikpKQ0KKwkJcmV0dXJuIC1FRkFV
-TFQ7DQorCS8qDQorCSAqIEV4aXQgaWYgd2UgY2Fubm90IGNvcHkgdGhlIGZ1
-bGwgYml0bWFzayBpbnRvIHVzZXItc3BhY2UuDQorCSAqIEJ1dCBhYm92ZSB3
-ZSBoYXZlIGNvcGllZCB0aGUgZGVzaXJlZCBtYXNrIGxlbmd0aCB0byB1c2Vy
-LXNwYWNlDQorCSAqIGFscmVhZHksIHNvIHVzZXItc3BhY2UgaGFzIGEgY2hh
-bmNlIHRvIGZpeCB1cC4NCisJICovDQorCWlmICh1c2VyX21hc2tfbGVuIDwg
-bWFza19sZW4pDQorCQlyZXR1cm4gLUVJTlZBTDsNCisNCisJcmVhZF9sb2Nr
-X2lycSgmdGFza2xpc3RfbG9jayk7DQorCXNwaW5fbG9jaygmcnVucXVldWVf
-bG9jayk7DQorDQorCXJldCA9IC1FU1JDSDsNCisJcCA9IGZpbmRfcHJvY2Vz
-c19ieV9waWQocGlkKTsNCisJaWYgKCFwKQ0KKwkJZ290byBvdXRfdW5sb2Nr
-Ow0KKw0KKwlyZXQgPSAtRVBFUk07DQorCWlmICgoY3VycmVudC0+ZXVpZCAh
-PSBwLT5ldWlkKSAmJiAoY3VycmVudC0+ZXVpZCAhPSBwLT51aWQpICYmDQor
-CQkJIWNhcGFibGUoQ0FQX1NZU19OSUNFKSkNCisJCWdvdG8gb3V0X3VubG9j
-azsNCisNCisJbWFzayA9IHAtPmNwdXNfYWxsb3dlZCAmIGNwdV9vbmxpbmVf
-bWFwOw0KKwlyZXQgPSAwOw0KK291dF91bmxvY2s6DQorCXNwaW5fdW5sb2Nr
-KCZydW5xdWV1ZV9sb2NrKTsNCisJcmVhZF91bmxvY2tfaXJxKCZ0YXNrbGlz
-dF9sb2NrKTsNCisNCisJaWYgKHJldCkNCisJCXJldHVybiByZXQ7DQorCWlm
-IChjb3B5X3RvX3VzZXIodXNlcl9tYXNrX3B0ciwgJm1hc2ssIHNpemVvZiht
-YXNrKSkpDQorCQlyZXR1cm4gLUVGQVVMVDsNCisJcmV0dXJuIDA7DQorfQ0K
-Kw0KIHN0YXRpYyB2b2lkIHNob3dfdGFzayhzdHJ1Y3QgdGFza19zdHJ1Y3Qg
-KiBwKQ0KIHsNCiAJdW5zaWduZWQgbG9uZyBmcmVlID0gMDsNCi0tLSBsaW51
-eC9rZXJuZWwvc29mdGlycS5jLm9yaWcJV2VkIE5vdiAyMSAxMToxMjowNSAy
-MDAxDQorKysgbGludXgva2VybmVsL3NvZnRpcnEuYwlXZWQgTm92IDIxIDEx
-OjI0OjEwIDIwMDENCkBAIC0zNjMsMTUgKzM2MywxNyBAQA0KIHsNCiAJaW50
-IGJpbmRfY3B1ID0gKGludCkgKGxvbmcpIF9fYmluZF9jcHU7DQogCWludCBj
-cHUgPSBjcHVfbG9naWNhbF9tYXAoYmluZF9jcHUpOw0KKwl1bnNpZ25lZCBs
-b25nIGNwdV9tYXNrID0gMVVMIDw8IGNwdTsNCiANCiAJZGFlbW9uaXplKCk7
-DQogCWN1cnJlbnQtPm5pY2UgPSAxOTsNCiAJc2lnZmlsbHNldCgmY3VycmVu
-dC0+YmxvY2tlZCk7DQogDQogCS8qIE1pZ3JhdGUgdG8gdGhlIHJpZ2h0IENQ
-VSAqLw0KLQljdXJyZW50LT5jcHVzX2FsbG93ZWQgPSAxVUwgPDwgY3B1Ow0K
-LQl3aGlsZSAoc21wX3Byb2Nlc3Nvcl9pZCgpICE9IGNwdSkNCi0JCXNjaGVk
-dWxlKCk7DQorCWlmIChzeXNfc2NoZWRfc2V0X2FmZmluaXR5KDAsIHNpemVv
-ZihjcHVfbWFzayksICZjcHVfbWFzaykpDQorCQlCVUcoKTsNCisJaWYgKHNt
-cF9wcm9jZXNzb3JfaWQoKSAhPSBjcHUpDQorCQlCVUcoKTsNCiANCiAJc3By
-aW50ZihjdXJyZW50LT5jb21tLCAia3NvZnRpcnFkX0NQVSVkIiwgYmluZF9j
-cHUpOw0KIA0KLS0tIGxpbnV4L2luY2x1ZGUvbGludXgvc2NoZWQuaC5vcmln
-CVdlZCBOb3YgMjEgMTE6MTk6NTYgMjAwMQ0KKysrIGxpbnV4L2luY2x1ZGUv
-bGludXgvc2NoZWQuaAlXZWQgTm92IDIxIDExOjM5OjM2IDIwMDENCkBAIC01
-ODksNiArNTg5LDggQEANCiAjZGVmaW5lIHdha2VfdXBfaW50ZXJydXB0aWJs
-ZV9zeW5jKHgpCV9fd2FrZV91cF9zeW5jKCh4KSxUQVNLX0lOVEVSUlVQVElC
-TEUsIDEpDQogI2RlZmluZSB3YWtlX3VwX2ludGVycnVwdGlibGVfc3luY19u
-cih4KSBfX3dha2VfdXBfc3luYygoeCksVEFTS19JTlRFUlJVUFRJQkxFLCAg
-bnIpDQogYXNtbGlua2FnZSBsb25nIHN5c193YWl0NChwaWRfdCBwaWQsdW5z
-aWduZWQgaW50ICogc3RhdF9hZGRyLCBpbnQgb3B0aW9ucywgc3RydWN0IHJ1
-c2FnZSAqIHJ1KTsNCithc21saW5rYWdlIGludCBzeXNfc2NoZWRfc2V0X2Fm
-ZmluaXR5KHBpZF90IHBpZCwgdW5zaWduZWQgaW50IG1hc2tfbGVuLCB1bnNp
-Z25lZCBsb25nICpuZXdfbWFza19wdHIpOw0KK2FzbWxpbmthZ2UgaW50IHN5
-c19zY2hlZF9nZXRfYWZmaW5pdHkocGlkX3QgcGlkLCB1bnNpZ25lZCBpbnQg
-KnVzZXJfbWFza19sZW5fcHRyLCB1bnNpZ25lZCBsb25nICp1c2VyX21hc2tf
-cHRyKTsNCiANCiBleHRlcm4gaW50IGluX2dyb3VwX3AoZ2lkX3QpOw0KIGV4
-dGVybiBpbnQgaW5fZWdyb3VwX3AoZ2lkX3QpOw0KLS0tIGxpbnV4L2FyY2gv
-aTM4Ni9rZXJuZWwvZW50cnkuUy5vcmlnCVdlZCBOb3YgMjEgMTE6MTI6MzYg
-MjAwMQ0KKysrIGxpbnV4L2FyY2gvaTM4Ni9rZXJuZWwvZW50cnkuUwlXZWQg
-Tm92IDIxIDExOjM1OjI0IDIwMDENCkBAIC02MjIsNiArNjIyLDggQEANCiAJ
-LmxvbmcgU1lNQk9MX05BTUUoc3lzX25pX3N5c2NhbGwpCS8qIFJlc2VydmVk
-IGZvciBTZWN1cml0eSAqLw0KIAkubG9uZyBTWU1CT0xfTkFNRShzeXNfZ2V0
-dGlkKQ0KIAkubG9uZyBTWU1CT0xfTkFNRShzeXNfcmVhZGFoZWFkKQkvKiAy
-MjUgKi8NCisJLmxvbmcgU1lNQk9MX05BTUUoc3lzX3NjaGVkX3NldF9hZmZp
-bml0eSkNCisJLmxvbmcgU1lNQk9MX05BTUUoc3lzX3NjaGVkX2dldF9hZmZp
-bml0eSkNCiANCiAJLnJlcHQgTlJfc3lzY2FsbHMtKC4tc3lzX2NhbGxfdGFi
-bGUpLzQNCiAJCS5sb25nIFNZTUJPTF9OQU1FKHN5c19uaV9zeXNjYWxsKQ0K
-
---8323328-295900366-1006347495=:10030
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="loop_affine.c"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0111220959471.2446@localhost.localdomain>
-Content-Description: 
-Content-Disposition: attachment; filename="loop_affine.c"
-
-DQovKg0KICogU2ltcGxlIGxvb3AgdGVzdGluZyB0aGUgQ1BVLWFmZmluaXR5
-IHN5c2NhbGwuDQogKi8NCiNpbmNsdWRlIDx0aW1lLmg+DQojaW5jbHVkZSA8
-c3RkaW8uaD4NCiNpbmNsdWRlIDxzdGRsaWIuaD4NCiNpbmNsdWRlIDxsaW51
-eC91bmlzdGQuaD4NCg0KI2RlZmluZSBfX05SX3NjaGVkX3NldF9hZmZpbml0
-eSAyMjYNCl9zeXNjYWxsMyAoaW50LCBzY2hlZF9zZXRfYWZmaW5pdHksIHBp
-ZF90LCBwaWQsIHVuc2lnbmVkIGludCwgbWFza19sZW4sIHVuc2lnbmVkIGxv
-bmcgKiwgbWFzaykNCg0KI2RlZmluZSBfX05SX3NjaGVkX2dldF9hZmZpbml0
-eSAyMjcNCl9zeXNjYWxsMyAoaW50LCBzY2hlZF9nZXRfYWZmaW5pdHksIHBp
-ZF90LCBwaWQsIHVuc2lnbmVkIGludCAqLCBtYXNrX2xlbiwgdW5zaWduZWQg
-bG9uZyAqLCBtYXNrKQ0KDQppbnQgbWFpbiAodm9pZCkNCnsNCglpbnQgcmV0
-Ow0KCXVuc2lnbmVkIGludCBub3csIGNvdW50LCBtYXNrX2xlbiwgaXRlcmF0
-aW9uOw0KCXVuc2lnbmVkIGxvbmcgbWFzaywgbmV3X21hc2sgPSAoMSA8PCAw
-KTsNCg0KCXJldCA9IHNjaGVkX2dldF9hZmZpbml0eSgwLCAmbWFza19sZW4s
-ICZtYXNrKTsNCglpZiAocmV0KSB7DQoJCXByaW50Zigic2NoZWRfZ2V0X2Fm
-ZmluaXR5IHJldHVybmVkICVkLCBleGl0aW5nLlxuIiwgcmV0KTsNCgkJcmV0
-dXJuIC0xOw0KCX0NCglwcmludGYoImN1cnJlbnQgcHJvY2VzcydzIGFmZmlu
-aXR5OiAlZCBieXRlcyBtYXNrLCB2YWx1ZSAlMDhseC5cbiIsDQoJCW1hc2tf
-bGVuLCBtYXNrKTsNCg0KCXByaW50ZigidHJ5aW5nIHRvIHNldCBwcm9jZXNz
-OiBhZmZpbml0eSB0byAlMDhseC5cbiIsIG5ld19tYXNrKTsJDQoNCglyZXQg
-PSBzY2hlZF9zZXRfYWZmaW5pdHkoMCwgc2l6ZW9mKG5ld19tYXNrKSwgJm5l
-d19tYXNrKTsNCglpZiAocmV0KSB7DQoJCXByaW50Zigic2NoZWRfc2V0X2Fm
-ZmluaXR5IHJldHVybmVkICVkLCBleGl0aW5nLlxuIiwgcmV0KTsNCgkJcmV0
-dXJuIC0xOw0KCX0NCg0KCXJldCA9IHNjaGVkX2dldF9hZmZpbml0eSgwLCAm
-bWFza19sZW4sICZtYXNrKTsNCglpZiAocmV0KSB7DQoJCXByaW50Zigic2No
-ZWRfZ2V0X2FmZmluaXR5IHJldHVybmVkICVkLCBleGl0aW5nLlxuIiwgcmV0
-KTsNCgkJcmV0dXJuIC0xOw0KCX0NCglwcmludGYoImN1cnJlbnQgcHJvY2Vz
-cydzIGFmZmluaXR5OiAlZCBieXRlcyBtYXNrLCB2YWx1ZSAlMDhseC5cbiIs
-DQoJCW1hc2tfbGVuLCBtYXNrKTsNCglpdGVyYXRpb24gPSAwOw0KcmVwZWF0
-Og0KCW5vdyA9IHRpbWUoMCk7DQoJY291bnQgPSAwOw0KCWZvciAoOzspIHsN
-CgkJY291bnQrKzsNCgkJaWYgKHRpbWUoMCkgIT0gbm93KQ0KCQkJYnJlYWs7
-DQoJfQ0KCWlmIChpdGVyYXRpb24pDQoJCXByaW50Zigic3BlZWQ6ICVkIGxv
-b3BzLlxuIiwgY291bnQpOw0KCWl0ZXJhdGlvbisrOw0KCWdvdG8gcmVwZWF0
-Ow0KCXJldHVybiAwOw0KfQ0K
---8323328-295900366-1006347495=:10030--

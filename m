@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265325AbTGHUZJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 16:25:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265332AbTGHUZI
+	id S265341AbTGHUfK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 16:35:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267620AbTGHUfK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 16:25:08 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:57579 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S265325AbTGHUZF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 16:25:05 -0400
-Reply-To: <vlad@lrsehosting.com>
-From: <vlad@lrsehosting.com>
-To: "'Ryan Underwood'" <nemesis-lists@icequake.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: Forking shell bombs
-Date: Tue, 8 Jul 2003 15:37:50 -0500
-Message-ID: <000a01c34590$ccee1cb0$0200a8c0@wsl3>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <20030708202819.GM1030@dbz.icequake.net>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Tue, 8 Jul 2003 16:35:10 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:35480 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S265341AbTGHUfG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 16:35:06 -0400
+Date: Tue, 8 Jul 2003 22:49:31 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: compactflash cards dying in < hour?
+Message-ID: <20030708204931.GA602@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-1023 here.  System still died.  It is a PII 233-ECC with 256 megs of ram
-though.
+Hi!
 
---
+I had three diferent CF cards, from two different manufacturers
+(Apacer and Transcend), and both died *really fast*.
 
- /"\                         / For information and quotes, email us at
- \ /  ASCII RIBBON CAMPAIGN / info@lrsehosting.com
-  X   AGAINST HTML MAIL    / http://www.lrsehosting.com/
- / \  AND POSTINGS        / vlad@lrsehosting.com
--------------------------------------------------------------------------
+Last one (transcend) died in less than 10 minutes: mke2fs, cat
+/dev/urandom > foo; md5sum foo (few times); cat /dev/urandom > foo and
+I could no longer do cat /dev/urandom because of disk errors.
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Ryan Underwood
-Sent: Tuesday, July 08, 2003 3:28 PM
-To: linux-kernel@vger.kernel.org
-Subject: Re: Forking shell bombs
+I know CompactFlash cards are *crap*, but they should not be *so*
+crappy...?! [I'm testing them from toshiba satellite 4030cdt via
+Apacer PCMCIA-to-CF adapter and in sharp zaurus].
 
+Are there "known good" 256MB compact flash cards?
 
-What does ulimit -u say on your system?  2047 on mine.
-
---
-Ryan Underwood, <nemesis at icequake.net>, icq=10317253
--
-
-
+							Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

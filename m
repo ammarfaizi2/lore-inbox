@@ -1,63 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129982AbRAWUit>; Tue, 23 Jan 2001 15:38:49 -0500
+	id <S130391AbRAWUmj>; Tue, 23 Jan 2001 15:42:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130391AbRAWUia>; Tue, 23 Jan 2001 15:38:30 -0500
-Received: from cmn2.cmn.net ([206.168.145.10]:53320 "EHLO cmn2.cmn.net")
-	by vger.kernel.org with ESMTP id <S129982AbRAWUiZ>;
-	Tue, 23 Jan 2001 15:38:25 -0500
-Message-ID: <3A6DEAF2.9090108@valinux.com>
-Date: Tue, 23 Jan 2001 13:34:58 -0700
-From: Jeff Hartmann <jhartmann@valinux.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.12-20smp i686; en-US; m18) Gecko/20001107 Netscape6/6.0
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Markus Hadwiger <msh@parsec.org>
-CC: Michael Guntsche <m.guntsche@epitel.at>, linux-kernel@vger.kernel.org,
-        dri-devel@lists.sourceforge.net
-Subject: Re: [Dri-devel] Re: AGPGART problems with VIA KX133 chipsets under 
-	 2.2.18/2.4.0
-In-Reply-To: <NDBBJOKGIPCDBEEFHNFPGECPCAAA.m.guntsche@epitel.at> <3A6DB677.2060109@valinux.com> <3A6DC64A.82CA93AA@parsec.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S131123AbRAWUmU>; Tue, 23 Jan 2001 15:42:20 -0500
+Received: from ihemail2.lucent.com ([192.11.222.163]:25828 "EHLO
+	ihemail2.firewall.lucent.com") by vger.kernel.org with ESMTP
+	id <S130391AbRAWUmS>; Tue, 23 Jan 2001 15:42:18 -0500
+Date: Tue, 23 Jan 2001 14:42:14 -0600
+From: Dave Dykstra <dwd@bell-labs.com>
+To: linux-kernel@vger.kernel.org
+Cc: davem@redhat.com, kuznet@ms2.inr.ac.ru
+Subject: Linux 2.2.16 through 2.2.18preX TCP hang bug triggered by rsync
+Message-ID: <20010123144214.A11759@lucent.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Markus Hadwiger wrote:
+Ville Herva <v@iki.fi> suggested I post this bug report here and that
+possibly David Miller or Alexey Kuznetsov could help out.  I found the
+problem back at the end of October and narrowed it down as much as I could
+but didn't know where to report it until now.  For complete details please
+see the rsync mailing list archive at
+    http://lists.samba.org/pipermail/rsync/2000-October/003004.html
+and some of the preceding and following messages.  In particular, the next
+message
+    http://lists.samba.org/pipermail/rsync/2000-October/003005.html
+is an interpretation of the TCP dump by my co-worker which implicates the
+Linux side.  Also, in
+    http://lists.samba.org/pipermail/rsync/2000-October/002985.html
+Andrew Tridgell refers to a TCP patch that went into Linux kernel 2.2.17
+and that "Stephen" told him about it but I don't know what Stephen he was
+referring to; that fix didn't help anyway.
 
-> Michael Guntsche wrote:
-> 
->>> While playing around with the agpgart module I noticed the following strange
->>> behaviour.
->>> 
->>> The hardware in question is an Asus K7V with the KX133 chipset and has been
->>> tested on both 2.4.0 and 2.2.18 kernels.
->> 
-> 
-> Jeff Hartmann wrote:
-> 
->> Can you try this patch and tell me if it fixes the problem (against 2.4.0)?
-> 
-> 
-> I tried it out on a VIA Apollo Pro 133A system (Pentium III)
-> and it seems to work. Previously, I had the same problem as Michael
-> and only got agpgart to work by temporarily hard-coding the correct
-> aperture base address in agpgart_be.c.
-> 
-> Thanks,
-> Markus
-> --
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+The first message above refers to a set of data that could possibly be used
+to reproduce the problem, but unfortunately nobody else has reported to me
+that they have successfully reproduced it.  I only saw the failures when
+using rsync to pull to a particular Solaris 7 workstation, but it happened
+when pulling from two different Linux machines and three different kernels
+but no other type of machine.  Another message
+    http://lists.samba.org/pipermail/rsync/2000-October/002981.html
+gives a more complete rsync command for reproducing the problem.  The
+original report at
+    http://lists.samba.org/pipermail/rsync/2000-October/002964.html
+says that I first noticed the problem on Linux kernel 2.2.16-3smp.
 
-All the VIA chipsets are pretty much the same so this should fix the 
-problem on everyone's system.  I'll send a proper patch to Linus later 
-today.
-
--Jeff
-
+- Dave Dykstra
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

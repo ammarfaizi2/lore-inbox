@@ -1,57 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262040AbUAXVMl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 16:12:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262015AbUAXVMl
+	id S261931AbUAXVSD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 16:18:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbUAXVSD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 16:12:41 -0500
-Received: from fw.osdl.org ([65.172.181.6]:12993 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262123AbUAXVMj (ORCPT
+	Sat, 24 Jan 2004 16:18:03 -0500
+Received: from fw.osdl.org ([65.172.181.6]:11972 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261931AbUAXVR5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 16:12:39 -0500
-Date: Sat, 24 Jan 2004 13:12:34 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Kevin O'Connor" <kevin@koconnor.net>
-cc: David Lang <david.lang@digitalinsight.com>,
-       David Ford <david+hb@blue-labs.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Confirmation Spam Blocking was: List 'linux-dvb' closed to
- public posts
-In-Reply-To: <20040124201437.GA7133@arizona.localdomain>
-Message-ID: <Pine.LNX.4.58.0401241307490.10144@home.osdl.org>
-References: <20040121194315.GE9327@redhat.com> <Pine.LNX.4.58.0401211155300.2123@home.osdl.org>
- <1074717499.18964.9.camel@localhost.localdomain> <20040121211550.GK9327@redhat.com>
- <20040121213027.GN23765@srv-lnx2600.matchmail.com>
- <pan.2004.01.21.23.40.00.181984@dungeon.inka.de> <1074731162.25704.10.camel@localhost.localdomain>
- <yq0hdyo15gt.fsf@wildopensource.com> <401000C1.9010901@blue-labs.org>
- <Pine.LNX.4.58.0401221034090.4548@dlang.diginsite.com>
- <20040124201437.GA7133@arizona.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 24 Jan 2004 16:17:57 -0500
+Date: Sat, 24 Jan 2004 13:17:55 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Anton Blanchard <anton@samba.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Audit 2.6 set_pte users
+Message-Id: <20040124131755.5336c8a5.akpm@osdl.org>
+In-Reply-To: <20040124042225.GO11236@krispykreme>
+References: <20040124042225.GO11236@krispykreme>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 24 Jan 2004, Kevin O'Connor wrote:
+Anton Blanchard <anton@samba.org> wrote:
+>
 > 
-> A good Bayesian spam filter isn't nearly as susceptible to random words as
-> some people think.  Words that are likely to be spam (along with words that
-> are frequently "ham") are given _exponentially_ more weight than other
-> words.
+> Hi,
+> 
+> I went through all the users of set_pte to check if they flush the
+> current pte if it is present. Below is a summary of the audit,
+> everything looks good except for a failure case in
+> dup_mmap->copy_page_range.
 
-Especially if the "random words" in the spam end up being weighted by real
-frequency, you just _cannot_ use single-word bayes filters on it. Or if 
-you do, you'll eventually have those words either being neutral, or (worst 
-of all cases) you'll have real mail be marked as spam after having 
-aggressively trained the filter for the spams.
+I was hoping this might fix the "missing TLB flush" which Martin
+Schwidefsky believes is there, and which is causing him grief.
 
-It might not be that big of a deal especially if you have a fairly narrow 
-scope of emails in your ham-list, but people who get mail from varied 
-sources _will_ get screwed by this, one way or the other.
+> --- 1.154/kernel/fork.c	Tue Jan 20 10:38:15 2004
+> +++ edited/kernel/fork.c	Sat Jan 24 14:17:00 2004
+> @@ -347,6 +347,7 @@
+>  fail_nomem:
+>  	retval = -ENOMEM;
+>  fail:
+> +	flush_tlb_mm(current->mm);
+>  	vm_unacct_memory(charge);
+>  	goto out;
+>  }
 
-Of course, the spam filters will catch on to other things. I find that the 
-DNS lookups take care of most of it, to the point where the other rules 
-don't even much matter. 
+But look:
 
-		Linus
+ 	retval = 0;
+ 	build_mmap_rb(mm);
+ 
+ out:
+ 	flush_tlb_mm(current->mm);
+ 	up_write(&oldmm->mmap_sem);
+ 	return retval;
+ fail_nomem:
+ 	retval = -ENOMEM;
+ fail:
++	flush_tlb_mm(current->mm);
+ 	vm_unacct_memory(charge);
+ 	goto out;
+ }
+
+
+There is no missing flush here.

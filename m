@@ -1,374 +1,138 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262875AbUB0PtY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 10:49:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262889AbUB0PtY
+	id S263012AbUB0Pte (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 10:49:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263013AbUB0Pte
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 10:49:24 -0500
-Received: from usmimesweeper.bluearc.com ([63.203.197.133]:43280 "EHLO
-	usmimesweeper.bluearc.com") by vger.kernel.org with ESMTP
-	id S262875AbUB0PtM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 10:49:12 -0500
-Message-ID: <AD4480A509455343AEFACCC231BA850FF0FF75@ukexchange>
-From: Martin Dorey <mdorey@bluearc.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: init_dev accesses out-of-bounds tty index
-Date: Fri, 27 Feb 2004 15:49:09 -0000
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	Fri, 27 Feb 2004 10:49:34 -0500
+Received: from fed1mtao05.cox.net ([68.6.19.126]:59370 "EHLO
+	fed1mtao05.cox.net") by vger.kernel.org with ESMTP id S263012AbUB0PtZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 10:49:25 -0500
+Date: Fri, 27 Feb 2004 08:49:20 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: George Anzinger <george@mvista.com>
+Cc: "Amit S. Kale" <amitkale@emsyssoft.com>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@suse.cz>, kgdb-bugreport@lists.sourceforge.net
+Subject: Re: [Kgdb-bugreport] [PATCH][3/3] Update CVS KGDB's wrt connect / detach
+Message-ID: <20040227154920.GX1052@smtp.west.cox.net>
+References: <20040225213626.GF1052@smtp.west.cox.net> <20040225214343.GG1052@smtp.west.cox.net> <20040225215309.GI1052@smtp.west.cox.net> <200402261344.49261.amitkale@emsyssoft.com> <403E8180.1060008@mvista.com> <20040226235915.GV1052@smtp.west.cox.net> <403EA407.1010405@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <403EA407.1010405@mvista.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Feb 26, 2004 at 05:57:27PM -0800, George Anzinger wrote:
 
-Andrew Morton asked:
+> Tom Rini wrote:
+> >On Thu, Feb 26, 2004 at 03:30:08PM -0800, George Anzinger wrote:
+> >
+> >>Amit S. Kale wrote:
+> >>
+> >>>On Thursday 26 Feb 2004 3:23 am, Tom Rini wrote:
+> >>>
+> >>>
+> >>>>The following patch fixes a number of little issues here and there, and
+> >>>>ends up making things more robust.
+> >>>>- We don't need kgdb_might_be_resumed or kgdb_killed_or_detached.
+> >>>>GDB attaching is GDB attaching, we haven't preserved any of the
+> >>>>previous context anyhow.
+> >>>
+> >>>
+> >>>If gdb is restarted, kgdb has to remove all breakpoints. Present kgdb 
+> >>>does that in the code this patch removes:
+> >>>
+> >>>-		if (remcom_in_buffer[0] == 'H' && remcom_in_buffer[1] == 
+> >>>'c') {
+> >>>-			remove_all_break();
+> >>>-			atomic_set(&kgdb_killed_or_detached, 0);
+> >>>-			ok_packet(remcom_out_buffer);
+> >>>
+> >>>If we don't remove breakpoints, they stay in kgdb without gdb not 
+> >>>knowing it and causes consistency problems.
+> >>
+> >>I wonder if this is worth the trouble.  Does kgdb need to know about 
+> >>breakpoints at all?  Is there some other reason it needs to track them?
+> >
+> >
+> >I don't know if it's strictly needed, but it's not the hard part of this
+> >particular issue (as I suggested in another thread, remove_all_break()
+> >on a ? packet works).
+> >
+> >
+> >>>>- Don't try and look for a connection in put_packet, after we've tried
+> >>>>to put a packet.  Instead, when we receive a packet, GDB has
+> >>>>connected.
+> >>>
+> >>>
+> >>>We have to check for gdb connection in putpacket or else following 
+> >>>problem occurs.
+> >>>
+> >>>1. kgdb console messages are to be put.
+> >>>2. gdb dies
+> >>>3. putpacket writes the packet and waits for a '+'
+> >>
+> >>Oops!  Tom, this '+' will be sent under interrupt and while kgdb is not 
+> >>connected.  Looks like it needs to be passed through without causing a 
+> >>breakpoint.  Possible salvation if we disable interrupts while waiting 
+> >>for the '+' but I don't think that is a good idea.
+> >
+> >
+> >I don't think this is that hard of a problem anymore.  I haven't enabled
+> >console messages, but I've got the following being happy now:
+> console pass through is the hard one as it is done outside of kgdb under 
+> interrupt control.  Thus the '+' will come to the interrupt handler.
+> 
+> There is a bit of a problem here WRT hiting a breakpoint while waiting for 
+> this '+'.  Should only happen on SMP systems, but still....
 
-> That's a weird address.  Could you please enable CONFIG_DEBUG_SLAB and
-> CONFIG_DEBUG_PAGEALLOC, see if you can make it happen again?
+Here's why I don't think it's a problem (I'll post the new patch
+shortly, getting from quilt to a patch against previous is still a
+pain).  What happens is:
+1. kgdb console tried to send a packet.
+2. before ACK'ing the above, gdb dies.
+3. kgdb loops on sending a packet and reading in a char.
+4. gdb tries to reconnect and sends $somePacket#cs
+5. put_packet sends out the console message again, and reads in a char.
+6. put_packet sees a $ (or in the case of your .gdbinit, ^C$, which is
+still fine).
+7. put_packet sees a packet coming in, which preempts sending this
+packet, and will call kgdb_schedule_breakpoint() and then return, giving
+up on the console message.
+8. do_IRQ() calls kgdb_process_breakpoint(), which calls breakpoint()
+and gdb gets back in the game.
 
-This is the relevant section from my new .config:
+> >- Connect to a waiting kernel, continue/^C/disconnect/reconnect.
+> >- Connect to a running kernel, continue/^C/disconnect/reconnect.
+> >- Once connected and running, ^C/hit breakpoint and
+> >  disconnect/reconnect.
+> >- Once connected, set a breakpoint, kill gdb and hit the breakpoint and
+> >  reconnect.
+> >- Once connected and running, kill gdb and reconnect.
+> >
+> >The last two aren't as "fast" as I might like, but they're the "gdb went
+> >away in an ungraceful manner" situations, so I think it's OK.  In the
+> >first (breakpoint hit, no gdb) I end up having to issue a few continues
+> >to get moving again, but it's a one-time event.  
+> 
+> What are you referring to as "continues".  How is this different from 
+> connect to a waiting kernel?
 
-#
-# Kernel hacking
-#
-CONFIG_DEBUG_KERNEL=y
-CONFIG_DEBUG_STACKOVERFLOW=y
-CONFIG_DEBUG_SLAB=y
-# CONFIG_DEBUG_IOVIRT is not set
-# CONFIG_MAGIC_SYSRQ is not set
-# CONFIG_DEBUG_SPINLOCK is not set
-CONFIG_DEBUG_PAGEALLOC=y
-# CONFIG_DEBUG_HIGHMEM is not set
-CONFIG_DEBUG_INFO=y
-# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
-CONFIG_FRAME_POINTER=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
+The 'continue' command in gdb.
 
-Chris Wright asked:
+> Usually this would be the end of the 
+> session.  If you are going to continue from here something needs to be done 
+> with the breakpoint that gdb does not know about.  If kgdb can remove them, 
+> well fine, except your stopped on one.  If you remove it, there could be 
+> some confusion as to why you are in the debugger.
 
-> can you recreate this w/out nvidia?
-
-I'm no longer tainted (thanks for telling me how, off-list).
-
-The crash wasn't quite the same this time - in particular, ext3_permission
-has disappeared - but it's still init_dev out of dput (at least, the first
-oops is):
-
-Feb 27 11:43:03 doozer automount[20392]: mount(bind): mounted
-/u/u57/Engineering/tdexport/extracted/5309 type bind on /t/5309
-Feb 27 11:43:20 doozer kernel: request_module: failed /sbin/modprobe --
-char-major-6-0. error = 256
-Feb 27 11:43:25 doozer kernel: Unable to handle kernel NULL pointer
-dereference at virtual address 0000009b
-Feb 27 11:43:25 doozer kernel:  printing eip:
-Feb 27 11:43:25 doozer kernel: c0247554
-Feb 27 11:43:25 doozer kernel: *pde = 00000000
-Feb 27 11:43:25 doozer kernel: Oops: 0000 [#1]
-Feb 27 11:43:25 doozer kernel: CPU:    1
-Feb 27 11:43:25 doozer kernel: EIP:    0060:[init_dev+33/1332]    Not
-tainted
-Feb 27 11:43:25 doozer kernel: EFLAGS: 00010246
-Feb 27 11:43:25 doozer kernel: EIP is at init_dev+0x21/0x534
-Feb 27 11:43:25 doozer kernel: eax: ffffffff   ebx: c42cfe9c   ecx: c046a65c
-edx: ffffffff
-Feb 27 11:43:25 doozer kernel: esi: ffffffff   edi: ed426f6c   ebp: eca73ed4
-esp: eca73e88
-Feb 27 11:43:25 doozer kernel: ds: 007b   es: 007b   ss: 0068
-Feb 27 11:43:25 doozer kernel: Process sh (pid: 20418, threadinfo=eca72000
-task=cb4a19d0)
-Feb 27 11:43:25 doozer kernel: Stack: ffffffff c17125f0 c17125f0 00000000
-eca73ec0 c011e3e7 00000000 eca73ec0 
-Feb 27 11:43:25 doozer kernel:        c0174e43 c0553098 ed426000 c17125f0
-00000000 00000000 eca73ee0 00000292 
-Feb 27 11:43:25 doozer kernel:        c42cfe9c ffffffff ed426f6c eca73f08
-c0248473 ffffffff ffffffff eca73ef4 
-Feb 27 11:43:25 doozer kernel: Call Trace:
-Feb 27 11:43:25 doozer kernel:  [__change_page_attr+36/456]
-__change_page_attr+0x24/0x1c8
-Feb 27 11:43:25 doozer kernel:  [dput+36/607] dput+0x24/0x25f
-Feb 27 11:43:25 doozer kernel:  [tty_open+149/878] tty_open+0x95/0x36e
-Feb 27 11:43:25 doozer kernel:  [cdev_get+91/185] cdev_get+0x5b/0xb9
-Feb 27 11:43:25 doozer kernel:  [chrdev_open+301/698]
-chrdev_open+0x12d/0x2ba
-Feb 27 11:43:25 doozer kernel:  [chrdev_open+0/698] chrdev_open+0x0/0x2ba
-Feb 27 11:43:25 doozer kernel:  [dentry_open+336/545]
-dentry_open+0x150/0x221
-Feb 27 11:43:25 doozer kernel:  [filp_open+93/95] filp_open+0x5d/0x5f
-Feb 27 11:43:25 doozer kernel:  [sys_open+85/133] sys_open+0x55/0x85
-Feb 27 11:43:25 doozer kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-Feb 27 11:43:25 doozer kernel: 
-Feb 27 11:43:25 doozer kernel: Code: 8b 86 9c 00 00 00 8b 1c 90 85 db 74 62
-8b 83 a0 00 00 00 a9 
-Feb 27 11:43:29 doozer kernel:  <1>Unable to handle kernel paging request at
-virtual address f06db004
-Feb 27 11:43:29 doozer kernel:  printing eip:
-Feb 27 11:43:29 doozer kernel: c0248738
-Feb 27 11:43:29 doozer kernel: *pde = 0055f067
-Feb 27 11:43:29 doozer kernel: Oops: 0000 [#2]
-Feb 27 11:43:29 doozer kernel: CPU:    1
-Feb 27 11:43:29 doozer kernel: EIP:    0060:[tty_open+858/878]    Not
-tainted
-Feb 27 11:43:29 doozer kernel: EFLAGS: 00010286
-Feb 27 11:43:29 doozer kernel: EIP is at tty_open+0x35a/0x36e
-Feb 27 11:43:29 doozer kernel: eax: f06db000   ebx: c42cfe9c   ecx: fffffffa
-edx: 00008802
-Feb 27 11:43:29 doozer kernel: esi: 00000000   edi: cf363f6c   ebp: dfbfff08
-esp: dfbffedc
-Feb 27 11:43:29 doozer kernel: ds: 007b   es: 007b   ss: 0068
-Feb 27 11:43:29 doozer kernel: Process sh (pid: 20435, threadinfo=dfbfe000
-task=dccfc9d0)
-Feb 27 11:43:29 doozer kernel: Stack: cf363000 dfbffef4 c011e73a 8802e8d5
-00500000 00000000 c01674a0 c0520100 
-Feb 27 11:43:29 doozer kernel:        c42cfe9c 00000000 dfbfe000 dfbfff30
-c01670d2 c42cfe9c cf363f6c dfbfff30 
-Feb 27 11:43:29 doozer kernel:        c0520100 cf363f6c cf363f6c c42cfe9c
-c0166fa5 dfbfff50 c015ce54 c42cfe9c 
-Feb 27 11:43:29 doozer kernel: Call Trace:
-Feb 27 11:43:29 doozer kernel:  [kernel_map_pages+49/93]
-kernel_map_pages+0x31/0x5d
-Feb 27 11:43:29 doozer kernel:  [cdev_get+91/185] cdev_get+0x5b/0xb9
-Feb 27 11:43:29 doozer kernel:  [chrdev_open+301/698]
-chrdev_open+0x12d/0x2ba
-Feb 27 11:43:29 doozer kernel:  [chrdev_open+0/698] chrdev_open+0x0/0x2ba
-Feb 27 11:43:29 doozer kernel:  [dentry_open+336/545]
-dentry_open+0x150/0x221
-Feb 27 11:43:29 doozer kernel:  [filp_open+93/95] filp_open+0x5d/0x5f
-Feb 27 11:43:29 doozer kernel:  [sys_open+85/133] sys_open+0x55/0x85
-Feb 27 11:43:29 doozer kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-Feb 27 11:43:29 doozer kernel: 
-Feb 27 11:43:29 doozer kernel: Code: 8b 70 04 80 ce 08 8b 40 08 89 45 f0 89
-57 18 e9 11 fd ff ff 
-Feb 27 11:43:41 doozer kernel:  <1>Unable to handle kernel paging request at
-virtual address f06db004
-Feb 27 11:43:41 doozer kernel:  printing eip:
-Feb 27 11:43:41 doozer kernel: c0248738
-Feb 27 11:43:41 doozer kernel: *pde = 0055f067
-Feb 27 11:43:41 doozer kernel: Oops: 0000 [#3]
-Feb 27 11:43:41 doozer kernel: CPU:    0
-Feb 27 11:43:41 doozer kernel: EIP:    0060:[tty_open+858/878]    Not
-tainted
-Feb 27 11:43:41 doozer kernel: EFLAGS: 00010286
-Feb 27 11:43:41 doozer kernel: EIP is at tty_open+0x35a/0x36e
-Feb 27 11:43:41 doozer kernel: eax: f06db000   ebx: c42cfe9c   ecx: fffffffa
-edx: 00008802
-Feb 27 11:43:41 doozer kernel: esi: 00000000   edi: f4824f6c   ebp: d4a2bf08
-esp: d4a2bedc
-Feb 27 11:43:41 doozer kernel: ds: 007b   es: 007b   ss: 0068
-Feb 27 11:43:41 doozer kernel: Process sh (pid: 20447, threadinfo=d4a2a000
-task=d22289d0)
-Feb 27 11:43:41 doozer kernel: Stack: f4824000 d4a2bef4 c011e73a 8802e8d5
-00500000 00000000 c01674a0 c0520100 
-Feb 27 11:43:41 doozer kernel:        c42cfe9c 00000000 d4a2a000 d4a2bf30
-c01670d2 c42cfe9c f4824f6c d4a2bf30 
-Feb 27 11:43:41 doozer kernel:        c0520100 f4824f6c f4824f6c c42cfe9c
-c0166fa5 d4a2bf50 c015ce54 c42cfe9c 
-Feb 27 11:43:41 doozer kernel: Call Trace:
-Feb 27 11:43:41 doozer kernel:  [kernel_map_pages+49/93]
-kernel_map_pages+0x31/0x5d
-Feb 27 11:43:41 doozer kernel:  [cdev_get+91/185] cdev_get+0x5b/0xb9
-Feb 27 11:43:41 doozer kernel:  [chrdev_open+301/698]
-chrdev_open+0x12d/0x2ba
-Feb 27 11:43:41 doozer kernel:  [chrdev_open+0/698] chrdev_open+0x0/0x2ba
-Feb 27 11:43:41 doozer kernel:  [dentry_open+336/545]
-dentry_open+0x150/0x221
-Feb 27 11:43:41 doozer kernel:  [filp_open+93/95] filp_open+0x5d/0x5f
-Feb 27 11:43:41 doozer kernel:  [sys_open+85/133] sys_open+0x55/0x85
-Feb 27 11:43:41 doozer kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-Feb 27 11:43:41 doozer kernel: 
-Feb 27 11:43:41 doozer kernel: Code: 8b 70 04 80 ce 08 8b 40 08 89 45 f0 89
-57 18 e9 11 fd ff ff 
-Feb 27 11:43:52 doozer kernel:  <7>request_module: failed /sbin/modprobe --
-char-major-6-0. error = 256
-Feb 27 11:44:24 doozer kernel: request_module: failed /sbin/modprobe --
-char-major-6-0. error = 256
-Feb 27 11:44:51 doozer automount[20463]: running expiration on path
-/b/billboxblue2
-Feb 27 11:44:51 doozer automount[20463]: expired /b/billboxblue2
-Feb 27 11:44:56 doozer kernel: request_module: failed /sbin/modprobe --
-char-major-6-0. error = 256
-Feb 27 11:45:01 doozer /USR/SBIN/CRON[20469]: (martind) CMD (ping -c 4 kenny
-> /dev/null || ~/bin/doozer-to-kenny)
-Feb 27 11:45:28 doozer kernel: request_module: failed /sbin/modprobe --
-char-major-6-0. error = 256
-Feb 27 11:46:00 doozer kernel: request_module: failed /sbin/modprobe --
-char-major-6-0. error = 256
-Feb 27 11:47:04 doozer last message repeated 2 times
-Feb 27 11:47:32 doozer kernel: Unable to handle kernel paging request at
-virtual address f06db004
-Feb 27 11:47:32 doozer kernel:  printing eip:
-Feb 27 11:47:32 doozer kernel: c0248738
-Feb 27 11:47:32 doozer kernel: *pde = 0055f067
-Feb 27 11:47:32 doozer kernel: Oops: 0000 [#4]
-Feb 27 11:47:32 doozer kernel: CPU:    0
-Feb 27 11:47:32 doozer kernel: EIP:    0060:[tty_open+858/878]    Not
-tainted
-Feb 27 11:47:32 doozer kernel: EFLAGS: 00010286
-Feb 27 11:47:32 doozer kernel: EIP is at tty_open+0x35a/0x36e
-Feb 27 11:47:32 doozer kernel: eax: f06db000   ebx: c42cfe9c   ecx: fffffffa
-edx: 00008802
-Feb 27 11:47:32 doozer kernel: esi: 00000000   edi: d8d5ff6c   ebp: d2229f08
-esp: d2229edc
-Feb 27 11:47:32 doozer kernel: ds: 007b   es: 007b   ss: 0068
-Feb 27 11:47:32 doozer kernel: Process sh (pid: 20502, threadinfo=d2228000
-task=da62e9d0)
-Feb 27 11:47:32 doozer kernel: Stack: d8d5f000 d2229ef4 c011e73a 8802e8d5
-00500000 00000000 c01674a0 c0520100 
-Feb 27 11:47:32 doozer kernel:        c42cfe9c 00000000 d2228000 d2229f30
-c01670d2 c42cfe9c d8d5ff6c d2229f30 
-Feb 27 11:47:32 doozer kernel:        c0520100 d8d5ff6c d8d5ff6c c42cfe9c
-c0166fa5 d2229f50 c015ce54 c42cfe9c 
-Feb 27 11:47:32 doozer kernel: Call Trace:
-Feb 27 11:47:32 doozer kernel:  [kernel_map_pages+49/93]
-kernel_map_pages+0x31/0x5d
-Feb 27 11:47:32 doozer kernel:  [cdev_get+91/185] cdev_get+0x5b/0xb9
-Feb 27 11:47:32 doozer kernel:  [chrdev_open+301/698]
-chrdev_open+0x12d/0x2ba
-Feb 27 11:47:32 doozer kernel:  [chrdev_open+0/698] chrdev_open+0x0/0x2ba
-Feb 27 11:47:32 doozer kernel:  [dentry_open+336/545]
-dentry_open+0x150/0x221
-Feb 27 11:47:32 doozer kernel:  [filp_open+93/95] filp_open+0x5d/0x5f
-Feb 27 11:47:32 doozer kernel:  [sys_open+85/133] sys_open+0x55/0x85
-Feb 27 11:47:32 doozer kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-Feb 27 11:47:32 doozer kernel: 
-Feb 27 11:47:32 doozer kernel: Code: 8b 70 04 80 ce 08 8b 40 08 89 45 f0 89
-57 18 e9 11 fd ff ff 
-Feb 27 11:47:36 doozer kernel:  <7>request_module: failed /sbin/modprobe --
-char-major-6-0. error = 256
-Feb 27 11:48:08 doozer kernel: request_module: failed /sbin/modprobe --
-char-major-6-0. error = 256
-Feb 27 11:48:13 doozer automount[20514]: running expiration on path /u/u57
-Feb 27 11:48:13 doozer automount[20514]: expired /u/u57
-Feb 27 11:48:30 doozer automount[20517]: running expiration on path /t/5309
-Feb 27 11:48:30 doozer automount[20517]: expired /t/5309
-Feb 27 11:48:40 doozer kernel: request_module: failed /sbin/modprobe --
-char-major-6-0. error = 256
-Feb 27 11:49:12 doozer kernel: request_module: failed /sbin/modprobe --
-char-major-6-0. error = 256
-Feb 27 11:49:44 doozer kernel: request_module: failed /sbin/modprobe --
-char-major-6-0. error = 256
-Feb 27 11:49:51 doozer automount[20539]: running expiration on path
-/b/billboxblue2
-Feb 27 11:49:51 doozer automount[20539]: expired /b/billboxblue2
-Feb 27 11:50:01 doozer /USR/SBIN/CRON[20541]: (martind) CMD (ping -c 4 kenny
-> /dev/null || ~/bin/doozer-to-kenny)
-Feb 27 11:50:16 doozer kernel: request_module: failed /sbin/modprobe --
-char-major-6-0. error = 256
-Feb 27 11:50:48 doozer kernel: request_module: failed /sbin/modprobe --
-char-major-6-0. error = 256
-Feb 27 11:51:52 doozer last message repeated 2 times
-Feb 27 11:52:56 doozer last message repeated 2 times
-Feb 27 11:53:01 doozer /USR/SBIN/CRON[20581]: (mail) CMD (  if [ -x
-/usr/sbin/exim -a -f /etc/exim/exim.conf ]; then /usr/sbin/exim -q ; fi)
-Feb 27 11:53:28 doozer kernel: request_module: failed /sbin/modprobe --
-char-major-6-0. error = 256
-Feb 27 11:54:00 doozer kernel: request_module: failed /sbin/modprobe --
-char-major-6-0. error = 256
-Feb 27 11:54:32 doozer kernel: request_module: failed /sbin/modprobe --
-char-major-6-0. error = 256
-Feb 27 11:54:51 doozer automount[20605]: running expiration on path
-/b/billboxblue2
-Feb 27 11:54:51 doozer automount[20605]: expired /b/billboxblue2
-Feb 27 11:55:01 doozer /USR/SBIN/CRON[20607]: (martind) CMD (ping -c 4 kenny
-> /dev/null || ~/bin/doozer-to-kenny)
-Feb 27 11:55:04 doozer kernel: request_module: failed /sbin/modprobe --
-char-major-6-0. error = 256
-Feb 27 11:55:36 doozer kernel: request_module: failed /sbin/modprobe --
-char-major-6-0. error = 256
-Feb 27 11:56:40 doozer last message repeated 2 times
-Feb 27 11:56:47 doozer in.telnetd[20636]: connect from 10.1.2.50
-Feb 27 11:57:12 doozer kernel: request_module: failed /sbin/modprobe --
-char-major-6-0. error = 256
-Feb 27 11:57:15 doozer kernel: Unable to handle kernel paging request at
-virtual address f06db004
-Feb 27 11:57:15 doozer kernel:  printing eip:
-Feb 27 11:57:15 doozer kernel: c0248738
-Feb 27 11:57:15 doozer kernel: *pde = 0055f067
-Feb 27 11:57:15 doozer kernel: Oops: 0000 [#5]
-Feb 27 11:57:15 doozer kernel: CPU:    1
-Feb 27 11:57:15 doozer kernel: EIP:    0060:[tty_open+858/878]    Not
-tainted
-Feb 27 11:57:15 doozer kernel: EFLAGS: 00010286
-Feb 27 11:57:15 doozer kernel: EIP is at tty_open+0x35a/0x36e
-Feb 27 11:57:15 doozer kernel: eax: f06db000   ebx: c42cfe9c   ecx: fffffffa
-edx: 00008802
-Feb 27 11:57:15 doozer kernel: esi: 00000000   edi: ee5b6f6c   ebp: da517f08
-esp: da517edc
-Feb 27 11:57:15 doozer kernel: ds: 007b   es: 007b   ss: 0068
-Feb 27 11:57:15 doozer kernel: Process sh (pid: 20647, threadinfo=da516000
-task=efe529d0)
-Feb 27 11:57:15 doozer kernel: Stack: ee5b6000 da517ef4 c011e73a 8802e8d5
-00500000 00000000 c01674a0 c0520100 
-Feb 27 11:57:15 doozer kernel:        c42cfe9c 00000000 da516000 da517f30
-c01670d2 c42cfe9c ee5b6f6c da517f30 
-Feb 27 11:57:15 doozer kernel:        c0520100 ee5b6f6c ee5b6f6c c42cfe9c
-c0166fa5 da517f50 c015ce54 c42cfe9c 
-Feb 27 11:57:15 doozer kernel: Call Trace:
-Feb 27 11:57:15 doozer kernel:  [kernel_map_pages+49/93]
-kernel_map_pages+0x31/0x5d
-Feb 27 11:57:15 doozer kernel:  [cdev_get+91/185] cdev_get+0x5b/0xb9
-Feb 27 11:57:15 doozer kernel:  [chrdev_open+301/698]
-chrdev_open+0x12d/0x2ba
-Feb 27 11:57:15 doozer kernel:  [chrdev_open+0/698] chrdev_open+0x0/0x2ba
-Feb 27 11:57:15 doozer kernel:  [dentry_open+336/545]
-dentry_open+0x150/0x221
-Feb 27 11:57:15 doozer kernel:  [filp_open+93/95] filp_open+0x5d/0x5f
-Feb 27 11:57:15 doozer kernel:  [sys_open+85/133] sys_open+0x55/0x85
-Feb 27 11:57:15 doozer kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-Feb 27 11:57:15 doozer kernel: 
-Feb 27 11:57:15 doozer kernel: Code: 8b 70 04 80 ce 08 8b 40 08 89 45 f0 89
-57 18 e9 11 fd ff ff 
-Feb 27 11:58:27 doozer syslogd 1.4.1#13: restart.
-
-(gdb) x/10i init_dev
-0xc0247533 <init_dev at drivers/char/tty_io.c:789>:     push   %ebp
-0xc0247534 <init_dev+1 at drivers/char/tty_io.c:789>:   mov    %esp,%ebp
-0xc0247536 <init_dev+3 at drivers/char/tty_io.c:789>:   push   %edi
-0xc0247537 <init_dev+4 at drivers/char/tty_io.c:789>:   push   %esi
-0xc0247538 <init_dev+5 at drivers/char/tty_io.c:789>:   push   %ebx
-0xc0247539 <init_dev+6 at drivers/char/tty_io.c:789>:   sub    $0x40,%esp
-0xc024753c <init_dev+9 at drivers/char/tty_io.c:793>:   movl
-$0x0,0xffffffcc(%ebp)
-0xc0247543 <init_dev+16 at drivers/char/tty_io.c:799>:  mov
-0xc(%ebp),%eax
-0xc0247546 <init_dev+19 at drivers/char/tty_io.c:789>:  mov
-0x8(%ebp),%esi
-0xc0247549 <init_dev+22 at drivers/char/tty_io.c:799>:  mov    %eax,(%esp,1)
-(gdb) 
-0xc024754c <init_dev+25 at drivers/char/tty_io.c:799>:  call   0xc0247505
-<down_tty_sem at drivers/char/tty_io.c:765>
-0xc0247551 <init_dev+30 at drivers/char/tty_io.c:802>:  mov
-0xc(%ebp),%edx
-0xc0247554 <init_dev+33 at drivers/char/tty_io.c:802>:  mov
-0x9c(%esi),%eax
-
-787     static int init_dev(struct tty_driver *driver, int idx,
-788             struct tty_struct **ret_tty)
-789     {
-790             struct tty_struct *tty, *o_tty;
-791             struct termios *tp, **tp_loc, *o_tp, **o_tp_loc;
-792             struct termios *ltp, **ltp_loc, *o_ltp, **o_ltp_loc;
-793             int retval=0;
-794     
-795             /* 
-796              * Check whether we need to acquire the tty semaphore to
-avoid
-797              * race conditions.  For now, play it safe.
-798              */
-799             down_tty_sem(idx);
-800     
-801             /* check whether we're reopening an existing tty */
-802             tty = driver->ttys[idx];
-803             if (tty) goto fast_track;
-
-I don't want to spam the list with another copy of all the info I posted
-before, so I'll just note that this is kernel 2.6.2 compiled with gcc 3.3.3,
-running Debian testing/unstable.
+Hmm.  I think I need to test things a bit more, before I comment on
+this.
 
 -- 
-
-
-*********************************************************************
-This e-mail and any attachment is confidential. It may only be read, copied and used by the intended recipient(s). If you are not the intended recipient(s), you may not copy, use, distribute, forward, store or disclose this e-mail or any attachment. If you are not the intended recipient(s) or have otherwise received this e-mail in error, you should destroy it and any attachment and notify the sender by reply e-mail or send a message to sysadmin@bluearc.com
-*********************************************************************
-
+Tom Rini
+http://gate.crashing.org/~trini/

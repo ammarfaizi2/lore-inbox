@@ -1,59 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261380AbULTCRF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261390AbULTCTD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261380AbULTCRF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Dec 2004 21:17:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261390AbULTCRE
+	id S261390AbULTCTD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Dec 2004 21:19:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbULTCTD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Dec 2004 21:17:04 -0500
-Received: from fsmlabs.com ([168.103.115.128]:52142 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S261380AbULTCRB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Dec 2004 21:17:01 -0500
-Date: Sun, 19 Dec 2004 19:10:31 -0700 (MST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Nish Aravamudan <nish.aravamudan@gmail.com>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Stephen Rothwell <sfr@canb.auug.org.au>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Dipankar Sarma <dipankar@in.ibm.com>, Li Shaohua <shaohua.li@intel.com>,
-       Len Brown <len.brown@intel.com>
-Subject: Re: [PATCH] Remove RCU abuse in cpu_idle()
-In-Reply-To: <1103507784.5093.9.camel@npiggin-nld.site>
-Message-ID: <Pine.LNX.4.61.0412191909580.18310@montezuma.fsmlabs.com>
-References: <20041205004557.GA2028@us.ibm.com>  <20041205232007.7edc4a78.akpm@osdl.org>
-  <Pine.LNX.4.61.0412060157460.1036@montezuma.fsmlabs.com> 
- <20041206160405.GB1271@us.ibm.com>  <Pine.LNX.4.61.0412060941560.5219@montezuma.fsmlabs.com>
-  <20041206192243.GC1435@us.ibm.com>  <Pine.LNX.4.61.0412110804500.5214@montezuma.fsmlabs.com>
-  <Pine.LNX.4.61.0412112123490.7847@montezuma.fsmlabs.com> 
- <Pine.LNX.4.61.0412112205290.7847@montezuma.fsmlabs.com> 
- <Pine.LNX.4.61.0412112244000.7847@montezuma.fsmlabs.com> 
- <29495f1d04121818403f949fdd@mail.gmail.com>  <Pine.LNX.4.61.0412191757450.18310@montezuma.fsmlabs.com>
-  <1103505344.5093.4.camel@npiggin-nld.site>  <Pine.LNX.4.61.0412191819130.18310@montezuma.fsmlabs.com>
- <1103507784.5093.9.camel@npiggin-nld.site>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 19 Dec 2004 21:19:03 -0500
+Received: from smtp.nuvox.net ([64.89.70.9]:11672 "EHLO
+	smtp04.gnvlscdb.sys.nuvox.net") by vger.kernel.org with ESMTP
+	id S261390AbULTCTA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Dec 2004 21:19:00 -0500
+Subject: Re: [2.6 patch] ieee1394_core.c: remove unneeded EXPORT_SYMBOL's
+From: Dan Dennedy <dan@dennedy.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Ben Collins <bcollins@debian.org>,
+       Linux1394-Devel <linux1394-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20041220015320.GO21288@stusta.de>
+References: <20041220015320.GO21288@stusta.de>
+Content-Type: text/plain
+Date: Sun, 19 Dec 2004 21:10:10 -0500
+Message-Id: <1103508610.3724.69.camel@kino.dennedy.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Dec 2004, Nick Piggin wrote:
+On Mon, 2004-12-20 at 02:53 +0100, Adrian Bunk wrote:
+> The patch below removes 41 unneeded EXPORT_SYMBOL's.
 
-> On Sun, 2004-12-19 at 18:44 -0700, Zwane Mwaikambo wrote:
-> > On Mon, 20 Dec 2004, Nick Piggin wrote:
-> > 
-> > > This thread can possibly be stalled forever if there is a CPU hog
-> > > running, right?
-> > 
-> > Yep.
-> > 
-> > > In which case, you will want to use ssleep rather than a busy loop.
-> > 
-> > Well ssleep essentially does the same thing as the schedule_timeout.
-> > 
-> 
-> Yes - so long as you set ->state when using schedule_timeout ;)
+Unneeded according to whom, just you? These functions are part of an
+API. How do I know someone is not using these in a custom ieee1394
+kernel module in some industrial or research setting or something new
+under development to be contributed to linux1394 project?
 
-Nish could you please submit something to switch it to ssleep?
 
-Thanks,
-	Zwane

@@ -1,59 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263119AbUK0AK4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263131AbUK0AQY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263119AbUK0AK4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 19:10:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263138AbUK0AHd
+	id S263131AbUK0AQY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 19:16:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263133AbUK0AQL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 19:07:33 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:52171 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S263072AbUK0ACi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 19:02:38 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: member@bellaby.freeserve.co.uk
-Date: Sat, 27 Nov 2004 11:02:24 +1100
+	Fri, 26 Nov 2004 19:16:11 -0500
+Received: from hermes.domdv.de ([193.102.202.1]:30724 "EHLO hermes.domdv.de")
+	by vger.kernel.org with ESMTP id S263107AbUK0ANQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 19:13:16 -0500
+Message-ID: <41A7C68D.3060302@domdv.de>
+Date: Sat, 27 Nov 2004 01:13:01 +0100
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040918
+X-Accept-Language: en-us, en, de
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: David Woodhouse <dwmw2@infradead.org>
+CC: Matthew Wilcox <matthew@wil.cx>, Alexandre Oliva <aoliva@redhat.com>,
+       dhowells <dhowells@redhat.com>, torvalds@osdl.org, hch@infradead.org,
+       linux-kernel@vger.kernel.org, libc-alpha@sources.redhat.com
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+References: <19865.1101395592@redhat.com>	 <orvfbtzt7t.fsf@livre.redhat.lsd.ic.unicamp.br>	 <20041125210137.GD2849@parcelfarce.linux.theplanet.co.uk> <1101422103.19141.0.camel@localhost.localdomain>
+In-Reply-To: <1101422103.19141.0.camel@localhost.localdomain>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16807.50192.233832.966091@cse.unsw.edu.au>
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: RAID10 overwrites partition tables
-In-Reply-To: message from Felix Bellaby on Friday November 26
-References: <10578812.1101490100216.JavaMail.www@wwinf3001>
-X-Mailer: VM 7.19 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday November 26, member@bellaby.freeserve.co.uk wrote:
->    	 mdadm --level 10 does not seem to respect disk partition boundaries.
+David Woodhouse wrote:
+> On Thu, 2004-11-25 at 21:01 +0000, Matthew Wilcox wrote:
+> 
+>>I'm not particularly stuck on the <user/> namespace.  We could invent
+>>a better name.  How about <kern/> and <arch/> to replace <linux/>
+>>and <asm/>?  Obviously keeping linux/ and asm/ symlinks for backwards
+>>compatibility.
+> 
+> 
+> There's no _real_ need to keep them. All we need to fix is a handful of
+> libc implementations; anything else using them was broken anyway.
+> 
+<rant mode>
 
-Hmmm, yes, thanks.
+Cute idea. So any new definition which is supposed to be used in 
+userspace will take at least a year to propagate - well, I know, one can 
+always look for the definition in the kernel headers, copy it, ...
+Now this is no solution.
 
-I think the following should fix the bug.  It only affects 'resync'
-not normal IO or recovery (after a drive has failed).
+And how do you want to deal with the fact that up to now all the 
+netfilter headers required for userspace programming live in the kernel 
+include tree? Now this has been like this for quite some years. Shall 
+one no longer use netfilter?
 
-(I only tested it on whole-drives....)
+It is easy to be happy with the status quo and to reject any attempt to 
+change things for the better. If you really wanted to fix (g)libc you 
+would have taken action long ago. You're around for long enough.
 
-Please let me know if it helps.
-
-NeilBrown
-
-
- ----------- Diffstat output ------------
- ./drivers/md/raid10.c |    1 +
- 1 files changed, 1 insertion(+)
-
-diff ./drivers/md/raid10.c~current~ ./drivers/md/raid10.c
---- ./drivers/md/raid10.c~current~	2004-11-16 16:33:50.000000000 +1100
-+++ ./drivers/md/raid10.c	2004-11-27 11:00:06.000000000 +1100
-@@ -1150,6 +1150,7 @@ static void sync_request_write(mddev_t *
- 		md_sync_acct(conf->mirrors[d].rdev->bdev, tbio->bi_size >> 9);
- 
- 		tbio->bi_sector += conf->mirrors[d].rdev->data_offset;
-+		tbio->bi_bdev = conf->mirrors[d].rdev->bdev;
- 		generic_make_request(tbio);
- 	}
- 
+</rant mode>
+-- 
+Andreas Steinmetz                       SPAMmers use robotrap@domdv.de

@@ -1,143 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130238AbRBPXuD>; Fri, 16 Feb 2001 18:50:03 -0500
+	id <S129492AbRBQAFj>; Fri, 16 Feb 2001 19:05:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130229AbRBPXtx>; Fri, 16 Feb 2001 18:49:53 -0500
-Received: from clueserver.org ([206.163.47.224]:31238 "HELO clueserver.org")
-	by vger.kernel.org with SMTP id <S130135AbRBPXto>;
-	Fri, 16 Feb 2001 18:49:44 -0500
-Date: Fri, 16 Feb 2001 16:01:42 -0800 (PST)
-From: Alan Olsen <alan@clueserver.org>
-To: Dennis <dennis@etinc.com>
-Cc: jesse@cats-chateau.net, Andrew Scott <A.J.Scott@casdn.neu.edu>,
-        Andrew Scott <A.J.Scott@casdn.neu.edu>, linux-kernel@vger.kernel.org
+	id <S130229AbRBQAF3>; Fri, 16 Feb 2001 19:05:29 -0500
+Received: from epi-gone.myalert.com ([195.119.207.10]:13491 "EHLO
+	epi.myalert.com") by vger.kernel.org with ESMTP id <S129492AbRBQAFW>;
+	Fri, 16 Feb 2001 19:05:22 -0500
+Message-ID: <058701c09875$1977efa0$f40237d1@MIACFERNANDEZ>
+From: "Carlos Fernandez Sanz" <cfernandez@myalert.com>
+To: "James Sutherland" <jas88@cam.ac.uk>,
+        "David D.W. Downey" <pgpkeys@hislinuxbox.com>
+Cc: "Rik van Riel" <riel@conectiva.com.br>, "Alan Olsen" <alan@clueserver.org>,
+        "Mark Haney" <mhaney@info4cars.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.SOL.4.21.0102162015490.28748-100000@orange.csi.cam.ac.uk>
 Subject: Re: Linux stifles innovation...
-In-Reply-To: <5.0.0.25.0.20010216170349.01efc030@mail.etinc.com>
-Message-ID: <Pine.LNX.4.10.10102161511510.12028-100000@clueserver.org>
+Date: Fri, 16 Feb 2001 19:03:45 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Feb 2001, Dennis wrote:
+I did some research on the patent database and found nothing regarding such
+a patent. There's patent on word processors (not the concept but related to)
+and uses tab on the description...and that patent is from 1980.
 
-> objective, arent we?
+----- Original Message -----
+From: "James Sutherland" <jas88@cam.ac.uk>
+To: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
+Cc: "Rik van Riel" <riel@conectiva.com.br>; "Alan Olsen"
+<alan@clueserver.org>; "Mark Haney" <mhaney@info4cars.com>;
+<linux-kernel@vger.kernel.org>
+Sent: Friday, February 16, 2001 15:18
+Subject: RE: Linux stifles innovation...
 
-Pot. Kettle. Black.
 
-> There is much truth to the concept, although Microsoft should not be ones 
-> to comment on it as such.
-
-What truth?  I have seen more "innovation" in the Open Source movement
-than I ever have in my 18+ years of being a professional programmer.
-
-I don't see how having the source open removes "intelectual property",
-except by showing that huge portions of the concept are flawed.
-
-> For example, if there were six different companies that marketed ethernet 
-> drivers for the eepro100, you'd have a choice of which one to buy..perhaps 
-> with different "features" that were of value to you. Instead, you have 
-> crappy GPL code that locks up under load, and its not worth spending 
-> corporate dollars to fix it because you have to give away your work for 
-> free under GPL. And since there is a "free" driver that most people can 
-> use, its not worth building a better mousetrap either because the market is 
-> too small. So, the handful of users with problems get to "fit it 
-> themselves", most of whom cant of course.
-
-Strange.  I have not heard of any problems with that driver, except for
-issues where the original hardware vendor kept implimentation details from
-the open source community.  (Citeing "IP issues".)
-
-> Theres also the propensity for mediocre stuff to get into the kernel 
-> because some half-baked programmer was willing to contribute some code. The 
-> 50% of the kernel that remains "experimental" ad infinitum is evidence of that.
-
-You must be looking at a different kernel.
-
-I have seen little in the kernel that was "half baked".  There have been
-some things put in to test if they were good ideas.  That is far different
-than half-baked.  Most of the bad ideas never get to the kernel.  Linus or
-Alan kick them out before they ever get that far.
-
-> The biggest thing that the linux community does to stifle innovation is to 
-> bash commercial vendors trying to make a profit by whining endlessly about 
-> "sourceless" distributions and recommending "open-source" solutions even 
-> when they are wholly inferior. You're only hurting yourselves in the long 
-> run. In that respect MS is correct, because those with the dollars to 
-> innovate will stay away.
-
-You claim that "open source solutions are wholely inferior to closed
-source solutions".
-
-Hmmmm... 
-
-Then why does everyone run with Apache instead of IIS?  Could it be that
-IIS is a piece of crap?
-
-Feature for feature I would rather use PHP 4 over ColdFusion any day.
-
-Sendmail is MUCH more stable than Exchange.  (Even if it has config files
-that look like they were designed by Carlos Castanada on a bad day.) If
-not Sendmail, there are a couple of other Open Source mail programs that
-are much superior in quality than the closed source counterparts.
-
-As for the Linux kernel being "shoddy"...  
-
-Since when?
-
-I can leave my Linux box running over night and actually have it do
-things!  I cannot say the same for Windows.  I leave that running (same
-hardware, different OS) and it is usually dead by dawn.
-
-But your argument is even more bogus than that.
-
-It seems that you argument boils down to a couple of thing...
-
-"Closed source is better because you pay money for it."  
-
-"Closed source is superior because we have a company name and you don't."
-
-Sorry, but most of the people who develop Open Source are profesional
-programmers.  They just have a different motivation.  
-
-Open Source is motivated by pride in what you can do and a desire to help
-others by sharing that. They don't hide behind a wall of lawyers to keep
-people from finding out what they did wrong.
-
-I found out a long time ago that most "Trade Secret" claims were bogus.
-It was either a common technique that had been adapted to a particular
-purpose or it was being used as an excuse to hide how bad the code really
-was.
-
-But my experiences with Open Source, as well as the others I know who use
-it are quite telling.
-
-If I have a problem with an Open Source program I can look at the code and
-fix it.  Or I can report the bug and it will get fixed soon after. The
-programmers involved put the effort into it because their name is
-attached.
-
-My experiences with closed source companies are not as good.
-
-In many cases, I was ignored because I did not represent a fortune 500
-company.  If the problem got fixed at all, it would be months before I saw
-it and usually in a later release that I would have to pay for.  (Usually
-having features added that I neither wanted or would ever use.)  In some
-cases (like Microsoft security bugs) it would be treated like a public
-relations problem instead of a software and quality issue.
-
-I have also seen cases where problems were buried in development because
-"no one will find out and if they do, we will just blame Microsoft".
-
-I understand your desire to make money off what you do for a living. I do
-object to you taring what I do as somehow damaging to the software
-industry as a whole.  (Especially since the closed source software
-industry has been poaching off the open source community for years.
-Microsoft seeking enlightenment with WinXP is only a minor example.)
-
-I don't see how hiding how something works adds value to the process.
-
-alan@ctrl-alt-del.com | Note to AOL users: for a quick shortcut to reply
-Alan Olsen            | to my mail, just hit the ctrl, alt and del keys.
-    "In the future, everything will have its 15 minutes of blame."
+> On Fri, 16 Feb 2001, David D.W. Downey wrote:
+>
+> > Would someone tell me where you get all this lovely information on
+> > patents held by M$? I can't find anything.
+>
+> Sorry, it's *IBM* who are said to hold a patent on the tab key.
+>
+> Legend has it Microsoft once found a patent of theirs which IBM appeared
+> to have infringed, and were very excited at the possibility of something
+> to hold over IBM, so their lawyers met IBM's lawyers. The MS lawyers
+> beamed "look at our patent you've infringed!" IBM's lawyers replied "look
+> at this pile of our patents YOU'VE infringed... let's start with this
+> one. A Tab key." MS suddenly realised they were outlawyered...
+>
+> No idea how accurate it is, but just the thought of MS's lawyers getting a
+> nasty shock like that has a certain appeal :-)
+>
+>
+> James.
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

@@ -1,22 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262986AbUCXCr1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 21:47:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262991AbUCXCr1
+	id S262983AbUCXCrT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 21:47:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262986AbUCXCrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 21:47:27 -0500
-Received: from fep01-mail.bloor.is.net.cable.rogers.com ([66.185.86.71]:36424
+	Tue, 23 Mar 2004 21:47:19 -0500
+Received: from fep01-mail.bloor.is.net.cable.rogers.com ([66.185.86.71]:5702
 	"EHLO fep01-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id S262986AbUCXCrW (ORCPT
+	with ESMTP id S262983AbUCXCrP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 21:47:22 -0500
+	Tue, 23 Mar 2004 21:47:15 -0500
 From: "Shawn Starr" <shawn.starr@rogers.com>
 To: "'Kai Makisara'" <Kai.Makisara@kolumbus.fi>,
        "'Andrew Morton'" <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>
 Subject: RE: [PANIC][2.6.5-rc2-bk1] st_probe - Detection of a SCSI tape drive (HP Colorado T4000s) - Dump included now - Resolved
-Date: Tue, 23 Mar 2004 21:50:51 -0500
-Message-ID: <000101c4114a$d160ca50$030aa8c0@PANIC>
+Date: Tue, 23 Mar 2004 21:50:43 -0500
+Message-ID: <000001c4114a$cd3bb1b0$030aa8c0@PANIC>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"

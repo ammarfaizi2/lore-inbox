@@ -1,37 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262773AbUBZLJ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 06:09:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262775AbUBZLJZ
+	id S262770AbUBZLJV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 06:09:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262773AbUBZLJV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 06:09:25 -0500
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:3982 "EHLO
-	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S262773AbUBZLJX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 06:09:23 -0500
-Subject: Re: [PATCH 2/2] fix in-place de/encryption bug with highmem
-From: Christophe Saout <christophe@saout.de>
-To: James Morris <jmorris@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, jlcooke@certainkey.com,
-       linux-kernel@vger.kernel.org, "Adam J. Richter" <adam@yggdrasil.com>
-In-Reply-To: <Xine.LNX.4.44.0402252311030.4922-100000@thoron.boston.redhat.com>
-References: <Xine.LNX.4.44.0402252311030.4922-100000@thoron.boston.redhat.com>
-Content-Type: text/plain
-Message-Id: <1077793429.6428.1.camel@leto.cs.pocnet.net>
+	Thu, 26 Feb 2004 06:09:21 -0500
+Received: from mail-gate.ait.ac.th ([202.183.214.47]:7397 "EHLO
+	mail-gate.ait.ac.th") by vger.kernel.org with ESMTP id S262770AbUBZLJT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 06:09:19 -0500
+Date: Thu, 26 Feb 2004 18:09:03 +0700
+From: Alain Fauconnet <alain@ait.ac.th>
+To: linux-kernel@vger.kernel.org
+Subject: smbfs broken in 2.4.25? (Too many open files in system)
+Message-ID: <20040226110903.GC621@ait.ac.th>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 26 Feb 2004 12:03:49 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Do, den 26.02.2004 schrieb James Morris um 05:13:
+Hello,
 
-> Have you verified that the data corruption bug you saw has been fixed?
-> (Just in case there's more to it).
+Hope I won't get flamed for this, I've spent a  fair  amount  of  time
+searching archives and news without finding anything close enough.
 
-Yes, it's fixed. I've got a collection of tests scripts here to verify
-the data integrity. They are able to trigger all kinds of bugs (assuming
-there is a bug of course).
+Since I've updated my Slackware 8.0 desktop to the 2.4.25 kernel (from
+source, loaded .config from .24)  I  can't  access  shares  off  Win9x
+systems reliably (98/98SE tested). smbfs is loaded as a module.
 
+I get random 'Too many open files in system'. E.g.:
 
+# /usr/local/samba/bin/smbmount //w98box/c /dosc -o password=xxxxx
+# ls /dosc
+/bin/ls: /dosc: Too many open files in system
+(command repeated several times: hit up arrow and enter... and then:)
+# ls /dosc
+ASD.LOG*       BIN/          CONFIG.TXT*  MSDOS.SYS*       SUHDLOG.---*
+AUTOEXEC.001*  BOOTLOG.DMA*  CONFIG.W95*  MSDOS.W95*       SUHDLOG.BAK*
+(...works!)
+
+It seems to randomly succeed or fail, with a majority of failures.
+I've been able to catch messages like the following in syslog:
+
+Feb 26 13:42:27 alain kernel: smb_lookup: find windows/MSDFMAP.INI failed, error=-23
+
+This used to work flawlessly in 2.4.24.
+The Gods of Linux forgive me, I've copied ./fs/smbfs/* and
+./include/linux/smb*.h from the 2.4.24 tree, "make modules" and
+reloaded smbfs.o: now it works all the time!
+
+Some background: Samba is v2.2.8a built from source.
+
+Any hints? I've tried rebuilding smbfs with debug options in the
+Makefile, SMBFS_PARANOIA on and off, I haven't been able to
+make much sense out of it. It keeps failing in every configuration.
+
+Greets,
+_Alain_

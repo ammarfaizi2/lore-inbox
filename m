@@ -1,82 +1,359 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267753AbTBRJuH>; Tue, 18 Feb 2003 04:50:07 -0500
+	id <S264739AbTBRJrs>; Tue, 18 Feb 2003 04:47:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267754AbTBRJuH>; Tue, 18 Feb 2003 04:50:07 -0500
-Received: from [81.80.245.157] ([81.80.245.157]:18664 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S267753AbTBRJuG>; Tue, 18 Feb 2003 04:50:06 -0500
-Date: Tue, 18 Feb 2003 10:56:19 +0100
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: sam@ravnborg.org, kai@tp1.ruhr-uni-bochum.de, greg@kroah.com,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [RFC] klibc for 2.5.59 bk
-Message-ID: <20030218095619.GC3980@cedar.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	Jeff Garzik <jgarzik@pobox.com>, sam@ravnborg.org,
-	kai@tp1.ruhr-uni-bochum.de, greg@kroah.com,
-	linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@transmeta.com>
-References: <20030209125759.GA14981@kroah.com> <Pine.LNX.4.44.0302162057200.5217-100000@chaos.physics.uiowa.edu> <20030217180246.GA26112@mars.ravnborg.org> <1911.212.181.176.76.1045505249.squirrel@www.zytor.com> <3E512BCB.1010000@pobox.com> <1144.62.20.229.212.1045558700.squirrel@www.zytor.com> <3E51FA1C.7060807@pobox.com> <20030218093601.GA3980@cedar.alcove-fr> <3E5200BD.6000604@pobox.com>
+	id <S264790AbTBRJrs>; Tue, 18 Feb 2003 04:47:48 -0500
+Received: from packet.digeo.com ([12.110.80.53]:32431 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S264739AbTBRJrm>;
+	Tue, 18 Feb 2003 04:47:42 -0500
+Date: Tue, 18 Feb 2003 01:58:44 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: 2.5.62-mm1
+Message-Id: <20030218015844.5320578a.akpm@digeo.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E5200BD.6000604@pobox.com>
-User-Agent: Mutt/1.3.25i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 18 Feb 2003 09:57:37.0132 (UTC) FILETIME=[2A8362C0:01C2D734]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 18, 2003 at 04:45:33AM -0500, Jeff Garzik wrote:
 
-> >Linus, please apply.
-> 
-> um, please don't...
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.62/2.5.62-mm1
 
-[...]
-> 
-> ...because
-> (a) the Crusoe cflags are no longer together,
-> (b) Cyrix-3 cflags are suddenly bisected by Crusoe cflags, and
-> (c) you just dumped a crusoe-specific line in the middle of a bunch of 
-> Via/Cyrix CPU settings.
-> 
-> None of those choices makes sense.  If you want to improve upon my 
-> patch, I would suggest consolidating the -f/-m check above the CPU 
-> cflags section, and then reference the calculated value, rather than 
-> wholly duplicating the calculation.  The comment line "# The alignment 
-> flags [...]" is obviously not the start of a new alignment-flags section.
+. There is an updated qlogic driver here from Matthew.  This one works.
 
-Agreed, I was overzealous here...
+  We need help testing this please.  Neither Matthew nor I have a qlogic
+  controller on a highmem machine, so we need to know whether it is correctly
+  DMAing into high memory.
 
-Consolidating the -f/-m check above seems a bit overkill, especially
-since we don't want the same align options for all architectures.
+  The standalone patch is at
 
-Maybe removing the comment is the simplest improvement on your 
-patch then. Not a big improvement however :)
+    ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.62/2.5.62-mm1/broken-out/linux-isp.patch
 
-Stelian.
+  and it applies OK to 2.5.62.
 
-===== arch/i386/Makefile 1.44 vs edited =====
---- 1.44/arch/i386/Makefile	Fri Feb  7 19:59:54 2003
-+++ edited/arch/i386/Makefile	Tue Feb 18 10:51:40 2003
-@@ -39,12 +39,12 @@
- cflags-$(CONFIG_MK6)		+= $(call check_gcc,-march=k6,-march=i586)
- cflags-$(CONFIG_MK7)		+= $(call check_gcc,-march=athlon,-march=i686 -malign-functions=4)
- cflags-$(CONFIG_MK8)		+= $(call check_gcc,-march=k8,$(call check_gcc,-march=athlon,-march=i686 -malign-functions=4))
--cflags-$(CONFIG_MCRUSOE)	+= -march=i686 -malign-functions=0 -malign-jumps=0 -malign-loops=0
-+cflags-$(CONFIG_MCRUSOE)	+= -march=i686
-+cflags-$(CONFIG_MCRUSOE)	+= $(call check_gcc,-falign-functions=0 -falign-jumps=0 -falign-loops=0,-malign-functions=0 -malign-jumps=0 -malign-loops=0)
- cflags-$(CONFIG_MWINCHIPC6)	+= $(call check_gcc,-march=winchip-c6,-march=i586)
- cflags-$(CONFIG_MWINCHIP2)	+= $(call check_gcc,-march=winchip2,-march=i586)
- cflags-$(CONFIG_MWINCHIP3D)	+= -march=i586
- cflags-$(CONFIG_MCYRIXIII)	+= $(call check_gcc,-march=c3,-march=i486)
--# The alignment flags change with gcc 3.2
- cflags-$(CONFIG_MCYRIXIII)	+= $(call check_gcc,-falign-functions=0 -falign-jumps=0 -falign-loops=0,-malign-functions=0 -malign-jumps=0 -malign-loops=0)
- cflags-$(CONFIG_MVIAC3_2)	+= $(call check_gcc,-march=c3-2,-march=i686)
- 
+. The CPU scheduler update is leaking mm_structs - this is what caused
+  Randy Hron's oom-killing event.  Dropped that out for now.
 
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com
+
+
+Changes since 2.5.61-mm1
+
++linus.patch
+
+ Latest from Linus
+
+-deadline-alias-3.patch
+-ppc64-time-warning.patch
+-ppc64-smp_prepare_cpus-warning.patch
+-jfs-build-fix.patch
+-linear-gcc-workaround.patch
+-flush_tlb_all-preempt-safety.patch
+-mandlock-fix.patch
+-fault_in_pages-move.patch
+-generic_write_checks.patch
+-ext3-eio-fix.patch
+-crc32-speedup.patch
+-dcache_rcu-fast_walk-revert.patch
+-dcache_rcu-main.patch
+-kernel_lock_bug2.patch
+-ext2_ext3_listxattr-bug.patch
+-xattr-flags.patch
+-xattr-flags-policy.patch
+-xattr-trusted.patch
+-balance_dirty_pages-lockup-fix.patch
+-cciss-1.patch
+-cciss-overrun-fix.patch
+-direct-io-retval-fix.patch
+-dio-eof-read.patch
+-ext3_debug-fix.patch
+-fix-Wundef.patch
+-scsi-fix-NCR53C9x.patch
+-radix_tree_maxindex-cleanup.patch
+
+ Merged
+
++anton-1.patch
++ppc64-pci-patch.patch
++ppc64-e100-fix.patch
++ppc64-aio-32bit-emulation.patch
+
+ Things from Anton to make ppc64 kernels work.
+
++nfsd-disable-softirq.patch
+
+ NFS corruption race fix
+
++drm-timer-init.patch
+
+ Timer initialisation fix
+
++deadline-dispatching-fix.patch
+
+ Deadline scheduler fix
+
++cifs-exports.patch
+
+ Export some VFS functions
+
++nfs-unstable-pages.patch
+
+ Experimental patch from Trond to make NFS play better with VFS writeback.
+
++mk_pte_huge-header.patch
+
+ Allow x86_64 to share the ia32 hugetlbpage implementation
+
++summit-numaq-kirq-fix.patch
+
+ Fix IRQ balancing for Summit and NUMA-Q
+
++initial-jiffies.patch
+
+ Force a jiffies wrap 5 minutes after booting.  (This found an anticipatory
+ scheduler bug).
+
+-scheduler-tunables.patch
+-sched-f3.patch
+-rml-scheduler-bits.patch
+
+ Leaky.
+
++remove-MAX_BLKDEV-from-nfsd.patch
+
+ nfsd cleanup
+
++const-warning-fix-1.patch
++const-warning-fix-2.patch
++const-warning-fix-3.patch
+
+ Yes, it's a compiler bug.  But clean builds are important.
+
+ linux-isp.patch
+
+ Updated
+
+-linux-isp-update.patch
+
+ Folded into linux-isp.patch
+
++visws-pci-fix.patch
+
+ Fix a compile warning in the visws code.
+
++profiler-make-static.patch
+
+ Profiler cleanups and Voyager fix.
+
++deadline-jiffies-wrap.patch
+
+ Fix the anticipatory scheduler for "negative" jiffies values.
+
++smalldevfs.patch
++smalldevfs-dcache_rcu-fix.patch
+
+ Back.  Maneesh fixed it up.
+
+
+
+
+All 68 patches
+
+
+linus.patch
+
+ppc64-reloc_hide.patch
+
+anton-1.patch
+  ppc64 patch
+
+ppc64-pci-patch.patch
+  Subject: pci patch
+
+ppc64-e100-fix.patch
+  fix e100 for ppc64
+
+ppc64-aio-32bit-emulation.patch
+  32/64bit emulation for aio
+
+kgdb.patch
+
+nfsd-disable-softirq.patch
+  Fix race in svcsock.c in 2.5.61
+
+xfs-warning-fixes.patch
+
+xfs-cli-fix.patch
+  xfs interrupt flags fix
+
+report-lost-ticks.patch
+  make lost-tick detection more informative
+
+devfs-fix.patch
+
+ptrace-flush.patch
+  Subject: [PATCH] ptrace on 2.5.44
+
+buffer-debug.patch
+  buffer.c debugging
+
+warn-null-wakeup.patch
+
+drm-timer-init.patch
+  Subject: [PATCH] fix for uninitialized timer in drm_drv.h
+
+ext3-truncate-ordered-pages.patch
+  ext3: explicitly free truncated pages
+
+deadline-dispatching-fix.patch
+  deadline IO scheduler dispatching fix
+
+cifs-exports.patch
+  export add_to_page_cache() and __pagevec_lru_add to modules
+
+nfs-unstable-pages.patch
+  "unstable" page accounting for NFS.
+
+mk_pte_huge-header.patch
+  Move mk_pte_huge() into pgtable.h
+
+summit-numaq-kirq-fix.patch
+  Subject: [PATCH] fix kirq for clustered apic mode
+
+initial-jiffies.patch
+  make jiffies wrap 5 min after boot
+
+reiserfs_file_write-3.patch
+
+tcp-wakeups.patch
+  Use fast wakeups in TCP/IPV4
+
+deadline-np-42.patch
+  (undescribed patch)
+
+deadline-np-43.patch
+  (undescribed patch)
+
+batch-tuning.patch
+  I/O scheduler tuning
+
+starvation-by-read-fix.patch
+  fix starvation-by-readers in the IO scheduler
+
+lockd-lockup-fix.patch
+  Subject: Re: Fw: Re: 2.4.20 NFS server lock-up (SMP)
+
+rcu-stats.patch
+  RCU statistics reporting
+
+ext3-journalled-data-assertion-fix.patch
+  Remove incorrect assertion from ext3
+
+nfs-speedup.patch
+
+nfs-oom-fix.patch
+  nfs oom fix
+
+sk-allocation.patch
+  Subject: Re: nfs oom
+
+nfs-more-oom-fix.patch
+
+nfs-sendfile.patch
+  Implement sendfile() for NFS
+
+rpciod-atomic-allocations.patch
+  Make rcpiod use atomic allocations
+
+put_page-speedup.patch
+  hugetlb put_page speedup
+
+remove-MAX_BLKDEV-from-nfsd.patch
+  Remove MAX_BLKDEV from nfsd
+
+const-warning-fix-1.patch
+  Fix warnings from CIFS on 2.5.61
+
+const-warning-fix-2.patch
+  Fix warnings for XFS on 2.5.61
+
+const-warning-fix-3.patch
+  Fix warnings for NTFS 2.5.61
+
+linux-isp.patch
+
+visws-1.patch
+  visws: allow SMP kernel build without io_apic.c (1/13)
+
+visws-2.patch
+  visws: export some functions from i8259.c (2/13)
+
+visws-3.patch
+  visws: make startup_32 kernel entry point (3/13)
+
+visws-4.patch
+  visws: export boottime gdt descriptor (4/13)
+
+visws-5.patch
+  visws: boot changes (5/13)
+
+visws-6.patch
+  Subject: [PATCH] visws: move header file into asm/arch-visws (6/13)
+
+visws-7.patch
+  visws: add missing mach_apic.h file (7/13)
+
+visws-8.patch
+  visws: pci support (8/13)
+
+visws-9.patch
+  visws: core (9/13)
+
+visws-10.patch
+  visws: framebuffer driver update (10/13)
+
+visws-11.patch
+  visws: sound update (11/13)
+
+visws-12.patch
+  visws: MAINTAINERS file update (12/13)
+
+visws-13.patch
+  visws: i386/KConfig update (13/13)
+
+visws-pci-fix.patch
+  fix a visws compile warning
+
+profiling-cleanup.patch
+  Subject: [PATCH]: consolidate and cleanup profiling code.
+
+profiler-make-static.patch
+  more ia32 profiler cleanups
+
+remove-unused-congestion-stuff.patch
+  Subject: [PATCH] remove unused congestion stuff
+
+tty-module-refcounting.patch
+  TYT module refcounting fix
+
+anticipatory_io_scheduling.patch
+  Subject: [PATCH] 2.5.59-mm3 antic io sched
+
+deadline-jiffies-wrap.patch
+
+cfq-2.patch
+  CFQ scheduler, #2
+
+elevator-selection.patch
+  boot-time selection of disk elevator type
+
+smalldevfs.patch
+  smalldevfs
+
+smalldevfs-dcache_rcu-fix.patch
+  Subject: Re: 2.5.61-mm1
+
+
+

@@ -1,44 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131583AbRAXRu5>; Wed, 24 Jan 2001 12:50:57 -0500
+	id <S129485AbRAXSDv>; Wed, 24 Jan 2001 13:03:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131576AbRAXRuh>; Wed, 24 Jan 2001 12:50:37 -0500
-Received: from femail1.rdc1.on.home.com ([24.2.9.88]:28381 "EHLO
-	femail1.rdc1.on.home.com") by vger.kernel.org with ESMTP
-	id <S131568AbRAXRua>; Wed, 24 Jan 2001 12:50:30 -0500
-Message-ID: <3A6F15CC.286D1F05@Home.net>
-Date: Wed, 24 Jan 2001 12:50:05 -0500
-From: Shawn Starr <Shawn.Starr@Home.net>
-Organization: Visualnet
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre10 i586)
-X-Accept-Language: en
+	id <S129842AbRAXSDl>; Wed, 24 Jan 2001 13:03:41 -0500
+Received: from tools.cfourusa.com ([209.254.33.11]:64910 "EHLO tools.c4usa.com")
+	by vger.kernel.org with ESMTP id <S129485AbRAXSD2>;
+	Wed, 24 Jan 2001 13:03:28 -0500
+Message-ID: <020001c0862f$e6535620$1a21fed1@ASHAMAN>
+From: "Dan Egli" <dan@frankenstein-cpu.com>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <14958.25201.508164.388346@diego.linuxcare.com.au><200101240701.f0O71OE110437@saturn.cs.uml.edu> <14958.42045.576523.62083@argo.linuxcare.com.au>
+Subject: Re: Bug in ppp_async.c
+Date: Wed, 24 Jan 2001 11:03:04 -0700
 MIME-Version: 1.0
-To: Daniel Phillips <phillips@innominate.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at slab.c:1542!(2.4.1-pre9)
-In-Reply-To: <3A6C5058.C5AA7681@zaralinux.com> <3A6CB620.469A15A9@Home.net> <3A6ED16E.E8343678@innominate.de>
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-True, It's just odd that we're having the same problem with the X server, so its
-a double whammy ;)
-Daniel Phillips wrote:
+I do ppp using 2.4.0 w/ redhat 7 now, no upgrades besides modultils and the
+kernel :>
+-- Dan Egli
+-- Network Administrator / President
+-- Frankenstein Computers
+-- 801-671-7875
+----- Original Message -----
+From: "Paul Mackerras" <paulus@linuxcare.com.au>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: <l_indien@magic.fr>; <jma@netgem.com>; <jfree@sovereign.org>;
+<linux-kernel@vger.kernel.org>
+Sent: Wednesday, January 24, 2001 2:45 AM
+Subject: Re: Bug in ppp_async.c
 
-> Shawn Starr wrote:
-> > This is not a kernel bug, This is a bug in the XFree86 TrueType rendering
-> > extention. This has been discussed on the Xpert XFree86 mailing list. There
-> > is a fix in the works (depends on the TrueType fonts your using).
+
+> Albert D. Cahalan writes:
 >
-> A BUG is a BUG:
+> > Even Red Hat 7 only has the 2.3.11 version.
+> >
+> > The 2.4.xx series is supposed to be stable. If there is any way
+> > you could add a compatibility hack, please do so.
 >
-> > > kernel BUG at slab.c:1542!
+> Stable != backwards compatible to the year dot.  ppp-2.4.0 has been
+> out for over 5 months now.  Adding the compatibility stuff back in
+> would make the PPP subsystem much more complicated and less robust.
+> And pppd is not the only thing you would have to upgrade if you are
+> using a 2.4.0 with Red Hat 7.0 - I would expect that you would also at
+> least have to upgrade modutils, and switch over from ipchains to
+> iptables if you use the netfilter stuff.
 >
-> The kernel should never oops, no matter what user space does to it.
+> Paul.
 >
 > --
-> Daniel
+> Paul Mackerras, Open Source Research Fellow, Linuxcare, Inc.
+> +61 2 6262 8990 tel, +61 2 6262 8991 fax
+> paulus@linuxcare.com.au, http://www.linuxcare.com.au/
+> Linuxcare.  Support for the revolution.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+>
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

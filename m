@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261854AbTABOwa>; Thu, 2 Jan 2003 09:52:30 -0500
+	id <S261934AbTABOzj>; Thu, 2 Jan 2003 09:55:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261934AbTABOw3>; Thu, 2 Jan 2003 09:52:29 -0500
-Received: from AFontenayssB-111-1-1-137.abo.wanadoo.fr ([80.13.0.137]:49930
-	"EHLO cerbere.rebelles") by vger.kernel.org with ESMTP
-	id <S261854AbTABOw3>; Thu, 2 Jan 2003 09:52:29 -0500
-Date: Thu, 2 Jan 2003 16:03:22 +0000
-From: =?ISO-8859-1?Q?Fran=E7ois?= Boisson <user@maison.homelinux.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re:New version of e2compr for 2.4.16 kernel....
-Message-Id: <20030102160322.37ea4e88.user@maison.homelinux.net>
-X-Mailer: Sylpheed version 0.5.1 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S261963AbTABOzi>; Thu, 2 Jan 2003 09:55:38 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:58603 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S261934AbTABOzi>;
+	Thu, 2 Jan 2003 09:55:38 -0500
+Date: Fri, 3 Jan 2003 02:03:58 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Marc Giger <gigerstyle@gmx.ch>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Power off a SMP Box
+Message-Id: <20030103020358.2c0e6714.sfr@canb.auug.org.au>
+In-Reply-To: <20030102135350.24315441.gigerstyle@gmx.ch>
+References: <20030102135350.24315441.gigerstyle@gmx.ch>
+X-Mailer: Sylpheed version 0.8.8 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From Denis RICHARD (dri@sxb.bsf.alcatel.fr)
-> Wed, 19 Dec 2001 14:40:39 +0100 
-> Hi,
+On Thu, 2 Jan 2003 13:53:50 +0100 Marc Giger <gigerstyle@gmx.ch> wrote:
+>
+> My "problem" is that my Dual-Box won't power off itself after a shutdown.
 
-> We have developped a new version of the e2compr package for the 2.4.16
-kernel.
-> It is based on the e2compr-0.4.39 patch provided by Peter Moulder
-> for 2.2.18 kernel (http://cvs.bofh.asn.au/e2compr/).
-> It is full compatible with previous version.
-> ...
-> For more informations, see the README files in Documentation/filesystems
+Has it ever?  What kernel version are you trying this on?
 
-> directory. If someone is interested by the patch, we will mail it.
-> Feel free to contat us if you have some questions.
-> Have fun.
-> Pierre PEIFFER, Denis RICHARD .
-> PS : We have also adjusted the e2fsprogs patch for the last version
-(1.25).
+> I tried with 
+> 
+> apm=smp-power-off	//no effect
+> apm=power-off		//this one oopses on boot
 
-I' really interested by this patch. I made a mail to Denis Richard but it
-seems he cannot answer. Can someone send me this patch (I'm not on the
-list, Cc me the answer).
+This second should work on any kernel since early 2000.
 
-Thanks and happy new year.
-F.Boisson
+However, there are many SMP machines that cannot be powered off
+using APM.  APM is not defined for SMP machines, and the result
+you got is why APM is not enabled easily on SMP boxes.
+
+> Has someone a hint for me?
+
+You could try ACPI in (very) recent kernels.
+
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/

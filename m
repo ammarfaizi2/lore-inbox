@@ -1,61 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318407AbSHFHcm>; Tue, 6 Aug 2002 03:32:42 -0400
+	id <S318954AbSHFAR1>; Mon, 5 Aug 2002 20:17:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318384AbSHFHcm>; Tue, 6 Aug 2002 03:32:42 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:60562 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S318407AbSHFHcl>;
-	Tue, 6 Aug 2002 03:32:41 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] automatic module_init ordering 
-In-reply-to: Your message of "Mon, 05 Aug 2002 21:05:13 +0200."
-             <3D4ECC69.F0084A2C@linux-m68k.org> 
-Date: Tue, 06 Aug 2002 17:28:14 +1000
-Message-Id: <20020806073804.2E30F4BA3@lists.samba.org>
+	id <S318955AbSHFAR1>; Mon, 5 Aug 2002 20:17:27 -0400
+Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:1246 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S318954AbSHFAR0>;
+	Mon, 5 Aug 2002 20:17:26 -0400
+Message-ID: <3D4F164F.2070006@candelatech.com>
+Date: Mon, 05 Aug 2002 17:20:31 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.20-pre1
+References: <Pine.LNX.4.44.0208051938380.6811-100000@freak.distro.conectiva>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3D4ECC69.F0084A2C@linux-m68k.org> you write:
-> Are you sure sent the right patch? This one misses a few changes.
-> Anyway, I stole all the good ideas and integrated them into my patch. :)
+Marcelo Tosatti wrote:
+> So here goes -pre1, with a big -ac and x86-64 merges, plus other smaller
+> stuff.
+> 
+> 2.4.20 will be a much faster release cycle than 2.4.19 was.
 
-Great, I was hoping you'd do that!
+Two questions:  I see change logs about NAPI going in, and then
+NAPI being removed.  I assume it is removed...but maybe it will
+be back soon?
 
-> - I use a separate initcall for the module initialization, that's the
-> only way I can solve my IDE problems.
+Second:  Where is the patch?  I looked on kernel.org and didn't
+find it.  If it's going to be there shortly, that's fine, I'll
+keep checking back.
 
-That's horrible 8(  I think we need figure out why this is happening:
-do you know?  What does it actually need?
+Thanks,
+Ben
 
-Ahh, I just came across the same problem!  See my
-ordered-core-initcalls patch, for bio.c changes: you probably need to
-change this too (and I deleted the redundany explicit IDE inits).
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
 
-> - I put the initcall for that directly into the generated file.
-> - raid autodetect became a late_initcall()
 
-Icky, but that's what my follow-on patch for explicit initcalls is
-for.  So raid is an example where it doesn't have an implicit
-dependency, but it does have an actual dependency.
-
-> - I don't use trap to clean up, so people can send us the temporary
-> files, if something should go wrong. These files will be removed by a
-> normal 'make clean' anyway.
-
-Hmmm... Good idea, at least for the moment.  Eventually we won't have
-any bugs 8)
-
-I've updated my explicit core initcalls patch on top of your new one,
-thanks!
-
-	http://www.kernel.org/pub/linux/kernel/people/rusty/Misc/ordered-core-initcalls.patch.2.5.30.gz
-
-It reverts your module initcall change, and boots here.
-
-Cheers!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

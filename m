@@ -1,17 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268141AbTB1VfN>; Fri, 28 Feb 2003 16:35:13 -0500
+	id <S268217AbTB1Vq1>; Fri, 28 Feb 2003 16:46:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268192AbTB1Vec>; Fri, 28 Feb 2003 16:34:32 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:44784 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S268184AbTB1VdI>; Fri, 28 Feb 2003 16:33:08 -0500
-Date: Fri, 28 Feb 2003 13:34:07 -0800
+	id <S268232AbTB1VpO>; Fri, 28 Feb 2003 16:45:14 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:64132 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S268215AbTB1VoA>; Fri, 28 Feb 2003 16:44:00 -0500
+Date: Fri, 28 Feb 2003 13:45:08 -0800
 From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 5/7 Fix kirq_balance up so I can disable it.
-Message-ID: <361390000.1046468047@flay>
+To: "Randy.Dunlap" <rddunlap@osdl.org>, Dave Hansen <haveblue@us.ibm.com>
+cc: linux-kernel@vger.kernel.org, akpm@zip.com.au, levon@movementarian.org
+Subject: Re: [PATCH] documentation for basic guide to profiling
+Message-ID: <364250000.1046468708@flay>
+In-Reply-To: <20030228113041.0d0dd772.rddunlap@osdl.org>
+References: <8550000.1046419962@[10.10.2.4]><20030228093632.7bf053ed.rddunlap@osdl.org><28510000.1046455878@[10.10.2.4]><3E5FA6DF.8070909@us.ibm.com> <20030228113041.0d0dd772.rddunlap@osdl.org>
 X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -20,85 +22,54 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At the moment, there are two different switches used, irqbalance_disabled
-and no_balance_irq ... each of which switches half the code off. This
-patch harmonises them into one (irqbalance_disable), and uses the old
-subarch stuff as a default value so that this is auto-disabled on boxes
-like NUMA-Q that can't cope with it. 
+OK, fixed a couple of things ... thanks for the feedback everyone.
 
-Also renamed no_balance_irq to NO_BALANCE_IRQ as it's really a static 
-defined number now, not pretending to be a switch variable any more.
-Now off by default for NUMA-Q, on by default for others, but can be
-disabled with the boot time flag if people desire.
-
-diff -urpN -X /home/fletch/.diff.exclude 013-pcibus_to_cpumask/arch/i386/kernel/io_apic.c 014-no_kirq/arch/i386/kernel/io_apic.c
---- 013-pcibus_to_cpumask/arch/i386/kernel/io_apic.c	Tue Feb 25 23:03:43 2003
-+++ 014-no_kirq/arch/i386/kernel/io_apic.c	Fri Feb 28 08:05:35 2003
-@@ -223,7 +223,7 @@ static void set_ioapic_affinity (unsigne
- 
- extern unsigned long irq_affinity [NR_IRQS];
- int __cacheline_aligned pending_irq_balance_apicid [NR_IRQS];
--static int irqbalance_disabled __initdata = 0;
-+static int irqbalance_disabled = NO_BALANCE_IRQ;
- static int physical_balance = 0;
- 
- struct irq_cpu_info {
-@@ -492,7 +492,7 @@ static inline void balance_irq (int cpu,
- 	unsigned long allowed_mask;
- 	unsigned int new_cpu;
- 		
--	if (no_balance_irq)
-+	if (irqbalance_disabled)
- 		return;
- 
- 	allowed_mask = cpu_online_map & irq_affinity[irq];
-diff -urpN -X /home/fletch/.diff.exclude 013-pcibus_to_cpumask/include/asm-i386/mach-bigsmp/mach_apic.h 014-no_kirq/include/asm-i386/mach-bigsmp/mach_apic.h
---- 013-pcibus_to_cpumask/include/asm-i386/mach-bigsmp/mach_apic.h	Fri Feb 28 08:05:34 2003
-+++ 014-no_kirq/include/asm-i386/mach-bigsmp/mach_apic.h	Fri Feb 28 08:05:35 2003
-@@ -10,7 +10,7 @@
- 		((phys_apic) & (~0xf)) )
- #endif
- 
--#define no_balance_irq (1)
-+#define NO_BALANCE_IRQ (1)
- #define esr_disable (1)
- 
- static inline int apic_id_registered(void)
-diff -urpN -X /home/fletch/.diff.exclude 013-pcibus_to_cpumask/include/asm-i386/mach-default/mach_apic.h 014-no_kirq/include/asm-i386/mach-default/mach_apic.h
---- 013-pcibus_to_cpumask/include/asm-i386/mach-default/mach_apic.h	Fri Feb 28 08:05:34 2003
-+++ 014-no_kirq/include/asm-i386/mach-default/mach_apic.h	Fri Feb 28 08:05:35 2003
-@@ -9,7 +9,7 @@
-  #define TARGET_CPUS 0x01
- #endif
- 
--#define no_balance_irq (0)
-+#define NO_BALANCE_IRQ (0)
- #define esr_disable (0)
- 
- #define INT_DELIVERY_MODE dest_LowestPrio
-diff -urpN -X /home/fletch/.diff.exclude 013-pcibus_to_cpumask/include/asm-i386/mach-numaq/mach_apic.h 014-no_kirq/include/asm-i386/mach-numaq/mach_apic.h
---- 013-pcibus_to_cpumask/include/asm-i386/mach-numaq/mach_apic.h	Fri Feb 28 08:05:34 2003
-+++ 014-no_kirq/include/asm-i386/mach-numaq/mach_apic.h	Fri Feb 28 08:05:35 2003
-@@ -5,7 +5,7 @@
- 
- #define TARGET_CPUS (0xf)
- 
--#define no_balance_irq (1)
-+#define NO_BALANCE_IRQ (1)
- #define esr_disable (1)
- 
- #define INT_DELIVERY_MODE dest_LowestPrio
-diff -urpN -X /home/fletch/.diff.exclude 013-pcibus_to_cpumask/include/asm-i386/mach-summit/mach_apic.h 014-no_kirq/include/asm-i386/mach-summit/mach_apic.h
---- 013-pcibus_to_cpumask/include/asm-i386/mach-summit/mach_apic.h	Fri Feb 28 08:05:34 2003
-+++ 014-no_kirq/include/asm-i386/mach-summit/mach_apic.h	Fri Feb 28 08:05:35 2003
-@@ -4,7 +4,7 @@
- extern int x86_summit;
- 
- #define esr_disable (x86_summit ? 1 : 0)
--#define no_balance_irq (0)
-+#define NO_BALANCE_IRQ (0)
- 
- #define XAPIC_DEST_CPUS_MASK    0x0Fu
- #define XAPIC_DEST_CLUSTER_MASK 0xF0u
-
+diff -purN -X /home/mbligh/.diff.exclude virgin/Documentation/basic_profiling.txt prof_docs/Documentation/basic_profiling.txt
+--- virgin/Documentation/basic_profiling.txt	Wed Dec 31 16:00:00 1969
++++ prof_docs/Documentation/basic_profiling.txt	Fri Feb 28 13:44:11 2003
+@@ -0,0 +1,44 @@
++These instructions are deliberately very basic. If you want something clever,
++go read the real docs ;-) Please don't add more stuff, but feel free to 
++correct my mistakes ;-)    (mbligh@aracnet.com)
++Thanks to John Levon and Dave Hansen for help writing this.
++
++<test> is the thing you're trying to measure.
++Make sure you have the correct System.map / vmlinux referenced!
++IMHO it's easier to use "make install" for linux and hack /sbin/installkernel
++to copy config files, system.map, vmlinux to /boot.
++
++Readprofile
++-----------
++get readprofile binary fixed for 2.5 / akpm's 2.5 patch from 
++ftp://ftp.kernel.org/pub/linux/people/mbligh/tools/readprofile/
++add "profile=2" to the kernel command line.
++
++clear		readprofile -r
++		<test>
++dump output	readprofile -m /boot/System.map > catured_profile
++
++Oprofile
++--------
++get source (I use 0.5) from http://oprofile.sourceforge.net/
++add "poll=idle" to the kernel command line 
++Configure with CONFIG_PROFILING=y and CONFIG_OPROFILE=y & reboot on new kernel
++./configure --with-kernel-support
++make install
++
++One time setup (pick appropriate one for your CPU):
++P3		opcontrol --setup --vmlinux=/boot/vmlinux \
++		--ctr0-event=CPU_CLK_UNHALTED --ctr0-count=100000
++Athlon/x86-64	opcontrol --setup --vmlinux=/boot/vmlinux \
++		--ctr0-event=RETIRED_INSNS --ctr0-count=100000
++P4		opcontrol --setup --vmlinux=/boot/vmlinux \
++		--ctr0-event=GLOBAL_POWER_EVENTS \
++		--ctr0-unit-mask=1 --ctr0-count=100000
++
++start daemon	opcontrol --start-daemon
++clear		opcontrol --reset
++start		opcontrol --start
++		<test>
++stop		opcontrol --stop
++dump output	oprofpp -dl -i /boot/vmlinux  >  output_file
++
 

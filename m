@@ -1,461 +1,341 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131699AbRAFNz7>; Sat, 6 Jan 2001 08:55:59 -0500
+	id <S129730AbRAFOiv>; Sat, 6 Jan 2001 09:38:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131701AbRAFNzt>; Sat, 6 Jan 2001 08:55:49 -0500
-Received: from [139.102.15.43] ([139.102.15.43]:15598 "EHLO
-	online.indstate.edu") by vger.kernel.org with ESMTP
-	id <S131699AbRAFNzh>; Sat, 6 Jan 2001 08:55:37 -0500
-From: "Rich Baum" <baumr1@coral.indstate.edu>
-To: linux-kernel@vger.kernel.org
-Date: Sat, 6 Jan 2001 08:54:52 -0500
+	id <S129752AbRAFOik>; Sat, 6 Jan 2001 09:38:40 -0500
+Received: from smtp2.mail.yahoo.com ([128.11.68.32]:33032 "HELO
+	smtp2.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S129730AbRAFOif>; Sat, 6 Jan 2001 09:38:35 -0500
+X-Apparently-From: <p?gortmaker@yahoo.com>
+Message-ID: <3A572B98.387C7D60@yahoo.com>
+Date: Sat, 06 Jan 2001 09:28:40 -0500
+From: Paul Gortmaker <p_gortmaker@yahoo.com>
+X-Mailer: Mozilla 3.04 (X11; I; Linux 2.4.0 i486)
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: [PATCH] Fix compile warnings in 2.4.0
-Reply-to: richbaum@acm.org
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>
-Message-ID: <3A56DD5C.7108.C0391@localhost>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] Documentation/*/00-INDEX files
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a patch against 2.4.0 that fixes compile warnings with the 
-20001225 gcc snapshot.  This patch fixes more warnings of the 
-type that my patches for 2.4.0-prerelease.
+Hi,
 
-diff -urN -X dontdiff linux/drivers/cdrom/cm207.c rb/drivers/cdrom/cm206.c
---- linux/drivers/cdrom/cm206.c	Fri Oct 27 01:35:47 2000
-+++ rb/drivers/cdrom/cm206.c	Fri Jan  5 20:36:20 2001
-@@ -1283,7 +1283,7 @@
-   case 1: 
-     kfree(cd);
-     release_region(cm206_base, 16);
--  default:
-+  default:;
-   }
- }
- 
-diff -urN -X dontdiff linux/drivers/cdrom/cm206.h rb/drivers/cdrom/cm206.h
---- linux/drivers/cdrom/cm206.h	Tue Dec  2 14:41:44 1997
-+++ rb/drivers/cdrom/cm206.h	Fri Jan  5 20:36:10 2001
-@@ -166,6 +166,6 @@
- #undef y
- #undef x
- 
--#endif STATISTICS
-+#endif /* STATISTICS */
- 
--#endif LINUX_CM206_H
-+#endif /* LINUX_CM206_H */
-diff -urN -X dontdiff linux/drivers/cdrom/mcd.c rb/drivers/cdrom/mcd.c
---- linux/drivers/cdrom/mcd.c	Fri Oct 27 01:35:47 2000
-+++ rb/drivers/cdrom/mcd.c	Fri Jan  5 20:36:42 2001
-@@ -1158,7 +1158,7 @@
-       return;
-     }
-     blk_cleanup_queue(BLK_DEFAULT_QUEUE(MAJOR_NR));
--  default:
-+  default:;
-   }
- }
- 
-diff -urN -X dontdiff linux/drivers/cdrom/optcd.c rb/drivers/cdrom/optcd.c
---- linux/drivers/cdrom/optcd.c	Fri Oct 27 01:35:48 2000
-+++ rb/drivers/cdrom/optcd.c	Fri Jan  5 20:38:48 2001
-@@ -924,7 +924,7 @@
- 		return -EIO;
- 	return 0;
- }
--#endif MULTISESSION
-+#endif /* MULTISESSION */
- 
- 
- static int update_toc(void)
-@@ -962,7 +962,7 @@
- #ifdef MULTISESSION
-  	if (disk_info.xa)
- 		get_multi_disk_info();	/* Here disk_info.multi is set */
--#endif MULTISESSION
-+#endif /* MULTISESSION */
- 	if (disk_info.multi)
- 		printk(KERN_WARNING "optcd: Multisession support experimental, "
- 			"see linux/Documentation/cdrom/optcd\n");
-@@ -1709,11 +1709,11 @@
- 			disk_info.last_session.minute,
- 			disk_info.last_session.second,
- 			disk_info.last_session.frame);
--#endif DEBUG_MULTIS
-+#endif /* DEBUG_MULTIS */
- 
- 	return 0;
- }
--#endif MULTISESSION
-+#endif /* MULTISESSION */
- 
- 
- static int cdromreset(void)
-@@ -2026,7 +2026,7 @@
- 
- __setup("optcd=", optcd_setup);
- 
--#endif MODULE
-+#endif /* MODULE */
- 
- /* Test for presence of drive and initialize it. Called at boot time
-    or during module initialisation. */
-diff -urN -X dontdiff linux/drivers/cdrom/optcd.h rb/drivers/cdrom/optcd.h
---- linux/drivers/cdrom/optcd.h	Tue Dec  2 14:41:44 1997
-+++ rb/drivers/cdrom/optcd.h	Fri Jan  5 20:36:59 2001
-@@ -49,4 +49,4 @@
- #define N_BUFS		6
- 
- 
--#endif _LINUX_OPTCD_H
-+#endif /* _LINUX_OPTCD_H */
-diff -urN -X dontdiff linux/drivers/char/ftape/lowlevel/fdc-isr.c rb/drivers/char/ftape/lowlevel/fdc-isr.c
---- linux/drivers/char/ftape/lowlevel/fdc-isr.c	Mon Oct 16 14:58:51 2000
-+++ rb/drivers/char/ftape/lowlevel/fdc-isr.c	Fri Jan  5 20:43:04 2001
-@@ -81,7 +81,7 @@
- 	case overrun_error:
- 		TRACE(ft_t_noise, "overrun error");
- 		break;
--	default:
-+	default:;
- 	}
- 	TRACE_EXIT;
- }
-@@ -184,7 +184,7 @@
- 	case no_data_error:
- 		ft_history.no_data_errors++;
- 		break;
--	default:
-+	default:;
- 	}
- }
- 
-diff -urN -X dontdiff linux/drivers/i2o/i2o_lan.c rb/drivers/i2o/i2o_lan.c
---- linux/drivers/i2o/i2o_lan.c	Mon Dec 11 15:39:44 2000
-+++ rb/drivers/i2o/i2o_lan.c	Fri Jan  5 20:16:04 2001
-@@ -938,7 +938,7 @@
- 	spin_unlock_irq(&priv->tx_lock);
- 	return 0;
- }
--#endif CONFIG_NET_FC
-+#endif /* CONFIG_NET_FC */
- 
- /*
-  * i2o_lan_packet_send(): Send a packet as is, including the MAC header.
-diff -urN -X dontdiff linux/drivers/ieee1394/pcilynx.c rb/drivers/ieee1394/pcilynx.c
---- linux/drivers/ieee1394/pcilynx.c	Wed Nov 29 00:45:16 2000
-+++ rb/drivers/ieee1394/pcilynx.c	Fri Jan  5 20:15:30 2001
-@@ -1485,7 +1485,7 @@
-                 pci_free_consistent(lynx->dev, LOCALRAM_SIZE, lynx->pcl_mem,
-                                     lynx->pcl_mem_dma);
- #endif
--        case clear:
-+        case clear:;
-                 /* do nothing - already freed */
-         }
- 
-diff -urN -X dontdiff linux/drivers/isdn/eicon/eicon_idi.c rb/drivers/isdn/eicon/eicon_idi.c
---- linux/drivers/isdn/eicon/eicon_idi.c	Sun Aug 13 12:05:32 2000
-+++ rb/drivers/isdn/eicon/eicon_idi.c	Fri Jan  5 20:15:08 2001
-@@ -2506,7 +2506,7 @@
- 						case ISDN_PROTO_L2_TRANS:
- 							idi_do_req(ccard, chan, N_CONNECT, 1);
- 							break;
--						default:
-+						default:;
- 							/* On most incoming calls we use automatic connect */
- 							/* idi_do_req(ccard, chan, N_CONNECT, 1); */
- 					}
-diff -urN -X dontdiff linux/drivers/isdn/eicon/eicon_pci.c rb/drivers/isdn/eicon/eicon_pci.c
---- linux/drivers/isdn/eicon/eicon_pci.c	Sun Aug 13 12:05:32 2000
-+++ rb/drivers/isdn/eicon/eicon_pci.c	Fri Jan  5 20:14:49 2001
-@@ -86,7 +86,7 @@
- 				printk(KERN_INFO "%s: DriverID='%s' CardID=%d\n",
- 					eicon_ctype_name[ctype], did, card_id);
- 			}
--err:
-+err:;
- 		}
- 		pCard++;
- 	}
-diff -urN -X dontdiff linux/drivers/isdn/hisax/hisax.h rb/drivers/isdn/hisax/hisax.h
---- linux/drivers/isdn/hisax/hisax.h	Fri Jan  5 20:27:54 2001
-+++ rb/drivers/isdn/hisax/hisax.h	Fri Jan  5 20:09:52 2001
-@@ -126,13 +126,13 @@
-   #define l3dss1_process
-   #include "l3dss1.h" 
-   #undef  l3dss1_process
--#endif CONFIG_HISAX_EURO
-+#endif /* CONFIG_HISAX_EURO */
- 
- #ifdef CONFIG_HISAX_NI1
-   #define l3ni1_process
-   #include "l3ni1.h" 
-   #undef  l3ni1_process
--#endif CONFIG_HISAX_NI1
-+#endif /* CONFIG_HISAX_NI1 */
- 
- #define MAX_DFRAME_LEN	260
- #define MAX_DFRAME_LEN_L1	300
-@@ -318,10 +318,10 @@
- 	 { u_char uuuu; /* only as dummy */
- #ifdef CONFIG_HISAX_EURO
-            dss1_stk_priv dss1; /* private dss1 data */
--#endif CONFIG_HISAX_EURO              
-+#endif /* CONFIG_HISAX_EURO */              
- #ifdef CONFIG_HISAX_NI1
-            ni1_stk_priv ni1; /* private ni1 data */
--#endif CONFIG_HISAX_NI1              
-+#endif /* CONFIG_HISAX_NI1 */             
- 	 } prot;
- };
- 
-@@ -342,10 +342,10 @@
- 	 { u_char uuuu; /* only when euro not defined, avoiding empty union */
- #ifdef CONFIG_HISAX_EURO 
-            dss1_proc_priv dss1; /* private dss1 data */
--#endif CONFIG_HISAX_EURO            
-+#endif /* CONFIG_HISAX_EURO */            
- #ifdef CONFIG_HISAX_NI1
-            ni1_proc_priv ni1; /* private ni1 data */
--#endif CONFIG_HISAX_NI1              
-+#endif /* CONFIG_HISAX_NI1 */             
- 	 } prot;
- };
- 
-diff -urN -X dontdiff linux/drivers/isdn/hisax/isac.c rb/drivers/isdn/hisax/isac.c
---- linux/drivers/isdn/hisax/isac.c	Mon Nov 27 19:53:43 2000
-+++ rb/drivers/isdn/hisax/isac.c	Fri Jan  5 20:11:12 2001
-@@ -445,7 +445,7 @@
- 				if (cs->debug & L1_DEB_MONITOR)
- 					debugl1(cs, "ISAC %02x -> MOX1", cs->dc.isac.mon_tx[cs->dc.isac.mon_txp -1]);
- 			}
--		      AfterMOX1:
-+		      AfterMOX1:;
- #endif
- 		}
- 	}
-diff -urN -X dontdiff linux/drivers/isdn/hisax/l3dss1.c rb/drivers/isdn/hisax/l3dss1.c
---- linux/drivers/isdn/hisax/l3dss1.c	Mon Nov 27 19:53:43 2000
-+++ rb/drivers/isdn/hisax/l3dss1.c	Fri Jan  5 20:10:57 2001
-@@ -426,9 +426,9 @@
- #undef FOO1
- 
- 			}
--#else  not HISAX_DE_AOC
-+#else  /* not HISAX_DE_AOC */
-                         l3_debug(st, "invoke break");
--#endif not HISAX_DE_AOC 
-+#endif /* not HISAX_DE_AOC */
- 			break;
- 		case 2:	/* return result */
- 			 /* if no process available handle separately */ 
-diff -urN -X dontdiff linux/drivers/isdn/isdn_common.c rb/drivers/isdn/isdn_common.c
---- linux/drivers/isdn/isdn_common.c	Tue Jan  2 19:45:38 2001
-+++ rb/drivers/isdn/isdn_common.c	Fri Jan  5 20:07:57 2001
-@@ -41,7 +41,7 @@
- #endif
- #ifdef CONFIG_ISDN_DIVERSION
- #include <linux/isdn_divertif.h>
--#endif CONFIG_ISDN_DIVERSION
-+#endif /* CONFIG_ISDN_DIVERSION */
- #include "isdn_v110.h"
- #include "isdn_cards.h"
- #include <linux/devfs_fs_kernel.h>
-@@ -69,7 +69,7 @@
- 
- #ifdef CONFIG_ISDN_DIVERSION
- static isdn_divert_if *divert_if; /* = NULL */
--#endif CONFIG_ISDN_DIVERSION
-+#endif /* CONFIG_ISDN_DIVERSION */
- 
- 
- static int isdn_writebuf_stub(int, int, const u_char *, int, int);
-@@ -519,7 +519,7 @@
-                                          if (divert_if)
-                  	                  if ((retval = divert_if->stat_callback(c))) 
- 					    return(retval); /* processed */
--#endif CONFIG_ISDN_DIVERSION                        
-+#endif /* CONFIG_ISDN_DIVERSION */                       
- 					if ((!retval) && (dev->drv[di]->flags & DRV_FLAG_REJBUS)) {
- 						/* No tty responding */
- 						cmd.driver = di;
-@@ -592,7 +592,7 @@
- #ifdef CONFIG_ISDN_DIVERSION
-                         if (divert_if)
-                          divert_if->stat_callback(c); 
--#endif CONFIG_ISDN_DIVERSION
-+#endif /* CONFIG_ISDN_DIVERSION */
- 			break;
- 		case ISDN_STAT_DISPLAY:
- #ifdef ISDN_DEBUG_STATCALLB
-@@ -602,7 +602,7 @@
- #ifdef CONFIG_ISDN_DIVERSION
-                         if (divert_if)
-                          divert_if->stat_callback(c); 
--#endif CONFIG_ISDN_DIVERSION
-+#endif /* CONFIG_ISDN_DIVERSION */
- 			break;
- 		case ISDN_STAT_DCONN:
- 			if (i < 0)
-@@ -644,7 +644,7 @@
- #ifdef CONFIG_ISDN_DIVERSION
-                         if (divert_if)
-                          divert_if->stat_callback(c); 
--#endif CONFIG_ISDN_DIVERSION
-+#endif /* CONFIG_ISDN_DIVERSION */
- 			break;
- 			break;
- 		case ISDN_STAT_BCONN:
-@@ -773,7 +773,7 @@
- 	        case ISDN_STAT_REDIR:
-                         if (divert_if)
-                           return(divert_if->stat_callback(c));
--#endif CONFIG_ISDN_DIVERSION
-+#endif /* CONFIG_ISDN_DIVERSION */
- 		default:
- 			return -1;
- 	}
-@@ -2166,7 +2166,7 @@
- 
- EXPORT_SYMBOL(DIVERT_REG_NAME);
- 
--#endif CONFIG_ISDN_DIVERSION
-+#endif /* CONFIG_ISDN_DIVERSION */
- 
- 
- EXPORT_SYMBOL(register_isdn);
-diff -urN -X dontdiff linux/drivers/isdn/isdn_tty.c rb/drivers/isdn/isdn_tty.c
---- linux/drivers/isdn/isdn_tty.c	Mon Nov 27 19:53:43 2000
-+++ rb/drivers/isdn/isdn_tty.c	Fri Jan  5 20:05:44 2001
-@@ -3773,7 +3773,7 @@
-                                                 sprintf(ds, "\r\n%d", info->emu.charge);
-                                                 isdn_tty_at_cout(ds, info);
-                                                 break;
--					default:
-+					default:;
- 				}
- 				break;
- #ifdef DUMMY_HAYES_AT
-diff -urN -X dontdiff linux/drivers/isdn/isdn_v110.c rb/drivers/isdn/isdn_v110.c
---- linux/drivers/isdn/isdn_v110.c	Sun Aug  6 14:43:42 2000
-+++ rb/drivers/isdn/isdn_v110.c	Fri Jan  5 20:05:29 2001
-@@ -600,7 +600,7 @@
- 					case ISDN_PROTO_L2_V11038:
- 						dev->v110[idx] = isdn_v110_open(V110_38400, hdrlen, maxsize);
- 						break;
--					default:
-+					default:;
- 				}
- 				if ((v = dev->v110[idx])) {
- 					while (v->SyncInit) {
-diff -urN -X dontdiff linux/drivers/md/md.c rb/drivers/md/md.c
---- linux/drivers/md/md.c	Mon Dec 11 16:19:35 2000
-+++ rb/drivers/md/md.c	Fri Jan  5 20:04:59 2001
-@@ -2588,7 +2588,7 @@
- 			err = md_put_user (read_ahead[
- 				MAJOR(dev)], (long *) arg);
- 			goto done;
--		default:
-+		default:;
- 	}
- 
- 	/*
-@@ -2607,7 +2607,7 @@
- 				err = -EEXIST;
- 				goto abort;
- 			}
--		default:
-+		default:;
- 	}
- 	switch (cmd)
- 	{
-@@ -2660,7 +2660,7 @@
- 			}
- 			goto done;
- 
--		default:
-+		default:;
- 	}
- 
- 	/*
-diff -urN -X dontdiff linux/include/linux/nubus.h rb/include/linux/nubus.h
---- linux/include/linux/nubus.h	Sat Sep  4 15:10:30 1999
-+++ rb/include/linux/nubus.h	Fri Jan  5 20:03:23 2001
-@@ -319,4 +319,4 @@
- 	return (void *)(0xF0000000|(slot<<24));
- }
- 
--#endif LINUX_NUBUS_H
-+#endif /* LINUX_NUBUS_H */
-diff -urN -X dontdiff linux/include/net/ip_fib.h rb/include/net/ip_fib.h
---- linux/include/net/ip_fib.h	Fri Jan  5 20:02:11 2001
-+++ rb/include/net/ip_fib.h	Fri Jan  5 20:21:12 2001
-@@ -276,4 +276,4 @@
- }
- 
- 
--#endif  _NET_FIB_H
-+#endif /* _NET_FIB_H */
-diff -urN -X dontdiff linux/include/net/scm.h rb/include/net/scm.h
---- linux/include/net/scm.h	Tue Oct 27 12:57:19 1998
-+++ rb/include/net/scm.h	Fri Jan  5 20:20:01 2001
-@@ -63,5 +63,5 @@
- }
- 
- 
--#endif __LINUX_NET_SCM_H
-+#endif /* __LINUX_NET_SCM_H */
- 
-diff -urN -X dontdiff linux/net/802/cl2llc.c rb/net/802/cl2llc.c
---- linux/net/802/cl2llc.c	Sat Nov 29 13:41:10 1997
-+++ rb/net/802/cl2llc.c	Fri Jan  5 20:02:42 2001
-@@ -96,7 +96,7 @@
- 				else
- 					llc_interpret_pseudo_code(lp, REJECT1, skb, NO_FRAME);
- 				break;
--			default:
-+			default:;
- 		}
- 		if(lp->llc_callbacks)
- 		{
-@@ -497,7 +497,7 @@
- 				else
- 					lp->f_flag = fr->i_hdr.i_pflag;
- 				break;
--			default:
-+			default:;
- 		}
- 		pc++;	
- 	}
-diff -urN -X dontdiff linux/net/802/llc_macinit.c rb/net/802/llc_macinit.c
---- linux/net/802/llc_macinit.c	Mon Oct 16 14:42:53 2000
-+++ rb/net/802/llc_macinit.c	Fri Jan  5 20:02:22 2001
-@@ -125,7 +125,7 @@
- 				free=0;
- 				break;
- 
--			default:
-+			default:;
- 				/*
- 				 *	All other type 1 pdus ignored for now
- 				 */
-diff -urN -X dontdiff linux/net/atm/lec.h rb/net/atm/lec.h
---- linux/net/atm/lec.h	Fri Jan  5 20:00:12 2001
-+++ rb/net/atm/lec.h	Fri Jan  5 20:01:45 2001
-@@ -154,5 +154,5 @@
- 
- void atm_lane_init(void);
- void atm_lane_init_ops(struct atm_lane_ops *ops);
--#endif _LEC_H_
-+#endif /* _LEC_H_ */
- 
+Patch to Documentation/00-INDEX files - also did networking and
+filesystems subdir index files (which might even be ones I originally
+started...) - other subdirs can be dealt with by their respective
+maintainers or whoever is bored enough.
 
+Paul.
+
+--- 2400/linux/Documentation/00-INDEX.orig	Mon Nov 20 04:19:37 2000
++++ 2400/linux/Documentation/00-INDEX	Sat Jan  6 08:29:42 2001
+@@ -1,8 +1,8 @@
++
+ This is a brief list of all the files in ./linux/Documentation and what
+ they contain. If you add a documentation file, please list it here in 
+ alphabetical order as well, or risk being hunted down like a rabid dog. 
+-Note that subdirectories have their own index files too. Please try and
+-keep the descriptions small enough to fit on one line.
++Please try and keep the descriptions small enough to fit on one line.
+ 							 Thanks -- Paul G.
+ 
+ 00-INDEX
+@@ -15,28 +15,40 @@
+ 	- how the boss likes the C code in the kernel to look.
+ Configure.help
+ 	- text file that is used for help when you run "make config"
+-IO-APIC.txt
+-	- info on using the enhanced interrupt hardware on SMP boards.
++DMA-mapping.txt
++	- info for PCI drivers using DMA on 64 bit platforms.
++DocBook/
++	- directory with DocBook templates etc. for kernel documentation.
+ IO-mapping.txt
+ 	- how to access I/O mapped memory from within device drivers.
++IRQ-affinity.txt
++	- how to select which CPU(s) handle which interrupt events on SMP.
++LVM-HOWTO
++	- info on setting up logical volume management (virtual disks etc.)
+ README.DAC960
+ 	- info on Mylex DAC960/DAC1100 PCI RAID Controller Driver for Linux
++README.moxa
++	- release notes for Moxa mutiport serial card.
++SubmittingDrivers
++	- procedure to get a new driver source included into the kernel tree.
++SubmittingPatches
++	- procedure to get a source patch included into the kernel tree.
+ VGA-softcursor.txt
+ 	- how to change your VGA cursor from a blinking underscore.
+ arm/
+ 	- directory with info about Linux on the ARM architecture.
+-atm.txt
+-	- info on Linux ATM support
+ binfmt_misc.txt
+ 	- info on the kernel support for extra binary formats.
++cachetlb.txt
++	- describes the cache/TLB flushing interfaces Linux uses.
++cciss.txt
++	- info, major/minor #'s for Compaq's SMART Array Controllers.
+ cdrom/
+ 	- directory with information on the CD-ROM drivers that Linux has.
+ computone.txt
+ 	- info on Computone Intelliport II/Plus Multiport Serial Driver
+ cpqarray.txt
+ 	- info on using Compaq's SMART2 Intelligent Disk Array Controllers.
+-devices.tex
+-	- LaTeX source listing of all the nodes in /dev/ with major minor #'s
+ devices.txt
+ 	- plain ASCII listing of all the nodes in /dev/ with major minor #'s
+ digiboard.txt
+@@ -51,12 +63,20 @@
+ 	- directory with info on the frame buffer graphics abstraction layer.
+ filesystems/
+ 	- directory with info on the various filesystems that Linux supports.
++floppy.txt
++	- notes and driver options for the floppy disk driver.
+ ftape.txt
+ 	- notes about the floppy tape device driver
+ hayes-esp.txt
+ 	- info on using the Hayes ESP serial driver.
++highuid.txt
++	- notes on the change from 16 bit to 32 bit user/group IDs.
++i2c/
++	- directory with info about the I2C bus/protocol (2 wire, kHz speed)
+ i386/
+-	- directory with info about Linux on the intel ix86 architecture.
++	- directory with info about Linux on intel 32 bit architecture.
++ia64/
++	- directory with info about Linux on intel 64 bit architecture.
+ ide.txt
+ 	- important info for users of ATA devices (IDE/EIDE disks and CD-ROMS)
+ initrd.txt
+@@ -77,6 +97,8 @@
+ 	- info on using joystick devices (and driver) with Linux.
+ kbuild/
+ 	- directory with info about the kernel build process
++kernel-doc-nano-HOWTO.txt
++	- mini HowTo on generation and location of kernel documentation files.
+ kernel-docs.txt
+ 	- listing of various WWW + books that document kernel internals.
+ kernel-parameters.txt
+@@ -101,10 +123,14 @@
+ 	- info on boot arguments for the multiple devices driver
+ memory.txt
+ 	- info on typical Linux memory problems.
++mkdev.cciss
++	- script to make /dev entries for SMART controllers (see cciss.txt)
+ mkdev.ida
+ 	- script to make /dev entries for Intelligent Disk Array Controllers.
+ modules.txt
+ 	- short guide on how to make kernel parts into loadable modules
++moxa-smartio
++	- info on installing/using Moxa multiport serial driver.
+ mtrr.txt
+ 	- how to use PPro Memory Type Range Registers to increase performance
+ nbd.txt
+@@ -119,8 +145,12 @@
+ 	- how to decode those nasty internal kernel error dump messages.
+ paride.txt
+ 	- information about the parallel port IDE subsystem.
++parisc/
++	- directory with info on using Linux on PA-RISC architecture.
+ parport.txt
+ 	- how to use the parallel-port driver.
++parport-lowlevel.txt
++	- description and usage of the low level parallel port functions.
+ pci.txt
+ 	- info on the PCI subsystem for device driver authors
+ pcwd-watchdog.txt
+@@ -129,14 +159,14 @@
+ 	- info on Linux power management support
+ powerpc/
+ 	- directory with info on using Linux with the PowerPC.
+-proc_usb_info.txt
+-	- info on /proc/bus/usb direcory generated for USB devices
+ ramdisk.txt
+ 	- short guide on how to set up and use the RAM disk.
+ riscom8.txt
+ 	- notes on using the RISCom/8 multi-port serial driver.
+ rtc.txt
+ 	- notes on how to use the Real Time Clock (aka CMOS clock) driver.
++s390/
++	- directory with info on using Linux on the IBM S390.
+ scsi-generic.txt
+ 	- info on the sg driver for generic (non-disk/CD/tape) SCSI devices.
+ scsi.txt
+@@ -153,6 +183,8 @@
+ 	- a few more notes on symmetric multi-processing
+ sound/
+ 	- directory with info on sound card support
++sparc/
++	- directory with info on using Linux on Sparc architecture.
+ specialix.txt
+ 	- info on hardware/driver for specialix IO8+ multiport serial card.
+ spinlocks.txt
+@@ -167,8 +199,12 @@
+ 	- directory with info on the /proc/sys/* files
+ sysrq.txt
+ 	- info on the magic SysRq key
++telephony/
++	- directory with info on telephony (e.g. voice over IP) support.
+ unicode.txt
+ 	- info on the Unicode character/font mapping used in Linux.
++usb/
++	- directory with info regarding the Universal Serial Bus.
+ video4linux/
+ 	- directory with info regarding video/TV/radio cards and linux.
+ vm/
+@@ -177,4 +213,6 @@
+ 	- how to auto-reboot Linux if it has "fallen and can't get up". ;-)
+ xterm-linux.xpm
+ 	- XPM image of penguin logo (see logo.txt) sitting on an xterm.
++zorro.txt
++	- info on writing drivers for Zorro bus devices found on Amigas.
+ 
+--- 2400/linux/Documentation/networking/00-INDEX~	Tue Dec  7 03:51:20 1999
++++ 2400/linux/Documentation/networking/00-INDEX	Sat Jan  6 09:21:49 2001
+@@ -4,32 +4,46 @@
+ 	- information on the 3Com EtherLink Plus (3c505) driver.
+ 6pack.txt
+ 	- info on the 6pack protocol, an alternative to KISS for AX.25
++8139too.txt
++	- info on the 8139too driver for RTL-8139 based network cards.
+ Configurable
+ 	- info on some of the configurable network parameters
+ DLINK.txt
+ 	- info on the D-Link DE-600/DE-620 parallel port pocket adapters
+ PLIP.txt
+ 	- PLIP: The Parallel Line Internet Protocol device driver
++README.sb1000
++	- info on General Instrument/NextLevel SURFboard1000 cable modem.
+ alias.txt
+ 	- info on using alias network devices 
+ arcnet-hardware.txt
+ 	- tons of info on ARCnet, hubs, jumper settings for ARCnet cards, etc.
+ arcnet.txt
+ 	- info on the using the ARCnet driver itself.
++atm.txt
++	- info on where to get ATM programs and support for Linux.
+ ax25.txt
+ 	- info on using AX.25 and NET/ROM code for Linux
+ baycom.txt
+ 	- info on the driver for Baycom style amateur radio modems
++bridge.txt
++	- where to get user space programs for ethernet bridging with Linux.
++comx.txt
++	- info on drivers for COMX line of synchronous serial adapters.
+ cops.txt
+ 	- info on the COPS LocalTalk Linux driver
+ cs89x0.txt
+ 	- the Crystal LAN (CS8900/20-based) Ethernet ISA adapter driver
+ de4x5.txt
+ 	- the Digital EtherWORKS DE4?? and DE5?? PCI Ethernet driver
++decnet.txt
++	- info on using the DECnet networking layer in Linux.
+ depca.txt
+ 	- the Digital DEPCA/EtherWORKS DE1?? and DE2?? LANCE Ethernet driver
+ dgrs.txt
+ 	- the Digi International RightSwitch SE-X Ethernet driver
++dmfe.txt
++	- info on the Davicom DM9102(A)/DM9132/DM9801 fast ethernet driver.
+ eql.txt
+ 	- serial IP load balancing
+ ethertap.txt
+@@ -38,6 +52,8 @@
+ 	- the Digital EtherWORKS 3 DE203/4/5 Ethernet driver
+ filter.txt
+ 	- Linux Socket Filtering
++fore200e.txt
++	- FORE Systems PCA-200E/SBA-200E ATM NIC driver info.
+ framerelay.txt
+ 	- info on using Frame Relay/Data Link Connection Identifier (DLCI).
+ ip-sysctl.txt
+@@ -46,6 +62,10 @@
+ 	- IP dynamic address hack e.g. for auto-dialup links
+ ipddp.txt
+ 	- AppleTalk-IP Decapsulation and AppleTalk-IP Encapsulation
++iphase.txt
++	- Interphase PCI ATM (i)Chip IA Linux driver info.
++irda.txt
++	- where to get IrDA (infrared) utilities and info for Linux.
+ lapb-module.txt
+ 	- programming information of the LAPB module.
+ ltpc.txt
+@@ -56,22 +76,42 @@
+ 	- notes on how NCSA telnet (DOS) breaks with MTU discovery enabled.
+ net-modules.txt
+ 	- info and "insmod" parameters for all network driver modules.
++netdevices.txt
++	- info on network device driver functions exported to the kernel.
++olympic.txt
++	- IBM PCI Pit/Pit-Phy/Olympic Token Ring driver info.
+ policy-routing.txt
+ 	- IP policy-based routing
+ pt.txt
+ 	- the Gracilis Packetwin AX.25 device driver
++ray_cs.txt
++	- Raylink Wireless LAN card driver info.
+ routing.txt
+ 	- the new routing mechanism
+ shaper.txt
+ 	- info on the module that can shape/limit transmitted traffic.
++sis900.txt
++	- SiS 900/7016 Fast Ethernet device driver info.
++sk98lin.txt
++	- SysKonnect SK-NET (SK-98xx) Gigabit Ethernet driver info.
++skfp.txt
++	- SysKonnect FDDI (SK-5xxx, Compaq Netelligent) driver info.
+ smc9.txt
+ 	- the driver for SMC's 9000 series of Ethernet cards
++smctr.txt
++	- SMC TokenCard TokenRing Linux driver info.
+ soundmodem.txt
+ 	- Linux driver for sound cards as AX.25 modems
+ tcp.txt
+ 	- short blurb on how TCP output takes place.
++tlan.txt
++	- ThunderLAN (Compaq Netelligent 10/100, Olicom OC-2xxx) driver info.
++tms380tr.txt
++	- SysKonnect Token Ring ISA/PCI adapter driver info.
+ tulip.txt
+ 	- info on using DEC 21040/21041/21140 based PCI Ethernet cards.
++tuntap.txt
++	- TUN/TAP device driver, allowing user space Rx/Tx of packets.
+ vortex.txt
+ 	- info on using 3Com Vortex (3c590, 3c592, 3c595, 3c597) Ethernet cards.
+ wan-router.txt
+--- 2400/linux/Documentation/filesystems/00-INDEX~	Fri May 26 16:09:47 2000
++++ 2400/linux/Documentation/filesystems/00-INDEX	Sat Jan  6 08:44:38 2001
+@@ -1,5 +1,7 @@
+ 00-INDEX
+ 	- this file (info on some of the filesystems supported by linux).
++Locking
++	- info on locking rules as they pertain to Linux VFS.
+ adfs.txt
+ 	- info and mount options for the Acorn Advanced Disc Filing System.
+ affs.txt
+@@ -8,8 +10,12 @@
+ 	- info for the SCO UnixWare Boot Filesystem (BFS).
+ coda.txt
+ 	- description of the CODA filesystem.
+-devfs
++cramfs.txt
++	- info on the cram filesystem for small storage (ROMs etc)
++devfs/
+ 	- directory containing devfs documentation.
++ext2.txt
++	- info, mount options and specifications for the Ext2 filesystem.
+ fat_cvf.txt
+ 	- info on the Compressed Volume Files extension to the FAT filesystem
+ hpfs.txt
+
+
+
+
+__________________________________________________
+Do You Yahoo!?
+Talk to your friends online with Yahoo! Messenger.
+http://im.yahoo.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,41 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264305AbUDSI6U (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 04:58:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264306AbUDSI6U
+	id S264306AbUDSJJq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 05:09:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264309AbUDSJJp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 04:58:20 -0400
-Received: from levante.wiggy.net ([195.85.225.139]:56210 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id S264305AbUDSI6O (ORCPT
+	Mon, 19 Apr 2004 05:09:45 -0400
+Received: from gprs214-121.eurotel.cz ([160.218.214.121]:55426 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S264306AbUDSJJo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 04:58:14 -0400
-Date: Mon, 19 Apr 2004 10:58:10 +0200
-From: Wichert Akkerman <wichert@wiggy.net>
-To: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com
-Subject: Re: [PATCH] tg3 driver - make use of binary-only firmware optional
-Message-ID: <20040419085809.GA585@wiggy.net>
-Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
-	linux-kernel@vger.kernel.org, jgarzik@pobox.com
-References: <20040418135534.GA6142@andaco.de> <20040418180811.0b2e2567.davem@redhat.com> <20040419080439.GB11586@andaco.de>
+	Mon, 19 Apr 2004 05:09:44 -0400
+Date: Mon, 19 Apr 2004 11:09:34 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@users.sourceforge.net>
+Cc: Andrew Morton <akpm@digeo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Rename PF_IOTHREAD.
+Message-ID: <20040419090933.GA18158@elf.ucw.cz>
+References: <1082357671.2620.10.camel@laptop-linux.wpcb.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040419080439.GB11586@andaco.de>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-SA-Exim-Connect-IP: <locally generated>
+In-Reply-To: <1082357671.2620.10.camel@laptop-linux.wpcb.org.au>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously Andreas Jochens wrote:
-> Would the patch be acceptable if the firmware parts were kept in tg3.c
-> as they are now but #ifdef'd out when CONFIG_TIGON3_FIRMWARE is not set?
+Hi!
 
-Is there any reason for not using the hotplug firmware infrastructure?
+> A few weeks ago, Pavel and I agreed that PF_IOTHREAD should be renamed
+> to PF_NOFREEZE. This reflects the fact that some threads so marked
+> aren't actually used for IO while suspending, but simply shouldn't be
+> frozen. This patch, against 2.6.5 vanilla, applies that change. In the
+> refrigerator calls, the actual value doesn't matter (so long as it's
+> non-zero) and it makes more sense to use PF_FREEZE so I've used that.
+> 
+> Please apply.
 
-Wichert.
+Patch looks good. [Except that I'm not sure if this hunk will apply;
+there were changes for ^Z in this area].
+								Pavel
+
+
+> diff -ruN linux-2.6.5/kernel/power/process.c linux-2.6.5-NoFreeze/kernel/power/process.c
+> --- linux-2.6.5/kernel/power/process.c	2004-01-13 14:16:35.000000000 +1100
+> +++ linux-2.6.5-NoFreeze/kernel/power/process.c	2004-04-19 16:47:24.000000000 +1000
+> @@ -28,7 +28,7 @@
+>  static inline int freezeable(struct task_struct * p)
+>  {
+>  	if ((p == current) || 
+> -	    (p->flags & PF_IOTHREAD) || 
+> +	    (p->flags & PF_NOFREEZE) || 
+>  	    (p->state == TASK_ZOMBIE) ||
+>  	    (p->state == TASK_DEAD))
+>  		return 0;
 
 -- 
-Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
-http://www.wiggy.net/                   It is hard to make things simple.
-
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

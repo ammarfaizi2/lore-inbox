@@ -1,81 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318115AbSIEUzu>; Thu, 5 Sep 2002 16:55:50 -0400
+	id <S318141AbSIEU7j>; Thu, 5 Sep 2002 16:59:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318061AbSIEUzu>; Thu, 5 Sep 2002 16:55:50 -0400
-Received: from Scotty-EUnet.AT.EU.net ([193.83.12.34]:25757 "EHLO
-	www.scotty.co.at") by vger.kernel.org with ESMTP id <S318032AbSIEUzs>;
-	Thu, 5 Sep 2002 16:55:48 -0400
-Message-ID: <3D77C5C7.3010909@fl.priv.at>
-Date: Thu, 05 Sep 2002 22:59:51 +0200
-From: Friedrich Lobenstock <fl@fl.priv.at>
-Reply-To: Linux-SCSI Mailingliste <linux-scsi@vger.kernel.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; ast-ES; rv:1.0.0) Gecko/20020529
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Dag Nygren <dag@newtech.fi>
-CC: Linux-SCSI Mailingliste <linux-scsi@vger.kernel.org>,
-       Linux-Kernel Mailingliste <linux-kernel@vger.kernel.org>
-Subject: Re: blocksize limitations in scsi tape driver (st) when used with
-  DLT1 tape drives?
-References: <20020905200208.22430.qmail@dag.newtech.fi>
-X-Enigmail-Version: 0.62.4.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S318143AbSIEU7j>; Thu, 5 Sep 2002 16:59:39 -0400
+Received: from mg01.austin.ibm.com ([192.35.232.18]:22929 "EHLO
+	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S318141AbSIEU7j>; Thu, 5 Sep 2002 16:59:39 -0400
+Date: Thu, 5 Sep 2002 16:04:10 -0500
+From: David Kleikamp <shaggy@austin.ibm.com>
+Message-Id: <200209052104.g85L4A9d002084@kleikamp.austin.ibm.com>
+To: marcelo@conectiva.com.br
+Subject: [PATCH] Make in-kernel i_nlink field be unsigned int
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dag Nygren wrote:
-> I have successfully been using Legato Networker with a
-> blocksize of 32k with my DLT here.
-> 
-> But the way Legato wants to do it is to decide about the
-> blocksize itself.
-> This means that the driver should NOT decide on the BS, but
-> pass on anything written through it, meaning a blocksize setting
-> of 0 (or variable blocksize).
-> 
-> Perhaps Arkeia works the same way ?
+Marcelo,
+This is a backport of the fix Linus dropped into the 2.5 tree.  Can you
+put this into 2.4?
 
-I used variable blocksize (=0) before but then after about 3.5 gigs stored
-on the tape I get scsi-error and arkeia interprets this as end-of-tape.
+Linus' abstract:
+> Make in-kernel inode 'nlink' field be "unsigned int" instead
+> of something arch-dependent and usually less.
+>
+> We may want to do value limiting in generic_fillattr() if people
+> end up caring.
 
-Aug  6 02:13:50 filesrv kernel: st0: Error with sense data: Info fld=0x2000, Deferred st09:00: sns = f1  3
-Aug  6 02:13:50 filesrv kernel: ASC=80 ASCQ= 1
-Aug  6 02:13:50 filesrv kernel: Raw sense data:0xf1 0x00 0x03 0x00 0x00 0x20 0x00 0x16 0x00 0x00 0xe6 0xc2 0x80 0x01 0x00 0x00 0x00 0x00 0x83 0x00 0x37 0x00 0x00 0x00 0x21 0x00 0x90 0x7f 0x3a 0x00
-Aug  6 02:13:50 filesrv kernel: klogd 1.4.1, ---------- state change ----------
-Aug  6 02:13:50 filesrv kernel: Inspecting /boot/System.map-2.4.18-64GB-SMP
-Aug  6 02:13:50 filesrv kernel: Loaded 13537 symbols from /boot/System.map-2.4.18-64GB-SMP.
-Aug  6 02:13:50 filesrv kernel: Symbols match kernel version 2.4.18.
-Aug  6 02:13:50 filesrv kernel: Loaded 481 symbols from 13 modules.
-Aug  6 02:13:50 filesrv kernel: st0: Error with sense data: Info fld=0x1, Current st09:00: sns = f0  3
-Aug  6 02:13:50 filesrv kernel: ASC= c ASCQ= 0
-Aug  6 02:13:50 filesrv kernel: Raw sense data:0xf0 0x00 0x03 0x00 0x00 0x00 0x01 0x16 0x00 0x00 0xe6 0xc2 0x0c 0x00 0x00 0x00 0x00 0x00 0x83 0x00 0x37 0x00 0x00 0x00 0x21 0x00 0x90 0x7f 0x3a 0x00
+Of course, 2.4 doesn't have generic_fillattr.  This would be cp_old_stat
+and cp_new_stat.
 
-I had this problem with LTO drives too and here the arkeia faq tells one
-to set fixed block size.
+Thanks,
+Shaggy
 
-And when you look a the HP document referenced in my last mail:
-
-    ISSUE: Block sizes of LESS THAN 64 KB for DLT1/DLT VS80 and 32 KB for
-           all other DAT and DLT drives can drastically increase the backup/restore
-           time and severely affect the performance of the drive.
-
-SOLUTION: Most backup applications allow viewing and adjusting the block
-           size used for a particular device. See below for advice on how
-           to achieve this for CA ARCserve, Veritas Backup Exec and Tapeware.
-
-(I capitalized "less than" to emphasis its occurance)
-
-I you missed the link here it is again:
-   http://www.hp.com/cposupport/information_storage/support_doc/lpg50167.html
-
-Did you check with mt after Legato Networker did a backup which blocksize
-it set?
-
--- 
-MfG / Regards
-Friedrich Lobenstock
-
-
+===== include/linux/fs.h 1.68 vs edited =====
+--- 1.68/include/linux/fs.h	Fri Aug 23 08:27:33 2002
++++ edited/include/linux/fs.h	Thu Sep  5 15:33:33 2002
+@@ -442,7 +442,7 @@
+ 	atomic_t		i_count;
+ 	kdev_t			i_dev;
+ 	umode_t			i_mode;
+-	nlink_t			i_nlink;
++	unsigned int		i_nlink;
+ 	uid_t			i_uid;
+ 	gid_t			i_gid;
+ 	kdev_t			i_rdev;

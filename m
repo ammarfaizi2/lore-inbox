@@ -1,53 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317181AbSFZW0S>; Wed, 26 Jun 2002 18:26:18 -0400
+	id <S317191AbSFZWlr>; Wed, 26 Jun 2002 18:41:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317191AbSFZW0R>; Wed, 26 Jun 2002 18:26:17 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:24079 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S317181AbSFZW0Q>; Wed, 26 Jun 2002 18:26:16 -0400
-Date: Wed, 26 Jun 2002 19:24:04 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: linux-kernel@vger.kernel.org
-Subject: #kernelnewbies moves
-Message-ID: <Pine.LNX.4.44L.0206261923460.27768-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317215AbSFZWlq>; Wed, 26 Jun 2002 18:41:46 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:15119 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317191AbSFZWlq>; Wed, 26 Jun 2002 18:41:46 -0400
+Date: Wed, 26 Jun 2002 21:42:38 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Ed Vance <EdV@macrolink.com>
+Cc: "'rwhite@pobox.com'" <rwhite@pobox.com>, "'Theodore Tso'" <tytso@mit.edu>,
+       linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org
+Subject: Re: n_tty.c driver patch (semantic and performance correction) (a ll recent versions)
+Message-ID: <20020626214238.A19381@brick.arm.linux.org.uk>
+References: <11E89240C407D311958800A0C9ACF7D13A789A@EXCHANGE>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <11E89240C407D311958800A0C9ACF7D13A789A@EXCHANGE>; from EdV@macrolink.com on Wed, Jun 26, 2002 at 10:48:30AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Jun 26, 2002 at 10:48:30AM -0700, Ed Vance wrote:
+> Ted, Russell, please weigh in on this. 
 
-due to a possible incompatibility between one of the
-OPN admins soliciting money on a regular basis and the
-policies of the network where kernelnewbies.org is
-hosted we have decided to move the #kernelnewbies IRC
-channel to another network.
+Remind me after OLS.  My connectivity is subject to wireless cards
+sporadically loaned by other people at the moment, so I'm not always
+around.
 
-You will be able to find us on:
-
-	irc.oftc.net / #kernelnewbies
-
-
-Kernelnewbies is a project meant to help people learn
-about operating system development by providing information
-and operating a mailing list and IRC channel where current
-and future developers can help each other. More information
-about kernelnewbies can be found on  http://kernelnewbies.org/
-
-kind regards,
-
-Rik
 -- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
---
-Kernelnewbies: Help each other learn about the Linux kernel.
-Archive:       http://mail.nl.linux.org/kernelnewbies/
-FAQ:           http://kernelnewbies.org/faq/
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

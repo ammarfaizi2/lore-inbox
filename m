@@ -1,41 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276793AbRJDQLV>; Thu, 4 Oct 2001 12:11:21 -0400
+	id <S277018AbRJDQWo>; Thu, 4 Oct 2001 12:22:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276922AbRJDQLL>; Thu, 4 Oct 2001 12:11:11 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:61064 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S276793AbRJDQLG>;
-	Thu, 4 Oct 2001 12:11:06 -0400
-Date: Thu, 4 Oct 2001 12:11:34 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org
-Subject: Re: Security question: "Text file busy" overwriting executables but
- not shared libraries?
-In-Reply-To: <Pine.LNX.4.33.0110040842320.8350-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0110041153560.28270-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277103AbRJDQWe>; Thu, 4 Oct 2001 12:22:34 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:10632 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S277018AbRJDQW2>;
+	Thu, 4 Oct 2001 12:22:28 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Thu, 4 Oct 2001 16:22:55 GMT
+Message-Id: <200110041622.QAA24650@vlet.cwi.nl>
+To: linux-lvm@sistina.com, wichert@cistron.nl
+Subject: Re: [linux-lvm] Re: partition table read incorrectly
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[if you answer me, please do not remove my email address -
+these are rather busy times, and I glance only very superficially
+at linux-kernel]
 
+> I deleted all partitions with fdisk so I expect none to be there.
+> fdisk shows none, but the kernel does.
 
-On Thu, 4 Oct 2001, Linus Torvalds wrote:
+You should have looked with sfdisk :-)
 
->    In short, now you need filesystem versioning at a per-page level etc.
+But the conclusion is that nothing is wrong with the kernel,
+but that some lvm utilities and fdisk could stand improvement.
+I changed fdisk a little.
 
-*ding* *ding* *ding* we have a near winner.  Remember, folks, Hurd had been
-started by people who not only don't understand UNIX, but detest it.
-ITS/TWENEX refugees.  And semantics in question comes from there -
-they had "open and make sure that anyone who tries to modify will get
-a new version, leaving one we'd opened unchanged".
-
-> Trust me. The people who came up with MAP_COPY were stupid. Really. It's
-> an idiotic concept, and it's not worth implementing.
-
-Well, actually that's a concept that made sense on system we got mmap from[1]
-They just want infection to be complete.
-
-[1] cue Tom Lehrer singing "I got it from Agnes, she got it from Jim"
-
+Andries

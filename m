@@ -1,60 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267101AbSKSFtf>; Tue, 19 Nov 2002 00:49:35 -0500
+	id <S267097AbSKSFz0>; Tue, 19 Nov 2002 00:55:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267097AbSKSFtf>; Tue, 19 Nov 2002 00:49:35 -0500
-Received: from dp.samba.org ([66.70.73.150]:19630 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S267094AbSKSFtd>;
-	Tue, 19 Nov 2002 00:49:33 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Doug Ledford <dledford@redhat.com>,
-       Linux Scsi Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Why /dev/sdc1 doesn't show up... 
-In-reply-to: Your message of "Tue, 19 Nov 2002 10:49:21 +1100."
-Date: Tue, 19 Nov 2002 16:52:25 +1100
-Message-Id: <20021119055636.94C182C088@lists.samba.org>
+	id <S267098AbSKSFz0>; Tue, 19 Nov 2002 00:55:26 -0500
+Received: from mark.mielke.cc ([216.209.85.42]:39696 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S267097AbSKSFz0>;
+	Tue, 19 Nov 2002 00:55:26 -0500
+Date: Tue, 19 Nov 2002 01:09:41 -0500
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Edgar Toernig <froese@gmx.de>
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc] epoll interface change and glibc bits ...
+Message-ID: <20021119060941.GB17927@mark.mielke.cc>
+References: <Pine.LNX.4.44.0211182000590.979-100000@blue1.dev.mcafeelabs.com> <3DD9CDB2.2075CCB4@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DD9CDB2.2075CCB4@gmx.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> right).  Or you can run a notifier on "enlivening" a module: I'd hoped
-> to avoid that.
+On Tue, Nov 19, 2002 at 06:35:46AM +0100, Edgar Toernig wrote:
+> Davide Libenzi wrote:
+> > > What happens if the epollfd is put into its own fd set?
+> > You might find your machine a little bit frozen :)
+> > Either 1) I remove the read lock from poll() or 2) I check the condition
+> > at insetion time to avoid it. I very much prefer 2)
+> Hehe, sure.  But could become tricky: someone may build a circular chain
+> of epoll-fd-sets.
 
-Actually, after some thought, this seems to clearly be the Right
-Thing, because it solves another existing race.  Consider a module
-which does:
+This could be an indication that epoll of an epoll fd should not be
+allowed.  This kind of sucks as epoll event hierarchies appear, at
+least on the surface, very natural, and better than poll()/epoll.
 
-	if (!register_foo(&my_foo))
-		goto cleanup;
-	if (!create_proc_entry(&my_entry))
-		goto cleanup_foo;
+Another option would be to allow a reasonable depth (2? 3?). The extra
+checking (depth calculation) only needs to be performed if a file is
+added or removed where f_op == epoll_f_op.
 
-If register_foo() calls /sbin/hotplug, the module can still fail to
-load and /sbin/hotplug is called for something that doesn't exist.
-With the new module loader, you can also have /sbin/hotplug try to
-access the module before it's gone live, which will fail to prevent
-the "using before we know module won't fail init" race.
+mark
 
-Now, if you run /sbin/hotplug out of a notifier which is fired when
-the module actually goes live, this problem vanishes.  It also means
-we can block module unload until /sbin/hotplug is run.
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
 
-The part that makes this feel like the Right Thing is that adding to
-init/main.c:
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
 
-	/* THIS_MODULE == NULL */
-	notifier_call_chain(&module_notifiers, MODULE_LIVE, NULL);
+                           http://mark.mielke.cc/
 
-means that /sbin/hotplug is called for everything which was registered
-at boot.  (We may not want to do this, but in general the symmetry
-seems really nice).
-
-[ Note: the logic for /sbin/hotplug applies to any similar "publicity"
-  function which promises that something now exists. ]
-
-Al, thoughts?
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

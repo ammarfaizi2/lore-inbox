@@ -1,103 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274774AbRJFAe5>; Fri, 5 Oct 2001 20:34:57 -0400
+	id <S274803AbRJFBGd>; Fri, 5 Oct 2001 21:06:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274784AbRJFAer>; Fri, 5 Oct 2001 20:34:47 -0400
-Received: from inet-mail4.oracle.com ([148.87.2.204]:26342 "EHLO
-	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
-	id <S274774AbRJFAej>; Fri, 5 Oct 2001 20:34:39 -0400
-Subject: Re: Wierd /proc/cpuinfo with 2.4.11-pre4
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: Dan Merillat <harik@chaos.ao.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <1570684149.1002298064@mbligh.des.sequent.com>
-In-Reply-To: <1570684149.1002298064@mbligh.des.sequent.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.14 (Preview Release)
-Date: 06 Oct 2001 02:37:22 +0200
-Message-Id: <1002328646.1085.1.camel@dolphin>
+	id <S274813AbRJFBGY>; Fri, 5 Oct 2001 21:06:24 -0400
+Received: from c290168-a.stcla1.sfba.home.com ([24.250.174.240]:39499 "HELO
+	top.worldcontrol.com") by vger.kernel.org with SMTP
+	id <S274803AbRJFBGK>; Fri, 5 Oct 2001 21:06:10 -0400
+From: brian@worldcontrol.com
+Date: Fri, 5 Oct 2001 18:19:28 -0700
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10-ac3+preempt opening PDF/netscape eliminates responsiveness
+Message-ID: <20011005181928.A4099@top.worldcontrol.com>
+Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011002163443.A6882@top.worldcontrol.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011002163443.A6882@top.worldcontrol.com>
+User-Agent: Mutt/1.3.19i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2001-10-06 at 01:07, Martin J. Bligh wrote:
-> > Doesn't build here...
+On Tue, Oct 02, 2001 at 04:34:44PM -0700, Brian Litzinger wrote:
+> I'm running 2.4.10-ac3+preempt on a K6-3/366 with 128MB RAM.
 > 
-> Looks like you need the other patch I posted here too.
-
-Thanks, builds - boots - fixes /proc/cpuinfo on my UP :)
-
-> Combined reformated patch below:
+> I tried to open the file flag.pdf in ghostview 
 > 
-> diff -urN virgin-2.4.11-pre4/arch/i386/kernel/setup.c numa-2.4.11-pre4/arch/i386/kernel/setup.c
-> --- virgin-2.4.11-pre4/arch/i386/kernel/setup.c	Fri Oct  5 15:39:54 2001
-> +++ numa-2.4.11-pre4/arch/i386/kernel/setup.c	Fri Oct  5 15:42:37 2001
-> @@ -2420,7 +2420,7 @@
->  	 * WARNING - nasty evil hack ... if we print > 8, it overflows the
->  	 * page buffer and corrupts memory - this needs fixing properly
->  	 */
-> -	for (n = 0; n < 8; n++, c++) {
-> +	for (n = 0; n < (clustered_apic_mode ? 8 : NR_CPUS); n++, c++) {
->  	/* for (n = 0; n < NR_CPUS; n++, c++) { */
->  		int fpu_exception;
->  #ifdef CONFIG_SMP
-> diff -urN virgin-2.4.11-pre4/include/asm-i386/smp.h numa-2.4.11-pre4/include/asm-i386/smp.h
-> --- virgin-2.4.11-pre4/include/asm-i386/smp.h	Fri Oct  5 15:40:46 2001
-> +++ numa-2.4.11-pre4/include/asm-i386/smp.h	Fri Oct  5 15:44:57 2001
-> @@ -22,7 +22,7 @@
->  #endif
->  #endif
->  
-> -#if CONFIG_SMP
-> +#ifdef CONFIG_SMP
->  # ifdef CONFIG_MULTIQUAD
->  #  define TARGET_CPUS 0xf     /* all CPUs in *THIS* quad */
->  #  define INT_DELIVERY_MODE 0     /* physical delivery on LOCAL quad */
-> @@ -31,9 +31,20 @@
->  #  define INT_DELIVERY_MODE 1     /* logical delivery broadcast to all procs */
->  # endif
->  #else
-> +# define INT_DELIVERY_MODE 0     /* physical delivery on LOCAL quad */
->  # define TARGET_CPUS 0x01
->  #endif
->  
-> +#ifndef clustered_apic_mode
-> + #ifdef CONFIG_MULTIQUAD
-> +  #define clustered_apic_mode (1)
-> +  #define esr_disable (1)
-> + #else /* !CONFIG_MULTIQUAD */
-> +  #define clustered_apic_mode (0)
-> +  #define esr_disable (0)
-> + #endif /* CONFIG_MULTIQUAD */
-> +#endif 
-> +
->  #ifdef CONFIG_SMP
->  #ifndef ASSEMBLY
->  
-> @@ -76,16 +87,6 @@
->  extern volatile int physical_apicid_to_cpu[MAX_APICID];
->  extern volatile int cpu_to_logical_apicid[NR_CPUS];
->  extern volatile int logical_apicid_to_cpu[MAX_APICID];
-> -
-> -#ifndef clustered_apic_mode
-> - #ifdef CONFIG_MULTIQUAD
-> -  #define clustered_apic_mode (1)
-> -  #define esr_disable (1)
-> - #else /* !CONFIG_MULTIQUAD */
-> -  #define clustered_apic_mode (0)
-> -  #define esr_disable (0)
-> - #endif /* CONFIG_MULTIQUAD */
-> -#endif 
->  
->  /*
->   * General functions that each host system must provide.
->
+> -rw-r--r--   1 brian    console    229365 Oct  1 22:49 flag.pdf
+> 
+> The system became almost completely unresponsive.  The mouse would
+> move every 20 seconds or so.   The hard drive indicator on the laptop
+> was basically on the whole time, and I could hear the drive
+> making noise.
 
+-ac5 did not help with long periods of frozen X syndrome.
 
---alessandro
+A number of people suggested trying 2.4.11pre2 or later.
 
- "this is no time to get cute, it's a mad dog's promenade
-  so walk tall, or baby don't walk at all"
-                (Bruce Springsteen, 'New York City Serenade')
+Unfortunately, I was unable to build 2.4.11pre4 and ext3.
 
+Newest patch at http://www.uow.edu.au/~andrewm/linux/ext3/
+is for 2.4.10 and that patch had more patch errors than I
+could manage when applied to 2.4.11pre4.
+
+I did however find another easy way to cause the problem to happen:
+
+point netscape 4.78 at
+
+http://www.uwsg.indiana.edu/hypermail/linux/kernel/0109.3/index.html
+
+Do an edit/find on the word 'netcon'.
+
+The second I press find, the X cursor is frozen for 8 seconds,
+then moves a little bit, and then is frozen for another 50 seconds.
+
+This is 2.4.10-ac5 on a K6-3/366 with 128MB RAM.
+
+-- 
+Brian Litzinger <brian@worldcontrol.com>
+
+    Copyright (c) 2000 By Brian Litzinger, All Rights Reserved

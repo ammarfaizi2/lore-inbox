@@ -1,59 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269632AbRHaW0f>; Fri, 31 Aug 2001 18:26:35 -0400
+	id <S269645AbRHaWlL>; Fri, 31 Aug 2001 18:41:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269645AbRHaW00>; Fri, 31 Aug 2001 18:26:26 -0400
-Received: from intranet.resilience.com ([209.245.157.33]:14811 "EHLO
-	intranet.resilience.com") by vger.kernel.org with ESMTP
-	id <S269632AbRHaW0U>; Fri, 31 Aug 2001 18:26:20 -0400
+	id <S269646AbRHaWlB>; Fri, 31 Aug 2001 18:41:01 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:39420 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S269645AbRHaWko>; Fri, 31 Aug 2001 18:40:44 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Fri, 31 Aug 2001 16:40:28 -0600
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: "'Russell Coker'" <russell@coker.com.au>,
+        "Acpi-linux (E-mail)" <acpi@phobos.fachschaften.tu-muenchen.de>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: lilo vs other OS bootloaders was: FreeBSD makes progress
+Message-ID: <20010831164028.I541@turbolinux.com>
+Mail-Followup-To: "Grover, Andrew" <andrew.grover@intel.com>,
+	'Russell Coker' <russell@coker.com.au>,
+	"Acpi-linux (E-mail)" <acpi@phobos.fachschaften.tu-muenchen.de>,
+	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDE0DB@orsmsx35.jf.intel.com>
 Mime-Version: 1.0
-Message-Id: <p05100307b7b5b293eb46@[10.128.7.49]>
-In-Reply-To: <Pine.LNX.4.33.0108310655590.15502-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0108310655590.15502-100000@penguin.transmeta.com>
-Date: Fri, 31 Aug 2001 15:25:59 -0700
-To: Linus Torvalds <torvalds@transmeta.com>
-From: Jonathan Lundell <jlundell@pobox.com>
-Subject: [PATCH] i386 SA_INTERRUPT logic
-Cc: <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDE0DB@orsmsx35.jf.intel.com>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herewith a patch to arch/i386/kernel/irq.c:handle_IRQ_event(). To 
-belabor the obvious, the SA_INTERRUPT flag ought to affect just the 
-handler it's set (or not) for. The existing code can enable 
-interrupts for drivers that don't want them enabled, or disable them 
-for drivers that do. We've done cursory testing, but can't test all 
-possible cases; it looks straightforward enough, though.
+On Aug 31, 2001  14:49 -0700, Grover, Andrew wrote:
+> Just for discussion's sake, I would like to point out that other OSs do have
+> loaders that can load boot drivers, and they can use this to increase the
+> modularity of their kernel. FreeBSD's and Win2k's bootloaders are examples.
+> Win2K even abstracts all SMP/UP code into a module (the HAL) and loads this
+> at boot, thus using the same kernel for both.
 
-I notice that this is fixed in alpha, broken in arm, cris, ia64, 
-mips, ppc, sh. The respective architecture maintainers might like to 
-have a closer look.
+Just FYI, this is just around the corner.  Al Viro has made it mandatory
+(I believe) to have a very simple initramfs, for doing things like mounting
+the root filesystem and setting up other services which are now done in
+the kernel at boot time.  This initramfs (very similar to initrd) is at
+the end of the kernel image, so it can't get lost and doesn't require
+sending a separate file (i.e. for network booting, etc).
 
+> possibly abstracting SMP/UP from the kernel proper?
 
+Will never happen, as there would probably be overhead for both UP and SMP
+to do this.  If you want something like this (for ease of admin or so),
+you can generally run the SMP kernel on UP systems and take the performance
+hit, but not everyone will do that.
 
---- /usr/src/linux-2.4.9/arch/i386/kernel/irq.c	Wed Jun 20 11:06:38 2001
-+++ irq.c	Fri Aug 31 14:29:11 2001
-@@ -443,17 +443,16 @@
-
-  	status = 1;	/* Force the "do bottom halves" bit */
-
--	if (!(action->flags & SA_INTERRUPT))
--		__sti();
--
-  	do {
-  		status |= action->flags;
-+		if (!(action->flags & SA_INTERRUPT))
-+			__sti();
-  		action->handler(irq, action->dev_id, regs);
-+		__cli();
-  		action = action->next;
-  	} while (action);
-  	if (status & SA_SAMPLE_RANDOM)
-  		add_interrupt_randomness(irq);
--	__cli();
-
-  	irq_exit(cpu, irq);
-
+Cheers, Andreas
 -- 
-/Jonathan Lundell.
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+

@@ -1,72 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311620AbSCNNrd>; Thu, 14 Mar 2002 08:47:33 -0500
+	id <S311616AbSCNNny>; Thu, 14 Mar 2002 08:43:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311619AbSCNNrX>; Thu, 14 Mar 2002 08:47:23 -0500
-Received: from rwcrmhc52.attbi.com ([216.148.227.88]:51133 "EHLO
-	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
-	id <S311620AbSCNNrM>; Thu, 14 Mar 2002 08:47:12 -0500
-Message-ID: <3C90A9C4.4030801@didntduck.org>
-Date: Thu, 14 Mar 2002 08:46:44 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, en
+	id <S311617AbSCNNnp>; Thu, 14 Mar 2002 08:43:45 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:14 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S311616AbSCNNnk>; Thu, 14 Mar 2002 08:43:40 -0500
+Subject: Re: [patch] vmalloc_to_page() backport for 2.4
+To: tigran@veritas.com (Tigran Aivazian)
+Date: Thu, 14 Mar 2002 13:58:43 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), kraxel@bytesex.org (Gerd Knorr),
+        marcelo@conectiva.com.br (Marcelo Tosatti),
+        linux-kernel@vger.kernel.org (Kernel List), arjan@fenrus.demon.nl
+In-Reply-To: <Pine.LNX.4.33.0203141219180.1643-100000@einstein.homenet> from "Tigran Aivazian" at Mar 14, 2002 12:30:14 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] struct super_block cleanup - msdos/vfat
-In-Reply-To: <3C8FE8E3.2040204@didntduck.org>	<87k7sfoi8c.fsf@devron.myhome.or.jp> <87bsdrohu3.fsf@devron.myhome.or.jp>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16lVkh-0000oW-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OGAWA Hirofumi wrote:
-> OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> writes:
-> 
-> 
->>Hi,
->>
->>Brian Gerst <bgerst@didntduck.org> writes:
->>
->>
->>>diff -urN linux-2.5.7-pre1/fs/msdos/namei.c linux/fs/msdos/namei.c
->>>--- linux-2.5.7-pre1/fs/msdos/namei.c	Thu Mar  7 21:18:32 2002
->>>+++ linux/fs/msdos/namei.c	Wed Mar 13 08:20:12 2002
->>>@@ -603,17 +603,14 @@
->>> 
->>> int msdos_fill_super(struct super_block *sb,void *data, int silent)
->>> {
->>>-	struct super_block *res;
->>>+	int res;
->>> 
->>>-	MSDOS_SB(sb)->options.isvfat = 0;
->>>-	res = fat_read_super(sb, data, silent, &msdos_dir_inode_operations);
->>>-	if (IS_ERR(res))
->>>-		return PTR_ERR(res);
->>>-	if (res == NULL) {
->>>+	res = fat_fill_super(sb, data, silent, &msdos_dir_inode_operations, 0);
->>>+	if (res) {
->>> 		if (!silent)
->>> 			printk(KERN_INFO "VFS: Can't find a valid"
->>> 			       " MSDOS filesystem on dev %s.\n", sb->s_id);
->>
->>If the error is I/O error, I think we shouldn't output this message.
-> 
->   ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> If the error is except -EINVAL,
-> 
-> Sorry.
-> 
-> 
->>What do you think about this?
-> 
+> help them be independent of PAE/non-PAE kernel configuration. And, as
+> such, it suggests that the _GPL bit in the export clause is not justified
+> and should be removed. There is no reason whatsoever why Linux base kernel
+> should allow some useful functionality to GPL modules and disallow the
+> same to non-GPL ones.
 
-Why not?  The statement is true, and other filesystems do complain when 
-there is an I/O error.
+I disagree. The code in question is GPL code from a GPL driver or three that
+was used internally in those drivers. It is now available for those drivers
+to share. If you aren't writing a GPL module you can go write your own 
+version of it, just like people have always had to before. 
 
--- 
+Similarly the PAE/non-PAE thing is a red herring. Given that even basic
+data types change size on pae no module is going to be magically pae/non-pae
+clean if its binary only.
 
-						Brian Gerst
-
+Alan

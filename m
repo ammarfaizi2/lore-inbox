@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261166AbVC2QZN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVC2Q01@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261166AbVC2QZN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 11:25:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbVC2QZM
+	id S261187AbVC2Q01 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 11:26:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbVC2Q01
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 11:25:12 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:54185 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261166AbVC2QZH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 11:25:07 -0500
-Date: Tue, 29 Mar 2005 17:25:06 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Ed L Cashin <ecashin@coraid.com>
-Cc: linux-kernel@vger.kernel.org, Greg K-H <greg@kroah.com>
-Subject: Re: [PATCH 2.6.11] aoe [7/12]: support configuration of AOE_PARTITIONS from Kconfig
-Message-ID: <20050329162506.GA30401@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ed L Cashin <ecashin@coraid.com>, linux-kernel@vger.kernel.org,
-	Greg K-H <greg@kroah.com>
-References: <87mztbi79d.fsf@coraid.com> <20050317234641.GA7091@kroah.com> <1111677688.29912@geode.he.net> <20050328170735.GA9567@infradead.org> <87hdiuv3lz.fsf@coraid.com>
+	Tue, 29 Mar 2005 11:26:27 -0500
+Received: from rproxy.gmail.com ([64.233.170.200]:57211 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261187AbVC2Q0V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 11:26:21 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=jS/HF7wOAus0Xwvi8rZ673gZVk7PlosY5CqPEe3JlmJ+/7Jf+XpnyTIVBEG0sUDxnBhFwhm0y6CpxjSErmFLpxJVYPsoKUiLZh77xYV4uyNvlrp3L1r/dZhkZtepy13vuoDPXhk5cVmiTpckBvSx+TGc2Q+CR8Xcm1HIdTSX5cU=
+Message-ID: <d120d500050329082665855878@mail.gmail.com>
+Date: Tue, 29 Mar 2005 11:26:17 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: klists and struct device semaphores
+Cc: Patrick Mochel <mochel@digitalimplant.org>,
+       David Brownell <david-b@pacbell.net>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44L0.0503291055560.1038-100000@ida.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87hdiuv3lz.fsf@coraid.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+References: <Pine.LNX.4.50.0503280856210.28120-100000@monsoon.he.net>
+	 <Pine.LNX.4.44L0.0503291055560.1038-100000@ida.rowland.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 29, 2005 at 11:06:16AM -0500, Ed L Cashin wrote:
-> >
-> > NACK.  this changes devices nodes based on a compile-time option.  
+On Tue, 29 Mar 2005 11:18:13 -0500 (EST), Alan Stern
+<stern@rowland.harvard.edu> wrote:
 > 
-> I'm not sure I follow.  This configuration option sets the number of
-> partitions per device in the driver.  It doesn't create device nodes.
+> With that change in place we can guarantee that every time a USB driver's
+> probe() is called, both the interface and the parent device are locked.
 > 
-> If the user has udev, then the device nodes are created correctly (on
-> Fedora Core 3), so that if the driver is configured with 1 partition
-> per device, the minor numbers for the disks are low.  
-> 
-> The folks I've talked to who aren't using udev but want one partition
-> per device already know that they have to re-create their device
-> files.
+> I don't know how cleanly this can be implemented.  You probably don't want
+> to lock dev->parent->sem every time, only when needed.  Maybe the simplest
+> approach would be to add a flag in struct bus_type, which could be set for
+> the USB bus_type and clear for everything else.
+>
 
-It changes a kernel ABI, so people that have different config options
-set can't use the same userland.  It's a really big no-go.
+I think it is fine to lock parent unconditionally. After all
+device/driver matching is not the most performance-critical part of
+the kernel.
 
+-- 
+Dmitry

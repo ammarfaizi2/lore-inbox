@@ -1,33 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311275AbSCQD03>; Sat, 16 Mar 2002 22:26:29 -0500
+	id <S311280AbSCQDYt>; Sat, 16 Mar 2002 22:24:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311277AbSCQD0T>; Sat, 16 Mar 2002 22:26:19 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:37390 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S311275AbSCQD0G>; Sat, 16 Mar 2002 22:26:06 -0500
-Subject: Re: /dev/md0: Device or resource busy
-To: dean-list-linux-kernel@arctic.org (dean gaudet)
-Date: Sun, 17 Mar 2002 03:41:59 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org,
-        mingo@redhat.com
-In-Reply-To: <Pine.LNX.4.33.0203161911560.7016-100000@twinlark.arctic.org> from "dean gaudet" at Mar 16, 2002 07:17:51 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S311277AbSCQDYj>; Sat, 16 Mar 2002 22:24:39 -0500
+Received: from host194.steeleye.com ([216.33.1.194]:31247 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S311275AbSCQDYf>; Sat, 16 Mar 2002 22:24:35 -0500
+Message-Id: <200203170324.g2H3OMI02667@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Dave Jones <davej@suse.de>,
+        James Bottomley <James.Bottomley@HansenPartnership.com>,
+        linux-kernel@vger.kernel.org, mochel@odsl.org
+Subject: Re: [PATCH: NEW ARCHITECTURE FOR 2.5.6] support for NCR voyager 
+In-Reply-To: Message from Dave Jones <davej@suse.de> 
+   of "Thu, 14 Mar 2002 15:11:18 GMT." <20020314151118.A11178@suse.de> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16mRYV-000853-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Sat, 16 Mar 2002 22:24:21 -0500
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> i just tried a "linux init=/bin/sh" boot, and it's still saying Device or
-> resource busy:
-> 
-> init-2.05a# raidstop /dev/md0
-> md: md0 still in use.
-> /dev/md0: Device or resource busy
-> init-2.05a# mount /proc
+davej@suse.de said:
+>   I just took a quick look at your work on splitting this stuff up,
+> and I
+>   think it's definitly heading in the right direction. As to
+> integrating this,
+>   I think it's probably best to get Patrick Mochel's other related
+> work
+>   included first. See what he's done so far at..
+>    http://kernel.org/pub/linux/kernel/people/mochel/patches/
+> patch-linux-v2.5.6-pm1.bz2
+>   His patch and yours touch various files for more or less the same
+> reason.
 
-Duplicated. Seems the md code deos indeed have a bug there
+>   Patrick still has some bits to finish off here, but combined the two
+> patchsets
+>   will bring some much needed sanity to various parts of arch/i386/  
+
+
+I just finished the combination of the two:
+
+http://www.hansenpartnership.com/voyager/files/split-combine-2.5.6.diff
+http://www.hansenpartnership.com/voyager/files/split-combine-2.5.6.BK
+
+Also added the voyager patches
+
+http://www.hansenpartnership.com/voyager/files/voyager-split-combine-2.5.6.diff
+http://www.hansenpartnership.com/voyager/files/voyager-split-combine-2.5.6.BK
+
+I've checked that the voyager additions will combine and boot.  There seems to 
+be some problem with missing pci functions which prevent a standard SMP 
+compile.  I think it has to do with a missing entry in the Makefile in 
+drivers/pci for hotplug.c.  I think Patrick probably needs to look at this.
+
+James
+
 

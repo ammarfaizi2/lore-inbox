@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261492AbSKTQAX>; Wed, 20 Nov 2002 11:00:23 -0500
+	id <S261349AbSKTQCT>; Wed, 20 Nov 2002 11:02:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261550AbSKTQAW>; Wed, 20 Nov 2002 11:00:22 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:36521 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S261492AbSKTQAV>;
-	Wed, 20 Nov 2002 11:00:21 -0500
-Subject: Call trace at mm/page-writeback.c in 2.5.47
-From: Mark Haverkamp <markh@osdl.org>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1037808468.6367.41.camel@markh1.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 20 Nov 2002 08:07:48 -0800
-Content-Transfer-Encoding: 7bit
+	id <S261416AbSKTQCT>; Wed, 20 Nov 2002 11:02:19 -0500
+Received: from chico.rediris.es ([130.206.1.3]:42464 "EHLO chico.rediris.es")
+	by vger.kernel.org with ESMTP id <S261349AbSKTQCS>;
+	Wed, 20 Nov 2002 11:02:18 -0500
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: David =?iso-8859-15?q?Mart=EDnez=20Moreno?= <ender@debian.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: PROBLEM: kernel oopsing in ftp.es.debian.org.
+Date: Wed, 20 Nov 2002 17:09:22 +0100
+User-Agent: KMail/1.4.3
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200211201226.18015.ender@debian.org> <200211201648.58812.ender@debian.org> <1037809464.3702.45.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1037809464.3702.45.camel@irongate.swansea.linux.org.uk>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200211201709.22394.ender@debian.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While running a memory stress workload test on a 16 processor numa
-system, I received a number of call traces like the following:
+El Mié 20 Nov 2002 17:24, Alan Cox escribió:
+> On Wed, 2002-11-20 at 15:48, David Martínez Moreno wrote:
+> > 	The last kernel that it ran stably I think that was 2.4.19-pre10. I can
+> > reboot with this kernel, because the machine has hung again. One more
+> > reboot doesn't mind. :-(
+>
+> Stick the last stable kernel on it and see if becomes stable again. My
+> first guess is you've developed a hardware problem, going back to the
+> old kernel will eliminate that doubt
 
-buffer layer error at mm/page-writeback.c:559
-Pass this trace through ksymoops for reporting
-Call Trace:
- [<c013f1fb>] __set_page_dirty_buffers+0x3b/0x150
- [<c012d746>] zap_pte_range+0x1d6/0x2c0
- [<c0183401>] do_get_write_access+0x4a1/0x4d0
- [<c012d89c>] zap_pmd_range+0x6c/0x80
- [<c012d8f0>] unmap_page_range+0x40/0x60
- [<c012da0f>] zap_page_range+0xff/0x180
- [<c012e76a>] vmtruncate_list+0x5a/0x80
- [<c012e835>] vmtruncate+0xa5/0x150
- [<c015b456>] inode_setattr+0x56/0x120
- [<c0179087>] ext3_setattr+0x167/0x1d0
- [<c015b696>] notify_change+0x106/0x1d9
- [<c01433a8>] do_truncate+0x58/0x80
- [<c01213d0>] tasklet_hi_action+0x80/0xd0
- [<c01210cb>] do_softirq+0x5b/0xc0
- [<c0143916>] sys_ftruncate64+0x106/0x120
- [<c0108d73>] syscall_call+0x7/0xb
+	Ok, box has frozen again. I'm going to the University just now and switch to 
+another kernel (2.4.19-pre10). I'll keep you informed.
 
-The system did not crash and continues to run.  If someone wants to look
-into this and needs more information, let me know.
+	Thank you,
 
-Thanks,
-Mark. 
 
+		Ender.
 -- 
-Mark Haverkamp <markh@osdl.org>
+ Why is a cow? Mu. (Ommmmmmmmmm)
+--
+Servicios de red - Network services
+Centro de Comunicaciones CSIC/RedIRIS
+Spanish Academic Network for Research and Development
+Madrid (Spain)
+Tlf (+34) 91.585.49.05
 

@@ -1,125 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263125AbTIVM0f (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 08:26:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263128AbTIVM0f
+	id S263124AbTIVM3T (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 08:29:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263126AbTIVM3T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 08:26:35 -0400
-Received: from fep04-mail.bloor.is.net.cable.rogers.com ([66.185.86.74]:41777
-	"EHLO fep04-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id S263125AbTIVM0b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 08:26:31 -0400
-Message-ID: <3F6EEAA3.5000809@rogers.com>
-Date: Mon, 22 Sep 2003 08:27:15 -0400
-From: gaxt <gaxt@rogers.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030902 Thunderbird/0.2
-X-Accept-Language: en-us, en
+	Mon, 22 Sep 2003 08:29:19 -0400
+Received: from ns2.len.rkcom.net ([80.148.32.9]:4800 "EHLO ns2.len.rkcom.net")
+	by vger.kernel.org with ESMTP id S263124AbTIVM3R convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 08:29:17 -0400
+From: Florian Schanda <ma1flfs@bath.ac.uk>
+Reply-To: ma1flfs@bath.ac.uk
+To: Alistair J Strachan <alistair@devzero.co.uk>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.0-test5-mm4
+Date: Mon, 22 Sep 2003 15:30:04 +0100
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <20030922013548.6e5a5dcf.akpm@osdl.org> <200309221317.42273.alistair@devzero.co.uk>
+In-Reply-To: <200309221317.42273.alistair@devzero.co.uk>
 MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test5-mm3 VFAT File system problem
-References: <3F6C543D.7080706@rogers.com> <20030920215152.5e5b318c.rddunlap@osdl.org>
-In-Reply-To: <20030920215152.5e5b318c.rddunlap@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at fep04-mail.bloor.is.net.cable.rogers.com from [24.102.238.105] using ID <dw2price@rogers.com> at Mon, 22 Sep 2003 08:25:54 -0400
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200309221530.17062.ma1flfs@bath.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
-> On Sat, 20 Sep 2003 09:21:01 -0400 gaxt <gaxt@rogers.com> wrote:
-> 
-> | Upon moving from -mm2 to -mm3, my vfat filesystems did not automatically 
-> | bount at bootup as per the fstab and could not be accessed by 
-> | applications in Gnome ie. my mount point showed no subdirectories or files.
-> | 
-> | I could manually mount (not by mount /mnt/win_c but by the full mount -t 
-> | vfat /dev/hda1 /mnt/win_c) and I could explore using ls in terminals but 
-> | programs in Gnome could not open the filesystem.
-> | 
-> | Upon rebooting into -mm2 everything was fine again.
-> 
-> Please post your /etc/fstab file.
-> 
-> Thanks,
-> --
-> ~Randy
-> 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-# /etc/fstab: static file system information.
-# $Header: /home/cvsroot/gentoo-src/rc-scripts/etc/fstab,v 1.10 
-2002/11/18 19:39:22 azarah Exp $
-#
-# noatime turns of atimes for increased performance (atimes normally aren't
-# needed; notail increases performance of ReiserFS (at the expense of 
-storage
-# efficiency).  It's safe to drop the noatime options if you want and to
-# switch between notail and tail freely.
+On Monday 22 September 2003 13:17, Alistair J Strachan wrote:
+> -mm4 won't mount my ext3 root device whereas -mm3 will. Presumably this is
+> some byproduct of the dev_t patches.
 
-# <fs>                  <mountpoint>    <type>          <opts> 
-         <dump/pass>
+I don't think this has to do with ext3, since my root xfs partition can't be 
+mounted either.
 
-# NOTE: If your BOOT partition is ReiserFS, add the notail option to opts.
-/dev/hdb2               /boot           ext2            noauto,noatime 
-         1 1
-/dev/hdb4               /               reiserfs        noatime,notail 
-         0 0
-/dev/hda2               /home           reiserfs        noatime,notail 
-         0 0
-/dev/hdb3               none            swap            sw 
-         0 0
-/dev/cdroms/cdrom0      /mnt/cdrom      iso9660         noauto,ro 
-         0 0
-/dev/cdroms/cdrom1      /mnt/cdrom1     iso9660         noauto,ro 
-         0 0
-#/dev/sr0               /mnt/cdrom      iso9660         noauto,ro 
-         0 0
-#/dev/sr1               /mnt/cdrom1     iso9660         noauto,ro 
-         0 0
+> VFS: Cannot open root device "302" or hda2.
+> Please append correct "root=" boot option.
+> Kernel Panic: VFS: Unable to mount root fs on hda2.
 
-#proc                   /proc           proc            defaults 
-         0 0
-none                    /proc           proc            defaults 
-         0 0
+same over here, except replace hda2 with sda3 and (302 with 803 of couse).
 
-/dev/fd0                /mnt/floppy     msdos 
-noauto,users,umask=000  0 0
+> One possible explanation is that I have devfs compiled into my kernel. I do
+> not, however, have it automatically mounting on boot. It overlays /dev
+> (which is populated with original style device nodes) after INIT has
+> loaded.
 
-# Windows Drives
-/dev/hda1               /mnt/win_c      vfat 
-noauto,users,umask=000  0 0
-/dev/hdb1               /mnt/win_d      vfat 
-auto,users,umask=000    0 0
+I disabled mount at root and created some device nodes, but it still doesn't 
+work, befor that I had pure devfs. Reading the config help for devfs says 
+it's obsoleted, and stripped down to a "bare minimum to not break anyting". 
+Does that "bare minimum" include hard disks?
 
-# Flash Card Readers
-/dev/sda                /mnt/flash1     vfat 
-noauto,users,umask=000  0 0
-/dev/sdb1               /mnt/flash2     vfat 
-noauto,users,umask=000  0 0
-/dev/sdb                /mnt/flash3     vfat 
-noauto,users,umask=000  0 0
+	Florian
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-# NFS Drives on MOOMOO
-192.168.1.101:/mnt/zip          /mnt/moozip     nfs 
-noauto,rw,hard,intr,users 0 0
-192.168.1.101:/mnt/win_c        /mnt/mooc       nfs 
-noauto,rw,hard,intr,users 0 0
-192.168.1.101:/home/moo_share   /mnt/moo_share  nfs 
-noauto,rw,hard,intr,users 0 0
-
-# glibc 2.2 and above expects tmpfs to be mounted at /dev/shm for
-# POSIX shared memory (shm_open, shm_unlink). Adding the following
-# line to /etc/fstab should take care of this:
-# (tmpfs is a dynamically expandable/shrinkable ramdisk, and will use 
-almost no
-#  memory if not populated with files)
-
-#tmpfs                  /dev/shm        tmpfs           defaults 
-         0 0
-none                    /dev/shm        tmpfs           defaults 
-         0 0
-
-#/dev/sdc2 /mnt/ipod vfat defaults,uid=500,gid=500,user,noauto 0 0
-/dev/sdc2 /mnt/ipod vfat defaults,user,noauto 0 0
+iD8DBQE/bwdvfCf8muQVS4cRAmQ0AJ9N6WBJIOKholW9Rf2QV6wdxlWyHACeNsoP
+niBAErfeLd0NR0WR6ElKOhU=
+=Iysp
+-----END PGP SIGNATURE-----
 

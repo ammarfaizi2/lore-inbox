@@ -1,173 +1,161 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267300AbTAWVzZ>; Thu, 23 Jan 2003 16:55:25 -0500
+	id <S267306AbTAWWC7>; Thu, 23 Jan 2003 17:02:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267306AbTAWVzZ>; Thu, 23 Jan 2003 16:55:25 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:9196 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S267300AbTAWVzX>;
-	Thu, 23 Jan 2003 16:55:23 -0500
-In-Reply-To: <20030123005530.GA808@ttnet.net.tr>
-Subject: Re: [PATCH] 2.5.59: ftruncate/truncate oopses with mandatory locking
-To: Faik Uygur <faikuygur@ttnet.net.tr>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-X-Mailer: Lotus Notes Release 6.0 September 26, 2002
-Message-ID: <OF1A4377C8.ABB3C54B-ON85256CB7.0078D6B0-86256CB7.00798BA6@pok.ibm.com>
-From: "Robert Williamson" <robbiew@us.ibm.com>
-Date: Thu, 23 Jan 2003 17:04:16 -0500
-X-MIMETrack: Serialize by Router on D01ML076/01/M/IBM(Release 5.0.11 +SPRs MIAS5EXFG4, MIAS5AUFPV
- and DHAG4Y6R7W, MATTEST |November 8th, 2002) at 01/23/2003 05:04:17 PM
+	id <S267335AbTAWWC6>; Thu, 23 Jan 2003 17:02:58 -0500
+Received: from relay-4.fastweb.it ([213.140.2.43]:16004 "EHLO
+	mailres.fastwebnet.it") by vger.kernel.org with ESMTP
+	id <S267306AbTAWWC4> convert rfc822-to-8bit; Thu, 23 Jan 2003 17:02:56 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Antonello Iunco <etn@libero.it>
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.4.21-pre3: still problems with ALiMagik and Video Capture Cards
+Date: Fri, 24 Jan 2003 00:10:50 +0100
+User-Agent: KMail/1.4.1
 MIME-Version: 1.0
-Content-type: multipart/mixed; 
-	Boundary="0__=0ABBE624DFEB50208f9e8a93df938690918c0ABBE624DFEB5020"
-Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301240010.02300."etn@libero.it">
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0__=0ABBE624DFEB50208f9e8a93df938690918c0ABBE624DFEB5020
-Content-type: text/plain; charset=us-ascii
+Hi there,
+I'm still having problems with my bttv-based video capture card for use under 
+Linux, despite the changelog for 2.4.21 says that a workaround was introduced 
+for my specific hardware configuration.
+I own an Asus A7A266 motherboard based on AliMagik1 chipset, and a Hauppage 
+WinTV card (lspci details below).
+Using overlay capture, the whole system freezes immediately (with xawtv and 
+qtvision, same result) and there's no way to take control over the system 
+again. I tried using the same kernel with the same TV board on a Via based 
+board and overlay capture works perfectly.
+The only way to use the card is to use "grabdisplay" feature under xawtv, but 
+it's slow, poor on resolution and, notably, worked on less recent kernels as 
+well (2.4.18)
+The same problem was reported by people using the same hardware under Windows, 
+and it was solved by an ALi chipset driver update. It seems that the 
+workaround in 2.4.21 doesn't work around so much :).
+I updated by BIOS to the latest version, followed directions published on 
+Hauppage's home page in order to let the card work.
 
+Any help greatly appreciated.
+Antonello Iunco
 
->This patch fixes the truncate/ftruncate oopses with mandatory locking
->enabled. The problem with ftruncate is that the local variable fl is
->not initialized properly in locks_mandatory_area that it misbehaves at
->various places like locks_insert_block. And the problem with truncate
->is that the filp variable is NULL at posix_lock_file. The NULL value
->comes from do_sys_truncate.
->
-locks_mandatory_area needed a bit more tweaking to allow correct error
-handling, as well as
-adherence to the O_NONBLOCK flag if/when used.  Merged the original patch
-with my updates,
- and updated the bug report.
+lspci output:
+00:00.0 Host bridge: Acer Laboratories Inc. [ALi] M1647 Northbridge [MAGiK 1 / 
+MobileMAGiK 1] (rev 04)
+        Flags: bus master, medium devsel, latency 0
+        Memory at f8000000 (32-bit, prefetchable) [size=64M]
+        Capabilities: [b0] AGP version 2.0
+        Capabilities: [a4] Power Management version 1
 
->The bug report and details can be found at,
->http://bugme.osdl.org/show_bug.cgi?id=280
+00:01.0 PCI bridge: Acer Laboratories Inc. [ALi] PCI to AGP Controller 
+(prog-if 00 [Normal decode])
+        Flags: bus master, slow devsel, latency 0
+        Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
+        I/O behind bridge: 0000d000-0000dfff
+        Memory behind bridge: f2000000-f27fffff
+        Prefetchable memory behind bridge: f3f00000-f7ffffff
 
-- Robbie
+[snip]
 
-Robert V. Williamson <robbiew@us.ibm.com>
-Linux Test Project
-IBM Linux Technology Center
-Phone: (512) 838-9295   T/L: 678-9295
-Fax: (512) 838-4603
-Web: http://ltp.sourceforge.net
-IRC: #ltp on freenode.irc.net
-====================
-"Only two things are infinite, the universe and human stupidity, and I'm
-not sure about the former." -Albert Einstein
+00:04.0 IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev c4) 
+(prog-if fa)
+        Subsystem: Asustek Computer, Inc. A7A66 Motherboard IDE
+        Flags: bus master, medium devsel, latency 32
+        I/O ports at b400 [size=16]
+        Capabilities: [60] Power Management version 2
 
-(See attached file: bug280.patch)
+[snip]
 
---0__=0ABBE624DFEB50208f9e8a93df938690918c0ABBE624DFEB5020
-Content-type: application/octet-stream; 
-	name="bug280.patch"
-Content-Disposition: attachment; filename="bug280.patch"
-Content-transfer-encoding: base64
+00:07.0 ISA bridge: Acer Laboratories Inc. [ALi] M1533 PCI to ISA Bridge 
+[Aladdin IV]
+        Subsystem: Acer Laboratories Inc. [ALi] ALI M1533 Aladdin IV ISA 
+Bridge
+        Flags: bus master, medium devsel, latency 0
+        Capabilities: [a0] Power Management version 1
 
-LS0tIGxpbnV4LTIuNS41OS1vcmlnL2ZzL2xvY2tkL3N2Y2xvY2suYwlUaHUgSmFuIDE2IDIwOjIx
-OjQ5IDIwMDMKKysrIGxpbnV4LTIuNS41OS1uZXcvZnMvbG9ja2Qvc3ZjbG9jay5jCVRodSBKYW4g
-MjMgMTY6MzI6MTYgMjAwMwpAQCAtMzE1LDcgKzMxNSw3IEBACiAKIGFnYWluOgogCWlmICghKGNv
-bmZsb2NrID0gcG9zaXhfdGVzdF9sb2NrKCZmaWxlLT5mX2ZpbGUsICZsb2NrLT5mbCkpKSB7Ci0J
-CWVycm9yID0gcG9zaXhfbG9ja19maWxlKCZmaWxlLT5mX2ZpbGUsICZsb2NrLT5mbCk7CisJIAkJ
-ZXJyb3IgPSBwb3NpeF9sb2NrX2ZpbGUoZmlsZS0+Zl9maWxlLmZfZGVudHJ5LT5kX2lub2RlLCAm
-bG9jay0+ZmwpOwogCiAJCWlmIChibG9jaykKIAkJCW5sbXN2Y19kZWxldGVfYmxvY2soYmxvY2ss
-IDApOwpAQCAtNDE5LDcgKzQxOSw3IEBACiAJbmxtc3ZjX2NhbmNlbF9ibG9ja2VkKGZpbGUsIGxv
-Y2spOwogCiAJbG9jay0+ZmwuZmxfdHlwZSA9IEZfVU5MQ0s7Ci0JZXJyb3IgPSBwb3NpeF9sb2Nr
-X2ZpbGUoJmZpbGUtPmZfZmlsZSwgJmxvY2stPmZsKTsKKwllcnJvciA9IHBvc2l4X2xvY2tfZmls
-ZShmaWxlLT5mX2ZpbGUuZl9kZW50cnktPmRfaW5vZGUsICZsb2NrLT5mbCk7CiAKIAlyZXR1cm4g
-KGVycm9yIDwgMCk/IG5sbV9sY2tfZGVuaWVkX25vbG9ja3MgOiBubG1fZ3JhbnRlZDsKIH0KQEAg
-LTUyMyw3ICs1MjMsNyBAQAogCSAqIGZvbGxvd2luZyB5aWVsZHMgYW4gZXJyb3IsIHRoaXMgaXMg
-bW9zdCBwcm9iYWJseSBkdWUgdG8gbG93CiAJICogbWVtb3J5LiBSZXRyeSB0aGUgbG9jayBpbiBh
-IGZldyBzZWNvbmRzLgogCSAqLwotCWlmICgoZXJyb3IgPSBwb3NpeF9sb2NrX2ZpbGUoJmZpbGUt
-PmZfZmlsZSwgJmxvY2stPmZsKSkgPCAwKSB7CisJaWYgKChlcnJvciA9IHBvc2l4X2xvY2tfZmls
-ZShmaWxlLT5mX2ZpbGUuZl9kZW50cnktPmRfaW5vZGUsICZsb2NrLT5mbCkpIDwgMCkgewogCQlw
-cmludGsoS0VSTl9XQVJOSU5HICJsb2NrZDogdW5leHBlY3RlZCBlcnJvciAlZCBpbiAlcyFcbiIs
-CiAJCQkJLWVycm9yLCBfX0ZVTkNUSU9OX18pOwogCQlubG1zdmNfaW5zZXJ0X2Jsb2NrKGJsb2Nr
-LCAxMCAqIEhaKTsKLS0tIGxpbnV4LTIuNS41OS1vcmlnL2ZzL2xvY2tkL3N2Y3N1YnMuYwlUaHUg
-SmFuIDE2IDIwOjIyOjIxIDIwMDMKKysrIGxpbnV4LTIuNS41OS1uZXcvZnMvbG9ja2Qvc3Zjc3Vi
-cy5jCVRodSBKYW4gMjMgMTY6MzI6MTYgMjAwMwpAQCAtMTc2LDcgKzE3Niw3IEBACiAJCQlsb2Nr
-LmZsX3R5cGUgID0gRl9VTkxDSzsKIAkJCWxvY2suZmxfc3RhcnQgPSAwOwogCQkJbG9jay5mbF9l
-bmQgICA9IE9GRlNFVF9NQVg7Ci0JCQlpZiAocG9zaXhfbG9ja19maWxlKCZmaWxlLT5mX2ZpbGUs
-ICZsb2NrKSA8IDApIHsKKwkJIAlpZiAocG9zaXhfbG9ja19maWxlKGZpbGUtPmZfZmlsZS5mX2Rl
-bnRyeS0+ZF9pbm9kZSwgJmxvY2spIDwgMCkgewogCQkJCXByaW50aygibG9ja2Q6IHVubG9jayBm
-YWlsdXJlIGluICVzOiVkXG4iLAogCQkJCQkJX19GSUxFX18sIF9fTElORV9fKTsKIAkJCQlyZXR1
-cm4gMTsKLS0tIGxpbnV4LTIuNS41OS1vcmlnL2ZzL2xvY2tzLmMJVGh1IEphbiAxNiAyMDoyMjo0
-NCAyMDAzCisrKyBsaW51eC0yLjUuNTktbmV3L2ZzL2xvY2tzLmMJVGh1IEphbiAyMyAxNjozMjox
-OSAyMDAzCkBAIC02NzgsMjcgKzY3OCw1MiBAQAogCXN0cnVjdCBmaWxlX2xvY2sgZmw7CiAJaW50
-IGVycm9yOwogCisJSU5JVF9MSVNUX0hFQUQoJmZsLmZsX2xpbmspOworCUlOSVRfTElTVF9IRUFE
-KCZmbC5mbF9ibG9jayk7CisJaW5pdF93YWl0cXVldWVfaGVhZCgmZmwuZmxfd2FpdCk7CisKIAlm
-bC5mbF9vd25lciA9IGN1cnJlbnQtPmZpbGVzOwogCWZsLmZsX3BpZCA9IGN1cnJlbnQtPnRnaWQ7
-CiAJZmwuZmxfZmlsZSA9IGZpbHA7Ci0JZmwuZmxfZmxhZ3MgPSBGTF9QT1NJWCB8IEZMX0FDQ0VT
-UyB8IEZMX1NMRUVQOworCisJLyogSWYgdGhlIE9fTk9OQkxPQ0sgZmxhZyBpcyB1c2VkIGRvbid0
-IHNsZWVwIHdoaWxlICovCisgICAgICAgIC8qIHRoZSBsb2NrIGlzIHByZXNlbnQgLVJXICAgICAg
-ICAgICAgICAgICAgICAgICAgICAqLyAKKwlpZiAoKGZpbHAgIT0gTlVMTCkgJiYgKGZpbHAtPmZf
-ZmxhZ3MgJiBPX05PTkJMT0NLKSkKKwkJZmwuZmxfZmxhZ3MgPSBGTF9QT1NJWCB8IEZMX0FDQ0VT
-UzsKKwllbHNlCQorCQlmbC5mbF9mbGFncyA9IEZMX1BPU0lYIHwgRkxfQUNDRVNTIHwgRkxfU0xF
-RVA7CisKIAlmbC5mbF90eXBlID0gKHJlYWRfd3JpdGUgPT0gRkxPQ0tfVkVSSUZZX1dSSVRFKSA/
-IEZfV1JMQ0sgOiBGX1JETENLOwogCWZsLmZsX3N0YXJ0ID0gb2Zmc2V0OwogCWZsLmZsX2VuZCA9
-IG9mZnNldCArIGNvdW50IC0gMTsKKwlmbC5mbF9uZXh0ID0gTlVMTDsKKwlmbC5mbF9ub3RpZnkg
-PSBOVUxMOworCWZsLmZsX2luc2VydCA9IE5VTEw7CisJZmwuZmxfcmVtb3ZlID0gTlVMTDsKKwlm
-bC5mbF9mYXN5bmMgPSBOVUxMOwogCiAJZm9yICg7OykgewotCQllcnJvciA9IHBvc2l4X2xvY2tf
-ZmlsZShmaWxwLCAmZmwpOwotCQlpZiAoZXJyb3IgIT0gLUVBR0FJTikKKwkJZXJyb3IgPSBwb3Np
-eF9sb2NrX2ZpbGUoaW5vZGUsICZmbCk7CisKKwkJLyogSWYgdGhlIHJldHVybmVkIGVycm9yIGlz
-IEVBR0FJTiwgZmlscCBpcyAqLworCQkvKiBub3QgTlVMTCwgYW5kIE9fTk9OQkxPQ0sgd2FzIHNw
-ZWNpZmllZCAgICovCisJCS8qIHRoZW4gcmV0dXJuIHRoZSBFQUdBSU4gZXJyb3IgIC1SVyAgICAg
-ICAgKi8KKwkJaWYgKChlcnJvciA9PSAtRUFHQUlOKSAmJiAoZmlscCAhPSBOVUxMKSAmJiAoZmls
-cC0+Zl9mbGFncyAmIE9fTk9OQkxPQ0spKQogCQkJYnJlYWs7CisKKwkJLyogcG9zaXhfbG9ja19m
-aWxlIG1heSByZXR1cm4gRURFQURMSywgc28gICAqLworCQkvKiB3ZSBzaG91bGQgcGFzcyBpdCBv
-biBpZiB0aGlzIG9jY3VycyAgLVJXICovCisJCWlmIChlcnJvciA9PSAtRURFQURMSykKKwkJCWJy
-ZWFrOworCiAJCWVycm9yID0gd2FpdF9ldmVudF9pbnRlcnJ1cHRpYmxlKGZsLmZsX3dhaXQsICFm
-bC5mbF9uZXh0KTsKLQkJaWYgKCFlcnJvcikgewotCQkJLyoKLQkJCSAqIElmIHdlJ3ZlIGJlZW4g
-c2xlZXBpbmcgc29tZW9uZSBtaWdodCBoYXZlCi0JCQkgKiBjaGFuZ2VkIHRoZSBwZXJtaXNzaW9u
-cyBiZWhpbmQgb3VyIGJhY2suCi0JCQkgKi8KLQkJCWlmICgoaW5vZGUtPmlfbW9kZSAmIChTX0lT
-R0lEIHwgU19JWEdSUCkpID09IFNfSVNHSUQpCi0JCQkJY29udGludWU7Ci0JCX0KKworCQkvKgor
-CQkgKiBJZiB3ZSd2ZSBiZWVuIHNsZWVwaW5nIHNvbWVvbmUgbWlnaHQgaGF2ZQorCQkgKiBjaGFu
-Z2VkIHRoZSBwZXJtaXNzaW9ucyBiZWhpbmQgb3VyIGJhY2suCisJCSAqLworCQlpZiAoKCFlcnJv
-cikgJiYgKChpbm9kZS0+aV9tb2RlICYgKFNfSVNHSUQgfCBTX0lYR1JQKSkgIT0gU19JU0dJRCkp
-CisJCQlicmVhazsKIAogCQlsb2NrX2tlcm5lbCgpOwogCQlsb2Nrc19kZWxldGVfYmxvY2soJmZs
-KTsKQEAgLTc3Miw5ICs3OTcsOCBAQAogCiAvKioKICAqCXBvc2l4X2xvY2tfZmlsZToKLSAqCUBm
-aWxwOiBUaGUgZmlsZSB0byBhcHBseSB0aGUgbG9jayB0bwotICoJQGNhbGxlcjogVGhlIGxvY2sg
-dG8gYmUgYXBwbGllZAotICoJQHdhaXQ6IDEgdG8gcmV0cnkgYXV0b21hdGljYWxseSwgMCB0byBy
-ZXR1cm4gLUVBR0FJTgorICoJQGlub2RlOiBUaGUgaW5vZGUgb2YgZmlsZSB0byBhcHBseSB0aGUg
-bG9jayB0bworICoJQHJlcXVlc3Q6IFRoZSBsb2NrIHRvIGJlIGFwcGxpZWQKICAqCiAgKiBBZGQg
-YSBQT1NJWCBzdHlsZSBsb2NrIHRvIGEgZmlsZS4KICAqIFdlIG1lcmdlIGFkamFjZW50IGxvY2tz
-IHdoZW5ldmVyIHBvc3NpYmxlLiBQT1NJWCBsb2NrcyBhcmUgc29ydGVkIGJ5IG93bmVyCkBAIC03
-ODgsMTQgKzgxMiwxMyBAQAogICogVG8gYWxsIHB1cmlzdHM6IFllcywgSSB1c2UgYSBmZXcgZ290
-bydzLiBKdXN0IHBhc3Mgb24gdG8gdGhlIG5leHQgZnVuY3Rpb24uCiAgKi8KIAotaW50IHBvc2l4
-X2xvY2tfZmlsZShzdHJ1Y3QgZmlsZSAqZmlscCwgc3RydWN0IGZpbGVfbG9jayAqcmVxdWVzdCkK
-K2ludCBwb3NpeF9sb2NrX2ZpbGUoc3RydWN0IGlub2RlICppbm9kZSwgc3RydWN0IGZpbGVfbG9j
-ayAqcmVxdWVzdCkKIHsKIAlzdHJ1Y3QgZmlsZV9sb2NrICpmbDsKIAlzdHJ1Y3QgZmlsZV9sb2Nr
-ICpuZXdfZmwsICpuZXdfZmwyOwogCXN0cnVjdCBmaWxlX2xvY2sgKmxlZnQgPSBOVUxMOwogCXN0
-cnVjdCBmaWxlX2xvY2sgKnJpZ2h0ID0gTlVMTDsKIAlzdHJ1Y3QgZmlsZV9sb2NrICoqYmVmb3Jl
-OwotCXN0cnVjdCBpbm9kZSAqIGlub2RlID0gZmlscC0+Zl9kZW50cnktPmRfaW5vZGU7CiAJaW50
-IGVycm9yLCBhZGRlZCA9IDA7CiAKIAkvKgpAQCAtMTQ2MCw3ICsxNDgzLDcgQEAKIAl9CiAKIAlm
-b3IgKDs7KSB7Ci0JCWVycm9yID0gcG9zaXhfbG9ja19maWxlKGZpbHAsIGZpbGVfbG9jayk7CisJ
-CWVycm9yID0gcG9zaXhfbG9ja19maWxlKGlub2RlLCBmaWxlX2xvY2spOwogCQlpZiAoKGVycm9y
-ICE9IC1FQUdBSU4pIHx8IChjbWQgPT0gRl9TRVRMSykpCiAJCQlicmVhazsKIAkJZXJyb3IgPSB3
-YWl0X2V2ZW50X2ludGVycnVwdGlibGUoZmlsZV9sb2NrLT5mbF93YWl0LApAQCAtMTYwMCw3ICsx
-NjIzLDcgQEAKIAl9CiAKIAlmb3IgKDs7KSB7Ci0JCWVycm9yID0gcG9zaXhfbG9ja19maWxlKGZp
-bHAsIGZpbGVfbG9jayk7CisJCWVycm9yID0gcG9zaXhfbG9ja19maWxlKGlub2RlLCBmaWxlX2xv
-Y2spOwogCQlpZiAoKGVycm9yICE9IC1FQUdBSU4pIHx8IChjbWQgPT0gRl9TRVRMSzY0KSkKIAkJ
-CWJyZWFrOwogCQllcnJvciA9IHdhaXRfZXZlbnRfaW50ZXJydXB0aWJsZShmaWxlX2xvY2stPmZs
-X3dhaXQsCkBAIC0xNjUwLDcgKzE2NzMsNyBAQAogCQkvKiBJZ25vcmUgYW55IGVycm9yIC0tIHdl
-IG11c3QgcmVtb3ZlIHRoZSBsb2NrcyBhbnl3YXkgKi8KIAl9CiAKLQlwb3NpeF9sb2NrX2ZpbGUo
-ZmlscCwgJmxvY2spOworCXBvc2l4X2xvY2tfZmlsZShmaWxwLT5mX2RlbnRyeS0+ZF9pbm9kZSwg
-JmxvY2spOwogfQogCiAvKgpAQCAtMTcxNyw3ICsxNzQwLDcgQEAKIAl9IGVsc2UgewogCQl1bmxv
-Y2tfa2VybmVsKCk7CiAJCXdhaXRlci0+ZmxfdHlwZSA9IEZfVU5MQ0s7Ci0JCXBvc2l4X2xvY2tf
-ZmlsZShmaWxwLCB3YWl0ZXIpOworCQlwb3NpeF9sb2NrX2ZpbGUoZmlscC0+Zl9kZW50cnktPmRf
-aW5vZGUsIHdhaXRlcik7CiAJfQogfQogCi0tLSBsaW51eC0yLjUuNTktb3JpZy9pbmNsdWRlL2xp
-bnV4L2ZzLmgJVGh1IEphbiAxNiAyMDoyMTo0NyAyMDAzCisrKyBsaW51eC0yLjUuNTktbmV3L2lu
-Y2x1ZGUvbGludXgvZnMuaAlUaHUgSmFuIDIzIDE2OjMxOjU2IDIwMDMKQEAgLTU2OCw3ICs1Njgs
-NyBAQAogZXh0ZXJuIHZvaWQgbG9ja3NfcmVtb3ZlX3Bvc2l4KHN0cnVjdCBmaWxlICosIGZsX293
-bmVyX3QpOwogZXh0ZXJuIHZvaWQgbG9ja3NfcmVtb3ZlX2Zsb2NrKHN0cnVjdCBmaWxlICopOwog
-ZXh0ZXJuIHN0cnVjdCBmaWxlX2xvY2sgKnBvc2l4X3Rlc3RfbG9jayhzdHJ1Y3QgZmlsZSAqLCBz
-dHJ1Y3QgZmlsZV9sb2NrICopOwotZXh0ZXJuIGludCBwb3NpeF9sb2NrX2ZpbGUoc3RydWN0IGZp
-bGUgKiwgc3RydWN0IGZpbGVfbG9jayAqKTsKK2V4dGVybiBpbnQgcG9zaXhfbG9ja19maWxlKHN0
-cnVjdCBpbm9kZSAqLCBzdHJ1Y3QgZmlsZV9sb2NrICopOwogZXh0ZXJuIHZvaWQgcG9zaXhfYmxv
-Y2tfbG9jayhzdHJ1Y3QgZmlsZV9sb2NrICosIHN0cnVjdCBmaWxlX2xvY2sgKik7CiBleHRlcm4g
-dm9pZCBwb3NpeF91bmJsb2NrX2xvY2soc3RydWN0IGZpbGUgKiwgc3RydWN0IGZpbGVfbG9jayAq
-KTsKIGV4dGVybiBpbnQgcG9zaXhfbG9ja3NfZGVhZGxvY2soc3RydWN0IGZpbGVfbG9jayAqLCBz
-dHJ1Y3QgZmlsZV9sb2NrICopOwo=
+[snip]
 
---0__=0ABBE624DFEB50208f9e8a93df938690918c0ABBE624DFEB5020--
+00:0d.0 Multimedia video controller: Brooktree Corporation Bt878 Video Capture 
+(rev 11)
+        Subsystem: Hauppauge computer works Inc. WinTV/GO
+        Flags: bus master, medium devsel, latency 64, IRQ 9
+        Memory at f3000000 (32-bit, prefetchable) [size=4K]
+        Capabilities: [44] Vital Product Data
+        Capabilities: [4c] Power Management version 2
 
+00:0d.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture (rev 
+11)
+        Subsystem: Hauppauge computer works Inc. WinTV/GO
+        Flags: bus master, medium devsel, latency 8, IRQ 9
+        Memory at f2800000 (32-bit, prefetchable) [size=4K]
+        Capabilities: [44] Vital Product Data
+        Capabilities: [4c] Power Management version 2
+
+00:11.0 Bridge: Acer Laboratories Inc. [ALi] M7101 PMU
+        Flags: medium devsel
+
+01:00.0 VGA compatible controller: ATI Technologies Inc Rage 128 PF/PRO AGP 4x 
+TMDS (prog-if 00 [VGA])
+        Subsystem: ATI Technologies Inc Rage Fury Pro
+        Flags: bus master, stepping, 66Mhz, medium devsel, latency 64, IRQ 11
+        Memory at f4000000 (32-bit, prefetchable) [size=64M]
+        I/O ports at d800 [size=256]
+        Memory at f2000000 (32-bit, non-prefetchable) [size=16K]
+        Expansion ROM at f3fe0000 [disabled] [size=128K]
+        Capabilities: [50] AGP version 2.0
+        Capabilities: [5c] Power Management version 2
+
+dmesg output:
+
+[snip]
+Linux video capture interface: v1.00
+i2c-core.o: i2c core module
+i2c-algo-bit.o: i2c bit algorithm module
+bttv: driver version 0.7.96 loaded
+bttv: using 4 buffers with 2080k (8320k total) for capture
+bttv: Host bridge is Acer Laboratories Inc. [ALi] M1647 Northbridge [MAGiK 1 / 
+MobileMAGiK 1]
+bttv: Host bridge needs ETBF enabled.
+bttv: Bt8xx card found (0).
+PCI: Found IRQ 9 for device 00:0d.0
+PCI: Sharing IRQ 9 with 00:05.0
+PCI: Sharing IRQ 9 with 00:0d.1
+bttv0: Bt878 (rev 17) at 00:0d.0, irq: 9, latency: 8, mmio: 0xf3000000
+bttv0: detected: Hauppauge WinTV [card=10], PCI subsystem ID is 0070:13eb
+bttv0: using: BT878(Hauppauge (bt878)) [card=10,autodetected]
+bttv0: enabling EPCI: Setting latency timer of device 00:0d.0 to 64
+bttv0: Hauppauge/Voodoo msp34xx: reset line init [5]
+i2c-core.o: adapter bt848 #0 registered as adapter 0.
+bttv0: Hauppauge eeprom: model=44804, tuner=LG TP18PSB11D (29), radio=no
+bttv0: using tuner=29
+bttv0: i2c: checking for MSP34xx @ 0x80... not found
+bttv0: i2c: checking for TDA9875 @ 0xb0... not found
+bttv0: i2c: checking for TDA7432 @ 0x8a... not found
+tvaudio: TV audio decoder + audio/video mux driver
+tvaudio: known chips: 
+tda9840,tda9873h,tda9874h/a,tda9850,tda9855,tea6300,tea6420,tda8425,pic16c54 
+(PV951)
+i2c-core.o: driver generic i2c audio driver registered.
+i2c-core.o: driver i2c TV tuner driver registered.
+tuner: probing bt848 #0 i2c adapter [id=0x10005]
+tuner: chip found @ 0xc2
+bttv0: i2c attach [client=LG PAL_BG (TPI8PSB11D),ok]
+i2c-core.o: client [LG PAL_BG (TPI8PSB11D)] registered to adapter [bt848 
+#0](pos. 0).
+bttv0: registered device video0
+bttv0: registered device vbi0
+i2c-core.o: driver i2c msp3400 driver registered.
+bttv0: PLL: 28636363 => 35468950 ... ok
+
+Interesting messages in /var/log/messages:
+Jan 23 23:29:29 starseeker kernel: cmpci: version $Revision: 5.64 $ time 
+22:38:18 Jan 23 2003
+Jan 23 23:29:29 starseeker kernel: PCI: Found IRQ 9 for device 00:05.0
+Jan 23 23:29:29 starseeker kernel: PCI: Sharing IRQ 9 with 00:0d.0
+Jan 23 23:29:29 starseeker kernel: PCI: Sharing IRQ 9 with 00:0d.1
+Jan 23 23:29:29 starseeker kernel: cmpci: found CM8738 adapter at io 0xb000 
+irq 9
+
+(there's IRQ sharing here, but even disabling the audio driver, lockup is 
+still around)

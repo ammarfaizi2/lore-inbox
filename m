@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261504AbVACRH2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261502AbVACRJC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261504AbVACRH2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 12:07:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbVACRH1
+	id S261502AbVACRJC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 12:09:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbVACRJC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 12:07:27 -0500
-Received: from c7ns3.center7.com ([216.250.142.14]:28118 "EHLO
-	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
-	id S261504AbVACRHL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 12:07:11 -0500
-Message-ID: <41D97DAC.1010402@drdos.com>
-Date: Mon, 03 Jan 2005 10:15:24 -0700
-From: "Jeff V. Merkey" <jmerkey@drdos.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Bill Davidsen <davidsen@tmr.com>, Adrian Bunk <bunk@stusta.de>,
-       William Lee Irwin III <wli@debian.org>,
-       Andries Brouwer <aebr@win.tue.nl>,
-       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: starting with 2.7
-References: <20050102221534.GG4183@stusta.de> <41D87A64.1070207@tmr.com>	 <20050103003011.GP29332@holomorphy.com> <1104766594.12807.8.camel@localhost.localdomain>
-In-Reply-To: <1104766594.12807.8.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 3 Jan 2005 12:09:02 -0500
+Received: from coderock.org ([193.77.147.115]:50070 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261502AbVACRIu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 12:08:50 -0500
+Date: Mon, 3 Jan 2005 18:08:49 +0100
+From: Domen Puncer <domen@coderock.org>
+To: rmk@arm.linux.org.uk
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [patch] maintainers: mark linux-arm-kernel as subscription only
+Message-ID: <20050103170849.GB5965@nd47.coderock.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Mark linux-arm-kernel@lists.arm.linux.org.uk as subscription only.
 
->It isn't a good assumption that rate of change drives rate of errors and
->need for testing. It is one factor but the amount of review, the
->modularity of the code and the effectiveness of the management and
->verification tools are all involved greatly.
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-Rate of change X 3 = Rate of testing.
 
-Seems to apply in commerical software development, provided the testing 
-engineers are brighter than
-the developers (which in most cases they need to be).
+Signed-off-by: Domen Puncer <domen@coderock.org>
 
-:-)
-
-Jeff
-
+--- c/MAINTAINERS	2005-01-03 17:58:46.000000000 +0100
++++ a/MAINTAINERS	2005-01-03 18:00:28.000000000 +0100
+@@ -296,7 +296,7 @@
+ ARM/PT DIGITAL BOARD PORT
+ P:	Stefan Eletzhofer
+ M:	stefan.eletzhofer@eletztrick.de
+-L:	linux-arm-kernel@lists.arm.linux.org.uk
++L:	linux-arm-kernel@lists.arm.linux.org.uk (subscription required)
+ W:	http://www.arm.linux.org.uk/
+ S:	Maintained
+ 
+@@ -309,7 +309,7 @@
+ ARM/STRONGARM110 PORT
+ P:	Russell King
+ M:	rmk@arm.linux.org.uk
+-L:	linux-arm-kernel@lists.arm.linux.org.uk
++L:	linux-arm-kernel@lists.arm.linux.org.uk (subscription required)
+ W:	http://www.arm.linux.org.uk/
+ S:	Maintained
+ 
+@@ -1798,7 +1798,7 @@
+ PXA2xx SUPPORT
+ P:	Nicolas Pitre
+ M:	nico@cam.org
+-L:	linux-arm-kernel@lists.arm.linux.org.uk
++L:	linux-arm-kernel@lists.arm.linux.org.uk (subscription required)
+ S:	Maintained
+ 
+ QNX4 FILESYSTEM

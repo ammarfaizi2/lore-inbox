@@ -1,82 +1,140 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262701AbSJGSSB>; Mon, 7 Oct 2002 14:18:01 -0400
+	id <S262542AbSJGSGG>; Mon, 7 Oct 2002 14:06:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262703AbSJGSSA>; Mon, 7 Oct 2002 14:18:00 -0400
-Received: from packet.digeo.com ([12.110.80.53]:51889 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262701AbSJGSR6>;
-	Mon, 7 Oct 2002 14:17:58 -0400
-Message-ID: <3DA1D121.222DECFC@digeo.com>
-Date: Mon, 07 Oct 2002 11:23:29 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S262543AbSJGSGG>; Mon, 7 Oct 2002 14:06:06 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:2432 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S262542AbSJGSGE>; Mon, 7 Oct 2002 14:06:04 -0400
+Date: Mon, 7 Oct 2002 14:11:22 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Nicolas Pitre <nico@cam.org>
+cc: Mark Mielke <mark@mark.mielke.cc>, "David S. Miller" <davem@redhat.com>,
+       Russell King <rmk@arm.linux.org.uk>, simon@baydel.com,
+       alan@lxorguk.ukuu.org.uk, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: The end of embedded Linux?
+In-Reply-To: <Pine.LNX.4.44.0210071307420.913-100000@xanadu.home>
+Message-ID: <Pine.LNX.3.95.1021007135820.231A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: Badari Pulavarty <pbadari@us.ibm.com>
-CC: lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>
-Subject: Re: 2.5.40-mm2
-References: <3DA0854E.CF9080D7@digeo.com> from "Andrew Morton" at Oct 06, 2002 10:47:42 AM PST <200210071745.g97Hjth23332@eng2.beaverton.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Oct 2002 18:23:29.0798 (UTC) FILETIME=[A2C22A60:01C26E2E]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty wrote:
+On Mon, 7 Oct 2002, Nicolas Pitre wrote:
+
+> On Mon, 7 Oct 2002, Mark Mielke wrote:
 > 
-> ...
-> drivers/built-in.o: In function `aic7xxx_biosparam':
-> drivers/built-in.o(.text+0xcfc71): undefined reference to `__udivdi3'
-> drivers/built-in.o(.text+0xcfca8): undefined reference to `__udivdi3'
-> drivers/built-in.o: In function `qla1280_proc_info':
-> drivers/built-in.o(.text+0xd0ca0): undefined reference to `get_free_page'
-> drivers/built-in.o: In function `qla1280_biosparam':
-> drivers/built-in.o(.text+0xd1daa): undefined reference to `__udivdi3'
-> drivers/built-in.o(.text+0xd1dce): undefined reference to `__udivdi3'
-> make: *** [.tmp_vmlinux] Error 1
+> > On Mon, Oct 07, 2002 at 09:02:33AM -0700, David S. Miller wrote:
+> > >    From: Nicolas Pitre <nico@cam.org>
+> > >    Date: Mon, 7 Oct 2002 12:05:16 -0400 (EDT)
+> > >    2) Not inlining inb() and friend reduce the bloat but then you further 
+> > >       impact performances on CPUs which are generally many order of
+> > >       magnitude slower than current desktop machines.
+> > > I don't buy this one.  You are saying that the overhead of a procedure
+> > > call is larger than the overhead of going out over the I/O bus to
+> > > touch a device?
+> > 
+> > I think the key phrase is 'further impact'.
+> > 
+> > If anything, the procedure call increases latency.
+> > 
+> > Although... I don't see why CONFIG_TINY wouldn't be able to decide whether
+> > inb() should be inlined or not...
+> 
+> Please don't mix up the issues.
+> 
+> The problems with inb() and friends as it stands in the embedded world right
+> now as to do with code cleanness not kernel image bloat.  Nothing to be 
+> solved with CONFIG_TINY.  Please let's keep those issues separate.
+> 
+> Here's the IO macro issue:  On some embedded platforms the IO bus is only 8
+> bit wide or only 16 bit wide, or address lines are shifted so registers
+> offsets are not the same, etc.  All this because embedded platforms are
+> often using standard ISA peripheral chipsets since they can be easily glued
+> to any kind of bare buses or static memory banks.
+> 
+> The nice thing here is the fact that only by modifying inb() and friends you
+> can reuse most current kernel drivers without further modifications.  
+> However the modifs to inb() are often different whether the peripheral in
+> question is wired to a static memory bank, to the PCMCIA space or onto some
+> expansion board via a CPLD or other weirdness some hardware designers are
+> pleased to come with.  Hence no global inb() and friend tweaking is possible
+> without some performance hit by using a runtime fixup based on the address
+> passed to them.
+> 
+> We therefore end up with something that looks like this in each drivers for 
+> which a fixup is needed:
+> 
+> #ifdef CONFIG_ASSABET_NEPONSET
+> 
+> /*
+>  * These functions allow us to handle IO addressing as we wish - this
+>  * ethernet controller can be connected to a variety of busses.  Some
+>  * busses do not support 16 bit or 32 bit transfers.  --rmk
+>  */
+> static inline u8 smc_inb(u_int base, u_int reg)
+> {
+>         u_int port = base + reg * 4;
+> 
+>         return readb(port);
+> }
+> 
+> static inline u16 smc_inw(u_int base, u_int reg)
+> {
+>         u_int port = base + reg * 4;
+> 
+>         return readb(port) | readb(port + 4) << 8;
+> }
+> 
+> static inline void smc_outb(u8 val, u_int base, u_int reg)
+> {
+>         u_int port = base + reg * 4;
+> 
+>         writeb(val, port);
+> }
+> 
+> static inline void smc_outw(u16 val, u_int base, u_int reg)
+> {
+>         u_int port = base + reg * 4;
+> 
+>         writeb(val, port);
+>         writeb(val >> 8, port + 4);
+> }
+> 
+> #endif
+> 
+> As you can see such code duplicated multiple times for all bus arrangements
+> in existence out there is just not pretty and was refused by Alan.  We lack
+> a global lightweight IO abstraction to nicely override the default IO macros
+> for individual drivers at compile time to fix that problem optimally and
+> keep the driver proper clean.
+> 
+> 
+> Nicolas
 
-For the __udivdi3 thing, the below patch should fix that up.
+If linux, with no modifications, can be booted on your hardware, then
+you don't need any kernel modifications. You can do all your special
+I/O through your own modules using whatever techniques you want since
+your modules are for your system, therefore by definition, not portable.
 
-For the get_free_page thing I need a grep-for-dummies book.  Please
-just go into  qla1280_proc_info() and replace get_free_page() with
-get_zeroed_page().  I need to do a second round on that patch.
+This is the method we used here. Also, since any modules are designed
+to interface with our proprietary hardware, any customer can get
+the source-code because its pretty worthless without the proprietary
+hardware. So, we don't have a problem with GPL or anything like that.
+If you buy the box, you get anything you want without an NDA.
 
+The only thing we keep under our belt is the BIOS that we wrote. Since
+this effectively builds a pretty dumb hunk of coal into an AT Class
+machine, we don't give that away as a freebee. We don't waste any
+I/O space, the NVRAM used as the data-source of a virtual floppy drive
+is accessed through a very small 0x1000 window. We use this window to
+burn new PROMS and even to upgrade the BIOS. That virtual floppy
+drive 'boots' Linux using LILO and friends.
 
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
 
---- 2.5.40/drivers/scsi/aic7xxx_old.c~lbd-fixes-1	Mon Oct  7 11:18:28 2002
-+++ 2.5.40-akpm/drivers/scsi/aic7xxx_old.c	Mon Oct  7 11:19:18 2002
-@@ -11735,13 +11735,13 @@ aic7xxx_biosparam(Disk *disk, struct blo
-   
-   heads = 64;
-   sectors = 32;
--  cylinders = disk->capacity / (heads * sectors);
-+  cylinders = sector_div(disk->capacity, heads * sectors);
- 
-   if ((p->flags & AHC_EXTEND_TRANS_A) && (cylinders > 1024))
-   {
-     heads = 255;
-     sectors = 63;
--    cylinders = disk->capacity / (heads * sectors);
-+    cylinders = sector_div(disk->capacity, heads * sectors);
-   }
- 
-   geom[0] = heads;
---- 2.5.40/drivers/scsi/qla1280.c~lbd-fixes-1	Mon Oct  7 11:19:42 2002
-+++ 2.5.40-akpm/drivers/scsi/qla1280.c	Mon Oct  7 11:20:06 2002
-@@ -1705,11 +1705,11 @@ qla1280_biosparam(Disk * disk, struct bl
- 
- 	heads = 64;
- 	sectors = 32;
--	cylinders = disk->capacity / (heads * sectors);
-+	cylinders = sector_div(disk->capacity, heads * sectors);
- 	if (cylinders > 1024) {
- 		heads = 255;
- 		sectors = 63;
--		cylinders = disk->capacity / (heads * sectors);
-+		cylinders = sector_div(disk->capacity, heads * sectors);
- 		/* if (cylinders > 1023)
- 		   cylinders = 1023; */
- 	}
-
-.

@@ -1,52 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261826AbVCGVeO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261829AbVCGVeR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261826AbVCGVeO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 16:34:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261782AbVCGVbX
+	id S261829AbVCGVeR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 16:34:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbVCGV2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 16:31:23 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:41883 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261822AbVCGV3W (ORCPT
+	Mon, 7 Mar 2005 16:28:37 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:18120 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261782AbVCGVTW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 16:29:22 -0500
-Date: Mon, 7 Mar 2005 13:29:12 -0800
-Message-Id: <200503072129.j27LTCnl030702@magilla.sf.frob.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Daniel Jacobowitz <dan@debian.org>
-X-Fcc: ~/Mail/linus
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Cagney <cagney@redhat.com>
-Subject: Re: More trouble with i386 EFLAGS and ptrace
-In-Reply-To: Daniel Jacobowitz's message of  Sunday, 6 March 2005 23:49:20 -0500 <20050307044920.GA25093@nevyn.them.org>
-X-Antipastobozoticataclysm: Bariumenemanilow
+	Mon, 7 Mar 2005 16:19:22 -0500
+Subject: Re: 2.6.11-mm1 (x86-abstract-discontigmem-setup.patch)
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Alexey Dobriyan <adobriyan@mail.ru>
+Cc: Andrew Morton <akpm@osdl.org>, Andy Whitcroft <apw@shadowen.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200503060121.19354.adobriyan@mail.ru>
+References: <200503051535.24372.adobriyan@mail.ru>
+	 <1110049138.6446.3.camel@localhost>  <200503060121.19354.adobriyan@mail.ru>
+Content-Type: multipart/mixed; boundary="=-583yTQ1BjdOiz8y5BsZY"
+Date: Mon, 07 Mar 2005 13:19:10 -0800
+Message-Id: <1110230350.6446.38.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is this semantically different from the patch I posted, i.e. is there
-> any case which one of them covers and not the other?
 
-Yes, the second case that I described when I said there were two cases!
-(Sheesh.)  To repeat, when the process was doing PTRACE_SINGLESTEP and then
-stops on some other signal rather than because of the single-step trap
-(e.g. single-stepping an instruction that faults), ptrace will show TF set
-in its registers.  With my patch, it will show TF clear.
+--=-583yTQ1BjdOiz8y5BsZY
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-> That is an inability to set breakpoints in the vsyscall page.  Andrew
-> told me (last May, wow) that he thought this worked in Fedora, but I
-> haven't seen any signs of the code.  It would certainly be a Good Thing
-> if it is possible!
+I hit send on that other one accidentally...
 
-Fedora kernels use a normal mapping (with randomized location) for the
-page, rather than the fixed high address in the vanilla kernel.  The
-FIXADDR_USER_START area is globally mapped in a special way not using
-normal vma data structures, and is permanently read-only in all tasks.  
-COW via ptrace works normally for Fedora's flavor, but no writing is ever
-possible to the fixmap page.
+I believe the attached patch should fix the extra output.  Compiles on
+my normal summit discontig configuration.  Andrew, please apply some
+time after x86-abstract-discontigmem-setup-fix.patch in your series.
+
+-- Dave
+
+--=-583yTQ1BjdOiz8y5BsZY
+Content-Disposition: attachment; filename=x86-abstract-discontigmem-setup-fix-printk.patch
+Content-Type: text/x-patch; name=x86-abstract-discontigmem-setup-fix-printk.patch; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 7bit
 
 
-Thanks,
-Roland
+
+---
+
+ clean-dave/arch/i386/mm/discontig.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff -puN arch/i386/mm/discontig.c~x86-abstract-discontigmem-setup-fix-printk arch/i386/mm/discontig.c
+--- clean/arch/i386/mm/discontig.c~x86-abstract-discontigmem-setup-fix-printk	2005-03-07 10:40:53.000000000 -0800
++++ clean-dave/arch/i386/mm/discontig.c	2005-03-07 10:41:29.000000000 -0800
+@@ -70,9 +70,9 @@ void memory_present(int nid, unsigned lo
+ 	printk(KERN_DEBUG "  ");
+ 	for (pfn = start; pfn < end; pfn += PAGES_PER_ELEMENT) {
+ 		physnode_map[pfn / PAGES_PER_ELEMENT] = nid;
+-		printk(KERN_DEBUG "%ld ", pfn);
++		printk("%ld ", pfn);
+ 	}
+-	printk(KERN_DEBUG "\n");
++	printk("\n");
+ }
+ 
+ unsigned long node_memmap_size_bytes(int nid, unsigned long start_pfn,
+_
+
+--=-583yTQ1BjdOiz8y5BsZY--
+

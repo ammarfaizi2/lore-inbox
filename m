@@ -1,50 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261617AbVACTNc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261755AbVACTMr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261617AbVACTNc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 14:13:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261525AbVACTN1
+	id S261755AbVACTMr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 14:12:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbVACTKJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 14:13:27 -0500
-Received: from orb.pobox.com ([207.8.226.5]:30867 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S261526AbVACRZG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 12:25:06 -0500
-Date: Mon, 3 Jan 2005 09:24:59 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Francisco Martins <fmartins@di.fc.ul.pt>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Suspend/resume to disk problem
-Message-ID: <20050103172459.GA4194@ip68-4-98-123.oc.oc.cox.net>
-References: <1104715228.8402.34.camel@pad.di.fc.ul.pt>
+	Mon, 3 Jan 2005 14:10:09 -0500
+Received: from smtp-101-monday.nerim.net ([62.4.16.101]:41228 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S261522AbVACTJF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 14:09:05 -0500
+Date: Mon, 3 Jan 2005 20:10:56 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Justin Thiessen <jthiessen@penguincomputing.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       LM Sensors <sensors@stimpy.netroedge.com>, Greg KH <greg@kroah.com>
+Subject: Re: Ticket #1851 - PATCH for adm1026.c, kernel 2.6.10-bk6
+Message-Id: <20050103201056.3c55e330.khali@linux-fr.org>
+In-Reply-To: <20050103194355.GA11979@penguincomputing.com>
+References: <41D5D075.4000200@paradyne.com>
+	<20050101001205.6b2a44d3.khali@linux-fr.org>
+	<20050103194355.GA11979@penguincomputing.com>
+Reply-To: LM Sensors <sensors@stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1104715228.8402.34.camel@pad.di.fc.ul.pt>
-User-Agent: Mutt/1.5.5.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 03, 2005 at 01:20:28AM +0000, Francisco Martins wrote:
-> Hi all,
-> 
-> I'm using Debian GNU/linux 3.1 with kernel 2.6.10 on my IBM Thinkpad
-> R40, and I'm experiencing a strange problem with suspend to disk.
-> 
-> If I configure the kernel options 
-> #
-> # Power management options (ACPI, APM)
-> #
-> CONFIG_PM=y
-> # CONFIG_PM_DEBUG is not set
-> CONFIG_SOFTWARE_SUSPEND=y
-> CONFIG_PM_STD_PARTITION="/dev/hda5",
+Hi Justin,
 
-AFAIK the typical way people do it (or at least what I'm doing, which
-isn't hitting this bug) is to set CONFIG_PM_STD_PARTITION to "" then to
-add (in your case) "resume=/dev/hda5" to the kernel boot command line.
+> Sorry for the slow response.  Real World vacation time intervened.
 
-This won't really fix your bug, but it should let you use swsusp in the
-meantime.
+Don't be sorry :)
 
--Barry K. Nathan <barryn@pobox.com>
+> Yes, I confirmed the reported problem.  The patch below should fix
+> it... It should also fix any other values-not-initialized-
+> to-hardware-defaults  issues.
+> (...)
+> --- linux-2.6.10/drivers/i2c/chips/adm1026.c.orig	2005-01-02 15:21:58.000000000 -0800
+> +++ linux-2.6.10/drivers/i2c/chips/adm1026.c	2005-01-02 16:09:52.000000000 -0800
+> @@ -1752,6 +1752,10 @@ int adm1026_detect(struct i2c_adapter *a
+>  	device_create_file(&new_client->dev,
+>  	&dev_attr_temp2_auto_point2_pwm);
+>  	device_create_file(&new_client->dev,
+>  	&dev_attr_temp3_auto_point2_pwm);
+>  	device_create_file(&new_client->dev, &dev_attr_analog_out);
+> +
+> +	/* Make sure hardware defaults are read into data structure */
+> +	adm1026_update_device(&new_client->dev);
+> +
+>  	return 0;
 
+Mmm, I don't like this fix.
+
+For one thing, it still leaves some room for someone to call a sysfs
+callback function before the values are all intialized (because you
+create the sysfs files interface first, then intialize all the values).
+
+For another, this change will significantly increase the driver loading
+time. Just check it! SMBus is slow and the ADM1026 has a lot of
+registers.
+
+The issue was already discussed on the sensors mailing-list (because the
+adm1026 is not the first affected driver, although others were not
+subject to division by zero). I think I remember Mark Hoffman was
+actually in favor of what you suggest [1], but I would like to see this
+avoided if possible.
+
+[1] http://archives.andrew.net.au/lm-sensors/msg26017.html
+
+Alternatives I can think of are:
+
+1* Only intialize the few values that actually can be needed before
+the update function was ever called.
+
+2* Call the update function from the write sysfs callback functions
+where needed.
+
+All drivers implement 1* (except those which are truly broken maybe) so
+far IIRC. I guess that the best choice probably depends on how much
+registers have to be read, and how hard it is to read them (because this
+is code duplication). That said, the relevant code could be moved to a
+separate function, called by both the detect/init and update functions,
+so that no slowdown occurs (except for the extra function call, but
+that's nothing compared to the SMBus slowness) and the code is still not
+duplicated.
+
+-- 
+Jean Delvare
+http://khali.linux-fr.org/

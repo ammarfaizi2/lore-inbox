@@ -1,47 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262584AbTGOFbf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 01:31:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262589AbTGOFbe
+	id S262589AbTGOFdK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 01:33:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262714AbTGOFdK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 01:31:34 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:48528 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262584AbTGOFbc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 01:31:32 -0400
-Date: Tue, 15 Jul 2003 07:46:21 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Chris Mason <mason@suse.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Andrea Arcangeli <andrea@suse.de>, lkml <linux-kernel@vger.kernel.org>,
-       "Stephen C. Tweedie" <sct@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
-       Andrew Morton <akpm@digeo.com>, Alexander Viro <viro@math.psu.edu>
-Subject: Re: RFC on io-stalls patch
-Message-ID: <20030715054621.GE833@suse.de>
-References: <1057932804.13313.58.camel@tiny.suse.com> <20030712073710.GK843@suse.de> <1058034751.13318.95.camel@tiny.suse.com> <20030713090116.GU843@suse.de> <20030713191921.GI16313@dualathlon.random> <20030714054918.GD843@suse.de> <Pine.LNX.4.55L.0307140922130.17091@freak.distro.conectiva> <20030714131206.GJ833@suse.de> <20030714195138.GX833@suse.de> <1058213348.13313.274.camel@tiny.suse.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 15 Jul 2003 01:33:10 -0400
+Received: from [203.199.140.162] ([203.199.140.162]:13830 "EHLO
+	calvin.codito.com") by vger.kernel.org with ESMTP id S262589AbTGOFdC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 01:33:02 -0400
+From: Amit Shah <shahamit@gmx.net> (by way of Amit Shah
+	<shahamit@gmx.net>)
+Subject: 2.6.0-test1: Framebuffer problem
+Date: Tue, 15 Jul 2003 11:17:55 +0530
+User-Agent: KMail/1.5.2
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1058213348.13313.274.camel@tiny.suse.com>
+Message-Id: <200307151117.55804.shahamit@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 14 2003, Chris Mason wrote:
-> On Mon, 2003-07-14 at 15:51, Jens Axboe wrote:
-> 
-> > Some initial results with the attached patch, I'll try and do some more
-> > fine grained tomorrow. Base kernel was 2.4.22-pre5 (obviously), drive
-> > tested is a SCSI drive (on aic7xxx, tcq fixed at 4), fs is ext3. I would
-> > have done ide testing actually, but the drive in that machine appears to
-> > have gone dead. I'll pop in a new one tomorrow and test on that too.
-> > 
-> 
-> Thanks Jens, the results so far are very interesting (although I'm
-> curious to hear how 2.4.21 did).
+I have a Riva TNT2 display card. On compiling in framebuffer support and
+ the other options (like the fonts, vga16 support, etc, relevant part of
+ .config pasted below), the kernel doesn't proceed after some messages
+ (where it initializes the frame buffer)... I just see the grub screen
+ again with some stripes and there's no disk activity thereafter.
 
-Hmm good point, I'll make a run with that as well.
+#
+# Graphics support
+#
+CONFIG_FB=y
+# CONFIG_FB_CIRRUS is not set
+# CONFIG_FB_PM2 is not set
+# CONFIG_FB_CYBER2000 is not set
+# CONFIG_FB_IMSTT is not set
+CONFIG_FB_VGA16=y
+CONFIG_FB_VESA=y
+CONFIG_VIDEO_SELECT=y
+# CONFIG_FB_HGA is not set
+CONFIG_FB_RIVA=y
+# CONFIG_FB_I810 is not set
+# CONFIG_FB_MATROX is not set
+# CONFIG_FB_RADEON is not set
+# CONFIG_FB_ATY128 is not set
+# CONFIG_FB_ATY is not set
+# CONFIG_FB_SIS is not set
+# CONFIG_FB_NEOMAGIC is not set
+# CONFIG_FB_3DFX is not set
+# CONFIG_FB_VOODOO1 is not set
+# CONFIG_FB_TRIDENT is not set
+# CONFIG_FB_PM3 is not set
+# CONFIG_FB_VIRTUAL is not set
 
--- 
-Jens Axboe
+#
+# Console display driver support
+#
+CONFIG_VGA_CONSOLE=y
+# CONFIG_MDA_CONSOLE is not set
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FRAMEBUFFER_CONSOLE=y
+CONFIG_PCI_CONSOLE=y
+CONFIG_FONTS=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+CONFIG_FONT_6x11=y
+CONFIG_FONT_PEARL_8x8=y
+CONFIG_FONT_ACORN_8x8=y
+CONFIG_FONT_MINI_4x6=y
+CONFIG_FONT_SUN8x16=y
+CONFIG_FONT_SUN12x22=y
+
+#
+# Logo configuration
+#
+CONFIG_LOGO=y
+CONFIG_LOGO_LINUX_MONO=y
+CONFIG_LOGO_LINUX_VGA16=y
+CONFIG_LOGO_LINUX_CLUT224=y
+
+
+--
+Amit Shah
+http://amitshah.nav.to/
+
+Why do you want to read your code?
+ The machine will.
+                 -- Sunil Beta
 

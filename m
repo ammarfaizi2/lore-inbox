@@ -1,64 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268404AbUJOUww@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268344AbUJOU4A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268404AbUJOUww (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 16:52:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268370AbUJOUww
+	id S268344AbUJOU4A (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 16:56:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268438AbUJOUz7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 16:52:52 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:39071 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S268436AbUJOUws (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 16:52:48 -0400
-Subject: Re: 2.6.9-rc4-mm1 : oops when rmmod uhci_hcd  [was: 2.6.9-rc3-mm2
-	: oops...]
-From: Lee Revell <rlrevell@joe-job.com>
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       Laurent Riffard <laurent.riffard@free.fr>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1097861761.2820.18.camel@deimos.microgate.com>
-References: <Pine.LNX.4.44L0.0410151318580.1052-100000@ida.rowland.org>
-	 <1097861761.2820.18.camel@deimos.microgate.com>
-Content-Type: text/plain
-Message-Id: <1097872927.5119.5.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 15 Oct 2004 16:42:08 -0400
-Content-Transfer-Encoding: 7bit
+	Fri, 15 Oct 2004 16:55:59 -0400
+Received: from sp-260-1.net4.netcentrix.net ([4.21.254.118]:60555 "EHLO
+	asmodeus.mcnaught.org") by vger.kernel.org with ESMTP
+	id S268344AbUJOUy0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 16:54:26 -0400
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CDROM support in ata_piix?
+References: <87k6txdte5.fsf@asmodeus.mcnaught.org>
+	<41702358.1080203@pobox.com>
+From: Doug McNaught <doug@mcnaught.org>
+Date: Fri, 15 Oct 2004 16:54:12 -0400
+In-Reply-To: <41702358.1080203@pobox.com> (Jeff Garzik's message of "Fri, 15
+ Oct 2004 15:22:00 -0400")
+Message-ID: <87acun7le3.fsf@asmodeus.mcnaught.org>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/20.7 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-15 at 13:36, Paul Fulghum wrote:
-> Unique device names are useful for identifying
-> which device instance is on a particular interrupt
-> (/proc/interrupts), but other drivers beside uhci_hcd
-> use a constant name so I guess that is legal :-)
-> 
+Jeff Garzik <jgarzik@pobox.com> writes:
 
-I agree that this would be a useful enhancement to the uhci_hcd driver. 
-For example:
+> Doug McNaught wrote:
+>> Is there any way to get ata_piix to register my CDROM, or
+>> alternatively to have the regular IDE driver handle it? This seems
+>> to be a known problem (it's filed as a Debian bug)--is it
+>> fixed in 2.6.9-rc4?  I had a look at the -rc4 patch but couldn't tell
+>> from the diff whether there's anything CDROM-related in there...
+>
+> Well, two things are going on:
+>
+> You may need to set CONFIG_BLK_DEV_SATA (or unset it) depending on
+> your configuration.
 
-           CPU0
-  0:  183247514          XT-PIC  timer  0/47514
-  1:      67096          XT-PIC  i8042  58/67096
-  2:          0          XT-PIC  cascade  0/0
-  8:   82425669          XT-PIC  rtc  0/25669
- 10:  163607273          XT-PIC  uhci_hcd, EMU10K1  0/7273
- 11:    1912890          XT-PIC  uhci_hcd, eth0  0/12890
- 12:          0          XT-PIC  uhci_hcd  0/0
- 15:     244330          XT-PIC  ide1  0/44329
+I will look into this.
 
-The front panel USB port shares an interrupt with the sound card, the
-rear with eth0.  Fome some of my testing it would be helpful if these
-just had numbers that I could mentally associate with a USB port.  Right
-now I have to move the mouse and watch the interrupt count.
+> Once you get past that, you need to apply the latest libata patch to
+> fix a related combined mode bug.
+>
+> http://lkml.org/lkml/2004/10/14/336
 
-> Either way, the generic IRQ code should deal with
-> duplicates without generating an oops.
+I will probably wait until this trickles into a Linus kernel--I don't
+have an immediate need for the CDROM (and I can boot 2.4 if I have
+to). 
 
-Agreed, this bug should be fixed either way.
+Thanks very much for the response!
 
-Lee
-
+-Doug
+-- 
+Let us cross over the river, and rest under the shade of the trees.
+   --T. J. Jackson, 1863

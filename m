@@ -1,64 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293705AbSCHHwr>; Fri, 8 Mar 2002 02:52:47 -0500
+	id <S310718AbSCHHyr>; Fri, 8 Mar 2002 02:54:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293680AbSCHHwi>; Fri, 8 Mar 2002 02:52:38 -0500
-Received: from front2.mail.megapathdsl.net ([66.80.60.30]:37390 "EHLO
-	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
-	id <S293705AbSCHHw0>; Fri, 8 Mar 2002 02:52:26 -0500
-Message-ID: <3C886C6F.7080708@megapathdsl.net>
-Date: Thu, 07 Mar 2002 23:46:55 -0800
-From: Miles Lane <miles@megapathdsl.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020212
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: andre@linuxdiskcert.org, Martin Dalecki <dalecki@evision-ventures.com>
-CC: linux-kernel@vger.kernel.org
-Subject: 2.5.6 -- In idedriver.o: undefined reference to `idescsi_init'
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S310719AbSCHHyh>; Fri, 8 Mar 2002 02:54:37 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:40553 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S293680AbSCHHyU>; Fri, 8 Mar 2002 02:54:20 -0500
+Date: Fri, 8 Mar 2002 02:54:15 -0500
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Hank Yang <hanky@promise.com.tw>
+Cc: arjanv@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Submitting PROMISE IDE Controllers Driver Patch
+Message-ID: <20020308025415.B29763@devserv.devel.redhat.com>
+In-Reply-To: <014701c1c5b6$a0dfb620$59cca8c0@hank> <3C873F96.C91E3591@redhat.com> <00b901c1c642$e7b6e9b0$59cca8c0@hank>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <00b901c1c642$e7b6e9b0$59cca8c0@hank>; from hanky@promise.com.tw on Fri, Mar 08, 2002 at 09:45:15AM +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-drivers/ide/idedriver.o: In function `ata_module_init':
-drivers/ide/idedriver.o(.text.init+0x93f): undefined reference to 
-`idescsi_init'
+On Fri, Mar 08, 2002 at 09:45:15AM +0800, Hank Yang wrote:
+> Hello.
+> 
+>     That's because the linux-kernel misunderstand the raid controller
+> to IDE controller. If do so, The raid driver will be unstable when
+> be loaded.
+> 
+>     So we must to prevent the raio controller to be as IDE controller
+> here.
 
-CONFIG_IDE=y
-
-#
-# IDE, ATA and ATAPI Block devices
-#
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_BLK_DEV_IDECS=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDESCSI=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_AMD74XX=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_IDE_MODES=y
-
-#
-# SCSI support
-#
-CONFIG_SCSI=y
-CONFIG_BLK_DEV_SD=y
-CONFIG_SD_EXTRA_DEVS=40
-CONFIG_BLK_DEV_SR=y
-CONFIG_BLK_DEV_SR_VENDOR=y
-CONFIG_SR_EXTRA_DEVS=2
-CONFIG_CHR_DEV_SG=y
-
-#
-# SCSI low-level drivers
-#
-CONFIG_SCSI_AIC7XXX=y
-CONFIG_AIC7XXX_CMDS_PER_DEVICE=253
-CONFIG_AIC7XXX_RESET_DELAY_MS=5000
+the in-kernel raid driver requires the IDE controller to be seen by the kernel.
+If you have an alternative raid driver please send me the source
+so I can probably fix this case for you.
 

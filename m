@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261403AbREMN5O>; Sun, 13 May 2001 09:57:14 -0400
+	id <S261402AbREMNyE>; Sun, 13 May 2001 09:54:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261404AbREMN4y>; Sun, 13 May 2001 09:56:54 -0400
-Received: from [212.150.138.2] ([212.150.138.2]:62217 "EHLO
-	ntserver.voltaire.com") by vger.kernel.org with ESMTP
-	id <S261403AbREMN4u>; Sun, 13 May 2001 09:56:50 -0400
-Message-ID: <20083A3BAEF9D211BDB600805F8B14F3AE379C@NTSERVER>
-From: Aviv Greenberg <avivg@voltaire.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: TCP Segmentation Offload
-Date: Sun, 13 May 2001 16:54:21 +0200
+	id <S261403AbREMNxy>; Sun, 13 May 2001 09:53:54 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:33287 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S261402AbREMNxf>;
+	Sun, 13 May 2001 09:53:35 -0400
+To: Olivier Galibert <galibert@pobox.com>
+Cc: linux-acenic@SunSITE.auc.dk, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Acenic tigon 1 support fix
+In-Reply-To: <20010430170138.A1085@nemesis.ncsl.nist.gov> <d3eltxt4hf.fsf@lxplus015.cern.ch> <20010510161104.A1949@zalem.puupuu.org>
+From: Jes Sorensen <jes@sunsite.dk>
+Date: 13 May 2001 15:53:00 +0200
+In-Reply-To: Olivier Galibert's message of "Thu, 10 May 2001 16:11:04 -0400"
+Message-ID: <d3bsoxtkxv.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="windows-1255"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+>>>>> "Olivier" == Olivier Galibert <galibert@pobox.com> writes:
 
-There is a nice feature (I saw it on 3Com EtherLink Server NIC cards)
-called "TCP Segmentation Offload". Which means that the stack is presented 
-with a larger MTU than eth, and the NIC produces smaller tcp segments.
-More info at M$
-http://www.microsoft.com/HWDEV/network/taskoffload.htm#Segment
+Olivier> On Thu, May 10, 2001 at 08:59:24PM +0200, Jes Sorensen wrote:
+>> Thanks, I'll put that in the next driver release as well.
 
-I would like to hear your comments, weather this is something that can gain
-real performance, and how to incorporate this into the Linux stack (At least
-I didn't
-see any references to it in kernel 2.4.(x<4)).
+Olivier> Good.  The only bad thing is that even with this fix, the
+Olivier> card doesn't work (recieves, but never transmits).  I'll have
+Olivier> to look into it later, when I find time.
 
-deca // sizeof(void)
+I wouldn't be surprised if the Tigon I support died with the zero copy
+changes. I haven't tested Tigon I cards for a long time (at least not
+this year) but if I find some time (wont be soon ;-) I might take a
+look.
+
+Cheers
+Jes

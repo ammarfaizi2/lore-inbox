@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263539AbTDDNYL (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 08:24:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263532AbTDDNTs (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 08:19:48 -0500
-Received: from phoenix.infradead.org ([195.224.96.167]:52748 "EHLO
+	id S263626AbTDDNcq (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 08:32:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263547AbTDDNZ5 (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 08:25:57 -0500
+Received: from phoenix.infradead.org ([195.224.96.167]:53516 "EHLO
 	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263530AbTDDNTV (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 08:19:21 -0500
-Date: Fri, 4 Apr 2003 14:30:49 +0100
+	id S263530AbTDDNVd (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 08:21:33 -0500
+Date: Fri, 4 Apr 2003 14:33:01 +0100
 From: Christoph Hellwig <hch@infradead.org>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: Ulrich Drepper <drepper@redhat.com>,
-       James Simmons <jsimmons@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: Why moving driver includes ?
-Message-ID: <20030404143048.A25147@infradead.org>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Subject: Re: i2c_probe() vs i2c_detect()
+Message-ID: <20030404143301.B25147@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Pete Zaitcev <zaitcev@redhat.com>,
-	Ulrich Drepper <drepper@redhat.com>,
-	James Simmons <jsimmons@infradead.org>,
-	linux-kernel@vger.kernel.org
-References: <mailman.1049324411.25620.linux-kernel2news@redhat.com> <200304030045.h330jok10685@devserv.devel.redhat.com> <3E8B8F31.5030407@redhat.com> <20030402204026.A15082@devserv.devel.redhat.com>
+	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+	sensors@stimpy.netroedge.com
+References: <20030403012307.GA6037@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030402204026.A15082@devserv.devel.redhat.com>; from zaitcev@redhat.com on Wed, Apr 02, 2003 at 08:40:26PM -0500
+In-Reply-To: <20030403012307.GA6037@kroah.com>; from greg@kroah.com on Wed, Apr 02, 2003 at 05:23:07PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 02, 2003 at 08:40:26PM -0500, Pete Zaitcev wrote:
-> I can see your point, but imagine how many packages this is
-> going to create. Shall we plead with Arjan to maintain
-> glibc-kernelheaders as a community package, to be a clearinghouse
-> for these things?
+On Wed, Apr 02, 2003 at 05:23:07PM -0800, Greg KH wrote:
+> Hi all,
+> 
+> Can anyone tell me why both i2c_probe() and i2c_detect() are in the
+> kernel at the same time?  They both almost do the same thing, with the
+> exception being i2c_detect() can handle i2c devices on the isa bus.
+> 
+> It kind of looks like the older i2c code and drivers used the
+> i2c_probe() call, while the lm_sensors code used i2c_detect().
+> 
+> If there are no objections, I'll merge the two of them, cutting about 2k
+> out of the kernel :)
 
-Yes.  It would be nice to have a tarball of it on kernel.org instead
-of only the SRPM on rawhide, btw..
+Once ou're at it you could also try to get rid of the check_region abuse
+in there :)
 

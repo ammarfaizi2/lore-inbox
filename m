@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267173AbTAKJyl>; Sat, 11 Jan 2003 04:54:41 -0500
+	id <S267174AbTAKKXK>; Sat, 11 Jan 2003 05:23:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267175AbTAKJyl>; Sat, 11 Jan 2003 04:54:41 -0500
-Received: from dp.samba.org ([66.70.73.150]:11138 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S267173AbTAKJyk>;
-	Sat, 11 Jan 2003 04:54:40 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] module-init-tools-0.9.7, depmod and GPL-only symbols 
-In-reply-to: Your message of "Fri, 10 Jan 2003 23:16:49 BST."
-             <20030110221649.GA5371@vana> 
-Date: Sat, 11 Jan 2003 18:38:36 +1100
-Message-Id: <20030111100327.8CA5B2C0CB@lists.samba.org>
+	id <S267175AbTAKKXK>; Sat, 11 Jan 2003 05:23:10 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:57362 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S267174AbTAKKXK>; Sat, 11 Jan 2003 05:23:10 -0500
+Date: Sat, 11 Jan 2003 10:31:55 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: "Kamble, Nitin A" <nitin.a.kamble@intel.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: KIRQ Balance
+Message-ID: <20030111103155.A22580@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Kamble, Nitin A" <nitin.a.kamble@intel.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <E88224AA79D2744187E7854CA8D9131DA5CE4A@fmsmsx407.fm.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E88224AA79D2744187E7854CA8D9131DA5CE4A@fmsmsx407.fm.intel.com>; from nitin.a.kamble@intel.com on Mon, Jan 06, 2003 at 11:40:31AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030110221649.GA5371@vana> you write:
-> Hi Rusty,
->    I finally got 2.5.56 running with configuration I always used (== almost
-> everything modular), and I found that module-init-tools-0.9.7 has small
-> problem with GPL-only symbols: depmod ignores them :-(
-> 
->    As I did not notice any newer version, please apply patch below if you
-> did not do something simillar already.
+On Mon, Jan 06, 2003 at 11:40:31AM -0800, Kamble, Nitin A wrote:
+> Hi Martin,
+>   Would somebody get a chance to try the kirq patch out? If yes, please
+> let me know, how the patch did on your systems. Did your guys find any
+> issues with it? I will also appreciate more comments.
 
-Yep, included; my bad.  Also did the same thing for System.map
-parsing.
+Where/What is the kirq patch?
 
-I'll probably release a new version today.
-
-Thanks!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

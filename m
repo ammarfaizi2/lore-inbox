@@ -1,76 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263407AbTEOBK6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 21:10:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263436AbTEOBK5
+	id S263282AbTEOBIC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 21:08:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263286AbTEOBIB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 21:10:57 -0400
-Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:22236 "HELO
-	develer.com") by vger.kernel.org with SMTP id S263407AbTEOBKx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 21:10:53 -0400
-Message-ID: <3EC2EC02.7050608@develer.com>
-Date: Thu, 15 May 2003 03:23:14 +0200
-From: Bernardo Innocenti <bernie@develer.com>
-Organization: Develer S.r.l.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030509
-X-Accept-Language: en, en-us
+	Wed, 14 May 2003 21:08:01 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:39435 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S263282AbTEOBIA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 21:08:00 -0400
+Date: Wed, 14 May 2003 18:20:23 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Christopher Hoover <ch@murgatroid.com>
+cc: "'Ulrich Drepper'" <drepper@redhat.com>,
+       "'Dave Jones'" <davej@codemonkey.org.uk>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] 2.5.68 FUTEX support should be optional
+In-Reply-To: <002201c31a7d$0f3f32a0$175e040f@bergamot>
+Message-ID: <Pine.LNX.4.44.0305141811310.28093-100000@home.transmeta.com>
 MIME-Version: 1.0
-To: akpm@zip.com.au
-CC: jgarzik@pobox.com, alan@redhat.com, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org, aleph@develer.com
-Subject: PATCH: fix bug in drivers/net/cs89x0.c:set_mac_address()
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Andrew, Jeff and Alan,
 
-the following patch fixes a bug in the CS89xx net device which
-would set new MAC address through SIOCSIFHWADDR _only_ when
-net_debug is set, which is obviously not what it was meant to do.
-The original code bogusly interpreted the addr argument as a buffer
-containing the MAC address instead of a struct sockaddr.
+On Wed, 14 May 2003, Christopher Hoover wrote:
+> 
+> This a specious argument.  There are many ways one can configure a
+> kernel that will make it fail to boot or run user space properly.
 
-Applies as-is to 2.4.20 and with offset to 2.5.69. Please forward
-it to Linus and Marcelo. This bug has been found and fixed by
-Stefano Fedrigo <aleph@develer.com>.
+Not very many, and some of them have been removed.
 
+For example, CONFIG_FILTER no longer exists. Why? Because it was too easy 
+to create a kernel on which dhcp no longer worked, and the advantage of 
+making it a config option was minimal.
 
---- linux-2.4.20.orig/drivers/net/cs89x0.c	2002-08-03 02:39:44.000000000 +0200
-+++ linux-2.4.20/drivers/net/cs89x0.c	2003-01-18 19:00:37.000000000 +0100
-@@ -1629,16 +1629,21 @@
- }
- 
- 
--static int set_mac_address(struct net_device *dev, void *addr)
-+static int set_mac_address(struct net_device *dev, void *p)
- {
- 	int i;
-+	struct sockaddr *addr = p;
-+
- 
- 	if (netif_running(dev))
- 		return -EBUSY;
-+
-+	memcpy(dev->dev_addr, addr->sa_data, dev->addr_len);
-+
- 	if (net_debug) {
- 		printk("%s: Setting MAC address to ", dev->name);
--		for (i = 0; i < 6; i++)
--			printk(" %2.2x", dev->dev_addr[i] = ((unsigned char *)addr)[i]);
-+		for (i = 0; i < dev->addr_len; i++)
-+			printk(" %2.2x", dev->dev_addr[i]);
- 		printk(".\n");
- 	}
- 	/* set the Ethernet address */
+Yes, CONFIG_NET and CONFIG_SYSVIPC are still there. And everybody turns
+them on, and they really are only useful for very embedded platforms. But
+at least turning them off saves huge amounts of memory for those
+platforms, something that isn't true of futexes.
 
+Apart from those options? Not many I can see. CONFIG_PACKET perhaps,
+although even that tends to break only very specialized applications.
 
--- 
-  // Bernardo Innocenti - Develer S.r.l., R&D dept.
-\X/  http://www.develer.com/
+The rule should _not_ be "what can we make optional". The rule should be 
+"this must be made optional because there is a big advantage doing it that 
+way, and it's specialized".
 
-Please don't send Word attachments.
-See: http://www.gnu.org/philosophy/no-word-attachments.html
+Futexes may be specialized today, but that's only because you have to run 
+a modern glibc to see them. But once you do that, they are not specialized 
+at all.
+
+Btw, the fact that futexes don't work without CONFIG_MMU is a bug not in
+futexes, but it the MMU-less code. The no-mmu version of "follow_page" is
+just wrong and badly implemented, and there's nothing to say that futexes
+aren't useful without a MMU. 
+
+			Linus
 

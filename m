@@ -1,41 +1,408 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264297AbUDTWbb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264550AbUDTWnC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264297AbUDTWbb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 18:31:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264538AbUDTWa3
+	id S264550AbUDTWnC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 18:43:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264548AbUDTWmO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 18:30:29 -0400
-Received: from ip213-185-37-13.laajakaista.mtv3.fi ([213.185.37.13]:28805 "EHLO
-	home.holviala.com") by vger.kernel.org with ESMTP id S264502AbUDTUlh
+	Tue, 20 Apr 2004 18:42:14 -0400
+Received: from smtp-out13.xs4all.nl ([194.109.24.14]:32517 "EHLO
+	smtp-out6.xs4all.nl") by vger.kernel.org with ESMTP id S264498AbUDTUew
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 16:41:37 -0400
-From: Kim Holviala <kim@holviala.com>
+	Tue, 20 Apr 2004 16:34:52 -0400
+Date: Tue, 20 Apr 2004 22:34:49 +0200
+From: Jurriaan <thunder7@xs4all.nl>
 To: linux-kernel@vger.kernel.org
-Subject: Re: /dev/psaux-Interface
-Date: Tue, 20 Apr 2004 23:41:46 +0300
-User-Agent: KMail/1.6.1
-References: <Pine.GSO.4.58.0402271451420.11281@stekt37> <Pine.GSO.4.58.0404191124220.21825@stekt37> <200404200756.08672.dtor_core@ameritech.net>
-In-Reply-To: <200404200756.08672.dtor_core@ameritech.net>
-MIME-Version: 1.0
+Subject: 2.6.6-rc1-mm1 (and earlier): pdflush taking 100% cpu time (profile, .config etc. provided)
+Message-ID: <20040420203449.GA21351@middle.of.nowhere>
+Reply-To: Jurriaan <thunder7@xs4all.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200404202341.46397.kim@holviala.com>
+X-Message-Flag: Still using Outlook? As you can see, it has some errors.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 20 April 2004 15:56, Dmitry Torokhov wrote:
+at times, pdflush is taking over my system:
 
-> I think the right way is to fix the issues with psmouse driver and use
-> input system to tie all hardware together.
+kernel 2.6.6-rc1-mm1
 
-I agree 100%, and that's why I'm working on the driver. I think the biggest 
-issue right now is the Fujitsu TouchScreen - I'll try to steal one of those 
-laptops from work later this week and maybe come up with a solution. It has a 
-Synaptics touchpad too so I get to test that as well.
+  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+31276 jurriaan  25   0 76772  59m 8764 R 98.7  2.0 776:39.05 mencoder
+ 3479 root      25   0     0    0    0 R 96.7  0.0 134:29.90 pdflush
+    1 root      16   0  1520  516 1368 S  0.0  0.0   0:10.50 init
 
+procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
+ 2  0   3064   7428  71536 2696036    0    0    94   154  201   196 53  5 41  1
+ 2  0   3064   7108  71556 2696424    0    0   128   303 1146   182 50 50  0  0
+ 2  0   3064   6540  71556 2697036    0    0   192   238 1129   155 50 50  0  0
+ 2  0   3064   6284  71556 2697512    0    0   128   228 1127   278 50 50  0  0
+ 2  0   3064   7692  71564 2696076    0    0   192   266 1134   161 50 50  0  0
+ 2  0   3064   7108  71564 2696688    0    0   192   302 1140   203 50 50  0  0
+ 2  0   3064   6660  71568 2697092    0    0   128   232 1128   145 50 50  0  0
+ 2  0   3064   6276  71588 2697616    0    0   128   309 1141   178 50 50  0  0
+ 2  0   3064   7108  71588 2696732    0    0   192   290 1139   169 50 50  0  0
+ 2  0   3064   6596  71600 2697332    0    0   192   260 1133   165 50 50  0  0
 
+output from
+#!/bin/sh
+readprofile -r
+readprofile -M10
+sleep 30
+readprofile -n -v -m /proc/kallsyms | sort +0.50 -n | tail -20
 
+c0170978 __iget                                      172   2.1235
+c0178af1 writeback_acquire                           220   8.8000
+c0178b18 writeback_release                           223   4.7447
+c0142757 __pagevec_release                           237   4.3889
+c0172151 wake_up_inode                               270   4.2857
+c02909b0 atomic_dec_and_lock                         271   2.3362
+c0339333 ide_intr                                    308   0.6498
+c013ec60 mapping_tagged                              376   3.5140
+c0178224 sync_sb_inodes                              393   0.5406
+c0177f49 __sync_single_inode                         469   0.9214
+c0103029 default_idle                                525  10.7143
+c0142aff pagevec_lookup_tag                          587   9.7833
+c0142432 lru_add_drain                               689   6.2072
+c0138943 wait_on_page_bit                           1112   5.2701
+c0138910 page_waitqueue                             9518 186.6275
+c0142579 release_pages                             23597  49.3661
+c0138a16 unlock_page                               23666 281.7381
+c013e945 clear_page_dirty_for_io                   24791 255.5773
+c01797c5 mpage_writepages                          30701  40.0274
+c0138ec9 find_get_pages_tag                       181934 1166.2436
 
-Kim
+.config:
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_BROKEN=y
+CONFIG_BROKEN_ON_SMP=y
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_LOG_BUF_SHIFT=16
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_KALLSYMS=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_CFQ=y
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_KMOD=y
+CONFIG_STOP_MACHINE=y
+CONFIG_X86_PC=y
+CONFIG_MPENTIUM4=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=7
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_HPET_TIMER=y
+CONFIG_HPET_EMULATE_RTC=y
+CONFIG_SMP=y
+CONFIG_NR_CPUS=2
+CONFIG_SCHED_SMT=y
+CONFIG_PREEMPT=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_TSC=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MCE_NONFATAL=y
+CONFIG_X86_MCE_P4THERMAL=y
+CONFIG_MICROCODE=y
+CONFIG_X86_MSR=y
+CONFIG_X86_CPUID=y
+CONFIG_HIGHMEM4G=y
+CONFIG_HIGHMEM=y
+CONFIG_HIGHPTE=y
+CONFIG_MTRR=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_PM=y
+CONFIG_ACPI=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_SLEEP=y
+CONFIG_ACPI_SLEEP_PROC_FS=y
+CONFIG_ACPI_AC=y
+CONFIG_ACPI_BUTTON=y
+CONFIG_ACPI_FAN=y
+CONFIG_ACPI_PROCESSOR=y
+CONFIG_ACPI_THERMAL=y
+CONFIG_ACPI_DEBUG=y
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_MMCONFIG=y
+CONFIG_PCI_NAMES=y
+CONFIG_ISA=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_MISC=y
+CONFIG_PARPORT=y
+CONFIG_PARPORT_PC=y
+CONFIG_PARPORT_PC_CML1=y
+CONFIG_PARPORT_1284=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDESCSI=y
+CONFIG_IDE_GENERIC=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_AMD74XX=y
+CONFIG_BLK_DEV_HPT366=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_BLK_DEV_PDC202XX_OLD=y
+CONFIG_BLK_DEV_VIA82CXXX=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_SCSI=y
+CONFIG_SCSI_PROC_FS=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_CHR_DEV_ST=y
+CONFIG_BLK_DEV_SR=y
+CONFIG_CHR_DEV_SG=y
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_REPORT_LUNS=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_SPI_ATTRS=y
+CONFIG_SCSI_SYM53C8XX_2=y
+CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=1
+CONFIG_SCSI_SYM53C8XX_DEFAULT_TAGS=16
+CONFIG_SCSI_SYM53C8XX_MAX_TAGS=64
+CONFIG_SCSI_QLA2XXX=y
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=y
+CONFIG_MD_LINEAR=y
+CONFIG_MD_RAID0=y
+CONFIG_MD_RAID1=y
+CONFIG_MD_RAID5=y
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_IP_ROUTE_VERBOSE=y
+CONFIG_SYN_COOKIES=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=y
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+CONFIG_NET_TULIP=y
+CONFIG_TULIP=y
+CONFIG_TULIP_MWI=y
+CONFIG_TULIP_MMIO=y
+CONFIG_NET_PCI=y
+CONFIG_8139TOO=y
+CONFIG_8139_RXBUF_IDX=2
+CONFIG_TIGON3=m
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_SERPORT=y
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_INPUT_MISC=y
+CONFIG_INPUT_PCSPKR=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_NR_UARTS=4
+CONFIG_SERIAL_CORE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_LEGACY_PTYS=y
+CONFIG_LEGACY_PTY_COUNT=256
+CONFIG_PRINTER=y
+CONFIG_WATCHDOG=y
+CONFIG_SOFT_WATCHDOG=y
+CONFIG_HW_RANDOM=y
+CONFIG_RTC=y
+CONFIG_AGP=y
+CONFIG_AGP_INTEL=y
+CONFIG_DRM=y
+CONFIG_DRM_RADEON=y
+CONFIG_DRM_MGA=y
+CONFIG_HANGCHECK_TIMER=y
+CONFIG_I2C=y
+CONFIG_I2C_CHARDEV=m
+CONFIG_I2C_ALGOBIT=y
+CONFIG_I2C_ISA=m
+CONFIG_I2C_VIAPRO=m
+CONFIG_I2C_SENSOR=m
+CONFIG_SENSORS_VIA686A=m
+CONFIG_SENSORS_W83781D=m
+CONFIG_SENSORS_EEPROM=m
+CONFIG_FB=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB_MATROX=y
+CONFIG_FB_MATROX_G450=y
+CONFIG_FB_MATROX_G100=y
+CONFIG_FB_RADEON=y
+CONFIG_FB_RADEON_I2C=y
+CONFIG_FB_RADEON_DEBUG=y
+CONFIG_FB_3DFX=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FRAMEBUFFER_CONSOLE=y
+CONFIG_PCI_CONSOLE=y
+CONFIG_FONTS=y
+CONFIG_FONT_SUN12x22=y
+CONFIG_LOGO=y
+CONFIG_LOGO_LINUX_MONO=y
+CONFIG_LOGO_LINUX_VGA16=y
+CONFIG_LOGO_LINUX_CLUT224=y
+CONFIG_SOUND=y
+CONFIG_SND=y
+CONFIG_SND_TIMER=y
+CONFIG_SND_PCM=y
+CONFIG_SND_HWDEP=y
+CONFIG_SND_RAWMIDI=y
+CONFIG_SND_SEQUENCER=y
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=y
+CONFIG_SND_PCM_OSS=y
+CONFIG_SND_SEQUENCER_OSS=y
+CONFIG_SND_RTCTIMER=y
+CONFIG_SND_MPU401_UART=y
+CONFIG_SND_OPL3_LIB=y
+CONFIG_SND_AC97_CODEC=y
+CONFIG_SND_EMU10K1=y
+CONFIG_SND_CMIPCI=y
+CONFIG_SND_INTEL8X0=y
+CONFIG_SND_VIA82XX=y
+CONFIG_USB=y
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_EHCI_HCD=y
+CONFIG_USB_UHCI_HCD=y
+CONFIG_USB_PRINTER=y
+CONFIG_USB_HID=y
+CONFIG_USB_HIDINPUT=y
+CONFIG_EXT2_FS=y
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_JBD=y
+CONFIG_FS_MBCACHE=y
+CONFIG_REISERFS_FS=y
+CONFIG_XFS_FS=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_UDF_FS=y
+CONFIG_FAT_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_NTFS_FS=y
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_SYSFS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_SUNRPC=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_DEBUG_KERNEL=y
+CONFIG_EARLY_PRINTK=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_FRAME_POINTER=y
+CONFIG_4KSTACKS=y
+CONFIG_SCHEDSTATS=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+CONFIG_CRC32=y
+CONFIG_X86_SMP=y
+CONFIG_X86_HT=y
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_X86_TRAMPOLINE=y
+CONFIG_X86_STD_RESOURCES=y
+CONFIG_PC=y
+
+/proc/sys/vm/block_dump:0
+/proc/sys/vm/dirty_background_ratio:10
+/proc/sys/vm/dirty_expire_centisecs:3000
+/proc/sys/vm/dirty_ratio:40
+/proc/sys/vm/dirty_writeback_centisecs:500
+/proc/sys/vm/laptop_mode:0
+/proc/sys/vm/lower_zone_protection:0
+/proc/sys/vm/max_map_count:65536
+/proc/sys/vm/min_free_kbytes:957
+/proc/sys/vm/nr_pdflush_threads:2
+/proc/sys/vm/overcommit_memory:0
+/proc/sys/vm/overcommit_ratio:50
+/proc/sys/vm/page-cluster:3
+/proc/sys/vm/swappiness:60
+
+MemTotal:      3107928 kB
+MemFree:          6540 kB
+Buffers:         72764 kB
+Cached:        2696996 kB
+SwapCached:       1240 kB
+Active:         342292 kB
+Inactive:      2625092 kB
+HighTotal:     2228160 kB
+HighFree:         1088 kB
+LowTotal:       879768 kB
+LowFree:          5452 kB
+SwapTotal:     4016232 kB
+SwapFree:      4013180 kB
+Dirty:           11868 kB
+Writeback:           0 kB
+Mapped:         212944 kB
+Slab:           107076 kB
+Committed_AS:   236832 kB
+PageTables:       1252 kB
+VmallocTotal:   114680 kB
+VmallocUsed:     27256 kB
+VmallocChunk:    87420 kB
+
+Any ideas? I've seen this in earlier kernels, but this is the first time
+I've been able to profile it. Usually, when I leave the system like this
+for the night, pdlush has quieted down by morning. That does hamper the
+encoding speed, however.
+
+Thanks,
+Jurriaan
+-- 
+He was back, and they could like it or lump it.
+	Simon R Green - Blue Moon Rising
+Debian (Unstable) GNU/Linux 2.6.6-rc1-mm1 2x6062 bogomips 2.53 2.32

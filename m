@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275529AbRJBQTU>; Tue, 2 Oct 2001 12:19:20 -0400
+	id <S275381AbRJBQQk>; Tue, 2 Oct 2001 12:16:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275576AbRJBQTK>; Tue, 2 Oct 2001 12:19:10 -0400
-Received: from mons.uio.no ([129.240.130.14]:61662 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S275529AbRJBQS6>;
-	Tue, 2 Oct 2001 12:18:58 -0400
-To: Ian Grant <Ian.Grant@cl.cam.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.10 build failure - atomic_dec_and_lock export
-In-Reply-To: <E15oRJg-00005z-00@wisbech.cl.cam.ac.uk>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 02 Oct 2001 18:19:21 +0200
-In-Reply-To: Ian Grant's message of "Tue, 02 Oct 2001 16:18:40 +0100"
-Message-ID: <shs669yvwty.fsf@charged.uio.no>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+	id <S275576AbRJBQQa>; Tue, 2 Oct 2001 12:16:30 -0400
+Received: from gap.cco.caltech.edu ([131.215.139.43]:7618 "EHLO
+	gap.cco.caltech.edu") by vger.kernel.org with ESMTP
+	id <S275389AbRJBQQV>; Tue, 2 Oct 2001 12:16:21 -0400
+Date: Tue, 2 Oct 2001 11:49:20 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Dinesh Gandhewar <dinesh_gandhewar@rediffmail.com>
+cc: mlist-linux-kernel@NNTP-SERVER.CALTECH.EDU
+Subject: Re: your mail
+In-Reply-To: <20011002152945.15180.qmail@mailweb16.rediffmail.com>
+Message-ID: <Pine.LNX.3.95.1011002113741.8413A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Ian Grant <Ian.Grant@cl.cam.ac.uk> writes:
+On 2 Oct 2001, Dinesh  Gandhewar wrote:
 
-     > Trond,
-     > 2.4.10 won't link with CONFIG_SMP and i386 CPU selected. I
-     >        believe the problem
-     > lies in in the #ifndef atomic_dec_and_lock in
-     > lib/dec_and_lock.c. As far as I can see this symbol is always
-     > defined because it's exported.
+> 
+> Hello,
+> I have written a linux kernel module. The linux version is 2.2.14. 
+> In this module I have declared an array of size 2048. If I use this
+> array, the execution of this module function causes kernel to reboot.
+> If I kmalloc() this array then execution of this module function
+> doesnot cause any problem.
+> Can you explain this behaviour?
+> Thnaks,
+> Dinesh 
 
-This patch looks very redundant.
+I would check that you are not accidentally exceeding the bounds of
+your array. Actual allocation occurs in page-size chunks. You may
+be exceeding your 2048 byte-limit without exceeding the 4096-byte
+page-size (of ix86).
 
-If you have CONFIG_SMP defined then atomic_dec_and_lock will never get
-defined, and if CONFIG_HAVE_DEC_LOCK is not defined, then
-dec_and_lock.c will never even get compiled. Even the config.h include
-is superfluous as linux/module.h will include it.
+However, a global array, or an array on the stack, has very strict
+limits. You can blow things up on the stack by exceeding an array
+boundary by one byte. And you can overwrite important memory objects
+by exceeding the bounds of a global memory object.
 
-I don't understand though: I have no problems compiling and linking
-stock 2.4.10 with CONFIG_M386=y + CONFIG_SMP=y.
-Are you sure that you didn't miss a 'make dep' after doing 'make
-config'/'make oldconfig'?
 
 Cheers,
-   Trond
+Dick Johnson
 
-PS: sorry that you received this mail twice Ian. I didn't notice the
-first time around that you had Cced the l-k list.
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
+

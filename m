@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132704AbRDIIbb>; Mon, 9 Apr 2001 04:31:31 -0400
+	id <S132707AbRDIJEa>; Mon, 9 Apr 2001 05:04:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132705AbRDIIbM>; Mon, 9 Apr 2001 04:31:12 -0400
-Received: from [62.90.5.51] ([62.90.5.51]:40463 "EHLO salvador.shunra.co.il")
-	by vger.kernel.org with ESMTP id <S132704AbRDIIbJ>;
-	Mon, 9 Apr 2001 04:31:09 -0400
-Message-ID: <F1629832DE36D411858F00C04F24847A11DF71@SALVADOR>
-From: Ofer Fryman <ofer@shunra.co.il>
-To: "'Bernhard Bender'" <Bernhard.Bender@ELSA.de>
+	id <S132709AbRDIJET>; Mon, 9 Apr 2001 05:04:19 -0400
+Received: from t2.redhat.com ([199.183.24.243]:22524 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S132707AbRDIJEH>; Mon, 9 Apr 2001 05:04:07 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <Pine.LNX.4.30.0104081846460.16728-100000@mackman.net> 
+In-Reply-To: <Pine.LNX.4.30.0104081846460.16728-100000@mackman.net> 
+To: Ryan Mack <rmack@mackman.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: RE: ethernet phy link state info
-Date: Mon, 9 Apr 2001 11:36:50 +0200 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2448.0)
-Content-Type: text/plain;
-	charset="WINDOWS-1255"
+Subject: Re: [QUESTIONS] Transision from pcmcia-cs to 2.4 built-in PCMCIA 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 09 Apr 2001 10:04:00 +0100
+Message-ID: <12964.986807040@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You need to use diagnostic or setup utility of that specific device, the
-utility usually comes with the specific driver using the driver to receive
-info about mii registers (the registers in charge of full/half 10/100 etc').
 
-you can find many drivers and diagnostic utilities at http://www.scyld.com/.
+rmack@mackman.net said:
+>  First, why have I stopped needing cs and cb_enabler?
 
-Ofer
+cs is built into pcmcia_core.o, cb_enabler should still be there though. 
+It's feasible that you only need cb_enabler for the old CardBus drivers, 
+though - I'm not sure.
 
------Original Message-----
-From: Bernhard Bender [mailto:Bernhard.Bender@ELSA.de]
-Sent: Friday, April 06, 2001 4:55 PM
-To: linux-kernel@vger.kernel.org
-Subject: ethernet phy link state info
+> Second, why is yenta_socket only compiled if I enable CardBus support
+> in the kernel?  I'm running an Orinoco card on another machine, and
+> since I don't think it's CardBus (am I wrong?), I didn't enable CB in
+> the kernel. The i82365 driver is the only one compiled, but it seems
+> to work fine on that machine.  Should I enable CardBus support and use
+> yenta_socket instead?
+
+yenta_socket is the driver for CardBus i82365-compatible sockets.
+i82365 no longer drives CardBus sockets, only PCMCIA.
+
+> Third, on the first machine with both cards, neither card works if I
+> use i82365 instead of yenta_socket, why?  The Orinoco gets Tx timeouts
+> on every packet, and inserting the 3c595 causes the controller
+> (socket) to time out waiting for reset and it doesn't recognize the
+> 3c595.
+
+The PCMCIA card ought to work. It's probably screwed up the IRQ routing - 
+it no longer knows about some of the differences between CardBus and PCMCIA 
+bridges. What exactly is the bridge in this machine?
+
+--
+dwmw2
 
 
-
-
-Hi all,
-
-where do I find information about the current link state of the ethernet PHY
-(e.g. 100mbit/s full duplex) ?
-Something like /proc/sys/net/* ?
-
-Thanks
-Bernhard
-
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/

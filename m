@@ -1,33 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261731AbTIYHNo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 03:13:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbTIYHNo
+	id S261734AbTIYH10 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 03:27:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbTIYH10
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 03:13:44 -0400
-Received: from vitelus.com ([64.81.243.207]:12693 "EHLO vitelus.com")
-	by vger.kernel.org with ESMTP id S261731AbTIYHNn (ORCPT
+	Thu, 25 Sep 2003 03:27:26 -0400
+Received: from holomorphy.com ([66.224.33.161]:9099 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S261734AbTIYH1Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 03:13:43 -0400
-Date: Thu, 25 Sep 2003 00:12:53 -0700
-From: Aaron Lehmann <aaronl@vitelus.com>
-To: linux-kernel@vger.kernel.org
-Subject: Complete I/O starvation with 3ware raid on 2.6
-Message-ID: <20030925071252.GE22525@vitelus.com>
+	Thu, 25 Sep 2003 03:27:25 -0400
+Date: Thu, 25 Sep 2003 00:25:02 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: akpm@zip.com.au, neilb@cse.unsw.edu.au, braam@clusterfs.com,
+       davem@redhat.com, Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       David Mosberger-Tang <davidm@hpl.hp.com>, tridge@samba.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sysctl-controlled number of groups.
+Message-ID: <20030925072502.GL4306@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Rusty Russell <rusty@rustcorp.com.au>, akpm@zip.com.au,
+	neilb@cse.unsw.edu.au, braam@clusterfs.com, davem@redhat.com,
+	Martin Schwidefsky <schwidefsky@de.ibm.com>,
+	David Mosberger-Tang <davidm@hpl.hp.com>, tridge@samba.org,
+	linux-kernel@vger.kernel.org
+References: <20030925035943.AE41C2C04B@lists.samba.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20030925035943.AE41C2C04B@lists.samba.org>
+Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm running bkcvs HEAD on a newly installed system, and started
-copying files over to my RAID 5 from older IDE disks. When I copy
-these files, the system becomes unusable. Specifically, any disk
-access on the 3ware array, no matter how simple, even starting 'vi' on
-a file, takes minutes or eternity to complete. Suspending the process
-doing the copying doesn't even help much, because the LEDs on the card
-continue blinking for about 30 seconds after the suspension. This
-happens whether the IDE drive is using DMA or not. It seems that some
-kind of insane queueing is going on. Are there parameters worth
-playing with? Should I try the deadline I/O scheduler?
+On Thu, Sep 25, 2003 at 01:21:01PM +1000, Rusty Russell wrote:
+> We have a client (using SAMBA) who has people in 190 groups.  Since NT
+> has hierarchical groups, this is not all that rare.
+> What do people think of this patch?
+
+I like the idea of raising the microscopic limit. BTW, was the Author:
+supposed to be Tim Hockin? ISTR his writing this or something almost
+identical to it. Also, I'm not sure if the sysctl is worth anything.
+
+
+-- wli

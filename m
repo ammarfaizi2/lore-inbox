@@ -1,42 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263122AbUJ2HWo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263130AbUJ2H1a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263122AbUJ2HWo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 03:22:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263124AbUJ2HWo
+	id S263130AbUJ2H1a (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 03:27:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263129AbUJ2H12
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 03:22:44 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:12526 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S263122AbUJ2HWm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 03:22:42 -0400
-Date: Fri, 29 Oct 2004 09:23:43 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [2.6 patch] sched.c: remove an unused function
-Message-ID: <20041029072343.GA30400@elte.hu>
-References: <20041028231445.GE3207@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041028231445.GE3207@stusta.de>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Fri, 29 Oct 2004 03:27:28 -0400
+Received: from [192.55.52.67] ([192.55.52.67]:21935 "EHLO
+	fmsfmr001.fm.intel.com") by vger.kernel.org with ESMTP
+	id S263124AbUJ2HZd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 03:25:33 -0400
+Date: Fri, 29 Oct 2004 15:07:51 +0800 (CST)
+From: "Zhu, Yi" <yi.zhu@intel.com>
+X-X-Sender: chuyee@mazda.sh.intel.com
+Reply-To: "Zhu, Yi" <yi.zhu@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: Pavel Machek <pavel@ucw.cz>, Shaohua Li <shaohua.li@intel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] [swsusp] print error message when swapping is disabled
+In-Reply-To: <16A54BF5D6E14E4D916CE26C9AD3057563D61B@pdsmsx402.ccr.corp.intel.com>
+Message-ID: <Pine.LNX.4.44.0410291500250.29394-100000@mazda.sh.intel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 26 Oct 2004, Li, Shaohua wrote:
 
-* Adrian Bunk <bunk@stusta.de> wrote:
+> Another case is PSE disabled. Should notify this to user also. 
 
-> The patch below removes an unused function from kernel/sched.c
+Here is a patch to address it.
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
+Thanks,
+-yi
 
-	Ingo
+
+Signed-off-by: Zhu Yi <yi.zhu@intel.com>
+
+diff -urp linux-2.6.10-rc1-orig/include/asm-i386/suspend.h linux-2.6.10-rc1/include/asm-i386/suspend.h
+--- linux-2.6.10-rc1-orig/include/asm-i386/suspend.h	2004-10-29 14:11:44.000000000 +0800
++++ linux-2.6.10-rc1/include/asm-i386/suspend.h	2004-10-29 14:14:41.000000000 +0800
+@@ -12,8 +12,11 @@ arch_prepare_suspend(void)
+ 	/* If you want to make non-PSE machine work, turn off paging
+            in do_magic. swsusp_pg_dir should have identity mapping, so
+            it could work...  */
+-	if (!cpu_has_pse)
++	if (!cpu_has_pse) {
++		printk(KERN_ERR "swsusp: FATAL: PSE is not availiable or "
++				"disabled on your system!\n");
+ 		return -EPERM;
++	}
+ 	return 0;
+ }
+ 
+

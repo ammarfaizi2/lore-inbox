@@ -1,64 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266293AbUBLBVf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 20:21:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266255AbUBLBVf
+	id S266448AbUBLBTK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 20:19:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266549AbUBLBTK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 20:21:35 -0500
-Received: from mail.kroah.org ([65.200.24.183]:25772 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266293AbUBLBVX (ORCPT
+	Wed, 11 Feb 2004 20:19:10 -0500
+Received: from c3p0.cc.swin.edu.au ([136.186.1.30]:13586 "EHLO swin.edu.au")
+	by vger.kernel.org with ESMTP id S266448AbUBLBTH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 20:21:23 -0500
-Date: Wed, 11 Feb 2004 17:19:46 -0800
-From: Greg KH <greg@kroah.com>
-To: Martin Schlemmer <azarah@nosferatu.za.org>
-Cc: linux-hotplug-devel@lists.sourceforge.net,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] udev 016 release
-Message-ID: <20040212011946.GC15983@kroah.com>
-References: <20040203201359.GB19476@kroah.com> <1075844602.7473.75.camel@nosferatu.lan> <20040211221324.GC14231@kroah.com> <1076538429.22542.12.camel@nosferatu.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1076538429.22542.12.camel@nosferatu.lan>
-User-Agent: Mutt/1.4.1i
+	Wed, 11 Feb 2004 20:19:07 -0500
+To: linux-kernel@vger.kernel.org
+From: Tim Connors <tconnors+linuxkernel1076548709@astro.swin.edu.au>
+Subject: Re: JFS default behavior (was: UTF-8 in file systems? xfs/extfs/etc.)
+In-reply-to: <20040212004532.GB29952@hexapodia.org>
+References: <20040209115852.GB877@schottelius.org> <slrn-0.9.7.4-32556-23428-200402111736-tc@hexane.ssi.swin.edu.au> <1076517309.21961.169.camel@shaggy.austin.ibm.com> <20040212004532.GB29952@hexapodia.org>
+X-Face: "/6m>=uJ8[yh+S{nuW'%UG"H-:QZ$'XRk^sOJ/XE{d/7^|mGK<-"*e>]JDh/b[aqj)MSsV`X1*pA~Uk8C:el[*2TT]O/eVz!(BQ8fp9aZ&RM=Ym&8@.dGBW}KDT]MtT"<e(`rn*-w$3tF&:%]KHf"{~`X*i]=gqAi,ScRRkbv&U;7Aw4WvC
+X-Face-Author: David Bonde mailto:i97_bed@i.kth.se.REMOVE.THIS.TO.REPLY -- If you want to use it please also use this Authorline.
+Message-ID: <slrn-0.9.7.4-1003-6481-200402121218-tc@hexane.ssi.swin.edu.au>
+Date: Thu, 12 Feb 2004 12:19:03 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 12, 2004 at 12:27:09AM +0200, Martin Schlemmer wrote:
-> On Thu, 2004-02-12 at 00:13, Greg KH wrote:
-> > On Tue, Feb 03, 2004 at 11:43:22PM +0200, Martin Schlemmer wrote:
-> > > On Tue, 2004-02-03 at 22:13, Greg KH wrote:
-> > > 
-> > > Once again, patch to make logging a config option.
-> > > 
-> > > Reason for this (since you asked for it =):
-> > > - In our setup it is easy (although still annoying) .. just
-> > > edit the ebuild, add logging support (or remove it) and rebuild.
-> > > For say a binary distro, having the logging is useful for debugging
-> > > some times, but its more a once of, or rare thing, as you do not
-> > > add or change config files every day.  Sure, we can have logging
-> > > by default, but many do not want ~300 lines of extra debugging in
-> > > their logs is not pleasant, and they will complain.  Rebuilding
-> > > the package for that binary package (given the users it is targeted
-> > > to) is usually not within most users grasp.
-> > 
-> > Ok, I applied this patch.
-> > 
-> > And then I went back and fixed it so it actually would work :(
-> > 
-> > Here's the changes I had to make to get everything to build properly,
-> > and to let us have a boolean type for the config files.
-> > 
+Andy Isaacson <adi@hexapodia.org> said on Wed, 11 Feb 2004 18:45:32 -0600:
+> On Wed, Feb 11, 2004 at 10:35:10AM -0600, Dave Kleikamp wrote:
+> > Yeah, JFS has poor default behavior based on CONFIG_NLS_DEFAULT.  I
+> > attempted to explain why it works that way in the first bug listed above
+> > if anyone is curious.
 > 
-> Interest sake ... when did it actually fail?  (When linking with
-> klibc maybe?  Been using here without problems).
+> I think your suggested fix is good, but it begs the question:
+> 
+> Why on earth is JFS worried about the filename, anyways?  Why has it
+> *ever* had *any* behavior other than "string of bytes, delimited with /,
+> terminated with \0" ?
 
-Did you build udevinfo?  udevsend?  udevd?  None of those files ended up
-including the udev_log_* variable.
+Thanks for wording my question better. That was *precisely* the
+question I was trying to ask :)
 
-Anyway, it's cleaner this way :)
-
-thanks,
-
-greg k-h
+-- 
+TimC -- http://astronomy.swin.edu.au/staff/tconnors/
+Disclaimer: This post owned by the owner

@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131286AbRCWRGT>; Fri, 23 Mar 2001 12:06:19 -0500
+	id <S131276AbRCWRDT>; Fri, 23 Mar 2001 12:03:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131290AbRCWRGL>; Fri, 23 Mar 2001 12:06:11 -0500
-Received: from dentin.eaze.net ([216.228.128.151]:25092 "EHLO xirr.com")
-	by vger.kernel.org with ESMTP id <S131286AbRCWRF3>;
-	Fri, 23 Mar 2001 12:05:29 -0500
-Date: Fri, 23 Mar 2001 11:00:27 -0600 (CST)
-From: SodaPop <soda@xirr.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Prevent OOM from killing init
-In-Reply-To: <E14gOAz-0004MB-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0103231053020.27155-100000@xirr.com>
+	id <S131244AbRCWRDJ>; Fri, 23 Mar 2001 12:03:09 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:39428 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S131276AbRCWRDA>; Fri, 23 Mar 2001 12:03:00 -0500
+Date: Fri, 23 Mar 2001 12:02:57 -0500 (EST)
+From: Pavel Roskin <proski@gnu.org>
+X-X-Sender: <proski@fonzie.nine.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.2-ac23 compile error on i686
+Message-ID: <Pine.LNX.4.33.0103231149390.15152-100000@fonzie.nine.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik, is there any way we could get a /proc entry for this, so that one
-could do something like:
+Hello!
 
-cat /proc/oom-kill-scores | sort +3
+2.4.2-ac23 doesn't compile in arch/i386/kernel/setup.c. Somebody has
+changed CONFIG_TSC to CONFIG_X86_TSC, probably without testing the
+resulting code.
 
-to get a process list (similar to ps) with a field for the current oom
-scores?  It would likely be very useful to be able to dump the current
-scores and see what will be the first thing to die, and may help people
-tune the killer for specific uses.
+CONFIG_TSC was never defined, so it was an error. However, what we have
+now is that tsc_disable is declared if CONFIG_X86_TSC is not defined, but
+is used if it is defined.
 
-Part of the current problem with the OOM killer is that people only know
-what it's going to kill after it's too late.
+I think we should be a little more consistent here. Possible solutions:
 
--dennis T
+1) "notsc" should be enabled in the kernels for old processors the the
+case if they run on a better processor and the user may need to disable
+TSC (ifndef CONFIG_X86_TSC everywhere in setup.c)
 
+2) "notsc" should be enabled in the kernels for the new processors. It
+would save few bytes in the kernels for i386, but the code for i686 will
+function even if "notsc" is used (ifdef CONFIG_X86_TSC everywhere in
+setup.c)
+
+3) Remove all those silly if[n]defs. We have the "cpu_has_tsc"  variable
+on all platforms. clear_bit() and set_in_cr4() are already used on all
+processors. It should be safe.
+
+Regards,
+Pavel Roskin
 

@@ -1,51 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264187AbTKSXJp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Nov 2003 18:09:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264188AbTKSXJp
+	id S264188AbTKSXLZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Nov 2003 18:11:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264190AbTKSXLZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Nov 2003 18:09:45 -0500
-Received: from waste.org ([209.173.204.2]:44684 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S264187AbTKSXJn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Nov 2003 18:09:43 -0500
-Date: Wed, 19 Nov 2003 17:09:28 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>, Ingo Molnar <mingo@elte.hu>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-       Hugh Dickins <hugh@veritas.com>
-Subject: Re: [PATCH][2.6-mm] Fix 4G/4G X11/vm86 oops
-Message-ID: <20031119230928.GE22139@waste.org>
-References: <Pine.LNX.4.53.0311181113150.11537@montezuma.fsmlabs.com> <Pine.LNX.4.44.0311180830050.18739-100000@home.osdl.org> <20031119203210.GC22139@waste.org>
+	Wed, 19 Nov 2003 18:11:25 -0500
+Received: from wblv-224-88.telkomadsl.co.za ([165.165.224.88]:42757 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S264188AbTKSXLX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Nov 2003 18:11:23 -0500
+Subject: Re: [2.6 patch] document that udev isn't yet ready (fwd)
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: azarah@nosferatu.za.org
+To: Greg KH <greg@kroah.com>
+Cc: Adrian Bunk <bunk@fs.tum.de>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031119221456.GB22090@kroah.com>
+References: <20031119213237.GA16828@fs.tum.de>
+	 <20031119221456.GB22090@kroah.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-JItz/aKn+e6LHH/JjhbI"
+Message-Id: <1069283566.5032.21.camel@nosferatu.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031119203210.GC22139@waste.org>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 20 Nov 2003 01:12:46 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 19, 2003 at 02:32:10PM -0600, Matt Mackall wrote:
-> 
-> Zwane's got a K6-2 500MHz. I've just managed to reproduce this on my
-> 1.4GHz Opteron box (with Debian gcc 3.2). Here, the "ooh la la" bit
-> doesn't help. So my suspicion is that the printk is changing the
-> timing just enough on Zwane's box that he's getting a timer interrupt
-> knocking him out of vm86 mode before he hits a fatal bit in the fault
-> handling path for 4/4. Printks in handle_vm86_trap, handle_vm86_fault,
-> do_trap:vm86_trap, and do_general_protection:gp_in_vm86 never fire so
-> there's probably something amiss in the trampoline code.
 
-Some more datapoints:
+--=-JItz/aKn+e6LHH/JjhbI
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-CPU          distro          compiler  video        X     result
-K6-2/500     connectiva 9    2.96      trident      4.3   reboot (zwane)
-K6-2/500     connectiva 9    3.2.2     trident      4.3   reboot (zwane)
-Opteron 240  debian unstable 3.2       S3           4.2.1 reboot
-Athlon 2100  debian unstable 3.2       radeon 7500  4.2.1 works
-P4M 1800     debian unstable 3.2       radeon m7    4.2.1 reboot
+On Thu, 2003-11-20 at 00:14, Greg KH wrote:
+> On Wed, Nov 19, 2003 at 10:32:38PM +0100, Adrian Bunk wrote:
+> > The trivial documentation patch forwarded below still applies (with a=20
+> > few lines offset) against 2.6.0-test9-mm4.
+>=20
+> Hm, with the 006 release, what do you find lacking in udev?
+>=20
 
--- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+I am guessing its more driver support, etc.  Input devices for
+instance do not seem to have any sysfs support yet, and full
+initramfs support with udev in there, and udev.permissions setup
+to get general permissions, etc right, might make it more advertisable
+for the masses (no need to maintain /dev or the initial costs for
+users not so interested in the workings of things).
+
+Lets just say from what I have seen from users talking/asking, the
+initial setup and seeming 'lack of functionality' is the biggest
+blocker.
+
+
+Cheers,
+
+--=20
+Martin Schlemmer
+
+--=-JItz/aKn+e6LHH/JjhbI
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/u/juqburzKaJYLYRAhrwAKCdlP5JNM+ii/1I7TG5Er/o5Z8DcACfU9xY
+DSb2kVqcVpSZQ0apiINemIM=
+=Y8TO
+-----END PGP SIGNATURE-----
+
+--=-JItz/aKn+e6LHH/JjhbI--
+

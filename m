@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271204AbTHCQAF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 12:00:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271207AbTHCQAF
+	id S270003AbTHCQaV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 12:30:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271207AbTHCQaU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 12:00:05 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:30937 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S271204AbTHCQAC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 12:00:02 -0400
-Date: Sun, 3 Aug 2003 17:59:18 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Marcelo Abreu <skewer@terra.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test2-mm3
-In-Reply-To: <3F2D2686.308@terra.com.br>
-Message-ID: <Pine.LNX.4.44.0308031758410.27587-100000@localhost.localdomain>
+	Sun, 3 Aug 2003 12:30:20 -0400
+Received: from mauve.demon.co.uk ([158.152.209.66]:1685 "EHLO
+	mauve.demon.co.uk") by vger.kernel.org with ESMTP id S270003AbTHCQaT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Aug 2003 12:30:19 -0400
+From: root@mauve.demon.co.uk
+Message-Id: <200308031630.RAA10225@mauve.demon.co.uk>
+Subject: Re: 2.6.0-test2 pegasus USB ethernet system lockup.
+To: root@mauve.demon.co.uk
+Date: Sun, 3 Aug 2003 17:30:21 +0100 (BST)
+Cc: greg@kroah.com (Greg KH), linux-kernel@vger.kernel.org
+In-Reply-To: <200308031358.OAA09299@mauve.demon.co.uk> from "root@mauve.demon.co.uk" at Aug 03, 2003 02:58:35 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> 
+> > 
+> > On Sun, Aug 03, 2003 at 01:22:07AM +0100, root@mauve.demon.co.uk wrote:
+> > > Occasionally I also get 
+> > > Aug  1 01:47:37 mauve kernel: Debug: sleeping function called from invalid context at drivers/usb/core/hcd.c:1350
+> > 
+> > This is fixed in Linus's tree.
+> > 
+> > > I am unable to say if lights are flashing on the keyboard, as there are 
+> > > no lights on the keyboard.
+> > 
+> > Can you use a serial debug console and/or the nmi watchdog to see if you
+> > can capture where things went wrong?
+> 
+> Currently trying to get the NMI watchdog working.
 
-On Sun, 3 Aug 2003, Marcelo Abreu wrote:
-
-> 	The 4G patch has changed the 'ldt' member of mm_context_t, calling
-> it 'ldt_pages'. Patch from Raphael fixes fpu_system.h for correct
-> compilation, but system won't boot with 'no387' parameter. So semantics
-> must have been changed too.
-
-i sent the correct patch to Andrew already:
-
---- linux/arch/i386/math-emu/fpu_system.h.orig	
-+++ linux/arch/i386/math-emu/fpu_system.h	
-@@ -15,6 +15,7 @@
- #include <linux/sched.h>
- #include <linux/kernel.h>
- #include <linux/mm.h>
-+#include <asm/atomic_kmap.h>
- 
- /* This sets the pointer FPU_info to point to the argument part
-    of the stack frame of math_emulate() */
-@@ -22,7 +23,7 @@
- 
- /* s is always from a cpu register, and the cpu does bounds checking
-  * during register load --> no further bounds checks needed */
--#define LDT_DESCRIPTOR(s)	(((struct desc_struct *)current->mm->context.ldt)[(s) >> 3])
-+#define LDT_DESCRIPTOR(s)	(((struct desc_struct *)__kmap_atomic_vaddr(KM_LDT_PAGE0))[(s) >> 3])
- #define SEG_D_SIZE(x)		((x).b & (3 << 21))
- #define SEG_G_BIT(x)		((x).b & (1 << 23))
- #define SEG_GRANULARITY(x)	(((x).b & (1 << 23)) ? 4096 : 1)
-
-
+I have failed to get it working.
+I tried both of the options under CPU features to enable the APIC, with
+both settings of the kernel flag.
+I also tried a SMP kernel, with no flag.
+None of these showed any NMI interrupts in /proc/interrupts or any different
+behaviour on unplugging with the network active.
+Is a serial kernel likely to do anything in this case?

@@ -1,34 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267270AbSLKTBA>; Wed, 11 Dec 2002 14:01:00 -0500
+	id <S267224AbSLKTAr>; Wed, 11 Dec 2002 14:00:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267271AbSLKTBA>; Wed, 11 Dec 2002 14:01:00 -0500
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:48618 "EHLO
-	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S267270AbSLKTA6>; Wed, 11 Dec 2002 14:00:58 -0500
-Message-Id: <4.3.2.7.2.20021211200359.00b5adb0@pop.t-online.de>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Wed, 11 Dec 2002 20:09:12 +0100
-To: linux-kernel@vger.kernel.org
-From: margitsw@t-online.de (Margit Schubert-While)
-Subject: RE: [Dri-devel] Re: 2.4.20 AGP for I845 wrong ?
+	id <S267270AbSLKTAr>; Wed, 11 Dec 2002 14:00:47 -0500
+Received: from pc2-cwma1-4-cust129.swan.cable.ntl.com ([213.105.254.129]:37315
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267224AbSLKTAp>; Wed, 11 Dec 2002 14:00:45 -0500
+Subject: Re: Bug Report 2.4.20: Interrupt sharing bogus
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+In-Reply-To: <20021211195501.7f6dff35.skraw@ithnet.com>
+References: <20021211195501.7f6dff35.skraw@ithnet.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 11 Dec 2002 19:45:55 +0000
+Message-Id: <1039635955.18587.12.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- >Keith Whitwell wrote:
- >diff -u -r1.9 drm_agpsupport.h
- >--- drm_agpsupport.h	22 Aug 2002 19:35:31 -0000	1.9
- >+++ drm_agpsupport.h	11 Dec 2002 13:29:18 -0000
- >@@ -260,60 +260,6 @@
- > 			return NULL;
- > 		}
- > 		head->memory = NULL;
- >-		switch (head->agp_info.chipset) {
- >-		case INTEL_GENERIC:	head->chipset = "Intel";         break;
+On Wed, 2002-12-11 at 18:55, Stephan von Krawczynski wrote:
+> 4-port ethernet card. For tests I simply copy a lot of files via NFS to the
+> local hd. It always freezes the machine, not always ad-hoc, but within short.
+> I checked with 2.4.19 - same problem.
+> I can test patches on this, no production machine involved. Any hints appreciated.
 
-Think you missed something at line 258.
-
-Margit 
+Not all systems get on with the 4 ports and bridge stuff. Also make sure
+you have APIC disabled as the SiS io apic has some fun features 2.4
+doesnt yet have workarounds for
 

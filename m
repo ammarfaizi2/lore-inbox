@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313174AbSECOIn>; Fri, 3 May 2002 10:08:43 -0400
+	id <S313187AbSECOKQ>; Fri, 3 May 2002 10:10:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313187AbSECOIm>; Fri, 3 May 2002 10:08:42 -0400
-Received: from www.microgate.com ([216.30.46.105]:48136 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP
-	id <S313174AbSECOIm>; Fri, 3 May 2002 10:08:42 -0400
-Subject: [PATCH] 2.4.19-pre8 New driver synclink_cs.c
-From: Paul Fulghum <paulkf@microgate.com>
-To: "marcelo@conectiva.com.br" <marcelo@conectiva.com.br>
-Cc: "alan@lxorguk.ukuu.org.uk" <alan@lxorguk.ukuu.org.uk>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.4 
-Date: 03 May 2002 09:06:24 -0500
-Message-Id: <1020434784.986.7.camel@diemos.microgate.com>
-Mime-Version: 1.0
+	id <S313199AbSECOKP>; Fri, 3 May 2002 10:10:15 -0400
+Received: from mcewen.wcnet.org ([63.174.200.22]:45496 "EHLO mcewen.wcnet.org")
+	by vger.kernel.org with ESMTP id <S313187AbSECOKN>;
+	Fri, 3 May 2002 10:10:13 -0400
+Date: Fri, 3 May 2002 10:11:18 -0400 (EDT)
+From: <skmail@mcewen.wcnet.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: kernel strangeness
+In-Reply-To: <E173NEc-0004lB-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0205031009100.24533-100000@mcewen.wcnet.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A patch that adds a new driver for the SyncLink PC Card
-(PCMCIA) multiprotocol serial adapter is located at
-
-ftp://ftp.microgate.com/linux/patch-synclink_cs-2.4.19-pre8.gz
-
-This patch is against 2.4.19-pre8
-
-This is the same as currently in latest ac tree.
-(Contents unchanged, patch updated to apply cleanly against pre8)
-
-Please apply.
+Thank you.  I will try replacing the glibc.  If I understand right (I'm 
+not a programmer) I will need to recompile the kernel, and possibly some 
+other programs, against the i386 glibc.  Correct?
 
 
 
+On Thu, 2 May 2002, Alan Cox wrote:
 
+> > ethernets, 64 meg memory, and an AMD Elan SC520.  I loaded the flash disk 
+> > on a full install of RH 7.2.  Custom compiled the kernel for no modules, 
+> > for an i386 architecture.  It works fine on the desktop system I used to 
+> > load it, but when I put it on the net4501,  Lilo loads, starts loading the 
+> > kernel, then it hangs.  The last message on the screen is Freeing unused 
+> > kernel memory.  I also downloaded the latest 2.4.19-pre7, compiled it for 
+> > the Elan processor, with no success.  Same thing happens.  
+> 
+> Thats the classic case when you have a i686 glibc rather than the i386/486
+> glibc that is needed by the Elan board. Swap for the i386 glibc
+> 
 

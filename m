@@ -1,39 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbVB0Hlx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261364AbVB0HuE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261363AbVB0Hlx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 02:41:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbVB0Hlw
+	id S261364AbVB0HuE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 02:50:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261365AbVB0HuE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 02:41:52 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39302 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261363AbVB0Hli (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 02:41:38 -0500
-Message-ID: <4221799F.4050801@pobox.com>
-Date: Sun, 27 Feb 2005 02:41:19 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tejun Heo <htejun@gmail.com>
-CC: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       linux-ide <linux-ide@vger.kernel.org>
-Subject: Re: [PATCH 2.6.11-rc3 10/11] ide: make ide_cmd_ioctl() use TASKFILE
-References: <20050210083808.48E9DD1A@htj.dyndns.org> <20050210083854.BD13DFBD@htj.dyndns.org> <58cb370e050224075040f5c031@mail.gmail.com> <20050227065348.GB27728@htj.dyndns.org>
-In-Reply-To: <20050227065348.GB27728@htj.dyndns.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 27 Feb 2005 02:50:04 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:52401 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S261364AbVB0Ht6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Feb 2005 02:49:58 -0500
+Date: Sun, 27 Feb 2005 08:50:41 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: "Ian E. Morgan" <imorgan@webcon.ca>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ALPS tapping disabled. WHY?
+Message-ID: <20050227075041.GA1722@ucw.cz>
+References: <Pine.LNX.4.62.0502241822310.8449@light.int.webcon.net> <200502242208.16065.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200502242208.16065.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For what it's worth...
+On Thu, Feb 24, 2005 at 10:08:15PM -0500, Dmitry Torokhov wrote:
 
-Some vendor-specific commands on PATA devices require -exact- 
-specification of registers in, and registers out.  You never want to 
-read more registers than are flagged.  Ditto for write.
+> > So now, can anyone explain what bit 3 of param[0] does, and why you would
+> > want to disable hardware tapping support when it's set? My pad (ALPS
+> > 56AAA1760C on a Sager NP8560V) has always worked with hardware tapping as a
+> > plain PS/2 mouse, no special ALPS support req'd.
+> > 
+> > Can this disabling of hardware tapping support be made optional (boot time
+> > param or other)? I don't want to have to patch every kernel from here on
+> > out.
+> > 
+> 
+> It still should do software tap emulation (although support is a bit flakey
+> with ALPS I must admit, but there are patches that should improve it) - so
+> people who don't like tapping can deactivate it.
+> 
+> Anyway, "psmouse.proto=exps" boot option should disable ALPS native mode and
+> restore previous behavior.
 
-	Jeff
+Also, in my tree currently (and planned for 2.6.12) hardware tapping is
+enabled again, because double taps don't work otherwise (hardware
+limitation).
 
-
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

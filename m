@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261812AbTCQRxn>; Mon, 17 Mar 2003 12:53:43 -0500
+	id <S261821AbTCQSBv>; Mon, 17 Mar 2003 13:01:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261814AbTCQRxn>; Mon, 17 Mar 2003 12:53:43 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:25499 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S261812AbTCQRxm>;
-	Mon, 17 Mar 2003 12:53:42 -0500
-Date: Mon, 17 Mar 2003 13:04:32 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: Larry McVoy <lm@bitmover.com>, Roman Zippel <zippel@linux-m68k.org>,
-       Andrea Arcangeli <andrea@suse.de>, Nicolas Pitre <nico@cam.org>,
-       Ben Collins <bcollins@debian.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
-Message-ID: <20030317180432.GD9667@gtf.org>
-References: <Pine.LNX.4.44.0303161341520.5348-100000@xanadu.home> <Pine.LNX.4.44.0303170104080.5042-100000@serv> <20030317013555.GA26273@work.bitmover.com> <20030317174304.EC6FC3D268@mx01.nexgo.de>
+	id <S261822AbTCQSBv>; Mon, 17 Mar 2003 13:01:51 -0500
+Received: from msp-24-163-212-250.mn.rr.com ([24.163.212.250]:44960 "EHLO
+	msp-24-163-212-250.mn.rr.com") by vger.kernel.org with ESMTP
+	id <S261821AbTCQSBu>; Mon, 17 Mar 2003 13:01:50 -0500
+Subject: Re: BK->CVS is live
+From: Shawn <core@enodev.com>
+To: Larry McVoy <lm@bitmover.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <200303171552.h2HFqK907234@work.bitmover.com>
+References: <200303171552.h2HFqK907234@work.bitmover.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1047924757.11766.18.camel@msp-24-163-212-250.mn.rr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030317174304.EC6FC3D268@mx01.nexgo.de>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.3.1.99 (Preview Release)
+Date: 17 Mar 2003 12:12:38 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 17, 2003 at 06:46:43PM +0100, Daniel Phillips wrote:
-> On Mon 17 Mar 03 02:18, Roman Zippel wrote:
-> > you only get all the data, if you use bk. One of the arguments for the
-> > move to bk was that the format was open and the data wasn't locked in.
+Yeah!
+
+Oh, and while I was sending this, I thought I'd ask a question.
+Regarding the folks who still say "not good enough", might it be
+possible to export bk metadata into, say, a compressed file in each
+subdir in the repository? Such a file would contain any relevant bk
+metadata for files in that subdir.
+
+I don't know if that's something one would want to do for performance
+reasons or otherwise, but it sound like the thing that would finally
+quiet those who are complaining.
+
+Good work! I hope BitchKeeper turns out just as nice.
+
+On Mon, 2003-03-17 at 09:52, Larry McVoy wrote:
+> I think those repositories are stable enough you can start to count on
+> them.  Sam and others have looked over their changes and think that 
+> the CVS tree has accurate data.
 > 
-> Being seen to keep the promise would be the benefit to BitMover.  Personally, 
-> I no longer hold any hope of that - the migration to increasingly proprietary 
-> formats and secret/patented protcols will be inexorable.
-
-$subject proves you wrong.  cvs is an open format, and open protocol.
-
-We hope to have cset retrieval via http available soon, too.
-
-
-> Hence, no more 
-> flaming, just doing.
-
-Larry seems to be the only one 'doing', ATM.  :)
-
-	Jeff
-
-
-
+> The CVS repository is at
+> 
+>     cvs -d:pserver:anonymous@kernel.bkbits.net:/home/cvs
+> 
+> and it has two top level directories, linux-2.4 and linux-2.5.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,155 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264704AbUIMBXj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264795AbUIMBjv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264704AbUIMBXj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 21:23:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264795AbUIMBXj
+	id S264795AbUIMBjv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 21:39:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264881AbUIMBjv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 21:23:39 -0400
-Received: from [64.65.177.98] ([64.65.177.98]:22954 "EHLO mail.pacrimopen.com")
-	by vger.kernel.org with ESMTP id S264704AbUIMBXd (ORCPT
+	Sun, 12 Sep 2004 21:39:51 -0400
+Received: from fmr12.intel.com ([134.134.136.15]:12505 "EHLO
+	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
+	id S264795AbUIMBjq convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 21:23:33 -0400
-Message-ID: <4144F691.6040405@pacrimopen.com>
-Date: Sun, 12 Sep 2004 18:23:29 -0700
-From: Joshua Schmidlkofer <kernel@pacrimopen.com>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040824)
-X-Accept-Language: en-us, en
+	Sun, 12 Sep 2004 21:39:46 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: jch@imr-net.com
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       ck kernel mailing list <ck@vds.kolivas.org>,
-       Cliff Wells <clifford.wells@comcast.net>
-Subject: Re: 2.6.8.1-ck7, Two Badnessess, one dump.
-References: <41412765.4010005@kolivas.org>
-In-Reply-To: <41412765.4010005@kolivas.org>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] Yielding processor resources during lock contention
+Date: Sun, 12 Sep 2004 18:35:56 -0700
+Message-ID: <7F740D512C7C1046AB53446D372001730232E11C@scsmsx402.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] Yielding processor resources during lock contention
+Thread-Index: AcSYnNBZiKUX06jHR9yQddlVB1mbYAAjk4Tg
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+To: "Ingo Molnar" <mingo@elte.hu>, "Zwane Mwaikambo" <zwane@fsmlabs.com>
+Cc: "Linus Torvalds" <torvalds@osdl.org>, "Paul Mackerras" <paulus@samba.org>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Anton Blanchard" <anton@samba.org>,
+       "Andi Kleen" <ak@suse.de>
+X-OriginalArrivalTime: 13 Sep 2004 01:35:58.0216 (UTC) FILETIME=[04DC0880:01C49932]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I upgraded from 2.6.8.1-ck5.
+>From: Ingo Molnar [mailto:mingo@elte.hu]
+>Sent: Sunday, September 12, 2004 12:49 AM
+>To: Zwane Mwaikambo
+>Cc: Linus Torvalds; Paul Mackerras; Linux Kernel; Andrew Morton; Anton
+>Blanchard; Nakajima, Jun; Andi Kleen
+>Subject: Re: [PATCH] Yielding processor resources during lock
+contention
+>
+>
+>* Zwane Mwaikambo <zwane@fsmlabs.com> wrote:
+>
+>> > Agreed, Paul we may as well remove the cpu_relax() in
+>__preempt_spin_lock
+>> > and use something like "cpu_yield" (architectures not supporting it
+>would
+>> > just call cpu_relax) i'll have something for you later.
+>>
+>> The following patch introduces cpu_lock_yield which allows
+>> architectures to possibly yield processor resources during lock
+>> contention. [...]
+>
+>it is not clear from the Intel documentation how well MONITOR+MWAIT
+>works on SMP. It seems to be targeted towards hyperthreaded CPUs -
+where
+>i suspect it's much easier to monitor the stream of stores done to an
+>address.
 
-First off - this has been a landmark improvement for me.   Running an 
-"emerge -a world" on my system has gone from a matter of minutes to a 
-matter of seconds.
+Ingo, Hi
 
-The performance has been !outstanding!. 
-[Disclosure:  Using NVIDIA Binary Drivers]
+>
+>on SMP MESI caches the question is, does MONITOR+MWAIT detect a
+>cacheline invalidate or even a natural cacheline flush? I doubt it
+does.
+>But without having the monitored cacheline in Modified state in the
+>sleeping CPU for sure it's fundamentally racy and it's not possible to
+>guarantee latencies: another CPU could have grabbed the cacheline and
+>could keep it dirty indefinitely. (it could itself go idle forever
+after
+>this point!)
+>
+>the only safe way would be if MONITOR moved the cacheline into
+Exclusive
+>state and if it would watch that cacheline possibly going away (i.e.
+>another CPU unlocking the spinlock) after this point - in addition to
+>watching the stores of any HT sibling. But there is no description of
+>the SMP behavior in the Intel docs - and i truly suspect it would be
+>documented all over the place if it worked correctly on SMP... So i
+>think this is an HT-only instruction. (and in that limited context we
+>could indeed use it!)
 
-The first night of running I got this:
-xfs_fsr: page allocation failure. order:4, mode:0x50
-[<c0131174>] __alloc_pages+0x332/0x3f6
-[<c0131257>] __get_free_pages+0x1f/0x3b
-[<c013404f>] kmem_getpages+0x1d/0xb3
-[<c0134b05>] cache_grow+0x96/0x122
-[<c0134ccc>] cache_alloc_refill+0x13b/0x1d7
-[<c01350d9>] __kmalloc+0x72/0x79
-[<c0221144>] kmem_alloc+0x58/0xba
-[<c01c546c>] xfs_alloc_log_agf+0x58/0x5c
-[<c0221253>] kmem_realloc+0x2b/0x7c
-[<c020058e>] xfs_iext_realloc+0xf6/0x13e
-[<c01d6967>] xfs_bmap_insert_exlist+0x35/0x8c
-[<c01d3f3a>] xfs_bmap_add_extent_hole_real+0x3cd/0x73f
-[<c01df64f>] xfs_bmbt_get_state+0x2f/0x3b
-[<c01d0eb6>] xfs_bmap_add_extent+0x35b/0x42d
-[<c02212f4>] kmem_zone_alloc+0x50/0x96
-[<c022136f>] kmem_zone_zalloc+0x35/0x62
-[<c01e1070>] xfs_btree_init_cursor+0x2a/0x147
-[<c01d888f>] xfs_bmapi+0x66a/0x141b
-[<c0214fde>] xfs_trans_tail_ail+0x12/0x28
-[<c0206c9e>] xlog_assign_tail_lsn+0x19/0x33
-[<c0208cc2>] xlog_state_release_iclog+0x26/0xd1
-[<c02065df>] xfs_log_reserve+0xbe/0xc7
-[<c0216100>] xfs_trans_iget+0x9c/0x163
-[<c021f8bf>] xfs_alloc_file_space+0x425/0x695
-[<c0201adf>] xfs_ichgtime+0x10a/0x10c
-[<c02208a4>] xfs_change_file_space+0x1e3/0x420
-[<c02064e4>] xfs_log_release_iclog+0x21/0x5e
-[<c021488b>] xfs_trans_commit+0x219/0x3a7
-[<c0130daa>] buffered_rmqueue+0xc8/0x160
-[<c0242100>] copy_from_user+0x42/0x6e
-[<c0226e6e>] xfs_ioc_space+0x9c/0xb9
-[<c0226932>] xfs_ioctl+0x389/0x829
-[<c013ac28>] handle_mm_fault+0xd2/0x138
-[<c0113230>] do_page_fault+0x13f/0x53d
-[<c013c55d>] do_mmap_pgoff+0x591/0x6ac
-[<c0225916>] linvfs_ioctl+0x3b/0x47
-[<c01573ca>] file_ioctl+0x6a/0x171
-[<c01575a0>] sys_ioctl+0xcf/0x203
-[<c0105791>] sysenter_past_esp+0x52/0x71
+MONITOR+MWAIT works on SMP as well.
 
-I shutdown, did an xfs_repair, and the error has not returned.
+>
+>one good thing to do would be to test the behavior and count cycles -
+it
+>is possible to set up the 'wrong' caching case that can potentially
+lead
+>to indefinite delays in mwait. If it turns out to work the expected way
+>then it would be nice to use. (The deep-sleep worries are not a too big
+>issue for latency-sensitive users as deep sleep can already occur via
+>the idle loop so it has to be turned off / tuned anyway.)
 
-Two days later I got this:
+The instruction mwait is just a hint for the processor to enter an
+(implementation-specific) optimized state, and in general it cannot
+cause indefinite delays because of various break events, including
+interrupts. If an interrupt happens, then the processor gets out of the
+mwait state. The instruction does not support a restart at the mwait
+instruction. In other words the processor needs to redo the mwait
+instruction to reenter the state after a break event. Event time-outs
+may take the processor out of the state, depending on the
+implementation.
 
-Badness in cfq_sort_rr_list at drivers/block/cfq-iosched.c:428
-[<c02a82d6>] cfq_add_crq_rb+0x16f/0x17a
-[<c02a8fe0>] cfq_enqueue+0x3b/0x6c
-[<c02a9108>] cfq_insert_request+0xf7/0x12b
-[<c029e4fd>] __elv_add_request+0x45/0x9e
-[<c02a134f>] __make_request+0x293/0x4e5
-[<c02a16aa>] generic_make_request+0x109/0x18a
-[<c012fc97>] mempool_alloc+0x6f/0x11e
-[<c0115690>] autoremove_wake_function+0x0/0x57
-[<c02a1788>] submit_bio+0x5d/0xfb
-[<c014b93b>] bio_add_page+0x34/0x38
-[<c02241a6>] _pagebuf_ioapply+0x1b6/0x2a4
-[<c0224319>] pagebuf_iorequest+0x85/0x153
-[<c01fe1ec>] xfs_xlate_dinode_core+0x15e/0x81d
-[<c0114847>] default_wake_function+0x0/0x12
-[<c0114847>] default_wake_function+0x0/0x12
-[<c022973f>] xfs_bdstrat_cb+0x42/0x48
-[<c0223e66>] pagebuf_iostart+0x4e/0xa3
-[<c0200fda>] xfs_iflush+0x1ad/0x472
-[<c021eef1>] xfs_inode_flush+0x189/0x1fe
-[<c022973f>] xfs_bdstrat_cb+0x42/0x48
-[<c02153db>] xfs_trans_first_ail+0x16/0x27
-[<c0229d89>] linvfs_write_inode+0x32/0x36
-[<c01631dc>] write_inode+0x46/0x48
-[<c016339c>] __sync_single_inode+0x1be/0x1d0
-[<c01635fc>] generic_sync_sb_inodes+0x19d/0x2b1
-[<c01637ec>] writeback_inodes+0xaa/0xac
-[<c01320c1>] background_writeout+0x71/0xb1
-[<c0132b03>] pdflush+0x0/0x2c
-[<c0132a40>] __pdflush+0x9c/0x15f
-[<c0132b2b>] pdflush+0x28/0x2c
-[<c0132050>] background_writeout+0x0/0xb1
-[<c0132b03>] pdflush+0x0/0x2c
-[<c0126dd1>] kthread+0xa5/0xab
-[<c0126d2c>] kthread+0x0/0xab
-[<c0103c1d>] kernel_thread_helper+0x5/0xb
-Badness in cfq_sort_rr_list at drivers/block/cfq-iosched.c:428
-[<c02a82d6>] cfq_add_crq_rb+0x16f/0x17a
-[<c02a8fe0>] cfq_enqueue+0x3b/0x6c
-[<c02a9108>] cfq_insert_request+0xf7/0x12b
-[<c029e4fd>] __elv_add_request+0x45/0x9e
-[<c02a134f>] __make_request+0x293/0x4e5
-[<c02a16aa>] generic_make_request+0x109/0x18a
-[<c012fc97>] mempool_alloc+0x6f/0x11e
-[<c0115690>] autoremove_wake_function+0x0/0x57
-[<c02a1788>] submit_bio+0x5d/0xfb
-[<c01145fe>] scheduler_tick+0x1f/0x268
-[<c014b93b>] bio_add_page+0x34/0x38
-[<c02241a6>] _pagebuf_ioapply+0x1b6/0x2a4
-[<c0224319>] pagebuf_iorequest+0x85/0x153
-[<c0114847>] default_wake_function+0x0/0x12
-[<c0114847>] default_wake_function+0x0/0x12
-[<c022973f>] xfs_bdstrat_cb+0x42/0x48
-[<c02248c2>] pagebuf_daemon+0xdc/0x1ce
-[<c02247e6>] pagebuf_daemon+0x0/0x1ce
-[<c0103c1d>] kernel_thread_helper+0x5/0xb
+>
+>but unless the SMP case is guaranteed to work in a time-deterministic
+>way i dont think this patch can be added :-( It's not just the question
+>of high latencies, it's the question of fundamental correctness: with
+>large enough caches there is no guarantee that a CPU will _ever_ flush
+a
+>dirty cacheline to RAM.
 
+As I noted (and Linus suspected), monitor/mwait is not proper for
+spinlocks on Prescott/Nocona because of high latencies.
 
-==
-
-Thread model: posix
-gcc version 3.3.4 20040623 (Gentoo Linux 3.3.4-r1, ssp-3.3.2-2, pie-8.7.6)
-
-binutils-2.14.90.0.8
-
-
-If there is something I can do, please let me know.  I have limited 
-time, but I will do my best to help.
-
+>
+>	Ingo

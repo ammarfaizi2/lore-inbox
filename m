@@ -1,52 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277391AbRJEOax>; Fri, 5 Oct 2001 10:30:53 -0400
+	id <S277392AbRJEOex>; Fri, 5 Oct 2001 10:34:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277392AbRJEOap>; Fri, 5 Oct 2001 10:30:45 -0400
-Received: from robur.slu.se ([130.238.98.12]:43530 "EHLO robur.slu.se")
-	by vger.kernel.org with ESMTP id <S277391AbRJEOa3>;
-	Fri, 5 Oct 2001 10:30:29 -0400
-From: Robert Olsson <Robert.Olsson@data.slu.se>
+	id <S277394AbRJEOep>; Fri, 5 Oct 2001 10:34:45 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:3334 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S277392AbRJEOed>; Fri, 5 Oct 2001 10:34:33 -0400
+Subject: Re: ioremap() vs. ioremap_nocache()
+To: jes@sunsite.dk (Jes Sorensen)
+Date: Fri, 5 Oct 2001 15:39:51 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), davidm@hpl.hp.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <d3itdutbtq.fsf@lxplus014.cern.ch> from "Jes Sorensen" at Oct 05, 2001 04:12:49 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15293.50321.681223.620902@robur.slu.se>
-Date: Fri, 5 Oct 2001 16:32:49 +0200
-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Cc: Robert Olsson <Robert.Olsson@data.slu.se>, jamal <hadi@cyberus.ca>,
-        Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-        Benjamin LaHaise <bcrl@redhat.com>, netdev@oss.sgi.com,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-In-Reply-To: <302417729.1002234175@[195.224.237.69]>
-In-Reply-To: <15291.5314.595897.458571@robur.slu.se>
-	<302417729.1002234175@[195.224.237.69]>
-X-Mailer: VM 6.92 under Emacs 19.34.1
+Message-Id: <E15pW8l-0006Yd-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Alan> On x86 ioremap will give mappings appropriate to the object you
+> Alan> map - which means by default it wil give uncached mappings. The
+> Alan> PCI hardware will do intelligent things in certain cases such as
+> Alan> write merging
+> 
+> Are you thereby saying that ioremap() and ioremap_nocache() are
+> identical on the x86?
 
-Alex Bligh - linux-kernel writes:
-
- > I seem to remember jamal saying the NAPI stuff was available
- > since 2.(early). Is there a stable 2.2.20 patch?
-
-
- Hello!
-
- Current NAPI incarnation came first for 2.4.3 and holds ANK trademark.
- Jamal had pre-NAPI patches long before and we have been testing/profiling
- polling and flow control versions of popular network drivers in the lab and 
- on on highly loaded Internet sites for a long time. I consider the NAPI
- work to initiated by Jamal at OLS two years ago. No I don't know of any 
- usable code for 2.2.*
-
- Cheers.
-
-						--ro
-
-
-
-
+In certain peculiar cases - no. Think about an ioremap of an object mapped
+onto the system bus as RAM.

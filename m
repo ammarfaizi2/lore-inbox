@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263668AbRFSFV4>; Tue, 19 Jun 2001 01:21:56 -0400
+	id <S263630AbRFSFMd>; Tue, 19 Jun 2001 01:12:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263669AbRFSFVf>; Tue, 19 Jun 2001 01:21:35 -0400
-Received: from www.wen-online.de ([212.223.88.39]:11270 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S263668AbRFSFV0>;
-	Tue, 19 Jun 2001 01:21:26 -0400
-Date: Tue, 19 Jun 2001 07:20:46 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Rik van Riel <riel@conectiva.com.br>,
-        German Gomez Garcia <german@piraos.com>,
-        Mailing List Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Strange behaviour of swap under 2.4.5-ac15
-In-Reply-To: <20010618154943.C13836@athlon.random>
-Message-ID: <Pine.LNX.4.33.0106190719140.576-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263648AbRFSFMN>; Tue, 19 Jun 2001 01:12:13 -0400
+Received: from mcp.csh.rit.edu ([129.21.60.9]:37895 "EHLO mcp.csh.rit.edu")
+	by vger.kernel.org with ESMTP id <S263630AbRFSFMG>;
+	Tue, 19 Jun 2001 01:12:06 -0400
+Date: Tue, 19 Jun 2001 01:06:34 -0400
+From: Jeff Mahoney <jeffm@suse.com>
+To: Shawn Starr <spstarr@sh0n.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.6-pre3 breaks ReiserFS mount on boot
+Message-ID: <20010619010633.G8295@fury.csh.rit.edu>
+In-Reply-To: <Pine.LNX.4.30.0106182320510.2168-100000@coredump.sh0n.net> <Pine.LNX.4.30.0106182355500.118-100000@coredump.sh0n.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <Pine.LNX.4.30.0106182355500.118-100000@coredump.sh0n.net>; from spstarr@sh0n.net on Mon, Jun 18, 2001 at 11:57:16PM -0400
+X-Operating-System: SunOS 5.8 (sun4u)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Jun 2001, Andrea Arcangeli wrote:
+On Mon, Jun 18, 2001 at 11:57:16PM -0400, Shawn Starr wrote:
+> 
+> read_super_block: can't find a reiserfs filesystem on dev 03:42
+> read_old_super_block: try to find super block in old location
+> read_old_super_block: can't find a reiserfs filesystem on dev 03:42
+> Kernel Panic: VFS: Unable to mount root fs on 03:42
+> 
+> my super block broke somewhere?
 
-> On Mon, Jun 18, 2001 at 10:37:21AM -0300, Rik van Riel wrote:
-> > Yes, this is expected behaviour with -ac14, -pre3 and newer.
->
-> If that means anything that doesn't happen here based on pre3.
+    Out of curiousity, what device are you trying to boot from? 03:42, at least
+    according to linux/Documentation/devices.txt, corresponds to /dev/hda42.
 
-It doesn't happen here either.  Even with (ever so slightly modified)
-fair background aging change.
+    Is that really the disk you're trying to mount? I'm not familiar with how
+    some IDE RAID controllers present disks, but it was the first thing I
+    noticed.
 
-	-Mike
+    -Jeff
 
+-- 
+Jeff Mahoney
+jeffm@suse.com
+jeffm@csh.rit.edu

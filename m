@@ -1,115 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266835AbUI1UWR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267777AbUI1U0c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266835AbUI1UWR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 16:22:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267783AbUI1UWQ
+	id S267777AbUI1U0c (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 16:26:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267785AbUI1U0c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 16:22:16 -0400
-Received: from mailgate.pit.comms.marconi.com ([169.144.68.6]:9213 "EHLO
-	mailgate.pit.comms.marconi.com") by vger.kernel.org with ESMTP
-	id S266835AbUI1UUs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 16:20:48 -0400
-Message-ID: <313680C9A886D511A06000204840E1CF0A6471D6@whq-msgusr-02.pit.comms.marconi.com>
-From: "Povolotsky, Alexander" <Alexander.Povolotsky@marconi.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Linux 2.6.8-rc4 "Kernel panic: Attempted to kill init!" - after 
-	replacing /fadsroot on the Linux NFSserver with the one from Arabella cdr
-	om
-Date: Tue, 28 Sep 2004 16:20:46 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Tue, 28 Sep 2004 16:26:32 -0400
+Received: from sigma957.CIS.McMaster.CA ([130.113.64.83]:62096 "EHLO
+	sigma957.cis.mcmaster.ca") by vger.kernel.org with ESMTP
+	id S267777AbUI1U0a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 16:26:30 -0400
+Subject: Re: [RFC][PATCH] inotify 0.10.0
+From: John McCutchan <ttb@tentacle.dhs.org>
+To: Ray Lee <ray-lk@madrabbit.org>
+Cc: Robert Love <rml@novell.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, gamin-list@gnome.org,
+       viro@parcelfarce.linux.theplanet.co.uk, iggy@gentoo.org
+In-Reply-To: <1096350328.26742.52.camel@orca.madrabbit.org>
+References: <1096250524.18505.2.camel@vertex>
+	 <20040926211758.5566d48a.akpm@osdl.org>
+	 <1096318369.30503.136.camel@betsy.boston.ximian.com>
+	 <1096350328.26742.52.camel@orca.madrabbit.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1096403167.30123.5.camel@vertex>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 28 Sep 2004 16:26:07 -0400
+X-PMX-Version-Mac: 4.7.0.111621, Antispam-Engine: 2.0.0.0, Antispam-Data: 2004.9.28.2
+X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __HAS_X_MAILER 0, __MIME_VERSION 0, __SANE_MSGID 0'
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-I have built (cross-compiled for ppc 82xx) Linux 2.6.8-rc4 kernel and am
-trying to boot it on PQ2FADS-VR 
-
-> I am getting: "Kernel panic: Attempted to kill init!" - after replacing
-> /fadsroot (with the BusyBox) on the remote Linux NFS server with the newer
-> one from the new version of the Arabella cdrom. 
-Is it software or hardware (bad memory ?) issue ?
-
-Thanks,
-Best Regards,
-Povolotsky, Alexander
-*****************************  
-> => printenv
-> bootdelay=5
-> bootcmd=bootm 200000
-> ethaddr=08:00:17:00:00:03
-> serverip=192.168.0.3
-> ipaddr=192.168.0.5
-> baudrate=9600
-> bootargs=root=/dev/nfs rw nfsroot=192.168.0.4:/fadsroot
-> stdin=serial
-> stdout=serial
-> stderr=serial
+On Tue, 2004-09-28 at 01:45, Ray Lee wrote:
+> On Mon, 2004-09-27 at 16:52 -0400, Robert Love wrote:
+> > > > +struct inotify_event {
+> > > > +	int wd;
+> > > > +	int mask;
+> > > > +	int cookie;
+> > > > +	char filename[INOTIFY_FILENAME_MAX];
+> > > > +};
+> > > 
+> > > yeah, that's not very nice.  Better to kmalloc the pathname.
+> > 
+> > That is the structure that we communicate with to user-space.
+> > 
+> > We could kmalloc() filename, but it makes the user-space use a bit more
+> > complicated (and right now it is trivial and wonderfully simple).
+> > 
+> > We've been debating the pros and cons.
 > 
-> Environment size: 210/262140 bytes
-> => tftpboot 200000 uimage
-> Using FCC2 ETHERNET device
-> TFTP from server 192.168.0.3; our IP address is 192.168.0.5
-> Filename 'uimage'.
-> Load address: 0x200000
-> Loading: #################################################################
->          #################################################################
->          #######################################
-> done
-> Bytes transferred = 864364 (d306c hex)
-> => bootm 200000
-> ## Booting image at 00200000 ...
->    Image Name:   Linux-2.6.8-rc4
->    Image Type:   PowerPC Linux Kernel Image (gzip compressed)
->    Data Size:    864300 Bytes = 844 kB
->    Load Address: 00000000
->    Entry Point:  00000000
->    Verifying Checksum ... OK
->    Uncompressing Kernel Image ... OK
-> Linux version 2.6.8-rc4 (apovolot@USPITLAD104868) (gcc version 3.3.2) #5
-> Mon Aug
->  16 08:49:38 EDT 2004
-> PQ2 ADS Port
-> Built 1 zonelists
-> Kernel command line: root=/dev/nfs rw nfsroot=192.168.0.4:/fadsroot nobats
-> ip=19
-> 2.168.0.5
-> PID hash table entries: 256 (order 8: 2048 bytes)
-> Warning: real time clock seems stuck!
-> Dentry cache hash table entries: 8192 (order: 3, 32768 bytes)
-> Inode-cache hash table entries: 4096 (order: 2, 16384 bytes)
-> Memory: 30432k available (1348k kernel code, 324k data, 272k init, 0k
-> highmem)
-> Calibrating delay loop... 131.07 BogoMIPS
-> Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
-> NET: Registered protocol family 16
-> PCI: Probing PCI hardware
-> Generic RTC Driver v1.07
-> Serial: CPM driver $Revision: 0.01 $
-> ttyCPM0 at MMIO 0xf0011a00 (irq = 40) is a CPM UART
-> RAMDISK driver initialized: 16 RAM disks of 32768K size 1024 blocksize
-> loop: loaded (max 8 devices)
-> eth0: FCC ENET Version 0.3, 08:00:17:40:00:03
-> NET: Registered protocol family 2
-> IP: routing cache hash table of 512 buckets, 4Kbytes
-> TCP: Hash tables configured (established 2048 bind 4096)
-> NET: Registered protocol family 1
-> NET: Registered protocol family 17
-> IP-Config: Guessing netmask 255.255.255.0
-> IP-Config: Complete:
->       device=eth0, addr=192.168.0.5, mask=255.255.255.0,
-> gw=255.255.255.255,
->      host=192.168.0.5, domain=, nis-domain=(none),
->      bootserver=255.255.255.255, rootserver=192.168.0.4, rootpath=
-> Looking up port of RPC 100003/2 on 192.168.0.4
-> Looking up port of RPC 100005/1 on 192.168.0.4
-> VFS: Mounted root (nfs filesystem).
-> Freeing unused kernel memory: 272k init
-> Kernel panic: Attempted to kill init!
->  <0>Rebooting in 180 seconds..
-> 
-> 	 
-> 
+> The current way pads out the structure unnecessarily, and still doesn't
+> handle the really long filenames, by your admission. It incurs extra
+> syscalls, as few filenames are really 256 characters in length. It makes
+> userspace double-check whether the filename extends all the way to the
+> boundary of the structure, and if so, then go back to the disk to try to
+> guess what the kernel really meant to say.
+
+I thought that filenames where limited to 256 characters? That was the
+idea behind the 256 character limit.
+
+John

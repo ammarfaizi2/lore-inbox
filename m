@@ -1,52 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132577AbRDOFKp>; Sun, 15 Apr 2001 01:10:45 -0400
+	id <S132557AbRDOFhF>; Sun, 15 Apr 2001 01:37:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132576AbRDOFKf>; Sun, 15 Apr 2001 01:10:35 -0400
-Received: from dystopia.lab43.org ([209.217.122.210]:46292 "EHLO
-	dystopia.lab43.org") by vger.kernel.org with ESMTP
-	id <S132577AbRDOFKU>; Sun, 15 Apr 2001 01:10:20 -0400
-Date: Sun, 15 Apr 2001 01:08:13 -0400 (EDT)
-From: Rod Stewart <stewart@dystopia.lab43.org>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] Re: 8139too: defunct threads
-In-Reply-To: <001b01c0c52c$03070b00$5517fea9@local>
-Message-ID: <Pine.LNX.4.33.0104150100210.13758-100000@dystopia.lab43.org>
+	id <S132568AbRDOFg4>; Sun, 15 Apr 2001 01:36:56 -0400
+Received: from seed.pacific.net.sg ([203.120.90.77]:58095 "EHLO
+	seed.pacific.net.sg") by vger.kernel.org with ESMTP
+	id <S132557AbRDOFgj>; Sun, 15 Apr 2001 01:36:39 -0400
+Message-ID: <3AD933E5.5908BE2E@classical.2y.net>
+Date: Sun, 15 Apr 2001 13:38:45 +0800
+From: joker <linux@classical.2y.net>
+X-Mailer: Mozilla 4.77 [en] (Win98; U)
+X-Accept-Language: zh,zh-TW,zh-CN,en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ishikawa <ishikawa@yk.rim.or.jp>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: "uname -p" prints unknown for Athlon K7 optimized kernel?
+In-Reply-To: <3AD92D3B.EBBFC504@yk.rim.or.jp>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+i have this problem using intel 850mhz and 333mhz
+any know where to get update version of uname ?
 
-On Sat, 14 Apr 2001, Manfred Spraul wrote:
-> From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-> >
-> > That has an implicit race, a zombie can always appear as we are
-> execing init.
-> > I think init wants fixing
-> >
-> Rod, could you boot again with the unpatched kernel and send a sigchild
-> to init?
+Ishikawa wrote:
+
+> Hi,
 >
-> #kill -CHLD 1
+> On my athlong K7 optimized kernel prints "unknown" fir oricessir type.
+> (I have not realized what this "unknown" stood for until today.)
 >
-> If I understand the init code correctly the sigchild handler reaps all
-> zombies, but probably the signal got lost because the children died
-> before the parent was created ;-)
-
-That doesn't 'fix' it.  The thing I find funny is that it only appears
-when IP_PNP is compiled in.  It is as if the driver ends up in some weird
-state when IP_PNP is used.  According to ps, from my limited
-understanding, the thread is stuck in do_exit
-
-[root@stewart-nw34 /root]# ps elaxww|grep eth
-  F   UID   PID  PPID PRI  NI   VSZ  RSS WCHAN  STAT TTY  TIME COMMAND
-044     0     7     1   9   0     0    0 do_exi Z    ?  0:00 [eth0 <defunct>]
-044     0     8     1   9   0     0    0 do_exi Z    ?  0:00 [eth1 <defunct>]
-044     0     9     1   9   0     0    0 do_exi Z    ?  0:00 [eth2 <defunct>]
-040     0   229     1   9   0     0    0 rtl813 SW   ?  0:00 [eth1]
-
-Thanks for helping with this,
--Rms
+>  #uname -p
+> unknown
+> #uname -a
+> Linux duron 2.4.3 #2 Fri Apr 6 04:38:35 JST 2001 i686 unknown
+>
+> It would be nice to have the processor name printed.
+>
+> Is this kernel configuration procedure issue or
+> `uname` problem?
+>
+> # which uname
+> /bin/uname
+> # file /bin/uname
+> /bin/uname: ELF 32-bit LSB executable, Intel 80386, version 1,
+> dynamically linked (uses shared libs), stripped
+> # uname --version
+> uname (GNU sh-utils) 2.0
+> Written by David MacKenzie.
+>
+> Copyright (C) 1999 Free Software Foundation, Inc.
+> This is free software; see the source for copying conditions.  There is
+> NO
+> warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
+> PURPOSE.
+> #
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

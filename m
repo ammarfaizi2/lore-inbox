@@ -1,82 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129831AbQJ3X1D>; Mon, 30 Oct 2000 18:27:03 -0500
+	id <S129697AbQJ3X1N>; Mon, 30 Oct 2000 18:27:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129829AbQJ3X0n>; Mon, 30 Oct 2000 18:26:43 -0500
-Received: from www.collectingnation.com ([206.183.160.80]:22532 "EHLO
-	collectingnation") by vger.kernel.org with ESMTP id <S129697AbQJ3X0g>;
-	Mon, 30 Oct 2000 18:26:36 -0500
-Date: Mon, 30 Oct 2000 18:29:54 -0500 (EST)
-From: John Babina III <babina@pex.net>
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Update: SMP 2.2.15 #2 kernel, lock ups...
-Message-ID: <Pine.LNX.4.20.0010301813430.14540-100000@pioneer.local.net>
+	id <S129829AbQJ3X1D>; Mon, 30 Oct 2000 18:27:03 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:5896 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129697AbQJ3X0t>; Mon, 30 Oct 2000 18:26:49 -0500
+Message-ID: <39FE03B2.E3E12A23@transmeta.com>
+Date: Mon, 30 Oct 2000 15:26:42 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10-pre3 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: David Woodhouse <dwmw2@infradead.org>
+CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: / on ramfs, possible?
+In-Reply-To: <Pine.LNX.4.21.0010302323490.16101-100000@imladris.demon.co.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I spent the entire day working on this problem... as per Alan's
-suggestion, I attempted to upgrade to 2.2.17.
+David Woodhouse wrote:
+> 
+> On 29 Oct 2000, H. Peter Anvin wrote:
+> 
+> > > I want my / to be a ramfs filesystem. I intend to populate it from an
+> > > initrd image, and then remount / as the ramfs filesystem. Is that at
+> > > all possible? The way I see it the kernel requires / on a device
+> > > (major,minor) or nfs.
+> > >
+> > > Am I out of luck using ramfs as /? If it's easy to fix, how do I fix it?
+> > >
+> >
+> > Use pivot_root instead of the initrd stuff in /proc/sys.
+> 
+> Urgh. Then you're still using an initrd, and you still have to include all
+> the crap necessary to support those horrid block-device thingies.
+> 
+> Why not just use a ramdisk?
+> 
 
-Ugh, I had nothing but disaster....  First, the kernel would not
-auto-recognize I had 1 gig of memory... it would only boot saying I had 64
-meg.  So I added the MEM=1024M line to the lilo config (I believe that is
-the correct line, don't have it in front of me).  Whenever I booted the
-machine under 2.2.17, I would get errors during the boot process... here
-is part of one (if you need more details let me know, i had to copy these
-down on scrap paper)
+Pardon?!  This doesn't make any sense...
 
-Swap_Free trying to free no-existant swap page
+The question was: how do switch from the initrd to using the ramfs as /? 
+Using pivot_root should do it (after the pivot, you can of course nuke
+the initrd ramdisk.)
 
-Zap_Pte_range: bad pmd (371b10b7)
+	-hpa
 
-Unable to handle Kernel Null Ptr deref at virt addr 000001a9
-
-then it goes on and finally lists an oops for a process "top100" (it's an
-apache process I have running)
-
-The machine has 1 Gig, a Mylex ExtremeRaid 1100, dual 700 mhz pentium
-3's.  To refresh, the original problem I had was a lockup every 24-48
-hours randomly, with no warning or errors.
-
-As per suggested here (as well as upgrading to .17) I also checked into
-bios upgrades for the motherboard -- I found mine was the most current.  I
-also checked and upgraded the Mylex bios to the latest version and moved
-the cards around to different PCI slots.  As for the lockups, I don't know
-If I have resolved them yet or not, but I do know I am having horrible
-problems besides the lockups, as per upgrading to .17.
-
-I am starting to wonder if I am having memory problems?  I noticed that
-when I was running at 64 megs (by accident, the system was not detecting
-my full memory for some reason) the machine seemed to work perfectly, but
-once I said MEM=1024, all hell broke loose... thats when I started getting
-errors.  One thing that consistently happened with .17 was after I had an
-error and had to reboot, FSCK had to run.  FSCK would find all of these
-bad time header things and would work at fixing them, then after like 1
-minute of crunching it would just lockup, I could hit return on the
-keyboard and see a blank line appear on the screen but that was it.  The
-drives stopped running and no further processing.  If i kept rebooting,
-this occurred over and over.  Once I dropped back to an older kernel (via
-a kernel boot disk), the fsck would work perfectly and complete the boot
-process... 
-
-Does this sound like a .17 problem or a memory problem or both?  I have
-had 4 machines with similar hardware (dual processor, mylex raid cards, 1
-gig) and not had any problems like this before. (theo ther machines had
-slower processors, or older mylex raid).  I am about to boot this machine
-out the door.
-
-Shouldn't my machine be auto-detecting how much memory I have without
-using the MEM= line in lilo?.. I believe it had in the past.
-
-I have ordered a new gig of memory overnight so I can drop it in and see
-if it resolves the problem(s)... if you need any more info, such as more
-details on those errors, etc. please let me know.
-
-Thanks in advance,
--John
-
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,67 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272431AbTGZHIQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 03:08:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272433AbTGZHIQ
+	id S272437AbTGZHzx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 03:55:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272438AbTGZHzx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 03:08:16 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:30429 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S272431AbTGZHIO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 03:08:14 -0400
-Subject: Re: Reiser4 status: benchmarked vs. V3 (and ext3)
-From: Yury Umanets <umka@namesys.com>
-To: Daniel Egger <degger@fhm.edu>
-Cc: Nikita Danilov <Nikita@Namesys.COM>, Hans Reiser <reiser@namesys.com>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       reiserfs mailing list <reiserfs-list@namesys.com>
-In-Reply-To: <1059181687.10059.5.camel@sonja>
-References: <3F1EF7DB.2010805@namesys.com>
-	 <1059062380.29238.260.camel@sonja>
-	 <16160.4704.102110.352311@laputa.namesys.com>
-	 <1059093594.29239.314.camel@sonja>
-	 <16161.10863.793737.229170@laputa.namesys.com>
-	 <1059142851.6962.18.camel@sonja>
-	 <1059143985.19594.3.camel@haron.namesys.com>
-	 <1059181687.10059.5.camel@sonja>
-Content-Type: text/plain
-Organization: NAMESYS
-Message-Id: <1059203990.21910.13.camel@haron.namesys.com>
+	Sat, 26 Jul 2003 03:55:53 -0400
+Received: from mail.zmailer.org ([62.240.94.4]:2948 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id S272437AbTGZHzw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 03:55:52 -0400
+Date: Sat, 26 Jul 2003 11:11:01 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Jeff Sipek <jeffpc@optonline.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] TCP and UDP implementations
+Message-ID: <20030726081101.GD6898@mea-ext.zmailer.org>
+References: <200307260316.02149.jeffpc@optonline.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 26 Jul 2003 11:19:50 +0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200307260316.02149.jeffpc@optonline.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-07-26 at 05:08, Daniel Egger wrote:
-> Am Fre, 2003-07-25 um 16.39 schrieb Yury Umanets:
+On Sat, Jul 26, 2003 at 03:15:53AM -0400, Jeff Sipek wrote:
+> Hello all,
+> I noticed that there are two implementations of TCP and UDP in the kernel - 
+> one for IPv4 and the other for IPv6. Correct me if I am wrong, but wouldn't 
+> it be better to just have one implementation for both versions of IP? I know 
+> this for sure:
+
+The way how things are in 2.4 (I haven't looked too deeply into 2.5/2.6),
+IPv6 TCP and UDP do NEED IPv4 TCP code to make most of TCP logic.
+With UDP the amount of logic in kernel side is a lot simpler, and
+I do think the code was in essense duplicated.
+
+> 1) it would decrease the size of the kernel (this wouldn't be too dramatic, 
+> but still)
 > 
-> > Reiser4 has plugin-based architecture. So, anybody is able to write new
-> > block allocator plugin.
-> 
-> Cool.
+> 2) it would make maintaining of the code half the work
 
-> 
-> > Speaking about possible embedded usage... What kind of embedded devices
-> > do you mean. Reiser4 driver is big enough in size for some of them (for
-> > instance, for mine MPIO MP3 player :))
-> 
-> I'm talking about pretty standard ix86 hardware which has embedded like
-> properties such as fanless and motorless use, hardware watchdog, flash
-> memory but only few of the typical limitations like restricted memory
-> (we are using 256 or 512 MB), slow CPU, few connectors.
+Because of the degree of present sharing: no.
 
+> AFAIK there are small differences in TCP and UDP between IPv4 and IPv6,
+> but they could be resolved using simple "work arounds."
 
-> 
-> So basically we do have pretty powerful hardware with huge storage and
-> memory and now need a FS which is fast and reliable even on flash
-> memory. JFFS2 is nice but way too slow once one has bigger sizes.
+IPv6's TCP is (was) just that kind of "work around" to handle differences
+in IP addresses.
 
-I think this is more then enough for running reiser4. Reiser4 is a linux
-filesystem first of all, and linux is able to be ran on even worse
-hardware then you have.
+> Thanks,
+> Jeff.
 
--- 
-We're flying high, we're watching the world passes by...
-
+/Matti Aarnio

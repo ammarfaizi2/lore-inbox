@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262568AbRGNQlS>; Sat, 14 Jul 2001 12:41:18 -0400
+	id <S263089AbRGNQm2>; Sat, 14 Jul 2001 12:42:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262682AbRGNQk6>; Sat, 14 Jul 2001 12:40:58 -0400
-Received: from horus.its.uow.edu.au ([130.130.68.25]:50358 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S262568AbRGNQky>; Sat, 14 Jul 2001 12:40:54 -0400
-Message-ID: <3B50765F.6ECF7B17@uow.edu.au>
-Date: Sun, 15 Jul 2001 02:42:07 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Neil Brown <neilb@cse.unsw.edu.au>, Mike Black <mblack@csihq.com>,
-        lkml <linux-kernel@vger.kernel.org>, ext2-devel@lists.sourceforge.net
-Subject: Re: raid5d, page_launder and scheduling latency
-In-Reply-To: <3B507380.79381536@uow.edu.au> from "Andrew Morton" at Jul 15, 2001 02:29:52 AM <E15LSMl-0001Pk-00@the-village.bc.nu>
+	id <S263149AbRGNQmS>; Sat, 14 Jul 2001 12:42:18 -0400
+Received: from t2.redhat.com ([199.183.24.243]:54258 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S263089AbRGNQmG>; Sat, 14 Jul 2001 12:42:06 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <200107141414.f6EEEjQ05792@ns.caldera.de> 
+In-Reply-To: <200107141414.f6EEEjQ05792@ns.caldera.de> 
+To: hch@caldera.de (Christoph Hellwig)
+Cc: Gunther.Mayer@t-online.de (Gunther Mayer), paul@paulbristow.net,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: (patch-2.4.6) Fix oops with Iomega Clik! (ide-floppy) 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Sat, 14 Jul 2001 17:41:46 +0100
+Message-ID: <17461.995128906@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > Happily, we've just fixed the four most gross sources of poor
-> > interactivity in the kernel, so let's knock over some of the others as
-> > well - a few /proc functions.  That mainly leaves zap_page_range() and
-> > exit() with a lot of open files.
-> 
-> Nowhere near it. We have to fix copy_*_user and strlen_user (there are reasons
-> 2.2 uses strnlen_user). Map the same page into 2Gig of address space filled with
-> non zero bytes. Map a zero terminator on the end of it. Pass pointers to this
-> for all your args and do an exec().
 
-By "interactivity" I mean "things which make it feel jerky".
-The commonly occurring things, not the oddball corner cases.
+hch@caldera.de said:
+>  Why doe people reverse Jeff's s/malloc.h/slab.h/ changes all the
+> time.  Malloc.h does nothing but including slab.h and should just die.
 
-- huge reads from /dev/mem
-- exit with 1,000 files open
-- exit with half a million pages to be zapped
+"malloc.h" is generic. "slab.h" exposes an implementation detail.
 
-And "fixing" copy_*_user is outright dumb.  Just fix the four
-or five places where it matters.
+Why should we change code to include slab.h? 
 
--
+Should we also rename other sanely-named include files to expose 
+implementation details? rwsem-xadd.h? kmod-userhelper.h?
+
+--
+dwmw2
+
+

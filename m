@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262480AbSKMSiS>; Wed, 13 Nov 2002 13:38:18 -0500
+	id <S262469AbSKMSnu>; Wed, 13 Nov 2002 13:43:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262481AbSKMSiS>; Wed, 13 Nov 2002 13:38:18 -0500
-Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:24051 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S262480AbSKMSiR>; Wed, 13 Nov 2002 13:38:17 -0500
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Wed, 13 Nov 2002 11:42:46 -0700
-To: Andrei Ivanov <andrei.ivanov@ines.ro>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ext3 recovery
-Message-ID: <20021113184246.GD9930@clusterfs.com>
-Mail-Followup-To: Andrei Ivanov <andrei.ivanov@ines.ro>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.33L2.0211131906120.6956-300000@webdev.ines.ro>
+	id <S262506AbSKMSnu>; Wed, 13 Nov 2002 13:43:50 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:58386 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262469AbSKMSnt>;
+	Wed, 13 Nov 2002 13:43:49 -0500
+Date: Wed, 13 Nov 2002 10:45:15 -0800
+From: Greg KH <greg@kroah.com>
+To: Ed Vance <EdV@macrolink.com>
+Cc: "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: Re: hotplug (was devfs)
+Message-ID: <20021113184515.GE5446@kroah.com>
+References: <11E89240C407D311958800A0C9ACF7D1A33CA8@EXCHANGE>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L2.0211131906120.6956-300000@webdev.ines.ro>
+In-Reply-To: <11E89240C407D311958800A0C9ACF7D1A33CA8@EXCHANGE>
 User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 13, 2002  19:13 +0200, Andrei Ivanov wrote:
-> Hello, I have an ext3 formated partition on a harddrive that just got tons
-> of badblocks and I'm trying to recover as much data as possible from that
-> partition.
-> If I try e2fsck /dev/hdb3 I get this error:
+On Wed, Nov 13, 2002 at 10:45:43AM -0800, Ed Vance wrote:
+> On Wed, November 13, 2002 at 10:05 AM, Greg KH wrote: 
+> > 
+> > On Wed, Nov 13, 2002 at 06:06:06PM +0000, Nick Craig-Wood wrote:
+> > > 
+> > > So I'll be able to say usb bus1/1/4/1 port 3 should be /dev/ttyUSB15
+> > > and it will always be that port?  That would be perfect.
+> > 
+> > Yes, that is the goal.
+> > 
 > 
-> e2fsck 1.32 (09-Nov-2002)
-> Group descriptors look bad... trying backup blocks...
-> e2fsck: Invalid argument while checking ext3 journal for /
-> 
-> So I tried to remove the journal and make e2fsck treat the partition as an
-> ext2 one, but no luck, although tune2fs -O ^has_journal /dev/hdb3 doesn't
-> give me any message, except it's version string.
-> 
-> If I pass fsck the backup superblock myself, it still refuses to run:
-> e2fsck -b 32768 /dev/hdb3
-> e2fsck: Invalid argument while checking ext3 journal for /
-> 
-> Attached you will find some info (dmesg and hdparm). If you need any more
-> info, tell me.
+> Do you expect that goal to eventually be applied to CompactPCI Hot-Swap
+> bus/slot port 3?
 
-I would suggest "dd if=bad_drive of=good_drive conv=sync,noerror"
-and then do all of your recovery on the good drive.
+Yes, in a round-about way.  If the device that is in that specific slot
+with that specific port, registers with, for example, the network
+subsystem, and we have decided that anything in that slot should be
+called "eth42", then we can do that based on the topology of the device.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+It really depends on the device that is existing in a specific location
+(network, scsi, etc.) and not so much as the specific location will
+always be a network card called "ethX", as you have to look at the type
+of device too.
 
+Does that make sense?
+
+I can tell it's getting to be the time to start writing all of this down
+for people to hash out... :)
+
+thanks,
+
+greg k-h

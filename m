@@ -1,75 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265962AbUFTWLg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265964AbUFTWQr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265962AbUFTWLg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 18:11:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265963AbUFTWLg
+	id S265964AbUFTWQr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 18:16:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265965AbUFTWQq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 18:11:36 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:12435 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP id S265962AbUFTWL3
+	Sun, 20 Jun 2004 18:16:46 -0400
+Received: from wblv-235-33.telkomadsl.co.za ([165.165.235.33]:21175 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S265964AbUFTWQl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 18:11:29 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Hannu Savolainen <hannu@opensound.com>
-Cc: Valdis.Kletnieks@vt.edu, 4Front Technologies <dev@opensound.com>,
-       linux-kernel@vger.kernel.org
-Date: Sun, 20 Jun 2004 15:11:15 -0700 (PDT)
-X-X-Sender: dlang@dlang.diginsite.com
-Subject: Re: Stop the Linux kernel madness 
-In-Reply-To: <Pine.LNX.4.58.0406191148570.30038@zeus.compusonic.fi>
-Message-ID: <Pine.LNX.4.60.0406201506360.6470@dlang.diginsite.com>
-References: <40D232AD.4020708@opensound.com> <3217460000.1087518092@flay><40D23701.1030302@opensound.com>
- <1087573691.19400.116.camel@winden.suse.de><40D32C1D.80309@opensound.com>
- <20040618190257.GN14915@schnapps.adilger.int><40D34CB2.10900@opensound.com><200406181940.i5IJeBDh032311@turing-police.cc.vt.edu><Pine.LNX.4.60.0406181326210.3688@dlang.diginsite.com>
- <Pine.LNX.4.58.0406191148570.30038@zeus.compusonic.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sun, 20 Jun 2004 18:16:41 -0400
+Subject: Re: [PATCH 0/2] kbuild updates
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
+       Andreas Gruenbacher <agruen@suse.de>,
+       Geert Uytterhoeven <geert@linux-m68k.org>,
+       Kai Germaschewski <kai@germaschewski.name>
+In-Reply-To: <20040620220319.GA10407@mars.ravnborg.org>
+References: <20040620211905.GA10189@mars.ravnborg.org>
+	 <1087767034.14794.42.camel@nosferatu.lan>
+	 <20040620220319.GA10407@mars.ravnborg.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-TpQ3/RKmP1nnKiYcttLg"
+Message-Id: <1087769761.14794.69.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 21 Jun 2004 00:16:02 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Jun 2004, Hannu Savolainen wrote:
 
-> On Fri, 18 Jun 2004, David Lang wrote:
->
->> by the way there's useually a *version file in /etc that tells you what
->> version of a particular distro you are running on (or at least what it was
->> before it got tweaked)
-> It's usually possible to figure out the distribution and version by
-> looking at /etc/issue. However it's impossible to figure out who has made
-> the kernel image. It's possible to identify Mandrake kernels and few
-> others. However in general all kernel versions look the same.
+--=-TpQ3/RKmP1nnKiYcttLg
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-ueing /etc/issue is a BAD idea, while that may work for completely 
-unmodified systems, many companies require legalese be put in there.
+On Mon, 2004-06-21 at 00:03, Sam Ravnborg wrote:
+> On Sun, Jun 20, 2004 at 11:30:34PM +0200, Martin Schlemmer wrote:
+> >=20
+> > I know Sam's mta blocks my mail at least (lame isp), but for the rest,
+> > please reconsider using this.
+> Hmm, got your mail.
+>=20
+> > Many external modules, libs, etc use
+> > /lib/modules/`uname -r`/build to locate the _source_, and this will
+> > break them all.
+> Examples please. What I have seen so far is modules that was not
+> adapted to use kbuild when being build.
+> If they fail to do so they are inherently broken.
+>=20
 
-> The current situation is that every company who like to ship open source
-> drivers with their hardware will have to automatically detect large
-> amount of kernel and distribution combinations and try to decide which
-> kind of installation approach is needed. After everything is settled then
-> some distribution changes it's interfaces and the circus begins once
-> again. Finally when a change is made to the installation procedure then
-> how to test if it still works with all 100 or 200 different systems and
-> kernel images that have already been tested during past years.
+Well, glibc use it for instance as an fall-through if you do not specify
+it via ./configure arguments, or environment (yes, glibc should not use
+it, etc, etc, no flames please =3D).  So as well does alsa-driver,
+nvidia's drivers (gah, puke, yes, its got some binary-only stuff in
+there ;), ati's drivers and a lot of other stuff (if you really need
+them all I can try to find time to look for more).
 
-or they need to go through the process of getting their driver included in 
-the main kernel and these headaches go away.
+I am not sure about ati's drivers and alsa, but nvidia uses kbuild.
 
-> I think many persons reading this list don't realize that a significant
-> number of Linux installations are still using 7.x or even 6.x versions of
-> whatever distribution they had originally installed in the system.
-> Companies doing Linux software (be it open source or closed source) need
-> to support them in addition to the state of the art distributions. So
-> would it be too much to ask that kernels based on the same major version
-> do certain things in the same way.
 
-it's less likly that the people running the 6.x distros are going to be 
-installing the latest and greatest hardware that needs the new 
-out-of-kernel driver, but if you think you need to create modules that 
-will work with every kernel since 2.0 have fun.
+Thanks,
 
-David Lang
+--=20
+Martin Schlemmer
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+--=-TpQ3/RKmP1nnKiYcttLg
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBA1gyhqburzKaJYLYRAuiRAJ9AGCtlaldgdCOdxwRfzyZAPI2mkACfR9/V
+q/vLq/eTOG8wRJEpavuQh8E=
+=5zpW
+-----END PGP SIGNATURE-----
+
+--=-TpQ3/RKmP1nnKiYcttLg--
+

@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314938AbSGLTYO>; Fri, 12 Jul 2002 15:24:14 -0400
+	id <S316794AbSGLT05>; Fri, 12 Jul 2002 15:26:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316794AbSGLTYO>; Fri, 12 Jul 2002 15:24:14 -0400
-Received: from mailhub.fokus.gmd.de ([193.174.154.14]:38109 "EHLO
-	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
-	id <S314938AbSGLTYN>; Fri, 12 Jul 2002 15:24:13 -0400
-Date: Fri, 12 Jul 2002 21:25:30 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.gmd.de>
-Message-Id: <200207121925.g6CJPUjW018407@burner.fokus.gmd.de>
-To: linux-kernel@vger.kernel.org
-Subject: IDE/ATAPI in 2.5
+	id <S316795AbSGLT04>; Fri, 12 Jul 2002 15:26:56 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:15488 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S316794AbSGLT04>; Fri, 12 Jul 2002 15:26:56 -0400
+Date: Fri, 12 Jul 2002 15:29:31 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Juergen Sawinski <juergen.sawinski@mpimf-heidelberg.mpg.de>
+cc: "linux-kernel@vger" <linux-kernel@vger.kernel.org>
+Subject: Re: What is the most stable kernel to date?
+In-Reply-To: <1026501382.1287.11.camel@voyager>
+Message-ID: <Pine.LNX.3.95.1020712152455.11987B-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H.P. Anvin wrote:
+On 12 Jul 2002, Juergen Sawinski wrote:
 
->Please consider deprecating or removing ide-floppy/ide-tape/ide-cdrom
->and treat all ATAPI devices as what they really are -- SCSI over IDE.
->It is a source of no ending confusion that a Linux system will not
->write CDs to an IDE CD-writer out of the box, for the simple reason
->that cdrecord needs access to the generic packet interface, which is
->only available in the nonstandard ide-scsi configuration.
+> My computer at work uses 2.4.19-pre10-ac2-preempt (i686) and is up 13
+> days now. A couple of people are working on it causing high loads with
+> Matlab, VMware etc...
+> 
+> The last one, 2.4.19-pre?-ac?-preempt (sorry, forgot the numbers) ran
+> for a couple of month... so I consider 2.4.19-pres quite stable.
+> 
 
-Thank you for this thread!
-
-libscg now has 5 different SCSI transport interface implementations
-only for Linux.
-
-There are still problems like e.g. USB which not really usable.
-
->There really seems to be no decent reason to treat ATAPI devices as
->anything else.  I understand the ide-* drivers contain some
->workarounds for specific devices, but those really should be moved to
->their respective SCSI drivers anyway -- after all, manufacturers
->readily slap IDE or SCSI interfaces on the same devices anyway.
-
->Note that this is specific to ATAPI devices.  ATA hard drives are
->another matter entirely.
-
-A reasonable idea would be to make the ATA driver a SCSI HBAdriver and
-in case that there is a need for pure ATA (e.g. Hard disks) there should
-be a second interface for a ATA driver stack.
-
-Please keep me on the CC: I am not on the list.
+2.4.18 doesn't have any 'crashing' bugs in normal use. One of my
+servers has been running this for 210 days. It does a lot of network-
+interface stuff (samba, etc.) plus nightly back-ups so it's used
+a lot.
 
 
+Cheers,
+Dick Johnson
 
-Jörg
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.gmd.de		(work) chars I am J"org Schilling
- URL:  http://www.fokus.gmd.de/usr/schilling   ftp://ftp.fokus.gmd.de/pub/unix
+                 Windows-2000/Professional isn't.
+

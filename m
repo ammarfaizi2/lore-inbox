@@ -1,41 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263151AbUKTSwt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263152AbUKTSzv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263151AbUKTSwt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 13:52:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263154AbUKTSwt
+	id S263152AbUKTSzv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 13:55:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263153AbUKTSzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 13:52:49 -0500
-Received: from gprs214-174.eurotel.cz ([160.218.214.174]:55680 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S263151AbUKTSvj (ORCPT
+	Sat, 20 Nov 2004 13:55:50 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:32672 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263152AbUKTSzY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 13:51:39 -0500
-Date: Sat, 20 Nov 2004 19:51:00 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: John Mock <kd6pag@qsl.net>
-Cc: linux-kernel@vger.kernel.org, perex@suse.cz
-Subject: Re: 2.6.10-rc2 on VAIO laptop and PowerMac 8500/G3
-Message-ID: <20041120185100.GA1205@elf.ucw.cz>
-References: <E1CVYZM-0000Fi-00@penngrove.fdns.net>
+	Sat, 20 Nov 2004 13:55:24 -0500
+Date: Sat, 20 Nov 2004 10:55:07 -0800
+From: Janis Johnson <janis187@us.ibm.com>
+To: Matthew Dobson <colpatch@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Paul Jackson <pj@sgi.com>,
+       Janis Johnson <janis187@us.ibm.com>, Darren Hart <dvhltc@us.ibm.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC PATCH] cpumask_t initializers
+Message-ID: <20041120185507.GA4122@us.ibm.com>
+References: <1100915156.4653.13.camel@arrakis>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E1CVYZM-0000Fi-00@penngrove.fdns.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <1100915156.4653.13.camel@arrakis>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, Nov 19, 2004 at 05:45:57PM -0800, Matthew Dobson wrote:
+> 
+> Janis Johnson, a GCC hacker, told me the following:
+>> Extra parens can be thrown away in expressions, but the syntax for
+>> initializers has curly braces on the outside of the list.  GCC doesn't
+>> seem to mind if there are parens outside the braces for a struct
+>> initializer, but that's probably a bug and could change in a future
+>> version of GCC's C parser.
+> 
+> So, in order to both make my code compile and future-proof (heh) the
+> CPU_MASK_* initializers I wrote up this little patch.  This DEFINITELY
+> needs to be tested further (I've compile-tested it on x86, x86 NUMA,
+> x86_64 & ppc64), but the good news is that any breakage from the patch
+> will be compile-time breakage and should be obvious.
+> 
+> The fact that GCC's parser may change in the future to disallow struct
+> initializers wrapped in parens kind of scares me, because just about
+> every struct initializer I've ever seen in the kernel is wrapped in
+> parens!!  This needs to be delved into further, but I'm leaving for home
+> for a week for Thanksgiving and will have limited access to email.
 
-> The software suspend issue was long and tedious to narrow down.  Yep, as
-> you suspected, it appears to be specific a driver (or group thereof).  It
-> appears to happen when the sound subsystem is included.  Attached below 
-> is the .config and a 'diff' from the losing one to one which works.
+I'm not an expert on the C language (I just pass for one in this
+building) so this ought to be looked at by someone who is.  As for
+changes to the C parser, Joseph Myers is writing a recursive-descent
+C parser for GCC tentatively slated to replace the existing C parser
+for GCC 4.1.
 
-Okay, this is for the alsa team then. Somewhere between 2.6.10-rc1 and
-2.6.10-rc2, ALSA started breaking swsusp :-(.
-								Pavel
-
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Janis

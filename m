@@ -1,38 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270207AbRHGMqE>; Tue, 7 Aug 2001 08:46:04 -0400
+	id <S268916AbRHGNGO>; Tue, 7 Aug 2001 09:06:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270209AbRHGMpq>; Tue, 7 Aug 2001 08:45:46 -0400
-Received: from mail.zmailer.org ([194.252.70.162]:30468 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S270207AbRHGMpf>;
-	Tue, 7 Aug 2001 08:45:35 -0400
-Date: Tue, 7 Aug 2001 15:45:37 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: lk@Aniela.EU.ORG
-Cc: "Stephen M. Williams" <rootusr@midsouth.rr.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Is the mailing list going out?
-Message-ID: <20010807154537.A11046@mea-ext.zmailer.org>
-In-Reply-To: <997135113.558.1.camel@bofumgw.bofum.net> <Pine.LNX.4.33.0108071011470.13748-100000@ns1.Aniela.EU.ORG>
+	id <S270208AbRHGNF4>; Tue, 7 Aug 2001 09:05:56 -0400
+Received: from ma-northadams1a-359.bur.adelphia.net ([24.52.175.103]:8462 "EHLO
+	ma-northadams1a-359.bur.adelphia.net") by vger.kernel.org with ESMTP
+	id <S268916AbRHGNFr>; Tue, 7 Aug 2001 09:05:47 -0400
+Date: Tue, 7 Aug 2001 09:06:30 -0400
+From: Eric Buddington <eric@sparrow.bur.adelphia.net>
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.7-ac3 panic on boot (acpi?)
+Message-ID: <20010807090630.C14344@sparrow.bur.adelphia.net>
+Reply-To: ebuddington@wesleyan.edu
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDE00B@orsmsx35.jf.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0108071011470.13748-100000@ns1.Aniela.EU.ORG>; from lk@Aniela.EU.ORG on Tue, Aug 07, 2001 at 10:13:03AM +0300
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDE00B@orsmsx35.jf.intel.com>; from andrew.grover@intel.com on Thu, Aug 02, 2001 at 12:07:01PM -0700
+Organization: ECS Labs
+X-Eric-Conspiracy: there is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 07, 2001 at 10:13:03AM +0300, lk@Aniela.EU.ORG wrote:
-> The mailing list works fine. I receiveid a lot of e-mail in 4 days. Your
-> ISP might have something to do with you not receiving any mail.... Go
-> shoot him in the head :))
+Andy,
 
-  "them", not "him".
-But the ISP's are using softwares which enable them to shoot themselves
-on their feet/head quite nicely, we don't need to do any additional effort
-there.
+Tried on fresh 2.4.7 (no -ac), and got the same error.
 
-And for that matter, for some reason (maybe because most of the world is
-running with sendmail ?) most of the time we see failures, there is
-a sendmail which is failing to work as it is supposed to.
+-Eric
 
-/Matti Aarnio
+On Thu, Aug 02, 2001 at 12:07:01PM -0700, Grover, Andrew wrote:
+> Never seen that before.
+> 
+> Please untar a FRESH vanilla 2.4.7, apply the patch, and try that.
+> 
+> Regards -- Andy
+> 
+> > From: Eric Buddington 
+> > I untarred that into my existing 2.4.7-ac3 tree, ran make dep; make
+> > clean; make bzImage, and rebooted. I got "Ran out of input data" right
+> > after the "uncompressing..." message.
+> > 
+> > Does this patch need to go against vanilla 2.4.7?
+> > 
+> > -Eric
+> > 
+> > On Wed, Aug 01, 2001 at 03:33:50PM -0700, Grover, Andrew wrote:
+> > > Would you mind doing the following:
+> > > 
+> > > 1) Try 2.4.7 patched with the latest ACPI debug version from:
+> > > 
+> > > 
+> ftp://download.intel.com/technology/IAPC/acpi/downloads/acpica-linux-debug-2
+> > 0010717.tar.gz
+> > 
+> > ...and send me your dmesg? We can proceed from there. ;-)
+> > 
+> > Regards -- Andy
+> > 
+> > > From: Eric Buddington 
+> > > I began to report this bug a couple weeks back, under 
+> > > 2.4.6-ac3, but left on vacation before
+> > > capturing and parsing the panic.
+> 

@@ -1,77 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261153AbVBGPWK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261154AbVBGPfo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261153AbVBGPWK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 10:22:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbVBGPWK
+	id S261154AbVBGPfo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 10:35:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261157AbVBGPfo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 10:22:10 -0500
-Received: from edu.joroinen.fi ([194.89.68.130]:37808 "EHLO edu.joroinen.fi")
-	by vger.kernel.org with ESMTP id S261153AbVBGPWE (ORCPT
+	Mon, 7 Feb 2005 10:35:44 -0500
+Received: from 90.Red-213-97-199.pooles.rima-tde.net ([213.97.199.90]:63629
+	"HELO fargo") by vger.kernel.org with SMTP id S261154AbVBGPfk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 10:22:04 -0500
-Date: Mon, 7 Feb 2005 17:22:03 +0200
-From: Pasi =?iso-8859-1?Q?K=E4rkk=E4inen?= <pasik@iki.fi>
-To: "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [WATCHDOG] support of motherboards with ICH6
-Message-ID: <20050207152203.GI1561@edu.joroinen.fi>
-References: <41FF9366.5030203@fr.thalesgroup.com> <42072E13.4000903@fr.thalesgroup.com> <20050207142030.GE1561@edu.joroinen.fi> <420782AE.9050505@fr.thalesgroup.com>
+	Mon, 7 Feb 2005 10:35:40 -0500
+Date: Mon, 7 Feb 2005 16:35:14 +0100
+From: David =?utf-8?B?R8OzbWV6?= <david@pleyades.net>
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Reading Bad DVD Under 2.6.10 freezes the box.
+Message-ID: <20050207153514.GA5496@fargo>
+Mail-Followup-To: Justin Piszcz <jpiszcz@lucidpixels.com>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.62.0502070728520.1743@p500>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <420782AE.9050505@fr.thalesgroup.com>
-User-Agent: Mutt/1.5.6+20040523i
+In-Reply-To: <Pine.LNX.4.62.0502070728520.1743@p500>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 07, 2005 at 04:01:02PM +0100, P.O. Gaillard wrote:
-> Pasi Kärkkäinen
-> >Hi!
-> >
-> >I have P8SCi motherboard, and I just tried the watchdog with Linux 2.6.10.
-> >
-> >I loaded w83627hf_wdt driver, and the watchdog was detected:
-> >
-> >WDT driver for the Winbond(TM) W83627HF Super I/O chip initialising.
-> >w83627hf WDT: initialized. timeout=60 sec (nowayout=0)
-> >
-> >But it is not working. I tried setting the timeout to 1 minute, and to
-> >8 minute in the BIOS, but the machine reboots after the delay no matter 
-> >what
-> >the delay is.. the watchdog driver is loaded before the timeout of course.
-> >
-> >For some reason, the driver is not working.
-> >
-> >I mailed supermicro support about this, and they told me one of their
-> >customers is using watchdog with Debian 2.6.10 kernel. 
-> >So it should work, but..
-> >
-> >Is there some patches I could try? 
-> Hi !
-> I am so glad to find somebody interested in this issue ;-)
->
+Hi Justin ;),
 
-Me too :)
- 
-> I am not sure about which watchdog is working in the P8SCi. On my P4Sci, 
-> the working watchdog was the one in Intel's southbridge with the i8xx-tco 
-> driver. I tried to use this driver with the P8SAA. To do that I had to use 
-> 2.6.11rc2bk9 to get ICH6 support in the i8xx-tco driver. But as you may 
-> know, the watchdog is not working on the P8SAA.
-> 
-> This might be a good bet for you.
-> 
+On Feb 07 at 07:32:48, Justin Piszcz wrote:
+> Main Question >> Why does Linux 'freeze up' when W2K gives a BadCRC error 
+> msg (never freezes)?
 
-Currently building 2.6.11rc3 i8xx-tco driver to test this.. 
+I don't know, but i can reproduce it too. I complained several months ago
+about the problem (in 2.6.7/2.6.8 time) but nobody seemed to care :-/.
 
-I'll let you know what happens.
+I think i still got the bad DVD, to try to reproduce the probelm in
+2.6.10.
 
--- Pasi Kärkkäinen
-       
-                                   ^
-                                .     .
-                                 Linux
-                              /    -    \
-                             Choice.of.the
-                           .Next.Generation.
+> The DVD FS is Joilet+ISO (hence, why none of the files are bigger than 
+> 2GB), is this normal? 
+
+Mine was Rockridge. It seems the contents are not important. The problem
+is reproducible with any broken/scratched DVD.
+
+regards,
+
+-- 
+David GÃ³mez                                      Jabber ID: davidge@jabber.org

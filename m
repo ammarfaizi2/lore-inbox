@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267444AbSKQDOO>; Sat, 16 Nov 2002 22:14:14 -0500
+	id <S267441AbSKQDNN>; Sat, 16 Nov 2002 22:13:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267445AbSKQDOO>; Sat, 16 Nov 2002 22:14:14 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39944 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267444AbSKQDOM>;
-	Sat, 16 Nov 2002 22:14:12 -0500
-Date: Sun, 17 Nov 2002 03:21:09 +0000
+	id <S267442AbSKQDNM>; Sat, 16 Nov 2002 22:13:12 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36616 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267441AbSKQDNJ>;
+	Sat, 16 Nov 2002 22:13:09 -0500
+Date: Sun, 17 Nov 2002 03:20:07 +0000
 From: Matthew Wilcox <willy@debian.org>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: linux-kernel@vger.kernel.org,
        Janitors <kernel-janitor-discuss@lists.sourceforge.net>
-Subject: [PATCH] remove sched.h from input.h
-Message-ID: <20021117032109.W20070@parcelfarce.linux.theplanet.co.uk>
+Subject: [PATCH] remove sched.h from atmdev.h
+Message-ID: <20021117032007.V20070@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,22 +21,20 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-input.h wants fs.h and timer.h, not sched.h
+atmdev.h only wants wait.h, not sched.h
 
-diff -urpNX dontdiff linux-2.5.47/include/linux/input.h linux-2.5.47-pci/include/linux/input.h
---- linux-2.5.47/include/linux/input.h	2002-10-15 09:32:41.000000000 -0400
-+++ linux-2.5.47-pci/include/linux/input.h	2002-11-16 21:59:01.000000000 -0500
-@@ -734,8 +734,9 @@ struct ff_effect {
-  * In-kernel definitions.
-  */
+diff -urpNX dontdiff linux-2.5.47/include/linux/atmdev.h linux-2.5.47-pci/include/linux/atmdev.h
+--- linux-2.5.47/include/linux/atmdev.h	2002-10-01 03:06:27.000000000 -0400
++++ linux-2.5.47-pci/include/linux/atmdev.h	2002-11-16 21:47:04.000000000 -0500
+@@ -205,7 +205,7 @@ struct atm_cirange {
+ #undef __AAL_STAT_ITEMS
+ #else
  
--#include <linux/sched.h>
- #include <linux/devfs_fs_kernel.h>
-+#include <linux/fs.h>
-+#include <linux/timer.h>
- 
- #define NBITS(x) ((((x)-1)/BITS_PER_LONG)+1)
- #define BIT(x)	(1UL<<((x)%BITS_PER_LONG))
+-#include <linux/sched.h> /* wait_queue_head_t */
++#include <linux/wait.h> /* wait_queue_head_t */
+ #include <linux/time.h> /* struct timeval */
+ #include <linux/net.h>
+ #include <linux/skbuff.h> /* struct sk_buff */
 
 -- 
 Revolutions do not require corporate support.

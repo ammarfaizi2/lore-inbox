@@ -1,79 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266965AbTAUKoA>; Tue, 21 Jan 2003 05:44:00 -0500
+	id <S266995AbTAUKmK>; Tue, 21 Jan 2003 05:42:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266977AbTAUKoA>; Tue, 21 Jan 2003 05:44:00 -0500
-Received: from gate.perex.cz ([194.212.165.105]:25104 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id <S266965AbTAUKn6>;
-	Tue, 21 Jan 2003 05:43:58 -0500
-Date: Tue, 21 Jan 2003 11:52:38 +0100 (CET)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@pnote.perex-int.cz
-To: "Ruslan U. Zakirov" <cubic@miee.ru>
-Cc: Adam Belay <ambx1@neo.rr.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [2.5.58][PnP] Some small points.
-In-Reply-To: <Pine.BSF.4.05.10301190253300.84027-100000@wildrose.miee.ru>
-Message-ID: <Pine.LNX.4.44.0301211151320.2009-100000@pnote.perex-int.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266965AbTAUKmJ>; Tue, 21 Jan 2003 05:42:09 -0500
+Received: from f166.law11.hotmail.com ([64.4.17.166]:27154 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S267008AbTAUKmB>;
+	Tue, 21 Jan 2003 05:42:01 -0500
+X-Originating-IP: [212.3.234.82]
+From: "lao nightwolf" <laonightwolf@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: irregular packet-loss with use of bonding on tg3 Broadcom
+Date: Tue, 21 Jan 2003 10:49:20 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F166IRFvLdhVb6NhAzA00016937@hotmail.com>
+X-OriginalArrivalTime: 21 Jan 2003 10:49:20.0948 (UTC) FILETIME=[C0F71F40:01C2C13A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Jan 2003, Ruslan U. Zakirov wrote:
+Hello,
 
-> On Sat, 18 Jan 2003, Jaroslav Kysela wrote:
-> 
-> > On Fri, 17 Jan 2003, Adam Belay wrote:
-> > 
-> > > > 4) Have we got ALSA driver that work absolutly and use PnP layer in
-> > > > right ways?
-> > > 
-> > > I believe Jaroslav is working on that now.  Jaroslav, if you would like me to 
-> > > convert ALSA drivers please let me know.
-> > 
-> > I'm working on it. Your converted drivers still misses one feature: force
-> > resources via module options. Two complete drivers using configuration 
-> > templates follow.
-> > 
-> [snip]
-> > -static void snd_opl3sa2_isapnp_remove(struct pnp_card * card)
-> > +static void __devexit snd_opl3sa2_isapnp_remove(struct pnp_card * pcard)
-> >  {
-> > -/* FIXME */
-> > +	snd_card_t * card = (snd_card_t *) pnpc_get_drvdata(pcard);
-> > +	
-> > +	snd_card_disconnect(card);
-> > +	snd_card_free_in_thread(card);
-> >  }
-> [snip]
-> >  static void __exit alsa_card_opl3sa2_exit(void)
-> >  {
-> > -	int idx;
-> > +        int dev;
-> >  
-> > -	for (idx = 0; idx < SNDRV_CARDS; idx++)
-> > -		snd_card_free(snd_opl3sa2_cards[idx]);
-> > +	pnpc_unregister_driver(&opl3sa2_pnpc_driver);
-> > +	for (dev = 0; dev < SNDRV_CARDS; dev++)
-> > +		snd_card_free(snd_opl3sa2_cards[dev]);
-> >  }
-> Hello Jaroslav and other.
-> I could be wrong.
-> 1) It's cause an compilation error without CONFIG_PNP.
+We've been using bonding for the first time and are encountering packet-loss
+using it.
+We have installed RH 7.2 on Compaq DL360's with the Broadcom Tigon3 network
+cards.  We've tested the configuration internally and everything seemed to
+work.  Now when the platform came live last week we have irregular
+packet-loss on all servers with bonding enabled.  The servers were compiled
+with kernel-2.4.19 patched with kernel-2.4.20pre11 patch (which contained
+v1.1 of the tg3 drivers).
+As I saw updates for this driver in the 2.4.20 kernel (v1.2, dated
+14/11/2002), I upgraded all servers to latest stable kernel.  But it didn't
+fix our problem.
+The two network interfaces of each server (7 in total) are connencted to 2
+AD184 Alteons Switches (one interface to alteon1, the other interface to
+alteon2).
+We do NOT have any packet-loss to the alteons.  If we look at the health
+check log of the alteon we can see that even the alteon isn't always able to
+contact the servers with bonding enabled.
+Packet-loss to the servers differs from 1% to 50%.
 
-Yes, the opl3sa2_pnpc_driver structure is not defined. Corrected.
+Another curious thing:
 
-> 2) We can delete call of snd_card_free in module exit function, it'll be
-> freed within driver->remove call. It's realy needed only without
-> CONFIG_PNP_CARD.
+>From our location we monitor two ping windows to 2 servers from the
+platform.  Ping times are constantly 18-19ms, with sometimes some
+packet-loss.
 
-No, we can mix pnp and non-pnp cards. The non-pnp cards have to be 
-removed manually.
+When we do logon onto these two servers and execute the 'ps waux' command
+several times, we can see increase ping times drastically to 50-100ms!! It
+also increases packet-loss!  As I can conclude from this is, when traffic
+rises to the servers packet-loss to those servers is also rising.
 
-						Jaroslav
+When we ping from the first to the second server (within the same platform)
+we can see that packet-loss is also much higher, even 100% packet-loss for
+some time (and connection loss to our SSH connection).
 
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SuSE Labs
+Hope someone can point us in the right direction.  Could it have any affect
+by enabling trunking on the alteon switches?  Or has it something to do with
+the linux tg3 driver?
+
+Best Regards,
+Kevin
+
+
+_________________________________________________________________
+Protect your PC - get McAfee.com VirusScan Online 
+http://clinic.mcafee.com/clinic/ibuy/campaign.asp?cid=3963
 

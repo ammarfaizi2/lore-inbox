@@ -1,49 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265859AbTFSRaS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 13:30:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265860AbTFSRaS
+	id S265861AbTFSRbd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 13:31:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265862AbTFSRbd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 13:30:18 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:22774 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S265859AbTFSRaQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 13:30:16 -0400
-Subject: RE: O(1) scheduler seems to lock up on sched_FIFO and sched_RR ta
-	sks
-From: Robert Love <rml@tech9.net>
-To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-Cc: "'Ingo Molnar'" <mingo@elte.hu>, "'Andrew Morton'" <akpm@digeo.com>,
-       "'george anzinger'" <george@mvista.com>,
-       "'joe.korty@ccur.com'" <joe.korty@ccur.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "Li, Adam" <adam.li@intel.com>
-In-Reply-To: <A46BBDB345A7D5118EC90002A5072C780DD16DB3@orsmsx116.jf.intel.com>
-References: <A46BBDB345A7D5118EC90002A5072C780DD16DB3@orsmsx116.jf.intel.com>
-Content-Type: text/plain
-Message-Id: <1056044580.8770.34.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
-Date: 19 Jun 2003 10:43:01 -0700
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Jun 2003 13:31:33 -0400
+Received: from munk.apl.washington.edu ([128.95.96.184]:40903 "EHLO
+	munk.apl.washington.edu") by vger.kernel.org with ESMTP
+	id S265861AbTFSRbZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 13:31:25 -0400
+Date: Thu, 19 Jun 2003 11:04:53 -0700 (PDT)
+From: Brian Dushaw <dushaw@apl.washington.edu>
+To: linux-kernel@vger.kernel.org, <linux-arm-kernel@vger.kernel.org>
+cc: "psilinux.org" <linux-7110-psion@lists.sourceforge.net>
+Subject: Help Wanted:  A request for kernel developers for the Psion netBook
+ PDA/subnotebook
+Message-ID: <Pine.LNX.4.44.0306191058580.11532-100000@munk.apl.washington.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-06-18 at 23:52, Perez-Gonzalez, Inaky wrote:
+Development of linux on various Psion PDA's is a going concern at
+http://www.psilinux.org/
 
-> Then some output would show on my serial console when events/0 is
-> reprioritized...
-> 
-> OTOH, what do you think of Robert's idea of adding 20 levels of
-> priorities for the kernel's sole use?
+Some of us recently got a kernel to work for the Psion netBook, a subnotebook
+type of PDA.  The netbook uses an Intel SA-1100 StrongARM 190 Mhz CPU.
 
-That was your idea, I just said the infrastructure was in place and we
-could do it ;-)
+We are looking for a few good kernel developers to work
+on ETNA/compactflash support, the touch screen support, PCMCIA support,
+sound support, etc.  A preliminary HOWTO for linux on the netBook, including
+a wishlist for the kernel can be found at
+http://linux-7110.sourceforge.net/cgi-bin/index.cgi?url=howtos/netbook/netHOWTO.htm
 
-I am not so sure it is ideal. I hesitate to make kernel threads FIFO at
-a maximum priority, let alone an even greater one. I would really prefer
-to find a nicer solution. Anyhow, if we make events FIFO/99 that would
-also solve the problem, without dipping into extra high levels.
+Debian ARM binary distributions are ready to be plugged in, if we can
+get things like touch screen and compactflash support working.  Kernel
+development is rather challenging because of the paucity of documentation
+from Psion Ltd., but some documentation is available.  We have some 
+documents that can be made available 'to bona-fide kernel developers' - 
+no non-disclosure agreement is required, but you can't pass them around 
+wily-nily either.  It's probably worth making clear that at the moment the 
+need is not for people who can hack given the docs, but for those who can 
+hack despite the absence of docs (a much harder task).  We have hopes of 
+eventually getting more documentation, but no joy yet.
 
-	Robert Love
+
+(Support for the very similar Series 5MX PDA hardware is fairly complete.)
+
+You may post inquiries at: linux-7110-psion at lists dot sourceforge dot net
+
+No pay or benefits, and it is doubtful that anyone will provide you with
+a free netBook for development.  But this is a challenging project, and the
+netBook would be a sweet machine with Debian linux on it.  Retail netBooks
+are fairly pricey, but machines appear on e-bay at regular intervals,
+selling in the $300-500 range.
+
+B.D.
+
 

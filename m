@@ -1,100 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbUHNMSH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbUHNMUL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261426AbUHNMSH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 08:18:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbUHNMSC
+	id S261375AbUHNMUL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 08:20:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbUHNMUA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 08:18:02 -0400
-Received: from mail.ocs.com.au ([202.147.117.210]:48069 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S262768AbUHNMRh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 08:17:37 -0400
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@muc.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] Latency Tracer, voluntary-preempt-2.6.8-rc4-O6 
-In-reply-to: Your message of "Sat, 14 Aug 2004 05:50:50 +0100."
-             <411D9A2A.1000202@grupopie.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 14 Aug 2004 22:17:24 +1000
-Message-ID: <8634.1092485844@ocs3.ocs.com.au>
+	Sat, 14 Aug 2004 08:20:00 -0400
+Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:8 "EHLO
+	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
+	id S261234AbUHNMTr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Aug 2004 08:19:47 -0400
+Message-ID: <411E0361.9020407@superbug.demon.co.uk>
+Date: Sat, 14 Aug 2004 13:19:45 +0100
+From: James Courtier-Dutton <James@superbug.demon.co.uk>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040812)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+Subject: Re: [patch] Latency Tracer, voluntary-preempt-2.6.8-rc4-O6
+References: <20040726083537.GA24948@elte.hu> <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu> <20040801193043.GA20277@elte.hu> <20040809104649.GA13299@elte.hu> <20040810132654.GA28915@elte.hu> <20040812235116.GA27838@elte.hu> <411DF776.6090102@superbug.demon.co.uk> <20040814115139.GB9705@elte.hu>
+In-Reply-To: <20040814115139.GB9705@elte.hu>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 14 Aug 2004 05:50:50 +0100, 
-Paulo Marques <pmarques@grupopie.com> wrote:
->Well, I found some time and decided to give it a go :)
+This is just for info, now that we have a nice latency testing tool, we 
+might as well collect some useful traces that we can later work on.
 
-This patch regresses some recent changes to kallsyms which handle
-aliased symbols, IOW symbols with the same address.  The speed up is
-very good, but it has two problems with repeated addresses.
+Here is a trace showing a latency of 39034us. 
+http://www.superbug.demon.co.uk/kernel/
 
-The binary chop will give different results on different configs.
-Depending on the chop, it will pick any one of the aliased symbols, the
-previous kallsyms would always pick the first name.  For consistent bug
-reports, always report the first symbol from an aliased set.
+The interesting parts of it are:
+0.002ms (+0.000ms): __preempt_spin_lock (schedule)
+0.523ms (+0.520ms): do_IRQ (common_interrupt)
+...
+0.532ms (+0.000ms): end_edge_ioapic_irq (do_IRQ)
+0.763ms (+0.230ms): smp_apic_timer_interrupt (apic_timer_interrupt)
+...
+0.768ms (+0.000ms): preempt_schedule (try_to_wake_up)
+1.523ms (+0.754ms): do_IRQ (common_interrupt)
+...
+1.533ms (+0.000ms): __do_softirq (do_softirq)
+1.763ms (+0.229ms): smp_apic_timer_interrupt (apic_timer_interrupt)
+...
+1.765ms (+0.000ms): __do_softirq (do_softirq)
+2.523ms (+0.757ms): do_IRQ (common_interrupt)
+...
+2.533ms (+0.000ms): do_softirq (do_IRQ)
+2.533ms (+0.000ms): __do_softirq (do_softirq)
+2.763ms (+0.230ms): smp_apic_timer_interrupt (apic_timer_interrupt)
+...
 
-When calculating the size of a symbol, you must skip the aliased
-entries.
+This looks to me to be a bug somewhere. Either in the O7 patch, or in 
+the kernel. Surely, do_IRQ should happen quickly, and not take 39ms.
 
-Patch over kallsyms-speedup, to handle aliased symbols again.  Also
-removes a warning about mixing code and declarations.
-
-Index: linux/kernel/kallsyms.c
-===================================================================
---- linux.orig/kernel/kallsyms.c	Sat Aug 14 22:16:06 2004
-+++ linux/kernel/kallsyms.c	Sat Aug 14 22:16:04 2004
-@@ -107,7 +107,8 @@ const char *kallsyms_lookup(unsigned lon
- 	namebuf[0] = 0;
- 
- 	if (is_kernel_text(addr) || is_kernel_inittext(addr)) {
--		unsigned long symbol_end;
-+		unsigned long symbol_end = 0;
-+		unsigned prefix;
- 		char *name;
- 
- 		/* do a binary search on the sorted kallsyms_addresses array */
-@@ -118,6 +119,7 @@ const char *kallsyms_lookup(unsigned lon
- 			if( kallsyms_addresses[mid] <= addr ) low = mid;
- 			else high = mid;
- 		}
-+		while (low && kallsyms_addresses[low-1] == kallsyms_addresses[low]) --low;
- 
- 		/* Grab name */
- 		i = 0;
-@@ -135,7 +137,6 @@ const char *kallsyms_lookup(unsigned lon
- 		}
- 
- 		/* find the last stem before the actual symbol that as 0 prefix */
--		unsigned prefix;
- 		for (; i <= low; i++) { 
- 			prefix=*name;
- 			if (prefix == 0) {
-@@ -156,15 +157,20 @@ const char *kallsyms_lookup(unsigned lon
- 			name += strlen(name) + 1;
- 		}
- 
--		if(low == kallsyms_num_syms - 1) {
-+		/* Search for next non-aliased symbol */
-+		for (i = low + 1; i < kallsyms_num_syms; i++) {
-+			if (kallsyms_addresses[i] > kallsyms_addresses[low]) {
-+				symbol_end = kallsyms_addresses[i];
-+				break;
-+			}
-+		}
-+		if (!symbol_end) {
- 			/* At worst, symbol ends at end of section. */
- 			if (is_kernel_inittext(addr))
- 				symbol_end = (unsigned long)_einittext;
- 			else
- 				symbol_end = (unsigned long)_etext;
- 		}
--		else
--			symbol_end = kallsyms_addresses[low + 1];
- 		
- 		*symbolsize = symbol_end - kallsyms_addresses[low];
- 		*modname = NULL;
 

@@ -1,79 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262086AbVBJJty@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262084AbVBJJuw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262086AbVBJJty (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 04:49:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbVBJJtr
+	id S262084AbVBJJuw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 04:50:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262087AbVBJJuu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 04:49:47 -0500
-Received: from village.ehouse.ru ([193.111.92.18]:33296 "EHLO mail.ehouse.ru")
-	by vger.kernel.org with ESMTP id S262084AbVBJJth (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 04:49:37 -0500
-From: "Sergey S. Kostyliov" <rathamahata@ehouse.ru>
-Reply-To: "Sergey S. Kostyliov" <rathamahata@ehouse.ru>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.10 devfs oops without devfs mounted at all
-Date: Thu, 10 Feb 2005 12:49:29 +0300
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org, admin@list.net.ru
-References: <200502082013.50959.rathamahata@ehouse.ru> <20050209163624.44557750.akpm@osdl.org>
-In-Reply-To: <20050209163624.44557750.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200502101249.30878.rathamahata@ehouse.ru>
+	Thu, 10 Feb 2005 04:50:50 -0500
+Received: from irulan.endorphin.org ([80.68.90.107]:65035 "EHLO
+	irulan.endorphin.org") by vger.kernel.org with ESMTP
+	id S262084AbVBJJuO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Feb 2005 04:50:14 -0500
+Subject: Re: [PATCH 01/04] Adding cipher mode context information to
+	crypto_tfm
+From: Fruhwirth Clemens <clemens@endorphin.org>
+To: James Morris <jmorris@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       michal@logix.cz, "David S. Miller" <davem@davemloft.net>,
+       "Adam J. Richter" <adam@yggdrasil.com>
+In-Reply-To: <Xine.LNX.4.44.0502092036200.6541-100000@thoron.boston.redhat.com>
+References: <Xine.LNX.4.44.0502092036200.6541-100000@thoron.boston.redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-0/AqMHEMcWbkYwYLJIDC"
+Date: Thu, 10 Feb 2005 10:50:05 +0100
+Message-Id: <1108029005.14335.45.camel@ghanima>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 10 February 2005 03:36, Andrew Morton wrote:
-> "Sergey S. Kostyliov" <rathamahata@ehouse.ru> wrote:
-> >
-> > Here is an oops I've just get on my smp system:
-> > 
-> > Unable to handle kernel NULL pointer dereference at virtual address 0000001c
-> >  printing eip:
-> > c01afe5b
-> > *pde = 00000000
-> > Oops: 0000 [#1]
-> > PREEMPT SMP
-> > Modules linked in: ipt_REJECT ipt_state ip_conntrack iptable_filter
-> > CPU:    2
-> > EIP:    0060:[<c01afe5b>]    Not tainted VLI
-> > EFLAGS: 00010286   (2.6.10)
-> > EIP is at devfsd_close+0x1b/0xc8
-> > eax: f7440a00   ebx: 00000000   ecx: c01afe40   edx: ed395280
-> > esi: 00000000   edi: f7f17800   ebp: f74f96c8   esp: cdc70f84
-> > ds: 007b   es: 007b   ss: 0068
-> > Process megamgr.bin (pid: 12844, threadinfo=cdc70000 task=dd81e520)
-> > Stack: ed395280 ed395280 00000000 f7f17800 c0150c76 ee9e87f8 ed395280 00000000
-> >        f1985c80 cdc70000 c014f50f 00000003 00000003 080caa60 00000000 c01024df
-> >        00000003 080cc700 bfffe4f8 080caa60 00000000 bfffe4fc 00000006 0000007b
-> > Call Trace:
-> >  [<c0150c76>] __fput+0x106/0x120
-> >  [<c014f50f>] filp_close+0x4f/0x80
-> >  [<c01024df>] syscall_call+0x7/0xb
-> 
-> Can you work out what file is being closed?  One way of doing that would be
-> to work out how megamgr.bin is being invoked and to then run it by hand:
-> 
->  strace -f -o log megamgr.bin <args>
-> 
-> and we can then use the strace output to work out the pathname of the
-> offending file.
 
-rathamahata@terror rathamahata $ grep 'open(' mg.log
-5255  open("/usr/share/terminfo/l/linux", O_RDONLY) = 3
-5255  open("/dev/megadev0", O_RDONLY)   = 3
-rathamahata@terror rathamahata $ 
+--=-0/AqMHEMcWbkYwYLJIDC
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I guess it's /dev/megadev0 (manually created character device)
+On Wed, 2005-02-09 at 20:42 -0500, James Morris wrote:
+> On Thu, 10 Feb 2005, Fruhwirth Clemens wrote:
+>=20
+> > Because a tweak is different from an IV. There can be an arbitrary
+> > number of tweaks. For instance, EME takes 1 tweak per 512 bytes. If you
+> > have a 4k page to encrypt, you have to process 8 tweaks of whatever
+> > size.=20
+> >  Therefore, you need 3 scatterlists: src, dst and the running along
+> > tweak.
+>=20
+> The purpose of the scatterlists is to be able to process discontigous dat=
+a=20
+> at the page level.
+>=20
+> The tweak, as I understand it, is something which you generate, and it is=
+=20
+> not inherently likely to be page-level clumps of data.  It does not ever=20
+> need to be kmapped.
 
-rathamahata@terror rathamahata $ ls -la /dev/megadev0
-crw-r--r--  1 root root 253, 0 Feb  8 16:26 /dev/megadev0
-rathamahata@terror rathamahata 
+For LRW, the tweak is exactly as large as the bulk data itself, so
+tweaksize =3D blocksize. Yes, it is usually generated and sequential, but
+that may not be the case. I like to put the generation of the tweaks at
+the client side, because it knows best where the tweaks come from and if
+it likes fragmented tweaks or not.
 
--- 
-Sergey S. Kostyliov <rathamahata@ehouse.ru>
-Jabber ID: rathamahata@jabber.org
+Further, this interface is more naturally to any other tweakable cipher
+mode. In contrast to a regular cipher:
+
+E: {0,1}^k  x  {0,1}^n -> {0,1}^n
+
+a tweakable cipher is:
+
+E: {0,1}^k  x  {0,1}^t  x  {0,1}^n -> {0,1}^n
+
+where k is key size, n block size and t is tweak size.
+( http://www.cs.berkeley.edu/%7Edaw/papers/tweak-crypto02.ps )
+
+In the special case of LRW, it would be possible to squeeze it into an
+IV styled interface, which does auto-incrementation. But that's flawed.
+It would put functionality, where it does not belong. Witha  tweakable
+mode, the blocks are independent and are not linked in any way. The
+interface should reflect this.
+
+> What you really need to do is use an array for the tweak (or possibly a
+> structure which maintains state about it if needed).
+
+The LRW cipher mode is stateless. There is context information, but this
+only a cache. Same applies for EME, and it's fellows.
+
+--=20
+Fruhwirth Clemens <clemens@endorphin.org>  http://clemens.endorphin.org
+
+--=-0/AqMHEMcWbkYwYLJIDC
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBCCy5NbjN8iSMYtrsRArV4AJ91h2JJrZvblYnQOesawnllMs0+dgCcDb6o
+EqrbwqVWwmRND8H5lb+EiMw=
+=P/rj
+-----END PGP SIGNATURE-----
+
+--=-0/AqMHEMcWbkYwYLJIDC--

@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262893AbTDNJJ0 (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 05:09:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262905AbTDNJJ0 (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 05:09:26 -0400
-Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:1551 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id S262893AbTDNJJ0 (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 05:09:26 -0400
-Message-Id: <200304140912.h3E9C8u02261@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Chuck Ebbert <76306.1226@compuserve.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: kernel support for non-English user messages
-Date: Mon, 14 Apr 2003 12:07:09 +0300
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-References: <200304121634_MC3-1-3426-2709@compuserve.com>
-In-Reply-To: <200304121634_MC3-1-3426-2709@compuserve.com>
+	id S262905AbTDNJNl (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 05:13:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262908AbTDNJNl (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 05:13:41 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:28369 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id S262905AbTDNJNk (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Apr 2003 05:13:40 -0400
+Date: Mon, 14 Apr 2003 11:24:33 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Paul Mackerras <paulus@samba.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] M68k IDE updates
+In-Reply-To: <1050311961.5575.47.camel@zion.wanadoo.fr>
+Message-ID: <Pine.GSO.4.21.0304141122340.28305-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 April 2003 23:31, Chuck Ebbert wrote:
-> >>   /Documentation is *awful*.
-> >
-> > You know where to submit contributions
->
->   If I could *write* the documentation, I wouldn't need it,
-> now would I?  Maybe that's the problem...
+On 14 Apr 2003, Benjamin Herrenschmidt wrote:
+> On Mon, 2003-04-14 at 10:39, Geert Uytterhoeven wrote:
+> 
+> > Indeed. Ataris and Q40/Q60s have byteswapped IDE busses, but they expect
+> > on-disk data to be that way, for compatibility with e.g. TOS.
+> 
+> Some designers need to be shot...
+> 
+> What about optionally making fix_drive_id a platoform hook
+> (like it was, but with a reasonable default) to avoid clobbering
+> the common code with those #ifdefs ?
 
-If nobody would write the docs, nobody would read them ;)
+Yes, I already suggested that in my IDE patch for 2.4.x. But I was in a hurry,
+since I wanted to get m68k IDE working in 2.4.21.
+
+Gr{oetje,eeting}s,
+
+						Geert
+
 --
-vda
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

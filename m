@@ -1,53 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267952AbTBVX3h>; Sat, 22 Feb 2003 18:29:37 -0500
+	id <S267953AbTBVXce>; Sat, 22 Feb 2003 18:32:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267953AbTBVX3g>; Sat, 22 Feb 2003 18:29:36 -0500
-Received: from [212.156.4.132] ([212.156.4.132]:5828 "EHLO fep02.ttnet.net.tr")
-	by vger.kernel.org with ESMTP id <S267952AbTBVX3g>;
-	Sat, 22 Feb 2003 18:29:36 -0500
-Date: Sun, 23 Feb 2003 01:39:51 +0200
-From: Faik Uygur <faikuygur@ttnet.net.tr>
-To: Lionel.Bouton@inet6.fr
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.62: /proc/ide/sis returns incomplete data [15/17]
-Message-ID: <20030222233951.GN2996@ttnet.net.tr>
-Mail-Followup-To: Lionel.Bouton@inet6.fr,
-	linux-kernel@vger.kernel.org
+	id <S267955AbTBVXce>; Sat, 22 Feb 2003 18:32:34 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:58842 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S267953AbTBVXcd>;
+	Sat, 22 Feb 2003 18:32:33 -0500
+Date: Sat, 22 Feb 2003 15:26:26 -0800 (PST)
+Message-Id: <20030222.152626.100079402.davem@redhat.com>
+To: wa@almesberger.net
+Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
+Subject: Re: RFC3168, section 6.1.1.1 - ECN and retransmit of SYN
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030222154539.H2791@almesberger.net>
+References: <1045874822.25411.3.camel@rth.ninka.net>
+	<200302220048.h1M0mjCu020837@turing-police.cc.vt.edu>
+	<20030222154539.H2791@almesberger.net>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-9
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-PGP-Fingerprint: 15 C0 AA 31 59 F9 DE 4F 7D A6 C7 D8 A0 D5 67 73
-X-PGP-Key-ID: 0x5C447959
-X-PGP-Key-Size: 2048 bits
-X-Editor: GNU Emacs 21.2.1
-X-Operating-System: Debian GNU/Linux
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes the incomplete data return problem of /proc/ide/sis.
-When the number of consecutive read bytes are smaller than the total
-data in sis_get_info(), the second read() returns 0.
+   From: Werner Almesberger <wa@almesberger.net>
+   Date: Sat, 22 Feb 2003 15:45:39 -0300
+   
+   4) Back off quickly (i.e. disable ECN on first retry), but keep track
+   of whom you had to do this for. Then use some clever user-mode
+   strategy module to act on this information. (E.g. send a list of ECN
+   offenders to root, or raise the threshold value for turning off ECN
+   for destinations that seem to accept ECN in general, but suffer high
+   losses.)
 
---- linux-2.5.62-vanilla/drivers/ide/pci/sis5513.c	Sun Feb 23 01:38:02 2003
-+++ linux-2.5.62/drivers/ide/pci/sis5513.c	Sun Feb 23 01:36:58 2003
-@@ -396,6 +396,7 @@
- static int sis_get_info (char *buffer, char **addr, off_t offset, int count)
- {
- 	char *p = buffer;
-+	int len;
- 	u8 reg;
- 	u16 reg2, reg3;
- 
-@@ -466,7 +467,10 @@
- 	p = get_masters_info(p);
- 	p = get_slaves_info(p);
- 
--	return p-buffer;
-+	len = (p - buffer) - offset;
-+	*addr = buffer + offset;
-+	
-+	return len > count ? count : len;
- }
- #endif /* defined(DISPLAY_SIS_TIMINGS) && defined(CONFIG_PROC_FS) */
+Time to write an ipt_ECNLOG.c netfilter module :-)

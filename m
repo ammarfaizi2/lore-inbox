@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264033AbRFNUvt>; Thu, 14 Jun 2001 16:51:49 -0400
+	id <S261425AbRFNU4t>; Thu, 14 Jun 2001 16:56:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264031AbRFNUvj>; Thu, 14 Jun 2001 16:51:39 -0400
-Received: from intranet.resilience.com ([209.245.157.33]:63654 "EHLO
-	intranet.resilience.com") by vger.kernel.org with ESMTP
-	id <S264033AbRFNUv0>; Thu, 14 Jun 2001 16:51:26 -0400
-Mime-Version: 1.0
-Message-Id: <p05100301b74ed3224ec5@[10.128.7.49]>
-In-Reply-To: <15145.2693.704919.651626@pizda.ninka.net>
-In-Reply-To: <3B273A20.8EE88F8F@vnet.ibm.com>
- <3B28C6C1.3477493F@mandrakesoft.com>
- <15144.51504.8399.395200@pizda.ninka.net>
- <p0510030eb74ea25caa73@[207.213.214.37]>
- <15145.2693.704919.651626@pizda.ninka.net>
-Date: Thu, 14 Jun 2001 13:50:47 -0700
-To: "David S. Miller" <davem@redhat.com>
-From: Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: Going beyond 256 PCI buses
+	id <S263137AbRFNU4k>; Thu, 14 Jun 2001 16:56:40 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:53427 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261425AbRFNU4Y>;
+	Thu, 14 Jun 2001 16:56:24 -0400
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15145.9461.551559.168878@pizda.ninka.net>
+Date: Thu, 14 Jun 2001 13:56:21 -0700 (PDT)
+To: Jonathan Lundell <jlundell@pobox.com>
 Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Tom Gall <tom_gall@vnet.ibm.com>,
         linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+Subject: Re: Going beyond 256 PCI buses
+In-Reply-To: <p05100301b74ed3224ec5@[10.128.7.49]>
+In-Reply-To: <3B273A20.8EE88F8F@vnet.ibm.com>
+	<3B28C6C1.3477493F@mandrakesoft.com>
+	<15144.51504.8399.395200@pizda.ninka.net>
+	<p0510030eb74ea25caa73@[207.213.214.37]>
+	<15145.2693.704919.651626@pizda.ninka.net>
+	<p05100301b74ed3224ec5@[10.128.7.49]>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 12:03 PM -0700 2001-06-14, David S. Miller wrote:
->Jonathan Lundell writes:
->  > As I recall, even a midline chipset such as the ServerWorks LE
->  > supports the use of two north bridges, which implies two PCI bus
->  > domains.
->
->It hides this fact by making config space accesses respond in such a
->way that it appears that it is all behind one PCI controller.  The
->BIOS even avoids allowing any of the MEM and I/O resources from
->overlapping.
 
-So we end up with a single domain and max 256 buses. Still, it's not 
-behavior one can count on. Sun's U2P PCI controller certainly creates 
-a new PCI domain for each controller. It's easier in architectures 
-other than IA32, in a way, since they typically don't have the 64KB 
-IO-space addressing limitation that makes heavily bridged systems 
-problematical on IA32 (one tends to run out of IO space).
--- 
-/Jonathan Lundell.
+Jonathan Lundell writes:
+ > It's easier in architectures other than IA32, in a way, since they
+ > typically don't have the 64KB IO-space addressing limitation that
+ > makes heavily bridged systems problematical on IA32 (one tends to
+ > run out of IO space).
+
+Right, I was even going to mention this.
+
+But nothing stops an ia32 PCI controller vendor from doing what the
+Sun PCI controller does, which is to make I/O space memory mapped.
+Well, one thing stops them, no OS would support this from the get
+go.
+
+Luckily, it would be quite easy to make Linux handle this kind of
+thing on x86 since other platforms built up the infrastructure
+needed to make it work.
+
+Later,
+David S. Miller
+davem@redhat.com

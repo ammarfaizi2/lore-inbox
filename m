@@ -1,37 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135574AbREBPMU>; Wed, 2 May 2001 11:12:20 -0400
+	id <S135580AbREBPQa>; Wed, 2 May 2001 11:16:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135580AbREBPML>; Wed, 2 May 2001 11:12:11 -0400
-Received: from cp26357-a.gelen1.lb.nl.home.com ([213.51.0.86]:40471 "HELO
-	lunchbox.oisec.net") by vger.kernel.org with SMTP
-	id <S135574AbREBPL5>; Wed, 2 May 2001 11:11:57 -0400
-Date: Wed, 2 May 2001 17:11:43 +0200
-From: Cliff Albert <cliff@oisec.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: (follow-up) 2.4.4, ac1,ac2,ac3 - panics on ICMPv6 packets
-Message-ID: <20010502171143.A1242@oisec.net>
-In-Reply-To: <20010502083928.A30793@oisec.net> <E14uum6-0003Qn-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <E14uum6-0003Qn-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, May 02, 2001 at 12:26:28PM +0100
+	id <S135585AbREBPQU>; Wed, 2 May 2001 11:16:20 -0400
+Received: from fencepost.gnu.org ([199.232.76.164]:20499 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S135580AbREBPQN>; Wed, 2 May 2001 11:16:13 -0400
+Date: Wed, 2 May 2001 11:17:22 -0400 (EDT)
+From: Pavel Roskin <proski@gnu.org>
+X-X-Sender: <proski@fonzie.nine.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4.4-ac3 +IPX -SYSCTL compile fix
+In-Reply-To: <Pine.LNX.4.33.0105021040120.921-100000@fonzie.nine.com>
+Message-ID: <Pine.LNX.4.33.0105021115090.8687-100000@fonzie.nine.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 02, 2001 at 12:26:28PM +0100, Alan Cox wrote:
+> +#error This file shouldn't be compiled without CONFIG_SYSCTL defined
 
-> >  2.4.4, ac1, ac2 AND now ac3 will panic on receiving ICMPv6 packets (like traceroute6 and ping6)
-> >  See my earlier messages for panic info.
-> 
-> Does building without netfilter support help ?
+Oops, sorry! Unterminated string constant in preprocessor. It should be
 
-There is no netfilter support in my kernel at all neither v4 or v6
-I have got confirmed from several people that if they ping6 their box it also dies
+#error This file should not be compiled without CONFIG_SYSCTL defined
+
+The patch at http://www.red-bean.com/~proski/linux/ipxsysctl.diff has been
+updated.
 
 -- 
-Cliff Albert		| IRCNet:    #linux.nl, #ne2000, #linux, #freebsd.nl
-cliff@oisec.net		| 	     #openbsd, #ipv6, #cu2.nl
--[ICQ: 18461740]--------| 6BONE:     CA2-6BONE       RIPE:     CA3348-RIPE
+Regards,
+Pavel Roskin
+

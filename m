@@ -1,208 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266128AbUAUTtX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 14:49:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266129AbUAUTtX
+	id S266136AbUAUTyR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 14:54:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266138AbUAUTyR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 14:49:23 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:57006 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S266128AbUAUTtO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 14:49:14 -0500
-Date: Wed, 21 Jan 2004 14:49:09 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Pavel Machek <pavel@ucw.cz>
-cc: Valdis.Kletnieks@vt.edu, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: sched-idle and disk-priorities for 2.6.X
-In-Reply-To: <20040118195825.GA27658@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.44.0401211448250.26332-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 21 Jan 2004 14:54:17 -0500
+Received: from smtp6.wanadoo.fr ([193.252.22.25]:44488 "EHLO
+	mwinf0601.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S266136AbUAUTyO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 14:54:14 -0500
+Date: Wed, 21 Jan 2004 20:54:10 +0100
+From: Romain Lievin <romain@rlievin.dyndns.org>
+To: Ozan Eren Bilgen <oebilgen@uekae.tubitak.gov.tr>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Roman Zippel <zippel@linux-m68k.org>
+Subject: [PATCH] "gconfig" removed root folder...
+Message-ID: <20040121195410.GA13333@rlievin.dyndns.org>
+References: <1074177405.3131.10.camel@oebilgen>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1074177405.3131.10.camel@oebilgen>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 18 Jan 2004, Pavel Machek wrote:
+Hi,
 
-> > > Is there effective way to limit RSS?
-> > 
-> > Want me to port the RSS stuff from 2.4-rmap to 2.6 ?
-> 
-> Well, if it allows me to limit memory for one task so that it does not
-> make system unusable... yes, that would be great.
+This new patch includes Muli's remarks.
+Need to be applied against a 2.6.1 kernel.
 
-Here it is.  Untested, except for whether it compiles cleanly ;)
-
-Let me know how it works, if the enforcement is aggressive
-enough or not, whether I need to tweak things etc...
+Thanks, Romain.
+==========================[ cut here]==========================
+diff -Naur linux-2.6.1/scripts/kconfig/gconf.c linux/scripts/kconfig/gconf.c
+--- linux-2.6.1/scripts/kconfig/gconf.c	2004-01-15 21:45:22.000000000 +0100
++++ linux/scripts/kconfig/gconf.c	2004-01-21 20:48:04.000000000 +0100
+@@ -23,6 +23,9 @@
+ #include <unistd.h>
+ #include <time.h>
+ #include <stdlib.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++
+ 
+ //#define DEBUG
+ 
+@@ -643,14 +646,29 @@
+ store_filename(GtkFileSelection * file_selector, gpointer user_data)
+ {
+ 	const gchar *fn;
++	gchar trailing;
++	gchar *safe_fn;
++	struct stat sb;
+ 
+-	fn = gtk_file_selection_get_filename(GTK_FILE_SELECTION
++	fn = gtk_file_selection_get_filename (GTK_FILE_SELECTION
+ 					     (user_data));
+ 
+-	if (conf_write(fn))
+-		text_insert_msg("Error", "Unable to save configuration !");
++	/* protect against 'root directory' bug */
++	trailing = fn[strlen (fn)-1];
++	safe_fn = g_strdup (fn);
++
++	if(!stat (fn, &sb))
++		if (S_ISDIR(sb.st_mode))
++			if (trailing != '/')
++			{
++				g_free (safe_fn);
++				safe_fn = g_strconcat (fn, "/", NULL);
++			}
+ 
+-	gtk_widget_destroy(GTK_WIDGET(user_data));
++	if (conf_write (safe_fn))
++		text_insert_msg("Error", "Unable to save configuration !");
++	g_free (safe_fn);
++	gtk_widget_destroy (GTK_WIDGET(user_data));
+ }
+ 
+ void on_save_as1_activate(GtkMenuItem * menuitem, gpointer user_data)
 
 -- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+Romain Li�vin (roms):         <roms@tilp.info>
+Web site:                     http://tilp.info
+"Linux, y'a moins bien mais c'est plus cher !"
 
 
 
-===== include/linux/init_task.h 1.27 vs edited =====
---- 1.27/include/linux/init_task.h	Mon Aug 18 22:46:23 2003
-+++ edited/include/linux/init_task.h	Tue Jan 20 17:34:40 2004
-@@ -2,6 +2,7 @@
- #define _LINUX__INIT_TASK_H
- 
- #include <linux/file.h>
-+#include <asm/resource.h>
- 
- #define INIT_FILES \
- { 							\
-@@ -41,6 +42,7 @@
- 	.page_table_lock =  SPIN_LOCK_UNLOCKED, 		\
- 	.mmlist		= LIST_HEAD_INIT(name.mmlist),		\
- 	.default_kioctx = INIT_KIOCTX(name.default_kioctx, name),	\
-+	.rlimit_rss	= RLIM_INFINITY			\
- }
- 
- #define INIT_SIGNALS(sig) {	\
-===== include/linux/sched.h 1.178 vs edited =====
---- 1.178/include/linux/sched.h	Mon Jan 19 18:38:15 2004
-+++ edited/include/linux/sched.h	Tue Jan 20 17:32:56 2004
-@@ -204,6 +204,7 @@
- 	unsigned long arg_start, arg_end, env_start, env_end;
- 	unsigned long rss, total_vm, locked_vm;
- 	unsigned long def_flags;
-+	unsigned long rlimit_rss;
- 	cpumask_t cpu_vm_mask;
- 
- 	unsigned long saved_auxv[40]; /* for /proc/PID/auxv */
-===== include/linux/swap.h 1.80 vs edited =====
---- 1.80/include/linux/swap.h	Mon Jan 19 01:28:35 2004
-+++ edited/include/linux/swap.h	Tue Jan 20 18:16:28 2004
-@@ -179,7 +179,7 @@
- 
- /* linux/mm/rmap.c */
- #ifdef CONFIG_MMU
--int FASTCALL(page_referenced(struct page *));
-+int FASTCALL(page_referenced(struct page *, int *));
- struct pte_chain *FASTCALL(page_add_rmap(struct page *, pte_t *,
- 					struct pte_chain *));
- void FASTCALL(page_remove_rmap(struct page *, pte_t *));
-@@ -188,7 +188,7 @@
- /* linux/mm/shmem.c */
- extern int shmem_unuse(swp_entry_t entry, struct page *page);
- #else
--#define page_referenced(page)	TestClearPageReferenced(page)
-+#define page_referenced(page, _x)	TestClearPageReferenced(page)
- #define try_to_unmap(page)	SWAP_FAIL
- #endif /* CONFIG_MMU */
- 
-===== kernel/sys.c 1.69 vs edited =====
---- 1.69/kernel/sys.c	Mon Jan 19 18:38:13 2004
-+++ edited/kernel/sys.c	Tue Jan 20 18:02:19 2004
-@@ -1308,6 +1308,14 @@
- 	if (retval)
- 		return retval;
- 
-+	/* The rlimit is specified in bytes, convert to pages for mm. */
-+	if (resource == RLIMIT_RSS && current->mm) {
-+		unsigned long pages = RLIM_INFINITY;
-+		if (new_rlim.rlim_cur != RLIM_INFINITY)
-+			pages = new_rlim.rlim_cur >> PAGE_SHIFT;
-+		current->mm->rlimit_rss = pages;
-+	}
-+
- 	*old_rlim = new_rlim;
- 	return 0;
- }
-===== mm/rmap.c 1.34 vs edited =====
---- 1.34/mm/rmap.c	Mon Jan 19 01:36:00 2004
-+++ edited/mm/rmap.c	Tue Jan 20 18:26:03 2004
-@@ -104,6 +104,7 @@
- /**
-  * page_referenced - test if the page was referenced
-  * @page: the page to test
-+ * rsslimit: set if the process(es) using the page is(are) over RSS limit
-  *
-  * Quick test_and_clear_referenced for all mappings to a page,
-  * returns the number of processes which referenced the page.
-@@ -112,8 +113,9 @@
-  * If the page has a single-entry pte_chain, collapse that back to a PageDirect
-  * representation.  This way, it's only done under memory pressure.
-  */
--int page_referenced(struct page * page)
-+int page_referenced(struct page * page, int * rsslimit)
- {
-+	struct mm_struct * mm;
- 	struct pte_chain *pc;
- 	int referenced = 0;
- 
-@@ -127,10 +129,17 @@
- 		pte_t *pte = rmap_ptep_map(page->pte.direct);
- 		if (ptep_test_and_clear_young(pte))
- 			referenced++;
-+
-+		mm = ptep_to_mm(pte);
-+		if (mm->rss > mm->rlimit_rss)
-+			*rsslimit = 1;
- 		rmap_ptep_unmap(pte);
- 	} else {
- 		int nr_chains = 0;
- 
-+		/* We clear it if any task using the page is under its limit. */
-+		*rsslimit = 1;
-+
- 		/* Check all the page tables mapping this page. */
- 		for (pc = page->pte.chain; pc; pc = pte_chain_next(pc)) {
- 			int i;
-@@ -142,6 +151,10 @@
- 				p = rmap_ptep_map(pte_paddr);
- 				if (ptep_test_and_clear_young(p))
- 					referenced++;
-+
-+				mm = ptep_to_mm(p);
-+				if (mm->rss < mm->rlimit_rss)
-+					*rsslimit = 0;
- 				rmap_ptep_unmap(p);
- 				nr_chains++;
- 			}
-===== mm/vmscan.c 1.177 vs edited =====
---- 1.177/mm/vmscan.c	Mon Jan 19 18:38:07 2004
-+++ edited/mm/vmscan.c	Wed Jan 21 14:34:44 2004
-@@ -250,6 +250,7 @@
- 	LIST_HEAD(ret_pages);
- 	struct pagevec freed_pvec;
- 	int pgactivate = 0;
-+	int over_rsslimit;
- 	int ret = 0;
- 
- 	cond_resched();
-@@ -278,10 +279,12 @@
- 			goto keep_locked;
- 
- 		pte_chain_lock(page);
--		referenced = page_referenced(page);
-+		referenced = page_referenced(page, &over_rsslimit);
- 		if (referenced && page_mapping_inuse(page)) {
- 			/* In active use or really unfreeable.  Activate it. */
- 			pte_chain_unlock(page);
-+			if (over_rsslimit)
-+				goto keep_locked;
- 			goto activate_locked;
- 		}
- 
-@@ -597,6 +600,7 @@
- 	long mapped_ratio;
- 	long distress;
- 	long swap_tendency;
-+	int over_rsslimit;
- 
- 	lru_add_drain();
- 	pgmoved = 0;
-@@ -657,7 +661,7 @@
- 		list_del(&page->lru);
- 		if (page_mapped(page)) {
- 			pte_chain_lock(page);
--			if (page_mapped(page) && page_referenced(page)) {
-+			if (page_mapped(page) && page_referenced(page, &over_rsslimit) && !over_rsslimit) {
- 				pte_chain_unlock(page);
- 				list_add(&page->lru, &l_active);
- 				continue;
+
+
 

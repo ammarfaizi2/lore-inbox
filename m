@@ -1,125 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261783AbREPDef>; Tue, 15 May 2001 23:34:35 -0400
+	id <S261782AbREPDe4>; Tue, 15 May 2001 23:34:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261782AbREPDe0>; Tue, 15 May 2001 23:34:26 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:37650 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S261781AbREPDeL>; Tue, 15 May 2001 23:34:11 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        torvalds@transmeta.com (Linus Torvalds)
-Date: Wed, 16 May 2001 13:33:16 +1000 (EST)
+	id <S261784AbREPDeq>; Tue, 15 May 2001 23:34:46 -0400
+Received: from fjordland.nl.linux.org ([131.211.28.101]:16905 "EHLO
+	fjordland.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S261782AbREPDeg>; Tue, 15 May 2001 23:34:36 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andreas Dilger <adilger@turbolinux.com>
+Subject: Re: [PATCH][CFT] (updated) ext2 directories in pagecache
+Date: Wed, 16 May 2001 05:11:50 +0200
+X-Mailer: KMail [version 1.2]
+Cc: Alexander Viro <viro@math.psu.edu>,
+        Linux kernel development list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200105141833.f4EIXrQs001765@webber.adilger.int> <01051423505900.24410@starship>
+In-Reply-To: <01051423505900.24410@starship>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15105.62716.592982.424602@notabene.cse.unsw.edu.au>
-Cc: dmchan@stanford.edu (david chan), mingo@redhat.com (Ingo Molnar),
-        calle@calle.in-berlin.de (Carsten Paeth), kkeil@suse.de (Karsten Keil),
-        linux-kernel@vger.kernel.org (lkml), linux-raid@vger.kernel.org
-Subject: Re: [PATCH] RAID5 NULL Checking Bug Fix
-In-Reply-To: message from Alan Cox on Wednesday May 9
-In-Reply-To: <Pine.LNX.4.30.0105081923540.21906-100000@waulogy.stanford.edu>
-	<E14xPhG-0001q2-00@the-village.bc.nu>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Message-Id: <01051605115004.00406@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday May 9, alan@lxorguk.ukuu.org.uk wrote:
-> > Hi,
-> > In drivers/md/raid5.c, the author does not check to see if alloc_page() returns
-> > NULL. This patch also adds checks that return 1 (following the
-> > error-path convention in the respective function).
-> 
-> This is fixed in 2.4.4-ac and has been for a while (and a little more
-> cleanly in some respects). However it needs someone who knows the raid code
-> well to push the raid fixes on to Linus
-> 
-> Alan
+Sorry, I couldn't  think of any good flames that haven't already been 
+posted so I thought I'd be boring and post some code. ;-)
 
-Can I put my hand up for that?
+On Monday 14 May 2001 23:50, Daniel Phillips wrote:
+> On Monday 14 May 2001 20:33, Andreas Dilger wrote:
+> > Daniel, you write:
+> > > Now, if the check routine tells us how much good data it found we
+> > > could use that to set a limit for the dirent scan, thus keeping
+> > > the same robustness as the old code but without having all the
+> > > checks in the inner loop.  Or.  We could have separate loops for
+> > > good blocks and bad blocks, it's just a very small amount of
+> > > code.
+> >
+> > Yes, I was thinking about both of those as well.  I think the
+> > latter would be easiest, because we only need to keep a single
+> > error bit per buffer.
+>
+> Today's patch has the first part of that fix:
+>
+>     http://nl.linux.org/~phillips/htree/dx.pcache-2.4.4-6
 
-First patch (against 2.4.5-pre1):
+And today's has the second part of that mechanism.  This is the 
+strategy:
 
-The "ac" patches have code to swap the rdev->desc_nr of the failed
-and spare drives when swapping in a spare after it has been
-reconstructed.
-This is needed to keep the "rdev" structures pointing to the right
-raid-superblock slot.
-However it isn't quite right.
-It "ac" patches avoid the swap if either spare_rdev or failed_rdev
-cannot be found, which is wrong (I put it in the avoid an oops.  I
-didn't know the full story then).
+  - When a directory block is first called for via ext2_bread,
+     !create, and is !uptodate, ext2_check_dirents is called to
+     go through and sniff anally for anything that might not
+     be right.  This check only happens once per block's
+     cache lifetime.
 
-The situation that would cause one of these to not be found is if the
-"failed" drive is actually a "missing" drive.  i.e. the drive failed
-and then was raid_hot_removed, or it just wan't present and working
-at boot time.
+  - If check_dirents returns failure, ext2_bread sets the
+     PG_error bit in the buffer's page flags.
 
-When this happens, we still need to set spare_rdev->desc_nr to the
-correct slot number.
+  - Just before we do the lowlevel scan of a directory leaf we
+     check the page error bit, and if it's set call check_dirents, this 
+     time asking it to tell us how much of the block is good.  That 
+     value is used to set the limit for the lowlevel scan.
 
-The following patch gets this right for raid5.c and raid1.c (The only
-places where it is relevant).
+This recovers the old behaviour where the user continues to see
+all the directory entries up to the first bad one.  Is it really 
+important to do this?  Now at least we can decide whether that's the 
+behaviour we want instead of worrying about how it can be implemented 
+efficiently.
 
-NeilBrown
+This high level of paranoia costs practically nothing; there are no 
+extra checks to slow down the inner loop.  Thanks to Al Viro for the 
+inspiration.
 
-(more patches to come.  They will go to Linus, Alan, and linux-raid only).
+I only implemented this check in one place,  line  807 in 
+ext2_find_entry on the nonindexed path.  If the approach looks ok  I'll 
+go and add it in the other places.
 
---- ./drivers/md/raid5.c	2001/05/15 04:02:07	1.1
-+++ ./drivers/md/raid5.c	2001/05/15 04:06:19	1.2
-@@ -1704,6 +1704,7 @@
- 	struct disk_info *tmp, *sdisk, *fdisk, *rdisk, *adisk;
- 	mdp_super_t *sb = mddev->sb;
- 	mdp_disk_t *failed_desc, *spare_desc, *added_desc;
-+	mdk_rdev_t *spare_rdev, *failed_rdev;
- 
- 	print_raid5_conf(conf);
- 	md_spin_lock_irq(&conf->device_lock);
-@@ -1875,6 +1876,16 @@
- 		/*
- 		 * do the switch finally
- 		 */
-+		spare_rdev = find_rdev_nr(mddev, spare_desc->number);
-+		failed_rdev = find_rdev_nr(mddev, failed_desc->number);
-+
-+		/* There must be a spare_rdev, but there may not be a
-+		 * failed_rdev.  That slot might be empty...
-+		 */
-+		spare_rdev->desc_nr = failed_desc->number;
-+		if (failed_rdev)
-+			failed_rdev->desc_nr = spare_desc->number;
-+		
- 		xchg_values(*spare_desc, *failed_desc);
- 		xchg_values(*fdisk, *sdisk);
- 
---- ./drivers/md/raid1.c	2001/05/15 04:02:07	1.1
-+++ ./drivers/md/raid1.c	2001/05/15 04:06:19	1.2
-@@ -832,6 +832,7 @@
- 	struct mirror_info *tmp, *sdisk, *fdisk, *rdisk, *adisk;
- 	mdp_super_t *sb = mddev->sb;
- 	mdp_disk_t *failed_desc, *spare_desc, *added_desc;
-+	mdk_rdev_t *spare_rdev, *failed_rdev;
- 
- 	print_raid1_conf(conf);
- 	md_spin_lock_irq(&conf->device_lock);
-@@ -989,6 +990,16 @@
- 		/*
- 		 * do the switch finally
- 		 */
-+		spare_rdev = find_rdev_nr(mddev, spare_desc->number);
-+		failed_rdev = find_rdev_nr(mddev, failed_desc->number);
-+
-+		/* There must be a spare_rdev, but there may not be a
-+		 * failed_rdev.  That slot might be empty...
-+		 */
-+		spare_rdev->desc_nr = failed_desc->number;
-+		if (failed_rdev)
-+			failed_rdev->desc_nr = spare_desc->number;
-+		
- 		xchg_values(*spare_desc, *failed_desc);
- 		xchg_values(*fdisk, *sdisk);
- 
+Extending the idea to do an equally paranoid check on the directory 
+index structure will add a little messiness because check_dirents can't 
+tell that a given block is actually an index block, it has to be told.  
+I'll just let this sit and age a little before I uglify the code in 
+that way.
+
+On another front,  I've changed to a new COMPAT flag so that Andreas 
+Gruenbacher's ACL users can stick with the flag Andreas is already 
+using.  I haven't heard a definitive ruling from Ted on this yet, but I 
+gather this is the one I'm now supposed to use:
+
+  #define EXT2_FEATURE_COMPAT_DIR_INDEX          0x0020
+
+The current patch uses this, pending Ted's approval.  I'll repeat my 
+warning that any partition with an indexed directory will need to be 
+mke2fsed, until the patch gets to official alpha.
+
+The patch is at:
+
+    http://nl.linux.org/~phillips/htree/dx.pcache-2.4.4-7
+
+This is hardly tested at all, it's for comment.
+
+--
+Daniel

@@ -1,59 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbVCNVfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261954AbVCNVgy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261405AbVCNVfL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 16:35:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbVCNVfL
+	id S261954AbVCNVgy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 16:36:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbVCNVgy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 16:35:11 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:12491 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261405AbVCNVdC (ORCPT
+	Mon, 14 Mar 2005 16:36:54 -0500
+Received: from fire.osdl.org ([65.172.181.4]:42930 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261960AbVCNVfM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 16:33:02 -0500
-Subject: Re: inode cache, dentry cache, buffer heads usage
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: ext2-devel <ext2-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050310174751.522c5420.akpm@osdl.org>
-References: <1110394558.24286.203.camel@dyn318077bld.beaverton.ibm.com>
-	 <20050310174751.522c5420.akpm@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1110835692.24286.288.camel@dyn318077bld.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 14 Mar 2005 13:28:13 -0800
+	Mon, 14 Mar 2005 16:35:12 -0500
+Message-ID: <42360385.4090203@osdl.org>
+Date: Mon, 14 Mar 2005 13:35:01 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Miquel van Smoorenburg <miquels@cistron.nl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Devices/Partitions over 2TB
+References: <200503141644.j2EGiVh0000022634@mudpuddle.cs.wustl.edu> <d14vc7$8cu$2@news.cistron.nl>
+In-Reply-To: <d14vc7$8cu$2@news.cistron.nl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-03-10 at 17:47, Andrew Morton wrote:
-> Badari Pulavarty <pbadari@us.ibm.com> wrote:
-> >
-> > So, why is these slab cache are not getting purged/shrinked even
-> >  under memory pressure ? (I have seen lowmem as low as 6MB). What
-> >  can I do to keep the machine healthy ?
+Miquel van Smoorenburg wrote:
+> In article <200503141644.j2EGiVh0000022634@mudpuddle.cs.wustl.edu>,
+> Berkley Shands  <berkley@cs.wustl.edu> wrote:
 > 
-> Tried increasing /proc/sys/vm/vfs_cache_pressure?  (That might not be in
-> 2.6.8 though).
+>>I have not found any documentation of efforts to overcome the 2TB
+>>partition limit,
 > 
 > 
-
-Yep. This helped shrink the slabs, but we end up eating up lots of
-the lowmem in Buffers. Is there a way to shrink buffers ?
-
-$ cat /proc/meminfo
-MemTotal:     16377076 kB
-MemFree:       7495824 kB
-Buffers:       1081708 kB
-Cached:        4162492 kB
-SwapCached:          0 kB
-Active:        3660756 kB
-Inactive:      4473476 kB
-HighTotal:    14548952 kB
-HighFree:      7489600 kB
-LowTotal:      1828124 kB
-LowFree:          6224 kB
+> config LBD
+>         bool "Support for Large Block Devices"
+>         depends on X86 || MIPS32 || PPC32 || ARCH_S390_31 || SUPERH
+>         help
+>           Say Y here if you want to attach large (bigger than 2TB) discs to
+>           your machine, or if you want to have a raid or loopback device
+>           bigger than 2TB.  Otherwise say N.
+> 
+> Mike.
 
 
+ISTR some mention or plan or idea of using EFI GUID partition table
+format, or something else that already existed & worked and supported
+larger partitions sizes.
 
+Maybe Peter Anvin or Andries would recall this info?
+
+-- 
+~Randy

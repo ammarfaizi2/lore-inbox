@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264274AbRFDRDw>; Mon, 4 Jun 2001 13:03:52 -0400
+	id <S264139AbRFDMDJ>; Mon, 4 Jun 2001 08:03:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264337AbRFDRDf>; Mon, 4 Jun 2001 13:03:35 -0400
-Received: from paloma16.e0k.nbg-hannover.de ([62.159.219.16]:41373 "HELO
-	paloma16.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S264274AbRFDQtY>; Mon, 4 Jun 2001 12:49:24 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Alan Cox <alan@redhat.com>
-Subject: Dual AMD Palomino from Australia
-Date: Mon, 4 Jun 2001 18:50:05 +0200
-X-Mailer: KMail [version 1.2.2]
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010604164934Z264274-17720+159@vger.kernel.org>
+	id <S264209AbRFDMC7>; Mon, 4 Jun 2001 08:02:59 -0400
+Received: from 246.35.232.212.infosources.fr ([212.232.35.246]:39941 "HELO
+	fjord.dyndns.org") by vger.kernel.org with SMTP id <S264139AbRFDMCr>;
+	Mon, 4 Jun 2001 08:02:47 -0400
+Date: Mon, 4 Jun 2001 14:02:07 +0200
+To: linux-kernel@vger.kernel.org
+Subject: ide retry on 2.4.5-ac7
+Message-ID: <20010604140207.A529@alezan.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+From: profeta@crans.ens-cachan.fr (PROFETA Mickael)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Alan,
+Hi
 
-do you have an dual AMD 760MP based mobo, too?
-It should be more interesting to see some multi processing workloads.
+	Since my first try on 2.4 kernel, I had trouble with DMA when I select
+	activate on boot time because it selects udma4, whereas my HD is only able
+	to do udma2. I correct that with hdparm, but I was quite happy of the patch
+	in ac4 whixh detect ide lost interrupt and retry with a value lower of dma.
+	But it seems that this patch does not work anymore in ac7?? I can not see
+	in the changelog that you come back or made other change in ide?? Should it
+	work in the same way or not?
 
-Here are the links:
+	My hardware: via 686a of course, with Athlon 500 on a k7m MB
 
-http://www.overclockers.com.au/techstuff/a_tyan_thunder/
-http://www.overclockers.com.au/techstuff/a_tyan_thunder/page2.shtml
-http://www.overclockers.com.au/techstuff/a_tyan_thunder/boot.txt
+		Thanks
 
-Thanks,
-	Dieter
+		Mickael
+
+	PS: CC to profeta@crans.org please.
+
+-- 
+-- 
+Unix IS user-friendly. It just chooses its friends carefully

@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130266AbQKBA1I>; Wed, 1 Nov 2000 19:27:08 -0500
+	id <S131961AbQKBA2I>; Wed, 1 Nov 2000 19:28:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131961AbQKBA06>; Wed, 1 Nov 2000 19:26:58 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:40971 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S130266AbQKBA0u>;
-	Wed, 1 Nov 2000 19:26:50 -0500
-Message-ID: <3A00B4C2.E119021F@mandrakesoft.com>
-Date: Wed, 01 Nov 2000 19:26:42 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: npsimons@fsmlabs.com
-CC: "David S. Miller" <davem@redhat.com>, garloff@suse.de, jamagallon@able.es,
-        linux-kernel@vger.kernel.org
-Subject: Re: Where did kgcc go in 2.4.0-test10 ?
-In-Reply-To: <20001101234058.B1598@werewolf.able.es> <20001101235734.D10585@garloff.etpnet.phys.tue.nl> <200011012247.OAA19546@pizda.ninka.net> <20001101163752.B2616@fsmlabs.com> <200011012329.PAA19890@pizda.ninka.net> <20001101171158.A4708@fsmlabs.com>
+	id <S131986AbQKBA16>; Wed, 1 Nov 2000 19:27:58 -0500
+Received: from gap.cco.caltech.edu ([131.215.139.43]:11218 "EHLO
+	gap.cco.caltech.edu") by vger.kernel.org with ESMTP
+	id <S131961AbQKBA1l>; Wed, 1 Nov 2000 19:27:41 -0500
+Date: Thu, 2 Nov 2000 00:59:27 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: Michael Rothwell <rothwell@holly-springs.nc.us>
+Cc: wnoise@ugcs.caltech.edu, mlist-linux-kernel@nntp-server.caltech.edu
+Subject: Re: working userspace nfs v3 for linux?
+Message-ID: <20001102005927.A26355@khan.acc.umu.se>
+In-Reply-To: <linux.kernel.3A008510.FAE271A1@holly-springs.nc.us> <slrn9015t8.u5t.wnoise@barter.ugcs.caltech.edu> <3A00A84E.F3A1C585@holly-springs.nc.us>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <3A00A84E.F3A1C585@holly-springs.nc.us>; from rothwell@holly-springs.nc.us on Wed, Nov 01, 2000 at 06:33:34PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Paul Simons wrote:
+On Wed, Nov 01, 2000 at 06:33:34PM -0500, Michael Rothwell wrote:
+> Aaron Denney wrote:
+> > I am not aware of any userspace NFSv3 server.  Your best bet would
+> > probably to take the v2 server and mutate it.  Why do you want this beast?
 > 
-> On Wed, Nov 01, 2000 at 03:29:15PM -0800, David S. Miller wrote:
-> > Please get your facts straight.
-> >
-> > The rest of this thread will show you that this is not a "Red Hat
-> > thing".  Connectiva, Mandrake, and others do the same thing.  In fact
-> > we choose the name "kgcc" to match the convention set by these other
-> > distributions.
-> 
->         So other distro's did it too.  Why did nobody complain till RedHat
-> did it?  Because no one else decided to use, as the default, a bleeding edge
-> compiler that not only won't compile the kernel but won't even touch a lot of
-> userspace code either.
+> So I can use Linux rather than Solaris 7 and the Solstice Disk Suite,
+> which performs like crap thanks to UFS, and the Linux NFS v2
+> implementation.
 
-Look, if you have an axe to grind about RedHat, do it somewhere else.
-
-If you are wondering why there is one compiler to build the kernel and
-one compiler to build everything else, for Mandrake at least, the reason
-is stability.  We never had problems with gcc 2.95.2+fixes for userland,
-but there are isolated kernel cases in 2.2.x which still give us
-problems.  Therefore, our standard kernel is built with egcs 1.1.2, and
-we provide that compiler to our users so they can avoid the same
-problems.
-
-	Jeff
+Yes, but why do you need a userspace NFSv3 server? v2.2.18 will contain
+knfsdv3, shouldn't this be good enough?
 
 
--- 
-Jeff Garzik             | "Mind if I drive?"  -Sam
-Building 1024           | "Not if you don't mind me clawing at the
-MandrakeSoft            |  dash and shrieking like a cheerleader."
-                        |                     -Max
+/David Weinehall
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Project MCA Linux hacker        //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,55 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270206AbTHJQki (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 12:40:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270219AbTHJQki
+	id S270013AbTHJQzb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 12:55:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270022AbTHJQzb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 12:40:38 -0400
-Received: from mail.gmx.net ([213.165.64.20]:57041 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S270206AbTHJQkg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 12:40:36 -0400
-Subject: [BUG mm-tree of test2/test3] nforce2-acpi-fixes breaks via ide
-	controller
-From: Benjamin Weber <shawk@gmx.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Andrew Morton <akpm@digeo.com>,
-       Andrew de Quincey <adq_dvb@lidskialf.net>
-Content-Type: text/plain
-Message-Id: <1060533632.3886.19.camel@athxp.bwlinux.de>
+	Sun, 10 Aug 2003 12:55:31 -0400
+Received: from starcraft.mweb.co.za ([196.2.45.78]:45518 "EHLO
+	starcraft.mweb.co.za") by vger.kernel.org with ESMTP
+	id S270013AbTHJQza (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 12:55:30 -0400
+Subject: Re: [2.6] Oops's on running javac
+From: Martin Schlemmer <azarah@gentoo.org>
+Reply-To: azarah@gentoo.org
+To: Andrew Morton <akpm@osdl.org>
+Cc: KML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030809184252.57c07482.akpm@osdl.org>
+References: <1060478155.8610.9.camel@nosferatu.lan>
+	 <20030809184252.57c07482.akpm@osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Jqx5XmyliFI0UD9i/uFh"
+Message-Id: <1060534563.11013.24.camel@nosferatu.lan>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.3 
-Date: 10 Aug 2003 18:40:32 +0200
-Content-Transfer-Encoding: 7bit
+Date: 10 Aug 2003 18:56:03 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all
 
-Since the test2-mm1 sources I get the following error during boot:
+--=-Jqx5XmyliFI0UD9i/uFh
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-VP_IDE: IDE controller at PCI slot 0000:00:11.1
-VP_IDE: (ide_setup_pci_device:) Could not enable device.
+On Sun, 2003-08-10 at 03:42, Andrew Morton wrote:
+> Martin Schlemmer <azarah@gentoo.org> wrote:
+> >
+> > Been getting this with the last couple of kernels.
+>=20
+> I have some fixes which might address this.  Please
+> test test3-mm1 when I get around to releasing it, later
+> today?
 
-This results in not being able to use DMA for any devices connected to
-my IDE controller. Hdparm says permission denied when I do a hdparm -d1
-/dev/hda e.g.
+For the record, the zap_other_threads-fix.patch from
+test3-mm1 fixes this issue - thanks Andrew for pointing
+it out!
 
-I checked with a vanilla kernel and everything is working fine there.
-Going through the broken-out patches from Andrew Morton I found the one
-patch that caused the above behavior: nforce2-acpi-fixes.patch
 
-I do not know why it should interfere with my via stuff, but it does. A
-vanilla test3 kernel is working fine as well, whereas test3-mm1 shows
-the same error as before with test2-mmX.
+Regards,
 
-My board is a ECS K7VTA3 Rev. 5.0. Vanilla Kernel reports the chipset
-as:
-VP_IDE: VIA vt8235 (rev 00) IDE UDMA133 controller on pci0000:00:11.1
+--=20
 
-Hope the above information is enough. I can provide more if needed.
+Martin Schlemmer
 
---
-Benjamin
+
+
+
+--=-Jqx5XmyliFI0UD9i/uFh
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/NnkjqburzKaJYLYRAsXPAJ9LELzbFt96s5ZFm8B++2oqdMd3cQCff4E7
+RZ/Dq+UP/OBlKLiiG3cTSis=
+=lC8K
+-----END PGP SIGNATURE-----
+
+--=-Jqx5XmyliFI0UD9i/uFh--
 

@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261736AbUJ1P1a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261731AbUJ1PrB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261736AbUJ1P1a (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 11:27:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261171AbUJ1PYp
+	id S261731AbUJ1PrB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 11:47:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261728AbUJ1Pop
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 11:24:45 -0400
-Received: from THUNK.ORG ([69.25.196.29]:31175 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S261715AbUJ1PYU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 11:24:20 -0400
-Date: Thu, 28 Oct 2004 11:24:04 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Len Brown <len.brown@intel.com>
-Cc: "Yu, Luming" <luming.yu@intel.com>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       "Moore, Robert" <robert.moore@intel.com>,
-       Alex Williamson <alex.williamson@hp.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: Userspace ACPI interpreter ( was RE: [ACPI] [RFC] dev_acpi: support for userspace access to acpi)
-Message-ID: <20041028152404.GB7902@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Len Brown <len.brown@intel.com>, "Yu, Luming" <luming.yu@intel.com>,
-	Bjorn Helgaas <bjorn.helgaas@hp.com>,
-	"Moore, Robert" <robert.moore@intel.com>,
-	Alex Williamson <alex.williamson@hp.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	acpi-devel@lists.sourceforge.net
-References: <3ACA40606221794F80A5670F0AF15F84041ABFFA@pdsmsx403> <418085B0.30208@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <418085B0.30208@intel.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 28 Oct 2004 11:44:45 -0400
+Received: from out003pub.verizon.net ([206.46.170.103]:1949 "EHLO
+	out003.verizon.net") by vger.kernel.org with ESMTP id S261739AbUJ1Pjd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 11:39:33 -0400
+From: james4765@verizon.net
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, rusty@rustcorp.com.au, james4765@verizon.net
+Message-Id: <20041028153928.3882.66291.42285@localhost.localdomain>
+Subject: [PATCH] to Documentation/00-INDEX
+X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [209.158.211.53] at Thu, 28 Oct 2004 10:39:28 -0500
+Date: Thu, 28 Oct 2004 10:39:29 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 28, 2004 at 01:37:52AM -0400, Len Brown wrote:
-> One way to experiment with a user-mode ACPI interpreter would be to 
-> continue to use the kernel-mode interpreter for boot up , and cut over 
-> to the user-mode interpreter at /sbin/init.  The kernel-mode interpreter 
-> could be sent the way of free_initmem() which is called just before 
-> /sbin/init is invoked.
+Sorry, forgot this one in the previous patches - relies upon the removal of mkdev.ida.
 
-Is there a significant advantage to doing having a user-mode ACPI
-interpreter?  The only advantage I can think of is that the ACPI
-interpreter could now live in pageable memory.  Are there any others?
+Description: Removes reference to to-be-deleted file in 00-INDEX.
 
-					- Ted
+Apply against 2.6.9.
+
+Signed-off-by: James Nelson <james4765@gmail.com>
+
+diff -urN --exclude='*~' linux-2.6.9-original/Documentation/00-INDEX linux-2.6.9/Documentation/00-INDEX
+--- linux-2.6.9-original/Documentation/00-INDEX	2004-10-18 17:53:43.000000000 -0400
++++ linux-2.6.9/Documentation/00-INDEX	2004-10-28 11:29:57.950387706 -0400
+@@ -158,8 +158,6 @@
+ 	- directory with info about Linux on MIPS architecture.
+ mkdev.cciss
+ 	- script to make /dev entries for SMART controllers (see cciss.txt).
+-mkdev.ida
+-	- script to make /dev entries for Intelligent Disk Array Controllers.
+ moxa-smartio
+ 	- info on installing/using Moxa multiport serial driver.
+ mtrr.txt

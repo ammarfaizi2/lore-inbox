@@ -1,88 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262063AbSIYTFa>; Wed, 25 Sep 2002 15:05:30 -0400
+	id <S262075AbSIYTXy>; Wed, 25 Sep 2002 15:23:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262066AbSIYTF3>; Wed, 25 Sep 2002 15:05:29 -0400
-Received: from orion.netbank.com.br ([200.203.199.90]:13070 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id <S262063AbSIYTF2>; Wed, 25 Sep 2002 15:05:28 -0400
-Date: Wed, 25 Sep 2002 16:10:40 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Bob_Tracy <rct@gherkin.frus.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.38: oops with kernel LLC support enabled
-Message-ID: <20020925191040.GE10073@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Bob_Tracy <rct@gherkin.frus.com>, linux-kernel@vger.kernel.org
-References: <m17uEPg-0005khC@gherkin.frus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m17uEPg-0005khC@gherkin.frus.com>
-User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
+	id <S262077AbSIYTXy>; Wed, 25 Sep 2002 15:23:54 -0400
+Received: from ausadmmsrr502.aus.amer.dell.com ([143.166.83.89]:57101 "HELO
+	AUSADMMSRR502.aus.amer.dell.com") by vger.kernel.org with SMTP
+	id <S262075AbSIYTXx>; Wed, 25 Sep 2002 15:23:53 -0400
+X-Server-Uuid: 586817ae-3c88-41be-85af-53e6e1fe1fc5
+Message-ID: <20BF5713E14D5B48AA289F72BD372D68C1E8BD@AUSXMPC122.aus.amer.dell.com>
+From: Matt_Domsch@Dell.com
+To: mochel@osdl.org
+cc: linux-kernel@vger.kernel.org
+Subject: devicefs requests
+Date: Wed, 25 Sep 2002 14:28:57 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+X-WSS-ID: 118CD10A832079-02-01
+Content-Type: text/plain; 
+ charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Wed, Sep 25, 2002 at 10:49:20AM -0500, Bob_Tracy escreveu:
-> Firstly, a big thanks to Ingo for kksymoops...  2.5.38 panics right
-> out of the chute with no way to save the oops output, so it's REALLY
-> nice to have it decoded on the screen!!  Manual transcription of the
-> oops output follows below.
+Pat,
 
-yes, its a great help
- 
-> What was I trying to do with LLC support?  I have an old JetDirect
+1)  As new drivers pick up the model, check that all xxx_bus_type objects
+get EXPORT_SYMBOLd and included in a include/xxxx header somewhere - My BIOS
+EDD code walks the list of bus types looking for attached devices to compare
+against (pci, ide, scsi, usb, ...).
+ide_bus_type is in include/linux/ide.h but isn't EXPORT_SYMBOL;
+usb_bus_type is in include/linux/usb.h but isn't EXPORT_SYMBOL;
 
-Hey, no need to excuses, its there, test and use it, using old protocols
-is not something to be ashamed, neither hacking it... 8)
+Alternately, keep the list of registered bus types accessible via a
+list_for_each type macro.  I like the exported symbols myself, it lets me
+do:
 
-> interface in a LJ-III that speaks DLC/LLC only, and wanted to try to
-> use it with Linux.  (It should go without saying that NT and Win2K
-> can talk to it just fine :-)).  Both machines in a sample set of two
-> panic the same way...  One is a desktop with the NIC driver built-in.
-> The other (that produced the oops output below) is a Dell Latitude CPxJ
-> with a modular Xircom Tulip cardbus driver.
-> 
-> I guess I should mention that I haven't tried this with a 2.4 kernel.
+struct edd_known_bus_types_s {
+	struct bus_type *bus;
+	const char *edd_type;
+	int (*match)(struct device *edd_dev, struct device *dev);
+};
 
-you can try, but the codebase there (and I assume you're talking about
-the LLC stack in the 2.4-ac tree, as the one in the 2.4 stock is
-incomplete) is old and I'm only now getting to a point where LLC in
-2.5 is getting pretty stable (now as in today, 4am :) )
+static const struct edd_known_bus_types_s edd_known_bus_types[] = {
+	{bus:&scsi_driverfs_bus_type, edd_type: "SCSI", match:
+edd_match_scsidev},
+//	{bus:&ide_bus_type,           edd_type: "ATA",  match: NULL},
+//	{bus:&usb_bus_type,           edd_type: "USB",  match: NULL},
+	{bus:NULL,                    edd_type: NULL,   match: NULL},
+};
 
->  Unable to handle kernel NULL pointer dereference at virtual address 00000000
->   printing eip:
->  c0245da5
->  *pde = 00000000
->  Oops: 0000
->  kernel
->  CPU:    0
->  EIP:    0060:[<c0245da5>]	Not tainted
->  EFLAGS: 00010202
->  EIP is at llc_sap_find [kernel] 0x25
->  eax: c7fae000   ebx: c02e8e28   ecx: 000000aa   edx: 00000000
->  esi: 00000000   edi: 00000000   ebp: 00000000   esp: c7faffa8
->  ds: 0068   es: 0068   ss: 0068
->  Process swapper (pid: 1, threadinfo=c7fae000 task=c7fac040)
->  Stack: c02e8e28 000000aa 00000000 c0242141 000000aa c02e8e28 00000000 c02df8e1
->         c01f0ca0 00000000 000000aa c02d0712 c7fae000 c0105093 c0105060 00000000
->         00000000 00000000 c01054e5 00000000 00000000 00000000
->  Call Trace: [<c0242141>] llc_sap_open [kernel] 0x11
->  [<c01f0ca0>] snap_indicate [kernel] 0x0
->  [<c0105093>] init [kernel] 0x33
->  [<c0105060>] init [kernel] 0x0
->  [<c01054e5>] kernel_thread_helper [kernel] 0x5
+so I can supply my own match functions which match one type of device (e.g.
+EDD's idea of a SCSI device) to that of the standard device.  I could
+accomplish the same using well-known names for bus_type I suppose, and doing
+a list_for_each until I find it.  Just a different thing getting exported, a
+well-known name and a lookup method rather than the symbol itself.
 
-Could you try with the next version Linus releases? I some fixes already
-commited into Linus bk tree, some still in DaveM's tree and some waiting
-for DaveM to pull that, I think, will solve your problem, and wow, don't
-give up, at least I'd have one more person testing my work 8)
 
-Just let me know if you'd like to get a diff from the latest Linus
-released kernel to the latest stuff I have, I'll be glad to provide and
-to receive test results.
+2) bus_for_each_dev() is really restrictive right now due to all the locking
+mechanisms in place.  In my code I'd like to, given a struct device *, walk
+a list of devices on a given bus and compare each device with the given
+device, returning a match, or not.  As it stands, bus_for_each_dev returns
+either success (the callback worked for each device on the list), or failure
+(the callback failed for some device on the list), but I don't see a
+mechanism to return which device failed without excessive abuse of the
+void*.  For now I've made a private copy of bus_for_each_dev which I've
+mucked with the return the properly matching device, and wonder if this
+couldn't be made more generic somehow.
 
-Best Regards,
+Thoughts?
 
-- Arnaldo
+Thanks,
+Matt
+
+--
+Matt Domsch
+Sr. Software Engineer, Lead Engineer, Architect
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
+

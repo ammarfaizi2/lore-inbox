@@ -1,53 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261311AbTKLBSj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 20:18:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbTKLBSj
+	id S261336AbTKLBTl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 20:19:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbTKLBTl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 20:18:39 -0500
-Received: from mail-01.iinet.net.au ([203.59.3.33]:34253 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S261311AbTKLBSi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 20:18:38 -0500
-Message-ID: <3FB18A69.6020104@cyberone.com.au>
-Date: Wed, 12 Nov 2003 12:18:33 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
+	Tue, 11 Nov 2003 20:19:41 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:18334 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261336AbTKLBTe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Nov 2003 20:19:34 -0500
+From: James Cleverdon <jamesclv@us.ibm.com>
+Reply-To: jamesclv@us.ibm.com
+Organization: IBM LTC
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: [PATCH] 2.6.0-test9-mm2: cpu_sibling_map fix
+Date: Tue, 11 Nov 2003 17:19:21 -0800
+User-Agent: KMail/1.5
+Cc: John Stultz <johnstul@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>
 MIME-Version: 1.0
-To: Daniel Drake <dan@reactivated.net>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.6.0-test9-mm2
-References: <20031104225544.0773904f.akpm@osdl.org> <3FB11B93.60701@reactivated.net>
-In-Reply-To: <3FB11B93.60701@reactivated.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200311111719.23690.jamesclv@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On summit-based machines the cpu_sibling_map data has been hosed for some 
+time.  I found out why in Intel's IA-32 Software Deveveopers' Manual Vol 2 
+under CPUID.  Looks like the value that cpuid returns is the one latched at 
+reset, and doesn't reflect any changes made by the BIOS later:
+
+	* Local APIC ID (high byte of EBX)--this number is the 8-bit ID that is
+	  assigned to the local APIC on the processor during power up. This field
+	  was introduced in the Pentium 4 processor.
+
+Also, the code in init_intel was a bit overdesigned.  Until Intel releases a 
+chip with a non-power-of-2 sibling count on it, there's no point in all that 
+bit bashing.
 
 
-Daniel Drake wrote:
-
-> I've been getting a couple of audio skips with 2.6.0-test9-mm2. 
-> Haven't heard a skip since test4 or so, so I'm assuming this is a 
-> result of the IO scheduler tweaks.
->
-> Here's how I can produce a skip:
-> Running X, general usage (e.g. couple of xterms, an emacs, maybe a 
-> mozilla-thunderbird)
-> I switch to the first virtual console with Ctrl+Alt+F1. I then switch 
-> back to X with Alt+F7. As X is redrawing the screen, the audio skips 
-> once.
-> This happens most of the time, but its easier to reproduce when i am 
-> compiling something, and also when I cycle through the virtual 
-> consoles before switching back to X.
-
-
-Unlikely to be an IO scheduler change.
-
-Switching from X to console or back can cause high CPU scheduling
-latencies. I haven't tried to discover why.
-
+diff -pru 2.6.0-test9-mm2/arch/i386/kernel/cpu/intel.c 
+q9m2/arch/i386/kernel/cpu/intel.c
+--- 2.6.0-test9-mm2/arch/i386/kernel/cpu/intel.c	2003-11-11 11:38:01.000000000 
+-0800
++++ q9m2/arch/i386/kernel/cpu/intel.c	2003-11-11 16:16:56.000000000 -0800
+@@ -276,8 +276,6 @@ static void __init init_intel(struct cpu
+ 		extern	int phys_proc_id[NR_CPUS];
+ 		
+ 		u32 	eax, ebx, ecx, edx;
+-		int 	index_lsb, index_msb, tmp;
+-		int	initial_apic_id;
+ 		int 	cpu = smp_processor_id();
+ 
+ 		cpuid(1, &eax, &ebx, &ecx, &edx);
+@@ -286,8 +284,6 @@ static void __init init_intel(struct cpu
+ 		if (smp_num_siblings == 1) {
+ 			printk(KERN_INFO  "CPU: Hyper-Threading is disabled\n");
+ 		} else if (smp_num_siblings > 1 ) {
+-			index_lsb = 0;
+-			index_msb = 31;
+ 			/*
+ 			 * At this point we only support two siblings per
+ 			 * processor package.
+@@ -298,20 +294,13 @@ static void __init init_intel(struct cpu
+ 				smp_num_siblings = 1;
+ 				goto too_many_siblings;
+ 			}
+-			tmp = smp_num_siblings;
+-			while ((tmp & 1) == 0) {
+-				tmp >>=1 ;
+-				index_lsb++;
+-			}
+-			tmp = smp_num_siblings;
+-			while ((tmp & 0x80000000 ) == 0) {
+-				tmp <<=1 ;
+-				index_msb--;
+-			}
+-			if (index_lsb != index_msb )
+-				index_msb++;
+-			initial_apic_id = ebx >> 24 & 0xff;
+-			phys_proc_id[cpu] = initial_apic_id >> index_msb;
++			/* cpuid returns the value latched in the HW at reset,
++			 * not the APIC ID register's value.  For any box
++			 * whose BIOS changes APIC IDs, like clustered APIC
++			 * systems, we must use hard_smp_processor_id.
++			 * See Intel's IA-32 SW Dev's Manual Vol2 under CPUID.
++			 */
++			phys_proc_id[cpu] = hard_smp_processor_id() & ~(smp_num_siblings - 1);
+ 
+ 			printk(KERN_INFO  "CPU: Physical Processor ID: %d\n",
+                                phys_proc_id[cpu]);
 

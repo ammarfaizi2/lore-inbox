@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275485AbRJUISs>; Sun, 21 Oct 2001 04:18:48 -0400
+	id <S275680AbRJUI1T>; Sun, 21 Oct 2001 04:27:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275680AbRJUISh>; Sun, 21 Oct 2001 04:18:37 -0400
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:57326 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S275485AbRJUIS0>; Sun, 21 Oct 2001 04:18:26 -0400
-Message-ID: <3BD28673.1060302@sap.com>
-Date: Sun, 21 Oct 2001 10:25:23 +0200
-From: Christoph Rohland <cr@sap.com>
-Organization: SAP LinuxLab
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010923
-X-Accept-Language: en-us
+	id <S275709AbRJUI1K>; Sun, 21 Oct 2001 04:27:10 -0400
+Received: from colorfullife.com ([216.156.138.34]:23813 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S275680AbRJUI06>;
+	Sun, 21 Oct 2001 04:26:58 -0400
+Message-ID: <002001c15a0a$41a0baf0$010411ac@local>
+From: "Manfred Spraul" <manfred@colorfullife.com>
+To: "Ken Ashcraft" <kash@stanford.edu>, <linux-kernel@vger.kernel.org>
+Cc: <mc@cs.Stanford.EDU>
+In-Reply-To: <Pine.GSO.4.33.0110202220470.963-100000@saga5.Stanford.EDU>
+Subject: Re: [CHECKER] Probable Security Errors in 2.4.12-ac3
+Date: Sun, 21 Oct 2001 10:08:29 +0200
 MIME-Version: 1.0
-To: Jan-Frode Myklebust <janfrode@parallab.uib.no>
-CC: ML-linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel Compile in tmpfs crumples in 2.4.12 w/epoll patch
-In-Reply-To: <016a01c15831$ef51c5c0$5c044589@legato.com> <m33d4gjaoa.fsf@linux.local> <20011020171730.A28057@parallab.uib.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-SAP: out
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi JF,
+From: "Ken Ashcraft" <kash@stanford.edu>
+> [BUG] minor, loops on len
+> /home/kash/linux/2.4.12/ipc/msg.c:788:sys_msgrcv: ERROR:RANGE:756:788: Using user length "msgsz" as argument to "store_msg"
+[type=GLOBAL] [state = need_ub] set by 'user-originated parameter':756 [distance=81]
+>
+> ss_wakeup(&msq->q_senders,0);
+> msg_unlock(msqid);
+> out_success:
+> msgsz = (msgsz > msg->m_ts) ? msg->m_ts : msgsz;
+> if (put_user (msg->m_type, &msgp->mtype) ||
+> Error --->
+>     store_msg(msgp->mtext, msg, msgsz)) {
+>     msgsz = -EFAULT;
+> }
+> free_msg(msg);
 
-Jan-Frode Myklebust wrote:
+That's not a bug:
+* msgsz is limited to msg->m_ts (2 lines above store_msg)
+* msg->m_ts is set by sys_msgsnd to msgsz, and that function rejects messages longer than msg_ctlmax.
 
- > Running BitKeeper regression tests fails for me on tmpfs /tmp/. I have
- > reported it to the bitkeeper bugtracking, but am not sure if this is a
- > bitkeeper or tmpfs bug. Any insight?
- >
- > 	http://bitkeeper.bkserver.com/cgi-bin/bugview?open/2001-09-11-001
- >
- > Last tested with Bitkeeper 2.0 on linux 2.4.10-xfs.
-
-
-Can you test it with 2.4.12?
-
-Greetings
-		Christoph
-
-
+--
+    Manfred
 

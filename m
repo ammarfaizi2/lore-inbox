@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275224AbRJOHDd>; Mon, 15 Oct 2001 03:03:33 -0400
+	id <S277127AbRJOHOZ>; Mon, 15 Oct 2001 03:14:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275506AbRJOHDX>; Mon, 15 Oct 2001 03:03:23 -0400
-Received: from ns.etm.at ([212.88.180.5]:5385 "EHLO etm.at")
-	by vger.kernel.org with ESMTP id <S275224AbRJOHDL>;
-	Mon, 15 Oct 2001 03:03:11 -0400
-Message-Id: <01Oct15.090303cest.117126@fwetm.etm.at>
-From: "Stanislav Meduna" <stano@meduna.org>
-To: "Kevin Krieser" <kkrieser_list@footballmail.com>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <NDBBLFLJADKDMBPPNBALAEHFGAAA.kkrieser_list@footballmail.com>
-Subject: Re: USB stability - possibly printer related
-Date: Mon, 15 Oct 2001 09:02:30 +0200
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-Msmail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-Mimeole: Produced By Microsoft MimeOLE V5.50.4807.1700
+	id <S277187AbRJOHOQ>; Mon, 15 Oct 2001 03:14:16 -0400
+Received: from carlsberg.amagerkollegiet.dk ([194.182.238.3]:32781 "HELO
+	carlsberg.amagerkollegiet.dk") by vger.kernel.org with SMTP
+	id <S277127AbRJOHOL>; Mon, 15 Oct 2001 03:14:11 -0400
+Date: Mon, 15 Oct 2001 09:14:37 +0200 (CEST)
+From: =?iso-8859-1?Q?Rasmus_B=F8g_Hansen?= <moffe@amagerkollegiet.dk>
+To: "Mehta, Phoram Kirtikumar (UMKC-Student)" <pkm722@umkc.edu>
+cc: <linux-net@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: network device driver
+In-Reply-To: <F918702592382F4991EB852F78EF36583203A3@KC-MAIL2.kc.umkc.edu>
+Message-ID: <Pine.LNX.4.33.0110150913370.1088-100000@grignard.amagerkollegiet.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sun, 14 Oct 2001, Mehta, Phoram Kirtikumar (UMKC-Student) wrote:
 
+> 1. how does ifconfig and netstat get teh net statistics, where can i get
+> the source to that funtion or source file.
 
-> I know I've attempted to use the same IBM hard drive on the HPT366
-> controller with little success.  I got hangups until I moved it back to the
-> secondary IDE controller.
+They are from /proc/net/.
 
-There was a BIOS update targeting problems with the newer IBM drives
-on the 366 - what HPT BIOS did give you problems?
+> 2. is there any funtion in the network device driver source by accessing
+> which i can get the packets received or the type of packets. if not can
+> anybody gimme some tips on how can i write it.
 
-> One thing I have noticed is that, with the 2.4 kernels, my system doesn't
-> like sharing IRQs as well as the 2.2 kernels. So you may want to see what
-> devices share interrupts with your USB controller, and move the cards if
-> necessary.
+You can use a packet filter.
 
-Thanks for a tip - I'll try it. Hopefully the two are not USB and HPT :-S
+> i am trying to write or modify the eth device driver(3c509.c) in such a
+> way that i can statistics of the traffic and then i also want to
+> identify teh traffic. in short i want to incorporate a function in my
+> driver which when acceseed would act as a sniffer/protocol analyzer .
+> any help or advise will be appreciated.
 
-Regards
+Do it in userspace with packet filters. Look at tcpdump for example 
+code.
+
+Rasmus
+
 -- 
-                                                          Stano
-
+-- [ Rasmus 'Møffe' Bøg Hansen ] ---------------------------------------
+[...] Note that 120 sec is defined in the protocol as the maximum
+possible RTT.  I guess we'll have to use something other than TCP
+to talk to the University of Mars.
+--------------------------------- [ moffe at amagerkollegiet dot dk ] --
 

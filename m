@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284955AbRLKJqN>; Tue, 11 Dec 2001 04:46:13 -0500
+	id <S284950AbRLKJnw>; Tue, 11 Dec 2001 04:43:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284954AbRLKJqD>; Tue, 11 Dec 2001 04:46:03 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:43020 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S284951AbRLKJpx>; Tue, 11 Dec 2001 04:45:53 -0500
-Date: Tue, 11 Dec 2001 10:45:46 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Cory Bell <cory.bell@usa.net>
-Cc: John Clemens <john@deater.net>, linux-kernel@vger.kernel.org
-Subject: Re: IRQ Routing Problem on ALi Chipset Laptop (HP Pavilion N5425)
-Message-ID: <20011211104546.A10682@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <Pine.LNX.4.33.0112101240180.15280-100000@pianoman.cluster.toy> <1008035585.17062.22.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1008035585.17062.22.camel@localhost.localdomain>
-User-Agent: Mutt/1.3.20i
+	id <S284951AbRLKJnm>; Tue, 11 Dec 2001 04:43:42 -0500
+Received: from [195.66.192.167] ([195.66.192.167]:23569 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S284950AbRLKJne>; Tue, 11 Dec 2001 04:43:34 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Bob Poortinga <bobp@savemail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Upgrade to 2.4.16 produces "Kernel panic: No init found"
+Date: Tue, 11 Dec 2001 11:41:02 -0200
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <3C150FD8.290BCBEC@savemail.com>
+In-Reply-To: <3C150FD8.290BCBEC@savemail.com>
+MIME-Version: 1.0
+Message-Id: <01121111410200.01012@manta>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Monday 10 December 2001 17:41, Bob Poortinga wrote:
+> Hello kernel gurus,
+>
+> I have searched the list archives and google'd myself silly, but I
+> can't seem to find a solution to my problem.
+>
+> I am trying to update my 2.4.3 kernel (Mandrake 8.0 distro) to 2.4.16.
+> I did a 'make oldconfig' with my old .config file and added ext3 kernel
+> support in addition to ext2.  My root fs is ext2 (as are all my fs).
+> The new kernel boots but panics when it tries to mount the root fs.
+> Here is the error:
+> --------------------------------------------------------------------
+> Mounting /proc filesystem
+> Creating root device
+> Mounting root filesystem
+> pivotroot: pivot_root(/sysroot,/sysroot/initrd) failed: 2
+> Freeing unused kernel memory: 216k freed
+> Kernel panic: No init found.  Try passing init= option to kernel.
 
-> > My apologies, i misunderstood what you were saying before..  As an
-> > additional data point, one person who tried my origional USB hack (moving
-> > it to IRQ 11) also reported possible problems with PCMCIA not working
-> > anymore... this isn't my experience however.  Also note that the Trident
-> > BladeXP is also on IRQ11, not that linux should care.
-> 
-> PCMCIA (16-bit, not cardbus) ethernet/modem (only tried the modem) works
-> fine for me with the patch. Haven't tried cardbus or multiple cards.
+Using initrd I guess?
+Please describe your boot process.
 
-Yep, single PCMCIA card looks good even for me, it is two cards that
-break, or swapping cards like crazy. I found out that disabling irq 5
-(and 9?) in config.opts looks like a good trick. (You have to enable
-something in compensation so you have enough irqs available, I let
-pcmcia take irq 7).
-								Pavel
--- 
-Casualities in World Trade Center: 6453 dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+Initrd support broke between 2.4.10 and 2.4.12, it does not like romfs and 
+minix initrds anymore. I have a testcase.
+--
+vda

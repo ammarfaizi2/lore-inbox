@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316113AbSGVFC5>; Mon, 22 Jul 2002 01:02:57 -0400
+	id <S315440AbSGUX4j>; Sun, 21 Jul 2002 19:56:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316135AbSGVFC5>; Mon, 22 Jul 2002 01:02:57 -0400
-Received: from moutvdomng1.kundenserver.de ([195.20.224.131]:7127 "EHLO
-	moutvdomng1.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S316113AbSGVFC4>; Mon, 22 Jul 2002 01:02:56 -0400
-Date: Sun, 21 Jul 2002 23:05:49 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Mike Galbraith <efault@gmx.de>
-cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Tomas Szepe <szepe@pinerecords.com>,
-       Andre Hedrick <andre@linux-ide.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Give Bartlomiej a break!  (Re: Impressions of IDE 98?)
-In-Reply-To: <5.1.0.14.2.20020722063834.00b7fed0@pop.gmx.net>
-Message-ID: <Pine.LNX.4.44.0207212302380.3309-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
+	id <S315449AbSGUX4j>; Sun, 21 Jul 2002 19:56:39 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:46536 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S315440AbSGUX4i>;
+	Sun, 21 Jul 2002 19:56:38 -0400
+Date: Mon, 22 Jul 2002 01:58:33 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Christoph Hellwig <hch@lst.de>, Linus Torvalds <torvalds@transmeta.com>,
+       <linux-kernel@vger.kernel.org>, Robert Love <rml@tech9.net>
+Subject: Re: [patch] "big IRQ lock" removal, 2.5.27-A9
+In-Reply-To: <20020722004728.T26376@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0207220157510.4428-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Mon, 22 Jul 2002, Mike Galbraith wrote:
-> Oh, I have thought about it.  I'm in no way defending Martin (he's a big
-> boy, can do that by himself) or saying everything's fine.  I merely
-> objected to the content and presentation of the posts I replied to.
+On Mon, 22 Jul 2002, Russell King wrote:
 
-Thing is: if the people think that it actually _is_ good that Martin is 
-the "Linux 2.5 IDE guy", he's got nothing to fear. All I wanted is to 
-summon a bit of a discussion about several issues that are not okay in any 
-way. It's like with the code itself: either bugs get resolved, or the code 
-must be pulled. Of course I guess it'd be cool if the bugs could get 
-fixed.
+> > > Actually its to cover the case where you have a floppy drive, and you've
+> > > booted the kernel from a floppy disk, and the kernel doesn't have the
+> > > floppy driver built in.  It turns the floppy drive off, cause there's
+> > > nothing else to do that.
+> > 
+> > this should then be done by the floppy boot code?
+> 
+> Sounds like a better idea to me.  Although I'm not one to try it out. 8)
 
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
+i've started adding it, just to realize that bootsect.S already turns off 
+the floppy motor.
+
+so i think the issue got solved the easy way ;)
+
+	Ingo
 

@@ -1,64 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262062AbTHYRAW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 13:00:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbTHYRAV
+	id S262082AbTHYRXY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 13:23:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262091AbTHYRXY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 13:00:21 -0400
-Received: from www.13thfloor.at ([212.16.59.250]:714 "EHLO www.13thfloor.at")
-	by vger.kernel.org with ESMTP id S262062AbTHYQ7h (ORCPT
+	Mon, 25 Aug 2003 13:23:24 -0400
+Received: from mail.gmx.net ([213.165.64.20]:389 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262082AbTHYRXS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 12:59:37 -0400
-Date: Mon, 25 Aug 2003 18:59:50 +0200
-From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: your mail
-Message-ID: <20030825165949.GA23306@www.13thfloor.at>
-Reply-To: herbert@13thfloor.at
-Mail-Followup-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.55L.0308251222500.12395@freak.distro.conectiva>
+	Mon, 25 Aug 2003 13:23:18 -0400
+Date: Mon, 25 Aug 2003 20:23:14 +0300
+From: Dan Aloni <da-x@gmx.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Jakub Jelinek <jakub@redhat.com>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH] One strdup() to rule them all
+Message-ID: <20030825172314.GA10606@callisto.yi.org>
+References: <20030825161435.GB8961@callisto.yi.org> <20030825122532.J10720@devserv.devel.redhat.com> <20030825170530.GB7097@gtf.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.55L.0308251222500.12395@freak.distro.conectiva>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20030825170530.GB7097@gtf.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 25, 2003 at 01:45:25PM -0300, Marcelo Tosatti wrote:
-> On Mon, 25 Aug 2003, Herbert Pötzl wrote:
+On Mon, Aug 25, 2003 at 01:05:30PM -0400, Jeff Garzik wrote:
+> On Mon, Aug 25, 2003 at 12:25:32PM -0400, Jakub Jelinek wrote:
+> > On Mon, Aug 25, 2003 at 07:14:35PM +0300, Dan Aloni wrote:
+> > > diff -Nru a/lib/string.c b/lib/string.c
+> > > --- a/lib/string.c	Mon Aug 25 19:03:26 2003
+> > > +++ b/lib/string.c	Mon Aug 25 19:03:26 2003
+> > > @@ -582,3 +582,19 @@
+> > >  }
+> > >  
+> > >  #endif
+> > > +
+> > > +/**
+> > > + * strdup - Allocate a copy of a string.
+> > > + * @s: The string to copy. Must not be NULL.
+> > > + *
+> > > + * returns the address of the allocation, or NULL on
+> > > + * error. 
+> > > + */
+> > > +char *strdup(const char *s)
+> > > +{
+> > > +	char *rv = kmalloc(strlen(s)+1, GFP_KERNEL);
+> > > +	if (rv)
+> > > +		strcpy(rv, s);
+> > > +	return rv;
+> > > +}
+> > > +EXPORT_SYMBOL(strdup);
+> > 
+> > Better save strlen(s)+1 in a local size_t variable and use memcpy instead
+> > of strcpy.
 > 
-> > On Mon, Aug 25, 2003 at 10:53:21AM -0300, Marcelo Tosatti wrote:
-> > >
-> > > >
-> > > >
-> > > > Matthias Andree wrote:
-> > > >
-> > > > >On Mon, 25 Aug 2003, Marcelo Tosatti wrote:
-> > > > >
-> > > > >
-> > > > >>- 2.4.22-rc4 was released as 2.4.22 with no changes.
-> > > > >>
-> > > > >
-> > > > >What are the plans for 2.4.23? XFS merge perhaps <hint>?
-> > > > >
-> > > >
-> > > > Maybe some of Andrea's VM stuff?
-> > >
-> > > Definately. Thats the first thing I'm going to do after looking
-> through
-> > > "2.4.23-pre-patches" folder.
-> >
-> > any chance for the Bind Mount Extensions? 8-)
+> Yep.  When Rusty did his strdup cleanup, he followed my suggestion and
+> did just that.
 > 
-> I haven't found time to at the patch yet but will do so soon.
+> Unfortunately Linus doesn't like the strdup cleanup, so I don't see this
+> patch going in either :)
 
-fine, no problem, let me know if you need something
-(like rediff, resend, explanation, etc ...)
+Perhaps Linus would like to keep strdup()'s scattered across the kernel, 
+so their combined power would not be exploited by evil <insert silly LotR 
+humor here>. :) I'll end this thread here.
 
-best,
-Herbert
-
+-- 
+Dan Aloni
+da-x@gmx.net

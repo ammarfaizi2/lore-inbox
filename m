@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314769AbSECQ4G>; Fri, 3 May 2002 12:56:06 -0400
+	id <S314723AbSECQ5O>; Fri, 3 May 2002 12:57:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314787AbSECQ4F>; Fri, 3 May 2002 12:56:05 -0400
-Received: from air-2.osdl.org ([65.201.151.6]:64128 "EHLO
-	wookie-laptop.pdx.osdl.net") by vger.kernel.org with ESMTP
-	id <S314769AbSECQ4E>; Fri, 3 May 2002 12:56:04 -0400
-Subject: Re: [PATCH] percpu updates
-From: "Timothy D. Witham" <wookie@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Randy Dunlap <rddunlap@osdl.org>, Brian Gerst <bgerst@didntduck.org>,
-        Andrew Morton <akpm@zip.com.au>, Dave Jones <davej@suse.de>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <E1733dM-0002pA-00@the-village.bc.nu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3.99 
-Date: 03 May 2002 07:59:53 -0700
-Message-Id: <1020437993.3567.1.camel@wookie-laptop.pdx.osdl.net>
+	id <S314776AbSECQ5N>; Fri, 3 May 2002 12:57:13 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:27932 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S314723AbSECQ5M>; Fri, 3 May 2002 12:57:12 -0400
+Date: Fri, 3 May 2002 18:58:06 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        William Lee Irwin III <wli@holomorphy.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Virtual address space exhaustion (was  Discontigmem virt_to_page() )
+Message-ID: <20020503185806.A1396@dualathlon.random>
+In-Reply-To: <20020503103813.K11414@dualathlon.random> <E173fVi-0002Ic-00@starship> <20020503182028.C14505@dualathlon.random> <E173g7P-0002J6-00@starship>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  But the machines at the OSDL cost him $0 and he can go up to 16 way
-for his testing. 
-
-Tim
-
-On Wed, 2002-05-01 at 16:35, Alan Cox wrote:
-> > | machine.  I did check the disassembly of vmlinux, and it looked like it
-> > | would work as advertised.
+On Fri, May 03, 2002 at 06:41:15PM +0200, Daniel Phillips wrote:
+> On Friday 03 May 2002 18:20, Andrea Arcangeli wrote:
+> > On Fri, May 03, 2002 at 06:02:18PM +0200, Daniel Phillips wrote:
+> > > and solves 75% of the problem.  It's not just ia32 numa that will benefit
+> > > from it.  For example, MIPS supports 16K pages in software, which will
 > > 
-> > uh, do you know where you could find/use some SMP machines,
-> > gratis ?  maybe OSDL ?  hint hint.
+> > the whole change would be specific to ia32, I don't see the connection
+> > with mips. There would be nothing to share between ia32 2M pages and
+> > mips 16K pages.
 > 
-> Dual pentium boxes are < $100 on ebay 8)
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-Timothy D. Witham - Lab Director - wookie@osdlab.org
-Open Source Development Lab Inc - A non-profit corporation
-15275 SW Koll Parkway - Suite H - Beaverton OR, 97006
-(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
-(503)-626-2436     (fax)
+> The topic here is 'page clustering'.  The idea is to use one struct page for
+> every four 4K page frames on ia32.
 
+ah ok, I meant physical hardware pages. physical hardware pages should
+be doable without common code changes, a software PAGE_SIZE or the
+PAGE_CACHE_SIZE raises non trivial problems instead.
+
+Andrea

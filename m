@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264734AbSJOQ2e>; Tue, 15 Oct 2002 12:28:34 -0400
+	id <S264749AbSJOQdY>; Tue, 15 Oct 2002 12:33:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264735AbSJOQ2b>; Tue, 15 Oct 2002 12:28:31 -0400
-Received: from [129.46.51.58] ([129.46.51.58]:47595 "EHLO numenor.qualcomm.com")
-	by vger.kernel.org with ESMTP id <S264734AbSJOQ22>;
-	Tue, 15 Oct 2002 12:28:28 -0400
-Message-Id: <5.1.0.14.2.20021015093146.05eb7738@mail1.qualcomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 15 Oct 2002 09:34:02 -0700
-To: kuznet@ms2.inr.ac.ru, mingo@elte.hu
-From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
-Subject: Re: [RFC] Rename _bh to _softirq
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200210150157.FAA13254@sex.inr.ac.ru>
-References: <Pine.LNX.4.44.0210142119300.26635-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S264750AbSJOQdY>; Tue, 15 Oct 2002 12:33:24 -0400
+Received: from tux.creighton.edu ([147.134.5.192]:26028 "EHLO tux.obix.com")
+	by vger.kernel.org with ESMTP id <S264749AbSJOQdX>;
+	Tue, 15 Oct 2002 12:33:23 -0400
+Message-ID: <3DAC44B4.60607@tux.obix.com>
+Date: Tue, 15 Oct 2002 11:39:16 -0500
+From: Phil Brutsche <phil@tux.obix.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en,pdf
+MIME-Version: 1.0
+To: Anthony Martinez <i_am_pi_@hotmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: AMD PCNet adapter
+References: <F206ccSN00ktmzmVBCO00002a2e@hotmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 05:57 AM 10/15/2002 +0400, kuznet@ms2.inr.ac.ru wrote:
->Hello!
->
-> >         But yes, i agree, and there are a number of other
-> > renames that would make perfect sense.
->
->Oh, do you dislike names with history? I love them. :-)
->Well, bh is short, looks nice and cryptic enough.
->
->After true BHs have gone, just say that "bh" is alias for "softirq".
-Sure. Just like I said we can keep compatibility defines
-         #define local_bh_disable local_softirq_disable
+Anthony Martinez wrote:
+> Hello
+> Are there modem drivers available for an AMD PCNet adapter, chip AM79C978XC, 
+> or is this even the right place to ask?
+> 
+> This card has both ethernet and modem ports, and works with the windoze 
+> drivers.
 
-But primary interface should be changed IMO.
+Those aren't modem ports; those are POTS ports for HomePNA 
+(http://homepna.org/) networking.
 
-Max
+It will work fine using the RJ45 connector; chances are the PhoneNet 
+networking will work fine if you just *try* it.
 
+
+Phil
 

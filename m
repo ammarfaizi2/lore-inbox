@@ -1,54 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129093AbRBNN1p>; Wed, 14 Feb 2001 08:27:45 -0500
+	id <S129051AbRBNN2Z>; Wed, 14 Feb 2001 08:28:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132051AbRBNN1f>; Wed, 14 Feb 2001 08:27:35 -0500
-Received: from garlic.amaranth.net ([216.235.243.195]:22027 "EHLO
-	garlic.amaranth.net") by vger.kernel.org with ESMTP
-	id <S129093AbRBNN1a>; Wed, 14 Feb 2001 08:27:30 -0500
-Message-ID: <3A8A87A7.4A3CE58D@egenera.com>
-Date: Wed, 14 Feb 2001 08:27:03 -0500
-From: Phil Auld <pauld@egenera.com>
-Organization: Egenera Inc.
-X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.16-3 i686)
-X-Accept-Language: en
+	id <S132185AbRBNN2H>; Wed, 14 Feb 2001 08:28:07 -0500
+Received: from ausxc08.us.dell.com ([143.166.99.216]:7857 "EHLO
+	ausxc08.us.dell.com") by vger.kernel.org with ESMTP
+	id <S132051AbRBNN1t>; Wed, 14 Feb 2001 08:27:49 -0500
+Message-ID: <CDF99E351003D311A8B0009027457F1403BF9D0A@ausxmrr501.us.dell.com>
+From: Matt_Domsch@Dell.com
+To: manfred@colorfullife.com, Michael_E_Brown@Dell.com
+Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org, sct@redhat.com
+Subject: RE: block ioctl to read/write last sector
+Date: Wed, 14 Feb 2001 07:26:47 -0600
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Stale super_blocks in 2.2
-In-Reply-To: <E14So5t-00038p-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > That can be a problem for fiber channel devices. I saw some issues with
-> > invalidate_buffers and page caching discussed in 2.4 space. Any reasons
-> > come to mind why I shouldn't call invalidate on the the way down instead
-> > (or in addition)?
-> 
-> The I/O completed a few seconds later anyway when bdflush got around to
-> writing the data back out. I dont plan to change 2.2. 2.4 doesnt do that
-> optimisation which is annoying in a few cases and a lot less suprising in
-> others
+> I have one additional user space only idea:
+> have you tried raw-io? bind a raw device to the partition, IIRC raw-io
+> is always in 512 byte units.
 
-Sure, the I/O completes, but the buffer_head is still in memory, valid and
-uptodate.
-On a subsequent mount the super_block comes from memory not disk. This works
-as long as nobody else mounted that file system in between. 
+Steven Tweedie responded to my question about that:
 
-I can make the changes needed. I was really curious if you, or anyone else,
-thought there might be page caching issues involved with invalidating on the way
-down.
+> Raw IO is subject to the same limits as other IO, because
+> ultimately it uses the same route through the kernel
+> to get to the low-level disk IO drivers.
 
-Thanks the time,
+This was confirmed by my testing.  Reading/writing via /dev/raw/rawX fails
+exactly the same way as for /dev/[sh]dX.
 
-Phil
+> Accessing /dev/sg ought to work fine, but of course it
+> places much more load on the application programmer
+> and removes a ton of kernel safety-nets.
+
+I believe using ide-scsi would work, but you must pass "hdc=ide-scsi" at
+boot time, which isn't a big deal for accessing CD-ROMs, but to be used for
+arbitrary disks, makes life much more difficult.  Now all your IDE disks
+need to think they're SCSI disks, at least for the boot in which you want to
+change the partition table.  I wouldn't want to suggest to customers that
+they run this additional layer of abstraction all the time just in case they
+want to examine and/or change the partition table of just one disk at some
+time.
+
+Thanks,
+Matt
+
+-- 
+Matt Domsch
+Dell Linux Systems Group
+Linux OS Development
+www.dell.com/linux
 
 
-------------------------------------------------------
-Philip R. Auld,Ph.D.                  Techinical Staff
-Egenera Corp.                        pauld@egenera.com
-165 Forest St, Marlboro, MA 01752        (508)786-9444

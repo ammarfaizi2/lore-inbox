@@ -1,26 +1,25 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131261AbRCUJpN>; Wed, 21 Mar 2001 04:45:13 -0500
+	id <S131347AbRCUJtX>; Wed, 21 Mar 2001 04:49:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131262AbRCUJpD>; Wed, 21 Mar 2001 04:45:03 -0500
-Received: from [62.225.179.11] ([62.225.179.11]:51726 "EHLO mail.pol.degrp.de")
-	by vger.kernel.org with ESMTP id <S131261AbRCUJop>;
-	Wed, 21 Mar 2001 04:44:45 -0500
-Message-ID: <9DD550E9A9B0D411A16700D0B7E38BA4E67E@POL-EML-SRV1>
-From: "Antwerpen, Oliver" <Antwerpen@netsquare.org>
-To: linux-kernel@vger.kernel.org
-Subject: How to provoke kernel panic
-Date: Wed, 21 Mar 2001 10:43:25 +0100
+	id <S131351AbRCUJtN>; Wed, 21 Mar 2001 04:49:13 -0500
+Received: from linuxqa.com ([212.143.78.26]:55405 "HELO il.aduva.com")
+	by vger.kernel.org with SMTP id <S131347AbRCUJs6>;
+	Wed, 21 Mar 2001 04:48:58 -0500
+Message-ID: <3AB87815.F5FBF855@linuxqa.com>
+Date: Wed, 21 Mar 2001 11:44:53 +0200
+From: Moran Cohen <moran@il.linuxqa.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: (no subject)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Moin,
-
-Could someone kindly tell me how to provoke a kernel panic? I need to do so
-for testing some applications regarding system crash awareness.
-
-Olli
+list
+-- 
+|\/| _  _ _  _  _| ....ne brocen ------
+|  |(_)| (_|| |_\|<| ------ ne wurde...

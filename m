@@ -1,58 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272057AbRIMUuO>; Thu, 13 Sep 2001 16:50:14 -0400
+	id <S272038AbRIMUoY>; Thu, 13 Sep 2001 16:44:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272059AbRIMUuE>; Thu, 13 Sep 2001 16:50:04 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:64018 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S272057AbRIMUt5>; Thu, 13 Sep 2001 16:49:57 -0400
-Date: Thu, 13 Sep 2001 22:50:19 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Pavel Machek <pavel@suse.cz>, Edgar Toernig <froese@gmx.de>,
-        linux-kernel@vger.kernel.org, vojtech@ucw.cz,
-        Hamera Erik <HAMERAE@cs.felk.cvut.cz>
-Subject: Re: Booting linux using Novell NetWare Remote Program Loader
-Message-ID: <20010913225019.A9327@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20010909230920.A23392@atrey.karlin.mff.cuni.cz> <9nh5p0$3qt$1@cesium.transmeta.com> <20010911005318.C822@bug.ucw.cz> <3BA04514.D65EDF98@gmx.de> <20010913120706.C25204@atrey.karlin.mff.cuni.cz> <3BA0D2BA.8B972B51@gmx.de> <20010913215617.E6820@atrey.karlin.mff.cuni.cz> <3BA10FFA.1050204@zytor.com> <20010913220326.H6820@atrey.karlin.mff.cuni.cz> <3BA1124B.5020302@zytor.com>
-Mime-Version: 1.0
+	id <S272057AbRIMUoO>; Thu, 13 Sep 2001 16:44:14 -0400
+Received: from 63-151-64-156.hsacorp.net ([63.151.64.156]:46093 "EHLO
+	boojiboy.eorbit.net") by vger.kernel.org with ESMTP
+	id <S272038AbRIMUoB>; Thu, 13 Sep 2001 16:44:01 -0400
+From: chris@boojiboy.eorbit.net
+Message-Id: <200109132140.OAA13753@boojiboy.eorbit.net>
+Subject: Re: 2.4.9-ac9 APM w/Compaq 16xx laptop...
+To: linux-kernel@vger.kernel.org
+Date: Thu, 13 Sep 2001 14:40:49 -0700 (PDT)
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <3BA1124B.5020302@zytor.com>; from hpa@zytor.com on Thu, Sep 13, 2001 at 01:08:43PM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> Right, this might give some clues to diferentiate between board
+> revisions. Now we only need the output from a Compaq 12XL125 to see if
+> it differs.
+> 
+> But the most important question now is: does it work? Can you halt and
+> reboot your machine?
 
-> >>Am I guessing correctly that this RPL thing is a floppy image emulator?
-> >>Then it probably becomes a matter of where that image lives (in memory, if
-> >>so where; or on the network and downloaded sector by sector.)  You may
-> >>want to try to make a SYSLINUX image and see if it works.
-> >>
-> > 
-> > Yep, it is floppy image emulator. People are telling me it is
-> > downloaded sector by sector. Do you have some "sure to boot" floppy
-> > image somewhere on ftp?
-> > 								Pavel
-> 
-> 
-> There is no such thing, but this is how you'd build a minimal SYSLINUX
-> floppy image (remove the -s for better performance but somewhat reduced
-> resistance to severe BIOS bugs):
-> 
-> 	su
-> 	dd if=/dev/zero of=floppy.img bs=1024 count=1440
-> 	mkdosfs floppy.img
-> 	syslinux -s floppy.img
-> 	mount -o loop -t msdos floppy.img /mnt
-> 	cp bzImage /mnt/linux
-> 	umount /mnt
-> 	sync
+No.
 
-Hey, I tried this with syslinux 1.63, and it boots ;-). Wow. Thanx for
-help, hpa.
-								Pavel
--- 
-The best software in life is free (not shareware)!		Pavel
-GCM d? s-: !g p?:+ au- a--@ w+ v- C++@ UL+++ L++ N++ E++ W--- M- Y- R+
+I still have linux-2.4.9-ac9, with the dmi_scan.c patch,
+and the APM configured as you suggested.  My computer
+bios is set to ACPI=off (even with this 'on' the behavior
+is the same).
+
+shutdown -h    works correctly
+shutdown -r    hangs at "Restarting System".
+
+
+--Chris
+

@@ -1,50 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266658AbUGLMB2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266807AbUGLMBx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266658AbUGLMB2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 08:01:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266725AbUGLMB2
+	id S266807AbUGLMBx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 08:01:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266805AbUGLMBi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 08:01:28 -0400
-Received: from mail.dif.dk ([193.138.115.101]:40681 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S266658AbUGLMB0 (ORCPT
+	Mon, 12 Jul 2004 08:01:38 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:36844 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S266725AbUGLMB3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 08:01:26 -0400
-Date: Mon, 12 Jul 2004 14:00:00 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Roger Luethi <rl@hellgate.ch>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: via-rhine breaks with recent Linus kernels : probe of 0000:00:09.0
- failed with error -5
-In-Reply-To: <20040712115408.GA31854@k3.hellgate.ch>
-Message-ID: <Pine.LNX.4.56.0407121357320.24721@jjulnx.backbone.dif.dk>
-References: <8A43C34093B3D5119F7D0004AC56F4BC082C7F9E@difpst1a.dif.dk>
- <20040712080933.GA9221@k3.hellgate.ch> <Pine.LNX.4.56.0407121317130.24721@jjulnx.backbone.dif.dk>
- <20040712115408.GA31854@k3.hellgate.ch>
+	Mon, 12 Jul 2004 08:01:29 -0400
+Date: Mon, 12 Jul 2004 14:01:08 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.8-rc1
+In-Reply-To: <Pine.LNX.4.58.0407111120010.1764@ppc970.osdl.org>
+Message-ID: <Pine.GSO.4.58.0407121356510.17199@waterleaf.sonytel.be>
+References: <Pine.LNX.4.58.0407111120010.1764@ppc970.osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Jul 2004, Roger Luethi wrote:
+On Sun, 11 Jul 2004, Linus Torvalds wrote:
+> Hirofumi Ogawa:
+>   o FAT: don't use "utf8" charset and NLS_DEFAULT
 
-> On Mon, 12 Jul 2004 13:27:17 +0200, Jesper Juhl wrote:
-> > Making this change to 2.6.8-rc1 has no effect for me :
-> >
-> [...]
-> >
-> > But, copying the driver from 2.6.7-mm7 to 2.6.8-rc1 works like a charm.
-> Thanks. <sigh> Not knowing the cause, especially considering that the
-> bug mysteriously vanished on my box makes me nervous. That there is a
-> serious problem in a mainline -rc doubly so.
-> I'll try to reproduce on a different box as soon as I get around to
-> it, hopefully tonight. If you could help tracking down the culprit
-> in via-rhine that would be great. Basically, the differences between
-> those drivers are 9 experimental patches I posted on June 15 on netdev
-> (attached).
+This patch breaks compilation if both MSDOS_FS and VFAT_FS are not set, due to
+CONFIG_FAT_DEFAULT_CODEPAGE being undefined.
 
-Sure thing, I'll start testing those and see if I can track it down. I'll
-get back to you as soon as possible - I might not get the time to test it
-completely today, but at least tomorrow I should have the time for it.
+Suggested fix: either make FAT_DEFAULT_CODEPAGE depend on FAT_FS only
+(compilation of fs/fat/inode.c depends on FAT_FS), or add a test for
+CONFIG_FAT_DEFAULT_CODEPAGE being undefined, cfr. the test for
+CONFIG_FAT_DEFAULT_IOCHARSET in fs/fat/inode.c.
+
+| --- a/fs/Kconfig	2004-06-20 11:08:01 -07:00
+| +++ b/fs/Kconfig	2004-06-20 11:08:01 -07:00
+| @@ -672,6 +672,25 @@
+|  	  To compile this as a module, choose M here: the module will be called
+|  	  vfat.
+|
+| +config FAT_DEFAULT_CODEPAGE
+| +	int "Default codepage for FAT"
+| +	depends on MSDOS_FS || VFAT_FS
+| +	default 437
+| +	help
+| +	  This option should be set to the codepage of your FAT filesystems.
+| +	  It can be overridden with the 'codepage' mount option.
+| +
+| +config FAT_DEFAULT_IOCHARSET
+| +	string "Default iocharset for FAT"
+| +	depends on VFAT_FS
+| +	default "iso8859-1"
+| +	help
+| +	  Set this to the default I/O character set you'd like FAT to use.
+| +	  It should probably match the character set that most of your
+| +	  FAT filesystems use, and can be overridded with the 'iocharset'
+| +	  mount option for FAT filesystems.  Note that UTF8 is *not* a
+| +	  supported charset for FAT filesystems.
+| +
+|  config UMSDOS_FS
+|  #dep_tristate '    UMSDOS: Unix-like file system on top of standard MSDOS fs' CONFIG_UMSDOS_FS $CONFIG_MSDOS_FS
+|  # UMSDOS is temprory broken
+| diff -Nru a/fs/fat/inode.c b/fs/fat/inode.c
+| --- a/fs/fat/inode.c	2004-06-20 11:08:01 -07:00
+| +++ b/fs/fat/inode.c	2004-06-20 11:08:01 -07:00
+| @@ -23,6 +23,14 @@
+|  #include <linux/parser.h>
+|  #include <asm/unaligned.h>
+|
+| +#ifndef CONFIG_FAT_DEFAULT_IOCHARSET
+| +/* if user don't select VFAT, this is undefined. */
+| +#define CONFIG_FAT_DEFAULT_IOCHARSET	""
+| +#endif
+| +
+| +static int fat_default_codepage = CONFIG_FAT_DEFAULT_CODEPAGE;
+| +static char fat_default_iocharset[] = CONFIG_FAT_DEFAULT_IOCHARSET;
+| +
+|  /*
+|   * New FAT inode stuff. We do the following:
+|   *	a) i_ino is constant and has nothing with on-disk location.
+
+Gr{oetje,eeting}s,
+
+						Geert
 
 --
-Jesper Juhl <juhl-lkml@dif.dk>
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

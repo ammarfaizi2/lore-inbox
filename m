@@ -1,95 +1,163 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261373AbTDPHDN (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 03:03:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262703AbTDPHDM 
+	id S262703AbTDPHGh (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 03:06:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262952AbTDPHGg 
 	(for <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 03:03:12 -0400
-Received: from pfepb.post.tele.dk ([193.162.153.3]:39241 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261373AbTDPHDL 
+	Wed, 16 Apr 2003 03:06:36 -0400
+Received: from [212.50.18.217] ([212.50.18.217]:15368 "EHLO gw.zaxl.net")
+	by vger.kernel.org with ESMTP id S262703AbTDPHGd 
 	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 03:03:11 -0400
-Subject: kernel panic in 2.5.67-mm3
-From: Mads Christensen <mfc@krycek.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-SwdZYrfuN/7XnpdDwwv0"
-Organization: krycek.org
-Message-Id: <1050477303.694.3.camel@krycek>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 16 Apr 2003 09:15:03 +0200
+	Wed, 16 Apr 2003 03:06:33 -0400
+Date: Wed, 16 Apr 2003 10:18:18 +0300 (EEST)
+From: Alexander Atanasov <alex@ssi.bg>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] get_offset_pit and do_timer_overflow vs IRQ locking
+Message-ID: <Pine.LNX.4.21.0304160943330.7792-100000@mars.zaxl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	Hello,
 
---=-SwdZYrfuN/7XnpdDwwv0
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Spin lock debuging got this on UP+preempt:
+arch/i386/kernel/i8259.c:176:spin_lock(arch/i386/kernel/i8259.c:c03d4838)
+already locked by include/asm-i386/mach-default/do_timer.h/50
+include/asm-i386/mach-default/do_timer.h:56:
+spin_unlock(arch/i386/kernel/i8259.c:c03d4838) not locked
+arch/i386/kernel/i8259.c:176:spin_lock(arch/i386/kernel/i8259.c:c03d4838)
+already locked by include/asm-i386/mach-default/do_timer.h/50
+include/asm-i386/mach-default/do_timer.h:56:
+spin_unlock(arch/i386/kernel/i8259.c:c03d4838) not locked
 
-hey
+This due to do_timer_overflow expecting to be called with IRQs disabled,
+the whole path used to do that until converted to xtime_lock, but 
+do_timer_overflow seems to be missed. Patch changes get_offset_pit to hold
+i8253_lock while calling do_timer_overflow.
 
-So i guess I discovered a oops in 2.5.67-mm3=20
-syslog reads:=20
-Apr 16 08:11:49 krycek kernel: unmap_vmas: VMA list is not sorted
-correctly!
-Apr 16 08:11:49 krycek kernel: Unable to handle kernel NULL pointer
-dereference at virtual address 00000084
-Apr 16 08:11:49 krycek kernel:  printing eip:
-Apr 16 08:11:49 krycek kernel: c013bb00
-Apr 16 08:11:49 krycek kernel: *pde =3D 00000000
-Apr 16 08:11:49 krycek kernel: Oops: 0000 [#1]
-Apr 16 08:11:49 krycek kernel: CPU:    0
-Apr 16 08:11:49 krycek kernel: EIP:    0060:[unmap_vmas+224/544]  =20
-Tainted: P   VLI
-Apr 16 08:11:49 krycek kernel: EFLAGS: 00010202
-Apr 16 08:11:49 krycek kernel: eax: 401ba000   ebx: 000b0000   ecx:
-00000000   edx: 00000080
-Apr 16 08:11:49 krycek kernel: esi: 401ba000   edi: 401ba000   ebp:
-f3a09dc0   esp: f36dfe44
-Apr 16 08:11:49 krycek kernel: ds: 007b   es: 007b   ss: 0068
-Apr 16 08:11:49 krycek kernel: Process irssi (pid: 684,
-threadinfo=3Df36de000 task=3Df39519c0)
-Apr 16 08:11:49 krycek kernel: Stack: c03e2e04 f3a09dc0 4010a000
-401ba000 f36de000 401ba000 00000013 00050000=20
-Apr 16 08:11:49 krycek kernel:        f52164c0 f52164c0 f36de000
-f39519c0 c013fabb f36dfe90 f52164c0 f3a09680=20
-Apr 16 08:11:49 krycek kernel:        00000000 ffffffff f36dfe94
-c03e2e04 00000125 f52164c0 00000000 00000000=20
-Apr 16 08:11:49 krycek kernel: Call Trace: [exit_mmap+123/400]=20
-[mmput+84/176]  [do_exit+284/1040]  [do_group_exit+123/176]=20
-[get_signal_to_deliver+493/816]  [do_signal+214/272]  [poll_freew
-ait+58/80]  [vfs_write+213/304]  [do_page_fault+0/1111]=20
-[do_notify_resume+86/88]  [work_notifysig+19/21]=20
-Apr 16 08:11:49 krycek kernel: Code: 7c 24 0c 89 fe 8b 02 89 04 24 e8 cc
-fe ff ff 29 5c 24 1c 8b 44 24 1c 85 c0 7e 55 3b 7c 24 14 75 c0 8b 55 0c
-85 d2 74 08 8b 45 08 <39> 42 04 72 21 85 d2 8
-9 d5 74 0f 8b 52 04 3b 54 24 44 89 d1 0f=20
-Apr 16 08:11:49 krycek kernel:  <6>note: irssi[684] exited with
-preempt_count 1
+	Is the hack with caching jiffies in get_offset_pit still needed,
+according to comments there, it is not?
 
-good luck :)
---=20
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-| Mads F. Christensen     || email:                                    |
-| phone:  +45 27 47 58 66 || mfc@krycek.org                            |
-| Webdesign Development   || www.krycek.org - personal data site       |
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+-- 
+have fun,
+alex
 
+BK current:
 
---=-SwdZYrfuN/7XnpdDwwv0
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+nQL244SvOSUXdFgRAlyMAKCJ/JONl4HHp4qqViEpZ16sQpyXnQCghrmI
-n2igu4RSXOVEy6KChG/N8BM=
-=wnHz
------END PGP SIGNATURE-----
-
---=-SwdZYrfuN/7XnpdDwwv0--
+===== arch/i386/kernel/timers/timer_pit.c 1.10 vs edited =====
+--- 1.10/arch/i386/kernel/timers/timer_pit.c	Mon Mar 31 19:03:54 2003
++++ edited/arch/i386/kernel/timers/timer_pit.c	Wed Apr 16 09:27:03 2003
+@@ -50,7 +50,7 @@
+ }
+ 
+ 
+-/* This function must be called with interrupts disabled 
++/* This function must be called with xtime_lock held.
+  * It was inspired by Steve McCanne's microtime-i386 for BSD.  -- jrs
+  * 
+  * However, the pc-audio speaker driver changes the divisor so that
+@@ -90,7 +90,7 @@
+ 	static unsigned long jiffies_p = 0;
+ 
+ 	/*
+-	 * cache volatile jiffies temporarily; we have IRQs turned off. 
++	 * cache volatile jiffies temporarily; we have xtime_lock. 
+ 	 */
+ 	unsigned long jiffies_t;
+ 
+@@ -109,14 +109,12 @@
+ 	count |= inb_p(0x40) << 8;
+ 	
+         /* VIA686a test code... reset the latch if count > max + 1 */
+-        if (count > LATCH) {
+-                outb_p(0x34, 0x43);
+-                outb_p(LATCH & 0xff, 0x40);
+-                outb(LATCH >> 8, 0x40);
+-                count = LATCH - 1;
+-        }
+-	
+-	spin_unlock_irqrestore(&i8253_lock, flags);
++	if (count > LATCH) {
++		outb_p(0x34, 0x43);
++		outb_p(LATCH & 0xff, 0x40);
++		outb(LATCH >> 8, 0x40);
++		count = LATCH - 1;
++	}
+ 
+ 	/*
+ 	 * avoiding timer inconsistencies (they are rare, but they happen)...
+@@ -127,7 +125,6 @@
+ 	 *     (see c't 95/10 page 335 for Neptun bug.)
+ 	 */
+ 
+-
+ 	if( jiffies_t == jiffies_p ) {
+ 		if( count > count_p ) {
+ 			/* the nutcase */
+@@ -135,6 +132,8 @@
+ 		}
+ 	} else
+ 		jiffies_p = jiffies_t;
++
++	spin_unlock_irqrestore(&i8253_lock, flags);
+ 
+ 	count_p = count;
+ 
+===== include/asm-i386/mach-default/do_timer.h 1.8 vs edited =====
+--- 1.8/include/asm-i386/mach-default/do_timer.h	Tue Feb 25 11:39:08 2003
++++ edited/include/asm-i386/mach-default/do_timer.h	Tue Apr 15 23:47:39 2003
+@@ -47,14 +47,12 @@
+ {
+ 	int i;
+ 
+-	spin_lock(&i8259A_lock);
+ 	/*
+ 	 * This is tricky when I/O APICs are used;
+ 	 * see do_timer_interrupt().
+ 	 */
+ 	i = inb(0x20);
+-	spin_unlock(&i8259A_lock);
+-	
++
+ 	/* assumption about timer being IRQ0 */
+ 	if (i & 0x01) {
+ 		/*
+===== include/asm-i386/mach-pc9800/do_timer.h 1.1 vs edited =====
+--- 1.1/include/asm-i386/mach-pc9800/do_timer.h	Fri Mar 14 03:17:16 2003
++++ edited/include/asm-i386/mach-pc9800/do_timer.h	Tue Apr 15 23:47:39 2003
+@@ -47,14 +47,12 @@
+ {
+ 	int i;
+ 
+-	spin_lock(&i8259A_lock);
+ 	/*
+ 	 * This is tricky when I/O APICs are used;
+ 	 * see do_timer_interrupt().
+ 	 */
+ 	i = inb(0x00);
+-	spin_unlock(&i8259A_lock);
+-	
++
+ 	/* assumption about timer being IRQ0 */
+ 	if (i & 0x01) {
+ 		/*
+===== include/asm-i386/mach-visws/do_timer.h 1.6 vs edited =====
+--- 1.6/include/asm-i386/mach-visws/do_timer.h	Wed Feb 19 04:58:56 2003
++++ edited/include/asm-i386/mach-visws/do_timer.h	Tue Apr 15 23:47:39 2003
+@@ -26,14 +26,12 @@
+ {
+ 	int i;
+ 
+-	spin_lock(&i8259A_lock);
+ 	/*
+ 	 * This is tricky when I/O APICs are used;
+ 	 * see do_timer_interrupt().
+ 	 */
+ 	i = inb(0x20);
+-	spin_unlock(&i8259A_lock);
+-	
++
+ 	/* assumption about timer being IRQ0 */
+ 	if (i & 0x01) {
+ 		/*
 

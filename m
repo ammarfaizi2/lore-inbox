@@ -1,68 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262778AbVBYTPy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262780AbVBYTSl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262778AbVBYTPy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 14:15:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262779AbVBYTPy
+	id S262780AbVBYTSl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 14:18:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262779AbVBYTSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 14:15:54 -0500
-Received: from hostmaster.org ([212.186.110.32]:60328 "EHLO hostmaster.org")
-	by vger.kernel.org with ESMTP id S262778AbVBYTPq (ORCPT
+	Fri, 25 Feb 2005 14:18:41 -0500
+Received: from ns1.s2io.com ([142.46.200.198]:5788 "EHLO ns1.s2io.com")
+	by vger.kernel.org with ESMTP id S262785AbVBYTSM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 14:15:46 -0500
-Subject: Re: usb-storage on SMP?
-From: Thomas Zehetbauer <thomasz@hostmaster.org>
-To: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1105982247.21895.26.camel@hostmaster.org>
-References: <1105982247.21895.26.camel@hostmaster.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-b1XxpkEHUnW8+E+hdYLk"
-Date: Fri, 25 Feb 2005 20:15:43 +0100
-Message-Id: <1109358944.8562.6.camel@hostmaster.org>
+	Fri, 25 Feb 2005 14:18:12 -0500
+Subject: Re: UDP optimization
+From: Dmitry Yusupov <dima@neterion.com>
+To: shabanip <shabanip@avapajoohesh.com>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+In-Reply-To: <46548.69.93.110.242.1109328682.squirrel@69.93.110.242>
+References: <46548.69.93.110.242.1109328682.squirrel@69.93.110.242>
+Content-Type: text/plain
+Organization: Neterion, Inc
+Date: Fri, 25 Feb 2005 11:17:57 -0800
+Message-Id: <1109359077.13087.64.camel@beastie>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-1) 
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -6.1
+X-Spam-Outlook-Score: ()
+X-Spam-Features: BAYES_00,EMAIL_ATTRIBUTION,IN_REP_TO,REFERENCES,REPLY_WITH_QUOTES
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+As far as UDP HW acceleration is concerned we need to modify/verify that
+Linux TCP/IP stack capable of:
 
---=-b1XxpkEHUnW8+E+hdYLk
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+1) Partial checksumming on receive
+2) Checksumming over fragments on transmit
 
-It seems now that the problem was caused by my 6in1 Card Reader that
-identifies itself as "ID 0dda:0001 Integrated Circuit Solution, Inc.".
+And find the NIC which capable of doing that. s2io/neterion hw do
+supports those features.
 
-Strange thing is that the problem went away with maxcpus=3D1 for my 256MB
-SD-Cards but not with my new 1GB SD-Card now.
+Regards,
+Dima
 
-Tom
+Without those two, I doubt you will 
 
---=20
-  T h o m a s   Z e h e t b a u e r   ( TZ251 )
-  PGP encrypted mail preferred - KeyID 96FFCB89
-      finger thomasz@hostmaster.org for key
+On Fri, 2005-02-25 at 14:21 +0330, shabanip wrote:
+> as i know there are many ways to optimize and tune TCP parameters in kernel
+> but how can i tune and optimize UDp performance?
+> thanks,
+> Payam Shabanian
+> shabanip -at- avapajoohesh.com
 
-Microsoft Windows(tm). A thirty-two bit extension and graphical shell
-to a sixteen bit patch to an eight bit operating system originally
-coded for a four bit microprocessor which was written by a two-bit
-company that can't stand one bit of competition.
-
-
-
-
---=-b1XxpkEHUnW8+E+hdYLk
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iQEVAwUAQh95X2D1OYqW/8uJAQLfIAf/auO8Y1LHToTiNHcS8LAKPQgLKqM3/pjG
-QRr0PkoAL4q3XjDToiYt0iGuNdM75VSWIBfYTAm85BFN/+SMcP8yeFkSw68Z/p/P
-B3NvizXtVLNtJmNVz8GeNg8vIxGPYd8iMm/UkQ3KMw/VGNCTjkDGWNqP9r7QGefO
-ZKNrtdjLtajg380pSCGYGmYu0oETs3MLPmMbc/Cg+EmwVPzF3IAilPjEwEnp3yzK
-OeCcYOJz22uFmYOqemO50eIRyglhm0bLGH9dgl+UoMOrso/Zf3h3IA/014lwGflu
-eF8ltXCbiuaqBZfF254uzJuGYgLHLCecuMgryuRLiFCaqCrIlVOTHQ==
-=6Emj
------END PGP SIGNATURE-----
-
---=-b1XxpkEHUnW8+E+hdYLk--
 

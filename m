@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262689AbVCKLjq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262682AbVCKMR4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262689AbVCKLjq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 06:39:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262698AbVCKLjq
+	id S262682AbVCKMR4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 07:17:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262563AbVCKMR4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 06:39:46 -0500
-Received: from ev1s-67-15-60-3.ev1servers.net ([67.15.60.3]:44455 "EHLO
-	mail.aftek.com") by vger.kernel.org with ESMTP id S262689AbVCKLjA
+	Fri, 11 Mar 2005 07:17:56 -0500
+Received: from arnor.apana.org.au ([203.14.152.115]:1297 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S262682AbVCKMJX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 06:39:00 -0500
-X-Antivirus-MYDOMAIN-Mail-From: mohanv@aftek.com via plain.ev1servers.net
-X-Antivirus-MYDOMAIN: 1.22-st-qms (Clear:RC:0(59.95.0.97):SA:0(-104.9/3.0):. Processed in 1.851976 secs Process 10303)
-Message-ID: <423183DE.3020102@aftek.com>
-Date: Fri, 11 Mar 2005 17:11:18 +0530
-From: Mohan <mohanv@aftek.com>
-Reply-To: mohanv@aftek.com
-Organization: Aftek Infosys Ltd.
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: wait queue sharing..
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 11 Mar 2005 07:09:23 -0500
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: rmk+lkml@arm.linux.org.uk (Russell King)
+Subject: Re: Netfilter ipt_hashlimit
+Cc: linux-kernel@vger.kernel.org, netfilter@lists.netfilter.org,
+       davem@davemloft.net
+Organization: Core
+In-Reply-To: <20050310222934.C1044@flint.arm.linux.org.uk>
+X-Newsgroups: apana.lists.os.linux.kernel
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
+Message-Id: <E1D9itD-00039G-00@gondolin.me.apana.org.au>
+Date: Fri, 11 Mar 2005 23:05:11 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello All,
+Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> With current-ish Linus 2.6 BK, I'm seeing this:
+> 
+> net/ipv4/netfilter/ipt_hashlimit.c:96: warning: type defaults to `int' in declaration of `DECLARE_LOCK'
+> net/ipv4/netfilter/ipt_hashlimit.c:96: warning: parameter names (without types) in function declaration
+> 
+> Looks like ipt_hashlimit.c is missing an include?
 
-I have a question regarding the wait queues. I have a driver
-pxausb_core.o which is the core driver which does all USB endpoint
-handling and hardware interaction. I have one more driver on top of it
-usb-serial which provides for the user-level interaction(like read,
-write, ioctl).
-I have implemented a blocking ioctl, which sends events about the state
-of USB device(enumerated, suspended, disconnected, etc).
-For this ioctl, i have declared a wait_queue and initialized (using
-init_waitqueue_head() func.) in the usb_ctl.c which is part of
-pxausb_core.o. (it has usb_send.c, usb_recv.c, usb_ctl.c, usb_ep0.c).
-I am using that wait_queue variable in usb-ser.c.
+Indeed.  It should include lockhelp.h directly.
 
-I just wanted to clarify myself whether the wait queues can be shared
-between two driver modules.
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 
-Thank you...
-regards,
-mohan
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+--
+===== net/ipv4/netfilter/ipt_hashlimit.c 1.10 vs edited =====
+--- 1.10/net/ipv4/netfilter/ipt_hashlimit.c	2005-03-11 07:06:22 +11:00
++++ edited/net/ipv4/netfilter/ipt_hashlimit.c	2005-03-11 22:56:24 +11:00
+@@ -37,6 +37,7 @@
+ 
+ #include <linux/netfilter_ipv4/ip_tables.h>
+ #include <linux/netfilter_ipv4/ipt_hashlimit.h>
++#include <linux/netfilter_ipv4/lockhelp.h>
+ 
+ /* FIXME: this is just for IP_NF_ASSERRT */
+ #include <linux/netfilter_ipv4/ip_conntrack.h>

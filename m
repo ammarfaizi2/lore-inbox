@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270947AbRIARlY>; Sat, 1 Sep 2001 13:41:24 -0400
+	id <S271018AbRIASIr>; Sat, 1 Sep 2001 14:08:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270958AbRIARlP>; Sat, 1 Sep 2001 13:41:15 -0400
-Received: from colin.muc.de ([193.149.48.1]:55817 "HELO colin.muc.de")
-	by vger.kernel.org with SMTP id <S270947AbRIARlA>;
-	Sat, 1 Sep 2001 13:41:00 -0400
-Message-ID: <20010901194141.44617@colin.muc.de>
-Date: Sat, 1 Sep 2001 19:41:41 +0200
-From: Andi Kleen <ak@muc.de>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Cc: "David S . Miller" <davem@redhat.com>, Andi Kleen <ak@muc.de>,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, linux-kernel@vger.kernel.org
+	id <S270999AbRIASIi>; Sat, 1 Sep 2001 14:08:38 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:36612 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S270958AbRIASI1>;
+	Sat, 1 Sep 2001 14:08:27 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200109011808.WAA19782@ms2.inr.ac.ru>
 Subject: Re: Excessive TCP retransmits over lossless, high latency link
-In-Reply-To: <20010901181729.A2204@thefinal.cern.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.88e
-In-Reply-To: <20010901181729.A2204@thefinal.cern.ch>; from Jamie Lokier on Sat, Sep 01, 2001 at 07:17:29PM +0200
+To: lk@tantalophile.demon.co.uk (Jamie Lokier)
+Date: Sat, 1 Sep 2001 22:08:24 +0400 (MSK DST)
+Cc: davem@redhat.com, ak@muc.de, linux-kernel@vger.kernel.org
+In-Reply-To: <20010901181729.A2204@thefinal.cern.ch> from "Jamie Lokier" at Sep 1, 1 06:17:29 pm
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 01, 2001 at 07:17:29PM +0200, Jamie Lokier wrote:
-> The appended "tcpdump -i ppp0 -n" trace shows an excessive number of
-> retransmits from the remote POP server.  The retransmits are triggered
-> by excessive duplicate ACKs from the local client.  By excessive, I mean
-> lots of retransmits of the same data.
+Hello!
 
-The duplicate ACKs should not cause any retransmits (unless the sender
-is badly broken), because they contain a high enough ACK number.
+> The interesting thing is that there isn't any evidence of packet loss.
 
-The problem is really that a TCP sender cannot recover from a too short RTT 
-estimate; if the RTT is longer and it doesn't get any acks it'll assume 
-packet loss and never has a chance to find out about the longer RTT, because
-that only works with new ACKs. 
+Why did you disable bith sacks and timestamps? Exactly to get
+maximal damage from long delay link?
 
-The standard initial RTT is 3 seconds; but your RTT is 5.2s. 
 
-What you can do is to change the initial RTT on the sender side. On Linux
-it can be done with the "irtt" option of route or the equivalent one of
-iproute2. Most other OS have a similar way to configure the IRTT. 
+> Is there some /proc/sys setting to fix this, a kernel patch, or is it
+> perhaps fixed in a newer kernel already?
 
--Andi
+No patches to block send required ACKs exist of course. :-)
+
+All the problem is at sender, it mispredicts rtt.
+What OS is sender? If it is linux too, try to use default configuration
+not playing with /proc/sys/net/tcp_*, especially with timestamps
+and sacks and the situation should rectify.
+
+Also, please, send full (binary!) tcpdump from SYN and to FIN.
+Andi says right thing, but I am still puzzled why rtt is miscalculated
+it should be estimated correctly.
+
+Well, and if sender is not linux... no ideas.
+
+Alexey

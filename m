@@ -1,31 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310205AbSCLAA3>; Mon, 11 Mar 2002 19:00:29 -0500
+	id <S310224AbSCLADj>; Mon, 11 Mar 2002 19:03:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310212AbSCLAAU>; Mon, 11 Mar 2002 19:00:20 -0500
-Received: from insgate.stack.nl ([131.155.140.2]:13830 "HELO skynet.stack.nl")
-	by vger.kernel.org with SMTP id <S310205AbSCLAAF>;
-	Mon, 11 Mar 2002 19:00:05 -0500
-Date: Tue, 12 Mar 2002 01:00:00 +0100 (CET)
-From: Jos Hulzink <josh@stack.nl>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Andre Hedrick <andre@linuxdiskcert.org>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.6 IDE 19
-In-Reply-To: <Pine.LNX.4.44L.0203111819130.2181-100000@imladris.surriel.com>
-Message-ID: <20020312004810.Y36769-100000@snail.stack.nl>
+	id <S310223AbSCLADa>; Mon, 11 Mar 2002 19:03:30 -0500
+Received: from mail.rttinc.com ([139.142.30.71]:58891 "HELO mail.rttinc.com")
+	by vger.kernel.org with SMTP id <S310212AbSCLADN>;
+	Mon, 11 Mar 2002 19:03:13 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Brad Pepers <brad@linuxcanada.com>
+Organization: Linux Canada Inc.
+To: Andi Kleen <ak@suse.de>
+Subject: Re: Multi-threading
+Date: Mon, 11 Mar 2002 17:02:50 -0700
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20020311182111Z310364-889+120750@vger.kernel.org.suse.lists.linux.kernel> <p73zo1e4voi.fsf@oldwotan.suse.de>
+In-Reply-To: <p73zo1e4voi.fsf@oldwotan.suse.de>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Message-Id: <20020312000319Z310212-889+120887@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Mar 2002, Rik van Riel wrote:
-> Personally I've given up on using 2.5 on my machines.
+On Monday 11 March 2002 14:54, Andi Kleen wrote:
+> Brad Pepers <brad@linuxcanada.com> writes:
+> > there is a very complex multi-process dance involving (apparently)
+> > multiple debugger interactions per wake up.  Kinda like the
+> > guys who designed the threads didn't talk to the guys who designed
+> > ptrace or one or the other didn't care.
+>
+> I guess the new futex mechanism that is currently
+> designed/debugged/discussed will take care of that.  It doesn't require
+> signals anymore. Unfortunately it is probably some time off until it can be
+> used generally, but at least it is worked on
 
-Gee... and I should trust my 80 GB of IDE disks to mud-throwing kiddies
-like you guys ? I was working on some FAT enhancements in the 2.5 tree,
-but I agree with Rik. Maybe I should just forget 2.5.
+I'll watch the futex development than and wait for it do be available.
 
-Jos
+> atomic_dec_and_test() ?
 
+Handles the most common case but not general enough for all cases and its 
+sister function atomic_inc_and_test is pretty useless.
+
+> atomic_dec_and_return() doesn't strike me as too useful, because
+> it would need to lie to you. When you have a reference count
+> and you unlink the object first from public view you can trust
+> a 0 check (as atomic_dec_and_test does). As long as the object
+> is in public view someone else can change the counts and any
+> "atomic return" of that would be just lying. You can of course
+> always use atomic_read(), but it's not really atomic. I doubt the
+> microsoft equivalent is atomic neither, they are probably equivalent
+> to atomic_inc(); atomic_read(); or atomic_dec(); atomic_read() and
+> some hand weaving.
+
+Apparently the Microsoft one really is in Windows 98 and up (not in 95).  
+I've had it explained that the asm code (semi-pseudo code here) is like this:
+
+        movl       reg, #-1
+        lock xadd  reg, counter
+        decl       reg
+        movl       result, reg
+
+This is in comparison to the current code which does something like this:
+
+        lock decl counter
+        sete      result
+
+I don't see how the first asm code lies to you.  It is returning the value as 
+it was decremented to and the lock on the xadd keeps it safe.
+
+> BTW regarding atomic.h: while it is nicely usable on i386 in userspace
+> it isn't completely portable. Some architectures require helper functions
+> that are hard to implement in user space.
+
+Its too bad Linux didn't have a nice wrapper around atom inc/dec/test that 
+was completely portable.  Do you know what arch's have trouble implementing 
+this?
+
+-- 
+Brad Pepers
+brad@linuxcanada.com

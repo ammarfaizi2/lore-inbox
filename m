@@ -1,39 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264008AbTEONGq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 09:06:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264010AbTEONGq
+	id S264007AbTEONFx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 09:05:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264008AbTEONFx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 09:06:46 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:23194 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S264008AbTEONGp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 09:06:45 -0400
-Date: Thu, 15 May 2003 14:20:40 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Martin Schlemmer <azarah@gentoo.org>
-Cc: Andreas Happe <andreashappe@gmx.net>, KML <linux-kernel@vger.kernel.org>
-Subject: Re: [dri] x startup hangs again... ~2.5.69-bk5
-Message-ID: <20030515132040.GA31109@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Martin Schlemmer <azarah@gentoo.org>,
-	Andreas Happe <andreashappe@gmx.net>,
-	KML <linux-kernel@vger.kernel.org>
-References: <slrnbc25b6.e5.andreashappe@flatline.ath.cx> <20030513165647.GA1056@suse.de> <slrnbc2d9s.cv.andreashappe@flatline.ath.cx> <slrnbc427q.377.andreashappe@flatline.ath.cx> <1053002472.9778.78.camel@workshop.saharact.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1053002472.9778.78.camel@workshop.saharact.lan>
-User-Agent: Mutt/1.5.4i
+	Thu, 15 May 2003 09:05:53 -0400
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:8446 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S264007AbTEONFv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 09:05:51 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: "Richard B. Johnson" <root@chaos.analogic.com>,
+       Mike Touloumtzis <miket@bluemug.com>
+Subject: Re: The disappearing sys_call_table export.
+Date: Thu, 15 May 2003 08:17:41 -0500
+X-Mailer: KMail [version 1.2]
+Cc: Ahmed Masud <masud@googgun.com>, Chuck Ebbert <76306.1226@compuserve.com>,
+       Yoav Weiss <ml-lkml@unpatched.org>, linux-kernel@vger.kernel.org
+References: <20030514074403.GA18152@bluemug.com> <20030514205847.GA18514@bluemug.com> <Pine.LNX.4.53.0305141724220.12328@chaos>
+In-Reply-To: <Pine.LNX.4.53.0305141724220.12328@chaos>
+MIME-Version: 1.0
+Message-Id: <03051508174100.25285@tabby>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 15, 2003 at 02:41:13PM +0200, Martin Schlemmer wrote:
+On Wednesday 14 May 2003 16:32, Richard B. Johnson wrote:
+> On Wed, 14 May 2003, Mike Touloumtzis wrote:
+> > On Wed, May 14, 2003 at 06:34:30AM -0400, Ahmed Masud wrote:
+> > > Level of security is a matter of trust.  Should the kernel trust a
+> > > distribution provider? No, that is not a reasonable request, because we
+> > > do not control their environment and evaluation proceedures and there
+> > > are no guarentees between the channel that provides the operating
+> > > system to the time it gets installed on a system.
+> >
+> > I don't understand why people are willing to base security arguments
+> > on some sort of bizarre adversarial relationship between the kernel and
+> > the system tools.
+> >
+> > No Unix (even a "secure" one) is designed to run all security-critical
+> > code in the kernel.  That would be a bad design anyway, since it would
+> > run lots of code at an unwarranted privilege level.  "login" is not
+> > part of the kernel.  "su" is not part of the kernel".  The boot loader
+> > is not part of the kernel.  And so on.
+> >
+> > There is no issue of "trust" between the kernel and the distribution
+> > provider.  The distribution provider provides a system, which (like all
+> > Unix-derived systems) is modular and thus has multiple independent
+> > components with security functions.  The sum of those parts is what you
+> > should evaluate for security.  Yes, the system should include proper
+> > isolation mechanisms to prevent improper privilege escalations.  But it
+> > doesn't make sense to even think about what the kernel should do when
+> > the untrusted distribution provides a malicious "/sbin/init".
+>
+> Not even malicious. For years, it was accepted that if you had
+> physical possesion of a computing system, you could do anything
+> with it that it was capable of.
+>
+> Not so, with the latest Red Hat distribution (9). You can no longer
+> set init=/bin/bash at the boot prompt.... well you can set it, but
+> then you get an error about killing init. This caused a neighbor
+> a lot of trouble when she accidentally put a blank line in the
+> top of /etc/passwd. Nobody could log-in. I promised to show her
+> how to "break in", but I wasn't able to. I had to take her hard-disk
+> to my house, mount it, and fix the password file. All these "attempts"
+> at so-called security do is make customers pissed.
 
- > I am not so sure.  I have a geforce3 ti5, that has been running fine
- > with nvidia drivers 1.0.4363 (yes, I know they are not supported here).
+I fix those errors with by booting the Slackware CD with the live 
+filesystem...
 
-reproduce it without the binary crap, and I might be interested.
-
-		Dave
-
+No dependancies on any of the regular disks - then I can fix anything within
+reason (haven't tried md raids though).

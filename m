@@ -1,42 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130324AbRA0SSh>; Sat, 27 Jan 2001 13:18:37 -0500
+	id <S130651AbRA0S17>; Sat, 27 Jan 2001 13:27:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130651AbRA0SS2>; Sat, 27 Jan 2001 13:18:28 -0500
-Received: from e166066.upc-e.chello.nl ([213.93.166.66]:58118 "EHLO Ion.var.cx")
-	by vger.kernel.org with ESMTP id <S130324AbRA0SSL>;
-	Sat, 27 Jan 2001 13:18:11 -0500
-Date: Sat, 27 Jan 2001 19:18:09 +0100
-From: Frank v Waveren <fvw@var.cx>
-To: David Wagner <daw@cs.berkeley.edu>
+	id <S131436AbRA0S1t>; Sat, 27 Jan 2001 13:27:49 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:18952 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S130651AbRA0S1h>;
+	Sat, 27 Jan 2001 13:27:37 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200101271827.VAA02754@ms2.inr.ac.ru>
+Subject: Re: Linux 2.2.16 through 2.2.18preX TCP hang bug triggered by rsync
+To: dwd@bell-labs.com (Dave Dykstra)
+Date: Sat, 27 Jan 2001 21:27:29 +0300 (MSK)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: hotmail not dealing with ECN
-Message-ID: <20010127191809.A3727@var.cx>
-In-Reply-To: <Pine.LNX.4.21.0101250041440.1498-100000@srv2.ecropolis.com> <14960.56461.296642.488513@pizda.ninka.net> <3A70DDC4.6D1DB1EC@transmeta.com> <3A713B3F.24AC9C35@idb.hist.no> <94tho8$627$1@abraham.cs.berkeley.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <94tho8$627$1@abraham.cs.berkeley.edu>; from daw@mozart.cs.berkeley.edu on Sat, Jan 27, 2001 at 04:10:48AM +0000
+In-Reply-To: <20010126145622.A25707@lucent.com> from "Dave Dykstra" at Jan 26, 1 02:56:22 pm
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 27, 2001 at 04:10:48AM +0000, David Wagner wrote:
-> Practice being really, really paranoid.  Think: You're designing a
-> firewall; you've got some reserved bits, currently unused; any future code
-> that uses them could behave in completely arbitrary and insecure ways,
-> for all you know.  Now recall that anything not known to be safe should
-> be denied (in a good firewall) -- see Cheswick and Bellovin for why.
-> When you take this point of view, it is completely understandable why
-> firewalls designed before ECN was introduced might block it.
+Hello!
 
-Why? Why not just zero them, and get both security and compatibility...
+> Why is it a bug to accept the ACK from it?  RFC793 page 69 says 
+> 
+>     If the RCV.WND is zero, no segments will be acceptable, but
+>     special allowance should be made to accept valid ACKs, URGs and
+>     RSTs.
 
--- 
-Frank v Waveren                                      Fingerprint: 0EDB 8787
-fvw@[var.cx|dse.nl|stack.nl|chello.nl] ICQ#10074100     09B9 6EF5 6425 B855
-Public key: http://www.var.cx/pubkey/fvw@var.cx-gpg     7179 3036 E136 B85D
+8) This obscure place is discussed for ages. The question is:
+What is "valid"? Solaris folks apparently read that valid
+are "all".
 
+BSD interprets valid as "segment fits to window after truncation".
+
+
+> Why shouldn't this be considered a valid ACK?
+
+It may be considered as a valid ACK, provided all the pieces of TCP
+do window updates right. If window update algorithm were sane,
+it would not be a big problem from tcp viewpoint
+(though it remains security hole)
+
+Actually, the same effect (pathological window expansion)
+happens in other cases. See tcp-impl, Subj: "Send window update algorithm ...".
+
+
+> can point me to it.  Why doesn't the probe use the correct sequence number
+> instead of backing up one?  Perhaps a workaround is for Linux to not send
+> the zero probe with the deliberately incorrect sequence number.
+
+Linux does things, which are recommended by RFC.
+BSD style zero window probes are known to be wrong way.
+
+However, I repeat, real problem is not here.
+
+Problem is that Solaris has inconsistent window update
+algorithm. It currupts its SND.WND (like all BSD), but
+also fails to recover from this (unlike BSD).
+
+Alexey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

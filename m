@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318186AbSHDSsI>; Sun, 4 Aug 2002 14:48:08 -0400
+	id <S318190AbSHDStV>; Sun, 4 Aug 2002 14:49:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318189AbSHDSsI>; Sun, 4 Aug 2002 14:48:08 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:51983 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318186AbSHDSsF>; Sun, 4 Aug 2002 14:48:05 -0400
-Date: Sun, 4 Aug 2002 11:38:12 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Hubertus Franke <frankeh@watson.ibm.com>
-cc: "David S. Miller" <davem@redhat.com>, <davidm@hpl.hp.com>,
-       <davidm@napali.hpl.hp.com>, <gh@us.ibm.com>, <Martin.Bligh@us.ibm.com>,
-       <wli@holomorpy.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: large page patch (fwd) (fwd)
-In-Reply-To: <200208041331.24895.frankeh@watson.ibm.com>
-Message-ID: <Pine.LNX.4.44.0208041131380.10314-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318191AbSHDStV>; Sun, 4 Aug 2002 14:49:21 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:8723 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S318190AbSHDStL>; Sun, 4 Aug 2002 14:49:11 -0400
+Date: Sun, 4 Aug 2002 20:52:16 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19 make allyesconfig - errors and warnings
+Message-ID: <20020804185216.GA23894@louise.pinerecords.com>
+References: <28360.1028454667@ocs3.intra.ocs.com.au> <20020804100258.GB28559@louise.pinerecords.com> <1028469633.14195.19.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1028469633.14195.19.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
+X-OS: GNU/Linux 2.4.19-pre10/sparc SMP
+X-Uptime: 61 days, 10:40
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sun, 4 Aug 2002, Hubertus Franke wrote:
+> On Sun, 2002-08-04 at 11:02, Tomas Szepe wrote:
+> > Just an idea - wouldn't it be useful to have dedicated errata pages
+> > for recent stable kernels where important patches (such as the 2.4.18
+> > personality fix, 2.4.18 samba oops fix or the upcoming 2.4.19 ide
+> > updates) would be published? Finding a link to these in the kernel FAQ,
+> > people would just patch their kernels instead of posting to lkml, which
+> > could cut on the amount of duplicate bugreports significantly plus folks
+> > wouldn't have to wait 6 months+ for an official update to get rid of an
+> > oops.
 > 
-> As of the page coloring !
-> Can we tweak the buddy allocator to give us this additional functionality?
+> I did that for some of the 2.2 trees. I can keep an errata page on
+> linux.org.uk for the 2.4.19 tree as well if people want.
 
-I would really prefer to avoid this, and get "95% coloring" by just doing 
-read-ahead with higher-order allocations instead of the current "loop 
-allocation of one block".
+That would certainly be appreciated.
 
-I bet that you will get _practically_ perfect coloring with just two small 
-changes:
+> Right now the errata would be pretty small so its easy to deal with.
 
- - do_anonymous_page() looks to see if the page tables are empty around 
-   the faulting address (and check vma ranges too, of course), and 
-   optimistically does a non-blocking order-X allocation.
+Something as simple as the squid fixes page would do just fine I reckon:
+http://www.squid-cache.org/Versions/v2/2.4/bugs/
 
-   If the order-X allocation fails, we're likely low on memory (this is 
-   _especially_ true since the very fact that we do lots of order-X
-   allocations will probably actually help keep fragementation down
-   normally), and we just allocate one page (with a regular GFP_USER this 
-   time).
-
-   Map in all pages.
-
- - do the same for page_cache_readahead() (this, btw, is where radix trees 
-   will kick some serious ass - we'd have had a hard time doing the "is
-   this range of order-X pages populated" efficiently with the old hashes.
-
-I bet just those fairly small changes will give you effective coloring, 
-_and_ they are also what you want for doing small superpages.
-
-And no, I do not want separate coloring support in the allocator. I think 
-coloring without superpage support is stupid and worthless (and 
-complicates the code for no good reason).
-
-		Linus
-
+T.

@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290478AbSAQVla>; Thu, 17 Jan 2002 16:41:30 -0500
+	id <S290479AbSAQVqU>; Thu, 17 Jan 2002 16:46:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290479AbSAQVlU>; Thu, 17 Jan 2002 16:41:20 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:8588 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S290478AbSAQVlE>;
-	Thu, 17 Jan 2002 16:41:04 -0500
-Date: Thu, 17 Jan 2002 13:39:41 -0800 (PST)
-Message-Id: <20020117.133941.43008266.davem@redhat.com>
-To: trond.myklebust@fys.uio.no
-Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.18-pre4 bonding driver...
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <15431.16084.190369.177282@charged.uio.no>
-In-Reply-To: <15430.2169.508178.665820@charged.uio.no>
-	<200201162351.AAA24092@webserver.ithnet.com>
-	<15431.16084.190369.177282@charged.uio.no>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S290482AbSAQVqA>; Thu, 17 Jan 2002 16:46:00 -0500
+Received: from smtp.cogeco.net ([216.221.81.25]:61946 "EHLO fep6.cogeco.net")
+	by vger.kernel.org with ESMTP id <S290479AbSAQVp7>;
+	Thu, 17 Jan 2002 16:45:59 -0500
+Subject: Re: hangs using opengl
+From: "Nix N. Nix" <nix@go-nix.ca>
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200201171926.g0HJQUE19410@Port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <3C4712DB.6090201@kabelfoon.nl> <1011292729.12873.27.camel@tux>
+	<1011294257.13517.1.camel@tux> 
+	<200201171926.g0HJQUE19410@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 17 Jan 2002 16:45:00 -0500
+Message-Id: <1011303957.15470.7.camel@tux>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Trond Myklebust <trond.myklebust@fys.uio.no>
-   Date: Thu, 17 Jan 2002 22:15:00 +0100
+On Thu, 2002-01-17 at 18:26, Denis Vlasenko wrote:
+> 
+> Athlon bug stomper is already in mainline. If latest kernel does not work for 
+> you, check that register (man lspci) and 0x95 also. Try to disable them (man 
+> setpci). Report back - we may need to further improve stomper.
 
-    Is this code from linux-2.4.18-pre4/drivers/net/bonding.c safe?
-   
-We don't know, ask the Bonding maintainers as they asked us to merge
-in these updates for them.
+Uh-oh !  agpgart says I have an VIA Apollo Pro KT266 chipset, but
+NVdriver says I have a VIA Apollo KT133 chipset.  Is that OK ?  Could
+that be causing my problems ?
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+
+
+Thanks for all the help & info.
+
+> --
+> vda
+> 
+
+

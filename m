@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268977AbUHZODE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268996AbUHZODq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268977AbUHZODE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 10:03:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268978AbUHZOCY
+	id S268996AbUHZODq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 10:03:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268995AbUHZODM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 10:02:24 -0400
-Received: from mail.shareable.org ([81.29.64.88]:11462 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S268882AbUHZOA2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 10:00:28 -0400
-Date: Thu, 26 Aug 2004 14:59:36 +0100
-From: Jamie Lokier <jamie@shareable.org>
+	Thu, 26 Aug 2004 10:03:12 -0400
+Received: from cantor.suse.de ([195.135.220.2]:59364 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S268959AbUHZOBB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 10:01:01 -0400
+Subject: Re: reiser4 plugins (was: silent semantic changes with reiser4)
+From: Chris Mason <mason@suse.com>
 To: Rik van Riel <riel@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, Spam <spam@tnonline.net>, wichert@wiggy.net,
-       jra@samba.org, torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
+Cc: Christophe Saout <christophe@saout.de>, Christoph Hellwig <hch@lst.de>,
+       Andrew Morton <akpm@osdl.org>, Hans Reiser <reiser@namesys.com>,
        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040826135936.GC5733@mail.shareable.org>
-References: <20040826024956.08b66b46.akpm@osdl.org> <Pine.LNX.4.44.0408260935130.26316-100000@chimarrao.boston.redhat.com>
+       flx@namesys.com, torvalds@osdl.org, reiserfs-list@namesys.com
+In-Reply-To: <Pine.LNX.4.44.0408260952230.26316-100000@chimarrao.boston.redhat.com>
+References: <Pine.LNX.4.44.0408260952230.26316-100000@chimarrao.boston.redhat.com>
+Content-Type: text/plain
+Message-Id: <1093528680.21878.284.camel@watt.suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0408260935130.26316-100000@chimarrao.boston.redhat.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 26 Aug 2004 09:58:00 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> > All of which can be handled in userspace library code.
-> > 
-> > What compelling reason is there for doing this in the kernel?
+On Thu, 2004-08-26 at 09:52, Rik van Riel wrote:
+> On Thu, 26 Aug 2004, Christophe Saout wrote:
 > 
-> There's a compelling reason to do it in userspace.  If an
-> unaware program copies or moves such a file with streams
-> inside, it doesn't break the streams and aware programs will
-> continue to see them.
+> > That's your opinion. reiser4 seems to work very well.
 > 
-> OTOH, if we had the streams in the kernel, unaware applications
-> would continuously break the metadata and streams that the
-> streams aware programs expect !
+> Have you tried /bin/cp, or a backup+restore ?
+> 
+> What happened to your file streams ?
 
-You appear not to have read any of my mails on this topic.
+Shrug, backup programs can be fixed.  The fact that we couldn't backup
+16GB files before O_LARGEFILE wasn't a reason not to do it.
 
-Properly implemented metadata can:
+IMHO it's more important to ask the question 'is this important for
+linux' and then we can figure out how to make it work.
 
-  (1) operate in both modes simultaneously;
-  (2) work with unaware applications;
-  (3) provide performance enhancements to aware applications;
-  (4) provide storage enhancements to both;
-  (5) provide useful features that work with standard unmodified unix tools,
+-chris
 
-all at once.  That includes program copies.
 
--- Jamie

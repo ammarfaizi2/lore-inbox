@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266353AbSLOKx7>; Sun, 15 Dec 2002 05:53:59 -0500
+	id <S266354AbSLOKy0>; Sun, 15 Dec 2002 05:54:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266354AbSLOKx7>; Sun, 15 Dec 2002 05:53:59 -0500
-Received: from h-64-105-35-98.SNVACAID.covad.net ([64.105.35.98]:28102 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S266353AbSLOKx5>; Sun, 15 Dec 2002 05:53:57 -0500
-Date: Sun, 15 Dec 2002 02:58:27 -0800
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: ambx1@neo.rr.com, linux-kernel@vger.kernel.org
-Subject: Patch(2.5.51): __pnp_add_device dereferenced bad pointer
-Message-ID: <20021215025827.A8148@baldur.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="DocE+STaALJfprDB"
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+	id <S266356AbSLOKy0>; Sun, 15 Dec 2002 05:54:26 -0500
+Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:7811 "EHLO
+	mail.pronto.tv") by vger.kernel.org with ESMTP id <S266354AbSLOKyY> convert rfc822-to-8bit;
+	Sun, 15 Dec 2002 05:54:24 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: ProntoTV AS
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+Subject: Re: 2.5.51 load avg += 1
+Date: Sun, 15 Dec 2002 12:02:09 +0100
+User-Agent: KMail/1.4.1
+References: <Pine.LNX.4.44.0212141357550.9240-100000@coffee.psychology.mcmaster.ca>
+In-Reply-To: <Pine.LNX.4.44.0212141357550.9240-100000@coffee.psychology.mcmaster.ca>
+Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212151202.09618.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday 14 December 2002 19:58, Mark Hahn wrote:
+> > running 2.5.51, when I run 'uptime', it shows my uptime+1. that means if
+> > my
+>
+> might you have a process/thread stuck in a short wait?
 
---DocE+STaALJfprDB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+how can this be? the load average was at the given point excactly 1.0, but the 
+number of running processes (ps ax|grep -v grep | grep -w R) was 0.
 
-	__pnp_add_device dereferences a bad pointer when it traverses
-the dev->id chain, because id->next is not initialized in certain cases,
-causing my Sony Picturebook pcg-c1vn to crash at boot.  Here is a patch.
-
+roy
 -- 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+Roy Sigurd Karlsbakk, Datavaktmester
+ProntoTV AS - http://www.pronto.tv/
+Tel: +47 9801 3356
 
---DocE+STaALJfprDB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=diff
+Computers are like air conditioners.
+They stop working when you open Windows.
 
---- linux-2.5.51/drivers/pnp/driver.c	2002-12-09 18:46:14.000000000 -0800
-+++ linux/drivers/pnp/driver.c	2002-12-15 02:52:47.000000000 -0800
-@@ -164,6 +164,7 @@
- 		return -EINVAL;
- 	if (!dev)
- 		return -EINVAL;
-+	id->next = NULL;
- 	ptr = dev->id;
- 	while (ptr && ptr->next)
- 		ptr = ptr->next;
-
---DocE+STaALJfprDB--

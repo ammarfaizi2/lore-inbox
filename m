@@ -1,63 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285023AbRLXOxS>; Mon, 24 Dec 2001 09:53:18 -0500
+	id <S285043AbRLXPJT>; Mon, 24 Dec 2001 10:09:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285024AbRLXOxI>; Mon, 24 Dec 2001 09:53:08 -0500
-Received: from Expansa.sns.it ([192.167.206.189]:37906 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S285023AbRLXOxE>;
-	Mon, 24 Dec 2001 09:53:04 -0500
-Date: Mon, 24 Dec 2001 15:53:28 +0100 (CET)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Juergen Sauer <jojo@automatix.de>
-cc: Hans Reiser <reiser@namesys.com>, bil Jeschke <theuteck@yahoo.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Reaiser fs
-In-Reply-To: <E16IVIq-0005C3-00@s.automatix.de>
-Message-ID: <Pine.LNX.4.33.0112241550450.13979-100000@Expansa.sns.it>
+	id <S285053AbRLXPJK>; Mon, 24 Dec 2001 10:09:10 -0500
+Received: from mail.gmx.net ([213.165.64.20]:49813 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S285043AbRLXPIx>;
+	Mon, 24 Dec 2001 10:08:53 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Hans-Christian Armingeon <linux.johnny@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: pc speaker cant be accessed with no video card in computer
+Date: Mon, 24 Dec 2001 17:08:33 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <3C2259E2.4070504@superbt.com> <20011223013059.A53@toy.ucw.cz>
+In-Reply-To: <20011223013059.A53@toy.ucw.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011224150902Z285043-18284+6971@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am using NFS to share /usr and /home with reiserFS on three dual Athlon
-1500XP, and they have 1 month of uptime and no problems till now.
-I am using kernel 2.4.13+mosix. I am also using a 2.4.17 NFS server with
-reiserFS on a k6-II 475Mhz, for slackware installation with NFS, and no
-problem also there. It happens that I have also very high IO on NFS, so I
-think I can say it works.
+Am Sonntag, 23. Dezember 2001 02:30 schrieb Pavel Machek:
+> Hi!
+>
+> > I guess it is not easy to produce a series of sounds without
+> > waiting each note to finish.  There is an 8 year old PC speaker
+> > driver for BSD kernel that performs the BASIC PLAY lines in kernel.
+> >
+> > Rather than porting it to Linux I chose a simple option of copying
+> > the ioctl PC speaker code into a skeleton misc character device
+> > driver.  As a result I can issue ioctl "beep" calls against my
+> > /dev/pcspeaker (character device with major number 10, minor number
+> > 240).  E.g., replacing "/dev/console" with "/dev/pcspeaker" in
+> > PCMCIA cardmgr.c will revive its sound effects.
+>
+> Snip... There's driver enabling you to play mp3-s on pc speaker (etc, it
+> does full /dev/dsp).... Separate task but maybe you wanted to know...
+Does anybody know, where this driver is? (Homepage)
 
-Luigi
+Thanks in advance,
 
-On Mon, 24 Dec 2001, Juergen Sauer wrote:
-
-> > ReiserFS is not labelled experimental in the SuSE kernel nowadays......
-> > and I think SuSE is correct.  We still have bugs, you can read about
-> > them on our mailing list, but hitting them is much less likely than a
-> > drive failure for ReiserFS users on the whole.  2.4.17 looks like our
-> > most stable version yet.  Marcello does a really nice job of quickly
-> > integrating patches.
->
-> Merry Christmas !
->
-> Is the NFS conjunction for reiserfs for Servers now usable stable ?
-> Means, no panic patches nessesary not patch-of-the-day anymore, just
-> linux-like-rocks-steady-working ?
->
-> (In the past ther were to much headaches and patches ...)
-> Just asking before upgrading any server.
->
-> Have nice X-Mas...
-> 	J. Sauer
->
-> --
-> Jürgen Sauer - AutomatiX GmbH, +49-4209-4699, jojo@automatix.de **
-> ** Das Linux Systemhaus - Service - Support - Server - Lösungen **
-> http://www.automatix.de to Mail me: remove: -not-for-spawm-     **
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+Johnny

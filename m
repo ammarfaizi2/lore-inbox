@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbUDUHht@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263789AbUDUHsg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262418AbUDUHht (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 03:37:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263626AbUDUHht
+	id S263789AbUDUHsg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 03:48:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263852AbUDUHsf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 03:37:49 -0400
-Received: from zork.zork.net ([64.81.246.102]:28067 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id S262418AbUDUHhs (ORCPT
+	Wed, 21 Apr 2004 03:48:35 -0400
+Received: from [213.156.65.50] ([213.156.65.50]:36773 "EHLO may.priocom.com")
+	by vger.kernel.org with ESMTP id S263789AbUDUHse (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 03:37:48 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-rc1-mm1
-References: <Pine.LNX.4.44.0404201106150.32228-100000@chimarrao.boston.redhat.com>
-From: Sean Neakums <sneakums@zork.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Date: Wed, 21 Apr 2004 08:37:46 +0100
-In-Reply-To: <Pine.LNX.4.44.0404201106150.32228-100000@chimarrao.boston.redhat.com> (Rik
- van Riel's message of "Tue, 20 Apr 2004 11:06:58 -0400 (EDT)")
-Message-ID: <6ubrllpyr9.fsf@zork.zork.net>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 21 Apr 2004 03:48:34 -0400
+Subject: 2.6.5, loop_set_fd()...
+From: Yury Umanets <torque@ukrpost.net>
+To: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Cc: akpm@osdl.org
+Content-Type: text/plain
+Message-Id: <1082533853.2589.77.camel@firefly>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 21 Apr 2004 10:51:11 +0300
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel <riel@redhat.com> writes:
+Hello all,
 
-> On Sun, 18 Apr 2004, Andrew Morton wrote:
->
->> - All of the anonmm rmap work is now merged up.  No pte chains.
->
-> Wonderful!
+I have found small inconsistency in loop_set_fd(). It checks if
+->sendfile() is implemented for passed block device file. But in fact,
+loop back device driver never calls it. It uses ->sendfile() from
+backing store file. See patch.
 
-As is this (I assume debugging) message:
+--- linux-2.6.5/drivers/block/loop.c.orig       2004-04-04
+06:37:23.000000000 +0300
++++ linux-2.6.5/drivers/block/loop.c    2004-04-21 10:34:39.066501968
++0300
+@@ -646,7 +646,7 @@ static int loop_set_fd(struct loop_devic
+                 * If we can't read - sorry. If we only can't write -
+well,
+                 * it's going to be read-only.
+                 */
+-               if (!lo_file->f_op->sendfile)
++               if (!file->f_op->sendfile)
+                        goto out_putf;
+  
+                if (!aops->prepare_write || !aops->commit_write)
 
-Apr 20 16:20:24 slagpiece kernel: xterm: mremap moved 49 cows
 
- ______ 
-< Moo! >
- ------ 
-        \   ^__^
-         \  (oo)\_______
-            (__)\       )\/\
-                ||----w |
-                ||     ||
+Thanks.
+
+-- 
+umka
+-- 
+umka
 

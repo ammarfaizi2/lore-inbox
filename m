@@ -1,72 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261666AbVADO1u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261664AbVADO3U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261666AbVADO1u (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 09:27:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261665AbVADO1u
+	id S261664AbVADO3U (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 09:29:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbVADO3U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 09:27:50 -0500
-Received: from smtpout.mac.com ([17.250.248.85]:4573 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S261730AbVADO1j (ORCPT
+	Tue, 4 Jan 2005 09:29:20 -0500
+Received: from main.gmane.org ([80.91.229.2]:35041 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261664AbVADO3J (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 09:27:39 -0500
-In-Reply-To: <200501041327.j04DRhfQ007850@laptop11.inf.utfsm.cl>
-References: <200501041327.j04DRhfQ007850@laptop11.inf.utfsm.cl>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <B470A11D-5E5C-11D9-A816-000D9352858E@mac.com>
+	Tue, 4 Jan 2005 09:29:09 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Georg Schild <dangertools@gmx.net>
+Subject: Re: cpu throttling powernow-k8 and acpi in kernel
+Date: Tue, 04 Jan 2005 15:29:02 +0100
+Message-ID: <41DAA82E.9080206@gmx.net>
+References: <41D80CAB.1060903@gmx.net> <20050103094245.GD2473@openzaurus.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-Cc: linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>,
-       Rik van Riel <riel@redhat.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
-       Andries Brouwer <aebr@win.tue.nl>,
-       William Lee Irwin III <wli@debian.org>
-From: Felipe Alfaro Solana <lkml@mac.com>
-Subject: Re: starting with 2.7
-Date: Tue, 4 Jan 2005 15:27:04 +0100
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Mailer: Apple Mail (2.619)
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 83.215.48.11
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041208)
+X-Accept-Language: en-us, en
+In-Reply-To: <20050103094245.GD2473@openzaurus.ucw.cz>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4 Jan 2005, at 14:27, Horst von Brand wrote:
+> It seems your machine indeed is overheating. Modern cpus produce a lot
+> of heat.
+> 
+> 55C idle temperature seems okay. Open machine and attach your
+> own temperature sensor to cpu to verify...
+> 				Pavel
 
-> Felipe Alfaro Solana <lkml@mac.com> said:
->
-> [...]
->
->> Gosh! I bought an ATI video card, I bought a VMware license, etc.... I
->> want to keep using them. Changing a "stable" kernel will continuously
->> annoy users and vendors.
->
-> If you are sooo attached to this, just keep a distribution for which
-> vendors give you drivers. But when the vendor decides the product has 
-> to
-> die to get you to buy the next "completely redone" (== minor fixes and
-> updates) version, you are stranded for good.
->
->> I think new developments will force a 2.7 branch: when 2.6 feature set
->> stabilizes, people will keep more time testing a stable, relatively
->> static kernel base, finding bugs, instead of trying to keep up with
->> changes.
->
-> And when 2.7 opens, very few developers will tend 2.6; and as 2.7 
-> diverges
-> from it, fewer and fewer fixes will find their way back. And so you 
-> finally
-> get a rock-stable (== unchanging) 2.6, but hopelessly out of date and 
-> thus
-> unfixable (if nothing else because there are no people around who 
-> remember
-> how it worked).
-
-I can see no easy solution for this... If Linus decides to fork off 
-2.7, development efforts will go into 2.7 and fixes should get 
-backported to 2.6. If Linus decides to stay with 2.6, new development 
-will have to be "conservative" enough not to break things that were 
-working.
-
-I tend to prefer forking off 2.7: more agressive features can be 
-implemented and tested without bothering disrupting the stable 2.6 
-branch.
+I have found this out on my own now, indeed the cpu was overheating, 
+there was dust or something in the fans way outside, when i blew into 
+the laptop the fan got much more silent and the temp went down. works 
+now quite good ;)
 

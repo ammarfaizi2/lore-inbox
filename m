@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131861AbRA0IZr>; Sat, 27 Jan 2001 03:25:47 -0500
+	id <S132119AbRA0I1t>; Sat, 27 Jan 2001 03:27:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131943AbRA0IZh>; Sat, 27 Jan 2001 03:25:37 -0500
-Received: from Huntington-Beach.blue-labs.org ([208.179.0.198]:22824 "EHLO
-	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S131861AbRA0IZX>; Sat, 27 Jan 2001 03:25:23 -0500
-Message-ID: <3A7285D4.9409E63A@linux.com>
-Date: Sat, 27 Jan 2001 08:24:52 +0000
-From: David Ford <david@linux.com>
-Organization: Blue Labs Software
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac12 i686)
-X-Accept-Language: en
+	id <S132122AbRA0I1i>; Sat, 27 Jan 2001 03:27:38 -0500
+Received: from moutvdom01.kundenserver.de ([195.20.224.200]:31285 "EHLO
+	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S132120AbRA0I1b>; Sat, 27 Jan 2001 03:27:31 -0500
+Message-ID: <3A72129D.E4932FF1@ngforever.de>
+Date: Fri, 26 Jan 2001 17:13:17 -0700
+From: Thunder from the hill <thunder@ngforever.de>
+X-Mailer: Mozilla 4.76 [en]C-CCK-MCD QXW03240  (WinNT; U)
+X-Accept-Language: de,en-US
 MIME-Version: 1.0
-To: J Sloan <jjs@pobox.com>
-CC: Aaron Lehmann <aaronl@vitelus.com>, John Sheahan <john@reptechnic.com.au>,
-        linux-kernel@vger.kernel.org
-Subject: Re: ps hang in 241-pre10
-In-Reply-To: <3A724FD2.3DEB44C@reptechnic.com.au> <20010126204324.B10046@vitelus.com> <3A72817E.CFCF0D52@pobox.com>
+To: "David S. Miller" <davem@redhat.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: hotmail can't deal with ECN
+In-Reply-To: <Pine.LNX.4.21.0101251328240.2961-100000@srv2.ecropolis.com>
+		<14960.29127.172573.22453@pizda.ninka.net>
+		<20010126221220.D11097@metastasis.f00f.org> <14961.24941.129209.889445@pizda.ninka.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I can quickly and easily duplicate it on my notebook by playing music or
-mpegs in xmms.  It may take a few minutes but it's guaranteed.
+"David S. Miller" wrote:
+> 
+> Chris Wedgwood writes:
+>  > On Thu, Jan 25, 2001 at 10:34:47AM -0800, David S. Miller wrote:
+>  >
+>  >     That's it, in 4 weeks time I am putting a kernel onto
+>  >     vger.kernel.org that speaks ECN.  This is my official and only
+>  >     warning.
+>  >
+>  > Why wait 4 weeks at all? You seem to be very clear how you feel about
+>  > the issue; do it now then.
+> 
+> Because I am at least sympathetic enough with users of the lists that
+> I am going to offer them sufficient time to go and get a usable ISP if
+> need be.
+Hmmm... Does anyone know whether german ISP T-Online supports ECN? I am
+currently customer of T-Online.
 
-xmms stalls flat on it's face and anything accessing /proc stalls.  If I get
-the time to do it, I'll take a gander at it with kdb.
-
-I have no patches applied to p10, I have reiserfs onboard but I highly doubt
-it's reiserfs.
-
--d
-
-J Sloan wrote:
-
-> OK, It's official now, I didn't know if it was some
-> weird hardware fluke or something, but one of
-> the computers here exhibited the same problem -
-
---
-  There is a natural aristocracy among men. The grounds of this are virtue and talents. Thomas Jefferson
-  The good thing about standards is that there are so many to choose from. Andrew S. Tanenbaum
-
+Thunder
+---
+Woah... I did a "cat /boot/vmlinuz >> /dev/audio" - and I think I heard
+god...
 
 
 -

@@ -1,52 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135277AbRDZK0L>; Thu, 26 Apr 2001 06:26:11 -0400
+	id <S135281AbRDZKoN>; Thu, 26 Apr 2001 06:44:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135281AbRDZK0C>; Thu, 26 Apr 2001 06:26:02 -0400
-Received: from mail.informatik.uni-ulm.de ([134.60.68.63]:61972 "EHLO
-	mail.informatik.uni-ulm.de") by vger.kernel.org with ESMTP
-	id <S135277AbRDZKZo>; Thu, 26 Apr 2001 06:25:44 -0400
-Message-ID: <3AE7F794.220E905C@student.uni-ulm.de>
-Date: Thu, 26 Apr 2001 12:25:24 +0200
-From: Markus Schaber <markus.schaber@student.uni-ulm.de>
-Organization: University of Ulm
-X-Mailer: Mozilla 4.75 [en] (WinNT; U)
-X-Accept-Language: de,de-DE,en
+	id <S135284AbRDZKny>; Thu, 26 Apr 2001 06:43:54 -0400
+Received: from [213.97.137.182] ([213.97.137.182]:6660 "HELO pp.com")
+	by vger.kernel.org with SMTP id <S135281AbRDZKne>;
+	Thu, 26 Apr 2001 06:43:34 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Eduardo =?iso-8859-1?q?Cort=E9s?= <educm@airtel.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: file size > 2gb
+Date: Thu, 26 Apr 2001 12:41:11 +0200
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: The further way? (was: Re: AHA-154X/1535 not recognized any more)
-In-Reply-To: <3AE56932.A62BF389@student.uni-ulm.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01042612411100.00850@TheBeast>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
+I try to generate a big file with a kernel 2.4.2, and I can do it, but when I 
+do ls -l, rm file, o something else with the file, I receive
+# ls -l
+ls: filename: Value too large for defined data type
 
-Markus Schaber wrote:
-[some Test results]
+I reboot with my old kernel, 2.2.18, and I can ls the file, renove it, etc... 
+I can see that the created file is bigger than 2gb (the last I generate was 
+2.7 gb). what happen? why I cannot ls the file with 2.4 and I can with 2.2?
 
-So what's the further way to go?
-
-We found out that the kernel isapnp fails, while the isapnptools (with
-"check" entry removed and the driver as a module) and a non-pnp
-environment (where the BIOS initialzies it, and either a modularized and
-a compiled in driver) work with this card.
-
-Do I (as a non-kernel-hacker, and with only basic C experience) have any
-chance to quickly read into the code and find and correct the bug? Or is
-there anyone around here who just needs five minutes to adjust a few
-lines?
-
-As I said, I don't need the card any more, and am just waiting for this
-thing to be resolved, and then I remove this ancient thing. I could even
-send it to one of you per snail mail for some weeks to let you do
-further tests. My intention was to give a possibility to get the bug
-fixed :-)
-
-markus
--- 
-Markus Schaber -- http://www.schabi.de/ -- ICQ: 22042130
-+-------------------------------------------------------------+
-| Allgemeine Sig-Verletzung 0815/4711  <nicht OK> <Erbrechen> |
-+-------------------------------------------------------------+
+I need files bigger than 2 gb, what can I do?
+thanks. 

@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317302AbSGTBUm>; Fri, 19 Jul 2002 21:20:42 -0400
+	id <S317299AbSGTBT6>; Fri, 19 Jul 2002 21:19:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317308AbSGTBUl>; Fri, 19 Jul 2002 21:20:41 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:17280 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S317302AbSGTBUk>; Fri, 19 Jul 2002 21:20:40 -0400
-Date: Fri, 19 Jul 2002 20:23:36 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: John Levon <movement@marcelothewonderpenguin.com>
-cc: linux-kernel@vger.kernel.org
+	id <S317302AbSGTBT6>; Fri, 19 Jul 2002 21:19:58 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:15884 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S317299AbSGTBT5>; Fri, 19 Jul 2002 21:19:57 -0400
+Date: Sat, 20 Jul 2002 02:22:50 +0100
+From: John Levon <movement@marcelothewonderpenguin.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: kbuild - building a module/target from multiple directories
-In-Reply-To: <20020720002521.GA34954@compsoc.man.ac.uk>
-Message-ID: <Pine.LNX.4.44.0207192019230.1639-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20020720012250.GA41640@compsoc.man.ac.uk>
+References: <20020720002521.GA34954@compsoc.man.ac.uk> <Pine.LNX.4.44.0207191845240.3378-100000@hawkeye.luckynet.adm>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0207191845240.3378-100000@hawkeye.luckynet.adm>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Boards of Canada - Geogaddi
+X-Scanner: exiscan *17VixR-000Ajw-00*FCAJD/eC/j2* (Manchester Computing, University of Manchester)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 Jul 2002, John Levon wrote:
+On Fri, Jul 19, 2002 at 06:46:57PM -0600, Thunder from the hill wrote:
 
-> With kbuild in 2.5, how do I specify that a module/target is to be built of
-> object files and sub-directories ?
+> blah-objs := blah_init.o blahstuff/blahstuff.o
 
-Short answer: Don't.
+It won't descend to blahstuff/ directory then
 
-> The "obvious" approach :
-> 
-> obj-$(CONFIG_BLAH) := blah.o
-> 
-> blah-objs := blah_init.o blahstuff/
-> 
-> doesn't work. Is there an example of a module doing this ?
+(in fact it tries to build blahstuff/blahstuff.s)
 
-Well, first of all I'd rather discourage doing so in general. However, XFS 
-is split into subdirs, so you could probably take a look at their latest 
-CVS to see how it's done.
+regards
+john
 
-Basically, use only one Makefile and
-
-	blah-objs := blah_init.o blahstuff/blah1.o blahstuff/blah2.o ...
-
-in there.
-
---Kai
-
-
+-- 
+"Of all manifestations of power, restraint impresses the most."
+	- Thucydides

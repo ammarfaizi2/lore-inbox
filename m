@@ -1,65 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263788AbTIICCm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 22:02:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263843AbTIICCm
+	id S263547AbTIIB50 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 21:57:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263602AbTIIB50
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 22:02:42 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:45710
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S263788AbTIICCY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 22:02:24 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Andrew Morton <akpm@osdl.org>, Steven Pratt <slpratt@austin.ibm.com>
-Subject: Re: [PATCH] Minor scheduler fix to get rid of skipping in xmms
-Date: Tue, 9 Sep 2003 12:10:06 +1000
+	Mon, 8 Sep 2003 21:57:26 -0400
+Received: from [212.28.208.94] ([212.28.208.94]:38929 "HELO www.dewire.com")
+	by vger.kernel.org with SMTP id S263547AbTIIB5Z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 21:57:25 -0400
+From: Robin Rosenberg <robin.rosenberg@dewire.com>
+To: Timothy Miller <miller@techsource.com>,
+       David Lang <david.lang@digitalinsight.com>
+Subject: Re: Use of AI for process scheduling
+Date: Tue, 9 Sep 2003 03:57:08 +0200
 User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org
-References: <3F5D023A.5090405@austin.ibm.com> <20030908155639.2cdc8b56.akpm@osdl.org>
-In-Reply-To: <20030908155639.2cdc8b56.akpm@osdl.org>
+Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0309081651220.22562-100000@dlang.diginsite.com> <3F5D2007.5030500@techsource.com> <200309090340.31735.robin.rosenberg@dewire.com>
+In-Reply-To: <200309090340.31735.robin.rosenberg@dewire.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200309091210.06333.kernel@kolivas.org>
+Message-Id: <200309090357.08649.robin.rosenberg@dewire.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Sep 2003 08:56, Andrew Morton wrote:
-> Steven Pratt <slpratt@austin.ibm.com> wrote:
-> > For specjbb things are looking good from a throughput point of view.
-> > ...
-> > Volanomark, on the other hand is still off by quite a bit from test4
-> > stock
->
-> hmm, thanks.
->
-> I'm not sure that volanomark is very representative of any real-world
-> thing.
->
-> > ...
-> > If thre is any particular patch/tree combination you would like me to
-> > try out, please let me know and I will see if I can get the results for
-> > you.
->
-> Could we please see test5 versus test5 plus Andrew's patch?
->
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test4/2
->.6.0-test4-mm6/broken-out/sched-CAN_MIGRATE_TASK-fix.patch
->
-> and if you have time, also test5 plus sched-CAN_MIGRATE_TASK-fix.patch plus
->
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test4/2
->.6.0-test4-mm6/broken-out/sched-balance-fix-2.6.0-test3-mm3-A0.patch
+tisdag 09 september 2003 03:40 skrev Robin Rosenberg:
+> A rule-based system can be evaluated quite efficiently if the numer of
+> rules are reasonable small. A PC can a million of "LIPS" (logical
+> Inferences per second so you can fit something useful. Say you can afford
+> (on average one percent of the CPU, that becomes 10000 inferences per
+> second available per second and with 50 switches pers second that is 2000
+Math oops, That makes 200 inferences per secons. Probably still more than needed
+but the margin is not that huge.
 
-Interestingly enough this drops the volano results the same proportion as 
-Ingo's A3 patch. 11000 ->10400 throughput with same idle, but more 
-schedule().
+> inferences per switch. I think can do useful rules with much fewer
+> inferences. The numbers are guestimates from memory and a few quick googles
+> lookups.
 
-I've posted some results for test5 volano and test5-A0 here:
-http://kernel.kolivas.org/2.5/volano
-
-More testing underway.
-Con
+-- robin
 

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264427AbRFIRlH>; Sat, 9 Jun 2001 13:41:07 -0400
+	id <S264430AbRFIRp6>; Sat, 9 Jun 2001 13:45:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264430AbRFIRk5>; Sat, 9 Jun 2001 13:40:57 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:49371 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S264427AbRFIRkz>;
-	Sat, 9 Jun 2001 13:40:55 -0400
-Date: Sat, 9 Jun 2001 13:40:52 -0400 (EDT)
+	id <S264442AbRFIRps>; Sat, 9 Jun 2001 13:45:48 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:50913 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S264430AbRFIRpb>;
+	Sat, 9 Jun 2001 13:45:31 -0400
+Date: Sat, 9 Jun 2001 13:45:30 -0400 (EDT)
 From: Alexander Viro <viro@math.psu.edu>
-To: Andrew Morton <andrewm@uow.edu.au>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] truncate_inode_pages
-In-Reply-To: <3B224613.440AE25C@uow.edu.au>
-Message-ID: <Pine.GSO.4.21.0106091331120.19361-100000@weyl.math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [CHECKER] a couple potential deadlocks in 2.4.5-ac8
+In-Reply-To: <9ftmk0$pdh$1@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0106091341440.19361-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -20,23 +20,16 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-> takes 45 seconds CPU time due to the O(clean * dirty) algorithm in
-> truncate_inode_pages().  The machine is locked up for the duration.
-> The patch reduces this to 20 milliseconds via an O(clean + dirty)
-> algorithm.
+On 9 Jun 2001, Linus Torvalds wrote:
 
-Unfortunately, it's _not_ O(clean + dirty).
+> The big kernel lock rules are that it's a "normal spinlock" in many
+> regards, BUT you can block while holding it, and the BKL will magically
+> be released during the blocking.  This means, for example, that the BKL
+> can never deadlock with a semaphore - if a BKL holder blocks on sombody
+> elses semaphore (and that somebody else wants the BKL), then the act of
+> blocking on the semaphore will release the BKL, and allow the original
+> semaphore holder to continue. 
 
-> +		while (truncate_list_pages(&mapping->clean_pages, start, &partial)) {
-> +			spin_lock(&pagecache_lock);
-> +			complete = 0;
-> +		}
-
-Cool. Now think what happens if pages with large indices are in the
-very end of list. Half of them. You skip clean/2 pages on each of
-clean/2 passes. Hardly a linear behaviour - all you need is a different
-program to trigger it.
-
-Now, having a separate pass that would reorder the pages on list,
-moving the to-kill ones in the beginning might help.
+Another difference from spinlocks is that BKL is recursive. I'm
+actually surprised that it didn't show up first.
 

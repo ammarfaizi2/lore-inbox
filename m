@@ -1,55 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261754AbVCHF6i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261532AbVCHGAe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261754AbVCHF6i (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 00:58:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261703AbVCHF5q
+	id S261532AbVCHGAe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 01:00:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261543AbVCHGAe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 00:57:46 -0500
-Received: from rproxy.gmail.com ([64.233.170.197]:10803 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261610AbVCHF5f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 00:57:35 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=HpkWPUqQX9F9249UoZx59w7beZm3KNu4KPn/i7H+tcUytpaT8FJpKfLdmo1ozwd8HJlzLLSzVS2KKUuCxpCIcTnyC7FVKLYmXAm+hVDbY2R8HPP6b9nyTRGnPiPGNghF206+U49mtrbePguSSsR3Ael9CxfEg2ORQFapzgM3rdQ=
-Message-ID: <9e473391050307215776f5c06@mail.gmail.com>
-Date: Tue, 8 Mar 2005 00:57:33 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: pci_fixup_video() bogosity
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Jon Smirl <jonsmirl@yahoo.com>
-In-Reply-To: <1110256709.13607.248.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <1110256709.13607.248.camel@gaston>
+	Tue, 8 Mar 2005 01:00:34 -0500
+Received: from vms042pub.verizon.net ([206.46.252.42]:21443 "EHLO
+	vms042pub.verizon.net") by vger.kernel.org with ESMTP
+	id S261532AbVCHGAR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 01:00:17 -0500
+Date: Tue, 08 Mar 2005 01:00:14 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: setserial is lieing to us, how to fix?
+In-reply-to: <20050308050518.6822.qmail@manson.clss.net>
+To: linux-kernel@vger.kernel.org
+Reply-to: gene.heskett@verizon.net
+Message-id: <200503080100.14246.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <20050308050518.6822.qmail@manson.clss.net>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 08 Mar 2005 15:38:29 +1100, Benjamin Herrenschmidt
-<benh@kernel.crashing.org> wrote:
-> Hi !
-> 
-> While working on writing a VGA access arbiter for kernel & userland,
-> I wondered how to properly get my "initial" state at boot. For that,
-> I looked at how the new PCI ROM stuff does to find out who owns the
-> memory shadow at c0000, and found it quite bogus.
-> 
-> >From what I see, the code is only based on looking at what bridges
-> have VGA forwarding enabled. It doesn't test the actual IO and Memory
-> enable bits of the VGA cards themselves.
+On Tuesday 08 March 2005 00:05, Alan Curry wrote:
+>Gene Heskett writes the following:
+>>I'm on the horn with another linux user, and we have a question re
+>> the setserial command.  Its reporting the base baud rate, but not
+>> the actual.  We need to know the actual settings in use at the
+>> moment for a serial port. How can we discover this?
+>
+>stty speed -F /dev/ttyXY
+>
+Just what the doctor ordered, many thanks.
 
-Let's fix it up and make it more robust. I was playing with checking
-IO/mem enable and forgot to finish it.
-
-> What if you have 2 cards under the same bridge ?
-
-I believe the default on x86 is to pick the one in the lowest slot
-number. What happens on PPC?
+>The setserial spd_* options can affect speed but they are obsolete
+> so you shouldn't be using them. If stty says 38400 then the
+> setserial spd_* is in effect. If spd_normal, then 38400 means
+> 38400. If spd_hi, then 38400 means 57600. If spd_vhi, then 38400
+> means 115200. If spd_shi, then 38400 means 230400. If spd_warp,
+> then 38400 means 460800. Then there's spd_cust, which is more
+> weird.
+>-
+>To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.34% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

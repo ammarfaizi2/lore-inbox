@@ -1,63 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316997AbSGNSVx>; Sun, 14 Jul 2002 14:21:53 -0400
+	id <S316999AbSGNSX6>; Sun, 14 Jul 2002 14:23:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317003AbSGNSVw>; Sun, 14 Jul 2002 14:21:52 -0400
-Received: from mailhub.fokus.gmd.de ([193.174.154.14]:15576 "EHLO
-	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
-	id <S316997AbSGNSVv>; Sun, 14 Jul 2002 14:21:51 -0400
-Date: Sun, 14 Jul 2002 20:22:54 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.gmd.de>
-Message-Id: <200207141822.g6EIMsho019330@burner.fokus.gmd.de>
-To: riel@conectiva.com.br, schilling@fokus.gmd.de
-Cc: aia21@cantab.net, linux-kernel@vger.kernel.org
-Subject: Re: IDE/ATAPI in 2.5
+	id <S317003AbSGNSX5>; Sun, 14 Jul 2002 14:23:57 -0400
+Received: from eos.telenet-ops.be ([195.130.132.40]:3988 "EHLO
+	eos.telenet-ops.be") by vger.kernel.org with ESMTP
+	id <S316999AbSGNSX4> convert rfc822-to-8bit; Sun, 14 Jul 2002 14:23:56 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Bart Verwilst <verwilst@gentoo.org>
+Reply-To: verwilst@gentoo.org
+To: linux-kernel@vger.kernel.org
+Subject: sa2opl3 driver b0rkage?
+Date: Sun, 14 Jul 2002 20:33:29 +0200
+User-Agent: KMail/1.4.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200207142033.29721.verwilst@gentoo.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Rik van Riel <riel@conectiva.com.br>
+Hello! 
 
->> Well, I get pissed of the fact that it seems to be impossible to have a
->> technical based discussion in the Linux kernel environment.
+I'm using kernel 2.4.19-pre7-ac2, and since i upgraded, arts (KDE's sound 
+server) keeps on crashing every few minutes :o( I have an OPL3SA2 sound card.
 
->Then please, show us your technical arguments on why the SCSI
->layer is enough for every CD writing hardware out there.
-
-Simple: there is not a single CD writer out that uses something other
-than SCSI commands to write media or do DAE.
+I think the cause is this:
 
 
->Now compare them with the results from the NAS and SCSI talks
->and BoFs at the kernel summit and OLS, where everybody agreed
->that the current SCSI addressing and discovery schemes just
->don't cut it on things like iscsi and other network storage
->solutions.
+<snip>
+Summary of changes from v2.4.18 to v2.4.19-pre1
+============================================
 
-I defined RSCSI before iscsi came out. I did not yet look at ISCSI.
-There sould be just an additional IP address in the iscsi addressing
-model.
+<marcelo@plucky.distro.conectiva> (02/03/13 1.160)
+	- Add tape support to cciss driver                      (Stephen Cameron)
+	- Add Permedia3 fb driver                               (Romain Dolbeau)
+	- meye driver update                                    (Stelian Pop)
+	- opl3sa2 update                                     (Zwane Mwaikambo)   <---  
+</snip>
 
->It's not just about the fact that the controller/bus/unit/lun
->addressing doesn't deal well with network attached storage and
->multipath, it's also about things like the impossability of
->device discovery on a bus with 2^32 possible device addresses.
+Several KDE bugreports say the same thing, for example:
 
-You don't need as you might net be allowed to access many of them.
-Just have a look at my RSCSI protocol. It just puts "user@host:"
-before the old SCSI address.
+http://bugs.kde.org/db/32/32415.html
 
->This, in turn, makes the current sd[a-z] and sg[a-h] more than
->a little inadequate.  Furthermore, you suddenly require the
->ability to tell the kernel to talk to devices the kernel doesn't
->yet know about (because it can't scan 2^32 device addresses at
->boot time).
+My aRts dies with the messagebox "cpu overload - aborting".
 
-You are right, but this is what programs like e.g. cdrtools which use
-libscg already do for two years.
+I hope this will be solved soon, so i can enjoy stable sound again :o)
 
-Jörg
+Thanks in advance!
 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.gmd.de		(work) chars I am J"org Schilling
- URL:  http://www.fokus.gmd.de/usr/schilling   ftp://ftp.fokus.gmd.de/pub/unix
+PS Please CC me your replies, since i'm not on this list.
+
+-- 
+Bart Verwilst
+Gentoo Linux Developer, Release Coordinator
+Gent, Belgium

@@ -1,54 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261792AbTIEBKr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 21:10:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261801AbTIEBKr
+	id S261918AbTIEBSQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 21:18:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262084AbTIEBSQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 21:10:47 -0400
-Received: from auth22.inet.co.th ([203.150.14.104]:16904 "EHLO
-	auth22.inet.co.th") by vger.kernel.org with ESMTP id S261792AbTIEBK3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 21:10:29 -0400
-From: Michael Frank <mhf@linuxmail.org>
-To: Pavel Machek <pavel@suse.cz>, Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: swsusp: revert to 2.6.0-test3 state
-Date: Fri, 5 Sep 2003 09:09:20 +0800
-User-Agent: KMail/1.5.2
-Cc: Patrick Mochel <mochel@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.33.0309040820520.940-100000@localhost.localdomain> <1062703732.12025.7.camel@laptop-linux> <20030904193105.GF27650@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20030904193105.GF27650@atrey.karlin.mff.cuni.cz>
-X-OS: KDE 3 on GNU/Linux
+	Thu, 4 Sep 2003 21:18:16 -0400
+Received: from mail-in-04.arcor-online.net ([151.189.21.44]:13191 "EHLO
+	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261918AbTIEBSP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 21:18:15 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: James Bottomley <James.Bottomley@steeleye.com>
+Subject: Re: [PATCH] fix remap of shared read only mappings
+Date: Fri, 5 Sep 2003 03:21:55 +0200
+User-Agent: KMail/1.5.3
+Cc: Jamie Lokier <jamie@shareable.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+References: <1062686960.1829.11.camel@mulgrave> <200309050249.21152.phillips@arcor.de> <1062723158.1829.541.camel@mulgrave>
+In-Reply-To: <1062723158.1829.541.camel@mulgrave>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200309050852.26430.mhf@linuxmail.org>
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309050321.55799.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 05 September 2003 03:31, Pavel Machek wrote:
-> It puts you in a better position, AFAICS. When code is rewritten
-> anyway, "don't fix it if it aint broken" is not so important any
-> more -- good for you.
+On Friday 05 September 2003 02:52, James Bottomley wrote:
+> On Thu, 2003-09-04 at 20:49, Daniel Phillips wrote:
+> > This an interesting tidbit, as I'm busy working on a DFS mmap for
+> > OpenGFS, and I want to be sure I'm implementing true-blue Posix
+> > semantics.  But trawling through the Posix/SUS specification at:
+> >
+> >    http://www.unix-systems.org/version3/online.html
+> >
+> > all it says is that for MAP_SHARED "write references shall change the
+> > underlying object."  I don't see anything about when those changes become
+> > visible to other mappers, much less any discussion of local caching.  Am
+> > I looking at the wrong document?
 >
-> I still hope to avoid two software suspends in 2.6.X.
+> Not sure which is "correct", but the one I'm looking at is the POSIX
+> update from the open group:
 >
-Bah, there may be three implementations now.
+> http://www.opengroup.org/onlinepubs/007904975/functions/mmap.html
+>
+> And that's where I was quoting from.
 
-On Tuesday 02 September 2003 06:55, Patrick Mochel wrote:
->
-> In all actuality, I don't need swsusp. I have a better suspend-to-disk
-> implementation that is faster, smaller, and cleaner. I've hesitated
-> merging it because I thought swsusp improvements would be more welcome.
-> Obviously they're not; or you haven't actually taken the time to read the
-> code.
->
+It appears to be the same text.  Either I'm blind, or the part about the 
+caching was your editorial commentaryk.  Anyway, I'm going with Linus' ruling 
+on semantics, I agree totally.
 
-This looks like a democratic (darwinistic) approach which will help to get
-the best solution for 2.6.
+Regards,
 
-Regards
-Michael
+Daniel
 

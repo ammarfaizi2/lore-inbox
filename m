@@ -1,35 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261962AbSJISoO>; Wed, 9 Oct 2002 14:44:14 -0400
+	id <S262423AbSJISgH>; Wed, 9 Oct 2002 14:36:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261951AbSJISmh>; Wed, 9 Oct 2002 14:42:37 -0400
-Received: from triton.neptune.on.ca ([205.233.176.2]:59842 "EHLO
-	triton.neptune.on.ca") by vger.kernel.org with ESMTP
-	id <S261946AbSJISmZ>; Wed, 9 Oct 2002 14:42:25 -0400
-Date: Wed, 9 Oct 2002 14:48:10 -0400 (EDT)
-From: Steve Mickeler <steve@neptune.ca>
-X-X-Sender: steve@triton.neptune.on.ca
-To: linux-kernel@vger.kernel.org
-Subject: Re: addressing > 128 scsi discs
-In-Reply-To: <Pine.LNX.4.44.0210031002250.1829-100000@triton.neptune.on.ca>
-Message-ID: <Pine.LNX.4.44.0210091444510.5463-100000@triton.neptune.on.ca>
+	id <S262432AbSJISfv>; Wed, 9 Oct 2002 14:35:51 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:5552 "EHLO cherise.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S262423AbSJISfU>;
+	Wed, 9 Oct 2002 14:35:20 -0400
+Date: Wed, 9 Oct 2002 11:43:32 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise.pdx.osdl.net
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [bk/patch] IDE driver model update
+In-Reply-To: <Pine.LNX.4.44.0210091131360.16276-100000@cherise.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.44.0210091143220.16276-100000@cherise.pdx.osdl.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-In my attempt to patch 2.4.19 with Kurt Garloff's sd_many patch that was
-originally done for 2.4.19-rc3 and having the kernel fail to compile after
-doing so, is there any other route I can take to get 2.4.19-vanilla to
-allocate more than 128 scsi devices ?
+ChangeSet@1.727, 2002-10-09 10:29:48-07:00, mochel@osdl.org
+  IDE: add struct device to ide_drive_t and use that for IDE drives
+  
+  ... instead of the one in struct gendisk.
 
-Thanks.
-
-
-[-] Steve Mickeler [ steve@neptune.ca ]
-
-[|] Todays root password is brought to you by /dev/random
-
-[+] 1024D/9AA80CDF = 4103 9E35 2713 D432 924F  3C2E A7B9 A0FE 9AA8 0CDF
+diff -Nru a/drivers/ide/ide-probe.c b/drivers/ide/ide-probe.c
+--- a/drivers/ide/ide-probe.c	Wed Oct  9 11:41:41 2002
++++ b/drivers/ide/ide-probe.c	Wed Oct  9 11:41:41 2002
+@@ -998,15 +998,6 @@
+ 		sprintf(disk->disk_name,"hd%c",'a'+hwif->index*MAX_DRIVES+unit);
+ 		disk->minor_shift = PARTN_BITS; 
+ 		disk->fops = ide_fops;
+-
+-		snprintf(disk->disk_dev.bus_id,BUS_ID_SIZE,"%u.%u",
+-			 hwif->index,unit);
+-		snprintf(disk->disk_dev.name,DEVICE_NAME_SIZE,
+-			 "%s","IDE Drive");
+-		disk->disk_dev.parent = &hwif->gendev;
+-		disk->disk_dev.bus = &ide_bus_type;
+-		if (hwif->drives[unit].present)
+-			device_register(&disk->disk_dev);
+ 		hwif->drives[unit].disk = disk;
+ 	}
+ 
+@@ -1020,6 +1011,20 @@
+ 		if (hwif->drives[unit].present)
+ 			hwif->drives[unit].de = devfs_mk_dir(ide_devfs_handle, name, NULL);
+ 	}
++	
++	for (unit = 0; unit < units; ++unit) {
++		ide_drive_t * drive = &hwif->drives[unit];
++
++		snprintf(drive->gendev.bus_id,BUS_ID_SIZE,"%u.%u",
++			 hwif->index,unit);
++		snprintf(drive->gendev.name,DEVICE_NAME_SIZE,
++			 "%s","IDE Drive");
++		drive->gendev.parent = &hwif->gendev;
++		drive->gendev.bus = &ide_bus_type;
++		if (drive->present)
++			device_register(&drive->gendev);
++	}
++
+ 	return;
+ 
+ err_kmalloc_gd:
+diff -Nru a/include/linux/ide.h b/include/linux/ide.h
+--- a/include/linux/ide.h	Wed Oct  9 11:41:41 2002
++++ b/include/linux/ide.h	Wed Oct  9 11:41:41 2002
+@@ -794,6 +794,7 @@
+ 	int		lun;		/* logical unit */
+ 	int		crc_count;	/* crc counter to reduce drive speed */
+ 	struct list_head list;
++	struct device	gendev;
+ 	struct gendisk *disk;
+ } ide_drive_t;
+ 
 

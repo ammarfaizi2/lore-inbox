@@ -1,105 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262719AbREOKMc>; Tue, 15 May 2001 06:12:32 -0400
+	id <S262727AbREOKYm>; Tue, 15 May 2001 06:24:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262724AbREOKMW>; Tue, 15 May 2001 06:12:22 -0400
-Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:46086 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S262719AbREOKMH>; Tue, 15 May 2001 06:12:07 -0400
-From: mdaljeet@in.ibm.com
-X-Lotus-FromDomain: IBMIN@IBMAU
-To: Gerd Knorr <kraxel@bytesex.org>
-cc: linux-kernel@vger.kernel.org
-Message-ID: <CA256A4D.0037EAF4.00@d73mta05.au.ibm.com>
-Date: Tue, 15 May 2001 15:38:40 +0530
-Subject: Re: mmap
+	id <S262724AbREOKYW>; Tue, 15 May 2001 06:24:22 -0400
+Received: from cherry.napri.sk ([194.1.128.4]:11269 "HELO cherry.napri.sk")
+	by vger.kernel.org with SMTP id <S262723AbREOKYQ>;
+	Tue, 15 May 2001 06:24:16 -0400
+Date: Tue, 15 May 2001 12:24:06 +0200
+From: Peter Kundrat <kundrat@kundrat.sk>
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: MS_RDONLY patch (do_remount_sb and cramfs/inode.c)
+Message-ID: <20010515122406.A4564@napri.sk>
+Mail-Followup-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20010515112726.A28961@napri.sk>
 Mime-Version: 1.0
-Content-type: multipart/mixed; 
-	Boundary="0__=iWFCKZEuj2HflbVPTbFguJYs7DI6kYTBZZCRZA3IdO1Y9z8OSSFxCxIY"
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
+User-Agent: Mutt/1.0i
+In-Reply-To: <20010515112726.A28961@napri.sk>; from kundrat@kundrat.sk on Tue, May 15, 2001 at 11:27:26AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0__=iWFCKZEuj2HflbVPTbFguJYs7DI6kYTBZZCRZA3IdO1Y9z8OSSFxCxIY
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Tue, May 15, 2001 at 11:27:26AM +0200, Peter Kundrat wrote:
+> This patch does:
+> - set MS_RDONLY flag in cramfs superblock
+> - doesnt allow -w remount in do_remount_sb 
+>   if the filesystem has MS_RDONLY set.
 
-When I malloc the memory in user space, the memory may be discontinuous for
-large chunks of memory say 16k or 32k. Does the 'kiobuf' interface take
-care of this or it assumes it to be continuous?
+Oh, ignore the second part. Seems i'd have to supply remount_fs super
+op to prevent that.
 
-regards,
-Daljeet Maini
-IBM Global Services Ltd. - Bangalore
-Ph. No. - 5267117 Extn 2954
-
-
-|--------+----------------------->
-|        |          Gerd Knorr   |
-|        |          <kraxel@bytes|
-|        |          ex.org>      |
-|        |                       |
-|        |          05/15/01     |
-|        |          01:03 PM     |
-|        |          Please       |
-|        |          respond to   |
-|        |          Gerd Knorr   |
-|        |                       |
-|--------+----------------------->
-  >--------------------------------------------------------|
-  |                                                        |
-  |       To:     linux-kernel@vger.kernel.org             |
-  |       cc:     (bcc: Daljeet Maini/India/IBM)           |
-  |       Subject:     Re: mmap                            |
-  >--------------------------------------------------------|
-
-
-
-
-
---0__=iWFCKZEuj2HflbVPTbFguJYs7DI6kYTBZZCRZA3IdO1Y9z8OSSFxCxIY
-Content-type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-transfer-encoding: quoted-printable
-
-
-
-mdaljeet@in.ibm.com wrote:
->  I am doing the following:
->
->     malloc some memory is user space
->     pass its pointer to some kernel module
->     in the kernel module...do a pci_alloc_consistent so that i get a
-memory
->     region for PCI DMA operations
-
-Wrong approach, you can use kiobufs if you want DMA to the malloc()ed
-userspace memory:
-
- * lock down the user memory using map_user_kiobuf() + lock_kiovec()
-   (see linux/iobuf.h).
- * translate the iobuf->maplist into a scatterlist [1]
- * feed pci_map_sg() with the scatterlist to get DMA addresses.
-   you can pass to the hardware.
-
-And the reverse to free everything when you are done of course.
-
-  Gerd
-
-[1] IMHO it would be more useful if iobufs would use a scatterlist
-    instead of an struct page* array.
-
-
---
-Gerd Knorr <kraxel@bytesex.org>  --  SuSE Labs, Au=DFenstelle Berlin
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-=
-
---0__=iWFCKZEuj2HflbVPTbFguJYs7DI6kYTBZZCRZA3IdO1Y9z8OSSFxCxIY--
-
+pkx
+-- 
+Peter Kundrat
+peter@kundrat.sk

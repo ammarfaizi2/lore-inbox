@@ -1,61 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313083AbSDGKur>; Sun, 7 Apr 2002 06:50:47 -0400
+	id <S313084AbSDGKwX>; Sun, 7 Apr 2002 06:52:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313084AbSDGKuq>; Sun, 7 Apr 2002 06:50:46 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28943 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S313083AbSDGKuq>;
-	Sun, 7 Apr 2002 06:50:46 -0400
-Message-ID: <3CB0246D.23CED3C6@zip.com.au>
-Date: Sun, 07 Apr 2002 03:50:21 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Russell King <rmk@arm.linux.org.uk>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.8-pre2
-In-Reply-To: <Pine.LNX.4.33.0204051657270.16281-100000@penguin.transmeta.com> <Pine.GSO.4.21.0204071215220.2567-100000@lisianthus.sonytel.be> <20020407112716.A30048@flint.arm.linux.org.uk>
+	id <S313087AbSDGKwW>; Sun, 7 Apr 2002 06:52:22 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:27143 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S313084AbSDGKwV>; Sun, 7 Apr 2002 06:52:21 -0400
+Date: Sun, 7 Apr 2002 11:52:13 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Rob Radez <rob@osinvestor.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: WatchDog Driver Updates
+Message-ID: <20020407115212.B30048@flint.arm.linux.org.uk>
+In-Reply-To: <20020407083207.A28922@flint.arm.linux.org.uk> <Pine.LNX.4.33.0204070624470.3791-100000@pita.lan>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> 
-> (Oh, and a bugbear - people go running around adding checks for the
-> return value of request_region and friends on embedded devices where
-> there can't be the possibility of a clash waste memory needlessly.)
+On Sun, Apr 07, 2002 at 06:35:55AM -0400, Rob Radez wrote:
+> Hmm...I'm not seeing any standards here.  Some drivers would just send
+> whether the watchdog device was open, some would only send 0, sc1200
+> would send whether the device was enabled or disabled, one did 'int one=1'
+> and then a few lines later copy_to_user'd 'one', and it looks like all of
+> three of twenty would actually return proper WDIOF flags.
 
-If you do:
+Maybe Alan would like to comment and clear up this issue - I believe the
+interface was Alan's design.  Certainly Alan wrote most of the early
+watchdog drivers.
 
-#define request_region(start, n, name)
-	({
-		__request_region(start, n, name);
-		(struct resource *)1;
-	})
-#define release_region(start, n) do { } while (0)
+Thanks.
 
-then the compiler will remove all those error checks for you,
-as well as the release_region calls.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-Of course if you actually want to use the innards of the
-returned resource * then that's not so good.
-
-However, you can make it:
-
-#define request_region()                                \
-        ({                                              \
-                struct resource *r;                     \
-                r = __request_region();                 \
-                (struct resource *)((long)r | 1);       \
-        })
-
-and, amazingly, the compiler still knows that the value
-is non-zero, and still will elide those tests.  You'll
-need to mask that bit off again to use the pointer.
-
-Whether you'll stoop this low depends upon how much you
-want those bytes back :)
-
--

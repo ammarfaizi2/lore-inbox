@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319449AbSILVVy>; Thu, 12 Sep 2002 17:21:54 -0400
+	id <S319469AbSILVdb>; Thu, 12 Sep 2002 17:33:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319470AbSILVVy>; Thu, 12 Sep 2002 17:21:54 -0400
-Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:22432 "EHLO
-	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S319449AbSILVVZ> convert rfc822-to-8bit; Thu, 12 Sep 2002 17:21:25 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <pollard@admin.navo.hpc.mil>
-To: Thunder from the hill <thunder@lightweight.ods.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Killing/balancing processes when overcommited
-Date: Thu, 12 Sep 2002 16:22:10 -0500
-User-Agent: KMail/1.4.1
-Cc: Thunder from the hill <thunder@lightweight.ods.org>,
-       Jim Sibley <jlsibley@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Giuliano Pochini <pochini@shiny.it>, <riel@conectiva.com.br>
-References: <Pine.LNX.4.44.0209121514330.10048-100000@hawkeye.luckynet.adm>
-In-Reply-To: <Pine.LNX.4.44.0209121514330.10048-100000@hawkeye.luckynet.adm>
+	id <S319472AbSILVdb>; Thu, 12 Sep 2002 17:33:31 -0400
+Received: from packet.digeo.com ([12.110.80.53]:61127 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S319469AbSILVda>;
+	Thu, 12 Sep 2002 17:33:30 -0400
+Message-ID: <3D810942.3F1E91F6@digeo.com>
+Date: Thu, 12 Sep 2002 14:38:10 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200209121622.10188.pollard@admin.navo.hpc.mil>
+To: Daniel Phillips <phillips@arcor.de>
+CC: trond.myklebust@fys.uio.no, Chuck Lever <cel@citi.umich.edu>,
+       Rik van Riel <riel@conectiva.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: invalidate_inode_pages in 2.5.32/3
+References: <Pine.BSO.4.33.0209091933150.6471-100000@citi.umich.edu> <15744.37092.812502.970281@charged.uio.no> <3D80DB32.4BF9D644@digeo.com> <E17pbJd-0007l2-00@starship>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 12 Sep 2002 21:38:13.0115 (UTC) FILETIME=[B23B1CB0:01C25AA4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 12 September 2002 04:15 pm, Thunder from the hill wrote:
-> Hi,
->
-> On 12 Sep 2002, Alan Cox wrote:
-> > Because I've run real world large systems before. Ulimit is at best a
-> > handy little toy for stopping web server accidents.
->
-> Only if you assume that a bunch of users tries very hard to use up all the
-> resources...
->
-> 			Thunder
+Daniel Phillips wrote:
+> 
+> ...
+> > Is it not possible to co-opt a user process to perform the
+> > invalidation?  Just
+> >
+> >       inode->is_kaput = 1;
+> >
+> > in rpciod?
+> 
+> There must be a way.  The key thing the VM needs to provide, and doesn't
+> now, is a function callable by the rpciod that will report to the caller
+> whether it was able to complete the invalidation without blocking.  (I
+> think I'm just rephrasing someone's earlier suggestion here.)
+> 
+> I'm now thinking in general terms about how to concoct a mechanism
+> that lets rpciod retry the invalidation later, for all those that turn
+> out to be blocking.  For example, rpciod could just keep a list of
+> all pending invalidates and retry each inode on the list every time
+> it has nothing to do.  This is crude and n-squarish, but it would
+> work.  Maybe it's efficient enough for the time being.  At least it's
+> correct, which would be a step forward.
 
-It only takes one.
--- 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+rpciod is the wrong process to be performing this operation.  I'd suggest
+the userspace process which wants to read the directory be used for this.
+ 
+> Did you have some specific mechanism in mind?
+> 
 
-Any opinions expressed are solely my own.
+Testing mapping->nrpages will tell you if the invalidation was successful.

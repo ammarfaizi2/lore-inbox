@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264063AbTEGQfD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 12:35:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264065AbTEGQfC
+	id S264065AbTEGQhJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 12:37:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264070AbTEGQhJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 12:35:02 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:20432 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264063AbTEGQfB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 12:35:01 -0400
-Date: Wed, 7 May 2003 18:47:28 +0200
-From: Jens Axboe <axboe@suse.de>
-To: markw@osdl.org
-Cc: akpm@digeo.com, linux-kernel@vger.kernel.org
-Subject: Re: OSDL DBT-2 AS vs. Deadline 2.5.68-mm2
-Message-ID: <20030507164728.GO823@suse.de>
-References: <200305071633.h47GXWW15850@mail.osdl.org>
+	Wed, 7 May 2003 12:37:09 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:51585 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S264065AbTEGQhI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 12:37:08 -0400
+Date: Wed, 7 May 2003 18:49:01 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Torsten Landschoff <torsten@debian.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: top stack (l)users for 2.5.69
+Message-ID: <20030507164901.GB19324@wohnheim.fh-wedel.de>
+References: <20030507132024.GB18177@wohnheim.fh-wedel.de> <Pine.LNX.4.53.0305070933450.11740@chaos> <20030507135657.GC18177@wohnheim.fh-wedel.de> <20030507143315.GA6879@stargate.galaxy> <20030507144736.GE8978@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <200305071633.h47GXWW15850@mail.osdl.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030507144736.GE8978@holomorphy.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 07 2003, markw@osdl.org wrote:
-> I've collected some data from STP to see if it's useful or if there's
-> anything else that would be useful to collect. I've got some tests
-> queued up for the newer patches, but I wanted to put out what I had so
-> far.
+On Wed, 7 May 2003 07:47:36 -0700, William Lee Irwin III wrote:
+> On Wed, May 07, 2003 at 04:33:15PM +0200, Torsten Landschoff wrote:
+> > Pardon my ignorance, but why is the kernel stack shrinked to just a few
+> > kilobytes? With 256MB of RAM in a typical desktop system it shouldn't
+> > be a problem to use 256KB from that as the stack, but I am sure there
+> > are good reasons to shrink it. 
+> > Just curious, thanks for any info
 > 
-> 
-> METRICS OVER LAST 20 MINUTES:
-> --------------- -------- ----- ---- -------- -----------------------------------
-> Kernel          Elevator NOTPM CPU% Blocks/s URL                                
-> --------------- -------- ----- ---- -------- -----------------------------------
-> 2.5.68-mm2      as        1155 94.3   8940.2 http://khack.osdl.org/stp/271356/  
-> 2.5.68-mm2      deadline  1255 94.9   9598.7 http://khack.osdl.org/stp/271359/  
-> 
-> FUNCTIONS SORTED BY TICKS:
-> -- ------------------------- ------- ------------------------- -------
->  # as 2.5.68-mm2             ticks   deadline 2.5.68-mm2       ticks  
-> -- ------------------------- ------- ------------------------- -------
->  1 default_idle              6103428 default_idle              5359025
->  2 bounce_copy_vec             86272 bounce_copy_vec             97696
->  3 schedule                    63819 schedule                    70114
->  4 __make_request              30397 __blk_queue_bounce          31167
->  5 __blk_queue_bounce          26962 scsi_request_fn             26623
->  6 scsi_request_fn             24845 __make_request              25012
+> The kernel stack is (in Linux) unswappable memory that persists
+> throughout the lifetime of a thread. It's basically how many threads
+> you want to be able to cram into a system, and it matters a lot for
+> 32-bit.
 
-uhh nasty, you are spending a lot of time bouncing. How much RAM is in
-the machine, and what is the scsi hba?
+It also matters if people writing applications for embedded systems
+have a fetish for many threads. 1000 threads, each eating 8k memory
+for pure existance (no actual work done yet), do put some memory
+pressure on small machines. Yes, it would be possible to educate those
+people, but changing kernel code is more fun and less work.
+
+Jörn
 
 -- 
-Jens Axboe
-
+With a PC, I always felt limited by the software available. On Unix, 
+I am limited only by my knowledge.
+-- Peter J. Schoenster

@@ -1,45 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266291AbUGOTZ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266303AbUGOTjr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266291AbUGOTZ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 15:25:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266292AbUGOTZ5
+	id S266303AbUGOTjr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 15:39:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266304AbUGOTjr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 15:25:57 -0400
-Received: from out002pub.verizon.net ([206.46.170.141]:22694 "EHLO
-	out002.verizon.net") by vger.kernel.org with ESMTP id S266291AbUGOTZz
+	Thu, 15 Jul 2004 15:39:47 -0400
+Received: from 209-128-98-078.BAYAREA.NET ([209.128.98.78]:12523 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S266303AbUGOTjp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 15:25:55 -0400
-Message-ID: <40F693EE.5D65D02F@verizon.net>
-Date: Thu, 15 Jul 2004 20:25:50 +0100
-From: "Max T. Woodbury" <max.teneyck.woodbury@verizon.net>
-X-Mailer: Mozilla 4.79 [en] (Win98; U)
-X-Accept-Language: en
+	Thu, 15 Jul 2004 15:39:45 -0400
+Message-ID: <40F6DD54.5040308@zytor.com>
+Date: Thu, 15 Jul 2004 12:39:00 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: PCI configuration changes getting lost.
-Content-Type: text/plain; charset=us-ascii
+To: Matthew Schumacher <matt.s@aptalaska.net>
+CC: Tim Bird <tim.bird@am.sony.com>, linux-kernel@vger.kernel.org,
+       syslinux@zytor.com
+Subject: Re: [syslinux] Re: Possible bug with kernel decompressor.
+References: <40F490B6.6000106@schu.net> <40F5AE63.5010505@am.sony.com> <40F6C504.9010403@aptalaska.net>
+In-Reply-To: <40F6C504.9010403@aptalaska.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [4.15.37.40] at Thu, 15 Jul 2004 14:25:54 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm having trouble with an old Thinkpad 760 ED.
+Matthew Schumacher wrote:
+> 
+> I should note that this hardware requires the linux mem/memmap= params 
+> because of the buggy memory detection in the bios so I was required to 
+> use the uppermem command in grub to make it detect the memory and put 
+> the initrd image in the right place.
+> 
 
-The BIOS puts junk (0xFF) in the INTERRUPT_LINE register of the PCMCIA
-configuration registers.  I can put the correct value (0x05) in with
-'setpci', but the information is not propagated to the /proc space.
-The information is not preserved after an 'init 6'.
+Specify, please.
 
-(There is at least one other BIOS induced problem with this machine
-and PCI configuration registers but it is a bit less serious.  I do 
-have the latest BIOS.)
-
-What would be involved in updating the /proc information when 'setpci'
-is used to change the configuration?
-
-Does the other pci 'fixer' 'pcitweak' do a better job?
-
-[Don't remove PCI from the subject line.  I'm using it to keep track
-of interesting things in this otherwise very noisy mailing list.]
-
-max@mtew.isa-geek.net
+	-hpa

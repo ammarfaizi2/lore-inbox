@@ -1,88 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262533AbVCPGe3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262536AbVCPG6z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262533AbVCPGe3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 01:34:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262536AbVCPGe1
+	id S262536AbVCPG6z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 01:58:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262537AbVCPG6z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 01:34:27 -0500
-Received: from inet-tsb5.toshiba.co.jp ([202.33.96.24]:54455 "EHLO
-	inet-tsb5.toshiba.co.jp") by vger.kernel.org with ESMTP
-	id S262533AbVCPGcq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 01:32:46 -0500
-Content-class: urn:content-classes:message
+	Wed, 16 Mar 2005 01:58:55 -0500
+Received: from smtp807.mail.sc5.yahoo.com ([66.163.168.186]:54135 "HELO
+	smtp807.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262536AbVCPG6x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 01:58:53 -0500
+Message-ID: <4237D92A.3040109@sbcglobal.net>
+Date: Wed, 16 Mar 2005 01:58:50 -0500
+From: "Robert W. Fuller" <orangemagicbus@sbcglobal.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041223
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-2022-jp"
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11 USB broken on VIA computer (not just ACPI)
+References: <4237A5C1.5030709@sbcglobal.net>	<20050315203914.223771b2.akpm@osdl.org>	<4237C40C.6090903@sbcglobal.net>	<20050315213110.75ad9fd5.akpm@osdl.org>	<4237C61A.6040501@sbcglobal.net> <20050315215447.7975a0ff.akpm@osdl.org>
+In-Reply-To: <20050315215447.7975a0ff.akpm@osdl.org>
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Subject: tty->driver_data is NULL
-Date: Wed, 16 Mar 2005 15:29:56 +0900
-Message-ID: <BF571719A4041A478005EF3F08EA6DF0C678A3@pcsmail03.pcs.pc.ome.toshiba.co.jp>
-Thread-Topic: [PATCH][2/2] SquashFS
-Thread-Index: AcUpxOxoLvnaOQ3OTaGVXxTXxm7/vwAKeI7g
-From: "Tomita, Haruo" <haruo.tomita@toshiba.co.jp>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Tomita, Haruo" <haruo.tomita@toshiba.co.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I obtained following oops. 
+Andrew Morton wrote:
+> "Robert W. Fuller" <orangemagicbus@sbcglobal.net> wrote:
+> Nobody's going to fix that machine while you persist in top-posting ;)
 
-Modules Linked in: parport_pc lp parport autofs4 i2c_dev i2c_core xxxnrpc dm_mod
-button battery ac md5 ipv6 uhci_hcd ehci_hcd e1000 floppy ext3 jbd ata_piix liba
-ta sd_mod scsi_mod
-CPU:	0
-EIP:	0060:[<021f39cd>]	Not tainted VLI
-EFLAGS:	00010216	(2.6.9-5.0.3.ELhugeme)
-EIP is at vt_ioctl+0x1d/0x17b7
-eax: 00000000 ebx: 00004b3b ecx: 00004b3b edx: 02dcea80
-esi: feed6f60 edi: feed6f60 ebp: 11145000 esp: 08b0fe88
-ds: 007b es: 007b ss: 0068
-Process gpm (pid: 2190, threadinfo=08b0f000 task=0813ab30)
-Stack:  00000001 00000000 11ed3e80 11949344 00000000 00000000 00000000 00000000
-	00000000 00000000 00000000 00000000 11145000 00000000 00000000 00000000
-	00000246 00000000 00000246 00000246 00005315 02120dbc 00000007 11145000
-Call Trace:
-[<02120dbc>] release_console_sem+0x75/0xa9
-[<021fbe9c>] con_open+0x88/0x8e
-[<021eecd0>] tty_open+0x189/0x2a0
-[<0215c132>] chrdev_open+0x171/0x187
-[<02154058>] dentry_open+0xf0/0x1a5
-[<02153f62>] filp_open+0x36/0x3c
-[<021efad4>] tty_ioctl+0x33e/0x38d
-[<0216415a>] sys_ioctl+0x211/0x253
-Code: Bad EIP value.
+OK OK.  No more top posting.  It's Mozilla's fault you know....  It 
+steers you in the wrong direction by leaving a few lines at the top. 
+Yes I'm ashamed to admit I remember when the default behavior of mail 
+clients was to put the cursor at the bottom.
 
-tty->driver_data is NULL.
-The following patches were made. Is this patch correct?
+> How old is it, anyway?
 
-diff -urN linux-2.6.11.3orig/drivers/char/vt_ioctl.c linux-2.6.11.3/drivers/char/vt_ioctl.c
---- linux-2.6.11.3orig/drivers/char/vt_ioctl.c	2005-03-13 15:44:51.000000000 +0900
-+++ linux-2.6.11.3/drivers/char/vt_ioctl.c	2005-03-16 15:08:49.000000000 +0900
-@@ -366,7 +366,7 @@
- 	     unsigned int cmd, unsigned long arg)
- {
- 	struct vt_struct *vt = (struct vt_struct *)tty->driver_data;
--	struct vc_data *vc = vc_cons[vt->vc_num].d;
-+	struct vc_data *vc;
- 	struct console_font_op op;	/* used in multiple places here */
- 	struct kbd_struct * kbd;
- 	unsigned int console;
-@@ -374,7 +374,14 @@
- 	void __user *up = (void __user *)arg;
- 	int i, perm;
- 	
-+	acquire_console_sem();
-+	if (vt == NULL) {
-+		release_console_sem();
-+		return -EINVAL;
-+	}
-+	vc = vc_cons[vt->vc_num].d;
- 	console = vt->vc_num;
-+	release_console_sem();
- 
- 	if (!vc_cons_allocated(console)) 	/* impossible? */
- 		return -ENOIOCTLCMD;
+Hmm.  I think I built it in 2000.  Wow, time flies when you're having fun!
 
---
-Haruo
+>>Of course, I don't know how well video capture is going to work without 
+>>the apic programming.  So I guess I'm reduced to rebooting when I want 
+>>to switch between USB peripherals and video capture?
+ >
+> hm, you didn't mention video capture before.  It should work OK?
+
+I've only ever used it with the APIC enabled.  We'll see what happens 
+without?
+
+> Are you running the latest BIOS?
+
+The manufacturer, Tyan, didn't produce more than a handful of BIOS'es 
+within a matter of months after they started producing the board.  They 
+haven't released an update since 2000.
+
+> You may be able to set the thing up by hand with the help of
+> Documentation/i386/IO-APIC.txt.
+
+I'll check it out.  Thanks!

@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263391AbTDGMJT (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 08:09:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263392AbTDGMJT (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 08:09:19 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:2056 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id S263391AbTDGMJP (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 08:09:15 -0400
-Date: Mon, 7 Apr 2003 14:19:50 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: 76306.1226@compuserve.com, <linux-kernel@vger.kernel.org>
-Subject: Re: Wanted: a limit on kernel log buffer size
-In-Reply-To: <33182.4.64.238.61.1049683748.squirrel@webmail.osdl.org>
-Message-ID: <Pine.LNX.4.44.0304071416330.12110-100000@serv>
-References: <200304062137_MC3-1-3346-A97E@compuserve.com>
- <33182.4.64.238.61.1049683748.squirrel@webmail.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S263397AbTDGMMq (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 08:12:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263392AbTDGMMp (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 08:12:45 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:37779
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S263397AbTDGMLr (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 08:11:47 -0400
+Subject: Re: [PATCH] Qemu support for PPC
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Fabrice Bellard <fabrice.bellard@free.fr>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+In-Reply-To: <16017.5444.941131.275543@argo.ozlabs.ibm.com>
+References: <20030407024858.C32422C014@lists.samba.org>
+	 <20030407065813.A27933@infradead.org>
+	 <16017.2065.635724.992168@argo.ozlabs.ibm.com>
+	 <20030407072144.A28096@infradead.org>
+	 <16017.5444.941131.275543@argo.ozlabs.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1049714668.2965.32.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 07 Apr 2003 12:24:29 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Llu, 2003-04-07 at 07:05, Paul Mackerras wrote:
+> Well, all we really want is a way to set emul_prefix.  Which I could
+> do with a PPC-specific syscall if I had to, I guess.  Doing it in
+> userspace is possible but ugly, because you have to handle several
+> different syscalls, plus keep track of the current directory, plus
+> handle symlinks, etc., etc., in the emulator.  The kernel has all that
+> information readily to hand plus the data structures to keep track of
+> it all.
 
-On Sun, 6 Apr 2003, Randy.Dunlap wrote:
+Why do you need emul_prefix in the first place ? You need a different
+/lib for emulated binaries then use all the nice stuff Al has done
+and mount yourself a file system that is in your namespace but not
+the global one.
 
-> This is a multi-part answer.  Say, 5 parts.
-> 
-> a.  If someone won't read the help text, how can we help them?
-> 
-> b.  If we make a 2 GB log buffer size a compile-time error, will
-> they read that?
-> 
-> c.  If we make it a compile-time warning, will they read that?
-> 
-> d.  What limit(s) do you suggest?  I can try to add some limits.
-> 
-> e.  This kind of config limiting should be done in the config system IMO.
-> I've asked Roman for that capability....
+If you want to do overlaying then lets get the union fs for read only
+stuff into the kernel properly and solve the -real- problem not hack
+up some emulator magic again.
 
-While I don't mind adding limits, checking it at compile time certainly 
-won't hurt.
-Even better would be a more dynamic solution, which can release unused 
-print buffer after booting.
-
-bye, Roman
 

@@ -1,49 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269136AbUJKPgp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269113AbUJKPhy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269136AbUJKPgp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 11:36:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269116AbUJKPc4
+	id S269113AbUJKPhy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 11:37:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269065AbUJKPh3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 11:32:56 -0400
-Received: from fw.osdl.org ([65.172.181.6]:933 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269060AbUJKPaX (ORCPT
+	Mon, 11 Oct 2004 11:37:29 -0400
+Received: from main.uucpssh.org ([212.27.33.224]:29328 "EHLO main.uucpssh.org")
+	by vger.kernel.org with ESMTP id S269129AbUJKPfL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 11:30:23 -0400
-Date: Mon, 11 Oct 2004 08:30:16 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Pavel Machek <pavel@ucw.cz>
-cc: Paul Mackerras <paulus@samba.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, David Brownell <david-b@pacbell.net>
-Subject: Re: suspend-to-RAM [was Re: Totally broken PCI PM calls]
-In-Reply-To: <20041011145628.GA2672@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.58.0410110826380.3897@ppc970.osdl.org>
-References: <1097455528.25489.9.camel@gaston> <Pine.LNX.4.58.0410101937100.3897@ppc970.osdl.org>
- <16746.299.189583.506818@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0410102102140.3897@ppc970.osdl.org>
- <16746.2820.352047.970214@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0410110739150.3897@ppc970.osdl.org>
- <20041011145628.GA2672@elf.ucw.cz>
+	Mon, 11 Oct 2004 11:35:11 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc4-mm1 [missing i2o patch in the main patch]
+References: <20041011032502.299dc88d.akpm@osdl.org>
+From: syrius.ml@no-log.org
+Message-ID: <87y8idnvmm.87wtxxnvmm@87vfdhnvmm.message.id>
+Date: Mon, 11 Oct 2004 17:33:07 +0200
+In-Reply-To: <20041011032502.299dc88d.akpm@osdl.org> (Andrew Morton's
+ message of "Mon, 11 Oct 2004 03:25:02 -0700")
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--=-=-=
+
+Andrew Morton <akpm@osdl.org> writes:
 
 
-On Mon, 11 Oct 2004, Pavel Machek wrote:
-> 
-> Which machine is that, btw? Evo N620c has probably BIOS/firmware bug
-> that kills machine on attempt to enter S3 or S4. It takes pressing
-> power button 3 times (!) to get machine back.
+> i2o-new-functions-to-convert-messages-to-a-virtual-address.patch
+>   i2o: new functions to convert messages to a virtual address
 
-That's the one. suspend-to-disk works, but suspend-to-ram leaves the fam 
-going, and does not come back no matter how many times you press the power 
-button. You need to kill it (twice) by holding the power button for five 
-seconds (which is the "hard-power-off" signal to the southbridge, when 
-everything else is locked up).
+looking at
+http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc4/2.6.9-rc4-mm1/broken-out/i2o-new-functions-to-convert-messages-to-a-virtual-address.patch,
+it seems the include/linux/i2o.h patch is missing:
 
-suspend-to-disk really shuts off, and comes back after just a single power 
-button event. Of course, it's slow and boring, I'd much rather have STR
-working ;)
+tell me if I'm wrong, but i think this patch is missing:
 
-		Linus
+
+--=-=-=
+Content-Type: application/octet-stream
+Content-Disposition: attachment;
+  filename=i2o-new-functions-to-convert-messages-to-a-virtual-address.patch4
+Content-Transfer-Encoding: base64
+
+ZGlmZiAtcHVOIGluY2x1ZGUvbGludXgvaTJvLmh+aTJvLW5ldy1mdW5jdGlvbnMtdG8tY29udmVy
+dC1tZXNzYWdlcy10by1hLXZpcnR1YWwtYWRkcmVzcyBpbmNsdWRlL2xpbnV4L2kyby5oCi0tLSAy
+NS9pbmNsdWRlL2xpbnV4L2kyby5ofmkyby1uZXctZnVuY3Rpb25zLXRvLWNvbnZlcnQtbWVzc2Fn
+ZXMtdG8tYS12aXJ0dWFsLWFkZHJlc3MJRnJpIE9jdCAgOCAxNDozMjozNiAyMDA0CisrKyAyNS1h
+a3BtL2luY2x1ZGUvbGludXgvaTJvLmgJRnJpIE9jdCAgOCAxNDozMjozNiAyMDA0CkBAIC00Nyw3
+ICs0Nyw3IEBAIHN0cnVjdCBpMm9fbWVzc2FnZSB7CiAJCQl1MzIgZnVuY3Rpb246ODsKIAkJCXUz
+MiBpY250eHQ7CS8qIGluaXRpYXRvciBjb250ZXh0ICovCiAJCQl1MzIgdGNudHh0OwkvKiB0cmFu
+c2FjdGlvbiBjb250ZXh0ICovCi0JCX0gczsKKwkJfSBfX2F0dHJpYnV0ZSgocGFja2VkKSkgczsK
+IAkJdTMyIGhlYWRbNF07CiAJfSB1OwogCS8qIExpc3QgZm9sbG93cyAqLwpAQCAtMjUyLDYgKzI1
+MiwxMSBAQCBleHRlcm4gaW50IGkyb19tc2dfcG9zdF93YWl0X21lbShzdHJ1Y3QgCiBleHRlcm4g
+dm9pZCBpMm9fbXNnX25vcChzdHJ1Y3QgaTJvX2NvbnRyb2xsZXIgKiwgdTMyKTsKIHN0YXRpYyBp
+bmxpbmUgdm9pZCBpMm9fZmx1c2hfcmVwbHkoc3RydWN0IGkyb19jb250cm9sbGVyICosIHUzMik7
+CiAKK3N0YXRpYyBpbmxpbmUgc3RydWN0IGkyb19tZXNzYWdlICppMm9fbXNnX2luX3RvX3ZpcnQo
+c3RydWN0IGkyb19jb250cm9sbGVyICosCisJCQkJCQkgICAgIHUzMik7CitzdGF0aWMgaW5saW5l
+IHN0cnVjdCBpMm9fbWVzc2FnZSAqaTJvX21zZ19vdXRfdG9fdmlydChzdHJ1Y3QgaTJvX2NvbnRy
+b2xsZXIKKwkJCQkJCSAgICAgICosIHUzMik7CisKIC8qIERNQSBoYW5kbGluZyBmdW5jdGlvbnMg
+Ki8KIHN0YXRpYyBpbmxpbmUgaW50IGkyb19kbWFfYWxsb2Moc3RydWN0IGRldmljZSAqLCBzdHJ1
+Y3QgaTJvX2RtYSAqLCBzaXplX3QsCiAJCQkJdW5zaWduZWQgaW50KTsKQEAgLTUwMiw2ICs1MDcs
+NDUgQEAgc3RhdGljIGlubGluZSB2b2lkIGkyb19mbHVzaF9yZXBseShzdHJ1YwogfTsKIAogLyoq
+CisgKglpMm9fb3V0X3RvX3ZpcnQgLSBUdXJuIGFuIEkyTyBtZXNzYWdlIHRvIGEgdmlydHVhbCBh
+ZGRyZXNzCisgKglAYzogY29udHJvbGxlcgorICoJQG06IG1lc3NhZ2UgZW5naW5lIHZhbHVlCisg
+KgorICoJVHVybiBhIHJlY2VpdmUgbWVzc2FnZSBmcm9tIGFuIEkyTyBjb250cm9sbGVyIGJ1cyBh
+ZGRyZXNzIGludG8KKyAqCWEgTGludXggdmlydHVhbCBhZGRyZXNzLiBUaGUgc2hhcmVkIHBhZ2Ug
+ZnJhbWUgaXMgYSBsaW5lYXIgYmxvY2sKKyAqCXNvIHdlIHNpbXBseSBoYXZlIHRvIHNoaWZ0IHRo
+ZSBvZmZzZXQuIFRoaXMgZnVuY3Rpb24gZG9lcyBub3QKKyAqCXdvcmsgZm9yIHNlbmRlciBzaWRl
+IG1lc3NhZ2VzIGFzIHRoZXkgYXJlIGlvcmVtYXAgb2JqZWN0cworICoJcHJvdmlkZWQgYnkgdGhl
+IEkyTyBjb250cm9sbGVyLgorICovCitzdGF0aWMgaW5saW5lIHN0cnVjdCBpMm9fbWVzc2FnZSAq
+aTJvX21zZ19vdXRfdG9fdmlydChzdHJ1Y3QgaTJvX2NvbnRyb2xsZXIgKmMsCisJCQkJCQkgICAg
+ICB1MzIgbSkKK3sKKwlpZiAodW5saWtlbHkKKwkgICAgKG0gPCBjLT5vdXRfcXVldWUucGh5cwor
+CSAgICAgfHwgbSA+PSBjLT5vdXRfcXVldWUucGh5cyArIGMtPm91dF9xdWV1ZS5sZW4pKQorCQlC
+VUcoKTsKKworCXJldHVybiBjLT5vdXRfcXVldWUudmlydCArIChtIC0gYy0+b3V0X3F1ZXVlLnBo
+eXMpOworfTsKKworLyoqCisgKglpMm9fbXNnX2luX3RvX3ZpcnQgLSBUdXJuIGFuIEkyTyBtZXNz
+YWdlIHRvIGEgdmlydHVhbCBhZGRyZXNzCisgKglAYzogY29udHJvbGxlcgorICoJQG06IG1lc3Nh
+Z2UgZW5naW5lIHZhbHVlCisgKgorICoJVHVybiBhIHNlbmQgbWVzc2FnZSBmcm9tIGFuIEkyTyBj
+b250cm9sbGVyIGJ1cyBhZGRyZXNzIGludG8KKyAqCWEgTGludXggdmlydHVhbCBhZGRyZXNzLiBU
+aGUgc2hhcmVkIHBhZ2UgZnJhbWUgaXMgYSBsaW5lYXIgYmxvY2sKKyAqCXNvIHdlIHNpbXBseSBo
+YXZlIHRvIHNoaWZ0IHRoZSBvZmZzZXQuIFRoaXMgZnVuY3Rpb24gZG9lcyBub3QKKyAqCXdvcmsg
+Zm9yIHJlY2VpdmUgc2lkZSBtZXNzYWdlcyBhcyB0aGV5IGFyZSBrbWFsbG9jIG9iamVjdHMKKyAq
+CWluIGEgZGlmZmVyZW50IHBvb2wuCisgKi8KK3N0YXRpYyBpbmxpbmUgc3RydWN0IGkyb19tZXNz
+YWdlICppMm9fbXNnX2luX3RvX3ZpcnQoc3RydWN0IGkyb19jb250cm9sbGVyICpjLAorCQkJCQkJ
+ICAgICB1MzIgbSkKK3sKKwlyZXR1cm4gYy0+aW5fcXVldWUudmlydCArIG07Cit9OworCisvKioK
+ICAqCWkyb19kbWFfYWxsb2MgLSBBbGxvY2F0ZSBETUEgbWVtb3J5CiAgKglAZGV2OiBzdHJ1Y3Qg
+ZGV2aWNlIHBvaW50ZXIgdG8gdGhlIFBDSSBkZXZpY2Ugb2YgdGhlIEkyTyBjb250cm9sbGVyCiAg
+KglAYWRkcjogaTJvX2RtYSBzdHJ1Y3Qgd2hpY2ggc2hvdWxkIGdldCB0aGUgRE1BIGJ1ZmZlcgpf
+Cg==
+--=-=-=
+
+
+at least it resolves the unknown symbol i2o_msg_in_to_virt issues for
+me ;-)
+
+
+-- 
+
+--=-=-=--

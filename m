@@ -1,33 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278431AbRJMWuA>; Sat, 13 Oct 2001 18:50:00 -0400
+	id <S278432AbRJMWvt>; Sat, 13 Oct 2001 18:51:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278432AbRJMWtu>; Sat, 13 Oct 2001 18:49:50 -0400
-Received: from vitelus.com ([64.81.243.207]:18951 "EHLO vitelus.com")
-	by vger.kernel.org with ESMTP id <S278431AbRJMWtg>;
-	Sat, 13 Oct 2001 18:49:36 -0400
-Date: Sat, 13 Oct 2001 15:50:05 -0700
-From: Aaron Lehmann <aaronl@vitelus.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Security question: "Text file busy" overwriting executables but not shared libraries?
-Message-ID: <20011013155005.E9856@vitelus.com>
-In-Reply-To: <20011013205445.A24854@kushida.jlokier.co.uk> <Pine.LNX.4.33.0110131219520.8900-100000@penguin.transmeta.com> <20011013214603.A1144@kushida.jlokier.co.uk> <20011013144337.D9856@vitelus.com> <m1r8s7qior.fsf@frodo.biederman.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1r8s7qior.fsf@frodo.biederman.org>
-User-Agent: Mutt/1.3.20i
+	id <S278435AbRJMWvj>; Sat, 13 Oct 2001 18:51:39 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:22288 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S278432AbRJMWvb>; Sat, 13 Oct 2001 18:51:31 -0400
+Date: Sat, 13 Oct 2001 15:19:16 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Security question: "Text file busy" overwriting executables but
+ not shared libraries?
+In-Reply-To: <20011013214603.A1144@kushida.jlokier.co.uk>
+Message-ID: <Pine.LNX.4.33.0110131516350.8983-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 13, 2001 at 04:27:48PM -0600, Eric W. Biederman wrote:
-> > But it does have the advantage of allowing the sharing of memory, does
-> > it not?
-> 
-> Only if you are going to write to the data.
 
-Why? If gcc and another application read the source file with an
-mmap() with the right parameters (read-only), it would only be shared
-between them, as I understand it. If they both read() the file into
-private buffers those can not be shared.
+On Sat, 13 Oct 2001, Jamie Lokier wrote:
+>
+> There are applications (GCC comes to mind) which are using mmap() to
+> read files now because it is measurably faster than read(), for
+> sufficiently large source files.
+>
+> I don't know where the optimal costs lie.
+
+The gcc people tested it, and their cut-off point is at 30kB or so.
+Anything smaller than that is faster to just "read()".
+
+Now, that's a traditional mmap(), though, which has more overhead than a
+"read-with-PAGE_COPY" would have. The pure mmap() approach has the actual
+page fault overhead too, along with having to do "fstat()" and "munmap()".
+
+		Linus
+

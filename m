@@ -1,68 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261950AbVDCXJF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261952AbVDCXIv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261950AbVDCXJF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 19:09:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261955AbVDCXJF
+	id S261952AbVDCXIv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 19:08:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261953AbVDCXIv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 19:09:05 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:27836 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261950AbVDCXIo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 19:08:44 -0400
-Date: Sun, 3 Apr 2005 16:08:07 -0700
-From: Paul Jackson <pj@engr.sgi.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: kenneth.w.chen@intel.com, torvalds@osdl.org, nickpiggin@yahoo.com.au,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] sched: auto-tune migration costs [was: Re: Industry db
- benchmark result on recent 2.6 kernels]
-Message-Id: <20050403160807.35381385.pj@engr.sgi.com>
-In-Reply-To: <20050403152413.GA26631@elte.hu>
-References: <200504020100.j3210fg04870@unix-os.sc.intel.com>
-	<20050402145351.GA11601@elte.hu>
-	<20050402215332.79ff56cc.pj@engr.sgi.com>
-	<20050403070415.GA18893@elte.hu>
-	<20050403043420.212290a8.pj@engr.sgi.com>
-	<20050403071227.666ac33d.pj@engr.sgi.com>
-	<20050403152413.GA26631@elte.hu>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 3 Apr 2005 19:08:51 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:41350 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261952AbVDCXIn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 19:08:43 -0400
+Subject: Re: sched /HT processor
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Arun Srinivas <getarunsri@hotmail.com>
+Cc: juhl-lkml@dif.dk, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <BAY10-F21A89B2521BD98E6C239C2D93A0@phx.gbl>
+References: <BAY10-F21A89B2521BD98E6C239C2D93A0@phx.gbl>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Sun, 03 Apr 2005 19:08:06 -0400
+Message-Id: <1112569686.27149.138.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo wrote:
-> if you create a sched-domains hierarchy (based on the SLIT tables, or in 
-> whatever other way) that matches the CPU hierarchy then you'll 
-> automatically get the proper distances detected.
+On Mon, 2005-04-04 at 04:22 +0530, Arun Srinivas wrote:
+> Thanks. yes, a reschedule may not take place after a ms, if the currently 
+> running task cannot be preempted by another task.
+> 
+> (1) But, can a reschedule happen within a millisec (or once a process is 
+> scheduled can schedule() be called before the next millisec.) ?
+> 
 
-Yes - agreed.  I should push in the direction of improving the
-SN2 sched domain hierarchy.
+Yes.  For example: a high priority task may be waiting for some IO to
+come in. Right after the normal timer interrupt scheduled another task,
+the IO may come in and wake the high priority process up. This process
+will preempt the other task right away. (ie. less than 1 ms).
+
+> 2) Also in case argument (1) is not true, and I want rescheduling to be done 
+> (i.e., schedule() called) in less than 1 ms , can I directly change the HZ 
+> value in <asm-i386/param.h> and recompile my kernel so that my timer 
+> interrupt will occur frequently?
+> 
+
+Well, 1) is true, but you can also increase HZ over 1000 if you like,
+but that will usually cause more overhead, since, although a schedule
+may not take place every HZ, a timer interrupt will.
+
+-- Steve
 
 
-Would be a good idea to rename 'cpu_distance()' to something more
-specific, like 'cpu_dist_ndx()', and reserve the generic name
-'cpu_distance()' for later use to return a scaled integer distance,
-rather like 'node_distance()' does now.  For example, 'cpu_distance()'
-might, someday, return integer values such as:
-
-	40  217  252  253
-
-as are displayed (in tenths) in the debug line:
-
----------------------
-cacheflush times [4]: 4.0 (4080540) 21.7 (21781380) 25.2 (25259428) 25.3 (25372682)
----------------------
-
-(that is, the integer (long)cost / 100000 - one less zero).
-
-I don't know that we have any use, yet, for this 'cpu_distance()' as a
-scaled integer value.  But I'd be more comfortable reserving that name
-for that purpose.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

@@ -1,79 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264372AbTFUOJf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 10:09:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264432AbTFUOJe
+	id S262525AbTFUONo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 10:13:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264376AbTFUONo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 10:09:34 -0400
-Received: from nessie.weebeastie.net ([61.8.7.205]:2734 "EHLO
-	nessie.weebeastie.net") by vger.kernel.org with ESMTP
-	id S264372AbTFUOJ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 10:09:27 -0400
-Date: Sun, 22 Jun 2003 00:24:01 +1000
-From: CaT <cat@zip.com.au>
-To: Pavel Machek <pavel@suse.cz>
-Cc: swsusp@lister.fornax.hu, linux-kernel@vger.kernel.org
-Subject: can't get linux to perform a bios suspend (was: Re: [FIX, please test] Re: 2.5.70-bk16 - nfs interferes with s4bios suspend)
-Message-ID: <20030621142400.GB5388@zip.com.au>
-References: <20030613033703.GA526@zip.com.au> <20030615183111.GD315@elf.ucw.cz> <20030616001141.GA364@zip.com.au> <20030616104710.GA12173@atrey.karlin.mff.cuni.cz> <20030618081600.GA484@zip.com.au> <20030618101728.GA203@elf.ucw.cz> <20030618102602.GA593@zip.com.au> <20030618103528.GB203@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030618103528.GB203@elf.ucw.cz>
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+	Sat, 21 Jun 2003 10:13:44 -0400
+Received: from shell.cyberus.ca ([216.191.236.4]:31756 "EHLO shell.cyberus.ca")
+	by vger.kernel.org with ESMTP id S262525AbTFUONm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 10:13:42 -0400
+Date: Sat, 21 Jun 2003 10:27:16 -0400 (EDT)
+From: Jamal Hadi <hadi@shell.cyberus.ca>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: "David S. Miller" <davem@redhat.com>, girouard@us.ibm.com,
+       stekloff@us.ibm.com, janiceg@us.ibm.com, jgarzik@pobox.com,
+       kenistonj@us.ibm.com, lkessler@us.ibm.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com, niv@us.ibm.com
+Subject: Re: patch for common networking error messages
+In-Reply-To: <1056199013.25974.27.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <20030621100959.C69143@shell.cyberus.ca>
+References: <OFC2446DB8.6D4DA3ED-ON85256D47.007C79EE@us.ibm.com> 
+ <20030616.155533.63022973.davem@redhat.com> <1056199013.25974.27.camel@dhcp22.swansea.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 18, 2003 at 12:35:28PM +0200, Pavel Machek wrote:
-> > Ponderance: Why did it do a full s/w suspend when I asked for the bios
-> > to handle it? I have s4bios showing up in /proc/acpi/sleep and the bios
-> > is set to suspend to disk. I've even got an a0 partition fully formatted
-> > and it still ignored it all.
-> 
-> I don't know, try looking at drivers/acpi/sleep/main.c, and if
-> neccessary insert some printk()s to see what's going on.
 
-I've had a wee look into it and if I remove software suspend from the
-compile, I get no sleep states at all. period. /proc/acpi/sleep does
-not exist and nothing is reported in dmesg.
 
-Now I had a look in drivers/acpi/sleep and in the proc.c file I found
-this bit of code:
+On Sat, 21 Jun 2003, Alan Cox wrote:
 
-...
-        state = simple_strtoul(state_string, NULL, 0);
+> On Llu, 2003-06-16 at 23:55, David S. Miller wrote:
+> > Let me know when you're back on planet earth ok?
+> >
+> > Standardizing strings is an absolutely FRUITLESS exercise.
+>
+> Standardising strings is a real help for end users, but its not the way
+> to approach logging issues I agree.
 
-        if (state < 1 || state > 4)
-                goto Done;
+now that xml is the holy grail ive seen people actually
+preach xml strings as encoding for protocols ;-> The arguement
+i have seen put forward is that strings are easier to read
+for users than binary encoding ;-> Therefore they can debug problems.
+There maybe cases where this may be valid[1] - the only problem is
+a lot of loonies will think this is the next sliced bread.
 
-        if (!sleep_states[state])
-                goto Done;
+what about all that bandwidth stoopid xml consumes?
+"bandwidth? Who has a problem with bandwidth?;->
+what about all that involved processiong of stoopid xml?
+"cpu? who has CPU problems?"
+Intel has a 10Gige NIC, a 2Mhz cpu, adn 4G DDR Ram for your hungry
+applications.
+Its a conspiracy i tell ya ;->
 
-#ifdef CONFIG_SOFTWARE_SUSPEND
-        if (state == 4) {
-                software_suspend();
-                goto Done;
-        }
-#endif  
-        status = acpi_suspend(state);
-...
+cheers,
+jamal
 
-To me this appears to indicate that it's treating a request for a
-sleep state of 4 (s/w suspend) and 4b (bios suspend) as the same thing
-as simple_strtoul will stop at the b and return 4 and there are no
-further checks being done. In a small experiment I added a test of
-state_string[1] == 'b', recompiled and tried it again. It did not go
-into s/w suspend as expected but it failed to do a suspend alltogether.
+[1] For people who use expect for example to send string commands
+to a remote system to configure things, when expect (simple req-resp)
+becomes too simple you may need something more sophisticated.
+They are already sending strings across tcp probably.
+Infact a IETF working group has been formed to standardixe this.
+http://www.ietf.org/html.charters/netconf-charter.html
+theres a draft at :
+http://www.ietf.org/internet-drafts/draft-enns-xmlconf-spec-00.txt
 
-At this point I'm slightly lost. To me it's obvious that there's
-something whacky with acpi_suspend() or something it calls but I'm
-not sure what. :/
-
--- 
-Martin's distress was in contrast to the bitter satisfaction of some
-of his fellow marines as they surveyed the scene. "The Iraqis are sick
-people and we are the chemotherapy," said Corporal Ryan Dupre. "I am
-starting to hate this country. Wait till I get hold of a friggin' Iraqi.
-No, I won't get hold of one. I'll just kill him."
-	- http://www.informationclearinghouse.info/article2479.htm
+The only unfortunate side effect to this is you will see a lot
+idjots putting XML in protocols from now on just because.

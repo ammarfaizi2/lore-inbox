@@ -1,93 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262042AbVAYSML@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262046AbVAYSPX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262042AbVAYSML (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 13:12:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262044AbVAYSML
+	id S262046AbVAYSPX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 13:15:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262047AbVAYSPX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 13:12:11 -0500
-Received: from ns.suse.de ([195.135.220.2]:13235 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262042AbVAYSME (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 13:12:04 -0500
-Subject: Re: [patch 1/13] Qsort
-From: Andreas Gruenbacher <agruen@suse.de>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Olaf Kirch <okir@suse.de>, Andi Kleen <ak@muc.de>,
-       Nathan Scott <nathans@sgi.com>,
-       Mike Waychison <Michael.Waychison@sun.com>,
-       Jesper Juhl <juhl-lkml@dif.dk>, Felipe Alfaro Solana <lkml@mac.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Buck Huppmann <buchk@pobox.com>, Neil Brown <neilb@cse.unsw.edu.au>,
-       "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
-       Andrew Morton <akpm@osdl.org>, Tim Hockin <thockin@hockin.org>
-In-Reply-To: <1106674620.11449.43.camel@lade.trondhjem.org>
-References: <20050122203326.402087000@blunzn.suse.de>
-	 <41F570F3.3020306@sun.com> <20050125065157.GA8297@muc.de>
-	 <200501251112.46476.agruen@suse.de> <20050125120023.GA8067@muc.de>
-	 <20050125120507.GH19199@suse.de>
-	 <1106671920.11449.11.camel@lade.trondhjem.org>
-	 <1106672028.9607.33.camel@winden.suse.de>
-	 <1106672637.11449.24.camel@lade.trondhjem.org>
-	 <1106673415.9607.36.camel@winden.suse.de>
-	 <1106674620.11449.43.camel@lade.trondhjem.org>
-Content-Type: text/plain
-Organization: SUSE Labs
-Message-Id: <1106676722.9607.61.camel@winden.suse.de>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 25 Jan 2005 19:12:02 +0100
+	Tue, 25 Jan 2005 13:15:23 -0500
+Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:22669 "EHLO
+	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
+	id S262046AbVAYSPN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 13:15:13 -0500
+Message-ID: <41F68BE6.3090704@ammasso.com>
+Date: Tue, 25 Jan 2005 12:11:50 -0600
+From: Timur Tabi <timur.tabi@ammasso.com>
+Organization: Ammasso
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: linux-mm@kvack.org
+Subject: Re: Query on remap_pfn_range compatibility
+References: <OF0A92B996.F674A9A0-ON86256F93.0066BC3F@raytheon.com>
+In-Reply-To: <OF0A92B996.F674A9A0-ON86256F93.0066BC3F@raytheon.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-01-25 at 18:37, Trond Myklebust wrote:
-> ty den 25.01.2005 Klokka 18:16 (+0100) skreiv Andreas Gruenbacher:
+Mark_H_Johnson@raytheon.com wrote:
+
+
+> I am also trying to avoid an ugly hack like the following:
 > 
-> > > Whatever Sun chooses to do or not do changes nothing to the question of
-> > > why our client would want to do a quicksort in the kernel.
-> > 
-> > Well, it determines what we must accept, both on the server side and the
-> > client side.
-> 
-> I can see why you might want it on the server side, but I repeat: why
-> does the client need to do this in the kernel? The client code should
-> not be overriding the server when it comes to what is acceptable or not
-> acceptable. That's just wrong...
+>   VMA_PARAM_IN_REMAP=`grep remap_page_range
+> $PATH_LINUX_INCLUDE/linux/mm.h|grep vma`
+>   if [ -z "$VMA_PARAM_IN_REMAP" ]; then
+>     export REMAP_PAGE_RANGE_PARAM="4"
+>   else
+>     export REMAP_PAGE_RANGE_PARAM="5"
+>   endif
 
-Ah, I see now what you mean. The setxattr syscall only accepts
-well-formed acls (that is, sorted plus a few other restrictions), and
-user-space is expected to take care of that. In turn, getxattr returns
-only well-formed acls. We could lift that guarantee specifically for
-nfs, but I don't think it would be a good idea. Entry order in POSIX
-acls doesn't convey a meaning by the way, and the nfs client never
-rejects what the server sends.
+My makefile has a ton of stuff like this. Our driver needs to work with 
+all 2.4 and 2.6 kernels, and it makes heavy use of the VM.  It also 
+needs to deal with distros that have "broken" header files.
 
-> I can also see that if the server _must_ have a sorted list, then doing
-> a sort on the client is a good thing since it will cut down on the work
-> that said server will need to do, and so it will scale better with the
-> number of clients (though note that, conversely, this server will scale
-> poorly with the Sun clients or others if they do not sort the lists).
+This wouldn't be such a problem if the kernel developers would add 
+macros to indicate the version of the function parameters.  Basically, 
+the header file should define REMAP_PAGE_RANGE_PARAM (or some 
+equivalent), so that you don't need to calculate it in your makefile. 
+But the kernel developers don't care about backwards compatibility, so 
+we're stuck with these ugly hacks.
 
-The server must have sorted lists. Linux clients send well-formed acls
-except when they fake up a mask entry; they insert the mask entry at the
-end instead of in the right position (this is the three-entry acl
-problem I described in [patch 0/13]). We could insert the mask in the
-right position, but the protocol doesn't require it. We must sort on the
-server anyway, and the server can as easily swap the two entries.
+> Would it be acceptable to add a symbol like
+>   #define MM_VM_REMAP_PFN_RANGE
+> in include/linux/mm.h or is that too much of a hack as well?
 
-> I'm asking 'cos if the client doesn't need this code, then it seems to
-> me you can move helper routines like the quicksort and posix checking
-> routines into the nfsd module rather than having to keeping it in the
-> VFS (unless you foresee that other modules will want to use the same
-> routines???).
+The easiest solution would be to update gcc to provide some kind of 
+internal macro that would tell me if a function is defined or not.  For 
+instance, I could do this:
 
-That would cause getxattr to return an "invalid" result. libacl doesn't
-care, but other users might exist that rely on the current format. In
-addition, comparing acls becomes non-trivial: currently xattr values are
-equal iff acls are equal.
+#if defined(remap_pfn_range)
+remap_pfn_range(...)
+#else
+remap_page_range(...)
+#endif
 
-Cheers,
+This doesn't work because remap_pfn_range is a function, not a macro. 
+Then we could do other things like:
+
+#if parameters(remap_page_range) = 4
+remap_page_range(a, b, c, d)
+#else
+remap_page_range(a, b, c, d, e)
+#endif
+
+This would allow me to handle kernel versions that have 4 instead of 5 
+parameters for remap_page_range().
+
+Ironically, even if gcc were updated like this, it wouldn't help me a 
+whole lot, because I still need to use the older versions of gcc on the 
+older distros.  But at least it the problem wouldn't be getting worse, 
+like it is today.
+
 -- 
-Andreas Gruenbacher <agruen@suse.de>
-SUSE Labs, SUSE LINUX GMBH
-
+Timur Tabi
+Staff Software Engineer
+timur.tabi@ammasso.com

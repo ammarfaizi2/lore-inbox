@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262074AbTIRJEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 05:04:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262075AbTIRJEJ
+	id S262834AbTIRJRv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 05:17:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262868AbTIRJRv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 05:04:09 -0400
-Received: from pentafluge.infradead.org ([213.86.99.235]:56777 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262074AbTIRJEH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 05:04:07 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: =?ISO-8859-1?Q?Dani=EBl?= Mantione <daniel@deadlock.et.tudelft.nl>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       James Simmons <jsimmons@infradead.org>
-In-Reply-To: <Pine.LNX.4.44.0309180940460.17499-100000@deadlock.et.tudelft.nl>
-References: <Pine.LNX.4.44.0309180940460.17499-100000@deadlock.et.tudelft.nl>
-Message-Id: <1063875815.600.238.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 18 Sep 2003 11:03:36 +0200
-X-SA-Exim-Mail-From: benh@kernel.crashing.org
-Subject: Re: Patch: Make iBook1 work again
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
-X-SA-Exim-Scanned: Yes
-X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
+	Thu, 18 Sep 2003 05:17:51 -0400
+Received: from smtp.terra.es ([213.4.129.129]:43301 "EHLO tfsmtp3.mail.isp")
+	by vger.kernel.org with ESMTP id S262834AbTIRJRu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 05:17:50 -0400
+From: CASINO_E <CASINO_E@teleline.es>
+To: B.Zolnierkiewicz@elka.pw.edu.pl
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Reply-To: casino_e@terra.es
+Message-ID: <1cbb951cc475.1cc4751cbb95@teleline.es>
+Date: Thu, 18 Sep 2003 09:17:47 GMT
+X-Mailer: Netscape Webmail
+MIME-Version: 1.0
+Content-Language: es
+Subject: Re: Changes in siimage driver?
+X-Accept-Language: es
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-09-18 at 10:00, Daniël Mantione wrote:
-> On Wed, 17 Sep 2003, Daniël Mantione wrote:
-> 
-> > So, to fix this we can look at the X driver, I must have made an error
-> > somewhere.
-> 
-> I found a problem, but it would mean that it was already broken before my
-> patch.
+On Wednesday 17 of September 2003 14:09, Bartlomiej Zolnierkiewicz wrote:
+> controllers. I believe freebsd's workaround is correct and we can
+adopt > it.
+> For more details please see the other thread regarding siimage.
 
-Yes, that's weird as it did work before your patch... Anyway, I cannot test
-until i'm back home tonight. I'll let you know.
+According to what I've seen in the release notes of the closed-source
+siimage driver (I posted what I found), the right fix could be in
+netbsd's code, but in sys/dev/ata/wd.c :
 
-Regards,
-Ben.
+         * Some Seagate S-ATA drives have a PHY which can get confused
+         * with the way data is packetized by some S-ATA controllers.
+         *
+         * The work-around is to split in two any write transfer whose
+         * sector count % 15 == 1 (assuming 512 byte sectors).
+ 
+I'm not smart enough to try and write a patch, but maybe the siimage
+maintainer could have a look to that file...
+
+Eduardo.
 
 

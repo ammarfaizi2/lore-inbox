@@ -1,22 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265311AbTL0Eev (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Dec 2003 23:34:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265315AbTL0Eev
+	id S265310AbTL0E2m (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 23:28:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265311AbTL0E2m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Dec 2003 23:34:51 -0500
-Received: from citrine.spiritone.com ([216.99.193.133]:8885 "EHLO
+	Fri, 26 Dec 2003 23:28:42 -0500
+Received: from citrine.spiritone.com ([216.99.193.133]:52128 "EHLO
 	citrine.spiritone.com") by vger.kernel.org with ESMTP
-	id S265311AbTL0Eet (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Dec 2003 23:34:49 -0500
-Date: Fri, 26 Dec 2003 20:34:40 -0800
+	id S265310AbTL0E2l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Dec 2003 23:28:41 -0500
+Date: Fri, 26 Dec 2003 20:28:37 -0800
 From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: azarah@nosferatu.za.org
-cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0 sound output - wierd effects
-Message-ID: <3820000.1072499679@[10.10.2.4]>
-In-Reply-To: <1072486379.12308.33.camel@nosferatu.lan>
-References: <1080000.1072475704@[10.10.2.4]> <1072479167.21020.59.camel@nosferatu.lan>  <1480000.1072479655@[10.10.2.4]> <1072480660.21020.64.camel@nosferatu.lan>  <1640000.1072481061@[10.10.2.4]> <1072482611.21020.71.camel@nosferatu.lan>  <2060000.1072483186@[10.10.2.4]> <1072486379.12308.33.camel@nosferatu.lan>
+To: Calin Szonyi <caszonyi@rdslink.ro>
+cc: linux-kernel@vger.kernel.org, kraxel@bytesex.org
+Subject: Re: panic in bttv_risc_planar
+Message-ID: <2890000.1072499316@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.4.53.0312270235570.7966@grinch.ro>
+References: <Pine.LNX.4.53.0312262105560.537@grinch.ro> <2850000.1072477728@[10.10.2.4]> <Pine.LNX.4.53.0312270235570.7966@grinch.ro>
 X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -25,45 +25,19 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > If you right click on xmms, and then select options->preferences, on the
->> > first page to the bottom there should be output plugin.  If you cannot
->> > select alsa, see if there is a xmms-alsa or libxmms-alsa plugin.  Sorry,
->> > I do not know Debian that well.
->> 
->> Thanks, it was on OSS - there's no ALSA selection, nor can I find one.
->> There's probably one in unstable somewhere, but ... see below.
+> I'm not familiar with addr2line :-(
+> I was trying this command line(the result is below):
+>  //usr/src/linux-2.6.0 $ addr2line -e ./vmlinux 320
+> ??:0
 > 
-> Btw, compile xmms yourself - should have alsa then =)  Not sure if
-> it will if you build with apt-get from source, or when they started
-> to ship the alsa module with xmms source - think it was not so long
-> ago.  Does with 1.2.8 though:
+> I obtain the same result if i use 0x140 instead of 320 (320 is decimal
+> for 0x140)
 
-Oh, I understand I could work around the problem in userspace, but that's 
-not the point - something broke in the kernel, presumably OSS emulation.
-test2 works, test3 doesn't. 
+"addr2line -e ./vmlinux 0xc0333f60" if I recall correctly
+(the full address, not the offset within the function). Might not need
+the 0x in front.
 
-I suspect this changeset:
-
-ChangeSet@1.1046.572.2  2003-07-28 13:35:31+02:00  perex@cz:/home/perex/bk/linux-sound/linux-sound
-all diffs ALSA 0.9.6 update
-  - added __setup() to all midlevel modules
-  - sequencer protocol 1.0.1
-    - added timestamping flags for ports
-  - OSS PCM emulation
-    - fixed write() behaviour
-    - added two new options no-silence & whole-frag
-    - a try to fix OOPSes caused in the rate plugin
-  - emu10k1 driver
-    - more support for Audigy/Audigy2 EX
-    - fixed soundfont locking
-  - sb16 driver
-    - fixed fm_res handling (and proc OOPS)
-  - via82xx driver
-    - fixed revision check for 8233A
-  - usbaudio driver
-    - added a workaround for M-Audio Audiophile USB
-
-Particlarly the bit about OSS PCM emulation ;-)
+But I think maybe Linus already told you what it is ;-)
 
 M.
 

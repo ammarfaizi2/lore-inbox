@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281662AbRKQAnd>; Fri, 16 Nov 2001 19:43:33 -0500
+	id <S281664AbRKQAwo>; Fri, 16 Nov 2001 19:52:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281647AbRKQAnY>; Fri, 16 Nov 2001 19:43:24 -0500
-Received: from c0mailgw.prontomail.com ([216.163.180.10]:19142 "EHLO
-	c0mailgw10.prontomail.com") by vger.kernel.org with ESMTP
-	id <S281662AbRKQAnN>; Fri, 16 Nov 2001 19:43:13 -0500
-Message-ID: <3BF5B275.215D6D44@starband.net>
-Date: Fri, 16 Nov 2001 19:42:29 -0500
-From: war <war@starband.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
+	id <S281665AbRKQAwf>; Fri, 16 Nov 2001 19:52:35 -0500
+Received: from fmfdns02.fm.intel.com ([132.233.247.11]:62439 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S281664AbRKQAwR>; Fri, 16 Nov 2001 19:52:17 -0500
+Message-ID: <59885C5E3098D511AD690002A5072D3C42D76A@orsmsx111.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Keith Owens'" <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Cc: zippel@linux-m68k.org
+Subject: RE: 2.4.15-pre5 conflict between acpi and a.out, affs is implicat
+	ed
+Date: Fri, 16 Nov 2001 16:52:07 -0800
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Swap Usage with Kernel 2.4.14
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Regular usage on my box, launching netscape, opera, pan, xchat, gaim;
-the kernel eventually digs into swap.
+> From: Keith Owens [mailto:kaos@ocs.com.au]
+> include/asm-*/a.out.h defines STACK_TOP.  So does
+> drivers/acpi/include/acinterp.h, with a different value.  The conflict
+> occurs if you compile with acpi and a.out, or with acpi and affs.  For
+> reasons that are beyond me, include/linux/affs_fs_i.h 
+> contains #include
+> <linux/a.out.h>.
+> 
+> ACPI needs to use a different name.
 
-However, the swap is never released?
+Deleted.
 
-Mem:   900596K av,  185896K used,  714700K free,       0K shrd,    4172K
-buff
-Swap: 2048276K av,   63728K used, 1984548K free                   91176K
-cached
+The next ACPI release will include this fix.
 
-Are there any settings I should have set or be aware of?
-
-I current use 4GB support, 1GB of ram, 2GB of swap.
-
-Having 1GB, I thought I had enough memory for basic operations without
-the disk swapping like mad.
-
+Regards -- Andy

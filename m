@@ -1,34 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266141AbUHODFd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266334AbUHODH2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266141AbUHODFd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 23:05:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266334AbUHODFc
+	id S266334AbUHODH2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 23:07:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266376AbUHODH2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 23:05:32 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:54984 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S266141AbUHODF2 (ORCPT
+	Sat, 14 Aug 2004 23:07:28 -0400
+Received: from gate.ebshome.net ([66.92.248.57]:34953 "EHLO gate.ebshome.net")
+	by vger.kernel.org with ESMTP id S266334AbUHODHV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 23:05:28 -0400
-Date: Sun, 15 Aug 2004 04:04:09 +0200
-From: "xerces8" <xerces8@butn.net>
-To: linux-kernel@vger.kernel.org
-Subject: New versioning scheme ? ( 2.6.8.1 )
-Message-ID: <WorldClient-F200408150404.AA04094351@butn.net>
-X-Mailer: WorldClient 6.8.5
-X-Authenticated-Sender: xerces8@butn.net
-X-Spam-Processed: butn.net, Sun, 15 Aug 2004 04:04:09 +0200
-	(not processed: message from valid local sender)
-X-MDRemoteIP: 127.0.0.1
-X-Return-Path: xerces8@butn.net
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+	Sat, 14 Aug 2004 23:07:21 -0400
+Date: Sat, 14 Aug 2004 20:07:17 -0700
+From: Eugene Surovegin <ebs@ebshome.net>
+To: Matt Porter <mporter@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
+Subject: [PATCH][PPC32] export __dma_sync & __dma_sync_page
+Message-ID: <20040815030717.GA23796@gate.ebshome.net>
+Mail-Followup-To: Matt Porter <mporter@kernel.crashing.org>,
+	linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-ICQ-UIN: 1193073
+X-Operating-System: Linux i686
+X-PGP-Key: http://www.ebshome.net/pubkey.asc
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+This patch adds missing exports for __dma_sync and __dma_sync_page (DMA API 
+helpers for non-coherent cache PPCs).
 
-Can someone tell me why the ages old, established versioning scheme of
-x.y.z was "abolished" and x.y.z.w was introduced ?
+Signed-off-by: Eugene Surovegin <ebs@ebshome.net>
 
-Regards,
-David Balazic
-
+===== dma-mapping.c 1.2 vs edited =====
+--- 1.2/arch/ppc/kernel/dma-mapping.c	2004-07-28 21:58:35 -07:00
++++ edited/dma-mapping.c	2004-08-14 19:15:56 -07:00
+@@ -381,6 +381,7 @@
+ 		break;
+ 	}
+ }
++EXPORT_SYMBOL(__dma_sync);
+ 
+ #ifdef CONFIG_HIGHMEM
+ /*
+@@ -438,3 +439,4 @@
+ 	__dma_sync((void *)start, size, direction);
+ #endif
+ }
++EXPORT_SYMBOL(__dma_sync_page);

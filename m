@@ -1,63 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266802AbUJAWef@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266748AbUJAWiv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266802AbUJAWef (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 18:34:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266643AbUJAWag
+	id S266748AbUJAWiv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 18:38:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266663AbUJAWfz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 18:30:36 -0400
-Received: from fw.osdl.org ([65.172.181.6]:40586 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266663AbUJAW2A (ORCPT
+	Fri, 1 Oct 2004 18:35:55 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:13455 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266687AbUJAWcS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 18:28:00 -0400
-Date: Fri, 1 Oct 2004 15:27:46 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Chris Wright <chrisw@osdl.org>, "Jack O'Quin" <joq@io.com>,
-       Jody McIntyre <realtime-lsm@modernduck.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, torbenh@gmx.de
-Subject: Re: [PATCH] Realtime LSM
-Message-ID: <20041001152746.L1924@build.pdx.osdl.net>
-References: <1094967978.1306.401.camel@krustophenia.net> <20040920202349.GI4273@conscoop.ottawa.on.ca> <20040930211408.GE4273@conscoop.ottawa.on.ca> <1096581213.24868.19.camel@krustophenia.net> <87pt43clzh.fsf@sulphur.joq.us> <20040930182053.B1973@build.pdx.osdl.net> <87k6ubcccl.fsf@sulphur.joq.us> <1096663225.27818.12.camel@krustophenia.net> <20041001142259.I1924@build.pdx.osdl.net> <1096669179.27818.29.camel@krustophenia.net>
+	Fri, 1 Oct 2004 18:32:18 -0400
+Date: Fri, 1 Oct 2004 15:30:42 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Harald Welte <laforge@netfilter.org>
+Cc: linux-kernel@vger.kernel.org, netfilter-devel@lists.netfilter.org,
+       samel@mail.cz
+Subject: Re: [BUG] active ftp doesn't work since 2.6.9-rc1
+Message-Id: <20041001153042.15ed4a82.davem@redhat.com>
+In-Reply-To: <20041001141050.GH27499@sunbeam.de.gnumonks.org>
+References: <20041001111201.GA23033@pc11.op.pod.cz>
+	<20041001132248.GG27499@sunbeam.de.gnumonks.org>
+	<20041001141050.GH27499@sunbeam.de.gnumonks.org>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1096669179.27818.29.camel@krustophenia.net>; from rlrevell@joe-job.com on Fri, Oct 01, 2004 at 06:19:39PM -0400
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Lee Revell (rlrevell@joe-job.com) wrote:
-> On Fri, 2004-10-01 at 17:23, Chris Wright wrote:
-> > It's nice to have something that's easy to use, but that's not a great
-> > justification for addition to the kernel.  Esp. when there's a
-> > functional userspace solution.
+On Fri, 1 Oct 2004 16:10:50 +0200
+Harald Welte <laforge@netfilter.org> wrote:
+
+> On Fri, Oct 01, 2004 at 03:22:48PM +0200, Harald Welte wrote:
+> > On Fri, Oct 01, 2004 at 01:12:01PM +0200, Vitezslav Samel wrote:
+> > > 	Hi!
+> > > 
+> > >   After upgrade to 2.6.9-rc3 on the firewall (with NAT), active ftp stopped
+> > > working. The first kernel, which doesn't work is 2.6.9-rc1.
+> > > Sympotms: passive ftp works O.K., active FTP doesn't open data
+> > > stream (and in logs there entries about invalid packets - using
+> > > iptables ... -m state --state INVALID -j LOG)
 > 
-> OK, poor choice of words.  Correctness of course comes before ease of
-> use.  I believe the realtime-lsm module satisfies both requirements.
-
-I agree with that.  That's not my objection.  It's about pushing code
-(albeit it's small and non-invasive) into the kernel that can be done in
-userspace, that's all.
-
-> > > The ulimit approach would probably be acceptable
-> > > if it subsumed all the functionality of the realtime-lsm module.
-> > 
-> > Hrm, I guess we'll have to agree to disagree.  The whole point of the
-> > mlock rlimits code is to enable this policy to be pushed to userspace.
-> > A generic method of enabling capabilities is the best way to go, long
-> > term.  Any interest in pursuing that?
+> Please use the following (attached) fix:
 > 
-> I did not mean to imply that I disagree with the realtime-lsm approach. 
-> Obviously some kernel support is required, and realtime-lsm seems to
-> solve the problem with the minimum possible change to the kernel.  And
-> above all it is a proven working solution that has been field tested for
-> months by many, many users.
+> DaveM: Please apply and push to Linus:
 
-Clearly it's useful for the audio folks.  Whether it's the right thing
-to go into the kernel is all that's in question here.  Do we agree it's
-a stopgap measure making up for lack of a better general solution?
-
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Will do, thanks Harald.

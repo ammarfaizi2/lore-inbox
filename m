@@ -1,153 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261724AbTILPdC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 11:33:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbTILPdC
+	id S261507AbTILP0i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 11:26:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbTILP0i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 11:33:02 -0400
-Received: from ozone.tzone.org ([209.104.74.2]:39889 "EHLO OZoNE.TZoNE.ORG")
-	by vger.kernel.org with ESMTP id S261724AbTILPc5 (ORCPT
+	Fri, 12 Sep 2003 11:26:38 -0400
+Received: from vlugnet.org ([217.160.107.28]:38568 "EHLO vlugnet.org")
+	by vger.kernel.org with ESMTP id S261507AbTILP0g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 11:32:57 -0400
-From: Francis Provencher <darkfox@TZoNE.ORG>
-Date: Fri, 12 Sep 2003 11:32:55 -0400
-To: linux-kernel@vger.kernel.org
-Subject: The boot process freeze when using ACPI for PCI on Toshiba 5200
-Message-ID: <20030912153255.GK22380@OZoNE.TZoNE.ORG>
-References: <20030912133626.GH22380@OZoNE.TZoNE.ORG>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 12 Sep 2003 11:26:36 -0400
+From: Ronny Buchmann <ronny-lkml@vlugnet.org>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [OOPS] 2.4.22 / HPT372N
+Date: Fri, 12 Sep 2003 17:26:01 +0200
+User-Agent: KMail/1.5.3
+References: <200309091406.56334.ronny-lkml@vlugnet.org> <200309121624.41989.ronny-lkml@vlugnet.org> <200309121642.19966.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200309121642.19966.bzolnier@elka.pw.edu.pl>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Marko Kreen <marko@l-t.ee>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030912133626.GH22380@OZoNE.TZoNE.ORG>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200309121726.01792.ronny-lkml@vlugnet.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Toshiba 5200 doesn't have any bios, so it is up to the ACPI to
-configure the IRQ for some of the PCI cards on the system (including
-modem, audio and possibly pcmcia).
+Am Freitag 12 September 2003 16:42 schrieben Sie:
+> On Friday 12 of September 2003 16:24, Ronny Buchmann wrote:
+> > Am Freitag 12 September 2003 14:58 schrieb Bartlomiej Zolnierkiewicz:
+> > > On Friday 12 of September 2003 12:48, Alan Cox wrote:
+> > > > On Gwe, 2003-09-12 at 10:41, Ronny Buchmann wrote:
+> > > > > -	d->channels = 1;
+> > > > > +	d->channels = 2;
+> > > >
+> > > > Need to work out which 372N and others are dual channel but yes
+> > >
+> > > No, "d->channels = 1" is only executed for orginal HPT366 which has
+> > > separate PCI configurations for first and second channel.  For HPT372N
+> > > you have correct value in hpt366.h - ".channels = 2".
+Some of the HPT372N (including mine) have the same device id as the HPT366 (0004),
+they differ only in revision (rev 6 is 372N).
 
-I am using Linux 2.4.22 and when I boot the booting process STOP
-(doesn't do anything) after the line:
+(this logic is already used in other functions)
 
-PCI: Enabling device 00:1f.6 (0000 -> 0001)
+--- linux-2.4.22-ac1/drivers/ide/pci/hpt366.c.orig	2003-09-11 21:29:06.000000000 +0200
++++ linux-2.4.22-ac1/drivers/ide/pci/hpt366.c	2003-09-12 17:13:31.000000000 +0200
+@@ -1343,7 +1343,7 @@
+ 	u8 pin1 = 0, pin2 = 0;
+ 	unsigned int class_rev;
+ 	static char *chipset_names[] = {"HPT366", "HPT366",  "HPT368",
+-				 "HPT370", "HPT370A", "HPT372"};
++				 "HPT370", "HPT370A", "HPT372", "HPT372N"};
+ 
+ 	if (PCI_FUNC(dev->devfn) & 1)
+ 		return;
+@@ -1351,16 +1351,11 @@
+ 	pci_read_config_dword(dev, PCI_CLASS_REVISION, &class_rev);
+ 	class_rev &= 0xff;
+ 
+-	/* New ident 372N reports revision 1. We could do the 
+-	   io port based type identification instead perhaps (DID, RID) */
+-	   
+-	if(d->device == PCI_DEVICE_ID_TTI_HPT372N)
+-		class_rev = 5;
+-		
+-	if(class_rev < 6)
++	if(class_rev <= 6)
+ 		d->name = chipset_names[class_rev];
+ 
+ 	switch(class_rev) {
++		case 6:
+ 		case 5:
+ 		case 4:
+ 		case 3: ide_setup_pci_device(dev, d);
 
-If I put pci=noacpi in my kernel parameters, I am able to boot, but then
-my pci cards are assigned to IRQ 0.
+Since the 372N with the new id (0009) is set up with init_setup_37x(), "class_rev = 5" is never executed.
 
-Here is my lspci (using pci=noacpi):
-00:00.0 Host bridge: Intel Corp. 82845 845 (Brookdale) Chipset Host
-Bridge (rev 04)
-00:01.0 PCI bridge: Intel Corp. 82845 845 (Brookdale) Chipset AGP Bridge
-(rev 04)
-00:1e.0 PCI bridge: Intel Corp. 82820 820 (Camino 2) Chipset PCI (-M)
-(rev 42)
-00:1f.0 ISA bridge: Intel Corp.: Unknown device 248c (rev 02)
-00:1f.1 IDE interface: Intel Corp.: Unknown device 248a (rev 02)
-00:1f.5 Multimedia audio controller: Intel Corp. AC'97 Audio Controller
-(rev 02)
-00:1f.6 Modem: Intel Corp.: Unknown device 2486 (rev 02)
-01:00.0 VGA compatible controller: nVidia Corporation: Unknown device
-031a (rev a1)
-02:06.0 USB Controller: NEC Corporation USB (rev 41)
-02:06.1 USB Controller: NEC Corporation USB (rev 41)
-02:06.2 USB Controller: NEC Corporation: Unknown device 00e0 (rev 02)
-02:07.0 FireWire (IEEE 1394): Texas Instruments: Unknown device 8023
-02:08.0 Ethernet controller: Intel Corp. 82801CAM (ICH3) Chipset
-Ethernet Controller (rev 42)
-02:0a.0 Ethernet controller: Unknown device 168c:0012 (rev 01)
-02:0b.0 CardBus bridge: Toshiba America Info Systems ToPIC95 PCI to
-Cardbus Bridge with ZV Support (rev 33)
-02:0d.0 System peripheral: Toshiba America Info Systems: Unknown device
-0805 (rev 05)
+So the second part of the previous patch is wrong.
 
-here is my dmesg | grep ACPI (using pci=noacpi):
- BIOS-e820: 00000000000eee00 - 00000000000ef000 (ACPI NVS)
- BIOS-e820: 000000001ffd0000 - 000000001ffe0000 (ACPI data)
-ACPI: have wakeup address 0xc0001000
-ACPI: RSDP (v000 TOSHIB                                    ) @
-0x000f0180
-ACPI: RSDT (v001 TOSHIB 5200     0x20030327 TASM 0x04010000) @
-0x1ffd0000
-ACPI: FADT (v002 TOSHIB 5200     0x20021230 TASM 0x04010000) @
-0x1ffd0058
-ACPI: DBGP (v001 TOSHIB 5200     0x20030327 TASM 0x04010000) @
-0x1ffd00dc
-ACPI: BOOT (v001 TOSHIB 5200     0x20030327 TASM 0x04010000) @
-0x1ffd0030
-ACPI: DSDT (v001 TOSHIB 5200     0x20030327 MSFT 0x0100000a) @
-0x00000000
-ACPI: MADT not present
-ACPI: Subsystem revision 20030813
-tbxface-0117 [03] acpi_load_tables      : ACPI Tables successfully
-acquired
-ACPI Namespace successfully loaded at root c038041c
-evxfevnt-0093 [04] acpi_enable           : Transition to ACPI mode
-successful
-ACPI: Interpreter enabled
-ACPI: Using PIC for interrupt routing
-ACPI: System [ACPI] (supports S0 S3 S4 S5)
-ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 6 7 10 11 12, disabled)
-ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 6 7 10 11 12, disabled)
-ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 6 7 10 *11 12)
-ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 *6 7 10 11 12)
-ACPI: PCI Interrupt Link [LNKE] (IRQs 3 *4 6 7 10 11 12)
-ACPI: PCI Interrupt Link [LNKF] (IRQs 3 4 6 7 10 11 12, disabled)
-ACPI: PCI Interrupt Link [LNKG] (IRQs *5)
-ACPI: PCI Interrupt Link [LNKH] (IRQs *3 4 6 7 10 11 12)
-ACPI: PCI Root Bridge [PCI0] (00:00)
-ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
-ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PCIB._PRT]
-ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PCI1._PRT]
-ACPI: Power Resource [PFN0] (off)
-ACPI: Power Resource [PFN1] (off)
-ACPI: AC Adapter [ADP1] (on-line)
-ACPI: Battery Slot [BAT1] (battery present)
-ACPI: Battery Slot [BAT2] (battery absent)
-ACPI: Power Button (FF) [PWRF]
-ACPI: Lid Switch [LID]
-ACPI: Fan [FAN0] (off)
-ACPI: Fan [FAN1] (off)
-ACPI: Processor [CPU0] (supports C1 C2 C3, 2 performance states)
-ACPI: Thermal Zone [THRM] (61 C)
-
-here is my dmesg | grep PCI (using pci=noacpi):
-PCI: PCI BIOS revision 2.10 entry at 0xfcf0c, last bus=4
-PCI: Using configuration type 1
-ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 6 7 10 11 12, disabled)
-ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 6 7 10 11 12, disabled)
-ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 6 7 10 *11 12)
-ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 *6 7 10 11 12)
-ACPI: PCI Interrupt Link [LNKE] (IRQs 3 *4 6 7 10 11 12)
-ACPI: PCI Interrupt Link [LNKF] (IRQs 3 4 6 7 10 11 12, disabled)
-ACPI: PCI Interrupt Link [LNKG] (IRQs *5)
-ACPI: PCI Interrupt Link [LNKH] (IRQs *3 4 6 7 10 11 12)
-ACPI: PCI Root Bridge [PCI0] (00:00)
-PCI: Probing PCI hardware (bus 00)
-PCI: Ignoring BAR0-3 of IDE controller 00:1f.1
-Transparent bridge - Intel Corp. 82801BAM/CAM PCI Bridge
-ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
-ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PCIB._PRT]
-ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PCI1._PRT]
-PCI: Probing PCI hardware
-Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ
-SERIAL_PCI ISAPNP enabled
-PCI: Enabling device 00:1f.6 (0000 -> 0001)
-PCI: No IRQ known for interrupt pin B of device 00:1f.6. Please try
-using pci=biosirq.
-ICH3M: IDE controller at PCI slot 00:1f.1
-PCI: Enabling device 02:06.2 (0000 -> 0002)
-PCI: No IRQ known for interrupt pin C of device 02:06.2. Please try
-using pci=biosirq.
-hcd.c: Found HC with no IRQ.  Check BIOS/PCI 02:06.2 setup!
-PCI: Enabling device 00:1f.5 (0000 -> 0001)
-PCI: No IRQ known for interrupt pin B of device 00:1f.5. Please try
-using pci=biosirq.
-PCI: Setting latency timer of device 00:1f.5 to 64
-
-Any idea anyone?
-
--Francis
 -- 
-Francis Provencher <darkfox@TZoNE.ORG>
-"What if the bird will not sing?"
+ronny
+
+

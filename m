@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270724AbTHLPjv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 11:39:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271071AbTHLPju
+	id S270436AbTHLPaw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 11:30:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270469AbTHLPaw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 11:39:50 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:1942 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S270724AbTHLPjt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 11:39:49 -0400
-Subject: Re: IDE bug - was: Re: uncorrectable ext2 errors
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Jan Niehusmann <jan@gondor.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030811003343.A16918@pclin040.win.tue.nl>
-References: <20030806150335.GA5430@gondor.com>
-	 <20030807110641.GA31809@gondor.com> <20030807211236.GA5637@win.tue.nl>
-	 <20030810205513.GA6337@gondor.com>
-	 <20030810231955.A16852@pclin040.win.tue.nl>
-	 <20030810213450.GA7050@gondor.com>
-	 <20030810235834.A16865@pclin040.win.tue.nl>
-	 <20030810221020.GA7832@gondor.com>
-	 <20030811003343.A16918@pclin040.win.tue.nl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1060702567.21160.30.camel@dhcp22.swansea.linux.org.uk>
+	Tue, 12 Aug 2003 11:30:52 -0400
+Received: from werbeagentur-aufwind.com ([217.160.128.76]:31463 "EHLO
+	mail.werbeagentur-aufwind.com") by vger.kernel.org with ESMTP
+	id S270436AbTHLPat (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 11:30:49 -0400
+Date: Tue, 12 Aug 2003 17:30:46 +0200
+From: Christophe Saout <christophe@saout.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix /sys/<dev>/<partition>/dev format: %04x -> %u:%u
+Message-ID: <20030812153046.GA13568@chtephan.cs.pocnet.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 12 Aug 2003 16:36:08 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2003-08-10 at 23:33, Andries Brouwer wrote:
->         if (drive->addressing == 1)             /* 48-bit LBA */
->                 return lba_48_rw_disk(drive, rq, (unsigned long long) block);
->         if (drive->select.b.lba)                /* 28-bit LBA */
->                 return lba_28_rw_disk(drive, rq, (unsigned long) block);
->         return chs_rw_disk(drive, rq, (unsigned long) block);
-> 
-> with checking the size of block.
-> And init_idedisk_capacity() does not check addressing.
+Hi!
 
-It should also issue LBA28 if the size of th range and the end block
-fall under the LBA28 limit because thst saves you valuable I/O time.
+(I already sent a patch to Andrew, but someone just told me that the
+vanilla test3 is also affected)
 
-Jens had patches for that but I don't know where they went in 2.6
+In 2.6.0-test3 a part of the 64 bit kdev_t patch got merged, it changes the
+format of /sys/block/<dev>/dev from %02x%02x to %u:%u. The partition could
+must also be changed.
 
+e.g. cat /sys/block/hda/hda5/dev should return 3:5 instead of 0305
+
+This small patch adds this:
+
+diff -Nur linux.orig/fs/partitions/check.c linux/fs/partitions/check.c
+--- linux.orig/fs/partitions/check.c	2003-08-12 15:27:55.000000000 +0200
++++ linux/fs/partitions/check.c	2003-08-12 15:46:15.855390848 +0200
+@@ -223,9 +223,8 @@
+ static ssize_t part_dev_read(struct hd_struct * p, char *page)
+ {
+ 	struct gendisk *disk = container_of(p->kobj.parent,struct gendisk,kobj);
+-	int part = p->partno;
+-	dev_t base = MKDEV(disk->major, disk->first_minor); 
+-	return sprintf(page, "%04x\n", (unsigned)(base + part));
++	dev_t dev = MKDEV(disk->major, disk->first_minor + p->partno); 
++	return print_dev_t(page, dev);
+ }
+ static ssize_t part_start_read(struct hd_struct * p, char *page)
+ {
+
+--
+Christophe Saout <christophe@saout.de>
+Please avoid sending me Word or PowerPoint attachments.
+See http://www.fsf.org/philosophy/no-word-attachments.html

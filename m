@@ -1,21 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263946AbTLXWbX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Dec 2003 17:31:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263980AbTLXWbX
+	id S263996AbTLXWl7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Dec 2003 17:41:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264093AbTLXWl7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Dec 2003 17:31:23 -0500
-Received: from smtp-103-wednesday.nerim.net ([62.4.16.103]:266 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S263946AbTLXWbO convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Dec 2003 17:31:14 -0500
-Date: Wed, 24 Dec 2003 23:32:10 +0100
+	Wed, 24 Dec 2003 17:41:59 -0500
+Received: from smtp-103-wednesday.noc.nerim.net ([62.4.17.103]:21001 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S263996AbTLXWlq convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Dec 2003 17:41:46 -0500
+Date: Wed, 24 Dec 2003 23:42:42 +0100
 From: Jean Delvare <khali@linux-fr.org>
 To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
 Cc: LKML <linux-kernel@vger.kernel.org>,
        LM Sensors <sensors@stimpy.netroedge.com>
-Subject: [PATCH 2.4] i2c cleanups, second wave (2/5)
-Message-Id: <20031224233210.4573f541.khali@linux-fr.org>
+Subject: [PATCH 2.4] i2c cleanups, second wave (3/5)
+Message-Id: <20031224234242.4f3f0084.khali@linux-fr.org>
 In-Reply-To: <20031224225707.749707e5.khali@linux-fr.org>
 References: <20031224225707.749707e5.khali@linux-fr.org>
 Reply-To: LKML <linux-kernel@vger.kernel.org>,
@@ -27,322 +28,462 @@ Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch drops almost all compatibility stuff that was leftover from
-times of kernel 2.2. A few extra includes may have survived, we will
-take care of them later.
+This patch updates the i2c-core locking mechanism.
 
 Most of the work was done by Kyösti Mälkki. Original comment follows:
 ***
-Remove code for KERNEL_VERSION tests.
+Replace use of ADAP_LOCK and DRV_LOCK with down(&core_lists).
+In many cases we need both, some return path forgot UNLOCK, and locks
+were claimed in varying order and sometimes not at all.
+
+Replace use of I2C_LOCK with down(&adapter->bus).
+
+Remove unused adapter, driver and client counts.
 ***
 
-Note that this patch was voluntarily generated using diff -U1, because
-it contains only removals, so much context isn't required. Doing so
-makes this patch apply successfully even if you don't apply the patch #1
-of this second wave first.
+>From Kyösti's original patch, I removed a few things that did not
+stricly belong to it. A few locks are still missing, even after applying
+this patch. All these changes will be merged into a more generic
+i2c-core code cleanup patch, to be submitted later. 
 
-diff -r -U1 linux-2.4.24-pre2-k1/drivers/i2c/i2c-adap-ite.c linux-2.4.24-pre2-k2/drivers/i2c/i2c-adap-ite.c
---- linux-2.4.24-pre2-k1/drivers/i2c/i2c-adap-ite.c	Mon Dec 22 22:04:00 2003
-+++ linux-2.4.24-pre2-k2/drivers/i2c/i2c-adap-ite.c	Tue Dec 23 19:02:05 2003
-@@ -40,3 +40,2 @@
- #include <linux/slab.h>
--#include <linux/version.h>
- #include <linux/init.h>
-@@ -63,7 +62,3 @@
- static struct iic_ite gpi;
--#if (LINUX_VERSION_CODE < 0x020301)
--static struct wait_queue *iic_wait = NULL;
--#else
- static wait_queue_head_t iic_wait;
--#endif
- static int iic_pending;
-@@ -273,5 +268,2 @@
- 	iic_ite_data.data = (void *)piic;
--#if (LINUX_VERSION_CODE >= 0x020301)
--	init_waitqueue_head(&iic_wait);
--#endif
- 	if (iic_hw_resrc_init() == 0) {
-diff -r -U1 linux-2.4.24-pre2-k1/drivers/i2c/i2c-algo-bit.c linux-2.4.24-pre2-k2/drivers/i2c/i2c-algo-bit.c
---- linux-2.4.24-pre2-k1/drivers/i2c/i2c-algo-bit.c	Mon Dec 22 22:04:00 2003
-+++ linux-2.4.24-pre2-k2/drivers/i2c/i2c-algo-bit.c	Tue Dec 23 19:02:05 2003
-@@ -29,3 +29,2 @@
- #include <linux/slab.h>
--#include <linux/version.h>
- #include <linux/init.h>
-diff -r -U1 linux-2.4.24-pre2-k1/drivers/i2c/i2c-algo-ite.c linux-2.4.24-pre2-k2/drivers/i2c/i2c-algo-ite.c
---- linux-2.4.24-pre2-k1/drivers/i2c/i2c-algo-ite.c	Mon Dec 22 22:04:00 2003
-+++ linux-2.4.24-pre2-k2/drivers/i2c/i2c-algo-ite.c	Tue Dec 23 19:02:05 2003
-@@ -40,3 +40,2 @@
- #include <linux/slab.h>
--#include <linux/version.h>
- #include <linux/init.h>
-diff -r -U1 linux-2.4.24-pre2-k1/drivers/i2c/i2c-algo-pcf.c linux-2.4.24-pre2-k2/drivers/i2c/i2c-algo-pcf.c
---- linux-2.4.24-pre2-k1/drivers/i2c/i2c-algo-pcf.c	Mon Dec 22 22:04:00 2003
-+++ linux-2.4.24-pre2-k2/drivers/i2c/i2c-algo-pcf.c	Tue Dec 23 19:02:05 2003
-@@ -33,3 +33,2 @@
- #include <linux/slab.h>
--#include <linux/version.h>
- #include <linux/init.h>
-diff -r -U1 linux-2.4.24-pre2-k1/drivers/i2c/i2c-core.c linux-2.4.24-pre2-k2/drivers/i2c/i2c-core.c
---- linux-2.4.24-pre2-k1/drivers/i2c/i2c-core.c	Mon Dec 22 22:04:00 2003
-+++ linux-2.4.24-pre2-k2/drivers/i2c/i2c-core.c	Tue Dec 23 19:02:05 2003
-@@ -35,9 +35,4 @@
+diff -ru linux-2.4.24-pre2-k2/drivers/i2c/i2c-core.c linux-2.4.24-pre2-k3/drivers/i2c/i2c-core.c
+--- linux-2.4.24-pre2-k2/drivers/i2c/i2c-core.c	Tue Dec 23 19:02:05 2003
++++ linux-2.4.24-pre2-k3/drivers/i2c/i2c-core.c	Wed Dec 24 19:04:55 2003
+@@ -39,32 +39,14 @@
  
--#include <linux/version.h>
- #include <linux/init.h>
+ /* ----- global defines ---------------------------------------------------- */
  
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,3,1)
--#define init_MUTEX(s) do { *(s) = MUTEX; } while(0)
--#endif
+-/* exclusive access to the bus */
+-#define I2C_LOCK(adap) down(&adap->lock)
+-#define I2C_UNLOCK(adap) up(&adap->lock) 
 -
- #include <asm/uaccess.h>
-@@ -86,6 +81,2 @@
- 
--#if (LINUX_VERSION_CODE <= KERNEL_VERSION(2,3,27))
--static void monitor_bus_i2c(struct inode *inode, int fill);
--#endif /* (LINUX_VERSION_CODE >= KERNEL_VERSION(2,1,58)) */
+-#define ADAP_LOCK()	down(&adap_lock)
+-#define ADAP_UNLOCK()	up(&adap_lock)
 -
- static ssize_t i2cproc_bus_read(struct file * file, char * buf,size_t count, 
-@@ -101,8 +92,2 @@
- 
--#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,3,48))
--static struct inode_operations i2cproc_inode_operations = {
--	&i2cproc_operations
--};
--#endif
+-#define DRV_LOCK()	down(&driver_lock)
+-#define DRV_UNLOCK()	up(&driver_lock)
 -
- static int i2cproc_initialized = 0;
-@@ -166,12 +151,4 @@
+ #define DEB(x) if (i2c_debug>=1) x;
+ #define DEB2(x) if (i2c_debug>=2) x;
  
--#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,3,48))
- 		proc_entry->proc_fops = &i2cproc_operations;
--#else
--		proc_entry->ops = &i2cproc_inode_operations;
--#endif
--#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,3,27))
- 		proc_entry->owner = THIS_MODULE;
--#else
--		proc_entry->fill_inode = &monitor_bus_i2c;
--#endif /* (LINUX_VERSION_CODE >= KERNEL_VERSION(2,1,58)) */
- 		adap->inode = proc_entry->low_ino;
-@@ -613,14 +590,2 @@
+ /* ----- global variables -------------------------------------------------- */
  
--#if (LINUX_VERSION_CODE <= KERNEL_VERSION(2,3,27))
--/* Monitor access to /proc/bus/i2c*; make unloading i2c-proc impossible
--   if some process still uses it or some file in it */
--void monitor_bus_i2c(struct inode *inode, int fill)
--{
--	if (fill)
--		MOD_INC_USE_COUNT;
--	else
--		MOD_DEC_USE_COUNT;
--}
--#endif /* (LINUX_VERSION_CODE <= KERNEL_VERSION(2,3,37)) */
+-/**** lock for writing to global variables: the adapter & driver list */
+-struct semaphore adap_lock;
+-struct semaphore driver_lock;
 -
- /* This function generates the output for /proc/bus/i2c */
-@@ -734,7 +699,3 @@
- 	proc_bus_i2c->read_proc = &read_bus_i2c;
--#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,3,27))
- 	proc_bus_i2c->owner = THIS_MODULE;
--#else
--	proc_bus_i2c->fill_inode = &monitor_bus_i2c;
--#endif /* (LINUX_VERSION_CODE >= KERNEL_VERSION(2,3,27)) */
- 	i2cproc_initialized += 2;
-diff -r -U1 linux-2.4.24-pre2-k1/drivers/i2c/i2c-dev.c linux-2.4.24-pre2-k2/drivers/i2c/i2c-dev.c
---- linux-2.4.24-pre2-k1/drivers/i2c/i2c-dev.c	Mon Dec 22 22:04:00 2003
-+++ linux-2.4.24-pre2-k2/drivers/i2c/i2c-dev.c	Tue Dec 23 19:02:05 2003
-@@ -37,6 +37,3 @@
- #include <linux/slab.h>
--#include <linux/version.h>
--#if LINUX_KERNEL_VERSION >= KERNEL_VERSION(2,4,0)
- #include <linux/smp_lock.h>
--#endif /* LINUX_KERNEL_VERSION >= KERNEL_VERSION(2,4,0) */
- #ifdef CONFIG_DEVFS_FS
-@@ -57,5 +54,2 @@
- 
--#if LINUX_KERNEL_VERSION < KERNEL_VERSION(2,4,9)
--static loff_t i2cdev_lseek (struct file *file, loff_t offset, int origin);
--#endif
- static ssize_t i2cdev_read (struct file *file, char *buf, size_t count, 
-@@ -79,10 +73,4 @@
- static struct file_operations i2cdev_fops = {
--#if LINUX_KERNEL_VERSION >= KERNEL_VERSION(2,4,0)
- 	owner:		THIS_MODULE,
--#endif /* LINUX_KERNEL_VERSION >= KERNEL_VERSION(2,4,0) */
--#if LINUX_KERNEL_VERSION < KERNEL_VERSION(2,4,9)
--	llseek:		i2cdev_lseek,
--#else
- 	llseek:		no_llseek,
--#endif
- 	read:		i2cdev_read,
-@@ -124,16 +112,2 @@
- 
--#if LINUX_KERNEL_VERSION < KERNEL_VERSION(2,4,9)
--/* Note that the lseek function is called llseek in 2.1 kernels. But things
--   are complicated enough as is. */
--loff_t i2cdev_lseek (struct file *file, loff_t offset, int origin)
--{
--#ifdef DEBUG
--	struct inode *inode = file->f_dentry->d_inode;
--	printk("i2c-dev.o: i2c-%d lseek to %ld bytes relative to %d.\n",
--	       MINOR(inode->i_rdev),(long) offset,origin);
--#endif /* DEBUG */
--	return -ESPIPE;
--}
--#endif
+-/**** adapter list */
++DECLARE_MUTEX(core_lists);
+ static struct i2c_adapter *adapters[I2C_ADAP_MAX];
+-static int adap_count;
 -
- static ssize_t i2cdev_read (struct file *file, char *buf, size_t count,
-@@ -425,5 +399,2 @@
- 		i2cdev_adaps[minor]->inc_use(i2cdev_adaps[minor]);
--#if LINUX_KERNEL_VERSION < KERNEL_VERSION(2,4,0)
--	MOD_INC_USE_COUNT;
--#endif /* LINUX_KERNEL_VERSION < KERNEL_VERSION(2,4,0) */
+-/**** drivers list */
+ static struct i2c_driver *drivers[I2C_DRIVER_MAX];
+-static int driver_count;
  
-@@ -443,12 +414,6 @@
- #endif
--#if LINUX_KERNEL_VERSION < KERNEL_VERSION(2,4,0)
--	MOD_DEC_USE_COUNT;
--#else /* LINUX_KERNEL_VERSION >= KERNEL_VERSION(2,4,0) */
- 	lock_kernel();
--#endif /* LINUX_KERNEL_VERSION < KERNEL_VERSION(2,4,0) */
- 	if (i2cdev_adaps[minor]->dec_use)
- 		i2cdev_adaps[minor]->dec_use(i2cdev_adaps[minor]);
--#if LINUX_KERNEL_VERSION >= KERNEL_VERSION(2,4,0)
- 	unlock_kernel();
--#endif /* LINUX_KERNEL_VERSION >= KERNEL_VERSION(2,4,0) */
- 	return 0;
-diff -r -U1 linux-2.4.24-pre2-k1/drivers/i2c/i2c-elektor.c linux-2.4.24-pre2-k2/drivers/i2c/i2c-elektor.c
---- linux-2.4.24-pre2-k1/drivers/i2c/i2c-elektor.c	Mon Dec 22 22:04:00 2003
-+++ linux-2.4.24-pre2-k2/drivers/i2c/i2c-elektor.c	Tue Dec 23 19:02:05 2003
-@@ -32,3 +32,2 @@
- #include <linux/slab.h>
--#include <linux/version.h>
- #include <linux/init.h>
-@@ -57,7 +56,3 @@
- 
--#if (LINUX_VERSION_CODE < 0x020301)
--static struct wait_queue *pcf_wait = NULL;
--#else
- static wait_queue_head_t pcf_wait;
--#endif
- static int pcf_pending;
-@@ -270,5 +265,3 @@
- 
--#if (LINUX_VERSION_CODE >= 0x020301)
- 	init_waitqueue_head(&pcf_wait);
--#endif
- 	if (pcf_isa_init() == 0) {
-diff -r -U1 linux-2.4.24-pre2-k1/drivers/i2c/i2c-elv.c linux-2.4.24-pre2-k2/drivers/i2c/i2c-elv.c
---- linux-2.4.24-pre2-k1/drivers/i2c/i2c-elv.c	Mon Dec 22 22:04:00 2003
-+++ linux-2.4.24-pre2-k2/drivers/i2c/i2c-elv.c	Tue Dec 23 19:02:05 2003
-@@ -29,3 +29,2 @@
- #include <linux/slab.h>
--#include <linux/version.h>
- #include <linux/init.h>
-diff -r -U1 linux-2.4.24-pre2-k1/drivers/i2c/i2c-keywest.c linux-2.4.24-pre2-k2/drivers/i2c/i2c-keywest.c
---- linux-2.4.24-pre2-k1/drivers/i2c/i2c-keywest.c	Fri Nov 29 00:53:13 2002
-+++ linux-2.4.24-pre2-k2/drivers/i2c/i2c-keywest.c	Tue Dec 23 19:02:05 2003
-@@ -47,3 +47,2 @@
- #include <linux/config.h>
--#include <linux/version.h>
- #include <linux/kernel.h>
-diff -r -U1 linux-2.4.24-pre2-k1/drivers/i2c/i2c-philips-par.c linux-2.4.24-pre2-k2/drivers/i2c/i2c-philips-par.c
---- linux-2.4.24-pre2-k1/drivers/i2c/i2c-philips-par.c	Mon Dec 22 22:04:00 2003
-+++ linux-2.4.24-pre2-k2/drivers/i2c/i2c-philips-par.c	Tue Dec 23 19:02:05 2003
-@@ -248,3 +248,2 @@
- 
--#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,3,4)
- static struct parport_driver i2c_driver = {
-@@ -255,3 +254,2 @@
- };
--#endif
- 
-@@ -259,13 +257,5 @@
+ /**** debug level */
+ static int i2c_debug=1;
+@@ -112,9 +94,9 @@
+  */
+ int i2c_add_adapter(struct i2c_adapter *adap)
  {
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,3,4)
--	struct parport *port;
--#endif
- 	printk(KERN_INFO "i2c-philips-par.o: i2c Philips parallel port adapter module version %s (%s)\n", I2C_VERSION, I2C_DATE);
+-	int i,j,res;
++	int i,j,res = 0;
  
--#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,3,4)
- 	parport_register_driver(&i2c_driver);
--#else
--	for (port = parport_enumerate(); port; port=port->next)
--		i2c_parport_attach(port);
--#endif
+-	ADAP_LOCK();
++	down(&core_lists);
+ 	for (i = 0; i < I2C_ADAP_MAX; i++)
+ 		if (NULL == adapters[i])
+ 			break;
+@@ -127,11 +109,10 @@
+ 	}
+ 
+ 	adapters[i] = adap;
+-	adap_count++;
+-	ADAP_UNLOCK();
  	
-@@ -276,9 +266,3 @@
- {
--#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,3,4)
- 	parport_unregister_driver(&i2c_driver);
--#else
--	struct parport *port;
--	for (port = parport_enumerate(); port; port=port->next)
--		i2c_parport_detach(port);
--#endif
- }
-diff -r -U1 linux-2.4.24-pre2-k1/drivers/i2c/i2c-proc.c linux-2.4.24-pre2-k2/drivers/i2c/i2c-proc.c
---- linux-2.4.24-pre2-k1/drivers/i2c/i2c-proc.c	Mon Dec 22 22:04:00 2003
-+++ linux-2.4.24-pre2-k2/drivers/i2c/i2c-proc.c	Tue Dec 23 19:02:05 2003
-@@ -25,3 +25,2 @@
+ 	/* init data types */
+-	init_MUTEX(&adap->lock);
++	init_MUTEX(&adap->bus);
++	init_MUTEX(&adap->list);
  
--#include <linux/version.h>
- #include <linux/module.h>
-@@ -63,6 +62,2 @@
- static unsigned short i2c_inodes[SENSORS_ENTRY_MAX];
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,3,1)
--static void i2c_fill_inode(struct inode *inode, int fill);
--static void i2c_dir_fill_inode(struct inode *inode, int fill);
--#endif			/* LINUX_VERSION_CODE < KERNEL_VERSION(2,3,1) */
+ #ifdef CONFIG_PROC_FS
  
-@@ -196,8 +191,3 @@
- 	    new_header->ctl_table->child->child->de->low_ino;
--#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,3,27))
- 	new_header->ctl_table->child->child->de->owner = controlling_mod;
--#else
--	new_header->ctl_table->child->child->de->fill_inode =
--	    &i2c_dir_fill_inode;
--#endif	/* (LINUX_VERSION_CODE >= KERNEL_VERSION(2,3,27)) */
+@@ -146,7 +127,7 @@
+ 			printk("i2c-core.o: Could not create /proc/bus/%s\n",
+ 			       name);
+ 			res = -ENOENT;
+-			goto ERROR1;
++			goto ERROR0;
+ 		}
  
-@@ -863,8 +853,3 @@
- 	     register_sysctl_table(i2c_proc, 0))) return -ENOMEM;
--#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,3,1))
- 	i2c_proc_header->ctl_table->child->de->owner = THIS_MODULE;
--#else
--	i2c_proc_header->ctl_table->child->de->fill_inode =
--	    &i2c_fill_inode;
--#endif			/* (LINUX_VERSION_CODE >= KERNEL_VERSION(2,3,1)) */
- 	i2c_initialized++;
-diff -r -U1 linux-2.4.24-pre2-k1/include/linux/i2c.h linux-2.4.24-pre2-k2/include/linux/i2c.h
---- linux-2.4.24-pre2-k1/include/linux/i2c.h	Mon Dec 22 22:20:29 2003
-+++ linux-2.4.24-pre2-k2/include/linux/i2c.h	Tue Dec 23 20:05:40 2003
-@@ -44,13 +44,3 @@
- 
--#include <linux/version.h>
--#ifndef KERNEL_VERSION
--#define KERNEL_VERSION(a,b,c) (((a) << 16) | ((b) << 8) | (c))
--#endif
--
--#include <asm/page.h>			/* for 2.2.xx 			*/
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,0,25)
--#include <linux/sched.h>
--#else
- #include <asm/semaphore.h>
--#endif
- #include <linux/config.h>
-@@ -228,6 +218,2 @@
- 
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,1,29)
--struct proc_dir_entry;
--#endif
--
- /*
-@@ -269,5 +255,2 @@
- 	int inode;
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,1,29)
--	struct proc_dir_entry *proc_entry;
--#endif
+ 		proc_entry->proc_fops = &i2cproc_operations;
+@@ -157,36 +138,25 @@
  #endif /* def CONFIG_PROC_FS */
+ 
+ 	/* inform drivers of new adapters */
+-	DRV_LOCK();	
+ 	for (j=0;j<I2C_DRIVER_MAX;j++)
+ 		if (drivers[j]!=NULL && 
+ 		    (drivers[j]->flags&(I2C_DF_NOTIFY|I2C_DF_DUMMY)))
+ 			/* We ignore the return code; if it fails, too bad */
+ 			drivers[j]->attach_adapter(adap);
+-	DRV_UNLOCK();
+ 	
+ 	DEB(printk(KERN_DEBUG "i2c-core.o: adapter %s registered as adapter %d.\n",
+ 	           adap->name,i));
+-
+-	return 0;	
+-
+-
+-ERROR1:
+-	ADAP_LOCK();
+-	adapters[i] = NULL;
+-	adap_count--;
+ ERROR0:
+-	ADAP_UNLOCK();
++	up(&core_lists);
+ 	return res;
+ }
+ 
+ 
+ int i2c_del_adapter(struct i2c_adapter *adap)
+ {
+-	int i,j,res;
+-
+-	ADAP_LOCK();
++	int i,j,res = 0;
+ 
++	down(&core_lists);
+ 	for (i = 0; i < I2C_ADAP_MAX; i++)
+ 		if (adap == adapters[i])
+ 			break;
+@@ -202,17 +172,14 @@
+ 	 * *detach* it! Of course, each dummy driver should know about
+ 	 * this or hell will break loose...
+ 	 */
+-	DRV_LOCK();
+ 	for (j = 0; j < I2C_DRIVER_MAX; j++) 
+ 		if (drivers[j] && (drivers[j]->flags & I2C_DF_DUMMY))
+ 			if ((res = drivers[j]->attach_adapter(adap))) {
+ 				printk(KERN_WARNING "i2c-core.o: can't detach adapter %s "
+ 				       "while detaching driver %s: driver not "
+ 				       "detached!",adap->name,drivers[j]->name);
+-				goto ERROR1;	
++				goto ERROR0;
+ 			}
+-	DRV_UNLOCK();
+-
+ 
+ 	/* detach any active clients. This must be done first, because
+ 	 * it can fail; in which case we give upp. */
+@@ -240,17 +207,9 @@
+ #endif /* def CONFIG_PROC_FS */
+ 
+ 	adapters[i] = NULL;
+-	adap_count--;
+-	
+-	ADAP_UNLOCK();	
+ 	DEB(printk(KERN_DEBUG "i2c-core.o: adapter unregistered: %s\n",adap->name));
+-	return 0;
+-
+ ERROR0:
+-	ADAP_UNLOCK();
+-	return res;
+-ERROR1:
+-	DRV_UNLOCK();
++	up(&core_lists);
+ 	return res;
+ }
+ 
+@@ -264,7 +223,8 @@
+ int i2c_add_driver(struct i2c_driver *driver)
+ {
+ 	int i;
+-	DRV_LOCK();
++
++	down(&core_lists);
+ 	for (i = 0; i < I2C_DRIVER_MAX; i++)
+ 		if (NULL == drivers[i])
+ 			break;
+@@ -273,19 +233,12 @@
+ 		       " i2c-core.o: register_driver(%s) "
+ 		       "- enlarge I2C_DRIVER_MAX.\n",
+ 			driver->name);
+-		DRV_UNLOCK();
++		up(&core_lists);
+ 		return -ENOMEM;
+ 	}
+-
+ 	drivers[i] = driver;
+-	driver_count++;
+-	
+-	DRV_UNLOCK();	/* driver was successfully added */
+-	
+ 	DEB(printk(KERN_DEBUG "i2c-core.o: driver %s registered.\n",driver->name));
+ 	
+-	ADAP_LOCK();
+-
+ 	/* now look for instances of driver on our adapters
+ 	 */
+ 	if (driver->flags& (I2C_DF_NOTIFY|I2C_DF_DUMMY)) {
+@@ -294,15 +247,15 @@
+ 				/* Ignore errors */
+ 				driver->attach_adapter(adapters[i]);
+ 	}
+-	ADAP_UNLOCK();
++	up(&core_lists);
+ 	return 0;
+ }
+ 
+ int i2c_del_driver(struct i2c_driver *driver)
+ {
+-	int i,j,k,res;
++	int i,j,k,res = 0;
+ 
+-	DRV_LOCK();
++	down(&core_lists);
+ 	for (i = 0; i < I2C_DRIVER_MAX; i++)
+ 		if (driver == drivers[i])
+ 			break;
+@@ -310,7 +263,7 @@
+ 		printk(KERN_WARNING " i2c-core.o: unregister_driver: "
+ 				    "[%s] not found\n",
+ 			driver->name);
+-		DRV_UNLOCK();
++		up(&core_lists);
+ 		return -ENODEV;
+ 	}
+ 	/* Have a look at each adapter, if clients of this driver are still
+@@ -322,7 +275,6 @@
+ 	 * invalid operation might (will!) result, when using stale client
+ 	 * pointers.
+ 	 */
+-	ADAP_LOCK(); /* should be moved inside the if statement... */
+ 	for (k=0;k<I2C_ADAP_MAX;k++) {
+ 		struct i2c_adapter *adap = adapters[k];
+ 		if (adap == NULL) /* skip empty entries. */
+@@ -341,8 +293,7 @@
+ 				       "not be detached properly; driver "
+ 				       "not unloaded!",driver->name,
+ 				       adap->name);
+-				ADAP_UNLOCK();
+-				return res;
++				goto ERROR0;
+ 			}
+ 		} else {
+ 			for (j=0;j<I2C_CLIENT_MAX;j++) { 
+@@ -365,31 +316,41 @@
+ 						       driver->name,
+ 						       client->addr,
+ 						       adap->name);
+-						ADAP_UNLOCK();
+-						return res;
++						goto ERROR0;
+ 					}
+ 				}
+ 			}
+ 		}
+ 	}
+-	ADAP_UNLOCK();
+ 	drivers[i] = NULL;
+-	driver_count--;
+-	DRV_UNLOCK();
+-	
+ 	DEB(printk(KERN_DEBUG "i2c-core.o: driver unregistered: %s\n",driver->name));
+-	return 0;
++
++ERROR0:
++	up(&core_lists);
++	return res;
+ }
+ 
+-int i2c_check_addr (struct i2c_adapter *adapter, int addr)
++static int __i2c_check_addr (struct i2c_adapter *adapter, int addr)
+ {
+ 	int i;
+ 	for (i = 0; i < I2C_CLIENT_MAX ; i++) 
+ 		if (adapter->clients[i] && (adapter->clients[i]->addr == addr))
+ 			return -EBUSY;
++
+ 	return 0;
+ }
+ 
++int i2c_check_addr (struct i2c_adapter *adapter, int addr)
++{
++	int rval;
++
++	down(&adapter->list);
++	rval = __i2c_check_addr(adapter, addr);
++	up(&adapter->list);
++
++	return rval;
++}
++
+ int i2c_attach_client(struct i2c_client *client)
+ {
+ 	struct i2c_adapter *adapter = client->adapter;
+@@ -398,6 +359,7 @@
+ 	if (i2c_check_addr(client->adapter,client->addr))
+ 		return -EBUSY;
+ 
++	down(&adapter->list);
+ 	for (i = 0; i < I2C_CLIENT_MAX; i++)
+ 		if (NULL == adapter->clients[i])
+ 			break;
+@@ -405,11 +367,11 @@
+ 		printk(KERN_WARNING 
+ 		       " i2c-core.o: attach_client(%s) - enlarge I2C_CLIENT_MAX.\n",
+ 			client->name);
++		up(&adapter->list);
+ 		return -ENOMEM;
+ 	}
+-
+ 	adapter->clients[i] = client;
+-	adapter->client_count++;
++	up(&adapter->list);
+ 	
+ 	if (adapter->client_register) 
+ 		if (adapter->client_register(client)) 
+@@ -431,6 +393,7 @@
+ 	struct i2c_adapter *adapter = client->adapter;
+ 	int i,res;
+ 
++	down(&adapter->list);
+ 	for (i = 0; i < I2C_CLIENT_MAX; i++)
+ 		if (client == adapter->clients[i])
+ 			break;
+@@ -438,6 +401,7 @@
+ 		printk(KERN_WARNING " i2c-core.o: unregister_client "
+ 				    "[%s] not found\n",
+ 			client->name);
++		up(&adapter->list);
+ 		return -ENODEV;
+ 	}
+ 	
+@@ -453,7 +417,7 @@
+ 		}
+ 
+ 	adapter->clients[i] = NULL;
+-	adapter->client_count--;
++	up(&adapter->list);
+ 
+ 	DEB(printk(KERN_DEBUG "i2c-core.o: client [%s] unregistered.\n",client->name));
+ 	return 0;
+@@ -595,6 +559,7 @@
+ 	int i;
+ 	int nr = 0;
+ 	/* Note that it is safe to write a `little' beyond len. Yes, really. */
++	down(&core_lists);
+ 	for (i = 0; (i < I2C_ADAP_MAX) && (nr < len); i++)
+ 		if (adapters[i]) {
+ 			nr += sprintf(buf+nr, "i2c-%d\t", i);
+@@ -611,6 +576,7 @@
+ 			              adapters[i]->name,
+ 			              adapters[i]->algo->name);
+ 		}
++	up(&core_lists);
+ 	return nr;
+ }
+ 
+@@ -728,9 +694,9 @@
+  	 	DEB2(printk(KERN_DEBUG "i2c-core.o: master_xfer: %s with %d msgs.\n",
+ 		            adap->name,num));
+ 
+-		I2C_LOCK(adap);
++		down(&adap->bus);
+ 		ret = adap->algo->master_xfer(adap,msgs,num);
+-		I2C_UNLOCK(adap);
++		up(&adap->bus);
+ 
+ 		return ret;
+ 	} else {
+@@ -755,9 +721,9 @@
+ 		DEB2(printk(KERN_DEBUG "i2c-core.o: master_send: writing %d bytes on %s.\n",
+ 			count,client->adapter->name));
+ 	
+-		I2C_LOCK(adap);
++		down(&adap->bus);
+ 		ret = adap->algo->master_xfer(adap,&msg,1);
+-		I2C_UNLOCK(adap);
++		up(&adap->bus);
+ 
+ 		/* if everything went ok (i.e. 1 msg transmitted), return #bytes
+ 		 * transmitted, else error code.
+@@ -785,9 +751,9 @@
+ 		DEB2(printk(KERN_DEBUG "i2c-core.o: master_recv: reading %d bytes on %s.\n",
+ 			count,client->adapter->name));
+ 	
+-		I2C_LOCK(adap);
++		down(&adap->bus);
+ 		ret = adap->algo->master_xfer(adap,&msg,1);
+-		I2C_UNLOCK(adap);
++		up(&adap->bus);
+ 	
+ 		DEB2(printk(KERN_DEBUG "i2c-core.o: master_recv: return:%d (count:%d, addr:0x%02x)\n",
+ 			ret, count, client->addr));
+@@ -1195,10 +1161,10 @@
+ 	s32 res;
+ 	flags = flags & I2C_M_TEN;
+ 	if (adapter->algo->smbus_xfer) {
+-		I2C_LOCK(adapter);
++		down(&adapter->bus);
+ 		res = adapter->algo->smbus_xfer(adapter,addr,flags,read_write,
+ 		                                command,size,data);
+-		I2C_UNLOCK(adapter);
++		up(&adapter->bus);
+ 	} else
+ 		res = i2c_smbus_xfer_emulated(adapter,addr,flags,read_write,
+ 	                                      command,size,data);
+@@ -1228,12 +1194,7 @@
+ 	printk(KERN_INFO "i2c-core.o: i2c core module version %s (%s)\n", I2C_VERSION, I2C_DATE);
+ 	memset(adapters,0,sizeof(adapters));
+ 	memset(drivers,0,sizeof(drivers));
+-	adap_count=0;
+-	driver_count=0;
+ 
+-	init_MUTEX(&adap_lock);
+-	init_MUTEX(&driver_lock);
+-	
+ #ifdef CONFIG_PROC_FS
+ 	return i2cproc_init();
+ #else
+diff -ru linux-2.4.24-pre2-k2/drivers/i2c/i2c-sibyte.c linux-2.4.24-pre2-k3/drivers/i2c/i2c-sibyte.c
+--- linux-2.4.24-pre2-k2/drivers/i2c/i2c-sibyte.c	Mon Dec 22 22:04:00 2003
++++ linux-2.4.24-pre2-k3/drivers/i2c/i2c-sibyte.c	Wed Dec 24 19:04:55 2003
+@@ -67,7 +67,6 @@
+                 dec_use:           sibyte_dec_use,
+                 client_register:   sibyte_reg,
+                 client_unregister: sibyte_unreg,
+-		client_count:      0
+         } , 
+         {
+                 name:              "SiByte SMBus 1",
+@@ -78,7 +77,6 @@
+                 dec_use:           sibyte_dec_use,
+                 client_register:   sibyte_reg,
+                 client_unregister: sibyte_unreg,
+-		client_count:      0
+         }
+ };
+ 
+diff -ru linux-2.4.24-pre2-k2/include/linux/i2c.h linux-2.4.24-pre2-k3/include/linux/i2c.h
+--- linux-2.4.24-pre2-k2/include/linux/i2c.h	Tue Dec 23 20:05:40 2003
++++ linux-2.4.24-pre2-k3/include/linux/i2c.h	Wed Dec 24 20:12:52 2003
+@@ -241,11 +241,11 @@
+ 			/* and can be set via the i2c_ioctl call	*/
+ 
+ 			/* data fields that are valid for all devices	*/
+-	struct semaphore lock;  
++	struct semaphore bus;
++	struct semaphore list;  
+ 	unsigned int flags;/* flags specifying div. data		*/
+ 
+ 	struct i2c_client *clients[I2C_CLIENT_MAX];
+-	int client_count;
+ 
+ 	int timeout;
+ 	int retries;
 
 
 -- 

@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129351AbQKEO3x>; Sun, 5 Nov 2000 09:29:53 -0500
+	id <S129422AbQKEOed>; Sun, 5 Nov 2000 09:34:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129442AbQKEO3o>; Sun, 5 Nov 2000 09:29:44 -0500
-Received: from deviant.impure.org.uk ([195.82.99.252]:48394 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S129351AbQKEO30>; Sun, 5 Nov 2000 09:29:26 -0500
-To: linux-kernel@vger.kernel.org
-Date: 5 Nov 2000 14:26:59 GMT
-From: newsgate@impure.org.uk (Rob Andrews)
-Message-ID: <slrn90arhj.ne3.rob@deviant.impure.org.uk>
-Organization: The Source of all Flarg
-Subject: IDE (hpt370) and DMA mode switching (again)...
+	id <S129442AbQKEOeY>; Sun, 5 Nov 2000 09:34:24 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:28173 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129422AbQKEOeU>;
+	Sun, 5 Nov 2000 09:34:20 -0500
+Message-ID: <3A056FCD.DC6E1E54@mandrakesoft.com>
+Date: Sun, 05 Nov 2000 09:33:49 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: chrisc@greenbuffalo.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 3c509 Oops with 2.4.0-test10
+In-Reply-To: <20001105051623.A269@greenbuffalo.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+chrisc@greenbuffalo.com wrote:
+> 
+> When trying to load the 3c509 module into a 2.4.0-test10 kernel, I
+> got an Oops as follows. Any help would be appreciated.
 
-I wrote about a week or so ago about switching DMA modes on the HPT370
-controller.
-
-I've been fiddling and have found something odd.
-
-If I compile a kernel without the 'HPT370' option in the IDE/ATA config,
-the machine starts okay, and after turning DMA on, the drive fetches about
-21.5MB/s. hdparm tells me the drive/chipset is in udma4. I can change the
-DMA mode without crashing, although if I change out of udma4, I can't set
-it back to udma3/udma4 (states that the mode is not functional).
-
-If I compile a kernel /with/ the 'HPT370' option in the IDE/ATA config, the
-machine starts okay, turns DMA mode on itself, and puts the drive into
-udma2. The drive fetches 17.4MB/s. If I change DMA mode, the machine crashes.
-No kernel panic, nothing - just completely dead.
-
-Any ideas?
+Apply this patch. 
+http://gtf.org/garzik/kernel/files/patches/2.4/2.4.0-test10/3c509-fix-2.4.0.10.patch.gz
 
 -- 
-Rob                                 off list/ng replies: rob@impure.org.uk
+Jeff Garzik             | Dinner is ready when
+Building 1024           | the smoke alarm goes off.
+MandrakeSoft            |	-/usr/games/fortune
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270185AbTGPHxA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 03:53:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270189AbTGPHxA
+	id S270194AbTGPH7L (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 03:59:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270196AbTGPH7L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 03:53:00 -0400
-Received: from zork.zork.net ([64.81.246.102]:58312 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id S270185AbTGPHw7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 03:52:59 -0400
-To: Andrew Morton <akpm@osdl.org>, Con Kolivas <kernel@kolivas.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.0-test1-mm1
-References: <20030715225608.0d3bff77.akpm@osdl.org>
-From: Sean Neakums <sneakums@zork.net>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, Con Kolivas
- <kernel@kolivas.org>, linux-kernel@vger.kernel.org,  linux-mm@kvack.org
-Date: Wed, 16 Jul 2003 09:07:42 +0100
-In-Reply-To: <20030715225608.0d3bff77.akpm@osdl.org> (Andrew Morton's
- message of "Tue, 15 Jul 2003 22:56:08 -0700")
-Message-ID: <6uwueidhdd.fsf@zork.zork.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 16 Jul 2003 03:59:11 -0400
+Received: from cm61.gamma179.maxonline.com.sg ([202.156.179.61]:25612 "EHLO
+	hera.eugeneteo.net") by vger.kernel.org with ESMTP id S270194AbTGPH7H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 03:59:07 -0400
+Date: Wed, 16 Jul 2003 16:13:50 +0800
+From: Eugene Teo <eugene.teo@eugeneteo.net>
+To: Supphachoke Suntiwichaya <mrchoke@opentle.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22-pre6 + alsa 0.9.5 + i810 not work
+Message-ID: <20030716081350.GA8976@eugeneteo.net>
+Reply-To: Eugene Teo <eugene.teo@eugeneteo.net>
+References: <3F150561.5040903@opentle.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
+Content-Disposition: inline
+In-Reply-To: <3F150561.5040903@opentle.org>
+X-Operating-System: Linux 2.2.20
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
 
-> . Another interactivity patch from Con.  Feedback is needed on this
->   please - we cannot make much progress on this fairly subjective work
->   without lots of people telling us how it is working for them.
+--tThc/1wpZn/ma/RB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This patch seems to mostly cure an oddity I've been seeing since
-2.5.7x, or maybe very late 2.5.6x (I forget exactly when) where
-running 'ps aux' or 'ls -l' in an xterm (and only xterm it seems; I've
-tried rxvt and aterm) would more often than not result in a wallclock
-run time of up to two seconds, instead of the usual tenth of a second
-or so, with system and user time remaining constant.  If I keep
-running 'ps aux' its output does start to become slow again, snapping
-back to full speed after a few more runs.  Kind of an odd one.
+> Intel 810 + AC97 Audio, version 0.24, 11:19:13 Jul 16 2003
+> i810_rng: RNG not detected
 
+Looks like the same specs as I have for Fujitsu E-7010.
+
+Have you tried choosing (Y), instead of compiling it as modules?
+
+// Intel ICH (i8xx), SiS 7012, NVidia nForce Audio or AMD 768/811x
+CONFIG_SOUND_ICH=3Dy=20
+
+> :: My labtop ::
+> Toshiba 2410
+> Gentoo linux
+> 00:1f.5 Multimedia audio controller: Intel Corp. 82801CA/CAM AC'97 Audio=
+=20
+> Controller (rev 02)
+
+00:1f.5 Multimedia audio controller: Intel Corp. 82801CA/CAM AC'97 Audio
+(rev 02)
+Subsystem: Citicorp TTI: Unknown device 1177
+Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV-
+VGASnoop- ParErr- Stepping- SERR- FastB2B-
+Status: Cap- 66Mhz- UDF- FastB2B+ ParErr-
+DEVSEL=3Dmedium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+Interrupt: pin B routed to IRQ 11
+Region 0: I/O ports at 1000
+Region 1: I/O ports at 1880
+
+positive. It is the same one.
+
+Cheers,
+Eugene
+--=20
+Eugene TEO @ Linux Users Group, Singapore <eugeneteo@lugs.org.sg>
+GPG FP: D851 4574 E357 469C D308  A01E 7321 A38A 14A0 DDE5=20
+main(i){putchar(182623909>>(i-1)*5&31|!!(i<7)<<6)&&main(++i);}
+
+
+--tThc/1wpZn/ma/RB
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/FQk+cyGjihSg3eURAi5pAJwN3IbVPbNukgEienv4Grfgx9KW9gCfRl4w
+8clAOd7sNC83ToeIm1+OGnc=
+=aC/0
+-----END PGP SIGNATURE-----
+
+--tThc/1wpZn/ma/RB--

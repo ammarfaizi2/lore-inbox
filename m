@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261988AbUKVJVY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262005AbUKVJWa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261988AbUKVJVY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 04:21:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbUKVJVY
+	id S262005AbUKVJWa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 04:22:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbUKVJWa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 04:21:24 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:489 "EHLO hermes.jf.intel.com")
-	by vger.kernel.org with ESMTP id S261988AbUKVJVT (ORCPT
+	Mon, 22 Nov 2004 04:22:30 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:10704 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262005AbUKVJVc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 04:21:19 -0500
-Subject: [PATCH]time run too fast after S3
-From: Li Shaohua <shaohua.li@intel.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@suse.cz>
-Content-Type: text/plain
-Message-Id: <1101114923.14572.8.camel@sli10-desk.sh.intel.com>
+	Mon, 22 Nov 2004 04:21:32 -0500
+Date: Mon, 22 Nov 2004 10:20:59 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Tobias DiPasquale <codeslinger@gmail.com>
+Cc: linux-kernel@vger.kernel.org, akpm@digeo.com
+Subject: Re: [PATCH] add list_del_head function
+Message-ID: <20041122092059.GA16487@suse.de>
+References: <876ef97a04112007562d6797e@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 22 Nov 2004 17:15:23 +0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <876ef97a04112007562d6797e@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-after resume from S3, 'date' shows time run too fast. Here is a patch.
+On Sat, Nov 20 2004, Tobias DiPasquale wrote:
+> Hi all,
+> 
+> I was working with some queues the other day and I noticed that there
+> was a list_add_tail() function in list.h, but no list_del_head()
+> function. This struck me as a little odd, so I went ahead and
+> implemented one in order to complete full queue functionality. The
+> patch below was generated against pristine 2.6.9 kernel.org kernel
+> sources and is attached to this email.
 
-Thanks,
-Shaohua
+Generally patches like this have little merrit unless accompanied by
+another patch converting several obvious pieces of kernel code to use
+it.
 
-Signed-off-by: Li Shaohua <shaohua.li@intel.com>
+Also I find the interface awkward and different from the other list
+functions.
 
-diff -puN arch/i386/kernel/time.c~wall_jiffies arch/i386/kernel/time.c
---- 2.6/arch/i386/kernel/time.c~wall_jiffies	2004-11-22 17:04:42.720038352 +0800
-+++ 2.6-root/arch/i386/kernel/time.c	2004-11-22 17:06:21.373040816 +0800
-@@ -343,12 +343,13 @@ static int timer_resume(struct sys_devic
- 		hpet_reenable();
- #endif
- 	sec = get_cmos_time() + clock_cmos_diff;
--	sleep_length = get_cmos_time() - sleep_start;
-+	sleep_length = (get_cmos_time() - sleep_start) * HZ;
- 	write_seqlock_irqsave(&xtime_lock, flags);
- 	xtime.tv_sec = sec;
- 	xtime.tv_nsec = 0;
- 	write_sequnlock_irqrestore(&xtime_lock, flags);
--	jiffies += sleep_length * HZ;
-+	jiffies += sleep_length;
-+	wall_jiffies += sleep_length;
- 	return 0;
- }
- 
+	entry = list_del_head(list);
 
+would have been much nicer.
+
+-- 
+Jens Axboe
 

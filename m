@@ -1,73 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293027AbSCAP0x>; Fri, 1 Mar 2002 10:26:53 -0500
+	id <S293201AbSCAPax>; Fri, 1 Mar 2002 10:30:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293086AbSCAP0o>; Fri, 1 Mar 2002 10:26:44 -0500
-Received: from paloma15.e0k.nbg-hannover.de ([62.181.130.15]:21648 "HELO
-	paloma15.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S293027AbSCAP0b>; Fri, 1 Mar 2002 10:26:31 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: James Bottomley <James.Bottomley@SteelEye.com>,
-        Chris Mason <mason@suse.com>
-Subject: Re: [PATCH] 2.4.x write barriers (updated for ext3)
-Date: Fri, 1 Mar 2002 16:26:27 +0100
-X-Mailer: KMail [version 1.3.9]
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200203011626.27719.Dieter.Nuetzel@hamburg.de>
+	id <S293101AbSCAPao>; Fri, 1 Mar 2002 10:30:44 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:63365 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S293086AbSCAPah>;
+	Fri, 1 Mar 2002 10:30:37 -0500
+Date: Fri, 01 Mar 2002 07:28:31 -0800 (PST)
+Message-Id: <20020301.072831.120445660.davem@redhat.com>
+To: linux-kernel@vger.kernel.org
+CC: jgarzik@mandrakesoft.com, linux-net@vger.kernel.org
+Subject: [BETA-0.93] Fourth test release of Tigon3 driver
+From: "David S. Miller" <davem@redhat.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
-> mason@suse.com said:
-> > So, a little testing with scsi_info shows my scsi drives do have
-> > writeback cache on.  great.  What's interesting is they must be doing
-> > additional work for ordered tags.  If they were treating the block as
-> > written once in cache, using the tags should not change  performance
-> > at all.  But, I can clearly show the tags changing performance, and
-> > hear the drive write pattern change when tags are on. 
 
-> I checked all mine and they're write through.  However, I inherited all my 
-> drives from an enterprise vendor so this might not be that surprising.
+Hey kiddies, uncle DaveM has a new release for ya:
 
-How do you checked it?
-Which scsi_info version?
-Mine gave only the below info:
+ftp://ftp.kernel.org/pub/linux/kernel/people/davem/TIGON3/tg3-0.93.patch.gz
 
-SunWave1 /home/nuetzel# scsi_info /dev/sda
-SCSI_ID="0,0,0"
-MODEL="IBM DDYS-T18350N"
-FW_REV="S96H"
-SunWave1 /home/nuetzel# scsi_info /dev/sdb
-SCSI_ID="0,1,0"
-MODEL="IBM DDRS-34560D"
-FW_REV="DC1B"
-SunWave1 /home/nuetzel# scsi_info /dev/sdc
-SCSI_ID="0,2,0"
-MODEL="IBM DDRS-34560W"
-FW_REV="S71D"
+Changes in this release:
 
-But when I use "scsi-config" I get under "Cache Control Page":
-Read cache enabled: Yes
-Write cache enabled: No
+[FIX] Fix minimum MTU enforcement and streamline Jumbo handling
+      (Jeff)
+[FEATURE] Acenic gets VLAN hw acceleration support. (DaveM)
+[FEATURE] 8139CP gets VLAN hw acceleration support. (Jeff)
+[FEATURE] 8139CP gets MTU changing updates. (Jeff)
+[FEATURE] 8139CP gets RX checksum offload. (Jeff)
+[FIX] Do not program Tigon3 MTU if it is not up yet. (DaveM)
+[API] VLAN hw acceleration interfaces enhanced:
+	1) netdev->vlan_rx_register returns now a void, it cannot fail
+	2) Add NETIF_F_HW_VLAN_FILTER and netdev->vlan_rx_add_vid
+	   for RX VLAN vid filtering acceleration as discussed
+           yesterday on this list.
+	3) VLAN layer does destroy the VLAN group when the last VLAN
+	   device in it is unregistered.  Implemented for hw
+           acceleration by calling vlan_rx_register with NULL group
+	   argument.
+[CLEANUP] Lots of private vlan kruft moved from
+          include/linux/if_vlan.h to net/8021q/vlan.h
+	  Lots of totally unused stuff deleted.
+[FIX] All the locking in the 8021q code has been audited, fixed, and
+      cleaned up.
+      Also fix refcounting, once VLAN device is made the reference to
+      its' hardware device is leaked forever.  Good luck bringing
+      down any interface that had VLANs attached :(  This bug has been
+      in the VLAN code since it went into the tree.
+[FEATURE] Use a small hash table for VLAN group lookups.
+[FEATURE] Add Robert Olsson's packet generator for stress testing.
+	  See Documentation/networking/pktgen.txt for how to use it.
+	  Soon I will add Robert's enhancements for bundling, this
+	  is just the older basic version.
+[FIX] Kill work limit code, this could cause a situation that leaves
+      the receive ring empty which deadlocks the Tigon3 and we never
+      get any new RX interrupts so it remains empty forever.
 
-I've tested it with setting this by hand some months ago, but the speed 
-doesn't change in anyway (ReiserFS).
+      This is hoped to fix a hang condition reported by Lennert
+      Buytenhek.  He was using Robert's packet generator which is
+      one of the reasons I have integrated it :-)
+[FIX] Tigon3 TX vlan tagging improperly implemented.  VLANs fully
+      tested with Tigon3 and appear to work :-)
 
-> I can surmise why ordered tags kill performance on your drive, since an 
-> ordered tag is required to affect the ordering of the write to the medium,
-> not the cache, it is probably implemented with an implicit cache flush.
->
-> Anyway, the attached patch against 2.4.18 (and I know it's rather gross
-> code)  will probe the cache type and try to set it to write through on boot.
->  See what this does to your performance ordinarily, and also to your
-> tagged write barrier performance.
+Bugs known to not be fixed in this release:
 
-Will test it over the weekend on 2.4.19-pre1aa1 with all Reiserfs 
-2.4.18.pending patches applied.
+[BUG] 5703 revision chips do not work at all.
 
-Regards,
-	Dieter
+I will work on that soon, hopefully.
+
+Please test it hard, and if you find some problem not listed in the
+"not fixed yet" bug list do let us know about it.  Do not hesitate to
+report "yeah it works, here is my setup" cases, I do log them and they
+do help us know what kind of coverage the driver is getting and
+exactly which chips have been tested.
+
+Thanks.

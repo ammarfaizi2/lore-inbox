@@ -1,57 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265288AbUHDNRW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265331AbUHDNTG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265288AbUHDNRW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 09:17:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265331AbUHDNRV
+	id S265331AbUHDNTG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 09:19:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265396AbUHDNTF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 09:17:21 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:33684 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S265288AbUHDNRQ
+	Wed, 4 Aug 2004 09:19:05 -0400
+Received: from serwer.tvgawex.pl ([212.122.214.2]:3238 "HELO
+	mother.ds.pg.gda.pl") by vger.kernel.org with SMTP id S265331AbUHDNTA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 09:17:16 -0400
-Subject: Re: CPU hotplug broken in 2.6.8-rc2 ?
-From: Nathan Lynch <nathanl@austin.ibm.com>
-To: vatsa@in.ibm.com
-Cc: dipankar@in.ibm.com, Joel Schopp <jschopp@austin.ibm.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, zwane@linuxpower.ca
-In-Reply-To: <20040804100642.GA20278@in.ibm.com>
-References: <20040802094907.GA3945@in.ibm.com>
-	 <20040802095741.GA4599@in.ibm.com>
-	 <1091475519.29556.4.camel@pants.austin.ibm.com>
-	 <1091478386.29556.36.camel@pants.austin.ibm.com>
-	 <1091567239.28036.36.camel@biclops.private.network>
-	 <20040804100642.GA20278@in.ibm.com>
-Content-Type: text/plain
-Message-Id: <1091625124.9360.14.camel@biclops.private.network>
+	Wed, 4 Aug 2004 09:19:00 -0400
+Date: Wed, 4 Aug 2004 15:19:20 +0200
+From: Tomasz Torcz <zdzichu@irc.pl>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.8-rc2-bk] New read/write bug in FAT fs
+Message-ID: <20040804131920.GA8045@irc.pl>
+Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
+References: <4110CF29.8060401@myrealbox.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 04 Aug 2004 08:12:05 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4110CF29.8060401@myrealbox.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-08-04 at 05:06, Srivatsa Vaddagiri wrote:
-> On Tue, Aug 03, 2004 at 04:07:20PM -0500, Nathan Lynch wrote:
-> >                 BUG_ON(rq->nr_running != 0);
-> > 
-> > I can reproduce this on both ppc64 and i386.  Does anyone know why this
-> > is happening?
+On Wed, Aug 04, 2004 at 04:57:29AM -0700, walt wrote:
+> One of the changesets posted by Linus on August 2 introduced
+> a bug in the FAT fs:
 > 
-> I guess some task is still stuck with the dead CPU. Can you put a breakpoint on the BUG_ON 
-> and see the ps output (in kdb) to see which task is that when you hit the breakpoint?
+> Even when a fat32 fs is mounted read-write I now get error
+> messages claiming the fs is 'read-only' when I try to write
+> to it.
 
-The task is always something like cc1 or sh from the build which is
-running.
+http://linus.bkbits.net:8080/linux-2.5/cset@1.1878?nav=index.html|ChangeSet@-4d
 
-> 
-> I will also try debugging the 2.6.8-rc2 CPU Hotplug woes as soon as I can.
-> 
-
-Well, I am seeing this with 2.6.8-rc2-mm2 -- with 2.6.8-rc2-bk13 (plus
-the same patch) I cannot reproduce it; I have run the test for 12 hours
-without problem.
-
-Nathan
+-- 
+Tomasz Torcz                 "God, root, what's the difference?" 
+zdzichu@irc.-nie.spam-.pl         "God is more forgiving."   
 

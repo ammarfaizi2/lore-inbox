@@ -1,60 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271691AbRHQQud>; Fri, 17 Aug 2001 12:50:33 -0400
+	id <S271692AbRHQQwc>; Fri, 17 Aug 2001 12:52:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271692AbRHQQuW>; Fri, 17 Aug 2001 12:50:22 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:9600 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S271691AbRHQQuD>; Fri, 17 Aug 2001 12:50:03 -0400
-Date: Fri, 17 Aug 2001 12:50:06 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Holger Lubitz <h.lubitz@internet-factory.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Encrypted Swap
-In-Reply-To: <3B7D3EF9.4CEABF2C@internet-factory.de>
-Message-ID: <Pine.LNX.3.95.1010817124622.1883A-100000@chaos.analogic.com>
+	id <S271693AbRHQQwV>; Fri, 17 Aug 2001 12:52:21 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:36358 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S271692AbRHQQwP>;
+	Fri, 17 Aug 2001 12:52:15 -0400
+Message-Id: <200108162306.DAA00420@mops.inr.ac.ru>
+Subject: Re: Kernel 2.4.6 and 2.4.7 networking performance: Seeing serious delays
+To: nivedita@us.ibm.COM (Nivedita Singhvi)
+Date: Fri, 17 Aug 2001 03:06:14 +0400 (MSD)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <OF643DA24A.2BEBB0B0-ON88256AA9.0059AF34@boulder.ibm.com> from "Nivedita Singhvi" at Aug 15, 1 09:45:14 pm
+From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Aug 2001, Holger Lubitz wrote:
+Hello!
 
-> "Richard B. Johnson" proclaimed:
-> 
-> > Errrm no. All BIOS that anybody would use write all memory found when
-> > initializing the SDRAM controller. They need to because nothing,
-> > refresh, precharge, (or if you've got it, parity/crc) will work
-> > until every cell is exercised. A "warm-boot" is different. However,
-> > if you hit the reset or the power switch, nothing in RAM survives.
-> 
-> Then this may have changed with SDRAM. However, back in my Amiga days it
-> was pretty common to just reset the machine and rip whatever was left in
-> the memory (DRAM). If memory serves me right, some people put in reset
-> protection (by pointing the reset vector to some code that cleared the
-> memory), which could be fooled by hardware reset or power cycling.
-> 
-> Holger
+> I'm still wondering why the next ack isnt delayed as well, though.
 
-Yes, even in the early PC-XT and PC/AT, where the DMA controller was
-used for refresh, it was quite possible to reset the machine and
-have RAM contents (except for the first 1 megabyte) remain untouched.
-The first 1 megabyte was cleared, actually the first 640k, because
-the boot code depended upon this. It didn't clear RAM used for
-temporary variables.
-
-But, now-days, you can't reset the machine without killing whatever
-is in RAM.
+Because out tcp is enough clever to understand that it made
+a shit delaying ACK for previous packet. But not enough psychic
+to foresee future and to avoid delay. :-)
 
 
-Cheers,
-Dick Johnson
+> I dont believe we should still be in quickack mode, 
 
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
+However, we are there. :-)
 
 
+ 4 0.000061 .100 .101 41359 > 4180 [PSH, ACK] Seq=4186558035 Ack=124141119 Win=5
+840 Len=8
+ 5 0.000061 .101 .100 4180 > 41359 [ACK] Seq=124141119 Ack=4186558043 Win=5792 L
+en=0
+
+.101 quickacks
+
+ 6 0.002295 .101 .100 4180 > 41359 [PSH, ACK] Seq=124141119 Ack=4186558043 Win=5
+792 Len=8
+
+.101 leaves quickacks setting pingpong
+
+
+ 7 0.000098 .100 .101 41359 > 4180 [ACK] Seq=4186558043 Ack=124141127 Win=5840 L
+en=0
+
+.100 quickacks
+
+ 8 0.000111 .100 .101 41359 > 4180 [PSH, ACK] Seq=4186558043 Ack=124141127 Win=5
+840 Len=8
+
+.100 leaves quickacks setting pingpong
+
+
+ 9 0.000062 .101 .100 4180 > 41359 [PSH, ACK] Seq=124141127 Ack=4186558051 Win=5
+792 Len=8
+10 0.036399 .100 .101 41359 > 4180 [ACK] Seq=4186558051 Ack=124141135 Win=5840 L
+en=0  <- DELAY
+
+.100 experiences delack timeout, which is considered as an error.
+It is really error. So, tcp clears pingpong and returns to quickack.
+
+11 0.000074 .101 .100 4180 > 41359 [PSH, ACK] Seq=124141135 Ack=4186558051 Win=5
+792 Len=1447
+12 0.000362 .100 .101 41359 > 4180 [ACK] Seq=4186558051 Ack=124142582 Win=8682 L
+en=0  
+
+.100 quickacks
+
+This loop would repeat infinitely, if connection were not closed.
+Kernel sees that user replies fastly, switches to canonical BSD mode
+to allow ack piggibacking and tries to delay ack, but silly user does
+not want to reply more. So, we have reduced amount of timeouts twice,
+but this is not a big win in this case.
+
+I am writing this mostly because it is the best demonstration
+why TCP_QUICKACK:=0 is invalidated. :-)
+
+
+What's about advice to use TCP_NODELAY in this case, it is _absolutely_
+wrong and in fact presents violation of protocol, this app sends silly
+spagetti of pakets which must be coalesced. It is exactly the situation
+when TCP_NODELAY is straight bug. This app should use TCP_CORK or,
+even better from the viewpoint of performance, to coalesce writes at user user
+level not abusing tcp.
+
+Alexey

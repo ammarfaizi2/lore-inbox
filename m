@@ -1,126 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267788AbTBJMPX>; Mon, 10 Feb 2003 07:15:23 -0500
+	id <S267855AbTBJMVj>; Mon, 10 Feb 2003 07:21:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267821AbTBJMPX>; Mon, 10 Feb 2003 07:15:23 -0500
-Received: from tibau-e1.pop-rio.com.br ([200.239.194.250]:40644 "EHLO
-	tibau.pop-rio.com.br") by vger.kernel.org with ESMTP
-	id <S267788AbTBJMPU>; Mon, 10 Feb 2003 07:15:20 -0500
-Date: Mon, 10 Feb 2003 10:22:34 -0200
-From: Andre Costa <acosta@ar.microlink.com.br>
-To: Linux kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [Fwd: SCSI-IDE crash in 2.4.21pre4]
-Message-Id: <20030210102234.4588ff0d.acosta@ar.microlink.com.br>
-In-Reply-To: <1044847348.3767.20.camel@h68-146-142-19.localdomain>
-References: <1044772315.1102.24.camel@h68-146-142-19.localdomain>
-	<1044847348.3767.20.camel@h68-146-142-19.localdomain>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S267839AbTBJMVi>; Mon, 10 Feb 2003 07:21:38 -0500
+Received: from [195.223.140.107] ([195.223.140.107]:33922 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S267855AbTBJMUu>;
+	Mon, 10 Feb 2003 07:20:50 -0500
+Date: Mon, 10 Feb 2003 13:30:06 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Andrew Morton <akpm@digeo.com>, reiser@namesys.com, jakob@unthought.net,
+       david.lang@digitalinsight.com, riel@conectiva.com.br,
+       ckolivas@yahoo.com.au, linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: stochastic fair queueing in the elevator [Re: [BENCHMARK] 2.4.20-ck3 / aa / rmap with contest]
+Message-ID: <20030210123006.GK31401@dualathlon.random>
+References: <3E4779DD.7080402@namesys.com> <20030210101539.GS31401@dualathlon.random> <3E4781A2.8070608@cyberone.com.au> <20030210111017.GV31401@dualathlon.random> <3E478C09.6060508@cyberone.com.au> <20030210113923.GY31401@dualathlon.random> <20030210034808.7441d611.akpm@digeo.com> <3E4792B7.5030108@cyberone.com.au> <20030210041245.68665ff6.akpm@digeo.com> <3E479AA1.3050308@cyberone.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-MailScanner: Microlink Internet Provider Anti-Virus, Found to be clean
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E479AA1.3050308@cyberone.com.au>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Kim,
+On Mon, Feb 10, 2003 at 11:27:13PM +1100, Nick Piggin wrote:
+> Is there a magic number above which you see the improvement,
+> Andrea? Or does it steadily climb?
 
-the probls you describe ("all sorts of SCSI timeout errors, SCSI comm
-errors, etc") are experienced by me and other users of KT266-based mobos
-as well, under the same circumstances (cdparanoia, SCSI-emul); see
-thread "kernel 2.4.x + via-based kt266 mobo = IDE cdroms probls
-(revisited)" here on LKML . Maybe the probl isn't restricted to SIS735
-or KT266 after all...
+I recall more than 512k wasn't worthwhile anymore
 
-Best,
-
-Andre
-
-On 09 Feb 2003 20:22:28 -0700
-Kim Lux <lux@diesel-research.com> wrote:
-
-> One more thing: a bunch of us cdparanoia users got together and
-> compared notes.  All the computers that are having the problem are
-> running the SIS735 chipset.   We suspect a kernel bug in that driver.
-> 
-> Let me know if there is anything else we can do to help.
-> 
-> BTW: I think that Linux rocks !  You kernel developers/ debuggers/
-> supporters do an outstanding job.  
-> 
-> THANKS !
-> 
-> Kim  
-> 
-> 
-> 
-> On Sat, 2003-02-08 at 23:31, Kim Lux wrote:
-> > -----Forwarded Message-----
-> > 
-> > > From: Kim Lux <lux@diesel-research.com>
-> > > To: linux-kernel@verger.kernel.org
-> > > Subject: SCSI-IDE crash in 2.4.21pre4
-> > > Date: 08 Feb 2003 23:27:23 -0700
-> > > 
-> > > One Line Summary:
-> > > 
-> > > SCSI IDE emulation crashes RH8 computer running 2.4.21 pre4.
-> > > 
-> > > Full Description of Problem:
-> > > 
-> > > I've had this problem for months.  
-> > > 
-> > > If I run CDParanoia and try to rip CDs, it will work OK for a few
-> > > minutes and then start crashing, giving all sorts of SCSI timeout
-> > > errors, SCSI comm errors, etc. (Let me know if you want these;
-> > > I'll get them.)  I get the same or similar errors with KSCD as
-> > > well.  This is extremely frustrating. 
-> > > 
-> > > I get the error with all kernels, 2.4.18-18.8.0 through 2.4.21
-> > > pre-4, although 2.4.21 freezes entirely and cannot be killed,
-> > > whereas all kernels prior to this allow the process to be killed. 
-> > > For some reason the process survives a login and reboot with
-> > > 2.4.21 pre 4, whereas it stops running with all previous kernels. 
-> > > 
-> > > 
-> > > I've tried 2 motherboards and 2 hd cables, with the same effect. 
-> > > The computer this occurs on is otherwise stable, with uptimes of
-> > > several months at a time.
-> > > 
-> > > I might have the links/permissions messed up in /dev from trying
-> > > to fix this problem. I also disabled the CD automount command in
-> > > .kde/autostart.  
-> > > 
-> > > I've been through the CDParanoia doc several times and have tried
-> > > various kernels with various SCSI-IDE config setups.  I know that
-> > > ATAPI CDROM must be disabled to work with CDParanoia.  I believe
-> > > I've got that set up right as CD Paranoia finds (or used to find)
-> > > the CDROM player. It does rip CDs, but will crash.  I strongly
-> > > believe this is a kernel problem and not a CDParanoia problem or a
-> > > hardware problem. 
-> > > 
-> > > Keywords:
-> > > 2.4.20
-> > > 2.4.21-pre4
-> > > SCSI-IDE Emulation
-> > > CDParanoia
-> > > KSCD
-> > > 
-> > > Kernel Version:
-> > > Linux version 2.4.20 (root@h68-146-142-19) (gcc version 3.2
-> > > 20020903(Red Hat Linux 8.0 3.2-7)) #2 Mon Dec 2 11:09:28 MST 2002 
-> > >  
-> > >  
-> > > As I stated before, 2.4.21 becomes unstable on login; I cannot run
-> > > it anymore as I can't kill the process.
-> > > 
-> > > Output of Oops: don't have it.  I got dmesg errors on boot, on
-> > > /dev/hda.  See dmesg output below. 
-> > > 
-> > > A small shell script that triggers the problem:
-> > > > CDParanoia -svB or run KSCD.
-> > > 
-> > > Environment: (see below) Running KDE.  Everything stable
-> > > otherwise. 
-
--- 
-Andre Oliveira da Costa
+Andrea

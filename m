@@ -1,60 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290496AbSA3Tmg>; Wed, 30 Jan 2002 14:42:36 -0500
+	id <S290502AbSA3TtG>; Wed, 30 Jan 2002 14:49:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290502AbSA3Tm1>; Wed, 30 Jan 2002 14:42:27 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:60888 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S290496AbSA3TmM>;
-	Wed, 30 Jan 2002 14:42:12 -0500
-Date: Wed, 30 Jan 2002 14:42:10 -0500
+	id <S290014AbSA3Ts4>; Wed, 30 Jan 2002 14:48:56 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:17113 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S290521AbSA3Tss>;
+	Wed, 30 Jan 2002 14:48:48 -0500
+Date: Wed, 30 Jan 2002 14:48:47 -0500
 From: Jeff Garzik <garzik@havoc.gtf.org>
-To: Rob Landley <landley@trommello.org>
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-        Dave Jones <davej@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: A modest proposal -- We need a patch penguin
-Message-ID: <20020130144210.B1391@havoc.gtf.org>
-In-Reply-To: <200201290446.g0T4kZU31923@snark.thyrsus.com> <20020130093741.JKWP18592.femail36.sdc1.sfba.home.com@there> <20020130044305.B11267@havoc.gtf.org> <20020130193920.XLYO7009.femail35.sdc1.sfba.home.com@there>
+To: Kent E Yoder <yoder1@us.ibm.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] IBM Lanstreamer bugfixes
+Message-ID: <20020130144847.C1391@havoc.gtf.org>
+In-Reply-To: <OF0323731B.AAE52C6B-ON85256B51.005748CD@raleigh.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020130193920.XLYO7009.femail35.sdc1.sfba.home.com@there>; from landley@trommello.org on Wed, Jan 30, 2002 at 02:40:25PM -0500
+In-Reply-To: <OF0323731B.AAE52C6B-ON85256B51.005748CD@raleigh.ibm.com>; from yoder1@us.ibm.com on Wed, Jan 30, 2002 at 01:27:29PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 30, 2002 at 02:40:25PM -0500, Rob Landley wrote:
-> On Wednesday 30 January 2002 04:43 am, Jeff Garzik wrote:
-> > On Wed, Jan 30, 2002 at 04:38:51AM -0500, Rob Landley wrote:
-> > > Considering how much he's been warned so far about the need for CML2 to
-> > > maintain as much compatability as possible with CML1,
-> >
-> > Pardon me while I laugh my ass off.
-> 
-> [waits...]
+On Wed, Jan 30, 2002 at 01:27:29PM -0600, Kent E Yoder wrote:
+> Is this the best way to make sure the PCI cache is flushed for writes that 
+> need to happen immediately?
 
-Keep waiting, I'm still laughing.
+Pretty much...
 
+> I don't see many other drivers doing it...
 
-> I'm under the impression CML2 already supports the split-up per-directory 
-> help files, and did long before Linus actually split it up.  Therefore, Eric 
-> hasn't entirely been ignoring the issue, has he?
+Some drivers don't need or do things in other ways, some need it and
+don't have it...
 
->From the kernel's point of view, yes, he has.
-
-
-> (By the way, if you really want to fix the current cml1 stuff in the 
-> cheesiest manner possible, what would be wrong with some variant of "find . 
-> -name "*.hlp" | xargs cat > oldhelpfile.hlp"?  Then the old help file becomes 
-> a generated file of the new help files.  Why mess with tcl/tk?  Put it in the 
-> make file as a dependency.  Pardon me if somebody fixed it last night, I seem 
-> have 91 emails to wade through since then on the patch penguin fallout 
-> alone...)
-
-That's a hack.  Fix it the right way.
-
-<broken record> this is a devel series, we can afford to wait for the
-better fix </broken record>
+If you wanted to audit and test long driver delays in various random
+the world will cheer your name, I'm sure ;-) ;-)
 
 	Jeff
-
 

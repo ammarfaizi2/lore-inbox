@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265242AbTBYC1C>; Mon, 24 Feb 2003 21:27:02 -0500
+	id <S265543AbTBYCa0>; Mon, 24 Feb 2003 21:30:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265243AbTBYC1C>; Mon, 24 Feb 2003 21:27:02 -0500
-Received: from almesberger.net ([63.105.73.239]:35086 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S265242AbTBYC06>; Mon, 24 Feb 2003 21:26:58 -0500
-Date: Mon, 24 Feb 2003 23:37:01 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Larry McVoy <lm@bitmover.com>,
-       linux-kernel@vger.kernel.org
+	id <S265711AbTBYCaZ>; Mon, 24 Feb 2003 21:30:25 -0500
+Received: from wsip68-15-8-100.sd.sd.cox.net ([68.15.8.100]:44162 "EHLO
+	gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id <S265543AbTBYCaX>; Mon, 24 Feb 2003 21:30:23 -0500
+Date: Mon, 24 Feb 2003 18:40:31 -0800
+To: Larry McVoy <lm@work.bitmover.com>, yodaiken@fsmlabs.com,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Andrew Morton <akpm@digeo.com>, lm@bitmover.com, mbligh@aracnet.com,
+       davidsen@tmr.com, greearb@candelatech.com, linux-kernel@vger.kernel.org
+Cc: "Bill Huey (Hui)" <billh@gnuppy.monkey.org>
 Subject: Re: Minutes from Feb 21 LSE Call
-Message-ID: <20030224233701.J2791@almesberger.net>
-References: <2080000.1045947731@[10.10.2.4]> <20030222231552.GA31268@work.bitmover.com> <3610000.1045957443@[10.10.2.4]> <20030224045616.GB4215@work.bitmover.com> <48940000.1046063797@[10.10.2.4]> <20030224065826.GA5665@work.bitmover.com> <20030224075142.GA10396@holomorphy.com> <20030224154725.GB5665@work.bitmover.com> <20030224233638.GS10411@holomorphy.com> <20030225002309.GA12146@work.bitmover.com>
+Message-ID: <20030225024031.GB4929@gnuppy.monkey.org>
+References: <20030224074447.GA4664@gnuppy.monkey.org> <20030224075430.GN10411@holomorphy.com> <20030224080052.GA4764@gnuppy.monkey.org> <20030224004005.5e46758d.akpm@digeo.com> <20030224085031.GP10411@holomorphy.com> <20030224091758.A11805@hq.fsmlabs.com> <20030224231341.GQ10411@holomorphy.com> <20030224162754.A24766@hq.fsmlabs.com> <20030225021736.GB4507@gnuppy.monkey.org> <20030225023226.GE12146@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030225002309.GA12146@work.bitmover.com>; from lm@bitmover.com on Mon, Feb 24, 2003 at 04:23:09PM -0800
+In-Reply-To: <20030225023226.GE12146@work.bitmover.com>
+User-Agent: Mutt/1.5.3i
+From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
-> The point is that if you are putting SMP changes into the system, you
-> have to be held to a higher standard for measurement given the past
-> track record of SMP changes increasing code length and cache footprints.
+On Mon, Feb 24, 2003 at 06:32:26PM -0800, Larry McVoy wrote:
+> Hmm, maybe someone who is advertising their companies mistaken approach?
 
-So you probably want to run this benchmark on a synthetic CPU a la
-cachegrind. The difficult part would be to come up with a reasonably
-understandable additive metric for cache pressure.
+Or maybe your understanding of this is faded and you haven't keep up with
+your generational contemporaries, like our BSD/OS engineers about schedulers,
+preemption and priority inheritence.
 
-(I guess there goes another call to arms to academia :-)
+Again, assuming that you actually understand what this means read this:
+	http://linuxdevices.com/articles/AT5698775833.html
 
-- Werner
+...because I don't think you really do understand it.
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+bill
+

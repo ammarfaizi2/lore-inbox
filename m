@@ -1,33 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129451AbQKHSTC>; Wed, 8 Nov 2000 13:19:02 -0500
+	id <S129715AbQKHSUW>; Wed, 8 Nov 2000 13:20:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129694AbQKHSSx>; Wed, 8 Nov 2000 13:18:53 -0500
-Received: from ns1.SuSE.com ([202.58.118.2]:11791 "HELO ns1.suse.com")
-	by vger.kernel.org with SMTP id <S129689AbQKHSSj>;
-	Wed, 8 Nov 2000 13:18:39 -0500
-Date: Wed, 8 Nov 2000 10:18:54 -0800 (PST)
-From: James Simmons <jsimmons@suse.com>
-To: Richard Guenther <richard.guenther@student.uni-tuebingen.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, tytso@mit.edu,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Broken colors on console with 2.4.0-textXX
-In-Reply-To: <Pine.LNX.4.21.0011081856460.17375-100000@fs1.dekanat.physik.uni-tuebingen.de>
-Message-ID: <Pine.LNX.4.21.0011081017320.2704-100000@euclid.oak.suse.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129718AbQKHSUM>; Wed, 8 Nov 2000 13:20:12 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:23561 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129715AbQKHSUA>; Wed, 8 Nov 2000 13:20:00 -0500
+Date: Wed, 8 Nov 2000 12:16:20 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Bruce_Holzrichter@infinium.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Installing kernel 2.4
+Message-ID: <20001108121620.B11377@vger.timpanogas.org>
+In-Reply-To: <OFE1DF3190.2EF12079-ON85256991.004BD0EB@infinium.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <OFE1DF3190.2EF12079-ON85256991.004BD0EB@infinium.com>; from Bruce_Holzrichter@infinium.com on Wed, Nov 08, 2000 at 08:49:15AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 08, 2000 at 08:49:15AM -0500, Bruce_Holzrichter@infinium.com wrote:
+> 
+> >
+> > On Wed, Nov 08, 2000 at 03:25:56AM +0000, davej@suse.de wrote:
+> > > On Tue, 7 Nov 2000, Jeff V. Merkey wrote:
+> > >
+> > > > If the compiler always aligned all functions and data on 16 byte
+> > > > boundries (NetWare)  for all i386 code, it would run a lot faster.
+> > >
+> > > Except on architectures where 16 byte alignment isn't optimal.
+> > >
+> > > > Cache line alignment could be an option in the loader .... after all,
+> > > > it's hte loader that locates data in memory.  If Linux were PE based,
+> > > > relocation logic would be a snap with this model (like NT).
+> > >
+> > > Are you suggesting multiple files of differing alignments packed into
+> > > a single kernel image, and have the loader select the correct one at
+> > > runtime ? I really hope I've misinterpreted your intention.
+> >
+> > Or more practically, a smart loader than could select a kernel image
+> > based on arch and auto-detect to load the correct image. I don't really
+> > think it matters much what mechanism is used.
+> >
+> > What makes more sense is to pack multiple segments for different
+> > processor architecures into a single executable package, and have the
+> > loader pick the right one (the NT model).  It could be used for
+> > SMP and non-SMP images, though, as well as i386, i586, i686, etc.
+> 
+> 
+> And this would fit on my 1.4bm floppy so I can boot my hard driveless
+> firewalling system, correct?
 
-> Sure - but this was always the case. And using 2.2 with the same
-> (or more) stress the Xserver is still able to set the video hardware
-> back to vga text mode. I just want to know whats the difference
-> between 2.2 and 2.4 that causes failure in 2.4.
+Hard disks (20GB) are about $100.00 these days.  CD-ROM drives are even 
+cheaper.  A smart loader will certainly fit on a floppy.
 
-I don't think it is the console system. I bet if you stress 2.2 even more
-you will get the same results.
+Jeff
 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262558AbTCMV3p>; Thu, 13 Mar 2003 16:29:45 -0500
+	id <S262575AbTCMVhC>; Thu, 13 Mar 2003 16:37:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262564AbTCMV3o>; Thu, 13 Mar 2003 16:29:44 -0500
-Received: from 67.231.118.64.mia-ftl.netrox.net ([64.118.231.67]:405 "EHLO
-	smtp.netrox.net") by vger.kernel.org with ESMTP id <S262558AbTCMV3f>;
-	Thu, 13 Mar 2003 16:29:35 -0500
-Subject: Re: [PATCH] add prink KERN_* suffixes
-From: Robert Love <rml@tech9.net>
-To: Daniele Venzano <webvenza@libero.it>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030313164157.GB6435@renditai.milesteg.arr>
-References: <20030313164157.GB6435@renditai.milesteg.arr>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1047591779.1226.16.camel@icbm>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 13 Mar 2003 16:43:00 -0500
-Content-Transfer-Encoding: 7bit
+	id <S262579AbTCMVhC>; Thu, 13 Mar 2003 16:37:02 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:58790 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S262575AbTCMVhB>;
+	Thu, 13 Mar 2003 16:37:01 -0500
+Message-Id: <200303132045.h2DKjAsK005736@eeyore.valparaiso.cl>
+To: Larry McVoy <lm@bitmover.com>
+cc: Nicolas Pitre <nico@cam.org>, Sam Ravnborg <sam@ravnborg.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] BK->CVS (real time mirror) 
+In-Reply-To: Your message of "Wed, 12 Mar 2003 12:58:59 PST."
+             <20030312205859.GG7275@work.bitmover.com> 
+Date: Thu, 13 Mar 2003 16:45:10 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-03-13 at 11:41, Daniele Venzano wrote:
->         /* Read in the station address. */
->         for (i = 0; i < 6; i++)
-> -               printk(" %2.2x", dev->dev_addr[i]);
-> -       printk(", IRQ %d.\n", dev->irq);
-> +               printk(KERN_INFO " %2.2x", dev->dev_addr[i]);
-> +       printk(KERN_INFO ", IRQ %d.\n", dev->irq);
+Larry McVoy <lm@bitmover.com> said:
 
+[...]
 
-The loglevels only work after a newline.
+> So here's a question.  Suppose we have a series of deltas being clumped
+> together in a file.  All made by different people.  Whose name wins?
+> My gut is to sort them, run them through uniq -c, and take the top one.
+> The other idea is to count up lines inserted/deleted over each delta
+> and take the user who has done the most work.
 
-What you can do is printk() the loglevel before the for loop.  Or just
-leave this one alone.
-
-	Robert Love
-
+Say Several and add the list to the comment (after sort | uniq)?
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

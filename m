@@ -1,45 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130842AbQLPBno>; Fri, 15 Dec 2000 20:43:44 -0500
+	id <S130153AbQLPBtf>; Fri, 15 Dec 2000 20:49:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130839AbQLPBne>; Fri, 15 Dec 2000 20:43:34 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:3078 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130153AbQLPBnV>; Fri, 15 Dec 2000 20:43:21 -0500
-Date: Fri, 15 Dec 2000 17:12:36 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jeff Chua <jeffchua@silk.corp.fedex.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Test12 ll_rw_block error.
-In-Reply-To: <200012160058.eBG0wtr29000@silk.corp.fedex.com>
-Message-ID: <Pine.LNX.4.10.10012151711180.1325-100000@penguin.transmeta.com>
+	id <S130650AbQLPBtY>; Fri, 15 Dec 2000 20:49:24 -0500
+Received: from ns1.SuSE.com ([202.58.118.2]:63250 "HELO ns1.suse.com")
+	by vger.kernel.org with SMTP id <S130153AbQLPBtM>;
+	Fri, 15 Dec 2000 20:49:12 -0500
+Date: Fri, 15 Dec 2000 17:18:56 -0800 (PST)
+From: James Simmons <jsimmons@suse.com>
+To: Kurt Garloff <garloff@suse.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, miquels@cistron.nl,
+        Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: TIOCGDEV ioctl
+In-Reply-To: <20001216015537.G21372@garloff.suse.de>
+Message-ID: <Pine.LNX.4.21.0012151709591.1176-100000@euclid.oak.suse.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
-On Sat, 16 Dec 2000, Jeff Chua wrote:
->
-> > Now, I also agree that we should be able to clean this up properly for
-> > 2.5.x, and actually do exactly this for the anonymous buffers, so that
-> > the VM no longer needs to worry about buffer knowledge, and fs/buffer.c
-> > becomes just another user of the writepage functionality.  That is not
-> > all that hard to do, it mainly just requires some small changes to how
+> Hi Linus, Alan,
 > 
-> Why not incorporate this change into 2.4.x?
+> some applications do need to know where the console (/dev/console)
+> actually maps to. For processes with a controlling terminal, you may see 
+> it in /proc/$$/stat. However, daemons are supposed to run detached (they
+> don't want to get killed by ^C) and some processes like init or bootlogd 
+> do still need to be able to find out.
+> 
+> The kernel provides this information -- sort of:
+> It contains the TIOCTTYGSTRUCT syscall which returns a struct. Of course,
+> it changes between different kernel archs and revisions, so using it is
+> an ugly hack. Grab for TIOCTTYGSTRUCT_HACK in the bootlogd.c file of the
+> sysvinit sources. Shudder!
+> 
+> Having a new ioctl, just returning the device no is a much cleaner solution,
+> IMHO. So, I created the TIOCGDEV, which Miquel suggests in his sysvinit
+> sources. It makes querying the actual console device as easy as 
+> int tty; ioctl (0, TIOCGDEV, &tty);
+> 
+> Patches against 2.2.18 and 2.4.0-testX are attached.
+> Please apply.
 
-It might be 10 lines of change, and obviously correct.
+Based on fgconsole.c. I just threw it together in a few minutes.
 
-And it might not be. If somebody wants to try out the DirtyPage approach
-for buffer handling, please do so. I'll apply it if it _does_ turn out to
-be as small as I suspect it might be, and if the code is straightforward
-and obvious.
+/*
+ * consolewhat.c - Prints which VC /dev/console is.
+ */
+#include <sys/ioctl.h>
+#include <linux/vt.h>
 
-If not, we're better off leaving it for 2.5.x
+int
+main(){
+    struct vt_stat vtstat;
+    int fd;	
 
-		Linus
+    fd = open("/dev/console", O_RDONLY);	
+
+    if (fd < 0 && errno == EACCES)
+	fd = open("/dev/console", O_WRONLY);
+    if (fd < 0)
+	return -1;
+
+    if (ioctl(fd, VT_GETSTATE, &vtstat)) {
+        perror("consolewhat: VT_GETSTATE");
+	exit(1);
+    }
+    printf("%d\n", vtstat.v_active);
+    return 0;
+}
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

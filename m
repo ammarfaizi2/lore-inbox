@@ -1,69 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262398AbSI2Fy1>; Sun, 29 Sep 2002 01:54:27 -0400
+	id <S262402AbSI2GI5>; Sun, 29 Sep 2002 02:08:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262399AbSI2Fy1>; Sun, 29 Sep 2002 01:54:27 -0400
-Received: from c16598.thoms1.vic.optusnet.com.au ([210.49.243.217]:11981 "HELO
-	pc.kolivas.net") by vger.kernel.org with SMTP id <S262398AbSI2Fy0>;
-	Sun, 29 Sep 2002 01:54:26 -0400
-Message-ID: <1033279186.3d9696d22910b@kolivas.net>
-Date: Sun, 29 Sep 2002 15:59:46 +1000
-From: Con Kolivas <conman@kolivas.net>
-To: =?ISO-8859-1?B?RGlldGVyIE78dHplbA==?= <Dieter.Nuetzel@hamburg.de>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [BENCHMARK] Preempt effect on 2.5.39 with contest 0.41
-References: <200209290709.47843.Dieter.Nuetzel@hamburg.de>
-In-Reply-To: <200209290709.47843.Dieter.Nuetzel@hamburg.de>
+	id <S262403AbSI2GI4>; Sun, 29 Sep 2002 02:08:56 -0400
+Received: from mailhost2-bcvloh.bcvloh.ameritech.net ([66.73.20.44]:21935 "EHLO
+	mailhost.bcv2.ameritech.net") by vger.kernel.org with ESMTP
+	id <S262402AbSI2GIz> convert rfc822-to-8bit; Sun, 29 Sep 2002 02:08:55 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: james <jdickens@ameritech.net>
+To: Linus Torvalds <torvalds@transmeta.com>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: v2.6 vs v3.0
+Date: Sun, 29 Sep 2002 01:14:15 -0500
+User-Agent: KMail/1.4.3
+Cc: Jeff Garzik <jgarzik@pobox.com>, Larry Kessler <kessler@us.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       "Andrew V. Savochkin" <saw@saw.sw.com.sg>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Richard J Moore <richardj_moore@uk.ibm.com>
+References: <Pine.LNX.4.44.0209281826050.2198-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0209281826050.2198-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-User-Agent: Internet Messaging Program (IMP) 3.1
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209290114.15994.jdickens@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Dieter Nützel <Dieter.Nuetzel@hamburg.de>:
+On Saturday 28 September 2002 08:31 pm, Linus Torvalds wrote:
+> On Sat, 28 Sep 2002, Ingo Molnar wrote:
+> > i consider the VM and IO improvements one of the most important things
+> > that happened in the past 5 years - and it's definitely something that
+> > users will notice. Finally we have a top-notch VM and IO subsystem (in
+> > addition to the already world-class networking subsystem) giving
+> > significant improvements both on the desktop and the server - the jump
+> > from 2.4 to 2.5 is much larger than from eg. 2.0 to 2.4.
+>
+> Hey, _if_ people actually are universally happy with the VM in the current
+> 2.5.x tree, I'll happily call the dang thing 5.0 or whatever (just
+> kidding, but yeah, that would be a good enough reason to bump the major
+> number).
+>
+> However, I'll believe that when I see it. Usually people don't complain
+> during a development kernel, because they think they shouldn't, and then
+> when it becomes stable (ie when the version number changes) they are
+> surprised that the behabviour didn't magically improve, and _then_ we get
+> tons of complaints about how bad the VM is under their load.
+>
+> Am I hapyy with current 2.5.x?  Sure. Are others? Apparently. But does
+> that mean that we have a top-notch VM and we should bump the major number?
+> I wish.
+>
+> The block IO cleanups are important, and that was the major thing _I_
+> personally wanted from the 2.5.x tree when it was opened. I agree with you
+> there. But I don't think they are major-number-material.
+>
+> Anyway, people who are having VM trouble with the current 2.5.x series,
+> please _complain_, and tell what your workload is. Don't sit silent and
+> make us think we're good to go.. And if Ingo is right, I'll do the 3.0.x
+> thing.
+>
+How many people are sitting on the sidelines waiting for guarantee that ide is 
+not going to blow up on our filesystems and take our data with it. Guarantee 
+that ide is working and not dangerous to our data, then I bet a lot more 
+people will come back and bang on 2.5. 
 
-> Con,
-> 
-> can we please have 2.4.19-ck-pe furthermore for comparison, please?
+I know this whole ide mess have taken me away from the devolemental series. 
+And I bet a lot of others. 
 
-Ok here's the full set as I have it (note ck7 is preempt and low latency ON; I
-don't have results with it off):
+My vote for reason to advance to v3.0 would be more based on our filesystems 
+surport. .i.e. XFS and the latest Reiserfs and redoing our middle layer, 
+.i.e. treating a cdrw as another drive instead of an ide-scsi device and 
+ridding us of  /dev/[hs][dg][a=z] and replacing it with a lot saner 
+replacement (I know this talked about it, don't know if it has been or will 
+be implemented.)   Along with the changes others have mentioned, but I really 
+can't judge those because I have not used 2.5 lately for reasons stated 
+above. 
 
-noload:
-Kernel                  Time            CPU             Ratio
-2.4.19                  67.71           98%             1.00
-2.4.19-ck7              69.62           94%             1.03
-2.5.38                  72.38           94%             1.07
-2.5.38-mm3              73.00           93%             1.08
-2.5.39                  73.17           93%             1.08
-2.5.39-pe               73.03           94%             1.08
+Sincerly 
+ 
+James
 
-process_load:
-Kernel                  Time            CPU             Ratio
-2.4.19                  110.75          57%             1.64
-2.4.19-ck7              89.93           73%             1.33
-2.5.38                  85.71           79%             1.27
-2.5.38-mm3              96.32           72%             1.42
-2.5.39                  91.0            76%             1.31
-2.5.39-pe               83.6            82%             1.23
 
-io_load:
-Kernel                  Time            CPU             Ratio
-2.4.19                  216.05          33%             3.19
-2.4.19-ck7              118.69          57%             1.75
-2.5.38                  887.76          8%              13.11
-2.5.38-mm3              105.17          70%             1.55
-2.5.39                  226             37%             3.20
-2.5.39-pe               234             34%             3.43
 
-mem_load:
-Kernel                  Time            CPU             Ratio
-2.4.19                  105.40          70%             1.56
-2.4.19-ck7              92.54           80%             1.37
-2.5.38                  107.89          73%             1.59
-2.5.38-mm3              117.09          63%             1.73
-2.5.39                  103.72          72%             1.53
-2.5.39-pe               103.95          73%             1.54
 
-Con.
+> 		Linus
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

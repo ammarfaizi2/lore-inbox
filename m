@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266497AbSKZSnE>; Tue, 26 Nov 2002 13:43:04 -0500
+	id <S266520AbSKZSp6>; Tue, 26 Nov 2002 13:45:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266507AbSKZSnD>; Tue, 26 Nov 2002 13:43:03 -0500
-Received: from lennier.cc.vt.edu ([198.82.162.213]:14863 "EHLO
-	lennier.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S266497AbSKZSnC>; Tue, 26 Nov 2002 13:43:02 -0500
-Subject: Compiler & Statically Linked Question
-From: "Richard B. Tilley " "(Brad)" <rtilley@vt.edu>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 26 Nov 2002 13:50:19 -0500
-Message-Id: <1038336619.7793.28.camel@oubop4.bursar.vt.edu>
+	id <S266527AbSKZSp5>; Tue, 26 Nov 2002 13:45:57 -0500
+Received: from kweetal.tue.nl ([131.155.2.7]:33034 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S266520AbSKZSp5>;
+	Tue, 26 Nov 2002 13:45:57 -0500
+Date: Tue, 26 Nov 2002 19:53:12 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: ebuddington@wesleyan.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.49: "hdb: cannot handle device with more than 16 heads"
+Message-ID: <20021126185312.GA5060@win.tue.nl>
+References: <20021126125019.A81@ma-northadams1b-112.nad.adelphia.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021126125019.A81@ma-northadams1b-112.nad.adelphia.net>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, Nov 26, 2002 at 12:50:19PM -0500, Eric Buddington wrote:
 
-I would like to start running some of the 2.5.x kernels for testing
-purposes on a wide selection (about 12 machines) of Intel x86 PCs that I
-have collected for testing purposes.
+> This is 2.5.49, compiled for i386 with almost all modules using
+> gcc-3.2.  On my PII Omnibook 4100, the messages stop after the first
+> hda: message (where it would normally identify the drive). The same
+> problem existed in 2.4.48.
+> 
+> When booting on my Athlon (hda:Maxtor 5T040H4, hdb: Maxtor 90840D6), I
+> get the following boot messages:
+> 
+> hda: cannot handle device with more than 16 heads - giving up
 
-I would like to have one build machine where I build a kernel and then
-use that kernel on all of the test PCs. I do not want to build a kernel
-for each machine.
+You don't want to use the new ide driver instead of the legacy hd one?
 
-The PCs have very different hardware and I'd like to play around with
-different c libraries on these PCs. So, what would be the best way to
-build a kernel that would work in this type of environment?
-
-Thank you,
-
-Brad
-
-
+Andries

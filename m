@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131508AbRDBXwB>; Mon, 2 Apr 2001 19:52:01 -0400
+	id <S131505AbRDBXvB>; Mon, 2 Apr 2001 19:51:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131562AbRDBXvw>; Mon, 2 Apr 2001 19:51:52 -0400
-Received: from quattro.sventech.com ([205.252.248.110]:15109 "HELO
-	quattro.sventech.com") by vger.kernel.org with SMTP
-	id <S131508AbRDBXvj>; Mon, 2 Apr 2001 19:51:39 -0400
-Date: Mon, 2 Apr 2001 19:50:48 -0400
-From: Johannes Erdfelt <johannes@erdfelt.com>
-To: Jeff Golds <jgolds@resilience.com>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, Ketil Froyn <ketil@froyn.com>,
-   linux-kernel@vger.kernel.org
-Subject: Re: oops in uhci.c running 2.4.2-ac28
-Message-ID: <20010402195048.H17651@sventech.com>
-In-Reply-To: <Pine.LNX.4.30.0104010313440.1135-100000@ns.froyn.org> <20010402185526.A4083@devserv.devel.redhat.com> <3AC8FDD8.4116E97@resilience.com>
-Mime-Version: 1.0
+	id <S131508AbRDBXuv>; Mon, 2 Apr 2001 19:50:51 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:54994 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S131505AbRDBXup>;
+	Mon, 2 Apr 2001 19:50:45 -0400
+Message-ID: <3AC9102C.D053506F@mandrakesoft.com>
+Date: Mon, 02 Apr 2001 19:50:04 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-20mdksmp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+Cc: "J . A . Magallon" <jamagallon@able.es>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] multiline string cleanup
+In-Reply-To: <20010330234804.A27780@werewolf.able.es> <oupd7avyng5.fsf@pigdrop.muc.suse.de>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4i
-In-Reply-To: <3AC8FDD8.4116E97@resilience.com>; from Jeff Golds on Mon, Apr 02, 2001 at 03:31:52PM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 02, 2001, Jeff Golds <jgolds@resilience.com> wrote:
-> Let me show what I got with the 2.4.2 kernel with USB support enabled.
-> 
-> Mar 19 14:10:00 Eng99 kernel: uhci: host controller halted. very bad
-> Mar 19 14:10:31 Eng99 last message repeated 108 times
-> Mar 19 14:11:37 Eng99 last message repeated 93 times
-> Mar 19 14:12:39 Eng99 last message repeated 87 times
-> Mar 19 14:13:40 Eng99 last message repeated 20 times
-> Mar 19 14:14:45 Eng99 last message repeated 42 times
-> Mar 19 14:15:46 Eng99 last message repeated 47 times
-> Mar 19 14:16:47 Eng99 last message repeated 127 times
-> Mar 19 14:17:50 Eng99 last message repeated 7074 times
-> Mar 19 14:18:51 Eng99 last message repeated 3342 times
-> Mar 19 14:19:52 Eng99 last message repeated 10948 times
-> Mar 19 14:20:00 Eng99 last message repeated 15
-> times                                                                    
-> 
-> This happens after simply fiddling around with ethernet settings (it's a
-> PCI ethernet card).  In fact, my syslog is FULL of these messages... my
-> syslog was 3x larger than usual.  The console is just about unusable
-> because of all the spam.
-> 
-> Something seems terribly wrong with the uhci driver... I've disabled it
-> on my system and it's fine now (I don't need USB).
+Andi Kleen wrote:
+> "J . A . Magallon" <jamagallon@able.es> writes:
+> > This is one other try to make kernel sources gcc-3.0 friendly. This cleans
+> > some muti-line asm strings in checksum.h and floppy.h (this were the only
+> > ones reported in my kernel build, perhaps there are more in drivers I do
+> > not use).
 
-Do you get the same messages with the usb-uhci driver?
+> I surely hope the gcc guys will just remove that silly warning again, because
+> it makes it impossible to write readable inline assembly now.
 
-> My system:
-> Slot 1 P3-850
-> VIA chipset MB (not sure of exact chipset, can find out if needed)
+If it's a silly warning, then we should turn it off in linux/Makefile. 
+I dunno that the kernel can dictate to gcc here what to do...
 
-Some of the VIA chipsets have port aliasing problems supposedely. This
-may cause your controller to go insane like you've described.
+Also some multiline string cleanups have already made it into the kernel
+-- though that is not conclusive, as it may just be maintainer
+preference.
 
-JE
+	Jeff
 
+
+-- 
+Jeff Garzik       | May you have warm words on a cold evening,
+Building 1024     | a full moon on a dark night,
+MandrakeSoft      | and a smooth road all the way to your door.

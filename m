@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318546AbSIFMkT>; Fri, 6 Sep 2002 08:40:19 -0400
+	id <S318552AbSIFMtW>; Fri, 6 Sep 2002 08:49:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318552AbSIFMkT>; Fri, 6 Sep 2002 08:40:19 -0400
-Received: from mg03.austin.ibm.com ([192.35.232.20]:9700 "EHLO
-	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S318546AbSIFMkS>; Fri, 6 Sep 2002 08:40:18 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Axel Siebenwirth <axel@hh59.org>, Christoph Hellwig <hch@infradead.org>,
-       JFS-Discussion <jfs-discussion@www-124.southbury.usf.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [OOPS:2.5.33] Re: [Jfs-discussion] crash with JFS assert
-Date: Fri, 6 Sep 2002 07:44:43 -0500
-X-Mailer: KMail [version 1.4]
-Cc: rml@tech9.net, akpm@zip.com.au
-References: <Pine.LNX.4.43.0209051006480.887-100000@leo.uni-sw.gwdg.de> <20020906010641.A24706@infradead.org> <20020906001602.GA393@prester.freenet.de>
-In-Reply-To: <20020906001602.GA393@prester.freenet.de>
+	id <S318562AbSIFMtW>; Fri, 6 Sep 2002 08:49:22 -0400
+Received: from k7g317-2.kam.afb.lu.se ([130.235.57.218]:40344 "EHLO
+	cheetah.psv.nu") by vger.kernel.org with ESMTP id <S318552AbSIFMtW>;
+	Fri, 6 Sep 2002 08:49:22 -0400
+Date: Fri, 6 Sep 2002 14:53:58 +0200 (CEST)
+From: Peter Svensson <petersv@psv.nu>
+To: Shaya Potter <spotter@cs.columbia.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: virtual ethernet adapter?
+In-Reply-To: <1031315698.28301.12.camel@zaphod>
+Message-ID: <Pine.LNX.4.44.0209061450080.1994-100000@cheetah.psv.nu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200209060744.43231.shaggy@austin.ibm.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 September 2002 19:16, Axel Siebenwirth wrote:
-> Aaaah! I got it. I just wanted to write an email expressing that for
-> some strange reason latest 2.4 kernels (2.4.19-ac4,
-> 2.4.20-pre5+latest ACPI) work without a problem.
-> You know what the difference to my 2.5 kernels is..... CONFIG_PREEMPT
-> is not enabled with my 2.4 kernels but with 2.5 it is!
->
-> Here we go.
->
-> Maybe someone can now get an idea on what the problem is and maybe
-> how to fix it?!
+On 6 Sep 2002, Shaya Potter wrote:
 
-Okay, I haven't played around with CONFIG_PREEMPT.  I probably won't get 
-to it until Monday, but I'll see if I can reproduce this one now.
+> from what I can tell, tap just lets a programs use it, but one needs a
+> user space app behind it (reading and writing to it).  It doesn't seem
+> to have the ability to live on the network like vmware's vmnet stuff
+> does, perhaps I'm wrong and was confused by the web page.
 
-Thanks,
-Shaggy
--- 
-David Kleikamp
-IBM Linux Technology Center
+Well, you want at program to read and write ethernet frames, don't you? To 
+What happens is that the operating system sees the data written by the 
+program as coming in over a ethernet interface, a virtual one.
+
+To connect that interface to a real one you use the bridging code. I think 
+it is standard in the newer kernels. Otherwise you can download it from
+http://bridge.sourceforge.net/. Create a bridge and attach both the real 
+ethernet card and the virtual one to it and use the resulting interface 
+br0 (or whatever you choose to call it) instead of the normal ethernet 
+interface. Your program that is attached to the "tap" will now appear as 
+another computer on the same ethernet segment to both your computer and 
+all others attachet the the segment.
+
+Peter
+--
+Peter Svensson      ! Pgp key available by finger, fingerprint:
+<petersv@psv.nu>    ! 8A E9 20 98 C1 FF 43 E3  07 FD B9 0A 80 72 70 AF
+------------------------------------------------------------------------
+Remember, Luke, your source will be with you... always...
+
 

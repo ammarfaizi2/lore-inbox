@@ -1,99 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261735AbTL1RJ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 12:09:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbTL1RJ3
+	id S261779AbTL1RQJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 12:16:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbTL1RQJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 12:09:29 -0500
-Received: from tolkor.sgi.com ([198.149.18.6]:25763 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id S261735AbTL1RJ0 (ORCPT
+	Sun, 28 Dec 2003 12:16:09 -0500
+Received: from mail1.bluewin.ch ([195.186.1.74]:43994 "EHLO mail1.bluewin.ch")
+	by vger.kernel.org with ESMTP id S261779AbTL1RQF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 12:09:26 -0500
-Message-ID: <3FEF05B2.9184ABA0@sgi.com>
-Date: Sun, 28 Dec 2003 10:32:51 -0600
-From: Colin Ngam <cngam@sgi.com>
-Organization: SGI
-X-Mailer: Mozilla 4.79C-SGI [en] (X11; I; IRIX 6.5 IP32)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Pat Gefre <pfg@sgi.com>, akpm@osdl.org, davidm@napali.hpl.hp.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Updating our sn code in 2.6
-References: <20031220122749.A5223@infradead.org> <Pine.SGI.3.96.1031222204757.20064A-100000@fsgi900.americas.sgi.com> <20031223090227.A5027@infradead.org> <3FE85533.E026DE86@sgi.com> <20031223165506.A8624@infradead.org> <3FEC8F0B.A8C30677@sgi.com> <20031228144415.B20391@infradead.org>
+	Sun, 28 Dec 2003 12:16:05 -0500
+Date: Sun, 28 Dec 2003 18:15:12 +0100
+From: Roger Luethi <rl@hellgate.ch>
+To: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@osdl.org>,
+       Rik van Riel <riel@surriel.com>, torvalds@osdl.org,
+       benh@kernel.crashing.org, linux-kernel@vger.kernel.org, andrea@suse.de
+Subject: Re: Page aging broken in 2.6
+Message-ID: <20031228171512.GA13031@k3.hellgate.ch>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@surriel.com>,
+	torvalds@osdl.org, benh@kernel.crashing.org,
+	linux-kernel@vger.kernel.org, andrea@suse.de
+References: <1072482941.15458.90.camel@gaston> <Pine.LNX.4.58.0312261626260.14874@home.osdl.org> <1072485899.15456.96.camel@gaston> <Pine.LNX.4.58.0312261649070.14874@home.osdl.org> <Pine.LNX.4.55L.0312262147030.7686@imladris.surriel.com> <20031226190045.0f4651f3.akpm@osdl.org> <20031227230757.GA25229@k3.hellgate.ch> <20031227235538.GP22443@holomorphy.com> <20031228112339.GA4847@k3.hellgate.ch> <20031228163528.GK27687@holomorphy.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20031228163528.GK27687@holomorphy.com>
+X-Operating-System: Linux 2.6.0-test11 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
+On Sun, 28 Dec 2003 08:35:28 -0800, William Lee Irwin III wrote:
+> > the aggregated reference frequency is all that matters. I was merely
+> > pointing out how the number of processes referencing a page could affect
+> > performance as well. Reference frequency is used as an estimator for
+> > the _likelihood_ of a fault in the future, but the potential _impact_
+> > of a fault grows with the number of processes that may block on it.
+> > It is one possible (though not necessarily the most likely) explanation
+> > for the symptoms I see with 2.6.
+> 
+> I guess caution against LFU is uncontroversial.
 
-Hi Christoph,
+My bad. What I said is true for both LRU and LFU (they try to predict
+the probability of future references), but I wrote "frequency" because
+that happened to be on my mind (for unrelated reasons). The point was
+basically: risk = probability * damage
 
-> On Fri, Dec 26, 2003 at 01:42:03PM -0600, Colin Ngam wrote:
-> > Hi Christoph,
-> >
-> > Yes I agree.  However, keep in mind that we are following the ia32/ia64
-> > way of getting platforms initialized, via ACPI etc.  What you see as
-> > drivers code in sn/io will probably not exist anymore.  All initialization
-> > and configuration will be done at the System BIOS level and information
-> > passed down to the Linux Kernel via ACPI.  This will take away much
-> > code in the kernel.
->
-> Well, I've heard this a few times now and life would definitly be simpler
+> I'm not convinced what vmstat gets out of 2.4 is entirely comparable to
+> what it gets out of 2.6. "blocked" and "running" are collected very
 
->
-> if you're going down that route.  OTOH we all know talk is cheap and code
-> speaks, and do you really expect SGI to invest money into doing that for
-> the now almost legacy SHUB/PIC based Altixens?  Well, even if SGI does this
+Agreed. OTOH those readings are consistent with other observations I
+made. It should even be possible to add up the reported idle times and
+receive a ballpark figure for the slowdown compared to a system with
+more than enough memory.
 
-SHUB/PIC based Altixens are not Legacy in any form shape or manner.  I expect
-these IO Chipsets to drive Altix for the foreseable near future ..
+> differently in 2.6. iowait shouldn't be collected on 2.4 at all.
 
-Please do not question my resolve to drive us towards this direction.  Things can
-always change, but I am heading this direction.
+True. If 2.4 reports idle time during a compile benchmark, though, it
+seems plausible to assume it is IO wait. And if 2.6 takes much longer
+than 2.4 to complete, it is due to time spend waiting for I/O (minus
+some difference in system overhead) -- the work done in user space is
+equal, after all.
 
->
-> some day it won't really hurt us to get the code in shape first even if
-> it's only use on MIPS IP27/IP35, wouldn't it?
+> This could probably be addressed by backporting 2.6's reporting methods
+> to 2.4 so the two kernels use similar reporting mechanisms.
 
-Please, you can do what you want with the maintainer for the MIPs
-architecture.  That is not a problem at all.  For ia64 Altix line, we want
-to follow what's being done on other ia64 platform.  Is this not the
-right approach?  You yourself had mentioned above that this is the
-way to go?
+I don't think it's worth it. It wouldn't tell us anything we don't
+already know.
 
->
->
-> > We believe that all that will be left in sn/io directory maybe files dealing with
-> > DMA mappings(IOMMU).
->
-> That's one of the candidates that really should be shared with IP27 and the
-> once someone does them the IP30 and IP35 ports.  Really, the basic dma mapping
-> code is the same for Bridge/Xbridge/PIC/TIOCP so we should have one driver.
-> And once all the IRIX I/O infrastructure depency is ripped out that part of
-> pcibr is rather self-contained.  I can send you my latest variant of the
-> dma mapping code if you want, but due tue all that stupid renaming of
-> structure and macro names it won't compile in your tree.  See why I _really_
-> _really_ dislike that silly renaming?  It breaks all those nice efforts
-> for code-sharing without any gain.
+> The oscillation in "free" and "buff" is very unusual. What is this
+> box doing?
 
-This code sharing will not be possible when we do all of our initialization
-in System BIOS, just like every other ia64 platform.  Moreover, the ia64
-Altix line does not support Bridge/Xbridge chipsets and we do not want
-to be burdened by these legacy code as we move forward with the ia64
-product line.
+Oops, sorry. That trace is a few months old and I forgot I had used a
+hack to have timestamps in vmstat. The large numbers that are alternating
+are jiffies, the smaller numbers are the actual readings.
 
-Thanks.
-
-colin
-
->
->
-> Even IRIX TOT uses the 'old' names, so what is the point of renaming them?
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+Roger

@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132545AbRDUJJo>; Sat, 21 Apr 2001 05:09:44 -0400
+	id <S132537AbRDUJJE>; Sat, 21 Apr 2001 05:09:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132540AbRDUJJf>; Sat, 21 Apr 2001 05:09:35 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32265 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S132539AbRDUJJ3>;
-	Sat, 21 Apr 2001 05:09:29 -0400
-Date: Sat, 21 Apr 2001 10:09:13 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Patrick Mochel <mochel@transmeta.com>,
-        linux-power@phobos.fachschaften.tu-muenchen.de
-Subject: Re: PCI power management
-Message-ID: <20010421100913.A7433@flint.arm.linux.org.uk>
-In-Reply-To: <3AE02E45.57D7BA9D@mandrakesoft.com> <20010420125615.23599@mailhost.mipsys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010420125615.23599@mailhost.mipsys.com>; from benh@kernel.crashing.org on Fri, Apr 20, 2001 at 02:56:15PM +0200
+	id <S132539AbRDUJIz>; Sat, 21 Apr 2001 05:08:55 -0400
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:43529 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S132537AbRDUJIp>; Sat, 21 Apr 2001 05:08:45 -0400
+Date: Sat, 21 Apr 2001 11:08:31 +0200 (CEST)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Dennis <dennis@etinc.com>, Matti Aarnio <matti.aarnio@zmailer.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: SMP in 2.4
+In-Reply-To: <E14ql4I-0002Yh-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.3.96.1010421110704.25023A-100000@artax.karlin.mff.cuni.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 20, 2001 at 02:56:15PM +0200, Benjamin Herrenschmidt wrote:
-> It's not so complicated to have the minimum flexibility for the driver
-> to tell it's maximum supported power level, and I don't see why it would
-> be a problem to use D2 instead of D3 when we don't support D3 for a given
-> device (either because the HW is broken, undocumented, or because our
-> driver just don't know how to bring back the chip to life).
+> > 	testb %al, intr_pending
+> > 	jnz somewhere_away_to_handle_defered_interrupt
+> > 
+> > And - of course - interrupt checks intr_lock in its entry and if it is
+> > zero, sets intr_pending and exits immediatelly.
+> 
+> And immediately gets called again. You have to mask the irq which is non trivial
+> especially if you want to do it right on the BX. But you can do this and rtlinux
+> does
 
-Umm, isn't it true that most VGA cards will have this problem?  Are we
-going to put an x86 emulator into the kernel so we can run the BIOS on
-non-x86 hardware, just so that we can re-initialise the chip? ;|
+There is already desc->handler->ack(irq) in do_IRQ which does that. Is any
+more special handling needed? 
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Mikulas
 

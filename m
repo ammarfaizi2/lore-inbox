@@ -1,76 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261975AbUKVIC7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261980AbUKVIEP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261975AbUKVIC7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 03:02:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbUKVIC7
+	id S261980AbUKVIEP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 03:04:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbUKVIDH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 03:02:59 -0500
-Received: from hermine.aitel.hist.no ([158.38.50.15]:64267 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S261984AbUKVIAw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 03:00:52 -0500
-Message-ID: <41A19E44.9080005@hist.no>
-Date: Mon, 22 Nov 2004 09:07:32 +0100
-From: Helge Hafting <helge.hafting@hist.no>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tomas Carnecky <tom@dbservice.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Kernel thoughts of a Linux user
-References: <200411181859.27722.gjwucherpfennig@gmx.net> <419CFF73.3010407@dbservice.com>
-In-Reply-To: <419CFF73.3010407@dbservice.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 22 Nov 2004 03:03:07 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:5556 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261980AbUKVIBy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 03:01:54 -0500
+Date: Mon, 22 Nov 2004 09:01:23 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Alan Chandler <alan@chandlerfamily.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ide-cd problem
+Message-ID: <20041122080122.GM26240@suse.de>
+References: <200411201842.15091.alan@chandlerfamily.org.uk> <200411211025.11629.alan@chandlerfamily.org.uk> <200411211613.54713.alan@chandlerfamily.org.uk> <200411220752.28264.alan@chandlerfamily.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200411220752.28264.alan@chandlerfamily.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomas Carnecky wrote:
+On Mon, Nov 22 2004, Alan Chandler wrote:
+> On Sunday 21 November 2004 16:13, Alan Chandler wrote:
+> ...
+> >
+> > This seems to be some combination of frequently occuring timing problem,
+> > and the difference treatment in cdrom_newpc_intr to cdrom_pc_intr
+> 
+> I put a ndelay(400) at the head of cdrom_newpc_intr and the problem of
+> DRQ being set when there was no data to transfer disappeared.  It
+> appears that my hardware is too slow.
+> 
+> I have been reading the ATA/ATAPI - 6 spec, and it implies that the
+> state of DRQ line need one pio cycle before being correct and that you
+> should read the alternative status register to achieve this.  I tried
+> a simple
+> 
+> HWIF(drive)->INB( IDE_ALTSTATUS_REG);
+> 
+> But that made no difference.
 
-> Gerold J. Wucherpfennig wrote:
-> > - Replace DRI with sth. slimmer and intoduce real kernel drivers
->
->> and introduce real kernel drivers which handel all the initialization 
->> and interrupt handling (only minimal hardware abstraction). One goal 
->> is to
->> remove X.org's PCI magic. Ultimately this shall give framebuffer and X
->> the same basis. This was summarized on kerneltrap.org.
->
->
-> Is it possible to have two or more 'workstations' on one computer?
+ALTSTATUS read should be fine as well, but the implicit delay is
+probably better.
 
-Yes - thats what the "ruby" kernel patch is all about.  I have a computer
-with two "workstations" at home.  Compared to two computers, it
-saves space, power, parts,  and above all - administrative work.  Only one
-machine to upgrade, secure, configure.
+Is this enough to fix it? For ->drq_interrupt we already should have
+an adequate delay, Alan fixed this one recently.
 
-> A 'workstation' is a monitor, keyboard, mouse etc. tied together and
-> represents a place where someone can work.
-> I know it's possible to do this using a Xserver (running two Xservers on
-> different virtual consoles, each with its own
-> configuration/keyboard/mouse/monitor), but I'd like to realise it more
-> low-level, on the level of virtual terminals, so that each 'workstation'
-> would have it's own 'Ctrl+F1', 'Ctrl+F2' etc.
+===== drivers/ide/ide-cd.c 1.97 vs edited =====
+--- 1.97/drivers/ide/ide-cd.c	2004-11-07 02:54:41 +01:00
++++ edited/drivers/ide/ide-cd.c	2004-11-22 08:58:15 +01:00
+@@ -890,8 +890,13 @@
+ 		ide_execute_command(drive, WIN_PACKETCMD, handler, ATAPI_WAIT_PC, cdrom_timer_expiry);
+ 		return ide_started;
+ 	} else {
++		unsigned long flags;
++
+ 		/* packet command */
+-		HWIF(drive)->OUTB(WIN_PACKETCMD, IDE_COMMAND_REG);
++		spin_lock_irqsave(&ide_lock, flags);
++		HWIF(drive)->OUTBSYNC(drive, WIN_PACKETCMD, IDE_COMMAND_REG);
++		ndelay(400);
++		spin_unlock_irqrestore(&ide_lock, flags);
+ 		return (*handler) (drive);
+ 	}
+ }
 
-Sure - ruby gives you that.  X may need a patch in order to support
-ctrl+F2... on the scond keyboard, as the second console uses vt numbers
-from 17 to 32.
+-- 
+Jens Axboe
 
->
-> Background:
-> Today, you can buy video cards with two connectors for monitors, or even
-> put two of those cards into one mainboard, making it possible to connect
-> four monitors to one computer. A P4 HT enabled CPU would be enough for
-> four office workers who edit text documents, unless they aren't playing
-> games :) So you could cut costs by buying one set of Mainboard/CPU/RAM
-> and then for every worker just a monitor/keyboard/mouse.
-> Places like internet-cafes could profit, they usually have many same
-> computers side by side, each with the same configuration, but on many no
-> one is working, they just run and consume energy. 
-
-Yes, you can do that.   The limit seems to be how many monitors you can
-connect - there seems to be no practical limit to how many USB keyboards
-& mice you can use.  The lengt of wires might also be a problem
-with more than four.
-
-Helge Hafting

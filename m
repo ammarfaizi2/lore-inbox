@@ -1,75 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266345AbUHaDKx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266341AbUHaDMk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266345AbUHaDKx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 23:10:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266341AbUHaDKx
+	id S266341AbUHaDMk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 23:12:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266349AbUHaDMk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 23:10:53 -0400
-Received: from ms-smtp-02.texas.rr.com ([24.93.47.41]:53742 "EHLO
-	ms-smtp-02-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S266345AbUHaDKu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 23:10:50 -0400
-Subject: Re: [PATCH] Allow cluster-wide flock
-From: Steve French <smfrench@austin.rr.com>
-To: linux-kernel@vger.kernel.org, trond.myklebust@fys.uio.no
-Content-Type: text/plain
-Message-Id: <1093921852.2444.34.camel@smfhome.smfdom>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Mon, 30 Aug 2004 22:11:07 -0500
-Content-Transfer-Encoding: 7bit
+	Mon, 30 Aug 2004 23:12:40 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:2217 "EHLO
+	pd3mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S266341AbUHaDMb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 23:12:31 -0400
+Date: Mon, 30 Aug 2004 18:17:24 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Driver retries disk errors.
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <002e01c48eef$e3e2dc40$6601a8c0@northbrook>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+Content-type: text/plain; reply-type=original; charset=iso-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+X-Priority: 3
+X-MSMail-priority: Normal
+References: <fa.d48te6f.1ol6tbb@ifi.uio.no> <fa.eti1vu1.2nqlj5@ifi.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm concerned that the overloading of
-> f_op->lock() may break behaviour on NFS and CIFS.
+Quite likely, in that case the drive has exhausted its spare pool, and there 
+are a bunch of bad sectors that have already been reallocated. Some drives 
+will reallocate sectors if they are still readable but the sector appears to 
+be marginal.
 
-Seems like a clear case that if their behavior is different we have to
-be able to distinguish between them and there is a risk of overloading
-f_op->lock().  It would not be particularly hard to carry them on the wire
-(ie as network requests using a slightly modified newer SMBLockingX 
-that would work to Samba).   Do you want these locks enforced [both] on the
-client and server too (if there are races in the lock state when multiple
-clients are created/deleting locks)?
 
-> NFS currently has a test in nfs_lock() that causes it to return -ENOLCK
-> if the argument is not a posix lock. 
+----- Original Message ----- 
+From: "Rogier Wolff" <R.E.Wolff@harddisk-recovery.nl>
+Newsgroups: fa.linux.kernel
+To: "Theodore Ts'o" <tytso@mit.edu>; <linux-kernel@vger.kernel.org>; 
+<linux-ide@vger.kernel.org>
+Sent: Monday, August 30, 2004 4:19 PM
+Subject: Re: Driver retries disk errors.
 
-I am willing to use a more relaxed semantic than that, but will
-need to add an optional extension to the CIFS Protocol Unix Extensions
-to distinguish the three (at least) types of locks
 
+> On Mon, Aug 30, 2004 at 01:46:32PM -0400, Theodore Ts'o wrote:
+>> > a filesystem: if we recover one block this way, the next block will be
+>> > errorred and the filesystem "crashes" anyway. In fact this behaviour
+>> > may masquerade the first warnings that something is going wrong....
+>>
+>> If the block gets successfully read after 2 or 3 tries, it might be a
+>> good idea for the kernel to automatically do a forced rewrite of the
+>> block, which should cause the disk to do its own disk block
+>> sparing/reassignment.
 >
-> Any comment on the effects on CIFS, Steven?
-
-I am not sure I can answer until I get the current 2.6.9 locking
-code working again and have time to prototype/experiment.
-Cifs locking code regressed in two places 
-(one of which I have fixed recently).  This is not the
-usual impossible problem of trying to reconcile POSIX vs. 
-SMB/CIFS locks well enough to pass connectathon lock tests 7 
-and 10 to both Windows and Samba servers.  CIFS (the network
-protocol) only defines mandatory locks (and overlapping locks are
-not coalesced into one larger lock).  Since some clients such
-as Windows (and OS/2, DOS etc - but not Unix & Linux 
-clients) expect mandatory locks (rather than Advisory) 
-there is not a perfect solution without extending the
-protocol to allow the client to tell the server
-that the locks are Advisory vs. Mandatory
-(so after discussions with others on the Samba team this
-is something that I am likely to do this year on the client
-(ie optionally extend the protocol to distinguish the
-two lock types), as soon as jra has time to change
-the Samba server side) ... 
-
-but in the meantime the CIFS lock code is broken. It looks like
-the  global fs change to fix posix locking last week
-broke cifs.  unlock (at least in connectathon 
-lock subtest 7) can generate over CIFS a message:
-	Attempting to free lock with active block list
-probably because an additional change to unlock is necessary
-in fs/cifs/file.c  I did fix one unrelated bug in the 
-cifs lock code yesterday but today was trying to understand
-what test 7 is attempting to do and why the block list is
-not freed for cifs (but works locally).
+> Hi Ted,
+>
+> I agree that this is the theory. In practise however, I've never
+> seen it work correctly. We've seen several disks with say 1-5 bad
+> blocks and nothing else, and "dd if=/dev/zero of=/dev/<disk>" doesn't
+> seem to cure them.
+>
+> Roger.
+>
+> -- 
+> +-- Rogier Wolff -- www.harddisk-recovery.nl -- 0800 220 20 20 --
+> | Files foetsie, bestanden kwijt, alle data weg?!
+> | Blijf kalm en neem contact op met Harddisk-recovery.nl!
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/ 
 

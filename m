@@ -1,36 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291805AbSBAPqx>; Fri, 1 Feb 2002 10:46:53 -0500
+	id <S291809AbSBAP4D>; Fri, 1 Feb 2002 10:56:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291807AbSBAPqn>; Fri, 1 Feb 2002 10:46:43 -0500
-Received: from mail1.home.nl ([213.51.129.225]:48821 "EHLO mail1.home.nl")
-	by vger.kernel.org with ESMTP id <S291805AbSBAPqd>;
-	Fri, 1 Feb 2002 10:46:33 -0500
-Message-ID: <3C5AD43E.9030405@activedomain.nl>
-Date: Fri, 01 Feb 2002 16:45:34 -0100
-From: The Candyman <candy@activedomain.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011126 Netscape6/6.2.1
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Martin Dalecki <dalecki@evision-ventures.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: VESA Anybody out there
-In-Reply-To: <20020131.222643.85689058.davem@redhat.com> <E16WfDe-0005Jd-00@the-village.bc.nu> <20020201095510.D17412@havoc.gtf.org> <20020201151221.GA8404@vana.vc.cvut.cz> <3C5AB463.7050204@evision-ventures.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S291811AbSBAPzx>; Fri, 1 Feb 2002 10:55:53 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:24581 "HELO
+	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
+	id <S291809AbSBAPzn>; Fri, 1 Feb 2002 10:55:43 -0500
+Date: Fri, 1 Feb 2002 16:55:38 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Richard Zidlicky 
+	<Richard.Zidlicky@stud.informatik.uni-erlangen.de>
+Cc: James Simmons <jsimmons@transvirtual.com>, linux-m68k@lists.linux-m68k.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Q40 input api support.
+Message-ID: <20020201165538.A17286@suse.cz>
+In-Reply-To: <Pine.LNX.4.10.10201311009140.23385-100000@www.transvirtual.com> <20020201011543.A476@linux-m68k.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020201011543.A476@linux-m68k.org>; from Richard.Zidlicky@stud.informatik.uni-erlangen.de on Fri, Feb 01, 2002 at 01:15:43AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Dalecki wrote:
+On Fri, Feb 01, 2002 at 01:15:43AM +0100, Richard Zidlicky wrote:
+> On Thu, Jan 31, 2002 at 10:19:46AM -0800, James Simmons wrote:
+> > 
+> > This patch ports q40 PS/2 controller support over to the input api. Please
+> > try it out. It is against the latest dave jones tree.
+> 
+> thanks, I will look at this over the weekend. Where do I get the DJ
+> tree?
+> 
+> > +static inline void q40kbd_write(unsigned char val)
+> > +{
+> > +	/* FIXME! We need a way how to write to the keyboard! */
+> > +}
+> 
+> absolutely no way to write to the keyboard.
 
-> Is there actually anybody out there for whoom the vga=ask kernelparamter
-> followed by a mode scan actually works? For me personally I never 
-> encountered
-> *any* single one computer wher ethis wouldn't hang the system 
-> entierly, so
-> I wonder whatever the wholesale option ain't borken?
+Really? Too bad. So no way to set LEDs, no way to detect the keyboard,
+no way to set it to "Scancode Set 3"?
 
-On my computers it has never been of any use, but it didn't crash. It 
-only returned the normal screen modes (the text ones) and nothing else.
+We'll need to modify the atkbd driver then ... 
 
+> > +static void q40kbd_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+> > +{
+> > +	unsigned long flags;
+> > +
+> > +	if (IRQ_KEYB_MASK & master_inb(INTERRUPT_REG))
+> > +		if (q40kbd_port.dev)
+> > +                         q40kbd_port.dev->interrupt(&q40kbd_port, master_inb(KEYCODE_REG), 0);
+>                                              ^^^^^^^^^
+> where is this defined?
 
+include/linux/serio.h: struct serio_dev
+
+> > +void __init q40kbd_init(void)
+> > +{
+> > +	int maxread = 100;
+> > +
+> > +	/* Get the keyboard controller registers (incomplete decode) */
+> > +	request_region(0x60, 16, "q40kbd");
+> > +
+> > +	/* allocate the IRQ */
+> > +	request_irq(Q40_IRQ_KEYBOARD, keyboard_interrupt, 0, "q40kbd", NULL);
+> 				      ^^^^^^^^^^^^^^^^^^
+> should that be q40kbd_interrupt ?
+
+Yes, it should.
+
+-- 
+Vojtech Pavlik
+SuSE Labs

@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262389AbUKRCB5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262390AbUKRCHp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262389AbUKRCB5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 21:01:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbUKRCBR
+	id S262390AbUKRCHp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 21:07:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262391AbUKRCE5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 21:01:17 -0500
-Received: from alog0084.analogic.com ([208.224.220.99]:31616 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262516AbUKQUlb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 15:41:31 -0500
-Date: Wed, 17 Nov 2004 15:41:03 -0500 (EST)
-From: linux-os <linux-os@chaos.analogic.com>
-Reply-To: linux-os@analogic.com
-To: Grzegorz Piotr Jaskiewicz <gj@kde.org.uk>
-cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: pid_max madness
-In-Reply-To: <419BB097.8030405@kde.org.uk>
-Message-ID: <Pine.LNX.4.61.0411171538110.9491@chaos.analogic.com>
-References: <419BB097.8030405@kde.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 17 Nov 2004 21:04:57 -0500
+Received: from holomorphy.com ([207.189.100.168]:6863 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262369AbUKRCCX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 21:02:23 -0500
+Date: Wed, 17 Nov 2004 18:02:15 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Thiago Robert dos Santos <robert@lisha.ufsc.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: remap_page_range
+Message-ID: <20041118020215.GA3217@holomorphy.com>
+References: <32825.150.162.62.34.1100724226.squirrel@150.162.62.34>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <32825.150.162.62.34.1100724226.squirrel@150.162.62.34>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Nov 2004, Grzegorz Piotr Jaskiewicz wrote:
+On Wed, Nov 17, 2004 at 06:43:46PM -0200, Thiago Robert dos Santos wrote:
+>   I'm having a problem with remap_page_range in the 2.6 kernel series. I
+> use remap_page_range inside the mmap function of a module I wrote in
+> order to map a given device's memory into user space.
+>   Apparently, everything works fine but I just can't access the device's
+> memory (even tough I get a valid point from the mmap system call). This
+> is the mmap function I wrote:
+> static int
+> pcimap_mmap (struct file *filp, struct vm_area_struct *vma)
+> {
 
-> Let's do:
-> #echo "-1" >/proc/sys/kernel/pid_max
-> #cat /proc/sys/kernel/pid_max
-> -1
-> #
->
-> Madness, isn't ?
->
-> I guess that isn't what author ment it to behave like.
-> Anyway, does it mean that after max unsigned value is reached pids are going 
-> to be negative in value ??
->
-> --
-> GJ
-> -
-
-Seems to set them back to 300 on this system Linux-2.6.9. That's
-an interesting side-effect. I like it! They never get much over
-300 either!
+(1) set PG_reserved on all struct pages covering the physical region
+(2) set VM_RESERVED|VM_IO in vma->vm_flags
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by John Ashcroft.
-                  98.36% of all statistics are fiction.
+-- wli

@@ -1,58 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264407AbUDSOS3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 10:18:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264460AbUDSOST
+	id S264450AbUDSOWz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 10:22:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264485AbUDSOWz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 10:18:19 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:45576 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S264480AbUDSOQZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 10:16:25 -0400
-Message-ID: <4083DFA7.2080009@techsource.com>
-Date: Mon, 19 Apr 2004 10:18:15 -0400
-From: Timothy Miller <miller@techsource.com>
+	Mon, 19 Apr 2004 10:22:55 -0400
+Received: from ns0.eris.qinetiq.com ([128.98.1.1]:3414 "HELO
+	mail.eris.qinetiq.com") by vger.kernel.org with SMTP
+	id S264450AbUDSOWM convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 10:22:12 -0400
+From: Mark Watts <m.watts@eris.qinetiq.com>
+Organization: QinetiQ
+To: Gilles May <gilles@canalmusic.com>, linux-kernel@vger.kernel.org
+Subject: Re: PDC20376 PATA?
+Date: Mon, 19 Apr 2004 14:20:16 +0000
+User-Agent: KMail/1.5.3
+References: <407FED4A.8040307@canalmusic.com>
+In-Reply-To: <407FED4A.8040307@canalmusic.com>
 MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: Felix von Leitner <felix-kernel@fefe.de>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: radeonfb broken
-References: <20040415202523.GA17316@codeblau.de>	 <407EFB08.6050307@techsource.com> <1082079792.2499.229.camel@gaston>	 <4080029C.4000308@techsource.com> <1082161356.2499.298.camel@gaston>
-In-Reply-To: <1082161356.2499.298.camel@gaston>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200404191420.17116.m.watts@eris.qinetiq.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 
-Benjamin Herrenschmidt wrote:
-> On Sat, 2004-04-17 at 01:58, Timothy Miller wrote:
-> 
->>Benjamin Herrenschmidt wrote:
->>
->>>>What annoys me most about the Radeon driver is the off-by-one error in 
->>>>the bmove routine.  Whenever text is copied to the right or down, it 
->>>>gets positioned incorrectly.  I posted the fix, but no one paid attention.
->>>
->>>
->>>Mayb it was just "missed" in the flow of hundreds of mails that go
->>>through this list. Can you re-sent it to me, and also precise which
->>>kernel version it applies to ?
->>>
->>
->>Oh, I failed to mention this bit.
->>
->>I've seen it in 2.4.22-gentoo-r7 and 2.4.25-gentoo.
->>
->>The bug is NOT present in Red Hat's 2.4.18-27.7.x
-> 
-> 
-> Can you send me the fix you posted back then ?
+> Hello everybody::
+>
+> I have got a problem getting my onboard FastTrak 376 Controller to work.
+> The motherboard is an Asus A7V8X.
+
+I have the same controller, but welded into an MSI KT4 Ultra.
+
+With Mandrake 9.2 it gets detected and I was able to use the pata port with a 
+20Gig Maxtor drive.
+
+The module Mandrake uses for this is the pdc-ultra module, although I'm not 
+sure if its in the kernel or a 3rd party addition by Mandrake.
+
+Mark.
 
 
-Sorry.  I forgot all about this.  If the description I sent isn't good 
-enough, I'll have to make a proper patch.  Is that what you want?  I 
-doubt I gave my original email, but its essential content is in my more 
-recent posting anyhow.
+- -- 
+Mark Watts
+Senior Systems Engineer
+QinetiQ TIM
+St Andrews Road, Malvern
+GPG Public Key ID: 455420ED
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFAg+AhBn4EFUVUIO0RAoZ8AKDI8+KCd5vLLiQv4YX5AIs1J9lnHACbBsFU
+RFUNQkplMvfBw8WjXPITqsU=
+=cgaq
+-----END PGP SIGNATURE-----
 

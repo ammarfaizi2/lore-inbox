@@ -1,65 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267901AbUI1Uld@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267863AbUI1UqX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267901AbUI1Uld (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 16:41:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267866AbUI1UjS
+	id S267863AbUI1UqX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 16:46:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267785AbUI1UqW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 16:39:18 -0400
-Received: from ppsw-5.csi.cam.ac.uk ([131.111.8.135]:9155 "EHLO
-	ppsw-5.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S267856AbUI1Uiz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 16:38:55 -0400
-Date: Tue, 28 Sep 2004 21:38:50 +0100 (BST)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH 2/4] Re: [2.6-BK-URL] NTFS: Final sparse annotation/fixes.
-In-Reply-To: <Pine.LNX.4.60.0409282137410.4614@hermes-1.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.60.0409282138350.4614@hermes-1.csi.cam.ac.uk>
-References: <Pine.LNX.4.60.0409282133290.4614@hermes-1.csi.cam.ac.uk>
- <Pine.LNX.4.60.0409282137410.4614@hermes-1.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
+	Tue, 28 Sep 2004 16:46:22 -0400
+Received: from coriana6.CIS.McMaster.CA ([130.113.128.17]:50867 "EHLO
+	coriana6.cis.mcmaster.ca") by vger.kernel.org with ESMTP
+	id S267863AbUI1Ukm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 16:40:42 -0400
+Subject: Re: [RFC][PATCH] inotify 0.10.0
+From: John McCutchan <ttb@tentacle.dhs.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ray Lee <ray-lk@madrabbit.org>, rml@novell.com,
+       linux-kernel@vger.kernel.org, gamin-list@gnome.org,
+       viro@parcelfarce.linux.theplanet.co.uk, iggy@gentoo.org
+In-Reply-To: <20040928120830.7c5c10be.akpm@osdl.org>
+References: <1096250524.18505.2.camel@vertex>
+	 <20040926211758.5566d48a.akpm@osdl.org>
+	 <1096318369.30503.136.camel@betsy.boston.ximian.com>
+	 <1096350328.26742.52.camel@orca.madrabbit.org>
+	 <20040928120830.7c5c10be.akpm@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1096404035.30123.22.camel@vertex>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 28 Sep 2004 16:40:35 -0400
+X-PMX-Version-Mac: 4.7.0.111621, Antispam-Engine: 2.0.0.0, Antispam-Data: 2004.9.28.2
+X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __HAS_X_MAILER 0, __MIME_VERSION 0, __SANE_MSGID 0'
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-RESEND: This is patch 2/4 in the series.  It contains the following 
-ChangeSet:
+On Tue, 2004-09-28 at 15:08, Andrew Morton wrote:
+> Ray Lee <ray-lk@madrabbit.org> wrote:
+> >
+> > The current way pads out the structure unnecessarily, and still doesn't
+> > handle the really long filenames, by your admission. It incurs extra
+> > syscalls, as few filenames are really 256 characters in length. 
+> 
+> Why don't you pass a file descriptor into the syscall instead of a pathname?
+> You can then take a ref on the inode and userspace can close the file.
+> That gets you permission checking for free.
+> 
 
-<aia21@cantab.net> (04/09/26 1.1988.2.2)
-   NTFS: Convert final enum (fs/ntfs/logfile.h) to define to silence last
-         bitwise sparse warning.
-   
-   Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
+I don't think moving inotify to a syscall based interface is worth it.
 
-Best regards,
+First off, on startup, this would require about 2k open() calls,
+followed by 2k syscalls to inotify. Not as nice as just 2k ioctl()
+calls.
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/
+The character device interface right now suits it perfectly. If we used
+syscalls we would need to provide a syscall that gives user space a FD
+that it can read events on, then more 2 more syscalls to provide the
+watch and ignore functionality. Switching to the syscall interface would
+also require implementing the idea of the inotify device instance
+without the assistance of the char device subsystem. If the ioctl()
+based interface is so bad, we could change it to a write() based
+interface.
 
-===================================================================
-
-diff -Nru a/fs/ntfs/logfile.h b/fs/ntfs/logfile.h
---- a/fs/ntfs/logfile.h	2004-09-28 21:32:35 +01:00
-+++ b/fs/ntfs/logfile.h	2004-09-28 21:32:35 +01:00
-@@ -111,10 +111,9 @@
-  * These are the so far known RESTART_AREA_* flags (16-bit) which contain
-  * information about the log file in which they are present.
-  */
--typedef enum {
--	RESTART_VOLUME_IS_CLEAN	= const_cpu_to_le16(0x0002),
--	REST_AREA_SPACE_FILLER	= 0xffff	/* Just to make flags 16-bit. */
--} __attribute__ ((__packed__)) RESTART_AREA_FLAGS;
-+#define RESTART_VOLUME_IS_CLEAN	const_cpu_to_le16(0x0002)
-+
-+typedef le16 RESTART_AREA_FLAGS;
- 
- /*
-  * Log file restart area record.  The offset of this record is found by adding
+John

@@ -1,38 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287841AbSBHXlo>; Fri, 8 Feb 2002 18:41:44 -0500
+	id <S287858AbSBHXqf>; Fri, 8 Feb 2002 18:46:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287858AbSBHXle>; Fri, 8 Feb 2002 18:41:34 -0500
-Received: from femail26.sdc1.sfba.home.com ([24.254.60.16]:58309 "EHLO
-	femail26.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S287841AbSBHXlV>; Fri, 8 Feb 2002 18:41:21 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
+	id <S287860AbSBHXq1>; Fri, 8 Feb 2002 18:46:27 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:64781 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S287858AbSBHXqM>;
+	Fri, 8 Feb 2002 18:46:12 -0500
+Date: Fri, 8 Feb 2002 15:43:10 -0800
+From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org
-Subject: tcp_keepalive_intvl vs tcp_keepalive_time?
-Date: Fri, 8 Feb 2002 18:42:17 -0500
-X-Mailer: KMail [version 1.3.1]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020208234120.OVLN12059.femail26.sdc1.sfba.home.com@there>
+Subject: Kernel panic: EXT2-fs panic on 2.5.4-pre3
+Message-ID: <20020208234310.GA27610@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Fri, 11 Jan 2002 21:40:55 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Would someone be kind enough to explain the difference between 
-tcp_keepalive_intvl and tcp_keepalive_time?  
-Documentation/filesystems/proc.txt says tcp_keepalive_time is the interval 
-between sending keepalive probes, but doesn't mention tcp_keepalive_intvl...
+I got this when unmounting my drive after running e2fsck after a kernel
+oops (different problem... :)
 
-A quick grep through the source code says tcp_keepalive_intvl wanders through 
-keepalive_intv_when which is used in tcp_keepalive_time in a way that sort of 
-implies it's the timeout between keapalive packets.  So what's 
-tcp_keepalive_time?
+Kernel panic: EXT2-fs panic (device ide0(3,5)): load_block_bitmap: block_group >= groups_count - block_group = 131071, groups_count = 33
 
-The problem I'm trying to track down is ssh connections where the connection 
-times out but the session doesn't go away until a key is pressed.  (I.E. 
-blocking reads don't notice the connection going down underneath them, not 
-even if left overnight.)
 
-It's kind of frustrating, actually...
-
-Rob
+greg k-h

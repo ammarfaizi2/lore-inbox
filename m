@@ -1,65 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261318AbUBTWhq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 17:37:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbUBTWhq
+	id S261328AbUBTWhu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 17:37:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbUBTWhu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 17:37:46 -0500
-Received: from 217-162-59-239.dclient.hispeed.ch ([217.162.59.239]:24581 "EHLO
-	ritz.dnsalias.org") by vger.kernel.org with ESMTP id S261318AbUBTWhn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 17:37:50 -0500
+Received: from 80-169-17-66.mesanetworks.net ([66.17.169.80]:30658 "EHLO
+	mail.bounceswoosh.org") by vger.kernel.org with ESMTP
+	id S261328AbUBTWhn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 20 Feb 2004 17:37:43 -0500
-From: Daniel Ritz <daniel.ritz@gmx.ch>
-Reply-To: daniel.ritz@gmx.ch
-To: Silla Rizzoli <silla@netvalley.it>, David Hinds <dhinds@sonic.net>
-Subject: Re: 2.4.25 yenta problem and small fix/workaround
-Date: Fri, 20 Feb 2004 23:31:44 +0100
-User-Agent: KMail/1.5.2
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Date: Fri, 20 Feb 2004 15:37:50 -0700
+From: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>
+To: =?iso-8859-1?B?RnLpZOlyaWMgTC4gVy4=?= Meunier <1@pervalidus.net>
+Cc: Nico Schottelius <nico-kernel@schottelius.org>,
+       Bruce Allen <ballen@gravity.phys.uwm.edu>, linux-kernel@vger.kernel.org
+Subject: Re: harddisk or kernel problem?
+Message-ID: <20040220223750.GA8427@bounceswoosh.org>
+Mail-Followup-To: =?iso-8859-1?B?RnLpZOlyaWMgTC4gVy4=?= Meunier <1@pervalidus.net>,
+	Nico Schottelius <nico-kernel@schottelius.org>,
+	Bruce Allen <ballen@gravity.phys.uwm.edu>,
+	linux-kernel@vger.kernel.org
+References: <Pine.GSO.4.21.0402181039520.8134-100000@dirac.phys.uwm.edu> <Pine.LNX.4.58.0402182002180.11305@brain.fop.ns.ca> <20040219081642.GE25184@schottelius.org> <Pine.LNX.4.58.0402201407480.1167@pervalidus.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
 Content-Disposition: inline
-Message-Id: <200402202331.45218.daniel.ritz@gmx.ch>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.58.0402201407480.1167@pervalidus.dyndns.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-silla, does this one help?
-dave, what do you think?
+On Fri, Feb 20 at 14:10, Frédéric L. W. Meunier wrote:
+>It isn't that hot, and by ambient temperature I assume it's the
+>local temperature, not of the hard drive.
+>
+>194 Temperature_Celsius     0x0022   079   074   042    Old_age   Always       -       54
+>
+>and has been running almost fine for over 2 years.
 
-rgds
--daniel
+The SMART data is the temperature recorded by the drive itself.  There
+are various places where these measurements may be made, the actual
+implementation is vendor specific.
 
-patch:
-the CB_CDETECT1 and CB_CDETECT2 bits both should be 0 for the card being
-recognized correctly (and one of the voltage bits need to be set)
+An ambient temperature exceeding 55C would void most drive warranties,
+it isn't a good idea.  Sure, your drive may survive at higher temps,
+but it really is a bad idea.
 
---- 1.15/drivers/pcmcia/yenta.c	Tue Jan  6 11:55:05 2004
-+++ edited/drivers/pcmcia/yenta.c	Fri Feb 20 23:17:54 2004
-@@ -135,8 +135,8 @@
- 
- 	val  = (state & CB_3VCARD) ? SS_3VCARD : 0;
- 	val |= (state & CB_XVCARD) ? SS_XVCARD : 0;
--	val |= (state & (CB_CDETECT1 | CB_CDETECT2 | CB_5VCARD | CB_3VCARD
--			 | CB_XVCARD | CB_YVCARD)) ? 0 : SS_PENDING;
-+	val |= (state & (CB_5VCARD | CB_3VCARD | CB_XVCARD | CB_YVCARD)) ? 0 : SS_PENDING;
-+	val |= (state & (CB_CDETECT1 | CB_CDETECT2)) ? SS_PENDING : 0;
- 
- 	if (state & CB_CBCARD) {
- 		val |= SS_CARDBUS;	
-@@ -677,10 +677,9 @@
- 
- 	/* Redo card voltage interrogation */
- 	state = cb_readl(socket, CB_SOCKET_STATE);
--	if (!(state & (CB_CDETECT1 | CB_CDETECT2 | CB_5VCARD |
--			CB_3VCARD | CB_XVCARD | CB_YVCARD)))
--		
--	cb_writel(socket, CB_SOCKET_FORCE, CB_CVSTEST);
-+	if (!(state & (CB_5VCARD | CB_3VCARD | CB_XVCARD | CB_YVCARD)) ||
-+	    (state & (CB_CDETECT1 | CB_CDETECT2)))
-+		cb_writel(socket, CB_SOCKET_FORCE, CB_CVSTEST);
- }
- 
- /* Called at resume and initialization events */
+
+-- 
+Eric D. Mudama
+edmudama@mail.bounceswoosh.org
 

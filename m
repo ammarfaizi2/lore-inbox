@@ -1,102 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264609AbSIVX1R>; Sun, 22 Sep 2002 19:27:17 -0400
+	id <S264621AbSIVXpM>; Sun, 22 Sep 2002 19:45:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264613AbSIVX1R>; Sun, 22 Sep 2002 19:27:17 -0400
-Received: from nameservices.net ([208.234.25.16]:38902 "EHLO opersys.com")
-	by vger.kernel.org with ESMTP id <S264609AbSIVX1P>;
-	Sun, 22 Sep 2002 19:27:15 -0400
-Message-ID: <3D8E5329.3DAB4A1B@opersys.com>
-Date: Sun, 22 Sep 2002 19:32:57 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.19 i686)
-X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
+	id <S264623AbSIVXpM>; Sun, 22 Sep 2002 19:45:12 -0400
+Received: from igw3.watson.ibm.com ([198.81.209.18]:58327 "EHLO
+	igw3.watson.ibm.com") by vger.kernel.org with ESMTP
+	id <S264621AbSIVXpL>; Sun, 22 Sep 2002 19:45:11 -0400
+From: bob <bob@watson.ibm.com>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       LTT-Dev <ltt-dev@shafik.org>
-Subject: Re: [PATCH] LTT for 2.5.38 1/9: Core infrastructure
-References: <Pine.LNX.4.44.0209230032350.28641-100000@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Date: Sun, 22 Sep 2002 19:50:01 -0400 (EDT)
+To: Ingo Molnar <mingo@elte.hu>
+Cc: bob <bob@watson.ibm.com>, Karim Yaghmour <karim@opersys.com>,
+       <okrieg@us.ibm.com>, <trz@us.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       LTT-Dev <ltt-dev@shafik.org>, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [ltt-dev] Re: [PATCH] LTT for 2.5.38 1/9: Core infrastructure
+In-Reply-To: <Pine.LNX.4.44.0209230115270.3792-100000@localhost.localdomain>
+References: <15758.19140.200081.346286@k42.watson.ibm.com>
+	<Pine.LNX.4.44.0209230115270.3792-100000@localhost.localdomain>
+X-Mailer: VM 6.43 under 20.4 "Emerald" XEmacs  Lucid
+Message-ID: <15758.22032.784938.43647@k42.watson.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Molnar writes:
+ > 
+ > On Sun, 22 Sep 2002, bob wrote:
+ > 
+ > > However, for sake of argument, the above is still not true.  A global
+ > > lock has a different (worse) performance problem then the lock-free
+ > > atomic operation even given a global queue.  The difference is 1) the
+ > > Linux global lock is very expensive [... and interacts with potential
+ > > other processes, [...]
+ > 
+ > huh? what is 'the Linux global lock'?
 
-Thanks for the recommendations, we will certainly direct the development
-to address these issues.
+sorry - LTT just uses a global lock - but to do so it must disable
+interrupts.  This is not a cheap operation.  With lockless code you do not
+need to disable interrrupts (or grab a lock) -> many less cycles.
 
-Ingo Molnar wrote:
->  - remove the 'event registration' and callback stuff. It just introduces
->    unnecessery runtime overhead. Use an include file as a registry of
->    events instead. This will simplify things greatly.
+ > 
+ > > [...] and 2) you have to hold the lock for the entire duration of
+ > > logging the event; with the atomic operation you are finished once
+ > > you've reserved you space. [...]
+ > 
+ > you dont have to hold the lock for the duration of saving the event, the
+ > lock could as well protect a 'current entry' index. (Not that those 2-3
+ > cycles saving off the event into a single cacheline counts that much ...)
+ > 
+ > the tail-atomic method is precisely equivalent to a global spinlock. The
+ > tail of a global event buffer acts precisely as a global spinlock: if one
+ > CPU writes to it in a stream then it performs okay, if two CPUs trace in
+ > parallel then it causes cachelines to bounce like crazy.
 
-OK, basically then all the trace points call the trace driver directly.
+If 2 cpus ping-pong back and forth there will be significant cache cost -
+true, but the cost of having to acquire the lock (which also ping-pongs)
+and disabling the interrupts, adds even more.  The additional cache line
+ping pong for the lock (latency probably won't be hidden in fetching the
+trace buffer data) plus the disabling interrupts still more than doubles
+the cost.
 
-> Why do you need a
->    table of callbacks registered to an event? Nothing in your patches
->    actually uses it ...
+-bob
 
-True, nothing in the patches actually uses it as this point. This was
-added with the mindset of letting other tools than LTT use the trace
-points already provided by LTT.
-
-> Just use one tracing function that copies the
->    arguments into a per-CPU ringbuffer. It's really just a few lines.
-
-Sure, the writing of data itself is trivial. The reason you find the
-driver to be rather full is because of its need to do a couple of
-extra operations:
-- Get timestamp and use delta since begining of buffer to reduce
-trace size. (i.e. because of the rate at which traces are filled, it's
-essential to be able to cut down in the data written as much as possible).
-- Filter events according to event mask.
-- Copy extra data in case of some events (e.g. filenames). (We're working on
-ways to simplify this).
-- Synchronize with trace daemon to save trace data. (A single per-CPU
-circular buffer may be useful when doing kernel devleopment, but user
-tracing often requires N buffers).
-
-In addition, because this data is available from user-space, you need
-to be able to deal with many buffers. For example, you don't want some
-random user to know everything that's happening on the entire system
-for obvious security reasons. So the tracer will need to be able to
-have per-user and per-process buffers.
-
-The writing of the data itself is not a problem, the real problem is
-having a flexible lightweight tracer that can be used in a variety
-of different situations.
-
->  - do not disable interrupts when writing events. I used this method in
->    a tracer and it works well. Just get an irq-safe index to the trace
->    ring-buffer and fill it in. [eg. on x86 incl can be used for this
->    purpose.]
-
-Done.
-
->  - get rid of p->trace_info and the pending_write_count - it's completely
->    unnecessery.
-
-But then how do we keep track of whether processes have pointers to the
-trace buffer or not? We need to be able to allocate/free trace buffers
-in runtime. That's what the pending_write_count is for. A buffer can't
-be freed is someone still has pending writes. Alternatives are welcomed.
-
-Also, though this hasn't been implemented yet, users may desire to trace a
-certain set of processes and trace_info could include a flag to this end.
-
->  - drivers/trace/tracer.c is a complex mess of strange coding style and
->    #ifdefs, it's not proper Linux kernel code.
-
-We'll fix that.
-
-Karim
-
-===================================================
-                 Karim Yaghmour
-               karim@opersys.com
-      Embedded and Real-Time Linux Expert
-===================================================
+Robert Wisniewski
+The K42 MP OS Project
+Advanced Operating Systems
+Scalable Parallel Systems
+IBM T.J. Watson Research Center
+914-945-3181
+http://www.research.ibm.com/K42/
+bob@watson.ibm.com

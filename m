@@ -1,33 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315416AbSGIOUV>; Tue, 9 Jul 2002 10:20:21 -0400
+	id <S315417AbSGIOVg>; Tue, 9 Jul 2002 10:21:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315417AbSGIOUU>; Tue, 9 Jul 2002 10:20:20 -0400
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:43782 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S315416AbSGIOUT>; Tue, 9 Jul 2002 10:20:19 -0400
-Message-Id: <200207091422.g69EMnUw027445@pincoya.inf.utfsm.cl>
-To: "Martinez, Michael - CSREES/ISTM" <MMARTINEZ@intranet.reeusda.gov>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: list of compiled in support 
-In-Reply-To: Message from "Martinez, Michael - CSREES/ISTM" <MMARTINEZ@intranet.reeusda.gov> 
-   of "Tue, 09 Jul 2002 09:09:52 -0400." <630DA58AD01AD311B13A00C00D00E9BC05D20216@CSREESSERVER> 
-Date: Tue, 09 Jul 2002 10:22:49 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S315420AbSGIOVf>; Tue, 9 Jul 2002 10:21:35 -0400
+Received: from [62.70.58.70] ([62.70.58.70]:10886 "EHLO mail.pronto.tv")
+	by vger.kernel.org with ESMTP id <S315417AbSGIOVd> convert rfc822-to-8bit;
+	Tue, 9 Jul 2002 10:21:33 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: ProntoTV AS
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] using 2.5.25 with IDE
+Date: Tue, 9 Jul 2002 16:24:23 +0200
+User-Agent: KMail/1.4.1
+References: <Pine.SOL.4.30.0207091613350.16892-100000@mion.elka.pw.edu.pl>
+In-Reply-To: <Pine.SOL.4.30.0207091613350.16892-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200207091624.23388.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martinez, Michael - CSREES/ISTM" <MMARTINEZ@intranet.reeusda.gov> said:
-> No, no. Just simply find out whether my kernel supports ipx. And if it does
-> support it, then to disable it, without recompiling the kernel, perhaps by
-> removing ipx entries from /etc/services.
+> Contrary to the popular belief 2.5.25 has only Martin's IDE-93
+> and has broken locking...
+>
+> If you want to run IDE on 2.5.25 get and apply:
+>
+> IDE-94 by Martin
+> IDE-95/96/97/98-pre by me
+>
+> from:
+> http://home.elka.pw.edu.pl/~bzolnier/ata/
 
-Deleting entries from /etc/services and such won't disable anything, just
-make it a triffle more dificult to use.
+...or run it with 2.4 IDE core as previously announced by Jens Axboe :-)
 
-If you want to disable it, do so. If it isn't there, it will complain.
+roy
+
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Roy Sigurd Karlsbakk, Datavaktmester
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+

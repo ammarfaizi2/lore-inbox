@@ -1,68 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261713AbVAYB4C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261708AbVAYB5r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261713AbVAYB4C (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 20:56:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261708AbVAYB4C
+	id S261708AbVAYB5r (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 20:57:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbVAYB5l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 20:56:02 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:24213 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261713AbVAYBzl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 20:55:41 -0500
-Date: Mon, 24 Jan 2005 17:54:35 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: john stultz <johnstul@us.ibm.com>
-cc: lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Dominik Brodowski <linux@dominikbrodowski.de>,
-       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
-       paulus@samba.org, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, Patricia Gaughen <gone@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>, Max Asbock <amax@us.ibm.com>,
-       mahuja@us.ibm.com, Nishanth Aravamudan <nacc@us.ibm.com>,
-       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
-       Anton Blanchard <anton@samba.org>
-Subject: Re: [RFC][PATCH] new timeofday core subsystem (v. A2)
-In-Reply-To: <1106613222.30884.34.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.58.0501241748090.18859@schroedinger.engr.sgi.com>
-References: <1106607089.30884.10.camel@cog.beaverton.ibm.com> 
- <Pine.LNX.4.58.0501241513470.17986@schroedinger.engr.sgi.com> 
- <1106611416.30884.22.camel@cog.beaverton.ibm.com> 
- <Pine.LNX.4.58.0501241606240.17986@schroedinger.engr.sgi.com>
- <1106613222.30884.34.camel@cog.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 24 Jan 2005 20:57:41 -0500
+Received: from fire.osdl.org ([65.172.181.4]:5827 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S261708AbVAYB5T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 20:57:19 -0500
+Subject: Re: [PATCH] BUG in io_destroy (fs/aio.c:1248)
+From: Daniel McNeil <daniel@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Darrick J. Wong" <djwong@us.ibm.com>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "linux-aio@kvack.org" <linux-aio@kvack.org>
+In-Reply-To: <20050124165856.02ac0c50.akpm@osdl.org>
+References: <41F04D73.20800@us.ibm.com> <20050124085805.GA4462@in.ibm.com>
+	 <20050124155613.3a741825.akpm@osdl.org>
+	 <1106613801.11633.2.camel@localhost.localdomain>
+	 <20050124165856.02ac0c50.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1106618202.9346.26.camel@ibm-c.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 24 Jan 2005 17:56:42 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Jan 2005, john stultz wrote:
+On Mon, 2005-01-24 at 16:58, Andrew Morton wrote:
+> "Darrick J. Wong" <djwong@us.ibm.com> wrote:
+> >
+> > Andrew Morton wrote:
+> > 
+> > > So...  Will someone be sending a new patch?
+> > 
+> > Here's a cheesy patch that simply marks the ioctx as dead before
+> > destroying it.
+> 
+> super-cheesy, given that `ctx' is an unsigned long.
+> 
+> > +		spin_lock_irq(&ctx->ctx_lock);
+> > +		ctx->dead = 1;
+> > +		spin_unlock_irq(&ctx->ctx_lock);
+> > +
+> 
+> Even with this fixed up, the locking looks very odd.
+> 
+> Needs more work, please.  Or we just run with the original patch which I
+> assume was tested.  It's a rare error path and performance won't matter.
 
-> We talked about this last time. I do intend to re-work ntp_scale() so
-> its not a function call, much as you describe above.
->
-> hopelessly endeavoring,
+The use of 'dead' looks very strange.  It is set to 1 in
+aio_cancel_all() while holding spin_lock_irq(&ctx->ctx_lock);
+but it is set to 1 in io_destroy() holding
+write_lock(&mm->ioctx_list_lock);
 
-hehe.... But seriously: The easiest approach may be to modify the time
-sources to allow a fine tuning of the scaling factor. That way ntp_scale
-may be moved into tick processing where it would adjust the scaling of the
-time sources up or downward. Thus no ntp_scale in the monotonic clock
-processing anymore.
+The io_destroy() comment says
+"Protects against races with itself via ->dead."
 
-Monotonic clocks could be calculated
+I assume the race the comment is talking about is
+multiple threads calling io_destroy() on the same
+ctx.  io_destroy() in only called from sys_io_destroy() or
+from sys_io_setup() in the failure case that is trying
+to be fixed.
 
-monotime = ns_at_last_tick + (time_source_cycles_since_tick *
-current_scaling_factor) >> shift_factor.
+aio_cancel_all() is only called from exit_aio() when the
+mm is going away.  So this path is using 'dead' for something
+else since the mm cannot go away twice (and there cannot be
+an io_destroy() in progress or the mm would not be going away).
 
-This would also be easy to implement in asm if necessary.
+The overloading of 'dead' is ugly and confusing.
 
-tick processing could then increment or decrement the current scaling
-factor to minimize the error between ticks. It could also add
-nanoseconds to ns_at_last_tick to correct the clock forward.
+The use of spin_lock_irq(&ctx->ctx_lock) in sys_io_setup()
+does not do any good AFAICT.
 
-With the appropiate shift_factor one should be able to fine tune time much
-more accurately than ntp_scale would do. Over time the necessary
-corrections could be minimized to just adding a few ns once in a while.
+Daniel
+
+
+
+
 

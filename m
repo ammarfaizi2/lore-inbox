@@ -1,32 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278979AbRJVVvk>; Mon, 22 Oct 2001 17:51:40 -0400
+	id <S278965AbRJVV6K>; Mon, 22 Oct 2001 17:58:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278965AbRJVVvc>; Mon, 22 Oct 2001 17:51:32 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:13072 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S278979AbRJVVvS>; Mon, 22 Oct 2001 17:51:18 -0400
-Subject: Re: How to read past 8Mb boundary in early boot (i386 arch)?
-To: Martin.Bligh@us.ibm.com
-Date: Mon, 22 Oct 2001 22:58:17 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (linux-kernel mailing list)
-In-Reply-To: <3034122113.1003761502@mbligh.des.sequent.com> from "Martin J. Bligh" at Oct 22, 2001 02:38:22 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15vn5N-0003Xa-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S278967AbRJVV5u>; Mon, 22 Oct 2001 17:57:50 -0400
+Received: from tmhoyle.gotadsl.co.uk ([195.149.46.162]:6153 "EHLO
+	mail.cvsnt.org") by vger.kernel.org with ESMTP id <S278965AbRJVV5r>;
+	Mon, 22 Oct 2001 17:57:47 -0400
+From: "Tony Hoyle" <tmh@nothing-on.tv>
+Subject: Re: Linux 2.2.20pre10
+Date: Mon, 22 Oct 2001 22:58:17 +0100
+Organization: Magenta netLogic
+Message-ID: <9r24pp$9gp$1@sisko.my.home>
+In-Reply-To: <Pine.LNX.4.33L.0110221943290.22127-100000@duckman.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: sisko.my.home 1003787897 9753 192.168.100.2 (22 Oct 2001 21:58:17 GMT)
+X-Complaints-To: abuse@cvsnt.org
+User-Agent: Pan/0.10.0.93 (Unix)
+X-Comment-To: "Rik van Riel" <riel@conectiva.com.br>
+X-No-Productlinks: Yes
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What I guess is needed is to read the pointer to the MPS tables,
-> if pointer > 8Mb (well, plus the length of the table or an allowance) 
-> then copy it to 7Mb with some phys_memcopy routine. But it seems
-> this means handcrafting a page table entry ... in which case, it might 
-> be easier to temporarily create a page table for the area pointed to, 
-> read it as normal, then tear it down again afterwards?
+In the ancient scrolls of Usenet, page
+<Pine.LNX.4.33L.0110221943290.22127-100000@duckman.distro.conectiva>, "Rik
+van Riel" <riel@conectiva.com.br> spake thus:
 
-Take a look at the apictable code added in recent -ac. They have precisely
-the same problems to worry about
 
+> If publishing changelogs would be illegal in, say, the USA, should Linux
+> development be stopped ?
+
+If the SSSCA gets passed that's not an impossible scenario...  (more
+likely it'll just become unavailable in the US).
+
+Tony
+
+-- 
+"Only wimps use tape backup: _real_ men just upload their important stuff on
+ ftp, and let the rest of the world mirror it ;)"  -- Linus Torvalds
+
+tmh@nothing-on.tv	http://www.nothing-on.tv

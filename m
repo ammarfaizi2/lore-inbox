@@ -1,72 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270327AbTGMSK6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 14:10:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270328AbTGMSK6
+	id S270325AbTGMSFv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 14:05:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270324AbTGMSFu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 14:10:58 -0400
-Received: from auth22.inet.co.th ([203.150.14.104]:58898 "EHLO
-	auth22.inet.co.th") by vger.kernel.org with ESMTP id S270327AbTGMSK4
+	Sun, 13 Jul 2003 14:05:50 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:28550 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S270325AbTGMSFt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 14:10:56 -0400
-From: Michael Frank <mflt1@micrologica.com.hk>
-To: Pavel Machek <pavel@suse.cz>, Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: [Swsusp-devel] Re: Thoughts wanted on merging Software Suspend enhancements
-Date: Mon, 14 Jul 2003 02:17:29 +0800
-User-Agent: KMail/1.5.2
-Cc: swsusp-devel <swsusp-devel@lists.sourceforge.net>,
+	Sun, 13 Jul 2003 14:05:49 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Sun, 13 Jul 2003 11:13:09 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Ingo Molnar <mingo@elte.hu>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1057963547.3207.22.camel@laptop-linux> <1058021722.1687.16.camel@laptop-linux> <20030712153719.GA206@elf.ucw.cz>
-In-Reply-To: <20030712153719.GA206@elf.ucw.cz>
-X-OS: KDE 3 on GNU/Linux
+Subject: Scheduler woes ( was [patch] SCHED_SOFTRR linux scheduler policy)
+ ...
+In-Reply-To: <1058097211.32496.30.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.55.0307131022560.14680@bigblue.dev.mcafeelabs.com>
+References: <Pine.LNX.4.55.0307091929270.4625@bigblue.dev.mcafeelabs.com> 
+ <20030713115033.GA371@elf.ucw.cz> <1058097211.32496.30.camel@dhcp22.swansea.linux.org.uk>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200307140207.47711.mflt1@micrologica.com.hk>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 12 July 2003 23:37, Pavel Machek wrote:
-> > > > - user can abort at any time during suspend (oh, I forgot, I wanted
-> > > > to...) by just pressing Escape
+On Sun, 13 Jul 2003, Alan Cox wrote:
+
+> On Sul, 2003-07-13 at 12:50, Pavel Machek wrote:
+> > Hi!
+> >
+> > > I finally found a couple of hours for this and I also found a machine were
+> > > I can run 2.5, since luck abandoned myself about this. The small page
+> > > describe the obvious and contain the trivial patch and the latecy test app :
 > > >
-> > > That seems like missfeature. We don't want joe random user that is at
-> > > the console to prevent suspend by just pressing Escape. Maybe magic
-> > > key to do that would be acceptable...
+> > > http://www.xmailserver.org/linux-patches/softrr.html
+> >
+> > What happens if evil user forks 60 processes, marks them all
+> > SCHED_SOFTRR, and tries to starve everyone else?
+>
+> With the current scheduler you lose. Rik did some playing with a fair
+> share scheduler some time ago. That actually works very well for a lot
+> of these sorts of things. You can nice processes up (but only by
+> penalising your own processes) and conceptually you'd be able to soft
+> real time on a per user basis this way.
 
-Dumb question applicable to 9x% of computers: how do you secure the suspend 
-switch and OFF switch, not to mention the power plug or the battery?
+There are currently two kind of problems, that can be solved with
+different approaches. One is starvation and the other one is fairness
+among system users. Googling around for problems reported about
+starvation, we can find stuff reported by David Mosberger plus other real
+or artificial piece of code that makes the scheduler to starve other tasks
+(or at least assign CPU slices in a way less than optimal way). Since Ingo
+will be listening I'll go with some ideas. I believe we should have three
+domains inside the scheduler 1) RT 2) Interactive 3) Non-Interactive,
+having three different priority lists. It is possible to have 1 and 2
+collapsed to restrict the schema to a dual-domain. The algorithm should be
+like :
 
-As to security many portables have a bios password and no other passwords 
-thereafter for the user account. The abort feature events could be enabled 
-via swsusp proc entry mainly for (desktop) security. Also, then you ought 
-to think about securing suspend events (don't swsusp the webserver please)!
+	if ((t = get_rt_task()) != NULL)
+		goto got_it;
+	if (time_to_pick_interactive() && (t = get_int_task()) != NULL)
+		goto got_it;
+	if (!(t = get_nint_task()))
+		t = idle();
+got_it:
+	...
 
-In practice, when suspending, in many cases one would like to abort. Suspend 
-should be abortable by ESC and post 1.0: the lid switch and/or suspend switch. 
-If you think about it it makes sense to abort suspend instead of having 
-to wait 15-40 seconds and reenter the bios password and wait another 10-30 
-seconds. (assuming 2.4 speeds)
+Functions get_*() do the std bitmap lookup and O(1) fetch. The function
+time_to_pick_interactive() is a trivial function of the time consumed by
+interactive tasks and non-interactive tasks so that we can even eventually
+tune it with /proc. Even a super-trivial policy like :
 
-The way I would use S3/S4 is reboot only for a new kernel, and really use the 
-machine portably much more. S3 would be used for short suspends and S4 for 
-longer suspends.
+	static inline int time_to_pick_interactive(void) {
+		return rt->sched_num % N;
+	}
 
-In short, this is an _important_ feature _as_ much as S3 and S4.
+would work. Even with N very small like 2, the greater timeslice allocated
+for interactive tasks will still assign a huge slice of CPU to them (a
+quadratic of cubic timeslice(prio) function will mark even more the gap).
+The EXPIRED_STARVING() thing simply does not work, expecially with a ten
+second setup. Also, it makes all interactive tasks to fall trough in the
+expired array. The above solution will guarantee that no starvation will
+be experienced by other tasks. You really want to make time_to_pick_interactive()
+a function of the allocated CPU time to achieve a better distribution.
+All the tricks available to hit the interactive selection machanism will
+fail under this solution. All non-iteractive tasks will have their
+*guaranteed* (and tunable) minimum CPU time. You can easily keep the time
+allocation information inside the run queue struct so that you can access
+them w/out extra locks.
 
-Regards
-Michael
+Ingo, I know you're busy with other stuff but you should definitely take a
+look at some of the exposed cases, some of them are scary if you think at
+what they can do in a multi-user environment.
 
--- 
-Powered by linux-2.5.75-mm1. Compiled with gcc-2.95-3 - mature and rock solid
 
-My current linux related activities:
-- 2.5 yenta_socket testing
-- Test development and testing of swsusp for 2.4/2.5 and ACPI S3 of 2.5 kernel 
-- Everyday usage of 2.5 kernel
 
-More info on 2.5 kernel: http://www.codemonkey.org.uk/post-halloween-2.5.txt
-More info on swsusp: http://sourceforge.net/projects/swsusp/
+- Davide
 

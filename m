@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290048AbSAWUgE>; Wed, 23 Jan 2002 15:36:04 -0500
+	id <S290059AbSAWUgf>; Wed, 23 Jan 2002 15:36:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290059AbSAWUfz>; Wed, 23 Jan 2002 15:35:55 -0500
-Received: from pc-80-195-34-66-ed.blueyonder.co.uk ([80.195.34.66]:49797 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S290048AbSAWUfp>; Wed, 23 Jan 2002 15:35:45 -0500
-Date: Wed, 23 Jan 2002 20:35:00 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Andrew Morton <akpm@zip.com.au>, Hans Reiser <reiser@namesys.com>,
-        Andreas Dilger <adilger@turbolabs.com>, Chris Mason <mason@suse.com>,
-        Shawn Starr <spstarr@sh0n.net>, linux-kernel@vger.kernel.org,
-        ext2-devel@lists.sourceforge.net, Stephen Tweedie <sct@redhat.com>
-Subject: Re: [Ext2-devel] Re: Possible Idea with filesystem buffering.
-Message-ID: <20020123203500.L1930@redhat.com>
-In-Reply-To: <3C4DB256.172F8D6A@zip.com.au> <Pine.LNX.4.33L.0201221649430.32617-100000@imladris.surriel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.33L.0201221649430.32617-100000@imladris.surriel.com>; from riel@conectiva.com.br on Tue, Jan 22, 2002 at 05:03:02PM -0200
+	id <S290060AbSAWUgZ>; Wed, 23 Jan 2002 15:36:25 -0500
+Received: from mout03.kundenserver.de ([195.20.224.218]:20565 "EHLO
+	mout03.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S290059AbSAWUgR>; Wed, 23 Jan 2002 15:36:17 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Hans-Peter Jansen <hpj@urpla.net>
+Organization: LISA GmbH
+To: Daniel Nofftz <nofftz@castor.uni-trier.de>
+Subject: Re: [patch] amd athlon cooling on kt266/266a chipset
+Date: Wed, 23 Jan 2002 21:36:10 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.40.0201232018530.2202-100000@infcip10.uni-trier.de>
+In-Reply-To: <Pine.LNX.4.40.0201232018530.2202-100000@infcip10.uni-trier.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020123203611.32A3F1479@shrek.lisa.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+[Also follow up to my success message befor in this thread]
 
-On Tue, Jan 22, 2002 at 05:03:02PM -0200, Rik van Riel wrote:
-> On Tue, 22 Jan 2002, Andrew Morton wrote:
-> > Hans Reiser wrote:
-> >
-> > Note that writepage() doesn't get used much.  Most VM-initiated
-> > filesystem writeback activity is via try_to_release_page(), which
-> > has somewhat more vague and flexible semantics.
-> 
-> We may want to change this though, or at the very least get
-> rid of the horrible interplay between ->writepage and
-> try_to_release_page() ...
+On Wednesday, 23. January 2002 20:21, Daniel Nofftz wrote:
+> On Wed, 23 Jan 2002, Martin Eriksson wrote:
+> > Problems (in Windows, with similar patches) have mostly been sound skips
+> > and general "skippy" behaviour (not the peanut butter). My VIA KT133
+> > based mobo with Athlon 1000 had major sound skips, both with onboard VIA
+> > sound and SB512. Also the graphics in most 3D games stuttered badly.
 
-This is actually really important --- writepage on its own cannot
-distinguish between requests to flush something to disk (eg. msync or
-fsync), and requests to evict dirty data from memory.
+Oups. Just tried vlc and indeed: skippy sound and picture loss after 
+switching to fullscreen :( Also uncommon delays on startup noticable.
 
-This is really important for ext3's data journaling mode --- syncing
-to disk only requires flushing as far as the journal, but evicting
-dirty pages requires a full writeback too.  That's one place where our
-traditional VM notion of writepage just isn't quite fine-grained
-enough.
+Will revert it for now (vlc is more important:).
 
-Cheers,
- Stephen
+Hans-Peter
+
+> this is the first time i hear about such problems ...
+> i have no problems at all and it works great under linux and win 2k
+> (vcool) ... there are no sound skips or skippy behaviors ...
+>
+> daniel
+>
+> # Daniel Nofftz
+> # Sysadmin CIP-Pool Informatik
+> # University of Trier(Germany), Room V 103
+> # Mail: daniel@nofftz.de

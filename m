@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268253AbTBNI6O>; Fri, 14 Feb 2003 03:58:14 -0500
+	id <S268256AbTBNI6f>; Fri, 14 Feb 2003 03:58:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268254AbTBNI6O>; Fri, 14 Feb 2003 03:58:14 -0500
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:56791 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S268253AbTBNI6N>; Fri, 14 Feb 2003 03:58:13 -0500
-Date: Fri, 14 Feb 2003 10:08:04 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-cc: Pavel Machek <pavel@suse.cz>, John Levon <levon@movementarian.org>,
+	id <S268325AbTBNI6f>; Fri, 14 Feb 2003 03:58:35 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:6660 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S268256AbTBNI6e>;
+	Fri, 14 Feb 2003 03:58:34 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200302140908.h1E98xaJ000400@darkstar.example.net>
+Subject: Re: 2.5.60 cheerleading...
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Fri, 14 Feb 2003 09:08:59 +0000 (GMT)
+Cc: mbligh@aracnet.com, plars@linuxtestproject.org, davej@codemonkey.org.uk,
        linux-kernel@vger.kernel.org
-Subject: Re: Switch APIC (+nmi, +oprofile) to driver model
-In-Reply-To: <15947.41003.250547.617866@kim.it.uu.se>
-Message-ID: <Pine.GSO.3.96.1030214100458.666A-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+In-Reply-To: <Pine.LNX.4.44.0302131731090.2655-100000@home.transmeta.com> from "Linus Torvalds" at Feb 13, 2003 05:32:14 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Feb 2003, Mikael Pettersson wrote:
+> > Or you just persaude Linus to release kernels first thing in the morning,
+> > not last thing at night.
+> 
+> Ok, now the thread has moved from the strange to the surreal.
 
-> +static int __init init_local_apic_devicefs(void)
->  {
-> -	if (apic_pm_state.active)
-> -		pm_register(PM_SYS_DEV, 0, apic_pm_callback);
-> +	if (!cpu_has_apic)
+Fed up with all these people trying to tell you when to release new
+kernels?  Now you can just use this simple script to do it
+automatically!
 
- This looks broken -- what if an external local APIC is present?
+#!/bin/sh
+echo "Release a new kernel now!!!" > /tmp/kernel_reminder
+echo "30 6 * * * /usr/bin/cat /tmp/kernel_reminder | mail root" >> /var/spool/cron/crontabs/root 
 
-> +		return 0;
-> +	if (!apic_pm_state.active) {
-> +		local_apic_driver.resume = NULL;
-> +		local_apic_driver.suspend = NULL;
-> +	}
-> +	driver_register(&local_apic_driver);
-> +	return sys_device_register(&device_local_apic);
->  }
-
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
-
+John.

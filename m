@@ -1,73 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267527AbTAGWVi>; Tue, 7 Jan 2003 17:21:38 -0500
+	id <S267536AbTAGWhS>; Tue, 7 Jan 2003 17:37:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267530AbTAGWVh>; Tue, 7 Jan 2003 17:21:37 -0500
-Received: from owl.ewu.edu ([146.187.128.22]:53266 "EHLO OWL.ewu.edu")
-	by vger.kernel.org with ESMTP id <S267527AbTAGWVg>;
-	Tue, 7 Jan 2003 17:21:36 -0500
-Date: Tue, 07 Jan 2003 06:28:10 -0800
-From: Kaleb Pederson <kibab@icehouse.net>
-Subject: Re: windows=stable, linux=5 reboots/50 min
-In-reply-to: <20030107095406.GH2141@vagabond>
-To: linux-kernel@vger.kernel.org
-Message-id: <200301070628.17747.kibab@icehouse.net>
-MIME-version: 1.0
-Content-type: multipart/signed; charset=iso-8859-1;
- boundary="Boundary-02=_BQuG+U/NJpFgMWP"; micalg=pgp-sha1;
- protocol="application/pgp-signature"
-Content-transfer-encoding: 7bit
-User-Agent: KMail/1.5
-References: <LDEEIFJOHNKAPECELHOAKEJFCCAA.kibab@icehouse.net>
- <20030107095406.GH2141@vagabond>
+	id <S267545AbTAGWhR>; Tue, 7 Jan 2003 17:37:17 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:31677 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S267536AbTAGWhO>;
+	Tue, 7 Jan 2003 17:37:14 -0500
+Subject: Re: [PATCH] kexec for 2.5.54
+From: Andy Pfiffer <andyp@osdl.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       suparna@in.ibm.com, Linus Torvalds <torvalds@transmeta.com>,
+       Dave Hansen <haveblue@us.ibm.com>,
+       Werner Almesberger <wa@almesberger.net>
+In-Reply-To: <m1fzs6j0bh.fsf_-_@frodo.biederman.org>
+References: <m1smwql3av.fsf@frodo.biederman.org>
+	<20021231200519.A2110@in.ibm.com> <m11y3uldt9.fsf@frodo.biederman.org>
+	<20030103181100.A10924@in.ibm.com>  <m1fzs6j0bh.fsf_-_@frodo.biederman.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 07 Jan 2003 14:46:00 -0800
+Message-Id: <1041979560.12674.93.camel@andyp>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2003-01-05 at 21:48, Eric W. Biederman wrote:
+> 
+> O.k.  I have switched to using the init_mm and premapping the reboot
+> code buffer.
+<snip>
+> The code in machine_kexec now takes no locks and is drop dead simple,
+> so it should be safe to call from a panic handler.  
 
---Boundary-02=_BQuG+U/NJpFgMWP
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Description: signed data
-Content-Disposition: inline
+Eric,
 
-I'm now pretty sure that it is a hardware failure of some type.  Windows was 
-stable last night for about four hours of compiling, graphics manipulations, 
-etc.  But, when I got home after being gone for several hours, Windows 
-started exhibiting the same behavior.  I presume it is Linux sensitivity to 
-hardware that made it show up 5 days sooner.  I'm presume, at this point, 
-that it is either the motherboard or one of the processors.
+The patch applies cleanly to 2.5.54 for me.  Current behavior matches
+the version of kexec for 2.5.48 that I carried forward into 2.5.52 and
+2.5.54 (and kexec_tools 1.8): 
 
-Thank you everyone for your suggestions.  Of the many messages I received, the 
-following were good and relevant to my system and I will try them to see if 
-it does make a difference.
+- the kexec-ed kernel starts rebooting and finds all of my system's
+memory, so the generic kexec machinery is working as expected.
 
-1) Try disabling apm/acpi in bios (I had done this in the kernel, not in 
-bios).
-2) Try a uniprocessor kernel or booting with only one processor
-3) mount /var synchronous to see if anything shows up in the logs (I had 
-checked the logs and nothing was getting written to it.  I had forgotten that 
-you could make the whole file system synchronous; I'll try this.)
-4) Increase voltage to the processors and see if it helps.
+- the kexec-ed kernel hangs while calibrating the delay loop.  The list
+of kernels I attempted to reboot includes permutations of 2.5.48 +/-
+kexec, 2.5.52 +/- kexec(from 2.5.48), 2.5.54, 2.5.54 + kexec(from
+2.5.48), and 2.5.54 + kexec (recent patch from you).
 
-Per some other questions, I'm not using scsi nor do I have an intel 82801DB 
-chip onboard.
+- Whatever it is that SuSE supplies in 8.0 (2.4.x +) panics near/during
+frame buffer initialization when rebooted via kexec for 2.5.54:
+	.
+	.
+	.
+	Initializing CPU#0
+	Detected 799.665 MHz Processor
+	Console: colour VGA+ 80x25
+	invalid operand: 0000
+	CPU: 0
+	EIP: 0010[<00000007>] Not tainted
+	EFLAGS 00010002
+	.
+	.
+	.
 
-Thanks again for the help.
+Something has definitely changed in the 2.5.5x series, and the symptoms
+indicate that at least the clock interrupt is not being received.
 
---Kaleb
-PS: Please CC me any responses that go to the list.
---Boundary-02=_BQuG+U/NJpFgMWP
-Content-Type: application/pgp-signature
-Content-Description: signature
+kexec for 2.5.48 worked for me (with some limits), so I should be able
+to walk the tree forwards and poke at it some more.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+For those that have had success w/ recent vintage kernels and kexec (>
+2.5.48), could I get a roll-call of your machine's hardware?  Uniproc,
+SMP, AGP, chipset, BIOS version, that kind of thing.  lspci -v,
+/cat/proc/cpuinfo, and maybe the boot-up messages would all be
+appreciated.
 
-iD8DBQA+GuQBeAVt8Tl/2kURAlfPAJ996TUctyXkPnSrXp13eLk2Vvh69QCgqhnn
-XGaWuCB0APt6DxYYMrPRAi4=
-=Jdur
------END PGP SIGNATURE-----
+Regards,
+Andy
 
---Boundary-02=_BQuG+U/NJpFgMWP--
 

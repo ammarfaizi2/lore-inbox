@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311710AbSERL2b>; Sat, 18 May 2002 07:28:31 -0400
+	id <S312426AbSERLjI>; Sat, 18 May 2002 07:39:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312296AbSERL2a>; Sat, 18 May 2002 07:28:30 -0400
-Received: from infa.abo.fi ([130.232.208.126]:26381 "EHLO infa.abo.fi")
-	by vger.kernel.org with ESMTP id <S311710AbSERL23>;
-	Sat, 18 May 2002 07:28:29 -0400
-Date: Sat, 18 May 2002 14:28:12 +0300
-From: Marcus Alanen <marcus@infa.abo.fi>
-Message-Id: <200205181128.OAA26251@infa.abo.fi>
-To: szepe@pinerecords.com, Russell King <rmk@arm.linux.org.uk>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-Subject: Re: Linux-2.5.16
-In-Reply-To: <20020518095125.GC10134@louise.pinerecords.com>
+	id <S312449AbSERLjI>; Sat, 18 May 2002 07:39:08 -0400
+Received: from netmail.netcologne.de ([194.8.194.109]:41775 "EHLO
+	netmail.netcologne.de") by vger.kernel.org with ESMTP
+	id <S312426AbSERLjH>; Sat, 18 May 2002 07:39:07 -0400
+Message-Id: <200205181138.AWF97768@netmail.netcologne.de>
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: =?iso-8859-15?q?J=F6rg=20Prante?= <joergprante@gmx.de>
+Reply-To: joergprante@gmx.de
+Organization: Linux jungle 2.4.19-pre8 #4 Don Mai 9 23:37:47 CEST 2002 i686 unknown
+To: Marc-Christian Petersen <mcp@linux-systeme.de>
+Subject: Re: [PATCH] fixing supermount for > 2.4.19pre4
+Date: Sat, 18 May 2002 13:37:52 +0200
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <200205181226.03997.mcp@linux-systeme.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > <nico@cam.org>
->> > 	o [ARM 1110/1: fixes to the ARM checksum code
->> Not quite perfect yet, but I'm not too bothered - that used to be
->> [ARM PATCH]
->Now if only we knew which of the scripts Linus used. :)
->
->Matthias, is this regexp broken in the recent version of the
->script too?
 
-I guess it still is "$_ =~ s/\[?PATCH\]?\s*//i;", which means
-that it still is broken. There certainly are several solutions,
-what do people think of "s/\[?[^\]]*PATCH\]?\W*//i;" ?
-(Maybe a ^ at the beginning?) 
+> your patch for supermount does not work. Now it's even not possible to list
+> the content via ls -lsa /mnt ... Mount hangs, no access is made, nothing.
 
-Marcus
+Is supermount compiled into kernel or as a module? What drive, what media did 
+you mount, what command did you issue? 
 
--- 
-Marcus Alanen
-maalanen@abo.fi
+I tested it with supermount compiled into the kernel and
+
+# mount -t supermount -o dev=/dev/hdb none /mnt/cdrom
+# ls -l /mnt/cdrom
+
+and
+
+# cd /mnt/cdrom
+# ls -l
+
+# cd
+# umount /mnt/cdrom
+
+and it works fine for me, patched against 2.4.19-pre8-jp12, and /dev/hdb is 
+an ISO 9660 CDROM in my DVD drive. No "stale NFS handles", clean mount and 
+unmount, and with "debug" option I can see it works as a charme.
+
+ftpfs is fixed in the same way but I did not reboot yet. 
+
+Jörg

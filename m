@@ -1,252 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287478AbSA3AjE>; Tue, 29 Jan 2002 19:39:04 -0500
+	id <S287359AbSA3Akx>; Tue, 29 Jan 2002 19:40:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287359AbSA3Aiw>; Tue, 29 Jan 2002 19:38:52 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:988 "EHLO e21.nc.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S287751AbSA3Ai1>;
-	Tue, 29 Jan 2002 19:38:27 -0500
-Date: Tue, 29 Jan 2002 16:35:56 -0800
-From: Russ Weight <rweight@us.ibm.com>
-To: torvalds@transmeta.com'
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Scalable phys_cpu_present_map implementation
-Message-ID: <20020129163556.A32105@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S287493AbSA3Akp>; Tue, 29 Jan 2002 19:40:45 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:62727 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S287359AbSA3Akc>; Tue, 29 Jan 2002 19:40:32 -0500
+Date: Tue, 29 Jan 2002 16:39:47 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Rob Landley <landley@trommello.org>, Skip Ford <skip.ford@verizon.net>,
+        <linux-kernel@vger.kernel.org>, Andrea Arcangeli <andrea@suse.de>
+Subject: Re: A modest proposal -- We need a patch penguin
+In-Reply-To: <Pine.LNX.4.33L.0201292205370.32617-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.33.0201291610020.1747-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
 
-        Please consider this patch for 2.5.3. It is built against
-2.5.3-pre6. Note that this patch depends on my previous patch 
-entitled: "[PATCH] Scalable CPU bitmasks".
+On Tue, 29 Jan 2002, Rik van Riel wrote:
+>
+> That's fine with me, but _who_ do I send VM patches to if
+> I can't send them to you ?
 
-	This patch modifies the phys_cpu_present_map bitmask to
-be a "scalable CPU bitmask".  The datatype is changed to cpumap_t,
-and all accesses to the bitmask are done through the appropriate
-supporting functions.
+The VM stuff right now seems to be Andrea, Dave or you yourself (right now
+I just wish you would split up your patches like Andrea does, that way I
+can cherry-pick).
 
-	This patch has been tested on a 2-quad NUMA system. It
-affects i386 architecture specific code, but does not affect
-other architectures.
+> There is no maintainer for mm/* or kernel/*, it's just you.
 
-- Russ
+As to kernel/ there are actually maintainers for some sub-areas, the most
+noticeable being Ingo on the scheduler. The rest of kernel/ hasn't ever
+been much of a problem, really.
 
--- 
-Russ Weight (rweight@us.ibm.com)
-Linux Technology Center
+The VM is a big issue, of course. And that one isn't likely to go away
+anytime soon as a point of contention. And it's not easy to modularize,
+apart from the obvious pieces (ie "filemap.c" vs the rest).
 
+You may not believe me when I say so, but I personally _really_ hope your
+rmap patches will work out. I may not have believed in your patches in a
+2.4.x kind of timeframe, but for 2.6.x I'm more optimistic. As to how to
+actually modularize it better to make points of contention smaller, I
+don't know how.
 
-diff -u cpumap/include/asm-i386/smp.h linux/include/asm-i386/smp.h
---- cpumap/include/asm-i386/smp.h	Mon Jan 21 16:28:09 2002
-+++ linux/include/asm-i386/smp.h	Tue Jan 29 15:04:41 2002
-@@ -8,6 +8,7 @@
- #include <linux/config.h>
- #include <linux/threads.h>
- #include <linux/ptrace.h>
-+#include <linux/cpumap.h>
- #endif
- 
- #ifdef CONFIG_X86_LOCAL_APIC
-@@ -53,7 +54,7 @@
-  */
-  
- extern void smp_alloc_memory(void);
--extern unsigned long phys_cpu_present_map;
-+extern cpumap_t phys_cpu_present_map;
- extern unsigned long cpu_online_map;
- extern volatile unsigned long smp_invalidate_needed;
- extern int pic_mode;
-diff -u cpumap/include/asm-i386/mpspec.h linux/include/asm-i386/mpspec.h
---- cpumap/include/asm-i386/mpspec.h	Mon Jan 21 16:28:09 2002
-+++ linux/include/asm-i386/mpspec.h	Tue Jan 29 15:04:41 2002
-@@ -1,6 +1,8 @@
- #ifndef __ASM_MPSPEC_H
- #define __ASM_MPSPEC_H
- 
-+#include <linux/cpumap.h>
-+
- /*
-  * Structure definitions for SMP machines following the
-  * Intel Multiprocessing Specification 1.1 and 1.4.
-@@ -201,7 +203,7 @@
- extern int mp_bus_id_to_pci_bus [MAX_MP_BUSSES];
- 
- extern unsigned int boot_cpu_physical_apicid;
--extern unsigned long phys_cpu_present_map;
-+extern cpumap_t phys_cpu_present_map;
- extern int smp_found_config;
- extern void find_smp_config (void);
- extern void get_smp_config (void);
-diff -u cpumap/arch/i386/kernel/process.c linux/arch/i386/kernel/process.c
---- cpumap/arch/i386/kernel/process.c	Tue Jan 29 14:33:08 2002
-+++ linux/arch/i386/kernel/process.c	Tue Jan 29 15:04:41 2002
-@@ -370,7 +370,7 @@
- 		   if its not, default to the BSP */
- 		if ((reboot_cpu == -1) ||  
- 		      (reboot_cpu > (NR_CPUS -1))  || 
--		      !(phys_cpu_present_map & (1<<cpuid))) 
-+		      !(cpumap_test_bit(cpuid, phys_cpu_present_map))) 
- 			reboot_cpu = boot_cpu_physical_apicid;
- 
- 		reboot_smp = 0;  /* use this as a flag to only go through this once*/
-diff -u cpumap/arch/i386/kernel/io_apic.c linux/arch/i386/kernel/io_apic.c
---- cpumap/arch/i386/kernel/io_apic.c	Tue Nov 13 17:28:41 2001
-+++ linux/arch/i386/kernel/io_apic.c	Tue Jan 29 15:04:41 2002
-@@ -1006,7 +1006,8 @@
- static void __init setup_ioapic_ids_from_mpc (void)
- {
- 	struct IO_APIC_reg_00 reg_00;
--	unsigned long phys_id_present_map = phys_cpu_present_map;
-+	unsigned long phys_id_present_map =
-+			cpumap_to_ulong(phys_cpu_present_map);
- 	int apic;
- 	int i;
- 	unsigned char old_id;
-diff -u cpumap/arch/i386/kernel/smpboot.c linux/arch/i386/kernel/smpboot.c
---- cpumap/arch/i386/kernel/smpboot.c	Tue Jan 29 14:33:08 2002
-+++ linux/arch/i386/kernel/smpboot.c	Tue Jan 29 15:04:41 2002
-@@ -984,6 +984,9 @@
- void __init smp_boot_cpus(void)
- {
- 	int apicid, cpu, bit;
-+#ifdef SMP_DEBUG
-+	char buf[CPUMAP_BUFSIZE];
-+#endif
- 
-         if (clustered_apic_mode) {
-                 /* remap the 1st quad's 256k range for cross-quad I/O */
-@@ -1036,7 +1039,9 @@
- #ifndef CONFIG_VISWS
- 		io_apic_irqs = 0;
- #endif
--		cpu_online_map = phys_cpu_present_map = 1;
-+		cpu_online_map = 1;
-+		cpumap_clear_mask(phys_cpu_present_map);
-+		cpumap_set_bit(0, phys_cpu_present_map);
- 		smp_num_cpus = 1;
- 		if (APIC_init_uniprocessor())
- 			printk(KERN_NOTICE "Local APIC not detected."
-@@ -1050,10 +1055,10 @@
- 	 * Makes no sense to do this check in clustered apic mode, so skip it
- 	 */
- 	if (!clustered_apic_mode && 
--	    !test_bit(boot_cpu_physical_apicid, &phys_cpu_present_map)) {
-+	    !cpumap_test_bit(boot_cpu_physical_apicid, phys_cpu_present_map)) {
- 		printk("weird, boot CPU (#%d) not listed by the BIOS.\n",
- 							boot_cpu_physical_apicid);
--		phys_cpu_present_map |= (1 << hard_smp_processor_id());
-+		cpumap_set_bit(hard_smp_processor_id(), phys_cpu_present_map);
- 	}
- 
- 	/*
-@@ -1067,7 +1072,9 @@
- #ifndef CONFIG_VISWS
- 		io_apic_irqs = 0;
- #endif
--		cpu_online_map = phys_cpu_present_map = 1;
-+		cpu_online_map = 1;
-+		cpumap_clear_mask(phys_cpu_present_map);
-+		cpumap_set_bit(0, phys_cpu_present_map);
- 		smp_num_cpus = 1;
- 		goto smp_done;
- 	}
-@@ -1083,7 +1090,9 @@
- #ifndef CONFIG_VISWS
- 		io_apic_irqs = 0;
- #endif
--		cpu_online_map = phys_cpu_present_map = 1;
-+		cpu_online_map = 1;
-+		cpumap_clear_mask(phys_cpu_present_map);
-+		cpumap_set_bit(0, phys_cpu_present_map);
- 		smp_num_cpus = 1;
- 		goto smp_done;
- 	}
-@@ -1101,7 +1110,8 @@
- 	 * bits 0-3 are quad0, 4-7 are quad1, etc. A perverse twist on the 
- 	 * clustered apic ID.
- 	 */
--	Dprintk("CPU present map: %lx\n", phys_cpu_present_map);
-+	Dprintk("CPU present map: %s\n",
-+		cpumap_format(phys_cpu_present_map, buf, CPUMAP_BUFSIZE));
- 
- 	for (bit = 0; bit < NR_CPUS; bit++) {
- 		apicid = cpu_present_to_apicid(bit);
-@@ -1111,7 +1121,7 @@
- 		if (apicid == boot_cpu_apicid)
- 			continue;
- 
--		if (!(phys_cpu_present_map & (1 << bit)))
-+		if (!(cpumap_test_bit(bit, phys_cpu_present_map)))
- 			continue;
- 		if ((max_cpus >= 0) && (max_cpus <= cpucount+1))
- 			continue;
-@@ -1122,7 +1132,7 @@
- 		 * Make sure we unmap all failed CPUs
- 		 */
- 		if ((boot_apicid_to_cpu(apicid) == -1) &&
--				(phys_cpu_present_map & (1 << bit)))
-+				(cpumap_test_bit(bit, phys_cpu_present_map)))
- 			printk("CPU #%d not responding - cannot use it.\n",
- 								apicid);
- 	}
-diff -u cpumap/arch/i386/kernel/apic.c linux/arch/i386/kernel/apic.c
---- cpumap/arch/i386/kernel/apic.c	Tue Jan 29 14:33:08 2002
-+++ linux/arch/i386/kernel/apic.c	Tue Jan 29 15:04:41 2002
-@@ -283,7 +283,7 @@
- 	 * This is meaningless in clustered apic mode, so we skip it.
- 	 */
- 	if (!clustered_apic_mode && 
--	    !test_bit(GET_APIC_ID(apic_read(APIC_ID)), &phys_cpu_present_map))
-+	    !cpumap_test_bit(GET_APIC_ID(apic_read(APIC_ID)), phys_cpu_present_map))
- 		BUG();
- 
- 	/*
-@@ -1137,7 +1137,8 @@
- 
- 	connect_bsp_APIC();
- 
--	phys_cpu_present_map = 1;
-+	cpumap_clear_mask(phys_cpu_present_map);
-+	cpumap_set_bit(0, phys_cpu_present_map);
- 	apic_write_around(APIC_ID, boot_cpu_physical_apicid);
- 
- 	apic_pm_init2();
-diff -u cpumap/arch/i386/kernel/mpparse.c linux/arch/i386/kernel/mpparse.c
---- cpumap/arch/i386/kernel/mpparse.c	Fri Nov  9 14:58:18 2001
-+++ linux/arch/i386/kernel/mpparse.c	Tue Jan 29 15:04:41 2002
-@@ -61,7 +61,7 @@
- static unsigned int num_processors;
- 
- /* Bitmask of physically existing CPUs */
--unsigned long phys_cpu_present_map;
-+cpumap_t phys_cpu_present_map;
- 
- /*
-  * Intel MP BIOS table parsing routines:
-@@ -224,9 +224,10 @@
- 	ver = m->mpc_apicver;
- 
- 	if (clustered_apic_mode) {
--		phys_cpu_present_map |= (logical_apicid&0xf) << (4*quad);
-+		int cpuid = ffs(logical_apicid&0xf) - 1 + (4*quad);
-+		cpumap_set_bit(cpuid, phys_cpu_present_map);
- 	} else {
--		phys_cpu_present_map |= 1 << m->mpc_apicid;
-+		cpumap_set_bit(m->mpc_apicid, phys_cpu_present_map);
- 	}
- 	/*
- 	 * Validate version
-@@ -819,7 +820,7 @@
- {
- 	smp_found_config = 1;
- 
--	phys_cpu_present_map |= 2; /* or in id 1 */
-+	cpumap_set_bit(1, phys_cpu_present_map);
- 	apic_version[1] |= 0x10; /* integrated APIC */
- 	apic_version[0] |= 0x10;
- 
+At the same time, while I can understand your personal pain, I don't think
+most of the problems have been with the VM (maintenance-wise, that is.
+Most of the _technical_ problems really have been with the VM, it's just
+the most complex piece).
+
+		Linus
+

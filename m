@@ -1,50 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262951AbVBCKxF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262315AbVBCKyP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262951AbVBCKxF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 05:53:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262908AbVBCKxE
+	id S262315AbVBCKyP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 05:54:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262428AbVBCKyC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 05:53:04 -0500
-Received: from fw.osdl.org ([65.172.181.6]:38838 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262940AbVBCKwA (ORCPT
+	Thu, 3 Feb 2005 05:54:02 -0500
+Received: from main.gmane.org ([80.91.229.2]:34441 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S262563AbVBCKtl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 05:52:00 -0500
-Date: Thu, 3 Feb 2005 02:51:25 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: tglx@linutronix.de, davej@redhat.com, torvalds@osdl.org,
-       dwmw2@infradead.org, albert_herranz@yahoo.es,
-       linux-kernel@vger.kernel.org
-Subject: Re: ppc32 MMCR0_PMXE saga.
-Message-Id: <20050203025125.02b88fb5.akpm@osdl.org>
-In-Reply-To: <16898.9.429645.633109@alkaid.it.uu.se>
-References: <20050203044702.GA1089@redhat.com>
-	<1107413930.21196.637.camel@tglx.tec.linutronix.de>
-	<16898.9.429645.633109@alkaid.it.uu.se>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 3 Feb 2005 05:49:41 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: root <muruganandam@softhome.net>
+Subject: crash recovery tool
+Date: Wed, 02 Feb 2005 15:18:34 +0530
+Message-ID: <ctsvhq$l89$1@sea.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 203.197.132.3
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+X-Gmane-MailScanner: Found to be clean
+X-Gmane-MailScanner: Found to be clean
+X-Gmane-MailScanner-SpamScore: sss
+X-MailScanner-From: glk-linux-kernel@m.gmane.org
+X-MailScanner-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson <mikpe@csd.uu.se> wrote:
->
-> Thomas Gleixner writes:
->   > On Wed, 2005-02-02 at 23:47 -0500, Dave Jones wrote:
->   > > I'm at a loss to explain whats been happening with this symbol.
->   > 
->   > The macro was duplicated in -mm1.
->   > I sent a patch against -mm1
->   > The patch went upstream without the perfctr-ppc.patch, which contained
->   > the macro define in regs.h.
->   > 
->   > So a bit of confusion came up
-> 
->  The sane thing to do is to split -mm's perfctr-ppc.patch so that
->  the new symbolic constants can go into -linus w/o having to drag
->  in the experimental perfctr stuff from -mm.
+hi all,
 
-ah, so that's what happened.
+I'm doing project in neutral linux kernel.if any file missing in the 
+kernel, tool needs to find the error and recover automatically.any such 
+tool is there?.advance thanks..
 
-I'll tweak perfctr-ppc.patch for now.

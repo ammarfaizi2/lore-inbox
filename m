@@ -1,41 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131826AbQKKANL>; Fri, 10 Nov 2000 19:13:11 -0500
+	id <S130466AbQKKAWM>; Fri, 10 Nov 2000 19:22:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131815AbQKKANB>; Fri, 10 Nov 2000 19:13:01 -0500
-Received: from TSX-PRIME.MIT.EDU ([18.86.0.76]:45200 "HELO tsx-prime.MIT.EDU")
-	by vger.kernel.org with SMTP id <S131610AbQKKAMl>;
-	Fri, 10 Nov 2000 19:12:41 -0500
-Date: Fri, 10 Nov 2000 19:12:29 -0500
-Message-Id: <200011110012.TAA22015@tsx-prime.MIT.EDU>
-From: "Theodore Y. Ts'o" <tytso@MIT.EDU>
-To: "Matt D. Robinson" <yakker@alacritech.com>
-CC: Christoph Rohland <cr@sap.com>, "Theodore Y. Ts'o" <tytso@MIT.EDU>,
-        richardj_moore@uk.ibm.com, Paul Jakma <paulj@itg.ie>,
-        Michael Rothwell <rothwell@holly-springs.nc.us>,
+	id <S131629AbQKKAVw>; Fri, 10 Nov 2000 19:21:52 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:22950 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S131610AbQKKAVn>; Fri, 10 Nov 2000 19:21:43 -0500
+Message-ID: <3A0C90FD.CB645430@uow.edu.au>
+Date: Sat, 11 Nov 2000 11:21:17 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: George Anzinger <george@mvista.com>
+CC: Keith Owens <kaos@ocs.com.au>, John Kacur <jkacur@home.com>,
         linux-kernel@vger.kernel.org
-In-Reply-To: Matt D. Robinson's message of Fri, 10 Nov 2000 10:36:31 -0800,
-	<3A0C402F.8F0BA261@alacritech.com>
-Subject: Re: [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI)
-Phone: (781) 391-3464
+Subject: Re: test11-pre2 compile error undefined reference to `bust_spinlocks' 
+ WHAT?!
+In-Reply-To: <23569.973832900@kao2.melbourne.sgi.com> <3A0C2D4A.83C75D4B@mvista.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: Fri, 10 Nov 2000 10:36:31 -0800
-   From: "Matt D. Robinson" <yakker@alacritech.com>
+George Anzinger wrote:
+> 
+> The notion of releasing a spin lock by initializing it seems IMHO, on
+> the face of it, way off.  Firstly the protected area is no longer
+> protected which could lead to undefined errors/ crashes and secondly,
+> any future use of spinlocks to control preemption could have a lot of
+> trouble with this, principally because the locker is unknown.
+> 
+> In the case at hand, it would seem that an unlocked path to the console
+> is a more correct answer that gives the system a far better chance of
+> actually remaining viable.
+> 
 
-   As soon as I finish writing raw write disk routines (not using kiobufs),
-   we can _maybe_ get LKCD accepted one of these days, especially now that we
-   don't have to build 'lcrash' against a kernel revision.  I'm in the
-   middle of putting together raw IDE functions now -- see LKCD mailing
-   list for details if you're curious.
+Does bust_spinlocks() muck up the preemptive kernel's spinlock
+counting?  Would you prefer spin_trylock()/spin_unlock()?
+It doesn't matter - if we call bust_spinlocks() the kernel is
+known to be dead meat and there is a fsck in your near future.
 
-Great!  Are you thinking about putting the crash dumper and the raw
-write disk routines in a separate text section, so they can be located
-in pages which are write-protected from accidental modification in case
-some kernel code goes wild?  (Who me?  Paranoid?  :-)
+We are still trying to find out why kumon@fujitsu's 8-way is
+crashing on the test10-pre5 sched.c.  Looks like it's fixed
+in test11-pre2 but we want to know _why_ it's fixed.  And at
+present each time he hits the bug, his printk() deadlocks.
 
-						- Ted
+So bust_spinlocks() is a RAS feature :)  A very important one -
+it's terrible when your one-in-a-trillion bug happens and there
+are no diagnostics.
+
+It's a work-in-progress.  There are a lot of things which
+can cause printk to deadlock:
+
+- console_lock
+- timerlist_lock
+- global_irq_lock (console code does global_cli)
+- log_wait.lock
+- tasklist_lock (printk does wake_up) (*)
+- runqueue_lock (printk does wake_up)
+
+I'll be proposing a better patch for this in a few days.
+
+(*) Keith: this explains why you can't do a printk() in
+__wake_up_common: printk calls wake_up().  Duh.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

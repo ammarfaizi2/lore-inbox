@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262907AbSJFAZY>; Sat, 5 Oct 2002 20:25:24 -0400
+	id <S262960AbSJFA0t>; Sat, 5 Oct 2002 20:26:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262923AbSJFAZY>; Sat, 5 Oct 2002 20:25:24 -0400
-Received: from bitmover.com ([192.132.92.2]:16774 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S262907AbSJFAZX>;
-	Sat, 5 Oct 2002 20:25:23 -0400
-Date: Sat, 5 Oct 2002 17:30:57 -0700
-From: Larry McVoy <lm@bitmover.com>
+	id <S263025AbSJFA0t>; Sat, 5 Oct 2002 20:26:49 -0400
+Received: from blowme.phunnypharm.org ([65.207.35.140]:19725 "EHLO
+	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
+	id <S262960AbSJFA0s>; Sat, 5 Oct 2002 20:26:48 -0400
+Date: Sat, 5 Oct 2002 20:32:17 -0400
+From: Ben Collins <bcollins@debian.org>
 To: Rik van Riel <riel@conectiva.com.br>
-Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+Cc: Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
 Subject: Re: New BK License Problem?
-Message-ID: <20021005173057.J12580@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Rik van Riel <riel@conectiva.com.br>, Larry McVoy <lm@bitmover.com>,
-	linux-kernel@vger.kernel.org
-References: <20021005081039.Z835@work.bitmover.com> <Pine.LNX.4.44L.0210052117280.22735-100000@imladris.surriel.com>
+Message-ID: <20021006003217.GD585@phunnypharm.org>
+References: <20021005175437.GK585@phunnypharm.org> <Pine.LNX.4.44L.0210052126281.22735-100000@imladris.surriel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44L.0210052117280.22735-100000@imladris.surriel.com>; from riel@conectiva.com.br on Sat, Oct 05, 2002 at 09:19:41PM -0300
-X-MailScanner: Found to be clean
+In-Reply-To: <Pine.LNX.4.44L.0210052126281.22735-100000@imladris.surriel.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 05, 2002 at 09:19:41PM -0300, Rik van Riel wrote:
-> On Sat, 5 Oct 2002, Larry McVoy wrote:
-> > If someone has a magic way of saying "you can use the software if and
-> > only if your use of it does not put BitMover at financial risk"
+On Sat, Oct 05, 2002 at 09:27:25PM -0300, Rik van Riel wrote:
+> On Sat, 5 Oct 2002, Ben Collins wrote:
 > 
-> The main complaint I've heard now is "if I develop a product
-> that competes with bitkeeper, won't I be able to grab <free
-> software project available in BK> any more ??"
+> > I've also been wanting to use bitkeeper to create a Subversion mirror of
+> > the kernel repository,
 > 
-> A fix for this would be "make patches available from bkbits.net".
+> You don't need to use bitkeeper for that, you can download all the
+> bitkeeper changesets as patches from my ftp site:
+> 
+> ftp://nl.linux.org/pub/linux/bk2patch/
 
-bkbits.net is a free service.  It costs us about $1600/month in cash
-to run it, that doesn't count any salaries, that's just fixed costs.
-If rsync and/or ftp didn't use about 100x as much bandwidth to do what
-BK does we'd have already done what you are asking.  We simply can't
-afford it.
+Oh, but that may be useless, unless you regenerate your patches whenever
+the tree is reparented. I ran into this while trying to do the same
+thing. Basing it on the ChangeSet ID is a waste, and it needs to be
+based on the ChangeSet key instead (the ChangeSet ID for a given key can
+change when a merge is done).
 
-But as I said to someone else, why doesn't someone register "nobkbits.net"
-and use BK to mirror the repos and then provide the tarballs/patches as
-you see fit.
-
-I'm quite happy to help someone set this up, I'm just not willing to 
-foot the bill.  The bandwidth costs will kill you.  kernel.org could
-do this and that would be fine with me.  
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

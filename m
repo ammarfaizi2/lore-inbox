@@ -1,85 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264311AbTLPDhG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 22:37:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264324AbTLPDhG
+	id S264337AbTLPDqv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 22:46:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264339AbTLPDqv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 22:37:06 -0500
-Received: from out006pub.verizon.net ([206.46.170.106]:53971 "EHLO
-	out006.verizon.net") by vger.kernel.org with ESMTP id S264311AbTLPDhC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 22:37:02 -0500
-Message-ID: <3FDE7DDD.2060208@verizon.net>
-Date: Mon, 15 Dec 2003 22:37:01 -0500
-From: RunNHide <res0g1ta@verizon.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5.1) Gecko/20031208
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@fs.tum.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test11 intio.o build errors
-References: <3FD918D8.7020100@verizon.net> <20031215113923.GJ23184@fs.tum.de>
-In-Reply-To: <20031215113923.GJ23184@fs.tum.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out006.verizon.net from [4.4.161.12] at Mon, 15 Dec 2003 21:37:01 -0600
+	Mon, 15 Dec 2003 22:46:51 -0500
+Received: from gandalf.tausq.org ([64.81.244.94]:30625 "EHLO pippin.tausq.org")
+	by vger.kernel.org with ESMTP id S264337AbTLPDqt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 22:46:49 -0500
+Date: Mon, 15 Dec 2003 20:40:33 -0800
+From: Randolph Chung <randolph@tausq.org>
+To: linux-kernel@vger.kernel.org, parisc-linux@lists.parisc-linux.org
+Subject: Question about cache flushing and fork
+Message-ID: <20031216044033.GT533@tausq.org>
+Reply-To: Randolph Chung <randolph@tausq.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-GPG: for GPG key, see http://www.tausq.org/gpg.txt
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 11, 2003 at 08:24:40PM -0500, RunNHide wrote:
+Hi,
 
->> okay - I'm not a n00b but I'm no C programmer or driver developer, 
->> either - figured I'd post this - understand there's not a lot of this 
->> hardware out there so maybe this will be helpful:
->> 
->>  CC [M]  drivers/scsi/ini9100u.o
->> drivers/scsi/ini9100u.c:111:2: #error Please convert me to 
->> Documentation/DMA-mapping.txt
->> drivers/scsi/ini9100u.c:146: warning: initialization from incompatible 
->> pointer type
->> drivers/scsi/ini9100u.c:151: warning: initialization from incompatible 
->> pointer type
->> drivers/scsi/ini9100u.c:152: warning: initialization from incompatible 
->> pointer type
->> drivers/scsi/ini9100u.c: In function `i91uAppendSRBToQueue':
->> drivers/scsi/ini9100u.c:241: error: structure has no member named `next'
->> drivers/scsi/ini9100u.c:246: error: structure has no member named `next'
->> drivers/scsi/ini9100u.c: In function `i91uPopSRBFromQueue':
->> drivers/scsi/ini9100u.c:268: error: structure has no member named `next'
->> drivers/scsi/ini9100u.c:269: error: structure has no member named `next'
->> drivers/scsi/ini9100u.c: In function `i91uBuildSCB':
->> drivers/scsi/ini9100u.c:507: error: structure has no member named `address'
->> drivers/scsi/ini9100u.c:516: error: structure has no member named `address'
->> make[2]: *** [drivers/scsi/ini9100u.o] Error 1
->> make[1]: *** [drivers/scsi] Error 2
->> make: *** [drivers] Error 2
->  
->
+Can someone please explain why it is necessary to flush the cache 
+during fork()? (i.e. call to flush_cache_mm() in dup_mmap)
 
-This is a known problem.
+It seems that after fork, the parent and child have access to the same
+vm, so it should be sufficient to flush the tlb, and create two pte's
+for the processes. I can see that during COW processing there can be
+kernel/user cache aliasing issues on virtually indexed caches, but
+that seems to be taken care of by copy_cow_page(). 
 
-The driver is marked BROKEN in the Kconfig file, and you were only able 
-to choose it since you said "no" to
-  Select only drivers expected to compile cleanly
-.
+I've read through cachetlb.txt, but it just says:
 
-Unless someone fixes this driver it will not be available in kernel 2.6.
+        This interface is used to handle whole address space
+        page table operations such as what happens during
+        fork, exit, and exec.
 
+I can see why this is needed for exit(), but why fork()? and i don't see
+this used for exec() ?
 
->> Thanks,
->> RunNHide
->  
->
+Also is there an updated version of the "Linux Cache Flush Architecture"
+document? (http://en.tldp.org/LDP/khg/HyperNews/get/memory/flush.html)
+This is a very nicely written doc, but it seems a bit out of date for
+2.6 (e.g. flush_page_to_ram is gone)
 
-cu
-Adrian
-
---------------------------------------------------------------------------------------
-
-Thanks for the reply - yes, I understand that the code is broken - however, unfortunately, I have one of those initio cards that needs that driver and I would like to be able to use the 2.6 series kernels. Until that driver is fixed, I'll be stuck on 2.4.x kernels.
-
-RunNHide
-
-
-
-
+thanks
+randolph
+-- 
+Randolph Chung
+Debian GNU/Linux Developer, hppa/ia64 ports
+http://www.tausq.org/

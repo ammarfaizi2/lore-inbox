@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262770AbUCRRM4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 12:12:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262775AbUCRRM4
+	id S262775AbUCRROh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 12:14:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262795AbUCRROh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 12:12:56 -0500
-Received: from fw.osdl.org ([65.172.181.6]:50817 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262770AbUCRRMD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 12:12:03 -0500
-Date: Thu, 18 Mar 2004 09:09:07 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
-Subject: Re: tulip (pnic) errors in 2.6.5-rc1
-Message-Id: <20040318090907.56a3d458.rddunlap@osdl.org>
-In-Reply-To: <16473.52851.367709.934661@alkaid.it.uu.se>
-References: <16473.28514.341276.209224@alkaid.it.uu.se>
-	<40597123.8020903@pobox.com>
-	<405971B3.3080700@pobox.com>
-	<16473.32039.160055.63522@alkaid.it.uu.se>
-	<40597E68.7090908@pobox.com>
-	<16473.52851.367709.934661@alkaid.it.uu.se>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 18 Mar 2004 12:14:37 -0500
+Received: from mail1.webmaster.com ([216.152.64.168]:44036 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP id S262775AbUCRRO0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 12:14:26 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: "Justin Piszcz" <jpiszcz@hotmail.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Linux Kernel Microcode Question
+Date: Thu, 18 Mar 2004 09:13:37 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKMENKLCAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+Importance: Normal
+In-Reply-To: <20040318165952.GA24328@redhat.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2055
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Thu, 18 Mar 2004 08:52:12 -0800
+	(not processed: message from valid local sender)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Mar 2004 17:29:39 +0100 Mikael Pettersson wrote:
 
-| Jeff Garzik writes:
-|  > Mikael Pettersson wrote:
-|  > > Jeff Garzik writes:
-|  > >  > er, oops... lemme find the right patch...
-|  > > 
-|  > > No change, still a flood of those tulip_rx() interrupt messages.
-|  > 
-|  > hmmm.  Well, it is something unrelated to tulip driver, then.
-| 
-| Testing older -bk versions I've found that 2.6.4-bk2
-| is Ok but 2.6.4-bk3 has this message flood problem.
+>  > Is it worth it?
 
-Other than the netdev_priv() changes, I see removal of
-KERNEL_SYSCALLS and the addition of CONFIG_NET_POLL_CONTROLLER.
-Are you enabling CONFIG_NET_POLL_CONTROLLER?
-If so, can you test with it disabled?
+> In most cases, yes.  It's zero cost. You don't waste RAM, as the
+> microcode gets loaded into small RAM areas on the CPU that are
+> otherwise unused.
 
-Thanks,
---
-~Randy
+	It is at least theoeretically possible that a microcode update might cause
+an operation that's normally done very quickly (in dedicated hardware) to be
+done by a slower path (microcode operations) to fix a bug in the dedicated
+hardware that is very obscure and very unlikely to ever bother you. However,
+I have never heard of even a single confirmed instance where this happened.
+
+	DS
+
+

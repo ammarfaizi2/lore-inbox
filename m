@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129552AbRCANGV>; Thu, 1 Mar 2001 08:06:21 -0500
+	id <S129577AbRCANMx>; Thu, 1 Mar 2001 08:12:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129576AbRCANGM>; Thu, 1 Mar 2001 08:06:12 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:13029 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129552AbRCANFz>;
-	Thu, 1 Mar 2001 08:05:55 -0500
-Date: Thu, 1 Mar 2001 13:04:13 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Neal Gieselman <Neal.Gieselman@Visionics.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ext3 fsck question
-Message-ID: <20010301130413.B7647@redhat.com>
-In-Reply-To: <D0FA767FA2D5D31194990090279877DA57328F@dbimail.digitalbiometrics.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <D0FA767FA2D5D31194990090279877DA57328F@dbimail.digitalbiometrics.com>; from Neal.Gieselman@Visionics.com on Wed, Feb 28, 2001 at 08:03:21PM -0600
+	id <S129583AbRCANMo>; Thu, 1 Mar 2001 08:12:44 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:6918 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S129577AbRCANM2>;
+	Thu, 1 Mar 2001 08:12:28 -0500
+Date: Thu, 1 Mar 2001 14:11:36 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.2ac7
+In-Reply-To: <Pine.GSO.3.96.1010301131145.15979D-100000@delta.ds2.pg.gda.pl>
+Message-ID: <Pine.LNX.4.30.0103011409100.2631-100000@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Wed, Feb 28, 2001 at 08:03:21PM -0600, Neal Gieselman wrote:
-> 
-> I applied the libs and other utilites from e2fsprogs by hand.
-> I ran fsck.ext3 on my secondary partition and it ran fine.  The boot fsck
-> on / was complaining about something but I could not catch it.
-> I then went single user and ran fsck.ext3 on / while mounted.
+On Thu, 1 Mar 2001, Maciej W. Rozycki wrote:
 
-e2fsck should complain loudly and ask for confirmation if you do that.
-Goin ahead with the fsck is a bad move on a mounted, rw filesystem!
+> > o	Handle broken PIV MP tables with a NULL ioapic
+>
+>  That's not a right fix. [...]
 
-> Excuse the stupid question, but with ext3, do I really require the
-> fsck.ext3?  
+Maciej, it *is* the right fix. These are UP systems not SMP systems, but
+if we boot an SMP kernel then we find a (largely bogus) mptable during the
+scan.
 
-fsck.ext3 is just a link to e2fsck.  Make sure you're running recent
-e2fsprogs, though (either the latest snapshot from
-downloads.sourceforge.net or a build from
-ftp.uk.linux.org:/pub/linux/sct/fs/jfs/).
+Any BIOS of a real SMP box that is so blatantly broken to specify a NULL
+ioapic in the mptable deserves SMP mode being disabled altogether.
 
-Cheers,
- Stephen
+lets not overcomplicate things.
+
+	Ingo
+

@@ -1,42 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291779AbSBAOzd>; Fri, 1 Feb 2002 09:55:33 -0500
+	id <S291787AbSBAO7W>; Fri, 1 Feb 2002 09:59:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291778AbSBAOzV>; Fri, 1 Feb 2002 09:55:21 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:41375 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S291776AbSBAOzN>;
-	Fri, 1 Feb 2002 09:55:13 -0500
-Date: Fri, 1 Feb 2002 09:55:10 -0500
-From: Jeff Garzik <garzik@havoc.gtf.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "David S. Miller" <davem@redhat.com>, kaos@ocs.com.au, vandrove@vc.cvut.cz,
-        torvalds@transmeta.com, linux-kernel@vger.kernel.org, paulus@samba.org,
-        davidm@hpl.hp.com, ralf@gnu.org
+	id <S291776AbSBAO7M>; Fri, 1 Feb 2002 09:59:12 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:42247 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S291782AbSBAO7A>; Fri, 1 Feb 2002 09:59:00 -0500
 Subject: Re: [PATCH] Re: crc32 and lib.a (was Re: [PATCH] nbd in 2.5.3 does
-Message-ID: <20020201095510.D17412@havoc.gtf.org>
-In-Reply-To: <20020131.222643.85689058.davem@redhat.com> <E16WfDe-0005Jd-00@the-village.bc.nu>
-Mime-Version: 1.0
+To: davem@redhat.com (David S. Miller)
+Date: Fri, 1 Feb 2002 15:03:13 +0000 (GMT)
+Cc: kaos@ocs.com.au, garzik@havoc.gtf.org, alan@lxorguk.ukuu.org.uk,
+        vandrove@vc.cvut.cz, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org, paulus@samba.org, davidm@hpl.hp.com,
+        ralf@gnu.org
+In-Reply-To: <20020131.222643.85689058.davem@redhat.com> from "David S. Miller" at Jan 31, 2002 10:26:43 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16WfDe-0005Jd-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Feb 01, 2002 at 03:03:13PM +0000
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16WfDe-0005Jd-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 01, 2002 at 03:03:13PM +0000, Alan Cox wrote:
-> > If you have a dependency concern, you put yourself in the
-> > right initcall group.  You don't depend ever on the order within the
-> > group, thats the whole idea.  You can't depend on that, so you must
-> > group things correctly.
-> 
-> This was proposed right back at the start. Linus point blank vetoed it.
+> If you have a dependency concern, you put yourself in the
+> right initcall group.  You don't depend ever on the order within the
+> group, thats the whole idea.  You can't depend on that, so you must
+> group things correctly.
 
-My ideal would be to express dependencies in driver.conf (when that is
-implemented), and that will in turn affect the link order by
-autogenerating part of vmlinux.lds.  Until then, initcall groups are
-fine with me...
+This was proposed right back at the start. Linus point blank vetoed it.
 
-	Jeff
-
-
-
+Alan

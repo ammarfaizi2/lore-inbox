@@ -1,30 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266280AbTGJFnQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 01:43:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268941AbTGJFnQ
+	id S268938AbTGJFky (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 01:40:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268939AbTGJFky
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 01:43:16 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:12457 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S266280AbTGJFnQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 01:43:16 -0400
-Date: Wed, 09 Jul 2003 22:49:26 -0700 (PDT)
-Message-Id: <20030709.224926.26511362.davem@redhat.com>
-To: romieu@fr.zoreil.com
-Cc: chas@locutus.cmf.nrl.navy.mil, linux-kernel@vger.kernel.org
-Subject: Re: [PATCHKIT] 2.5.74 - seq_file conversion of /proc/net/atm
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030709021152.B11897@electric-eye.fr.zoreil.com>
-References: <20030709021152.B11897@electric-eye.fr.zoreil.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Jul 2003 01:40:54 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:36931 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S268938AbTGJFkx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 01:40:53 -0400
+Date: Thu, 10 Jul 2003 01:55:26 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200307100555.h6A5tQV21673@devserv.devel.redhat.com>
+To: Werner Almesberger <wa@almesberger.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: crypto API and IBM z990 hardware support
+In-Reply-To: <mailman.1057799700.15422.linux-kernel2news@redhat.com>
+References: <OF1BACB1D3.F4409038-ONC1256D57.00247A0A-C1256D57.002701D8@de.ibm.com> <Mutt.LNX.4.44.0307021913540.31308-100000@excalibur.intercode.com.au> <20030707080929.A1848@infradead.org> <20030707.195350.39170946.davem@redhat.com> <mailman.1057799700.15422.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> I totally disagree.  I think the way we do things today is _STUPID_.
+>> We put arch code far away from the generic version which makes finding
+>> stuff very difficult for people inspecting the code for the first time.
+>> 
+>> For example, the fact that I have to go groveling in
+>> arch/foo/lib/whoknowswhatfile.whoknowswhatextension to look at
+>> the memcpy/checksum/whatever implementation is completely busted.
 
-Chas, will you merge this stuff to me?  It looks fine as far
-as I can tell.
+> E.g. most of include/net/tcp.h pretty much only matters for
+> net/ipv4/. It would be so nice if a  grep -w thing *.[ch]  in
+> net/ipv4/ would really find all uses of "thing".
+
+I always do this:
+
+cd linux
+find . \( -name 'Make*' -o -name '*.[hcS]' \) > src.list
+cat src.list| LANG=C xargs grep foo
+
+It's only a CPU time, really.
+
+-- Pete

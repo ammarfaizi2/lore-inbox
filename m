@@ -1,63 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267330AbUJNWYm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268072AbUJNWYg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267330AbUJNWYm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 18:24:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267986AbUJNWPM
+	id S268072AbUJNWYg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 18:24:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267709AbUJNWYK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 18:15:12 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:38667 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S267374AbUJNWIG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 18:08:06 -0400
-Date: Thu, 14 Oct 2004 23:08:02 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: __attribute__((unused))
-Message-ID: <20041014230802.C28649@flint.arm.linux.org.uk>
-Mail-Followup-To: David Woodhouse <dwmw2@infradead.org>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-References: <20041014220243.B28649@flint.arm.linux.org.uk> <1097791496.5788.2034.camel@baythorne.infradead.org>
+	Thu, 14 Oct 2004 18:24:10 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:49093 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S268077AbUJNWWu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 18:22:50 -0400
+Date: Fri, 15 Oct 2004 00:24:14 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Adam Heath <doogie@debian.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U1
+Message-ID: <20041014222414.GA19961@elte.hu>
+References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com> <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu> <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <Pine.LNX.4.58.0410141230380.1221@gradall.private.brainfood.com> <Pine.LNX.4.58.0410141716160.1221@gradall.private.brainfood.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1097791496.5788.2034.camel@baythorne.infradead.org>; from dwmw2@infradead.org on Thu, Oct 14, 2004 at 11:04:56PM +0100
+In-Reply-To: <Pine.LNX.4.58.0410141716160.1221@gradall.private.brainfood.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 14, 2004 at 11:04:56PM +0100, David Woodhouse wrote:
-> On Thu, 2004-10-14 at 22:02 +0100, Russell King wrote:
-> > Hi,
-> > 
-> > I notice that module.h contains stuff like:
-> > 
-> > #define MODULE_GENERIC_TABLE(gtype,name)                        \
-> > extern const struct gtype##_id __mod_##gtype##_table            \
-> >   __attribute__ ((unused, alias(__stringify(name))))
-> > 
-> > and even:
-> > 
-> > #define __MODULE_INFO(tag, name, info)                                    \
-> > static const char __module_cat(name,__LINE__)[]                           \
-> >   __attribute_used__                                                      \
-> >   __attribute__((section(".modinfo"),unused)) = __stringify(tag) "=" info
-> > 
-> > My understanding is that we shouldn't be using __attribute__((unused))
-> > in either of these - can someone confirm.
+
+* Adam Heath <doogie@debian.org> wrote:
+
+> > Seems to be working fine.  Has been running 11 minutes, without problems.
+> >
+> > ps: Something that irks me.  During bootup, I get the high-latency traces for
+> >     swapper/0.  These fill up the dmesg ring buffer, so the early messages get
+> >     dropped.  Is there anything that can be done to fix that?
 > 
-> Since the structure in question isn't explicitly referenced from
-> elsewhere, the compiler may feel free to omit it. Since we want the
-> compiler to emit it, not omit it, we use "unused" to say "yes, I know it
-> looks unused; please emit it anyway". Later compilers use "used" to say
-> "I use it really; please emit it anyway", meaning much the same thing.
+> Got my first message.
+> 
+> scheduling while atomic: kswapd0/0x04000001/10
+> caller is cond_resched+0x53/0x70
+>  [<c027ad31>] schedule+0x531/0x570
+>  [<c027b2a3>] cond_resched+0x53/0x70
+>  [<c012c604>] _mutex_lock+0x14/0x40
+>  [<c0149521>] page_lock_anon_vma+0x31/0x60
 
-It's the "later compilers" which I'm worried about here - I think they
-defined "unused" to mean "this really really isn't used and you can
-discard it".  Hence my concern with the above.
+i'm working on this one currently, it's a bit tricky.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+	Ingo

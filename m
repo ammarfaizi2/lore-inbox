@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267560AbTALWSU>; Sun, 12 Jan 2003 17:18:20 -0500
+	id <S267566AbTALWUd>; Sun, 12 Jan 2003 17:20:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267562AbTALWSU>; Sun, 12 Jan 2003 17:18:20 -0500
-Received: from mta9.srv.hcvlny.cv.net ([167.206.5.133]:5070 "EHLO
-	mta9.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S267560AbTALWSS>; Sun, 12 Jan 2003 17:18:18 -0500
-Date: Sun, 12 Jan 2003 17:22:25 -0500
-From: Rob Wilkens <robw@optonline.net>
+	id <S267564AbTALWUd>; Sun, 12 Jan 2003 17:20:33 -0500
+Received: from mail.zmailer.org ([62.240.94.4]:27078 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id <S267566AbTALWTg>;
+	Sun, 12 Jan 2003 17:19:36 -0500
+Date: Mon, 13 Jan 2003 00:28:23 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Rob Wilkens <robw@optonline.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: any chance of 2.6.0-test*?
-In-reply-to: <200301122306.14411.oliver@neukum.name>
-To: Oliver Neukum <oliver@neukum.name>
-Cc: Matti Aarnio <matti.aarnio@zmailer.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Reply-to: robw@optonline.net
-Message-id: <1042410145.3162.152.camel@RobsPC.RobertWilkens.com>
-Organization: Robert Wilkens
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.1
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com>
- <20030112211530.GP27709@mea-ext.zmailer.org>
- <1042406849.3162.121.camel@RobsPC.RobertWilkens.com>
- <200301122306.14411.oliver@neukum.name>
+Message-ID: <20030112222823.GR27709@mea-ext.zmailer.org>
+References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com> <1042400094.1208.26.camel@RobsPC.RobertWilkens.com> <20030112211530.GP27709@mea-ext.zmailer.org> <1042406849.3162.121.camel@RobsPC.RobertWilkens.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1042406849.3162.121.camel@RobsPC.RobertWilkens.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-01-12 at 17:06, Oliver Neukum wrote:
-> Please don't do such things. The next time locking is changed and a lock
-> is needed here, some poor guy has to go through that and change all
-> back to goto.
-> This may not be applicable here, but as a general rule, don't do it.
-> I speak from experience.
+On Sun, Jan 12, 2003 at 04:27:30PM -0500, Rob Wilkens wrote:
+> > Explain how you can do that cleanly, understandably, and without
+> > code duplication, or ugly kludges  without using those goto ?
+> > (And sticking to coding-style.)
 > 
-> As for efficiency, that is the compiler's job.
+> I've only compiled (and haven't tested this code), but it should be much
+> faster than the original code.  Why?  Because we're eliminating an extra
+> "jump" in several places in the code every time open would be called. 
 
-I say "please don't use goto" and instead have a "cleanup_lock" function
-and add that before all the return statements..  It should not be a
-burden.  Yes, it's asking the developer to work a little harder, but the
-end result is better code.
+Benchmark them - original and your revised.   (Their equivalents, that is,
+in userspace with rdtscll() ) 
 
--Rob
+Put them into a test-harness calling them million times (or some such).
+Look also what assembly the compiler produced, e.g. that it didn't optimize
+away error paths.
 
+> Yes, it's more code, so the kernel is a little bigger, but it should be
+> faster at the same time, and memory should be less of an issue nowadays.
+
+That is common fallacy.  Learn to code in environments where you
+have to account for every byte of code and ram usage, and your code
+will be fast even in bigger systems.
+
+> Here's the patch if you want to apply it (i have only compile tested it,
+> I haven't booted with it).. This patch applied to the 2.5.56 kernel.
+....
+
+/Matti Aarnio

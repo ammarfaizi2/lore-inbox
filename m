@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266516AbUGUPiC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266513AbUGUPiZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266516AbUGUPiC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 11:38:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266524AbUGUPiA
+	id S266513AbUGUPiZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 11:38:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266524AbUGUPiX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 11:38:00 -0400
-Received: from amsfep19-int.chello.nl ([213.46.243.20]:20021 "EHLO
-	amsfep19-int.chello.nl") by vger.kernel.org with ESMTP
-	id S266516AbUGUPhn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 11:37:43 -0400
-Date: Wed, 21 Jul 2004 17:37:36 +0200
-Message-Id: <200407211537.i6LFba3A020442@anakin.of.borg>
+	Wed, 21 Jul 2004 11:38:23 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:3171 "EHLO
+	amsfep17-int.chello.nl") by vger.kernel.org with ESMTP
+	id S266513AbUGUPh5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jul 2004 11:37:57 -0400
+Date: Wed, 21 Jul 2004 17:37:50 +0200
+Message-Id: <200407211537.i6LFbo4a020453@anakin.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Roman Zippel <zippel@linux-m68k.org>,
        Jes Sorensen <jes@trained-monkey.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 159] M68k Maintainership
+Subject: [PATCH 486] M68k Maintainership
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -28,9 +28,9 @@ M68k maintainership update:
 
 Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
---- linux-2.4.27-rc3/MAINTAINERS	2004-06-27 09:59:00.000000000 +0200
-+++ linux-m68k-2.4.27-rc3/MAINTAINERS	2004-07-21 17:26:40.000000000 +0200
-@@ -1153,11 +1153,14 @@
+--- linux-2.6.8-rc2/MAINTAINERS	2004-07-18 15:55:05.000000000 +0200
++++ linux-m68k-2.6.8-rc2/MAINTAINERS	2004-07-18 16:16:53.000000000 +0200
+@@ -1324,11 +1324,14 @@
  L:	linux-scsi@vger.kernel.org
  S:	Maintained
  

@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267612AbTBQWEo>; Mon, 17 Feb 2003 17:04:44 -0500
+	id <S267615AbTBQWeF>; Mon, 17 Feb 2003 17:34:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267613AbTBQWEo>; Mon, 17 Feb 2003 17:04:44 -0500
-Received: from h24-87-160-169.vn.shawcable.net ([24.87.160.169]:12174 "EHLO
-	oof.localnet") by vger.kernel.org with ESMTP id <S267612AbTBQWEo>;
-	Mon, 17 Feb 2003 17:04:44 -0500
-Date: Mon, 17 Feb 2003 14:14:43 -0800
-From: Simon Kirby <sim@netnation.com>
-To: linux-kernel@vger.kernel.org
-Subject: [2.4.21-pre4] IDE hangs box after timeout
-Message-ID: <20030217221443.GA16646@netnation.com>
+	id <S267617AbTBQWeF>; Mon, 17 Feb 2003 17:34:05 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:38016 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S267615AbTBQWeE>;
+	Mon, 17 Feb 2003 17:34:04 -0500
+Message-Id: <200302172244.h1HMi3n03557@mail.osdl.org>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: Andrew Morton <akpm@digeo.com>
+cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, cliffw@osdl.org
+Subject: Re: 2.5.61-mm1 
+In-Reply-To: Message from Andrew Morton <akpm@digeo.com> 
+   of "Fri, 14 Feb 2003 23:13:56 PST." <20030214231356.59e2ef51.akpm@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
+Date: Mon, 17 Feb 2003 14:44:03 -0800
+From: Cliff White <cliffw@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> 
+> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.61/2.5.61-mm1/
+> 
+> . Jens has fixed the request queue aliasing problem and we are no longer
+>   able to break the IO scheduler.  This was preventing the OSDL team from
+>   running dbt2 against recent kernels, so hopefully that is all fixed up now.
+> 
+Thanks again for doing all this, really appreciate it.
+Well, we're closer....
+The showstopper for us is still the flock() issue. We have Mathew Wilcox's patch from
+2.5.52, which we have been applying to all recent kernels. The patch is in PLM as patch id
+# 1061. The issue is in BugMe as bug #94 . 
+Without proper flock() we cannot stop and restart the database, which means we can't run the test. 
+We've tried applying Wilcox's flock patch to -mm1, but it's doesn't go clean, and frankly we're not smart enough
+to do the merge by hand -  lock code scares us. 
 
-I don't think this happened on older kernels (< 2.4.18ish), but it may
-have happened on 2.4.20 (though I have other problems with 2.4.20 on this
-box that makes testing more difficult -- it tends to Oops fairly often).
+We just tested 2.5.61 vanilla, and 2.5.61-mm1. 
 
-Anyway, this box has a massive collection of old (and new) drives to make
-a large storage area, using MD linear.  The box has two SCSI cards, two
-promise cards (PDC20269), and onboard IDE (PIIX4).  Because the box has
-so many drives, I had to use a number of power splitters which are, of
-course, cheap and thus unreliable, and occasionally a few drives will
-fall off of the bus.  This is the real problem, yes, but it seems to be
-triggering a lockup bug in 2.4.21-pre4.  When hda falls off the bus due
-to power loss, I see this on the console:
+The patch applies cleanly to stock 2.5.61, and we can cycle the database.
+We can't run dbt2 on stock 2.5.61, because of the scheduler bug. 
+We believe the scheduler fix in -mm1 will be the ticket, but we can't try
+it because of the flock() issue. So we're wedged. 
+Can someone smarter than us maybe do a merge? 
 
-hda: dma_timer_expiry: dma status == 0x21
-hda: timeout waiting for DMA
-hda: timeout waiting for DMA
-hda: (__ide_dma_test_irq) called while not waiting
+thanks,
+cliffw
 
-...followed by a complete lockup where sysreq does not appear to work.
 
-dmesg and config available here:
-
-	http://blue.netnation.com/sim/ref/alfie.dmesg
-	http://blue.netnation.com/sim/ref/alfie.config
-
-( Yes, a new power supply is on order. :) )
-
-Simon-
-
-[        Simon Kirby        ][        Network Operations        ]
-[     sim@netnation.com     ][     NetNation Communications     ]
-[  Opinions expressed are not necessarily those of my employer. ]

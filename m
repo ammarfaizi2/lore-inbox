@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263571AbTLSTcI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 14:32:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263573AbTLSTcI
+	id S263343AbTLST3k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 14:29:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263568AbTLST3k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 14:32:08 -0500
-Received: from opersys.com ([64.40.108.71]:47122 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S263571AbTLSTcG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 14:32:06 -0500
-Message-ID: <3FE352ED.60101@opersys.com>
-Date: Fri, 19 Dec 2003 14:35:09 -0500
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: OLS 2004?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 19 Dec 2003 14:29:40 -0500
+Received: from 217-124-52-180.dialup.nuria.telefonica-data.net ([217.124.52.180]:19844
+	"EHLO dardhal.mired.net") by vger.kernel.org with ESMTP
+	id S263343AbTLST3j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Dec 2003 14:29:39 -0500
+Date: Fri, 19 Dec 2003 20:29:37 +0100
+From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
+To: linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM
+Message-ID: <20031219192937.GA3943@localhost>
+Mail-Followup-To: linux Kernel <linux-kernel@vger.kernel.org>
+References: <200312191506.31367.fedekapo@speedy.com.ar> <3FE34297.9020007@pimpinc.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FE34297.9020007@pimpinc.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday, 19 December 2003, at 19:25:27 +0100,
+Jean-Philippe Woot de Trixhe wrote:
 
-Usually around this time of the year there's some information
-available regarding next summer's OLS. Yet, there's no info
-on such an event and the site seems to be abandoned (and
-Andrew's email on Achilles bounces):
-http://www.linuxsymposium.org
+> Federico Freire wrote:
+> [ as much as 443 (repeat, 443) lines of unnecessary quotation removed ]
+> Did you try to mount /dev/cdrom or /dev/hdc ? because your CD-R/RW drive 
+> is set as hdc...
+> 
+Was it _really_ necessary to waste several thousand times 18 KiB in
+ASCII text quoted from the original message just to add two new lines of
+text ?. Please, trim replies to the absolutely necessary length.
 
-Does anyone know if there will there be an OLS this year?
+PS: 4000 subscribers times 18 KiB gives more than 70 MiB
 
-Karim
+Greetings.
+
 -- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 514-812-4145
-
-
+Jose Luis Domingo Lopez
+Linux Registered User #189436     Debian Linux Sid (Linux 2.6.0)

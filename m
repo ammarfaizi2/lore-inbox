@@ -1,61 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271701AbTGRCYf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 22:24:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271697AbTGRCXr
+	id S271698AbTGRCXf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 22:23:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271697AbTGRCVi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 22:23:47 -0400
-Received: from d40.sstar.com ([209.205.179.40]:29948 "EHLO scud.asjohnson.com")
-	by vger.kernel.org with ESMTP id S271694AbTGRCWM (ORCPT
+	Thu, 17 Jul 2003 22:21:38 -0400
+Received: from mail.kroah.org ([65.200.24.183]:6073 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S271695AbTGRCV0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 22:22:12 -0400
-From: "Andrew S. Johnson" <andy@asjohnson.com>
-To: Dave Jones <davej@codemonkey.org.uk>
-Subject: Re: DRM, radeon, and X 4.3
-Date: Thu, 17 Jul 2003 21:36:56 -0500
-User-Agent: KMail/1.5.1
+	Thu, 17 Jul 2003 22:21:26 -0400
+Date: Thu, 17 Jul 2003 19:35:52 -0700
+From: Greg KH <greg@kroah.com>
+To: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
 Cc: linux-kernel@vger.kernel.org
-References: <200307170539.25702.andy@asjohnson.com> <20030717172625.GA16502@suse.de>
-In-Reply-To: <20030717172625.GA16502@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH] PCI vendor and device strings in sysfs
+Message-ID: <20030718023552.GA5926@kroah.com>
+References: <20030717101123.GA6069@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307172136.56019.andy@asjohnson.com>
+In-Reply-To: <20030717101123.GA6069@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 17 July 2003 12:26 pm, Dave Jones wrote:
-> On Thu, Jul 17, 2003 at 05:39:25AM -0500, Andrew S. Johnson wrote:
->  > I start X but it says DRM is disabled, even though the
->  > radeon and agpgart modules are loaded.  Here is the dmesg tail:
->  > 
->  > Linux agpgart interface v0.100 (c) Dave Jones
->  > [drm] Initialized radeon 1.9.0 20020828 on minor 0
->  > [drm:radeon_cp_init] *ERROR* radeon_cp_init called without lock held
->  > [drm:radeon_unlock] *ERROR* Process 1929 using kernel context 0
->  > 
->  > There is something X doesn't like.  How do I fix this?
+On Thu, Jul 17, 2003 at 03:41:24PM +0530, Ananth N Mavinakayanahalli wrote:
+> Hi,
 > 
-> Looks like there isn't an agp chipset module also loaded
-> (via-agp.o, intel-agp.o etc...)
+> Here is a patch against 2.6.0-test1 to display PCI vendor and
+> device strings in sysfs.
 > 
-> You should have additional text after the first AGP line.
+> At present, the PCI "name" attribute has a length restriction
+> (DEVICE_NAME_SIZE) within which it tries to accomodate the vendor
+> and device strings, leading to, in most cases, truncation of one
+> or both strings.
 > 
-> 		Dave
+> This patch alleviates the issue by creating the vendor_name and
+> device_name attributes for PCI devices.
 
-In the 2.4 kernels, the chipset was compiled in with the agpgart
-module.  Now they are separate.  So, yes, modprobe via-agp
-did the trick.
+I agree with Pat, this should be done in userspace.
 
-How can get the modprobe.conf file to load this module after
-agpgart and not crash the system?  My attempts to make this
-work using the install command example from the manpage
-have been generally disasterous.
+We should really just get rid of the dev->name file all together to keep
+people from relying on it :)
 
-Thanks,
+thanks,
 
-Andy Johnson
-
-
+greg k-h

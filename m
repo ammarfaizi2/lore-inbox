@@ -1,73 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262878AbTELWLh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 18:11:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262880AbTELWLh
+	id S262856AbTELWXx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 18:23:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262850AbTELWXx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 18:11:37 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:53888 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S262878AbTELWLd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 18:11:33 -0400
-Date: Mon, 12 May 2003 15:24:16 -0700
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: yoshfuji@linux-ipv6.org, "David S. Miller" <davem@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.5.69-bk7: wireless.c must include module.h
-Message-ID: <20030512222416.GA26396@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20030512220512.GC1107@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030512220512.GC1107@fs.tum.de>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	Mon, 12 May 2003 18:23:53 -0400
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:59406 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id S262858AbTELWXv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 18:23:51 -0400
+Date: Tue, 13 May 2003 00:36:27 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Tomas Szepe <szepe@pinerecords.com>
+cc: Dave Jones <davej@codemonkey.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] new kconfig goodies
+In-Reply-To: <20030512160029.GJ5376@louise.pinerecords.com>
+Message-ID: <Pine.LNX.4.44.0305122257320.5042-100000@serv>
+References: <Pine.LNX.4.44.0305111838300.14274-100000@serv>
+ <20030512143207.GA6459@suse.de> <20030512160029.GJ5376@louise.pinerecords.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 13, 2003 at 12:05:12AM +0200, Adrian Bunk wrote:
-> <--  snip  -->
-> 
-> ...
->   gcc -Wp,-MD,net/core/.wireless.o.d -D__KERNEL__ -Iinclude -Wall 
-> -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
-> -pipe -mpreferred-stack-boundary=2 -march=k6 
-> -Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include    
-> -DKBUILD_BASENAME=wireless -DKBUILD_MODNAME=wireless -c -o 
-> net/core/wireless.o net/core/wireless.c
-> net/core/wireless.c:488: `THIS_MODULE' undeclared here (not in a function)
-> net/core/wireless.c:488: initializer element is not constant
-> net/core/wireless.c:488: (near initialization for `wireless_seq_fops.owner')
-> make[2]: *** [net/core/wireless.o] Error 1
-> 
-> <--  snip  -->
-> 
-> 
-> The fix is simple:
-> 
-> --- linux-2.5.69-bk7/net/core/wireless.c.old	2003-05-13 00:02:06.000000000 +0200
-> +++ linux-2.5.69-bk7/net/core/wireless.c	2003-05-13 00:02:42.000000000 +0200
-> @@ -60,6 +60,7 @@
->  #include <linux/seq_file.h>
->  #include <linux/init.h>			/* for __init */
->  #include <linux/if_arp.h>		/* ARPHRD_ETHER */
-> +#include <linux/module.h>
->  
->  #include <linux/wireless.h>		/* Pretty obvious */
->  #include <net/iw_handler.h>		/* New driver API */
-> 
-> 
-> 
-> cu
-> Adrian
+Hi,
 
-	I still managed to beat you by a few minute ;-)
-http://marc.theaimsgroup.com/?l=linux-kernel&m=105276406917601&w=2
+On Mon, 12 May 2003, Tomas Szepe wrote:
 
-	Thanks !
+> Also, will the config system let the user know that their having
+> enabled a certain option has affected other options (possibly in
+> different submenus)?
 
-	Jean
+The user will see that he can't disable certain options.
+This is basically the same problem as with other dependencies, if the user 
+selects an option other options may become visible. There is no direct 
+information, how the config option depend on each other (except xconfig 
+offers that as a debug option).
+
+>  As things work now, there's no way to tell
+> if an option has been switched on "by dependency," so in the above
+> example, in switching GART_IOMMU off after its switching on has
+> enabled AGP, the system won't know to disable AGP again.  I'm not
+> convinced this is a nice feature in fact. :)  Maybe we just need
+> something like grayed-out entries with a comment, for instance:
+> 
+> /* [ ] IOMMU support (needs "/dev/agpgard (AGP Support)") */
+
+Of course the same can be done with normal dependencies, but this new 
+option offers more flexibility. Important options don't have to be hidden 
+away behind a lot of dependencies. I'm aware that this can be abused, so I 
+have to watch a bit how it will be used.
+
+bye, Roman
+

@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261644AbUBVCXb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Feb 2004 21:23:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261642AbUBVCXb
+	id S261646AbUBVCim (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Feb 2004 21:38:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261645AbUBVCim
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Feb 2004 21:23:31 -0500
-Received: from dp.samba.org ([66.70.73.150]:34215 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S261644AbUBVCX3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Feb 2004 21:23:29 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Booting when CPUs fail to come up. 
-In-reply-to: Your message of "Sat, 21 Feb 2004 14:33:59 BST."
-             <20040221133359.GA339@elf.ucw.cz> 
-Date: Sun, 22 Feb 2004 12:43:04 +1100
-Message-Id: <20040222022340.E9D132C361@lists.samba.org>
+	Sat, 21 Feb 2004 21:38:42 -0500
+Received: from mail-08.iinet.net.au ([203.59.3.40]:44210 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S261646AbUBVCik
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Feb 2004 21:38:40 -0500
+Message-ID: <4038162C.7080301@cyberone.com.au>
+Date: Sun, 22 Feb 2004 13:38:36 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: Mike Fedyk <mfedyk@matchmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Large slab cache in 2.6.1
+References: <4037FCDA.4060501@matchmail.com> <4038014E.5070600@matchmail.com> <20040222012033.GC703@holomorphy.com> <40380DE2.4030702@matchmail.com> <20040222021710.GD703@holomorphy.com>
+In-Reply-To: <20040222021710.GD703@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20040221133359.GA339@elf.ucw.cz> you write:
-> Hi!
-> 
-> > > > I recently played with setting a bit in cpu_possible_map that wasn't
-> > > > in cpu_online_map: this can happen without hotplug CPU when a CPU
-> > > > fails to boot, for example.
-> > > 
-> > > Is it safe to continue when one cpu is apparently malfunctioning?
-> > 
-> > Well, patch was overzealous and no longer required.
-> > 
-> > But we shouldn't crash when this happens just because a CPU didn't
-> > come up.
-> 
-> I still do not agree.
 
-You're entitled.  However, on x86 we booted before when a secondary
-CPU didn't come up, and the patch was designed to ensure that we still
-did so.
 
-> You have a system you tried to kick CPU #13 alive, and something very
-> wrong happened, CPU #13 did not come up. It is there, has full access
-> to memory, it is probably running some kind of program....
+William Lee Irwin III wrote:
 
-No, it's possible, but not online.  This actually happens on archs
-where you have hotplug cpus, as well as x86 boot failures.
+>William Lee Irwin III wrote:
+>
+>>>Similar issue here; I ran out of filp's/whatever shortly after booting.
+>>>
+>
+>On Sat, Feb 21, 2004 at 06:03:14PM -0800, Mike Fedyk wrote:
+>
+>>So Nick Piggin's VM patches won't help with this?
+>>
+>
+>I think they're in -mm, and I'd call the vfs slab cache shrinking stuff
+>a vfs issue anyway because there's no actual VM content to it, apart
+>from the code in question being driven by the VM.
+>
+>
 
-> I'd not dare mount disks read-write in such situation and I believe
-> crashing early is actually right thing to do.
+Yes they're in -mm and in dire need of more testing.
 
-Sure, send a patch for x86 to do that, and we can discuss that.  I'm
-not going to break existing behavior by stealth though.
+The indented audience are people who's machines are swapping a lot,
+but ensuring they don't break more common cases isn't a bad idea.
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,33 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312612AbSDSPoD>; Fri, 19 Apr 2002 11:44:03 -0400
+	id <S312608AbSDSPvl>; Fri, 19 Apr 2002 11:51:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312790AbSDSPoC>; Fri, 19 Apr 2002 11:44:02 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:40719 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S312612AbSDSPoC>; Fri, 19 Apr 2002 11:44:02 -0400
-Subject: Re: [PATCH] Wrong IRQ for USB on Sony Vaio (dmi_scan.c, pci-irq.c)
-To: cioby@lnx.ro (Dumitru Ciobarcianu)
-Date: Fri, 19 Apr 2002 17:01:38 +0100 (BST)
-Cc: davej@suse.de (Dave Jones), jslupski@email.com (Jan Slupski),
-        linux-kernel@vger.kernel.org, alan@redhat.com
-In-Reply-To: <1019229009.1928.24.camel@LNX.iNES.RO> from "Dumitru Ciobarcianu" at Apr 19, 2002 06:10:09 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S312610AbSDSPvk>; Fri, 19 Apr 2002 11:51:40 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:5651 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S312608AbSDSPvk>; Fri, 19 Apr 2002 11:51:40 -0400
+Date: Fri, 19 Apr 2002 12:51:27 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@duckman.distro.conectiva
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Steve Lord <lord@sgi.com>, Andrew Morton <akpm@zip.com.au>,
+        Mark Peloquin <peloquin@us.ibm.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Bio pool & scsi scatter gather pool usage
+In-Reply-To: <E16yalh-0007JG-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.44L.0204191251060.7447-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16yapO-0007Jm-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 46 structures occupying 1369 bytes.
-> DMI table at 0x0FFF0000.
-> dmi: read: Success
-> read: Illegal seek
-> 
-> And keeps repeating...
-> 
-> Any hint why?
+On Fri, 19 Apr 2002, Alan Cox wrote:
 
-Not sure. For some reason the read at 0x0fffffff was failed by the kernel
+> Oh and the unusual block size stuff seems to be quite easy for the bottom
+> layers. The horror lurks up higher. Most file systems can't cope (doesn't
+> matter too much), isofs can be mixed block size (bletch) but the killer
+> seems to be how you mmap a file on a device with 2326 byte sectors sanely..
+> (Just say no ?)
+
+mmap() shouldn't be a problem if you manage to stuff the file
+into the page cache ;)
+
+Rik
+-- 
+	http://www.linuxsymposium.org/2002/
+"You're one of those condescending OLS attendants"
+"Here's a nickle kid.  Go buy yourself a real t-shirt"
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

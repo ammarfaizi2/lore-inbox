@@ -1,102 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbUENObZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbUENOcm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbUENObZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 10:31:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbUENO30
+	id S261236AbUENOcm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 10:32:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbUENOcG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 10:29:26 -0400
-Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:37018 "EHLO
-	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
-	id S261252AbUENOQC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 10:16:02 -0400
-Message-ID: <40A4D49C.3030300@myrealbox.com>
-Date: Fri, 14 May 2004 07:15:56 -0700
-From: Andy Lutomirski <luto@myrealbox.com>
-User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
-CC: Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] capabilities, take 3 (Re: [PATCH] capabilites, take 2)
-References: <200405131308.40477.luto@myrealbox.com>	<20040513182010.L21045@build.pdx.osdl.net>	<200405131945.53723.luto@myrealbox.com> <87d657z2lm.fsf@goat.bogus.local>
-In-Reply-To: <87d657z2lm.fsf@goat.bogus.local>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 14 May 2004 10:32:06 -0400
+Received: from irulan.endorphin.org ([212.13.208.107]:53764 "EHLO
+	irulan.endorphin.org") by vger.kernel.org with ESMTP
+	id S261369AbUENOZt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 10:25:49 -0400
+Date: Fri, 14 May 2004 16:25:35 +0200
+To: James Morris <jmorris@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Christophe Saout <christophe@saout.de>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       "David S. Miller" <davem@redhat.com>
+Subject: Re: [PATCH] AES i586 optimized, regparm fixed
+Message-ID: <20040514142535.GA8735@ghanima.endorphin.org>
+References: <20040514130724.GA8081@ghanima.endorphin.org>
+	<Xine.LNX.4.44.0405140945590.20213-100000@thoron.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="GvXjxJ+pjyke8COw"
+Content-Disposition: inline
+In-Reply-To: <Xine.LNX.4.44.0405140945590.20213-100000@thoron.boston.redhat.com>
+User-Agent: Mutt/1.5.6i
+From: Fruhwirth Clemens <clemens-dated-1085408736.2262@endorphin.org>
+X-Delivery-Agent: TMDA/0.92 (Kauai King)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olaf Dietsche wrote:
 
-> Andy Lutomirski <luto@myrealbox.com> writes:
-> 
-> 
->>+	/* Pretend we have VFS capabilities */
->>+	cap_set_full(bprm->cap_inheritable);
->>+	if ((bprm->secflags & BINPRM_SEC_SETUID) && bprm->e_uid == 0)
->>+		cap_set_full(bprm->cap_permitted);
->>+	else
->>+		cap_clear(bprm->cap_permitted);
-> 
-> 
-> I'd move this to security/commoncap.c:
+--GvXjxJ+pjyke8COw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-[snip]
+On Fri, May 14, 2004 at 09:48:08AM -0400, James Morris wrote:
+> On Fri, 14 May 2004, Fruhwirth Clemens wrote:
+>=20
+> > James, if the patch suits your taste, please take care of forwarding it=
+ to
+> > Andrew or Linus.
+>=20
+> There is still the binary license issue, and how to ensure this is built=
+=20
+> instead of the generic AES module for the right architectures.
 
-I put it in fs/exec.c because I had to add it to binprm anyway
-(having commoncap use ->security would break SELinux), and, as
-long as it's a permanent member of the structure, it made sense
-for it to always be filled in.
+It's the standard BSD license. I would really be suprised if that's the
+first BSD code in the kernel. The issue should be handled like in the other
+case, although I'm not interested in wheter the license text stays or is
+purged.
 
->>+	/* FIXME: Is this overly harsh on setgid? */
->>+	if ((bprm->secflags & (BINPRM_SEC_SETUID | BINPRM_SEC_SETGID)) &&
->>+	    new_pI != CAP_FULL_SET)
->>+			bprm->secflags |= BINPRM_SEC_NOELEVATE;
->>+
->>+	if (bprm->secflags & BINPRM_SEC_NOELEVATE) {
->>+		is_setuid = is_setgid = 0;
->>+		cap_clear(fP);
->>+	}
-> 
-> 
-> This prevents sendmail from being setuid mail and
-> cap_net_bind_service=ep.
+A simple solution for implementation selection would be to add "depends on
+!X86 || X86_64" to aes generic. MODULE_ALIAS will take care of the rest.
 
-AAAAH!  That's right -- in my implementation <some cap>=ep on a file
-makes no sense.  It's got to be inheritable to be permitted.
+I have to state that I'm not interested in developing a more complicated
+framework for automatic cipher selection. I've always been opposing
+configuration wizard and install scripts with
+magic-logic-that-will-configure-software-entirely-on-its-own-and-totally-wr=
+ong
+gimmicks. My aim is to provide a good/working aes-i586 patch.
 
-On the other hand, that rule could be safely by checking the old pI
-as opposed to the new one.  The idea is to prevent a process without
-full pI from execing (and thus confusing) old setuid apps.
+Regards, Clemens
 
+--GvXjxJ+pjyke8COw
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-BTW, in your capabilities implementation, why do you do:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-# chcap cap_net_bind_service=ei /usr/sbin/named
-# inhcaps cap_net_bind_service=i bind:bind /usr/sbin/named
+iD8DBQFApNbfW7sr9DEJLk4RAuXZAKCTnzKXy7L96ZC5086YvREEGiUElgCeJxrJ
+A0SKiJqjN0tGimx/CXJyXy4=
+=qX6Y
+-----END PGP SIGNATURE-----
 
-It seems to me that this wants to be:
-
-# inhcaps cap_net_bind_service=eip bind:bind /usr/sbin/named
-(not having looked at your user tool)
-or
-# cap -c cap_net_bind_service=eip -u bind -g bind /usr/sbin/named
-(using my tool)
-
-With my patch, that just works (no fs caps necessary).  Why should the
-admin have to tag a program so it is allowed to inherit caps?  (If
-named used libexec, then its libexec helpers would have to be similarly
-tagged, and, if it used bash, then bash would need the inheritable tag.)
-
-If the answer's because that's how Linux cap evolution works, then
-I'd say that Linux cap evolution is broken.
-
-In any case, I'll probably redo my patch to restore the IRIX version of pI.
-
---Andy
-
-
-
-> 
-> Regards, Olaf.
-
+--GvXjxJ+pjyke8COw--

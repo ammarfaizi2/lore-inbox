@@ -1,54 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266366AbUG1HFX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266569AbUG1HFi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266366AbUG1HFX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 03:05:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266569AbUG1HFX
+	id S266569AbUG1HFi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 03:05:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266781AbUG1HFh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 03:05:23 -0400
-Received: from fw.osdl.org ([65.172.181.6]:6882 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266366AbUG1HFR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 03:05:17 -0400
-Date: Wed, 28 Jul 2004 00:03:40 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Dimitri Sivanich <sivanich@sgi.com>
-Cc: manfred@colorfullife.com, mingo@elte.hu, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, lse-tech@lists.sourceforge.net
-Subject: Re: [PATCH] Move cache_reap out of timer context
-Message-Id: <20040728000340.7f95060f.akpm@osdl.org>
-In-Reply-To: <20040714180942.GA18425@sgi.com>
-References: <20040714180942.GA18425@sgi.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 28 Jul 2004 03:05:37 -0400
+Received: from services.exanet.com ([212.143.73.102]:13888 "EHLO
+	services.exanet.com") by vger.kernel.org with ESMTP id S266569AbUG1HF0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 03:05:26 -0400
+Message-ID: <41075034.7080701@exanet.com>
+Date: Wed, 28 Jul 2004 10:05:24 +0300
+From: Avi Kivity <avi@exanet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031027
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Deadlock during heavy write activity to userspace NFS
+ server on local NFS mount
+References: <41050300.90800@exanet.com> <20040726210229.GC21889@openzaurus.ucw.cz> <4106B992.8000703@exanet.com> <20040727203438.GB2149@elf.ucw.cz> <4106C2E8.905@exanet.com> <41070183.5000701@yahoo.com.au> <4107357C.9080108@exanet.com> <410739BD.2040203@yahoo.com.au>
+In-Reply-To: <410739BD.2040203@yahoo.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 28 Jul 2004 07:05:24.0894 (UTC) FILETIME=[414D7BE0:01C47471]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dimitri Sivanich <sivanich@sgi.com> wrote:
+Nick Piggin wrote:
+
+> Avi Kivity wrote:
 >
-> I'm submitting two patches associated with moving cache_reap functionality
->  out of timer context.  Note that these patches do not make any further
->  optimizations to cache_reap at this time.
-> 
->  The first patch adds a function similiar to schedule_delayed_work to
->  allow work to be scheduled on another cpu.
-> 
->  The second patch makes use of schedule_delayed_work_on to schedule
->  cache_reap to run from keventd.
+>> Nick Piggin wrote:
+>>
+>>>
+>>> There is some need arising for a call to set the PF_MEMALLOC flag for
+>>> userspace tasks, so you could probably get a patch accepted. Don't
+>>> call it KSWAPD_HELPER though, maybe MEMFREE or RECLAIM or 
+>>> RECLAIM_HELPER.
+>>
+>>
+>>
+>> I don't think my patch is general enough, it deals with only one 
+>> level of dependencies, and doesn't work if the NFS server (or other 
+>> process that kswapd depends on) depends on kswapd itself. It was 
+>> intended more as an RFC than a request for inclusion.
+>>
+>> It's probably fine for those with the exact same problem as us.
+>>
+>
+> Well it isn't that you depend on kswapd, but that your task gets called
+> into via page reclaim (to facilitate page reclaim). In which case having
+> the task block in memory allocation can cause a deadlock.
 
-It goes splat in cache_reap() if slab debugging is enabled, for rather
-obvious reasons:
+In my particular case that's true, so I only depended on kswapd as a 
+side effect of the memory allocation logic. Setting PF_MEMALLOC fixed that.
 
-#if DEBUG
-	BUG_ON(!in_interrupt());
-	BUG_ON(in_irq());
-#endif
+>
+> The solution is that PF_MEMALLOC tasks are allowed to access the reserve
+> pool. Dependencies don't matter to this system. It would be your job to
+> ensure all tasks that might need to allocate memory in order to free
+> memory have the flag set.
 
-I've so far spent nearly two days just getting all the gunk people have
-sent in the last two weeks to compile properly.  Heaven knows how long
-it'll take to test it.  So I need somebody to grump at.  So.  Grump.
+In the general case that's not sufficient. What if the NFS server wrote 
+to ext3 via the VFS? We might have a ton of ext3 pagecache waiting for 
+kswapd to reclaim NFS memory, while kswapd is waiting on the NFS server 
+writing to ext3.
 
-May I have the temerity to suggest that it would be more efficient if
-people were to test their own patches a bit more before sending them?
+The patch I posted is simple and quite sufficient for my needs, but I'm 
+sure more convoluted cases will turn up where something more complex is 
+needed. Probably one can construct such cases out of in-kernel 
+components like the loop device, dm, and the NFS client and server.
+
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+
 

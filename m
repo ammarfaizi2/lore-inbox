@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262413AbTFOREE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 13:04:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbTFOREE
+	id S262437AbTFORHF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 13:07:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbTFORGi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 13:04:04 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:17578 "EHLO
+	Sun, 15 Jun 2003 13:06:38 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:24746 "EHLO
 	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S262413AbTFORD2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 13:03:28 -0400
-Date: Sun, 15 Jun 2003 19:17:20 +0200
+	id S262437AbTFORGD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 13:06:03 -0400
+Date: Sun, 15 Jun 2003 19:19:55 +0200
 From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
+To: Brian Jackson <brian@mdrx.com>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] make cramfs look less hostile
-Message-ID: <20030615171719.GE1063@wohnheim.fh-wedel.de>
-References: <20030615160524.GD1063@wohnheim.fh-wedel.de> <Pine.LNX.4.44.0306151245070.29663-100000@coffee.psychology.mcmaster.ca>
+Message-ID: <20030615171955.GF1063@wohnheim.fh-wedel.de>
+References: <20030615160524.GD1063@wohnheim.fh-wedel.de> <200306151157.10493.brian@mdrx.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.44.0306151245070.29663-100000@coffee.psychology.mcmaster.ca>
+In-Reply-To: <200306151157.10493.brian@mdrx.com>
 User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 June 2003 12:46:26 -0400, Mark Hahn wrote:
+On Sun, 15 June 2003 11:57:10 -0500, Brian Jackson wrote:
 > 
-> > This thing has been biting me now and again.  "cramfs: wrong magic\n"
-> > looks like an error condition to most people and thus creates bug
-> > reports.  But there is no bug per se in having cramfs support in the
-> > kernel and booting from a jffs2 rootfs.  So instead of teaching the
-> > users over and over, how about this little one-liner?
-> 
-> good argument.  but I was expecting you to remove the message entirely,
-> or else make it *really* explanatory like "OK, not cramfs then"
+> What about making it "cramfs: magic not found or incorrect\n". That test could 
+> result in incorrect magic (not just missing magic), couldn't it?
 
-Well, some embedded people trying to get this shiny new hardware with
-bad debugging interfaces up and running might still like that printk.
-But it would make sense to wrap it behind CONFIG_CRAMFS_DEBUG or
-#define DEBUG 1 inside inode.c
+Yes, but truth is not my goal. :)
 
-Comments?
+The only point of that output is to give someone an idea what might be
+wrong when the kernel boots, but it never reaches userspace.  Keep it
+short, crisp, and harmless to those eyes not needing it.  Will try to
+code up something longer.
 
 Jörn
 
 -- 
-Optimizations always bust things, because all optimizations are, in
-the long haul, a form of cheating, and cheaters eventually get caught.
--- Larry Wall 
+Public Domain  - Free as in Beer
+General Public - Free as in Speech
+BSD License    - Free as in Enterprise
+Shared Source  - Free as in "Work will make you..."

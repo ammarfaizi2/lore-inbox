@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264260AbUGIFJr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264297AbUGIFPn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264260AbUGIFJr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 01:09:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264266AbUGIFJr
+	id S264297AbUGIFPn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 01:15:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264298AbUGIFPn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 01:09:47 -0400
-Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:27504 "HELO
-	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264260AbUGIFJk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 01:09:40 -0400
-Message-ID: <40EE288F.20301@yahoo.com.au>
-Date: Fri, 09 Jul 2004 15:09:35 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: "David S. Miller" <davem@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-mm6
-References: <20040705023120.34f7772b.akpm@osdl.org> <20040706125438.GS21066@holomorphy.com> <20040706233618.GW21066@holomorphy.com> <20040706170247.5bca760c.davem@redhat.com> <20040707073510.GA27609@elte.hu> <20040707140249.2bfe0a4b.davem@redhat.com> <40EE06B1.1090202@yahoo.com.au> <20040709025151.GV21066@holomorphy.com>
-In-Reply-To: <20040709025151.GV21066@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Jul 2004 01:15:43 -0400
+Received: from gprs214-56.eurotel.cz ([160.218.214.56]:10369 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S264297AbUGIFPl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 01:15:41 -0400
+Date: Fri, 9 Jul 2004 07:15:28 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Christoph Hellwig <hch@infradead.org>, Erik Rigtorp <erik@rigtorp.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] swsusp bootsplash support
+Message-ID: <20040709051528.GB23152@elf.ucw.cz>
+References: <20040708110549.GB9919@linux.nu> <20040708133934.GA10997@infradead.org> <20040708204840.GB607@openzaurus.ucw.cz> <20040708210403.GA18049@infradead.org> <20040708225216.GA27815@elf.ucw.cz> <20040708225501.GA20143@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040708225501.GA20143@infradead.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
+Hi!
 
-> On Fri, Jul 09, 2004 at 12:45:05PM +1000, Nick Piggin wrote:
+> > I have not seen SuSE version of bootsplash... I do not want to
+> > see. But this way, SuSE has its own crappy bootsplash, RedHat probably
+> > too, Mandrake probably too, etc.
 > 
->>We could make CLONE_IDLETASK clones not do the wakeup?
->>Ingo? I guess an alternative is to have the arch explicitly
->>make a call to dequeue it.
-> 
-> 
-> This is all just context switching and bootstrap ordering, but I really
-> have other vastly more urgent things to do at the moment than cleanups.
+> Red Hat gets it right and uses a program that's using fbdev.  They also
+> have no swsusp support, which makes quite a lot of sense given how much
+> in flux the code still is.
 
-If you could help that would be great. You needn't do anything
-other than test. The patch sort of enables run cloned thread
-last which allows us to remove balance on clone, which is important.
-For me.
+Okay, if redhat is actually doing it right, there's no reason for
+encouraging the wrong thing.
 
-> Please present a self-contained fixed-up init_idle() cleanup for me to
-> testboot. Even the one in -mm is not so, as it depends on later patches
-> to even compile.
+But I guess swsusp is going to make this more "interesting" as
+progressbar is nice to have there, and userland can not help at that
+point.
 
-The patch I just sent (which is on top of -mm6) should hopefully
-work... if you feel like testing a solution that may still get
-vetoed by Ingo.
-
-Also, what compile errors are you getting? i386 seems to compile
-kernel/ fine with only the first sched- patch applied.
-
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,46 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269341AbUJRAAQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268113AbUJRB20@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269341AbUJRAAQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 20:00:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269342AbUJRAAQ
+	id S268113AbUJRB20 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 21:28:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268141AbUJRB20
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 20:00:16 -0400
-Received: from main.gmane.org ([80.91.229.2]:44177 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S269341AbUJRAAM (ORCPT
+	Sun, 17 Oct 2004 21:28:26 -0400
+Received: from chilli.pcug.org.au ([203.10.76.44]:13725 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S268113AbUJRB2Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 20:00:12 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Marc Bevand <bevand_m@epita.fr>
-Subject: Re: NMI watchdog detected lockup
-Date: Mon, 18 Oct 2004 00:00:03 +0000 (UTC)
-Message-ID: <ckv123$pcs$1@sea.gmane.org>
-References: <4172F91D.8090109@osdl.org>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ivry-1-81-57-179-18.fbx.proxad.net
-User-Agent: slrn/0.9.8.0pl1 (Linux)
+	Sun, 17 Oct 2004 21:28:24 -0400
+Date: Mon, 18 Oct 2004 11:28:07 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Robert Love <rml@novell.com>
+Cc: v13@priest.com, ttb@tentacle.dhs.org, linux-kernel@vger.kernel.org,
+       gamin-list@gnome.org, viro@parcelfarce.linux.theplanet.co.uk,
+       akpm@osdl.org, bkonrath@redhat.com, greg@kroah.com
+Subject: Re: [RFC][PATCH] inotify 0.14
+Message-Id: <20041018112807.3a7edbf7.sfr@canb.auug.org.au>
+In-Reply-To: <1098057129.5497.107.camel@localhost>
+References: <1097808272.4009.0.camel@vertex>
+	<200410180246.27654.v13@priest.com>
+	<1098057129.5497.107.camel@localhost>
+X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Mon__18_Oct_2004_11_28_07_+1000_sUCKca8lcYf24kDS"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2004-10-17, Randy.Dunlap <rddunlap@osdl.org> wrote:
-| 
-|  I'm seeing this often during a kernel build on AIC79xx.
-|  I did one kernel build on SATA without seeing this.
-|  This is on a dual-Opteron IBM Workstation A with
-|  2 GB RAM, SATA, & SCSI.
-|  [...]
-|  NMI Watchdog detected LOCKUP on CPU0, registers:
-|  [...]
+--Signature=_Mon__18_Oct_2004_11_28_07_+1000_sUCKca8lcYf24kDS
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-You are not the first one to observe frequent watchdog timeout
-lockup on dual Opteron systems during intense I/O operations,
-see this thread:
+On Sun, 17 Oct 2004 19:52:09 -0400 Robert Love <rml@novell.com> wrote:
+>
+> It should make dnotify a configuration option, controlled via
+> CONFIG_DNOTIFY.
 
-  http://thread.gmane.org/gmane.linux.ide/1933
-
-Note: this does *not* seem to be SATA-related.
+But you have removed the sysctl that allows enabling and disabling of
+dnotify at run time.  And you create setattr_mask_dnotify for which I can
+find no caller.  And make gratuitous changes to the current dnotify code.
+(I point this last out as it just increases the size of the patch for no
+purpose.)
 
 -- 
-Marc Bevand                          http://www.epita.fr/~bevand_m
-Computer Science School EPITA - System, Network and Security Dept.
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
+--Signature=_Mon__18_Oct_2004_11_28_07_+1000_sUCKca8lcYf24kDS
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBcxws4CJfqux9a+8RAl96AJ9PdChSXMMVub6jvPwopHxqd9avBwCfUT5f
+BY0BIc/6uxee/21YpoLQEro=
+=xkhK
+-----END PGP SIGNATURE-----
+
+--Signature=_Mon__18_Oct_2004_11_28_07_+1000_sUCKca8lcYf24kDS--

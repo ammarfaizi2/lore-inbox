@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262699AbTCJC7D>; Sun, 9 Mar 2003 21:59:03 -0500
+	id <S262703AbTCJDbB>; Sun, 9 Mar 2003 22:31:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262700AbTCJC7D>; Sun, 9 Mar 2003 21:59:03 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:17938 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262699AbTCJC7C>; Sun, 9 Mar 2003 21:59:02 -0500
-Date: Sun, 9 Mar 2003 19:07:36 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jamie Lokier <jamie@shareable.org>
-cc: linux-kernel@vger.kernel.org, <ak@muc.de>
-Subject: Re: [Bug 350] New: i386 context switch very slow compared to 2.4
- due to wrmsr (performance)
-In-Reply-To: <20030212101206.GA10422@bjl1.jlokier.co.uk>
-Message-ID: <Pine.LNX.4.44.0303091858530.1420-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262704AbTCJDbB>; Sun, 9 Mar 2003 22:31:01 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:4049 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S262703AbTCJDbB>;
+	Sun, 9 Mar 2003 22:31:01 -0500
+Message-Id: <200303100341.h2A3fKEO004164@eeyore.valparaiso.cl>
+To: Zack Brown <zbrown@tumblerings.org>
+cc: Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: BitBucket: GPL-ed KitBeeper clone 
+In-Reply-To: Your message of "Sat, 08 Mar 2003 18:45:22 -0800."
+             <20030309024522.GA25121@renegade> 
+Date: Sun, 09 Mar 2003 23:41:20 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Zack Brown <zbrown@tumblerings.org> said:
 
-Ok Jamie,
- since you've been interested in the past, I thought I'd ask you to test
-the current context switch stuff. Andi cleaned up some FPU reload stuff
-(and I fixed a bug in it, tssk tssk Andi - you'd obviously not actually
-timed your cleanups), and I just committed and pushed out my "cache the
-value of SYSENTER_CS in the TSS" patch.
+[...]
 
-It won't bring context switching back to where it _could_ be, but it
-should be noticeably better. My pipe bandwidth is up from under 600MB/s
-to about ~700MB/s according to lmbench.
+> I'd be willing to maintain this as the beginning of a feature list and
+> post it regularly to lkml if enough people feel it would be useful and not
+> annoying. The goal would be to identify the features/problems that would
+> need to be handled by a kernel-ready version control system.
 
-Your SYSENTER_ESP hack would probably get back the rest, but I haven't
-seen any patches for it, hint hint.
-
-In the meantime, we're almost back to where we were _and_ we support 
-sysenter (ie my system calls are down by almost a factor of four). So 
-we're doing pretty well.
-
-			Linus
-
+I believe that has very little relevance to lkml, only perhaps to a mailing
+list for a bk replacement. For the kernel this work has already been done
+(by Larry and the head penguins).
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

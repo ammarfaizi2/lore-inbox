@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266796AbTBTS4K>; Thu, 20 Feb 2003 13:56:10 -0500
+	id <S266718AbTBTSxb>; Thu, 20 Feb 2003 13:53:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266805AbTBTS4K>; Thu, 20 Feb 2003 13:56:10 -0500
-Received: from phoenix.infradead.org ([195.224.96.167]:29712 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S266796AbTBTS4J>; Thu, 20 Feb 2003 13:56:09 -0500
-Date: Thu, 20 Feb 2003 19:06:13 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: chas williams <chas@locutus.cmf.nrl.navy.mil>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] cli() for net/atm/lec.c
-Message-ID: <20030220190613.A8663@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	chas williams <chas@locutus.cmf.nrl.navy.mil>,
-	linux-kernel@vger.kernel.org
-References: <200302201751.h1KHpKqA009567@locutus.cmf.nrl.navy.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200302201751.h1KHpKqA009567@locutus.cmf.nrl.navy.mil>; from chas@locutus.cmf.nrl.navy.mil on Thu, Feb 20, 2003 at 12:51:20PM -0500
+	id <S266749AbTBTSxb>; Thu, 20 Feb 2003 13:53:31 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:24214 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S266718AbTBTSx3>;
+	Thu, 20 Feb 2003 13:53:29 -0500
+Date: Thu, 20 Feb 2003 20:00:26 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Zwane Mwaikambo <zwane@holomorphy.com>, Chris Wedgwood <cw@f00f.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: doublefault debugging (was Re: Linux v2.5.62 --- spontaneous
+ reboots)
+In-Reply-To: <Pine.LNX.4.44.0302200949520.1385-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0302201958370.1446-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  extern void (*br_fdb_put_hook)(struct net_bridge_fdb_entry *ent);
-> +static spinlock_t lec_arp_spinlock = SPIN_LOCK_UNLOCKED;
-> +static unsigned long lec_arp_flags;
->  
-> +#define LEC_ARP_LOCK()   spin_lock_irqsave(&lec_arp_spinlock, lec_arp_flags);
-> +#define LEC_ARP_UNLOCK() spin_unlock_irqrestore(&lec_arp_spinlock, lec_arp_flags);
 
-I don't think this is a good idea - use the spin_lock calls directly and
-always use flags on the stack.
+On Thu, 20 Feb 2003, Linus Torvalds wrote:
 
->          dev->get_stats = lec_get_stats;
->          dev->set_multicast_list = NULL;
->          dev->do_ioctl  = NULL;
-> +	spin_lock_init(&lec_arp_spinlock);
+> > a true heisenbug. I cannot reproduce it anymore. Anyway, from the serial
+> > console i collected 3 instances of crashes - whatever it's worth.
+> 
+> Pretty much every single time, release_task() has been there on the
+> backtrace.
+> 
+> In fact, I bet you this code in do_exit() is the cause:
+> 
+>         preempt_disable();
+> 
+>         if (tsk->exit_signal == -1)
+> ***             release_task(tsk);	***
+> 
+>         schedule();
+> 
+> Note how "release_task()" will be releasing the stack that the process
+> is running on right now. [...]
 
-not needed - you already initialized it at compiletime
+but, release_task() is a delayed thing for exactly this reason. It fills
+out the per-CPU task_cache but does not free the task.
+
+the release_task() + schedule() must be atomic though - ie. we must not be
+preempted anytime inbetween [because that other task could free the
+task_cache] - but i wasnt running with CONFIG_PREEMPT, so i cannot see how
+it could happen.
+
+	Ingo
 

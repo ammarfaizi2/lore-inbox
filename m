@@ -1,91 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129033AbRBHSjU>; Thu, 8 Feb 2001 13:39:20 -0500
+	id <S129098AbRBHSnk>; Thu, 8 Feb 2001 13:43:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129892AbRBHSjK>; Thu, 8 Feb 2001 13:39:10 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:15366 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129872AbRBHSjG>; Thu, 8 Feb 2001 13:39:06 -0500
-Date: Thu, 8 Feb 2001 10:38:47 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        "Stephen C. Tweedie" <sct@redhat.com>, Pavel Machek <pavel@suse.cz>,
-        Jens Axboe <axboe@suse.de>, Manfred Spraul <manfred@colorfullife.com>,
-        Ben LaHaise <bcrl@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Steve Lord <lord@sgi.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        kiobuf-io-devel@lists.sourceforge.net, Ingo Molnar <mingo@redhat.com>
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
-In-Reply-To: <Pine.LNX.4.21.0102081456030.2378-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.10.10102081030070.6741-100000@penguin.transmeta.com>
+	id <S130380AbRBHSnV>; Thu, 8 Feb 2001 13:43:21 -0500
+Received: from cmr2.ash.ops.us.uu.net ([198.5.241.40]:5066 "EHLO
+	cmr2.ash.ops.us.uu.net") by vger.kernel.org with ESMTP
+	id <S129098AbRBHSnQ>; Thu, 8 Feb 2001 13:43:16 -0500
+Message-ID: <3A82E86C.14217D65@uu.net>
+Date: Thu, 08 Feb 2001 13:41:48 -0500
+From: Alex Deucher <adeucher@UU.NET>
+Organization: UUNET
+X-Mailer: Mozilla 4.74 [en] (WinNT; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+CC: linux-kernel@vger.kernel.org, jhartmann@valinux.com
+Subject: Re: [OT] Re: 2.4.x, drm, g400 and pci_set_master
+In-Reply-To: <14EAB47C173C@vcnet.vc.cvut.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+There is preliminary support for pcigart in the dri tree.  I believe
+some people have had some success with it.
 
+Alex
 
-On Thu, 8 Feb 2001, Rik van Riel wrote:
-
-> On Thu, 8 Feb 2001, Mikulas Patocka wrote:
+Petr Vandrovec wrote:
 > 
-> > > > You need aio_open.
-> > > Could you explain this? 
-> > 
-> > If the server is sending many small files, disk spends huge
-> > amount time walking directory tree and seeking to inodes. Maybe
-> > opening the file is even slower than reading it
+> On  8 Feb 01 at 13:14, Alex Deucher wrote:
+> > Jeff Hartmann wrote:
+> > > Petr Vandrovec wrote:
 > 
-> Not if you have a big enough inode_cache and dentry_cache.
+> > > It does not use dynamic DMA mapping, because it doesn't do PCI DMA at
+> > > all.  It uses AGP DMA.  Actually, it shouldn't be too hard to get it to
+> > > work on the Alpha (just a few 32/64 bit issues probably.)  Someone just
+> > > needs to get agpgart working on the Alpha, thats the big step.
+> >
+> > That shouldn't be too hard since many (all?) AGP alpha boards (UP1000's
+> > anyway) are based on the AMD 751 Northbridge? And there is already
+> > support for that in the kernel for x86.
 > 
-> OTOH ... if you have enough memory the whole async IO argument
-> is moot anyway because all your files will be in memory too.
-
-Note that this _is_ an important point.
-
-You should never _ever_ think about pure IO speed as the most important
-thing. Even if you get absolutely perfect IO streaming off the fastest
-disk you can find, I will beat you every single time with a cached setup
-that doesn't need to do IO at all.
-
-90% of the VFS layer is all about caching, and trying to avoid IO. Of the
-rest, about 9% is about trying to avoid even calling down to the low-level
-filesystem, because it's faster if we can handle it at a high level
-without any need to even worry about issues like physical disk addresses.
-Even if those addresses are cached.
-
-The remaining 1% is about actually getting the IO done. At that point we
-end up throwing our hands in the air and saying "ok, this will be slow".
-
-So if you design your system for disk load, you are missing a big portion
-of the picture.
-
-There are cases where IO really matter. The most notable one being
-databases, certainly _not_ web or ftp servers. For web- or ftp-servers you
-buy more memory if you want high performance, and you tend to be limited
-by the network speed anyway (if you have multiple gigabit networks and
-network speed isn't an issue, then I can also tell you that buying a few
-gigabyte of RAM isn't an issue, because you are obviously working for
-something like the DoD and have very little regard for the cost of the
-thing ;)
-
-For databases (and for file servers that you want to be robust over a
-crash), IO throughput is an issue mainly because you need to put the damn
-requests in stable memory somewhere. Which tends to mean that _write_
-speed is what really matters, because the reads you can still try to cache
-as efficiently as humanly possible (and the issue of database design then
-turns into trying to find every single piece of locality you can, so that
-the read caching works as well as possible).
-
-Short and sweet: "aio_open()" is basically never supposed to be an issue.
-If it is, you've misdesigned something, or you're trying too damn hard to
-single-thread everything (and "hiding" the threading that _does_ happen by
-just calling it "AIO" instead - lying to yourself, in short).
-
-		Linus
-
+> My AlphaPC 164LX does not have AGP at all - and I want to get G200/G400 PCI
+> working on it with dri, using 21174 features.
+>                                                     Petr Vandrovec
+>                                                     vandrove@vc.cvut.cz
+>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

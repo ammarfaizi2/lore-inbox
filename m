@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262260AbTDAKrE>; Tue, 1 Apr 2003 05:47:04 -0500
+	id <S262284AbTDAKsm>; Tue, 1 Apr 2003 05:48:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262276AbTDAKrD>; Tue, 1 Apr 2003 05:47:03 -0500
-Received: from mail.zmailer.org ([62.240.94.4]:15573 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id <S262260AbTDAKrD>;
-	Tue, 1 Apr 2003 05:47:03 -0500
-Date: Tue, 1 Apr 2003 13:58:21 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: shesha bhushan <bhushan_vadulas@hotmail.com>
-Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
-Subject: Re: Deactivating TCP checksumming
-Message-ID: <20030401105821.GV29167@mea-ext.zmailer.org>
-References: <F28fCuayVxYPtqpymRi000013e5@hotmail.com>
+	id <S262292AbTDAKsm>; Tue, 1 Apr 2003 05:48:42 -0500
+Received: from AGrenoble-101-1-4-18.abo.wanadoo.fr ([217.128.202.18]:63685
+	"EHLO awak") by vger.kernel.org with ESMTP id <S262284AbTDAKsm>;
+	Tue, 1 Apr 2003 05:48:42 -0500
+Subject: Re: PATCH: allow percentile size of tmpfs (2.5.66 / 2.4.20-pre2)
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: CaT <cat@zip.com.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <20030401081045.GD1394@zip.com.au>
+References: <20030401081045.GD1394@zip.com.au>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1049194788.22942.9.camel@bip.localdomain.fake>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <F28fCuayVxYPtqpymRi000013e5@hotmail.com>
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 01 Apr 2003 12:59:49 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 01, 2003 at 09:47:30AM +0000, shesha bhushan wrote:
-> Hello all,
->  I am trying to de-activate the TCP checksumming and allow hardware (GBE to 
-> compute it for me). But can any one let me know how to do it.
+                        size = memparse(value,&rest);
++                       if (*rest == '%') {
++                               struct sysinfo si;
++                               si_meminfo(&si);
++                               size = (si.totalram << PAGE_CACHE_SHIFT) / 100 * size;
 
-GBE ?  Likely device feature flags are wrong -- See examples
-from   drivers/net/sunhme.c,  acenic.c,  tg3.c  for various ways
-to use  NETIF_F_*_CSUM  feature flags.
+(si.totalram << PAGE_CACHE_SHIFT) * size / 100;
+would have been better precision-wise.
 
-For (some of) explanations:  include/linux/netdevice.h
-(for NETIF_F_* flags)
+	Xav
 
-> All suggestion are highly apperciated.
-> 
-> Thanking You
-> Shesha
-
-/Matti Aarnio

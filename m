@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317859AbSGQAuv>; Tue, 16 Jul 2002 20:50:51 -0400
+	id <S317938AbSGQA4l>; Tue, 16 Jul 2002 20:56:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317923AbSGQAuu>; Tue, 16 Jul 2002 20:50:50 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:14066 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S317859AbSGQAuu>;
-	Tue, 16 Jul 2002 20:50:50 -0400
-Date: Wed, 17 Jul 2002 02:53:34 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200207170053.CAA01050@harpo.it.uu.se>
-To: balbir.singh@wipro.com, hahn@physics.mcmaster.ca
-Subject: Re: Pentium IV cache line size
-Cc: linux-kernel@vger.kernel.org
+	id <S317949AbSGQA4k>; Tue, 16 Jul 2002 20:56:40 -0400
+Received: from rwcrmhc53.attbi.com ([204.127.198.39]:28122 "EHLO
+	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
+	id <S317938AbSGQA4j>; Tue, 16 Jul 2002 20:56:39 -0400
+Date: Tue, 16 Jul 2002 19:59:30 -0500 (CDT)
+From: "Justin M. Forbes" <kernelmail@attbi.com>
+X-X-Sender: jmforbes@leaper.linuxtx.org
+To: marcelo@conectiva.com.br
+cc: linux-kernel@vger.kernel.org
+Subject: 2.4.19-rc2 compile fail
+Message-ID: <Pine.LNX.4.44.0207161957140.11639-100000@leaper.linuxtx.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Jul 2002 16:58:11 -0400 (EDT), Mark Hahn wrote:
->	- Place each synchronization variable alone, 
->	separated by 128 byte or in a separate cache line.
->
->see also table 1.1.  I'm not sure it matters whether you consider lines 128B
->or 64B; the fact that cacheline reads always happen at 128B is probably
->the dominant concern.  table 1.1 page 7-18 ("placement of shared
->synchonization variable") repeats this.
+I get this failure when trying to compile 2.4.19-rc2
 
-For SW synchronisation variables this makes sense.
 
-However, I've been in contact with some people doing high-speed routing
-with Linux boxes, and they had major performance problems on a dual P4/Xeon.
-Somehow, the 128 byte alignment affected how the gigabit NIC driver they
-used programmed the NIC, with the effect that buffering of PCI writes
-(or something like that, this is from memory) didn't work and performance
-dropped like a rock. They manually set the alignment back to 64 bytes in
-the NIC driver and performance increased to expected levels.
+gcc -E -D__KERNEL__ -I/usr/src/linux-2.4.19-rc2/include -traditional 
+-DCHIP=710 fake7.c | grep -v '^#' | perl -s script_asm.pl -ncr7x0_family
+script_asm.pl : Illegal combination of registers in line 72 : 	MOVE 
+CTEST7 & 0xef TO CTEST7
+	Either source and destination registers must be the same,
+	or either source or destination register must be SFBR.
+make[2]: *** [sim710_d.h] Error 255
+make[2]: Leaving directory `/usr/src/linux-2.4.19-rc2/drivers/scsi'
+make[1]: *** [_modsubdir_scsi] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.19-rc2/drivers'
+make: *** [_mod_drivers] Error 
 
-/Mikael
+Justin M. Forbes
+

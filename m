@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267786AbSLTKBr>; Fri, 20 Dec 2002 05:01:47 -0500
+	id <S267765AbSLTKSU>; Fri, 20 Dec 2002 05:18:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267787AbSLTKBr>; Fri, 20 Dec 2002 05:01:47 -0500
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:21965
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id <S267786AbSLTKBq>; Fri, 20 Dec 2002 05:01:46 -0500
-Message-ID: <3E02EC30.8030407@redhat.com>
-Date: Fri, 20 Dec 2002 02:08:48 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20021219
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: bart@etpmod.phys.tue.nl, davej@codemonkey.org.uk,
-       lk@tantalophile.demon.co.uk, hpa@transmeta.com,
-       terje.eggestad@scali.com, matti.aarnio@zmailer.org, hugh@veritas.com,
-       mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: Intel P6 vs P7 system call performance
-References: <Pine.LNX.4.44.0212191134180.2731-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0212191134180.2731-100000@penguin.transmeta.com>
+	id <S267767AbSLTKSU>; Fri, 20 Dec 2002 05:18:20 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:29858 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S267765AbSLTKST>;
+	Fri, 20 Dec 2002 05:18:19 -0500
+Date: Fri, 20 Dec 2002 10:25:41 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Felix Seeger <felix.seeger@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.52: agp, drm, i810 problem
+Message-ID: <20021220102541.GD24782@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Felix Seeger <felix.seeger@gmx.de>, linux-kernel@vger.kernel.org
+References: <200212200034.16969.felix.seeger@gmx.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200212200034.16969.felix.seeger@gmx.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Fri, Dec 20, 2002 at 12:34:12AM +0100, Felix Seeger wrote:
 
-> For _zero_ gain.  The jump to the library address has to be indirect 
-> anyway, and glibc has several places to put the information without any 
-> mmap's or anything like that.
+ > I am running 2.5.52 (I must say that it is the best kernel I ever had, first 
+ > time acpi and sony jog dial are working, great)
+ > But I have some agp problems at the moment:
+ > 
+ > $ modprobe i810
+ > FATAL: Error inserting i810 
+ > (/lib/modules/2.5.52/kernel/drivers/char/drm/i810.ko): Cannot allocate memory
 
-Correct.  The current implementation is optimal.
+That one was my fault. I think I may have this fixed now.
+bk://linux-dj.bkbits.net/agpgart has a bunch of fixes for numerous agp
+related problems. I'll generate a GNU patch later today, and ask
+Linus to pull what I have so far.
 
-It is necessary to have indirection since the target address can change.
-
-I'm never going to use self-modifying code.
-
-And it's a simple, one-instruction change.
-
-  int $0x80  ->  call *%gs:0x18
-
-
-That's it.  It's all implemented and tested.  The results are in the
-latest NPTL source drop.  The code won't be available in LinuxThreads
-since it requires a kernel with TLS support.
-
-As far as I'm concerned the discussion is over.  I'm happy with what I
-have now.  The additional overhead for the case when AT_SYSINFO is not
-available is neglegable (and can be compiled-out completely if one
-really wants), and in case AT_SYSINFO is available the code really is
-the fatest possible given the constraints mentioned above.
+		Dave
 
 -- 
---------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,52 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143608AbRAHPdF>; Mon, 8 Jan 2001 10:33:05 -0500
+	id <S143632AbRAHPhF>; Mon, 8 Jan 2001 10:37:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143961AbRAHPc4>; Mon, 8 Jan 2001 10:32:56 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:31135 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S143608AbRAHPcr>;
-	Mon, 8 Jan 2001 10:32:47 -0500
-Date: Mon, 8 Jan 2001 10:32:44 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Stefan Traby <stefan@hello-penguin.com>, linux-kernel@vger.kernel.org
-Subject: Re: ramfs problem... (unlink of sparse file in "D" state)
-In-Reply-To: <E14Fduy-0004jm-00@the-village.bc.nu>
-Message-ID: <Pine.GSO.4.21.0101081010330.4061-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S143796AbRAHPg4>; Mon, 8 Jan 2001 10:36:56 -0500
+Received: from smtpnotes.altec.com ([209.149.164.10]:29969 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S143632AbRAHPgr>; Mon, 8 Jan 2001 10:36:47 -0500
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+To: David Weinehall <tao@acc.umu.se>
+cc: Nick Holloway <Nick.Holloway@pyrites.org.uk>, linux-kernel@vger.kernel.org
+Message-ID: <862569CE.0055ADCC.00@smtpnotes.altec.com>
+Date: Mon, 8 Jan 2001 09:36:33 -0600
+Subject: Re: Change of policy for future 2.2 driver submissions
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Mon, 8 Jan 2001, Alan Cox wrote:
+Cool!  I remember reading about the --dry-run option in the patch man page once,
+and thinking it would be useful, but then I forgot all about it without ever
+using it.  (Patch is one of those programs I've been using for so many years
+that my fingers type it automatically and I never think to check out other
+options.)  Thanks for reminding me.
 
-> > Which happens to be remarkably ugly. And it will not get better tomoorow...
-> 
-> Its really only ugly in one way which is that you pass an int for the item
-> rather than having a struct of all the data
+I always rename my directories to the current patchlevel, too.  But in this case
+it didn't help me, because I wasn't sure whether the prerelease-to-final was
+supposed to be applied to 2.4.0-prerelease INSTEAD OF prerelease-diff or IN
+ADDITION to it.  (After all, -test1 through test-12 all had to be applied in
+order, but the various -testX-pre1, -pre2, etc. patches we've seen always had to
+be reversed before the next one could be applied.)  Rather than take the time to
+investigate, I took a guess, and obviously guessed wrong about this one.  :-)
 
-You know as well as I do that as soon as we add it glibc folks _will_
-start whin^Wasking for "just one more field". So structure is out of
-question for pretty obvious reasons... Wanna bet that they'll ask for
-maximal size of symlink that could be created in directory? Or truncate
-long names vs. reject long names policy. And everything from /proc/mounts,
-since "binary data is easier to parse". And case sensitivity. And
-NLS used. And timezone of that filesystem. And SGID policy (BSD vs. SysV).
-And subset of mode bits available on that fs. And ability to create
-device nodes. And...  There is a lot of crap that could be asked for.
-General rule with GNU seems to be that _every_ piece of crap somebody
-had thought about gets tossed into the mix.
+Wayne
 
-Prediction:
-	* Any attempt to decide on a fixed structure will generate a flamewar,
-where everyone and his mom will advocate their pet features.
-	* There will be regular requests to play syscall of the week game.
-I.e. new version of pathconf(2) that will support more new features. Old
-ones will not go away, indeed.
-	* There will be regular requests to make syscall versioned (read:
-magic number + pointer to structure with layout depending on that number).
+
+
+
+David Weinehall <tao@acc.umu.se> on 01/08/2001 05:07:08 AM
+
+To:   Wayne Brown/Corporate/Altec@Altec
+cc:   Nick Holloway <Nick.Holloway@pyrites.org.uk>, linux-kernel@vger.kernel.org
+
+Subject:  Re: Change of policy for future 2.2 driver submissions
+
+
+
+You know, there are reasons why patch has an option called --dry-run...
+
+bzcat patch-2.4.0.bz2 | patch -p1 --dry-run
+[and if everything goes well]
+bzcat patch-2.4.0.bz2 | patch -p1
+[will be relatively painless, as the files will be cached by now...]
+
+Is the way I usually apply patches.
+
+Oh, and after applying a patch I always rename the directory to match
+the version of the patch. This way I always know if I have to unapply
+any pre-patches/test-patches/whatever.
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

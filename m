@@ -1,39 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262806AbSKYKGV>; Mon, 25 Nov 2002 05:06:21 -0500
+	id <S262821AbSKYKJ4>; Mon, 25 Nov 2002 05:09:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262807AbSKYKGV>; Mon, 25 Nov 2002 05:06:21 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:9483 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S262806AbSKYKGU>; Mon, 25 Nov 2002 05:06:20 -0500
-Message-Id: <200211251004.gAPA4rp09456@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Willy Tarreau <willy@w.ods.org>, David Zaffiro <davzaffiro@netscape.net>
-Subject: Re: Compiling x86 with and without frame pointer
-Date: Mon, 25 Nov 2002 12:55:30 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: willy@w.ods.org, linux-kernel <linux-kernel@vger.kernel.org>
-References: <19005.1037854033@kao2.melbourne.sgi.com> <3DE1E384.8000801@netscape.net> <20021125085229.GA15592@alpha.home.local>
-In-Reply-To: <20021125085229.GA15592@alpha.home.local>
+	id <S262824AbSKYKJ4>; Mon, 25 Nov 2002 05:09:56 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:48388 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S262821AbSKYKJr>;
+	Mon, 25 Nov 2002 05:09:47 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200211251027.gAPARdGD000360@darkstar.example.net>
+Subject: Re: 2.4.20-rc3 keyboard & mouse lost in X
+To: murrayr@brain.org (Murray J. Root)
+Date: Mon, 25 Nov 2002 10:27:39 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20021124233045.GA1747@Master.Wizards> from "Murray J. Root" at Nov 24, 2002 06:30:45 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 25 November 2002 06:52, Willy Tarreau wrote:
-> > Anyway it makes me wonder, whether kernelcompilation shouldn't be
-> > configurable between a "optimize for (compressed image) size" and a
-> > "optimize for speed" option... I'd go for speed... (and always
-> > omitting frame-pointers doesn't seem to as fast as omitting them
-> > only in leaf functions).
->
-> hehe :-)
-> I've put this in my kernels for about 2 years now. You can also
-> reduce the image size with -malign-jumps=0
-> -mpreferred-stack-boundary=2 and -mcpu=i386.
+> > > > > I've mentioned it before many times, (since 2.4.20-pre8) so I'll just
+> > > > > mention - it still happens.
 
-Hehe indeed ;)
---
-vda
+You didn't CC me in on this reply - although I am subscribed to LKML,
+like most subscribers, I don't read every single message on the list,
+and could easily have missed your reply - please CC relevant people,
+unless they ask you not to.  This may be why you didn't get replies
+before :-).
+
+> > > > > Going to X mouse and keyboard stop responding.
+> > > > > 
+> > > > > Not a good thing, since most users like using X.
+> > > > 
+> > > > Are you sure it isn't an XF86Config problem?  Does 2.4.19 work?
+> > > 
+> > > 2.4.19 works - every 2.4.x works up to 2.4.20pre8. pre8 with ac3
+> > > works (what I'm using now). If you look back you'll see I've reported
+> > > this for many versions (most of 2.5.4x has the same problem).
+> > 
+> > Try disabling the local APIC, if it is enabled.
+> 
+> This caused the keyboard to work in X.
+
+Good.
+
+> Mouse still not responsive.
+> I do get an error message in syslog after starting X now:
+> 
+> Nov 24 17:59:12 Master kernel: keyboard: Timeout - AT keyboard not
+> present?(00)
+> 
+> but the keyboard works.
+
+The people I suggest you contact are:
+
+Alan Cox - he will know why disabling the APIC fixed the keyboard
+Vojtech Pavlik - he knows all about the input layer code
+
+John.

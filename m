@@ -1,54 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293626AbSCKGmv>; Mon, 11 Mar 2002 01:42:51 -0500
+	id <S293628AbSCKGob>; Mon, 11 Mar 2002 01:44:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293628AbSCKGmm>; Mon, 11 Mar 2002 01:42:42 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:35761 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S293626AbSCKGm3>; Mon, 11 Mar 2002 01:42:29 -0500
-Date: Sun, 10 Mar 2002 23:42:20 -0700
-Message-Id: <200203110642.g2B6gKX29945@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Alexander Viro <viro@math.psu.edu>, Itai Nahshon <itai@siftology.com>,
-        Larry McVoy <lm@bitmover.com>, Tom Lord <lord@regexps.com>,
-        jaharkes@cs.cmu.edu, linux-kernel@vger.kernel.org
-Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
-In-Reply-To: <3C8C4B8A.2070508@namesys.com>
-In-Reply-To: <Pine.GSO.4.21.0203110051500.9713-100000@weyl.math.psu.edu>
-	<3C8C4B8A.2070508@namesys.com>
+	id <S293631AbSCKGoW>; Mon, 11 Mar 2002 01:44:22 -0500
+Received: from angband.namesys.com ([212.16.7.85]:63630 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S293628AbSCKGoH>; Mon, 11 Mar 2002 01:44:07 -0500
+Date: Mon, 11 Mar 2002 09:44:01 +0300
+From: Oleg Drokin <green@namesys.com>
+To: rwhron@earthlink.net
+Cc: linux-kernel@vger.kernel.org, sebastian.droege@gmx.de
+Subject: Re: Opss! on 2.5.6 with ReiserFS
+Message-ID: <20020311094401.B24600@namesys.com>
+In-Reply-To: <20020310142609.A22174@rushmore>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="EeQfGwPcQSOJBaQU"
+Content-Disposition: inline
+In-Reply-To: <20020310142609.A22174@rushmore>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser writes:
-> Alexander Viro wrote:
-> 
-> >
-> >On Mon, 11 Mar 2002, Hans Reiser wrote:
-> >
-> >>So the problem was that it was not optional?
 
-At the least.
+--EeQfGwPcQSOJBaQU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> >The problem is that it doesn't play well with other things.
-> >
-> Your statement is information free so far, but could be the intro to an 
-> informative statement....;-)
+Hello!
 
-I found the Unix structure and API much easier to deal with than
-VMS. File versioning was just another complication that I sometimes
-had to deal with (it was a *long* time ago, so don't ask for
-details:-).
+On Sun, Mar 10, 2002 at 02:26:09PM -0500, rwhron@earthlink.net wrote:
+> I have got oops at boot time from 2.5.6-pre3 and 2.5.6 on 
+> system with reiserfs root filesystem on ide.  Oops occurs
+> during attempt to mount /.   No modules in kernel.  
+> 2.5.6-pre2 was okay.
 
-Funny thing about VMS. It was a much richer programming environment
-(the OS had a lot of functions you could call), but I found that it
-was easier to get stuff done with Unix, even if there wasn't some
-fancy function to help you out. Unix gets in the way less, whereas
-with VMS I found myself battling the API more to force it to do what I
-wanted.
+This is a known merge problem, attached patch will cure it.
 
-				Regards,
+Bye,
+    Oleg
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+--EeQfGwPcQSOJBaQU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="00-jdev_bd_merging_fix.diff"
+
+--- linux-2.5.6-pre3/fs/reiserfs/journal.c.orig	Thu Mar  7 12:44:43 2002
++++ linux-2.5.6-pre3/fs/reiserfs/journal.c	Thu Mar  7 13:53:36 2002
+@@ -1960,8 +1960,7 @@
+       		SB_ONDISK_JOURNAL_DEVICE( super ) ?
+ 		to_kdev_t(SB_ONDISK_JOURNAL_DEVICE( super )) : super -> s_dev;	
+ 	/* there is no "jdev" option and journal is on separate device */
+-	if( ( !jdev_name || !jdev_name[ 0 ] ) && 
+-	    SB_ONDISK_JOURNAL_DEVICE( super ) ) {
++	if( ( !jdev_name || !jdev_name[ 0 ] ) ) {
+ 		journal -> j_dev_bd = bdget( kdev_t_to_nr( jdev ) );
+ 		if( journal -> j_dev_bd )
+ 			result = blkdev_get( journal -> j_dev_bd, 
+@@ -1976,9 +1975,6 @@
+ 		return result;
+ 	}
+ 
+-	/* no "jdev" option and journal is on the host device */
+-	if( !jdev_name || !jdev_name[ 0 ] )
+-		return 0;
+ 	journal -> j_dev_file = filp_open( jdev_name, 0, 0 );
+ 	if( !IS_ERR( journal -> j_dev_file ) ) {
+ 		struct inode *jdev_inode;
+
+--EeQfGwPcQSOJBaQU--

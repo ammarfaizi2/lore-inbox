@@ -1,120 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272336AbTHEAyX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 20:54:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272335AbTHEAyX
+	id S272369AbTHEA6C (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 20:58:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272361AbTHEA6C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 20:54:23 -0400
-Received: from fw.osdl.org ([65.172.181.6]:24798 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S272333AbTHEAxs (ORCPT
+	Mon, 4 Aug 2003 20:58:02 -0400
+Received: from anumail3.anu.edu.au ([150.203.2.43]:7346 "EHLO anu.edu.au")
+	by vger.kernel.org with ESMTP id S272369AbTHEA5v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 20:53:48 -0400
-Date: Mon, 4 Aug 2003 17:58:40 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise
-To: Pavel Machek <pavel@ucw.cz>
-cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PM] Fix up refrigerator to work with ^Z-ed processes
-In-Reply-To: <20030726225115.GA501@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.44.0308041756080.23977-100000@cherise>
+	Mon, 4 Aug 2003 20:57:51 -0400
+Message-ID: <3F2F00B0.9050804@cyberone.com.au>
+Date: Tue, 05 Aug 2003 10:56:16 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:1.2.1) Gecko/20021217
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] O11int for interactivity
+References: <200307301038.49869.kernel@kolivas.org> <20030802225513.GE32488@holomorphy.com> <200308030119.47474.m.c.p@wolk-project.de> <200308042106.51676.m.c.p@wolk-project.de> <20030804195335.GK32488@holomorphy.com>
+In-Reply-To: <20030804195335.GK32488@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Sender-Domain: cyberone.com.au
+X-Spam-Score: (-2.9)
+X-Spam-Tests: EMAIL_ATTRIBUTION,IN_REP_TO,REFERENCES,SPAM_PHRASE_03_05,USER_AGENT,USER_AGENT_MOZILLA_UA
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+William Lee Irwin III wrote:
+
+>On Sunday 03 August 2003 01:19, Marc-Christian Petersen wrote:
+>
+>>>aah, ic. OK. Compiling 2.6.0-test2 mainline now.
+>>>
+>
+>On Mon, Aug 04, 2003 at 09:06:51PM +0200, Marc-Christian Petersen wrote:
+>
+>>sorry, I compiled it but during the compilation I had to go. Had some private 
+>>problems :-( ... It will take some time (within this week) to get all these 
+>>numbers.
+>>Sorry for the delay.
+>>ciao, Marc
+>>
+>
+>Testing thus far seems to contradict my original ideas. I'm going to
+>need help from io scheduler -type people to instrument the things I'm
+>looking at properly.
+>
+>
+
+I'm an IO scheduler type person! What help do you need? I haven't been
+following the thread.
 
 
-> This makes refrigerator work with ^Z-ed processes (and not eat
-> disks). Thanks to (have to find out who, I should sleep and not be
-> splitting patches). [Hand edited, apply by hand; or there should be
-> script for recomputing @@ X,Y Z,T @@'s somewhere].
-> 
-> schedule() added makes processes start at exactly that point, making
-> printouts nicer.
-
-This didn't apply, so in making the changes by hand, I took the liberty to 
-rename interesting_process() to freezeable() to make it a bit easier to 
-read. Revised patch below. 
-
-
-	-pat
-
-ChangeSet 1.1516, 2003/08/04 16:08:22-07:00, mochel@osdl.org
-
-[power] Fix up refrigerator to work with ^Z-ed processes
-
-Originally from Pavel Machek: 
-
-schedule() added makes processes start at exactly that point, making
-printouts nicer.
-
-
- kernel/power/process.c |   35 +++++++++++++++++++++--------------
- 1 files changed, 21 insertions(+), 14 deletions(-)
-
-
-diff -Nru a/kernel/power/process.c b/kernel/power/process.c
---- a/kernel/power/process.c	Mon Aug  4 17:45:10 2003
-+++ b/kernel/power/process.c	Mon Aug  4 17:45:10 2003
-@@ -23,14 +23,16 @@
-  */
- #define TIMEOUT	(6 * HZ)
- 
--#define INTERESTING(p) \
--			/* We don't want to touch kernel_threads..*/ \
--			if (p->flags & PF_IOTHREAD) \
--				continue; \
--			if (p == current) \
--				continue; \
--			if (p->state == TASK_ZOMBIE) \
--				continue;
-+
-+static inline int freezeable(struct task_struct * p)
-+{
-+	if ((p == current) || 
-+	    (p->flags & PF_IOTHREAD) || 
-+	    (p->state == TASK_ZOMBIE) ||
-+	    (p->state == TASK_DEAD))
-+		return 0;
-+	return 1;
-+}
- 
- /* Refrigerator is place where frozen processes are stored :-). */
- void refrigerator(unsigned long flag)
-@@ -71,8 +73,10 @@
- 		read_lock(&tasklist_lock);
- 		do_each_thread(g, p) {
- 			unsigned long flags;
--			INTERESTING(p);
--			if (p->flags & PF_FROZEN)
-+			if (!freezeable(p))
-+				continue;
-+			if ((p->flags & PF_FROZEN) ||
-+			    (p->state == TASK_STOPPED))
- 				continue;
- 
- 			/* FIXME: smp problem here: we may not access other process' flags
-@@ -104,15 +108,18 @@
- 	printk( "Restarting tasks..." );
- 	read_lock(&tasklist_lock);
- 	do_each_thread(g, p) {
--		INTERESTING(p);
--		
--		if (p->flags & PF_FROZEN) p->flags &= ~PF_FROZEN;
--		else
-+		if (!freezeable(p))
-+			continue;
-+		if (p->flags & PF_FROZEN) {
-+			p->flags &= ~PF_FROZEN;
-+			wake_up_process(p);
-+		} else
- 			printk(KERN_INFO " Strange, %s not stopped\n", p->comm );
- 		wake_up_process(p);
- 	} while_each_thread(g, p);
- 
- 	read_unlock(&tasklist_lock);
-+	schedule();
- 	printk( " done\n" );
- 	MDELAY(500);
- }
 

@@ -1,53 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279081AbRJZTv0>; Fri, 26 Oct 2001 15:51:26 -0400
+	id <S279105AbRJZT5Q>; Fri, 26 Oct 2001 15:57:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279105AbRJZTvQ>; Fri, 26 Oct 2001 15:51:16 -0400
-Received: from harddata.com ([216.123.194.198]:30724 "EHLO mail.harddata.com")
-	by vger.kernel.org with ESMTP id <S279081AbRJZTvD>;
-	Fri, 26 Oct 2001 15:51:03 -0400
-Date: Fri, 26 Oct 2001 13:51:37 -0600
-From: Michal Jaegermann <michal@harddata.com>
+	id <S279131AbRJZT5G>; Fri, 26 Oct 2001 15:57:06 -0400
+Received: from postfix2-2.free.fr ([213.228.0.140]:31397 "HELO
+	postfix2-2.free.fr") by vger.kernel.org with SMTP
+	id <S279105AbRJZT4x>; Fri, 26 Oct 2001 15:56:53 -0400
+Date: Fri, 26 Oct 2001 21:59:39 +0200
+From: Thierry Laronde <tlaronde@polynum.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: issue: deleting one IP alias deletes all
-Message-ID: <20011026135137.A11455@mail.harddata.com>
-In-Reply-To: <3BD5AED6.90401C9C@sun.com> <Pine.LNX.4.31.0110251121490.31833-100000@netmonster.pakint.net>
+Subject: Virtual(?) kernel root
+Message-ID: <20011026215939.A13222@polynum.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.31.0110251121490.31833-100000@netmonster.pakint.net>; from mgm@paktronix.com on Thu, Oct 25, 2001 at 11:30:13AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 25, 2001 at 11:30:13AM -0500, Matthew G. Marsh wrote:
-> On Tue, 23 Oct 2001, Tim Hockin wrote:
-> 
-> > Can anyone fill me in?
-> 
-> RPDB documentation is your freind.
+[Please CC me on possible replies. Thanks.]
 
-The main problem with this documentation is that, wherever I have
-seen it, it comes _only_ as few sizeable Postscript files.  Like
-this (after 'ls -s' so sizes are in kilobytes):
+As I was working with/on GRUB, and playing with initrd, pivot_root and
+so on, numerous drawbacks seemed to lead to one possible theorical
+solution, that could be applied to others "kernels" too ;)
 
- 120 /usr/share/doc/iproute-2.2.4/api-ip6-flowlabels.ps
- 336 /usr/share/doc/iproute-2.2.4/ip-cref.ps
- 124 /usr/share/doc/iproute-2.2.4/ip-tunnels.ps
+If this has been already discussed, sorry and please give me some
+pointers to the previous threads.
 
-Mighty helpful if you happen to have only a text interface as is often
-the case when you work on more complicated routing setups.  It is also
-excellent for grepping (NOT!) through a 60 pages long document if you
-want to find something on a particular topic.  Unfortunately it was not
-apparently written in 'texinfo', or similar, as then one would have also
-_at least_ .info files and an easy way to search through the whole thing
-does not matter what kind of a display you have.
+Short story.
 
-HTML format would be of some help but searches through that, especially
-if multiple files are involved, are also not that nice.  Right now your
-best bet is probably to print that out and carry a stack of papers with
-you wherever you may need it.  Other than that you are currently reduced
-to '/sbin/ip help' although you may follow up with something like
-'/sbin/ip addr help' and you will get something to parse. :-)
+GRUB, as a bootloader, can access data in block list, or can use file
+system to access given files. Before selecting a "root" device, the GRUB
+can be used via a shell interface.
 
-  Michal
+Since more and more informations are retrieved from the machine, and can
+be of some use for the OS loaded, a logical solution to publish these
+dynamically acquired data is a virtual fs (a kind of /proc).
+
+Since we try to detect the possible devices from which one can try to
+load a kernel or a rootfs from, a kind of /dev to publish the present
+devices is a logical solution too.
+
+But, since the "core" GRUB "kernel" is meant to allow the bootstrapping
+of major OSes, one can see the builtin functions to carry this out as
+the major services, that could be accessed via a script language and so,
+publishing them under a, say, `/kbin' (pseudo fs allowing the use of
+kernel internals via scripting) could be a solution, while the "user
+space" functions could be put out of GRUB kernel, supplementary
+resources being mounted at need/will.
+
+The key point is in fact that there is the idea of a virtual kernel
+root, with some pseudo fs already set:
+
+/
+|
+--/dev
+|
+--/kbin
+|
+--/proc
+
+The "kernel" can be used via an interface that could be, for example, a
+simple interface for debugging purpose, or a simple interface to change
+the boot parameters.
+
+Supplementary resources can be mounted on the kernel root (what is
+called "root fs") with the difference that the kernel root virtual fs
+stays always _on top_ : non kernel root fs don't mask the only root (the
+kernel one), they just add resources to the root directory.
+
+The advantages? 
+
+There is no more root problem for kernel threads, since
+kernel threads run with the reference of the inchanged kernel root, the
+common "root fs" being simply mounted or unmounted. No more "sliding
+carpet" problem.
+
+One can test or question the kernel via a simple interface for debugging
+purposes. Not mounting supplementary resources doesn't create a panic,
+but leave a bare bones kernel, giving for example the choice to the user
+to give boot parameters.
+
+The /dev (this is already the case with devfs) doesn't prevent from
+mounting the "root" ro (for example when syslog tries to access a device
+file created at run time).
+
+Has an equivalent scheme being already discussed?
+
+Cheers,
+-- 
+Thierry Laronde (Alceste) <tlaronde@polynum.org>
+Key fingerprint = 0FF7 E906 FBAF FE95 FD89  250D 52B1 AE95 6006 F40C

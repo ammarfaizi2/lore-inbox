@@ -1,62 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261311AbVAROyD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261313AbVARO4y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261311AbVAROyD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 09:54:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbVAROyC
+	id S261313AbVARO4y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 09:56:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbVARO4y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 09:54:02 -0500
-Received: from mail25.syd.optusnet.com.au ([211.29.133.166]:53643 "EHLO
-	mail25.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261311AbVAROxu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 09:53:50 -0500
-Message-ID: <41ED22F6.7040704@kolivas.org>
-Date: Wed, 19 Jan 2005 01:53:42 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+	Tue, 18 Jan 2005 09:56:54 -0500
+Received: from ns.suse.de ([195.135.220.2]:17307 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261317AbVARO4h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 09:56:37 -0500
+Message-ID: <41ED23A3.5020404@suse.de>
+Date: Tue, 18 Jan 2005 15:56:35 +0100
+From: Hannes Reinecke <hare@suse.de>
+Organization: SuSE Linux AG
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.2) Gecko/20040906
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Cc: linux <linux-kernel@vger.kernel.org>, CK Kernel <ck@vds.kolivas.org>
-Subject: Re: [PATCH][RFC] sched: Isochronous class for unprivileged soft rt
- scheduling
-References: <41ED08AB.5060308@kolivas.org>
-In-Reply-To: <41ED08AB.5060308@kolivas.org>
-X-Enigmail-Version: 0.89.5.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Vojtech Pawlik <vojtech@suse.cz>
+Subject: [PATCH 0/2] Remove input_call_hotplug
+X-Enigmail-Version: 0.86.0.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigB1B3824E5CF1D1013267EBCB"
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigB1B3824E5CF1D1013267EBCB
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi all,
 
-Con Kolivas wrote:
-> This patch for 2.6.11-rc1 provides a method of providing real time
-> scheduling to unprivileged users which increasingly is desired for
-> multimedia workloads.
+the input subsystem is using call_usermodehelper directly, which breaks 
+all sorts of assertions especially when using udev.
+And it's definitely going to fail once someone is trying to use netlink 
+messages for hotplug event delivery.
 
-I should have mentioned. Many thanks to Alex Nyberg for generous 
-debugging help.
+To remedy this I've implemented a new sysfs class 'input_device' which 
+is a representation of 'struct input_dev'. So each device listed in 
+'/proc/bus/input/devices' gets a class device associated with it.
+And we'll get proper hotplug events for each input_device which can be 
+handled by udev accordingly.
+
+Drawback is that a new event type (the said 'input_device') is added, so 
+that hotplug scripts and udev might need to be adapted to handle it 
+properly. And each device driver needs to be touched to write something 
+meaningful as the class_id. A fallback is provided, but by neccessity is 
+not very informative.
+
+Patch 1/2 implements the core changes to drivers/input/input.c
+Patch 2/2 provides proper device names for input drivers.
+
+Patches are relative to bk://kernel.bkbits.net/vojtech/input
+
+Comments are welcome.
+Please CC me directly as I'm not on this list.
 
 Cheers,
-Con
 
---------------enigB1B3824E5CF1D1013267EBCB
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFB7SL2ZUg7+tp6mRURAg4YAKCUpgxb2EMYc+9+E/ccmFYHX8NFpACfYErE
-e+/4n0rWxtjGCxlH/8Ou04M=
-=gXea
------END PGP SIGNATURE-----
-
---------------enigB1B3824E5CF1D1013267EBCB--
+Hannes
+-- 
+Dr. Hannes Reinecke			hare@suse.de
+SuSE Linux AG				S390 & zSeries
+Maxfeldstraße 5				+49 911 74053 688
+90409 Nürnberg				http://www.suse.de

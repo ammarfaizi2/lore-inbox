@@ -1,83 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbVASKt3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261683AbVASLJL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261597AbVASKt3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 05:49:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbVASKt2
+	id S261683AbVASLJL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 06:09:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbVASLJL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 05:49:28 -0500
-Received: from ext-nj2gw-7.online-age.net ([64.14.56.43]:11678 "EHLO
-	ext-nj2gw-7.online-age.net") by vger.kernel.org with ESMTP
-	id S261597AbVASKtW convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 05:49:22 -0500
-Date: Wed, 19 Jan 2005 11:48:52 +0100
-From: Kiniger <karl.kiniger@med.ge.com>
-To: Lars Marowsky-Bree <lmb@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: raid 1 - automatic 'repair' possible?
-Message-ID: <20050119104852.GB3087@wszip-kinigka.euro.med.ge.com>
-References: <20050118211801.GA28400@wszip-kinigka.euro.med.ge.com> <20050118214605.GY22648@marowsky-bree.de>
+	Wed, 19 Jan 2005 06:09:11 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:36500 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261683AbVASLJH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 06:09:07 -0500
+Date: Wed, 19 Jan 2005 11:09:02 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Adam Radford <aradford@amcc.com>
+Cc: Peter Daum <gator@cs.tu-berlin.de>, linux-kernel@vger.kernel.org
+Subject: Re: 3ware driver (3w-xxxx) in 2.6.10: procfs entry
+Message-ID: <20050119110902.GA12903@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Adam Radford <aradford@amcc.com>,
+	Peter Daum <gator@cs.tu-berlin.de>, linux-kernel@vger.kernel.org
+References: <20050110132133.GA12360@infradead.org> <Pine.LNX.4.30.0501101452590.14606-100000@swamp.bayern.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050118214605.GY22648@marowsky-bree.de>
+In-Reply-To: <Pine.LNX.4.30.0501101452590.14606-100000@swamp.bayern.net>
 User-Agent: Mutt/1.4.1i
-Content-Transfer-Encoding: 8BIT
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 18, 2005 at 10:46:05PM +0100, Lars Marowsky-Bree wrote:
-> On 2005-01-18T22:18:01, "Kiniger, Karl (GE Healthcare)" <karl.kiniger@med.ge.com> wrote:
+> > > It looks like in the 3ware driver the procfs entry "/proc/scsi/3w-xxxx"
+> > > has been removed (or actually moved to sysfs).
+> > > Unfortunately, this breaks all the (binary only )-: tools provided by
+> > > 3ware, which are indispensable for system maintenance.
+> >
+> > The change came from the driver maintainer at 3ware.  Get the updated
+> > tools from their website.
 > 
-> > idea for enhancement of software raid 1:
-> > 
-> > every time the raid determines that a sector cannot
-> > be read it could at least try to overwrite the bad are
-> > with good data from the other disk.
-> 
-> The idea is good and I'm sure we'll love to get a patch ;-)
+> Which website do you mean? The programs in the download section of
+> "www.3ware.com" are just the ones that don't work anymore.
 
-Dont account on me as a coder  (absolutely no spare time
-for the next couple of months)
+It's there just a little hidden.  Adam, any chance the new managment tools
+could be placed more promimently on the website?
 
-some random thoughts:
-
-nowadays hardware sector sizes are much bigger than 512 bytes and
-the read error may affect some sectors +- the sector which actually
-returned the error.
-
-to keep the handling in userspace as much as possible: 
-
-the real problem is the long resync time. therefore it would
-be sufficient to have a concept of "defective areas" per partition
-and drive (a few of them, perhaps four or so , would be enough) 
-which will be excluded from reads/writes and some means to
-re-synchronize these "defective areas" from the good counterparts
-of the other disk. This would avoid having the whole partition being
-marked as defective.
-
-The repair could then be done in userspace given some kernel support.
-
-There might be some corner cases though (e.g defective physical
-sector spanning more than one partition) but I think they would be
-rare.
-
-Has anybody else had problems with the newer Maxtors
-(200 GB and up) ? 
-
-Karl
-
-> 
-> 
-> Sincerely,
->     Lars Marowsky-Brée <lmb@suse.de>
-> 
-> -- 
-> High Availability & Clustering
-> SUSE Labs, Research and Development
-> SUSE LINUX Products GmbH - A Novell Business
-
--- 
-Karl Kiniger   mailto:karl.kiniger@med.ge.com
-GE Medical Systems Kretztechnik GmbH & Co OHG
-Tiefenbach 15       Tel: (++43) 7682-3800-710
-A-4871 Zipf Austria Fax: (++43) 7682-3800-47

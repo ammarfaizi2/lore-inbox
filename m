@@ -1,55 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265650AbUEZQln@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265681AbUEZQub@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265650AbUEZQln (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 12:41:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265656AbUEZQln
+	id S265681AbUEZQub (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 12:50:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265693AbUEZQub
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 12:41:43 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:44233 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S265650AbUEZQll (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 12:41:41 -0400
-Date: Wed, 26 May 2004 18:41:29 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrea Arcangeli <andrea@suse.de>,
-       Rik van Riel <riel@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 4k stacks in 2.6
-Message-ID: <20040526164129.GA31758@wohnheim.fh-wedel.de>
-References: <Pine.LNX.4.44.0405251549530.26157-100000@chimarrao.boston.redhat.com> <Pine.LNX.4.44.0405251607520.26157-100000@chimarrao.boston.redhat.com> <20040525211522.GF29378@dualathlon.random> <20040526103303.GA7008@elte.hu> <20040526125014.GE12142@wohnheim.fh-wedel.de> <20040526125300.GA18028@devserv.devel.redhat.com> <20040526130047.GF12142@wohnheim.fh-wedel.de> <20040526130500.GB18028@devserv.devel.redhat.com>
+	Wed, 26 May 2004 12:50:31 -0400
+Received: from host81-130-61-21.in-addr.btopenworld.com ([81.130.61.21]:20098
+	"EHLO email.out") by vger.kernel.org with ESMTP id S265681AbUEZQuZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 12:50:25 -0400
+From: "marketing TipTopJob" <ttjreplies@tiptopjob.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: www.Tip Top Job.com, the International Job Portal
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040526130500.GB18028@devserv.devel.redhat.com>
-User-Agent: Mutt/1.3.28i
+Date: Wed, 26 May 2004 17:00:22 +0100
+Reply-To: "marketing TipTopJob" <ttjreplies@tiptopjob.com>
+X-Spam-Processed: dev10, Wed, 26 May 2004 17:00:24 +0100
+	(not processed: message from trusted or authenticated source)
+X-Return-Path: ttjreplies@tiptopjob.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Message-Id: <S265681AbUEZQuZ/20040526165025Z+388@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 May 2004 15:05:00 +0200, Arjan van de Ven wrote:
-> 
-> You used the word "Never" and now you go away from it.... It wasn't Never,
-> and it will never be never if you want to include random binary only
-> modules. However in 2.4 for all intents and pruposes there was 4Kb already,
-> and now there still is, for user context. Because those interrupts DO
-> happen. NVidia was a walking timebomb, and with one function using 4Kb
-> that's an obvious Needs-Fix case. The kernel had a few of those in rare
-> drivers, most of which have been fixed by now. It'll never be never, but it
-> never was never either.
+ARE YOU LOOKING FOR A JOB?
 
-In a way, you are right.  nVidia was and is a walking timebomb and
-making bugs more likely to happen is a good thing in general.  Except
-that this bug can eat filesystems, so making it more likely will cause
-more filesystems to be eaten.
+----------------------------------------------------------------------------
 
-Anyway, whether we go for 4k in 2.6 or not, we should do our best to
-fix bad code and I will go looking for some more so others can go and
-fix some more.  There's still enough horror in mainline for more than
-one amusement park, we just haven't found it yet.
+DO YOU WANT TO ADVERTISE YOUR VACANCIES FOR FREE?
 
-Jörn
+----------------------------------------------------------------------------
 
--- 
-All art is but imitation of nature.
--- Lucius Annaeus Seneca
+Go to www.Tip Top Job.com, the International Job Portal....
+
+----------------------------------------------------------------------------
+
+As an International job board covering 25 industries, we offer our services
+to EVERYONE in EVERY market sector in ALL countries!
+
+
+
+
+
+
+
+ARE YOU LOOKING FOR A JOB?
+
+----------------------------------------------------------------------------
+
+Conduct your job search for FREE here on Tip Top Job!!
+
+Simply, enter in the criteria of a job that you are looking for (industry,
+location, type of job and enter any relevant keywords) and then hit 'search
+jobs'. You will be presented with a list of jobs and from here you can
+apply to the ones that appeal to you.
+
+Go to http://it.tiptopjob.com/ to start searching and register now.
+
+
+
+
+
+
+
+DO YOU WANT TO ADVERTISE YOUR VACANCIES FOR FREE?
+
+----------------------------------------------------------------------------
+
+Advertising online is simple, fast and an effective way to get your vacancy
+in front of thousands of candidates every day!
+
+Tip Top Job are offering our job positing facility for FREE (except in UK
+and Ireland) now for all Agencies and Direct Clients. Post as many jobs as
+you like today!
+
+Register yourself on your local country domain (e.g.
+http://it.tiptopjob.com/) and register your jobs in your country for FREE.
+These will be automatically included on our global domain
+(www.tiptopjob.com) to maximise your vacancies exposure.
+
+Placing your adverts is simple, quick and easy! Simply, register at
+http://www.tiptopjob.com, receive a username and password and continue to
+register as many jobs as you like onto the website yourself. 
+
+Tip Top Job also offer banner advertising for a small cost per month of £
+50 / ¬ 70 / US$ 90 for Side Banners, and £ 250 / ¬ 350 / US$ 450 for Top
+Banner space. On top of this our services also include CV searching, web
+links and newsletter sponsorship. Find out more on the Tip Top Job website.
+
+Try it for yourself - advertise your jobs now and get them seen by job
+seekers all over your country of your choice as well as all over the world!
+Go to www.tiptopjob.com to find out more and register now. If you require
+any help email the Tip Top Job team at support@tiptopjob.com.
+
+YOU ONLY NEED ONE JOB, SO GET A TIP TOP JOB!
+
+
+
+If you do not wish to recieve emails from Tip Top Job in future, please
+reply here: ttjoptout@tiptopjob.com
+
+

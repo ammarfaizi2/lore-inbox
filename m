@@ -1,75 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261330AbVBGXm3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261345AbVBGXnO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261330AbVBGXm3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 18:42:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbVBGXm3
+	id S261345AbVBGXnO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 18:43:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbVBGXnO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 18:42:29 -0500
-Received: from vds-320151.amen-pro.com ([62.193.204.86]:60813 "EHLO
-	vds-320151.amen-pro.com") by vger.kernel.org with ESMTP
-	id S261330AbVBGXmV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 18:42:21 -0500
-Subject: Re: [PATCH] sys_chroot() hook for additional chroot() jails
-	enforcing
-From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
-	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-To: "Serge E.Hallyn" <serue@us.ibm.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       "linux-security-module@wirex.com" <linux-security-module@wirex.com>
-In-Reply-To: <20050207225056.GA2388@IBM-BWN8ZTBWA01.austin.ibm.com>
-References: <1107814610.3754.260.camel@localhost.localdomain>
-	 <20050207225056.GA2388@IBM-BWN8ZTBWA01.austin.ibm.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-AQjOvCp3URxqdHoAw9AG"
-Date: Tue, 08 Feb 2005 00:41:55 +0100
-Message-Id: <1107819715.3754.263.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Mon, 7 Feb 2005 18:43:14 -0500
+Received: from embeddededge.com ([209.113.146.155]:32524 "EHLO
+	penguin.netx4.com") by vger.kernel.org with ESMTP id S261345AbVBGXnF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 18:43:05 -0500
+In-Reply-To: <1107812101.7734.42.camel@gaston>
+References: <41FECA18.50609@nortelnetworks.com> <1107243398.4208.47.camel@laptopd505.fenrus.org> <41FFA21C.8060203@nortelnetworks.com> <1107273017.4208.132.camel@laptopd505.fenrus.org> <20050204203050.GA5889@dmt.cnet>  <4203D793.1040604@nortel.com> <1107595148.30302.5.camel@gaston>  <42077EE0.2060505@nortel.com> <1107812101.7734.42.camel@gaston>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <bc4f2e60770528d4934b5a2e69285002@embeddededge.com>
+Content-Transfer-Encoding: 7bit
+Cc: linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Chris Friesen <cfriesen@nortel.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+From: Dan Malek <dan@embeddededge.com>
+Subject: Re: question on symbol exports
+Date: Mon, 7 Feb 2005 18:42:24 -0500
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-AQjOvCp3URxqdHoAw9AG
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+On Feb 7, 2005, at 4:35 PM, Benjamin Herrenschmidt wrote:
 
-El lun, 07-02-2005 a las 16:50 -0600, Serge E. Hallyn escribi=F3:
-> Hi,
->=20
-> If I understood you correct earlier, the only policy you needed to
-> enforce was to prevent double-chrooting.  If that is the case, why is it
-> not sufficient to keep a "process-has-used-chroot" flag in
-> current->security which is set on the first call to
-> capable(CAP_SYS_CHROOT) and inherited by forked children, after which
-> calls to capable(CAP_SYS_CHROOT) are refused?
->=20
-> Of course if you need to do more, then a hook might be necessary.
+> Interesting... more than no swap, you must also make sure you have no
+> r/w mmap'ed file (which are technically equivalent to swap).
 
-Yeah, checking that process is chrooted using the current macro and
-denying if capable() gets it trying to access CAP_SYS_CHROOT it's the
-way that vSecurity currently does it.
+Yeah, I kinda had a similar thought.  Just because you aren't
+swapping doesn't mean the VM subsystem isn't looking at dirty bits,
+too.  It could potentially steal a page that it thinks can be replaced
+from either a zero-fill or reading again from persistent storage.
 
-But the hook will have to handle some chdir enforcing that can't be done
-with current hooks, I will explain it further tomorrow.
 
-It's too late here ;)
-
-Cheers,
---=20
-Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>=20
-[1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
-
---=-AQjOvCp3URxqdHoAw9AG
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
-	digitalmente
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBCB/zDDcEopW8rLewRArnjAJ93zXpxOAoACdSltzTanWSiAIyf8QCgkMAV
-mM6fMtxVQB6UAPUBuosPhwA=
-=ZJ7h
------END PGP SIGNATURE-----
-
---=-AQjOvCp3URxqdHoAw9AG--
+	-- Dan
 

@@ -1,94 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262784AbUALXRI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 18:17:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbUALXQO
+	id S262782AbUALXNs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 18:13:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262784AbUALXNr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 18:16:14 -0500
-Received: from fw.osdl.org ([65.172.181.6]:58838 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262784AbUALXOA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 18:14:00 -0500
-Date: Mon, 12 Jan 2004 15:13:57 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] restrict class names to valid file names
-Message-Id: <20040112151357.5c9702b7.shemminger@osdl.org>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.7claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 12 Jan 2004 18:13:47 -0500
+Received: from mail-08.iinet.net.au ([203.59.3.40]:22175 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S262782AbUALXNc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 18:13:32 -0500
+Message-ID: <400329AE.8050304@cyberone.com.au>
+Date: Tue, 13 Jan 2004 10:11:42 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jens Benecke <jens-usenet@spamfreemail.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.1mm2: very bad interactive behaviour under XFree86
+References: <2867040.OKCKYgd4AF@spamfreemail.de>
+In-Reply-To: <2867040.OKCKYgd4AF@spamfreemail.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It is possible to name network devices with names like "my/bogus" or "." or ".."
-which leaves /sys/class/net/ a mess.  Since other subsystems could have the same
-problem, it made sense to me to enforce some restrictions in the class device
-layer.
 
-A lateer patch fixes the network device registration path because the
-sysfs registration takes place after the register_netdevice call has taken place.
 
-diff -Nru a/drivers/base/class.c b/drivers/base/class.c
---- a/drivers/base/class.c	Mon Jan 12 15:11:55 2004
-+++ b/drivers/base/class.c	Mon Jan 12 15:11:55 2004
-@@ -87,10 +87,24 @@
- 	subsys_put(&cls->subsys);
- }
- 
-+/* Restrict class names to valid file names */
-+int 
-+class_name_valid(const char *name)
-+{
-+	return !(name[0] == '\0'
-+		 || (name[0] == '.' 
-+		     && (name[1] == '\0' 
-+			 || (name[1] == '.' && (name[2] == '\0'))))
-+		 || strchr(name, '/'));
-+}
-+
- int class_register(struct class * cls)
- {
- 	pr_debug("device class '%s': registering\n",cls->name);
- 
-+	if (!class_name_valid(cls->name))
-+		return -EINVAL;
-+
- 	INIT_LIST_HEAD(&cls->children);
- 	INIT_LIST_HEAD(&cls->interfaces);
- 	kobject_set_name(&cls->subsys.kset.kobj,cls->name);
-@@ -267,6 +281,9 @@
- 	struct list_head * entry;
- 	int error;
- 
-+	if (!class_name_valid(class_dev->class_id))
-+		return -EINVAL;
-+
- 	class_dev = class_device_get(class_dev);
- 	if (!class_dev || !strlen(class_dev->class_id))
- 		return -EINVAL;
-@@ -348,6 +365,9 @@
- 
- int class_device_rename(struct class_device *class_dev, char *new_name)
- {
-+	if (!class_name_valid(new_name))
-+		return -EINVAL;
-+
- 	class_dev = class_device_get(class_dev);
- 	if (!class_dev)
- 		return -EINVAL;
-diff -Nru a/include/linux/device.h b/include/linux/device.h
---- a/include/linux/device.h	Mon Jan 12 15:11:55 2004
-+++ b/include/linux/device.h	Mon Jan 12 15:11:55 2004
-@@ -157,6 +157,7 @@
- 	void	(*release)(struct class_device *dev);
- };
- 
-+extern int class_name_valid(const char *);
- extern int class_register(struct class *);
- extern void class_unregister(struct class *);
- 
+Jens Benecke wrote:
+
+>Hi,
+>
+>running an up-to-date XFree86 4.3 from Debian unstable, I have a stuck mouse
+>pointer in X11 every time some application uses 100% CPU. I have
+>folding@home running in the background at nice 19, which doesn't disturb
+>anything, but when my machine starts up the following happens:
+>
+>- KDE 3.2 boots up,
+>- openoffice quickstart,
+>- KGpg reads a couple thousand keys,
+>- xmms, xosview, background picture, etc load up
+>- about 10 cm worth of applets in the KDE panel start
+>
+>During this time (20-30sec) the mouse pointer jerks from position to
+>position about once to twice a second. My X server runs at priority 0, not
+>-10, as recommended. This has been the case since 2.6.0-test11, but I have
+>the (subjective) impression that under 2.6.1rc1-mm1 and 2.6.1-mm2 it got
+>worse.
+>
+
+mm kernels have a small interactivity change, so it would be good to
+compare with plain 2.6.1.
+
+It is recommended that your X server run at priority 0. The -10
+priority is recommended when using my interactivity patches. Its all
+quite confusing.
+
+>
+>I am using an Athlon XP 2600+ with 1024MB RAM, Nforce2 chipset, NVIDIA
+>XFree86 drivers.
+>
+>
+>Shall I try vanilla 2.6.1 and compare? Or is this an obvious problem?
+>
+
+Please try 2.6.1
+
+

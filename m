@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291451AbSBNLDd>; Thu, 14 Feb 2002 06:03:33 -0500
+	id <S291423AbSBNLOF>; Thu, 14 Feb 2002 06:14:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291452AbSBNLDQ>; Thu, 14 Feb 2002 06:03:16 -0500
-Received: from 213-97-45-174.uc.nombres.ttd.es ([213.97.45.174]:5139 "EHLO
-	pau.intranet.ct") by vger.kernel.org with ESMTP id <S291423AbSBNLC4>;
-	Thu, 14 Feb 2002 06:02:56 -0500
-Date: Thu, 14 Feb 2002 12:02:48 +0100 (CET)
-From: Pau Aliagas <linuxnow@wanadoo.es>
-X-X-Sender: pau@pau.intranet.ct
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: more compiling errors in 2.5.5-pre1
-Message-ID: <Pine.LNX.4.44.0202141202240.1622-100000@pau.intranet.ct>
+	id <S291452AbSBNLNz>; Thu, 14 Feb 2002 06:13:55 -0500
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:49671 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S291423AbSBNLNt>; Thu, 14 Feb 2002 06:13:49 -0500
+Date: Thu, 14 Feb 2002 12:13:38 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: <roman@serv>
+To: Hanna Linder <hannal@us.ibm.com>
+cc: <viro@math.psu.edu>, <lse-tech@lists.sourceforge.net>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH 2.4.17] Your suggestions for fast path walk
+In-Reply-To: <9230000.1013648509@w-hlinder.des>
+Message-ID: <Pine.LNX.4.33.0202141153300.24637-100000@serv>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-make -C block modules
-make[3]: Entering directory 
-`/home/pau/LnxZip/RPM/BUILD/kernel-2.5.5pre1/drivers/block'
-gcc -D__KERNEL__ -I/home/pau/LnxZip/RPM/BUILD/kernel-2.5.5pre1/include 
--Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
--march=i686 -DMODULE -DMODVERSIONS -include 
-/home/pau/LnxZip/RPM/BUILD/kernel-2.5.5pre1/include/linux/modversions.h  
--DKBUILD_BASENAME=floppy  -c -o floppy.o floppy.c
-gcc -D__KERNEL__ -I/home/pau/LnxZip/RPM/BUILD/kernel-2.5.5pre1/include 
--Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
--march=i686 -DMODULE -DMODVERSIONS -include 
-/home/pau/LnxZip/RPM/BUILD/kernel-2.5.5pre1/include/linux/modversions.h  
--DKBUILD_BASENAME=rd  -c -o rd.o rd.c
-rd.c: In function `rd_make_request':
-rd.c:271: too many arguments to function
-make[3]: *** [rd.o] Error 1
-make[3]: Leaving directory 
-`/home/pau/LnxZip/RPM/BUILD/kernel-2.5.5pre1/drivers/block'
-make[2]: *** [_modsubdir_block] Error 2
-make[2]: Leaving directory 
-`/home/pau/LnxZip/RPM/BUILD/kernel-2.5.5pre1/drivers'
-make[1]: *** [_mod_drivers] Error 2
-make[1]: Leaving directory `/home/pau/LnxZip/RPM/BUILD/kernel-2.5.5pre1'
-error: Bad exit status from /home/pau/LnxZip/tmp/rpm-tmp.8387 (%build)
+Hi,
 
+On Wed, 13 Feb 2002, Hanna Linder wrote:
 
--- 
+> -	return NULL;
+> +        struct dentry *dentry = NULL;
 
-Pau
+Could you please configure your editor to use tabs instead of spaces?
+It would make the patch smaller and easier to read.
+
+> +	if(flags & LOOKUP_LOCKED){
+
+IMO it would be better to use a count, which limits to number of lookups
+done with the spinlock held. This count could be put into nameidata, this
+would change the prototype of cached_lookup/lookup_hash into using a
+pointer to struct nameidata, but AFAICS it's not a really problem, as most
+of the time the data is already available in a nameidata struct.
+Since spinlocks are a dummy on UP, it would make sense to make this test a
+inline function/macro, where it could be made a dummy as well.
+
+bye, Roman
 

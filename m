@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264009AbTKDJDk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 04:03:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264010AbTKDJDk
+	id S264023AbTKDJ2N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 04:28:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264024AbTKDJ2N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 04:03:40 -0500
-Received: from c211-30-229-77.rivrw4.nsw.optusnet.com.au ([211.30.229.77]:10244
-	"EHLO arnor.me.apana.org.au") by vger.kernel.org with ESMTP
-	id S264009AbTKDJDf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 04:03:35 -0500
-Date: Tue, 4 Nov 2003 20:03:25 +1100
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BIO] Bounce queue in bio_add_page
-Message-ID: <20031104090325.GA21301@gondor.apana.org.au>
-References: <20031101044619.GA15628@gondor.apana.org.au> <20031101100543.GA16682@gondor.apana.org.au> <20031103122500.GA6963@suse.de> <20031103205234.GA17570@gondor.apana.org.au> <20031104084929.GH1477@suse.de>
+	Tue, 4 Nov 2003 04:28:13 -0500
+Received: from eva.fit.vutbr.cz ([147.229.10.14]:45061 "EHLO eva.fit.vutbr.cz")
+	by vger.kernel.org with ESMTP id S264023AbTKDJ2M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Nov 2003 04:28:12 -0500
+Date: Tue, 4 Nov 2003 10:26:52 +0100
+From: David Jez <dave.jez@seznam.cz>
+To: Faisal Malallah <hitman1_fm@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.4.22 oops with visor.o and pppd
+Message-ID: <20031104092652.GB35982@stud.fit.vutbr.cz>
+References: <LAW9-F105snqHs4rVPX0001384e@hotmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031104084929.GH1477@suse.de>
-User-Agent: Mutt/1.5.4i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+In-Reply-To: <LAW9-F105snqHs4rVPX0001384e@hotmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 04, 2003 at 09:49:30AM +0100, Jens Axboe wrote:
+> When I try to link my Palm Tungsten T to linux through USB using pppd to 
+> establish a network connection, the connection goes well for a while but 
+> then it disconnects and the kernel oops.
 > 
-> That could work, but it breaks the rule that counts are always accurate.
+> Using Kernel 2.4.22 on redhat 9
+> pppd version 2.4.1
+  Hi,
 
-Yes, it means that recount may return a higher value but it is never
-lower.
+  Try update for newer redhat kernel or 2.4.23-pre5. Tt is fixed since
+2.4.23-pre5.
 
-I think it should be safe though as recount is not always called (it is
-only called if the phys/hw segments exceed the limits).  In the cases
-where it is not called you may be looking at an overestimate anyway.
-
-Thanks,
 -- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+-------------------------------------------------------
+  David "Dave" Jez                Brno, CZ, Europe
+ E-mail: dave.jez@seznam.cz
+PGP key: finger xjezda00@eva.fit.vutbr.cz
+---------=[ ~EOF ]=------------------------------------

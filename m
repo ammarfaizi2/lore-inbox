@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261877AbTC0KD7>; Thu, 27 Mar 2003 05:03:59 -0500
+	id <S261856AbTC0J7V>; Thu, 27 Mar 2003 04:59:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261886AbTC0KD6>; Thu, 27 Mar 2003 05:03:58 -0500
-Received: from [81.80.245.157] ([81.80.245.157]:12431 "EHLO smtp.alcove-fr")
-	by vger.kernel.org with ESMTP id <S261877AbTC0KD5>;
-	Thu, 27 Mar 2003 05:03:57 -0500
-Date: Thu, 27 Mar 2003 11:15:28 +0100
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Greg KH <greg@kroah.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: USB MemoryStick reader and 2.5.66
-Message-ID: <20030327101527.GB4831@hottah.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	Greg KH <greg@kroah.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030325124711.GC1242@hottah.alcove-fr> <20030326185817.GG24689@kroah.com>
+	id <S261875AbTC0J7U>; Thu, 27 Mar 2003 04:59:20 -0500
+Received: from visp12-175.visp.co.nz ([210.54.175.12]:60431 "EHLO
+	mdew.dyndns.org") by vger.kernel.org with ESMTP id <S261856AbTC0J7U>;
+	Thu, 27 Mar 2003 04:59:20 -0500
+Subject: Re: Linux 2.4.21-pre6
+From: mdew <mdew@mdew.dyndns.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030327084846.C29788@infradead.org>
+References: <Pine.LNX.4.53L.0303262107480.2544@freak.distro.conectiva>
+	 <20030327084846.C29788@infradead.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1048759822.667.2.camel@nirvana.flat>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030326185817.GG24689@kroah.com>
-User-Agent: Mutt/1.3.25i
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 27 Mar 2003 22:10:24 +1200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 26, 2003 at 10:58:17AM -0800, Greg KH wrote:
-
-> No it should work.  I just used a usb cdrom successfully with 2.5.66.
+On Thu, 2003-03-27 at 20:48, Christoph Hellwig wrote:
+> On Wed, Mar 26, 2003 at 09:08:42PM -0300, Marcelo Tosatti wrote:
+> > 
+> > Here goes -pre6.
+> > 
+> > We are approaching -rc stage. I plan to release -pre7 shortly which should
+> > fixup the remaining IDE problems (thanks Alan!) and -rc1 later on.
 > 
-> > This is with an internal USB Memory Stick reader on a Sony Vaio C1VE, 
-
-It doesn't work for me, with the memory stick reader or an external
-usb floppy drive.
-
-> > Is someone interesting in a more complete bug report or should I
-> > test something else ?
 > 
-> Could you enter this into bugzilla.kernel.org?  Then I can assign it to
-> the usb-storage maintainer :)
+> *grrr* once again this is not tagged in BK.  Could you _please_ ask Linus
+> for his nice update release, tag and publish script?
 
-Sure, bug #510. ( http://bugme.osdl.org/show_bug.cgi?id=510 )
+at one stage it was tagged, just disappeared :)
 
-Thanks,
-
-Stelian.
 -- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com
+mdew <mdew@mdew.dyndns.org>
+

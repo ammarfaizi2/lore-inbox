@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262791AbVDAPkM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262759AbVDAPmz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262791AbVDAPkM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 10:40:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262785AbVDAPjD
+	id S262759AbVDAPmz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 10:42:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262774AbVDAPmz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 10:39:03 -0500
-Received: from smtp9.poczta.onet.pl ([213.180.130.49]:59833 "EHLO
-	smtp9.poczta.onet.pl") by vger.kernel.org with ESMTP
-	id S262773AbVDAPhV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 10:37:21 -0500
-Message-ID: <424D6B54.2090200@poczta.onet.pl>
-Date: Fri, 01 Apr 2005 17:40:04 +0200
-From: Wiktor <victorjan@poczta.onet.pl>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050329)
-X-Accept-Language: en-us, en
+	Fri, 1 Apr 2005 10:42:55 -0500
+Received: from phoenix.infradead.org ([81.187.226.98]:27147 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262759AbVDAPmL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 10:42:11 -0500
+Date: Fri, 1 Apr 2005 16:41:44 +0100 (BST)
+From: "Artem B. Bityuckiy" <dedekind@infradead.org>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+cc: dwmw2@infradead.org, linux-kernel@vger.kernel.org,
+       linux-crypto@vger.kernel.org
+Subject: Re: [RFC] CryptoAPI & Compression
+In-Reply-To: <20050401152325.GB4150@gondor.apana.org.au>
+Message-ID: <Pine.LNX.4.58.0504011640340.9305@phoenix.infradead.org>
+References: <E1DGxa7-0000GH-00@gondolin.me.apana.org.au>
+ <Pine.LNX.4.58.0504011534460.9305@phoenix.infradead.org>
+ <20050401152325.GB4150@gondor.apana.org.au>
 MIME-Version: 1.0
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFD] 'nice' attribute for executable files
-References: <200503311556.j2VFu9Hc007903@laptop11.inf.utfsm.cl>
-In-Reply-To: <200503311556.j2VFu9Hc007903@laptop11.inf.utfsm.cl>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dedekind@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand wrote:
-> 
-> Even better: Write a C wrapper for each affected program that just renices
-> it as needed.
+> I thought stored blocks (incompressible blocks) were limited to 64K
+> in size, no?
+Blocks are limited in size by 64K, true. But why it matters for us? 
 
-I suggest to implement scalable solution, so the final user wont't have 
-to write separate wrapper for *each* program. universal wrapper is 
-better solution, but (now i know, that implementing something that can 
-be dangerous if used incorrectly is so evil, that only the devil could 
-have proposed it) it forces use of database (that normally would be kept 
-in filesystem's file metadata) and if some-malicious-person would have 
-accessed it in write mode (as result of wrong file permissions), the 
-system performerance would be in danger. in my solution, there is 
-per-file attribute, accessible only for root, and if hacker has root 
-permissions, existence of nice attribute is meaningless.
+Suppose we compress 1 GiB of input, and have a 70K output buffer. We 
+reserve 5 bytes at the end and start calling zlib_deflate(stream, 
+Z_SYNCK_FLUSH) recurrently. It puts one 64K block, puts its end marker, 
+then puts a part of a second block. Then we call zlib_deflate(strem, 
+Z_FINISH) and it puts the end marker of the second block and the adler32 
+checksum of the entire stream. So I don't see any problem albeit I didn't 
+try yet :-) But I'll do.
+
+> Please double check zlib_deflate/deflate.c and
+> zlib_deflate/deftree.c.
+Surely I'll check. I'll even test the new implementation (which I didn't 
+actually do) with a large input before sending it next time.
 
 --
-wixor
-May the Source be with you.
+Best Regards,
+Artem B. Bityuckiy,
+St.-Petersburg, Russia.

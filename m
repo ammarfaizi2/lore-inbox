@@ -1,64 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292272AbSBOX1P>; Fri, 15 Feb 2002 18:27:15 -0500
+	id <S292273AbSBOXaZ>; Fri, 15 Feb 2002 18:30:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292273AbSBOX1H>; Fri, 15 Feb 2002 18:27:07 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:54923 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S292272AbSBOX0t>;
-	Fri, 15 Feb 2002 18:26:49 -0500
-Date: Fri, 15 Feb 2002 15:24:55 -0800 (PST)
-Message-Id: <20020215.152455.85412802.davem@redhat.com>
-To: greearb@candelatech.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: copy_from_user returns a positive value?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3C6C6E0C.6000309@candelatech.com>
-In-Reply-To: <3C6C6E0C.6000309@candelatech.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S292276AbSBOXaP>; Fri, 15 Feb 2002 18:30:15 -0500
+Received: from ns.suse.de ([213.95.15.193]:64516 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S292273AbSBOXaE>;
+	Fri, 15 Feb 2002 18:30:04 -0500
+Date: Sat, 16 Feb 2002 00:29:59 +0100
+From: Dave Jones <davej@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Disgusted with kbuild developers
+Message-ID: <20020216002959.P27880@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020215195818.A3534@pc1-camc5-0-cust78.cam.cable.ntl.com> <20020215145421.A12540@thyrsus.com> <20020215124255.F28735@work.bitmover.com> <20020215153953.D12540@thyrsus.com> <20020215221532.K27880@suse.de> <20020215155817.A14083@thyrsus.com> <200202152209.g1FM9PZ00855@vindaloo.ras.ucalgary.ca> <20020215165029.C14418@thyrsus.com> <20020215143807.L28735@work.bitmover.com> <20020215232312.GB12204@merlin.emma.line.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020215232312.GB12204@merlin.emma.line.org>; from matthias.andree@stud.uni-dortmund.de on Sat, Feb 16, 2002 at 12:23:12AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Ben Greear <greearb@candelatech.com>
-   Date: Thu, 14 Feb 2002 19:10:20 -0700
+On Sat, Feb 16, 2002 at 12:23:12AM +0100, Matthias Andree wrote:
+ > Are you telling that kernel programmers don't rewrite code from scratch?
+ > Is that a correct interpretation of "improve the existing system"? Note
+ > that "it can't be done" can also imply "cannot reasonable be done".
+ > Eric has done it, without being of kernel hacker temple's fame.
 
-   When I make the copy from user call:
-   
-          if ((ret = copy_from_user(&reqconf, arg, sizeof(reqconf)))) {
-             printk("ERROR: copy_from_user returned: %i, sizeof(reqconf): %i\n",
-                    ret, sizeof(reqconf));
-             return ret;
-          }
-   
-   I see this printed out:
-   
-   ERROR: copy_from_user returned: 696, sizeof(reqconf): 696
+ The kernel hacker approach: Gradual change toward a predefined goal.
+ The Eric approach: Rip out existing, replace with new.
 
-Either:
+ If Al Viro can rewrite the guts of the VFS without hardly anyone
+ noticing any disturbance, and the configuration system can't be
+ done this way, something is amiss.
 
-1) 'arg' is a bogus userland pointer
-
-or
-
-2) 'arg'  is a valid userland pointer, but someone has done a
-   set_fs(KERNEL_DS) so only kernel pointers are valid for user
-   copies.
-
-A lot of the "32-bit userland on 64-bit kernel" compatability laters
-work by doing #2.  They munge the 32-bit user structures into kernel
-side copies, and do set_fs(KERNEL_DS) and pass in the pointers to the
-kernel copies to the real syscall then finally restore things back to
-USER_DS.
-
-copy_{to,from}_user always return, as you correctly noted, the amount
-of data that could not be copied or "0" for success.  That is why all
-code does something like this:
-
-	err = 0;
-	if (copy_{to,from}_user(...))
-		err = -EFAULT;
-
-I don't know where some people get the idea that copy_{to,from}_user
-should return -EFAULT on failure.  Maybe some port is buggy :-)
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

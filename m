@@ -1,113 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262575AbUKRAnF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262562AbUKRAkk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262575AbUKRAnF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 19:43:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262403AbUKRAmM
+	id S262562AbUKRAkk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 19:40:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262665AbUKQWAO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 19:42:12 -0500
-Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:16548 "EHLO mta1.cl.cam.ac.uk")
-	by vger.kernel.org with ESMTP id S262575AbUKQXtC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 18:49:02 -0500
-To: linux-kernel@vger.kernel.org
-cc: Ian.Pratt@cl.cam.ac.uk, akpm@osdl.org, Keir.Fraser@cl.cam.ac.uk,
-       Christian.Limpach@cl.cam.ac.uk
-Subject: [patch 2] Xen core patch : arch_free_page return value
-Date: Wed, 17 Nov 2004 23:48:57 +0000
-From: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
-Message-Id: <E1CUZXm-00053v-00@mta1.cl.cam.ac.uk>
+	Wed, 17 Nov 2004 17:00:14 -0500
+Received: from zmamail04.zma.compaq.com ([161.114.64.104]:9996 "EHLO
+	zmamail04.zma.compaq.com") by vger.kernel.org with ESMTP
+	id S262654AbUKQV5r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 16:57:47 -0500
+Date: Wed, 17 Nov 2004 15:57:27 -0600
+From: mikem <mikem@beardog.cca.cpqcorp.net>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Atro.Tossavainen@helsinki.fi, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.27 and CCISS related problem
+Message-ID: <20041117215727.GA8167@beardog.cca.cpqcorp.net>
+Reply-To: mike.miller@hp.com, mikem@beardog.cca.cpqcorp.net
+References: <200411170930.iAH9UNMf004077@kruuna.Helsinki.FI> <20041117064727.GD19107@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041117064727.GD19107@logos.cnet>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 17, 2004 at 04:47:27AM -0200, Marcelo Tosatti wrote:
+> 
+> Hi,
+> 
+> 
+> On Wed, Nov 17, 2004 at 11:30:23AM +0200, Atro Tossavainen wrote:
+> > Hello all,
+> > 
+> > Got a problem with a HP Proliant DL380 with root on a RAID1 behind a
+> > Smart Array 5i+.  It boots up fine with 2.4.25, but halts every time
+> > with 2.4.27.  The following message should be printed:
+> > 
+> > 	HP CISS Driver (v 2.4.50)
+> > 	cciss: Device 0xb178 has been found at bus 1 dev 3 func 0
+> > 	      blocks= 71122560 block_size= 512
+> > 	      heads= 255, sectors= 32, cylinders= 8716 RAID 1(0+1)
+> > 	
+> > 	blk: queue c04c6c40, I/O limit 4294967295Mb (mask 0xffffffffffffffff)
+> > 	Partition check:
+> > 	 cciss/c0d0: p1 p2 < p5 p6 p7 p8 >
+> > 
+> > But instead, it prints:
+> > 
+> > 	blk: queue c04c6c40, I/O limit 4294967295Mb (mask 0xffffffffffffffff)
+> > 	Partition check:
+> > 	 cciss/c0d0:
 
-This patch adds a return value to the existing arch_free_page function
-that indicates whether the normal free routine still has work to
-do. The only architecture that currently uses arch_free_page is arch
-'um'. arch-xen needs this for 'foreign pages' - pages that don't
-belong to the page allocator but are instead managed by custom
-allocators. Unlike PG_Reserved, we need the ref counting, but just
-need to control how the page is finally freed.
+This indicates an interrupt related problem. I've not seen this myself.
+Which DL380 do you have, G2, G3, G4?
+I'll try to duplicate this in my lab.
 
-Signed-off-by: ian.pratt@cl.cam.ac.uk
+mikem
 
----
-
-diff -ur linux-2.6.9/arch/um/kernel/physmem.c linux-2.6.9-new/arch/um/kernel/physmem.c
---- linux-2.6.9/arch/um/kernel/physmem.c	2004-10-18 22:54:37.000000000 +0100
-+++ linux-2.6.9-new/arch/um/kernel/physmem.c	2004-11-16 17:37:32.919951978 +0000
-@@ -225,7 +225,7 @@
- EXPORT_SYMBOL(physmem_remove_mapping);
- EXPORT_SYMBOL(physmem_subst_mapping);
- 
--void arch_free_page(struct page *page, int order)
-+int arch_free_page(struct page *page, int order)
- {
- 	void *virt;
- 	int i;
-@@ -234,6 +234,8 @@
- 		virt = __va(page_to_phys(page + i));
- 		physmem_remove_mapping(virt);
- 	}
-+
-+	return 0;
- }
- 
- int is_remapped(void *virt)
-diff -ur linux-2.6.9/include/asm-um/page.h linux-2.6.9-new/include/asm-um/page.h
---- linux-2.6.9/include/asm-um/page.h	2004-10-18 22:55:36.000000000 +0100
-+++ linux-2.6.9-new/include/asm-um/page.h	2004-11-16 17:37:55.471701151 +0000
-@@ -46,7 +46,7 @@
- extern struct page *arch_validate(struct page *page, int mask, int order);
- #define HAVE_ARCH_VALIDATE
- 
--extern void arch_free_page(struct page *page, int order);
-+extern int arch_free_page(struct page *page, int order);
- #define HAVE_ARCH_FREE_PAGE
- 
- #endif
-diff -ur linux-2.6.9/include/linux/gfp.h linux-2.6.9-new/include/linux/gfp.h
---- linux-2.6.9/include/linux/gfp.h	2004-10-18 22:53:44.000000000 +0100
-+++ linux-2.6.9-new/include/linux/gfp.h	2004-11-16 17:41:25.825723812 +0000
-@@ -74,8 +74,16 @@
-  * optimized to &contig_page_data at compile-time.
-  */
- 
-+/*
-+ * If arch_free_page returns non-zero then the generic free_page code can
-+ * immediately bail: the arch-specific function has done all the work.
-+ */
- #ifndef HAVE_ARCH_FREE_PAGE
--static inline void arch_free_page(struct page *page, int order) { }
-+static inline int arch_free_page(struct page *page, int order)
-+{
-+	/* Generic free_page must do the work. */
-+	return 0;
-+}
- #endif
- 
- extern struct page *
-diff -ur linux-2.6.9/mm/page_alloc.c linux-2.6.9-new/mm/page_alloc.c
---- linux-2.6.9/mm/page_alloc.c	2004-10-18 22:53:11.000000000 +0100
-+++ linux-2.6.9-new/mm/page_alloc.c	2004-11-16 17:42:23.793227175 +0000
-@@ -275,7 +275,8 @@
- 	LIST_HEAD(list);
- 	int i;
- 
--	arch_free_page(page, order);
-+	if (arch_free_page(page, order))
-+		return;
- 
- 	mod_page_state(pgfree, 1 << order);
- 	for (i = 0 ; i < (1 << order) ; ++i)
-@@ -505,7 +506,8 @@
- 	struct per_cpu_pages *pcp;
- 	unsigned long flags;
- 
--	arch_free_page(page, 0);
-+	if (arch_free_page(page, 0))
-+		return;
- 
- 	kernel_map_pages(page, 1, 0);
- 	inc_page_state(pgfree);
-
-
+> > 
+> > and freezes there, but not so badly that Ctl-Alt-Del wouldn't let me
+> > reboot.  Anybody got any ideas?  The kernels I am using are based on
+> > Linus' from ftp.funet.fi, with i2c, lm_sensors and MOSIX added in.
+> > I can try with a completely vanilla 2.4.27 if necessary.
+> 
+> Please try vanilla v2.4.27.
+> 
+> If that doesnt work, go down to v2.4.26.
+> 
+> Both of them contain cciss updates.

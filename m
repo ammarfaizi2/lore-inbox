@@ -1,32 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312558AbSEDMLQ>; Sat, 4 May 2002 08:11:16 -0400
+	id <S312576AbSEDMMA>; Sat, 4 May 2002 08:12:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312576AbSEDMLQ>; Sat, 4 May 2002 08:11:16 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:19217 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S312558AbSEDMLP>;
-	Sat, 4 May 2002 08:11:15 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: kbuild 2.5 release 2.4 
-In-Reply-To: Your message of "Sat, 04 May 2002 13:26:48 +0200."
-             <Pine.LNX.4.44.0205041322080.12156-100000@netfinity.realnet.co.sz> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 04 May 2002 22:11:05 +1000
-Message-ID: <23974.1020514265@ocs3.intra.ocs.com.au>
+	id <S312581AbSEDML7>; Sat, 4 May 2002 08:11:59 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:1244 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S312576AbSEDMLy>; Sat, 4 May 2002 08:11:54 -0400
+Date: Sat, 4 May 2002 14:07:21 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Christian Neumair <christian-neumair@web.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: GNU/linux 2.5.14 (?)
+In-Reply-To: <200205041207.g44C72X30485@mailgate5.cinetic.de>
+Message-ID: <Pine.NEB.4.44.0205041405080.283-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 4 May 2002 13:26:48 +0200 (SAST), 
-Zwane Mwaikambo <zwane@linux.realnet.co.sz> wrote:
->	Just a minor nit, could you change the rm parameter to have -r 
->too? I've found that ^C halfway through a make can leave some old 
->directories (.tmp_include or somesuch).
+On Sat, 4 May 2002, Christian Neumair wrote:
 
-You will have to provide more details of the problem that you think you
-are seeing.  The .tmp_include files are part of the infrastructure that
-lets me separate source and object trees, they are meant to be there.
-make -f Makefile-2.5 mrproper deletes .tmp_include.
+> The following entangles me:
+> Although kernelnewbies.org/status tells me that some features are merged in the 2.4.14 release i can't find it on kernel.org.
+
+s/2.4.14/2.5.14/
+
+> Please clear me up :-)
+
+These patches are in Linus' BitKeeper repository that is publically
+available. Non-BitKeeper users can access all the patches since the latest
+released kernel at [1].
+
+> see you,
+> Christian Neumair
+
+cu
+Adrian
+
+[1] http://ftp.kernel.org/pub/linux/kernel/people/dwmw2/bktrees.html
+
+
+-- 
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
 

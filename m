@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262068AbULPWvY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262076AbULPWsj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262068AbULPWvY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 17:51:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbULPWte
+	id S262076AbULPWsj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 17:48:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262056AbULPWpO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 17:49:34 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:45242 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262058AbULPWqF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 17:46:05 -0500
-Subject: Re: [patch] [RFC] move 'struct page' into its own header
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>
-In-Reply-To: <20041216222513.GA15451@infradead.org>
-References: <E1Cf3jM-00034h-00@kernel.beaverton.ibm.com>
-	 <20041216222513.GA15451@infradead.org>
-Content-Type: text/plain
-Message-Id: <1103237161.13614.2388.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 16 Dec 2004 14:46:01 -0800
+	Thu, 16 Dec 2004 17:45:14 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:1153 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S262053AbULPWok
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 17:44:40 -0500
+Message-ID: <41C20FFF.6000004@tmr.com>
+Date: Thu, 16 Dec 2004 17:45:19 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+CC: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>, Andi Kleen <ak@suse.de>,
+       Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, Steven.Hand@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk,
+       Keir.Fraser@cl.cam.ac.uk
+Subject: Re: arch/xen is a bad idea
+References: <E1CeLLB-0000Sl-00@mta1.cl.cam.ac.uk><E1CeLLB-0000Sl-00@mta1.cl.cam.ac.uk> <20041215114916.GB1232@elf.ucw.cz>
+In-Reply-To: <20041215114916.GB1232@elf.ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-12-16 at 14:25, Christoph Hellwig wrote:
-> On Thu, Dec 16, 2004 at 02:04:15PM -0800, Dave Hansen wrote:
-> > So, put 'struct page' into structpage.h, along with a nasty comment
-> > telling everyone to keep their grubby mitts out of the file.
+Pavel Machek wrote:
 
-> What about calling it page.h?  structfoo.h sounds like a really strange
-> name.
+> Okay, what about this one:
+> 
+> You merge xen hooks in mainline, but keep maintaining arch/xen
+> out-of-tree? You have to maintain it yourself, anyway, and having
+> hooks merged should make it easy.
+> 
+> When xen is merged into i386 (you said that is your long-term goal
+> anyway), you can merge that into mainline...
+> 							Pavel
 
-The only reason I didn't do that is that there is already an
-asm/page.h.  But, linux/page.h would be a fine name, too.
+Assuming this is practical and would let xen get exposure sooner rather 
+than later, it would be nice if the hooks could be used for other 
+projects. My impression is that the merge part would come after there is 
+some extensive experience with the operation "in the wild" so to speak. 
+Who knows what operating systems might run in this way.
 
-> And while you're at it page-flags.h should probably be merged into
-> it.
-
-The only tricky part might be page-flags.h includes asm/pgtable.h, which
-(on i386) includes linux/slab.h, which includes asm/page.h.  This might
-somewhat restrict the number of places that the new header can be
-included.  As it stands, it can be included (and get you a full
-definition of struct page) almost anywhere.
-
-But, I'm not quite sure why page-flags.h even needs asm/pgtable.h.  I
-just took it out in i386, and it still compiles just fine.  Maybe it is
-needed for another architecture.
-
--- Dave
-
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

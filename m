@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261574AbSLEPCt>; Thu, 5 Dec 2002 10:02:49 -0500
+	id <S267332AbSLEPJ3>; Thu, 5 Dec 2002 10:09:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261615AbSLEPCt>; Thu, 5 Dec 2002 10:02:49 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:50128 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S261574AbSLEPCt>;
-	Thu, 5 Dec 2002 10:02:49 -0500
-Date: Thu, 5 Dec 2002 08:08:54 -0700
-From: yodaiken@fsmlabs.com
-To: Dipankar Sarma <dipankar@in.ibm.com>
-Cc: yodaiken@fsmlabs.com, Andrew Morton <akpm@digeo.com>,
-       Ravikiran G Thirumalai <kiran@in.ibm.com>, linux-kernel@vger.kernel.org,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [patch] kmalloc_percpu  -- 2 of 2
-Message-ID: <20021205080854.A16009@hq.fsmlabs.com>
-References: <20021204174209.A17375@in.ibm.com> <20021204174550.B17375@in.ibm.com> <3DEE58CB.737259DB@digeo.com> <20021205091217.A11438@in.ibm.com> <3DEED6FA.B179FAFD@digeo.com> <20021205162329.A12588@in.ibm.com> <20021205042312.A12616@hq.fsmlabs.com> <20021205181153.C12588@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021205181153.C12588@in.ibm.com>; from dipankar@in.ibm.com on Thu, Dec 05, 2002 at 06:11:53PM +0530
-Organization: FSM Labs
+	id <S267333AbSLEPJ3>; Thu, 5 Dec 2002 10:09:29 -0500
+Received: from smtp804.mail.sc5.yahoo.com ([66.163.168.183]:19226 "HELO
+	smtp804.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id <S267332AbSLEPJ2> convert rfc822-to-8bit; Thu, 5 Dec 2002 10:09:28 -0500
+From: "Joseph D. Wagner" <wagnerjd@prodigy.net>
+To: "'Nicholas Berry'" <nikberry@med.umich.edu>, <wa1hco@adelphia.net>,
+       <shanehelms@eircom.net>, <EdV@macrolink.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: is KERNEL developement finished, yet ???
+Date: Thu, 5 Dec 2002 09:17:04 -0600
+Message-ID: <000401c29c71$5fb52620$43833841@joe>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+In-Reply-To: <sdef2367.029@mail-02.med.umich.edu>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 05, 2002 at 06:11:53PM +0530, Dipankar Sarma wrote:
-> > Doesn't your allocator increase chances of cache conflict on the same
-> > cpu ?
-> > 
-> 
-> You mean by increasing the footprint and the chance of eviction ? It
-> is a compromise. Or you would face NR_CPUS bloat and non-NUMA-node-local 
-> accesses for all CPUs outside the NUMA node where your NR_CPUS array
-> is located.
+> Er, 16-year-old maybe?
 
-What do you base the trade-off decision on?
+Wow! I thought I really knew what I was talking about, but you've really
+convinced me to see things you're way!
 
-> 
-> Thanks
-> -- 
-> Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-> Linux Technology Center, IBM Software Lab, Bangalore, India.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I would prefer that this discussion contain factual information and educated
+opinions, and if those facts turn out to be wrong or opinions based on
+erroneous information, I would like to see them corrected with sources and
+citations.
 
--- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
-www.fsmlabs.com  www.rtlinux.com
-1+ 505 838 9109
+But if you're just going to call names, you're just wasting space on the
+archive server.
 

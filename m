@@ -1,61 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262518AbTIGDf2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Sep 2003 23:35:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261486AbTIGDf2
+	id S263170AbTIGDaj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Sep 2003 23:30:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263174AbTIGDaj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Sep 2003 23:35:28 -0400
-Received: from beta.EECS.CWRU.Edu ([129.22.150.110]:12268 "EHLO
-	beta.eecs.cwru.edu") by vger.kernel.org with ESMTP id S262518AbTIGDfW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Sep 2003 23:35:22 -0400
-Message-ID: <1062905720.3f5aa77879eba@eecs.cwru.edu>
-Date: Sat,  6 Sep 2003 23:35:20 -0400
-From: William Sherwin <wgs3@po.cwru.edu>
+	Sat, 6 Sep 2003 23:30:39 -0400
+Received: from [218.17.205.233] ([218.17.205.233]:60698 "ehlo citiz.net")
+	by vger.kernel.org with ESMTP id S263170AbTIGDae (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Sep 2003 23:30:34 -0400
+From: "HY Tech" <hytechnologyhk@citiz.net>
+Subject: New price list for mp3 player, digital camera, cd/vcd/mp3 player and
+ USB flash drive!
 To: linux-kernel@vger.kernel.org
-Subject: Ran out of input data: System Halted
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-User-Agent: Internet Messaging Program (IMP) 3.2.2
-X-Mime-Autoconverted: from 8bit to 7bit by courier 0.42
+Content-Type: text/plain;charset="GB2312"
+Reply-To: hytechnologyhk@citiz.net
+Date: Sun, 7 Sep 2003 11:30:52 +0800
+X-Priority: 2
+X-Mailer: FoxMail 4.0 beta 2 [cn]
+Message-Id: <S263170AbTIGDae/20030907033034Z+1407@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-To Whom It May Concern:
+Dear valued customer,
 
-I rebuilt my kernel (2.4.22) yesterday, and when I rebooted, I
-got the following screen:
+We are a professional manufacturer of mp3 player, cd/vcd/mp3 player, digital camera and USB 
+flash drive in Shenzhen, China.
 
-Uncompressing linux...
+Please see the price of some products:
+mp3 player with digital recorder and USB flash drive
+64M 39USD      128M   52USD
 
-...ran out of input data.
+cd/vcd/mp3 player (3 function in 1)
+21.5USD
 
--- System halted.
+digital camera
+300K pixels  15.5USD      1.3M pixels    24USD
 
-At that point, even the keyboard was frozen; I had to power down
-my computer by pressing the switch instead of rebooting with
-CTRL+ALT+DEL.  I had been running a 2.4.22 kernel when I built
-the new kernel; however, I enabled the following options between
-builds:
+PC camera
+13USD 350K pixel
 
-Modules: check version information
-BSD process accounting
-Check for stack overflows
-Compile kernel with frame pointers
+USB flash drive
+64M  17.9USD       128M  29.9USD      256M  54.9USD     
 
-I am posting my config file at:
+If you have interest, please contact us and we will give you the detailed catalogue and price 
+list. 
 
-http://home.cwru.edu/~wgs3/.config
+We always try our best to attract our clients with unbeatable prices and quality. Our goal is 
+to treat every client the same as the most potential business partner.So however the client is 
+big or small,we offer the best service. 
 
-Please cc: me in any replies, as I'm not subscribed to the list.
+Any question, please contact me at any time.
+ 
+Have a nice day!
 
-Thank you very much in advance.
+Best Regards,
 
-William
--- 
-William Sherwin
-Graduate Student
-Department of Physics
-Washington University in St. Louis
-http://hbar.wustl.edu/~wsherwin/
+Frank Ho
+General Manager
+HY Technology (Hong Kong) Company Ltd.

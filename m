@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267457AbTCESzz>; Wed, 5 Mar 2003 13:55:55 -0500
+	id <S267472AbTCETAc>; Wed, 5 Mar 2003 14:00:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267459AbTCESzz>; Wed, 5 Mar 2003 13:55:55 -0500
-Received: from ns.suse.de ([213.95.15.193]:35076 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S267457AbTCESzy>;
-	Wed, 5 Mar 2003 13:55:54 -0500
-Date: Wed, 5 Mar 2003 20:06:22 +0100
-From: Andi Kleen <ak@suse.de>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Andi Kleen <ak@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Better CLONE_SETTLS support for Hammer
-Message-ID: <20030305190622.GA5400@wotan.suse.de>
-References: <3E664836.7040405@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E664836.7040405@redhat.com>
+	id <S267482AbTCETAb>; Wed, 5 Mar 2003 14:00:31 -0500
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:39079 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id <S267472AbTCES75>; Wed, 5 Mar 2003 13:59:57 -0500
+Message-ID: <3E664BB8.6010905@myrealbox.com>
+Date: Wed, 05 Mar 2003 11:10:48 -0800
+From: walt <wa1ter@myrealbox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030210
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21-pre5-ac1:  Broadcom gigabit ethernet quirk introduced
+References: <fa.fl0gpjr.t3u29h@ifi.uio.no> <fa.f079mas.1qlo10a@ifi.uio.no>
+In-Reply-To: <fa.f079mas.1qlo10a@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 05, 2003 at 10:55:50AM -0800, Ulrich Drepper wrote:
-> Please consider using this patch which changes the way CLONE_SETTLS is
-> handled on Hammer completely.  The old approach was to slavishly follow
-> what x86 does with the desastrous result that TCBs (and therefore
-> stacks) could only be allocated in the low 4GB.  This would have been a
-> really bad limitation going forward.
-
-Why stacks? is there a technical reason %fs has to point in the same
-area as the stack?
-
-If you just want to save one mmap/allocation: I think the context switch
-overhead will be more expensive than the allocation.
-
+Jeff Garzik wrote:
+> On Wed, Mar 05, 2003 at 09:37:09AM -0800, walt wrote:
 > 
-> But as it turns out the kernel already has support for handling %fs in a
-> different way, to support prctl(ARCH_SET_FS).  So let's just use the
-> same mechanism.  clone() will simply take an 64-bit address and use it
-> as if prctl() was called.
+>>Hi Alan,
+>>
+>>I have an ASUS A7VX8 motherboard with built-in Broadcom gigabit
+>>ethernet chip which has been working perfectly right up through
+>>-pre4-ac7 and now has developed a strange problem starting with
+>>-pre5-ac1.
+> 
+> 
+> Is this difference present in plain-jane 2.4.21-pre4 versus 2.4.21-pre5?
 
-The problem is that the context switch is much more expensive with that
-(wrmsr is quite expensive compared to the memcpy or index reload). The kernel 
-optimizes it away when not needed, but with glibc using them 
-for everything all processes will switch slower.
+Hi Jeff,
 
-I had hoped that user land would prefer fast context switches and
-just stuff the index tables for the thread local data into the 
-first 2GB (using MAP_32BIT). Yes limiting the thread stacks to 4GB 
-would be bad I agree, but is it that big a problem to split the
-index table for thread local data and the stack? 
+I compiled a plain -pre5 just for you  ;-)
 
--Andi
+Yes, the difference apparently has nothing to do with Alan.  And (as
+another data point) I tried 2.5.64 and I find exactly the same problem
+with the Broadcom chip:  if I do the ifconfig down/up cycle the chip
+starts working normally again.  I haven't played with 2.5.x very much
+so I can't tell you when the Broadcom problem started there.  If you
+have a theory to test, I could compile an older 2.5 if you like.
+
+

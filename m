@@ -1,28 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261897AbUFNE17@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261865AbUFNEej@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261897AbUFNE17 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 00:27:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261865AbUFNE17
+	id S261865AbUFNEej (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 00:34:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbUFNEej
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 00:27:59 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27541 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261897AbUFNE14
+	Mon, 14 Jun 2004 00:34:39 -0400
+Received: from host20.200-117-131.telecom.net.ar ([200.117.131.20]:43492 "EHLO
+	smtp.bensa.ar") by vger.kernel.org with ESMTP id S261865AbUFNEei
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 00:27:56 -0400
-Message-ID: <40CD293D.4040808@pobox.com>
-Date: Mon, 14 Jun 2004 00:27:41 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Mon, 14 Jun 2004 00:34:38 -0400
+From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Panics need better handling
+Date: Mon, 14 Jun 2004 01:34:52 -0300
+User-Agent: KMail/1.6.2
+Cc: Willy Tarreau <willy@w.ods.org>, ndiamond@despammed.com
+References: <200406140223.i5E2N1k18221@mailout.despammed.com> <20040614042139.GD29808@alpha.home.local>
+In-Reply-To: <20040614042139.GD29808@alpha.home.local>
 MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [1/12] don't dereference netdev->name before register_netdev()
-References: <20040614003148.GO1444@holomorphy.com> <20040614003331.GP1444@holomorphy.com>
-In-Reply-To: <20040614003331.GP1444@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200406140134.52859.norberto+linux-kernel@bensa.ath.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Xu has an updated patch for this, I'll compare both more closely...
+Willy Tarreau wrote:
+>    http://developer.odsl.org/rddunlap/kmsgdump/
+
+http://developer.osdl.org/rddunlap/kmsgdump/
+
+;-)
+

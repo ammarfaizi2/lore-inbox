@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129745AbQKHSWW>; Wed, 8 Nov 2000 13:22:22 -0500
+	id <S129551AbQKHSYC>; Wed, 8 Nov 2000 13:24:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129647AbQKHSWM>; Wed, 8 Nov 2000 13:22:12 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:18482 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129551AbQKHSV4>; Wed, 8 Nov 2000 13:21:56 -0500
-Subject: Re: Pentium 4 and 2.4/2.5
-To: bapper@piratehaven.org (Brian Pomerantz)
-Date: Wed, 8 Nov 2000 18:21:54 +0000 (GMT)
-Cc: torvalds@transmeta.com (Linus Torvalds),
-        alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <20001108101248.A8902@skull.piratehaven.org> from "Brian Pomerantz" at Nov 08, 2000 10:12:48 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129647AbQKHSXw>; Wed, 8 Nov 2000 13:23:52 -0500
+Received: from thalia.fm.intel.com ([132.233.247.11]:2310 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S129551AbQKHSXf>; Wed, 8 Nov 2000 13:23:35 -0500
+Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDC75@orsmsx31.jf.intel.com>
+From: "Dunlap, Randy" <randy.dunlap@intel.com>
+To: "'Jeff Garzik'" <jgarzik@mandrakesoft.com>,
+        Richard Henderson <rth@twiddle.net>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>, axp-list@redhat.com,
+        linux-kernel@vger.kernel.org
+Subject: RE: PCI-PCI bridges mess in 2.4.x
+Date: Wed, 8 Nov 2000 10:22:50 -0800 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13tZrA-0000HQ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 		asm volatile("rep ; nop");
-> > 
-> > (there's not much a "rep nop" _can_ do, after all - the most likely CPU
-> > extension would be to raise an "Illegal Opcode" fault).
-> 
-> Just for the curious, this works on Athlons. :)
+Hi Jeff-
 
-What state does it leave the condition codes ?  That matters. 
+> Also, should we be setting PCI_CACHE_LINE_SIZE for PCI devices as well
+> as bridges?
 
-Take for example
+If/when we do set PCI_CACHE_LINE_SIZE, please don't
+set it to a hard-coded, inline constant, like 8 (e.g.),
+like some drivers do.
 
-if (!oldval)
-                asm volatile(
-                        "2:"
-                        "cmpl $-1, %0;"
-                        "rep; nop;"
-                        "je 2b;"
-                        	: :"m" (current->need_resched));
-}
+Please use something like (PCI_CACHE_LINE_SIZE / 4)
+instead.  ["/ 4" to convert bytes to "dwords" or
+whatever, since the PCI_CACHE_LINE_SIZE register
+is in 4-byte units.]
 
-When running SMP with poll_idle enabled. I can't see it changing condition
-codes on an athlon but..
+~Randy
+_______________________________________________
+|randy.dunlap_at_intel.com        503-677-5408|
+|NOTE: Any views presented here are mine alone|
+|& may not represent the views of my employer.|
+----------------------------------------------- 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

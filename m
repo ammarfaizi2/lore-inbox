@@ -1,35 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129270AbRBNWFj>; Wed, 14 Feb 2001 17:05:39 -0500
+	id <S130344AbRBNWHj>; Wed, 14 Feb 2001 17:07:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129661AbRBNWF3>; Wed, 14 Feb 2001 17:05:29 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:28434 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129270AbRBNWFR>; Wed, 14 Feb 2001 17:05:17 -0500
-Subject: Re: Are the sysctl and ptrace bugs already fixed ?
-To: jldomingo@crosswinds.net (José Luis Domingo López)
-Date: Wed, 14 Feb 2001 22:05:10 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010214224744.A1302@dardhal.mired.net> from "José Luis Domingo López" at Feb 14, 2001 10:47:44 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131281AbRBNWHa>; Wed, 14 Feb 2001 17:07:30 -0500
+Received: from think.faceprint.com ([166.90.149.11]:12307 "EHLO
+	think.faceprint.com") by vger.kernel.org with ESMTP
+	id <S130344AbRBNWHZ>; Wed, 14 Feb 2001 17:07:25 -0500
+Message-ID: <3A8B019C.4F0C76DB@faceprint.com>
+Date: Wed, 14 Feb 2001 17:07:24 -0500
+From: Nathan Walp <faceprint@faceprint.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-ac12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.1-ac13 tulip problems
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14TA2y-0006Dh-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> vulnerability in 2.2.18-pre9 (I suppose it was really 2.2.19-pre9). But
-> with respect to the other two vulnerabilities on 2.2.x and the whole th=
-> ree
-> in kernel series 2.4.x haven't been able to find any information in
-> neither Bugtraq, nor in the Linux kernel development archives.
+I just booted to 2.4.1-ac13, and was fine for a couple minutes.  Then
+all network connectivity went away, and I had this sitting in syslog:
 
-2.2.19pre9 fixes the base ptrace attack, the sysctl bug. The PIII fpu bug
-		doesnt apply to 2.2 unless you applied the PIII patches to it
-	
-2.4.0 didnt have the ptrace bug. The -ac tree has both sysctl and fpu fixed.
-		I believe the current Linus 2.4.2pre has fpu but not sysctl
-		fixed
 
+Feb 14 16:45:48 patience kernel: LDT allocated for cloned task!
+Feb 14 16:47:19 patience kernel: NETDEV WATCHDOG: eth0: transmit timed
+out
+Feb 14 16:47:51 patience last message repeated 4 times
+Feb 14 16:48:55 patience last message repeated 8 times
+Feb 14 16:49:59 patience last message repeated 8 times
+Feb 14 16:51:03 patience last message repeated 8 times
+Feb 14 16:51:51 patience last message repeated 6 times
+<snip>
+Feb 14 16:51:59 patience kernel: NETDEV WATCHDOG: eth0: transmit timed
+out
+Feb 14 16:52:31 patience last message repeated 4 times
+Feb 14 16:53:35 patience last message repeated 8 times
+Feb 14 16:54:39 patience last message repeated 8 times
+Feb 14 16:54:47 patience kernel: NETDEV WATCHDOG: eth0: transmit timed
+out
+Feb 14 16:54:49 patience kernel: inet6_ifa_finish_destroy
+Feb 14 16:54:49 patience kernel: inet6_ifa_finish_destroy
+Feb 14 16:54:57 patience kernel: eth0: Setting half-duplex based on
+MII#1 link partner capability of 0021.
+Feb 14 16:55:15 patience kernel: eth0: no IPv6 routers present
+Feb 14 16:55:15 patience kernel: eth0: no IPv6 routers present
+
+Hence, I'm back to 2.4.1-ac12, and sending this in.  No other noticible
+problems in my short-lived uptime ;-)
+
+Nathan

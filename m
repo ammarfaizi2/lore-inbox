@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262365AbSKCT4v>; Sun, 3 Nov 2002 14:56:51 -0500
+	id <S262384AbSKCT63>; Sun, 3 Nov 2002 14:58:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262369AbSKCT4v>; Sun, 3 Nov 2002 14:56:51 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:50187 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S262365AbSKCT4u>; Sun, 3 Nov 2002 14:56:50 -0500
-Date: Sun, 3 Nov 2002 21:03:21 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: make clean broken in 2.5.45
-Message-ID: <20021103200320.GB21808@atrey.karlin.mff.cuni.cz>
-References: <20021101211207.GA238@elf.ucw.cz> <20021102221605.GA14040@mars.ravnborg.org>
+	id <S262385AbSKCT63>; Sun, 3 Nov 2002 14:58:29 -0500
+Received: from holomorphy.com ([66.224.33.161]:19088 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S262384AbSKCT62>;
+	Sun, 3 Nov 2002 14:58:28 -0500
+Date: Sun, 3 Nov 2002 12:03:40 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Patrick Mau <mau@oscar.prima.de>
+Cc: Margit Schubert-While <margit@margit.com>, linux-kernel@vger.kernel.org
+Subject: Re: U160 on Adaptec 39160
+Message-ID: <20021103200340.GL23425@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Patrick Mau <mau@oscar.prima.de>,
+	Margit Schubert-While <margit@margit.com>,
+	linux-kernel@vger.kernel.org
+References: <4.3.2.7.2.20021103124403.00b4c860@mail.dns-host.com> <20021103133014.GJ23425@holomorphy.com> <20021103195325.GA9689@oscar.homelinux.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021102221605.GA14040@mars.ravnborg.org>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20021103195325.GA9689@oscar.homelinux.net>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, Nov 03, 2002 at 05:30:14AM -0800, William Lee Irwin III wrote:
+>> 39160 does 80MB/s/channel, the 160MB/s happens pretty much only as
+>> the sum of both channels. I've had one for a couple of years, and it
+>> performs very well, though it won't ever quite live up to the marketing
+>> gimmick for bandwidth on a single channel. ISTR something about RAID
+>> across channels involved, but I just use disks directly instead.
 
-> > make clean; time make bzImage took one minute for me. That's *not*
-> > right. rm `find . -name "*.o"` resulted in >5 minutes compilation
-> > time.
-> I have tried to reproduce this without luck.
-> make defconfig
-> make
-> make clean
-> find -name '*.o' did not show any .o files.
-> 
-> Could you please try to list the .o files that survive a make clean.
-> If there are any then I would like to have a copy of .config as well.
+On Sun, Nov 03, 2002 at 08:53:25PM +0100, Patrick Mau wrote:
+> the Adaptec 39160 is indeed capable of doing 160MB/s/channel. Did I
+> misread the whole thread ? Here's the dmesg output of my system.
+> I get >40MB/s per disk and >80MB/s per channel.
+> Maybe it's because of your DVD and DAT device. I only have disks
+> connected to the adapter.
 
-Ahha, it was the old qt-detection-problem.
+64-bit vs. 32-bit PCI. Please follow up with the PCI info from dmesg
+to let them know of where to get the (uncommon/expensive) right hardware.
 
-make clean did not clean much:
 
-make -f scripts/Makefile.clean obj=scripts/kconfig
-*
-* Unable to find the QT installation. Please make sure that the
-* QT development package is correctly installed and the QTDIR
-* environment variable is set to the correct location.
-*
-make[2]: *** [scripts/kconfig/.tmp_qtcheck] Error 1
-make[1]: *** [scripts/kconfig] Error 2
-make: *** [_clean_scripts] Error 2
-pavel@amd:/usr/src/linux-swsusp$
-
-make -i clean makes it properly kill all *.o.
-
-								Pavel
-
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+Bill

@@ -1,36 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261253AbVBGTTb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261242AbVBGTX0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261253AbVBGTTb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 14:19:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261254AbVBGTQX
+	id S261242AbVBGTX0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 14:23:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261254AbVBGTT6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 14:16:23 -0500
-Received: from fw.osdl.org ([65.172.181.6]:20375 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261248AbVBGTNc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 14:13:32 -0500
-Date: Mon, 7 Feb 2005 11:13:21 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: John Rose <johnrose@austin.ibm.com>
-Cc: dwmw2@infradead.org, linux-kernel@vger.kernel.org, greg@kroah.com.torvalds
-Subject: Re: [PATCH] PCI Hotplug: remove incorrect rpaphp firmware
- dependency
-Message-Id: <20050207111321.1282f763.akpm@osdl.org>
-In-Reply-To: <1107798322.31219.8.camel@sinatra.austin.ibm.com>
-References: <200502031908.j13J8ggb031915@hera.kernel.org>
-	<1107795637.19262.426.camel@hades.cambridge.redhat.com>
-	<1107798068.31219.6.camel@sinatra.austin.ibm.com>
-	<1107798322.31219.8.camel@sinatra.austin.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 7 Feb 2005 14:19:58 -0500
+Received: from kludge.physics.uiowa.edu ([128.255.33.129]:45572 "EHLO
+	kludge.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id S261262AbVBGTQs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 14:16:48 -0500
+Date: Mon, 7 Feb 2005 13:16:15 -0600
+From: Joseph Pingenot <trelane@digitasaru.net>
+To: dtor_core@ameritech.net
+Cc: linux-kernel@vger.kernel.org, petero2@telia.com
+Subject: Re: [ATTN: Dmitry Torokhov] About the trackpad and 2.6.11-rc[23] but not -rc1
+Message-ID: <20050207191615.GC12024@digitasaru.net>
+Reply-To: trelane@digitasaru.net
+Mail-Followup-To: dtor_core@ameritech.net, linux-kernel@vger.kernel.org,
+	petero2@telia.com
+References: <20050207154326.GA13539@digitasaru.net> <d120d50005020708512bb09e0@mail.gmail.com> <20050207180950.GA12024@digitasaru.net> <d120d50005020710591181fe69@mail.gmail.com> <20050207190541.GB12024@digitasaru.net> <d120d5000502071112599fa61c@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d120d5000502071112599fa61c@mail.gmail.com>
+X-School: University of Iowa
+X-vi-or-emacs: vi *and* emacs!
+X-MSMail-Priority: High
+X-Priority: 1 (Highest)
+X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
+X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Rose <johnrose@austin.ibm.com> wrote:
->
-> Could we please get David's fix in for 2.6.11, since it's apparently
->  affecting boot in some situations?
+>From Dmitry Torokhov on Monday, 07 February, 2005:
+>On Mon, 7 Feb 2005 13:05:41 -0600, Joseph Pingenot
+><trelane@digitasaru.net> wrote:
+>> From Dmitry Torokhov on Monday, 07 February, 2005:
+>> >On Mon, 7 Feb 2005 12:09:50 -0600, Joseph Pingenot
+>> ><trelane@digitasaru.net> wrote:
+>> >> From Dmitry Torokhov on Monday, 07 February, 2005:
+>> >> >Nonetheless it would be nice to see the data stream from the touchpad
+>> >> >to see why our ALPS support does not work quite right. Could you
+>> >> >please try booting with "log_buf_len=131072 i8042.debug=1", and
+>> >> >working the touchpad a bit. then send me the output of "dmesg -s
+>> >> >131072" (or just /var/log/messages).
+>> >> dmesg output, non-mouse output trimmed (for obvious reasons, if you think
+>> >>  about it ;) is attached.
+>> >I am sorry, I was not clear enough. I'd like to see -rc2 (the broken
+>> >one), complete with bootup process, so we will see why it can't
+>> >synchronize at all. (I of course don't need keyboard data of anything
+>> >that has been typed after boot).
+>> They're both broken in about the same way, iirc.  Is there something special
+>>  in -rc2 that's not in -rc3?
+>No, -rc3 will do as well. Any version starting with -rc2 should do the trick.
 
-Yup, I can take care of that.
+All info in the mail to which you repsonded were from -rc3, including 
+  and especially the attachemnt.  The only info I sent from -rc1 was the
+  contents of /proc/bus/input/devices in response to the *original* request.
+
+-Joseph
+
+-- 
+Joseph===============================================trelane@digitasaru.net
+      Graduate Student in Physics, Freelance Free Software Developer

@@ -1,51 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267164AbUIRPEX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269366AbUIRPns@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267164AbUIRPEX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Sep 2004 11:04:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269532AbUIRPEX
+	id S269366AbUIRPns (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Sep 2004 11:43:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269553AbUIRPns
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Sep 2004 11:04:23 -0400
-Received: from goose.mail.pas.earthlink.net ([207.217.120.18]:53677 "EHLO
-	goose.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id S267164AbUIRPEV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Sep 2004 11:04:21 -0400
-Subject: Re: open source realtek driver for 8180
-From: David Hollis <dhollis@davehollis.com>
-Reply-To: dhollis@davehollis.com
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: tuxrocks@cox.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20040918002931.GA5327@logos.cnet>
-References: <20040915161113.BVQI25194.lakermmtao01.cox.net@smtp.east.cox.net>
-	 <1095268473.6499.4.camel@dhollis-lnx.kpmg.com>
-	 <200409151954.18035.tuxrocks@cox.net>  <20040918002931.GA5327@logos.cnet>
-Content-Type: text/plain
-Date: Sat, 18 Sep 2004 11:04:33 -0400
-Message-Id: <1095519873.3696.5.camel@dhollis-lnx.kpmg.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.94.1 (1.5.94.1-1) 
+	Sat, 18 Sep 2004 11:43:48 -0400
+Received: from smtp801.mail.sc5.yahoo.com ([66.163.168.180]:113 "HELO
+	smtp801.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S269366AbUIRPnp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Sep 2004 11:43:45 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: bus_type->dev_attrs not properly thought out
+Date: Sat, 18 Sep 2004 10:43:41 -0500
+User-Agent: KMail/1.6.2
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Greg KH <greg@kroah.com>
+References: <20040918155659.B17085@flint.arm.linux.org.uk>
+In-Reply-To: <20040918155659.B17085@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200409181043.42268.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-09-17 at 21:29 -0300, Marcelo Tosatti wrote:
-> In my experience the realtek binary driver is crap - it brings up the card 
-> and transfers data correctly - but stops communication after some period of time, 
-> sometimes 10 minutes, sometimes 1 hour.
-> 
-> It oopses on card removal, doenst handle anything other than normal 
-> operation for more than 1 hour.
-> 
-> On RH's 2.4.20-8, all of that.
+On Saturday 18 September 2004 09:56 am, Russell King wrote:
 
-I'm dabbling with the rtl8180-sa2400 code to see if I can make it do
-anything.  Right now most of my time is spent making it compile and
-remotely legible.  The coding style is quite far from graceful.
-Hopefully I can get it to at least transfer some packets and make more
-use of the community to get into something of quality.  
+> 
+> static struct device_attributes mmc_dev_attrs[] = {
+> 	{
+> 		{
+> 			.name = "cid",
+> 			.owner = THIS_MODULE,
+> 			.mode = S_IRUGO,
+> 		},
+> 		.show = mmc_dev_show_cid,
+> 	}, {
+> 		{
+> 			.name = "csd",
+> 			.owner = THIS_MODULE,
+> 			.mode = S_IRUGO,
+> 		},
+> 		.show = mmc_dev_show_csd,
+> 	}, {
+> 		{
+> 			.name = "date",
+> 			.owner = THIS_MODULE,
+> 			.mode = S_IRUGO,
+> 		},
+> 		.show = mmc_dev_show_date,
+> 	}, ... etc ...
+> };
+> 
+> Hardly elegant, hardly clean, and hardly foolproof from silly C'n'P
+> errors.
+> 
 
-I haven't worked with wireless drivers yet so thats a learning
-experience but at least there are plenty of examples at this point.
+What's wrong with the following (drivers/input/serio/serio.c):
+
+static struct device_attribute serio_device_attrs[] = {
+        __ATTR(description, S_IRUGO, serio_show_description, NULL),
+        __ATTR(driver, S_IWUSR | S_IRUGO, serio_show_driver, serio_rebind_driver),
+        __ATTR(bind_mode, S_IWUSR | S_IRUGO, serio_show_bind_mode, serio_set_bind_mode),
+        __ATTR_NULL
+};
+
+Pretty compact and expressive IMHO.
 
 -- 
-David Hollis <dhollis@davehollis.com>
-
+Dmitry

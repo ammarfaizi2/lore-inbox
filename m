@@ -1,56 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319356AbSHOBsE>; Wed, 14 Aug 2002 21:48:04 -0400
+	id <S316430AbSHOBr6>; Wed, 14 Aug 2002 21:47:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319358AbSHOBsE>; Wed, 14 Aug 2002 21:48:04 -0400
-Received: from mail.gurulabs.com ([208.177.141.7]:41647 "HELO
-	mail.gurulabs.com") by vger.kernel.org with SMTP id <S319356AbSHOBsD>;
-	Wed, 14 Aug 2002 21:48:03 -0400
-Date: Wed, 14 Aug 2002 19:51:56 -0600 (MDT)
-From: Dax Kelson <dax@gurulabs.com>
-X-X-Sender: dkelson@mooru.gurulabs.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "Kendrick M. Smith" <kmsmith@umich.edu>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       "nfs@lists.sourceforge.net" <nfs@lists.sourceforge.net>,
-       <beepy@netapp.com>, <trond.myklebust@fys.uio.no>,
-       <torvalds@transmeta.com>
-Subject: Re: Will NFSv4 be accepted?
-In-Reply-To: <1029375327.28240.35.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0208141938350.31203-100000@mooru.gurulabs.com>
+	id <S316544AbSHOBr6>; Wed, 14 Aug 2002 21:47:58 -0400
+Received: from rj.SGI.COM ([192.82.208.96]:54503 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S316430AbSHOBr5>;
+	Wed, 14 Aug 2002 21:47:57 -0400
+Message-ID: <3D5B0970.13CE831A@alphalink.com.au>
+Date: Thu, 15 Aug 2002 11:52:48 +1000
+From: Greg Banks <gnb@alphalink.com.au>
+Organization: Corpus Canem Pty Ltd.
+X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.2.15-4mdkfb i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Roman Zippel <zippel@linux-m68k.org.com>
+CC: Peter Samuelson <peter@cadcamlab.org>,
+       Kai Germaschewski <kai-germaschewski@uiowa.edu>,
+       linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] Re: [patch] config language dep_* enhancements
+References: <Pine.LNX.4.44.0208141242280.8911-100000@serv>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Roman Zippel wrote:
+> 
+> Hi,
+> 
+> On Tue, 13 Aug 2002, Peter Samuelson wrote:
+> 
+> > Mutating the language, long-term, so that it looks less like sh [...]
+> 
+> That doesn't solve any of the more fundamental problems.
 
-Q for Linus: What's the prospect of adding crypto to the kernel?
+Correct, it doesn't.
 
-(more below)
+> 1) We still have 3 config parsers, which produce slightly different
+> .config files.
 
-On 15 Aug 2002, Alan Cox wrote:
+Yes.
 
-> Ok item #1 you authenticate with the server and get a cryptographic key
-> for use as credentials. This solves the bad client problem. Kerberos,
-> gssapi etc will do the job
+> 2) To integrate a new driver, you have to touch at least 3 files:
+> Config.in, Config.help, Makefile. Properly configuring and building a
+> driver outside of the tree is painful to impossible.
 
-Right, I do understand that Kerberized/GSS NFS is not exclusive to NFSv4.  
-However, right now, there is only one way to get Kerberized NFS. The CITI
-NFSv4 patches.
+Yes.
 
-Those patches are, in their estimation, ready for inclusion.  NFSv3 
-support is "coming down the pipeline". 
+> The problems are really not simple, the current config language is very
+> limited, [...]
 
-I would rather see Kerberos V5 NFS data integrity and privacy support
-first (also in the pipeline).  What the current status of including crypto
-in the kernel?
+I don't think anyone who actually understands the config system would
+argue these points, but we are limited by practical constraints to making
+incremental improvements only.
 
-> Item #2 is a bug in our NFS page cache handling. Its not legal in NFS to
-> assume we can share caches between processes unless they have the same
-> NFS credentials for the query. 
-
-I wasn't aware of this.
-
-Thanks,
-Dax
-
+Greg.
+-- 
+the price of civilisation today is a courageous willingness to prevail,
+with force, if necessary, against whatever vicious and uncomprehending
+enemies try to strike it down.     - Roger Sandall, The Age, 28Sep2001.

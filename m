@@ -1,44 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287106AbSAPShG>; Wed, 16 Jan 2002 13:37:06 -0500
+	id <S287048AbSAPSj4>; Wed, 16 Jan 2002 13:39:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285630AbSAPSgq>; Wed, 16 Jan 2002 13:36:46 -0500
-Received: from codepoet.org ([166.70.14.212]:57293 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S285482AbSAPSgh>;
-	Wed, 16 Jan 2002 13:36:37 -0500
-Date: Wed, 16 Jan 2002 11:36:36 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: Felix von Leitner <felix-dietlibc@fefe.de>,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>, Greg KH <greg@kroah.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [RFC] klibc requirements
-Message-ID: <20020116183635.GA32184@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	David Lang <david.lang@digitalinsight.com>,
-	Felix von Leitner <felix-dietlibc@fefe.de>,
-	"Albert D. Cahalan" <acahalan@cs.uml.edu>, Greg KH <greg@kroah.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020115115544.GA20020@codeblau.de> <Pine.LNX.4.40.0201150649430.23491-100000@dlang.diginsite.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.40.0201150649430.23491-100000@dlang.diginsite.com>
-User-Agent: Mutt/1.3.24i
-X-Operating-System: Linux 2.4.16-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+	id <S285482AbSAPSjq>; Wed, 16 Jan 2002 13:39:46 -0500
+Received: from [66.89.142.2] ([66.89.142.2]:8232 "EHLO starship.berlin")
+	by vger.kernel.org with ESMTP id <S285630AbSAPSjb>;
+	Wed, 16 Jan 2002 13:39:31 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] update: preemptive kernel for O(1) sched
+Date: Tue, 15 Jan 2002 15:58:11 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: kpreempt-tech@lists.sourceforge.net
+In-Reply-To: <1010961108.814.12.camel@phantasy> <1010982884.1527.52.camel@phantasy>
+In-Reply-To: <1010982884.1527.52.camel@phantasy>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16QVJh-0000un-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue Jan 15, 2002 at 06:54:46AM -0800, David Lang wrote:
-> were a lot smaller. I would like to try to use this small libc for these
-> proxies, but if the library is GPL, not LGPL I'm not allowed to.
+On January 14, 2002 05:34 am, Robert Love wrote:
+> A version of preempt-stats for the 2.5 series kernel is available at:
+> 
+> 	ftp://ftp.kernel.org/pub/linux/kernel/people/rml/preempt-stats
+> 
+> and your favorite mirror.  Patches for 2.4 are available, too.
+> 
+> This patch, used on top of preempt-kernel, allows the measuring of
+> periods of non-preemptible so that we can identify long-held locks.  The
+> patch creates a proc entry, latencytimes, which contains the top 20
+> worst-case recorded periods since it was last read.  To begin recording,
+> read the file once.  Subsequent reads will return the results. I.e.,
 
-So use uClibc, which is LGPL,
+Nice, but you need a way to turn it off, for example:
 
- -Erik
+   echo >/proc/latencytimes
+
+i.e., truncate.
+
+> [23:25:08]rml@langston:~$ cat /proc/latencytimes 
+> Worst 20 latency times of 277 measured in this period.
+>   usec      cause     mask   start line/file      address   end line/file
+>   9982  spin_lock        0   488/sched.c         c0117ee2   645/irq.c
+>    968        BKL        0   666/tty_io.c        c0193d58   645/irq.c
+>    430  spin_lock        0    69/i387.c          c010f34f    96/mmx.c
+>    103       ide0        0   583/irq.c           c010ab1c   645/irq.c
+>    100        BKL        0  2562/buffer.c        c014abda  2565/buffer.c
+>     54        BKL        0   702/tty_io.c        c019406b   704/tty_io.c
+> ... etc
+
+A more typical form for the file/line would be, e.g., irq.c:645
+
+> The goal would be to identity the problem areas and fix them.
+
+Yep, sorry about the nits but that's the way we nitbots are programmed.
 
 --
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+Daniel
+

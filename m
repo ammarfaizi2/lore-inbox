@@ -1,72 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319145AbSIJOor>; Tue, 10 Sep 2002 10:44:47 -0400
+	id <S319149AbSIJOua>; Tue, 10 Sep 2002 10:50:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319147AbSIJOor>; Tue, 10 Sep 2002 10:44:47 -0400
-Received: from 62-190-216-131.pdu.pipex.net ([62.190.216.131]:30724 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S319145AbSIJOoq>; Tue, 10 Sep 2002 10:44:46 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200209101456.g8AEuwAV000592@darkstar.example.net>
-Subject: Re: ide drive dying?
-To: mdresser_l@windsormachine.com (Mike Dresser)
-Date: Tue, 10 Sep 2002 15:56:57 +0100 (BST)
-Cc: ookhoi@humilis.net, Dieter.Nuetzel@hamburg.de,
-       linux-kernel@vger.kernel.org, erin_hartin@maxtor.com,
-       sales-mkt@maxtor.com
-In-Reply-To: <Pine.LNX.4.33.0209100949180.16210-100000@router.windsormachine.com> from "Mike Dresser" at Sep 10, 2002 09:59:56 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S319150AbSIJOua>; Tue, 10 Sep 2002 10:50:30 -0400
+Received: from mta.sara.nl ([145.100.16.144]:50393 "EHLO mta.sara.nl")
+	by vger.kernel.org with ESMTP id <S319149AbSIJOu3>;
+	Tue, 10 Sep 2002 10:50:29 -0400
+Date: Tue, 10 Sep 2002 16:55:10 +0200
+Subject: Re: writing OOPS/panic info to nvram?
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v482)
+Cc: linux-kernel@vger.kernel.org
+To: Pavel Machek <pavel@suse.cz>
+From: Remco Post <r.post@sara.nl>
+In-Reply-To: <20020906100650.D35@toy.ucw.cz>
+Message-Id: <4DE1BD2E-C4CD-11D6-9C2C-000393911DE2@sara.nl>
 Content-Transfer-Encoding: 7bit
+X-Mailer: Apple Mail (2.482)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> On Tue, 10 Sep 2002, Ookhoi wrote:
-> 
-> > jbradford@dial.pipex.com wrote (ao):
-> > > I have *never* lost data to a Maxtor disk.  I have had IBM, Fujitsu,
-> > > Western Digital, and DEC drives all fail on me before.
-> > >
-> > > It's dissapointing that Maxtor are reducing their warranty from 3
-> > > years to 1 year, but on the other hand, I've never needed it at all.
-> >
-> > FWIW:
-> > On http://www.maxtor.com/products/enterprise_apps/default.htm
-> > they say 3 years limited warranty.
-> 
-> That's only their MaxLine II drives.  Their regular DiamondMax and all
-> that, are still one year starting in October.  At least their SCSI drives
-> haven't been killed off yet.
-> 
-> OffTopic:
-> 
-> I'm wonder just who in upper Management at Maxtor decided to help the
-> company commit suicide.
-> 
-> I've already ordered a few Seagate drives to test out here at our
-> offices, to replace my previous choice of Maxtor D740X's.  I'll still be
-> looking at the MaxLine II's for backup servers because of the 3 year
-> warranty, but for desktops, I can't risk our data to drives that even the
-> manufacturer doesn't trust.  The performance drop becomes secondary at
-> that point.
-> 
-> I know of a few local shops that will no longer carry Maxtor drives
-> because the warranty costs would kill their profit margin.  They cannot
-> offer a 3 year warranty on the computer when the drive is only covered
-> for a year.
-> 
-> Mike Dresser,
-> 
-> Systems Administrator
-> Windsor Machine & Stamping
-> 
 
-According this this announcement:
+On vrijdag, september 6, 2002, at 12:06 , Pavel Machek wrote:
 
-http://www.shareholder.com/maxtor/news/20020909-89588.cfm
+> Hi!
+>
+>> driver oopses... Maybe do something like:
+>>
+>> if there is enough space on disk && ..., use that else
+>> if there is a swap over nfs && ..., use that else
+>> if there is a tape drive attaced and a tape is present and it is
+>> writeable... else
+>> if there is nvram available use that
+>
+> You just killed any data you had on the tape... too bad.
+> 								Pavel
 
-some of their new ATA drives will carry a three-year warranty.
+Yes, so, or you just saved that oops that has been bugging you for 
+months... (And yes I'm probably one of those rare people that has 
+tapedrives attached that are not used for anything usefull).
 
-John.
+---
+Met vriendelijke groeten,
+
+Remco Post
+
+SARA - Stichting Academisch Rekencentrum Amsterdam    http://www.sara.nl
+High Performance Computing  Tel. +31 20 592 8008    Fax. +31 20 668 3167
+PGP keys at http://home.sara.nl/~remco/keys.asc
+
+"I really didn't foresee the Internet. But then, neither did the computer
+industry. Not that that tells us very much of course - the computer 
+industry
+didn't even foresee that the century was going to end." -- Douglas Adams
+
+

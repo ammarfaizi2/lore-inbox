@@ -1,71 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262230AbTIJLQV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 07:16:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262231AbTIJLQV
+	id S261977AbTIJLNQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 07:13:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbTIJLNQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 07:16:21 -0400
-Received: from 11.ylenurme.ee ([193.40.6.11]:61677 "EHLO linking.ee")
-	by vger.kernel.org with ESMTP id S262230AbTIJLQS (ORCPT
+	Wed, 10 Sep 2003 07:13:16 -0400
+Received: from luli.rootdir.de ([213.133.108.222]:51886 "HELO luli.rootdir.de")
+	by vger.kernel.org with SMTP id S261977AbTIJLNP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 07:16:18 -0400
-Message-ID: <37546.195.80.106.123.1063195928.squirrel@mail.linking.ee>
-Date: Wed, 10 Sep 2003 14:12:08 +0200 (EET)
-Subject: Re: softraid + serverraid locking FS
-From: <elmer@linking.ee>
-To: <arjanv@redhat.com>
-In-Reply-To: <1063181415.5021.0.camel@laptop.fenrus.com>
-References: <2739.195.80.106.123.1063183974.squirrel@mail.linking.ee>
-        <1063181415.5021.0.camel@laptop.fenrus.com>
-X-Priority: 3
-Importance: Normal
-X-MSMail-Priority: Normal
-Cc: <linux-kernel@vger.kernel.org>
-X-Mailer: SquirrelMail (version 1.2.6)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 10 Sep 2003 07:13:15 -0400
+Date: Wed, 10 Sep 2003 13:13:12 +0200
+From: Claas Langbehn <claas@rootdir.de>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew de Quincey <adq@lidskialf.net>, acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] [2.6.0-test5-mm1] Suspend to RAM problems
+Message-ID: <20030910111312.GA847@rootdir.de>
+References: <20030910103142.GA1053@rootdir.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030910103142.GA1053@rootdir.de>
+Reply-By: Sa Sep 13 13:10:31 CEST 2003
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.0-test4-mm4 i686
+X-No-archive: yes
+X-Uptime: 13:10:31 up 2 min,  1 user,  load average: 0.13, 0.12, 0.05
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I also tried to suspend with ACPI in single user mode:
 
-the same problem with vanilla 2.4.22 (SMP kernel on UP hw)
+echo 3 >/proc/acpi/sleep
 
-for example, after startup:
+makes the system sleep within a second.
 
-1. cp -dpR lotsfiles4GB /testcopy
-2. load goes with minutes to 13
-3. /bin/sync  blocks
-4. Ctrl-Z to cp
-5. ps axlef waits 3-10 secs before answer as raid1 sync goes with 14kB/sec
+After waking it up by pressing a key or the power button
+the VGA Bios shows up for a second and afterwards I get
+this message:
 
-previous problem was without raid sync, currently just it takes time to
-test without it
-NB! the same copy from the same softraid partition to the same softraid
-partition sucks a bit, but load does not grow steadily, remains 3changing raid1sync speed affects a bit the whole thing, but does not end it.
+APIC error on CPU0: 08(08)
 
-the same copy within serverraid partition is ok.
+...and it repeats endlessly :(
 
-Currently I havent managed to get softdog into action, but behaviour is
-still bad enough to call it a BUG.
-
-
-
-
-> On Wed, 2003-09-10 at 10:52, elmer@linking.ee wrote:
->>  cp -dpR lotsfiles2GB /testcopy
->>
->>                     SMP x335   UP x335
->> serverraid-serverraid  OK          OK
->> softraid-softraid      OK          OK
->> softraid-serverraid    OK          OK
->> serverraid5E-softraid  SLEEPY       X
->> serverraid1E-softraid     X       PROBLEM
->>
->> it is redhat AS 2.4.9-25 kernel, SMP kernel for both.
->
-> that kernel is very old and heavily patched; lkml is not the place to
-> report problems, your Red Hat support contact is...
-
-
+my keyboard is dead afterwards.
 

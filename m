@@ -1,31 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290634AbSBLAVV>; Mon, 11 Feb 2002 19:21:21 -0500
+	id <S290635AbSBLAWm>; Mon, 11 Feb 2002 19:22:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290635AbSBLAVL>; Mon, 11 Feb 2002 19:21:11 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:42758 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S290634AbSBLAU5>; Mon, 11 Feb 2002 19:20:57 -0500
-Subject: Re: Linux 2.4.18-pre9-ac1
-To: andersen@codepoet.org
-Date: Tue, 12 Feb 2002 00:34:33 +0000 (GMT)
-Cc: alan@redhat.com (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <20020212001547.GA22586@codepoet.org> from "Erik Andersen" at Feb 11, 2002 05:15:47 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S290636AbSBLAWW>; Mon, 11 Feb 2002 19:22:22 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:53004 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S290635AbSBLAWJ>; Mon, 11 Feb 2002 19:22:09 -0500
+Message-ID: <3C68602E.91D12F2F@linux-m68k.org>
+Date: Tue, 12 Feb 2002 01:22:06 +0100
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: David Howells <dhowells@redhat.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: thread_info implementation
+In-Reply-To: <22351.1013472622@warthog.cambridge.redhat.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16aQu1-00008C-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I notice that in linux/drivers/scsi/scsi_merge.c you seem to
-> be reverting the MO drive clustering fix from Jens:
->     http://www.uwsg.indiana.edu/hypermail/linux/kernel/0202.0/1321.html
-> 
-> Was this intentional?  If so, why?
+Hi,
 
-I want to find out why it was done first and then test it. Leaving it out
-will ensure it bugs me until I test it
+David Howells wrote:
 
+> Why are you using bitfield instructions on the m68k arch? why not use just
+> simple bit instructions (or and/or/xor where masking)? All the flags are
+> single bit width fields.
+
+These are two bytes longer as well, right now I'm doing this:
+
+        tstw    %d0
+        jeq     do_signal_return
+        tstb    %d0
+        jne     do_delayed_trace
+
+using btst or andw this would be four bytes longer.
+
+bye, Roman

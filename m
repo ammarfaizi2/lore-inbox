@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbUHSG5A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbUHSHBW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261405AbUHSG5A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 02:57:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbUHSG5A
+	id S261426AbUHSHBW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 03:01:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbUHSHBV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 02:57:00 -0400
-Received: from port-213-148-152-119.static.qsc.de ([213.148.152.119]:12971
-	"EHLO mbs-software.de") by vger.kernel.org with ESMTP
-	id S261405AbUHSG4t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 02:56:49 -0400
-Date: Thu, 19 Aug 2004 08:56:47 +0200
-From: Alex Riesen <ari@mbs-software.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Packet writing problems
-Message-ID: <20040819065647.GH29792@linux-ari.internal>
-Reply-To: Alex Riesen <ari@mbs-software.de>
-References: <20040818125719.GA6021@linux-ari.internal> <87u0v08jcw.fsf@killer.ninja.frodoid.org>
+	Thu, 19 Aug 2004 03:01:21 -0400
+Received: from holomorphy.com ([207.189.100.168]:57277 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261426AbUHSG7O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 02:59:14 -0400
+Date: Wed, 18 Aug 2004 23:59:09 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: arjanv@redhat.com, alan@redhat.com, greg@kroah.com,
+       linux-kernel@vger.kernel.org, riel@redhat.com, sct@redhat.com
+Subject: Re: PF_MEMALLOC in 2.6
+Message-ID: <20040819065909.GH11200@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Pete Zaitcev <zaitcev@redhat.com>, arjanv@redhat.com,
+	alan@redhat.com, greg@kroah.com, linux-kernel@vger.kernel.org,
+	riel@redhat.com, sct@redhat.com
+References: <20040818235523.383737cd@lembas.zaitcev.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87u0v08jcw.fsf@killer.ninja.frodoid.org>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040818235523.383737cd@lembas.zaitcev.lan>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Julien Oster, Wed, Aug 18, 2004 19:08:15 +0200:
-> (I guess your mail was also meant to lkml?)
+On Wed, Aug 18, 2004 at 11:55:23PM -0700, Pete Zaitcev wrote:
+> The PF_MEMALLOC is required on usb-storage threads in 2.4, because ext3
+> will deadlock and otherwise misbehave when it's trying to write out
+> dirty pages under memory pressure.
+> I received a bug report today from an FC3T1 user with same symptoms
+> as 2.4. But I'm entirely clueless in the way VM operates. Comments?
 
-yes, I'm just reading the list off the archive at marc, so replies do
-not go automatically to lkml if you have to copy-paste the text.
+I suspect this describes it adequately. If the shoe fits...
 
-> We're making a lot of mess about some simple output.
 
-Well, it's a lot of simple output.
-
->  static int pkt_good_disc(struct pktcdvd_device *pd, disc_information *di)
->  {
-> +        char *mediatypename;
-
-it is "const char*", actually. And the indentation before the line is
-8 spaces, instead of 1 tab (unlike everything in the file).
-
+-- wli

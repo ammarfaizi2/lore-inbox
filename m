@@ -1,79 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271956AbRIINPg>; Sun, 9 Sep 2001 09:15:36 -0400
+	id <S271964AbRIINSq>; Sun, 9 Sep 2001 09:18:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271257AbRIINP0>; Sun, 9 Sep 2001 09:15:26 -0400
-Received: from ns.ithnet.com ([217.64.64.10]:11020 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S271956AbRIINPR>;
-	Sun, 9 Sep 2001 09:15:17 -0400
-Date: Sun, 9 Sep 2001 15:15:09 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: mcelrath@draal.physics.wisc.edu, linux-kernel@vger.kernel.org
-Subject: Re: "Cached" grows and grows and grows...
-Message-Id: <20010909151509.6a0c7d68.skraw@ithnet.com>
-In-Reply-To: <E15flgs-0004BN-00@the-village.bc.nu>
-In-Reply-To: <20010908184758.696bb9d1.skraw@ithnet.com>
-	<E15flgs-0004BN-00@the-village.bc.nu>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S271961AbRIINSg>; Sun, 9 Sep 2001 09:18:36 -0400
+Received: from red.csi.cam.ac.uk ([131.111.8.70]:49814 "EHLO red.csi.cam.ac.uk")
+	by vger.kernel.org with ESMTP id <S271257AbRIINSU>;
+	Sun, 9 Sep 2001 09:18:20 -0400
+Message-Id: <5.1.0.14.2.20010909135727.00aa8be0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sun, 09 Sep 2001 14:14:54 +0100
+To: Linus Torvalds <torvalds@transmeta.com>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: linux-2.4.10-pre5
+Cc: Andreas Dilger <adilger@turbolabs.com>, Andrea Arcangeli <andrea@suse.de>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0109082137060.1161-100000@penguin.transmeta.
+ com>
+In-Reply-To: <20010908222923.H32553@turbolinux.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 8 Sep 2001 18:14:46 +0100 (BST) Alan Cox <alan@lxorguk.ukuu.org.uk>
-wrote:
+At 05:54 09/09/2001, Linus Torvalds wrote:
+>On Sat, 8 Sep 2001, Andreas Dilger wrote:
+> > So basically - when we move block devices to the page cache, get rid of
+> > buffer cache usage in the filesystems as well?  Ext2 is nearly there at
+> > least.  One alternative is as Daniel Phillips did in the indexed-ext2-
+> > directory patch, where he kept the "bread" interface, but backed it
+> > with the page cache, so it required relatively little change to the
+> > filesystem.
+>
+>This might be a really easy solution. We might just make sure that the
+>buffer manipulation interfaces we export to filesystems (and there aren't
+>actually all that many of them - it's mainly bread and getblk) always end
+>up using the page cache, and just return the buffer head that is embedded
+>inside the page cache.
+>
+>That way we don't have any new aliasing issues _at_all_. The user-mode
+>accesses to the block devices would always end up using the same buffers
+>that the low-level filesystem does.
+>
+>Hmm.. That actually would have another major advantage too: the whole
+>notion of a "anonymous buffer page" would just disappear. Because there
+>would be no interfaces to even create them - buffer pages would always be
+>associated with a mapping.
+>
+>Andrea(s) - interested in pursuing this particular approach? In fact,
+>since "bread()" uses "getblk()", it is almost sufficient to just make
+>getblk()  use the page cache, and the rest will follow... You can even get
+>rid of the buffer hash etc, and make the buffer head noticeably smaller.
+>
+>[ Yeah, I'm being a bit optimistic - you also end up having to re-write
+>   "get_hash_table()" to use a page cache lookup etc. So it's definitely
+>   some major surgery in fs/buffer.c, but "major" might actually be just a
+>   couple of hundred lines ]
+>
+>The good news here is that once it works (and you've destroyed your
+>filesystem about fifty times debugging it :), it's pretty much guaranteed
+>not to introduce any new and "interesting" interactions between
+>filesystems and user-level programs accessing the device.
+>
+>And no filesystem should ever notice. They can still access the buffer
+>head as if it was just a buffer head, and wouldn't care about the fact
+>that it happens to be part of a mapping.
+>
+>Any pitfalls?
 
-> > //      printk(KERN_ERR "__alloc_pages: %lu-order allocation failed.\n",
-order)
-> >         return NULL;
-> > 
-> > If there is no printk, you will obviously not notice the problem. You can
-bet
-> > your car on not "seeing the problem".
-> 
-> That printk is commented out because its pointless and bogus noise. It just
-> causes confused bug reporting. The stuff that matters is cache sizes
-> shrinking back when we need memory not slowly eating the computer alive.
+Not a pitfall, but a question: what happens with the get_block() callback 
+passed to block_read_full_page() by the readpage() address space method of 
+individual filesystems with respect to reading sparse files?
 
-Hm, I guess I had to find out, that you've the same problem than linus' tree,
-only on "the other side of the street". This is a meminfo from a 2.4.9-ac9
-kernel working one day, and then going crazy on too low mem. "Going crazy" here
-means that kswapd took virtually over the cpu(s) and swapped the hell out the
-machine:
-(BTW you can see that swap did not really grow, but seems to get in and out
-permanently)
+The problem I see is as follows: reading a sparse region from a sparse 
+file, get_block() callback will return with just setting bh->b_blocknr = 
+-1UL; but _not_ setting BH_Mapped on the buffer. (That is what NTFS TNG 
+does anyway, probably not ideal, but I wasn't sure what to do in this case 
+as bh->b_blocknr = 0UL is quite valid and returns the first data block of 
+the $Boot system file...)
 
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  921706496 894324736 27381760     4096 783917056 29102080
-Swap: 271392768 13185024 258207744
-MemTotal:       900104 kB
-MemFree:         26740 kB
-MemShared:           4 kB
-Buffers:        765544 kB
-Cached:          15744 kB
-SwapCached:      12676 kB
-Active:         502132 kB
-Inact_dirty:    291836 kB
-Inact_clean:         0 kB
-Inact_target:       80 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       900104 kB
-LowFree:         26740 kB
-SwapTotal:      265032 kB
-SwapFree:       252156 kB
+Will this continue to work as expected? Or is it fundamentally broken and I 
+shouldn't be using block_read_full_page() for NTFS at all and having my own 
+replacement? - I only use block_read_full_page() for non-resident files 
+already as resident files are not stored in disk blocks so the concept of a 
+get_block() or using buffer heads for final i/o is not applicable to them 
+at all... - But I still need to have buffer heads without a disk mapping 
+for sparse files. At least I would like to allocate the actual on disk 
+storage only when someone actually writes to a hole, but not reads from it.
 
-You are right: page cache shrunk.
-You are wrong: it does _not_ work, because now buffers increased and obviously
-cannot be shrunk to allow "normal" applications to run. I could not even
-shutdown the machine correctly. It looks like a deadlock in vm to me.
+Best regards,
 
-I switched back to Linus' tree, because it does have problems, but is not dead
-within one day.
+Anton
 
-Regards,
-Stephan
+
+-- 
+   "Nothing succeeds like success." - Alexandre Dumas
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

@@ -1,37 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267594AbTAQQZ7>; Fri, 17 Jan 2003 11:25:59 -0500
+	id <S267602AbTAQQSf>; Fri, 17 Jan 2003 11:18:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267583AbTAQQZ7>; Fri, 17 Jan 2003 11:25:59 -0500
-Received: from mnh-1-07.mv.com ([207.22.10.39]:33028 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S267594AbTAQQZ6>;
-	Fri, 17 Jan 2003 11:25:58 -0500
-Message-Id: <200301171628.LAA02363@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: uml-patch-2.5.58-1
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 17 Jan 2003 11:28:30 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S267605AbTAQQSf>; Fri, 17 Jan 2003 11:18:35 -0500
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:52644 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S267602AbTAQQSb>; Fri, 17 Jan 2003 11:18:31 -0500
+Date: Fri, 17 Jan 2003 10:24:42 -0600 (CST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: Russell King <rmk@arm.linux.org.uk>, Mikael Pettersson <mikpe@csd.uu.se>,
+       <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.59 vmlinux.lds.S change broke modules
+In-Reply-To: <m1adhzg3fp.fsf@frodo.biederman.org>
+Message-ID: <Pine.LNX.4.44.0301171019220.15056-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch brings UML up to date with Linus (at least until he released 2.5.59
-last night :-).
+On 17 Jan 2003, Eric W. Biederman wrote:
 
-There's nothing new here except for the updates to .58 - in large part, these
-are thanks to Oleg Drokin.
+> > Well:
+> > 
+> >         __start___ksymtab = .;                                          \
+> >         __ksymtab         : AT(ADDR(__ksymtab) - LOAD_OFFSET) {         \
+> >                 *(__ksymtab)                                            \
+> >         }                                                               \
+> >         __stop___ksymtab = .;                                           \
+> > 
+> > breaks on some ARM binutils (from a couple of years ago.)  The most
+> > reliable way we've found in with ARM binutils is to place the symbols
+> > inside the section - this appears to work 100% every single time and
+> > I've never had any reports of failure (whereas I did with the symbols
+> > outside as above.)
+> 
+> That has been roughly my experience on x86 as well with the exception
+> of bss sections.  For bss sections placing the symbols inside the section
+> itself has been deadly.
 
-The 2.5.58-1 UML patch is available at
-        http://uml-pub.ists.dartmouth.edu/uml/uml-patch-2.5.58-1.bz2
- 
-For the other UML mirrors and other downloads, see 
-        http://user-mode-linux.sourceforge.net/dl-sf.html
- 
-Other links of interest:
- 
-        The UML project home page : http://user-mode-linux.sourceforge.net
-        The UML Community site : http://usermodelinux.org
-				Jeff
+Can both of you guys elaborate on what "break" means here, I'm trying to 
+better understand what's going on. One thing is rather obvious, and that's 
+what causing the current breakage with RH8 binutils:
+
+If "." isn't properly aligned, __kstart___ksymtab will point to an address
+which is before the actual start of the section, since that gets aligned 
+to its requirements. Was that the ARM problem?
+
+Now, what's different for __bss, i.e. what goes wrong there?
+
+Related issue: The linker will actually automatically emit
+__{start,stop}_SECTION symbols when SECTION is a C symbol (i.e.  
+letters,numbers,_), so things should actually work without explicitly
+defining those symbols. They do on i386 with my binutils, but I assume
+there's some reason why we don't just rely on that?
+
+--Kai
+
 

@@ -1,69 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262196AbTJST5W (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 15:57:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbTJST5W
+	id S262190AbTJSTzN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 15:55:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262192AbTJSTzN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 15:57:22 -0400
-Received: from mail.gmx.net ([213.165.64.20]:35521 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262196AbTJST5R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 15:57:17 -0400
-Date: Sun, 19 Oct 2003 21:57:15 +0200 (MEST)
-From: "Svetoslav Slavtchev" <svetljo@gmx.de>
-To: linux-kernel@vger.kernel.org
+	Sun, 19 Oct 2003 15:55:13 -0400
+Received: from smtp5.hy.skanova.net ([195.67.199.134]:507 "EHLO
+	smtp5.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S262190AbTJSTzB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 15:55:01 -0400
+To: Jens Axboe <axboe@suse.de>, Nick Piggin <piggin@cyberone.com.au>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.6.0-test8, DEBUG_SLAB, oops in as_latter_request()
+From: Peter Osterlund <petero2@telia.com>
+Date: 19 Oct 2003 21:54:38 +0200
+Message-ID: <m2ismlovep.fsf@p4.localdomain>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Subject: HighPoint 374
-X-Priority: 3 (Normal)
-X-Authenticated: #20183004
-Message-ID: <24673.1066593435@www23.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i have the same problems with epox 8k9a3+,
-and may be even strange ones
-(like fs coruption when soft raid & / or lvm is used)
+I was running 2.6.0-test8 compiled with CONFIG_DEBUG_SLAB=y. When
+testing the CDRW packet writing driver, I got an oops in
+as_latter_request. (Full oops at the end of this message.) It is
+repeatable and happens because arq->rb_node.rb_right is uninitialized.
 
-and i never had the problems with 8k5a3+,
-the drives were actually taken from the 8k5a3+
-when it died (me silly tried to update to XP2700)
+Although I have only seen this when using the packet writing driver, I
+don't think that driver is causing the problem. It isn't doing
+anything fancy with the cdrom request queue. It is only submitting a
+bunch of read/write requests using submit_bio() when the oops happens.
 
-really strange, isn't it
+This patch appears to fix the problem, but I haven't tried to
+understand the AS code, so I don't know if this is the correct
+solution.
 
-both boards should be the same, except
-8k5a3+ uses kt333
-8k9a3+ uses kt400
+--- linux/drivers/block/as-iosched.c~	2003-10-09 18:54:36.000000000 +0200
++++ linux/drivers/block/as-iosched.c	2003-10-19 20:33:45.000000000 +0200
+@@ -1718,6 +1718,7 @@
+ 	struct as_rq *arq = mempool_alloc(ad->arq_pool, gfp_mask);
+ 
+ 	if (arq) {
++		memset(&arq->rb_node, 0, sizeof(struct rb_node));
+ 		RB_CLEAR(&arq->rb_node);
+ 		arq->request = rq;
+ 		arq->state = AS_RQ_NEW;
 
-only mainboard change -> hell of a lot unresolved problems
+Here is the oops:
 
+Unable to handle kernel paging request at virtual address 5a5a5a66
+ printing eip:
+c02213ef
+*pde = 00000000
+Oops: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c02213ef>]    Not tainted
+EFLAGS: 00010006
+EIP is at rb_next+0xf/0x60
+eax: 5a5a5a5a   ebx: c5ec0510   ecx: c373597c   edx: 5a5a5a5a
+esi: c373597c   edi: 00000292   ebp: c3375d98   esp: c3375d98
+ds: 007b   es: 007b   ss: 0068
+Process ld (pid: 1290, threadinfo=c3374000 task=c3656fc0)
+Stack: c3375da4 c0266df4 c5e8277c c3375db4 c025d37e c5ec0510 c373597c c3375de4 
+       c02609df c5ec0510 c373597c c373597c c3375de4 c027da4c 00000000 c5e59d2c 
+       c373597c c041280c c5e59d2c c3375e04 c027dab2 c5ec0510 c373597c 00000000 
+Call Trace:
+ [<c0266df4>] as_latter_request+0x14/0x30
+ [<c025d37e>] elv_latter_request+0x2e/0x30
+ [<c02609df>] blk_attempt_remerge+0x8f/0x1a0
+ [<c027da4c>] restore_request+0xcc/0xe0
+ [<c027dab2>] cdrom_start_read+0x52/0xb0
+ [<c027eab4>] ide_do_rw_cdrom+0x74/0x190
+ [<c026b141>] start_request+0x181/0x290
+ [<c026b4c3>] ide_do_request+0x243/0x4c0
+ [<c026c1ab>] ide_intr+0x36b/0x5d0
+ [<c027d220>] cdrom_read_intr+0x0/0x3f0
+ [<c010c1bb>] handle_IRQ_event+0x3b/0x70
+ [<c010c7d1>] do_IRQ+0x141/0x3b0
+ [<c010a6f8>] common_interrupt+0x18/0x20
+ [<c0127d1d>] do_softirq+0x4d/0xb0
+ [<c010c8e5>] do_IRQ+0x255/0x3b0
+ [<c015d9aa>] sys_brk+0xfa/0x130
+ [<c010a6f8>] common_interrupt+0x18/0x20
 
-svetljo
-kernels used 2.4.21-2.4.23-pre3 2.6.0-test3-test7bk8
-
-and a nice log when i try to enable TCQ
-
-all Trace: [<c0235ee3>]  [<c022e834>]  [<c025b0ef>]  [<c026e0ed>] 
-[<c025c7e2>]  [<c026e080>]  [<c010df03>]  [<c010e233>]  [<c010c7d8>]
-Badness in as_remove_dispatched_request at drivers/block/as-iosched.c:1022
-Call Trace: [<c0235ee3>]  [<c022e834>]  [<c025b0ef>]  [<c026e0ed>] 
-[<c025c7e2>]  [<c026e080>]  [<c010df03>]  [<c010e233>]  [<c010c7d8>]
-Badness in as_remove_dispatched_request at drivers/block/as-iosched.c:1022
-Call Trace: [<c0235ee3>]  [<c022e834>]  [<c025b0ef>]  [<c026e0ed>] 
-[<c025c7e2>]  [<c026e080>]  [<c010df03>]  [<c010e233>]  [<c010c7d8>]
-Badness in as_remove_dispatched_request at drivers/block/as-iosched.c:1022
-Call Trace: [<c0235ee3>]  [<c022e834>]  [<c025b0ef>]  [<c026e0ed>] 
-[<c025c7e2>]  [<c026e080>]  [<c010df03>]  [<c010e233>]  [<c010c7d8>]
-
+Code: 8b 40 0c 85 c0 74 13 8d 76 00 8d bc 27 00 00 00 00 89 c2 8b 
+ <0>Kernel panic: Fatal exception in interrupt
+In interrupt handler - not syncing
 
 -- 
-NEU FÜR ALLE - GMX MediaCenter - für Fotos, Musik, Dateien...
-Fotoalbum, File Sharing, MMS, Multimedia-Gruß, GMX FotoService
-
-Jetzt kostenlos anmelden unter http://www.gmx.net
-
-+++ GMX - die erste Adresse für Mail, Message, More! +++
-
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

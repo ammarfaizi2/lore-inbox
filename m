@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266708AbUH0RPn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266543AbUH0RV4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266708AbUH0RPn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 13:15:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266705AbUH0RPn
+	id S266543AbUH0RV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 13:21:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266617AbUH0RV4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 13:15:43 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:2571 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S266704AbUH0RPk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 13:15:40 -0400
-Date: Fri, 27 Aug 2004 18:15:38 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Patrick Gefre <pfg@sgi.com>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Latest Altix I/O code reorganization code
-Message-ID: <20040827181538.A1173@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Patrick Gefre <pfg@sgi.com>, linux-ia64@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-References: <200408042014.i74KE8fD141211@fsgi900.americas.sgi.com> <20040806141836.A9854@infradead.org> <411AAABB.8070707@sgi.com> <412F4EC9.7050003@sgi.com>
+	Fri, 27 Aug 2004 13:21:56 -0400
+Received: from dh138.citi.umich.edu ([141.211.133.138]:7814 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S266543AbUH0RVy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 13:21:54 -0400
+Subject: Re: POSIX_FADV_NOREUSE and O_STREAMING behavior in 2.6.7
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: David Greaves <david@dgreaves.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <412EEFF1.9080409@dgreaves.com>
+References: <412E2058.60302@rtlogic.com>  <412E2E0D.8040401@dgreaves.com>
+	 <1093547459.6106.57.camel@lade.trondhjem.org>
+	 <412EEFF1.9080409@dgreaves.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1093627313.5758.5.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <412F4EC9.7050003@sgi.com>; from pfg@sgi.com on Fri, Aug 27, 2004 at 10:10:01AM -0500
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 27 Aug 2004 13:21:53 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 27, 2004 at 10:10:01AM -0500, Patrick Gefre wrote:
-> 
-> This is an update to our last set of patches. I've added some comments from the
-> last review and another synopsis of the patches. The individual patches will
-> follow this email.
+På fr , 27/08/2004 klokka 04:25, skreiv David Greaves:
 
-The header changes in your patchkit are still rather strange, you're e.g.
-adding a pfn_t or clusterid_t but never using it.  As suggested in a previous
-mail please also provide a clean set of headers in addition to the clean set
-of source files.  There's lots of dead wood in thos and with all the code
-gone youshould be able to kill off all the IRIX-compat gunk, etc..
+> I want my nfs client to communicate this to my nfs server. Thus avoiding 
+> my nfs server having a cache of useless video.
+> I can see this becoming an important benefit for video distribution (an 
+> area linux is likely to see more of)
 
+Then you are probably going to have to invent some out-of-band protocol
+in order to do so. Creating such a protocol shouldn't be a hard task,
+but getting all those server manufacturers to adopt it afterwards
+probably will be be. ;-)
+
+Alternatively, if you can make a good case (and write a decent RFC), you
+might be able to persuade the IETF working group to add this feature
+into a future minor version of NFSv4.
+
+Cheers,
+  Trond

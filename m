@@ -1,65 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262414AbSJTGVZ>; Sun, 20 Oct 2002 02:21:25 -0400
+	id <S262416AbSJTGYd>; Sun, 20 Oct 2002 02:24:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262415AbSJTGVZ>; Sun, 20 Oct 2002 02:21:25 -0400
-Received: from c16688.thoms1.vic.optusnet.com.au ([210.49.244.54]:10891 "EHLO
-	pc.kolivas.net") by vger.kernel.org with ESMTP id <S262414AbSJTGVY>;
-	Sun, 20 Oct 2002 02:21:24 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Con Kolivas <conman@kolivas.net>
-Reply-To: conman@kolivas.net
-To: Andrew Morton <akpm@digeo.com>
-Subject: Re: Pathological case identified from contest
-Date: Sun, 20 Oct 2002 16:27:08 +1000
-User-Agent: KMail/1.4.3
-Cc: Rik van Riel <riel@conectiva.com.br>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <1034820820.3dae1cd4bc0e3@kolivas.net> <200210201259.34935.conman@kolivas.net> <3DB21D88.2E845F02@digeo.com>
-In-Reply-To: <3DB21D88.2E845F02@digeo.com>
+	id <S262460AbSJTGYc>; Sun, 20 Oct 2002 02:24:32 -0400
+Received: from mail.scsiguy.com ([63.229.232.106]:23309 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S262416AbSJTGYc>; Sun, 20 Oct 2002 02:24:32 -0400
+Date: Sun, 20 Oct 2002 00:30:02 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: AIC7xxx driver build failure
+Message-ID: <671452704.1035095402@aslan.scsiguy.com>
+In-Reply-To: <15794.7193.525850.601506@milikk.co.intel.com>
+References: <15794.7193.525850.601506@milikk.co.intel.com>
+X-Mailer: Mulberry/3.0.0a4 (Linux/x86)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210201627.26445.conman@kolivas.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> The AIC 7xxx driver fails to build because the Makefile fails to
+> specify the correct include path to aicasm.
+> 
+> Justin, are you getting this?
 
-On Sun, 20 Oct 2002 01:05 pm, Andrew Morton wrote:
-> Con Kolivas wrote:
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
-> >
-> > On Thu, 17 Oct 2002 05:35 pm, you wrote:
-> > > Con Kolivas wrote:
-> > > > ...
-> > > > Well this has become more common with 2.5.43-mm2. I had to abort the
-> > > > process_load run 3 times when benchmarking it. Going back to other
-> > > > kernels and trying them it didnt happen so I dont think its my
-> > > > hardware failing or something like that.
-> > >
-> > > No, it's a bug in either the pipe code or the CPU scheduler I'd say.
-> > >
-> > > You could try backing out to the 2.5.40 pipe implementation; not sure
-> > > if that would tell us much though.
-> >
-> > I massaged the patch a little for it to apply and  it _is_ the offending
-> > code. Backing out the pipe changes fixed the problem. I was unable to
-> > reproduce the holdup I was seeing with process_load even at higher data
-> > sizes. Now what?
->
-> Try Manfred's pipe fix I guess?
->
+No, because this bug doesn't exist in the latest version of the driver
+in my tree or the last set of patches I sent to Linus (a month ago??).
 
-Well *that* makes sense. Tried it and it fixed it thank you.
+--
+Justin
 
-Cheers,
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9skzBF6dfvkL3i1gRAtbyAKCg6bIWNnEbZeFnRT2mcS7TkkBtsQCfatyT
-m4Q37qYkOZ389DlcvluL9vA=
-=PXfw
------END PGP SIGNATURE-----

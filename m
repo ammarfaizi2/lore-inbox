@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264984AbUHRLOy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265847AbUHRLRH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264984AbUHRLOy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 07:14:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265317AbUHRLOy
+	id S265847AbUHRLRH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 07:17:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265317AbUHRLRH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 07:14:54 -0400
-Received: from mail.humboldt.co.uk ([81.2.65.18]:26562 "EHLO
-	mail.humboldt.co.uk") by vger.kernel.org with ESMTP id S264984AbUHRLOw
+	Wed, 18 Aug 2004 07:17:07 -0400
+Received: from 216-54-166-5.gen.twtelecom.net ([216.54.166.5]:51671 "EHLO
+	texas.encore.com") by vger.kernel.org with ESMTP id S265847AbUHRLQz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 07:14:52 -0400
-Subject: Re: [PATCH][2.4.27] PowerPC 745x data corruption bug fix
-From: Adrian Cox <adrian@humboldt.co.uk>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org,
-       linuxppc-dev@lists.linuxppc.org, paulus@samba.org
-In-Reply-To: <20040816170534.GA7303@smtp.west.cox.net>
-References: <200408161004.i7GA48fY002331@harpo.it.uu.se>
-	 <20040816170534.GA7303@smtp.west.cox.net>
-Content-Type: text/plain
-Message-Id: <1092827448.10314.10.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 18 Aug 2004 12:10:48 +0100
+	Wed, 18 Aug 2004 07:16:55 -0400
+Message-ID: <41233AA3.47834A14@compro.net>
+Date: Wed, 18 Aug 2004 07:16:51 -0400
+From: Mark Hounschell <markh@compro.net>
+Reply-To: markh@compro.net
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.26-ert i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Brian McGrew <Brian@doubledimension.com>, linux-kernel@vger.kernel.org
+Subject: Re: Help with mapping memory into kernel space?
+References: <E6456D527ABC5B4DBD1119A9FB461E3501E00B@constellation.doubledimension.com> <20040818073141.GV11200@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-08-16 at 18:05, Tom Rini wrote:
-> On Mon, Aug 16, 2004 at 12:04:08PM +0200, Mikael Pettersson wrote:
-
-> > So previously a CPU got _PAGE_COHERENT on SMP.
-> > Now a CPU gets _PAGE_COHERENT on (SMP || 745x).
-> > 
-> > I suspect the CONFIG_MPC10X_BRIDGE is an attempt to enable
-> > the fix in some other cases too.
+William Lee Irwin III wrote:
 > 
-> The reason CPU_FTR_NEED_COHERENT was added was to work around an MPC107
-> (now Tsi107) errata.  See
-> http://216.239.57.104/search?q=cache:1MDn1X8ieUUJ:www.geocrawler.com/archives/3/8358/2002/9/100/9559482/+%22Adrian+Cox%22+errata&hl=en
-> (original is conn refused right now).
+> On Tue, Aug 17, 2004 at 10:39:38PM -0700, Brian McGrew wrote:
+> > The overall problem is that the more system memory we install,
+> > the fewer IBB's we can use.  For instance, 256MB lets us use
+> > four IBB's; 512MB lets us use three IBB's and so on.  Basicly,
+> > the kernel blows up trying to map memory.  Each IBB has two
+> > banks of 64MB of RAM on them which we try and memmap to system
+> > memory for speed of addressing.  So essentaily, we're sending
+> > out four camera systems with only 256MB of memory which is only
+> > about one quarter of what we need.
+> > I can't think of any better way to explain it other than it's
+> > almost like adding system memory subtracts from kernel memory.
+> > Does that make any sense?  We've tried building the kernel with
+> > the 4GB memory model and the 64GB memory model and had no success.
+> 
+> You appear to be trying to ioremap() vast areas. ia32 has limited
+> address space, so you need to do one of two things:
+> (a) subdivide into portions mapped into different address spaces
+> (b) map portions on demand
+> 
+> There is no support for (a) in Linux.
+> 
 
-I've now written some notes to explain these issues, in case it comes up
-again:
-http://www.humboldt.co.uk/Notes/mpc107cache.html
+You might try the bigphysarea patch. We have basically the same problem
+with hardware not capabile of hardware scatter/gather in DMA mode.
+Bigphysarea was our solution. It does not appear to be available for the
+2.6 kernel however
 
-- Adrian Cox
-Humboldt Solutions Ltd.
-
-
+Mark

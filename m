@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317849AbSGPO1f>; Tue, 16 Jul 2002 10:27:35 -0400
+	id <S317860AbSGPObp>; Tue, 16 Jul 2002 10:31:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317853AbSGPO1e>; Tue, 16 Jul 2002 10:27:34 -0400
-Received: from faui02.informatik.uni-erlangen.de ([131.188.30.102]:8175 "EHLO
-	faui02.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id <S317849AbSGPO1d>; Tue, 16 Jul 2002 10:27:33 -0400
-From: Richard Zidlicky 
-	<Richard.Zidlicky@stud.informatik.uni-erlangen.de>
-Date: Tue, 16 Jul 2002 16:30:24 +0200 (MEST)
-Message-Id: <200207161430.QAA04409@faui02b.informatik.uni-erlangen.de>
-To: schilling@fokus.gmd.de
-Subject: Re: IDE/ATAPI in 2.5
-Cc: andersen@codepoet.org, linux-kernel@vger.kernel.org
-X-Sun-Charset: US-ASCII
+	id <S317859AbSGPOb2>; Tue, 16 Jul 2002 10:31:28 -0400
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:62171 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S317857AbSGPObZ>; Tue, 16 Jul 2002 10:31:25 -0400
+Date: Tue, 16 Jul 2002 16:34:15 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: input subsystem config ?
+Message-ID: <20020716143415.GO7955@tahoe.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have problems with the input subsystem in the latest BK tree,
+on a Sony Vaio laptop (regular keyboard, integrated PS/2 trackball):
+the keyboard works but the mouse is never initialized (nothing in 
+the logs, AUX irq not reserved etc).
 
-> 
-> >Solaris vold? Thanks no, floppy access was so easy in SunOS before the 
-> >days of the volume manager.
-> 
-> .... and it is even simpler since vold is present. Call volcheck to tell vold
-> that the media changed or use a SCSI floppy which supports to tell the kernel
-> that a media change did happen.
+Before I submit a proper bug report, could someone confirm that
+the input susbystem is supposed to be working now and what
+config should I use (I tried several config options, all input
+items 'Y', or some items compiled as modules etc).
 
-when it is properly configured which doesn't seem the common case.
-More often than not, things like accessing raw floppy images turn
-out to be a problem.
+Thanks,
 
-> >> -	The volume manager should have a documented interface that allows 
-> >> 	programs like e.g. cdrecord to gain exclusive access to a CD drive.
-> 
-> >much simpler, cdrom driver needs an ioctl to claim exclusive use of
-> >the device and cdrecord than needs to use that ioctl.
-> 
-> This will not work. What should happen when the drive is mounted?
-
-block or return -EBUSY.
-
-Richard
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

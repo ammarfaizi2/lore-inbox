@@ -1,33 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267429AbSKQBh7>; Sat, 16 Nov 2002 20:37:59 -0500
+	id <S267430AbSKQBpa>; Sat, 16 Nov 2002 20:45:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267430AbSKQBh7>; Sat, 16 Nov 2002 20:37:59 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:61194 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267429AbSKQBh7>;
-	Sat, 16 Nov 2002 20:37:59 -0500
-Date: Sat, 16 Nov 2002 17:38:57 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.47 bug - PnPBIOS GPFs and kernel panics
-Message-ID: <20021117013857.GE28824@kroah.com>
-References: <20021115173703.GA2828@digitasaru.net>
-Mime-Version: 1.0
+	id <S267431AbSKQBpa>; Sat, 16 Nov 2002 20:45:30 -0500
+Received: from packet.digeo.com ([12.110.80.53]:16803 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267430AbSKQBpa>;
+	Sat, 16 Nov 2002 20:45:30 -0500
+Message-ID: <3DD6F655.4214A594@digeo.com>
+Date: Sat, 16 Nov 2002 17:52:21 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Justin A <ja6447@albany.edu>, linux-kernel@vger.kernel.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, ambx1@neo.rr.com
+Subject: Re: pnpbios oops on boot w/ 2.5.47
+References: <200211161700.29653.ja6447@albany.edu> <3DD6C1DC.44966373@digeo.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021115173703.GA2828@digitasaru.net>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 17 Nov 2002 01:52:21.0996 (UTC) FILETIME=[F81F72C0:01C28DDB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 15, 2002 at 11:37:03AM -0600, Joseph Pingenot wrote:
-> Hello.
+Andrew Morton wrote:
 > 
-> Upon enabling PnPBIOS in the kernel, compiling, and rebooting into it,
+> Justin A wrote:
+> >
+> > Hi :)
+> >
+> > I tried to "port" kmsgdump to 2.5.47 and for some reason, it worked.
+> >
+> > Attached is the full dmesg
+> >
+> > Alan: I ran dmidecode under 2.4.19 which said simply "PNP BIOS present"
+> >
+> > This is a thinkpad 760e, really old..I don't even think I need pnpbios support
+> > for anything.  2.5.47/2.5.47-ac5 boot with pnpbios turned off, so I think you
+> > just need to add this to your blacklist?
+> >
+> 
+> The BUG in slab indicates that something overran the end of a kmalloced
+> buffer.  That'll be either pnp_bios_get_dev_node() or node_set_resources()
+> ran off the end of `node'.
 
-Can you try the latest -bk version?  I think there's some patches in
-there that might fix the problem.
+err...
 
-thanks,
+        node = pnpbios_kmalloc(node_info.max_node_size, GFP_KERNEL);
 
-greg k-h
+max_node_size appears to never be initialised.

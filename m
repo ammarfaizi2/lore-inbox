@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263925AbSITXME>; Fri, 20 Sep 2002 19:12:04 -0400
+	id <S263910AbSITXG3>; Fri, 20 Sep 2002 19:06:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263946AbSITXME>; Fri, 20 Sep 2002 19:12:04 -0400
-Received: from fed1mtao01.cox.net ([68.6.19.244]:42723 "EHLO
-	fed1mtao01.cox.net") by vger.kernel.org with ESMTP
-	id <S263925AbSITXMD>; Fri, 20 Sep 2002 19:12:03 -0400
-Date: Fri, 20 Sep 2002 16:33:57 -0700
-From: Matt Porter <porter@cox.net>
-To: davidm@hpl.hp.com
-Cc: linux-kernel@vger.kernel.org, mgreer@mvista.com, steiner@sgi.com,
-       davidm@napali.hpl.hp.com
-Subject: Re: can we drop early_serial_setup()?
-Message-ID: <20020920163357.A30546@home.com>
-References: <200209200459.g8K4xJcW011057@napali.hpl.hp.com>
+	id <S263917AbSITXG3>; Fri, 20 Sep 2002 19:06:29 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:269 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S263910AbSITXG3>;
+	Fri, 20 Sep 2002 19:06:29 -0400
+Date: Fri, 20 Sep 2002 16:11:12 -0700
+From: Greg KH <greg@kroah.com>
+To: David Brownell <david-b@pacbell.net>
+Cc: Brad Hards <bhards@bigpond.net.au>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] Re: 2.5.26 hotplug failure
+Message-ID: <20020920231112.GC24813@kroah.com>
+References: <200207180950.42312.duncan.sands@wanadoo.fr> <E17rwAI-0000vM-00@starship> <20020919164924.GB15956@kroah.com> <200209200656.23956.bhards@bigpond.net.au> <20020919230643.GD18000@kroah.com> <3D8B884A.7030205@pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200209200459.g8K4xJcW011057@napali.hpl.hp.com>; from davidm@napali.hpl.hp.com on Thu, Sep 19, 2002 at 09:59:19PM -0700
+In-Reply-To: <3D8B884A.7030205@pacbell.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 19, 2002 at 09:59:19PM -0700, David Mosberger wrote:
-> int __init early_register_port (struct uart_port *port)
-> {
-> 	if (port->line >= ARRAY_SIZE(serial8250_ports))
-> 		return -ENODEV;
+On Fri, Sep 20, 2002 at 01:42:50PM -0700, David Brownell wrote:
 > 
-> 	serial8250_isa_init_ports();	/* force ISA defaults */
-> 	serial8250_ports[port->line].port = *port;
-> 	serial8250_ports[port->line].port.ops = &serial8250_pops;
-> 	return 0;
-> }
+> Actually it does more than that ... it tells you what minor numbers
+> are assigned to the drivers _currently loaded_ which means that it's
+> not really useful the instant someone plugs in another device.
 
-serial8250_ports and serial8250_pops are not static structs
-in your tree?
+Wait, I'm confused, which one is "it"?  The old /proc/bus/usb/drivers
+file, or the new driverfs stuff?
 
--- 
-Matt Porter
-porter@cox.net
-This is Linux Country. On a quiet night, you can hear Windows reboot.
+> You can't use it to allocate numbers or tell what /dev/file/name matches
+> a given device ... so what is its value, other than providing a limited
+> minor number counterpart to /proc/devices?  (Which, confusingly, doesn't
+> list devices but major numbers.)
+
+I'm working on adding the minor number info to the usb driverfs code
+right now, so that info will be available. 
+
+thanks,
+
+greg k-h

@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265051AbSKJShB>; Sun, 10 Nov 2002 13:37:01 -0500
+	id <S265059AbSKJSpl>; Sun, 10 Nov 2002 13:45:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265052AbSKJShB>; Sun, 10 Nov 2002 13:37:01 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32517 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265051AbSKJShA>; Sun, 10 Nov 2002 13:37:00 -0500
-Date: Sun, 10 Nov 2002 10:43:17 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "J.E.J. Bottomley" <James.Bottomley@steeleye.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: BOGUS: megaraid changes 
-In-Reply-To: <200211101632.gAAGWln11508@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0211101039100.9581-100000@home.transmeta.com>
+	id <S265061AbSKJSpl>; Sun, 10 Nov 2002 13:45:41 -0500
+Received: from packet.digeo.com ([12.110.80.53]:60866 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265059AbSKJSpk>;
+	Sun, 10 Nov 2002 13:45:40 -0500
+Message-ID: <3DCEAAE3.C6EE63EF@digeo.com>
+Date: Sun, 10 Nov 2002 10:52:19 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ed Tomlinson <tomlins@cam.org>
+CC: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+       Chris Mason <mason@suse.com>
+Subject: Re: 2.5.46-mm2 - oops
+References: <3DCDD9AC.C3FB30D9@digeo.com> <200211101309.21447.tomlins@cam.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 10 Nov 2002 18:52:19.0692 (UTC) FILETIME=[4BE68AC0:01C288EA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sun, 10 Nov 2002, J.E.J. Bottomley wrote:
+Ed Tomlinson wrote:
 > 
-> How about this?  It doesn't panic, just refuses to attach the driver (although 
-> this will still eventually cause a panic if your root fs is on it).
+> On November 9, 2002 10:59 pm, Andrew Morton wrote:
+> 
+> > Of note in -mm2 is a patch from Chris Mason which teaches reiserfs to
+> > use the mpage code for reads - it should show a nice reduction in CPU
+> > load under reiserfs reads.
+> 
+> Booting into mm2 I get:
+> 
+> ...
+> Unable to handle kernel NULL pointer dereference at virtual address 00000004
+> 
+> ...
+> EIP is at mpage_readpages+0x47/0x140
 
-I think this is worse than the current state of art. We don't want to 
-screw with users who can't do anything about it, which is 99.9% of them. 
-TESTING is about as important as anything else, and inconveniencing users 
-is BAD BAD BAD. 
+whoops.  The ->readpages API was changed...
 
-Right now drivers with old EH handling will warn at compile time (except 
-when people explicitly disable it, like in megaraid, which is in the 
-process of getting fixed anyway). That's a lot better than irritating 
-users. Especially since this printk() will possibly have scrolled off the 
-screen by the time the "cannot load root" happens.
+--- 25/fs/reiserfs/inode.c~reiserfs-readpages-fix	Sun Nov 10 10:44:28 2002
++++ 25-akpm/fs/reiserfs/inode.c	Sun Nov 10 10:44:39 2002
+@@ -2081,7 +2081,7 @@ static int reiserfs_readpage (struct fil
+ }
+ 
+ static int
+-reiserfs_readpages(struct address_space *mapping,
++reiserfs_readpages(struct file *file, struct address_space *mapping,
+                struct list_head *pages, unsigned nr_pages)
+ {
+     return mpage_readpages(mapping, pages, nr_pages, reiserfs_get_block);
 
-I've said this before, I'll say it again: anything that breaks _working_ 
-is BAD. Don't do it. Don't make up new ways to screw with people who want 
-to test. Don't add features that have _no_ meaning except to irritate 
-people.
-
-The compile-time warning is _plenty_ good enough.
-
-		Linus
-
+_

@@ -1,48 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263058AbRFEB2N>; Mon, 4 Jun 2001 21:28:13 -0400
+	id <S263065AbRFEBeD>; Mon, 4 Jun 2001 21:34:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263060AbRFEB2D>; Mon, 4 Jun 2001 21:28:03 -0400
-Received: from horus.its.uow.edu.au ([130.130.68.25]:1723 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S263058AbRFEB1x>; Mon, 4 Jun 2001 21:27:53 -0400
-Message-ID: <3B1C33C5.AB6C8CD0@uow.edu.au>
-Date: Tue, 05 Jun 2001 11:20:05 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre4 i686)
-X-Accept-Language: en
+	id <S263066AbRFEBdx>; Mon, 4 Jun 2001 21:33:53 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:39156 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id <S263065AbRFEBdn>; Mon, 4 Jun 2001 21:33:43 -0400
+Date: Tue, 05 Jun 2001 10:33:36 +0900
+Message-ID: <zobn90cv.wl@frostrubin.open.nm.fujitsu.co.jp>
+From: Tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: rudo@internet.sk (Rudo Thomas), linux-kernel@vger.kernel.org
+Subject: Re: kernel oops when burning CDs
+In-Reply-To: <E15728I-00060D-00@the-village.bc.nu>
+In-Reply-To: <200106042037.f54KbgU08004@smtp.kolej.mff.cuni.cz>
+	<E15728I-00060D-00@the-village.bc.nu>
+User-Agent: Wanderlust/2.4.1 (Stand By Me) EMY/1.13.9 () SLIM/1.14.6 () APEL/10.3 MULE XEmacs/21.2 (beta46) (Urania) (i586-kondara-linux)
 MIME-Version: 1.0
-To: safemode <safemode@voicenet.com>
-CC: William Montgomery <william@opinicus.com>,
-        Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: lowlatency 2.2.19
-In-Reply-To: <Pine.LNX.3.96.1010604173410.5728A-100000@thing2.opinicus.com>,
-		<Pine.LNX.3.96.1010604173410.5728A-100000@thing2.opinicus.com> <01060420580802.31206@psuedomode>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-safemode wrote:
+
+Hello,
+
+At Mon, 4 Jun 2001 22:43:30 +0100 (BST),
+Alan Cox wrote:
 > 
-> this is just a general question about low latency patches on 2.2,   I
-> remember hearing about low latency patches for 2.4 not playing well with X
-> 4.x, is this true for 2.2 low latency patches as well?
+> > I get an ooops and immediate kernel panic when I break (CTRL-C) cdrecord. I 
+> > can reproduce it anytime. I use 2.4.5-ac series. Obviously, Linus' 2.4.5 is 
+> > fine.
+> > I know, I know. I was supposed to make a serios oops report, BUT I wasn't 
+> 
+> Write down the EIP and the call trace then look them up in System.map. Also
+> include the hardware details. The -ac tree has a newer version of the scsi
+> generic code. It fixes some oopses but in your case it apparently added a new
+> failure case
 
-Yes, it would be the case.
+  Oops occures in SG driver. This patch fixes the problem.
 
-Some video cards have a PCI cheat-mode in which they keep
-the PCI bus busy until they are ready to accept new
-commands, rather forcing a retry.  Figures of up to
-twenty milliseconds have been mentioned.  Your X server
-*may* support the `PCIRetry' config option which will
-defeat this.
 
-Info:
 
-http://www.lib.uaa.alaska.edu/linux-kernel/archive/2001-Week-02/1566.html
-http://www.zefiro.com/vgakills.txt
-http://www.zdnet.com/pcmag/news/trends/t980619a.htm
-http://www.research.microsoft.com/~mbj/papers/tr-98-29.html
+diff -r -u linux.org/drivers/scsi/sg.c linux/drivers/scsi/sg.c
+--- linux.org/drivers/scsi/sg.c	Fri Jun  1 10:10:22 2001
++++ linux/drivers/scsi/sg.c	Fri Jun  1 17:08:00 2001
+@@ -1114,7 +1114,8 @@
+             sg_remove_sfp(sdp, sfp);
+ 	    sfp = NULL;
+         }
+-	__MOD_DEC_USE_COUNT(sg_template.module);
++	if (sg_template.module)
++		__MOD_DEC_USE_COUNT(sg_template.module);
+ 	if (sdp->device->host->hostt->module)
+ 	    __MOD_DEC_USE_COUNT(sdp->device->host->hostt->module);
+     }
+@@ -1311,7 +1312,8 @@
+ 			sg_finish_rem_req(srp);
+ 		}
+ 		if (sfp->closed) {
+-		    __MOD_DEC_USE_COUNT(sg_template.module);
++		    if (sg_template.module)
++			__MOD_DEC_USE_COUNT(sg_template.module);
+ 		    if (sdp->device->host->hostt->module)
+ 			__MOD_DEC_USE_COUNT(sdp->device->host->hostt->module);
+ 		    __sg_remove_sfp(sdp, sfp);
+@@ -2207,7 +2209,8 @@
+     else {
+         sfp->closed = 1; /* flag dirty state on this fd */
+ 	/* MOD_INC's to inhibit unloading sg and associated adapter driver */
+-	__MOD_INC_USE_COUNT(sg_template.module);
++	if (sg_template.module)
++	    __MOD_INC_USE_COUNT(sg_template.module);
+ 	 if (sdp->device->host->hostt->module)
+ 	    __MOD_INC_USE_COUNT(sdp->device->host->hostt->module);
+         SCSI_LOG_TIMEOUT(1, printk(
 
--
+

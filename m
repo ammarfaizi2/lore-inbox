@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261472AbSIWX5z>; Mon, 23 Sep 2002 19:57:55 -0400
+	id <S261484AbSIXAAg>; Mon, 23 Sep 2002 20:00:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261477AbSIWX5z>; Mon, 23 Sep 2002 19:57:55 -0400
-Received: from pirx.hexapodia.org ([208.42.114.113]:22634 "HELO
-	pirx.hexapodia.org") by vger.kernel.org with SMTP
-	id <S261472AbSIWX5y>; Mon, 23 Sep 2002 19:57:54 -0400
-Date: Mon, 23 Sep 2002 19:03:06 -0500
-From: Andy Isaacson <adi@hexapodia.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Bill Davidsen <davidsen@tmr.com>, Larry McVoy <lm@bitmover.com>,
-       Peter Waechtler <pwaechtler@mac.com>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@redhat.com>
-Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-Message-ID: <20020923190306.D13340@hexapodia.org>
-References: <Pine.LNX.3.96.1020923152135.13351C-100000@gatekeeper.tmr.com> <Pine.LNX.4.44.0209232218320.2118-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.44.0209232218320.2118-100000@localhost.localdomain>; from mingo@elte.hu on Mon, Sep 23, 2002 at 10:32:00PM +0200
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
+	id <S261488AbSIXAAg>; Mon, 23 Sep 2002 20:00:36 -0400
+Received: from ns1.system-techniques.com ([199.33.245.254]:8359 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S261484AbSIXAA3>; Mon, 23 Sep 2002 20:00:29 -0400
+Date: Mon, 23 Sep 2002 20:05:41 -0400 (EDT)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
+Subject: MBONE and Linux (fwd) ,  And questions .
+Message-ID: <Pine.LNX.4.44.0209232005240.8898-100000@filesrv1.baby-dragons.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 23, 2002 at 10:32:00PM +0200, Ingo Molnar wrote:
-> On Mon, 23 Sep 2002, Bill Davidsen wrote:
-> > The programs which benefit from N:M are exactly those which don't behave
-> > the way you describe. [...]
-> 
-> 90% of the programs that matter behave exactly like Larry has described.
-> IO is the main source of blocking. Go and profile a busy webserver or
-> mailserver or database server yourself if you dont believe it.
 
-There are heavily-threaded programs out there that do not behave this
-way, and for which a N:M thread model is completely appropriate.  For
-example, simulation codes in operations research are most naturally
-implemented as one thread per object being simulated, with virtually no
-IO outside the simulation.  The vast majority of the computation time in
-such a simulation is spent doing small amounts of work local to the
-thread, then sending small messages to another thread via a FIFO, then
-going to sleep waiting for more work.
+	Hello all ,  A gent posted to the ietf mailing list a message .
+	(a portion of which is shown beloiw , Author removed for privacy)
+	When I went to the url presented below I found the resources there
+	dating from Aug-2000 .  So I think that the project died a quick
+	death .  But I was hoping that someone in the Linux community may
+	have picked it up & carried on .  If anyone knows of a simular
+	project I would be appreciative of the pointer .
 
-Of course this can be (and frequently is) implemented such that there is
-not one Pthreads thread per object; given simulation environments with 1
-million objects, and the current crappy state of Pthreads
-implementations, the researchers have no choice.
+	Is this project on going to anyones knowledge ?
 
--andy
+	Is there a simular project on going to anyones knowledge ?
+		Tia ,  JimL
+...
+Fro the people that were interested I found:
+http://www.sprintlabs.com/Department/IP-Interworking/multicast/linux-igmpv3/
+
+Which is an alpha implementation of IGMPv3 released under GPL. No router
+capabilities yet... but promising...
+...
+
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+
+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-net" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+

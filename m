@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265345AbRF0SPX>; Wed, 27 Jun 2001 14:15:23 -0400
+	id <S265341AbRF0SOD>; Wed, 27 Jun 2001 14:14:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265343AbRF0SPO>; Wed, 27 Jun 2001 14:15:14 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:63504 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265339AbRF0SOX>; Wed, 27 Jun 2001 14:14:23 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] User chroot
-Date: 27 Jun 2001 11:14:13 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9hd7pl$86f$1@cesium.transmeta.com>
-In-Reply-To: <20010627014534.B2654@ondska> <83fdx$Z1w-B@khms.westfalen.de>
+	id <S265339AbRF0SNx>; Wed, 27 Jun 2001 14:13:53 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:37640 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S265341AbRF0SNu>; Wed, 27 Jun 2001 14:13:50 -0400
+Date: Wed, 27 Jun 2001 15:13:43 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: VM Requirement Document - v0.0
+In-Reply-To: <3B399EF8.9BA76FA2@TeraPort.de>
+Message-ID: <Pine.LNX.4.33L.0106271512570.23373-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <83fdx$Z1w-B@khms.westfalen.de>
-By author:    kaih@khms.westfalen.de (Kai Henningsen)
-In newsgroup: linux.dev.kernel
->
-> jc@lysator.liu.se (Jorgen Cederlof)  wrote on 27.06.01 in <20010627014534.B2654@ondska>:
-> 
-> > If we only allow user chroots for processes that have never been
-> > chrooted before, and if the suid/sgid bits won't have any effect under
-> > the new root, it should be perfectly safe to allow any user to chroot.
-> 
-> Hmm. Dos this work with initrd and root pivoting?
-> 
+On Wed, 27 Jun 2001, Martin Knoblauch wrote:
 
-At the moment, yes.  Once Viro gets his root-changes in, this breaks,
-since ALL processes will be chrooted.
+>  I do not care much whether the cache is using 99% of the systems memory
+> or 50%. As long as there is free memory, using it for cache is great. I
+> care a lot if the cache takes down interactivity, because it pushes out
+> processes that it thinks idle, but that I need in 5 seconds. The caches
+> pressure against processes
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Too bad that processes are in general cached INSIDE the cache.
+
+You'll have to write a new balancing story now ;)
+
+regards,
+
+Rik
+--
+Executive summary of a recent Microsoft press release:
+   "we are concerned about the GNU General Public License (GPL)"
+
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+

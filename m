@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318420AbSGaRyf>; Wed, 31 Jul 2002 13:54:35 -0400
+	id <S318419AbSGaRza>; Wed, 31 Jul 2002 13:55:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318419AbSGaRyf>; Wed, 31 Jul 2002 13:54:35 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:2830 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S318420AbSGaRye>; Wed, 31 Jul 2002 13:54:34 -0400
-Date: Wed, 31 Jul 2002 13:50:05 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Martin Mares <mj@ucw.cz>
-cc: Dave Jones <davej@suse.de>, Russell King <rmk@arm.linux.org.uk>,
+	id <S318422AbSGaRz3>; Wed, 31 Jul 2002 13:55:29 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:59402 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S318419AbSGaRz2>; Wed, 31 Jul 2002 13:55:28 -0400
+Date: Wed, 31 Jul 2002 18:58:50 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Guillaume Boissiere <boissiere@adiglobal.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: RFC: /proc/pci removal?
-In-Reply-To: <20020729162301.GA5377@atrey.karlin.mff.cuni.cz>
-Message-ID: <Pine.LNX.3.96.1020731134349.10066B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [2.6] The List, pass #2
+Message-ID: <20020731185850.A20614@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Bill Davidsen <davidsen@tmr.com>,
+	Guillaume Boissiere <boissiere@adiglobal.com>,
+	linux-kernel@vger.kernel.org
+References: <3D3761A9.23960.8EB1A2@localhost> <Pine.LNX.3.96.1020731133038.10066A-100000@gatekeeper.tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.3.96.1020731133038.10066A-100000@gatekeeper.tmr.com>; from davidsen@tmr.com on Wed, Jul 31, 2002 at 01:43:15PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Jul 2002, Martin Mares wrote:
-
-> Hello, world!\n
+On Wed, Jul 31, 2002 at 01:43:15PM -0400, Bill Davidsen wrote:
+> >   o Add support for NFS v4
 > 
-> > ISTR Linus was quite attached to it, so it got un-obsoleted.
-> 
-> Exactly.  I've marked it as obsolete years ago, but when I wanted
-> to rip it out, Linus said he likes /proc/pci and it has to stay.
-> 
-> I still think that it's an extremely ugly interface, especially
-> because it requires the kernel to contain the list of vendor and device
-> names.
+> Sorry to repeat, this seems to be a feature which will be in many if not
+> most other systems before any possible release date for 2.8. Is it really
+> that far out? (that's a status request, not a statement)
 
-If for no other reason than allowing easy updates, this would be a good
-place for a module. Of course you can say that about the blacklisted
-chipsets, etc, as well.
-
-I guess if it's a favorite feature it stays. I do use it, but there are
-other tools as mentioned.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Given that work on a GPL-compatible NFSv4 implementation hasn't even
+started yet as far as I know it's very unlikely that it will be in 2.6.0.
 

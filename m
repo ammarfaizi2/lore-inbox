@@ -1,61 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261909AbTLDJDq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 04:03:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262794AbTLDJDq
+	id S262580AbTLDJJi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 04:09:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262794AbTLDJJi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 04:03:46 -0500
-Received: from smtp.tiscali.ch ([212.40.5.52]:58800 "EHLO smtp.tiscali.ch")
-	by vger.kernel.org with ESMTP id S261909AbTLDJDm (ORCPT
+	Thu, 4 Dec 2003 04:09:38 -0500
+Received: from mail.netzentry.com ([157.22.10.66]:25096 "EHLO netzentry.com")
+	by vger.kernel.org with ESMTP id S262580AbTLDJJg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 04:03:42 -0500
-Date: Thu, 4 Dec 2003 10:02:06 +0100
-From: Fabian Uebersax <fabian.uebersax@tiscali.ch>
-X-Mailer: The Bat! (v1.62r) Personal
-Reply-To: Fabian Uebersax <fabian.uebersax@tiscali.ch>
-Organization: not really organized...
-X-Priority: 3 (Normal)
-Message-ID: <18710194769.20031204100206@tiscali.ch>
-To: linux-kernel@vger.kernel.org
-Subject: [OT] rsync 2.5.6 security advisory
+	Thu, 4 Dec 2003 04:09:36 -0500
+Message-ID: <3FCEF9B7.5070301@netzentry.com>
+Date: Thu, 04 Dec 2003 01:09:11 -0800
+From: "b@netzentry.com" <b@netzentry.com>
+Reply-To: b@netzentry.com
+Organization: b@netzentry.com
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20031013 Thunderbird/0.3
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: the3dfxdude@hotmail.com, prakashpublic@gmx.de
+CC: linux-kernel@vger.kernel.org
+Subject: RE: NForce2 pseudoscience stability testing (2.6.0-test11)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From http://rsync.samba.org/ :
+Prakash Cheemplavam wrote
+ >>>Thanks everyone for your continued interest in this, I'll
+ >>>try and test the no-onboard-PATA + UP LAPIC and IOAPIC and
+ >>>add-in-card-PATA with no onboard PATA + + UP LAPIC and IOAPIC
+ >>>when I get a spare moment which is rare.
+ >
+ >I don't think that the AMD IDE is the problem. I have compiled
+ >it in, as
+ >well, but I am using the onboard SATA. Since this can be
+ >considered as  >an pci-card (the chip is connected to the pci
+ > bridge) I think ölocking occurs on high traffic on PCI bus.
+ > Like now I get over 60mb/s with my >HD. Formerly I got only
+ > 25mb/s. before I could do some rounds of hdparm -t, before it
+ > locks. Now it locks immediately when doing hdparm -t
+ > when  APIC is enabled.
+ >
+ >SO, I think it is not IDE specific. Does anybody have gigabit
+ > network card? Maybe that we should try to push something big
+ > through it (without reading from hd). If that leads to lock
+ > up we have a semi proof that it is due to high traffic on
+ > pci-bus.
 
-December 4th 2003
+I was thinking that myself (PCI activity triggering this).
+The first time I hit this problem was with a card with two
+ACENics/tigon2 (acenic.o) sniffing traffic at high rates
+(100,000pps+) with most file i/o going over NFS on the
+integrated 3com interface.
 
-Background
+I ran for three days 200,000+pps sniffing with tethereal on
+windows2000 on both acenics and never a lockup.
 
-The rsync team has received evidence that a vulnerability in rsync was recently used in combination with a Linux kernel vulnerability to compromise the security of a public rsync server. While the forensic evidence we have is incomplete, we have pieced together the most likely way that this attack was conducted and we are releasing this advisory as a result of our investigations to date.
+The AMD-Nvidia PATA does seem to be a very common in this
+problem, but everyone at least has a CD-ROM and most
+have a PATA hard disk so its going to be there every time
+a problems crops up. I think we need to prove that an
+solid add-in PCI PATA card that takes the CD and the
+and the PATA disk and shut off the onboard ATA and torture
+test again. I havent had time to yet.
 
-Our conclusions are that:
 
-    * rsync version 2.5.6 contains a heap overflow vulnerability that can be used to remotely run arbitrary code.
-    * While this heap overflow vulnerability could not be used by itself to obtain root access on a rsync server, it could be used in combination with the recently announced brk vulnerability in the Linux kernel to produce a full remote compromise.
-    * The server that was compromised was using a non-default rsyncd.conf option "use chroot = no". The use of this option made the attack on the compromised server considerably easier. A successful attack is almost certainly still possible without this option, but it would be much more difficult. 
 
-Please note that this vulnerability only affects the use of rsync as a "rsync server". To see if you are running a rsync server you should use the netstat command to see if you are listening on TCP port 873. If you are not listening on TCP port 873 then you are not running a rsync server.
-New rsync release
-
-In response we have released a new version of rsync, version 2.5.7. This is based on the current stable 2.5.6 release with only the changes necessary to prevent this heap overflow vulnerability. There are no new features in this release.
-
-We recommend that anyone running a rsync server take the following steps:
-
-   1. Update to rsync version 2.5.7 immediately.
-   2. If you are running a Linux kernel prior to version 2.4.23 then you should upgrade your kernel immediately. Note that some distribution vendors may have patched versions of the 2.4.x series kernel that fix the brk vulnerability in versions before 2.4.23. Check with your vendor security site to ensure that you are not vulnerable to the brk problem.
-   3. Review your /etc/rsyncd.conf configuration file. If you are using the option "use chroot = no" then remove that line or change it to "use chroot = yes". If you find that you need that option for your rsync service then you should disable your rsync service until you have discussed a workaround with the rsync maintainers on the rsync mailing list. The disabling of the chroot option should not be needed for any normal rsync server. 
-
-The patches and full source for rsync version 2.5.7 are available from http://rsync.samba.org/ and mirror sites. We expect that vendors will produce updated packages for their distributions shortly.
-Credits
-
-The rsync team would like to thank the following individuals for their assistance in investigating this vulnerability and producing this response:
-
-    * Timo Sirainen <tss.iki.fi>
-    * Mike Warfield <mhw.wittsend.com>
-    * Paul Russell <rusty.samba.org>
-    * Andrea Barisani <lcars.gentoo.org> 
 

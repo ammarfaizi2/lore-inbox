@@ -1,67 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311829AbSDCOwi>; Wed, 3 Apr 2002 09:52:38 -0500
+	id <S311925AbSDCO5S>; Wed, 3 Apr 2002 09:57:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311834AbSDCOw2>; Wed, 3 Apr 2002 09:52:28 -0500
-Received: from [195.53.115.72] ([195.53.115.72]:47118 "EHLO
-	mailesmtp.IGAE.minhac.es") by vger.kernel.org with ESMTP
-	id <S311829AbSDCOwQ>; Wed, 3 Apr 2002 09:52:16 -0500
-Message-ID: <3751737A15FDD41188B40000D11C0BF204A75B7D@MAILE>
-From: =?iso-8859-1?Q?=22Fern=E1ndez-Victorio_Ar=E9valo=2C_Gonzalo=22?= 
-	<GFernandez-Victorio@IGAE.minhac.es>
-To: "'Chris Wilson'" <chris@jakdaw.org>, linux-kernel@vger.kernel.org
-Subject: RE: P4/i845 Strange clock drifting
-Date: Wed, 3 Apr 2002 16:52:05 +0200 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S311919AbSDCO5I>; Wed, 3 Apr 2002 09:57:08 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:8578 "EHLO
+	opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S311884AbSDCO45>; Wed, 3 Apr 2002 09:56:57 -0500
+Date: Wed, 3 Apr 2002 07:56:04 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: [PATCH] Don't always ask about Intel or AMD RNGs
+Message-ID: <20020403145604.GB3840@opus.bloom.county>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hi.
-
-Maybe you could read Bernd Schubert message to this list on Wed Mar 27 2002
-- 10:28:35 EST
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0203.3/0557.html
-
-HTH
-
-Gonzalo
-
------Original Message-----
-From: Chris Wilson [mailto:chris@jakdaw.org]
-Sent: Wednesday, April 03, 2002 4:10 PM
-To: linux-kernel@vger.kernel.org
-Subject: P4/i845 Strange clock drifting
-
-
-
-Hi,
-
-I've got a 1U 2.0 Ghz P4 rackmount server with an i845 chipset and have
-noticed some strange issues with the timer. For the most part it keeps
-time perfectly... but pretty often (tens of times each day) it'll have
-drifted anything from a few seconds to a few minutes - during a 10 minute
-period. It's always behind-time - so perhaps this is something to do with
-the P4's throttling stuff? Has anyone else seen similar?
-
-I tried to use 2.5.7-dj2 with Zwane Mwaikambo's thermal LVT support in
-there but it didn't detect a local APIC on bootup (!) - I'm guessing there
-needs to be an APIC for Zwane's stuff? When I tried to switch back to
-2.4.18 the machine never came back - as soon as someone power cycles it
-then I can do some more tests!
-
-Regards,
-
-Chris
+Hello.  The following patch hides the option for Intel (i8x0) RNG
+support.  I suspect this is an ia32-only option, but since it's possible
+that it's used on ia64 as well, this tests for both.  By similar logic,
+the AMD (768) RNG support is only asked for on ia32 and x86-64.
 
 -- 
-Chris Wilson
-chris@jakdaw.org
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/
+
+===== drivers/char/Config.in 1.19 vs edited =====
+--- 1.19/drivers/char/Config.in	Fri Mar 29 07:49:29 2002
++++ edited/drivers/char/Config.in	Wed Apr  3 07:52:57 2002
+@@ -217,8 +217,12 @@
+    tristate 'NetWinder flash support' CONFIG_NWFLASH
+ fi
+ 
+-dep_tristate 'AMD 768 Random Number Generator support' CONFIG_AMD_RNG $CONFIG_PCI
+-dep_tristate 'Intel i8x0 Random Number Generator support' CONFIG_INTEL_RNG $CONFIG_PCI
++if [ "$CONFIG_X86" = "y" -o "$CONFIG_X86_64" = "y" ]; then
++   dep_tristate 'AMD 768 Random Number Generator support' CONFIG_AMD_RNG $CONFIG_PCI
++fi
++if [ "$CONFIG_X86" = "y" -o "$CONFIG_IA64" = "y" ]; then
++   dep_tristate 'Intel i8x0 Random Number Generator support' CONFIG_INTEL_RNG $CONFIG_PCI
++fi
+ tristate '/dev/nvram support' CONFIG_NVRAM
+ tristate 'Enhanced Real Time Clock Support' CONFIG_RTC
+ if [ "$CONFIG_IA64" = "y" ]; then

@@ -1,59 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264820AbUEEWMj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264818AbUEEWMK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264820AbUEEWMj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 18:12:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264817AbUEEWMi
+	id S264818AbUEEWMK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 18:12:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264820AbUEEWMK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 18:12:38 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63392 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264820AbUEEWMf
+	Wed, 5 May 2004 18:12:10 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:62945 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S264818AbUEEWMC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 18:12:35 -0400
-Date: Wed, 5 May 2004 15:48:38 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       ckrm-tech <ckrm-tech@lists.sourceforge.net>
-Subject: Re: [ckrm-tech] Re: [RFC] Revised CKRM release
-Message-ID: <20040505184838.GC1350@logos.cnet>
-References: <4090BBF1.6080801@watson.ibm.com> <20040504173529.GE11346@logos.cnet> <409832D2.2020507@watson.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <409832D2.2020507@watson.ibm.com>
-User-Agent: Mutt/1.5.5.1i
+	Wed, 5 May 2004 18:12:02 -0400
+Message-Id: <200405052212.i45MC0F28121@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: Cache queue_congestion_on/off_threshold
+Date: Wed, 5 May 2004 15:12:01 -0700
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcQy7f0s9cHEyc3mTCqEhrnn1TTnoA==
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 04, 2004 at 08:18:26PM -0400, Shailabh Nagar wrote:
+It's kind of redundant that queue_congestion_on/off_threshold gets
+calculated on every I/O and they produce the same number over and
+over again unless q->nr_requests gets changed (which is probably a
+very rare event).  Can we cache those values in the request_queue
+structure?
 
-> >It sounds to me the classification engine can be moved to userspace? 
-> >
-> >Such "classification" sounds a better suited to be done there.
-> 
-> I suppose it could. However, one of our design objectives was to 
-> support multi-threaded server apps where each thread (task) changes 
-> its class fairly rapidly (say every time it starts doing work on 
-> behalf of a more/less important transaction). Doing a transition to 
-> userspace and back may be too costly for such a scenario.
+- Ken
 
-But who sets the priority of the tasks is userspace anyway, isnt? AFAICS its
-userspace who knows which transaction is more/less important. 
 
-> There might also be some concerns with keeping the reclassify 
-> operation atomic wrt deletion of the target class...but we haven't 
-> thought this through for userspace classification.
+diff -Nurp linux-2.6.6-rc3/drivers/block/ll_rw_blk.c linux-2.6.6-rc3.blk/drivers/block/ll_rw_blk.c
+--- linux-2.6.6-rc3/drivers/block/ll_rw_blk.c	2004-05-05 14:32:31.000000000 -0700
++++ linux-2.6.6-rc3.blk/drivers/block/ll_rw_blk.c	2004-05-05 15:04:59.000000000 -0700
+@@ -70,14 +70,7 @@ EXPORT_SYMBOL(blk_max_pfn);
+  */
+ static inline int queue_congestion_on_threshold(struct request_queue *q)
+ {
+-	int ret;
+-
+-	ret = q->nr_requests - (q->nr_requests / 8) + 1;
+-
+-	if (ret > q->nr_requests)
+-		ret = q->nr_requests;
+-
+-	return ret;
++	return q->nr_congestion_on;
+ }
 
-How often is a reclassify operation done?
+ /*
+@@ -85,14 +78,22 @@ static inline int queue_congestion_on_th
+  */
+ static inline int queue_congestion_off_threshold(struct request_queue *q)
+ {
+-	int ret;
++	return q->nr_congestion_off;
++}
 
-> >Note: I haven't read the code yet.
-> >
-> 
-> Why just read when you can test as well :-) We just released a testing 
-> tarball at http://ckrm.sf.net.. any inputs, bugs will be most welcome !
-> 
-> Looking forward to more inputs,
+-	ret = q->nr_requests - (q->nr_requests / 8) - 1;
++static inline void blk_queue_congestion_threshold(struct request_queue *q)
++{
++	int nr;
 
-Yeah, I'm just nitpicking from the outside and haven't contributed 
-to anything, so...
+-	if (ret < 1)
+-		ret = 1;
++	nr = q->nr_requests - (q->nr_requests / 8) + 1;
++	if (nr > q->nr_requests)
++		nr = q->nr_requests;
++	q->nr_congestion_on = nr;
+
+-	return ret;
++	nr = q->nr_requests - (q->nr_requests / 8) - 1;
++	if (nr < 1)
++		nr = 1;
++	q->nr_congestion_off = nr;
+ }
+
+ void clear_backing_dev_congested(struct backing_dev_info *bdi, int rw)
+@@ -235,6 +236,7 @@ void blk_queue_make_request(request_queu
+ 	blk_queue_max_sectors(q, MAX_SECTORS);
+ 	blk_queue_hardsect_size(q, 512);
+ 	blk_queue_dma_alignment(q, 511);
++	blk_queue_congestion_threshold(q);
+
+ 	q->unplug_thresh = 4;		/* hmm */
+ 	q->unplug_delay = (3 * HZ) / 1000;	/* 3 milliseconds */
+@@ -2953,6 +2955,7 @@ queue_requests_store(struct request_queu
+ 	int ret = queue_var_store(&q->nr_requests, page, count);
+ 	if (q->nr_requests < BLKDEV_MIN_RQ)
+ 		q->nr_requests = BLKDEV_MIN_RQ;
++	blk_queue_congestion_threshold(q);
+
+ 	if (rl->count[READ] >= queue_congestion_on_threshold(q))
+ 		set_queue_congested(q, READ);
+diff -Nurp linux-2.6.6-rc3/include/linux/blkdev.h linux-2.6.6-rc3.blk/include/linux/blkdev.h
+--- linux-2.6.6-rc3/include/linux/blkdev.h	2004-04-27 18:35:21.000000000 -0700
++++ linux-2.6.6-rc3.blk/include/linux/blkdev.h	2004-05-05 15:04:59.000000000 -0700
+@@ -334,6 +334,8 @@ struct request_queue
+ 	 * queue settings
+ 	 */
+ 	unsigned long		nr_requests;	/* Max # of requests */
++	unsigned int		nr_congestion_on;
++	unsigned int		nr_congestion_off;
+
+ 	unsigned short		max_sectors;
+ 	unsigned short		max_phys_segments;
+
 

@@ -1,76 +1,44 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261774AbVBST4O (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sat, 19 Feb 2005 14:56:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbVBST4N
+	id S261787AbVBSUSn (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sat, 19 Feb 2005 15:18:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261792AbVBSUSn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Feb 2005 14:56:13 -0500
-Received: from imo-d01.mx.aol.com ([205.188.157.33]:14022 "EHLO
-	imo-d01.mx.aol.com") by vger.kernel.org with ESMTP id S261773AbVBSTzu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Feb 2005 14:55:50 -0500
-Date: Sat, 19 Feb 2005 14:55:29 -0500
-From: solicitorfrank@netscape.net
-Subject: Investment Capital
+	Sat, 19 Feb 2005 15:18:43 -0500
+Received: from rb.mitino.ptt.ru ([195.34.6.244]:24844 "HELO rb.mitino.ptt.ru")
+	by vger.kernel.org with SMTP id S261787AbVBSUSl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Feb 2005 15:18:41 -0500
+X-AntiVirus: Checked by Dr.Web [version: 4.32b, engine: 4.32b, virus records: 59103, updated: 17.11.2004]
+Date: Sat, 19 Feb 2005 19:30:20 +0000
+From: GrandamaJonesunlock <GrandamaJonesunlock@aerotechnic.com>
+Subject: Linux-kernel, Get a new home
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+References: <2EKBB04J795F8369@vger.kernel.org>
+In-Reply-To: <2EKBB04J795F8369@vger.kernel.org>
+Message-ID: <26JKGH28H0AJJ9AL@aerotechnic.com>
+Reply-To: Iptpbugiwxluv <iptpbugiwxluv@pppool.de>
 MIME-Version: 1.0
-Message-ID: <58846C9C.6F04438D.84B15562@netscape.net>
-X-Mailer: Atlas Mailer 2.0
-X-AOL-IP: 81.199.108.12
-X-AOL-Language: english
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-To: undisclosed-recipients:;
-X-AOL-Test: Testing
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261774AbVBST4O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261787AbVBSUSn@vger.kernel.org>
 
-Re: Investment Capital.
+Homeowners 
 
-Your contact has been gotten from after a search for a
-person whom we can jointly invest Trust in and also
-solicit a Honourable partnership with.
+- do you have less-than-perfect credit* 
 
-I represent a client and my client has interest to do
-business relative to investments in your country in
-areas related to agriculture or any business of your
-choice, to initiate a proper and structured
-relationship:
+We'll quickly match you up with the B.EST provider based on YOUR NEEDS.
 
-Please let me know what your response will be to an
-offer to receive the investment funds :
+Whether its a Home Equity Loan or a Low-Rate-Re-financing
 
-1. The said fund amounts to Ten Million Pounds sterling.
- 
-2.The said fund will be transferred to you in same
-state.
+We specialize in less-than-perfect *credit.  
 
-3.The fund is intended to be invested through your
-agency in the purchase of facilities and
-assets, for the said purposes within your country.
+We'll help you get the YES! you deserve.
 
-4. This transaction will result in you being paid a
-commission of 10% off the investment capital and 
-another 10% of after annual tax income.
+http://www.nocturnull.com/save.asp
 
-5.The fund owners desire absolute confidentiality and
-professionalism in the handling of this matter as the 
-people involved are top government officials.
-Please respond urgently and if you do not intend to 
-help, i will respect your privacy and stop contacting
-you.
+Future reference options:
+http://www.nocturnull.com/gone.asp
 
-Sincerely.
 
-Solicitor. Frank West
-
-NB: Please reply to: solicitorfrank@netscape.net
-
-__________________________________________________________________
-Switch to Netscape Internet Service.
-As low as $9.95 a month -- Sign up today at http://isp.netscape.com/register
-
-Netscape. Just the Net You Need.
-
-New! Netscape Toolbar for Internet Explorer
-Search from anywhere on the Web and block those annoying pop-ups.
-Download now at http://channels.netscape.com/ns/search/install.jsp

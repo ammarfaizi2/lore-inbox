@@ -1,76 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290514AbSAYUjE>; Fri, 25 Jan 2002 15:39:04 -0500
+	id <S290745AbSAYUjs>; Fri, 25 Jan 2002 15:39:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290745AbSAYUiy>; Fri, 25 Jan 2002 15:38:54 -0500
-Received: from [24.64.71.161] ([24.64.71.161]:41974 "EHLO lynx.adilger.int")
-	by vger.kernel.org with ESMTP id <S290514AbSAYUik>;
-	Fri, 25 Jan 2002 15:38:40 -0500
-Date: Fri, 25 Jan 2002 13:38:14 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        John Levon <movement@marcelothewonderpenguin.com>,
-        linux-kernel@vger.kernel.org, davej@suse.de
-Subject: Re: [PATCH] Fix 2.5.3pre reiserfs BUG() at boot time
-Message-ID: <20020125133814.U763@lynx.adilger.int>
-Mail-Followup-To: Andi Kleen <ak@suse.de>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	John Levon <movement@marcelothewonderpenguin.com>,
-	linux-kernel@vger.kernel.org, davej@suse.de
-In-Reply-To: <20020125180149.GB45738@compsoc.man.ac.uk> <Pine.LNX.4.33.0201251006220.1632-100000@penguin.transmeta.com> <20020125204911.A17190@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020125204911.A17190@wotan.suse.de>; from ak@suse.de on Fri, Jan 25, 2002 at 08:49:11PM +0100
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S290805AbSAYUjg>; Fri, 25 Jan 2002 15:39:36 -0500
+Received: from rtlab.med.cornell.edu ([140.251.145.175]:43652 "HELO
+	openlab.rtlab.org") by vger.kernel.org with SMTP id <S290745AbSAYUj3>;
+	Fri, 25 Jan 2002 15:39:29 -0500
+Date: Fri, 25 Jan 2002 15:39:28 -0500 (EST)
+From: "Calin A. Culianu" <calin@ajvar.org>
+To: Ragnar Hojland Espinosa <ragnar@jazzfree.com>
+Cc: Timothy Covell <timothy.covell@ashavan.org>, Robert Love <rml@tech9.net>,
+        Oliver Xymoron <oxymoron@waste.org>,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux-Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: booleans and the kernel
+In-Reply-To: <20020125045206.A2313@ragnar-hojland.com>
+Message-ID: <Pine.LNX.4.30.0201251521560.17384-100000@rtlab.med.cornell.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 25, 2002  20:49 +0100, Andi Kleen wrote:
-> @@ -810,11 +832,8 @@
->  		struct list_head *p;
->  
->  		list_for_each(p, &cache_chain) {
-> -			kmem_cache_t *pc = list_entry(p, kmem_cache_t, next);
-> -
-> -			/* The name field is constant - no lock needed. */
-> -			if (!strcmp(pc->name, name))
-> -				BUG();
-> +			kmem_cache_t *pc;
-> +			pc = list_entry(p, kmem_cache_t, next);
->  		}
->  	}
->  
+On Fri, 25 Jan 2002, Ragnar Hojland Espinosa wrote:
 
-So, what exactly does the above do now (hint: p and pc are both local
-so they cannot be referenced anywhere else)?  It used to check that you
-weren't trying to add two caches with the same name.  This isn't
-possible with caches from broken modules anymore as they have no name.
+> On Fri, Jan 25, 2002 at 04:44:38PM -0600, Timothy Covell wrote:
+> > On Thursday 24 January 2002 16:38, Robert Love wrote:
+> > > On Fri, 2002-01-25 at 17:30, Timothy Covell wrote:
+> > > > On Thursday 24 January 2002 16:19, Robert Love wrote:
+> > > > > how is "if (x)" any less legit if x is an integer ?
+> > > >
+> > > > What about
+> > > >
+> > > > {
+> > > >     char x;
+> > > >
+> > > >     if ( x )
+> > > >     {
+> > > >         printf ("\n We got here\n");
+> > > >     }
+> > > >     else
+> > > >     {
+> > > >         // We never get here
+> > > >         printf ("\n We never got here\n");
+> > > >     }
+> > > > }
+> > > >
+> > > >
+> > > > That's not what I want.   It just seems too open to bugs
+> > > > and messy IHMO.
+> > >
+> > > When would you ever use the above code?  Your reasoning is "you may
+> > > accidentally check a char for a boolean value."  In other words, not
+> > > realize it was a char.  What is to say its a boolean?  Or not?  This
+> > > isn't an argument.  How does having a boolean type solve this?  Just use
+> > > an int.
+> > >
+> > > 	Robert Love
+> >
+> > It would fix this because then the compiler would refuse to compile
+> > "if (x)"  when x is not a bool.    That's what I would call type safety.
+> > But I guess that you all are arguing that C wasn't built that way and
+> > that you don't want it.
+>
+> It would actually break this.  if is supposed (and expected) to evaluate
+> an expression, whatever it will be.  Maybe a gentle warning could be in
+> place, but refusing to compile is a plain broken C compiler.
+>
 
-In the end, it is mostly irrelevant if we have duplicate names in the
-slab cache, because you can't "attach" to a cache by name (you can
-only "create" a cache and access it via a pointer).  We may as well
-just remove the whole loop above, since it doesn't do anything anymore.
+I think it is being suggested by whomever the proponent of the bool type
+is (I lost track of who wanted it) that maybe keywords that depend on
+boolean evaluations (if, while, for, etc.) should only take boolean
+expressions as 'parameters', rather than what C does, which is take just
+about any expression (everything except automatically allocated structs
+being more or less reducible to an int).  This would certainly eliminate
+some common typos (typos that any experienced C programmer knows ot look
+out for) and make some other code a little more verbose (read: redundant).
 
-> +		name = cachep->name; 
-> +		{
-> +		char tmp; 
-> +		if (get_user(tmp, name)) 
-> +			name = "broken"; 
-> +		} 	
+So in the strlen example:
 
-When calling kmem_cache_destroy() on a non-empty slab we should just
-malloc some memory with the old cache name + "_leaked" for the name
-pointer.  At least then we have a sane chance of figuring out what caused
-the problem, instead of having a bunch of "broken" entries in the table,
-and remove the above "broken" check entirely (we will always have a name).
+int strlen (const char *str)
+{
+	const char *cur;
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+	for (cur = str; *cur; cur++);
+	return cur - str;
+}
+
+It would not be sufficient to check on *cur being true in the for loop,
+but you would need an actual boolean expression or boolean type (*cur == 0
+or somesuch).
+
+This is a definite change to the C language and while I can see the
+benefits of it, I am not sure if it's worth the trouble to alter a
+compiler to enforce this type of thing, etc.  :)
+
+-Calin
 

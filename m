@@ -1,47 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267945AbUGaNxT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265331AbUGaOAU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267945AbUGaNxT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 09:53:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267951AbUGaNxT
+	id S265331AbUGaOAU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 10:00:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267951AbUGaOAU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 09:53:19 -0400
-Received: from run.smurf.noris.de ([192.109.102.41]:63685 "EHLO
-	server.smurf.noris.de") by vger.kernel.org with ESMTP
-	id S267945AbUGaNxS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 09:53:18 -0400
+	Sat, 31 Jul 2004 10:00:20 -0400
+Received: from li2-47.members.linode.com ([69.56.173.47]:26888 "EHLO
+	li2-47.members.linode.com") by vger.kernel.org with ESMTP
+	id S265331AbUGaOAK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jul 2004 10:00:10 -0400
+Date: Sat, 31 Jul 2004 09:00:10 -0500
+From: Randall Nortman <linuxkernellist@wonderclown.com>
 To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Matthias Urlichs <smurf@smurf.noris.de>
-Newsgroups: smurf.list.linux.kernel
-Subject: Re: [Fastboot] Re: Announce: dumpfs v0.01 - common RAS output API
-Date: Sat, 31 Jul 2004 15:52:53 +0200
-Organization: {M:U} IT Consulting
-Message-ID: <pan.2004.07.31.13.52.52.829100@smurf.noris.de>
-References: <16734.1090513167@ocs3.ocs.com.au> <20040725235705.57b804cc.akpm@osdl.org> <m1r7qw7v9e.fsf@ebiederm.dsl.xmission.com> <200407280903.37860.jbarnes@engr.sgi.com> <25870000.1091042619@flay> <m14qnr7u7b.fsf@ebiederm.dsl.xmission.com> <20040728133337.06eb0fca.akpm@osdl.org> <1091044742.31698.3.camel@localhost.localdomain> <m1llh367s4.fsf@ebiederm.dsl.xmission.com> <1091055311.31923.3.camel@localhost.localdomain> <20040728172204.2ecc5cdd.akpm@osdl.org> <1091109427.865.1.camel@localhost.localdomain> <20040729111728.5d2bb5c8.akpm@osdl.org>
-NNTP-Posting-Host: kiste.smurf.noris.de
+Subject: MSI K8N Neo + powernow-k8: ACPI info is worse than BIOS PST
+Message-ID: <20040731140008.GJ4108@li2-47.members.linode.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: server.smurf.noris.de 1091281973 13194 192.109.102.35 (31 Jul 2004 13:52:53 GMT)
-X-Complaints-To: smurf@noris.de
-NNTP-Posting-Date: Sat, 31 Jul 2004 13:52:53 +0000 (UTC)
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
-X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Andrew Morton wrote:
+I'm running kernel 2.6.7 (as distributed by Gentoo in
+gentoo-dev-sources) on an Athlon 3000+ with an MSI K8N Neo Platinum
+motherboard, BIOS v1.1 (most recent available).  The stock powernow-k8
+first queries ACPI for CPU frequency/voltage tables, and on this
+system that information is hopeless:
 
-> See above.  We assume that network RX DMA won't be scribbling in the 16MB
-> which was pre-reserved.  That's reasonable.  We _have_ to assume that.
+-----
+Jul 29 19:09:34 terry powernow-k8: Found 1 AMD Athlon 64 / Opteron processors (version 1.00.09b)
+Jul 29 19:09:34 terry powernow-k8:    0 : fid 0xc (2000 MHz), vid 0x2 (1500 mV)
+Jul 29 19:09:34 terry powernow-k8:    1 : fid 0xa (1800 MHz), vid 0x6 (1400 mV)
+Jul 29 19:09:34 terry powernow-k8:    2 : fid 0xa (1800 MHz), vid 0x6 (1400 mV)
+Jul 29 19:09:34 terry powernow-k8: cpu_init done, current fid 0xc, vid 0x2
+-----
 
-If you wait a few seconds before verifying that the checksum of the
-rescue kernel is still correct, then you should be able to be reasonably
-sure that there won't be any corruption.
+I hacked arch/i386/kernel/cpu/cpufreq/powernow-k8.c a bit so that the
+ACPI info is ingored in favor of the BIOS PST table, with this result:
 
-Nothing's 100% here, of course. But the chances that a delayed network DMA
-causes the rescue kernel to write its dump data to an area it shouldn't
-write to are small enough not to matter. IMHO.
+-----
+Jul 30 21:49:23 terry powernow-k8: Found 1 AMD Athlon 64 / Opteron processors (version 1.00.09b)
+Jul 30 21:49:23 terry powernow-k8: BIOS error: numpst must be 1
+-----
 
--- 
-Matthias Urlichs
+So, I found a patch that Tony Lindgren posted back in May to work
+around buggy BIOSes, which included a change to make it ignore the
+numpst error, and then I got this:
+
+-----
+Jul 30 21:38:39 terry powernow-k8: Found 1 AMD Athlon 64 / Opteron processors (version 1.00.09b)
+Jul 30 21:38:39 terry powernow-k8: BIOS error: numpst listed as 2 should be 1. Ignoring it.
+Jul 30 21:38:39 terry powernow-k8:    0 : fid 0x2 (1000 MHz), vid 0x12 (1100 mV)
+Jul 30 21:38:39 terry powernow-k8:    1 : fid 0xa (1800 MHz), vid 0x6 (1400 mV)
+Jul 30 21:38:39 terry powernow-k8:    2 : fid 0xc (2000 MHz), vid 0x2 (1500 mV)
+Jul 30 21:38:39 terry powernow-k8: cpu_init done, current fid 0xc, vid 0x2
+-----
+
+That's much better, but this CPU really ought to be able to clock all
+the way down to 800MHz, so then I did a little more hacking to ignore
+both the BIOS and ACPI info, and just use the hardcoded tables
+provided in Tony's patch, which gives me what I want:
+
+-----
+Jul 30 22:04:55 terry powernow-k8: Found 1 AMD Athlon 64 / Opteron processors (version 1.00.09b)
+Jul 30 22:04:55 terry powernow-k8: BIOS error: numpst listed as 2 should be 1. Ignoring it.
+Jul 30 22:04:55 terry powernow-k8: BIOS error: overriding frequency table
+Jul 30 22:04:55 terry powernow-k8:    0 : fid 0x0 (800 MHz), vid 0x12 (1100 mV)
+Jul 30 22:04:55 terry powernow-k8:    1 : fid 0xc (2000 MHz), vid 0x2 (1500 mV)
+Jul 30 22:04:55 terry powernow-k8: cpu_init done, current fid 0xc, vid 0x2
+-----
+
+My "patch" is brute-force and ugly, and I didn't bother understanding
+the code fully before I hacked it to pieces, so I refuse to release it
+into the wild.  However, if you have this mobo and want to live
+dangerously, you may write to me directly to get my code.
+
+If anybody qualified to hack this code is interested in creating a
+real workaround for BIOSes like this, I offer my system (and my time,
+as I cannot give remote access) for testing.  I would suggest adding a
+compile-time or load-time option to prefer the BIOS over ACPI (as in
+powernow-k7, I think), and maybe a compile-time option to use Tony's
+hardcoded tables.
+
+(I do not read this list regularly, but I'll try to follow this thread
+for the next few weeks.  Past that time, I request that you CC me
+directly on anything related to this issue.  Thanks!)

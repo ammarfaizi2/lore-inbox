@@ -1,63 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261244AbRELNki>; Sat, 12 May 2001 09:40:38 -0400
+	id <S261247AbRELNp6>; Sat, 12 May 2001 09:45:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261245AbRELNk2>; Sat, 12 May 2001 09:40:28 -0400
-Received: from mhw.ulib.iupui.edu ([134.68.164.123]:7928 "EHLO
-	mhw.ULib.IUPUI.Edu") by vger.kernel.org with ESMTP
-	id <S261244AbRELNkT>; Sat, 12 May 2001 09:40:19 -0400
-Date: Sat, 12 May 2001 08:40:18 -0500 (EST)
-From: "Mark H. Wood" <mwood@IUPUI.Edu>
-X-X-Sender: <mwood@mhw.ULib.IUPUI.Edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: ENOIOCTLCMD?
-In-Reply-To: <E14yXNZ-000447-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0105120831340.11432-100000@mhw.ULib.IUPUI.Edu>
+	id <S261250AbRELNps>; Sat, 12 May 2001 09:45:48 -0400
+Received: from www.wen-online.de ([212.223.88.39]:31240 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S261248AbRELNpm>;
+	Sat, 12 May 2001 09:45:42 -0400
+Date: Sat, 12 May 2001 15:45:17 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Vincent Stemen <linuxkernel@AdvancedResearch.org>,
+        Jacky Liu <jq419@my-deja.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.4 kernel freeze for unknown reason
+In-Reply-To: <E14yXPt-00044K-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0105121504560.365-100000@mikeg.weiden.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Sat, 12 May 2001, Alan Cox wrote:
-> > Can somebody explain the use of ENOIOCTLCMD? There are order of 170
-> > uses in the kernel, but I don't see any guidelines for that use (nor
-> > what prevents it from being seen by user programs).
->
-> It should never be seen by apps. If it can be then it is wrong code.
-> Basically you use it in things like
->
->
->
-> 	int err = dev->ioctlfunc(dev, op, arg);
-> 	if( err != -ENOIOCTLCMD)
-> 		return err;
->
-> 	/* Driver specific code does not support this ioctl */
->
-> 	switch(op)
-> 	{
->
-> 			...
-> 		default:
-> 			return -ENOTTY;
-> 	}
->
-> Its a way of passing back 'you handle it'
 
-Okay, but another way of looking at it is as an instance of the classic
-joke:
+> > > > If I turn swap off all together or turn it off and back on
+> > > > periodically to clear the swap before it gets full, I do not seem to
+> > > > experience the lockups.
+> >
+> > Why do I not see this behavior with a heavy swap throughput test load?
+> > It seems decidedly odd to me that swapspace should remain allocated on
+> > other folks lightly loaded boxen given that my heavily loaded box does
+> > release swapspace quite regularly.  What am I missing?
+>
+> If you swap really hard it seems much happier. If you vaguely swap stuff out
+> over time then I too see the description above only I have Rik's dont deadlock
+> on oom tweak so I see apps die.
 
-Husband:  What have I done wrong this time?
-Wife:     If you don't know, I'm not going to tell you!
+Does any swap write/release if you hit such a box with heavy duty IO?
+(pages on dirty list, swapspace allocated but writeout defered?)
 
-IOW instead of getting back "this file doesn't know what that IOCTL
-means", you get "error somewhere".  It certainly would be nice to know
-*which* parameter was invalid and *why* it was invalid.  Changing this
-would be against the lore, but I would rather throw away excess
-information than never have received it in the first place. *sigh*
+If not, I'd be interested in seeing sysrq-m of a box in such a state..
+particularly so if the total pages on active, dirty and clean lists is
+only a small fraction of total pages.  (information leak?)
 
--- 
-Mark H. Wood, Lead System Programmer   mwood@IUPUI.Edu
-Make a good day.
+	-Mike
 

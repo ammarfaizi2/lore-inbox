@@ -1,102 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268102AbTCFNrz>; Thu, 6 Mar 2003 08:47:55 -0500
+	id <S268101AbTCFNum>; Thu, 6 Mar 2003 08:50:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268105AbTCFNry>; Thu, 6 Mar 2003 08:47:54 -0500
-Received: from as12-5-6.spa.s.bonet.se ([217.215.177.162]:47024 "EHLO
-	www.tnonline.net") by vger.kernel.org with ESMTP id <S268102AbTCFNrw>;
-	Thu, 6 Mar 2003 08:47:52 -0500
-Date: Thu, 6 Mar 2003 14:58:18 +0100
-From: Anders Widman <andewid@tnonline.net>
-X-Mailer: The Bat! (v1.63 Beta/6)
-Reply-To: Anders Widman <andewid@tnonline.net>
-Organization: TNOnline.net
-X-Priority: 3 (Normal)
-Message-ID: <406624312.20030306145818@tnonline.net>
-To: "Sam James" <sam.james@adelphia.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Entire LAN goes boo  with 2.5.64
-In-Reply-To: <68CDBCD4C718204B8E3AE0DE304DDB680154CD85@cdptpaex1.adelphia.com>
-References: <68CDBCD4C718204B8E3AE0DE304DDB680154CD85@cdptpaex1.adelphia.com>
+	id <S268105AbTCFNum>; Thu, 6 Mar 2003 08:50:42 -0500
+Received: from 60.54.252.64.snet.net ([64.252.54.60]:48002 "EHLO
+	hotmale.blue-labs.org") by vger.kernel.org with ESMTP
+	id <S268101AbTCFNul>; Thu, 6 Mar 2003 08:50:41 -0500
+Message-ID: <3E6754A6.6060801@blue-labs.org>
+Date: Thu, 06 Mar 2003 09:01:10 -0500
+From: David Ford <david+cert@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030304
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [OOPS] 2.5.64, pppd (PPPoE)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Bmilter: Processing completed, Bmilter version 0.1.1 build 912; timestamp 2003-03-06 14:01:12, message serial number 759179
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Sounds like a bpdu storm, are you somehow looping the network?
+Had an OOPS at bootup starting my PPPoE interfaces.
 
-Not  that  I  am aware of.. Running only one 8 port switch. Works good
-with the 2.4.x kernels, but not with 2.5.. very odd.
+I am using 2.5.58 on this machine, trying to upgrade to .64.
 
-//Anders
+Unable to handle kernel NULL pointer dereference at virtual address 00000005
+ printing eip:
+c030eee6
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0060:[<c030eee6>]    Not tainted
+EFLAGS: 00010202
+EIP is at packet_dev_mclist+0x16/0x38
+eax: 00000005   ebx: 00000001   ecx: 00002710   edx: 00000000
+esi: cbcfb400   edi: 00000001   ebp: cad51e54   esp: cad51e48
+ds: 007b   es: 007b   ss: 0068
+Process pppd (pid: 268, threadinfo=cad50000 task=cba45320)
+Stack: cbd1e964 cbfcf59c cbcfb400 cad51e74 c030f7bd cbcfb400 00000001 
+00000001
+       c03edc14 cbcfb400 00000001 cad51e94 c012aa27 c03edc14 00000001 
+cbcfb400
+       cbcfb400 00000000 00001090 cad51eb8 c02ac6d6 c048bcc4 00000001 
+cbcfb400
+Call Trace:
+ [<c030f7bd>] packet_notifier+0x28d/0x2a8
+ [<c012aa27>] notifier_call_chain+0x23/0x40
+ [<c02ac6d6>] dev_open+0xb6/0xc4
+ [<c02adc71>] dev_change_flags+0x59/0x110
+ [<c02e61e4>] devinet_ioctl+0x2c4/0x5cc
+ [<c02e9047>] inet_ioctl+0xb3/0xf4
+ [<c02a5ab1>] sock_ioctl+0x1cd/0x1dc
+ [<c016779f>] sys_ioctl+0x1ef/0x210
+ [<c0109777>] syscall_call+0x7/0xb
 
-> -----Original Message-----
-> From: Anders Widman [mailto:andewid@tnonline.net] 
-> Sent: Thursday, March 06, 2003 6:02 AM
-> To: Erik Hensema
-> Cc: linux-kernel@vger.kernel.org; erik@hensema.net
-> Subject: Re: Entire LAN goes boo with 2.5.64
+Code: 39 43 04 75 0b 57 53 56 e8 6d ff ff ff 83 c4 0c 8b 1b 85 db
 
-
->> Anders Widman (andewid@tnonline.net) wrote:
->>> 
->>>>    Hello,
->>> 
->>>>    Trying  out  the  2.5.64  kernel  to try to solve some IDE
-> specific
->>>>    problems  with 2.4.x kernels. Now I have another problem. We have
-> a
->>>>    Windows LAN and a Windows XP with WinRoute Pro as gateway.
->>> 
->>>>    When  booting  the linux-machine with the 2.5.64 kernel the
-> windows
->>>>    machine goes to 100% cpu and the switch (Dlink) goes crazy
-> (loosing
->>>>    link, other machines get 100k/s instead of 10-12MiB/s etc).
->>> 
->>>>    I  compiled  the  2.5.64  with  as  few  options  as  possible,
-> no
->>>>    netfilter, or IPSec or similar stuff.
->>> 
->>>>    What can be the problem?
->>> 
->>>    Forgot to say I am using a Intel Pro100+ NIC and I have tested
-> with
->>>    both the Becker driver and the Intel driver.
-
->> I've seen something similar [1] happen to a LAN with one Windows XP
->> machine running vcool: http://vcool.occludo.net/ . This is also 
->> available for Linux (http://vcool.occludo.net/VC_Linux.html). Are you
->> running this patch or a similar one?
-
-> Nope, no vcool or anything similar. But it is very odd that the switch
-> would go crazy too!
-
->> [1] all machines were seeing frame errors on packets > 250 bytes; it
->> was a 10 mbit coax lan.
-
-> Using 100mbit switched network.
-
-
-   
-
-
-
-> --------
-> PGP public key: https://tnonline.net/secure/pgp_key.txt
-
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> in the body of a message to majordomo@vger.kernel.org More majordomo
-> info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
-
-   
-
-
-
---------
-PGP public key: https://tnonline.net/secure/pgp_key.txt
 

@@ -1,95 +1,122 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271704AbRH0SOB>; Mon, 27 Aug 2001 14:14:01 -0400
+	id <S271825AbRH0SNw>; Mon, 27 Aug 2001 14:13:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271724AbRH0SNw>; Mon, 27 Aug 2001 14:13:52 -0400
-Received: from tank.panorama.sth.ac.at ([193.170.53.11]:22535 "EHLO
-	tank.panorama.sth.ac.at") by vger.kernel.org with ESMTP
-	id <S271704AbRH0SNm>; Mon, 27 Aug 2001 14:13:42 -0400
-Date: Mon, 27 Aug 2001 20:13:51 +0200
-From: Peter Surda <shurdeek@panorama.sth.ac.at>
-To: linux-kernel@vger.kernel.org
-Subject: memcpy to videoram eats too much CPU on ATI cards (cache trashing?)
-Message-ID: <20010827201351.H17545@shurdeek.cb.ac.at>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BXr400anF0jyguTS"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-X-Operating-System: Linux shurdeek 2.4.3-20mdk
-X-Editor: VIM - Vi IMproved 6.0z ALPHA (2001 Mar 24, compiled Mar 26 2001 12:25:08)
+	id <S271724AbRH0SNc>; Mon, 27 Aug 2001 14:13:32 -0400
+Received: from warden.digitalinsight.com ([208.29.163.2]:757 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S271704AbRH0SNN>; Mon, 27 Aug 2001 14:13:13 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
+Date: Mon, 27 Aug 2001 09:55:39 -0700 (PDT)
+Subject: Re: [resent PATCH] Re: very slow parallel read performance
+In-Reply-To: <20010827142441Z16237-32383+1641@humbolt.nl.linux.org>
+Message-ID: <Pine.LNX.4.33.0108270953090.8450-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+with you moving things to the inactive queue both when they are used and
+when they spillover from the readahead queue I think you end up putting to
+much preasure on the inactive queue.
 
---BXr400anF0jyguTS
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+given that the readahead queue will fill almost all memory when things
+start spilling off of it you are needing to free memory, so if you just
+put it on the inactive queue you then have to free an equivalent amount of
+space from the inactive queue to actually make any progress on freeing
+space.
 
-Dear kernel gurus,
+David Lang
 
-First of all I want to apologise for writing here, but I think this is the
-place with the greatest chance of getting some help. I have done extensive
-research on the problem and talked to many people including driver developers
-and was unable to find any solutions yet.
 
-So, fist a little intro: when watching videos with Xv under XFree86, a certain
-function is called to transfer the data from system RAM to video RAM. This
-function is driver specific, but for all the drivers I checked (mga, tdfx,
-mach64, r128) it has the same contents, looks like pasted. It basically does a
-for (h--) memcpy (blah, blah, blah).
 
-The point is that with mga, tdfx and what I heard nvidia too, this doesn't
-cause any CPU load (or more precisely, non-measurable load). However, with
-mach64 and r128, it DOES. I did some more research.
+ On Mon, 27 Aug 2001, Daniel Phillips wrote:
 
-memcpy-ing 380kB at 25fps takes about 5ms per frame and causes X to eat 1% cpu
-time (time measurements were done by tsc)
-memcpy-ing 760kB at 25fps takes about 11ms per frame, but instead of eating
-2% CPU time, it eats 35% (yes, that's 35 times more)
-
-The speed isn't the real problem (when you multiply it you get about 70MB/s
-and that's definitely enough). The problem is that this eats CPU time, and
-that shouldn't (or at least not so much).
-
-This happens on both of my systems, one with PIIMobile/366 and mach64, and one
-with Duron 650 with r128. I had a voodoo before for tests, and CPU load wasn't
-measurable, from what I heard mga and nvidia as well, so it is something
-ATI-specific. Some other people having ATI cards have the same problem (from
-what I read on gatos-devel list), but I have never heard someone explicitely
-say "the problem doesn't exist on my ATI".
-
-MTRR is enabled correctly, disabling it only worsens the problem.
-
-I have been in close contact with the driver developer and XFree86 maintainer,
-but none of them seem to know exactly how to solve it. Current theory is that
-this is caused by some cache being trashed, but I have no idea how to fix it.
-
-Oh yes, I already tried using a memcpy written in assembly utilizing MMX, but
-it didn't show any change.
-
-I would be very grateful for ideas.
-
-Please CC me, I'm not on the list.
-
-Bye,
-
-Peter Surda (Shurdeek) <shurdeek@panorama.sth.ac.at>, ICQ 10236103, +436505122023
-
---
-Failure is not an option. It comes bundled with your Microsoft product.
-
---BXr400anF0jyguTS
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7io3fzogxsPZwLzcRArQ5AJ0Wi4C/tOeNX+Ny5koatHphcydOFQCeMfTI
-+Q76K+RNwxmE5bEuYmo1pw0=
-=DXR3
------END PGP SIGNATURE-----
-
---BXr400anF0jyguTS--
+> Date: Mon, 27 Aug 2001 16:31:21 +0200
+> From: Daniel Phillips <phillips@bonn-fries.net>
+> To: Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
+> Subject: Re: [resent PATCH] Re: very slow parallel read performance
+>
+> On August 27, 2001 09:08 am, Helge Hafting wrote:
+> > Daniel Phillips wrote:
+> > >
+> > > On August 24, 2001 09:02 pm, Rik van Riel wrote:
+> > > > I guess in the long run we should have automatic collapse
+> > > > of the readahead window when we find that readahead window
+> > > > thrashing is going on, in the short term I think it is
+> > > > enough to have the maximum readahead size tunable in /proc,
+> > > > like what is happening in the -ac kernels.
+> > >
+> > > Yes, and the most effective way to detect that the readahead window is too
+> > > high is by keeping a history of recently evicted pages.  When we find
+> > > ourselves re-reading pages that were evicted before ever being used we
+> > > know exactly what the problem is.
+> >
+> > Counting how much we are reading ahead and comparing with total RAM
+> > (or total cache) might also be an idea.  We may then read ahead
+> > a lot for those who runs a handful of processes, and
+> > do smaller readahead for those that runs thousands of processes.
+>
+> Yes.  In fact I was just sitting down to write up a design for a new
+> readahead-handling strategy that incorporates this idea.  Here are my design
+> notes so far:
+>
+>   - Readahead cache should be able to expand to fill (almost) all
+>     memory in the absence of other activity.
+>
+>   - Readahead pages have higher priority than inactive pages, lower
+>     than active.
+>
+>   - Readahead cache is naturally a fifo - new chunks of readahead
+>     are added at the head and unused readahead is (eventually)
+>     culled from the tail.
+>
+>   - Readahead cache is important enough to get its own lru list.
+>     We know it's a fifo so don't have to waste cycles scanning/aging.
+>     Having a distinct list makes the accounting trivial, vs keeping
+>     readahead on the active list for example.
+>
+>   - A new readahead page starts on the readahead queue.  When used
+>     (by generic_file_read) the readahead page moves to the inactive
+>     queue and becomes a used-once page (i.e., low priority).  If a
+>     readahead page reaches the tail of the readahead queue it may
+>     be culled by moving it to the inactive queue.
+>
+>   - When the readahead cache fills up past its falloff limit we
+>     will reduce amount of readahead submitted proportionally by the
+>     amount the readahead cache exceeds the falloff limit.  At the
+>     cutoff limit, no new readahead is submitted.
+>
+>   - At each try_to_free_pages step the readahead queue is culled
+>     proportionally by the amount it exceeds its falloff limit.  A
+>     tuning parameter controls the rate at which readahead is
+>     culled vs new readahead submissions (is there a better way?).
+>
+>   - The cutoff limit is adjusted periodically according to the size
+>     of the active list, implementing the idea that active pages
+>     take priority over readahead pages.
+>
+>   - The falloff limit is set proportionally to the cutoff limit.
+>
+>   - The mechanism operates without user intervention, though there
+>     are several points at which proportional factors could be
+>     exposed as tuning parameters.
+>
+> The overarching idea here is that we can pack more readahead into memory by
+> managing it carefully, in such a way that we do not often discard unused
+> readahead pages.  In other words, we do as much readahead as possible but
+> avoid thrashing.
+>
+> The advantages seem clear enough that I'll proceed to an implementation
+> without further ado.
+>
+> --
+> Daniel
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

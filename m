@@ -1,47 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270670AbUJUK4o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270640AbUJUKxR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270670AbUJUK4o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 06:56:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270675AbUJUKyr
+	id S270640AbUJUKxR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 06:53:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270671AbUJUKvv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 06:54:47 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:63911 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S270670AbUJUKvn (ORCPT
+	Thu, 21 Oct 2004 06:51:51 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:28399 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S270590AbUJUKt0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 06:51:43 -0400
+	Thu, 21 Oct 2004 06:49:26 -0400
+Message-ID: <41779431.5090104@in.ibm.com>
+Date: Thu, 21 Oct 2004 16:19:21 +0530
+From: Hariprasad Nellitheertha <hari@in.ibm.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16759.38054.944944.610417@alkaid.it.uu.se>
-Date: Thu, 21 Oct 2004 12:51:18 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, andrea@novell.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: ZONE_PADDING wastes 4 bytes of the new cacheline
-In-Reply-To: <20041020213622.77afdd4a.akpm@osdl.org>
-References: <20041021011714.GQ24619@dualathlon.random>
-	<417728B0.3070006@yahoo.com.au>
-	<20041020213622.77afdd4a.akpm@osdl.org>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+To: linux-kernel@vger.kernel.org
+CC: Vara Prasad <varap@us.ibm.com>
+Subject: Re: [PATCH][2/4] kexec: Enable co-existence of normal kexec Image
+ and kexec on panic Image
+References: <417792BA.8090205@in.ibm.com> <41779345.8080009@in.ibm.com>
+In-Reply-To: <41779345.8080009@in.ibm.com>
+Content-Type: multipart/mixed;
+ boundary="------------030303050606080100090102"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
- > Nick Piggin <nickpiggin@yahoo.com.au> wrote:
- > >
- > > >  #if defined(CONFIG_SMP)
- > >  >  struct zone_padding {
- > >  > -	int x;
- > >  >  } ____cacheline_maxaligned_in_smp;
- > >  >  #define ZONE_PADDING(name)	struct zone_padding name;
- > >  >  #else
- > > 
- > >  Perhaps to keep old compilers working? Not sure.
- > 
- > gcc-2.95 is OK with it.
+This is a multi-part message in MIME format.
+--------------030303050606080100090102
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Have you verified that? GCCs up to and including 2.95.3 and
-early versions of 2.96 miscompiled the kernel when spinlocks
-where empty structs on UP. I.e., you might not get a compile-time
-error but runtime corruption instead.
+This patch, to kexec, makes it possible to separate out the 
+two uses of kexec - for normal kexec usage and 
+kexec-on-panic. The image for the panic case is loaded using 
+the "kexec -p" option instead of "kexec -l".
+
+Regards, Hari
+
+--------------030303050606080100090102
+Content-Type: text/plain;
+ name="kexec-panic.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="kexec-panic.patch"
+
+
+Signed-off-by: Hariprasad Nellitheertha <hari@in.ibm.com>
+---
+
+ linux-kexec-hari/include/linux/kexec.h |    1 +
+ linux-kexec-hari/kernel/kexec.c        |   13 +++++--------
+ 2 files changed, 6 insertions(+), 8 deletions(-)
+
+diff -puN include/linux/kexec.h~kexec-panic include/linux/kexec.h
+--- linux-kexec/include/linux/kexec.h~kexec-panic	2004-10-18 14:59:01.000000000 +0530
++++ linux-kexec-hari/include/linux/kexec.h	2004-10-18 15:00:33.000000000 +0530
+@@ -52,5 +52,6 @@ extern asmlinkage long sys_kexec(unsigne
+ 	struct kexec_segment *segments);
+ extern struct page *kimage_alloc_control_pages(struct kimage *image, unsigned int order);
+ extern struct kimage *kexec_image;
++extern struct kimage *kexec_crash_image;
+ #endif
+ #endif /* LINUX_KEXEC_H */
+diff -puN kernel/kexec.c~kexec-panic kernel/kexec.c
+--- linux-kexec/kernel/kexec.c~kexec-panic	2004-10-18 14:59:01.000000000 +0530
++++ linux-kexec-hari/kernel/kexec.c	2004-10-19 14:12:33.000000000 +0530
+@@ -585,6 +585,7 @@ static int kimage_load_segment(struct ki
+  * that to happen you need to do that yourself.
+  */
+ struct kimage *kexec_image = NULL;
++struct kimage *kexec_crash_image = NULL;
+ 
+ asmlinkage long sys_kexec_load(unsigned long entry, unsigned long nr_segments,
+ 	struct kexec_segment *segments, unsigned long flags)
+@@ -596,13 +597,6 @@ asmlinkage long sys_kexec_load(unsigned 
+ 	if (!capable(CAP_SYS_BOOT))
+ 		return -EPERM;
+ 
+-	/*
+-	 * In case we need just a little bit of special behavior for
+-	 * reboot on panic.
+-	 */
+-	if (flags != 0)
+-		return -EINVAL;
+-
+ 	if (nr_segments > KEXEC_SEGMENT_MAX)
+ 		return -EINVAL;
+ 
+@@ -632,7 +626,10 @@ asmlinkage long sys_kexec_load(unsigned 
+ 		}
+ 	}
+ 
+-	image = xchg(&kexec_image, image);
++	if (!flags)
++		image = xchg(&kexec_image, image);
++	else
++		image = xchg(&kexec_crash_image, image);
+ 
+  out:
+ 	kimage_free(image);
+_
+
+--------------030303050606080100090102--

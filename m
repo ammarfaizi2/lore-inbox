@@ -1,341 +1,133 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275552AbRKSTiS>; Mon, 19 Nov 2001 14:38:18 -0500
+	id <S276135AbRKSTjS>; Mon, 19 Nov 2001 14:39:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276135AbRKSTh6>; Mon, 19 Nov 2001 14:37:58 -0500
-Received: from gordon.ukservers.net ([217.10.138.217]:56840 "HELO
-	gordon.ukservers.net") by vger.kernel.org with SMTP
-	id <S275552AbRKSTho>; Mon, 19 Nov 2001 14:37:44 -0500
-Date: Mon, 19 Nov 2001 19:39:09 +0000
-From: Mark Hymers <markh@linuxfromscratch.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: chaffee@cs.berkeley.edu
-Subject: MODULE_LICENSE tags for nls
-Message-ID: <20011119193909.B878@markcomp.blaydon.hymers.org.uk>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	chaffee@cs.berkeley.edu
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S280659AbRKSTjJ>; Mon, 19 Nov 2001 14:39:09 -0500
+Received: from smtp02.uc3m.es ([163.117.136.122]:13331 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S276135AbRKSTiy>;
+	Mon, 19 Nov 2001 14:38:54 -0500
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200111191938.fAJJckA14340@oboe.it.uc3m.es>
+Subject: Re: if (a & X || b & ~Y) in dasd.c
+In-Reply-To: <200111191840.fAJIej230821@deathstar.prodigy.com> from "bill davidsen"
+ at "Nov 19, 2001 01:40:45 pm"
+To: "bill davidsen" <davidsen@tmr.com>
+Date: Mon, 19 Nov 2001 20:38:46 +0100 (MET)
+Cc: "linux kernel" <linux-kernel@vger.kernel.org>
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+"bill davidsen wrote:"
+>   If the code does what I think it does, it works as written. However, I
+> usually would throw in parenthesis on something like this to be sure
+> that the next person reading the code won't waste time thinking about
 
-There appear to be a set of module tags missing in <=2.4.15-pre4
-resulting in the kernel being tainted incorrectly (as far as I can see).
-The following .c files in fs/nls appear to be affected:
+Which is WHY you do not put in parentheses.
 
-nls_big5.c, nls_cp932.c, nls_cp936.c, nls_cp949.c, nls_cp950.c,
-nls_euc-jp.c, nls_euc-kr.c, nls_gb2312.c, nls_iso8859-1.c,
-nls_iso8859-13.c, nls_iso8859-14.c, nls_iso8859-15.c, nls_iso8859-2.c, 
-nls_iso8859-3.c, nls_iso8859-4.c, nls_iso8859-5.c, nls_iso8859-6.c, 
-nls_iso8859-7.c, nls_iso8859-8.c, nls_iso8859-9.c, nls_koi8-r.c,
-nls_koi8-ru.c, nls_koi8-u.c, nls_sjis.c, nls_tis-620.c, nls_utf8.c
+C is designed with precedences that make sense. You can write
+conditions the way they ought to be written, without parentheses.
 
-All of the other nls files are described with the line:
-MODULE_LICENSE("BSD without advertising clause");
+   a && b || c && d
 
-If this is the correct tag, I've attached a patch below which adds this
-to all of the above files hopefully solving the problem.
+is read exactly the same way as you would read
 
-I originally posted this to LKML about a week ago (I think) and tried
-CC'ing the vfat maintainer but have had no response.  As it seems to be
-a simple enough fix-up, i've now copied it to you for possible inclusion
-in the tree.  It doesn't appear that anyone in particular wants (or
-needs) to maintain the nls support most of the time.
+   a * b  +  c * d
 
-Thanks
+and I have no idea why people would think otherwise. && is the logical
+multiplicative operator (1*x = x, x*0 = 0, x*y = y*x, x*(y*z) = (x*y)*z),
+and || is the logical addition operator (x+0 = x, x+y = y +x,
+x+(y+z)=(x+y)+z)) and they distribute correctly (x*(y+z) = (x*y)+(x*z)),
+so why should you treat them as though they were some strange thing
+from mars that needs parentheses?
 
-Mark
+> it. I always thought that good code was literature, which could be read,
+> understood, and enjoyed by many.
 
--- 
-Mark Hymers					 BLFS Editor
-markh@linuxfromscratch.org
+Exactly so. So don't put in extra punctuation to help people that can't
+read or you'll spoil it for us. Parentheses make things illegible, as
+surely as ((2)=(((1))+((1)))) :-). If an expression is difficult for
+you, don't write it!
+
+Additive operators in C have weaker priority than multiplicative
+operators at the same level.  = is weaker than anything.  Relational
+operators are next weakest.  Then bitwise operators.  Then logical
+operators.  Then arithmetic operators, then monary operators, which are
+strongest of all.
+
+That's the natural way. It means you can write, instead of
+
+   *x++ += (((a+2) << 2) > (b-4));
+
+   *x++ += a+2 << 2  >  b-4;
+
+(but that's illegible simply by virtue of having too complicated a RHS
+in either case), or
+
+   x = a & b || c & d;
+
+because the & binds more tightly than || by virtue of being
+bitwise, not logical. If you were to write
+
+   x = a & b | c & d;
+
+that  would also be right, because & binds more tightly by virtue of
+being multiplicative.
+
+   x = a && b || c && d
+
+is also right, for the same reason. All have the same logical
+semantics, two have the same bitwise semantics. Two have the
+same arithmetic semantics, I think ... obviously you can also add
+
+   x = a * b + c * d
+
+to the list, and more variants - though you wouldn't want to.
+
+Where you might get caught out is by not realizing that << is 
+weaker than arithmetic ops, so 
+
+   *x++ += a+2 << 2  >  b-4;
+
+(what I wrote before) is NOT
+
+   *x++ += a + 2<<2  >  b-4;
+
+nor
+
+   *x++ += a+2  <<  2 > b-4
+
+nor
+
+   *x++ += a   +   2  <<  2>b   -   4
+
+Blech. I can't think of any more eccentric interpretations. The
+principle is that the higher level and more additive an operator is,
+the weaker it is.  This is intuitive. You only need to parenthise
+weak operators when you want them to be evaluated before a strong
+operator acts. Thus
+
+  *x++ +=  *((x | 0x01) + (1<<*x)) 
+
+to be silly. The commonest mistake is writing
+
+  x = y << z + w
+
+instead of
+
+  x = y << (z++w)
+
+But compare
+
+  x = y ** z + w
+
+(should the power operator exist) and you'll see why it's wrong. << is
+precisely a power operator, and not treating it as such is the error.
 
 
-diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_big5.c linux-2.4.15-pre4-new/fs/nls/nls_big5.c
---- linux-2.4.15-pre4-orig/fs/nls/nls_big5.c	Mon Oct 16 20:58:51 2000
-+++ linux-2.4.15-pre4-new/fs/nls/nls_big5.c	Wed Nov 14 01:00:19 2001
-@@ -42,7 +42,7 @@
- 
- module_init(init_nls_big5)
- module_exit(exit_nls_big5)
--
-+MODULE_LICENSE("BSD without advertising clause");
- /*
-  * Overrides for Emacs so that we follow Linus's tabbing style.
-  * Emacs will notice this stuff at the end of the file and automatically
-diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_cp932.c linux-2.4.15-pre4-new/fs/nls/nls_cp932.c
---- linux-2.4.15-pre4-orig/fs/nls/nls_cp932.c	Fri Apr  6 18:51:19 2001
-+++ linux-2.4.15-pre4-new/fs/nls/nls_cp932.c	Wed Nov 14 01:00:43 2001
-@@ -7904,6 +7904,7 @@
- 
- module_init(init_nls_cp932)
- module_exit(exit_nls_cp932)
-+MODULE_LICENSE("BSD without advertising clause");
- 
- /*
-  * Overrides for Emacs so that we follow Linus's tabbing style.
-diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_cp936.c linux-2.4.15-pre4-new/fs/nls/nls_cp936.c
---- linux-2.4.15-pre4-orig/fs/nls/nls_cp936.c	Fri Jul 21 23:19:51 2000
-+++ linux-2.4.15-pre4-new/fs/nls/nls_cp936.c	Wed Nov 14 01:00:51 2001
-@@ -11024,6 +11024,7 @@
- 
- module_init(init_nls_cp936)
- module_exit(exit_nls_cp936)
-+MODULE_LICENSE("BSD without advertising clause");
- 
- /*
-  * Overrides for Emacs so that we follow Linus's tabbing style.
-diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_cp949.c linux-2.4.15-pre4-new/fs/nls/nls_cp949.c
---- linux-2.4.15-pre4-orig/fs/nls/nls_cp949.c	Fri Jul 21 23:19:51 2000
-+++ linux-2.4.15-pre4-new/fs/nls/nls_cp949.c	Wed Nov 14 01:00:57 2001
-@@ -13941,6 +13941,7 @@
- 
- module_init(init_nls_cp949)
- module_exit(exit_nls_cp949)
-+MODULE_LICENSE("BSD without advertising clause");
- 
- /*
-  * Overrides for Emacs so that we follow Linus's tabbing style.
-diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_cp950.c linux-2.4.15-pre4-new/fs/nls/nls_cp950.c
---- linux-2.4.15-pre4-orig/fs/nls/nls_cp950.c	Fri Jul 21 23:19:51 2000
-+++ linux-2.4.15-pre4-new/fs/nls/nls_cp950.c	Wed Nov 14 01:01:04 2001
-@@ -9480,6 +9480,7 @@
- 
- module_init(init_nls_cp950)
- module_exit(exit_nls_cp950)
-+MODULE_LICENSE("BSD without advertising clause");
- 
- /*
-  * Overrides for Emacs so that we follow Linus's tabbing style.
-diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_euc-jp.c linux-2.4.15-pre4-new/fs/nls/nls_euc-jp.c
---- linux-2.4.15-pre4-orig/fs/nls/nls_euc-jp.c	Fri Apr  6 18:51:19 2001
-+++ linux-2.4.15-pre4-new/fs/nls/nls_euc-jp.c	Wed Nov 14 01:01:13 2001
-@@ -581,6 +581,7 @@
- 
- module_init(init_nls_euc_jp)
- module_exit(exit_nls_euc_jp)
-+MODULE_LICENSE("BSD without advertising clause");
- 
- /*
-  * Overrides for Emacs so that we follow Linus's tabbing style.
-diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_euc-kr.c linux-2.4.15-pre4-new/fs/nls/nls_euc-kr.c
---- linux-2.4.15-pre4-orig/fs/nls/nls_euc-kr.c	Mon Oct 16 20:58:51 2000
-+++ linux-2.4.15-pre4-new/fs/nls/nls_euc-kr.c	Wed Nov 14 01:01:20 2001
-@@ -42,6 +42,7 @@
- 
- module_init(init_nls_euc_kr)
- module_exit(exit_nls_euc_kr)
-+MODULE_LICENSE("BSD without advertising clause");
- 
- /*
-  * Overrides for Emacs so that we follow Linus's tabbing style.
-diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_gb2312.c linux-2.4.15-pre4-new/fs/nls/nls_gb2312.c
---- linux-2.4.15-pre4-orig/fs/nls/nls_gb2312.c	Mon Oct 16 20:58:51 2000
-+++ linux-2.4.15-pre4-new/fs/nls/nls_gb2312.c	Wed Nov 14 01:01:27 2001
-@@ -42,6 +42,7 @@
- 
- module_init(init_nls_gb2312)
- module_exit(exit_nls_gb2312)
-+MODULE_LICENSE("BSD without advertising clause");
- 
- /*
-  * Overrides for Emacs so that we follow Linus's tabbing style.
-diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-1.c linux-2.4.15-pre4-new/fs/nls/nls_iso8859-1.c
---- linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-1.c	Wed Jul 19 06:48:33 2000
-+++ linux-2.4.15-pre4-new/fs/nls/nls_iso8859-1.c	Wed Nov 14 01:01:34 2001
-@@ -254,6 +254,7 @@
- 
- module_init(init_nls_iso8859_1)
- module_exit(exit_nls_iso8859_1)
-+MODULE_LICENSE("BSD without advertising clause");
- 
- /*
-  * Overrides for Emacs so that we follow Linus's tabbing style.
-diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-13.c linux-2.4.15-pre4-new/fs/nls/nls_iso8859-13.c
---- linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-13.c	Sun May 20 01:47:55 2001
-+++ linux-2.4.15-pre4-new/fs/nls/nls_iso8859-13.c	Wed Nov 14 01:01:40 2001
-@@ -282,6 +282,7 @@
- 
- module_init(init_nls_iso8859_13)
- module_exit(exit_nls_iso8859_13)
-+MODULE_LICENSE("BSD without advertising clause");
- 
- /*
-  * Overrides for Emacs so that we follow Linus's tabbing style.
-diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-14.c linux-2.4.15-pre4-new/fs/nls/nls_iso8859-14.c
---- linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-14.c	Wed Jul 19 06:48:33 2000
-+++ linux-2.4.15-pre4-new/fs/nls/nls_iso8859-14.c	Wed Nov 14 01:01:46 2001
-@@ -338,6 +338,7 @@
- 
- module_init(init_nls_iso8859_14)
- module_exit(exit_nls_iso8859_14)
-+MODULE_LICENSE("BSD without advertising clause");
- 
- /*
-  * Overrides for Emacs so that we follow Linus's tabbing style.
-diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-15.c linux-2.4.15-pre4-new/fs/nls/nls_iso8859-15.c
---- linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-15.c	Fri Jul 21 23:19:51 2000
-+++ linux-2.4.15-pre4-new/fs/nls/nls_iso8859-15.c	Wed Nov 14 01:01:52 2001
-@@ -304,6 +304,7 @@
- 
- module_init(init_nls_iso8859_15)
- module_exit(exit_nls_iso8859_15)
-+MODULE_LICENSE("BSD without advertising clause");
- 
- /*
-  * Overrides for Emacs so that we follow Linus's tabbing style.
-diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-2.c linux-2.4.15-pre4-new/fs/nls/nls_iso8859-2.c
---- linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-2.c	Fri Jul 21 23:19:51 2000
-+++ linux-2.4.15-pre4-new/fs/nls/nls_iso8859-2.c	Wed Nov 14 01:01:58 2001
-@@ -305,6 +305,7 @@
- 
- module_init(init_nls_iso8859_2)
- module_exit(exit_nls_iso8859_2)
-+MODULE_LICENSE("BSD without advertising clause");
- 
- /*
-  * Overrides for Emacs so that we follow Linus's tabbing style.
-diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-3.c linux-2.4.15-pre4-new/fs/nls/nls_iso8859-3.c
---- linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-3.c	Fri Jul 21 23:19:51 2000
-+++ linux-2.4.15-pre4-new/fs/nls/nls_iso8859-3.c	Wed Nov 14 01:02:04 2001
-@@ -305,6 +305,7 @@
- 
- module_init(init_nls_iso8859_3)
- module_exit(exit_nls_iso8859_3)
-+MODULE_LICENSE("BSD without advertising clause");
- 
- /*
-  * Overrides for Emacs so that we follow Linus's tabbing style.
-diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-4.c linux-2.4.15-pre4-new/fs/nls/nls_iso8859-4.c
---- linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-4.c	Fri Jul 21 23:19:51 2000
-+++ linux-2.4.15-pre4-new/fs/nls/nls_iso8859-4.c	Wed Nov 14 01:02:10 2001
-@@ -305,6 +305,7 @@
- 
- module_init(init_nls_iso8859_4)
- module_exit(exit_nls_iso8859_4)
-+MODULE_LICENSE("BSD without advertising clause");
- 
- /*
-  * Overrides for Emacs so that we follow Linus's tabbing style.
-diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-5.c linux-2.4.15-pre4-new/fs/nls/nls_iso8859-5.c
---- linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-5.c	Fri Jul 21 23:19:51 2000
-+++ linux-2.4.15-pre4-new/fs/nls/nls_iso8859-5.c	Wed Nov 14 01:02:16 2001
-@@ -269,6 +269,7 @@
- 
- module_init(init_nls_iso8859_5)
- module_exit(exit_nls_iso8859_5)
-+MODULE_LICENSE("BSD without advertising clause");
- 
- /*
-  * Overrides for Emacs so that we follow Linus's tabbing style.
-diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-6.c linux-2.4.15-pre4-new/fs/nls/nls_iso8859-6.c
---- linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-6.c	Fri Jul 21 23:19:51 2000
-+++ linux-2.4.15-pre4-new/fs/nls/nls_iso8859-6.c	Wed Nov 14 01:02:21 2001
-@@ -260,6 +260,7 @@
- 
- module_init(init_nls_iso8859_6)
- module_exit(exit_nls_iso8859_6)
-+MODULE_LICENSE("BSD without advertising clause");
- 
- /*
-  * Overrides for Emacs so that we follow Linus's tabbing style.
-diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-7.c linux-2.4.15-pre4-new/fs/nls/nls_iso8859-7.c
---- linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-7.c	Fri Jul 21 23:19:51 2000
-+++ linux-2.4.15-pre4-new/fs/nls/nls_iso8859-7.c	Wed Nov 14 01:02:29 2001
-@@ -314,6 +314,7 @@
- 
- module_init(init_nls_iso8859_7)
- module_exit(exit_nls_iso8859_7)
-+MODULE_LICENSE("BSD without advertising clause");
- 
- /*
-  * Overrides for Emacs so that we follow Linus's tabbing style.
-diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-8.c linux-2.4.15-pre4-new/fs/nls/nls_iso8859-8.c
---- linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-8.c	Fri Apr  6 18:51:19 2001
-+++ linux-2.4.15-pre4-new/fs/nls/nls_iso8859-8.c	Wed Nov 14 01:02:34 2001
-@@ -42,6 +42,7 @@
- 
- module_init(init_nls_iso8859_8)
- module_exit(exit_nls_iso8859_8)
-+MODULE_LICENSE("BSD without advertising clause");
- 
- /*
-  * Overrides for Emacs so that we follow Linus's tabbing style.
-diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-9.c linux-2.4.15-pre4-new/fs/nls/nls_iso8859-9.c
---- linux-2.4.15-pre4-orig/fs/nls/nls_iso8859-9.c	Fri Jul 21 23:19:51 2000
-+++ linux-2.4.15-pre4-new/fs/nls/nls_iso8859-9.c	Wed Nov 14 01:02:40 2001
-@@ -269,6 +269,7 @@
- 
- module_init(init_nls_iso8859_9)
- module_exit(exit_nls_iso8859_9)
-+MODULE_LICENSE("BSD without advertising clause");
- 
- /*
-  * Overrides for Emacs so that we follow Linus's tabbing style.
-diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_koi8-r.c linux-2.4.15-pre4-new/fs/nls/nls_koi8-r.c
---- linux-2.4.15-pre4-orig/fs/nls/nls_koi8-r.c	Fri Jul 21 23:19:51 2000
-+++ linux-2.4.15-pre4-new/fs/nls/nls_koi8-r.c	Wed Nov 14 01:02:47 2001
-@@ -320,6 +320,7 @@
- 
- module_init(init_nls_koi8_r)
- module_exit(exit_nls_koi8_r)
-+MODULE_LICENSE("BSD without advertising clause");
- 
- /*
-  * Overrides for Emacs so that we follow Linus's tabbing style.
-diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_koi8-ru.c linux-2.4.15-pre4-new/fs/nls/nls_koi8-ru.c
---- linux-2.4.15-pre4-orig/fs/nls/nls_koi8-ru.c	Sun May 20 01:47:55 2001
-+++ linux-2.4.15-pre4-new/fs/nls/nls_koi8-ru.c	Wed Nov 14 01:02:52 2001
-@@ -80,6 +80,7 @@
- 
- module_init(init_nls_koi8_ru)
- module_exit(exit_nls_koi8_ru)
-+MODULE_LICENSE("BSD without advertising clause");
- 
- /*
-  * Overrides for Emacs so that we follow Linus's tabbing style.
-diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_koi8-u.c linux-2.4.15-pre4-new/fs/nls/nls_koi8-u.c
---- linux-2.4.15-pre4-orig/fs/nls/nls_koi8-u.c	Sun May 20 01:47:55 2001
-+++ linux-2.4.15-pre4-new/fs/nls/nls_koi8-u.c	Wed Nov 14 01:02:57 2001
-@@ -327,6 +327,7 @@
- 
- module_init(init_nls_koi8_u)
- module_exit(exit_nls_koi8_u)
-+MODULE_LICENSE("BSD without advertising clause");
- 
- /*
-  * Overrides for Emacs so that we follow Linus's tabbing style.
-diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_sjis.c linux-2.4.15-pre4-new/fs/nls/nls_sjis.c
---- linux-2.4.15-pre4-orig/fs/nls/nls_sjis.c	Mon Oct 16 20:58:51 2000
-+++ linux-2.4.15-pre4-new/fs/nls/nls_sjis.c	Wed Nov 14 01:03:04 2001
-@@ -42,6 +42,7 @@
- 
- module_init(init_nls_sjis)
- module_exit(exit_nls_sjis)
-+MODULE_LICENSE("BSD without advertising clause");
- 
- /*
-  * Overrides for Emacs so that we follow Linus's tabbing style.
-diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_tis-620.c linux-2.4.15-pre4-new/fs/nls/nls_tis-620.c
---- linux-2.4.15-pre4-orig/fs/nls/nls_tis-620.c	Fri Apr  6 18:51:19 2001
-+++ linux-2.4.15-pre4-new/fs/nls/nls_tis-620.c	Wed Nov 14 01:03:10 2001
-@@ -42,6 +42,7 @@
- 
- module_init(init_nls_tis_620)
- module_exit(exit_nls_tis_620)
-+MODULE_LICENSE("BSD without advertising clause");
- 
- /*
-  * Overrides for Emacs so that we follow Linus's tabbing style.
-diff -Naur linux-2.4.15-pre4-orig/fs/nls/nls_utf8.c linux-2.4.15-pre4-new/fs/nls/nls_utf8.c
---- linux-2.4.15-pre4-orig/fs/nls/nls_utf8.c	Wed Jul 19 06:48:33 2000
-+++ linux-2.4.15-pre4-new/fs/nls/nls_utf8.c	Wed Nov 14 01:03:17 2001
-@@ -58,3 +58,4 @@
- 
- module_init(init_nls_utf8)
- module_exit(exit_nls_utf8)
-+MODULE_LICENSE("BSD without advertising clause");
+Peter

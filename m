@@ -1,62 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbUF0IwI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbUF0IyK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbUF0IwI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 04:52:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbUF0IwI
+	id S261347AbUF0IyK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 04:54:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbUF0IyJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 04:52:08 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:32128
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S261239AbUF0IwE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 04:52:04 -0400
-From: Rob Landley <rob@landley.net>
-To: Brad Campbell <brad@wasp.net.au>
-Subject: Re: Process in D state with USB and swsuspsp
-Date: Sun, 27 Jun 2004 03:50:46 -0500
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <200406262031.14464.rob@landley.net> <40DE5BC0.7080206@wasp.net.au>
-In-Reply-To: <40DE5BC0.7080206@wasp.net.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 27 Jun 2004 04:54:09 -0400
+Received: from gprs212-68.eurotel.cz ([160.218.212.68]:17537 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261347AbUF0IyF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jun 2004 04:54:05 -0400
+Date: Sun, 27 Jun 2004 10:51:15 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, mochel@digitalimplant.org,
+       trivial@rustcorp.com.au
+Subject: Re: swsusp: kill useless exports
+Message-ID: <20040627085115.GA32267@elf.ucw.cz>
+References: <20040625115642.GA2307@elf.ucw.cz> <20040626160857.343e9cb3.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200406270350.46641.rob@landley.net>
+In-Reply-To: <20040626160857.343e9cb3.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 27 June 2004 00:31, Brad Campbell wrote:
-> Rob Landley wrote:
-> > As I said, I realise that unplugging even a USB adapter with the machine
-> > is suspended is Not A Good Thing.  But it's likely to be a common thing
-> > among people who can't figure out after the fact "oh yeah, that's what's
-> > going wrong"...
->
-> Most of us that use swsusp regularly have our pre-suspend script unload usb
-> before suspend to prevent exactly this sort of behaviour.
-> I also unload PCMCIA.
->
-> If there is something using these devices that prevents unloading, then my
-> script notifies me that I'm doing something I need to stop before I
-> suspend. Can't remember the last time that happened though.
->
-> Check out the swsusp-devel list for further info.
+Hi!
 
-Yeah, I could, I just don't use USB enough.  My suspend script is now stripped 
-down to the point where the only thing I do is run dhclient afterwards (and 
-that's mostly because it seems to be too stupid to notice the timeout's 
-elapsed.  Persumably it should have some kind of trigger if the wireless 
-access point toggles...)
+> > These exports seem totally unneccessary as swsusp can't be module
+> > anyway. Idea by Patrick Mochel. Please apply,
+> > 							Pavel
+> > 
+> > --- linux-cvs//arch/i386/power/cpu.c	2004-06-25 13:08:23.000000000 +0200
+> > +++ linux/arch/i386/power/cpu.c	2004-06-24 23:37:00.000000000 +0200
+> > @@ -147,7 +147,3 @@
+> >  {
+> >  	__restore_processor_state(&saved_context);
+> >  }
+> > -
+> > -
+> > -EXPORT_SYMBOL(save_processor_state);
+> > -EXPORT_SYMBOL(restore_processor_state);
+> 
+> These are called from apm.c, which can be built as a module.
+> 
+> (grep!)
 
-It's just that a hot-pluggable bus, it should be possible to convince the 
-thing to reprobe all devices on a bus reset.  Oh well.
-
-Maybe a todo item for 2.7...
-
-Rob
-
+Ouch, sorry about that, I'll add a comment so this "cleanup" does not came
+up in future.
+								Pavel
 -- 
-www.linucon.org: Linux Expo and Science Fiction Convention
-October 8-10, 2004 in Austin Texas.  (I'm the con chair.)
-
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

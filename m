@@ -1,47 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267102AbSKSGHt>; Tue, 19 Nov 2002 01:07:49 -0500
+	id <S267108AbSKSGNc>; Tue, 19 Nov 2002 01:13:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267103AbSKSGHt>; Tue, 19 Nov 2002 01:07:49 -0500
-Received: from netrealtor.ca ([216.209.85.42]:42000 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S267102AbSKSGHs>;
-	Tue, 19 Nov 2002 01:07:48 -0500
-Date: Tue, 19 Nov 2002 01:22:05 -0500
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Grant Taylor <gtaylor+lkml_ihdeh111902@picante.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [rfc] epoll interface change and glibc bits ...
-Message-ID: <20021119062205.GC17927@mark.mielke.cc>
-References: <200211190549.gAJ5nGmU007542@habanero.picante.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200211190549.gAJ5nGmU007542@habanero.picante.com>
-User-Agent: Mutt/1.4i
+	id <S267107AbSKSGNc>; Tue, 19 Nov 2002 01:13:32 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:43790
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S267104AbSKSGNa>; Tue, 19 Nov 2002 01:13:30 -0500
+Date: Mon, 18 Nov 2002 22:16:02 -0800 (PST)
+From: Andre Hedrick <andre@pyxtechnologies.com>
+To: Douglas Gilbert <dougg@torque.net>
+cc: "J. E. J. Bottomley" <James.Bottomley@SteelEye.com>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: linux-2.4.18-modified-scsi-h.patch
+In-Reply-To: <20021118171446.A28459@eng2.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.10.10211182138310.2779-200000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; BOUNDARY="1430322656-1953087833-1037686562=:2779"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 19, 2002 at 12:49:16AM -0500, Grant Taylor wrote:
-> For example, sometimes TCP reads return EAGAIN when in fact they have
-> data.  This seems to stem from the case where the signal is found
-> before the first segment copy (from tcp.c circa 1425, there's even a
-> handy FIXME note there).  If you use epoll and get an EAGAIN, you have
-> no idea if it was a signal or a real empty socket unless you are also
-> very careful to notice when you got a signal during the read.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-I hope this isn't a stupid question: Why doesn't the code you speak of
-return EINTR instead of EAGAIN?
+--1430322656-1953087833-1037686562=:2779
+Content-Type: text/plain; charset=us-ascii
 
-mark
 
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+Greetings Doug et al.
 
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
+Please consider the addition of this simple void ptr to the scsi_request
+struct.  The addition of this simple void pointer allows one to map any
+and all request execution caller the facility to search for a specific
+operation without having to run in circles.  Hunting for these details
+over the global device list of all HBA's is silly and one of the key
+reasons why there error recovery path is so painful.
 
-                           http://mark.mielke.cc/
 
+Scsi_Request    *req = sc_cmd->sc_request;
+blah_blah_t     *trace = NULL;
+
+trace = (blah_blah_t *)req->trace_ptr;
+
+
+Therefore the specific transport invoking operations via the midlayer will
+have the ablity to track and trace any operation.
+
+It will save everyone headaches.
+
+Cheers,
+
+
+Andre Hedrick, CTO & Founder 
+iSCSI Software Solutions Provider
+http://www.PyXTechnologies.com/
+
+--1430322656-1953087833-1037686562=:2779
+Content-Type: text/plain; charset=us-ascii; name="linux-2.4.18-modified-scsi-h.patch"
+Content-Transfer-Encoding: base64
+Content-ID: <Pine.LNX.4.10.10211182216020.2779@master.linux-ide.org>
+Content-Description: 
+Content-Disposition: attachment; filename="linux-2.4.18-modified-scsi-h.patch"
+
+LS0tIGxpbnV4L2RyaXZlcnMvc2NzaS9zY3NpLmgub3JpZwkyMDAyLTEwLTMx
+IDAxOjQ1OjM5LjAwMDAwMDAwMCAtMDgwMA0KKysrIGxpbnV4L2RyaXZlcnMv
+c2NzaS9zY3NpLmgJMjAwMi0xMC0zMSAwMTo0NjozMS4wMDAwMDAwMDAgLTA4
+MDANCkBAIC02NjcsOCArNjY3LDExIEBADQogCXVuc2lnbmVkIHNob3J0IHNy
+X3NnbGlzdF9sZW47CS8qIHNpemUgb2YgbWFsbG9jJ2Qgc2NhdHRlci1nYXRo
+ZXIgbGlzdCAqLw0KIAl1bnNpZ25lZCBzcl91bmRlcmZsb3c7CS8qIFJldHVy
+biBlcnJvciBpZiBsZXNzIHRoYW4NCiAJCQkJICAgdGhpcyBhbW91bnQgaXMg
+dHJhbnNmZXJyZWQgKi8NCisJdm9pZCAqdHJhY2VfcHRyOwkvKiBjYXBhYmxl
+IG9mIGNtZC1jbW5kLWVycm9yIHRyYWNpbmcgKi8NCiB9Ow0KIA0KKyNkZWZp
+bmUgTU9ESUZJRURfU0NTSV9IDQorDQogLyoNCiAgKiBGSVhNRShlcmljKSAt
+IG9uZSBvZiB0aGUgZ3JlYXQgcmVncmV0cyB0aGF0IEkgaGF2ZSBpcyB0aGF0
+IEkgZmFpbGVkIHRvIGRlZmluZQ0KICAqIHRoZXNlIHN0cnVjdHVyZSBlbGVt
+ZW50cyBhcyBzb21ldGhpbmcgbGlrZSBzY19mb28gaW5zdGVhZCBvZiBmb28u
+ICBUaGlzIHdvdWxkDQo=
+--1430322656-1953087833-1037686562=:2779--

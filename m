@@ -1,86 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277395AbRJOL01>; Mon, 15 Oct 2001 07:26:27 -0400
+	id <S277404AbRJOLZr>; Mon, 15 Oct 2001 07:25:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277401AbRJOL0S>; Mon, 15 Oct 2001 07:26:18 -0400
-Received: from p25-max27.syd.ihug.com.au ([203.173.151.89]:12045 "EHLO
-	bugger.jampot.org") by vger.kernel.org with ESMTP
-	id <S277395AbRJOL0G>; Mon, 15 Oct 2001 07:26:06 -0400
-Message-ID: <3BCAC80F.9050705@ihug.com.au>
-Date: Mon, 15 Oct 2001 21:27:11 +1000
-From: Cyrus <cyrusone@ihug.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
-MIME-Version: 1.0
-Newsgroups: alt.os.linux.slackware,alt.os.linux
-To: linux-kernel@vger.kernel.org
-Subject: Re: Large Storage Devices in Linux.....Kernel level support.....
-In-Reply-To: <3BC93DCB.20400@linuxmail.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S277401AbRJOLZh>; Mon, 15 Oct 2001 07:25:37 -0400
+Received: from pcephc56.cern.ch ([137.138.38.92]:35968 "EHLO
+	kushida.jlokier.co.uk") by vger.kernel.org with ESMTP
+	id <S277395AbRJOLZd>; Mon, 15 Oct 2001 07:25:33 -0400
+Date: Mon, 15 Oct 2001 13:24:59 +0200
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Aaron Lehmann <aaronl@vitelus.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org
+Subject: Re: Security question: "Text file busy" overwriting executables but not shared libraries?
+Message-ID: <20011015132459.A4269@kushida.jlokier.co.uk>
+In-Reply-To: <20011013205445.A24854@kushida.jlokier.co.uk> <Pine.LNX.4.33.0110131219520.8900-100000@penguin.transmeta.com> <20011013214603.A1144@kushida.jlokier.co.uk> <20011013144337.D9856@vitelus.com> <m1r8s7qior.fsf@frodo.biederman.org> <20011013155005.E9856@vitelus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011013155005.E9856@vitelus.com>; from aaronl@vitelus.com on Sat, Oct 13, 2001 at 03:50:05PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cyrus wrote:
+Aaron Lehmann wrote:
+> > > But it does have the advantage of allowing the sharing of memory, does
+> > > it not?
+> > 
+> > Only if you are going to write to the data.
+> 
+> Why? If gcc and another application read the source file with an
+> mmap() with the right parameters (read-only), it would only be shared
+> between them, as I understand it. If they both read() the file into
+> private buffers those can not be shared.
 
- > hi all,
- >
- > i've got a setup of 2 hard drives (30GB & 40GB) with an Asus a7m266 mobo
- > with a VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 06).
- >
- > 30GB= fujitsu, 40GB= IBM (both are 7200rpm
- >
- > i've got my cdrw on /dev/hdc, 30GB=/dev/hda, and 40GB=/dev/hdb...
- >
- > all works alright for a while, but when i keep my computer turned on for
- > a couple of days and then reboot. bios sometimes tells me that smart
- > array (or something) failed with my primary master (30GB) and i should
- > back-up soon.. next reboot it tells me that pri-master fails.. it's
- > doing this quite regularly and i don't know how to stop it. i'm running
- > kernel 2.4.12 vanilla.
- >
- > i'm sorry guys if this is the wrong place to ask but i could use some
- > hints in probably adding some options to the kernel at compile(config)
- > time to aid my ailing box.
- >
- > Cyrus Santos
- >
- > Registered Slackware Linux User # 220455
- > Sydney, Australia
- >
- > "...the best things in life are free...."
- >
- >
- >
+And furthermore, the private buffers cannot be shared with the
+filesystem's page cache.
 
-hi all,
-
-thanks for the feedback! i'll try all those recommendations now. by the
-way i tried reiserfsck --check /dev/hda2, etc.... and it seems that
-everything is ok... i suspect it's either the power supply or the
-cooling... power supply because, i've got a 300W one but, almost all the
-jumper power cables are used... i've got 2 chassis fans one for ducting
-are out at the back below the power supply and one in front to drive the
-air in.. i've separated my hard drives now they're not on top of each
-other anymore... i'll try connecting the other hdisk to another power
-cable and try if it does work.... i'll give apmd a go as well...
-
-thanks guys!
-
-btw, this is my real email address now Mike... cheers!
-
-
-cyrus
-
--- 
-
-
-Cyrus Santos
-
-Registered Linux User # 220455
-Sydney, Australia
-
-"...the best things in life are free...."
-
-
+-- Jamie
 

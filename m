@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263232AbUDAV5Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 16:57:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263231AbUDAV0q
+	id S263191AbUDAVWR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 16:22:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263211AbUDAVUG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 16:26:46 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:19763 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S263182AbUDAVMv (ORCPT
+	Thu, 1 Apr 2004 16:20:06 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:8756 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S263191AbUDAVNR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 16:12:51 -0500
-Date: Thu, 1 Apr 2004 13:11:59 -0800
+	Thu, 1 Apr 2004 16:13:17 -0500
+Date: Thu, 1 Apr 2004 13:11:46 -0800
 From: Paul Jackson <pj@sgi.com>
 To: Paul Jackson <pj@sgi.com>
 Cc: colpatch@us.ibm.com, wli@holomorphy.com, linux-kernel@vger.kernel.org
-Subject: [Patch 9/23] mask v2 - Remove x86_64 obsolete cpumask ops
-Message-Id: <20040401131159.000f3a4c.pj@sgi.com>
+Subject: [Patch 7/23] mask v2 - Remove i386 obsolete cpumask ops
+Message-Id: <20040401131146.24c6da18.pj@sgi.com>
 In-Reply-To: <20040401122802.23521599.pj@sgi.com>
 References: <20040401122802.23521599.pj@sgi.com>
 Organization: SGI
@@ -25,78 +25,327 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch_9_of_23 - Remove/recode obsolete cpumask macros from arch x86_64
-        Remove by recoding all uses of the obsolete cpumask const,
-        coerce and promote macros.
+Patch_7_of_23 - Remove/recode obsolete cpumask macros from arch i386
+	Remove by recoding all uses of the obsolete cpumask const,
+	coerce and promote macros.
 
-Diffstat Patch_9_of_23:
- arch/x86_64/kernel/io_apic.c   |    2 +-
- arch/x86_64/kernel/pci-gart.c  |    4 ++--
- arch/x86_64/kernel/smp.c       |    2 +-
- include/asm-x86_64/smp.h       |    4 ++--
- 4 files changed, 6 insertions(+), 6 deletions(-)
+Diffstat Patch_7_of_23:
+ arch/i386/kernel/io_apic.c                |    2 +-
+ arch/i386/kernel/smp.c                    |    2 +-
+ arch/i386/mach-voyager/voyager_smp.c      |   30 +++++++++++++++---------------
+ include/asm-i386/genapic.h                |    2 +-
+ include/asm-i386/mach-bigsmp/mach_apic.h  |    8 ++++----
+ include/asm-i386/mach-default/mach_apic.h |   10 +++++-----
+ include/asm-i386/mach-es7000/mach_apic.h  |   10 +++++-----
+ include/asm-i386/mach-numaq/mach_apic.h   |    2 +-
+ include/asm-i386/mach-summit/mach_apic.h  |    8 ++++----
+ include/asm-i386/mach-visws/mach_apic.h   |    4 ++--
+ 10 files changed, 39 insertions(+), 39 deletions(-)
 
 ===================================================================
-diff -Nru a/arch/x86_64/kernel/io_apic.c b/arch/x86_64/kernel/io_apic.c
---- a/arch/x86_64/kernel/io_apic.c	Mon Mar 29 01:03:36 2004
-+++ b/arch/x86_64/kernel/io_apic.c	Mon Mar 29 01:03:36 2004
-@@ -1368,7 +1368,7 @@
- 	unsigned long flags;
- 	unsigned int dest;
- 
--	dest = cpu_mask_to_apicid(mk_cpumask_const(mask));
-+	dest = cpu_mask_to_apicid(mask);
- 
- 	/*
- 	 * Only the first 8 bits are valid.
-diff -Nru a/arch/x86_64/kernel/pci-gart.c b/arch/x86_64/kernel/pci-gart.c
---- a/arch/x86_64/kernel/pci-gart.c	Mon Mar 29 01:03:36 2004
-+++ b/arch/x86_64/kernel/pci-gart.c	Mon Mar 29 01:03:36 2004
-@@ -134,7 +134,7 @@
- { 
- 	unsigned long flags;
- 	int bus = dev ? dev->bus->number : -1;
--	cpumask_const_t bus_cpumask = pcibus_to_cpumask(bus);
-+	cpumask_t bus_cpumask = pcibus_to_cpumask(bus);
- 	int flushed = 0;
- 	int i;
- 
-@@ -144,7 +144,7 @@
- 			u32 w;
- 			if (!northbridges[i]) 
- 				continue;
--			if (bus >= 0 && !(cpu_isset_const(i, bus_cpumask)))
-+			if (bus >= 0 && !(cpu_isset(i, bus_cpumask)))
- 				continue;
- 			pci_write_config_dword(northbridges[i], 0x9c, 
- 					       northbridge_flush_word[i] | 1); 
-diff -Nru a/arch/x86_64/kernel/smp.c b/arch/x86_64/kernel/smp.c
---- a/arch/x86_64/kernel/smp.c	Mon Mar 29 01:03:36 2004
-+++ b/arch/x86_64/kernel/smp.c	Mon Mar 29 01:03:36 2004
-@@ -94,7 +94,7 @@
- 
- static inline void send_IPI_mask(cpumask_t cpumask, int vector)
+diff -Nru a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
+--- a/arch/i386/kernel/io_apic.c	Mon Mar 29 01:03:32 2004
++++ b/arch/i386/kernel/io_apic.c	Mon Mar 29 01:03:32 2004
+@@ -264,7 +264,7 @@
+ 	struct irq_pin_list *entry = irq_2_pin + irq;
+ 	unsigned int apicid_value;
+ 	
+-	apicid_value = cpu_mask_to_apicid(mk_cpumask_const(cpumask));
++	apicid_value = cpu_mask_to_apicid(cpumask);
+ 	/* Prepare to do the io_apic_write */
+ 	apicid_value = apicid_value << 24;
+ 	spin_lock_irqsave(&ioapic_lock, flags);
+diff -Nru a/arch/i386/kernel/smp.c b/arch/i386/kernel/smp.c
+--- a/arch/i386/kernel/smp.c	Mon Mar 29 01:03:32 2004
++++ b/arch/i386/kernel/smp.c	Mon Mar 29 01:03:32 2004
+@@ -160,7 +160,7 @@
+  */
+ inline void send_IPI_mask_bitmask(cpumask_t cpumask, int vector)
  {
 -	unsigned long mask = cpus_coerce(cpumask);
 +	unsigned long mask = cpus_addr(cpumask)[0];
  	unsigned long cfg;
  	unsigned long flags;
  
-diff -Nru a/include/asm-x86_64/smp.h b/include/asm-x86_64/smp.h
---- a/include/asm-x86_64/smp.h	Mon Mar 29 01:03:36 2004
-+++ b/include/asm-x86_64/smp.h	Mon Mar 29 01:03:36 2004
-@@ -86,9 +86,9 @@
- #define TARGET_CPUS 1
+diff -Nru a/arch/i386/mach-voyager/voyager_smp.c b/arch/i386/mach-voyager/voyager_smp.c
+--- a/arch/i386/mach-voyager/voyager_smp.c	Mon Mar 29 01:03:32 2004
++++ b/arch/i386/mach-voyager/voyager_smp.c	Mon Mar 29 01:03:32 2004
+@@ -154,7 +154,7 @@
+ send_CPI_allbutself(__u8 cpi)
+ {
+ 	__u8 cpu = smp_processor_id();
+-	__u32 mask = cpus_coerce(cpu_online_map) & ~(1 << cpu);
++	__u32 mask = cpus_addr(cpu_online_map)[0] & ~(1 << cpu);
+ 	send_CPI(mask, cpi);
+ }
  
- #ifndef ASSEMBLY
+@@ -403,11 +403,11 @@
+ 	/* set up everything for just this CPU, we can alter
+ 	 * this as we start the other CPUs later */
+ 	/* now get the CPU disposition from the extended CMOS */
+-	phys_cpu_present_map = cpus_promote(voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK));
+-	cpus_coerce(phys_cpu_present_map) |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 1) << 8;
+-	cpus_coerce(phys_cpu_present_map) |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 2) << 16;
+-	cpus_coerce(phys_cpu_present_map) |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 3) << 24;
+-	printk("VOYAGER SMP: phys_cpu_present_map = 0x%lx\n", cpus_coerce(phys_cpu_present_map));
++	cpus_addr(phys_cpu_present_map)[0] = voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK);
++	cpus_addr(phys_cpu_present_map)[0] |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 1) << 8;
++	cpus_addr(phys_cpu_present_map)[0] |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 2) << 16;
++	cpus_addr(phys_cpu_present_map)[0] |= voyager_extended_cmos_read(VOYAGER_PROCESSOR_PRESENT_MASK + 3) << 24;
++	printk("VOYAGER SMP: phys_cpu_present_map = 0x%lx\n", cpus_addr(phys_cpu_present_map)[0]);
+ 	/* Here we set up the VIC to enable SMP */
+ 	/* enable the CPIs by writing the base vector to their register */
+ 	outb(VIC_DEFAULT_CPI_BASE, VIC_CPI_BASE_REGISTER);
+@@ -707,12 +707,12 @@
+ 		/* now that the cat has probed the Voyager System Bus, sanity
+ 		 * check the cpu map */
+ 		if( ((voyager_quad_processors | voyager_extended_vic_processors)
+-		     & cpus_coerce(phys_cpu_present_map)) != cpus_coerce(phys_cpu_present_map)) {
++		     & cpus_addr(phys_cpu_present_map)[0]) != cpus_addr(phys_cpu_present_map)[0]) {
+ 			/* should panic */
+ 			printk("\n\n***WARNING*** Sanity check of CPU present map FAILED\n");
+ 		}
+ 	} else if(voyager_level == 4)
+-		voyager_extended_vic_processors = cpus_coerce(phys_cpu_present_map);
++		voyager_extended_vic_processors = cpus_addr(phys_cpu_present_map)[0];
+ 
+ 	/* this sets up the idle task to run on the current cpu */
+ 	voyager_extended_cpus = 1;
+@@ -910,7 +910,7 @@
+ 
+ 	if (!cpumask)
+ 		BUG();
+-	if ((cpumask & cpus_coerce(cpu_online_map)) != cpumask)
++	if ((cpumask & cpus_addr(cpu_online_map)[0]) != cpumask)
+ 		BUG();
+ 	if (cpumask & (1 << smp_processor_id()))
+ 		BUG();
+@@ -953,7 +953,7 @@
+ 
+ 	preempt_disable();
+ 
+-	cpu_mask = cpus_coerce(mm->cpu_vm_mask) & ~(1 << smp_processor_id());
++	cpu_mask = cpus_addr(mm->cpu_vm_mask)[0] & ~(1 << smp_processor_id());
+ 	local_flush_tlb();
+ 	if (cpu_mask)
+ 		flush_tlb_others(cpu_mask, mm, FLUSH_ALL);
+@@ -969,7 +969,7 @@
+ 
+ 	preempt_disable();
+ 
+-	cpu_mask = cpus_coerce(mm->cpu_vm_mask) & ~(1 << smp_processor_id());
++	cpu_mask = cpus_addr(mm->cpu_vm_mask)[0] & ~(1 << smp_processor_id());
+ 
+ 	if (current->active_mm == mm) {
+ 		if (current->mm)
+@@ -990,7 +990,7 @@
+ 
+ 	preempt_disable();
+ 
+-	cpu_mask = cpus_coerce(mm->cpu_vm_mask) & ~(1 << smp_processor_id());
++	cpu_mask = cpus_addr(mm->cpu_vm_mask)[0] & ~(1 << smp_processor_id());
+ 	if (current->active_mm == mm) {
+ 		if(current->mm)
+ 			__flush_tlb_one(va);
+@@ -1099,7 +1099,7 @@
+ 		   int wait)
+ {
+ 	struct call_data_struct data;
+-	__u32 mask = cpus_coerce(cpu_online_map);
++	__u32 mask = cpus_addr(cpu_online_map)[0];
+ 
+ 	mask &= ~(1<<smp_processor_id());
+ 
+@@ -1787,9 +1787,9 @@
+ 	unsigned long irq_mask = 1 << irq;
+ 	int cpu;
+ 
+-	real_mask = cpus_coerce(mask) & voyager_extended_vic_processors;
++	real_mask = cpus_addr(mask)[0] & voyager_extended_vic_processors;
+ 	
+-	if(cpus_coerce(mask) == 0)
++	if(cpus_addr(mask)[0] == 0)
+ 		/* can't have no cpu's to accept the interrupt -- extremely
+ 		 * bad things will happen */
+ 		return;
+diff -Nru a/include/asm-i386/genapic.h b/include/asm-i386/genapic.h
+--- a/include/asm-i386/genapic.h	Mon Mar 29 01:03:32 2004
++++ b/include/asm-i386/genapic.h	Mon Mar 29 01:03:32 2004
+@@ -62,7 +62,7 @@
+ 
+ 	unsigned (*get_apic_id)(unsigned long x);
+ 	unsigned long apic_id_mask;
+-	unsigned int (*cpu_mask_to_apicid)(cpumask_const_t cpumask);
++	unsigned int (*cpu_mask_to_apicid)(cpumask_t cpumask);
+ 	
+ 	/* ipi */
+ 	void (*send_IPI_mask)(cpumask_t mask, int vector);
+diff -Nru a/include/asm-i386/mach-bigsmp/mach_apic.h b/include/asm-i386/mach-bigsmp/mach_apic.h
+--- a/include/asm-i386/mach-bigsmp/mach_apic.h	Mon Mar 29 01:03:32 2004
++++ b/include/asm-i386/mach-bigsmp/mach_apic.h	Mon Mar 29 01:03:32 2004
+@@ -140,14 +140,14 @@
+ 	return (1);
+ }
+ 
+-static inline unsigned int cpu_mask_to_apicid(cpumask_const_t cpumask)
++static inline unsigned int cpu_mask_to_apicid(cpumask_t cpumask)
+ {
+ 	int num_bits_set;
+ 	int cpus_found = 0;
+ 	int cpu;
+ 	int apicid;	
+ 
+-	num_bits_set = cpus_weight_const(cpumask);
++	num_bits_set = cpus_weight(cpumask);
+ 	/* Return id to all */
+ 	if (num_bits_set == NR_CPUS)
+ 		return (int) 0xFF;
+@@ -155,10 +155,10 @@
+ 	 * The cpus in the mask must all be on the apic cluster.  If are not 
+ 	 * on the same apicid cluster return default value of TARGET_CPUS. 
+ 	 */
+-	cpu = first_cpu_const(cpumask);
++	cpu = first_cpu(cpumask);
+ 	apicid = cpu_to_logical_apicid(cpu);
+ 	while (cpus_found < num_bits_set) {
+-		if (cpu_isset_const(cpu, cpumask)) {
++		if (cpu_isset(cpu, cpumask)) {
+ 			int new_apicid = cpu_to_logical_apicid(cpu);
+ 			if (apicid_cluster(apicid) != 
+ 					apicid_cluster(new_apicid)){
+diff -Nru a/include/asm-i386/mach-default/mach_apic.h b/include/asm-i386/mach-default/mach_apic.h
+--- a/include/asm-i386/mach-default/mach_apic.h	Mon Mar 29 01:03:32 2004
++++ b/include/asm-i386/mach-default/mach_apic.h	Mon Mar 29 01:03:32 2004
+@@ -5,12 +5,12 @@
+ 
+ #define APIC_DFR_VALUE	(APIC_DFR_FLAT)
+ 
+-static inline cpumask_const_t target_cpus(void)
++static inline cpumask_t target_cpus(void)
+ { 
+ #ifdef CONFIG_SMP
+-	return mk_cpumask_const(cpu_online_map);
++	return cpu_online_map;
+ #else
+-	return mk_cpumask_const(cpumask_of_cpu(0));
++	return cpumask_of_cpu(0);
+ #endif
+ } 
+ #define TARGET_CPUS (target_cpus())
+@@ -118,9 +118,9 @@
+ 	return physid_isset(GET_APIC_ID(apic_read(APIC_ID)), phys_cpu_present_map);
+ }
+ 
 -static inline unsigned int cpu_mask_to_apicid(cpumask_const_t cpumask)
 +static inline unsigned int cpu_mask_to_apicid(cpumask_t cpumask)
  {
 -	return cpus_coerce_const(cpumask);
 +	return cpus_addr(cpumask)[0];
  }
- #endif
  
+ static inline void enable_apic_mode(void)
+diff -Nru a/include/asm-i386/mach-es7000/mach_apic.h b/include/asm-i386/mach-es7000/mach_apic.h
+--- a/include/asm-i386/mach-es7000/mach_apic.h	Mon Mar 29 01:03:32 2004
++++ b/include/asm-i386/mach-es7000/mach_apic.h	Mon Mar 29 01:03:32 2004
+@@ -89,7 +89,7 @@
+ 	int apic = bios_cpu_apicid[smp_processor_id()];
+ 	printk("Enabling APIC mode:  %s.  Using %d I/O APICs, target cpus %lx\n",
+ 		(apic_version[apic] == 0x14) ? 
+-		"Physical Cluster" : "Logical Cluster", nr_ioapics, cpus_coerce(TARGET_CPUS));
++		"Physical Cluster" : "Logical Cluster", nr_ioapics, cpus_addr(TARGET_CPUS)[0]);
+ }
+ 
+ static inline int multi_timer_check(int apic, int irq)
+@@ -159,14 +159,14 @@
+ 	return (1);
+ }
+ 
+-static inline unsigned int cpu_mask_to_apicid(cpumask_const_t cpumask)
++static inline unsigned int cpu_mask_to_apicid(cpumask_t cpumask)
+ {
+ 	int num_bits_set;
+ 	int cpus_found = 0;
+ 	int cpu;
+ 	int apicid;	
+ 
+-	num_bits_set = cpus_weight_const(cpumask);
++	num_bits_set = cpus_weight(cpumask);
+ 	/* Return id to all */
+ 	if (num_bits_set == NR_CPUS)
+ 		return 0xFF;
+@@ -174,10 +174,10 @@
+ 	 * The cpus in the mask must all be on the apic cluster.  If are not 
+ 	 * on the same apicid cluster return default value of TARGET_CPUS. 
+ 	 */
+-	cpu = first_cpu_const(cpumask);
++	cpu = first_cpu(cpumask);
+ 	apicid = cpu_to_logical_apicid(cpu);
+ 	while (cpus_found < num_bits_set) {
+-		if (cpu_isset_const(cpu, cpumask)) {
++		if (cpu_isset(cpu, cpumask)) {
+ 			int new_apicid = cpu_to_logical_apicid(cpu);
+ 			if (apicid_cluster(apicid) != 
+ 					apicid_cluster(new_apicid)){
+diff -Nru a/include/asm-i386/mach-numaq/mach_apic.h b/include/asm-i386/mach-numaq/mach_apic.h
+--- a/include/asm-i386/mach-numaq/mach_apic.h	Mon Mar 29 01:03:32 2004
++++ b/include/asm-i386/mach-numaq/mach_apic.h	Mon Mar 29 01:03:32 2004
+@@ -136,7 +136,7 @@
+  * We use physical apicids here, not logical, so just return the default
+  * physical broadcast to stop people from breaking us
+  */
+-static inline unsigned int cpu_mask_to_apicid(cpumask_const_t cpumask)
++static inline unsigned int cpu_mask_to_apicid(cpumask_t cpumask)
+ {
+ 	return (int) 0xF;
+ }
+diff -Nru a/include/asm-i386/mach-summit/mach_apic.h b/include/asm-i386/mach-summit/mach_apic.h
+--- a/include/asm-i386/mach-summit/mach_apic.h	Mon Mar 29 01:03:32 2004
++++ b/include/asm-i386/mach-summit/mach_apic.h	Mon Mar 29 01:03:32 2004
+@@ -140,14 +140,14 @@
+ {
+ }
+ 
+-static inline unsigned int cpu_mask_to_apicid(cpumask_const_t cpumask)
++static inline unsigned int cpu_mask_to_apicid(cpumask_t cpumask)
+ {
+ 	int num_bits_set;
+ 	int cpus_found = 0;
+ 	int cpu;
+ 	int apicid;	
+ 
+-	num_bits_set = cpus_weight_const(cpumask);
++	num_bits_set = cpus_weight(cpumask);
+ 	/* Return id to all */
+ 	if (num_bits_set == NR_CPUS)
+ 		return (int) 0xFF;
+@@ -155,10 +155,10 @@
+ 	 * The cpus in the mask must all be on the apic cluster.  If are not 
+ 	 * on the same apicid cluster return default value of TARGET_CPUS. 
+ 	 */
+-	cpu = first_cpu_const(cpumask);
++	cpu = first_cpu(cpumask);
+ 	apicid = cpu_to_logical_apicid(cpu);
+ 	while (cpus_found < num_bits_set) {
+-		if (cpu_isset_const(cpu, cpumask)) {
++		if (cpu_isset(cpu, cpumask)) {
+ 			int new_apicid = cpu_to_logical_apicid(cpu);
+ 			if (apicid_cluster(apicid) != 
+ 					apicid_cluster(new_apicid)){
+diff -Nru a/include/asm-i386/mach-visws/mach_apic.h b/include/asm-i386/mach-visws/mach_apic.h
+--- a/include/asm-i386/mach-visws/mach_apic.h	Mon Mar 29 01:03:32 2004
++++ b/include/asm-i386/mach-visws/mach_apic.h	Mon Mar 29 01:03:32 2004
+@@ -84,9 +84,9 @@
+ 	return physid_isset(boot_cpu_physical_apicid, phys_cpu_present_map);
+ }
+ 
+-static inline unsigned int cpu_mask_to_apicid(cpumask_const_t cpumask)
++static inline unsigned int cpu_mask_to_apicid(cpumask_t cpumask)
+ {
+-	return cpus_coerce_const(cpumask);
++	return cpus_addr(cpumask)[0];
+ }
+ 
+ static inline u32 phys_pkg_id(u32 cpuid_apic, int index_msb)
 
 
 -- 

@@ -1,74 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261818AbUKJBBf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261815AbUKJBL1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261818AbUKJBBf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 20:01:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261817AbUKJBB2
+	id S261815AbUKJBL1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 20:11:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261816AbUKJBL1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 20:01:28 -0500
-Received: from fw.osdl.org ([65.172.181.6]:24771 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261816AbUKJBBO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 20:01:14 -0500
-Date: Tue, 9 Nov 2004 17:01:10 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Christian Kujau <evil@g-house.de>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Matt Domsch <Matt_Domsch@dell.com>, Pekka Enberg <penberg@gmail.com>,
-       Greg KH <greg@kroah.com>
-Subject: Re: Oops in 2.6.10-rc1 (almost solved)
-In-Reply-To: <41915EF9.6060604@g-house.de>
-Message-ID: <Pine.LNX.4.58.0411091646290.2301@ppc970.osdl.org>
-References: <418F6E33.8080808@g-house.de> <Pine.LNX.4.58.0411080951390.2301@ppc970.osdl.org>
- <418FDE1F.7060804@g-house.de> <419005F2.8080800@g-house.de>
- <41901DF0.8040302@g-house.de> <84144f02041108234050d0f56d@mail.gmail.com>
- <4190B910.7000407@g-house.de> <20041109164238.M12639@g-house.de>
- <Pine.LNX.4.58.0411091026520.2301@ppc970.osdl.org> <4191530D.8020406@g-house.de>
- <20041109234053.GA4546@lists.us.dell.com> <41915EF9.6060604@g-house.de>
+	Tue, 9 Nov 2004 20:11:27 -0500
+Received: from mail-04.iinet.net.au ([203.59.3.36]:42904 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S261815AbUKJBLY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 20:11:24 -0500
+Message-ID: <41916AB4.20308@cyberone.com.au>
+Date: Wed, 10 Nov 2004 12:11:16 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove OOM killer from try_to_free_pages / all_unreclaimable
+ braindamage
+References: <20041105200118.GA20321@logos.cnet> <20041108162731.GE2336@logos.cnet> <20041108185546.GA3468@logos.cnet> <419029D9.90506@cyberone.com.au> <20041108183552.7caccad1.akpm@osdl.org> <20041109071545.GA5473@logos.cnet>
+In-Reply-To: <20041109071545.GA5473@logos.cnet>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Wed, 10 Nov 2004, Christian Kujau wrote:
+Marcelo Tosatti wrote:
 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Matt Domsch schrieb:
-> > 
-> > -BIOS EDD facility v0.16 2004-Jun-25, 16 devices found
-> > +BIOS EDD facility v0.16 2004-Jun-25, 6 devices found
-> > 
-> > So with the latest EDD patch noted above, it's finding more disks than
-> > before.  How many disks do you actually have in the system?
-> 
-> i have one scsi disk (sda) and two atapi cdrom drives:
+>On Mon, Nov 08, 2004 at 06:35:52PM -0800, Andrew Morton wrote:
+>
+>>Nick Piggin <piggin@cyberone.com.au> wrote:
+>>
+>>>I'm not sure... it could also be just be a fluke
+>>> due to chaotic effects in the mm, I suppose :|
+>>>
+>>2.6 scans less than 2.4 before declaring oom.  I looked at the 2.4
+>>implementation and thought "whoa, that's crazy - let's reduce it and see
+>>who complains".  My three-year-old memory tells me it was reduced by 2x to
+>>3x.
+>>
+>>We need to find testcases (dammit) and do the analysis.  It could be that
+>>we're simply not scanning far enough.
+>>
+>
+>Andrew,
+>
+>When reading the code I was really suspicious of the all_unreclaimable code. 
+>It basically stops scanning when reaching OOM conditions - that might be it.
+>
+>
 
-Interestingly, "16" is also EDD_MBR_SIG_MAX, so my suspicion is that it 
-overflowed some EDD data area. edd_num_devices() (which is what reports 
-the above number) does
+Yeah, I saw a pretty good correlation between OOM killing and 
+all_unreclaimable.
 
-	min_t(unsigned char,
-		max_t(unsigned char, edd.edd_info_nr, edd.mbr_signature_nr),
-		max_t(unsigned char, EDD_MBR_SIG_MAX, EDDMAXNR));
+We've got some code to spit that out during an OOM kill now, so that 
+might be
+helpful.
 
-where EDDMAXNR is 6, and EDD_MBR_SIG_MAX is the afore-mentioned 16, so we 
-know that either edd.edd_info_nr or edd.mbr_signature_nr is actually 
-_bigger_ than 16.
+>I tried to disable it (ignore it if priority==0) - result: very slow progress 
+>on extreme load. 
+>
+>
 
-Which is clearly totally bogus. In fact, even your old "6 devices found" 
-thing looks suspiciously bogus.
+I had a patch that caused try_to_free_pages to ignore all_unreclaimable and
+go 'round the loop again if we reached oom-kill conditions. Basically that
+guarantees you'll scan ~ pages_present*2 before going OOM. I think it may
+be a good thing to do, but I wasn't really able to reproduce these early
+OOM killings.
 
-> PS: do you have *any* idea how this could be related to the snd-es1371
-> driver (which is producing the oops then)?
-
-I bet it's overwriting some array, and just corrupting memory after it. 
-For example, the edd_info[] array only has 6 entries, and for example, the 
-EDD_MBR_SIG_BUFFER is quite close to where we save the E820MAP memory map 
-at bootup, so if something stomps on that, the kernel might be confused 
-about where PCI memory can be allocated or similar. Or it might have 
-overwritten some ACPI memory data, who knows.
-
-			Linus

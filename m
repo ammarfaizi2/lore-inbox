@@ -1,112 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265195AbUGMOOX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265214AbUGMOOZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265195AbUGMOOX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 10:14:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265224AbUGMOOW
+	id S265214AbUGMOOZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 10:14:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265224AbUGMOOZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 10:14:22 -0400
-Received: from mail.gmx.net ([213.165.64.20]:36784 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265195AbUGMOOP (ORCPT
+	Tue, 13 Jul 2004 10:14:25 -0400
+Received: from holomorphy.com ([207.189.100.168]:32149 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265214AbUGMOOT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 10:14:15 -0400
-X-Authenticated: #19232476
-Subject: Re: DriveReady SeekComplete Error...
-From: Dhruv Matani <dhruvbird@gmx.net>
-To: Evaldo Gardenali <evaldo@gardenali.biz>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <40F3D4AC.9050407@gardenali.biz>
-References: <1089721822.4215.3.camel@localhost.localdomain>
-	 <40F3D4AC.9050407@gardenali.biz>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1089728962.3240.10.camel@localhost.localdomain>
+	Tue, 13 Jul 2004 10:14:19 -0400
+Date: Tue, 13 Jul 2004 07:13:55 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: preempt-timing-2.6.8-rc1
+Message-ID: <20040713141355.GD21066@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
+References: <20040713122805.GZ21066@holomorphy.com> <40F3DACC.9070703@yahoo.com.au> <20040713125331.GA21066@holomorphy.com> <40F3DC52.1030308@yahoo.com.au> <20040713130448.GB21066@holomorphy.com> <40F3DF31.3000003@yahoo.com.au> <20040713131944.GC21066@holomorphy.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 13 Jul 2004 19:59:22 +0530
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040713131944.GC21066@holomorphy.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-BTW, the multi-mode setting is already enabled. I made sure while
-re-compiling the kernel, and double-checked right now.
+On Tue, Jul 13, 2004 at 06:19:44AM -0700, William Lee Irwin III wrote:
+> Let me spin up the CONFIG_PREEMPT=n fix and then I'll move on that.
 
-On Tue, 2004-07-13 at 17:55, Evaldo Gardenali wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Dhruv Matani wrote:
-> | Hi,
-> | 	I've been getting this error for my brand new (2 months old) Samsung
-> | HDD. The model Number is: SV0411N, and it is a 40GB disk. I'm using the
-> | kernel version 2.4.20-8 provided by RedHat. When I used RH-7.2(before
-> | upgrading to RH-9), the same HDD worked fine. Also, when I re-installed
-> | RH-7.2, it worked fine?
-> |
-> | Any suggestions?
-> |
-> | Please cc me the reply, sine I'm not subscribed.
-> | Thanks ;-)
-> |
-> 
-> Hi there!
-> on your kernel config, make sure you enable this:
-> 
-> 
-> ~  lqqqqqqqqqqqqqqqqqqqqqqq Use multi-mode by default
-> qqqqqqqqqqqqqqqqqqqqqqqk
-> ~  x CONFIG_IDEDISK_MULTI_MODE:
-> ~    x
-> ~  x
-> ~    x
-> ~  x If you get this error, try to say Y here:
-> ~    x
-> ~  x
-> ~    x
-> ~  x hda: set_multmode: status=0x51 { DriveReady SeekComplete Error }
-> ~    x
-> ~  x hda: set_multmode: error=0x04 { DriveStatusError }
-> ~    x
-> ~  x
-> ~    x
-> ~  x If in doubt, say N.
-> ~    x
-> ~  x
-> ~    x
-> ~  x
-> ~    x
-> ~  x
-> ~    x
-> ~  x
-> ~    x
-> ~  x
-> ~    x
-> ~  x
-> ~    x
-> ~  x
-> ~    x
-> ~  x
-> ~    x
-> 
-> tqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq(100%)qqu
-> 
-> ~  x                                < Exit >
-> ~    x
-> 
-> mqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqj
-> 
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.2.3 (GNU/Linux)
-> 
-> iD8DBQFA89Ss5121Y+8pAbIRAio8AJ4sJ1ekYRSwVEoGBE90QIITqQyg0wCfXFaE
-> npdo42iFQ0Le8Fzq7sXjGUg=
-> =4aFw
-> -----END PGP SIGNATURE-----
--- 
-        -Dhruv Matani.
-http://www.geocities.com/dhruvbird/
-
-As a rule, man is a fool. When it's hot, he wants it cold. 
-When it's cold he wants it hot. He always wants what is not.
-	-Anon.
+smp_lock.h and hardirq.h for all arches -- some of which may not have
+CONFIG_PREEMPT. -EWONTFIX. So the "workaround" stays.
 
 
+-- wli

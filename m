@@ -1,49 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261706AbTEUH7E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 03:59:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbTEUH4A
+	id S261414AbTEUHvw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 03:51:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbTEUHmz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 03:56:00 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:37591 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261780AbTEUHn0 (ORCPT
+	Wed, 21 May 2003 03:42:55 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:58838 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261414AbTEUHlZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 03:43:26 -0400
-Date: Tue, 20 May 2003 19:07:32 -0700
-From: Greg KH <greg@kroah.com>
-To: Duncan Sands <baldrick@wanadoo.fr>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 00/14] USB speedtouch update
-Message-ID: <20030521020732.GA7939@kroah.com>
-References: <200305210049.24619.baldrick@wanadoo.fr>
+	Wed, 21 May 2003 03:41:25 -0400
+Subject: Re: [patch] futex patches, futex-2.5.69-A2
+From: Martin Schlemmer <azarah@gentoo.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Rusty Russell <rusty@rustcorp.com.au>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       KML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030520205512.A5889@infradead.org>
+References: <20030520150826.A18282@infradead.org>
+	 <Pine.LNX.4.44.0305201748020.14480-100000@localhost.localdomain>
+	 <20030520205512.A5889@infradead.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1053493564.9142.1504.camel@workshop.saharact.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200305210049.24619.baldrick@wanadoo.fr>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.3- 
+Date: 21 May 2003 07:06:57 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 21, 2003 at 12:49:24AM +0200, Duncan Sands wrote:
-> The following patches are against Greg's 2.5 USB tree.
-> They contain a rewrite of the packet reception code and
-> many tweaks.
+On Tue, 2003-05-20 at 21:55, Christoph Hellwig wrote:
+> On Tue, May 20, 2003 at 06:02:07PM +0200, Ingo Molnar wrote:
+> > you havent ever used Ulrich's nptl-enabled glibc, have you? It will boot
+> > on any 2.4.1+ kernel, with and without nptl/tls support. It switches the
+> > threading implementation depending on the kernel features it detects.
+> 
+> I have built a nptl-enabled glibc and no, it's doesn't work on 2.4 at all.
+> 
 
-I've applied all of these to my tree, but I didn't apply the following
-to Linus's tree because they just didn't apply.  I tried to fix up a few
-by hand, and got some of them to work, but eventually gave up on the
-rest.  So here's a list of the ones that didn't go into Linus's tree:
-	USB speedtouch: use optimally sized reconstruction buffers
-	USB speedtouch: send path micro optimizations
-	USB speedtouch: kfree_skb -> dev_kfree_skb
-	USB speedtouch: receive code rewrite
+It is because you only compiled it with nptl support.
 
-Also this one didn't go into Linus's tree, as it's already there:
-	USB speedtouch: remove MOD_XXX_USE_COUNT
+In recent (nptl enabled) Redhat glibc's glibc is build two times.
+1) without nptl
+2) with nptl
 
-So, any patches against Linus's latest bk tree to bring the above into
-sync would be appreciated.
+The version without nptl support is then installed into the 'default'
+location.  The other is installed into /lib/tls/ and /usr/lib/tls/.
+ld.so is then hacked (maybe in mainline glibc now?) to load the tls
+enabled versions of the libraries only if the kernel/hardware support
+it.
 
-thanks,
 
-greg k-h
+Regards,
+
+-- 
+Martin Schlemmer
+
+

@@ -1,30 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285352AbSCCNdB>; Sun, 3 Mar 2002 08:33:01 -0500
+	id <S285424AbSCCNfL>; Sun, 3 Mar 2002 08:35:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285424AbSCCNcw>; Sun, 3 Mar 2002 08:32:52 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:33290 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S285352AbSCCNcj>; Sun, 3 Mar 2002 08:32:39 -0500
-Subject: Re: PATCH 2.4.18-rc2-ac1: hang on spinlock in "expand_stack"
-To: buhr@telus.net (Kevin Buhr)
-Date: Sun, 3 Mar 2002 13:47:44 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <87d6ymfkdf.fsf@saurus.asaurus.invalid> from "Kevin Buhr" at Mar 02, 2002 06:36:12 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S293503AbSCCNfC>; Sun, 3 Mar 2002 08:35:02 -0500
+Received: from white-ippp0.koehntopp.de ([195.244.233.49]:30469 "EHLO
+	white.koehntopp.de") by vger.kernel.org with ESMTP
+	id <S285424AbSCCNev>; Sun, 3 Mar 2002 08:34:51 -0500
+Date: Sun, 3 Mar 2002 14:34:56 +0100
+From: Kristian Koehntopp <kris@koehntopp.de>
+To: linux-kernel@vger.kernel.org
+Subject: DRL for RAID 1?
+Message-ID: <20020303143456.A8587@white.koehntopp.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16hWL2-0004JH-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've enclosed a patch against 2.4.18-rc2-ac1, but it appears the same
-> bug still exists in 2.4.19-pre1-ac1.  The "ac"-branch version of
-> "expand_stack" in "mm/mmap.c" has a code path that doesn't unlock the
-> spinlock.  I noticed when a "gdb" bug tickled it and locked up my
-> machine.
 
-Thanks. Thats one I accidentally introduced when I was doing the strict
-oom handling. I'll apply that
+Has anybody implemented DRL for RAID 1?
+
+After a crash, my RAID 1 tries to resync the entire mirror:
+
+kris@valiant:~> cat /proc/mdstat
+Personalities : [raid1]
+read_ahead 1024 sectors
+md0 : active raid1 sdc8[1] sda8[0]
+      12241408 blocks [2/2] [UU]
+      [==>..................]  resync = 11.0% (1358400/12241408)
+finish=124.3min speed=1457K/sec
+unused devices: <none>
+
+With a region bitmap and dirty region logging, the recovery time
+would be much lower, since the RAID subsystem does not have to
+resync all of the disk, but only those regions marked as dirty
+during a crash.
+
+Kristian
+

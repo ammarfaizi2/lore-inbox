@@ -1,69 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284464AbRLRSXd>; Tue, 18 Dec 2001 13:23:33 -0500
+	id <S284445AbRLRSZx>; Tue, 18 Dec 2001 13:25:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284467AbRLRSXN>; Tue, 18 Dec 2001 13:23:13 -0500
-Received: from fmfdns01.fm.intel.com ([132.233.247.10]:6388 "EHLO
-	calliope1.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S284464AbRLRSXE>; Tue, 18 Dec 2001 13:23:04 -0500
-Message-ID: <59885C5E3098D511AD690002A5072D3C42D802@orsmsx111.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Cc: "'otto.wyss@bluewin.ch'" <otto.wyss@bluewin.ch>
-Subject: RE: Booting a modular kernel through a multiple streams file
-Date: Tue, 18 Dec 2001 09:43:28 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S284451AbRLRSZo>; Tue, 18 Dec 2001 13:25:44 -0500
+Received: from holomorphy.com ([216.36.33.161]:31106 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S284445AbRLRSZd>;
+	Tue, 18 Dec 2001 13:25:33 -0500
+Date: Tue, 18 Dec 2001 10:25:26 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Re: Scheduler ( was: Just a second ) ...
+Message-ID: <20011218102526.A736@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>
+In-Reply-To: <20011217205547.C821@holomorphy.com> <Pine.LNX.4.33.0112172153410.2416-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <Pine.LNX.4.33.0112172153410.2416-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Dec 17, 2001 at 10:09:22PM -0800
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Alexander Viro [mailto:viro@math.psu.edu]
-> On Mon, 17 Dec 2001, Grover, Andrew wrote:
-> all they have to do is 
-> get the modules in
-> > memory and indicate via the multiboot struct where they are.
-> 
-> *shrug*  Your "all they have to do" is quite heavy.
+On Mon, Dec 17, 2001 at 10:09:22PM -0800, Linus Torvalds wrote:
+> Well, looking at the issue, the problem is probably not just in the sb
+> driver: the soundblaster driver shares the output buffer code with a
+> number of other drivers (there's some horrible "dmabuf.c" code in common).
+> And yes, the dmabuf code will wake up the writer on every single DMA
+> complete interrupt. Considering that you seem to have them at least 400
+> times a second (and probably more, unless you've literally had sound going
+> since the machine was booted), I think we know why your setup spends time
+> in the scheduler.
+> A number of sound drivers will use the same logic.
 
-GRUB 0.90 does this today. All other bootloaders could also do it quite
-easily, since this is just an extension of what they have to do for the
-kernel and initrd images.
+I've chucked the sb32 and plugged in the emu10k1 I had been planning
+to install for a while, to good effect. It's not an ISA sb16, but it
+apparently uses the same driver.
 
-> I've had a very dubious pleasure of dealing with our boot 
-> sequence lately.
-> Adding more cruft to it (including in-kernel linker, for fsck sake) is
-> _not_ a good idea.
+I'm getting an overall 1% reduction in system load, and the following
+"top 5" profile:
 
-I see this as cruft elimination. By adding a kernel linker (which can be
-discarded after init) it allows one to increase the modularity of the kernel
-- without using an initrd. Heck, you could make the initrd code
-modularizable ;-)
+ 53374 total                                      0.0400
+ 11430 default_idle                             238.1250
+  8820 handle_IRQ_event                          91.8750
+  2186 do_softirq                                10.5096
+  1984 schedule                                   1.2525
+  1612 number                                     1.4816
+  1473 __generic_copy_to_user                    18.4125
 
-> Folks, whatever had happened with "if it can be done in 
-> userland - don't
-> put it into the kernel"?
+Oddly, I'm getting even more interrupts than I saw with the sb32...
 
-Yes, but this isn't an absolute rule. IIRC that rule also has an "unless it
-makes things a lot simpler" clause, too.
+  0:    2752924          XT-PIC  timer
+  9:   14223905          XT-PIC  EMU10K1, eth1
 
-> That goes for a _lot_ of code.  Mounting root.  Detecting the type of
-> initrd contents.  Loading ramdisk from floppies.  Asking to press
-> key (you really ought to look what is done for _that_).  Speaking
-> DHCP - we have a kernel DHCP client, of all things.  All that stuff
-> can (and should) be done from userland process.  And there's much
-> more of the same kind.
+(eth1 generates orders of magnitude fewer interrupts than the timer)
 
-> There is a word for that and that word is "crap".
+On Mon, Dec 17, 2001 at 10:09:22PM -0800, Linus Torvalds wrote:
+> You may be able to change this more easily some other way, by using a
+> larger fragment size for example. That's up to the sw that actually feeds
+> the sound stream, so it might be your decoder that selects a small
+> fragment size.
+> Quite frankly I don't know the sound infrastructure well enough to make
+> any more intelligent suggestions about other decoders or similar to try,
+> at this point I just start blathering.
 
-These examples are either a direct result of initrd complexities, or not
-related.
+Already more insight into the problem I was experiencing than I had
+before, and I must confess to those such as myself this lead certainly
+seems "plucked out of the air". Good work! =)
 
-Initrd exists to allow a two-phase startup. My point is that why have a 2
-phase startup when you can have a 1 phase startup? Also, I'm not advocating
-ditching the initrd capability, but wouldn't bootloading modules be
-preferable for the majority of the systems currently using initrd out of
-necessity?
+On Mon, Dec 17, 2001 at 10:09:22PM -0800, Linus Torvalds wrote:
+> But yes, I bet you'll also see much less impact of this if you were to
+> switch to more modern hardware.
 
-Regards -- Andy
+I hear from elsewhere the emu10k1 has a bad reputation as source of
+excessive interrupts. Looks like I bought the wrong sound card(s).
+Maybe I should go shopping. =)
+
+
+Thanks a bunch!
+Bill

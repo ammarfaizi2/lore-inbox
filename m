@@ -1,84 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318942AbSH1UQt>; Wed, 28 Aug 2002 16:16:49 -0400
+	id <S318950AbSH1USr>; Wed, 28 Aug 2002 16:18:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318943AbSH1UQs>; Wed, 28 Aug 2002 16:16:48 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:7153 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S318942AbSH1UQr>; Wed, 28 Aug 2002 16:16:47 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Wed, 28 Aug 2002 14:18:41 -0600
-To: walt <walt@nea-fast.com>
-Cc: linux-kernel@vger.kernel.org, akpm@zip.com.au
-Subject: Re: 2.4.19 ext3 oops with file system damage - possible nfs and ext3 not playing nice together
-Message-ID: <20020828201841.GY19435@clusterfs.com>
-Mail-Followup-To: walt <walt@nea-fast.com>, linux-kernel@vger.kernel.org,
-	akpm@zip.com.au
-References: <200208281451.12117.walt@nea-fast.com>
+	id <S318948AbSH1USr>; Wed, 28 Aug 2002 16:18:47 -0400
+Received: from natpost.webmailer.de ([192.67.198.65]:39560 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S318950AbSH1USp>; Wed, 28 Aug 2002 16:18:45 -0400
+Date: Wed, 28 Aug 2002 22:19:47 +0200
+From: Dominik Brodowski <devel@brodo.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.5.32] CPU frequency and voltage scaling (0/4)
+Message-ID: <20020828221947.A816@brodo.de>
+References: <20020828134600.A19189@brodo.de> <Pine.LNX.4.33.0208281140030.4507-100000@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200208281451.12117.walt@nea-fast.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+User-Agent: Mutt/1.3.16i
+In-Reply-To: <Pine.LNX.4.33.0208281140030.4507-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Wed, Aug 28, 2002 at 11:47:54AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 28, 2002  14:51 -0400, walt wrote:
-> I ended up having to delete a mysql index file because fsck couldn't
-> repair it.
+On Wed, Aug 28, 2002 at 11:47:54AM -0700, Linus Torvalds wrote:
+> 
+> On Wed, 28 Aug 2002, Dominik Brodowski wrote:
+> > 
+> > The following patches add CPU frequency and volatage scaling
+> > support (Intel SpeedStep, AMD PowerNow, etc.) to kernel 2.5.32
+> 
+> The thing is, this interface appears fundamentally broken with respect to
+> CPU's that change their frequency on the fly. I happen to know one such 
+> CPU rather well myself.
+Do these CPUs need kernel support? E.g. do udelay() calls work as
+expected? If so, there's no need to make a driver aware of something
+which isn't in its scope to control. CPUFreq is basically for those many
+systems where frequency switches need to be called from the OS. 
 
-Hmm, that is strange, since unless the index file was just being created
-the file metadata (as opposed to the data) probably doesn't change much.
-What was the error there?
+> What is this interface supposed to do about a CPU that can change its 
+> frequency dynamically several hundred times a second? Having the OS 
+> control it simply isn't an option - the overhead of the control is _way_ 
+> more than is acceptable at that level.
+Well, that's probably the idea that's behind the microcode approach of
+certain CPUs. However, for many voltage-scaling-able CPUs there is no such
+microcode, and so the OS _needs_ to do it.
 
-> FYI  - I ran into some reproducible problems before with ext3 and possibly 
-> NFS. I had a 1365344k oracle database export gzipped down to 263688k and then 
-> made into an ISO image. I'd  copy the file from the file server 
-> (2.4.3-SGI_XFS_1.0.1) via NFS , mount the ISO image, and burn it to CD 
-> without any errors being reported. When I'd try gunzip the file from CD, I'd 
-> get CRC errors. I then tried mounting the ISO image and running gunzip and 
-> I'd get the same CRC errors. 
+> In other words: there is no valid way that a _user_ can set the policy
+> right now: the user can set the frequency, but since any sane policy
+> depends on how busy the CPU is, the user isn't even, the right person to
+> _do_ that, since the user doesn't _know_.
+This is only true on CPUs where frequency switches can occur "on the fly"
+with very low latency. Most voltage-scaling CPUs are currently found on 
+mobile systems. For those notebook users it is a big step forward to have
+this ability of switching between "full speed" and "low speed" depending on
+the power source. And on LART systems even dynamic switching _from
+userspace_ has proven to be successful (see OLS talk my Erik Mouw).
+Please note that even a "kernel-based frequency selector" needs large parts
+of the cpufreq core and drivers: udelay() calls need to be accurate,
+external limitations (like on ARM systems) need to be integrated, and the
+frequency and voltage switching mechanisms need to be implemented --
+so is there any reason why this "kernel-based frequency selector" couldn't 
+just use the existing interface: cpufreq_set()?
 
-Have you tried disabling IDE DMA on this system?
+> Also note that policy is not just about how busy the CPU is, but also 
+> about how _hot_ the CPU is. Again, a user-mode application (that maybe 
+> polls the situation every minute or so), simply _cannot_ handle this 
+> situation. You need to have the ability to poll the CPU tens of times a 
+> second to react to heat events, and clearly user mode cannot do that 
+> without impacting performance in a big way.
+IMHO a cpufreq interface shouldn't become too bloated. If it would try to
+drop the frequency quite aggressively this should be enough,
+critical-temperature shutdown / throttling mechanisms will take
+care of emergenices.
 
-> Aug 28 10:16:55 walt kernel: Unable to handle kernel paging request at virtual 
-> address 01
-> 38835e
-> Aug 28 10:16:55 walt kernel:  printing eip:
-> Aug 28 10:16:55 walt kernel: c016bbd7
-> Aug 28 10:16:55 walt kernel: *pde = 00000000
-> Aug 28 10:16:55 walt kernel: Oops: 0000
-> Aug 28 10:16:55 walt kernel: CPU:    0
-> Aug 28 10:16:55 walt kernel: EIP:    0010:[<c016bbd7>]    Not tainted
-> Aug 28 10:16:55 walt kernel: EFLAGS: 00013202
-> Aug 28 10:16:55 walt kernel: eax: cf967eb0   ebx: 01388346   ecx: 00000040   
-> edx: 0000001
-> 4
-> Aug 28 10:16:55 walt kernel: esi: cf1c4eb0   edi: 8d505604   ebp: ce5df430   
-> esp: cf967e8
-> 4
-> Aug 28 10:16:55 walt kernel: ds: 0018   es: 0018   ss: 0018
-> Aug 28 10:16:55 walt kernel: Process kjournald (pid: 139, stackpage=cf967000)
-> Aug 28 10:16:55 walt kernel: Stack: 00000000 00000000 00000000 00000014 
-> cce1b440 cafe5220
->  000017fd 00000096
-> Aug 28 10:16:55 walt kernel:        c0195a1c c12e00cc c12e5480 c38c9600 
-> c38c9780 c38c9480
->  c38c96c0 c38c9540
-> Aug 28 10:16:55 walt kernel:        c38c9120 c38c9a20 c38c9d20 c38c9660 
-> c38c9180 c38c9c60
->  c38c9960 c38c9c00
-> Aug 28 10:16:55 walt kernel: Call Trace:    [<c0195a1c>] [<c016eeb3>] 
-> [<c016ece0>] [<c0107166>] [<c016ed00>]
+> The interface needs to be improved upon. It is simply _not_ valid to say
+> "run at this speed" as the primary policy.
+This is right. But a sane kernel-based frequency selector doesn't exist yet.
+Even if it existed, it would need large parts of the cpufreq patches
+submitted today. And these offer some support which isn't the best thing
+since sliced bread but still is happily used by users.
 
-You need to run this through ksymoops, otherwise it is just a bunch of
-random numbers.
-
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
-
+	Dominik

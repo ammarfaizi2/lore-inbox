@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261950AbUAOTGH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 14:06:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262308AbUAOTGH
+	id S262033AbUAOTGL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 14:06:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262308AbUAOTGL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 14:06:07 -0500
-Received: from petasus.ch.intel.com ([143.182.124.5]:22400 "EHLO
-	petasus.ch.intel.com") by vger.kernel.org with ESMTP
-	id S261950AbUAOTGE convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 14:06:04 -0500
-content-class: urn:content-classes:message
+	Thu, 15 Jan 2004 14:06:11 -0500
+Received: from sandershosting.com ([69.26.136.138]:46274 "HELO
+	sandershosting.com") by vger.kernel.org with SMTP id S262033AbUAOTGG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 14:06:06 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: David Sanders <linux@sandersweb.net>
+Reply-To: David Sanders <linux@sandersweb.net>
+Organization: SandersWeb.net
+Message-Id: <200401151401.1764@sandersweb.net>
+To: Haakon Riiser <haakon.riiser@fys.uio.no>
+Subject: Re: NTFS disk usage on Linux 2.6
+Date: Thu, 15 Jan 2004 14:05:41 -0500
+X-Mailer: KMail [version 1.3.2]
+References: <20040115010210.GA570@s.chello.no>
+In-Reply-To: <20040115010210.GA570@s.chello.no>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: iswraid calling modprobe when scsi statically compiled?
-Date: Thu, 15 Jan 2004 12:05:50 -0700
-Message-ID: <933D2981B35C9B4B8793B56C4AE9E16B593A8F@azsmsx405.ch.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: iswraid calling modprobe when scsi statically compiled?
-Thread-Index: AcPbk2D8qMGzkQQyQWewdYIgYF96IwABjX+Q
-From: "Kannanthanam, Boji T" <boji.t.kannanthanam@intel.com>
-To: "Sergey Vlasov" <vsu@altlinux.ru>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 15 Jan 2004 19:05:50.0806 (UTC) FILETIME=[9766F760:01C3DB9A]
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> The problem is in the initialization ordering. iswraid must initialize
-> after SCSI, but it is located in the IDE drivers directory, and
-> therefore is initialized before SCSI. So it won't work when built into
-> the kernel.
-> 
-> If you build iswraid as module and load it from initrd (after the SCSI
-> subsystem is initialized and raw drives are detected), it should work.
-> 
+On Wednesday 14 January 2004 08:02 pm, Haakon Riiser wrote:
+> Has anyone else noticed that the reported disk space usage on
+> NTFS is completely unreliable on Linux 2.6?  Just issued the
 
-As pointed this in an unfortunate side effect of the nature of driver
-dependency: iswraid (in ataraid/IDE subsystem) depending on ata_piix (in
-SCSI). The above solution will solve the issue. 
+I'm having the same symptom.  The following is on a 4G partition.  The 
+WINNT directory is reported as 66G in size.  Kernel 2.6.1.
 
-But can anyone shed some light on resolving this issue other than
-compiling the driver as kernel module ?
-i.e is there a way I can change the order of driver initialization in
-the kernel ? Load SCSI subsystem before IDE ? 
+david@debian:/mnt/hda5$ du * -sh
+124M    file
+56M     GNUwin32
+6.3M    Inetpub
+1.3M    lynx
+0       Multimedia Files
+267M    pagefile.sys
+134M    perl
+922M    Program Files
+0       RECYCLER
+42M     TEMP
+2.7M    util
+13M     vim
+2.5k    _viminfo
+66G     WINNT
 
-Thanks,
-boji
+
+-- 
+David Sanders
+linux@sandersweb.net

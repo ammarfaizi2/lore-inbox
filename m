@@ -1,91 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267687AbTGLQPN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 12:15:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266205AbTGLQNJ
+	id S267647AbTGLQQF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 12:16:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266205AbTGLQPY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 12:13:09 -0400
-Received: from smtp101.mail.sc5.yahoo.com ([216.136.174.139]:30884 "HELO
-	smtp101.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266169AbTGLQMv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 12:12:51 -0400
-From: Michael Buesch <fsdeveloper@yahoo.de>
-To: Con Kolivas <kernel@kolivas.org>
+	Sat, 12 Jul 2003 12:15:24 -0400
+Received: from maild.telia.com ([194.22.190.101]:25827 "EHLO maild.telia.com")
+	by vger.kernel.org with ESMTP id S267647AbTGLQOR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 12:14:17 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
 Subject: Re: [RFC][PATCH] SCHED_ISO for interactivity
-Date: Sat, 12 Jul 2003 18:27:09 +0200
-User-Agent: KMail/1.5.2
-References: <200307112053.55880.kernel@kolivas.org> <200307121013.14347.kernel@kolivas.org> <200307130139.45477.kernel@kolivas.org>
+From: Christian Axelsson <smiler@lanil.mine.nu>
+Reply-To: smiler@lanil.mine.nu
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org, phillips@arcor.de
 In-Reply-To: <200307130139.45477.kernel@kolivas.org>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       smiler@lanil.mine.nu, phillips@arcor.de
-MIME-Version: 1.0
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200307121826.24645.fsdeveloper@yahoo.de>
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+References: <200307112053.55880.kernel@kolivas.org>
+	 <1057966657.4326.6.camel@sm-wks1.lan.irkk.nu>
+	 <200307121013.14347.kernel@kolivas.org>
+	 <200307130139.45477.kernel@kolivas.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ayPAze00ldgbKpHXU29c"
+Organization: LANIL
+Message-Id: <1058027317.4363.8.camel@sm-wks1.lan.irkk.nu>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 12 Jul 2003 18:28:38 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-On Saturday 12 July 2003 17:39, Con Kolivas wrote:
-[SNIP]
-> @@ -2153,6 +2208,9 @@ asmlinkage long sys_sched_get_priority_m
->  	case SCHED_NORMAL:
->  		ret = 0;
->  		break;
-> +	case SCHED_ISO:
-> +		ret = 0;
-> +		break;
->  	}
->  	return ret;
->  }
-> @@ -2175,6 +2233,8 @@ asmlinkage long sys_sched_get_priority_m
->  		break;
->  	case SCHED_NORMAL:
->  		ret = 0;
-> +	case SCHED_ISO:
-> +		ret = 0;
->  	}
->  	return ret;
->  }
+--=-ayPAze00ldgbKpHXU29c
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-As far, as I can see, this would do the very same
-things, with reduced codesize:
+On Sat, 2003-07-12 at 17:39, Con Kolivas wrote:
+> On Sat, 12 Jul 2003 10:13, Con Kolivas wrote:
+> > On Sat, 12 Jul 2003 09:37, Christian Axelsson wrote:
+> > > On Fri, 2003-07-11 at 16:30, Con Kolivas wrote:
+> > > > On Fri, 11 Jul 2003 22:48, Christian Axelsson wrote:
+> snip snip snip
+>=20
+> Mike G suggested expiring tasks which use up too much cpu
+> time like in Davide's softrr patch which is a much better=20
+> solution to the forever reinserted into the active array concern.
+>=20
+> patch-SI-0307130021 is also available at=20
+> http://kernel.kolivas.org/2.5
 
- 	case SCHED_NORMAL:
-+	case SCHED_ISO:
- 		ret = 0;
- 		break;
- 	}
- 	return ret;
- }
+Problem seems to be gone (cant be 100% sure as I aint really sure WHAT
+trigged this behavior).
 
+--=20
+Christian Axelsson
+smiler@lanil.mine.nu
 
-and this:
-
- 		break;
- 	case SCHED_NORMAL:
-+	case SCHED_ISO:
- 		ret = 0;
- 	}
- 	return ret;
- }
-
-
-- --
-Regards Michael Buesch
-http://www.8ung.at/tuxsoft
- 18:22:51 up 49 min,  2 users,  load average: 2.14, 2.32, 2.31
+--=-ayPAze00ldgbKpHXU29c
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-iD8DBQE/EDbdoxoigfggmSgRAgFpAJ9Iz71qcgIFEM8mYIY9Xrw9Yn5BfQCeLZf3
-5h47aU7gAzFYYrdLVS0RVZ8=
-=drFI
+iD8DBQA/EDc1yqbmAWw8VdkRAlo9AJ9tT3StIKv2+/FAu/Z/wqA/KHNCSQCgqxk8
+AC0Q8FH9VTh7l7f2+pDhVo8=
+=4og4
 -----END PGP SIGNATURE-----
+
+--=-ayPAze00ldgbKpHXU29c--
 

@@ -1,71 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261899AbVBOV3J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261901AbVBOVdJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261899AbVBOV3J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 16:29:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261900AbVBOV3J
+	id S261901AbVBOVdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 16:33:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261900AbVBOVdJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 16:29:09 -0500
-Received: from smtp.gentoo.org ([156.56.111.197]:46572 "EHLO smtp.gentoo.org")
-	by vger.kernel.org with ESMTP id S261899AbVBOV27 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 16:28:59 -0500
-Subject: Re: [ACPI] Call for help: list of machines with working S3
-From: Henrik Brix Andersen <brix@gentoo.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       kernel list <linux-kernel@vger.kernel.org>, seife@suse.de, rjw@sisk.pl
-In-Reply-To: <20050214211105.GA12808@elf.ucw.cz>
-References: <20050214211105.GA12808@elf.ucw.cz>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-D/qzgXnlZmrfEGwBYxEt"
-Organization: Gentoo Linux
-Date: Tue, 15 Feb 2005 22:28:52 +0100
-Message-Id: <1108502932.29172.5.camel@sponge.fungus>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Tue, 15 Feb 2005 16:33:09 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:53911 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261902AbVBOVcv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 16:32:51 -0500
+Message-ID: <42126A58.6050608@nortel.com>
+Date: Tue, 15 Feb 2005 15:32:08 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Diego Calleja <diegocg@gmail.com>
+CC: Lee Revell <rlrevell@joe-job.com>, prakashp@arcor.de,
+       paolo.ciarrocchi@gmail.com, gregkh@suse.de, pmcfarland@downeast.net,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] hotplug-ng 001 release
+References: <20050211004033.GA26624@suse.de>	<420C054B.1070502@downeast.net>	<20050211011609.GA27176@suse.de>	<1108354011.25912.43.camel@krustophenia.net>	<4d8e3fd305021400323fa01fff@mail.gmail.com>	<42106685.40307@arcor.de>	<1108422240.28902.11.camel@krustophenia.net>	<20050215004329.5b96b5a1.diegocg@gmail.com>	<1108497066.7826.33.camel@krustophenia.net> <20050215220254.511a6001.diegocg@gmail.com>
+In-Reply-To: <20050215220254.511a6001.diegocg@gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Diego Calleja wrote:
+> Of course there're lots of problems, like what happens
+> if you change a file which was being used by a suspended process, 
 
---=-D/qzgXnlZmrfEGwBYxEt
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+That one is easy.  Store a checksum of the file in use when you go to 
+sleep  If on wakeup the checksum is different, pop up a window that says 
+"the file *foo* has been modified by another application, do you want to 
+reload?".
 
-Hi,
+ > what happens if you update a library that a image is supposed to
+> use
 
-On Mon, 2005-02-14 at 22:11 +0100, Pavel Machek wrote:
-> Stefan provided me initial list of machines where S3 works (including
-> video). If you have machine that is not on the list, please send me a
-> diff. If you have eMachines... I'd like you to try playing with
-> vbetool (it worked for me), and if it works for you supplying right
-> model numbers.
+Same as updating it on a running system.  Don't do that unless you 
+really know what you're doing.
 
-I have S3 working with 2.6.11-rc4 here:
-
-Model                           hack (or "how to do it")
----------------------------------------------------------------------------=
----
-IBM TP X31 / Type 2672-XXH      LCD backlight must be turned off=20
-                                manually using radeontool [1]
-
-Sincerely,
-Brix
-
-[1]: http://fdd.com/software/radeon/
---=20
-Henrik Brix Andersen <brix@gentoo.org>
-Gentoo Linux
-
---=-D/qzgXnlZmrfEGwBYxEt
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBCEmmUv+Q4flTiePgRAsLfAJ4gpmbP+onTyzPrmxe8lHUxSGStcwCeOcH3
-WLUGItS94rAX+dyP/+D/jPI=
-=HCtK
------END PGP SIGNATURE-----
-
---=-D/qzgXnlZmrfEGwBYxEt--
-
+Chris

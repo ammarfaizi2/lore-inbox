@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287404AbSALUSS>; Sat, 12 Jan 2002 15:18:18 -0500
+	id <S287388AbSALUO5>; Sat, 12 Jan 2002 15:14:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287408AbSALUSL>; Sat, 12 Jan 2002 15:18:11 -0500
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:62069 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S287404AbSALURy>; Sat, 12 Jan 2002 15:17:54 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Can't compile 2.5.2-pre11: error in fbdev
-From: Sebastian Krause <krause@sdbk.de>
-Date: Sat, 12 Jan 2002 21:17:50 +0100
-Message-ID: <krause.87lmf3pbm9.fsf@sdbk.de>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.1
- (i386-debian-linux-gnu)
+	id <S287401AbSALUOq>; Sat, 12 Jan 2002 15:14:46 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:29201 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S287388AbSALUOd>; Sat, 12 Jan 2002 15:14:33 -0500
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+To: rml@tech9.net (Robert Love)
+Date: Sat, 12 Jan 2002 20:21:13 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), arjan@fenrus.demon.nl,
+        landley@trommello.org (Rob Landley), linux-kernel@vger.kernel.org
+In-Reply-To: <1010865810.2152.41.camel@phantasy> from "Robert Love" at Jan 12, 2002 03:03:29 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16PUeP-00034K-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I try to compile 2.5.2-pre11, I get the following error:
+> > I didn't see anywhere you check disable_irq(). Even if you did it doesnt
+> > help when I mask the irq on the chip rather than using disable_irq() calls.
+> 
+> Well, if IRQs are disabled we won't have the timer... would not the
+> system panic anyhow if schedule() was called while in an interrupt
+> handler?
 
-ld -m elf_i386  -r -o sounddrivers.o soundcore.o sound.o sb.o sb_lib.o uart401.o
-make[3]: Leaving directory `/usr/src/v2.5/linux/drivers/sound'
-make[2]: Leaving directory `/usr/src/v2.5/linux/drivers/sound'
-make -C video
-make[2]: Entering directory `/usr/src/v2.5/linux/drivers/video'
-make -C riva
-make[3]: Entering directory `/usr/src/v2.5/linux/drivers/video/riva'
-make all_targets
-make[4]: Entering directory `/usr/src/v2.5/linux/drivers/video/riva'
-gcc -D__KERNEL__ -I/usr/src/v2.5/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4     -c -o fbdev.o fbdev.c
-fbdev.c: In function `riva_set_fbinfo':
-fbdev.c:1814: incompatible types in assignment
-make[4]: *** [fbdev.o] Error 1
-make[4]: Leaving directory `/usr/src/v2.5/linux/drivers/video/riva'
-make[3]: *** [first_rule] Error 2
-make[3]: Leaving directory `/usr/src/v2.5/linux/drivers/video/riva'
-make[2]: *** [_subdir_riva] Error 2
-make[2]: Leaving directory `/usr/src/v2.5/linux/drivers/video'
-make[1]: *** [_subdir_video] Error 2
-make[1]: Leaving directory `/usr/src/v2.5/linux/drivers'
-make: *** [_dir_drivers] Error 2
+You completely misunderstand.
 
-I'm using gcc 2.95.4 under Debian Woody. 2.4.17 works without any
-problems. What do I make wrong?
+	disable_irq(n)
 
-Sebastian
+I disable a single specific interrupt, I don't disable the timer interrupt.
+Your code doesn't seem to handle that. Its just one of the examples of where
+you really need priority handling, and thats a horrible dark and slippery
+slope
+
+Alan

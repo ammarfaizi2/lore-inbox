@@ -1,97 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285498AbSAZQXy>; Sat, 26 Jan 2002 11:23:54 -0500
+	id <S285338AbSAZQcP>; Sat, 26 Jan 2002 11:32:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285352AbSAZQXd>; Sat, 26 Jan 2002 11:23:33 -0500
-Received: from sgie000400.kiv-webservice.de ([195.226.81.253]:18696 "EHLO
-	irc.kiv-host.de") by vger.kernel.org with ESMTP id <S285338AbSAZQX3>;
-	Sat, 26 Jan 2002 11:23:29 -0500
-Message-ID: <4353BABFDF95D311BFC30004AC4CB22AAE3495@sdar000001.kiv-da.de>
-From: "Stolle, Martin (KIV)" <MStolle@kiv.de>
-To: "'Anish Srivastava '" <anishs@vsnl.com>,
-        "'linux-kernel@vger.kernel.org '" <linux-kernel@vger.kernel.org>
-Subject: RE: kernel 2.4.17 with -rmap VM patch ROCKS!!!
-Date: Sat, 26 Jan 2002 17:23:12 +0100
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S285352AbSAZQcF>; Sat, 26 Jan 2002 11:32:05 -0500
+Received: from pc-62-31-92-140-az.blueyonder.co.uk ([62.31.92.140]:6278 "EHLO
+	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
+	id <S285338AbSAZQbu>; Sat, 26 Jan 2002 11:31:50 -0500
+Date: Sat, 26 Jan 2002 16:27:47 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: =?iso-8859-1?Q?G=E1bor_L=E9n=E1rt?= <lgb@lgb.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RFC: booleans and the kernel
+Message-ID: <20020126162747.A6724@kushida.apsleyroad.org>
+In-Reply-To: <3C513CD8.B75B5C42@aitel.hist.no> <20020126030841.C5730@kushida.apsleyroad.org> <20020126105121.GA18223@vega.digitel2002.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020126105121.GA18223@vega.digitel2002.hu>; from lgb@lgb.hu on Sat, Jan 26, 2002 at 11:51:22AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Gábor Lénárt wrote:
+> Khmmm please enlighten me ...
+> 
+> >   if (X == true && ptr && *ptr > 1)
+> 
+> Why? Simply use for example type 'char' as boolean value. Let's say
+> 0 means false and other value is true.
+> 
+> So:
+> 
+> if (x) printf("true");
+> or
+> if (!x) printf("false");
+> 
+> Why do you want to overcomplicate?
 
-Thanks for your tip.
+If the variable holds a boolean in the C language, fair enough but if
+it's being used as a range in a truth-value system of _another_
+language, i.e. it simply _represents_ a truth value, I would write it
+differently.
 
-I installed 2.4.17-rmap-11c and later 2.4.17-rmap-12a on my
-2-CPU-Pentium-III
-and on one of my 4-CPU-Xeon-III's, and since then, the machine isn't
-swapping any
-longer.
+If it were a theorem proving paper, the different kinds of variable
+would have a different font or colour :-)
 
-I use Informix 7.3 and Oracle 8i.
+> x=a>b;
+> if (x) printf("A is greater than B");
+> 
+> ONE thing which is best in C is the less strictly type rules eg you
+> can use 'char' to store eg c='A' or c=2.
 
-When i used the standard kernel with informix in former times, i had to
-reboot often, if there was much traffic on the machine.
+You seem to have missed the point.  We _know_ the C language rules.  I
+agree that non-strict typeing is quite useful, although C is in fact
+quite strict.  Lisp has far less strict typing :-)
 
-I switched to Andrea's kernel patches, from then I hadn't to reboot, but the
-backup
-(including database consistency check) took 5 hours, and the swap file was
-around 200M,
-although there was enough RAM (3G)
+> Hey guys, C was designed to write an OS it's not something other ...
 
-According to your idea, i switched to 2.4.17-rmap-series.
+Perhaps, but it's pretty useful for something other.
 
-I don't have to reboot any more, informix runs well, the backup takes only 1
-hour 20 minutes,
-there is no swap space any longer used.
-
-Thanks to you and Rik van Riels!
-
-I would like if Rik's kernel patches would go into standard.
-
-They are really well!
-
-Martin
------Original Message-----
-From: Anish Srivastava
-To: linux-kernel@vger.kernel.org
-Sent: 1/24/2002 12:17 PM
-Subject: kernel 2.4.17 with -rmap VM patch ROCKS!!!
-
-
-Hi!
- 
- I installed kernel 2.4.17 on my SMP server with 8CPU's and 8GB RAM 
- and lets just say that whenever the entire physical memory was utilised
- the box would topple over...with kswapd running a havoc on CPU
-utilization
- So to avoid losing control I had to reboot every 8 hours.
- 
- But, it all changed after I applied Rik van Riels 2.4.17-rmap-11c patch
- Now, the box is happily running for the past 3 days under heavy load 
- without any problems. The RAM utilization is always at about 95% +
- but the system doesnt swap at all.....kswapd is running all the time
-and 
- freeing up main memory for other processes. I am quite happy with the
- performance of the box........and highly recommend Rik's patches
- for anyone else facing similar problems
- 
- Thanks to all you guys, especially Rik for helping me out....
- 
- Best regards,
- 
- Anish Srivastava
- 
- Linux Rulez!!!
- 
- 
- 
-
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+-- Jamie

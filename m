@@ -1,51 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262279AbUGFAxZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbUGFBQc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262279AbUGFAxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jul 2004 20:53:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262380AbUGFAxX
+	id S262380AbUGFBQc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jul 2004 21:16:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262406AbUGFBQc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jul 2004 20:53:23 -0400
-Received: from LPBPRODUCTIONS.COM ([68.98.211.131]:38074 "HELO
-	lpbproductions.com") by vger.kernel.org with SMTP id S262279AbUGFAxW
+	Mon, 5 Jul 2004 21:16:32 -0400
+Received: from quest.jpl.nasa.gov ([137.78.177.125]:63426 "EHLO
+	quest.jpl.nasa.gov") by vger.kernel.org with ESMTP id S262380AbUGFBQb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jul 2004 20:53:22 -0400
-From: Matt Heler <lkml@lpbproductions.com>
-Reply-To: lkml@lpbproduction.scom
-To: Redeeman <lkml@metanurb.dk>
-Subject: Re: quite big breakthrough in the BAD network performance, which mm6 did not fix
-Date: Mon, 5 Jul 2004 17:54:37 -0700
-User-Agent: KMail/1.6.82
-Cc: LKML Mailinglist <linux-kernel@vger.kernel.org>
-References: <1089070720.14870.6.camel@localhost>
-In-Reply-To: <1089070720.14870.6.camel@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 5 Jul 2004 21:16:31 -0400
+In-Reply-To: <20040705144436.62544a3d.pj@sgi.com>
+References: <2e9is-5YT-1@gated-at.bofh.it> <2e9iu-5YT-5@gated-at.bofh.it> <2ecq2-80i-1@gated-at.bofh.it> <7ab39013.0407042237.40ea9035@posting.google.com> <20040705064010.C9BFB5F7AA@attila.bofh.it> <9FC7DA98-CEA3-11D8-B083-000A95820F30@alumni.caltech.edu> <20040705144436.62544a3d.pj@sgi.com>
+Mime-Version: 1.0 (Apple Message framework v618)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <1C37F9C6-CEEA-11D8-B083-000A95820F30@alumni.caltech.edu>
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200407051754.38690.lkml@lpbproductions.com>
+Cc: linux-kernel@vger.kernel.org
+From: Mark Adler <madler@alumni.caltech.edu>
+Subject: Re: [PATCH] gcc 3.5 fixes
+Date: Mon, 5 Jul 2004 18:16:29 -0700
+To: Paul Jackson <pj@sgi.com>
+X-Mailer: Apple Mail (2.618)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok first take benchmarks ( use wget ), and secondly results from the internet 
-vary day by day , hour to hour , minute by minute. Don't expect all sites on 
-the internet to be the same speed, or even stay the same speed for that 
-matter. For more accurate benchmark results setup a personal server on your 
-own private network and benchmark http trasnfers using different kernels. 
+On Jul 5, 2004, at 2:44 PM, Paul Jackson wrote:
+> I'm not a lawyer, but I don't see why you'd want the copyright notice
+> in the executable:
 
-Matt H.
+It's not about the copyright.  I like the string kept in the object 
+code so that I and others can find out where the code is used and what 
+version is in use.  This in fact turned out to be useful when a 
+security vulnerability was found in versions 1.1.3 and earlier and a 
+script could search for executables with the offending code.
 
+mark
 
-
-On Monday 05 July 2004 4:38 pm, Redeeman wrote:
-> hey, i have had a breakthrough in the investigation...
-> it turns out that some sites does not load.. but you know all about
-> that, and a "fix" with sysctl fixes some of it.
->
-> networking was generally slow - or not!
-> it seems that its only HTTP transfers going insanely slow. which also
-> probably is those ipv4 issues, so now we just need to figure out what
-> changed, and what we need to change to fix it, so that we again can get
-> all sites loading, and HTTP protocol fully functionel again.
->
-> hope someone has some ideas.

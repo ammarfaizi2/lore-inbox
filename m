@@ -1,53 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261539AbTCOUnW>; Sat, 15 Mar 2003 15:43:22 -0500
+	id <S261563AbTCOUuR>; Sat, 15 Mar 2003 15:50:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261541AbTCOUnW>; Sat, 15 Mar 2003 15:43:22 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:21720 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S261539AbTCOUnV>; Sat, 15 Mar 2003 15:43:21 -0500
-Date: Sat, 15 Mar 2003 12:53:55 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Pavel Machek <pavel@ucw.cz>, Daniel Phillips <phillips@arcor.de>
-cc: Zack Brown <zbrown@tumblerings.org>, linux-kernel@vger.kernel.org
-Subject: Re: BitBucket: GPL-ed KitBeeper clone
-Message-ID: <36800000.1047761634@[10.10.2.4]>
-In-Reply-To: <20030314122903.GC8057@zaurus.ucw.cz>
-References: <200303020011.QAA13450@adam.yggdrasil.com> <20030311184043.GA24925@renegade> <22230000.1047408397@flay> <20030311192639.E72163C5BE@mx01.nexgo.de> <20030314122903.GC8057@zaurus.ucw.cz>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S261565AbTCOUuR>; Sat, 15 Mar 2003 15:50:17 -0500
+Received: from pcp02781107pcs.eatntn01.nj.comcast.net ([68.85.61.149]:20210
+	"EHLO linnie.riede.org") by vger.kernel.org with ESMTP
+	id <S261563AbTCOUuQ>; Sat, 15 Mar 2003 15:50:16 -0500
+Date: Sat, 15 Mar 2003 16:01:20 -0500
+From: Willem Riede <wrlk@riede.org>
+To: Zwane Mwaikambo <zwane@holomorphy.com>
+Cc: dan carpenter <d_carpenter@sbcglobal.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Any hope for ide-scsi (error handling)?
+Message-ID: <20030315210120.GI7082@linnie.riede.org>
+Reply-To: wrlk@riede.org
+References: <Pine.LNX.4.50.0303151343140.9158-100000@montezuma.mastecende.com> <200303151926.h2FJQLnB103490@pimout1-ext.prodigy.net> <Pine.LNX.4.50.0303151453010.9158-100000@montezuma.mastecende.com> <200303152012.h2FKCulK283698@pimout2-ext.prodigy.net> <Pine.LNX.4.50.0303151519240.9158-100000@montezuma.mastecende.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.50.0303151519240.9158-100000@montezuma.mastecende.com>; from zwane@holomorphy.com on Sat, Mar 15, 2003 at 15:23:04 -0500
+X-Mailer: Balsa 1.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yes.
+On 2003.03.15 15:23 Zwane Mwaikambo wrote:
+> On Sat, 15 Mar 2003, dan carpenter wrote:
 > 
-> Some kind of better-patch is badly needed.
+> > > Apart from the schedule with the ide_lock held, what is that code actually
+> > > doing?
+> > >
+> > > 	Zwane
+> > 
+> > Hm...  Good question.  I have no idea what the while loop is for.
 > 
-> What kind of data would have to be in soft-changeset?
-> * unique id of changeset
-> * unique id of previous changeset
-> (two previous if it is merge)
-> ? or would it be better to have here
-> whole path to first change?
-> * commit comment
-> * for each file:
-> ** diff -u of change
-> ** file's unique id
-> ** in case of rename: new name (delete is rename to special dir)
-> ** in case of chmod/chown: new permissions
-> ** per-file comment
+> I suppose the magik is in the comments;
 > 
-> ? How to handle directory moves?
+> /* first null the handler for the drive and let any process
+>  * doing IO (on another CPU) run to (partial) completion
+>  * the lock prevents processing new requests */
 > 
-> Does it seem sane? Any comments?
+Indeed. If you get there, the command in progress is hung.
+To be able to restart the device, the old command needs to be
+aborted. But that is an inherently racy undertaking. 
 
-Looks good to me. 
+Nominally, I just want to set HWGROUP(drive)->handler = NULL.
+But there is a small chance, that there is actually (interrupt) 
+activity going on for the command, which would result in a new 
+entry in HWGROUP(drive)->handler popping up after it is cleared.
 
-If people keep changesets sanely, then there should be no need for 
-per-file comments IMHO, but I'm sure that's a matter of debate.
+The loop as programmed significantly increases the odds that 
+the old command is really aborted. 
 
-M.
+It may not be elegant to schedule(1) with the lock taken, but it
+does work.
 
+However, my latest patch doesn't seem to be applied, since in my
+version I have a set_current_state(TASK_INTERRUPTIBLE); before 
+the schedule.
+
+Regards, Willem Riede.

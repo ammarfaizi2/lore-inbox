@@ -1,96 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262734AbVAVVXK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262751AbVAVVYq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262734AbVAVVXK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 16:23:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262733AbVAVVXJ
+	id S262751AbVAVVYq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 16:24:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262754AbVAVVXg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 16:23:09 -0500
-Received: from out002pub.verizon.net ([206.46.170.141]:18872 "EHLO
-	out002.verizon.net") by vger.kernel.org with ESMTP id S262734AbVAVVW3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 16:22:29 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: None, usuallly detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.11-rc2-V0.7.36-00
-Date: Sat, 22 Jan 2005 16:22:24 -0500
-User-Agent: KMail/1.7
-Cc: Ingo Molnar <mingo@elte.hu>
-References: <20041122005411.GA19363@elte.hu> <20050115133454.GA8748@elte.hu> <20050122122915.GA7098@elte.hu>
-In-Reply-To: <20050122122915.GA7098@elte.hu>
+	Sat, 22 Jan 2005 16:23:36 -0500
+Received: from mail.joq.us ([67.65.12.105]:54419 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S262752AbVAVVWd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jan 2005 16:22:33 -0500
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Paul Davis <paul@linuxaudiosystems.com>, Con Kolivas <kernel@kolivas.org>,
+       linux <linux-kernel@vger.kernel.org>, rlrevell@joe-job.com,
+       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
+       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt
+ scheduling
+References: <200501201542.j0KFgOwo019109@localhost.localdomain>
+	<87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu>
+	<87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu>
+From: "Jack O'Quin" <joq@io.com>
+Date: Sat, 22 Jan 2005 15:23:54 -0600
+In-Reply-To: <20050122165458.GA14426@elte.hu> (Ingo Molnar's message of
+ "Sat, 22 Jan 2005 17:54:58 +0100")
+Message-ID: <87hdl940ph.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501221622.24273.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [151.205.47.137] at Sat, 22 Jan 2005 15:22:25 -0600
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 22 January 2005 07:29, Ingo Molnar wrote:
->i have released the -V0.7.36-00 Real-Time Preemption patch, which
-> can be downloaded from the usual place:
->
->  http://redhat.com/~mingo/realtime-preempt/
->
->this is mainly a merge to 2.6.11-rc2.
+Ingo Molnar <mingo@elte.hu> writes:
 
-Humm, by the time I went after the patch it was up to -02.
+> thanks for the testing. The important result is that nice--20
+> performance is roughly the same as SCHED_ISO. This somewhat
+> reduces the urgency of the introduction of SCHED_ISO.
 
-And I'm getting a couple of error exits:
--------------------
-net/sched/sch_generic.c: In function `qdisc_restart':
-net/sched/sch_generic.c:128: error: label `requeue' used but not 
-defined
-  CC      drivers/pci/setup-bus.o
-make[2]: *** [net/sched/sch_generic.o] Error 1
-make[1]: *** [net/sched] Error 2
-make[1]: *** Waiting for unfinished jobs....
--------------------
+I can see why you feel that way, but don't share your conclusion.
 
-And
--------------------
-  LD      net/sunrpc/built-in.o
-make: *** [net] Error 2
-make: *** Waiting for unfinished jobs....
--------------------
-So obviously I'm not running it. :-)
+  First, only SCHED_FIFO worked reliably in my tests.  In Con's tests
+  even that did not work.  My system is probably better tuned for low
+  latency than his.  Until we can determine why there were so many
+  xruns, it is premature to declare victory for either scheduler.
+  Preferably, we should compare them on a well-tuned low-latency
+  system running your Realtime Preemption kernel.
 
-One other item I don't think is related, in the last version (35-01) I 
-had svn'd a new ieee1396 sub-directory from that ieee1394.org site 
-into the drivers tree, and since it was less than a week old and 
-worked right well, I just copied it over into the new kernel tree & 
-reran the configs after renameing the existing ieee1394 to 
-ieee1394-orig.
+  Second, the nice(-20) scheduler provides no clear way to support
+  multiple realtime priorities.  This is necessary for some audio
+  applications, but not jack_test3.2.
 
->There was alot of merging to be done due to Thomas Gleixner's
->spinlock/rwlock cleanups making it into upstream and due to the
-> upstream spinlock changes, and there were some networking related
-> conflicts as well, so these areas might introduce new regressions.
->
->the patch includes a fix that should resolve the microcode-update
->related boot-time crash reported by K.R. Foley. It also includes a
->verify_mm_writelocked() fix from Daniel Walker.
->
->to create a -V0.7.36-00 tree from scratch, the patching order is:
->
->  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.10.tar.bz2
-> 
-> http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.11-rc2.bz
->2
-> http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.11-r
->c2-V0.7.36-00
->
-> Ingo
+  Third, your prototype denies SCHED_FIFO to privileged threads.  This
+  is a serious problem, even for testing (though perhaps easy to fix).
 
+  Most important, let's not forget that this long discussion started
+  because ordinary users need access to realtime scheduling.  Con's
+  scheduler provides a solution for that problem.  Your prototype does
+  not.
+
+Chris Wright and Arjan van de Ven have outlined a proposal to address
+the privilege issue using rlimits.  This is still the only workable
+alternative to the realtime LSM on the table.  If the decision were up
+to me, I would choose the simplicity and better security of the LSM.
+But their approach is adequate, if implemented in a timely fashion.  I
+would like to see some progress on this in addition to the scheduler
+work.  People still need SCHED_FIFO for some applications.
+
+Right now, SCHED_ISO still looks better than nice(-20) for audio.  It
+works without special permissions.  The throttling threshold is
+adjustable with appropriate privileges.  It has the potential to
+support multiple priorities.  
+
+Being less entangled with SCHED_NORMAL makes me worry less about
+someone coming along later and messing it up while working on some
+unrelated problem.  Right now for example, mounting an encrypted
+filesystem starts a `loop0' kernel thread at nice -20.
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.32% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+  joq

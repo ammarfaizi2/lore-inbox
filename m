@@ -1,59 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317765AbSGPGma>; Tue, 16 Jul 2002 02:42:30 -0400
+	id <S317767AbSGPG5b>; Tue, 16 Jul 2002 02:57:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317766AbSGPGm3>; Tue, 16 Jul 2002 02:42:29 -0400
-Received: from pieck.student.uva.nl ([146.50.96.22]:55971 "EHLO
-	pieck.student.uva.nl") by vger.kernel.org with ESMTP
-	id <S317765AbSGPGm3>; Tue, 16 Jul 2002 02:42:29 -0400
-Message-Id: <5.1.0.14.0.20020716084354.00a1fbc0@legolas.dynup.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 16 Jul 2002 08:46:36 +0200
-To: "H. Peter Anvin" <hpa@zytor.com>
-From: Rudmer van Dijk <rudmer@legolas.dynup.net>
-Subject: Re: Linux 2.4.19-rc1-ac5
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3D335F04.6070700@zytor.com>
-References: <200207152148.g6FLm7Q24750@devserv.devel.redhat.com>
- <20020715220241Z317668-	 685+9887@vger.kernel.org>
- <agvl00$jjm$1@cesium.transmeta.com>
- <1026779299.32689.46.camel@irongate.swansea.linux.org.uk>
- <3D335903.6000603@zytor.com>
- <1026775760.1093.508.camel@sinai>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S317771AbSGPG5a>; Tue, 16 Jul 2002 02:57:30 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55559 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317767AbSGPG53>;
+	Tue, 16 Jul 2002 02:57:29 -0400
+Message-ID: <3D33C64A.7491B591@zip.com.au>
+Date: Tue, 16 Jul 2002 00:07:54 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] loop.c oopses
+References: <20020716062453.GK1022@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 01:47 16-7-02, you wrote:
->Robert Love wrote:
-> > On Mon, 2002-07-15 at 16:21, H. Peter Anvin wrote:
-> >
-> >
-> >>Hmmm...
-> >>
-> >>This bothers me somewhat, because a .bz2 file should not have been
-> >>created if the .gz file was corrupt, but the original poster strongly
-> >>implied that he had both the .gz file and a .bz2 file, unless your
-> >>update came in between.
-> >
-> >
-> > No, I think the bzip2 was not created while the gzip file was corrupt.
-> >
-> > Earlier, there was a corrupt gzip and no bzip2 file.
-> >
-> > Then I guess Alan fixed it, and now there exists both a valid gzip and
-> > bzip2 file.  So I think your stuff is working fine :)
-> >
->
->Right, misunderstanding cleared up.
->
->By the way, these things really should go to the kernel/patch author,
->not to the list.
+William Lee Irwin III wrote:
+> 
+> loop.c oopses when bio_copy() returns NULL. This was encountered while
+> running dbench 16 on a loopback-mounted reiserfs filesystem.
 
-I thought that by cc'ing the list people would wait with downloading until 
-the  problem is fixed. If there is a next time I will only send it to the 
-author.
+ugh.  GFP_NOIO is evil.  I guess it's better to add __GFP_HIGH
+there, but it's not a happy solution.
 
-         Rudmer
+> ...
+> 
+> If what I've done is proper, it may be necessary to allow
+> try_to_free_buffers() to fail if (!was_uptodate && PageUptodate(page))
 
+Is OK - that's just overeager whining.  You received an IO error
+during a write.  This marks the buffer not uptodate.  (Heaven
+knows why, because it clearly *is* uptodate).  And try_to_free_buffers
+doesn't like seeing a non-uptodate buffer against an uptodate
+page: it violates the alleged page/buffer state coherency.
+
+Some sucker needs to go through and test-n-fix all the IO handling
+paths.  He'll probably leave that until after "feature freeze".
+
+ loop.c |    9 ++++++---
+ 1 files changed, 6 insertions(+), 3 deletions(-)
+
+--- 2.5.25/drivers/block/loop.c~wli-loop-fix	Mon Jul 15 23:58:10 2002
++++ 2.5.25-akpm/drivers/block/loop.c	Mon Jul 15 23:59:32 2002
+@@ -457,8 +457,9 @@ static struct bio *loop_get_buffer(struc
+ 		goto out_bh;
+ 	}
+ 
+-	bio = bio_copy(rbh, GFP_NOIO, rbh->bi_rw & WRITE);
+-
++	bio = bio_copy(rbh, GFP_NOIO|__GFP_HIGH, rbh->bi_rw & WRITE);
++	if (bio == NULL)
++		goto out;
+ 	bio->bi_end_io = loop_end_io_transfer;
+ 	bio->bi_private = rbh;
+ 
+@@ -466,7 +467,7 @@ out_bh:
+ 	bio->bi_sector = rbh->bi_sector + (lo->lo_offset >> 9);
+ 	bio->bi_rw = rbh->bi_rw;
+ 	bio->bi_bdev = lo->lo_device;
+-
++out:
+ 	return bio;
+ }
+ 
+@@ -537,6 +538,8 @@ static int loop_make_request(request_que
+ 	 * piggy old buffer on original, and submit for I/O
+ 	 */
+ 	new_bio = loop_get_buffer(lo, old_bio);
++	if (new_bio == NULL)
++		goto out;
+ 	IV = loop_get_iv(lo, old_bio->bi_sector);
+ 	if (rw == WRITE) {
+ 		if (bio_transfer(lo, new_bio, old_bio))
+
+.

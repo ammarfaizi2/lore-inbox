@@ -1,37 +1,39 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <154343-13684>; Wed, 6 Jan 1999 21:11:46 -0500
-Received: by vger.rutgers.edu id <154352-13684>; Wed, 6 Jan 1999 08:55:40 -0500
-Received: from lilly.ping.de ([195.37.120.2]:25843 "HELO lilly.ping.de" ident: "qmailr") by vger.rutgers.edu with SMTP id <154768-13684>; Wed, 6 Jan 1999 02:26:34 -0500
-Message-ID: <19990106102908.A27572@kg1.ping.de>
-Date: Wed, 6 Jan 1999 10:29:08 +0100
-From: Kurt Garloff <K.Garloff@ping.de>
-To: "B. James Phillippe" <bryan@terran.org>
-Cc: Linux kernel list <linux-kernel@vger.rutgers.edu>
-Subject: Re: [PATCH] HZ change for ix86
-Mail-Followup-To: "B. James Phillippe" <bryan@terran.org>, Linux kernel list <linux-kernel@vger.rutgers.edu>
-References: <19990105094830.A17862@kg1.ping.de> <Pine.LNX.4.04.9901052119090.19960-100000@earth.terran.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.90.4i
-In-Reply-To: <Pine.LNX.4.04.9901052119090.19960-100000@earth.terran.org>; from B. James Phillippe on Tue, Jan 05, 1999 at 09:25:25PM -0800
-X-Operating-System: Linux 2.1.132 i686
+Received: by vger.rutgers.edu via listexpand id <154180-13684>; Thu, 7 Jan 1999 08:07:19 -0500
+Received: by vger.rutgers.edu id <155196-13684>; Wed, 6 Jan 1999 22:33:50 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:3342 "HELO ms2.inr.ac.ru" ident: "IDENT-NONSENSE") by vger.rutgers.edu with SMTP id <154198-13684>; Wed, 6 Jan 1999 10:59:10 -0500
+Date: Wed, 6 Jan 1999 21:19:14 +0300
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <199901061819.VAA08689@ms2.inr.ac.ru>
+To: vlad@elis.tusur.RU, linux-kernel@vger.rutgers.edu
+Subject: Re: [PATCH] Fixes in ipv4 networking code
+Newsgroups: inr.linux.kernel
+Organization: Institute for Nuclear Research, Moscow, Russia
+X-Newsreader: TIN [version 1.2 PL2]
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-On Tue, Jan 05, 1999 at 09:25:25PM -0800, B. James Phillippe wrote:
-> I don't know anything about it (and my box is an Alpha for which HZ is
-> 1024), but, one ignorant proposal: would it perhaps be worthwhile to have
-> the HZ value higher for faster (x86) systems based on the target picked in
-> make config?  Say, your 400 for Pentium+ and 100 for 486 or lower..?
+In article <199901050932.QAA06101@elis.tusur.ru> you wrote:
+: 1. "ip route get <SOMETHING>" never returns flowid. Fixed.
+: 2.  Flowid setting in rules doesn't work. Fixed.
 
-Yes, I think this would be a good idea.
-No time to code it into the CONFIG files, right now, though ...
-If Linus tells me: "Hey, do it, it will be integrated then!" I will have
-time, of course. 
+These two fixes have been queued. I apologize, they are not very urgent
+and, in any case, anyone using these features needs to patch kernel
+with ftp://ftp.inr.ac.ru/ip-routing/kernel-ss*.dif.gz.
 
--- 
-Kurt Garloff <kurt@garloff.de>                           [Dortmund, FRG]  
-Plasma physics, high perf. computing              [Linux-ix86,-axp, DUX]
-PGP key on http://www.garloff.de/kurt/        [Linux SCSI driver: DC390]
+: 3.  Routes with THROW flag doesn't work. Fixed.
+
+Oops... Yes. Only the fix is wrong... Checking for 1 will terminate search,
+when prespecified device is requested, which is certainly wrong.
+Khm... The bug is very unpleasant... I'll think. Can you invent something
+better than returning 2 instead of 1 in the case when fib_semantic_match
+failure not because of throw?
+
+: 4.  Sometimes "ip route get <SOMETHING>" returns an unknown error code,
+: looks like a very big number. Fixed.
+
+Thank you!
+
+Alexey
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

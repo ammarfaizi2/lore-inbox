@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315717AbSGAQDY>; Mon, 1 Jul 2002 12:03:24 -0400
+	id <S315709AbSGAQBJ>; Mon, 1 Jul 2002 12:01:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315721AbSGAQDX>; Mon, 1 Jul 2002 12:03:23 -0400
-Received: from d06lmsgate-5.uk.ibm.com ([195.212.29.5]:44202 "EHLO
-	d06lmsgate-5.uk.ibm.com") by vger.kernel.org with ESMTP
-	id <S315717AbSGAQDV> convert rfc822-to-8bit; Mon, 1 Jul 2002 12:03:21 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Organization: IBM Deutschland GmbH
-To: linux-kernel@vger.kernel.org
-Subject: hd_geometry question.
-Date: Mon, 1 Jul 2002 18:02:07 +0200
-X-Mailer: KMail [version 1.4]
+	id <S315708AbSGAQBI>; Mon, 1 Jul 2002 12:01:08 -0400
+Received: from [62.70.58.70] ([62.70.58.70]:12935 "EHLO mail.pronto.tv")
+	by vger.kernel.org with ESMTP id <S315709AbSGAQBH> convert rfc822-to-8bit;
+	Mon, 1 Jul 2002 12:01:07 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: ProntoTV AS
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: lilo/raid?
+Date: Mon, 1 Jul 2002 18:02:28 +0200
+User-Agent: KMail/1.4.1
+Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.3.96.1020701115130.23428A-100000@gatekeeper.tmr.com>
+In-Reply-To: <Pine.LNX.3.96.1020701115130.23428A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200207011802.07212.schwidefsky@de.ibm.com>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200207011802.28264.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I have a question about the start field in the hd_geometry structure. We used
+On Monday 01 July 2002 17:52, Bill Davidsen wrote:
+> On Mon, 1 Jul 2002, Roy Sigurd Karlsbakk wrote:
+> > still - sorry if this is OT - I'm just too close to tear my hair or head
+> > off or something
+> >
+> > The documentation everywhere, including the lilo 22.3.1 sample conf ffile
+> > tells me "use boot = /dev/md0", but lilo, when run, just tells me
+> >
+> > Fatal: Filesystem would be destroyed by LILO boot sector: /dev/md0
+>
+> I saw something like that when someone had made a raid device by hand and
+> used hda and hdb instead of hda1 and hdb1.
 
-	geo->start = device->major_info->gendisk.part[MINOR(kdev)].start_sect
-		>> device->sizes.s2b_shift;
+problem is: lilo does not seem to install at all with hd[ab]1 given. only 
+hdm(!!!), and then it just goes LI
 
-in the old dasd driver but now we use
+See dmesg log at http://karlsbakk.net/bugs/ for more info
 
-	geo.start = get_start_sect(kdev);
+thanks for all help
 
-to set the start field. One variant is wrong because the start sector differ if
-the block size is not 512 byte. The first variant calculates the start sector
-based on physical blocks (e.g. with 4096 bytes instead of 512 bytes). The
-second variant calulcates a "soft" start sector based on logical 512 byte
-blocks. Whats correct, first or second variant ?? I tend to favor the first
-variant because struct hd_geometry describes the physical geometry
-(number of heads, sectors, cylinders and start sector) but I am not 100%
-sure about it.
+roy
 
-blue skies,
-  Martin.
+-- 
+Roy Sigurd Karlsbakk, Datavaktmester
+
+Computers are like air conditioners.
+They stop working when you open Windows.
 

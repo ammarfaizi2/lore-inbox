@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274095AbRIYVWz>; Tue, 25 Sep 2001 17:22:55 -0400
+	id <S273990AbRIYVZF>; Tue, 25 Sep 2001 17:25:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273995AbRIYVWf>; Tue, 25 Sep 2001 17:22:35 -0400
-Received: from atlrel6.hp.com ([192.151.27.8]:41490 "HELO atlrel6.hp.com")
-	by vger.kernel.org with SMTP id <S273990AbRIYVWY>;
-	Tue, 25 Sep 2001 17:22:24 -0400
-Message-ID: <C5C45572D968D411A1B500D0B74FF4A80418D549@xfc01.fc.hp.com>
-From: "DICKENS,CARY (HP-Loveland,ex2)" <cary_dickens2@hp.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Cc: "HABBINGA,ERIK (HP-Loveland,ex1)" <erik_habbinga@hp.com>
-Subject: 2.4.10 still slow compared to 2.4.5pre1
-Date: Tue, 25 Sep 2001 17:22:41 -0400
+	id <S274185AbRIYVY4>; Tue, 25 Sep 2001 17:24:56 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:45316 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S273990AbRIYVYi>; Tue, 25 Sep 2001 17:24:38 -0400
+Date: Tue, 25 Sep 2001 17:01:41 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Rick Haines <rick@kuroyi.net>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Andrea Arcangeli <andrea@suse.de>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.10 VM: what avoids from having lots of unwriteable inactive
+ pages
+In-Reply-To: <20010925172016.B860@sasami.kuroyi.net>
+Message-ID: <Pine.LNX.4.21.0109251700370.2193-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We have run 2.4.10 under a heavy nfs load and kswapd now appears to be under
-control ( never went above 88.5%cpu and then only for a short time), but the
-nfs performance is about 45% of what it had been for the 2.4.5pre1 kernel.
-The response time grows steadily throughout the test until the test goes
-invalid.
 
-Hardware:
-4 processors, 4GB ram
-45 fibre channel drives, set up in hardware RAID 0/1
-2 direct Gigabit Ethernet connections between SPEC SFS prime client and
-system under test
-reiserfs
-all NFS filesystems exported with sync,no_wdelay to insure O_SYNC writes to
-storage
-NFS v3 UDP
 
-I can provide top logs if anyone would like to see what is happening at any
-particular time.  Also, if you would like to see some results from a
-particular test, please let me know what test it would be.
+On Tue, 25 Sep 2001, Rick Haines wrote:
 
-We tried the 00_vmtweaks patch from Andrea and it failed to boot.  There was
-an issue starting kswapd and the kernel would oops.
+> On Tue, Sep 25, 2001 at 01:13:37PM -0300, Rik van Riel wrote:
+> > On Tue, 25 Sep 2001, Linus Torvalds wrote:
+> > > On Tue, 25 Sep 2001, Rik van Riel wrote:
+> > > > >
+> > > > > swap_out() will deactivate everything it finds to be not-recently used,
+> > > > > and that's how the inactive list ends up getting replenished.
+> > > >
+> > > > mlock()
+> > >
+> > > Hey, if you've mlock'ed more than your available memory, there's nothing
+> > > the VM layer can do. Except maybe a nice printk("Kiss your *ss goodbye");
+> 
+> Shouldn't there be a threshold where mlock will fail?
 
-Cary Dickens
-Hewlett-Packard
+There is (for users). Take a look at ulimit:
+
+ -l     The maximum size that may be locked into memory
+
+
+
+> Or are you saying that in general mlocking lots of memory will screw the
+> VM?
+
+Yes it will.
 

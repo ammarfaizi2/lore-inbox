@@ -1,61 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317851AbSGKP5k>; Thu, 11 Jul 2002 11:57:40 -0400
+	id <S317854AbSGKQcw>; Thu, 11 Jul 2002 12:32:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317852AbSGKP5j>; Thu, 11 Jul 2002 11:57:39 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:46853 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S317851AbSGKP5j> convert rfc822-to-8bit; Thu, 11 Jul 2002 11:57:39 -0400
-Message-ID: <3D2DAB7E.30208@evision-ventures.com>
-Date: Thu, 11 Jul 2002 17:59:58 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0.0) Gecko/20020611
-X-Accept-Language: pl, en-us
+	id <S317857AbSGKQcv>; Thu, 11 Jul 2002 12:32:51 -0400
+Received: from waste.org ([209.173.204.2]:63212 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S317854AbSGKQcv>;
+	Thu, 11 Jul 2002 12:32:51 -0400
+Date: Thu, 11 Jul 2002 11:35:24 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Daniel Phillips <phillips@arcor.de>
+cc: Jesse Barnes <jbarnes@sgi.com>, Andreas Dilger <adilger@clusterfs.com>,
+       kernel-janitor-discuss 
+	<kernel-janitor-discuss@lists.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: spinlock assertion macros
+In-Reply-To: <E17SWXm-0002BL-00@starship>
+Message-ID: <Pine.LNX.4.44.0207111131550.15441-100000@waste.org>
 MIME-Version: 1.0
-To: Thunder from the hill <thunder@ngforever.de>
-CC: Hannu Savolainen <hannu@opensound.com>,
-       george anzinger <george@mvista.com>,
-       "Grover, Andrew" <andrew.grover@intel.com>,
-       Linux <linux-kernel@vger.kernel.org>
-Subject: Re: HZ, preferably as small as possible
-References: <Pine.LNX.4.44.0207110651430.5067-100000@hawkeye.luckynet.adm>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-U¿ytkownik Thunder from the hill napisa³:
-> Hi,
-> 
-> On Thu, 11 Jul 2002, Hannu Savolainen wrote:
-> 
->>This is not a problem at all. Just define HZ as:
->>
->>extern int system_hz;
->>#define HZ system_hz
->>
->>After that all code will use variable HZ. Changing HZ on fly will be
->>dangerous. However HZ can be made a boot time (LILO) parameter.
-> 
-> 
-> OK, that's probably a start. As the next step, I'd recommend that the 
-> maintainers and their supporters try to replace the static HZ with 
-> possibly-dynamic system_hz. The third step would be to have guys like Ingo 
-> to tune system_hz to be really dynamic.
-> 
-> Cool idea, anyway.
+On Thu, 11 Jul 2002, Daniel Phillips wrote:
 
-Just remember plase to map it to /proc/sys/kernel/xxx
-So we could implement the following properly:
+> I was thinking of something as simple as:
+>
+>    #define spin_assert_locked(LOCK) BUG_ON(!spin_is_locked(LOCK))
+>
+> but in truth I'd be happy regardless of the internal implementation.  A note
+> on names: Linus likes to shout the names of his BUG macros.  I've never been
+> one for shouting, but it's not my kernel, and anyway, I'm happy he now likes
+> asserts.  I bet he'd like it more spelled like this though:
+>
+>    MUST_HOLD(&lock);
 
-_SC_CLK_TCK            CLK_TCK       Ticks per second          (clock_t)
+I prefer that form too.
 
-(Taken from Solaris pecs.)
+> And, dare I say it, what I'd *really* like to happen when the thing triggers
+> is to get dropped into kdb.  Ah well, perhaps in a parallel universe...
 
-Unless of course we stick to the fact that HZ exposed
-to user land remains an arch specific constant as in 2.5.25 which
-I think is the more prefferable solution.
+It ought to.
 
-Pitty is RedHat beta does mess with this! The 2.5.25 solutoin from
-Linus is far better.
+As long as we're talking about spinlock debugging, I've found it extremely
+useful to add an entry to the spinlock to record where the spinlock was
+taken.
+
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 

@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261894AbTILVFg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 17:05:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261899AbTILVFg
+	id S261901AbTILVHo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 17:07:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbTILVHo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 17:05:36 -0400
-Received: from dsl092-073-159.bos1.dsl.speakeasy.net ([66.92.73.159]:54029
-	"EHLO yupa.krose.org") by vger.kernel.org with ESMTP
-	id S261894AbTILVFd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 17:05:33 -0400
-To: Oleg Drokin <green@namesys.com>
+	Fri, 12 Sep 2003 17:07:44 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:34784 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261901AbTILVHl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 17:07:41 -0400
+Subject: CKRM memory control testing package available
+From: Shailabh Nagar <nagar@watson.ibm.com>
+To: ckrm-tech@lists.sourceforge.net
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Large-file corruption. ReiserFS? VFS?
-References: <87r82noyr9.fsf@nausicaa.krose.org>
-	<20030912153935.GA2693@namesys.com>
-	<20030912175917.GB30584@matchmail.com>
-	<20030912184001.GA9245@namesys.com>
-	<20030912205446.GD30584@matchmail.com>
-X-Home-Page: http://www.krose.org/~krose/
-From: Kyle Rose <krose+linux-kernel@krose.org>
-Organization: krose.org
-Content-Type: text/plain; charset=US-ASCII
-Date: Fri, 12 Sep 2003 17:05:24 -0400
-In-Reply-To: <20030912205446.GD30584@matchmail.com> (Mike Fedyk's message of
- "Fri, 12 Sep 2003 13:54:46 -0700")
-Message-ID: <87ekylg1kb.fsf@nausicaa.krose.org>
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) XEmacs/21.4 (Rational FORTRAN,
- i386-debian-linux)
-MIME-Version: 1.0
+Content-Type: text/plain
+Organization: 
+Message-Id: <1063400822.4545.85.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 12 Sep 2003 17:07:03 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Does this affect 2.4 also?
+Hi,
 
-As I said, this did not affect 2.4, at least not uniformly: I
-regularly created DVD ISO images larger than 4GB under 2.4.2{0,1,2}
-without problems.
+A tarball for testing the memory controller of CKRM (Class-based Kernel Resource
+Management) is now available at
 
-Cheers,
-Kyle
+http://prdownloads.sourceforge.net/ckrm/ckrm-A01.tar.gz?download
+
+It contains all the CKRM components needed to regulate the memory consumption of
+a simple microbenchmar (the same one that was presented at OLS'03).
+
+All instructions for testing are included in the README file in the download.
+
+Feedback appreciated.
+
+- Shailabh
+

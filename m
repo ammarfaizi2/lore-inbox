@@ -1,69 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261433AbTIOPFq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 11:05:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261448AbTIOPFq
+	id S261448AbTIOPQZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 11:16:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbTIOPQZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 11:05:46 -0400
-Received: from pc3-hitc2-5-cust152.lutn.cable.ntl.com ([81.99.82.152]:55461
-	"EHLO zog.reactivated.net") by vger.kernel.org with ESMTP
-	id S261433AbTIOPFo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 11:05:44 -0400
-Message-ID: <3F65D69B.5000707@reactivated.net>
-Date: Mon, 15 Sep 2003 16:11:23 +0100
-From: Daniel Drake <dsd@reactivated.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030905 Thunderbird/0.2
-X-Accept-Language: en-us, en
+	Mon, 15 Sep 2003 11:16:25 -0400
+Received: from citrine.spiritone.com ([216.99.193.133]:48326 "EHLO
+	citrine.spiritone.com") by vger.kernel.org with ESMTP
+	id S261448AbTIOPQY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 11:16:24 -0400
+Date: Mon, 15 Sep 2003 08:15:25 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Wade <neroz@ii.net>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6 patch] add a config option for -Os compilation
+Message-ID: <1526740000.1063638924@[10.10.2.4]>
+In-Reply-To: <1063551468.14837.5.camel@dhcp23.swansea.linux.org.uk>
+References: <20030914121655.GS27368@fs.tum.de>  <3F6472F4.8080509@ii.net> <1063551468.14837.5.camel@dhcp23.swansea.linux.org.uk>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: Nick Piggin <piggin@cyberone.com.au>, alan@lxorguk.ukuu.org.uk,
-       amir@montilio.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Developing Kernel Code newbie
-References: <000d01c37b5f$47722b80$1101a8c0@CARTMAN> <3F6579CD.5010609@cyberone.com.au> <3F658B36.2010503@reactivated.net> <3F658BF1.6070703@cyberone.com.au>
-In-Reply-To: <3F658BF1.6070703@cyberone.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--Alan Cox <alan@lxorguk.ukuu.org.uk> wrote (on Sunday, September 14, 2003 15:57:49 +0100):
 
+> On Sul, 2003-09-14 at 14:53, Wade wrote:
+>> Adrian Bunk wrote:
+>> > The patch below adds a config option OPTIMIZE_FOR_SIZE for telling gcc 
+>> > to use -Os instead of -O2. Besides this, it removes constructs on 
+>> > architectures that had a -Os hardcoded in their Makefiles.
+>> 
+>> Someone told me that -Os is actually faster than -O2 for Athlons, is 
+>> that true?
+> 
+> On gcc 2.95 -Os was faster for most stuff. I would intuitively expect
+> the best result to be a mix varied by function but I don't think gcc has
+> the support to do that.
+> 
+> I've also not benched gcc 3.2 -Os v -O2 at real workloads - thats a 
+> nice little project for someone.
 
-Nick Piggin wrote:
-> If you are a _programming_ beginner, you're setting your sights a too high
-> and will probably get frustrated.
+I think it depends heavily on the chip - I tried 2.95 and 3.3. For me,
+-Os was slower for both, but I have a 2MB L2 cache. If you have a 128K
+celeron or something, I'm sure it'd be faster.
 
-I'm not a beginner to programming, been doing it since an early age. 
-That said, I have very little experience of "pro" programming - I am 
-still in full time education.
-Still, it is definately a high target, and will take some time getting 
-used to.
-
-I wrote my first patch yesterday, very very basic but its a start! (just 
-simply makes the usblp driver output its debug info into dmesg when 
-CONFIG_USB_DEBUG is set).
-
-Alan Cox wrote:
- > The kernel is cool, but it is a large piece of code with a lot of ideas
- > in it that some folks find challenging (interrupts, multiprocessing,
- > threads and locking) [One thing to be said at least the Java taught
- > university folks understand some of this unlike those they used to feed
- > pascal]
- >
- > Have fun but if you find the kernel daunting and hard work, don't give
- > up but pick up something smaller, easier to understand and use a
- > debugger on - like desktop applications, then come back and try the
- > kernel again later.
-
-I think thats where I'm heading, thanks for the advice.
-
-
-
-Amir: Here are a few URL's I have stored for this topic. I have yet to 
-study them in detail.
-
-http://jungla.dit.upm.es/~jmseyas/linux/kernel/hackers-docs.html
-http://www.kernelnewbies.org
-http://en.tldp.org/LDP/khg/HyperNews/get/khg.html
-
-Thanks.
+M.
 

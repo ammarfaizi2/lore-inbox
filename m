@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314163AbSDMAwK>; Fri, 12 Apr 2002 20:52:10 -0400
+	id <S314164AbSDMA6J>; Fri, 12 Apr 2002 20:58:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314164AbSDMAwJ>; Fri, 12 Apr 2002 20:52:09 -0400
-Received: from web9203.mail.yahoo.com ([216.136.129.26]:30818 "HELO
-	web9203.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S314163AbSDMAwI>; Fri, 12 Apr 2002 20:52:08 -0400
-Message-ID: <20020413005208.22935.qmail@web9203.mail.yahoo.com>
-Date: Fri, 12 Apr 2002 17:52:08 -0700 (PDT)
-From: Alex Davis <alex14641@yahoo.com>
-Subject: Re: 2.4 sound crashes and oopses
-To: chrisp@belgacom.net, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	id <S314165AbSDMA6I>; Fri, 12 Apr 2002 20:58:08 -0400
+Received: from c5cust8.starstream.net ([206.170.161.8]:27012 "HELO
+	10cust182.starstream.net") by vger.kernel.org with SMTP
+	id <S314164AbSDMA6I>; Fri, 12 Apr 2002 20:58:08 -0400
+Date: Fri, 12 Apr 2002 17:58:05 -0700
+From: Ted Deppner <ted@psyber.com>
+To: Oleg Drokin <green@namesys.com>
+Cc: ted@psyber.com, linux-kernel@vger.kernel.org,
+        Hans Reiser <reiser@namesys.com>
+Subject: Re: New IDE code and DMA failures
+Message-ID: <20020413005805.GA17025@dondra.ofc.psyber.com>
+Reply-To: Ted Deppner <ted@psyber.com>
+Mail-Followup-To: Oleg Drokin <green@namesys.com>, ted@psyber.com,
+	linux-kernel@vger.kernel.org, Hans Reiser <reiser@namesys.com>
+In-Reply-To: <200204111236.g3BCaMX10247@Port.imtp.ilyichevsk.odessa.ua> <20020411130544.GA8163@dondra.ofc.psyber.com> <20020411181027.A1870@namesys.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Full description:
->My system seems to crash "randomly" while playing sound (pcm, actually, i use
->mpg123 to test). The system has an Avance Logic ALS007 based PnP sound card.
->The crashes happen in different ways:
->- spontaneous reboot
->- hard hang (even SysRq doesn't work anymore)
->- the message "spurious 8259A interrupt: IRQ7" followed by a hard hang
->- or an Oops message (see further), followed by a DMA timeout error message.
->After this, playing audio would always trigger this timeout error message, until
->I rebooted.  Sound was broken too.
+On Thu, Apr 11, 2002 at 06:10:27PM +0400, Oleg Drokin wrote:
+> We are interested in such a damaged partitions that makes current reiserfsck
+> to segfault or to incorrectly repair FS (incorrectly in the meaning that
+> subsequent reiserfsck run finds more errors)
+> Is this the case with you?
 
-What motherboard do you have? Also, type
+Subsequent runs of reiserfsck are no longer finding new errors.  There
+were several cases where --rebuild-tree segfaulted reiserfsck -- HOWEVER
+this was before I got the DMA errors ironed out.
 
-   lspci -v
+Now that the DMA errors are taken care of, I've not been able to get
+reiserfsck to behave oddly.
 
-and post the results.If your sound card is using IRQ 7, it may be conflicting with
-your parallel port.
-
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Tax Center - online filing with TurboTax
-http://taxes.yahoo.com/
+-- 
+Ted Deppner
+http://www.psyber.com/~ted/

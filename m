@@ -1,43 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262058AbUBWWGz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 17:06:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262061AbUBWWGz
+	id S262028AbUBWWD1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 17:03:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262056AbUBWWD1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 17:06:55 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:39642 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262058AbUBWWGy (ORCPT
+	Mon, 23 Feb 2004 17:03:27 -0500
+Received: from fw.osdl.org ([65.172.181.6]:49801 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262028AbUBWWDZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 17:06:54 -0500
-Date: Mon, 23 Feb 2004 14:06:47 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: riel@redhat.com, herbert@13thfloor.at, mikpe@csd.uu.se,
+	Mon, 23 Feb 2004 17:03:25 -0500
+Date: Mon, 23 Feb 2004 14:08:40 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "David S. Miller" <davem@redhat.com>
+cc: riel@redhat.com, herbert@13thfloor.at, mikpe@csd.uu.se,
        linux-kernel@vger.kernel.org
 Subject: Re: Intel vs AMD x86-64
-Message-Id: <20040223140647.73bdf091.davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.58.0402231359280.3005@ppc970.osdl.org>
+In-Reply-To: <20040223134853.5947a414.davem@redhat.com>
+Message-ID: <Pine.LNX.4.58.0402231359280.3005@ppc970.osdl.org>
 References: <Pine.LNX.4.44.0402231625220.9708-100000@chimarrao.boston.redhat.com>
-	<Pine.LNX.4.58.0402231335430.3005@ppc970.osdl.org>
-	<20040223134853.5947a414.davem@redhat.com>
-	<Pine.LNX.4.58.0402231359280.3005@ppc970.osdl.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+ <Pine.LNX.4.58.0402231335430.3005@ppc970.osdl.org> <20040223134853.5947a414.davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Feb 2004 14:08:40 -0800 (PST)
-Linus Torvalds <torvalds@osdl.org> wrote:
 
-> In fact, I _think_ you could actually use the AGP bridge as a strange
-> IOMMU. Of course, right now their AGP bridges are all 32-bit limited
-> anyway, but the point being that they at least in theory would seem to
-> have the capability to do this.
 
-Ok, I see.  In fact, I remember some vague notion that the AGP bridge
-on the Athlon's could technically be used as a full-on IOMMU, especially
-since it was all derived from Alpha PCI chipsets which did use things
-this way.
+On Mon, 23 Feb 2004, David S. Miller wrote:
+> 
+> You mean the PCI controller is in the CPU, else how else would you
+> accomplish this?
+
+The IOMMU basically needs to be on the northbridge or at least in between
+the PCI bus an a northbridge (pretty much by definition: the bridge
+between IO and memory). On an Opteron, that's on-the-chip. For current
+Intel chips that's a separate chip.
+
+In fact, I _think_ you could actually use the AGP bridge as a strange
+IOMMU. Of course, right now their AGP bridges are all 32-bit limited
+anyway, but the point being that they at least in theory would seem to
+have the capability to do this.
+
+> Really, not having an IOMMU on a 64-bit platform these days is basically like
+> pulling out one's toenails with an ice pick.
+
+Well, as long as they had that "64-bit is server" mentality, they can 
+honestly say that you just have to use 64-bit-capable PCI cards.
+
+Now, the "server only" mentality is obviously crap, but since we haven't
+even seen the chipsets designed for the 64-bit chips, we shouldn't
+complain. At least yet.
+
+Now, I'm not above complaining about Intel (in fact, the Intel people seem
+to often think I hate them because I'm apparently the only person who gets
+quoted who complains about bad decisions publicly), but at least I try to
+avoid complaining before-the-fact ;)
+
+			Linus

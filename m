@@ -1,27 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262016AbULKV3n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262018AbULKVcM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262016AbULKV3n (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Dec 2004 16:29:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262018AbULKV3n
+	id S262018AbULKVcM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Dec 2004 16:32:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262019AbULKVcL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Dec 2004 16:29:43 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:50438 "HELO
+	Sat, 11 Dec 2004 16:32:11 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:57606 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262016AbULKV3d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Dec 2004 16:29:33 -0500
-Date: Sat, 11 Dec 2004 22:29:23 +0100
+	id S262018AbULKVaz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Dec 2004 16:30:55 -0500
+Date: Sat, 11 Dec 2004 22:30:40 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org,
        Marcelo Tosatti <marcelo.tosatti@cyclades.com>, philb@gnu.org
-Subject: [patch] Update email address of Benjamin LaHaise
-Message-ID: <20041211212923.GA22324@stusta.de>
+Subject: [patch] Update email address of Philip Blundell
+Message-ID: <20041211213040.GB22324@stusta.de>
+References: <20041211212923.GA22324@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20041211212923.GA22324@stusta.de>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+[ this time with the correct subject... ]
 
 Philip Blundell's email address Philip.Blundell@pobox.com is bouncing.
 
@@ -194,3 +198,4 @@ Signed-off-by: Adrian Bunk <bunk@stusta.de>
   *          Tim Waugh <tim@cyberelk.demon.co.uk>
   *	    Jose Renau <renau@acm.org>
   *          David Campbell <campbell@torque.net>
+

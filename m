@@ -1,75 +1,67 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316982AbSFWKPj>; Sun, 23 Jun 2002 06:15:39 -0400
+	id <S317205AbSFXAEu>; Sun, 23 Jun 2002 20:04:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317004AbSFWKPi>; Sun, 23 Jun 2002 06:15:38 -0400
-Received: from node-c-3d3f.a2000.nl ([62.194.61.63]:33030 "HELO
-	vger.kernel.org") by vger.kernel.org with SMTP id <S316982AbSFWKPh>;
-	Sun, 23 Jun 2002 06:15:37 -0400
-From: "PARTHY MACARTHY" <macpar5@email.com>
-Date: Sun, 23 Jun 2002 12:15:36
+	id <S317204AbSFXAEt>; Sun, 23 Jun 2002 20:04:49 -0400
+Received: from [168.160.12.18] ([168.160.12.18]:25605 "HELO vger.kernel.org")
+	by vger.kernel.org with SMTP id <S317195AbSFXAEs>;
+	Sun, 23 Jun 2002 20:04:48 -0400
+From: =?ISO-8859-1?Q?=D2=C7=C6=F7=D0=C5=CF=A2=CD=F8<webmaster@instrument.com.cn>?=
+Subject: =?GB2312?B?PDzSx8b3v+zRtj4+o6i12jQ1xtqjrDbUwjIzyNWjqQ==?=
 To: linux-kernel@vger.kernel.org
-Subject: URGENT RESPONSE NEEDED
-MIME-Version: 1.0
-Content-Type: text/plain;charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20020623101537Z316982-22020+9048@vger.kernel.org>
+Content-Type: text/plain;
+Date: Mon, 24 Jun 2002 07:38:49 +0800
+X-Priority: 3
+X-Library: Indy 8.0.25
+Message-Id: <20020624000448Z317195-22020+9376@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-STRICTLY CONFIDENTIAL & URGENT.
+============================================================
+           仪器信息网(http://www.instrument.com.cn)
+           仪器类专业网站，仪器厂商和用户的网上家园
+    本网由北京仪信网通科技有限公司和中国分析测试协会共同建设
+============================================================
+           本期《仪器快讯》订阅数为 25672 份
+============================================================
 
-I am Mr, PARTHY MACARTHY  a native of Cape Town in
-South Africa and I am an Executive Accountant with
-the South Africa  DEPARTMENT OF MINERAL RESOURCES AND ENERGY 
+☆☆☆☆☆ 新闻导读 ☆☆☆☆☆
+从HP拆分后的安捷伦
+北京建设共享实验条件服务体系
+2002年仪器分析技术应用学术交流会最新报道
+http://www.instrument.com.cn/category.asp?cate=1
 
-First and foremost, I apologized using this medium to
-reach you for a transaction/business of this
-magnitude, but this is due to
-Confidentiality and prompt access reposed on this
-medium. 
+☆☆☆☆☆ 仪器讲座 ☆☆☆☆☆
+AAS & AFS进展系列新增9篇
+ICP-MS讲座系列新增7篇
+化学类核心期刊表和化学工业类核心期刊表  
+http://www.instrument.com.cn/science/lecture/lecture.asp
 
-I have decided to seek a confidential
-co-operation with you in the execution of the deal
-described Hereunder for the benefit of all parties
-and hope you will keep it as a top secret because of the nature of this transaction.
+☆☆☆☆☆ 论坛最新话题 ☆☆☆☆☆
+&#8226;现在许多公司的ICPAES上都使用Peltier恒温装置,我查了许多的书都没有查到其原理,请问各位专家Peltier效应到底是怎么回事
+&#8226;给它一枪,就知道是什么东西  
+http://www.instrument.com.cn/bbs
 
-Within the Department of Mining & Natural Resources
-where I work as an Executive Accountant and with the
-cooperation of four other top officials, we have in
-our possession as overdue payment bills totaling
-Twenty - One Million, Five Hundred Thousand U. S.
-Dollars ($21,500,000.) which we want to transfer
-abroad with the assistance and cooperation of a
-foreign company/individual to receive the said fund
-on
-our behalf or a reliable foreign non-company account
-to receive such funds. More so, we are handicapped in
-the circumstances, as the South Africa Civil Service
-Code of Conduct does not allow us to operate offshore
-account hence your importance in the whole
-transaction.
-This amount $21.5m represents the balance of the
-total contract value executed on behalf of my Department by a foreign contracting firm, which we the officials over-invoiced deliberately. Though the actual
-contract cost have been paid to the original contractor,leaving the balance in the Tune of the said amount which we have in principles gotten approval to remit by Key tested Telegraphic Transfer (K.T.T) to any
-foreign bank account you will provide by filing in an
-application through the Justice Ministry here in
-South Africa for the transfer of rights and privileges of the former contractor to you.
+☆☆☆☆☆ 网展专题报道 ☆☆☆☆☆
+现有参展商85家，展出仪器318台
+Analytik Jena AG 最新招聘信息，Thermo Elemental 最新招聘信息
+美国戴安公司SUMMIT液相色谱产品在中国的销售政策的重大调整，计划用半年的时间在中国选择10个有购买意向的重点用户建立联合应用实验室
+http://www.netshow.com.cn
 
-I have the authority of my partners involved to
-propose that should you be willing to assist us in
-the transaction, your share of the sum will be 25% of the $21.5 million, 70% for us and 5% for taxation and
-miscellaneous expenses. The business itself is 100%
-safe, on your part provided you treat it with utmost
-secrecy and confidentiality. Also your area of
-specialization is not a hindrance to the successful
-execution of this transaction. I have reposed my
-confidence in you and hope that you will not
-disappoint me. Endeavor to contact me immediately my
-e-mail address  whether or not you are
-interested in this deal. If you are not, it will enable me scout for another foreign partner to carry out this deal I want to assure you that my partners and myself are in a position to make the payment of this claim possible provided you can give us a very strong Assurance and guarantee that our share will be secured and please remember to treat this matter as very confidential matter, because we will not comprehend with any form of exposure as we are still in active Government Service and remember once again that time is of the essence in this business.
-I wait in anticipation of your fullest co-operation.
+☆☆☆☆☆ 本周推荐参展商 ☆☆☆☆☆
+北京拓普分析仪器有限责任公司
+http://www.instrument.com.cn/show/ShowA5.asp?IMShowID=SH100298
 
-Yours faithfully,
- 
-PARTHY MACARTHY.
+岛津公司
+http://www.instrument.com.cn/show/ShowA5.asp?IMShowID=SH100277
+
+
+---------------------------------------------------------------
+若您想退订本邮件，请到http://www.instrument.com.cn，填写您的email并按退订按钮确认
+=====================仪器信息网联系方法=====================
+通信地址：北京市海淀区西三环北路27号北科大厦一层 唐海霞 女士收
+邮政编码：100089 
+电话/传真：010-68432936/ 68432939
+网址:http://www.instrument.com.cn
+Email: info@instrument.com.cn
+

@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264923AbUGaHBo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267840AbUGaHjk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264923AbUGaHBo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 03:01:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267654AbUGaHBn
+	id S267840AbUGaHjk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 03:39:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267654AbUGaHjk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 03:01:43 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:42307 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S264923AbUGaHBm
+	Sat, 31 Jul 2004 03:39:40 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:41231 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S267873AbUGaHjj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 03:01:42 -0400
-Date: Sat, 31 Jul 2004 09:02:37 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Johannes Stezenbach <js@convergence.de>, linux-kernel@vger.kernel.org,
-       Kai Germaschewski <kai@germaschewski.name>,
-       Sam Ravnborg <sam@ravnborg.org>, Pavel Roskin <proski@gnu.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] modpost warnings with external modules w/o modversions
-Message-ID: <20040731070237.GA6989@mars.ravnborg.org>
-Mail-Followup-To: Johannes Stezenbach <js@convergence.de>,
-	linux-kernel@vger.kernel.org,
-	Kai Germaschewski <kai@germaschewski.name>,
-	Sam Ravnborg <sam@ravnborg.org>, Pavel Roskin <proski@gnu.org>,
-	Andrew Morton <akpm@osdl.org>
-References: <20040719125106.GA29131@convergence.de> <20040719145911.GA7007@mars.ravnborg.org> <20040719173610.GB1987@convergence.de> <20040730224131.GA18686@convergence.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040730224131.GA18686@convergence.de>
-User-Agent: Mutt/1.5.6i
+	Sat, 31 Jul 2004 03:39:39 -0400
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: hch@infradead.org (Christoph Hellwig)
+Subject: Re: [PATCH 3/12 2.4] e1000 - use vmalloc for data structures not shared with h/w
+Cc: ganesh.venkatesan@intel.com, jgarzik@pobox.com, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Organization: Core
+In-Reply-To: <20040729192519.A6235@infradead.org>
+X-Newsgroups: apana.lists.os.linux.netdev
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.26-1-686-smp (i686))
+Message-Id: <E1BqoRX-0004DH-00@gondolin.me.apana.org.au>
+Date: Sat, 31 Jul 2004 17:38:11 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 31, 2004 at 12:41:31AM +0200, Johannes Stezenbach wrote:
+Christoph Hellwig <hch@infradead.org> wrote:
+> On Thu, Jul 29, 2004 at 11:17:08AM -0700, Venkatesan, Ganesh wrote:
+>> Vmalloc space is less scarce than kmalloc space. Am I right? This patch
+>> trades kmalloc space for vmalloc space.
 > 
-> Is there any chance that this patch could go into mainline kernel
-> anytime soon? It seems that this isn't even in bk-kbuild that
-> went into 2.6.8-rc2-mm1.
+> No, it's not.  vmalloc needs virtual space that's rather limited (e.g. 64MB
+> on PAE x86) in addition to physical memory.  Unless you do really big
+> allocations stay away from vmalloc.
 
-It's an oversight that it was not included.
-It will be there in next round of kbuild patches.
+How big is really big? 64K? 256K? 1M?
 
-	Sam
+Thanks,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

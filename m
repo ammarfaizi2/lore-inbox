@@ -1,56 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262072AbTKYHTd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 02:19:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbTKYHTd
+	id S262078AbTKYH3O (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 02:29:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbTKYH3O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 02:19:33 -0500
-Received: from pop.gmx.net ([213.165.64.20]:30642 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262072AbTKYHTc (ORCPT
+	Tue, 25 Nov 2003 02:29:14 -0500
+Received: from dp.samba.org ([66.70.73.150]:58520 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S262078AbTKYH3O (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 02:19:32 -0500
-X-Authenticated: #20450766
-Date: Tue, 25 Nov 2003 08:17:21 +0100 (CET)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Bradley Chapman <kakadu_croc@yahoo.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: What exactly are the issues with 2.6.0-test10 preempt?
-In-Reply-To: <Pine.LNX.4.58.0311241356420.1473@home.osdl.org>
-Message-ID: <Pine.LNX.4.44.0311250815200.2874-100000@poirot.grange>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 25 Nov 2003 02:29:14 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Leif Sawyer <lsawyer@gci.com>
+Cc: linux-kernel@vger.kernel.org, davem@redhat.com
+Subject: Re: error in Sparc64 build: kallsysms modules symbol resolution 
+In-reply-to: Your message of "Mon, 24 Nov 2003 16:37:35 -0900."
+             <BF9651D8732ED311A61D00105A9CA315102CD204@berkeley.gci.com> 
+Date: Tue, 25 Nov 2003 14:38:37 +1100
+Message-Id: <20031125072913.C53262C0EA@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Nov 2003, Linus Torvalds wrote:
+In message <BF9651D8732ED311A61D00105A9CA315102CD204@berkeley.gci.com> you write:
+> I'm still receiving the following error message when compiling
+> for Sparc64, 2.6.0-pre10  (previously seen in -pre9)
 
-> On Mon, 24 Nov 2003, Guennadi Liakhovetski wrote:
-> >
-> > Well, FWIW, I'm getting 100% reproducible Oopses on __boot__ by enabling
-> > preemption AND (almost) all kernel-hacking CONFIG_DEBUG_* options - see my
-> > post of 21.11.2003 with subject "[OOPS] 2.6.0-test7 + preempt + hacking".
-> > If required, could try to narrow it down to 1 CONFIG option.
->
-> I'd love to have more info - I actually looked at your original report,
-> and it's one of those "impossible" things as far as I can tell. The low
-> bit of the work "pending" flag should acts as a lock on workqueues, and
-> serialize access to one workqueue totally - so having it show up with a
-> pending timer is "strange" to say the least. The only two ways to clear
-> the "pending" timer is by running the work-queue - either for the timer to
-> have gone off (for the delayed case) _or_ the timer not to have evern been
-> set in the first place (for the immediate case).
->
-> So more information would be wonderful.
+Looks like your toolchain doesn't support weak symbols.  There are
+other ways of doing this, but weak symbols is the easiest.
 
-SORRY. Please, inore this report. It IS 100% reproducable - if you load
-wrong (compiled without debugging) modules... Maybe you should only accept
-bug-reports either without modules or with CONFIG_MODVERSIONS...
+This means no kallsyms for you, I'm afraid.
 
-Really sorry for taking your time.
-
-Regards
-Guennadi
----
-Guennadi Liakhovetski
-
-
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

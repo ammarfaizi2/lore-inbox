@@ -1,71 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265268AbUGGSJy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265276AbUGGSVm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265268AbUGGSJy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 14:09:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265269AbUGGSJy
+	id S265276AbUGGSVm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 14:21:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265283AbUGGSVl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 14:09:54 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:13189 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S265268AbUGGSJt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 14:09:49 -0400
-Date: Wed, 7 Jul 2004 14:09:40 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: =?iso-8859-1?q?so=20usp?= <so_usp@yahoo.com.br>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: difference between ports
-In-Reply-To: <20040707171452.9714.qmail@web53201.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.53.0407071354160.19059@chaos>
-References: <20040707171452.9714.qmail@web53201.mail.yahoo.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 7 Jul 2004 14:21:41 -0400
+Received: from mail-relay-3.tiscali.it ([212.123.84.93]:407 "EHLO
+	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
+	id S265276AbUGGSUh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 14:20:37 -0400
+Date: Wed, 7 Jul 2004 20:20:25 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: mason@suse.com, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Unnecessary barrier in sync_page()?
+Message-ID: <20040707182025.GJ28479@dualathlon.random>
+References: <20040707175724.GB3106@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040707175724.GB3106@logos.cnet>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Jul 2004, [iso-8859-1] so usp wrote:
+On Wed, Jul 07, 2004 at 02:57:24PM -0300, Marcelo Tosatti wrote:
+> 
+> Hi Chris,
+> 
+> I was talking to Andrew about this memory barrier 
+> 
+> static inline int sync_page(struct page *page)
+> {
+>         struct address_space *mapping;
+>                                                                                         
+>         /*
+>          * FIXME, fercrissake.  What is this barrier here for?
+>          */
+>         smp_mb();
+>         mapping = page_mapping(page);
+>         if (mapping && mapping->a_ops && mapping->a_ops->sync_page)
+>                 return mapping->a_ops->sync_page(page);
+>         return 0;
+> }
+> 
+> And does not seem to be a reason for it. The callers are:
+> 
+> void fastcall wait_on_page_bit(struct page *page, int bit_nr)
+> {
+>         wait_queue_head_t *waitqueue = page_waitqueue(page);
+>         DEFINE_PAGE_WAIT(wait, page, bit_nr);
+>                                                                                         
+>         do {
+>                 prepare_to_wait(waitqueue, &wait.wait, TASK_UNINTERRUPTIBLE);
+>                 if (test_bit(bit_nr, &page->flags)) {
+>                         sync_page(page);
+>                         io_schedule();
+>                 }
+>         } while (test_bit(bit_nr, &page->flags));
+>         finish_wait(waitqueue, &wait.wait);
+> } 
+> 
+> void fastcall __lock_page(struct page *page)
+> {
+>         wait_queue_head_t *wqh = page_waitqueue(page);
+>         DEFINE_PAGE_WAIT_EXCLUSIVE(wait, page, PG_locked);
+>                                                                                         
+>         while (TestSetPageLocked(page)) {
+>                 prepare_to_wait_exclusive(wqh, &wait.wait, TASK_UNINTERRUPTIBLE);
+>                 if (PageLocked(page)) {
+>                         sync_page(page);
+>                         io_schedule();
+>                 }
+>         }
+>         finish_wait(wqh, &wait.wait);
+> }
+> 
+> Both callers call set_bit (atomic operation which cannot be reordered) before 
 
-> Hi,
->
-> I would like to know if there are any difference
-> between I/O ports such as serial port, parallel port,
-> keyboard and ide from those ones used by network
-> interface, such as ssh, ftp, http and telnet. Both can
-> be accessed by check_region(), request_region() and
-> release_region() functions? If not, what functions can
-> be used to access those ports in kernel mode?
->
-> Thanks
+set_bit is atomic but it _can_ be reordered just fine. atomic !=
+barrier (they're the same only in x86 due the lack of specific smp-aware
+opcodes).
 
-The word 'port' can mean anything from a place where one
-docks ships to some other kinds of 'terminals'.
+however the smp_mb() isn't needed in sync_page, simply because it's
+perfectly ok if we start running sync_page before reading pagelocked.
+All we care about is to run sync_page _before_ io_schedule() and that we
+read PageLocked _after_ prepare_to_wait_exclusive.
 
-In the nomenclature of input and output connections, we
-use the term 'port' for some network addressing component
-as well as some hardware addressing component. These are
-not related. Also so-called "serial ports" and "parallel
-ports" are not related either. They just mean "connection".
-It is best to think of a port as a "thing". In other words
-it has so many meanings that you need to have more information
-to complete the indentity.
-
-A I/O port to which you refer is something that is unique
-to Intel CPU architecture. You can connect hardware to
-so-called "ports" (addresses) where you can access it with
-"in" and "out" instructions. Other architectures address
-hardware using "read" and "write" instructions (with slightly
-different wording) just as though the hardware was a section
-of memory. Intel machines also provide this mechanism and, in
-so doing, it's called "memory-mapped I/O".
-
-The network port is a number used as a kind of sub-address.
-For instance, you will receive this email on port 25, regardless
-of your email address.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+So the locking in between PageLocked and sync_page is _absolutely_
+worthless and the smp_mb() can go away.

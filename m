@@ -1,91 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264842AbTF0VzN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 17:55:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264833AbTF0VzN
+	id S264864AbTF0V6O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 17:58:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264865AbTF0V6O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 17:55:13 -0400
-Received: from tomts22.bellnexxia.net ([209.226.175.184]:50048 "EHLO
-	tomts22-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S264842AbTF0VzC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 17:55:02 -0400
-Subject: Re: 2.5.73-mm1 Uninitialised timer warnings
-From: Shane Shrybman <shrybman@sympatico.ca>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200306271958.h5RJwEmw023766@harpo.it.uu.se>
-References: <200306271958.h5RJwEmw023766@harpo.it.uu.se>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1056751745.2358.36.camel@mars.goatskin.org>
+	Fri, 27 Jun 2003 17:58:14 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:58307 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S264864AbTF0V6L
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 17:58:11 -0400
+Date: Fri, 27 Jun 2003 15:12:14 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: CaT <cat@zip.com.au>, nick@snowman.net, Larry McVoy <lm@bitmover.com>,
+       Vojtech Pavlik <vojtech@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bkbits.net is down
+Message-ID: <20030627221214.GA11252@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, CaT <cat@zip.com.au>,
+	nick@snowman.net, Larry McVoy <lm@bitmover.com>,
+	Vojtech Pavlik <vojtech@suse.cz>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030627145727.GB18676@work.bitmover.com> <Pine.LNX.4.21.0306271228200.17138-100000@ns.snowman.net> <20030627163720.GF357@zip.com.au> <1056732854.3172.56.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 27 Jun 2003 18:09:05 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1056732854.3172.56.camel@dhcp22.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the patch. Sorry for the repost.
-
-
-On Fri, 2003-06-27 at 15:58, Mikael Pettersson wrote:
-> On 27 Jun 2003 11:23:59 -0400, Shane Shrybman wrote:
-> >Below is my dmesg output which contains several uninitialized timer
-> >warnings. I assume someone wants to see them or else why print the
-> >warning. :-)
-> >
-> >BTW: Only three warnings during the compile of this kernel!
-> >
-> >Linux version 2.5.73-mm1 (shane@mars.goatskin.org) (gcc version 2.96
-> >20000731 (Mandrake Linux 8.2 2.96-0.76mdk)) #1 Fri Jun 27 10:47:16 EDT
-> >2003
-> ...
-> >Uninitialised timer!
-> >This is just a warning.  Your computer is OK
-> >function=0xc01e9d60, data=0x0
-> >Call Trace:
-> > [<c0123a6e>] check_timer_failed+0x3e/0x50
-> > [<c01e9d60>] floppy_shutdown+0x0/0xb0
-> > [<c0123de8>] del_timer+0x18/0xb0
-> > [<c01e0321>] blk_init_queue+0x111/0x130
-> > [<c01e7ac1>] reschedule_timeout+0x21/0xa0
-> > [<c0304274>] floppy_init+0x144/0x530
-> > [<c01ec080>] do_fd_request+0x0/0x90
-> > [<c02f2789>] do_initcalls+0x39/0x90
-> > [<c0105098>] init+0x38/0x1a0
-> > [<c0105060>] init+0x0/0x1a0
-> > [<c0108a19>] kernel_thread_helper+0x5/0xc
-> >
-> >Floppy drive(s): fd0 is 1.44M
-> 
-> These warnings as the same as those resulting from building
-> 2.5.73 with gcc-2.95, i.e., they are the result of gcc miscompiling
-> the empty structs that spinlocks reduce to on UP.
-> 
-> It's interesting to note that your Mandrake gcc-2.96 has this bug,
-> which previously was thought to be limited to gcc-2.95 and older.
-> 
-> Anyway, the fix is to revert patch-2.5.73's change to linux/spinlock.h.
-> The latest 2.5.73-bk includes the fix, or apply the patch below.
-> 
-> /Mikael
-> 
-> --- linux-2.5.73/include/linux/spinlock.h.~1~	2003-06-23 13:07:39.000000000 +0200
-> +++ linux-2.5.73/include/linux/spinlock.h	2003-06-23 22:58:29.000000000 +0200
-> @@ -146,8 +146,13 @@
->  /*
->   * gcc versions before ~2.95 have a nasty bug with empty initializers.
->   */
-> -typedef struct { } spinlock_t;
-> -#define SPIN_LOCK_UNLOCKED (spinlock_t) { }
-> +#if (__GNUC__ > 2)
-> +  typedef struct { } spinlock_t;
-> +  #define SPIN_LOCK_UNLOCKED (spinlock_t) { }
-> +#else
-> +  typedef struct { int gcc_is_buggy; } spinlock_t;
-> +  #define SPIN_LOCK_UNLOCKED (spinlock_t) { 0 }
-> +#endif
->  
->  /*
->   * If CONFIG_SMP is unset, declare the _raw_* definitions as nops
-
+Well, I almost had everything backed up to the new rackspace server
+and we crashed.  We're in fsck now.  I think the machine room overheated.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

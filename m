@@ -1,61 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310468AbSDDTZp>; Thu, 4 Apr 2002 14:25:45 -0500
+	id <S310435AbSDDTZp>; Thu, 4 Apr 2002 14:25:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310434AbSDDTZi>; Thu, 4 Apr 2002 14:25:38 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27141 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310435AbSDDTZX>;
-	Thu, 4 Apr 2002 14:25:23 -0500
-Message-ID: <3CACA8A9.2000701@mandrakesoft.com>
-Date: Thu, 04 Apr 2002 14:25:29 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: jt@hpl.hp.com
-CC: flaniganr@intel.co.jp, linux-kernel@vger.kernel.org,
-        dhinds@zen.stanford.edu, Robert Love <rml@tech9.net>
-Subject: Re: [PATCH] 2.5.8-pre1 wavelan_cs
-In-Reply-To: <87vgb8x8bt.fsf@hazuki.jp.intel.com> <3CABFE55.9@mandrakesoft.com> <20020404094057.B26632@bougret.hpl.hp.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S310468AbSDDTZb>; Thu, 4 Apr 2002 14:25:31 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:6413 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S310434AbSDDTZO>; Thu, 4 Apr 2002 14:25:14 -0500
+Date: Thu, 4 Apr 2002 21:25:15 +0200
+From: Karel Kulhavy <clock@atrey.karlin.mff.cuni.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Superfluous videomode reload during VT switch
+Message-ID: <20020404192515.GA31252@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Tourrilhes wrote:
-> On Thu, Apr 04, 2002 at 02:18:45AM -0500, Jeff Garzik wrote:
-> 
->>flaniganr@intel.co.jp wrote:
->>
->>>not sure if i did this right, so if you 
->>>have any suggestions/comments please tell me.
->>>
->>>Basically 2.5.8-pre1 fails to compile with:
->>>
->>>In file included from wavelan_cs.c:59:
->>>wavelan_cs.p.h:495:33: warning: extra tokens at end of #undef directive
->>>wavelan_cs.c: In function `wv_pcmcia_config':
->>>wavelan_cs.c:4480: structure has no member named `rmem_start'
->>>wavelan_cs.c:4482: structure has no member named `rmem_end'
->>>make[3]: *** [wavelan_cs.o] Error 1
->>>
->>not needed, just delete the unused references to rmem_{start,end}.
->>(see attached patch)
->>
->>	Jeff
->>
-> 
-> 	Correct. It was just information displayed by ifconfig.
-> 	Jeff, will you take care of it or do you need an "official"
-> patch (I would just resend your patch + the one of Robert).
+Hello
 
+I got a
 
-I've already taken care of it, in fact :)
+  Bus  1, device   0, function  0:
+    VGA compatible controller: ATI Technologies Inc Rage 128 PF (rev 0).
+      IRQ 11.
+      Master Capable.  Latency=32.  Min Gnt=8.
+      Prefetchable 32 bit memory at 0xf0000000 [0xf3ffffff].
+      I/O at 0xc800 [0xc8ff].
+      Non-prefetchable 32 bit memory at 0xff4fc000 [0xff4fffff].
 
-	Jeff
+and framebuffer.
 
+When I switch between the consoles the monitor picture gets 1/3 of its width
+and slowly ramps up to normal size during next 400ms. It is obviously weird
+because framebuffer uses the same video mode on all consoles so that there
+is no point is resetting it again and again when it is the same mode.
 
+When I hold alt & -> what I get is 1/3 of width and a stress-test on my
+horizontal power transistor.
 
+I believe that rapid console switches by user are common task and today's
+monitor's hsync stages are very stressed (must generate pretty strong magnetic
+field and at 150kHz of hsync this makes huge voltages that may even climb up
+during such transients) and this "games" with them usually activates
+accelerated aging mechanism.
 
+Not mentioning the fact that monitors usually do nasty things during mode switch as:
+a) Loud clicking (relays)
+b) Audible hiss from the desynchronized hsync subsystem
+c) Picture dropouts for up to seconds
+d) Annoying boxes with mode information
+
+Clock
 

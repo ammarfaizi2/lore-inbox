@@ -1,56 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262627AbREOEpN>; Tue, 15 May 2001 00:45:13 -0400
+	id <S262631AbREOE5d>; Tue, 15 May 2001 00:57:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262629AbREOEox>; Tue, 15 May 2001 00:44:53 -0400
-Received: from cr481834-a.ktchnr1.on.wave.home.com ([24.102.89.11]:9459 "HELO
-	scotch.homeip.net") by vger.kernel.org with SMTP id <S262627AbREOEom>;
-	Tue, 15 May 2001 00:44:42 -0400
-Date: Tue, 15 May 2001 00:44:24 -0400 (EDT)
-From: God <atm@sdk.ca>
-To: "David S. Miller" <davem@redhat.com>
-cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: TCP capture effect :: estimate queue length ?
-In-Reply-To: <15104.43139.354492.914572@pizda.ninka.net>
-Message-ID: <Pine.LNX.4.21.0105150030160.23642-100000@scotch.homeip.net>
+	id <S262632AbREOE5X>; Tue, 15 May 2001 00:57:23 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:64187 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262631AbREOE5N>;
+	Tue, 15 May 2001 00:57:13 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15104.46887.171649.8249@pizda.ninka.net>
+Date: Mon, 14 May 2001 21:57:11 -0700 (PDT)
+To: Larry McVoy <lm@bitmover.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Getting FS access events
+In-Reply-To: <20010514213516.A15744@work.bitmover.com>
+In-Reply-To: <200105142319.f4ENJpf19203@vindaloo.ras.ucalgary.ca>
+	<Pine.LNX.4.21.0105142054180.23578-100000@penguin.transmeta.com>
+	<20010514213516.A15744@work.bitmover.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 May 2001, David S. Miller wrote:
 
-> God writes:
->  > Speaking of queues on routers/servers, does such a util exist that would
->  > measure (even a rough estimate), what level of congestion (queueing) is
->  > happening between point A and B ?
-> 
-> Not that I know of, but it is funny you mention this because this is
-> basically the kind of calculation the TCP Vegas congestion avoidance
-> scheme attempts to make.  At it's core, it is trying to estimate the
-> size of router queues from local machine to remote machine based upon
-> "congestion events" (packet drop, etc.).
+Larry McVoy writes:
+ > Hell, that's the OS that gave us mmap, remember that?  
 
+Larry, go read up on TOPS-20. :-) SunOS did give unix mmap(), but it
+did not come up the idea.
 
-Really? .. hmmm... might just have to go read up on it.  I have my own
-ideas of how to go about doing it (pretty simple I think .. unless I'm
-missing something other then coding ability .... heh). 
-
- My basic reason for wanting such a beast was to
-convince one internet provider (who shall remain nameless), that from
-at home *cough* to the gateway, was under extreame congestion.  After
-finaly speaking with a tech who knew the difference between him and
-a dip switch, he agreed there was a serious problem (queues
-were exceeding 190/255 tx/rx, logs were showing the link upstream
-from the gateway was loosing sync multiple times per hour .. etc etc).
-
-The path to that however was long and very frustrating.  Trying to explain
-that
-although you can ping me fine and I can ping you fine, you still have a
-serious problem; can be very confusing to some.
-
-
-Thanks for the pointer :)
-
-
-
+Later,
+David S. Miller
+davem@redhat.com

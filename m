@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261354AbTCZSOR>; Wed, 26 Mar 2003 13:14:17 -0500
+	id <S261481AbTCZSOk>; Wed, 26 Mar 2003 13:14:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261481AbTCZSOR>; Wed, 26 Mar 2003 13:14:17 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:59398 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S261354AbTCZSOR>; Wed, 26 Mar 2003 13:14:17 -0500
-Date: Wed, 26 Mar 2003 13:17:56 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Greg KH <greg@kroah.com>
-cc: torvalds@transmeta.com, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] USB changes for 2.5.66
-In-Reply-To: <20030326005417.GA19868@kroah.com>
-Message-ID: <Pine.LNX.3.96.1030326131317.8110E-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261835AbTCZSOk>; Wed, 26 Mar 2003 13:14:40 -0500
+Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:31692 "HELO
+	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S261481AbTCZSOh>; Wed, 26 Mar 2003 13:14:37 -0500
+Subject: Re: Reproducible terrible interactivity since 2.5.64bk2
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Andrew Ebling <aebling@tao-group.com>
+Cc: Michal Schmidt <schmidt@kn.vutbr.cz>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1048687681.6345.13.camel@spinel.tao.co.uk>
+References: <3E81945C.4010102@kn.vutbr.cz>
+	 <1048687681.6345.13.camel@spinel.tao.co.uk>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1048703134.598.2.camel@teapot>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
+Date: 26 Mar 2003 19:25:35 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Mar 2003, Greg KH wrote:
+On Wed, 2003-03-26 at 15:08, Andrew Ebling wrote:
+> I'm seeing similar on 2.5.66; xmms pauses when doing disk intensive
+> tasks.
 
-> Hi,
-> 
-> Here are some small USB changes.  Basically all little cleanups and
-> bugfixes, nothing major.
-> 
-> Please pull from:  bk://linuxusb.bkbits.net/linus-2.5
+Just out of curiosity, do mpg123 (or mpg321) and ogg123 behave in the
+same manner? I have found that XMMS is prone to skips, pauses and hangs,
+but not so ogg123.
 
-Another "bk-only" patch. Guess I'd better look at the free (as in license,
-not cost) clone again.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+________________________________________________________________________
+        Felipe Alfaro Solana
+   Linux Registered User #287198
+http://counter.li.org
 

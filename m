@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263218AbREMSIU>; Sun, 13 May 2001 14:08:20 -0400
+	id <S263261AbREMSUl>; Sun, 13 May 2001 14:20:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263219AbREMSIL>; Sun, 13 May 2001 14:08:11 -0400
-Received: from t2.redhat.com ([199.183.24.243]:35834 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S263218AbREMSIC>; Sun, 13 May 2001 14:08:02 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <01051221352600.01254@lonewolf.Stanford.EDU> 
-In-Reply-To: <01051221352600.01254@lonewolf.Stanford.EDU> 
-To: akalin@Stanford.EDU
-Cc: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Patches for unchecked pointers in various drivers 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 13 May 2001 19:07:38 +0100
-Message-ID: <24376.989777258@redhat.com>
+	id <S263220AbREMSUb>; Sun, 13 May 2001 14:20:31 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:262 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S263062AbREMSUP>;
+	Sun, 13 May 2001 14:20:15 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200105131819.WAA27939@ms2.inr.ac.ru>
+Subject: Re: NETDEV_CHANGE events when __LINK_STATE_NOCARRIER is modified
+To: davem@redhat.COM (David S. Miller)
+Date: Sun, 13 May 2001 22:19:50 +0400 (MSK DST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <15091.23655.488243.650394@pizda.ninka.net> from "David S. Miller" at May 5, 1 06:15:00 am
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-akalin@Stanford.EDU said:
-> We've identified several unchecked pointers using the Stanford checker
-> and have produced patches for them:
+> I believe these events get sent to the cardmgr daemon and it does
+> all the ifconf magic to change the device state.
 
-> FTL (a memory card driver)
+Compare this also to the situation with netif_present().
 
-Patch applied to the master CVS, along with a cleanup on the immediately
-subsequent malloc check too. It'll be in my next merge to Linus, which
-should be quite soon - thanks.
+After Linus said that it is called from thread context, I prepared
+corresponding code for netif_present (and for carrier detection
+in assumption it is called from thread context or softirq)
+BUT... this happened to be not true.
 
---
-dwmw2
+So, these macros still do not assume anything on context.
+As result netif_carrier* is unreliable, netif_present is still straight bug.
+Should be fixed, of course.
 
+BTW what did happen with Andrew's netdev registration patch?
+By some strange reason I believed it is already applied... Grrr.
 
+Alexey

@@ -1,35 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130646AbQKPWPV>; Thu, 16 Nov 2000 17:15:21 -0500
+	id <S129150AbQKPWVW>; Thu, 16 Nov 2000 17:21:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131209AbQKPWPL>; Thu, 16 Nov 2000 17:15:11 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22087 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130646AbQKPWPG>; Thu, 16 Nov 2000 17:15:06 -0500
-Subject: Re: Local root exploit with kmod and modutils > 2.1.121
-To: kaos@ocs.com.au (Keith Owens)
-Date: Thu, 16 Nov 2000 21:45:15 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <4328.974406276@ocs3.ocs-net> from "Keith Owens" at Nov 17, 2000 07:24:36 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129404AbQKPWVM>; Thu, 16 Nov 2000 17:21:12 -0500
+Received: from as3-3-4.ml.g.bonet.se ([194.236.33.69]:57604 "EHLO
+	tellus.mine.nu") by vger.kernel.org with ESMTP id <S129150AbQKPWUv>;
+	Thu, 16 Nov 2000 17:20:51 -0500
+Date: Thu, 16 Nov 2000 22:50:46 +0100 (CET)
+From: Tobias Ringstrom <tori@tellus.mine.nu>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [CFT] dmfe.c network driver update for 2.4
+In-Reply-To: <3A130C6A.CDAD8AA2@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.21.0011162241450.23936-100000@svea.tellus>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13wWqL-0008PT-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >Then dev_load is being called the wrong way. In older kernels we explicitly
-> >only did a dev_load with user passed names providing suser() was true.
-> 
-> ping6 -I module_name.  ping6 is setuid, it passes the interface name to
-> the kernel while it holds root privileges, suser() == true.  It is
-> not reasonable to expect setuid programs to know that Linux does
-> something special with some parameters when no other O/S has that
-> "feature".
+On Wed, 15 Nov 2000, Jeff Garzik wrote:
 
-ping6 shouldnt be running with CAP_SYS_MODULE in the first place
+> Tobias Ringstrom wrote:
+> > 
+> > I have updated the dmfe.c network driver for 2.4.0-test by adding proper
+> > locking (I hope), and also made transmission much efficient.
+> > 
+> > I would appreciate any feedback from people using this driver, to confirm
+> > that I did not break it.
+> > 
+> > It would also be great if someone could take a look at the lock handling,
+> > to confirm that is is correct and sufficient.
+> 
+> Would you mind creating a separate patch that -just- correcting the SMP
+> safety?  That makes it much easier to review and apply, and then we can
+> consider the other changes...
+
+Such a patch will appear shortly. I and Frank Davis are currently merging
+our patches for dmfe.c.
+
+[Actually, I just added reasonable locks while my main goal was to improve
+performance. I did not realize that there was such a strong need for SMP
+safety (since it has been broken in that regard for a long time, without
+anyone fixing it).]
+
+/Tobias
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

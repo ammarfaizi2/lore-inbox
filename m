@@ -1,91 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315919AbSEZJw7>; Sun, 26 May 2002 05:52:59 -0400
+	id <S315921AbSEZJyk>; Sun, 26 May 2002 05:54:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315921AbSEZJw6>; Sun, 26 May 2002 05:52:58 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:25359
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S315919AbSEZJw5>; Sun, 26 May 2002 05:52:57 -0400
-Date: Sun, 26 May 2002 02:50:25 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] New driver for Artop [Acard] controllers.
-In-Reply-To: <Pine.LNX.4.10.10205242204360.31297-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.10.10205260242450.3010-100000@master.linux-ide.org>
+	id <S315922AbSEZJyj>; Sun, 26 May 2002 05:54:39 -0400
+Received: from imailg1.svr.pol.co.uk ([195.92.195.179]:2615 "EHLO
+	imailg1.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S315921AbSEZJyi>; Sun, 26 May 2002 05:54:38 -0400
+Posted-Date: Sun, 26 May 2002 09:54:33 GMT
+Date: Sun, 26 May 2002 10:54:32 +0100 (BST)
+From: Riley Williams <rhw@InfraDead.Org>
+Reply-To: Riley Williams <rhw@InfraDead.Org>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel maintainers
+In-Reply-To: <20020526090626.B32058@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.21.0205261052350.15697-100000@Consulate.UFP.CX>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Russell, and all the others who replied.
 
-Look another pair of Copyrights deleted.
-I wonder how many other people besides myself have had their copyright
-deleted, too?  Did you you do it to the AMD driver too?
-I made a mistake in the past when I offered you the option to maintain the
-via82cxxx.c chipset.  IIRC, you deleted 4 Copyrights then.
+>> Can somebody clarify who maintains which kernel series? I have the
+>> following table, so if somebody could fill in the blanks, it'd be
+>> very much appreciated:
+>> 
+>> 	2.0	???
+>> 	2.2	???
+>> 	2.4	Alan Cox	<alan@lxorguk.ukuu.org.uk>
+>> 	2.5	Linus Torvalds	<torvalds@transmeta.com>
 
-Oh well ...
+> I believe the following to be correct:
+>
+> 2.0	David Weinehall	<tao@acc.umu.se>
+> 2.2	Alan Cox	<alan@lxorguk.ukuu.org.uk>
+> 2.4	Marcelo Tosatti	<marcelo@conectiva.com.br>
+> 2.5	Linus Torvalds	<torvalds@transmeta.com>
 
-Andre Hedrick
-LAD Storage Consulting Group
+Many thanks. All posts reported the same set of maintainers, so I'm
+taking that to be correct. I'll be posting a minor patch to each of
+them for their specific series shortly.
 
-
---- linux-2.5.6-timing/drivers/ide/piix.c       Tue Mar 12 16:26:03 2002
-+++ linux-2.5.6-piix/drivers/ide/piix.c Tue Mar 12 20:35:40 2002
-@@ -1,499 +1,510 @@
- /*
-- *  linux/drivers/ide/piix.c           Version 0.32    June 9, 2000
-+ * $Id: piix.c,v 1.1 2002/10/10 22:58:60 vojtech Exp $
-  *
-- *  Copyright (C) 1998-1999 Andrzej Krzysztofowicz, Author and Maintainer
-- *  Copyright (C) 1998-2000 Andre Hedrick <andre@linux-ide.org>
-- *  May be copied or modified under the terms of the GNU General Public License
-+ *  Copyright (c) 2000-2002 Vojtech Pavlik
-  *
-
-
-
-On Fri, 24 May 2002, Andre Hedrick wrote:
-
-> 
-> Where do you get off delete copyrights?
-> GPL permits changing it does not give you the right to steal, lie, cheat,
-> defraud, other peoples work.  However I should not expect anything of
-> honor from a person of your high morals.  I know you want to rewrite the
-> past to make it so I and other never existed, but you are pathetic.
-> 
-> On Fri, 24 May 2002, Vojtech Pavlik wrote:
-> 
-> > On Fri, May 24, 2002 at 04:29:39PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> > > Hi!
-> > > 
-> > > I have a very quick look over patch/driver... looks quite ok...
-> > > 
-> > > But it doesn't support multiple controllers. We should add 'unsigned
-> > > long private' to 'ata_channel struct' and store index in the chipset
-> > > table there.
-> > > You can remove duplicate entries from module data table.
-> > > 
-> > > BTW: please don't touch pdc202xx.c I am playing with it...
-> > 
-> > Here is a new patch. Martin: This one should be OK for inclusion now.
-> > Bartlomiej: Please check it anyway.
-> > 
-> > -- 
-> > Vojtech Pavlik
-> > SuSE Labs
-> > 
-> 
-> Andre Hedrick
-> LAD Storage Consulting Group
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Best wishes from Riley.
 

@@ -1,38 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282167AbRKWPPH>; Fri, 23 Nov 2001 10:15:07 -0500
+	id <S282164AbRKWPNR>; Fri, 23 Nov 2001 10:13:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282161AbRKWPO5>; Fri, 23 Nov 2001 10:14:57 -0500
-Received: from t2.redhat.com ([199.183.24.243]:60404 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S282162AbRKWPOt>; Fri, 23 Nov 2001 10:14:49 -0500
-Message-ID: <3BFE67E8.CFA0D371@redhat.com>
-Date: Fri, 23 Nov 2001 15:14:48 +0000
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-Organization: Red Hat, Inc
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: war <war@starband.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Which gcc version?
-In-Reply-To: <20011123125137Z282133-17408+17815@vger.kernel.org> <5.1.0.14.2.20011123135801.00aad970@pop.cus.cam.ac.uk> <3BFE591B.D1F75CD5@starband.net>
+	id <S282161AbRKWPNH>; Fri, 23 Nov 2001 10:13:07 -0500
+Received: from hermes.domdv.de ([193.102.202.1]:25102 "EHLO zeus.domdv.de")
+	by vger.kernel.org with ESMTP id <S282165AbRKWPNC>;
+	Fri, 23 Nov 2001 10:13:02 -0500
+Message-ID: <XFMail.20011123161123.ast@domdv.de>
+X-Mailer: XFMail 1.5.1 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <Pine.LNX.4.33.0111231546190.18284-100000@localhost.localdomain>
+Date: Fri, 23 Nov 2001 16:11:23 +0100 (CET)
+Organization: D.O.M. Datenverarbeitung GmbH
+From: Andreas Steinmetz <ast@domdv.de>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: RE: [bug] broken loopback fs in 2.4.15-ish kernels?
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-war wrote:
+I did experiment with romfs on 2.4.15pre7 which did not work (initrd loader
+detected romfs, I could loop mount it but the kernel didn't root mount it).
+Funny enough using ext2 did work as expected. Maybe there's a common reason.
+
+On 23-Nov-2001 Ingo Molnar wrote:
 > 
-> #1) The compiler from redhat (gcc-2.96) is not an official GNU release.
-> #2) http://www.atnf.csiro.au/~rgooch/linux/docs/kernel-newsflash.html/
->       "the reccomend compiler is now gcc-2.95.3, rather than gcc-2.91.66"
+> just noticed that rpm -i kernel-2.4.9-13.i386.rpm does not work anymore
+> because a corrupted initrd gets created by mkinitrd. It smelled like
+> pagecache corruption so i did not experiment much. This was with
+> 2.4.15-pre9. Once i booted back into a 2.4.13-based kernel and re-did the
+> rpm -i, the initrd was created correctly.
+> 
+> things are pretty recent:
+> 
+>  [root@mars root]# rpm -q mkinitrd
+>  mkinitrd-3.2.6-1
+>  [root@mars root]# rpm -q rpm
+>  rpm-4.0.3-1.03
+> 
+> anyone seeing anything similar?
+> 
+>       Ingo
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
->From Documentation/Changes in 2.4.15:
-
-The Red Hat gcc 2.96 compiler subtree can also be used to build this
-tree.
-You should ensure you use gcc-2.96-74 or later. gcc-2.96-54 will not
-build
-the kernel correctly.
+Andreas Steinmetz
+D.O.M. Datenverarbeitung GmbH

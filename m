@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268564AbSIRV2D>; Wed, 18 Sep 2002 17:28:03 -0400
+	id <S268545AbSIRV1K>; Wed, 18 Sep 2002 17:27:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268631AbSIRV2C>; Wed, 18 Sep 2002 17:28:02 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:3982 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S268564AbSIRV1U>;
-	Wed, 18 Sep 2002 17:27:20 -0400
-Date: Wed, 18 Sep 2002 14:22:50 -0700 (PDT)
-Message-Id: <20020918.142250.130847722.davem@redhat.com>
-To: alan@lxorguk.ukuu.org.uk
-Cc: ebiederm@xmission.com, hadi@cyberus.ca, akpm@digeo.com,
-       manfred@colorfullife.com, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Info: NAPI performance at "low" loads
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1032383727.20463.155.camel@irongate.swansea.linux.org.uk>
-References: <1032381789.20498.151.camel@irongate.swansea.linux.org.uk>
-	<20020918.134630.127509858.davem@redhat.com>
-	<1032383727.20463.155.camel@irongate.swansea.linux.org.uk>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S268564AbSIRV1K>; Wed, 18 Sep 2002 17:27:10 -0400
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:51984 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S268545AbSIRV0i>; Wed, 18 Sep 2002 17:26:38 -0400
+Date: Wed, 18 Sep 2002 22:31:39 +0100
+From: John Levon <levon@movementarian.org>
+To: trivial@rustcorp.com.au
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] tiny kmem_cache_destroy doc tweak
+Message-ID: <20020918213139.GA21178@compsoc.man.ac.uk>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-   Date: 18 Sep 2002 22:15:27 +0100
-   
-   It doesnt matter what XFree86 is doing. Thats just to load the PCI bus
-   and jam it up to prove the point. It'll change your inb timing
-   
-Understood.  Maybe a more accurate wording would be "a fixed minimum
-timing".
+
+Make it clear that _destroy() won't do the kmem_cache_free()s for you (it seems).
+
+Against 2.5.36
+
+thanks
+john
+
+--- linux-linus/mm/slab.c	Wed Sep 18 19:48:54 2002
++++ linux/mm/slab.c	Wed Sep 18 22:27:32 2002
+@@ -1018,6 +1018,8 @@
+  * cache being allocated each time a module is loaded and unloaded, if the
+  * module doesn't have persistent in-kernel storage across loads and unloads.
+  *
++ * The cache must be empty before calling this function.
++ *
+  * The caller must guarantee that noone will allocate memory from the cache
+  * during the kmem_cache_destroy().
+  */

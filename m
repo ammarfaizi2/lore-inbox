@@ -1,53 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282574AbRKZV0L>; Mon, 26 Nov 2001 16:26:11 -0500
+	id <S282560AbRKZV3b>; Mon, 26 Nov 2001 16:29:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282572AbRKZV0B>; Mon, 26 Nov 2001 16:26:01 -0500
-Received: from fepB.post.tele.dk ([195.41.46.145]:33533 "EHLO
-	fepB.post.tele.dk") by vger.kernel.org with ESMTP
-	id <S282569AbRKZVZs>; Mon, 26 Nov 2001 16:25:48 -0500
-Message-ID: <004d01c17709$0737e840$0b00a8c0@runner>
-From: "Rune" <runner@mail.tele.dk>
-To: <linux-kernel@vger.kernel.org>
-Subject: "SIS-360" - "Olicom CrossFire 8720 switch" problem on kernel 2.4.4+
-Date: Mon, 26 Nov 2001 22:01:57 -0800
+	id <S282568AbRKZV3V>; Mon, 26 Nov 2001 16:29:21 -0500
+Received: from as4-1-7.has.s.bonet.se ([217.215.31.238]:17280 "EHLO
+	k-7.stesmi.com") by vger.kernel.org with ESMTP id <S282560AbRKZV3K>;
+	Mon, 26 Nov 2001 16:29:10 -0500
+Message-ID: <3C02B464.4030100@stesmi.com>
+Date: Mon, 26 Nov 2001 22:30:12 +0100
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: David Weinehall <tao@acc.umu.se>
+CC: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCEMENT] Linux 2.0.40-pre3
+In-Reply-To: <20011126215828.P5770@khan.acc.umu.se>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2615.200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there I've got a problem I'd like to share with:
+Hi David.
 
-When my SIS-360 derived labtop to my Crossfire 8720 switch the
-auto-negotiation will fail (timeout) under the following conditions:
-                - using the drivers from Kernel 2.4.4+  (I have tried
-2.4.14)
-                - auto-negotiation is enabled ;)
-                - using DHCP
-                - netcard-revision: 0x80 (haven't tried others)
-                -the netcard must be directly connected to the switch
+> Here comes another one. Unless I receive some more patches, the next
+> patch will be the first release-candidate for v2.0.40
+> 
+> 
+> 2.0.40pre3
 
-all other configurations works, and everything works on other switches...
+Didn't you just say that you do -preN _with_ a leading "-" ?
 
-This switch has also been sold in the US, but under another name, but
-its still called CrossFire 8720.
+Mail subject and mail contents is different.
 
-I have talked to Hui-Fen (SIS), who has made the driver, but he can't
-reproduce the conditions because SIS don't own such a switch.
-
-
-Since I'm not capable of fixing it myself, I thought I'd try my luck here:
-
-Are there anyone here capable of "fixing" the driver who owns a
-SIS360-chipset and Olicom CrossFire 8720 or can get their hands them.
-Or just reproduce it..
-
-Rune Petersen
+// Stefan
 
 

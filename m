@@ -1,64 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261489AbULFLAX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261497AbULFLBy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261489AbULFLAX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 06:00:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbULFLAX
+	id S261497AbULFLBy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 06:01:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbULFLBy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 06:00:23 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:30937 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261489AbULFLAQ
+	Mon, 6 Dec 2004 06:01:54 -0500
+Received: from mx02.cybersurf.com ([209.197.145.105]:26261 "EHLO
+	mx02.cybersurf.com") by vger.kernel.org with ESMTP id S261496AbULFLBX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 06:00:16 -0500
-Date: Mon, 6 Dec 2004 16:32:46 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: "Paul E. McKenney" <paulmck@us.ibm.com>, rusty@au1.ibm.com, ak@suse.de,
-       gareth@valinux.com, davidm@hpl.hp.com, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Strange code in cpu_idle()
-Message-ID: <20041206110246.GA5303@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20041204231149.GA1591@us.ibm.com> <Pine.LNX.4.61.0412060244350.1036@montezuma.fsmlabs.com>
+	Mon, 6 Dec 2004 06:01:23 -0500
+Subject: Post Network dev questions to netdev Please WAS(Re: [patch 4/10]
+	s390: network driver.
+From: jamal <hadi@cyberus.ca>
+Reply-To: hadi@cyberus.ca
+To: Paul Jakma <paul@clubi.ie>
+Cc: Thomas Spatzier <thomas.spatzier@de.ibm.com>, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+In-Reply-To: <Pine.LNX.4.61.0412050605550.21671@hibernia.jakma.org>
+References: <OFAF17275D.316533A1-ONC1256F5C.0026AFAD-C1256F5C.002877C1@de.ibm.com>
+	 <Pine.LNX.4.61.0412050605550.21671@hibernia.jakma.org>
+Content-Type: text/plain
+Organization: jamalopolous
+Message-Id: <1102330877.1042.2187.camel@jzny.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0412060244350.1036@montezuma.fsmlabs.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 06 Dec 2004 06:01:18 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Zwane,
+On Sun, 2004-12-05 at 01:25, Paul Jakma wrote:
 
-On Mon, Dec 06, 2004 at 02:47:11AM -0700, Zwane Mwaikambo wrote:
-> Hello Paul,
 > 
-> On Sat, 4 Dec 2004, Paul E. McKenney wrote:
+> This has always been (AFAIK) the behaviour yes. We started getting 
+> reports of the new queuing behaviour with, iirc, a version of Intel's 
+> e100 driver for 2.4.2x, which was later changed back to the old 
+> behaviour. However now that the queue behaviour is apparently the 
+> mandated behaviour we really need to work out what to do about the 
+> sending-long-stale packets problem.
 > 
-> > Unless idle_cpu() is busted, it seems like the above is, given the code in
-> > rcu_check_callbacks():
-> > 
-> > 	void rcu_check_callbacks(int cpu, int user)
-> > 	{
-> > 		if (user || 
-> > 		    (idle_cpu(cpu) && !in_softirq() && 
-> > 					hardirq_count() <= (1 << HARDIRQ_SHIFT))) {
-> > 			rcu_qsctr_inc(cpu);
-> > 			rcu_bh_qsctr_inc(cpu);
-> > 		} else if (!in_softirq())
-> > 			rcu_bh_qsctr_inc(cpu);
-> > 		tasklet_schedule(&per_cpu(rcu_tasklet, cpu));
-> > 	}
-> > 
-> > So I would say that the rcu_read_lock() in cpu_idle() is having no
-> > effect, because any timer interrupt from cpu_idle() will mark a
-> > quiescent state notwithstanding.  What am I missing here?
-> 
-> What about the hardirq_count check since we're coming in from the timer 
-> interrupt?
 
-Look at the hardirq_count check closely - it only checks for reentrant
-hardirqs. If the idle task gets interrupted by a timer interrupt,
-the RCU quiscent state counter for the cpu will get incremented.
-So, rcu_read_lock() in cpu_idle() is bogus.
+I missed the beginings of this thread. Seems some patch was posted
+on lkml which started this discussion. I am pretty sure what the lkml
+FAQ says is to post on netdev. Ok, If you insist posting on lkml
+(because that the way to glory, good fortune and fame), then please have
+the courtesy to post to netdev.  
 
-Thanks
-Dipankar
+Now lets see if we can help. Followups only on netdev.
+
+cheers,
+jamal
+
+
+

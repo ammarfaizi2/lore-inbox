@@ -1,55 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261430AbSJCWxz>; Thu, 3 Oct 2002 18:53:55 -0400
+	id <S261413AbSJCWpl>; Thu, 3 Oct 2002 18:45:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261431AbSJCWxz>; Thu, 3 Oct 2002 18:53:55 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:30221 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261430AbSJCWxw>;
-	Thu, 3 Oct 2002 18:53:52 -0400
-Date: Thu, 3 Oct 2002 15:56:35 -0700
-From: Greg KH <greg@kroah.com>
-To: Oliver Neukum <oliver@neukum.name>
-Cc: Alexander Viro <viro@math.psu.edu>, Kevin Corry <corryk@us.ibm.com>,
-       linux-kernel@vger.kernel.org, evms-devel@lists.sourceforge.net
-Subject: Re: [Evms-devel] Re: EVMS Submission for 2.5
-Message-ID: <20021003225635.GE2289@kroah.com>
-References: <20021003161320.GA32588@kroah.com> <m17xDXf-006hxpC@Mail.ZEDAT.FU-Berlin.DE> <20021003213736.GA1388@kroah.com> <m17xENj-006iAZC@Mail.ZEDAT.FU-Berlin.DE>
-Mime-Version: 1.0
+	id <S261405AbSJCWpG>; Thu, 3 Oct 2002 18:45:06 -0400
+Received: from pat.uio.no ([129.240.130.16]:42479 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S261413AbSJCWow>;
+	Thu, 3 Oct 2002 18:44:52 -0400
+To: Andreas Pfaller <apfaller@yahoo.com.au>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.4.20-pre8-ac3: NFS performance regression
+References: <200210032024.47664.apfaller@yahoo.com.au>
+	<1033683184.28814.35.camel@irongate.swansea.linux.org.uk>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 04 Oct 2002 00:50:04 +0200
+In-Reply-To: <1033683184.28814.35.camel@irongate.swansea.linux.org.uk>
+Message-ID: <shsu1k316jn.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m17xENj-006iAZC@Mail.ZEDAT.FU-Berlin.DE>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 03, 2002 at 11:02:36PM +0200, Oliver Neukum wrote:
-> Perhaps this is a misunderstanding.
-> You need to report changes of the actual physical medium of eg. a zip drive.
-> How you want to do this from a class driver, I fail to see.
+>>>>> " " == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-When a "medium" goes away from the system, it is unregistered somehow,
-right?  So, in the disk class, that device would disappear, and cause
-the /sbin/hotplug event.
+     > On Thu, 2002-10-03 at 19:32, Andreas Pfaller wrote:
+    >> However I noticed a significant NFS performance drop with
+    >> 2.4.20-pre8-ac3. Other network throughput is not affected.
 
-This is assuming that we can detect media changes, which is a whole
-different topic that I don't want to get involved with :)
+     > I see this with all recent 2.4.20pre and 2.4.20pre-ac
+     > kernels. I've not had time to retest with Trond's fixes to
+     > recheck it all
 
-> Beside that you need of course to report things like iscsi which have
-> volumes, but not really devices.
+FYI, here is the 'fix' Alan is talking about. It could be worth
+trying...
 
-But iscsi registers these "volumes" with the scsi layer, right?  If so,
-everything is fine (take a look at the driverfs scsi tree right now,
-it's a bit messy, but you get the idea.).  If iscsi doesn't register
-these volumes with the scsi layer, how does the scsi layer know to talk
-to them?
+Cheers,
+  Trond
 
-In other words, if the kernel knows about a type of device, which I'm
-pretty sure it has to in order to talk to it, that device will generate
-/sbin/hotplug events when it shows up and is removed.
+--- linux/net/sunrpc/xprt.c.orig	Fri Aug 30 20:16:17 2002
++++ linux/net/sunrpc/xprt.c	Tue Sep 24 00:08:59 2002
+@@ -171,10 +171,10 @@
+ 
+ 	if (xprt->snd_task)
+ 		return;
+-	if (!xprt->nocong && RPCXPRT_CONGESTED(xprt))
+-		return;
+ 	task = rpc_wake_up_next(&xprt->resend);
+ 	if (!task) {
++		if (!xprt->nocong && RPCXPRT_CONGESTED(xprt))
++			return;
+ 		task = rpc_wake_up_next(&xprt->sending);
+ 		if (!task)
+ 			return;
+@@ -1013,7 +1013,6 @@
+ 		}
+ 		rpc_inc_timeo(&task->tk_client->cl_rtt);
+ 		xprt_adjust_cwnd(req->rq_xprt, -ETIMEDOUT);
+-		__xprt_put_cong(xprt, req);
+ 	}
+ 	req->rq_nresend++;
+ 
+@@ -1150,10 +1149,7 @@
+ 		req->rq_bytes_sent = 0;
+ 	}
+  out_release:
+-	spin_lock_bh(&xprt->sock_lock);
+-	__xprt_release_write(xprt, task);
+-	__xprt_put_cong(xprt, req);
+-	spin_unlock_bh(&xprt->sock_lock);
++	xprt_release_write(xprt, task);
+ 	return;
+  out_receive:
+ 	dprintk("RPC: %4d xmit complete\n", task->tk_pid);
 
-As for implementation details, if you see a type of device right now
-that does not generate these kinds of events, please let me know.
 
-thanks,
-
-greg k-h

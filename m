@@ -1,70 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264005AbTE0RmW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 13:42:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264012AbTE0RlJ
+	id S264028AbTE0RqC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 13:46:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263997AbTE0Roz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 13:41:09 -0400
-Received: from adsl-67-122-203-155.dsl.snfc21.pacbell.net ([67.122.203.155]:5817
-	"EHLO ext.storadinc.com") by vger.kernel.org with ESMTP
-	id S264005AbTE0Rkb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 13:40:31 -0400
-Message-ID: <3ED3A60E.8040405@storadinc.com>
-Date: Tue, 27 May 2003 10:53:18 -0700
-From: manish <manish@storadinc.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       linux-kernel@vger.kernel.org,
-       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
-       Christian Klose <christian.klose@freenet.de>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
-References: <3ED2DE86.2070406@storadinc.com> <3ED372DB.1030907@gmx.net> <Pine.LNX.4.55L.0305271425500.30637@freak.distro.conectiva> <200305271936.34006.m.c.p@wolk-project.de> <Pine.LNX.4.55L.0305271447100.756@freak.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 27 May 2003 13:44:55 -0400
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:8975 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id S264024AbTE0Ro0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 13:44:26 -0400
+Date: Wed, 28 May 2003 02:57:51 +0900 (JST)
+Message-Id: <20030528.025751.65947567.yoshfuji@wide.ad.jp>
+To: siim@pld.ttu.ee, davej@codemonkey.org.uk
+Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
+Subject: Re: 2.5.70-bk1 compilation error
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@wide.ad.jp>
+In-Reply-To: <Pine.GSO.4.53.0305271949510.10781@pitsa.pld.ttu.ee>
+References: <Pine.GSO.4.53.0305271949510.10781@pitsa.pld.ttu.ee>
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
+In article <Pine.GSO.4.53.0305271949510.10781@pitsa.pld.ttu.ee> (at Tue, 27 May 2003 19:55:42 +0300 (EET DST)), Siim Vahtre <siim@pld.ttu.ee> says:
 
->On Tue, 27 May 2003, Marc-Christian Petersen wrote:
->
->>On Tuesday 27 May 2003 19:27, Marcelo Tosatti wrote:
->>
->>Hi Marcelo,
->>
->>>>Following is SysRq-T output for stuck processes during such a pause from
->>>>Christian Klose. Only processes in D state are listed for brevity.
->>>>Especially the last two call traces are interesting.
->>>>
->>>A "pause" is perfectly fine (to some extent, of course), now a hang is
->>>not. Is this backtrace from a hanged, unusable kernel or ?
->>>
->>A pause is _not_ perfectly fine, even not to some extent. That pause we are
->>discussing about is a pause of the _whole_ machine, not just disk i/o pauses.
->>Mouse stops, keyboard stops, everything stops, who knows wtf.
->>
->
->Do you also notice them?
->
->
->>That behaviour is absolutely bullshit for desktop users. For serverusage you
->>may not notice it in this dimension (mostly no X so no mouse), but also for a
->>server environment this may be very bad.
->>
->
->Agreed.
->
-Hi Marc,
+>   CC [M]  drivers/video/i810/i810_main.o
+> In file included from drivers/video/i810/i810_main.c:56:
+> drivers/video/i810/i810.h:206: error: parse error before "agp_memory"
 
-With respect to the hangs that you noticed, did the processes complete 
-after a "pause" or did they stay hung (deadlocked)?
+Index: linux25-LINUS/drivers/video/i810/i810.h
+===================================================================
+RCS file: /cvsroot/usagi/usagi-backport/linux25/drivers/video/i810/i810.h,v
+retrieving revision 1.1.1.4
+diff -u -r1.1.1.4 i810.h
+--- linux25-LINUS/drivers/video/i810/i810.h	17 Apr 2003 18:13:36 -0000	1.1.1.4
++++ linux25-LINUS/drivers/video/i810/i810.h	27 May 2003 17:48:49 -0000
+@@ -203,8 +203,8 @@
+ #define LOCKUP                      8
+ 
+ struct gtt_data {
+-	agp_memory *i810_fb_memory;
+-	agp_memory *i810_cursor_memory;
++	struct agp_memory *i810_fb_memory;
++	struct agp_memory *i810_cursor_memory;
+ };
+ 
+ struct mode_registers {
+Index: linux25-LINUS/drivers/video/sis/sis_main.c
+===================================================================
+RCS file: /cvsroot/usagi/usagi-backport/linux25/drivers/video/sis/sis_main.c,v
+retrieving revision 1.1.1.4
+diff -u -r1.1.1.4 sis_main.c
+--- linux25-LINUS/drivers/video/sis/sis_main.c	6 May 2003 12:43:02 -0000	1.1.1.4
++++ linux25-LINUS/drivers/video/sis/sis_main.c	27 May 2003 17:48:50 -0000
+@@ -2868,8 +2868,8 @@
+ 	unsigned long *write_port = 0;
+ 	SIS_CMDTYPE    cmd_type;
+ #ifndef AGPOFF
+-	agp_kern_info  *agp_info;
+-	agp_memory     *agp;
++	struct agp_kern_info  *agp_info;
++	struct agp_memory     *agp;
+ 	u32            agp_phys;
+ #endif
+ #endif
 
-Thanks
-Manish
-
-
-
+-- 
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

@@ -1,57 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263276AbSLUSpm>; Sat, 21 Dec 2002 13:45:42 -0500
+	id <S263291AbSLUS4o>; Sat, 21 Dec 2002 13:56:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263291AbSLUSpm>; Sat, 21 Dec 2002 13:45:42 -0500
-Received: from mnh-1-12.mv.com ([207.22.10.44]:42500 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S263276AbSLUSpl>;
-	Sat, 21 Dec 2002 13:45:41 -0500
-Message-Id: <200212211857.NAA01955@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: John Reiser <jreiser@BitWagon.com>
-Cc: linux-kernel@vger.kernel.org, Jeremy Fitzhardinge <jeremy@goop.org>,
-       Julian Seward <jseward@acm.org>
-Subject: Re: Valgrind meets UML 
-In-Reply-To: Your message of "Sat, 21 Dec 2002 08:15:27 PST."
-             <3E04939F.1020404@BitWagon.com> 
-Mime-Version: 1.0
+	id <S263333AbSLUS4o>; Sat, 21 Dec 2002 13:56:44 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:773 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S263291AbSLUS4m>;
+	Sat, 21 Dec 2002 13:56:42 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200212211915.gBLJFaZb001636@darkstar.example.net>
+Subject: Re: How to help new comers trying the v2.5x series kernels.
+To: sampson@attglobal.net (Sampson Fung)
+Date: Sat, 21 Dec 2002 19:15:36 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <000b01c2a91f$01324ff0$0100a8c0@noelpc> from "Sampson Fung" at Dec 22, 2002 02:30:13 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 21 Dec 2002 13:57:44 -0500
-From: Jeff Dike <jdike@karaya.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is gibberish.  You have no idea what you're talking about.
+> > > I think new comers, myselft included, can make use of standard 
+> > > templates of kernel .config file.
+> > 
+> > Try a minimal configuration, or the default one, (which is 
+> > whatever Linus uses).  Avoid modular IDE for now.
+> > 
+> Where is the default .config?  I am eager to have a try.
 
-jreiser@BitWagon.com said:
-> But in the abstract, and more importantly in the mind of the
-> maintainer of a lock-free SMP allocator 
+Just do:
 
-"lock-free SMP"?  This is very nearly a self-contradiction.  If you'd bother
-looking at the allocators, guess what you'll see?  You'll see locking.
+make distclean; make defconfig
 
-> who is trying to allow
-> simultaneous allocation and valgrind of the allocator, 
+and the default .config will be generated.
 
-There is no "allowing" simultaneous allocation and valgrind of the allocator.
+> > > First of all, "standard templates" are tested that they will be 
+> > > compiled without problem. They should be able to boot.
+> > > They should have a working "framework" of "modules", for 
+> > > example, lsmod works without any problem.  (And any other
+> > > "required" modutils as well)
+> > > They shuold supports further kernel compile. (With small incremental
+> > > changes to the base "standard template").
+> > 
+> > Sounds like an excellent job for a new kernel hacker to take on board
+> > - why not make the standard templates yourself, and post them 
+> > to the list for each 2.5.x tree.  It *would* be quite useful, 
+> > and save a lot of developers' time, for example, it would 
+> > stop a lot of people complaining about modular IDE.
+> 
+> I can post my config as I am using common hardware config.
+> But I cannot make the "framework" of "modules" working for me.
 
-> then such atomicity problems are real.
+Don't worry about the hardware options - just assume that the ones in
+defconfig work OK - but try to successfully build as many features
+like different filesystems, etc.
 
-Bullshit, there are no such atomicity problems.
-
-> If nothing else, then such a maintainer will invent his own VALGRIND_*
-> usage to express simultaneous {allocator, valgrind} state transitions
-> precisely.
-
-A maintainer will invent valgrind primitives to express concepts that valgrind
-doesn't know about?  
-
-> to express simultaneous {allocator, valgrind} state transitions
-> precisely.
-
-There are no simultaneous allocator and valgrind state transitions.
-
-You really need to acquire a clue from somewhere.
-
-				Jeff
-
+John.

@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263686AbRFRHKE>; Mon, 18 Jun 2001 03:10:04 -0400
+	id <S263557AbRFRHGY>; Mon, 18 Jun 2001 03:06:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263676AbRFRHJz>; Mon, 18 Jun 2001 03:09:55 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:61938 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S263674AbRFRHJn>;
-	Mon, 18 Jun 2001 03:09:43 -0400
-Date: Mon, 18 Jun 2001 03:09:40 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-cc: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
-Subject: Re: [PATCH] devfs v181 available
-In-Reply-To: <200106180640.f5I6eLS30459@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.GSO.4.21.0106180246360.17131-100000@weyl.math.psu.edu>
+	id <S263674AbRFRHGP>; Mon, 18 Jun 2001 03:06:15 -0400
+Received: from balu.sch.bme.hu ([152.66.208.40]:16090 "EHLO balu.sch.bme.hu")
+	by vger.kernel.org with ESMTP id <S263557AbRFRHGE>;
+	Mon, 18 Jun 2001 03:06:04 -0400
+Date: Mon, 18 Jun 2001 09:05:51 +0200 (MEST)
+From: Pozsar Balazs <pozsy@sch.bme.hu>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: very strange (semi-)lockups in 2.4.5
+Message-ID: <Pine.GSO.4.30.0106180858001.18443-100000@balu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Hi all.
 
-On Mon, 18 Jun 2001, Richard Gooch wrote:
+I'm having ~2 lockups a day. The following happens:
+ If I was under X, i only can use the magic-key, but no other keyboard (eg
+numlock) or mouse response, the screen freezes, processes stop.
+ If i was using textmode:
+  numlock still works
+  cursor blinks
+  processess stop (eg, gpm doesn't work, outputs freeze)
+  i can still switch vt's.
+  BUT, i can only type into a few vt's, last time into 3,5,6,7,8, but not
+into 1,2 or 4!
 
-> Alexander Viro writes:
-> > 
-> > 
-> > On Mon, 18 Jun 2001, Richard Gooch wrote:
-> > 
-> > > - Widened locking in <devfs_readlink> and <devfs_follow_link>
-> > 
-> > No, you hadn't. Both vfs_readlink() and vfs_follow_link() are blocking
-> > functions, so BKL is worthless there.
-> 
-> Huh? The BKL will protect against other operations which might cause
-> the devfs entry to be unregistered, where those other operations also
-> grab the BKL. So, it's an improvement.
+I cannot give you any traces, as i dont have any.
 
-BKL is released as soon as you block. You _do_ regain it when you get
-the next timeslice, but in the meanwhile anything could happen.
+Also note that magic-key works, and it says that it umounts filesystems if
+i press magic-u, but next time at mount i see that reiserfs is replaying
+transactions.
 
-> Sure, some operations may cause unregistration without grabbing the
 
-Irrelevant. BKL provides an exclusion only on non-blocking areas.
+Any ideas?
 
-> BKL, but that's orthogonal (and requires more extensive changes). If
-> this "widening" is of no use, then what use are the existing grabs of
-> the BKL in those functions? You're the one who added them in the first
-> place.
+The machine is a P3-750, 512M ram, abit vp6 mb. No overclocking, and it
+passes memtest86.
 
-_Moved_ them there from the callers of these functions. And AFAICS you
-do need BKL for get_devfs_entry_...(); otherwise relocation of the
-table will be able to screw you inside of that function. Now, it will
-merrily screw you anyway in a lot of places, but that's another story.
 
-BTW, free advice: when you are checking some condition treat the result
-as something that can expire. And don't rely on it past the moment when
-it might expired. E.g. in case of de->registered result expires as soon
-as you do unlock_kernel() _or_ do anything that might block.
+Balazs Pozsar.
+-- 
+
 

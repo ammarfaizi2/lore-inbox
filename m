@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315282AbSGIN1i>; Tue, 9 Jul 2002 09:27:38 -0400
+	id <S315279AbSGINd6>; Tue, 9 Jul 2002 09:33:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315277AbSGIN1h>; Tue, 9 Jul 2002 09:27:37 -0400
-Received: from basket.ball.reliam.net ([213.91.6.7]:62725 "HELO
-	basket.ball.reliam.net") by vger.kernel.org with SMTP
-	id <S315279AbSGIN1c>; Tue, 9 Jul 2002 09:27:32 -0400
-Date: Tue, 9 Jul 2002 15:31:23 +0200
-From: Tobias Rittweiler <inkognito.anonym@uni.de>
-X-Mailer: The Bat! (v1.60q)
-Reply-To: Tobias Rittweiler <inkognito.anonym@uni.de>
-X-Priority: 3 (Normal)
-Message-ID: <159820870.20020709153123@uni.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
-Subject: Re[3]: [PATCH] 2.4 IDE core for 2.5
-In-Reply-To: <20020709125412.GB1940@suse.de>
-References: <20020709102249.GA20870@suse.de> <01742490.20020709144349@uni.de>
- <20020709125412.GB1940@suse.de>
-MIME-Version: 1.0
+	id <S315293AbSGINd5>; Tue, 9 Jul 2002 09:33:57 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:61905 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S315279AbSGINd4>;
+	Tue, 9 Jul 2002 09:33:56 -0400
+Date: Tue, 9 Jul 2002 15:36:38 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: panic at boot with 2.5.25 with Jens's IDE patch
+Message-ID: <20020709133638.GE1940@suse.de>
+References: <200207091526.14703.roy@karlsbakk.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200207091526.14703.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Jens,
+On Tue, Jul 09 2002, Roy Sigurd Karlsbakk wrote:
+> hi all
+> 
+> running (or trying to boot) 2.5.25, I get this little, cute panic :-)
 
-Tuesday, July 9, 2002, 2:54:12 PM, you wrote:
+Probably passing unitialized stuff to driversfs, please try and memset
+gd in drivers/ide24/ide-probe.c:init_gendisk()
 
-JA> Try doing something ala
+        gd        = kmalloc (sizeof(struct gendisk), GFP_KERNEL);
+        if (!gd)
+                goto err_kmalloc_gd;
++	memset(gd, 0, sizeof(*gd));
 
-JA> #ifdef CONFIG_IDE_25
-JA> #include <linux/ide.h>  /* IDE xlate */
-JA> #else
-JA> #include <linux/ide24.h>
-JA> #endif
-
-JA> instead of including ide.h directly in fs/partitions/msdos.c
-
-Just a minute ago I booted and wanted to take your hint, but before
-this I tried `make bzImage' again (no idea why, just for fun) and
-it compiled! This results from the fact that I booted the new
-kernel with the new IDE core including.
-
-Yes, it works now. Thanks anyway, I'm sure you'll interpret this
-happening rightly.
+pseudo patch. Does that work?
 
 -- 
-cheers,
-  Tobias
-
-http://freebits.org
+Jens Axboe
 

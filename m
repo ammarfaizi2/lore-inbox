@@ -1,53 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266661AbUHBRMP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266674AbUHBROD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266661AbUHBRMP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 13:12:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266655AbUHBRMP
+	id S266674AbUHBROD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 13:14:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266655AbUHBROD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 13:12:15 -0400
-Received: from perninha.conectiva.com.br ([200.140.247.100]:5309 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S266661AbUHBRLM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 13:11:12 -0400
-Date: Mon, 2 Aug 2004 14:11:48 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] drivers/net/wan/cycx_x25.c:189: warning: conflicting types for built-in function 'log2'
-Message-ID: <20040802171148.GA2393@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Jesper Juhl <juhl-lkml@dif.dk>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.60.0408010225180.2660@dragon.hygekrogen.localhost> <20040731173832.451d4e9e.akpm@osdl.org> <Pine.LNX.4.60.0408010246090.2660@dragon.hygekrogen.localhost>
+	Mon, 2 Aug 2004 13:14:03 -0400
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:37586 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S266674AbUHBRNc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 13:13:32 -0400
+Date: Mon, 2 Aug 2004 19:13:25 +0200
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>,
+       Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: [linux-usb-devel] 2.6.8-rc2-mm2 with usb and input problems
+Message-ID: <20040802171325.GA26949@gamma.logic.tuwien.ac.at>
+References: <20040802162845.GA24725@gamma.logic.tuwien.ac.at> <200408021003.42090.david-b@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.60.0408010246090.2660@dragon.hygekrogen.localhost>
-X-Url: http://advogato.org/person/acme
-User-Agent: Mutt/1.5.5.1i
-X-Bogosity: No, tests=bogofilter, spamicity=0.011046, version=0.16.3
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200408021003.42090.david-b@pacbell.net>
+User-Agent: Mutt/1.3.28i
+From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sun, Aug 01, 2004 at 02:53:06AM +0200, Jesper Juhl escreveu:
-> On Sat, 31 Jul 2004, Andrew Morton wrote:
+Hi David!
+On Mon, 02 Aug 2004, David Brownell wrote:
+> > - USB deadlocking
+> >   USB is still deadlocky, quite often process hang in D+ state.
 > 
-> > Jesper Juhl <juhl-lkml@dif.dk> wrote:
-> >>
-> >
-> > Your patches get random rejects.
-> >
-> >> Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-> >
-> > Probably because of the format=flowed braindamage.
-> >
-> Ouch, sorry about that, I recently upgraded my pine version to 4.60 and 
-> was unaware that from that version and forward pine generates flowed text 
-> by default. I'll get that fixed up at once.
-> 
-> 
-> > I fixed this one up.
-> >
-> Thank you.  
+> So what does alt-sysrq-t show you about those processes?
 
-Thanks for the patch
+Ok, I will write it down next time ;-) It happens during the boot
+process, but I will try to get it happen after login by starting hotplug
+by hand.
+
+> How do you reproduce these hangs?  I'm guesssing that
+> And does 2.6.8-rc (without the MM patch) acts the same.
+
+Hmm, haven't tested this yet, always running -mm kernels.
+
+> > - psmouse/synaptics
+> >   If I have usb as module, I cannot get synaptics to be recognized.
+> 
+> Odd.  BIOS settings maybe?
+
+No, definitely not. I think it only depends on the modules loaded, and
+if usb is modular then input is loaded after psmouse/mousedev and this I
+cannot reverse, because I cannot get mousedev/psaux to be build modular.
+
+> The S2R issue is caused by delivering bogus PCI
+> device power states to PCI drivers.  See if the patch
+> in http://bugme.osdl.org/show_bug.cgi?id=2886
+> helps at all.  (It might be better to map STANDBY
+
+Will try this. Thanks.
+
+> If you don't actually have code trying to suspend
+> USB devices, don't enable it.  Until some other
+
+Ok.
+
+Best wishes
+
+Norbert
+
+-------------------------------------------------------------------------------
+Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+-------------------------------------------------------------------------------
+LOWTHER (vb.)
+(Of a large group of people who have been to the cinema together.) To
+stand aimlessly about on the pavement and argue about whatever to go
+and eat either a Chinese meal nearby or an Indian meal at a restaurant
+which somebody says is very good but isn't certain where it is, or
+have a drink and think about it, or just go home, or have a Chinese
+meal nearby - until by the time agreement is reached everything is
+shut.
+			--- Douglas Adams, The Meaning of Liff

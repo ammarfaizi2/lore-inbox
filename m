@@ -1,65 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261540AbSJUWNP>; Mon, 21 Oct 2002 18:13:15 -0400
+	id <S261733AbSJUWSR>; Mon, 21 Oct 2002 18:18:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261714AbSJUWNP>; Mon, 21 Oct 2002 18:13:15 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:42461 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S261540AbSJUWNO>;
-	Mon, 21 Oct 2002 18:13:14 -0400
-Subject: 2.5.44 crash on reboot
-From: Stephen Hemminger <shemminger@osdl.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Kernel List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 21 Oct 2002 15:19:20 -0700
-Message-Id: <1035238760.1186.22.camel@dell_ss3.pdx.osdl.net>
+	id <S261742AbSJUWSR>; Mon, 21 Oct 2002 18:18:17 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:3896 "EHLO
+	flossy.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S261740AbSJUWSQ>; Mon, 21 Oct 2002 18:18:16 -0400
+Date: Mon, 21 Oct 2002 18:25:00 -0400
+From: Doug Ledford <dledford@redhat.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Matt_Domsch@Dell.com, andmike@us.ibm.com, cliffw@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-megaraid-devel@Dell.com
+Subject: Re: 2.5.44 compile problem: MegaRAID driver
+Message-ID: <20021021222500.GK28914@redhat.com>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Matt_Domsch@Dell.com,
+	andmike@us.ibm.com, cliffw@osdl.org,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	linux-megaraid-devel@Dell.com
+References: <20BF5713E14D5B48AA289F72BD372D68C1EA2E@AUSXMPC122.aus.amer.dell.com> <1035239507.27309.259.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1035239507.27309.259.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following happens on 2-way SMP box every time I reboot using
-serial console. Not sure if it is a socket or inode problem but it looks
-like a close race.
---------------------------------------------------------------------
+On Mon, Oct 21, 2002 at 11:31:47PM +0100, Alan Cox wrote:
+> On Mon, 2002-10-21 at 23:10, Matt_Domsch@Dell.com wrote:
+> > The host reordering is to solve the same problem that EDD helps us solve now
+> > - it makes sure that in systems with megaraid adapters that also have BIOS
+> > enabled (thus have the bootable logical drive on that card) that it shows up
+> 
+> You can fix the ordering up still if you want within cards of a given
+> driver type. i2o does this to get its bios boot volume first. Just do it
+> by probing your devices, then registering them in the order you want,
+> not by mashing the list
 
-Unable to handle kernel NULL pointer dereference at virtual address
-00000000
- printing eip:
-c01b1a38
-*pde = 00000000
-Oops: 0000
-ide-cd cdrom soundcore mga agpgart autofs nfs lockd sunrpc eepro100 mii
-mousede
-CPU:    0
-EIP:    0060:[<c01b1a38>]    Not tainted
-EFLAGS: 00010246
-EIP is at device_shutdown+0x78/0x9e
-eax: ffffffff   ebx: 00000000   ecx: c0392650   edx: 00000000
-esi: 00000001   edi: ec3ee000   ebp: bffffdb8   esp: ec3efe8c
-ds: 0068   es: 0068   ss: 0068
-Process reboot (pid: 19350, threadinfo=ec3ee000 task=f01a6cc0)
-Stack: c0299ffc 00000077 00000000 01234567 c0130ae2 c03f5bac 00000001
-00000000
-       c01372f8 c19fd0d0 00000007 f0270d10 00001000 00000002 fffee334
-f0270d10
-       f0270ce0 ec57b420 c01394f9 f0270ce0 eed08b40 420cdaf0 00000000
-fffee334
-Call Trace:
- [<c0130ae2>] sys_reboot+0x182/0x380
- [<c01372f8>] pte_alloc_map+0x128/0x140
- [<c01394f9>] handle_mm_fault+0xb9/0x1c0
- [<c0156f23>] invalidate_inode_buffers+0x13/0xc0
- [<c022e65b>] sock_destroy_inode+0x1b/0xa0
- [<c016f41a>] destroy_inode+0x6a/0x70
- [<c01704fc>] generic_forget_inode+0x14c/0x180
- [<c0276906>] inet_release+0x56/0x70
- [<c01705ac>] iput+0x5c/0x80
- [<c016cff0>] dput+0x30/0x200
- [<c0155958>] __fput+0x108/0x140
- [<c0152fd8>] filp_close+0xf8/0x130
- [<c0153089>] sys_close+0x79/0x90
- [<c0109a0f>] syscall_call+0x7/0xb
+This is, umm, a non-elegant way of handling things once you switch your 
+driver to the new PCI driver probe model :-(
 
+Of course, I'm personally of the opinion that people need to quite 
+thinking in terms of host order anyway and let things like mount by volume 
+solve this issue anyway.  It's cleaner, it works regardless of the driver, 
+and it puts the burden of finding the right root partition in user space 
+where it's easier to fix up should things change, etc.  Just my opinion.
 
+-- 
+  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
+         Red Hat, Inc. 
+         1801 Varsity Dr.
+         Raleigh, NC 27606
+  

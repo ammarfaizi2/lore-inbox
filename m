@@ -1,154 +1,164 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318069AbSHZMOZ>; Mon, 26 Aug 2002 08:14:25 -0400
+	id <S318097AbSHZMUZ>; Mon, 26 Aug 2002 08:20:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318097AbSHZMOZ>; Mon, 26 Aug 2002 08:14:25 -0400
-Received: from [212.3.242.3] ([212.3.242.3]:58615 "HELO mail.vt4.net")
-	by vger.kernel.org with SMTP id <S318069AbSHZMOX>;
-	Mon, 26 Aug 2002 08:14:23 -0400
-From: DevilKin <devilkin-lkml@blindguardian.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19-pre4-ac2
-Date: Mon, 26 Aug 2002 14:17:36 +0200
-User-Agent: KMail/1.4.1
-References: <3D6A1476.4080004@interage.com.br>
-In-Reply-To: <3D6A1476.4080004@interage.com.br>
-Cc: Alan Cocx <alan@redhat.com>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_C5AGZWQ0MUWA4FW5E4RF"
-Message-Id: <200208261417.36782.devilkin-lkml@blindguardian.org>
+	id <S318099AbSHZMUZ>; Mon, 26 Aug 2002 08:20:25 -0400
+Received: from isis.telemach.net ([213.143.65.10]:11533 "HELO
+	isis.telemach.net") by vger.kernel.org with SMTP id <S318097AbSHZMUX>;
+	Mon, 26 Aug 2002 08:20:23 -0400
+Date: Mon, 26 Aug 2002 14:14:04 +0200
+From: Grega Fajdiga <Gregor.Fajdiga@telemach.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ATA err with 2.4.20-ac1
+Message-Id: <20020826141404.3a73e8ed.Gregor.Fajdiga@telemach.net>
+In-Reply-To: <1030355630.16767.30.camel@irongate.swansea.linux.org.uk>
+References: <20020826103525.7817bb4e.Gregor.Fajdiga@telemach.net>
+	<1030355630.16767.30.camel@irongate.swansea.linux.org.uk>
+X-Mailer: Sylpheed version 0.7.3 (GTK+ 1.2.10; i386-redhat-linux)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Good day,
+ 
+> If people report IDE stuff I need to know the context, dmesg, controller
+> and drives. 
 
---------------Boundary-00=_C5AGZWQ0MUWA4FW5E4RF
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+/dev/hda/: Maxtor 91021U2
+dev/hdb: ST31722A
 
-On Monday 26 August 2002 13:43, Mauricio Pretto wrote:
-> Error at make bzImage with pre4-ac2 patch :
+______________________________dmesg output_________________________________
 
-Same thing here, config is identical to the ac1 patch (i've run make 
-oldconfig), ide is not compiled modular. 
+Linux version 2.4.20-pre4-ac1 (grega@mujo) (gcc version 2.96 20000731 (Red Hat Linux 7.3 2.96-110)) #1 ned avg 25 13:59:45 CEST 2002
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 00000000000a0000 (usable)
+ BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 0000000002000000 (usable)
+ BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
+32MB LOWMEM available.
+On node 0 totalpages: 8192
+zone(0): 4096 pages.
+zone(1): 4096 pages.
+zone(2): 0 pages.
+Kernel command line: ro root=/dev/hda8
+Initializing CPU#0
+Detected 199.435 MHz processor.
+Console: colour VGA+ 80x25
+Calibrating delay loop... 398.13 BogoMIPS
+Memory: 30256k/32768k available (1004k kernel code, 2128k reserved, 263k data, 236k init, 0k highmem)
+Dentry cache hash table entries: 4096 (order: 3, 32768 bytes)
+Inode cache hash table entries: 2048 (order: 2, 16384 bytes)
+Mount cache hash table entries: 512 (order: 0, 4096 bytes)
+ramfs: mounted with options: <defaults>
+ramfs: max_pages=3782 max_file_pages=0 max_inodes=0 max_dentries=3782
+Buffer cache hash table entries: 1024 (order: 0, 4096 bytes)
+Page-cache hash table entries: 8192 (order: 3, 32768 bytes)
+CPU: Before vendor init, caps: 008001bf 00000000 00000000, vendor = 0
+Intel Pentium with F0 0F bug - workaround enabled.
+CPU: After vendor init, caps: 008001bf 00000000 00000000 00000000
+CPU:     After generic, caps: 008001bf 00000000 00000000 00000000
+CPU:             Common caps: 008001bf 00000000 00000000 00000000
+CPU: Intel Pentium MMX stepping 03
+Checking 'hlt' instruction... OK.
+POSIX conformance testing by UNIFIX
+PCI: PCI BIOS revision 2.10 entry at 0xfb140, last bus=0
+PCI: Using configuration type 1
+PCI: Probing PCI hardware
+Limiting direct PCI/PCI transfers.
+isapnp: Scanning for PnP cards...
+isapnp: SB audio device quirk - increasing port range
+isapnp: AWE32 quirk - adding two ports
+isapnp: Card 'Creative SB AWE64 Gold'
+isapnp: 1 Plug & Play card detected total
+PnPBIOS: Found PnP BIOS installation structure at 0xc00fbe30
+PnPBIOS: PnP BIOS version 1.0, entry 0xf0000:0xbe58, dseg 0xf0000
+PnPBIOS: 15 nodes reported by PnP BIOS; 15 recorded by driver
+PnPBIOS: PNP0c02: ioport range 0x208-0x20f has been reserved
+PnPBIOS: PNP0c02: ioport range 0x398-0x399 has been reserved
+Linux NET4.0 for Linux 2.4
+Based upon Swansea University Computer Society NET3.039
+Initializing RT netlink socket
+Starting kswapd
+Journalled Block Device driver loaded
+parport0: PC-style at 0x378 [PCSPP(,...)]
+pty: 256 Unix98 ptys configured
+Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ SERIAL_PCI ISAPNP enabled
+ttyS00 at 0x03f8 (irq = 4) is a 16550A
+ttyS01 at 0x02f8 (irq = 3) is a 16550A
+lp0: using parport0 (polling).
+Real Time Clock Driver v1.10e
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha1
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+PIIX4: IDE controller on PCI bus 00 dev 39
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:pio, hdb:pio
+    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:pio, hdd:pio
+hda: Maxtor 91021U2, ATA DISK drive
+hdb: ST31722A, ATA DISK drive
+hdc: FX240S, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: host protected area => 1
+hda: 20010816 sectors (10246 MB) w/512KiB Cache, CHS=1245/255/63, UDMA(33)
+hdb: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
+hdb: task_no_data_intr: error=0x04 { DriveStatusError }
+hdb: 3329424 sectors (1705 MB) w/128KiB Cache, CHS=825/64/63, UDMA(33)
+hdc: ATAPI 24X CD-ROM drive, 256kB Cache, DMA
+Uniform CD-ROM driver Revision: 3.12
+Partition check:
+ hda: hda1 hda2 < hda5 hda6 hda7 hda8 >
+ hdb: hdb1
+Floppy drive(s): fd0 is 1.44M
+FDC 0 is a National Semiconductor PC87306
+NET4: Linux TCP/IP 1.0 for NET4.0
+IP Protocols: ICMP, UDP, TCP
+IP: routing cache hash table of 512 buckets, 4Kbytes
+TCP: Hash tables configured (established 2048 bind 4096)
+NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+kjournald starting.  Commit interval 5 seconds
+EXT3-fs: mounted filesystem with ordered data mode.
+VFS: Mounted root (ext3 filesystem) readonly.
+Freeing unused kernel memory: 236k freed
+Adding Swap: 128480k swap-space (priority -1)
+EXT3 FS 2.4-0.9.18, 14 May 2002 on ide0(3,8), internal journal
+kjournald starting.  Commit interval 5 seconds
+EXT3 FS 2.4-0.9.18, 14 May 2002 on ide0(3,5), internal journal
+EXT3-fs: mounted filesystem with ordered data mode.
+kjournald starting.  Commit interval 5 seconds
+EXT3 FS 2.4-0.9.18, 14 May 2002 on ide0(3,7), internal journal
+EXT3-fs: mounted filesystem with ordered data mode.
+hdc: DMA disabled
+ne2k-pci.c:v1.02 10/19/2000 D. Becker/P. Gortmaker
+  http://www.scyld.com/network/ne2k-pci.html
+eth0: RealTek RTL-8029 found at 0x6600, IRQ 11, 00:4F:49:09:8B:44.
+Soundblaster audio driver Copyright (C) by Hannu Savolainen 1993-1996
+sb: Creative SB AWE64 Gold detected
+sb: ISAPnP reports 'Creative SB AWE64 Gold' at i/o 0x220, irq 5, dma 1, 5
+SB 4.16 detected OK (220)
+<Sound Blaster 16 (4.16)> at 0x220 irq 5 dma 1,5
+<Sound Blaster 16> at 0x330 irq 5 dma 0,0
+sb: 1 Soundblaster PnP card(s) found.
+_____________________dmesg end_______________
 
-config attached.
 
-DK
--- 
-"She said, `I know you ... you cannot sing'.  I said, `That's nothing,
-you should hear me play piano.'"
-		-- Morrisey
+lspci output
 
---------------Boundary-00=_C5AGZWQ0MUWA4FW5E4RF
-Content-Type: application/x-gzip;
-  name="config.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="config.gz"
 
-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
+00:00.0 Host bridge: Intel Corp. 430TX - 82439TX MTXC (rev 01)
+00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 01)
+00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
+00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
+00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 01)
+00:09.0 Multimedia video controller: 3Dfx Interactive, Inc. Voodoo 2 (rev 02)
+00:0a.0 VGA compatible controller: ATI Technologies Inc 3D Rage II+ 215GTB [Mach64 GTB] (rev 9a)
+00:0c.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8029(AS)
 
---------------Boundary-00=_C5AGZWQ0MUWA4FW5E4RF--
+I found these messages when grepping dmesg. Is that what you meant by 
+"context"
 
+Regards,
+Grega

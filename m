@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261153AbSI3T1K>; Mon, 30 Sep 2002 15:27:10 -0400
+	id <S261207AbSI3TcM>; Mon, 30 Sep 2002 15:32:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261238AbSI3T1K>; Mon, 30 Sep 2002 15:27:10 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28685 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261153AbSI3T1J>;
-	Mon, 30 Sep 2002 15:27:09 -0400
-Date: Mon, 30 Sep 2002 20:32:34 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: [PATCH] Remove QDIO_BH
-Message-ID: <20020930203234.R18377@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S261284AbSI3TcL>; Mon, 30 Sep 2002 15:32:11 -0400
+Received: from dsl-213-023-038-108.arcor-ip.net ([213.23.38.108]:38292 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S261207AbSI3TcJ>;
+	Mon, 30 Sep 2002 15:32:09 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Zach Brown <zab@zabbo.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5] Single linked lists for Linux, overly complicated v2
+Date: Mon, 30 Sep 2002 21:37:53 +0200
+X-Mailer: KMail [version 1.3.2]
+References: <Pine.LNX.4.44L.0209261628490.1837-100000@duckman.distro.conectiva> <Pine.LNX.4.44.0209261337290.7827-100000@hawkeye.luckynet.adm> <20020926205727.T13817@bitchcake.off.net>
+In-Reply-To: <20020926205727.T13817@bitchcake.off.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17w6Mc-0005p6-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 27 September 2002 02:57, Zach Brown wrote:
+> #define tslist_add(_head, _elem) 			\
+> 	do {  						\
+> 		BUG_ON(tslist_on_list(_head, _elem));	\
+> 		(_elem)->_slist_next = (_head);		\
+> 		(_head) = (_elem);			\
+> 	} while(0)
 
-QDIO_BH was never actually used anyway, and won't do much good now BHs
-are gone.
+This evaluates _head and _elem twice each, or three times if you count
+the BUG_ON.
 
-===== include/asm-s390/qdio.h 1.1 vs edited =====
---- 1.1/include/asm-s390/qdio.h	Sat Jun  8 18:01:47 2002
-+++ edited/include/asm-s390/qdio.h	Sun Jul 21 20:08:38 2002
-@@ -82,8 +82,6 @@
- #define QDIO_CLEANUP_CLEAR_TIMEOUT 20000
- #define QDIO_CLEANUP_HALT_TIMEOUT 10000
- 
--#define QDIO_BH AURORA_BH
--
- #define QDIO_IRQ_BUCKETS 256 /* heavy..., but does only use a few bytes, but
- 			      be rather faster in cases of collisions
- 			      (if there really is a collision, it is
-===== include/asm-s390x/qdio.h 1.1 vs edited =====
---- 1.1/include/asm-s390x/qdio.h	Sat Jun  8 18:01:47 2002
-+++ edited/include/asm-s390x/qdio.h	Sun Jul 21 20:08:45 2002
-@@ -83,8 +83,6 @@
- #define QDIO_CLEANUP_CLEAR_TIMEOUT 20000
- #define QDIO_CLEANUP_HALT_TIMEOUT 10000
- 
--#define QDIO_BH AURORA_BH
--
- #define QDIO_IRQ_BUCKETS 256 /* heavy..., but does only use a few bytes, but
- 			      be rather faster in cases of collisions
- 			      (if there really is a collision, it is
+Smaller point: why bother obfuscating the parameter names?  You will
+need to do that for locals in macros but parameters should cause no
+name conflicts.
 
 -- 
-Revolutions do not require corporate support.
+Daniel

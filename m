@@ -1,77 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261173AbSIZNLA>; Thu, 26 Sep 2002 09:11:00 -0400
+	id <S261274AbSIZNM2>; Thu, 26 Sep 2002 09:12:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261271AbSIZNLA>; Thu, 26 Sep 2002 09:11:00 -0400
-Received: from mx0.gmx.net ([213.165.64.100]:12589 "HELO mx0.gmx.net")
-	by vger.kernel.org with SMTP id <S261173AbSIZNK7>;
-	Thu, 26 Sep 2002 09:10:59 -0400
-Date: Thu, 26 Sep 2002 15:16:10 +0200 (MEST)
-From: Marco Schwarz <marco.schwarz@gmx.net>
-To: vda@port.imtp.ilyichevsk.odessa.ua
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-References: <200209261258.g8QCwpp04301@Port.imtp.ilyichevsk.odessa.ua>
-Subject: Re: Serious Problems with diskless clients
-X-Priority: 3 (Normal)
-X-Authenticated-Sender: #0012086198@gmx.net
-X-Authenticated-IP: [153.95.95.95]
-Message-ID: <26619.1033046170@www51.gmx.net>
-X-Mailer: WWW-Mail 1.5 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	id <S261281AbSIZNM2>; Thu, 26 Sep 2002 09:12:28 -0400
+Received: from holomorphy.com ([66.224.33.161]:26021 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S261274AbSIZNM1>;
+	Thu, 26 Sep 2002 09:12:27 -0400
+Date: Thu, 26 Sep 2002 06:17:40 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: Re: 2.5.38-mm3
+Message-ID: <20020926131740.GP3530@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Dipankar Sarma <dipankar@in.ibm.com>,
+	Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
+	"linux-mm@kvack.org" <linux-mm@kvack.org>
+References: <3D92BE07.B6CDFE54@digeo.com> <20020926175445.B18906@in.ibm.com> <20020926122909.GN3530@holomorphy.com> <20020926181052.C18906@in.ibm.com> <20020926124244.GO3530@holomorphy.com> <20020926183558.D18906@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <20020926183558.D18906@in.ibm.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On 26 September 2002 08:26, Marco Schwarz wrote:
-> > Hi all,
-> >
-> > my diskless clients have some severe problems on one of my servers.
-> > Sometimes (right now most of the time) everything just hangs at the same
-> > place when starting up the kernel. Here are the last messages I get
-> (right
-> > before this IP-Config is running and looks OK):
-> >
-> > NET4: Unix domain sockets 1.0/SMP for Linux NET4.0
-> > ds: no socket drivers loaded !
-> > Looking up port of RPC 100003/2 on 192.168.0.235
-> > portmap: server 192.168.0.235 mot responding, timed out !
-> 
-> Hook another box to the same network segment and run
-> ping or mtr to 192.168.0.235 and to the booting box.
-> Maybe your net drops packets or otherwise misbehaves.
-> 
-> BTW, 2.4.10 is way too old. 
-> I don't see "mot responding, timed out !" in 2.4.19
-> source, rather "not responding, timed out".
-> --
-> vda
-> 
+On Thu, Sep 26, 2002 at 05:42:44AM -0700, William Lee Irwin III wrote:
+>> This is only aggravated by cacheline bouncing on SMP. The reductions
+>> of system cpu time will doubtless be beneficial for all.
 
-"mot responding" is just a typo, I had to type all the messages from screen
-;-)
+On Thu, Sep 26, 2002 at 06:35:58PM +0530, Dipankar Sarma wrote:
+> On SMP, I would have thought that only sharing the fd table
+> while cloning tasks (CLONE_FILES) affects performance by bouncing the rwlock
+> cache line. Are there a lot of common workloads where this happens ?
+> Anyway the files_struct_rcu patch for 2.5.38 is up at
+> http://sourceforge.net/project/showfiles.php?group_id=8875&release_id=112473
 
-I already tried pinging, works in both directions. On the server I start
-portmap now with 'portmap -v' and I am able to see the requests from the client:
+It looks very unusual, but it is very real. Some of my prior profile
+results show this. I'll run a before/after profile with this either
+tonight or tomorrow night (it's 6:06AM PST here -- tonight is unlikely).
 
 
-'connect from 192.168.0.87 to getport(nsf)'
-'connect from 192.168.0.87 to getport(mountd)'
-
-I also see some messages from Portmap which look like this:
-
-'connect from 192.168.0.87 to dump()'
-
-I also have to note that I have 2 NICs in this server, one with adress
-153.95.240.x and one with 192.168.0.x.
-
-Problems seem to occur only on the 192.168.0.x network (I already
-interchanged adresses between cards, no effect).
-
-BTW: Is there a newer version of portmap than 5.1 ? I wonder if this is
-maybe related to portmap ...
-
-Regards,
-Marco
-
+Cheers,
+Bill

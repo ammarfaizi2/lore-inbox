@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265301AbTLMTfx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Dec 2003 14:35:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265300AbTLMTfx
+	id S265295AbTLMTeO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Dec 2003 14:34:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265296AbTLMTeN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Dec 2003 14:35:53 -0500
-Received: from smtp-106-saturday.noc.nerim.net ([62.4.17.106]:1286 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S265301AbTLMTfq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Dec 2003 14:35:46 -0500
-Date: Sat, 13 Dec 2003 20:36:14 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       LM Sensors <sensors@stimpy.netroedge.com>
-Subject: [PATCH 2.4] i2c cleanups (4/4)
-Message-Id: <20031213203614.2fc6dd05.khali@linux-fr.org>
-In-Reply-To: <20031213191258.2d78a9f7.khali@linux-fr.org>
-References: <20031213191258.2d78a9f7.khali@linux-fr.org>
-Reply-To: LKML <linux-kernel@vger.kernel.org>,
-       LM Sensors <sensors@stimpy.netroedge.com>
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 13 Dec 2003 14:34:13 -0500
+Received: from holomorphy.com ([199.26.172.102]:33154 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265295AbTLMTeL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Dec 2003 14:34:11 -0500
+Date: Sat, 13 Dec 2003 11:30:40 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "(-> surya <-) " <surya_prabhakar@linuxmail.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: In fs/proc/array.c error in function proc_pid_stat
+Message-ID: <20031213193040.GD11665@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"(-> surya <-) " <surya_prabhakar@linuxmail.org>,
+	linux-kernel@vger.kernel.org
+References: <20031213192516.4897.qmail@linuxmail.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031213192516.4897.qmail@linuxmail.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This small patch fixes the pcmcia sa1100 driver including the i2c.h
-header, while it doesn't make any use of it. I found that while working
-on my various i2c patches.
+On Sun, Dec 14, 2003 at 12:25:15AM +0500, (-> surya <-)  wrote:
+>    Thx for the reply . Anyway I patched array.c with this patch(available in the lists posted by Marco Roeland )  , it was working fine .
+> rgds
+> surya
 
-Please apply.
+A quick reading of the patch (BTW, your MUA is mangling whitespace)
+reveals it's merely creating a local variable, which should have no
+bearing on code generation.
 
---- linux-2.4.24-pre1/drivers/pcmcia/sa1100_stork.c.orig	Tue Jul 15 12:23:03 2003
-+++ linux-2.4.24-pre1/drivers/pcmcia/sa1100_stork.c	Sat Dec 13 18:57:40 2003
-@@ -24,7 +24,6 @@
- #include <linux/init.h>
- #include <linux/kernel.h>
- #include <linux/sched.h>
--#include <linux/i2c.h>
- 
- #include <asm/hardware.h>
- #include <asm/irq.h>
+i.e. the compiler is broken.
 
--- 
-Jean Delvare
-http://www.ensicaen.ismra.fr/~delvare/
+Bad code generation can cause runtime problems too; upgrading to a
+bugfixed compiler is the only sound course of action.
+
+
+-- wli

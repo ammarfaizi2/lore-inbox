@@ -1,49 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261751AbUL0Ed0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261749AbUL0F0s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261751AbUL0Ed0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Dec 2004 23:33:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261749AbUL0Ed0
+	id S261749AbUL0F0s (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 00:26:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbUL0F0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Dec 2004 23:33:26 -0500
-Received: from fsmlabs.com ([168.103.115.128]:43477 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S261737AbUL0EdV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Dec 2004 23:33:21 -0500
-Date: Sun, 26 Dec 2004 21:33:05 -0700 (MST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Ingo Oeser <ioe-lkml@rameria.de>
-cc: linux-kernel@vger.kernel.org, Florian Weimer <fw@deneb.enyo.de>,
-       Linus Torvalds <torvalds@osdl.org>, 7eggert@gmx.de,
-       Christoph Lameter <clameter@sgi.com>, akpm@osdl.org,
-       linux-ia64@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: Prezeroing V2 [3/4]: Add support for ZEROED and NOT_ZEROED free
- maps
-In-Reply-To: <200412270237.53368.ioe-lkml@rameria.de>
-Message-ID: <Pine.LNX.4.61.0412262131410.17702@montezuma.fsmlabs.com>
-References: <fa.n0l29ap.1nqg39@ifi.uio.no> <Pine.LNX.4.58.0412261511030.2353@ppc970.osdl.org>
- <87llbk63sn.fsf@deneb.enyo.de> <200412270237.53368.ioe-lkml@rameria.de>
+	Mon, 27 Dec 2004 00:26:47 -0500
+Received: from 181.Red-80-24-145.pooles.rima-tde.net ([80.24.145.181]:31616
+	"EHLO minibar") by vger.kernel.org with ESMTP id S261749AbUL0F0p
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 00:26:45 -0500
+From: David Martin <tasio@tasio.net>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] SCSI not showing tray status correctly
+Date: Mon, 27 Dec 2004 06:26:32 +0100
+User-Agent: KMail/1.7.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200412270626.32643.tasio@tasio.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Dec 2004, Ingo Oeser wrote:
+When trying to get the drive status via ioctl CDROM_DRIVE_STATUS, with no disk 
+it gives CDS_TRAY_OPEN even if the tray is closed.
 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> On Monday 27 December 2004 00:24, Florian Weimer wrote:
-> > By the way, some crazy idea that occurred to me: What about
-> > incrementally scrubbing a page which has been assigned previously to
-> > this CPU, while spinning inside spinlocks (or busy-waiting somewhere
-> > else)?
-> 
-> Crazy idea, indeed. spinlocks are like safety belts: You should
-> actually not need them in the normal case, but they will save your butt
-> and you'll be glad you have them, when they actually trigger.
-> 
-> So if you are making serious progress here, you have just uncovered
-> a spinlockcontention problem in the kernel ;-)
+ioctl works as expected with ide-cd driver. Here is the patch to get the same 
+behaviour on SCSI drives for kernel 2.6.10. 2.4 branch have same problem.
 
-You'd also be evicting the cache contents thus making the lock contention 
-case even worse.
+
+
+--- linux-2.6.10-orig/drivers/scsi/sr_ioctl.c        2004-12-27 
+04:47:22.000000000 +0100
++++ linux-2.6.10/drivers/scsi/sr_ioctl.c     2004-12-27 05:54:08.000000000 
++0100
+@@ -216,14 +216,20 @@
+
+ int sr_drive_status(struct cdrom_device_info *cdi, int slot)
+ {
++       struct media_event_desc med;
++
+        if (CDSL_CURRENT != slot) {
+                /* we have no changer support */
+                return -EINVAL;
+        }
++
+        if (0 == test_unit_ready(cdi->handle))
+                return CDS_DISC_OK;
+
+-       return CDS_TRAY_OPEN;
++       if (!cdrom_get_media_event(cdi, &med) && med.door_open)
++               return CDS_TRAY_OPEN;
++
++       return CDS_NO_DISC;
+ }
+
+ int sr_disk_status(struct cdrom_device_info *cdi)

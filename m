@@ -1,65 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265865AbSLNUEe>; Sat, 14 Dec 2002 15:04:34 -0500
+	id <S265863AbSLNUDO>; Sat, 14 Dec 2002 15:03:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265872AbSLNUEe>; Sat, 14 Dec 2002 15:04:34 -0500
-Received: from 205-158-62-131.outblaze.com ([205.158.62.131]:35762 "HELO
-	ws5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S265865AbSLNUEc>; Sat, 14 Dec 2002 15:04:32 -0500
-Message-ID: <20021214201220.31330.qmail@operamail.com>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	id <S265865AbSLNUDO>; Sat, 14 Dec 2002 15:03:14 -0500
+Received: from packet.digeo.com ([12.110.80.53]:41915 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265863AbSLNUDN>;
+	Sat, 14 Dec 2002 15:03:13 -0500
+Message-ID: <3DFB904F.2ADDE2D4@digeo.com>
+Date: Sat, 14 Dec 2002 12:10:55 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Matthew Bell" <mwsb@operamail.com>
-To: linux-parport@torque.net, linux-kernel@vger.kernel.org
-Date: Sun, 15 Dec 2002 04:12:20 +0800
-Subject: [PATCH] Obvious(ish): 3c515 should work if ISAPNP is a module.
-X-Originating-Ip: 195.10.122.134
-X-Originating-Server: ws5-1.us4.outblaze.com
+To: Oleg Drokin <green@namesys.com>
+CC: Hans Reiser <reiser@namesys.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BK][PATCH] ReiserFS CPU and memory bandwidth efficient large writes
+References: <3DFA2D4F.3010301@namesys.com> <3DFA53DA.DE6788C1@digeo.com> <20021214162108.A3452@namesys.com> <3DFB7B9E.FC404B6B@digeo.com> <20021214222053.A10506@namesys.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 14 Dec 2002 20:10:59.0423 (UTC) FILETIME=[EB1FD6F0:01C2A3AC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is valid for at least 2.4.20 and earlier; it works for me, and I can't see any exceptional reason why it shouldn't work when ISAPNP is a module.
---- linux-2.4.19.orig/drivers/net/3c515.c       2002-02-25 19:37:59.000000000 +0000
-+++ linux-2.4.19/drivers/net/3c515.c    2002-08-03 18:24:05.000000000 +0100
-@@ -370,7 +370,7 @@
-        { "Default", 0, 0xFF, XCVR_10baseT, 10000},
- };
+Oleg Drokin wrote:
+> 
+> Hello!
+> 
+> On Sat, Dec 14, 2002 at 10:42:38AM -0800, Andrew Morton wrote:
+> > > Find below the patch that address all the issues you've brought.
+> > > It is on top of previous one.
+> > > Do you think it is ok now?
+> > I addresses the things I noticed and raised, thanks.  Except for the
+> > stack-space use.  People are waving around 4k-stack patches, and we
+> > do need to be careful there.
+> 
+> Well, 450 bytes is way below 4k (~7 times less if we'd take task struct
+> into account) ;)
+> I can replace that on-stack array with kmalloc, but that probably
+> would be a lot of overhead for no benefit.
 
--#ifdef CONFIG_ISAPNP
-+#if defined(CONFIG_ISAPNP) || defined (CONFIG_ISAPNP_MODULE)
- static struct isapnp_device_id corkscrew_isapnp_adapters[] = {
-        {       ISAPNP_ANY_ID, ISAPNP_ANY_ID,
-                ISAPNP_VENDOR('T', 'C', 'M'), ISAPNP_FUNCTION(0x5051),
-@@ -462,12 +462,12 @@
- {
-        int cards_found = 0;
-        static int ioaddr;
--#ifdef CONFIG_ISAPNP
-+#if defined(CONFIG_ISAPNP) || defined (CONFIG_ISAPNP_MODULE)
-        short i;
-        static int pnp_cards;
- #endif
+It would be a little overhead.  kmalloc is damn quick, and remember
+that this data has to be copied from userspace and has go to disk
+sometime.   These things will make the kmalloc overhead very small.
 
--#ifdef CONFIG_ISAPNP
-+#if defined(CONFIG_ISAPNP) || defined (CONFIG_ISAPNP_MODULE)
-        if(nopnp == 1)
-                goto no_pnp;
-        for(i=0; corkscrew_isapnp_adapters[i].vendor != 0; i++) {
-@@ -530,7 +530,7 @@
-        /* Check all locations on the ISA bus -- evil! */
-        for (ioaddr = 0x100; ioaddr < 0x400; ioaddr += 0x20) {
-                int irq;
--#ifdef CONFIG_ISAPNP
-+#if defined(CONFIG_ISAPNP) || defined (CONFIG_ISAPNP_MODULE)
-                /* Make sure this was not already picked up by isapnp */
-                if(ioaddr == corkscrew_isapnp_phys_addr[0]) continue;
-                if(ioaddr == corkscrew_isapnp_phys_addr[1]) continue;
+> What do you think is safe stack usage limit for a function?
 
--- 
-_______________________________________________
-Get your free email from http://mymail.operamail.com
+As little as possible?
 
-Powered by Outblaze
+One way of measuring these things is with your trusty linusometer.
+Manfred and I were sent back to the drawing board last week for a
+function which used 400 bytes...
+
+> (and btw you have not even seen reiser4 stack usage ;) )
+
+uh-oh.   We need to be very sparing indeed.
+
+I had a patch once which would print out "maximum stack space
+ever used by this process" on exit, but Alan fumbled it.  I shall
+resurrect it.

@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271866AbRHUVGt>; Tue, 21 Aug 2001 17:06:49 -0400
+	id <S271864AbRHUVK7>; Tue, 21 Aug 2001 17:10:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271864AbRHUVGj>; Tue, 21 Aug 2001 17:06:39 -0400
-Received: from athena.intergrafix.net ([206.245.154.69]:6071 "HELO
-	athena.intergrafix.net") by vger.kernel.org with SMTP
-	id <S271866AbRHUVG2>; Tue, 21 Aug 2001 17:06:28 -0400
-Date: Tue, 21 Aug 2001 17:06:42 -0400 (EDT)
-From: Admin Mailing Lists <mlist@intergrafix.net>
-To: linux-kernel@vger.kernel.org
-Subject: directory walking faster on 2.4.8-ac8?
-Message-ID: <Pine.LNX.4.10.10108211700160.17144-100000@athena.intergrafix.net>
+	id <S271869AbRHUVKt>; Tue, 21 Aug 2001 17:10:49 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:27921 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S271864AbRHUVKe>; Tue, 21 Aug 2001 17:10:34 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH] Improved allocation failure warning
+Date: Tue, 21 Aug 2001 23:17:09 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010821211043Z16127-32383+745@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Alan,
 
-I deleted the last message in the mentioned thread, but I tried out
-2.4.8-ac8 and directory walking didn't seem any faster than 2.4.4 (unless
-there are special circumstances)?
+The following change to the allocation failure warning in __alloc_pages has worked
+well for tracking down the cause of these failures.  It prints the gfp flags and
+the state of the task, PF_MEMALLOC or not.
 
-ls -l <dir> | wc -l
-
-2.4.8-ac8:
-directory with 1336 subdirectories underneath: 13 secs
- 915: 8  secs
- 795: 8  secs
- 336: 3  secs
-
-2.4.4:
-1336: 12 secs
- 915: 8  secs
- 795: 11 secs
- 336: 3  secs
-
-am i missing something?
-AIC7880 onboard, Quantum Viking 4.5, 40MB/S
-SMP PPro200s, 128MB RAM
-
--Tony
-.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
-Anthony J. Biacco                       Network Administrator/Engineer
-thelittleprince@asteroid-b612.org       Intergrafix Internet Services
-
-    "Dream as if you'll live forever, live as if you'll die today"
-http://www.asteroid-b612.org                http://www.intergrafix.net
-.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
-
-
+--- 2.4.9.clean/mm/page_alloc.c	Thu Aug 16 12:43:02 2001
++++ 2.4.9/mm/page_alloc.c	Mon Aug 20 22:05:40 2001
+@@ -502,7 +502,8 @@
+ 	}
+ 
+ 	/* No luck.. */
+-	printk(KERN_ERR "__alloc_pages: %lu-order allocation failed.\n", order);
++	printk(KERN_ERR "__alloc_pages: %lu-order allocation failed (gfp=0x%x/%i).\n",
++		order, gfp_mask, !!(current->flags & PF_MEMALLOC));
+ 	return NULL;
+ }
+ 

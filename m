@@ -1,73 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312256AbSCYC3R>; Sun, 24 Mar 2002 21:29:17 -0500
+	id <S312261AbSCYCah>; Sun, 24 Mar 2002 21:30:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312257AbSCYC3N>; Sun, 24 Mar 2002 21:29:13 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:7811 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S312256AbSCYC2o>; Sun, 24 Mar 2002 21:28:44 -0500
-Date: Sun, 24 Mar 2002 19:28:19 -0700
-Message-Id: <200203250228.g2P2SJt20329@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: "Carsten Otte" <COTTE@de.ibm.com>
-Cc: Richard Gooch <rgooch@ras.ucalgary.ca>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] linux-2.417 devfs 64bit portablility issue
-In-Reply-To: <OF651FD06B.226CC224-ONC1256B82.0043E511@de.ibm.com>
+	id <S312259AbSCYCaV>; Sun, 24 Mar 2002 21:30:21 -0500
+Received: from zero.tech9.net ([209.61.188.187]:26899 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S312257AbSCYC3g>;
+	Sun, 24 Mar 2002 21:29:36 -0500
+Subject: Re: preempt-related hangs
+From: Robert Love <rml@tech9.net>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <3C9E8767.4F57CB0A@zip.com.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3.99 
+Date: 24 Mar 2002 21:30:26 -0500
+Message-Id: <1017023430.13141.13.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Carsten Otte writes:
-> the previous version of my patch did contain a bug,
-> caused by incorrect parameter order when calling
-> __devfs_unregister_major. The symptom was, that
-> major numbers registered with devfs_register_*dev
-> but not allocated with devfs_alloc_major were not
-> freed by calling devfs_unregister_*dev. This is
-> now fixed. Sorry, the patch is attached (due to Notes
-> messing up with whitespace).
-> (See attached file: linux-2.4.17-devfs_fixup.diff)
+On Sun, 2002-03-24 at 21:11, Andrew Morton wrote:
 
-In future, please send patches in plain text, rather than
-MIME-encoded.
+> OK, this patch fixed it.  I don't know why.
 
-> Richard, I would appreciate it if you could finally
-> look into this.
+Eh, odd.  That effectively disables kernel preemption around
+set_cpus_allowed, but preemption is already disabled by the task_rq_lock
+call.  Note, however, preemption is enabled by the task_rq_unlock and
+thus wake_up_process is called with preemption enabled.
 
-I don't like your patch because:
-- it replaces the bitfield with a character array. This in turn causes
-  more data bloat (8 times more), and also prevents the use of the ffz
-  functions
+With your patch, preemption is now disabled across the call, and
+subsequently the task_rq_unlock in try_to_wake_up will never call
+preempt_schedule and your lock does not happen.
 
-- you've mixed in a behavioural change to devfs_register_???dev() to
-  call devfs_alloc_major() when the provided major is 0. While this
-  might be good idea in the long run (but maybe not), it should be
-  separated from the actual fix.
+The actual problem may be elsewhere, and this just hides it.  This is
+pretty clear, since we would get a similar effect just wrapping
+wake_up_process in preempt_disable.  But, oh, try_to_wake_up disables
+preempt, too ... hrm.
 
-Unfortunately I've been busy chasing other (possible, not sure yet
-what the source of the problems are) bugs, so I haven't had time to
-code up a solution yet.
+Hm, what if try_to_wake_up wakes up a process and then preemptively
+schedules into it and it wants to acquire the req.sem semaphore, but
+cannot, as it is still taken by set_cpus_allowed?  The semaphore seems
+to just be used in the migration code.
 
-Is there any reason why switching from __u32 to unsigned long won't
-work? Of course, the initialising values would need to be 64 bits wide
-on a 64 bit machine, but that could probably be taken care of with
-some clever macros (ab)use:
+So we have init spinning on softirq threads to come up and then we have
+a deadlock on req.sem from set_cpus_allowed and into the migration
+thread?
 
-#if 64 bit
-#define INITIALISER64(a,b) (a)<<32|(b)
-#else
-#define INITIALISER64(a,b) (a),(b)
-#endif
+Bleh ... Ingo?
 
-static struct major_list block_major_list =
-{SPIN_LOCK_UNLOCKED,
-    {INITIALISER64(0xfffffb8f,0xffffffff),  /*  Majors 0   to 63    */
-     INITIALISER64(0xfffffffe,0xff03ffef),  /*  Majors 64  to 127   */
+	Robert Love
 
-and so on. Untested, and I only spent a few seconds thinking about it,
-but perhaps this will solve it.
 
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269006AbUJQCew@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269008AbUJQCu7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269006AbUJQCew (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 22:34:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269008AbUJQCew
+	id S269008AbUJQCu7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 22:50:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269010AbUJQCu7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 22:34:52 -0400
-Received: from smtp.dei.uc.pt ([193.137.203.228]:26253 "EHLO smtp.dei.uc.pt")
-	by vger.kernel.org with ESMTP id S269006AbUJQCeu (ORCPT
+	Sat, 16 Oct 2004 22:50:59 -0400
+Received: from ozlabs.org ([203.10.76.45]:6849 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S269008AbUJQCu5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 22:34:50 -0400
-Date: Sun, 17 Oct 2004 03:34:14 +0100 (WEST)
-From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-To: Panos Polychronis <maxsoft@linuxmail.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux Kernel 2.6.9-rcX & -final warnings
-In-Reply-To: <20041016231605.5D7DF2B2B86@ws5-7.us4.outblaze.com>
-Message-ID: <Pine.LNX.4.61.0410170332400.30335@student.dei.uc.pt>
-References: <20041016231605.5D7DF2B2B86@ws5-7.us4.outblaze.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-UC-FCTUC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
-X-UC-FCTUC-DEI-MailScanner: Found to be clean
-X-MailScanner-From: marado@student.dei.uc.pt
+	Sat, 16 Oct 2004 22:50:57 -0400
+Subject: Re: s390(64) per_cpu in modules (ipv6)
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Pete Zaitcev <zaitcev@redhat.com>
+In-Reply-To: <OFC25D1557.60BFB654-ON42256F2E.00327ABF-42256F2E.0032D239@de.ibm.com>
+References: <OFC25D1557.60BFB654-ON42256F2E.00327ABF-42256F2E.0032D239@de.ibm.com>
+Content-Type: text/plain
+Message-Id: <1097981469.29286.14.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 17 Oct 2004 12:51:09 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, 2004-10-15 at 19:15, Martin Schwidefsky wrote:
+> 
+> 
+> Rusty Russell <rusty@rustcorp.com.au> wrote on 15/10/2004 03:41:40 AM:
 
-On Sun, 17 Oct 2004, Panos Polychronis wrote:
+> > The worse problem is that a (static) per-cpu var declared *inside* a
+> > function gets renamed by gcc; IIRC some generic code used to do this.
+> 
+> __thread in the kernel would be a real innovation, but I fear it isn't easy.
+> The problem with the per_cpu__x variables in modules is solved for s390x
+> by the way.
 
-> Date: 2004-10-15 (21:30):   0w,0e    11w,0e  1950w,0e  (2.6.9-final)
->
-> what will happen with all those warnings ?
+Sure, but it doesn't solve this case, AFAICT:
 
-Hopefully they'll all be solved in the next Linus release...
+void func(void)
+{
+	static DEFINE_PER_CPU(x, int);
 
-Marcos Marado
+	__get_per_cpu(x)++;
+}
 
-- -- 
-/* *************************************************************** */
-    Marcos Daniel Marado Torres	     AKA	Mind Booster Noori
-    http://student.dei.uc.pt/~marado   -	  marado@student.dei.uc.pt
-    () Join the ASCII ribbon campaign against html email, Microsoft
-    /\ attachments and Software patents.   They endanger the World.
-    Sign a petition against patents:  http://petition.eurolinux.org
-/* *************************************************************** */
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Made with pgp4pine 1.76
+The compiler will create a variable called "per_cpu__x.0" and your asm
+reference to "per_cpu__x" will cause a link failure, no?  Obviously, you
+would have noticed this, so I'm wondering what I'm missing.
 
-iD8DBQFBcdovmNlq8m+oD34RAoFgAJ48MujteDg4Zy/Ew69Wg3sjcJp2uQCfbE9E
-o3xsVpYE4ZOAtaMHQdm30OE=
-=Yn2J
------END PGP SIGNATURE-----
+I hit this in mm/page-writeback.c:balance_dirty_pages_ratelimited().
+
+Confused,
+Rusty.
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 

@@ -1,49 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281696AbRKZO22>; Mon, 26 Nov 2001 09:28:28 -0500
+	id <S281705AbRKZOc2>; Mon, 26 Nov 2001 09:32:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281705AbRKZO2T>; Mon, 26 Nov 2001 09:28:19 -0500
-Received: from firebird.planetinternet.be ([195.95.34.5]:37642 "EHLO
-	firebird.planetinternet.be") by vger.kernel.org with ESMTP
-	id <S281696AbRKZO2B>; Mon, 26 Nov 2001 09:28:01 -0500
-Date: Mon, 26 Nov 2001 15:27:54 +0100
-From: Kurt Roeckx <Q@ping.be>
+	id <S281703AbRKZOcS>; Mon, 26 Nov 2001 09:32:18 -0500
+Received: from firewall.sfn.asso.fr ([193.49.43.1]:29074 "HELO out.esrf.fr")
+	by vger.kernel.org with SMTP id <S281705AbRKZOcB>;
+	Mon, 26 Nov 2001 09:32:01 -0500
+Date: Mon, 26 Nov 2001 15:31:23 +0100
+From: Samuel Maftoul <maftoul@esrf.fr>
 To: linux-kernel@vger.kernel.org
-Subject: deathlock in kswapd using 2.4.15
-Message-ID: <20011126152754.A1205@ping.be>
+Subject: Firewire hotplug
+Message-ID: <20011126153123.A15244@pcmaftoul.esrf.fr>
+In-Reply-To: <Pine.LNX.4.21.0111261003070.13400-100000@freak.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.21.0111261003070.13400-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Mon, Nov 26, 2001 at 10:30:08AM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I got back to my box, it didn't respond anymore.  With
-alt+scroll lock, I always got an EIP near this one.
+I have some Firewire disk at work, and need to integrate this to the
+standart local distribution ( Some scientist come in the institute I'm
+working in , do their experiences, and must retrieve about 50Gigs, fast
+,easly ... back to their home institute).
 
-The output from ksymoops:
+I would like to know the actual Firewire, Hotplug ... status.
 
-Pid: 5, comm:                kswapd
-EIP: 0010:[<c013be87>] CPU: 0 EFLAGS: 00000216    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-Call Trace: [<c013bf33>] [<c0125dc8>] [<c0125dfc>] [<c0125e93>]
-[<c0125eee>] [<c0125ffd>] [<c010546c>]
-Warning (Oops_read): Code line not seen, dumping what data is
-available
-
->>EIP; c013be86 <prune_icache+36/c8>   <=====
-Trace; c013bf32 <shrink_icache_memory+1a/30>
-Trace; c0125dc8 <shrink_caches+74/84>
-Trace; c0125dfc <try_to_free_pages+24/44>
-Trace; c0125e92 <kswapd_balance_pgdat+42/8c>
-Trace; c0125eee <kswapd_balance+12/28>
-Trace; c0125ffc <kswapd+98/bc>
-Trace; c010546c <kernel_thread+28/38>
-
-
-Anything else I can do?
-
-
-
-Kurt
-
+Can someone help me with it ? Give me some pointers ?
+        Sam

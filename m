@@ -1,149 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261736AbVBTSGN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261770AbVBTSIh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261736AbVBTSGN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Feb 2005 13:06:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbVBTSGM
+	id S261770AbVBTSIh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Feb 2005 13:08:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbVBTSHf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Feb 2005 13:06:12 -0500
-Received: from smtpout6.uol.com.br ([200.221.4.197]:49122 "EHLO
-	smtp.uol.com.br") by vger.kernel.org with ESMTP id S261736AbVBTSF4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Feb 2005 13:05:56 -0500
-Date: Sun, 20 Feb 2005 15:05:50 -0300
-From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
-To: Matthias-Christian Ott <matthias.christian@tiscali.de>
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       bzolnier@gmail.com, bzolnier@elka.pw.edu.pl,
-       B.Zolnierkiewicz@elka.pw.edu.pl
-Subject: Re: 2.6.11rc4: irq 5, nobody cared
-Message-ID: <20050220180550.GA18606@ime.usp.br>
-Mail-Followup-To: Matthias-Christian Ott <matthias.christian@tiscali.de>,
-	linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-	bzolnier@gmail.com, bzolnier@elka.pw.edu.pl,
-	B.Zolnierkiewicz@elka.pw.edu.pl
-References: <20050220155600.GD5049@vanheusden.com> <20050220164010.GA17806@ime.usp.br> <4218C692.9040106@tiscali.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4218C692.9040106@tiscali.de>
-User-Agent: Mutt/1.5.6+20040907i
+	Sun, 20 Feb 2005 13:07:35 -0500
+Received: from acasun.eckerd.edu ([198.187.211.2]:9097 "EHLO eckerd.edu")
+	by vger.kernel.org with ESMTP id S261744AbVBTSHA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Feb 2005 13:07:00 -0500
+Message-ID: <4218D1B7.8090005@spymac.com>
+Date: Sun, 20 Feb 2005 13:06:47 -0500
+From: "Stephen R. Bordeleau" <theanswriz42@spymac.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: http://kernel.org down
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms090200030308030309040709"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 20 2005, Matthias-Christian Ott wrote:
-> Rogério Brito wrote:
-> >I am willing to test any patch and configuration (let's call me a
-> >"guinea pig"), but I don't know what I should do. I have, OTOH,
-> >reported my problem many times in the past few days. :-(
-> >
-> >I will retry sending my message to the list once again, with the
-> >details (in my case, the message I get is "irq 10: nobody cared!"
-> >and it is regarding my primary HD on my secondary Promise PDC20265
-> >controller).
+This is a cryptographically signed message in MIME format.
 
-First of all, Matthias-Christian, thank you very much for your kind
-answer.
+--------------ms090200030308030309040709
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I have already tried contacting the linux-ide mailing list as a CC to my
-earlier messages, but I got no response. I am including some details in
-this e-mail. I included Bartlomiej in the CC, as he is listed as general
-IDE maintainer in the MAINTAINERS file.
+I get time-outs when trying to access kernel.org but the ftp works. Is 
+this scheduled?
 
-> Report it to http://bugzilla.kernel.org/. Maybe you'll get help there.
+--------------ms090200030308030309040709
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
 
-Thanks. I will try filing a bug on that system as soon as I get the
-reply to create my account there.
-
-(...)
-> You see it's very difficult to fix such irq problems because some factors
-> can cause such an error.
-
-Yes, I understand that.
-
-> Maybe contacting specific malinglists (e.g. for "broken" pci cards
-> the pci mailinglist, etc.), maintainers or developers would be more
-> efficient (cc the lkml) and solve your problem (faster), because
-> this people are specialists are this type of hardware (e.g. pci).
-> 
-> What hardware is connect through irq 5?
-
-In my case, my problem is not with irq 5, but with irq 10, as I
-mentioned earlier.
-
-The situation is this: I have an Asus A7V motherboard with 2 VIA
-vt82c686a controllers and 2 Promise PDC20265 controllers.
-
-I recently bought myself a new DVD recorder and since Alan Cox told
-me[*] that the Promise controllers had problems with ATAPI devices, I
-decided to arrange my system this way:
-
-/dev/hda: the DVD recorder (VIA controller, master)
-/dev/hdc: an old CD recorder (VIA controller, master)
-/dev/hde: my first HD (Promise controller, master)
-/dev/hdg: my second HD (Promise controller, master)
-
-The Promise controller is able to control the HDs (which now have
-exclusive 80-pin cables) at their maximum, but I get the following
-stack trace if I have /dev/hdg turned on:
-
-- - - - - - - - - - - - - - - - - - - - - - -  - - - - - - - - - - - -
-ACPI: PCI interrupt 0000:00:11.0[A] -> GSI 10 (level, low) -> IRQ 10
-PDC20265: chipset revision 2
-PDC20265: 100% native mode on irq 10
-PDC20265: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
-    ide2: BM-DMA at 0x7400-0x7407, BIOS settings: hde:pio, hdf:pio
-    ide3: BM-DMA at 0x7408-0x740f, BIOS settings: hdg:pio, hdh:pio
-Probing IDE interface ide2...
-hde: QUANTUM FIREBALL CX13.0A, ATA DISK drive
-ide2 at 0x8800-0x8807,0x8402 on irq 10
-Probing IDE interface ide3...
-hdg: QUANTUM FIREBALLlct15 30, ATA DISK drive
-irq 10: nobody cared!
- [<c0128fc1>] __report_bad_irq+0x31/0x77
- [<c012906b>] note_interrupt+0x4c/0x71
- [<c0128c86>] __do_IRQ+0x93/0xbd
- [<c0104635>] do_IRQ+0x19/0x24
- [<c010335a>] common_interrupt+0x1a/0x20
- [<c011935c>] __do_softirq+0x2c/0x7d
- [<c01193cf>] do_softirq+0x22/0x26
- [<c010463a>] do_IRQ+0x1e/0x24
- [<c010335a>] common_interrupt+0x1a/0x20
- [<c0128d89>] enable_irq+0x88/0x8d
- [<c021edc0>] probe_hwif+0x2da/0x366
- [<c021a137>] ata_attach+0xa3/0xbd
- [<c021ee5c>] probe_hwif_init_with_fixup+0x10/0x74
- [<c0221597>] ide_setup_pci_device+0x72/0x7f
- [<c0216f82>] pdc202xx_init_one+0x15/0x18
- [<c039182e>] ide_scan_pcidev+0x34/0x59
- [<c039186f>] ide_scan_pcibus+0x1c/0x88
- [<c039179f>] probe_for_hwifs+0xb/0xd
- [<c03917e5>] ide_init+0x44/0x59
- [<c037c6ce>] do_initcalls+0x4b/0x99
- [<c0100272>] init+0x0/0xce
- [<c0100299>] init+0x27/0xce
- [<c0101245>] kernel_thread_helper+0x5/0xb
-handlers:
-[<c021c2a6>] (ide_intr+0x0/0xee)
-Disabling IRQ #10
-irq 10: nobody cared!
-- - - - - - - - - - - - - - - - - - - - - - -  - - - - - - - - - - - -
-
-This is just an excerpt of the messages. I can provide much more
-details if I know what is relevant.
-
-I had already posted some old dmesg logs at my site
-<http://www.ime.usp.br/~rbrito/ide-problem/>, but this was before I
-got myself a second 80-ribbon cable (I expected that the problem would
-go away, but it didn't).
-
-Any other comments are more than welcome.
-
-
-Thanks in advance, Rogério Brito.
-
-[*] http://infocenter.guardiandigital.com/archive/linux-kernel/2004/Dec/2663.html
--- 
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  Rogério Brito - rbrito@ime.usp.br - http://www.ime.usp.br/~rbrito
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIJATCC
+AtswggJEoAMCAQICAwwdtzANBgkqhkiG9w0BAQQFADBiMQswCQYDVQQGEwJaQTElMCMGA1UE
+ChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNv
+bmFsIEZyZWVtYWlsIElzc3VpbmcgQ0EwHhcNMDQwNDEzMDQzNjQyWhcNMDUwNDEzMDQzNjQy
+WjBJMR8wHQYDVQQDExZUaGF3dGUgRnJlZW1haWwgTWVtYmVyMSYwJAYJKoZIhvcNAQkBFhd0
+aGVhbnN3cml6NDJAc3B5bWFjLmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB
+AK1F3MqExxJ0fN6+ae4A3N3ExFb+6ljk0nVMSvoHJ/wQ07BZlX1MLQ7He4MbznHB1Pn3Doeh
+wNwHRMizvrnVcBIoUO9Or7O1O9eSrT3SF5spTpVwFSk8P+iqqU77WQhq9aOQ1Lorm7suH07m
+Ey5eyINg6JuSFmJzS8KTsed+ojyMABCwwKM72cxjWofh8kFS+eg0zpiGXI5fnfxVCwPyf6DR
+KfWoFNSgVK5LbfMdrjTSncUosOPkRLHyXkNpI4rlkVaJPOZbeQ1pJOGgP1c96wtU+nPABsow
+0sAUiY5ttsbjQwDmikubETJO3OpfXKZhEdpHmx9drXyskzggjPCAzvsCAwEAAaM0MDIwIgYD
+VR0RBBswGYEXdGhlYW5zd3JpejQyQHNweW1hYy5jb20wDAYDVR0TAQH/BAIwADANBgkqhkiG
+9w0BAQQFAAOBgQB4WiRQuAbujaLqA88jM4AqGMA7fDCTiVPd/p5HK967/ELJ1eQuTVqCzJrj
+5YaTa+EA1o1iy0xxcei1c1VIY4z0q4G7CGK3HnIz2ysRxLSSHWlkuB/QHbtzRJpYmwxL//Iy
+wzmKGgRte9Dnx+VwcyZ32BNBQPxNLuVgror9oz+gsDCCAtswggJEoAMCAQICAwwdtzANBgkq
+hkiG9w0BAQQFADBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcg
+KFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3Vpbmcg
+Q0EwHhcNMDQwNDEzMDQzNjQyWhcNMDUwNDEzMDQzNjQyWjBJMR8wHQYDVQQDExZUaGF3dGUg
+RnJlZW1haWwgTWVtYmVyMSYwJAYJKoZIhvcNAQkBFhd0aGVhbnN3cml6NDJAc3B5bWFjLmNv
+bTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK1F3MqExxJ0fN6+ae4A3N3ExFb+
+6ljk0nVMSvoHJ/wQ07BZlX1MLQ7He4MbznHB1Pn3DoehwNwHRMizvrnVcBIoUO9Or7O1O9eS
+rT3SF5spTpVwFSk8P+iqqU77WQhq9aOQ1Lorm7suH07mEy5eyINg6JuSFmJzS8KTsed+ojyM
+ABCwwKM72cxjWofh8kFS+eg0zpiGXI5fnfxVCwPyf6DRKfWoFNSgVK5LbfMdrjTSncUosOPk
+RLHyXkNpI4rlkVaJPOZbeQ1pJOGgP1c96wtU+nPABsow0sAUiY5ttsbjQwDmikubETJO3Opf
+XKZhEdpHmx9drXyskzggjPCAzvsCAwEAAaM0MDIwIgYDVR0RBBswGYEXdGhlYW5zd3JpejQy
+QHNweW1hYy5jb20wDAYDVR0TAQH/BAIwADANBgkqhkiG9w0BAQQFAAOBgQB4WiRQuAbujaLq
+A88jM4AqGMA7fDCTiVPd/p5HK967/ELJ1eQuTVqCzJrj5YaTa+EA1o1iy0xxcei1c1VIY4z0
+q4G7CGK3HnIz2ysRxLSSHWlkuB/QHbtzRJpYmwxL//IywzmKGgRte9Dnx+VwcyZ32BNBQPxN
+LuVgror9oz+gsDCCAz8wggKooAMCAQICAQ0wDQYJKoZIhvcNAQEFBQAwgdExCzAJBgNVBAYT
+AlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUgVG93bjEaMBgGA1UE
+ChMRVGhhd3RlIENvbnN1bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24gU2VydmljZXMg
+RGl2aXNpb24xJDAiBgNVBAMTG1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTErMCkGCSqG
+SIb3DQEJARYccGVyc29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTAeFw0wMzA3MTcwMDAwMDBa
+Fw0xMzA3MTYyMzU5NTlaMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3Vs
+dGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNz
+dWluZyBDQTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAxKY8VXNV+065yplaHmjAdQRw
+nd/p/6Me7L3N9VvyGna9fww6YfK/Uc4B1OVQCjDXAmNaLIkVcI7dyfArhVqqP3FWy688Cwfn
+8R+RNiQqE88r1fOCdz0Dviv+uxg+B79AgAJk16emu59l0cUqVIUPSAR/p7bRPGEEQB5kGXJg
+t/sCAwEAAaOBlDCBkTASBgNVHRMBAf8ECDAGAQH/AgEAMEMGA1UdHwQ8MDowOKA2oDSGMmh0
+dHA6Ly9jcmwudGhhd3RlLmNvbS9UaGF3dGVQZXJzb25hbEZyZWVtYWlsQ0EuY3JsMAsGA1Ud
+DwQEAwIBBjApBgNVHREEIjAgpB4wHDEaMBgGA1UEAxMRUHJpdmF0ZUxhYmVsMi0xMzgwDQYJ
+KoZIhvcNAQEFBQADgYEASIzRUIPqCy7MDaNmrGcPf6+svsIXoUOWlJ1/TCG4+DYfqi2fNi/A
+9BxQIJNwPP2t4WFiw9k6GX6EsZkbAMUaC4J0niVQlGLH2ydxVyWN3amcOY6MIE9lX5Xa9/eH
+1sYITq726jTlEBpbNU1341YheILcIRk13iSx0x1G/11fZU8xggM7MIIDNwIBATBpMGIxCzAJ
+BgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3VsdGluZyAoUHR5KSBMdGQuMSwwKgYD
+VQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWluZyBDQQIDDB23MAkGBSsOAwIa
+BQCgggGnMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTA1MDIy
+MDE4MDY0N1owIwYJKoZIhvcNAQkEMRYEFM87TuNV5JLj1YI1UvVrwu2cLCaqMFIGCSqGSIb3
+DQEJDzFFMEMwCgYIKoZIhvcNAwcwDgYIKoZIhvcNAwICAgCAMA0GCCqGSIb3DQMCAgFAMAcG
+BSsOAwIHMA0GCCqGSIb3DQMCAgEoMHgGCSsGAQQBgjcQBDFrMGkwYjELMAkGA1UEBhMCWkEx
+JTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMTI1RoYXd0
+ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBAgMMHbcwegYLKoZIhvcNAQkQAgsxa6Bp
+MGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3VsdGluZyAoUHR5KSBMdGQu
+MSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWluZyBDQQIDDB23MA0G
+CSqGSIb3DQEBAQUABIIBAINlxdEf1lR6N5Lq4ZH9pd89UeGjATqqjOmg3/ztMQHyRDdXDgcv
+W2N2kRu5NOYSWrVxkWwhiluql5/l5Y+v5MlNnYYvaTfwKEKl3SgXedZrsCvumvX0wDqJ80gX
+uz1KnMVoP4OEahDWEaHgUGzqpz96Gj98jwi5lC/J7O+gVyu6MFA/tPdRKGzkqzhq9OZ/dNLf
+aE+USj1IKlo26kBmecv/gIXSWLHrXqdw8rCu/Pw7SpTcSaiFWlZRM6Z9rrAOzSTThmRpIiNr
+c7APzY2TKOlTvuvsMZfCfSF7OwFHTDzVGR+JqbbgyyHIvKMnLjNBTw9hvFOgqNFv/kuS/eO1
+DEgAAAAAAAA=
+--------------ms090200030308030309040709--

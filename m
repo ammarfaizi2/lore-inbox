@@ -1,73 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263786AbTETNuM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 May 2003 09:50:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263789AbTETNuM
+	id S263783AbTETNuU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 May 2003 09:50:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263789AbTETNuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 May 2003 09:50:12 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:15314 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S263786AbTETNtc convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 May 2003 09:49:32 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Andrew Theurer <habanero@us.ibm.com>
-Reply-To: habanero@us.ibm.com
-To: "David S. Miller" <davem@redhat.com>, haveblue@us.ibm.com
-Subject: Re: userspace irq balancer
-Date: Tue, 20 May 2003 09:07:41 -0500
-User-Agent: KMail/1.4.3
-Cc: mbligh@aracnet.com, wli@holomorphy.com, arjanv@redhat.com,
-       pbadari@us.ibm.com, linux-kernel@vger.kernel.org, gh@us.ibm.com,
-       johnstul@us.ibm.com, jamesclv@us.ibm.com, akpm@digeo.com,
-       mannthey@us.ibm.com
-References: <88560000.1053409990@[10.10.2.4]> <1053412583.13289.322.camel@nighthawk> <20030519.234055.35511478.davem@redhat.com>
-In-Reply-To: <20030519.234055.35511478.davem@redhat.com>
+	Tue, 20 May 2003 09:50:20 -0400
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:45047 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S263783AbTETNtI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 May 2003 09:49:08 -0400
+Message-ID: <3ECA3535.7090608@nortelnetworks.com>
+Date: Tue, 20 May 2003 10:01:25 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200305200907.41443.habanero@us.ibm.com>
+To: Riley Williams <Riley@Williams.Name>
+Cc: David Woodhouse <dwmw2@infradead.org>, "H. Peter Anvin" <hpa@zytor.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Recent changes to sysctl.h breaks glibc
+References: <BKEGKPICNAKILKJKMHCAGECEDBAA.Riley@Williams.Name>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 20 May 2003 01:40, David S. Miller wrote:
->    From: Dave Hansen <haveblue@us.ibm.com>
->    Date: 19 May 2003 23:36:23 -0700
->
->    I don't even think we can do that.  That code was being integrated
->    around the same time that our Specweb setup decided to go south on us
->    and start physically frying itself.
->
-> This gets more amusing by the second.  Let's kill this code
-> already.  People who like the current algorithms can push
-> them into the userspace solution.
+Riley Williams wrote:
 
-Remember this all started with some idea of "fairness" among cpus and very 
-little to do with performance.   particularly on P4 with HT, where the first 
-logical cpu got all the ints and tasks running on that cpu were slower than 
-other cpus.  This was in most cases the highest performing situation, -but- 
-it was unfair to the tasks running on cpu0.  irq_balance fixed this with a 
-random target cpu that was in theory supposed to not change often enough to 
-preserve cache warmth.  In practice is the target cpus changed too often 
-which thrashed cache and the HW overhead of changing the destination that 
-often was way way to high.  
+> First, is there anything in include/asm that is actually needed
+> outside the kernel itself? There shouldn't be, and if there is,
+> it needs to be moved to a header under include/linux that is
+> included in the relevant include/asm file.
 
-Although kirq was a step in the right direction (compared to irq_balance), I'd 
-rather see it in user space in the long term, too.  That way we can make 
-policy changes much much easier.  IMO, networking performance was always 
-better with all net card ints going to only one cpu, -until- that cpu would 
-be saturated.   This situation point can come much sooner with HT since the 
-core is shared, and as far as I know, there is no way to bias the core to the 
-one sibling handling ints when int load is high.  The only thing better than 
-all ints to cpu0 is aligning irq a process affinity together, which is 99% 
-unrealistic for all actual workloads.  
+It's handy for stuff like getting high res timestamps without having to ifdef 
+the case of building on different architechtures.  Also, there are files under 
+include/linux which end up including asm stuff in turn.
 
-Now, if someone can figure out how/when the first cpu is saturated, and 
-measure int load properly, maybe we can have a policy that keeps all ints on 
-cpu0, spills some ints to another cpu when that cpu is saturated, -and- 
-modifies find_busiest_queue to compensate nr_running on cpus with high int 
-load to make the process thingy more fair.
+> The basic rule would be that external software can make free
+> use of headers under include/linux but should never make any
+> use whatsoever of headers under include/kernel or include/asm
+> for any reason.
 
-If kirq gets ripped out, at least have some default policy that is somewhat 
-harmless, like destination cpu = int_number % nr_cpus.   I think Suse8 had 
-this, and it performed reasonably well.
+What if the include/linux files themselves make use of the asm files?
 
--Andrew Theurer
+Chris
+
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+

@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267079AbSKWUiG>; Sat, 23 Nov 2002 15:38:06 -0500
+	id <S267081AbSKWVEW>; Sat, 23 Nov 2002 16:04:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267081AbSKWUiF>; Sat, 23 Nov 2002 15:38:05 -0500
-Received: from 208-135-136-018.customer.apci.net ([208.135.136.18]:34308 "EHLO
-	blessed") by vger.kernel.org with ESMTP id <S267079AbSKWUiF>;
-	Sat, 23 Nov 2002 15:38:05 -0500
-Date: Sat, 23 Nov 2002 14:44:10 -0600 (CST)
-From: Josh Myer <jbm@joshisanerd.com>
-X-X-Sender: jbm@blessed
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-cc: Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Tridentfb updates?
-In-Reply-To: <Pine.GSO.4.21.0211232133510.20022-100000@vervain.sonytel.be>
-Message-ID: <Pine.LNX.4.44.0211231442190.660-100000@blessed>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267083AbSKWVEW>; Sat, 23 Nov 2002 16:04:22 -0500
+Received: from assisi.INS.CWRU.Edu ([129.22.8.14]:27602 "EHLO
+	assisi.INS.cwru.edu") by vger.kernel.org with ESMTP
+	id <S267081AbSKWVEV>; Sat, 23 Nov 2002 16:04:21 -0500
+Date: Sat, 23 Nov 2002 16:12:47 -0500
+From: Justin Hibbits <jrh29@po.cwru.edu>
+To: linux-kernel@vger.kernel.org
+Subject: ps2 mouse remapping keyboard
+Message-ID: <20021123211247.GB413@lothlorien.cwru.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Nov 2002, Geert Uytterhoeven wrote:
+Hey guys,
 
-> On Fri, 22 Nov 2002, Josh Myer wrote:
-> > I've got an EPIA board, with a trident CyberBlade chipset. Does anyone
-> > have doco on this chipset? The random Xfree stuff available from VIA is
->
-> Is this the Cyber9397? I have some PDF docs about that chip at home.
->
-> Gr{oetje,eeting}s,
->
-> 						Geert
+I'm not subscribed right now, but I have a major problem.  For some reason,
+sometimes when I startup either gpm or X, my keyboard gets remapped, so that
+several of the keys return keycode 0x70 or 0x71, while others return 0x56, and
+the rest return extended e0/e1 keycodes.  I'm unsure why this happens.  It
+started happening when I installed dri drivers off dri.sf.net, but even after
+removing those drivers, deleting the kernel source tree, and starting from
+scratch, it still happens.  I'm at a loss, so if someone can shed some light on
+this, I'd be grateful.
+this happens sporadically, so not exactly sure what the problem is.  Hopefully
+this won't happen when I get a USB mouse/keyboard for christmas :) /me crosses
+fingers.
 
-Unfortunately, it's a CyberBlade i1, which looks to be distinct from that
-chip in the driver source i have here.
+Thanks in advance,
 
-lspci -vv:
-01:00.0 VGA compatible controller: Trident Microsystems CyberBlade/i1 (rev
-6a) (prog-if 00 [VGA])
-        Subsystem: Trident Microsystems CyberBlade/i1
-
---
-/jbm, but you can call me Josh. Really, you can!
- "What's a metaphor?" "For sheep to graze in"
-7958 1C1C 306A CDF8 4468  3EDE 1F93 F49D 5FA1 49C4
+Justin Hibbits
 
 
+-- 
+Registered Linux user 260206
+
+"One World, One Web, One Program"
+	- Microsoft Promo Ad
+"Ein Volk, Ein Reich, Ein Fuhrer"
+	- Adolf Hitler
+
+I'm not paranoid.  They really *are* out to get me!
 

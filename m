@@ -1,58 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262873AbVCWURD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262901AbVCWUTV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262873AbVCWURD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 15:17:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262891AbVCWURD
+	id S262901AbVCWUTV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 15:19:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262891AbVCWURR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 15:17:03 -0500
-Received: from grunt1.ihug.co.nz ([203.109.254.41]:43672 "EHLO
-	grunt1.ihug.co.nz") by vger.kernel.org with ESMTP id S262873AbVCWUP3
+	Wed, 23 Mar 2005 15:17:17 -0500
+Received: from smtp-out.tiscali.no ([213.142.64.144]:23570 "EHLO
+	smtp-out.tiscali.no") by vger.kernel.org with ESMTP id S262892AbVCWUQD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 15:15:29 -0500
-Date: Thu, 24 Mar 2005 08:15:26 +1200 (NZST)
-From: steve@perfectpc.co.nz
-X-X-Sender: sk@steve.kieu
-Reply-To: steve@perfectpc.co.nz
-To: linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Fw: Problem report. USB MP3 Player no longer
- work with kernel > 2.6.8 (fwd)
-Message-ID: <Pine.LNX.4.62.0503240814440.1697@steve.kieu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 23 Mar 2005 15:16:03 -0500
+Subject: Re: forkbombing Linux distributions
+From: Natanael Copa <mlists@tanael.org>
+To: aq <aquynh@gmail.com>
+Cc: Paul Jackson <pj@engr.sgi.com>, Hikaru1@verizon.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <9cde8bff05032310442a4247f2@mail.gmail.com>
+References: <e0716e9f05032019064c7b1cec@mail.gmail.com>
+	 <Pine.LNX.4.61.0503221247450.5858@yvahk01.tjqt.qr>
+	 <20050322124812.GB18256@roll> <20050322125025.GA9038@roll>
+	 <9cde8bff050323025663637241@mail.gmail.com> <1111581459.27969.36.camel@nc>
+	 <9cde8bff05032305044f55acf3@mail.gmail.com> <1111586058.27969.72.camel@nc>
+	 <9cde8bff05032309056c9643a7@mail.gmail.com>
+	 <20050323100543.04e582e9.pj@engr.sgi.com>
+	 <9cde8bff05032310442a4247f2@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 23 Mar 2005 21:15:58 +0100
+Message-Id: <1111608959.20101.11.camel@nc>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2005-03-24 at 03:44 +0900, aq wrote:
+> On Wed, 23 Mar 2005 10:05:43 -0800, Paul Jackson <pj@engr.sgi.com> wrote:
+> > > int main() { while(1) { fork(); fork(); exit(); } }
+> > > ...
+> > > the above forkbomb will stop quickly
+> > 
+> > Yep.
+> > 
+> > Try this forkbomb:
+> > 
+> >   int main() { while(1) { if (!fork()) continue; if (!fork()) continue; exit(); } }
+> > 
+> 
+> yep, that is better. but system can still be recovered by killall. 
+> 
+> a little "sleep" will render the system completely useless, like this:
+> 
+> int main() { while(1) { if (!fork()) continue; if (!fork()) continue;
+> sleep(5); exit(0); } }
 
-Just correct one of the typo I made
+Interesting.
 
-Hi, Just test 2.6.12-rc1 and it works now. I tested it cz I saw lots of 
-changes 
-in usb=storage in the log not sure which item is applied. Do you still need the 
-info. with 2.6.11? When working the type of disck is like:
+With the patch I suggested earlier, reducing default max_threads to the
+half in kernel/fork.c, my system survived. (without
+touching /etc/security/limits.conf) Mail notification died because it
+couldn't start any new threads but that was the only thing that
+happened.
 
-with 2.6.12-rc1
+--
+Natanael Copa
 
-usb-storage: device found at 2
-usb-storage: waiting for device to settle before scanning
-   Vendor: SigmaTel  Model: MSCN              Rev: 0100
-   Type:   Direct-Access                      ANSI SCSI revision: 04
-usb-storage: device scan complete
-SCSI device sda: 501760 512-byte hdwr sectors (257 MB)
-sda: assuming Write Enabled
-sda: assuming drive cache: write through
-SCSI device sda: 501760 512-byte hdwr sectors (257 MB)
-sda: assuming Write Enabled
-sda: assuming drive cache: write through
-  sda: sda1
-Attached scsi removable disk sda at scsi0, channel 0, id 0, lun 0
-
-The Vendor and Type etc.. are the same if using 2.6.8. With 2.6.9, 10, and 11 
-it did not detect device.
-
-Let me know if you still interested to debug it in 2.6.11 (I think no need :-) 
-)
-
-Thank you
-
-Cheers,
 

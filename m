@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270478AbTGUQdD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 12:33:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270496AbTGUQdD
+	id S270496AbTGUQeQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 12:34:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270525AbTGUQeQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 12:33:03 -0400
-Received: from ivoti.terra.com.br ([200.176.3.20]:18308 "EHLO
-	ivoti.terra.com.br") by vger.kernel.org with ESMTP id S270478AbTGUQdB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 12:33:01 -0400
-From: Lucas Correia Villa Real <lucasvr@gobolinux.org>
-To: Mathieu Chouquet-Stringer <mathieu@newview.com>
-Subject: Re: how to calculate the system idle time
-Date: Mon, 21 Jul 2003 13:48:07 -0300
-User-Agent: KMail/1.5.1
-Cc: snoopyzwe <snoopyzwe@sina.com>, root@chaos.analogic.com,
-       linux-kernel@vger.kernel.org
-References: <3F1C570E.8080607@sina.com> <200307211245.34244.lucasvr@gobolinux.org> <xlt1xwjam7e.fsf@shookay.newview.com>
-In-Reply-To: <xlt1xwjam7e.fsf@shookay.newview.com>
+	Mon, 21 Jul 2003 12:34:16 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:41996 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S270496AbTGUQeN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 12:34:13 -0400
+Date: Mon, 21 Jul 2003 17:49:14 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: michaelm <admin@www0.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test1 won't go further than "uncompressing" on a p1/32MB
+ pc
+In-Reply-To: <20030721163517.GA597@www0.org>
+Message-ID: <Pine.LNX.4.44.0307211745170.6905-100000@phoenix.infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307211348.07751.lucasvr@gobolinux.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 21 July 2003 13:17, Mathieu Chouquet-Stringer wrote:
-> lucasvr@gobolinux.org (Lucas Correia Villa Real) writes:
-> > "top" is an utility that cames with the Procps package.
->
-> But that's probably not what he needs anyway: by idle time he meant "no
-> keyboard and mouse input". He should take a look at /proc/interrupts IMHO.
 
-Ah, sure! He can give a look on Documentation/filesystems/proc.txt for more 
-information about it.
+> .config: http://www0.org/config
 
-Lucas
+First your CONFIG_INPUT is modular. You will not have keyboard support 
+when you boot. Also no keyboard or mouse is configured. Turn them on by 
+selecting Serio IO support. Then select i8042 chipset and then enable 
+keyboard and mouse support. After that you need to enable CONFIG_VT in
+the Characters device menu. Then after that in the framebuffer menu you 
+go into the Console menu and select Framebuffer console. Then you should 
+be ready to go.
+
 

@@ -1,63 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261250AbTEKVZc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 17:25:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261251AbTEKVZc
+	id S261241AbTEKVYq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 17:24:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbTEKVYq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 17:25:32 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:12747 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S261250AbTEKVZa
+	Sun, 11 May 2003 17:24:46 -0400
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:17024 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id S261241AbTEKVYq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 17:25:30 -0400
-Date: Sun, 11 May 2003 12:23:54 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 702] New: EXPORT_SYMBOL and depmod don't work well together with GCC 3.2.2
-Message-ID: <16180000.1052681034@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Sun, 11 May 2003 17:24:46 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: DevilKin-LKML <devilkin-lkml@blindguardian.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.420] Unexplained repeatable Oops
+Date: Mon, 12 May 2003 07:39:29 +1000
+User-Agent: KMail/1.5.1
+References: <200305112052.51938.devilkin-lkml@blindguardian.org>
+In-Reply-To: <200305112052.51938.devilkin-lkml@blindguardian.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200305120739.30154.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=702
+On Mon, 12 May 2003 04:52, DevilKin-LKML wrote:
+> On my main machine at home I have encountered since this morning an Oops
+> that never happened before. It happened when I was playing a game of Diablo
+> II through Winex (yes, with the Nvidia modules loaded and stuff loaded from
+> VMWare). This oops I didn't bother to capture, since I know that oops'es
+> from a tainted kernel are not accepted.
+> 00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South]
+> (rev 40) Subsystem: ABIT Computer Corp.: Unknown device a702
+>         Flags: bus master, stepping, medium devsel, latency 0
+>         Capabilities: [c0] Power Management version 2
 
-           Summary: EXPORT_SYMBOL and depmod don't work well together with
-                    GCC 3.2.2
-    Kernel Version: 2.5.67
-            Status: NEW
-          Severity: low
-             Owner: bugme-janitors@lists.osdl.org
-         Submitter: gmmapowell@yahoo.com
 
+Good old VIA chipset. I solved a similar problem by underclocking a cpu on a 
+similar chipset :-(
 
-Distribution: Redhat, modified
-Hardware Environment: i386
-Software Environment: GCC 3.2.2, modutils 2.4.25
-Problem Description:
+Try the mprime client stress test to ensure your hardware is ok.
+www.mersenne.org
 
-Disclaimer: as noted above, I'm using gcc 3.2.2, which isn't the top
-recommendation, and I think that's the immediate cause of the problem, but I
-think nevertheless GCC 3.2.2 has it right, and we're currently relying on a bug.
-
-When I build modules and pass them to depmod, it gives me a bevy of unresolved
-symbols which are found in other modules.  When I do an nm on them, I get
-something like the following:
-
-00000028 ? __ksymtab_NS8390_init
-00000008 ? __ksymtab_ei_close
-00000010 ? __ksymtab_ei_interrupt
-00000000 ? __ksymtab_ei_open
-00000018 ? __ksymtab_ei_tx_timeout
-00000020 ? __ksymtab_ethdev_init
-
-When depmod comes across these, it does not accept them because of the line 
-
-if (objsym->secidx == ksymtab &&
-    ELFW(ST_BIND)(objsym->info) == STB_GLOBAL)
-
-and these symbols _aren't_ global because in the header file linux/module.h they
-are defined as static.
-
+Con

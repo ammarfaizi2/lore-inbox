@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318243AbSIEXe5>; Thu, 5 Sep 2002 19:34:57 -0400
+	id <S318229AbSIEXeU>; Thu, 5 Sep 2002 19:34:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318264AbSIEXe4>; Thu, 5 Sep 2002 19:34:56 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:37265 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S318243AbSIEXeu>;
-	Thu, 5 Sep 2002 19:34:50 -0400
-Date: Thu, 5 Sep 2002 19:39:21 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] IDE cleanup (1.612) broke all fdisks I have...
-In-Reply-To: <20020905181350.GA1822@vana.vc.cvut.cz>
-Message-ID: <Pine.GSO.4.21.0209051934060.16225-100000@weyl.math.psu.edu>
+	id <S318243AbSIEXeU>; Thu, 5 Sep 2002 19:34:20 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:52999 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318229AbSIEXeT>; Thu, 5 Sep 2002 19:34:19 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH][2.4.20-pre5] non syscall gettimeofday
+Date: 5 Sep 2002 16:38:35 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <al8ptr$up3$1@cesium.transmeta.com>
+References: <1031267553.10830.71.camel@dell_ss3.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 5 Sep 2002, Petr Vandrovec wrote:
-
-> Hi Al,
->    it is nice that blkdev_ioctl calls blk_ioctl itself, but unfortunately
-> it does that only if driver's ioctl returns -EINVAL - and IDE returns -EIO :-(
+Followup to:  <1031267553.10830.71.camel@dell_ss3.pdx.osdl.net>
+By author:    Stephen Hemminger <shemminger@osdl.org>
+In newsgroup: linux.dev.kernel
 > 
-> Patch below is tested for disks - I do not have IDE floppy nor IDE tape.
+> The following patch implements a shared memory interface to allow
+> implementing gettimeofday (and other clock measurement) using the TSC
+> counter on i386.  On a 1.6G Xeon this reduces gettimeofday from 1.2 us
+> per call to .17 us per call.
+> 
 
-For ide-disk.c, ide-floppy.c and ide-cd.c patch is OK.  For ide-tape.c...
-Not needed.
+This sounds like a vsyscall.  Since we have discussed vsyscalls on and
+off without getting anywhere, I'd like to know how your implementation
+does it -- the #1 proposal I think was to map in a page at 0xfffff000
+and have the vsyscall code there.
 
-Keep in mind that current setup (some ioctls are unconditionally done
-in fs/block_dev.c, for some we only call driver, for some - give
-driver a chance and do our thing if it doesn't recongnize the ioctl)
-will change.  Most of the 3rd group actually belong to the 1st one -
-the only reason why they are not there is handling of unpartitioned
-devices that don't have gendisks.  When that gets fixed, the kludge
-with calling driver and handling -EINVAL will disappear...
+Note that the vsyscall needs to bounce to a regular syscall if TSC
+time/gettimeofday aren't available.
 
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

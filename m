@@ -1,41 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267625AbUHEKad@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267626AbUHEKrt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267625AbUHEKad (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 06:30:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267626AbUHEKad
+	id S267626AbUHEKrt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 06:47:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267627AbUHEKrt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 06:30:33 -0400
-Received: from twin.jikos.cz ([213.151.79.26]:61066 "EHLO twin.jikos.cz")
-	by vger.kernel.org with ESMTP id S267625AbUHEKa1 (ORCPT
+	Thu, 5 Aug 2004 06:47:49 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:54688 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267626AbUHEKrs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 06:30:27 -0400
-Date: Thu, 5 Aug 2004 12:30:23 +0200 (CEST)
-From: Jirka Kosina <jikos@jikos.cz>
-To: Giuliano Pochini <pochini@shiny.it>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: FW: Linux kernel file offset pointer races
-In-Reply-To: <XFMail.20040805104213.pochini@shiny.it>
-Message-ID: <Pine.LNX.4.58.0408051228400.2791@twin.jikos.cz>
-References: <XFMail.20040805104213.pochini@shiny.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 5 Aug 2004 06:47:48 -0400
+Date: Thu, 5 Aug 2004 06:47:00 -0400
+From: Alan Cox <alan@redhat.com>
+To: Elmar Hinz <elmar.hinz@vcd-berlin.de>
+Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: Add support for IT8212 IDE controllers
+Message-ID: <20040805104700.GB11584@devserv.devel.redhat.com>
+References: <2obsK-5Ni-13@gated-at.bofh.it> <4110ECBF.9070000@vcd-berlin.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4110ECBF.9070000@vcd-berlin.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Aug 2004, Giuliano Pochini wrote:
+On Wed, Aug 04, 2004 at 04:03:43PM +0200, Elmar Hinz wrote:
+> When I set in the bios RAID 1 there comes an message similar
+> INVALID GEOMETRY: 0 PHYSICAL HEADS?
+> and booting stops.
 
-> I don't remember if this issue has already been discussed here:
-> -----FW: <Pine.LNX.4.44.0408041220550.26961-100000@isec.pl>-----
-> Date: Wed, 4 Aug 2004 12:22:42 +0200 (CEST)
-> From: Paul Starzetz <ihaquer@isec.pl>
-> To: bugtraq@securityfocus.com, vulnwatch@vulnwatch.org,
->  full-disclosure@lists.netsys.com
-> Subject: Linux kernel file offset pointer races
+At which point
 
-It hasn't been discussed here, but at 
-http://linux.bkbits.net:8080/linux-2.4/gnupatch@411064f7uz3rKDb73dEb4vCqbjEIdw 
-you can find a patchset fixing (some of) the mentioned problems. This 
-patchset is from 2.4.27-rc5
+> but booting continous and I can use the disks.
+> hdparm => 15.70 MB/sec
 
--- 
-JiKos.
+A bit slow.. thanks
+

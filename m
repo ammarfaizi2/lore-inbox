@@ -1,169 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283764AbRLEFR3>; Wed, 5 Dec 2001 00:17:29 -0500
+	id <S283765AbRLEFTT>; Wed, 5 Dec 2001 00:19:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283765AbRLEFRU>; Wed, 5 Dec 2001 00:17:20 -0500
-Received: from [199.29.68.123] ([199.29.68.123]:1810 "EHLO MailAndNews.com")
-	by vger.kernel.org with ESMTP id <S283764AbRLEFRM>;
-	Wed, 5 Dec 2001 00:17:12 -0500
-X-WM-Posted-At: MailAndNews.com; Wed, 5 Dec 01 00:16:54 -0500
-From: Matt Schulkind <mschulkind@mailandnews.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] GeForce3 support for rivafb
-Date: Wed, 5 Dec 2001 00:16:34 -0500
-X-Mailer: KMail [version 1.3.2]
-Cc: ajoshi@shell.unixbox.com
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_MNUU700J1OIID225RRYJ"
-Message-Id: <20011205051717Z283764-752+7396@vger.kernel.org>
+	id <S283775AbRLEFTJ>; Wed, 5 Dec 2001 00:19:09 -0500
+Received: from 200227170204-dial-user-BOL.acessonet.com.br ([200.227.170.204]:18570
+	"EHLO pervalidus.dyndns.org") by vger.kernel.org with ESMTP
+	id <S283773AbRLEFTH>; Wed, 5 Dec 2001 00:19:07 -0500
+Date: Wed, 5 Dec 2001 03:19:20 -0200
+From: =?iso-8859-1?B?RnLpZOlyaWMgTC4gVy4=?= Meunier <0@pervalidus.net>
+To: Josh McKinney <forming@home.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Fwd: binutils in debian unstable is broken.
+Message-ID: <20011205051920.GL191@pervalidus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.23.1i
+X-Mailer: Mutt/1.3.23.1i - Linux 2.4.14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Josh McKinney wrote:
 
---------------Boundary-00=_MNUU700J1OIID225RRYJ
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+> This seems to be a kernel bug which is shown with the new
+> version of ld.  Thought I would forward this along so maybe
+> it can get fixed.
 
-I basically just copied the source files from the xfree86 4.1.0 nv driver and 
-then tweaked the rest of the rivafb files to get it to work. The patch is 
-against the 2.2.17-pre2 tree. I'd like anyone with a geforce3 card at their 
-disposal to please test this out and lemme know what you think.
+http://ftp.kernel.org/pub/linux/devel/binutils/release.binutils-2.11.92.0.12.3
 
--Matt Schulkind
+Changes from binutils 2.11.92.0.10:
+...
+3.
 
+At the end there's a patch.
 
-
-
---------------Boundary-00=_MNUU700J1OIID225RRYJ
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="README"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment; filename="README"
-
-Added support for the GeForce3 in the rivafb module. Matt Schulkind <mschulkind@mailandnews.com>
---------------Boundary-00=_MNUU700J1OIID225RRYJ
-Content-Type: application/x-gzip;
-  name="patch-geforce3-rivafb.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="patch-geforce3-rivafb.gz"
-
-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
-
---------------Boundary-00=_MNUU700J1OIID225RRYJ--
+-- 
+0@pervalidus.{net, {dyndns.}org} Tel: 55-21-2717-2399 (Niterói-RJ BR)

@@ -1,28 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280788AbRKLNUJ>; Mon, 12 Nov 2001 08:20:09 -0500
+	id <S274757AbRKLNYg>; Mon, 12 Nov 2001 08:24:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280776AbRKLNT7>; Mon, 12 Nov 2001 08:19:59 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:5389 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S280738AbRKLNTx>; Mon, 12 Nov 2001 08:19:53 -0500
-Subject: Re: reseting /dev/tty
-To: refuse7@poczta.fm
-Date: Mon, 12 Nov 2001 13:19:44 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011112130108.0A9C417DC3@pa160.grajewo.sdi.tpnet.pl> from "Gniazdowski" at Nov 12, 2001 02:01:08 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S278709AbRKLNY1>; Mon, 12 Nov 2001 08:24:27 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:28034 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S274757AbRKLNYK>; Mon, 12 Nov 2001 08:24:10 -0500
+Date: Mon, 12 Nov 2001 08:24:00 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Sureshkumar Kamalanathan <skk@sasken.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: how do we block interrupts?
+In-Reply-To: <3BEFC649.313D32AF@sasken.com>
+Message-ID: <Pine.LNX.3.95.1011112081637.31375A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E163H04-0005pw-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Howewer my brother has nvidia gf2mx card, and there is no frame buffer for 
-> it. Many other cards does not have fbuffer support. So finaly the question:
-> is there a way to reset /dev/tty ?
+On Mon, 12 Nov 2001, Sureshkumar Kamalanathan wrote:
 
-Without hardware docs no. In the case of nvidia the 2d drivers and frame
-buffer for the 128 etc might actually have enough docs
+> Hi all,
+>   I have added a function inside kernel in netif_rx().  I want to block
+> all the ethernet interrupts till this function is executed.  
+>   How do we block and unblock the interrupts?
+>   Thanks in advance,
+> 
+> Regards,
+> Sureshkumar K.
+
+
+Like line 1002 of ../linux/net/core/dev.c
+
+spin_lock_irqsave(&netdev_fc_lock, flags);
+	blocked_code();
+spin_unlock_irqrestore(&netdev_fc_lock, flags);
+
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
+

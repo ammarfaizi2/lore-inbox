@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbTJDN3a (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 09:29:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbTJDN3a
+	id S262046AbTJDN5A (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 09:57:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbTJDN5A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 09:29:30 -0400
-Received: from math.ut.ee ([193.40.5.125]:4024 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S262033AbTJDN33 (ORCPT
+	Sat, 4 Oct 2003 09:57:00 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:63632 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S262046AbTJDN46 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Oct 2003 09:29:29 -0400
-Date: Sat, 4 Oct 2003 16:29:23 +0300 (EEST)
-From: Meelis Roos <mroos@linux.ee>
-To: Jes Sorensen <jes@trained-monkey.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: qla1280 & __flush_cache_all
-In-Reply-To: <m33ceyi1bf.fsf@trained-monkey.org>
-Message-ID: <Pine.GSO.4.44.0310041627090.22040-100000@math.ut.ee>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 4 Oct 2003 09:56:58 -0400
+Date: Sat, 4 Oct 2003 15:56:47 +0200 (MEST)
+Message-Id: <200310041356.h94Dul7T009782@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: davej@redhat.com, root@chaos.analogic.com
+Subject: Re: FDC motor left on
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Meelis> So why is qla1280 in 2.6-current using __flush_cache_all?
+On Sat, 4 Oct 2003 00:58:02 +0100, Dave Jones wrote:
+>On Fri, Oct 03, 2003 at 01:25:30PM -0400, Richard B. Johnson wrote:
+> > In linux-2.4.22 and earlier, if there is no FDC driver installed,
+> > the FDC motor may continue to run after boot if the motor was
+> > started as part of the BIOS boot sequence.
+> > This patch turns OFF the motor once Linux gets control.
+> > 
+> > 
+> > --- linux-2.4.22/arch/i386/boot/setup.S.orig	Fri Aug  2 20:39:42 2002
+> > +++ linux-2.4.22/arch/i386/boot/setup.S	Fri Oct  3 11:50:43 2003
+> > @@ -59,6 +59,8 @@
 >
-> The driver is calling flush_cache_all() not __flush_cache_all(), the
-> __ thing is an architecture specific issue.
->
-> Yes it's a lazy approach left over from the old codebase.
+>Does this mean the 'kill_motor' function in bootsect.S isn't doing
+>what it should be? If so, maybe that needs fixing instead of turning
+>it off in two places ?
 
-Yes, it's flush_cache_all() that's causing problems. Current sparc64
-doesn't even have flush_cache_all anymore.
+It's my understanding that bootsect.S:kill_motor is part of
+the kernel's old builtin boot-from-floppy code, and that it
+doesn't run when some other boot loader loaded the kernel.
+(And it shouldn't have to.)
 
--- 
-Meelis Roos (mroos@linux.ee)
+The workaround if you have a buggy BIOS or external loader
+is to configure BLK_DEV_FD as a built-in. I do that anyway
+for other reasons (to avoid an unresolved module autoloading
+failure in some cases; it's in RH bugzilla somewhere).
 
+/Mikael

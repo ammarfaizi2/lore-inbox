@@ -1,37 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275041AbRIYQFW>; Tue, 25 Sep 2001 12:05:22 -0400
+	id <S275062AbRIYQDM>; Tue, 25 Sep 2001 12:03:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275063AbRIYQFM>; Tue, 25 Sep 2001 12:05:12 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:33297 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S275041AbRIYQE7>;
-	Tue, 25 Sep 2001 12:04:59 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
+	id <S275041AbRIYQDC>; Tue, 25 Sep 2001 12:03:02 -0400
+Received: from [212.59.31.66] ([212.59.31.66]:6876 "EHLO mail.takas.lt")
+	by vger.kernel.org with ESMTP id <S275062AbRIYQCy>;
+	Tue, 25 Sep 2001 12:02:54 -0400
+Date: Tue, 25 Sep 2001 17:23:03 +0200 (EET)
+From: Nerijus Baliunas <nerijus@users.sourceforge.net>
+Subject: all files are executable in vfat
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.10 unresolved symbols in acpi/ospm
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 26 Sep 2001 02:05:16 +1000
-Message-ID: <20049.1001433916@ocs3.intra.ocs.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-Disposition: INLINE
+X-Mailer: Mahogany, 0.64 'Sparc', compiled for Linux 2.4.7 i686
+Message-ID: <ISPFE83Y8pEBtKarvzr000007ff@mail.takas.lt>
+X-OriginalArrivalTime: 25 Sep 2001 16:01:16.0963 (UTC) FILETIME=[4F0F1F30:01C145DB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CONFIG_ACPI=y
-CONFIG_ACPI_DEBUG=y
-CONFIG_ACPI_BUSMGR=m
-CONFIG_ACPI_SYS=m
-CONFIG_ACPI_CPU=m
-CONFIG_ACPI_BUTTON=m
-CONFIG_ACPI_AC=m
-CONFIG_ACPI_EC=m
-CONFIG_ACPI_CMBATT=m
-CONFIG_ACPI_THERMAL=m
+Hello,
 
-depmod: *** Unresolved symbols in /lib/modules/2.4.10/kernel/drivers/acpi/ospm/thermal/ospm_thermal.o
-depmod:         acpi_ut_debug_print_raw
-depmod:         acpi_ut_debug_print
-depmod:         acpi_ut_status_exit
-depmod:         acpi_ut_exit
-depmod:         acpi_ut_trace
+All files are executable in vfat (kernel 2.4.10), although I have
+/dev/hda1  /mnt/c   vfat   defaults,user,noexec,umask=0,quiet 0 0
+in /etc/fstab. They were not in 2.4.7.
+
+Regards,
+Nerijus
 

@@ -1,62 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313114AbSEEHE6>; Sun, 5 May 2002 03:04:58 -0400
+	id <S315826AbSEEHKJ>; Sun, 5 May 2002 03:10:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315825AbSEEHE5>; Sun, 5 May 2002 03:04:57 -0400
-Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:43271 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id <S313114AbSEEHE5>; Sun, 5 May 2002 03:04:57 -0400
-Date: Sun, 5 May 2002 09:04:48 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Martin Dalecki <dalecki@evision-ventures.com>, Andi Kleen <ak@muc.de>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.13 IDE and preemptible kernel problems
-In-Reply-To: <Pine.LNX.4.44.0205041903480.1594-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0205050850090.15809-100000@gans.physik3.uni-rostock.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315827AbSEEHKI>; Sun, 5 May 2002 03:10:08 -0400
+Received: from oss.SGI.COM ([128.167.58.27]:40881 "EHLO oss.sgi.com")
+	by vger.kernel.org with ESMTP id <S315826AbSEEHKH>;
+	Sun, 5 May 2002 03:10:07 -0400
+Date: Sun, 5 May 2002 00:09:56 -0700
+From: Ralf Baechle <ralf@uni-koblenz.de>
+To: Malcolm Mallardi <magamo@ranka.2y.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19-pre7 MIPS compile errors.
+Message-ID: <20020505000956.A24328@dea.linux-mips.net>
+In-Reply-To: <20020424145825.A21701@trianna.upcommand.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+X-Accept-Language: de,en,fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 4 May 2002, Linus Torvalds wrote:
+On Wed, Apr 24, 2002 at 02:58:25PM -0400, Malcolm Mallardi wrote:
 
-> Hmm.. Something like
-> 
-> 	#define timeout_expired(x)	time_after(jiffies, (x))
-> 
-> migth indeed make sense.
-> 
-> But I'm a lazy bastard. Is there some victim^H^H^H^H^H^Hhero who would
-> want to do the 'sed s/time_after(jiffies,/timeout_expired(/g' and verify
-> that it does the right thing and send it to me as a patch?
-> 
-> The thing is, I wonder if it should be "time_after(jiffies,x)" or
-> "time_after_eq(jiffies,x)". There's a single-tick difference there..
-> 
+> The MIPS box (an SGI Indy) has been having problems compiling kernels
+> since I first put Linux on it I've never had a kernel complete the
+> basic image compile (make vmlinux)  between 2.4.16-2.4.18 there were
+> problems compiling one of the keyboard drivers, 2.4.19-pre5 had the two
+> problems I'm about to describe, as does 2.4.19-pre7.  2.4.19-pre6
+> wouldn't even attempt to compile.
 
-If you allow a lazy victim to throw in some statistics first:  ;-)
+The stock kernel doesn't build for MIPS nor has all the latest fixes.
+Get the latest 2.4 kernel from the cvs archive on oss.sgi.com, branch
+linux_2_4, see also the section about anon cvs in
+http://oss.sgi.com/mips/mips-howto.html.
 
-299 potential users preferring time_after_eq, and 160 voting for 
-time_after (assuming use of !timeout_expired(x), too):
-
-linux-2.5.13> find ./ -name "*.[ch]" -exec grep "time_before(*jiffies"
- /dev/null {} \; | wc -l
-    248
-linux-2.5.13> find ./ -name "*.[ch]" -exec grep "time_before_eq( *jiffies" 
- /dev/null {} \; | wc -l
-     20
-linux-2.5.13> find ./ -name "*.[ch]" -exec grep "time_after( *jiffies" 
- /dev/null {} \; | wc -l
-    140
-linux-2.5.13> find ./ -name "*.[ch]" -exec grep "time_after_eq( *jiffies" 
- /dev/null {} \; | wc -l
-     51
-
-That probably means we need both, as something like 
-timeout_expired(x+1) seems to call for new "off by one" errors.
-
-
-Tim
-
-
+  Ralf

@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271584AbTGQWbb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 18:31:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271601AbTGQWaD
+	id S271587AbTGQWbc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 18:31:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271618AbTGQW3u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 18:30:03 -0400
-Received: from inet-mail3.oracle.com ([148.87.2.203]:49393 "EHLO
-	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
-	id S271612AbTGQW26 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 18:28:58 -0400
-Date: Thu, 17 Jul 2003 15:43:08 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Andrew Morton <akpm@osdl.org>, miquels@cistron.nl,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] print_dev_t for 2.6.0-test1-mm
-Message-ID: <20030717224307.GF19891@ca-server1.us.oracle.com>
-Mail-Followup-To: Andries Brouwer <aebr@win.tue.nl>,
-	Andrew Morton <akpm@osdl.org>, miquels@cistron.nl,
-	linux-kernel@vger.kernel.org
-References: <20030716184609.GA1913@kroah.com> <20030717014410.A2026@pclin040.win.tue.nl> <20030716164917.2a7a46f4.akpm@osdl.org> <20030717122600.A2302@pclin040.win.tue.nl> <bf5uqb$3ei$1@news.cistron.nl> <20030717131955.D2302@pclin040.win.tue.nl> <20030717145507.3ce5042c.akpm@osdl.org> <20030718002451.A2569@pclin040.win.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 17 Jul 2003 18:29:50 -0400
+Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:15803 "HELO
+	develer.com") by vger.kernel.org with SMTP id S271601AbTGQW3O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 18:29:14 -0400
+From: Bernardo Innocenti <bernie@develer.com>
+Organization: Develer S.r.l.
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: do_div64 generic
+Date: Fri, 18 Jul 2003 00:43:58 +0200
+User-Agent: KMail/1.5.9
+Cc: george@mvista.com, linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk,
+       torvalds@osdl.org
+References: <3F1360F4.2040602@mvista.com> <200307172310.48918.bernie@develer.com> <20030717141608.5f1b7710.akpm@osdl.org>
+In-Reply-To: <20030717141608.5f1b7710.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20030718002451.A2569@pclin040.win.tue.nl>
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200307180043.58901.bernie@develer.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 18, 2003 at 12:24:51AM +0200, Andries Brouwer wrote:
-> Premise: some filesystems or archives store 32 bits.
-> Conclusion: we must be able to handle that.
-> This is unrelated to the kernel, unrelated to system calls,
-> it is related to <sys/sysmacros.h>.
+On Thursday 17 July 2003 23:16, Andrew Morton wrote:
+> Bernardo Innocenti <bernie@develer.com> wrote:
+> > 2) replace all uses of div_long_long_rem() (I see onlt 4 of them in
+> >    2.6.0-test1) with do_div(). This is slightly less efficient, but
+> >    easier to maintain in the long term.
+>
+> Ths one's OK by me.  Let's just fix the bug with minimum risk and churn.
 
-	How does linux handle that today?  IIRC, it ignores the high
-16bits and treats that 32bit number as 8:8.  That is what happens today,
-for every filesystem, whether it stores 32 or 16 bits.
-	Why expand that?  We can continue to treat 32bit numbers (eg,
-from NFSv2) as 16bit numbers.
-
-Joel
-
+Ok, I will be preparing a patch tomorrow unless there are more objections.
 
 -- 
+  // Bernardo Innocenti - Develer S.r.l., R&D dept.
+\X/  http://www.develer.com/
 
-"One of the symptoms of an approaching nervous breakdown is the
- belief that one's work is terribly important."
-         - Bertrand Russell 
+Please don't send Word attachments - http://www.gnu.org/philosophy/no-word-attachments.html
 
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+

@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272059AbTHNAIa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 20:08:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272066AbTHNAIa
+	id S272053AbTHNAOY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 20:14:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272066AbTHNAOY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 20:08:30 -0400
-Received: from evrtwa1-ar2-4-33-045-074.evrtwa1.dsl-verizon.net ([4.33.45.74]:7100
-	"EHLO grok.yi.org") by vger.kernel.org with ESMTP id S272059AbTHNAI3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 20:08:29 -0400
-Message-ID: <3F3AD2FB.8010109@candelatech.com>
-Date: Wed, 13 Aug 2003 17:08:27 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.4.21: Increase dynamic proc slots to 8192 from 4096
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 13 Aug 2003 20:14:24 -0400
+Received: from fw.osdl.org ([65.172.181.6]:64196 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S272053AbTHNAOX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 20:14:23 -0400
+Date: Wed, 13 Aug 2003 17:00:07 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: markw@osdl.org
+Cc: piggin@cyberone.com.au, axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: bounce buffers and i/o schedulers with aacraid
+Message-Id: <20030813170007.61694cbb.akpm@osdl.org>
+In-Reply-To: <200308132316.h7DNGao27969@mail.osdl.org>
+References: <200308132316.h7DNGao27969@mail.osdl.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This fixes problems I was seeing while trying to create a large number
-of vlan interfaces (each interface has a proc file entry).
+markw@osdl.org wrote:
+>
+> We're still trying to avoid bounce buffers with the aacraid driver and
+> noticed something interesting in some profiles (which I'll copy farther
+> down) with the deadline scheduler and AS.  Using our DBT-2 workload, we
+> see with the deadline scheduler our patch to avoid bounce buffers
+> doesn't change the profile much.  But with AS, we don't see
+> bounce_copy_vec or __blk_queue_bounce near the top of the profile.  Any
+> ideas why?
 
-I hear it's even larger in 2.5.X, so if anyone wants to double it again,
-please feel free!
+It shouldn't make any difference.
 
+One thing to be careful about is to make sure that the pages which are
+being put under I/O are in the same place across different tests.
 
-+++ linux-2.4.21.amds/include/linux/proc_fs.h	2003-08-13 16:47:29.000000000 -0700
-@@ -25,7 +25,8 @@
-  /* Finally, the dynamically allocatable proc entries are reserved: */
-
-  #define PROC_DYNAMIC_FIRST 4096
--#define PROC_NDYNAMIC      4096
-+#define PROC_NDYNAMIC      8192 /* was 4096 previously, but was running out of
-+                                 * slots when creating lots of VLANs --Ben */
-
-  #define PROC_SUPER_MAGIC 0x9fa0
-
-
--- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
-
+Suppose your machine already had 3G of pagecache and you then run the test.
+You would magically find that newly allocated pages come out of
+ZONE_NORMAL and no bouncing is needed for them.  So the moral is to make
+sure that the starting conditions are the same for each test: almost all
+memory free.
 

@@ -1,65 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261425AbUC3Wak (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 17:30:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbUC3Wak
+	id S261460AbUC3Wci (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 17:32:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbUC3Wch
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 17:30:40 -0500
-Received: from mail.tpgi.com.au ([203.12.160.100]:15801 "EHLO
-	mail5.tpgi.com.au") by vger.kernel.org with ESMTP id S261425AbUC3Wai
+	Tue, 30 Mar 2004 17:32:37 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:54971 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261427AbUC3Wcf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 17:30:38 -0500
-Subject: Re: [Swsusp-devel] [PATCH 2.6]: suspend to disk only available if
-	non-modular IDE
-From: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Reply-To: ncunningham@users.sourceforge.net
-To: Andreas Jellinghaus <aj@dungeon.inka.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1080631869.1118.12.camel@simulacron>
-References: <200403282136.55435.arekm@pld-linux.org>
-	 <1080517040.2223.3.camel@laptop-linux.wpcb.org.au>
-	 <1080517591.5047.10.camel@laptop-linux.wpcb.org.au>
-	 <pan.2004.03.29.21.34.45.973137@dungeon.inka.de>
-	 <1080629551.12019.12.camel@laptop-linux.wpcb.org.au>
-	 <1080631869.1118.12.camel@simulacron>
-Content-Type: text/plain
-Message-Id: <1080685396.13014.3.camel@laptop-linux.wpcb.org.au>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4-8mdk 
-Date: Wed, 31 Mar 2004 08:23:16 +1000
+	Tue, 30 Mar 2004 17:32:35 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Jeff Garzik <jgarzik@pobox.com>, "Stephen C. Tweedie" <sct@redhat.com>
+Subject: Re: [PATCH] barrier patch set
+Date: Wed, 31 Mar 2004 00:40:43 +0200
+User-Agent: KMail/1.5.3
+Cc: Chris Mason <mason@suse.com>, Jens Axboe <axboe@suse.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20040319153554.GC2933@suse.de> <1080683417.1978.53.camel@sisko.scot.redhat.com> <4069F2FC.90003@pobox.com>
+In-Reply-To: <4069F2FC.90003@pobox.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
+Content-Disposition: inline
+Message-Id: <200403310040.43034.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Wednesday 31 of March 2004 00:21, Jeff Garzik wrote:
+> Stephen C. Tweedie wrote:
+> > Yep.  It scares me to think what performance characteristics we'll start
+> > seeing once that gets used everywhere it's needed, though.  If every raw
+> > or O_DIRECT write needs a flush after it, databases are going to become
+> > very sensitive to flush performance.  I guess disabling the flushing and
+> > using disks which tell the truth about data hitting the platter is the
+> > sane answer there.
+>
+> For IDE, O_DIRECT and O_SYNC can use special "FUA" commands, which don't
+> return until the data is on the platter.
 
-On Tue, 2004-03-30 at 17:31, Andreas Jellinghaus wrote:
-> > That should be doable, provided that the initrd doesn't mount anything.
-> > Decryption is 'interesting'. The key needs to be set up in the resumed
-> > kernel too. (Shouldn't be a problem, if you manage to suspend to it!).
-> 
-> I don't know if loading modules can be done without, but the usual way
-> is to mount /sys and /proc so you can see what hardware is available.
+Do you know of any drive supporting it?  I don't.
 
-They would be fine. The key thing is that none of the filesystems which
-have journals get mounted. That would cause the crash recovery routines
-to run, resulting inconsistency between the image on disk and the one
-that the suspend image contains. You could probably do just about
-anything, so long as those filesystems aren't mounted. Assuming that is
-done, actually calling suspend after an initrd is run shouldn't be a
-problem, so far as I know.
-
-Regards,
-
-Nigel
-
--- 
-Nigel Cunningham
-C/- Westminster Presbyterian Church Belconnen
-61 Templeton Street, Cook, ACT 2614.
-+61 (2) 6251 7727(wk); +61 (2) 6253 0250 (home)
-
-Evolution (n): A hypothetical process whereby infinitely improbable events occur 
-with alarming frequency, order arises from chaos, and no one is given credit.
+Bartlomiej
 

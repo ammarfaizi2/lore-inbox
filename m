@@ -1,116 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261524AbSKKWqc>; Mon, 11 Nov 2002 17:46:32 -0500
+	id <S261559AbSKKWs5>; Mon, 11 Nov 2002 17:48:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261530AbSKKWqc>; Mon, 11 Nov 2002 17:46:32 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:23517 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S261524AbSKKWqa>;
-	Mon, 11 Nov 2002 17:46:30 -0500
-Subject: Re: Kexec for v2.5.47 (test feedback)
-From: Andy Pfiffer <andyp@osdl.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Werner Almesberger <wa@almesberger.net>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       "Matt D. Robinson" <yakker@aparity.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Mike Galbraith <efault@gmx.de>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-In-Reply-To: <m1vg349dn5.fsf@frodo.biederman.org>
-References: <Pine.LNX.4.44.0211091901240.2336-100000@home.transmeta.com> 
-	<m1vg349dn5.fsf@frodo.biederman.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 11 Nov 2002 14:52:29 -0800
-Message-Id: <1037055149.13304.47.camel@andyp>
-Mime-Version: 1.0
+	id <S261565AbSKKWs4>; Mon, 11 Nov 2002 17:48:56 -0500
+Received: from elin.scali.no ([62.70.89.10]:37391 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S261559AbSKKWsz>;
+	Mon, 11 Nov 2002 17:48:55 -0500
+Date: Mon, 11 Nov 2002 23:56:32 +0100 (CET)
+From: Steffen Persvold <sp@scali.com>
+X-X-Sender: sp@sp-laptop.isdn.scali.no
+To: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: [PATCH] Fixup pci_alloc_consistent with 64bit DMA masks on i386
+Message-ID: <Pine.LNX.4.44.0211112348570.1118-200000@sp-laptop.isdn.scali.no>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463794943-629297067-1037055392=:1118"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-11-11 at 10:15, Eric W. Biederman wrote:
-> kexec is a set of system calls that allows you to load another kernel
-> from the currently executing Linux kernel.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-> And is currently kept in two pieces.
-> The pure system call.
-> http://www.xmission.com/~ebiederm/files/kexec/linux-2.5.47.x86kexec.diff
+---1463794943-629297067-1037055392=:1118
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-FYI: that patch applies cleanly to pure 2.5.47 (bk ChangeSet@1.823).
+Hi Marcello,
 
-The current front of the tree does not patch 100% cleanly (conflicts
-with recent module changes).
+I posted this small one-liner to Alan Cox (and to the lkml) in August but 
+it doesn't seem to have gotten into the mainline yet (I think it is in -ac).
 
-Results on my usual problem machine:
+The issue is that PCI drivers which uses 64bit DMA masks (in order to do 
+DAC) is making unnecessary use of the DMA zone memory (the <16Meg region 
+on i386) when doing pci_alloc_consitent().
 
-# ./kexec-1.5 ./kexec_test-1.5
-Shutting down devices
-Debug: sleeping function called from illegal context at include/asm/semaphore.h9
-Call Trace: [<c011a698>]  [<c0216193>]  [<c012b165>]  [<c0132dec>]  [<c0140357> Starting new kernel
-kexec_test 1.5 starting...
-eax: 0E1FB007 ebx: 00001078 ecx: 00000000 edx: 00000000
-esi: 00000000 edi: 00000000 esp: 00000000 ebp: 00000000
-idt: 00000000 C0000000
-gdt: 00000000 C0000000
-Switching descriptors.
-Descriptors changed.
-Legacy pic setup.
-In real mode.
-<hang>
+Hope this gets into the next -rc or .21-pre
 
-Sorry about the linewrap.
-
-Same as last time, but the good news is that splitting the load and reboot
-operations works as expected.
-
-> And the set of hardware fixes known to help kexec.
-> http://www.xmission.com/~ebiederm/files/kexec/linux-2.5.47.x86kexec-hwfixes.diff
-
-Missing or inaccessible.  I'll try some duct tape and the
-linux-2.5.44.x86kexec-hwfixes.diff and see what happens.
-
-Confirming some earlier suspicions:
-CONFIG_SMP=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-
-Last time I tried to run a UP kernel (and no APIC support) on this system
-it wasn't pretty.  I'll add that to my list of combinations to try.
-
-And as always:
-% lspci 
-00:00.0 Host bridge: ServerWorks CNB20LE Host Bridge (rev 06)
-00:00.1 Host bridge: ServerWorks CNB20LE Host Bridge (rev 06)
-00:01.0 VGA compatible controller: S3 Inc. Savage 4 (rev 04)
-00:09.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 08)
-00:0f.0 ISA bridge: ServerWorks OSB4 South Bridge (rev 50)
-00:0f.1 IDE interface: ServerWorks OSB4 IDE Controller
-00:0f.2 USB Controller: ServerWorks OSB4/CSB5 OHCI USB Controller (rev 04)
-01:03.0 SCSI storage controller: Adaptec AIC-7892P U160/m (rev 02)
-% cat /proc/cpuinfo
-processor	: 0
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 8
-model name	: Pentium III (Coppermine)
-stepping	: 10
-cpu MHz		: 799.957
-cache size	: 256 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse
-bogomips	: 1576.96
-% 
+Regards,
+-- 
+  Steffen Persvold   |       Scali AS      
+ mailto:sp@scali.com |  http://www.scali.com
+Tel: (+47) 2262 8950 |   Olaf Helsets vei 6
+Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY
 
 
+---1463794943-629297067-1037055392=:1118
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="pci-dma.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0211112356320.1118@sp-laptop.isdn.scali.no>
+Content-Description: 
+Content-Disposition: attachment; filename="pci-dma.patch"
 
+LS0tIGxpbnV4LTIuNC4xOS1vbGQvYXJjaC9pMzg2L2tlcm5lbC9wY2ktZG1h
+LmMufjF+CVdlZCBBdWcgMTQgMTU6MDY6NDkgMjAwMg0KKysrIGxpbnV4LTIu
+NC4xOS9hcmNoL2kzODYva2VybmVsL3BjaS1kbWEuYwlXZWQgQXVnIDE0IDE1
+OjA4OjI5IDIwMDINCkBAIC0xOSw3ICsxOSw3IEBADQogCXZvaWQgKnJldDsN
+CiAJaW50IGdmcCA9IEdGUF9BVE9NSUM7DQogDQotCWlmIChod2RldiA9PSBO
+VUxMIHx8IGh3ZGV2LT5kbWFfbWFzayAhPSAweGZmZmZmZmZmKQ0KKwlpZiAo
+aHdkZXYgPT0gTlVMTCB8fCBod2Rldi0+ZG1hX21hc2sgPCAweGZmZmZmZmZm
+KQ0KIAkJZ2ZwIHw9IEdGUF9ETUE7DQogCXJldCA9ICh2b2lkICopX19nZXRf
+ZnJlZV9wYWdlcyhnZnAsIGdldF9vcmRlcihzaXplKSk7DQogDQo=
+---1463794943-629297067-1037055392=:1118--

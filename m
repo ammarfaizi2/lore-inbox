@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261397AbSIZA0m>; Wed, 25 Sep 2002 20:26:42 -0400
+	id <S261458AbSIZAal>; Wed, 25 Sep 2002 20:30:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261458AbSIZA0m>; Wed, 25 Sep 2002 20:26:42 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:10881 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261397AbSIZA0j>;
-	Wed, 25 Sep 2002 20:26:39 -0400
-Date: Wed, 25 Sep 2002 17:25:40 -0700 (PDT)
-Message-Id: <20020925.172540.39155660.davem@redhat.com>
-To: riel@conectiva.com.br
-Cc: nf@hipac.org, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] NF-HIPAC: High Performance Packet Classification
- for Netfilter
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44L.0209252109380.22735-100000@imladris.surriel.com>
-References: <20020925.155246.41632313.davem@redhat.com>
-	<Pine.LNX.4.44L.0209252109380.22735-100000@imladris.surriel.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S261461AbSIZAal>; Wed, 25 Sep 2002 20:30:41 -0400
+Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:63167 "EHLO
+	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S261458AbSIZAak>; Wed, 25 Sep 2002 20:30:40 -0400
+Date: Wed, 25 Sep 2002 21:35:41 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Peter Chubb <peter@chubb.wattle.id.au>
+cc: Lightweight Patch Manager <patch@luckynet.dynu.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Tomas Szepe <szepe@pinerecords.com>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH][2.5] Single linked lists for Linux
+In-Reply-To: <15762.20827.271317.595537@wombat.chubb.wattle.id.au>
+Message-ID: <Pine.LNX.4.44L.0209252133490.22735-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Rik van Riel <riel@conectiva.com.br>
-   Date: Wed, 25 Sep 2002 21:10:02 -0300 (BRT)
+On Thu, 26 Sep 2002, Peter Chubb wrote:
 
-   On Wed, 25 Sep 2002, David S. Miller wrote:
-   
-   > Everything, from packet forwarding, to firewalling, to TCP socket
-   > packet receive, can be described with routes.
-   
-   QoS stuff too ?
-   
-It is definitely possible.
+> +#define slist_del(_head, _entry)		\
+>
+> This only works if head->next == entry otherwise you lose half your
+> list.  Also, none of this is SMP-safe.
+
+Oh boy, this is the material bad jokes are made from ...
+
+Q: How many lightweight patch managers does it take to do a
+   singly linked list list_del ?
+A: 4, two to hold down the list head, one to chop off the tail
+   and another one to sweep the lost entries under the carpet.
+
+Sorry, but I couldn't resist this one ;)
+
+cheers,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Spamtraps of the month:  september@surriel.com trac@trac.org
+
+

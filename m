@@ -1,61 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263045AbUEBNKs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263059AbUEBNOi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263045AbUEBNKs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 May 2004 09:10:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263057AbUEBNKs
+	id S263059AbUEBNOi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 May 2004 09:14:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263057AbUEBNOi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 May 2004 09:10:48 -0400
-Received: from mail.parknet.co.jp ([210.171.160.6]:21516 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S263045AbUEBNKg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 May 2004 09:10:36 -0400
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+	Sun, 2 May 2004 09:14:38 -0400
+Received: from lindsey.linux-systeme.com ([62.241.33.80]:25875 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S263059AbUEBNO2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 May 2004 09:14:28 -0400
+From: Marc-Christian Petersen <m.c.p@wolk.linux-systeme.com>
+To: Peter Hicks <peter.hicks@poggs.co.uk>, Arne Schwabe <plaisthos@web.de>
+Subject: Re: 2.6.6-rc3, nvidia.o and CONFIG_4KSTACKS
+Date: Sun, 2 May 2004 15:12:17 +0200
+User-Agent: KMail/1.6.2
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] FAT: small cleanup (3/4)
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sun, 02 May 2004 22:10:31 +0900
-Message-ID: <87wu3vrn3s.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+References: <4094F005.5000501@poggs.co.uk>
+In-Reply-To: <4094F005.5000501@poggs.co.uk>
+X-Operating-System: Linux 2.6.5-wolk3.0 i686 GNU/Linux
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organization: Linux-Systeme GmbH
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_xOPlAWJvAmzjq7I"
+Message-Id: <200405021512.17672@WOLK>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-just small cleanup.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+--Boundary-00=_xOPlAWJvAmzjq7I
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
+On Sunday 02 May 2004 14:56, Peter Hicks wrote:
 
+Hi Peter,
 
- fs/fat/file.c |    2 +-
- fs/fat/misc.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+> Just a quickie - the NVidia driver kills my machine when running 2.6.6-rc3
+> with CONFIG_4KSTACKS turned on.
+>
+> My fault for choosing the card.  Any chance of a warning in the help text
+> for that option?
 
-diff -puN fs/fat/misc.c~fat_micro-cleanup fs/fat/misc.c
---- linux-2.6.6-rc3/fs/fat/misc.c~fat_micro-cleanup	2004-05-02 19:15:43.000000000 +0900
-+++ linux-2.6.6-rc3-hirofumi/fs/fat/misc.c	2004-05-02 19:15:43.000000000 +0900
-@@ -205,7 +205,7 @@ struct buffer_head *fat_extend_dir(struc
- 	if (inode->i_size & (sb->s_blocksize - 1)) {
- 		fat_fs_panic(sb, "Odd directory size");
- 		inode->i_size = (inode->i_size + sb->s_blocksize)
--			& ~(sb->s_blocksize - 1);
-+			& ~((loff_t)sb->s_blocksize - 1);
- 	}
- 	inode->i_size += MSDOS_SB(sb)->cluster_size;
- 	MSDOS_I(inode)->mmu_private += MSDOS_SB(sb)->cluster_size;
-diff -puN fs/fat/file.c~fat_micro-cleanup fs/fat/file.c
---- linux-2.6.6-rc3/fs/fat/file.c~fat_micro-cleanup	2004-05-02 19:15:43.000000000 +0900
-+++ linux-2.6.6-rc3-hirofumi/fs/fat/file.c	2004-05-02 19:15:43.000000000 +0900
-@@ -50,7 +50,7 @@ int fat_get_block(struct inode *inode, s
- 		BUG();
- 		return -EIO;
- 	}
--	if (!((unsigned long)iblock % MSDOS_SB(sb)->sec_per_clus)) {
-+	if (!((unsigned long)iblock & (MSDOS_SB(sb)->sec_per_clus - 1))) {
- 		int error;
+ack.
+
+ciao, Marc
+
+--Boundary-00=_xOPlAWJvAmzjq7I
+Content-Type: text/x-diff;
+  charset="iso-8859-15";
+  name="0002_01-2.6.5-mm6-4k-stacks-NVIDIA-hint.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="0002_01-2.6.5-mm6-4k-stacks-NVIDIA-hint.patch"
+
+# 2.6.4-WOLK2.1
+
+--- old/arch/i386/Kconfig	2004-04-11 12:39:26.000000000 +0200
++++ new/arch/i386/Kconfig	2004-04-11 12:40:35.000000000 +0200
+@@ -1504,6 +1504,8 @@ config 4KSTACKS
+ 	  on the VM subsystem for higher order allocations. This option
+ 	  will also use IRQ stacks to compensate for the reduced stackspace.
  
- 		error = fat_add_cluster(inode);
++	  Do NOT select this if you intend to use NVIDIA binary only modules!
++
+ config SCHEDSTATS
+ 	bool "Collect scheduler statistics"
+ 	depends on PROC_FS
 
-_
+--Boundary-00=_xOPlAWJvAmzjq7I--

@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129190AbRBAGPI>; Thu, 1 Feb 2001 01:15:08 -0500
+	id <S129808AbRBAGyd>; Thu, 1 Feb 2001 01:54:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129290AbRBAGO6>; Thu, 1 Feb 2001 01:14:58 -0500
-Received: from mdmgrp2-6.accesstoledo.net ([207.43.107.6]:29444 "EHLO
-	rosswinds.net") by vger.kernel.org with ESMTP id <S129190AbRBAGOu>;
-	Thu, 1 Feb 2001 01:14:50 -0500
-Date: Wed, 31 Jan 2001 01:14:11 -0500 (EST)
+	id <S129870AbRBAGyX>; Thu, 1 Feb 2001 01:54:23 -0500
+Received: from mdmgrp2-6.accesstoledo.net ([207.43.107.6]:42500 "EHLO
+	rosswinds.net") by vger.kernel.org with ESMTP id <S129808AbRBAGyL>;
+	Thu, 1 Feb 2001 01:54:11 -0500
+Date: Wed, 31 Jan 2001 01:52:54 -0500 (EST)
 From: "Michael B. Trausch" <fd0man@crosswinds.net>
-To: "Michael J. Dikkema" <mjd@moot.ca>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.1 - can't read root fs (devfs maybe?)
-In-Reply-To: <Pine.LNX.4.21.0101312258190.227-100000@sliver.moot.ca>
-Message-ID: <Pine.LNX.4.21.0101310111120.3842-100000@fd0man.accesstoledo.com>
+To: John R Lenton <john@grulic.org.ar>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: VIA IDE problems related to heat?
+In-Reply-To: <20010201033535.A576@grulic.org.ar>
+Message-ID: <Pine.LNX.4.21.0101310151280.3842-100000@fd0man.accesstoledo.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Jan 2001, Michael J. Dikkema wrote:
-> 
-> I went from 2.4.0 to 2.4.1 and was surprised that either the root
-> filesystem wasn't mounted, or it couldn't be read. I'm using devfs.. I'm
-> thinking there might have been a change with regards to the devfs
-> tree.. is the legacy /dev/hda1 still /dev/discs/disc0/part1?
+On Thu, 1 Feb 2001, John R Lenton wrote:
+>
+> I'm looking for confirmations on any kind of correlation between
+> the problems people have been having with the assorted VIA IDE
+> chipsets and possible overheating of said chipsets.
 > 
 
-First off, are you using ext2fs for your main filesystem (for /)?  If so,
-are there any *other* errors?
-
-Also, /dev/hda1 == /dev/ide/host0/bus0/target0/lun0/part1 on my computer,
-Kernel 2.4.1, with devfs enabled.  It can also be referenced via another
-symlink (/dev/ide/hd/c0b0t0u0p1), which is the same thing.
+I used to have problems with my motherboard in nearly all operating
+systems if I let the system overheat.  I don't know the exact temprature,
+but some of the chips were hot enough to literally burn me when I touched
+them.  I run with an open case in a 40 degree room now, with minor
+circulation of air around the computer and I haven't had the problem ever
+since.  I turn the PC off on days when the room temperature exceeds 80
+degrees, becuase that's it's primary time to overheat.
 
 	- Mike
 

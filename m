@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267137AbTAURke>; Tue, 21 Jan 2003 12:40:34 -0500
+	id <S267129AbTAURmi>; Tue, 21 Jan 2003 12:42:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267138AbTAURke>; Tue, 21 Jan 2003 12:40:34 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:54171
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S267137AbTAURke>; Tue, 21 Jan 2003 12:40:34 -0500
-Date: Tue, 21 Jan 2003 12:49:42 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: Alan <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.5] smp_call_function_mask
-In-Reply-To: <3E2D7FB2.80806@colorfullife.com>
-Message-ID: <Pine.LNX.4.44.0301211248570.2653-100000@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267134AbTAURmi>; Tue, 21 Jan 2003 12:42:38 -0500
+Received: from mta1.srv.hcvlny.cv.net ([167.206.5.4]:17870 "EHLO
+	mta1.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id <S267129AbTAURmh>; Tue, 21 Jan 2003 12:42:37 -0500
+Date: Tue, 21 Jan 2003 12:51:38 -0500
+From: Mace Moneta <mace@monetafamily.org>
+Subject: Re: [Problem] PCI resource conflicts in recent 2.4 kernels -	second try
+In-reply-to: <20030121185222.A1359@jurassic.park.msu.ru>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: linux-kernel@vger.kernel.org
+Reply-to: mmoneta@optonline.net
+Message-id: <1043171498.20312.27.camel@optonline.net>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.0
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <1042989167.7294.31.camel@optonline.net>
+ <1043154817.25168.4.camel@optonline.net>
+ <20030121185222.A1359@jurassic.park.msu.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Jan 2003, Manfred Spraul wrote:
+Yes, confirming that this corrected the problem.  Tested in 2.4.21-pre3.
+Thanks for your help!
 
-> You can blame me for the mess with smp_call_function:
-> 2.2 supported nonatomic calls. I have no idea if that was deadlock free.
+
+On Tue, 2003-01-21 at 10:52, Ivan Kokshaysky wrote:
+> On Tue, Jan 21, 2003 at 08:13:38AM -0500, Mace Moneta wrote:
+> > > 00:06.0 PCI bridge: Toshiba America Info Systems: Unknown device 0605 (rev 04)
+> > > (prog-if 00 [Normal decode])
 > 
-> But noone used the 'retry/nonatomic' parameter, noone handled an error 
-> return of  smp_call_function (some callers panic).
-> Thus I've removed these features from i386, without changing the 
-> prototype. I think all archs have picked that up now.
-> But retry/nonatomic should not spread into new functions.
-
-Ok i'll send something with forced retry and removing the nonatomic/retry 
-parameter completely.
-
-	Zwane
--- 
-function.linuxpower.ca
+> Yet another broken bridge...
+> Does this patch help?
+> 
+> Ivan.
+> 
+> --- linux/drivers/pci/quirks.c.orig	Tue Jan 21 18:45:55 2003
+> +++ linux/drivers/pci/quirks.c	Tue Jan 21 18:43:13 2003
+> @@ -586,6 +586,7 @@ static struct pci_fixup pci_fixups[] __i
+>  	 * instead of 0x01.
+>  	 */
+>  	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82380FB,	quirk_transparent_bridge },
+> +	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_TOSHIBA,	0x605,				quirk_transparent_bridge },
+>  
+>  	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_CYRIX,	PCI_DEVICE_ID_CYRIX_PCI_MASTER, quirk_mediagx_master },
+>  
 

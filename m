@@ -1,84 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261723AbVC3Dso@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261372AbVC3D47@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261723AbVC3Dso (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 22:48:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261745AbVC3Dqn
+	id S261372AbVC3D47 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 22:56:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261365AbVC3D47
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 22:46:43 -0500
-Received: from ozlabs.org ([203.10.76.45]:63149 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261746AbVC3DqV (ORCPT
+	Tue, 29 Mar 2005 22:56:59 -0500
+Received: from ozlabs.org ([203.10.76.45]:29614 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261372AbVC3DxN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 22:46:21 -0500
-Date: Wed, 30 Mar 2005 13:44:49 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Jeff Garzik <jgarzik@pobox.com>, Pavel Roskin <proski@gnu.org>,
-       Orinoco Development List <orinoco-devel@lists.sourceforge.net>,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: [4/5] Orinoco merge updates, part the fourth: don't set channel in managed mode
-Message-ID: <20050330034449.GJ6478@localhost.localdomain>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	Pavel Roskin <proski@gnu.org>,
-	Orinoco Development List <orinoco-devel@lists.sourceforge.net>,
-	netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-References: <20050330034238.GF6478@localhost.localdomain> <20050330034316.GG6478@localhost.localdomain> <20050330034403.GH6478@localhost.localdomain> <20050330034429.GI6478@localhost.localdomain>
-Mime-Version: 1.0
+	Tue, 29 Mar 2005 22:53:13 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050330034429.GI6478@localhost.localdomain>
-User-Agent: Mutt/1.5.6+20040523i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16970.9005.721117.942549@cargo.ozlabs.ibm.com>
+Date: Wed, 30 Mar 2005 13:55:25 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org
+Subject: Re: prefetch on ppc64
+In-Reply-To: <20050330034034.GA1752@IBM-BWN8ZTBWA01.austin.ibm.com>
+References: <20050330034034.GA1752@IBM-BWN8ZTBWA01.austin.ibm.com>
+X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Don't attempt to manually set the channel in infrastructure mode, the
-firmware doesn't like that much.  Also don't attempt to override the
-firmware's default channel number for IBSS mode (I believe default
-channel can vary by regulatory domain).
+Serge E. Hallyn writes:
 
-Signed-off-by: David Gibson <hermes@gibson.dropbear.id.au>
+> While investigating the inordinate performance impact one of my patches
+> seemed to be having, we tracked it down to two hlist_for_each_entry
+> loops, and finally to the prefetch instruction in the loop.
 
-Index: working-2.6/drivers/net/wireless/orinoco.c
-===================================================================
---- working-2.6.orig/drivers/net/wireless/orinoco.c	2005-03-11 15:07:08.000000000 +1100
-+++ working-2.6/drivers/net/wireless/orinoco.c	2005-03-11 16:13:31.000000000 +1100
-@@ -1615,17 +1615,15 @@
- 		return err;
- 	}
- 	/* Set the channel/frequency */
--	if (priv->channel == 0) {
--		printk(KERN_DEBUG "%s: Channel is 0 in __orinoco_program_rids()\n", dev->name);
--		if (priv->createibss)
--			priv->channel = 10;
--	}
--	err = hermes_write_wordrec(hw, USER_BAP, HERMES_RID_CNFOWNCHANNEL,
--				   priv->channel);
--	if (err) {
--		printk(KERN_ERR "%s: Error %d setting channel\n",
--		       dev->name, err);
--		return err;
-+	if (priv->channel != 0 && priv->iw_mode != IW_MODE_INFRA) {
-+		err = hermes_write_wordrec(hw, USER_BAP,
-+					   HERMES_RID_CNFOWNCHANNEL,
-+					   priv->channel);
-+		if (err) {
-+			printk(KERN_ERR "%s: Error %d setting channel %d\n",
-+			       dev->name, err, priv->channel);
-+			return err;
-+		}
- 	}
- 
- 	if (priv->has_ibss) {
-@@ -2405,7 +2403,7 @@
- 	/* By default use IEEE/IBSS ad-hoc mode if we have it */
- 	priv->prefer_port3 = priv->has_port3 && (! priv->has_ibss);
- 	set_port_type(priv);
--	priv->channel = 10; /* default channel, more-or-less arbitrary */
-+	priv->channel = 0; /* use firmware default */
- 
- 	priv->promiscuous = 0;
- 	priv->wep_on = 0;
+I would be interested to know what results you get if you leave the
+loops using hlist_for_each_entry but change prefetch() and prefetchw()
+to do the dcbt or dcbtst instruction only if the address is non-zero,
+like this:
 
--- 
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/people/dgibson
+static inline void prefetch(const void *x)
+{
+	if (x)
+	        __asm__ __volatile__ ("dcbt 0,%0" : : "r" (x));
+}
+
+static inline void prefetchw(const void *x)
+{
+	if (x)
+	        __asm__ __volatile__ ("dcbtst 0,%0" : : "r" (x));
+}
+
+It seems that doing a prefetch on a NULL pointer, while it doesn't
+cause a fault, does waste time looking for a translation of the zero
+address.
+
+Paul.

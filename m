@@ -1,55 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262148AbUJZHcf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262153AbUJZHdg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262148AbUJZHcf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 03:32:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbUJZHcf
+	id S262153AbUJZHdg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 03:33:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262163AbUJZHdg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 03:32:35 -0400
-Received: from run.smurf.noris.de ([192.109.102.41]:50599 "EHLO
-	server.smurf.noris.de") by vger.kernel.org with ESMTP
-	id S262148AbUJZHca (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 03:32:30 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Matthias Urlichs <smurf@smurf.noris.de>
-Newsgroups: smurf.list.linux.kernel
-Subject: Re: BK kernel workflow
-Date: Tue, 26 Oct 2004 09:32:20 +0200
-Organization: {M:U} IT Consulting
-Message-ID: <pan.2004.10.26.07.32.20.563552@smurf.noris.de>
-References: <41752E53.8060103@pobox.com> <Pine.LNX.4.58.0410241027320.13209@ppc970.osdl.org> <Pine.LNX.4.58.0410241045090.13209@ppc970.osdl.org> <200410242039.25407.mbuesch@freenet.de>
-NNTP-Posting-Host: kiste.smurf.noris.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: server.smurf.noris.de 1098775941 4243 192.109.102.35 (26 Oct 2004 07:32:21 GMT)
-X-Complaints-To: smurf@noris.de
-NNTP-Posting-Date: Tue, 26 Oct 2004 07:32:21 +0000 (UTC)
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
-X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
+	Tue, 26 Oct 2004 03:33:36 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:52235 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262153AbUJZHdH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 03:33:07 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: hpa@zytor.com (H. Peter Anvin), linux-kernel@vger.kernel.org
+Subject: Re: The naming wars continue...
+Date: Tue, 26 Oct 2004 10:32:48 +0300
+User-Agent: KMail/1.5.4
+References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org> <20041025232654.GC30574@thundrix.ch> <clkrak$rtl$1@terminus.zytor.com>
+In-Reply-To: <clkrak$rtl$1@terminus.zytor.com>
+Cc: Erik Andersen <andersen@codepoet.org>, uclibc@uclibc.org
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200410261032.34133.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Michael Buesch wrote:
+On Tuesday 26 October 2004 09:37, H. Peter Anvin wrote:
+> Followup to:  <20041025232654.GC30574@thundrix.ch>
+> By author:    Tonnerre <tonnerre@thundrix.ch>
+> In newsgroup: linux.dev.kernel
+> > 
+> > Salut,
+> > 
+> > On Sun, Oct 24, 2004 at 03:33:33PM +0200, Helge Hafting wrote:
+> > > Yes - lets stick to fewer numbers.  They can count faster, instead
+> > > of having a long string of them.  I hope linux doesn't
+> > > end up like X. "X11R6.8.1" The "X" itself is a counter, although
+> > > it is understandable if it never increments to "Y".  But
+> > > that "11" doesn't change much, and then there are three more numbers. :-/
+> > 
+> > X11  is the  name of  the  protocol: the  X Protocol,  version 11,  as
+> > released by the MIT. There was an X10.
+> > 
+> 
+> There also were a W, and and X1, X2, ... X11.
+> 
+> However, there is a tendency for numbers to get stuck (witness Linux
+> 2.x).  In particular, X11R6 got encoded in many places including
+> pathnames for no good reason.  Under the pre-R6 naming schemes we'd
+> had R7 a long time ago.
 
-> What do kernel developers think about svk?
-> (Yes, it's not mature, yet.)
-> I mean the svk concept. Does it also suck for kernel development?
+How true.
 
-The basic idea seems to be "We need feature X. We have a system that's
-mostly nice, but it cannot do X. Thus, graft a system to do X onto it.
-Voila, one SCM which can do everything we need". Experience suggests
-that if you do that, you end up with an ugly mess.
+# pwd
+/usr/src2/uClibc-0.9.26
+# grep -r X11R6 .
+./ldso/ldso/readelflib1.c:                      UCLIBC_RUNTIME_PREFIX "usr/X11R6/lib:"
+./utils/ldd.c:  path =  UCLIBC_RUNTIME_PREFIX "usr/X11R6/lib:"
+./utils/ldconfig.c:         scan_dir(UCLIBC_RUNTIME_PREFIX "/usr/X11R6/lib");
+./libpthread/linuxthreads/README.Xfree3.2:This file describes how to make a threaded X11R6.
+./libpthread/linuxthreads/README.Xfree3.2:You need the source-code of XFree-3.2. I used the sources of X11R6.1
+./libpthread/linuxthreads/README.Xfree3.2:cp XF3.2/xc/lib/*/*.so.?.? /usr/X11R6/lib/
+./libpthread/linuxthreads/README.Xfree3.2:cd /usr/X11R6/lib/
+./Changelog:    o Made the lib loader also support libs in /usr/X11R6/lib by default
 
-One reason why svk won't work for Linux is this:
+This should be removed.
 
-A true peer-to-peer system requires that both branches are treated equal.
-Bitkeeper got that one exactly right: if I have two repositories A and B,
-then importing A to B is the same thing as importing B to A. SVN can't do
-that, thus svk can't do it either.
+cd /usr/lib; ln -s /usr/X11R6/* .
+	or
+echo /usr/X11R6/lib >>/etc/ld.so.conf
 
-There are others.
-
--- 
-Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+are the better ways to handle this
+(I use first one)
+--
+vda
 

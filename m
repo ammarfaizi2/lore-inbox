@@ -1,64 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262132AbUB2UaI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 15:30:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbUB2UaI
+	id S262133AbUB2Uap (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 15:30:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262134AbUB2Uap
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 15:30:08 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:32401 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262132AbUB2UaD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 15:30:03 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Richard Zidlicky <rz@linux-m68k.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: Worrisome IDE PIO transfers...
-Date: Sun, 29 Feb 2004 21:36:33 +0100
-User-Agent: KMail/1.5.3
-Cc: Jeff Garzik <jgarzik@pobox.com>, Jens Axboe <axboe@suse.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-References: <4041232C.7030305@pobox.com> <Pine.GSO.4.58.0402290950590.7483@waterleaf.sonytel.be> <20040229192320.GA20299@linux-m68k.org>
-In-Reply-To: <20040229192320.GA20299@linux-m68k.org>
+	Sun, 29 Feb 2004 15:30:45 -0500
+Received: from ns2.len.rkcom.net ([80.148.32.9]:60810 "EHLO ns2.len.rkcom.net")
+	by vger.kernel.org with ESMTP id S262133AbUB2Uam (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Feb 2004 15:30:42 -0500
+From: Florian Schanda <ma1flfs@bath.ac.uk>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Copyright infringement by Walmart?
+Date: Sun, 29 Feb 2004 20:32:28 +0000
+User-Agent: KMail/1.6.1
+References: <Pine.LNX.4.44.0402291201330.776-100000@poirot.grange> <20040229131135.B10784@Marvin.DL8BCU.ampr.org>
+In-Reply-To: <20040229131135.B10784@Marvin.DL8BCU.ampr.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
+Content-Disposition: inline
+Content-Type: Text/Plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402292136.33589.bzolnier@elka.pw.edu.pl>
+Message-Id: <200402292032.29425.ma1flfs@bath.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 29 of February 2004 20:23, Richard Zidlicky wrote:
-> On Sun, Feb 29, 2004 at 09:52:08AM +0100, Geert Uytterhoeven wrote:
-> > On Sun, 29 Feb 2004, Bartlomiej Zolnierkiewicz wrote:
-> > > On Sunday 29 of February 2004 01:58, Jeff Garzik wrote:
-> > > > > I like Alan's idea to use loopback instead of "bswap".
-> > > >
-> > > > Neat but no more zerocopy that way.  I much prefer a
-> > > > swap-as-you-go...
-> > >
-> > > Okay, better solution:
-> > >
-> > > - on Atari/Q40:
-> > >   if drive->bswap use insw/outsw instead of swapping variants
-> >
-> > Yep, that sounds the most logical. Richard?
->
-> looks good.
->
-> However it appears to fix only part of the problem -  we need some
-> logic to ensure only disk data is swapped.
-> Bswapping WIN_DOWNLOAD_MICROCODE data would not be very
-> clever I guess.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Actually drive->bswap should die as I overlooked the fact that we are
-_not_ swapping disk data (byteswapped data is used for FS) on Atari/Q40.
+On Sunday 29 February 2004 13:11, Thorsten Kranzkowski wrote:
+> IMHO there's no need to complain - it's just too funny to impress friends
+> 'even my washing mashine runs on Linux' :-))
 
-Therefore the real solution is to use device-mapper instead of drive->bswap
-and on Atari/Q40 use standard insw/outs only if blk_fs_request(drive->rq),
-for everything else insw_swapw/outsw_swapw should be used.
+There is even a (german) review of this "distribution".
 
-Does it make any sense? :)
+http://www.linux-user.de/ausgabe/2001/06/094-logout/linux-wasch.html
 
-Bartlomiej
+	Florian
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
+iD8DBQFAQkxcfCf8muQVS4cRAumrAJwNkEnTASSrW4JMgYp2s0MpROmiTQCeKUuX
+XofHjAUQ+WoJOz8uNcYv9yE=
+=kEkg
+-----END PGP SIGNATURE-----

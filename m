@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136010AbRDVKDj>; Sun, 22 Apr 2001 06:03:39 -0400
+	id <S136016AbRDVKOL>; Sun, 22 Apr 2001 06:14:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136009AbRDVKDU>; Sun, 22 Apr 2001 06:03:20 -0400
-Received: from quechua.inka.de ([212.227.14.2]:29500 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S136008AbRDVKDK>;
-	Sun, 22 Apr 2001 06:03:10 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: Idea: Encryption plugin architecture for file-systems
-In-Reply-To: <8766fyt5x3.fsf@xyzzy.adsl.dk> <Pine.LNX.4.30.0104211547470.21994-100000@anime.net>
-Organization: private Linux site, southern Germany
-Date: Sun, 22 Apr 2001 11:42:50 +0200
-From: Olaf Titz <olaf@bigred.inka.de>
-Message-Id: <E14rGOJ-0003yo-00@g212.hadiko.de>
+	id <S136015AbRDVKOC>; Sun, 22 Apr 2001 06:14:02 -0400
+Received: from duba03h03-0.dplanet.ch ([212.35.36.23]:25348 "EHLO
+	duba03h03-0.dplanet.ch") by vger.kernel.org with ESMTP
+	id <S136016AbRDVKNs>; Sun, 22 Apr 2001 06:13:48 -0400
+Message-ID: <3AE2B853.396A3040@dplanet.ch>
+Date: Sun, 22 Apr 2001 12:54:11 +0200
+From: "Giacomo A. Catenazzi" <cate@dplanet.ch>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+CC: esr@thyrsus.com, CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] Request for comment -- a better attribution system
+In-Reply-To: <200104220251.f3M2pOeJ023588@sleipnir.valparaiso.cl>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I think he wants to avoid the *!!SEVERE!!* performance problems in
-> loopback crypto. A crypto plugin directly to filesystems would certainly
-> avoid most of it.
+Horst von Brand wrote:
+> 
+> "Giacomo A. Catenazzi" <cate@dplanet.ch> said:
+> 
+> [...]
+> 
+> > It whould nice also if we include the type of the license (GPL,...).
+> 
+> If it's in-kernel, it is GPLed.
 
-I'm currently in the situation where I need to mount an encrypted file
-system over NFS (on a slow link), and the performance considerations
-pretty much rule out the loop approach. (Currently I'm using CFS
-because I found no other choice[1], but it is another loop approach -
-stacking one NFS on top of another NFS - and that makes it painfully
-slow too.)
+No if it is build into the kernel is GPL or GPL compatible.
+some PPP drivers can be built only as modules because of
+the linking restriction of GPL code to non GPL compatible
+code.
+In kernel there are also some automatic generated file.
+GPL requires sources!
 
-The theoretically best solution is TCFS (www.tcfs.it), which builds
-encryption into the NFS client alone, but it is not available for
-anything newer than Linux 2.2.16.
+But this is off-topic for the main lkml.
 
-Olaf
-
-[1] Esp. if the requirement is that it can survive a kernel upgrade.
+	giacomo

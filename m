@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272418AbRIGRKX>; Fri, 7 Sep 2001 13:10:23 -0400
+	id <S272782AbRIGROD>; Fri, 7 Sep 2001 13:14:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272782AbRIGRKG>; Fri, 7 Sep 2001 13:10:06 -0400
-Received: from e24.nc.us.ibm.com ([32.97.136.230]:45250 "EHLO
-	e24.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S272418AbRIGRJr>; Fri, 7 Sep 2001 13:09:47 -0400
-Date: Fri, 7 Sep 2001 10:04:56 -0700
-From: lahr <lahr@us.ibm.com>
-To: Peter Wong <wpeter@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-        Hans Tannenberger <Hans-Joachim.Tannenberger@us.ibm.com>,
-        Ruth Forester <rsf@us.ibm.com>,
-        "Carbonari, Steven" <steven.carbonari@intel.com>
-Subject: Re: Lockmeter Analysis of 2 DDs
-Message-ID: <20010907100456.A11427@us.ibm.com>
-In-Reply-To: <OFBC292301.DC08DA17-ON85256AC0.00555C52@raleigh.ibm.com>
+	id <S272784AbRIGRNw>; Fri, 7 Sep 2001 13:13:52 -0400
+Received: from ns.ithnet.com ([217.64.64.10]:28171 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S272782AbRIGRNf>;
+	Fri, 7 Sep 2001 13:13:35 -0400
+Date: Fri, 7 Sep 2001 19:13:49 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Bob McElrath <mcelrath@draal.physics.wisc.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: "Cached" grows and grows and grows...
+Message-Id: <20010907191349.457cad95.skraw@ithnet.com>
+In-Reply-To: <20010907110836.B1013@draal.physics.wisc.edu>
+In-Reply-To: <20010907110836.B1013@draal.physics.wisc.edu>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <OFBC292301.DC08DA17-ON85256AC0.00555C52@raleigh.ibm.com>; from wpeter@us.ibm.com on Fri, Sep 07, 2001 at 10:47:37AM -0500
-X-Operating-System: Linux 2.0.32 on an i486
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 7 Sep 2001 11:08:36 -0500 Bob McElrath
+<mcelrath@draal.physics.wisc.edu> wrote:
 
->      Indeed, io_request_lock is very hot once the bounce buffers were
-> eliminated. Is anyone working on a patch for the io_request_lock that
-> possibly take the global lock and splits it into a per device queue lock?
-> We understand that getting this patch into 2.4 is unlikely, but it would
-> be nice to have this patch available on 2.4 for experimental purposes.
+> This is probably closely related to the vm work going on...and you're
+> probably aware of it, but...
+> 
+> The "Cached" field in /proc/meminfo grows and grows and grows.  (kernel
+> 2.4.7, 2.4.9, 2.4.10pre4aa1)  The kernel seems to be favoring buffer
+> cache for the filesystem over programs.  I recently purchased 256MB more
+> memory for my machine, only to find that Linux is using 200-300MB to
+> cache the filesystem.  Over time it swaps out everything to disk, and
+> "Cached" grows as large as 415MB on a 512MB machine.  Every time I come
+> back to my machine after not using the console for a while, it has to
+> swap everything back into memory in order to be usable.  (Note this
+> machine is basically unloaded except for setiathome while I'm away)
 
-I recently published a patch for 2.4 that addresses this exact issue at
-http://lse.sourceforge.net/io/
+To tell you the honest truth: you are not alone in cosmos (with this problem)
+;-)
+To give you that explicit hint for saving money: do not buy mem, it will be
+eaten up by recent kernels without any performance gain or other positive
+impact whatsoever. 
+Try using 2.4.4, if it doesn't succeed, forget 2.4 and use 2.2.19. That works.
+Unfortunately you may have to completely reinstall your system when going back
+to 2.2.
 
-Jonathan
-
--- 
-Jonathan Lahr
-IBM Linux Technology Center
-Beaverton, Oregon
-lahr@us.ibm.com
-503-578-3385
+Regards,
+Stephan
 

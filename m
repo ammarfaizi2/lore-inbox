@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269040AbTBWXyj>; Sun, 23 Feb 2003 18:54:39 -0500
+	id <S269016AbTBWXtE>; Sun, 23 Feb 2003 18:49:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269041AbTBWXyj>; Sun, 23 Feb 2003 18:54:39 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:21771 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S269040AbTBWXyi> convert rfc822-to-8bit; Sun, 23 Feb 2003 18:54:38 -0500
-Date: Sun, 23 Feb 2003 19:01:01 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Xavier Bestel <xavier.bestel@free.fr>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Minutes from Feb 21 LSE Call
-In-Reply-To: <1046031687.2140.32.camel@bip.localdomain.fake>
-Message-ID: <Pine.LNX.3.96.1030223185816.999G-100000@gatekeeper.tmr.com>
+	id <S269018AbTBWXtE>; Sun, 23 Feb 2003 18:49:04 -0500
+Received: from palrel11.hp.com ([156.153.255.246]:63413 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id <S269016AbTBWXtC>;
+	Sun, 23 Feb 2003 18:49:02 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15961.24656.733807.819204@napali.hpl.hp.com>
+Date: Sun, 23 Feb 2003 15:59:12 -0800
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: davidm@hpl.hp.com, Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Minutes from Feb 21 LSE Call
+In-Reply-To: <32500000.1046041615@[10.10.2.4]>
+References: <15961.8482.577861.679601@napali.hpl.hp.com>
+	<Pine.LNX.4.44.0302231326370.1534-100000@home.transmeta.com>
+	<15961.19948.882374.766245@napali.hpl.hp.com>
+	<32500000.1046041615@[10.10.2.4]>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23 Feb 2003, Xavier Bestel wrote:
+>>>>> On Sun, 23 Feb 2003 15:06:56 -0800, "Martin J. Bligh" <mbligh@aracnet.com> said:
 
-> Le dim 23/02/2003 à 20:17, Linus Torvalds a écrit :
-> 
-> > And the baroque instruction encoding on the x86 is actually a _good_
-> > thing: it's a rather dense encoding, which means that you win on icache. 
-> > It's a bit hard to decode, but who cares? Existing chips do well at
-> > decoding, and thanks to the icache win they tend to perform better - and
-> > they load faster too (which is important - you can make your CPU have
-> > big caches, but _nothing_ saves you from the cold-cache costs). 
-> 
-> Next step: hardware gzip ?
+  Linus> Last I saw P4 was kicking ia-64 butt on specint and friends.
+  >>  I don't think so.  According to Intel [1], the highest
+  >> clockfrequency for a 0.18um part is 2GHz (both for Xeon and P4,
+  >> for Xeon MP it's 1.5GHz).  The highest reported SPECint for a
+  >> 2GHz Xeon seems to be 701 [2].  In comparison, a 1GHz McKinley
+  >> gets a SPECint of 810 [3].
 
-If the firmware issues were better defined in Intel ia32 chips, I could
-see a gzip instruction pointing to blocks in memory. As a proof of
-concept, not a big win.
+  Martin> Got anything more real-world than SPECint type
+  Martin> microbenchmarks?
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+SPECint a microbenchmark?  You seem to be redefining the meaning of
+the word (last time I checked, lmbench was a microbenchmark).
 
+Ironically, Itanium 2 seems to do even better in the "real world" than
+suggested by benchmarks, partly because of the large caches, memory
+bandwidth and, I'm guessing, partly because of it's straight-forward
+micro-architecture (e.g., a synchronization operation takes on the
+order of 10 cycles, as compared to order of dozens and hundres of
+cycles on the Pentium 4).
+
+BTW: I hope I don't sound too negative on the Pentium 4/Xeon.  It's
+certainly an excellent performer for many things.  I just want to
+point out that Itanium 2 also is a good performer, probably more so
+than many on this list seem to be willing to give it credit for.
+
+	--david

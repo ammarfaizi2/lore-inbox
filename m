@@ -1,82 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261456AbULFCfN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261460AbULFCly@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261456AbULFCfN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 21:35:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbULFCfM
+	id S261460AbULFCly (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 21:41:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261461AbULFCly
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 21:35:12 -0500
-Received: from mail04.syd.optusnet.com.au ([211.29.132.185]:15234 "EHLO
-	mail04.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261456AbULFCfD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 21:35:03 -0500
-Message-ID: <41B3C54B.1080803@kolivas.org>
-Date: Mon, 06 Dec 2004 13:34:51 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Sipek <jeffpc@optonline.net>
-Cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Time sliced CFQ #2
-References: <20041204104921.GC10449@suse.de> <20041204163948.GA20486@optonline.net> <20041205185844.GF6430@suse.de> <20041206002954.GA28205@optonline.net> <41B3BD0F.6010008@kolivas.org> <20041206022338.GA5472@optonline.net>
-In-Reply-To: <20041206022338.GA5472@optonline.net>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigFD593DA0CF5DF96DE9FABBCF"
+	Sun, 5 Dec 2004 21:41:54 -0500
+Received: from HELIOUS.MIT.EDU ([18.238.1.151]:32675 "EHLO neo.rr.com")
+	by vger.kernel.org with ESMTP id S261460AbULFClw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 21:41:52 -0500
+Date: Sun, 5 Dec 2004 21:42:19 -0500
+To: Rene Herman <rene.herman@keyaccess.nl>
+Cc: Matthieu Castet <castet.matthieu@free.fr>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.9+] PnPBIOS: Missing SMALL_TAG_ENDDEP tag
+Message-ID: <20041206024218.GD3103@neo.rr.com>
+Mail-Followup-To: ambx1@neo.rr.com,
+	Rene Herman <rene.herman@keyaccess.nl>,
+	Matthieu Castet <castet.matthieu@free.fr>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <41B3A963.4090003@keyaccess.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41B3A963.4090003@keyaccess.nl>
+User-Agent: Mutt/1.5.6+20040722i
+From: ambx1@neo.rr.com (Adam Belay)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigFD593DA0CF5DF96DE9FABBCF
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Jeff Sipek wrote:
-> On Mon, Dec 06, 2004 at 12:59:43PM +1100, Con Kolivas wrote:
->>First the ioprio should be set to 
->>what the cpu 'nice' level is as a sort of global "this is the priority 
->>of this task" setting. Then it should also support changing of this 
->>priority with a different call separate from the cpu nice. That way we 
->>can take into account access privileges of the caller making it 
->>impossible to set a high ioprio if the task itself is heavily niced by a 
->>superuser and so on.
+On Mon, Dec 06, 2004 at 01:35:47AM +0100, Rene Herman wrote:
+> Hi Adam.
 > 
+> Between 2.6.8 and 2.6.9, the following patch to rsparser.c was merged:
 > 
-> This sounds very reasonable. How would a situation like this one get
-> handeled:
+> http://linus.bkbits.net:8080/linux-2.5/cset@414703f7MEe33PTYY-aFQaM3CLKjZw?nav=index.html|src/|src/drivers|src/drivers/pnp|src/drivers/pnp/pnpbios|related/drivers/pnp/pnpbios/rsparser.c
 > 
-> nice = x
-> io_prio = y
+> The added warning triggers on my machine:
 > 
-> where x!=y
+> Linux Plug and Play Support v0.97 (c) Adam Belay
+> PnPBIOS: Scanning system for PnP BIOS support...
+> PnPBIOS: Found PnP BIOS installation structure at 0xc00f7740
+> PnPBIOS: PnP BIOS version 1.0, entry 0xf0000:0x6634, dseg 0xf0000
+> PnPBIOS: Missing SMALL_TAG_ENDDEP tag
+> PnPBIOS: Missing SMALL_TAG_ENDDEP tag
+> PnPBIOS: Missing SMALL_TAG_ENDDEP tag
+> PnPBIOS: Missing SMALL_TAG_ENDDEP tag
+> PnPBIOS: 13 nodes reported by PnP BIOS; 13 recorded by driver
 > 
-> then, user changes nice. Does the nice level change alone? If so,
-> providing some "reset to nice==io_prio" capability would make sense, no?
+> I don't believe those warnings should be printed, what with "broken" the 
+> expected state of anything coming from the BIOS. The attached patch 
+> removes them again. Works for me...
+> 
+> Rene.
 
-I think when nice is changed, ioprio needs to be changed with it as a 
-sane default action. I suspect that most of the time people will not use 
-the separate ioprio call, but using 'nice' is a regular linuxy thing to 
-do. Ideally we make ioprio part of the 'nice' utility and we specify 
-both at the same time. Something like:
-nice -n 5 -i 20 blah
+Hi Rene,
 
-Cheers,
-Con
+Could you please send me "pnp.tar" from something like this:
 
---------------enigFD593DA0CF5DF96DE9FABBCF
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+mkdir /tmp/pnp; cp /proc/bus/pnp/[0-f][0-f] /tmp/pnp; tar -cf pnp.tar /tmp/pnp; rm -fR /tmp/pnp
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+make sure the pnpbios /proc interface is compiled into the kernel.
 
-iD8DBQFBs8VLZUg7+tp6mRURAkqcAJ445QNkTOWLicgaFigELvhBY/Np5QCghvga
-eAS7YoKSMyXWdJ+qL04VwfQ=
-=pEhC
------END PGP SIGNATURE-----
+I'd like to look at the node data to see what's going on.
 
---------------enigFD593DA0CF5DF96DE9FABBCF--
+Thanks,
+Adam

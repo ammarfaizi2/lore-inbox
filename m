@@ -1,40 +1,61 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314292AbSEMRCE>; Mon, 13 May 2002 13:02:04 -0400
+	id <S314282AbSEMRCf>; Mon, 13 May 2002 13:02:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314325AbSEMRCD>; Mon, 13 May 2002 13:02:03 -0400
-Received: from mailhost.mipsys.com ([62.161.177.33]:60609 "EHLO
-	mailhost.mipsys.com") by vger.kernel.org with ESMTP
-	id <S314292AbSEMRCC>; Mon, 13 May 2002 13:02:02 -0400
-From: <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Jens Axboe <axboe@suse.de>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.15 IDE 62
-Date: Mon, 13 May 2002 19:02:38 +0100
-Message-Id: <20020513180238.400@mailhost.mipsys.com>
-In-Reply-To: <Pine.LNX.4.44.0205130950350.19524-100000@home.transmeta.com>
-X-Mailer: CTM PowerMail 3.1.2 F <http://www.ctmdev.com>
+	id <S314325AbSEMRCe>; Mon, 13 May 2002 13:02:34 -0400
+Received: from www.visioncare.co.sz ([196.28.7.66]:63105 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S314282AbSEMRCb>; Mon, 13 May 2002 13:02:31 -0400
+Date: Mon, 13 May 2002 18:39:18 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Steve Kieu <haiquy@yahoo.com>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+        kernel <linux-kernel@vger.kernel.org>,
+        William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: OOPS 2.4.19-pre7-ac4 (Was: strange things in kernel 2.4.19-pre7-ac4
+ + preempt patch)
+In-Reply-To: <Pine.LNX.4.44.0205131736240.353-100000@netfinity.realnet.co.sz>
+Message-ID: <Pine.LNX.4.44.0205131830080.353-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->And then you make sure that nobody EVER uses any other lock than the queue
->lock.
+Could you try this patch, Bill came across it in rmap testing.
 
-Except that some controllers are perfectly safe to use both channels
-at the same time, except when dealing with rare and sensible operations
-(like changing channel settings) where a common set of registers is
-shared between channels.
+Regards,
+	Zwane
 
-The controller driver in this case will want a lock per channel queue
-and an internal lock to protect access to these shared registers. But
-that lock can (and has to be) hidden in the controller driver.
+--- linux-2.4.19-pre-ac/drivers/char/drm/i810_dma.c.orig	Mon May 13 18:27:40 2002
++++ linux-2.4.19-pre-ac/drivers/char/drm/i810_dma.c	Mon May 13 18:28:37 2002
+@@ -293,8 +293,8 @@
+ {
+ 	if (page) {
+ 		struct page *p = virt_to_page(page);
+-		put_page(p);
+ 		UnlockPage(p);
++		put_page(p);
+ 		free_page(page);
+ 	}
+ }
+--- linux-2.4.19-pre-ac/drivers/char/drm-4.0/i810_dma.c.orig	Mon May 13 18:37:37 2002
++++ linux-2.4.19-pre-ac/drivers/char/drm-4.0/i810_dma.c	Mon May 13 18:38:03 2002
+@@ -291,9 +291,9 @@
+ 	struct page * p = virt_to_page(page);
+ 	if(page == 0UL) 
+ 		return;
+-	
++
++	UnlockPage(p);	
+ 	put_page(p);
+-	UnlockPage(p);
+ 	free_page(page);
+ 	return;
+ }
 
-Ben.
-
+-- 
+http://function.linuxpower.ca
+		
 
 

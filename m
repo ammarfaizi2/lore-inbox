@@ -1,32 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271846AbRICWY3>; Mon, 3 Sep 2001 18:24:29 -0400
+	id <S271845AbRICWZ7>; Mon, 3 Sep 2001 18:25:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271842AbRICWYL>; Mon, 3 Sep 2001 18:24:11 -0400
-Received: from mailout00.sul.t-online.com ([194.25.134.16]:7 "EHLO
-	mailout00.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S271841AbRICWXv>; Mon, 3 Sep 2001 18:23:51 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Tim Jansen <tim@tjansen.de>
-To: Thiago Vinhas de Moraes <tvlists@networx.com.br>
-Subject: Re: Sound Blaster Live - OSS or Not?
-Date: Tue, 4 Sep 2001 00:26:38 +0200
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <01090310483100.26387@faldara> <200109032210.f83MA8j15720@jupter.networx.com.br>
-In-Reply-To: <200109032210.f83MA8j15720@jupter.networx.com.br>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <15e28I-09mKq8C@fmrl04.sul.t-online.com>
+	id <S271842AbRICWZt>; Mon, 3 Sep 2001 18:25:49 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:40325 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S271837AbRICWZh>;
+	Mon, 3 Sep 2001 18:25:37 -0400
+Date: Mon, 03 Sep 2001 15:24:43 -0700 (PDT)
+Message-Id: <20010903.152443.59467554.davem@redhat.com>
+To: Ulrich.Weigand@de.ibm.com
+Cc: Richard.Zidlicky@stud.informatik.uni-erlangen.de, thunder7@xs4all.nl,
+        parisc-linux@lists.parisc-linux.org, linux-kernel@vger.kernel.org
+Subject: Re: [SOLVED + PATCH]: documented Oops running big-endian reiserfs
+ on parisc architecture
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <OF9A995335.07A81CF5-ONC1256ABC.00422A7B@de.ibm.com>
+In-Reply-To: <OF9A995335.07A81CF5-ONC1256ABC.00422A7B@de.ibm.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 04 September 2001 00:11, Thiago Vinhas de Moraes wrote:
-> I tried to run loki's Quake 3 Arena for Linux, and after several tries, I
-> started to read the README file, and it said that Sound Blaster Live does
-> not work as OSS. I found a reference to www.opensound.com, where they sell
-> OSS drivers for Sound Blaster Live for $35.00 !! 
+   From: "Ulrich Weigand" <Ulrich.Weigand@de.ibm.com>
+   Date: Mon, 3 Sep 2001 14:08:43 +0200
+   
+   >From what I recall when we were looking into reiserfs on S/390,
+   the core problem was that reiserfs tried to do *atomic* operations
+   on non-aligned words.  This isn't supported by the hardware on
+   S/390 (normal non-aligned accesses just work).
+   
+   I don't really see how this can be fixed in a trap handler; how
+   would the handler guarantee atomicity?
 
-Use the alsa driver from www.alsa-project.org
+Oh thats different!  That won't even work %100 correctly on x86.  On
+x86 it will "execute", but it won't be atomic.
 
-bye...
+Why the F*CK does it need to do this?  It sounds like sloppy
+programming to me.
+
+Later,
+David S. Miller
+davem@redhat.com

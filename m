@@ -1,56 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313113AbSGIRi7>; Tue, 9 Jul 2002 13:38:59 -0400
+	id <S317352AbSGIRnW>; Tue, 9 Jul 2002 13:43:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317352AbSGIRi6>; Tue, 9 Jul 2002 13:38:58 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:64173 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S313113AbSGIRi5>;
-	Tue, 9 Jul 2002 13:38:57 -0400
-Message-ID: <3D2B202D.6060602@us.ibm.com>
-Date: Tue, 09 Jul 2002 10:41:01 -0700
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: dan carpenter <error27@email.com>
-CC: kernel-janitor-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: lock_kernel check...
-References: <20020709172723.18529.qmail@email.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317355AbSGIRnV>; Tue, 9 Jul 2002 13:43:21 -0400
+Received: from mnh-1-15.mv.com ([207.22.10.47]:64516 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S317352AbSGIRnU>;
+	Tue, 9 Jul 2002 13:43:20 -0400
+Message-Id: <200207091847.NAA03034@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org, user-mode-linux-user@lists.sourceforge.net
+Subject: Re: [uml-user] Re: user-mode port 0.58-2.4.18-36 
+In-Reply-To: Your message of "Tue, 09 Jul 2002 19:05:54 +0200."
+             <20020709170554.GC31838@atrey.karlin.mff.cuni.cz> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 09 Jul 2002 13:47:29 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dan carpenter wrote:
- > Smatch.pm is from the smatch.sf.net scripts page.  Smatch is a
- > really unfinished code checker that I've been working on.  It is
- > based on reading the papers about the Stanford checker.
+pavel@suse.cz said:
+> I don't understand here. So UML never ever permits access to /dev/kmem?
 
-There was a time when I was thinking about the same thing.  It kept 
-scaring me the more I thought about it.
+Jeez, have a look at the code.  CAP_SYS_RAWIO (and write access to /dev/kmem)
+is disabled only when 'jail' is turned on.
 
- > Unfortunately, after a night of sleep I realize that my script is
- > broken for 2 reasons. 1)  Smatch.pm is meant to track state changes
- > down different code paths.  But unfortunately it wasn't doing that
- > in this case; it was just going down the code without taking into
- > consideration any if_stmts  etc.  I'm extremely embarassed about
- > that.  Sorry.
-
-Don't be sorry.  The script is smarter than the people who caused the 
-errors.  (once again, probably me)
-
- > 2)  What the Stanford checker does is print an error
- > if one return_stmt is called while the kernel is locked and one is
- > called while the kernel is unlocked.  This seems reasonable.
-
-Could you clarify that a bit?
-
- > I will fix both mistakes later on this week.  Unfortunately I'm in
- > the process of moving and looking for a job etc so I might not get
- > to it for a bit.
-
-
--- 
-Dave Hansen
-haveblue@us.ibm.com
+				Jeff
 

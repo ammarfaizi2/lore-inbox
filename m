@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263064AbTCSOo7>; Wed, 19 Mar 2003 09:44:59 -0500
+	id <S263081AbTCSOyZ>; Wed, 19 Mar 2003 09:54:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263065AbTCSOo7>; Wed, 19 Mar 2003 09:44:59 -0500
-Received: from h55p111.delphi.afb.lu.se ([130.235.187.184]:50333 "EHLO
-	gagarin.0x63.nu") by vger.kernel.org with ESMTP id <S263064AbTCSOo6>;
-	Wed, 19 Mar 2003 09:44:58 -0500
-Date: Wed, 19 Mar 2003 15:55:37 +0100
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrus <andrus@members.ee>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernels 2.2 and 2.4 exploit (ALL VERSION WHAT I HAVE TESTED UNTILL NOW!)
-Message-ID: <20030319145537.GB25934@h55p111.delphi.afb.lu.se>
-References: <000001c2ee1f$02da6820$0100a8c0@andrus> <1048087625.30750.34.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S263082AbTCSOyY>; Wed, 19 Mar 2003 09:54:24 -0500
+Received: from [213.171.53.133] ([213.171.53.133]:14350 "EHLO gulipin.miee.ru")
+	by vger.kernel.org with ESMTP id <S263081AbTCSOyX>;
+	Wed, 19 Mar 2003 09:54:23 -0500
+Date: Wed, 19 Mar 2003 18:09:23 +0300
+From: "Ruslan U. Zakirov" <cubic@wr.miee.ru>
+X-Mailer: The Bat! (v1.61)
+Reply-To: "Ruslan U. Zakirov" <cubic@wr.miee.ru>
+Organization: CITL MIEE
+X-Priority: 3 (Normal)
+Message-ID: <861563974656.20030319180923@wr.miee.ru>
+To: Adam Belay <ambx1@neo.rr.com>
+CC: linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: [PATCH 2.5.65] pnp api changes to sound/isa/sb/es968.c
+In-Reply-To: <Pine.LNX.4.53.0303190650530.28260@quinn.larvalstage.com>
+References: <Pine.LNX.4.53.0303190650530.28260@quinn.larvalstage.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1048087625.30750.34.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.5.3i
-From: Anders Gustafsson <andersg@0x63.nu>
-X-Scanner: exiscan *18veyf-0000GV-00*Sm.KDI5Zq8c* (0x63.nu)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 19, 2003 at 03:27:05PM +0000, Alan Cox wrote:
-> On Wed, 2003-03-19 at 13:54, Andrus wrote:
-> > You can download working exploit on
-> > http://www.members.ee/ptrace-exploit.c
-> > 
-> > Its hell long exploit as I know, and still not patched!
-> 
-> The ptrace problems I'm aware of are fixed in 2.2.25 or by the patch
-> to 2.4.21pre5-ac I posted (I meant to post the 2.4.20 one, someone
-> has since done that).
+JK> Following patch is to make ESS968 driver to work with PNP API.
+[SNIP]
+JK> +static int __devinit snd_es968_pnp_detect(struct pnp_card_link *card,
+[SNIP]
+      Hello, Adam, Greg and other.
+As I think in this section of kernel it's not necessarily to use
+__devinit and __devexit.
+Soundcards(and other devices) can't be HotPlug as I know.
+And if we look at #define of this attributes, then we see that
+it useless with not HotPlug devices.
 
-If access can't be shut down while compiling the new kernel 
+180 #ifdef CONFIG_HOTPLUG
+181 #define __devinit
+182 #define __devinitdata
+183 #define __devexit
+184 #define __devexitdata
+185 #else
+186 #define __devinit __init
+187 #define __devinitdata __initdata
+188 #define __devexit __exit
+189 #define __devexitdata __exitdata
+190 #endif
+And with changes from __init to __devinit and enabled CONFIG_HOTPLUG
+we loose advantage of __init.
+May be I've missed something?
+       Best regards, Ruslan.
 
-echo /foo/bar/doesnotexist >/proc/sys/kernel/modprobe
-
-would help, wouldn't it?
-
--- 
-Anders Gustafsson - andersg@0x63.nu - http://0x63.nu/

@@ -1,102 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264879AbTK3IIX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 03:08:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264881AbTK3IIX
+	id S264881AbTK3I23 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 03:28:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264882AbTK3I23
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 03:08:23 -0500
-Received: from smtp800.mail.ukl.yahoo.com ([217.12.12.142]:29058 "HELO
-	smtp800.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S264879AbTK3IIU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 03:08:20 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
+	Sun, 30 Nov 2003 03:28:29 -0500
+Received: from h062040166017.gun.cm.kabsi.at ([62.40.166.17]:35749 "EHLO
+	elrond.kainz.com") by vger.kernel.org with ESMTP id S264881AbTK3I20
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Nov 2003 03:28:26 -0500
+Subject: ip routing
+From: Rainer Hochreiter <rainer@hochreiter.at>
 To: linux-kernel@vger.kernel.org
-Subject: [2.6 PATCH] Input: unregister i8042 port when writing to control register fails
-Date: Sun, 30 Nov 2003 03:08:12 -0500
-User-Agent: KMail/1.5.4
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Andrew Morton <akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain
+Organization: 
+Message-Id: <1070180482.1852.25.camel@freddie.hochreiter.at>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 30 Nov 2003 09:24:01 +0100
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311300308.12813.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think that if we can't write to the control register it's not less critical
-than not having a free IRQ so we better unregister port in this case as well.
+hi list!
 
-Also logging moved a bit.
+i have a problem with ip routing!
 
-Dmitry
+first of all my configuration:
 
-===================================================================
+Tux1 .... embedded linux (kernel-2.4.10) running busybox-0.60.3
+          and 2 lan interfaces in different networks
+          default gateway 10.1.0.254 via eth0
+R1, R2 .. router (linux for testing)
+Tux2 .... linux with network different to Tux1/eth0/eth1
 
-ChangeSet@1.1513, 2003-11-30 02:50:21-05:00, dtor_core@ameritech.net
-  Input: Unregister port not only when there us no free IRQ
-         available but also when write to control register 
-         failed.
-         Also moved logging a bit.
+     eth0=10.1.0.1/16 +-----+ eth1=10.2.0.1/16
+                   .--|Tux1 |--.
+                   |  +-----+  |
+eth1=10.1.0.254/16 |           | eth1=10.2.0.254/16
+                +-----+     +-----+
+   ip_forward=1 | R1  |     | R2  | ip_forward=1
+                +-----+     +-----+
+eth0=10.3.1.254/16 |           | eth0=10.3.2.254/16
+                   |           |
+                   '-----+-----'
+                         | eth0=10.3.0.1/16
+                      +-----+
+                      |Tux2 |
+                      +-----+
 
+i want to achieve, that each packet received on Tux1/eth1 will also be
+replied via this interface. this isn't the case now, because the
+received packets came from a different network and therefore the replies
+are sent back via Tux1/eth0 using the default route.
 
- i8042.c |   22 +++++++++++++++-------
- 1 files changed, 15 insertions(+), 7 deletions(-)
+but the replies have to be sent even when the connection between
+Tux1/et0 and R1 is not available. a possible solution is, setting a
+network route for network Tux2/eth0 via Tux1/eth1, but in my special
+case, i do not know from which network i'll receive the packets!
 
-===================================================================
+and here i reached the point where my knowledge ends;-(
 
-diff -Nru a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
---- a/drivers/input/serio/i8042.c	Sun Nov 30 03:06:50 2003
-+++ b/drivers/input/serio/i8042.c	Sun Nov 30 03:06:50 2003
-@@ -231,21 +231,29 @@
- 	if (request_irq(values->irq, i8042_interrupt,
- 			SA_SHIRQ, "i8042", i8042_request_irq_cookie)) {
- 		printk(KERN_ERR "i8042.c: Can't get irq %d for %s, unregistering the port.\n", values->irq, values->name);
--		values->exists = 0;
--		serio_unregister_port(port);
--		return -1;
-+		goto irq_fail;
- 	}
- 
- 	i8042_ctr |= values->irqen;
- 
- 	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR)) {
--		printk(KERN_ERR "i8042.c: Can't write CTR while opening %s.\n", values->name);
--		return -1;
-+		printk(KERN_ERR "i8042.c: Can't write CTR while opening %s, unregistering the port\n", values->name);
-+		goto ctr_fail;
- 	}
- 
- 	i8042_interrupt(0, NULL, NULL);
- 
- 	return 0;
-+
-+ctr_fail:
-+	i8042_ctr &= ~values->irqen;
-+	free_irq(values->irq, i8042_request_irq_cookie);
-+
-+irq_fail:
-+	values->exists = 0;
-+	serio_unregister_port(port);
-+
-+	return -1;
- }
- 
- /*
-@@ -691,13 +699,13 @@
- 		return -1; 
- 	}
- 
--	serio_register_port(port);
--
- 	printk(KERN_INFO "serio: i8042 %s port at %#lx,%#lx irq %d\n",
- 	       values->name,
- 	       (unsigned long) I8042_DATA_REG,
- 	       (unsigned long) I8042_COMMAND_REG,
- 	       values->irq);
-+
-+	serio_register_port(port);
- 
- 	return 0;
- }
+i tried to solve this problem in my application running on Tux1, using
+the following code:
+
+s = socket();
+bind(s, "10.2.0.1"); // bind to Tux1/eth1
+listen(s);
+s2 = accept(s);
+int yes=1;
+setsockopt(s2, SOL_SOCKET, SO_DONTROUTE, &yes, sizeof(yes));
+
+...but setting SO_DONTROUTE on socket s2 doesn't have the effect, that
+the reply packets are always sent back via Tux1/eth1! 
+is it possible at all to guarantee this in any case? because this means
+bypassing the routing stuff!
+
+any hints welcome!
+
+greetings, 
+rainer
+
+PLEASE personally CC any answers and comment to my question - thnx!
+
 

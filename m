@@ -1,129 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262257AbTFIWzp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 18:55:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262261AbTFIWzp
+	id S262261AbTFIW4c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 18:56:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262271AbTFIW4c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 18:55:45 -0400
-Received: from hq.pm.waw.pl ([195.116.170.10]:30385 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S262257AbTFIWzm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 18:55:42 -0400
-To: "David Schwartz" <davids@webmaster.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: select for UNIX sockets?
-References: <MDEHLPKNGKAHNMBLJOLKOEKFDIAA.davids@webmaster.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 10 Jun 2003 00:24:17 +0200
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKOEKFDIAA.davids@webmaster.com>
-Message-ID: <m3isredh4e.fsf@defiant.pm.waw.pl>
+	Mon, 9 Jun 2003 18:56:32 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:16092 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262261AbTFIW4Z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 18:56:25 -0400
+Message-ID: <3EE5190D.3070401@austin.ibm.com>
+Date: Mon, 09 Jun 2003 18:32:29 -0500
+From: Steven Pratt <slpratt@austin.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20021120 Netscape/7.01
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.5.70-mm2 causes performance drop of random read O_DIRECT
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David Schwartz" <davids@webmaster.com> writes:
+Starting in 2.5.70-mm2 and continuing in the mm tree, there is a 
+significant degrade in random read for block devices using O_DIRECT.   
+ The drop occurs for all block sizes and ranges from 30%-40.  CPU usage 
+is also lower although it may already be so low as to be irrelavent.
 
-> 	For the last time, there is no socket queue. You wouldn't want there
-> to be
-> one.
 
-Sure. No queue. Of course.
+                                 tolerance = 0.00 + 3.00% of 2.5.70-mm1
+             2.5.70-mm1   2.5.70-mm2
+ Blocksize      KBs/sec      KBs/sec    %diff         diff    tolerance
+---------- ------------ ------------ -------- ------------ ------------
+      4096         1567          924   -41.03      -643.00        47.01  * 
+      8192         3057         1815   -40.63     -1242.00        91.71  * 
+     16384         5745         3509   -38.92     -2236.00       172.35  * 
+     65536        17357        11283   -34.99     -6074.00       520.71  * 
+    262144        37537        27302   -27.27    -10235.00      1126.11  * 
 
-And these are only misleading names - net/unix/af_unix.c:
-static int unix_dgram_sendmsg(struct kiocb *kiocb, struct socket *sock,
-                              struct msghdr *msg, int len)
-{
-...
 
-       if (unix_peer(other) != sk &&
-            skb_queue_len(&other->receive_queue) > other->max_ack_backlog) {
- 
-and then
+Full results can be found at:
+http://www-124.ibm.com/developerworks/oss/linuxperf/regression/2.5.70-mm2/2.5.70-mm1-vs-2.5.70-mm2/
 
-        skb_queue_tail(&other->receive_queue, skb);
-        unix_state_runlock(other);
-        other->data_ready(other, len);
-        sock_put(other);
+Steve
 
-Right?
-
-> 	Consider a UDP application that is sending packets to two
-> destinations, one
-> over a 56Kbps serial link running PPP and one over gigabit Ethernet. If
-> there were a socket send queue, the packets going over the 56Kbps serial
-> link would block the packets going over the gigabit Ethernet.
-
-First, PPP and Ethernet use IP/UDP and not local UNIX sockets.
-Second, I hope you don't want to tell me PPP and Ethernet have no
-device queues, do you? Sure there are "virtual" devices with no queue,
-but that's another story.
-Have you checked what the above scenario would do? I guess the PPP would
-really limit the rate if you used only one socket.
-
-Having no per-sender socket queue for UDP/IP is totally irrelevant here.
-
-> > But if select() on sockets is illegal, should we make it return -Esth
-> > instead of success. Certainly, we should get rid of invalid kernel code,
-> > right?
-> 
-> 	No, it is legal, you are just misusing it. If you don't want your
-> socket
-> operations to ever block, use non-blocking socket operations. If you use
-> UDP, or another connectionless protocol, you should understand that *you*
-> are responsible for transmit pacing.
-
-I'm not talking about I/O operation, the problem is in select().
-Tell me - how can I use select() with UNIX local sockets (wrt write
-descriptors) and it's effectively not a NOP?
-
-> 	Such as where the packet you send is actually *going*.
-
-It's going to another local socket, of course. man bind/connect and see
-a strace log I've posted. The kernel know this very well.
-
-> 	I guess I'm not getting through. The fact is, you don't have the
-> guarantee
-> that you think you have.
-
-I don't want a guarantee. I want the select() doing what it has to do.
-I.e. checking if the receiving queue (which, of course, does not exist),
-connected with connect() first, has a room for a datagram. Unconnected
-sockets can be dealt with later.
-I see it's me not getting through - do you want select() (wrt write
-descriptors) on UNIX datagram sockets effectively a NOP?
-
-The question if send/sendto/etc() will actually block is, of course,
-another matter. For example, the (nonexistent) queue could be filled
-by another process between my calls to select() and send(). I have no
-problem with send() blocking but I want select() to check if the
-connected socket could accept anything at all at the time select()
-is called (and wait for such condition/timeout otherwise).
-
-> I'm giving you examples to show you why you don't
-> have that guarantee. You argue that the examples don't apply to your
-> specific case.
-
-Sure, UDP/IP has nothing to do with UNIX sockets.
-
-> I'm not saying they do. I'm saying that because there are
-> unavoidable cases where what you're trying to do won't work, then what
-> you're trying to do is not guaranteed to work in all cases and you shouldn't
-> try to do it.
-
-What *I* should do is really unimportant here. What the *kernel* should do
-is all that now matters.
-
-> 	The kernel does not remember that you got a write hit on 'select'
-> and use
-> it to somehow ensure that your next 'write' doesn't block. A 'write' hit
-> from 'select' is just a hint and not an absolute guarantee that whatever
-> 'write' operation you happen to choose to do won't block.
-
-A "write" hit from select() is not a hit - it's exactly nothing and this
-is the problem.
-Have you at least looked at the actual code? unix_dgram_sendmsg() and
-datagram_poll()?
--- 
-Krzysztof Halasa
-Network Administrator

@@ -1,54 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269380AbUINPSQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269430AbUINPGR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269380AbUINPSQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 11:18:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269422AbUINPR2
+	id S269430AbUINPGR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 11:06:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269414AbUINPDd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 11:17:28 -0400
-Received: from a26.t1.student.liu.se ([130.236.221.26]:47020 "EHLO
-	mail.drzeus.cx") by vger.kernel.org with ESMTP id S269177AbUINPQx
+	Tue, 14 Sep 2004 11:03:33 -0400
+Received: from mail.metronet.co.uk ([213.162.97.75]:11498 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S269416AbUINPBY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 11:16:53 -0400
-Message-ID: <41470B5A.2010005@drzeus.cx>
-Date: Tue, 14 Sep 2004 17:16:42 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040704)
-X-Accept-Language: en-us, en
+	Tue, 14 Sep 2004 11:01:24 -0400
+From: Alistair John Strachan <alistair@devzero.co.uk>
+Reply-To: alistair@devzero.co.uk
+To: Steve Lord <lord@xfs.org>
+Subject: Re: Copying huge amount of data on ReiserFS, XFS and Silicon Image 3112 cause oops.
+Date: Tue, 14 Sep 2004 16:01:33 +0100
+User-Agent: KMail/1.7
+References: <414622C9.1030701@post.pl> <200409141159.54889.alistair@devzero.co.uk> <4146FC39.40104@xfs.org>
+In-Reply-To: <4146FC39.40104@xfs.org>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: seife@suse.de, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: HP/Compaq (Winbond) SD/MMC reader supported
-References: <41383D02.5060709@drzeus.cx> <20040913223827.GA28524@elf.ucw.cz> <41467216.6070508@drzeus.cx> <20040914150013.GB27621@elf.ucw.cz>
-In-Reply-To: <20040914150013.GB27621@elf.ucw.cz>
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409141601.33827.alistair@devzero.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-
+On Tuesday 14 September 2004 15:12, you wrote:
+[snip]
 >
+> You would need to be within the size of the physical memory of your
+> box to having a full filesystem - as a very rough approximation. So 1Gbyte
+> memory, 1 Gbyte disk free. There is a path when XFS is attempting to
+> free up pre-reserved disk space to make room for a new write, it
+> does this by flushing data out to disk. This means it has to work
+> out where it is physically going to go, which usually results in it
+> taking less metadata space to reference the data than the worst case
+> estimate it previously made. For lots of cases this probably still
+> does not overflow the stack, but if you add in drivers like lvm
+> and md and a complex scsi driver it probably pushes you over the
+> limit.
 >
->Hmm, if I disable the check (and make id 0xf00 valid), it will freeze
->my machine during boot :-(. Where did you get documentation for this
->beast?
->
->	
->
-Is the 0xf00 id the only one you get? If it is a SuperIO chip then 
-resetting it will probably cause all sorts of funky problems.
-Do you know what SuperIO is used in the machine? And have you tried 
-confirming that the card reader is indeed winbond? The easiest way to do 
-that is to see if the Windows driver is wbsd.sys.
 
-The documentation was given to me by one of Winbond's resellers (after a 
-lot of begging and whining). It only includes documentation for one chip 
-and the ID specified in it is not even the same as reported by the chip 
-the spec is supposed to be for. Winbond is definitely not on my 
-recommended vendors list.
+Well, this is a good reference answer to the question. The machines are all 
+small systems with only 1GB memory, and plenty of remaining space on the two 
+partitions. I doubt I'd trigger the logic causing the problem.
 
-Rgds
-Pierre
+> In general though, I would rebuild without the 4K stacks and at least
+> have the kernel ready for a convenient reboot.
 
+Thanks, I'll do that.
+
+-- 
+Cheers,
+Alistair.
+
+personal:   alistair()devzero!co!uk
+university: s0348365()sms!ed!ac!uk
+student:    CS/AI Undergraduate
+contact:    1F2 55 South Clerk Street,
+            Edinburgh. EH8 9PP.

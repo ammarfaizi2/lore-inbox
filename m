@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262232AbVBCKis@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262878AbVBCKno@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262232AbVBCKis (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 05:38:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbVBCKfB
+	id S262878AbVBCKno (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 05:43:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262641AbVBCKkL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 05:35:01 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:22483 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S262504AbVBCKaB (ORCPT
+	Thu, 3 Feb 2005 05:40:11 -0500
+Received: from gprs215-57.eurotel.cz ([160.218.215.57]:1152 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262469AbVBCKjQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 05:30:01 -0500
-Message-ID: <42020C29.99CF1D87@tv-sign.ru>
-Date: Thu, 03 Feb 2005 14:34:01 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ram <linuxram@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Steven Pratt <slpratt@austin.ibm.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 3/4] readahead: factor out duplicated code
-References: <41FB6F45.848CEFF6@tv-sign.ru>  <41FB7517.418D556A@tv-sign.ru> <1107398594.5992.134.camel@localhost>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Feb 2005 05:39:16 -0500
+Date: Thu, 3 Feb 2005 11:38:58 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Jes Sorensen <jes@wildopensource.com>
+Cc: linux-pm@osdl.org, kernel-janitors@osdl.org,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-pm] Re: driver model u32 -> pm_message_t conversion: help needed
+Message-ID: <20050203103857.GB1389@elf.ucw.cz>
+References: <20050125194710.GA1711@elf.ucw.cz> <yq0brb3qs74.fsf@jaguar.mkp.net> <20050202095014.GA12955@elf.ucw.cz> <20050202095739.GB12955@elf.ucw.cz> <yq0y8e6ovqt.fsf@jaguar.mkp.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <yq0y8e6ovqt.fsf@jaguar.mkp.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ram wrote:
-> > unsigned long page_cache_readahead(mapping, ra, filp, offset, req_size)
-> > {
-> > 	unsigned long max, newsize = req_size;
-> > 	int sequential = (offset == ra->prev_page + 1);
-> >
-> > 	if (offset == ra->prev_page && req_size == 1 && ra->size != 0)
-> > 		goto out;
-> > 	ra->prev_page = offset;		<============== PLEASE LOOK HERE :)
-> > 	max = get_max_readahead(ra);
-> > 	newsize = min(req_size, max);
-> >
-> > 	if (newsize == 0 || (ra->flags & RA_FLAG_INCACHE)) {
-> > 		newsize = 1;
->
-> At this point prev_page has to be updated:
->               ra->prev_page = offset;
+Hi!
 
-Yes, it is already updated, before "max = get_max_readahead(ra);"
+> >> > Sorry for being late responding to this, but I'd say this is a
+> >> prime > example for typedef's considered evil (see Greg's OLS talk
+> >> ;).
+> >> > 
+> >> > It would be a lot cleaner if it was made a struct and then
+> >> passing a > struct pointer as the argument instead of passing the
+> >> struct by value > as you do right now.
+> >> 
+> >> Sorry, can't do that. That would require flag day and change
+> >> everything at once. That is just not feasible. When things are
+> >> settled, it is okay to change it to struct passed by value.. It is
+> >> small anyway and at least we will not have problems with freeing it
+> >> etc.
+> 
+> Pavel> Well, we could switch to passing struct by reference
+> 
+> Pavel> (typedef struct pm_message *pm_message_t)
+> 
+> Pavel> , but AFAICS it would only bring us problems with lifetime
+> Pavel> rules etc. Lets not do it.  Pavel
+> 
+> This way you end up hiding what is really going on, the very problem
+> of using typedefs. If the change is really needed why not get it right
+> in the first go?
 
-> Otherwise this code looks much cleaner and correct. Can you send me a
-> updated patch. I will run it through my test harness.
+Because it is impossible? 
 
-Well, currently I do not know, what should be changed :)
-
-Oleg.
+[You can't change all drivers at once in incompatible way. See
+previous discussion, about half a year ago.]
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

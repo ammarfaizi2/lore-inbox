@@ -1,74 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262215AbRE2ENB>; Tue, 29 May 2001 00:13:01 -0400
+	id <S262213AbRE2ELB>; Tue, 29 May 2001 00:11:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262235AbRE2EMv>; Tue, 29 May 2001 00:12:51 -0400
-Received: from [206.14.214.140] ([206.14.214.140]:26384 "EHLO transvirtual.com")
-	by vger.kernel.org with ESMTP id <S262215AbRE2EMk>;
-	Tue, 29 May 2001 00:12:40 -0400
-Date: Mon, 28 May 2001 21:11:40 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Pavel Roskin <proski@gnu.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: AT keyboard optional on i386?
-In-Reply-To: <Pine.LNX.4.33.0105252003530.32376-100000@vesta.nine.com>
-Message-ID: <Pine.LNX.4.10.10105282027030.3783-100000@transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262215AbRE2EKw>; Tue, 29 May 2001 00:10:52 -0400
+Received: from unthought.net ([212.97.129.24]:61594 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S262213AbRE2EKl>;
+	Tue, 29 May 2001 00:10:41 -0400
+Date: Tue, 29 May 2001 06:10:39 +0200
+From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+To: "G. Hugh Song" <ghsong@kjist.ac.kr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Plain 2.4.5 VM...
+Message-ID: <20010529061039.D29962@unthought.net>
+Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+	"G. Hugh Song" <ghsong@kjist.ac.kr>, linux-kernel@vger.kernel.org
+In-Reply-To: <200105290232.f4T2W9m00876@bellini.kjist.ac.kr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <200105290232.f4T2W9m00876@bellini.kjist.ac.kr>; from ghsong@kjist.ac.kr on Tue, May 29, 2001 at 11:32:09AM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 29, 2001 at 11:32:09AM +0900, G. Hugh Song wrote:
+> 
+> Jeff Garzik wrote: 
+> > 
+> > Ouch! When compiling MySql, building sql_yacc.cc results in a ~300M 
+> > cc1plus process size. Unfortunately this leads the machine with 380M of 
+> > RAM deeply into swap: 
+> > 
+> > Mem: 381608K av, 248504K used, 133104K free, 0K shrd, 192K 
+> > buff 
+> > Swap: 255608K av, 255608K used, 0K free 215744K 
+> > cached 
+> > 
+> > Vanilla 2.4.5 VM. 
+> > 
+> 
+> This bug known as the swap-reclaim bug has been there for a while since 
+> around 2.4.4.  Rick van Riel said that it is in the TO-DO list.
+> Because of this, I went back to 2.2.20pre2aa1 on UP2000 SMP.
+> 
+> IMHO, the current 2.4.* kernels should still be 2.3.*.  When this bug
+> is removed, I will come back to 2.4.*.
 
-> I'm trying to run Linux on a broken motherboard that is constantly
-> producing random noice on the AT keyboard port. I'm going to use a USB
-> keyboard, but I cannot get Linux to ignore the AT keyboard port.
+Just keep enough swap around.  How hard can that be ?
 
-Not that I know. The current way it works is:
+Really, it's not like a memory leak or something.  It's just "late reclaim".
 
-1) Current 2.4 way for AT keyboards:
+If Linux didn't do over-commit, you wouldn't have been able to run that job
+anyway.
 
-pc_keyb.c -(raw)-> keyboard.c -(raw)-> pc_keyb.c -->
->--(cooked)-> keyboard.c -(chars)-> tty
+It's not a bug.  It's a feature.  It only breaks systems that are run with "too
+little" swap, and the only difference from 2.2 till now is, that the definition
+of "too little" changed.
 
-2) Current 2.4 way for USB keyboards (uses keybdev):
-
-usb.c -(usb)-> hid.c -(events)-> input.c -(events)-> keybdev.c -->
->--(raw)-> keyboard.c -(raw)-> pc_keyb.c -(cooked)-> keyboard.c -->
->--(chars)-> tty
-
-So as you can see even USB keyboards depend on pc_keyb.c. So their is no
-way around this. 
-
-> Is there any way to disable the AT keyboard? I think the best solution
-> would be to make it optional, just like almost everything in the kernel,
-> e.g. PS/2 mouse. Some embedded i386 systems could save a few kilobytes of
-> RAM by disabling the AT keyboard.
-
-  This is a 2.5.X issue since changing the current pc_keyb.c keyboard
-driver would break many drivers which like the USB keybaords fake they are
-PS/2 keyboards. 
-  BTW I already have a kernel tree that does allow the AT keyboard to be
-optional. The AT keyboard has been ported to the linux input api and it
-has been working very well for along time. In this kernel tree you have:
-
-3) Ruby (my tree's name) way for AT keyboards:
-
-i8042.c -(raw)-> atkbd.c -(events)-> input.c -->
->--(events)-> keyboard.c -(chars)-> tty
-
-4) Ruby way for USB keyboards:
-
-usb.c -(usb)-> hid.c -(events)-> input.c -->
->--(events)-> keyboard.c -(chars)-> tty
-
-You can a few nice tricks with it like plug in two PS/2 keyboards. I have
-this for my home setup. The only thing is make sure you don't have both
-keyboards plugged in when you turn your PC on. I found BIOS get confussed 
-by two PS/2 keyboards. As you can it is very easy to multiplex many
-keyboards with the above design. I have had 4 different keyboards hooked
-up to my system and functioning at the same time. We even got a Sun
-keyboard to work on a intel box :-) Another nice feature is event numbers
-from the input api can be used in the keymap. This has a nice effect that
-keymaps will be architecture independent, too. The only mess is raw mode
-which /dev/event makes obsolute.
-
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

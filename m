@@ -1,89 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261235AbVCMNYp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261229AbVCMNca@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261235AbVCMNYp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 08:24:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261251AbVCMNYp
+	id S261229AbVCMNca (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 08:32:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261251AbVCMNca
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 08:24:45 -0500
-Received: from hs-grafik.net ([80.237.205.72]:23816 "EHLO hs-grafik.net")
-	by vger.kernel.org with ESMTP id S261235AbVCMNYi convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 08:24:38 -0500
-From: Alexander Gran <alex@zodiac.dnsalias.org>
-To: "E.Gryaznova" <grev@namesys.com>
-Subject: Re: Fw: 2.6.11-rc5-mm1: reiser4 eating cpu time
-Date: Sun, 13 Mar 2005 14:24:33 +0100
-User-Agent: KMail/1.7.2
-Cc: reiserfs-dev <reiserfs-dev@namesys.com>, linux-kernel@vger.kernel.org
-References: <20050303184456.534aedb6.akpm@osdl.org> <4230582F.2050503@namesys.com>
-In-Reply-To: <4230582F.2050503@namesys.com>
-X-Need-Girlfriend: always
-X-Ignorant-User: yes
+	Sun, 13 Mar 2005 08:32:30 -0500
+Received: from mail.dif.dk ([193.138.115.101]:53664 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261229AbVCMNcY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Mar 2005 08:32:24 -0500
+Date: Sun, 13 Mar 2005 14:33:46 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH][2.6.11-mm3] Warning fix and be extra careful about array in
+ kernel/module.c
+Message-ID: <Pine.LNX.4.62.0503131412070.2501@dragon.hyggekrogen.localhost>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200503131424.33498@zodiac.zodiac.dnsalias.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
 
-Well, of course it cannot handle that large files (I wouldn't expect that, 
-either). My Problem is that when I open the file, it's not just kwrite but 
-other processes that need so much cpu time. That kwrite is eating cpu is ok. 
-I cannot reproduce the behaviour for some reason however. 
-So for short what's now (2.6.11-mm3) hapening:
-I open a file of 150MB with kwrite. Kwrite start using all cpu it can get
-After some seconds pdflush kicks in. Kwrite seems to wait, and pdflush is 
-eating cpu cyles. These 2 alternate for some time, until file is loaded. 
-Please note that this happens when the file is in cache too. No Idea what 
-kwrite is doing here, though.
-In the case described earlier ent:hda6. was eating my cpu cyles, even after 
-kwrite was killed!
+Fix warning in kernel/module.c::who_is_doing_it()
+kernel/module.c:1405: warning: ignoring return value of `copy_from_user', declared with attribute warn_unused_result
+by subtracting copy_from_user return value from 'len' - if we copy less 
+data than we intend there's no point in looping over more than we actually 
+copy.
+I've also changed the type of 'len' and 'i' from unsigned int to 
+unsigned long since that's the type of mm_struct.arg_start/arg_end and 
+it's also the type of the last argument to copy_from_user. Sure, it'll be 
+promoted and truncated between int/long just fine, but it seems cleaner to 
+me that it's just the same type all the way.
+I also added an explicit check of the value of 'len' after the calcolation 
+of arg_start - arg_end since they are both long values subtracting one 
+from the other could theoretically ield a value larger than 512 and such a 
+value would cause us to overflow our statically allocated array. I don't 
+know if that can actually ever occour, I don't know the code that well, 
+but I thought it would be better to be safe than sorry.
 
-regards
-Alex
+The code compiles and I've been running the kernel with this change for a 
+few hrs, but that's all the testing I've done.
 
-Am Donnerstag, 10. März 2005 15:22 schrieb E.Gryaznova:
-> I opened  190Mb textfile with kwrite and tried  to  do  "goto line
-> number 1 800 000" (file has about 6 000 000 lines). File is placed not
-> on reiser4 but on ext2 partition. And I see that  kwrite eats about
-> 90-100% CPU.
-> Does kwrite work fine for you on so big files on ext2 filesystem?
->
-> I have the following kde version:
-> grev@flint:~> kwrite --version
-> Qt: 3.2.1
-> KDE: 3.1.4
-> KWrite: 4.1
->
-> Thanks,
-> Lena.
->
-> >Begin forwarded message:
-> >
-> >Date: Fri, 4 Mar 2005 02:24:36 +0100
-> >From: Alexander Gran <alex@zodiac.dnsalias.org>
-> >To: linux-kernel@vger.kernel.org
-> >Subject: 2.6.11-rc5-mm1: reiser4 eating cpu time
-> >
-> >
-> >Hi,
-> >
-> >I have a reiser4 partition on a local IDE disk. I opened a 130MB textfile
-> > with kwrite, and killed it while ot opened the file (took to long...)
-> > diskio was finished at this point.
-> >a [ent:hda6.] Process was eating 100% CPU time for several (54) seconds.
-> >Is this a normal, expected behaviour?
-> >After trying again, pdflush was eating much cpu time, about the same (50+
-> >secs) Note that this happend after reiser4 panic (on an external disk as
-> >reported several minutes ago).
-> >
-> >regards
-> >Alex
+If this seems OK to you, please consider merging it. If there's something 
+wrong with it I'm always looking forward to being enlightened.
 
--- 
-Encrypted Mails welcome.
-PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID: 0x6D7DD291
+
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+
+diff -up linux-2.6.11-mm3-orig/kernel/module.c linux-2.6.11-mm3/kernel/module.c
+--- linux-2.6.11-mm3-orig/kernel/module.c	2005-03-13 00:52:51.000000000 +0100
++++ linux-2.6.11-mm3/kernel/module.c	2005-03-13 01:51:11.000000000 +0100
+@@ -1400,9 +1400,12 @@ static void who_is_doing_it(void)
+ {
+ 	/* Print out all the args. */
+ 	char args[512];
+-	unsigned int i, len = current->mm->arg_end - current->mm->arg_start;
++	unsigned long i, len = current->mm->arg_end - current->mm->arg_start;
+ 
+-	copy_from_user(args, (void *)current->mm->arg_start, len);
++	if (len > 512)
++		len = 512;
++
++	len -= copy_from_user(args, (void *)current->mm->arg_start, len);
+ 
+ 	for (i = 0; i < len; i++) {
+ 		if (args[i] == '\0')
+
+
+

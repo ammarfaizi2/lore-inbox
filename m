@@ -1,65 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311749AbSHWUrJ>; Fri, 23 Aug 2002 16:47:09 -0400
+	id <S311025AbSHWVG2>; Fri, 23 Aug 2002 17:06:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311885AbSHWUrJ>; Fri, 23 Aug 2002 16:47:09 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:17541 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S311749AbSHWUrI>; Fri, 23 Aug 2002 16:47:08 -0400
-Message-Id: <200208232051.g7NKp5608166@eng4.beaverton.ibm.com>
-To: Bill Hartner <hartner@austin.ibm.com>
-cc: Dave Hansen <haveblue@us.ibm.com>, Mala Anand <manand@us.ibm.com>,
-       Benjamin LaHaise <bcrl@redhat.com>, Bill Hartner <bhartner@us.ibm.com>,
-       davem@redhat.com, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net
-Subject: Re: [Lse-tech] Re: (RFC): SKB Initialization 
-In-reply-to: Your message of "Fri, 23 Aug 2002 15:12:40 CDT."
-             <3D669737.67ED34AF@austin.ibm.com> 
-Date: Fri, 23 Aug 2002 13:51:05 -0700
-From: Rick Lindsley <ricklind@us.ibm.com>
+	id <S311885AbSHWVG2>; Fri, 23 Aug 2002 17:06:28 -0400
+Received: from sw-55.SEDSystems.ca ([192.107.131.9]:19328 "EHLO
+	sw-55.sedsystems.ca") by vger.kernel.org with ESMTP
+	id <S311025AbSHWVG1>; Fri, 23 Aug 2002 17:06:27 -0400
+Date: Fri, 23 Aug 2002 15:10:35 -0600 (CST)
+From: Kendrick Hamilton <hamilton@sedsystems.ca>
+To: uclinux <uclinux-dev@uclinux.org>, <linux-kernel@vger.kernel.org>
+Subject: Disabling and Re-enabling the network card interrupt.
+Message-ID: <Pine.LNX.4.44.0208231447170.1571-100000@sw-55.sedsystems.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Read the 1st email.  There were 2.4 million samples.
+Can people CC me with there responses. I am on the uClinux developper's
+mailing list but not the Linux developpers list.
 
-    How many do you think is sufficient ?
+Sorry for the long background explination but I needed it for my questions
+to make sense.
 
-I looked at my hand 2.4 million times and it was not wet each time.
-Therefore, it is not raining.
+We are build a Linux based system with a few hard realtime requirements.
+It is based on an already designed card with a motorola 68360 processor
+(processing power is similar to a 33MHz 386, uclinux 2.0.39 kernel with
+tcp/ip stack). It has two real time requirements:
+	1. It needs to poll a few memory locations every 10ms. I can use a
+non-maskable interrupt and bi-pass the linux kernel (if needed) to ensure
+the memroy locations get polled.
+	2. If the poll detects an error, the systems needs to do a number
+of operations on the serial ports and some other devices.
 
-Of course, if I am inside a roofed structure, the sampling is faulty.
-And (correct me if I'm wrong here, Dave) I think that's what we're
-asking about.  Are the samples you're getting pertinent and
-significant?  If, as you suggested in another email, you disable
-interrupts in the functions to take these measurements, you may be
-significantly altering the very environment you hope to measure.
+The processor is not running very many tasks and the few that are running
+don't have to do a lot. The problem is the network. Most of the time, it
+can interrupt the processor as data comes in except when an error has been
+detected. When an error is detected, normal network traffic (broadcasts
+from windows networking and other broadcasts along with TCP/IP packets
+being sent to my application) could slow down significantly the processor
+and prevent it from handling the error.
 
-    Why do you think oprofile is a better way to measure this ?  BTW,
-    Mala works with Troy Wilson who is running SPECweb99 on an 8-way
-    system using Apache.  Troy has run with Mala's patch and that data
-    will be posted.
+To stop the network from causing delays during the critical routine, I am
+planning stopping the network card from interrupting the
+processor in the polling interrupt service routine. Neither the kernel nor
+the network driver will know that the interrupt has been disabled and
+there code will not be affected (there is a Programable Logic Device
+in between the processor and network card that I can add a register to
+prevent the interrupt from getting through). The network card also has
+about 2k of buffer space to hold data without the processor's help.
 
-That will be helpful.  Microbenchmarks which measure cycles are far
-less interesting to the community than the end results of actual
-workloads.  Note that Mala said "I measured the cycles for only the
-initialization code in alloc_skb and __kfree_skb" which could mean that
-even other parts of alloc_skb() or __kfree_skb() may have gotten worse
-and you would not have known. Later she admits, "As the scope of the
-code measured widens the percentage improvement comes down" and finally
-observes "We measured it in a web serving workload and found that we
-get 0.7% improvement"  which is practically in the noise.  Dave's
-observation was that it was slightly worse (0.35%).  Either could be
-statistical noise.  If the patch only creates statistical noise, the
-community won't be interested.
+After all that background here are my questions:
+	Will disabling the network interrupt for 1-2 seconds cause any
+problems or will the TCP/IP stack handle that it lost a few packets and the
+lower level handle the delay in acknowledgements? How long can I keep the
+network interrupt disabled before I risk TCP connections being closed
+because the computers communicating with my board think my board has been
+disconnected from the network?
 
-Also, it is well known and widely recognized that more cpus add
-increasing complexity with cache and code interactions.  Have you
-tested this on an 8-way machine, rather than a 2-way, and do the
-results still hold?  Things which look very good on 2-proc can start to
-lose their lustre on 8-proc or bigger.
+TIA,
+Kendrick Hamilton
 
-I'm unfamiliar with netperf -- does it yield "results" which can be
-compared?  If so, since it was used to generate the load, how did the
-results of the two runs compare?
-
-Rick

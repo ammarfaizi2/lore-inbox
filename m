@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261265AbTIOLoV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 07:44:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261271AbTIOLoV
+	id S261271AbTIOL6E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 07:58:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbTIOL6D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 07:44:21 -0400
-Received: from [217.222.53.238] ([217.222.53.238]:33555 "EHLO mail.gts.it")
-	by vger.kernel.org with ESMTP id S261265AbTIOLoU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 07:44:20 -0400
-Message-ID: <3F65A611.9060705@gts.it>
-Date: Mon, 15 Sep 2003 13:44:17 +0200
-From: Stefano Rivoir <s.rivoir@gts.it>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4b) Gecko/20030507
-X-Accept-Language: en-us, en
+	Mon, 15 Sep 2003 07:58:03 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:36878 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261271AbTIOL6B
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 07:58:01 -0400
+Date: Mon, 15 Sep 2003 07:48:52 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: John Bradford <john@grabjohn.com>
+cc: zwane@linuxpower.ca, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
+In-Reply-To: <200309150632.h8F6WnHb000589@81-2-122-30.bradfords.org.uk>
+Message-ID: <Pine.LNX.3.96.1030915074616.19165B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.0-t4/5] Error inserting module snd
-References: <3F65A230.3020806@gts.it> <20030915113446.GF1091@Synopsys.COM>
-In-Reply-To: <20030915113446.GF1091@Synopsys.COM>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Riesen wrote:
+On Mon, 15 Sep 2003, John Bradford wrote:
 
-> Stefano Rivoir, Mon, Sep 15, 2003 13:27:44 +0200:
-> 
->>When inserting module snd, modprobe bails out saying
->>
->>snd: Unknown parameter 'device_mode'
-> 
-> 
-> remove the parameter (device_mode). It could be in modprobe.conf, or in
-> your modprobe command line. There could be possibly others, obsoleted
-> parameters, so be prepared to remove more.
+    [... many good points ...]
 
-Right, too easy, more than what I thought (it's easy to give the fault 
-to the kernel in these -testX days :P)
+> This makes it trivial to:
+> 
+> * Make a kernel for a distribution's initial install
+>   Select all CPUs as supported, and optimise for 686.
+> 
+> * Make an optimised kernel for any system
+>   Select only the target CPU as supported, and optimise for it
+> 
+> * Make a generic kernel for PIV, and Athlon
+>   Select PIV and Athlon only as supported.  Optimise for either, or
+>   optimise for 386, (yes, even though it is not supported), for a
+>   small kernel, on the basis that it will maximise cache usage, and be
+>   fairly optimal on both systems.
 
-Thanks
+That last is a good point for sure, I have seen several posts indicating
+that -Os is faster on small cache machines like old Celerons, it would be
+a sensible choice for a distro, and make the kernel smaller as well.
+Kernels are getting near the limits of some machines to boot them.
 
 -- 
-Stefano RIVOIR
-
-
-
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

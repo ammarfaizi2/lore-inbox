@@ -1,39 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261355AbUK0Win@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261357AbUK0WoE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261355AbUK0Win (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 17:38:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbUK0Win
+	id S261357AbUK0WoE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 17:44:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbUK0WoE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 17:38:43 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:50393 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261355AbUK0Wim (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Nov 2004 17:38:42 -0500
-Subject: Re: [PATCH] Work around for periodic do_gettimeofday hang
-From: Lee Revell <rlrevell@joe-job.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1101370853.2659.1.camel@laptop.fenrus.org>
-References: <1101314988.1714.194.camel@mulgrave>
-	 <1101323621.2811.24.camel@laptop.fenrus.org>
-	 <1101356864.4007.35.camel@mulgrave> <20041124203349.7982efb7.akpm@osdl.org>
-	 <1101370853.2659.1.camel@laptop.fenrus.org>
-Content-Type: text/plain
-Date: Sat, 27 Nov 2004 17:38:40 -0500
-Message-Id: <1101595121.15635.24.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Sat, 27 Nov 2004 17:44:04 -0500
+Received: from 80.178.41.228.forward.012.net.il ([80.178.41.228]:32682 "EHLO
+	linux15") by vger.kernel.org with ESMTP id S261357AbUK0WoC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Nov 2004 17:44:02 -0500
+From: Oded Shimon <ods15@ods15.dyndns.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: RivaFB and GeForce FX
+Date: Sun, 28 Nov 2004 00:43:49 +0200
+User-Agent: KMail/1.7.1
+References: <200411242347.07911.ods15@ods15.dyndns.org> <1101592907.15635.5.camel@krustophenia.net>
+In-Reply-To: <1101592907.15635.5.camel@krustophenia.net>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-8-i"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200411280043.49494.ods15@ods15.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-11-25 at 09:20 +0100, Arjan van de Ven wrote:
-> HZ=1000 costs you 1% HPC performance, and for slower machines probably more. Also some hw (with slow smm) really doesn't likeit.
+On Sunday 28 November 2004 00:01, Lee Revell wrote:
+> Are you asking "how do I reverse engineer a binary driver"?  One method
+> is to run it under an emulator, and capture the PCI bus traffic.  Then
+> there are tried and true methods like IDA Pro.
+>
+Well, I was sort of hoping there might be something better/easier than working 
+on the binary driver (which btw is illegal.. oh well :).
 
-I actually profiled the timer ISR on a 600Mhz C3.  It runs for 22 usec.
-So with HZ=1000 the residency of the timer interrupt is 2.2%.
+Like I said I know very little about kernel hacking, this is really my first 
+experience with it ever. I know simple wrapper C, I'm new at low level 
+programming.
 
-Lee
+I have heard of IDA Pro, its a disassembler to COBOL, right?
 
+If I go down the emulator idea, how do I do that?... could you give me a good 
+starting point to continue from or link me to a good guide?...
+
+- ods15

@@ -1,111 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261975AbUBWSJX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 13:09:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261979AbUBWSJX
+	id S261872AbUBWSG5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 13:06:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261975AbUBWSG5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 13:09:23 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:2788 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261975AbUBWSJT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 13:09:19 -0500
-Date: Mon, 23 Feb 2004 19:09:12 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>, perex@suse.cz, alsa@digigram.com
-Cc: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org
-Subject: [patch] 2.6.3-mm3: ALSA miXart driver doesn't compile
-Message-ID: <20040223180911.GL5499@fs.tum.de>
-References: <20040222172200.1d6bdfae.akpm@osdl.org>
+	Mon, 23 Feb 2004 13:06:57 -0500
+Received: from fw.osdl.org ([65.172.181.6]:54989 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261872AbUBWSGz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 13:06:55 -0500
+Date: Mon, 23 Feb 2004 09:59:19 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: robert of northworthige <bobh@n-cantrell.demon.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Is LOADLIN still viable for 2.6?
+Message-Id: <20040223095919.70ce9a10.rddunlap@osdl.org>
+In-Reply-To: <NkcvILAg5jOAFwZp@n-cantrell.demon.co.uk>
+References: <20040223145740.M2949@www.igotu.com>
+	<20040223081138.50f03334.rddunlap@osdl.org>
+	<NkcvILAg5jOAFwZp@n-cantrell.demon.co.uk>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040222172200.1d6bdfae.akpm@osdl.org>
-User-Agent: Mutt/1.4.2i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 22, 2004 at 05:22:00PM -0800, Andrew Morton wrote:
->...
-> Changes since 2.6.3-mm2:
->...
->  bk-alsa.patch
->...
->  Latest versions of external trees
->...
+On Mon, 23 Feb 2004 17:54:40 +0000 robert of northworthige <bobh@n-cantrell.demon.co.uk> wrote:
 
-I got four compile errors like the following in the miXart driver:
+| In article <20040223081138.50f03334.rddunlap@osdl.org>, Randy.Dunlap
+| <rddunlap@osdl.org> writes
+| >On Mon, 23 Feb 2004 10:05:58 -0500 "Martin Bogomolni" <martinb@www.igotu.com> 
+| >wrote:
+| >
+| >| 
+| > 
+| >| Since it doesn't seem that Hans Lermen has been updating or maintaining
+| >| loadlin since the release of 2.4 is there anyone who is continuing to 
+| >maintain
+| >| LOADLIN, or has it fallen by the wayside?   Due to the nature of the system,
+| >| and a requirement for backwards compatibility and user interaction during
+| >| startup, I cannot use Peter Anvin's SYSLINUX linux loader which occurs too
+| >| early on in the process.
+| >| 
+| >| Are there any other options to startup a linux environment from DOS?
+| >
+| >I don't know anything about it, but you might look at gujin:
+| >  http://sourceforge.net/projects/gujin/
+| >
+| >--
+| >~Randy
+| >-
+| 
+| Hans produced loadlin1.6c for Pat Volkerding, about slack 8.1 time
+| (kernel 2.4.18). I'm sure he'd rise to the challenge to update for 2.6
+| if needed. 
+| And...
+| I've just tried loadlin1.6c on a 2.6.2 kernel and it's come up fine
+| 
+| Bob Hall
+| 
+| There's also linld (??) from a russian guy IIRC.
 
-<--  snip  -->
+Ah, that's why I couldn't find it, I was looking for 'ldlin'.
 
-...
-  CC      sound/pci/mixart/mixart.o
-In file included from sound/pci/mixart/mixart.c:33:
-sound/pci/mixart/mixart.h:95: field `msg_taskq' has incomplete type
-In file included from sound/pci/mixart/mixart.c:35:
-sound/pci/mixart/mixart_core.h:602: parse error before 
-`snd_mixart_interrupt'
-sound/pci/mixart/mixart_core.h:602: warning: type defaults to `int' in 
-declaration of `snd_mixart_interrupt'
-sound/pci/mixart/mixart_core.h:602: warning: data definition has no type 
-or storage class
-sound/pci/mixart/mixart.c: In function `snd_mixart_hw_params':
-sound/pci/mixart/mixart.c:604: warning: unsigned int format, different 
-type arg (arg 5)
-sound/pci/mixart/mixart.c: In function `snd_mixart_free':
-sound/pci/mixart/mixart.c:1043: warning: implicit declaration of 
-function `free_irq'
-sound/pci/mixart/mixart.c: In function `snd_mixart_probe':
-sound/pci/mixart/mixart.c:1301: warning: implicit declaration of 
-function `request_irq'
-sound/pci/mixart/mixart.c:1325: warning: implicit declaration of 
-function `tasklet_init'
-make[3]: *** [sound/pci/mixart/mixart.o] Error 1
+Yes, it's here:
+  http://port.imtp.ilyichevsk.odessa.ua/linux/linld/
 
-<--  snip  -->
-
-The patch below fixes these issues for me.
-
-cu
-Adrian
-
-
---- linux-2.6.3-mm3/sound/pci/mixart/mixart.c.old	2004-02-23 18:28:08.000000000 +0100
-+++ linux-2.6.3-mm3/sound/pci/mixart/mixart.c	2004-02-23 18:28:27.000000000 +0100
-@@ -23,6 +23,7 @@
- 
- #include <sound/driver.h>
- #include <linux/init.h>
-+#include <linux/interrupt.h>
- #include <sound/core.h>
- #define SNDRV_GET_ID
- #include <sound/initval.h>
---- linux-2.6.3-mm3/sound/pci/mixart/mixart_core.c.old	2004-02-23 18:30:18.000000000 +0100
-+++ linux-2.6.3-mm3/sound/pci/mixart/mixart_core.c	2004-02-23 18:30:38.000000000 +0100
-@@ -20,6 +20,7 @@
-  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-  */
- 
-+#include <linux/interrupt.h>
- #include <sound/driver.h>
- #include <sound/core.h>
- #include "mixart.h"
---- linux-2.6.3-mm3/sound/pci/mixart/mixart_hwdep.c.old	2004-02-23 18:32:49.000000000 +0100
-+++ linux-2.6.3-mm3/sound/pci/mixart/mixart_hwdep.c	2004-02-23 18:33:01.000000000 +0100
-@@ -20,6 +20,7 @@
-  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-  */
- 
-+#include <linux/interrupt.h>
- #include <sound/driver.h>
- #include <sound/core.h>
- #include "mixart.h"
---- linux-2.6.3-mm3/sound/pci/mixart/mixart_mixer.c.old	2004-02-23 18:34:42.000000000 +0100
-+++ linux-2.6.3-mm3/sound/pci/mixart/mixart_mixer.c	2004-02-23 18:34:57.000000000 +0100
-@@ -23,6 +23,7 @@
- #include <sound/driver.h>
- #include <linux/time.h>
- #include <linux/init.h>
-+#include <linux/interrupt.h>
- #include <sound/core.h>
- #include "mixart.h"
- #include "mixart_core.h"
+--
+~Randy

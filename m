@@ -1,142 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262541AbTHZE1v (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 00:27:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262571AbTHZE1v
+	id S262566AbTHZE0x (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 00:26:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262541AbTHZE0x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 00:27:51 -0400
-Received: from smtp2.clear.net.nz ([203.97.37.27]:26539 "EHLO
-	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S262541AbTHZE1q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 00:27:46 -0400
-Date: Tue, 26 Aug 2003 16:21:19 +1200
-From: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: 2.4.22 hangs with pcmcia and linux-wlan
-In-reply-to: <20030826041116.GI734@alpha.home.local>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: "Hmamouche, Youssef" <youssef@ece.utexas.edu>,
-       Christian Hesse <news@earthworm.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <1061871679.3327.11.camel@laptop-linux>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.2
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <Pine.LNX.4.21.0308252234010.25458-100000@linux08.ece.utexas.edu>
- <1061869538.2790.9.camel@laptop-linux> <20030826041116.GI734@alpha.home.local>
+	Tue, 26 Aug 2003 00:26:53 -0400
+Received: from c210-49-26-171.randw1.nsw.optusnet.com.au ([210.49.26.171]:57757
+	"EHLO mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
+	id S262566AbTHZEZG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 00:25:06 -0400
+Message-ID: <16202.57600.498532.587264@wombat.chubb.wattle.id.au>
+Date: Tue, 26 Aug 2003 14:24:32 +1000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+From: Peter Chubb <peter@chubb.wattle.id.au>
+To: ajoshi@shell.unixbox.com
+CC: linux-kernel@vger.kernel.org
+Subject: Radeon FB in 2.6.0-test4 fails for me
+X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bingo.
 
-[root@laptop-linux src]# cat /proc/interrupts 
-           CPU0       
-  0:     342407          XT-PIC  timer
-  1:       9083          XT-PIC  keyboard
-  2:          0          XT-PIC  cascade
-  3:     509112          XT-PIC  ltserial
-  5:        414          XT-PIC  usb-uhci, usb-uhci, Allegro
-  8:          1          XT-PIC  rtc
-  9:       1322          XT-PIC  acpi, usb-uhci, i82365
- 10:       1623          XT-PIC  eth0
- 12:     284866          XT-PIC  PS/2 Mouse
- 14:     104489          XT-PIC  ide0
- 15:         24          XT-PIC  ide1
-NMI:          0 
-LOC:     342373 
-ERR:          0
-MIS:          0
-[root@laptop-linux src]#
+Hi,
+	On a Clevo laptop with a Radeon Mobility M7 LW (AGP), enabling
+	the Radeon frame buffer results in an unusable LCD display (as
+	if the horizontal and/or vertical sync were incorrect -- lots
+	of skewed diagonal lines)
 
-Now I just need to learn how to get it to assign a different IRQ.
+The kernel log shows this:
 
-Regards,
+ radeonfb_pci_register BEGIN
+ radeonfb: ref_clk=2700, ref_div=12, xclk=16600 from BIOS
+ radeonfb: probed DDR SGRAM 65536k videoram
+ radeon_get_moninfo: bios 4 scratch = 1000004
+ radeonfb: panel ID string: Samsung LTN150P1-L02
+ radeonfb: detected DFP panel size from BIOS
+ radeonfb: probed DDR SGRAM 65536k videoram
+ radeon_get_moninfo: bios 4 scratch = 1000004
+ radeonfb: panel ID string: Samsung LTN150P1-L02
+ radeonfb: detected DFP panel size from BIOS: 1400x1050
+ radeonfb: ATI Radeon M7 LW DDR SGRAM 64 MB
+ radeonfb: DVI port LCD monitor connected
+ radeonfb: CRT port no monitor connected
+ radeonfb_pci_register END
+ hStart = 1440, hEnd = 1552, hTotal = 1688
+ vStart = 1050, vEnd = 1053, vTotal = 1063
+ h_total_disp = 0xae00d2^I   hsync_strt_wid = 0x8e059a
+ v_total_disp = 0x4190426^I   vsync_strt_wid = 0x830419
+ post div = 0x2
+ fb_div = 0x60
+ ppll_div_3 = 0x10060
+ ron = 1792, roff = 22036
+ vclk_freq = 10800, per = 787
+ Console: switching to colour frame buffer device 175x65
 
-Nigel
 
-On Tue, 2003-08-26 at 16:11, Willy Tarreau wrote:
-> Hi,
-> 
-> I already encountered similar problems.
-> 
-> Check if the PCMCIA slot is not on the same IRQ as ACPI in /proc/interrupts. You
-> can also try to use a different PCMCIA slot, or boot with "acpi=off".
-> 
-> Cheers,
-> Willy
-> 
-> On Tue, Aug 26, 2003 at 03:45:52PM +1200, Nigel Cunningham wrote:
-> > Hi.
-> > 
-> > Similar results here, except I can be more specific. I see the issue
-> > using pcmcia only. The package I'm using is the
-> > external-to-the-kernel-tree pcmcia-cs-3.2.3. Under 2.4.22, I get a
-> > complete freeze (no SysRq, no flashing cursor) when I insmod i82365.o. I
-> > tried recompiling the whole kernel & modules using gcc 2.96 and 3.2 to
-> > no avail.  If I use the kernel tree's code, I can insmod okay, but my
-> > ltmodem_cs driver reports the modem as being busy all the time. The
-> > problem was fixed by reverting to 2.4.21 (I'd already deleted pre2,
-> > which was working). No configuration changes required - just a
-> > recompile.
-> > 
-> > Regards,
-> > 
-> > Nigel
-> > 
-> > On Tue, 2003-08-26 at 15:37, Hmamouche, Youssef wrote:
-> > > Out of curiosity, what happens when you remove the card? Does the system
-> > > come back to normal or does it stay in the same state?
-> > > 
-> > > Youssef
-> > > 
-> > > On Tue, 26 Aug 2003, Christian Hesse wrote:
-> > > 
-> > > > Hi,
-> > > > 
-> > > > I'm running kernels with pcmcia-cs-3.2.4 and linux-wlan-ng-0.2.1-pre11 (also 
-> > > > tried 0.2). With 2.4.22-rc3 to final the system hangs if I insert my LevelOne 
-> > > > WPC-0100 (Prism-II-base wlan), no output at all. Everything worked well up to 
-> > > > and including 2.4.22-rc2.
-> > > > 
-> > > > Regards,
-> > > >   Christian
-> > > > 
-> > > > -
-> > > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > > > the body of a message to majordomo@vger.kernel.org
-> > > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > > Please read the FAQ at  http://www.tux.org/lkml/
-> > > > 
-> > > 
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > -- 
-> > Nigel Cunningham
-> > 495 St Georges Road South, Hastings 4201, New Zealand
-> > 
-> > You see, at just the right time, when we were still powerless,
-> > Christ died for the ungodly.
-> > 	-- Romans 5:6, NIV.
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-Nigel Cunningham
-495 St Georges Road South, Hastings 4201, New Zealand
-
-You see, at just the right time, when we were still powerless,
-Christ died for the ungodly.
-	-- Romans 5:6, NIV.
+With FBDEV disabled in X, I see this in Xfree86.0.log:
+(WW) RADEON(0): LCD: Using default hsync range of 28.00-33.00kHz
+(WW) RADEON(0): LCD: using default vrefresh range of 43.00-72.00Hz
+(II) RADEON(0): Clock range:  12.00 to 350.00 MHz
+...
+(**) RADEON(0): *Mode "1400x1050": 108.0 MHz (scaled from 0.0 MHz), 64.0 kHz, 60.2 Hz
+(II) RADEON(0): Modeline "1400x1050"  108.00  1400 34208 34320 1688  1050 1050 1053 1063
 

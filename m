@@ -1,82 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261952AbTDEIXv (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 03:23:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261954AbTDEIXv (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 03:23:51 -0500
-Received: from mail.hometree.net ([212.34.181.120]:10473 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP id S261952AbTDEIXt (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Apr 2003 03:23:49 -0500
+	id S261962AbTDEI3m (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 03:29:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261964AbTDEI3m (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 03:29:42 -0500
+Received: from mail.hometree.net ([212.34.181.120]:15849 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP id S261962AbTDEI3l (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Apr 2003 03:29:41 -0500
 To: linux-kernel@vger.kernel.org
 Path: not-for-mail
 From: "Henning P. Schmiedehausen" <hps@intermeta.de>
 Newsgroups: hometree.linux.kernel
-Subject: [2.4] ptrace bugfix breaks strace and keeps processes in STOPPED state (was: Re: How to fix the ptrace flaw without rebooting)
-Date: Sat, 5 Apr 2003 08:35:20 +0000 (UTC)
+Subject: Re: Strange e1000
+Date: Sat, 5 Apr 2003 08:41:11 +0000 (UTC)
 Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <b6m4g8$rp1$1@tangens.hometree.net>
-References: <200304040622_MC3-1-32FC-81F2@compuserve.com> <1049454936.2150.0.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <b6m4r7$rp1$2@tangens.hometree.net>
+References: <043501c2faaf$da061e10$3f00a8c0@witbe> <1049465969.3324.40.camel@abhilinux.cygnet.co.in> <20030404181400.GA26545@gtf.org>
 Reply-To: hps@intermeta.de
 NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1049531720 28449 212.34.181.4 (5 Apr 2003 08:35:20 GMT)
+X-Trace: tangens.hometree.net 1049532071 28449 212.34.181.4 (5 Apr 2003 08:41:11 GMT)
 X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Sat, 5 Apr 2003 08:35:20 +0000 (UTC)
+NNTP-Posting-Date: Sat, 5 Apr 2003 08:41:11 +0000 (UTC)
 X-Copyright: (C) 1996-2003 Henning Schmiedehausen
 X-No-Archive: yes
 User-Agent: nn/6.6.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+Jeff Garzik <jgarzik@pobox.com> writes:
 
->On Gwe, 2003-04-04 at 12:18, Chuck Ebbert wrote:
->> Erik Hensema wrote:
+>On Fri, Apr 04, 2003 at 07:49:28PM +0530, Abhishek Agrawal wrote:
+>> On Fri, 2003-04-04 at 19:11, Paul Rolland wrote:
 >> 
->> 
->> > A better fix in a running system is to simply disable dynamic module
->> > loading: echo /no/such/file > /proc/sys/kernel/modprobe
->> 
->> 
->>  You mean like this?
->> 
->>    # echo 'x'>/proc/sys/kernel/modprobe
->>    bash: /proc/sys/kernel/modprobe: No such file or directory
+>> > Could it be possible that the 1000MBps FD on the e1000 side is
+>> > a local configuration, and that it needs some time to discuss with
+>> > the Netgear switch to negotiate correctly speed and duplex before
+>> > working correctly ? (i.e. 20 sec = negotiation time)
+>> Autoneg must be completed within 2 sec, or else it is considered as
+>> failed.
 
->Thats not a sufficient fix except for people blindly running the
->example exploit
+>If we follow this rule, we have lots of Cisco and other network gear
+>that will not be able to communicate with Linux.
 
-Speaking of the exploit fix: Since I run a kernel which has it
-installed, I can no longer strace processes which do run as root but
-have a gid sbit set, e.g.
+2 seconds sound like "spanning-tree portfast" in Cisco-speak. 20
+seconds sounds like normal configuration. Both are legal and work with
+normal FE gear. It might be possible that you must deactivate
+spanning-tree if you don't connect a switch.
 
-# ls -la /tmp/bash 
--rwxr-sr-x    1 root     smmsp      541096 Apr  5 10:21 /tmp/bash
-# id
-uid=0(root) gid=0(root) groups=0(root),1(bin),2(daemon),3(sys),4(adm),6(disk),10(wheel)
-# /tmp/bash
-bash-2.05a# echo $$
-2625
-
-(in another shell)
-
-# strace -f -p 2625
-trace: ptrace(PTRACE_SYSCALL, ...): Operation not permitted
-detach: ptrace(PTRACE_DETACH, ...): Operation not permitted
-
-but the shell with the pid of 2625 is now "dead" until one sends it a 
-SIGCONT:
-
-# kill -CONT 2625
-
-(other shell now works again)
-
-% uname -an
-Linux henning-pc 2.4.18-27.7.x #1 Fri Mar 14 06:44:53 EST 2003 i686 unknown
-
-I'm running the most current strace (4.4.94) because of the STOP/CONT
-problems before (RH bugzilla #64303, #75709) but this is new after
-installing the exploit fix.
-
-(I found this BTW trying to trace sendmail that's why I have that test
-case with setgid to smmsp).
+I personally found the 20 second break always annoying so I routinely
+disable it on my catalysts. :-)
 
 	Regards
 		Henning

@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129870AbQKXTXJ>; Fri, 24 Nov 2000 14:23:09 -0500
+        id <S129257AbQKXSME>; Fri, 24 Nov 2000 13:12:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130030AbQKXTW7>; Fri, 24 Nov 2000 14:22:59 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:32562 "EHLO
-        the-village.bc.nu") by vger.kernel.org with ESMTP
-        id <S129870AbQKXTWp>; Fri, 24 Nov 2000 14:22:45 -0500
-Subject: Re: do_initcalls bug
-To: pavel@suse.cz (Pavel Machek)
-Date: Fri, 24 Nov 2000 18:53:13 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (kernel list)
-In-Reply-To: <20001124164812.A2115@bug.ucw.cz> from "Pavel Machek" at Nov 24, 2000 04:48:12 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+        id <S129231AbQKXSLy>; Fri, 24 Nov 2000 13:11:54 -0500
+Received: from lin-hs2-013.inetnebr.com ([209.50.4.45]:20728 "EHLO
+        falcon.inetnebr.com") by vger.kernel.org with ESMTP
+        id <S129145AbQKXSLp>; Fri, 24 Nov 2000 13:11:45 -0500
+Date: Fri, 24 Nov 2000 11:41:25 -0600
+From: Jeff Epler <jepler@inetnebr.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: linux-2.2.18-pre19 asm/delay.h problem?
+Message-ID: <20001124114125.A8019@potty.housenet>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <E13yikV-0006ZQ-00@the-village.bc.nu> <Pine.LNX.4.10.10011241113540.9367-100000@waste.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13zNyF-0000HI-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <Pine.LNX.4.10.10011241113540.9367-100000@waste.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> static void __init do_initcalls(void)
-> {
->         initcall_t *call;
-> 
->         call = &__initcall_start;
->         do {
->                 early_printk("[%lx]\n", call);
->                 (*call)();
->                 call++;
->         } while (call < &__initcall_end);
-> }
-> 
-> In case there are no initcalls to be called, it just simply
-> crashes. Ouch.
+On Fri, Nov 24, 2000 at 11:15:50AM -0600, Oliver Xymoron wrote:
+> You could still change it to
+> __bug__module_is_using_a_delay_thats_too_large__please_report()..
 
-Known problem. Fixed in 2.2.x. Linus didn't want to take the patches because
-2.4 'always had initcalls'
+I thought that's where we started?
 
+Can we somehow use the GNU linker trick which permits a warning about e.g.
+gets at link time?  (Is it even documented somewhere?)  Something like:
+
+/* bad_udelay.c */
+static char bad_udelay_warning[] __attribute__((__section__(".gnu.warning")))
+	= "warning: constant udelay too long";
+bad_udelay() { BUG(); }
+
+Jeff
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

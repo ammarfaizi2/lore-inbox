@@ -1,70 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266081AbSKTNKp>; Wed, 20 Nov 2002 08:10:45 -0500
+	id <S266069AbSKTNJs>; Wed, 20 Nov 2002 08:09:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266091AbSKTNKp>; Wed, 20 Nov 2002 08:10:45 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:58476 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S266081AbSKTNKm>; Wed, 20 Nov 2002 08:10:42 -0500
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200211201317.gAKDHgZ08017@devserv.devel.redhat.com>
-Subject: Linux 2.2.23-rc1
-To: linux-kernel@vger.kernel.org
-Date: Wed, 20 Nov 2002 08:17:42 -0500 (EST)
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S266078AbSKTNJs>; Wed, 20 Nov 2002 08:09:48 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:42373 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S266069AbSKTNJo>;
+	Wed, 20 Nov 2002 08:09:44 -0500
+Date: Wed, 20 Nov 2002 13:15:02 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Mathias Kretschmer <mathias@lemur.sytes.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: Recognize Tualatin cache size in 2.4.x
+Message-ID: <20021120131502.GA1768@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Mathias Kretschmer <mathias@lemur.sytes.net>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <3DDAE846.6080503@lemur.sytes.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3DDAE846.6080503@lemur.sytes.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Nov 19, 2002 at 08:41:26PM -0500, Mathias Kretschmer wrote:
+ > I just patched my 2.4.20rc2 kernel. Now, it reports
+ > 512K cache for my 2 Tualatin 1.26 GHz CPUs.
+ > 
+ > 'time make -j4 bzImage' went down from 3:30 to 3:04.
+ > Not too bad.
 
-2.2.23-rc1
-o	Gameport support for ALi 5451			(Pascal Schmidt)
-	| Just missing PCI idents
-o	IP options IPOPT_END padding fix		(Jeff DeFouw)
-o	Make APM check more paranoid			(Solar Designer)
-o	Sanity check ixj requests as in 2.4		(Solar Designer)
-o	Fix printk warning in fat			(Solar Designer)
-o	Fix other print warnings in 2.2.22		(Solar Designer)
-o	Backport NT iret denial of service bugfix    (Marc-Christian Petersen)
-o	ISDN multichannel ppp locking fix		(Herbert Xu)
-o	Fix sx driver compiled into kernel case		(Martin Pool)
-o	Backport ipfw sleep in spinlock in firewall	(James Morris)
-o	Update dmi_scan code to match 2.4/2.5		(Jean Delvare)
-o	Make agp debugging printk clearer		(Neale Banks)
+That is quite an impressive gain.  The patch I sent Marcelo which
+also fixes up a problem with some tualatins and adds P4 trace cache
+support is at..
 
-2.2.22
-o	Fix HDLC bugs causing kernel printk warns	(Pavel)
+ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.4/2.4.20/descriptors.diff
 
-2.2.22-rc3
-o	3ware IDE raid small update			(Adam Radford)
-o	Fix incorrect comments				(Solar Designer)
-o	Sanity check in isdn 				(Solar Designer)
-o	Type fixes for usb				(Solar Designer)
-o	Vmalloc corner case fix 			(Dave Miller)
+As you have tualatins can you try with the above patch and make sure
+theres no regressions there ?
 
-2.2.22-rc2
-o	Fix isofs over loopback problems		(Balazs Takacs)
-o	Backport 2.4 shutdown/reset SIGIO from 2.4	(Julian Anastasov)
-o	Fix error reporting in OOM cases		(Julian Anastasov)
-o	List a 2.2 maintainer in MAINTAINERS		(Keith Owens)
-o	Set atime on AF_UNIX sockets			(Solar Designer)
-o	Restore SPARC MD boot configuration		(Tomas Szepe)
-o	Multiple further sign/overflow fixes		(Solar Designer)
-o	Fix ov511 'vfree in interrupt'			(Mark McClelland)
-
-2.2.22-rc1
-o	Backport 2.4 neighbour sending fix		(Chris Friesen)
-o	Fix a sign handling slackness in apm		(Silvio Cesare)
-o	Fix a sign handling error in rio500		(Silvio Cesare)
-o	Indent depca ready for cleanups			(me)
-o	Update VIA C3 recognition			(Diego Rodriguez)
-o	Fix a sysctl handling bug			(MIYOSHI Kazuto)
-o	Fix a netlink error handling bug in ipfw	(Alexander Atanasov)
-o	3ware IDE RAID update				(Adam Radford)
-o	Note ioctl clash on 0x5402			(Pavel Machek)
-o	Typo fix					(Dan Aloni)
-o	Update Riley's contact info			(Riley Williams)
-o	Alpha ptrace fixes				(Solar Designer)
-o	Multiple security fix backports			(Solar Designer)
+		Dave
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

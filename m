@@ -1,62 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285304AbRLSOOI>; Wed, 19 Dec 2001 09:14:08 -0500
+	id <S285291AbRLSO1J>; Wed, 19 Dec 2001 09:27:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285303AbRLSON6>; Wed, 19 Dec 2001 09:13:58 -0500
-Received: from duteinh.et.tudelft.nl ([130.161.42.1]:31754 "EHLO
-	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S285291AbRLSONr>; Wed, 19 Dec 2001 09:13:47 -0500
-Date: Wed, 19 Dec 2001 15:13:37 +0100
-From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
-To: "Grover, Andrew" <andrew.grover@intel.com>
-Cc: "'Alexander Viro'" <viro@math.psu.edu>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        "'otto.wyss@bluewin.ch'" <otto.wyss@bluewin.ch>
-Subject: Re: Booting a modular kernel through a multiple streams file
-Message-ID: <20011219141337.GC1158@arthur.ubicom.tudelft.nl>
-In-Reply-To: <59885C5E3098D511AD690002A5072D3C42D804@orsmsx111.jf.intel.com>
+	id <S285303AbRLSO07>; Wed, 19 Dec 2001 09:26:59 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:51719 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S285291AbRLSO0u>; Wed, 19 Dec 2001 09:26:50 -0500
+Date: Wed, 19 Dec 2001 17:26:44 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Masaru Kawashima <masaruk@gol.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+        reiserfs-list <reiserfs-list@namesys.com>, chris@suse.de
+Subject: Re: [reiserfs-list] reiserfs remount problem (Re: Linux 2.4.17-rc2)
+Message-ID: <20011219172644.A28692@namesys.com>
+In-Reply-To: <Pine.LNX.4.21.0112181824020.4821-100000@freak.distro.conectiva> <20011219230812.049c2c5c.masaruk@gol.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <59885C5E3098D511AD690002A5072D3C42D804@orsmsx111.jf.intel.com>
-User-Agent: Mutt/1.3.24i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+In-Reply-To: <20011219230812.049c2c5c.masaruk@gol.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 18, 2001 at 11:50:47AM -0800, Grover, Andrew wrote:
-> > From: Alexander Viro [mailto:viro@math.psu.edu]
-> > On Tue, 18 Dec 2001, Grover, Andrew wrote:
-> > > GRUB 0.90 does this today.
-> > ... and I'm quite sure that EMACS could do it easily.  Let's not talk
-> > about GNU bloatware, OK?
-> 
-> I don't think this is bloatware, especially considering there really isn't
-> any cost for having a full-featured bootloader - all its footprint gets
-> reclaimed, after all. I respect lilo and its cousins, but they make things
-> harder than they have to be. Why maintain a reduced level of functionality
-> (software emaciation?) when better alternatives are available?
+Hello!
 
-I think it's time to wake you up from your warm and fuzzy "all the
-world is an x86" dream.
+On Wed, Dec 19, 2001 at 11:08:12PM +0900, Masaru Kawashima wrote:
 
-Al's initramfs works on *all* architectures, not only on an
-architecture which happens to have a bootloader bloated enough to be an
-operating system in itself.
+> > - Reiserfs fixes				(Oleg Drokin/Chris Mason)
 
-Let me disturb you even further: you might think that a full featured
-bootloader/firmware is a Good Thing, but in the ARM Linux world we have
-learned that a simple bootloader is *much* better for maintainability.
-I think the ACPI problems exactly show my point: depending on BIOS
-vendors to get the ACPI tables right just doesn't work.
+> There is still reiserfs remount problem with 2.4.17-rc2.
+Hmmm.
+Few things needs to be verified:
+Is your reiserfs root partition 3.5 or 3.6 format? (can be checked in /proc/fs/reiserfs/.../version
+Try to boot of different media (rescue disk/CD) and run resiserfsck on your root partition,
+is there any errors? If yes - then fix them (with reiserfsck --rebuild-tree probably),
+and try to boot off your root disk again.
+Remember to read FAQ entry on reiserfsck --rebuild-tree on namesys.com web site.
 
+> >>EIP; c0159f54 <_get_block_create_0+748/85c>   <=====
+> 00000000 <_EIP>:
+> Code;  c0159f54 <_get_block_create_0+748/85c>   <=====
+>    0:   0f 0b                     ud2a      <=====
+Ok, so it is this code in _get_block_create_0:
+        if (!is_direct_le_ih (ih)) {
+            BUG ();
+        }
+Hm.
+Is your root partition big?
+I want to look at it is that's possible.
+At least at the metadata (reiserfsutils contains tools to extract metadata from disk drive,
+if you'd extract such metadata and send it to me before you run reiserfsck - that would be great)
 
-Erik
+Thank you.
 
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Faculty
-of Information Technology and Systems, Delft University of Technology,
-PO BOX 5031, 2600 GA Delft, The Netherlands  Phone: +31-15-2783635
-Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+Bye,
+    Oleg

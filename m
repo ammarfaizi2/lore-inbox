@@ -1,980 +1,528 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316434AbSHFWuV>; Tue, 6 Aug 2002 18:50:21 -0400
+	id <S316465AbSHFWtb>; Tue, 6 Aug 2002 18:49:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316499AbSHFWuU>; Tue, 6 Aug 2002 18:50:20 -0400
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:45834 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S316434AbSHFWsY>; Tue, 6 Aug 2002 18:48:24 -0400
+	id <S316499AbSHFWta>; Tue, 6 Aug 2002 18:49:30 -0400
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:2052 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S316465AbSHFWsb>; Tue, 6 Aug 2002 18:48:31 -0400
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] module cleanup (4/5)
-Message-Id: <E17cDBF-0002vC-00@scrub.xs4all.nl>
+Subject: [PATCH] module cleanup (5/5)
+Message-Id: <E17cDBN-0002vJ-00@scrub.xs4all.nl>
 From: Roman Zippel <zippel@linux-m68k.org>
-Date: Wed, 07 Aug 2002 00:51:57 +0200
+Date: Wed, 07 Aug 2002 00:52:05 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-This patch introduces two macros mod_for_each_locked/mod_for_done_locked
-to safely iterate over the module list.
+This patch removes the obsolete get_kernel_syms system call.
 
-diff -ur linux-2.5/arch/alpha/mm/extable.c linux-mod/arch/alpha/mm/extable.c
---- linux-2.5/arch/alpha/mm/extable.c	Thu Aug  1 16:43:07 2002
-+++ linux-mod/arch/alpha/mm/extable.c	Thu Aug  1 14:35:31 2002
-@@ -46,22 +46,17 @@
- 	ret = search_one_table(__start___ex_table, __stop___ex_table - 1,
- 			       addr - gp);
- #else
--	extern spinlock_t modlist_lock;
--	unsigned long flags;
--	/* The kernel is the last "module" -- no need to treat it special. */
- 	struct module *mp;
- 
- 	ret = 0;
--	spin_lock_irqsave(&modlist_lock, flags);
--	for (mp = module_list; mp ; mp = mp->next) {
--		if (!mp->ex_table_start || !(mp->flags&(MOD_RUNNING|MOD_INITIALIZING)))
-+	mod_for_each_locked(mp) {
-+		if (!mp->ex_table_start)
- 			continue;
- 		ret = search_one_table(mp->ex_table_start,
- 				       mp->ex_table_end - 1, addr - mp->gp);
- 		if (ret)
- 			break;
--	}
--	spin_unlock_irqrestore(&modlist_lock, flags);
-+	} mod_for_done_locked
- #endif
- 
- 	return ret;
-@@ -77,22 +72,17 @@
- 			       addr - exc_gp);
- 	if (ret) return ret;
- #else
--	extern spinlock_t modlist_lock;
--	unsigned long flags;
--	/* The kernel is the last "module" -- no need to treat it special. */
- 	struct module *mp;
- 
- 	ret = 0;
--	spin_lock_irqsave(&modlist_lock, flags);
--	for (mp = module_list; mp ; mp = mp->next) {
--		if (!mp->ex_table_start || !(mp->flags&(MOD_RUNNING|MOD_INITIALIZING)))
-+	mod_for_each_locked(mp) {
-+		if (!mp->ex_table_start)
- 			continue;
- 		ret = search_one_table(mp->ex_table_start,
- 				       mp->ex_table_end - 1, addr - exc_gp);
- 		if (ret)
- 			break;
--	}
--	spin_unlock_irqrestore(&modlist_lock, flags);
-+	} mod_for_done_locked
- 	if (ret) return ret;
- #endif
- 
-diff -ur linux-2.5/arch/arm/mm/extable.c linux-mod/arch/arm/mm/extable.c
---- linux-2.5/arch/arm/mm/extable.c	Thu Aug  1 16:43:07 2002
-+++ linux-mod/arch/arm/mm/extable.c	Thu Aug  1 14:35:31 2002
-@@ -30,8 +30,6 @@
-         return 0;
+diff -ur linux-2.5/arch/alpha/kernel/entry.S linux-mod/arch/alpha/kernel/entry.S
+--- linux-2.5/arch/alpha/kernel/entry.S	Thu Aug  1 16:43:07 2002
++++ linux-mod/arch/alpha/kernel/entry.S	Thu Aug  1 14:35:31 2002
+@@ -1041,7 +1041,7 @@
+ 	.quad alpha_create_module
+ 	.quad sys_init_module
+ 	.quad sys_delete_module
+-	.quad sys_get_kernel_syms
++	.quad sys_ni_syscall	/* get_kernel_syms */
+ 	.quad sys_syslog			/* 310 */
+ 	.quad sys_reboot
+ 	.quad sys_clone
+diff -ur linux-2.5/arch/arm/kernel/calls.S linux-mod/arch/arm/kernel/calls.S
+--- linux-2.5/arch/arm/kernel/calls.S	Thu Aug  1 16:43:07 2002
++++ linux-mod/arch/arm/kernel/calls.S	Thu Aug  1 14:35:31 2002
+@@ -144,7 +144,7 @@
+ 		.long	sys_create_module
+ 		.long	sys_init_module
+ 		.long	sys_delete_module
+-/* 130 */	.long	sys_get_kernel_syms
++/* 130 */	.long	sys_ni_syscall		/* get_kernel_syms */
+ 		.long	sys_quotactl
+ 		.long	sys_getpgid
+ 		.long	sys_fchdir
+diff -ur linux-2.5/arch/cris/kernel/entry.S linux-mod/arch/cris/kernel/entry.S
+--- linux-2.5/arch/cris/kernel/entry.S	Thu Aug  1 16:43:07 2002
++++ linux-mod/arch/cris/kernel/entry.S	Thu Aug  1 14:35:31 2002
+@@ -919,7 +919,7 @@
+ 	.long sys_create_module
+ 	.long sys_init_module
+ 	.long sys_delete_module
+-	.long sys_get_kernel_syms	/* 130 */
++	.long sys_ni_syscall	/* 130 */	/* get_kernel_syms */
+ 	.long sys_quotactl
+ 	.long sys_getpgid
+ 	.long sys_fchdir
+diff -ur linux-2.5/arch/i386/kernel/entry.S linux-mod/arch/i386/kernel/entry.S
+--- linux-2.5/arch/i386/kernel/entry.S	Thu Aug  1 16:43:07 2002
++++ linux-mod/arch/i386/kernel/entry.S	Thu Aug  1 14:35:31 2002
+@@ -639,7 +639,7 @@
+ 	.long sys_create_module
+ 	.long sys_init_module
+ 	.long sys_delete_module
+-	.long sys_get_kernel_syms	/* 130 */
++	.long sys_ni_syscall	/* 130 */	/* get_kernel_syms */
+ 	.long sys_quotactl
+ 	.long sys_getpgid
+ 	.long sys_fchdir
+diff -ur linux-2.5/arch/ia64/kernel/entry.S linux-mod/arch/ia64/kernel/entry.S
+--- linux-2.5/arch/ia64/kernel/entry.S	Thu Aug  1 16:43:07 2002
++++ linux-mod/arch/ia64/kernel/entry.S	Thu Aug  1 14:35:31 2002
+@@ -1121,7 +1121,7 @@
+ 	data8 ia64_create_module
+ 	data8 sys_init_module
+ 	data8 sys_delete_module
+-	data8 sys_get_kernel_syms		// 1135
++	data8 sys_ni_syscall			// 1135		/* was: get_kernel_syms */
+ 	data8 sys_query_module
+ 	data8 sys_quotactl
+ 	data8 sys_bdflush
+diff -ur linux-2.5/arch/m68k/kernel/entry.S linux-mod/arch/m68k/kernel/entry.S
+--- linux-2.5/arch/m68k/kernel/entry.S	Thu Aug  1 16:43:07 2002
++++ linux-mod/arch/m68k/kernel/entry.S	Thu Aug  1 14:35:31 2002
+@@ -558,7 +558,7 @@
+ 	.long sys_create_module
+ 	.long sys_init_module
+ 	.long sys_delete_module
+-	.long sys_get_kernel_syms	/* 130 */
++	.long sys_ni_syscall	/* 130 */		/* get_kernel_syms */
+ 	.long sys_quotactl
+ 	.long sys_getpgid
+ 	.long sys_fchdir
+diff -ur linux-2.5/arch/mips/kernel/syscalls.h linux-mod/arch/mips/kernel/syscalls.h
+--- linux-2.5/arch/mips/kernel/syscalls.h	Thu Aug  1 16:43:07 2002
++++ linux-mod/arch/mips/kernel/syscalls.h	Thu Aug  1 14:35:31 2002
+@@ -144,7 +144,7 @@
+ SYS(sys_create_module, 2)
+ SYS(sys_init_module, 5)
+ SYS(sys_delete_module, 1)
+-SYS(sys_get_kernel_syms, 1)			/* 4130 */
++SYS(sys_ni_syscall, 0)	/* get_kernel_syms */	/* 4130 */
+ SYS(sys_quotactl, 0)
+ SYS(sys_getpgid, 1)
+ SYS(sys_fchdir, 1)
+diff -ur linux-2.5/arch/mips64/kernel/scall_64.S linux-mod/arch/mips64/kernel/scall_64.S
+--- linux-2.5/arch/mips64/kernel/scall_64.S	Thu Aug  1 16:43:07 2002
++++ linux-mod/arch/mips64/kernel/scall_64.S	Thu Aug  1 14:35:31 2002
+@@ -263,7 +263,7 @@
+ 	PTR	sys_create_module
+ 	PTR	sys_init_module
+ 	PTR	sys_delete_module
+-	PTR	sys_get_kernel_syms 			/* 5130 */
++	PTR	sys_ni_syscall	 	/* get_kernel_syms */ /* 5130 */
+ 	PTR	sys_quotactl
+ 	PTR	sys_getpgid
+ 	PTR	sys_fchdir
+diff -ur linux-2.5/arch/mips64/kernel/scall_o32.S linux-mod/arch/mips64/kernel/scall_o32.S
+--- linux-2.5/arch/mips64/kernel/scall_o32.S	Thu Aug  1 16:43:07 2002
++++ linux-mod/arch/mips64/kernel/scall_o32.S	Thu Aug  1 14:35:31 2002
+@@ -363,7 +363,7 @@
+ 	sys	sys_create_module 2
+ 	sys	sys_init_module	5
+ 	sys	sys_delete_module 1
+-	sys	sys_get_kernel_syms 1			/* 4130 */
++	sys	sys_ni_syscall	0	/* get_kernel_syms */ /* 4130 */
+ 	sys	sys_quotactl	0
+ 	sys	sys_getpgid	1
+ 	sys	sys_fchdir	1
+diff -ur linux-2.5/arch/parisc/kernel/syscall.S linux-mod/arch/parisc/kernel/syscall.S
+--- linux-2.5/arch/parisc/kernel/syscall.S	Thu Aug  1 16:43:07 2002
++++ linux-mod/arch/parisc/kernel/syscall.S	Thu Aug  1 14:35:31 2002
+@@ -459,8 +459,7 @@
+ 	 * if running under a 64 bit kernel */
+ 	ENTRY_SAME(init_module)
+ 	ENTRY_SAME(delete_module)
+-	/* struct kernel_sym contains a long. Linus never heard of size_t? */
+-	ENTRY_DIFF(get_kernel_syms)	/* 130 */
++	ENTRY_SAME(ni_syscall)	/* 130 */	/* get_kernel_syms */
+ 	ENTRY_SAME(quotactl)
+ 	ENTRY_SAME(getpgid)
+ 	ENTRY_SAME(fchdir)
+diff -ur linux-2.5/arch/ppc/kernel/misc.S linux-mod/arch/ppc/kernel/misc.S
+--- linux-2.5/arch/ppc/kernel/misc.S	Thu Aug  1 16:43:07 2002
++++ linux-mod/arch/ppc/kernel/misc.S	Thu Aug  1 14:35:31 2002
+@@ -1202,7 +1202,7 @@
+ 	.long sys_create_module
+ 	.long sys_init_module
+ 	.long sys_delete_module
+-	.long sys_get_kernel_syms	/* 130 */
++	.long sys_ni_syscall	/* 130 */	/* get_kernel_syms */
+ 	.long sys_quotactl
+ 	.long sys_getpgid
+ 	.long sys_fchdir
+diff -ur linux-2.5/arch/ppc64/kernel/misc.S linux-mod/arch/ppc64/kernel/misc.S
+--- linux-2.5/arch/ppc64/kernel/misc.S	Thu Aug  1 16:43:07 2002
++++ linux-mod/arch/ppc64/kernel/misc.S	Thu Aug  1 14:35:31 2002
+@@ -634,7 +634,7 @@
+ 	.llong .sys32_create_module
+ 	.llong .sys32_init_module
+ 	.llong .sys32_delete_module
+-	.llong .sys32_get_kernel_syms	/* 130 */
++	.llong .sys_ni_syscall	/* 130 */	/* get_kernel_syms */
+ 	.llong .sys_quotactl
+ 	.llong .sys32_getpgid
+ 	.llong .sys_fchdir
+@@ -867,7 +867,7 @@
+ 	.llong .sys_create_module
+ 	.llong .sys_init_module
+ 	.llong .sys_delete_module
+-	.llong .sys_get_kernel_syms	/* 130 */
++	.llong .sys_ni_syscall	/* 130 */	/* get_kernel_syms */
+ 	.llong .sys_quotactl
+ 	.llong .sys_getpgid
+ 	.llong .sys_fchdir
+diff -ur linux-2.5/arch/ppc64/kernel/sys_ppc32.c linux-mod/arch/ppc64/kernel/sys_ppc32.c
+--- linux-2.5/arch/ppc64/kernel/sys_ppc32.c	Thu Aug  1 16:43:07 2002
++++ linux-mod/arch/ppc64/kernel/sys_ppc32.c	Thu Aug  1 14:35:31 2002
+@@ -1444,44 +1444,6 @@
+ 	return err;
  }
  
--extern spinlock_t modlist_lock;
 -
- unsigned long
- search_exception_table(unsigned long addr)
- {
-@@ -41,22 +39,17 @@
- 	/* There is only the kernel to search.  */
- 	ret = search_one_table(__start___ex_table, __stop___ex_table-1, addr);
- #else
--	/* The kernel is the last "module" -- no need to treat it special.  */
--	unsigned long flags;
- 	struct module *mp;
- 
- 	ret = 0;
--	spin_lock_irqsave(&modlist_lock, flags);
--	for (mp = module_list; mp != NULL; mp = mp->next) {
--		if (mp->ex_table_start == NULL ||
--		    !(mp->flags & (MOD_RUNNING | MOD_INITIALIZING)))
-+	mod_for_each_locked(mp) {
-+		if (mp->ex_table_start == NULL)
- 			continue;
- 		ret = search_one_table(mp->ex_table_start,
- 				       mp->ex_table_end - 1, addr);
- 		if (ret)
- 			break;
--	}
--	spin_unlock_irqrestore(&modlist_lock, flags);
-+	} mod_for_done_locked
- #endif
- 
- 	return ret;
-diff -ur linux-2.5/arch/cris/mm/extable.c linux-mod/arch/cris/mm/extable.c
---- linux-2.5/arch/cris/mm/extable.c	Thu Aug  1 16:43:07 2002
-+++ linux-mod/arch/cris/mm/extable.c	Thu Aug  1 14:35:31 2002
-@@ -48,15 +48,15 @@
- 	/* There is only the kernel to search.  */
- 	return search_one_table(__start___ex_table, __stop___ex_table-1, addr);
- #else
--	/* The kernel is the last "module" -- no need to treat it special.  */
- 	struct module *mp;
--	for (mp = module_list; mp != NULL; mp = mp->next) {
-+
-+	mod_for_each_locked(mp) {
- 		if (mp->ex_table_start == NULL)
- 			continue;
- 		ret = search_one_table(mp->ex_table_start,
- 				       mp->ex_table_end - 1, addr);
- 		if (ret) return ret;
--	}
-+	} mod_for_done_locked
- #endif
- 
- 	return 0;
-diff -ur linux-2.5/arch/i386/kernel/traps.c linux-mod/arch/i386/kernel/traps.c
---- linux-2.5/arch/i386/kernel/traps.c	Thu Aug  1 16:43:07 2002
-+++ linux-mod/arch/i386/kernel/traps.c	Thu Aug  1 14:39:28 2002
-@@ -98,21 +98,19 @@
-  * be the address of a calling routine
-  */
- 
--#ifdef CONFIG_MODULES
 -
--extern struct module *module_list;
--extern struct module kernel_module;
+-struct kernel_sym32 {
+-	u32 value;
+-	char name[60];
+-};
+-		 
+-extern asmlinkage long sys_get_kernel_syms(struct kernel_sym *table);
 -
- static inline int kernel_text_address(unsigned long addr)
- {
- 	int retval = 0;
-+#ifdef CONFIG_MODULES
- 	struct module *mod;
-+#endif
- 
- 	if (addr >= (unsigned long) &_stext &&
- 	    addr <= (unsigned long) &_etext)
- 		return 1;
- 
--	for (mod = module_list; mod != &kernel_module; mod = mod->next) {
-+#ifdef CONFIG_MODULES
-+	mod_for_each_locked(mod) {
- 		/* mod_bound tests for addr being inside the vmalloc'ed
- 		 * module area. Of course it'd be better to test only
- 		 * for the .text subset... */
-@@ -120,20 +118,11 @@
- 			retval = 1;
- 			break;
- 		}
--	}
-+	} mod_for_done_locked
-+#endif
- 
- 	return retval;
- }
--
--#else
--
--static inline int kernel_text_address(unsigned long addr)
+-asmlinkage long sys32_get_kernel_syms(struct kernel_sym32 *table)
 -{
--	return (addr >= (unsigned long) &_stext &&
--		addr <= (unsigned long) &_etext);
--}
--
--#endif
- 
- void show_trace(unsigned long * stack)
- {
-diff -ur linux-2.5/arch/i386/mm/extable.c linux-mod/arch/i386/mm/extable.c
---- linux-2.5/arch/i386/mm/extable.c	Thu Aug  1 16:43:07 2002
-+++ linux-mod/arch/i386/mm/extable.c	Thu Aug  1 14:35:31 2002
-@@ -31,8 +31,6 @@
-         return 0;
- }
- 
--extern spinlock_t modlist_lock;
--
- unsigned long
- search_exception_table(unsigned long addr)
- {
-@@ -43,20 +41,16 @@
- 	ret = search_one_table(__start___ex_table, __stop___ex_table-1, addr);
- 	return ret;
- #else
--	unsigned long flags;
--	/* The kernel is the last "module" -- no need to treat it special.  */
- 	struct module *mp;
- 
--	spin_lock_irqsave(&modlist_lock, flags);
--	for (mp = module_list; mp != NULL; mp = mp->next) {
--		if (mp->ex_table_start == NULL || !(mp->flags&(MOD_RUNNING|MOD_INITIALIZING)))
-+	mod_for_each_locked(mp) {
-+		if (mp->ex_table_start == NULL)
- 			continue;
- 		ret = search_one_table(mp->ex_table_start,
- 				       mp->ex_table_end - 1, addr);
- 		if (ret)
- 			break;
--	}
--	spin_unlock_irqrestore(&modlist_lock, flags);
-+	} mod_for_done_locked
- 	return ret;
- #endif
- }
-diff -ur linux-2.5/arch/ia64/mm/extable.c linux-mod/arch/ia64/mm/extable.c
---- linux-2.5/arch/ia64/mm/extable.c	Thu Aug  1 16:43:07 2002
-+++ linux-mod/arch/ia64/mm/extable.c	Thu Aug  1 14:35:31 2002
-@@ -54,8 +54,7 @@
- 	struct archdata *archdata;
- 	struct module *mp;
- 
--	/* The kernel is the last "module" -- no need to treat it special. */
--	for (mp = module_list; mp; mp = mp->next) {
-+	mod_for_each_locked(mp) {
- 		if (!mp->ex_table_start)
- 			continue;
- 		archdata = (struct archdata *) mp->archdata_start;
-@@ -67,7 +66,7 @@
- 			fix.cont = entry->cont + (unsigned long) archdata->gp;
- 			return fix;
- 		}
--	}
-+	} mod_for_done_locked
- #endif
- 	return fix;
- }
-diff -ur linux-2.5/arch/m68k/kernel/traps.c linux-mod/arch/m68k/kernel/traps.c
---- linux-2.5/arch/m68k/kernel/traps.c	Thu Aug  1 16:43:07 2002
-+++ linux-mod/arch/m68k/kernel/traps.c	Thu Aug  1 14:35:31 2002
-@@ -820,7 +820,6 @@
- 
- 
- static int kstack_depth_to_print = 48;
--extern struct module kernel_module;
- 
- static inline int kernel_text_address(unsigned long addr)
- {
-@@ -834,13 +833,13 @@
- 		return 1;
- 
- #ifdef CONFIG_MODULES
--	for (mod = module_list; mod != &kernel_module; mod = mod->next) {
-+	mod_for_each_locked(mod) {
- 		/* mod_bound tests for addr being inside the vmalloc'ed
- 		 * module area. Of course it'd be better to test only
- 		 * for the .text subset... */
- 		if (mod_bound(addr, 0, mod))
- 			return 1;
--	}
-+	} mod_for_done_locked
- #endif
- 
- 	return 0;
-diff -ur linux-2.5/arch/m68k/mm/extable.c linux-mod/arch/m68k/mm/extable.c
---- linux-2.5/arch/m68k/mm/extable.c	Thu Aug  1 16:43:07 2002
-+++ linux-mod/arch/m68k/mm/extable.c	Thu Aug  1 14:35:31 2002
-@@ -40,15 +40,15 @@
- 	ret = search_one_table(__start___ex_table, __stop___ex_table-1, addr);
- 	if (ret) return ret;
- #else
--	/* The kernel is the last "module" -- no need to treat it special.  */
- 	struct module *mp;
--	for (mp = module_list; mp != NULL; mp = mp->next) {
-+
-+	mod_for_each_locked(mp) {
- 		if (mp->ex_table_start == NULL)
- 			continue;
- 		ret = search_one_table(mp->ex_table_start,
- 				       mp->ex_table_end-1, addr);
- 		if (ret) return ret;
--	}
-+	} mod_for_done_locked
- #endif
- 
- 	return 0;
-diff -ur linux-2.5/arch/mips/kernel/traps.c linux-mod/arch/mips/kernel/traps.c
---- linux-2.5/arch/mips/kernel/traps.c	Thu Aug  1 16:43:07 2002
-+++ linux-mod/arch/mips/kernel/traps.c	Thu Aug  1 14:35:31 2002
-@@ -245,8 +245,6 @@
- 	return (first == last && first->insn == value) ? first->nextinsn : 0;
- }
- 
--extern spinlock_t modlist_lock;
--
- static inline unsigned long
- search_dbe_table(unsigned long addr)
- {
-@@ -257,29 +255,23 @@
- 	ret = search_one_table(__start___dbe_table, __stop___dbe_table-1, addr);
- 	return ret;
- #else
--	unsigned long flags;
--
--	/* The kernel is the last "module" -- no need to treat it special.  */
- 	struct module *mp;
- 	struct archdata *ap;
- 
--	spin_lock_irqsave(&modlist_lock, flags);
--	for (mp = module_list; mp != NULL; mp = mp->next) {
-+	mod_for_each_locked(mp) {
- 		if (!mod_member_present(mp, archdata_end) ||
-         	    !mod_archdata_member_present(mp, struct archdata,
- 						 dbe_table_end))
- 			continue;
- 		ap = (struct archdata *)(mp->archdata_start);
- 
--		if (ap->dbe_table_start == NULL ||
--		    !(mp->flags & (MOD_RUNNING | MOD_INITIALIZING)))
-+		if (ap->dbe_table_start == NULL)
- 			continue;
- 		ret = search_one_table(ap->dbe_table_start,
- 				       ap->dbe_table_end - 1, addr);
- 		if (ret)
- 			break;
--	}
--	spin_unlock_irqrestore(&modlist_lock, flags);
-+	} mod_for_done_locked
- 	return ret;
- #endif
- }
-diff -ur linux-2.5/arch/mips/mm/extable.c linux-mod/arch/mips/mm/extable.c
---- linux-2.5/arch/mips/mm/extable.c	Thu Aug  1 16:43:07 2002
-+++ linux-mod/arch/mips/mm/extable.c	Thu Aug  1 14:35:31 2002
-@@ -30,8 +30,6 @@
- 	return 0;
- }
- 
--extern spinlock_t modlist_lock;
--
- unsigned long
- search_exception_table(unsigned long addr)
- {
-@@ -42,21 +40,16 @@
- 	ret = search_one_table(__start___ex_table, __stop___ex_table-1, addr);
- 	return ret;
- #else
--	unsigned long flags;
--
--	/* The kernel is the last "module" -- no need to treat it special.  */
- 	struct module *mp;
- 
--	spin_lock_irqsave(&modlist_lock, flags);
--	for (mp = module_list; mp != NULL; mp = mp->next) {
--		if (mp->ex_table_start == NULL || !(mp->flags&(MOD_RUNNING|MOD_INITIALIZING)))
-+	mod_for_each_locked(mp) {
-+		if (mp->ex_table_start == NULL)
- 			continue;
- 		ret = search_one_table(mp->ex_table_start,
- 				       mp->ex_table_end - 1, addr);
- 		if (ret)
- 			break;
--	}
--	spin_unlock_irqrestore(&modlist_lock, flags);
-+	} mod_for_done_locked
- 	return ret;
- #endif
- }
-diff -ur linux-2.5/arch/mips64/mm/extable.c linux-mod/arch/mips64/mm/extable.c
---- linux-2.5/arch/mips64/mm/extable.c	Thu Aug  1 16:43:07 2002
-+++ linux-mod/arch/mips64/mm/extable.c	Thu Aug  1 14:35:31 2002
-@@ -35,31 +35,25 @@
- 	return 0;
- }
- 
--extern spinlock_t modlist_lock;
--
- unsigned long search_exception_table(unsigned long addr)
- {
- 	unsigned long ret = 0;
--	unsigned long flags;
+-	int len, i;
+-	struct kernel_sym *tbl;
+-	mm_segment_t old_fs;
 -	
-+
- #ifndef CONFIG_MODULES
- 	/* There is only the kernel to search.  */
- 	ret = search_one_table(__start___ex_table, __stop___ex_table-1, addr);
- 	return ret;
- #else
--	/* The kernel is the last "module" -- no need to treat it special.  */
- 	struct module *mp;
- 
--	spin_lock_irqsave(&modlist_lock, flags);
--	for (mp = module_list; mp != NULL; mp = mp->next) {
-+	mod_for_each_locked(mp) {
- 		if (mp->ex_table_start == NULL)
- 			continue;
- 		ret = search_one_table(mp->ex_table_start,
- 				       mp->ex_table_end - 1, addr);
- 		if (ret)
- 			break;
+-	PPCDBG(PPCDBG_SYS32, "sys32_get_kernel_syms - entered - pid=%ld current=%lx comm=%s \n", current->pid, current, current->comm);
+-
+-	
+-	len = sys_get_kernel_syms(NULL);
+-	if (!table) return len;
+-	tbl = kmalloc (len * sizeof (struct kernel_sym), GFP_KERNEL);
+-	if (!tbl) return -ENOMEM;
+-	old_fs = get_fs();
+-	set_fs (KERNEL_DS);
+-	sys_get_kernel_syms(tbl);
+-	set_fs (old_fs);
+-	for (i = 0; i < len; i++, table += sizeof (struct kernel_sym32)) {
+-		if (put_user (tbl[i].value, &table->value) ||
+-		    copy_to_user (table->name, tbl[i].name, 60))
+-			break;
 -	}
--	spin_unlock_irqrestore(&modlist_lock, flags);
-+	} mod_for_done_locked
- 	return ret;
- #endif
- }
-diff -ur linux-2.5/arch/mips64/sgi-ip22/ip22-berr.c linux-mod/arch/mips64/sgi-ip22/ip22-berr.c
---- linux-2.5/arch/mips64/sgi-ip22/ip22-berr.c	Thu Aug  1 16:43:07 2002
-+++ linux-mod/arch/mips64/sgi-ip22/ip22-berr.c	Thu Aug  1 14:35:31 2002
-@@ -43,8 +43,6 @@
- 	return 0;
- }
- 
--extern spinlock_t modlist_lock;
+-	kfree (tbl);
+-	
+-	PPCDBG(PPCDBG_SYS32, "sys32_get_kernel_syms - exited - pid=%ld current=%lx comm=%s \n", current->pid, current, current->comm);
 -
- static inline unsigned long
- search_dbe_table(unsigned long addr)
- {
-@@ -55,29 +53,23 @@
- 	ret = search_one_table(__start___dbe_table, __stop___dbe_table-1, addr);
- 	return ret;
- #else
--	unsigned long flags;
--
--	/* The kernel is the last "module" -- no need to treat it special.  */
- 	struct module *mp;
- 	struct archdata *ap;
- 
--	spin_lock_irqsave(&modlist_lock, flags);
--	for (mp = module_list; mp != NULL; mp = mp->next) {
-+	mod_for_each_locked(mp) {
- 		if (!mod_member_present(mp, archdata_end) ||
-         	    !mod_archdata_member_present(mp, struct archdata,
- 						 dbe_table_end))
- 			continue;
- 		ap = (struct archdata *)(mod->archdata_start);
- 
--		if (ap->dbe_table_start == NULL ||
--		    !(mp->flags & (MOD_RUNNING | MOD_INITIALIZING)))
-+		if (ap->dbe_table_start == NULL)
- 			continue;
- 		ret = search_one_table(ap->dbe_table_start,
- 				       ap->dbe_table_end - 1, addr);
- 		if (ret)
- 			break;
--	}
--	spin_unlock_irqrestore(&modlist_lock, flags);
-+	} mod_for_done_locked
- 	return ret;
- #endif
- }
-diff -ur linux-2.5/arch/mips64/sgi-ip27/ip27-berr.c linux-mod/arch/mips64/sgi-ip27/ip27-berr.c
---- linux-2.5/arch/mips64/sgi-ip27/ip27-berr.c	Thu Aug  1 16:43:07 2002
-+++ linux-mod/arch/mips64/sgi-ip27/ip27-berr.c	Thu Aug  1 14:35:31 2002
-@@ -46,8 +46,6 @@
- 	return 0;
- }
- 
--extern spinlock_t modlist_lock;
--
- static inline unsigned long
- search_dbe_table(unsigned long addr)
- {
-@@ -58,29 +56,23 @@
- 	ret = search_one_table(__start___dbe_table, __stop___dbe_table-1, addr);
- 	return ret;
- #else
--	unsigned long flags;
--
--	/* The kernel is the last "module" -- no need to treat it special.  */
- 	struct module *mp;
- 	struct archdata *ap;
- 
--	spin_lock_irqsave(&modlist_lock, flags);
--	for (mp = module_list; mp != NULL; mp = mp->next) {
-+	mod_for_each_locked(mp) {
- 		if (!mod_member_present(mp, archdata_end) ||
-         	    !mod_archdata_member_present(mp, struct archdata,
- 						 dbe_table_end))
- 			continue;
- 		ap = (struct archdata *)(mod->archdata_start);
- 
--		if (ap->dbe_table_start == NULL ||
--		    !(mp->flags & (MOD_RUNNING | MOD_INITIALIZING)))
-+		if (ap->dbe_table_start == NULL)
- 			continue;
- 		ret = search_one_table(ap->dbe_table_start,
- 				       ap->dbe_table_end - 1, addr);
- 		if (ret)
- 			break;
--	}
--	spin_unlock_irqrestore(&modlist_lock, flags);
-+	} mod_for_done_locked
- 	return ret;
- #endif
- }
-diff -ur linux-2.5/arch/parisc/mm/extable.c linux-mod/arch/parisc/mm/extable.c
---- linux-2.5/arch/parisc/mm/extable.c	Thu Aug  1 16:43:07 2002
-+++ linux-mod/arch/parisc/mm/extable.c	Thu Aug  1 14:35:31 2002
-@@ -53,17 +53,16 @@
-                                 addr);
- #else
- 	struct exception_table_entry *ret;
--	/* The kernel is the last "module" -- no need to treat it special. */
- 	struct module *mp;
- 
--	for (mp = module_list; mp ; mp = mp->next) {
-+	mod_for_each_locked(mp) {
- 		if (!mp->ex_table_start)
- 			continue;
- 		ret = search_one_table(mp->ex_table_start, mp->ex_table_end - 1,
- 				       addr);
- 		if (ret)
- 			return ret;
--	}
-+	} mod_for_done_locked
- 	return 0;
- #endif
- }
-diff -ur linux-2.5/arch/ppc/mm/extable.c linux-mod/arch/ppc/mm/extable.c
---- linux-2.5/arch/ppc/mm/extable.c	Thu Aug  1 16:43:07 2002
-+++ linux-mod/arch/ppc/mm/extable.c	Thu Aug  1 14:35:31 2002
-@@ -80,16 +80,16 @@
- 	ret = search_one_table(__start___ex_table, __stop___ex_table-1, addr);
- 	if (ret) return ret;
- #else
--	/* The kernel is the last "module" -- no need to treat it special.  */
- 	struct module *mp;
--	for (mp = module_list; mp != NULL; mp = mp->next) {
-+
-+	mod_for_each_locked(mp) {
- 		if (mp->ex_table_start == NULL)
- 			continue;
- 		ret = search_one_table(mp->ex_table_start,
- 				       mp->ex_table_end - 1, addr);
- 		if (ret)
- 			return ret;
--	}
-+	} mod_for_done_locked
- #endif
- 
- 	return 0;
-diff -ur linux-2.5/arch/ppc64/mm/extable.c linux-mod/arch/ppc64/mm/extable.c
---- linux-2.5/arch/ppc64/mm/extable.c	Thu Aug  1 16:43:07 2002
-+++ linux-mod/arch/ppc64/mm/extable.c	Thu Aug  1 14:35:31 2002
-@@ -82,16 +82,16 @@
- 	ret = search_one_table(__start___ex_table, __stop___ex_table-1, addr);
- 	if (ret) return ret;
- #else
--	/* The kernel is the last "module" -- no need to treat it special.  */
- 	struct module *mp;
--	for (mp = module_list; mp != NULL; mp = mp->next) {
-+
-+	mod_for_each_locked(mp) {
- 		if (mp->ex_table_start == NULL)
- 			continue;
- 		ret = search_one_table(mp->ex_table_start,
- 				       mp->ex_table_end - 1, addr);
- 		if (ret)
- 			return ret;
--	}
-+	} mod_for_done_locked
- #endif
- 
- 	return 0;
-diff -ur linux-2.5/arch/s390/kernel/traps.c linux-mod/arch/s390/kernel/traps.c
---- linux-2.5/arch/s390/kernel/traps.c	Thu Aug  1 16:43:07 2002
-+++ linux-mod/arch/s390/kernel/traps.c	Thu Aug  1 14:35:31 2002
-@@ -70,21 +70,19 @@
-  */
- extern char _stext, _etext;
- 
--#ifdef CONFIG_MODULES
--
--extern struct module *module_list;
--extern struct module kernel_module;
--
- static inline int kernel_text_address(unsigned long addr)
- {
- 	int retval = 0;
-+#ifdef CONFIG_MODULES
- 	struct module *mod;
-+#endif
- 
- 	if (addr >= (unsigned long) &_stext &&
- 	    addr <= (unsigned long) &_etext)
- 		return 1;
- 
--	for (mod = module_list; mod != &kernel_module; mod = mod->next) {
-+#ifdef CONFIG_MODULES
-+	mod_for_each_locked(mod) {
- 		/* mod_bound tests for addr being inside the vmalloc'ed
- 		 * module area. Of course it'd be better to test only
- 		 * for the .text subset... */
-@@ -92,20 +90,11 @@
- 			retval = 1;
- 			break;
- 		}
--	}
-+	} mod_for_done_locked
-+#endif
- 
- 	return retval;
- }
--
--#else
--
--static inline int kernel_text_address(unsigned long addr)
--{
--	return (addr >= (unsigned long) &_stext &&
--		addr <= (unsigned long) &_etext);
+-	return i;
 -}
 -
--#endif
+ #else /* CONFIG_MODULES */
  
- void show_trace(unsigned long * stack)
- {
-diff -ur linux-2.5/arch/s390/mm/extable.c linux-mod/arch/s390/mm/extable.c
---- linux-2.5/arch/s390/mm/extable.c	Thu Aug  1 16:43:07 2002
-+++ linux-mod/arch/s390/mm/extable.c	Thu Aug  1 14:35:31 2002
-@@ -37,8 +37,6 @@
-         return 0;
- }
+ asmlinkage unsigned long sys32_create_module(const char *name_user, size_t size)
+@@ -1520,13 +1482,6 @@
+ 		return 0;
  
--extern spinlock_t modlist_lock;
--
- unsigned long
- search_exception_table(unsigned long addr)
- {
-@@ -51,14 +49,11 @@
- 	if (ret) ret = FIX_PSW(ret);
- 	return ret;
- #else
--	unsigned long flags;
--	/* The kernel is the last "module" -- no need to treat it special.  */
- 	struct module *mp;
-         addr &= 0x7fffffff;  /* remove amode bit from address */
- 
--	spin_lock_irqsave(&modlist_lock, flags);
--	for (mp = module_list; mp != NULL; mp = mp->next) {
--		if (mp->ex_table_start == NULL || !(mp->flags&(MOD_RUNNING|MOD_INITIALIZING)))
-+	mod_for_each_locked(mp) {
-+		if (mp->ex_table_start == NULL)
- 			continue;
- 		ret = search_one_table(mp->ex_table_start,
- 				       mp->ex_table_end - 1, addr);
-@@ -66,8 +61,7 @@
- 			ret = FIX_PSW(ret);
- 			break;
- 		}
--	}
--	spin_unlock_irqrestore(&modlist_lock, flags);
-+	} mod_for_done_locked
- 	return ret;
- #endif
- }
-diff -ur linux-2.5/arch/s390x/kernel/traps.c linux-mod/arch/s390x/kernel/traps.c
---- linux-2.5/arch/s390x/kernel/traps.c	Thu Aug  1 16:43:07 2002
-+++ linux-mod/arch/s390x/kernel/traps.c	Thu Aug  1 14:35:31 2002
-@@ -72,21 +72,19 @@
-  */
- extern char _stext, _etext;
- 
--#ifdef CONFIG_MODULES
--
--extern struct module *module_list;
--extern struct module kernel_module;
--
- static inline int kernel_text_address(unsigned long addr)
- {
- 	int retval = 0;
-+#ifdef CONFIG_MODULES
- 	struct module *mod;
-+#endif
- 
- 	if (addr >= (unsigned long) &_stext &&
- 	    addr <= (unsigned long) &_etext)
- 		return 1;
- 
--	for (mod = module_list; mod != &kernel_module; mod = mod->next) {
-+#ifdef CONFIG_MODULES
-+	mod_for_each_locked(mod) {
- 		/* mod_bound tests for addr being inside the vmalloc'ed
- 		 * module area. Of course it'd be better to test only
- 		 * for the .text subset... */
-@@ -94,20 +92,11 @@
- 			retval = 1;
- 			break;
- 		}
--	}
-+	} mod_for_done_locked
-+#endif
- 
- 	return retval;
- }
--
--#else
--
--static inline int kernel_text_address(unsigned long addr)
--{
--	return (addr >= (unsigned long) &_stext &&
--		addr <= (unsigned long) &_etext);
+ 	PPCDBG(PPCDBG_SYS32, "sys32_query_module - exited - pid=%ld current=%lx comm=%s\n", current->pid, current, current->comm);
+-	return -ENOSYS;
 -}
 -
--#endif
- 
- void show_trace(unsigned long * stack)
- {
-diff -ur linux-2.5/arch/s390x/mm/extable.c linux-mod/arch/s390x/mm/extable.c
---- linux-2.5/arch/s390x/mm/extable.c	Thu Aug  1 16:43:07 2002
-+++ linux-mod/arch/s390x/mm/extable.c	Thu Aug  1 14:35:31 2002
-@@ -37,8 +37,6 @@
-         return 0;
- }
- 
--extern spinlock_t modlist_lock;
--
- unsigned long
- search_exception_table(unsigned long addr)
- {
-@@ -49,20 +47,16 @@
- 	ret = search_one_table(__start___ex_table, __stop___ex_table-1, addr);
- 	return ret;
- #else
--	unsigned long flags;
--	/* The kernel is the last "module" -- no need to treat it special.  */
- 	struct module *mp;
- 
--	spin_lock_irqsave(&modlist_lock, flags);
--	for (mp = module_list; mp != NULL; mp = mp->next) {
--		if (mp->ex_table_start == NULL || !(mp->flags&(MOD_RUNNING|MOD_INITIALIZING)))
-+	mod_for_each_locked(mp) {
-+		if (mp->ex_table_start == NULL)
- 			continue;
- 		ret = search_one_table(mp->ex_table_start,
- 				       mp->ex_table_end - 1, addr);
- 		if (ret) 
- 			break;
--	}
--	spin_unlock_irqrestore(&modlist_lock, flags);
-+	} mod_for_done_locked
- 	return ret;
- #endif
- }
-diff -ur linux-2.5/arch/sh/mm/extable.c linux-mod/arch/sh/mm/extable.c
---- linux-2.5/arch/sh/mm/extable.c	Thu Aug  1 16:43:07 2002
-+++ linux-mod/arch/sh/mm/extable.c	Thu Aug  1 14:35:31 2002
-@@ -43,15 +43,15 @@
- 	ret = search_one_table(__start___ex_table, __stop___ex_table-1, addr);
- 	if (ret) return ret;
- #else
--	/* The kernel is the last "module" -- no need to treat it special.  */
- 	struct module *mp;
--	for (mp = module_list; mp != NULL; mp = mp->next) {
--		if (mp->ex_table_start == NULL || !(mp->flags&(MOD_RUNNING|MOD_INITIALIZING)))
-+
-+	mod_for_each_locked(mp) {
-+		if (mp->ex_table_start == NULL)
- 			continue;
- 		ret = search_one_table(mp->ex_table_start,
- 				       mp->ex_table_end - 1, addr);
- 		if (ret) return ret;
--	}
-+	} mod_for_done_locked
- #endif
- 
- 	return 0;
-diff -ur linux-2.5/arch/sparc/mm/extable.c linux-mod/arch/sparc/mm/extable.c
---- linux-2.5/arch/sparc/mm/extable.c	Thu Aug  1 16:43:07 2002
-+++ linux-mod/arch/sparc/mm/extable.c	Thu Aug  1 14:35:31 2002
-@@ -57,12 +57,10 @@
-         return 0;
- }
- 
--extern spinlock_t modlist_lock;
--
- unsigned long
- search_exception_table(unsigned long addr, unsigned long *g2)
- {
--	unsigned long ret = 0, flags;
-+	unsigned long ret = 0;
- 
- #ifndef CONFIG_MODULES
- 	/* There is only the kernel to search.  */
-@@ -70,19 +68,16 @@
- 			       __stop___ex_table-1, addr, g2);
- 	return ret;
- #else
--	/* The kernel is the last "module" -- no need to treat it special.  */
- 	struct module *mp;
- 
--	spin_lock_irqsave(&modlist_lock, flags);
--	for (mp = module_list; mp != NULL; mp = mp->next) {
--		if (mp->ex_table_start == NULL || !(mp->flags & (MOD_RUNNING | MOD_INITIALIZING)))
-+	mod_for_each_locked(mp) {
-+		if (mp->ex_table_start == NULL)
- 			continue;
- 		ret = search_one_table(mp->ex_table_start,
- 				       mp->ex_table_end-1, addr, g2);
- 		if (ret)
- 			break;
--	}
--	spin_unlock_irqrestore(&modlist_lock, flags);
-+	} mod_for_done_locked
- 	return ret;
- #endif
- }
-diff -ur linux-2.5/arch/sparc64/mm/extable.c linux-mod/arch/sparc64/mm/extable.c
---- linux-2.5/arch/sparc64/mm/extable.c	Thu Aug  1 16:43:07 2002
-+++ linux-mod/arch/sparc64/mm/extable.c	Thu Aug  1 14:35:31 2002
-@@ -57,12 +57,10 @@
-         return 0;
- }
- 
--extern spinlock_t modlist_lock;
--
- unsigned long
- search_exception_table(unsigned long addr, unsigned long *g2)
- {
--	unsigned long ret = 0, flags;
-+	unsigned long ret = 0;
- 
- #ifndef CONFIG_MODULES
- 	/* There is only the kernel to search.  */
-@@ -70,19 +68,16 @@
- 			       __stop___ex_table-1, addr, g2);
- 	return ret;
- #else
--	/* The kernel is the last "module" -- no need to treat it special.  */
- 	struct module *mp;
- 
--	spin_lock_irqsave(&modlist_lock, flags);
--	for (mp = module_list; mp != NULL; mp = mp->next) {
--		if (mp->ex_table_start == NULL || !(mp->flags & (MOD_RUNNING | MOD_INITIALIZING)))
-+	mod_for_each_locked(mp) {
-+		if (mp->ex_table_start == NULL)
- 			continue;
- 		ret = search_one_table(mp->ex_table_start,
- 				       mp->ex_table_end-1, addr, g2);
- 		if (ret)
- 			break;
--	}
--	spin_unlock_irqrestore(&modlist_lock, flags);
-+	} mod_for_done_locked
- 	return ret;
- #endif
- }
-diff -ur linux-2.5/arch/x86_64/kernel/traps.c linux-mod/arch/x86_64/kernel/traps.c
---- linux-2.5/arch/x86_64/kernel/traps.c	Thu Aug  1 16:43:07 2002
-+++ linux-mod/arch/x86_64/kernel/traps.c	Thu Aug  1 14:35:31 2002
-@@ -112,21 +112,20 @@
- #endif
- 
- 
--#ifdef CONFIG_MODULES
--
--extern struct module *module_list;
--extern struct module kernel_module;
- 
- static inline int kernel_text_address(unsigned long addr)
- {
-    int retval = 0;
-+#ifdef CONFIG_MODULES
-    struct module *mod;
-+#endif
- 
-    if (addr >= (unsigned long) &_stext &&
-        addr <= (unsigned long) &_etext)
-        return 1;
- 
--   for (mod = module_list; mod != &kernel_module; mod = mod->next) {
-+#ifdef CONFIG_MODULES
-+   mod_for_each_locked(mod) {
-        /* mod_bound tests for addr being inside the vmalloc'ed
-         * module area. Of course it'd be better to test only
-         * for the .text subset... */
-@@ -134,20 +133,11 @@
-            retval = 1;
-            break;
-        }
--   }
-+   } mod_for_done_locked
-+#endif
- 
-    return retval;
- }
--
--#else
--
--static inline int kernel_text_address(unsigned long addr)
+-asmlinkage long sys32_get_kernel_syms(struct kernel_sym *table)
 -{
--   return (addr >= (unsigned long) &_stext &&
--       addr <= (unsigned long) &_etext);
+-	PPCDBG(PPCDBG_SYS32, "sys32_get_kernel_syms - running - pid=%ld, comm=%s\n", current->pid, current->comm);
+-
+ 	return -ENOSYS;
+ }
+ 
+diff -ur linux-2.5/arch/s390/kernel/entry.S linux-mod/arch/s390/kernel/entry.S
+--- linux-2.5/arch/s390/kernel/entry.S	Thu Aug  1 16:43:07 2002
++++ linux-mod/arch/s390/kernel/entry.S	Thu Aug  1 14:35:31 2002
+@@ -470,7 +470,7 @@
+         .long  sys_create_module
+         .long  sys_init_module
+         .long  sys_delete_module
+-        .long  sys_get_kernel_syms       /* 130 */
++        .long  sys_ni_syscall            /* 130 */ /* get_kernel_syms */
+         .long  sys_quotactl
+         .long  sys_getpgid
+         .long  sys_fchdir
+diff -ur linux-2.5/arch/s390x/kernel/entry.S linux-mod/arch/s390x/kernel/entry.S
+--- linux-2.5/arch/s390x/kernel/entry.S	Thu Aug  1 16:43:07 2002
++++ linux-mod/arch/s390x/kernel/entry.S	Thu Aug  1 14:35:31 2002
+@@ -501,7 +501,7 @@
+         .long  SYSCALL(sys_create_module,sys32_create_module_wrapper)
+         .long  SYSCALL(sys_init_module,sys32_init_module_wrapper)
+         .long  SYSCALL(sys_delete_module,sys32_delete_module_wrapper)
+-        .long  SYSCALL(sys_get_kernel_syms,sys32_get_kernel_syms_wrapper) /* 130 */
++        .long  SYSCALL(sys_ni_syscall,sys_ni_syscall) /* 130 */ /* get_kernel_syms */
+         .long  SYSCALL(sys_quotactl,sys32_quotactl_wrapper)
+         .long  SYSCALL(sys_getpgid,sys32_getpgid_wrapper)
+         .long  SYSCALL(sys_fchdir,sys32_fchdir_wrapper)
+diff -ur linux-2.5/arch/s390x/kernel/linux32.c linux-mod/arch/s390x/kernel/linux32.c
+--- linux-2.5/arch/s390x/kernel/linux32.c	Thu Aug  1 16:43:07 2002
++++ linux-mod/arch/s390x/kernel/linux32.c	Thu Aug  1 14:35:31 2002
+@@ -3459,36 +3459,6 @@
+ 	return err;
+ }
+ 
+-struct kernel_sym32 {
+-	u32 value;
+-	char name[60];
+-};
+-		 
+-extern asmlinkage int sys_get_kernel_syms(struct kernel_sym *table);
+-
+-asmlinkage int sys32_get_kernel_syms(struct kernel_sym32 *table)
+-{
+-	int len, i;
+-	struct kernel_sym *tbl;
+-	mm_segment_t old_fs;
+-	
+-	len = sys_get_kernel_syms(NULL);
+-	if (!table) return len;
+-	tbl = kmalloc (len * sizeof (struct kernel_sym), GFP_KERNEL);
+-	if (!tbl) return -ENOMEM;
+-	old_fs = get_fs();
+-	set_fs (KERNEL_DS);
+-	sys_get_kernel_syms(tbl);
+-	set_fs (old_fs);
+-	for (i = 0; i < len; i++, table += sizeof (struct kernel_sym32)) {
+-		if (put_user (tbl[i].value, &table->value) ||
+-		    copy_to_user (table->name, tbl[i].name, 60))
+-			break;
+-	}
+-	kfree (tbl);
+-	return i;
 -}
 -
--#endif
+ #else /* CONFIG_MODULES */
  
- /*
-  * These constants are for searching for possible module text
-diff -ur linux-2.5/arch/x86_64/mm/extable.c linux-mod/arch/x86_64/mm/extable.c
---- linux-2.5/arch/x86_64/mm/extable.c	Thu Aug  1 16:43:07 2002
-+++ linux-mod/arch/x86_64/mm/extable.c	Thu Aug  1 14:35:31 2002
-@@ -49,31 +49,25 @@
-         return 0;
- }
+ asmlinkage unsigned long
+@@ -3518,12 +3488,6 @@
+ 	if (which == 0)
+ 		return 0;
  
--extern spinlock_t modlist_lock;
+-	return -ENOSYS;
+-}
 -
- unsigned long
- search_exception_table(unsigned long addr)
- {
- 	unsigned long ret = 0;
--	unsigned long flags;
- 
- #ifndef CONFIG_MODULES
- 	/* There is only the kernel to search.  */
- 	return search_one_table(__start___ex_table, __stop___ex_table-1, addr);
- #else
--	/* The kernel is the last "module" -- no need to treat it special.  */
- 	struct module *mp;
- 
--	spin_lock_irqsave(&modlist_lock, flags);
--	for (mp = module_list; mp != NULL; mp = mp->next) {
--		if (mp->ex_table_start == NULL || !(mp->flags&(MOD_RUNNING|MOD_INITIALIZING)))
-+	mod_for_each_locked(mp) {
-+		if (mp->ex_table_start == NULL)
- 			continue;
- 		ret = search_one_table(mp->ex_table_start,
- 				       mp->ex_table_end - 1, addr);
- 		if (ret)
- 			break;
--	}
--	spin_unlock_irqrestore(&modlist_lock, flags);
-+	} mod_for_done_locked
- 	return ret;
- #endif
+-asmlinkage int
+-sys32_get_kernel_syms(struct kernel_sym *table)
+-{
+ 	return -ENOSYS;
  }
+ 
+diff -ur linux-2.5/arch/s390x/kernel/wrapper32.S linux-mod/arch/s390x/kernel/wrapper32.S
+--- linux-2.5/arch/s390x/kernel/wrapper32.S	Thu Aug  1 16:43:07 2002
++++ linux-mod/arch/s390x/kernel/wrapper32.S	Thu Aug  1 14:35:31 2002
+@@ -581,11 +581,6 @@
+ 	llgtr	%r2,%r2			# const char *
+ 	jg	sys32_delete_module	# branch to system call
+ 
+-	.globl  sys32_get_kernel_syms_wrapper 
+-sys32_get_kernel_syms_wrapper:
+-	llgtr	%r2,%r2			# struct kernel_sym_emu31 *
+-	jg	sys32_get_kernel_syms	# branch to system call
+-
+ 	.globl  sys32_quotactl_wrapper 
+ sys32_quotactl_wrapper:
+ 	lgfr	%r2,%r2			# int
+diff -ur linux-2.5/arch/sh/kernel/entry.S linux-mod/arch/sh/kernel/entry.S
+--- linux-2.5/arch/sh/kernel/entry.S	Thu Aug  1 16:43:07 2002
++++ linux-mod/arch/sh/kernel/entry.S	Thu Aug  1 14:35:31 2002
+@@ -1103,7 +1103,7 @@
+ 	.long sys_create_module
+ 	.long sys_init_module
+ 	.long sys_delete_module
+-	.long sys_get_kernel_syms	/* 130 */
++	.long sys_ni_syscall	/* 130 */ /* get_kernel_syms */
+ 	.long sys_quotactl
+ 	.long sys_getpgid
+ 	.long sys_fchdir
+diff -ur linux-2.5/arch/sparc/kernel/systbls.S linux-mod/arch/sparc/kernel/systbls.S
+--- linux-2.5/arch/sparc/kernel/systbls.S	Thu Aug  1 16:43:07 2002
++++ linux-mod/arch/sparc/kernel/systbls.S	Thu Aug  1 14:35:31 2002
+@@ -62,7 +62,7 @@
+ /*205*/	.long sys_readahead, sys_socketcall, sys_syslog, sys_nis_syscall, sys_nis_syscall
+ /*210*/	.long sys_nis_syscall, sys_nis_syscall, sys_waitpid, sys_swapoff, sys_sysinfo
+ /*215*/	.long sys_ipc, sys_sigreturn, sys_clone, sys_nis_syscall, sys_adjtimex
+-/*220*/	.long sys_sigprocmask, sys_create_module, sys_delete_module, sys_get_kernel_syms, sys_getpgid
++/*220*/	.long sys_sigprocmask, sys_create_module, sys_delete_module, sys_nis_syscall, sys_getpgid
+ /*225*/	.long sys_bdflush, sys_sysfs, sys_nis_syscall, sys_setfsuid16, sys_setfsgid16
+ /*230*/	.long sys_select, sys_time, sys_nis_syscall, sys_stime, sys_nis_syscall
+ 					  /* "We are the Knights of the Forest of Ni!!" */
+diff -ur linux-2.5/arch/sparc64/kernel/sys_sparc32.c linux-mod/arch/sparc64/kernel/sys_sparc32.c
+--- linux-2.5/arch/sparc64/kernel/sys_sparc32.c	Thu Aug  1 16:43:07 2002
++++ linux-mod/arch/sparc64/kernel/sys_sparc32.c	Thu Aug  1 14:35:31 2002
+@@ -3322,36 +3322,6 @@
+ 	return err;
+ }
+ 
+-struct kernel_sym32 {
+-	u32 value;
+-	char name[60];
+-};
+-		 
+-extern asmlinkage int sys_get_kernel_syms(struct kernel_sym *table);
+-
+-asmlinkage int sys32_get_kernel_syms(struct kernel_sym32 *table)
+-{
+-	int len, i;
+-	struct kernel_sym *tbl;
+-	mm_segment_t old_fs;
+-	
+-	len = sys_get_kernel_syms(NULL);
+-	if (!table) return len;
+-	tbl = kmalloc (len * sizeof (struct kernel_sym), GFP_KERNEL);
+-	if (!tbl) return -ENOMEM;
+-	old_fs = get_fs();
+-	set_fs (KERNEL_DS);
+-	sys_get_kernel_syms(tbl);
+-	set_fs (old_fs);
+-	for (i = 0; i < len; i++, table++) {
+-		if (put_user (tbl[i].value, &table->value) ||
+-		    copy_to_user (table->name, tbl[i].name, 60))
+-			break;
+-	}
+-	kfree (tbl);
+-	return i;
+-}
+-
+ #else /* CONFIG_MODULES */
+ 
+ asmlinkage unsigned long
+@@ -3381,12 +3351,6 @@
+ 	if (which == 0)
+ 		return 0;
+ 
+-	return -ENOSYS;
+-}
+-
+-asmlinkage int
+-sys32_get_kernel_syms(struct kernel_sym *table)
+-{
+ 	return -ENOSYS;
+ }
+ 
+diff -ur linux-2.5/arch/sparc64/kernel/systbls.S linux-mod/arch/sparc64/kernel/systbls.S
+--- linux-2.5/arch/sparc64/kernel/systbls.S	Thu Aug  1 16:43:07 2002
++++ linux-mod/arch/sparc64/kernel/systbls.S	Thu Aug  1 14:35:31 2002
+@@ -63,7 +63,7 @@
+ 	.word sys32_readahead, sys32_socketcall, sys_syslog, sys_nis_syscall, sys_nis_syscall
+ /*210*/	.word sys_nis_syscall, sys_nis_syscall, sys_waitpid, sys_swapoff, sys32_sysinfo
+ 	.word sys32_ipc, sys32_sigreturn, sys_clone, sys_nis_syscall, sys32_adjtimex
+-/*220*/	.word sys32_sigprocmask, sys32_create_module, sys32_delete_module, sys32_get_kernel_syms, sys_getpgid
++/*220*/	.word sys32_sigprocmask, sys32_create_module, sys32_delete_module, sys_nis_syscall, sys_getpgid
+ 	.word sys32_bdflush, sys32_sysfs, sys_nis_syscall, sys32_setfsuid16, sys32_setfsgid16
+ /*230*/	.word sys32_select, sys_time, sys_nis_syscall, sys_stime, sys_nis_syscall
+ 	.word sys_nis_syscall, sys_llseek, sys_mlock, sys_munlock, sys_mlockall
+@@ -122,7 +122,7 @@
+ 	.word sys_readahead, sys_socketcall, sys_syslog, sys_nis_syscall, sys_nis_syscall
+ /*210*/	.word sys_nis_syscall, sys_nis_syscall, sys_waitpid, sys_swapoff, sys_sysinfo
+ 	.word sys_ipc, sys_nis_syscall, sys_clone, sys_nis_syscall, sys_adjtimex
+-/*220*/	.word sys_nis_syscall, sys_create_module, sys_delete_module, sys_get_kernel_syms, sys_getpgid
++/*220*/	.word sys_nis_syscall, sys_create_module, sys_delete_module, sys_nis_syscall, sys_getpgid
+ 	.word sys_bdflush, sys_sysfs, sys_nis_syscall, sys_setfsuid, sys_setfsgid
+ /*230*/	.word sys_select, sys_nis_syscall, sys_nis_syscall, sys_stime, sys_nis_syscall
+ 	.word sys_nis_syscall, sys_llseek, sys_mlock, sys_munlock, sys_mlockall
 diff -ur linux-2.5/include/linux/module.h linux-mod/include/linux/module.h
 --- linux-2.5/include/linux/module.h	Thu Aug  1 16:43:07 2002
 +++ linux-mod/include/linux/module.h	Thu Aug  1 14:41:01 2002
-@@ -317,6 +306,19 @@
- #define MOD_IN_USE		1
+@@ -17,13 +17,6 @@
+ /* Don't need to bring in all of uaccess.h just for this decl.  */
+ struct exception_table_entry;
  
- extern struct module *module_list;
-+extern spinlock_t modlist_lock;
-+
-+#define mod_for_each_locked(mod)					\
-+{									\
-+	unsigned long __flags;						\
-+	spin_lock_irqsave(&modlist_lock, __flags);			\
-+	for (mod = module_list; mod != NULL; mod = mod->next) {		\
-+		if (!(mod->flags & (MOD_RUNNING|MOD_INITIALIZING)))	\
-+			continue;
-+#define mod_for_done_locked						\
-+	}								\
-+	spin_unlock_irqrestore(&modlist_lock, __flags);			\
-+}
- 
- #endif /* !__GENKSYMS__ */
- 
+-/* Used by get_kernel_syms, which is obsolete.  */
+-struct kernel_sym
+-{
+-	unsigned long value;
+-	char name[60];		/* should have been 64-sizeof(long); oh well */
+-};
+-
+ struct module_symbol
+ {
+ 	unsigned long value;
 diff -ur linux-2.5/kernel/module.c linux-mod/kernel/module.c
 --- linux-2.5/kernel/module.c	Thu Aug  1 16:43:07 2002
-+++ linux-mod/kernel/module.c	Thu Aug  1 17:10:39 2002
-@@ -45,6 +45,7 @@
- struct module kernel_module =
- {
- 	.size_of_struct		= sizeof(struct module),
-+	.size			= sizeof(struct module),
- 	.name 			= "",
- 	.uc	 		= {ATOMIC_INIT(1)},
- 	.flags			= MOD_RUNNING,
++++ linux-mod/kernel/module.c	Thu Aug  1 14:35:31 2002
+@@ -944,68 +892,6 @@
+ }
+ 
+ /*
+- * Copy the kernel symbol table to user space.  If the argument is
+- * NULL, just return the size of the table.
+- *
+- * This call is obsolete.  New programs should use query_module+QM_SYMBOLS
+- * which does not arbitrarily limit the length of symbols.
+- */
+-
+-asmlinkage long
+-sys_get_kernel_syms(struct kernel_sym *table)
+-{
+-	struct module *mod;
+-	int i;
+-	struct kernel_sym ksym;
+-
+-	lock_kernel();
+-	for (mod = module_list, i = 0; mod; mod = mod->next) {
+-		/* include the count for the module name! */
+-		i += mod->nsyms + 1;
+-	}
+-
+-	if (table == NULL)
+-		goto out;
+-
+-	/* So that we don't give the user our stack content */
+-	memset (&ksym, 0, sizeof (ksym));
+-
+-	for (mod = module_list, i = 0; mod; mod = mod->next) {
+-		struct module_symbol *msym;
+-		unsigned int j;
+-
+-		if (!MOD_CAN_QUERY(mod))
+-			continue;
+-
+-		/* magic: write module info as a pseudo symbol */
+-		ksym.value = (unsigned long)mod;
+-		ksym.name[0] = '#';
+-		strncpy(ksym.name+1, mod->name, sizeof(ksym.name)-1);
+-		ksym.name[sizeof(ksym.name)-1] = '\0';
+-
+-		if (copy_to_user(table, &ksym, sizeof(ksym)) != 0)
+-			goto out;
+-		++i, ++table;
+-
+-		if (mod->nsyms == 0)
+-			continue;
+-
+-		for (j = 0, msym = mod->syms; j < mod->nsyms; ++j, ++msym) {
+-			ksym.value = msym->value;
+-			strncpy(ksym.name, msym->name, sizeof(ksym.name));
+-			ksym.name[sizeof(ksym.name)-1] = '\0';
+-
+-			if (copy_to_user(table, &ksym, sizeof(ksym)) != 0)
+-				goto out;
+-			++i, ++table;
+-		}
+-	}
+-out:
+-	unlock_kernel();
+-	return i;
+-}
+-
+-/*
+  * Look for a module by name, ignoring modules marked for deletion.
+  */
+ 
+@@ -1251,12 +1137,6 @@
+ 	if (which == 0)
+ 		return 0;
+ 
+-	return -ENOSYS;
+-}
+-
+-asmlinkage long
+-sys_get_kernel_syms(struct kernel_sym *table)
+-{
+ 	return -ENOSYS;
+ }
+ 

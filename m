@@ -1,59 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265366AbUAPL0L (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 06:26:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265367AbUAPL0L
+	id S265398AbUAPLak (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 06:30:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265399AbUAPLai
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 06:26:11 -0500
-Received: from mail3.ithnet.com ([217.64.64.7]:52164 "HELO ithnet.com")
-	by vger.kernel.org with SMTP id S265366AbUAPL0J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 06:26:09 -0500
-X-Sender-Authentication: net64
-Date: Fri, 16 Jan 2004 12:25:50 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: andrew@walrond.org, luming.yu@intel.com, andreas@xss.co.at,
-       linux-kernel@vger.kernel.org
-Subject: Re: ACPI: problem on ASUS PR-DLS533
-Message-Id: <20040116122550.23331cf5.skraw@ithnet.com>
-In-Reply-To: <Pine.LNX.4.58L.0401160826090.28357@logos.cnet>
-References: <3ACA40606221794F80A5670F0AF15F8401720CA8@PDSMSX403.ccr.corp.intel.com>
-	<200401151814.35064.andrew@walrond.org>
-	<Pine.LNX.4.58L.0401160826090.28357@logos.cnet>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 16 Jan 2004 06:30:38 -0500
+Received: from erebor.somesite.de ([213.133.110.75]:50650 "EHLO
+	erebor.somesite.de") by vger.kernel.org with ESMTP id S265398AbUAPLaf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 06:30:35 -0500
+Date: Fri, 16 Jan 2004 12:30:32 +0100
+From: Florian Hinzmann <f.hinzmann@hamburg.de>
+To: linux-kernel@vger.kernel.org
+Cc: Gerard Roudier <groudier@free.fr>
+Subject: linux2.6.1 - sym53c8xx: wide:0 documented, but not supported?
+Message-Id: <20040116123032.32b03e30.f.hinzmann@hamburg.de>
+X-Mailer: Sylpheed version 0.9.6claws (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Jan 2004 08:30:13 -0200 (BRST)
-Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+Hello!
 
-> > I don't know if Stephan filed the report as you requested, but I have tried
-> > to independantly confirm this regression on a TR-DLSR server I have here,
-> > but unfortunately neither 2.4.23 or 2.4.24 will boot from the Mylex 170
-> > Raid card(DAC960) with ACPI enabled, so I never get to lspci :(
-> >
-> > I could perhaps capture the boot messages over serial port, if that would
-> > be helpful?
-> 
-> Yes, please, with and without ACPI. (I suppose disabling ACPI fixes the
-> problem?)
-> 
-> Stephan: There is nothing from 2.4.23 to .24 which could cause such
-> breakage. It probably didnt work with 2.4.23 also?
 
-Hello,
+I do own an SCSI host controller from Dawicontrol 
+( http://www.dawicontrol.com/ ). Model name is "DC-2975 U". 
 
-I am sorry for the long delay, I ran completely out of time unfortunately.
-In short:
-You are right, there is no regression between .23 and .24, shoot me.
-Anyway I know there was a former kernel that worked with ACPI on this board.
-I wanted to return the info which one though, but don't have it yet.
-Anyway as soon as I find some spare time I will go hunting...
+This host controller has a problem wich is covered within
+the documentation inside kernel 2.6.1 in the file
+"Documentation/scsi/sym53c8xx_2.txt":
 
-Regards,
-Stephan
+> 10.2.9 Max wide
+>         wide:1      wide scsi enabled
+>         wide:0      wide scsi disabled
+>   Some scsi boards use a 875 (ultra wide) and only supply narrow connectors.
+>   If you have connected a wide device with a 50 pins to 68 pins cable 
+>   converter, any accepted wide negotiation will break further data transfers.
+>   In such a case, using "wide:0" in the bootup command will be helpfull. 
+
+
+The controller works fine with linux 2.4.x when "wide:0" is set. But
+it looks like this option is not supported with linux 2.6.x. I do think so
+because of two reasons:
+
+1) Setting it seems to have no effect.
+2) From looking at the source:
+File drivers/scsi/sym53c8xx_2/sym_glue.c defines this:
+
+>static char setup_token[] __initdata =
+>         "tags:"         "burst:"
+>         "led:"          "diff:"
+>         "irqm:"         "buschk:"
+>         "hostid:"       "revprob:"
+>         "verb:"         "debug:"
+>         "settle:"       "nvram:"
+>         "excl:"         "safe:"
+>         ;
+
+"wide:0" is missing.  I am not good with C and I might be wrong here. 
+But reason no. 1 remains true still.
+
+
+Can anyone confirm if my controller is not supported by linux2.6.x?
+If yes, does anyone know if there is a patch or some other help 
+available? Is anyone working on this?
+
+
+  Regards
+     Florian
+
+
+-- 
+  Florian Hinzmann                         private: f.hinzmann@hamburg.de
+                                            Debian: fh@debian.org
+PGP Key / ID: 1024D/B4071A65
+Fingerprint : F9AB 00C1 3E3A 8125 DD3F  DF1C DF79 A374 B407 1A65

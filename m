@@ -1,50 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261362AbVC2Ty0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261342AbVC2UDI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261362AbVC2Ty0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 14:54:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbVC2TyZ
+	id S261342AbVC2UDI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 15:03:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbVC2UDI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 14:54:25 -0500
-Received: from smtp9.poczta.onet.pl ([213.180.130.49]:64677 "EHLO
-	smtp9.poczta.onet.pl") by vger.kernel.org with ESMTP
-	id S261350AbVC2Twt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 14:52:49 -0500
-Message-ID: <4249B2B8.1090807@poczta.onet.pl>
-Date: Tue, 29 Mar 2005 21:55:36 +0200
-From: Wiktor <victorjan@poczta.onet.pl>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+	Tue, 29 Mar 2005 15:03:08 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19382 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261342AbVC2UC7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 15:02:59 -0500
+Message-ID: <4249B464.50607@pobox.com>
+Date: Tue, 29 Mar 2005 15:02:44 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [RFD] 'nice' attribute for executable files
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com, netdev@oss.sgi.com
+Subject: Re: [PATCH] s390: claw network device driver
+References: <200503290533.j2T5XEYT028850@hera.kernel.org>	<4248FBFD.5000809@pobox.com>	<20050328230830.5e90396f.akpm@osdl.org>	<20050329071210.GA16409@havoc.gtf.org>	<20050328232359.4f1e04b9.akpm@osdl.org>	<42490763.5010008@pobox.com> <20050329000239.6346d73e.akpm@osdl.org>
+In-Reply-To: <20050329000239.6346d73e.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Andrew Morton wrote:
+> Jeff Garzik <jgarzik@pobox.com> wrote:
+> 
+>>Andrew Morton wrote:
+>>
+>>>Jeff Garzik <jgarzik@pobox.com> wrote:
+>>>
+>>>
+>>>>>Was cc'ed to linux-net last Thursday, but it looks like the messages was
+>>>>>too large and the vger server munched it.
+>>>>
+>>>>This also brings up a larger question... why was a completely unreviewed
+>>>>net driver merged?
+>>>
+>>>
+>>>Because nobody noticed that it didn't make it to the mailing list,
+>>>obviously.
+>>
+>>That's ducking the question.  Let me rephrase.
+>>
+>>Why was a complete lack of response judged to be an ACK?
+> 
+> 
+> That's not uncommon.  I don't ask people "are you reading the mailing list
+> which you should be reading" unless I think it's someone who doesn't read
+> the mailing lists which they should be reading.
+> 
+> 
+>>For new drivers, that's a -horrible- precedent.  You are quite skilled 
+>>at poking random hackers :)  why not poke somebody to ack a new drivers? 
+> 
+> 
+> In this case I didn't think about it very hard, sorry - figured it was s390
+> stuff and it hence falls under the "if it breaks, it's the s390 team's
+> problem" exemption.
 
-recently i had to run some program (xmms) with lowered nice value as 
-normal user. to do that i had to su to the root account and then execute 
-nice --5 xmms. but, then xmms was run as root and X server refused 
-connection, so i had to do second su from root account. (total: su nice 
---5 su wixor xmms). what's more, i thought that entering root password 
-each time i want to run something with lowered nice is rather boring. 
-furthermore, on many systems root may want to make users able to run 
-some program with lowered nice, but not from root account and without 
-having to know the root password... i've found a way to do this using 
-shell scripts combined with suid bit and strange fils ownerships, but it 
-is absolute diseaster.
+Yeah, and I -am- sympathetic to that sort of thing.  I just feel really 
+strongly that we need to have a higher-than-normal barrier for new code.
 
-so i thought that it would be nice to add an attribute to file 
-(changable only for root) that would modify nice value of process when 
-it starts. if there is one byte free in ext2/3 file metadata, maybe it 
-could be used for that? i think that it woundn't be more dangerous than 
-setuid bit.
+It may be an S/390 driver, but Jeff's Law of Bad Code states "where 
+there is bad code, it will be copied."  Propagating the 2.2.x-era 
+'tbusy' flag to yet more drivers is something I absolutely do not want 
+to happen.
 
-Does it all make any sense?
-thanks for responses
+I also feel that we have shifted from a "Linus doesn't scale" problem to 
+an "akpm doesn't scale" problem.  As much work as you put it (lots!), 
+you can't possibly be expected to review all the new drivers and such.
 
---
-wixor
-May the Source be with you
+I would prefer a "new driver must be acked by at least one non-author" 
+rule.  We need -some- barrier to entry.  If that rule is OK with others, 
+I'm quite willing to do that for my areas like libata.
+
+
+>>  It's not like this driver (or many of the other new drivers) 
+>>desperately need to get into the kernel ASAP, so desperate that a lack 
+>>of review was OK.
+> 
+> 
+> True.  But it's not as if we can't fix stuff up after it's merged up.  The
+> reasons for holding off on a merge would be:
+> 
+> a) We're not sure that the feature should be merged at all
+> 
+> b) Holding off on a merge is a tool we use to motivate the submitter to
+>    fix the code up
+> 
+> c) The merge breaks existing stuff.
+> 
+> I don't think any of those things apply here.  The only downside is the
+> increased bk patch volume.
+
+In general, I have supported your philosophy of accelerated upstreaming 
+of code.  I just worry about going too far, and this driver was a 
+case-in-point.
+
+As Linus and others have pointed out many times in the past, there is no 
+harm in -not- upstreaming code until it is "ready."  Our current system 
+of maintainers/lieutenants is sufficiently distributed as to allow this.
+
+	Jeff
+
+

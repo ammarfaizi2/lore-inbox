@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267510AbRGRR5q>; Wed, 18 Jul 2001 13:57:46 -0400
+	id <S267916AbRGRSC4>; Wed, 18 Jul 2001 14:02:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267867AbRGRR5f>; Wed, 18 Jul 2001 13:57:35 -0400
-Received: from stine.vestdata.no ([195.204.68.10]:62735 "EHLO
-	stine.vestdata.no") by vger.kernel.org with ESMTP
-	id <S267510AbRGRR5V>; Wed, 18 Jul 2001 13:57:21 -0400
-Date: Wed, 18 Jul 2001 19:57:23 +0200
-From: =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= <xfs@ragnark.vestdata.no>
-To: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: kernel deadlock; xfs
-Message-ID: <20010718195723.A24237@vestdata.no>
+	id <S267915AbRGRSCp>; Wed, 18 Jul 2001 14:02:45 -0400
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:60681 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S267914AbRGRSCf>; Wed, 18 Jul 2001 14:02:35 -0400
+Date: Wed, 18 Jul 2001 19:02:37 +0100
+From: John Levon <moz@compsoc.man.ac.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: LDP / KDP?
+Message-ID: <20010718190237.A29251@compsoc.man.ac.uk>
+In-Reply-To: <200107181636.JAA24824@altair.dhs.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.5i
+Content-Disposition: inline
+In-Reply-To: <200107181636.JAA24824@altair.dhs.org>
+User-Agent: Mutt/1.3.19i
+X-Url: http://www.movement.uklinux.net/
+X-Record: 0898 Dave - Brack Dragon
+X-Toppers: N/A
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Wed, Jul 18, 2001 at 09:36:48AM -0700, Charles Samuels wrote:
 
-We're experiencing a deadlock on a NFS-server using a XFS filesystem.
-The kernel was originally running SGI XFS 1.0, but we've now tried 1.0.1
-and the CVS-version (as of yesterday) - same problem.
+> _still_, I like my format more, it seems like it'd be much easier to search,
+> and I think the format is much more ideal than docbook (which I have worked
+> with)
+> 
+> e.g., an example data file: http://derkarl.org/kerneldoc/data/init_timer.kd
 
-The deadlock appear to be happening when accessing big files over NFS,
-but we're not sure as we have not found a way to reproduce. There are no
-kernel messages written to syslog, and the kernel debugger does not
-start when pressing pause.
+but docbook is not the inline docs format. DocBook is an /output/ of the hacky perl
+script. You can write another hacky perl script to output in your format if you
+want.
 
-I assume that means the problem is inside an interrupt handler? Does
-that exclude XFS as the potential problem?
+> This documentation _is_ inline to the code (in the headers), generated via a
+> perl script "kdoc".
 
-The system is using aic7xxx SCSI adapters and hamachi gigabit ethernet
-card.
+scripts/kernel-doc
 
-We're going to try with a different filesystem and a different gigabit
-card next, but if you have other suggestions for how to debug this,
-please let us know.
-
-
+john
 
 -- 
-Ragnar Kjorstad
-Big Storage
+"Voodoo Programming:  Things programmers do that they know shouldn't work but
+ they try anyway, and which sometimes actually work, such as recompiling
+ everything."
+	- Karl Lehenbauer

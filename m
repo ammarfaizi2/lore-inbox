@@ -1,138 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268735AbUHZMSM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268902AbUHZM3i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268735AbUHZMSM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 08:18:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268802AbUHZMKz
+	id S268902AbUHZM3i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 08:29:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268915AbUHZM3L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 08:10:55 -0400
-Received: from tao.natur.cuni.cz ([195.113.56.1]:19981 "EHLO tao.natur.cuni.cz")
-	by vger.kernel.org with ESMTP id S268745AbUHZMEa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 08:04:30 -0400
-X-Obalka-From: mmokrejs@natur.cuni.cz
-Date: Thu, 26 Aug 2004 14:03:56 +0200 (CEST)
-From: =?iso-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@natur.cuni.cz>
-To: Kronos <kronos@kronoz.cjb.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: radeonfb: cannot map FB
-In-Reply-To: <20040627203344.GA11474@dreamland.darkstar.lan>
-Message-ID: <Pine.OSF.4.51.0408261402230.174739@tao.natur.cuni.cz>
-References: <20040626224942.GA13345@dreamland.darkstar.lan>
- <Pine.OSF.4.51.0406272113190.111358@tao.natur.cuni.cz>
- <20040627203344.GA11474@dreamland.darkstar.lan>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 26 Aug 2004 08:29:11 -0400
+Received: from mail-relay-3.tiscali.it ([213.205.33.43]:26841 "EHLO
+	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
+	id S268902AbUHZMSS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 08:18:18 -0400
+Date: Thu, 26 Aug 2004 14:16:30 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Christophe Saout <christophe@saout.de>
+Cc: Hans Reiser <reiser@namesys.com>, viro@parcelfarce.linux.theplanet.co.uk,
+       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040826121630.GN5618@nocona.random>
+References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <20040825200859.GA16345@lst.de> <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org> <20040825204240.GI21964@parcelfarce.linux.theplanet.co.uk> <1093467601.9749.14.camel@leto.cs.pocnet.net> <20040825225933.GD5618@nocona.random> <412DA0B5.3030301@namesys.com> <20040826112818.GL5618@nocona.random> <1093520699.9004.11.camel@leto.cs.pocnet.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1093520699.9004.11.camel@leto.cs.pocnet.net>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  I have just tested 2.4.28-pre2 and found this patch still isn't in. Could
-someone apply it to the official tree and tell me back to re-test? The fix
-works fine for me some time already.
-Thanks
-Martin
+On Thu, Aug 26, 2004 at 01:44:59PM +0200, Christophe Saout wrote:
+> I think you're not exactly understanding what a reiser4 "plugin" is.
+> 
+> Currently plugins are not modules. It just means that there's a defined
+> interface between the reiser4 core and the plugins. Just like you could
+> see filesystems as "VFS plugins".
 
-On Sun, 27 Jun 2004, Kronos wrote:
+but filesystems are exactly always modules (in precompiled kernels at
+least).
 
-> Il Sun, Jun 27, 2004 at 09:16:34PM +0200, Martin MOKREJ? ha scritto:
-> > Hi,
-> >   yes, I have one GB and SMP kernel. It's interresting that I don't
-> > remember this bug with kernels around 2.4.23 or .24 - just a guess.
->
-> Hum, I see a big DRM merge in .23 but it's unrelated to the fb driver.
-> Nothing else. Maybe you added another PCI card that used part of the
-> available address space?
->
-> > If someone would be interrwested, and can check when did it appear for
-> > the first time. Otherwise, will be happy to get your patch.
->
-> Patch follows. Compile with DEBUG 1 if something goes wrong.
->
-> > I think the printk() lines could print out more debug info. For
-> > example the contents of some variables which were passed to preceeding
-> > functions ... ;)
->
-> The old driver (ie. the one in 2.4 and the "old" one in 2.6) is not
-> developed anymore. The new reference point is the driver by BenH in 2.6.
->
->
-> --- linux-2.4/drivers/video/radeonfb.c.orig	2004-06-27 22:26:56.000000000 +0200
-> +++ linux-2.4/drivers/video/radeonfb.c	2004-06-27 22:29:49.000000000 +0200
-> @@ -176,7 +176,8 @@
->  #define RTRACE		if(0) printk
->  #endif
->
-> -
-> +#define MAX_MAPPED_VRAM (2048*2048*4)
-> +#define MIN_MAPPED_VRAM (1024*768*1)
->
->  enum radeon_chips {
->  	RADEON_QD,
-> @@ -499,7 +500,8 @@
->
->  	short chipset;
->  	unsigned char arch;
-> -	int video_ram;
-> +	unsigned int video_ram;
-> +	unsigned int mapped_vram;
->  	u8 rev;
->  	int pitch, bpp, depth;
->  	int xres, yres, pixclock;
-> @@ -1823,8 +1825,20 @@
->  		}
->  	}
->
-> -	rinfo->fb_base = (unsigned long) ioremap (rinfo->fb_base_phys,
-> -				  		  rinfo->video_ram);
-> +	if (rinfo->video_ram < rinfo->mapped_vram)
-> +		rinfo->mapped_vram = rinfo->video_ram;
-> +	else
-> +		rinfo->mapped_vram = MAX_MAPPED_VRAM;
-> +	do {
-> +		rinfo->fb_base = (unsigned long) ioremap (rinfo->fb_base_phys,
-> +				  		  rinfo->mapped_vram);
-> +		if (rinfo->fb_base)
-> +			break;
-> +
-> +		RTRACE(KERN_INFO "radeonfb: cannot ioremap %dk of videoram\n", rinfo->mapped_vram);
-> +		rinfo->mapped_vram /= 2;
-> +	} while(rinfo->mapped_vram > MIN_MAPPED_VRAM);
-> +
->  	if (!rinfo->fb_base) {
->  		printk ("radeonfb: cannot map FB\n");
->  		iounmap ((void*)rinfo->mmio_base);
-> @@ -1835,6 +1849,7 @@
->  		kfree (rinfo);
->  		return -ENODEV;
->  	}
-> +	RTRACE(KERN_INFO "radeonfb: mapped %dk videoram\n", rinfo->mapped_vram/1024);
->
->  	/* currcon not yet configured, will be set by first switch */
->  	rinfo->currcon = -1;
-> @@ -2261,7 +2276,7 @@
->  	sprintf (fix->id, "ATI Radeon %s", rinfo->name);
->
->          fix->smem_start = rinfo->fb_base_phys;
-> -        fix->smem_len = rinfo->video_ram;
-> +        fix->smem_len = rinfo->mapped_vram;
->
->          fix->type = disp->type;
->          fix->type_aux = disp->type_aux;
-> @@ -2429,6 +2444,9 @@
->                          return -EINVAL;
->          }
->
-> +	if (((v.xres_virtual * v.yres_virtual * nom) / den) > rinfo->mapped_vram)
-> +		return -EINVAL;
-> +
->          if (radeonfb_do_maximize(rinfo, var, &v, nom, den) < 0)
->                  return -EINVAL;
->
->
->
-> Luca
->
+Anyways I don't see any visible EXPORT_SYMBOL in reiser4.
 
--- 
-Martin Mokrejs
-GPG key is at http://www.natur.cuni.cz/~mmokrejs
+> 
+> In fact, reiser4 plugins are
+> - users of the reiser4 core API
+> - some of them are implementing Linux VFS methods (thus being some sort
+> of glue code between the Reiser4 storage tree and the Linux VFS)
+
+then it seems a bit misleading to call those things plugins.
+
+As you wrote those are "users of the reiser4 core API", with plugins I
+always meant dynamically loadable things, like plugins for web browers
+(hence kernel modules in kernel space). While here apparently you can't
+plugin anything at runtime, it's just code that uses the reiser4 core
+API that can be modified with a kernel patch as usual.

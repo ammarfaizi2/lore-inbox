@@ -1,45 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264953AbRFUN10>; Thu, 21 Jun 2001 09:27:26 -0400
+	id <S264954AbRFUN2Q>; Thu, 21 Jun 2001 09:28:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264954AbRFUN1H>; Thu, 21 Jun 2001 09:27:07 -0400
-Received: from cpe126.netz6.cablesurf.de ([195.206.156.126]:17282 "EHLO
-	idun.neukum.org") by vger.kernel.org with ESMTP id <S264953AbRFUN0z>;
-	Thu, 21 Jun 2001 09:26:55 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
-To: "Dmitry A. Fedorov" <D.A.Fedorov@inp.nsk.su>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S264955AbRFUN2G>; Thu, 21 Jun 2001 09:28:06 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:7440 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S264954AbRFUN1v>; Thu, 21 Jun 2001 09:27:51 -0400
 Subject: Re: Is it useful to support user level drivers
-Date: Thu, 21 Jun 2001 15:24:39 +0200
-X-Mailer: KMail [version 1.2]
-Cc: Balbir Singh <balbir_soni@yahoo.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.SGI.4.10.10106211905030.3193032-100000@Sky.inp.nsk.su>
-In-Reply-To: <Pine.SGI.4.10.10106211905030.3193032-100000@Sky.inp.nsk.su>
+To: balbir_soni@yahoo.com (Balbir Singh)
+Date: Thu, 21 Jun 2001 14:27:17 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <20010621124337.44506.qmail@web13605.mail.yahoo.com> from "Balbir Singh" at Jun 21, 2001 05:43:37 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Message-Id: <01062115243900.01881@idun>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15D4UP-0001Ll-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The problem is that the IRQ has to be cleared in kernel space, because
-> > otherwise you may deadlock.
->
-> It depends on device type. Good designed ones does not raises a new
-> interrupt until an explicit acknowledge by I/O from [user space] driver
-> will be received.
->
-> Access to device's ports and IRQs from user space is subject
-> of system admistration policy so direct access to a dangerous devices
-> should not be allowed.
->
-> Lastly an IRQ kernel module can disable_irq() from interrupt handler
-> and enable it again only on explicit acknowledge from user.
+> I agree, the idea is to clear the IRQ in kernel space
+> and then deliver to user level programs interested
+> using a signal (Real time SIGINT or something similar)
+> If somebody is interested I could in sometime come
+> up with what I have in mind and send it to this list,
+> accept comments and criticism.
 
-Unless you need that interrupt to be enabled to deliver the signal or let 
-userspace reenable the interrupt.
-
-In addition, how do you handle shared interrupts ?
-
-	Regards
-		Oliver
+I think you should yes. The XFree86 people for one are trying to find a way
+to handle vertical blank interrupts nicely

@@ -1,58 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261672AbTHYKMV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 06:12:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261596AbTHYKMV
+	id S261720AbTHYKBJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 06:01:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbTHYKBI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 06:12:21 -0400
-Received: from hireright-gw.online.ee ([194.106.125.50]:57538 "EHLO
-	mail.hireright.ee") by vger.kernel.org with ESMTP id S261672AbTHYKLm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 06:11:42 -0400
-Date: Mon, 25 Aug 2003 13:11:41 +0300 (EEST)
-From: Anton Keks <anton@ns.hireright.ee>
-To: linux-kernel@vger.kernel.org
-Subject: CardBus card is not recognized (PCI vendor 0xffff, ...)
-Message-ID: <Pine.LNX.4.44.0308251308580.24715-100000@ns.hireright.ee>
+	Mon, 25 Aug 2003 06:01:08 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:6663 "HELO
+	127.0.0.1") by vger.kernel.org with SMTP id S261720AbTHYKBG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 06:01:06 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: insecure <insecure@mail.od.ua>
+Reply-To: insecure@mail.od.ua
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: [PATCH] Fix ide unregister vs. driver model
+Date: Mon, 25 Aug 2003 13:01:00 +0300
+X-Mailer: KMail [version 1.4]
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+References: <1061730317.31688.10.camel@gaston>
+In-Reply-To: <1061730317.31688.10.camel@gaston>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200308251301.00267.insecure@mail.od.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm stuck with my Trendnet TEW-221PCI wireless lan card (Cardbus) not 
-working in Linux... (it works in Windoze 2k). 
-Card insertion is detected, but the card itself is not recognized.
+On Sunday 24 August 2003 16:05, Benjamin Herrenschmidt wrote:
+>  static void hwif_register (ide_hwif_t *hwif)
+>  {
+>  	/* register with global device tree */
+>  	strlcpy(hwif->gendev.bus_id,hwif->name,BUS_ID_SIZE);
+>  	hwif->gendev.driver_data = hwif;
+> +	if (hwif->gendev.parent == NULL) {
+>  	if (hwif->pci_dev)
+>  		hwif->gendev.parent = &hwif->pci_dev->dev;
+>  	else
+>  		hwif->gendev.parent = NULL; /* Would like to do = &device_legacy */
+> +	}
 
-I have searched everywhere and I am not able to find any solutution.
-
-Here is what I get in dmesg:
-cs: cb_alloc(bus 2): vendor 0xffff, device 0xffff
-PCI: device 02:00.0 has unknown header type 7f, ignoring.
-PCI: No IRQ known for interrupt pin ? of device 02:00.0
-
-lspci says that the card's vendor is unknown.
-
-cardctl status:
-Socket 0:
-3.3V CardBus card
-function 0: [ready]
-
-cardctl ident:
-Socket 0:
-no product info available
-
-I have several kernels (RH 9.0 one as well as 2.4.21 and 2.4.22-rc1). 
-PCMCIA utilities are pcmcia-cs-3.2.4.
-
-My cardbus controller is detected prefectly (it is made by ENE), machine 
-is ECS Green 550.
-
-The card uses ADMtek 8211 chipset (if that matters). 
-Unfortunately I don't have other cards to test, but this one works in 
-Windows on the same machine...
-
-I don't know if this a bug or something, but I'm really stuck, so any 
-advice is appreciated. 
-Please CC me when replying if possible.
-
-
+inner if() should be indented
+--
+vda

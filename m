@@ -1,81 +1,170 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262890AbVAQU4o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262889AbVAQU4T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262890AbVAQU4o (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 15:56:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262891AbVAQU4o
+	id S262889AbVAQU4T (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 15:56:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262890AbVAQU4T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 15:56:44 -0500
-Received: from dialin-160-45.tor.primus.ca ([216.254.160.45]:13696 "EHLO
-	node1.opengeometry.net") by vger.kernel.org with ESMTP
-	id S262890AbVAQU4f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 15:56:35 -0500
-Date: Mon, 17 Jan 2005 15:55:19 -0500
-From: William Park <opengeometry@yahoo.ca>
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Thomas Zehetbauer <thomasz@hostmaster.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: usb-storage on SMP?
-Message-ID: <20050117205519.GA2277@node1.opengeometry.net>
-Mail-Followup-To: Paulo Marques <pmarques@grupopie.com>,
-	"Rafael J. Wysocki" <rjw@sisk.pl>,
-	Thomas Zehetbauer <thomasz@hostmaster.org>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <1105982247.21895.26.camel@hostmaster.org> <200501171826.33496.rjw@sisk.pl> <20050117194615.GA2028@node1.opengeometry.net> <41EC1993.2030105@grupopie.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41EC1993.2030105@grupopie.com>
-User-Agent: Mutt/1.4.2i
+	Mon, 17 Jan 2005 15:56:19 -0500
+Received: from lucidpixels.com ([66.45.37.187]:15745 "HELO lucidpixels.com")
+	by vger.kernel.org with SMTP id S262889AbVAQU4E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 15:56:04 -0500
+Date: Mon, 17 Jan 2005 15:56:03 -0500 (EST)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p500
+To: Norbert van Nobelen <Norbert@edusupport.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Re: Mysterious Lag With SATA Maxtor 250GB 7200RPM 16MB Cache
+ Under Linux using NFSv3 UDP
+In-Reply-To: <200501172148.41252.Norbert@edusupport.nl>
+Message-ID: <Pine.LNX.4.61.0501171555550.1821@p500>
+References: <Pine.LNX.4.61.0501171459150.1821@p500> <200501172148.41252.Norbert@edusupport.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 17, 2005 at 08:01:23PM +0000, Paulo Marques wrote:
-> William Park wrote:
-> >On Mon, Jan 17, 2005 at 06:26:33PM +0100, Rafael J. Wysocki wrote:
-> >
-> >>On Monday, 17 of January 2005 18:17, Thomas Zehetbauer wrote:
-> >>
-> >>>Hi,
-> >>>
-> >>>can anyone confirm that writing to usb-storage devices is working
-> >>>on SMP systems?
-> >>
-> >>Generally, it is.  Recently, I've written some stuff to a USB
-> >>pendrive (using 2.6.10-ac7 or -ac9).
-> >
-> >
-> >Same here with Abit VP6 dual-P3 and 2.6.10.  It shows up as /dev/sda,
-> >and I can do anything that I would do with normal harddisk.
-> >
-> >But, I still can't boot from it. :/  I can now mount it as root
-> >filesystem, but I can't load the kernel from USB key drive.
-> 
-> huh?? Who's mounting the root filesystem, then :) ?
-> 
-> If you mean that you can't get the BIOS to load the kernel for you, and 
-> you're loading the kernel from a floppy or something, you should know 
-> that some BIOS are pretty selective about what they consider a valid 
-> boot partition.
+Yes, only with NFS.
 
-Hee, hee... yes, for now I boot from floppy first, then mount /dev/sda1
-as root filesystem.  I, of course, want to get rid of the floppy.  My
-motherboard is Mercury PVCLE266M-L with VIA C3 Samuel 2 cpu integrated
-on the board.  It has tons of boot device options, and detects my USB
-key (SanDisk Cruzer Mini 256MB) as "USB RMD-FDD" and not as some kind of
-harddisk.  I think that's the problem: motherboard thinks it's floppy,
-and LILO thinks it's SCSI harddisk (/dev/sda).
 
-> 
-> I recommend that you use fdisk to set up one partition as FAT16 type
-> (even if you use another filesystem later), and make the partition
-> active. You might need to write a proper MBR on the pen also (IIRC
-> LILO as an option to do this).
-> 
-> You might also need to pass a special "disk=/dev/sda bios=0x80" (or
-> something like that) option in your lilo.conf file, but that depends
-> how far in the boot process you're hanging.
+On Mon, 17 Jan 2005, Norbert van Nobelen wrote:
 
--- 
-William Park <opengeometry@yahoo.ca>, Toronto, Canada
-Slackware Linux -- because I can type.
+> Only with NFS? I have a raid array of the same discs and the system just
+> sometimes seems to hang completely (for a second or less) and then to go on
+> again at a normal speed (110MB/s).
+> I am running a SuSE 9.1 stock kernel (2.6.5-7.111-smp) on that machine.
+>
+> On Monday 17 January 2005 21:06, you wrote:
+>> When writing to or from the drive via NFS, after 1GB or 2GB, it "feels"
+>> like the system slows to a crawl, the mouse gets very slow, almost like
+>> one is burning a CD at 52X under PIO mode.  I originally had this disk in
+>> my main system with an Intel ICH5 chipset (ABIT IC7-G mobo) and a Pentium
+>> 4 2.6GHZ w/HT and I could not believe the hit the system took when writing
+>> over NFS.
+>>
+>> I put the drive on its own controller in another box to see if I could
+>> replicate the problem.  The drive is on a Promise 150TX2 Plus controller.
+>> When writing locally on the disk, there is no problem.  When writing to or
+>> from the drive over NFS, the system becomes _very_ slow, df -h lags, the
+>> system slows almost to a halt.  I check /proc/interrupts and
+>> /var/log/messages but no errors result.
+>>
+>> There is some type of system bottleneck when using NFS with this drive.
+>>
+>> All the file systems are XFS on all systems.
+>> Can anyone offer any suggestions?
+>> I cannot explain or find the cause of this.
+>>
+>> All systems are running 2.6.10.
+>>
+>> I have an excerpt of both using dd if=/dev/zero of=file.img (locally) and
+>> from a remote computer (on a full duplex gigabit network)
+>>
+>> Locally: dd if=/dev/zero of=out.img
+>>
+>> vmstat output:
+>>
+>> procs -----------memory---------- ---swap-- -----io---- --system--
+>> ----cpu----
+>>   r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy
+>> id wa
+>>   1  0    412   4928      0 662612    0    0     0     0 1065   285 16 84
+>> 0  0
+>>   1  0    412   4608      0 662556    0    0     0 78932 1148   250 14 86
+>> 0  0
+>>   1  0    412   4672      0 662868    0    0     0    13 1068   274 16 84
+>> 0  0
+>>   1  0    412   5120      0 661644    0    0     0 78928 1116   245 13 87
+>> 0  0
+>>   1  0    412   4460      0 663020    0    0     0     0 1098   254 15 85
+>> 0  0
+>>   1  0    412   5376      0 660936    0    0     0 78932 1073   279 14 86
+>> 0  0
+>>   1  0    412   5376      0 662124    0    0     0    17 1147   267 18 82
+>> 0  0
+>>   2  0    412   5376      0 661580    0    0    44 31901 1052   286 15 85
+>> 0  0
+>>   1  0    412   5440      0 661740    0    0    48 47048 1168   265 15 85
+>> 0  0
+>>   1  0    412   5312      0 662152    0    0     4    14 1048   260 16 84
+>> 0  0
+>>   1  0    412   4664      0 662196    0    0     4 78941 1143   282 15 85
+>> 0  0
+>>   2  0    412   4600      0 662932    0    0     0     0 1104   251 14 86
+>> 0  0
+>>   1  0    412   5048      0 661448    0    0     0 78954 1111   269 16 84
+>> 0  0
+>>   1  0    412   5368      0 662120    0    0     0     0 1140   250 17 83
+>> 0  0
+>>   1  0    412   5432      0 660648    0    0     0 78928 1075   260 16 84
+>> 0  0
+>>   1  0    412   5176      0 662224    0    0     4     0 1217   266 14 86
+>> 0  0
+>>   1  0    412   5432      0 662104    0    0     0     0 1078   274 16 84
+>> 0  0
+>>   1  0    412   4984      0 662084    0    0     0 78932 1189   245 12 88
+>> 0  0
+>>   1  0    412   5440      0 662012    0    0     0    13 1080   271 17 83
+>> 0  0
+>>   1  0    412   5440      0 661168    0    0     0 78928 1109   242 14 86
+>> 0  0
+>>   1  0    412   5248      0 662232    0    0     0     0 1104   270 13 87
+>> 0  0
+>>
+>> Remotely (writing over NFS, using NFS v3, not using direct I/O)
+>>
+>> vmstat output:
+>>
+>> procs -----------memory---------- ---swap-- -----io---- --system--
+>> ----cpu----
+>>   r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy
+>> id wa
+>>   1  0    596   4624      0 662460    0    0     0   448 4037  1099  1 99
+>> 0  0
+>>   1  0    596   4796      0 661564    0    0     0 96067 2877   788  1 75
+>> 0 24
+>>   0  0    596   5496      0 661692    0    0     0   160 2297   517  0 44
+>> 56  0
+>>   1  0    596   4824      0 662840    0    0    24   633 3896  1147  1 98
+>> 1  0
+>>   1  0    596   4696      0 662536    0    0     0   416 3987  1075  1 99
+>> 0  0
+>>   1  0    596   4892      0 662344    0    0     0   448 3746  1142  0 99
+>> 1  0
+>>   0  0    596   5868      0 660468    0    0     0 96064 3550   973  1 97
+>> 1  1
+>>   2  0    596   4600      0 663328    0    0     0   318 3390   823  1 71
+>> 28  0
+>>   1  0    596   5432      0 662336    0    0     0   448 3872  1066  0 100
+>> 0  0
+>>   1  0    596   5360      0 661888    0    0     0   453 3951  1144  1 99
+>> 0  0
+>>   1  0    596   4936      0 661568    0    0     0 94225 2942   726  0 75
+>> 7 18
+>>   1  0    596   4528      0 662944    0    0     0   259 2984   738  1 64
+>> 35  0
+>>   1  0    596   5368      0 661864    0    0     8   639 4234  1116  1 99
+>> 0  0
+>>   2  0    596   5368      0 662140    0    0     0   448 3919  1086  0 100
+>> 0  0
+>>   0  0    596   5512      0 662860    0    0     4   256 2747   650  0 56
+>> 43  1
+>>   0  0    596   5520      0 662860    0    0     0     0 1061   144  3  2
+>> 95  0
+>>   1  0    596   4688      0 663404    0    0     0    64 1455   312  0 13
+>> 87  0
+>>   1  0    596   5324      0 661964   32    0    40 96489 3325   921  1 88
+>> 11  0
+>>   1  0    596   4656      0 662852   24    0   144  1093 2228   650  1 38
+>> 58  3
+>>   1  0    596   4592      0 662648    0    0     0   448 3852  1098  0 99
+>> 1  0
+>>   1  0    596   5304      0 662232    0    0     0   448 3972  1100  1 99
+>> 0  0
+>>
+>> -
+>> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,72 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267218AbTBTW01>; Thu, 20 Feb 2003 17:26:27 -0500
+	id <S265680AbTBTWcZ>; Thu, 20 Feb 2003 17:32:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267184AbTBTW01>; Thu, 20 Feb 2003 17:26:27 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:26385 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267143AbTBTW0Y>; Thu, 20 Feb 2003 17:26:24 -0500
-Date: Thu, 20 Feb 2003 14:32:02 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Zwane Mwaikambo <zwane@holomorphy.com>, Chris Wedgwood <cw@f00f.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: doublefault debugging (was Re: Linux v2.5.62 --- spontaneous
- reboots)
-In-Reply-To: <Pine.LNX.4.44.0302202258130.4400-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0302201428540.1159-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265684AbTBTWcZ>; Thu, 20 Feb 2003 17:32:25 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:20125 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S265680AbTBTWcY>;
+	Thu, 20 Feb 2003 17:32:24 -0500
+Date: Thu, 20 Feb 2003 17:42:25 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: "Timothy D. Witham" <wookie@osdl.org>
+Cc: Paul Larson <plars@linuxtestproject.org>,
+       John Bradford <john@grabjohn.com>, davej@codemonkey.org.uk,
+       edesio@ieee.org, lkml <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>, edesio@task.com.br
+Subject: Re: 2.5.60 cheerleading...
+Message-ID: <20030220224225.GU9800@gtf.org>
+References: <200302131823.h1DINeZh016257@darkstar.example.net> <1045170999.28493.57.camel@plars> <20030213213850.GA22037@gtf.org> <1045780188.1429.30.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1045780188.1429.30.camel@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 20 Feb 2003, Ingo Molnar wrote:
+On Thu, Feb 20, 2003 at 02:29:49PM -0800, Timothy D. Witham wrote:
+> Sorry about getting back on the thread late was off doing boring
+> management stuff.
 > 
-> well, we can do the wait_task_inactive() in both cases - in
-> release_task(), and in __put_task_struct(). [in the release_task() path
-> that will just be a nop]. This further simplifies the patch.
+> But this is what PLM/STP does but right now it doesn't bother
+> to send the results to any list.
+> 
+> http://www.osdl.org/projects/26lnxstblztn/results/
 
-I think the _real_ simplification is to just have the task switch do this 
-in the tail:
+Neat, thanks for posting the link.
 
-	if (prev->state & TASK_DEAD)
-		put_task_struct(prev);
+IMO, it would be nice to send results to linux-kernel,
+but with a few restrictions:
 
-suddenly we don't have any issues at all with possibly freeing stuff 
-before its time, since we're guaranteed to keep the process around untill 
-we've properly scheduled out of it.
+* just a small email, with only key bits of info.
+  URLs would point to more detailed information.
+* a constant URL, which describes what the heck the email is all about
+  (such as your above URL)
+* for now, only bother with "ia32 Default"
+* never email more than once a day... even if the bot gets stuck in a
+  spamming loop, you need to have something in place to throttle emails.
+* only email when state changes:  i.e. PASS->FAIL or FAIL->PASS,
+  never PASS->PASS or FAIL->FAIL. [debateable... some may disagree with
+  me on this one]
 
-Suggested patch (against current BK, which has the finish_task_switch() 
-cleanups I mentioned earlier) appended. No special cases, nu subtlety with 
-__put_task_struct() caches, no nothing.
+Comments?
 
-		Linus
+	Jeff
 
------
-===== kernel/exit.c 1.97 vs edited =====
---- 1.97/kernel/exit.c	Thu Feb 20 03:10:35 2003
-+++ edited/kernel/exit.c	Thu Feb 20 14:28:39 2003
-@@ -103,7 +103,6 @@
- 		dput(proc_dentry);
- 	}
- 	release_thread(p);
--	put_task_struct(p);
- }
- 
- /* we are using it only for SMP init */
-===== kernel/sched.c 1.160 vs edited =====
---- 1.160/kernel/sched.c	Thu Feb 20 05:42:54 2003
-+++ edited/kernel/sched.c	Thu Feb 20 14:27:23 2003
-@@ -581,6 +581,8 @@
- 	finish_arch_switch(rq, prev);
- 	if (mm)
- 		mmdrop(mm);
-+	if (prev->state & TASK_DEAD)
-+		put_task_struct(prev);
- }
- 
- /**
 
+P.S. The column headers in your report are broken, for example "ia32
+Default" goes to bad link
+http://www.osdl.org/projects/plm/def_ia32_default.html

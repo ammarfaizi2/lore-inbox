@@ -1,72 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270847AbTGVO3S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 10:29:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270850AbTGVO3S
+	id S270856AbTGVObh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 10:31:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270862AbTGVObe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 10:29:18 -0400
-Received: from ip252-142.choiceonecom.com ([216.47.252.142]:23301 "EHLO
-	explorer.reliacomp.net") by vger.kernel.org with ESMTP
-	id S270847AbTGVO3M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 10:29:12 -0400
-Message-ID: <3F1D4DBA.4010700@cendatsys.com>
-Date: Tue, 22 Jul 2003 09:44:10 -0500
-From: Edward King <edk@cendatsys.com>
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.4) Gecko/20030529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "John V. Martinez" <jvm@snarkhunter.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-pre4: PDC ide driver problems with shared interrupts
-References: <3F1C54A8.5020404@snarkhunter.com>
-In-Reply-To: <3F1C54A8.5020404@snarkhunter.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 22 Jul 2003 10:31:34 -0400
+Received: from sunpizz1.rvs.uni-bielefeld.de ([129.70.123.31]:64948 "EHLO
+	mail.rvs.uni-bielefeld.de") by vger.kernel.org with ESMTP
+	id S270856AbTGVOap (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 10:30:45 -0400
+Subject: Firmware loading problem
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Manuel Estrada Sainz <ranty@debian.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 22 Jul 2003 16:45:28 +0200
+Message-Id: <1058885139.2757.27.camel@pegasus>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John:
+Hi,
 
-Quick fix to the problem is remove devfs -- it appears that the devfs 
-code doesn't like to have the raid layered on top of it, and it loses 
-interrupts.
+I installed linux-2.6.0-test1-ac2 and tried to port my driver for the
+BlueFRITZ! USB Bluetooth dongle to 2.6. This device needs a firmware
+download and I want to use the new firmware class for getting the
+firmware file from userspace. After reading the documentation and
+testing the driver samples I got the results that I expected.
 
-I've got two systems now running 4 200GB WD's connected to a single 
-promise card (ATA100/TX2)  with the booting drive (a 5th drive) attached 
-to the motherboard.  The raid works flawlessly and is fast -- I imagine 
-there'd be a speedup by keeping all the drives as master (with 2 pdc's) 
-and it would be more robust, but those aren't issues.
+My problem is now that the firmware loader is not working with my
+firmware file and it seems that this is a problem of the file size,
+because copying small files through the same interface is working fine.
+This is the file I want to load:
 
-Hope this helps -- I'll post this to the mailing list to help anyone 
-else with this problem.
+-rw-r--r--  1 holtmann staff  418352 Jul 11 12:38 bfubase.frm
 
-- Ed
+I have written my own firmware.agent hotplug script, which looks in
+general something like this:
 
-John V. Martinez wrote:
+	echo 1 > $LOADING
+	cp bfubase.frm $DATA
+	echo 0 > $LOADING
 
-> Hi Ed,
->
-> I found a linux-kernel post you made back in March about problems 
-> running two Promise IDE controllers in the same system. I have a 
-> similar configuration, (and a similar problem,) and I was wondering if 
-> you ever found a solution, or if one of the more recent 2.4.21-foo 
-> kernels solved it for you.
->
-> (I have two Promise ATA-100/TX2 (20268 chip) controllers, and I have 
-> one 200GB WD drive as a single master on each channel. The two 
-> controllers are sharing interrupts with othwer cards, but not with 
-> each other. I can access each disk individually, but when I tried to 
-> make them work hard: mkraid a RAID5 array using these four drives, the 
-> system freezes HARD until I hit the big red button. [Then it reboots, 
-> spots the raid superblock, tries to rebuild my RAID5 array, and 
-> freezes again, until I get a clue and unplug the drives in question 
-> while powered down :^))
->
-> Anyway, if you have any more insight into this problem than you did in 
-> March, and care to share, I'd be much obliged.
->
-> Cheers,
->
-> -(-- John
+Loading the above firmware file through this interface results in
+different behaviours. The results are complete freezes, instant reboots,
+X server crashes with black screens and sometimes I see an oops about
+virtual memory, but it goes bye bye too fast to let me do anything
+useful with it.
+
+Are their any limitations with the sysfs binary file interface?
+
+Regards
+
+Marcel
 
 

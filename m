@@ -1,54 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264715AbSKSJwy>; Tue, 19 Nov 2002 04:52:54 -0500
+	id <S264854AbSKSKAk>; Tue, 19 Nov 2002 05:00:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264854AbSKSJwy>; Tue, 19 Nov 2002 04:52:54 -0500
-Received: from rrzs2.rz.uni-regensburg.de ([132.199.1.2]:37832 "EHLO
-	rrzs2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id <S264715AbSKSJwx>; Tue, 19 Nov 2002 04:52:53 -0500
-Date: Tue, 19 Nov 2002 10:59:55 +0100
-From: Christian Guggenberger 
-	<Christian.Guggenberger@physik.uni-regensburg.de>
-To: soohrt@soohrt.org
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.4.20-rc1-ac4 HPT374 doesn't find connected ide drives
-Message-ID: <20021119105955.A23008@pc9391.uni-regensburg.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.2.4
+	id <S264867AbSKSKAk>; Tue, 19 Nov 2002 05:00:40 -0500
+Received: from cc78409-a.hnglo1.ov.home.nl ([212.120.97.185]:12215 "EHLO
+	dexter.hensema.net") by vger.kernel.org with ESMTP
+	id <S264854AbSKSKAj>; Tue, 19 Nov 2002 05:00:39 -0500
+From: Erik Hensema <usenet@hensema.xs4all.nl>
+Subject: Re: APIC? IO-APIC? (was Re: 2.4.xx: 8139 isn't working)
+Date: Tue, 19 Nov 2002 10:07:39 +0000 (UTC)
+Message-ID: <slrnatk3bb.198.usenet@bender.home.hensema.net>
+References: <20021118105631.GA27595@poup.poupinou.org> <20021119032700.81890.qmail@web12903.mail.yahoo.com>
+Reply-To: erik@hensema.xs4all.nl
+User-Agent: slrn/0.9.7.4 (Linux)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Linux detects the two HPT374 controllers, but not the attached drives.
+dee jay (deejay2shoes@yahoo.com.au) wrote:
 > 
-> The Mainboard is an EPOX EP-8K5A3+ with 2 VIA vt8235 ide controllers
-> and 4 Highpoint 374.
+> Hi, if i may interject at this point in time, and ask something
+> related, is there any reason why we should enable APIC or IO-APIC on a
+> uniprocessor system? What's the difference between the 2, or what's the
+> practical usage of these?
 > 
-> I increased the channels: limit for the HPT374 in drivers/ide/pci/hpt366.h
-> to 4.
-> --- drivers/ide/pci/hpt366.h.old        2002-11-19 17:41:33.000000000 +0100
-> +++ drivers/ide/pci/hpt366.h    2002-11-19 17:41:45.000000000 +0100
-> @@ -508,5 +508,5 @@
-> 		init_hwif:	init_hwif_hpt366,
-> 		init_dma:	init_dma_hpt366,
-> -                channels:	2,      /* 4 */
-> +                channels:	4,      /* 2 */
-> 		autodma:	AUTODMA,
-> 		enablebits:	{{0x00,0x00,0x00}, {0x00,0x00,0x00}},
 > 
+> I'm reading the Configure.help and Documentation/i386/IO-APIC.txt for
+> these 2 items and i'm confused.
 
-I have the same board, and the controller works fine for me in 2.5.4*, as 
-2.4-ac doesn't contain xfs suport. I only have one drive attached, but as I 
-remember I first had to configure the (raid) controller' BIOS (Ctrl-H at boot 
-time) (even for just a bunch of disks) before using the drives. But I'm not 
-100%ly sure.
+The APIC is integrated into the CPU, the IO-APIC is part of the chipset on
+your motherbord. It enabled you to use more IRQ's and therefore you need to
+share less IRQ's between devices, which gives you a slight performance
+benifit.
 
-I don't think there's any need for your patch, cause the hpt374 only has two 
-channels, but there are two controllers on that board.
-
-ANother QUestion: Did you ever get the onboard via-rhine NIC working with 
-IO-APIC (both BIOS and kernel) enabled?
-
-Christian
-
+-- 
+Erik Hensema (erik@hensema.net)

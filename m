@@ -1,93 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264765AbUD1MqV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264769AbUD1Msg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264765AbUD1MqV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 08:46:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264771AbUD1MqV
+	id S264769AbUD1Msg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 08:48:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264773AbUD1Msg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 08:46:21 -0400
-Received: from mx2.redhat.com ([66.187.237.31]:45197 "EHLO mx2.redhat.com")
-	by vger.kernel.org with ESMTP id S264765AbUD1MqS (ORCPT
+	Wed, 28 Apr 2004 08:48:36 -0400
+Received: from main.gmane.org ([80.91.224.249]:34750 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264769AbUD1Msd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 08:46:18 -0400
-From: Jeff Moyer <jmoyer@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16527.42815.447695.474344@segfault.boston.redhat.com>
-Date: Wed, 28 Apr 2004 08:44:47 -0400
-To: Matt Mackall <mpm@selenic.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: netconsole hangs w/ alt-sysrq-t
-In-Reply-To: <20040425191543.GV28459@waste.org>
-References: <16519.58589.773562.492935@segfault.boston.redhat.com>
-	<20040425191543.GV28459@waste.org>
-X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
-Reply-To: jmoyer@redhat.com
-X-PGP-KeyID: 1F78E1B4
-X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
-X-PCLoadLetter: What the f**k does that mean?
+	Wed, 28 Apr 2004 08:48:33 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+Subject: Re: What does tainting actually mean?
+Date: Wed, 28 Apr 2004 14:48:30 +0200
+Message-ID: <yw1x7jw0mfoh.fsf@kth.se>
+References: <opr65eq9ncshwjtr@laptop-linux.wpcb.org.au> <20040428042742.GA1177@middle.of.nowhere>
+ <opr65f48sfshwjtr@laptop-linux.wpcb.org.au>
+ <408F3EE4.1080603@nortelnetworks.com>
+ <opr65ic90vshwjtr@laptop-linux.wpcb.org.au>
+ <20040428121009.GA2844@thunk.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 213-187-164-3.dd.nextgentel.com
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:YNu6rFSMkuP/TcsICqrujksiI58=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-==> Regarding Re: netconsole hangs w/ alt-sysrq-t; Matt Mackall <mpm@selenic.com> adds:
+Theodore Ts'o <tytso@mit.edu> writes:
 
-mpm> On Thu, Apr 22, 2004 at 11:29:33AM -0400, Jeff Moyer wrote:
->> If netconsole is enabled, and you hit Alt-Sysrq-t, then it will print a
->> small amount of output to the console(s) and then hang the system.  In
->> this case, I'm using the e100 driver, and we end up exhausting the
->> available cbs.  Since we are in interrupt context, the driver's poll
->> routine is never run, and we loop infinitely waiting for resources to
->> free up that never will.  Kernel version is 2.6.5.
+> On Wed, Apr 28, 2004 at 03:18:35PM +1000, Nigel Cunningham wrote:
+>> On Wed, 28 Apr 2004 01:19:32 -0400, Chris Friesen <cfriesen@nortelnetworks.com wrote:
+>> >
+>> >There has already been a case mentioned of a binary module that messed  
+>> >up something that was only visible once that module was unloaded and  
+>> >another one loaded.  It all depends totally on usage patterns.
+>> 
+>> I don't know what module you're talking about, but surely there must be  
+>> something that could be done kernel-side to protect against such problems.  
+>> Reference counting or such like? I guess if it was a hardware issue, but  
+>> then again that might be an issue with too many assumptions being made  
+>> about prior state? Maybe I am being too naive :>
+>
+> The problem is with corrupted data structures, pointers, etc.  An
+> evil/incompetently written driver can screw up data structures long
+> after it has been unloaded.  Historically, there was a time when a
+> certain set of propeitary six-letter video company beginning with 'N'
+> and ending with 'a' had serious bugs which would corrupt the kernel
+> and create random kernel panics far removed from the actual source of
+> the problems.
+>
+> Stack overflows in a badly written device driver can overwrite task
+> structures and cause apparent filesystem problems which are blamed on
+> the hapless filesystem authors instead of where the blame properly
+> lies, namely the device driver author.
 
-mpm> Can you try 2.6.6-rc2? It has a fix to congestion handling that should
-mpm> address this.
+Wouldn't the problem be just as difficult to pin to a certain module
+even if the source code was open?  I prefer open source modules (I
+have Alpha machines), but I just can't see this argument work.
 
-Is the attached patch the change you are referring to?  If so, I don't see
-how this would fix the problem.  I ended up deferring netpoll writes to
-process context, which has been working fine for me.  Have I missed
-something?
+-- 
+Måns Rullgård
+mru@kth.se
 
--Jeff
-
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/04/13 14:07:53-04:00 mpm@selenic.com 
-#   [PATCH] netpoll transmit busy bugfix
-#   
-#   Fix for handling of full transmit queue when netpoll trap is enabled.
-#   
-#   From Stelian Pop <stelian@popies.net>
-# 
-# net/core/netpoll.c
-#   2004/04/10 16:19:31-04:00 mpm@selenic.com +3 -9
-#   netpoll transmit busy bugfix
-# 
-diff -Nru a/net/core/netpoll.c b/net/core/netpoll.c
---- a/net/core/netpoll.c	Wed Apr 28 05:43:08 2004
-+++ b/net/core/netpoll.c	Wed Apr 28 05:43:08 2004
-@@ -163,21 +163,15 @@
- 	spin_lock(&np->dev->xmit_lock);
- 	np->dev->xmit_lock_owner = smp_processor_id();
- 
--	if (netif_queue_stopped(np->dev)) {
--		np->dev->xmit_lock_owner = -1;
--		spin_unlock(&np->dev->xmit_lock);
--
--		netpoll_poll(np);
--		goto repeat;
--	}
--
- 	status = np->dev->hard_start_xmit(skb, np->dev);
- 	np->dev->xmit_lock_owner = -1;
- 	spin_unlock(&np->dev->xmit_lock);
- 
- 	/* transmit busy */
--	if(status)
-+	if(status) {
-+		netpoll_poll(np);
- 		goto repeat;
-+	}
- }
- 
- void netpoll_send_udp(struct netpoll *np, const char *msg, int len)

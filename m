@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317611AbSGJUkh>; Wed, 10 Jul 2002 16:40:37 -0400
+	id <S317616AbSGJUoZ>; Wed, 10 Jul 2002 16:44:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317616AbSGJUkg>; Wed, 10 Jul 2002 16:40:36 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:4624 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S317611AbSGJUke>; Wed, 10 Jul 2002 16:40:34 -0400
-Date: Wed, 10 Jul 2002 17:42:41 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Sebastian Droege <sebastian.droege@gmx.de>
-cc: linux-kernel@vger.kernel.org, <akpm@zip.com.au>, <linux-mm@kvack.org>
-Subject: Re: [PATCH][RFT](2) minimal rmap for 2.5 - akpm tested
-In-Reply-To: <20020710193545.272bedab.sebastian.droege@gmx.de>
-Message-ID: <Pine.LNX.4.44L.0207101741380.14432-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317619AbSGJUoY>; Wed, 10 Jul 2002 16:44:24 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:34297 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S317616AbSGJUoX>; Wed, 10 Jul 2002 16:44:23 -0400
+Subject: Re: [STATUS 2.5]  July 10, 2002
+From: Robert Love <rml@tech9.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Cort Dougan <cort@fsmlabs.com>, Ville Herva <vherva@niksula.hut.fi>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <E17SOg4-0007oM-00@the-village.bc.nu>
+References: <E17SOg4-0007oM-00@the-village.bc.nu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 10 Jul 2002 13:46:26 -0700
+Message-Id: <1026333986.1178.98.camel@sinai>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Jul 2002, Sebastian Droege wrote:
-> On Sat, 6 Jul 2002 02:31:38 -0300 (BRT)
-> Rik van Riel <riel@conectiva.com.br> wrote:
->
-> > If you have some time left this weekend and feel brave,
-> > please test the patch which can be found at:
-> >
-> > 	http://surriel.com/patches/2.5/2.5.25-rmap-akpmtested
+On Wed, 2002-07-10 at 14:07, Alan Cox wrote:
 
-> after running your patch some time I have to say that the old VM
-> implementation and the full rmap patch (by Craig Kulesa) was better. The
-> system becomes very slow and has to swap in too much after some uptime
-> (4 hours - 2 days) and memory intensive tasks...
-> Maybe this happens only to me but it's fully reproducable
+> > Why was the rate incremented to maintain interactive performance?  Wasn't
+> > that the whole idea of the pre-empt work?  Does the burden of pre-empt
+> > actually require this?
+> 
+> Bizarrely in many cases it increases throughput
 
-It's a known problem with use-once. Users of plain 2.4.18
-are complaining about it, too.
+I can attest to this.  We see the same thing with the preemptible kernel
+(throughput increases on certain workloads).
 
-This is something to touch on after the rmap mechanism
-has been merged, Linus has indicated that he wants to merge
-the thing in small bits so that's what we'll be doing ;)
+My guess would be the better process response applies the same to
+throughput: sooner to wake up, sooner to run, sooner to be done.
 
-kind regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
+	Robert Love
 

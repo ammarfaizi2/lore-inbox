@@ -1,43 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbUF0S7h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261654AbUF0TDK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbUF0S7h (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 14:59:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbUF0S7h
+	id S261654AbUF0TDK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 15:03:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbUF0TDK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 14:59:37 -0400
-Received: from ppp2-isdn-24.the.forthnet.gr ([213.16.247.24]:27265 "EHLO
-	ppp1-100.the.forthnet.gr") by vger.kernel.org with ESMTP
-	id S261500AbUF0S7g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 14:59:36 -0400
-From: V13 <v13@priest.com>
-To: Lionel Bouton <Lionel.Bouton@inet6.fr>
-Subject: Re: Elastic Quota File System (EQFS)
-Date: Sun, 27 Jun 2004 21:18:23 +0300
-User-Agent: KMail/1.6.52
+	Sun, 27 Jun 2004 15:03:10 -0400
+Received: from adicia.telenet-ops.be ([195.130.132.56]:39391 "EHLO
+	adicia.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S261654AbUF0TDF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jun 2004 15:03:05 -0400
+Date: Sun, 27 Jun 2004 12:25:14 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-References: <20040624213041.GA20649@elf.ucw.cz> <20040624220318.GE20649@elf.ucw.cz> <40DBD9AD.8070503@inet6.fr>
-In-Reply-To: <40DBD9AD.8070503@inet6.fr>
-MIME-Version: 1.0
+Subject: [WATCHDOG] v2.6.7 indydog.c-patch-20040627
+Message-ID: <20040627122514.A26997@infomag.infomag.iguana.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406272118.23510.v13@priest.com>
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 25 June 2004 10:52, Lionel Bouton wrote:
-> Pavel Machek wrote the following on 06/25/2004 12:03 AM :
-> >Of course, if mozilla marked them "elastic" it should better be
-> >prepared for they disappearance. I'd disappear them with simple
-> >unlink(), so they'd physically survive as long as someone held them
-> >open.
->
-> Doesn't work reliably : the deletion is done in order to reclaim space
-> that is needed now. You may want to retry unlinking files until you
-> reach the free space needed, but this is clearly a receipe for famine :
-> process can wait on writes an unspecified amount of time.
 
-This could be solved like OOM by killing all related processes.
+Hi Linus, Andrew,
 
-<<V13>>
+please do a
+
+	bk pull http://linux-watchdog.bkbits.net/linux-2.6-watchdog
+
+This will update the following files:
+
+ drivers/char/watchdog/indydog.c |   10 ++++------
+ 1 files changed, 4 insertions(+), 6 deletions(-)
+
+through these ChangeSets:
+
+<wim@iguana.be> (04/06/27 1.1770)
+   [WATCHDOG] indydog.c-patch-20040627
+   
+   * Fix: since we use the new module_param's: make sure that
+   linux/moduleparam.h stays included
+   * in the release code we can just use indydog_stop();
+
+
+The ChangeSets can also be looked at on:
+	http://linux-watchdog.bkbits.net:8080/linux-2.6-watchdog
+
+For completeness, I added the patches below.
+
+Greetings,
+Wim.
+
+================================================================================
+diff -Nru a/drivers/char/watchdog/indydog.c b/drivers/char/watchdog/indydog.c
+--- a/drivers/char/watchdog/indydog.c	Sun Jun 27 12:23:11 2004
++++ b/drivers/char/watchdog/indydog.c	Sun Jun 27 12:23:11 2004
+@@ -12,6 +12,7 @@
+  */
+ 
+ #include <linux/module.h>
++#include <linux/moduleparam.h>
+ #include <linux/config.h>
+ #include <linux/types.h>
+ #include <linux/kernel.h>
+@@ -87,12 +88,9 @@
+ {
+ 	/* Shut off the timer.
+ 	 * Lock it in if it's a module and we defined ...NOWAYOUT */
+-	if (!nowayout) {
+-		u32 mc_ctrl0 = sgimc->cpuctrl0;
+-		mc_ctrl0 &= ~SGIMC_CCTRL0_WDOG;
+-		sgimc->cpuctrl0 = mc_ctrl0;
+-		printk(KERN_INFO "Stopped watchdog timer.\n");
+-	}
++	if (!nowayout)
++		indydog_stop();		/* Turn the WDT off */
++
+ 	indydog_alive = 0;
+ 
+ 	return 0;

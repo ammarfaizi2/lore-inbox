@@ -1,41 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261388AbUJaSnW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbUJaSwk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261388AbUJaSnW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 13:43:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261545AbUJaSnW
+	id S261186AbUJaSwk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 13:52:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261545AbUJaSwk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 13:43:22 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:35802 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261388AbUJaSnT (ORCPT
+	Sun, 31 Oct 2004 13:52:40 -0500
+Received: from gprs214-91.eurotel.cz ([160.218.214.91]:61572 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261186AbUJaSwj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 13:43:19 -0500
-Date: Sun, 31 Oct 2004 19:43:14 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Kianusch Sayah Karadji <kianusch@sk-tech.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Raid1 DM vs MD
-In-Reply-To: <Pine.LNX.4.61.0410311902300.1819@merlin.sk-tech.net>
-Message-ID: <Pine.LNX.4.53.0410311941390.27224@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0410311902300.1819@merlin.sk-tech.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+	Sun, 31 Oct 2004 13:52:39 -0500
+Date: Sun, 31 Oct 2004 19:52:22 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Jan Kara <jack@suse.cz>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] Configurable Magic Sysrq
+Message-ID: <20041031185222.GB5578@elf.ucw.cz>
+References: <20041029093941.GA2237@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041029093941.GA2237@atrey.karlin.mff.cuni.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
->I had one MD-Raid1 where a good copy of the mirror was overwritten by the
->bad (old) copy ... I lost 3 Month worth of data and I am expecting loosing
->a linux project and in the worst case - even a court case :(
+>   I know about a few people who would like to use some functionality of
+> the Magic Sysrq but don't want to enable all the functions it provides.
+> So I wrote a patch which should allow them to do so. It allows to
+> configure available functions of Sysrq via /proc/sys/kernel/sysrq (the
+> interface is backward compatible). If you think it's useful then use it :)
+> Andrew, do you think it can go into mainline or it's just an overdesign?
 
-Yep, happened to me too, and ever since, I refrain from using MD, but instead a
-good (read: my own) backup solution. It's even a little cheaper since you do
-not to spare a partition/harddisk of the same size you're mirroring, but can
-simply put the .tar.bz2 (+.acl.bz2) onto another fs.
+Actually, there's one more thing that wories me... Original choice of
+PC hotkey (alt-sysrq-key) works *very* badly on many laptop
+keyboards. Like sysrq is only recognized with fn, but key is not
+recognized when you hold fn => you have no chance to use magic sysrq.
 
-
-
-Jan Engelhardt
+Perphaps sysrq could be made prefix notation? Like alt-sysrq, release,
+press s is sync?
+								Pavel
 -- 
-Gesellschaft für Wissenschaftliche Datenverarbeitung
-Am Fassberg, 37077 Göttingen, www.gwdg.de
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

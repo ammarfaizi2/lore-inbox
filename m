@@ -1,58 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263471AbTDDRrA (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 12:47:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263530AbTDDRor (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 12:44:47 -0500
-Received: from adsl-67-121-155-183.dsl.pltn13.pacbell.net ([67.121.155.183]:11232
-	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
-	id S263900AbTDDRjK (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 12:39:10 -0500
-Date: Fri, 4 Apr 2003 09:50:34 -0800
-To: Andrey Panin <pazke@orbita1.ru>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] missing FB_VISUAL_PSEUDOCOLOR in fb_prepare_logo()
-Message-ID: <20030404175034.GA819@triplehelix.org>
-References: <20030404095837.GB964@pazke>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="6c2NcOVqGQ03X4Wi"
-Content-Disposition: inline
-In-Reply-To: <20030404095837.GB964@pazke>
-User-Agent: Mutt/1.5.4i
-From: Joshua Kwan <joshk@triplehelix.org>
+	id S263635AbTDDRor (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 12:44:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263519AbTDDRoe (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 12:44:34 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:21569 "EHLO
+	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
+	id S263808AbTDDQ2V (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 11:28:21 -0500
+Date: Fri, 4 Apr 2003 17:41:42 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrew Morton <akpm@digeo.com>
+cc: Dave McCracken <dmccr@us.ibm.com>, Pete Zaitcev <zaitcev@redhat.com>,
+       <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: [PATCH] tweaks for page_convert_anon
+Message-ID: <Pine.LNX.4.44.0304041735150.1980-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+A couple of small additions on top of Dave's objfix-2.5.66-mm3-3:
 
---6c2NcOVqGQ03X4Wi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+To maintain an accurate nr_mapped, page_remove_rmap must check
+page_mapped with pte_chain_lock held, both at end and at start:
+particularly now it's being called speculatively (in ignorance
+of whether this pte is already listed or not).
 
-On Fri, Apr 04, 2003 at 01:58:37PM +0400, Andrey Panin wrote:
-> Hi,
->=20
-> this patch (2.5.66) fixes mighty penguin logo not appearing
-> on visual workstation framebuffer. The trouble is missing
-> 'case FB_VISUAL_PSEUDOCOLOR:' in fb_prepare_logo() function.
+Coincidentally, Pete Zaitcev's "gcc 3.2 breaks rmap on s390x" problem
+reported yesterday would also be corrected by this, though it doesn't
+fix the root of the problem (no barrier in pte_chain_lock on s390x).
 
-This repairs the logo for me on i386 as well. Thanks.
-If only the console cursor weren't so dodgy ... it would be=20
-perfect now ;)
+Also, page_convert_anon remember pte_unmap after successful find_pte.
 
--Josh
+Hugh
 
---=20
-New PGP public key: 0x27AFC3EE
+--- 2.5.66-mm3-3/mm/rmap.c	Fri Apr  4 12:20:40 2003
++++ linux/mm/rmap.c	Fri Apr  4 16:13:42 2003
+@@ -398,10 +398,10 @@
+ 		BUG();
+ 	if (!pfn_valid(page_to_pfn(page)) || PageReserved(page))
+ 		return;
+-	if (!page_mapped(page))
+-		return;		/* remap_page_range() from a driver? */
+ 
+ 	pte_chain_lock(page);
++	if (!page_mapped(page))
++		goto outer;
+ 
+ 	/*
+ 	 * If this is an object-based page, just uncount it.  We can
+@@ -461,10 +461,10 @@
+ 		}
+ 	}
+ out:
+-	pte_chain_unlock(page);
+ 	if (!page_mapped(page))
+ 		dec_page_state(nr_mapped);
+-	return;
++outer:
++	pte_chain_unlock(page);
+ }
+ 
+ /**
+@@ -831,6 +831,7 @@
+ 			/* Make sure this isn't a duplicate */
+ 			page_remove_rmap(page, pte);
+ 			pte_chain = page_add_rmap(page, pte, pte_chain);
++			pte_unmap(pte);
+ 		}
+ 		spin_unlock(&vma->vm_mm->page_table_lock);
+ 	}
+@@ -850,6 +851,7 @@
+ 			/* Make sure this isn't a duplicate */
+ 			page_remove_rmap(page, pte);
+ 			pte_chain = page_add_rmap(page, pte, pte_chain);
++			pte_unmap(pte);
+ 		}
+ 		spin_unlock(&vma->vm_mm->page_table_lock);
+ 	}
 
---6c2NcOVqGQ03X4Wi
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+jcXqT2bz5yevw+4RAp4PAKClgfAeT60JPbjD5oyAv4yl5BPXzACgheyL
-bYW5yjnuJ+HcbDDuppPt9pg=
-=HsSw
------END PGP SIGNATURE-----
-
---6c2NcOVqGQ03X4Wi--

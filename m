@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265105AbTF3PnH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 11:43:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265111AbTF3PnG
+	id S264985AbTF3PtF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 11:49:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265071AbTF3PtE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 11:43:06 -0400
-Received: from repton.netsplit.com ([62.49.129.38]:29453 "EHLO
-	repton.netsplit.com") by vger.kernel.org with ESMTP id S265105AbTF3PnD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 11:43:03 -0400
-Subject: Messages from usenet@mailgate.netsplit.com
-From: Scott James Remnant <scott@netsplit.com>
-Reply-To: scott@netsplit.com
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Dig9II1RYpmM0Mb1zAig"
-Message-Id: <1056988637.20165.8.camel@elite>
+	Mon, 30 Jun 2003 11:49:04 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:61447 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S264985AbTF3PtA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 11:49:00 -0400
+Date: Mon, 30 Jun 2003 18:03:19 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: margitsw@t-online.de (Margit Schubert-While)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.73 compile warnings
+Message-ID: <20030630160319.GA15506@win.tue.nl>
+References: <5.1.0.14.2.20030630170916.00afd930@pop.t-online.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 30 Jun 2003 16:57:17 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5.1.0.14.2.20030630170916.00afd930@pop.t-online.de>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jun 30, 2003 at 05:13:05PM +0200, Margit Schubert-While wrote:
+> 2.5.73 + latest cset
+> GCC 3.3
+> 
+> drivers/char/vt_ioctl.c: In function `do_kdsk_ioctl':
+> drivers/char/vt_ioctl.c:85: warning: comparison is always false due to 
+> limited range of data type
+> drivers/char/vt_ioctl.c:85: warning: comparison is always false due to 
+> limited range of data type
+> drivers/char/vt_ioctl.c: In function `do_kdgkb_ioctl':
+> drivers/char/vt_ioctl.c:211: warning: comparison is always false due to 
+> limited range of data type
+> 
+> drivers/char/keyboard.c: In function `k_fn':
+> drivers/char/keyboard.c:665: warning: comparison is always true due to 
+> limited range of data type
 
---=-Dig9II1RYpmM0Mb1zAig
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+These are checks of the "cannot happen" type, where "cannot happen"
+can be seen by the compiler, so that it can optimize the tests away.
 
-Apologies for the earlier empty messages from the above address.
-
-For some reason in the middle of the night the news server decided to
-stop feeding articles through the gateway, and instead started
-generating empty messages back to the list.
-
-I've taken the news gateway offline until I can figure out why it
-doesn't seem to want to write articles out to its feeds properly.
-
-Scott
---=20
-Who has a nice slice of humble pie to eat.
-
---=-Dig9II1RYpmM0Mb1zAig
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/AF3dIexP3IStZ2wRAj/NAJ0YkLyoQa7QH11QZHtisMJDqC+ujQCgmILN
-jw1iwAY09T29qyL988XDw4A=
-=Mmki
------END PGP SIGNATURE-----
-
---=-Dig9II1RYpmM0Mb1zAig--
+As it is now, correctness of the code can be seen locally.
+If the tests are removed, a human reader must look up the values
+of these constants to conclude that the code is correct.
 

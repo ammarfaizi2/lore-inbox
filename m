@@ -1,73 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289226AbSAGOku>; Mon, 7 Jan 2002 09:40:50 -0500
+	id <S289178AbSAGPQ3>; Mon, 7 Jan 2002 10:16:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289225AbSAGOkl>; Mon, 7 Jan 2002 09:40:41 -0500
-Received: from nydalah028.sn.umu.se ([130.239.118.227]:16784 "EHLO
-	x-files.giron.wox.org") by vger.kernel.org with ESMTP
-	id <S289222AbSAGOkU>; Mon, 7 Jan 2002 09:40:20 -0500
-Message-ID: <007b01c19789$50c695b0$0201a8c0@HOMER>
-From: "Martin Eriksson" <nitrax@giron.wox.org>
-To: "Chris Wedgwood" <cw@f00f.org>
-Cc: <swsnyder@home.com>,
-        "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-        <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <E37DB7922B4@vcnet.vc.cvut.cz>
-Subject: Re: "APIC error on CPUx" - what does this mean?
-Date: Mon, 7 Jan 2002 15:40:55 +0100
+	id <S289225AbSAGPQS>; Mon, 7 Jan 2002 10:16:18 -0500
+Received: from dsl-213-023-038-159.arcor-ip.net ([213.23.38.159]:2575 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S289178AbSAGPQC>;
+	Mon, 7 Jan 2002 10:16:02 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>, torvalds@transmeta.com,
+        viro@math.psu.edu
+Subject: Re: PATCH 2.5.2.9: ext2 unbork fs.h (part 1/7)
+Date: Mon, 7 Jan 2002 16:19:01 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        ext2-devel@lists.sourceforge.net
+In-Reply-To: <20020107132121.241311F6A@gtf.org>
+In-Reply-To: <20020107132121.241311F6A@gtf.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16NbYF-0001Qq-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-To: "Chris Wedgwood" <cw@f00f.org>
-Cc: <swsnyder@home.com>; "Linux Kernel Mailing List"
-<linux-kernel@vger.kernel.org>; <alan@lxorguk.ukuu.org.uk>
-Sent: Monday, January 07, 2002 2:16 PM
-Subject: Re: "APIC error on CPUx" - what does this mean?
+On January 7, 2002 02:21 pm, Jeff Garzik wrote:
+> Here's my idea for the solution.  Each patch in the series has been
+> tested individually and can be applied individually, as long as all
+> preceding patches are applied.  (ie. to apply and testing patch N,
+> patches 1 through N-1 must also be applied)  The light testing consisted
+> of unpacking, catting, and removing kernel trees, along with a fillmem
+> runs to ensure that slab caches are properly purged.  An fsck was forced
+> after each run of tests.
+> 
+> This is the first of seven steps in the Make Fs.h Happy program.
+> It borrows direction from Daniel and Linus as well as my own.
+> 
+> patch1 (this patch): use accessor function ext2_i to access inode->u.ext2_i
+> 	The rest of the patches borrows ideas but no code.  This patch
+> 	is the only exception: it borrows substantially Daniel's ext2_i
+> 	patch.
+> patch2: use accessor function ext2_sb to access sb->u.ext2_sb
+> patch3: dynamically allocate sb->u.ext2_sbp
+> patch4: dynamically allocate inode->u.ext2_ip
+> patch5: move include/linux/ext2*.h to fs/ext2
+> 
+> 	at this point we've reached the limits of how far the current
+> 	VFS API will go.  inode and superblock fs-level private info
+> 	is dynamically allocated.
+> 
+> patch6: add sb->s_op->{alloc,destroy}_inode to VFS API
+> patch7: implement ext2 use of s_op->{alloc,destroy}
 
+The two main problems I see with this are:
 
-> On  8 Jan 02 at 2:08, Chris Wedgwood wrote:
-> > On Mon, Jan 07, 2002 at 01:29:42PM +0100, Petr Vandrovec wrote:
-> >
-> >     They are spurious IRQ 7, just message is printed only once during
-> >     kernel lifetime... I have about three spurious IRQ 7 per each 1000
-> >     interrupts delivered to CPU. It is on A7V (Via KT133).
-> >
-> > Any idea _why_ these occur though?  It seems some mainboards produce a
-> > plethora of these whilst others never produce these...
->
-> Nope. Probably when CPU is in local APIC mode, it acknowledges interrupts
-> to chipset with different timming, and from time to time CPU still
-> sees IRQ pending, so it asks for vector, but as chipset has no
-> interrupt pending, it answers with IRQ7. I did no analysis to find
-> whether IRQ7 happens directly when we send confirmation to 8259,
-> or whether it happens due to some noise on IRQ line.
->
-> AFAIK it happens only on VIA based boards, and only if (AMD) CPU is using
-> APIC.
+  - If a filesystem doesn't want to use genericp_ip/sbp then fs.h has
+    to know about it.  Why should fs.h know about every filesystem in
+    the world?
 
-This (APIC errors) happened very often with my BP6 board too, but with
-recent kernels I don't get many of these messages.
+  - You are dreferencing a pointer, and have two allocations for every
+    inode instead of one.
 
-As for spurious interrupts, I had these coming every five minutes on my
-Cyrix 6x86/SiS 5597 box. But this "settled" when I moved the box to another
-corner in the room, and also did some interior adjustments of cables and
-such (it is a server running in a very crammed slimline desktop box, with a
-HUB taped to the floppy mount =)
+It's not horrible, it's just not optimal.
 
-_____________________________________________________
-|  Martin Eriksson <nitrax@giron.wox.org>
-|  MSc CSE student, department of Computing Science
-|  Umeå University, Sweden
+Moving the ext2 headers from include/linux to fs/ext2 is an interesting
+feature of your patch, though it isn't essential to the idea you're
+presenting.  But is there a good reason why ext2_fs_i.h and ext2_fs_sb.h
+should remain separate from ext2_fs.h?  It looks like gratuitous
+modularity to me.
 
+Minor nit:
 
+        if (!inode->u.ext2_ip)
+                BUG();
 
+You don't have to do this, if the pointer is null you will get a perfectly
+fine oops.
+
+--
+Daniel

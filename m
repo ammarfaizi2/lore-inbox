@@ -1,59 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312619AbSHBMTl>; Fri, 2 Aug 2002 08:19:41 -0400
+	id <S311025AbSHBM2L>; Fri, 2 Aug 2002 08:28:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312938AbSHBMTl>; Fri, 2 Aug 2002 08:19:41 -0400
-Received: from calhau.terra.com.br ([200.176.3.20]:21656 "EHLO
-	calhau.terra.com.br") by vger.kernel.org with ESMTP
-	id <S312619AbSHBMTk>; Fri, 2 Aug 2002 08:19:40 -0400
-Date: Fri, 2 Aug 2002 09:24:56 +0000
-From: Felipe W Damasio <felipewd@terra.com.br>
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Cc: trivial@rustcorp.com.au
-Subject: [PATCH] __devexit_p macro
-Message-Id: <20020802092456.23a3c49a.felipewd@terra.com.br>
-X-Mailer: Sylpheed version 0.7.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S312558AbSHBM2L>; Fri, 2 Aug 2002 08:28:11 -0400
+Received: from plum.csi.cam.ac.uk ([131.111.8.3]:43904 "EHLO
+	plum.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S311025AbSHBM2J>; Fri, 2 Aug 2002 08:28:09 -0400
+Message-Id: <5.1.0.14.2.20020802133144.00ab5a40@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 02 Aug 2002 13:33:42 +0100
+To: Chris Mason <mason@suse.com>
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: BIG files & file systems
+Cc: Stephen Lord <lord@sgi.com>, Jan Harkes <jaharkes@cs.cmu.edu>,
+       Alexander Viro <viro@math.psu.edu>,
+       "Peter J. Braam" <braam@clusterfs.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1028290680.12670.199.camel@tiny>
+References: <1028246981.11223.56.camel@snafu>
+ <20020731210739.GA15492@ravel.coda.cs.cmu.edu>
+ <Pine.GSO.4.21.0207311711540.8505-100000@weyl.math.psu.edu>
+ <20020801035119.GA21769@ravel.coda.cs.cmu.edu>
+ <1028246981.11223.56.camel@snafu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi,
+At 13:17 02/08/02, Chris Mason wrote:
+>On Thu, 2002-08-01 at 20:09, Stephen Lord wrote:
+>
+> > > > You _do_ need unique ->st_ino from stat(2), though - otherwise tar(1)
+> > > > and friends will break in all sorts of amusing ways.  And there's
+> > > > nothing kernel can do about that - applications expect 32bit st_ino
+> > > > (compare them as 32bit values, etc.)
+> > >
+> > > Which is why "tar and friends" are to different extents already broken
+> > > on various filesystems like Coda, NFS, NTFS, ReiserFS, and probably XFS.
+> > > (i.e. anything that currently uses iget5_locked instead of iget to grab
+> > > the inode).
+> >
+> > Why are they broken? In the case of XFS at least you still get a unique
+> > and stable inode number back - and it fits in 32 bits too.
+>
+>reiserfs is not broken here.  It has unique stable 32 bit inode numbers,
+>but looking up the file on disk requires 64 bits of information.
 
-	This patch defines  __devexit_p when CONFIG_HOTPLUG || MODULE, instead of
-when just CONFIG_HOTPLUG is defined.
+ntfs is not broken here, either. It also uses unique stable 32 bit inode 
+numbers, but inside the driver (not visible to user space at all at 
+present), we use additional, fake inodes. But tar and friends will never 
+see those so there is no problem...
 
-	This is needed for some net drivers (at least) that use "remove_one"
-(which use unregister_netdev), allowing the driver to be re-installed.
+Anton
 
-	This is the same behaviour that 2.4.
 
-	Patch against 2.5.30
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 
-	Please consider pulling it from:
-
-http://cscience.org/~coqueiro/linux/patches-fwd/2.5/init.h-__devexit_p.patch
-
-Felipe
-
---- ./include/linux/init.h.orig	Fri Aug  2 09:15:44 2002
-+++ ./include/linux/init.h	Fri Aug  2 09:06:39 2002
-@@ -177,12 +177,16 @@
- #define __devinitdata
- #define __devexit
- #define __devexitdata
--#define __devexit_p(x)  &(x)
- #else
- #define __devinit __init
- #define __devinitdata __initdata
- #define __devexit __exit
- #define __devexitdata __exitdata
-+#endif
-+
-+#ifdef MODULE || CONFIG_HOTPLUG
-+#define __devexit_p(x)  &(x)
-+#else
- #define __devexit_p(x)  0
- #endif
- 

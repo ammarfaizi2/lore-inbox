@@ -1,94 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264023AbTGAVwy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 17:52:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264052AbTGAVwy
+	id S263997AbTGAVuf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 17:50:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264023AbTGAVuf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 17:52:54 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:39395 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S264023AbTGAVww
+	Tue, 1 Jul 2003 17:50:35 -0400
+Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:27614
+	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S263997AbTGAVud
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 17:52:52 -0400
-Date: Tue, 01 Jul 2003 15:06:52 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Mel Gorman <mel@csn.ul.ie>, William Lee Irwin III <wli@holomorphy.com>
-cc: Linux Memory Management List <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: What to expect with the 2.6 VM
-Message-ID: <4860000.1057097211@[10.10.2.4]>
-In-Reply-To: <Pine.LNX.4.53.0307012243030.16265@skynet>
-References: <Pine.LNX.4.53.0307010238210.22576@skynet><20030701022516.GL3040@dualathlon.random> <20030701032531.GC20413@holomorphy.com> <Pine.LNX.4.53.0307012243030.16265@skynet>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Tue, 1 Jul 2003 17:50:33 -0400
+Date: Tue, 1 Jul 2003 18:04:56 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: torvalds@osdl.org, linux-kernel@vger.kernel.org, netdevoss.sgi.com@gtf.org
+Subject: [BK PATCHES] 2.5.x net driver merges
+Message-ID: <20030701220456.GA27122@gtf.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On delayed coalescing, I was seeing things that weren't there. I've this
-> section removed and changed to;
+(testing new email address)
 
-Heh. I was wondering about that ...
- 
-> --Begin Extract--
->    Per-CPU Page Lists
->    ==================
-> 
->    The most frequent type of allocation or free is an order-0 (i.e. one page)
->    allocation or free. In 2.4, each page allocation or free requires the
->    acquisition of an interrupt safe spinlock to protect the lists of free
->    pages which is an expensive operation. To reduce lock contention, kernel
->    2.6 has per-cpu page lists of order-0 pages called pagesets.
-> 
->    These pagesets contain two lists for hot and cold pages where hot pages
->    have been recently used and can still be expected to be present in the CPU
->    cache. For an allocation, the pageset for the running CPU will be first
->    checked and if pages are available, they will be allocated. To determine
->    when the pageset should be emptied or filled, two watermarks are in place.
->    When the low watermark is reached, a batch of pages will be allocated and
->    placed on the list. When the high watermark is reached, a batch of pages
->    will be freed at the same time. Higher order allocations still require the
->    interrupt safe spinlock to be held and there is no delay in the splits or
->    coalescing.
-> 
->    While coalescing of order-0 pages is delayed, this is not a lazy buddy
->    algorithm [BL89]. While pagesets introduce a merging delay for order-0
->    allocations, it is a side-effect rather than an intended feature and there
->    is no method available to drain the pagesets and merge the buddies. In
->    other words, despite the per-cpu and new accounting code bulking up the
->    amount of code in mm/page_alloc.c, the core of the buddy algorithm remains
->    the same as it was in 2.4.
-> 
->    The implication of this change is straight forward; the number of times
->    the spinlock protecting the buddy lists must be acquired is reduced.
->    Higher order allocations are relatively rare in Linux so the optimisation
->    is for the common case. This change will be noticeable on large number of
->    CPU machines but will make little difference to single CPUs. There is some
->    issues with the idea though although they are not considered a serious
->    problem. The first item of note is that high order allocations may fail of
->    many of the pagesets are just below the high watermark. The second is that
->    when memory is low and the current CPU pageset is empty, an allocation may
->    fail as there is no means of draining remote pagesets. The last problem is
->    that buddies of newly freed pages may exist in other pagesets leading to
->    possible fragmentation problems.
+Linus, please do a
 
+	bk pull bk://kernel.bkbits.net/jgarzik/net-drivers-2.5
 
-Looks good. Might be useful to distinguish more carefully between the hot
-and cold lists - what you've described is basically just the cold list.
+Others may download
 
-The hot list is similar, except it's also used as a LIFO stack, so the
-the most recently freed page is assumed to be cache-warm, and is reallocated
-first. This reduces the overall number of cacheline misses in the system,
-by reusing cachelines that are already present in that CPU's cache.
+ftp://ftp.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.5/2.5.73-bk9-netdrvr1.patch.bz2
 
-Moreover, the cold list tries to use pages that are NOT in another CPUs
-cache. The main thing that allocates from the cold list is DMA operations,
-and the main thing that populates it is page-reclaim. Other things are
-generally assumed to be hot (this is one of the areas where more work
-could probably be done ...)
+This will update the following files:
 
-M.
+ drivers/net/e100/e100_main.c      |    3 
+ drivers/net/tulip/de2104x.c       |    1 
+ drivers/net/typhoon.c             |   10 +-
+ drivers/net/wireless/airo.c       |   24 ++---
+ drivers/net/wireless/netwave_cs.c |   32 +++----
+ drivers/net/wireless/strip.c      |  169 ++++++++++++++++++++------------------
+ 6 files changed, 121 insertions(+), 118 deletions(-)
 
+through these ChangeSets:
 
-M.
+<mzyngier@freesurf.fr> (03/07/01 1.1522)
+   [netdrvr de2104x] quiet link timer
+   
+   (can be enabled by ethtool)
+
+<gandalf@wlug.westbo.se> (03/06/27 1.1521)
+   [PATCH] fix use-after-free in e100
+
+<daniel.ritz@gmx.ch> (03/06/27 1.1520)
+   [PATCH] alloc_etherdev for netwave_cs.c
+   
+   erm...i didn't actually compile it...
+   sorry. corrected patch below.
+   
+   -daniel
+   
+   On Fri June 27 2003 00:45, Daniel Ritz wrote:
+   > cleans up netwave_cs.c to use alloc_etherdev instead of allocating the
+   > device out of the private data structure. compile tested only.
+   > against 2.5.73-bk
+
+<daniel.ritz@gmx.ch> (03/06/27 1.1519)
+   [PATCH] strip.c: don't allocate net_device as part of private struct
+   
+   hi jeff
+   
+   cleans up strip.c not to allocate struct net_device as part of the private
+   structure. use a separate kmalloc (and kfree). compile tested only.
+   against 2.5.73-bk
+   
+   -daniel
+
+<daniel.ritz@gmx.ch> (03/06/27 1.1518)
+   [PATCH] module ref counting for airo.c
+   
+   clean up airo.c: remove MOD_(INC|DEC)_USE_COUNT, set the owner field instead.
+   compile tested only. against 2.5.73-bk
+
+<dave@thedillows.org> (03/06/27 1.1348.28.1)
+   Fix misreporting of card type and spurious "already scheduled" messages.
+
+<dave@thedillows.org> (03/02/22 1.889.238.1)
+   Use a non-zero rx_copybreak to avoid charging a full MTU to the
+   socket on tiny packets.
+   
+   Dave Miller suggested 256, I used 200 to be more consistent with the
+   other network drivers.
+

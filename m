@@ -1,42 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263152AbVBDNQt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbVBDNTd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263152AbVBDNQt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 08:16:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263763AbVBDNQs
+	id S261271AbVBDNTd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 08:19:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbVBDNTc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 08:16:48 -0500
-Received: from styx.suse.cz ([82.119.242.94]:45034 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S263633AbVBDNQk (ORCPT
+	Fri, 4 Feb 2005 08:19:32 -0500
+Received: from wproxy.gmail.com ([64.233.184.192]:12062 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261271AbVBDNTN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 08:16:40 -0500
-Date: Fri, 4 Feb 2005 14:16:58 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Peter Osterlund <petero2@telia.com>
-Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dtor_core@ameritech.net>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 1/4] Make mousedev.c report all events to user space immediately
-Message-ID: <20050204131658.GD10424@ucw.cz>
-References: <m34qgz9pj5.fsf@telia.com>
+	Fri, 4 Feb 2005 08:19:13 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=ttxaBpufmsOHdtS+t6exEtqe8wZY8mYmswROfDLVIZe8319Q6IcoAWxL2ONUQ4KL834UytYKIyUMBztf8XpWy3WImCro/hWEZnNMUXGL1iRUmS6VWq9xZS6/mQxUIrQQffTApHiiX6BTVnFe7M4m9aPeMeWKfCxB/Hh2pvDw3XM=
+Message-ID: <a71293c205020405174ffa8d9d@mail.gmail.com>
+Date: Fri, 4 Feb 2005 08:17:43 -0500
+From: Stephen Evanchik <evanchsa@gmail.com>
+Reply-To: Stephen Evanchik <evanchsa@gmail.com>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [PATCH 2.6.11-rc3] IBM Trackpoint support
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050204063520.GD2329@ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m34qgz9pj5.fsf@telia.com>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <a71293c20502031443764fb4e5@mail.gmail.com>
+	 <200502031934.16642.dtor_core@ameritech.net>
+	 <20050204063520.GD2329@ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 30, 2005 at 11:31:26AM +0100, Peter Osterlund wrote:
-> mousedev_packet() incorrectly clears list->ready when called with
-> "tail == head - 1".  The effect is that the last mouse event from the
-> hardware isn't reported to user space until another hardware mouse
-> event arrives.  This can make the left mouse button get stuck when
-> tapping on a touchpad.  When this happens, the button doesn't unstick
-> until the next time you interact with the touchpad.
+On Fri, 4 Feb 2005 07:35:20 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
+> > >  /*
+> > > + * Try to initialize the IBM TrackPoint
+> > > + */
+> > > +   if (max_proto > PSMOUSE_PS2 && trackpoint_init(psmouse) == 0) {
+> > > +           psmouse->vendor = "IBM";
+> > > +           psmouse->name = "TrackPoint";
+> > > +
+> > > +           return PSMOUSE_PS2;
+> >
+> > Why PSMOUSE_PS2? Reconnect will surely not like it.
 > 
-> Signed-off-by: Peter Osterlund <petero2@telia.com>
+> Indeed. IIRC this patch killed wheel mouse detection in ubuntu.
 
-Thanks, applied. Btw, I'm missing your patch 2/4 - it got lost somewhere.
+Earlier versions of the patch didn't disable the device while probing
+so events could be interpreted as the magic ID of a TrackPoint. It now
+resets and disables the PS/2 device before detection but not after a
+detect failure.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+I'll clean that up so its more sensible.
+
+
+Stephen

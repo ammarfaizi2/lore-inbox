@@ -1,46 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275641AbRIZVri>; Wed, 26 Sep 2001 17:47:38 -0400
+	id <S275645AbRIZVvs>; Wed, 26 Sep 2001 17:51:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275640AbRIZVr2>; Wed, 26 Sep 2001 17:47:28 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:52498 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S275641AbRIZVrS>; Wed, 26 Sep 2001 17:47:18 -0400
-Date: Wed, 26 Sep 2001 17:24:28 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.10aa1 - 0-order allocation failed.
-In-Reply-To: <20010926233451.V27945@athlon.random>
-Message-ID: <Pine.LNX.4.21.0109261722010.957-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S275644AbRIZVvj>; Wed, 26 Sep 2001 17:51:39 -0400
+Received: from 213-4-252-67.uc.nombres.ttd.es ([213.4.252.67]:3332 "EHLO femto")
+	by vger.kernel.org with ESMTP id <S275645AbRIZVv2>;
+	Wed, 26 Sep 2001 17:51:28 -0400
+Date: Wed, 26 Sep 2001 23:15:13 +0200
+From: Eric Van Buggenhaut <ericvb@debian.org>
+To: linux-kernel@vger.kernel.org
+Subject: linux/fs/sysv/symlink.c in patch-2.4.10.bz2
+Message-ID: <20010926231512.D639@eric.ath.cx>
+Reply-To: Eric.VanBuggenhaut@AdValvas.be
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.20i
+X-Echelon: FBI CIA NSA Handgun Assault Atomic Bomb Heroin Drug Terrorism
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+patch-2.4.10.bz2 pretends to install a new file
+
+linux/fs/sysv/symlink.c
+
+ which already exists in 2.4.9.
+
+I also notice v2.4.9 is dated ... Wed Dec 31 16:00:00 1969
+
+Woaw I didn't realize I had been playing with linux for so long !
 
 
-On Wed, 26 Sep 2001, Andrea Arcangeli wrote:
+diff -u --recursive --new-file v2.4.9/linux/fs/sysv/symlink.c linux/fs/sysv/symlink.c
+--- v2.4.9/linux/fs/sysv/symlink.c  Wed Dec 31 16:00:00 1969
++++ linux/fs/sysv/symlink.c Sun Sep  2 10:34:36 2001
+@@ -0,0 +1,25 @@
++/*
++ *  linux/fs/sysv/symlink.c
++ *
++ *  Handling of System V filesystem fast symlinks extensions.
++ *  Aug 2001, Christoph Hellwig (hch@caldera.de)
++ */
++
++#include <linux/fs.h>
++
++static int sysv_readlink(struct dentry *dentry, char *buffer, int buflen)
++{
++   char *s = (char *)dentry->d_inode->u.sysv_i.i_data;
++   return vfs_readlink(dentry, buffer, buflen, s);
++}
++
++static int sysv_follow_link(struct dentry *dentry, struct nameidata *nd)
++{
++   char *s = (char *)dentry->d_inode->u.sysv_i.i_data;
++   return vfs_follow_link(nd, s);
++}
++
++struct inode_operations sysv_fast_symlink_inode_operations = {
++   readlink:   sysv_readlink,
++   follow_link:    sysv_follow_link,
++};
+diff -u --recursive --new-file v2.4.9/linux/fs/ufs/balloc.c linux/fs/ufs/balloc.c
 
 
-<snip>
+Should 2.4.9 be remove before installing 2.4.10 ?
 
-> > Andrea, 
-> > 
-> > This is going to make __GFP_NOFS allocations call writepage(): deadlock. 
-> 
-> (side note: I assume you mean GFP_NOFS)
-> 
-> GFP_NOFS will never call writepage with the above change, obviously
-> because __GFP_FS isn't set. So it can't deadlock.
+Thanks.
 
-if ((gfp_mask & __GFP_FS) && ((gfp_mask & __GFP_HIGHIO) || !PageHighMem(page)) && writepage) {
-					
-							^^ ^^^^^  ^^^^     ^^^^^
+-- 
+Eric VAN BUGGENHAUT
 
-If the page is not highmem, we are going to write the page. (independantly
-of any GFP flag)
-
-I'm I over looking something ? 
-
-
+Eric.VanBuggenhaut@AdValvas.be

@@ -1,68 +1,143 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265980AbUAEWYk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 17:24:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265979AbUAEWXV
+	id S265950AbUAEWhU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 17:37:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265849AbUAEWft
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 17:23:21 -0500
-Received: from cmsrelay01.mx.net ([165.212.11.110]:7321 "HELO
-	cmsrelay01.mx.net") by vger.kernel.org with SMTP id S265958AbUAEWWM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 17:22:12 -0500
-X-USANET-Auth: 165.212.8.2     AUTO bradtilley@usa.net uwdvg002.cms.usa.net
-Date: Mon, 05 Jan 2004 17:22:06 -0500
-From: Brad Tilley <bradtilley@usa.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: broadcom bcm5700 patch for 2.4.24
-X-Mailer: USANET web-mailer (CM.0402.7.03)
+	Mon, 5 Jan 2004 17:35:49 -0500
+Received: from elpis.telenet-ops.be ([195.130.132.40]:1213 "EHLO
+	elpis.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S265985AbUAEWdv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 17:33:51 -0500
+Date: Mon, 5 Jan 2004 23:33:13 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.6.0-rc1 - Watchdog patches (part 2)
+Message-ID: <20040105233313.A19985@infomag.infomag.iguana.be>
 Mime-Version: 1.0
-Message-ID: <940iaewwg7440S02.1073341326@uwdvg002.cms.usa.net>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Linus, Andrew,
 
-Broadcom has a patch for 2.4.22, not 23 or 24. While trying to patch a vanilla
-2.4.24 using the 22 patch, I get one hunk failure. I know this isn't a kernel
-issue. Could someone (more influentianl than me) encourage Broadcom to release
-up-to-date patches? Or, if someone has a patch that works with 2.4.24, would
-you email it to me?
+please do a
 
-Here's the output from the 2.4.22 patch:
+	bk pull http://linux-watchdog.bkbits.net/linux-2.6-watchdog
 
-patch -p1 -d /home/rbt/src/linux-2.4.24 < bcm5700-7.1.9-2.4.22.patch
-patching file Documentation/Configure.help
-Hunk #1 succeeded at 11883 with fuzz 2 (offset 637 lines).
-patching file drivers/net/bcm/5701rls.c
-patching file drivers/net/bcm/5701rls.h
-patching file drivers/net/bcm/autoneg.c
-patching file drivers/net/bcm/autoneg.h
-patching file drivers/net/bcm/b57proc.c
-patching file drivers/net/bcm/b57um.c
-patching file drivers/net/bcm/bits.h
-patching file drivers/net/bcm/fw_lso05.h
-patching file drivers/net/bcm/fw_stkoffld.h
-patching file drivers/net/bcm/lm.h
-patching file drivers/net/bcm/Makefile
-patching file drivers/net/bcm/mm.h
-patching file drivers/net/bcm/nicext.h
-patching file drivers/net/bcm/queue.h
-patching file drivers/net/bcm/tcp_seg.c
-patching file drivers/net/bcm/tigon3.c
-patching file drivers/net/bcm/tigon3.h
-patching file drivers/net/Config.in
-Hunk #1 FAILED at 269.
-1 out of 1 hunk FAILED -- saving rejects to file drivers/net/Config.in.rej
-patching file drivers/net/Makefile
-Hunk #1 succeeded at 67 with fuzz 1 (offset 36 lines).
-Hunk #2 FAILED at 93.
-1 out of 2 hunks FAILED -- saving rejects to file drivers/net/Makefile.rej
+This will update the following files:
 
-Please CC me as I'm off list.
+ drivers/char/watchdog/acquirewdt.c   |    2 +-
+ drivers/char/watchdog/alim1535_wdt.c |    4 ++--
+ drivers/char/watchdog/amd7xx_tco.c   |    2 +-
+ drivers/char/watchdog/sbc60xxwdt.c   |    2 +-
+ drivers/char/watchdog/w83877f_wdt.c  |    2 +-
+ drivers/char/watchdog/wafer5823wdt.c |    2 +-
+ 6 files changed, 7 insertions(+), 7 deletions(-)
 
-Thanks,
-Brad
+through these ChangeSets:
+
+<wim@iguana.be> (04/01/03 1.1577)
+   [WATCHDOG] 2.6.0-rc1 spelling-fixes-whether.patch
+   
+   Spelling fixes - whether
+
+<akpm@osdl.org> (04/01/05 1.1578)
+   [WATCHDOG] 2.6.0-rc1 amd7xx_tco.c-nowayout.patch
+   
+   Fix compile error in amd7xx_tco.c after latest nowayout change
 
 
+The ChangeSets can also be looked at on:
+	http://linux-watchdog.bkbits.net:8080/linux-2.6-watchdog
+
+For completeness, I added the patches below.
+
+Greetings,
+Wim.
+
+================================================================================
+diff -Nru a/drivers/char/watchdog/acquirewdt.c b/drivers/char/watchdog/acquirewdt.c
+--- a/drivers/char/watchdog/acquirewdt.c	Mon Jan  5 23:25:17 2004
++++ b/drivers/char/watchdog/acquirewdt.c	Mon Jan  5 23:25:17 2004
+@@ -100,7 +100,7 @@
+ 			 * five months ago... */
+ 			expect_close = 0;
+ 
+-			/* scan to see wether or not we got the magic character */
++			/* scan to see whether or not we got the magic character */
+ 			for (i = 0; i != count; i++) {
+ 				char c;
+ 				if (get_user(c, buf + i))
+diff -Nru a/drivers/char/watchdog/alim1535_wdt.c b/drivers/char/watchdog/alim1535_wdt.c
+--- a/drivers/char/watchdog/alim1535_wdt.c	Mon Jan  5 23:25:17 2004
++++ b/drivers/char/watchdog/alim1535_wdt.c	Mon Jan  5 23:25:17 2004
+@@ -153,7 +153,7 @@
+ 			 * five months ago... */
+ 			ali_expect_release = 0;
+ 
+-			/* scan to see wether or not we got the magic character */
++			/* scan to see whether or not we got the magic character */
+ 			for (i = 0; i != len; i++) {
+ 				char c;
+ 				if(get_user(c, data+i))
+@@ -402,7 +402,7 @@
+ 
+ 	spin_lock_init(&ali_lock);
+ 
+-	/* Check wether or not the hardware watchdog is there */
++	/* Check whether or not the hardware watchdog is there */
+ 	if (ali_find_watchdog() != 0) {
+ 		return -ENODEV;
+ 	}
+diff -Nru a/drivers/char/watchdog/sbc60xxwdt.c b/drivers/char/watchdog/sbc60xxwdt.c
+--- a/drivers/char/watchdog/sbc60xxwdt.c	Mon Jan  5 23:25:17 2004
++++ b/drivers/char/watchdog/sbc60xxwdt.c	Mon Jan  5 23:25:17 2004
+@@ -183,7 +183,7 @@
+ 			 * five months ago... */
+ 			wdt_expect_close = 0;
+ 
+-			/* scan to see wether or not we got the magic character */
++			/* scan to see whether or not we got the magic character */
+ 			for(ofs = 0; ofs != count; ofs++)
+ 			{
+ 				char c;
+diff -Nru a/drivers/char/watchdog/w83877f_wdt.c b/drivers/char/watchdog/w83877f_wdt.c
+--- a/drivers/char/watchdog/w83877f_wdt.c	Mon Jan  5 23:25:17 2004
++++ b/drivers/char/watchdog/w83877f_wdt.c	Mon Jan  5 23:25:17 2004
+@@ -205,7 +205,7 @@
+ 			 * five months ago... */
+ 			wdt_expect_close = 0;
+ 
+-			/* scan to see wether or not we got the magic character */
++			/* scan to see whether or not we got the magic character */
+ 			for(ofs = 0; ofs != count; ofs++)
+ 			{
+ 				char c;
+diff -Nru a/drivers/char/watchdog/wafer5823wdt.c b/drivers/char/watchdog/wafer5823wdt.c
+--- a/drivers/char/watchdog/wafer5823wdt.c	Mon Jan  5 23:25:17 2004
++++ b/drivers/char/watchdog/wafer5823wdt.c	Mon Jan  5 23:25:17 2004
+@@ -109,7 +109,7 @@
+ 			/* In case it was set long ago */
+ 			expect_close = 0;
+ 
+-			/* scan to see wether or not we got the magic character */
++			/* scan to see whether or not we got the magic character */
+ 			for (i = 0; i != count; i++) {
+ 				char c;
+ 				if (get_user(c, buf + i))
+diff -Nru a/drivers/char/watchdog/amd7xx_tco.c b/drivers/char/watchdog/amd7xx_tco.c
+--- a/drivers/char/watchdog/amd7xx_tco.c	Mon Jan  5 23:25:38 2004
++++ b/drivers/char/watchdog/amd7xx_tco.c	Mon Jan  5 23:25:38 2004
+@@ -253,7 +253,7 @@
+ 		return -ESPIPE;
+ 
+ 	if (len) {
+-		if (!nowayout)
++		if (!nowayout) {
+ 			size_t i;
+ 			char c;
+ 			expect_close = 0;

@@ -1,44 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129191AbRB1THP>; Wed, 28 Feb 2001 14:07:15 -0500
+	id <S129197AbRB1TQ2>; Wed, 28 Feb 2001 14:16:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129197AbRB1THG>; Wed, 28 Feb 2001 14:07:06 -0500
-Received: from vp175062.reshsg.uci.edu ([128.195.175.62]:39175 "EHLO
-	moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
-	id <S129184AbRB1TGz>; Wed, 28 Feb 2001 14:06:55 -0500
-Date: Wed, 28 Feb 2001 11:06:52 -0800
-Message-Id: <200102281906.f1SJ6qS02383@moisil.dev.hydraweb.com>
-From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH][CFT] per-process namespaces for Linux
-In-Reply-To: <Pine.GSO.4.21.0102281302230.7107-100000@weyl.math.psu.edu>
-User-Agent: tin/1.5.7-20001104 ("Paradise Regained") (UNIX) (Linux/2.2.18 (i586))
+	id <S129213AbRB1TQT>; Wed, 28 Feb 2001 14:16:19 -0500
+Received: from pneumatic-tube.sgi.com ([204.94.214.22]:25192 "EHLO
+	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
+	id <S129197AbRB1TQG>; Wed, 28 Feb 2001 14:16:06 -0500
+Message-ID: <3A9D4E00.CD8C3682@sgi.com>
+Date: Wed, 28 Feb 2001 11:14:08 -0800
+From: Rajagopal Ananthanarayanan <ananth@sgi.com>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.16-4SGI_20smp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Clustered IO (was: Re: [patch][rfc][rft] vm throughput 2.4.2-ac4)
+In-Reply-To: <97j66o$7fej5$1@fido.engr.sgi.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Feb 2001 13:07:29 -0500 (EST), Alexander Viro <viro@math.psu.edu> wrote:
+Rik van Riel wrote:
 
-> On Wed, 28 Feb 2001, David L. Parsley wrote:
-
->> Yeah, mount --bind is cool, I've been using it on one of my projects
->> today.  But - maybe I'm just not thinking creatively enough - what are
->> the advantages of mount --bind versus just symlinking?
 > 
-> 1) Correctly working ".." (obviously relevant only for directories)
-> 2) Try to create symlinks on read-only NFS mount. For bonus points, try
-> to do that one one client without disturbing everybody else.
-> 3) Try to make it different for different users, for that matter.
+> Another solution would be to do some more explicit IO clustering and
+> only flush _large_ clusters ... no need to invoke extra disk seeks
+> just to free a single page, unless you only have single pages left.
 
-And disadvantages: you can't have broken symlinks.
+Hi Rik,
 
-This actually turns out to be quite a bit of a problem when one tries
-to use bind mounts with autofs. For one thing, it's perfectly legal
-to have /autofs/foo as a symlink to /autofs/bar/foo, where /autofs/bar
-is not yet mounted -- but a bind mount can't handle that...
+Yes, clustering IO at the higher level can improve performance.
+This improvement is on top of the excellent elevator changes that
+Jens Axboe has done in 2.4.2. In XFS we are doing clustering
+at writepage(). There are two paths:
 
-Ion
+	1. page_launder() -> writepage() -> cluster
+		# this path under memory pressure.
+	2. try_to_free_buffers() -> writepage() -> cluster
+		# this path under background writing as in bdflush
+		# but can also be used by sync() type operations that
+		# work with buffers than pages.
 
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
+Clustering by itself (in XFS) improves write performance by about 15-20%,
+and we're seeing close to raw I/O performance. With clustering
+the IO requests are pegged at 1024 sectors (512K bytes)
+when performing large sequential writes ...
+
+
+ananth.
+
+
+--------------------------------------------------------------------------
+Rajagopal Ananthanarayanan ("ananth")
+Member Technical Staff, SGI.
+--------------------------------------------------------------------------

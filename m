@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263131AbTIAAf3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 20:35:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263133AbTIAAf3
+	id S263094AbTIAAoJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 20:44:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263113AbTIAAoJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 20:35:29 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:21385 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S263131AbTIAAfW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 20:35:22 -0400
-Date: Mon, 1 Sep 2003 01:35:04 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, mingo@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] Futex non-page-pinning fix
-Message-ID: <20030901003504.GA31531@mail.jlokier.co.uk>
-References: <20030828012152.1294f183.akpm@osdl.org> <20030829035729.E126C2C0BD@lists.samba.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030829035729.E126C2C0BD@lists.samba.org>
-User-Agent: Mutt/1.4.1i
+	Sun, 31 Aug 2003 20:44:09 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:15550 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S263094AbTIAAoH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 20:44:07 -0400
+Message-ID: <3F529A95.4030509@kegel.com>
+Date: Sun, 31 Aug 2003 18:02:13 -0700
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: de-de, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: jamie@shareable.org
+Subject: Re: Andrea VM changes
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> Walking a 256 entry hash table isn't free even if it's empty.  Example
-> patch below.
+Jamie Lokier <jamie () shareable ! org> wrote:
+> I'd love to be able to select which app _doesn't_ deserve the axe.
+> I.e. not sshd, and then not httpd.
 
-You can avoid walking the whole hash table.  Instead of this:
+I tried adding a hinting system that let the user
+tweak the badness calculated by the OOM killer.
+Didn't help.   No matter how I tried to protect
+important processes, there was always a case where
+the OOM killer ended up killing them anyway.
 
-     (page, offset) -> list of futexes at (p,o)
+That was probably just a weakness in how I did the
+hinting.  You might be able to do it with some sort of
+'for god's sake never ever kill this process' tweak,
+but before I tried that, I realized that making OOM
+conditions halt the system was what I really wanted
+for my users.
 
-You can use a two-level map like this:
+- Dan
 
-     (page) -> (offset) -> list of futexes at (p,o)
+-- 
+Dan Kegel
+http://www.kegel.com
+http://counter.li.org/cgi-bin/runscript/display-person.cgi?user=78045
 
-Or you can use two one-level maps, like this:
-
-     (page) -> list of futexes at (p)
-     (page, offset) -> list of futexes at (p,o)
-
-Either of these gives you the list of futexes give then page in
-O(list_size).  They also mean you don't need the page->flags bit to
-get O(1) for a page with no futexes, but it's probably a good
-optimisation anyway.
-
--- Jamie

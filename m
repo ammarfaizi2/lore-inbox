@@ -1,43 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281204AbRKTSnz>; Tue, 20 Nov 2001 13:43:55 -0500
+	id <S281224AbRKTSmx>; Tue, 20 Nov 2001 13:42:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281197AbRKTSno>; Tue, 20 Nov 2001 13:43:44 -0500
-Received: from schroeder.cs.wisc.edu ([128.105.6.11]:60434 "EHLO
-	schroeder.cs.wisc.edu") by vger.kernel.org with ESMTP
-	id <S281204AbRKTSn3>; Tue, 20 Nov 2001 13:43:29 -0500
-Message-Id: <200111201815.fAKIFat31613@schroeder.cs.wisc.edu>
-Content-Type: text/plain; charset=US-ASCII
-From: Nick LeRoy <nleroy@cs.wisc.edu>
-Organization: UW Condor
-To: root@chaos.analogic.com, Christopher Friesen <cfriesen@nortelnetworks.com>
-Subject: Re: Swap
-Date: Tue, 20 Nov 2001 12:14:38 -0600
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.95.1011120123312.8047A-100000@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.3.95.1011120123312.8047A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S281215AbRKTSmd>; Tue, 20 Nov 2001 13:42:33 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:19193 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S281202AbRKTSm3>;
+	Tue, 20 Nov 2001 13:42:29 -0500
+Date: Tue, 20 Nov 2001 11:41:24 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: =?iso-8859-1?Q?Lu=EDs_Henriques?= <lhenriques@criticalsoftware.com>
+Cc: Anton Altaparmakov <aia21@cam.ac.uk>, linux-kernel@vger.kernel.org
+Subject: Re: copy to suer space
+Message-ID: <20011120114124.T1308@lynx.no>
+Mail-Followup-To: =?iso-8859-1?Q?Lu=EDs_Henriques?= <lhenriques@criticalsoftware.com>,
+	Anton Altaparmakov <aia21@cam.ac.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <5.1.0.14.2.20011120165440.00a745b0@pop.cus.cam.ac.uk> <200111201714.fAKHEc276467@criticalsoftware.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <200111201714.fAKHEc276467@criticalsoftware.com>; from lhenriques@criticalsoftware.com on Tue, Nov 20, 2001 at 05:08:52PM +0000
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<snip>
-> I note that NFS files don't currently return ETXTBSY, but this is a bug.
-> It is 'known' to the OS that the NFS mounted file-system is busy because
-> you can't unmount the file-system while an executable is running. If
-> you can trash it (as you can on Linux), it is surely a bug.
->
-> Alan explained a few years ago that NFS was "stateless". Nevertheless
-> it is still a bug.
+On Nov 20, 2001  17:08 +0000, Luís Henriques wrote:
+> > I don't think what you are trying to do is possible. Even if you somehow
+> > managed to write over the code segment of a user space process (which I
+> > very much doubt would be possible as I assume the memory is mapped
+> > read-only)
+> 
+> Is there a way to solve this problem? To temporarly turn it read/write?
+> 
+> >, as soon as the kernel pages out (i.e. discards!) some portion
+> > of the executable due to memory shortage your changes would be lost, since
+> > the paging back into memory would happen by reading the executable back
+> > from disk, which would mean it would read the unmodified code into
+> > memory...
+> 
+> When I'm modifing the code, I'm sure that the page is in memory because my 
+> code is called from the user space, in the exact location where I want to 
+> change it (with a breakpoint interruption...)
+> 
+> The point is that I can't write to the memory location I want... How do I 
+> solve this?
 
-Correct me if I'm wrong, but I think that it's more a bug in the NFS protocol 
-than in the Linux (or Solaris, etc) NFS implementation.  The problem is that 
-NFS itself just doesn't pass that information along.  The NFS server has no 
-idea that the 'text' file is being executed, so it doesn't know that it 
-should "return" ETXTBSY.
+Maybe if you describe the actual problem that you are trying to solve, and
+not the actual way you are trying to solve it, there may be a better method.
+Usually, if something you are trying to do is very hard to do, there is a
+different (much better) way of doing it.
 
-Now, this might be different in NFS v3, but I'm pretty sure that this applies 
-for v2, at least.
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 
--Nick

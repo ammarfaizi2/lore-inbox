@@ -1,43 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265559AbRGJFey>; Tue, 10 Jul 2001 01:34:54 -0400
+	id <S265571AbRGJFno>; Tue, 10 Jul 2001 01:43:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265562AbRGJFeo>; Tue, 10 Jul 2001 01:34:44 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:39434 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265559AbRGJFec>; Tue, 10 Jul 2001 01:34:32 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: How many pentium-3 processors does SMP support?
-Date: 9 Jul 2001 22:34:24 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9ie450$d1p$1@cesium.transmeta.com>
-In-Reply-To: <Pine.GSO.4.21.0107092315140.493-100000@faith.cs.utah.edu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+	id <S265577AbRGJFnf>; Tue, 10 Jul 2001 01:43:35 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:38768 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S265571AbRGJFnU>; Tue, 10 Jul 2001 01:43:20 -0400
+Date: Tue, 10 Jul 2001 07:43:15 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Rik van Riel <riel@conectiva.com.br>, Mike Galbraith <mikeg@wen-online.de>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Alexander Viro <viro@math.psu.edu>, Alan Cox <alan@redhat.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: VM in 2.4.7-pre hurts...
+Message-ID: <20010710074315.N1594@athlon.random>
+In-Reply-To: <Pine.LNX.4.33.0107092053130.10187-100000@penguin.transmeta.com> <Pine.LNX.4.33.0107092112180.10220-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0107092112180.10220-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Jul 09, 2001 at 09:20:23PM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.GSO.4.21.0107092315140.493-100000@faith.cs.utah.edu>
-By author:    Xinwei Xue <xwxue@cs.utah.edu>
-In newsgroup: linux.dev.kernel
+On Mon, Jul 09, 2001 at 09:20:23PM -0700, Linus Torvalds wrote:
+> In contrast, the version in pre4 doesn't depend on any memory ordering
+> between BH_Locked at all - it really only depends on a memory barrier
+> before the final atomic_dec() that releases the buffer, as it ends up
+> being sufficient for try_to_free_buffers() to just worry about the buffer
+> count when it comes to IO completion. The b_flags BUSY bits don't matter
+> wrt the IO completion at all - they end up being used only for "idle"
+> buffers (which in turn are totally synchronized by the LRU and hash
+> spinlocks, so that is the "obviously correct" case)
 > 
-> Hi, 
-> 
-> My research group is planning to buy a multi-processor linux machine
-> for parallel computing. Does anyone know how many pentium processors the
-> linux SMP support? Does it support 8(pentium-three) processors? What
-> companies produce such reliable multi-processor (>4) machines? Thanks a
-> lot! 
-> 
+> I personally think it's a hard thing to depend on memory ordering,
 
-It supports up to 32, if you can find a machine that has that many.
+Sometime memory ordering pays off by avoiding locks, but this isn't the
+case ;).
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+> especially if there are two independent fields. Which is why I really
+> don't think that the pre4 fix is "overkill".
+
+It certainly isn't overkill in respect of doing get_bh in an implicitly
+sychronized points where we submit the I/O (that was my second argument
+and that was plain wrong).
+
+My first arguments about "overkill" were for async I/O and kiobufs, where
+the race cannot trigger. Mainly for the kiobufs I/O I'm still not very
+convinced.
+
+> Oh, it does really need a
+> 
+> 	smp_mb_before_atomic_dec();
+> 
+> as part of the "put_bh()". On x86, this obviously is a no-op. And we
+> actually need that one in general - not just for IO completion - as long
+> as we consider the "atomic_dec(&bh->b_flags)" to "release" the buffer.
+> 
+> Andrea?
+
+yes, agreed.
+
+Andrea

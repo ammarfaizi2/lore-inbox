@@ -1,66 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267749AbUIUPgW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267798AbUIUPiz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267749AbUIUPgW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 11:36:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267760AbUIUPgW
+	id S267798AbUIUPiz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 11:38:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267792AbUIUPiy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 11:36:22 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:46767 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S267749AbUIUPgF (ORCPT
+	Tue, 21 Sep 2004 11:38:54 -0400
+Received: from mail.aei.ca ([206.123.6.14]:16862 "EHLO aeimail.aei.ca")
+	by vger.kernel.org with ESMTP id S267760AbUIUPhO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 11:36:05 -0400
-Date: Tue, 21 Sep 2004 17:37:50 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: [patch] fix diskstats_show() accounting with PREEMPT
-Message-ID: <20040921153750.GA21449@elte.hu>
+	Tue, 21 Sep 2004 11:37:14 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm1-S1
+From: Shane Shrybman <shrybman@aei.ca>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040921073219.GA10095@elte.hu>
+References: <1095714967.3646.14.camel@mars> <20040921073219.GA10095@elte.hu>
+Content-Type: text/plain
+Message-Id: <1095781027.3612.1.camel@mars>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 21 Sep 2004 11:37:07 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2004-09-21 at 03:32, Ingo Molnar wrote:
+> * Shane Shrybman <shrybman@aei.ca> wrote:
+> 
+> > I am having what appears to be IDE DMA problems with 2.6.9-rc2-mm1-S1.
+> > 2.6.9-rc2-mm1 does not show this problem and runs fine. Before this I
+> > was happily using 2.6.8-rc3-O5.
+> > 
+> > I tried booting with acpi=off but was unable to enter my user name at
+> > the login prompt, it just hung with no response to sysreq. I also
+> > tried turning off irq threading for that irq but it made no
+> > difference.
+> 
+> does undoing (patch -R) the attached patch fix this IDE problem?
+> 
 
-there is another (minor) bug that the smp_processor_id() debugger
-unearthed: diskstats_show() could do a disk_round_stats() ->
-disk_stat_add() with preemption enabled - possibly resulting in losing
-statistics updates.
+Yes, backing out that patch seems to have fixed that problem. Thanks.
 
-Patch attached. (The overwhelming majority of disk_stat_add() callers
-have preemption disabled so fixing the remaining two was the best.)
+> 	Ingo
 
-	Ingo
+Regards,
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Shane
 
---- linux/drivers/block/genhd.c.orig	
-+++ linux/drivers/block/genhd.c	
-@@ -365,7 +365,9 @@ static ssize_t disk_size_read(struct gen
- 
- static ssize_t disk_stats_read(struct gendisk * disk, char *page)
- {
-+	preempt_disable();
- 	disk_round_stats(disk);
-+	preempt_enable();
- 	return sprintf(page,
- 		"%8u %8u %8llu %8u "
- 		"%8u %8u %8llu %8u "
-@@ -494,7 +496,9 @@ static int diskstats_show(struct seq_fil
- 				"\n\n");
- 	*/
-  
-+	preempt_disable();
- 	disk_round_stats(gp);
-+	preempt_enable();
- 	seq_printf(s, "%4d %4d %s %u %u %llu %u %u %u %llu %u %u %u %u\n",
- 		gp->major, n + gp->first_minor, disk_name(gp, n, buf),
- 		disk_stat_read(gp, reads), disk_stat_read(gp, read_merges),

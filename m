@@ -1,62 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292422AbSCDP4k>; Mon, 4 Mar 2002 10:56:40 -0500
+	id <S292399AbSCDQAg>; Mon, 4 Mar 2002 11:00:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292399AbSCDP4a>; Mon, 4 Mar 2002 10:56:30 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52748 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292390AbSCDP4W>;
-	Mon, 4 Mar 2002 10:56:22 -0500
-Message-ID: <3C83993A.94FE655E@mandrakesoft.com>
-Date: Mon, 04 Mar 2002 10:56:42 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: "David S. Miller" <davem@redhat.com>, linux-net@vger.kernel.org
+	id <S292423AbSCDQAQ>; Mon, 4 Mar 2002 11:00:16 -0500
+Received: from flaske.stud.ntnu.no ([129.241.56.72]:28325 "EHLO
+	flaske.stud.ntnu.no") by vger.kernel.org with ESMTP
+	id <S292399AbSCDQAJ>; Mon, 4 Mar 2002 11:00:09 -0500
+Date: Mon, 4 Mar 2002 17:00:07 +0100
+From: =?iso-8859-1?Q?Thomas_Lang=E5s?= <tlan@stud.ntnu.no>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>,
+        linux-net@vger.kernel.org
 Subject: Re: [BETA-0.94] Fifth test release of Tigon3 driver
-In-Reply-To: <20020304.041252.13772021.davem@redhat.com> <20020304164453.A27587@stud.ntnu.no>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Message-ID: <20020304170007.A1648@stud.ntnu.no>
+Reply-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020304.041252.13772021.davem@redhat.com> <20020304164453.A27587@stud.ntnu.no> <3C83993A.94FE655E@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C83993A.94FE655E@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Mon, Mar 04, 2002 at 10:56:42AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Langås wrote:
-> 
-> David S. Miller:
-> > How does this thing perform for people?  In particular lmbench
-> > 'bw_tcp' and 'lat_tcp' numbers over gigabit on beefy hardware are
-> > considered very interesting...
-> 
-> Ok, here I am again; doing some benchmarking :)
-> 
-> (all this is done with same hardware as before, and your tg3 v0.94 driver in
-> both ends):
-> test8:/usr/src/LMbench/bin/i686-pc-linux-gnu# ./bw_tcp 129.241.56.160
-> initial bandwidth measurement: move=10485760, usecs=117352: 89.35 MB/sec
-> move=693633024, XFERSIZE=65536
-> Socket bandwidth using 129.241.56.160: 104.73 MB/sec
-> 
-> test8:/usr/src/LMbench/bin/i686-pc-linux-gnu# ./lat_tcp 129.241.56.160
-> TCP latency using 129.241.56.160: 100.0089 microseconds
-> 
-> Do you want any more benchmark; just say so :)
+Jeff Garzik:
+> A comparison between bcm5700 and tg3 would be interesting, for each new
+> release, if you were willing to do that.
 
-I am always interested in more benchmarks, never ask this question :):)
+Ok, sure :)   We're going to switch our fileserver as soon as this goes into
+mainstream-kernel, so I'm always happy to help with the testing to get the
+best possible driver :)
 
-A comparison between bcm5700 and tg3 would be interesting, for each new
-release, if you were willing to do that.
+> And, what MTU are you using?  You may have answered this earlier and I
+> forgot :)  If you -are- on a gigabit network, then you [currently] must
+> manually enable an MTU of 9000 (jumbo frames).
 
-And, what MTU are you using?  You may have answered this earlier and I
-forgot :)  If you -are- on a gigabit network, then you [currently] must
-manually enable an MTU of 9000 (jumbo frames).
-
-	Jeff
-
-
+Ok, I'll try with jumbo frames; and with the bcm5700 driver and come back
+with results in abit.
 
 -- 
-Jeff Garzik      |
-Building 1024    |
-MandrakeSoft     | Choose life.
+Thomas

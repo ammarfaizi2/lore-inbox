@@ -1,52 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263231AbUFFLK4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263227AbUFFLRT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263231AbUFFLK4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 07:10:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263227AbUFFLK4
+	id S263227AbUFFLRT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 07:17:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263271AbUFFLRT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 07:10:56 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:41161 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263271AbUFFLKf (ORCPT
+	Sun, 6 Jun 2004 07:17:19 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:30914 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S263227AbUFFLRS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 07:10:35 -0400
-Date: Sun, 6 Jun 2004 13:10:32 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       der.eremit@email.de
-Subject: Re: [OT] Who has record no. of  DriveReady SeekComplete DataRequest errors?
-Message-ID: <20040606111032.GA13836@suse.de>
-References: <200406060007.10150.kernel@kolivas.org> <200406062038.31045.kernel@kolivas.org> <20040606105852.GA19254@suse.de> <200406062105.40325.kernel@kolivas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200406062105.40325.kernel@kolivas.org>
+	Sun, 6 Jun 2004 07:17:18 -0400
+Date: Sun, 6 Jun 2004 13:17:01 +0200 (MEST)
+Message-Id: <200406061117.i56BH14D025405@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: benh@kernel.crashing.org
+Subject: Re: [BUG] asm-ppc/pgtable.h breakage from 2.6.7-rc1-bk4
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org,
+       paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 06 2004, Con Kolivas wrote:
-> On Sun, 6 Jun 2004 20:58, Jens Axboe wrote:
-> > On Sun, Jun 06 2004, Con Kolivas wrote:
-> > > On Sun, 6 Jun 2004 19:28, Jens Axboe wrote:
-> > > > On Sun, Jun 06 2004, Con Kolivas wrote:
-> > > > > hdd: status error: status=0x58 { DriveReady SeekComplete DataRequest
-> > > > > } hdd: status error: error=0x00
-> > > > > hdd: drive not ready for command
-> > > > > hdd: ATAPI reset complete
-> > I'll take a better look then. Can you check if backing out the entire
-> > change makes 2.6.7-rcX work? I've attached it for you.
-> 
-> drivers/ide/ide-cd.c: In function `cdrom_start_read_continuation':
-> drivers/ide/ide-cd.c:1279: warning: implicit declaration of function `MIN'
-> 
-> followed by
-> drivers/built-in.o(.text+0x687cf): In function 
-> `cdrom_start_read_continuation':
-> drivers/ide/ide-cd.c:1279: undefined reference to `MIN'
-> make: *** [.tmp_vmlinux1] Error 1
+On Sat, 05 Jun 2004 20:50:41 -0500, Benjamin Herrenschmidt wrote:
+>> That (see below) also works and allows 2.6.7-rc2 to
+>> boot on my PM4400.
+>
+>Ok, that's not normal though, as we are only relaxing permissions,
+>so we must be missing something in the DSI handler or such. Can you
+>try to look at what the CPU is doing when hitting that loop ? It must
+>be taking the same exception over and over again...
 
-Ah fudge, can you make the obvious corrections and test that?
+According to Alt-SysRq, the current process is rc.sysinit,
+its kernel-side is in __switch_to(), and the kernel is at
+various points in page-fault/mm-fault handling.
+So it's not hanging, but it's not making progress either.
 
--- 
-Jens Axboe
-
+/Mikael

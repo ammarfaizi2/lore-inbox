@@ -1,65 +1,72 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317654AbSFLHLz>; Wed, 12 Jun 2002 03:11:55 -0400
+	id <S317657AbSFLHOL>; Wed, 12 Jun 2002 03:14:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317655AbSFLHLy>; Wed, 12 Jun 2002 03:11:54 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:26121 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S317654AbSFLHLx> convert rfc822-to-8bit; Wed, 12 Jun 2002 03:11:53 -0400
-Message-ID: <3D06F42E.9040602@evision-ventures.com>
-Date: Wed, 12 Jun 2002 09:11:42 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0.0) Gecko/20020611
-X-Accept-Language: pl, en-us
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Rusty Russell <rusty@rustcorp.com.au>, dent@cosy.sbg.ac.at,
-        adilger@clusterfs.com, da-x@gmx.net, patch@luckynet.dynu.com,
+	id <S317659AbSFLHOK>; Wed, 12 Jun 2002 03:14:10 -0400
+Received: from eagle.he.net ([216.218.174.2]:28684 "EHLO eagle.he.net")
+	by vger.kernel.org with ESMTP id <S317657AbSFLHOI>;
+	Wed, 12 Jun 2002 03:14:08 -0400
+Date: Wed, 12 Jun 2002 00:14:09 -0700
+Message-Id: <200206120714.AAA07894@eagle.he.net>
+From: "Anjali Kulkarni" <anjali@indranetworks.com>
+To: mingo@elte.hu, Anjali Kulkarni <anjali@indranetworks.com>,
         linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.21 - list.h cleanup
-In-Reply-To: <Pine.LNX.4.44.0206111824050.16686-100000@home.transmeta.com>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8BIT
+Subject: Re: scheduler problems
+X-Mailer: WebMail 1.25
+X-IPAddress: 61.11.16.239
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-U¿ytkownik Linus Torvalds napisa³:
+
+> (given that the current 2.2 kernel is 2.2.21, the first thing would 
+be to
+> test it there too.)
 > 
-> On Wed, 12 Jun 2002, Rusty Russell wrote:
+
+Thanks, I 'll do that.
+
+> > [...] It is due to the fact that the schedule() function does not 
+find
+> > the 'current' process in the runqueue. [...]
 > 
->>The only really sane way to implement "CONFIG_SMALL_NO_INLINES" that I
->>can think of is to have headers do
+> a crash in line 384 means that the runqueue got corrupted by 
+something,
+> most likely caused by buggy kernel code outside of the scheduler.
+
+Right, I thought of that, but how is it that it gets corrupt at exactly 
+the same offset in task_struct of that process and every time with 
+different processes? (I have run it atleast 20-30 times). And it just 
+doesnt come if I kill the process in question? (I couldnt kill kupdate, 
+and hence it comes anyways). And I have checked the task_struct of that 
+process, the next_task & prev_task & other fields are not corrupted. 
+Ofcource, it's still possible, like if the memory allocated & freed by 
+my code is then used by scheduler for allocating task_struct; and then 
+it is accessed again by mistake by my code at the same offset. 
+But you feel sure it's a run queue corruption problem, and not anything 
+else? If so, is there any particular way to debug this?
+
+> > Can anyone tell me what's happening here? My kernel module is no 
+way the
+> > cause of any of this. [...]
+> 
+> does it happen if you do not run your kernel module after bootup, 
+ever?
+
+No, it does not:(
+
+Thanks,
+Anjali
+
+> 
+> 	Ingo
 > 
 > 
-> inlines, when used properly, are _not_ larger than not inlining.
 
-Actually I have monitored linux/include/linux/*.h for improper
-and inadequate inlining. Well what have I to say. In comparision
-to the last time I checked (around 4 years ago) the situation
-got *much* better. I was not able to save more then around 1k of
-code from the kernel... How ever some offenders are:
 
-1. elv_next_request(request_queue_t *q)
+Anjali Kulkarni
+Software Engineer
+Indra Networks
 
--  just too big
-
-2. seq_putc(struct seq_file *m, char c)
-
-- just not worth the trobule.
-
-3. seq_puts(struct seq_file *m, const char *s)
-
-- calls strlen and memset - really not worth inlining.
-
-4. void DQUOT_INIT(struct inode *inode)
-  void DQUOT_DROP(struct inode *inode)
-DQUOT_PREALLOC_SPACE_NODIRTY(struct in
-int DQUOT_PREALLOC_SPACE(struct inode *inode, qsize_t nr)ode *inode, qsize_t
-
-and friends from quotaops - all to be to be inlines.
-
-But the situation got really really better over time!
-Please note that I didn't look at include/asm/*.h files, where
-memset copy_from/to_user strlen and friends reside, which
-result in quite a lot of inline code.
-
+~Living Well is the best Revenge~

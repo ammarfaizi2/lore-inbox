@@ -1,55 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286403AbRL0SAS>; Thu, 27 Dec 2001 13:00:18 -0500
+	id <S286401AbRL0SBJ>; Thu, 27 Dec 2001 13:01:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286401AbRL0SAI>; Thu, 27 Dec 2001 13:00:08 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:6854 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S286407AbRL0R7y>; Thu, 27 Dec 2001 12:59:54 -0500
-Date: Thu, 27 Dec 2001 10:59:55 -0700
-Message-Id: <200112271759.fBRHxtH31437@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: rmk@arm.linux.org.uk (Russell King), riel@conectiva.com.br (Rik van Riel),
-        dana.lacoste@peregrine.com (Dana Lacoste),
-        linuz_kernel_q@hotmail.com ('Eyal Sohya'),
-        linux-kernel@vger.kernel.org
-Subject: Re: The direction linux is taking
-In-Reply-To: <E16JerY-0006Jm-00@the-village.bc.nu>
-In-Reply-To: <200112271738.fBRHcSd30844@vindaloo.ras.ucalgary.ca>
-	<E16JerY-0006Jm-00@the-village.bc.nu>
+	id <S286407AbRL0SAt>; Thu, 27 Dec 2001 13:00:49 -0500
+Received: from [206.98.161.198] ([206.98.161.198]:7440 "EHLO
+	bart.learningpatterns.com") by vger.kernel.org with ESMTP
+	id <S286401AbRL0SAp>; Thu, 27 Dec 2001 13:00:45 -0500
+Subject: Problems booting 2.4.17
+From: Edward Muller <emuller@learningpatterns.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 27 Dec 2001 12:58:06 -0500
+Message-Id: <1009475886.16791.0.camel@akira.learningpatterns.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
-> > So you just do what Linus does: delete those questions without
-> > replying. No matter what system you use, if you want to avoid an
-> > overflowing mailbox, you either have to silently drop patches, and/or
-> > silently drop questions/requests/begging letters. There isn't really
-> > much difference between the two.
-> 
-> The problem is that if Linus is simply ignoring you then you don't
-> know why, A simple "Clean up the ifdefs" would make a lot of
-> difference. If someone sent a patch its because they hit something
-> they felt needed fixing and as far as they can tell fixed it. If you
-> want them to go elsewhere ignore them, but its much more useful to
-> give them at least brief answers to actual patch files
+Hello all.
 
-Oh, don't get me wrong. I agree completely. A short two minute reply
-is not that much to ask for, and I wish Linus would be more
-responsive. And apply bugfix patches (I've been trying for weeks
-to get him to apply my patches to fix a bunch of Oopses:-().
-But years of observations tells me that Linus likes the way he does
-things and doesn't care if others don't like it. I don't expect to see
-much change there.
+I'm having problems booting 2.4.17 on a Mandrake 8.1 system (with all
+current updates).
 
-But the point I was making was that a patch management system doesn't
-really make things harder to drop/ignore. If you're comfortable with
-ignoring patches (which take *work* to construct), then it's no
-stretch to ignore questions (which often take little work to send).
+When I boot 2.4.17 (with an initrd image) I get the following...
 
-				Regards,
+kernel boots ...
+Creating root device
+mkrootdev: mknod failed: 17
+Mounting root filesyste with flags data=ordered
+Mount: error 16 mounting ext3 flags data=ordered
+...Tried to remount without flags and fails with the same error...
+Kernel Panic: No initrd found ...
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+I am using ext3 / /boot /usr /var & /home filesystems
+
+2.4.8-34.1mdk boots fine however.
+
+I'm about to go try 2.4.16 (it was working with reiserfs partitions
+before).
+
+The machine is an AMD Athalon 1.3 Ghz on an EPOC board with a 3ware 7800
+series RAID card, with three 75/80 GB drives in a RAID 5 array.
+
+Anyone else run into something like this? 
+
+I'll report back about 2.4.16 and if anyone would like more info, just
+shout.
+
+
+-- 
+-------------------------------
+Edward Muller
+Director of IS
+
+973-715-0230 (cell)
+212-487-9064 x115 (NYC)
+
+http://www.learningpatterns.com
+-------------------------------
+

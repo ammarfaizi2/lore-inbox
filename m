@@ -1,111 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261427AbULEX6Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261428AbULFAHH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261427AbULEX6Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 18:58:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbULEX6Q
+	id S261428AbULFAHH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 19:07:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261429AbULFAHH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 18:58:16 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:5283 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S261427AbULEX6H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 18:58:07 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: paulmck@us.ibm.com
-Date: Mon, 6 Dec 2004 10:57:52 +1100
+	Sun, 5 Dec 2004 19:07:07 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:53156
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S261428AbULFAHA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 19:07:00 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Andries Brouwer <aebr@win.tue.nl>
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+Date: Sun, 5 Dec 2004 18:05:20 -0500
+User-Agent: KMail/1.6.2
+Cc: David Greaves <david@dgreaves.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Paul Mackerras <paulus@samba.org>, Greg KH <greg@kroah.com>,
+       David Woodhouse <dwmw2@infradead.org>, Matthew Wilcox <matthew@wil.cx>,
+       David Howells <dhowells@redhat.com>, hch@infradead.org,
+       aoliva@redhat.com, linux-kernel@vger.kernel.org,
+       Mariusz Mazur <mmazur@kernel.pl>, Arjan van de Ven <arjanv@redhat.com>,
+       andersen@codepoet.org
+References: <19865.1101395592@redhat.com> <41B30AF2.6060505@dgreaves.com> <20041205155743.GA24304@pclin040.win.tue.nl>
+In-Reply-To: <20041205155743.GA24304@pclin040.win.tue.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16819.41088.159731.651102@cse.unsw.edu.au>
-Cc: andmike@us.ibm.com, dipankar@us.ibm.com, mingo@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC, PATCH] RCU questions on md driver
-In-Reply-To: message from Paul E. McKenney on Saturday December 4
-References: <20041205003104.GA1914@us.ibm.com>
-X-Mailer: VM 7.19 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Message-Id: <200412051805.20980.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday December 4, paulmck@us.ibm.com wrote:
-> Hello!
-> 
-> A few questions and comments on md driver locking, my best guess at
-> answers may be found in the patch below (which I have not even attempted
-> to compile, let alone test).
+(Trimming linus from cc: list because he asked.)
 
-Thanks for the input.
+On Sunday 05 December 2004 10:57 am, Andries Brouwer wrote:
+> On Sun, Dec 05, 2004 at 01:19:46PM +0000, David Greaves wrote:
+> > Err,
+> >
+> > Isn't this WRONG.
+>
+> You did not read my mail, or you did not understand it.
+>
+> Please write the patch for losetup to avoid looking at kernel source.
+> If you after writing think that it is cleaner than the present setup,
+> submit it.
 
-> 
-> o	Need some rcu_dereference() primitives in a number of places.
+Avoiding looking at the kernel source for the darn structure would be 
+relatively easy if the thing didn't vary by architecture.  I agree that 
+hardwiring into userspace code #ifdefs for ARE_WE_ON_ALPHA is approximately 
+as ugly as hardwiring in #ifdefs for IS_THIS_2.6.
 
-I don't understand the need for these.
-In the first place, it would seem from a quick reading of rcupdate.h
-that rcu_dereference would normally be paired with rcu_assign_pointer,
-however you haven't inserted any calls to rcu_assign_pointer.
+Both are ugly.  This is why header files exist.  I still don't understand why 
+we're not supposed to use 'em when the alternative is building incestuous 
+knowledge about the kernel version we're compiling against into our 
+application.
 
-Secondly, the usage of "rcu_read_[un]lock" in md is not about
-protecting data in the these data structures.  It is purely about
-synchronising with synchronize_kernel in raid1_remove_disk (and
-similar).
+Bluntlly, I don't understand why "#include <linux/version.h>" and several 
+#ifdefs is an improvement on "#include <linux/loop.h>" with no #ifdefs.
 
-*_remove_disk sets ->rdev to NULL, calls synchronize_kernel, and then
-checks ->nr_pending on the thing that used to be in ->rdev.  It will
-have "lost the race" (and so must put the value of ->rdev back) only
-if some other code called atomic_inc(&rdev->nr_pending) under an
-rcu_read_lock.   Presumably atomic_inc and atomic_read have enough
-barriers to make this work.
-
-> 
-> o	The reference counts must be decremented after rcu_read_lock().
-> 	Otherwise, unless I am missing something, a preemption (in a
-> 	CONFIG_PREEMPT kernel) occuring just before the rcu_read_lock()
-> 	looks like it could destroy the element subsequently used.
-
-I don't think so.  The "element" isn't "subsequently used" after
-rdev_dec_pending is called (or have I missed something?)
-
-> 
-> o	How does the locking work in read_balance() in drivers/md/raid1.c?
-> 	It looks to me that the conf->mirrors[] array could potentially
-> 	be changing during the read_balance() operation, which I cannot
-> 	see how is handled correctly.
-
-There is no locking on "head_position" and it could well change
-underneath read_balance.  However read_balance is at-best a fuzzy
-heuristic.  If it mostly makes a reasonably good decision about which
-device to use, that is the best we can hope for anyway.  Random
-changes in head_position won't affect correctness of the code, only
-performance. 
-
-However there is some code in there that isn't quite right:
-
-		while (!conf->mirrors[new_disk].rdev ||
-		       !conf->mirrors[new_disk].rdev->in_sync) {
-should really read
-		while ((rdev=conf->mirrors[new_disk].rdev)== NULL ||
-		       !rdev->in_sync) {
-
-(much as your patch does) to avoid the second de-reference getting a
-NULL which the first didn't see (Though I suspect the compile will
-optimise  out the extra de-ref anyway.
-
-
-> 
-> 	For that matter, I don't see what prevents multiple instances
-> 	of read_balance() from executing concurrently on the same
-> 	set of disks...
-
-Nothing.
-
-> 
-> o	Ditto for read_balance in drivers/md/raid10.c.  And raid5.c.
-
-ditto for raid10.  raid5 doesn't read-balance.
-
-
-Have I adequately answered your concerns?
-
-NeilBrown
-
+Rob

@@ -1,178 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261639AbVASIGz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261657AbVASIG4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261639AbVASIGz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 03:06:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261641AbVASIGW
+	id S261657AbVASIG4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 03:06:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261656AbVASIFk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 03:06:22 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:54463 "EHLO
+	Wed, 19 Jan 2005 03:05:40 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:54719 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261639AbVASHdp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 02:33:45 -0500
+	id S261641AbVASHdo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 02:33:44 -0500
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: <fastboot@lists.osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH 15/29] x86-machine_shutdown
+Subject: [PATCH 0/29] overview
 Date: Wed, 19 Jan 2005 0:31:37 -0700
-Message-ID: <x86-machine-shutdown-1106119897775@ebiederm.dsl.xmission.com>
+Message-ID: <overview-11061198973484@ebiederm.dsl.xmission.com>
 X-Mailer: patch-bomb.pl@ebiederm.dsl.xmission.com
-In-Reply-To: <kexec-kexec-generic-11061198974111@ebiederm.dsl.xmission.com>
-References: <overview-11061198973484@ebiederm.dsl.xmission.com>
-	<x86-rename-apic-mode-exint-11061198973109@ebiederm.dsl.xmission.com>
-	<x86-local-apic-fix-11061198972413@ebiederm.dsl.xmission.com>
-	<x86-64-e820-64bit-11061198971581@ebiederm.dsl.xmission.com>
-	<x86-i8259-shutdown-11061198973856@ebiederm.dsl.xmission.com>
-	<x86-64-i8259-shutdown-11061198973969@ebiederm.dsl.xmission.com>
-	<x86-apic-virtwire-on-shutdown-11061198973730@ebiederm.dsl.xmission.com>
-	<x86-64-apic-virtwire-on-shutdown-11061198973345@ebiederm.dsl.xmission.com>
-	<vmlinux-fix-physical-addrs-11061198973860@ebiederm.dsl.xmission.com>
-	<x86-vmlinux-fix-physical-addrs-11061198971192@ebiederm.dsl.xmission.com>
-	<x86-64-vmlinux-fix-physical-addrs-11061198972723@ebiederm.dsl.xmission.com>
-	<x86-64-entry64-1106119897218@ebiederm.dsl.xmission.com>
-	<x86-config-kernel-start-1106119897152@ebiederm.dsl.xmission.com>
-	<x86-64-config-kernel-start-11061198972987@ebiederm.dsl.xmission.com>
-	<kexec-kexec-generic-11061198974111@ebiederm.dsl.xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Factor out the apic and smp shutdown code from machine_restart so it can be
-called by in the kexec reboot path as well.
+Andrew the following patchset is against 2.6.11-rc1-mm1 with
+all of the kexec patches removed.  The list of removed patches
+is included below.
 
-By switching to the bootstrap cpu by default on reboot I can delete/simplify
-some motherboard fixups well.
+This patchsset is a major refresh of the kexec on panic
+functionality in the kernel.  The primary aim of which was to take
+the requirements capture of the kernel crashdump patches and
+start integrating the functionality cleanly into the kexec
+patches.  
 
-Signed-off-by: Eric Biederman <ebiederm@xmission.com>
----
+Major accomplishments:
+- Compat syscall support has been added.
+- The crashdump capture code has been separated from the kexec on panic code.
+- The kernel to jump to on panic is now loaded in place.
+- A long standing bug that allowed 2 sources pages to copy data
+  to a single destination page has been caught and fixed.
+- Support for loading an x86_64 kernel in a reserved of memory has been completed.
 
- reboot.c |   82 +++++++++++++++++++--------------------------------------------
- 1 files changed, 26 insertions(+), 56 deletions(-)
+The crashdump code is currently slightly broken.  I have attempted to
+minimize the breakage so things can quick be made to work again.
 
-diff -uNr linux-2.6.11-rc1-mm1-nokexec-kexec-kexec-generic/arch/i386/kernel/reboot.c linux-2.6.11-rc1-mm1-nokexec-x86-machine_shutdown/arch/i386/kernel/reboot.c
---- linux-2.6.11-rc1-mm1-nokexec-kexec-kexec-generic/arch/i386/kernel/reboot.c	Fri Jan  7 12:53:43 2005
-+++ linux-2.6.11-rc1-mm1-nokexec-x86-machine_shutdown/arch/i386/kernel/reboot.c	Tue Jan 18 22:58:00 2005
-@@ -23,7 +23,6 @@
- int reboot_thru_bios;
- 
- #ifdef CONFIG_SMP
--int reboot_smp = 0;
- static int reboot_cpu = -1;
- /* shamelessly grabbed from lib/vsprintf.c for readability */
- #define is_digit(c)	((c) >= '0' && (c) <= '9')
-@@ -46,7 +45,6 @@
- 			break;
- #ifdef CONFIG_SMP
- 		case 's': /* "smp" reboot by executing reset on BSP or other CPU*/
--			reboot_smp = 1;
- 			if (is_digit(*(str+1))) {
- 				reboot_cpu = (int) (*(str+1) - '0');
- 				if (is_digit(*(str+2))) 
-@@ -85,33 +83,9 @@
- 	return 0;
- }
- 
--/*
-- * Some machines require the "reboot=s"  commandline option, this quirk makes that automatic.
-- */
--static int __init set_smp_reboot(struct dmi_system_id *d)
--{
--#ifdef CONFIG_SMP
--	if (!reboot_smp) {
--		reboot_smp = 1;
--		printk(KERN_INFO "%s series board detected. Selecting SMP-method for reboots.\n", d->ident);
--	}
--#endif
--	return 0;
--}
--
--/*
-- * Some machines require the "reboot=b,s"  commandline option, this quirk makes that automatic.
-- */
--static int __init set_smp_bios_reboot(struct dmi_system_id *d)
--{
--	set_smp_reboot(d);
--	set_bios_reboot(d);
--	return 0;
--}
--
- static struct dmi_system_id __initdata reboot_dmi_table[] = {
- 	{	/* Handle problems with rebooting on Dell 1300's */
--		.callback = set_smp_bios_reboot,
-+		.callback = set_bios_reboot,
- 		.ident = "Dell PowerEdge 1300",
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "Dell Computer Corporation"),
-@@ -295,41 +269,32 @@
- 				: "i" ((void *) (0x1000 - sizeof (real_mode_switch) - 100)));
- }
- 
--void machine_restart(char * __unused)
-+void machine_shutdown(void)
- {
- #ifdef CONFIG_SMP
--	int cpuid;
--	
--	cpuid = GET_APIC_ID(apic_read(APIC_ID));
--
--	if (reboot_smp) {
--
--		/* check to see if reboot_cpu is valid 
--		   if its not, default to the BSP */
--		if ((reboot_cpu == -1) ||  
--		      (reboot_cpu > (NR_CPUS -1))  || 
--		      !physid_isset(cpuid, phys_cpu_present_map))
--			reboot_cpu = boot_cpu_physical_apicid;
--
--		reboot_smp = 0;  /* use this as a flag to only go through this once*/
--		/* re-run this function on the other CPUs
--		   it will fall though this section since we have 
--		   cleared reboot_smp, and do the reboot if it is the
--		   correct CPU, otherwise it halts. */
--		if (reboot_cpu != cpuid)
--			smp_call_function((void *)machine_restart , NULL, 1, 0);
-+	int reboot_cpu_id;
-+
-+	/* The boot cpu is always logical cpu 0 */
-+	reboot_cpu_id = 0;
-+
-+	/* See if there has been given a command line override */
-+	if ((reboot_cpu_id != -1) && (reboot_cpu < NR_CPUS) &&
-+		cpu_isset(reboot_cpu, cpu_online_map)) {
-+		reboot_cpu_id = reboot_cpu;
- 	}
- 
--	/* if reboot_cpu is still -1, then we want a tradional reboot, 
--	   and if we are not running on the reboot_cpu,, halt */
--	if ((reboot_cpu != -1) && (cpuid != reboot_cpu)) {
--		for (;;)
--		__asm__ __volatile__ ("hlt");
-+	/* Make certain the cpu I'm rebooting on is online */
-+	if (!cpu_isset(reboot_cpu_id, cpu_online_map)) {
-+		reboot_cpu_id = smp_processor_id();
- 	}
--	/*
--	 * Stop all CPUs and turn off local APICs and the IO-APIC, so
--	 * other OSs see a clean IRQ state.
-+
-+	/* Make certain I only run on the appropriate processor */
-+	set_cpus_allowed(current, cpumask_of_cpu(reboot_cpu_id));
-+
-+	/* O.K. Now that I'm on the appropriate processor, stop
-+	 * all of the others, and disable their local APICs.
- 	 */
-+
- 	smp_send_stop();
- #endif /* CONFIG_SMP */
- 
-@@ -338,6 +303,11 @@
- #ifdef CONFIG_X86_IO_APIC
- 	disable_IO_APIC();
- #endif
-+}
-+
-+void machine_restart(char * __unused)
-+{
-+	machine_shutdown();
- 
- 	if (!reboot_thru_bios) {
- 		if (efi_enabled) {
+With respect to a final design discussion there are two remaining 
+open issues.  The first is how little hardware shutdown we can get away
+with in the kernel that is panicing.  I believe we can reduce this
+to a simply NMI to the other cpus telling them to stop.  This has
+been address as a major concern in previous conversations.
+
+The second is an issue is the most significant with respect to the
+design of a kernel based crash dump capture implementation.  How does
+the crashdump capture process discover relevant information about the
+kernel that just crashed?  There are two options.
+
+1) As represented by the current crashdump patches the crashdump
+   kernel and the kernel in which it loads are kept in sync so that
+   it has uptodate versions all of crashed kernels data structures
+   because it is built from the same source.  So it only needs to
+   find the address of the data structures it would like to look at.
+
+2) The relevant information if it is available when sys_kexec_load
+   is called is exported to user space, or the machine_crash_shutdown
+   method marshalls what little information must be captured when the
+   machine dies in a well known standard format (most likely ELF
+   notes).  Allowing the crashdump capture process to simply pass
+   on the information or utilize it as appropriate.
+
+   If the second method can successfully represent all of the
+   interesting information then we can allow kernel version
+   skew, between the two kernels, and potentially implement
+   the entire crash dump capture process in user space.
+
+As best as I have been able to discover the interesting information
+includes.  The cpu state (registers) at the time of the crash/panic.
+The list of memory regions the kernel that has crashed was using.
+And potentially the list of pages dedicated to kernel data as opposed
+to user space, so the the people with insane amounts of memory (1TB+)
+don't require unmanagely large core files.
+
+
+Andrew earlier when asked about the possibility of merghing the kexec
+on panic code you said:
+
+> I don't want us to be in a position of merging all that code and then
+> finding out that it cannot be made to work "sufficiently well",
+> forcing us to revert it and find a new crashdump solution.  You guys
+> know far better than I when we will reach that threshold.  If the
+> kexec/dump developers can say "yup, this is going to work (because X)"
+> then I'm happy.
+
+So here is my subjective view.
+- This code needs to sit in a development tree for a little while 
+  to shake out whatever bugs still linger from my massive refactoring.
+- Through the kexec patches the code and design appears to be sound.
+  Given that machine_kexec is little more than a jump there are few
+  possible implementations that will be able to use it.  The only
+  exception I can see are running special dump drivers from the kernel
+  that crashed, and I believe no one thinks the that will work well.
+- Once we finish sorting out the best way to get information out of
+  the kernel that crashed I think we will have a complete architecture
+  that is largely portable to any architecture.
+
+In the interests of full disclosure my main interesting is using the
+kernel as a bootloader for other kernels and that has been working 
+fairly for years now :)
+
+Eric
+
+
+
+# Patches to remove from 2.6.11-rc1-mm1 before applying this patchset:
+#
+assign_irq_vector-section-fix.patch
+kexec-i8259-shutdowni386.patch
+kexec-i8259-shutdown-x86_64.patch
+kexec-apic-virtwire-on-shutdowni386patch.patch
+kexec-apic-virtwire-on-shutdownx86_64.patch
+kexec-ioapic-virtwire-on-shutdowni386.patch
+kexec-apic-virt-wire-fix.patch
+kexec-ioapic-virtwire-on-shutdownx86_64.patch
+kexec-e820-64bit.patch
+kexec-kexec-generic.patch
+kexec-ide-spindown-fix.patch
+kexec-ifdef-cleanup.patch
+kexec-machine_shutdownx86_64.patch
+kexec-kexecx86_64.patch
+kexec-kexecx86_64-4level-fix.patch
+kexec-kexecx86_64-4level-fix-unfix.patch
+kexec-machine_shutdowni386.patch
+kexec-kexeci386.patch
+kexec-use_mm.patch
+kexec-loading-kernel-from-non-default-offset.patch
+kexec-loading-kernel-from-non-default-offset-fix.patch
+kexec-enabling-co-existence-of-normal-kexec-kernel-and-panic-kernel.patch
+kexec-ppc-support.patch
+#kexec-kexecppc.patch
+#
+crashdump-documentation.patch
+crashdump-memory-preserving-reboot-using-kexec.patch
+crashdump-memory-preserving-reboot-using-kexec-fix.patch
+kdump-config_discontigmem-fix.patch
+crashdump-routines-for-copying-dump-pages.patch
+crashdump-routines-for-copying-dump-pages-kmap-fiddle.patch
+crashdump-kmap-build-fix.patch
+crashdump-register-snapshotting-before-kexec-boot.patch
+crashdump-elf-format-dump-file-access.patch
+crashdump-linear-raw-format-dump-file-access.patch
+crashdump-minor-bug-fixes-to-kexec-crashdump-code.patch
+crashdump-cleanups-to-the-kexec-based-crashdump-code.patch
+#
+x86-rename-apic_mode_exint.patch
+x86-local-apic-fix.patch
+#

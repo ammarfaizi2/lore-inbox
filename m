@@ -1,46 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262394AbSJ0Npk>; Sun, 27 Oct 2002 08:45:40 -0500
+	id <S262397AbSJ0NtU>; Sun, 27 Oct 2002 08:49:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262397AbSJ0Npk>; Sun, 27 Oct 2002 08:45:40 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:1742 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262394AbSJ0Npk>; Sun, 27 Oct 2002 08:45:40 -0500
-Subject: Re: [BUG]Kernel Panic while booting 2.5.44
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andreas Tscharner <starfire@dplanet.ch>
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021027143305.42aa7463.starfire@dplanet.ch>
-References: <20021027143305.42aa7463.starfire@dplanet.ch>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 27 Oct 2002 14:10:13 +0000
-Message-Id: <1035727813.30551.17.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S262400AbSJ0NtU>; Sun, 27 Oct 2002 08:49:20 -0500
+Received: from ns.suse.de ([213.95.15.193]:36356 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S262397AbSJ0NtT> convert rfc822-to-8bit;
+	Sun, 27 Oct 2002 08:49:19 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Andreas Gruenbacher <agruen@suse.de>
+Organization: SuSE Linux AG
+To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+Subject: Re: [PATCH][RFC] 2.5.42 (2/2): Filesystem capabilities user tool
+Date: Sun, 27 Oct 2002 14:55:28 +0100
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+References: <87smz3mupw.fsf@goat.bogus.local>
+In-Reply-To: <87smz3mupw.fsf@goat.bogus.local>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210271455.28569.agruen@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-10-27 at 13:33, Andreas Tscharner wrote:
-> Hello World,
-> 
-> I got a Kernel Panic when I try to boot 2.5.44. Bug output and
-> configuration below. GCC version 2.95.4
-> 
-> 
-> kernel BUG at kernel/workqueue.c:69!
-> invalid operand: 0000
+On Friday 18 October 2002 21:07, Olaf Dietsche wrote:
+> This is the change capabilities tool. It is a first cut at "managing"
+> capabilities and not very comfortable.
 
-Does this help ?
+Olaf, please start with reading the capabilities sections in POSIX 
+1003.1e/1003.2c draft 17 (withdrawn). There It's available online at 
+<http://wt.xpilot.org/publications/posix.1e/>. A number of people have 
+already spent a lot of time figuring out how this could work.
 
---- drivers/scsi/ppa.c~	2002-10-27 14:05:37.000000000 +0000
-+++ drivers/scsi/ppa.c	2002-10-27 14:05:37.000000000 +0000
-@@ -201,6 +201,8 @@
- 	default:		/* Never gets here */
- 	    continue;
- 	}
-+	
-+	INIT_WORK(&ppa_hosts[i].ppa_tq, ppa_interrupt, &ppa_hosts[i]);
- 
- 	host->can_queue = PPA_CAN_QUEUE;
- 	host->sg_tablesize = ppa_sg;
+--Andreas.

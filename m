@@ -1,57 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262941AbSJBC6k>; Tue, 1 Oct 2002 22:58:40 -0400
+	id <S262935AbSJBC4S>; Tue, 1 Oct 2002 22:56:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262942AbSJBC6k>; Tue, 1 Oct 2002 22:58:40 -0400
-Received: from dns2.rocler.qc.ca ([204.101.179.31]:3251 "EHLO
-	chekov.rocler.qc.ca") by vger.kernel.org with ESMTP
-	id <S262941AbSJBC6j>; Tue, 1 Oct 2002 22:58:39 -0400
-X-RAV-AntiVirus: This e-mail has been scanned for viruses on host: chekov.rocler.qc.ca
-Posted-Date: Tue, 1 Oct 2002 23:03:26 -0400
-Subject: make: *** [menuconfig] Error 1
-From: Nicolas Bouliane <linuxaide.net@rocler.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+	id <S262938AbSJBC4S>; Tue, 1 Oct 2002 22:56:18 -0400
+Received: from cliff.cse.wustl.edu ([128.252.166.5]:65267 "EHLO
+	cliff.cse.wustl.edu") by vger.kernel.org with ESMTP
+	id <S262935AbSJBC4S>; Tue, 1 Oct 2002 22:56:18 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 01 Oct 2002 23:01:06 -0400
-Message-Id: <1033527666.3990.6.camel@skullbox>
-Mime-Version: 1.0
+Message-ID: <15770.25006.908775.563421@samba.doc.wustl.edu>
+Date: Tue, 1 Oct 2002 22:02:06 -0500
+From: Krishnakumar B <kitty@cse.wustl.edu>
+To: linux-kernel@vger.kernel.org
+Subject: usb-uhci renamed under Linux-2.5.40
+X-Mailer: VM 7.07 under Emacs 21.2.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+When building Linux-2.5.40, I noted that usb-uhci is renamed to (or maybe a
+complete reimplementation) uhci-hcd. How can I set up /etc/modules.conf so
+that depending on the kernel that I am running either usb-uhci (2.4.x) or
+uhci-hcd (2.5.x) is chosen for the usb-controller ? Is there some simple
+alias trick that I am missing ? Is it possible for usb-uhci to be built
+with linux-2.5.x ? I didn't see any option when doing a build from scratch
+(make mrproper menuconfig).
 
-I :)
+Please CC me on any replies as I am not on this list.
 
-Menuconfig has encountered a possible error in one of the kernel's
-configuration files and is unable to continue.  Here is the error
-report:
+-kitty.
 
- Q> ./scripts/Menuconfig: line 823: MCmenu74: command not found
-
-Please report this to the maintainer <mec@shout.net>.  You may also
-send a problem report to <linux-kernel@vger.kernel.org>.
-
-Please indicate the kernel version you are trying to configure and
-which menu you were trying to enter when this error occurred.
-
-make: *** [menuconfig] Error 1
-root@skullbox:/usr/src/linux-2.5.40# make menuconfig
-
----------
-Kernel version 2.5.40, downloaded today ( october first ) from 
-kernel.org.
-
-the menu
-
-Sound  --->  
-	Advanced Linux Sound Architecture  --->
-
-seem to be buggy;/
-----------
-
-thank ya!
-
-
-
+-- 
+Krishnakumar B <kitty at cs dot wustl dot edu>
+Distributed Object Computing Laboratory, Washington University in St.Louis

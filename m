@@ -1,35 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271295AbRHZIBu>; Sun, 26 Aug 2001 04:01:50 -0400
+	id <S271286AbRHZH7I>; Sun, 26 Aug 2001 03:59:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271297AbRHZIBk>; Sun, 26 Aug 2001 04:01:40 -0400
-Received: from tahallah.demon.co.uk ([158.152.175.193]:2287 "EHLO
-	tahallah.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S271295AbRHZIBV>; Sun, 26 Aug 2001 04:01:21 -0400
-Date: Sun, 26 Aug 2001 09:00:27 +0100 (BST)
-From: Alex Buell <alex.buell@tahallah.demon.co.uk>
-X-X-Sender: <alex@tahallah.demon.co.uk>
-Reply-To: <alex.buell@tahallah.demon.co.uk>
-To: Gregory Ade <gkade@unnerving.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.8-ac11 compile error on sparc
-In-Reply-To: <Pine.LNX.4.33.0108251424210.15717-100000@tigger.unnerving.org>
-Message-ID: <Pine.LNX.4.33.0108260859190.22074-100000@tahallah.demon.co.uk>
+	id <S271295AbRHZH66>; Sun, 26 Aug 2001 03:58:58 -0400
+Received: from web12305.mail.yahoo.com ([216.136.173.103]:3851 "HELO
+	web12305.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S271286AbRHZH6u>; Sun, 26 Aug 2001 03:58:50 -0400
+Message-ID: <20010826075906.42641.qmail@web12305.mail.yahoo.com>
+Date: Sun, 26 Aug 2001 09:59:06 +0200 (CEST)
+From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
+Subject: Re: Poor Performance for ethernet bonding
+To: Ben Greear <greearb@candelatech.com>, Willy Tarreau <wtarreau@free.fr>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3B87ED15.77741DF9@candelatech.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Aug 2001, Gregory Ade wrote:
+> > The XOR method has been implemented to hash the
+> flows based on the SRC/DST
+> > MAC addresses.
+> 
+> If you are only hashing on MAC addresses, then you
+> would become highly un-optimized in the case where a
+> machine is communicating with it's default gateway
+> primarily.
 
-> as an aside, is there a version of 2.4 that *does* build on a sparc?
+absolutely right, but I think that when it was
+designed
+(sun? cisco?), it was primarily intended as many hosts
+to one (server, router or switch). A file server, a
+router or even a firewall can easily balance their
+load
+when they are connected to several tens of
+workstations. If your concern is really for peer to
+peer, then Andy's method is better as long as other
+hashing methods have not been implemented in the
+bonding code.
 
-2.4.1 was the last one known to build and boot. There are a few problems
-with modules in that though, in that these modules won't properly load
-because of unresolved externals such as .udiv etc.
+> Perhaps the XOR hash is really more sophisticated??
 
--- 
-Be careful out there.
+it may be one day, but at the moment, it's designed to
+be compatible with other equipments which use it too.
 
-http://www.tahallah.demon.co.uk
+Willy
 
+
+___________________________________________________________
+Do You Yahoo!? -- Un e-mail gratuit @yahoo.fr !
+Yahoo! Courrier : http://fr.mail.yahoo.com

@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273691AbRJIIeK>; Tue, 9 Oct 2001 04:34:10 -0400
+	id <S273724AbRJIIpg>; Tue, 9 Oct 2001 04:45:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273724AbRJIIeA>; Tue, 9 Oct 2001 04:34:00 -0400
-Received: from smtp2.nikoma.de ([212.122.128.25]:11534 "EHLO smtp2.nikoma.de")
-	by vger.kernel.org with ESMTP id <S273691AbRJIIdr>;
-	Tue, 9 Oct 2001 04:33:47 -0400
-Date: Tue, 9 Oct 2001 10:33:59 +0200
-From: Thomas Roessler <roessler@does-not-exist.org>
-To: linux-kernel@vger.kernel.org
-Subject: [2.4.10] /proc freeze during core dump?
-Message-ID: <20011009103359.F2935@sobolev.does-not-exist.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Thomas Roessler <roessler@does-not-exist.org>
+	id <S273729AbRJIIp0>; Tue, 9 Oct 2001 04:45:26 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:35207 "EHLO
+	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S273724AbRJIIpH>; Tue, 9 Oct 2001 04:45:07 -0400
+Date: Tue, 9 Oct 2001 14:18:32 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: BALBIR SINGH <balbir.singh@wipro.com>
+Cc: "Paul E. McKenney" <pmckenne@us.ibm.com>, lse-tech@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org
+Subject: Re: RFC: patch to allow lock-free traversal of lists with insertion
+Message-ID: <20011009141832.B10410@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+In-Reply-To: <200110090155.f991tPt22329@eng4.beaverton.ibm.com> <3BC2A3B3.3020004@wipro.com> <20011009131626.A10410@in.ibm.com> <3BC2B399.8030000@wipro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-Face: Oxq^+Q$NuUQ-&J#F14uCyP4}v%$5{ZGnS}PX;zoxOQ%*`#dkJ'qx$w}\Z;m.e*,_K0V8mii$qU(|l
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <3BC2B399.8030000@wipro.com>; from balbir.singh@wipro.com on Tue, Oct 09, 2001 at 01:51:45PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yesterday, I was able to observe my machine running 2.4.10 
-half-crash while mozilla tried to dump core: Six minutes after 
-core.<pid> had been created for the process in question, any process 
-trying to read /proc/<pid>/stat (which still existed then; note that 
-there was no disk activity at that point) would hang, and was 
-apparently unkillable.
+On Tue, Oct 09, 2001 at 01:51:45PM +0530, BALBIR SINGH wrote:
+> Dipankar Sarma wrote:
+> 
+> >Either you see the element or you don't. If you want to avoid duplication,
+> >you could do a locked search before inserting it.
+> >Like I said before, lock-less lookups are useful for read-mostly
+> >data. Yes, updates are costly, but if they happen rarely, you still benefit.
+> >
+> How does this compare to the Read-Copy-Update mechanism? Is this just another way of implementing
+> it, given different usage rules.
 
-There was no ooops or kernel panic in the logs.
+Fundamentally, yes, RCU is a method for lock-less lookup. It is just
+that RCU is elaborate enough to allow you deletion and freeing of
+data as well.
 
+Thanks
+Dipankar
 -- 
-Thomas Roessler                        http://log.does-not-exist.org/
+Dipankar Sarma  <dipankar@in.ibm.com> Project: http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

@@ -1,275 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262488AbVCJEjt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262324AbVCJE3y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262488AbVCJEjt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 23:39:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbVCJEdI
+	id S262324AbVCJE3y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 23:29:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262563AbVCIXya
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 23:33:08 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:22236 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262554AbVCIXxm (ORCPT
+	Wed, 9 Mar 2005 18:54:30 -0500
+Received: from ns1.lanforge.com ([66.165.47.210]:7337 "EHLO www.lanforge.com")
+	by vger.kernel.org with ESMTP id S261229AbVCIXpX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 18:53:42 -0500
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Andi Kleen <ak@muc.de>
-Subject: Re: Direct io on block device has performance regression on 2.6.x kernel
-Date: Wed, 9 Mar 2005 15:52:03 -0800
-User-Agent: KMail/1.7.2
-Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, linux-kernel@vger.kernel.org,
-       axboe@suse.de
-References: <200503092218.j29MICg26503@unix-os.sc.intel.com> <m1r7iov1ya.fsf@muc.de>
-In-Reply-To: <m1r7iov1ya.fsf@muc.de>
+	Wed, 9 Mar 2005 18:45:23 -0500
+Message-ID: <422F8A8A.8010606@candelatech.com>
+Date: Wed, 09 Mar 2005 15:45:14 -0800
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041020
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_jw4LCJHYNXMA8Uq"
-Message-Id: <200503091552.04007.jbarnes@engr.sgi.com>
+To: Christian Schmid <webmaster@rapidforum.com>
+CC: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: BUG: Slowdown on 3000 socket-machines tracked down
+References: <4229E805.3050105@rapidforum.com> <422BAAC6.6040705@candelatech.com> <422BB548.1020906@rapidforum.com> <422BC303.9060907@candelatech.com> <422BE33D.5080904@yahoo.com.au> <422C1D57.9040708@candelatech.com> <422C1EC0.8050106@yahoo.com.au> <422D468C.7060900@candelatech.com> <422DD5A3.7060202@rapidforum.com>
+In-Reply-To: <422DD5A3.7060202@rapidforum.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_jw4LCJHYNXMA8Uq
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Christian Schmid wrote:
 
-On Wednesday, March 9, 2005 3:23 pm, Andi Kleen wrote:
-> "Chen, Kenneth W" <kenneth.w.chen@intel.com> writes:
-> > Just to clarify here, these data need to be taken at grain of salt. A
-> > high count in _spin_unlock_* functions do not automatically points to
-> > lock contention.  It's one of the blind spot syndrome with timer based
-> > profile on ia64.  There are some lock contentions in 2.6 kernel that
-> > we are staring at.  Please do not misinterpret the number here.
->
-> Why don't you use oprofile=C2>? It uses NMIs and can profile "inside"
-> interrupt disabled sections.
+> Hmmmm.... can you try to following just to exclude some theories:
+> 
+> Run it with 4000 sockets and then do the following on the server-machine:
+> 
+> dd if=/dev/zero of=file1 bs=1M count=1024
+> dd if=/dev/zero of=file2 bs=1M count=1024
+> dd if=/dev/zero of=file3 bs=1M count=1024
+> cat file1 > /dev/zero & cat file2 > /dev/zero & cat file3 > /dev/zero &
+> 
+> I THINK it might have something to do with caching-pressure or so. See 
+> if there is a slow-down on the sending if the page-cache gets full and 
+> has to be cleared again.
+> 
+> You are running 2.6.11?
 
-That was oprofile output, but on ia64, 'NMI's are maskable due to the way i=
-rq=20
-disabling works.  Here's a very hackish patch that changes the kernel to us=
-e=20
-cr.tpr instead of psr.i for interrupt control.  Making oprofile use real ia=
-64=20
-NMIs is left as an exercise for the reader :)
+Yes, 2.6.11.  I have tuned max_backlog and some other TCP and networking
+related settings to give more buffers etc to networking tasks.  I have not
+tried any significant disk-IO while doing these tests.
 
-Jesse
+I finally got my systems set up so I can run my WAN emulator at full 1Gbps:
 
---Boundary-00=_jw4LCJHYNXMA8Uq
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="nmi-enable-5.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="nmi-enable-5.patch"
+I am getting right at 986Mbps throughput with 30ms round-trip latency
+(15ms in both directions).
 
-===== arch/ia64/Kconfig.debug 1.2 vs edited =====
---- 1.2/arch/ia64/Kconfig.debug	2005-01-07 16:15:52 -08:00
-+++ edited/arch/ia64/Kconfig.debug	2005-02-28 10:07:27 -08:00
-@@ -56,6 +56,15 @@
- 	  and restore instructions.  It's useful for tracking down spinlock
- 	  problems, but slow!  If you're unsure, select N.
- 
-+config IA64_ALLOW_NMI
-+	bool "Allow non-maskable interrupts"
-+	help
-+	  The normal ia64 irq enable/disable code prevents even non-maskable
-+	  interrupts from occuring, which can be a problem for kernel
-+	  debuggers, watchdogs, and profilers.  Say Y here if you're interested
-+	  in NMIs and don't mind the small performance penalty this option
-+	  imposes.
-+
- config SYSVIPC_COMPAT
- 	bool
- 	depends on COMPAT && SYSVIPC
-===== arch/ia64/kernel/head.S 1.31 vs edited =====
---- 1.31/arch/ia64/kernel/head.S	2005-01-28 15:50:13 -08:00
-+++ edited/arch/ia64/kernel/head.S	2005-03-01 13:17:51 -08:00
-@@ -59,6 +59,14 @@
- 	.save rp, r0		// terminate unwind chain with a NULL rp
- 	.body
- 
-+#ifdef CONFIG_IA64_ALLOW_NMI	// disable interrupts initially (re-enabled in start_kernel())
-+	mov r16=1<<16
-+	;;
-+	mov cr.tpr=r16
-+	;;
-+	srlz.d
-+	;;
-+#endif
- 	rsm psr.i | psr.ic
- 	;;
- 	srlz.i
-@@ -129,8 +137,8 @@
- 	/*
- 	 * Switch into virtual mode:
- 	 */
--	movl r16=(IA64_PSR_IT|IA64_PSR_IC|IA64_PSR_DT|IA64_PSR_RT|IA64_PSR_DFH|IA64_PSR_BN \
--		  |IA64_PSR_DI)
-+	movl r16=(IA64_PSR_IT|IA64_PSR_IC|IA64_PSR_I|IA64_PSR_DT|IA64_PSR_RT|IA64_PSR_DFH|\
-+		  IA64_PSR_BN|IA64_PSR_DI)
- 	;;
- 	mov cr.ipsr=r16
- 	movl r17=1f
-===== arch/ia64/kernel/irq_ia64.c 1.25 vs edited =====
---- 1.25/arch/ia64/kernel/irq_ia64.c	2005-01-22 15:54:49 -08:00
-+++ edited/arch/ia64/kernel/irq_ia64.c	2005-03-01 12:50:18 -08:00
-@@ -103,8 +103,6 @@
- void
- ia64_handle_irq (ia64_vector vector, struct pt_regs *regs)
- {
--	unsigned long saved_tpr;
--
- #if IRQ_DEBUG
- 	{
- 		unsigned long bsp, sp;
-@@ -135,17 +133,9 @@
- 	}
- #endif /* IRQ_DEBUG */
- 
--	/*
--	 * Always set TPR to limit maximum interrupt nesting depth to
--	 * 16 (without this, it would be ~240, which could easily lead
--	 * to kernel stack overflows).
--	 */
- 	irq_enter();
--	saved_tpr = ia64_getreg(_IA64_REG_CR_TPR);
--	ia64_srlz_d();
- 	while (vector != IA64_SPURIOUS_INT_VECTOR) {
- 		if (!IS_RESCHEDULE(vector)) {
--			ia64_setreg(_IA64_REG_CR_TPR, vector);
- 			ia64_srlz_d();
- 
- 			__do_IRQ(local_vector_to_irq(vector), regs);
-@@ -154,7 +144,6 @@
- 			 * Disable interrupts and send EOI:
- 			 */
- 			local_irq_disable();
--			ia64_setreg(_IA64_REG_CR_TPR, saved_tpr);
- 		}
- 		ia64_eoi();
- 		vector = ia64_get_ivr();
-@@ -165,6 +154,7 @@
- 	 * come through until ia64_eoi() has been done.
- 	 */
- 	irq_exit();
-+	local_irq_enable();
- }
- 
- #ifdef CONFIG_HOTPLUG_CPU
-===== include/asm-ia64/hw_irq.h 1.15 vs edited =====
---- 1.15/include/asm-ia64/hw_irq.h	2005-01-22 15:54:52 -08:00
-+++ edited/include/asm-ia64/hw_irq.h	2005-03-01 13:01:03 -08:00
-@@ -36,6 +36,10 @@
- 
- #define AUTO_ASSIGN			-1
- 
-+#define IA64_NMI_VECTOR			0x02	/* NMI (note that this can be
-+						   masked if psr.i or psr.ic
-+						   are cleared) */
-+
- #define IA64_SPURIOUS_INT_VECTOR	0x0f
- 
- /*
-===== include/asm-ia64/system.h 1.48 vs edited =====
---- 1.48/include/asm-ia64/system.h	2005-01-04 18:48:18 -08:00
-+++ edited/include/asm-ia64/system.h	2005-03-01 15:28:23 -08:00
-@@ -107,12 +107,61 @@
- 
- #define safe_halt()         ia64_pal_halt_light()    /* PAL_HALT_LIGHT */
- 
-+/* For spinlocks etc */
-+#ifdef CONFIG_IA64_ALLOW_NMI
-+
-+#define IA64_TPR_MMI_BIT (1<<16)
-+
-+#define __local_irq_save(x)			\
-+do {						\
-+	(x) = ia64_getreg(_IA64_REG_CR_TPR);	\
-+	ia64_stop();				\
-+	ia64_setreg(_IA64_REG_CR_TPR, IA64_TPR_MMI_BIT);	\
-+	ia64_stop();				\
-+	ia64_srlz_d();				\
-+} while (0)
-+
-+static inline void __local_irq_disable(void)
-+{
-+	u64 __tpr;
-+
-+	__tpr = ia64_getreg(_IA64_REG_CR_TPR);
-+	ia64_stop();
-+	ia64_setreg(_IA64_REG_CR_TPR, IA64_TPR_MMI_BIT);
-+	ia64_stop();
-+	ia64_srlz_d();
-+}
-+
-+static inline void __local_irq_restore(unsigned long flags)
-+{
-+	ia64_setreg(_IA64_REG_CR_TPR, flags);
-+	ia64_stop();
-+	ia64_srlz_d();
-+}
-+
-+static inline void local_irq_enable(void)
-+{
-+	ia64_setreg(_IA64_REG_CR_TPR, 0);
-+ 	ia64_srlz_d();
-+	ia64_ssm(IA64_PSR_I); ia64_srlz_d();
-+}
-+
-+#define local_save_flags(flags)	((flags) = ia64_getreg(_IA64_REG_CR_TPR))
-+
-+static inline int irqs_disabled(void)
-+{
-+	unsigned long __ia64_id_flags;
-+	local_save_flags(__ia64_id_flags);
-+	return __ia64_id_flags & IA64_TPR_MMI_BIT;
-+}
-+
-+#else /* !CONFIG_IA64_ALLOW_NMI */
-+
- /*
-  * The group barrier in front of the rsm & ssm are necessary to ensure
-  * that none of the previous instructions in the same group are
-  * affected by the rsm/ssm.
-  */
--/* For spinlocks etc */
- 
- /*
-  * - clearing psr.i is implicitly serialized (visible by next insn)
-@@ -137,6 +186,19 @@
- 
- #define __local_irq_restore(x)	ia64_intrin_local_irq_restore((x) & IA64_PSR_I)
- 
-+#define local_irq_enable()	({ ia64_ssm(IA64_PSR_I); ia64_srlz_d(); })
-+#define local_save_flags(flags)	((flags) = ia64_getreg(_IA64_REG_PSR))
-+
-+#define irqs_disabled()				\
-+({						\
-+	unsigned long __ia64_id_flags;		\
-+	local_save_flags(__ia64_id_flags);	\
-+	(__ia64_id_flags & IA64_PSR_I) == 0;	\
-+})
-+
-+#endif /* CONFIG_IA64_ALLOW_NMI */
-+
-+/* FIXME: need to change for ALLOW_NMI */
- #ifdef CONFIG_IA64_DEBUG_IRQ
- 
-   extern unsigned long last_cli_ip;
-@@ -170,16 +232,6 @@
- # define local_irq_disable()	__local_irq_disable()
- # define local_irq_restore(x)	__local_irq_restore(x)
- #endif /* !CONFIG_IA64_DEBUG_IRQ */
--
--#define local_irq_enable()	({ ia64_stop(); ia64_ssm(IA64_PSR_I); ia64_srlz_d(); })
--#define local_save_flags(flags)	({ ia64_stop(); (flags) = ia64_getreg(_IA64_REG_PSR); })
--
--#define irqs_disabled()				\
--({						\
--	unsigned long __ia64_id_flags;		\
--	local_save_flags(__ia64_id_flags);	\
--	(__ia64_id_flags & IA64_PSR_I) == 0;	\
--})
- 
- #ifdef __KERNEL__
- 
+So, latency does not seem to be the problem either.
 
---Boundary-00=_jw4LCJHYNXMA8Uq--
+I think the problem can be narrowed down to:
+
+1)  Non-optimal kernel network tunings on your server.
+2)  Disk-IO (my disk is small and slow compared to a 'real' server, not sure I can
+      really test this side of things, and I have not tried as of yet.)
+3)  Your clients have much more latency and/or don't have enough bandwidth
+      to fully load your server.  Since you didn't answer before:  I assume you
+      do not have a reliable test bed and are just hoping that enough clients connect
+      to do your benchmarking.
+4)  There is something strange with sendfile and/or your application's coding.
+
+My suggestion would be to eliminate these variables by coming up with a repeatable
+test bed, alternative traffic generators, WAN/Network emulators for latency, etc.
+
+Thanks,
+Ben
+
+-- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
+

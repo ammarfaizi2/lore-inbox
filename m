@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278258AbRJMDMa>; Fri, 12 Oct 2001 23:12:30 -0400
+	id <S278262AbRJMDag>; Fri, 12 Oct 2001 23:30:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278257AbRJMDMK>; Fri, 12 Oct 2001 23:12:10 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:10001 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S278256AbRJMDMD>;
-	Fri, 12 Oct 2001 23:12:03 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Matt Domsch <Matt_Domsch@dell.com>, linux-kernel@vger.kernel.org
-Subject: Re: crc32 cleanups 
-In-Reply-To: Your message of "Fri, 12 Oct 2001 21:56:42 EST."
-             <Pine.LNX.3.96.1011012215110.20962C-100000@mandrakesoft.mandrakesoft.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 13 Oct 2001 13:12:17 +1000
-Message-ID: <15369.1002942737@ocs3.intra.ocs.com.au>
+	id <S278261AbRJMDaZ>; Fri, 12 Oct 2001 23:30:25 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:23311 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S278262AbRJMDaK>; Fri, 12 Oct 2001 23:30:10 -0400
+Date: Fri, 12 Oct 2001 20:30:20 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Davide Libenzi <davidel@xmailserver.org>
+cc: Paul Mackerras <paulus@samba.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists
+ with insertion
+In-Reply-To: <Pine.LNX.4.40.0110121921240.1505-100000@blue1.dev.mcafeelabs.com>
+Message-ID: <Pine.LNX.4.33.0110122027370.8217-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Oct 2001 21:56:42 -0500 (CDT), 
-Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
->The easy solution to all this is obviously to build crc32 into the
->kernel unconditionally, and live with the kernel bloat.  I don't like
->kernel bloat, so I prefer the non-easy option.
 
-Not when your non-easy option requires every driver that needs a
-library routine to patch lib/Makefile.  Adding a new driver should not
-require a patch to an unrelated area of the kernel, it is bad design.
-It also results on overlapping patches with the attendent risk of patch
-rejects.  Anybody remember the common Space.c and all the problems that
-file caused?
+On Fri, 12 Oct 2001, Davide Libenzi wrote:
+>
+> Suppose that  p  and  *p  are on two different cache partitions and the
+> invalidation order that comes from the wmb() cpu is 1) *p  2) p
+> Suppose that the partition when  *p  lies is damn busy and the one where
+> p  lies is free.
+> The reader cpu could pickup the value of  p  before the value of  *p  by
+> reading the old value of  a
 
-Kernel bloat is bad.  A kbuild design that will cause maintainence
-problems in future is even worse.  Setting CONFIG_CRC32 at the time the
-driver is selected is the cleanest solution.
+Ahh.. I misunderstood. You are arguing for the rmb() even if the CPU
+doesn't speculate addresses for loads. Yes, I agree.
+
+		Linus
 

@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263679AbTLOPm3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 10:42:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263702AbTLOPm3
+	id S263662AbTLOPkz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 10:40:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263679AbTLOPkz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 10:42:29 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:9654 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S263679AbTLOPm1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 10:42:27 -0500
-Date: Mon, 15 Dec 2003 07:42:26 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org,
-       bitkeeper-users@bitmover.com
-Subject: Re: RFC - tarball/patch server in BitKeeper
-Message-ID: <20031215154226.GD16554@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org,
-	bitkeeper-users@bitmover.com
-References: <20031214172156.GA16554@work.bitmover.com> <2259130000.1071469863@[10.10.2.4]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2259130000.1071469863@[10.10.2.4]>
-User-Agent: Mutt/1.4i
+	Mon, 15 Dec 2003 10:40:55 -0500
+Received: from fmr99.intel.com ([192.55.52.32]:46816 "EHLO
+	hermes-pilot.fm.intel.com") by vger.kernel.org with ESMTP
+	id S263662AbTLOPky (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 10:40:54 -0500
+Message-ID: <3FDDD5FE.5010001@intel.com>
+Date: Mon, 15 Dec 2003 17:40:46 +0200
+From: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031210
+X-Accept-Language: en-us, en, ru
+MIME-Version: 1.0
+To: Andi Kleen <ak@muc.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PCI Express support for 2.4 kernel
+References: <12KJ6-4F2-13@gated-at.bofh.it> <12XQc-7Vs-29@gated-at.bofh.it>	<12Z5u-1tG-11@gated-at.bofh.it> <m3iskip1py.fsf@averell.firstfloor.org>
+In-Reply-To: <m3iskip1py.fsf@averell.firstfloor.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 14, 2003 at 10:31:04PM -0800, Martin J. Bligh wrote:
-> One thing that I've wished for in the past which looks like it *might*
-> be trivial to do is to grab a raw version of the patch you already
-> put out in HTML format, eg if I surf down changesets and get to a page
-> like this:
-> 
-> http://linus.bkbits.net:8080/linux-2.5/patch@1.1522?nav=index.html|ChangeSet@-2w|cset@1.1522
+You know, I am also thinking in this direction. I already started 
+conversation to implement some standard method.
 
-We can do that and we will, it's just not hit the top of the priority list.
-Given past discussions on this list I had thought there was a strong need 
-for a way to trivially track any BK tree without BK, maybe I misunderstood
-what was being asked.
+Vladimir.
 
-There isn't any reason we can't do both.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Andi Kleen wrote:
+
+>Vladimir Kondratiev <vladimir.kondratiev@intel.com> writes:
+>  
+>
+>>I thought this way also. But I found that it is not. You may know
+>>several chipsets,
+>>and do per-chipset stuff, but there is no generic procedure. At least
+>>authors of PCI-E
+>>don't know (it is nice to have access to the authors ;-) ).
+>>    
+>>
+>
+>This sounds like a serious design flaw in PCI-Express. Can you 
+>ask them to address this before it is too late? 
+>
+>-Andi
+>  
+>
+

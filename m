@@ -1,61 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263310AbVBCNfv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262780AbVBCNjc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263310AbVBCNfv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 08:35:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263535AbVBCNfv
+	id S262780AbVBCNjc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 08:39:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262848AbVBCNjb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 08:35:51 -0500
-Received: from wproxy.gmail.com ([64.233.184.202]:37275 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263310AbVBCNfg (ORCPT
+	Thu, 3 Feb 2005 08:39:31 -0500
+Received: from wproxy.gmail.com ([64.233.184.206]:48033 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262780AbVBCNgT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 08:35:36 -0500
+	Thu, 3 Feb 2005 08:36:19 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=RFS7gVQ0bkzptxcQi33yYx7Vwy9q86Baz+3SjuZ8DT/efT2psBZjE4O9Hbl1QNsDlIbS19T+IT+OmNQlK6g1kzDwwFYqjdvmP7iiWvxCA8RIIcJ7W/tCLpn6Mkp+DXQ+k+qtlFKPR5ozFzYx3B209hM17dKqd7ZQwnrrzhWMOOo=
-Message-ID: <58cb370e05020305354cbb16ee@mail.gmail.com>
-Date: Thu, 3 Feb 2005 14:35:35 +0100
+        b=OwkphZG/k79DJLoW0gERu/c5rzSNZKRYPc/sBeQZugiAEUniA+yii1S0NKeyPJcdZ5mxjypJ1sHZvvW5xLW9TLVzaKa08MnB2qO1yZh27IhCDqbJE5Cblf31yBrWHS3mnAmI07KemCgS+Q6xiQPjo1Lg3hM/n5HeF/Np6m7IWm8=
+Message-ID: <58cb370e050203053421b571be@mail.gmail.com>
+Date: Thu, 3 Feb 2005 14:34:29 +0100
 From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
 Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: [PATCH 2.6.11-rc2 11/29] ide: add ide_drive_t.sleeping
-Cc: Tejun Heo <tj@home-tj.org>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-In-Reply-To: <20050203133228.GA2816@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [ide-dev 3/5] generic Power Management for IDE devices
+Cc: Pavel Machek <pavel@suse.cz>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1107332644.14782.115.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <20050202024017.GA621@htj.dyndns.org>
-	 <20050202025448.GL621@htj.dyndns.org>
-	 <58cb370e05020216476a8f403c@mail.gmail.com>
-	 <20050203113710.GV5710@suse.de>
-	 <58cb370e05020305304e5d504@mail.gmail.com>
-	 <20050203133228.GA2816@suse.de>
+References: <Pine.GSO.4.58.0501220004050.23959@mion.elka.pw.edu.pl>
+	 <20050122184124.GL468@openzaurus.ucw.cz>
+	 <58cb370e05020115032fdb8b59@mail.gmail.com>
+	 <1107332644.14782.115.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Feb 2005 14:32:29 +0100, Jens Axboe <axboe@suse.de> wrote:
-> On Thu, Feb 03 2005, Bartlomiej Zolnierkiewicz wrote:
-> > On Thu, 3 Feb 2005 12:37:10 +0100, Jens Axboe <axboe@suse.de> wrote:
-> > > On Thu, Feb 03 2005, Bartlomiej Zolnierkiewicz wrote:
-> > > > On Wed, 2 Feb 2005 11:54:48 +0900, Tejun Heo <tj@home-tj.org> wrote:
-> > > > > > 11_ide_drive_sleeping_fix.patch
-> > > > > >
-> > > > > >       ide_drive_t.sleeping field added.  0 in sleep field used to
-> > > > > >       indicate inactive sleeping but because 0 is a valid jiffy
-> > > > > >       value, though slim, there's a chance that something can go
-> > > > > >       weird.  And while at it, explicit jiffy comparisons are
-> > > > > >       converted to use time_{after|before} macros.
-> > > >
-> > > > Same question as for "add ide_hwgroup_t.polling" patch.
-> > > > AFAICS drive->sleep is either '0' or 'timeout + jiffies' (always > 0)
-> > >
-> > > Hmm, what if jiffies + timeout == 0?
+On Thu, 03 Feb 2005 10:03:00 +0000, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> On Maw, 2005-02-01 at 23:03, Bartlomiej Zolnierkiewicz wrote:
+> > On Sat, 22 Jan 2005 19:41:24 +0100, Pavel Machek <pavel@suse.cz> wrote:
+> > > Why do you need to have state-machine? During suspend we are running
+> > > single-threaded, it should be okay to just do the calls directly.
+> > >                                 Pavel
 > >
-> > Hm, jiffies is unsigned and timeout is always > 0
-> > but this is still possible if jiffies + timeout wraps, right?
+> > If we are running single-threaded I also see no reason for state-machine.
+> > Ben?
 > 
-> Precisely, if jiffies is exactly 'timeout' away from wrapping to 0 it
-> could happen. So I think the fix looks sane.
+> There may be outstanding I/O running at the time of the suspend. You
+> want to keep everything nicely ordered. The state machine suspend code
+> looks to me the right answer and is cleaner.
 
-agreed
+Outstanding I/Os won't be a problem - suspend will be done as one
+request.  Anyway, state machine is not going away.

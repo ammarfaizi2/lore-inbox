@@ -1,62 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262409AbTELSDH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 14:03:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262427AbTELSC2
+	id S262437AbTELSJM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 14:09:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262447AbTELSHz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 14:02:28 -0400
-Received: from ithilien.qualcomm.com ([129.46.51.59]:10686 "EHLO
-	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
-	id S262422AbTELRpA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 13:45:00 -0400
-Message-Id: <5.1.0.14.2.20030512105155.0d1773c0@unixmail.qualcomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 12 May 2003 10:53:48 -0700
-To: David Brownell <david-b@pacbell.net>, Greg KH <greg@kroah.com>
-From: Max Krasnyansky <maxk@qualcomm.com>
-Subject: Re: [linux-usb-devel] Re: [Bluetooth] HCI USB driver update.
-  Support for SCO over HCI USB.
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <3EBC4C50.8040304@pacbell.net>
-References: <200304290317.h3T3HOdA027579@hera.kernel.org>
- <200304290317.h3T3HOdA027579@hera.kernel.org>
- <5.1.0.14.2.20030429131303.10d7f330@unixmail.qualcomm.com>
- <5.1.0.14.2.20030429145523.10c52e50@unixmail.qualcomm.com>
- <5.1.0.14.2.20030508123858.01c004f8@unixmail.qualcomm.com>
- <3EBBFC33.7050702@pacbell.net>
- <1052517124.10458.199.camel@localhost.localdomain>
- <20030509230542.GA3267@kroah.com>
+	Mon, 12 May 2003 14:07:55 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62622 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262437AbTELSHn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 14:07:43 -0400
+Date: Mon, 12 May 2003 19:20:23 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Matt Porter <mporter@kernel.crashing.org>
+Cc: Matthew Wilcox <willy@debian.org>, Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel@vger.kernel.org,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>, davem@redhat.com
+Subject: Re: Message Signalled Interrupt support?
+Message-ID: <20030512182023.GA29534@parcelfarce.linux.theplanet.co.uk>
+References: <20030512163249.GF27111@gtf.org> <20030512165331.GZ29534@parcelfarce.linux.theplanet.co.uk> <20030512104300.A23510@home.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030512104300.A23510@home.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 05:48 PM 5/9/2003, David Brownell wrote:
->Greg KH wrote:
->>On Fri, May 09, 2003 at 03:35:36PM -0700, Max Krasnyansky wrote:
->>
->>>Ok. Sounds like it should be
->>>        uint32_t hcd_cb[16]; // 64 bytes for internal use by HCD
->>>        uint32_t drv_cb[2];  // 8  bytes for internal use by USB driver
->>
->>s/uint32_t/u32/ please.
->
->"u32" is prettier, but is there actually a policy against using
->the more standard type names?  (POSIX, someone had said.)
->
->
->>And if this is going to be used for pointers, why not just say they are
->>pointers?  Otherwise people are going to have to be careful with 32 vs.
->>64 bit kernels to not overrun their space.
->>struct sk_buff uses a char, any reason not to use that here too?  Has
->>being a char made things more difficult for that structure over time?
->
->No, it's just that in some similar cases having the value be "long"
->(not "32 bit unsigned") has been simpler.  I'm not religious.
-I don't care either. 'char' is ok for me.
+On Mon, May 12, 2003 at 10:43:00AM -0700, Matt Porter wrote:
+> I've also done some thought for PPC440xx's PCI MSI support.  It isn't
+> strictly necessary to have a new request_msi() if the kernel "does
+> the right thing".  request_irq() already hooks using an interrupt
+> value that is virtual on many platforms.
 
-So, I guess in general you're ok with adding ->drv_cb and ->hcd_cb to 'struct urb' ?
+Yes, but ideally this kludge would go away...
 
-Max
+> In that case, the PCI
+> subsystem would only need to provide an interface to provide
+> the architecture/platform specific inbound MSI location.  The PCI
+> subsystem would then find all MSI capable PCI devices, and assign
+> the appropriate number of unique messages and inbound MSI address
+> to each device via the speced PCI MSI interface.  The PCI subsystem
+> would also be responsible for maintaining a correspondence between
+> virtual Linux interrupt values and MSI values.
+> 
+> Software specific to the PCI MSI capable "Northbridge", will then
+> route general MSI interrupt events to some PCI subsystem helper
+> functions to verify which MSI has occurred and thus which Linux
+> virtual interrupt. 
 
+That sounds like a lot of overhead.  In particular it means we keep
+converting to and from `virtual IRQs'.  I would hope the MSI work would
+allow us to tie in at a lower level than virtual interrupts.  I was
+thinking an interface would look something like:
+
+void *request_msi(struct device *dev,
+		irqreturn_t (*handler)(int, void *, struct pt_regs *),
+		unsigned long irqflags,
+                void *dev_id)
+
+You need a struct device to figure out which interrupt controller it
+needs.
+
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

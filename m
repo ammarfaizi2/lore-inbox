@@ -1,61 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264036AbTIILub (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 07:50:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264060AbTIILub
+	id S264060AbTIILvR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 07:51:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264054AbTIILvR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 07:50:31 -0400
-Received: from CPE-203-51-31-218.nsw.bigpond.net.au ([203.51.31.218]:40687
-	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id S264036AbTIILua (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 07:50:30 -0400
-Message-ID: <3F5DBE83.3121A495@eyal.emu.id.au>
-Date: Tue, 09 Sep 2003 21:50:27 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.22-aa1 i686)
-X-Accept-Language: en
+	Tue, 9 Sep 2003 07:51:17 -0400
+Received: from modemcable137.219-201-24.mtl.mc.videotron.ca ([24.201.219.137]:11648
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S264060AbTIILvJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 07:51:09 -0400
+Date: Tue, 9 Sep 2003 07:50:59 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Greg KH <greg@kroah.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.6][CFT] rmmod floppy kills box fixes + default_device_remove
+In-Reply-To: <20030908230852.GA3320@kroah.com>
+Message-ID: <Pine.LNX.4.53.0309090739270.14426@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.53.0309072228470.14426@montezuma.fsmlabs.com>
+ <20030908155048.GA10879@kroah.com> <Pine.LNX.4.53.0309081722270.14426@montezuma.fsmlabs.com>
+ <20030908230852.GA3320@kroah.com>
 MIME-Version: 1.0
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.0-test5: ps2esdi (CONFIG_BLK_DEV_PS2) build fails
-References: <Pine.LNX.4.44.0309081319380.1666-100000@home.osdl.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-allmodconfig. i386:
+On Mon, 8 Sep 2003, Greg KH wrote:
 
-  CC [M]  drivers/block/ps2esdi.o
-In file included from include/linux/mca.h:140,
-                 from drivers/block/ps2esdi.c:42:
-include/linux/mca-legacy.h:10: warning: #warning "MCA legacy - please
-move your 
-driver to the new sysfs api"
-drivers/block/ps2esdi.c:186: redefinition of `init_module'
-drivers/block/ps2esdi.c:172: `init_module' previously defined here
-drivers/block/ps2esdi.c: In function `init_module':
-drivers/block/ps2esdi.c:190: warning: initialization from incompatible
-pointer t
-ype
-drivers/block/ps2esdi.c:193: dereferencing pointer to incomplete type
-drivers/block/ps2esdi.c:193: dereferencing pointer to incomplete type
-drivers/block/ps2esdi.c:194: dereferencing pointer to incomplete type
-drivers/block/ps2esdi.c:197: dereferencing pointer to incomplete type
-drivers/block/ps2esdi.c:198: dereferencing pointer to incomplete type
-drivers/block/ps2esdi.c:200: dereferencing pointer to incomplete type
-drivers/block/ps2esdi.c: In function `cleanup_module':
-drivers/block/ps2esdi.c:216: `i' undeclared (first use in this function)
-drivers/block/ps2esdi.c:216: (Each undeclared identifier is reported
-only once
-drivers/block/ps2esdi.c:216: for each function it appears in.)
-{standard input}: Assembler messages:
-{standard input}:238: Error: symbol `init_module' is already defined
-make[2]: *** [drivers/block/ps2esdi.o] Error 1
-make[1]: *** [drivers/block] Error 2
-make: *** [drivers] Error 2
+> You need to sleep until your release function gets called.  Take a look
+> at the cpufreq code for an example of this (also the i2c core does
+> this.)
+>
+> > Basically i'd like a pointer as to what to do with these release()
+> > functions..
+> 
+> release() is called when the last reference to this device is dropped.
+> When it is called it is then safe to do the following:
+> 	- free the memory of the device
+> 	- unload the module of the device
+> 
+> So an empty release() function is the wrong thing to do in 99.99% of the
+> situations in the kernel (the one exception seems to be the mca release
+> function that recently got added for use when the bus is doing probing
+> logic.)
+> 
+> Does this help out?
 
+Yes thanks, i was confused over which memory references had to be 
+maintained.
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

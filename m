@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275370AbRIZRnl>; Wed, 26 Sep 2001 13:43:41 -0400
+	id <S275373AbRIZRpB>; Wed, 26 Sep 2001 13:45:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275366AbRIZRnb>; Wed, 26 Sep 2001 13:43:31 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:29408 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S275370AbRIZRnR>; Wed, 26 Sep 2001 13:43:17 -0400
-Date: Wed, 26 Sep 2001 11:43:25 -0600
-Message-Id: <200109261743.f8QHhPU08423@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "David S. Miller" <davem@redhat.com>,
-        <bcrl@redhat.com>, <marcelo@conectiva.com.br>, <andrea@suse.de>,
+	id <S275378AbRIZRol>; Wed, 26 Sep 2001 13:44:41 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:8972 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S275377AbRIZRoj>;
+	Wed, 26 Sep 2001 13:44:39 -0400
+Date: Wed, 26 Sep 2001 19:42:42 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: "David S. Miller" <davem@redhat.com>
+Cc: <gerrit@us.ibm.com>, <riel@conectiva.com.br>, <marcelo@conectiva.com.br>,
+        Andrea Arcangeli <andrea@suse.de>,
+        Linus Torvalds <torvalds@transmeta.com>,
         <linux-kernel@vger.kernel.org>
-Subject: Re: Locking comment on shrink_caches()
-In-Reply-To: <Pine.LNX.4.33.0109261003480.8327-200000@penguin.transmeta.com>
-In-Reply-To: <E15mHjL-0000t8-00@the-village.bc.nu>
-	<Pine.LNX.4.33.0109261003480.8327-200000@penguin.transmeta.com>
+Subject: Re: Locking comment on shrink_caches() 
+In-Reply-To: <20010925.152655.85393753.davem@redhat.com>
+Message-ID: <Pine.LNX.4.33.0109261937430.6377-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds writes:
->   This message is in MIME format.  The first part should be readable text,
->   while the remaining parts are likely unreadable without MIME-aware tools.
->   Send mail to mime@docserver.cac.washington.edu for more info.
 
-Yuk! MIME! I thought you hated it too?
+On Tue, 25 Sep 2001, David S. Miller wrote:
 
-> 	PIII:
-> 		nothing: 32 cycles
-> 		locked add: 50 cycles
-> 		cpuid: 170 cycles
-> 
-> 	P4:
-> 		nothing: 80 cycles
-> 		locked add: 184 cycles
-> 		cpuid: 652 cycles
-> 
->    Remember: these are for the already-exclusive-cache cases. ]
-> 
-> What are the athlon numbers?
+>    I'm very curious as to what workloads are showing pagecache_lock as
+>    a bottleneck.  We haven't noticed this particular bottleneck in most
+>    of the workloads we are running.  Is there a good workload that shows
+>    this type of load?
+>
+> Again, I defer to Ingo for specifics, but essentially something
+> like specweb99 where the whole dataset fits in memory.
 
-Athalon 850 MHz:
-nothing: 11 cycles
-locked add: 12 cycles
-cpuid: 64 cycles
+it was SPECweb99 tests done in 32 GB RAM, 8 CPUs, where the pagecache was
+nearly 30 GB big. We saw visible pagecache_lock contention on such
+systems. Due to TUX's use of zerocopy, page lookups happen at a much
+larger frequency and they are not intermixed with memory copies - in
+contrast with workloads like dbench.
 
-BTW: your code had horrible control-M's on each line. So the compiler
-choked (with a less-than-helpful error message). Of course, cat t.c
-showed nothing amiss. Fortunately emacs doesn't hide information.
+	Ingo
 
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

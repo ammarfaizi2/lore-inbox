@@ -1,38 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264177AbTCXMkS>; Mon, 24 Mar 2003 07:40:18 -0500
+	id <S264173AbTCXMps>; Mon, 24 Mar 2003 07:45:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264182AbTCXMkS>; Mon, 24 Mar 2003 07:40:18 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:59560
+	id <S264176AbTCXMps>; Mon, 24 Mar 2003 07:45:48 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:60584
 	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264177AbTCXMkR>; Mon, 24 Mar 2003 07:40:17 -0500
-Subject: Re: USB compile error with latest 2.5-bk
+	id <S264173AbTCXMpr>; Mon, 24 Mar 2003 07:45:47 -0500
+Subject: Re: Query about SIS963 Bridges
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Greg KH <greg@kroah.com>
-Cc: Louis Garcia <louisg00@bellsouth.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030324095308.GB5934@kroah.com>
-References: <1048462471.1739.1.camel@tiger>
-	 <20030324095308.GB5934@kroah.com>
+To: John M Collins <jmc@xisl.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E7EABB0.9010505@xisl.com>
+References: <3E7E43C3.2080605@xisl.com>
+	 <1048467041.10727.100.camel@irongate.swansea.linux.org.uk>
+	 <3E7EABB0.9010505@xisl.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1048514654.25136.6.camel@irongate.swansea.linux.org.uk>
+Message-Id: <1048514988.25140.11.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 24 Mar 2003 14:04:14 +0000
+Date: 24 Mar 2003 14:09:49 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-03-24 at 09:53, Greg KH wrote:
-> > drivers/usb/core/hcd.c:124: parse error before '>>' token
-> > drivers/usb/core/hcd.c:124: initializer element is not constant
-> > drivers/usb/core/hcd.c:124: (near initialization for
-> > `usb2_rh_dev_descriptor[12]')
-> 
-> I don't see this error with a older compiler.  I suggest filing a bug
-> with Red Hat's bugzilla.
+Can you try
 
-I don't get this error with a current compiler either. Are you sure the 
-patching is ok ?
+	lspci -vxx -H1 -M
+
+and see if thats different
 

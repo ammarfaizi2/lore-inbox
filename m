@@ -1,51 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261327AbUBZXrC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 18:47:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbUBZXqt
+	id S261299AbUBZXvG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 18:51:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbUBZXvG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 18:46:49 -0500
-Received: from [66.46.92.2] ([66.46.92.2]:3037 "EHLO ns1.superclick.com")
-	by vger.kernel.org with ESMTP id S261289AbUBZXq0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 18:46:26 -0500
-Subject: Re: Ibm Serveraid Problem with 2.4.25
-From: Enrico Demarin <enricod@videotron.ca>
-To: Jo Christian Buvarp <jcb@svorka.no>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <403DB882.9000401@svorka.no>
-References: <403DB882.9000401@svorka.no>
-Content-Type: text/plain
-Message-Id: <1077839333.4823.5.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 26 Feb 2004 18:48:53 -0500
+	Thu, 26 Feb 2004 18:51:06 -0500
+Received: from mail011.syd.optusnet.com.au ([211.29.132.65]:28602 "EHLO
+	mail011.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261299AbUBZXvA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 18:51:00 -0500
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16446.34266.601426.78232@wombat.chubb.wattle.id.au>
+Date: Fri, 27 Feb 2004 10:48:42 +1100
+To: Andrew Morton <akpm@osdl.org>
+Cc: Kingsley Cheung <kingsley@aurema.com>, davidm@hpl.hp.com,
+       peter@chubb.wattle.id.au, linux-kernel@vger.kernel.org, dan@debian.org
+Subject: Re: /proc visibility patch breaks GDB, etc.
+In-Reply-To: <20040226151917.404af252.akpm@osdl.org>
+References: <16445.37304.155370.819929@wombat.chubb.wattle.id.au>
+	<20040225224410.3eb21312.akpm@osdl.org>
+	<16446.19305.637880.99704@napali.hpl.hp.com>
+	<20040226120959.35b284ff.akpm@osdl.org>
+	<20040227085941.A21764@aurema.com>
+	<20040226151917.404af252.akpm@osdl.org>
+X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have the same here using the "partially opensource" drivers for a
-Promise TX2... no message on 2.4.24.I wonder if it also means it's
-corrupting the FS ? :(
+>>>>> "Andrew" == Andrew Morton <akpm@osdl.org> writes:
 
+Andrew> Kingsley Cheung <kingsley@aurema.com> wrote:
+>>  Am I correct to assume though that the corresponding change in
+>> proc_task_lookup() should stay?  The existing behaviour there was
+>> that one could do say,
+>> 
+>> cat /proc/<pid>/task/<tid>/stat, where tid could be any thread and
+>> not a part of the thread group pid.
 
-- Enrico
+Andrew> That sounds especially broken - let's hope that nobody has
+Andrew> started using it (but how did you even discover this?  Code
+Andrew> audit?)
 
-On Thu, 2004-02-26 at 04:12, Jo Christian Buvarp wrote:
-> Just upgraded my server with the 2.4.25 kernel and I noticed an error :/
-> The server is an IBM 345 with a Serveraid 5I controller, when doing an
-> dmesg i get this error:
-> 
-> attempt to access beyond end of device
-> 08:05: rw=0, want=528036, limit=528034
-> attempt to access beyond end of device
-> 08:09: rw=0, want=65208120, limit=65208118
-> 
-> This error only shows up in 2.4.25, when rebooting to 2.4.24 everything
-> looks fine :)
-> I tried upgrading the serveraid bios to the newest version (6.11.07),
-> but i still got the error.
-> 
-> So is this an bug in the kernel? Or do I have a problem on my server ?
-> Is it safe to run 2.4.25 with this error ? Or should i go back to 2.4.24
+Andrew> How's this?
+
+Looks fine to me --- should fix my immediate problems.  But maybe we
+*want* (in 2.7?) to deprecate /proc/tid where tid is a thread ID not a
+process ID.
+
+--
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+The technical we do immediately,  the political takes *forever*
+
 

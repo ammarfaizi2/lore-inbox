@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135828AbREANk0>; Tue, 1 May 2001 09:40:26 -0400
+	id <S136001AbREANnF>; Tue, 1 May 2001 09:43:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136613AbREANkR>; Tue, 1 May 2001 09:40:17 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:11278 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S135828AbREANkI>;
-	Tue, 1 May 2001 09:40:08 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: hch@caldera.de, linux-kernel@vger.kernel.org
-Subject: [patch] 2.4.4-ac2 freexvfs
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 01 May 2001 23:39:59 +1000
-Message-ID: <30771.988724399@ocs3.ocs-net>
+	id <S136611AbREANmz>; Tue, 1 May 2001 09:42:55 -0400
+Received: from mons.uio.no ([129.240.130.14]:3762 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S136001AbREANml>;
+	Tue, 1 May 2001 09:42:41 -0400
+MIME-Version: 1.0
+Message-ID: <15086.48447.264388.289216@charged.uio.no>
+Date: Tue, 1 May 2001 15:42:23 +0200
+To: Ion Badulescu <ionut@cs.columbia.edu>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrea Arcangeli <andrea@suse.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.19 locks up on SMP
+In-Reply-To: <Pine.LNX.4.33.0105010514340.14530-100000@age.cs.columbia.edu>
+In-Reply-To: <15086.42872.321353.67228@charged.uio.no>
+	<Pine.LNX.4.33.0105010514340.14530-100000@age.cs.columbia.edu>
+X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
+ =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
+ Valley) (i386-redhat-linux)
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fs/Makefile requires that any filesystem which can be compiled as a
-module must have O_TARGET set to the directory name.  Against 2.4.4-ac2.
+>>>>> " " == Ion Badulescu <ionut@cs.columbia.edu> writes:
 
-Index: 4.8/fs/freevxfs/Makefile
---- 4.8/fs/freevxfs/Makefile Tue, 01 May 2001 23:35:00 +1000 kaos (linux-2.4/d/e/32_Makefile 1.1 644)
-+++ 4.8(w)/fs/freevxfs/Makefile Tue, 01 May 2001 23:38:19 +1000 kaos (linux-2.4/d/e/32_Makefile 1.1 644)
-@@ -2,7 +2,7 @@
- # VxFS Makefile
- #
- 
--O_TARGET :=	vxfs.o
-+O_TARGET :=	freevxfs.o
- 
- obj-y :=	vxfs_bmap.o vxfs_fshead.o vxfs_immed.o vxfs_inode.o \
- 		vxfs_lookup.o vxfs_olt.o vxfs_subr.o vxfs_super.o
+     > On Tue, 1 May 2001, Trond Myklebust wrote:
+    >> Did you apply the following patch which I put out on the lists
+    >> a couple of weeks ago?
 
+     > No, I was testing with 2.2.19 and then I started going back
+     > into the 2.2.19pre series until I found the culprit.
+
+     > I'll give your patch a spin tomorrow, after I catch some
+     > zzz's. :-)
+
+Right you are.
+
+FYI I've now put up those patches of which I am aware against 2.2.19
+on
+
+  http://www.fys.uio.no/~trondmy/src/2.2.19
+
+I'll try to keep that area updated with a brief explanation for each
+patch...
+
+Cheers,
+  Trond

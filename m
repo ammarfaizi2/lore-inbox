@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261411AbSLJNUr>; Tue, 10 Dec 2002 08:20:47 -0500
+	id <S261398AbSLJNTN>; Tue, 10 Dec 2002 08:19:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261559AbSLJNUr>; Tue, 10 Dec 2002 08:20:47 -0500
-Received: from mta9n.bluewin.ch ([195.186.1.215]:38207 "EHLO mta9n.bluewin.ch")
-	by vger.kernel.org with ESMTP id <S261411AbSLJNUq>;
-	Tue, 10 Dec 2002 08:20:46 -0500
-Date: Tue, 10 Dec 2002 14:28:14 +0100
-From: Roger Luethi <rl@hellgate.ch>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.5][Trivial] VIA Rhine Kconfig entry
-Message-ID: <20021210132814.GA10409@k3.hellgate.ch>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-References: <20021208003456.GA12234@k3.hellgate.ch> <3DF2B95E.5060706@pobox.com>
+	id <S261411AbSLJNTN>; Tue, 10 Dec 2002 08:19:13 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:36742 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261398AbSLJNTN>;
+	Tue, 10 Dec 2002 08:19:13 -0500
+Date: Tue, 10 Dec 2002 18:55:02 +0530
+From: Ravikiran G Thirumalai <kiran@in.ibm.com>
+To: "David S. Miller " <davem@redhat.com>
+Cc: netdev <netdev@oss.sgi.com>, linux-kernel@vger.kernel.org
+Subject: [trivial] Use __init and __exit for sctp_init and sctp_exit
+Message-ID: <20021210185502.G17375@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3DF2B95E.5060706@pobox.com>
-User-Agent: Mutt/1.3.27i
-X-Operating-System: Linux 2.5.44 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 07 Dec 2002 22:15:42 -0500, Jeff Garzik wrote:
-> I agree about IO-APIC -- though I also think the reports that replacing 
-> via-rhine with linuxfet, and changing nothing else, helps the situation.
-> 
-> It might be something cosmetic like silly dev->tx_timeout handling, or 
-> it might be something useful like a chip-specific patch [often happens 
-> with on-mobo chips] or even a north/south-bridge-specific fixup.
+These module_init and module_exit routines should have been marked 
+__init and __exit like every where else I guess... 
 
-There are two different kinds of Rhine problems that are reportedly fixed
-by turning apic support off:
+Please apply
 
-a) No link, card's dead in the water
-b) Netdev watchdog triggered despite recent Tx abort fix
+Thanks,
+Kiran
 
-No telling whether the cause is the same for both cases. I don't have
-sufficient data on mobos or chip sets involved and where linuxfet helps. As
-I am currently short on APIC hardware myself, I'll focus on clean ups and
-improved diagnostics for now.
 
-Roger
+diff -ruN -X dontdiff linux-2.5.51/net/sctp/protocol.c sctp_fix-2.5.51/net/sctp/protocol.c
+--- linux-2.5.51/net/sctp/protocol.c	Tue Dec 10 08:16:10 2002
++++ sctp_fix-2.5.51/net/sctp/protocol.c	Tue Dec 10 18:48:07 2002
+@@ -598,7 +598,7 @@
+ }
+ 
+ /* Initialize the universe into something sensible.  */
+-int sctp_init(void)
++int __init sctp_init(void)
+ {
+ 	int i;
+ 	int status = 0;
+@@ -751,7 +751,7 @@
+ }
+ 
+ /* Exit handler for the SCTP protocol.  */
+-void sctp_exit(void)
++void __exit sctp_exit(void)
+ {
+ 	/* BUG.  This should probably do something useful like clean
+ 	 * up all the remaining associations and all that memory.

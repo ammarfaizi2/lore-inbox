@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262931AbVAFSQf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262932AbVAFSUg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262931AbVAFSQf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 13:16:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262986AbVAFSOW
+	id S262932AbVAFSUg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 13:20:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262986AbVAFSRU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 13:14:22 -0500
-Received: from one.firstfloor.org ([213.235.205.2]:14779 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S262932AbVAFSMT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 13:12:19 -0500
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: chasing the four level page table
-References: <9e47339105010609175dabc381@mail.gmail.com>
-From: Andi Kleen <ak@muc.de>
-Date: Thu, 06 Jan 2005 19:12:15 +0100
-In-Reply-To: <9e47339105010609175dabc381@mail.gmail.com> (Jon Smirl's
- message of "Thu, 6 Jan 2005 12:17:33 -0500")
-Message-ID: <m1vfaav340.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 6 Jan 2005 13:17:20 -0500
+Received: from smtpout.mac.com ([17.250.248.85]:55754 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S262932AbVAFSPK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 13:15:10 -0500
+In-Reply-To: <20050106124851.GA8063@mars.ravnborg.org>
+References: <20050106002240.00ac4611.akpm@osdl.org> <20050106124851.GA8063@mars.ravnborg.org>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <E7D3E49F-600E-11D9-892F-000D9352858E@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+From: Felipe Alfaro Solana <lkml@mac.com>
+Subject: Re: 2.6.10-mm2
+Date: Thu, 6 Jan 2005 19:15:11 +0100
+To: Sam Ravnborg <sam@ravnborg.org>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Smirl <jonsmirl@gmail.com> writes:
+On 6 Jan 2005, at 13:48, Sam Ravnborg wrote:
 
-> The DRM driver contains this routine:
+> On Thu, Jan 06, 2005 at 12:22:40AM -0800, Andrew Morton wrote:
+>>  bk-kconfig.patch
 >
-> drivers/char/drm/drm_memory.h
+> Improves the search function in menuconfig - better display of what
+> a symbol depends on / selects.
+> Also display the same information when getting help on a symbol.
 >
-> static inline unsigned long
-> drm_follow_page (void *vaddr)
-> {
-> 	pgd_t *pgd = pgd_offset_k((unsigned long) vaddr);
-> 	pud_t *pud = pud_offset(pgd, (unsigned long) vaddr);
-> 	pmd_t *pmd = pmd_offset(pud, (unsigned long) vaddr);
-> 	pte_t *ptep = pte_offset_kernel(pmd, (unsigned long) vaddr);
-> 	return pte_pfn(*ptep) << PAGE_SHIFT;
-> }
+> Try it out next time you start up menuconfig.
 >
-> No other driver needs to chase the page table like this so there is
-> probably some other way to achieve this. Can someone who knows more
-> about the VM system tell me if there is a way to eliminate this code?
+> Kudos to Roman Zippel for implementing the core functionality.
 
-Yes, you should use get_user_pages() instead if you access real memory.
-If you try to find hardware mappings using that there is no ready
-function for you right now, although I guess it could be added.
+Very nice :-)
+Thanks!
 
-The function is also not quite correct, it should already least take
-the page_table_lock (depending on where you call it from) and check
-p*_none() on each level.
-
--Andi

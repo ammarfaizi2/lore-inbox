@@ -1,101 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264500AbUEJDdo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264502AbUEJEO5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264500AbUEJDdo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 May 2004 23:33:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264502AbUEJDdo
+	id S264502AbUEJEO5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 00:14:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbUEJEO4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 May 2004 23:33:44 -0400
-Received: from fmr10.intel.com ([192.55.52.30]:60116 "EHLO
-	fmsfmr003.fm.intel.com") by vger.kernel.org with ESMTP
-	id S264500AbUEJDdd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 May 2004 23:33:33 -0400
-Subject: Re: ACPI and broken PCI IRQ sharing on Asus M5N laptop
-From: Len Brown <len.brown@intel.com>
-To: Patrick Reynolds <reynolds@cs.duke.edu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615FAF0D@hdsmsx403.hd.intel.com>
-References: <A6974D8E5F98D511BB910002A50A6647615FAF0D@hdsmsx403.hd.intel.com>
-Content-Type: multipart/mixed; boundary="=-+0HHEOsZiTNHIoGMmPum"
-Organization: 
-Message-Id: <1084160004.12352.82.camel@dhcppc4>
+	Mon, 10 May 2004 00:14:56 -0400
+Received: from ausmtp02.au.ibm.com ([202.81.18.187]:37569 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S264502AbUEJEOx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 00:14:53 -0400
+Subject: Re: [PATCH*] show last kernel-image symbol in /proc/kallsyms
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>
+In-Reply-To: <20040509171452.09ee1ca0.rddunlap@osdl.org>
+References: <20040509171452.09ee1ca0.rddunlap@osdl.org>
+Content-Type: text/plain
+Message-Id: <1084162450.8121.6.camel@bach>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 09 May 2004 23:33:25 -0400
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 10 May 2004 14:14:10 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-+0HHEOsZiTNHIoGMmPum
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-On Sun, 2004-05-09 at 22:47, Brown, Len wrote:
-> On Sun, 2004-05-09 at 20:44, Patrick Reynolds wrote:
-
-> >    12:      310     XT-PIC  i8042, Intel 82801DB-ICH4, yenta
-
+On Mon, 2004-05-10 at 10:14, Randy.Dunlap wrote:
+> 'cat' or 'tail' of /proc/kallsyms (2.6.6-rc2 or -rc3, & probably much
+> earlier) does not include the last kernel-image symbol (_einittext).
 > 
-> try booting with "acpi_irq_isa=12"
+> _einittext is the last symbol generated in .tmp_kallsyms2.S
+> and the symbol count in that file also appears to be correct,
+> but the iterator code for /proc/kallsyms comes up 1 short somehow.
 > 
-> ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 6 7 12) *0, disabled.
-> 
-> ACPI: PCI Interrupt Link [LNKB] enabled at IRQ 12
+> Here are 2 patches.  Either one of them "fixes" the problem.
+> Neither of them is the correct fix AFAIK.
 
-On the assumption that cmdline works, please try this patch
-(without any cmdline param).
+Ah, I see you are a student of the Morton school of patch extraction. 
+Well, it worked.
 
-It simply tweaks the heuristic and makes IRQ12 less attractive compared
-to the others.
+Name: Show Last Symbol in /proc/kallsyms
+Status: Tested on 2.6.6-rc3.bk11
 
-thanks,
--Len
+The current code doesn't show the last symbol (usually _einittext) in
+/proc/kallsyms.  The reason for this is subtle: s_start() returns an
+empty string for position 0 (ignored by s_show()), and s_next()
+returns the first symbol for position 1.
 
+What should happen is that update_iter() for position 0 should fill in
+the first symbol.  Unfortunately, the get_ksymbol_core() fills in the
+symbol information, *and* updates the iterator: we have to split these
+functions, which we do by making it return the length of the name
+offset.
 
---=-+0HHEOsZiTNHIoGMmPum
-Content-Disposition: attachment; filename=pci_link.patch
-Content-Type: text/plain; name=pci_link.patch; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Then we can call get_ksymbol_core() without moving the iterator,
+meaning that we can call it at position 0 (ie. s_start()).
 
-===== drivers/acpi/pci_link.c 1.28 vs edited =====
---- 1.28/drivers/acpi/pci_link.c	Thu May  6 16:03:17 2004
-+++ edited/drivers/acpi/pci_link.c	Sun May  9 23:16:48 2004
-@@ -478,7 +478,7 @@
- 	PIRQ_PENALTY_PCI_AVAILABLE,	/* IRQ9  PCI, often acpi */
- 	PIRQ_PENALTY_PCI_AVAILABLE,	/* IRQ10 PCI */
- 	PIRQ_PENALTY_PCI_AVAILABLE,	/* IRQ11 PCI */
--	PIRQ_PENALTY_ISA_TYPICAL,	/* IRQ12 mouse */
-+	PIRQ_PENALTY_ISA_USED,	/* IRQ12 mouse */
- 	PIRQ_PENALTY_ISA_USED,	/* IRQ13 fpe, sometimes */
- 	PIRQ_PENALTY_ISA_USED,	/* IRQ14 ide0 */
- 	PIRQ_PENALTY_ISA_USED,	/* IRQ15 ide1 */
-@@ -545,17 +545,23 @@
- 		if (link->irq.active == link->irq.possible[i])
- 			break;
- 	}
-+	/*
-+	 * forget active IRQ that is not in possible list
-+	 */
-+	if (i == link->irq.possible_count) {
-+		if (acpi_strict)
-+			printk(KERN_WARNING PREFIX "_CRS %d not found"
-+				" in _PRS\n", link->irq.active);
-+		link->irq.active = 0;
-+	}
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.6-rc3-bk11/kernel/kallsyms.c working-2.6.6-rc3-bk11/kernel/kallsyms.c
+--- linux-2.6.6-rc3-bk11/kernel/kallsyms.c	2004-03-12 07:57:28.000000000 +1100
++++ working-2.6.6-rc3-bk11/kernel/kallsyms.c	2004-05-10 13:11:06.000000000 +1000
+@@ -171,21 +171,23 @@ static int get_ksymbol_mod(struct kallsy
+ 	return 1;
+ }
  
- 	/*
- 	 * if active found, use it; else pick entry from end of possible list.
- 	 */
--	if (i != link->irq.possible_count) {
-+	if (link->irq.active) {
- 		irq = link->irq.active;
- 	} else {
- 		irq = link->irq.possible[link->irq.possible_count - 1];
--		if (acpi_strict)
--			printk(KERN_WARNING PREFIX "_CRS %d not found"
--				" in _PRS\n", link->irq.active);
- 	}
+-static void get_ksymbol_core(struct kallsym_iter *iter)
++/* Returns space to next name. */
++static unsigned long get_ksymbol_core(struct kallsym_iter *iter)
+ {
+-	unsigned stemlen;
++	unsigned stemlen, off = iter->nameoff;
  
- 	if (acpi_irq_balance || !link->irq.active) {
+ 	/* First char of each symbol name indicates prefix length
+ 	   shared with previous name (stem compression). */
+-	stemlen = kallsyms_names[iter->nameoff++];
++	stemlen = kallsyms_names[off++];
+ 
+-	strlcpy(iter->name+stemlen, kallsyms_names+iter->nameoff, 128-stemlen);
+-	iter->nameoff += strlen(kallsyms_names + iter->nameoff) + 1;
++	strlcpy(iter->name+stemlen, kallsyms_names + off, 128-stemlen);
++	off += strlen(kallsyms_names + off) + 1;
+ 	iter->owner = NULL;
+ 	iter->value = kallsyms_addresses[iter->pos];
+ 	iter->type = 't';
+ 
+ 	upcase_if_global(iter);
++	return off - iter->nameoff;
+ }
+ 
+ static void reset_iter(struct kallsym_iter *iter)
+@@ -210,16 +212,16 @@ static int update_iter(struct kallsym_it
+ 
+ 	/* We need to iterate through the previous symbols: can be slow */
+ 	for (; iter->pos != pos; iter->pos++) {
+-		get_ksymbol_core(iter);
++		iter->nameoff += get_ksymbol_core(iter);
+ 		cond_resched();
+ 	}
++	get_ksymbol_core(iter);
+ 	return 1;
+ }
+ 
 
---=-+0HHEOsZiTNHIoGMmPum--
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 

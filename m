@@ -1,71 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270624AbTGURGc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 13:06:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270630AbTGURFl
+	id S270605AbTGURI7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 13:08:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270608AbTGURI6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 13:05:41 -0400
-Received: from mta7.srv.hcvlny.cv.net ([167.206.5.22]:62897 "EHLO
-	mta7.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S270625AbTGURF0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 13:05:26 -0400
-Date: Mon, 21 Jul 2003 13:12:32 -0400
-From: Jeff Sipek <jeffpc@optonline.net>
-Subject: Re: 2.6.0-test1 cryptoloop & aes & xfs
-In-reply-to: <20030720213803.GA777@jolla>
-To: Hielke Christian Braun <hcb@unco.de>, linux-kernel@vger.kernel.org
-Message-id: <200307211312.40068.jeffpc@optonline.net>
-MIME-version: 1.0
-Content-type: Text/Plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-Content-description: clearsigned data
-User-Agent: KMail/1.5.2
-References: <20030720005726.GA735@jolla>
- <20030720103852.A11298@pclin040.win.tue.nl> <20030720213803.GA777@jolla>
+	Mon, 21 Jul 2003 13:08:58 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:38153
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S270605AbTGURIz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 13:08:55 -0400
+Date: Mon, 21 Jul 2003 10:23:55 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Mike Galbraith <efault@gmx.de>,
+       Davide Libenzi <davidel@xmailserver.org>
+Subject: Re: [PATCH] O7int for interactivity
+Message-ID: <20030721172355.GA1158@matchmail.com>
+Mail-Followup-To: Con Kolivas <kernel@kolivas.org>,
+	linux kernel mailing list <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, Mike Galbraith <efault@gmx.de>,
+	Davide Libenzi <davidel@xmailserver.org>
+References: <20030718230717.GG2289@matchmail.com> <200307190930.37447.kernel@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200307190930.37447.kernel@kolivas.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sat, Jul 19, 2003 at 09:30:37AM +1000, Con Kolivas wrote:
+> On Sat, 19 Jul 2003 09:07, Mike Fedyk wrote:
+> > On Sat, Jul 19, 2003 at 02:10:49AM +1000, Con Kolivas wrote:
+> > > Here is an update to my Oint patches for 2.5/6 interactivity. Note I will
+> > Is this on top of 06 or 06.1?
+> 
+> On top of O6.1.
+> 
 
-On Sunday 20 July 2003 17:38, Hielke Christian Braun wrote:
-> Thanks for the tip. With util-linux-2.12 i can setup the device.
->
-> So the new cryptoloop in 2.6.0 is incompatible to the one in the
-> international crypto patch?
->
-> I could not access my old data. So i created a new one. But when
-> i copy some data onto it, i get:
->
-> XFS mounting filesystem loop5
-> Ending clean XFS mount for filesystem: loop5
-> xfs_force_shutdown(loop5,0x8) called from line 1070 of file
-> fs/xfs/xfs_trans.c. Return address = 0xc02071ab Filesystem "loop5":
-> Corruption of in-memory data detected. Shutting down filesystem: loop5
-> Please umount the filesystem, and rectify the problem(s)
->
-> To setup, i did this:
->
-> losetup -e aes /dev/loop5 /dev/hda4
-> mkfs.xfs /dev/hda4
+Ok, after some testing I have a test case that hits a severe starvation case.
 
-No, you should use
+I have the courier-imap server running on my box, and when mozilla gets
+messages with junk filtering turned on, it has to download each message to
+scan it, almost all of the processing is in mozilla, and the mouse is smooth
+as you'd see on windows, but I can't get anything else to run.
 
-mkfs.xfs /dev/loop5
+My kde taskbar won't switch desktops, though gkrellm keeps running smoothly
+reporting 100% processor usage.
 
-you want to create a fs on the loop device.
-
-Jeff.
-
-- -- 
-bad pun of the week: the formula 1 control computer suffered from a race 
-condition
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/HB8EwFP0+seVj/4RAn6DAJ9pqcYxLq2mee/RaFCBdtr3YvorlgCgkubm
-IY3V6WaA0K3xNnIqL0yNIQU=
-=2FAW
------END PGP SIGNATURE-----
-
+I'm not using sound on this machine ATM, so I have nothing to say about
+XMMS...

@@ -1,75 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265298AbTF1RHG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jun 2003 13:07:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265300AbTF1RHG
+	id S265300AbTF1RP0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jun 2003 13:15:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265303AbTF1RP0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jun 2003 13:07:06 -0400
-Received: from cpt-dial-196-30-178-116.mweb.co.za ([196.30.178.116]:55168 "EHLO
-	nosferatu.lan") by vger.kernel.org with ESMTP id S265298AbTF1RGx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jun 2003 13:06:53 -0400
-Subject: Re: patch-O1int-0306281420 for 2.5.73 interactivity
-From: Martin Schlemmer <azarah@gentoo.org>
-Reply-To: azarah@gentoo.org
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Mike Galbraith <efault@gmx.de>, Zwane Mwaikambo <zwane@linuxpower.ca>,
-       Roberto Orenstein <rstein@brturbo.com>
-In-Reply-To: <200306290230.40059.kernel@kolivas.org>
-References: <200306281516.12975.kernel@kolivas.org>
-	 <200306290230.40059.kernel@kolivas.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-+HVWgpF2/q+xLCfq+U5s"
-Organization: 
-Message-Id: <1056820945.14725.33.camel@nosferatu.lan>
+	Sat, 28 Jun 2003 13:15:26 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:47242 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S265300AbTF1RPZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jun 2003 13:15:25 -0400
+Date: Sat, 28 Jun 2003 10:29:59 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.73-mm1 falling over in SDET
+Message-Id: <20030628102959.455f689f.akpm@digeo.com>
+In-Reply-To: <45120000.1056810681@[10.10.2.4]>
+References: <45120000.1056810681@[10.10.2.4]>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4- 
-Date: 28 Jun 2003 19:22:25 +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 28 Jun 2003 17:29:42.0341 (UTC) FILETIME=[DC194F50:01C33D9A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Martin J. Bligh" <mbligh@aracnet.com> wrote:
+>
+> The killer SDET has got you, but this is all I got from the chewed
+> remains. Maybe the EIP is enough? ;-) I guess that's a NULL ptr
+> dereference, though garbled somewhat.
+> 
+> Unable to handle kernel <1pa>Uginnabgl re eqtoue hsta ndatle  vikertrnuaell  NadULdrL espos inaftecr71 d11er0
+> er penricent iantg v eiirtp:ua            ef
+>  cad01drc4es37s a             l
+> 000*0pd00e 0     0
+> 00 p00ri00nt00in
+> g Oeiopps: 0000 [#1]
+> SMP 
+> CPU:    -266755620
+> EIP:    0060:[<c01c437a>]    Not tainted VLI
+> EFLAGS: 00010083
+> EIP is at drive_stat_acct+0x76/0xcc
 
---=-+HVWgpF2/q+xLCfq+U5s
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Interesting CPU number.
 
-On Sat, 2003-06-28 at 18:30, Con Kolivas wrote:
-> On Sat, 28 Jun 2003 15:16, Con Kolivas wrote:
-> > For my sins I've included what I thought was necessary for this patch.
-> >
-> And just for good measure here is the latest with a slight addition that =
-helps=20
-> X smoothness over time. It gives the sleep_avg a little headroom so it=20
-> doesn't drop from interactive as easily with bursts of cpu activity.
+The mangled output is supposed to be fixed.  Looks like it
+only partially worked.  Why doesn't someone fix this?
 
-Have not tried this one, but previous had the same issues on this HT
-box.  Reverted the two patches, and I have no mouse jerkyness or laggy
-redraw of windows.
-
-Anyhow, will it be a wise move to try and get a scheduler that works
-fine for both UP and SMP ?
-
-
-Regards,
-
---=20
-
-Martin Schlemmer
-
-
-
---=-+HVWgpF2/q+xLCfq+U5s
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA+/c7RqburzKaJYLYRAqKYAJ9mPSgzS+eWMa+pSN5byYBqLxH41gCeI+iV
-1hf7nQ1D8O803ccpNNamBJQ=
-=92FX
------END PGP SIGNATURE-----
-
---=-+HVWgpF2/q+xLCfq+U5s--
-
+No, it ain't a lot of use really.  Is it repeatable?  If
+so does changing elevators make it go away?

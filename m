@@ -1,65 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318775AbSIFP6p>; Fri, 6 Sep 2002 11:58:45 -0400
+	id <S319243AbSIFQBu>; Fri, 6 Sep 2002 12:01:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318772AbSIFP6p>; Fri, 6 Sep 2002 11:58:45 -0400
-Received: from mail1.cirrus.com ([141.131.3.20]:46731 "EHLO mail1.cirrus.com")
-	by vger.kernel.org with ESMTP id <S318767AbSIFP6o>;
-	Fri, 6 Sep 2002 11:58:44 -0400
-Message-ID: <973C11FE0E3ED41183B200508BC7774C05233F87@csexchange.crystal.cirrus.com>
-From: "Woller, Thomas" <tom.woller@cirrus.com>
-To: "'Rik van Riel'" <riel@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org, "Woller, Thomas" <tom.woller@cirrus.com>
-Subject: RE: cs4281 & select in 2.4
-Date: Fri, 6 Sep 2002 11:01:31 -0500 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	id <S319244AbSIFQBu>; Fri, 6 Sep 2002 12:01:50 -0400
+Received: from pc-80-195-6-65-ed.blueyonder.co.uk ([80.195.6.65]:20611 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S319243AbSIFQBt>; Fri, 6 Sep 2002 12:01:49 -0400
+Date: Fri, 6 Sep 2002 17:06:14 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Aaron Lehmann <aaronl@vitelus.com>
+Cc: linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
+Subject: Re: ext3 throughput woes on certain (possibly heavily fragmented) files
+Message-ID: <20020906170614.A7946@redhat.com>
+References: <20020903092419.GA5643@vitelus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020903092419.GA5643@vitelus.com>; from aaronl@vitelus.com on Tue, Sep 03, 2002 at 02:24:19AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-which 2.4 version are you using? 2.4.19?  There was a ham-radio
-select(2) fix in the cs4281 driver back in 2.4.17 era, think that
-it got into the 2.4.18 kernel tree.  I just checked the 2.4.19
-kernel and the fix does seem to be included.  i'll place a tarbz2
-file out on an FTP server, and if you can try this driver, that
-would help me out.  if the driver does not build under your tree,
-let me know, it's circa 2.4.17 and i don't know the 2.4.19 mods
-concerning drivers. 
-server: ftp1.cirrus.com
-Username:     ftppclink
-Password:     cSPxQMd
-
-i'll put cs4281-src-20011214-01n-tar.bz2 into \cs4281 directory.
-thanks
-Tom
-
------Original Message-----
-From: Rik van Riel [mailto:riel@conectiva.com.br]
-Sent: Thursday, September 05, 2002 7:20 PM
-To: twoller@crystal.cirrus.com
-Cc: pcaudio@crystal.cirrus.com; linux-kernel@vger.kernel.org
-Subject: cs4281 & select in 2.4
-
-
 Hi,
 
-it looks like select() is broken for the cs4281 sound driver
-in the 2.4 kernel. This breaks pretty much all GUI ham radio
-applications that use the sound card ;(
+On Tue, Sep 03, 2002 at 02:24:19AM -0700, Aaron Lehmann wrote:
 
-I've done some tracing on various ham radio applications, but
-none of the ones that use select() get any data from the cs4281
-driver.
+> [aaronl@vitelus:~]$ time cat mail/debian-legal > /dev/null
+> cat mail/debian-legal > /dev/null  0.00s user 0.02s system 0% cpu 5.565 total
+> [aaronl@vitelus:~]$ ls -l mail/debian-legal
+> -rw-------    1 aaronl   mail      7893525 Sep  3 00:42 mail/debian-legal
+> [aaronl@vitelus:~]$ time cat /usr/src/linux-2.4.18.tar.bz2 > /dev/null
+> cat /usr/src/linux-2.4.18.tar.bz2 > /dev/null  0.00s user 0.10s system 16% cpu 0.616 total
+> [aaronl@vitelus:~]$ ls -l /usr/src/linux-2.4.18.tar.bz2 
+> -rw-r--r--    1 aaronl   aaronl   24161675 Apr 14 11:53
+> 
+> Both files were AFAIK not in any cache, and they are on the same
+> partition.
+> 
+> My current uninformed theory is that this is caused by fragmentation,
+> since the linux tarball was downloaded all at once but the mailbox I'm
+> comparing it to has 1695 messages, each of which having been appended
+> seperately to the file. All of my mailboxes exhibit similarly awful
+> performance.
 
-The applications tried include glfer and hamfax.
+Yep, both ext2 and ext3 can get badly fragmented by files which are
+closed, reopened and appended to frequently like that.
 
-kind regards,
+> Do any other filesystems handle this type of thing more gracefully?
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
+There are some ideas from recent FFS changes.  One thing they now do
+is to defragment things automatically as a file grows by effectively
+deleting and then reallocating the last 16 blocks of the file.
+Fragmentation will still occur, but less so, if we do that.
 
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Spamtraps of the month:  september@surriel.com trac@trac.org
+Cheers,
+ Stephen

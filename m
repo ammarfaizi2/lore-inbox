@@ -1,74 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265810AbSKAXT2>; Fri, 1 Nov 2002 18:19:28 -0500
+	id <S265812AbSKAXUr>; Fri, 1 Nov 2002 18:20:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265811AbSKAXT1>; Fri, 1 Nov 2002 18:19:27 -0500
-Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:942 "EHLO
-	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S265810AbSKAXT1>; Fri, 1 Nov 2002 18:19:27 -0500
-Date: Fri, 1 Nov 2002 18:25:55 -0500
-To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Filesystem Capabilities in 2.6?
-Message-ID: <20021101232555.GA6413@ravel.coda.cs.cmu.edu>
-Mail-Followup-To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
-	linux-kernel@vger.kernel.org
-References: <20021101085148.E105A2C06A@lists.samba.org> <1036175565.2260.20.camel@mentor> <apuj4s$e33$1@main.gmane.org> <871y6554g0.fsf@goat.bogus.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <871y6554g0.fsf@goat.bogus.local>
-User-Agent: Mutt/1.4i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+	id <S265818AbSKAXUq>; Fri, 1 Nov 2002 18:20:46 -0500
+Received: from 12-237-135-160.client.attbi.com ([12.237.135.160]:55815 "EHLO
+	skarpsey.dyndns.org") by vger.kernel.org with ESMTP
+	id <S265812AbSKAXUm> convert rfc822-to-8bit; Fri, 1 Nov 2002 18:20:42 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Kelledin <kelledin+LKML@skarpsey.dyndns.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: AlphaPC+Sym53c8xx driver failure
+Date: Fri, 1 Nov 2002 18:22:50 -0500
+User-Agent: KMail/1.4.3
+References: <3DC2E30E.13470.26B6B20E@localhost>
+In-Reply-To: <3DC2E30E.13470.26B6B20E@localhost>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211011722.50320.kelledin+LKML@skarpsey.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 01, 2002 at 11:07:59PM +0100, Olaf Dietsche wrote:
-> > Unfortunately Alexander has spoken again:
-> >
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=103498212701476&w=4
-> 
-> Well, this was his first histerical response. In the meantime, all his
-> points have been addressed. I haven't heard of new objections, did you?
+On Friday 01 November 2002 01:24 pm, Martin Brulisauer wrote:
+> Did you apply the core_cia.c patch?
+> You can find it at
+> http://knowledge.bruli.net/uploads/core_cia-patch.txt
 
-I have several comments.
+Thx, I did not know about that one...
 
-Where are the capabilities stored? In a file called .capability in the
-root of the filesystem? Why would that root be writable, my current Coda
-development tree has a read-only top-level directory in which different
-realms can be dynamically mounted (similar to autofs).
+Are there any other commonly-used patches to get 2.4 working on 
+the Alpha?  It seems Alpha support is just not seriously 
+maintained in the stock kernel...
 
-How would I remove a capability from a vulnerable binary on readonly
-media (i.e. cdrom), while still allowing other applications on the same
-disk to run with special caps.
-
-Right now an administrator can simply search for all setuid binaries to
-check for possible 'unwanted priviledge elevations'. With the proposed
-capabilities seemingly ordinary applications could suddenly have special
-powers. Also when I explicitly drop capabilities secure a system, these
-fs-caps could very well reintroduce a capability that were not in the
-permitted set of any of the running processes.
-
-It is probably better to remove than to add capabilities. As everyone
-knows a setuid app is 'dangerous' use this code to remove some of the
-power that normally is associated with setuid. I.e. when the setuid bit
-is set for a specific application don't change euid to root, but still
-give the power to bind to priviledged ports.
-
-In the end I believe capabilities (like setuid) should be a local
-decision. Yes, I'm looking at this from the viewpoint of a distributed
-network filesystem that crosses administrative boundaries, and as such I
-don't always trust whatever is stored in a mounted volume.
-
-Why not modify a program like sudo or super that can give capabilities
-to processes based on local rules and configuration... Ok there already
-is a programs that does something like this which is called 'whichcap'.
-
-Another solution is to have a trusted daemon that is the only process
-in the system with the capability to grant capabilities to other
-proceses. Other processes can send a request to this daemon, which can
-consult local rules, double check md5 checksum or whatever paranoia is
-needed before it actually does a setcap.
-
-Jan
+-- 
+Kelledin
+"If a server crashes in a server farm and no one pings it, does 
+it still cost four figures to fix?"
 

@@ -1,54 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271086AbTGQPuo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 11:50:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271108AbTGQPuo
+	id S271108AbTGQP5e (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 11:57:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271120AbTGQP5e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 11:50:44 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:34062 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S271086AbTGQPsf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 11:48:35 -0400
-Date: Thu, 17 Jul 2003 18:03:28 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Walt H <waltabbyh@comcast.net>,
-       arjanv@redhat.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       davzaffiro@tasking.nl
-Subject: Re: [PATCH] pdcraid and weird IDE geometry
-Message-ID: <20030717180328.A2467@pclin040.win.tue.nl>
-References: <3F160965.7060403@comcast.net> <1058431742.5775.0.camel@laptop.fenrus.com> <3F16B49E.8070901@comcast.net> <1058453918.9055.12.camel@dhcp22.swansea.linux.org.uk> <3F16C1F3.40206@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3F16C1F3.40206@pobox.com>; from jgarzik@pobox.com on Thu, Jul 17, 2003 at 11:34:11AM -0400
+	Thu, 17 Jul 2003 11:57:34 -0400
+Received: from 64-76-6-141-tnttlp2.dial-up.net.ar ([64.76.6.141]:4224 "EHLO
+	smtp.bensa.ar") by vger.kernel.org with ESMTP id S271108AbTGQP5c
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 11:57:32 -0400
+From: Norberto BENSA <nbensa@gmx.net>
+Reply-To: nbensa@yahoo.com
+Organization: BENSA.ar
+To: Terje Kvernes <terjekv@math.uio.no>
+Subject: Re: 2.6 sound drivers?
+Date: Thu, 17 Jul 2003 13:08:51 -0300
+User-Agent: KMail/1.5.2
+Cc: Jeff Garzik <jgarzik@pobox.com>, Max Valdez <maxvalde@fis.unam.mx>,
+       kernel <linux-kernel@vger.kernel.org>
+References: <20030716225826.GP2412@rdlg.net> <200307162318.27081.nbensa@gmx.net> <wxx7k6h8f5n.fsf@nommo.uio.no>
+In-Reply-To: <wxx7k6h8f5n.fsf@nommo.uio.no>
+X-Operating-System: Gentoo GNU/Linux 1.4
+X-PGP-Key: http://pgp.mit.edu:11371/pks/lookup?op=get&search=0x49664BBE
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_WosF/Iu7XcEYMPy";
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200307171308.54518.nbensa@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 17, 2003 at 11:34:11AM -0400, Jeff Garzik wrote:
 
-> Can't you fix the geometry from fdisk expert mode?
-> 
-> I've done that several times before, when otherwise like-sized disks 
-> appeared with vastly different geometry.
+--Boundary-02=_WosF/Iu7XcEYMPy
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Description: signed data
+Content-Disposition: inline
 
-It is easiest to think that it is meaningless what you say
-(in this case). A disk does not have a geometry, and
-moreover you cannot change it with fdisk.
+Terje Kvernes wrote:
+> Norberto BENSA <nbensa@gmx.net> writes:
+> > Last time I've checked ALSA, it didn't support bass and treble,
+> > that's why I'm using OSS (emu10k1)
+>
+>   I have treble and base support on my emu10k1 via ALSA.
 
-However, under some circumstances, some kernels will guess
-a (translated) geometry from a DOS-type partition table,
-so it is true that under some kernel versions you can use
-fdisk to change the kernel's ideas about disk geometry.
-A very fragile activity.
+How could this be true if:
 
-[Moreover, there are several kinds of geometry, and the present
-authors of ide-disk.c conveniently confused them all.
-Concerning pdcraid, I don't know for which of the possible
-ideas of geometry it is true that one needs the first sector
-of the last cylinder.]
+Ian Hastie wrote:
+> ALSA's support seems usable, but still doesn't allow you to programme the
+> DSP with your own code.  OSS uses this to enable such things as bass and
+> treble controls, as well as a selection of audio effects with code
+> provided.  Anyone know if ALSA will allow this kind of thing in the futur=
+e?
 
-Andries
+???
+
+Anyone (Terje, Ed) care to say HOW did you enabled treble and bass in emu10=
+k1=20
+(ALSA) or you will continuously say "it works for me" without saying anythi=
+ng=20
+useful?
+
+Many thanks in advance,
+Norberto
+=2D-=20
+$ man women
+No manual entry for women
+
+
+--Boundary-02=_WosF/Iu7XcEYMPy
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/FsoWFXVF50lmS74RAoX5AJ9kIrmmaXmyGJw6iVkxU1zzLQGYDACfc4JI
+361fKFozuba9Q1lL46eSLG0=
+=4Mty
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_WosF/Iu7XcEYMPy--
 

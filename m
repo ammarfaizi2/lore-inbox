@@ -1,68 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262566AbUBYBWm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 20:22:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262565AbUBYBWm
+	id S262558AbUBYBVs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 20:21:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262559AbUBYBVs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 20:22:42 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:44754 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262566AbUBYBWh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 20:22:37 -0500
-Subject: Re: 2.6.3-mm3 hangs on  boot x440 (scsi?)
-From: john stultz <johnstul@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040224170645.392abcff.akpm@osdl.org>
-References: <20040222172200.1d6bdfae.akpm@osdl.org>
-	 <1077668801.2857.63.camel@cog.beaverton.ibm.com>
-	 <20040224170645.392abcff.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1077672147.2857.78.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 24 Feb 2004 17:22:28 -0800
-Content-Transfer-Encoding: 7bit
+	Tue, 24 Feb 2004 20:21:48 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:34317 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262558AbUBYBVp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 20:21:45 -0500
+Date: Wed, 25 Feb 2004 01:21:39 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Otto Solares <solca@guug.org>
+cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] fbdv/fbcon pending problems
+In-Reply-To: <20040224214106.GA17390@guug.org>
+Message-ID: <Pine.LNX.4.44.0402250118210.24952-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-02-24 at 17:06, Andrew Morton wrote:
-> john stultz <johnstul@us.ibm.com> wrote:
-> >
-> > 	Booting 2.6.3-mm3 on an x440 hangs the box during the SCSI probe after
-> > the following:
-> >  
-> > scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
-> >         <Adaptec aic7899 Ultra160 SCSI adapter>                 
-> >         aic7899: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
-> >                                                                 
-> > 
-> > I went back to 2.6.3-mm1 (as it was a smaller diff) and the problem was
-> > there as well. 
+
+> Sure, hopefully fbdev drivers became more 'intelligent', with just a
 > 
-> Could you try reverting aic7xxx-deadlock-fix.patch?  Also, add
-> initcall_debug to the boot command just so we know we aren't blaming the
-> wrong thing.
+> echo "1024x768x16-75" > /sys/class/fbdev/0/geometry
+> 
+> they will compute internally the timings or get it from EDID and
+> glad the user with something correct for the hardware.
+> 
+> cat /sys/class/fbdev/0/modes
+> 
+> will give you the modes supported by the card.
 
-I was suspecting that patch, unfortunately reverting it doesn't seem to
-help.
+Yes.
+ 
+> On the other side i see a lot of effort in the fbdev acceleration,
+> it is nice but that effort should be better spent on fixing the layer,
+> imo, the only user for acceleration is fbcon, any userland app that
+> use fbdev disables that acceleration so it can map the vmem and ioregs,
+> and do it's own voodoo if it wants acceleration.  That acceleration
+> is not "exported" to user space.  I am working in a open source project
+> that uses mesa-solo with fbdev and many limitations from the layer
+> itself have been seen.
 
-Here's the initcall_debug output:
+That is true so far for fillrect and copyarea functions. Imageblit will be 
+used for read and writes on /dev/fbX. Also it is used for software 
+cursors. 
 
-ide-floppy driver 0.99.newide
-calling initcall 0xc04d6821  
-scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
-        <Adaptec aic7899 Ultra160 SCSI adapter>                 
-        aic7899: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
-                                                                
+> By 'fixing the layer' i mean some simple things that could make fbdev
+> a real graphics solution for linux in the long term:
+> 
+> - fbdev_core (will handle the fbdev/sysfs registration, shared by all
+>               drivers, most important is the modes handling interface).
 
-> Apart from that, gosh.  Maybe you could add just linus.patch and
-> bk-scsi.patch, see if that hangs too?  Or just test the latest linus tree -
-> the scsi changes were merged this morning.  Thanks.
+Pretty much done.
 
-The bk.current that I tested and worked was from about two hours ago.
-But I'll spin it again as 4 new changesets have shown up.
+> - fbdev_xxx  (driver for specific hw, it will only export the interesting
+>               bits like vmem, ioregs, will handle mmap stuff and ioctl's,
+>               video modes, no accel of any kind).
 
-thanks
--john
+Have it.
+
+> - fbdev_xxx_accel (acceleration hooks if any for xxx driver, optional module)
+
+We need it for the above reasons.
+
+> - fbdev_con  (handle console -- already modular in 2.6, will use accel hooks
+>               if not NULL, optional).
+
+We always need the accel hooks. Some how we have to draw the fonts.
+
+> - fbdev_xxx_drm (will handle the DRM for xxx using hooks from fbdev, so we
+>               could have just a single entity inside the kernel handling a
+>               specific device, and not the current mess within fbdev and
+>               drm, optional).
+
+That will be the future.
+
+> We have now with 2.6 a good input and sound layers.  Just by fixing
+> the graphics layer many interesting userland projects could be born.
+
+I agree. The graphics layer is the last frontier.
+
 

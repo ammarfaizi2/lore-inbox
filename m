@@ -1,31 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261695AbREVNc3>; Tue, 22 May 2001 09:32:29 -0400
+	id <S261681AbREVNat>; Tue, 22 May 2001 09:30:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261685AbREVNcT>; Tue, 22 May 2001 09:32:19 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:21775 "EHLO
+	id <S261683AbREVNaj>; Tue, 22 May 2001 09:30:39 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:17423 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S261683AbREVNcI>; Tue, 22 May 2001 09:32:08 -0400
-Subject: Re: Fix for an SMP locking bug in NFS code
-To: matthewc@cse.unsw.edu.au (Matt Chapman)
-Date: Tue, 22 May 2001 14:28:47 +0100 (BST)
-Cc: torvalds@transmeta.com (Linus Torvalds),
-        trond.myklebust@fys.uio.no (Trond Myklebust),
-        linux-kernel@vger.kernel.org (Linux Kernel),
-        linux-fsdevel@vger.kernel.org (Linux FS-Devel)
-In-Reply-To: <20010522231139.A515@cse.unsw.edu.au> from "Matt Chapman" at May 22, 2001 11:11:40 PM
+	id <S261681AbREVNa2>; Tue, 22 May 2001 09:30:28 -0400
+Subject: Re: [patch] s_maxbytes handling
+To: andrewm@uow.edu.au (Andrew Morton)
+Date: Tue, 22 May 2001 14:27:45 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (lkml)
+In-Reply-To: <3B0A6124.E90717E7@uow.edu.au> from "Andrew Morton" at May 22, 2001 10:52:52 PM
 X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E152CDP-0001rY-00@the-village.bc.nu>
+Message-Id: <E152CCP-0001rM-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've already run this by Trond so I'm sending this patch without
-> further ado.  It adds a lock_kernel around a call into NLM code,
-> and removes an extraneous (really) lock_kernel in sys_fcntl64.
+> If ->f_pos is positioned exactly at sb->s_maxbytes, a non-zero-length
+> write to the file doesn't write anything, and write() returns zero.
 
-matthew@wil.cx is the locking code maintainer if he's not already seen this
+Are you absolutely sure here. Because I ran that code through a set of standards
+verification tests. So unless you can cite page and paragraph from SuS and
+the LFS spec I think the 0 might in fact be correct..
+
+Alan
+
+
 

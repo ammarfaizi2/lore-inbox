@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262502AbRENVYM>; Mon, 14 May 2001 17:24:12 -0400
+	id <S262503AbRENVZM>; Mon, 14 May 2001 17:25:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262503AbRENVYC>; Mon, 14 May 2001 17:24:02 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:1546 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262502AbRENVX4>; Mon, 14 May 2001 17:23:56 -0400
-Subject: Re: LANANA: To Pending Device Number Registrants
-To: neilb@cse.unsw.edu.au (Neil Brown)
-Date: Mon, 14 May 2001 22:20:06 +0100 (BST)
-Cc: torvalds@transmeta.com (Linus Torvalds),
-        jgarzik@mandrakesoft.com (Jeff Garzik),
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        hpa@transmeta.com (H. Peter Anvin),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
-        viro@math.psu.edu
-In-Reply-To: <15104.17957.253821.765483@notabene.cse.unsw.edu.au> from "Neil Brown" at May 15, 2001 06:55:01 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S262504AbRENVZE>; Mon, 14 May 2001 17:25:04 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:9154 "HELO havoc.gtf.org")
+	by vger.kernel.org with SMTP id <S262503AbRENVYw>;
+	Mon, 14 May 2001 17:24:52 -0400
+Message-ID: <3B004D1D.6E7140C@mandrakesoft.com>
+Date: Mon, 14 May 2001 17:24:45 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "H. Peter Anvin" <hpa@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        viro@math.psu.edu
+Subject: Re: LANANA: To Pending Device Number Registrants
+In-Reply-To: <3B003EFC.61D9C16A@mandrakesoft.com>
+		<Pine.LNX.4.31.0105141328020.22874-100000@penguin.transmeta.com> <15104.17957.253821.765483@notabene.cse.unsw.edu.au>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14zPl9-0001S9-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Neil Brown wrote:
+> So I need a major number - to give to devfs_register_blkdev at least.
+> You don't want me to have a hardcoded one (which is fine) so I need a
+> dynamically allocated one - yes?
+> 
 > This means that we need some analogue to {get,put}_unnamed_dev that
 > manages a range of dynamically allocated majors.
 > Is there such a beast already, or does someone need to write it?
-> What range(s) should be used for block devices? 
-> 
-> Am I missing something obvious here?
+> What range(s) should be used for block devices?
 
-Obvious question: Do you need your majors to be together in order, or can
-you pick 8 random numbers each boot and expect the user to cope ?
+register_blkdev will assign a dynamic major to your block device, if a
+static one is not provided.  This has been true since 2.2, maybe 2.0
+IIRC.
 
-Equally if they were static numbers do they have to be together or scattered ?
-
+-- 
+Jeff Garzik      | Game called on account of naked chick
+Building 1024    |
+MandrakeSoft     |

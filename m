@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267669AbUHENNo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267294AbUHENQJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267669AbUHENNo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 09:13:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267673AbUHENNn
+	id S267294AbUHENQJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 09:16:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267674AbUHENQI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 09:13:43 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:33761 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S267669AbUHENNG
+	Thu, 5 Aug 2004 09:16:08 -0400
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:63379 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S267294AbUHENNo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 09:13:06 -0400
-Date: Thu, 5 Aug 2004 15:13:20 +0200
+	Thu, 5 Aug 2004 09:13:44 -0400
+Date: Thu, 5 Aug 2004 15:13:59 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] s390: core changes.
-Message-ID: <20040805131320.GA8251@mschwid3.boeblingen.de.ibm.com>
+Subject: [PATCH] s390: ctc driver changes.
+Message-ID: <20040805131359.GD8251@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,202 +21,243 @@ User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] s390: core changes.
+[PATCH] s390: ctc driver changes.
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: Peter Tiedemann <ptiedem@de.ibm.com>
 
-s390 core changes:
- - Add 32 bit compat code for ptrace requests PTRACE_GETEVENTMSG,
-   PTRACE_GETSIGINFO and PTRACE_SETSIGINFO.
- - Make non-smp kernel compile.
- - Regenerate default configuration.
+Prefix debug feature variables with ctc to avoid name space problems.
 
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
 diffstat:
- arch/s390/appldata/appldata_base.c |    1 
- arch/s390/defconfig                |    4 +--
- arch/s390/kernel/compat_linux.h    |    3 ++
- arch/s390/kernel/compat_signal.c   |   47 +++++++++++++++++++++++++++++++++++++
- arch/s390/kernel/ptrace.c          |   13 ++++++++++
- arch/s390/mm/cmm.c                 |    1 
- drivers/s390/net/iucv.c            |    7 +++--
- 7 files changed, 71 insertions(+), 5 deletions(-)
+ drivers/s390/net/ctcdbug.c |   52 ++++++++++++++++++++++-----------------------
+ drivers/s390/net/ctcdbug.h |   32 +++++++++++++--------------
+ drivers/s390/net/ctcmain.c |   14 ++++++------
+ 3 files changed, 49 insertions(+), 49 deletions(-)
 
-diff -urN linux-2.6/arch/s390/appldata/appldata_base.c linux-2.6-s390/arch/s390/appldata/appldata_base.c
---- linux-2.6/arch/s390/appldata/appldata_base.c	Thu Aug  5 14:20:32 2004
-+++ linux-2.6-s390/arch/s390/appldata/appldata_base.c	Thu Aug  5 14:20:57 2004
-@@ -17,6 +17,7 @@
- #include <linux/errno.h>
- #include <asm/uaccess.h>
- #include <asm/io.h>
-+#include <asm/smp.h>
- #include <linux/interrupt.h>
- #include <linux/proc_fs.h>
- #include <linux/page-flags.h>
-diff -urN linux-2.6/arch/s390/defconfig linux-2.6-s390/arch/s390/defconfig
---- linux-2.6/arch/s390/defconfig	Thu Aug  5 14:20:32 2004
-+++ linux-2.6-s390/arch/s390/defconfig	Thu Aug  5 14:20:57 2004
-@@ -11,7 +11,6 @@
- #
- CONFIG_EXPERIMENTAL=y
- CONFIG_CLEAN_COMPILE=y
--CONFIG_STANDALONE=y
- 
- #
- # General setup
-@@ -93,6 +92,7 @@
- #
- # Generic Driver Options
- #
-+CONFIG_STANDALONE=y
- CONFIG_PREVENT_FIRMWARE_BUILD=y
- # CONFIG_FW_LOADER is not set
- # CONFIG_DEBUG_DRIVER is not set
-@@ -511,7 +511,7 @@
- # CONFIG_CRYPTO_BLOWFISH is not set
- # CONFIG_CRYPTO_TWOFISH is not set
- # CONFIG_CRYPTO_SERPENT is not set
--# CONFIG_CRYPTO_AES is not set
-+# CONFIG_CRYPTO_AES_GENERIC is not set
- # CONFIG_CRYPTO_CAST5 is not set
- # CONFIG_CRYPTO_CAST6 is not set
- # CONFIG_CRYPTO_TEA is not set
-diff -urN linux-2.6/arch/s390/kernel/compat_linux.h linux-2.6-s390/arch/s390/kernel/compat_linux.h
---- linux-2.6/arch/s390/kernel/compat_linux.h	Wed Jun 16 07:19:42 2004
-+++ linux-2.6-s390/arch/s390/kernel/compat_linux.h	Thu Aug  5 14:20:57 2004
-@@ -214,4 +214,7 @@
- 	} _sigev_un;
- };
- 
-+extern int copy_siginfo_to_user32(siginfo_t32 __user *to, siginfo_t *from);
-+extern int copy_siginfo_from_user32(siginfo_t *to, siginfo_t32 __user *from);
-+
- #endif /* _ASM_S390X_S390_H */
-diff -urN linux-2.6/arch/s390/kernel/compat_signal.c linux-2.6-s390/arch/s390/kernel/compat_signal.c
---- linux-2.6/arch/s390/kernel/compat_signal.c	Thu Aug  5 14:20:32 2004
-+++ linux-2.6-s390/arch/s390/kernel/compat_signal.c	Thu Aug  5 14:20:57 2004
-@@ -106,6 +106,53 @@
- 	return err;
- }
- 
-+int copy_siginfo_from_user32(siginfo_t *to, siginfo_t32 __user *from)
-+{
-+	int err;
-+	u32 tmp;
-+
-+	if (!access_ok (VERIFY_READ, from, sizeof(siginfo_t32)))
-+		return -EFAULT;
-+
-+	err = __get_user(to->si_signo, &from->si_signo);
-+	err |= __get_user(to->si_errno, &from->si_errno);
-+	err |= __get_user(to->si_code, &from->si_code);
-+
-+	if (from->si_code < 0)
-+		err |= __copy_from_user(&to->_sifields._pad, &from->_sifields._pad, SI_PAD_SIZE);
-+	else {
-+		switch (from->si_code >> 16) {
-+		case __SI_RT >> 16: /* This is not generated by the kernel as of now.  */
-+		case __SI_MESGQ >> 16:
-+			err |= __get_user(to->si_int, &from->si_int);
-+			/* fallthrough */
-+		case __SI_KILL >> 16:
-+			err |= __get_user(to->si_pid, &from->si_pid);
-+			err |= __get_user(to->si_uid, &from->si_uid);
-+			break;
-+		case __SI_CHLD >> 16:
-+			err |= __get_user(to->si_pid, &from->si_pid);
-+			err |= __get_user(to->si_uid, &from->si_uid);
-+			err |= __get_user(to->si_utime, &from->si_utime);
-+			err |= __get_user(to->si_stime, &from->si_stime);
-+			err |= __get_user(to->si_status, &from->si_status);
-+			break;
-+		case __SI_FAULT >> 16:
-+			err |= __get_user(tmp, &from->si_addr);
-+			to->si_addr = (void *)(u64) (tmp & PSW32_ADDR_INSN);
-+			break;
-+		case __SI_POLL >> 16:
-+		case __SI_TIMER >> 16:
-+			err |= __get_user(to->si_band, &from->si_band);
-+			err |= __get_user(to->si_fd, &from->si_fd);
-+			break;
-+		default:
-+			break;
-+		}
-+	}
-+	return err;
-+}
-+
+diff -urN linux-2.6/drivers/s390/net/ctcdbug.c linux-2.6-s390/drivers/s390/net/ctcdbug.c
+--- linux-2.6/drivers/s390/net/ctcdbug.c	Thu Aug  5 14:20:39 2004
++++ linux-2.6-s390/drivers/s390/net/ctcdbug.c	Thu Aug  5 14:21:00 2004
+@@ -1,6 +1,6 @@
  /*
-  * Atomically swap in the new signal mask, and wait for a signal.
+  *
+- * linux/drivers/s390/net/ctcdbug.c ($Revision: 1.2 $)
++ * linux/drivers/s390/net/ctcdbug.c ($Revision: 1.4 $)
+  *
+  * CTC / ESCON network driver - s390 dbf exploit.
+  *
+@@ -9,7 +9,7 @@
+  *    Author(s): Original Code written by
+  *			  Peter Tiedemann (ptiedem@de.ibm.com)
+  *
+- *    $Revision: 1.2 $	 $Date: 2004/07/15 16:03:08 $
++ *    $Revision: 1.4 $	 $Date: 2004/08/04 10:11:59 $
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -31,51 +31,51 @@
+ /**
+  * Debug Facility Stuff
   */
-diff -urN linux-2.6/arch/s390/kernel/ptrace.c linux-2.6-s390/arch/s390/kernel/ptrace.c
---- linux-2.6/arch/s390/kernel/ptrace.c	Wed Jun 16 07:19:53 2004
-+++ linux-2.6-s390/arch/s390/kernel/ptrace.c	Thu Aug  5 14:20:57 2004
-@@ -553,6 +553,19 @@
- 			copied += sizeof(unsigned int);
- 		}
- 		return 0;
-+	case PTRACE_GETEVENTMSG:
-+		return put_user((__u32) child->ptrace_message,
-+				(unsigned int __user *) data);
-+	case PTRACE_GETSIGINFO:
-+		if (child->last_siginfo == NULL)
-+			return -EINVAL;
-+		return copy_siginfo_to_user32((siginfo_t32 __user *) data,
-+					      child->last_siginfo);
-+	case PTRACE_SETSIGINFO:
-+		if (child->last_siginfo == NULL)
-+			return -EINVAL;
-+		return copy_siginfo_from_user32(child->last_siginfo,
-+						(siginfo_t32 __user *) data);
- 	}
- 	return ptrace_request(child, request, addr, data);
+-debug_info_t *dbf_setup = NULL;
+-debug_info_t *dbf_data = NULL;
+-debug_info_t *dbf_trace = NULL;
++debug_info_t *ctc_dbf_setup = NULL;
++debug_info_t *ctc_dbf_data = NULL;
++debug_info_t *ctc_dbf_trace = NULL;
+ 
+-DEFINE_PER_CPU(char[256], dbf_txt_buf);
++DEFINE_PER_CPU(char[256], ctc_dbf_txt_buf);
+ 
+ void
+-unregister_dbf_views(void)
++ctc_unregister_dbf_views(void)
+ {
+-	if (dbf_setup)
+-		debug_unregister(dbf_setup);
+-	if (dbf_data)
+-		debug_unregister(dbf_data);
+-	if (dbf_trace)
+-		debug_unregister(dbf_trace);
++	if (ctc_dbf_setup)
++		debug_unregister(ctc_dbf_setup);
++	if (ctc_dbf_data)
++		debug_unregister(ctc_dbf_data);
++	if (ctc_dbf_trace)
++		debug_unregister(ctc_dbf_trace);
  }
-diff -urN linux-2.6/arch/s390/mm/cmm.c linux-2.6-s390/arch/s390/mm/cmm.c
---- linux-2.6/arch/s390/mm/cmm.c	Thu Aug  5 14:20:32 2004
-+++ linux-2.6-s390/arch/s390/mm/cmm.c	Thu Aug  5 14:20:57 2004
-@@ -19,6 +19,7 @@
+ int
+-register_dbf_views(void)
++ctc_register_dbf_views(void)
+ {
+-	dbf_setup = debug_register(CTC_DBF_SETUP_NAME,
++	ctc_dbf_setup = debug_register(CTC_DBF_SETUP_NAME,
+ 					CTC_DBF_SETUP_INDEX,
+ 					CTC_DBF_SETUP_NR_AREAS,
+ 					CTC_DBF_SETUP_LEN);
+-	dbf_data = debug_register(CTC_DBF_DATA_NAME,
++	ctc_dbf_data = debug_register(CTC_DBF_DATA_NAME,
+ 				       CTC_DBF_DATA_INDEX,
+ 				       CTC_DBF_DATA_NR_AREAS,
+ 				       CTC_DBF_DATA_LEN);
+-	dbf_trace = debug_register(CTC_DBF_TRACE_NAME,
++	ctc_dbf_trace = debug_register(CTC_DBF_TRACE_NAME,
+ 					CTC_DBF_TRACE_INDEX,
+ 					CTC_DBF_TRACE_NR_AREAS,
+ 					CTC_DBF_TRACE_LEN);
  
- #include <asm/pgalloc.h>
- #include <asm/uaccess.h>
-+#include <asm/smp.h>
+-	if ((dbf_setup == NULL) || (dbf_data == NULL) ||
+-	    (dbf_trace == NULL)) {
+-		unregister_dbf_views();
++	if ((ctc_dbf_setup == NULL) || (ctc_dbf_data == NULL) ||
++	    (ctc_dbf_trace == NULL)) {
++		ctc_unregister_dbf_views();
+ 		return -ENOMEM;
+ 	}
+-	debug_register_view(dbf_setup, &debug_hex_ascii_view);
+-	debug_set_level(dbf_setup, CTC_DBF_SETUP_LEVEL);
++	debug_register_view(ctc_dbf_setup, &debug_hex_ascii_view);
++	debug_set_level(ctc_dbf_setup, CTC_DBF_SETUP_LEVEL);
  
- #include "../../../drivers/s390/net/smsgiucv.h"
+-	debug_register_view(dbf_data, &debug_hex_ascii_view);
+-	debug_set_level(dbf_data, CTC_DBF_DATA_LEVEL);
++	debug_register_view(ctc_dbf_data, &debug_hex_ascii_view);
++	debug_set_level(ctc_dbf_data, CTC_DBF_DATA_LEVEL);
  
-diff -urN linux-2.6/drivers/s390/net/iucv.c linux-2.6-s390/drivers/s390/net/iucv.c
---- linux-2.6/drivers/s390/net/iucv.c	Thu Aug  5 14:20:39 2004
-+++ linux-2.6-s390/drivers/s390/net/iucv.c	Thu Aug  5 14:20:57 2004
+-	debug_register_view(dbf_trace, &debug_hex_ascii_view);
+-	debug_set_level(dbf_trace, CTC_DBF_TRACE_LEVEL);
++	debug_register_view(ctc_dbf_trace, &debug_hex_ascii_view);
++	debug_set_level(ctc_dbf_trace, CTC_DBF_TRACE_LEVEL);
+ 
+ 	return 0;
+ }
+diff -urN linux-2.6/drivers/s390/net/ctcdbug.h linux-2.6-s390/drivers/s390/net/ctcdbug.h
+--- linux-2.6/drivers/s390/net/ctcdbug.h	Thu Aug  5 14:20:39 2004
++++ linux-2.6-s390/drivers/s390/net/ctcdbug.h	Thu Aug  5 14:21:00 2004
+@@ -1,6 +1,6 @@
+ /*
+  *
+- * linux/drivers/s390/net/ctcdbug.h ($Revision: 1.2 $)
++ * linux/drivers/s390/net/ctcdbug.h ($Revision: 1.3 $)
+  *
+  * CTC / ESCON network driver - s390 dbf exploit.
+  *
+@@ -9,7 +9,7 @@
+  *    Author(s): Original Code written by
+  *			  Peter Tiedemann (ptiedem@de.ibm.com)
+  *
+- *    $Revision: 1.2 $	 $Date: 2004/07/15 16:03:08 $
++ *    $Revision: 1.3 $	 $Date: 2004/07/28 12:27:54 $
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -51,38 +51,38 @@
+ 
+ #define DBF_TEXT(name,level,text) \
+ 	do { \
+-		debug_text_event(dbf_##name,level,text); \
++		debug_text_event(ctc_dbf_##name,level,text); \
+ 	} while (0)
+ 
+ #define DBF_HEX(name,level,addr,len) \
+ 	do { \
+-		debug_event(dbf_##name,level,(void*)(addr),len); \
++		debug_event(ctc_dbf_##name,level,(void*)(addr),len); \
+ 	} while (0)
+ 
+-extern DEFINE_PER_CPU(char[256], dbf_txt_buf);
+-extern debug_info_t *dbf_setup;
+-extern debug_info_t *dbf_data;
+-extern debug_info_t *dbf_trace;
++extern DEFINE_PER_CPU(char[256], ctc_dbf_txt_buf);
++extern debug_info_t *ctc_dbf_setup;
++extern debug_info_t *ctc_dbf_data;
++extern debug_info_t *ctc_dbf_trace;
+ 
+ 
+ #define DBF_TEXT_(name,level,text...)				\
+ 	do {								\
+-		char* dbf_txt_buf = get_cpu_var(dbf_txt_buf);	\
+-		sprintf(dbf_txt_buf, text);			  	\
+-		debug_text_event(dbf_##name,level,dbf_txt_buf);	\
+-		put_cpu_var(dbf_txt_buf);				\
++		char* ctc_dbf_txt_buf = get_cpu_var(ctc_dbf_txt_buf);	\
++		sprintf(ctc_dbf_txt_buf, text);			  	\
++		debug_text_event(ctc_dbf_##name,level,ctc_dbf_txt_buf);	\
++		put_cpu_var(ctc_dbf_txt_buf);				\
+ 	} while (0)
+ 
+ #define DBF_SPRINTF(name,level,text...) \
+ 	do { \
+-		debug_sprintf_event(dbf_trace, level, ##text ); \
+-		debug_sprintf_event(dbf_trace, level, text ); \
++		debug_sprintf_event(ctc_dbf_trace, level, ##text ); \
++		debug_sprintf_event(ctc_dbf_trace, level, text ); \
+ 	} while (0)
+ 
+ 
+-int register_dbf_views(void);
++int ctc_register_dbf_views(void);
+ 
+-void unregister_dbf_views(void);
++void ctc_unregister_dbf_views(void);
+ 
+ /**
+  * some more debug stuff
+diff -urN linux-2.6/drivers/s390/net/ctcmain.c linux-2.6-s390/drivers/s390/net/ctcmain.c
+--- linux-2.6/drivers/s390/net/ctcmain.c	Thu Aug  5 14:20:39 2004
++++ linux-2.6-s390/drivers/s390/net/ctcmain.c	Thu Aug  5 14:21:00 2004
 @@ -1,5 +1,5 @@
- /* 
-- * $Id: iucv.c,v 1.39 2004/07/12 06:54:14 braunu Exp $
-+ * $Id: iucv.c,v 1.40 2004/08/04 12:29:33 cborntra Exp $
+ /*
+- * $Id: ctcmain.c,v 1.62 2004/07/15 16:03:08 ptiedem Exp $
++ * $Id: ctcmain.c,v 1.63 2004/07/28 12:27:54 ptiedem Exp $
   *
-  * IUCV network driver
+  * CTC / ESCON network driver
   *
-@@ -29,7 +29,7 @@
+@@ -36,7 +36,7 @@
   * along with this program; if not, write to the Free Software
   * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
   *
-- * RELEASE-TAG: IUCV lowlevel driver $Revision: 1.39 $
-+ * RELEASE-TAG: IUCV lowlevel driver $Revision: 1.40 $
+- * RELEASE-TAG: CTC/ESCON network driver $Revision: 1.62 $
++ * RELEASE-TAG: CTC/ESCON network driver $Revision: 1.63 $
   *
   */
  
-@@ -53,6 +53,7 @@
- #include <asm/io.h>
- #include <asm/s390_ext.h>
- #include <asm/ebcdic.h>
-+#include <asm/smp.h>
- #include <asm/ccwdev.h> //for root device stuff
- 
- /* FLAGS:
-@@ -354,7 +355,7 @@
- static void
- iucv_banner(void)
+@@ -320,7 +320,7 @@
+ print_banner(void)
  {
--	char vbuf[] = "$Revision: 1.39 $";
-+	char vbuf[] = "$Revision: 1.40 $";
+ 	static int printed = 0;
+-	char vbuf[] = "$Revision: 1.62 $";
++	char vbuf[] = "$Revision: 1.63 $";
  	char *version = vbuf;
  
- 	if ((version = strchr(version, ':'))) {
+ 	if (printed)
+@@ -3250,7 +3250,7 @@
+ {
+ 	unregister_cu3088_discipline(&ctc_group_driver);
+ 	ctc_tty_cleanup();
+-	unregister_dbf_views();
++	ctc_unregister_dbf_views();
+ 	ctc_pr_info("CTC driver unloaded\n");
+ }
+ 
+@@ -3267,16 +3267,16 @@
+ 
+ 	print_banner();
+ 
+-	ret = register_dbf_views();
++	ret = ctc_register_dbf_views();
+ 	if (ret){
+-		ctc_pr_crit("ctc_init failed with register_dbf_views rc = %d\n", ret);
++		ctc_pr_crit("ctc_init failed with ctc_register_dbf_views rc = %d\n", ret);
+ 		return ret;
+ 	}
+ 	ctc_tty_init();
+ 	ret = register_cu3088_discipline(&ctc_group_driver);
+ 	if (ret) {
+ 		ctc_tty_cleanup();
+-		unregister_dbf_views();
++		ctc_unregister_dbf_views();
+ 	}
+ 	return ret;
+ }

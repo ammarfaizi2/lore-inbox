@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129319AbQLGHX7>; Thu, 7 Dec 2000 02:23:59 -0500
+	id <S129226AbQLGHnJ>; Thu, 7 Dec 2000 02:43:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129385AbQLGHXt>; Thu, 7 Dec 2000 02:23:49 -0500
-Received: from hq.pm.waw.pl ([195.116.170.10]:55821 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id <S129319AbQLGHXi>;
-	Thu, 7 Dec 2000 02:23:38 -0500
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC-2] Configuring Synchronous Interfaces in Linux
-In-Reply-To: <E143THN-0000A1-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-From: Krzysztof Halasa <khc@intrepid.pm.waw.pl>
-Date: 07 Dec 2000 01:14:01 +0100
-In-Reply-To: Alan Cox's message of "Wed, 6 Dec 2000 01:21:52 +0000 (GMT)"
-Message-ID: <m33dg1141i.fsf@intrepid.pm.waw.pl>
+	id <S129289AbQLGHnA>; Thu, 7 Dec 2000 02:43:00 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:11027 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129226AbQLGHmi>; Thu, 7 Dec 2000 02:42:38 -0500
+Date: Wed, 6 Dec 2000 23:10:28 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Miles Lane <miles@megapathdsl.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: The horrible hack from hell called A20
+In-Reply-To: <3A2F3174.60205@megapathdsl.net>
+Message-ID: <Pine.LNX.4.10.10012062307280.1221-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-> Generic is not always good , thats why we have SIOCDEVPRIVATE. One thing Im
-> pondering is if we should make the hardware config ioctl take a hardware type
-> ident with each struct. That would help make all the ethernet agree, all the
-> wan agree, all the ADSL agree without making a nasty mess.
 
-What's wrong with returning -Exxx error code when the user requests
-unsupported interface or function?
+On Wed, 6 Dec 2000, Miles Lane wrote:
+> 
+> I have also just tried a test pass with 3c59x built in and
+> USB built as modules.  I booted with only the 3c575 inserted.
+> I got eth0 running and then loaded usb-ohci (with the enable
+> bus mastering change added).  This resulted in modprobe hanging
+> again.
 
-I think we should just #define possible values in standard include file
-and make ifconfig/ip use it. We can add additional media types as
-required.
+I bet you're hanging on the rtnl_semaphore due to having a /sbin/hotplug
+policy.
 
-2.5 task IMHO.
+Miles, mind trying out a really simple change in the
+____call_usermodehelper() function in kernel/kmod.c? 
 
-I think we need few ioctl calls: get + set media (int argument),
-get + set speed (probably two - RX and TX), etc.
-In my 2.4 HDLC stuff - to be published :-( - there something like that
-(in private ioctl range, of course).
--- 
-Krzysztof Halasa
-Network Administrator
+Change: #if 0 out the whole block that says "if (retval >= 0)" and does
+the waiting for the child. We shouldn't wait for the user mode helper:
+that's just going to cause nasty deadlocks. Deadlocks like the one you
+seem to be seeing, in fact.
+
+Does your ifconfig problem go away with that fix?
+
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

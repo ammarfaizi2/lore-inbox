@@ -1,45 +1,164 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281343AbRKPMZj>; Fri, 16 Nov 2001 07:25:39 -0500
+	id <S281360AbRKPMmL>; Fri, 16 Nov 2001 07:42:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281351AbRKPMZa>; Fri, 16 Nov 2001 07:25:30 -0500
-Received: from mons.uio.no ([129.240.130.14]:64761 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S281343AbRKPMZR>;
-	Fri, 16 Nov 2001 07:25:17 -0500
-To: miquels@cistron-office.nl (Miquel van Smoorenburg)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: nfs problem: hp|aix-server --- linux 2.4.15pre5 client
-In-Reply-To: <20011115222920.A9929@ludwig2.science-computing.de>
-	<shssnbf37td.fsf@charged.uio.no>
-	<15348.63313.961267.735216@stderr.science-computing.de>
-	<15348.64613.465429.628445@charged.uio.no>
-	<9t2v62$7g0$1@ncc1701.cistron.net>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 16 Nov 2001 13:24:51 +0100
-In-Reply-To: <9t2v62$7g0$1@ncc1701.cistron.net>
-Message-ID: <shsk7wqlx7w.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S281361AbRKPMmC>; Fri, 16 Nov 2001 07:42:02 -0500
+Received: from ids.big.univali.br ([200.169.51.11]:28032 "HELO
+	mail.big.univali.br") by vger.kernel.org with SMTP
+	id <S281360AbRKPMlw>; Fri, 16 Nov 2001 07:41:52 -0500
+Message-Id: <5.1.0.14.1.20011116103224.00a97088@mail.big.univali.br>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 16 Nov 2001 10:42:24 -0300
+To: linux-kernel@vger.kernel.org
+From: Marcus Grando <marcus@big.univali.br>
+Subject: [BUG] 2.4.15-pre5 it stopped the server
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Miquel van Smoorenburg <miquels@cistron-office.nl> writes:
+	Hello,
 
-    >> That's because the HP is returning a READDIR reply that is
-    >> larger than the buffer size we specified. When this happens, we
-    >> truncate the reply at the last valid record before the buffer
-    >> overflow, and print out the above message.
+	Kernel 2.4.15-pre5 it stopped the server, the log/message is:
 
-     > Shouldn't the message then be "NFS: too large packet in readdir
-     > reply!" ?
+Nov 16 10:11:42 ids kernel: remove_free_dquot: dquot not on the free list??
+Nov 16 10:12:05 ids kernel: t??
+Nov 16 10:12:05 ids kernel: dqput: dquot already on free list??
+Nov 16 10:12:05 ids last message repeated 837 times
+Nov 16 10:12:05 ids kernel: VFS: dqput: trying to free free dquot
+Nov 16 10:12:05 ids kernel: VFS: device 08:06, dquot of user 2285
+Nov 16 10:12:15 ids kernel: remove_free_dquot: dquot not on the free list??
 
-8) Or 'NFS: truncated packet in readdir reply!', since that is what
-NFS actually is returned by the RPC layer.
+.confg:
+CONFIG_X86=y
+CONFIG_ISA=y
+CONFIG_UID16=y
+CONFIG_MPENTIUMIII=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_PGE=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_MICROCODE=y
+CONFIG_X86_CPUID=y
+CONFIG_NOHIGHMEM=y
+CONFIG_SMP=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_NET=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_BLK_DEV_NBD=y
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_NETLINK=y
+CONFIG_RTNETLINK=y
+CONFIG_NETFILTER=y
+CONFIG_FILTER=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_NF_CONNTRACK=y
+CONFIG_IP_NF_IPTABLES=y
+CONFIG_IP_NF_MATCH_LIMIT=y
+CONFIG_IP_NF_MATCH_MAC=y
+CONFIG_IP_NF_MATCH_MARK=y
+CONFIG_IP_NF_MATCH_MULTIPORT=y
+CONFIG_IP_NF_MATCH_TOS=y
+CONFIG_IP_NF_MATCH_LENGTH=y
+CONFIG_IP_NF_MATCH_TTL=y
+CONFIG_IP_NF_MATCH_TCPMSS=y
+CONFIG_IP_NF_MATCH_STATE=y
+CONFIG_IP_NF_FILTER=y
+CONFIG_IP_NF_TARGET_REJECT=y
+CONFIG_IP_NF_NAT=y
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_REDIRECT=y
+CONFIG_IP_NF_TARGET_LOG=y
+CONFIG_IP_NF_TARGET_TCPMSS=y
+CONFIG_ATALK=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_CMD640=y
+CONFIG_BLK_DEV_RZ1000=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_PIIX_TUNING=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_SD_EXTRA_DEVS=40
+CONFIG_CHR_DEV_ST=y
+CONFIG_SCSI_DEBUG_QUEUES=y
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_LOGGING=y
+CONFIG_SCSI_AIC7XXX=y
+CONFIG_AIC7XXX_CMDS_PER_DEVICE=253
+CONFIG_AIC7XXX_RESET_DELAY_MS=2500
+CONFIG_AIC7XXX_BUILD_FIRMWARE=y
+CONFIG_NETDEVICES=y
+CONFIG_APPLETALK=y
+CONFIG_IPDDP=y
+CONFIG_IPDDP_ENCAP=y
+CONFIG_IPDDP_DECAP=y
+CONFIG_DUMMY=y
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_PCI=y
+CONFIG_EEPRO100=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_MOUSE=y
+CONFIG_PSMOUSE=y
+CONFIG_QUOTA=y
+CONFIG_AUTOFS4_FS=y
+CONFIG_TMPFS=y
+CONFIG_ISO9660_FS=y
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_EXT2_FS=y
+CONFIG_SMB_FS=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_SMB_NLS=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_860=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_DEBUG_KERNEL=y
 
-When we are sure that the code is stable, the whole message can go. It
-is really just reporting a server error. As long as we handle it
-correctly, there should be no need to churn out all these printks.
+	Tanks in advance,
 
-Cheers,
-  Trond
+Regards,
+Marcus Grando
+

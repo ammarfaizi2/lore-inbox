@@ -1,91 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262914AbTKPPzY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Nov 2003 10:55:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262925AbTKPPzX
+	id S262902AbTKPQEu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Nov 2003 11:04:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262925AbTKPQEu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Nov 2003 10:55:23 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:61856 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262914AbTKPPzV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Nov 2003 10:55:21 -0500
-Message-ID: <3FB6F542.5000309@namesys.com>
-Date: Sat, 15 Nov 2003 19:55:46 -0800
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Stephan von Krawczynski <skraw@ithnet.com>,
-       Mike Fedyk <mfedyk@matchmail.com>, herbert@gondor.apana.org.au,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: Debian Kernels was: 2.6.0test9 Reiserfs boot time "buffer layer
- error at fs/buffer.c:431"
-References: <20031029141931.6c4ebdb5.akpm@osdl.org> <E1AGCUJ-00016g-00@gondolin.me.apana.org.au> <20031101233354.1f566c80.akpm@osdl.org> <20031102092723.GA4964@gondor.apana.org.au> <20031102014011.09001c81.akpm@osdl.org> <20031104210310.GA1068@matchmail.com> <20031105004956.19dbd3fb.skraw@ithnet.com> <20031116130558.GB199@elf.ucw.cz>
-In-Reply-To: <20031116130558.GB199@elf.ucw.cz>
-X-Enigmail-Version: 0.76.7.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 16 Nov 2003 11:04:50 -0500
+Received: from ns.tasking.nl ([195.193.207.2]:47625 "EHLO ns.tasking.nl")
+	by vger.kernel.org with ESMTP id S262902AbTKPQEs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Nov 2003 11:04:48 -0500
+To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+X-Newsreader: knews 1.0b.1
+Reply-To: dick.streefland@xs4all.nl (Dick Streefland)
+Organization: none
+X-Face: "`*@3nW;mP[=Z(!`?W;}cn~3M5O_/vMjX&Pe!o7y?xi@;wnA&Tvx&kjv'N\P&&5Xqf{2CaT 9HXfUFg}Y/TT^?G1j26Qr[TZY%v-1A<3?zpTYD5E759Q?lEoR*U1oj[.9\yg_o.~O.$wj:t(B+Q_?D XX57?U,#b,iM$[zX'I(!'VCQM)N)x~knSj>M*@l}y9(tK\rYwdv%~+&*jV"epphm>|q~?ys:g:K#R" 2PuAzy-N9cKM<Ml/%yPQxpq"Ttm{GzBn-*:;619QM2HLuRX4]~361+,[uFp6f"JF5R`y
+References: <1068679942.3082.131.camel@mentor.gurulabs.com>
+From: spam@streefland.xs4all.nl (Dick Streefland)
+Subject: Re: List of SCO files
+Content-Type: text/plain; charset=us-ascii
+NNTP-Posting-Host: 172.17.1.66
+Message-ID: <4f6a.3fb79fd6.49695@altium.nl>
+Date: Sun, 16 Nov 2003 16:03:34 -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
+Dax Kelson <dax@gurulabs.com> wrote:
+| http://www.groklaw.net/article.php?story=2003111203544653
+| 
+| "I used it for comparison to file listings of different kernel versions,
+| and my conclusion is that this list is either based on 2.5.68 (released
+| April 20, 2003) or on 2.5.69 (released May 5, 2003). Those are the only
+| two versions that contain all of the listed files." -- Groklaw reader
+| "Lev"
 
->Hi!
->
->  
->
->>>There was a bug in one of the released Debian kernels, and do you think this
->>>hasn't happened with Redhat, SuSe, or Mandrake?  Just because Debian is
->>>completely OSS and maintained mostly by unpaid volunteers, that shouldn't
->>>keep them from having a seperate tree like everyone else.
->>>      
->>>
->>Just to avoid a false impression: I am in no way against debian project nor do
->>I say there is anything specifically bad about it. I am generally disliking
->>distros' ideas of having _own_ kernels. Commercial companies like SuSE or Red
->>Hat may find arguments for that which are commercially backed, debian on the
->>other hand can hardly argue commercially. From the community point of view it
->>is just nonsense. It means more work and less useable feedback.
->>Bugs is distro kernels are (always) the sole fault of their respective
->>maintainers because they actively decided _not_ to follow the mainstream and
->>made bogus patches. Why waste the appreciated work of (unpaid) debian
->>volunteers in this area? There are tons of other work left with far more
->>relevance for users than bleeding edge kernel patches...
->>    
->>
->
->
->Debian is distibution; distributions are _expected_ to fix bugs (etc)
->in their packages.
->  
->
-not in their packages, but in their packaging, and to submit bug fixes 
-to the maintainers.
+I think they used 2.5.69. Their list includes net/bridge/br_if.c, and
+patch 2.5.69 adds code containing the word "rcu", which is probably
+one of the keywords they searched for. The following script generates
+a list very close to SCOs list:
 
+#!/bin/sh
+# to be run in the linux-2.5.69 kernel tree
+(
+  find * -name '*.[ch]' |
+  egrep -v '^(drivers|sound)|(arch/|include/asm-)(sparc|alpha|parisc)' |
+  xargs egrep -iwl '(smp|numa|rcu)'
+  ls fs/jfs/*.[ch]
+) |
+sort -u
 
->If distribution had all packages unmodified, it would be useless...
->  
->
-not at all.
+The only files not on SCOs list are:
 
->So I'd expect all distros to have at least some changes in their
->kernel... the same way I expect distros to have some patches in
->midnight commander etc.
->
->Of course it is good to keep the .diff as small as possible.
->								Pavel
->  
->
-I just want to say that I would happily do 10 times as much work to keep 
-things working for debian, but not using the vanilla kernel is a mistake 
-for debian, just as changing, say, xmms without involving the xmms 
-maintainer would be a mistake and more likely to cause bugs for users.  
-Just because SuSE and RedHat have lots of money doesn't mean that debian 
-should ape their mistakes.
+arch/um/drivers/harddog_kern.c
+arch/um/drivers/harddog_user.c
+arch/um/drivers/mconsole_kern.c
+include/asm-h8300/smplock.h
 
 -- 
-Hans
-
+Dick Streefland                    ////               De Bilt
+dick.streefland@xs4all.nl         (@ @)       The Netherlands
+------------------------------oOO--(_)--OOo------------------
 

@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316999AbSFAImr>; Sat, 1 Jun 2002 04:42:47 -0400
+	id <S315420AbSFAIld>; Sat, 1 Jun 2002 04:41:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315417AbSFAIlu>; Sat, 1 Jun 2002 04:41:50 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55562 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317002AbSFAIlG>;
-	Sat, 1 Jun 2002 04:41:06 -0400
-Message-ID: <3CF88968.442B5026@zip.com.au>
-Date: Sat, 01 Jun 2002 01:44:24 -0700
+	id <S316995AbSFAIkS>; Sat, 1 Jun 2002 04:40:18 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48906 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S314433AbSFAIjP>;
+	Sat, 1 Jun 2002 04:39:15 -0400
+Message-ID: <3CF888FB.7C14A184@zip.com.au>
+Date: Sat, 01 Jun 2002 01:42:35 -0700
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
 CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch 15/16] rename flushpage to invalidatepage
+Subject: [patch 8/16] rename block_symlink() to page_symlink()
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -22,302 +22,271 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Fixes a pet peeve: the identifier "flushpage" implies "flush the page
-to disk".  Which is very much not what the flushpage functions actually
-do.
+block_symlink() is not a "block" function at all.  It is a pure
+pagecache/address_space function.  Seeing driverfs calling it was
+the last straw.
 
-The patch renames block_flushpage and the flushpage
-address_space_operation to "invalidatepage".
-
-It also fixes a buglet in invalidate_this_page2(), which was calling
-block_flushpage() directly - it needs to call do_flushpage() (now
-do_invalidatepage()) so that the filesystem's ->flushpage (now
-->invalidatepage) a_op gets a chance to relinquish any interest which
-it has in the page's buffers.
+The patch renames it to `page_symlink()' and moves it into fs/namei.c
 
 
 =====================================
 
---- 2.5.19/fs/buffer.c~block_invalidatepage	Sat Jun  1 01:18:14 2002
-+++ 2.5.19-akpm/fs/buffer.c	Sat Jun  1 01:18:14 2002
-@@ -1341,22 +1341,21 @@ int try_to_release_page(struct page *pag
+--- 2.5.19/fs/buffer.c~block_symlink	Sat Jun  1 01:18:10 2002
++++ 2.5.19-akpm/fs/buffer.c	Sat Jun  1 01:18:10 2002
+@@ -2327,46 +2327,6 @@ int brw_page(int rw, struct page *page,
+ 	return 0;
  }
  
- /**
-- * block_flushpage - invalidate part of all of a buffer-backed page
-+ * block_invalidatepage - invalidate part of all of a buffer-backed page
-  *
-  * @page: the page which is affected
-  * @offset: the index of the truncation point
-  *
-- * block_flushpage() should be called block_invalidatepage().  It is
-- * called when all or part of the page has become invalidatedby a truncate
-- * operation.
-+ * block_invalidatepage() is called when all or part of the page has become
-+ * invalidatedby a truncate operation.
-  *
-- * block_flushpage() does not have to release all buffers, but it must
-+ * block_invalidatepage() does not have to release all buffers, but it must
-  * ensure that no dirty buffer is left outside @offset and that no I/O
-  * is underway against any of the blocks which are outside the truncation
-  * point.  Because the caller is about to free (and possibly reuse) those
-  * blocks on-disk.
+-int block_symlink(struct inode *inode, const char *symname, int len)
+-{
+-	struct address_space *mapping = inode->i_mapping;
+-	struct page *page = grab_cache_page(mapping, 0);
+-	int err = -ENOMEM;
+-	char *kaddr;
+-
+-	if (!page)
+-		goto fail;
+-	err = mapping->a_ops->prepare_write(NULL, page, 0, len-1);
+-	if (err)
+-		goto fail_map;
+-	kaddr = page_address(page);
+-	memcpy(kaddr, symname, len-1);
+-	mapping->a_ops->commit_write(NULL, page, 0, len-1);
+-	/*
+-	 * Notice that we are _not_ going to block here - end of page is
+-	 * unmapped, so this will only try to map the rest of page, see
+-	 * that it is unmapped (typically even will not look into inode -
+-	 * ->i_size will be enough for everything) and zero it out.
+-	 * OTOH it's obviously correct and should make the page up-to-date.
+-	 */
+-	if (!PageUptodate(page)) {
+-		err = mapping->a_ops->readpage(NULL, page);
+-		wait_on_page_locked(page);
+-	} else {
+-		unlock_page(page);
+-	}
+-	page_cache_release(page);
+-	if (err < 0)
+-		goto fail;
+-	mark_inode_dirty(inode);
+-	return 0;
+-fail_map:
+-	unlock_page(page);
+-	page_cache_release(page);
+-fail:
+-	return err;
+-}
+-
+ /*
+  * Sanity checks for try_to_free_buffers.
   */
--int block_flushpage(struct page *page, unsigned long offset)
-+int block_invalidatepage(struct page *page, unsigned long offset)
- {
- 	struct buffer_head *head, *bh, *next;
- 	unsigned int curr_off = 0;
-@@ -1393,7 +1392,7 @@ int block_flushpage(struct page *page, u
+--- 2.5.19/fs/driverfs/inode.c~block_symlink	Sat Jun  1 01:18:10 2002
++++ 2.5.19-akpm/fs/driverfs/inode.c	Sat Jun  1 01:18:10 2002
+@@ -171,7 +171,7 @@ static int driverfs_symlink(struct inode
+ 	inode = driverfs_get_inode(dir->i_sb, S_IFLNK|S_IRWXUGO, 0);
+ 	if (inode) {
+ 		int l = strlen(symname)+1;
+-		error = block_symlink(inode, symname, l);
++		error = page_symlink(inode, symname, l);
+ 		if (!error) {
+ 			d_instantiate(dentry, inode);
+ 			dget(dentry);
+--- 2.5.19/fs/ext2/namei.c~block_symlink	Sat Jun  1 01:18:10 2002
++++ 2.5.19-akpm/fs/ext2/namei.c	Sat Jun  1 01:18:10 2002
+@@ -31,7 +31,6 @@
  
- 	return 1;
- }
--EXPORT_SYMBOL(block_flushpage);
-+EXPORT_SYMBOL(block_invalidatepage);
+ #include "ext2.h"
+ #include <linux/pagemap.h>
+-#include <linux/buffer_head.h>		/* for block_symlink() */
  
  /*
-  * We attach and possibly dirty the buffers atomically wrt
-@@ -2276,10 +2275,11 @@ int brw_kiovec(int rw, int nr, struct ki
-  *        some of the bmap kludges and interface ugliness here.
-  *
-  * NOTE: unlike file pages, swap pages are locked while under writeout.
-- * This is to avoid a deadlock which occurs when free_swap_and_cache()
-- * calls block_flushpage() under spinlock and hits a locked buffer, and
-- * schedules under spinlock.   Another approach would be to teach
-- * find_trylock_page() to also trylock the page's writeback flags.
-+ * This is to throttle processes which reuse their swapcache pages while
-+ * they are under writeout, and to ensure that there is no I/O going on
-+ * when the page has been successfully locked.  Functions such as
-+ * free_swap_and_cache() need to guarantee that there is no I/O in progress
-+ * because they will be freeing up swap blocks, which may then be reused.
-  *
-  * Swap pages are also marked PageWriteback when they are being written
-  * so that memory allocators will throttle on them.
---- 2.5.19/fs/jfs/jfs_metapage.c~block_invalidatepage	Sat Jun  1 01:18:14 2002
-+++ 2.5.19-akpm/fs/jfs/jfs_metapage.c	Sat Jun  1 01:18:14 2002
-@@ -537,7 +537,7 @@ void release_metapage(metapage_t * mp)
+  * Couple of helper functions - make the code slightly cleaner.
+@@ -165,7 +164,7 @@ static int ext2_symlink (struct inode * 
+ 		/* slow symlink */
+ 		inode->i_op = &page_symlink_inode_operations;
+ 		inode->i_mapping->a_ops = &ext2_aops;
+-		err = block_symlink(inode, symname, l);
++		err = page_symlink(inode, symname, l);
+ 		if (err)
+ 			goto out_fail;
+ 	} else {
+--- 2.5.19/fs/ext3/inode.c~block_symlink	Sat Jun  1 01:18:10 2002
++++ 2.5.19-akpm/fs/ext3/inode.c	Sat Jun  1 01:18:10 2002
+@@ -1092,7 +1092,7 @@ static int commit_write_fn(handle_t *han
  
- 			if (test_bit(META_discard, &mp->flag)) {
- 				lock_page(mp->page);
--				block_flushpage(mp->page, 0);
-+				block_invalidatepage(mp->page, 0);
- 				unlock_page(mp->page);
- 			}
+ /*
+  * We need to pick up the new inode size which generic_commit_write gave us
+- * `file' can be NULL - eg, when called from block_symlink().
++ * `file' can be NULL - eg, when called from page_symlink().
+  *
+  * ext3 never places buffers on inode->i_mapping->private_list.  metadata
+  * buffers are managed internally.
+--- 2.5.19/fs/ext3/namei.c~block_symlink	Sat Jun  1 01:18:10 2002
++++ 2.5.19-akpm/fs/ext3/namei.c	Sat Jun  1 01:18:10 2002
+@@ -987,11 +987,11 @@ static int ext3_symlink (struct inode * 
+ 		inode->i_op = &page_symlink_inode_operations;
+ 		inode->i_mapping->a_ops = &ext3_aops;
+ 		/*
+-		 * block_symlink() calls back into ext3_prepare/commit_write.
++		 * page_symlink() calls into ext3_prepare/commit_write.
+ 		 * We have a transaction open.  All is sweetness.  It also sets
+ 		 * i_size in generic_commit_write().
+ 		 */
+-		err = block_symlink(inode, symname, l);
++		err = page_symlink(inode, symname, l);
+ 		if (err)
+ 			goto out_no_entry;
+ 	} else {
+--- 2.5.19/fs/minix/namei.c~block_symlink	Sat Jun  1 01:18:10 2002
++++ 2.5.19-akpm/fs/minix/namei.c	Sat Jun  1 01:18:10 2002
+@@ -4,7 +4,6 @@
+  *  Copyright (C) 1991, 1992  Linus Torvalds
+  */
  
-@@ -590,13 +590,13 @@ void invalidate_metapages(struct inode *
- 			 * If in the metapage cache, we've got the page locked
- 			 */
- 			lock_page(mp->page);
--			block_flushpage(mp->page, 0);
-+			block_invalidatepage(mp->page, 0);
- 			unlock_page(mp->page);
- 		} else {
- 			spin_unlock(&meta_lock);
- 			page = find_lock_page(mapping, lblock>>l2BlocksPerPage);
- 			if (page) {
--				block_flushpage(page, 0);
-+				block_invalidatepage(page, 0);
- 				unlock_page(page);
- 			}
- 		}
---- 2.5.19/include/linux/buffer_head.h~block_invalidatepage	Sat Jun  1 01:18:14 2002
-+++ 2.5.19-akpm/include/linux/buffer_head.h	Sat Jun  1 01:18:14 2002
-@@ -191,7 +191,7 @@ void FASTCALL(unlock_buffer(struct buffe
-  * address_spaces.
+-#include <linux/buffer_head.h>	/* for block_symlink() */
+ #include "minix.h"
+ 
+ static inline void inc_count(struct inode *inode)
+@@ -111,7 +110,7 @@ static int minix_symlink(struct inode * 
+ 
+ 	inode->i_mode = S_IFLNK | 0777;
+ 	minix_set_inode(inode, 0);
+-	err = block_symlink(inode, symname, i);
++	err = page_symlink(inode, symname, i);
+ 	if (err)
+ 		goto out_fail;
+ 
+--- 2.5.19/fs/ramfs/inode.c~block_symlink	Sat Jun  1 01:18:10 2002
++++ 2.5.19-akpm/fs/ramfs/inode.c	Sat Jun  1 01:18:10 2002
+@@ -29,7 +29,6 @@
+ #include <linux/init.h>
+ #include <linux/string.h>
+ #include <linux/smp_lock.h>
+-#include <linux/buffer_head.h>		/* for block_symlink() */
+ 
+ #include <asm/uaccess.h>
+ 
+@@ -235,7 +234,7 @@ static int ramfs_symlink(struct inode * 
+ 	inode = ramfs_get_inode(dir->i_sb, S_IFLNK|S_IRWXUGO, 0);
+ 	if (inode) {
+ 		int l = strlen(symname)+1;
+-		error = block_symlink(inode, symname, l);
++		error = page_symlink(inode, symname, l);
+ 		if (!error) {
+ 			d_instantiate(dentry, inode);
+ 			dget(dentry);
+--- 2.5.19/fs/sysv/namei.c~block_symlink	Sat Jun  1 01:18:10 2002
++++ 2.5.19-akpm/fs/sysv/namei.c	Sat Jun  1 01:18:10 2002
+@@ -117,7 +117,7 @@ static int sysv_symlink(struct inode * d
+ 		goto out;
+ 	
+ 	sysv_set_inode(inode, 0);
+-	err = block_symlink(inode, symname, l);
++	err = page_symlink(inode, symname, l);
+ 	if (err)
+ 		goto out_fail;
+ 
+--- 2.5.19/fs/ufs/namei.c~block_symlink	Sat Jun  1 01:18:10 2002
++++ 2.5.19-akpm/fs/ufs/namei.c	Sat Jun  1 01:18:10 2002
+@@ -143,7 +143,7 @@ static int ufs_symlink (struct inode * d
+ 		/* slow symlink */
+ 		inode->i_op = &page_symlink_inode_operations;
+ 		inode->i_mapping->a_ops = &ufs_aops;
+-		err = block_symlink(inode, symname, l);
++		err = page_symlink(inode, symname, l);
+ 		if (err)
+ 			goto out_fail;
+ 	} else {
+--- 2.5.19/fs/umsdos/namei.c~block_symlink	Sat Jun  1 01:18:10 2002
++++ 2.5.19-akpm/fs/umsdos/namei.c	Sat Jun  1 01:18:10 2002
+@@ -499,7 +499,7 @@ static int umsdos_symlink_x (struct inod
+ 	}
+ 
+ 	len = strlen (symname) + 1;
+-	ret = block_symlink(dentry->d_inode, symname, len);
++	ret = page_symlink(dentry->d_inode, symname, len);
+ 	if (ret < 0)
+ 		goto out_unlink;
+ out:
+--- 2.5.19/include/linux/buffer_head.h~block_symlink	Sat Jun  1 01:18:10 2002
++++ 2.5.19-akpm/include/linux/buffer_head.h	Sat Jun  1 01:18:10 2002
+@@ -192,7 +192,6 @@ void FASTCALL(unlock_buffer(struct buffe
   */
  int try_to_release_page(struct page * page, int gfp_mask);
--int block_flushpage(struct page *page, unsigned long offset);
-+int block_invalidatepage(struct page *page, unsigned long offset);
+ int block_flushpage(struct page *page, unsigned long offset);
+-int block_symlink(struct inode *, const char *, int);
  int block_write_full_page(struct page*, get_block_t*);
  int block_read_full_page(struct page*, get_block_t*);
  int block_prepare_write(struct page*, unsigned, unsigned, get_block_t*);
---- 2.5.19/mm/filemap.c~block_invalidatepage	Sat Jun  1 01:18:14 2002
-+++ 2.5.19-akpm/mm/filemap.c	Sat Jun  1 01:18:14 2002
-@@ -23,7 +23,7 @@
- /*
-  * This is needed for the following functions:
-  *  - try_to_release_page
-- *  - block_flushpage
-+ *  - block_invalidatepage
-  *  - page_has_buffers
-  *  - generic_osync_inode
-  *
-@@ -154,30 +154,30 @@ unlock:
- 	spin_unlock(&pagemap_lru_lock);
+--- 2.5.19/kernel/ksyms.c~block_symlink	Sat Jun  1 01:18:10 2002
++++ 2.5.19-akpm/kernel/ksyms.c	Sat Jun  1 01:18:10 2002
+@@ -277,7 +277,7 @@ EXPORT_SYMBOL(vfs_follow_link);
+ EXPORT_SYMBOL(page_readlink);
+ EXPORT_SYMBOL(page_follow_link);
+ EXPORT_SYMBOL(page_symlink_inode_operations);
+-EXPORT_SYMBOL(block_symlink);
++EXPORT_SYMBOL(page_symlink);
+ EXPORT_SYMBOL(vfs_readdir);
+ EXPORT_SYMBOL(__get_lease);
+ EXPORT_SYMBOL(lease_get_mtime);
+--- 2.5.19/fs/namei.c~block_symlink	Sat Jun  1 01:18:10 2002
++++ 2.5.19-akpm/fs/namei.c	Sat Jun  1 01:18:10 2002
+@@ -2136,6 +2136,46 @@ int page_follow_link(struct dentry *dent
+ 	return res;
  }
  
--static int do_flushpage(struct page *page, unsigned long offset)
-+static int do_invalidatepage(struct page *page, unsigned long offset)
- {
--	int (*flushpage) (struct page *, unsigned long);
--	flushpage = page->mapping->a_ops->flushpage;
--	if (flushpage)
--		return (*flushpage)(page, offset);
--	return block_flushpage(page, offset);
-+	int (*invalidatepage)(struct page *, unsigned long);
-+	invalidatepage = page->mapping->a_ops->invalidatepage;
-+	if (invalidatepage)
-+		return (*invalidatepage)(page, offset);
-+	return block_invalidatepage(page, offset);
- }
++int page_symlink(struct inode *inode, const char *symname, int len)
++{
++	struct address_space *mapping = inode->i_mapping;
++	struct page *page = grab_cache_page(mapping, 0);
++	int err = -ENOMEM;
++	char *kaddr;
++
++	if (!page)
++		goto fail;
++	err = mapping->a_ops->prepare_write(NULL, page, 0, len-1);
++	if (err)
++		goto fail_map;
++	kaddr = page_address(page);
++	memcpy(kaddr, symname, len-1);
++	mapping->a_ops->commit_write(NULL, page, 0, len-1);
++	/*
++	 * Notice that we are _not_ going to block here - end of page is
++	 * unmapped, so this will only try to map the rest of page, see
++	 * that it is unmapped (typically even will not look into inode -
++	 * ->i_size will be enough for everything) and zero it out.
++	 * OTOH it's obviously correct and should make the page up-to-date.
++	 */
++	if (!PageUptodate(page)) {
++		err = mapping->a_ops->readpage(NULL, page);
++		wait_on_page_locked(page);
++	} else {
++		unlock_page(page);
++	}
++	page_cache_release(page);
++	if (err < 0)
++		goto fail;
++	mark_inode_dirty(inode);
++	return 0;
++fail_map:
++	unlock_page(page);
++	page_cache_release(page);
++fail:
++	return err;
++}
++
+ struct inode_operations page_symlink_inode_operations = {
+ 	readlink:	page_readlink,
+ 	follow_link:	page_follow_link,
+--- 2.5.19/include/linux/fs.h~block_symlink	Sat Jun  1 01:18:10 2002
++++ 2.5.19-akpm/include/linux/fs.h	Sat Jun  1 01:18:10 2002
+@@ -1246,6 +1246,7 @@ extern int vfs_readlink(struct dentry *,
+ extern int vfs_follow_link(struct nameidata *, const char *);
+ extern int page_readlink(struct dentry *, char *, int);
+ extern int page_follow_link(struct dentry *, struct nameidata *);
++extern int page_symlink(struct inode *inode, const char *symname, int len);
+ extern struct inode_operations page_symlink_inode_operations;
+ extern void generic_fillattr(struct inode *, struct kstat *);
  
- static inline void truncate_partial_page(struct page *page, unsigned partial)
- {
- 	memclear_highpage_flush(page, partial, PAGE_CACHE_SIZE-partial);
- 	if (PagePrivate(page))
--		do_flushpage(page, partial);
-+		do_invalidatepage(page, partial);
- }
- 
- /*
-  * AKPM: the PagePrivate test here seems a bit bogus.  It bypasses the
-- * mapping's ->flushpage, which may still want to be called.
-+ * mapping's ->invalidatepage, which may still want to be called.
-  */
- static void truncate_complete_page(struct page *page)
- {
- 	/* Leave it on the LRU if it gets converted into anonymous buffers */
--	if (!PagePrivate(page) || do_flushpage(page, 0))
-+	if (!PagePrivate(page) || do_invalidatepage(page, 0))
- 		lru_cache_del(page);
- 	ClearPageDirty(page);
- 	ClearPageUptodate(page);
-@@ -339,7 +339,7 @@ static inline int invalidate_this_page2(
- 
- 			page_cache_get(page);
- 			write_unlock(&mapping->page_lock);
--			block_flushpage(page, 0);
-+			do_invalidatepage(page, 0);
- 		} else
- 			unlocked = 0;
- 
---- 2.5.19/Documentation/filesystems/Locking~block_invalidatepage	Sat Jun  1 01:18:14 2002
-+++ 2.5.19-akpm/Documentation/filesystems/Locking	Sat Jun  1 01:18:14 2002
-@@ -138,7 +138,7 @@ prototypes:
- 	int (*prepare_write)(struct file *, struct page *, unsigned, unsigned);
- 	int (*commit_write)(struct file *, struct page *, unsigned, unsigned);
- 	int (*bmap)(struct address_space *, long);
--	int (*flushpage) (struct page *, unsigned long);
-+	int (*invalidatepage) (struct page *, unsigned long);
- 	int (*releasepage) (struct page *, int);
- 	int (*direct_IO)(int, struct inode *, struct kiobuf *, unsigned long, int);
- 
-@@ -156,7 +156,7 @@ set_page_dirty		no	no
- prepare_write:		no	yes
- commit_write:		no	yes
- bmap:			yes
--flushpage:		no	yes
-+invalidatepage:		no	yes
- releasepage:		no	yes
- 
- 	->prepare_write(), ->commit_write(), ->sync_page() and ->readpage()
-@@ -206,10 +206,10 @@ filesystems and by the swapper. The latt
- instances do not actually need the BKL. Please, keep it that way and don't
- breed new callers.
- 
--	->flushpage() is called when the filesystem must attempt to drop
-+	->invalidatepage() is called when the filesystem must attempt to drop
- some or all of the buffers from the page when it is being truncated.  It
--returns zero on success.  If ->flushpage is zero, the kernel uses
--block_flushpage() instead.
-+returns zero on success.  If ->invalidatepage is zero, the kernel uses
-+block_invalidatepage() instead.
- 
- 	->releasepage() is called when the kernel is about to try to drop the
- buffers from the page in preparation for freeing it.  It returns zero to
---- 2.5.19/fs/ext3/inode.c~block_invalidatepage	Sat Jun  1 01:18:14 2002
-+++ 2.5.19-akpm/fs/ext3/inode.c	Sat Jun  1 01:18:14 2002
-@@ -1364,10 +1364,10 @@ ext3_readpages(struct address_space *map
- 	return mpage_readpages(mapping, pages, nr_pages, ext3_get_block);
- }
- 
--static int ext3_flushpage(struct page *page, unsigned long offset)
-+static int ext3_invalidatepage(struct page *page, unsigned long offset)
- {
- 	journal_t *journal = EXT3_JOURNAL(page->mapping->host);
--	return journal_flushpage(journal, page, offset);
-+	return journal_invalidatepage(journal, page, offset);
- }
- 
- static int ext3_releasepage(struct page *page, int wait)
-@@ -1385,7 +1385,7 @@ struct address_space_operations ext3_aop
- 	prepare_write:	ext3_prepare_write,	/* BKL not held.  We take it */
- 	commit_write:	ext3_commit_write,	/* BKL not held.  We take it */
- 	bmap:		ext3_bmap,		/* BKL held */
--	flushpage:	ext3_flushpage,		/* BKL not held.  Don't need */
-+	invalidatepage:	ext3_invalidatepage,	/* BKL not held.  Don't need */
- 	releasepage:	ext3_releasepage,	/* BKL not held.  Don't need */
- };
- 
-@@ -1413,7 +1413,7 @@ struct address_space_operations ext3_wri
- 	prepare_write:	ext3_prepare_write,	/* BKL not held.  We take it */
- 	commit_write:	ext3_commit_write,	/* BKL not held.  We take it */
- 	bmap:		ext3_bmap,		/* BKL held */
--	flushpage:	ext3_flushpage,		/* BKL not held.  Don't need */
-+	invalidatepage:	ext3_invalidatepage,	/* BKL not held.  Don't need */
- 	releasepage:	ext3_releasepage,	/* BKL not held.  Don't need */
- };
- 
---- 2.5.19/fs/jbd/journal.c~block_invalidatepage	Sat Jun  1 01:18:14 2002
-+++ 2.5.19-akpm/fs/jbd/journal.c	Sat Jun  1 01:18:14 2002
-@@ -78,7 +78,7 @@ EXPORT_SYMBOL(log_wait_commit);
- EXPORT_SYMBOL(log_start_commit);
- EXPORT_SYMBOL(journal_wipe);
- EXPORT_SYMBOL(journal_blocks_per_page);
--EXPORT_SYMBOL(journal_flushpage);
-+EXPORT_SYMBOL(journal_invalidatepage);
- EXPORT_SYMBOL(journal_try_to_free_buffers);
- EXPORT_SYMBOL(journal_bmap);
- EXPORT_SYMBOL(journal_force_commit);
---- 2.5.19/fs/jbd/transaction.c~block_invalidatepage	Sat Jun  1 01:18:14 2002
-+++ 2.5.19-akpm/fs/jbd/transaction.c	Sat Jun  1 01:18:14 2002
-@@ -1749,13 +1749,13 @@ static int dispose_buffer(struct journal
- }
- 
- /*
-- * journal_flushpage 
-+ * journal_invalidatepage 
-  *
-  * This code is tricky.  It has a number of cases to deal with.
-  *
-  * There are two invariants which this code relies on:
-  *
-- * i_size must be updated on disk before we start calling flushpage on the
-+ * i_size must be updated on disk before we start calling invalidatepage on the
-  * data.
-  * 
-  *  This is done in ext3 by defining an ext3_setattr method which
-@@ -1891,7 +1891,7 @@ zap_buffer:	
- /*
-  * Return non-zero if the page's buffers were successfully reaped
-  */
--int journal_flushpage(journal_t *journal, 
-+int journal_invalidatepage(journal_t *journal, 
- 		      struct page *page, 
- 		      unsigned long offset)
- {
---- 2.5.19/include/linux/fs.h~block_invalidatepage	Sat Jun  1 01:18:14 2002
-+++ 2.5.19-akpm/include/linux/fs.h	Sat Jun  1 01:18:14 2002
-@@ -306,7 +306,7 @@ struct address_space_operations {
- 	int (*commit_write)(struct file *, struct page *, unsigned, unsigned);
- 	/* Unfortunately this kludge is needed for FIBMAP. Don't use it */
- 	int (*bmap)(struct address_space *, long);
--	int (*flushpage) (struct page *, unsigned long);
-+	int (*invalidatepage) (struct page *, unsigned long);
- 	int (*releasepage) (struct page *, int);
- #define KERNEL_HAS_O_DIRECT /* this is for modules out of the kernel */
- 	int (*direct_IO)(int, struct inode *, struct kiobuf *, unsigned long, int);
---- 2.5.19/include/linux/jbd.h~block_invalidatepage	Sat Jun  1 01:18:14 2002
-+++ 2.5.19-akpm/include/linux/jbd.h	Sat Jun  1 01:18:14 2002
-@@ -641,7 +641,8 @@ extern int	 journal_dirty_metadata (hand
- extern void	 journal_release_buffer (handle_t *, struct buffer_head *);
- extern void	 journal_forget (handle_t *, struct buffer_head *);
- extern void	 journal_sync_buffer (struct buffer_head *);
--extern int	 journal_flushpage(journal_t *, struct page *, unsigned long);
-+extern int	 journal_invalidatepage(journal_t *,
-+				struct page *, unsigned long);
- extern int	 journal_try_to_free_buffers(journal_t *, struct page *, int);
- extern int	 journal_stop(handle_t *);
- extern int	 journal_flush (journal_t *);
 
 -

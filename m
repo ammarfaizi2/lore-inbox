@@ -1,76 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263589AbUD2GfA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263611AbUD2Gev@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263589AbUD2GfA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 02:35:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263605AbUD2GfA
+	id S263611AbUD2Gev (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 02:34:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263605AbUD2Gev
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 02:35:00 -0400
-Received: from holomorphy.com ([207.189.100.168]:130 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263589AbUD2Gd2 (ORCPT
+	Thu, 29 Apr 2004 02:34:51 -0400
+Received: from zasran.com ([198.144.206.234]:57763 "EHLO zasran.com")
+	by vger.kernel.org with ESMTP id S263611AbUD2Geg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 02:33:28 -0400
-Date: Wed, 28 Apr 2004 23:32:56 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Rajesh Venkatasubramanian <vrajesh@umich.edu>,
-       Russell King <rmk@arm.linux.org.uk>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rmap 18 i_mmap_nonlinear
-Message-ID: <20040429063256.GH737@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Hugh Dickins <hugh@veritas.com>, Rik van Riel <riel@redhat.com>,
-	Andrew Morton <akpm@osdl.org>,
-	Rajesh Venkatasubramanian <vrajesh@umich.edu>,
-	Russell King <rmk@arm.linux.org.uk>,
-	James Bottomley <James.Bottomley@SteelEye.com>,
-	linux-kernel@vger.kernel.org
-References: <20040428234448.GB737@holomorphy.com> <Pine.LNX.4.44.0404290621470.3719-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0404290621470.3719-100000@localhost.localdomain>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Thu, 29 Apr 2004 02:34:36 -0400
+Message-ID: <4090A1FA.1070202@bigfoot.com>
+Date: Wed, 28 Apr 2004 23:34:34 -0700
+From: Erik Steffl <steffl@bigfoot.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: logitech mouseMan wheel doesn't work with 2.6.5
+References: <40853060.2060508@bigfoot.com> <200404280741.08665.dtor_core@ameritech.net> <408FFC2A.3080504@bigfoot.com> <200404281824.05044.dtor_core@ameritech.net>
+In-Reply-To: <200404281824.05044.dtor_core@ameritech.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Apr 2004, William Lee Irwin III wrote:
->> I believe the flush_dcache_page() implementations touching
->> ->i_mmap_shared care about this distinction.
+Dmitry Torokhov wrote:
+> On Wednesday 28 April 2004 01:47 pm, Erik Steffl wrote:
+>>Dmitry Torokhov wrote:
+>>
+>>>What protocol are you using in XFree?
+>>
+>>   that's irrelevant, I got the results above without X running (by 
+> 
+> No, it is not. Please change protocol in XF86Config to ExplorerPS/2.
+...
+> Kernel only provides emulation of 3 protocols via /dev/psaux: bare PS/2,
+> IntelliMouse PS/2 and Explorer PS/2. Since your program does not issue
+> Intellimouse or Explorer protocol initialization sequences it gets just
+> bare PS/2 protocol data - 2 axis, 3 buttons. Extra buttons are mapped onto
+> first 3. For exact mapping consult drivers/input/mousedev.c
 
-On Thu, Apr 29, 2004 at 07:10:59AM +0100, Hugh Dickins wrote:
-> That's right, arm and parisc do handle them differently: currently
-> arm ignores i_mmap (and I think rmk was wondering a few months ago
-> whether that's actually correct, given that MAP_SHARED mappings
-> which can never become writable go in there - and that surprise is
-> itself a very good reason for combining them), and parisc... ah,
-> what it does in Linus' tree at present is about the same for both,
-> but there are some changes on the way.
-> The differences are not going to be enough to deserve two separate
-> prio_tree_roots in every struct address_space, we can check vm_flags
-> for any differences if necessary.
+   thanks, that makes sense, I tried ExplorerPS/2, it works better, the 
+wheel works but side button is still same as button 2.
 
-It seemed these two actually wanted a precise recovery of virtual
-addresses and the like for flush_dcache_page() like they would have
-had with pte_chains, but never got around to using it.
+   would it be different if I used /dev/input/mouse0? or 
+/dev/input/mice?  kernel Documentation/input/input.txt seems to be 
+fairly old (mentions  2.5/2.6 in future tense) and it says to use 
+"ExplorerPS/2 if you want to use extra (up to 5) buttons" when 
+discussing what /dev/input/mouse0 provides. Does that mean that there's 
+no way to use extra side button (which is the sixth button)?
 
-
-On Thu, Apr 29, 2004 at 07:10:59AM +0100, Hugh Dickins wrote:
-> Something else I should have commented on, in that patch comment or
-> the next: although we now have the separate i_mmap_nonlinear list,
-> no attempt to search it for nonlinear pages in flush_dcache_page.
-> It looks like parisc has no sys_remap_file_pages syscall anyway,
-> and arm only flushes current active_mm, so should be okay so long
-> as people don't mix linear and nonlinear maps of same pages (hmm,
-> and don't map same page twice in a nonlinear: more likely) in same
-> mm: anyway, I think any problems there have to be a "Don't do that",
-> searching page tables in flush_dcache_page would be too too painful.
-
-Maybe it's worth #ifdef'ing out core remap_file_pages() support for
-those arches if all it can do is harm to them wrt. cache coherency
-issues. ARM probably wouldn't mind conserving the code it otherwise
-wouldn't use.
-
-
--- wli
+	erik

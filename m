@@ -1,75 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261520AbVCIVts@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261624AbVCIVxw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261520AbVCIVts (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 16:49:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262466AbVCIVqZ
+	id S261624AbVCIVxw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 16:53:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbVCIVxv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 16:46:25 -0500
-Received: from fmr22.intel.com ([143.183.121.14]:23727 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261552AbVCIVgL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 16:36:11 -0500
-Date: Wed, 9 Mar 2005 13:36:05 -0800
-Message-Id: <200503092136.j29La5E26081@unix-os.sc.intel.com>
-To: linux kernel <linux-kernel@vger.kernel.org>
-Cc: Tim Bird <tim.bird@am.sony.com>
-From: Tony Luck <tony.luck@intel.com>
-Subject: Re: [PATCH] add timing information to printk messages
+	Wed, 9 Mar 2005 16:53:51 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:6825 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261658AbVCIVxG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 16:53:06 -0500
+Date: Thu, 10 Mar 2005 03:23:49 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: ext2-devel <ext2-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: inode cache, dentry cache, buffer heads usage
+Message-ID: <20050309215349.GD4663@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <1110394558.24286.203.camel@dyn318077bld.beaverton.ibm.com> <20050309212732.GA5036@in.ibm.com> <1110403763.24286.213.camel@dyn318077bld.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1110403763.24286.213.camel@dyn318077bld.beaverton.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Here's a little patch which is useful for showing timing information for
-> kernel bootup activities.
+On Wed, Mar 09, 2005 at 01:29:23PM -0800, Badari Pulavarty wrote:
+> On Wed, 2005-03-09 at 13:27, Dipankar Sarma wrote:
+> > On Wed, Mar 09, 2005 at 10:55:58AM -0800, Badari Pulavarty wrote:
+> > > Hi,
+> > > 
+> > > We have a 8-way P-III, 16GB RAM running 2.6.8-1. We use this as
+> > > our server to keep source code, cscopes and do the builds.
+> > > This machine seems to slow down over the time. One thing we
+> > > keep noticing is it keeps running out of lowmem. Most of 
+> > > the lowmem is used for ext3 inode cache + dentry cache +
+> > > bufferheads + Buffers. So we did 2:2 split - but it improved
+> > > thing, but again run into same issues.
+> > > 
+> > > So, why is these slab cache are not getting purged/shrinked even
+> > > under memory pressure ? (I have seen lowmem as low as 6MB). What
+> > > can I do to keep the machine healthy ?
+> > 
+> > How does /proc/sys/fs/dentry-state look when you run low on lowmem ?
 > 
-> This patch adds a new Kconfig option under "Kernel Hacking" and a new
-> option for the kernel command line.  It also provides a script for
-> showing delta information.
+> 
+> 
+> badari@kernel:~$ cat /proc/sys/fs/dentry-state
+> 1434093 1348947 45      0       0       0
+> badari@kernel:~$ grep dentry /proc/slabinfo
+> dentry_cache      1434094 1857519    144   27    1 : tunables  120  
+> 60    8 : slabdata  68797  68797      0
 
-I'm seeing some odd output with CONFIG_PRINTK_TIME=y during boot.  When
-it is set to "no", I see this from "dmesg":
+Hmm.. so we are not shrinking dcache despite a large number of
+unsed dentries. That is where we need to look. Will dig a bit
+tomorrow.
 
-Total of 4 processors activated (7168.96 BogoMIPS).
-CPU0 attaching sched-domain:
- domain 0: span f
-  groups: 1 2 4 8
-CPU1 attaching sched-domain:
- domain 0: span f
-  groups: 2 4 8 1
-CPU2 attaching sched-domain:
- domain 0: span f
-  groups: 4 8 1 2
-CPU3 attaching sched-domain:
- domain 0: span f
-  groups: 8 1 2 4
-
-Setting CONFIG_PRINTK_TIME=y I see (the "<NUL>" pieces are actually
-each a single ASCII '\0' character):
-
-[    0.240887] Total of 4 processors activated (7168.96 BogoMIPS).
-[    0.240926] CPU0 attaching sched-domain:
-[    0.240930] <NUL>PU0 attaching sched-domain:
-[    0.240933]  domain 0: span f
-[    0.240967] <NUL> f
-[    0.240969]   groups: 1 2 4 8
-[    0.241024] CPU1 attaching sched-domain:
-[    0.241027] <NUL>PU1 attaching sched-domain:
-[    0.241030]  domain 0: span f
-[    0.241063] <NUL> f
-[    0.241065]   groups: 2 4 8 1
-[    0.241146] CPU2 attaching sched-domain:
-[    0.241149] <NUL>PU2 attaching sched-domain:
-[    0.241151]  domain 0: span f
-[    0.241186] <NUL> f
-[    0.241188]   groups: 4 8 1 2
-[    0.241267] CPU3 attaching sched-domain:
-[    0.241270] <NUL>PU3 attaching sched-domain:
-[    0.241273]  domain 0: span f
-[    0.241307] <NUL> f
-[    0.241309]   groups: 8 1 2 4
-
-At first I thought that the lines that begin with whitespace were causing
-the confusion, but there are other lines during boot that are ok.
-
-[This is on an ia64 system ... but these messages come from generic kern/sched.c]
-
--Tony
+Thanks
+Dipankar

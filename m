@@ -1,58 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261333AbVABUxd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbVABU5E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261333AbVABUxd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 15:53:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbVABUxd
+	id S261334AbVABU5E (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 15:57:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbVABU5D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 15:53:33 -0500
-Received: from dns.toxicfilms.tv ([150.254.37.24]:30871 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S261333AbVABUxS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 15:53:18 -0500
-X-Qmail-Scanner-Mail-From: solt2@dns.toxicfilms.tv via dns
-X-Qmail-Scanner-Rcpt-To: linux-kernel@vger.kernel.org
-X-Qmail-Scanner: 1.23 (Clear:RC:0(213.238.100.82):. Processed in 0.134412 secs)
-Date: Sun, 2 Jan 2005 22:01:51 +0100
-From: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
-X-Mailer: The Bat! (v3.0.1.33) UNREG / CD5BF9353B3B7091
-Reply-To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
-X-Priority: 3 (Normal)
-Message-ID: <1833976182.20050102220151@dns.toxicfilms.tv>
+	Sun, 2 Jan 2005 15:57:03 -0500
+Received: from lugor.de ([217.160.170.124]:19100 "EHLO solar.linuxob.de")
+	by vger.kernel.org with ESMTP id S261334AbVABU4u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jan 2005 15:56:50 -0500
+From: Christian Hesse <mail@earthworm.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re[2]: starting with 2.7
-In-Reply-To: <20050102203615.GL29332@holomorphy.com>
-References: <1697129508.20050102210332@dns.toxicfilms.tv>
- <20050102203615.GL29332@holomorphy.com>
+Subject: Re: Linux 2.6.10-ac2
+Date: Sun, 2 Jan 2005 21:56:07 +0100
+User-Agent: KMail/1.7.2
+References: <1104450153.3415.1.camel@localhost.localdomain>
+In-Reply-To: <1104450153.3415.1.camel@localhost.localdomain>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed;
+  boundary="nextPart1491210.Z3ToMl6JKV";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200501022156.12117.mail@earthworm.de>
+X-AntiVirus: checked by AntiVir Milter 1.0.6; AVE 6.29.0.5; VDF 6.29.0.45
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello William,
+--nextPart1491210.Z3ToMl6JKV
+Content-Type: multipart/mixed;
+  boundary="Boundary-01=_n/F2BiI86EifpRQ"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Sunday, January 2, 2005, 9:36:15 PM, you wrote:
-> I have a plan to never ever stop experimental code, which is to
-> actually move on the 2.6.x.y strategy if no one else does and these
-> kinds of complaints remain persistent and become more widespread.
-Well, personally I like the 2.6.x.y idea.
+--Boundary-01=_n/F2BiI86EifpRQ
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> There is a standard. Breaking things and hoping someone cleans up
-> later doesn't work. So it has to be stable all the time anyway, and
-> this is one of the observations upon which the "2.6 forever" theme is
-> based.
-Hm, now that I think about it, it has an advantage. eg. No problems
-for other people with maintaining code for 2.4, 2.5, 2.6, ...
+On Friday 31 December 2004 00:42, Alan Cox wrote:
+> o Restore PWC driver    (Luc Saillard)
 
-Anyway, starting with other trees like 2.7 sends a signal to people, that
-something huge is going to happen. Like totally new ideas that require
-to change the APIs, rewrite all the drivers (I know nobody likes that, really)
-etc...
+PWC can only be build as module. I've patched it to be build=20
+into the kernel. The patch is attached.
 
-I was asking If something like this is about to happen.
-Is a stockpile of things like this building up?
+=2D-=20
+Christian
 
---
-Maciej
+--Boundary-01=_n/F2BiI86EifpRQ
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="pwc_Makefile.patch"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="pwc_Makefile.patch"
 
+=2D-- linux/drivers/usb/media/pwc/Makefile~	2005-01-02 17:06:42.569471000 +=
+0100
++++ linux/drivers/usb/media/pwc/Makefile	2005-01-02 17:07:35.869471000 +0100
+@@ -2,7 +2,7 @@
+=20
+ pwc-objs	:=3D pwc-if.o pwc-misc.o pwc-ctrl.o pwc-uncompress.o pwc-dec1.o p=
+wc-dec23.o pwc-kiara.o pwc-timon.o
+=20
+=2Dobj-m +=3D pwc.o
++obj-$(CONFIG_USB_PWC) +=3D pwc.o
+=20
+ else
+=20
 
+--Boundary-01=_n/F2BiI86EifpRQ--
+
+--nextPart1491210.Z3ToMl6JKV
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.9.10 (GNU/Linux)
+
+iD8DBQBB2F/slZfG2c8gdSURAqHLAKC18GHIPWnjrElV71R36yYR3NlpDQCeKbJX
+4xynus/HXIFmts/onbmKgeA=
+=8KFK
+-----END PGP SIGNATURE-----
+
+--nextPart1491210.Z3ToMl6JKV--

@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129679AbRDBPhL>; Mon, 2 Apr 2001 11:37:11 -0400
+	id <S129638AbRDBPbL>; Mon, 2 Apr 2001 11:31:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129712AbRDBPhC>; Mon, 2 Apr 2001 11:37:02 -0400
-Received: from [202.77.223.60] ([202.77.223.60]:20230 "HELO server.achan.com")
-	by vger.kernel.org with SMTP id <S129679AbRDBPgr>;
-	Mon, 2 Apr 2001 11:36:47 -0400
-Message-ID: <003e01c0bb8a$8cd4a140$3700a8c0@pluto>
-From: "Andrew Chan" <achan@achan.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Promise 20267 "working" but no UDMA
-Date: Mon, 2 Apr 2001 23:35:30 +0800
+	id <S129679AbRDBPav>; Mon, 2 Apr 2001 11:30:51 -0400
+Received: from cr502987-a.rchrd1.on.wave.home.com ([24.42.47.5]:32516 "EHLO
+	the.jukie.net") by vger.kernel.org with ESMTP id <S129638AbRDBPal>;
+	Mon, 2 Apr 2001 11:30:41 -0400
+Date: Mon, 2 Apr 2001 11:28:40 -0400 (EDT)
+From: Bart Trojanowski <bart@jukie.net>
+To: Jeremy Jackson <jerj@coplanar.net>
+cc: Ian Soboroff <ian@cs.umbc.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: /proc/config idea
+In-Reply-To: <3AC89389.46317572@coplanar.net>
+Message-ID: <Pine.LNX.4.30.0104021120330.3912-100000@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Actually, upon further testing, I found that the MB will move on without an
-Fasttrack array. However, it will proceed to boot from PXE because it now
-thinks that there is no hard disk attached to the entire system (as reported
-by the Promise RAID chip)!
 
-So,
+I see benefit in having the .config file in the kernel.  It being a non
+loadable elf section would be a plus.  However I also see merit to having
+it available as a proc entry.
 
-1. Promise driver doesn't support SMP or 2.4.x kernels
+Say that we decide to go with /proc/config.  In that case I think that
+Jeremy is right on with the compressing of the info.
 
-2. Linux IDE code won't support the chip in any Promise RAID config, not
-even single disk span
+linux-2.4.3# cat .config | grep ^CONFIG_ | wc -c
+   2885
 
-3. If not under RAID config, the motherboard thinks it has no hard disk, so
-booting from disk is not possible even though the kernel can run the disks
-in ATA100 mode
+linux-2.4.3# cat .config | grep ^CONFIG_ | gzip | wc -c
+    874
 
-The remaining alternative is to boot from floppy (to load the kernel) and
-specify the hard disk as root disk... :-(
+While 3k is not a lot, >1k would be even better.  The /proc/config could
+just unzip the compressed config stored in the kernel on the fly.
 
-I am most disappointed with Promise (not so much with Tyan).
+This would reduce the 'bloat'.  Of course this functionality would be
+configurable and maybe off by default.  Although if it's not available on a
+default kernel of distribution X, Y and Z there is little merit in it as
+install scripts for 3rd party drivers could not reliably use it.
 
-Andrew
+Cheers,
+Bart.
 
-> >> FastTrack config: only 1 drive, configured as a SPAN volume
-> >> consisting of 1 drive
->
-> > No RAIDing allowed in the FTTK Bios.
->
-> But my motherboard hangs at boot time (while Fasttrack tests for arrays)
-> if there is no array defined! There is a message from the Fasttrack bios
-> that says something like "no array found, press some key to continue".
-> But I need to remotely reboot these servers!
+-- 
+	WebSig: http://www.jukie.net/~bart/sig/
+
 

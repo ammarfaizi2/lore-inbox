@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129534AbQLNPln>; Thu, 14 Dec 2000 10:41:43 -0500
+	id <S131632AbQLNPpd>; Thu, 14 Dec 2000 10:45:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129802AbQLNPld>; Thu, 14 Dec 2000 10:41:33 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:11780 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S129534AbQLNPlX>; Thu, 14 Dec 2000 10:41:23 -0500
-Message-Id: <200012141510.eBEFAls48989@aslan.scsiguy.com>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "David S. Miller" <davem@redhat.com>,
-        shirsch@adelphia.net, linux-kernel@vger.kernel.org
-Subject: Re: Adaptec AIC7XXX v 6.0.6 BETA Released 
-In-Reply-To: Your message of "Thu, 14 Dec 2000 16:53:57 +0100."
-             <3A38ED15.6EE42F31@evision-ventures.com> 
-Date: Thu, 14 Dec 2000 08:10:47 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S130396AbQLNPpY>; Thu, 14 Dec 2000 10:45:24 -0500
+Received: from exit1.i-55.com ([204.27.97.1]:6080 "EHLO exit1.i-55.com")
+	by vger.kernel.org with ESMTP id <S129802AbQLNPpL>;
+	Thu, 14 Dec 2000 10:45:11 -0500
+Message-ID: <3A38E509.1030402@i-55.com>
+Date: Thu, 14 Dec 2000 09:19:37 -0600
+From: Leslie Donaldson <donaldlf@i-55.com>
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; m18) Gecko/20001010
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, donaldlf@i-55.com
+Subject: Major Failure  2.4.0-test12 Alpha
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->What's wrong with current? It's perfectly fine, since it's the main data
->context entity you are working with during it's usage... Just remember
->it as
->CURRENT MAIN PROBLEM the kernel is struggling with at time.
+Hello,
+  Just writing in to report a bug in 2.4.0-test12.
+Hardware:
+  PCI-Matrox_Mill
+  PCI-Adaptec 39160 / 160M scsi card
+  PCI-Generic TNT-2 card
+  PCI-Sound blaster -128 (es1370)
 
-What's wrong with the aic7xxx driver storing the "user", "goal", and
-"current" transfer negotiation settings for a device in a structure
-with fields by those names?  Nothing save the fact that "current" is
-a #define in linux.
+CPU 21164a - Alpha
 
-Anyway, I've said my peace.  The driver will properly work around
-the namespace problem.
+Problem:
+  There is a race condition in the aic7xxxx driver that causes the 
+kernel to lock up.
+I don't have a kernel dump yet as the machine reported by it'self..
+This problem has been easy to reproduce. ergo about 3 crashes a day.
 
---
-Justin
+Solution:
+  Sync often and pray.
+
+Misc:
+  As soon as I get a real dump I will post a followup to this message.
+
+Leslie Donaldson
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,90 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267410AbTAaAdw>; Thu, 30 Jan 2003 19:33:52 -0500
+	id <S267406AbTAaAsj>; Thu, 30 Jan 2003 19:48:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267541AbTAaAdw>; Thu, 30 Jan 2003 19:33:52 -0500
-Received: from mta6.snfc21.pbi.net ([206.13.28.240]:49638 "EHLO
-	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S267410AbTAaAdu>; Thu, 30 Jan 2003 19:33:50 -0500
-Date: Thu, 30 Jan 2003 16:51:17 -0800
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: pci_set_mwi() ... why isn't it used more?
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Anton Blanchard <anton@samba.org>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org
-Message-id: <3E39C885.9060508@pacbell.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-References: <3E2C42DF.1010006@pacbell.net> <20030120190055.GA4940@gtf.org>
- <3E2C4FFA.1050603@pacbell.net> <20030130135215.GF6028@krispykreme>
- <3E3951E3.7060806@pacbell.net> <20030130195944.A4966@jurassic.park.msu.ru>
- <3E39706D.6080400@pacbell.net> <20030131023419.A652@localhost.park.msu.ru>
+	id <S267541AbTAaAsj>; Thu, 30 Jan 2003 19:48:39 -0500
+Received: from [195.223.140.107] ([195.223.140.107]:47489 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S267406AbTAaAsj>;
+	Thu, 30 Jan 2003 19:48:39 -0500
+Date: Fri, 31 Jan 2003 01:57:47 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Stephen Hemminger <shemminger@osdl.org>, Andrew Morton <akpm@digeo.com>,
+       Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: frlock and barrier discussion
+Message-ID: <20030131005746.GA18538@dualathlon.random>
+References: <1043797341.10150.300.camel@dell_ss3.pdx.osdl.net> <20030128230639.A17385@twiddle.net> <1043889355.10153.571.camel@dell_ss3.pdx.osdl.net> <20030129174133.A19912@twiddle.net> <20030130015219.GT1237@dualathlon.random> <20030130164120.A22148@twiddle.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030130164120.A22148@twiddle.net>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ivan Kokshaysky wrote:
-> On Thu, Jan 30, 2003 at 10:35:25AM -0800, David Brownell wrote:
+On Thu, Jan 30, 2003 at 04:41:20PM -0800, Richard Henderson wrote:
+> On Thu, Jan 30, 2003 at 02:52:19AM +0100, Andrea Arcangeli wrote:
+> > you're missing xtimensec is a write.
 > 
->>I think the first answer is better, but it looks like 2.5.59 will
->>set the pci cache line size to 16 bytes not 128 bytes in that case.
-> 
-> 
-> Yes, and it looks dangerous as the device would transfer incomplete
-> cache lines with MWI...
+> Eh?  xtimensec is a register.
 
-... while invalidating complete lines, yes that's what I meant about
-it causing breakage.
+then it's fine, the register will be flushed to ram eventually and it
+will be within the two wmb(), just write in the example also the line
+where the xtimensec ""register"" is flushed to ram and it will be in the
+right place
 
+if the register isn't flushed to ram eventually, it will be discared and
+the whole critical section is a noop from the point of view of the other
+cpus and no wmb() or rmb() or mb() would be needed in the first place
 
->>Another option would be to do like SPARC64 and set the cacheline
->>sizes as part of DMA enable (which is what I'd first thought of).
->>And have the breakage test in the ARCH_PCI_MWI code -- something
->>that sparc64 doesn't do, fwiw.
-
-It also sets latencies ... one could get the impression that most
-PCI code on Linux hasn't been tuned for bus utilization yet!
-
-
-> Actually I think there is nothing wrong if we'll try to be a bit
-> more aggressive with MWI and move all of this into generic
-> pci_set_master().
-> To do it safely, we need
-> - kind of "broken_mwi" field in the struct pci_dev for buggy devices,
->   it can be set either by PCI quirks or by driver before pci_set_master()
->   call;
-> - arch-specific pci_cache_line_size() function/macro (instead of
->   SMP_CACHE_BYTES) that returns either actual CPU cache line size
->   or other safe value (including 0, which means "don't enable MWI");
-> - check that the device does support desired cache line size, i.e.
->   read back the value that we've written into the PCI_CACHE_LINE_SIZE
->   register and if it's zero (or dev->broken_mwi == 1) don't enable MWI.
-> 
-> Thoughts?
-
-Sounds plausible to me, but then I was asking about this because
-it was evident there were a few more things going on here than I
-was aware of.  You imply removing pci_{set,clear}_mwi() too.
-
-I certainly agree that setting the cache line size automatically
-should happen; and having that be correct means there's got to
-be some arch dependent code.  That alone might help improve
-throughput on PCI_DMA_TODEVICE, even on MWI-incapable devices.
-
-It might be appropriate to make aggressively setting MWI be a
-Kconfig (or boot) option.  That it "should not" be problematic
-doesn't mean that some 2.6 users might not find trouble.
-
-Also, benchmarks from folk with really busy PCI busses would
-be interesting.  All this stuff can be tweaked with "setpci",
-so they could be generated without needing kernel patches.
-
-- Dave
-
-
-
-
-
-
+Andrea

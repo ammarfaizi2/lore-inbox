@@ -1,77 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267487AbUH0UId@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267540AbUH0UOj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267487AbUH0UId (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 16:08:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267538AbUH0UId
+	id S267540AbUH0UOj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 16:14:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267526AbUH0UNo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 16:08:33 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62858 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267487AbUH0Tqh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 15:46:37 -0400
-Message-ID: <412F8F93.2010008@pobox.com>
-Date: Fri, 27 Aug 2004 15:46:27 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: peter.schaefer@gmx.de
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [libata - SII3112] 'Virtual' bad blocks?
-References: <412F8996.4020300@gmx.de>
-In-Reply-To: <412F8996.4020300@gmx.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Aug 2004 16:13:44 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:6098 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S267540AbUH0UHY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 16:07:24 -0400
+Message-Id: <200408271245.i7RCjgPd002534@localhost.localdomain>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+cc: Roman Zippel <zippel@linux-m68k.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Daniel Andersen <anddan@linux-user.net>,
+       "Sartorelli, Kevin" <Kevin.Sartorelli@openpolytechnic.ac.nz>,
+       fraga@abusar.org, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.9-rc1 
+In-Reply-To: Message from Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> 
+   of "Thu, 26 Aug 2004 11:09:43 +0300." <200408261109.43840.vda@port.imtp.ilyichevsk.odessa.ua> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
+Date: Fri, 27 Aug 2004 08:45:42 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Schaefer wrote:
-> Hello!
-> 
-> I'm using an Epox EP-8HDA3+ Athlon64 Motherboard with
-> VIA K8T800 chipset as a file server running 24/7.
-> 
-> The box is running since 2.6.1 and was a long time rock
-> solid on 2.6.4. Problems with the VIA RHINE ethernet let
-> me switch to 2.6.7 and now 2.6.8.
-> 
-> The board has four on-board SATA ports, two provided by
-> the chipset and two provided by a Silicon Image 3112 chip.
-> I'm running a RAID5 array with three disks - two on the
-> chipset and one on the Silicon Image controller.
-> 
-> For the chipset ports the standard VIA IDE driver is used
-> (with SATA support). For the SI disk i'm using the libata
-> driver.
-> 
-> Unfortunately it's exactly this disk which give me headache
-> now (it started with 2.6.7) - see logs below.
-> 
-> I might add that those errors aren't really bad blocks -
-> after each occurence i made a full sector scan with
-> Western Digital's MS-DOS-based "Data Live Guard" which
-> revealed no errors. However, i had to plug the disk to
-> one of the VIA ports for the tests (otherwise the tool
-> didn't detect the disk).
-> 
-> Another thing to add is that i have activated CPU
-> frequency scaling with powernowd in about the same
-> timeframe (to use Cool&Quiet during times of no activity).
-> But i doubt that's the reason for this?!
-> 
-> Do i have to worry (and yes, i know that SATA is dirt
-> cheap crap)?
+Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> said:
 
-The version of libata you have always reports errors -- be they 
-controller errors, cable errors, or disk errors -- as either a read or 
-write error.
+[...]
 
-Alan Cox submitted code that makes the errors more specific, rather than 
-treating them all as disk errors.
+> Think about a user who can't risk moving to 2.6.9.1.
+> [S]he wants to use 2.6.8.n+1 which have only one more fix.
 
-You have either a flaky controller, flaky cable, or flaky disk, one of 
-the three.
-
-	Jeff
-
-
+They get a distribution kernel, which presumably has survived extensive
+beating.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278567AbRJSSGk>; Fri, 19 Oct 2001 14:06:40 -0400
+	id <S278568AbRJSSIu>; Fri, 19 Oct 2001 14:08:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278569AbRJSSGU>; Fri, 19 Oct 2001 14:06:20 -0400
-Received: from mailhost.nmt.edu ([129.138.4.52]:25355 "EHLO mailhost.nmt.edu")
-	by vger.kernel.org with ESMTP id <S278567AbRJSSGP>;
-	Fri, 19 Oct 2001 14:06:15 -0400
-Date: Fri, 19 Oct 2001 12:06:44 -0600
-From: Val Henson <val@nmt.edu>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Yellowfin bug fix for Symbios cards
-Message-ID: <20011019120644.D21008@boardwalk>
-In-Reply-To: <20011018210416.D17208@boardwalk> <3BCF9FDD.D6586538@mandrakesoft.com> <20011018215429.A18593@boardwalk> <3BCFAB6F.15D345B7@mandrakesoft.com>
+	id <S278570AbRJSSIk>; Fri, 19 Oct 2001 14:08:40 -0400
+Received: from lhw-65-33-244-104.pompano.net ([65.33.244.104]:3749 "EHLO
+	ja.kerneltrap.com") by vger.kernel.org with ESMTP
+	id <S278568AbRJSSIX>; Fri, 19 Oct 2001 14:08:23 -0400
+Date: Fri, 19 Oct 2001 14:08:53 -0400
+From: Jeremy Andrews <jeremy@kerneltrap.com>
+To: linux-kernel@vger.kernel.org
+Subject: DoS and Root Compromise Kernel Bug?
+Message-Id: <20011019140853.445e5237.jeremy@kerneltrap.com>
+X-Mailer: Sylpheed version 0.6.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3BCFAB6F.15D345B7@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Fri, Oct 19, 2001 at 12:26:23AM -0400
-Favorite-Color: Polka dot
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 19, 2001 at 12:26:23AM -0400, Jeff Garzik wrote:
-> Val Henson wrote:
-> > Hm, good point.  I should figure out why read_eeprom isn't working and
-> > fix that instead.  Maybe the driver should be changed to attempt to
-> > read the MAC from the eeprom and then read from the registers if that
-> > fails, instead of relying on flags.
-> 
-> Yeah.  There is at least one other driver (pcnet32?) that does something
-> like this...
-> 
-> probe:
-> 	dev->dev_addr[] = read_eeprom();
-> 	if (!is_valid_ether_addr(dev->dev_addr))
-> 		{ read from card registers }
+Hello,
 
-Well, I asked our hardware engineers, and the reason read the MAC
-address from the EEPROM is that we don't have an EEPROM on our
-boards.  Instead, the bootloader reads some stuff out of NVRAM and
-writes it into the MAC address registers of the ethernet chip.
+  Yesterday Rafal Wojtczuk posted to BugTraq regarding two kernel bugs:
+   
+http://www.securityfocus.com/cgi-bin/archive.pl?id=1&mid=221337&start=2001-10-15&end=2001-10-21
 
-I think the above scheme is a good way to read the MAC, but I'd want
-to test it on an actual Yellowfin gigabit card before submitting it.
-Anyone out here willing to test?
+  I'm curious to understand more about these bugs.  I.E., are they real?  And,
+are they fixed in 2.4.12 as claimed?  How about in the -ac series?
 
--VAL
+  The first kernel bug is regarding symbolic links. Rafal says it is partially
+fixed in 2.4.10, and completely fixed in 2.4.12. This bug allows for a local
+user to carry out a Denial of Service attack.
+
+  The second bug allows for a root compromise via ptrace. The requirements are
+that /usr/bin/newgrp be suid root (as in my RedHat 7.0 server), and that newgrp
+not prompt for a password when run without arguments (again, as is the case with
+my RedHat 7.0 server). Rafal says the attack only appears to work on Linux.
+
+Thanks,
+ -Jeremy
+--
+ Jeremy Andrews    <mailto:jeremy@kerneltrap.com>
+ PGP Key ID: 8F8B617A  http://www.kerneltrap.com/

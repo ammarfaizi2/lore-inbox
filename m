@@ -1,65 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262580AbVBBRph@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262318AbVBBRt6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262580AbVBBRph (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 12:45:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262415AbVBBRpe
+	id S262318AbVBBRt6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 12:49:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262496AbVBBRt6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 12:45:34 -0500
-Received: from pat.uio.no ([129.240.130.16]:41173 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262376AbVBBRpS (ORCPT
+	Wed, 2 Feb 2005 12:49:58 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:47020 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262446AbVBBRtf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 12:45:18 -0500
-Date: Wed, 2 Feb 2005 18:45:09 +0100
-From: Haakon Riiser <haakon.riiser@fys.uio.no>
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Accelerated frame buffer functions
-Message-ID: <20050202174509.GA773@s>
-Mail-Followup-To: Linux kernel <linux-kernel@vger.kernel.org>
-References: <20050202133108.GA2410@s> <Pine.LNX.4.61.0502020900080.16140@chaos.analogic.com> <20050202142155.GA2764@s> <1107357093.6191.53.camel@gonzales> <20050202154139.GA3267@s> <9e4733910502020825434a477@mail.gmail.com>
+	Wed, 2 Feb 2005 12:49:35 -0500
+Subject: Re: Memory leak in 2.6.11-rc1?
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Lennert Van Alboom <lennert.vanalboom@ugent.be>,
+       Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
+       alexn@dsv.su.se, kas@fi.muni.cz,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0502020758400.2362@ppc970.osdl.org>
+References: <20050121161959.GO3922@fi.muni.cz>
+	 <20050124125649.35f3dafd.akpm@osdl.org>
+	 <Pine.LNX.4.58.0501241435010.4191@ppc970.osdl.org>
+	 <200502021030.06488.lennert.vanalboom@ugent.be>
+	 <Pine.LNX.4.58.0502020758400.2362@ppc970.osdl.org>
+Content-Type: text/plain
+Date: Wed, 02 Feb 2005 09:49:20 -0800
+Message-Id: <1107366560.5540.39.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9e4733910502020825434a477@mail.gmail.com>
-User-Agent: Mutt/1.5.6i
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=0.05, required 12,
-	autolearn=disabled, FORGED_RCVD_HELO 0.05)
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Jon Smirl]
+I think there's still something funky going on in the pipe code, at
+least in 2.6.11-rc2-mm2, which does contain the misordered __free_page()
+fix in pipe.c.  I'm noticing any leak pretty easily because I'm
+attempting memory removal of highmem areas, and these apparently leaked
+pipe pages the only things keeping those from succeeding.
 
-> On Wed, 2 Feb 2005 16:41:39 +0100, Haakon Riiser
-> <haakon.riiser@fys.uio.no> wrote:
->> Thanks for the tip, I hadn't heard about it.  I will take a look,
->> but only to see if it can show me the user space API of /dev/fb.
->> I don't need a general library that supports a bunch of different
->> graphics cards.  I'm writing my own frame buffer driver for the
->> GX2 CPU, and I just want to know how to call the various functions
->> registered in struct fb_ops, so that I can test my code.  I mean,
->> all those functions registered in fb_ops must be accessible
->> somehow; if they weren't, what purpose would they serve?
-> 
-> You should look at writing a DRM driver. DRM implements the kernel
-> interface to get 3D hardware running. It is a fully accelerated driver
-> interface. They are located in drivers/char/drm
+In any case, I'm running a horribly hacked up kernel, but this is
+certainly a new problem, and not one that I've run into before.  Here's
+output from the new CONFIG_PAGE_OWNER code:
 
-Have the standard frame buffer drivers been abandoned, even
-for devices that have no 3D acceleration (like the Geode GX2)?
-I took a quick look at the DRM stuff, and it looked like extreme
-overkill for what I need, if it even can be used for what I want
-to do.  At first glance it looked like this is only relevant for
-OpenGL/X11 3D-stuff, which I have absolutely no use for.
+Page (e0c4f8b8) pfn: 00566606 allocated via order 0
+[0xc0162ef6] pipe_writev+542
+[0xc0157f48] do_readv_writev+288
+[0xc0163114] pipe_write+0
+[0xc0134484] ltt_log_event+64
+[0xc0158077] vfs_writev+75
+[0xc01581ac] sys_writev+104
+[0xc0102430] no_syscall_entry_trace+11
 
-GX2 is an integrated CPU/graphics chip for embedded systems.
-We have third party applications that use the framebuffer device,
-and I was hoping to make things faster by writing an accelerated
-driver.  The only thing I need answered is how to access fb_ops
-from userspace.  If that is impossible because all the framebuffer
-code is leftover junk that no one uses anymore, or even /can/
-use anymore because the userspace interface is gone, please let
-me know now so I don't have to waste any more time.
+And some more information about the page (yes, it's in the vmalloc
+space)
 
--- 
- Haakon
+page: e0c4f8b8
+pfn: 0008a54e 566606
+count: 1
+mapcount: 0
+index: 786431
+mapping: 00000000
+private: 00000000
+lru->prev: 00200200
+lru->next: 00100100
+        PG_locked:      0
+        PG_error:       0
+        PG_referenced:  0
+        PG_uptodate:    0
+        PG_dirty:       0
+        PG_lru: 0
+        PG_active:      0
+        PG_slab:        0
+        PG_highmem:     1
+        PG_checked:     0
+        PG_arch_1:      0
+        PG_reserved:    0
+        PG_private:     0
+        PG_writeback:   0
+        PG_nosave:      0
+        PG_compound:    0
+        PG_swapcache:   0
+        PG_mappedtodisk:        0
+        PG_reclaim:     0
+        PG_nosave_free: 0
+        PG_capture:     1
+
+
+-- Dave
+

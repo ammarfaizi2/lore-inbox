@@ -1,59 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315593AbSEZDEU>; Sat, 25 May 2002 23:04:20 -0400
+	id <S315595AbSEZDMN>; Sat, 25 May 2002 23:12:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315595AbSEZDET>; Sat, 25 May 2002 23:04:19 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:33623 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S315593AbSEZDET>; Sat, 25 May 2002 23:04:19 -0400
-Date: Sat, 25 May 2002 23:04:12 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200205260304.g4Q34C301122@devserv.devel.redhat.com>
-To: nahshon@actcom.co.il
-Cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com
-Subject: Re: USB Keyboard problem
-In-Reply-To: <mailman.1022340633.6466.linux-kernel2news@redhat.com>
+	id <S315599AbSEZDMM>; Sat, 25 May 2002 23:12:12 -0400
+Received: from waste.org ([209.173.204.2]:20625 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S315595AbSEZDMM>;
+	Sat, 25 May 2002 23:12:12 -0400
+Date: Sat, 25 May 2002 22:12:05 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Robert Schwebel <robert@schwebel.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
+In-Reply-To: <Pine.LNX.4.44.0205251729490.4355-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0205252159380.2614-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->[...]
-> Just bought an "HP Multimedia Keyboard Hub" (USB).
-> Using with RedHat 7.2, kernels 2.4.9-81 and also
-> various 2.4.19-pre.
+On Sat, 25 May 2002, Linus Torvalds wrote:
 
-Yeah. I am having a hell of a time with HP keyboards, and
-I would like very much if you can help.
+>
+>
+> On Sat, 25 May 2002, Linus Torvalds wrote:
+> >
+> > Can we make the whole kernel truly hard-RT? Sure, possible in theory. In
+> > practice? No way, José. It's just not mainline enough.
+>
+> Side note: we could, of course, mark some spinlocks (and thus some
+> code-paths) as being RT-safe, and then make sure that those spinlocks -
+> when they disable interrupts - actually disable the _hw_ interrupts even
+> with the RT patches.
+>
+> That would make those sequences usable even from within a RT subset, but
+> would obviously mean that those spinlocks have to be checked for latency
+> issues - because any user (also non-RT ones) would obviously be truly
+> uninterruptible within these spinlocks.
 
-With 7.3 we roll a pretty stock 2.4.19-pre (called 2.4.18-4.x),
-so there is practically no difference in this area. You may
-be better off looking at stock kernels because the problem
-is not Red Hat specific.
+I'm sure you know this route is not very useful - there's practically
+nothing that we can push across the hard RT divide anyway. We can't do
+meaningful filesystem I/O, memory allocation, networking, or VM fiddling -
+what's left?
 
->[...]
-> After "rmmod hid" and "modprobe hid" The usb
-> keyboard works just fine - until I disconnect/reconnect
-> it or until the next reboot.
+Cleaning up soft RT latencies will make the vast majority of people who
+think they want hard RT happy anyway.
 
-Yep. "rmmod hid && insmod hid" fixes it, and this is what
-makes it hard to debug. However, your hint about the disconnect
-is very important.
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 
-> The keyboard works with other OS, or with the bios
-> (after I enabled "USB Legasy Support").
-
-This is also needed for Linux: LILO or GRUB won't work unless
-this is enabled. Kernel does not care, naturally...
-
-> I'm also looking for programs o test the HID event
-> interface (evtest) as suggested in the docs, It is not in
-> the suggested web page.
-
-It is linked from this bug:
- https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=55878
-Here's the link:
- https://bugzilla.redhat.com/bugzilla/showattachment.cgi?attach_id=39264
-
-Please make sure that Vojtech is in the loop. I do not really
-follow the input and HID code (after months of trying :).
-
--- Pete

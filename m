@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269493AbTCDShe>; Tue, 4 Mar 2003 13:37:34 -0500
+	id <S269506AbTCDSk0>; Tue, 4 Mar 2003 13:40:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269504AbTCDShd>; Tue, 4 Mar 2003 13:37:33 -0500
-Received: from amdext2.amd.com ([163.181.251.1]:33021 "EHLO amdext2.amd.com")
-	by vger.kernel.org with ESMTP id <S269493AbTCDShc>;
-	Tue, 4 Mar 2003 13:37:32 -0500
-From: ravikumar.chakaravarthy@amd.com
-X-Server-Uuid: BB5E7757-34FD-4146-B9CC-0950D472AE87
-Message-ID: <99F2150714F93F448942F9A9F112634CA54B09@txexmtae.amd.com>
-To: mbligh@aracnet.com, linux-kernel@vger.kernel.org
-Subject: RE: Loading and executing kernel from a non-standard address
- usin g SY SLINUX
-Date: Tue, 4 Mar 2003 12:47:39 -0600
+	id <S269507AbTCDSk0>; Tue, 4 Mar 2003 13:40:26 -0500
+Received: from krynn.axis.se ([193.13.178.10]:63211 "EHLO krynn.axis.se")
+	by vger.kernel.org with ESMTP id <S269506AbTCDSkZ>;
+	Tue, 4 Mar 2003 13:40:25 -0500
+Date: Tue, 4 Mar 2003 19:49:59 +0100 (CET)
+From: Johan Adolfsson <johan.adolfsson@axis.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org, Johan Adolfsson <johan.adolfsson@axis.com>
+Subject: [PATCH] Avoid PC(?) specific cascade dma reservation in kernel/dma.c
+Message-ID: <Pine.LNX.4.21.0303041945590.7198-100000@hydra-11.axis.se>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-X-WSS-ID: 127A2B582106961-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I want to uncompress it to a different address (actually to a MM5451 card), so that I can test the low memory. Yes my boot loader loads the compressed kernel to 0x200000, and I have modified the kernel to uncompress it and execute it from 0x200000. However I am having problems trying to execute it!!
+I guess the reservation of dma channel 4 for "cascade" is
+PC or chipset specific and we don't have such a thing in the 
+CRIS (ETRAX100LX) chip and channel 4 clashes with external dma0.
+Perhaps a better fix is to #ifdef on something else or remove 
+the cascade stuff entirely from this file, but I leave that
+to those who know better.
+Have no other arch been bitten by this?
 
--Ravi
+Please apply to both 2.4 and 2.5.
+
+/Johan
 
 
------Original Message-----
-From: Martin J. Bligh [mailto:mbligh@aracnet.com] 
-Sent: Tuesday, March 04, 2003 12:13 PM
-To: Chakaravarthy, Ravikumar; linux-kernel@vger.kernel.org
-Subject: RE: Loading and executing kernel from a non-standard address usin g SY SLINUX
-
-> Yes the kernel is uncompressed to the right location (0x200000), in my
-> case. When I try to uncompress it to a non standard address (other than
-> 0x100000), the address mapping is affected. 
-
-Why would you need to uncompress it to a different address? You mention
-that your bootloader does something odd, but that should only affect the
-address of the compressed bzImage, not the decompressed kernel ...
-
-M.
-
+diff -u -p -r1.3 dma.c
+--- linux/kernel/dma.c	23 Feb 2001 13:50:32 -0000	1.3
++++ linux/kernel/dma.c	4 Mar 2003 18:46:51 -0000
+@@ -59,7 +59,11 @@ static struct dma_chan dma_chan_busy[MAX
+ 	{ 0, 0 },
+ 	{ 0, 0 },
+ 	{ 0, 0 },
++#ifndef __CRIS__
+ 	{ 1, "cascade" },
++#else
++	{ 0, 0 },
++#endif        
+ 	{ 0, 0 },
+ 	{ 0, 0 },
+ 	{ 0, 0 }
 

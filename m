@@ -1,116 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261670AbTJFUIn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 16:08:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbTJFUIn
+	id S261661AbTJFUVb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 16:21:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbTJFUVb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 16:08:43 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:6784 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261670AbTJFUIk
+	Mon, 6 Oct 2003 16:21:31 -0400
+Received: from harris.CNS.CWRU.Edu ([129.22.104.63]:31054 "EHLO
+	harris.CNS.CWRU.Edu") by vger.kernel.org with ESMTP id S261661AbTJFUV1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 16:08:40 -0400
-Date: Mon, 6 Oct 2003 16:08:08 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Pascal Schmidt <der.eremit@email.de>
-cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: freed_symbols [Re: People, not GPL [was: Re: Driver Model]]
-In-Reply-To: <E1A6aWv-0000rJ-00@neptune.local>
-Message-ID: <Pine.LNX.4.53.0310061605001.733@chaos>
-References: <DIre.Cy.15@gated-at.bofh.it> <DIre.Cy.17@gated-at.bofh.it>
- <DIre.Cy.19@gated-at.bofh.it> <DIre.Cy.13@gated-at.bofh.it>
- <DIAQ.2Hh.5@gated-at.bofh.it> <E1A6aWv-0000rJ-00@neptune.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 6 Oct 2003 16:21:27 -0400
+Date: Mon, 06 Oct 2003 16:21:25 -0400
+From: Justin Hibbits <jrh29@po.cwru.edu>
+Subject: Re: regression between 2.4.18 and 2.4.21/22
+In-reply-to: <200310062106.31958.bzolnier@elka.pw.edu.pl>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <A901F612-F83A-11D7-A402-000A95841F44@po.cwru.edu>
+MIME-version: 1.0
+X-Mailer: Apple Mail (2.552)
+Content-type: text/plain; format=flowed; charset=US-ASCII
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Oct 2003, Pascal Schmidt wrote:
+On Monday, Oct 6, 2003, at 15:06 America/New_York, Bartlomiej 
+Zolnierkiewicz wrote:
 
-> On Mon, 06 Oct 2003 20:50:12 +0200, you wrote in linux.kernel:
 >
-> > That has no bearing on the legalities.  A version of the kernel can't
-> > force the GPL on a driver that works with that version of the kernel
-> > because you can pull that driver out and drop in another.
+> Your /dev/hda (IBM DeskStar 60GXP) is not in DMA mode because
+> you don't have support for your IDE controller compiled-in.
+> Going from 2.4.21 you have to explicitely enable support for IDE 
+> chipsets.
+> Assumption that current .config file will work with future kernel 
+> versions
+> is not true.  Please compile kernel with driver for your on-board IDE 
+> chipset
+> (I deducted from your dmesg that it is VIA82CXXX IDE driver).
 >
-> Okay, I can see the boundary. We still have the problem that drivers
-> writers have to be very careful to not copy kernel code by accident
-> because the kernel changes often, which creates a temptation to look
-> closely at in-tree drivers to see how they do things. And if a
-> drivers writer then produces code that is essentialy the same as is
-> found in the kernel, only with changed indentation and variable names,
-> I think we both a agree that such a driver would be a derived work.
+> Please report back if this cures your problem,
 >
-> Another problem is the fact that Linux kernel headers can contain code
-> in the form of macros. If a driver uses such a header, it links kernel
-> code with itself which can easily make it a derived work.
+> Thanks,
+> --bartlomiej
 >
-> --
-> Ciao,
-> Pascal
+> On Monday 06 of October 2003 01:38, Justin Hibbits wrote:
+>> On Sunday, Oct 5, 2003, at 19:22 America/New_York, Bartlomiej
+>>
+>> Zolnierkiewicz wrote:
+>>> Please narrow down kernel version if you want your problem to be 
+>>> cared.
+>>>
+>>> Try 2.4.19, 2.4.20.  There are also intermediate prepatches at
+>>> http://www.kernel.org/pub/linux/kernel/v2.4/testing/old/
+>>>
+>>> dmesg output and .config can also be useful.
+>>>
+>>> --bartlomiej
+>>>
+>>> On Sunday 05 of October 2003 22:21, Justin Hibbits wrote:
+>>>> Something very strange is going on with my machine.  With 2.4.18, I
+>>>> was
+>>>> getting 38MB/s on my main system disk (IBM Deskstar 60gxp), and 35 
+>>>> for
+>>>> the other drives (Western Digital).  The IBM drive is on a Promise 
+>>>> IDE
+>>>> controller (ASUS A7V266-E motherboard), and the others are on a
+>>>> PROMISE
+>>>> 2069 UDMA133 controller.  However, with 2.4.21 and 2.4.22, it will 
+>>>> not
+>>>> set the using_dma flag for my IBM drive, but sets it for the others,
+>>>> which now get sustained transfer rates of 46MB/s or greater.  I'm
+>>>> using
+>>>> the same options for all 3 kernels (at least, for the ATA/IDE
+>>>> options).
+>>>>   Any help would be appreciated, and I'll see if maybe I could do
+>>>> something with it when I get time.
+>>
+>> Ok, I tried 2.4.19, which I thought was pretty bad because it randomly
+>> crashed all the time, and it worked just fine with all my drives.
+>> 2.4.20 with the wolk-4.0 patch also worked.  So, I'm guessing it was
+>> between 2.4.20 and 2.4.21....I could try all the prepatches as well,
+>> and narrow down exact prepatch, will take some time.  dmesg output for
+>> 2.4.21 follows (uses a patchset for XFS, sensors, etc), along with my
+>> config, both compressed.
 
-
-Statement of the problem:
-
-A company makes a new device that could run under Linux.
-This device uses some standard gate-arrays. Because of
-this, some gate-array bits need to be loaded upon startup.
-
-The company knows that if the competition learns that a
-gate-array was used, instead of an ASIC, the competition
-could clone the whole device in a few weeks, thereby
-stealing a few million dollars of development effort.
-In fact, the thieves don't even need to buy an initial
-board to copy. They just need the GPL source-code of
-the driver.
-
-The thieves need only to get a copy of the bits and
-the device type of the gate-array. They then have
-the entire design at-hand without ever doing any
-Engineering at all. This will give the thieves an
-unfair marketing advantage, allowing them to sell
-the device at a cheaper amount and still make money.
-
-For Linux to be more widely accepted by the hardware
-community, there needs to be some way of protecting
-the investment that the hardware companies have made.
-They need to be able to hide the implementation details
-from the competition. For this, they currently need to
-link their GPL module-code against some secret code
-that is not released to the general public.
-
-Unfortunately, any code that can execute in the kernel
-can throughly corrupt other kernel code. This has led
-some to create the "Tainted" advice, etc. It may be
-possible to work around the bug-reporting problem if
-the module is not a disk-interface module or a screen-
-interface module. Just remove the module, verify the
-bug still exists, then submit a report. However, many
-modules can't be removed and still have a running
-system. Therefore the "Tainted" fix doesn't work.
-
-So, instead of arguing, forever, about what's GPL
-and what's not GPL, it would be real nice if the same
-amount of effort was expended towards fixing the
-basic problem.
-
-The basic problem is that, in many cases, a hardware
-vendor cannot divulge the inner workings of his hardware.
-Even if the hardware vendor wanted to be a "nice guy"
-and let everybody know how his board worked, if the
-company was being publically-traded, the stock-holders
-could (read would) sue and whomever released the information
-could (read would) be found guilty of stealing or
-divulging trade-secrets.
-
-So, let's figure out how to protect the inner workings
-of the kernel while, at the same time, protecting a
-hardware vendor's engineering investment.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+Thanks Bartlomeij, building that driver helped.  Curious though, since 
+it's using the PROMISE chip, or should be, since, according to my 
+motherboard's manual, the PROMISE chip is the only IDE chip there.
 

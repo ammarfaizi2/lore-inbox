@@ -1,59 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264776AbUD1NMh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264778AbUD1NOi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264776AbUD1NMh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 09:12:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264779AbUD1NMg
+	id S264778AbUD1NOi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 09:14:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264779AbUD1NOi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 09:12:36 -0400
-Received: from s2.konrad-online.de ([213.146.160.146]:8386 "HELO
-	s2.konrad-online.de") by vger.kernel.org with SMTP id S264776AbUD1NMe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 09:12:34 -0400
-Date: 28 Apr 2004 13:12:29 -0000
-From: "System Anti-Virus Administrator" <admin@s2.konrad-online.de>
-To: linux-kernel@vger.kernel.org
-Subject: SPAM in verschickter Nachricht gefunden "Failed (michael@karbach.org)"
-Message-ID: <s2.konrad-online.de108315794942627828@s2.konrad-online.de>
-X-Tnz-Problem-Type: 40
+	Wed, 28 Apr 2004 09:14:38 -0400
+Received: from [203.97.82.178] ([203.97.82.178]:20881 "EHLO treshna.com")
+	by vger.kernel.org with ESMTP id S264778AbUD1NOc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 09:14:32 -0400
+Message-ID: <408FADE8.6090705@treshna.com>
+Date: Thu, 29 Apr 2004 01:13:12 +1200
+From: Dru <andru@treshna.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040312 Debian/1.6-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-type: text/plain
+To: Marc Giger <gigerstyle@gmx.ch>
+CC: Ivan Kokshaysky <ink@jurassic.park.msu.ru>, linux-xfs@oss.sgi.com,
+       =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
+       linux-kernel@vger.kernel.org
+Subject: Re: status of Linux on Alpha?
+References: <20040328204308.C14868@jurassic.park.msu.ru>	<20040328221806.7fa20502@vaio.gigerstyle.ch>	<yw1xr7vcn1z2.fsf@ford.guide>	<20040329205233.5b7905aa@vaio.gigerstyle.ch>	<20040404121032.7bb42b35@vaio.gigerstyle.ch>	<20040409134534.67805dfd@vaio.gigerstyle.ch>	<20040409134828.0e2984e5@vaio.gigerstyle.ch>	<20040409230651.A727@den.park.msu.ru>	<20040413194907.7ce8ceb7@vaio.gigerstyle.ch>	<20040427185124.134073cd@vaio.gigerstyle.ch>	<20040427215514.A651@den.park.msu.ru> <20040427200830.3f485a54@vaio.gigerstyle.ch>
+In-Reply-To: <20040427200830.3f485a54@vaio.gigerstyle.ch>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've tested the patch on high loads and it handles it fine, its even
+still very responsive under those loads (can't say the same for
+my pentium4) Thanks a lot guys. 
 
-Achtung: linux-kernel@vger.kernel.org
+I'll put it though some more heavier tests over the next few days
+to make certain its rock solid.
 
-Ein SPAM wurde in Ihrer Email gefunden. 
-Dieser Email Scanner unterbrach die Versendung der Nachricht an den Empfaenger. 
-
-Der SPAM scheint folgenden Typs zu sein: 
-
-SPAM detected (Score: 7.5/5.8)
-
-Bitte wenden Sie sich an Ihre EDV-Abteilung, falls Sie Fragen zu dieser Email
-haben.
-
-Ihre Nachricht wurde mit folgendem Absender und Empfaenger verschickt:
-
-MAIL FROM: linux-kernel@vger.kernel.org
-RCPT TO:   michael@karbach.org 
-
-... und mit folgenden Headern:
-
----
-MAILFROM: linux-kernel@vger.kernel.org
-Received: from dsl81-215-48455.adsl.ttnet.net.tr (HELO karbach.org) (81.215.189.71)
-  by s2.konrad-online.de with SMTP; 28 Apr 2004 13:12:11 -0000
-From: linux-kernel@vger.kernel.org
-To: michael@karbach.org
-Subject: Failed (michael@karbach.org)
-Date: Wed, 28 Apr 2004 16:08:49 +0300
-MIME-Version: 1.0
-Content-Type: multipart/related;
-	type="multipart/alternative";
-	boundary="----=_NextPart_000_001B_01C0CA81.7B015D10"
-X-Priority: 1
-X-MSMail-Priority: High
+I did notice one other very minor issue, which was if i set it the alpha
+system type to Nautilus instead of generic it doesnt boot.
+It cycles lost interupt when detecting drives, it doesnt time out (each lost
+intrupt times out but it keeps looking continally). 
 
 
----
+
+
+Marc Giger wrote:
+
+>Hi Ivan,
+>
+>Cool!
+>
+>I will try your patch after I finished moving to my new flat:-)
+>
+>I wonder why it happens only with the XFS code. What I saw
+>rw_sem is used all over the place in the kernel.
+>
+>Thank you and Dru for the work and hopefully it will fix my problem.
+>
+>Regards
+>
+>Marc
+>
+>
+>On Tue, 27 Apr 2004 21:55:14 +0400
+>Ivan Kokshaysky <ink@jurassic.park.msu.ru> wrote:
+>
+>  
+>
+>>On Tue, Apr 27, 2004 at 06:51:24PM +0200, Marc Giger wrote:
+>>    
+>>
+>>>What's the current status of the problem?
+>>>      
+>>>
+>>Hopefully resolved - thanks to Dru <andru@treshna.com>, who provided
+>>an easy way to reproduce the problem.
+>>
+>>What we have in lib/rwsem.c:__rwsem_do_wake():
+>>	int woken, loop;
+>>	^^^
+>>and several lines below:
+>>	loop = woken;
+>>	woken *= RWSEM_ACTIVE_BIAS-RWSEM_WAITING_BIAS;
+>>	woken -= RWSEM_ACTIVE_BIAS;
+>>
+>>However, rw_semaphore->count is 64-bit on Alpha, so
+>>RWSEM_WAITING_BIAS has been defined as -0x0000000100000000L.
+>>Obviously, this blows up in the write contention case.
+>>
+>>Ivan.
+>>
+>>--- linux.orig/lib/rwsem.c	Mon Apr 26 20:11:36 2004
+>>+++ linux/lib/rwsem.c	Tue Apr 27 20:04:14 2004
+>>@@ -40,8 +40,7 @@ static inline struct rw_semaphore *__rws
+>> {
+>> 	struct rwsem_waiter *waiter;
+>> 	struct list_head *next;
+>>-	signed long oldcount;
+>>-	int woken, loop;
+>>+	signed long oldcount, woken, loop;
+>> 
+>> 	rwsemtrace(sem,"Entering __rwsem_do_wake");
+>> 
+>>
+>>
+>>    
+>>
+

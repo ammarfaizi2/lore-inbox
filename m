@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275341AbTHGNrN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 09:47:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275347AbTHGNrN
+	id S275347AbTHGNv5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 09:51:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275350AbTHGNv5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 09:47:13 -0400
-Received: from [195.141.226.27] ([195.141.226.27]:9482 "EHLO
-	netline-mail1.netline.ch") by vger.kernel.org with ESMTP
-	id S275341AbTHGNrJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 09:47:09 -0400
-Subject: Re: [Dri-devel] Re: any DRM update scheduled for 2.4.23-pre?
-From: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       Mikael Pettersson <mikpe@csd.uu.se>,
-       DRI Devel <dri-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Mitch@0Bits.COM
-In-Reply-To: <1060255207.3123.13.camel@dhcp22.swansea.linux.org.uk>
-References: <Pine.LNX.4.44.0308061357480.4381-100000@logos.cnet>
-	 <1060255207.3123.13.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: text/plain; charset=UTF-8
-Organization: Debian, XFree86
-Message-Id: <1060264025.875.48.camel@thor.holligenstrasse29.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 07 Aug 2003 15:47:05 +0200
+	Thu, 7 Aug 2003 09:51:57 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:40175 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S275347AbTHGNvy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 09:51:54 -0400
+Message-ID: <3F325976.5090301@namesys.com>
+Date: Thu, 07 Aug 2003 17:51:50 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030210
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?ISO-8859-15?Q?Diego_Calleja_Garc=EDa?= <diegocg@teleline.es>
+CC: Mike Fedyk <mfedyk@matchmail.com>, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com
+Subject: Re: Filesystem Tests
+References: <3F306858.1040202@mrs.umn.edu>	<20030805224152.528f2244.akpm@osdl.org>	<3F310B6D.6010608@namesys.com>	<20030806183410.49edfa89.diegocg@teleline.es>	<20030806180427.GC21290@matchmail.com>	<20030806204514.00c783d8.diegocg@teleline.es>	<20030806190850.GF21290@matchmail.com> <20030806214023.74546b84.diegocg@teleline.es>
+In-Reply-To: <20030806214023.74546b84.diegocg@teleline.es>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-08-07 at 13:20, Alan Cox wrote:
-> On Mer, 2003-08-06 at 17:58, Marcelo Tosatti wrote:
-> > > It's a complete DRM-4.3 tree. He has to decide between an update of existing 
-> > > 4.2 code or an addition of a new subdirectory drm-4.3 + proper config.in 
-> > > entry.
-> > 
-> > Does DRM 4.3 work with both XFree 4.2 and 4.3 ? 
-> > 
-> > I dont so, right?
-> 
-> It doesn't. As discussed on the kernel list and DRI list a while ago.
-> The -ac tree / Red Hat one does because it has some additional magic to
-> spot i810 problems.
+Diego Calleja García wrote:
 
-That's a bug which can be fixed then, doesn't warrant separate copies in
-the kernel. I'm sure Dave would happily integrate the fix in DRI CVS.
-
+>El Wed, 6 Aug 2003 12:08:50 -0700 Mike Fedyk <mfedyk@matchmail.com> escribió:
+>
+>  
+>
+>>But with servers, the larger your filesystem, the longer it will take to
+>>fsck.  And that is bad for uptime.  Period.
+>>    
+>>
+>
+>Sure. But Han's "don't benchmark ext2 because it's not an option" isn't
+>a valid stament, at least to me.
+>
+>I'm not saying ext2 is the best fs on earth, but i *really* think
+>it's a real option, and as such, it must be benchmarked.
+>
+>
+>  
+>
+Actually, I think it would be nice if Grant benchmarked it because it 
+shows the overhead of ext3's journaling, but it should be noted that it 
+is not a valid option for most servers.
 
 -- 
-Earthling Michel DÃ¤nzer   \  Debian (powerpc), XFree86 and DRI developer
-Software libre enthusiast  \     http://svcs.affero.net/rm.php?r=daenzer
+Hans
+
 

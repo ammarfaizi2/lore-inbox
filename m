@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268114AbTAJCmE>; Thu, 9 Jan 2003 21:42:04 -0500
+	id <S268111AbTAJCu4>; Thu, 9 Jan 2003 21:50:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268116AbTAJCmE>; Thu, 9 Jan 2003 21:42:04 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:36060 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S268114AbTAJCmD>; Thu, 9 Jan 2003 21:42:03 -0500
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200301100250.h0A2olE20795@devserv.devel.redhat.com>
-Subject: Re: 2.4.19 -- ac97_codec failure ALi 5451
-To: cogwepeter@greenie.frogspace.net (Peter)
-Date: Thu, 9 Jan 2003 21:50:47 -0500 (EST)
-Cc: linux-kernel@vger.kernel.org, alan@redhat.com (Alan Cox)
-In-Reply-To: <Pine.LNX.4.44.0301090206290.30969-100000@greenie.frogspace.net> from "Peter" at Jan 09, 2003 06:35:53 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S268116AbTAJCuz>; Thu, 9 Jan 2003 21:50:55 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:52111
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S268111AbTAJCuz>; Thu, 9 Jan 2003 21:50:55 -0500
+Subject: Re: [Linux-fbdev-devel] Re: rotation.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <avktge$22o$1@penguin.transmeta.com>
+References: <Pine.LNX.4.44.0301091956140.5660-100000@phoenix.infradead.org>
+	 <1042153388.28469.17.camel@irongate.swansea.linux.org.uk>
+	 <avktge$22o$1@penguin.transmeta.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1042170338.28469.38.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 10 Jan 2003 03:45:38 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->         Trident 4DWave/SiS 7018/ALi 5451,Tvia CyberPro 5050 PCI Audio, 
-> 		version 0.14.9d, 00:57:19 Jan  9 2003
->         PCI: Enabling device 00:06.0 (0000 -> 0003)
->         PCI: Assigned IRQ 10 for device 00:06.0
->         trident: ALi Audio Accelerator found at IO 0x1000, IRQ 10
->         ac97_codec: AC97 Audio codec, id: 0x4144:0x5372 (Unknown)
+On Thu, 2003-01-09 at 22:35, Linus Torvalds wrote:
+> UTF8 delete behaviour should be pretty trivial to add.  It's liketly to
+> be more involved than simply adding a
+> 
+> 	/* multi-char UTF8 thing? Continue until we hit the first one */
+> 	if (tty->utf8 && (c & 0x80) && !(c & 0x40))
+> 		continue;
+> 
+> to the loop in n_tty.c: eraser(), but it might not be _much_ more than
+> that. 
 
-So far so good.
+That should do the delete case yes. The other cases are more interestingly horrible
+and I hope don't need solving (suppose you want your intr character to be the 
+chinese symbol for 'stop' ...)
 
->         ali: AC97 CODEC read timed out.
->         last message repeated 127 times
->         ali: AC97 CODEC write timed out.
->         ac97_codec: AC97  codec, id: 0x0000:0x0000 (Unknown)
+Its on the todo list, and someone sent me a test patch for 3-4 byte utf8 input
 
-Something lost the codec. Could be power management - was the laptop
-suspended before it went funny ?
-
-Alan

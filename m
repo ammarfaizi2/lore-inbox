@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265844AbRGJHHm>; Tue, 10 Jul 2001 03:07:42 -0400
+	id <S266220AbRGJLpv>; Tue, 10 Jul 2001 07:45:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265846AbRGJHHc>; Tue, 10 Jul 2001 03:07:32 -0400
-Received: from adsl-63-200-86-10.dsl.scrm01.pacbell.net ([63.200.86.10]:28171
-	"EHLO frx774.dhs.org") by vger.kernel.org with ESMTP
-	id <S265844AbRGJHHZ>; Tue, 10 Jul 2001 03:07:25 -0400
-From: Jesse Wyant <jrwyant@frx774.dhs.org>
-Message-Id: <200107100707.f6A77Pt17475@frx774.dhs.org>
-Subject: Re: Scsi_Cmnd structure
-To: mnguyen@ariodata.com (Michael Nguyen)
-Date: Tue, 10 Jul 2001 00:07:23 -0700 (PDT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <8A098FDFC6EED94B872CA2033711F86F01AB55@orion.ariodata.com> from "Michael Nguyen" at Jul 09, 2001 05:21:40 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S266224AbRGJLpl>; Tue, 10 Jul 2001 07:45:41 -0400
+Received: from [213.98.126.44] ([213.98.126.44]:35076 "HELO trasno.org")
+	by vger.kernel.org with SMTP id <S266220AbRGJLpe>;
+	Tue, 10 Jul 2001 07:45:34 -0400
+To: Stelian Pop <stelian.pop@fr.alcove.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH 2.4.6-ac2] dmi_scan.c cleanups.
+In-Reply-To: <20010709120814.D4850@come.alcove-fr>
+X-Url: http://www.lfcia.org/~quintela
+From: Juan Quintela <quintela@mandrakesoft.com>
+In-Reply-To: <20010709120814.D4850@come.alcove-fr>
+Date: 10 Jul 2001 02:33:53 -0400
+Message-ID: <m2n16duwby.fsf@anano.mitica>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "stelian" == Stelian Pop <stelian.pop@fr.alcove.com> writes:
 
-> Hello,
-> 
-> Can someone help points me to the file location 
-> contain Scsi_Cmnd structure in Linux 2.4.x?
-> 
-> Thank you,
-> Michael.
+Hi
+        how about var args macros?
 
-I ran a quick grep through my kernel tree (from SGI's 
-CVS, currently at 2.4.7-pre3-xfs) to find out:
+stelian> diff -uNr --exclude-from=dontdiff linux-2.4.6-ac2.orig/arch/i386/kernel/dmi_scan.c linux-2.4.6-ac2/arch/i386/kernel/dmi_scan.c
+stelian> --- linux-2.4.6-ac2.orig/arch/i386/kernel/dmi_scan.c	Mon Jul  9 10:25:52 2001
+stelian> +++ linux-2.4.6-ac2/arch/i386/kernel/dmi_scan.c	Mon Jul  9 11:03:29 2001
+stelian> @@ -14,8 +14,8 @@
+stelian> u16	handle;
+stelian> };
+ 
+stelian> -#define dmi_printk(x)
+stelian> -//#define dmi_printk(x) printk(x)
+stelian> +#define dmi_printk while(0) printk
+stelian> +//#define dmi_printk printk
+ 
 
-grep -nirE '^ *struct +scsi_cmnd' .
+#define dmp_printk(x...) printk(x)
 
-returns this:
+once, here, put labels to the printks will be also a nice idea.
 
-drivers/scsi/scsi.h:685:struct scsi_cmnd {
+Later, Juan.
 
-
-Jesse Wyant - jrwyant@_frx774_dhs_org_
-------------------------------------------------------------
-QOTD:
-	I'm not a nerd -- I'm "socially challenged".
-
+-- 
+In theory, practice and theory are the same, but in practice they 
+are different -- Larry McVoy

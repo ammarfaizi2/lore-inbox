@@ -1,72 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261855AbUJZJJL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261929AbUJZJLE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261855AbUJZJJL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 05:09:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbUJZJJL
+	id S261929AbUJZJLE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 05:11:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262103AbUJZJLE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 05:09:11 -0400
-Received: from [69.55.226.176] ([69.55.226.176]:49808 "EHLO www.drugphish.ch")
-	by vger.kernel.org with ESMTP id S261855AbUJZJI7 (ORCPT
+	Tue, 26 Oct 2004 05:11:04 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:14505 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261929AbUJZJKz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 05:08:59 -0400
-Message-ID: <417E1425.208@drugphish.ch>
-Date: Tue, 26 Oct 2004 11:08:53 +0200
-From: Roberto Nibali <ratz@drugphish.ch>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ext3 oops (probably I/O congestion/starvation related), already
- solved?
-References: <417A4E16.9080505@drugphish.ch> <20041025201436.GA23934@suse.de>
-In-Reply-To: <20041025201436.GA23934@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Oct 2004 05:10:55 -0400
+Date: Tue, 26 Oct 2004 11:10:27 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Meelis Roos <mroos@linux.ee>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: hddtemp hangs with USB SCSI disks; blk_execute_rq again
+Message-ID: <20041026091027.GC13562@suse.de>
+References: <Pine.GSO.4.44.0410260827240.8730-100000@math.ut.ee>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.44.0410260827240.8730-100000@math.ut.ee>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Jens,
-
-Thanks for your reply.
-
-> Just to be on the safe side, have you reproduced it without?
-
-Nope, I would first like to backup the data since this trace got me 
-pretty scared and I care about the data on this disk. So I bought a 
-DVD-R burner and I'm now happily doing my 160GB of backup.
-
-> Just
-> because nvidia doesn't show up in the trace, doesn't mean it hasn't
-> corrupted memory elsewhere.
-
-Fair enough.
-
-> 00200200 is the list deletion poison, double remove of a list and in
-> this case the timer base. That's pretty bad news.
+On Tue, Oct 26 2004, Meelis Roos wrote:
+> Hi,
 > 
-> So please do try and reproduce without the nvidia module.
-
-I will try, for sure and I'll post back my results if I can make it oops 
-again.. However I don't know how to reproduce it. I showed up once or 
-twice during high I/O and while I was writing to and reading from disk 
-over ieee1394. Could it also be a bad cable? The I/O is also dog slow 
-when writing to disk, reading is like 15 MBytes/s.
-
-> This is also a list related issue:
+> hddtemp startup script hangs on my machine. Just the hddtemp process is
+> in D state (blk_execute_rq) and unkillable, other processes run fine.
+> The startup script calls hddtemp -wn /dev/sda. /dev/sda
+> is a CF slot in a USB 6-in-1 memory card reader, currently empty.
+> /proc/partitions shows only 2 ide disks.
 > 
->         if (!list_empty(&sbi->s_orphan))
->                 dump_orphan_list(sb, sbi);
->         J_ASSERT(list_empty(&sbi->s_orphan));
+> Since hddtemp is not converted to SG_IO yet, the kernel logs
+> program hddtemp is using a deprecated SCSI ioctl, please convert it to SG_IO
+> but this should not cause hddtemp to hang.
 
-I'll also try a new firewire cable, since most of the times (in my 
-experience) the cable has been the source of all problems. Normally the 
-disk gets only remounted RO during deletion of files (this is a really 
-irritating thing right now, I can't delete my files over ieee1394) which 
-seems to prevent this kind of oops.
+No, but it's very possible for the issue to be buggy and thus hang the
+device. The old method is more risky since it lacks certain information
+(such as data direction).
 
-Thanks and best regards,
-Roberto Nibali, ratz
+> This is another case of process hanging in blk_execute_rq, see the
+> recent thread "readcd hangs in blk_execute_rq" (also reported by me but
+> about a different computer).
+
+Well since most user issued io goes through that path, you haven't
+really discovered much else than that very fact :-)
+
+> I have noticed it some weeks ago but didn't have time then to
+> investigate and disabled hddtemp. Today I looked at it again and now I'm
+> reporting it.
+
+Report it to the hddtemp people and let them diagnose it.
+
 -- 
-echo 
-'[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq' | dc
+Jens Axboe
+

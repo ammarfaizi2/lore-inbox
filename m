@@ -1,57 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131809AbRDJOA4>; Tue, 10 Apr 2001 10:00:56 -0400
+	id <S131644AbRDJN4z>; Tue, 10 Apr 2001 09:56:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131820AbRDJOAg>; Tue, 10 Apr 2001 10:00:36 -0400
-Received: from aslan.scsiguy.com ([63.229.232.106]:31250 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S131809AbRDJOA1>; Tue, 10 Apr 2001 10:00:27 -0400
-Message-Id: <200104101400.f3AE0Js30408@aslan.scsiguy.com>
-To: lists@sapience.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx and newer kernels 
-In-Reply-To: Your message of "Tue, 10 Apr 2001 08:33:40 EDT."
-             <20010410083340.A16601@sapience.com> 
-Date: Tue, 10 Apr 2001 08:00:19 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S131809AbRDJN4p>; Tue, 10 Apr 2001 09:56:45 -0400
+Received: from [212.115.175.146] ([212.115.175.146]:9465 "EHLO
+	ftrs1.intranet.FTR.NL") by vger.kernel.org with ESMTP
+	id <S131644AbRDJN4j>; Tue, 10 Apr 2001 09:56:39 -0400
+Message-ID: <27525795B28BD311B28D00500481B7601F11AB@ftrs1.intranet.ftr.nl>
+From: "Heusden, Folkert van" <f.v.heusden@ftr.nl>
+To: idalton@ferret.phonewave.net
+Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: RE: Sources of entropy - /dev/random problem for network servers
+Date: Tue, 10 Apr 2001 15:56:28 +0200
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->Justin:
->
->Ya think very buggy? I checked seagate web page and 
->unfortunately was unable to find any firmware updates
->for the barracuda drives.
+> AB> 2. Given that otherwise in at least my application (and machine
+> AB> without keyboard and mouse can't be too uncommon) there is *no*
+> AB> entropy otherwise, which is rather easier for a hacker. At least
+> Put a soundcard in your system and install audio-entropyd.
+> Works pretty nice.
+I> Do you know where to find it? Freshmeat has a listing, but it's
+I> pointing to mindrot.org and is 404 not found.
 
-I'm pretty sure you need to be up to at leaset 0005 of 
-the firmware to stabilize this drive.
+I still had the tgz-file. You can download the tarball from:
+http://www.vanheusden.com/mirrors/
 
->Curious tho that this has worked flawlessly for well over a 
->year with all prior version of linux and win2000 as well.  
->Also a few other folks seem to have similar problems with 
->newer kernels. 
-
-It all depends on the access pattern.  The drive will only
-fail if you fill its write cache.  At that point, it will
-fall off the bus, never to return.
-
->Do the newer drivers put a bigger demand on the drives that 
->might start to uncover the problems previously not seen? 
-
-Depends on your settings.  If you are using the default, we
-run a much larger number of concurrent transactions when
-compared to the old driver.
-
->I did find newer firmware for the adaptec 2940u2w card 
->tho so perhaps I should upgrade that?
-
-If you aren't having problems with your BIOS today, there is
-no reason to flash the BIOS on teh 2940U2W.
-
->I will try turning off write cache - kernel config option right?
-
-SCSI-Select option.
-
---
-Justin

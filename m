@@ -1,29 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130335AbQKRAro>; Fri, 17 Nov 2000 19:47:44 -0500
+	id <S130552AbQKRA75>; Fri, 17 Nov 2000 19:59:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130552AbQKRAre>; Fri, 17 Nov 2000 19:47:34 -0500
-Received: from hera.cwi.nl ([192.16.191.1]:31440 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S130335AbQKRArV>;
-	Fri, 17 Nov 2000 19:47:21 -0500
-Date: Sat, 18 Nov 2000 01:17:15 +0100 (MET)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200011180017.BAA126953.aeb@aak.cwi.nl>
-To: Andries.Brouwer@cwi.nl, torvalds@transmeta.com
-Subject: Re: BUG: isofs broken (2.2 and 2.4)
-Cc: aeb@veritas.com, emoenke@gwdg.de, eric@andante.org,
-        kobras@tat.physik.uni-tuebingen.de, koenig@tat.physik.uni-tuebingen.de,
-        linux-kernel@vger.kernel.org
+	id <S130645AbQKRA7q>; Fri, 17 Nov 2000 19:59:46 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:13067 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S130552AbQKRA70>;
+	Fri, 17 Nov 2000 19:59:26 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: test11-pre6 still very broken 
+In-Reply-To: Your message of "Fri, 17 Nov 2000 20:00:49 -0000."
+             <Pine.LNX.4.21.0011171935560.1796-100000@saturn.homenet> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 18 Nov 2000 11:29:18 +1100
+Message-ID: <15580.974507358@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I take it you'll also do the third part?
+On Fri, 17 Nov 2000 20:00:49 +0000 (GMT), 
+Tigran Aivazian <tigran@aivazian.fsnet.co.uk> wrote:
+>The mysterious lockups in test11-pre5 continue in test11-pre6. It is very
+>difficult because the lockups appear to be kdb-specific (and kdb itself
+>goes mad) but when there is no kdb there is very little useful information
+>one can extract from a dead system...
 
-> Are you talking about isofs_lookup_grandparent()?
+Race in user space debug registers versus kdb.  Only appears on SMP
+systems.  Working on fix.
 
-No, about isofs_read_inode.
-
-Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

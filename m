@@ -1,37 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291547AbSCMBLP>; Tue, 12 Mar 2002 20:11:15 -0500
+	id <S291620AbSCMBNF>; Tue, 12 Mar 2002 20:13:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291620AbSCMBLF>; Tue, 12 Mar 2002 20:11:05 -0500
-Received: from quechua.inka.de ([212.227.14.2]:56112 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S291547AbSCMBKu>;
-	Tue, 12 Mar 2002 20:10:50 -0500
-From: Bernd Eckenfels <ecki-news2002-02@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH-RFC] POSIX Event Logging, kernel 2.5.6 & 2.4.18
-In-Reply-To: <3C8E8912.64435C1E@us.ibm.com>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
-Message-Id: <E16kxI2-0003aI-00@sites.inka.de>
-Date: Wed, 13 Mar 2002 02:10:50 +0100
+	id <S291625AbSCMBM4>; Tue, 12 Mar 2002 20:12:56 -0500
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:40148 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
+	id <S291620AbSCMBMp>; Tue, 12 Mar 2002 20:12:45 -0500
+Message-ID: <3C8EA775.3000306@didntduck.org>
+Date: Tue, 12 Mar 2002 20:12:21 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] correction to super_block cleanups
+Content-Type: multipart/mixed;
+ boundary="------------030508020701050200070404"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3C8E8912.64435C1E@us.ibm.com> you wrote:
-> I assume that you mean do the nasty stuff but never have anything in
-> your
-> event log indicating that it happened.  Good point, but if the buffer is
-> sized appropriately for the incoming volume of events and the logging
-> daemon 
-> is reading the events out of the kernel buffer (as should normally be
-> the case), 
-> then you would see the events.  
+This is a multi-part message in MIME format.
+--------------030508020701050200070404
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Well, depending on the type of events one can even think about a "halt" like
-it is required for audit trail overflow.
+I forgot to zero out the newly allocated memory in the previous patches. 
+  First patch is for the changes included in 2.5.7-pre1, second is 
+incremental to the ext2 and ncp patches.
 
-What would be nice is a policy for each type of event:
+-- 
 
-- overwrite old/new/halt
-- rate limit
-- buffer size
+						Brian Gerst
+
+--------------030508020701050200070404
+Content-Type: text/plain;
+ name="sb-zeroing-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sb-zeroing-1"
+
+diff -ruN linux/fs/cramfs/inode.c linux2/fs/cramfs/inode.c
+--- linux/fs/cramfs/inode.c	Tue Mar 12 17:35:10 2002
++++ linux2/fs/cramfs/inode.c	Tue Mar 12 20:01:37 2002
+@@ -201,6 +201,7 @@
+ 	if (!sbi)
+ 		return -ENOMEM;
+ 	sb->u.generic_sbp = sbi;
++	memset(sbi, 0, sizeof(struct cramfs_sb_info));
+ 
+ 	sb_set_blocksize(sb, PAGE_CACHE_SIZE);
+ 
+diff -ruN linux/fs/minix/inode.c linux2/fs/minix/inode.c
+--- linux/fs/minix/inode.c	Tue Mar 12 17:35:10 2002
++++ linux2/fs/minix/inode.c	Tue Mar 12 20:01:10 2002
+@@ -178,6 +178,7 @@
+ 	if (!sbi)
+ 		return -ENOMEM;
+ 	s->u.generic_sbp = sbi;
++	memset(sbi, 0, sizeof(struct minix_sb_info));
+ 
+ 	/* N.B. These should be compile-time tests.
+ 	   Unfortunately that is impossible. */
+
+--------------030508020701050200070404
+Content-Type: text/plain;
+ name="sb-zeroing-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sb-zeroing-2"
+
+diff -ruN linux/fs/ext2/super.c linux2/fs/ext2/super.c
+--- linux/fs/ext2/super.c	Tue Mar 12 19:59:57 2002
++++ linux2/fs/ext2/super.c	Tue Mar 12 20:03:16 2002
+@@ -469,6 +469,7 @@
+ 	if (!sbi)
+ 		return -ENOMEM;
+ 	sb->u.generic_sbp = sbi;
++	memset(sbi, 0, sizeof(struct ext2_super_block));
+ 
+ 	/*
+ 	 * See what the current blocksize for the device is, and
+diff -ruN linux/fs/ncpfs/inode.c linux2/fs/ncpfs/inode.c
+--- linux/fs/ncpfs/inode.c	Tue Mar 12 19:59:51 2002
++++ linux2/fs/ncpfs/inode.c	Tue Mar 12 20:04:09 2002
+@@ -319,6 +319,8 @@
+ 	if (!server)
+ 		return -ENOMEM;
+ 	sb->u.generic_sbp = server;
++	memset(server, 0, sizeof(struct ncp_server));
++
+ 	error = -EFAULT;
+ 	if (raw_data == NULL)
+ 		goto out;
+
+--------------030508020701050200070404--
+

@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317372AbSFRJgr>; Tue, 18 Jun 2002 05:36:47 -0400
+	id <S317373AbSFRJyD>; Tue, 18 Jun 2002 05:54:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317370AbSFRJgq>; Tue, 18 Jun 2002 05:36:46 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:54782 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S317368AbSFRJgp> convert rfc822-to-8bit; Tue, 18 Jun 2002 05:36:45 -0400
-From: David Schwartz <davids@webmaster.com>
-To: <rml@tech9.net>
-CC: <mgix@mgix.com>, <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.61 (1025) - Licensed Version
-Date: Tue, 18 Jun 2002 02:36:43 -0700
-In-Reply-To: <1024361703.924.176.camel@sinai>
-Subject: Re: Question about sched_yield()
-Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Message-ID: <20020618093644.AAA9337@shell.webmaster.com@whenever>
+	id <S317374AbSFRJyC>; Tue, 18 Jun 2002 05:54:02 -0400
+Received: from radium.jvb.tudelft.nl ([130.161.82.13]:16515 "EHLO
+	radium.jvb.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S317373AbSFRJyB>; Tue, 18 Jun 2002 05:54:01 -0400
+From: "Robbert Kouprie" <robbert@radium.jvb.tudelft.nl>
+To: "'Helge Hafting'" <helgehaf@aitel.hist.no>
+Cc: "'Raphael Manfredi'" <Raphael_Manfredi@pobox.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: The buggy APIC of the Abit BP6
+Date: Tue, 18 Jun 2002 11:53:26 +0200
+Message-ID: <003501c216ad$ff50bdb0$020da8c0@nitemare>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Helge Hafting wrote:
 
->And you seem to have a misconception about sched_yield, too.  If a
->machine has n tasks, half of which are doing CPU-intense work and the
->other half of which are just yielding... why on Earth would the yielding
->tasks get any noticeable amount of CPU use?
+> I'll try it. Have you considered resubmitting the patch,
+> hidden behind a CONFIG_BROKEN_APIC? That'll keep the code
+> clean for those with better hardware.
+ 
+We might as well move the kick_IO_APIC_irq call to the
+arch/i386/kernel/irq.c:ack_none function then, surrounded by proper
+#ifdefs. The ack_none is the function that does the printk("unexpected
+IRQ trap at vector %02x\n", irq), which I see everytime the bug
+triggers.
 
-	Because they are not blocking. They are in an endless CPU burning loop. They 
-should get CPU use for the same reason they should get CPU use if they're the 
-only threads running. They are always ready-to-run.
+And looking at the comment of the end_level_ioapic_irq function in
+io_apic.c, is there a possibility to replace the kick_IO_APIC_irq call
+entirely with a end_level_ioapic_irq call? I see lots of similarities in
+these two functions.
 
->Quite frankly, even if the supposed standard says nothing of this... I
->do not care: calling sched_yield in a loop should not show up as a CPU
->hog.
+I didn't test this yet, as I'm still running on Raphael's patch, waiting
+for the bug to trigger. (Anyone got a reliable way of triggering it?)
 
-	It has to. What if the only task running is:
-
-	while(1) sched_yield();
-
-	What would you expect? You cannot use sched_yield as a replacement for 
-blocking or scheduling priority. You cannot use it to be 'nice'. You can only 
-use it to try to give other threads a chance to run, usually to give them a 
-chance to release a resource.
-
-	Imagine if a spinlock uses sched_yield in its wait loop, what would you 
-expect on a dual-CPU system with a process on CPU A holding the lock? You 
-*want* the sched_yield process to burn the CPU fully, so that it notices the 
-spinlock acquisition as soon as possible.
-
-	While linux's sched_yield behavior is definitely sub-optimal, the particular 
-criticism being leveled (that sched_yield processes get too much CPU) is 
-wrong-headed.
-
-	DS
-
+Regards,
+- Robbert Kouprie
 

@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318772AbSG0PSu>; Sat, 27 Jul 2002 11:18:50 -0400
+	id <S318771AbSG0PRg>; Sat, 27 Jul 2002 11:17:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318773AbSG0PSu>; Sat, 27 Jul 2002 11:18:50 -0400
-Received: from wn1.sci.kun.nl ([131.174.8.1]:34710 "EHLO wn1.sci.kun.nl")
-	by vger.kernel.org with ESMTP id <S318772AbSG0PSs>;
-	Sat, 27 Jul 2002 11:18:48 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Danny Tholen <danny@mailmij.org>
-Reply-To: danny@mailmij.org
-To: kernellist <linux-kernel@vger.kernel.org>
-Subject: no visible screen with console driver.
-Date: Sat, 27 Jul 2002 17:20:34 +0200
-User-Agent: KMail/1.4.1
+	id <S318772AbSG0PRg>; Sat, 27 Jul 2002 11:17:36 -0400
+Received: from durandal.simons-rock.edu ([64.210.108.44]:49882 "HELO
+	durandal.simons-rock.edu") by vger.kernel.org with SMTP
+	id <S318771AbSG0PRf>; Sat, 27 Jul 2002 11:17:35 -0400
+Date: Sat, 27 Jul 2002 11:20:53 -0400 (EDT)
+From: Marshal Newrock <marshal@simons-rock.edu>
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: HTP372 on K7RA-RAID / kernel 2.4.19rc3
+In-Reply-To: <Pine.NEB.4.44.0207260858290.15439-100000@mimas.fachschaften.tu-muenchen.de>
+Message-ID: <Pine.LNX.4.44.0207271112540.12906-100000@minerva.simons-rock.edu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200207271720.41657.danny@mailmij.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, 26 Jul 2002, Adrian Bunk wrote:
 
+> On Wed, 24 Jul 2002, Marshal Newrock wrote:
+>
+> > HPT372 IDE RAID chip on an Abit K7RA-RAID
+> > running a freshly installed Gentoo (has gcc-2.95)
+> > kernel 2.4.19rc3, using devfs.
+> > Western Digital 40GB ATA100 drive on /dev/hde, one partition, ext2
+> > filesystem.
+> >
+> > The system has no problem recognizing the HPT372, and can see the drive
+> > and partitions.  I can generally mount it (mount /dev/hde1 /mnt), and 'ls
+> > /mnt' lists the directories.  'ls -l /mnt' will give an 'input/output
+> > error' for each directory.  Sometimes the ls or mount will hang, and I
+> > have to kill the login from another shell.
+> >
+> > Right now, I have the drive connected as /dev/hdc (replacing the CD
+> > drives), and working fine.
+>
+> The -ac kernels contain some IDE updates including updates to hpt366.c
+> (AFAIR the HPT372 isn't really supported in 2.4.19-rc3). Could you try
+> whether 2.4.19-rc3-ac3 (apply [1] on top of 2.4.19-rc3 and run
+> "make clean oldconfig dep bzImage modules") fixes your problem?
 
-I think there is a small problem in the linux console driver, although it could also just be my hardware.
-Anyway, I have a problem on 2 machines with an A7V-266E motherboard, an IIyama HM704 monitor
-and 2 different nvidia cards.
-The problem is rather simple: when the console driver starts, the screen turns black. X starts normally
-and is visible. And than when I go back to a virtual console it suddenly appears correctly. Apperently X
-resets the console better than the kernel:)
-The vesa driver also doesn't give a visible screen. But either the rivafb or vga16fb switch the screen back
-to visible after a few seconds. 
-Horizontal and vertical refresh rates as indicated by the monitor info are similar; when I have a visible
-screen or not. The problem also is in the 2.2 kernels that I tested.
+The HPT372 seems to work fine with 2.4.19-rc3-ac3.
 
-Anyone any idea where to look for the problem, or what is the difference between switching from X and the normal
-initisialization of the console?
+Thanks.
 
-Danny
-
-
-
-
-- -- 
-"I teleported home one night
-With Ron and Sid and Meg.
-Ron stole Meggie's heart away
-And I got Sidney's leg."
-
-- -- A poem about matter transference beams. 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9QrpHaeiN+EU2vEIRAqSrAKCU5vnbVwwvi1d8gDjCHywQHUVKTQCcCtuu
-h5QyGnekikDHOuw/TopYnRA=
-=GqpX
------END PGP SIGNATURE-----
+-- 
+Marshal Newrock, Simon's Rock College of Bard
+Caution: product may be hot after heating
 

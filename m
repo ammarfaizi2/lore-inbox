@@ -1,86 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262052AbVBPPzN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262053AbVBPP43@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262052AbVBPPzN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 10:55:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262053AbVBPPzN
+	id S262053AbVBPP43 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 10:56:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262055AbVBPP43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 10:55:13 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:4521 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262052AbVBPPy7 (ORCPT
+	Wed, 16 Feb 2005 10:56:29 -0500
+Received: from smtp107.mail.sc5.yahoo.com ([66.163.169.227]:64937 "HELO
+	smtp107.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262053AbVBPP4Y convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 10:54:59 -0500
-From: Jeff Moyer <jmoyer@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16915.27837.309170.73909@segfault.boston.redhat.com>
-Date: Wed, 16 Feb 2005 10:54:37 -0500
-To: raven@themaw.net
-Cc: Jan Blunck <j.blunck@tu-harburg.de>,
-       viro@parcelfarce.linux.theplanet.co.uk,
-       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH] dcache d_drop() bug fix / __d_drop() use fix
-In-Reply-To: <Pine.LNX.4.61.0502162318240.8161@donald.themaw.net>
-References: <421355A4.6000305@tu-harburg.de>
-	<Pine.LNX.4.61.0502162318240.8161@donald.themaw.net>
-X-Mailer: VM 7.19 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
-Reply-To: jmoyer@redhat.com
-X-PGP-KeyID: 1F78E1B4
-X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
-X-PCLoadLetter: What the f**k does that mean?
+	Wed, 16 Feb 2005 10:56:24 -0500
+Date: Wed, 16 Feb 2005 16:39:23 +0100
+From: "d.c" <aradorlinux@yahoo.es>
+To: Clemens Schwaighofer <cs@tequila.co.jp>
+Cc: kernel@crazytrain.com, linux-kernel@vger.kernel.org
+Subject: Re: [BK] upgrade will be needed
+Message-Id: <20050216163923.54929d52.aradorlinux@yahoo.es>
+In-Reply-To: <42131637.2070801@tequila.co.jp>
+References: <20050214020802.GA3047@bitmover.com>
+	<58cb370e05021404081e53f458@mail.gmail.com>
+	<20050214150820.GA21961@optonline.net>
+	<20050214154015.GA8075@bitmover.com>
+	<7579f7fb0502141017f5738d1@mail.gmail.com>
+	<20050214185624.GA16029@bitmover.com>
+	<1108469967.3862.21.camel@crazytrain>
+	<42131637.2070801@tequila.co.jp>
+X-Mailer: Sylpheed version 1.9.2+svn (GTK+ 2.6.1; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-==> Regarding Re: [PATCH] dcache d_drop() bug fix / __d_drop() use fix; raven@themaw.net adds:
+El Wed, 16 Feb 2005 18:45:27 +0900,
+Clemens Schwaighofer <cs@tequila.co.jp> escribió:
 
-raven> On Wed, 16 Feb 2005, Jan Blunck wrote:
->> This is a re-submission of the patch I sent about a month ago.
->> 
->> While working on my code I realized that d_drop() might race against 
->> __d_lookup(). __d_drop() (which is called by d_drop() after acquiring the 
->> dcache_lock) is accessing dentry->d_flags to set the DCACHE_UNHASHED flag. 
->> This shouldn't be done without holding dentry->d_lock, like stated in 
->> dcache.h:
->> 
->> struct dentry {
->> ...
->> unsigned int d_flags;		/* protected by d_lock */
->> ...
->> };
->> 
->> Therefore d_drop() must acquire the dentry->d_lock. Likewise every use of 
->> __d_drop() must acquire that lock.
->> 
->> This patch fixes d_drop() and every grep'able __d_drop() use. This patch is 
->> against today's http://linux.bkbits.net/linux-2.5.
->> 
+> than mature VCS. Apache group is switching to it, gcc people are
+> strongly thinking about it, and those two are _huge_ projects with tons
+> of developers, patches, trunks, etc.
 
-raven> For my part, in autofs4, I would prefer:
+....and all of them work today with CVS, so any SCM will fit their purposes.
 
-> --- linux-2.6.9/fs/autofs4/root.c.d_lock	2005-02-16 23:15:18.000000000 +0800
-> +++ linux-2.6.9/fs/autofs4/root.c	2005-02-16 23:15:35.000000000 +0800
-> @@ -621,7 +621,7 @@
->   		spin_unlock(&dcache_lock);
->   		return -ENOTEMPTY;
->   	}
-> -	__d_drop(dentry);
-> +	d_drop(dentry);
->   	spin_unlock(&dcache_lock);
 
->   	dput(ino->dentry);
 
-Ian, this would deadlock.  You already hold the dcache lock here, and
-d_drop takes it:
+> Perhaps its about time, that linux also switches.
 
-static inline void d_drop(struct dentry *dentry)
-{
-        spin_lock(&dcache_lock);
-        __d_drop(dentry);
-        spin_unlock(&dcache_lock);
-}
+Linux kernel is patch + diff + announcement based (there's no need to use BK)
+I really would like it was different but...
 
-The proposed patch was to take the dentry->d_lock.
-
--Jeff

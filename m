@@ -1,65 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272721AbTG1H6t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 03:58:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272726AbTG1H6t
+	id S272732AbTG1IEq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 04:04:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272733AbTG1IEq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 03:58:49 -0400
-Received: from jive.SoftHome.net ([66.54.152.27]:54160 "HELO jive.SoftHome.net")
-	by vger.kernel.org with SMTP id S272721AbTG1H6r (ORCPT
+	Mon, 28 Jul 2003 04:04:46 -0400
+Received: from [213.69.232.58] ([213.69.232.58]:37384 "HELO schottelius.org")
+	by vger.kernel.org with SMTP id S272732AbTG1IEn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 03:58:47 -0400
-Message-ID: <3F24DB59.1010600@softhome.net>
-Date: Mon, 28 Jul 2003 10:14:17 +0200
-From: "Ihar \"Philips\" Filipau" <filia@softhome.net>
-Organization: Home Sweet Home
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Miles Bader <miles@gnu.org>
-CC: Hollis Blanchard <hollisb@us.ibm.com>, Otto Solares <solca@guug.org>,
-       "J.A. Magallon" <jamagallon@able.es>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       David McCullough <davidm@snapgear.com>, uclinux-dev@uclinux.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel 2.6 size increase - get_current()?
-References: <9CA735B0-BEAD-11D7-BEDE-000A95A0560C@us.ibm.com> <buowue3l4ni.fsf@mcspd15.ucom.lsi.nec.co.jp>
-In-Reply-To: <buowue3l4ni.fsf@mcspd15.ucom.lsi.nec.co.jp>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 28 Jul 2003 04:04:43 -0400
+Date: Mon, 28 Jul 2003 10:18:33 +0200
+From: Nico Schottelius <nico-kernel@schottelius.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: psmouse: synaptics (2.6.0-test1|2)
+Message-ID: <20030728081832.GA453@schottelius.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="vtzGhvizbBRQ85DL"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux flapp 2.6.0-test2
+X-Free86: doesn't compile currently
+X-Replacement: please tell me some (working)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miles Bader wrote:
-> Hollis Blanchard <hollisb@us.ibm.com> writes:
-> 
->>Inlines don't always help performance (depending on cache sizes, branch 
->>penalties, frequency of code access...), but they do always increase 
->>code size.
-> 
-> 
-> Um, inlining can often _decrease_ code size because it gives the
-> compiler substantial new opportunities for optimization (the function
-> body is no longer opaque, so the compiler has a lot more info, and any
-> optimizations done on the inlined body can be context-specific).
-> 
 
-   starting from -O3 gcc do always trys to do inlining.
-   was observed on gcc 3.2 and I beleive I saw the same 2.95.3
+--vtzGhvizbBRQ85DL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-   compile this test with 02 & 03:
--------------------
-#include <stdio.h>
+Hello!
 
-int aaa() { return 32; }
+My touchpad stops working with 2.5.74.
 
-int main() {
-         int b = aaa();
-         printf("hello %d \n", b);
-         return 0;
-}
-------------------
+With 2.6.0test2 I got minimal success:
+If I attach an external ps2mouse while booting, I can use this one.
+Until I remove it, soon the kernel (psmouse I think) tries to init
+the touchpad which fails.
 
-    and then objdump -d to see the difference between main()s: 02 - you 
-will see function call, 03 - you will see just raw number 0x20 used.
+My questions:
+   1) why are you implementing drivers in the kernel?
+   2) what source of information do you use to program them?
+   3) how can I read /dev/misc/psaux in Linux 2.6 ?
+   3.1) howto get gpm running?
+   3.2) is the patch mentioned for X implemented in X cvs?
 
+
+Nico
+
+--=20
+echo God bless America | sed 's/.*\(A.*$\)/Why \1?/'
+pgp: new id: 0x8D0E27A4 | ftp.schottelius.org/pub/familiy/nico/pgp-key.new
+
+--vtzGhvizbBRQ85DL
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE/JNxYtnlUggLJsX0RAoIwAJ40U/f0GXoeP6YsiEpCIXrlCS9IZwCfUrRh
+7tsTvN/JzOS7lL+OmnT78C0=
+=TikW
+-----END PGP SIGNATURE-----
+
+--vtzGhvizbBRQ85DL--

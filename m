@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264479AbTLGSts (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 13:49:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264480AbTLGSts
+	id S264488AbTLGS4C (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 13:56:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264489AbTLGS4C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 13:49:48 -0500
-Received: from cafe.hardrock.org ([142.179.182.80]:39809 "EHLO
-	cafe.hardrock.org") by vger.kernel.org with ESMTP id S264479AbTLGStr
+	Sun, 7 Dec 2003 13:56:02 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:51466 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S264488AbTLGS4A
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 13:49:47 -0500
-Date: Sun, 7 Dec 2003 11:49:42 -0700 (MST)
-From: James Bourne <jbourne@hardrock.org>
-To: Chris Frey <cdfrey@netdirect.ca>
-cc: Mark Symonds <mark@symonds.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23 hard lock, 100% reproducible.
-In-Reply-To: <20031207133201.A4744@netdirect.ca>
-Message-ID: <Pine.LNX.4.51.0312071147070.3356@cafe.hardrock.org>
-References: <20031207023650.GA772@symonds.net> <87he0ds3sv.fsf@ceramic.fifi.org>
- <02a901c3bc7b$69294ee0$7a01a8c0@gandalf> <20031207133201.A4744@netdirect.ca>
+	Sun, 7 Dec 2003 13:56:00 -0500
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux-kernel@vger.kernel.org, suparna@in.ibm.com, linux-aio@kvack.org
+Subject: Re: aio on ramfs
+References: <20031207083432.GP19856@holomorphy.com>
+	<87ptf0h6h8.fsf@devron.myhome.or.jp>
+	<20031207175013.GF14258@holomorphy.com>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Mon, 08 Dec 2003 03:55:40 +0900
+In-Reply-To: <20031207175013.GF14258@holomorphy.com>
+Message-ID: <87fzfwh2z7.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Dec 2003, Chris Frey wrote:
+William Lee Irwin III <wli@holomorphy.com> writes:
 
-> On Sat, Dec 06, 2003 at 08:34:32PM -0800, Mark Symonds wrote:
-> > Other than that, nothing.  Is there a patch out there 
-> > that will simply make 2.4.22 secure?  Things run great
-> > on that kernel. 
+> William Lee Irwin III <wli@holomorphy.com> writes:
+> >> +static int ramfs_writepage(struct page *page, struct writeback_control *wbc)
+> >> +{
+> >> +	return 0;
+> >> +}
 > 
-> Here's the relevant section from patch-2.4.23
-
-Hi,
-This is included with the patch set I just posted, 2.4.22-uv3 available at
-http://www.hardrock.org/current-updates/linux-2.4.22-uv3-updates.patch.
-
-This also includes patches for some other issues in 2.4.22.  I haven't yet
-posted one for 2.4.23 due to some outstanding issues with what appear to be
-(or at least could be) hard locks (such as this thread).  Once these are
-resolved I will be releasing a -uv for 2.4.23.
-
-Regards
-James
-
+> On Mon, Dec 08, 2003 at 02:40:03AM +0900, OGAWA Hirofumi wrote:
+> > Doesn't this break the magic of shrink_list()? I think it need the
+> > "return WRITEPAGE_ACTIVATE;" at least.
 > 
-> - Chris
+> In truth these things shouldn't be on the LRU at all, though they're
+> probably blindly plopped down there. My handwavy argument was that it
+> makes no sense to do anything with it on the LRU and that I'd nopped
+> out ->set_page_dirty() anyhow (i.e. PG_dirty should never get set). Does
+> that hold enough water or should I still hand back WRITEPAGE_ACTIVATE?
 
+I see. Sorry for noise.
 -- 
-James Bourne                  | Email:            jbourne@hardrock.org          
-Unix Systems Administrator    | WWW:           http://www.hardrock.org
-Custom Unix Programming       | Linux:  The choice of a GNU generation
-----------------------------------------------------------------------
- "All you need's an occasional kick in the philosophy." Frank Herbert  
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

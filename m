@@ -1,66 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282956AbRK0Vy2>; Tue, 27 Nov 2001 16:54:28 -0500
+	id <S282976AbRK0V52>; Tue, 27 Nov 2001 16:57:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282976AbRK0VyS>; Tue, 27 Nov 2001 16:54:18 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:49914 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S282974AbRK0Vx5>; Tue, 27 Nov 2001 16:53:57 -0500
-Message-ID: <3C040B58.E42B11DF@mvista.com>
-Date: Tue, 27 Nov 2001 13:53:28 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S282967AbRK0V5T>; Tue, 27 Nov 2001 16:57:19 -0500
+Received: from samba.sourceforge.net ([198.186.203.85]:17418 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S282974AbRK0V5I>;
+	Tue, 27 Nov 2001 16:57:08 -0500
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-To: Shaya Potter <spotter@cs.columbia.edu>
-CC: Davide Libenzi <davidel@xmailserver.org>,
-        Mike Kravetz <kravetz@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Scheduler Cleanup
-In-Reply-To: <Pine.LNX.4.40.0111261240230.1674-100000@blue1.dev.mcafeelabs.com> <1006894632.872.6.camel@zaphod>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15364.1721.506563.253393@gargle.gargle.HOWL>
+Date: Wed, 28 Nov 2001 08:33:45 +1100 (EST)
+To: war <war@starband.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.16 Bug (PPC)
+In-Reply-To: <3C028378.50CA616C@starband.net>
+In-Reply-To: <3C028378.50CA616C@starband.net>
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shaya Potter wrote:
-> 
-> On Mon, 2001-11-26 at 15:49, Davide Libenzi wrote:
-> > On Mon, 26 Nov 2001, Mike Kravetz wrote:
-> >
-> > > I'm happy to see the cleanup of scheduler code that went into
-> > > 2.4.15/16.  One small difference in behavior (I think) is that
-> > > the currently running task is not given preference over other
-> > > tasks on the runqueue with the same 'goodness' value.  I would
-> > > think giving the current task preference is a good thing
-> > > (especially in light of recent discussions about too frequent
-> > > moving/rescheduling of tasks).  Can someone provide the rational
-> > > for this change?  Was it just the result of making the code
-> > > cleaner?  Is it believed that this won't really make a difference?
-> >
-> > Mike, I was actually surprised about the presence of that check inside the
-> > previous code.
-> > If you think about it, when a running task is scheduled ?
-> >
-> > 1) an IRQ wakeup some I/O bound task
-> > 2) the quota is expired
-> >
-> > With 1) you've an incoming I/O bound task ( ie: ksoftirqd_* ) that is very
-> > likely going to have a better dynamic priority ( if not reschedule_idle()
-> > does not set need_resched ), while with 2) you've the task counter == 0.
-> > In both cases not only the test is useless but is going to introduce 1)
-> > the branch in the fast path 2) the cost of an extra goodness().
-> 
-> doesn't schedule() also get called when a new task is put on the
-> runqueue?
-> 
-> when that happens, doesn't the check matter? or perhaps I'm just
-> mistaken.
-> 
-That is the same as 1) above.  reschedule_idle() should determine if the
-new task is to get the cpu and set need_resched as needed.
+war writes:
 
--- 
-George           george@mvista.com
-High-res-timers: http://sourceforge.net/projects/high-res-timers/
-Real time sched: http://sourceforge.net/projects/rtsched/
+> Bug still resides in 2.4.16 still, even after the PPC fixes that were
+> applied to 2.4.16-pre1.
+> 
+> If nobody cares about PPC updates, I guess I should put the box back on
+> the shelf.
+
+Gratuitous rudeness will usually get you an answer. :)
+
+> The video driver (plat) is the framebuffer for a few macs, without it,
+> I cannot do anything.
+> 
+> Any plans to fix this?
+> 
+> //              default_vmode = nvram_read_byte(NV_VMODE);
+> //              default_cmode = nvram_read_byte(NV_CMODE);
+>
+> Commenting the two undefined functions out in drivers/video/platinumfb.c
+> allows for a successful compile.
+> It also allows for the video driver to be brought up succesfully.
+
+Have you reported this before, on this list or anywhere else?
+
+The problem is that your config is slightly unusual in that you have
+turned off CONFIG_NVRAM.  We can put some ifdefs in so that it
+compiles without CONFIG_NVRAM.  For now, just turn on CONFIG_NVRAM.
+
+Paul.

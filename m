@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262670AbTHUNxM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 09:53:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262734AbTHUNuW
+	id S262667AbTHUNnP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 09:43:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262658AbTHUNnP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 09:50:22 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:60290 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262727AbTHUNtB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 09:49:01 -0400
-Date: Thu, 21 Aug 2003 14:48:54 +0100
-From: Jamie Lokier <jamie@shareable.org>
+	Thu, 21 Aug 2003 09:43:15 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:31499 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S262667AbTHUMsh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 08:48:37 -0400
+Date: Thu, 21 Aug 2003 14:48:35 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
 To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Vojtech Pavlik <vojtech@suse.cz>,
-       Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org
+Cc: Jamie Lokier <jamie@shareable.org>, Andries Brouwer <aebr@win.tue.nl>,
+       Neil Brown <neilb@cse.unsw.edu.au>, Vojtech Pavlik <vojtech@suse.cz>,
+       linux-kernel@vger.kernel.org
 Subject: Re: Input issues - key down with no key up
-Message-ID: <20030821134854.GA28593@mail.jlokier.co.uk>
-References: <20030819194814.A2179@pclin040.win.tue.nl> <Pine.GSO.3.96.1030821125736.2489B-100000@delta.ds2.pg.gda.pl>
+Message-ID: <20030821144835.B3480@pclin040.win.tue.nl>
+References: <20030821000302.GC24970@mail.jlokier.co.uk> <Pine.GSO.3.96.1030821133902.2489C-100000@delta.ds2.pg.gda.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.3.96.1030821125736.2489B-100000@delta.ds2.pg.gda.pl>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.GSO.3.96.1030821133902.2489C-100000@delta.ds2.pg.gda.pl>; from macro@ds2.pg.gda.pl on Thu, Aug 21, 2003 at 01:40:33PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maciej W. Rozycki wrote:
-> > My laptop has function buttons that bring me to a setup menu where
-> > I can set various timeouts related to power saving. These built-in
-> > menus react to translated scancode Set 2 only. There is no way to get
-> > out if one first chooses Set 3.
+On Thu, Aug 21, 2003 at 01:40:33PM +0200, Maciej W. Rozycki wrote:
+> On Thu, 21 Aug 2003, Jamie Lokier wrote:
+> 
+> > But for programs which want to monitor a key and know its state
+> > continuously (this presently includes the software autorepeater, but
+> > it also includes games), none of the behaviours is right.
+> 
+>  X11 is another example of software that wants to know the state of keys
+> continuously.  And that's not a piece of software to ignore easily. 
 
-Perhaps the BIOS is listening for translated set 2 scancodes.  Maybe some
-different keys would have the power saving functions in other modes?
+You are both inventing the situation that games, or X11, ask the kernel
+for a bitmap of pressed keys. But they don't. The mechanism doesn't
+even exist.
 
->  Actually the spec is a standard and standard hardware performs as
-> expected (e.g. hardware released by IBM).  The rest is non-standard and if
-> a manufacturer claims PS/2-compliance for any of these items, then he
-> lies. 
 
-The user doesn't care if it's PS/2 compliant or not.  It must work,
-that is the only important thing.  Even more so, given it is flawless
-
->  Note the translation is done outside the keyboard -- the onboard 8042
-> controller is responsible for it.  And it's an obstacle for normal
-> operation, most notably you cannot handle hot-plug events as they are
-> undistinguishable from a <Shift> release. 
-
-Perhaps you can detect a keyboard being unplugged by periodically
-sending it Echo commands (EE), or any other command to which it responds.
-
--- Jamie

@@ -1,36 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262493AbTJJUpM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 16:45:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262610AbTJJUpM
+	id S262539AbTJJUk3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 16:40:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262610AbTJJUk3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 16:45:12 -0400
-Received: from mx2.redhat.com ([66.187.237.31]:53767 "EHLO mx2.redhat.com")
-	by vger.kernel.org with ESMTP id S262493AbTJJUpK (ORCPT
+	Fri, 10 Oct 2003 16:40:29 -0400
+Received: from pat.uio.no ([129.240.130.16]:16586 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262539AbTJJUk2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 16:45:10 -0400
-Date: Fri, 10 Oct 2003 13:44:55 -0700
-From: Richard Henderson <rth@redhat.com>
-To: David Howells <dhowells@redhat.com>
-Cc: gcc@gcc.gnu.org, linux-kernel@vger.kernel.org
-Subject: Re: using void variables as linker-script symbol refs
-Message-ID: <20031010204455.GE19470@redhat.com>
-Mail-Followup-To: Richard Henderson <rth@redhat.com>,
-	David Howells <dhowells@redhat.com>, gcc@gcc.gnu.org,
-	linux-kernel@vger.kernel.org
-References: <15494.1065808168@redhat.com>
-Mime-Version: 1.0
+	Fri, 10 Oct 2003 16:40:28 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15494.1065808168@redhat.com>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16263.6450.819475.453165@charged.uio.no>
+Date: Fri, 10 Oct 2003 16:40:18 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Joel Becker <Joel.Becker@oracle.com>,
+       Chris Friesen <cfriesen@nortelnetworks.com>,
+       Jamie Lokier <jamie@shareable.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: statfs() / statvfs() syscall ballsup...
+In-Reply-To: <Pine.LNX.4.44.0310101059330.20420-100000@home.osdl.org>
+References: <16262.62026.603149.157026@charged.uio.no>
+	<Pine.LNX.4.44.0310101059330.20420-100000@home.osdl.org>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 10, 2003 at 06:49:28PM +0100, David Howells wrote:
-> 	extern int _stext[], _etext[];
 
-s/int/char/ and this is the most correct way.  Really.
+     > If you had a "this region is stale" thing, you'd just use
+     > it. And if it was local disk, it wouldn't do anything.
 
+Note that in order to be race-free, such a command would also have to
+wait on any outstanding operations (i.e. both pending reads and
+writes) on the region in question in order to make sure that none have
+crossed the synchronization point. It is not a question of just
+calling invalidate_inode_pages() and thinking that all is well...
 
-r~
+In fact, I recently noticed that we still have this race in the NFS
+file locking code: readahead may have been scheduled before we
+actually set the file lock on the server, and may thus fill the page
+cache with stale data.
+
+Cheers,
+  Trond

@@ -1,122 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266353AbUIAG4U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266566AbUIAHDY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266353AbUIAG4U (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 02:56:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268832AbUIAG4U
+	id S266566AbUIAHDY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 03:03:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266626AbUIAHDY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 02:56:20 -0400
-Received: from smtp.dei.uc.pt ([193.137.203.228]:49070 "EHLO smtp.dei.uc.pt")
-	by vger.kernel.org with ESMTP id S266353AbUIAG4Q (ORCPT
+	Wed, 1 Sep 2004 03:03:24 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:39563 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266566AbUIAHDW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 02:56:16 -0400
-Date: Wed, 1 Sep 2004 07:55:02 +0100 (WEST)
-From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-To: prasad@atc.tcs.co.in
-cc: "Wise, Jeremey" <jeremey.wise@agilysys.com>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel or Grub bug.
-In-Reply-To: <36886.203.200.212.145.1094019402.squirrel@203.200.212.145>
-Message-ID: <Pine.LNX.4.61.0409010752260.32036@student.dei.uc.pt>
-References: <1094008341.4704.32.camel@wizej.agilysys.com>   
- <41355005.6030204@atc.tcs.co.in>    <Pine.LNX.4.61.0409010549230.32036@student.dei.uc.pt>
- <36886.203.200.212.145.1094019402.squirrel@203.200.212.145>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-UC-FCTUC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
-X-UC-FCTUC-DEI-MailScanner: Found to be clean
-X-MailScanner-From: marado@student.dei.uc.pt
+	Wed, 1 Sep 2004 03:03:22 -0400
+Subject: Re: [Announce] Update on ipw2100, ipw2200, and support for Intel
+	PRO/Wireless 2915ABG
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: James Ketrenos <jketreno@linux.intel.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Netdev <netdev@oss.sgi.com>
+In-Reply-To: <4134E8EA.9080605@linux.intel.com>
+References: <4134E8EA.9080605@linux.intel.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-X7szBpNK5mljMglKnPP8"
+Organization: Red Hat UK
+Message-Id: <1094022177.2801.1.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 01 Sep 2004 09:02:57 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-On Wed, 1 Sep 2004 prasad@atc.tcs.co.in wrote:
+--=-X7szBpNK5mljMglKnPP8
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> have you tried removing the initrd entry in GRUB.
-> In most cases you can safely do away with it.  That would
-> atleast make sure the problem is not with the initrd.
+On Tue, 2004-08-31 at 23:08, James Ketrenos wrote:
+> It's been a while since I've updated lkml and netdev on the progress of
+> the ipw projects.  Given the recent announcement by Intel for the
+> introduction of Intel PRO/Wireless 2915 ABG Network Connection miniPCI
+> adapter, I thought now was a good time...
 
-Yes, I did it.
-I'm actually using lilo, but I've tried with both.
 
-Mind Booster Noori
+you guys seem to be doing a really great job on these drivers; thanks!
 
-> Prasad
->
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
->>
->> On Wed, 1 Sep 2004, Prasad wrote:
->>
->>>> "Kernel panic: VFS: Unable to mount root fs on unknown-block(0,0)"
->>>
->>> Your partition table suggests that there are two different partitions
->>> for
->>> '/boot'
->>> and '/'.  The GRUB loads the kernel from '/boot' which is (hd0,0) but
->>> the
->>> kernel is unable to find the '/' partition.   You may pass it using the
->>> parameter
->>> root=/dev/hda3.
->>>
->>> That should work.
->>>
->>> Prasad
->>
->> It may not work. As he said in the original message, he found lot's of
->> other
->> people with that problem, including... myself. Since 2.6.4 I can't boot
->> any 2.6
->> kernel, allways with that Kernel panic. I've tried several things,
->> including
->> using the root=/dev/hda3 parameter, and, at the time, I've raised the
->> issue
->> here on LKML, but no conclusion has been reached.
->>
->> A search on LKML led me to this:
->> http://www.ussg.iu.edu/hypermail/linux/kernel/0403.3/1180.html
->>
->> Mind Booster Noori
->>
->> - --
->> /* *************************************************************** */
->>     Marcos Daniel Marado Torres	     AKA	Mind Booster Noori
->>     http://student.dei.uc.pt/~marado   -	  marado@student.dei.uc.pt
->>     () Join the ASCII ribbon campaign against html email, Microsoft
->>     /\ attachments and Software patents.   They endanger the World.
->>     Sign a petition against patents:  http://petition.eurolinux.org
->> /* *************************************************************** */
->> -----BEGIN PGP SIGNATURE-----
->> Version: GnuPG v1.2.1 (GNU/Linux)
->> Comment: Made with pgp4pine 1.76
->>
->> iD8DBQFBNWTnmNlq8m+oD34RAm5CAJ9ZCFWJySRz3RRFCPUtcRhueFbcvgCeJAoo
->> SxqGk3ho9GdPptdsFmV/N8E=
->> =xyRu
->> -----END PGP SIGNATURE-----
->>
->> -
->> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
->>
->
+--=-X7szBpNK5mljMglKnPP8
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-- -- 
-/* *************************************************************** */
-    Marcos Daniel Marado Torres	     AKA	Mind Booster Noori
-    http://student.dei.uc.pt/~marado   -	  marado@student.dei.uc.pt
-    () Join the ASCII ribbon campaign against html email, Microsoft
-    /\ attachments and Software patents.   They endanger the World.
-    Sign a petition against patents:  http://petition.eurolinux.org
-/* *************************************************************** */
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Made with pgp4pine 1.76
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFBNXJzmNlq8m+oD34RAh2pAKCvzDOV4fUcvqBic+acnLO7SmCQmQCdEasr
-wemYv6ZwmAW+AKQuOYCN290=
-=VahV
+iD8DBQBBNXQgxULwo51rQBIRAvHCAJwOJrJP6DLAJuGhAuK9d1qoOUQJZgCghNlA
+Msq9xpw2hH+gug8KYZg9s0c=
+=kpDZ
 -----END PGP SIGNATURE-----
+
+--=-X7szBpNK5mljMglKnPP8--
 

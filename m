@@ -1,98 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264617AbSJ3HuY>; Wed, 30 Oct 2002 02:50:24 -0500
+	id <S262663AbSJ3ICx>; Wed, 30 Oct 2002 03:02:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264618AbSJ3HuY>; Wed, 30 Oct 2002 02:50:24 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:57078 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S264617AbSJ3HuX>;
-	Wed, 30 Oct 2002 02:50:23 -0500
-Message-ID: <3DBF90A8.9989492C@mvista.com>
-Date: Tue, 29 Oct 2002 23:56:24 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Stephen Hemminger <shemminger@osdl.org>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/3] High-res-timers part 1 (core) take 8
-References: <3DBEE360.EE73EF8C@mvista.com> <1035935049.1580.463.camel@dell_ss3.pdx.osdl.net>
+	id <S262887AbSJ3ICx>; Wed, 30 Oct 2002 03:02:53 -0500
+Received: from codepoet.org ([166.70.99.138]:34715 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S262663AbSJ3ICw>;
+	Wed, 30 Oct 2002 03:02:52 -0500
+Date: Wed, 30 Oct 2002 01:09:14 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: kbuild-devel <kbuild-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: linux kernel conf 1.3
+Message-ID: <20021030080914.GA7371@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Roman Zippel <zippel@linux-m68k.org>,
+	kbuild-devel <kbuild-devel@lists.sourceforge.net>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <3DBF4D6B.364A6DCC@linux-m68k.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3DBF4D6B.364A6DCC@linux-m68k.org>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.19-rmk2, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Hemminger wrote:
+On Wed Oct 30, 2002 at 04:09:31AM +0100, Roman Zippel wrote:
+> Hi,
 > 
-> Your patch adds a new config option that seems like a step backwards in
-> ease of use. The CONFIG_TIMERLIST option is adding a new dimension to
-> complexity kernel configuration. For no other parameter that I can think
-> of does the kernel configuration process ask for a size information.
-> Number of users, processes, threads, groups, are all sized dynamically
-> now; this is good.
-> 
-> How is the end user supposed to know how many timer list entries are
-> expected?  There is no context about what a timer list entry is and no
-> direct correlation back to anything meaningful in user terms (processes,
-> devices, sockets, ...).  Also, what happens if the time list size is
-> exhausted? does the kernel die? is it slower?...
-> 
-Ok, first, somehow in the chase to stay up with 2.5, this
-bit was lost:
-Configure timer list size
-CONFIG_TIMERLIST_512
-  This choice allows you to choose the timer list size you
-want.  The
-  list insert time is Order(N/size) where N is the number of
-active
-  timers.  Each list head is 8 bytes, thus a 512 list size
-requires 4K
-  bytes.  Use larger numbers if you will be using a large
-number of
-  timers and are more concerned about list insertion time
-than the extra
-  memory usage.  (The list size must be a power of 2.)
+> At http://www.xs4all.nl/~zippel/lc/ you can find as usual the latest
+> version of the new config system.
+> Changes:
+> - Update to 2.5.45
 
-from the Config.help file.  The timer list is a hash list
-and the size this lets you set changes the number of
-buckets, the only affect its size has is on the insertion
-time, more buckets => faster.  So the kernel does not die
-and the list will never be exhausted (or even full).
+It seems that 2.5.45 does not exist.  Is this vs a BK snapshot?
+Attempting to install vs 2.5.44 fails rather spectacularly.
+There was even a segfault in lkcc at one point while doing
+a make install KERNELSRC=<blah>/linux-2.5.44
 
-> Can't this just be dynamically sized?
+ -Erik
 
-As to choosing it dynamically, it needs to be fixed rather
-early in the game, compile time or boot time, no later. 
-
-That said, we have run tests to see how the list insert time
-varies with number of timers (in fact the test program is in
-the support package on the sourceforge site, called
-"performance.c" in the tests directory once you install that
-package).  The test was done with a 512 entry list and with
-1 to 4000 timers.  Insertion time went from about 4 micro
-seconds to about 7 over that range, with the first insert
-taking about 40 micro seconds.  The conclusion was that the
-cache misses on the first insertion were FAR more important
-than the list size.
-
-Also, since that time, Ingo's salability changes went in,
-which means that each cpu has its own list.
-
-The net of all this is that, on reflection, I think I will
-remove the configure option on timer list size.  I will
-leave the code in place so that, if some special application
-wants to change it, it will be easy to do, much as changing
-HZ (only easier as it has NO impact outside of the kernel).
-
-Thanks for bringing this to my attention.  The patch for the
-next bk release will reflect this change.
-
-
-
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

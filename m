@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318284AbSG3OTc>; Tue, 30 Jul 2002 10:19:32 -0400
+	id <S318278AbSG3OTZ>; Tue, 30 Jul 2002 10:19:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318285AbSG3OTc>; Tue, 30 Jul 2002 10:19:32 -0400
-Received: from mout0.freenet.de ([194.97.50.131]:3269 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id <S318284AbSG3OTb>;
-	Tue, 30 Jul 2002 10:19:31 -0400
-Date: Tue, 30 Jul 2002 16:23:05 +0200
-From: Axel Siebenwirth <axel@hh59.org>
+	id <S318284AbSG3OTZ>; Tue, 30 Jul 2002 10:19:25 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:39046 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S318278AbSG3OTZ> convert rfc822-to-8bit; Tue, 30 Jul 2002 10:19:25 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <mcp@linux-systeme.de>
+Organization: Linux-Systeme GmbH
 To: linux-kernel@vger.kernel.org
-Cc: lkcd-general@sourceforge.net, tarreau@miaif.lip6.fr
-Subject: LKCD/kmsgdump for 2.5?
-Message-ID: <20020730142305.GA691@prester.freenet.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	lkcd-general@sourceforge.net, tarreau@aemiaif.lip6.fr
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: hh59.org
-User-Agent: Mutt/1.5.1i
+Subject: Re: [ERROR] with 2.4.19[rc2|rc3]: Linking error scsidrv.o
+Date: Tue, 30 Jul 2002 16:22:13 +0200
+X-Mailer: KMail [version 1.4]
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <200207301232.50704.mcp@linux-systeme.de> <200207301423.47664.mcp@linux-systeme.de> <1028041184.6726.30.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1028041184.6726.30.camel@irongate.swansea.linux.org.uk>
+X-PRIORITY: 2 (High)
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200207301622.13670.mcp@linux-systeme.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tuesday 30 July 2002 16:59, Alan Cox wrote:
 
-I'm tired of handcopying my oopses. I read of something like LKCD and
-kmsgdump but then I saw that these are only available for 2.4. But wouldn't
-something like that be more useful for a development kernel as 2.5?
-Unfortunately I don't have a second computer for a serial line.
+Hi Alan,
 
-Is there maybe still some way to avoid copying the oopses by hand for 2.5
-kernels?
+> On Tue, 2002-07-30 at 13:23, Marc-Christian Petersen wrote:
+> > > Known problem - fixed in -ac, or for the base enable CONFIG_PCI. I'll
+> > > push the fix to Marcelo for 2.4.20pre
+> >
+> > Could you send me the fix please Alan? :) Thanks alot!
+>
+> Its in the -ac patch on kernel.org, help yourself 8)
+i did 8-) ... thnx
 
-Best regards and many thanks,
-Axel Siebenwirth
-
+ciao, Marc

@@ -1,61 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265588AbUBBDOq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 22:14:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265590AbUBBDOq
+	id S265590AbUBBDVY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 22:21:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265592AbUBBDVX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 22:14:46 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:7811 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265588AbUBBDOo (ORCPT
+	Sun, 1 Feb 2004 22:21:23 -0500
+Received: from mail.kroah.org ([65.200.24.183]:5050 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265590AbUBBDVW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 22:14:44 -0500
-Message-ID: <401DC09B.4060001@redhat.com>
-Date: Sun, 01 Feb 2004 17:14:35 -1000
-From: Warren Togami <wtogami@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031225 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lai Zit Seng <lzs@comp.nus.edu.sg>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Trouble with Cisco Airo MPI350 and kernel-2.6.1+
-References: <Pine.LNX.4.44.0402021106000.23974-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.44.0402021106000.23974-100000@localhost.localdomain>
-X-Enigmail-Version: 0.82.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 1 Feb 2004 22:21:22 -0500
+Date: Sun, 1 Feb 2004 19:16:12 -0800
+From: Greg KH <greg@kroah.com>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: hal daemon and ide-floppy
+Message-ID: <20040202031612.GA20455@kroah.com>
+References: <20040126215036.GA6906@kroah.com> <20040201225224.GA4001@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040201225224.GA4001@werewolf.able.es>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lai Zit Seng wrote:
-> On Sun, 1 Feb 2004, Warren Togami wrote:
+On Sun, Feb 01, 2004 at 11:52:24PM +0100, J.A. Magallon wrote:
+> Hi all...
 > 
+> It looks like haldaemon is polling my zip to see inserted disks
+> (it is the only hadware I have that uses ide-floppy).
+> I get a message like this
 > 
->>Are these many errors normal?
->>
->>[root@ibmlaptop etc]# iwconfig eth1
->>Warning: Driver for device eth1 has been compiled with version 16
->>of Wireless Extension, while this program is using version 15.
->>Some things may be broken...
->>
->>eth1      IEEE 802.11-DS  ESSID:"apophis"  Nickname:"ibmlaptop"
->>           Mode:Managed  Frequency:2.412GHz  Access Point: 00:0C:41:75:D4:02
->>           Bit Rate:11Mb/s   Tx-Power=20 dBm   Sensitivity=0/0
->>           Retry limit:16   RTS thr:off   Fragment thr:off
->>           Encryption key:****-****-**   Security mode:open
->>           Power Management:off
->>           Link Quality:30/0  Signal level:-70 dBm  Noise level:-98 dBm
->>           Rx invalid nwid:59  Rx invalid crypt:0  Rx invalid frag:0
->>           Tx excessive retries:1  Invalid misc:4900   Missed beacon:3
+> Feb  1 23:50:15 werewolf kernel: ide-floppy: hdd: I/O error, pc =  0, key =  2, asc = 3a, ascq =  0
+> Feb  1 23:50:15 werewolf kernel: ide-floppy: hdd: I/O error, pc = 1b, key =  2, asc = 3a, ascq =  0
+> Feb  1 23:50:15 werewolf kernel: hdd: No disk in drive
 > 
-> 
-> It seems like if you have bunch of rx invalid nwids... it could be due to 
-> interference from another wireless network in the area?
-> 
-> Regards,
-> 
-> .lzs
+> every 2 seconds, both in messages and syslog.
+> They can grow very large after some uptime ;)
 
-Unlikely, it is extremely clean when I use my orinoco_cs card.
+Why not ask the hal authors about why they are doing this?
 
-Warren
+> What is the policy here ? Kill the message in ide-floppy.c ?
+> I suppose there can be some other similat messages around there...
+
+You might want to rate-limit those kernel messages though, that's not
+very nice to be able to do from userspace.
+
+thanks,
+
+greg k-h

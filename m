@@ -1,42 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261809AbULGNZr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261813AbULGN3w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261809AbULGNZr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 08:25:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbULGNZr
+	id S261813AbULGN3w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 08:29:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbULGN3w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 08:25:47 -0500
-Received: from mini002.webpack.hosteurope.de ([80.237.130.131]:6094 "EHLO
-	mini002.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id S261809AbULGNZn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 08:25:43 -0500
-From: "cr7" <cr7@darav.de>
+	Tue, 7 Dec 2004 08:29:52 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:15247 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261813AbULGN3u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Dec 2004 08:29:50 -0500
+Date: Tue, 7 Dec 2004 14:29:28 +0100
+From: Ingo Molnar <mingo@elte.hu>
 To: linux-kernel@vger.kernel.org
-Cc: justin.piszcz@mitretek.org
-Subject: RE: FS Corruption [Re: Linux 2.6.10-rc3]
-Date: Tue, 07 Dec 2004 15:07:17 +0100
-Message-ID: <elmo110242843711331446504142@debian>
-User-Agent: elmo/1.3.0
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Cc: Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
+       Esben Nielsen <simlo@phys.au.dk>
+Subject: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-4
+Message-ID: <20041207132927.GA4846@elte.hu>
+References: <20041116125402.GA9258@elte.hu> <20041116130946.GA11053@elte.hu> <20041116134027.GA13360@elte.hu> <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu> <20041122005411.GA19363@elte.hu> <20041123175823.GA8803@elte.hu> <20041124101626.GA31788@elte.hu> <20041203205807.GA25578@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041203205807.GA25578@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi,
+i have released the -V0.7.32-4 Real-Time Preemption patch, which can be
+downloaded from the usual place:
 
-I also got the FS corruption when trying "rm -f ..." as descripted.
-Filesystems affected: Reiser4 and ext3.
+    http://redhat.com/~mingo/realtime-preempt/
 
-But I'm using kernel 2.6.10-rc2-mm4 - so a patch moved from -mm into -rc3 seems to be responsible for that problem.
-A candidate might be: "fix-an-xfs-direct-i-o-deadlock.patch" found in -mm4 and gone into -rc3.
+this is a fixes-only release.
 
-Sorry, I can't test now if this patch is responsible (I'm not at home).
-But may be someone else can do.
+Changes since -V0.7.32-2:
 
-Regards,
-Carsten
+ - fixed a seqlock related xtime_lock lockup scenario - this could 
+   explain the SMP lockups reported by Mark H. Johnson.
+ 
+ - fixed a small buglet in the new SMP RT-balancing code, which could 
+   lead to bad balancing in certain rare cases.
 
+to create a -V0.7.32-4 tree from scratch, the patching order is:
 
+  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.9.tar.bz2
+  http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.10-rc2.bz2
+  http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc2/2.6.10-rc2-mm3/2.6.10-rc2-mm3.bz2
+  http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.10-rc2-mm3-V0.7.32-4
 
-
+	Ingo

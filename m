@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261559AbTCZOU2>; Wed, 26 Mar 2003 09:20:28 -0500
+	id <S261702AbTCZOWQ>; Wed, 26 Mar 2003 09:22:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261664AbTCZOU2>; Wed, 26 Mar 2003 09:20:28 -0500
-Received: from ip68-13-105-80.om.om.cox.net ([68.13.105.80]:7552 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S261559AbTCZOU1>; Wed, 26 Mar 2003 09:20:27 -0500
-Date: Wed, 26 Mar 2003 08:31:40 -0600 (CST)
-From: Thomas Molina <tmolina@cox.net>
-X-X-Sender: tmolina@localhost.localdomain
-To: jsimmons@infradead.org
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: fbcon sleeping function call from illegal context
-Message-ID: <Pine.LNX.4.44.0303260821590.944-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261705AbTCZOWQ>; Wed, 26 Mar 2003 09:22:16 -0500
+Received: from cc78409-a.hnglo1.ov.home.nl ([212.120.97.185]:36800 "EHLO
+	dexter.hensema.net") by vger.kernel.org with ESMTP
+	id <S261702AbTCZOWP>; Wed, 26 Mar 2003 09:22:15 -0500
+From: Erik Hensema <usenet@hensema.net>
+Subject: Re: LVM/Device mapper breaks with -mm (was: Re: 2.5.66-mm1)
+Date: Wed, 26 Mar 2003 14:33:25 +0000 (UTC)
+Message-ID: <slrnb83ehl.196.usenet@bender.home.hensema.net>
+References: <20030326013839.0c470ebb.akpm@digeo.com> <slrnb8373s.19a.usenet@bender.home.hensema.net> <20030326134834.GA11173@win.tue.nl>
+Reply-To: erik@hensema.net
+User-Agent: slrn/0.9.7.4 (Linux)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-you wrote
----------------------- 
-Please try my patch I sent to Ben. I attached it to this email for people
-to try it.
+Andries Brouwer (aebr@win.tue.nl) wrote:
+> On Wed, Mar 26, 2003 at 12:26:37PM +0000, Erik Hensema wrote:
+>> Andrew Morton (akpm@digeo.com) wrote:
+>> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.66/2.5.66-mm1/
+> 
+>> LVM or device mapper seems to be broken in -mm. I've only tried the
+>> following kernels so far:
+>> 2.5.64 - works
+>> 2.5.65-mm2 - doesn't work
+>> 2.5.66 - works
+>> 2.5.66-mm1 - doesn't work
+> 
+> Probably you are hit by
+> 
+>   dev_t-32-bit.patch
+>     [for playing only] change type of dev_t
+[...]
+> You can revert this single patch and probably all will be fine.
 
-diff -urN -X /home/jsimmons/dontdiff 
-linus-2.5/drivers/video/console/fbcon.c \
-                fbdev-2.5/drivers/video/console/fbcon.c
---- linus-2.5/drivers/video/console/fbcon.c     Sat Mar 22 21:45:23 2003
-+++ fbdev-2.5/drivers/video/console/fbcon.c     Tue Mar 25 12:03:56 2003
---------------------
+For now I've reverted this patch and LVM is working again.
 
-One hunk applied with fuzz and two hunks were rejected when applied both 
-to 2.5.66 stock and bk-latest.  I fixed up the rejects by hand and 
-compiled a new kernel against bk-latest.  I am running with that version 
-now, which doesn't emit the string of messages I reported originally.  The 
-only minor anomaly I note is the cursor is a three-segment underscore 
-rather than a solid underscore.  
+> More interesting would be to apply
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=103956089203199&w=3
 
+I'd rather not change the ioctl interface, since that would make dual
+booting with 2.5-vanilla harder.
+
+-- 
+Erik Hensema <erik@hensema.net>

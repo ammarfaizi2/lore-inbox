@@ -1,35 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280825AbRKBUml>; Fri, 2 Nov 2001 15:42:41 -0500
+	id <S280823AbRKBUml>; Fri, 2 Nov 2001 15:42:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280826AbRKBUmb>; Fri, 2 Nov 2001 15:42:31 -0500
-Received: from koala.rsee.net ([208.171.236.139]:63239 "HELO koala.rsee.net")
-	by vger.kernel.org with SMTP id <S280823AbRKBUmT>;
+	id <S280825AbRKBUma>; Fri, 2 Nov 2001 15:42:30 -0500
+Received: from [212.34.128.4] ([212.34.128.4]:17962 "EHLO mailer.ran.es")
+	by vger.kernel.org with ESMTP id <S280824AbRKBUmT>;
 	Fri, 2 Nov 2001 15:42:19 -0500
+Date: Fri, 2 Nov 2001 21:42:25 +0100
+From: victor <ixnay@infonegocio.com>
+X-Mailer: The Bat! (v1.53d)
+Reply-To: victor <ixnay@infonegocio.com>
+X-Priority: 3 (Normal)
+Message-ID: <10487549890.20011102214225@infonegocio.com>
 To: linux-kernel@vger.kernel.org
-Subject: Problem with dynamic executables in chroot environments
-Message-ID: <1004733335.3be30397831e5@koala.rsee.net>
-Date: Fri, 02 Nov 2001 15:35:35 -0500 (EST)
-From: Rob See <rob@rsee.net>
+Subject: kernel 2.2.20 falis on alpha
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.6
-X-Originating-IP: 169.226.44.180
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello
 
-  I'm using kernel 2.4.13 and am experiencing problems with dynamic executables 
-in chroot environments and also in the initrd environment. These problems don't 
-seem to have existed in 2.4.9 or 2.4.12. In the chroot and initrd 
-environments , static executables run as expected but dynamic ones always 
-return permission denied (EACCESS according to strace.) I don't believe it is a 
-library issue because the same environments (and initrds) work fine with the 
-2.4.9 and 2.4.12 releases. Does anyone have any ideas about what I might have 
-done wrong (odd kernel option, etc.. ), or is this a bug ?
+2.2.19 compiles me perfectly but 2.2.20 fails ...
 
+alpha:/usr/src/linux# uname -a
+Linux alpha 2.2.18pre21 #1 Wed Nov 22 05:08:09 CST 2000 alpha unknown
+alpha:/usr/src/linux# make
+make: Circular /usr/src/linux/include/asm/smp.h <- /usr/src/linux/include/linux/sched.h dependency dropped.
+make: Circular /usr/src/linux/include/asm/pci.h <- /usr/src/linux/include/linux/pci.h dependency dropped.
+cc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mno-fp-regs -ffixed-8  -c -o init/main.o init/main.c
+In file included from /usr/src/linux/include/linux/pci.h:1448,
+                 from init/main.c:35:
+/usr/src/linux/include/asm/pci.h: In function `pci_controller_num':
+/usr/src/linux/include/asm/pci.h:62: structure has no member named `pci_host_index'
+/usr/src/linux/include/asm/pci.h:63: warning: control reaches end of non-void function
+make: *** [init/main.o] Error 1
+alpha:/usr/src/linux# dpkg -la |grep libc
+ii  libc6.1        2.2.4-4        GNU C Library: Shared libraries and Timezone
+ii  libc6.1-dbg    2.2.4-4        GNU C Library: Libraries with debugging symb
+ii  libc6.1-dev    2.2.4-4        GNU C Library: Development Libraries and Hea
+ii  libc6.1-pic    2.2.4-4        GNU C Library: PIC archive library
+ii  libc6.1-prof   2.2.4-4        GNU C Library: Profiling Libraries.
+ii  libgpmg1       1.17.8-18      General Purpose Mouse Library [libc6]
+alpha:/usr/src/linux# exit  
 
-Thanks,
--Rob
+-- 
+Best regards,
+ victor                          mailto:ixnay@infonegocio.com
+

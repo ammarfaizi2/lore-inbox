@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311710AbSFVMlQ>; Sat, 22 Jun 2002 08:41:16 -0400
+	id <S316821AbSFVBOi>; Fri, 21 Jun 2002 21:14:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315971AbSFVMlP>; Sat, 22 Jun 2002 08:41:15 -0400
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:9491 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S311710AbSFVMlO>; Sat, 22 Jun 2002 08:41:14 -0400
-Date: Sat, 22 Jun 2002 14:41:01 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Larry McVoy <lm@bitmover.com>
-cc: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
-       Daniel Phillips <phillips@arcor.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux, the microkernel (was Re: latest linus-2.5 BK broken)
-In-Reply-To: <20020621182337.T23670@work.bitmover.com>
-Message-ID: <Pine.LNX.4.44.0206221423540.8911-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316822AbSFVBOh>; Fri, 21 Jun 2002 21:14:37 -0400
+Received: from chac.inf.utfsm.cl ([200.1.19.54]:4612 "EHLO chac.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S316821AbSFVBOd>;
+	Fri, 21 Jun 2002 21:14:33 -0400
+Message-Id: <200206220107.g5M17AXp028825@sleipnir.valparaiso.cl>
+To: Daniel Phillips <phillips@arcor.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux, the microkernel (was Re: latest linus-2.5 BK broken) 
+In-reply-to: Your message of "Fri, 21 Jun 2002 22:25:22 +0200."
+             <E17LUyA-0001wU-00@starship> 
+X-mailer: MH [Version 6.8.4]
+X-charset: ISO_8859-1
+Date: Fri, 21 Jun 2002 21:07:10 -0400
+From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+[Cc:s heavily snipped]
+Daniel Phillips <phillips@arcor.de> said:
+> On Friday 21 June 2002 20:46, Cort Dougan wrote:
+> > I don't see Linux being in serious jeopardy in the short-term of becoming
+> > solaris.  It only aims at running on 1-4 processors and does a pretty good
+> > job of that.  Most sane people realize, as Larry points out, that the
+> > current design will not scale to 64 processors and beyond.  That's obvious,
+> > it's not an alarmist or deep statement.  The key is to realize that it's
+> > not _meant_ to scale that high right now.
+> 
+> And originally, it was never meant to scale to more than one processor.
 
-On Fri, 21 Jun 2002, Larry McVoy wrote:
+Right. If they had designed it for 4/8 CPUs from the start, they would
+surely have gotten it dead wrong. Just to find out how wrong around now...
 
-> On Fri, Jun 21, 2002 at 09:07:10PM -0400, Horst von Brand wrote:
-> > Right. If they had designed it for 4/8 CPUs from the start, they would
-> > surely have gotten it dead wrong. Just to find out how wrong around now...
->
-> I couldn't disagree more.  The reason that all the SMP threaded OS's start
-> to suck is that managers say "Yeah, one CPU is good but how about 2?"  Then
-> a year goes by and then they say "Yeah, 2 CPUs are good but how about 4?".
-> Etc.  So the system is never designed, it is hacked.  It's no wonder they
-> suck.
-
-That's the important difference here, we have no managers forcing us to
-specific goals. We have the time to develop a good solution, we are not
-forced to accept a solution which sucks. We have the freedom to constantly
-break the kernel and we don't have to maintain backwards compability,
-which especially with regard to locking would really suck.
-
-bye, Roman
-
+If 64-way becomes commodity one day in whatever form the hardware people
+dream up, Linux will surely follow.
+--
+Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
+Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616

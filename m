@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261548AbRERUVP>; Fri, 18 May 2001 16:21:15 -0400
+	id <S261547AbRERU1f>; Fri, 18 May 2001 16:27:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261547AbRERUVF>; Fri, 18 May 2001 16:21:05 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:7384 "EHLO e21.nc.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261543AbRERUUx>;
-	Fri, 18 May 2001 16:20:53 -0400
-Subject: Announcing Journaled File System (JFS)  release 0.3.2 available
-To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OF9D3FDE7F.051A36C9-ON85256A50.006F769B@raleigh.ibm.com>
-From: "Steve Best" <sbest@us.ibm.com>
-Date: Fri, 18 May 2001 15:20:44 -0500
-X-MIMETrack: Serialize by Router on D04NM201/04/M/IBM(Release 5.0.6 |December 14, 2000) at
- 05/18/2001 04:20:46 PM
+	id <S261549AbRERU1Z>; Fri, 18 May 2001 16:27:25 -0400
+Received: from relay03.cablecom.net ([62.2.33.103]:65029 "EHLO
+	relay03.cablecom.net") by vger.kernel.org with ESMTP
+	id <S261547AbRERU1F>; Fri, 18 May 2001 16:27:05 -0400
+Message-ID: <3B058597.A0143D9E@bluewin.ch>
+Date: Fri, 18 May 2001 22:27:05 +0200
+From: Otto Wyss <otto.wyss@bluewin.ch>
+Reply-To: otto.wyss@bluewin.ch
+X-Mailer: Mozilla 4.76 (Macintosh; U; PPC)
+X-Accept-Language: de,en
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Framebuffer drivers and start options
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Release 0.3.2 of JFS was made available today.
+I've used an ATI RageII card with frame buffer driver atyfb compiled
+into the kernel and specified 'append = "video=atyfb:800x600@72"' in
+lilo.conf. I've just gotten a second computer with a ATI RagePro128 card
+(frame buffer driver aty128fb) and compiled both driver as modules. Now
+the 'append...' doesn't work any more with any driver. It seems as if
+the kernel parameters don't get propagated to the driver modules. Okay I
+specified the options for the modules in modules.conf (i.e. options
+atyfb 800x600@72) but it didn't help. Both modules use an resolution of
+80x30 (characters), regardless what I specify. Afterwards I can switch
+the resolution with fbset 800x660-72. When I use modinfo at both drivers
+no options where shown. But when I look into the source it seems both
+drivers have these options.
 
-Drop 32 on May 18, 2001 (jfs-0.3.2-patch.tar.gz) includes fixes to the
-file system and utilities.
+Now how can the kernel switch the resolution (append...) if the drivers
+doesn't have these options? I's it true that these options won't get
+propagated to the drivers if compiled as modules?
 
-Function and Fixes in release 0.3.2
+How can I figure out which options where allowed? How does/doesn't
+modinfo get this information (i.e. matrox frame buffer)?
 
-- Remove the warning message from fsck when partition is mounted read-only
-- Fix for assert(mp->count) jfs_metapage.c 675! report as hardlink problem
-  in drop 31 (dtDeleteUp was discarding the wrong metapage_t.)
-- Fix seg fault problem while creating hard links.
-- Fixed dbench hang, do to transaction locks not being freed.
-- Added support to correctly handle read-only and remounting the file
-system.
+Is there another solution to get the modularized drivers working besides
+compiling into the kernel?
 
-For more details about the problems fixed, please see the README.
+I'm using kernel 2.4.3 with kernel module loader, etc. on i386.
 
-Steve
-JFS for Linux http://oss.software.ibm.com/developerworks/opensource/jfs
+O. Wyss
 
+Please CC, I'm not on the list.

@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbUKRUpH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262882AbUKRTIR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261163AbUKRUpH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 15:45:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262917AbUKRUm3
+	id S262882AbUKRTIR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 14:08:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262895AbUKRTGF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 15:42:29 -0500
-Received: from gw02.mail.saunalahti.fi ([195.197.172.116]:8077 "EHLO
-	gw02.mail.saunalahti.fi") by vger.kernel.org with ESMTP
-	id S261153AbUKRUlq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 15:41:46 -0500
-Date: Thu, 18 Nov 2004 22:41:45 +0200
-From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <syrjala@sci.fi>
-To: matthieu castet <castet.matthieu@free.fr>
-Cc: jt@hpl.hp.com, linux-kernel@vger.kernel.org, Adam Belay <ambx1@neo.rr.com>
-Subject: Re: [PATCH] smsc-ircc2: Add PnP support.
-Message-ID: <20041118204145.GA21873@sci.fi>
-References: <419CECFF.2090608@free.fr> <20041118185503.GA5584@bougret.hpl.hp.com> <419CFCDE.6090400@free.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <419CFCDE.6090400@free.fr>
-User-Agent: Mutt/1.4.2i
+	Thu, 18 Nov 2004 14:06:05 -0500
+Received: from mail.euroweb.hu ([193.226.220.4]:33772 "HELO mail.euroweb.hu")
+	by vger.kernel.org with SMTP id S262882AbUKRS4X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 13:56:23 -0500
+To: torvalds@osdl.org
+CC: hbryan@us.ibm.com, akpm@osdl.org, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, pavel@ucw.cz
+In-reply-to: <Pine.LNX.4.58.0411181027070.2222@ppc970.osdl.org> (message from
+	Linus Torvalds on Thu, 18 Nov 2004 10:31:27 -0800 (PST))
+Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
+References: <OF28252066.81A6726A-ON88256F50.005D917A-88256F50.005EA7D9@us.ibm.com>
+ <E1CUq57-00043P-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.58.0411180959450.2222@ppc970.osdl.org>
+ <E1CUquZ-0004Az-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.58.0411181027070.2222@ppc970.osdl.org>
+Message-Id: <E1CUrS0-0004Hi-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Thu, 18 Nov 2004 19:56:12 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 18, 2004 at 08:49:50PM +0100, matthieu castet wrote:
-> Jean Tourrilhes wrote:
-> >On Thu, Nov 18, 2004 at 07:42:07PM +0100, matthieu castet wrote:
-> >>>>On3) If the ressources are markes as disabled, you just quit
-> >>>>with an error. Compouded with (2), this makes me doubly
-> >>>>nervous. Wouldn't it be possible to forcefully enable those 
-> >>
-> >>ressources ?
-> >>pnp should call automatiquely pnp_activate_dev() before probing the 
-> >>driver, so the resource should be activated. Have you got an example 
-> >>where the resource wheren't activated ?
-> >
-> >
-> >	No, it was more that I don't understand what PnP does for
-> >us. I don't have a SMS chipset to test on. Also, I would like to know
-> >if it remove the need of smcinit.
-> >
-> PnP is easy to understand ;)
-> When you probe a device, it will activate a device with the best 
-> configuration available.
 
-So can we just remove the IORESOURCE_DISABLED tests?
+> > Well, killing the fuse process _will_ make the system come back to
+> > life, since then all the dirty pages belonging to the filesystem will
+> > be discarded. 
+> 
+> They will? Why? They're still mapped into other processes, still dirty. 
+> How do they go away?
 
-And what about the pnp_*_valid() tests?
+Just as if they were written back properly.  It makes no sense to keep
+pages under writeback around if we know the filesystem is gone for
+good.
 
-parport_pc (which I used as a guide) does both tests but 8250_pnp doesn't 
-do either.
+> In contrast, a fuse process that needs to do IO is _not_ protected from 
+> the clients having eaten up all the memory it needs to do the IO.
 
--- 
-Ville Syrjälä
-syrjala@sci.fi
-http://www.sci.fi/~syrjala/
+Will the clients be allowed to fill up the _whole_ memory with dirty
+pages?  Page writeback will start sooner than that, and then the
+client will not be able to dirty more pages until some are freed.
+
+BTW, I've never myself seen a deadlock, and I've not had any report of
+it.  I've been able to deadlock FUSE on 2.4 with a shared writable
+mapping and an artificial program that was designed for this, but I
+haven't managed this on 2.6.
+
+Maybe someone can help me.  Anybody who writes a program that
+deadlocks Linux with a FUSE filesystem, gets a medal, and I'll humbly
+apologize :)
+
+Thanks,
+Miklos

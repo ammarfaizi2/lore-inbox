@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263590AbTEIXqy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 19:46:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263591AbTEIXm4
+	id S263612AbTEIX5L (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 19:57:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263614AbTEIX5L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 19:42:56 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:36551 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S263590AbTEIXmH convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 19:42:07 -0400
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10525245942470@kroah.com>
-Subject: Re: [PATCH] More i2c driver changes for 2.5.69
-In-Reply-To: <10525245932907@kroah.com>
+	Fri, 9 May 2003 19:57:11 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:34277 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263612AbTEIX5J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 19:57:09 -0400
+Date: Fri, 9 May 2003 17:11:34 -0700
 From: Greg KH <greg@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Fri, 9 May 2003 16:56:34 -0700
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+To: Matt Domsch <Matt_Domsch@Dell.com>
+Cc: mochel@osdl.org, alan@redhat.com, linux-kernel@vger.kernel.org,
+       jgarzik@redhat.com
+Subject: Re: [RFC][PATCH] Dynamic PCI Device IDs
+Message-ID: <20030510001134.GA3769@kroah.com>
+References: <20030506035635.GA5403@kroah.com> <Pine.LNX.4.44.0305061123490.7233-100000@humbolt.us.dell.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.44.0305061123490.7233-100000@humbolt.us.dell.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1083.2.2, 2003/05/09 13:58:10-07:00, mark@alpha.dyndns.org
+On Tue, May 06, 2003 at 11:35:17AM -0500, Matt Domsch wrote:
+> > You can't just call driver_attach(), as the bus semaphore needs to be
+> > locked before doing so.  In short, you almost need to duplicate
+> > bus_add_driver(), but not quite :)
+> 
+> Right, and it seems to work. I made driver_attach non-static, declared
+> it extern in pci.h, and call it in pci-driver.c while holding the bus
+> semaphore and references to the driver and the bus.  This also let me
+> delete my probe_each_pci_dev() function and let the driver core
+> handle it.
 
-[PATCH] I2C: add more classes
+Nice, this looks much better.  I don't have a problem with this patch
+anymore.  I'll wait for Pat to ack the driver core changes to see if he
+agrees with them before sending this on.
 
-Add I2C classes for analog and digital cameras, and fix a typo.
+thanks,
 
-
- include/linux/i2c.h |   10 ++++++----
- 1 files changed, 6 insertions(+), 4 deletions(-)
-
-
-diff -Nru a/include/linux/i2c.h b/include/linux/i2c.h
---- a/include/linux/i2c.h	Fri May  9 16:48:20 2003
-+++ b/include/linux/i2c.h	Fri May  9 16:48:20 2003
-@@ -281,10 +281,12 @@
- 						/* Must equal I2C_M_TEN below */
- 
- /* i2c adapter classes (bitmask) */
--#define I2C_ADAP_CLASS_SMBUS      (1<<0)        /* lm_sensors, ... */
--#define I2C_ADAP_CLASS_TV_ANALOG  (1<<1)        /* bttv + friends */
--#define I2C_ADAP_CLASS_TV_DIGINAL (1<<2)        /* dbv cards */
--#define I2C_ADAP_CLASS_DDC        (1<<3)        /* i2c-matroxfb ? */
-+#define I2C_ADAP_CLASS_SMBUS		(1<<0)	/* lm_sensors, ... */
-+#define I2C_ADAP_CLASS_TV_ANALOG	(1<<1)	/* bttv + friends */
-+#define I2C_ADAP_CLASS_TV_DIGITAL	(1<<2)	/* dbv cards */
-+#define I2C_ADAP_CLASS_DDC		(1<<3)	/* i2c-matroxfb ? */
-+#define I2C_ADAP_CLASS_CAM_ANALOG	(1<<4)	/* camera with analog CCD */
-+#define I2C_ADAP_CLASS_CAM_DIGITAL	(1<<5)	/* most webcams */
- 
- /* i2c_client_address_data is the struct for holding default client
-  * addresses for a driver and for the parameters supplied on the
-
+greg k-h

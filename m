@@ -1,83 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262987AbTDVIEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 04:04:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262992AbTDVIEJ
+	id S262993AbTDVINR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 04:13:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262994AbTDVINQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 04:04:09 -0400
-Received: from b071133.adsl.hansenet.de ([62.109.71.133]:35077 "EHLO
-	b071133.adsl.hansenet.de") by vger.kernel.org with ESMTP
-	id S262987AbTDVIEE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 04:04:04 -0400
-Date: Tue, 22 Apr 2003 10:16:07 +0200
-From: Florian Hinzmann <f.hinzmann@hamburg.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: andre@linux-ide.org, linux-kernel@vger.kernel.org,
-       jan-hinnerk_reichert@hamburg.de
-Subject: problem solved - late answer.. (was: Re: DMA problems w/ PIIX3 IDE,
- 2.4.20-pre4-ac2)
-Message-Id: <20030422101607.6bf1c30e.f.hinzmann@hamburg.de>
-In-Reply-To: <1032187595.1285.13.camel@irongate.swansea.linux.org.uk>
-References: <XFMail.20020916162624.f.hinzmann@hamburg.de>
-	<1032187595.1285.13.camel@irongate.swansea.linux.org.uk>
-X-Mailer: Sylpheed version 0.8.10claws13 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 22 Apr 2003 04:13:16 -0400
+Received: from lmail.actcom.co.il ([192.114.47.13]:42198 "EHLO
+	smtp1.actcom.net.il") by vger.kernel.org with ESMTP id S262993AbTDVINP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 04:13:15 -0400
+Message-ID: <3EA4FC56.3070407@shemesh.biz>
+Date: Tue, 22 Apr 2003 11:24:54 +0300
+From: Shachar Shemesh <lkml@shemesh.biz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en, he
+MIME-Version: 1.0
+To: Jamie Lokier <jamie@shareable.org>
+CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] new system call mknod64
+References: <UTC200304212143.h3LLh6e02148.aeb@smtp.cwi.nl> <b81tan$637$1@cesium.transmeta.com> <20030421235009.GC17595@mail.jlokier.co.uk>
+In-Reply-To: <20030421235009.GC17595@mail.jlokier.co.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Jamie Lokier wrote:
 
-Quite some months ago I raised some questions, got some answers and 
-continued working silently until my problem was solved. While digging 
-the archives for yet another IDE problem today I realized I did
-not send any message to you guys nor to the list afterwards.
-
-Just in case someone is interested or cares still:
-
-1) Sorry for not sending a "problem solved" mail when it was solved
-2) My box is running smoothly again. It was neither a kernel issue
-   nor a hardware problem with the disks. Different kernel versions 
-   did behave differently, but the cause of it all seems to be a broken
-   CPU (or broken jumper settings). 
-   Installing a new CPU made all problems go away. And the box is
-   rock solid with or without IDE-DMA turned on.
-
-
-    Regards
-        Florian
-   
-
-P.S: A little block quoted below in case someone wants to remember what
-     this was about:
-
-On 16 Sep 2002 15:46:35 +0100
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-
-> On Mon, 2002-09-16 at 15:26, Florian Hinzmann wrote:
-> > 
-> > On 16-Sep-2002 Alan Cox wrote:
-> > > On Mon, 2002-09-16 at 12:17, Florian Hinzmann wrote:
-> > >> kernel: hdb: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
-> > >> kernel: hdb: read_intr: error=0x10 { SectorIdNotFound }, LBAsect=97567071, high=5, lo
-> > >> kernel: hdb: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
-> > > 
-> > > Which is the drive reporting a physical media error
-> > 
-> > Which seems to exist only while using the named combinations of DMA access
-> > and kernel versions. While using i.e. 2.4.19 without DMA I can access the same data,
-> > dd the whole disk to /dev/null or run badblock checks without finding
-> > any physical media errors.
-> > 
-> > 2.4.19 should complain, too, if there is a physical error indeed, right?
-> 
-> The "sectoridnotfound" return is from the drive. That makes it very hard
-> to believe it isnt a physical error
+>It varies very much between architectures.
 >
+>I just checked, and simple copies of this structure are absolutely
+>atrocious in GCC 3.2 (I tried Alpha, Mips64 and Sparc64).  The code
+>was approx. 3 times longer to copy the 32:32 struct than to copy a 64
+>bit scalar.
+>  
+>
+Last time I had access to gcc on sparc, copying a struct where the 
+compiler guessed that non-aligned access may occure produced code that 
+was guarenteed not to crash the program. This was tested in user mode, 
+in 32 bit, but still...
+
+Copying a struct with two 32 bit values does not prove to the compiler 
+that it will be 64bit aligned. It is therefor reasonable for the 
+compiler to assume it needs two 32 bit transfers, rather than one 64 bit 
+transfer. Try adding "#pragme align 8", or whatever it is called, and 
+seeing if this inefficiency goes away.
+
+>On x86_64, the struct produces the same code as the scalar.
+>The same is true on s390x.
+>  
+>
+I don't know how x86_64 is doing, but x86 does not issue a bus error 
+when unaligned value is being accessed. It is therefor reasonable for 
+the compiler not to worry about it. If x86_64 is the same, the results 
+you report seem like a reasonable feature of gcc, rather than a bug.
+
+                Shachar
 
 -- 
-  Florian Hinzmann                         private: f.hinzmann@hamburg.de
-                                            Debian: fh@debian.org
-PGP Key / ID: 1024D/B4071A65
-Fingerprint : F9AB 00C1 3E3A 8125 DD3F  DF1C DF79 A374 B407 1A65
+Shachar Shemesh
+Open Source integration consultant
+Home page & resume - http://www.shemesh.biz/
+
+

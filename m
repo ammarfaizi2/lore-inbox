@@ -1,53 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132101AbRCYQgV>; Sun, 25 Mar 2001 11:36:21 -0500
+	id <S132111AbRCYQla>; Sun, 25 Mar 2001 11:41:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132108AbRCYQgK>; Sun, 25 Mar 2001 11:36:10 -0500
-Received: from kweetal.tue.nl ([131.155.2.7]:16438 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S132101AbRCYQgE>;
-	Sun, 25 Mar 2001 11:36:04 -0500
-Message-ID: <20010325183522.A6759@win.tue.nl>
-Date: Sun, 25 Mar 2001 18:35:22 +0200
-From: Guest section DW <dwguest@win.tue.nl>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Martin Dalecki <dalecki@evision-ventures.com>,
-        Stephen Clouse <stephenc@theiqgroup.com>,
-        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent OOM from killing init
-In-Reply-To: <20010323174319.A6487@win.tue.nl> <Pine.LNX.4.21.0103240257010.1863-100000@imladris.rielhome.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <Pine.LNX.4.21.0103240257010.1863-100000@imladris.rielhome.conectiva>; from Rik van Riel on Sat, Mar 24, 2001 at 02:57:27AM -0300
+	id <S132110AbRCYQlU>; Sun, 25 Mar 2001 11:41:20 -0500
+Received: from smtp-rt-8.wanadoo.fr ([193.252.19.51]:36224 "EHLO
+	lantana.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S132109AbRCYQlK>; Sun, 25 Mar 2001 11:41:10 -0500
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: console.c unblank_screen problem
+Date: Sun, 25 Mar 2001 18:40:03 +0200
+Message-Id: <20010325164003.6131@smtp.wanadoo.fr>
+X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 24, 2001 at 02:57:27AM -0300, Rik van Riel wrote:
-> On Fri, 23 Mar 2001, Guest section DW wrote:
-> > On Fri, Mar 23, 2001 at 11:56:23AM -0300, Rik van Riel wrote:
-> > > On Fri, 23 Mar 2001, Martin Dalecki wrote:
-> > 
-> > > > > Feel free to write better-working code.
-> > > > 
-> > > > I don't get paid for it and I'm not idling through my days...
-> > > 
-> > >   <similar response from Andries>
-> > 
-> > No lies please.
-> 
-> You mean that you ARE willing to implement what you've been
-> arguing for?
+There is a problem with the power management code for console.c
 
-There had not been any such response by me -
-thus you should not ascribe to me such a response.
+The current code calls do_blank_screen(0); on PM_SUSPEND, and
+unblank_screen() on PM_RESUME.
 
-Concerning overcommit: people tell me that Eduardo Horvath
-in his patch submitted to l-k on 2000-03-31 already solved
-the problem (entirely or to a large extent).
+The problem happens when X is the current display while putting the
+machine to sleep. The do_blank_screen(0) code will do nothing as
+the console is not in KD_TEXT mode.
+However, unblank_screen has no such protection. That means that
+on wakeup, the cursor timer & console blank timers will be re-enabled
+while X is frontmost, causing the blinking cursor to be displayed on
+top of X, and other possible issues.
 
-: This patch will prevent the linux kernel from allowing VM overcommit.
+I hacked the following pacth to work around this. It appear to work
+fine, but since the console code is pretty complex, I'm not sure about
+possible side effects and I'd like some comments before submiting it
+to Linus:
 
-I have not yet read the code.
+(Don't worry about the {} I added, I just noticed them and will remove
+them before submitting ;)
 
-Andries
+--- 1.2/drivers/char/console.c	Sat Feb 10 18:54:15 2001
++++ edited/drivers/char/console.c	Sun Mar 25 17:57:46 2001
+@@ -2595,8 +2595,9 @@
+ 	int currcons = fg_console;
+ 	int i;
+ 
+-	if (console_blanked)
++	if (console_blanked) {
+ 		return;
++	}
+ 
+ 	/* entering graphics mode? */
+ 	if (entering_gfx) {
+@@ -2660,12 +2661,16 @@
+ 		printk("unblank_screen: tty %d not allocated ??\n", fg_console+1);
+ 		return;
+ 	}
++	currcons = fg_console;
++	if (vcmode != KD_TEXT) {
++		console_blanked = 0;
++		return;
++	}
+ 	console_timer.function = blank_screen;
+ 	if (blankinterval) {
+ 		mod_timer(&console_timer, jiffies + blankinterval);
+ 	}
+ 
+-	currcons = fg_console;
+ 	console_blanked = 0;
+ 	if (console_blank_hook)
+ 		console_blank_hook(0);
+
+

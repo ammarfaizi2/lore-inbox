@@ -1,72 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261533AbTDHSp1 (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 14:45:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbTDHSp1 (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 14:45:27 -0400
-Received: from smtp01.web.de ([217.72.192.180]:14357 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S261533AbTDHSpZ (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 14:45:25 -0400
-From: Michael Buesch <freesoftwaredeveloper@web.de>
-To: bboett@adlp.org
-Subject: Re: 2.5.67 compile problem...
-Date: Tue, 8 Apr 2003 20:56:12 +0200
-User-Agent: KMail/1.5
-References: <20030408180604.GA3709@adlp.org>
-In-Reply-To: <20030408180604.GA3709@adlp.org>
-Cc: linux-kernel@vger.kernel.org
+	id S261501AbTDHSkz (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 14:40:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbTDHSky (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 14:40:54 -0400
+Received: from sccrmhc02.attbi.com ([204.127.202.62]:47068 "EHLO
+	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP id S261501AbTDHSky (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 14:40:54 -0400
+Message-ID: <3E931A34.9050505@namesys.com>
+Date: Tue, 08 Apr 2003 22:51:32 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030210
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: european linux kernel consortium for EU fap6 funding purposes
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304082056.12305.freesoftwaredeveloper@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 08 April 2003 20:06, Bruno Boettcher wrote:
-> Hello!
->
-> after the yesterday cramfs problem, (BTW thanks for those who helped me
->     iron that out) here another compile problem, with
-> the patched 2.5.66 thus mathing a 67 kernel:
->
-> [...]
->
-> again if someone has a suggestion....
-> and please add me as CC to any reply
+I'd like to apply for funding from the EU, because I have the impression 
+that they would like to fund things like linux kernel research and they 
+have a lot of money in the budget for such things.  This would mean 
+being brain drained to the EU, but hey, Europe is a nice place for the 
+most part....
 
+I have been reading through their funding literature, and they want to 
+fund consortiums of entities from 3 different member states.  I would 
+like to find appropriate partners for namesys.uk, and create a consortium. 
 
-This may fix it. (It's not tested)
+Linus, I imagine this won't interest you, but please issue such 
+instructions on the matter as you choose if you have any time and 
+interest for this.  If you'd like to be brain-drained to the EU let me 
+know....;-)
 
-Regards Michael Buesch.
+The premise would be that we are developing the linux kernel in a free 
+software collaborative effort that is open to all Europeans to 
+participate in and that furthers the European national interest.  A 
+better linux kernel will substantially reduce the cost of EU 
+e-government while providing its citizens with an open infrastructure.  
+Unless they are crazy, if we form a substantive consortium with serious 
+proposals, they will give us large amounts of money.;-)
 
+Readers are warned, it takes more than one ream of paper to learn how to 
+apply, so the process is not for the casual.
 
+http://europa.eu.int/comm/research/fp6/index_en.html has the reams of 
+paper you'll need to read if this interests you.
 
---- drivers/block/ps2esdi.c.orig	2003-04-08 20:50:17.000000000 +0200
-+++ drivers/block/ps2esdi.c	2003-04-08 20:52:43.000000000 +0200
-@@ -165,7 +165,6 @@
- 	return 0;
- }				/* ps2esdi_init */
- 
--module_init(ps2esdi_init);
- 
- #ifdef MODULE
- 
-@@ -200,6 +199,8 @@
- 
- void
- cleanup_module(void) {
-+	int i;
-+
- 	if(ps2esdi_slot) {
- 		mca_mark_as_unused(ps2esdi_slot);
- 		mca_set_adapter_procfn(ps2esdi_slot, NULL, NULL);
-@@ -214,6 +215,8 @@
- 		put_disk(ps2esdi_gendisk[i]);
- 	}
- }
-+#else /* MODULE */
-+module_init(ps2esdi_init);
- #endif /* MODULE */
- 
- /* handles boot time command line parameters */
+-- 
+Hans
+
 

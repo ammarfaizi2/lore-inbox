@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271666AbRHQOun>; Fri, 17 Aug 2001 10:50:43 -0400
+	id <S269250AbRHQPA2>; Fri, 17 Aug 2001 11:00:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271650AbRHQOud>; Fri, 17 Aug 2001 10:50:33 -0400
-Received: from mail.internet-factory.de ([195.122.142.5]:6798 "EHLO
-	mail.internet-factory.de") by vger.kernel.org with ESMTP
-	id <S271666AbRHQOuX>; Fri, 17 Aug 2001 10:50:23 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Holger Lubitz <h.lubitz@internet-factory.de>
-Newsgroups: lists.linux.kernel
-Subject: Re: Encrypted Swap
-Date: Fri, 17 Aug 2001 16:50:36 +0200
-Organization: Internet Factory AG
-Message-ID: <3B7D2F3C.A4687E25@internet-factory.de>
-In-Reply-To: <Pine.LNX.4.33L2.0108070106390.7542-100000@localhost.localdomain> <Pine.LNX.4.33.0108062239550.5316-100000@mackman.net>
-NNTP-Posting-Host: bastille.internet-factory.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S271650AbRHQPAR>; Fri, 17 Aug 2001 11:00:17 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:61660 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S269250AbRHQPAA>;
+	Fri, 17 Aug 2001 11:00:00 -0400
+Date: Fri, 17 Aug 2001 16:00:07 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Francois Romieu <romieu@cogenit.fr>, Robert Love <rml@tech9.net>
+Cc: linux-kernel@vger.kernel.org,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: [PATCH] Optionally let Net Devices feed Entropy
+Message-ID: <1993180702.998064007@[10.132.112.53]>
+In-Reply-To: <20010817110507.A25342@se1.cogenit.fr>
+In-Reply-To: <20010817110507.A25342@se1.cogenit.fr>
+X-Mailer: Mulberry/2.1.0b3 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Trace: darkstar.internet-factory.de 998059836 1407 195.122.142.158 (17 Aug 2001 14:50:36 GMT)
-X-Complaints-To: usenet@internet-factory.de
-NNTP-Posting-Date: 17 Aug 2001 14:50:36 GMT
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8-ac3 i686)
-X-Accept-Language: en
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ryan Mack proclaimed:
-> is running.  If the system is physically compromised, there is little way
-> I can think of to take root without having to at least reboot the
-> computer, thus destroying the unencrypted contents of RAM.
+>> making it configurable.  Nothing is experimental.  This does not change
+>> things; it makes things configurable.
+>
+> I have checked again the patches and they allow a lot of drivers to feed
+> the entropy pool that otherwise wouldn't had ever contributed to it. Thus
+> it changes things and opens the question about the effects on entropy
+> estimate.
 
-This is a myth. RAM survives rebooting, even after a quick power cycle
-most cells will probably still be ok. And with todays memory sizes, it
-would take a noticable amount of time to initialize all of it to a given
-value, so most systems don't do it (just testing some bytes of every
-megabyte instead).
+It only changes things if you configure it on, and you are correct that
+many other drivers feed the entropy pool if so. That is, indeed, the whole
+point of the patch.
 
-Holger
+> See the figures, three (3) nics to date reference
+> SA_SAMPLE_RANDOM. As the fact that 2.4 is supposed to be a stable serie,
+> I assume it's irrelevant.
+
+There is a leap of logic in the last sentence I don't understand. Stable
+(or rather release) kernels are supposed to behave predictably. Behaviour
+dependent upon NIC is not predictable. Behaviour dependent upon a config
+option (which does 'exactly what it says on the tin') is predictable.
+Stable/release series are meant to have bugs fixed. Please tell me why
+having 3 NIC cards behave one way, and the rest behaviour another is
+/not/ a bug. Stable kernels are meant to be functional and secure. Robert's
+patch allows the user both/either, in situations where the previous
+kernel could be either dysfunctional (insufficient entropy) or arguably
+potentially insecure (theoretical possibility of external manipulation
+of entropy source).
+
+--
+Alex Bligh

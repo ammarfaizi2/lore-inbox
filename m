@@ -1,73 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281454AbRKFEVc>; Mon, 5 Nov 2001 23:21:32 -0500
+	id <S281455AbRKFEaQ>; Mon, 5 Nov 2001 23:30:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281453AbRKFEVW>; Mon, 5 Nov 2001 23:21:22 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:50884 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S277782AbRKFEVR>;
-	Mon, 5 Nov 2001 23:21:17 -0500
-Date: Mon, 5 Nov 2001 23:21:15 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [Ext2-devel] disk throughput
-In-Reply-To: <Pine.LNX.4.33.0111051953490.1006-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0111052306150.27713-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281453AbRKFEaH>; Mon, 5 Nov 2001 23:30:07 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:5879
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S281450AbRKFE3z>; Mon, 5 Nov 2001 23:29:55 -0500
+Date: Mon, 5 Nov 2001 20:29:48 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Robert Love <rml@tech9.net>
+Cc: "Mohammad A. Haque" <mhaque@haque.net>, Terminator <jimmy@mtc.dhs.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.4.14 compiling fail for loop device
+Message-ID: <20011105202948.C665@mikef-linux.matchmail.com>
+Mail-Followup-To: Robert Love <rml@tech9.net>,
+	"Mohammad A. Haque" <mhaque@haque.net>,
+	Terminator <jimmy@mtc.dhs.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <E290D3DA-D26B-11D5-A0A2-00306569F1C6@haque.net> <1005020081.897.4.camel@phantasy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1005020081.897.4.camel@phantasy>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Nov 05, 2001 at 11:14:40PM -0500, Robert Love wrote:
+> On Mon, 2001-11-05 at 23:08, Mohammad A. Haque wrote:
+> > Safe to remove those two lines from loop.c? Other calls of deactive_page 
+> > were just removed it seemed.
+> 
+> Yes, it is.  I am sure that will be exactly what 2.4.15-pre1 does.
+> 
 
+This is why 2.4.14 should've been 2.4.14pre9!  
 
-On Mon, 5 Nov 2001, Linus Torvalds wrote:
+I thought Linus was going to keep the changes from pre to final to a
+minimum.  Actually, I don't think there should be *any* difference between
+the last pre and the released kernel...
 
-> 
-> On Mon, 5 Nov 2001, Alexander Viro wrote:
-> >
-> > OK, some digging had brought another one:
-> >
-> > a) if it's first-level directory - get it the fsck out of root's cylinder
-> > group.
-> 
-> Hey, now that you've read it in a paper you like it, but when I suggest it
-> in email you shoot it down?
-> 
-> <Whiny mode on>  I thought you loved me, Al.  <Whiny mode off>
-
-Oh, come on. (a) is obvious, but obviously not enough ;-)
- 
-> > b) if we just keep creating directories in a cylinder group and do not
-> > create any files there - stop, it's no good (i.e. there's a limit on
-> > number of back-to-back directory creations in the same group).
-> 
-> The current code actually has some vestiges that _seem_ to be trying to do
-> something like this: see the commented-out
-> 
-> 	if (tmp && le16_to_cpu(tmp->bg_used_dirs_count) << 8) <
-> 		   le16_to_cpu(tmp->bg_free_inodes_count)) {
-> 
-> which _seems_ to want to play games with "number of directories allocated
-> vs nr of free inodes".
-> 
-> But it's commented out with "I am not yet convinced that this next bit is
-> necessary". I don't know if the code has ever been active, or whether it
-> showed other problems.
->
-> > c) try putting it into the parent's CG, but reserve some number of inodes
-> > and data blocks in it.  If we can't - tough, get the fsck out of there.
-> 
-> Hmm.. Maybe this is actually closer to what we try to do above..
-
-Yes, but block reservation also makes sense (otherwise we can end up
-putting a directory into parent's CG only to have all children
-going there _and_ getting far from their data).  Which might be the
-problem with original code, BTW.
-
-OK, anyway - I've got a bunch of cleanups for ialloc.c (equivalent
-transformations, split into small steps and decently tested - I've
-used them for almost a year).  That stuff moves choice of CG for
-directories and non-directories into separate functions, so no
-matter which variant we end up doing I think that it's worth doing
-first - things will be cleaner after that.
-
+Mike

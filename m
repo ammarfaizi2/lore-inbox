@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261301AbTENFJo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 01:09:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbTENFJo
+	id S261918AbTENFVK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 01:21:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbTENFVJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 01:09:44 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:41253 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S261301AbTENFJn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 01:09:43 -0400
-Date: Tue, 13 May 2003 22:23:43 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: andyp@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [KEXEC][2.5.69] Re: Updated kexec diffs...
-Message-Id: <20030513222343.74a3d817.akpm@digeo.com>
-In-Reply-To: <m1k7cu3yey.fsf@frodo.biederman.org>
-References: <3EBA626E.6040205@cyberone.com.au>
-	<20030508121211.532dcbcf.akpm@digeo.com>
-	<3EBC37C4.9090602@cyberone.com.au>
-	<20030509162911.2cd5321e.akpm@digeo.com>
-	<m1u1c37d2o.fsf@frodo.biederman.org>
-	<20030509201327.734caf9e.akpm@digeo.com>
-	<m1of2978ao.fsf@frodo.biederman.org>
-	<20030511121753.7a883afb.akpm@digeo.com>
-	<m1fznl57ss.fsf_-_@frodo.biederman.org>
-	<1052861167.1324.15.camel@andyp.pdx.osdl.net>
-	<m1k7cu3yey.fsf@frodo.biederman.org>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 14 May 2003 01:21:09 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:9487 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261788AbTENFVC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 01:21:02 -0400
+Date: Wed, 14 May 2003 06:33:46 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Nathan Neulinger <nneul@umr.edu>
+Cc: David Howells <dhowells@redhat.com>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [OpenAFS-devel] Re: [PATCH] PAG support only
+Message-ID: <20030514063345.A517@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Nathan Neulinger <nneul@umr.edu>,
+	David Howells <dhowells@redhat.com>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+References: <8943.1052843591@warthog.warthog> <20030513213759.A9244@infradead.org> <1052864839.20037.2.camel@nneul-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 May 2003 05:22:26.0161 (UTC) FILETIME=[CE51E610:01C319D8]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1052864839.20037.2.camel@nneul-laptop>; from nneul@umr.edu on Tue, May 13, 2003 at 05:27:20PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ebiederm@xmission.com (Eric W. Biederman) wrote:
->
-> And Andrew has it in 2.5.69-mm4 and is busy pestering me about compile
->  errors. 
+[openafs-devel dropped from the Cc-list due to stupid subscriber only policy]
 
-I'm like that.
+On Tue, May 13, 2003 at 05:27:20PM -0500, Nathan Neulinger wrote:
+> > > +static kmem_cache_t *vfs_token_cache;
+> > > +static kmem_cache_t *vfs_pag_cache;
+> > 
+> > How many of those will be around for a typical AFS client?  I have the vague
+> > feeling the slabs are overkill..
+> 
+> What's a "typical client"?
 
-I've dropped out a lot of the NORET stuff.  It generates warnings on all
-other architectures, because their machine_restart, machine_halt and
-machine_power_off definitions don't have necessary attributes and don't
-have the while(1); at the end.
-
-
+The case we wan to optimize for.  The question here is whether we really want
+a separate slab or whether it makes more senze to just use the new kmalloc
+slab (usually power of two sized).  

@@ -1,71 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262930AbTFJO5J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 10:57:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262942AbTFJO5J
+	id S262942AbTFJPB0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 11:01:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262955AbTFJPB0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 10:57:09 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:897 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262930AbTFJO5H
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 10:57:07 -0400
-Date: Tue, 10 Jun 2003 11:12:55 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Large files
-In-Reply-To: <20030610141759.GU28900@mea-ext.zmailer.org>
-Message-ID: <Pine.LNX.4.53.0306101057020.4326@chaos>
-References: <Pine.LNX.4.53.0306100952560.4080@chaos> <20030610141759.GU28900@mea-ext.zmailer.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 10 Jun 2003 11:01:26 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:6930 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S262942AbTFJPBY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 11:01:24 -0400
+Date: Tue, 10 Jun 2003 17:14:44 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: marcelo@conectiva.com.br
+Cc: andrew.grover@intel.com, gj@pointblue.com.pl, linux-kernel@vger.kernel.org,
+       sunil.saxena@intel.com, len.brown@intel.com, guy.therien@intel.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 2.4.22 timeline was RE: 2.4.21-rc7 ACPI broken
+Message-Id: <20030610171444.1aff1d3c.skraw@ithnet.com>
+In-Reply-To: <1055205899.31139.15.camel@dhcp22.swansea.linux.org.uk>
+References: <F760B14C9561B941B89469F59BA3A84725A2DF@orsmsx401.jf.intel.com>
+	<Pine.LNX.4.55L.0306091901260.27584@freak.distro.conectiva>
+	<1055205899.31139.15.camel@dhcp22.swansea.linux.org.uk>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Jun 2003, Matti Aarnio wrote:
+On 10 Jun 2003 01:44:59 +0100
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-> On Tue, Jun 10, 2003 at 09:57:57AM -0400, Richard B. Johnson wrote:
-> > With 32 bit return values, ix86 Linux has a file-size limitation
-> > which is currently about 0x7fffffff. Unfortunately, instead of
-> > returning from a write() with a -1 and errno being set, so that
-> > a program can do something about it, write() executes a signal(25)
-> > which kills the task even if trapped. Is this one of those <expletive
-> > deleted> POSIX requirements or is somebody going to fix it?
->
->   http://www.sas.com/standards/large.file/
->
-> #define SIGXFSZ    25    /* File size limit exceeded (4.2 BSD). */
->
-> from  fs/buffer.c:
->
->         err = -EFBIG;
->         limit = current->rlim[RLIMIT_FSIZE].rlim_cur;
->         if (limit != RLIM_INFINITY && size > (loff_t)limit) {
->                 send_sig(SIGXFSZ, current, 0);
->                 goto out;
->         }
->         if (size > inode->i_sb->s_maxbytes)
->                 goto out;
->
->
+> On Llu, 2003-06-09 at 23:03, Marcelo Tosatti wrote:
+> > Yes, I want to, and will merge it. In 2.4.23-pre.
+> > 
+> > > I am confident it will merge cleanly.
+> > > I am confident it will cause no problems when CONFIG_ACPI=off.
+> > > I am confident the total number of working machines will go up.
+> > > I am willing to bet $500 of MY OWN MONEY on this.
+> > >
+> > > Talk to me, man. What would make you happy? A lot is riding on this.
+> > 
+> > Yes, we're fine. 2.4.23-pre.
+> > 
+> > 2.4.22 will be a fast enough release to not piss you off on this, trust
+> > me.
+> 
+> Its been in 2.4.21-ac for a while. I have exactly zero reports of it
+> causing problems in the acpi=n case, and a whole raft of "the first
+> Linux that runs on my toshiba/compaq/hp laptop"
+> 
+> Works well enough for me to have faith in it now. 
 
-On the system that fails, there are no ulimits and it's the root
-account, therefore I don't know how to set the above limit to
-RLIM_INFINITY (~0LU).  It's also version  2.4.20. I don't think
-it has anything to do with 'rlim' shown above. In any event
-sending a signal when the file-size exceeds some level is preposterous.
-The write should return -1 and errno should have been set to EFBIG
-(in user space). That allows the user's database to create another
-file and keep on trucking instead of blowing up and destroying the
-user's inventory or whatever else was in process.
+I can back that. In fact I have some SIS-based motherboards that do not run
+without the acpi patch.
 
-FYI, this caused the failure of a samba server for M$ stuff. It
-gives the impression of Linux being defective. This is not good.
+My personal opinion on the topic "what to put in 2.4.22-pre1?" is:
+1) aic (because you can kick Justins' a** if it does not work out, and get rid
+of any complaints for what you do yourself to the aic code)
+2) acpi (because the code has already gone through some significant testing and
+looks promising).
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+So I guess I would just do the opposite of your current statement. Remember, you
+have a chance to win 500 bucks, don't let it go ;-)
+
+Regards,
+Stephan
 

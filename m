@@ -1,38 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289009AbSAZDYb>; Fri, 25 Jan 2002 22:24:31 -0500
+	id <S285692AbSAZBYr>; Fri, 25 Jan 2002 20:24:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289010AbSAZDYV>; Fri, 25 Jan 2002 22:24:21 -0500
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:4872 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S289009AbSAZDYQ>; Fri, 25 Jan 2002 22:24:16 -0500
-Date: Sat, 26 Jan 2002 03:27:27 +0000
-From: John Levon <movement@marcelothewonderpenguin.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] add BUG_ON to 2.4 #1
-Message-ID: <20020126032727.GB60536@compsoc.man.ac.uk>
-In-Reply-To: <1012000446.3799.77.camel@phantasy> <20020126031732.GA59924@compsoc.man.ac.uk> <1012015382.3501.269.camel@phantasy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1012015382.3501.269.camel@phantasy>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Bendik Singers - Afrotid
-X-Toppers: N/A
+	id <S288975AbSAZBYh>; Fri, 25 Jan 2002 20:24:37 -0500
+Received: from ns.suse.de ([213.95.15.193]:44817 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S285692AbSAZBYS>;
+	Fri, 25 Jan 2002 20:24:18 -0500
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] syscall latency improvement #1
+In-Reply-To: <18993.1011984842@warthog.cambridge.redhat.com.suse.lists.linux.kernel> <Pine.LNX.4.33.0201251626490.2042-100000@penguin.transmeta.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 26 Jan 2002 02:24:16 +0100
+In-Reply-To: Linus Torvalds's message of "26 Jan 2002 01:56:44 +0100"
+Message-ID: <p73y9il7vlr.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 25, 2002 at 10:22:51PM -0500, Robert Love wrote:
+Linus Torvalds <torvalds@transmeta.com> writes:
 
-> Hopefully Marcelo will take this patch and we won't need BUG_ON, at
-> least, for 2.5->2.4 compatibility.
+> Looking at the code, I suspect that 99.9% of this "improvement" comes from
+> one thing, and one thing only: you removed the "cli" in the system call
+> return path.
 
-we still need it in kcompat.h so I can compile under 2.4.<random>,
-and 2.2.<random> for that matter.
+It doesn't explain the Athlon speedups. On athlon cli is ~4 cycles. 
 
-regards
-john
--- 
-"ALL television is children's television."
-	- Richard Adler 
+-Andi

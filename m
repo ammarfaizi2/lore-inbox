@@ -1,57 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262337AbUE1FxM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265815AbUE1F5e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262337AbUE1FxM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 01:53:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265815AbUE1FxM
+	id S265815AbUE1F5e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 01:57:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265817AbUE1F5e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 01:53:12 -0400
-Received: from fw.osdl.org ([65.172.181.6]:52631 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262337AbUE1FxK (ORCPT
+	Fri, 28 May 2004 01:57:34 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:46303 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265815AbUE1F5c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 01:53:10 -0400
-Date: Thu, 27 May 2004 22:52:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andrey Panin <pazke@donpac.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-rc1-mm1
-Message-Id: <20040527225231.722c3a93.akpm@osdl.org>
-In-Reply-To: <20040528054653.GB7499@pazke>
-References: <20040527015259.3525cbbc.akpm@osdl.org>
-	<20040527115327.GA7499@pazke>
-	<20040527112041.531a52e4.akpm@osdl.org>
-	<20040528054653.GB7499@pazke>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 28 May 2004 01:57:32 -0400
+Subject: Re: CONFIG_IRQBALANCE for AMD64?
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Thomas Zehetbauer <thomasz@hostmaster.org>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1085697411.29406.386.camel@forum-beta.geizhals.at>
+References: <1085629714.6583.12.camel@hostmaster.org>
+	 <40B578F1.3090704@pobox.com> <1085675774.6583.23.camel@hostmaster.org>
+	 <20040527170334.GE23262@krispykreme>
+	 <1085697411.29406.386.camel@forum-beta.geizhals.at>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-dtb8OWO5092fXV3W8G1H"
+Organization: Red Hat UK
+Message-Id: <1085723846.2782.6.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 28 May 2004 07:57:27 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrey Panin <pazke@donpac.ru> wrote:
->
-> On 148, 05 27, 2004 at 11:20:41AM -0700, Andrew Morton wrote:
-> > Andrey Panin <pazke@donpac.ru> wrote:
-> > >
-> > > On 148, 05 27, 2004 at 01:52:59 -0700, Andrew Morton wrote:
-> > > >
-> > > > +make-proliant-8500-boot-with-26.patch
-> > > > 
-> > > >  Fix hpaq proliant 8500
-> > > 
-> > > Ugh, dmi_scan.c changed again ... :(
-> > > 
-> > 
-> > Confused.  What's the problem with that?
-> 
-> Just yet another rediff of my DMI patches :)
 
-err, what DMI patches?
+--=-dtb8OWO5092fXV3W8G1H
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> First patch attached
+On Fri, 2004-05-28 at 00:36, Thomas Zehetbauer wrote:
+> Unfortunately I couldn't find much info on the topic, could you please
+> provide some more information? Why is there a kirqd at all?
 
--ENOCHANGELOG.
+For people with old distributions that didn't include irqbalanced yet ;)
 
-> , other will follow.
-> Can we apply them now ?
+>=20
+> What are the differences/advantages/disadvantages between the kirqd and
+> the user space implementation?
 
-Well they won't get applied if they're stuck on your hard disk.  Send 'em over.
+the userspace implementation implements a more sophisticated algorithm
+for balancing irq's (well to be fair, since its in userspace it's easier
+to do this so it's not kirqd's failt that it doesn't have that).=20
+While I didn't test kirqd to compare, we did see quite a difference
+(order of percents) in a specweb load between a naive algorithm in
+kirqbalanced and the current algorithm. Otoh few real life workloads get
+as many interrupts as specweb ;)
+
+--=-dtb8OWO5092fXV3W8G1H
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAttTGxULwo51rQBIRAicmAKCVEfL2iD4b4MznfBEjGzqdXlBvLQCfXy33
+PrRRz88fXO1JOBMvggnQm/g=
+=Hrk6
+-----END PGP SIGNATURE-----
+
+--=-dtb8OWO5092fXV3W8G1H--
+

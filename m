@@ -1,86 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273053AbRIWInD>; Sun, 23 Sep 2001 04:43:03 -0400
+	id <S273349AbRIWJZH>; Sun, 23 Sep 2001 05:25:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273324AbRIWImx>; Sun, 23 Sep 2001 04:42:53 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:764 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S273053AbRIWImj>;
-	Sun, 23 Sep 2001 04:42:39 -0400
-Date: Sun, 23 Sep 2001 04:43:03 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: David Cinege <dcinege@psychosis.com>
-cc: linux-kernel@vger.kernel.org, LRP <linux-router@linuxrouter.org>,
-        LRPD <linux-router-devel@linuxrouter.org>
-Subject: Re: [PATCH] Initrd Dynamic v4.2 - New Feature: Tmpfs root support
-In-Reply-To: <E15l3IH-0005Tu-00@schizo.psychosis.com>
-Message-ID: <Pine.GSO.4.21.0109230415460.14886-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S273360AbRIWJY5>; Sun, 23 Sep 2001 05:24:57 -0400
+Received: from 1Cust37.tnt4.cph3.da.uu.net ([213.116.23.37]:35079 "EHLO
+	mydomain.com") by vger.kernel.org with ESMTP id <S273349AbRIWJYk>;
+	Sun, 23 Sep 2001 05:24:40 -0400
+Date: Sun, 23 Sep 2001 11:26:17 +0100
+From: SEXYTOP <sexytop@fastwebworld.com>
+To: SEXYTOP@vger.kernel.org
+Subject: SEXSITE NO.1 .. MEGAWEB-SEX !
+Message-Id: <20010923092447Z273349-760+15744@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear Ladies & Gentlemen,
 
+Welcome to the GREATEST SEX SHOW on the ENTIRE NET !
 
-On Sun, 23 Sep 2001, David Cinege wrote:
+We now offer you to ENTER the world´s No.1 voted SEX-SERVER on the WEB ! 
 
-> Now, could you please explain to me how the hell you boot to a tmpfs
-> root from userland!?!? This feature *creates* your userland.
+By far the largest and most incredible content of LIVE SEX is now served to users WORLDWIDE!
 
-And that's _all_ you need on the kernel side.
+EVERYTHING is offered 100% ANONOMOUSLY & you don´t need to sign-up or have a creditcard ... The way it should be ! 
 
-> Maybe you're just confused what this feature does. Maybe you've never
-> worked with systems that run a volatile root. Maybe you've just never made
-> a boot disk.
+TO PLUGIN and get access to something you with guarantee NEVER have seen before, use ANY of the servers listed below !
 
-> Maybe you even think it's sane to compile userland into the kernel? <snicker 
-> snicker> I just looked at your initramfs. From what I see it's the same 
-> scheme I used to use In the Linux Router Project before I wrote 
-> initrd-archive. Except I did it *entirely* in userland back in 1997. It 
-> sucked. Badly.
+Enjoy the BEST!
 
-Which somewhat contradicts the paragraph above (and common sense, while
-we are at it).  BTW, I would really love to hear how TF did you manage
-a non-breakable chroot jail 4 years ago _and_ in userland.
+Yours truly,
+SEXYTOP WEB ENTERTAINMENT
 
-> > _Please_, let's stop
-> > adding complexity to already ridiculously bloated late boot stages.
-> 
-> It's funny you've refered to my patch as bloated. What you've wrote (which is 
-> a limited solution) weighs in at ~122k. Initrd Dynamic is ~35K complete and 
+To get EASY ACCESS & PLUGIN to the LARGEST CONTENT SEXSERVER on the NET, use any of the 5 SERVERS listed here: 
+ 
+1.  http://siam.to/webblows
+2.  http://asian.to/webblow
+3.  http://webblow.unitedstates-web.com	
+4.  http://webblow.paklinks.com
+5.  http://mingle.at/webblow
 
-Not patch.  The late-boot logics itself.  BTW, while we are comparing patch
-sizes, count how much is added and how much is removed.
-
-> > David, no offence, but let's do it the right way.
-> 
-> It is done right. Infact, I'm proud that this release finally has implemented 
-> it to perfection for the purposes it was designed. It took 3 years
-> to get to this point of a completly dynamic, modular, ram based root.
-> 
-> It never fails, post a patch to kernel and they come out of the wood work 
-> with delusional bitching. This is one reason I sat on releases for 9 months.
-> BTW Offence intended...
-
-... and failed.  Frankly, it takes more than that to offend.  As a flame
-it's below mediocre.
-
-As for the code... _all_ you need on the kernel side is "unpack <some_archive>
-to ramfs/tmpfs and do exec()".  That's it.  The rest can be done in userland.
-That includes the logics with loading ramdisk from initrd/floppies, handling
-nfsroot, choosing final root device, yodda, yodda.  And yes, I consider
-ripping that logics from the kernel space a Good Thing(tm).  Among other
-things, it allows to replace deeply rotten code with invoking a couple of
-syscalls.  I have no problems with using your code as a base for that, but
-that should be done.  Current fs/super.c::mount_root() should go.  Again,
-I've no problems with keeping that in form of sys_foo() called from the
-kernel space (initramfs is incremental to exactly that - see init/do_mounts.c
-in namespaces-patch).  But let's get all that logics into one place and
-do it in clean way.  Even if we rip 90% of it in 2.5 (loading ramdisk from
-multiple floppies with requests to change them - b0rken on powerpc, BTW;
-or the lovely way we sometimes forget to ask to eject the damn thing -
-have fun with that on Sun boxen), I'd rather see it done when we have
-the sucker cleanly separated from the rest of the kernel.  Which is more
-than 35Kb - just removing all that code from the multiple places it lives
-now will take more.  Grep around for wait_for_keypress() and you'll see
-what I mean.
+ 
+To get EASY ACCESS & PLUGIN to the LESBIAN IBIZA BABES, use any of the 5 SERVERS listed here:
+ 
+1.  http://siam.to/accessus
+2.  http://asian.to/accessus
+3.  http://accessus.unitedstates-web.com  
+4.  http://accessus.paklinks.com
+5.  http://8bit.at/accessus
 

@@ -1,55 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263517AbTDGPGp (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 11:06:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263520AbTDGPGp (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 11:06:45 -0400
-Received: from 12-237-214-24.client.attbi.com ([12.237.214.24]:43124 "EHLO
-	wf-rch.cirr.com") by vger.kernel.org with ESMTP id S263517AbTDGPGm (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 11:06:42 -0400
-Message-ID: <3E9196B6.8030601@acm.org>
-Date: Mon, 07 Apr 2003 10:18:14 -0500
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
-X-Accept-Language: en-us, en
+	id S263027AbTDGPRE (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 11:17:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263441AbTDGPRE (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 11:17:04 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:56590 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S263027AbTDGPRC (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 11:17:02 -0400
+Date: Mon, 7 Apr 2003 08:27:59 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5] avoid scribbling in IDT with high interrupt count.
+In-Reply-To: <Pine.LNX.4.50.0304070049400.2268-100000@montezuma.mastecende.com>
+Message-ID: <Pine.LNX.4.44.0304070818340.26364-100000@home.transmeta.com>
 MIME-Version: 1.0
-To: Louis Zhuang <louis.zhuang@linux.co.intel.com>
-CC: OPENIPMIML <openipmi-developer@lists.sourceforge.net>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RESEND] socket interface for IPMI against 2.5.66-bk
-References: <1049363835.1168.6.camel@hawk.sh.intel.com>	 <3E8C63D4.8040807@mvista.com> <1049433965.1165.2.camel@hawk.sh.intel.com>	 <3E8D9CD2.8060506@acm.org> <1049678799.1165.24.camel@hawk.sh.intel.com>
-In-Reply-To: <1049678799.1165.24.camel@hawk.sh.intel.com>
-X-Enigmail-Version: 0.74.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Louis Zhuang wrote:
-
->On Fri, 2003-04-04 at 22:55, Corey Minyard wrote:
+On Mon, 7 Apr 2003, Zwane Mwaikambo wrote:
 >
->>I've merged this in, but I made some adjustments:
->>
->>    * I added a copyright to include/net/ipmi.h (just copied from
->>net/ipmi/af_ipmi.c)
->
->Just curious, should we add copyright even when I have announced it by
->'MODULE_LICENSE("GPL")'? I dislike too many leagal text in code...
+> On systems with high interrupt counts we end up overshooting the 
+> interrupt[] array and dumping garbage entry points into the idt. This 
+> patch checks for out of bounds access during ioapic setup as well as 
+> returning -ENOSPC when we run out of vectors to assign in 
+> assign_irq_vector, thus allowing us to remove the panic and boot a 320 
+> interrupt source system with 2.5.66.
 
-I guess it's up to you, but you had added the header in all files but
-that one.
+Zwane - is there any reason we couldn't just start re-using irq vector
+offsets when this happens? We already re-use the vectors themselves, so 
+restarting the offset pointer shouldn't really _change_ anything.
 
-Corey
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+In other words, I'm wondering if this simpler patch wouldn't be sufficient 
+instead?
 
-iD8DBQE+kZa0IXnXXONXERcRAtd0AKCjBePfZPzdE+c9n/aBH0yqYI3SGwCdGZZc
-GbHp0DsHLsa1yF/W/T7kYRc=
-=pg9e
------END PGP SIGNATURE-----
+Can you please test this, and re-submit (and if you can explain why your 
+patch is better, please do so - I have nothing fundamentally against it, I 
+just want to understand _why_ the complexity is needed).
 
+Thanks,
+
+		Linus
+
+--- 1.58/arch/i386/kernel/io_apic.c	Thu Mar 20 03:11:41 2003
++++ edited/arch/i386/kernel/io_apic.c	Mon Apr  7 08:25:48 2003
+@@ -1110,12 +1110,9 @@
+ 		goto next;
+ 
+ 	if (current_vector > FIRST_SYSTEM_VECTOR) {
+-		offset++;
++		offset = (offset+1) & 7;
+ 		current_vector = FIRST_DEVICE_VECTOR + offset;
+ 	}
+-
+-	if (current_vector == FIRST_SYSTEM_VECTOR)
+-		panic("ran out of interrupt sources!");
+ 
+ 	IO_APIC_VECTOR(irq) = current_vector;
+ 	return current_vector;
 

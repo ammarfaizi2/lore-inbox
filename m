@@ -1,70 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261679AbVAXWZO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbVAXW3K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261679AbVAXWZO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 17:25:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbVAXWZL
+	id S261684AbVAXW3K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 17:29:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261698AbVAXW2E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 17:25:11 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:6388 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261672AbVAXWQm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 17:16:42 -0500
-From: Nick Pollitt <npollitt@mvista.com>
-Organization: MontaVista
-Subject: Configure mangles hex values
-User-Agent: KMail/1.7.2
-MIME-Version: 1.0
-Date: Mon, 24 Jan 2005 14:16:36 -0800
-Content-Disposition: inline
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: kaos@sgi.com, Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_2uW9BjZ7gZeRNET";
-  charset="iso-8859-1"
+	Mon, 24 Jan 2005 17:28:04 -0500
+Received: from fw.osdl.org ([65.172.181.6]:4063 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261684AbVAXW0b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 17:26:31 -0500
+Date: Mon, 24 Jan 2005 14:31:09 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Fruhwirth Clemens <clemens@endorphin.org>
+Cc: jmorris@redhat.com, linux-kernel@vger.kernel.org,
+       Michal Ludvig <michal@logix.cz>
+Subject: Re: [PATCH 01/04] Adding cipher mode context information to
+ crypto_tfm
+Message-Id: <20050124143109.75ff1ab8.akpm@osdl.org>
+In-Reply-To: <20050124115624.GA21457@ghanima.endorphin.org>
+References: <20050124115624.GA21457@ghanima.endorphin.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200501241416.36422.npollitt@mvista.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Fruhwirth Clemens <clemens@endorphin.org> wrote:
+>
+> This patch adds the ability for a cipher mode to store cipher mode specific
+> information in crypto_tfm. This is necessary for LRW's precomputed
+> GF-multiplication tables.
 
-When doing a make oldconfig, the hex function strips the leading '0x' from hex 
-values.  The '0x' is needed in the final autoconf.h, and its absence causes 
-the following problem.
+These patches clash badly with Michael Ludvig's work:
 
-If I start with a hex value in my config file like this:
-CONFIG_LOWMEM_SIZE=0x40000000
-When I run make oldconfig, it strips out the '0x' leaving this:
-CONFIG_LOWMEM_SIZE=40000000
-Then if I run make xconfig, this is not considered a valid hex value, so it
-replaces my value with the default:
-CONFIG_LOWMEM_SIZE=0x20000000
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc2/2.6.11-rc2-mm1/broken-out/cryptoapi-prepare-for-processing-multiple-buffers-at.patch
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc2/2.6.11-rc2-mm1/broken-out/cryptoapi-update-padlock-to-process-multiple-blocks-at.patch
 
-The following patch removes the lines that strip the 0x from the hex value.  
-It also checks the result for the leading 0x and inserts it if necessary.
+so someone's going to have to rework things.  Ordinarily Michael would go
+first due to test coverage.
 
---- scripts/Configure.orig 2005-01-24 13:31:55.000000000 -0800
-+++ scripts/Configure 2005-01-24 13:34:20.000000000 -0800
-@@ -378,15 +378,18 @@
- function hex () {
-  old=$(eval echo "\${$2}")
-  def=${old:-$3}
-- def=${def#*[x,X]}
-  while :; do
-    readln "$1 ($2) [$def] " "$def" "$old"
--   ans=${ans#*[x,X]}
--   if expr "$ans" : '[0-9a-fA-F][0-9a-fA-F]*$' > /dev/null; then
--     define_hex "$2" "0x$ans"
-+   if expr "$ans" : '0x[0-9a-fA-F][0-9a-fA-F]*$' > /dev/null; then
-+     define_hex "$2" "$ans"
-      break
-    else
--     help "$2"
-+     if expr "$ans" : '[0-9a-fA-F][0-9a-fA-F]*$' > /dev/null; then
-+       define_hex "$2" "0x$ans"
-+       break
-+     else
-+       help "$2"
-+     fi
-    fi
-  done
- }
+James, your call please.  Also, please advise on the suitability of
+Michael's patches for a 2.6.11 merge.
+
+Thanks.

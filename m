@@ -1,81 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130196AbQLET3J>; Tue, 5 Dec 2000 14:29:09 -0500
+	id <S130382AbQLETat>; Tue, 5 Dec 2000 14:30:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129991AbQLET27>; Tue, 5 Dec 2000 14:28:59 -0500
-Received: from [62.172.234.2] ([62.172.234.2]:61571 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S129563AbQLET2u>; Tue, 5 Dec 2000 14:28:50 -0500
-Date: Tue, 5 Dec 2000 18:58:15 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-To: "H. Peter Anvin" <hpa@transmeta.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@zytor.com>,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] setup.c cpuinfo flags notsc
-In-Reply-To: <3A296529.545192C2@transmeta.com>
-Message-ID: <Pine.LNX.4.21.0012051807280.996-100000@localhost.localdomain>
+	id <S130379AbQLETaj>; Tue, 5 Dec 2000 14:30:39 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:7636 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S130371AbQLETaY>;
+	Tue, 5 Dec 2000 14:30:24 -0500
+Date: Tue, 5 Dec 2000 13:59:34 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: "Stephen C. Tweedie" <sct@redhat.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alexander Viro <aviro@redhat.com>, Andrew Morton <andrewm@uow.edu.au>,
+        Alan Cox <alan@redhat.com>, Christoph Rohland <cr@sap.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        MOLNAR Ingo <mingo@chiara.elte.hu>
+Subject: Re: test12-pre5
+In-Reply-To: <Pine.LNX.4.10.10012051030060.1902-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0012051337290.12284-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter,
 
-Some minor mods to test12-pre5 (and earlier) arch/i386/kernel/setup.c:
-please pass on to Linus if you approve.
 
-1. Your "features" was reverted to "flags", but an extra tab is needed.
+On Tue, 5 Dec 2000, Linus Torvalds wrote:
 
-2. identify_cpu() re-evaluates x86_capability, which left cpu_has_tsc true
-   (and cpu MHz shown as 0.000) in non-SMP "notsc" case: #ifdef CONFIG_TSC
-   was bogus.  And set X86_CR4_TSD here when testing this cpu's capability,
-   not where cpu_init() tests cpu_has_tsc (boot_cpu's adjusted capability).
+> > So Stephen is right wrt fsync() (it will not get that stuff on disk).
+> > However, it's not a bug - if that crap will not end up on disk we
+> > will only win.
+> 
+> Stephen is _wrong_ wrt fsync().
+> 
+> Why?
+> 
+> Think about it for a second. How the hell could you even _call_ fsync() on
+> a file that no longer exists, and has no file handles open to it?
+		^^^^^^^^^^^^^^
+clear_inode() <- dispose_list() <- prune_icache().
 
-I have removed the "FIX-HPA" comment line: of course, that's none of my
-business, but if you approve the patch I imagine you'd want that to go too
-(I agree it's a bit ugly there, but safest to disable cpu_has_tsc soonest).
+IOW, if file still exists, but is closed by everyone, etc. you _can_
+get clear_inode() on it. <thinks> Ah, I see your point. OK, how about that:
+	* clear_inode() _can_ be called for still-alive objects.
+	* no matter how it is called, we don't give a damn for the stuff
+on the list.
+	* moreover, if it gets called for object that is still alive the
+list is just empty. It doesn't contain anything valuable (as in every
+case) _and_ it doesn't contain random crap.
 
-Hugh
-
---- test12-pre5/arch/i386/kernel/setup.c	Tue Dec  5 17:25:55 2000
-+++ linux/arch/i386/kernel/setup.c	Tue Dec  5 17:56:35 2000
-@@ -1999,10 +1999,14 @@
- 	 * we do "generic changes."
- 	 */
- 
-+#ifndef CONFIG_X86_TSC
- 	/* TSC disabled? */
--#ifdef CONFIG_TSC
--	if ( tsc_disable )
--		clear_bit(X86_FEATURE_TSC, &c->x86_capability);
-+	if ( test_bit(X86_FEATURE_TSC, &c->x86_capability) ) {
-+		if (tsc_disable || !cpu_has_tsc) {
-+			clear_bit(X86_FEATURE_TSC, &c->x86_capability);
-+			set_in_cr4(X86_CR4_TSD);
-+		}
-+	}
- #endif
- 
- 	/* Disable the PN if appropriate */
-@@ -2172,7 +2176,7 @@
- 			        "fpu_exception\t: %s\n"
- 			        "cpuid level\t: %d\n"
- 			        "wp\t\t: %s\n"
--			        "flags\t:",
-+			        "flags\t\t:",
- 			     c->fdiv_bug ? "yes" : "no",
- 			     c->hlt_works_ok ? "no" : "yes",
- 			     c->f00f_bug ? "yes" : "no",
-@@ -2218,9 +2222,7 @@
- #ifndef CONFIG_X86_TSC
- 	if (tsc_disable && cpu_has_tsc) {
- 		printk("Disabling TSC...\n");
--		/**** FIX-HPA: DOES THIS REALLY BELONG HERE? ****/
- 		clear_bit(X86_FEATURE_TSC, boot_cpu_data.x86_capability);
--		set_in_cr4(X86_CR4_TSD);
- 	}
- #endif
- 
+If that's what you were talking about - fine with me.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132696AbRDCVEQ>; Tue, 3 Apr 2001 17:04:16 -0400
+	id <S132692AbRDCVDE>; Tue, 3 Apr 2001 17:03:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132697AbRDCVDf>; Tue, 3 Apr 2001 17:03:35 -0400
-Received: from james.kalifornia.com ([208.179.59.2]:42581 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S132696AbRDCVDa>; Tue, 3 Apr 2001 17:03:30 -0400
-Message-ID: <3ACA3946.1030703@kalifornia.com>
-Date: Tue, 03 Apr 2001 13:57:42 -0700
-From: Ben Ford <ben@kalifornia.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.17-14 i686; en-US; 0.8.1)
-X-Accept-Language: en
+	id <S132695AbRDCVCy>; Tue, 3 Apr 2001 17:02:54 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:15122 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S132692AbRDCVCk>;
+	Tue, 3 Apr 2001 17:02:40 -0400
+Date: Tue, 3 Apr 2001 18:01:42 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: linux-kernel@vger.kernel.org
+Subject: goodbye
+Message-ID: <Pine.LNX.4.21.0104031800030.14090-100000@imladris.rielhome.conectiva>
 MIME-Version: 1.0
-To: "J . A . Magallon" <jamagallon@able.es>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: /proc/config idea
-In-Reply-To: <3AC91800.22D66B24@mandrakesoft.com> <Pine.LNX.4.33.0104021734400.30128-100000@dlang.diginsite.com> <20010403161322.A8174@werewolf.able.es> <3ACA1A91.70401@kalifornia.com> <20010403211218.A2387@werewolf.able.es>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J . A . Magallon wrote:
+Hi,
 
-> On 04.03 Ben Ford wrote:
-> 
->> J . A . Magallon wrote:
->> 
->>> If this has not been done for System.map, that is a much more important
->>> info for debug and oops, and the de facto standard is to put it aside
->>> kernel with some standadr naming, lets use the same method for config.
->>> 
->> That would be great and all, but can you tell me how to do it when I 
->> have 3 or 4 different compiles of the same kernel version?
->> 
-> 
-> Just like the Alan Cox for 2.4 or Andrea Arcangeli for 2.2. Lets say you
-> have 2.4.2-ac27. For each of your compiles, set EXTRAVERSION to -ac27-bf1,
-> -ac27-bf2, etc. Your files will be:
-> vmlinuz-2.4.2-ac27-bfX
-> System.map-2.4.2-ac27-bfX
-> config-2.4.2-ac27-bfX
-> 
-Many thanks, I didn't know that.
+this will be my last email to linux-kernel for a while since
+davem and matti are using DUL on vger.kernel.org
+
+If you need to know something, don't count on me posting
+anything here. For memory management things, please use
+linux-mm@kvack.org instead.
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 

@@ -1,57 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312505AbSDDAGw>; Wed, 3 Apr 2002 19:06:52 -0500
+	id <S312515AbSDDAHw>; Wed, 3 Apr 2002 19:07:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312515AbSDDAGm>; Wed, 3 Apr 2002 19:06:42 -0500
-Received: from moutvdom00.kundenserver.de ([195.20.224.149]:59652 "EHLO
-	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S312505AbSDDAGZ>; Wed, 3 Apr 2002 19:06:25 -0500
-Message-ID: <3CAB98F4.9080809@ngforever.de>
-Date: Wed, 03 Apr 2002 17:06:12 -0700
-From: Thunder from the hill <thunder@ngforever.de>
-Organization: The LuckyNet Administration
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:0.9.9) Gecko/20020313
+	id <S312525AbSDDAHc>; Wed, 3 Apr 2002 19:07:32 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:3514 "EHLO e1.esmtp.ibm.com")
+	by vger.kernel.org with ESMTP id <S312515AbSDDAH1>;
+	Wed, 3 Apr 2002 19:07:27 -0500
+Message-ID: <3CAB9910.7040006@us.ibm.com>
+Date: Wed, 03 Apr 2002 16:06:40 -0800
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "David D. Hagood" <wowbagger@sktc.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [Q] FAT driver enhancement
-In-Reply-To: <20020403140516.C38235-100000@toad.stack.nl> <3CAAFA36.80109@sktc.net>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+CC: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] shift BKL out of notify_change
+In-Reply-To: <3CAB8BB4.8040400@us.ibm.com> <200204032358.g33Nw1S13759@vindaloo.ras.ucalgary.ca>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Richard Gooch wrote:
+>> static int devfs_notify_change (struct dentry *dentry, struct iattr *iattr)
+>> {
+>>-    int retval;
+>>+    int retval=0;
+>>     struct devfs_entry *de;
+>>     struct inode *inode = dentry->d_inode;
+>>-    struct fs_info *fs_info = inode->i_sb->u.generic_sbp;
+>>+    struct fs_info efs_info = inode->i_sb-nu.generic_sbp;
+> 
+> What on earth is this change? Some kind of cut-and-paste error?
 
-David D. Hagood wrote:
-> Jos Hulzink wrote:
-> 
->> How should the FAT driver know that the first FAT is bad if it doesn't
->> scan the FAT ? You don't want the second FAT to be used, you want the
->> mount to fail, and fsck.xxx to fix the mess. Who tells you that the 
->> second
->> copy of the FAT is the correct one, and not the first ?
-> 
-> 
-> Seems to me you would want a mount-time option to the FAT fs code to say 
-> "use FAT#<n>", defaulting to the first if no parm given. If that copy of 
-> the FAT has any problems, fail the mount.
-> 
-> Then you'd want the fsck.fat to have a similar option, saying "use 
-> FAT#<n> for the check" - that way if the FATs are out of sync, you could 
-> do a dry run check on each FAT, and go with the one that seemed to be 
-> better. Perhaps even having the tool allow you to pick and choose if 
-> needed (although this would probably be better as a seperate tool, that 
-> allowed you to view a file given a selected FAT and copy it to a clean 
-> file system.)
-If I apply the "Think big" patch for a second, I say, check individually 
-for each entry with fsck.fat and build a fat of the entries that are 
-still ok. This could be a special --rebuild option or whatever.
+It must be my twiddle fingers.  It sure wasn't intentional.
 
-Regards,
-Thunder
 -- 
-Thunder from the hill.
-Citizen of our universe.
+Dave Hansen
+haveblue@us.ibm.com
 

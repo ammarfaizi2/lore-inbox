@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267823AbUIVVGj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267882AbUIVVIG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267823AbUIVVGj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 17:06:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267882AbUIVVGi
+	id S267882AbUIVVIG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 17:08:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267828AbUIVVGn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 17:06:38 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:2052 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S267823AbUIVVGf convert rfc822-to-8bit (ORCPT
+	Wed, 22 Sep 2004 17:06:43 -0400
+Received: from fw.osdl.org ([65.172.181.6]:57302 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267864AbUIVVGh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 17:06:35 -0400
-In-Reply-To: <4151E749.7060107@skynet.be>
-References: <4151E749.7060107@skynet.be>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Message-Id: <47612A96-0CDB-11D9-BC62-000D9352858E@linuxmail.org>
-Content-Transfer-Encoding: 8BIT
+	Wed, 22 Sep 2004 17:06:37 -0400
+Date: Wed, 22 Sep 2004 14:04:22 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
 Cc: linux-kernel@vger.kernel.org
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: 2.6.x ( unable to open an initial console & unable to mount devfs, err: -5 ) 
-Date: Wed, 22 Sep 2004 23:06:31 +0200
-To: Madnux <madnux@skynet.be>
-X-Mailer: Apple Mail (2.619)
+Subject: Re: 2.6.9-rc2-mm2
+Message-Id: <20040922140422.78f8767f.akpm@osdl.org>
+In-Reply-To: <200409221659.29280.jbarnes@engr.sgi.com>
+References: <20040922131210.6c08b94c.akpm@osdl.org>
+	<200409221648.30234.jbarnes@engr.sgi.com>
+	<200409221659.29280.jbarnes@engr.sgi.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 22, 2004, at 22:57, Madnux wrote:
+Jesse Barnes <jbarnes@engr.sgi.com> wrote:
+>
+> On Wednesday, September 22, 2004 4:48 pm, Jesse Barnes wrote:
+> > On Wednesday, September 22, 2004 4:12 pm, Andrew Morton wrote:
+> > > - This kernel doesn't work on ia64 (instant reboot).  But neither does
+> > >   2.6.9-rc2, nor current Linus -bk.  Is it just me?
+> >
+> > I certainly hope so.  Current bk works on my 2p Altix, and iirc 2.6.9-rc2
+> > worked as well.  I'm trying 2.6.9-rc2-mm2 right now.  I haven't tried
+> > generic_defconfig yet either, maybe that's it?
+> 
+> Hmm... both generic_defconfig and sn2_defconfig of 2.6.9-rc2-mm2 work on sn2.  
+> What config are you using?
 
-> Hello,
->
->
-> I have some problems with my kernel 2.6.7 and 2.6.8.1.
->
-> I get this message « mount_devfs_fs(): unable to mount devfs, err: -5 
-> » and then « unable to open an initial console » What's this ? What 
-> does « err: -5 » mean ?
->
-> I tried with no devfs compiled in but i still have this error message 
-> « unable to open an initial console »
->
-> Fortunatly, i had kept my old kernel ( 2.4.20 ) who have no devfs 
-> compiled in and it run very well for 7 months ;-)
->
->
-> What's wrong with my system ?? Did i forget an option in the 
-> compilation ?
->
->
-> I have looked everywhere about that problem until monday !
+http://www.zip.com.au/~akpm/linux/patches/stuff/config-ia64
 
-I think you are running one of the latest udev snapshots from RawHide, 
-and it erased some important device nodes from your "/dev" directory. I 
-guess you'll need to run /sbin/makedev to recreate the missing devices 
-files.
+>  I assume you have one of the Intel Big Sur 
+> whiteboxes?
+
+It's an Intel "tiger" (not sure if that's the official name...)
+
+I'll try a defconfig build later today.

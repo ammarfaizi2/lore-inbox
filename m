@@ -1,60 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263625AbUA0OAT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 09:00:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263632AbUA0OAT
+	id S263618AbUA0OAA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 09:00:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263625AbUA0OAA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 09:00:19 -0500
-Received: from relay.inway.cz ([212.24.128.3]:65178 "EHLO relay.inway.cz")
-	by vger.kernel.org with ESMTP id S263625AbUA0OAL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 09:00:11 -0500
-Message-ID: <40166EA9.9040806@scssoft.com>
-Date: Tue, 27 Jan 2004 14:59:05 +0100
-From: Petr Sebor <petr@scssoft.com>
-Organization: SCS Software
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Feldman, Scott" <scott.feldman@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.x] e1000: NETDEV WATCHDOG: eth0: transmit timed out
-References: <Pine.LNX.4.44.0401261625210.3324-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.44.0401261625210.3324-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 27 Jan 2004 09:00:00 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:16592 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S263618AbUA0N76 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 08:59:58 -0500
+Subject: Re: [PATCH] kgdb-x86_64-support.patch for 2.6.2-rc1-mm3
+From: Jim Houston <jim.houston@comcast.net>
+Reply-To: jim.houston@comcast.net
+To: Andrew Morton <akpm@osdl.org>
+Cc: ak@suse.de, george@mvista.com, amitkale@emsyssoft.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040126192840.0c1694b9.akpm@osdl.org>
+References: <20040127030529.8F860C60FC@h00e098094f32.ne.client2.attbi.com>
+	 <20040126192840.0c1694b9.akpm@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1075211939.1020.78.camel@new.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 27 Jan 2004 08:58:59 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Feldman, Scott wrote:
+On Mon, 2004-01-26 at 22:28, Andrew Morton wrote:
+> Jim Houston <jim.houston@comcast.net> wrote:
+> >
+> > The attached patch updates my kgdb-x86_64-support.patch to work
+> >  with linux-2.6.2-rc1-mm3.
+> 
+> Thanks.  Why does it relocate the call to trap_init() in start_kernel()?
 
->Petr, sorry for the suspense.  Here's a patch against 2.6.2-rc2 that fixes 
->a race in the Tx path of e1000 that you may be exposing with TSO on.  The 
->race is:
->
->Tx queue		Tx clean (interrupt context)
->
->...
->if(h/w Q full)         | clean h/w Q
->        ...        <---| if(s/w Q stopped) 
->        stop s/w Q     |       wake s/w Q
->
->
->So let's try this patch with TSO back on.
->  
->
-Scott,
+Hi Andrew,
 
-thanks for the patch. Again, 3/4 of working day with moderate server 
-load resulted in no
-WATCHDOG barking with the patched kernel and tso's turned on. I dare say 
-that this is it! :-)
-(Little more testing here won't harm though)
+Moving trap_init() before parse_args() makes the "gdb" command line
+option work.
 
-If nothing, the stability of the e1000 has vastly improved
+On the i386 George has a few lines of code in breakpoint() which do 
+enough setup to allow a break point trap to enter kgdb early in the
+boot.  I played with similar code on x86_64, but it didn't work.
+Handling a break point trap requires some of the initialization
+done in cpu_init().  I suspect the difference is the per-cpu-data
+referenced using %gs.
 
-Thanks a lot!
-
-Regards,
-Petr
+Jim Houston - Concurrent Computer Corp.
 

@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130657AbQKUOb7>; Tue, 21 Nov 2000 09:31:59 -0500
+	id <S130667AbQKUOg7>; Tue, 21 Nov 2000 09:36:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130676AbQKUObt>; Tue, 21 Nov 2000 09:31:49 -0500
-Received: from slip202-135-75-88.ca.au.ibm.net ([202.135.75.88]:30852 "EHLO
-	krispykreme") by vger.kernel.org with ESMTP id <S130657AbQKUObi>;
-	Tue, 21 Nov 2000 09:31:38 -0500
-Date: Wed, 22 Nov 2000 01:00:49 +1100
-To: Rafal Maszkowski <rzm@icm.edu.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: test11-pre2 (ksymoops output)
-Message-ID: <20001122010049.G3430@linuxcare.com>
-In-Reply-To: <Pine.LNX.4.10.10011091748300.2316-100000@penguin.transmeta.com> <20001110202747.A16806@burza.icm.edu.pl> <20001110150652.F27422@cs.cmu.edu> <20001111020839.A29815@burza.icm.edu.pl> <20001113014201.A28197@burza.icm.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001113014201.A28197@burza.icm.edu.pl>; from rzm@icm.edu.pl on Mon, Nov 13, 2000 at 01:42:01AM +0100
-From: Anton Blanchard <anton@linuxcare.com>
+	id <S130676AbQKUOgt>; Tue, 21 Nov 2000 09:36:49 -0500
+Received: from mail.clinet.fi ([194.100.0.7]:51214 "EHLO mail.clinet.fi")
+	by vger.kernel.org with ESMTP id <S130667AbQKUOgc>;
+	Tue, 21 Nov 2000 09:36:32 -0500
+From: Dennis Noordsij <dennis.noordsij@wiral.com>
+Organization: Wiral Oy
+Date: Tue, 21 Nov 2000 16:07:26 +0200
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Framebuffer orientation
+MIME-Version: 1.0
+Message-Id: <00112116072601.01134@dennis>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-> Unable to handle kernel paging request at virtual address fd000000
+Is there any way to use the framebuffer on the i386 architecture in a 
+'portrait' way? I am using a QBE web tablet and it favours the screen in that 
+position. (768x1024).
 
-...
- 
-> >>PC;  f01a77ac <auxio_probe+14c/160>   <=====
+I know X can do it for a few videocards, but not this one :-)
 
-Basically the first thing we tried to map in (the auxio register) failed.
-Sounds like the page tables weren't set up properly. It is surely my
-fault, I'll try and find out why.
 
-Anton
+Regards,
+Dennis
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,67 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261769AbVBXSv5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261645AbVBXTBd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261769AbVBXSv5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 13:51:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261869AbVBXSv5
+	id S261645AbVBXTBd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 14:01:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261758AbVBXTBd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 13:51:57 -0500
-Received: from sigma.informatik.hu-berlin.de ([141.20.20.51]:21933 "EHLO
-	sigma.informatik.hu-berlin.de") by vger.kernel.org with ESMTP
-	id S261769AbVBXSva convert rfc822-to-8bit (ORCPT
+	Thu, 24 Feb 2005 14:01:33 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:56776 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261645AbVBXTB1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 13:51:30 -0500
-From: Axel =?iso-8859-1?q?Wei=DF?= <aweiss@informatik.hu-berlin.de>
-Organization: =?iso-8859-1?q?Humboldt-Universit=E4t_zu?= Berlin
-To: linux-kernel@vger.kernel.org
-Subject: Re: Question: warnings about undefined symbols in splitted external modules
-Date: Thu, 24 Feb 2005 19:51:10 +0100
-User-Agent: KMail/1.7.1
-References: <200502241919.15785.aweiss@informatik.hu-berlin.de> <20050224183416.GA8306@mars>
-In-Reply-To: <20050224183416.GA8306@mars>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200502241951.11043.aweiss@informatik.hu-berlin.de>
+	Thu, 24 Feb 2005 14:01:27 -0500
+Subject: Re: [PATCH 4/4][RESEND] readahead: cleanup
+	blockable_page_cache_readahead()
+From: Ram <linuxram@us.ibm.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: linux-kernel@vger.kernel.org, Steven Pratt <slpratt@austin.ibm.com>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <421E2CE9.8B5E4DE7@tv-sign.ru>
+References: <421E2CE9.8B5E4DE7@tv-sign.ru>
+Content-Type: text/plain
+Organization: IBM 
+Message-Id: <1109271683.6140.120.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 24 Feb 2005 11:01:23 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Sam,
+Andrew, 
+	I have verified the patches against my standard benchmarks
+	and did not see any bad effects.
 
-thanks a lot - it works perfectly!
+	Also I have reviewd the patch and it looked clean and correct.
 
-Regards,
-			Axel
+RP
 
-Am Donnerstag, 24. Februar 2005 19:34 schrieb Sam Ravnborg:
-> The trick is to compile both modules at the same time.
-> Use a structure like the following:
-> dsp/lowlevel	<= Code for one driver
-> dsp/middlelevel	<= Code for second driver
->
-> Then in the directory dsp/ include a simple kbuild file:
-> obj-y := lowlevel/ middlelevel/
->
-> And execute Make in that directory.
->
-> For convenience you could use the following Makefile:
->
->
-> obj-y := lowlevel/ middlelevel/
->
-> all:
-> 	$(MAKE) -C path-to-kernel-src M=$(PWD)
->
->
-> 	Sam
+On Thu, 2005-02-24 at 11:37, Oleg Nesterov wrote:
+> I think that do_page_cache_readahead() can be inlined
+> in blockable_page_cache_readahead(), this makes the
+> code a bit more readable in my opinion.
+> 
+> Also makes check_ra_success() static inline.
+> 
+> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+> 
+> --- 2.6.11-rc5/mm/readahead.c~	2005-01-29 15:51:04.000000000 +0300
+> +++ 2.6.11-rc5/mm/readahead.c	2005-01-29 16:37:05.000000000 +0300
+> @@ -348,8 +348,8 @@ int force_page_cache_readahead(struct ad
+>   * readahead isn't helping.
+>   *
+>   */
+> -int check_ra_success(struct file_ra_state *ra, unsigned long nr_to_read,
+> -				 unsigned long actual)
+> +static inline int check_ra_success(struct file_ra_state *ra,
+> +			unsigned long nr_to_read, unsigned long actual)
+>  {
+>  	if (actual == 0) {
+>  		ra->cache_hit += nr_to_read;
+> @@ -394,15 +394,11 @@ blockable_page_cache_readahead(struct ad
+>  {
+>  	int actual;
+>  
+> -	if (block) {
+> -		actual = __do_page_cache_readahead(mapping, filp,
+> -						offset, nr_to_read);
+> -	} else {
+> -		actual = do_page_cache_readahead(mapping, filp,
+> -						offset, nr_to_read);
+> -		if (actual == -1)
+> -			return 0;
+> -	}
+> +	if (!block && bdi_read_congested(mapping->backing_dev_info))
+> +		return 0;
+> +
+> +	actual = __do_page_cache_readahead(mapping, filp, offset, nr_to_read);
+> +
+>  	return check_ra_success(ra, nr_to_read, actual);
+>  }
 
--- 
-Humboldt-Universität zu Berlin
-Institut für Informatik
-Signalverarbeitung und Mustererkennung
-Dipl.-Inf. Axel Weiß
-Rudower Chaussee 25
-12489 Berlin-Adlershof
-+49-30-2093-3050
-** www.freesp.de **

@@ -1,44 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313118AbSDOI6z>; Mon, 15 Apr 2002 04:58:55 -0400
+	id <S313120AbSDOJHq>; Mon, 15 Apr 2002 05:07:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313120AbSDOI6y>; Mon, 15 Apr 2002 04:58:54 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:4115 "EHLO
+	id <S313122AbSDOJHp>; Mon, 15 Apr 2002 05:07:45 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:8979 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S313118AbSDOI6x>; Mon, 15 Apr 2002 04:58:53 -0400
-Subject: Re: [BUG] kmem_cache_grow.
-To: gang_hu@soul.com.cn (hugang)
-Date: Mon, 15 Apr 2002 10:16:42 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org')
-In-Reply-To: <20020415144048.37318357.gang_hu@soul.com.cn> from "hugang" at Apr 15, 2002 02:40:48 PM
+	id <S313120AbSDOJHp>; Mon, 15 Apr 2002 05:07:45 -0400
+Subject: Re: Modify TCP/IP stack
+To: lucas75it@inwind.it
+Date: Mon, 15 Apr 2002 10:25:23 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <GU95RL$14B42BA14D16BDCE096D1F321C5E6770@inwind.it> from "lucas75it@inwind.it" at Apr 08, 2002 02:04:33 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16x2bK-0005mD-00@the-village.bc.nu>
+Message-Id: <E16x2jj-0005nm-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Problem: first run "find /" , eject and insert pcmcia network's card, the kernel will crash.
+> I developed and other people of my university (professors and students) has 
+> made a little change to TCP/IP of the linux kernel.
+> Now, we want to expose this new feature to the kernel developpers. 
+> Which people must i conctat ? Who develope the kernel code for the network ?
+> Please help me !
 
-Which network card and what kernel revision
-
-> Kernel oops: at 
-> linux/mm/slab.c->kmem_cache_grow.
->         if (in_interrupt() && (flags & SLAB_LEVEL_MASK) != SLAB_ATOMIC)
->                 BUG(); 		<-- here.
-> 
-> Can I remove this check ?
-
-The kernel realised it was being made to sleep in an interrupt. If you
-remove the check it will crash anyway. If you did something like
-
- 	if(..... as before ...)
-	{
-		flags&=~SLAB_LEVEL_MASK;
-		flags|=SLAB_ATOMIC;
-		printk(KERN_ERR "kmem: critical memory allocation level error.\n");
-	}
-
-it ought to print a complaint and continue. Really however it wants fixing
+If you check the MAINTAINERS file you will find contact points for most
+of the kernel code. Generally people send small changes to the list as well
+or for bigger changes pointers to the diff

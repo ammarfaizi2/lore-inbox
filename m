@@ -1,48 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267612AbUHRUfw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267668AbUHRUjY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267612AbUHRUfw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 16:35:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267650AbUHRUfw
+	id S267668AbUHRUjY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 16:39:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267650AbUHRUjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 16:35:52 -0400
-Received: from mail1.bluewin.ch ([195.186.1.74]:49638 "EHLO mail1.bluewin.ch")
-	by vger.kernel.org with ESMTP id S267612AbUHRUfl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 16:35:41 -0400
-Date: Wed, 18 Aug 2004 22:34:57 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Florian Schmidt <mista.tapas@gmx.net>
-Subject: Re: [patch] voluntary-preempt-2.6.8.1-P0
-Message-ID: <20040818203457.GA17917@k3.hellgate.ch>
-Mail-Followup-To: Lee Revell <rlrevell@joe-job.com>,
-	Ingo Molnar <mingo@elte.hu>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-	Florian Schmidt <mista.tapas@gmx.net>
-References: <20040810132654.GA28915@elte.hu> <20040812235116.GA27838@elte.hu> <1092382825.3450.19.camel@mindpipe> <20040813104817.GI8135@elte.hu> <1092432929.3450.78.camel@mindpipe> <20040814072009.GA6535@elte.hu> <20040815115649.GA26259@elte.hu> <1092612264.867.9.camel@krustophenia.net> <20040816080745.GA18406@k3.hellgate.ch> <1092787266.1807.8.camel@krustophenia.net>
+	Wed, 18 Aug 2004 16:39:23 -0400
+Received: from moraine.clusterfs.com ([66.246.132.190]:27314 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S267646AbUHRUgT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 16:36:19 -0400
+Date: Wed, 18 Aug 2004 11:17:54 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Helge Hafting <helge.hafting@hist.no>
+Cc: Janusz Dziemidowicz <rraptorr@kursor.pl>,
+       Diego Calleja <diegocg@teleline.es>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] ext3 documentation (lack of)
+Message-ID: <20040818171754.GN8967@schnapps.adilger.int>
+Mail-Followup-To: Helge Hafting <helge.hafting@hist.no>,
+	Janusz Dziemidowicz <rraptorr@kursor.pl>,
+	Diego Calleja <diegocg@teleline.es>, linux-kernel@vger.kernel.org
+References: <20040818025951.63c4134e.diegocg@teleline.es> <200408172301.09350.ryan@spitfire.gotdns.org> <20040818133818.7b0582f3.diegocg@teleline.es> <Pine.LNX.4.61.0408181414450.18542@stacja.kursor.pl> <412352C9.7090006@hist.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="VSVNCtZB1QZ8vhj+"
 Content-Disposition: inline
-In-Reply-To: <1092787266.1807.8.camel@krustophenia.net>
-X-Operating-System: Linux 2.6.8-rc3-mm1 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <412352C9.7090006@hist.no>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Aug 2004 20:01:06 -0400, Lee Revell wrote:
-> > For the Rhine, there is, but making it work requires some extra black
-> > magic we didn't know until a few months ago. It's fixed in -mm now and
-> > will probably be in 2.6.9.
-> 
-> Which of the broken out patches from -mm should I apply to get this
-> fix?  Should I just apply all the ones that touch via-rhine.c?
 
-I don't know what Andrew called them. But applying all via-rhine patches
-in -mm should work. Check for a function called rhine_enable_linkmon.
+--VSVNCtZB1QZ8vhj+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Roger
+On Aug 18, 2004  14:59 +0200, Helge Hafting wrote:
+> ACL's does not require use of the user_xattr mount option - I have tested
+> that acl's work on ext3 with only the "acl" option.  I guess user_xattr is
+> turned on automatically as needed - you can use the option if you want
+> posix extended attributes without acls.
+
+Actually, user_xattr is entirely unrelated to acls.  The user_xattr option
+is used to enable arbitrary EAs that can be stored by the owner of the file
+with setfattr and read with getfattr (along with the syscalls for same).
+The acl support uses "in kernel" EAs that the user cannot modify.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://members.shaw.ca/adilger/             http://members.shaw.ca/golinux/
+
+
+--VSVNCtZB1QZ8vhj+
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFBI49CpIg59Q01vtYRAkrSAJ9W3KTLNIlT7haP/WX9pKcEaOlmrACbBEXI
+xe9pWgUTojDp6IUBiZ7Q0Yc=
+=oDzB
+-----END PGP SIGNATURE-----
+
+--VSVNCtZB1QZ8vhj+--

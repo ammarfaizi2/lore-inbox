@@ -1,56 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261373AbVCCBCS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261392AbVCCA63@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261373AbVCCBCS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 20:02:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbVCCBCK
+	id S261392AbVCCA63 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 19:58:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbVCCA6P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 20:02:10 -0500
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:27560
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261373AbVCCA6s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 19:58:48 -0500
-Date: Wed, 2 Mar 2005 16:58:30 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: RFD: Kernel release numbering
-Message-Id: <20050302165830.0a74b85c.davem@davemloft.net>
-In-Reply-To: <42265A6F.8030609@pobox.com>
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
-	<42264F6C.8030508@pobox.com>
-	<20050302162312.06e22e70.akpm@osdl.org>
-	<42265A6F.8030609@pobox.com>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Wed, 2 Mar 2005 19:58:15 -0500
+Received: from cavan.codon.org.uk ([213.162.118.85]:19162 "EHLO
+	cavan.codon.org.uk") by vger.kernel.org with ESMTP id S261392AbVCCA4w
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 19:56:52 -0500
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: linux-kernel@vger.kernel.org
+Cc: pavel@ucw.cz
+Date: Thu, 03 Mar 2005 00:56:44 +0000
+Message-Id: <1109811404.5918.80.camel@tyrosine>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 
+X-SA-Exim-Connect-IP: 213.162.118.93
+X-SA-Exim-Mail-From: mjg59@srcf.ucam.org
+Subject: Scheduling while atomic errors on swsusp resume
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on cavan.codon.org.uk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 02 Mar 2005 19:29:35 -0500
-Jeff Garzik <jgarzik@pobox.com> wrote:
+Using the current Ubuntu development kernel (2.6.10 with acpi and swsusp
+stuff backported from 2.6.11), a user is getting the following trace on
+resume. Passing noapic nolapic removes the APIC error, but the rest of
+the trace is identical. This is reproducible, but only seems to happen
+on this machine. Anyone have any idea what's going on before I head off
+to try getting it reproduced with a stock kernel?
 
-> If the time between big merges increases, as with this proposal, then 
-> the distance between local dev trees and linux-2.6 increases.
-> 
-> With that distance, breakages like the 64-bit resource struct stuff 
-> become more painful.
-> 
-> I like my own "ongoing dev tree, ongoing stable tree" proposal a lot 
-> better.  But then, I'm biased :)
+Stopping tasks:
+=========================================================|
+Freeing memory...  -\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|/-\|done (21866 pages freed)
+.........................................swsusp: Need to copy 19917 pages
+.swsusp: Restoring Highmem
+APIC error on CPU0: 00(00)
+ACPI: PCI interrupt 0000:00:11.1[A]: no GSI
+scheduling while atomic: hibernate.sh/0x00000002/6955
+ [<c029d72d>] schedule+0x52d/0x540
+ [<f886c5e0>] task_no_data_intr+0x0/0xa0 [ide_core]
+ [<c029d808>] wait_for_completion+0x78/0xd0
+ [<c01161e0>] default_wake_function+0x0/0x20
+ [<c01161e0>] default_wake_function+0x0/0x20
+ [<c021a5f8>] __elv_add_request+0x78/0xc0
+ [<f8868049>] ide_do_drive_cmd+0xf9/0x170 [ide_core]
+ [<f8865343>] generic_ide_resume+0x93/0xc0 [ide_core]
+ [<c0219d67>] resume_device+0x27/0x30
+ [<c0219e14>] dpm_resume+0xa4/0xb0
+ [<c0219e31>] device_resume+0x11/0x20
+ [<c0135712>] finish+0x12/0x60
+ [<c0135841>] pm_suspend_disk+0x41/0x80
+ [<c01334dc>] enter_state+0x6c/0x70
+ [<c0133620>] state_store+0xa0/0xa8
+ [<c019563a>] subsys_attr_store+0x3a/0x40
+ [<c01958de>] flush_write_buffer+0x3e/0x50
+ [<c019595f>] sysfs_write_file+0x6f/0x80
+ [<c01958f0>] sysfs_write_file+0x0/0x80
+ [<c015831f>] vfs_write+0xbf/0x150
+ [<c0158481>] sys_write+0x51/0x80
+ [<c01030e9>] sysenter_past_esp+0x52/0x75
+Restarting tasks...<3>scheduling while atomic: hibernate.sh/0x00000002/6955
+ [<c029d72d>] schedule+0x52d/0x540
+ [<c011593e>] wake_up_process+0x1e/0x20
+ [<c0133944>] thaw_processes+0xa4/0xe0
+ [<c0135720>] finish+0x20/0x60
+ [<c0135841>] pm_suspend_disk+0x41/0x80
+ [<c01334dc>] enter_state+0x6c/0x70
+ [<c0133620>] state_store+0xa0/0xa8
+ [<c019563a>] subsys_attr_store+0x3a/0x40
+ [<c01958de>] flush_write_buffer+0x3e/0x50
+ [<c019595f>] sysfs_write_file+0x6f/0x80
+ [<c01958f0>] sysfs_write_file+0x0/0x80
+ [<c015831f>] vfs_write+0xbf/0x150
+ [<c0158481>] sys_write+0x51/0x80
+ [<c01030e9>] sysenter_past_esp+0x52/0x75
+ done
+scheduling while atomic: hibernate.sh/0x00000001/6955
+ [<c029d72d>] schedule+0x52d/0x540
+ [<c0158481>] sys_write+0x51/0x80
+ [<c0103166>] work_resched+0x5/0x16
+scheduling while atomic: hibernate.sh/0x00000001/6955
+ [<c029d72d>] schedule+0x52d/0x540
+ [<c0116cd3>] sys_sched_yield+0x53/0x70
+ [<c0164358>] coredump_wait+0x38/0xa0
+ [<c0115904>] try_to_wake_up+0xa4/0xc0
+ [<c016448d>] do_coredump+0xcd/0x1d6
+ [<c01c93e4>] vgacon_scroll+0x144/0x230
+ [<c0122dcf>] free_uid+0x1f/0x80
+ [<c01236b5>] __dequeue_signal+0xe5/0x1a0
+ [<c01237a5>] dequeue_signal+0x35/0x90
+ [<c012547d>] get_signal_to_deliver+0x20d/0x300
+ [<c0102f3d>] do_signal+0x9d/0x130
+ [<c012ad6e>] __kernel_text_address+0x2e/0x40
+ [<c012ad6e>] __kernel_text_address+0x2e/0x40
+ [<c01156af>] recalc_task_prio+0x8f/0x190
+ [<c029d4f1>] schedule+0x2f1/0x540
+ [<c01142b0>] do_page_fault+0x0/0x5c7
+ [<c0103007>] do_notify_resume+0x37/0x3c
+ [<c010318a>] work_notifysig+0x13/0x15
+note: hibernate.sh[6955] exited with preempt_count 1
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org
 
-The problem is people don't test until 2.6.whatever-final goes out.
-Nothing will change that.
-
-And the day Linus releases we always get a pile of "missing MODULE_EXPORT()"
-type bug reports that are one liner fixes.  Those fixes will not be seen by
-users until the next 2.6.x rev comes out and right now that takes months
-which is rediculious for such simple fixes.
-
-We're talking about a one week "calming" period to collect the brown paper
-bag fixes for a 2.6.${even} release, that's all.
-
-All this "I have to hold onto my backlog longer, WAHHH!" arguments are bogus
-IMHO.  We're using a week of quiescence to fix the tree for users so they
-are happy whilst we work on the 2.6.${odd} interesting stuff :-)

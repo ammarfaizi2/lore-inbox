@@ -1,47 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262045AbUDEL4z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 07:56:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262056AbUDEL4z
+	id S262056AbUDEL5m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 07:57:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262129AbUDEL5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 07:56:55 -0400
-Received: from 66.Red-80-38-104.pooles.rima-tde.net ([80.38.104.66]:50562 "HELO
-	fulanito.nisupu.com") by vger.kernel.org with SMTP id S262045AbUDEL4y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 07:56:54 -0400
-Message-ID: <002601c41b05$4d1896a0$1530a8c0@HUSH>
-From: "Carlos Fernandez Sanz" <cfs-lk@nisupu.com>
-To: "Denis Vlasenko" <vda@port.imtp.ilyichevsk.odessa.ua>,
-       <linux-kernel@vger.kernel.org>
-References: <002101c41b00$3f0f8c30$1530a8c0@HUSH> <200404051453.47023.vda@port.imtp.ilyichevsk.odessa.ua>
-Subject: Re: Network issues in 2.6
-Date: Mon, 5 Apr 2004 13:58:25 +0200
+	Mon, 5 Apr 2004 07:57:42 -0400
+Received: from ahriman.Bucharest.roedu.net ([141.85.128.71]:52445 "EHLO
+	ahriman.bucharest.roedu.net") by vger.kernel.org with ESMTP
+	id S262056AbUDEL5i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 07:57:38 -0400
+Date: Mon, 5 Apr 2004 15:00:12 +0300 (EEST)
+From: Mihai RUSU <dizzy@roedu.net>
+X-X-Sender: dizzy@ahriman.bucharest.roedu.net
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.5 & AMD64 epoll weirdness
+Message-ID: <Pine.LNX.4.58L0.0404051326360.1773@ahriman.bucharest.roedu.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> eth0      Link encap:Ethernet  HWaddr 00:01:03:27:81:75
->           inet addr:192.168.20.1  Bcast:192.168.20.255  Mask:255.255.255.0
->           UP BROADCAST MULTICAST  MTU:1500  Metric:1
+Hi
 
-Hm. Thats strange. Your interface is not UP. It's not supposed to
-do any tx/rx at all. Try to up it. If it does not work,
-strace 'ifconfig eth0 up' under both kernels and compare.
+I have this little test program:
+#include <sys/epoll.h>
 
-It is UP (of course) :-)
-Only "RUNNING" is missing, comparing 2.4 to 2.6.  Other than that, both
-ifconfig output are identical (and those 'carrier' counts, obviously).
+int main(void)
+{
+    int efd;
+    struct epoll_event event;
+    struct epoll_event events[10];
 
-The thing is, the more I research the more it looks like a local problem, as
-I don't find a lot of references in google, and those who are enjoying the
-same problem are as clueless as I am.
+    efd = epoll_create(100);
+    event.data.fd = 0;
+    epoll_ctl(efd, EPOLLIN, 0, &event);
+    epoll_wait(efd, events, 10, -1);
+}
 
+This program runs fine on x86/32bit with 2.6.5 kernel. But on AMD64 it 
+does this (strace qoute):
 
+epoll_create(0x64)                      = 3
+epoll_ctl(0x3, 0x1, 0, 0x7fbffff860)    = -1 ENOSYS (Function not implemented)
+epoll_wait(0x3, 0x7fbffff7e0, 0xa, 0xffffffff) = -1 ENOSYS (Function not implemented)
+
+This is rather weird because I would expect to have epoll_create() fail 
+too (in fact I use this check at runtime, I try epoll_create and if it 
+works I presume epoll is functional; I needed this check because glibc 
+might have dummy epoll functions which always fail although the program 
+compiles fine with it). So do I really need to check all epoll syscalls 
+before presuming that epoll works on the current system ? (I would like to 
+have epoll_create failing in the case it doesnt supports AMD64).
+
+Thanks!
+
+-- 
+Mihai RUSU                                    Email: dizzy@roedu.net
+GPG : http://dizzy.roedu.net/dizzy-gpg.txt    WWW: http://dizzy.roedu.net
+                       "Linux is obsolete" -- AST

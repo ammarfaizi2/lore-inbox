@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267834AbUG3U1L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267819AbUG3UeK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267834AbUG3U1L (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 16:27:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267833AbUG3U1K
+	id S267819AbUG3UeK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 16:34:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267841AbUG3UeJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 16:27:10 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:38617 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S267831AbUG3U0x (ORCPT
+	Fri, 30 Jul 2004 16:34:09 -0400
+Received: from mail.kroah.org ([69.55.234.183]:59602 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S267819AbUG3UaK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 16:26:53 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Martin Mares <mj@ucw.cz>
+	Fri, 30 Jul 2004 16:30:10 -0400
+Date: Fri, 30 Jul 2004 13:29:14 -0700
+From: Greg KH <greg@kroah.com>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, Matthew Wilcox <willy@debian.org>,
+       Christoph Hellwig <hch@infradead.org>, Jon Smirl <jonsmirl@yahoo.com>,
+       lkml <linux-kernel@vger.kernel.org>
 Subject: Re: Exposing ROM's though sysfs
-Date: Fri, 30 Jul 2004 13:25:53 -0700
-User-Agent: KMail/1.6.2
-Cc: Jon Smirl <jonsmirl@yahoo.com>, Matthew Wilcox <willy@debian.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       lkml <linux-kernel@vger.kernel.org>, linux-pci@atrey.karlin.mff.cuni.cz,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <20040730194634.GA4851@ucw.cz> <20040730201052.GA5249@ucw.cz> <20040730201357.GA5391@ucw.cz>
-In-Reply-To: <20040730201357.GA5391@ucw.cz>
-MIME-Version: 1.0
+Message-ID: <20040730202914.GA30825@kroah.com>
+References: <20040730165339.76945.qmail@web14929.mail.yahoo.com> <200407301149.39256.jbarnes@engr.sgi.com> <20040730195539.GA30466@kroah.com> <200407301316.14836.jbarnes@engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407301325.53695.jbarnes@engr.sgi.com>
+In-Reply-To: <200407301316.14836.jbarnes@engr.sgi.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, July 30, 2004 1:13 pm, Martin Mares wrote:
-> > Do I understand it correctly that the ROM-in-sysfs hack is intended only
-> > for debugging? If it is so, I do not see why we should do anything
-> > complicated in order to avoid root shooting himself in the foot.
->
-> ... for which the config space access code already sets the precedent --
-> there exist (rare) devices which have configuration registers with side
-> effects on reads, making it possible to produce SCSI errors or even crash
-> the system by just dumping the config space. Even on these devices, the
-> kernel does not attempt to forbid reading of these registers via sysfs.
+On Fri, Jul 30, 2004 at 01:16:14PM -0700, Jesse Barnes wrote:
+> On Friday, July 30, 2004 12:55 pm, Greg KH wrote:
+> > On Fri, Jul 30, 2004 at 11:49:39AM -0700, Jesse Barnes wrote:
+> > > +
+> > > +	/* If the device has a ROM, map it */
+> > > +	if (pci_resource_len(pdev, PCI_ROM_RESOURCE)) {
+> > > +		pci_rom_attr.size = pci_resource_len(pdev, PCI_ROM_RESOURCE);
+> > > +		sysfs_create_bin_file(&pdev->dev.kobj, &pci_rom_attr);
+> > > +	}
+> >
+> > Doesn't this code cause _all_ rom sizes to be the same, as you only have
+> > 1 pci_rom_attr variable?  You should create a new one for every pci
+> > device (making sure to clean it up when the device is removed.)
+> 
+> Yep, that's pretty broken.  I guess I need to allocate a pci_rom_attr every 
+> time we see a ROM...  Where would the cleanup code go though?  In one of the 
+> hotplug remove paths?
 
-Well, this is what I initially argued with willy...
+We need to create a pci_remove_sysfs_dev_files() call, and call it when
+the pci device is about to be unregistered (in pci_destroy_dev(), just
+before the call to device_unregister()).
 
-I think typical usage will be:
-  o dri fires off hotplug event
-  o userland card POSTing tool reads the ROM, saving it off for future use,
-    and POSTs the card
-  o userland tool calls back into dri saying that the card is ready
-  o dri driver operates happily
+thanks,
 
-So dealing with users accessing the rom file after a driver is up and running 
-may not be worth the trouble.
-
-Jesse
+greg k-h

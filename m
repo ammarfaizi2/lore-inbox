@@ -1,43 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263354AbTFXUzo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 16:55:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263349AbTFXUzo
+	id S262013AbTFXU5X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 16:57:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262227AbTFXU5W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 16:55:44 -0400
-Received: from knycz.net ([80.55.181.226]:23562 "EHLO knycz.net")
-	by vger.kernel.org with ESMTP id S263355AbTFXUzn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 16:55:43 -0400
-Date: Tue, 24 Jun 2003 23:09:52 +0200
-From: Przemyslaw =?ISO-8859-2?Q?Stanis=B3aw?= Knycz <zolw@wombb.edu.pl>
-To: linux-kernel@vger.kernel.org
-Subject: [2.5.73] Problem with module xfs at alpha (unresolved symbol
- files_stat).
-Message-Id: <20030624230952.3dfb6582.zolw@wombb.edu.pl>
-X-Mailer: Sylpheed version 0.8.11claws (GTK+ 1.2.10; i686-pld-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
+	Tue, 24 Jun 2003 16:57:22 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:8905 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S262423AbTFXU41 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 16:56:27 -0400
+Date: Tue, 24 Jun 2003 18:08:12 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: aic7xxx driver update
+In-Reply-To: <866810000.1056472883@aslan.btc.adaptec.com>
+Message-ID: <Pine.LNX.4.55L.0306241804010.11911@freak.distro.conectiva>
+References: <Pine.LNX.4.55L.0306240159480.31432@freak.distro.conectiva>
+ <866810000.1056472883@aslan.btc.adaptec.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello!
 
-After compiling xfs on alpha i have one unresolved symbol:
-/lib/modules/2.5.73-0.2/kernel/fs/xfs/xfs.ko needs unknown symbol
-files_stat
+On Tue, 24 Jun 2003, Justin T. Gibbs wrote:
 
-At ia32 this problem is not exist.
+> > Justin,
+> >
+> > Would you mind sending me a inlined patch to update aic7xxx to the current
+> > sources, with detailed explanation?
+>
+> Can you be more specific about what you need?  I take it the BK send output
+> on my website is not sufficient?  I can probably figure out the proper
+> BK magic to generate a patch for it, but I would hope that you would,
+> after review, just accept the BK data so that revision history is not
+> lost.
 
-I think that problem with xfs was earlier than 2.5.73, becouse 2.5.72
-have it too (i've not tested older kernels).
+Oh that is fine. I thought you only had tarballs with your newer code.
+Thats why I asked for a patch. But we're fine, then.
 
-Cheers
+> The BK data has lots of changelog information since there are 108 changesets
+> in my local BK tree that are not in your tree.  I can provide more details
+> about any particular changeset that peaks your interest.
+>
+> > Are there any known issues with the new code, and what are them.
+>
+> For both drivers, I'm currently working on an error recovery handler that
+> will override the standard one.  The standard handler is broken in
+> so many ways that it would be hard to list them briefly.  The short
+> of it is that if you get a timeout, it may take 20 minutes for you
+> to recover and recovery is rare.  Timeouts occur in almost any system
+> should you run it long enough, so this is unacceptable.  Unfortunately,
+> having the mid-layer do all of the recovery will likely never work.
+> The mid-layer can't determine the most likely transaction outstanding
+> that is causing the timeout whereas the end driver can.  I hope to have
+> the new error handler tested sufficiently for release by the end of this
+> week.
+>
+> For the aic79xx driver, we are going through qualification of new drives
+> and new drive firmware.  There are a few issues that we are investigating
+> now that should also be resolved this week.
+>
+> My suggestion would be to shoot for say next Monday as a good time to
+> sync up.  I can provide whatever material you require for released
+> changesets today so that you can review all but the latest changes
+> before Monday.
 
--- 
- .mailto p r z e m y s l a w at k n y c z dot n e t.
-| Przemys³aw "djrzulf" Knycz, djrzulf@jabber.gda.pl |
-| Net/Sys Administrator, PLD Developer, RLU: 213344 |
-`- To see tomorrow's PC, look at today's Macintosh -'
+I plan to release -pre2 today or tomorrow and I think that having your
+changes in it, even without the new error handler, is worth it for obvious
+reasons.
+
+WHats your website again? :)

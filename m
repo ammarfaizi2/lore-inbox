@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316877AbSE3VGh>; Thu, 30 May 2002 17:06:37 -0400
+	id <S316878AbSE3VNq>; Thu, 30 May 2002 17:13:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316881AbSE3VGg>; Thu, 30 May 2002 17:06:36 -0400
-Received: from mta3n.bluewin.ch ([195.186.1.212]:3240 "EHLO mta3n.bluewin.ch")
-	by vger.kernel.org with ESMTP id <S316877AbSE3VGf>;
-	Thu, 30 May 2002 17:06:35 -0400
-Message-ID: <3CF69444.2080503@bluewin.ch>
-Date: Thu, 30 May 2002 23:06:12 +0200
-From: Nicolas Aspert <Nicolas.Aspert@bluewin.ch>
-Reply-To: Nicolas.Aspert@epfl.ch
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
-X-Accept-Language: en-us, en
+	id <S316881AbSE3VNp>; Thu, 30 May 2002 17:13:45 -0400
+Received: from web14902.mail.yahoo.com ([216.136.225.54]:10392 "HELO
+	web14902.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S316878AbSE3VNo>; Thu, 30 May 2002 17:13:44 -0400
+Message-ID: <20020530211343.15963.qmail@web14902.mail.yahoo.com>
+Date: Thu, 30 May 2002 17:13:43 -0400 (EDT)
+From: Michael Zhu <mylinuxk@yahoo.ca>
+Subject: about genksyms
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: skidley@crrstv.net, Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH*]2.4.19-pre9-ac2 agp compile error
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+Hello, everyone, I want to make some specific .ver
+archives for my module. I use the following command.
 
-There was a few typos in the patch I sent to the list previously. A 
-remaining '&'  from a cut'n paste and INTEL_I815_APCONT instead of 
-INTEL_815_APCONT
+gcc -E -D__GENKSYMS__ main.c | genksyms -k 2.4.7 >
+main.ver
 
-The full correct patch for Intel815 (against 2.4.19-pre8-ac5, but easily 
-adaptable to 2.4.19-pre9-ac2) is available at 
-http://ltswww.epfl.ch/~aspert/patches/patch-intel_815-2.4.19-pre8-ac5
+I can create the main.ver file. But when I build my
+module with this .ver file I couldn't load the module
+into the kernel using the insmod command. It said that
+the there are some unresolved symbols in my module. I
+think it is a problem of kernel version confliction.
+My linux is RedHat Linux 7.2 and the kernel version is
+2.4.7-10. How can I specify this kernel function in
+the genksyms command line?
 
-The rest *should* be OK, please test.
-
-I wish I had a dedicated computer on which I could compile all this 
-stuff... Maybe one day ;-)
-
-Best regards
-
+Thank you very much.
 
 
+
+______________________________________________________________________ 
+Find, Connect, Date! http://personals.yahoo.ca

@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264937AbUFGRB3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264939AbUFGRHu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264937AbUFGRB3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 13:01:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264939AbUFGRB3
+	id S264939AbUFGRHu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 13:07:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264943AbUFGRHu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 13:01:29 -0400
-Received: from dh132.citi.umich.edu ([141.211.133.132]:17280 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S264937AbUFGRB1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 13:01:27 -0400
-Subject: Re: [BUG] NFS no longer updates file modification times
-	appropriately
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: joe.korty@ccur.com
-Cc: linux-kernel@vger.kernel.org, Ronny.Lampert@telecasystems.de,
-       ioe-lkml@rameria.de
-In-Reply-To: <1086627207.4597.4.camel@lade.trondhjem.org>
-References: <1086625209.4597.0.camel@lade.trondhjem.org>
-	 <20040607163920.GB22505@tsunami.ccur.com>
-	 <1086627207.4597.4.camel@lade.trondhjem.org>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1086627686.4597.10.camel@lade.trondhjem.org>
+	Mon, 7 Jun 2004 13:07:50 -0400
+Received: from holomorphy.com ([207.189.100.168]:9656 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S264939AbUFGRHs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 13:07:48 -0400
+Date: Mon, 7 Jun 2004 10:07:27 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Joe Korty <joe.korty@ccur.com>
+Cc: Paul Jackson <pj@sgi.com>, mikpe@csd.uu.se, nickpiggin@yahoo.com.au,
+       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       ak@muc.de, ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
+       manfred@colorfullife.com, colpatch@us.ibm.com, Simon.Derr@bull.net
+Subject: Re: fix up compat_sched_[get/set]affinity
+Message-ID: <20040607170727.GE21007@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Joe Korty <joe.korty@ccur.com>, Paul Jackson <pj@sgi.com>,
+	mikpe@csd.uu.se, nickpiggin@yahoo.com.au, rusty@rustcorp.com.au,
+	linux-kernel@vger.kernel.org, akpm@osdl.org, ak@muc.de,
+	ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
+	manfred@colorfullife.com, colpatch@us.ibm.com, Simon.Derr@bull.net
+References: <40BFD839.7060101@yahoo.com.au> <20040603221854.25d80f5a.pj@sgi.com> <16576.16748.771295.988065@alkaid.it.uu.se> <20040604090314.56d64f4d.pj@sgi.com> <20040604165601.GC21007@holomorphy.com> <20040604170542.576b4243.pj@sgi.com> <20040605013139.GM21007@holomorphy.com> <20040605010444.6a384e6c.pj@sgi.com> <20040605082647.GQ21007@holomorphy.com> <20040607165445.GA22234@tsunami.ccur.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 07 Jun 2004 13:01:26 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040607165445.GA22234@tsunami.ccur.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På må , 07/06/2004 klokka 12:53, skreiv Trond Myklebust:
-> > 
-> > Compatibility with existing behavior.  It's called a de-facto standard.
-> 
-> The "de-facto standard" you describe has never existed other than for
-> large files. It was never true of small files that did not trigger
-> immediate writeout.
+On Mon, Jun 07, 2004 at 12:54:46PM -0400, Joe Korty wrote:
+> Possible algorithms for the support routines needed by wli's code, above.
+> Completely untested, hope to refine and test soon.
 
-...in fact even for files that trigger immediate writeout, the behaviour
-was erratic, since writes could still be cached after the
-memory-triggered flush was completed.
+I had in mind:
+#define cpus_to_u32_array(a,cpus)   bitmap_to_u32_array(a,cpus,sizeof(cpus))
+#define cpus_from_u32_array(a,cpus) bitmap_from_u32_array(a,cpus,sizeof(cpus))
 
-So I repeat: There has *never* been a standard other than the
-close-to-open.
+Non-issue since Mikael already has some tested/etc. code to drop into
+lib/bitmap.c or wherever.
 
-There has *never* existed any reliable mtime/ctime while the client was
-caching writes.
 
-If you want that sort of behaviour, the options are O_SYNC, fsync(),
-close(), or "mount -osync". There is no call for it in async writes.
-
+-- wli

@@ -1,50 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262176AbUFWVvu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262238AbUFWV4V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262176AbUFWVvu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 17:51:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbUFWVuL
+	id S262238AbUFWV4V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 17:56:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbUFWVz6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 17:50:11 -0400
-Received: from havoc.gtf.org ([216.162.42.101]:24006 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S261500AbUFWVqy (ORCPT
+	Wed, 23 Jun 2004 17:55:58 -0400
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:63168 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262238AbUFWVzT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 17:46:54 -0400
-Date: Wed, 23 Jun 2004 17:46:53 -0400
-From: David Eger <eger@havoc.gtf.org>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Alphabet of kernel source
-Message-ID: <20040623214653.GA29728@havoc.gtf.org>
-References: <20040623140628.3f1abfe9@lembas.zaitcev.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 23 Jun 2004 17:55:19 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2.6] Altix serial driver
+Date: Wed, 23 Jun 2004 17:54:56 -0400
+User-Agent: KMail/1.6.2
+Cc: Pat Gefre <pfg@sgi.com>, linux-kernel@vger.kernel.org, erikj@sgi.com
+References: <Pine.SGI.3.96.1040623094239.19458C-100000@fsgi900.americas.sgi.com> <20040623143801.74781235.akpm@osdl.org>
+In-Reply-To: <20040623143801.74781235.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040623140628.3f1abfe9@lembas.zaitcev.lan>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406231754.56837.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday, June 23, 2004 5:38 pm, Andrew Morton wrote:
+> Pat Gefre <pfg@sgi.com> wrote:
+> > 2.6 patch for our console driver. We converted the driver to use the
+> > serial core functions. Also some changes to use sysfs/udev and a
+> > different major number.
+>
+> This patch broke x86 `allmodconfig' and `allyesconfig'.  I fixed it with
+> the below patch.  Probably the condition should be IA64_SGI_SN2, yes?
 
-I started a thread a while ago (2.6.3/2.6.4) where I submitted some
-patches to UTF-8ifying the kernel sources.  Basically, most of the
-kernel is ASCII (98.4% of the files).  The rest are mostly ISO-Latin-1,
-with the rare bit of Japanese (in a couple of charsets) and some just
-random bytes in some of the Documentation/...
+IA64_GENERIC | IA64_SGI_SN2
 
-http://www.yak.net/random/linux-2.6.4-utf8-cleanup-auto.diff
-http://www.yak.net/random/linux-2.6.4-utf8-cleanup-cstrings2utf8.diff
-http://www.yak.net/random/linux-2.6.4-utf8-cleanup-jp.diff
-http://www.yak.net/random/linux-2.6.4-utf8-cleanup-wrong.diff
-
-It's sorta difficult to do non-ASCII patches over email because
-the kernel developers like reading their mail in mutt, and don't 
-like attachments (the only sane ways to send non 7-bit clean data:
-8-bit MIME: tagged and bagged or uuencoded)
-
-Further, you confuse the hell out of vi if you have any trash (8bit data
-in another charset) in a file that's supposed to be UTF-8.  i.e. don't
-think you're going to be able to look at a charset changing patch in
-anything.
-
--dte
-
+Jesse

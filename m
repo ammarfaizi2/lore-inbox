@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261419AbSIZRjB>; Thu, 26 Sep 2002 13:39:01 -0400
+	id <S261423AbSIZRjX>; Thu, 26 Sep 2002 13:39:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261423AbSIZRjB>; Thu, 26 Sep 2002 13:39:01 -0400
-Received: from [157.182.194.151] ([157.182.194.151]:45526 "EHLO
-	mail.csee.wvu.edu") by vger.kernel.org with ESMTP
-	id <S261419AbSIZRjA>; Thu, 26 Sep 2002 13:39:00 -0400
-Subject: Re: Reg Sparc memory addresses
-From: Shanti Katta <katta@csee.wvu.edu>
-To: Ben Collins <bcollins@debian.org>
-Cc: sparc-linux@vger.kernel.org, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-In-Reply-To: <20020926015645.GE28289@phunnypharm.org>
-References: <1033005676.2723.5.camel@indus> 
-	<20020926015645.GE28289@phunnypharm.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 26 Sep 2002 13:54:57 -0400
-Message-Id: <1033062898.2037.43.camel@indus>
-Mime-Version: 1.0
+	id <S261424AbSIZRjX>; Thu, 26 Sep 2002 13:39:23 -0400
+Received: from [208.190.191.185] ([208.190.191.185]:509 "HELO
+	mail1.newisys.com") by vger.kernel.org with SMTP id <S261423AbSIZRjW> convert rfc822-to-8bit;
+	Thu, 26 Sep 2002 13:39:22 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: Question about mapping RAM that's outside the kernel
+Date: Thu, 26 Sep 2002 12:44:35 -0500
+Message-ID: <D3A72C5007329A4F991C0DD87202259FE3A627@sekhmet.ad.newisys.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Updated to kernel 2.4.19 and now ipchains and iptables are broke.
+Thread-Index: AcJlgcWLhBzjhO93RLKgQoOnUcJz8QAAaNaA
+From: "Josef Zeevi" <josef.zeevi@newisys.com>
+To: "Linux Kernel List" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-09-25 at 21:56, Ben Collins wrote:
-> On Wed, Sep 25, 2002 at 10:01:15PM -0400, Shanti Katta wrote:
-> > Hi,
-> > I compiled user-mode-linux kernel on Ultrasparc with load address set to
-> > 00000000e0000000. But, when I try to debug the kernel, it just says
-> > cannot access memory at address 0xa00020b0.
-> > This error message remains the same no matter what I change the load
-> > address to. Can anyone guide me on valid memory addresses for userspace
-> > on Sparc? and how much different is that from x86 architecture?
-> 
-> You compiled it on ultrasparc, but I hope you compiled it as a "sparc"
-> target and not "sparc64".
+Hi. Apologies in advance if this is the wrong forum for this question - pointers to the right one(s) cheerfully accepted.
 
-I compiled UML as "sparc64".
+I am trying to use 2.4.18 64M to let me see up to 16GB of ram (1 gig at a time). 
 
- 
-> I'm not familiar with how UML runs in user space, but I suspect it needs
-> to think it is sparc and not sparc64 for it to run in 32bit sparc
-> userspace (which is what ultrasparc runs at for most cases).
-> 
-So, I guess I need to compile UML as "sparc" target and debug it. I am
-not sure how much of UML code runs in kernelspace and how much in
-userspace. So, do I need to compile only the userspace code for UML as
-"sparc" target or the whole of UML?
+I boot my system with mem=64M on the cmdline. I can find out exactly (bios holes included) what the memory from 64M and up looks like.
 
--Shanti 
+The approach I am thinking of is to map 1G with ioremap and then behind the back of the kernel (i.e. in my driver) change the physical address (keeping the same virtual address from the first ioremap call). However, the calls to ioremap are always smaller than 1G, due to the get_vm_area taking into account the various needs of the kernel.
 
+So, I really would like to work around this. Is there a way to get a 1Gb virtual address space that I can then manage on my own? (Since the physical memory is "unknown" to the kernel I don't think it knows or cares...)
+
+	Thoughts? Suggestions? Ideas?
+
+	Thanks in advance for any help.
+
+	josef

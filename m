@@ -1,77 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262192AbVBQC1W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262196AbVBQCoP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262192AbVBQC1W (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 21:27:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbVBQC1W
+	id S262196AbVBQCoP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 21:44:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262197AbVBQCoP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 21:27:22 -0500
-Received: from a213-22-240-12.netcabo.pt ([213.22.240.12]:43392 "EHLO
-	sergiomb.no-ip.org") by vger.kernel.org with ESMTP id S262192AbVBQC1Q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 21:27:16 -0500
-X-Antivirus-bastov-Mail-From: sergio@sergiomb.no-ip.org via bastov
-X-Antivirus-bastov: 1.24-st-qms (Clear:RC:1(192.168.1.2):. Processed in 0.260486 secs Process 10355)
-Subject: Re: ide-scsi is deprecated for cd burning! Use ide-cd and
-	give	dev=/dev/hdX as device
-From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
-Reply-To: sergio@sergiomb.no-ip.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1108499791.11356.9.camel@bastov>
-References: <1108426832.5015.4.camel@bastov>
-	 <1108434128.5491.8.camel@bastov>  <42115DA2.6070500@osdl.org>
-	 <1108486952.4618.10.camel@localhost.localdomain>
-	 <1108499791.11356.9.camel@bastov>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Thu, 17 Feb 2005 02:27:06 +0000
-Message-Id: <1108607227.9720.11.camel@bastov>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 (2.0.3-2) 
+	Wed, 16 Feb 2005 21:44:15 -0500
+Received: from salazar.rnl.ist.utl.pt ([193.136.164.251]:56255 "EHLO
+	admin.rnl.ist.utl.pt") by vger.kernel.org with ESMTP
+	id S262196AbVBQCoI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 21:44:08 -0500
+Message-ID: <421404F3.5030502@arrakis.dhis.org>
+Date: Thu, 17 Feb 2005 02:44:03 +0000
+From: Pedro Venda <pjvenda@arrakis.dhis.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041209)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pedro Venda <pjvenda@arrakis.dhis.org>
+Cc: Noel Maddy <noel@zhtwn.com>, Parag Warudkar <kernel-stuff@comcast.net>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: possible leak in kernel 2.6.10-ac12
+References: <4213D70F.20104@arrakis.dhis.org> <200502161835.26047.kernel-stuff@comcast.net> <4213DF19.10209@arrakis.dhis.org> <20050217003846.GA5615@uglybox.localnet> <4213EA7F.4070107@arrakis.dhis.org>
+In-Reply-To: <4213EA7F.4070107@arrakis.dhis.org>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-with hdc=scsi haldeamon doesn't recognize cdwriter.
-but with hdc=ide-scsi (was the original from kernel 2.4) haldaamon
-reconize my cdwriter !
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-So this message of this subject just make me wast my time and lose my
-patience. ( because I forgot to enable haldaemon before to try
-understand the message ) 
-Still don't understand if I should or not change to ide-cd on my FC3, if
-not please remove the message, if yes rewrite it please .
+Pedro Venda wrote:
+| Noel Maddy wrote:
+| | On Thu, Feb 17, 2005 at 12:02:33AM +0000, Pedro Venda wrote:
+| |
+| |
+| |>admin proc # cat slabinfo
+| |
+| | ...
+| |
+| |>biovec-1           74224  74354     16  226    1 : tunables  120
+| 60    0 :
+| slabdata    329    329      0
+| |>bio                74212  74237     64   61    1 : tunables  120
+| 60    0 :
+| slabdata   1217   1217      0
+| |
+| |
+| | If you're using md, you need this patch to fix a bio leak:
+| |
+| | http://linux.bkbits.net:8080/linux-2.6/diffs/drivers/md/md.c@1.234
+|
+| thanks.
+|
+| has this patch been included in the recent rc's?
+|
+| and howcome the other servers work normally [all with md]? at least so
+| far the
+| memory usages aren't concerning, although the linear increase is
+| starting to
+| show. perhaps the [different] apps running on them don't expose the leak
+| as well
+| the one that broke today... is that reasonable?
 
-thanks for your precious time.
+correction: after looking at /proc/slabinfo, the counters around the bio lines
+are 10-100 times bigger than all the other, so their also leaking.
 
-On Tue, 2005-02-15 at 20:36 +0000, Sergio Monteiro Basto wrote:
-> Well the problem for the common users is the haldeamon doesn't recognize
-> automatically /dev/scd0 and /etc/fstab don't have any entry about it.
-> 
-> So with hdc=scsi, how I read cds on hdc ?
-> 
-> thanks,
-> 
-> Note: I am using last updates of FC3, after upgrade from FC1. 
-> 
-> 
-> On Tue, 2005-02-15 at 17:02 +0000, Alan Cox wrote:
-> > On Maw, 2005-02-15 at 02:25, Randy.Dunlap wrote:
-> > > It means:  don't use the ide-scsi driver.  Support for it is
-> > > lagging (not well-maintained) because it's really not needed for
-> > > burning CDs.  Just use the ide-cd driver (module) and
-> > > specify the CD burner device as /dev/hdX.
-> > 
-> > This information is unfortunately *WRONG*. The base 2.6 ide-cd driver is
-> > vastly inferior to ide-scsi. The ide-scsi layer knows about proper error
-> > reporting, end of media and other things that ide-cd does not.
-> > 
-> > The -ac ide-cd knows some of the stuff that ide-cd needs to and works
-> > with various drive/disk combinations the base code doesn't but ide-scsi
-> > still handles CD's better.
-> > 
-> > Alan
-> > 
--- 
-Sérgio M.B.
+I read some discussion on this list around this issue and people were not
+positive the leak came from md...
 
+any comments?
+
+regards.
+- --
+
+Pedro João Lopes Venda
+email: pjvenda@arrakis.dhis.org
+http://arrakis.dhis.org
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCFATzeRy7HWZxjWERApHtAKDsX1UVnKP1JICe1/RrzuzF00P84QCfac4+
+Mtxq0Y31MFhdsIgBf5S0n/Y=
+=u/li
+-----END PGP SIGNATURE-----

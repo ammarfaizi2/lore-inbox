@@ -1,175 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266657AbUIMNDo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266613AbUIMNIt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266657AbUIMNDo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 09:03:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266674AbUIMNDo
+	id S266613AbUIMNIt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 09:08:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266689AbUIMNIt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 09:03:44 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:2017 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S266657AbUIMNC7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 09:02:59 -0400
-Date: Mon, 13 Sep 2004 15:02:40 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: hch@lst.df
-Cc: akpm@osdl.org, spyro@f2s.com, rmk@arm.linux.org.uk, linux390@de.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] irq_enter/irq_exit consolidation
-Message-ID: <20040913130239.GA3086@mschwid3.boeblingen.de.ibm.com>
+	Mon, 13 Sep 2004 09:08:49 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.51]:40104 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S266613AbUIMNIp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 09:08:45 -0400
+Date: Mon, 13 Sep 2004 15:08:44 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+       Debian GNU/Linux m68k <debian-68k@lists.debian.org>,
+       uClinux list <uclinux-dev@uclinux.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: `new' syscalls for m68k
+Message-ID: <20040913130844.GB1774@MAIL.13thfloor.at>
+Mail-Followup-To: Geert Uytterhoeven <geert@linux-m68k.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+	Debian GNU/Linux m68k <debian-68k@lists.debian.org>,
+	uClinux list <uclinux-dev@uclinux.org>,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0409102250300.24607@anakin> <1094852893.18235.5.camel@localhost.localdomain> <20040912212244.GC24240@MAIL.13thfloor.at> <Pine.GSO.4.58.0409131316430.21429@waterleaf.sonytel.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <Pine.GSO.4.58.0409131316430.21429@waterleaf.sonytel.be>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Christoph,
-
-> s390 has an assembly wrapper around do_softirq.
+On Mon, Sep 13, 2004 at 01:17:10PM +0200, Geert Uytterhoeven wrote:
+> On Sun, 12 Sep 2004, Herbert Poetzl wrote:
+> > On Fri, Sep 10, 2004 at 10:48:16PM +0100, Alan Cox wrote:
+> > > On Gwe, 2004-09-10 at 21:57, Geert Uytterhoeven wrote:
+> > > >   - What about sys_vserver()?
+> >
+> > I would be happy to add a syscall reservation
+> > to the list of already reserved syscalls for
+> > i386, x86_64, s390, sparc/64, sh3/4, ppc/64
+> > and mips * ...
 > 
-> I've extended the invoke_softirq mechanism used by s390 (also called
-> by ksoftirqd) to the two arm variants, but the right thing to do is
-> probably to use the normal do_softirq call in arm and set
-> __ARCH_HAS_DO_SOFTIRQ + providing a per-arch do_softirq for all callers
-> for s390 and maybe arm26.
+> Also for m68k?
 
-do_call_softirq switches to the asynchronous interrupt stack,
-just what i386 does now as well. Trouble is that on s390 it is
-non-trivial to do the switch in C with inline assembly. We need
-a bit of assembly. But we could get rid of invoke_softirq, define
-__ARCH_HAS_DO_SOFTIRQ and use do_softirq to call the assembly
-wrapper.
+of course, linux-vserver is except for 2-3 tiny 
+arch specific modifications which might go away
+sooner or later (ptrace and uname) completely
+arch agnostic, so there should be no problem
+using it on m68k ...
 
-blue skies,
-  Martin.
+TIA,
+Herbert
 
----
-
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-
-Replace invoke_softirq mechanism by __ARCH_HAS_DO_SOFTIRQ
-mechanism for s390.
-
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-
-diffstat:
- arch/s390/kernel/entry.S      |    4 +---
- arch/s390/kernel/entry64.S    |    4 +---
- arch/s390/kernel/s390_ext.c   |    1 +
- arch/s390/kernel/s390_ksyms.c |    1 -
- arch/s390/kernel/setup.c      |   20 ++++++++++++++++++++
- include/asm-s390/hardirq.h    |    3 +--
- 6 files changed, 24 insertions(+), 9 deletions(-)
-
-diff -urN linux-2.6/arch/s390/kernel/entry64.S linux-2.6-s390/arch/s390/kernel/entry64.S
---- linux-2.6/arch/s390/kernel/entry64.S	2004-09-13 14:30:42.000000000 +0200
-+++ linux-2.6-s390/arch/s390/kernel/entry64.S	2004-09-13 14:21:29.000000000 +0200
-@@ -153,7 +153,6 @@
-  */
- 	.global do_call_softirq
- do_call_softirq:
--	stnsm	__SF_EMPTY(%r15),0xfc
- 	stmg	%r12,%r15,__SF_GPRS(%r15)
- 	lgr	%r12,%r15
- 	lg	%r0,__LC_ASYNC_STACK
-@@ -163,9 +162,8 @@
- 	lg	%r15,__LC_ASYNC_STACK
- 0:	aghi	%r15,-STACK_FRAME_OVERHEAD
- 	stg	%r12,__SF_BACKCHAIN(%r15)	# store back chain
--	brasl	%r14,do_softirq
-+	brasl	%r14,__do_softirq
- 	lmg	%r12,%r15,__SF_GPRS(%r12)
--	ssm	__SF_EMPTY(%r15)
- 	br	%r14
- 
- __critical_start:
-diff -urN linux-2.6/arch/s390/kernel/entry.S linux-2.6-s390/arch/s390/kernel/entry.S
---- linux-2.6/arch/s390/kernel/entry.S	2004-09-13 14:30:42.000000000 +0200
-+++ linux-2.6-s390/arch/s390/kernel/entry.S	2004-09-13 14:21:29.000000000 +0200
-@@ -156,7 +156,6 @@
-  */
- 	.global do_call_softirq
- do_call_softirq:
--	stnsm	__SF_EMPTY(%r15),0xfc
- 	stm	%r12,%r15,__SF_GPRS(%r15)
- 	lr	%r12,%r15
-         basr    %r13,0
-@@ -171,7 +170,6 @@
- 	l	%r1,.Ldo_softirq-do_call_base(%r13)
- 	basr	%r14,%r1
- 	lm	%r12,%r15,__SF_GPRS(%r12)
--	ssm	__SF_EMPTY(%r15)
- 	br	%r14
- 
- __critical_start:
-@@ -733,7 +731,7 @@
- .Ldo_IRQ:      .long  do_IRQ
- .Ldo_extint:   .long  do_extint
- .Ldo_signal:   .long  do_signal
--.Ldo_softirq:  .long  do_softirq
-+.Ldo_softirq:  .long  __do_softirq
- .Lhandle_per:  .long  do_single_step
- .Ljump_table:  .long  pgm_check_table
- .Lschedule:    .long  schedule
-diff -urN linux-2.6/arch/s390/kernel/s390_ext.c linux-2.6-s390/arch/s390/kernel/s390_ext.c
---- linux-2.6/arch/s390/kernel/s390_ext.c	2004-08-14 12:55:32.000000000 +0200
-+++ linux-2.6-s390/arch/s390/kernel/s390_ext.c	2004-09-13 14:34:14.000000000 +0200
-@@ -12,6 +12,7 @@
- #include <linux/slab.h>
- #include <linux/errno.h>
- #include <linux/kernel_stat.h>
-+#include <linux/interrupt.h>
- 
- #include <asm/lowcore.h>
- #include <asm/s390_ext.h>
-diff -urN linux-2.6/arch/s390/kernel/s390_ksyms.c linux-2.6-s390/arch/s390/kernel/s390_ksyms.c
---- linux-2.6/arch/s390/kernel/s390_ksyms.c	2004-09-13 14:03:55.000000000 +0200
-+++ linux-2.6-s390/arch/s390/kernel/s390_ksyms.c	2004-09-13 14:33:34.000000000 +0200
-@@ -61,6 +61,5 @@
- EXPORT_SYMBOL(console_mode);
- EXPORT_SYMBOL(console_devno);
- EXPORT_SYMBOL(console_irq);
--EXPORT_SYMBOL(do_call_softirq);
- EXPORT_SYMBOL(sys_wait4);
- EXPORT_SYMBOL(cpcmd);
-diff -urN linux-2.6/arch/s390/kernel/setup.c linux-2.6-s390/arch/s390/kernel/setup.c
---- linux-2.6/arch/s390/kernel/setup.c	2004-09-13 14:30:42.000000000 +0200
-+++ linux-2.6-s390/arch/s390/kernel/setup.c	2004-09-13 14:31:53.000000000 +0200
-@@ -654,3 +654,23 @@
- {
- 	/* nothing... */
- }
-+
-+extern void do_call_softirq(void);
-+
-+asmlinkage void do_softirq(void)
-+{
-+	unsigned long flags;
-+
-+	if (in_interrupt())
-+		return;
-+
-+	local_irq_save(flags);
-+
-+	if (local_softirq_pending())
-+		/* Call __do_softirq on asynchromous interrupt stack. */
-+		do_call_softirq();
-+
-+	local_irq_restore(flags);
-+}
-+
-+EXPORT_SYMBOL(do_softirq);
-diff -urN linux-2.6/include/asm-s390/hardirq.h linux-2.6-s390/include/asm-s390/hardirq.h
---- linux-2.6/include/asm-s390/hardirq.h	2004-09-13 14:30:42.000000000 +0200
-+++ linux-2.6-s390/include/asm-s390/hardirq.h	2004-09-13 14:31:42.000000000 +0200
-@@ -61,9 +61,8 @@
- #define SOFTIRQ_SHIFT	(PREEMPT_SHIFT + PREEMPT_BITS)
- #define HARDIRQ_SHIFT	(SOFTIRQ_SHIFT + SOFTIRQ_BITS)
- 
--extern void do_call_softirq(void);
- extern void account_ticks(struct pt_regs *);
- 
--#define invoke_softirq() do_call_softirq()
-+#define __ARCH_HAS_DO_SOFTIRQ
- 
- #endif /* __ASM_HARDIRQ_H */
+> Gr{oetje,eeting}s,
+> 
+> 						Geert
+> --
+> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+> 
+> In personal conversations with technical people, I call myself a hacker. But
+> when I'm talking to journalists I just say "programmer" or something like that.
+> 							    -- Linus Torvalds

@@ -1,64 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292978AbSBVT4n>; Fri, 22 Feb 2002 14:56:43 -0500
+	id <S292970AbSBVT5n>; Fri, 22 Feb 2002 14:57:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292970AbSBVT4d>; Fri, 22 Feb 2002 14:56:33 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48392 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292978AbSBVT4U>;
-	Fri, 22 Feb 2002 14:56:20 -0500
-Message-ID: <3C76A262.558BA821@mandrakesoft.com>
-Date: Fri, 22 Feb 2002 14:56:18 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: =?iso-8859-1?Q?G=E9rard?= Roudier <groudier@free.fr>
-CC: Vojtech Pavlik <vojtech@suse.cz>, Arjan van de Ven <arjanv@redhat.com>,
+	id <S292979AbSBVT5d>; Fri, 22 Feb 2002 14:57:33 -0500
+Received: from acolyte.thorsen.se ([193.14.93.247]:32262 "HELO
+	acolyte.hack.org") by vger.kernel.org with SMTP id <S292970AbSBVT5O>;
+	Fri, 22 Feb 2002 14:57:14 -0500
+From: Christer Weinigel <wingel@acolyte.hack.org>
+To: jgarzik@mandrakesoft.com
+Cc: zwane@linux.realnet.co.sz, roy@karlsbakk.net, alan@lxorguk.ukuu.org.uk,
         linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.5-pre1 IDE cleanup 9
-In-Reply-To: <20020221211606.F1418-100000@gerard>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <3C74F410.B165E571@mandrakesoft.com> (message from Jeff Garzik on
+	Thu, 21 Feb 2002 08:20:16 -0500)
+Subject: Re: [DRIVER][RFC] SC1200 Watchdog driver
+In-Reply-To: <Pine.LNX.4.44.0202211134080.7649-100000@netfinity.realnet.co.sz> <3C74C8C7.25D7BCD@mandrakesoft.com> <20020221111910.57235F5B@acolyte.hack.org> <20020221115916.9FD5AF5B@acolyte.hack.org> <3C74E698.D3A0BFEB@mandrakesoft.com> <20020221125743.10F0BF5B@acolyte.hack.org> <3C74F410.B165E571@mandrakesoft.com>
+Message-Id: <20020222195708.EC152F5B@acolyte.hack.org>
+Date: Fri, 22 Feb 2002 20:57:08 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gérard Roudier wrote:
-> Basically at the moment, if the driver allows upper 'seeming cleaner and
-> smarter' PCI probing things to deal with the HBA attachment order, at
-> least all my machines running Linux will not even reboot.
-> 
-> Being smart is doing what user expects, here.
+I wrote:
+> > "Someone (tm)" ought to write a more formal API specification.
 
-Oh come on, how hard is the following?
+Jeff Garzik wrote:
 
-> static int __init foo_init(void)
-> {
->	int rc = pci_module_init(&sym2_pci_driver);
->	if (rc) return rc;
->	do_deferred_work();
-> }
-> module_init(foo_init);
+> ;-)   hey, if you took 30 minutes to jot down into a text file your
+> observations on the implementation of the API, I'm sure we could get
+> that into 2.4 and 2.5 ...
 
-You have tons of flexibility you are ignoring here...  For the
-non-hotplug hosts (ie. present at boot), just use pci_driver::probe to
-register hosts on a list, and little other work.  do_deferred_work()
-handles the list in a manner that ensures proper boot and/or host
-ordering.
+It took quite a bit more than 30 minutes, but being at home with a
+hangover, what else is there to do?  :-)
 
-So for non-hotplug hosts you do a init_module time:
-	register N hosts with PCI API
-	register N hosts with SCSI API
-
-And hotplugged hosts would do the same, with N==1.
-
-What you describe -is- supported with the PCI API.
-
-	Jeff
-
-
+I've gone through the drivers and tried to write down "established
+practice".  I guess I'm too wordy as usual, but it should be a
+starting point.  Please take a look at the attached file and if you or
+anyone has any comments or can fill in information, please mail me.
+   
+   /Christer
 
 -- 
-Jeff Garzik      | "UNIX enhancements aren't."
-Building 1024    |           -- says /usr/games/fortune
-MandrakeSoft     |
+"Just how much can I get away with and still go to heaven?"
+

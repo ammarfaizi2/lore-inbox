@@ -1,125 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262040AbUKJW1P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262053AbUKJWa1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262040AbUKJW1P (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 17:27:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbUKJW1P
+	id S262053AbUKJWa1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 17:30:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbUKJWa1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 17:27:15 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50564 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262040AbUKJW0d
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 17:26:33 -0500
-Date: Wed, 10 Nov 2004 16:58:13 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: "Andrey J. Melnikoff (TEMHOTA)" <temnota@kmv.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.28-rc1] process stuck in release_task() call
-Message-ID: <20041110185813.GD12867@logos.cnet>
-References: <20041109162445.GM24130@kmv.ru>
+	Wed, 10 Nov 2004 17:30:27 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:19976 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262053AbUKJWaV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 17:30:21 -0500
+Date: Wed, 10 Nov 2004 22:30:16 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+Cc: Greg KH <greg@kroah.com>,
+       Hotplug List <linux-hotplug-devel@lists.sourceforge.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] kobject: fix double kobject_put in kobject_unregister()
+Message-ID: <20041110223016.C26346@flint.arm.linux.org.uk>
+Mail-Followup-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>,
+	Greg KH <greg@kroah.com>,
+	Hotplug List <linux-hotplug-devel@lists.sourceforge.net>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20041110141923.A13668@unix-os.sc.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041109162445.GM24130@kmv.ru>
-User-Agent: Mutt/1.5.5.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20041110141923.A13668@unix-os.sc.intel.com>; from anil.s.keshavamurthy@intel.com on Wed, Nov 10, 2004 at 02:19:23PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 10, 2004 at 02:19:23PM -0800, Keshavamurthy Anil S wrote:
+> Hi Greg,
+> 	
+> This patch fixes the problem where in kobject resources were getting
+> freed when those kobject were still in use due to double kobject_put()
+> getting called in the kobject_unregister() code path.
 
-Hi Andrey,
+Isn't it intended that, after an sysfs/kobject/device object is
+unregistered that the thread doing the unregistering must not
+dereference the memory associated with that object?
 
-On Tue, Nov 09, 2004 at 07:24:45PM +0300, Andrey J. Melnikoff (TEMHOTA) wrote:
-> Hello!
-> 
-> With 2.4.28-pre3 and 2.4.28-rc1 i see strange situation - sendmail some
-> times get stuck into release_task() call. 
-> 
-> System - Tyan Tiger MPX, dual Athlon MP 2800+ with 1Gb memory.
-> 
-> --- SysRq-T output ---
-> ksymoops 2.4.9 on i686 2.4.28-rc1.  Options used
->      -V (default)
->      -k /proc/ksyms (default)
->      -l /proc/modules (default)
->      -o /lib/modules/2.4.28-rc1/ (default)
->      -m /boot/System.map-2.4.28-rc1 (default)
-> 
-> Reading Oops report from the terminal
-> sendmail      S C012073D     0 15814      1 32701         14365 (NOTLB)
-> Using defaults from ksymoops -t elf32-i386 -a i386
-> Call Trace:    [<c012073d>] [<c0106582>] [<c0107717>]
-> sendmail      Z 00000000     4 30459  15814         30669       (L-TLB)
-> Call Trace:    [<c0120f53>] [<c0121600>] [<c011547d>] [<c0121725>] [<c0107717>]
-> sendmail      Z 00000000     0 30669  15814         30707 30459 (L-TLB)
-> Call Trace:    [<c0120f53>] [<c0121600>] [<c0121725>] [<c0107717>]
-> sendmail      Z 00000000     4 30707  15814         31549 30669 (L-TLB)
-> Call Trace:    [<c0120f53>] [<c0121600>] [<c0121725>] [<c0107717>]
-> sendmail      Z 00000000  2624 31549  15814         31708 30707 (L-TLB)
-> Call Trace:    [<c0120f53>] [<c0121600>] [<c0121725>] [<c0107717>]
-> sendmail      Z 00000000     0 31708  15814         32269 31549 (L-TLB)
-> Call Trace:    [<c0120f53>] [<c0121600>] [<c0121725>] [<c0107717>]
-> sendmail      Z 00000000     0 32269  15814         32352 31708 (L-TLB)
-> Call Trace:    [<c0120f53>] [<c0121600>] [<c0121725>] [<c0107717>]
-> sendmail      Z 00000000    20 32352  15814         32403 32269 (L-TLB)
-> Call Trace:    [<c0120f53>] [<c0121600>] [<c0121725>] [<c0107717>]
-> sendmail      Z 00000000     0 32403  15814         32413 32352 (L-TLB)
-> Call Trace:    [<c0120f53>] [<c0121600>] [<c0121725>] [<c0107717>]
-> sendmail      Z 00000000   624 32413  15814         32468 32403 (L-TLB)
-> Call Trace:    [<c0120f53>] [<c0121600>] [<c0121725>] [<c0107717>]
-> sendmail      Z 00000000     0 32468  15814         32473 32413 (L-TLB)
-> Call Trace:    [<c0120f53>] [<c0121600>] [<c0121725>] [<c0107717>]
-> sendmail      Z 00000000     0 32473  15814         32482 32468 (L-TLB)
-> Call Trace:    [<c0120f53>] [<c0121600>] [<c0121725>] [<c0107717>]
-> sendmail      Z 00000000     0 32482  15814         32499 32473 (L-TLB)
-> Call Trace:    [<c0120f53>] [<c0121600>] [<c0121725>] [<c0107717>]
-> ..... many sendmail zombies ......
-> 
-> Warning (Oops_read): Code line not seen, dumping what data is available
-> 
-> Proc;  sendmail
-> 
-> >>EIP; c012073d <release_task+1fd/230>   <=====
-> 
-> Trace; c012073d <release_task+1fd/230>
-> Trace; c0106582 <sys_rt_sigsuspend+122/160>
-> Trace; c0107717 <system_call+33/38>
-> Proc;  sendmail
-> 
-> >>EIP; 00000000 Before first symbol
-> 
-> Trace; c0120f53 <exit_notify+103/3c0>
-> Trace; c0121600 <do_exit+3f0/4e0>
-> Trace; c011547d <smp_apic_timer_interrupt+12d/130>
-> Trace; c0121725 <sys_exit+15/20>
-> Trace; c0107717 <system_call+33/38>
-> Proc;  sendmail
-> 
-> >>EIP; 00000000 Before first symbol
-> 
-> Trace; c0120f53 <exit_notify+103/3c0>
-> Trace; c0121600 <do_exit+3f0/4e0>
-> Trace; c0121725 <sys_exit+15/20>
-> Trace; c0107717 <system_call+33/38>
-> Proc;  sendmail
-> 
-> .... same trace with other zombies ......
-> 
-> 
-> disassemble show other result - process stuck into free_pages() call:
-> 
-> c0120540 <release_task>:
-> c0120540:       55                      push   %ebp
-> ....
-> c0120736:       89 d8                   mov    %ebx,%eax
-> c0120738:       e8 73 dd 01 00          call   c013e4b0 <free_pages> <= here
+IOW, the sequence:
 
-is this release_task+1fd?  Can you send me the full disassemble of release_task?
+	allocate
+	register	(refcount >= 2 after this completes)
+	unregister
 
-It can't be blocked here, its a "call" instruction. 
+will automatically free the object once the last user has gone.
 
-free_pages can't block either. Odd.  
-
-It is reproducible? 
-
-First wild guess (because I haven't got much of a clue really) 
-would be to revert the mm/page_alloc.c __free_pages() "fastcall" 
-gcc3.4 change.
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

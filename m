@@ -1,40 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130815AbRBOCXy>; Wed, 14 Feb 2001 21:23:54 -0500
+	id <S132145AbRBOCYo>; Wed, 14 Feb 2001 21:24:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131587AbRBOCXf>; Wed, 14 Feb 2001 21:23:35 -0500
-Received: from nat-hdqt.valinux.com ([198.186.202.17]:42484 "EHLO
-	tytlal.z.streaker.org") by vger.kernel.org with ESMTP
-	id <S130815AbRBOCXX>; Wed, 14 Feb 2001 21:23:23 -0500
-Date: Wed, 14 Feb 2001 18:20:06 -0800
-From: Chip Salzenberg <chip@valinux.com>
-To: Matthew Jacob <mjacob@feral.com>
-Cc: Wakko Warner <wakko@animx.eu.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "J . A . Magallon" <jamagallon@able.es>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: aic7xxx (and sym53c8xx) plans
-Message-ID: <20010214182006.B21511@valinux.com>
-In-Reply-To: <20010214210351.B21191@animx.eu.org> <Pine.LNX.4.21.0102141805260.22737-100000@zeppo.feral.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <Pine.LNX.4.21.0102141805260.22737-100000@zeppo.feral.com>; from mjacob@feral.com on Wed, Feb 14, 2001 at 06:06:08PM -0800
+	id <S132144AbRBOCYe>; Wed, 14 Feb 2001 21:24:34 -0500
+Received: from palrel3.hp.com ([156.153.255.226]:56594 "HELO palrel3.hp.com")
+	by vger.kernel.org with SMTP id <S131587AbRBOCY0>;
+	Wed, 14 Feb 2001 21:24:26 -0500
+Message-Id: <200102150227.SAA11922@milano.cup.hp.com>
+To: Philipp Rumpf <prumpf@mandrakesoft.mandrakesoft.com>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>,
+        Tim Waugh <twaugh@redhat.com>, Andrew Morton <andrewm@uow.edu.au>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [patch] 2.4.2-pre3: parport_pc init_module bug 
+In-Reply-To: Your message of "Wed, 14 Feb 2001 15:12:22 PST."
+             <Pine.LNX.3.96.1010214150801.12746Q-100000@mandrakesoft.mandrakesoft.com> 
+Date: Wed, 14 Feb 2001 18:26:55 -0800
+From: Grant Grundler <grundler@cup.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-According to Matthew Jacob:
-> See http://www.freebsd.org/~gibbs/linux.
+Philipp Rumpf wrote:
+> On Wed, 14 Feb 2001, Grant Grundler wrote:
+> > Having people look things up in the spec isn't very user friendly.
+> 
+> Having the constants in some well-known header file should be sufficient,
+> shouldn't it ?
 
-Here at VA we're already using Jason's driver -- it works on the Intel
-STL2 motherboard, while Doug's driver doesn't (or didn't, a month ago).
+I would hope anyone bothering to include the constants in a document would
+spend a few minutes explaining them as well. Perhaps a bad assumption
+on my part...
 
-While we're discussing SCSI drivers, I'd also like to put in a good
-word for the Sym-2 Symbios/NCR drivers from Gerard Roudier:
 
-    ftp://ftp.tux.org/roudier/drivers/portable/sym-2.1.x/
+> It depends on the platform and maybe the exact PCI slot used, but I don't
+> think it depends on the driver (unless MSI support is broken in which case
+> you would want to fix it up in the driver).
 
-Joe-Bob says: "Check it out."
--- 
-Chip Salzenberg            - a.k.a. -            <chip@valinux.com>
-   "Give me immortality, or give me death!"  // Firesign Theatre
+correct.
+
+> At least I can't find
+> anything in the PCI 2.2 spec that would suggest we need to consult the
+> driver before enabling MSIs with one message only.
+
+I don't know how BIOS's treat this (if at all). Need to know this first.
+If they manage this resource and pre-assign everything, ok.
+That's how it goes.
+
+But if generic PCI manages this, I prefer to avoid allocating resources
+that may not get used.  The host platform may have a limited pool of
+usable MSI data values (think parisc EIRR bits) and some cards may want
+to use more than one MSI.
+
+grant
+
+ps. seems this thread has gotten a bit far off from the original subject. :^/
+
+Grant Grundler
+parisc-linux {PCI|IOMMU|SMP} hacker
++1.408.447.7253

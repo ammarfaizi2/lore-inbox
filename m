@@ -1,146 +1,104 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274002AbRISFFF>; Wed, 19 Sep 2001 01:05:05 -0400
+	id <S273210AbRISFrl>; Wed, 19 Sep 2001 01:47:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274003AbRISFE4>; Wed, 19 Sep 2001 01:04:56 -0400
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:54922 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S274002AbRISFEo>;
-	Wed, 19 Sep 2001 01:04:44 -0400
-Message-ID: <3BA82777.13872CFD@candelatech.com>
-Date: Tue, 18 Sep 2001 22:04:55 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-12 i686)
-X-Accept-Language: en
+	id <S274003AbRISFrV>; Wed, 19 Sep 2001 01:47:21 -0400
+Received: from celebris.bdk.pl ([212.182.99.100]:21253 "EHLO celebris.bdk.pl")
+	by vger.kernel.org with ESMTP id <S273210AbRISFrT>;
+	Wed, 19 Sep 2001 01:47:19 -0400
+Date: Wed, 19 Sep 2001 07:49:17 +0200 (CEST)
+From: Wojtek Pilorz <wpilorz@bdk.pl>
+To: Bruce Blinn <blinn@MissionCriticalLinux.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, root@chaos.analogic.com,
+        Masoud Sharbiani <masu@cr213096-a.rchrd1.on.wave.home.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Reading Windows CD on Linux 2.4.6
+In-Reply-To: <3BA7BA06.B7E61F63@MissionCriticalLinux.com>
+Message-ID: <Pine.LNX.4.21.0109190740100.31311-100000@celebris.bdk.pl>
 MIME-Version: 1.0
-To: Donald Becker <becker@scyld.com>
-CC: eepro list <eepro100@scyld.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [eepro100] eepro100 driver (2.4 kernel) fails with S2080 Tomcati815t 
- motherboard.
-In-Reply-To: <Pine.LNX.4.10.10109190016140.19173-100000@vaio.greennet>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Interestingly enough, when I manually set a MAC it seems to pass traffic,
-at least at low speeds.  I'm about to crank it up a bit to see what
-falls out :)
+On Tue, 18 Sep 2001, Bruce Blinn wrote:
 
-(Working fine at 10Mbps (about 4200 packets-per-second..)
-
-
-Donald Becker wrote:
+> Date: Tue, 18 Sep 2001 14:17:58 -0700
+> From: Bruce Blinn <blinn@MissionCriticalLinux.com>
+> To: Wojtek Pilorz <wpilorz@bdk.pl>
+> Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, root@chaos.analogic.com,
+>      Masoud Sharbiani <masu@cr213096-a.rchrd1.on.wave.home.com>,
+>      linux-kernel@vger.kernel.org
+> Subject: Re: Reading Windows CD on Linux 2.4.6
 > 
-> On Tue, 18 Sep 2001, Ben Greear wrote:
-> 
-> > I have a Tyan motherboard (S2080 Tomcat i815t) with 2 built-in NICs.
-> >
-> > The manual claims this:
-> >
-> > "One Intel 82559 LAN controller
-> >  One ICH2 LAN controller"
-> >
-> > Seems that the eepro driver tries to bring up both of
-> > them, and fails to read the eeprom on the second one it
-> > scans.  One visible result is that the MAC is all FF's.
-> 
-> Does the diagnostic program correctly read the EEPROM on both cards?
-> If so, my driver release should work with the cards.
->
-
-It doesn't seem to...
-
-
-[root@lanf1 /root]# eepro100-diag -aaeemmf -#1
-eepro100-diag.c:v2.02 7/19/2000 Donald Becker (becker@scyld.com)
- http://www.scyld.com/diag/index.html
-Index #1: Found a Intel i82562 EEPro100 adapter at 0xdd80.
-i82557 chip registers at 0xdd80:
-  0c000050 0f162000 00000000 00080002 1be7ffff 00000600
-  No interrupt sources are pending.
-   The transmit unit state is 'Suspended'.
-   The receive unit state is 'Ready'.
-  This status is normal for an activated but idle interface.
- The Command register has an unprocessed command 0c00(?!).
-EEPROM contents, size 256x16:
-    00: ffff ffff ffff ffff ffff ffff ffff ffff
-  0x08: ffff ffff ffff ffff ffff ffff ffff ffff
-  0x10: ffff ffff ffff ffff ffff ffff ffff ffff
-  0x18: ffff ffff ffff ffff ffff ffff ffff ffff
-  0x20: ffff ffff ffff ffff ffff ffff ffff ffff
-  0x28: ffff ffff ffff ffff ffff ffff ffff ffff
-  0x30: ffff ffff ffff ffff ffff ffff ffff ffff
-  0x38: ffff ffff ffff ffff ffff ffff ffff ffff
-  0x40: ffff ffff ffff ffff ffff ffff ffff ffff
-  0x48: ffff ffff ffff ffff ffff ffff ffff ffff
-  0x50: ffff ffff ffff ffff ffff ffff ffff ffff
-  0x58: ffff ffff ffff ffff ffff ffff ffff ffff
-  0x60: ffff ffff ffff ffff ffff ffff ffff ffff
-  0x68: ffff ffff ffff ffff ffff ffff ffff ffff
-  0x70: ffff ffff ffff ffff ffff ffff ffff ffff
-  0x78: ffff ffff ffff ffff ffff ffff ffff ffff
-  0x80: ffff ffff ffff ffff ffff ffff ffff ffff
-  0x88: ffff ffff ffff ffff ffff ffff ffff ffff
-  0x90: ffff ffff ffff ffff ffff ffff ffff ffff
-  0x98: ffff ffff ffff ffff ffff ffff ffff ffff
-  0xa0: ffff ffff ffff ffff ffff ffff ffff ffff
-  0xa8: ffff ffff ffff ffff ffff ffff ffff ffff
-  0xb0: ffff ffff ffff ffff ffff ffff ffff ffff
-  0xb8: ffff ffff ffff ffff ffff ffff ffff ffff
-  0xc0: ffff ffff ffff ffff ffff ffff ffff ffff
-  0xc8: ffff ffff ffff ffff ffff ffff ffff ffff
-  0xd0: ffff ffff ffff ffff ffff ffff ffff ffff
-  0xd8: ffff ffff ffff ffff ffff ffff ffff ffff
-  0xe0: ffff ffff ffff ffff ffff ffff ffff ffff
-  0xe8: ffff ffff ffff ffff ffff ffff ffff ffff
-  0xf0: ffff ffff ffff ffff ffff ffff ffff ffff
-  0xf8: ffff ffff ffff ffff ffff ffff ffff ffff
- *****  The EEPROM checksum is INCORRECT!  *****
-  The checksum is 0xFF00, it should be 0xBABA!
-Intel EtherExpress Pro 10/100 EEPROM contents:
-  Station address FF:FF:FF:FF:FF:FF.
-  Board assembly ffffff-255, Physical connectors present: RJ45 BNC AUI MII
-  Primary interface chip i82555 PHY #-1.
-    Secondary interface chip i82555, PHY -1.
-  Baseline value of MII status register is 0000.
-
-[root@lanf1 /root]# 
-
-> > eth0: Intel Corporation 82557 [Ethernet Pro 100] (#3), 00:E0:81:03:B9:7B, IRQ 10.
-> > eth1: Intel Corporation 82557 [Ethernet Pro 100] (#2), 00:90:27:65:39:1B, IRQ 3.
-> > eth2: Intel Corporation 82557 [Ethernet Pro 100], 00:90:27:65:37:8A, IRQ 9.
-> > eth3: Invalid EEPROM checksum 0xff00, check settings before activating this device!
-> > eth3: OEM i82557/i82558 10/100 Ethernet, FF:FF:FF:FF:FF:FF, IRQ 11.
-> 
-> > [root@lanf2 /root]# eepro100-diag -aaeemmf eth3
-> 
-> The diagnostic does not (and cannot) know which card is "eth3".
-> (Consider the case where no driver is loaded.)
-
-I wish it would have complained about me sending it eth3 then, so
-I would have known!
-
-> 
-> You must specify the interface to examine with e.g. "-#3"
-
-Thanks,
-Ben
+> Wojtek Pilorz wrote:
+> > 
+> > Could you try
+> > cdrecord -toc dev=x,y
+> > where x,y are numbers returned for your SCSI (either native or emulated)
+> > device by
+> >  cdrecord -scanbus
+The result  of this command (at the end of your mail) clearly indicates
+that this is a multi-session disk, do you can't expect to be able to copy
+its contents with dd;
+Why kernel 2.2.19 is able to read this disk, while 2.4.6 cannot is another
+problem. Either 2.4.6 cannot handle multi-session disks (I would be
+surprised if that would be case, although I have not checked), or maybe
+the Windows CD-mastering/recording software you are using makes some
+departure from standards, which is tolerated by 2.2.19, but not by 2.4.6;
+You might want to look at your /var/log/messages file and possibly check
+whether it is possible to get more debugging output from the kernel (cdrom
+driver?)
 
 
 > 
-> Donald Becker                           becker@scyld.com
-> Scyld Computing Corporation             http://www.scyld.com
-> 410 Severn Ave. Suite 210               Second Generation Beowulf Clusters
-> Annapolis MD 21403                      410-990-9993
+> I think I finally got the cdrecord command to work (thanks Tobias).  By
+> the way, after today, I will be on vacation until Monday, so if I don't
+> reply to messages, don't think that it is that I do not appreciate all
+> the help that I am getting.
 > 
-> _______________________________________________
-> eepro100 mailing list
-> eepro100@scyld.com
-> http://www.scyld.com/mailman/listinfo/eepro100
+> Thanks,
+> Bruce
+> 
+> # cdrecord -scanbus
+> Cdrecord 1.8 (i686-pc-linux-gnu) Copyright (C) 1995-2000 Jörg Schilling
+> Using libscg version 'schily-0.1'
+> scsibus0:
+> cdrecord: Warning: controller returns wrong size for CD capabilities
+> page.
+>         0,0,0     0) 'Lite-On ' 'LTN483S 48x Max ' 'PD02' Removable
+> CD-ROM
+>         0,1,0     1) *
+[...]
+> # cdrecord -toc dev=0,0,0
+> Cdrecord 1.8 (i686-pc-linux-gnu) Copyright (C) 1995-2000 Jörg Schilling
+> scsidev: '0,0,0'
+> scsibus: 0 target: 0 lun: 0
+> Using libscg version 'schily-0.1'
+> cdrecord: Warning: controller returns wrong size for CD capabilities
+> page.
+> Device type    : Removable CD-ROM
+> Version        : 0
+> Response Format: 1
+> Vendor_info    : 'Lite-On '
+> Identifikation : 'LTN483S 48x Max '
+> Revision       : 'PD02'
+> Device seems to be: Generic mmc CD-ROM.
+> cdrecord: Warning: controller returns wrong size for CD capabilities
+> page.
+> cdrecord: Warning: controller returns wrong size for CD capabilities
+> page.
+> cdrecord: Warning: controller returns wrong size for CD capabilities
+> page.
+> Using generic SCSI-3/mmc CD driver (mmc_cd).
+> Driver flags   : SWABAUDIO
+> first: 1 last 2
+> track:   1 lba:         0 (        0) 00:02:00 adr: 1 control: 6 mode: 2
+> track:   2 lba:       512 (     2048) 00:08:62 adr: 1 control: 5 mode: 2
 
--- 
-Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+======== ^^^^^^ ==============
+> track:lout lba:     14144 (    56576) 03:10:44 adr: 1 control: 5 mode:
+> -1
+> #
+> 
+

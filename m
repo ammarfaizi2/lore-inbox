@@ -1,81 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316585AbSHHIoq>; Thu, 8 Aug 2002 04:44:46 -0400
+	id <S317393AbSHHI6i>; Thu, 8 Aug 2002 04:58:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317393AbSHHIoq>; Thu, 8 Aug 2002 04:44:46 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:55562 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S316585AbSHHIop>; Thu, 8 Aug 2002 04:44:45 -0400
-Message-ID: <3D522F0E.8040404@evision.ag>
-Date: Thu, 08 Aug 2002 10:42:54 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en, pl, ru
+	id <S317396AbSHHI6i>; Thu, 8 Aug 2002 04:58:38 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:36617 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S317393AbSHHI6i>; Thu, 8 Aug 2002 04:58:38 -0400
+Message-ID: <3D5233BC.96ABDF73@aitel.hist.no>
+Date: Thu, 08 Aug 2002 11:02:52 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.30 i686)
+X-Accept-Language: no, en, en
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: martin@dalecki.de, Andries.Brouwer@cwi.nl,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [bug, 2.5.29, (not IDE)] partition table (not) corruption?
-References: <Pine.LNX.4.44.0208080935170.31228-100000@localhost.localdomain>
-Content-Type: text/plain; charset=US-ASCII;
-Content-Transfer-Encoding: 7BIT
+To: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6] The List, pass #2
+References: <Pine.LNX.4.44.0207311500210.1038-100000@dlang.diginsite.com> <3D49006C.12ABC6FC@aitel.hist.no> <20020803034019.A140@toy.ucw.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Ingo Molnar napisa?:
-> On Thu, 8 Aug 2002, Marcin Dalecki wrote:
+Pavel Machek wrote:
+
+> > Lots of other bootup initialization, like DHCP,
+> > might move to userspace as well.  This gives a smaller
+> > and safer kernel.
 > 
-> 
->>>>LILO without "linear" or "lba32" is inherently broken: it will talk CHS
->>>>at boot time to the BIOS and hence needs a geometry and install time,
->>>>and nobody knows the geometry required. So, if LILO doesnt break, this
->>>>is pure coincidence.
->>>
->>>
->>>well, lilo without linear worked for like years on this box ...
->>
->>You have to take in to account that by creating a new kernel image
->>you are storing it sometimes after a long long time at perhaps maybe
->>another block group far away.  This is becouse ext2 suddenly may feel
->>like doing so...And surprisingly you have to teach lilo about the new
->>far away sectors becouse basic C/H/S addressing can't reach them
->>anylonger. Been there seen that frequently enough.
-> 
-> 
-> this particular testbox has seen *thousands* of development kernels of all
-> sizes, and i often have filled up the complete /boot partition. It is very
-> unlikely that this harmless (and not too big) 2.5.29 kernel would have
-> been the first one to trigger a 'wrong' CHS combination. Especially since
-> 2.4 kernels with exactly the *same* bzImage (and same lilo) work just
-> fine.
+> Why *safer*? Partition (,DHCP,..) code is ran once at boot. It is hard for
+> it to harm security.
 
-Well well having a look at lilo-s inwards I can the the following:
+I wouldn't worry about partition detection, but network stuff
+is always risky.  A "bad guy" could listen for DHCP
+and try to fake a response or do a buffer overflow.
 
-     if (ioctl(fd,HDIO_GETGEO,&hdprm) < 0)
-                 die("geo_query_dev HDIO_GETGEO (dev 0x%04x): %s",device,
-                   strerror(errno));
-             geo->heads = hdprm.heads;
-             geo->cylinders = hdprm.cylinders;
-             geo->sectors = hdprm.sectors;
-             geo->start = hdprm.start;
-             if ((geo->device = bios_device(geo, device)) < 0)
-                 geo->device = 0x80 + (MINOR(device) >> 6) +
-                     (MAJOR(device) == MAJOR_HD ? 0 : 
-last_dev(MAJOR_HD,64));
+Userspace programs are supposedly easier to fix, and a
+messed-up userspace isn't quite as bad as a messed up kernel
+when an attacker tries to get in.  
 
-If you look at the boot messages from a kernel:
+I think kernel simplicity is the main driving factor here though.
+Things that _can_ be done in userspace without major trouble
+should be done in userspace.  And of course there's embedded
+users who actually want to save the space currently used
+by partition detection etc.  No need for that when
+all your fs'es are on eprom.  No need in a diskless
+workstation either.
 
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-  hda: 78140160 sectors, CHS=77520/16/63, UDMA(33)
-  hda: hda1 hda4
-
-You can actually see the CHS info field.
-Would you care to maybe compare them between 2.4 and 2.5 on the
-system in question?
-
-If they are not different, well, taking a look at the bios_device()
-in lilo you can actually see that it doesn't know *anything* about
-EZ disk or similar partition table tricks and therelike - this can be
-definitively considered a bug *there*.
-
+Helge Hafting

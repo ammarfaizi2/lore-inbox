@@ -1,72 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266753AbUIMNmq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266745AbUIMNop@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266753AbUIMNmq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 09:42:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266745AbUIMNmp
+	id S266745AbUIMNop (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 09:44:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266748AbUIMNop
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 09:42:45 -0400
-Received: from smtp0.telegraaf.nl ([217.196.45.192]:5045 "EHLO
-	smtp0.telegraaf.nl") by vger.kernel.org with ESMTP id S266748AbUIMNmX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 09:42:23 -0400
-Date: Mon, 13 Sep 2004 15:42:15 +0200
-From: Roel van der Made <roel@telegraafnet.nl>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Kirill Korotaev <dev@sw.ru>, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       torvalds@osdl.org, wli@holomorphy.com
-Subject: Re: [PATCH]: Re: kernel 2.6.9-rc1-mm4 oops
-Message-ID: <20040913134215.GY3951@telegraafnet.nl>
-References: <20040912184804.GC19067@telegraafnet.nl> <4145550F.8030601@sw.ru> <20040913083100.GA16921@elte.hu> <41456536.6090801@sw.ru> <20040913092443.GA19437@elte.hu> <20040913133437.GW3951@telegraafnet.nl> <20040913133847.GA9157@elte.hu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mF+UrcnZFczIwKjY"
-Content-Disposition: inline
-In-Reply-To: <20040913133847.GA9157@elte.hu>
-User-Agent: Mutt/1.5.3i
-X-telegraaf-MailScanner: Found to be clean
+	Mon, 13 Sep 2004 09:44:45 -0400
+Received: from wombat.indigo.net.au ([202.0.185.19]:782 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S266745AbUIMNoN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 09:44:13 -0400
+Date: Mon, 13 Sep 2004 21:33:48 +0800 (WST)
+From: raven@themaw.net
+To: Andrew Morton <akpm@osdl.org>
+cc: Jeff Moyer <jmoyer@redhat.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] autofs4 - allow map update recognition
+Message-ID: <Pine.LNX.4.58.0409132124110.8810@donald.themaw.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-98.6, required 8,
+	NO_REAL_NAME, PATCH_UNIFIED_DIFF, RCVD_IN_ORBS,
+	RCVD_IN_OSIRUSOFT_COM, USER_AGENT_PINE, USER_IN_WHITELIST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---mF+UrcnZFczIwKjY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi Andrew,
 
-On Mon, Sep 13, 2004 at 03:38:47PM +0200, Ingo Molnar wrote:
-> * Roel van der Made <roel@telegraafnet.nl> wrote:
-> > > > the last check ensures that we are still hashed and this check is m=
-ore=20
-> > > > straithforward for understanding, agree?
-> > > yep - please send a new patch to Andrew.
-> > I'll be awaiting the patch and give it a shot.
-> > Thanks all for the feedback.
-> you can try my patch too, it will do the job of fixing the bug. The
-> other changes we talked about are only improvements to the debugging
-> infrastructure.
+Having recently repaired autofs' ability to recognise updates to maps 
+dynamically I found I needed to reintroduce the directory inode 
+lookup method (I broke the update recognition several versions ago, oops).
 
-Saw there's an mm5 release already, is your patch included in this one
-also?
+This patch does this and applies cleanly against 2.6.9-rc1-mm4.
 
-> 	Ingo
+As far as I can tell from testing it doesn't introduce any backward 
+incompatibilities.
 
---=20
-Roel van der Made                             .--.
-GNU/Linux Systems/Network Engineer           |o_o |
-Telegraaf Media ICT - Internet Services      |:_/ |
-Tel.: 020 585 2229                          //   \ \
-GnuPG Key available at: http://roel.net/gpgkey.asc=20
+Signed-off-by: Ian Kent <raven@themaw.net>
 
---mF+UrcnZFczIwKjY
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFBRaO3PkMWyL8l9u8RAn+kAJ9oM+tGFixzoSW4h92DPBofHrNs7wCdG/5v
-KyvYWx0aqL50ZrdOzuqGEQc=
-=asXm
------END PGP SIGNATURE-----
-
---mF+UrcnZFczIwKjY--
+--- linux-2.6.7/fs/autofs4/root.c.orig	2004-08-05 12:56:26.578009776 -0400
++++ linux-2.6.7/fs/autofs4/root.c	2004-08-05 12:56:38.783154312 -0400
+@@ -19,7 +19,6 @@
+ #include <linux/smp_lock.h>
+ #include "autofs_i.h"
+ 
+-static struct dentry *autofs4_dir_lookup(struct inode *,struct dentry *, struct nameidata *);
+ static int autofs4_dir_symlink(struct inode *,struct dentry *,const char *);
+ static int autofs4_dir_unlink(struct inode *,struct dentry *);
+ static int autofs4_dir_rmdir(struct inode *,struct dentry *);
+@@ -29,7 +28,7 @@ static int autofs4_dir_open(struct inode
+ static int autofs4_dir_close(struct inode *inode, struct file *file);
+ static int autofs4_dir_readdir(struct file * filp, void * dirent, filldir_t filldir);
+ static int autofs4_root_readdir(struct file * filp, void * dirent, filldir_t filldir);
+-static struct dentry *autofs4_root_lookup(struct inode *,struct dentry *, struct nameidata *);
++static struct dentry *autofs4_lookup(struct inode *,struct dentry *, struct nameidata *);
+ static int autofs4_dcache_readdir(struct file *, void *, filldir_t);
+ 
+ struct file_operations autofs4_root_operations = {
+@@ -48,7 +47,7 @@ struct file_operations autofs4_dir_opera
+ };
+ 
+ struct inode_operations autofs4_root_inode_operations = {
+-	.lookup		= autofs4_root_lookup,
++	.lookup		= autofs4_lookup,
+ 	.unlink		= autofs4_dir_unlink,
+ 	.symlink	= autofs4_dir_symlink,
+ 	.mkdir		= autofs4_dir_mkdir,
+@@ -56,7 +55,7 @@ struct inode_operations autofs4_root_ino
+ };
+ 
+ struct inode_operations autofs4_dir_inode_operations = {
+-	.lookup		= autofs4_dir_lookup,
++	.lookup		= autofs4_lookup,
+ 	.unlink		= autofs4_dir_unlink,
+ 	.symlink	= autofs4_dir_symlink,
+ 	.mkdir		= autofs4_dir_mkdir,
+@@ -439,23 +438,8 @@ static struct dentry_operations autofs4_
+ 	.d_release	= autofs4_dentry_release,
+ };
+ 
+-/* Lookups in non-root dirs never find anything - if it's there, it's
+-   already in the dcache */
+-static struct dentry *autofs4_dir_lookup(struct inode *dir, struct dentry *dentry, struct nameidata *nd)
+-{
+-#if 0
+-	DPRINTK("ignoring lookup of %.*s/%.*s",
+-		 dentry->d_parent->d_name.len, dentry->d_parent->d_name.name,
+-		 dentry->d_name.len, dentry->d_name.name);
+-#endif
+-
+-	dentry->d_fsdata = NULL;
+-	d_add(dentry, NULL);
+-	return NULL;
+-}
+-
+ /* Lookups in the root directory */
+-static struct dentry *autofs4_root_lookup(struct inode *dir, struct dentry *dentry, struct nameidata *nd)
++static struct dentry *autofs4_lookup(struct inode *dir, struct dentry *dentry, struct nameidata *nd)
+ {
+ 	struct autofs_sb_info *sbi;
+ 	int oz_mode;

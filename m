@@ -1,112 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264929AbVBEK0F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266368AbVBEK3E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264929AbVBEK0F (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 05:26:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265938AbVBEK0F
+	id S266368AbVBEK3E (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 05:29:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266448AbVBEK3D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 05:26:05 -0500
-Received: from [211.58.254.17] ([211.58.254.17]:25489 "EHLO hemosu.com")
-	by vger.kernel.org with ESMTP id S265862AbVBEKZk (ORCPT
+	Sat, 5 Feb 2005 05:29:03 -0500
+Received: from [211.58.254.17] ([211.58.254.17]:32913 "EHLO hemosu.com")
+	by vger.kernel.org with ESMTP id S266441AbVBEK2o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 05:25:40 -0500
-Message-ID: <42049F20.7020706@home-tj.org>
-Date: Sat, 05 Feb 2005 19:25:36 +0900
+	Sat, 5 Feb 2005 05:28:44 -0500
+To: bzolnier@gmail.com, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.11-rc2 01/09] ide: kill unused pkt_task_t
 From: Tejun Heo <tj@home-tj.org>
-User-Agent: Debian Thunderbird 1.0 (X11/20050118)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, linux-ide@vger.kernel.org,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH REPOST 2.6.11-rc2] ide: driver updates (phase 2)
-Content-Type: text/plain; charset=EUC-KR
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <42049F20.7020706@home-tj.org>
+References: <42049F20.7020706@home-tj.org>
+Message-Id: <20050205102842.4BC941326FA@htj.dyndns.org>
+Date: Sat,  5 Feb 2005 19:28:42 +0900 (KST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- This thread is repost of phase 2 ide driver updates.  Sorry again.
-
- Hello, Bartlomiej.
-
- These are reordered/modified/(hopefully)appliable nine patches from
-the previous series of patches.  #01 is the only new one.  It kills
-the unused pkt_task_t in ide.h.  #02/#03 are moved upward and #04 is
-modified as you've requested.  #05/#08 now directly use taskfile
-transport instead of calling ide_taskfile_ioctl().  #08 now also
-properly handles WIN_SMART case.
-
- If these patches go in, I have eight patches left.  One of them is
-ide_explicit_TASKFILE_NO_DATA.  As we've discussed, I'm going to add
-default initialization of task->[pre]handler.  That patch wasn't
-included in this series because I didn't know if do_rw_taskfile() and
-flagged_taskfile() are going to be merged or not.  So, please tell
-me what you think. :-)
-
- I'll talk about other patches in their reply threads.
-
-[ Start of patch descriptions ]
 
 01_ide_kill_pkt_task_t.patch
-	: kill unused pkt_task_t
 
 	Remove unused pkt_task_t definition from ide.h.
 
-02_ide_taskfile_init_drive_cmd.patch
-	: ide_init_drive_cmd() now defaults to REQ_DRIVE_TASKFILE
 
-	ide_init_drive_cmd() now initializes rq->flags to
-	REQ_DRIVE_TASKFILE.
+Signed-off-by: Tejun Heo <tj@home-tj.org>
 
-03_ide_diag_taskfile_use_init_drive_cmd.patch
-	: ide_diag_taskfile() rq initialization fix
 
-	In ide_diag_taskfile(), when initializing taskfile rq,
-	ref_count wasn't initialized properly.  Modified to use
-	ide_init_drive_cmd().  This doesn't really change any behavior
-	as the request isn't managed via the block layer.
-
-04_ide_taskfile_flush.patch
-	: convert REQ_DRIVE_TASK to REQ_DRIVE_TASKFILE
-
-	All REQ_DRIVE_TASK users except ide_task_ioctl() converted
-	to use REQ_DRIVE_TASKFILE.
-	1. idedisk_issue_flush() converted to use REQ_DRIVE_TASKFILE.
-	   This and the changes in ide_get_error_location() remove a
-	   possible race condition between ide_get_error_location()
-	   and other requests.
-	2. ide_queue_flush_cmd() converted to use REQ_DRIVE_TASKFILE.
-
-05_ide_taskfile_task_ioctl.patch
-	: map ide_task_ioctl() to ide_taskfile_ioctl()
-
-	ide_task_ioctl() modified to map to ide_taskfile_ioctl().
-	This is the last user of REQ_DRIVE_TASK.
-
-06_ide_remove_task.patch
-	: remove REQ_DRIVE_TASK handling
-
-	Unused REQ_DRIVE_TASK handling removed.
-
-07_ide_taskfile_cmd.patch
-	: convert REQ_DRIVE_CMD to REQ_DRIVE_TASKFILE
-
-	All in-kernel REQ_DRIVE_CMD users except for ide_cmd_ioctl()
-	converted to use REQ_DRIVE_TASKFILE.
-
-08_ide_taskfile_cmd_ioctl.patch
-	: map ide_cmd_ioctl() to ide_taskfile_ioctl()
-
-	ide_cmd_ioctl() converted to use ide_taskfile_ioctl().  This
-	is the last user of REQ_DRIVE_CMD.
-
-09_ide_remove_cmd.patch
-	: remove REQ_DRIVE_CMD handling
-
-	Removed unused REQ_DRIVE_CMD handling.
-
-[ End of patch descriptions ]
-
-Thanks.
-
--- 
-tejun
-
+Index: linux-ide-series2-export/include/linux/ide.h
+===================================================================
+--- linux-ide-series2-export.orig/include/linux/ide.h	2005-02-05 19:26:51.369361863 +0900
++++ linux-ide-series2-export/include/linux/ide.h	2005-02-05 19:27:08.104643467 +0900
+@@ -1279,20 +1279,6 @@ typedef struct ide_task_s {
+ 	void			*special;	/* valid_t generally */
+ } ide_task_t;
+ 
+-typedef struct pkt_task_s {
+-/*
+- *	struct hd_drive_task_hdr	pktf;
+- *	task_struct_t		pktf;
+- *	u8			pkcdb[12];
+- */
+-	task_ioreg_t		tfRegister[8];
+-	int			data_phase;
+-	int			command_type;
+-	ide_handler_t		*handler;
+-	struct request		*rq;		/* copy of request */
+-	void			*special;
+-} pkt_task_t;
+-
+ extern u32 ide_read_24(ide_drive_t *);
+ 
+ extern void SELECT_DRIVE(ide_drive_t *);

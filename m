@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129881AbQLISo4>; Sat, 9 Dec 2000 13:44:56 -0500
+	id <S130649AbQLISsG>; Sat, 9 Dec 2000 13:48:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130085AbQLISoq>; Sat, 9 Dec 2000 13:44:46 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:34308 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129881AbQLISok>; Sat, 9 Dec 2000 13:44:40 -0500
-Date: Sat, 9 Dec 2000 10:13:50 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jens Taprogge <taprogge@idg.rwth-aachen.de>
-cc: "Theodore Y. Ts'o" <tytso@MIT.EDU>, rgooch@ras.ucalgary.ca,
-        jgarzik@mandrakesoft.mandrakesoft.com, dhinds@valinux.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Serial cardbus code.... for testing, please.....
-In-Reply-To: <20001209145428.A11104@al.romantica.wg>
-Message-ID: <Pine.LNX.4.10.10012091011070.1574-100000@penguin.transmeta.com>
+	id <S130530AbQLISr4>; Sat, 9 Dec 2000 13:47:56 -0500
+Received: from tungsten.btinternet.com ([194.73.73.81]:14539 "EHLO
+	tungsten.btinternet.com") by vger.kernel.org with ESMTP
+	id <S130085AbQLISrn>; Sat, 9 Dec 2000 13:47:43 -0500
+Date: Sat, 9 Dec 2000 17:36:42 +0000 (GMT)
+From: davej@suse.de
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: PIRQ routing problem in test12-pre7.
+Message-ID: <Pine.LNX.4.21.0012091721530.491-100000@neo.local>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+PCI: PCI BIOS revision 2.10 entry at 0xfb240, last bus=1
+PCI: Probing PCI hardware
+PCI: Using IRQ router VIA [1106/0586] at 00:07.0
+..
+PCI: Assigned IRQ 11 for device 00:08.0
+PCI: The same IRQ used for device 01:00.0
+IRQ routing conflict in pirq table! Try 'pci=autoirq'
 
-On Sat, 9 Dec 2000, Jens Taprogge wrote:
-> 
-> I have a Megaherz card as well. It has been working fine ever since
-> Linus fixed some issues with the ToPIC97 Cardbus controller. It reports
-> a 16550A on my machine.
+00:08.1 Input device controller: Creative Labs SB Live! (rev 01)
+01:00.0 VGA compatible controller: 3Dfx Interactive, Inc. Voodoo 3 (rev01)
 
-I checked my VAIO's, and they all have a Ricoh cardbus bridge.
+Works fine with test12-pre5
 
-Ted claimed he had a TI1311 or something, I think. So his VAIO is
-definitely different from the ones I have. That may be enough of a
-difference.
+btw, the option pci=autoirq doesn't seem to exist.
 
-(But I know I've tried TI bridges too, and have had multiple success
-reports with them. They are not uncommon. They _do_ tend to need more
-initialization than some of the other bridges, and maybe that's the
-difference. Ted, can you send me the lspci -vvxxx output with the full
-config space setup?)
+regards,
 
-		Linus
+Davej.
+
+-- 
+| Dave Jones <davej@suse.de>  http://www.suse.de/~davej
+| SuSE Labs
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

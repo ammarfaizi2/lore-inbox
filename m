@@ -1,112 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268060AbUJNWvA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268033AbUJNWmy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268060AbUJNWvA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 18:51:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268120AbUJNWsO
+	id S268033AbUJNWmy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 18:42:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268060AbUJNWmh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 18:48:14 -0400
-Received: from fire.osdl.org ([65.172.181.4]:5081 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S268090AbUJNWnG (ORCPT
+	Thu, 14 Oct 2004 18:42:37 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:58534 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S268148AbUJNWlL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 18:43:06 -0400
-Message-ID: <416EFEF2.8040005@osdl.org>
-Date: Thu, 14 Oct 2004 15:34:26 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+	Thu, 14 Oct 2004 18:41:11 -0400
+Message-ID: <416EFFF8.2030408@watson.ibm.com>
+Date: Thu, 14 Oct 2004 18:38:48 -0400
+From: Hubertus Franke <frankeh@watson.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b) Gecko/20030901 Thunderbird/0.2
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrey Panin <pazke@donpac.ru>
-CC: Raj <inguva@gmail.com>, linux-kernel <linux-kernel@vger.kernel.org>,
-       akpm <akpm@osdl.org>
-Subject: [PATCH] VISWS: disable APM
-References: <b2fa632f04101204385c09459f@mail.gmail.com>	    <416CB8FC.9020503@osdl.org> <b2fa632f041012222745006916@mail.gmail.com>    <416CBC9C.8010905@osdl.org> <21579.80.80.111.240.1097745358.squirrel@80.80.111.240>
-In-Reply-To: <21579.80.80.111.240.1097745358.squirrel@80.80.111.240>
-Content-Type: multipart/mixed;
- boundary="------------070905020801050308040405"
+To: Paul Jackson <pj@sgi.com>
+CC: "Eric W. Biederman" <ebiederm@xmission.com>, mbligh@aracnet.com,
+       Simon.Derr@bull.net, colpatch@us.ibm.com, pwil3058@bigpond.net.au,
+       dipankar@in.ibm.com, akpm@osdl.org, ckrm-tech@lists.sourceforge.net,
+       efocht@hpce.nec.com, lse-tech@lists.sourceforge.net, hch@infradead.org,
+       steiner@sgi.com, jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
+       linux-kernel@vger.kernel.org, ak@suse.de, sivanich@sgi.com
+Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>	<20041002145521.GA8868@in.ibm.com>	<415ED3E3.6050008@watson.ibm.com>	<415F37F9.6060002@bigpond.net.au>	<821020000.1096814205@[10.10.2.4]>	<20041003083936.7c844ec3.pj@sgi.com>	<834330000.1096847619@[10.10.2.4]>	<835810000.1096848156@[10.10.2.4]>	<20041003175309.6b02b5c6.pj@sgi.com>	<838090000.1096862199@[10.10.2.4]>	<20041003212452.1a15a49a.pj@sgi.com>	<843670000.1096902220@[10.10.2.4]>	<Pine.LNX.4.61.0410051111200.19964@openx3.frec.bull.fr>	<58780000.1097004886@flay>	<20041005172808.64d3cc2b.pj@sgi.com>	<1193270000.1097025361@[10.10.2.4]>	<20041005190852.7b1fd5b5.pj@sgi.com>	<1097103580.4907.84.camel@arrakis>	<20041007015107.53d191d4.pj@sgi.com>	<Pine.LNX.4.61.0410071439070.19964@openx3.frec.bull.fr>	<1250810000.1097160595@[10.10.2.4]>	<20041007105425.02e26dd8.pj@sgi.com>	<1344740000.1097172805@[10.10.2.4]>	<m1ekk1egdx.fsf@ebiederm.dsl.xmission.com> <20041014123956.518074f9.pj@sgi.com>
+In-Reply-To: <20041014123956.518074f9.pj@sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070905020801050308040405
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Paul, there are also other means for gang scheduling then having
+to architect a tightly synchronized global clock into the communication 
+device.
 
-(full email thread here:
-   http://marc.theaimsgroup.com/?t=109758139300007&r=1&w=2
-)
+Particularly, in a batch oriented environment of compute intensive 
+applications, one does not really need/want to switch frequently.
+Often, the communication devices are memory mapped straight into the
+application OS involvement with limited available channels.
 
-Andrey Panin wrote:
->>Raj wrote:
->>
->>>>>The build failed with an error 'Undefined reference to
->>>>>machine_real_restart'
->>>>
->>>>Yep, I see that also.
->>>>
->>>>>Can this be fixed ?? At the very least, hide APM options #if
->>>>>!(CONFIG_PC) ??
->>>>
->>>i am not aware much about the apm dependencies. maintainers might answer
->>>this more correctly.
->>
->>True.  I should have copied Andrey on it earlier.
->>
->>Andrey, any thoughts about how to keep VISWS from building APM
->>support?  use Kconfig?  or does VISWS support APM?
->
-> IMHO Kconfig is the best choise. VISWS has no PC compatible BIOS at all,
-> it uses ARC compilant firmware for startup and configuration. Even though
-> this firmware does limited BIOS emulation for running ROMs on PCI cards, i
-> dont think it has working APM BIOS implementation.
+However, as shown in previous work, gang scheduling and other forms of 
+scheduling tricks (e.g. backfilling) can provide for significant higher 
+utilization. So, if a high context switching rate (read interactivity) 
+is not required, then a user space daemon scheduling network can be used.
 
-Raj, can you test this patch?  It WorksForMe.
+We have a slew of pubs on this. An example readup can be obtained here:
 
-It disables APM & P4THERMAL support for X86_VISWS so that VISWS
-builds correctly.
+Y. Zhang, H. Franke, J. Moreira, A. Sivasubramaniam. Improving Parallel 
+Job Scheduling by Combining Gang Scheduling and Backfilling Techniques. 
+In Proceedings of the International Parallel and Distributed Processing 
+Symposium (IPDPS), pages 113-142 May 2000.
+http://www.cse.psu.edu/~anand/csl/papers/ipdps00.pdf
 
--- 
-~Randy
+Or for a final sum up of that research as a journal.
 
---------------070905020801050308040405
-Content-Type: text/x-patch;
- name="visws_noapm.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="visws_noapm.patch"
+Y. Zhang, H. Franke, J. Moreira, A. Sivasubramaniam. An Integrated 
+Approach to Parallel Scheduling Using Gang-Scheduling, Backfilling and 
+Migration. IEEE Transactions on Parallel and Distributed Systems, 
+14(3):236-247, March 2003.
 
+This was implemented for the IBM SP2 cluster and ASCI machine at 
+Livermore National Lab in the late 90's.
 
-Prevent X86_VISWS config from building APM support.
-APM isn't supported and it won't build if attempted.
-Also disable P4THERMAL for VISWS.
+If you are interested in short scheduling cycles we also discovered that
+dependent on the synchronity of the applications gang scheduling is not 
+necessarily the best.
 
-Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
+Y. Zhang, A. Sivasubramaniam, J. Moreira, H. Franke. A Simulation-based 
+Study of Scheduling Mechanisms for a Dynamic Cluster Environment. In 
+Proceedings of the ACM International Conference on Supercomputing (ICS), 
+pages 100-109, May 2000. http://www.cse.psu.edu/~anand/csl/papers/ics00a.pdf
 
+If I remember correctly this tight gang scheduling based on slots was 
+already implemented on IRIX in 95/96 ( read a paper on that ).
 
-diffstat:=
- arch/i386/Kconfig |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+Moral of the story here is that its unlikely that Linux will support 
+gang scheduling in its core anytime soon or will allow network adapters 
+to drive scheduling strategies. So likely these are out.
+An less frequent gang scheduling can be implemented with user level 
+daemons, so an adequate solution is available for most instances.
 
-diff -Naurp ./arch/i386/Kconfig~visws_noapm ./arch/i386/Kconfig
---- ./arch/i386/Kconfig~visws_noapm	2004-10-11 10:54:31.019559744 -0700
-+++ ./arch/i386/Kconfig	2004-10-14 09:52:24.131743344 -0700
-@@ -584,7 +584,7 @@ config X86_MCE_NONFATAL
- 
- config X86_MCE_P4THERMAL
- 	bool "check for P4 thermal throttling interrupt."
--	depends on X86_MCE && (X86_UP_APIC || SMP)
-+	depends on X86_MCE && (X86_UP_APIC || SMP) && !X86_VISWS
- 	help
- 	  Enabling this feature will cause a message to be printed when the P4
- 	  enters thermal throttling.
-@@ -879,7 +879,7 @@ source kernel/power/Kconfig
- source "drivers/acpi/Kconfig"
- 
- menu "APM (Advanced Power Management) BIOS Support"
--depends on PM
-+depends on PM && !X86_VISWS
- 
- config APM
- 	tristate "APM (Advanced Power Management) BIOS support"
+-- Hubertus
 
---------------070905020801050308040405--
+Paul Jackson wrote:
+
+> Kevin McMahon <n6965@sgi.com> pointed out to me a link to an interesting
+> article on gang scheduling:
+> 
+>   http://www.linuxjournal.com/article.php?sid=7690
+>   Issue 127: Improving Application Performance on HPC Systems with Process Synchronization
+>   Posted on Monday, November 01, 2004 by Paul Terry Amar Shan Pentti Huttunen
+> 
+> It's amazingly current - won't even be posted for another couple of weeks ;).
+> 
+

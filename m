@@ -1,49 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263174AbUEBQTc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263154AbUEBQ2s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263174AbUEBQTc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 May 2004 12:19:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263182AbUEBQTc
+	id S263154AbUEBQ2s (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 May 2004 12:28:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263162AbUEBQ2s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 May 2004 12:19:32 -0400
-Received: from pop.gmx.net ([213.165.64.20]:29892 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263174AbUEBQS6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 May 2004 12:18:58 -0400
-X-Authenticated: #20450766
-Date: Sun, 2 May 2004 18:18:20 +0200 (CEST)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: GNU/Dizzy <dizzy@roedu.net>
-cc: linux-kernel@vger.kernel.org
+	Sun, 2 May 2004 12:28:48 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21663 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263154AbUEBQ2r
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 May 2004 12:28:47 -0400
+Date: Sun, 2 May 2004 17:28:42 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Cc: GNU/Dizzy <dizzy@roedu.net>, linux-kernel@vger.kernel.org
 Subject: Re: [RFC] Filesystem with multiple mount-points
-In-Reply-To: <Pine.LNX.4.58L0.0405021712280.31153@ahriman.bucharest.roedu.net>
-Message-ID: <Pine.LNX.4.44.0405021806460.1477-100000@poirot.grange>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20040502162842.GX17014@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.58L0.0405021712280.31153@ahriman.bucharest.roedu.net> <Pine.LNX.4.44.0405021806460.1477-100000@poirot.grange>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0405021806460.1477-100000@poirot.grange>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2 May 2004, GNU/Dizzy wrote:
+On Sun, May 02, 2004 at 06:18:20PM +0200, Guennadi Liakhovetski wrote:
+> See "not nice" above. With the proposed option I would like to avoid
+> having one file appear at multiple paths. IOW each file would appear in no
+> more than 1 place in the tree.
 
-> > for filesystem metadata, journals... Making those directories soft-links
-> > into one writable partition would work, but is not too nice.
->
-> How about mounting the big volume somewhere and using -o bind to mount
-> some paths within it in different places of your needs ? I know that -o
-> bind doesnt honor -o ro yet but if you really needed maybe you can make a
-> patch for that, I for one would be very interested about that.
-> check "man mount" about more information about "bind"
->
-> Also notice that linux (starting with some 2.3.x version if I remember
-> well) already supports multiple mount points for a given "source" like
-> mount /dev/hda1 /mnt1
-> mount /dev/hda1 /mnt2 and so on
+<shrug>
 
-See "not nice" above. With the proposed option I would like to avoid
-having one file appear at multiple paths. IOW each file would appear in no
-more than 1 place in the tree.
+mount <whatever> /tmp/blah
+mount --bind /tmp/blah/relative_path /desired_mountpoint
+umount -l /tmp/blah
 
-Guennadi
----
-Guennadi Liakhovetski
-
-
+and you've got an exact equivalent of your "mount a subtree".

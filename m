@@ -1,45 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271935AbRIVSzA>; Sat, 22 Sep 2001 14:55:00 -0400
+	id <S271978AbRIVTEv>; Sat, 22 Sep 2001 15:04:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271978AbRIVSyv>; Sat, 22 Sep 2001 14:54:51 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:28173 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S271935AbRIVSyh>; Sat, 22 Sep 2001 14:54:37 -0400
-Subject: Re: Re[03]: Linux Kernel 2.2.20-pre10 Initial Impressions
-To: jlmales@softhome.net
-Date: Sat, 22 Sep 2001 20:00:06 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <3BAC8E1C.2201.524EE2@localhost> from "John L. Males" at Sep 22, 2001 01:11:56 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S271981AbRIVTEc>; Sat, 22 Sep 2001 15:04:32 -0400
+Received: from femail4.sdc1.sfba.home.com ([24.0.95.84]:34746 "EHLO
+	femail4.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S271978AbRIVTEY>; Sat, 22 Sep 2001 15:04:24 -0400
+Date: Sat, 22 Sep 2001 15:07:30 -0400
+From: Tom Vier <tmv5@home.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.9-ac14
+Message-ID: <20010922150730.A8407@zero>
+In-Reply-To: <20010922032246.A7730@lightning.swansea.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15ks0U-0003xB-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010922032246.A7730@lightning.swansea.linux.org.uk>; from laughing@shared-source.org on Sat, Sep 22, 2001 at 03:22:46AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Understood, but I actually took my 2.2.19 .config and ran "make
-> oldconfig", then "make xconfig" making no changes, just saved it
 
-Excellent. That makes the data so much more valuable
+md.c:50: conflicting types for `sys_setsid'
+/sys/linux-2.4.9-ac14-patch-build/include/asm/unistd.h:563: previous declaration of `sys_setsid'
+make[3]: *** [md.o] Error 1
+make[2]: *** [first_rule] Error 2
+make[1]: *** [_subdir_md] Error 2
+make: *** [_dir_drivers] Error 2
 
-> I am likely to do the benchmark tonight to get hard numbers on the
-> difference I sense.  I am a QA/Testing Specialist, so I am all to
-> aware of the importance of keeping the variables all the same.  My
-> initial background was with assembler back in the real core
-> memory/keypunch days where I disassembled and heavily modified the
-> OS, compiler, assembler, system utilities and wrote a new way to load
-> the OS, compilers, etc from scratch to a new disk.  Ony advising you
-> so you have a sense of my mindset and level of understanding.  Not
-> current with intimate x86 details or assembler, but will someday now
-> that "falt" memory is back! :))
-> 
-> I will let you know what I find.  If in meantime you feel there are
-> other things needed or for me to check please let me know and I will
-> be most happy to assist.
-
-I look forward to the results. Can you cc Andrea Arcangeli on them if they
-look VM related as Andrea is the 2.2.19 VM person (and now the 2.4.10pre
-one)
+-- 
+Tom Vier <tmv5@home.com>
+DSA Key id 0x27371A2C

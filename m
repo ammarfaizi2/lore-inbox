@@ -1,94 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261282AbVA0Xuq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbVA1AQh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261282AbVA0Xuq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 18:50:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261314AbVA0Xtt
+	id S261336AbVA1AQh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 19:16:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbVA1APS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 18:49:49 -0500
-Received: from xs4all.vs19.net ([213.84.236.198]:17724 "EHLO xs4all.vs19.net")
-	by vger.kernel.org with ESMTP id S261282AbVA0XaS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 18:30:18 -0500
-Date: Fri, 28 Jan 2005 00:30:07 +0100
-From: Jasper Spaans <jasper@vs19.net>
-To: linux-kernel@vger.kernel.org, ajgrothe@yahoo.com
-Subject: crypto algoritms failing?
-Message-ID: <20050127233007.GA4678@spaans.vs19.net>
+	Thu, 27 Jan 2005 19:15:18 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:3346 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261335AbVA1AOm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 19:14:42 -0500
+Date: Fri, 28 Jan 2005 00:14:30 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       greg@kroah.com, akpm@osdl.org
+Subject: Re: [ANN] removal of certain net drivers coming soon: eepro100, xircom_tulip_cb, iph5526
+Message-ID: <20050128001430.C22695@flint.arm.linux.org.uk>
+Mail-Followup-To: "David S. Miller" <davem@davemloft.net>,
+	jgarzik@pobox.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+	greg@kroah.com, akpm@osdl.org
+References: <41F952F4.7040804@pobox.com> <20050127225725.F3036@flint.arm.linux.org.uk> <20050127153114.72be03e2.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="IS0zKkzwUGydFO0o"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Copyright: Copyright 2005 Jasper Spaans, unauthorised distribution prohibited
-User-Agent: Mutt/1.5.6+20040907i
-X-Broken-Reverse-DNS: no host name found for IP address 192.168.0.7
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050127153114.72be03e2.davem@davemloft.net>; from davem@davemloft.net on Thu, Jan 27, 2005 at 03:31:14PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jan 27, 2005 at 03:31:14PM -0800, David S. Miller wrote:
+> Therefore the only missing sync would be of the new RX descriptor
+> when linking things in like that, ie. at the end of e100_rx_alloc_skb()
+> if rx->prev->skb is non-NULL.
 
---IS0zKkzwUGydFO0o
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+And that is inherently unsafe, since the chip may be modifying the RFD
+while the CPU is accessing it.  Adding extra sync calls does not fix
+it because as far as I can see, there's nothing to tell the chip "don't
+write to this RFD because any changes the CPU is making right now will
+overwrite the chips own changes."
 
-Hi List,
+The fact of the matter is that eepro100.c works on ARM, e100.c doesn't.
+There's a message from me back on 30th June 2004 at about 10:30 BST on
+this very list which generated almost no interest from anyone...
 
-When booting I see this in dmesg:
-
-testing tea ECB encryption=20
-test 1 (128 bit key):
-0a3aea4140a9ba94
-fail
-test 2 (128 bit key):
-775d2a6af6ce9209
-fail
-test 3 (128 bit key):
-be7abb81952d1f1edd89a1250421df95
-fail
-test 4 (128 bit key):
-e04d5d3cb78c364794189591a9fc49f844d12dc299b8082a078973c24592c690
-fail
-[..]
-testing xtea ECB encryption=20
-test 1 (128 bit key):
-aa2296e56c61f345
-fail
-test 2 (128 bit key):
-823eeb35dcddd9c3
-fail
-test 3 (128 bit key):
-e204dbf289859eea6135aaedb5cb712c
-fail
-test 4 (128 bit key):
-0b03cd8abe95fdb1c144910ba5c91bb4a9da1e9eb13e2a8feaa56a85d1f4a8a5
-fail
-
-CPU in that machine is an athlon xp, cpu flags according to /proc/cpuinfo
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
-cmov pat pse36 mmx fxsr sse pni syscall mmxext 3dnowext 3dnow
-
-Compiler: gcc 3.3.5 (debian package 1:3.3.5-6)
-
-Is this supposed to happen?
-
-
-Jasper
---=20
-Jasper Spaans                                       http://jsp.vs19.net/
- 00:24:05 up 10207 days, 16:11, 0 users, load average: 6.29 6.03 6.13
-         There already is an object oriented version of COBOL.
-             It's called "ADD ONE TO COBOL GIVING COBOL."
-
---IS0zKkzwUGydFO0o
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFB+Xl/N+t4ZIsVDPgRAiH1AKDm5gKqw071eie+qxKi5AcnmO/eLwCfdD/K
-NfGWGdmckV6zLBYYAPVwg0Y=
-=/rgD
------END PGP SIGNATURE-----
-
---IS0zKkzwUGydFO0o--
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

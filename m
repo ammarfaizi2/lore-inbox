@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315431AbSHITBJ>; Fri, 9 Aug 2002 15:01:09 -0400
+	id <S315439AbSHITDz>; Fri, 9 Aug 2002 15:03:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315439AbSHITBJ>; Fri, 9 Aug 2002 15:01:09 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:37864 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S315431AbSHITBJ>;
-	Fri, 9 Aug 2002 15:01:09 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	id <S315454AbSHITDz>; Fri, 9 Aug 2002 15:03:55 -0400
+Received: from mx0.gmx.net ([213.165.64.100]:52238 "HELO mx0.gmx.net")
+	by vger.kernel.org with SMTP id <S315439AbSHITDy>;
+	Fri, 9 Aug 2002 15:03:54 -0400
+Date: Fri, 9 Aug 2002 21:07:33 +0200 (MEST)
+From: Streng <mpeg-rentner@gmx.at>
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: ufs device driver? Blk=16483
+X-Priority: 3 (Normal)
+X-Authenticated-Sender: #0006953396@gmx.net
+X-Authenticated-IP: [141.20.1.49]
+Message-ID: <3750.1028920053@www6.gmx.net>
+X-Mailer: WWW-Mail 1.5 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-ID: <15700.4689.876752.886309@napali.hpl.hp.com>
-Date: Fri, 9 Aug 2002 12:04:49 -0700
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Arnd Bergmann <arnd@bergmann-dalldorf.de>, linux-kernel@vger.kernel.org
-Subject: Re: klibc development release
-In-Reply-To: <3D541018.4050004@zytor.com>
-References: <aivdi8$r2i$1@cesium.transmeta.com>
-	<200208090934.g799YVZe116824@d12relay01.de.ibm.com>
-	<200208091754.g79HsJkN058572@d06relay02.portsmouth.uk.ibm.com>
-	<3D541018.4050004@zytor.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Fri, 09 Aug 2002 11:55:20 -0700, "H. Peter Anvin" <hpa@zytor.com> said:
+Hi there,
 
-  HPA> Hmf... some of these seem to be outright omissions
-  HPA> (pivot_root() and umount2() especially), and probably indicate
-  HPA> bugs or that the stock kernel isn't up to date anymore.
 
-  HPA> I can see umount() being missing (as in "use umount2()").
+How can i mount a FreeBSD Partion with a Blocksize of 16384
 
-Alpha calls umount2() "oldumount"; ia64 never had a one-argument
-version of umount(), so there is no point creating legacy (and the
-naming is inconsistent anyhow...).
+mount -t ufs -o ufstype=44bsd /dev/hda1 /mnt/fbsd 
+doesn't seems to work?
 
-	--david
+WRONG ufs type may currupt your file-system etc. , but im still happy if
+it would work even rdonly.
+
+Is there a global option to aply changing the blocksize in 
+ufs*.c  from 8192 to 16384?
+
+
+-- 
+GMX - Die Kommunikationsplattform im Internet.
+http://www.gmx.net
+

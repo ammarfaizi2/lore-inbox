@@ -1,83 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283265AbSAAUB5>; Tue, 1 Jan 2002 15:01:57 -0500
+	id <S283783AbSAAUS7>; Tue, 1 Jan 2002 15:18:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283723AbSAAUBs>; Tue, 1 Jan 2002 15:01:48 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:23759 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S283265AbSAAUBh>; Tue, 1 Jan 2002 15:01:37 -0500
-Date: Tue, 1 Jan 2002 13:01:23 -0700
-Message-Id: <200201012001.g01K1NF15702@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Oliver Xymoron <oxymoron@waste.org>,
-        samson swanson <intellectcrew@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: a great C++ book?
-In-Reply-To: <20020101104331.F4802@work.bitmover.com>
-In-Reply-To: <20020101041111.29695.qmail@web14310.mail.yahoo.com>
-	<Pine.LNX.4.43.0201011214560.7188-100000@waste.org>
-	<20020101104331.F4802@work.bitmover.com>
+	id <S283723AbSAAUSu>; Tue, 1 Jan 2002 15:18:50 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:44787 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S283783AbSAAUSh>;
+	Tue, 1 Jan 2002 15:18:37 -0500
+Date: Tue, 1 Jan 2002 13:18:17 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Andrew Clausen <clausen@gnu.org>
+Cc: linux-kernel@vger.kernel.org, bug-parted@gnu.org,
+        evms-devel@lists.sourceforge.net
+Subject: Re: [Evms-devel] userspace discovery of partitions
+Message-ID: <20020101131817.J12868@lynx.no>
+Mail-Followup-To: Andrew Clausen <clausen@gnu.org>,
+	linux-kernel@vger.kernel.org, bug-parted@gnu.org,
+	evms-devel@lists.sourceforge.net
+In-Reply-To: <20020102055735.C472@gnu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <20020102055735.C472@gnu.org>; from clausen@gnu.org on Wed, Jan 02, 2002 at 05:57:35AM +1100
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy writes:
-> On Tue, Jan 01, 2002 at 12:25:10PM -0600, Oliver Xymoron wrote:
-> > On Mon, 31 Dec 2001, samson swanson wrote:
-> > 
-> > > hello again,
-> > >
-> > > i ask this group because i trust in your intellect.
-> > >
-> > > For a beginner to C++ what is your favorite book? A
-> > > book that goes in depth of teaching the language.
-> > > remeber i am  a beginner, new to c++.
-> > 
-> > If you already know C well, Bjarne Stroustrup's "The C++ Programming
-> > Language" is decent. If not, start with Kernighan and Ritchie's "The C
-> > Programming Language". Put the two next to each other and you might gain
-> > some insight into the creeping horror that modern C++ has become.
+On Jan 02, 2002  05:57 +1100, Andrew Clausen wrote:
+> As discussed a while ago (see thread starting at
+> http://www.uwsg.iu.edu/hypermail/linux/kernel/0105.2/0659.html), I
+> wrote a frontend to libparted that does nothing but probe all
+> block devices for partition tables, and tells the kernel what
+> partitions it finds.  It optionally prints a short summary.
+
+This would mesh nicely with the filesystem (and other content) probing
+tool/lib that I wrote, blkid.  It probes filesystem types (and also
+label, uuid, fs size for common fs types).
+
+> The hope is to be able to remove partition table parsing from the
+> kernel, and share partition table code with libparted.
 > 
-> It's hard to explain a love/hate relationship with C++.  I think
-> many systems programmers come to a point where they can "speak" C++
-> and do so in design conversations all the time, talking about the
-> "objects" and the "methods", etc.  But they program in C.
->
-> This sends a somewhat mixed message to the casual observer who might
-> think that one language or the other is "better".  The reality is
-> that you want tp program in a fairly object oriented way but you
-> also want to avoid "the creeping horror that modern C++ has
-> become.".
+> It's called partprobe, and is distributed with Parted.  Get it from:
+> 
+> 	ftp.gnu.org/gnu/parted/devel/parted-1.5.6-pre2.tar.gz
+> 
+> When partprobe/libparted are compiled with --enable-discover-only
+> --disable-nls etc (see README), it comes to about 73k (35k
+> compressed), not including libc or libuuid.  Unfortunately, this is
+> still quite large to be including in things like initramfs.  Is
+> it worth paying this price?
 
-An extract from the FAQ about C++: http://www.tux.org/lkml/#s1-4
+Hmm, it does seem a bit large for what it is doing.  Any idea where
+the bloat is coming from?
 
-"My personal view is that C++ has it's merits, and makes
-object-oriented programming easier. However, it is a more complex
-language and is less mature than C. The greatest danger with C++ is in
-fact it's power. It seduces the programmer, making it much easier to
-write bloatware. The kernel is a critical piece of code, and must be
-lean and fast. We cannot afford bloat. I think it is fair to say that
-it takes more skill to write efficient C++ code than C code. Not every
-contributer to the linux kernel is an uber-guru, and thus will not
-know the various tricks and traps for producing efficient C++ code."
+My blkid lib is 34kB (uncompressed) and supports 23 filesystem types
+(all that the current mount(8) has), although only a handful have full
+LABEL and UUID support.  The user tool is 6.5kB and I also use libuuid.so.
 
-Object-oriented programming is a good tool. One of many. But it
-shouldn't be a religion, nor do you need to write in C++ to make use
-of it. A good example of object-oriented programming done in C is the
-Xt toolkit.
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 
-> Makes you wonder what would happen if someone tried to design a
-> minimalistic C++, call it the "M programming language", have be
-> close to C with the minimal useful parts of C++ included.
-
-I'm sure lots of people have thought about this. A friend of mine and
-I sat down once and did a rough design for the "K" language, which was
-supposed to be "exactly like C, only better". Basically, we wanted to
-cherry-pick the good bits of C++, plus add some other things. As
-usual, lack of time is the enemy. Besides, what's point unless it gets
-widely used, and the chance of that is small.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

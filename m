@@ -1,50 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261186AbUDBWBA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 17:01:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261197AbUDBWBA
+	id S261205AbUDBWCX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 17:02:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbUDBWCW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 17:01:00 -0500
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:4788 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261186AbUDBWA6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 17:00:58 -0500
-Message-ID: <406DE280.6050109@nortelnetworks.com>
-Date: Fri, 02 Apr 2004 17:00:32 -0500
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+	Fri, 2 Apr 2004 17:02:22 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:10235 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261210AbUDBWBb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 17:01:31 -0500
+To: linux-kernel@vger.kernel.org
+Cc: thornber@redhat.com, Stephanie Glass <sglass@us.ibm.com>,
+       Paul Larson <plars@us.ibm.com>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Jamie Lokier <jamie@shareable.org>,
-       =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>, mj@ucw.cz,
-       jack@ucw.cz, "Patrick J. LoPresti" <patl@users.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cowlinks v2
-References: <s5gznab4lhm.fsf@patl=users.sf.net> <20040320152328.GA8089@wohnheim.fh-wedel.de> <20040329171245.GB1478@elf.ucw.cz> <s5g7jx31int.fsf@patl=users.sf.net> <20040329231635.GA374@elf.ucw.cz> <20040402165440.GB24861@wohnheim.fh-wedel.de> <20040402180128.GA363@elf.ucw.cz> <20040402181707.GA28112@wohnheim.fh-wedel.de> <20040402182357.GB410@elf.ucw.cz> <20040402200921.GC653@mail.shareable.org> <20040402213933.GB246@elf.ucw.cz>
-In-Reply-To: <20040402213933.GB246@elf.ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: 
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OF77D6BB95.C84E969D-ON86256E6A.00701C31-86256E6A.00790700@us.ibm.com>
+From: Hien Nguyen <hien1@us.ibm.com>
+Date: Fri, 2 Apr 2004 16:01:39 -0600
+X-MIMETrack: Serialize by Router on D03NM121/03/M/IBM(Release 6.0.2CF2HF168 | December 5, 2003) at
+ 04/02/2004 15:01:11,
+	Serialize complete at 04/02/2004 15:01:11
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
+I installed SuSE SLES9 beta1 and realized that device mapper 1.00.07-68 
+rpm has been installed in the kernel. However it didn't work correctly 
+with errors:
 
-> Actually, my solution has one weirdness...
-> 
-> 
->>a
-> 
-> copyfile a b
-> rm a
-> 
-> ...now b has pointer to cowid with usage count of 1. Which is slightly
-> ugly (and wastes one cowid entry), but should be harmless.
 
-Could you not change it back to a normal inode when refcount becomes 1? 
-  Or if you didn't want to do that always (say if you knew there would 
-be more references being created soon) you could at least have some kind 
-of cleanup tool that you could manually run on a filesystem to clean it up?
+Hardware Environment:
+pSeries p630 2way Power4+ 1.4GHz 16 GB RAM
+pSeries B80 2way Power3 375Mhz 3GB RAM
 
-Chris
+Software Environment:
+SLES9 beta2 with 2.6.4-15-pseries64 kernel
+
+Steps to Reproduce:
+1. Installed the system with SLES9 beta1 CDs
+2. Upgraded the built kernel to 2.6.4-15-pseries64 using  rpm -ivh 
+kernel-pseries64-2.6.4-15.ppc.rpm
+3.  Loaded dm_mod: modprobe dm_mod
+4. Creating /dev/mapper/control character device with major:10 minor:63 by
+executing devmap_mknod.sh
+
+Actual Results:
+
+Tried dmsetup ls and got errors:
+   device-mapper ioctl cmd 0 failed: Invalid argument
+   Command failed
+
+Expected Results: 
+   This a regression since it works fine in the last built kernel: 
+2.6.4-9-pseries64
+
+
+Also, when dmsetup suspend on a device mapper device, it hangs there 
+forever.
+
+Do you have any ideas ?
+
+
+
+Regards,
+
+ Hien Nguyen
+ Linux Technology Center             AUSTIN
+ Phone: (512) 838-4140            Tie Line: 678-4140
+ e-mail: hien1@us.ibm.com
+

@@ -1,92 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317024AbSH0SmL>; Tue, 27 Aug 2002 14:42:11 -0400
+	id <S316753AbSH0SwV>; Tue, 27 Aug 2002 14:52:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317034AbSH0SmL>; Tue, 27 Aug 2002 14:42:11 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:4086 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S317024AbSH0SmK>; Tue, 27 Aug 2002 14:42:10 -0400
-Date: Tue, 27 Aug 2002 14:46:29 -0400
-From: Doug Ledford <dledford@redhat.com>
-To: Andris Pavenis <pavenis@latnet.lv>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.4.20-pre4-ac1: i810_audio broken
-Message-ID: <20020827144629.E28828@redhat.com>
-Mail-Followup-To: Andris Pavenis <pavenis@latnet.lv>,
-	linux-kernel@vger.kernel.org
-References: <200208271253.12192.pavenis@latnet.lv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200208271253.12192.pavenis@latnet.lv>; from pavenis@latnet.lv on Tue, Aug 27, 2002 at 12:53:12PM +0300
+	id <S316775AbSH0SwV>; Tue, 27 Aug 2002 14:52:21 -0400
+Received: from darkwing.uoregon.edu ([128.223.142.13]:57077 "EHLO
+	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
+	id <S316753AbSH0SwU>; Tue, 27 Aug 2002 14:52:20 -0400
+Date: Tue, 27 Aug 2002 11:57:51 -0700 (PDT)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: joelja@twin.uoregon.edu
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: symbios 53c1010 problems 2.4.18/19/20prexxx
+Message-ID: <Pine.LNX.4.44.0208271137350.10524-100000@twin.uoregon.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 27, 2002 at 12:53:12PM +0300, Andris Pavenis wrote:
-> Found that i810_audio has been broken in kernel 2.4.20-pre4-ac1. It was Ok with 
-> 2.4.20-pre1-ac1 I used before.
-> 
-> With 2.4.20-pre4-ac1 I'm only getting garbled sound and kernel messages (see below).
-> Didn't have time yet to study mire detailed which change breaks driver.
+On a tekram dc390u3w (sym53c1010) when the sym53c8xx module gets loaded I 
+see a lot of this:
 
-The important part of my change is just two lines.  There is the line that 
-prints out the message "Defaulting to base 2 channel mode." and the line 
-after it where we mask off a couple bits in the global control register.  
-Comment those two lines out and let me know if it makes a difference on 
-your machine.
+sym53c1010-33-1: unable to abort current chip operation, ISTAT=0x00.
+sym53c1010-33-1: restart (scsi reset).
+sym53c1010-33-1: handling phase mismatch from SCRIPTS.
+sym53c1010-33-1: Downloading SCSI SCRIPTS.
+SCSI host 1 abort (pid 185) timed out - resetting
+SCSI bus is being reset for host 1 channel 0.
+sym53c8xx_reset: pid=185 reset_flags=2 serial_number=186 
+serial_number_at_timeout=186
 
-> In Alan's changelog I see:
-> 
-> 2.4.20-pre2-ac5: Further i810_audio updates for 845 (Juergen Sawinski) 
-> 2.4.20-pre1-ac3: Tidy up error paths on i810_audio init (Alan) 
-> 2.4.20-pre1-ac2: First set of i810 audio updates (Doug Ledford) 
-> 
-> Andris
-> 
-> ------ at startup -----------------
-> Intel 810 + AC97 Audio, version 0.22, 11:18:00 Aug 26 2002
-> PCI: Found IRQ 5 for device 00:1f.5
-> PCI: Sharing IRQ 5 with 00:1f.3
-> PCI: Setting latency timer of device 00:1f.5 to 64
-> i810: Intel ICH 82801AA found at IO 0xe100 and 0xe000, MEM 0x0000 and 0x0000, IRQ 5
-> i810_audio: Audio Controller supports 2 channels.
-> i810_audio: Defaulting to base 2 channel mode.
-> i810_audio: resetting hw channel 0
-> ac97_codec: AC97 Audio codec, id: 0x4144:0x5348 (Analog Devices AD1881A)
-> i810_audio: AC'97 codec 0 Unable to map surround DAC's (or DAC's not present), to
-> ------ error messages  ------------
-> i810_audio: DMA overrun on write
-> i810_audio: CIV 0, LVI 27, hwptr 253a, count -13626
-> i810_audio: DMA overrun on write
-> i810_audio: CIV 0, LVI 27, hwptr 2662, count -296
-> i810_audio: DMA overrun on write
-> i810_audio: CIV 0, LVI 27, hwptr 2662, count -296
-> i810_audio: DMA overrun on write
-> i810_audio: CIV 0, LVI 27, hwptr 266a, count -8
-> i810_audio: DMA overrun on write
-> i810_audio: CIV 1, LVI 31, hwptr 2924, count -10526
-> i810_audio: DMA overrun on write
-> i810_audio: CIV 1, LVI 31, hwptr 2924, count -10526
-> i810_audio: DMA overrun on write
-> i810_audio: CIV 0, LVI 3, hwptr 253a, count -5434
-> i810_audio: DMA overrun on write
-> i810_audio: CIV 0, LVI 3, hwptr 2562, count -40
-> ......
-> 
-> ---------  error message from artsd (KDE-3.1 beta1) -------
-> Sound server fatal error:
-> AudioSubSystem::handleIO: write failed
-> len = 3228, can_write = 4096, errno = 17 (File exists)
-> This might be a sound hardware/driver specific problem (see aRts FAQ)
-> 
-> -------------------------------------------------------------------- 
-> Kernel was compiled with gcc-3.1 (like earlier kernels where i810_audio worked
-> Ok)
+It repeats about 200 times before the machine continues... bootup time is 
+about 15 minutes.
+
+The funny thing is there isn't anything on the second channel. only on the 
+first.
+
+sym53c1010-33-0-<0,*>: FAST-80 WIDE SCSI 160.0 MB/s (12.5 ns, offset 62)
+SCSI device sda: 35843670 512-byte hdwr sectors (18352 MB)
+ sda: sda1
+sym53c1010-33-0-<1,*>: FAST-80 WIDE SCSI 160.0 MB/s (12.5 ns, offset 62)
+SCSI device sdb: 35843670 512-byte hdwr sectors (18352 MB)
+ sdb: sdb1
+sym53c1010-33-0-<2,*>: FAST-80 WIDE SCSI 160.0 MB/s (12.5 ns, offset 62)
+SCSI device sdc: 35843670 512-byte hdwr sectors (18352 MB)
+ sdc: sdc1
+sym53c1010-33-0-<3,*>: FAST-80 WIDE SCSI 160.0 MB/s (12.5 ns, offset 62)
+SCSI device sdd: 35843670 512-byte hdwr sectors (18352 MB)
+ sdd: sdd1
+
+building kernel with the scsi driver built in generally results in a hang 
+sometime during boot.
+
+The system is an msi ms-6501 AMD 762 chipset with dual athlon MP 1900+ 
+cpu's and 2GB of ram.
+
+the tekram (64bit 66mhz) is in the second 64bit pci slot a tigon3 based 
+syskonnect is in the first 64bit pci slot.
+
+lspci output looks like this:
+
+[root@proxy2 root]# lspci
+00:00.0 Host bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] 
+System Co
+ntroller (rev 11)
+00:01.0 PCI bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] AGP 
+Bridge
+00:07.0 ISA bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ISA (rev 
+04)
+00:07.1 IDE interface: Advanced Micro Devices [AMD] AMD-768 [Opus] IDE 
+(rev 04)
+00:07.3 Bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ACPI (rev 03)
+00:07.5 Multimedia audio controller: Advanced Micro Devices [AMD]: Unknown 
+devic
+e 7445 (rev 03)
+00:08.0 SCSI storage controller: LSI Logic / Symbios Logic (formerly NCR) 
+53c101
+0 Ultra3 SCSI Adapter (rev 01)
+00:08.1 SCSI storage controller: LSI Logic / Symbios Logic (formerly NCR) 
+53c101
+0 Ultra3 SCSI Adapter (rev 01)
+00:09.0 Ethernet controller: Syskonnect (Schneider & Koch): Unknown device 
+4400 
+(rev 11)
+00:10.0 PCI bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] PCI (rev 
+04)
+02:00.0 USB Controller: Advanced Micro Devices [AMD] AMD-768 [Opus] USB 
+(rev 07)
+02:05.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro 215GP 
+(rev 5
+c)
+
+
+This particular output is from a redhat 2.4.18-3 i686up kernel, it doesn't
+differ significantly from the output from 2.4.18up 2.4.19up/smp and
+2.4.20pre4. any additional information that might be helpful to 
+someone please contact me.
+
+joelja
 
 -- 
-  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
-         Red Hat, Inc. 
-         1801 Varsity Dr.
-         Raleigh, NC 27606
-  
+-------------------------------------------------------------------------- 
+Joel Jaeggli	      Academic User Services   joelja@darkwing.uoregon.edu    
+--    PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E      --
+  In Dr. Johnson's famous dictionary patriotism is defined as the last
+  resort of the scoundrel.  With all due respect to an enlightened but
+  inferior lexicographer I beg to submit that it is the first.
+	   	            -- Ambrose Bierce, "The Devil's Dictionary"
+
+

@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280631AbRKNPMu>; Wed, 14 Nov 2001 10:12:50 -0500
+	id <S280629AbRKNPOU>; Wed, 14 Nov 2001 10:14:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280632AbRKNPMk>; Wed, 14 Nov 2001 10:12:40 -0500
-Received: from smtp2.cluster.oleane.net ([195.25.12.17]:35079 "EHLO
-	smtp2.cluster.oleane.net") by vger.kernel.org with ESMTP
-	id <S280631AbRKNPMf>; Wed, 14 Nov 2001 10:12:35 -0500
-Message-ID: <03e401c16d1f$21a99460$0a01a8c0@beawrk10>
-From: "Philip Dodd" <smpcomputing@free.fr>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re:  Athlon SMP blues - kernels 2.4.[9 13 15-pre4]
-Date: Wed, 14 Nov 2001 16:15:00 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S280627AbRKNPOL>; Wed, 14 Nov 2001 10:14:11 -0500
+Received: from adsl-80-120-8.dab.bellsouth.net ([65.80.120.8]:28544 "EHLO
+	midgaard.darktech.org") by vger.kernel.org with ESMTP
+	id <S280629AbRKNPNg>; Wed, 14 Nov 2001 10:13:36 -0500
+Date: Wed, 14 Nov 2001 10:13:47 -0500
+From: Andreas Boman <aboman@nerdfest.org>
+To: arjanv@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Athlon SMP blues - kernels 2.4.[9 13 15-pre4]
+Message-Id: <20011114101347.272f6b88.aboman@nerdfest.org>
+In-Reply-To: <3BF285D7.8F5AAB6E@redhat.com>
+In-Reply-To: <Pine.GSO.4.33.0111141421230.14971-100000@gurney>
+	<3BF285D7.8F5AAB6E@redhat.com>
+X-Mailer: Sylpheed version 0.6.4 (GTK+ 1.2.10; i386-nerdfest-linux)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 14 Nov 2001 14:55:19 +0000
+Arjan van de Ven <arjanv@redhat.com> wrote:
 
+> Alastair Stevens wrote:
+> > 
+> > Hi folks - I'm having real problems getting our new dual CPU server
+> > going. It's a 2x Athlon XP 1800+ on a Tyan mobo, AMD 760MP chipset, with
+> 
+> Ehm you know that XP cpu's don't support SMP configuration ?
+> -
 
- > > Ehm you know that XP cpu's don't support SMP configuration ?
->
-> Erm, no....
->
-> If this really is the case, then obviously my supplier doesn't know
-> either,
+_Officially_. However afaik the XP cpu's are identical to the MP ones. All AMD K7 cpu's 'work' in SMP.
 
- Not impossible ;)  Suppliers think end users are dumb until end users work
- out it's the suppliers that are dumb :)
-
- I confirm that XP chips aren't supported in smp configs by AMD.  I can't of
- the top of my head give URLs to confirm what I've just said, but I'l
-rummage
- around and see if I can dig stuff up.  It's the MP chips that are supported
- in MP configs (unsurprisingly :))
-
-
- Philip DODD
- Sales Engineer
- SIVA
- Les Fjords - Immeuble Narvik
- 19 Avenue de Norvège
- Z.A. de Courtaboeuf 1
- 91953 LES ULIS CEDEX
- http://www.siva.fr
-
-
-
+	Andreas
+	
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

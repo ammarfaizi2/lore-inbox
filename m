@@ -1,74 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264847AbTE1TVO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 15:21:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264846AbTE1TVO
+	id S264845AbTE1TTR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 15:19:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264846AbTE1TTR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 15:21:14 -0400
-Received: from verdi.et.tudelft.nl ([130.161.38.158]:63873 "EHLO
-	verdi.et.tudelft.nl") by vger.kernel.org with ESMTP id S264844AbTE1TVM
+	Wed, 28 May 2003 15:19:17 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:2706 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S264845AbTE1TTQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 15:21:12 -0400
-Message-Id: <200305281934.h4SJYHtX015646@verdi.et.tudelft.nl>
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
-X-Exmh-Isig-CompType: repl
-X-Exmh-Isig-Folder: inbox
-To: root@chaos.analogic.com
-Cc: linux-kernel@vger.kernel.org, robn@verdi.et.tudelft.nl
-Subject: Re: 2.4 bug: fifo-write causes diskwrites to read-only fs ! 
-In-Reply-To: Your message of "Wed, 28 May 2003 15:17:38 EDT."
-             <Pine.LNX.4.53.0305281508140.13318@chaos> 
-Mime-Version: 1.0
-Content-Type: text/plain
-Date: Wed, 28 May 2003 21:34:17 +0200
-From: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
+	Wed, 28 May 2003 15:19:16 -0400
+Date: Wed, 28 May 2003 12:32:13 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Rick Lindsley <ricklind@us.ibm.com>
+cc: Erich Focht <efocht@hpce.nec.com>, Andi Kleen <ak@suse.de>,
+       LSE <lse-tech@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Lse-tech] Node affine NUMA scheduler extension 
+Message-ID: <30280000.1054150332@[10.10.2.4]>
+In-Reply-To: <200305281814.h4SIEgj02186@owlet.beaverton.ibm.com>
+References: <200305281814.h4SIEgj02186@owlet.beaverton.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, 28 May 2003, Rob van Nieuwkerk wrote:
+>     Can you define what you mean by big vs small? I presume you mean RSS?
+>     There are several factors that come into play here, at least:
+>     
+>     1. RSS (and which bits of this lie on which node)
+>     2. CPU utilisation of the task
+>     3. Task duration
+>     4. Cache warmth
+>     5. the current balance situation.
 > 
-> >
-> > I wrote:
-> > > It turns out that Linux is updating inode timestamps of fifos (named
-> > > pipes) that are written to while residing on a read-only filesystem.
-> > > It is not only updating in-ram info, but it will issue *physical*
-> > > writes to the read-only fs on the disk !
-> > 	.
-> > 	.
-> > 	.
-> > > Sysinfo:
-> > > --------
-> > > - various 2.4 kernels including RH-2.4.20-13.9,
-> > >   but also straight 2.4(ac) ones.
-> > > - CompactFlash (= IDE disk)
-> > > - Geode GX1 CPU (i586 compatible)
-> >
-> > Forgot to mention: I use an ext2 fs, but maybe it's a generic,
-> > fs-independant problem.
-> >
-> > 	greetings,
-> > 	Rob van Nieuwkerk
+> Along the same lines, would it make sense to *permit* imbalances for some
+> classes of tasks?  It may be worth it, for example, to let three threads
+> sharing a lot of data to saturate one cpu because what they lose from
+> their self-competition is saved from the extremely warm cache.
 > 
-> How does it 'know' it's a R/O file-system? Have you mounted it
-> R/O, mounted it noatime, or just taken whatever you get when
-> you boot from a ramdisk?
+> So you leave cpu0 at 7 tasks even though cpu1 only has 4, because the 7 are
+> "related" and the 4 are "dissimilar"?  The equation changes dramatically,
+> perhaps, once their is an idle cpu, but if everything is busy does it make
+> sense to weight the items in the runqueues in any way?
 
-Hi Richard,
+It'd make sense ... but I think it would be a bitch to implement ;-) 
+How do you know when it's worth it?
 
-The kernel has the "ro" commandline-parameter.
-There is no remount after the system boots.
-"touch /bla" gives a read-only fs error.
+M.
 
-> FYI, I created a FIFO with mkfifo, remounted the file-system
-> R/O, executed `cat` with it's input coming from the FIFO, and
-> then waited for a few minutes. I then wrote to the FIFO.
-> The atime did not change with 2.4.20.
-
-Just did the same here (on my workstation).  And the times *did* change ..
-More precisely: the "modification" & "change" were updated, the "access"
-time remained unchanged.
-
-RH9, kernel-2.4.20-13.9
-
-	greetings,
-	Rob van Nieuwkerk

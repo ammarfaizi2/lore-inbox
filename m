@@ -1,61 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273028AbRIWAi4>; Sat, 22 Sep 2001 20:38:56 -0400
+	id <S273037AbRIWAm0>; Sat, 22 Sep 2001 20:42:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273037AbRIWAir>; Sat, 22 Sep 2001 20:38:47 -0400
-Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:34952 "EHLO
-	mirai.cx") by vger.kernel.org with ESMTP id <S273028AbRIWAid>;
-	Sat, 22 Sep 2001 20:38:33 -0400
-Message-ID: <3BAD2F22.6E151CBD@pobox.com>
-Date: Sat, 22 Sep 2001 17:38:58 -0700
-From: J Sloan <jjs@pobox.com>
-Organization: J S Concepts
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.10-pre14 i686)
-X-Accept-Language: en
+	id <S273043AbRIWAmQ>; Sat, 22 Sep 2001 20:42:16 -0400
+Received: from paloma12.e0k.nbg-hannover.de ([62.159.219.12]:24281 "HELO
+	paloma12.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S273037AbRIWAmA>; Sat, 22 Sep 2001 20:42:00 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: safemode <safemode@speakeasy.net>, Robert Love <rml@tech9.net>
+Subject: Re: [PATCH] Preemption Latency Measurement Tool
+Date: Sun, 23 Sep 2001 02:42:24 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.30.0109201659210.5622-100000@waste.org> <20010922211919Z272247-760+15646@vger.kernel.org> 
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-CC: Robert Love <rml@tech9.net>
-Subject: Encouraging results from 2.4.10-pre14 + preempt
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Message-Id: <20010923004207Z273037-760+15674@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am very encouraged by the latest linus kernel, and
-thought I'd pass this along -
+Am Sonntag, 23. September 2001 02:15 schrieb safemode:
+> On Saturday 22 September 2001 19:46, Dieter Nützel wrote:
+> > Am Sonntag, 23. September 2001 01:40 schrieb safemode:
+> > > ok. The preemption patch helps realtime applications in linux be a
+> > > little more close to realtime.  I understand that.  But your mp3 player
+> > > shouldn't need root permission or renicing or realtime priority flags
+> > > to play mp3s. To test how well the latency patches are working you
+> > > should be running things all at the same priority.  The main issue
+> > > people are having with skipping mp3s is not in the decoding of the mp3
+> > > or in the retrieving of the file, it's in the playing in the soundcard.
+> > >  That's being affected by dbench flooding the system with irq requests.
+> > >  I'm inclined to believe it's irq requests because the _only_ time i
+> > > have problems with mp3s (and i dont change priority levels) is when A.
+> > > i do a cdparanoia -Z -B "1-"    or dbench 32.   I bet if someone did
+> > > these tests on scsi hardware with the latency patch, they'd find much
+> > > better results than us users of ide devices.
+> >
+> > Nope.
+> > If you would have read (all) posts about this and related threads you
+> > should have noticed that I am and others running SCSI systems...
+>
+> hrmm  strange because the only thing that could be causing the soundcard to
+> skip would be irq requests still stuck in the cpu as far as i know.  I only
+> get that with massive ide access and that's it.  Also that is when linux is
+> juggling them all equally.
+>
+> > > even i dont get any skips when i run the player at nice -n -20.
+> >
+> > During dbench 16/32 and higher? Are you sure?
+>
+> I ran it myself and i dont drink alcohol or take drugs.  so yea, i'm sure
+> :)
 
-Platform info -
-----------------
-PIII 933/Intel mobo
-512 MB RAM
-2 30 GB IDE disks
-Ensoniq ES1371 sound card
-Red Hat 7.1 + bits of rawhide
-kernel 2.4.10-pre14 + preempt patch
+:-)))
 
-The testing was done while running X windows (icewm), Netscape 4.78,
-iptraf, and misc other services (named, sendmail, apache, iptables
-firewalling etc.
+I would only to be sure. 'cause I get this regularly.
 
-During the dbench runs mpg123 was playing mp3s -
+> If i went high enough i suppose the same problem would occur.  it's
+> probably in an area of the kernel where the preempt patch doesn't work
+> (yet).    It does happen on cdparanoia -Z -B "1"
 
-Highlights -
-------------
- - There was absolutely no mp3 skipping during dbench 16 & 32.
- - There was minor skipping during dbench 40, when load was near 40.
- - Best of all, the desktop remained completely responsive the entire
-time.
+I am under the impression that we didn't found the cause of it, yet.
 
+>    I dont think anything ide is safe from that.
 
-dbench summaries:
----------------------------
-Throughput 49.6162 MB/sec (NB=62.0202 MB/sec  496.162 MBit/sec)  16
-procs
-Throughput 32.5531 MB/sec (NB=40.6913 MB/sec  325.531 MBit/sec)  32
-procs
-Throughput 24.8711 MB/sec (NB=31.0889 MB/sec  248.711 MBit/sec)  40
-procs
+No comment on this...:-)
 
+So, do you running ReiserFS or what?
 
-Screenshot at http://mirai.cx/dbench40.png
-
+Thanks,
+	Dieter

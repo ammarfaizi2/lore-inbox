@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132857AbRDIWAh>; Mon, 9 Apr 2001 18:00:37 -0400
+	id <S132860AbRDIWM5>; Mon, 9 Apr 2001 18:12:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132858AbRDIWA1>; Mon, 9 Apr 2001 18:00:27 -0400
-Received: from mail.zmailer.org ([194.252.70.162]:59146 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S132857AbRDIWAN>;
-	Mon, 9 Apr 2001 18:00:13 -0400
-Date: Tue, 10 Apr 2001 01:00:08 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Michael Peddemors <michael@linuxmagic.com>, linux-kernel@vger.kernel.org
-Subject: Re: goodbye
-Message-ID: <20010410010008.W805@mea-ext.zmailer.org>
-In-Reply-To: <15057.16344.113642.668424@pizda.ninka.net> <Pine.LNX.4.21.0104090250001.3595-100000@imladris.rielhome.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0104090250001.3595-100000@imladris.rielhome.conectiva>; from riel@conectiva.com.br on Mon, Apr 09, 2001 at 02:50:55AM -0300
+	id <S132861AbRDIWMr>; Mon, 9 Apr 2001 18:12:47 -0400
+Received: from [199.217.175.51] ([199.217.175.51]:3855 "EHLO
+	core.federated.com") by vger.kernel.org with ESMTP
+	id <S132860AbRDIWMb>; Mon, 9 Apr 2001 18:12:31 -0400
+From: Jim Studt <jim@federated.com>
+Message-Id: <200104092212.RAA11802@core.federated.com>
+Subject: Re: aic7xxx and 2.4.3 failures - fix, it is interrupt routing
+In-Reply-To: <Pine.LNX.4.10.10104092009020.397-100000@linux.local> from "[G_rard
+ Roudier]" at "Apr 9, 2001 08:14:51 pm"
+To: "[G_rard Roudier]" <groudier@club-internet.fr>
+Date: Mon, 9 Apr 2001 17:12:17 -0500 (CDT)
+CC: Jim Studt <jim@federated.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 09, 2001 at 02:50:55AM -0300, Rik van Riel wrote:
-> On Sun, 8 Apr 2001, David S. Miller wrote:
-> > Rik van Riel writes:
-> >  > Anyway, since linux-kernel has chosen to not receive email from me
-> > Funny how this posting went through then...
-> > 
-> > If it is specifically when you are sending mail from some other place,
-> > state so, don't make blanket statements which obviously are not wholly
-> > true.
-> 
-> I'm temporarily using my ISP's smarthost.  However, I'll turn this
-> off again soon because I'd rather stop with linux-kernel then give
-> in to the guilty-by-default attitude that comes with DUL.
+G*rard Roudier insightfully opined..
+> Looks like an IRQ problem to me.
+> I mean the kernel wants to change IRQ routing and just do the wrong job.
 
-	Dave said "remove DUL", I did that.
+Give the man a prize!  
 
-	VGER uses now   RBL and RSS,  no others.
+After failing to work with 2.4.0, 2.4.1, 2.4.3, and 2.4.3-ac3 I
+enabled X86_UP_IOAPIC to stir up the interrupt code and it works.
 
-	In few weeks time, I probably implement EXIMish "warn"
-	feature.
+I'll keep one of these servers set aside for testing and see if I can't
+figure out a little more specifically what the problem is, but IOAPIC
+is fine.  
 
-> Rik
-> --
-> 		http://www.surriel.com/
-> http://www.conectiva.com/	http://distro.conectiva.com.br/
+Thanks for the help all!
 
-/Matti Aarnio
+-- 
+                                     Jim Studt, President
+                                     The Federated Software Group, Inc.

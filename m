@@ -1,22 +1,20 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129076AbQKIQX3>; Thu, 9 Nov 2000 11:23:29 -0500
+	id <S129260AbQKIQ0a>; Thu, 9 Nov 2000 11:26:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129419AbQKIQXT>; Thu, 9 Nov 2000 11:23:19 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:35850
+	id <S129105AbQKIQ0U>; Thu, 9 Nov 2000 11:26:20 -0500
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:37130
 	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
-	id <S129076AbQKIQXF>; Thu, 9 Nov 2000 11:23:05 -0500
-Date: Thu, 9 Nov 2000 11:33:47 -0500
+	id <S129030AbQKIQ0C>; Thu, 9 Nov 2000 11:26:02 -0500
+Date: Thu, 9 Nov 2000 11:36:47 -0500
 From: Wakko Warner <wakko@animx.eu.org>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: PCI-PCI bridges mess in 2.4.x
-Message-ID: <20001109113347.B14133@animx.eu.org>
-In-Reply-To: <20001101093319.A18144@twiddle.net> <20001103111647.A8079@jurassic.park.msu.ru> <20001103011640.A20494@twiddle.net> <20001106192930.A837@jurassic.park.msu.ru> <20001108013931.A26972@twiddle.net> <3A0977A7.53641C52@mandrakesoft.com> <20001108113859.A10997@animx.eu.org> <3A098594.A85DFE0D@mandrakesoft.com> <20001108122306.A11107@animx.eu.org> <3A0989CC.2537FCEA@mandrakesoft.com>
+Message-ID: <20001109113647.D14133@animx.eu.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 0.95.3i
-In-Reply-To: <3A0989CC.2537FCEA@mandrakesoft.com>; from Jeff Garzik on Wed, Nov 08, 2000 at 12:13:48PM -0500
+To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 

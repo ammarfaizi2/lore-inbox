@@ -1,30 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264295AbRFMCkq>; Tue, 12 Jun 2001 22:40:46 -0400
+	id <S264313AbRFMCkZ>; Tue, 12 Jun 2001 22:40:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264300AbRFMCkf>; Tue, 12 Jun 2001 22:40:35 -0400
-Received: from firewall.ocs.com.au ([203.34.97.9]:30963 "EHLO ocs4.ocs-net")
-	by vger.kernel.org with ESMTP id <S264295AbRFMCkX>;
-	Tue, 12 Jun 2001 22:40:23 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.6-pre3 
-In-Reply-To: Your message of "Tue, 12 Jun 2001 18:42:45 MST."
-             <Pine.LNX.4.31.0106121836030.1253-100000@penguin.transmeta.com> 
+	id <S264300AbRFMCkP>; Tue, 12 Jun 2001 22:40:15 -0400
+Received: from msp-26-178-183.mn.rr.com ([24.26.178.183]:31914 "HELO
+	msp-26-178-183.mn.rr.com") by vger.kernel.org with SMTP
+	id <S264295AbRFMCkE>; Tue, 12 Jun 2001 22:40:04 -0400
+Date: Tue, 12 Jun 2001 21:40:03 -0500
+From: Shawn <core@enodev.com>
+To: Keith Owens <kaos@ocs.com.au>, Daniel Stone <daniel@kabuki.sfarc.net>,
+        Daniel Podlejski <underley@underley.eu.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: XFS and Alan kernel tree
+Message-ID: <20010612214003.B32427@msp-26-178-183.mn.rr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 13 Jun 2001 12:40:11 +1000
-Message-ID: <26832.992400011@ocs4.ocs-net>
+Content-Disposition: inline
+In-Reply-To: <20010613091505.A3989@kabuki.openfridge.net>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Jun 2001 18:42:45 -0700 (PDT), 
-Linus Torvalds <torvalds@transmeta.com> wrote:
->-pre3:
-> - Jeff Garzik: network driver updates
+On 06/12, Daniel Stone rearranged the electrons to read:
+> Hmm, I've got Rik's page_launder patch which was posted to lkml a couple of
+> days ago, and hand-hacked that into ac. I got the CVS tree and manually
+> hacked out 2.4.6-pre2, but with 22 different files with rejects when I tried
+> to put -ac in, I just gave up.
 
-tulip_core.c:1756: warning: initialization from incompatible pointer type
-tulip_core.c:1757: warning: initialization from incompatible pointer type
+Sounds like my experience with it. I can do 5 to maybe even ten rejects
+if they're no-thinkos, but this was a buttload of whammies.
 
+--
+Hob Goblin
+core@enodev.com
+
+I spilled Spot Remover on my dog... Now he's gone.
+						-- Stephen Wright

@@ -1,48 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262719AbVCPSKs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262720AbVCPSNL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262719AbVCPSKs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 13:10:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262720AbVCPSKs
+	id S262720AbVCPSNL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 13:13:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262724AbVCPSNL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 13:10:48 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:21717 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262719AbVCPSKo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 13:10:44 -0500
-Date: Wed, 16 Mar 2005 18:10:42 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Rik van Riel <riel@redhat.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Keir Fraser <Keir.Fraser@cl.cam.ac.uk>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, kurt@garloff.de, Ian.Pratt@cl.cam.ac.uk,
-       Christian.Limpach@cl.cam.ac.uk
-Subject: Re: [PATCH] Xen/i386 cleanups - AGP bus/phys cleanups
-Message-ID: <20050316181042.GA26788@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Rik van Riel <riel@redhat.com>,
-	Keir Fraser <Keir.Fraser@cl.cam.ac.uk>,
-	linux-kernel@vger.kernel.org, akpm@osdl.org, kurt@garloff.de,
-	Ian.Pratt@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk
-References: <E1DBX0o-0000sV-00@mta1.cl.cam.ac.uk> <20050316143130.GA21959@infradead.org> <Pine.LNX.4.61.0503160959530.4104@chimarrao.boston.redhat.com>
+	Wed, 16 Mar 2005 13:13:11 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:40711 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262720AbVCPSNF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 13:13:05 -0500
+Message-Id: <200503161812.j2GICv9V018998@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Patrick McFarland <pmcfarland@downeast.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-mm4 and 2.6.11.4 
+In-Reply-To: Your message of "Wed, 16 Mar 2005 12:57:15 EST."
+             <200503161257.21571.pmcfarland@downeast.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <200503161257.21571.pmcfarland@downeast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0503160959530.4104@chimarrao.boston.redhat.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: multipart/signed; boundary="==_Exmh_1110996777_3964P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 16 Mar 2005 13:12:57 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 16, 2005 at 10:01:07AM -0500, Rik van Riel wrote:
-> In the case of AGP, the AGPGART effectively _is_ the
-> IOMMU.  Calculating the addresses right for programming
-> the AGPGART is probably worth fixing.
+--==_Exmh_1110996777_3964P
+Content-Type: text/plain; charset=us-ascii
 
-Well, it's a half-assed one.  And some systems have a real one.
+On Wed, 16 Mar 2005 12:57:15 EST, Patrick McFarland said:
 
-But the real problem is that virt_to_bus doesn't exist at all
-on architectures like ppc64, and this patch touches files like
-generic.c and backend.c that aren't PC-specific.   So you
-effectively break agp support for them.
+> I've been running -mm for about a year now, and the whole thing with 2.6.11.x
+> releases coming out quite often is a little confusing. Does 2.6.11-mm4 still
+> apply to 2.6.11 (no bloody 1, 2, 3, or 4), and if so, what does -mm4 contain
+> from the .x versions (ie, does -mm4 contain the updates from 2.6.11.3 or 4 as
+> well?)
 
+The -mm patches apply on top of a clean 2.6.11.
+
+They *should* contain all the 2.6.11.4 fixes, because Andrew includes the
+bk-linus.patch in -mm, and the 2.6.x.y policy is that the patch (or a variant
+thereof) already be in upstream.  So Linus's tree has to have it in it, so
+the -mm tree should have it.
+
+If you find something that's in 2.6.x.y that *isn't* in a subsequently released
+-mm, I suggest you contact Greg, Linus, and Andrew, as it means we've collectively
+borked something...
+
+
+--==_Exmh_1110996777_3964P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCOHcpcC3lWbTT17ARAhbUAKC/zHr4CWrQmHIPF5GAXVMIu8GbyQCgnLbe
+iEOs6xF7eoP1/USsaVYgWrw=
+=/5lw
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1110996777_3964P--

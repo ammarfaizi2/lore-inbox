@@ -1,69 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261693AbTDVPbf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 11:31:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263202AbTDVPbf
+	id S263204AbTDVPhP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 11:37:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263209AbTDVPhP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 11:31:35 -0400
-Received: from holomorphy.com ([66.224.33.161]:16283 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S261693AbTDVPbe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 11:31:34 -0400
-Date: Tue, 22 Apr 2003 08:42:48 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Ingo Molnar <mingo@redhat.com>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@digeo.com>,
-       Andrea Arcangeli <andrea@suse.de>, mingo@elte.hu, hugh@veritas.com,
-       dmccr@us.ibm.com, Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+	Tue, 22 Apr 2003 11:37:15 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:25825 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S263204AbTDVPhL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 11:37:11 -0400
+Date: Tue, 22 Apr 2003 11:49:05 -0400 (EDT)
+From: Ingo Molnar <mingo@redhat.com>
+X-X-Sender: mingo@devserv.devel.redhat.com
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: Andrew Morton <akpm@digeo.com>, Andrea Arcangeli <andrea@suse.de>,
+       <mingo@elte.hu>, <hugh@veritas.com>, <dmccr@us.ibm.com>,
+       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
+       <linux-mm@kvack.org>
 Subject: Re: objrmap and vmtruncate
-Message-ID: <20030422154248.GI8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Ingo Molnar <mingo@redhat.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Andrew Morton <akpm@digeo.com>, Andrea Arcangeli <andrea@suse.de>,
-	mingo@elte.hu, hugh@veritas.com, dmccr@us.ibm.com,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <170570000.1051021741@[10.10.2.4]> <Pine.LNX.4.44.0304221032560.10400-100000@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0304221032560.10400-100000@devserv.devel.redhat.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <170570000.1051021741@[10.10.2.4]>
+Message-ID: <Pine.LNX.4.44.0304221127380.10400-100000@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 22, 2003 at 11:07:32AM -0400, Ingo Molnar wrote:
-> also, it's an inherent DoS thing. Any application that has the 'privilege'
-> of creating 1000 mappings in 1000 processes to the same inode (this is
-> already being done, and it will be commonplace in a few years) will
-> immediately DoS the whole VM. I might be repeating myself, but quadratic
-> algorithms do get linearly _worse_ as the hw evolves. The pidhash
-> quadratic behavior triggering the NMI watchdog on the biggest boxes is
-> just one example of this.
 
-I have to apologize for my misstatements of the problem here. You
-yourself pointed out to me the hold time was, in fact, linear. Despite
-the linearity of the algorithm, the failure mode persists. I've
-postponed further investigation until later, when more invasive
-techniques are admissible; /proc/ alone will not suffice if linear
-algorithms under tasklist_lock can trigger this failure mode.
+On Tue, 22 Apr 2003, Martin J. Bligh wrote:
 
-I believe further work is needed but I can't think of a 2.5.x mergeable
-method to address it. I've attempted to devolve the work to others in
-the hopes that future solutions might be devised. It's unfortunate but
-general algorithmic scalability for scenarios like this has a real cost
-for the low-end and it's a problem I don't feel comfortable trying to
-fix in the middle of 2.5.x stabilization for more general systems.
+> > to solve this problem i believe the pte chains should be made
+> > double-linked lists, and should be organized in a completely different
+> 
+> It seems ironic that the solution to space consumption is do double the
+> amount of space taken ;-) I see what you're trying to do (shove things
+> up into highmem), but it seems like a much better plan to me to just
+> kill the bloat altogether.
 
-Unless a refinement of either manfred's or your patches can be made to
-pass the test (apologies again; I don't recall the results, my time on
-the whole system is very limited and it was a while ago) I suspect very
-little can be done for 2.5.x here. IMHO a series of patches to
-eliminate all remaining linear scans under tasklist_lock alongside a
-fair locking construct will be eventually required, though, of course,
-only a solution is required, not my expectation.
+at the expense of introducing a quadratic component?
 
--- wli
+then at least we should have a cutoff point at which point some smarter
+algorithm kicks in.
+
+am i willing to trade in 1.2% of RAM overhead vs. 0.4% of RAM overhead in
+exchange of a predictable VM? Sure. I do believe that 0.8% of RAM will
+make almost zero noticeable difference on a 768 MB system - i have a 768
+MB system. Whether 1MB of extra RAM to a 128 MB system will make more of a
+difference than a predictable VM - i dont know, it probably depends on the
+app, but i'd go for more RAM. But it will make a _hell_ of a difference on
+a 1 TB RAM 64-bit system where the sharing factor explodes. And that's
+where Linux usage we will be by the time 2.6 based systems go production.
+
+this is why i think we should have both options in the VM - even if this
+is quite an amount of complexity. And we cannot get rid of pte chains
+anyway, they are a must for anonymous mappings. The quadratic property of
+objrmap should show up very nicely for anonymous mappings: they are in
+theory just nonlinear mappings of one very large inode [swap space],
+mapped in by zillions of tasks. Has anyone ever attempted to extend the
+objrmap concept to anonymous mappings?
+
+> [...] The overhead for pte-highmem is horrible as it is (something like
+> 10% systime for kernel compile IIRC). [...]
+
+i've got some very simple speedups for atomic kmaps that should mitigate
+much of the mappings overhead. And i take issue with the 10% system-time
+increase - are you sure about that? How much of total [wall-clock]
+overhead was that? I never knew this was a problem - it's easy to solve.
+
+> [...] And this is worse - you have to manipulate the prev and next
+> elements in the list. I know how to fix pte_highmem kmap overhead
+> already (via UKVA), but not rmap pages. Not only is it kmap, but you
+> have double the number of cachelines touched.
+
+well, highmem pte chains are a pain arguably, but doable.
+
+also consider that currently rmap has the habit of not shortening the pte
+chains upon unmap time - with a double linked list that becomes possible.  
+Has anyone ever profiled the length of pte chains during a kernel compile?
+
+	Ingo
+

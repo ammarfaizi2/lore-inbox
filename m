@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129660AbRCCStr>; Sat, 3 Mar 2001 13:49:47 -0500
+	id <S129663AbRCCSxh>; Sat, 3 Mar 2001 13:53:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129661AbRCCSth>; Sat, 3 Mar 2001 13:49:37 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:4113 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129660AbRCCStg>; Sat, 3 Mar 2001 13:49:36 -0500
-Date: Sat, 3 Mar 2001 10:49:03 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: David Hinds <dhinds@sonic.net>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Bug in cardbus initialization, or am I missing something?
-In-Reply-To: <20010303095819.A16963@sonic.net>
-Message-ID: <Pine.LNX.4.10.10103031046460.17645-100000@penguin.transmeta.com>
+	id <S129664AbRCCSxR>; Sat, 3 Mar 2001 13:53:17 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:54217 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S129663AbRCCSxG>;
+	Sat, 3 Mar 2001 13:53:06 -0500
+Message-ID: <3AA13D8F.404DC635@mandrakesoft.com>
+Date: Sat, 03 Mar 2001 13:53:03 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Marek Michalkiewicz <marekm@amelek.gda.pl>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        alan@lxorguk.ukuu.org.uk
+Subject: Re: [patch] 2.4.2 Advantech WDT driver
+In-Reply-To: <E14ZCEl-0001xd-00@mm.amelek.gda.pl>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 3 Mar 2001, David Hinds wrote:
->
-> In drivers/pcmcia/cardbus.c in cb_alloc(), PCI_INTERRUPT_LINE and
-> dev->irq are not filled in until after calling pci_enable_device().
-> The result is a cryptic message like:
+Marek Michalkiewicz wrote:
 > 
-> > PCI: No IRQ known for interrupt pin A of device 01:00.0. Please try using pci=biosirq. 
+> > Why is lock_kernel necessary?
 > 
-> Unless there is a less obvious reason for the ordering, I suggest the
-> following one-liner.
+> Well, it is there in 2.4.2 acquirewdt.c (which this driver is based on -
+> really only minimal changes, the hardware is only slightly different).
+> I can remove it if you tell me it's really not necessary.
 
-Agreed.
+Sounds like it got caught in an audit and is necessary, I didn't look
+closely...
 
-In fact, we shouldn't need to enable the device at all: the drivers are
-supposed to do the pci_enable_device() themselves. But let's do the
-minimal "move it down a few lines" thing for now.
 
-Thanks,
+> > > +       spin_lock_init(&advwdt_lock);
+> > > +       misc_register(&advwdt_miscdev);
+> >
+> > check return code for error
+> 
+> Again, acquirewdt.c doesn't do it with the misc_register, request_region
+> and register_reboot_notifier calls.  (Should it?  Cc: Alan Cox)
 
-		Linus
+Yes, the return codes should be checked.  :)
 
+-- 
+Jeff Garzik       | "You see, in this world there's two kinds of
+Building 1024     |  people, my friend: Those with loaded guns
+MandrakeSoft      |  and those who dig. You dig."  --Blondie

@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265785AbUEZUJk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265789AbUEZUdV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265785AbUEZUJk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 16:09:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265786AbUEZUJk
+	id S265789AbUEZUdV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 16:33:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265787AbUEZUdV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 16:09:40 -0400
-Received: from grunt21.ihug.com.au ([203.109.249.141]:64153 "EHLO
-	grunt21.ihug.com.au") by vger.kernel.org with ESMTP id S265785AbUEZUJh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 16:09:37 -0400
-Subject: Re: [Fwd: Re: drivers DB and id/ info registration]
-From: Zenaan Harkness <zen@freedbms.net>
-To: linux-kernel@vger.kernel.org, debian-devel@lists.debian.org
-In-Reply-To: <20040526195505.GB2588@kroah.com>
-References: <1085548092.2909.60.camel@zen8100a.freedbms.net>
-	 <20040526182919.GA25978@kroah.com>
-	 <1085600051.2468.17.camel@zen8100a.freedbms.net>
-	 <20040526195505.GB2588@kroah.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1085602088.2466.24.camel@zen8100a.freedbms.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 27 May 2004 06:08:08 +1000
+	Wed, 26 May 2004 16:33:21 -0400
+Received: from av7-1-sn4.m-sp.skanova.net ([81.228.10.110]:52115 "EHLO
+	av7-1-sn4.m-sp.skanova.net") by vger.kernel.org with ESMTP
+	id S265789AbUEZUc4 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 16:32:56 -0400
+From: Roger Larsson <roger.larsson@norran.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: e100 or e1000 on SMP kernel freeze system (ipx+ncp)
+Date: Wed, 26 May 2004 22:27:18 +0200
+User-Agent: KMail/1.6.52
+Cc: doug@easyco.com
+References: <200405260322.58571.roger.larsson@norran.net> <200405262158.30747.roger.larsson@norran.net>
+In-Reply-To: <200405262158.30747.roger.larsson@norran.net>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200405262227.18949.roger.larsson@norran.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-05-27 at 05:55, Greg KH wrote:
-> Remember, an id by itself is pointless.  We need specs and drivers that
-> work for those specs.  You should concentrate on that goal instead of
-> worrying about ids.
+Might be related to subject
 
-Of course there would be provision for "submit willing to code", "submit
-specs" etc - a support- and interest- garnering site.
+"Re: Hard Hang with __alloc_pages: 0-order allocation failed (gfp=0x20/1) - 
+Not out of memory"?
 
-> > Perhaps users can submit some, and surely at least _some_ companies,
-> > and/ or their employees, will do so too.
-> > 
-> > Still pointless?
-> 
-> As we are going to rip the pci.ids file out of the 2.7 kernel tree,
-> pretty much so :)
+e1000 and SMP...
 
-Hmm, I guess lkml is going to be pretty well kernel-centric.
+/RogerL
 
-Are you saying "it'll be ripped out and discarded forever" or
-"ripped out and placed in userspace where it always shoulda been"?
-
-I'm still not convinced that having comprehensive device recognition
-is pointless (but I'm not trying to push something that excludes
-drivers here either ...).
-
-ta
-zen
+-- 
+Roger Larsson
+Skellefteå
+Sweden

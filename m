@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbUFWWB6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbUFWWFR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261236AbUFWWB6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 18:01:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbUFWWA5
+	id S261925AbUFWWFR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 18:05:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261914AbUFWWEP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 18:00:57 -0400
-Received: from ztxmail05.ztx.compaq.com ([161.114.1.209]:22532 "EHLO
-	ztxmail05.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S261236AbUFWVyD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 17:54:03 -0400
-Date: Wed, 23 Jun 2004 16:55:12 -0500
-From: mikem@beardog.cca.cpqcorp.net
-To: viro@parcelfarce.linux.theplanet.co.uk
+	Wed, 23 Jun 2004 18:04:15 -0400
+Received: from fw.osdl.org ([65.172.181.6]:12487 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261752AbUFWWC4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 18:02:56 -0400
+Date: Wed, 23 Jun 2004 15:05:46 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: William Lee Irwin III <wli@holomorphy.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: problems with alloc_disk in genhd.c
-Message-ID: <20040623215512.GD16336@beardog.cca.cpqcorp.net>
-References: <20040623211829.GC16336@beardog.cca.cpqcorp.net> <20040623212459.GK12308@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: [oom]: [1/4] add __GFP_WIRED to pinned allocations
+Message-Id: <20040623150546.4f66f941.akpm@osdl.org>
+In-Reply-To: <0406231407.ZaHbZa1aIbIbKbZa3aHbLb3aYa2a3a5aWaIbWaKb2aYaKb4a4aHbIb3aLb5aHb2a342@holomorphy.com>
+References: <0406231407.HbLbJbXaHbKbWa5aJb1a4aKb0a3aKb1a0a2aMbMbYa3aLbMb3aJbWaJbXaMbLb1a342@holomorphy.com>
+	<0406231407.ZaHbZa1aIbIbKbZa3aHbLb3aYa2a3a5aWaIbWaKb2aYaKb4a4aHbIb3aLb5aHb2a342@holomorphy.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040623212459.GK12308@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.2i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 23, 2004 at 10:24:59PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> On Wed, Jun 23, 2004 at 04:18:29PM -0500, mikem@beardog.cca.cpqcorp.net wrote:
-> > In the  ioctl we are doing
-> > 
-> >         /* count partitions 1 to 15 with sizes > 0 */
-> >         for(i=0; i <MAX_PART; i++) {
-> 
-> ... followed by what?
-Here's the actual code, I typoed this first time.
-	/* count partitions 1 to 15 with sizes > 0 */
-	for(i=1; i <MAX_PART; i++) {
-		if (!disk->part[i])
-			continue;
-		if (disk->part[i]->nr_sects != 0)
-			luninfo.num_parts++;
-We're trying to figure how many partitions are physically on the disk. We do
-this for one of our utilities. Is there a kernel API that will return this
-data for us?
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>
+> +#define __GFP_WIRED	0x8000	/* pinned */
 
-mikem
-> 
-> Array of per-partition structures contains the data for partitions,
-> obviously.  And drivers have no damn business to ever touching it
-> directly, while we are at it.
-> 
-> BTW, take a look at the comment and loop following it.  And note
-> that you are doing 16 iterations in the loop, contrary to what
-> the comment above it says.
+This would be a nice thing to keep track of.
+
+Isn't it the case that reclaimable slab pages (dentry, inode, mbcache,
+dquot) should not be accounted as wired memory?  Could perhaps use
+SLAB_RECLAIM_ACCOUNT for that.
+
+It would need to be overridden for, say, sysfs inodes and dentries, but
+they're about to become reclaimable anyway so no prob.
+
+It would need to be overridden for, say, ramfs dentries and inodes though.
+
+rd.c's blockdev pagecache pages are wired.

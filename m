@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130316AbRAFRI5>; Sat, 6 Jan 2001 12:08:57 -0500
+	id <S130667AbRAFRQS>; Sat, 6 Jan 2001 12:16:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130667AbRAFRIr>; Sat, 6 Jan 2001 12:08:47 -0500
-Received: from tamqfl1-ar1-128-154.dsl.gtei.net ([4.33.128.154]:34802 "EHLO
-	linus.southpark") by vger.kernel.org with ESMTP id <S130316AbRAFRIf>;
-	Sat, 6 Jan 2001 12:08:35 -0500
-Message-ID: <3A575104.F06D87BC@leoninedev.com>
-Date: Sat, 06 Jan 2001 12:08:20 -0500
-From: Bryan Mayland <bmayland@leoninedev.com>
-Organization: Leonine Development, Inc.
-X-Mailer: Mozilla 4.73 [en] (Windows NT 5.0; I)
+	id <S131579AbRAFRQJ>; Sat, 6 Jan 2001 12:16:09 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:14859 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S130667AbRAFRP5>;
+	Sat, 6 Jan 2001 12:15:57 -0500
+Message-ID: <3A57521C.BEF2E349@innominate.de>
+Date: Sat, 06 Jan 2001 18:13:00 +0100
+From: Daniel Phillips <phillips@innominate.de>
+Organization: innominate
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: David Wragg <dpw@doc.ic.ac.uk>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, kraxel@goldbach.in-berlin.de,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] VESA framebuffer w/MTRR locks 2.4.0 on init
-In-Reply-To: <E14EZMf-0007vp-00@the-village.bc.nu> <y7rk889wk6o.fsf@sytry.doc.ic.ac.uk>
+To: Jared Sulem <jsulem@sulem.freeserve.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [non-kernel patch] Re: bug of Nvidia (0.9.5) Drivers in 2.4 Kernel 
+ Enviroment
+In-Reply-To: <NEBBKEIJMLEIHACEGKDMAEAECAAA.jsulem@sulem.freeserve.co.uk>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Wragg wrote:
+Jared Sulem wrote:
+> Driver should work after applying the following patch.  I'm not a kernel
+> hacker so I don't know how good a solution this is (especially suspicious
+> of the work around in os-interface.c) but X works on my machine and it has
+> not crashed (yet) - have not tried any OpenGL though.
+> [...]
+>
+>  struct vm_operations_struct nv_vm_ops = {
+>      open:     nv_vma_open,
+>      close:    nv_vma_release,
+> -    unmap:    nv_vma_unmap,
+> +    nv_vma_unmap,
+       ^^^^^^^^^^^^^
+No... 1) Bad idea to mix named field initializers with positional  Here
+you're initializing a nonexistent field  2) The unmap method is gone
+from vm_operations_struct because this is now handled generically.  Just
+remove it.
 
-> Something like this would be better:
-> if (mtrr_add(video_base, temp_size, MTRR_TYPE_WRCOMB, 1) == -EINVAL) {
->         /* Find the largest power-of-two */
->         while (temp_size & (temp_size - 1))
->                 temp_sze &= (temp_size - 1);
->         mtrr_add(video_base, temp_size, MTRR_TYPE_WRCOMB, 1);
-> }
-> (But this is just a very crude way to work around the inflexibility of
-> the MTRRs.  Rather than cluttering up calls to mtrr_add, it would be
-> better to fix this properly
+>  };
+>  #endif
 
-    I agree.  VesaFB is the only code (as far as I know) which attempts to grab
-an MTRR more than once.  The restrictions on MTRR size and alignment are too
-numerous to attempt a logical resizing in a small amount of code-- especially
-since the retrictions are different depending on the processor.  Might I suggest
-that the looping code be taken out entirely, perhaps outputting success or
-failure like:
-#ifdef CONFIG_MTRR
-if (mtrr)
-  if (mtrr_add(video_base, video_size, MTRR_TYPE_WRCOMB, 1) == -EINVAL)
-    printk(KERN_INFO "vesafb:  Could not allocate MTRR\n");
-  else
-    printk(KERN_INFO "vesafb:  MTRR Write-Combining enabled\n");
-#endif  /* CONFIG_MTRR */
-
-Bry
-
+--
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

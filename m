@@ -1,44 +1,64 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313628AbSFDP2h>; Tue, 4 Jun 2002 11:28:37 -0400
+	id <S313743AbSFDPdu>; Tue, 4 Jun 2002 11:33:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313743AbSFDP2g>; Tue, 4 Jun 2002 11:28:36 -0400
-Received: from [212.176.239.134] ([212.176.239.134]:49038 "EHLO
-	vzhik.octet.spb.ru") by vger.kernel.org with ESMTP
-	id <S313628AbSFDP2f>; Tue, 4 Jun 2002 11:28:35 -0400
-Message-ID: <000901c20bdc$76642360$baefb0d4@nick>
-Reply-To: "Nick Evgeniev" <nick@octet.spb.ru>
-From: "Nick Evgeniev" <nick@octet.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: linux 2.4.19-preX IDE bugs
-Date: Tue, 4 Jun 2002 19:28:21 +0400
-Organization: Octet Corp.
+	id <S314227AbSFDPdt>; Tue, 4 Jun 2002 11:33:49 -0400
+Received: from vivi.uptime.at ([62.116.87.11]:26797 "EHLO vivi.uptime.at")
+	by vger.kernel.org with ESMTP id <S313743AbSFDPds>;
+	Tue, 4 Jun 2002 11:33:48 -0400
+Reply-To: <o.pitzeier@uptime.at>
+From: "Oliver Pitzeier" <o.pitzeier@uptime.at>
+To: "'Patrick Mochel'" <mochel@osdl.org>
+Cc: <axp-kernel-list@redhat.com>,
+        "'Ivan Kokshaysky'" <ink@jurassic.park.msu.ru>,
+        <linux-kernel@vger.kernel.org>
+Subject: RE: kernel 2.5.20 on alpha (RE: [patch] Re: kernel 2.5.18 on alpha)
+Date: Tue, 4 Jun 2002 17:33:36 +0200
+Organization: =?us-ascii?Q?UPtime_Systemlosungen?=
+Message-ID: <001e01c20bdd$34dad5f0$010b10ac@sbp.uptime.at>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="koi8-r"
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
+X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-Mailer: Microsoft Outlook, Build 10.0.3416
+In-Reply-To: <Pine.LNX.4.33.0206040749530.654-100000@geena.pdx.osdl.net>
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-X-Scanner: exiscan *17FGEQ-0002mw-00*FjYWDNe./z2* http://duncanthrax.net/exiscan/
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Patrick Mochel wrote:
+> [ I apologize for answering this so late, and being so tardy 
+> in releasing 
+> docs explaining all this. I'll be sending docs to the list soon... ]
 
-A few days ago I wrote about ide & raid0 bugs in 2.4.19-pre8-ac5 and below
-(plain 2.4.18 just trashes fs in a few hours)... Then I was asked about my
-hardware configuration & then was .... ignored silently. Does it mean that
-nobody cares about ide support in Linux kernel?!
+Alright. This is OK. :o)
 
-Could someone bring light on what's wrong with promise IDE & ultra ata-100
-hdds??? (It was working under 2.4.7)
+[ ... ]
 
-PS: right now I moved mailspool & oracle redo logs (located on raw devices)
-out of ide-raid0... & I don't see error messages in logs not because ide
-driver works, but because of significally reduced IO... OS w/o working ide
-driver
-is a real enjoyment.
+> The short of it: 2.5.19 introduced a struct bus_type that 
+> describes each
+> bus type in the system. It holds lists of all the devices and 
+> drivers that are found for that bus type.
+
+I guessed so and already found this out. :o)
+
+[ ... ]
+
+> The arch/ objects are probably linked before  the driver/
+> objects on alpha, so the bus ends up being scanned before the 
+> bus type is registered.
+
+Seems, that you're right!
+
+> Can pcibios_init() be demoted to a device_initcall? This would delay 
+> probing until all the subsystems could be setup...
+
+Yea, great idea, but I don't have the time at the moment to do this.
+I hope anybody else will (please) do it!?
+
+-Oliver
 
 

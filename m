@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130663AbRAaUja>; Wed, 31 Jan 2001 15:39:30 -0500
+	id <S130429AbRAaUlA>; Wed, 31 Jan 2001 15:41:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131048AbRAaUjU>; Wed, 31 Jan 2001 15:39:20 -0500
-Received: from entropy.muc.muohio.edu ([134.53.213.10]:47491 "EHLO
-	entropy.muc.muohio.edu") by vger.kernel.org with ESMTP
-	id <S130663AbRAaUjJ>; Wed, 31 Jan 2001 15:39:09 -0500
-Date: Wed, 31 Jan 2001 15:38:55 -0500 (EST)
-From: George <greerga@entropy.muc.muohio.edu>
-To: Peter Samuelson <peter@cadcamlab.org>
-cc: Bernd Eckenfels <inka-user@lina.inka.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: Request: increase in PCI bus limit
-In-Reply-To: <20010131005519.D18746@cadcamlab.org>
-Message-ID: <Pine.LNX.4.30.0101311535130.24040-100000@entropy.muc.muohio.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131048AbRAaUku>; Wed, 31 Jan 2001 15:40:50 -0500
+Received: from jump-isi.interactivesi.com ([207.8.4.2]:62712 "HELO
+	dinero.interactivesi.com") by vger.kernel.org with SMTP
+	id <S130429AbRAaUko>; Wed, 31 Jan 2001 15:40:44 -0500
+Date: Wed, 31 Jan 2001 14:40:41 -0600
+From: Timur Tabi <ttabi@interactivesi.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <009701c08bc2$573aee10$7253e59b@megatrends.com>
+In-Reply-To: <20010131195434.29410.qmail@web8002.mail.in.yahoo.com>
+Subject: Re: A query regarding kernel programming, very small
+X-Mailer: The Polarbar Mailer; version=1.19a; build=73
+Message-ID: <hxkv1B.A.WeC.JhHe6@dinero.interactivesi.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Jan 2001, Peter Samuelson wrote:
-
->[Bernd Eckenfels]
->> May even decrease the kernel for systems < 4 busses.
->
->Be careful, though.  Users may set this thinking "I have a generic
->system with only one PCI bus" without realizing that AGP, cardbus and
->some motherboard devices are all counted.  Pad the CONFIG option by
->about 4 busses and we'll be OK..
-
-If someone says 1 bus, give them one bus.
-
-Just make the description say:
-  Add 1 for every PCI
-  Add 1 for every AGP
-  Add 1 for every CardBus
-  Also account for anything else funny in the system.
-
-Then panic on boot if they're wrong (sort of like processor type).
+** Reply to message from "Venkatesh Ramamurthy" <venkateshr@softhome.net> on
+Wed, 31 Jan 2001 15:13:38 -0500
 
 
-It's somewhat annoying that by choosing SMP NR_CPUS goes to 32 when I know
-I only have (and ever will have) 2 in this machine.  Don't make busses have
-the same assumptions that just waste memory.
+> driver development is a part of kernel development. Kernel is a bigger
+> entity which contains scheduler, io subsystem, memory subsystem etc....
+> Drivers comes under the IO subsystem.
 
--George Greer
+I think the confusion stems from the fact that with some operating systems
+(like OS/2), drivers are not considered part of the kernel, but with Linux (and
+possibly some others), drivers are considered part of the kernel.
+
+
+-- 
+Timur Tabi - ttabi@interactivesi.com
+Interactive Silicon - http://www.interactivesi.com
+
+When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261305AbTIOLex (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 07:34:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbTIOLex
+	id S261294AbTIOLjt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 07:39:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbTIOLjt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 07:34:53 -0400
-Received: from us01smtp2.synopsys.com ([198.182.44.80]:22970 "EHLO
-	kiruna.synopsys.com") by vger.kernel.org with ESMTP id S261305AbTIOLew
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 07:34:52 -0400
-Date: Mon, 15 Sep 2003 13:34:46 +0200
-From: Alex Riesen <alexander.riesen@synopsys.COM>
+	Mon, 15 Sep 2003 07:39:49 -0400
+Received: from axp01.e18.physik.tu-muenchen.de ([129.187.154.129]:44299 "EHLO
+	axp01.e18.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
+	id S261294AbTIOLjr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 07:39:47 -0400
+Date: Mon, 15 Sep 2003 13:39:43 +0200 (CEST)
+From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
 To: Stefano Rivoir <s.rivoir@gts.it>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: [2.6.0-t4/5] Error inserting module snd
-Message-ID: <20030915113446.GF1091@Synopsys.COM>
-Reply-To: alexander.riesen@synopsys.COM
-Mail-Followup-To: Stefano Rivoir <s.rivoir@gts.it>,
-	linux-kernel@vger.kernel.org
-References: <3F65A230.3020806@gts.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <3F65A230.3020806@gts.it>
-Organization: Synopsys, Inc.
-User-Agent: Mutt/1.5.4i
+Message-ID: <Pine.LNX.4.44.0309151335490.10449-100000@pc40.e18.physik.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefano Rivoir, Mon, Sep 15, 2003 13:27:44 +0200:
+Hi Stefano!
+
+On Mon, 15 Sep 2003, Stefano Rivoir wrote:
+
+> Hi all
+> 
 > When inserting module snd, modprobe bails out saying
 > 
 > snd: Unknown parameter 'device_mode'
+> 
+> The result is that the sound is completely unavailable. This happens 
+> with -test4 and -test5 (and -test5-mm2), but it was OK up to -test3,
+> IIRC.
+> 
+This is a configuration error: check modprobe.conf for the options for snd and 
+remove the 'device_mode' part. Looks like the debian alsa stuff has this small 
+incompatibility with the 0.9.6 kernel modules. BTW, I had the problem with 
+-test3 already.
 
-remove the parameter (device_mode). It could be in modprobe.conf, or in
-your modprobe command line. There could be possibly others, obsoleted
-parameters, so be prepared to remove more.
+I am by no means an ALSA expert, but this solved the problem for me.
 
+Ciao,
+					Roland
+
++---------------------------+-------------------------+
+|    TU Muenchen            |                         |
+|    Physik-Department E18  |  Raum    3558           |
+|    James-Franck-Str.      |  Telefon 089/289-12592  |
+|    85747 Garching         |  Telefax 089/289-12570  |
++---------------------------+-------------------------+
 

@@ -1,77 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313156AbSC1Nqc>; Thu, 28 Mar 2002 08:46:32 -0500
+	id <S313159AbSC1OBF>; Thu, 28 Mar 2002 09:01:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313157AbSC1NqW>; Thu, 28 Mar 2002 08:46:22 -0500
-Received: from pc132.utati.net ([216.143.22.132]:31889 "HELO
+	id <S313160AbSC1OA5>; Thu, 28 Mar 2002 09:00:57 -0500
+Received: from pc132.utati.net ([216.143.22.132]:32401 "HELO
 	merlin.webofficenow.com") by vger.kernel.org with SMTP
-	id <S313156AbSC1NqR>; Thu, 28 Mar 2002 08:46:17 -0500
+	id <S313159AbSC1OAr>; Thu, 28 Mar 2002 09:00:47 -0500
 Content-Type: text/plain; charset=US-ASCII
 From: Rob Landley <landley@trommello.org>
-To: Brian Gerst <bgerst@didntduck.org>
-Subject: Re: [patch] ext2_fill_super breakage
-Date: Thu, 28 Mar 2002 08:46:21 -0500
+To: Sean Neakums <sneakums@zork.net>, linux-kernel@vger.kernel.org
+Subject: Re: ssh won't work from initial ram disk in 2.4.18
+Date: Thu, 28 Mar 2002 09:00:50 -0500
 X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3CA2C68E.5B8C4176@zip.com.au> <3CA31BF6.7030609@didntduck.org>
+In-Reply-To: <20020328124257.99FD54FF@merlin.webofficenow.com> <6uadssbzh4.fsf@zork.zork.net>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <20020328140113.B96BE4FF@merlin.webofficenow.com>
+Message-Id: <20020328141543.AD0274FF@merlin.webofficenow.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 28 March 2002 08:34 am, Brian Gerst wrote:
-> Andrew Morton wrote:
-> > In 2.5.7 there is a thinko in the allocation and initialisation
-> > of the fs-private superblock for ext2.  It's passing the wrong type
-> > to the sizeof operator (which of course gives the wrong size)
-> > when allocating and clearing the memory.
-> >
-> > Lesson for the day: this is one of the reasons why this idiom:
-> >
-> > 	some_type *p;
-> >
-> > 	p = malloc(sizeof(*p));
-> > 	...
-> > 	memset(p, 0, sizeof(*p));
-> >
-> > is preferable to
-> >
-> > 	some_type *p;
-> >
-> > 	p = malloc(sizeof(some_type));
-> > 	...
-> > 	memset(p, 0, sizeof(some_type));
-> >
-> > I checked the other filesystems.  They're OK (but idiomatically
-> > impure).  I've added a couple of defensive memsets where
-> > they were missing.
+On Thursday 28 March 2002 08:20 am, Sean Neakums wrote:
+> commence  Rob Landley quotation:
+> > If this is an ssh problem I'll be happy to go bug those guys, but
+> > why would it be different from initrd than from an actual mounted
+> > partition?  (Permissions are the same, I checked.)
 >
-> I'm not sure I follow you here.  Compiling this code (gcc 2.96):
->
-> int foo1(void) { return sizeof(struct ext2_sb_info); }
-> int foo2(struct ext2_sb_info *sbi) { return sizeof(*sbi); }
->
-> yields:
->
-> 00000b70 <foo1>:
->       b70:       b8 dc 00 00 00          mov    $0xdc,%eax
->       b75:       c3                      ret
->
-> 00000b80 <foo2>:
->       b80:       b8 dc 00 00 00          mov    $0xdc,%eax
->       b85:       c3                      ret
->
-> The sizes are the same, so unless it makes a difference with another
-> version of gcc then this is just a cosmetic change.
+> Have you tried running ssh with the -v switch?  That will dump a bunch
+> of debug info that's often very helpful with investigating problems
+> such as these.
 
-If you take the sizeof based on the type of the actual variable is using, 
-you're guaranteed to get the right result.  (The type information is only in 
-one place, so what the compiler's using and what you're reserving space for 
-have to be the same thing.)
+Yup.  I broke out the ssh source code to see what the messages meant, too.  
+(It's a linux from scratch system.  Comes in handy at times like these. :)
 
-If you sizeof( ) the type and declare the type of the variable seperately, 
-you have the possibility of version skew between them.  The sizeof( ) and the 
-variable declaration itself may not match.  Hence bugs.
+Cutting and pasting from this test case is a bit problematic, but the most 
+interesting message was the one where it was complaining I hadn't entered the 
+passphrase for the public key.  (The key doesn't HAVE a passphrase.  Yes I 
+compared the id_dsa files, authorized_keys, etc.)  This is probably a red 
+herring though, since the non-passphrase version (ssh 10.0.0.1 as root) has a 
+similar behavior of complaining I hadn't entered a password it had never 
+prompted me for.  It seems to get an immediate eof (or some other kind of 
+error) on input whenever it wants a password.
+
+Again, the exact same code and data files work after initrd exits.
+
+It MIGHT have something to do with the fact that ptys don't seem to be 
+initialized before initrd exits.  ssh gets a little strange when there are no 
+ptys.  (When I mount /dev/pts, it's empty.  However, the success case of 
+booting the same code from /dev/hda1doesn't even need /dev/pts mounted to 
+work, so...?)
+
+I can probably cut this test case down to fit on a bootable floppy given 
+about eight hours of sleep.  :)
 
 Rob

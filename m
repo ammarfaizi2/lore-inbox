@@ -1,74 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264223AbTFBX5h (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 19:57:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264252AbTFBX5h
+	id S264252AbTFCARQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 20:17:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264271AbTFCARQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 19:57:37 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:9601 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S264223AbTFBX5e
+	Mon, 2 Jun 2003 20:17:16 -0400
+Received: from dyn-ctb-210-9-244-45.webone.com.au ([210.9.244.45]:6917 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S264252AbTFCARP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 19:57:34 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: "Grover, Andrew" <andrew.grover@intel.com>,
-       "Zwane Mwaikambo" <zwane@linuxpower.ca>
-Subject: Re: ACPI interrupt storm (was Re: Linux 2.4.21rc6-ac1)
-Date: Tue, 3 Jun 2003 10:12:07 +1000
-User-Agent: KMail/1.5.1
-Cc: "Paul P Komkoff Jr" <i@stingr.net>, <linux-kernel@vger.kernel.org>
-References: <F760B14C9561B941B89469F59BA3A84725A2CC@orsmsx401.jf.intel.com>
-In-Reply-To: <F760B14C9561B941B89469F59BA3A84725A2CC@orsmsx401.jf.intel.com>
+	Mon, 2 Jun 2003 20:17:15 -0400
+Message-ID: <3EDBEC27.9070705@cyberone.com.au>
+Date: Tue, 03 Jun 2003 10:30:31 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andrew Morton <akpm@digeo.com>
+CC: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org
+Subject: Re: [BENCHMARK] 2.5.70-mm2 with contest
+References: <200306030806.49885.kernel@kolivas.org> <20030602151644.06252b28.akpm@digeo.com>
+In-Reply-To: <20030602151644.06252b28.akpm@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200306031012.07832.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Jun 2003 07:01, Grover, Andrew wrote:
-> I suspect this machine should be falling into one of the cases before
-> this last one, thus making ACPI not use C3, or check for bus-mastering.
-> I especially think this is the case because this appears to be a desktop
-> system. It should not have a C3 address or a plvl3_lat less than 1000,
-> yet it appears to, yes?
 
-Sorry Andy I have no idea what you're talking about. Are there some details 
-specifically about this machine you want me to provide?
 
-Con
-> > -----Original Message-----
-> > From: Zwane Mwaikambo [mailto:zwane@linuxpower.ca]
-> > On Sun, 1 Jun 2003, Con Kolivas wrote:
-> > > I get the same problem here with acpi-20030522 applied to rc6
-> > > P4 2.53 on an i845 mobo (P4PE).
-> >
-> > I think it could be the Bus Mastering event monitoring thing, can you
-> > shoehorn this (HACK HACK) patch into 2.4?
-> >
-> > Index: linux-2.5.70-mm1/drivers/acpi/processor.c
-> > ===================================================================
-> > RCS file: /build/cvsroot/linux-2.5.70/drivers/acpi/processor.c,v
-> > retrieving revision 1.1.1.1
-> > diff -u -p -B -r1.1.1.1 processor.c
-> > --- linux-2.5.70-mm1/drivers/acpi/processor.c	27 May 2003
-> > 02:19:28 -0000	1.1.1.1
-> > +++ linux-2.5.70-mm1/drivers/acpi/processor.c	29 May 2003
-> > 11:32:00 -0000
-> > @@ -711,11 +711,13 @@ acpi_processor_get_power_info (
-> >  		 * use this in our C3 policy.
-> >  		 */
-> >  		else {
-> > +			goto done;
-> >  			pr->power.states[ACPI_STATE_C3].valid = 1;
-> >  			pr->power.states[ACPI_STATE_C3].latency_ticks =
-> >
-> > US_TO_PM_TIMER_TICKS(acpi_fadt.plvl3_lat);
-> >  			pr->flags.bm_check = 1;
-> >  		}
-> > +		done:
-> >  	}
-> >
-> >  	/*
+Andrew Morton wrote:
+
+>Con Kolivas <kernel@kolivas.org> wrote:
+>
+>>io_load:
+>>Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+>>2.5.69              4   343     22.7    120.5   19.8    4.29
+>>2.5.69-mm3          4   319     24.5    105.3   18.1    4.04
+>>2.5.69-mm5          4   137     56.9    49.6    19.0    1.73
+>>2.5.69-mm6          4   150     52.0    53.4    18.7    1.92
+>>2.5.70              5   326     21.5    112.9   18.7    4.13
+>>2.5.70-mm2          4   115     67.0    42.0    19.1    1.47
+>>large drop in time with one large file write
+>>
+>
+>We're hitting nearly 90% CPU here.  That is really excellent.
+>
+Yes, the contest results have held up nicely after those big
+changes to AS which is good.
+
+It will be interesting to see what happens if we set the
+ext3 journal write paths as PF_SYNCWRITE. I'll try some tests
+a bit later today.
 

@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261802AbUCVIa7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 03:30:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbUCVIa7
+	id S261804AbUCVIiK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 03:38:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261806AbUCVIiJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 03:30:59 -0500
-Received: from mx.laposte.net ([81.255.54.11]:25301 "EHLO mx.laposte.net")
-	by vger.kernel.org with ESMTP id S261802AbUCVIa6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 03:30:58 -0500
-Date: Mon, 22 Mar 2004 09:30:09 +0100
-Message-Id: <HUYYA9$2597BB7BC2D4D49619A62646AB9559DD@laposte.net>
-Subject: Re:[PATCH] tipar char driver (divide by zero)
-MIME-Version: 1.0
-X-Sensitivity: 3
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-From: "sebastien\.bourdeauducq" <sebastien.bourdeauducq@laposte.net>
-To: "romain" <romain@lievin.net>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-Cc: "greg" <greg@kroah.com>
-X-XaM3-API-Version: 4.1 (B15)
-X-type: 0
-X-SenderIP: 195.221.155.2
+	Mon, 22 Mar 2004 03:38:09 -0500
+Received: from barclay.balt.net ([195.14.162.78]:56773 "EHLO barclay.balt.net")
+	by vger.kernel.org with ESMTP id S261804AbUCVIiH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 03:38:07 -0500
+Subject: Re: Linux 2.6.5-rc2, hotplug and ohci-hcd issue
+From: Zilvinas Valinskas <zilvinas@gemtek.lt>
+Reply-To: zilvinas@gemtek.lt
+To: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <405CC7EC.9030205@gmx.de>
+References: <Pine.LNX.4.58.0403191937160.1106@ppc970.osdl.org>
+	 <405C1B14.6000206@gmx.de> <20040320132334.GB13028@gemtek.lt>
+	 <405C979A.8070200@gmx.de>  <405CC7EC.9030205@gmx.de>
+Content-Type: text/plain
+Organization: Gemtek Baltic
+Message-Id: <1079944371.2064.1.camel@swoop.gemtek.lt>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 22 Mar 2004 10:32:51 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> A patch about the tipar.c char driver has been sent on lkml by Sebastien Bourdeau. It fixes a divide-by-zero error when we try to read/write data after setting the timeout to 0.
-My name's actually "Bourdeauducq". By the way can you cc me any replies about this patch as I'm not subscribed to lkml.
+If you boot without any plugged USB devices and later on plug in USB
+devices things are working as expected. Something fishy about hotplug
+and perhaps in particular when OHCI and EHCI are initialized with USB
+devices connected.
 
-Accédez au courrier électronique de La Poste : www.laposte.net ; 
-3615 LAPOSTENET (0,34€/mn) ; tél : 08 92 68 13 50 (0,34€/mn)
+BR 
 
-
+On Sun, 2004-03-21 at 00:38, Prakash K. Cheemplavam wrote:
+> Prakash K. Cheemplavam wrote:
+> 
+> > I maybe found something: I compiled "force module unloading" into 
+> > kernel, and now it doesn't seem to hang, though I don't understand why 
+> > it should make a difference, as nothing is forced. I have to test a bit 
+> > more.
+> 
+> I was wrong, above doesn't work. It still hangs. I don't know how to 
+> circumvent it. Something seems to be broken.
+> 
+> Prakash
+> 
 

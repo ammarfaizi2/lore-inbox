@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292351AbSBPLMg>; Sat, 16 Feb 2002 06:12:36 -0500
+	id <S292353AbSBPLYI>; Sat, 16 Feb 2002 06:24:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292353AbSBPLM1>; Sat, 16 Feb 2002 06:12:27 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24079 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292351AbSBPLMP>;
-	Sat, 16 Feb 2002 06:12:15 -0500
-Message-ID: <3C6E3E8C.13E2755A@mandrakesoft.com>
-Date: Sat, 16 Feb 2002 06:12:12 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-2mdksmp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Kent Yoder <key@austin.ibm.com>
-CC: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-Subject: Re: [PATCH] IBM Lanstreamer bugfixes (round 3)
-In-Reply-To: <Pine.LNX.4.33.0202151541110.4625-101000@janetreno.austin.ibm.com>
+	id <S292354AbSBPLX6>; Sat, 16 Feb 2002 06:23:58 -0500
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:47367 "EHLO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S292353AbSBPLXk>; Sat, 16 Feb 2002 06:23:40 -0500
+Date: Sat, 16 Feb 2002 12:23:35 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Disgusted with kbuild developers
+Message-ID: <20020216112334.GA2805@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020215135557.B10961@thyrsus.com> <200202151929.g1FJTaU03362@pc1-camc5-0-cust78.cam.cable.ntl.com> <20020215141433.B11369@thyrsus.com> <20020215195818.A3534@pc1-camc5-0-cust78.cam.cable.ntl.com> <20020215145421.A12540@thyrsus.com> <20020215213833.J27880@suse.de> <1013810923.807.1055.camel@phantasy> <20020215232832.N27880@suse.de> <3C6DE87C.FA96D1D6@mandrakesoft.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3C6DE87C.FA96D1D6@mandrakesoft.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry I've been slow to respond... I'm going to apply your driver
-locally, so you and I have a good baseline to work with, but there are
-some small issues related to PCI initialization that I want to review
-and discuss with you, before submitting officially to Marcelo...
+On Sat, 16 Feb 2002, Jeff Garzik wrote:
 
-(another message should follow during the upcoming work week)
+> Dave Jones wrote:
+> >  Increased functionality I don't have a problem with, as long
+> >  as other more important things are addressed.  And for that matter,
+> >  Linus has said to Eric "I don't care, take this out of the
+> >  kernel completely leaving just oldconfig'.
+> 
+> That's a good point, and one I would be happy with.  (or, ditch -all-
+> current config code, and replace with the existing mconfig)
 
-Regards,
+If so, then fairness of mconfig vs. CML2 tools should command that
+mconfig's "old" mode works properly first. I reported to Christoph that
+it always reprompts me about the kernel core format (a.out vs. ELF),
+which is something "make oldconfig" does not do with the same config, he
+acknowledged the bug, but I have yet to see the fix.
 
-	Jeff
+> Eric's configurator definitely seems to have a place with users.  Making
+> kernel configuration easier for the masses is more than fine with me... 
+> Impacting kernel developers' productivity and workflow because of this
+> is more of what I object to...
 
-
--- 
-Jeff Garzik      | "Why is it that attractive girls like you
-Building 1024    |  always seem to have a boyfriend?"
-MandrakeSoft     | "Because I'm a nympho that owns a brewery?"
-                 |             - BBC TV show "Coupling"
+Does that really happen? It looks as though the conversion of the
+current config.in stuff has been completed as part of the CML2 suite.

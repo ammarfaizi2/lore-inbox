@@ -1,35 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262128AbTIWRyw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 13:54:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbTIWRyw
+	id S262240AbTIWSIG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 14:08:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262241AbTIWSIG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 13:54:52 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:29710 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S262128AbTIWRyv (ORCPT
+	Tue, 23 Sep 2003 14:08:06 -0400
+Received: from rth.ninka.net ([216.101.162.244]:21413 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S262240AbTIWSIE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 13:54:51 -0400
-Date: Tue, 23 Sep 2003 19:54:49 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: bill davidsen <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: suid bit behaviour modification in 2.6.0-test5
-Message-ID: <20030923195449.A1572@pclin040.win.tue.nl>
-References: <3F6CF491.9030205@free.fr> <200309220425.21862.lkml@ordinal.freeserve.co.uk> <bkpuur$e63$1@gatekeeper.tmr.com>
+	Tue, 23 Sep 2003 14:08:04 -0400
+Date: Tue, 23 Sep 2003 11:08:01 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+Cc: jbriggs@briggsmedia.com, linux-kernel@vger.kernel.org
+Subject: Re: Spam/LKML
+Message-Id: <20030923110801.1a152c4b.davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.58.0309231340310.10905@p500>
+References: <Pine.LNX.4.58.0309231318450.11291@p500>
+	<200309231437.43542.jbriggs@briggsmedia.com>
+	<Pine.LNX.4.58.0309231340310.10905@p500>
+X-Mailer: Sylpheed version 0.9.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <bkpuur$e63$1@gatekeeper.tmr.com>; from davidsen@tmr.com on Tue, Sep 23, 2003 at 05:12:59PM +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 23, 2003 at 05:12:59PM +0000, bill davidsen wrote:
 
-> Well, if ls gets that bit as still set, what would happen if someone
-> actually ran the program before the sync was done? COuld the file be
-> modified and then run? Is there a window? Still smells bugish.
-
-I don't know why you people continue the debate - is anything wrong
-with the fix I sent?
-
+Please stop this thread, it is wholly offtopic.

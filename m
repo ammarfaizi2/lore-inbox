@@ -1,53 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264000AbRFOLEQ>; Fri, 15 Jun 2001 07:04:16 -0400
+	id <S264353AbRFOLRP>; Fri, 15 Jun 2001 07:17:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264341AbRFOLEF>; Fri, 15 Jun 2001 07:04:05 -0400
-Received: from kaiser.cip.physik.uni-muenchen.de ([141.84.136.1]:58632 "EHLO
-	kaiser.cip.physik.uni-muenchen.de") by vger.kernel.org with ESMTP
-	id <S264000AbRFOLDv>; Fri, 15 Jun 2001 07:03:51 -0400
-Date: Fri, 15 Jun 2001 13:03:36 +0200 (CEST)
-From: "Andreas K. Huettel" <Andreas.Huettel@Physik.Uni-Muenchen.DE>
-Reply-To: "Andreas K. Huettel" <andreas@akhuettel.de>
-To: linux-kernel@vger.kernel.org
-cc: alan@lxorguk.ukuu.org.uk
-Subject: 2.4.5-ac14: clock timer problem NOT resolved. 
-Message-ID: <Pine.LNX.4.21.0106151124360.1118-100000@ankogel.cip.physik.uni-muenchen.de>
-X-Information: My public GPG key can be obtained at http://www.akhuettel.de/
+	id <S264347AbRFOLRF>; Fri, 15 Jun 2001 07:17:05 -0400
+Received: from [164.164.82.20] ([164.164.82.20]:42734 "EHLO subexgroup.com")
+	by vger.kernel.org with ESMTP id <S264341AbRFOLQw>;
+	Fri, 15 Jun 2001 07:16:52 -0400
+From: "Anil Kumar" <anilk@subexgroup.com>
+To: "bert hubert" <ahu@ds9a.nl>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: "Kip Macy" <kmacy@netapp.com>, <ognen@gene.pbi.nrc.ca>,
+        <linux-kernel@vger.kernel.org>
+Subject: RE: threading question
+Date: Fri, 15 Jun 2001 16:59:00 +0530
+Message-ID: <NEBBIIKAMMOCGCPMPBJOEEICCFAA.anilk@subexgroup.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <20010614210138.A15912@home.ds9a.nl>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
+Importance: Normal
+X-Return-Path: anilk@subexgroup.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Since while using only a small subset of primitives provided by the pthreads
+the burden for the other primitive maintanence is much more so i too feel
+when we use only a small part its better to implement in our own requiredd
+way for performance issues.
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of bert hubert
+Sent: Friday, June 15, 2001 12:32 AM
+To: Alan Cox
+Cc: Kip Macy; ognen@gene.pbi.nrc.ca; linux-kernel@vger.kernel.org
+Subject: Re: threading question
 
 
-Sorry to disappoint you. Still the VIA "clock timer configuration lost"
-error message on ASUS board, ca every 1 - 5 minutes.
+On Thu, Jun 14, 2001 at 07:28:32PM +0100, Alan Cox wrote:
 
-Either the messages are still bogus or the asus board is buggy too. 
+> There are really only two reasons for threaded programming.
+>
+> - Poor programmer skills/language expression of event handling
 
-best regards, Andreas
+The converse is that pthreads are:
 
-- ---------------------------------------------------------------------
-Andreas K. Huettel          andreas@akhuettel.de
-81627 Muenchen              huettel@qubit.org
-Germany                     http://www.akhuettel.de/
-- ---------------------------------------------------------------------  
-Please use GNUPG or PGP for signed and encrypted email. My public key 
-can be found at http://www.akhuettel.de/pgp_key.html
-- ---------------------------------------------------------------------  
+ - Very easy to use from C at a reasonable runtime overhead
 
+It is very convenient for a userspace coder to be able to just start a
+function in a different thread. Now it might be so that a kernel is not
+there to provide ease of use for userspace coders but it is a factor.
 
+I see lots of people only using:
+	pthread_create()/pthread_join()
+	mutex_lock/unlock
+	sem_post/sem_wait
+	no signals
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+My gut feeling is that you could implement this subset in a way that is both
+fast and right - although it would not be 'pthreads compliant'. Can anybody
+confirm this feeling?
 
-iD8DBQE7KeuOL+gLs3iH94cRAucUAJwOifa0utbVMMCQ2LNV3st9TczcbgCeIqVZ
-4MFY3mbYxCFiicvG86tBL10=
-=imZh
------END PGP SIGNATURE-----
+Regards,
+
+bert
+
+--
+http://www.PowerDNS.com      Versatile DNS Services
+Trilab                       The Technology People
+'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 
 

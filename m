@@ -1,42 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262174AbVBAXX3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262169AbVBAXZR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262174AbVBAXX3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 18:23:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbVBAXX2
+	id S262169AbVBAXZR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 18:25:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbVBAXZR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 18:23:28 -0500
-Received: from waste.org ([216.27.176.166]:51948 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262173AbVBAXXU (ORCPT
+	Tue, 1 Feb 2005 18:25:17 -0500
+Received: from gate.crashing.org ([63.228.1.57]:39350 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262169AbVBAXZC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 18:23:20 -0500
-Date: Tue, 1 Feb 2005 15:22:45 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Lorenzo Hern?ndez Garc?a-Hierro <lorenzo@gnu.org>
-Cc: Valdis.Kletnieks@vt.edu, Adrian Bunk <bunk@stusta.de>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@osdl.org>, netdev@oss.sgi.com,
-       Hank Leininger <hlein@progressive-comp.com>
-Subject: Re: [PATCH] OpenBSD Networking-related randomization port
-Message-ID: <20050201232245.GB17460@waste.org>
-References: <1106932637.3778.92.camel@localhost.localdomain> <20050128100229.5c0e4ea1@dxpl.pdx.osdl.net> <1106937110.3864.5.camel@localhost.localdomain> <20050128105217.1dc5ef42@dxpl.pdx.osdl.net> <1106944492.3864.30.camel@localhost.localdomain> <1106945266.7776.41.camel@laptopd505.fenrus.org> <200501290915.j0T9FkVY012948@turing-police.cc.vt.edu> <20050131165025.GN18316@stusta.de> <200501311942.j0VJgIYs016952@turing-police.cc.vt.edu> <1107201800.3754.125.camel@localhost.localdomain>
+	Tue, 1 Feb 2005 18:25:02 -0500
+Subject: Re: [ide-dev 3/5] generic Power Management for IDE devices
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Pavel Machek <pavel@suse.cz>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <58cb370e05020115032fdb8b59@mail.gmail.com>
+References: <Pine.GSO.4.58.0501220004050.23959@mion.elka.pw.edu.pl>
+	 <20050122184124.GL468@openzaurus.ucw.cz>
+	 <58cb370e05020115032fdb8b59@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 02 Feb 2005 10:24:48 +1100
+Message-Id: <1107300288.1665.33.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1107201800.3754.125.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 31, 2005 at 09:03:19PM +0100, Lorenzo Hern?ndez Garc?a-Hierro wrote:
-> Arjan, I will give it a further look, is there anything you want to
-> comment about it before I start?
+On Wed, 2005-02-02 at 00:03 +0100, Bartlomiej Zolnierkiewicz wrote:
+> On Sat, 22 Jan 2005 19:41:24 +0100, Pavel Machek <pavel@suse.cz> wrote:
+> > Hi!
+> > 
+> > > Move PM code from ide-cd.c and ide-disk.c to IDE core so:
+> > > * PM is supported for other ATAPI devices (floppy, tape)
+> > > * PM is supported even if specific driver is not loaded
+> > 
+> > Why do you need to have state-machine? During suspend we are running
+> > single-threaded, it should be okay to just do the calls directly.
+> >                                 Pavel
 > 
-> I will re-code it to put the helper functions in random.c.
+> If we are running single-threaded I also see no reason for state-machine.
+> Ben?
+> 
+> Pavel, I assume that changes contained in the patch are OK with you?
 
-Do it against -mm, please, there are something like 30 patches against
-random.c there already. And please cc: me on any changes there.
+We aren't always running single threaded. On PPC we are definitely
+not :)
 
--- 
-Mathematics is the supreme nostalgia of our time.
+Also, we need the request to go down the queue for proper
+synchronisation. It's all been discussed at lenght a while ago, this is
+the best way to do it. Also, wakeup can be asynchronous this way.
+
+Ben.
+
+

@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131354AbRCNNnb>; Wed, 14 Mar 2001 08:43:31 -0500
+	id <S131363AbRCNOIZ>; Wed, 14 Mar 2001 09:08:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131365AbRCNNnV>; Wed, 14 Mar 2001 08:43:21 -0500
-Received: from aeon.tvd.be ([195.162.196.20]:27328 "EHLO aeon.tvd.be")
-	by vger.kernel.org with ESMTP id <S131354AbRCNNnH>;
-	Wed, 14 Mar 2001 08:43:07 -0500
-Date: Wed, 14 Mar 2001 14:39:57 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Brad Douglas <brad@neruo.com>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [Linux-fbdev-devel] [RFC] fbdev & power management
-In-Reply-To: <20010314131756.18036@mailhost.mipsys.com>
-Message-ID: <Pine.LNX.4.05.10103141429440.24115-100000@callisto.of.borg>
+	id <S131364AbRCNOIQ>; Wed, 14 Mar 2001 09:08:16 -0500
+Received: from s057.dhcp212-109.cybercable.fr ([212.198.109.57]:56837 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S131363AbRCNOIG>; Wed, 14 Mar 2001 09:08:06 -0500
+Message-ID: <3AAF7AD1.D24E526C@baretta.com>
+Date: Wed, 14 Mar 2001 15:06:09 +0100
+From: Alex Baretta <alex@baretta.com>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
+X-Accept-Language: it, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 5Mb missing...
+In-Reply-To: <Pine.LNX.4.33.0103070958110.1424-100000@mikeg.weiden.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Mar 2001, Benjamin Herrenschmidt wrote:
-> >I think registering fbcon as a PM client and doing the above when the
-> >fbdev suspend/resume hooks are called should work.  A memory backup is
-> >worked on until the resume is run and the backup is restored to the
-> >display.
-> >
-> >So the fbdev drivers would register PM with fbcon, not PCI, correct?
+Mike Galbraith wrote:
 > 
-> Either that, or the fbdev would register with PCI (or whatever), _and_
-> fbcon would too independently. In that scenario, fbcon would only handle
-> things like disabling the cursor timer, while fbdev's would handle HW
-> issues. THe only problem is for fbcon to know that a given fbdev is
-> asleep, this could be an exported per-fbdev flag, an error code, or
-> whatever. In this case, fbcon can either buffer text input, or fallback
-> to the cfb working on the backed up fb image (that last thing can be
-> handled entirely within the fbdev I guess).
+> If crashes are routine on this machine, I'd recommend that you take
+> a serious look at your ram. (or if you're overclocking, don't)
 
-I'd go for a fallback to dummycon. It's of no use to waste power on creating
-graphical images of the text console when asleep. And the fallback to dummycon
-is needed anyway while a fbdev is opened (in 2.5.x).
+Crashes were routine, and I was not overclocking, so I took Mike's
+advice and bought a new 256MB DIMM. The computer hasn't crashed
+once since I installed it. Now, though, I have a curious though
+fairly irrelevant problem. My kernel apparently sees less RAM than
+I have.
 
-Gr{oetje,eeting}s,
 
-						Geert
+[alex@localhost /home]$ free -m
+             total       used       free     shared    buffers    
+cached
+Mem:           251        209         42         60        
+61         92
+-/+ buffers/cache:         55        196
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+I strongly doubt this can be a bug in the kernel. Could anyone
+explain to me why this might happen?
 
+Alex

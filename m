@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261981AbTCHAXY>; Fri, 7 Mar 2003 19:23:24 -0500
+	id <S261977AbTCHAVo>; Fri, 7 Mar 2003 19:21:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261982AbTCHAXX>; Fri, 7 Mar 2003 19:23:23 -0500
-Received: from p5085DAF8.dip.t-dialin.net ([80.133.218.248]:29703 "EHLO
+	id <S261978AbTCHAVo>; Fri, 7 Mar 2003 19:21:44 -0500
+Received: from p5085DAF8.dip.t-dialin.net ([80.133.218.248]:27911 "EHLO
 	consystor2.razik.de") by vger.kernel.org with ESMTP
-	id <S261981AbTCHAW6>; Fri, 7 Mar 2003 19:22:58 -0500
-From: Lukas@Razik.de
+	id <S261977AbTCHAVn>; Fri, 7 Mar 2003 19:21:43 -0500
+From: Lukas.Razik@consystor2.razik.de
 To: linux-kernel@vger.kernel.org
-Date: Sat, 08 Mar 2003 01:33:37 +0100
+Date: Sat, 08 Mar 2003 01:32:20 +0100
 MIME-Version: 1.0
 Subject: Re: [BUG 380][PATCH] SB16 compile errors
-Message-ID: <3E694871.29584.B42E8A8@localhost>
+Message-ID: <3E694824.1785.B41BD28@localhost>
 X-mailer: Pegasus Mail for Windows (v4.02, DE v4.02 R1a)
 Content-type: text/plain; charset=US-ASCII
 Content-transfer-encoding: 7BIT

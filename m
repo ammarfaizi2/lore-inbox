@@ -1,99 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262651AbUKXOQQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262744AbUKXOQP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262651AbUKXOQQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 09:16:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262741AbUKXON4
+	id S262744AbUKXOQP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 09:16:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262651AbUKXOOG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 09:13:56 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:29170 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S262651AbUKXODO (ORCPT
+	Wed, 24 Nov 2004 09:14:06 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:57819 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262727AbUKXOFa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 09:03:14 -0500
+	Wed, 24 Nov 2004 09:05:30 -0500
+Date: Wed, 24 Nov 2004 15:05:15 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>
+cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: file as a directory
+In-Reply-To: <1101287762.1267.41.camel@pear.st-and.ac.uk>
+Message-ID: <Pine.LNX.4.53.0411241501080.2693@yvahk01.tjqt.qr>
+References: <2c59f00304112205546349e88e@mail.gmail.com>  <41A1FFFC.70507@hist.no>
+ <41A21EAA.2090603@dbservice.com>  <41A23496.505@namesys.com>
+ <1101287762.1267.41.camel@pear.st-and.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16804.38029.818691.368174@alkaid.it.uu.se>
-Date: Wed, 24 Nov 2004 15:02:53 +0100
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH][2.4.28] gcc34 fastcall mismatch fixes for rwsem-spinlock
-X-Mailer: VM 7.17 under Emacs 20.7.1
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernel 2.4.28 fails to compile with gcc-3.4 when CONFIG_M386=y
-because of fastcall mismatches between include/linux/rwsem-spinlock.h
-and lib/rwsem-spinlock.c. This patch fixes that.
+>I think something like
+>
+>/etc/passwd/[username]
+>
+>would be a really nice extension. The idea is more general, it would
+>unify the namespace for file selection and part-of-file selection.
 
-Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
+Yeah, and where will you do that? (Possible answers are: kernel space, user
+space).
 
- lib/rwsem-spinlock.c |   14 +++++++-------
- 1 files changed, 7 insertions(+), 7 deletions(-)
+I honestly vote against *these* kinds of plugins (i.e. reading .tar files,
+/etc, and such). For one, it is to be done in kernel space, which means the
+module code can not be swapped out. Debugging is more complex, segfaults will
+kill the machine -- thus it's more open to blackhat hackers.
 
-diff -rupN linux-2.4.28/lib/rwsem-spinlock.c linux-2.4.28.gcc34-fastcall-fixes/lib/rwsem-spinlock.c
---- linux-2.4.28/lib/rwsem-spinlock.c	2004-08-08 10:56:31.000000000 +0200
-+++ linux-2.4.28.gcc34-fastcall-fixes/lib/rwsem-spinlock.c	2004-11-24 14:41:34.000000000 +0100
-@@ -32,7 +32,7 @@ void rwsemtrace(struct rw_semaphore *sem
- /*
-  * initialise the semaphore
-  */
--void init_rwsem(struct rw_semaphore *sem)
-+void fastcall init_rwsem(struct rw_semaphore *sem)
- {
- 	sem->activity = 0;
- 	spin_lock_init(&sem->wait_lock);
-@@ -120,7 +120,7 @@ static inline struct rw_semaphore *__rws
- /*
-  * get a read lock on the semaphore
-  */
--void __down_read(struct rw_semaphore *sem)
-+void fastcall __down_read(struct rw_semaphore *sem)
- {
- 	struct rwsem_waiter waiter;
- 	struct task_struct *tsk;
-@@ -166,7 +166,7 @@ void __down_read(struct rw_semaphore *se
- /*
-  * trylock for reading -- returns 1 if successful, 0 if contention
-  */
--int __down_read_trylock(struct rw_semaphore *sem)
-+int fastcall __down_read_trylock(struct rw_semaphore *sem)
- {
- 	int ret = 0;
- 	rwsemtrace(sem,"Entering __down_read_trylock");
-@@ -189,7 +189,7 @@ int __down_read_trylock(struct rw_semaph
-  * get a write lock on the semaphore
-  * - note that we increment the waiting count anyway to indicate an exclusive lock
-  */
--void __down_write(struct rw_semaphore *sem)
-+void fastcall __down_write(struct rw_semaphore *sem)
- {
- 	struct rwsem_waiter waiter;
- 	struct task_struct *tsk;
-@@ -235,7 +235,7 @@ void __down_write(struct rw_semaphore *s
- /*
-  * trylock for writing -- returns 1 if successful, 0 if contention
-  */
--int __down_write_trylock(struct rw_semaphore *sem)
-+int fastcall __down_write_trylock(struct rw_semaphore *sem)
- {
- 	int ret = 0;
- 	rwsemtrace(sem,"Entering __down_write_trylock");
-@@ -257,7 +257,7 @@ int __down_write_trylock(struct rw_semap
- /*
-  * release a read lock on the semaphore
-  */
--void __up_read(struct rw_semaphore *sem)
-+void fastcall __up_read(struct rw_semaphore *sem)
- {
- 	rwsemtrace(sem,"Entering __up_read");
- 
-@@ -274,7 +274,7 @@ void __up_read(struct rw_semaphore *sem)
- /*
-  * release a write lock on the semaphore
-  */
--void __up_write(struct rw_semaphore *sem)
-+void fastcall __up_write(struct rw_semaphore *sem)
- {
- 	rwsemtrace(sem,"Entering __up_write");
- 
+Also simply because it (the module code) would be a reinvention of wheel, it's
+all been written before.
+
+
+
+
+Jan Engelhardt
+-- 
+Gesellschaft für Wissenschaftliche Datenverarbeitung
+Am Fassberg, 37077 Göttingen, www.gwdg.de

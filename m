@@ -1,63 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276424AbRK1Q4x>; Wed, 28 Nov 2001 11:56:53 -0500
+	id <S274752AbRK1REy>; Wed, 28 Nov 2001 12:04:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276344AbRK1Q4e>; Wed, 28 Nov 2001 11:56:34 -0500
-Received: from nlaknet.slt.lk ([203.115.0.2]:64502 "EHLO laknet.slt.lk")
-	by vger.kernel.org with ESMTP id <S275990AbRK1Q4a>;
-	Wed, 28 Nov 2001 11:56:30 -0500
-Message-ID: <3C05BEB7.1BA4497B@sltnet.lk>
-Date: Wed, 28 Nov 2001 22:51:03 -0600
-From: Ishan Oshadi Jayawardena <ioshadi@sltnet.lk>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16-0 i686)
-X-Accept-Language: en
+	id <S276344AbRK1REo>; Wed, 28 Nov 2001 12:04:44 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:43026 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S274752AbRK1RE0>; Wed, 28 Nov 2001 12:04:26 -0500
+Date: Wed, 28 Nov 2001 13:47:07 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Linux 2.4.17-pre1 
+Message-ID: <Pine.LNX.4.21.0111281340210.15491-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: "spurious 8259A interrupt: IRQ7"
-In-Reply-To: <E168ipq-00019Y-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
 
-> IRQ7 is asserted when the PIC sees an interrupt but nobody appears to be
-> generating it when it looks.
-> -
 
-	I had the same symptoms on an uniprocessor IBM PC300GL (pretty standard
-pc, 32MB ram, 333MHz celeron [pre-coppermine], 82371AB PIIX E-IDE/ACPI
-chips,
-Intel Motherboard, 66MHz bus), S3 Trio3D (IBM integrated - **does that
-mean anything to you? XFree86-SVGA doesn't work on it, but XFree86-S3
-version 4.0.1
--RH 7.0- seems to work fine with the s3virge driver) AGP graphics board
-(2MB
-vram) plus an Avance ALS4000 card are all I've got. I was worried
-because
-I don't have any 8259A's on my motherboard and this led me to kgcc.
-	The problem occured _only_ when I, unknowingly, used RH 7.0's gcc 2.96
-(not one of the updated 2.96's). With that build (a 2.4.8 kernel), I
-learnt my lesson when linux got utterly stuck twice in a single day.
-Since then, builds with standard gcc's recommended by Linus (egcs/kgcc
-&& gcc 2.95.3) have seen the end of this problem. The message came up
-during normal use, not in a special situation such as bootup, etc.
-	Hope this has been of some help.
+Ok, 2.4.17-pre1 is out. Still going to the mirrors though, so please wait
+a while if you haven't found a copy on your local mirror. 
 
-PS: Is gcc-2.96.99 currently in RawHide as good (or better ;) as
-gcc-2.95.3 for kernel builds? Jakub Jelinek seems to be doing a good job
-on it...
 
-	- ioj
+pre1:
 
------------------------------------------------------------------------
-	"And King Parakramabahu sent men with a bushel of Rice each to every
-corner of the land, and the people returned saying that a bushel of Rice
-could
-be sold for two cents. Then the King knew that not enough food or his
-people was being produced. He built tanks of water and cultivated more
-land. Again deployed men. Now they returned saying that no one would
-take the grain even
-for free. The King was satisfied."
+- Change USB maintainer 			(Greg Kroah-Hartman)
+- Speeling fix for rd.c				(From Ralf Baechle's tree)
+- Updated URL for bigphysmem patch in v4l docs  (Adrian Bunk)
+- Add buggy 440GX to broken pirq blacklist 	(Arjan Van de Ven)
+- Add new entry to Sound blaster ISAPNP list	(Arjan Van de Ven)
+- Remove crap character from Configure.help	(Niels Kristian Bech Jensen)
+- Backout erroneous change to lookup_exec_domain (Christoph Hellwig)
+- Update osst sound driver to 1.65		(Willem Riede)
+- Fix i810 sound driver problems		(Andris Pavenis)
+- Add AF_LLC define in network headers		(Arnaldo Carvalho de Melo)
+- block_size cleanup on some SCSI drivers	(Erik Andersen)
+- Added missing MODULE_LICENSE("GPL") in some   (Andreas Krennmair)
+  modules
+- Add ->show_options() to super_ops and 
+  implement NFS method				(Alexander Viro)
+- Updated i8k driver				(Massimo Dal Zoto)
+- devfs update  				(Richard Gooch)
+
+

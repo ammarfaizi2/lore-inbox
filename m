@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264791AbTE1QOn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 12:14:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264793AbTE1QOn
+	id S264740AbTE1QTq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 12:19:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264793AbTE1QTq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 12:14:43 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:35599 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S264791AbTE1QOm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 12:14:42 -0400
-Date: Wed, 28 May 2003 09:14:03 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Ricky Beam <jfbeam@bluetronic.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.70
-In-Reply-To: <Pine.LNX.3.96.1030528115243.19675A-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.44.0305280909550.8790-100000@home.transmeta.com>
+	Wed, 28 May 2003 12:19:46 -0400
+Received: from [193.112.238.6] ([193.112.238.6]:50053 "EHLO caveman.xisl.com")
+	by vger.kernel.org with ESMTP id S264740AbTE1QTp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 12:19:45 -0400
+Message-ID: <3ED4E4BB.10806@xisl.com>
+Date: Wed, 28 May 2003 17:32:59 +0100
+From: John M Collins <jmc@xisl.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Question about memory-mapped files
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Please cc me (jmc@removespam.xisl.com) in any reply as I'm not subscribed.
 
-On Wed, 28 May 2003, Bill Davidsen wrote:
-> 
-> Just the other day you posted strong opposition to breaking existing
-> binaries, how does that map with breaking existing hardware?
+Could someone advise me on the answer to the following question:
 
-One fundamental difference is that I cannot fix it without people who
-_have_ the hardware caring. So if they don't care, I don't care. It's that
-easy. If you want to have your hardware supported, you need to help
-support it.
+If I invoke mmap to map a file to memory, and it succeeds, can I safely 
+close the original file descriptor and rely on the memory still being 
+mapped and the file still updated (possibly with mysnc)?
 
-Another difference is that it's better to not work at all, than to work
-incorrectly. So if your kernel doesn't boot or can't use your random piece
-of hardware, you just use an old kernel. But if everything looks normal,
-but some binary breaks in strange ways, that's _bad_.
+I've looked through the kernel (2.4) source and it seems I can. I've 
+tried a test program on my machine and also Solaris and HP and it works 
+OK the file getting updated.
 
-The latter reason is, btw, why we don't paper over the build failures like 
-some people suggested. If it hasn't been updated to the new interfaces, it 
-should preferably not even build: which is a big reason why we try to 
-rename interfaces when they change, exactly so that you don't get a subtly 
-broken build.
+On the Linux machine /proc/<pid>/maps seems to have all the right stuff 
+in after the file is closed.
 
-		Linus
+The only thing that doesn't happen is that the file mod time doesn't get 
+changed (on any machine).
+
+Of course "munmap" and "mremap" don't oblige you to pass an fd so it 
+would seem logical. But no manual page actually seems to say it.
+
+Could anyone advise? Thanks.
+
+-- 
+John Collins Xi Software Ltd www.xisl.com
+
 

@@ -1,91 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129526AbRBACUy>; Wed, 31 Jan 2001 21:20:54 -0500
+	id <S129460AbRBACXe>; Wed, 31 Jan 2001 21:23:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129460AbRBACUn>; Wed, 31 Jan 2001 21:20:43 -0500
-Received: from heron.tripnet.se ([195.100.19.3]:54600 "HELO heron.tripnet.se")
-	by vger.kernel.org with SMTP id <S129314AbRBACU3>;
-	Wed, 31 Jan 2001 21:20:29 -0500
-Message-ID: <3A78C840.4F2C7CD0@tripnet.se>
-Date: Thu, 01 Feb 2001 03:21:52 +0100
-From: Magnus Walldal <rannug@tripnet.se>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en
+	id <S129919AbRBACXX>; Wed, 31 Jan 2001 21:23:23 -0500
+Received: from thalia.fm.intel.com ([132.233.247.11]:31243 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S129460AbRBACXO>; Wed, 31 Jan 2001 21:23:14 -0500
+Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDFC7@orsmsx31.jf.intel.com>
+From: "Dunlap, Randy" <randy.dunlap@intel.com>
+To: "'Adam Schrotenboer'" <ajschrotenboer@lycosmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: RE: [BUG] 2.4.1 Detects 64 MB RAM, actual 192MB
+Date: Wed, 31 Jan 2001 18:22:47 -0800
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Kernel BUG in 2.4.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> From: Adam Schrotenboer [mailto:ajschrotenboer@lycosmail.com]
+> 
+> > On Wed, 31 Jan 2001 10:01:08 -0500, Adam Schrotenboer wrote:
+> > 
+> >>> On Tue, 30 Jan 2001 23:25:22 -0500, Adam Schrotenboer wrote:
+> >>> 
+> >>>> ...
+> >>>> Linux version 2.4.1 (root@tabriel) (gcc version egcs-2.91.66 
+> >>> 
+> >> 19990314/Linux (egcs-1.1.2 release)) #9 Tue Jan 30 
+> 15:35:21 EST 2001
+> >> 
+> >>>> BIOS-provided physical RAM map:
+> >>>> BIOS-88: 000000000009f000 @ 0000000000000000 (usable)
+> >>>> BIOS-88: 0000000003ff0000 @ 0000000000100000 (usable)
+> >>>> On node 0 totalpages: 16624
+> >>> 
+> >> ...
+> >> Linux version 2.4.0 (root@tabriel) (gcc version 
+> pgcc-2.95.2 19991024 (release)) #2 Mon Jan 8 09:02:27 EST 2001
+> >> BIOS-provided physical RAM map:
+> >> BIOS-e820: 000000000009fc00 @ 0000000000000000 (usable)
+> >> BIOS-e820: 0000000000000400 @ 000000000009fc00 (reserved)
+> >> BIOS-e820: 0000000000010000 @ 00000000000f0000 (reserved)
+> >> BIOS-e820: 0000000000010000 @ 00000000ffff0000 (reserved)
+> >> BIOS-e820: 000000000bef0000 @ 0000000000100000 (usable)
+> >> BIOS-e820: 000000000000d000 @ 000000000bff3000 (ACPI data)
+> >> BIOS-e820: 0000000000003000 @ 000000000bff0000 (ACPI NVS)
+> >> On node 0 totalpages: 49136
+> 
+> It did it again. fresh tree, egcs 1.1.2, etc
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Different versions of gcc were used on 2.4.0 vs. 2.4.1.
+Were different versions of as also used?  (hint?)
 
-Hi,
+Or somehow in linux/arch/i386/boot/setup.S, your source
+file has
+#define STANDARD_MEMORY_BIOS_CALL
+?
 
-I was playing around with Gnome when I got this Kernel BUG in my syslog.
-
-Kernel is 2.4.0 running on updated RedHat 7. My box is a Pentium III
-(440BX)
-with 256 MB RAM.
-
-System just froze, I could not move the mouse or switch virtual console,
-after
-hitting SysRq repeatedly the system finally shutdown.
-
-
-Feb  1 00:22:05 osho kernel: kernel BUG at page_alloc.c:72!
-Feb  1 00:22:05 osho kernel: invalid operand: 0000
-Feb  1 00:22:05 osho kernel: CPU:    0
-Feb  1 00:22:05 osho kernel: EIP:    0010:[__free_pages_ok+35/784]
-Feb  1 00:22:05 osho kernel: EFLAGS: 00013282
-Feb  1 00:22:05 osho kernel: eax: 0000001f   ebx: c133c6c0   ecx:
-00000002   edx: 00000000
-Feb  1 00:22:05 osho kernel: esi: cc2ec000   edi: 00000000   ebp:
-cc2ee4a0   esp: ca907e68
-Feb  1 00:22:05 osho kernel: ds: 0018   es: 0018   ss: 0018
-Feb  1 00:22:05 osho kernel: Process X (pid: 1035, stackpage=ca907000)
-Feb  1 00:22:05 osho kernel: Stack: c01e5f45 c01e60d3 00000048 c0223378
-00003203 fffffffc cc2ec000 cc2ec000
-Feb  1 00:22:05 osho kernel:        cc2ed000 cc2ec000 00000000 cf178240
-c012d5ce ca907ea8 cf178344 00000001
-Feb  1 00:22:05 osho kernel:        00000000 cf178240 cfffa49c cf178240
-c31d4f60 c012d657 cf178240 cf178240
-Feb  1 00:22:05 osho kernel: Call Trace: [shmem_truncate+222/304]
-[shmem_delete_inode+55/80] [iput+165/336] [dput+237/320] [fput+113/208]
-[unmap_fixup+86/304] [do_munmap+550/672]
-Feb  1 00:22:05 osho gnome-name-server[1085]: input condition is: 0x11,
-exiting
-Feb  1 00:22:05 osho kernel:        [sys_shmdt+93/128] [sys_ipc+454/512]
-[system_call+51/56]
-Feb  1 00:22:05 osho kernel:
-Feb  1 00:22:05 osho kernel: Code: 0f 0b 83 c4 0c 8b 73 08 85 f6 74 16
-6a 4a 68 d3 60 1e c0 68
-
-Output from ver_linux
--- Versions installed: (if some fields are empty or look
--- unusual then possibly you have very old versions)
-Linux osho 2.4.0 #1 Fri Jan 5 03:46:57 CET 2001 i686 unknown
-Kernel modules         2.3.21
-Gnu C                  2.96
-Gnu Make               3.79.1
-Binutils               2.10.0.18
-Linux C Library        > libc.2.2
-Dynamic linker         ldd (GNU libc) 2.2
-Procps                 2.0.7
-Mount                  2.10m
-Net-tools              1.56
-Console-tools          0.3.3
-Sh-utils               2.0
-Modules Loaded         sr_mod ide-cd cdrom eepro100 agpgart au8830
-soundcore aic7xxx ncr53c8xx
-
-
-Let me know if I can be of further assistance, please mail me directly
-since I'm not subscibed to lmkl!
-
-Regards,
-Magnus
-
+~Randy  /  503-677-5408
+_______________________________________________
+|NOTE: Any views presented here are mine alone|
+|& may not represent the views of my employer.|
+-----------------------------------------------
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

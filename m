@@ -1,82 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129288AbRBMLUr>; Tue, 13 Feb 2001 06:20:47 -0500
+	id <S130132AbRBML15>; Tue, 13 Feb 2001 06:27:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129592AbRBMLUh>; Tue, 13 Feb 2001 06:20:37 -0500
-Received: from air.lug-owl.de ([62.52.24.190]:28942 "HELO air.lug-owl.de")
-	by vger.kernel.org with SMTP id <S129288AbRBMLUa>;
-	Tue, 13 Feb 2001 06:20:30 -0500
-Date: Tue, 13 Feb 2001 12:20:14 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Adam Lackorzynski <al10@inf.tu-dresden.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PCI bridge handling 2.4.0-test10 -> 2.4.2-pre3
-Message-ID: <20010213122013.A31590@lug-owl.de>
-Reply-To: jbglaw@lug-owl.de
-Mail-Followup-To: Adam Lackorzynski <al10@inf.tu-dresden.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010212140419.A11619@lug-owl.de> <20010213003815.A17962@inf.tu-dresden.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="k1lZvvs/B4yU6o8G"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20010213003815.A17962@inf.tu-dresden.de>; from al10@inf.tu-dresden.de on Tue, Feb 13, 2001 at 12:38:15AM +0100
-X-Operating-System: Linux air 2.4.0-test8-pre1 
+	id <S130499AbRBML1v>; Tue, 13 Feb 2001 06:27:51 -0500
+Received: from isis.its.uow.edu.au ([130.130.68.21]:52160 "EHLO
+	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S129445AbRBML1c>; Tue, 13 Feb 2001 06:27:32 -0500
+Message-ID: <3A891B97.4F9805A6@uow.edu.au>
+Date: Tue, 13 Feb 2001 22:33:43 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.2-pre2 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: al goldstein <gold@sense-gold-134.oz.net>
+CC: kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.1 swaps hardware addresses for ethernet cards
+In-Reply-To: <Pine.LNX.4.21.0102122250180.848-100000@sense-gold-134.oz.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+al goldstein wrote:
+> 
+> I have 2 ether cards 59x (eth0) and 509 (eth1). I have been adding 509
+> at boot in lilo.conf. Using this same config in 2.4.1 results in
+> the hardware addresses for the cards to be swapped. If I remove 509 from
+> Lilo I get the same result. Suggestions would be appreciated
 
---k1lZvvs/B4yU6o8G
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+If both drivers are statically linked into the kernel then
+I guess this is entirely dependent upon the linkage order of
+net/core/dev.o and drivers/net/3c59x.o.
 
-On Tue, Feb 13, 2001 at 12:38:15AM +0100, Adam Lackorzynski wrote:
+If you make the drivers modular then you can force the order
+within your boot scripts.
 
-Hi Adam!
+If you make just one driver modular then that one will be
+"eth1".
 
-> On Mon Feb 12, 2001 at 14:04:20 +0100, Jan-Benedict Glaw wrote:
-> > I've got a "Bull Express5800/Series" (dual P3) with a DAC1164 RAID
-> > controller. The mainboard is ServerWorks based and however, 2.4.2-pre3
-> > fails to find the RAID controller. I think there's a problem at
-> > scanning PCI busses behind PCI bridges. Here's the PCI bus layout as
-> > 2.4.0-test10 recognizes it:
->=20
-> There's was a change in the PCI bus scan code in pre3.
->=20
-> --- pci-pc.c.orig       Tue Feb 13 00:02:50 2001
-> +++ pci-pc.c    Tue Feb 13 00:19:29 2001
-> @@ -953,9 +953,6 @@
-[Removal of serverworks fixup routines]
+You can grab Andi's "nameif" app which allows you to rename
+interfaces based on their MAC address, which will certainly
+put and end to the issue.  I'm not sure whether this
+app is in net-tools yet.
 
-That patch cured the problem; the box is up'n'running again. Thanks!
+Finally, you can wait until the Linux hotplug architecture
+is fully implemented, after which the naming order will
+be nicely randomised each time you boot :)
 
-Is there somebody to work on specivic serverworks fixup routines or
-should this patch simply go into stock kernel (to not treat serverworks
-machines specifically)?
+It's fun, isn't it?
 
-MfG, JBG
-
---=20
-Fehler eingestehen, Gr=F6=DFe zeigen: Nehmt die Rechtschreibreform zur=FCck=
-!!!
-/* Jan-Benedict Glaw <jbglaw@lug-owl.de> -- +49-177-5601720 */
-keyID=3D0x8399E1BB fingerprint=3D250D 3BCF 7127 0D8C A444 A961 1DBD 5E75 83=
-99 E1BB
-     "insmod vi.o and there we go..." (Alexander Viro on linux-kernel)
-
---k1lZvvs/B4yU6o8G
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjqJGGwACgkQHb1edYOZ4bsNfACeL+Sv/mq9P4h3zAi42GmhIcnu
-3XYAnjj5WukfBvXov9G5ouK9teM+yZZ3
-=QR9h
------END PGP SIGNATURE-----
-
---k1lZvvs/B4yU6o8G--
+-

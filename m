@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261219AbVBQWzk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261214AbVBQWwD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261219AbVBQWzk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 17:55:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbVBQWzB
+	id S261214AbVBQWwD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 17:52:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261219AbVBQWvz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 17:55:01 -0500
-Received: from mail.tmr.com ([216.238.38.203]:57861 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S261222AbVBQWxg (ORCPT
+	Thu, 17 Feb 2005 17:51:55 -0500
+Received: from gate.crashing.org ([63.228.1.57]:19113 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261214AbVBQWvC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 17:53:36 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: ide-scsi is deprecated for cd burning! Use ide-cd and give dev=/dev/hdX
- as device
-Date: Thu, 17 Feb 2005 17:58:05 -0500
-Organization: TMR Associates, Inc
-Message-ID: <cv36kk$54m$1@gatekeeper.tmr.com>
-References: <200502152125.j1FLPSvq024249@turing-police.cc.vt.edu> <200502161736.j1GHa4gX013635@turing-police.cc.vt.edu>
+	Thu, 17 Feb 2005 17:51:02 -0500
+Subject: Re: [PATCH 2/2] page table iterators
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050217194336.GA8314@wotan.suse.de>
+References: <4214A1EC.4070102@yahoo.com.au> <4214A437.8050900@yahoo.com.au>
+	 <20050217194336.GA8314@wotan.suse.de>
+Content-Type: text/plain
+Date: Fri, 18 Feb 2005 09:49:37 +1100
+Message-Id: <1108680578.5665.14.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1108680149 5270 192.168.12.100 (17 Feb 2005 22:42:29 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-In-Reply-To: <200502161736.j1GHa4gX013635@turing-police.cc.vt.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
-> On Wed, 16 Feb 2005 10:42:21 +0100, "Kiniger, Karl (GE Healthcare)" said:
+On Thu, 2005-02-17 at 20:43 +0100, Andi Kleen wrote:
+> On Fri, Feb 18, 2005 at 01:03:35AM +1100, Nick Piggin wrote:
+> > I am pretty surprised myself that I was able to consolidate
+> > all "page table range" functions into a single type of iterator
+> > (well, there are a couple of variations, but it's not too bad).
 > 
+> I started a similar project - but it uses the existing loops,
+> just using {pte,pmd,pud,pgd}_next. The idea is to optimize
+> page table walking by keeping some state in the struct page
+> of the page table page that says whether an entry is set 
+> or not. To make this work I switched everything to indexes
+> instead of pointers.
 > 
->>>   Have you tested the ISO on some *OTHER* hardware?  The impression I got
->>>   was that the cd was *burned* right by ide-cd, but when *read back*, it
->>>   bollixed things up at the end of the CD.....
->>
->>Using ide-scsi is enough to get all the data till the real end of the CD.
-> 
-> 
-> OK, so the problem is that ide-cd is able to *burn* the CD just fine, but it
-> suffers lossage when ide-cd tries to read it back...
-> 
-> Alan - are the sense-byte patches for ide-cd in a shape to push either upstream
-> or to -mm?
+> Main problem are some nasty include loops. 
 
-The last time I looked at this, the issue was that the user software did 
-a large read and the ide-cd didn't properly return a small data block 
-with no error, but rather returned an error with no data. If you get the 
-size of the ISO image, you can read that with any program which doesn't 
-try to read MORE than that.
+I though about both ways yesterday, and in the end, I prefer Nick stuff,
+at least for now. It gives us also more flexibility to change gory
+implementation details in the future. I still have to run it through a
+bit of torture testing though.
 
-I don't consider this correct behaviour, but at least I know how to get 
-by it for iso-9660 CDs. For other formats which don't allow 
-determination of data set size except by the contents of the data, this 
-works poorly.
+Ben.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+

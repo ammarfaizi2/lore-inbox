@@ -1,36 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267583AbSKQUWJ>; Sun, 17 Nov 2002 15:22:09 -0500
+	id <S267585AbSKQUWi>; Sun, 17 Nov 2002 15:22:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267585AbSKQUWJ>; Sun, 17 Nov 2002 15:22:09 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:14773 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S267583AbSKQUWI>;
-	Sun, 17 Nov 2002 15:22:08 -0500
-Date: Sun, 17 Nov 2002 22:45:35 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Luca Barbieri <ldb@ldb.ods.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Ulrich Drepper <drepper@redhat.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] threading fix, tid-2.5.47-A3
-In-Reply-To: <1037564166.1597.119.camel@ldb>
-Message-ID: <Pine.LNX.4.44.0211172243360.19793-100000@localhost.localdomain>
+	id <S267587AbSKQUWe>; Sun, 17 Nov 2002 15:22:34 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:35850 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267585AbSKQUWb>; Sun, 17 Nov 2002 15:22:31 -0500
+Date: Sun, 17 Nov 2002 12:29:25 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Doug Ledford <dledford@redhat.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Scsi Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: Several Misc SCSI updates...
+In-Reply-To: <20021117202826.GE3280@redhat.com>
+Message-ID: <Pine.LNX.4.44.0211171228350.1370-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 17 Nov 2002, Luca Barbieri wrote:
+On Sun, 17 Nov 2002, Doug Ledford wrote:
+>
+> These bring the scsi subsys up to the new module loader semantics.  There 
+> is more work to be done on inter-module locking here, but we need to solve 
+> the whole module->live is 0 during init problem first or else it's a waste 
+> of time.
 
-> No, but since I don't see any advantage in breaking it (other than a
-> more aesthetically pleasing header), why break it? The problem is just
-> the numbering of the flags, not the new functionality.
+Hey, just remove the "live" test, I think it's over-eager and likely to 
+just cause extra code to work around it rather than fix anything.
 
-tiny bits of aesthetics, like clean ordering of the flag values, is what
-makes for a clean and easy to understand source tree. Lets do it while we
-can do it.
-
-	Ingo
+		Linus
 

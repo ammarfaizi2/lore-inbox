@@ -1,58 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265209AbTLKSZw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 13:25:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265210AbTLKSZw
+	id S264962AbTLKSfT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 13:35:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265113AbTLKSfT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 13:25:52 -0500
-Received: from mail-01.iinet.net.au ([203.59.3.33]:26514 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S265209AbTLKSZu
+	Thu, 11 Dec 2003 13:35:19 -0500
+Received: from out008pub.verizon.net ([206.46.170.108]:62864 "EHLO
+	out008.verizon.net") by vger.kernel.org with ESMTP id S264962AbTLKSfL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 13:25:50 -0500
-Message-ID: <3FD8B487.3040504@cyberone.com.au>
-Date: Fri, 12 Dec 2003 05:16:39 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
+	Thu, 11 Dec 2003 13:35:11 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: None that appears to be detectable by casual observers
+To: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
+Subject: Re: Increasing HZ (patch for HZ > 1000)
+Date: Thu, 11 Dec 2003 13:35:08 -0500
+User-Agent: KMail/1.5.1
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+References: <1071122742.5149.12.camel@idefix.homelinux.org> <200312111218.35254.gene.heskett@verizon.net> <1316960000.1071164020@[10.10.2.4]>
+In-Reply-To: <1316960000.1071164020@[10.10.2.4]>
 MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: Robin Rosenberg <roro.l@dewire.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux GPL and binary module exception clause?
-References: <00af01c3bf41$2db12770$d43147ab@amer.cisco.com> <3FD7081D.31093.61FCFA36@localhost> <20031210221800.GM6896@work.bitmover.com>            <200312111844.03839.roro.l@dewire.com> <200312111756.hBBHulKh013471@turing-police.cc.vt.edu>
-In-Reply-To: <200312111756.hBBHulKh013471@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312111335.08729.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [151.205.60.44] at Thu, 11 Dec 2003 12:35:10 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Valdis.Kletnieks@vt.edu wrote:
-
->On Thu, 11 Dec 2003 18:44:03 +0100, Robin Rosenberg said:
->
->
->>If EXPORT_GPL is changed as a means of protecting the copyright, i..e. provide
->>source code access. then doesn't this "mechanism" fall under the infamous DMCA, 
->>i.e. you're not allowed to even think about circumventing it...
+On Thursday 11 December 2003 12:33, Martin J. Bligh wrote:
+>> Hardware indeed.  I'm a Certified Electronics Technician.  Have
+>> someone check all those electrolyric caps in the on-board psu in
+>> particular, using a device similar to a "Capacitor Wizard" which
+>> measures not the capacity of the cap, but the caps Equivalent
+>> Series Resistance (ESR) at 100 kilohertz or more.  Anything over
+>> half an ohm should be replaced forthwith.  This assumes of course
+>> that your tech in charge of hot solder has the tools to do it
+>> correctly.  If not, find one who does have the tools.
 >>
+>> Many mobos in a period ranging from about 2.5 to 1.5 years ago
+>> were built with caps that go defective prematurely due to a bad
+>> batch of them from several far eastern cap makers who were fed a
+>> bad recipe for the electrolyte in the caps, eg the Ethylene Glycol
+>> wasn't near pure enough.
 >
->17 USC 1201 (a)(1)(A) says:
+>When you say "fed a bad recipe", didn't they actually steal it? Or
+>is that just an urban legend?
 >
->"No person shall circumvent a technological measure that effectively controls
->access to a work protected under this title. The prohibition contained in the
->preceding sentence shall take effect at the end of the 2-year period beginning
->on the date of the enactment of this chapter."
->
->OK, so Adobe managed to make the case that rot-13 was an "effective control".
->Given that the GPL specifically allows you to change the source and thus bypass
->the EXPORT_GPL, I doubt you can make the case for "effective".
->
+>M.
 
-You know, "effectively" has two (that I know of) meanings.
+Well, I *was* trying to be nice<vsg>.  I'd made the assumption that 
+the supplier was the one doing the stealing, and that they (the cap 
+makers as buyers of this cheaper than usual product) were not 100% 
+aware of the problems at the time.  Yes, I've read the story, and the 
+history of capacitor failures over the last 2 years does seem to lend 
+considerable credance to the story.  When you are a CET, doing 
+component level repairs for a living for the last 50 some years, some 
+things do get your attention, and poor life of capacitors has long 
+since become the single leading failure of things electronic, 
+recently by a factor measured in magnitudes over anything else, like 
+bad semiconductors.  Thats been the tend for the last 10 years in 
+fact.  Poor lubrication of things basicly mechanical like electrical 
+switches is now second on the list, with a lot of white space between 
+them.
 
-I would be surprised if a case for prosecution could be won based on
-the argument that rot-13 "works properly". Not because I know anything
-about law, maybe naive though.
+The windshield wiper speed switch in your car being a prime example of 
+that 2nd type of failure.  If it hasn't miss-behaved, it will.  Pull 
+the knob off the end of the stalk and remove the super sticky syrupy 
+grease there and replace it with lubriplate, end of problem, probably 
+forever.  Certainly for as long as you'll own it.  Your trivia fact 
+for the day :-)
 
+-- 
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.22% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
 

@@ -1,85 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262116AbREaSyG>; Thu, 31 May 2001 14:54:06 -0400
+	id <S263165AbREaS50>; Thu, 31 May 2001 14:57:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263159AbREaSx4>; Thu, 31 May 2001 14:53:56 -0400
-Received: from comverse-in.com ([38.150.222.2]:5836 "EHLO
-	eagle.comverse-in.com") by vger.kernel.org with ESMTP
-	id <S262116AbREaSxo>; Thu, 31 May 2001 14:53:44 -0400
-Message-ID: <6B1DF6EEBA51D31182F200902740436802678F0D@mail-in.comverse-in.com>
-From: "Khachaturov, Vassilii" <Vassilii.Khachaturov@comverse.com>
-To: "'Mark Frazer'" <mark@somanetworks.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: RE: Makefile patch for cscope and saner Ctags
-Date: Thu, 31 May 2001 14:52:52 -0400
+	id <S263162AbREaS5G>; Thu, 31 May 2001 14:57:06 -0400
+Received: from moon.govshops.com ([207.32.111.5]:32783 "HELO mail.govshops.com")
+	by vger.kernel.org with SMTP id <S263159AbREaS5F>;
+	Thu, 31 May 2001 14:57:05 -0400
+From: "Alok K. Dhir" <alok@dhir.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: Scsi data parity errors on aix7xxx in kernel 2.4.5
+Date: Thu, 31 May 2001 15:02:11 -0400
+Message-ID: <000901c0ea04$32b1b650$1e01a8c0@dhir.net>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
 Content-Type: text/plain;
-	charset="iso-8859-1"
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2616
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+In-Reply-To: <000801c0ea01$51d4eeb0$1e01a8c0@dhir.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Mark Frazer [mailto:mark@somanetworks.com]
-> Khachaturov, Vassilii <Vassilii.Khachaturov@comverse.com> 
-> > Great stuff. May I suggest adding -k to the cscope cmdline:
-> >   +	cscope -b -k -I include
+
+Forgot to mention (in case it matters) that I'm running ReiserFS on sdd6
+which is hanging off of scsi1.
+
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org 
+> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Alok K. Dhir
+> Sent: Thursday, May 31, 2001 2:42 PM
+> To: linux-kernel@vger.kernel.org
+> Subject: Scsi data parity errors on aix7xxx in kernel 2.4.5
 > 
-> The cscope on my RH7.0 box didn't take -k!
-> [root@mjftest linux-2.4.5]# cscope -b -k -I include
-> cscope: unknown option: -k
-> [root@mjftest linux-2.4.5]# rpm -qf /usr/bin/cscope
-> cscope-13.0-6
 > 
-> weird, as man cscope documents -k's existence
+> 
+> Running kernel 2.4.5 with two scsi controllers - scsi0 is a 
+> sym53c8xx, scsi1 is aic7xxx.  
+> 
+> For the last month or so, I've been getting the following 
+> error in my syslog 10 or so times a day:
+> 
+> -----
+> May 31 14:09:51 dog kernel: scsi1: PCI error Interrupt at 
+> seqaddr = 0x8e May 31 14:09:51 dog kernel: scsi1: Data Parity 
+> Error Detected during address or write data phase
+> -----
+> 
+> The box is a PIII-750 on an Aopen AX6BC (BX chipset) running 
+> at 930Mhz (7.5 * 124Mhz bus speed), with 384 megs of RAM 
+> (1*128MB PC100, 2*128MB PC133).  I've tried running at 
+> 7.5*100 and I still get the errors.
+> 
+> Any advice as to what I should look at to solve this problem?
+> 
+> Thanks
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in the body of a message to 
+> majordomo@vger.kernel.org More majordomo info at  
+> http://vger.kernel.org/majordomo-info.html
+> Please read the 
+> FAQ at  http://www.tux.org/lkml/
+> 
 
-Don't forget to bug RH package maintainer on that. Whatever 
-version they ship (I don't know, maybe 13 indeed didn't have -k) 
-the mans and the binaries must be consistent. 
-
-I use source-built cscope v.15.1, and -k works for me here, 
-atop RH70 too. You can download it 
-at http://cscope.sourceforge.net And, the cscope project
-guys are very responsive and willing to fix/implement things
-in their product. 
-
-(BTW, anyone here knows how to submit
-a cvsweb patch/bug and get an answer? cvsweb at sourceforge
-seems dead, as well as cvsweb.org :-( )
-
-You definitely want -k in the kernel Makefile to avoid 
-irrelevant things from /usr/include!!!
-
-> I didn't see a way to add >>'ing the file to cscope.files 
-> without greping
-> for it's entrance there already.  So I've left the find ... method of
-> creating cscope.files.
-
-Sorry for being unclear. I meant: output the new find results into smth like
-.cscope.files, then compare (cmp -s) it to the current cscope.files,
-and replace the latter with it ONLY if there were diffs:
-> > The new .files should be created  in a different file, and the old file
-> > shouldn't be replaced if there's no change.
-
-> cscope.out is now built by a shell command which does the checking
-> against the age of the files in cscope.files
-
-WHY?! Isn't it better to put $(shell cat cscope.files) on the list of
-cscope.out
-dependencies? Or, maybe better yet,
-
-cscope.make: cscope.files
-	echo -n 'cscope.out: ' > .$@
-	cat $< >> .$@	
-	mv .$@ $@
-
-include cscope.make
-
-(or should it be `-include' here?)
-
-> Backout the old patch and try this one.
-
-[patch mostly snipped]
-> +.PHONY: scsope
-[patch mostly snipped]
-
-s/scs/csc/

@@ -1,68 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261516AbULIM7a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbULINNy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261516AbULIM7a (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 07:59:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261519AbULIM7a
+	id S261246AbULINNy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 08:13:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261254AbULINNy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 07:59:30 -0500
-Received: from anor.ics.muni.cz ([147.251.4.35]:15543 "EHLO anor.ics.muni.cz")
-	by vger.kernel.org with ESMTP id S261516AbULIM7Z (ORCPT
+	Thu, 9 Dec 2004 08:13:54 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:64713 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261246AbULINNu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 07:59:25 -0500
-Date: Thu, 9 Dec 2004 13:59:18 +0100
-From: Jan Kasprzak <kas@fi.muni.cz>
-To: linux-kernel@vger.kernel.org
-Cc: kruty@fi.muni.cz
-Subject: XFS: inode with st_mode == 0
-Message-ID: <20041209125918.GO9994@fi.muni.cz>
+	Thu, 9 Dec 2004 08:13:50 -0500
+Date: Thu, 9 Dec 2004 14:13:17 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Rui Nuno Capela <rncbc@rncbc.org>, LKML <linux-kernel@vger.kernel.org>,
+       Lee Revell <rlrevell@joe-job.com>,
+       Mark Johnson <Mark_H_Johnson@RAYTHEON.COM>,
+       "K.R. Foley" <kr@cybsft.com>, Florian Schmidt <mista.tapas@gmx.net>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>, emann@mrv.com,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>
+Subject: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-12
+Message-ID: <20041209131317.GA31573@elte.hu>
+References: <20041124101626.GA31788@elte.hu> <20041203205807.GA25578@elte.hu> <20041207132927.GA4846@elte.hu> <20041207141123.GA12025@elte.hu> <1102526018.25841.308.camel@localhost.localdomain> <32950.192.168.1.5.1102529664.squirrel@192.168.1.5> <1102532625.25841.327.camel@localhost.localdomain> <32788.192.168.1.5.1102541960.squirrel@192.168.1.5> <1102543904.25841.356.camel@localhost.localdomain> <20041209093211.GC14516@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20041209093211.GC14516@elte.hu>
 User-Agent: Mutt/1.4.1i
-X-Muni-Spam-TestIP: 147.251.48.42
-X-Muni-Virus-Test: Clean
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi all,
 
-I have seen the strange problem on our NFS server: yesterday I have
-found an empty file owned by UID 0/GID 0 and st_mode == 0 in my home
-directory (ls -l said "?--------- 1 root root 0 <date> <filename>").
-The <filename> was correct name of a temporary file used by one of my
-cron jobs (and the cron job was failing because it could not rewrite the file).
-It was not possible to write to this file, so I have renamed it
-as "badfile" for further investigation (using mv(1) on the NFS server itself).
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-Today I did "ls -l badfile", and the file had correct owner/group
-and st_mode as expected from file created by my cron job: 
+> SLAB draining was an oversight - it's mainly called when there is VM
+> pressure (which is not a stricly necessary feature, so i disabled it),
+> but i forgot about the module-unload case where it's a correctness
+> feature. Your patch is a good starting point, i'll try to fix it on
+> SMP too.
 
-# stat badfile
-  File: `badfile'
-  Size: 0               Blocks: 0          IO Block: 4096   Regular File
-Device: fd00h/64768d    Inode: 356913      Links: 1
-Access: (0644/-rw-r--r--)  Uid: (xxxx/     kas)   Gid: (yyyy/ student)
-Access: 2004-12-07 21:17:01.000000000 +0100
-Modify: 2004-12-07 21:17:01.000000000 +0100
+here's the full patch against a recent tree, or download the -32-12
+patch from the usual place:
 
-We have seen empty files with uid==gid==0 and st_mode==0 few times
-before, at places where newly-created regular files were expected,
-but we have simply deleted them. This time I have renamed the file
-and looked at it after a day or so.
+    http://redhat.com/~mingo/realtime-preempt/
 
-These files were created over NFS (our home directories are served by
-NFS server) from various NFS clients (this one was Solaris 8, at least
-one of the previous instances was created by an IRIX NFS client). The
-filesystem itself is XFS on a LVM2 volume. The server is HP DL-585 quad
-opteron, running RHEL3 plus our 2.6.10-rc2 kernel.
+Rui, Gene, does this fix the module unload crash you are seeing?
 
-Maybe some data is flushed in an incorrect order?
+	Ingo
 
--Yenya
-
--- 
-| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
-| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
-| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
-> Whatever the Java applications and desktop dances may lead to, Unix will <
-> still be pushing the packets around for a quite a while.      --Rob Pike <
+--- linux/mm/slab.c.orig
++++ linux/mm/slab.c
+@@ -1509,22 +1509,26 @@ static void smp_call_function_all_cpus(v
+ static void drain_array_locked(kmem_cache_t* cachep,
+ 				struct array_cache *ac, int force);
+ 
+-#ifndef CONFIG_PREEMPT_RT
+-/*
+- * Executes in an IRQ context:
+- */
+-static void do_drain(void *arg)
++static void do_drain_cpu(kmem_cache_t *cachep, int cpu)
+ {
+-	kmem_cache_t *cachep = (kmem_cache_t*)arg;
+ 	struct array_cache *ac;
+-	int cpu = smp_processor_id();
+ 
+ 	check_irq_off();
+-	ac = ac_data(cachep, cpu);
++
+ 	spin_lock(&cachep->spinlock);
++	ac = ac_data(cachep, cpu);
+ 	free_block(cachep, &ac_entry(ac)[0], ac->avail);
+-	spin_unlock(&cachep->spinlock);
+ 	ac->avail = 0;
++	spin_unlock(&cachep->spinlock);
++}
++
++#ifndef CONFIG_PREEMPT_RT
++/*
++ * Executes in an IRQ context:
++ */
++static void do_drain(void *arg)
++{
++	do_drain_cpu((kmem_cache_t*)arg, smp_processor_id());
+ }
+ #endif
+ 
+@@ -1532,6 +1536,11 @@ static void drain_cpu_caches(kmem_cache_
+ {
+ #ifndef CONFIG_PREEMPT_RT
+ 	smp_call_function_all_cpus(do_drain, cachep);
++#else
++	int cpu;
++
++	for_each_online_cpu(cpu)
++		do_drain_cpu(cachep, cpu);
+ #endif
+ 	check_irq_on();
+ 	spin_lock_irq(&cachep->spinlock);

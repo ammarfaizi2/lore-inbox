@@ -1,55 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313592AbSDQT63>; Wed, 17 Apr 2002 15:58:29 -0400
+	id <S312885AbSDQUDL>; Wed, 17 Apr 2002 16:03:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313887AbSDQT62>; Wed, 17 Apr 2002 15:58:28 -0400
-Received: from ausxc10.us.dell.com ([143.166.98.229]:19720 "EHLO
-	ausxc10.us.dell.com") by vger.kernel.org with ESMTP
-	id <S313592AbSDQT61>; Wed, 17 Apr 2002 15:58:27 -0400
-Message-ID: <8C70996FDCA44C4180A2A6E2AB3B069F28CF04@ausxmps101.us.dell.com>
-From: Adam_Kessler@Dell.com
-To: greg@kroah.com, gowdy@slac.stanford.edu
-Cc: torvalds@transmeta.com, david-b@pacbell.net,
-        linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: RE: [linux-usb-devel] Re: [BK PATCH] USB device support for 2.5.8
-	 (take 2)
-Date: Wed, 17 Apr 2002 14:58:25 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S313224AbSDQUDK>; Wed, 17 Apr 2002 16:03:10 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:7932 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S312885AbSDQUDI>;
+	Wed, 17 Apr 2002 16:03:08 -0400
+Date: Wed, 17 Apr 2002 22:02:46 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200204172002.WAA23916@harpo.it.uu.se>
+To: axboe@suse.de
+Subject: Re: 2.5.8 IDE oops (TCQ breakage?)
+Cc: dalecki@evision-ventures.com, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I like gadget! It's unambiguous namespace with a ring.
+On Wed, 17 Apr 2002 14:25:02 +0200, Jens Axboe wrote:
+>> > Mikael Pettersson wrote:
+>> > >I have a 486 box which ran 2.5.7 fine, but 2.5.8 oopses during
+>> > >boot at the BUG_ON() in drivers/ide/ide-disk.c, line 360:
+...
+>Should only be done if 'enable_tcq == 1' of course, and we also need to
+>switch off tcq when dma is being disabled. 4th patch set against 2.5.8.
 
-Target sounds to much like a cross-compiler; and boring.
+Thanks, this patch set cured the problem. 2.5.8-dj1 also worked.
 
------Original Message-----
-From: Greg KH [mailto:greg@kroah.com]
-Sent: Wednesday, April 17, 2002 1:32 PM
-To: Stephen J. Gowdy
-Cc: Linus Torvalds; David Brownell;
-linux-usb-devel@lists.sourceforge.net; linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB device support for
-2.5.8 (take 2)
-
-
-On Wed, Apr 17, 2002 at 11:41:14AM -0700, Stephen J. Gowdy wrote:
-> gadget? non-host?
-
-"gadget" is nice.  It's descriptive of what the code is for, without the
-bad connotations that "slave" seems to have.
-
-Although those people who actually take USB seriously might not like it
-so much, but I don't see any of those people doing Linux development
-anyway :)
-
-thanks,
-
-greg k-h
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+/Mikael

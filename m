@@ -1,25 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261264AbSIPJSX>; Mon, 16 Sep 2002 05:18:23 -0400
+	id <S261268AbSIPJXY>; Mon, 16 Sep 2002 05:23:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261268AbSIPJSX>; Mon, 16 Sep 2002 05:18:23 -0400
-Received: from CPEdeadbeef0000.cpe.net.cable.rogers.com ([24.100.232.94]:1284
-	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id <S261264AbSIPJSW>; Mon, 16 Sep 2002 05:18:22 -0400
-Date: Mon, 16 Sep 2002 05:25:33 -0400 (EDT)
-From: Shawn Starr <spstarr@sh0n.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Additional Note: on BUG from sched.c line 944
-In-Reply-To: <Pine.LNX.4.44.0209160524190.18931@coredump.sh0n.net>
-Message-ID: <Pine.LNX.4.44.0209160525010.18932-100000@coredump.sh0n.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261289AbSIPJXY>; Mon, 16 Sep 2002 05:23:24 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:22794 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261268AbSIPJXY>; Mon, 16 Sep 2002 05:23:24 -0400
+Date: Mon, 16 Sep 2002 10:28:09 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Peter Waechtler <pwaechtler@mac.com>
+Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.20-pre7: export proc_get_inode
+Message-ID: <20020916102809.A18981@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Peter Waechtler <pwaechtler@mac.com>, marcelo@conectiva.com.br,
+	linux-kernel@vger.kernel.org
+References: <15532699-C8C8-11D6-B517-00039387C942@mac.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <15532699-C8C8-11D6-B517-00039387C942@mac.com>; from pwaechtler@mac.com on Sun, Sep 15, 2002 at 06:27:53PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Machine only has one CPU but is SMP friendly if i get another =)
+On Sun, Sep 15, 2002 at 06:27:53PM +0200, Peter Waechtler wrote:
+> this is a patch against 2.4.20-pre7 to export proc_get_inode(). This is
+> needed to compile and load the wlan/comx driver as a module
 
---
-Shawn Starr, sh0n.net, <spstarr@sh0n.net>
-Maintainer: -shawn kernel patches: http://xfs.sh0n.net/2.4/
+This comes up about every month and the answer is that it should not be
+exported because the driver is broken.
 

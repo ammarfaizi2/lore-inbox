@@ -1,47 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318286AbSGRUGw>; Thu, 18 Jul 2002 16:06:52 -0400
+	id <S318330AbSGRUFI>; Thu, 18 Jul 2002 16:05:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318290AbSGRUGw>; Thu, 18 Jul 2002 16:06:52 -0400
-Received: from hqvsbh2.ms.com ([205.228.12.104]:31454 "EHLO hqvsbh2.ms.com")
-	by vger.kernel.org with ESMTP id <S318286AbSGRUGv>;
-	Thu, 18 Jul 2002 16:06:51 -0400
+	id <S318337AbSGRUFI>; Thu, 18 Jul 2002 16:05:08 -0400
+Received: from [207.251.72.21] ([207.251.72.21]:17171 "EHLO
+	s-ny-exchconn01.island.com") by vger.kernel.org with ESMTP
+	id <S318330AbSGRUFH>; Thu, 18 Jul 2002 16:05:07 -0400
+Message-ID: <628900C9F8A7D51188E000A0C9F3FDFA024FF096@S-NY-EXCH01>
+From: Robert Sinko <RSinko@island.com>
+To: "'Matt_Domsch@Dell.com'" <Matt_Domsch@Dell.com>,
+       linux-kernel@vger.kernel.org
+Subject: RE: Wrong CPU count
+Date: Thu, 18 Jul 2002 16:07:01 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15671.8335.526673.92376@axolotl.ms.com>
-Date: Thu, 18 Jul 2002 16:09:51 -0400 (EDT)
-From: Hildo.Biersma@morganstanley.com
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
-Subject: Re: close return value
-In-Reply-To: <200207180001.g6I015f02681@devserv.devel.redhat.com>
-References: <1026867782.1688.108.camel@irongate.swansea.linux.org.uk>
-	<20020716.165241.123987278.davem@redhat.com>
-	<1026869741.2119.112.camel@irongate.swansea.linux.org.uk>
-	<20020716.172026.55847426.davem@redhat.com>
-	<mailman.1026868201.10433.linux-kernel2news@redhat.com>
-	<200207180001.g6I015f02681@devserv.devel.redhat.com>
-X-Mailer: VM 6.75 under 21.1 (patch 8) "Bryce Canyon" XEmacs Lucid
+X-Mailer: Internet Mail Service (5.5.2655.55)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Pete" == Pete Zaitcev <zaitcev@redhat.com> writes:
+Matt,
 
-Pete> I really hate to disagree with the chief penguin here, but it's
-Pete> extremely dumb to return errors from close(). The last time we
-Pete> trashed this issue on this list was when a newbie used an error
-Pete> return from release() to communicate with his driver.
+Thanks for the reply. First, let me say thank you very much for a super web
+site that helped us sort out issues with the 2650 RAID stuff.
 
-Pete> The problem with errors from close() is that NOTHING SMART can be
-Pete> done by the application when it receives it. And application can:
+I'm not familiar with the HyperThreading concept.
 
-Pete>  a) print a message "Your data are lost, have a nice day\n".
-Pete>  b) loop retrying close() until it works.
-Pete>  c) do (a) then (b).
+Do you know of any docs that discuss this.  I'm particularly concerned with
+how this impacts the results of monitoring tools such as top.
 
-I must disagree with you.  We run the Andrew File System (AFS), which
-has client-side caching with write-on-close semantics.  If an error
-occurs goes wrong at close() time, a well-written application can
-actually do something useful - such as sending an alert, or letting
-the user know the action failed.
+Thanks,
+Bob
+
+-----Original Message-----
+From: Matt_Domsch@Dell.com [mailto:Matt_Domsch@Dell.com]
+Sent: Thursday, July 18, 2002 4:01 PM
+To: RSinko@island.com; linux-kernel@vger.kernel.org
+Subject: RE: Wrong CPU count
+
+
+> After upgrading  from kernel 2.4.7-10smp to 2.4.9-34smp using 
+> the Red Hat
+> RPM downloaded from RH Network, the CPU count on the machine 
+> reported by
+> dmesg and listed in /proc/cpuinfo was 4 rather than the actual 2.
+> 
+> This has occured on all 4 Dell 2650's that I've installed 
+> this patch on.  I
+> don't have any other mult-processor machines available to 
+> test this with.
+
+Congratulations, you purchased a fine PowerEdge 2650 with processors which
+contain HyperThreading technology.  Each physical processor appears as two
+logical processors.  This behaviour is expected, and correct. :-)
+
+Thanks,
+Matt
+
+--
+Matt Domsch
+Sr. Software Engineer, Lead Engineer, Architect
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
+#1 US Linux Server provider for 2001 and Q1/2002! (IDC May 2002)
+
+
+DISCLAIMER: The information contained herein is confidential and is intended
+solely for the addressee(s). It shall not be construed as a recommendation
+to buy or sell any security. Any unauthorized access, use, reproduction,
+disclosure or dissemination is prohibited. Neither ISLAND nor any of its
+subsidiaries or affiliates shall assume any legal liability or
+responsibility for any incorrect, misleading or altered information
+contained herein. Thank you.
+
+

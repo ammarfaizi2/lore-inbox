@@ -1,67 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbULBNKc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbULBNMp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbULBNKc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 08:10:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbULBNKb
+	id S261607AbULBNMp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 08:12:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261616AbULBNMp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 08:10:31 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:6842 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261605AbULBNKY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 08:10:24 -0500
-Date: Thu, 2 Dec 2004 14:10:02 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Florian Schmidt <mista.tapas@gmx.net>
-Cc: Rui Nuno Capela <rncbc@rncbc.org>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
-       Esben Nielsen <simlo@phys.au.dk>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-19
-Message-ID: <20041202131002.GA30503@elte.hu>
-References: <33059.192.168.1.5.1101927565.squirrel@192.168.1.5> <20041201212925.GA23410@elte.hu> <20041201213023.GA23470@elte.hu> <32788.192.168.1.8.1101938057.squirrel@192.168.1.8> <20041201220916.GA24992@elte.hu> <20041201234355.0dac74cf@mango.fruits.de> <20041202084040.GC7585@elte.hu> <20041202132218.02ea2c48@mango.fruits.de> <20041202122931.GA25357@elte.hu> <20041202140612.4c07bca8@mango.fruits.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041202140612.4c07bca8@mango.fruits.de>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 2 Dec 2004 08:12:45 -0500
+Received: from alog0328.analogic.com ([208.224.222.104]:2688 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261607AbULBNLG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 08:11:06 -0500
+Date: Thu, 2 Dec 2004 08:11:01 -0500 (EST)
+From: linux-os <linux-os@chaos.analogic.com>
+Reply-To: linux-os@analogic.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: keyboard timeout
+In-Reply-To: <1101944709.30770.78.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0412020748070.11261@chaos.analogic.com>
+References: <Pine.LNX.4.61.0412011721090.8835@chaos.analogic.com>
+ <1101944709.30770.78.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 1 Dec 2004, Alan Cox wrote:
 
-* Florian Schmidt <mista.tapas@gmx.net> wrote:
+> On Mer, 2004-12-01 at 22:29, linux-os wrote:
+>> If Linux 2.6.9 is booted on a 40 MHz `486 with the standard
+>> ISA clock of 14.3 MHz (yes that's the standard), the kernel
+>> will complain about a keyboard timeout for every key touched!
+>
+> 8.33Mhz. The delays should be correct but given that just about all
+> hardware under 15 years old doesn't care (I think the last thing to care
+> was the digital hi-note laptop) it is possible that the new input code
+> has a tiny missing delay somewhere. Having said that I have specifically
+> audited the input keyboard driver for such problems in 2.6.5 or so and
+> found only one (which is fixed)
+>
+> Nor should the ISA bus speed matter - the uController chugs along at
+> about 2Mhz and the delays it needs are a bit longer than just ISA
+> cycles.
 
-> Hmm, i wonder if there's a way to detect non RT behaviour in jackd
-> clients. I mean AFAIK the only thing allowed for the process callback
-> of on is the FIFO it waits on to be woken, right? Every other sleeping
-> is to be considered a bug. 
+>From original IBM specification...
+"...8284A Clock generator clock generator supplies the multiphase
+clock signals that are needed to drive the microprocessor and
+the peripherals. Its base frequency is 14.31818 MHz....."
 
-there's such a feature in -RT kernels. If a user process calls:
+ 	14.31818 / 3 =  4.7727... MHz (the original CPU clock frequency)
+ 	14.31818 / 12 = 1.1931... frequency fed to 8253 PIT and
+ 		keyboard controller.
 
-	gettimeofday(1,1);
+ 	... etc...
 
-then the kernel turns 'atomic mode' on. To turn it off, call:
+Low power clones, designed to use very low power __still__ use
+these low frequencies. These frequencies were chosen by ME
+because they can derive from the 3.579545 MHz color sugarier
+frequency that was used in color television. The early PCs
+were expected to be connected to color TV.
 
-	gettimeofday(1,0);
+FYI 3.579545 (NTSC color sub-carrier frequency) is 14.31818 / 4.
+I know all these numbers by heart because I had to defend them
+over several murderous design reviews in Boca Raton. Modern
+motherboards generate the PIT and keyboard frequencies (also
+the UART input) using other methods, but these low frequencies
+are still in use. And, yes the keyboard MUST have a longer timeout
+regardless of your "audit". Thanks for the help.
 
-while in atomic-mode, any non-atomic activity (scheduling) will produce
-a kernel message and a SIGUSR2 sent to the offending process (once,
-atomic mode has to be re-enabled again for the next message). Preemption
-by a higher-prio task does not trigger a message/signal.
-
-If you run the client under gdb you should be able to catch the SIGUSR2
-signal and then you can see the offending code's backtrace via 'bt'.
-
-	Ingo
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by John Ashcroft.
+                  98.36% of all statistics are fiction.

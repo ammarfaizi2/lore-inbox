@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265810AbRGFHsp>; Fri, 6 Jul 2001 03:48:45 -0400
+	id <S266121AbRGFHwp>; Fri, 6 Jul 2001 03:52:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266237AbRGFHsf>; Fri, 6 Jul 2001 03:48:35 -0400
-Received: from scan2.fhg.de ([153.96.1.37]:11228 "EHLO scan2.fhg.de")
-	by vger.kernel.org with ESMTP id <S265810AbRGFHs0>;
-	Fri, 6 Jul 2001 03:48:26 -0400
-Message-ID: <3B456D45.FBF10C1A@N-Club.de>
-Date: Fri, 06 Jul 2001 09:48:21 +0200
-From: Juergen Wolf <JuWo@N-Club.de>
-Organization: AEMT Fraunhofer
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i686)
-MIME-Version: 1.0
-To: Francois Romieu <romieu@cogenit.fr>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Problem with SMC Etherpower II + kernel newer 2.4.2
-In-Reply-To: <Pine.LNX.4.30.0107021014230.15054-100000@flash.datafoundation.com> <3B42DEC2.AAB1E65B@N-Club.de> <20010704145752.A29311@se1.cogenit.fr>
-Content-Type: text/plain; charset=us-ascii
+	id <S265933AbRGFHwf>; Fri, 6 Jul 2001 03:52:35 -0400
+Received: from front4m.grolier.fr ([195.36.216.54]:59371 "EHLO
+	front4m.grolier.fr") by vger.kernel.org with ESMTP
+	id <S266121AbRGFHwX>; Fri, 6 Jul 2001 03:52:23 -0400
+Subject: Re: [OT] Maintainers master list: new idea
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Marc Brekoo <m_brekoo@mailandnews.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <01e901c105a5$a0205220$0100a8c0@chello.nl>
+In-Reply-To: <01e901c105a5$a0205220$0100a8c0@chello.nl>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.10.99 (Preview Release)
+Date: 06 Jul 2001 09:47:48 +0200
+Message-Id: <994405675.5488.2.camel@nomade>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Romieu wrote:
-> 
-> Is X or something like a nvidia module enabled ?
-> 
+I have another suggestion for the MAINTAINER list:
 
-Hi,
+Put the filenames/directories the maintainer is responsible of, perhaps
+in a hierarchical tree (X maintains usb drivers, Y maintains usb
+keyboards, Z maintains usb keyboard from such vendor).
+This should be coherent and easily parsable.
 
- the nvidia modul is not loaded or enabled but X is running sometimes.
-Anyways, it seems to happen if X is not running too.
-Luckily I got a very helpfull hint from Hans-Christian Armingeon in
-reply to my questions here on the list. The epic100.c from
-http://lrcwww.epfl.ch/~boch/sw/epic100.c.txt fixes the problem in all
-the affected kernel versions. 
+This way, someone which has to send several patches can make a little
+script which finds the correct maintainers to send its stuff to.
+I've already been in that situation, currently it's a pain.
 
-Thanx for your help guys
-	Juergen
+Xav
+

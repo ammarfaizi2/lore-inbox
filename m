@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268899AbUIQQmB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268907AbUIQQmA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268899AbUIQQmB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 12:42:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268878AbUIQP0w
+	id S268907AbUIQQmA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 12:42:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268899AbUIQPcw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 11:26:52 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:63697 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S268838AbUIQOms (ORCPT
+	Fri, 17 Sep 2004 11:32:52 -0400
+Received: from mo00.iij4u.or.jp ([210.130.0.19]:40166 "EHLO mo00.iij4u.or.jp")
+	by vger.kernel.org with ESMTP id S268812AbUIQPAY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 10:42:48 -0400
-Date: Fri, 17 Sep 2004 20:23:50 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Dipankar Sarma <dipankar@in.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, hari@in.ibm.com,
-       Rusty Russell <rusty@rustcorp.com.au>, suparna@in.ibm.com,
-       fastboot@osdl.org, ebiederm@xmission.com, litke@us.ibm.com,
-       linux-kernel@vger.kernel.org, mbligh@aracnet.com
-Subject: Re: [Fastboot] Re: [PATCH][4/6]Register snapshotting before kexec boot
-Message-ID: <20040917145350.GA4750@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20040915125041.GA15450@in.ibm.com> <20040915125145.GB15450@in.ibm.com> <20040915125322.GC15450@in.ibm.com> <20040915125422.GD15450@in.ibm.com> <20040915125525.GE15450@in.ibm.com> <20040915142722.46088ad5.akpm@osdl.org> <20040916081138.GB4594@in.ibm.com>
+	Fri, 17 Sep 2004 11:00:24 -0400
+Date: Sat, 18 Sep 2004 00:00:14 +0900
+From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+To: akpm@osdl.org
+Cc: yuasa@hh.iij4u.or.jp, linux-kernel@vger.kernel.org
+Subject: [PATCH] mips: fixed initialization error
+Message-Id: <20040918000014.346b48ea.yuasa@hh.iij4u.or.jp>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040916081138.GB4594@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 16, 2004 at 08:41:13AM +0000, Dipankar Sarma wrote:
-> On Wed, Sep 15, 2004 at 02:27:22PM -0700, Andrew Morton wrote:
-> > Is dodgy wrt CPU hotplug, but there's not a lot we can do about that
-> > in this context, I expect.  Which is a shame, given that CPU hotplug
-> > is a likely time at which to be taking a crashdump ;)
-> 
-> If Hari disables preemption during this entire section of code,
-> he should be safe from CPU hotplug, AFAICS. The stop machine
-> threads will never get to run on that CPU.
+This change had fixed initialization error in arch/mips/vr41xx/common/icu.c
 
-This will work for CPU remove, not CPU add, since the later
-is not atomic (yet). 
+Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
 
-Rusty, do you think it would be worthwhile making CPU add atomic?
-I can give it a shot :)
-
--- 
-
-
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017
+diff -urN -X dontdiff vr-orig/arch/mips/vr41xx/common/icu.c vr/arch/mips/vr41xx/common/icu.c
+--- vr-orig/arch/mips/vr41xx/common/icu.c	2004-09-13 14:31:27.000000000 +0900
++++ vr/arch/mips/vr41xx/common/icu.c	2004-09-17 17:15:30.000000000 +0900
+@@ -51,6 +51,12 @@
+ static uint32_t icu1_base;
+ static uint32_t icu2_base;
+ 
++static struct irqaction icu_cascade = {
++	.handler	= no_action,
++	.mask		= CPU_MASK_NONE,
++	.name		= "cascade",
++};
++
+ static unsigned char sysint1_assign[16] = {
+ 	0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ static unsigned char sysint2_assign[16] = {
+@@ -674,8 +680,6 @@
+ 
+ /*=======================================================================*/
+ 
+-static struct irqaction icu_cascade = {no_action, 0, 0, "cascade", NULL, NULL};
+-
+ static inline void init_vr41xx_icu_irq(void)
+ {
+ 	int i;

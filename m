@@ -1,129 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263828AbUCZARk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 19:17:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263830AbUCZAHI
+	id S263824AbUCZAY3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 19:24:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263817AbUCZAXz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 19:07:08 -0500
-Received: from waste.org ([209.173.204.2]:55193 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S263831AbUCYX6I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 18:58:08 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Andrew Morton <akpm@osdl.org>
-X-PatchBomber: http://selenic.com/scripts/mailpatches
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20.524465763@selenic.com>
-Message-Id: <21.524465763@selenic.com>
-Subject: [PATCH 20/22] /dev/random: cleanup rol bitop
-Date: Thu, 25 Mar 2004 17:57:46 -0600
+	Thu, 25 Mar 2004 19:23:55 -0500
+Received: from mail.scsiguy.com ([63.229.232.106]:17680 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP id S263824AbUCZAEn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 19:04:43 -0500
+Date: Thu, 25 Mar 2004 17:03:52 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Lars Marowsky-Bree <lmb@suse.de>, Kevin Corry <kevcorry@us.ibm.com>,
+       linux-kernel@vger.kernel.org
+cc: Jeff Garzik <jgarzik@pobox.com>, Neil Brown <neilb@cse.unsw.edu.au>,
+       linux-raid@vger.kernel.org
+Subject: Re: "Enhanced" MD code avaible for review
+Message-ID: <1041730000.1080259431@aslan.btc.adaptec.com>
+In-Reply-To: <20040325234452.GC15264@marowsky-bree.de>
+References: <760890000.1079727553@aslan.btc.adaptec.com> <16480.61927.863086.637055@notabene.cse.unsw.edu.au> <40624235.30108@pobox.com> <200403251200.35199.kevcorry@us.ibm.com> <1019470000.1080255540@aslan.btc.adaptec.com> <20040325234452.GC15264@marowsky-bree.de>
+X-Mailer: Mulberry/3.1.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Uhm. DM sort of does (at least where the morphing amounts to resyncing a
+> part of the stripe, ie adding a new mirror, RAID1->4, RAID5->6 etc).
+> Freeze, load new mapping, continue.
 
-/dev/random  cleanup rol bitop
+The point is that these trivial "morphings" can be achieved with limited
+effort regardless of whether you do it via EMD or DM.   Implementing this
+in EMD could be achieved with perhaps 8 hours work with no significant
+increase in code size or complexity.  This is part of why I find them
+"uninteresting".  If we really want to talk about generic morphing,
+I think you'll find that DM is no better suited to this task than MD or
+its derivatives.
 
-We've got three definitions of rotate_left. Remove x86 and duplicate
-rotate definitions. Remaining definition is fixed up such that recent
-gcc will generate rol instructions on x86 at least.
+> I agree that more complex morphings (RAID1->RAID5 or vice-versa in
+> particular) are more difficult to get right, but are not that often
+> needed online - or if they are, typically such scenarios will have
+> enough temporary storage to create the new target, RAID1 over,
+> disconnect the old part and free it, which will work just fine with DM.
 
+The most common requests that we hear from customers are:
 
- tiny-mpm/drivers/char/random.c |   40 +++++++---------------------------------
- 1 files changed, 7 insertions(+), 33 deletions(-)
+o single -> R1
 
-diff -puN drivers/char/random.c~kill-rotate drivers/char/random.c
---- tiny/drivers/char/random.c~kill-rotate	2004-03-20 15:04:42.000000000 -0600
-+++ tiny-mpm/drivers/char/random.c	2004-03-20 15:08:19.000000000 -0600
-@@ -393,33 +393,10 @@ static DECLARE_WAIT_QUEUE_HEAD(random_wr
- static void sysctl_init_random(struct entropy_store *pool);
- #endif
- 
--/*****************************************************************
-- *
-- * Utility functions, with some ASM defined functions for speed
-- * purposes
-- * 
-- *****************************************************************/
--
--/*
-- * Unfortunately, while the GCC optimizer for the i386 understands how
-- * to optimize a static rotate left of x bits, it doesn't know how to
-- * deal with a variable rotate of x bits.  So we use a bit of asm magic.
-- */
--#if (!defined (__i386__))
--static inline __u32 rotate_left(int i, __u32 word)
-+static inline __u32 rol32(__u32 word, int shift)
- {
--	return (word << i) | (word >> (32 - i));
--	
-+	return (word << shift) | (word >> (32 - shift));
- }
--#else
--static inline __u32 rotate_left(int i, __u32 word)
--{
--	__asm__("roll %%cl,%0"
--		:"=r" (word)
--		:"0" (word),"c" (i));
--	return word;
--}
--#endif
- 
- #if 0
- #define DEBUG_ENT(fmt, arg...) \
-@@ -514,7 +491,7 @@ static void add_entropy_words(struct ent
- 	spin_lock_irqsave(&r->lock, flags);
- 
- 	while (nwords--) {
--		w = rotate_left(r->input_rotate, *in++);
-+		w = rol32(*in++, r->input_rotate);
- 		i = r->add_ptr = (r->add_ptr - 1) & wordmask;
- 		/*
- 		 * Normally, we add 7 bits of rotation to the pool.
-@@ -849,8 +826,6 @@ EXPORT_SYMBOL(add_disk_randomness);
- #define K3  0x8F1BBCDCL			/* Rounds 40-59: sqrt(5) * 2^30 */
- #define K4  0xCA62C1D6L			/* Rounds 60-79: sqrt(10) * 2^30 */
- 
--#define ROTL(n,X)  ( ( ( X ) << n ) | ( ( X ) >> ( 32 - n ) ) )
--
- static void sha_transform(__u32 digest[85], __u32 const data[16])
- {
-     __u32 A, B, C, D, E;     /* Local vars */
-@@ -867,7 +842,7 @@ static void sha_transform(__u32 digest[8
-     memcpy(W, data, 16*sizeof(__u32));
-     for (i = 0; i < 64; i++) {
- 	    TEMP = W[i] ^ W[i+2] ^ W[i+8] ^ W[i+13];
--	    W[i+16] = ROTL(1, TEMP);
-+	    W[i+16] = rol32(TEMP, 1);
-     }
- 
-     /* Set up first buffer and local data buffer */
-@@ -890,8 +865,8 @@ static void sha_transform(__u32 digest[8
- 	    else
- 		TEMP = f4(B, C, D) + K4;
- 	}
--	TEMP += ROTL(5, A) + E + W[i];
--	E = D; D = C; C = ROTL(30, B); B = A; A = TEMP;
-+	TEMP += rol32(A, 5) + E + W[i];
-+	E = D; D = C; C = rol32(B, 30); B = A; A = TEMP;
-     }
- 
-     /* Build message digest */
-@@ -905,7 +880,6 @@ static void sha_transform(__u32 digest[8
- #undef W
- }
- 
--#undef ROTL
- #undef f1
- #undef f2
- #undef f3
-@@ -1646,7 +1620,7 @@ __u32 halfMD4Transform(__u32 buf[4], __u
- 		else
- 			a += H(b,c,d) + K3;
- 		a += in[(int)p[i]];
--		a = rotate_left(a, s[i]);
-+		a = rol32(a, s[i]);
- 		e = d; d = c; c = b; b = a; a = e;
- 	}
- 
+	Equally possible with MD or DM assuming your singles are
+	accessed via a volume manager.  Without that support the
+	user will have to dismount and remount storage.
 
-_
+o R1 -> R10
+
+	This should require just double the number of active members.
+	This is not possible today with either DM or MD.  Only
+	"migration" is possible.
+
+o R1 -> R5
+o R5 -> R1
+
+	These typically occur when data access patterns change for
+	the customer.  Again not possible with DM or MD today.
+
+All of these are important to some subset of customers and are, to
+my mind, required if you want to claim even basic morphing capability.
+If you are allowing the "cop-out" of using a volume manager to substitute
+data-migration for true morphing, then MD is almost as well suited to
+that task as DM.
+
+--
+Justin
+

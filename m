@@ -1,89 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266541AbUBLR1c (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 12:27:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266544AbUBLR1c
+	id S266483AbUBLSMd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 13:12:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266520AbUBLSMd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 12:27:32 -0500
-Received: from p68.rivermarket.wintek.com ([208.13.56.68]:16768 "EHLO dust")
-	by vger.kernel.org with ESMTP id S266541AbUBLR12 (ORCPT
+	Thu, 12 Feb 2004 13:12:33 -0500
+Received: from [212.28.208.94] ([212.28.208.94]:45572 "HELO dewire.com")
+	by vger.kernel.org with SMTP id S266483AbUBLSMc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 12:27:28 -0500
-Date: Thu, 12 Feb 2004 12:30:22 -0500 (EST)
-From: Alex Goddard <agoddard@purdue.edu>
-To: Rik van Riel <riel@redhat.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] Documentation on how to debug modules
-In-Reply-To: <Pine.LNX.4.44.0402121013040.1068-100000@chimarrao.boston.redhat.com>
-Message-ID: <Pine.LNX.4.58.0402121219210.22024@dust>
-References: <Pine.LNX.4.44.0402121013040.1068-100000@chimarrao.boston.redhat.com>
-X-GPG-PUBLIC_KEY: N/a
-X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
+	Thu, 12 Feb 2004 13:12:32 -0500
+From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+To: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
+Subject: Re: JFS default behavior (was: UTF-8 in file systems? xfs/extfs/etc.)
+Date: Thu, 12 Feb 2004 19:12:24 +0100
+User-Agent: KMail/1.6.1
+Cc: linux-kernel@vger.kernel.org
+References: <1076604650.31270.20.camel@ulysse.olympe.o2t>
+In-Reply-To: <1076604650.31270.20.camel@ulysse.olympe.o2t>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463785916-1739359682-1076607022=:22024"
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200402121912.24146.robin.rosenberg.lists@dewire.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Thursday 12 February 2004 17.50, you wrote:
+> But that's not a reason not to fix the core problem - I don't want to
+> spent hours fixing filenames next time someone comes up with a new
+> encoding. Please put valid encoding info somewhere or declare filenames
+> are utf-8 od utf-16 only - changing user locale should not corrupt old
+> data.
 
----1463785916-1739359682-1076607022=:22024
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Yes! 
 
-On Thu, 12 Feb 2004, Rik van Riel wrote:
-
-> On Thu, 12 Feb 2004, Rusty Russell wrote:
-> 
-> > Just remove the debugging message which fill people's logs: the
-> > correct way of debugging module problems is something like this:
-> 
-> Could you add that to Documentation/  ;)
-
-I couldn't think of, or find a good place to put this, so I put the
-information in it's own file.  I'm only moderately sure I've generated the
-patch correctly.  However, it does apply with patch -p1 to a clean
-2.6.3-rc2-bk2 tree, so it should be fine.
-
-The wording is a slightly changed version of what Rusty said at the start
-of this thread.
-
--- 
-Alex Goddard
-agoddard at purdue dot edu
----1463785916-1739359682-1076607022=:22024
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="debugging-modules.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.58.0402121230220.22024@dust>
-Content-Description: 
-Content-Disposition: attachment; filename="debugging-modules.patch"
-
-ZGlmZiAtTnVycCBsaW51eC0yLjYuMy1yYzItYmsyL0RvY3VtZW50YXRpb24v
-ZGVidWdnaW5nLW1vZHVsZXMudHh0IHBlcnNvbmFsLTIuNi4zLXJjMi1iazIv
-RG9jdW1lbnRhdGlvbi9kZWJ1Z2dpbmctbW9kdWxlcy50eHQNCi0tLSBsaW51
-eC0yLjYuMy1yYzItYmsyL0RvY3VtZW50YXRpb24vZGVidWdnaW5nLW1vZHVs
-ZXMudHh0CTE5NjktMTItMzEgMTk6MDA6MDAuMDAwMDAwMDAwIC0wNTAwDQor
-KysgcGVyc29uYWwtMi42LjMtcmMyLWJrMi9Eb2N1bWVudGF0aW9uL2RlYnVn
-Z2luZy1tb2R1bGVzLnR4dAkyMDA0LTAyLTEyIDEyOjE1OjExLjkzNTQ4ODcy
-MCAtMDUwMA0KQEAgLTAsMCArMSwxOCBAQA0KK0RlYnVnZ2luZyBNb2R1bGVz
-IGFmdGVyIDIuNi4zDQorLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0N
-CisNCitJbiBhbG1vc3QgYWxsIGRpc3RyaWJ1dGlvbnMsIHRoZSBrZXJuZWwg
-YXNrcyBmb3IgbW9kdWxlcyB3aGljaCBkb24ndA0KK2V4aXN0LCBzdWNoIGFz
-ICJuZXQtcGYtMTAiIG9yIHdoYXRldmVyLiAgQ2hhbmdpbmcgIm1vZHByb2Jl
-IC1xIiB0bw0KKyJzdWNjZWVkIiBpbiB0aGlzIGNhc2UgaXMgaGFja3kgYW5k
-IGJyZWFrcyBzb21lIHNldHVwcywgYW5kIGFsc28gd2UNCit3YW50IHRvIGtu
-b3cgaWYgaXQgZmFpbGVkIGZvciB0aGUgZmFsbGJhY2sgY29kZSBmb3Igb2xk
-IGFsaWFzZXMgaW4NCitmcy9jaGFyX2Rldi5jLCBmb3IgZXhhbXBsZS4NCisN
-CitJbiB0aGUgcGFzdCBhIGRlYnVnZ2luZyBtZXNzYWdlIHdoaWNoIHdvdWxk
-IGZpbGwgcGVvcGxlJ3MgbG9ncyB3YXMgDQorZW1pdHRlZC4gIFRoaXMgZGVi
-dWdnaW5nIG1lc3NhZ2UgaGFzIGJlZW4gcmVtb3ZlZC4gIFRoZSBjb3JyZWN0
-IHdheSANCitvZiBkZWJ1Z2dpbmcgbW9kdWxlIHByb2JsZW1zIGlzIHNvbWV0
-aGluZyBsaWtlIHRoaXM6DQorDQorZWNobyAnIyEgL2Jpbi9zaCcgPiAvdG1w
-L21vZHByb2JlDQorZWNobyAnZWNobyAiJEAiID4+IC90bXAvbW9kcHJvYmUu
-bG9nJyA+PiAvdG1wL21vZHByb2JlDQorZWNobyAnZXhlYyAvc2Jpbi9tb2Rw
-cm9iZSAiJEAiJyA+PiAvdG1wL21vZHByb2JlDQorY2htb2QgYSt4IC90bXAv
-bW9kcHJvYmUNCitlY2hvIC90bXAvbW9kcHJvYmUgPiAvcHJvYy9zeXMva2Vy
-bmVsL21vZHByb2JlDQo=
-
----1463785916-1739359682-1076607022=:22024--
+-- robin

@@ -1,38 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270425AbTGUPvo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 11:51:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270185AbTGUPng
+	id S270427AbTGUPvq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 11:51:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270173AbTGUPnV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 11:43:36 -0400
-Received: from ANancy-107-1-39-175.w81-48.abo.wanadoo.fr ([81.48.73.175]:261
-	"EHLO xiii.freealter.fr") by vger.kernel.org with ESMTP
-	id S270427AbTGUPlc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 11:41:32 -0400
-Message-ID: <3F1C0CF6.4010302@freealter.com>
-Date: Mon, 21 Jul 2003 17:55:34 +0200
-From: Ludovic Drolez <ludovic.drolez@freealter.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030617
-X-Accept-Language: fr, en-us, en
+	Mon, 21 Jul 2003 11:43:21 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:9737 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S270185AbTGUPiz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 11:38:55 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] fat_access cleanup (5/11)
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Tue, 22 Jul 2003 00:53:52 +0900
+Message-ID: <877k6bx4dr.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: keep the linux logo displayed
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+This removes the dump_fat() and dump_de() of obsoleted debug code in
+vfat/namei.c.
 
-I wondered if anyone knows about a 2 lines patch, to keep the linux logo 
-always displayed in a 2.5.x / 2.6.x kernel ??
-I've tried to patch a few lines in fbcon.c, without success :-(
 
-Regards,
+ fs/vfat/namei.c |   31 -------------------------------
+ 1 files changed, 31 deletions(-)
+
+diff -puN fs/vfat/namei.c~fat_access-cleanup2 fs/vfat/namei.c
+--- linux-2.6.0-test1/fs/vfat/namei.c~fat_access-cleanup2	2003-07-21 02:48:18.000000000 +0900
++++ linux-2.6.0-test1-hirofumi/fs/vfat/namei.c	2003-07-21 02:48:18.000000000 +0900
+@@ -204,37 +204,6 @@ static int vfat_cmp(struct dentry *dentr
+ 	return 1;
+ }
+ 
+-#ifdef DEBUG
+-
+-static void dump_fat(struct super_block *sb,int start)
+-{
+-	printk("[");
+-	while (start) {
+-		printk("%d ",start);
+-		start = fat_access(sb,start,-1);
+-		if (!start) {
+-			printk("ERROR");
+-			break;
+-		}
+-		if (start == -1) break;
+-	}
+-	printk("]\n");
+-}
+-
+-static void dump_de(struct msdos_dir_entry *de)
+-{
+-	int i;
+-	unsigned char *p = (unsigned char *) de;
+-	printk("[");
+-
+-	for (i = 0; i < 32; i++, p++) {
+-		printk("%02x ", *p);
+-	}
+-	printk("]\n");
+-}
+-
+-#endif
+-
+ /* MS-DOS "device special files" */
+ 
+ static const char *reserved3_names[] = {
+
+_
 
 -- 
-Ludovic DROLEZ                                       Free&ALter Soft
-152, rue de Grigy - Technopole Metz 2000                  57070 METZ
-tel : 03 87 75 55 21                            fax : 03 87 75 19 26
-
-
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

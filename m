@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263737AbTFDRtT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 13:49:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263742AbTFDRtT
+	id S263726AbTFDRwl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 13:52:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263749AbTFDRwk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 13:49:19 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:37895 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S263737AbTFDRtN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 13:49:13 -0400
-Subject: Re: file write performance drop between 2.5.60 and 2.5.70
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Vladimir Saveliev <vs@namesys.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, reiserfs-dev@namesys.com
-In-Reply-To: <200306042017.53435.vs@namesys.com>
-References: <200306042017.53435.vs@namesys.com>
-Content-Type: text/plain
-Message-Id: <1054749758.699.5.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.92 (Preview Release)
-Date: 04 Jun 2003 20:02:39 +0200
-Content-Transfer-Encoding: 7bit
+	Wed, 4 Jun 2003 13:52:40 -0400
+Received: from dan.arc.nasa.gov ([143.232.69.77]:34177 "EHLO rudi.arc.nasa.gov")
+	by vger.kernel.org with ESMTP id S263726AbTFDRwj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 13:52:39 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Dan Christian <Daniel.A.Christian@NASA.gov>
+Reply-To: Daniel.A.Christian@NASA.gov
+Organization: NASA Ames Research Center
+To: "John Appleby" <john@dnsworld.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21-rc7 SMP module unresolved symbols
+Date: Wed, 4 Jun 2003 11:06:01 -0700
+User-Agent: KMail/1.4.3
+References: <434747C01D5AC443809D5FC5405011314BEC@bobcat.unickz.com>
+In-Reply-To: <434747C01D5AC443809D5FC5405011314BEC@bobcat.unickz.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200306041106.01316.Daniel.A.Christian@NASA.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-06-04 at 18:17, Vladimir Saveliev wrote:
-> Hi
-> 
-> It looks like file write performance dropped somewhere between 2.5.60 and 
-> 2.5.70.
-> Doing
-> time dd if=/dev/zero of=file bs=4096 count=60000
-> 
-> on a box with Xeon(TM) CPU 2.40GHz and 1gb of RAM
-> I get for ext2
-> 2.5.60: 	real	1.42 sys 0.77
-> 2.5.70: 	real 1.73 sys 1.23
-> for reiserfs
-> 2.5.60: 	real 1.62 sys 1.56
-> 2.5.70: 	real 1.90 sys 1.86
-> 
-> Any ideas of what could cause this drop?
+On Wednesday 04 June 2003 09:20, John Appleby wrote:
+> > No, I didn't do "make mrproper".  I'll try that.
+> >
+> > It used to be that it wasn't needed and it liked to blow away
+> > .config (an extreme mis-feature if I ever saw one).
+>
+> Not a mis-feature for those making diffs on the kernel tree and not
+> wanting their .config to be included erroneously :)
+>
+> Regards,
+>
+> John
 
-What filesystem are you using?
+"make mrproper" fixes it.
 
+For the record, I think this stinks!
+
+"make mrproper" should  be an expert only utility because it does blow 
+away valuable configuration information (a painfull lesson that can 
+only be learned "the hard way", since the README neglicts to mention 
+this).  For that matter, the README makes it look like creating a 
+config from scratch (all 1500+ options) is no big deal!
+
+"make clean; make dep" should have been enough for any config changes 
+(it used to be in the past).
+
+-Dan

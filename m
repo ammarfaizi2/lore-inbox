@@ -1,50 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRAIPQx>; Tue, 9 Jan 2001 10:16:53 -0500
+	id <S129324AbRAIPUN>; Tue, 9 Jan 2001 10:20:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130012AbRAIPQd>; Tue, 9 Jan 2001 10:16:33 -0500
-Received: from [194.102.102.2] ([194.102.102.2]:13330 "EHLO ns1.romanati.ro")
-	by vger.kernel.org with ESMTP id <S129324AbRAIPQW>;
-	Tue, 9 Jan 2001 10:16:22 -0500
-Date: Tue, 9 Jan 2001 18:10:57 +0200 (EET)
-From: Eugen <eugen@tower.romanati.ro>
-To: rlug@lug.ro
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [rlug] Failure building 2.4 while running 2.4.  Success in
- building 2.4 while running 2.2.
-In-Reply-To: <20010109111247.397581ea.silviu@delrom.ro>
-Message-ID: <Pine.LNX.4.20.0101091810130.696-100000@tower.romanati.ro>
+	id <S129742AbRAIPUE>; Tue, 9 Jan 2001 10:20:04 -0500
+Received: from mail2.megatrends.com ([155.229.80.11]:27400 "EHLO
+	mail2.megatrends.com") by vger.kernel.org with ESMTP
+	id <S129627AbRAIPT4>; Tue, 9 Jan 2001 10:19:56 -0500
+Message-ID: <1355693A51C0D211B55A00105ACCFE64E95139@ATL_MS1>
+From: Venkatesh Ramamurthy <Venkateshr@ami.com>
+To: "'Stephen C. Tweedie'" <sct@redhat.com>,
+        Venkatesh Ramamurthy <Venkateshr@ami.com>
+Cc: "'Pavel Machek'" <pavel@suse.cz>, adefacc@tin.it,
+        linux-kernel@vger.kernel.org
+Subject: RE: Confirmation request about new 2.4.x. kernel limits
+Date: Tue, 9 Jan 2001 10:15:34 -0500 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2448.0)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-io am compilat 2.4.0 in timp ce rulam 2.4.0-test12 si a mers
-
+> Any memory over 1GB is bounce-buffered, but we don't use that memory
+> for anything other than process data pages or file cache, so only
+> swapping and disk IO to regular files gets the extra copy.  In
+> particular, things like network buffers are still all kept in the low
+> 1GB so never need to be buffered.
+	[Venkatesh Ramamurthy]  If anything over 1GB is bounce buffered than
+what is the purpose of setting the pci_dev->dma_mask field.  On a IA32
+system we set it to 32 1's and IA64 to 64 1's - Venkat
+>  
 > 
-> I can build 2.4.0 while running kernel 2.2.16.
-> 
-> If I try to rebuild 2.4.0 while running the new kernel, I get random
-> compiler errors.
-> 
-> It happens on two machines.  One of them runs 2.4.0-test12, the other
-> 2.4.0.  Both of them with the updates above mentioned.
-> 
-> I know this is a RedHat issue, but it may be useful to know for some.
-> 
-> -- 
-> Systems and Network Administrator - Delta Romania
-> Phone +4093-267961
-> 
-> ---
-> Send e-mail to 'listar@lug.ro' with 'unsubscribe rlug' to 
-> unsubscribe from this list.
-> 
-
-
-
-Eugen
-
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265255AbTLRTEg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 14:04:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265265AbTLRTEg
+	id S265261AbTLRTIY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 14:08:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265270AbTLRTIY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 14:04:36 -0500
-Received: from fed1mtao06.cox.net ([68.6.19.125]:38046 "EHLO
-	fed1mtao06.cox.net") by vger.kernel.org with ESMTP id S265255AbTLRTEe
+	Thu, 18 Dec 2003 14:08:24 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:27339 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S265261AbTLRTIX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 14:04:34 -0500
-Message-ID: <3FE1F9E0.60102@antitux.net>
-Date: Thu, 18 Dec 2003 12:02:56 -0700
-From: John Dee <antitux@antitux.net>
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.5) Gecko/20030923 Thunderbird/0.3
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jamie Lokier <jamie@shareable.org>
-CC: "Martin J. Bligh" <mbligh@aracnet.com>,
-       Chris Meadors <clubneon@hereintown.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Can't wait for '2.8 or 3.0',or maybe: 2.8 followed by 2.10 ??
-References: <20031218170628.GA3129@localhost.localdomain> <1071765527.12681.5.camel@clubneon.priv.hereintown.net> <72060000.1071768833@flay> <20031218184510.GD16315@mail.shareable.org>
-In-Reply-To: <20031218184510.GD16315@mail.shareable.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 18 Dec 2003 14:08:23 -0500
+Date: Thu, 18 Dec 2003 11:08:09 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Arnaud Fontaine <dsdebian@free.fr>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Oops with 2.4.23
+Message-ID: <20031218190809.GB6438@matchmail.com>
+Mail-Followup-To: Arnaud Fontaine <dsdebian@free.fr>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	linux-kernel@vger.kernel.org
+References: <20031218085621.GA8283@scrappy> <Pine.LNX.4.44.0312180946550.4547-100000@logos.cnet> <20031218130601.GA11274@scrappy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031218130601.GA11274@scrappy>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-see, that's the beauty of it. :)
+On Thu, Dec 18, 2003 at 02:06:01PM +0100, Arnaud Fontaine wrote:
+> On Thu, Dec 18, 2003 at 09:47:42AM -0200, Marcelo Tosatti wrote:
+> > 
+> > Andrew, 
+> > 
+> > This is likely to be bad memory.
+> > 
+> > Can you try memtest86 on the box ? 
+> 
+> Hello,
+> 
+> Before install Debian GNU/Linux Woody on this box, i have ran memtest
+> with a bootable media and have no error after 13 pass. But i have added
+> memory after. It comes from an other PC running perfectly with this. So
+> i think it could come from the memory but if you want i can launch
+> memtest again this night ;).
 
-Jamie Lokier wrote:
-> Martin J. Bligh wrote:
-> 
->>>The names could be chosen alphabetically.  Rooster was mentioned for
->>>2.7, but since 2.6 is beaver, I propose cock, as 'c' follows 'b'.
->>
->>Oh great. 
->>So now we've progressed from flamewars to cock fighting on LKML. 
-> 
-> 
-> Are you two aware of which body parts are sometimes called
-> "beaver" and "cock"?
-> 
-> -- Jamie
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
-
+There is a difference between memtest and memtest86.  memtest86 tests all of
+your memory, and memtest can only test the userspace memory it can lock.

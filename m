@@ -1,63 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265227AbTIDSTx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 14:19:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265436AbTIDSTx
+	id S265453AbTIDS2I (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 14:28:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265442AbTIDS0X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 14:19:53 -0400
-Received: from 67.106.152.115.ptr.us.xo.net ([67.106.152.115]:35376 "EHLO
-	amperion01.amperion.com") by vger.kernel.org with ESMTP
-	id S265227AbTIDSSQ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 14:18:16 -0400
-X-MIMEOLE: Produced By Microsoft Exchange V6.0.6375.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: SLAB_LEVEL_MASK question
-Date: Thu, 4 Sep 2003 14:18:15 -0400
-Message-ID: <C6D44AA99ECEB540A5498F15F92DA07DCF0DB0@amperion01>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: SLAB_LEVEL_MASK question
-Thread-Index: AcNzDtZt/ET/PUCXSlilosdXOFhmgAAADjXA
-From: "Henry Qian" <henry@amperion.com>
-To: <linux-kernel@vger.kernel.org>
+	Thu, 4 Sep 2003 14:26:23 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:49554 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S265453AbTIDS0I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 14:26:08 -0400
+Date: Thu, 4 Sep 2003 20:26:06 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Pavel Machek <pavel@suse.cz>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp: revert to 2.6.0-test3 state
+Message-ID: <20030904182606.GB27650@atrey.karlin.mff.cuni.cz>
+References: <20030904115824.GD24015@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.33.0309040820520.940-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0309040820520.940-100000@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had a kernel panic at:
+Hi!
 
-static int kmem_cache_grow (kmem_cache_t * cachep, int flags)
-{
-        .....
+> > I'm doing return -EAGAIN so I can call driver model myself, and so
+> > that your code does not proceed with stopping tasks/etc after I've
+> > done full suspend/resume cycle.
+> > 
+> > I see your point about S4. I want to use as little as power/main.c
+> > infrastructure as possible for now, and this seems like the way to do
+> > it.
+> > 
+> > Okay, it seems that I can move this to pm_suspend, and it will look better.
+> 
+> No, you have to understand that I don't want to call software_suspend() at 
+> all. You've made the choice not to accept the swsusp changes, so we're 
+> forking the code. We will have competing implementations of 
+> suspend-to-disk in the kernel. 
 
-        /*
-         * The test for missing atomic flag is performed here, rather
-than
-         * the more obvious place, simply to reduce the critical path
-length
-         * in kmem_cache_alloc(). If a caller is seriously mis-behaving
-they
-         * will eventually be caught here (where it matters).
-         */
-        if (in_interrupt() && (flags & SLAB_LEVEL_MASK) != SLAB_ATOMIC)
-                BUG();
-        ...
-}
+I've said I want the patch reverted. I still want that, because you
+changed way too quickly with too little testing. That does not mean
+I'm not going to accept your patches in future. (In fact, my plan is
+to  get -test3 version of swsusp back for -test5, then fix up driver
+model/swsusp until we have -test3 functionality back, then start
+taking your patches). 
 
-The kernel panics because in the flags variable, I have other flags
-(0x1f0) besides SLAB_ATOMIC.
-
-I modified it to:
-
-        if (in_interrupt() && (flags & SLAB_ATOMIC) != SLAB_ATOMIC)
-                BUG();
-
-It seems working fine.
-
-Is this good?
-
-Henry Qian
+Of course, that is going to be easier with your cooperation.
+								Pavel
+-- 
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

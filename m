@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264909AbTFQTvf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 15:51:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264911AbTFQTve
+	id S264918AbTFQUGi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 16:06:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264919AbTFQUGg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 15:51:34 -0400
-Received: from rth.ninka.net ([216.101.162.244]:8578 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S264909AbTFQTvc (ORCPT
+	Tue, 17 Jun 2003 16:06:36 -0400
+Received: from ida.rowland.org ([192.131.102.52]:13828 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S264918AbTFQUGd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 15:51:32 -0400
-Subject: Re: BUG: Massive performance drop in conncetion time with 2.4.21
-	(62KB)
-From: "David S. Miller" <davem@redhat.com>
-To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-Cc: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.56.0306171518080.6807@filesrv1.baby-dragons.com>
-References: <20030616141806.6a92f839.skraw@ithnet.com>
-	 <Pine.LNX.4.51.0306161444090.18129@dns.toxicfilms.tv>
-	 <20030616145135.0ef5c436.skraw@ithnet.com>
-	 <20030616151035.735fcaf2.martin.zwickel@technotrend.de>
-	 <Pine.LNX.4.56.0306161413360.3114@filesrv1.baby-dragons.com>
-	 <Pine.LNX.4.56.0306171518080.6807@filesrv1.baby-dragons.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1055880260.19796.7.camel@rth.ninka.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 17 Jun 2003 13:04:20 -0700
+	Tue, 17 Jun 2003 16:06:33 -0400
+Date: Tue, 17 Jun 2003 16:20:29 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: Greg KH <greg@kroah.com>
+cc: Patrick Mochel <mochel@osdl.org>, Russell King <rmk@arm.linux.org.uk>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Flaw in the driver-model implementation of attributes
+In-Reply-To: <20030617173343.GB3841@kroah.com>
+Message-ID: <Pine.LNX.4.44L0.0306171602260.5972-100000@ida.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-06-17 at 12:33, Mr. James W. Laferriere wrote:
-> 	Hello All ,  Here goes .  I made 'me too'ism in another thread
-> 	that may be related to what I am presenting here .  After my .sig
-> 	is what I hope to be enough pertitanent information to get the bug
-> 	stomped on .  This is driving me crazy .  Also if someone would
-> 	like to point me at a URL:/Method(s)/... to be able to acquire
-> 	further information that would make the effort for those that
-> 	really can code in the kernel jobs easier please do .
-> 	The slow down mentioned below happens with any network based
-> 	connection .  JimL
+On Tue, 17 Jun 2003, Greg KH wrote:
 
-You can start by reporting the bug and all your debugging
-informtion to the correct list.
+> > How about creating a /sys/class/usb/usb-storage/ directory, under which
+> > there could be a directory for each USB mass-storage device?  Or would it 
+> > be better to create a usb-storage.# directory under the interface's 
+> > directory in /sys/devices/ ?
+> 
+> class/usb-storage/ would be fine with me.
+> 
+> > It's worth pointing out that both the OHCI and EHCI drivers also do the
+> > same wrong thing.  They create their attribute files in a directory
+> > owned by the PCI driver.
+> 
+> Yup, you are correct, time to add class/usb-host/ :)
 
-Networking developers DO NOT sit on linux-kernel, it's too high
-volume for them.  So use the correct list to report such
-problems.
+By the time we're done, there will be /sys/class/drivertype for every
+driver in the system!
 
--- 
-David S. Miller <davem@redhat.com>
+Seriously, do you think /sys/class/usb-storage is really appropriate?  It 
+would be like creating /sys/class/ide-devices.  Wouldn't something under 
+/sys/class/usb/ be better, say /sys/class/usb/mass-storage/ ?
+
+Or would it be still better simply to create something like 
+/sys/devices/pci0/0000:00:07.2/usb1/1-1/1-1:0/storage/ ?  A little 
+confusing perhaps, because it would refer to the same physical device as 
+its parent, but not inappropriate.
+
+Alan Stern
+

@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129901AbQLEISM>; Tue, 5 Dec 2000 03:18:12 -0500
+	id <S130159AbQLEIdG>; Tue, 5 Dec 2000 03:33:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130159AbQLEISC>; Tue, 5 Dec 2000 03:18:02 -0500
-Received: from isis.its.uow.edu.au ([130.130.68.21]:51958 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S129901AbQLEIRz>; Tue, 5 Dec 2000 03:17:55 -0500
-Message-ID: <3A2C9E74.A7B2407@uow.edu.au>
-Date: Tue, 05 Dec 2000 18:51:16 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
-X-Accept-Language: en
+	id <S130217AbQLEIcz>; Tue, 5 Dec 2000 03:32:55 -0500
+Received: from mgw-x3.nokia.com ([131.228.20.26]:35782 "EHLO mgw-x3.nokia.com")
+	by vger.kernel.org with ESMTP id <S130159AbQLEIco> convert rfc822-to-8bit;
+	Tue, 5 Dec 2000 03:32:44 -0500
+Message-ID: <9524EA4E18D6D2119FEA0008C7C5A006BE4A78@lneis01nok>
+From: Peter.Ronnquist@nokia.com
+To: peter@cadcamlab.org
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: shared memory, mmap not recommended?
+Date: Tue, 5 Dec 2000 10:02:13 +0200 
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alexander Viro <aviro@redhat.com>,
-        "Stephen C. Tweedie" <sct@redhat.com>, Alan Cox <alan@redhat.com>,
-        Christoph Rohland <cr@sap.com>, Rik van Riel <riel@conectiva.com.br>,
-        MOLNAR Ingo <mingo@chiara.elte.hu>
-Subject: Re: test12-pre5
-In-Reply-To: <Pine.LNX.4.10.10012041906510.2047-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2652.78)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+
+>   [Linus]
+> > > (otherwise I'll just end up disabling shared mmap - I 
+> doubt anybody
+> > > really uses it anyway, but it would be more polite to just support
+> > > it).
 > 
-> Ok, this contains one of the fixes for the dirty inode buffer list (the
-> other fix is pending, simply because I still want to understand why it
-> would be needed at all). Al?
-
-I've run the same test suite against vanilla test12-pre5 on two machines for
-five hours. On ext2/IDE/SMP+UP it's solid.
-
-I'll test Al's latest bforget_inode patch overnight, but that's already
-been through the wringer once.
-
-> Also, it has the final installment of the PageDirty handling, and now
-> officially direct IO can work by just marking the physical page dirty and
-> be done with it. NFS along with all filesystems have been converted, the
-> one hold-out still being smbfs.
+> [Peter Rönnquist]
+> > I was thinking about using mmap for shared mememory in my program,
+> > but now I am reconsidering.  Is the System V or Posix mechanism for
+> > shared memory a better(it will be supported in 2.4) choice?
 > 
-> Who works on smbfs these days? I see two ways of fixing smbfs now that
-> "writepage()" only gets an anonymous page and no "struct file" information
-> any more (this also fixes the double page unlock that Andrew saw).
-                                                        ^^^^^^
-                                                        Mike Galbraith.
+> [Peter Samuelson]
+> Linus was talking about shared mmap on a file in an smbfs filesystem.
+> Rather different from what you are talking about.  For regular shared
+> memory, shared mmap should be OK if you actually need backing store
+> (i.e. the state you are sharing is persistent).  Often this is not the
+> case, in which case POSIX shm might be best.
+> 
 
--
+I see, thanks a lot for the clarification.
+
+BR
+Peter Rönnquist
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

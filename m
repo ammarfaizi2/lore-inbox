@@ -1,63 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261491AbSJHSou>; Tue, 8 Oct 2002 14:44:50 -0400
+	id <S261483AbSJHSpu>; Tue, 8 Oct 2002 14:45:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261490AbSJHSon>; Tue, 8 Oct 2002 14:44:43 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:32271
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S261483AbSJHSnb>; Tue, 8 Oct 2002 14:43:31 -0400
-Subject: Re: [PATCH] O_STREAMING - flag for optimal streaming I/O
-From: Robert Love <rml@tech9.net>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: linux-kernel@vger.kernel.org, akpm@digeo.com, riel@conectiva.com.br
-In-Reply-To: <20021008183824.GA4494@tapu.f00f.org>
-References: <1034044736.29463.318.camel@phantasy> 
-	<20021008183824.GA4494@tapu.f00f.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 08 Oct 2002 14:49:09 -0400
-Message-Id: <1034102950.30670.1433.camel@phantasy>
+	id <S261490AbSJHSpt>; Tue, 8 Oct 2002 14:45:49 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:56585 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261483AbSJHSpH>; Tue, 8 Oct 2002 14:45:07 -0400
+Date: Tue, 8 Oct 2002 19:50:47 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, Ed Tomlinson <tomlins@cam.org>
+Subject: Re: [Ext2-devel] [RFC] [PATCH 1/4] Add extended attributes to ext2/3
+Message-ID: <20021008195047.A14549@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Theodore Ts'o <tytso@mit.edu>, linux-kernel@vger.kernel.org,
+	ext2-devel@lists.sourceforge.net, Ed Tomlinson <tomlins@cam.org>
+References: <E17yymB-00021j-00@think.thunk.org> <20021008191900.A12912@infradead.org> <20021008184039.GA8174@think.thunk.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021008184039.GA8174@think.thunk.org>; from tytso@mit.edu on Tue, Oct 08, 2002 at 02:40:39PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-10-08 at 14:38, Chris Wedgwood wrote:
+On Tue, Oct 08, 2002 at 02:40:39PM -0400, Theodore Ts'o wrote:
+> On Tue, Oct 08, 2002 at 07:19:00PM +0100, Christoph Hellwig wrote:
+> > > This first patch creates a generic interface for registering caches with
+> > > the VM subsystem so that they can react appropriately to memory
+> > > pressure.
+> > 
+> > I'd suggest Ed Tomlinson's much saner interface that adds a third callbackj
+> > to kmem_cache_t (similar to the Solaris implementation) instead.
+> 
+> Can you give me a pointer to his stuff?  Thanks!
 
-> > Attached patch implements an O_STREAMING file I/O flag which enables
-> > manual drop-behind of pages.
-
-I answered this in a previous email to this list:
-
-    In a lot of ways.  This flag changes no semantics except to not let
-    pages from the mapping populate the page cache for very long.
-    
-    In other words, this flag pretty much disables the pagecache for
-    this mapping, although we happily keep it around for write-behind
-    and read-ahead.  But once the data is behind us and safe to kill, we
-    do.  It is manual drop-behind.
-    
-    O_DIRECT has a lot of semantics, one of which is to attempt to
-    minimize cache effects.  It is also synchronous, requires properly
-    aligned buffers, and pretty much minimizes interaction with as much
-    of the kernel as possible.  I am not overly familiar with its uses,
-    but I always assumed the big user is applications that implement
-    their own caching layer.
-    
-    O_STREAMING would be for your TiVo or network audio streamer.  Any
-    file I/O that is inherently sequential and access-once.  No point
-    trashing the pagecache with its data - but otherwise the behavior is
-    normal.
-    
-Basically, with O_STREAMING you want normal semantics except drop-behind
-of the pages.  You even still want the pagecache caching your data -
-just the not-yet-written write-behind data and the not-yet-read
-read-ahead data.
-
-With O_DIRECT you get a whole different can-of-worms.  Basically you cut
-out a lot of the kernel.  You can do normal libc file I/O on an
-O_STREAMING file with no semantic changes; except the drop-behind of the
-pages.
-
-	Robert Love
+It is/was in akpm's -mm tree (http://www.zip.com.au/~akpm/linux/patches/2.5/).
+Ed, do you have a pointer to your most recent patch?
 

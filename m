@@ -1,64 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129803AbQKOVew>; Wed, 15 Nov 2000 16:34:52 -0500
+	id <S130162AbQKOVgW>; Wed, 15 Nov 2000 16:36:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129884AbQKOVeq>; Wed, 15 Nov 2000 16:34:46 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:48878 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129803AbQKOVee>; Wed, 15 Nov 2000 16:34:34 -0500
-Date: Wed, 15 Nov 2000 19:04:13 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Christoph Rohland <cr@sap.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: shm swapping in 2.4 again
-In-Reply-To: <qwwem0dyn3x.fsf@sap.com>
-Message-ID: <Pine.LNX.4.21.0011151854150.1111-100000@duckman.distro.conectiva>
+	id <S130140AbQKOVgM>; Wed, 15 Nov 2000 16:36:12 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:31500 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129871AbQKOVf4>; Wed, 15 Nov 2000 16:35:56 -0500
+Message-ID: <3A12FA97.ACFF1577@transmeta.com>
+Date: Wed, 15 Nov 2000 13:05:27 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11-pre5 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Pavel Machek <pavel@suse.cz>
+CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: rdtsc to mili secs?
+In-Reply-To: <3A078C65.B3C146EC@mira.net> <E13t7ht-0007Kv-00@the-village.bc.nu> <20001110154254.A33@bug.ucw.cz> <8uhps8$1tm$1@cesium.transmeta.com> <20001114222240.A1537@bug.ucw.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15 Nov 2000, Christoph Rohland wrote:
-> On Wed, 15 Nov 2000, Rik van Riel wrote:
-> > On 15 Nov 2000, Christoph Rohland wrote:
-
-> >> 2) Integrating it into the global lru lists and/or the page cache. 
-> >> 
-> >> I think the second approach is the way to go but I do not
-> >> understand the global lru list handling enough to do this and I
-> >> do not know if we can do this in the short time.
-> > 
-> > Indeed, this is the way to go. However, for 2.4 ANY change
-> > that makes the system work would be a good one ;)
+Pavel Machek wrote:
+> >
+> > Intel PIIX-based systems will do duty-cycle throttling, for example.
 > 
-> That's what I think. But from my observations I get the impression
-> that balancing the vm for big shm loads will not work. So the second
-> approach is perhaps what we have to do to get it working.
+> Don't think so. My toshiba is PIIX-based, AFAIC:
 > 
-> Actually I would appreciate some hints, where I could hook into
-> the vm if I implement a swap_shm_page() which could be called
-> from the vm. Can I simply call add_to_lru_cache or do I need to
-> add it to the page cache...
 
-You really want to have it in the swap cache, so we have
-a place for it allocated in cache, etc...
+Interesting.  Some will, definitely.  Didn't know that wasn't universal.
 
-Basically, when we unmap it in try_to_swap_out(), we
-should add the page to the swap cache, and when the
-last user stops using the page, we should push the
-page out to swap.
+Clearly, on a machine like that, there is no hope for RDTSC, at least
+unless the CPU (and OS!) gets notification that the TSC needs to be
+recalibrated whenever it switches.
 
-[I'll code up the same thing for normal swap pages]
+> root@bug:~# cat /proc/pci
+>   Bus  0, device   5, function  0:
+>     Bridge: Intel Corporation 82371AB PIIX4 ISA (rev 2).
+>   Bus  0, device   5, function  1:
+>     IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 1).
+>       Master Capable.  Latency=64.
+>       I/O at 0x1000 [0x100f].
+>   Bus  0, device   5, function  2:
+>     USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 1).
+>       IRQ 11.
+>       Master Capable.  Latency=64.
+>       I/O at 0xffe0 [0xffff].
+>   Bus  0, device   5, function  3:
+>     Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 2).
+> 
+> Still, it is willing to run with RDTSC at 300MHz, 150MHz, and
+> 40MHz. (The last one in _extreme_ cases when CPU fan fails -- running
+> at 40MHz is better than cooking cpu).
+> 
+> --
+> I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+> Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
 
-regards,
-
-Rik
---
-"What you're running that piece of shit Gnome?!?!"
-       -- Miguel de Icaza, UKUUG 2000
-
-http://www.conectiva.com/		http://www.surriel.com/
-
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,49 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266034AbUAQM7q (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jan 2004 07:59:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266036AbUAQM7q
+	id S265881AbUAQM52 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jan 2004 07:57:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265963AbUAQM51
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jan 2004 07:59:46 -0500
-Received: from kluizenaar.xs4all.nl ([213.84.184.247]:25153 "EHLO samwel.tk")
-	by vger.kernel.org with ESMTP id S266034AbUAQM7p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jan 2004 07:59:45 -0500
-From: Bart Samwel <bart@samwel.tk>
-To: root@chaos.analogic.com, Ashish sddf <buff_boulder@yahoo.com>
-Subject: Re: Compiling C++ kernel module + Makefile
-Date: Sat, 17 Jan 2004 13:59:20 +0100
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <20040116210924.61545.qmail@web12008.mail.yahoo.com> <Pine.LNX.4.53.0401161659470.31455@chaos>
-In-Reply-To: <Pine.LNX.4.53.0401161659470.31455@chaos>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 17 Jan 2004 07:57:27 -0500
+Received: from pengo.systems.pipex.net ([62.241.160.193]:57488 "EHLO
+	pengo.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S265881AbUAQM5Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jan 2004 07:57:25 -0500
+Date: Sat, 17 Jan 2004 13:00:34 +0000
+From: James Stone <stone1@btinternet.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: sound usb related kernel panic on reboot
+Message-ID: <20040117130034.GA705@moon.base>
+References: <20040116224446.GA758@moon.base>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200401171359.20381.bart@samwel.tk>
+In-Reply-To: <20040116224446.GA758@moon.base>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 16 January 2004 23:07, Richard B. Johnson wrote:
-> If somebody actually got a module, written in C++, to compile and
-> work on linux-2.4.nn, as you state, it works only by fiat, i.e., was
-> declared to work. There is no C++ runtime support in the kernel for
-> C++. Are you sure this is a module and not an application? Many
-> network processes (daemons) are applications and they don't require
-> any knowledge of kernel internals except what's provided by the
-> normal C/C++ include-files.
+I have found the soultion to the problem. It was entirely unrelated to
+the kernel- sorry!
 
-Rest assured, ;) this is definitely a module. It includes a kernel patch that 
-makes it possible to include a lot of the kernel headers into C++, stuff like 
-changing asm :: to asm : : (note the space, :: is an operator in C++) and 
-renaming "struct namespace" to something containing less C++ keywords. The 
-module also includes rudimentary C++ runtime support code, so that the C++ 
-code will run inside the kernel. I'm afraid that the task of compiling it for 
-2.6 is going to be pretty tough -- the kernel needs loads of patches to make 
-it work within a C++ extern "C" clause, and it probably completely different 
-patches from those needed by 2.4. Getting the build system to work is the 
-least of the concerns.
+I was running the kernel alsa modules but I had different versions of
+the alsa tools and alsa lib installed. Although it _seemed_ to work, it
+also led to the kernel panics on shutdown.
 
--- Bart
+James
+
+
+On Fri, Jan 16, 2004 at 10:44:46PM +0000, James Stone wrote:
+> Please cc me with any replies.
+> 
+> I have been getting the already reported kernel panic on shutdown/reboot
+> which seems to be related in some way to the modem_run userspace driver
+> for the alcatel speedtouch modem. I have now noticed another one which
+> is also related to USB in some way.. 
+> 
+> I have a midi keyboard (evolution MK-249C) attached via USB and when it
+> is switched on, I get the kernel panic on shutdown. I can supply the
+> full trace if required although it will require me writing it by hand as
+> it does not seem to be recorded in any logs.
+> 
+> The output from /var/log/kernel is as follows:
+> 
+> Jan 16 19:17:18 moon kernel: agpgart: Putting AGP V2 device at 
+> 0000:00:00.0 into 4x mode
+> Jan 16 19:17:18 moon kernel: agpgart: Putting AGP V2 device at
+> 0000:01:00.0 into 4x mode
+> Jan 16 19:17:18 moon kernel: atkbd.c: Unknown key released (translated
+> set 2, code 0x7a on isa0060/serio0).
+> Jan 16 19:17:18 moon kernel: atkbd.c: Unknown key released (translated
+> set 2, code 0x7a on isa0060/serio0).
+> Jan 16 19:17:27 moon kernel: drivers/usb/core/usb.c: deregistering
+> driver usb-storage
+> Jan 16 19:17:27 moon kernel: drivers/usb/core/usb.c: deregistering
+> driver visor
+> Jan 16 19:17:27 moon kernel: drivers/usb/serial/usb-serial.c: USB
+> Serial deregistering driver Handspring Visor / Palm OS
+> Jan 16 19:17:27 moon kernel: drivers/usb/serial/usb-serial.c: USB
+> Serial deregistering driver Sony Clie 3.5
+> Jan 16 19:17:27 moon kernel: drivers/usb/core/usb.c: deregistering
+> driver usbserial
+> Jan 16 19:17:27 moon kernel: drivers/usb/core/usb.c: deregistering
+> driver usblp
+> Jan 16 19:17:27 moon kernel: uhci_hcd 0000:00:10.0: remove, state 1
+> Jan 16 19:17:27 moon kernel: usb usb1: USB disconnect, address 1
+> Jan 16 19:17:27 moon kernel: usb 1-2: USB disconnect, address 2
+> Jan 16 19:17:27 moon kernel: uhci_hcd 0000:00:10.0: USB bus 1
+> deregistered
+> Jan 16 19:17:27 moon kernel: uhci_hcd 0000:00:10.1: remove, state 1
+> Jan 16 19:17:27 moon kernel: usb usb2: USB disconnect, address 1
+> Jan 16 19:17:27 moon kernel: usb 2-1: USB disconnect, address 2
+> Jan 16 19:17:27 moon kernel: pci_pool_destroy 0000:00:10.1/uhci_td,
+> ddb60000 busy
+> Jan 16 19:17:27 moon kernel: pci_pool_destroy 0000:00:10.1/uhci_td,
+> ddb5a000 busy
+> Jan 16 19:17:27 moon kernel: uhci_hcd 0000:00:10.1: USB bus 2
+> deregistered
+> Jan 16 19:17:27 moon kernel: uhci_hcd 0000:00:10.2: remove, state 1
+> Jan 16 19:17:27 moon kernel: usb usb3: USB disconnect, address 1
+> Jan 16 19:17:27 moon kernel: uhci_hcd 0000:00:10.2: USB bus 3
+> deregistered
+> Jan 16 19:17:27 moon kernel: slab error in kmem_cache_destroy(): cache
+> `uhci_urb_priv': Can't free all objects
+> Jan 16 19:17:27 moon kernel: Call Trace:
+> Jan 16 19:17:27 moon kernel:  [kmem_cache_destroy+152/288]
+> kmem_cache_destroy+0x98/0x120
+> Jan 16 19:17:27 moon kernel:  [_end+542256840/1069502828]
+> uhci_hcd_cleanup+0x1c/0x5
+> 9 [uhci_hcd]
+> Jan 16 19:17:27 moon kernel:  [sys_delete_module+284/320]
+> sys_delete_module+0x11c/0
+> x140
+> Jan 16 19:17:27 moon kernel:  [sys_munmap+68/112] sys_munmap+0x44/0x70
+> Jan 16 19:17:27 moon kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+> Jan 16 19:17:27 moon kernel: 
+> Jan 16 19:17:27 moon kernel: uhci: not all urb_priv's were freed
+> Jan 16 19:17:27 moon kernel: drivers/usb/core/usb.c: deregistering
+> driver snd-usb-audio
+> Jan 16 19:17:32 moon kernel: drivers/usb/core/usb.c: registered new
+> driver snd-usb-audio
+> Jan 16 19:17:33 moon kernel: drivers/usb/core/usb.c: deregistering
+> driver snd-usb-audio
+> Jan 16 19:17:35 moon kernel: Kernel logging (proc) stopped.
+> Jan 16 19:17:35 moon kernel: Kernel log daemon terminating.
+> 
+> Regards,
+> 
+> James Stone

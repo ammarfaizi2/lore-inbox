@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262492AbTBERNi>; Wed, 5 Feb 2003 12:13:38 -0500
+	id <S261934AbTBERQJ>; Wed, 5 Feb 2003 12:16:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262500AbTBERNi>; Wed, 5 Feb 2003 12:13:38 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:50417 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S262492AbTBERNh>;
-	Wed, 5 Feb 2003 12:13:37 -0500
-Subject: Re: Monta Vista software license terms
-From: Robert Love <rml@mvista.com>
-To: Nilmoni Deb <ndeb@ece.cmu.edu>
+	id <S261963AbTBERQI>; Wed, 5 Feb 2003 12:16:08 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:40715 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261934AbTBERQH>; Wed, 5 Feb 2003 12:16:07 -0500
+Date: Wed, 5 Feb 2003 17:25:42 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Disconnect <lkml@sigkill.net>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.96L.1030205121225.19700C-100000@frodo.ece.cmu.edu>
-References: <Pine.LNX.3.96L.1030205121225.19700C-100000@frodo.ece.cmu.edu>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1044465791.810.36.camel@phantasy>
+Subject: Re: Monta Vista software license terms
+Message-ID: <20030205172542.A23295@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Disconnect <lkml@sigkill.net>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.3.96L.1030205115551.1886A-100000@ndeb.net> <1044464675.783.12.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 05 Feb 2003 12:23:12 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1044464675.783.12.camel@localhost>; from lkml@sigkill.net on Wed, Feb 05, 2003 at 12:04:36PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-02-05 at 12:18, Nilmoni Deb wrote:
+On Wed, Feb 05, 2003 at 12:04:36PM -0500, Disconnect wrote:
+> What does this "written offer valid for any third party" mean? Does that
+> mean everyone in the world can get the source to any GPL'ed program no
+> matter what?
+>         "Valid for any third party" means that anyone who has the offer
+>         is entitled to take you up on it. 
+>         
+>         If you commercially distribute binaries not accompanied with
+>         source code, the GPL says you must provide a written offer to
+>         distribute the source code later. When users non-commercially
+>         redistribute the binaries they received from you, they must pass
+>         along a copy of this written offer. This means that people who
+>         did not get the binaries directly from you can still receive
+>         copies of the source code, along with the written offer.
 
-> U missed the point. This is not the case of "If you do not distribute
-> anything, you do not have to make available the source." because the
-> vendor is distributing the binaries and source to the customers just fine.
-> The issue is whether any 3rd party (who is not purchasing the binaries) 
-> has the right to get the source too as per clause 3b of
-> http://www.gnu.org/licenses/gpl.html . More specifically, is it true that
-> if u obey clause 3a, u don't have to follow clause 3b ?
+Has any user of a mvista-powered embedded device ever seen this offer?..
 
-No, you are missing the point.
-
-Clause 3 says "...provided that you also do one of the following"
-
-And 3(a) is done, as the source is included with the binary.
-
-Further, all of the source is available anyhow in various open source
-projects.
-
-Besides, 3(b) says one must accompany the binary with a written offer.
-How do you know that is not being done? It says nothing about source
-available on a website.  But 3(b) is not a requirement since 3(a) is
-met.
-
-	Robert Love
-
+I guess many of their customers "forgot" that

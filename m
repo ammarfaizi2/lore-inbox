@@ -1,61 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263288AbTDNOMq (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 10:12:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263299AbTDNOMq (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 10:12:46 -0400
-Received: from h80ad2720.async.vt.edu ([128.173.39.32]:14976 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263288AbTDNOMp (for <RFC822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 10:12:45 -0400
-Message-Id: <200304141423.h3EENeu8003539@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/02/2003 with nmh-1.0.4+dev
-To: vda@port.imtp.ilyichevsk.odessa.ua
-Cc: Chuck Ebbert <76306.1226@compuserve.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: kernel support for non-English user messages 
-In-Reply-To: Your message of "Mon, 14 Apr 2003 14:40:46 +0300."
-             <200304141145.h3EBjku02917@Port.imtp.ilyichevsk.odessa.ua> 
-From: Valdis.Kletnieks@vt.edu
-References: <200304111823_MC3-1-3412-C273@compuserve.com>
-            <200304141145.h3EBjku02917@Port.imtp.ilyichevsk.odessa.ua>
+	id S263018AbTDNOK6 (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 10:10:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263204AbTDNOK6 (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 10:10:58 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:5046 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S263018AbTDNOK4 (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 10:10:56 -0400
+Date: Mon, 14 Apr 2003 16:22:35 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: James Bourne <jbourne@hardrock.org>
+Cc: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: Oops: ptrace fix buggy
+Message-ID: <20030414142235.GC10347@wohnheim.fh-wedel.de>
+References: <20030414134603.GB10347@wohnheim.fh-wedel.de> <Pine.LNX.4.44.0304140748040.22450-100000@cafe.hardrock.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1187622293P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 14 Apr 2003 10:23:39 -0400
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.44.0304140748040.22450-100000@cafe.hardrock.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1187622293P
-Content-Type: text/plain; charset=us-ascii
+On Mon, 14 April 2003 07:56:45 -0600, James Bourne wrote:
+> On Mon, 14 Apr 2003, Jörn Engel wrote:
+> > On Mon, 14 April 2003 07:34:54 -0600, James Bourne wrote:
+> > > 
+> > > This patch has also been added to the update patch available at
+> > > http://www.hardrock.org/kernel/current-updates/linux-2.4.20-updates.patch
+> > > 
+> > > This patch includes the ptrace patch, tg3 patch, and ext3 patches.  It also
+> > > changes the EXTRAVERSION to -uv2.
+> > 
+> > Privately, I have introduced a variable FIXLEVEL for this. The
+> > resulting kernel version is 2.4.20.2 instead of 2.4.20-uv2, which imo
+> > is more suiting for a fixed stable kernel.
+> > 
+> > Are you interested in this patch?
+> 
+> Sure, if you have the patch already please send it along.  I think this was
+> suggested once before as well.
 
-On Mon, 14 Apr 2003 14:40:46 +0300, Denis Vlasenko said:
+Must have lost it, but it was simple to recreate. :)
 
-> OTOH "I can go read the source" is the ultimate documentation
-> which we have for zero extra effort.
+The fixlevel must also include the leading dot, so it will fold into
+nothing for normal (non-fixed) kernels.
 
-It's a non-zero extra effort for me to poke around in the source for
-drivers/video/riva/fbdev.c trying to find what parameters are legal
-to attach to 'video=rivafb' - at least one posting to LKML has listed
-append="video=rivafb,xres:1024,yres:768,bpp:8" but looking at the
-rivafb_setup() code that only checks for "forceCRTC", "flatpanel", and
-"nomtrr" - so even MORE digging is needed to find out who parses the
-xres, yres, bpp values, what other values are legal, etc etc.
+Marcelo, would/should this be included in Mainline as well?
 
+Jörn
 
+-- 
+Write programs that do one thing and do it well. Write programs to work
+together. Write programs to handle text streams, because that is a
+universal interface. 
+-- Doug MacIlroy
 
-
-
---==_Exmh_1187622293P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+msRrcC3lWbTT17ARAibZAKDTncgpGr3zr73kKhRtCmgtdJWoMACfe/+q
-apk84YYonWbXokdUzqKD2Nk=
-=1vsb
------END PGP SIGNATURE-----
-
---==_Exmh_1187622293P--
+--- linux-2.4.20/Makefile~FIXLEVEL	2002-11-29 00:53:16.000000000 +0100
++++ linux-2.4.20/Makefile	2003-04-14 16:14:18.000000000 +0200
+@@ -1,9 +1,10 @@
+ VERSION = 2
+ PATCHLEVEL = 4
+ SUBLEVEL = 20
++FIXLEVEL =
+ EXTRAVERSION =
+ 
+-KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
++KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(FIXLEVEL)$(EXTRAVERSION)
+ 
+ ARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ -e s/arm.*/arm/ -e s/sa110/arm/)
+ KERNELPATH=kernel-$(shell echo $(KERNELRELEASE) | sed -e "s/-//g")

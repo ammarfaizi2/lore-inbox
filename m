@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319014AbSH1WGW>; Wed, 28 Aug 2002 18:06:22 -0400
+	id <S319053AbSH1WNJ>; Wed, 28 Aug 2002 18:13:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319015AbSH1WGR>; Wed, 28 Aug 2002 18:06:17 -0400
-Received: from B55a0.pppool.de ([213.7.85.160]:7815 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S319014AbSH1WEw>; Wed, 28 Aug 2002 18:04:52 -0400
-Subject: Re: ECS K7S5A: IDE performance
-From: Daniel Egger <degger@fhm.edu>
-To: =?ISO-8859-1?Q?Fr=E9d=E9ric?= "L. W. Meunier" <0@pervalidus.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0208281611210.213-100000@pervalidus.dyndns.org>
-References: <Pine.LNX.4.44.0208281611210.213-100000@pervalidus.dyndns.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-i2BqMKTxTK22+tg4LflH"
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 29 Aug 2002 00:11:26 +0200
-Message-Id: <1030572687.9061.4.camel@sonja.de.interearth.com>
-Mime-Version: 1.0
+	id <S319054AbSH1WNJ>; Wed, 28 Aug 2002 18:13:09 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:54028 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S319053AbSH1WNI>; Wed, 28 Aug 2002 18:13:08 -0400
+Message-ID: <3D6D4B80.F84F71E4@zip.com.au>
+Date: Wed, 28 Aug 2002 15:15:28 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] adjustments to dirty memory thresholds
+References: <3D6C53ED.32044CAD@zip.com.au> <20020828200857.GB888@holomorphy.com> <3D6D3216.D472CBC3@zip.com.au> <20020828214243.GC888@holomorphy.com> <3D6D477C.F5116BA7@zip.com.au>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
+> 
+> ...
+> Well it's presumably the GFP_NOIO which has killed it - we can't wait
+> on PG_writeback pages and we can't write out dirty pages.  Taking a
+> nap in mempool_alloc is appropriate.
 
---=-i2BqMKTxTK22+tg4LflH
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Actually, it might be better to teach mempool_alloc to not call page reclaim
+at all if __GFP_FS is not set.  Just kick bdflush and go to sleep.
 
-Am Mit, 2002-08-28 um 21.19 schrieb Fr=E9d=E9ric L. W. Meunier:
+I really, really, really dislike the VM's tendency to go and scan hundreds
+of thousands of pages.  It's a clear sign of an inappropriate algorithm.
 
-> I just thought it'd be much more with an ATA100.
+Test something like this, please?
 
-Wellcome to a world where features are sold by marketing.
-ATA133, 2.8GHz, 200 Watts minispeakers, you get the idea....
 
---=20
-Servus,
-       Daniel
+--- 2.5.32/mm/mempool.c~wli	Wed Aug 28 15:07:31 2002
++++ 2.5.32-akpm/mm/mempool.c	Wed Aug 28 15:12:53 2002
+@@ -196,10 +196,11 @@ repeat_alloc:
+ 		return element;
+ 
+ 	/*
+-	 * If the pool is less than 50% full then try harder
+-	 * to allocate an element:
++	 * If the pool is less than 50% full and we can perform effective
++	 * page reclaim then try harder to allocate an element:
+ 	 */
+-	if ((gfp_mask != gfp_nowait) && (pool->curr_nr <= pool->min_nr/2)) {
++	if ((gfp_mask & __GFP_FS) && (gfp_mask != gfp_nowait) &&
++			(pool->curr_nr <= pool->min_nr/2)) {
+ 		element = pool->alloc(gfp_mask, pool->pool_data);
+ 		if (likely(element != NULL))
+ 			return element;
 
---=-i2BqMKTxTK22+tg4LflH
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA9bUqOchlzsq9KoIYRAs0NAKDdTWSvF6bKa+yAHIEDlOxG5s41uACgn1Zl
-rt3LpblfqcWVBar+yBT9yc4=
-=YVYP
------END PGP SIGNATURE-----
-
---=-i2BqMKTxTK22+tg4LflH--
-
+.

@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbUJ2Js6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263189AbUJ2JvH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261396AbUJ2Js6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 05:48:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263180AbUJ2Js6
+	id S263189AbUJ2JvH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 05:51:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263180AbUJ2JvG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 05:48:58 -0400
-Received: from fw.osdl.org ([65.172.181.6]:25807 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261396AbUJ2Js4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 05:48:56 -0400
-Date: Fri, 29 Oct 2004 02:46:51 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jan Kara <jack@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Configurable Magic Sysrq
-Message-Id: <20041029024651.1ebadf82.akpm@osdl.org>
-In-Reply-To: <20041029093941.GA2237@atrey.karlin.mff.cuni.cz>
-References: <20041029093941.GA2237@atrey.karlin.mff.cuni.cz>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 29 Oct 2004 05:51:06 -0400
+Received: from out001pub.verizon.net ([206.46.170.140]:33740 "EHLO
+	out001.verizon.net") by vger.kernel.org with ESMTP id S263189AbUJ2JuJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 05:50:09 -0400
+Message-ID: <41821250.70502@verizon.net>
+Date: Fri, 29 Oct 2004 05:50:08 -0400
+From: Jim Nelson <james4765@verizon.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Jez <dave.jez@seznam.cz>
+CC: Martin Mares <mj@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: Re: PCI & IRQ problems on TI Extensa 600CD
+References: <20041023142906.GA15789@stud.fit.vutbr.cz> <417AB69E.8010709@verizon.net> <20041025161945.GA82114@stud.fit.vutbr.cz> <20041029081848.GA5240@stud.fit.vutbr.cz>
+In-Reply-To: <20041029081848.GA5240@stud.fit.vutbr.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [209.158.211.53] at Fri, 29 Oct 2004 04:50:08 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Kara <jack@suse.cz> wrote:
->
->    I know about a few people who would like to use some functionality of
->  the Magic Sysrq but don't want to enable all the functions it provides.
+David Jez wrote:
+>   Hi all,
+> 
+>   Last night i solved this problem. It cause by crippled PCI chipset
+> parody called ALi and his perverse undocumented "features". I think that
+> use ISA bridge as IRQ router if we haven't any router is guite good idea.
+>   Everythink with this patch works fine even though i have different irq in
+> win. See attached logs.
+>   Jim, can you try this patch please? I assume that you have some kind
+> of ALi chipset too. Maybe this solves your problem too.
+>   Martin, Marcelo, please aply :-).
+> 
+> PS: is here anybody who have relevant datascheet?
+> 
+>   Regards,
+> 
+> 
 
-That's a new one.  Can you tell us more about why people want to do such a
-thing?
+Naah.  I have a piix chipset.  My problem (per David Hinds) is that my laptop is 
+even more b0rken than yours - IBM never hooked up the PCI INTx lines on the TI 
+1130.  My laptop never worked with Cardbus stuff - even in Windows.
 
->  So I wrote a patch which should allow them to do so. It allows to
->  configure available functions of Sysrq via /proc/sys/kernel/sysrq (the
->  interface is backward compatible). If you think it's useful then use it :)
->  Andrew, do you think it can go into mainline or it's just an overdesign?
+He reccommended the external pcmcia_cs package for my system - there's a dummy_cs 
+module in there (2.4 only, though) that should fix my problem.
 
-Patch looks reasonable - we just need to decide whether the requirement
-warrants its inclusion.
+Thanks,
 
-There have been a few changes in the sysrq code since 2.6.9 and there are
-more changes queued up in -mm.  The patch applies OK, but it'll need
-checking and redoing.  There's a new `sysrq-f' command in the pipeline
-which causes a manual oom-killer call.
-
+Jim

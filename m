@@ -1,70 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264143AbTKLT0a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 14:26:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264147AbTKLT0a
+	id S264260AbTKLT2y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 14:28:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264271AbTKLT2y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 14:26:30 -0500
-Received: from mailer.scri.fsu.edu ([144.174.128.142]:26683 "EHLO
-	mailer.csit.fsu.edu") by vger.kernel.org with ESMTP id S264143AbTKLT02
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 14:26:28 -0500
-Date: Wed, 12 Nov 2003 14:26:28 -0500
-From: Charles Mason <mason@csit.fsu.edu>
-To: zippel@linux-m68k.org, linux-kernel@vger.kernel.org
-Subject: HFS bug
-Message-ID: <20031112192627.GA3331@imap.csit.fsu.edu>
+	Wed, 12 Nov 2003 14:28:54 -0500
+Received: from fw.osdl.org ([65.172.181.6]:27043 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264260AbTKLT2x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Nov 2003 14:28:53 -0500
+Date: Wed, 12 Nov 2003 11:28:49 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Brian Litzinger <brian@top.worldcontrol.com>, linux-kernel@vger.kernel.org
+Subject: Re: Toshiba P25-S507 laptop and freezes with 2.6.0-test9
+Message-ID: <20031112112849.A12974@osdlab.pdx.osdl.net>
+References: <20031112182711.GA5454@top.worldcontrol.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20031112182711.GA5454@top.worldcontrol.com>; from brian@worldcontrol.com on Wed, Nov 12, 2003 at 10:27:11AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* brian@worldcontrol.com (brian@worldcontrol.com) wrote:
+> 
+> My Toshiba P25-S507 P4 2.8 running vanilla 2.6.0-test9 occasionally
+> freezes.  The freezes occur during events such as closing or opening
+> the lid or removing/inserting the power adapter and sometimes during
+> halt.
 
-This may or may not be a bug, but I figured that sending out the message
-would do better good than not sending one out at all:
+These are ACPI events (at least lid and power adaptor).  So, are you
+compiling in ACPI support?  If so does it still happen with acpi=off
+kernel command line option?  Do you still have keyboard when it freezes?
+If so, alt-sysrq-p or alt-sysrq-t show anything useful?  And, finally,
+you aren't using an nVidia binary only module for that GeForce are you?
 
-when I run the command:
-
-# mount -t hfs /dev/scd0 /mnt/cdrom 
-
-The kernel gives an Oops that traces back to line buffer.c:2555 (kernel
-version 2.4.23-pre1). I'd attach the Oops output, but I'm on a remote
-machine now.
-
-The BUG() macro is called because the block size requested to be read by
-HFS (512 bytes) is not the same as the hardware block size set by the
-SCSI drivers (2048 by default).  grow_buffers() wants whatever called it
-to request a blocksize that is a multiple of get_hardsect_size().
-
-I would have bothered myself to write a fix, since I firmly believe that
-a CD could have an HFS filesystem, but the kernel code has grown so
-complex that writing the code to perform the reads correctly would be
-difficult.
-
-My idea was to change buffer.c:2555 to just modify the requested block
-size to fit the hardware block size, then return an offset into a buffer
-where that requested (sub)block is.  For example, if you're requesting
-512 bytes but the hardsect size is 2048.  Read a 2048 block, and offset
-the buffer to (block_no % 4) * 512.  This may have worked, but it could
-possibly have been slow too.
-
-By the way, the offending code is the hfs/super.c:hfs_read_super() that
-traces to hfs/sysdep.c:hfs_buffer_get() which calls sb_bread() and
-further then to buffer.c:grow_buffers().  hfs_read_super() sets
-mdb->s_blocksize to 512.  sb_bread will use the hardsect_size set by the
-SCSI driver (drivers/scsi/sr.c:sr_init()).
-
-Alas, if this information helps out, let me know -- I'm not on any
-kernel mailing list.  Further information about my system is attached.
-
-Sincerely,
-Charles Mason
-mason@csit.fsu.edu
-
-
-Kernel: Linux 2.4.23-pre1 (generally tained with the nvidia module)
-Hardware:  AMD XP 2500+ / 1GB RAM / nVidia mainboard/chipset
-Distribution: Debian unstable
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,211 +1,183 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265049AbUGCI0T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265053AbUGCIZu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265049AbUGCI0T (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jul 2004 04:26:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265057AbUGCI0T
+	id S265053AbUGCIZu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jul 2004 04:25:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265057AbUGCIZu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jul 2004 04:26:19 -0400
-Received: from ozlabs.org ([203.10.76.45]:62684 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S265049AbUGCIZm (ORCPT
+	Sat, 3 Jul 2004 04:25:50 -0400
+Received: from ozlabs.org ([203.10.76.45]:62940 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S265053AbUGCIZm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 3 Jul 2004 04:25:42 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <16614.24766.12792.553307@cargo.ozlabs.ibm.com>
-Date: Sat, 3 Jul 2004 17:31:10 +1000
+Message-ID: <16614.27917.591277.829508@cargo.ozlabs.ibm.com>
+Date: Sat, 3 Jul 2004 18:23:41 +1000
 From: Paul Mackerras <paulus@samba.org>
 To: akpm@osdl.org
 Cc: linas@austin.ibm.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] ppc64 RTAS error log locking fix
+Subject: [PATCH] PPC64 EEH fixes for POWER5 machines (1/2)
 X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Linas Vepstas <linas@austin.ibm.com>
 
-When an RTAS call returns the "hardware error" code, we need to do
-another RTAS call to find out what went wrong.  Previously we weren't
-doing that inside the lock that serializes RTAS calls, and thus
-another cpu could get in and do another RTAS call in the meantime.
-This patch fixes it.  This patch also includes some minor whitespace
-fixes.
+This patch allows ppc64 to boot on Power5 machines.  The new Power5
+PCI bridge design requires EEH (enhanced PCI error handling) to be
+enabled for all PCI devices, not just some PCI devices.  In addition,
+this patch moves the check for PCI to ISA bridges out of perf critical
+code, and into initialization code.  This also avoids race conditions
+where the device type might not have been set.  Also, some whitespace
+fixes, and some error-message-printing beautification.
 
 Signed-off-by: Linas Vepstas <linas@linas.org>
 Signed-off-by: Paul Mackerras <paulus@samba.org>
 
-diff -urN linux-2.5/arch/ppc64/kernel/rtas.c test25/arch/ppc64/kernel/rtas.c
---- linux-2.5/arch/ppc64/kernel/rtas.c	2004-07-03 08:37:48.200932504 +1000
-+++ test25/arch/ppc64/kernel/rtas.c	2004-07-03 15:00:45.648951640 +1000
-@@ -74,8 +74,14 @@
- }
+diff -urN linux-2.6/arch/ppc64/kernel/eeh.c test26/arch/ppc64/kernel/eeh.c
+--- linux-2.6/arch/ppc64/kernel/eeh.c	2004-07-03 16:03:13.021923824 +1000
++++ test26/arch/ppc64/kernel/eeh.c	2004-07-03 16:33:13.000000000 +1000
+@@ -397,12 +397,6 @@
+ 		return val;
+ 	}
  
- 
-+/** Return a copy of the detailed error text associated with the
-+ *  most recent failed call to rtas.  Because the error text
-+ *  might go stale if there are any other intervening rtas calls,
-+ *  this routine must be called atomically with whatever produced
-+ *  the error (i.e. with rtas.lock still held from the previous call).
-+ */
- static int
--__log_rtas_error(void)
-+__fetch_rtas_last_error(void)
- {
- 	struct rtas_args err_args, save_args;
- 
-@@ -102,25 +108,13 @@
- 	return err_args.rets[0];
- }
- 
--void
--log_rtas_error(void)
--{
--	unsigned long s;
--	int rc;
+-        /* Make sure we aren't ISA */
+-        if (!strcmp(dn->type, "isa")) {
+-                pci_dev_put(dev);
+-                return val;
+-        }
 -
--	spin_lock_irqsave(&rtas.lock, s);
--	rc = __log_rtas_error();
--	spin_unlock_irqrestore(&rtas.lock, s);
--	if (rc == 0)
--		log_error(rtas_err_buf, ERR_TYPE_RTAS_LOG, 0);
--}
--
- int rtas_call(int token, int nargs, int nret, int *outputs, ...)
- {
- 	va_list list;
- 	int i, logit = 0;
- 	unsigned long s;
- 	struct rtas_args *rtas_args;
-+	char * buff_copy = NULL;
- 	int ret;
+ 	if (!dn->eeh_config_addr) {
+ 		pci_dev_put(dev);
+ 		return val;
+@@ -465,6 +459,7 @@
+ struct eeh_early_enable_info {
+ 	unsigned int buid_hi;
+ 	unsigned int buid_lo;
++	int force_off;
+ };
  
- 	PPCDBG(PPCDBG_RTAS, "Entering rtas_call\n");
-@@ -154,8 +148,10 @@
- 	enter_rtas(__pa(rtas_args));
- 	PPCDBG(PPCDBG_RTAS, "\treturned from rtas ...\n");
+ /* Enable eeh for the given device node. */
+@@ -479,6 +474,8 @@
+ 	u32 *regs;
+ 	int enable;
  
-+	/* A -1 return code indicates that the last command couldn't
-+	   be completed due to a hardware error. */
- 	if (rtas_args->rets[0] == -1)
--		logit = (__log_rtas_error() == 0);
-+		logit = (__fetch_rtas_last_error() == 0);
++	dn->eeh_mode = 0;
++
+ 	if (status && strcmp(status, "ok") != 0)
+ 		return NULL;	/* ignore devices with bad status */
  
- 	ifppcdebug(PPCDBG_RTAS) {
- 		for(i=0; i < nret ;i++)
-@@ -167,12 +163,21 @@
- 			outputs[i] = rtas_args->rets[i+1];
- 	ret = (nret > 0)? rtas_args->rets[0]: 0;
+@@ -492,6 +489,12 @@
+ 	     *device_id == 0x0188 || *device_id == 0x0302))
+ 		return NULL;
  
-+	/* Log the error in the unlikely case that there was one. */
-+	if (unlikely(logit)) {
-+		buff_copy = kmalloc(RTAS_ERROR_LOG_MAX, GFP_ATOMIC);
-+		if (buff_copy) {
-+			memcpy(buff_copy, rtas_err_buf, RTAS_ERROR_LOG_MAX);
-+		}
++	/* There is nothing to check on PCI to ISA bridges */
++	if (dn->type && !strcmp(dn->type, "isa")) {
++		dn->eeh_mode |= EEH_MODE_NOCHECK;
++		return NULL;
 +	}
 +
- 	/* Gotta do something different here, use global lock for now... */
- 	spin_unlock_irqrestore(&rtas.lock, s);
+ 	/*
+ 	 * Now decide if we are going to "Disable" EEH checking
+ 	 * for this device.  We still run with the EEH hardware active,
+@@ -508,12 +511,12 @@
+ 				   enable)) {
+ 		if (enable) {
+ 			printk(KERN_WARNING "EEH: %s user requested to run "
+-			       "without EEH.\n", dn->full_name);
++			       "without EEH checking.\n", dn->full_name);
+ 			enable = 0;
+ 		}
+ 	}
  
--	if (logit)
--		log_error(rtas_err_buf, ERR_TYPE_RTAS_LOG, 0);
--
-+	if (buff_copy) {
-+		log_error(buff_copy, ERR_TYPE_RTAS_LOG, 0);
-+		kfree(buff_copy);
-+	}
- 	return ret;
- }
- 
-@@ -192,7 +197,7 @@
- 
- 	/* Use microseconds for reasonable accuracy */
- 	for (ms=1; order > 0; order--)
--		ms *= 10;          
-+		ms *= 10;
- 
- 	return ms; 
- }
-@@ -367,9 +372,9 @@
- 	if (rtas_firmware_flash_list.next)
- 		rtas_flash_firmware();
- 
--        printk("RTAS system-reboot returned %d\n",
-+	printk("RTAS system-reboot returned %d\n",
- 	       rtas_call(rtas_token("system-reboot"), 0, 1, NULL));
--        for (;;);
-+	for (;;);
- }
- 
- void
-@@ -377,10 +382,10 @@
+-	if (!enable) {
++	if (!enable || info->force_off) {
+ 		dn->eeh_mode = EEH_MODE_NOCHECK;
+ 		return NULL;
+ 	}
+@@ -543,8 +546,8 @@
+ 			       dn->full_name);
+ #endif
+ 		} else {
+-			printk(KERN_WARNING "EEH: %s: could not enable EEH, rtas_call failed.\n",
+-			       dn->full_name);
++			printk(KERN_WARNING "EEH: %s: could not enable EEH, rtas_call failed; rc=%d\n",
++			       dn->full_name, ret);
+ 		}
+ 	} else {
+ 		printk(KERN_WARNING "EEH: %s: unable to get reg property.\n",
+@@ -570,10 +573,18 @@
+  */
+ void __init eeh_init(void)
  {
- 	if (rtas_firmware_flash_list.next)
- 		rtas_flash_bypass_warning();
--        /* allow power on only with power button press */
--        printk("RTAS power-off returned %d\n",
--               rtas_call(rtas_token("power-off"), 2, 1, NULL, -1, -1));
--        for (;;);
-+	/* allow power on only with power button press */
-+	printk("RTAS power-off returned %d\n",
-+	       rtas_call(rtas_token("power-off"), 2, 1, NULL, -1, -1));
-+	for (;;);
- }
+-	struct device_node *phb;
++	struct device_node *phb, *np;
+ 	struct eeh_early_enable_info info;
+ 	char *eeh_force_off = strstr(saved_command_line, "eeh-force-off");
  
- void
-@@ -388,7 +393,7 @@
- {
- 	if (rtas_firmware_flash_list.next)
- 		rtas_flash_bypass_warning();
--        rtas_power_off();
-+	rtas_power_off();
- }
- 
- /* Must be in the RMO region, so we place it here */
-@@ -418,7 +423,9 @@
- {
- 	struct rtas_args args;
- 	unsigned long flags;
-+	char * buff_copy;
- 	int nargs;
-+	int err_rc = 0;
- 
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EPERM;
-@@ -437,17 +444,33 @@
- 			   nargs * sizeof(rtas_arg_t)) != 0)
- 		return -EFAULT;
- 
-+	buff_copy = kmalloc(RTAS_ERROR_LOG_MAX, GFP_KERNEL);
++	init_pci_config_tokens();
 +
- 	spin_lock_irqsave(&rtas.lock, flags);
- 
- 	rtas.args = args;
- 	enter_rtas(__pa(&rtas.args));
- 	args = rtas.args;
- 
-+	args.rets = &args.args[nargs];
-+
-+	/* A -1 return code indicates that the last command couldn't
-+	   be completed due to a hardware error. */
-+	if (args.rets[0] == -1) {
-+		err_rc = __fetch_rtas_last_error();
-+		if ((err_rc == 0) && buff_copy) {
-+			memcpy(buff_copy, rtas_err_buf, RTAS_ERROR_LOG_MAX);
-+		}
++	np = of_find_node_by_path("/rtas");
++	if (np == NULL) {
++		printk(KERN_WARNING "EEH: RTAS not found !\n");
++		return;
 +	}
 +
- 	spin_unlock_irqrestore(&rtas.lock, flags);
+ 	ibm_set_eeh_option = rtas_token("ibm,set-eeh-option");
+ 	ibm_set_slot_reset = rtas_token("ibm,set-slot-reset");
+ 	ibm_read_slot_reset_state = rtas_token("ibm,read-slot-reset-state");
+@@ -581,14 +592,14 @@
+ 	if (ibm_set_eeh_option == RTAS_UNKNOWN_SERVICE)
+ 		return;
  
--	args.rets  = (rtas_arg_t *)&(args.args[nargs]);
--	if (args.rets[0] == -1)
--		log_rtas_error();
-+	if (buff_copy) {
-+		if ((args.rets[0] == -1) && (err_rc == 0)) {
-+			log_error(buff_copy, ERR_TYPE_RTAS_LOG, 0);
-+		}
-+		kfree(buff_copy);
++	info.force_off = 0;
+ 	if (eeh_force_off) {
+ 		printk(KERN_WARNING "EEH: WARNING: PCI Enhanced I/O Error "
+ 		       "Handling is user disabled\n");
+-		return;
++		info.force_off = 1;
+ 	}
+ 
+ 	/* Enable EEH for all adapters.  Note that eeh requires buid's */
+-	init_pci_config_tokens();
+ 	for (phb = of_find_node_by_name(NULL, "pci"); phb;
+ 	     phb = of_find_node_by_name(phb, "pci")) {
+ 		unsigned long buid;
+@@ -602,8 +613,11 @@
+ 		traverse_pci_devices(phb, early_enable_eeh, NULL, &info);
+ 	}
+ 
+-	if (eeh_subsystem_enabled)
++	if (eeh_subsystem_enabled) {
+ 		printk(KERN_INFO "EEH: PCI Enhanced I/O Error Handling Enabled\n");
++	} else {
++		printk(KERN_WARNING "EEH: disabled PCI Enhanced I/O Error Handling\n");
 +	}
+ }
  
- 	/* Copy out args. */
- 	if (copy_to_user(uargs->args + nargs,
+ /**
+@@ -743,10 +757,10 @@
+ }
+ 
+ static struct file_operations proc_eeh_operations = {
+-	.open		= proc_eeh_open,
+-	.read		= seq_read,
+-	.llseek		= seq_lseek,
+-	.release	= single_release,
++	.open      = proc_eeh_open,
++	.read      = seq_read,
++	.llseek    = seq_lseek,
++	.release   = single_release,
+ };
+ 
+ static int __init eeh_init_proc(void)
+@@ -759,7 +773,7 @@
+ 			e->proc_fops = &proc_eeh_operations;
+ 	}
+ 
+-        return 0;
++	return 0;
+ }
+ __initcall(eeh_init_proc);
+ 

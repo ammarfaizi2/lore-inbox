@@ -1,42 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbVACXbX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261978AbVACXgl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261932AbVACXbX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 18:31:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261953AbVACX3D
+	id S261978AbVACXgl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 18:36:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbVACXgZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 18:29:03 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:47059 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261954AbVACXZ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 18:25:57 -0500
-To: Adrian Bunk <bunk@stusta.de>
-Cc: mshefty@ichips.intel.com, halr@voltaire.com, openib-general@openib.org,
-       linux-kernel@vger.kernel.org
-X-Message-Flag: Warning: May contain useful information
-References: <20050103171937.GG2980@stusta.de> <52sm5i70um.fsf@topspin.com>
-	<20050103231024.GP2980@stusta.de>
-From: Roland Dreier <roland@topspin.com>
-Date: Mon, 03 Jan 2005 15:24:59 -0800
-In-Reply-To: <20050103231024.GP2980@stusta.de> (Adrian Bunk's message of
- "Tue, 4 Jan 2005 00:10:24 +0100")
-Message-ID: <524qhy6qpg.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Mon, 3 Jan 2005 18:36:25 -0500
+Received: from mail1.edisontel.com ([62.94.0.30]:8648 "EHLO ims1.edisontel.com")
+	by vger.kernel.org with ESMTP id S261975AbVACXdd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 18:33:33 -0500
+Message-ID: <41D9D45F.7030506@gmail.com>
+Date: Tue, 04 Jan 2005 00:25:19 +0100
+From: Luca Falavigna <dktrkranz@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: it, it-it, en-us, en
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: Re: [2.6 patch] infiniband: possible cleanups
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 03 Jan 2005 23:25:00.0115 (UTC) FILETIME=[71BEBA30:01C4F1EB]
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] A different implementation of LSM?
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Adrian> Is there an ETA when the debugging modules and the modules
-    Adrian> in development will be merged into the kernel?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Once they're ready and pass review on lkml.
+One of the biggest limitations of LSM is we can't implement more than
+one handler for each security hook at the same time.
+Is it advisable to revise the actual implementation, introducing a
+doubly linked list based mechanism (such as Netfilter implementation),
+or this is the best solution in order to limit overhead?
 
- - R.
+Regards,
+
+
+					Luca
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iQEVAwUBQdnUXxZrwl7j21nOAQLjxggAqSj6dxqxuj2Gk2mcS8WzcPiU2bOWkzdw
+daHSXLRiITeSkGTGYy6agV7L32hG/YyxiB1sb+rezcPuPq/Xu/78Nzn4kY076c52
+DATYTvBPQnlJI3BO0MrCTFoZ+l0PLGuwKnm7cZbttTlLHyUfyPpke2T28UrSsqcR
+K0R76nihN9BGnPf1vF0YggvqJlBmXDJj1sPmOs16KadXKpIbXG5PCYoqHeW6dwlH
+5fRU4VlK05vHir3tyKcfAfhUjY45YntV7rV2lD0id2Wn0Vumb/SDyxgQnR/3sSjl
+10TI4NbHIBsMiA7isT+5HKASyG1ZMoZyVeQlmvFRMZlqa0t/U7H9QQ==
+=lC1A
+-----END PGP SIGNATURE-----
 

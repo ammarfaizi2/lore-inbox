@@ -1,128 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290676AbSAYNgt>; Fri, 25 Jan 2002 08:36:49 -0500
+	id <S290671AbSAYNkG>; Fri, 25 Jan 2002 08:40:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290675AbSAYNgg>; Fri, 25 Jan 2002 08:36:36 -0500
-Received: from sushi.toad.net ([162.33.130.105]:26518 "EHLO sushi.toad.net")
-	by vger.kernel.org with ESMTP id <S290671AbSAYNg1>;
-	Fri, 25 Jan 2002 08:36:27 -0500
-Subject: proc_file_read bug?
-From: Thomas Hood <jdthood@mail.com>
+	id <S290678AbSAYNj4>; Fri, 25 Jan 2002 08:39:56 -0500
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:17421 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S290671AbSAYNjt>; Fri, 25 Jan 2002 08:39:49 -0500
+Date: Fri, 25 Jan 2002 13:42:57 +0000
+From: John Levon <movement@marcelothewonderpenguin.com>
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 25 Jan 2002 08:36:32 -0500
-Message-Id: <1011965794.1338.6.camel@thanatos>
+Subject: [PATCH] head.S
+Message-ID: <20020125134257.GA37629@compsoc.man.ac.uk>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Bendik Singers - Afrotid
+X-Toppers: N/A
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't understand this part of proc_file_read() in 
-fs/proc/generic.c:
 
-                /* This is a hack to allow mangling of file pos independent
-                 * of actual bytes read.  Simply place the data at page,
-                 * return the bytes, and set `start' to the desired offset
-                 * as an unsigned int. - Paul.Russell@rustcorp.com.au
-                 */
-                n -= copy_to_user(buf, start < page ? page : start, n);
-                if (n == 0) {
-                        if (retval == 0)
-                                retval = -EFAULT;
-                        break;
-                }
+007 has a license to kill, not a right.
 
-                *ppos += start < page ? (long)start : n; /* Move down the file */
-                nbytes -= n;
-                buf += n;
-                retval += n;
-
-When start >= page, we copy n bytes beginning at start and
-increase *ppos by n.  Makes sense.  But what happens when
-start < page?  We will copy n bytes starting at page, then
-increase *ppos by start!!  What sense does that make?  If
-there's cleverness happening here, someone please document it.
-
-For your convenience, I append the whole existing proc_file_read
-function below.
---
-Thomas
-
-static ssize_t
-proc_file_read(struct file * file, char * buf, size_t nbytes, loff_t *ppos)
-{
-	struct inode * inode = file->f_dentry->d_inode;
-	char 	*page;
-	ssize_t	retval=0;
-	int	eof=0;
-	ssize_t	n, count;
-	char	*start;
-	struct proc_dir_entry * dp;
-
-	dp = (struct proc_dir_entry *) inode->u.generic_ip;
-	if (!(page = (char*) __get_free_page(GFP_KERNEL)))
-		return -ENOMEM;
-
-	while ((nbytes > 0) && !eof)
-	{
-		count = MIN(PROC_BLOCK_SIZE, nbytes);
-
-		start = NULL;
-		if (dp->get_info) {
-			/*
-			 * Handle backwards compatibility with the old net
-			 * routines.
-			 */
-			n = dp->get_info(page, &start, *ppos, count);
-			if (n < count)
-				eof = 1;
-		} else if (dp->read_proc) {
-			n = dp->read_proc(page, &start, *ppos,
-					  count, &eof, dp->data);
-		} else
-			break;
-
-		if (!start) {
-			/*
-			 * For proc files that are less than 4k
-			 */
-			start = page + *ppos;
-			n -= *ppos;
-			if (n <= 0)
-				break;
-			if (n > count)
-				n = count;
-		}
-		if (n == 0)
-			break;	/* End of file */
-		if (n < 0) {
-			if (retval == 0)
-				retval = n;
-			break;
-		}
-		
-		/* This is a hack to allow mangling of file pos independent
- 		 * of actual bytes read.  Simply place the data at page,
- 		 * return the bytes, and set `start' to the desired offset
- 		 * as an unsigned int. - Paul.Russell@rustcorp.com.au
-		 */
- 		n -= copy_to_user(buf, start < page ? page : start, n);
-		if (n == 0) {
-			if (retval == 0)
-				retval = -EFAULT;
-			break;
-		}
-
-		*ppos += start < page ? (long)start : n; /* Move down the file */
-		nbytes -= n;
-		buf += n;
-		retval += n;
-	}
-	free_page((unsigned long) page);
-	return retval;
-}
+enjoy,
+john
 
 
-
-
+--- arch/i386/kernel/head.S.old	Fri Jan 25 13:36:09 2002
++++ arch/i386/kernel/head.S	Fri Jan 25 13:36:49 2002
+@@ -82,8 +82,8 @@
+  * Initialize page tables
+  */
+ 	movl $pg0-__PAGE_OFFSET,%edi /* initialize page tables */
+-	movl $007,%eax		/* "007" doesn't mean with right to kill, but
+-				   PRESENT+RW+USER */
++	movl $007,%eax		/* "007" doesn't mean with license to kill, 
++				 * but PRESENT+RW+USER */
+ 2:	stosl
+ 	add $0x1000,%eax
+ 	cmp $empty_zero_page-__PAGE_OFFSET,%edi

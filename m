@@ -1,71 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261341AbVDDT12@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261345AbVDDTcO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261341AbVDDT12 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 15:27:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbVDDT11
+	id S261345AbVDDTcO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 15:32:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbVDDTcO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 15:27:27 -0400
-Received: from smtp8.wanadoo.fr ([193.252.22.23]:59485 "EHLO smtp8.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S261341AbVDDT1Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 15:27:16 -0400
-X-ME-UUID: 20050404192715287.462911C00216@mwinf0812.wanadoo.fr
-Date: Mon, 4 Apr 2005 21:24:04 +0200
-To: Ian Campbell <ijc@hellion.org.uk>
-Cc: Sven Luther <sven.luther@wanadoo.fr>, Greg KH <greg@kroah.com>,
-       Michael Poole <mdpoole@troilus.org>, debian-legal@lists.debian.org,
+	Mon, 4 Apr 2005 15:32:14 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:34309 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261345AbVDDTcG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 15:32:06 -0400
+Date: Mon, 4 Apr 2005 21:32:04 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: md@Linux.IT, Greg KH <greg@kroah.com>, debian-legal@lists.debian.org,
        debian-kernel@lists.debian.org, linux-kernel@vger.kernel.org
 Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
-Message-ID: <20050404192404.GA1829@pegasos>
-References: <20050404100929.GA23921@pegasos> <87ekdq1xlp.fsf@sanosuke.troilus.org> <20050404141647.GA28649@pegasos> <20050404175130.GA11257@kroah.com> <20050404182144.GB31055@pegasos> <1112641971.4342.8.camel@cthulhu>
+Message-ID: <20050404193204.GD4087@stusta.de>
+Mail-Followup-To: Adrian Bunk <bunk@stusta.de>, md@Linux.IT,
+	Greg KH <greg@kroah.com>, debian-legal@lists.debian.org,
+	debian-kernel@lists.debian.org, linux-kernel@vger.kernel.org
+References: <20050404100929.GA23921@pegasos> <87ekdq1xlp.fsf@sanosuke.troilus.org> <20050404141647.GA28649@pegasos> <20050404175130.GA11257@kroah.com> <20050404190518.GA17087@wonderland.linux.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1112641971.4342.8.camel@cthulhu>
+In-Reply-To: <20050404190518.GA17087@wonderland.linux.it>
 User-Agent: Mutt/1.5.6+20040907i
-From: Sven Luther <sven.luther@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 04, 2005 at 08:12:48PM +0100, Ian Campbell wrote:
-> On Mon, 2005-04-04 at 20:21 +0200, Sven Luther wrote:
-> > On Mon, Apr 04, 2005 at 10:51:30AM -0700, Greg KH wrote:
-> > > Then let's see some acts.  We (lkml) are not the ones with the percieved
-> > > problem, or the ones discussing it.
+On Mon, Apr 04, 2005 at 09:05:18PM +0200, Marco d'Itri wrote:
+> On Apr 04, Greg KH <greg@kroah.com> wrote:
 > 
-> [...]
-> 
-> > All i am asking is that *the copyright holders* of said firmware blobs put a
-> > little comment on top of the files in question saying, all this driver is
-> > GPLed, except the firmware blobs, and we give redistribution rights to said
-> > firmware blobs.
-> 
-> I think what Greg may have meant[0] was that if it bothers you, then you
-> should act by contacting the copyright holders privately yourself in
-> each case that you come across and asking them if you may add a little
-> comment etc, and then submit patches once you have their agreement.
+> > What if we don't want to do so?  I know I personally posted a solution
+> Then probably the extremists in Debian will manage to kill your driver,
+> like they did with tg3 and others.
 
-Yeah, that is step 3, i mailed LKML, because maybe you would have some useful
-coment, or some of you who wrote said code may have contacts or something with
-the copyright holders, or some other insight. I also didn't want this to cause
-a problem if i blundered in some tense relationship or whatever.
 
-For example, the tg3 driver says : 
+And as they are doing with e.g. the complete gcc documentation.
 
- * tg3.c: Broadcom Tigon3 ethernet driver.
- *
- * Copyright (C) 2001, 2002, 2003, 2004 David S. Miller (davem@redhat.com)
- * Copyright (C) 2001, 2002, 2003 Jeff Garzik (jgarzik@pobox.com)
- * Copyright (C) 2004 Sun Microsystems Inc.
- *
- * Firmware is:
- *      Copyright (C) 2000-2003 Broadcom Corporation.
+No documentation for the C compiler (not even a documentation of the 
+options) will be neither fun for the users of Debian nor for the Debian 
+maintainers - but it's the future of Debian...
 
-There is no contact for either sun or broadcom, but i believe that Jeff or
-David may know where this firmware blob may (or not) come from.
+The Debian Social Contract says:
+  Our Priorities are Our Users and Free Software
 
-Friendly,
+The next "editorial changes" to your social contract might remove the 
+"Our Users and"...
 
-Sven Luther
 
+Seriously:
+
+There might be real problems with non-distributable firmware, but the 
+known extremist position of Debian on such issues produces negative 
+emotions if something like this comes from Debian.
+
+
+> This sucks, yes.
+
+
+Agreed.
+
+
+> ciao,
+> Marco (@debian.org)
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

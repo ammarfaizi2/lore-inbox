@@ -1,29 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264569AbUEYEAS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264560AbUEYECj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264569AbUEYEAS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 00:00:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264560AbUEYEAS
+	id S264560AbUEYECj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 00:02:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264571AbUEYECj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 00:00:18 -0400
-Received: from fw.osdl.org ([65.172.181.6]:38329 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264543AbUEYEAL (ORCPT
+	Tue, 25 May 2004 00:02:39 -0400
+Received: from fw.osdl.org ([65.172.181.6]:19386 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264560AbUEYECg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 00:00:11 -0400
-Date: Mon, 24 May 2004 21:00:02 -0700 (PDT)
+	Tue, 25 May 2004 00:02:36 -0400
+Date: Mon, 24 May 2004 21:02:23 -0700 (PDT)
 From: Linus Torvalds <torvalds@osdl.org>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Ben LaHaise <bcrl@kvack.org>,
-       linux-mm@kvack.org, Architectures Group <linux-arch@vger.kernel.org>
-Subject: Re: [PATCH] ppc64: Fix possible race with set_pte on a present PTE
-In-Reply-To: <20040525034326.GT29378@dualathlon.random>
-Message-ID: <Pine.LNX.4.58.0405242051460.32189@ppc970.osdl.org>
-References: <1085369393.15315.28.camel@gaston> <Pine.LNX.4.58.0405232046210.25502@ppc970.osdl.org>
- <1085371988.15281.38.camel@gaston> <Pine.LNX.4.58.0405232134480.25502@ppc970.osdl.org>
- <1085373839.14969.42.camel@gaston> <Pine.LNX.4.58.0405232149380.25502@ppc970.osdl.org>
- <20040525034326.GT29378@dualathlon.random>
+To: Matt Mackall <mpm@selenic.com>
+cc: Thomas Gleixner <tglx@linutronix.de>, Andi Kleen <ak@muc.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFD] Explicitly documenting patch submission
+In-Reply-To: <20040525034920.GY5414@waste.org>
+Message-ID: <Pine.LNX.4.58.0405242100170.32189@ppc970.osdl.org>
+References: <1YUY7-6fF-11@gated-at.bofh.it> <m3fz9pd2dw.fsf@averell.firstfloor.org>
+ <200405242250.38442.tglx@linutronix.de> <Pine.LNX.4.58.0405241400280.32189@ppc970.osdl.org>
+ <20040525034920.GY5414@waste.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -31,35 +27,28 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Tue, 25 May 2004, Andrea Arcangeli wrote:
+On Mon, 24 May 2004, Matt Mackall wrote:
 > 
-> The below patch should fix it, the only problem is that it can screwup
-> some arch that might use page-faults to keep track of the accessed bit,
+> Actually, there is a question as to how to sign off on something that
+> eventually gets rolled into something larger? Simply collect all the
+> signatories?
 
-Indeed. At least alpha does this - that's where this code came from. SO 
-this will cause infinite page faults on alpha and any other "accessed bit 
-in software" architectures.
+Yup.
 
-Not good.
+This is indeed common for people like Andrew (or anybody else who collects 
+patches). The only sane thing to do is to just merge the signatories from 
+any merged patches.
 
-I suspect we should just make a "ptep_set_bits()" inline function that 
-_atomically_ does "set the dirty/accessed bits". On x86, it would be a 
-simple
+> > Any process that doesn't allow for common sense is just broken, and
+> > clearly from a _legal_ standpoint it doesn't matter if we track who fixed
+> > out (atrocious) spelling errors.
+> 
+> "our"
 
-		asm("lock ; orl %1,%0"
-			:"m" (*ptep)
-			:"r" (entry));
+Ahem.
 
-and similarly on most other architectures it should be quite easy to do 
-the equivalent. You can always do it with a simple compare-and-exchange 
-loop, something any SMP-capable architecture should have.
+"I did that on purpose to make a point".
 
-Of course, arguably we can actually optimize this by "knowing" that it is
-safe to set the dirty bit, so then we don't even need an atomic operation,
-we just need one atomic write.  So we only actually need the atomic op for 
-the accessed bit case, and if we make the write-case be totally separate..
+Sure, that's the ticket.
 
-Anybody willing to write up a patch for a few architectures? Is there any 
-architecture out there that would have a problem with this?
-
-		Linus
+		Linus "ehh, good save" Torvalds

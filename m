@@ -1,72 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264670AbUD1H3W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264680AbUD1H3b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264670AbUD1H3W (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 03:29:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264680AbUD1H3V
+	id S264680AbUD1H3b (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 03:29:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264683AbUD1H3b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 03:29:21 -0400
-Received: from web90007.mail.scd.yahoo.com ([66.218.94.65]:5281 "HELO
-	web90007.mail.scd.yahoo.com") by vger.kernel.org with SMTP
-	id S264670AbUD1H3T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 03:29:19 -0400
-Message-ID: <20040428072918.56419.qmail@web90007.mail.scd.yahoo.com>
-Date: Wed, 28 Apr 2004 00:29:18 -0700 (PDT)
-From: Phy Prabab <phyprabab@yahoo.com>
-Subject: Re: pdflush eating a lot of CPU on heavy NFS I/O
-To: Andrew Morton <akpm@osdl.org>, busterbcook@yahoo.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040427230203.1e4693ac.akpm@osdl.org>
+	Wed, 28 Apr 2004 03:29:31 -0400
+Received: from math.ut.ee ([193.40.5.125]:39358 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S264680AbUD1H32 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 03:29:28 -0400
+Date: Wed, 28 Apr 2004 10:29:26 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: [2.6 PATCH] PPC32: compile error in signal.c
+Message-ID: <Pine.GSO.4.44.0404281025070.7699-100000@math.ut.ee>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If you guys could please either cc or keep this on the
-mailing list I would greatly appreciate it.  I am
-currently planning to deploy a dual Xeon FS with
-2.6.5+akpm-mm6 and would like to know what the issue
-is that Brent is seeing.
+  CC      arch/ppc/kernel/signal.o
+arch/ppc/kernel/signal.c: In function `handle_signal':
+arch/ppc/kernel/signal.c:518: error: `newspp' undeclared (first use in this function)
+arch/ppc/kernel/signal.c:518: error: (Each undeclared identifier is reported only once
+arch/ppc/kernel/signal.c:518: error: for each function it appears in.)
+arch/ppc/kernel/signal.c:518: warning: long unsigned int format, pointer arg (arg 3)
 
-Thanks!
+The following patch seems to fix it:
 
---- Andrew Morton <akpm@osdl.org> wrote:
-> Brent Cook <busterbcook@yahoo.com> wrote:
-> >
-> >   Running any kernel from the 2.6.6-rc* series
-> (and a few previous
-> >  -mm*'s),
-> 
-> It's a shame this wasn't reported earlier.
-> 
-> > the pdflush process starts using near 100% CPU
-> indefinitely after
-> >  a few minutes of initial NFS traffic, as far as I
-> can tell.
-> 
-> Please confirm that the problem is observed on the
-> NFS client and not the
-> NFS server?  I'll assume the client.
-> 
-> What other filesystems are in use on the client?
-> 
-> Please describe the NFS mount options and the number
-> of CPUs and the amount
-> of memory in the machine.  And please send me your
-> .config, off-list.
-> 
-> Thanks.
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+===== arch/ppc/kernel/signal.c 1.31 vs edited =====
+--- 1.31/arch/ppc/kernel/signal.c	Thu Apr  8 01:55:06 2004
++++ edited/arch/ppc/kernel/signal.c	Wed Apr 28 10:27:20 2004
+@@ -514,8 +514,8 @@
+
+ badframe:
+ #ifdef DEBUG_SIG
+-	printk("badframe in handle_signal, regs=%p frame=%lx newsp=%lx\n",
+-	       regs, frame, *newspp);
++	printk("badframe in handle_signal, regs=%p frame=%p newsp=%lx\n",
++	       regs, frame, newsp);
+ #endif
+ 	if (sig == SIGSEGV)
+ 		ka->sa.sa_handler = SIG_DFL;
 
 
-	
-		
-__________________________________
-Do you Yahoo!?
-Win a $20,000 Career Makeover at Yahoo! HotJobs  
-http://hotjobs.sweepstakes.yahoo.com/careermakeover 
+-- 
+Meelis Roos (mroos@linux.ee)
+

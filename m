@@ -1,61 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261495AbVACQfb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261494AbVACQlM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261495AbVACQfb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 11:35:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261496AbVACQfb
+	id S261494AbVACQlM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 11:41:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261496AbVACQlM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 11:35:31 -0500
-Received: from rproxy.gmail.com ([64.233.170.207]:53535 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261495AbVACQfZ (ORCPT
+	Mon, 3 Jan 2005 11:41:12 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:39372 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261494AbVACQlJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 11:35:25 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=NVhIr2GlJMX/hNr+CAyd/mZehSys71V2Ls8d6BODV2qIb1+bQSWCiLcLv0/DBif7bxUT9fygVLXidZiUW6IplWT++LZFq3zgS2tB8w7D2n2HrAwNBxcCrbSr5nht343B8+pWssK0YA+a2G/dkrWzc5B9g/MJ1yvZY6Up3VM6pO8=
-Message-ID: <d120d50005010308355783c996@mail.gmail.com>
-Date: Mon, 3 Jan 2005 11:35:25 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Roey Katz <roey@sdf.lonestar.org>
-Subject: Re: 2.6.9 & 2.6.10 unresponsive to keyboard upon bootup
-Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz
-In-Reply-To: <Pine.NEB.4.61.0501031317110.15363@sdf.lonestar.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <Pine.NEB.4.61.0501010814490.26191@sdf.lonestar.org>
-	 <200501022206.50265.dtor_core@ameritech.net>
-	 <Pine.NEB.4.61.0501030536110.14662@sdf.lonestar.org>
-	 <200501030123.58884.dtor_core@ameritech.net>
-	 <Pine.NEB.4.61.0501031317110.15363@sdf.lonestar.org>
+	Mon, 3 Jan 2005 11:41:09 -0500
+Date: Mon, 3 Jan 2005 11:40:41 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       robert_hentosh@dell.com
+Subject: Re: [PATCH][2/2] do not OOM kill if we skip writing many pages
+In-Reply-To: <20050103162500.GX5164@dualathlon.random>
+Message-ID: <Pine.LNX.4.61.0501031130310.25392@chimarrao.boston.redhat.com>
+References: <Pine.LNX.4.61.0412201013420.13935@chimarrao.boston.redhat.com>
+ <20050102172929.GL5164@dualathlon.random> <Pine.LNX.4.61.0501022319180.10640@chimarrao.boston.redhat.com>
+ <20050103122241.GE29158@logos.cnet> <20050103162500.GX5164@dualathlon.random>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Jan 2005 13:21:02 +0000 (UTC), Roey Katz
-<roey@sdf.lonestar.org> wrote:
-> Dmitry,
-> 
-> kernel bootup, syslog and dmesg outputs are here:
-> 
->   http://roey.freeshell.org/mystuff/kernel/
-> 
-> all end in "-20050103"
-> 
-> This is with "acpi=off" as you instructed.
->
+On Mon, 3 Jan 2005, Andrea Arcangeli wrote:
+> On Mon, Jan 03, 2005 at 10:22:41AM -0200, Marcelo Tosatti wrote:
+>> What are the details of the OOM kills (output, workload, configuration, etc)?
 
-That is even wierdier. The keyboard controller does not respond to the
-most basic command. I have seen one report of this happening
-(http://bugme.osdl.org/show_bug.cgi?id=3830) but acpi=off helped in
-that case. I wonder, when you tried acpi=off, did you power off your
-box or just rebooted?
+The workload is a simple dd to a block device, on a system
+with highmem.  The mapping for the block device can only be
+cached in lowmem.
 
-The big input update went in with 2.6.9-rc2-bk4. Could you please try
-bk3 and bk4 to verify that this update is causing the problems or we
-shoudl look elsewhere.
+kernel: oom-killer: gfp_mask=0xd0
+...
+kernel: Free pages:      968016kB (966400kB HighMem)
+kernel: Active:31932 inactive:185316 dirty:8 writeback:165518 unstable:0 free:242004 slab:55830 mapped:33266 pagetables:1135
+kernel: DMA free:16kB min:16kB low:32kB high:48kB active:0kB inactive:9656kB present:16384kB
+kernel: protections[]: 0 0 0
+kernel: Normal free:1600kB min:936kB low:1872kB high:2808kB active:208kB inactive:653148kB present:901120kB
+kernel: protections[]: 0 0 0
+kernel: HighMem free:966400kB min:512kB low:1024kB high:1536kB active:127520kB inactive:78464kB present:1179584kB
+kernel: protections[]: 0 0 0
+...
 
-I am CCing Vojtech, maybe he has some ideas...
+If you run on a system with more highmem, you'll simply get
+an OOM kill with more free highmem pages.  The only thing
+that lives in highmem is the process code, which the VM is
+not scanning for obvious reasons.
+
+>> Are these running 2.6.10-mm?
+
+The latest rawhide kernel, with a few VM fixes, including all
+the important ones that I could see from -mm.
+
+Reading balance_dirty_pages, I do not understand how we could
+end up having so many pages in writeback state, but still
+continue writing out more - surely we should have run out of
+dirty pages long ago and stalled in blk_congestion_wait()
+until lots of IO had finished completing ?
+
+Why can we build up 660MB of pages in the writeback stage,
+for a mapping that can only live in the low 900MB of memory?
+Yes, it has my patch 1/2 applied (lowering the dirty limit
+for lowmem only mappings)...
+
+> And did they apply Con's patch? (i.e. my 3/4 I posted few days ago)
+
+Con's patch is not relevant for this bug, since there are so few
+mapped pages (and those almost certainly live in highmem, which
+the VM is not scanning).
 
 -- 
-Dmitry
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

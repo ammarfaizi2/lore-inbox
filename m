@@ -1,92 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268486AbUH3O5j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268136AbUH3PDs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268486AbUH3O5j (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 10:57:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268482AbUH3O5i
+	id S268136AbUH3PDs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 11:03:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268088AbUH3PDs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 10:57:38 -0400
-Received: from wasp.net.au ([203.190.192.17]:13252 "EHLO wasp.net.au")
-	by vger.kernel.org with ESMTP id S268476AbUH3O46 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 10:56:58 -0400
-Message-ID: <41334058.4050902@wasp.net.au>
-Date: Mon, 30 Aug 2004 18:57:28 +0400
-From: Brad Campbell <brad@wasp.net.au>
-User-Agent: Mozilla Thunderbird 0.7+ (X11/20040730)
-X-Accept-Language: en-us, en
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_wasp.net.au-21256-1093877811-0001-2"
-CC: Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] libata ATA vs SATA detection and workaround.
-References: <41320DAF.2060306@wasp.net.au> <41321288.4090403@pobox.com> <413216CC.5080100@wasp.net.au> <4132198B.8000504@pobox.com> <41321F7F.7050300@pobox.com> <41333CDC.5040106@wasp.net.au>
-In-Reply-To: <41333CDC.5040106@wasp.net.au>
-To: unlisted-recipients:; (no To-header on input)
+	Mon, 30 Aug 2004 11:03:48 -0400
+Received: from h001061b078fa.ne.client2.attbi.com ([24.91.86.110]:49037 "EHLO
+	linuxfarms.com") by vger.kernel.org with ESMTP id S268136AbUH3PDn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 11:03:43 -0400
+Date: Mon, 30 Aug 2004 11:04:36 -0400 (EDT)
+From: Arthur Perry <kernel@linuxfarms.com>
+X-X-Sender: kernel@tiamat.perryconsulting.net
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: root@chaos.analogic.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Celistica with AMD chip-set
+In-Reply-To: <1093871709.30082.11.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0408301052030.23343@tiamat.perryconsulting.net>
+References: <Pine.LNX.4.53.0408300955470.21607@chaos>
+ <1093871709.30082.11.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
+Hello Alan and Richard,
 
---=_wasp.net.au-21256-1093877811-0001-2
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+I have to advise caution here, as it is currently unconfirmed whether or
+not the PCI bridge configuration is "incorrect", and that it has "very
+poor PCI performance".
+Unless everyone in the whole wide world is setting this value and we are
+the only ones who are not, I find it hard to believe that this statement
+is not overspeculative.
 
-Brad Campbell wrote:
-> 
-> It works here anyway.
-> Patch against vanilla 2.6.9-rc1 attached (including your ata.h patch)
-> 
+The proper place for this should be in the BIOS, if it is indeed a true
+optimization point.
+But until that is positively identified, we should not assume that
+applying this globally for everyone is the right thing to do.
+As in any assumed optimization for a simgle case, it could potentially
+cause performance degradation in somebody else's HBA.
 
-Lets try this one that won't undo the work that the sata_sil Seagate/Maxtor blacklist does!
+This is a cache optimization.
 
-Regards,
-Brad.
+Have you considered the possibility of this "optimization" causing a
+performance hit with Mellanox's PCI implementation?
 
---=_wasp.net.au-21256-1093877811-0001-2
-Content-Type: text/plain; name=diff2; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff2"
+What about people who have already tailored their device driver to work
+well in on this chipset and currently use "read multiple" rather than
+"read cacheline". This optimization could potentially cause a slight
+degradation of performance for them.
 
-diff -ur orig/linux/drivers/scsi/libata-core.c linux-2.6.9-rc1/drivers/scsi/libata-core.c
---- orig/linux/drivers/scsi/libata-core.c	2004-08-30 18:52:54.000000000 +0400
-+++ linux-2.6.9-rc1/drivers/scsi/libata-core.c	2004-08-30 18:53:42.000000000 +0400
-@@ -1150,6 +1150,15 @@
- 		ata_dev_identify(ap, i);
- 		if (ata_dev_present(&ap->device[i])) {
- 			found = 1;
-+			/* limit bridge transfers to udma5, 200 sectors */
-+			if ((ap->cbl == ATA_CBL_SATA) && (!ata_id_is_sata(ap->device))) {
-+				printk(KERN_INFO "ata%u(%u): applying bridge limits\n",
-+					ap->id, ap->device->devno);
-+				ap->udma_mask &= ATA_UDMA5;
-+				ap->host->max_sectors = ATA_MAX_SECTORS;
-+				ap->host->hostt->max_sectors = ATA_MAX_SECTORS;
-+				ap->device->flags |= ATA_DFLAG_LOCK_SECTORS;
-+			}
- 			if (ap->ops->dev_config)
- 				ap->ops->dev_config(ap, &ap->device[i]);
- 		}
-@@ -1226,7 +1235,7 @@
- 		ata_port_disable(ap);
- 		return;
- 	}
--
-+	ap->cbl = ATA_CBL_SATA;
- 	ata_bus_reset(ap);
- }
- 
-diff -ur orig/linux/include/linux/ata.h linux-2.6.9-rc1/include/linux/ata.h
---- orig/linux/include/linux/ata.h	2004-08-30 18:52:54.000000000 +0400
-+++ linux-2.6.9-rc1/include/linux/ata.h	2004-08-30 18:42:41.000000000 +0400
-@@ -218,6 +218,7 @@
- };
- 
- #define ata_id_is_ata(dev)	(((dev)->id[0] & (1 << 15)) == 0)
-+#define ata_id_is_sata(dev)	((dev)->id[93] == 0)
- #define ata_id_rahead_enabled(dev) ((dev)->id[85] & (1 << 6))
- #define ata_id_wcache_enabled(dev) ((dev)->id[85] & (1 << 5))
- #define ata_id_has_flush(dev) ((dev)->id[83] & (1 << 12))
+I just propose that we test this change with various card vendors and see
+what the real impact is before we jump to the conclusion that this is a
+serious performance problem for everybody.
 
---=_wasp.net.au-21256-1093877811-0001-2--
+Secondly, if it is the case, then the correct place to put this change is
+in the system's BIOS, and having a software workaround is a last resort.
+
+If you want, I can write a userspace utility to package with your existing
+tools that can be installed and launched from init to provide this
+optimization feature to the 8131 PCI bridge that your card resides on, to
+ensure that your card gets this necessary optimization.
+Or, you can easily put this capability into your existing device driver.
+
+I would just rather not assume too much when dealing with something that
+can potentially have a large reprocussion.
+
+
+
+
+
+
+On Mon, 30 Aug 2004, Alan Cox wrote:
+
+> On Llu, 2004-08-30 at 15:02, Richard B. Johnson wrote:
+> > Hello all,
+> >
+> > The Celistica server with the AMD chip-set has very poor
+> > PCI performance with Linux (and probably W$ too).
+> >
+> > The problem was traced to incorrect bridge configuration
+> > in the HyperTransport(tm) chips that connect up pairs
+> > of slots.
+>
+> Can you get Celestica to mail me their PCI subvendor
+> id/devid's for the problem configuration or DMI strings
+> and then we can do a PCI quirk properly for this.
+>
+> Alan
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+
+
+
+
+Arthur Perry
+Linux Systems/Software Architect
+Lead Linux Engineer
+CSU Validation Group
+Celestica, Salem, NH
+aperry@celestica.com
+

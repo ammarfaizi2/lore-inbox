@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130519AbRCTRYX>; Tue, 20 Mar 2001 12:24:23 -0500
+	id <S130523AbRCTRho>; Tue, 20 Mar 2001 12:37:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130520AbRCTRYO>; Tue, 20 Mar 2001 12:24:14 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:6155 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130519AbRCTRYJ>; Tue, 20 Mar 2001 12:24:09 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: LDT allocated for cloned task!
-Date: 20 Mar 2001 09:23:14 -0800
-Organization: Transmeta Corporation
-Message-ID: <9983m2$1l5$1@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0103201745080.1701-100000@pau.intranet.ct>
+	id <S130531AbRCTRhe>; Tue, 20 Mar 2001 12:37:34 -0500
+Received: from balu.sch.bme.hu ([152.66.224.40]:40441 "EHLO balu.sch.bme.hu")
+	by vger.kernel.org with ESMTP id <S130523AbRCTRhU>;
+	Tue, 20 Mar 2001 12:37:20 -0500
+Date: Tue, 20 Mar 2001 18:35:38 +0100 (MET)
+From: Pozsar Balazs <pozsy@sch.bme.hu>
+To: Peter Lund <firefly@netgroup.dk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: esound (esd), 2.4.[12] chopped up sound
+In-Reply-To: <3AB5F86E.69B3593C@netgroup.dk>
+Message-ID: <Pine.GSO.4.30.0103201832260.15849-100000@balu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.33.0103201745080.1701-100000@pau.intranet.ct>,
-Pau  <linuxnow@terra.es> wrote:
+
+> On my home machine playing sound through esd has worked beautifully on various
+> kernels from 2.2.5 and up to 2.2.18.
+> On 2.4.1 and 2.4.2 it stinks.
 >
->I've been running 2.4.3-pre4 for a few days now and today I've got this
->message in the logs a couple of times. Is it harmless?
+> It sounds like there are small pauses or repetitions in the sound, as if esd
+> doesn't get
+> the data quickly enough from the client or something.  Music and voices
+> (realaudio radio) still easy to understand but it does get on my nerves after a
+> few minutes :(
 
-It's harmless.
+Are you sure that the problem isn't at the mp3->raw conversino point? In
+mandrake for example, mpg123 is badly compiled, and plays nicely on 2.2,
+but awfully on 2.4.
+I suggest you trying another (meybe self-compiled) version of mpg123.
 
-It's really a warning that says: the mm that you allocated a new LDT for
-may have multiple users, and while the LDT is added to all of them, we
-don't guarantee _when_ the other users will actually see the LDT.
+bye,
+Balazs Pozsar.
 
-It so happens that the other users are probably just something like
-"top" or similar, that increment the MM count to make sure that the MM
-doesn't go away while they get information about the process. And those
-users don't care about the LDT in the least.
-
-		Linus

@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317030AbSHPIKt>; Fri, 16 Aug 2002 04:10:49 -0400
+	id <S317081AbSHPIb5>; Fri, 16 Aug 2002 04:31:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317063AbSHPIKt>; Fri, 16 Aug 2002 04:10:49 -0400
-Received: from calhau.terra.com.br ([200.176.3.20]:43159 "EHLO
-	calhau.terra.com.br") by vger.kernel.org with ESMTP
-	id <S317030AbSHPIKt>; Fri, 16 Aug 2002 04:10:49 -0400
-Date: Fri, 16 Aug 2002 05:16:52 +0000
-From: Felipe W Damasio <felipewd@terra.com.br>
-To: Andreas Tscharner <starfire@dplanet.ch>
+	id <S317107AbSHPIb5>; Fri, 16 Aug 2002 04:31:57 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:25619 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S317081AbSHPIb4>; Fri, 16 Aug 2002 04:31:56 -0400
+Message-Id: <200208160831.g7G8Uxp24080@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Richard Zidlicky <rz@linux-m68k.org>, Scorpion <scorpionlab@ieg.com.br>
+Subject: Re: Flush issues in boot phase
+Date: Fri, 16 Aug 2002 11:27:50 -0200
+X-Mailer: KMail [version 1.3.2]
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel Bug in 2.4.19
-Message-Id: <20020816051652.61cdeffe.felipewd@terra.com.br>
-In-Reply-To: <20020815224759.25515c5c.starfire@dplanet.ch>
-References: <20020815224759.25515c5c.starfire@dplanet.ch>
-X-Mailer: Sylpheed version 0.7.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+References: <200208131425.19328.scorpionlab@ieg.com.br> <20020815121334.A1940@linux-m68k.org>
+In-Reply-To: <20020815121334.A1940@linux-m68k.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Aug 2002 22:47:59 +0200
-Andreas Tscharner <starfire@dplanet.ch> wrote:
+On 15 August 2002 08:13, Richard Zidlicky wrote:
+> On Tue, Aug 13, 2002 at 02:25:19PM -0300, Scorpion wrote:
+> > Hi fellows,
+> > I'm still trying to boot my dual AMD 1800XP machines (not MP).
+> > I got one more step disabling MP 1.4 support on BIOS setup, but now
+> > (using 2.4.19 kernel) I have a more general question.
+> > The boot phase stop exactly with the message:
+> >
+> > Partition check:
+> > hda:
+> >
+> > Should I consider that the kernel stop exactly in this point
+>
+> it stops exactly between this printk and the next (unreached) one.
+>
+> See fs/partitions, probably read_dev_sector hangs so put printk's
+> around that.
 
-AT> After compiling 2.4.19 (Debian kernel-source-2.4.19-1), I've had
-AT> several kernel bugs. I've added the messages of two that I got in the
-AT> log. The others are similar.
-AT> I re-changed to 2.4.18 (Debian kernel-source-2.4.18-5) and everything
-AT> works fine.
-AT> 
-AT> System: See attached dmesg
-AT> Debian unstable
-
-	Could you run the oops through ksymoops and send the report?
-
-	Thanks,
-
-Felipe
+Does it works with one CPU taken out?
+--
+vda

@@ -1,173 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261862AbVBUF0B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261870AbVBUF2m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261862AbVBUF0B (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 00:26:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261866AbVBUF0B
+	id S261870AbVBUF2m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 00:28:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261866AbVBUF2l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 00:26:01 -0500
-Received: from rproxy.gmail.com ([64.233.170.200]:62393 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261862AbVBUFZh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 00:25:37 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=LCzZsJXqX7SJwJ3b5u7llJQayJxeoy0flM2f45AKTheHe3KmlRss16Y5IrI6/xPw4vF0jaws+O5CnmZMdB/oU5snRhI5hNHSC8x47sRKVm6UsxEsH/675Y735CXFwi+j7ys/KMx6nTd8LbcMvSZXJGugH1P1rhk0mObJ7Mic2pc=
-Message-ID: <93ca3067050220212518d94666@mail.gmail.com>
-Date: Sun, 20 Feb 2005 23:25:37 -0600
-From: Alex Adriaanse <alex.adriaanse@gmail.com>
-Reply-To: Alex Adriaanse <alex.adriaanse@gmail.com>
-To: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Odd data corruption problem with LVM/ReiserFS
+	Mon, 21 Feb 2005 00:28:41 -0500
+Received: from h80ad25e9.async.vt.edu ([128.173.37.233]:60425 "EHLO
+	h80ad25e9.async.vt.edu") by vger.kernel.org with ESMTP
+	id S261870AbVBUF2B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 00:28:01 -0500
+Message-Id: <200502210527.j1L5RX44032376@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Ian Kent <raven@themaw.net>
+Cc: "Steinar H. Gunderson" <sgunderson@bigfoot.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       autofs mailing list <autofs@linux.kernel.org>
+Subject: Re: [autofs] automount does not close file descriptors at start 
+In-Reply-To: Your message of "Mon, 21 Feb 2005 12:57:22 +0800."
+             <Pine.LNX.4.58.0502211244540.9892@wombat.indigo.net.au> 
+From: Valdis.Kletnieks@vt.edu
+References: <20050216125350.GA6031@uio.no>
+            <Pine.LNX.4.58.0502211244540.9892@wombat.indigo.net.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_1108963650_4668P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 21 Feb 2005 00:27:30 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As of this morning I've experienced some very odd data corruption
-problem on my server.  Let me post some background information first.
+--==_Exmh_1108963650_4668P
+Content-Type: text/plain; charset=us-ascii
 
-For the past few years I've been running this server under Linux 2.4.x
-and Debian Woody.  It has two software RAID 1 partitions, one for the
-ReiserFS root filesystem (md0), and one for LVM running on top of RAID
-1 (md1).  Under LVM I have three logical volumes, one for /usr, one
-for /var, and one for /home.  All of them run ReiserFS.  Also, during
-daily backups I'd create a snapshot of /var and /home and back that
-up.  I haven't experienced any problems with this, other than
-occasional power outages which might've corruped some log files by
-adding a bunch of NULs to it, but that's never caused problems for me.
+On Mon, 21 Feb 2005 12:57:22 +0800, Ian Kent said:
 
-A few weeks ago I decided to upgrade to Debian Sarge.  This was a
-fairly smooth process, and haven't seen any problems with that (and I
-don't think this is related to the problem I described below).  Also,
-last week I decided to upgrade from the 2.4.22 kernel to 2.6.10-ac12. 
-This has been a pretty smooth ride too (until this morning).  One
-exception is that I might not have had swap turned on due to device
-name changes, so yesterday I saw some big processes getting killed due
-to out-of-memory conditions (my server has 256MB non-ECC RAM, normally
-with 512MB of swap).  That swap issue had not been fixed until this
-afternoon, after the crash/corruption.  Yesterday afternoon I also
-updated the metadata of my LVM volume group from version 1 to version
-2.  Before then I temporarily stopped taking snapshots once I upgraded
-to 2.6.10-ac12 since it didn't like taking snapshots inside LVM1
-volume groups.  This morning was the first time my backup script took
-a snapshot since upgrading to 2.6.10-ac12 (yesterday I had taken a few
-snapshots myself for testing purposes, this seemed to work fine).
+> This is the first time I've heard this and the first time I wrote a Unix
+> daemon was fifteen years ago.
+> 
+> As far as I'm concerned redirecting stdin, stdout and stderr to the null 
+> device, then closing it and setting the process to a be the group leader 
+> (as autofs does) should be all that's needed to daemonize a process.
+> 
+> So are we saying that we don't trust the kernel to reliably duplicate the 
+> state of file handles when we fork?
 
-This morning when I tried to login after the backup process (which
-takes snapshots) had started I couldn't get in.  SSH would just hang
-after I sent my username.  After a while I gave up waiting and tried
-to reboot the server by attaching a keyboard and hitting Ctrl-Alt-Del,
-which started the shutdown process.  I can't fully remember if that
-successfully rebooted the server, but I believe I ended up having to
-press the reset button because the shutdown process would hang at some
-point.  The server came back up but some processes wouldn't start due
-to some corrupted files in the /var partition.
+No, you have it 180 degrees off. ;)
 
-I checked the logs, and saw a bunch of the messages below.  On a
-sidenote, when my backup script isn't able to mount a snapshot, it
-removes it, waits a minute, then tries creating/mounting the snapshot
-again, supposedly up to 10 times, even though those messages, spaced
-apart by one minute, occurred much more than 10 times, but that might
-be a bug in my script.  This was due to occasional problems I had with
-older kernels which sometimes failed to mount the snapshot, but were
-successful when trying again later.
+We *do* trust the kernel to reliably duplicate the state of file handles.
+So if we're about to do the whole double-fork thing and all that, we want to
+loop around and close all the file descriptors we don't want leaking to
+the double-forked daemon.  Yes, we do something reasonable with fd 0,1,2 -
+but we probably also want to do something with that unclosed fd 3 that's still
+open on /etc/mydaemon.cf, and any other file descriptors we've left dangling
+in the breeze after initialization.
 
-These are the messages I saw:
+And yes, this sort of error happens in Real Live - I need to go and figure out
+why the /sbin/lvm.static on my initrd is throwing 'File descriptor 3 left open'
+messages... 
 
-Feb 20 09:59:16 homer kernel: lvcreate: page allocation failure.
-order:0, mode:0xd0
-Feb 20 09:59:16 homer kernel:  [__alloc_pages+440/864] __alloc_pages+0x1b8/0x360
-Feb 20 09:59:16 homer kernel:  [alloc_pl+51/96] alloc_pl+0x33/0x60
-Feb 20 09:59:16 homer kernel:  [client_alloc_pages+28/96]
-client_alloc_pages+0x1c/0x60
-Feb 20 09:59:16 homer kernel:  [vmalloc+32/48] vmalloc+0x20/0x30
-Feb 20 09:59:16 homer kernel:  [kcopyd_client_create+104/192]
-kcopyd_client_create+0x68/0xc0
-Feb 20 09:59:16 homer kernel:  [dm_create_persistent+199/320]
-dm_create_persistent+0xc7/0x140
-Feb 20 09:59:16 homer kernel:  [snapshot_ctr+680/880] snapshot_ctr+0x2a8/0x370
-Feb 20 09:59:16 homer kernel:  [dm_table_add_target+262/432]
-dm_table_add_target+0x106/0x1b0
-Feb 20 09:59:16 homer kernel:  [populate_table+130/224] populate_table+0x82/0xe0
-Feb 20 09:59:16 homer kernel:  [table_load+103/368] table_load+0x67/0x170
-Feb 20 09:59:16 homer kernel:  [ctl_ioctl+241/336] ctl_ioctl+0xf1/0x150
-Feb 20 09:59:16 homer kernel:  [table_load+0/368] table_load+0x0/0x170
-Feb 20 09:59:16 homer kernel:  [sys_ioctl+173/528] sys_ioctl+0xad/0x210
-Feb 20 09:59:16 homer kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-Feb 20 09:59:16 homer kernel: device-mapper: error adding target to table
-Feb 20 09:59:16 homer kernel: lvremove: page allocation failure.
-order:0, mode:0xd0
-Feb 20 09:59:16 homer kernel:  [__alloc_pages+440/864] __alloc_pages+0x1b8/0x360
-Feb 20 09:59:16 homer kernel:  [alloc_pl+51/96] alloc_pl+0x33/0x60
-Feb 20 09:59:16 homer kernel:  [client_alloc_pages+28/96]
-client_alloc_pages+0x1c/0x60
-Feb 20 09:59:16 homer kernel:  [vmalloc+32/48] vmalloc+0x20/0x30
-Feb 20 09:59:16 homer kernel:  [kcopyd_client_create+104/192]
-kcopyd_client_create+0x68/0xc0
-Feb 20 09:59:16 homer kernel:  [dm_create_persistent+199/320]
-dm_create_persistent+0xc7/0x140
-Feb 20 09:59:16 homer kernel:  [snapshot_ctr+680/880] snapshot_ctr+0x2a8/0x370
-Feb 20 09:59:16 homer kernel:  [dm_table_add_target+262/432]
-dm_table_add_target+0x106/0x1b0
-Feb 20 09:59:16 homer kernel:  [populate_table+130/224] populate_table+0x82/0xe0
-Feb 20 09:59:16 homer kernel:  [table_load+103/368] table_load+0x67/0x170
-Feb 20 09:59:16 homer kernel:  [ctl_ioctl+241/336] ctl_ioctl+0xf1/0x150
-Feb 20 09:59:16 homer kernel:  [table_load+0/368] table_load+0x0/0x170
-Feb 20 09:59:16 homer kernel:  [sys_ioctl+173/528] sys_ioctl+0xad/0x210
-Feb 20 09:59:16 homer kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-Feb 20 09:59:16 homer kernel: device-mapper: error adding target to table
-...
 
-As far as I can tell all the directories are still intact, but there
-was a good number of files that had been corrupted.  Those files
-looked like they had some chunks removed, and some had a bunch of NUL
-characters (in blocks of 4096 characters).  Some files even had chunks
-of other files inside of them!  I suspect that some of the contents
-from the other files were from different partitions (e.g. /home
-contents in /var file).  I also believe I saw contents from my
-/root/.viminfo in one of the files in /var or /home (and keep in mind
-that my root partition which stores /root does not use LVM)
+--==_Exmh_1108963650_4668P
+Content-Type: application/pgp-signature
 
-/var was not the only volume that was corrupted.  /home was corrupted
-as well.  I first thought files that had been written to within the
-past 24 hours were corrupted, but later I realized that some files
-that haven't been changed for months were corrupted too.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-I did not test /usr for corruption.  Also, from some quick checks I
-did on my root (non-LVM) partition I did not find any corrupted files
-there, as far as I can remember.
+iD8DBQFCGXFCcC3lWbTT17ARAvBrAJ9xqEbdN92RWECoLPPk378yIIiK9gCgxx+/
+tSq+gNne87iTC6xB8QGxDwM=
+=7M30
+-----END PGP SIGNATURE-----
 
-I did a reiserfsck (3.6.19) on /var, which did not report any problems.
-
-So, I figured I'd just restore those corrupted files from my backups. 
-I restored a few corrupted files, verified that they were in good
-shape, moved on to other parts... only to find out that the I restored
-first had become corrupted again (with a similar type of corruption as
-I saw before)!
-
-Another thing to keep in mind is that I never removed those snapshots
-after rebooting.  I'd be curious to see if the continual corruption
-goes away if I remove those snapshots, but I'll wait to make sure you
-guys don't want me to try anything else first.
-
-Also, I did a preliminary memory check to make sure my memory hadn't
-gone bad.  After a single pass of memtest86+ on my memory, it was not
-able to find any memory problems during that pass.
-
-Anyway, what do you guys think could be the problem?  Could it be that
-the LVM / Device Mapper snapshot feature is solely responsible for
-this corruption?  (I'm sure there's a reason it's marked
-Experimental).
-
-I know it might be hard to pinpoint without more details.  If you want
-me to provide more details (e.g. LVM data, debugreiserfs data, kernel
-config, more system details, etc.) or run some experiments, I can do
-so, but please let me know ASAP because I'm planning on scrapping my
-entire LVM volume group and restoring it from my backups tomorrow
-unless I'm told otherwise.
-
-Thanks a lot,
-
-Alex
+--==_Exmh_1108963650_4668P--

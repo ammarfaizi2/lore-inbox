@@ -1,77 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265863AbTBKC5j>; Mon, 10 Feb 2003 21:57:39 -0500
+	id <S265872AbTBKDz5>; Mon, 10 Feb 2003 22:55:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265872AbTBKC5j>; Mon, 10 Feb 2003 21:57:39 -0500
-Received: from 12-252-67-253.client.attbi.com ([12.252.67.253]:23965 "EHLO
-	morningstar.nowhere.lie") by vger.kernel.org with ESMTP
-	id <S265863AbTBKC5i>; Mon, 10 Feb 2003 21:57:38 -0500
-From: "John W. M. Stevens" <john@betelgeuse.us>
-Date: Mon, 10 Feb 2003 20:06:25 -0700
-To: Mark G <mark@nolab.conman.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Object system in Linux kernel?
-Message-ID: <20030211030625.GA25474@morningstar.nowhere.lie>
-References: <Pine.BSO.4.44.0302102126580.26851-100000@kwalitee.nolab.conman.org>
-Mime-Version: 1.0
+	id <S265880AbTBKDz4>; Mon, 10 Feb 2003 22:55:56 -0500
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:46741 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S265872AbTBKDzz>; Mon, 10 Feb 2003 22:55:55 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: David Ford <david+powerix@blue-labs.org>
+Date: Tue, 11 Feb 2003 15:05:24 +1100
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.BSO.4.44.0302102126580.26851-100000@kwalitee.nolab.conman.org>
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15944.30340.955911.798377@notabene.cse.unsw.edu.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: Current NFS issues (2.5.59)
+In-Reply-To: message from David Ford on Sunday February 9
+References: <3E46E1D6.20709@blue-labs.org>
+X-Mailer: VM 7.07 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 10, 2003 at 09:28:16PM -0500, Mark G wrote:
-> I saw your post to linux-kernel about wanting setjmp/longjmp for adding an
-> OO infrastructure.
+On Sunday February 9, david+powerix@blue-labs.org wrote:
+> Ok.  Here goes.  I have two servers that NFS mount from each other and 
+> provide.
 
-Having already developed the infrastructure, we had some "bits and
-pieces" that we (me and my team) thought that the Linux development
-team might find useful, including:
+Thankyou for using the development kernel and sharing your woes...
 
-1) setjmp/longjmp
-2) Atomic pointer swap with locking.
-3) Atomic integer increment.
-3) Atomic integer decrement.
+> 
+> Server 1 exports A, B, and C to server 2.  Server 2 exports D and E back 
+> to server 1 and exports F and G to two other clients.  Each of these 
+> (A-G) are distinctly different filesystem paths and not part of each other.
+> 
+> 1. If server 1 is restarted, server 2 will invalidate (make all 'df' 
+> values '1') F and G.  This requires an 'exportfs -vra' or similar on 
+> server 2 to fix the client 'df' values.  The client doesn't need to do 
+> anything.
 
-for the PA-RISC, Itanium2 and IA32 architechtures.
+This has me completely mystified.  If I understand correctly, an event
+on server 1 causes a failure to commuinicate between server 2 and some
+third party..
 
-I was not actually offering our OO Infrastructure to the Linux
-development team, for what are probably obvious reasons by now.
+I can only imagine that as server 1 boots it does something to server
+2.  At the very least it sends a mount request for D and E.  I'm not
+sure how a mount request for D or E would affect F or G.
+Are you using an automounter at all?
 
-But I thought that they might be interested  in the above list of
-funtions.
+> 
+> 2. Repeated nfs system stops and starts (/etc/init.d/nfs restart) will 
+> eventually cause a kernel panic on server 2 (haven't tested on server 
+> 1).   The number of restarts is variable.
 
-I offered, the offer was rejected, and I consider the discussion closed.
+Can you capture the panic and send it to me please?
 
-> I have actually developed several OO "cores" -- is this
-> something you wrote?
 
-Myself, interacting with several team members who used this
-infrastructure to write a USB bus driver, and some class
-drivers.
+> 
+> 3. Mount point F (/home/david) infrequently loops.  ls -la /home/david 
+> will loop forever until all client memory is exhausted and the kernel 
+> kills it via OOM.  ls -la /home/david/somefile or /home/david/somedir/ 
+> works just fine as well as any sub directory under /home/david.  
+> Restarts of both systems refuse to fix things.
 
-> If you ever want to talk about designs, let me know...
+I think this might be a reiserfs problem.  Someone else mentioned that
+this started happening when they upgrade from an earlier 2.5 kernel.
+If you can capture the NFS traffic 
+	tcpdump -s 1500 -w /tmp/afile host $server and host $client
+we could have a look at the directory cookies and see what is
+happening.
 
-I am interested in what solutions you've developed for solving the
-interaction of exceptions and resources.  We developed three
-different solutions, profiled, and chose the best of the three,
-but I'm curious as to how other people might have solved this issue.
+> 
+> 4. Mounts infrequently get "permission denied" messages on the client 
+> with a " rpc.mountd: getfh failed: Operation not permitted" message on 
+> the server.  This is fixable by restarting the nfs system on the server.
+> 
 
-Our infrastructure supports Hot Patch, Package and Extension
-Design patterns, among others.  What design patterns, in your
-opinion, do you think are "required" for embedded/kernel
-development?
+I've seen this, but it was fixed by the time 2.5.59 came out.
+If/when it happens again, could you please check if the IP address of
+the client in question is in
+    /proc/net/rpc/auth.unix.ip/content
+and if the name found there is in
+    /proc/fs/nfs/exports
+next to the appropriate filesystem.
 
-Also, what is your take on support for messaging and true
-polymorphism?  The C++ "nick-naming" thing just doesn't work in
-a dynamic system, to say nothing of the much more serious issues
-raised by constraining the abstract type system by the concrete type
-of an object (shudder!).
-
-Making those two things orthogonal was enough, all by itself, to
-reduce the prospective inheritance depth of the driver from 18
-to between 3 and 5 levels.
-
-Thanks,
-John S.
+NeilBrown

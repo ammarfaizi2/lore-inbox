@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267074AbUBRXtX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 18:49:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267085AbUBRXtX
+	id S266492AbUBRX1x (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 18:27:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266526AbUBRX10
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 18:49:23 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:62180
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S267074AbUBRXtV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 18:49:21 -0500
-Date: Thu, 19 Feb 2004 00:49:16 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-       Raphael Rigo <raphael.rigo@inp-net.eu.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: New do_mremap vulnerabitily.
-Message-ID: <20040218234916.GU4478@dualathlon.random>
-References: <4033841A.6020802@inp-net.eu.org> <Pine.LNX.4.58.0402180954590.2686@home.osdl.org> <4033E3A4.80509@nortelnetworks.com> <Pine.LNX.4.58.0402181424120.2686@home.osdl.org>
+	Wed, 18 Feb 2004 18:27:26 -0500
+Received: from fw.osdl.org ([65.172.181.6]:55168 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266492AbUBRX0H (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 18:26:07 -0500
+Date: Wed, 18 Feb 2004 15:27:45 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andi Kleen <ak@suse.de>
+Cc: thornber@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.3-mm1
+Message-Id: <20040218152745.766ede4c.akpm@osdl.org>
+In-Reply-To: <20040219125219.54978b4e.ak@suse.de>
+References: <20040217232130.61667965.akpm@osdl.org.suse.lists.linux.kernel>
+	<p73wu6k653f.fsf@verdi.suse.de>
+	<20040218025549.4e7c56a1.akpm@osdl.org>
+	<20040219073734.309e396d.ak@suse.de>
+	<20040218134558.GN27549@reti>
+	<20040219125219.54978b4e.ak@suse.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0402181424120.2686@home.osdl.org>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 18, 2004 at 02:26:45PM -0800, Linus Torvalds wrote:
+Andi Kleen <ak@suse.de> wrote:
+>
+> On Wed, 18 Feb 2004 13:45:58 +0000
+> Joe Thornber <thornber@redhat.com> wrote:
 > 
-> 
-> On Wed, 18 Feb 2004, Chris Friesen wrote:
+> > On Thu, Feb 19, 2004 at 07:37:34AM +0100, Andi Kleen wrote:
+> > > Supporting metadata can be quite simple - e.g. a standard header on the first blocks that
+> > > has a length and a number of records with unique IDs. And the kernel driver would need
+> > > to skip over these headers.
 > > 
-> > There is still a call to do_munmap() that does not check the return 
-> > code, called from move_vma(), which in turn is called in do_mremap().
-> > 
-> > Can that call ever fail and cause Bad Things to happen?
+> > The target already takes an offset into the device, so you have what you want.
 > 
-> Yes it can fail, and no, bad things can't happen. We could return the 
-> error code to user space, but on the other hand, by the time the munmap 
-> fails we would already have done 90% of the mremap(), so it doesn't much 
-> help user space to know that the old area still has a vma, but no pages 
-> associated with it.
+> Ok fine. The only requirement would be compatible IVs then.
+> 
 
-which is a bug, mremap has to retire fully and it's not doing that
-(obviously we don't want to write a retirement logic, we only want to
-preallocate whatever needed so we don't need to retire), but it's not a
-bad bug, since it only matters for real apps, an real apps will only
-fall into this do_munamp due the oom condition, which isn't going to
-trigger in do_munmap anyways, and even in the unlikely case that it does
-it is extremly unlikely to generate an exploitable hole in the real (non
-malicious) app.
+Would it be correct to say that until someone does this development,
+dm-crypt has the same vulnerabilities as cryptoloop?  Or is there some
+different way of using dm-crypt which is incompatible with cryptoloop, but
+is more secure?
+

@@ -1,98 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261411AbTJ1Sxe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 13:53:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbTJ1Sxe
+	id S261309AbTJ1StZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 13:49:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbTJ1StZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 13:53:34 -0500
-Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:3598 "EHLO
-	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
-	id S261411AbTJ1Sxc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 13:53:32 -0500
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] input hotplug support
-Date: Tue, 28 Oct 2003 21:19:01 +0300
-User-Agent: KMail/1.5.3
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Rusty Russell <rusty@rustcorp.com.au>
-References: <200308020139.37446.arvidjaar@mail.ru> <200308021253.03005.arvidjaar@mail.ru> <20031013235623.GA12898@kroah.com>
-In-Reply-To: <20031013235623.GA12898@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Oct 2003 13:49:25 -0500
+Received: from mail.kroah.org ([65.200.24.183]:40385 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261309AbTJ1StY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 13:49:24 -0500
+Date: Tue, 28 Oct 2003 10:48:26 -0800
+From: Greg KH <greg@kroah.com>
+To: Mark Bellon <mbellon@mvista.com>
+Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-hotplug-devel@lists.sourceforge.net
+Subject: Re: ANNOUNCE: User-space System Device Enumeration (uSDE)
+Message-ID: <20031028184825.GB7432@kroah.com>
+References: <Pine.LNX.4.33.0310280901490.7139-100000@osdlab.pdx.osdl.net> <3F9EB17F.9020308@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200310282119.01702.arvidjaar@mail.ru>
+In-Reply-To: <3F9EB17F.9020308@mvista.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 October 2003 03:56, Greg KH wrote:
-> On Sat, Aug 02, 2003 at 12:53:02PM +0400, Andrey Borzenkov wrote:
-> > On Saturday 02 August 2003 03:57, Greg KH wrote:
-> > > On Sat, Aug 02, 2003 at 01:39:37AM +0400, Andrey Borzenkov wrote:
-> > > > this adds input agent and coldplug rc script. It relies on patch for
-> > > > module-init-tools that gnerates input handlers map table being posted
-> > > > to lkml as well.
-> > > >
-> > > > input agent loads input handler in respond to input subsystem
-> > > > request. It is currently purely table-driven, no attempt to provide
-> > > > for any static list or like was done, it needs some operational
-> > > > experience.
-> > > >
-> > > > static coldplug rc script is intended to load input handlers for any
-> > > > built-in input drivers, like e.g. psmouse (if you built it in).
-> > > > Currently it does it by parsing /proc/bus/input/devices, I'd like to
-> > > > use sysfs but apparently support for it in input susbsystem is
-> > > > incomplete at best.
-> > > >
-> > > > It also modifies usb.agent to not consult usb.handmap on 2.6, as it
-> > > > is not needed anymore.
-> > > >
-> > > > Patch is against 2003_05_01 version of hotplug. Comments appreciated.
-> > >
-> > > Can you send it not compressed so we have a chance to read it?
-> >
-> > sorry.
-> >
-> > plain text attached.
->
-> Thanks, I've applied this patch.  Did your module-init-tools patch make
-> it into that package too?
->
+On Tue, Oct 28, 2003 at 11:12:15AM -0700, Mark Bellon wrote:
+> I can't respond to the emotion and ad hominum references in this 
+> message. The uSDE announcement is my first posting. I can't address any 
+> past dealings with MontaVista.
 
-No, Rusty was against it. You should have received those mails as well (you 
-were on Cc at least), subject was
+It might be your first public posting.  But it is not your first email
+to people here ever.  I have a few emails from you lying around here
+from back in Feb and March of this year in which you detailed this
+project.  And you have been aware of udev from at least April, as it's
+code has been public since then.
 
-"module-init-tools - input devices id support"
+I also have email messages from Intel employees who were helping you
+with uSDE over the past few months, asking questions about different
+things that udev does, in order to get a better understanding of it.
+I'm guessing that was done to provide that functionality in uSDE, which
+is fine.
 
-If you do not have them I can forward or they are on lkml as well, sorry do 
-not have pointers handy.
+The major frustration of mine is why, if you found udev lacking for one
+reason or another, did you decide to not help us out, and instead go off
+and work on your own, in secret?  We could really use the help with
+udev, and having at least 2 full time people working on it (like it
+looks like uSDE has) would make a real difference. 
 
-in short Rusty said the right thing is to use scripts/file2alias to generate 
-module aliases out of input device id tables. While I do not object in 
-principle, the reasons I did it the current way were
+> The uSDE ideas and implementation was started with the OSDL requirements 
+> in August of 2002.
+> This is the first time any form of it has been posted.
 
-- it is consistent with how things are implemented currently and no one so far 
-told me it is going to change
+Again, in public.  I have older code drops of yours in my email folders.
 
-- I think it is more flexible. E.g. it provides for extra filtering 
-(blacklisting) if needed. Doing this requires most of the current code (in 
-some form) even in presence of aliases generated by file2alias
+> From time-to-time, since the project started, ideas related to it have
+> been floated with the community.  The feedback was carefully listened
+> to and utitized in the implementation that was just posted.
 
-- given size of input id tables it will generate aliases of size more than 1k 
-characters. Not that I really care but it is hardly readable.
+I have provided help to you and your team over time, but that has been a
+one-way street.  Help has not flowed back the other way, even when we
+have asked for it (help with udev, or with the kernel changes that are
+required for udev or uSDE to work properly.)  That is why I am
+frustrated, and I think that others in the open source community have
+the same frustration.
 
-- file2alias works only at kernel compile time. Users are free to install 
-extra (binary) modules at any time and expect them to still be recognized.
+udev isn't going away any time soon, and I am committed to working on it
+for quite some time in order to address issues people have raised.  If
+you want to spend your time on uSDE, that's up to you.  I'm very willing
+to work with your team, if your team is willing to work with us.
 
-I really think that keeping module-init-tools in sync with kernel is not much 
-more difficult than keeping file2alias in sync with kernel. Whoever neglects 
-update the former may just as well neglect to update the latter. And so far 
-this was the main argument of Rusty IIRC.
+thanks,
 
-cheers
-	and sorry for delay too
-
--andrey
-
+greg k-h

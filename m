@@ -1,65 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261493AbTCJWK6>; Mon, 10 Mar 2003 17:10:58 -0500
+	id <S261496AbTCJWLQ>; Mon, 10 Mar 2003 17:11:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261496AbTCJWK6>; Mon, 10 Mar 2003 17:10:58 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:61943 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S261493AbTCJWK5>;
-	Mon, 10 Mar 2003 17:10:57 -0500
-Message-ID: <3E6D0FD5.2090707@mvista.com>
-Date: Mon, 10 Mar 2003 14:21:09 -0800
-From: george anzinger <george@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Andrew Morton <akpm@digeo.com>, cobra@compuserve.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Runaway cron task on 2.5.63/4 bk?
-References: <Pine.LNX.4.44.0303101147200.2542-100000@home.transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0303101147200.2542-100000@home.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261504AbTCJWLP>; Mon, 10 Mar 2003 17:11:15 -0500
+Received: from B57c2.pppool.de ([213.7.87.194]:41196 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S261496AbTCJWLN>; Mon, 10 Mar 2003 17:11:13 -0500
+Subject: Re: [BK PATCH] klibc for 2.5.64 - try 2
+From: Daniel Egger <degger@fhm.edu>
+To: Hans-Peter Jansen <hpj@urpla.net>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <200303102133.25790.hpj@urpla.net>
+References: <Pine.LNX.4.44.0303072121180.5042-100000@serv>
+	 <m1adg4kbjn.fsf@frodo.biederman.org> <1047219550.4102.6.camel@sonja>
+	 <200303102133.25790.hpj@urpla.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-wLJ48bSqAE8V6gyKJ6By"
+Organization: 
+Message-Id: <1047333777.28220.79.camel@sonja>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 10 Mar 2003 23:02:57 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> On Mon, 10 Mar 2003, george anzinger wrote:
-> 
->>Lets consider this one on its own merits.  What SHOULD sleep do when 
->>asked to sleep for MAX_INT number of jiffies or more, i.e. when 
->>jiffies overflows?  My notion, above, it that it is clearly an error. 
-> 
-> 
-> My suggestion (in order of preference):
->  - sleep the max amount, and then restart as if a signal had happened
 
-I think this will require a 64-bit expire in the timer_struct 
-(actually it would not be treated as such, but the struct would still 
-need the added bits).  Is this ok?
+--=-wLJ48bSqAE8V6gyKJ6By
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I will look at the problem in detail and see if there might be another 
-way without the need of the added bits.
+Am Mon, 2003-03-10 um 21.33 schrieb Hans-Peter Jansen:
 
->  - sleep the max amount (old behavior)
->  - consider it an error (new behavior)
-> 
-> In this case the error case actually helped find the other unrelated bug, 
-> so in this case the error actually _helped_ us. However, that was only 
-> "help" from a kernel perspective, from a user perspective I definitely 
-> think that it makes no sense to have "sleep(largenum)" return -EINVAL.
-> 
-> And in the end it's the user that matters.
-> 
-Hm...  I changed it to what it is to make it easier to track down 
-problems in the test code... and this was user code.  My thinking was 
-that such large values are clear errors, and having the code "hang" in 
-the sleep just hides the problem.  But then, I NEVER make a system 
-call without checking for errors....  And, I was making a LOT of sleep 
-calls and wanted to know which one(s) were wrong.
+> The biggest bootimage I'm using here is (SuSE 8.2b3 Inst. Kernel+initrd):
+> -r--r--r--    1 nobody   nogroup   6009856 Mar  6 10:07 bootimage-ziggy
+> created with mknbi-linux V1.2, so this isn't really the problem.
+> I'm also using ~4MB sized dos boot images (PQMagic, BIOS updates) without
+> problems. Don't try this with floppies...
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+> Etherboot is simply pure fun and saved my life a couple of timesm ;-)
+
+Hrm, as it turned out I had my scripts pointing to the netboot version
+of mknbi (I remember vaguely having troubles with the etherboot version
+back when I started netbooting) which seems to be somewhat limited.
+
+A short test with the 1.2 version of the etherboot mknbi-linux worked as
+expected, YAY! Now back to the try to boot a working 2.5 kernel. :)
+
+Thanks for your help!
+
+--=20
+Servus,
+       Daniel
+
+--=-wLJ48bSqAE8V6gyKJ6By
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+bQuQchlzsq9KoIYRAvhwAKCTMbyLM/gNB84W1oXHYqx9DD94PACfS6+U
+eBKW7k7YSC16sJt9+fksxPI=
+=kEqY
+-----END PGP SIGNATURE-----
+
+--=-wLJ48bSqAE8V6gyKJ6By--
 

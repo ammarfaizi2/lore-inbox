@@ -1,51 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264295AbUFGFy2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264297AbUFGGIG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264295AbUFGFy2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 01:54:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264306AbUFGFy1
+	id S264297AbUFGGIG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 02:08:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264296AbUFGGIG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 01:54:27 -0400
-Received: from miranda.se.axis.com ([193.13.178.2]:20935 "EHLO
-	miranda.se.axis.com") by vger.kernel.org with ESMTP id S264295AbUFGFy0 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 01:54:26 -0400
-From: "Mikael Starvik" <mikael.starvik@axis.com>
-To: "'Sam Ravnborg'" <sam@ravnborg.org>,
-       "'Mikael Starvik'" <mikael.starvik@axis.com>
-Cc: "'Jeff Garzik'" <jgarzik@pobox.com>, "'Andrew Morton'" <akpm@osdl.org>,
-       "'Linux Kernel'" <linux-kernel@vger.kernel.org>,
-       "'Bartlomiej Zolnierkiewicz'" <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: RE: [PATCH] CRIS architecture update
-Date: Mon, 7 Jun 2004 07:53:30 +0200
-Message-ID: <BFECAF9E178F144FAEF2BF4CE739C66818F49D@exmail1.se.axis.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-Importance: Normal
-In-Reply-To: <BFECAF9E178F144FAEF2BF4CE739C668D47C24@exmail1.se.axis.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Mon, 7 Jun 2004 02:08:06 -0400
+Received: from lakermmtao10.cox.net ([68.230.240.29]:63409 "EHLO
+	lakermmtao10.cox.net") by vger.kernel.org with ESMTP
+	id S264297AbUFGGIE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 02:08:04 -0400
+Subject: linux-abi dead?
+From: Steve Bergman <steve@rueb.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1086588439.8572.10.camel@ip68-12-228-23.ok.ok.cox.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 07 Jun 2004 01:07:19 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->The general rule is to locate drivers under drivers/, even the arch 
->specific ones. This allows for easier grepping after users of a
->given API etc.
+I just moved a server over to Fedora Core 2 (kernel 2.6.6) and
+discovered that there is a need to run an old SCO binary.
 
-Ok, if that is a general rule I can move them (but the patch will
-be large...). Generally we don't expect people to take attention 
-about CRIS when making changes but it is of course nice when it 
-happens.
+linux-abi.sf.net seems quite dead as a project.  Is there any comparable
+support for for foreign binaries in for the 2.6.x series?
 
->Smaller logical splitted patches, being sent out after each kernel release.
->This allows LKML readers to do peer review of changes to the IDE driver,
->without having to step over a lot of unrelated code.
+Since even the developer and user mailing lists of the linux-abi project
+seem quite dead, this seems an appropriate place to ask.
 
-Sure. More work for me but I'll also get more valuable feedback
-and that is important.
+Thanks,
+Steve Bergman
 
-/Mikael
+
 

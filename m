@@ -1,37 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272851AbSISUQN>; Thu, 19 Sep 2002 16:16:13 -0400
+	id <S272947AbSISUUV>; Thu, 19 Sep 2002 16:20:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272869AbSISUQN>; Thu, 19 Sep 2002 16:16:13 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:49935 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S272851AbSISUQM>; Thu, 19 Sep 2002 16:16:12 -0400
-Date: Thu, 19 Sep 2002 21:21:11 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] generic-pidhash-2.5.36-J2, BK-curr
-Message-ID: <20020919212111.A13366@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ingo Molnar <mingo@elte.hu>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0209190938340.1594-100000@home.transmeta.com> <Pine.LNX.4.44.0209192055480.14365-100000@localhost.localdomain>
-Mime-Version: 1.0
+	id <S272936AbSISUUV>; Thu, 19 Sep 2002 16:20:21 -0400
+Received: from zero.aec.at ([193.170.194.10]:32785 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id <S272935AbSISUUU>;
+	Thu, 19 Sep 2002 16:20:20 -0400
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: linux-kernel@vger.kernel.org, dank@kegel.com
+Subject: Re: Hardware limits on numbers of threads?
+References: <3D88208E.8545AAA2@kegel.com> <3D882500.2000105@redhat.com>
+From: Andi Kleen <ak@muc.de>
+Date: 19 Sep 2002 11:36:11 +0200
+In-Reply-To: <3D882500.2000105@redhat.com>
+Message-ID: <m3n0qe8gok.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0209192055480.14365-100000@localhost.localdomain>; from mingo@elte.hu on Thu, Sep 19, 2002 at 09:38:03PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 19, 2002 at 09:38:03PM +0200, Ingo Molnar wrote:
->  - add list_for_each_noprefetch() to list.h, for all those list users who 
->    know that in the majority of cases the list is going to be short.
+Ulrich Drepper <drepper@redhat.com> writes:
 
-That name is really ugly, as the lack ofthe prefetch is an implementation
-detail.  What about list_for_each_short or __list_for_each?
 
+> This was and is true with the kernel before 2.5.3<mumble> when Ingo
+> introduced TLS support since the thread specific data had to be
+> addressed via LDT entries and the LDT holds at most 8192 entries.  The
+> GDT based solution now implemented in the kernel has no such
+> limitation and the number of threads you can create with the new
+> thread library is only limited by system resources.
+
+It also was alwas incorrect for x86-64/64bit progreams, which do not 
+use a LDT entry for each thread.
+
+-Andi

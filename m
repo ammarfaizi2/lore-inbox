@@ -1,73 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289654AbSAOU0m>; Tue, 15 Jan 2002 15:26:42 -0500
+	id <S290273AbSAOU3K>; Tue, 15 Jan 2002 15:29:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289643AbSAOU0Z>; Tue, 15 Jan 2002 15:26:25 -0500
-Received: from 64-30-107-48.ftth.sac.winfirst.net ([64.30.107.48]:58630 "EHLO
-	leng.internal") by vger.kernel.org with ESMTP id <S289652AbSAOUZv>;
-	Tue, 15 Jan 2002 15:25:51 -0500
-Message-ID: <0bf101c19e03$8a32cc80$7e93a8c0@sac.unify.com>
-From: "Manuel McLure" <manuel@mclure.org>
-To: <root@chaos.analogic.com>
-Cc: "Linux Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.95.1020115143729.1338A-100000@chaos.analogic.com>
-Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
-Date: Tue, 15 Jan 2002 12:30:57 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S289646AbSAOU2p>; Tue, 15 Jan 2002 15:28:45 -0500
+Received: from willow.seitz.com ([207.106.55.140]:57868 "EHLO willow.seitz.com")
+	by vger.kernel.org with ESMTP id <S289643AbSAOU0x>;
+	Tue, 15 Jan 2002 15:26:53 -0500
+From: Ross Vandegrift <ross@willow.seitz.com>
+Date: Tue, 15 Jan 2002 15:26:43 -0500
+To: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: CML2-2.1.3 is available
+Message-ID: <20020115152643.A6846@willow.seitz.com>
+In-Reply-To: <20020115145324.A5772@thyrsus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020115145324.A5772@thyrsus.com>; from esr@thyrsus.com on Tue, Jan 15, 2002 at 02:53:24PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-To: "Marco Colombo" <marco@esi.it>
-Cc: "Linux Mailing List" <linux-kernel@vger.kernel.org>
-Sent: Tuesday, January 15, 2002 12:13 PM
-Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery --
-the elegant solution)
+> The interactive configurators remain stable; no bugs of any kind have been 
+> reported since 6 Jan.  I'm waiting on an update of the probe tables from
+> Giacomo Catenazzi before releasing 2.2.0.
 
+I tried CML2 (2.1.2) yesterday with Linux 2.4.17 and found that I couldn't turn
+on suppression ('S' didn't seem to toggle, only disable suppression, which was
+already off) and entering into a submenu marked FROZEN locked up the
+configurator.
 
-[SNIP]
-> The usr/src/linux/.config was the .config obtained off from Linus`
-> tree, not something provided by RedHat so `make oldconfig` would have
-> made a "standard kernel" like you download from ftp.kernel.org.
->
-> Now, looking in /usr/src/redhat/../.., I find some patches that are
-> impossible to use to patch the kernel to bring it up (or down) to
-> the configuration used to build the distribution. The default
-> configuration, before I "installed" the kernel sources was some
-> empty directories of /usr/src/redhat/BUILD, /usr/src/redhat/RPMS,
-> /usr/src/redhat/SOURCES, /usr/src/redhat/SPECS, and /usr/src/redhat/SRPMS.
-> Now there were some patches and other files with no scripts and no
-> way to actually use them to modify the kernel. I spent hours, putting
-> them in order, based upon the time/date stamp within the files, not
-> the file time which was something more or less random. I made a script
-> and tried, over a period of weeks, to patch the supplied kernel with
-> the supplied patches. Forget it. If anything in this universe is truly
-> impossible, then making a Red Hat distribution kernel from the provided
-> tools, patches, and sources is a definitive example.
->
-> Then, to add insult to injury, the 'C' compiler provided would
-> not create a bootable kernel. It was egcs-2.91.66. To make
-> a bootable kernel, I had to install gcc-2.96. The list goes on.
+It seems the second issue is related to the first; if I move off of the "Inter
+or Processor type (FROZEN)" selection, I'm not allowed to go back and select it.
+However, when just starting, it is the default selection.
 
-Use the RPM - all of the instructions on what patches go in what order are
-in the spec file. Or, you can simply copy the appropriate configuration file
-from /usr/src/redhat/SOURCES to /usr/src/linux/.config, and do a "make
-oldconfig; make dep; make clean; make install; make modules; make
-modules_install". Voila, new kernel. Don't tell me this doesn't work because
-I've done it myself.
+If I then press 'S' I get the "Suppression turned off" message, but still cannot
+move the selection back onto "Intel or Processor type (FROZEN)".  CTRL-C gets me
+back to a prompt, no other keys initiated a response.
 
---
-Manuel A. McLure KE6TAW | ...for in Ulthar, according to an ancient
-<manuel@mclure.org>     | and significant law, no man may kill a cat.
-<http://www.mclure.org> |             -- H.P. Lovecraft
+I'm using Python 2.0.1 with Slackware 8.
 
-
-
+Ross Vandegrift
+ross@willow.seitz.com

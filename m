@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130875AbRAaSs3>; Wed, 31 Jan 2001 13:48:29 -0500
+	id <S130512AbRAaSti>; Wed, 31 Jan 2001 13:49:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130936AbRAaSsS>; Wed, 31 Jan 2001 13:48:18 -0500
-Received: from cold.fortyoz.org ([64.40.111.214]:11790 "HELO cold.fortyoz.org")
-	by vger.kernel.org with SMTP id <S130875AbRAaSsO>;
-	Wed, 31 Jan 2001 13:48:14 -0500
-Date: Wed, 31 Jan 2001 10:48:43 -0800
-From: David Raufeisen <david@fortyoz.org>
-To: linux-kernel@vger.kernel.org
-Subject: procps stop working randomly (2.4.1)
-Message-ID: <20010131104843.B13445@fortyoz.org>
-Reply-To: David Raufeisen <david@fortyoz.org>
+	id <S130521AbRAaSt2>; Wed, 31 Jan 2001 13:49:28 -0500
+Received: from 4dyn210.com21.casema.net ([212.64.95.210]:58638 "HELO
+	home.ds9a.nl") by vger.kernel.org with SMTP id <S130512AbRAaStQ>;
+	Wed, 31 Jan 2001 13:49:16 -0500
+Date: Wed, 31 Jan 2001 19:48:57 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: Nathan Black <NBlack@md.aacisd.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: how to use and get raw devices
+Message-ID: <20010131194856.A22586@home.ds9a.nl>
+Mail-Followup-To: Nathan Black <NBlack@md.aacisd.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <8FED3D71D1D2D411992A009027711D671880@md>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-X-Operating-System: Linux 2.2.17 i686
+X-Mailer: Mutt 1.0pre4i
+In-Reply-To: <8FED3D71D1D2D411992A009027711D671880@md>; from NBlack@md.aacisd.com on Wed, Jan 31, 2001 at 01:29:05PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Jan 31, 2001 at 01:29:05PM -0500, Nathan Black wrote:
 
-Never seen this before but this morning 'ps' and the like randomly stopped
-working..
+> That is what I wanted to do...Write directly to the disk. But the
+> kernel(2.4.1) is caching the io...
 
-david@prototype:~$ ps aux
-USER       PID %CPU %MEM   VSZ  RSS TTY      STAT START   TIME COMMAND
-david@prototype:~$ 
-david@prototype:~$ uname -a
-Linux prototype 2.4.1 #1 Tue Jan 30 01:45:38 PST 2001 i686 unknown
-david@prototype:~$ uptime
- 10:46am  up  7:25,  4 users,  load average: 0.02, 0.14, 0.09
+Is it caching when you do O_SYNC? 
 
-But if I wait for a little bit and run it again it works, then stops working..
-and so on.
+> try opening with O_SYNC, or call fsync() every once in a while. Otherwise,
+> this sounds like an application for a raw device, whereby you can write
+> directly to the disk, with no caching in between.
 
-Linux prototype 2.4.1 #1 Tue Jan 30 01:45:38 PST 2001 i686 unknown
-Kernel modules         2.4.1
-Gnu C                  2.95.3
-Gnu Make               3.79.1
-Binutils               2.10.1.0.2
-Linux C Library        2.2.1
-Dynamic linker         ldd (GNU libc) 2.2.1
-Procps                 2.0.7
-Mount                  2.10q
-Net-tools              2.05
-Console-tools          0.2.3
-Sh-utils               2.0.11
-Modules Loaded         NVdriver
+A raw device is something different than just /dev/sda1 - a raw device is
+created with the 'raw' utility and is assigned /dev/raw or /dev/raw1. This
+utility, and some documentation can be found on
+
+     ftp://ftp.linux.org.uk/pub/linux/sct/fs/raw-io/raw-19990728.tar.gz
+
+AFAIK you don't need any patches anymore if you run 2.4 or a recent 2.3.
+
+Regards,
+
+bert hubert
 
 -- 
-David Raufeisen <david@fortyoz.org>
-Cell: (604) 818-3596
+PowerDNS                     Versatile DNS Services  
+Trilab                       The Technology People   
+'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

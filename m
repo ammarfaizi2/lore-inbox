@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271869AbRHUVu6>; Tue, 21 Aug 2001 17:50:58 -0400
+	id <S271868AbRHUVu6>; Tue, 21 Aug 2001 17:50:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271871AbRHUVui>; Tue, 21 Aug 2001 17:50:38 -0400
-Received: from sproxy.gmx.net ([213.165.64.20]:33527 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S271870AbRHUVuf>;
-	Tue, 21 Aug 2001 17:50:35 -0400
-Message-ID: <3B82D7B6.F79819B7@gmx.at>
-Date: Tue, 21 Aug 2001 23:50:46 +0200
-From: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7-ac3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] repeatable 2.4.8-ac7, 2.4.7-ac6 [I] just run xdos
-In-Reply-To: <Pine.LNX.4.33.0108191600580.10914-100000@boston.corp.fedex.com>
-			<m166bjokre.fsf@frodo.biederman.org>
-			<20010819214322.D1315@squish.home.loc>
-			<m1snenmfe0.fsf@frodo.biederman.org>
-			<20010820211410.B218@squish.home.loc>
-			<m1g0amlzcm.fsf@frodo.biederman.org> <3B828898.BD98D4C4@gmx.at> <m1ae0tmll8.fsf@frodo.biederman.org> <3B82AD39.1268A6F0@gmx.at>
-Content-Type: text/plain; charset=us-ascii
+	id <S271870AbRHUVui>; Tue, 21 Aug 2001 17:50:38 -0400
+Received: from granger.mail.mindspring.net ([207.69.200.148]:55046 "EHLO
+	granger.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S271869AbRHUVua>; Tue, 21 Aug 2001 17:50:30 -0400
+Subject: Re: Entropy from net devices - keyboard & IDE just as 'bad' [was
+	Re: [PATCH] let Net Devices feed Entropy, updated (1/2)]
+From: Robert Love <rml@tech9.net>
+To: David Wagner <daw@mozart.cs.berkeley.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <9lu9ag$n5v$6@abraham.cs.berkeley.edu>
+In-Reply-To: <NOEJJDACGOHCKNCOGFOMCEDNDFAA.davids@webmaster.com>
+	<606175155.998387452@[169.254.45.213]> 
+	<9lu9ag$n5v$6@abraham.cs.berkeley.edu>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12.99+cvs.2001.08.20.07.08 (Preview Release)
+Date: 21 Aug 2001 17:50:41 -0400
+Message-Id: <998430650.4293.33.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wilfried Weissmann wrote:
+On Tue, 2001-08-21 at 14:29, David Wagner wrote:
+> Alex Bligh - linux-kernel  wrote:
+> >For clarity, I'm saying Robert's patch is GOOD, and those who are trying
+> >to point out what I consider to be extremely theoretical weakness it
+> >introduces into /dev/random (and then, only when config'd on), [...]
 > 
-> "Eric W. Biederman" wrote:
-> >
-> > Wilfried Weissmann <Wilfried.Weissmann@gmx.at> writes:
-> > >
-> > > I have the same problem on a K7-800. My kernel is 2.4.7-ac3 (with K7
-> > > optimization!). Everything else seems to work fine, but dosemu locks up
-> > > the computer when running certain games.
-> > > Sometimes I can play for quite some time (1/2 hour or more) without
-> > > problems. Eventually it will freeze. It feels like it is triggered by
-> > > mouse activity.
-> >
-> > Hmm.  There are some similiar conditions.  And it may be the same bug.
-> >
-> > Is your dosemu not suid root?  And running in X when you are playing those
-> > games?  You don't have any ports lines in your dosemu.conf?
-> >
-> > It is very important to rule out dosemu doing direct hardware access, before investigating
-> > something else like the kernel.
-> 
-> I set $_videoportaccess = (0)
-> This should not change anything since $_graphics=(0) too. However I
-> experienced no more crashes. (???)
+> That's one place where we disagree.  Over-estimating entropy is not a
+> theoretical weakness: this is something that real cryptographers get real
+> worried about.  It's one of the easiest ways for a crypto system to fail.
 
-argh! I take it back. It just crashed again. There are no port entries
-and the setuid bit of the executable is not set.
-It is quite hard to reproduce. ... takes some hours of intense testing
-;)
+Entirely agreed, but that is why we have SHA-1.  If we assume SHA-1 is
+not crackable, then the entropy estimate is actually worthless.  It
+exists because of the theoretical possibility of learning some state of
+the pool from a given read.
 
-Wilfried
+In theory, we dont need both SHA-1 hash and the entropy count.  They
+exist to pacify a theoretical weakness in each.
+
+Now, my net device patch should only be enabled in situations where both
+you trust SHA-1 (and I think most do) and you trust that reading net
+devices yields the full amount of entropy.
+
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
+

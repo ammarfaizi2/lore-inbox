@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317315AbSGTBtZ>; Fri, 19 Jul 2002 21:49:25 -0400
+	id <S317269AbSGTBpl>; Fri, 19 Jul 2002 21:45:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317312AbSGTBtZ>; Fri, 19 Jul 2002 21:49:25 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:3341 "EHLO probity.mcc.ac.uk")
-	by vger.kernel.org with ESMTP id <S317308AbSGTBtZ>;
-	Fri, 19 Jul 2002 21:49:25 -0400
-Date: Sat, 20 Jul 2002 02:52:16 +0100
-From: John Levon <movement@marcelothewonderpenguin.com>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: linux-kernel@vger.kernel.org
+	id <S317308AbSGTBpl>; Fri, 19 Jul 2002 21:45:41 -0400
+Received: from p50887F04.dip.t-dialin.net ([80.136.127.4]:23435 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S317269AbSGTBpk>; Fri, 19 Jul 2002 21:45:40 -0400
+Date: Fri, 19 Jul 2002 19:48:31 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: John Levon <movement@marcelothewonderpenguin.com>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: kbuild - building a module/target from multiple directories
-Message-ID: <20020720015215.GA43258@compsoc.man.ac.uk>
-References: <20020720002521.GA34954@compsoc.man.ac.uk> <Pine.LNX.4.44.0207192019230.1639-100000@chaos.physics.uiowa.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0207192019230.1639-100000@chaos.physics.uiowa.edu>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Boards of Canada - Geogaddi
-X-Scanner: exiscan *17VjPx-000B99-00*Kj1Q6FHH.0U* (Manchester Computing, University of Manchester)
+In-Reply-To: <20020720012250.GA41640@compsoc.man.ac.uk>
+Message-ID: <Pine.LNX.4.44.0207191947350.3378-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 19, 2002 at 08:23:36PM -0500, Kai Germaschewski wrote:
+Hi,
 
-> > With kbuild in 2.5, how do I specify that a module/target is to be built of
-> > object files and sub-directories ?
-> 
-> Short answer: Don't.
+On Sat, 20 Jul 2002, John Levon wrote:
+> It won't descend to blahstuff/ directory then
 
-Why not ? Simply because kbuild can't handle it nicely ?
+This was not the complete solution then. Of course you still have to 
+descend into blahstuff this way, but you compile all the blahstuff 
+together into blahstuff.o, then include that from the upper directory.
 
-> 	blah-objs := blah_init.o blahstuff/blah1.o blahstuff/blah2.o ...
-
-Hmmm, that "works" I suppose
-
-thanks
-john
-
+							Regards,
+							Thunder
 -- 
-"Of all manifestations of power, restraint impresses the most."
-	- Thucydides
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
+

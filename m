@@ -1,32 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271582AbRHPQNw>; Thu, 16 Aug 2001 12:13:52 -0400
+	id <S271450AbRHPQSw>; Thu, 16 Aug 2001 12:18:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271584AbRHPQNn>; Thu, 16 Aug 2001 12:13:43 -0400
-Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:38416 "EHLO
-	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
-	id <S271582AbRHPQNg>; Thu, 16 Aug 2001 12:13:36 -0400
-Date: Thu, 16 Aug 2001 16:13:47 +0000 (GMT)
-From: Mark Hahn <hahn@physics.mcmaster.ca>
-To: Eduardo =?iso-8859-1?q?Cort=E9s=20?= <the_beast@softhome.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Re: limit cpu
-In-Reply-To: <20010816160817Z268342-761+1804@vger.kernel.org>
-Message-ID: <Pine.LNX.4.10.10108161610150.19342-100000@coffee.psychology.mcmaster.ca>
+	id <S271585AbRHPQSm>; Thu, 16 Aug 2001 12:18:42 -0400
+Received: from mail.san.yahoo.com ([209.132.1.30]:19235 "EHLO
+	mail.san.yahoo.com") by vger.kernel.org with ESMTP
+	id <S271450AbRHPQS1>; Thu, 16 Aug 2001 12:18:27 -0400
+From: Tina Gasperson <tinahdee@tampabay.rr.com>
+Date: Thu, 16 Aug 2001 12:17:37 -0400
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="us-ascii"
+Cc: linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org')
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, kellym@fb00.fb.org (Kelly Martin)
+In-Reply-To: <E15XPin-0005Vm-00@the-village.bc.nu>
+In-Reply-To: <E15XPin-0005Vm-00@the-village.bc.nu>
+Subject: Re: Spammer using linux kernel archives
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01081612173704.00840@tampabay.rr.com>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > i want to know if linux can limit the max cpu usage (not cpu time) per
-> > > user,
-> >
-> > no.  doing so would inherently slow down the scheduler.
-> 
-> but *BSD has this feature, what's the problem in linux?
 
-I said that, thinking that it would require another test along
-the scheduler's fast path.  but if we only test when a process
-has exhausted its quantum (or perhaps at counter-recalc),
-the overhead would be minor.
+No wonder you don't have 30 minutes to donate to a poor Linux Users Group! 
+Spending all your free time tormenting people!
 
+;)
+Tina G
+
+>
+> It seems to be common unfortunately. I nowdays tell them about ideal
+> candidates and give them each others details. Hours of fun for the wicked
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

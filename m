@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318849AbSH1Nuy>; Wed, 28 Aug 2002 09:50:54 -0400
+	id <S318786AbSH1NyW>; Wed, 28 Aug 2002 09:54:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318850AbSH1Nuy>; Wed, 28 Aug 2002 09:50:54 -0400
-Received: from hq.fsmlabs.com ([209.155.42.197]:1966 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S318849AbSH1Nuy>;
-	Wed, 28 Aug 2002 09:50:54 -0400
-Date: Wed, 28 Aug 2002 07:53:19 -0600
-From: yodaiken@fsmlabs.com
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: yodaiken@fsmlabs.com, Mark Hounschell <markh@compro.net>,
-       "Wessler, Siegfried" <Siegfried.Wessler@de.hbm.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: interrupt latency
-Message-ID: <20020828075319.A24146@hq.fsmlabs.com>
-References: <20020827145631.B877@hq.fsmlabs.com> <Pine.LNX.3.95.1020828080308.14759A-101000@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.3.95.1020828080308.14759A-101000@chaos.analogic.com>; from root@chaos.analogic.com on Wed, Aug 28, 2002 at 08:18:25AM -0400
-Organization: FSM Labs
+	id <S318838AbSH1NyW>; Wed, 28 Aug 2002 09:54:22 -0400
+Received: from h66-38-216-165.gtconnect.net ([66.38.216.165]:31494 "HELO
+	innerfire.net") by vger.kernel.org with SMTP id <S318786AbSH1NyV>;
+	Wed, 28 Aug 2002 09:54:21 -0400
+Date: Wed, 28 Aug 2002 09:58:42 -0400 (EDT)
+From: Gerhard Mack <gmack@innerfire.net>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: Mikael Pettersson <mikpe@csd.uu.se>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.32 doesn't beep?
+In-Reply-To: <20020828150522.A13090@ucw.cz>
+Message-ID: <Pine.LNX.4.44.0208280957530.14061-100000@innerfire.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 28, 2002 at 08:18:25AM -0400, Richard B. Johnson wrote:
-> No, no, no. There is no such port read that takes 18 microseconds, even
-> on old '386 machines with real ISR slots. A port read on those took
-> almost exactly 300 nanoseconds and, in fact, was the limiting factor
-> for the programmed I/O devices on the ISA bus.
+On Wed, 28 Aug 2002, Vojtech Pavlik wrote:
 
-Amazing how they can do that with a bus clock that is much slower -)
+> 2.5.32 still has quite complex input core config options - sorry, my
+> fault, and I'll fix it soon. You have to enable CONFIG_INPUT_MISC and
+> CONFIG_INPUT_PCSPKR.
+
+That begs the question:
+How do I input using the PC speaker ?
 
 
+--
+Gerhard Mack
 
--- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.
 

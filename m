@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281461AbRLAGMl>; Sat, 1 Dec 2001 01:12:41 -0500
+	id <S283968AbRLAGRW>; Sat, 1 Dec 2001 01:17:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281470AbRLAGMa>; Sat, 1 Dec 2001 01:12:30 -0500
-Received: from dsl-213-023-038-163.arcor-ip.net ([213.23.38.163]:2057 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S281461AbRLAGMN>;
-	Sat, 1 Dec 2001 01:12:13 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Victor Yodaiken <yodaiken@fsmlabs.com>
-Subject: Re: Coding style - a non-issue
-Date: Sat, 1 Dec 2001 07:13:55 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Rik van Riel <riel@conectiva.com.br>, Andrew Morton <akpm@zip.com.au>,
-        Larry McVoy <lm@bitmover.com>,
-        Henning Schmiedehausen <hps@intermeta.de>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0111302048200.1459-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0111302048200.1459-100000@penguin.transmeta.com>
+	id <S283947AbRLAGRL>; Sat, 1 Dec 2001 01:17:11 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:6159 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S281470AbRLAGRI>; Sat, 1 Dec 2001 01:17:08 -0500
+Message-ID: <3C0875DA.A54BC89E@zip.com.au>
+Date: Fri, 30 Nov 2001 22:16:58 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16A3PR-0000mS-00@starship.berlin>
+To: war <war@starband.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Is it normal for freezing while...
+In-Reply-To: <3C085B04.50ABE0B5@starband.net> <3C0867A3.5119D2BC@zip.com.au> <3C087023.9683B8AF@starband.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 1, 2001 06:15 am, Linus Torvalds wrote:
-> On Fri, 30 Nov 2001, Victor Yodaiken wrote:
-> > Here's a characteristic good Linux design method ,( or call it "less than 
-> > random mutation method" if that makes you feel happy): read the 
-> > literature, think hard, try something, implement
+war wrote:
 > 
-> Hah.
-> 
-> I don't think I've seen very many examples of that particular design
-> methodology.
+> Wow, responsiveness is wonderful with these patches.
 
-I do it a little differently: think hard, try something, implement, read the 
-literature, repeat as necessary.
+yup.  Thanks for testing...
 
---
-Daniel
+> Will they make it into 2.4.17, (ie: I've seen the -pre2 changelog, did
+> you incorporate them into -pre2)?
+> Even throughout the entire dd, it remained responsive
+> (mouse/cursor/network/etc).
+
+Well, this is a stable kernel, and the patch does adversely
+affect overall throughput.
+
+There are two changes to the elevator in that patch.  One
+is a modest speedup for all workloads which, frankly, I'm
+inclined to drop.   The other is the part which gives the
+improved responsiveness.
+
+Being a cautious chap, I think I'll submit that patch, with
+the default setting to "off", so there is no change to default
+kernel behaviour.   Then people can run `elvtune -b' to enable it.
+
+-

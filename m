@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319677AbSH3Vd6>; Fri, 30 Aug 2002 17:33:58 -0400
+	id <S319685AbSH3Vi1>; Fri, 30 Aug 2002 17:38:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319678AbSH3Vd6>; Fri, 30 Aug 2002 17:33:58 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:39691 "EHLO
+	id <S319675AbSH3Vgu>; Fri, 30 Aug 2002 17:36:50 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:46603 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S319677AbSH3Vd5>; Fri, 30 Aug 2002 17:33:57 -0400
-Date: Fri, 30 Aug 2002 22:38:21 +0100
+	id <S319667AbSH3VfW>; Fri, 30 Aug 2002 17:35:22 -0400
+To: James Simmons <jsimmons@transvirtual.com>
+CC: LKML <linux-kernel@vger.kernel.org>
 From: Russell King <rmk@arm.linux.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Patches...
-Message-ID: <20020830223821.G3555@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Subject: [PATCH] 2.5.29-keyboard
+Message-Id: <E17ktTu-00034p-00@flint.arm.linux.org.uk>
+Date: Fri, 30 Aug 2002 22:39:06 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm about to send out 8 patches:
+This patch appears not to be in 2.5.32, but applies cleanly.
 
- --- 2.5.29-keyboard
- --- 2.5.29-pci
- --- 2.5.29-rdunzip
- --- 2.5.30-pcnet_cs
- --- 2.5.31-serport
- --- 2.5.32-bug
- --- 2.5.32-flags
- --- 2.5.32-smph
+Some ARM-based machines have an extra key (#) on their numeric keypad
+that produces the ESC [ S or ESC O S escape sequences.  This patch adds
+Linux support for the key.
 
-These are patches that are in the ARM tree, and I consider them to
-be useful to others, bug fixes or compilation fixes that have been
-collected.  All the above have been found not to be in 2.5.32.
+ drivers/char/keyboard.c |    4 ++--
+ 1 files changed, 2 insertions, 2 deletions
 
-Where applicable, they're copied to maintainers or Rusty's trivial
-patch address.  However, if people want to pick off any of these
-patches and integrate them into their trees, and eventually push
-them towards Linus, that's fine by me.
-
-Any that aren't picked up will be re-mailed at some point in the
-future (seems like its about once every 3 weeks to a month at the
-moment.)
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+diff -urN orig/drivers/char/keyboard.c linux/drivers/char/keyboard.c
+--- orig/drivers/char/keyboard.c	Wed Jul 17 15:10:39 2002
++++ linux/drivers/char/keyboard.c	Wed Jul 17 15:14:57 2002
+@@ -552,8 +552,8 @@
+ 
+ static void k_pad(struct vc_data *vc, unsigned char value, char up_flag)
+ {
+-	static const char *pad_chars = "0123456789+-*/\015,.?()";
+-	static const char *app_map = "pqrstuvwxylSRQMnnmPQ";
++	static const char *pad_chars = "0123456789+-*/\015,.?()#";
++	static const char *app_map = "pqrstuvwxylSRQMnnmPQS";
+ 
+ 	if (up_flag)
+ 		return;		/* no action, if this is a key release */
 

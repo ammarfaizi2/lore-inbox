@@ -1,42 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261590AbULFSt1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261608AbULFSur@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261590AbULFSt1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 13:49:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbULFSt0
+	id S261608AbULFSur (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 13:50:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbULFSto
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 13:49:26 -0500
-Received: from smtp.mailbox.co.uk ([195.82.125.32]:7644 "EHLO
-	smtp.mailbox.co.uk") by vger.kernel.org with ESMTP id S261590AbULFStS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 13:49:18 -0500
-Message-ID: <41B4A9A6.3050107@jonmasters.org>
-Date: Mon, 06 Dec 2004 18:49:10 +0000
-From: Jon Masters <jonathan@jonmasters.org>
-Organization: World Organi[sz]ation Of Broken Dreams
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: krishna <krishna.c@globaledgesoft.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: How to understand flow of kernel code
-References: <41B46B18.5030707@globaledgesoft.com>
-In-Reply-To: <41B46B18.5030707@globaledgesoft.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-MailScanner: Found to be clean
+	Mon, 6 Dec 2004 13:49:44 -0500
+Received: from fed1rmmtao10.cox.net ([68.230.241.29]:52105 "EHLO
+	fed1rmmtao10.cox.net") by vger.kernel.org with ESMTP
+	id S261608AbULFStX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 13:49:23 -0500
+Date: Mon, 6 Dec 2004 11:49:21 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Christian Kujau <evil@g-house.de>
+Cc: sheutlin@gmx.de, linuxppc-dev@ozlabs.org,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Sven Hartge <hartge@ds9.argh.org>
+Subject: Re: [PATCH] linux 2.6 not^Wnow working with PReP (ppc32)
+Message-ID: <20041206184921.GD7153@smtp.west.cox.net>
+References: <41B23DF2.4010303@g-house.de> <1102207299.6778.16.camel@weizen.left.earth> <41B36845.4080004@g-house.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="17pEHd4RhPHOinZp"
+Content-Disposition: inline
+In-Reply-To: <41B36845.4080004@g-house.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-krishna wrote:
 
-> Thank you. I am able to use UML.
+--17pEHd4RhPHOinZp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This needs to be advocated more profusely as a experimentation mechanism 
-suitable for people just wanting to have an overview initially.
+On Sun, Dec 05, 2004 at 08:57:57PM +0100, Christian Kujau wrote:
 
-Sure, it's not great for figuring out the lower level stuff, but it 
-shines if you want to pick apart the overall VM or sched stuff.
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>=20
+> whoops! a bit too early, i had to change 3 lines, not one.
+>=20
+>=20
+> Signed-off-by: Christian Kujau <evil@g-house.de>
+>=20
+>=20
+> (new patch attached; credits should go to Sebastian Heutling aka
+> sheutlin@gmx.de)
 
-Cheers,
+This doesn't cause anything bad to happen on mine (and it shouldn't,
+being a Blackhawk and all :)), so I'll send this on.  Thanks.
 
-Jon.
+--=20
+Tom Rini
+http://gate.crashing.org/~trini/
+
+--17pEHd4RhPHOinZp
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBtKmwdZngf2G4WwMRAgYrAJwNYjolVuBg7dEQMK33ZrKgeZqKCgCfX9E+
+qlXOs3T55KI2IVZMGk3ghJE=
+=mluE
+-----END PGP SIGNATURE-----
+
+--17pEHd4RhPHOinZp--

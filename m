@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310436AbSCTBQI>; Tue, 19 Mar 2002 20:16:08 -0500
+	id <S310979AbSCTBeE>; Tue, 19 Mar 2002 20:34:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310963AbSCTBP6>; Tue, 19 Mar 2002 20:15:58 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:23044 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310436AbSCTBPq>; Tue, 19 Mar 2002 20:15:46 -0500
-Subject: Re: Filesystem Corruption (ext2) on Tyan S2462, 2xAMD1900MP, 2.4.17SMP (RH7.2)
-To: ken@irridia.com (Ken Brownfield)
-Date: Wed, 20 Mar 2002 01:31:46 +0000 (GMT)
+	id <S310989AbSCTBdy>; Tue, 19 Mar 2002 20:33:54 -0500
+Received: from asooo.flowerfire.com ([63.254.226.247]:1222 "EHLO
+	asooo.flowerfire.com") by vger.kernel.org with ESMTP
+	id <S310979AbSCTBdq>; Tue, 19 Mar 2002 20:33:46 -0500
+Date: Tue, 19 Mar 2002 19:33:33 -0600
+From: Ken Brownfield <ken@irridia.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: m.knoblauch@TeraPort.de,
-        linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
-In-Reply-To: <20020319190211.B15811@asooo.flowerfire.com> from "Ken Brownfield" at Mar 19, 2002 07:02:11 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Filesystem Corruption (ext2) on Tyan S2462, 2xAMD1900MP, 2.4.17SMP (RH7.2)
+Message-ID: <20020319193333.C15811@asooo.flowerfire.com>
+In-Reply-To: <20020319190211.B15811@asooo.flowerfire.com> <E16nUx8-0000w4-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16nUx8-0000w4-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> We're seeing this with Tyan 2410s and Seagate drives.  I think Tyan just
-> can't get DMA right.  Luckily we mainly lost docs or man pages before we
-> disabled DMA, although losing the rpm database sucked.  MDMA2 seems okay
-> but we haven't tested it long enough to form a lasting impression.
-> I'm actually patching the ServerWorks driver to honor the CONFIG flag,
-> since even with hdparm there is a narrow risk to the fs during the boot
-> process before DMA is disabled.
+On Wed, Mar 20, 2002 at 01:31:46AM +0000, Alan Cox wrote:
+| I can confirm problems with serverworks OSB4 and UDMA. With UDMA and
+[...]
 
-I can confirm problems with serverworks OSB4 and UDMA. With UDMA and
-a seagate disk you see 4 bytes repeat from one transfer into the next
-shuffling all the data up 4 bytes (which since it includes inode and
-metadata is *messy*). Current 2.4 has detect code that sometimes traps this
-and panics to avoid fs death.
+Thanks.  This also points out that I mistakenly said DMA rather than
+UDMA.  Someone else mentioned to me that MDMA worked for them as well.
+It would have been "fine" if the serverworks driver didn't leave UDMA on
+when it's off by default in the CONFIG.  At least then you would be
+making the choice to specifically enable UDMA at your own risk...
 
-With MWDMA all was fine.
+| This was observed across a large number of boxes in a rendering farm so its
+| not a one off flawed box, and across two board vendors. I reported it to
+| serverworks who were interested but couldnt reproduce it in their lab.
 
-This was observed across a large number of boxes in a rendering farm so its
-not a one off flawed box, and across two board vendors. I reported it to
-serverworks who were interested but couldnt reproduce it in their lab.
+Quite possible.  I'm only seeing this on ServerWorks mobos with IDE as
+primary (vs SCSI).  I heard third-hand via a FreeBSD post that it's an
+OSB4 issue effecting them as well.  Are Seagates a requirement for the
+issues?
+
+As to whether they can reproduce it... I'm not holding my breath for
+them to try.
+
+Thanks much for the info,
+-- 
+Ken.
+ken@irridia.com

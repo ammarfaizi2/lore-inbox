@@ -1,66 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263803AbTKANRA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Nov 2003 08:17:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263816AbTKANRA
+	id S261722AbTKANmH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Nov 2003 08:42:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263816AbTKANmH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Nov 2003 08:17:00 -0500
-Received: from open.nlnetlabs.nl ([213.154.224.1]:64522 "EHLO
-	open.nlnetlabs.nl") by vger.kernel.org with ESMTP id S263803AbTKANQ6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Nov 2003 08:16:58 -0500
-Date: Sat, 1 Nov 2003 14:17:33 +0100
-From: Miek Gieben <miekg@atoom.net>
+	Sat, 1 Nov 2003 08:42:07 -0500
+Received: from ns.tasking.nl ([195.193.207.2]:21009 "EHLO ns.tasking.nl")
+	by vger.kernel.org with ESMTP id S261722AbTKANmF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Nov 2003 08:42:05 -0500
 To: linux-kernel@vger.kernel.org
-Subject: hard lockup with 2.6.0-test[789]
-Message-ID: <20031101131733.GA4597@atoom.net>
 Mime-Version: 1.0
+X-Newsreader: knews 1.0b.1
+Reply-To: dick.streefland@xs4all.nl (Dick Streefland)
+Organization: none
+X-Face: "`*@3nW;mP[=Z(!`?W;}cn~3M5O_/vMjX&Pe!o7y?xi@;wnA&Tvx&kjv'N\P&&5Xqf{2CaT 9HXfUFg}Y/TT^?G1j26Qr[TZY%v-1A<3?zpTYD5E759Q?lEoR*U1oj[.9\yg_o.~O.$wj:t(B+Q_?D XX57?U,#b,iM$[zX'I(!'VCQM)N)x~knSj>M*@l}y9(tK\rYwdv%~+&*jV"epphm>|q~?ys:g:K#R" 2PuAzy-N9cKM<Ml/%yPQxpq"Ttm{GzBn-*:;619QM2HLuRX4]~361+,[uFp6f"JF5R`y
+References: <1067654148.19557.409.camel@up>
+From: spam@streefland.xs4all.nl (Dick Streefland)
+Subject: Re: md wierdness with 2.6.0test9
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Vim/Mutt/Linux
-X-Home: www.miek.nl
+NNTP-Posting-Host: 172.17.1.66
+Message-ID: <281b.3fa3b808.d7ab2@altium.nl>
+Date: Sat, 01 Nov 2003 13:41:29 -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Brad Langhorst <brad@langhorst.com> wrote:
+| array syncs up but i see this wierdness (it exists across reboots)
+| from mdadm --details /dev/md0
+| 
+| Number 	Major 	Minor 	RaidDevice	State
+| 0	22	1	0		active sync /dev/hdc1
+| 1	0	0	-1		removed
+| 2	3	1	1		spare /dev/hda1
+| 
+| rebooting to a 2.4 series kernel appears to fix this problem...
 
-i'm experiencing hard lockups with the 2.6 kernel running on my firewall.
+Mmm, this looks familiar to me. See my email to linux-raid:
 
-The machine:
-pentium II, 
-192 MB memory - did not run memtest though
-uses reiserfs as / fs
+  http://www.spinics.net/lists/raid/msg03610.html
 
-replaced harddisk - old one had bad blocks
-current harddisk: 4.3 maxtor
+The patch in one of the replies fixed the problem for me.
+However, this patch hasn't been included in Linus' kernel yet.
 
-2.4.22 ran ok - no problem
-2.6.0-test6 - ok	( haven't fully tested this though)
-      test7 - crash
-      test8 - crash
-      test9 - crash
+-- 
+Dick Streefland                    ////               De Bilt
+dick.streefland@xs4all.nl         (@ @)       The Netherlands
+------------------------------oOO--(_)--OOo------------------
 
-Problem:
-crash after a warm reboot. Turning the machine off and then booting
-it seems to make it run ok. But not always...
-
-There is no oops, no nothing. The only thing I can do is reset the machine.
-The role of the machine is to act as firewall.
-
-It crashes after the boot - everything goes ok, until the prompt. Then
-after a few seconds: a hard lock.
-
-If it does _not_ crash (i've run crashme on the test9 once) it keeps going for
-days and even longer (usally it runs until I update the kernel)
-
-Right now i've switched / to another partition using ext3. It _looks_ like it
-doesn't crash anymore, so my suspicion is that it is reiserfs related, but i'm
-only guessing here.
-
-My server also has a reiserfs partition (though not as /) and it has no problems
-with it...
-
-What can I do to find the cause of it? I've already disabled dma but that seems
-to make no difference. 
-
-grtz Miek

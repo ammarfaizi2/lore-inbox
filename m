@@ -1,52 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266573AbRGGV36>; Sat, 7 Jul 2001 17:29:58 -0400
+	id <S266578AbRGGVbi>; Sat, 7 Jul 2001 17:31:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266586AbRGGV3s>; Sat, 7 Jul 2001 17:29:48 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:38150 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S266573AbRGGV3d>; Sat, 7 Jul 2001 17:29:33 -0400
-Date: Sat, 7 Jul 2001 18:29:30 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Daniel Phillips <phillips@bonn-fries.net>
-Subject: Re: VM in 2.4.7-pre hurts...
-In-Reply-To: <E15Iza0-0006GJ-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33L.0107071828500.1389-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266580AbRGGVb2>; Sat, 7 Jul 2001 17:31:28 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:59655 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S266578AbRGGVbN>;
+	Sat, 7 Jul 2001 17:31:13 -0400
+Date: Sat, 7 Jul 2001 23:31:08 +0200
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Eugene Crosser <crosser@average.org>, linux-kernel@vger.kernel.org
+Subject: Re: [Acpi] Re: ACPI fundamental locking problems
+Message-ID: <20010707233108.B10109@pcep-jamie.cern.ch>
+In-Reply-To: <Pine.GSO.4.21.0107070727030.24836-100000@weyl.math.psu.edu> <9i73bg$psv$1@pccross.average.org> <3B471399.1D6BBED6@mandrakesoft.com> <01070719241107.22952@starship>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <01070719241107.22952@starship>; from phillips@bonn-fries.net on Sat, Jul 07, 2001 at 07:24:11PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 Jul 2001, Alan Cox wrote:
+Daniel Phillips wrote:
+> > Reading a tarball is the distillation of what you describe into
+> > efficient form :)
+> 
+> /me downloads tar file definition
+> 
+> Um, gnu tar or posix tar? or some new, improved tar?
 
-> > instead. That way the vmstat output might be more useful, although vmstat
-> > obviously won't know about the new "SwapCache:" field..
-> >
-> > Can you try that, and see if something else stands out once the misleading
-> > accounting is taken care of?
->
-> Its certainly misleading. I got Jeff to try making oom return
-> 4999 out of 5000 times regardless.
+I suggest cpio, which is more compact and in some ways more standard.
+(tar has a silly pad-to-multiple-of-512-byte per file rule, which is
+inappropriate for this).  GNU cpio creates cpio format just fine.
 
-In that case, he _is_ OOM.  ;)
-
-1) (almost) no free memory
-2) no free swap
-3) very little pagecache + buffer cache
-
-regards,
-
-Rik
---
-Executive summary of a recent Microsoft press release:
-   "we are concerned about the GNU General Public License (GPL)"
-
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
+-- Jamie

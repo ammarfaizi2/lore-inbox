@@ -1,88 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129525AbQLDE23>; Sun, 3 Dec 2000 23:28:29 -0500
+	id <S130010AbQLDEa3>; Sun, 3 Dec 2000 23:30:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129710AbQLDE2U>; Sun, 3 Dec 2000 23:28:20 -0500
-Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:24252 "EHLO
-	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S129525AbQLDE2P>; Sun, 3 Dec 2000 23:28:15 -0500
-Message-ID: <3A2B163A.380E4A62@haque.net>
-Date: Sun, 03 Dec 2000 22:57:46 -0500
-From: "Mohammad A. Haque" <mhaque@haque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en
+	id <S129710AbQLDEaT>; Sun, 3 Dec 2000 23:30:19 -0500
+Received: from lantana.tenet.res.in ([206.103.12.154]:56585 "EHLO
+	lantana.iitm.ernet.in") by vger.kernel.org with ESMTP
+	id <S129465AbQLDEaO>; Sun, 3 Dec 2000 23:30:14 -0500
+Date: Mon, 4 Dec 2000 09:32:58 +0530 (IST)
+From: K Ratheesh <rathee@lantana.tenet.res.in>
+To: linux-kernel@vger.kernel.org
+Subject: Linux for local languages - patch 
+Message-ID: <Pine.LNX.4.10.10012040923020.29288-100000@lantana.iitm.ernet.in>
 MIME-Version: 1.0
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: test12-pre4
-In-Reply-To: <Pine.LNX.4.10.10012031828170.22914-100000@penguin.transmeta.com>
-Content-Type: multipart/mixed;
- boundary="------------DEF270124F250E9CE1270D5E"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------DEF270124F250E9CE1270D5E
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Hi,
 
-Was borking on dummy.c. This seemed to fix it. Verification please?
+I am Ratheesh , student of Indian Institute of Technology Madras. 
 
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.0-test11/include -Wall
--Wstrict-prototypes -O6 -fomit-frame-pointer -fno-strict-aliasing -pipe
--mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS -include
-/usr/src/linux-2.4.0-test11/include/linux/modversions.h   -c -o dummy.o
-dummy.c
-dummy.c: In function `dummy_init_module':
-dummy.c:103: invalid type argument of `->'
-make[2]: *** [dummy.o] Error 1
+I am working on enabling Linux console for Local languages. As the current
+PSF format doesn't support variable width fonts , I have made a patch in
+the console driver so that it will load a user defined multi-glyph mapping
+table so that multiple glyphs can be displayed for a single character
+code. All editing operations will also be taken care of.
+
+Further, for Indian languages, there are various consonant/vowel modifiers
+which result in complex character clusters. So I have extended the patch
+to load user defined context sensitive parse rules for glyphs /
+character codes as well. Again, all editing operations will behave
+according to the parse rule specifications.
+
+Even though the patch has been developed keeping Indian languages in mind,
+I feel it will be applicable to many other languages (for eg. Chinese)
+which require wider fonts on console or user defined parsing at I/O level.
+
+Currently I have developed the patch for Kernel versions 2.2.14 and and am
+in the process of making it for 2.2.16 and 2.2.17. I request people to
+try out this patch and give comments and suggestions to me. 
+
+Those who want to try out this patch can send mail to me in the address
+rathee@lantana.iitm.ernet.in or to indlinux-iitm@lantana.iitm.ernet.in 
+
+The package , containing the patch , some documentation ,utilities and
+sample files will come around 100 KB. 
 
 
-Linus Torvalds wrote:
-> 
-> Synching up with Alan and various other stuff. The most important one
-> being the fix to the inode dirty block list.
-> 
->                 Linus
-> 
+Thanking you,
 
--- 
+Ratheesh
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/ 
-                                               mhaque@haque.net
+---
+Ratheesh K 
+Res: 242 Tapti, IIT Madras , Chennai-36, India  Tel:+91-44-4459089
+Lab: Distributed Systems& Optical Networks Lab,IIT Madras Tel:+91-44-4458353
+www.ratheeshkvadhyar.com    ratheesh@rediffmail.com
 
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
---------------DEF270124F250E9CE1270D5E
-Content-Type: text/plain; charset=us-ascii;
- name="dummy-t12p4.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="dummy-t12p4.diff"
 
---- linux/drivers/net/dummy.c.orig	Sun Dec  3 21:59:18 2000
-+++ linux/drivers/net/dummy.c	Sun Dec  3 22:52:13 2000
-@@ -53,6 +53,8 @@
- 
- static int __init dummy_init(struct net_device *dev)
- {
-+	SET_MODULE_OWNER(dev);
-+
- 	/* Initialize the device structure. */
- 	dev->hard_start_xmit	= dummy_xmit;
- 
-@@ -100,7 +102,6 @@
- 	int err;
- 
- 	dev_dummy.init = dummy_init;
--	SET_MODULE_OWNER(&dev_dummy);
- 
- 	/* Find a name for this unit */
- 	err=dev_alloc_name(&dev_dummy,"dummy%d");
 
---------------DEF270124F250E9CE1270D5E--
+
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,70 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317403AbSFCPsb>; Mon, 3 Jun 2002 11:48:31 -0400
+	id <S317402AbSFCPsN>; Mon, 3 Jun 2002 11:48:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317405AbSFCPsa>; Mon, 3 Jun 2002 11:48:30 -0400
-Received: from ipd50a1c87.speed.planet.nl ([213.10.28.135]:62518 "HELO
-	emztd2908.com") by vger.kernel.org with SMTP id <S317403AbSFCPs3> convert rfc822-to-8bit;
-	Mon, 3 Jun 2002 11:48:29 -0400
-From: "JOSEPH  EDWARD." <jos_edw@mail.com>
-Reply-To: jos_edw40@mail.com
-To: linux-kernel@vger.kernel.org
-Date: Mon, 3 Jun 2002 17:46:50 +0200
-Subject: please kindly get back to me
-X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
+	id <S317403AbSFCPsM>; Mon, 3 Jun 2002 11:48:12 -0400
+Received: from urtica.linuxnews.pl ([217.67.200.130]:1043 "EHLO
+	urtica.linuxnews.pl") by vger.kernel.org with ESMTP
+	id <S317402AbSFCPsL>; Mon, 3 Jun 2002 11:48:11 -0400
+Date: Mon, 3 Jun 2002 17:47:35 +0200 (CEST)
+From: Pawel Kot <pkot@linuxnews.pl>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Another -pre
+In-Reply-To: <Pine.LNX.4.44.0206031123100.4136-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0206031744150.3741-100000@urtica.linuxnews.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <20020603154829Z317403-22652+8216@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ATTN:   
-I STUMBLED IN TO YOUR CONTACT BY STROCK OF LUCK AFRTER 
-A LONG SEARCH FOR AN HONEST AND TRUST WORTHY PERSON WHO
-COULD HANDLE ISSUE WITH HIGH CONFIDENTIALITY.
-I WAS SO DELIGHTED WHEN I GOT YOUR CONTACT AND I DECIDED 
-TO CONTACT YOU AND SOLICITE FOR YOUR KIND ASSISTANCE.
-I HOPE YOU WILL LET THIS ISSUE TO REMAIN CONFIDENTIAL EVEN
-IF YOU ARE NOT INTERESTED BECAUSE OF MY STATUS.
-I PRESUME THIS MAIL WILL NOT BE A SURPRISE TO YOU.
-I AM AN ACCOUNTANT WITH THE MINISTRY OF MINERAL
-RESOURCES AND ENERGY IN SOUTH AFRICA AND ALSO A MEMBER
-OF CONTRACTS AWARDING COMMITTEE OF THIS MINISTRY UNDER
-SOUTH AFRICA GOVERNMENT.
+On Mon, 3 Jun 2002, Marcelo Tosatti wrote:
 
-MANY YEARS AGO, SOUTH AFRICA GOVERNMENT ASKED THIS
-COMMITTEE TO AWARDS CONTRACTS TO FOREIGN FIRMS, WHICH
-I AND 2 OF MY PARTNERS ARE THE LEADER OF THIS
-COMMITTEE, WITH OUR GOOD POSITION , THIS CONTRACRS
-WAS OVER INVOICED TO THE TUNE OF US$25,600,000:00 AS A
+> Due to some missing network fixes and -ac merge, I'll release another -pre
+> later today.
+>
+> -rc should be out by the end of the week.
 
-DEAL TO BE BENEFIT BY THE THREE TOP MEMBER OF THIS
-COMMITTEE.
-NOW THE CONTRACTS VALUE HAS BEEN PAID OFF TO THE
-ACTUAL CONTRACTORS THAT EXECUTED THIS JOBS, ALL WE
-WANT NOW IS A TRUSTED FOREIGN PARTNER LIKE YOU THAT WE
+Would you please consider merging some IDE updates before releasing
+2.4.19? Current version remains unusable for me.
+See http://marc.theaimsgroup.com/?l=linux-kernel&m=102277249800423&w=2
+and followers for more detailes.
 
-SHALL FRONT WITH HIS BANKING ACCOUNT NUMBER TO CLAIM
-THE OVER INFLATED SUM.
-UPON OUR AGREEMEENT TO CARRY ON THIS TRANSACTION WITH
-YOU, THE SAID FUND WILL BE SHARE AS FOLLOWS.
-75% WILL BE FOR US IN SOUTH AFRICA.
-20% FOR USING YOUR ACCOUNT AND OTHER CONTRIBUTION
-THAT MIGHT REQIURED FROM YOU.
-5% IS SET ASIDE FOR THE UP FRONT EXPENCES THAT
-WILL BE ENCOUNTER BY BOTH PARTY TO GET ALL NECESSARY
-DOCUMENTS AND FORMARLITIES THAT WILL JUSTIFY YOU AS
-THE RIGHTFUL OWNER OF THIS FUND.
-IF YOU ARE INTERESTED IN THIS TRANSACTION, KINDLY
-REPLY THIS MASSEGE WITH ALL YOUR PHONE AND FAX
-NUMBERS, TO ENABLE US FURNISH YOU WITH DETAILS AND
-PROCEDURES OF THIS TRANSACTION.
-GOD BLESS YOU
-YOURS FAITHFULLY.
-
-JOSEPH EDWARD.
-
-
-
+pkot
+-- 
+mailto:pkot@linuxnews.pl :: mailto:pkot@slackware.pl
+http://kt.linuxnews.pl/ :: Kernel Traffic po polsku
 

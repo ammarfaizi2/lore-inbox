@@ -1,83 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262754AbUC2Iro (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 03:47:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbUC2Irn
+	id S262758AbUC2IqD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 03:46:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262768AbUC2IqD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 03:47:43 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:44700 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S262754AbUC2Irj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 03:47:39 -0500
-To: Daniel Forrest <forrest@lmcg.wisc.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Somewhat OT: gcc, x86, -ffast-math, and Linux
-References: <200403262054.i2QKsV223748@rda07.lmcg.wisc.edu>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 29 Mar 2004 01:47:19 -0700
-In-Reply-To: <200403262054.i2QKsV223748@rda07.lmcg.wisc.edu>
-Message-ID: <m1d66wghuw.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
+	Mon, 29 Mar 2004 03:46:03 -0500
+Received: from ns.suse.de ([195.135.220.2]:49362 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262758AbUC2IqA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 03:46:00 -0500
+Date: Mon, 29 Mar 2004 10:45:31 +0200
+From: Andi Kleen <ak@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andi Kleen <ak@suse.de>, jun.nakajima@intel.com, ricklind@us.ibm.com,
+       piggin@cyberone.com.au, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       kernel@kolivas.org, rusty@rustcorp.com.au, anton@samba.org,
+       lse-tech@lists.sourceforge.net, mbligh@aracnet.com
+Subject: Re: [Lse-tech] [patch] sched-domain cleanups, sched-2.6.5-rc2-mm2-A3
+Message-ID: <20040329084531.GB29458@wotan.suse.de>
+References: <7F740D512C7C1046AB53446D372001730111990F@scsmsx402.sc.intel.com> <20040325154011.GB30175@wotan.suse.de> <20040325190944.GB12383@elte.hu> <20040325162121.5942df4f.ak@suse.de> <20040325193913.GA14024@elte.hu> <20040325203032.GA15663@elte.hu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040325203032.GA15663@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Forrest <forrest@lmcg.wisc.edu> writes:
-
-> I've tried Googling for an answer on this, but have come up empty and
-> I think it likely that someone here probably knows the answer...
+On Thu, Mar 25, 2004 at 09:30:32PM +0100, Ingo Molnar wrote:
 > 
-> We are testing and breaking in 6 racks of compute nodes, each rack
-> containing 30 1U boxes, each box containing 2 x 2.8GHz Xeon CPUs.
-> Each rack contains identical hardware (single purchase) with the
-> exception that one rack has double the memory per node.  The 6 racks
-> are located in six different labs across our campus.  It is available
-> to me only as a "black box" queueing system.
+> * Andi Kleen <ak@suse.de> wrote:
+> 
+> > That won't help for threaded programs that use clone(). OpenMP is such
+> > a case.
+> 
+> this patch:
+> 
+>         redhat.com/~mingo/scheduler-patches/sched-2.6.5-rc2-mm3-A4
+> 
+> does balancing at wake_up_forked_process()-time.
+> 
+> but it's a hard issue. Especially after fork() we do have a fair amount
+> of cache context, and migrating at this point can be bad for
+> performance.
 
-Testing and breaking in hardware with only black box remote access
-sounds crippling.  Hopefully you can work with someone to fix problems
-as they occur.
- 
-> I am running one of our applications that has been compiled using gcc
-> with the -ffast-math option.  I am finding that the identical program
-> using the same input data files is producing different results on
-> different machines.  However, the differences are all less than the
-> precision of a single-precision floating point number.  By this I mean
-> that if the results (which are written to 15 digits of precision) are
-> only compared to 7 digits then the results are the same.  Also, most
-> of the time the 15 digit values are the same.
+I ported it by hand to the -mm4 scheduler now and tested it. While
+it works marginally better than the standard -mm scheduler 
+(you get 1 1/2 the bandwidth of one CPU instead of one) it's still
+still much worse than the optimum of nearly 4 CPUs archived by
+2.4 or the standard scheduler.
 
-How errors propagate depend on the specifics of what computation
-you are doing.
- 
-> My question is this: Why aren't the results always the same?  
-
-Most likely memory errors.  Do the machines have ECC memory?  Is anything
-reporting the ECC memory errors as the occur?
-
-> What is the -ffast-math option doing?  How are the excess bits of precision
-> dealt with during context switches?  Shouldn't the same binary with
-> the same inputs produce the same output on identical hardware?
-
-Yes.  Baring I/O related variables.
-
-> I have run the same test with the program compiled without -ffast-math
-> enabled and the results are always identical.
-
-This may simply be a case where you are not hitting the hardware as
-hard.  Or possibly compiler/optimizer bugs.
-
-Or possibly you never ran your job on the faulty hardware?
-
-> Any insight would be appreciated.
-
-I don't have any except that universities are usually cheap and go
-with the lowest bidder on hardware.
-
-In general tracking this kind of problem comes down to applying
-the scientific method.  And carefully looking at and controlling
-the variables until a root cause is found.
-
-Eric
-
+-Andi

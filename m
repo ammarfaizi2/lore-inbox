@@ -1,67 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131096AbRAZXG1>; Fri, 26 Jan 2001 18:06:27 -0500
+	id <S131244AbRAZXMs>; Fri, 26 Jan 2001 18:12:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131201AbRAZXGR>; Fri, 26 Jan 2001 18:06:17 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:43616
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S131096AbRAZXGJ>; Fri, 26 Jan 2001 18:06:09 -0500
-Date: Sat, 27 Jan 2001 00:06:01 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
+	id <S131317AbRAZXMj>; Fri, 26 Jan 2001 18:12:39 -0500
+Received: from gw-enternet.enternet.se ([193.13.79.17]:34701 "HELO
+	mail.ornskoldsvik.com") by vger.kernel.org with SMTP
+	id <S131201AbRAZXM1>; Fri, 26 Jan 2001 18:12:27 -0500
+Message-ID: <3A720485.58D656A4@sorliden.ornskoldsvik.com>
+Date: Sat, 27 Jan 2001 00:13:10 +0100
+From: Matti Långvall 
+	<matti.langvall@sorliden.ornskoldsvik.com>
+Reply-To: matti.langvall@sorliden.ornskoldsvik.com
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac11 i686)
+X-Accept-Language: sv, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: [uPATCH][Probably fucked up] arch/i386/kernel/io_apic.c: missing extern? (241p10)
-Message-ID: <20010127000601.E612@jaquet.dk>
-In-Reply-To: <20010126221335.B612@jaquet.dk>
-Mime-Version: 1.0
+Subject: Running 2.4.0-ac11
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <20010126221335.B612@jaquet.dk>; from rasmus@jaquet.dk on Fri, Jan 26, 2001 at 10:13:35PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 26, 2001 at 10:13:35PM +0100, Rasmus Andersen wrote:
-> Hi.
-[...]
-> 
-> But I am in way over my head here so please be gentle when you point
-> out my mistake.
-> 
+Best developers,
 
-Already someone did :) I was too sloppy in checking my facts; it is only
--ac11 that has the 'int nr_ioapics;' in mpparse.c. As mpparse.c includes 
-<mpspec.h> (where nr_ioapics is defined as an extern int) I will risk
-another patch removing the declaration from mpparse.c (in ac11). My
-original patch should just be silently ignored, thank you ;)
+I was told to send you these lines by Mr. Marcelo Tosatti, they appear
+even though there is no CD in any drive.
+System:    P3 733, VIA chips, 2 HD IDE drives, DVD and CD-R
 
-Thanks goes to Manfred Spraul who pointed out the salient facts that
-I had blithely ignored. Like, all of them :/ And my apologies for
-the brief confusion I might have caused in people looking in 241p10
-for my phantom declaration.
+Jan 26 23:44:16 h-10-26-17-2 last message repeated 25 times
+Jan 26 23:44:47 h-10-26-17-2 kernel: scsi : aborting command due to
+timeout : pid 0, scsi0, channel 0, id 1, lun 0 0x03 00 00 00 40 00
+Jan 26 23:44:55 h-10-26-17-2 kernel: VFS: busy inodes on changed media.
+Jan 26 23:44:55 h-10-26-17-2 kernel: VFS: busy inodes on changed media.
+Jan 26 23:44:55 h-10-26-17-2 kernel: attempt to access beyond end of
+device
+Jan 26 23:44:55 h-10-26-17-2 kernel: 0b:01: rw=0, want=34, limit=2
+Jan 26 23:44:55 h-10-26-17-2 kernel: isofs_read_super: bread failed,
+dev=0b:01, iso_blknum=16, block=16
+Jan 26 23:44:57 h-10-26-17-2 kernel: VFS: busy inodes on changed media.
+Jan 26 23:45:29 h-10-26-17-2 last message repeated 32 times
+Jan 26 23:46:31 h-10-26-17-2 last message repeated 62 times
+Jan 26 23:47:32 h-10-26-17-2 last message repeated 60 times
+Jan 26 23:48:34 h-10-26-17-2 last message repeated 62 times
+Jan 26 23:49:36 h-10-26-17-2 last message repeated 62 times
 
 
-This patch is only against ac11. It has been compile-tested with SMP
-turned on.
+Tack (Thanks)
 
-Comments?
+Matti L
 
---- linux-ac11-clean/arch/i386/kernel/mpparse.c	Thu Jan 25 20:48:51 2001
-+++ linux-ac11/arch/i386/kernel/mpparse.c	Fri Jan 26 23:33:31 2001
-@@ -48,8 +48,6 @@
- /* MP IRQ source entries */
- int mp_irq_entries;
- 
--int nr_ioapics;
--
- int pic_mode;
- unsigned long mp_lapic_addr;
- 
--- 
-        Rasmus(rasmus@jaquet.dk)
+Please respond to langvall@altavista.com as I am on the road for a
+month. (that means no testing)
 
-A file that big?
-It might be very useful.
-But now it is gone.       --- Error messages in haiku
+VCD
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

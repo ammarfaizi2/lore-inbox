@@ -1,84 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315257AbSHBPRc>; Fri, 2 Aug 2002 11:17:32 -0400
+	id <S315279AbSHBPOd>; Fri, 2 Aug 2002 11:14:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315265AbSHBPRc>; Fri, 2 Aug 2002 11:17:32 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:2177 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S315257AbSHBPRb>; Fri, 2 Aug 2002 11:17:31 -0400
-Date: Fri, 2 Aug 2002 11:23:00 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: ioremap_nocache(0xfffe0000, 0x00020000);
-Message-ID: <Pine.LNX.3.95.1020802111956.6884A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315282AbSHBPOd>; Fri, 2 Aug 2002 11:14:33 -0400
+Received: from reload.namesys.com ([212.16.7.75]:30084 "EHLO
+	reload.namesys.com") by vger.kernel.org with ESMTP
+	id <S315279AbSHBPOc>; Fri, 2 Aug 2002 11:14:32 -0400
+Date: Fri, 2 Aug 2002 19:17:58 +0400
+From: Joshua MacDonald <jmacd@namesys.com>
+To: linux-kernel@vger.kernel.org
+Cc: oxymoron@waste.com, jbarnes@sgi.com, reiser@namesys.com
+Subject: Re: [PATCH] lock assertion macros for 2.5.28
+Message-ID: <20020802151758.GD5469@reload.namesys.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org, oxymoron@waste.com,
+	jbarnes@sgi.com, reiser@namesys.com
+References: <20020725233047.GA782991@sgi.com> <20020726120918.GA22049@reload.namesys.com> <20020726174258.GC793866@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020726174258.GC793866@sgi.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jul 26, 2002 at 10:42:58AM -0700, Jesse Barnes wrote:
+> On Fri, Jul 26, 2002 at 04:09:18PM +0400, Joshua MacDonald wrote:
+> > In reiser4 we are looking forward to having a MUST_NOT_HOLD (i.e.,
+> > spin_is_not_locked) assertion for kernel spinlocks.  Do you know if any
+> > progress has been made in that direction?
+> 
+> Well, I had that in one version of the patch, but people didn't think
+> it would be useful.  Maybe you'd like to check out Oliver's comments
+> at http://marc.theaimsgroup.com/?l=linux-kernel&m=102644431806734&w=2
+> and respond?  If there's demand for MUST_NOT_HOLD, I'd be happy to add
+> it since it should be easy.  But if you're using it to enforce lock
+> ordering as Oliver suggests, then there are probably more robust
+> solutions.
+> 
 
-The AMD SC-520 board uses a 128k BIOS ROM which is decoded
-at 0xfffe0000. Of course the real BIOS  starts 1/2 way through
-it at 0xffff0000. This gets shadowed to F000:0000 in 'real-mode'
-as part of the boot sequence.
+I read Oliver's comments and I do not fully agree.  It is true that often the
+MUST_NOT_HOLD macro is used to assert that you are not about to attempt a
+recursive lock, which a debugging spinlock implementation would catch as soon
+as the recursive attempt is made.  However, it is difficult to make a case
+against adding support for this kind of assertion since it has many possible
+uses.
 
-I want to re-program that BIOS PROM from a driver in Linux.
-I find that ioremap_nocache(0xfffe0000, 0x00020000) seems to
-'Work', i.e., returns some non-null cookie. However, I can't
-access the BIOS ROM. I am accessing something, but it's something
-in low memory, not the PROM that is quite identifiable.
+It may be useful to catch a recursive spinlock attempt several stack frames
+before it actually happens, or to assert that an unusual calling convention
+such as "This function is called with the spinlock held and if it returns 0
+the spinlock remains held, but if the function returns non-zero the spinlock
+is released".  We have such a function in reiser4.
 
-/proc/iomem does not show my allocation and says, in fact, that
-it's been 'reserved'. I can't understand such a 'reservation' because
-I didn't reserve it and I wrote the BIOS.
+As for preventing deadlock, it is true that (as Oliver says) "Locking order is
+larger than functions and should be documented at the point of declaration of
+the locks."  We have a mechanism in reiser4 which is not quite the same as
+Oliver outlined for making assertions about lock ordering.  We maintain
+per-thread counts of each spinlock class and use those counts in a locking
+predicate that is applied before a lock of each class is taken.
 
-fec00000-fec00fff : reserved
-fee00000-fee00fff : reserved
-ffff0000-ffffffff : reserved
+So I agree that recursive locking should be checked as part of the debugging
+spin_lock() routine and that deadlock detection requires more general work,
+but the MUST_NOT_HOLD assertion is still useful in some contexts.
 
-
-Snippit from module init...
-
-
-#define PROM_BASE 0xfffe0000
-#define PROM_LEN  0x00020000 (also tried 0x0001ffff)
-
-
-
-int __init init_module()
-{
-    int result;
-    if((cp = (UC *) ioremap_nocache(PROM_BASE, PROM_LEN)) == NULL)
-    {
-        printk(KERN_ERR"%s : Can't access PROM\n", dev);
-        return -EACCES;
-    }
-
-If I do:
-
-        if(copy_to_user((UC *)arg, cp, PROM_LEN))
-            return -EFAULT;
-
-... as an ioctl() with the passed arg, and cp being the cookie from
-ioremap_nocache()... This hangs (forever) with no panic(). If I
-copy first to a kmalloc() buffer, then to the user, it goes okay,
-but it's not the PROM image, it's something within the kernel's
-RAM that I'm looking at.
-
-Anybody got any hints? FYI, If I substitute other addresses, I can
-access other PROMS including the Adaptec PROM in its controller
-via PCI, plus the shadowed one in low RAM. Same with screen-card
-BIOS. There seems to be something about the 0xfffe0000 address that
-the kernel doesn't like.  Also, from user-mode, I can't mmap any
-addresses above about 0xbfffffff. This may be part of the same problem.
-
-Anybody have any idea?
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-The US military has given us many words, FUBAR, SNAFU, now ENRON.
-Yes, top management were graduates of West Point and Annapolis.
-
+-josh

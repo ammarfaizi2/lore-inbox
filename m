@@ -1,91 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264864AbUFLQPn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264874AbUFLQpk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264864AbUFLQPn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jun 2004 12:15:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264869AbUFLQPn
+	id S264874AbUFLQpk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jun 2004 12:45:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264876AbUFLQpj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jun 2004 12:15:43 -0400
-Received: from nepa.nlc.no ([195.159.31.6]:55998 "HELO nepa.nlc.no")
-	by vger.kernel.org with SMTP id S264864AbUFLQPk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jun 2004 12:15:40 -0400
-Message-ID: <1855.83.109.11.80.1087056930.squirrel@nepa.nlc.no>
-In-Reply-To: <200406121720.54123.spam@capitanio.org>
-References: <20040612134413.GA3396@sirius.home> 
-     <1087050351.707.5.camel@boxen> 
-     <1734.83.109.11.80.1087051353.squirrel@nepa.nlc.no> 
-     <200406121720.54123.spam@capitanio.org>
-Date: Sat, 12 Jun 2004 18:15:30 +0200 (CEST)
-Subject: Re: timer + fpu stuff locks up computer
-From: stian@nixia.no
-To: "martin capitanio" <spam@capitanio.org>
-Cc: stian@nixia.no, linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.0-1
-MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
-X-Priority: 3
-Importance: Normal
+	Sat, 12 Jun 2004 12:45:39 -0400
+Received: from dave.clendenan.ca ([142.179.66.169]:18634 "EHLO
+	dave.clendenan.ca") by vger.kernel.org with ESMTP id S264874AbUFLQpi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jun 2004 12:45:38 -0400
+Date: Sat, 12 Jun 2004 09:45:34 -0700
+From: Dave Clendenan <dave@dave.clendenan.ca>
+To: support@stallion.oz.au, support@stallion.com
+Cc: linux-kernel@vger.kernel.org
+Subject: error in linux kernel source file istallion.c
+Message-ID: <20040612164533.GA11125@dave.clendenan.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Does the other dirty nasty patch work for you?
-> --- linux-2.6.6-rc3-mm1/kernel/signal.c 2004-06-09 18:36:12.000000000
-> +0200
-> +++ linux-2.6.6-rc3-mm1-fpuhotfix/kernel/signal.c       2004-06-12
-> 18:10:31.573001808 +0200
-> @@ -799,7 +799,15 @@
->            can get more detailed information about the cause of
->            the signal. */
->         if (LEGACY_QUEUE(&t->pending, sig))
-> +       {
-> +           if (sig==8)
-> +           {
-> +               printk("Attempt to exploit known bug, process=%s pid=%p
-> uid=%d\n",
-> +                   t->comm, t->pid, t->uid);
-> +               do_exit(0);
-> +           }
->             goto out;
-> +       }
->
->         ret = send_signal(sig, info, t, &t->pending);
->         if (!ret && !sigismember(&t->blocked, sig))
->
-> 2.6.7-rc4-mm1-fpuhotfix:
-> user$ ./evil
-> ........................*...............................................
-> ......................*
-> Attempt to exploit known bug, process=evil pid=00000aa6 uid=1000
-> note: evil[2726] exited with preempt_count 2
-> bad: scheduling while atomic!
->  [<c032a045>] schedule+0x4b5/0x4c0
->  [<c01435cb>] zap_pmd_range+0x4b/0x70
->  [<c014362d>] unmap_page_range+0x3d/0x70
->  [<c014380b>] unmap_vmas+0x1ab/0x1c0
->  [<c0147639>] exit_mmap+0x79/0x150
->  [<c01184ee>] mmput+0x5e/0xa0
->  [<c011c523>] do_exit+0x153/0x3e0
->  [<c0122e6f>] specific_send_sig_info+0xff/0x100
->  [<c0122eb2>] force_sig_info+0x42/0x90
->  [<c0105be0>] do_coprocessor_error+0x0/0x20
->  [<c0105b5e>] math_error+0xde/0x160
->  [<c010b0f6>] restore_i387_fxsave+0x26/0xa0
->  [<c0222c8c>] write_chan+0x18c/0x250
->  [<c01170e0>] default_wake_function+0x0/0x10
->  [<c01170e0>] default_wake_function+0x0/0x10
->  [<c0104a05>] error_code+0x2d/0x38
->  [<c010b0f6>] restore_i387_fxsave+0x26/0xa0
->  [<c010b1fc>] restore_i387+0x8c/0x90
->  [<c0103434>] restore_sigcontext+0x114/0x130
->  [<c0103503>] sys_sigreturn+0xb3/0xd0
->  [<c0103f6b>] syscall_call+0x7/0xb
->
-> but it keeps the kernel alive :-)
 
-The hotfix should probably me moved to arch/i386/traps.c before we start
-to due atomic locks, sinse it is beond dirty to kill the process here when
-we have locked down resources. But the best would be to fix the
-problem-source, since this is just a workaround.
+Very minor bug - printk with two '%d's and one int to print out.
+
+Lines 853-854 of drivers/char/istallion.c (kernel 2.6.6)
+Code is an error message 'failed to un-register tty driver'
 
 
-Stian Skjelstad
+CC-ing the kenel list, since the manufacturer of the device
+that driver's for has changed hands, and the maintainer of
+the driver (if any :) may not be reachable at the 'support'
+addresses above.  
+
+
+Dave
+

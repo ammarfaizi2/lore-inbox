@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261937AbVBUKBf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261823AbVBUKTB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261937AbVBUKBf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 05:01:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbVBUKBf
+	id S261823AbVBUKTB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 05:19:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261914AbVBUKTB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 05:01:35 -0500
-Received: from eu31-234.clientes.euskaltel.es ([212.55.31.234]:17671 "HELO
-	cortafuegos.ziv.es") by vger.kernel.org with SMTP id S261937AbVBUKBd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 05:01:33 -0500
+	Mon, 21 Feb 2005 05:19:01 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:31761 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261823AbVBUKS7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 05:18:59 -0500
+Date: Mon, 21 Feb 2005 10:18:51 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Asier Llano Palacios <a.llano@usyscom.com>
+Cc: Jamey Hicks <jamey.hicks@hp.com>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
 Subject: Re: gpio api
-From: Asier Llano Palacios <a.llano@usyscom.com>
-To: Jamey Hicks <jamey.hicks@hp.com>
-In-Reply-To: <4215F1A0.1030805@hp.com>
-References: <4215F1A0.1030805@hp.com>
-Content-Type: text/plain
-Date: Mon, 21 Feb 2005 11:02:24 +0100
-Message-Id: <1108980144.15299.16.camel@localhost.localdomain>
+Message-ID: <20050221101851.B28213@flint.arm.linux.org.uk>
+Mail-Followup-To: Asier Llano Palacios <a.llano@usyscom.com>,
+	Jamey Hicks <jamey.hicks@hp.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+References: <4215F1A0.1030805@hp.com> <1108980144.15299.16.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Feb 2005 09:57:55.0656 (UTC) FILETIME=[D0C26C80:01C517FB]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1108980144.15299.16.camel@localhost.localdomain>; from a.llano@usyscom.com on Mon, Feb 21, 2005 at 11:02:24AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think that implementing a GPIO interface is a must-have. And I also
-think that your proposal is awesome. I work with GPIOs a lot, and I hate
-not doing it in a cross-platform way.
+On Mon, Feb 21, 2005 at 11:02:24AM +0100, Asier Llano Palacios wrote:
+> The GPIOs requesting and numbering should be done by specifying the
+> chip, the port and the pin. We should be able to manipulate easily a
+> GPIO from one of 3 I2C chips and another one from our microprocessor.
 
-I generally agree with your proposal but I see some missing behaviours.
+I think there's a problem with this approach:
 
-Configuration that should be done on GPIOs.
-- GPIO direction (input/output)
-- GPIO modes (standard CMOS / open drain).
-- GPIO interruption generation (by level or edge, high, low, raising,
-falling)
+- I2C chips require you to talk to them via a relatively slow bus.
+  The I2C subsystem takes a semaphore, so it can be used from interrupt
+  context.
+- You may wish to use GPIOs (especially on-chip GPIOs) from interrupt
+  context.
 
-The GPIOs requesting and numbering should be done by specifying the
-chip, the port and the pin. We should be able to manipulate easily a
-GPIO from one of 3 I2C chips and another one from our microprocessor.
+Therefore, you don't have a clear locking model for a GPIO subsystem.
+You'll probably be in the situation where some GPIOs may be locked by
+spinlocks (which are fine to manipulate from interrupt context) and
+others which are locked by semaphores - so you don't actually know
+what's going on beneath the GPIO API.
 
-We should be able to change several pins on the same port simultaneously
-(if the driver of the port allows it). Maybe, all the operations should
-be done by port (and not by pin), so that we can change several ports
-simultaneously. We should be able to register several pins of a port,
-and write and read from the port.
-
-I'd like some comments about these features.
+This is real bad news in terms of ensuring correctness and being able to
+review.
 
 -- 
-Asier Llano Palacios <a.llano@usyscom.com>
+Russell King
 

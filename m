@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314242AbSEBCvI>; Wed, 1 May 2002 22:51:08 -0400
+	id <S314243AbSEBDWW>; Wed, 1 May 2002 23:22:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314244AbSEBCvH>; Wed, 1 May 2002 22:51:07 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:63502 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S314242AbSEBCvE>; Wed, 1 May 2002 22:51:04 -0400
-Date: Wed, 1 May 2002 19:50:50 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Sipos Ferenc <sferi@dumballah.tvnet.hu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: nvidia patch for 2.5.11
-In-Reply-To: <1020235641.1885.0.camel@zeus.city.tvnet.hu>
-Message-ID: <Pine.LNX.4.10.10205011950330.27987-100000@www.transvirtual.com>
+	id <S314244AbSEBDWV>; Wed, 1 May 2002 23:22:21 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:7016 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S314243AbSEBDWV>; Wed, 1 May 2002 23:22:21 -0400
+To: Stephen Lord <lord@sgi.com>
+Cc: Andrew Morton <akpm@zip.com.au>, Mike Fedyk <mfedyk@matchmail.com>,
+        Guillaume Boissiere <boissiere@attbi.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [STATUS 2.5]  May 1, 2002
+In-Reply-To: <3CCFBB21.9046.7889B0D2@localhost>
+	<20020501201927.GS574@matchmail.com> <3CD0605D.ACC42AA2@zip.com.au>
+	<1020301894.1171.2.camel@localhost.localdomain>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 01 May 2002 21:14:27 -0600
+Message-ID: <m1adrjz1f0.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Stephen Lord <lord@sgi.com> writes:
 
-http://www.transvirtual.com/~jsimmons/fbdev_fixs.diff
+> On Wed, 2002-05-01 at 16:38, Andrew Morton wrote:
+> > Mike Fedyk wrote:
+> > > 
+> > > On Wed, May 01, 2002 at 09:53:37AM -0400, Guillaume Boissiere wrote:
+> > > > new framebuffer layer, as well as some more delayed disk block
+> > > > allocation bits.
+> > > 
+> > > Actually Andrews work on address_space based writeback is related somewhat,
+> > > but really it's a rewrite/cleanup of the buffer layer.  Delayed block
+> > > alocation is helped alot by this, and almost depends on it IIRC.
+> > > 
+> > > One vote for a seperate listing in the status for "Address Space based
+> > > Writeback / Buffer layer cleanup".
+> > 
+> > Well the next major step here is going direct
+> > pagecache<->BIO, bypassing the intermediate submit_bh
+> > for most I/O.
+> > 
+> > Probably that will make most of the performance benefits
+> > of delayed-allocate go away.
+> 
+> Most of the performance benefits of delayed allocate are that
+> you do not the hard work of allocating the disk space in each
+> write call, you get to do it once, in potentially larger chunks,
+> and often not in the user's context.
 
-   . ---
-   |o_o |
-   |:_/ |   Give Micro$oft the Bird!!!!
-  //   \ \  Use Linux!!!!
- (|     | )
- /'_   _/`\
- ___)=(___/
+Except for moving the work out of the users context, ext2 gets
+a similar benefit by reserving disk space ahead of time.  So it isn't
+clear that you need to have a delayed allocation to achieve this.
 
-On 1 May 2002, Sipos Ferenc wrote:
-
-> Hi!
-> 
-> I know, it's a bit offtopic, but could anybody recommend me an url for
-> the above? Thx.
-> 
-> Paco
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+Eric

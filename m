@@ -1,184 +1,192 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261460AbTIXQN6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Sep 2003 12:13:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbTIXQN6
+	id S261463AbTIXQQj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Sep 2003 12:16:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261480AbTIXQQj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Sep 2003 12:13:58 -0400
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:6605 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S261460AbTIXQNx
+	Wed, 24 Sep 2003 12:16:39 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4028 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261463AbTIXQQe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Sep 2003 12:13:53 -0400
-Subject: [RFC][PATCH] Pass nameidata to security_inode_permission hook
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
-       Greg Kroah-Hartman <greg@kroah.com>, James Morris <jmorris@redhat.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       lsm <linux-security-module@wirex.com>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1064420018.20804.81.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 24 Sep 2003 12:13:38 -0400
-Content-Transfer-Encoding: 7bit
+	Wed, 24 Sep 2003 12:16:34 -0400
+Message-ID: <3F71C354.1020302@pobox.com>
+Date: Wed, 24 Sep 2003 12:16:20 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+CC: trond.myklebust@fys.uio.no, steved@redhat.com
+Subject: [PATCH v2] reduce NFS stack usage
+Content-Type: multipart/mixed;
+ boundary="------------090507060105030704010809"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch against 2.6.0-test5 changes the security_inode_permission
-hook to also take a nameidata parameter in addition to the existing
-inode and mask parameters.  A nameidata is already passed (although
-sometimes NULL) to fs/namei.c:permission(), and the patch changes
-exec_permission_lite() to also take a nameidata parameter so that it can
-pass it along to the security hook.  The patch includes corresponding
-changes to the SELinux module to use the nameidata information when it
-is available; this allows SELinux to include pathname information in
-audit messages when a nameidata structure was supplied.  If anyone has
-any objections to this change, please let me know.
+This is a multi-part message in MIME format.
+--------------090507060105030704010809
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
- fs/namei.c               |    9 +++++----
- include/linux/security.h |   11 +++++++----
- security/dummy.c         |    2 +-
- security/selinux/hooks.c |    7 ++++++-
- 4 files changed, 19 insertions(+), 10 deletions(-)
+David Mansfield spotted a bug in a memset() call, in my initial patch.
 
-Index: linux-2.6/fs/namei.c
-===================================================================
-RCS file: /nfshome/pal/CVS/linux-2.6/fs/namei.c,v
-retrieving revision 1.13
-diff -u -r1.13 namei.c
---- linux-2.6/fs/namei.c	25 Aug 2003 15:29:19 -0000	1.13
-+++ linux-2.6/fs/namei.c	24 Sep 2003 14:54:40 -0000
-@@ -218,7 +218,7 @@
- 	if (retval)
- 		return retval;
- 
--	return security_inode_permission(inode, mask);
-+	return security_inode_permission(inode, mask, nd);
- }
- 
- /*
-@@ -302,7 +302,8 @@
-  * short-cut DAC fails, then call permission() to do more
-  * complete permission check.
-  */
--static inline int exec_permission_lite(struct inode *inode)
-+static inline int exec_permission_lite(struct inode *inode,
-+				       struct nameidata *nd)
+Attached is an updated version.  The only change is 
+s/sizeof(my_entry)/sizeof(*my_entry)/ in the memset.
+
+	Jeff
+
+
+
+--------------090507060105030704010809
+Content-Type: text/plain;
+ name="patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch"
+
+
+===== fs/nfs/dir.c 1.12 vs edited =====
+--- 1.12/fs/nfs/dir.c	Tue Oct 15 00:59:27 2002
++++ edited/fs/nfs/dir.c	Mon Sep 22 15:08:27 2003
+@@ -349,14 +349,25 @@
  {
- 	umode_t	mode = inode->i_mode;
+ 	struct dentry	*dentry = filp->f_dentry;
+ 	struct inode	*inode = dentry->d_inode;
+-	nfs_readdir_descriptor_t my_desc,
+-			*desc = &my_desc;
+-	struct nfs_entry my_entry;
++	nfs_readdir_descriptor_t *desc;
++	struct nfs_entry *my_entry;
+ 	long		res;
++	int		rc = -EINVAL;
++	void		*mem;
++
++	mem = kmalloc(sizeof(struct nfs_entry) +
++		      sizeof(nfs_readdir_descriptor_t), GFP_KERNEL);
++	if (!mem)
++		return -ENOMEM;
++
++	my_entry = mem;
++	desc = mem + sizeof(struct nfs_entry);
  
-@@ -325,7 +326,7 @@
+ 	res = nfs_revalidate(dentry);
+-	if (res < 0)
+-		return res;
++	if (res < 0) {
++		rc = (int) res;
++		goto out;
++	}
  
- 	return -EACCES;
- ok:
--	return security_inode_permission(inode, MAY_EXEC);
-+	return security_inode_permission(inode, MAY_EXEC, nd);
- }
+ 	/*
+ 	 * filp->f_pos points to the file offset in the page cache.
+@@ -365,11 +376,11 @@
+ 	 * itself.
+ 	 */
+ 	memset(desc, 0, sizeof(*desc));
+-	memset(&my_entry, 0, sizeof(my_entry));
++	memset(my_entry, 0, sizeof(*my_entry));
  
- /*
-@@ -584,7 +585,7 @@
- 		struct qstr this;
- 		unsigned int c;
+ 	desc->file = filp;
+ 	desc->target = filp->f_pos;
+-	desc->entry = &my_entry;
++	desc->entry = my_entry;
+ 	desc->decode = NFS_PROTO(inode)->decode_dirent;
  
--		err = exec_permission_lite(inode);
-+		err = exec_permission_lite(inode, nd);
- 		if (err == -EAGAIN) { 
- 			err = permission(inode, MAY_EXEC, nd);
+ 	while(!desc->entry->eof) {
+@@ -393,11 +404,16 @@
+ 			break;
  		}
-Index: linux-2.6/include/linux/security.h
-===================================================================
-RCS file: /nfshome/pal/CVS/linux-2.6/include/linux/security.h,v
-retrieving revision 1.25
-diff -u -r1.25 security.h
---- linux-2.6/include/linux/security.h	24 Jun 2003 14:55:43 -0000	1.25
-+++ linux-2.6/include/linux/security.h	24 Sep 2003 14:55:17 -0000
-@@ -334,6 +334,7 @@
-  *	called when the actual read/write operations are performed.
-  *	@inode contains the inode structure to check.
-  *	@mask contains the permission mask.
-+ *     @nd contains the nameidata (may be NULL).
-  *	Return 0 if permission is granted.
-  * @inode_setattr:
-  *	Check permission before setting file attributes.  Note that the kernel
-@@ -1055,7 +1056,7 @@
- 	                           struct dentry *new_dentry);
- 	int (*inode_readlink) (struct dentry *dentry);
- 	int (*inode_follow_link) (struct dentry *dentry, struct nameidata *nd);
--	int (*inode_permission) (struct inode *inode, int mask);
-+	int (*inode_permission) (struct inode *inode, int mask, struct nameidata *nd);
- 	int (*inode_setattr)	(struct dentry *dentry, struct iattr *attr);
- 	int (*inode_getattr) (struct vfsmount *mnt, struct dentry *dentry);
-         void (*inode_delete) (struct inode *inode);
-@@ -1474,9 +1475,10 @@
- 	return security_ops->inode_follow_link (dentry, nd);
- }
- 
--static inline int security_inode_permission (struct inode *inode, int mask)
-+static inline int security_inode_permission (struct inode *inode, int mask, 
-+					     struct nameidata *nd)
- {
--	return security_ops->inode_permission (inode, mask);
-+	return security_ops->inode_permission (inode, mask, nd);
- }
- 
- static inline int security_inode_setattr (struct dentry *dentry,
-@@ -2110,7 +2112,8 @@
- 	return 0;
- }
- 
--static inline int security_inode_permission (struct inode *inode, int mask)
-+static inline int security_inode_permission (struct inode *inode, int mask,
-+					     struct nameidata *nd)
- {
- 	return 0;
- }
-Index: linux-2.6/security/dummy.c
-===================================================================
-RCS file: /nfshome/pal/CVS/linux-2.6/security/dummy.c,v
-retrieving revision 1.22
-diff -u -r1.22 dummy.c
---- linux-2.6/security/dummy.c	3 Jul 2003 14:31:12 -0000	1.22
-+++ linux-2.6/security/dummy.c	24 Sep 2003 14:54:40 -0000
-@@ -364,7 +364,7 @@
- 	return 0;
- }
- 
--static int dummy_inode_permission (struct inode *inode, int mask)
-+static int dummy_inode_permission (struct inode *inode, int mask, struct nameidata *nd)
- {
- 	return 0;
- }
-Index: linux-2.6/security/selinux/hooks.c
-===================================================================
-RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/hooks.c,v
-retrieving revision 1.73
-diff -u -r1.73 hooks.c
---- linux-2.6/security/selinux/hooks.c	4 Sep 2003 18:23:49 -0000	1.73
-+++ linux-2.6/security/selinux/hooks.c	24 Sep 2003 14:54:40 -0000
-@@ -1730,12 +1730,17 @@
- 	return dentry_has_perm(current, NULL, dentry, FILE__READ);
- }
- 
--static int selinux_inode_permission(struct inode *inode, int mask)
-+static int selinux_inode_permission(struct inode *inode, int mask,
-+				    struct nameidata *nd)
- {
- 	if (!mask) {
- 		/* No permission to check.  Existence test. */
- 		return 0;
  	}
 +
-+	if (nd && nd->dentry) 
-+		return dentry_has_perm(current, nd->mnt, nd->dentry, 
-+				       file_mask_to_av(inode->i_mode, mask));
+ 	if (desc->error < 0)
+-		return desc->error;
+-	if (res < 0)
+-		return res;
+-	return 0;
++		rc = desc->error;
++	else if (res < 0)
++		rc = res;
++	/* fall through */
++
++out:
++	kfree(mem);
++	return rc;
+ }
  
- 	return inode_has_perm(current, inode,
- 			       file_mask_to_av(inode->i_mode, mask), NULL, NULL);
+ /*
+@@ -476,13 +492,22 @@
+ 	struct inode *dir;
+ 	struct inode *inode;
+ 	int error;
+-	struct nfs_fh fhandle;
+-	struct nfs_fattr fattr;
++	struct nfs_fh *fhandle;
++	struct nfs_fattr *fattr;
++	void *mem;
++	int rc = 0;
+ 
+ 	lock_kernel();
+ 	dir = dentry->d_parent->d_inode;
+ 	inode = dentry->d_inode;
+ 
++	mem = kmalloc(sizeof(struct nfs_fh) + sizeof(struct nfs_fattr),
++		      GFP_KERNEL);
++	if (!mem)
++		goto out_bad;
++	fhandle = mem;
++	fattr = mem + sizeof(struct nfs_fh);
++
+ 	if (!inode) {
+ 		if (nfs_neg_need_reval(dir, dentry))
+ 			goto out_bad;
+@@ -505,18 +530,19 @@
+ 	if (NFS_STALE(inode))
+ 		goto out_bad;
+ 
+-	error = NFS_PROTO(dir)->lookup(dir, &dentry->d_name, &fhandle, &fattr);
++	error = NFS_PROTO(dir)->lookup(dir, &dentry->d_name, fhandle, fattr);
+ 	if (error)
+ 		goto out_bad;
+-	if (memcmp(NFS_FH(inode), &fhandle, sizeof(struct nfs_fh))!= 0)
++	if (memcmp(NFS_FH(inode), fhandle, sizeof(struct nfs_fh))!= 0)
+ 		goto out_bad;
+-	if ((error = nfs_refresh_inode(inode, &fattr)) != 0)
++	if ((error = nfs_refresh_inode(inode, fattr)) != 0)
+ 		goto out_bad;
+ 
+ 	nfs_renew_times(dentry);
+  out_valid:
+-	unlock_kernel();
+-	return 1;
++ 	rc = 1;
++	goto out;
++
+  out_bad:
+ 	NFS_CACHEINV(dir);
+ 	if (inode && S_ISDIR(inode->i_mode)) {
+@@ -528,8 +554,14 @@
+ 		shrink_dcache_parent(dentry);
+ 	}
+ 	d_drop(dentry);
++	rc = 0;
++	/* fall through */
++
++out:
+ 	unlock_kernel();
+-	return 0;
++	if (mem)
++		kfree(mem);
++	return rc;
+ }
+ 
+ /*
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 
 
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+--------------090507060105030704010809--
 

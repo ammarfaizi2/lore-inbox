@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262162AbVBQASs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262163AbVBQA0T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262162AbVBQASs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 19:18:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262163AbVBQASs
+	id S262163AbVBQA0T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 19:26:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262165AbVBQA0T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 19:18:48 -0500
-Received: from FLA1Aah135.kng.mesh.ad.jp ([61.193.101.135]:42211 "EHLO
-	yamt.dyndns.org") by vger.kernel.org with ESMTP id S262162AbVBQASq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 19:18:46 -0500
-To: oda@valinux.co.jp
-Cc: ebiederm@xmission.com, fastboot@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] /proc/cpumem
-In-Reply-To: Your message of "Wed, 16 Feb 2005 17:49:51 +0900"
-	<20050216170224.4C66.ODA@valinux.co.jp>
-References: <20050216170224.4C66.ODA@valinux.co.jp>
-X-Mailer: Cue version 0.8 (041105-2302/takashi)
+	Wed, 16 Feb 2005 19:26:19 -0500
+Received: from fire.osdl.org ([65.172.181.4]:6281 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262163AbVBQA0P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 19:26:15 -0500
+Date: Wed, 16 Feb 2005 16:26:14 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>
+Subject: [PATCH] isicom: use NULL for ptr.
+Message-Id: <20050216162614.3cd6ce47.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Date: Thu, 17 Feb 2005 09:17:15 +0900
-Message-Id: <1108599435.484439.5660.nullmailer@yamt.dyndns.org>
-From: YAMAMOTO Takashi <yamamoto@valinux.co.jp>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
 
-> +	while (addr < end) {
-> +		if (valid_phys_addr_range(addr, &size)) {
-> +			if (!found) {
-> +				found = 1;
-> +				p->addr = addr;
-> +				p->size = size;
-> +			} else {
-> +				p->size += size;
-> +			}
-> +			addr += size;
-> +			size = 0xf0000000;
-> +		} else {
-> +			if (found) {
-> +				return p;
-> +			}
-> +			addr += PAGE_SIZE;
-> +		}
-> +	}
+Use NULL instead of 0 for pointer value:
+drivers/char/isicom.c:1274:14: warning: Using plain integer as NULL pointer
 
-doesn't this loop take very long time if you have a large hole?
+Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
 
-i'd suggest to change valid_phys_addr_range to fill &size even when
-it returns false, so that caller can skip the hole efficiently.
+diffstat:=
+ drivers/char/isicom.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-YAMAMOTO Takashi
+diff -Naurp ./drivers/char/isicom.c~isicom_null ./drivers/char/isicom.c
+--- ./drivers/char/isicom.c~isicom_null	2005-02-15 13:48:45.123493232 -0800
++++ ./drivers/char/isicom.c	2005-02-16 10:57:45.934330560 -0800
+@@ -1271,7 +1271,7 @@ static void isicom_shutdown_port(struct 
+ 	}	
+ 	port->flags &= ~ASYNC_INITIALIZED;
+ 	/* 3rd October 2000 : Vinayak P Risbud */
+-	port->tty = 0;
++	port->tty = NULL;
+ 	spin_unlock_irqrestore(&card->card_lock, flags);
+ 	
+ 	/*Fix done by Anil .S on 30-04-2001
+
+
+---

@@ -1,59 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132318AbRDPOxd>; Mon, 16 Apr 2001 10:53:33 -0400
+	id <S129084AbRDPO4y>; Mon, 16 Apr 2001 10:56:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132142AbRDPOxX>; Mon, 16 Apr 2001 10:53:23 -0400
-Received: from relay.freedom.net ([207.107.115.209]:7685 "HELO relay")
-	by vger.kernel.org with SMTP id <S132146AbRDPOxO>;
-	Mon, 16 Apr 2001 10:53:14 -0400
-X-Freedom-Envelope-Sig: linux-kernel@vger.kernel.org AQFaD9VqN50E5BX68SfjNo4w6J6Y3HOK9iMYpwU5eHu/ge4hMvhU6aFE
-Date: Mon, 16 Apr 2001 08:51:57 -0600
-Old-From: cacook@freedom.net
+	id <S130900AbRDPO4o>; Mon, 16 Apr 2001 10:56:44 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:51977 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129084AbRDPO41>; Mon, 16 Apr 2001 10:56:27 -0400
+Subject: Re: rw_semaphores
+To: yodaiken@fsmlabs.com
+Date: Mon, 16 Apr 2001 15:56:45 +0100 (BST)
+Cc: dhowells@cambridge.redhat.com (David Howells),
+        torvalds@transmeta.com (Linus Torvalds),
+        andrewm@uow.edu.au (Andrew Morton), bcrl@redhat.com (Ben LaHaise),
+        dhowells@redhat.com (David Howells),
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <20010416083912.C4036@hq.fsmlabs.com> from "yodaiken@fsmlabs.com" at Apr 16, 2001 08:39:12 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: Marko Kreen <marko@l-t.ee>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: DPT PM3755F Fibrechannel Host Adapter
-In-Reply-To: <20010414233426Z131976-682+268@vger.kernel.org> <20010415020433.B13190@l-t.ee>
-Content-Type: text/plain; charset = "us-ascii" 
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-From: cacook@freedom.net
-Message-Id: <20010416145319Z132146-682+540@vger.kernel.org>
+Message-Id: <E14pAQr-0000NQ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you Marko.  This was exactly what I was looking for.  And thank you very much Omar Kilani for the retrofit.  But kernel doesn't recognize the adapter.
+> I'm trying to imagine a case where 32,000 sharing a semaphore was anything but a 
+> major failure and I can't. To me: the result of an attempt by the 32,768th locker
+> should be a kernel panic. Is there a reasonable scenario where this is wrong?
 
-Installed the patch, compiled, installed, & everything seemed to go fine.  Booted to IDE... no problems, except the DPT HA wasn't recognized.  There was no mention of the DPT in messages, either recognized as hardware, nor to load the driver.
-
-I am running an MSI KT7Turbo mobo with Athlon 850.  Six PCI & no IDE.  DPT PM3755F fibrechannel host adapter is in the first slot & has two Cheetahs attached.  Outfit works fine in Winders2k.  Trying to move to kernel 2.4.2, in RedHat Wolverine.
-
-Please help.
---
-C.
-
-The best way out is always through.
-      - Robert Frost  A Servant to Servants, 1914
-
-
-Marko Kreen wrote:
-
-> On Sat, Apr 14, 2001 at 05:33:02PM -0600, cacook@freedom.net wrote:
-> > I have been unable to set up a module for my DPT fibrechannel host adapter, partly through unavailability, and partly through inexperience.
->
-> There is a nice suppary of current DPT driver status on Kernel
-> Traffic #113:
->
-> http://kt.zork.net/kernel-traffic/kt20010330_113.html#3
->
-> --
-> marko
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
-
-
+32000 threads all trying to lock the same piece of memory ? Its not down
+to reasonable scenarios its down to malicious scenarios
 

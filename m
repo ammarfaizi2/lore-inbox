@@ -1,29 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311670AbSCTPeD>; Wed, 20 Mar 2002 10:34:03 -0500
+	id <S311648AbSCTPgD>; Wed, 20 Mar 2002 10:36:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311667AbSCTPdx>; Wed, 20 Mar 2002 10:33:53 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:7947 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S311657AbSCTPdo>; Wed, 20 Mar 2002 10:33:44 -0500
-Subject: Re: Re[2]: Filesystem Corruption (ext2) on Tyan S2462, 2xAMD1900MP, 2.4.17SMP
-To: nerijus@users.sourceforge.net (Nerijus Baliunas)
-Date: Wed, 20 Mar 2002 15:49:20 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
-In-Reply-To: <ISPFE11r0dSHpVyLrid00004b63@mail.takas.lt> from "Nerijus Baliunas" at Mar 20, 2002 05:27:20 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S311664AbSCTPfx>; Wed, 20 Mar 2002 10:35:53 -0500
+Received: from [207.196.96.3] ([207.196.96.3]:54705 "EHLO
+	lightning.hereintown.net") by vger.kernel.org with ESMTP
+	id <S311648AbSCTPfs>; Wed, 20 Mar 2002 10:35:48 -0500
+Date: Wed, 20 Mar 2002 10:52:47 -0500 (EST)
+From: Chris Meadors <clubneon@hereintown.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.5.7 fails compile on sched.c:1456
+Message-ID: <Pine.LNX.4.40.0203201048390.7618-100000@rc.priv.hereintown.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16niL2-0002c4-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is AMD driver somehow related to ServerWorks OSB4?
-> 
-> BTW, it seems I have the same problem with Compaq ProLiant ML330, which has OSB4,
-> and Seagate ST320011A drives. Is turning off UDMA enough?
+I saw a patch went into the 2.5.7-pre series that was supposed control the
+compilation of the preempt code, maybe its not quite right yet.
 
-On about 400 out of 400 machines on a render farm it was..
+Building in my dual Alpha with SMP enabled fails with this:
+
+sched.c: In function `init_idle':
+sched.c:1456: structure has no member named `preempt_count'
+
+-Chris
+-- 
+Two penguins were walking on an iceberg.  The first penguin said to the
+second, "you look like you are wearing a tuxedo."  The second penguin
+said, "I might be..."                         --David Lynch, Twin Peaks
+

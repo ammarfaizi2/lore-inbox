@@ -1,63 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314707AbSFQQRR>; Mon, 17 Jun 2002 12:17:17 -0400
+	id <S316861AbSFVSh2>; Sat, 22 Jun 2002 14:37:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314748AbSFQQRQ>; Mon, 17 Jun 2002 12:17:16 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:38055 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S314707AbSFQQRP>;
-	Mon, 17 Jun 2002 12:17:15 -0400
-Date: Mon, 17 Jun 2002 18:15:22 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Robert Love <rml@tech9.net>
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] sti() preemption fix, 2.5.22
-In-Reply-To: <Pine.LNX.4.44.0206171651480.15554-100000@e2>
-Message-ID: <Pine.LNX.4.44.0206171811170.18282-100000@e2>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316854AbSFVSh1>; Sat, 22 Jun 2002 14:37:27 -0400
+Received: from [168.160.12.18] ([168.160.12.18]:19727 "HELO vger.kernel.org")
+	by vger.kernel.org with SMTP id <S316846AbSFVSh0>;
+	Sat, 22 Jun 2002 14:37:26 -0400
+From: =?ISO-8859-1?Q?=D2=C7=C6=F7=D0=C5=CF=A2=CD=F8<webmaster@instrument.com.cn>?=
+Subject: =?GB2312?B?zt7W98zi?=
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain;
+Date: Sat, 22 Jun 2002 10:02:47 +0800
+X-Priority: 3
+X-Library: Indy 8.0.25
+Message-Id: <20020622183726Z316846-22020+8852@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+============================================================
+           仪器信息网(http://www.instrument.com.cn)
+           仪器类专业网站，仪器厂商和用户的网上家园
+    本网由北京仪信网通科技有限公司和中国分析测试协会共同建设
+============================================================
+           本期《仪器快讯》订阅数为 18263 份
+============================================================
 
-Zoltan Szalontai noticed that my patch doesnt match the bugfix described
-:-)
 
-correct patch attached.
 
-	Ingo
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.510   -> 1.511  
-#	arch/i386/kernel/irq.c	1.10    -> 1.11   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/06/17	mingo@elte.hu	1.511
-# - sti() preemption fix. for real.
-# --------------------------------------------
-#
-diff -Nru a/arch/i386/kernel/irq.c b/arch/i386/kernel/irq.c
---- a/arch/i386/kernel/irq.c	Mon Jun 17 18:15:00 2002
-+++ b/arch/i386/kernel/irq.c	Mon Jun 17 18:15:00 2002
-@@ -366,11 +366,15 @@
- 
- void __global_sti(void)
- {
--	int cpu = smp_processor_id();
-+	int cpu;
-+
-+	preempt_disable();
-+	cpu = smp_processor_id();
- 
- 	if (!local_irq_count(cpu))
- 		release_irqlock(cpu);
- 	__sti();
-+	preempt_enable();
- }
- 
- /*
+---------------------------------------------------------------
+若您想退订本邮件，请到http://www.instrument.com.cn，填写您的email并按退订按钮确认
+=====================仪器信息网联系方法=====================
+通信地址：北京市海淀区西三环北路27号北科大厦一层 唐海霞 女士收
+邮政编码：100089 
+电话/传真：010-68432936/ 68432939
+网址:http://www.instrument.com.cn
+Email: info@instrument.com.cn
 

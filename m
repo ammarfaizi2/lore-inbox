@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261798AbTISXEG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 19:04:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261800AbTISXEF
+	id S261818AbTISXHI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 19:07:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261836AbTISXHH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 19:04:05 -0400
-Received: from fw.osdl.org ([65.172.181.6]:34447 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261798AbTISXEC (ORCPT
+	Fri, 19 Sep 2003 19:07:07 -0400
+Received: from fw.osdl.org ([65.172.181.6]:10386 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261818AbTISXFn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 19:04:02 -0400
-Date: Fri, 19 Sep 2003 16:03:53 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: David Yu Chen <dychen@stanford.edu>
-Cc: linux-kernel@vger.kernel.org, mc@cs.stanford.edu, sds@epoch.ncsc.mil
-Subject: Re: [CHECKER] 32 Memory Leaks on Error Paths
-Message-ID: <20030919160353.H27079@osdlab.pdx.osdl.net>
-References: <200309160435.h8G4ZkQM009953@elaine4.Stanford.EDU>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200309160435.h8G4ZkQM009953@elaine4.Stanford.EDU>; from dychen@stanford.edu on Mon, Sep 15, 2003 at 09:35:46PM -0700
+	Fri, 19 Sep 2003 19:05:43 -0400
+Date: Fri, 19 Sep 2003 16:02:15 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@localhost.localdomain
+To: Maneesh Soni <maneesh@in.ibm.com>
+cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Dipankar Sarma <dipankar@in.ibm.com>
+Subject: Re: [PATCH 2.6] sysfs_remove_dir
+In-Reply-To: <20030915102127.GA1387@in.ibm.com>
+Message-ID: <Pine.LNX.4.44.0309191556281.950-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* David Yu Chen (dychen@stanford.edu) wrote:
-> [FILE:  2.6.0-test5/security/selinux/selinuxfs.c]
-> START -->
->  253:	ar = kmalloc(PAGE_SIZE, GFP_KERNEL);
->  254:	if (!ar)
->  255:		return -ENOMEM;
->  256:	memset(ar, 0, PAGE_SIZE); /* clear buffer, particularly last byte */
->  257:	ar->size = 0;
->  258:	down(&file->f_dentry->d_inode->i_sem);
->         ... DELETED 5 lines ...
 
-A reference to ar is stored away for kfree() on ->release():
-		file->private_data = ar;
+> sysfs_remove_dir() does not remove the contents of subdirs corresponding
+> to the attribute groups of a kobject. The following patch fixes this by first
+> removing the subdir contents and then removing thus emptied subdirs along
+> with the other attribute files of the kobject and plugs the memory
+> leakage resulting from orphan dentries.
+> 
+> I tested it by inserting and removing "dummy.o" network module and verifying
+> that dentires corresponding to "statistics" attribute group are removed.
 
->  268:	if (copy_from_user(ar->data, buf, size))
-> END -->
->  269:		return -EFAULT;
+Sorry it's taken a while to reply, but I even now haven't had a chance to 
+look that deep into this problem. I will say that this is the wrong 
+approach to the problem. 
 
-So, this will be freed when the file is closed.  I don't think it's a
-bug.
+Upon initial inspection, it looks like it will do the right thing in all 
+cases, except when a parent is removed before a child is (but we don't 
+technically support that now). 
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+However, I'd like to move away from the automatic cleanup that sysfs was 
+doing. attribute groups make it easier to clean up all the files that are 
+created for an object when the object is removed. I would like to see that 
+removal call inserted where necessary, instead of adding this complication 
+to the sysfs core.
+
+I intend to remove the automatic cleanup in sysfs_remove_dir(), but 
+haven't gotten around to it.. 
+
+Thanks,
+
+
+
+	Pat
+

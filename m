@@ -1,320 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261840AbTJ2Afk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 19:35:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261850AbTJ2Afk
+	id S261875AbTJ2Aql (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 19:46:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261877AbTJ2Aql
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 19:35:40 -0500
-Received: from avocet.mail.pas.earthlink.net ([207.217.120.50]:59620 "EHLO
-	avocet.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id S261840AbTJ2AfS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 19:35:18 -0500
-Date: Tue, 28 Oct 2003 19:38:22 -0500
-To: piggin@cyberone.com.au
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BENCHMARK] I/O regression after 2.6.0-test5
-Message-ID: <20031029003822.GA9382@rushmore>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-From: rwhron@earthlink.net
+	Tue, 28 Oct 2003 19:46:41 -0500
+Received: from [134.29.1.12] ([134.29.1.12]:60353 "EHLO mail.mnsu.edu")
+	by vger.kernel.org with ESMTP id S261875AbTJ2Aqi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 19:46:38 -0500
+Message-ID: <3F9F0DD0.4040109@hundstad.net>
+Date: Tue, 28 Oct 2003 18:46:08 -0600
+From: "Jeffrey E. Hundstad" <jeffrey@hundstad.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030925
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Helge Hafting <helgehaf@aitel.hist.no>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [long] linux-2.6.0-test9, XFree86 4.2.1.1, ATI ATI Radeon VE
+ QY, screen hangs on 3d apps
+References: <3F9B8A6B.6030102@hundstad.net> <3F9CF169.3060802@aitel.hist.no>
+In-Reply-To: <3F9CF169.3060802@aitel.hist.no>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 28 Oct 2003 10:24:36 +1100,  Nick Piggin wrote:
-> There is an #if 0 part in the patch. Could you try setting it to #if 1
-> please.
-
-Changing the #if 0 to #if 1 appears to affect AIM7 fserver the most.
-
-Patch tested is very similar to:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=106729967301172&w=2
-
-2.6.0-test9-as	as-fix patch
-2.6.0-test9-as1	as-fix patch with #if 1
-
-Either way, that version of as-fix patch looks good for both
-AIM7 and tiobench.
-
-AIM7 dbase workload
-kernel                   Tasks   Jobs/Min        Real    CPU
-2.6.0-test9-as           32	604.1		314.6	133.7
-2.6.0-test9-as1          32	599.6		317.0	142.2
-2.6.0-test5              32	590.2		322.0	131.9
-2.6.0-test9              32	316.2		601.2	128.5
-
-2.6.0-test9-as           64	783.3		485.3	256.3
-2.6.0-test9-as1          64	776.8		489.4	257.6
-2.6.0-test5              64	774.3		490.9	256.6
-2.6.0-test9              64	460.9		824.8	246.2
-
-2.6.0-test9-as           96	868.5		656.6	386.4
-2.6.0-test9-as1          96	864.1		660.0	391.0
-2.6.0-test5              96	859.0		663.9	389.5
-2.6.0-test9              96	507.5		1123.5	368.1
-
-2.6.0-test9-as           128	914.1		831.8	510.7
-2.6.0-test9-as1          128	910.7		834.8	521.1
-2.6.0-test5              128	910.3		835.2	528.6
-2.6.0-test9              128	536.6		1416.9	487.0
-
-2.6.0-test9-as           160	952.4		998.0	635.8
-2.6.0-test9-as1          160	949.3		1001.2	652.2
-2.6.0-test5              160	741.5		1281.7	644.8
-2.6.0-test9              160	522.4		1819.2	619.9
-
-2.6.0-test9-as1          192	981.4		1162.1	779.1
-2.6.0-test9-as           192	976.6		1167.8	774.2
-2.6.0-test5              192	840.0		1357.8	776.0
-2.6.0-test9              192	513.5		2220.8	739.3
-
-2.6.0-test9-as           224	1000.6		1329.7	917.0
-2.6.0-test9-as1          224	994.9		1337.3	904.8
-2.6.0-test5              224	986.9		1348.2	911.8
-2.6.0-test9              224	503.9		2640.3	853.4
-
-2.6.0-test9-as           256	1010.6		1504.7	1036.3
-2.6.0-test9-as1          256	1009.0		1507.1	1030.0
-2.6.0-test5              256	999.5		1521.3	1029.3
-2.6.0-test9              256	530.8		2864.8	975.5
-
-At low number of tasks, #if 0 does more work.   As the
-number of tasks goes up, having #if 1 does more work.
-
-
-AIM7 fserver workload
-kernel                   Tasks   Jobs/Min        Real    CPU
-2.6.0-test9-as           4	114.6		211.6	38.2
-2.6.0-test5              4	79.7		304.0	38.3
-2.6.0-test9-as1          4	79.3		305.8	38.4
-2.6.0-test9              4	43.0		564.4	43.6
-
-2.6.0-test9-as           8	175.0		277.0	65.9
-2.6.0-test5              8	129.8		373.5	66.3
-2.6.0-test9-as1          8	128.8		376.5	65.0
-2.6.0-test9              8	61.4		789.1	68.5
-
-2.6.0-test9-as           12	208.4		349.0	93.6
-2.6.0-test5              12	164.1		443.0	93.1
-2.6.0-test9-as1          12	158.4		459.1	91.6
-2.6.0-test9              12	70.4		1033.1	97.6
-
-2.6.0-test9-as           16	190.4		509.3	111.8
-2.6.0-test9-as1          16	184.7		525.1	114.2
-2.6.0-test5              16	173.4		559.0	116.5
-2.6.0-test9              16	100.7		962.8	135.5
-
-2.6.0-test9-as1          20	213.3		568.2	143.3
-2.6.0-test9-as           20	190.3		636.8	142.8
-2.6.0-test5              20	180.5		671.5	143.0
-2.6.0-test9              20	113.0		1072.6	160.0
-
-2.6.0-test9-as1          24	219.2		663.5	169.8
-2.6.0-test9-as           24	193.6		751.2	167.3
-2.6.0-test5              24	189.1		769.0	176.0
-2.6.0-test9              24	116.8		1245.6	163.3
-
-2.6.0-test9-as1          28	223.7		758.6	195.5
-2.6.0-test9-as           28	205.7		825.0	200.6
-2.6.0-test5              28	204.6		829.2	197.5
-2.6.0-test9              28	132.7		1278.5	190.2
-
-2.6.0-test9-as1          32	228.1		850.0	224.8
-2.6.0-test5              32	213.7		907.4	228.9
-2.6.0-test9-as           32	209.3		926.6	225.9
-2.6.0-test9              32	130.4		1486.6	209.1
-
-The regression seen after test5 is gone with the most
-recent version of as-fix.
-
-AIM7 shared workload
-kernel                   Tasks   Jobs/Min        Real    CPU
-2.6.0-test9-as1          64	1952.3		190.8	169.6
-2.6.0-test9-as           64	1936.9		192.3	170.2
-2.6.0-test5              64	1888.8		197.2	168.3
-2.6.0-test9              64	1050.5		354.6	165.0
-
-2.6.0-test9-as           128	2154.9		345.7	337.2
-2.6.0-test9-as1          128	2146.3		347.1	338.1
-2.6.0-test5              128	2094.9		355.6	338.1
-2.6.0-test9              128	1316.6		565.8	330.6
-
-2.6.0-test9-as           192	2267.5		492.8	509.8
-2.6.0-test9-as1          192	2260.9		494.2	508.6
-2.6.0-test5              192	2256.0		495.3	507.8
-2.6.0-test9              192	1399.0		798.7	502.9
-
-2.6.0-test9-as1          256	2417.6		616.3	678.9
-2.6.0-test5              256	2389.0		623.7	683.8
-2.6.0-test9-as           256	2389.0		623.7	679.8
-2.6.0-test9              256	1472.1		1012.1	672.8
-
-2.6.0-test5              320	2457.9		757.7	856.6
-2.6.0-test9-as           320	2440.5		763.1	851.0
-2.6.0-test9-as1          320	2420.7		769.4	855.9
-2.6.0-test9              320	1590.3		1171.1	841.0
-
-2.6.0-test9-as1          384	2498.2		894.6	1030.3
-2.6.0-test9-as           384	2487.2		898.6	1038.3
-2.6.0-test5              384	2480.4		901.0	1036.5
-2.6.0-test9              384	1626.5		1374.1	1022.9
-
-2.6.0-test5              448	2529.8		1030.7	1209.2
-2.6.0-test9-as           448	2514.9		1036.8	1213.3
-2.6.0-test9-as1          448	2499.6		1043.1	1206.1
-2.6.0-test9              448	1636.7		1593.0	1199.5
-
-2.6.0-test9-as           512	2598.7		1146.7	1390.1
-2.6.0-test9-as1          512	2581.0		1154.5	1382.3
-2.6.0-test5              512	2566.2		1161.2	1386.2
-2.6.0-test9              512	1650.9		1805.0	1377.2
-
-
-Tiobench below is not too exciting.  The main thing is the regression
-seen in test[678] is gone.
-
-
-tiobench-0.3.3
-Unit information
-================
-File size = 8192 megabytes
-Blk Size  = 4096 bytes
-Rate      = megabytes per second
-CPU%      = percentage of CPU used during the test
-Latency   = milliseconds
-Lat%      = percent of requests that took longer than X seconds
-CPU Eff   = Rate divided by CPU% - throughput per cpu load
-
-Sequential Reads ext2
-                       Num                    Avg       Maximum     Lat%
-Kernel                 Thr   Rate  (CPU%)   Latency     Latency      >2s
----------------------- ---  --------------------------------------------
-2.6.0-test9-as           1   28.83 13.66%     0.404      753.63  0.00000
-2.6.0-test5              1   28.55 13.89%     0.408      754.59  0.00000
-2.6.0-test9-as1          1   28.47 13.76%     0.409      885.44  0.00000
-
-2.6.0-test5              8   34.01 17.09%     2.620      834.85  0.00000
-2.6.0-test9-as1          8   33.90 16.82%     2.650      943.85  0.00000
-2.6.0-test9-as           8   30.59 15.02%     2.963      843.18  0.00000
-
-2.6.0-test9-as1         16   31.26 15.30%     5.703     1078.85  0.00000
-2.6.0-test5             16   30.13 15.04%     5.980     1337.69  0.00000
-2.6.0-test9-as          16   26.53 13.00%     6.758     1036.38  0.00000
-
-2.6.0-test9-as1         32   29.63 14.81%    12.057     1459.39  0.00000
-2.6.0-test5             32   29.46 14.62%    11.954     1560.02  0.00000
-2.6.0-test9-as          32   24.84 12.43%    14.389     1842.53  0.00000
-
-2.6.0-test5             64   25.24 13.57%    26.901     1743.05  0.00000
-2.6.0-test9-as1         64   22.77 12.34%    29.750     1783.29  0.00000
-2.6.0-test9-as          64   21.53 11.64%    31.063     1901.78  0.00000
-
-2.6.0-test5            128   10.41  9.76%   129.662     1820.78  0.00000
-2.6.0-test9-as1        128   10.27  9.41%   130.097     2172.39  0.00000
-2.6.0-test9-as         128   10.05  9.13%   133.312     1753.29  0.00000
-
-2.6.0-test5            256    9.13 13.30%   305.097     1446.43  0.00000
-2.6.0-test9-as         256    8.62 12.50%   322.473     1698.87  0.00000
-2.6.0-test9-as1        256    8.57 12.63%   325.050     1653.00  0.00000
-
-Random Reads ext2
-                       Num                    Avg       Maximum     Lat%
-Kernel                 Thr   Rate  (CPU%)   Latency     Latency      >2s
----------------------- ---  --------------------------------------------
-2.6.0-test9-as1          1    0.98  0.99%    12.001      109.76  0.00000
-2.6.0-test5              1    0.95  0.94%    12.373      114.89  0.00000
-2.6.0-test9-as           1    0.81  0.80%    14.484      117.63  0.00000
-
-2.6.0-test5              8    4.11  4.58%    19.433      137.74  0.00000
-2.6.0-test9-as1          8    4.03  4.39%    20.775      177.47  0.00000
-2.6.0-test9-as           8    3.61  3.79%    23.024      161.12  0.00000
-
-2.6.0-test9-as1         16    4.58  3.69%    36.975      396.44  0.00000
-2.6.0-test5             16    4.05  3.90%    42.424      236.49  0.00000
-2.6.0-test9-as          16    3.33  3.02%    51.015      293.01  0.00000
-
-2.6.0-test5             32    4.41  3.58%    70.910      516.28  0.00000
-2.6.0-test9-as1         32    4.21  3.95%    80.533      451.20  0.00000
-2.6.0-test9-as          32    3.26  3.13%   102.403      697.51  0.00000
-
-2.6.0-test5             64    4.47  4.00%   137.277     1077.53  0.00000
-2.6.0-test9-as          64    4.40  3.88%   134.358     1229.07  0.00000
-2.6.0-test9-as1         64    4.40  3.74%   138.895     1233.53  0.00000
-
-2.6.0-test5            128    4.86  4.83%   243.704     2287.09  0.00000
-2.6.0-test9-as1        128    4.68  4.47%   243.701     2172.91  0.00000
-2.6.0-test9-as         128    4.51  4.51%   249.319     2547.23  0.00000
-
-2.6.0-test5            256    5.51  7.00%   427.503     2511.79  0.00000
-2.6.0-test9-as         256    5.23  6.79%   450.963     3573.61  0.00000
-2.6.0-test9-as1        256    5.01  6.61%   467.361     3305.41  0.00000
-
-Sequential Writes ext2
-                       Num                    Avg       Maximum     Lat%
-Kernel                 Thr   Rate  (CPU%)   Latency     Latency      >2s
----------------------- ---  --------------------------------------------
-2.6.0-test5              1   56.24 41.13%     0.170     3207.90  0.00000
-2.6.0-test9-as1          1   55.71 39.50%     0.172     2225.67  0.00000
-2.6.0-test9-as           1   55.49 39.25%     0.173     1806.75  0.00000
-
-2.6.0-test5              8   31.86 31.70%     2.356    15355.31  0.05655
-2.6.0-test9-as1          8   31.66 30.95%     2.364    14477.90  0.06008
-2.6.0-test9-as           8   31.10 30.23%     2.453    14880.66  0.06271
-
-2.6.0-test9-as1         16   32.63 31.80%     4.445    28724.28  0.08045
-2.6.0-test9-as          16   32.10 31.67%     4.459    41263.17  0.07834
-2.6.0-test5             16   32.07 32.22%     4.371    29214.57  0.07829
-
-2.6.0-test9-as1         32   32.79 32.88%     8.351    70993.57  0.10638
-2.6.0-test5             32   30.73 34.74%     8.843    59335.31  0.10657
-2.6.0-test9-as          32   30.03 33.06%     8.852    61766.24  0.10576
-
-2.6.0-test5             64   30.27 36.46%    16.798   119951.55  0.14372
-2.6.0-test9-as1         64   28.70 34.79%    17.693   114731.30  0.15449
-2.6.0-test9-as          64   27.10 32.73%    18.207   120362.26  0.15745
-
-2.6.0-test5            128   29.98 38.86%    32.259   230569.79  0.20509
-2.6.0-test9-as1        128   29.84 37.86%    31.890   224444.62  0.20604
-2.6.0-test9-as         128   29.25 37.18%    32.428   210201.96  0.21028
-
-2.6.0-test5            256   33.49 48.84%    53.571   391954.31  0.24166
-2.6.0-test9-as         256   32.18 44.97%    56.356   453839.45  0.24067
-2.6.0-test9-as1        256   31.23 43.69%    57.305   431916.55  0.23952
-
-Random Writes ext2
-                       Num                    Avg       Maximum     Lat%
-Kernel                 Thr   Rate  (CPU%)   Latency     Latency      >2s
----------------------- ---  --------------------------------------------
-2.6.0-test9-as           1    3.08  2.79%     0.582       25.12  0.00000
-2.6.0-test5              1    2.86  2.88%     1.117       50.58  0.00000
-2.6.0-test9-as1          1    2.63  2.52%     1.481      380.77  0.00000
-
-2.6.0-test5              8    3.85  5.10%     4.885      861.30  0.00000
-2.6.0-test9-as1          8    3.69  3.69%     7.495     1084.38  0.00000
-2.6.0-test9-as           8    3.34  3.49%    11.409     1369.42  0.00000
-
-2.6.0-test5             16    3.70  3.93%    17.617     1419.36  0.00000
-2.6.0-test9-as1         16    3.59  3.90%    18.985     1561.92  0.00000
-2.6.0-test9-as          16    3.43  3.33%    16.893     1458.50  0.00000
-
-2.6.0-test5             32    3.72  5.11%    14.666     1191.07  0.00000
-2.6.0-test9-as1         32    3.67  4.34%    13.096     1346.98  0.00000
-2.6.0-test9-as          32    3.40  4.22%    16.468     1422.35  0.00000
-
-2.6.0-test5             64    3.69  5.68%    14.445     1116.77  0.00000
-2.6.0-test9-as1         64    3.53  5.15%    18.633     1450.11  0.00000
-2.6.0-test9-as          64    3.39  4.76%    19.373     1659.40  0.00000
-
-2.6.0-test5            128    3.72  6.48%    14.037     1354.59  0.00000
-2.6.0-test9-as         128    3.44  5.97%    12.805     1776.43  0.00000
-2.6.0-test9-as1        128    3.41  5.81%    15.659     1974.75  0.00000
-
-2.6.0-test5            256    3.57  6.59%    13.418     1912.18  0.00000
-2.6.0-test9-as1        256    3.48  6.76%     5.699     1468.80  0.00000
-2.6.0-test9-as         256    3.43  6.53%     8.807     1795.06  0.00000
-
--- 
-Randy Hron
-http://home.earthlink.net/~rwhron/kernel/bigbox.html
+Thanks a ton.  Moving from XFree86 Version 4.2.1.1 to Version 4.3.99.12 
+as you suggested seems to have solved my problem.  Everything including 
+3d applications works fine now.  I'm wondering if there is any value in 
+figuring out why the older version fails... or just be happy that that 
+the new one works.  Suggestions?
+
+Thanks again,
+
+Jeffrey Hundstad
+
+
+Helge Hafting wrote:
+
+> Jeffrey E. Hundstad wrote:
+>
+>> Hello,
+>>
+>> I'm using Debian unstable.  It comes with XFree86 Vesrion 4.2.1.1.  
+>> This works fine with linux-2.4.22.  I've been using this 
+>> configuration with accelerated 3d apps.  With linux-2.6.0-test9 X 
+>> works fine until a 3d application such as glxgears starts.  The 
+>> screen no longer updates except that you can move the cursor.  The 
+>> logs do not indicate failure.  I can't get the screen back without a 
+>> reboot.  I can connect via. the network to do analysis if someone 
+>> wants to give me a clue what to look for.
+>>
+> Check all log files and dmesg, see if some driver (probably 3d drivers)
+> complaining about anything.  If so, tell the relevant developers.
+>
+> You may also want to run "ps aux" and see if any apps (particulary
+> glxgears) is stuck in D state.
+>
+> Finally, you may try to see if you can get the screen back without
+> a reboot using the network connection.
+> Try killing glxgears, or kill -9 if that doesn't help.
+> Try restarting X - use "kill" or "kill -9" if
+> it won't quit nicely.
+> Killing X and xdm (or gdm/kdm/whatever) may
+> force you to restart it manually.
+>
+>> So once again:
+>>
+>> XFree86 Vesrion 4.2.1.1
+>> linux-2.6.0-test9
+>> ATI Radeon VE QY rev 0
+>
+>
+> Oh, a radeon.  I have one too, using 3D kills my machine.
+> Developers thought I might have a "broken agp device"
+> or something like that.  You should definitely report
+> it to DRI developers, more independent reports on radeon failures with 
+> 2.6
+> might make things happen rather than this "maybe the hw is broken" 
+> theory.
+>
+> Note that the debian 3d software is quite old.
+> consider adding this to tour /etc/apt/sources.list:
+> deb     http://people.debian.org/~daenzer/dri-trunk-sid/        ./
+>
+> You may then apt-get install xlibmesa-gl1-dri-trunk 
+> xserver-xfree86-dri-trunk That will get you X 4.3 with the latest DRI 
+> software.  It may
+> work better, or it may not.  You can trivially go back
+> to your old setup by removing those two packages.
+> Note that xdm might fail with the experimental packages,
+> if so, start X using startx.
+>
+> Helge Hafting
+>
+>
 

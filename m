@@ -1,71 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268006AbUHPWxF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268007AbUHPWxT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268006AbUHPWxF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 18:53:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268008AbUHPWxF
+	id S268007AbUHPWxT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 18:53:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268008AbUHPWxS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 18:53:05 -0400
-Received: from out010pub.verizon.net ([206.46.170.133]:36999 "EHLO
-	out010.verizon.net") by vger.kernel.org with ESMTP id S268006AbUHPWwx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 18:52:53 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: Possible dcache BUG
-Date: Mon, 16 Aug 2004 18:52:50 -0400
-User-Agent: KMail/1.6.82
-Cc: viro@parcelfarce.linux.theplanet.co.uk,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org> <200408150009.45034.gene.heskett@verizon.net> <20040815084856.GD12308@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20040815084856.GD12308@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Mon, 16 Aug 2004 18:53:18 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:30592 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S268007AbUHPWxD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 18:53:03 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P0
+From: Lee Revell <rlrevell@joe-job.com>
+To: Roger Luethi <rl@hellgate.ch>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+In-Reply-To: <20040816080745.GA18406@k3.hellgate.ch>
+References: <20040801193043.GA20277@elte.hu>
+	 <20040809104649.GA13299@elte.hu> <20040810132654.GA28915@elte.hu>
+	 <20040812235116.GA27838@elte.hu> <1092382825.3450.19.camel@mindpipe>
+	 <20040813104817.GI8135@elte.hu> <1092432929.3450.78.camel@mindpipe>
+	 <20040814072009.GA6535@elte.hu> <20040815115649.GA26259@elte.hu>
+	 <1092612264.867.9.camel@krustophenia.net>
+	 <20040816080745.GA18406@k3.hellgate.ch>
+Content-Type: text/plain
+Message-Id: <1092696835.13981.61.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 16 Aug 2004 18:53:56 -0400
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200408161852.50310.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out010.verizon.net from [151.205.55.227] at Mon, 16 Aug 2004 17:52:51 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 15 August 2004 04:48, viro@parcelfarce.linux.theplanet.co.uk 
-wrote:
->On Sun, Aug 15, 2004 at 12:09:44AM -0400, Gene Heskett wrote:
->> The only thing I've noted in the slabinfo reports is the
->> ext3_cache was well into 6 digits in kilobytes.  Now its only
->> 15,000 of its normal units (whatever they are) after the reboot.
->
->What did dcache numbers look like at that time?
->
->Anyway, we could try the patch below and see what shows in
-> /proc/fs/ext3 with it [NOTE: patch is completely untested].  It
-> should show major:minor:inumber:mode
->for all currently allocated ext3 inodes.  It won't be 100% accurate
-> (we can miss some entries/get some twice if cache shrinks or grows
-> at the time), but if the leak is so massive, we ought to see a
-> *lot* of duplicates in there.  Seeing what kind of inodes really
-> leaks could narrow the things down.
+On Mon, 2004-08-16 at 04:07, Roger Luethi wrote:
+> On Sun, 15 Aug 2004 19:24:24 -0400, Lee Revell wrote:
+> > Also, isn't there a better solution than for network drivers to actively 
+> > poll for changes in link status?  Can't they just register a callback that 
+> 
+> For the Rhine, there is, but making it work requires some extra black
+> magic we didn't know until a few months ago. It's fixed in -mm now and
+> will probably be in 2.6.9. That doesn't mean the media_check is gone,
+> though. It just means it only happens on actual events.
+> 
 
-Well, I am seing some dups, but they are so volatile that no two runs 
-will report the same allocations as dups, and its never more than 2
-using /proc/fs/ext3 | sort | uniq -c | sort -nr |grep -v ' 1 '
+OK, this would certainly be an improvement, I was using the driver from
+-mm until 2.6.8.1 anyway due to that damn rhine_power_init bug, with no
+problems whatsoever.
 
-Consecutive runs will show anywhere from 3 to 10 or 12 dups, but never 
-is an address repeated between runs.
+What do you think of Ingo's solution of trying to move the problematic
+call to mdio_read out of the spinlocked section?  It does seem that the
+slowness of mdio_read causes the rp->lock spinlock to be held for an
+awfully long time.  In a live audio setting you would actually get lots
+of media events.
 
-How is this to be interpreted?
+Lee
 
-FWIW, I'm now up 25 hours, with PREEMPT off.  No Oops's yet.
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.24% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

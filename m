@@ -1,73 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264531AbUFXXRM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265831AbUFXXW1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264531AbUFXXRM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 19:17:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265831AbUFXXRM
+	id S265831AbUFXXW1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 19:22:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265886AbUFXXW1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 19:17:12 -0400
-Received: from holomorphy.com ([207.189.100.168]:39565 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S264531AbUFXXQP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 19:16:15 -0400
-Date: Thu, 24 Jun 2004 16:15:49 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: andrea@suse.de, nickpiggin@yahoo.com.au, tiwai@suse.de, ak@suse.de,
-       ak@muc.de, tripperda@nvidia.com, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org
+	Thu, 24 Jun 2004 19:22:27 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:25748
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S265831AbUFXXVx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 19:21:53 -0400
+Date: Fri, 25 Jun 2004 01:21:57 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@osdl.org>,
+       nickpiggin@yahoo.com.au, tiwai@suse.de, ak@suse.de, ak@muc.de,
+       tripperda@nvidia.com, discuss@x86-64.org, linux-kernel@vger.kernel.org
 Subject: Re: [discuss] Re: 32-bit dma allocations on 64-bit platforms
-Message-ID: <20040624231549.GT21066@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, andrea@suse.de,
-	nickpiggin@yahoo.com.au, tiwai@suse.de, ak@suse.de, ak@muc.de,
-	tripperda@nvidia.com, discuss@x86-64.org,
-	linux-kernel@vger.kernel.org
-References: <s5hy8mdgfzj.wl@alsa2.suse.de> <20040624152946.GK30687@dualathlon.random> <40DAF7DF.9020501@yahoo.com.au> <20040624165200.GM30687@dualathlon.random> <20040624165629.GG21066@holomorphy.com> <20040624145441.181425c8.akpm@osdl.org> <20040624220823.GO21066@holomorphy.com> <20040624224529.GA30687@dualathlon.random> <20040624225121.GS21066@holomorphy.com> <20040624160945.69185c46.akpm@osdl.org>
+Message-ID: <20040624232157.GD30687@dualathlon.random>
+References: <s5h4qp1hvk0.wl@alsa2.suse.de> <20040624164258.1a1beea3.ak@suse.de> <s5hy8mdgfzj.wl@alsa2.suse.de> <20040624152946.GK30687@dualathlon.random> <40DAF7DF.9020501@yahoo.com.au> <20040624165200.GM30687@dualathlon.random> <20040624165629.GG21066@holomorphy.com> <20040624145441.181425c8.akpm@osdl.org> <20040624222150.GZ30687@dualathlon.random> <20040624223750.GP21066@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040624160945.69185c46.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <20040624223750.GP21066@holomorphy.com>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 24, 2004 at 04:09:45PM -0700, Andrew Morton wrote:
-> A testcase would be, on a 2G box:
-> a) free up as much memory as you can
-> b) write a 1.2G file to fill highmem with pagecache
-> c) malloc(800M), bzero(), sleep
-> d) swapoff -a
-> You now have a box which has almost all of lowmem pinned in anonymous
-> memory.  It'll limp along and go oom fairly easily.
-> Another testcase would be:
-> a) free up as much memory as you can
-> b) write a 1.2G file to fill highmem with pagecache
-> c) malloc(800M), mlock it
-> You now have most of lowmem mlocked.
+On Thu, Jun 24, 2004 at 03:37:50PM -0700, William Lee Irwin III wrote:
+> /*
+> On Thu, Jun 24, 2004 at 02:54:41PM -0700, Andrew Morton wrote:
+> >> First thing to do is to identify some workload which needs the patch. 
+> 
+> On Fri, Jun 25, 2004 at 12:21:50AM +0200, Andrea Arcangeli wrote:
+> > that's quite trivial, boot a 2G box, malloc(1G), bzero(1GB), swapoff -a,
+> > then the machine will lockup.
+> > Depending on the architecture (more precisely depending if it starts
+> > allocating ram from the end or from the start of the physical memory),
+> > you may have to load 1G of data into pagecache first, like reading from
+> > /dev/hda 1G (without closing the file) will work fine, then run the
+> > above malloc + bzero + swapoff.
+> > Most people will never report this because everybody has swap and they
+> > simply run a lot slower than they could run if they didn't need to pass
+> > through the swap device to relocate memory because memory would been allocated
+> > in the right place in the first place. this plus the various oom killer
+> > breakages that gets dominated by the nr_swap_pages > 0 check, are the
+> > reasons 2.6 is unusable w/o swap. 
+> 
+> Have you tried with 2.6.7? The following program fails to trigger anything
 
-These are approximately identical to the testcases I had in mind, except
-neither of these is truly specific to 2GB and can have the various magic
-numbers calculated from sysconf() and/or meminfo.
+I've definitely not tried 2.6.7 and I'm also reading a 2.6.5 codebase.
+But you can sure trigger it if you run a big workload after the big
+allocation.
 
+> like what you've mentioned, though granted it was a 512MB allocation on
+> a 1GB machine. swapoff(2) merely fails.
 
-On Thu, Jun 24, 2004 at 04:09:45PM -0700, Andrew Morton wrote:
-> In both situations the machine is really sick.  Probably the most risky
-> scenario is a swapless machine in which lots of lowmem is allocated to
-> anonymous memory.
-> It should be the case that increasing lower_zone_peotection will fix all
-> the above.  If not, it needs fixing.
-> So we're down the question "what should we default to at bootup".  I find
-> it hard to justify defaulting to a mode where we're super-defensive against
-> this sort of thing, simply because nobody seems to be hitting the problems.
-> Distributors can, if the must, bump lower_zone_protection in initscripts,
-> and it's presumably pretty simple to write a boot script which parses
-> /proc/meminfo's MemTotal and SwapTotal lines, producing an appropriate
-> lower_zone_protection setting.
+what you have to do is this:
 
-I'm going to beat on this in short order, but will be indisposed for an
-hour or two before that begins.
+1) swapoff -a (it must not fail!! it cannot fail if you run it first)
+2) fill 130000K in pagecache, be very careful, not more than that, every
+   mbyte matters
+3) run your program and allocate 904000K!!! (not 512M!!!)
 
-Thanks.
+then keep using the machine until it lockups because it cannot reloate
+the anonymous memory from the 900M of lowmem to the 130M of highmem.
 
+But really I said you need >=2G to have a realistic chance of seeing it.
 
--- wli
+So don't be alarmed you cannot reproduce on a 1G box by allocating 512M
+and with swap still enabled, you had none of the conditions that make it
+reproducible.
+
+I reproduced this dozen of times so I know how to reproduce it very
+well (amittedly not in 2.6 because nobody crashed on this yet).

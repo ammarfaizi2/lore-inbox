@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263997AbSJOTrC>; Tue, 15 Oct 2002 15:47:02 -0400
+	id <S264644AbSJOTuT>; Tue, 15 Oct 2002 15:50:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264641AbSJOTrC>; Tue, 15 Oct 2002 15:47:02 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:50087 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S263997AbSJOTrB>;
-	Tue, 15 Oct 2002 15:47:01 -0400
-Date: Tue, 15 Oct 2002 12:45:40 -0700 (PDT)
-Message-Id: <20021015.124540.39818748.davem@redhat.com>
-To: perex@suse.cz
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: ALSA update
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0210152145240.703-100000@pnote.perex-int.cz>
-References: <20021015.100811.118915540.davem@redhat.com>
-	<Pine.LNX.4.33.0210152145240.703-100000@pnote.perex-int.cz>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S264657AbSJOTuT>; Tue, 15 Oct 2002 15:50:19 -0400
+Received: from waste.org ([209.173.204.2]:6861 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S264644AbSJOTuS>;
+	Tue, 15 Oct 2002 15:50:18 -0400
+Date: Tue, 15 Oct 2002 14:55:36 -0500
+From: Oliver Xymoron <oxymoron@waste.org>
+To: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
+Cc: "David S. Miller" <davem@redhat.com>, kuznet@ms2.inr.ac.ru, mingo@elte.hu,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Rename _bh to _softirq
+Message-ID: <20021015195535.GL4771@waste.org>
+References: <5.1.0.14.2.20021015093146.05eb7738@mail1.qualcomm.com> <Pine.LNX.4.44.0210142119300.26635-100000@localhost.localdomain> <200210150157.FAA13254@sex.inr.ac.ru> <5.1.0.14.2.20021015093146.05eb7738@mail1.qualcomm.com> <5.1.0.14.2.20021015121958.01b4acd8@mail1.qualcomm.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5.1.0.14.2.20021015121958.01b4acd8@mail1.qualcomm.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Jaroslav Kysela <perex@suse.cz>
-   Date: Tue, 15 Oct 2002 21:45:56 +0200 (CEST)
+On Tue, Oct 15, 2002 at 12:24:18PM -0700, Maksim (Max) Krasnyanskiy wrote:
+> At 10:44 AM 10/15/2002 -0700, David S. Miller wrote:
+> >   From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
+> >   Date: Tue, 15 Oct 2002 09:34:02 -0700
+> >
+> >   But primary interface should be changed IMO.
+> >
+> >I totally disagree.
+> Care to explain why ?
+> 
+> >Keep _bh, it's cool.
+> But pretty much meaningless.
 
-   On Tue, 15 Oct 2002, David S. Miller wrote:
-   
-   > It fails again soon after that, none of the ioctl32.c/pcm32.c
-   > changes were even _compile_ tested.
-   
-   Thanks. Applied to linux-sound repository.
+No, now it clearly means buffer head.
 
-And what are you going to do in the future to make sure
-the sound/ioctl32/ changes you submit in the future even
-compile?
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 

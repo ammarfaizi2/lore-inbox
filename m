@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263274AbUDMQ5L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Apr 2004 12:57:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263598AbUDMQ5L
+	id S263450AbUDMQ4T (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Apr 2004 12:56:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263598AbUDMQ4T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Apr 2004 12:57:11 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:52744 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S263274AbUDMQ47 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Apr 2004 12:56:59 -0400
-Message-ID: <407C1BEC.30801@techsource.com>
-Date: Tue, 13 Apr 2004 12:57:16 -0400
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Guillaume@Lacote.name
-CC: linux-kernel@vger.kernel.org, Linux@glacote.com
-Subject: Re: Using compression before encryption in device-mapper
-References: <200404131744.40098.Guillaume@Lacote.name>
-In-Reply-To: <200404131744.40098.Guillaume@Lacote.name>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
+	Tue, 13 Apr 2004 12:56:19 -0400
+Received: from mail.tmr.com ([216.238.38.203]:64272 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S263450AbUDMQ4R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Apr 2004 12:56:17 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: [PATCH] eliminate nswap and cnswap
+Date: Tue, 13 Apr 2004 12:56:55 -0400
+Organization: TMR Associates, Inc
+Message-ID: <c5h5v4$frc$1@gatekeeper.tmr.com>
+References: <1081827102.1593.227.camel@cube>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1081875236 16236 192.168.12.100 (13 Apr 2004 16:53:56 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+In-Reply-To: <1081827102.1593.227.camel@cube>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Guillaume Lacôte wrote:
-> Hi,
+Albert Cahalan wrote:
+>>The nswap and cnswap variables counters have never
+>>been incremented as Linux doesn't do task swapping.
 > 
-> I hope this is the right place to post this message; I tried to keep it small.
-> Basically I really would like to implement compression at the dm level, 
-> despite all of the problems. The reason for this is that reducing redundancy 
-> through compression tremendously reduces the possibilities of success for an 
-> attacker. I had implemented this idea in a java archiver ( 
-> http://jsam.sourceforge.net ).
 > 
-> Although I am not a good kernel hacker, I have spent some time reading 
-> compressed-loop.c, loop-aes, dm-crypt.c, and various threads from lkml 
-> including http://www.uwsg.iu.edu/hypermail/linux/kernel/0402.2/0035.html
-> Thus I would appreciate if you could answer the following questions regarding 
-> the implementation of a "dm-compress" dm personality. 
+> I'm pretty sure they were used for paging activity.
+> We don't eliminate support for "swap space", do we?
 > 
-[snip]
+> Somebody must have broken nswap and cnswap while
+> hacking on some vm code. I hate to see the variables
+> get completely ripped out of the kernel instead of
+> getting fixed.
 
-I have a suggestion.  If you're compressing only for the sake of 
-obfuscation, then don't really try to save any space.  Use a fast 
-compression algorithm which doesn't necessarily do a great job.
+Since Linux doesn't swap, "fixed" would mean returning zero for these 
+values. I don't thing even BSD swaps anymore, does it? In any case, 
+Linux never did.
 
-When you're going to write, compress the block.  If it gets smaller, 
-fine.  Store it in the same space it would have required even if it were 
-uncompressed.  If the block gets bigger, then store it uncompressed. 
-Whether or not the block could be compressed would be stored in metadata 
-(in the inode, I guess).
-
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

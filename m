@@ -1,67 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262788AbTELVwg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 17:52:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262794AbTELVwg
+	id S262798AbTELVxD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 17:53:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262801AbTELVxC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 17:52:36 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:31433 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262788AbTELVwe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 17:52:34 -0400
-Date: Tue, 13 May 2003 00:05:12 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: yoshfuji@linux-ipv6.org
-Cc: "David S. Miller" <davem@redhat.com>, jt@hpl.hp.com,
-       linux-kernel@vger.kernel.org
-Subject: [patch] 2.5.69-bk7: wireless.c must include module.h
-Message-ID: <20030512220512.GC1107@fs.tum.de>
+	Mon, 12 May 2003 17:53:02 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:34201
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S262798AbTELVxA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 17:53:00 -0400
+Subject: Re: PCMCIA 2.5.X sleeping from illegal context
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: David Hinds <dahinds@users.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1052775331.1995.49.camel@diemos>
+References: <1052775331.1995.49.camel@diemos>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1052773631.31825.18.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 12 May 2003 22:07:13 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<--  snip  -->
+On Llu, 2003-05-12 at 22:35, Paul Fulghum wrote:
+> The 2.5.X PCMCIA kernel support seems to have a problem
+> with drivers/pcmcia/rsrc_mgr.c in function undo_irq().
 
-...
-  gcc -Wp,-MD,net/core/.wireless.o.d -D__KERNEL__ -Iinclude -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--pipe -mpreferred-stack-boundary=2 -march=k6 
--Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include    
--DKBUILD_BASENAME=wireless -DKBUILD_MODNAME=wireless -c -o 
-net/core/wireless.o net/core/wireless.c
-net/core/wireless.c:488: `THIS_MODULE' undeclared here (not in a function)
-net/core/wireless.c:488: initializer element is not constant
-net/core/wireless.c:488: (near initialization for `wireless_seq_fops.owner')
-make[2]: *** [net/core/wireless.o] Error 1
-
-<--  snip  -->
-
-
-The fix is simple:
-
---- linux-2.5.69-bk7/net/core/wireless.c.old	2003-05-13 00:02:06.000000000 +0200
-+++ linux-2.5.69-bk7/net/core/wireless.c	2003-05-13 00:02:42.000000000 +0200
-@@ -60,6 +60,7 @@
- #include <linux/seq_file.h>
- #include <linux/init.h>			/* for __init */
- #include <linux/if_arp.h>		/* ARPHRD_ETHER */
-+#include <linux/module.h>
- 
- #include <linux/wireless.h>		/* Pretty obvious */
- #include <net/iw_handler.h>		/* New driver API */
-
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Does this still happen with all the patches Russell King posted
+that everyone else is ignoring ?
 

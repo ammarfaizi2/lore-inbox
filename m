@@ -1,97 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263626AbUFRVYZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262060AbUFRVYZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263626AbUFRVYZ (ORCPT <rfc822;willy@w.ods.org>);
+	id S262060AbUFRVYZ (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 18 Jun 2004 17:24:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263101AbUFRVVT
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262837AbUFRVU1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 17:21:19 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:2724 "EHLO hermes.jf.intel.com")
-	by vger.kernel.org with ESMTP id S262389AbUFRVTv convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 17:19:51 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: ov511 [2.6.7-rc3] does something odd
-Date: Fri, 18 Jun 2004 14:19:34 -0700
-Message-ID: <468F3FDA28AA87429AD807992E22D07E017B977D@orsmsx408>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: ov511 [2.6.7-rc3] does something odd
-Thread-Index: AcRTOKIMsRyxuq7qT5yrYam1cCG3gACQRx4g
-From: "Venkatesan, Ganesh" <ganesh.venkatesan@intel.com>
-To: "David Ford" <david+challenge-response@blue-labs.org>,
-       "linux-kernel mailing list" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 18 Jun 2004 21:19:36.0262 (UTC) FILETIME=[F4F99E60:01C45579]
+	Fri, 18 Jun 2004 17:20:27 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:64408 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264524AbUFRVSM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 17:18:12 -0400
+Date: Fri, 18 Jun 2004 23:17:57 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Rik van Riel <riel@redhat.com>, dev@opensound.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Stop the Linux kernel madness
+Message-ID: <20040618211757.GD7404@suse.de>
+References: <20040618082708.GD12881@suse.de> <Pine.LNX.4.44.0406181037180.8065-100000@chimarrao.boston.redhat.com> <20040618135136.45581da7.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040618135136.45581da7.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David/Jens:
+On Fri, Jun 18 2004, Andrew Morton wrote:
+> Rik van Riel <riel@redhat.com> wrote:
+> >
+> > Maintaining a patch for one version of the distribution, in
+> > order to get a feature to customers sooner, is perfectly
+> > doable and may make economic sense.
+> > 
+> > Maintaining an out-of-tree patch forever because you didn't
+> > get around to merging it into the upstream kernel doesn't.
+> 
+> Problem is, what happens if vendor X ships a feature and that feature is
+> deemed unacceptable for the kernel.org kernel?
 
-What Intel NICS are you seeing this failure in? Could you send me a
-lspci -vvv for the device? Also an ethtool -I eth?.
+Very good question, as these features/patches are often the ones that
+are ugliest and the hardest to maintain. Or the ones that make you
+slightly source incompatible with mainline, which is always ugly.
 
-Thanks,
-ganesh 
- 
--------------------------------------------------
-Ganesh Venkatesan
-Network/Storage Division, Hillsboro, OR
+> There are examples of this and as I've earlier indicated, I'd be OK with
+> merging some fairly stinky things after 2.7 forks off, as a service to the
+> major kernel.org customers and as a general lets-keep-things-in-sync
+> exercise.
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of David Ford
-Sent: Tuesday, June 15, 2004 4:38 PM
-To: linux-kernel mailing list
-Subject: ov511 [2.6.7-rc3] does something odd
+Within reason (I trust your taste and judgement completely), I fully
+support that and think this is key to maintaing closer proximity between
+mainline and vendor kernels. There are _always_ going to be uglies
+(don't ask me why)...
 
-usb 2-1.3: new full speed USB device using address 7
-DEV: registering device: ID = '2-1.3'
-PM: Adding info for usb:2-1.3
-bus usb: add device 2-1.3
-bound device '2-1.3' to driver 'usb'
-DEV: registering device: ID = '2-1.3:1.0'
-PM: Adding info for usb:2-1.3:1.0
-bus usb: add device 2-1.3:1.0
-drivers/usb/media/ov511.c: USB OV511 video device found
-drivers/usb/media/ov511.c: model: AverMedia InterCam Elite
-drivers/usb/media/ov511.c: Sensor is an OV7610
-CLASS: registering class device: ID = 'video0'
-class_hotplug - name = video0
-drivers/usb/media/ov511.c: Device at usb-0000:00:10.0-1.3 registered to 
-minor 0
-bound device '2-1.3:1.0' to driver 'ov511'
-stack segment: 0000 [1] PREEMPT
-CPU 0
-Modules linked in:
-Pid: 6806, comm: camsource Not tainted 2.6.7-rc3
-RIP: 0010:[<ffffffff803a9906>] <ffffffff803a9906>{ov51x_v4l1_ioctl+38}
-RSP: 0018:000001003c4edf18  EFLAGS: 00010216
-RAX: 000001003fefe920 RBX: 6b6b6b6b6b6b6c13 RCX: 00000000407ff760
-RDX: 0000000040107613 RSI: 000001003a1d5a88 RDI: 6b6b6b6b6b6b6c13
-RBP: 6b6b6b6b6b6b6b6b R08: 0000000000524f80 R09: 000001003d714c08
-R10: 00000000407ff738 R11: 0000000000000246 R12: 00000000407ff760
-R13: 0000000000000000 R14: 0000000000000007 R15: 00000000ffffffe7
-FS:  00000000407ff960(005b) GS:ffffffff80737b00(0000)
-knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-CR2: 0000002a9e5c8000 CR3: 0000000000101000 CR4: 00000000000006e0
-Process camsource (pid: 6806, threadinfo 000001003c4ec000, task 
-000001003e1b2430)
-Stack: 0000000040107613 0000000040107613 000001003a1d5a88
-ffffffff801ad8bd
-       0000000000000000 000000003b8658f4 0000000000000000
-00000000005250c0
-       00000000407ff760 0000000000525040
-Call Trace:<ffffffff801ad8bd>{sys_ioctl+685} 
-<ffffffff8011221a>{system_call+126}
+> But we then need to do it all again in 2.8.x.  It's hard to see how to fix
+> this apart from either merging everything into the main tree or dropping
+> things from vendor trees.  Or waiting for someone to come up with an
+> acceptable form of whatever it is the patch does.
 
+Wish I had an answer for that. Things can and do get dropped from vendor
+trees, doesn't cover all cases naturally.
 
-Code: ff 8d a8 00 00 00 0f 88 8a 2c 00 00 31 c0 85 c0 41 b8 fc ff
-RIP <ffffffff803a9906>{ov51x_v4l1_ioctl+38} RSP <000001003c4edf18>
-
-
+-- 
+Jens Axboe
 

@@ -1,60 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131051AbQLGRPF>; Thu, 7 Dec 2000 12:15:05 -0500
+	id <S130671AbQLGRRF>; Thu, 7 Dec 2000 12:17:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130872AbQLGROz>; Thu, 7 Dec 2000 12:14:55 -0500
-Received: from grace.speakeasy.org ([216.254.0.2]:32262 "HELO
-	grace.speakeasy.org") by vger.kernel.org with SMTP
-	id <S130762AbQLGROs>; Thu, 7 Dec 2000 12:14:48 -0500
-Date: Thu, 7 Dec 2000 11:44:55 -0500 (EST)
-From: Pavel Roskin <proski@gnu.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <linux-kernel@vger.kernel.org>, Pete Zaitcev <zaitcev@metabyte.com>
+	id <S129597AbQLGRQz>; Thu, 7 Dec 2000 12:16:55 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:56587 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129257AbQLGRQu>; Thu, 7 Dec 2000 12:16:50 -0500
 Subject: Re: YMF PCI - thanks, glitches, patches (fwd)
-In-Reply-To: <E1441FJ-0002QX-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0012071108220.23591-100000@fonzie.nine.com>
+To: proski@gnu.org (Pavel Roskin)
+Date: Thu, 7 Dec 2000 16:48:50 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org,
+        zaitcev@metabyte.com (Pete Zaitcev)
+In-Reply-To: <Pine.LNX.4.30.0012071108220.23591-100000@fonzie.nine.com> from "Pavel Roskin" at Dec 07, 2000 11:44:55 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E1444E0-0002fW-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, Alan!
+> So, it's not just a matter of changing the constants under "case
+> SNDCTL_DSP_SPEED" in ymf_ioctl()? Actually, I hacked them to be
+> 4000<rate<50000 and it worked fine, but I'll drop this part of my patch if
+> you believe it's unsafe.
 
-> > The Linux-sound list appears to be dead (I don't see my message in
-> > http://www.kernelnotes.org/lnxlists/linux-sound/), so I'm sending to the
->
-> sound-list@redhat.com is alive and well however.
-
-You cannot imagine how frustrating it was to search for the archive.  I
-couldn't find an up-to-date archive, and www.kernel.org keeps silence
-about mailing lists. I cannot afford subscribing to every list just to
-slightly polish support for my hardware.
-
-> > Dec  5 18:08:16 fonzie kernel: ymfpci: ioctl cmd 0x5401
-> > Dec  5 18:08:50 fonzie last message repeated 9 times
->
-> Just debugging this is fine
-
-Well, 0x5401 is TCGETS. Other sound drivers just ignore it. I believe the
-drivers should only log the ioctls that are relevant to them (i.e.
-sound-related ioctls for sound drivers) and are not implemented.
-
-> > $ play spinout.wav
-> > sox: Unable to set audio speed to 5512 (set to 8000)
->
-> 8Khz is the lower limit right now the way the board is driven.
-
-So, it's not just a matter of changing the constants under "case
-SNDCTL_DSP_SPEED" in ymf_ioctl()? Actually, I hacked them to be
-4000<rate<50000 and it worked fine, but I'll drop this part of my patch if
-you believe it's unsafe.
-
-Anyway, the problem with handing sox is solved by replacing all ENOTTY
-with EINVAL in ymfpci.c. It has nothing to do with the lower frequency
-limit. No other sound driver ever uses ENOTTY.
-
-Regards,
-Pavel Roskin
+I'd keep it in the absence of other evidence. 8KHz is normally the low limit
+for AC97 codec based systems, but if the rate adaption is done in front of
+the codec then it may well be fine
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

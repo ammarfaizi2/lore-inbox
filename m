@@ -1,95 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264124AbUFBUtf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264101AbUFBUwf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264124AbUFBUtf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 16:49:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264132AbUFBUtf
+	id S264101AbUFBUwf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 16:52:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264132AbUFBUwe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 16:49:35 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:63626 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S264124AbUFBUt3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 16:49:29 -0400
-Date: Wed, 2 Jun 2004 22:50:25 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>
-Subject: [announce] [patch] NX (No eXecute) support for x86, 2.6.7-rc2-bk2
-Message-ID: <20040602205025.GA21555@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 2 Jun 2004 16:52:34 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:9344 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S264101AbUFBUwM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 16:52:12 -0400
+Date: Wed, 2 Jun 2004 16:52:04 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Garboua Nahil Y Contr WRALC/MASFE <Nahil.Garboua@robins.af.mil>
+cc: Mathieu Segaud <matt@minas-morgul.org>, linux-kernel@vger.kernel.org
+Subject: RE: Context switch Tick
+In-Reply-To: <200406022013.i52KDu1l025256@cits-darla.robins.af.mil>
+Message-ID: <Pine.LNX.4.53.0406021650150.1020@chaos>
+References: <200406022013.i52KDu1l025256@cits-darla.robins.af.mil>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="1678434306-347682473-1086209524=:1020"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-we'd like to announce the availability of the following kernel patch:
+--1678434306-347682473-1086209524=:1020
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-     http://redhat.com/~mingo/nx-patches/nx-2.6.7-rc2-bk2-AE
+On Wed, 2 Jun 2004, Garboua Nahil Y Contr WRALC/MASFE wrote:
 
-which makes use of the 'NX' x86 feature pioneered in AMD64 CPUs and for
-which support has also been announced by Intel. (other x86 CPU vendors,
-Transmeta and VIA announced support as well. Windows support for NX has
-also been announced by Microsoft, for their next service pack.) The NX
-feature is also being marketed as 'Enhanced Virus Protection'. This
-patch makes sure Linux has full support for this hardware feature on x86
-too.
+> Okay, vmstat show me the cs according to current load, what is the Maximum
+> tick rate?
+> A process requests a 1 microseconds sleep, or even 500 nanoseconds, how long
+> does it actually sleep, that is why I need to know max tick rate for context
+> switch for a given CPU.
 
-What does this patch do? The pagetable format of current x86 CPUs does
-not have an 'execute' bit. This means that even if an application maps a
-memory area without PROT_EXEC, the CPU will still allow code to be
-executed in this memory. This property is often abused by exploits when
-they manage to inject hostile code into this memory, for example via a
-buffer overflow.
+Can't you just measure it?
 
-The NX feature changes this and adds a 'dont execute' bit to the PAE
-pagetable format. But since the flag defaults to zero (for compatibility
-reasons), all pages are executable by default and the kernel has to be
-taught to make use of this bit.
+Script started on Wed Jun  2 16:48:51 2004
+# ./tester
+Testing CPU Speed (once at start of program)
+CPU speed = 2803766848 Hz
+Cycles to make the two function calls = 88
+It took 55625156 cpu cycles or 19839.437091 microseconds.
+# exit
+Script done on Wed Jun  2 16:48:57 2004
 
-If the NX feature is supported by the CPU then the patched kernel turns
-on NX and it will enforce userspace executability constraints such as a
-no-exec stack and no-exec mmap and data areas. This means less chance
-for stack overflows and buffer-overflows to cause exploits.
+That was for a usleep(1). Source attached.
 
-furthermore, the patch also implements 'NX protection' for kernelspace
-code: only the kernel code and modules are executable - so even
-kernel-space overflows are harder (in some cases, impossible) to
-exploit. Here is how kernel code that tries to execute off the stack is 
-stopped:
 
- kernel tried to access NX-protected page - exploit attempt? (uid: 500)
- Unable to handle kernel paging request at virtual address f78d0f40
-  printing eip:
- ...
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-The patch is based on a prototype NX patch written for 2.4 by Intel -
-special thanks go to Suresh Siddha and Jun Nakajima @ Intel. The
-existing NX support in the 64-bit x86_64 kernels has been written by
-Andi Kleen and this patch is modeled after his code.
 
-Arjan van de Ven has also provided lots of feedback and he has
-integrated the patch into the Fedora Core 2 kernel. Test rpms are
-available for download at:
+--1678434306-347682473-1086209524=:1020
+Content-Type: APPLICATION/octet-stream; name="context.tar.gz"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.53.0406021652040.1020@chaos>
+Content-Description: 
+Content-Disposition: attachment; filename="context.tar.gz"
 
-    http://redhat.com/~arjanv/2.6/RPMS.kernel/
+H4sIAII9vkAAA+1XbW/bNhD2V/FXHBoYsANbluKXDMk6DMuHrgPWDk2HftiG
+gKYoiwhNGiQVxx3633uULL/Fbb6kHYLxgWGLp4f34jveSUwrx+/djRNzPmh9
+G8AoOR+PoQUeycHvepEmyfh8NJyMh2OANB2fn7Vg/I382UNpHTUALaO1+xrv
+sfvPFGw3/7/TW54LyZ/YBuZ2Mhp9Of/peJv/JElQMDybTFqQPLEfR/E/zz+h
+Ul5EjlvHDSH1b7OOGZjMWRZfk2jGGPTfnkH/A26AvoaaAg+YhElO1QWJzBz6
+OTSa/+s4A45j7/yvc/jUNh45/2l6Njo8/2k6DOf/e+CEnETvC2EBP7nhHKzO
+3ZIaDksjnOMKpit4J1hBTQa/xPCbLpTVKoY3GncyvVgZMSuc384kxSLKYnhd
+Lam0GpR2MCupoVhlPAOnIdNA1coVQs1QQWl5XsqYoBuExBl1lEhqHbakWGo1
+i5JqWWyXsa9WElMpZir6ISLxTOqpjLB88dZqwcFf/pyXijmhFfGKAd5xVxoF
+ruBw9cef6Khmt5CJPOeGK8Zhyt2SY6i2ZIxbK+44MGxz1vuF6i6iRWkLGbX5
+9B77mj8kJJrrOxl1Kme7PfC3ougEXnEHXgZSL8G7vNQm2yUXFZntkwv8Cw/Z
+bU7ve7A24NnX1LtVGnT5qPo2z5oNxcMNByZsOa3j8d7QypurNbNf+YSUaUVh
+FSW7rzXOsS6EK2CqjdFLEi30YvO/cMwLV1no9c8Je/2/GeZPbOOx/j8anW/6
+P74q+P4/HI1D//8ewA4pFJNlxuFH6zKh4+KnfZEU031ZqQSKvYxg5XBsrKWy
+2I6xv/sGU39hPXW6lxvGnRYZWFbw7GYluMw6XuDvC+w4cypUx19QM7M98LMG
+TvH67q9/uuRf4mvkiAW2KG/sAqdKD5zr+YYtppcVOdPY3TjgbGFowUtqc7VP
+zVvH4BReK+EE7vvI4XRQESst8BJ2qUi88mJDHYdmsvT9gKinyQqfeG2jYGEw
+kLzz4j0eJRxxFePaewkd7UcNdeALzoHOkatnhs67f6sX3csHfu4IrOR80UnX
+sk3gjZ/YsneibzzwlhtaW8oSfv2Ihnrb7d0Dfh0Hjug5vgZWw9It9SbgeiKu
+ddWKvM0vOV5ufR4MvGA3+WuOc8cj8InDO506j13PG2xXG/93yKcvIeWT/Xjw
+KcRpfVvHjpuaRGkD7RzmghmNW7XKbFyF44vIK1s7Z+pnhuSSfCJhpAUEBAQE
+BAQEBAQEBAQEBAQEBAQEBDwzfAZVkHcWACgAAA==
 
-the kernel-2.6.6-1.411 rpms have the NX patch applied.
-
-here's a quickstart to recompile the vanilla kernel from source with the
-NX patch:
-
-    http://redhat.com/~mingo/nx-patches/QuickStart-NX.txt
-
-	Ingo
+--1678434306-347682473-1086209524=:1020--

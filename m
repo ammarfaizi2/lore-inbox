@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261941AbTCHARO>; Fri, 7 Mar 2003 19:17:14 -0500
+	id <S261962AbTCHATX>; Fri, 7 Mar 2003 19:19:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261944AbTCHARO>; Fri, 7 Mar 2003 19:17:14 -0500
-Received: from pollux.ds.pg.gda.pl ([213.192.76.3]:57861 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S261941AbTCHARH>; Fri, 7 Mar 2003 19:17:07 -0500
-Date: Sat, 8 Mar 2003 01:27:36 +0100 (CET)
-From: =?ISO-8859-2?Q?Pawe=B3_Go=B3aszewski?= <blues@ds.pg.gda.pl>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [BK FBDEV] Updates.
-In-Reply-To: <Pine.LNX.4.44.0303072250150.17609-100000@phoenix.infradead.org>
-Message-ID: <Pine.LNX.4.51L.0303080126140.17733@piorun.ds.pg.gda.pl>
-References: <Pine.LNX.4.44.0303072250150.17609-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
+	id <S261975AbTCHATW>; Fri, 7 Mar 2003 19:19:22 -0500
+Received: from packet.digeo.com ([12.110.80.53]:33185 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261962AbTCHATU>;
+	Fri, 7 Mar 2003 19:19:20 -0500
+Date: Fri, 7 Mar 2003 16:30:01 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Daniel McNeil <daniel@osdl.org>
+Cc: andrea@suse.de, linux-kernel@vger.kernel.org, shemminger@osdl.org,
+       torvalds@transmeta.com
+Subject: Re: [PATCH 2.5.64 2/2] i_size atomic access
+Message-Id: <20030307163001.43805e11.akpm@digeo.com>
+In-Reply-To: <1047082543.2636.98.camel@ibm-c.pdx.osdl.net>
+References: <1047082543.2636.98.camel@ibm-c.pdx.osdl.net>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 08 Mar 2003 00:29:49.0454 (UTC) FILETIME=[D407C2E0:01C2E509]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 8 Mar 2003, James Simmons wrote:
-> > Happily using this as sis fb doesn't compile in 2.5.64; This is the
-> > first 2.5 kernel that boots for me. X seems faster than under 2.4.
-> > This (almost) all sis based laptop likes things now.
-> Yeah!!!!!! I have more updates for the SIS drivers. I'm going to upload
-> the new stuff in about 30 minutes.
+Daniel McNeil <daniel@osdl.org> wrote:
+>
+> This adds i_seqcnt to inode structure and then uses i_size_read() and
+> i_size_write() to provide atomic access to i_size.
 
-Do you have something for tdfx? :)
+Ho hum.  Everybody absolutely hates this, but I guess we should do it :(
 
-It's not usable in depth 16 or 24 bits (I've reported it).
+> +static inline void i_size_write(struct inode * inode, loff_t i_size)
+> +{
+> +#if BITS_PER_LONG==32 && defined(CONFIG_SMP)
+> +	write_seqcntbegin(&inode->i_size_seqcnt);
+> +	inode->i_size = i_size;
+> +	write_seqcntend(&inode->i_size_seqcnt);
+> +#elif BITS_PER_LONG==32 && defined(CONFIG_PREMPT)
+> +	prempt_disable();
+> +	inode->i_size = i_size;
+> +	prempt_enable();
+> +#else
+> +	inode->i_size = i_size;
+> +#endif
+> +}
 
--- 
----------------------------------
-pozdr.  Pawe³ Go³aszewski        
----------------------------------
-CPU not found - software emulation...
+You've used "PREMPT" and "prempt" throughput the patch.  It is in fact
+"PREEMPT" and "preempt".
+
+Could you please fix that up and send me fresh copies?  Probably as
+attachments - your mailer wordwrapped the patches.
+
+Thanks.

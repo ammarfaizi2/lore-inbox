@@ -1,33 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282020AbRKZShm>; Mon, 26 Nov 2001 13:37:42 -0500
+	id <S282012AbRKZShm>; Mon, 26 Nov 2001 13:37:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282019AbRKZSgG>; Mon, 26 Nov 2001 13:36:06 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:1415 "EHLO
-	opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S282016AbRKZSe2>; Mon, 26 Nov 2001 13:34:28 -0500
-Date: Mon, 26 Nov 2001 11:34:29 -0700
-From: Tom Rini <trini@kernel.crashing.org>
+	id <S282027AbRKZSgN>; Mon, 26 Nov 2001 13:36:13 -0500
+Received: from quark.didntduck.org ([216.43.55.190]:46352 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S282037AbRKZSfX>; Mon, 26 Nov 2001 13:35:23 -0500
+Message-ID: <3C028B63.3A6AF1EC@didntduck.org>
+Date: Mon, 26 Nov 2001 13:35:15 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.76 [en] (WinNT; U)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: war <war@starband.net>
-Cc: linux-kernel@vger.kernel.org
+CC: linux-kernel@vger.kernel.org
 Subject: Re: Linux 2.4.16 Bug (PPC)
-Message-ID: <20011126113429.A12583@cpe-24-221-152-185.az.sprintbbd.net>
 In-Reply-To: <3C028378.50CA616C@starband.net>
-Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C028378.50CA616C@starband.net>
-User-Agent: Mutt/1.3.23i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 26, 2001 at 01:01:28PM -0500, war wrote:
-
+war wrote:
+> 
 > Bug still resides in 2.4.16 still, even after the PPC fixes that were
 > applied to 2.4.16-pre1.
-
-Didn't see this one reported before...
-
+> 
+> If nobody cares about PPC updates, I guess I should put the box back on
+> the shelf.
+> 
 > The video driver (plat) is the framebuffer for a few macs, without it,
 > I cannot do anything.
 > 
@@ -38,9 +39,13 @@ Didn't see this one reported before...
 > 
 > Commenting the two undefined functions out in drivers/video/platinumfb.c
 > allows for a successful compile.
+> It also allows for the video driver to be brought up succesfully.
+> 
+> Now will this bug be fixed in 2.4.17 for PPC or should I just put my PPC
+> back on the shelf? :)
 
-Is CONFIG_NVRAM on?
+Is CONFIG_NVRAM built in to the kernel?
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+--
+
+				Brian Gerst

@@ -1,39 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264491AbTEJUJ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 16:09:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264492AbTEJUJ0
+	id S264494AbTEJUMs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 16:12:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264495AbTEJUMs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 16:09:26 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:51973 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id S264491AbTEJUJZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 16:09:25 -0400
-Date: Sat, 10 May 2003 22:21:55 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Larry McVoy <lm@bitmover.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel.bkbits.net and BK->CVS gateway
-In-Reply-To: <20030510195545.GA26447@work.bitmover.com>
-Message-ID: <Pine.LNX.4.44.0305102220330.12110-100000@serv>
-References: <20030510154352.GK679@phunnypharm.org> <20030510162207.GB24686@work.bitmover.com>
- <20030510192253.GA24276@delft.aura.cs.cmu.edu> <20030510195545.GA26447@work.bitmover.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 10 May 2003 16:12:48 -0400
+Received: from mail.gmx.net ([213.165.65.60]:42434 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264494AbTEJUMq convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 16:12:46 -0400
+Date: Sat, 10 May 2003 22:23:06 +0200
+From: Tuncer M "zayamut" Ayaz <tuncer.ayaz@gmx.de>
+To: Tuncer M "zayamut" Ayaz <tuncer.ayaz@gmx.de>
+Cc: xavier.bestel@free.fr, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.69 strange high tone on DELL Inspiron 8100
+In-Reply-To: <S264488AbTEJT4X/20030510195623Z+7092@vger.kernel.org>
+References: <1405.1052575075@www9.gmx.net>
+	<1052575167.16165.0.camel@dhcp22.swansea.linux.org.uk>
+	<S264332AbTEJO5e/20030510145734Z+7011@vger.kernel.org>
+	<S264373AbTEJPSN/20030510151813Z+1648@vger.kernel.org>
+	<20030510162527.GD29271@mail.jlokier.co.uk>
+	<S264444AbTEJQk4/20030510164056Z+1652@vger.kernel.org>
+	<S264449AbTEJRZH/20030510172507Z+7050@vger.kernel.org>
+	<1052588866.1013.3.camel@bip.localdomain.fake>
+	<S264488AbTEJT4X/20030510195623Z+7092@vger.kernel.org>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <S264494AbTEJUMq/20030510201246Z+7104@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, 10 May 2003 22:06:25 +0200
+Tuncer M "zayamut" Ayaz <tuncer.ayaz@gmx.de> wrote:
 
-On Sat, 10 May 2003, Larry McVoy wrote:
-
->     "it's about being nice to people especially the ones that help you."
+> On 10 May 2003 19:47:47 +0200
+> Xavier Bestel <xavier.bestel@free.fr> wrote:
 > 
-> What he said.
+> > Le sam 10/05/2003 à 19:35, Tuncer M zayamut Ayaz a écrit :
+> > 
+> > > rebooted with a reconfigured kernel to assure it's not cpufreq.
+> > > same behaviour without cpufreq.
+> > 
+> > You should perhaps try to enable/disable APM idle calls ..
+> > 
+> > 	Xav
+> 
+> disabling apm idle calls seem to fix it but on this notebook
+> those calls are necessary so that it doesn't get too hot.
+> or can ACPI be used to accomplish those calls?
+> 
+> I'm already running it always on SpeeStep power-saving mode
+> so that it doesn't get REALLY hot. try typing on an Inspiron
+> 8100 in the summer while compiling for a while. it's not
+> healthy for your hands :D
 
-So that gives you a right to be an ass to anyone who critizes you?
-
-bye, Roman
-
-
+besides fixing the noise issue by disabling a wanted feature,
+somehow pcmcia is borked, it just doesn't work and print
+lots of error messages and one of pcmcia processes (dunno which)
+segfaults.
+may be my fault, who knows. well, we'll see...

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315375AbSEQDEZ>; Thu, 16 May 2002 23:04:25 -0400
+	id <S315406AbSEQDbE>; Thu, 16 May 2002 23:31:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315378AbSEQDEY>; Thu, 16 May 2002 23:04:24 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:14341 "EHLO
+	id <S315408AbSEQDbD>; Thu, 16 May 2002 23:31:03 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:15621 "EHLO
 	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S315375AbSEQDEY>; Thu, 16 May 2002 23:04:24 -0400
-Date: Fri, 17 May 2002 05:04:07 +0200
+	id <S315406AbSEQDbC>; Thu, 16 May 2002 23:31:02 -0400
+Date: Fri, 17 May 2002 05:30:56 +0200
 From: Tomas Szepe <szepe@pinerecords.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: joergprante@gmx.de, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.4.19pre8][RFC] remove-NFS-close-to-open from VFS (was Re: [PATCHSET] 2.4.19-pre8-jp12)
-Message-ID: <20020517030407.GA4595@louise.pinerecords.com>
-In-Reply-To: <200205162142.AWF00051@netmail.netcologne.de> <E178TUb-0005Bh-00@the-village.bc.nu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 3
+Message-ID: <20020517033056.GB4595@louise.pinerecords.com>
+In-Reply-To: <3038.1021588938@ocs3.intra.ocs.com.au> <Pine.LNX.4.44.0205162003360.4117-100000@xanadu.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,13 +21,20 @@ X-OS: Linux/sparc 2.2.21-rc4-ext3-0.0.7a SMP (up 20:37)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Is it possible to leave the VFS layer untouched? Or restrict the dentry 
-> > revalidation to NFS and let other remote file systems coexist, i.e. without 
-> > revalidation calls? 
+> > Third and final attempt.  Original sent on May 2, second mail sent on
+> > May 14, still no response from Linus.
 > 
-> Really the other file systems want fixing - that revalidation is a real bug
-> fix and the situation could occur for other network file systems too
+> Linus is a bastard.  Did you forget?
 
-I was able to reproduce the bug on a reiserfs root on one of my machines today.
+This is getting ridiculous all right.
+
+Linus, what makes you ignore Keith's work?
+
+Would you tend to think he's worked on kbuild25 this long
+to end up having to send a linus-dammit-would-you-have-
+-a-look-at-last-i'm-not-going-to-keep-asking-forever msg?
+
+Sorry for a slightly offensive post; I can't stand to
+see such impoliteness.
 
 T.

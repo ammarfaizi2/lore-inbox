@@ -1,44 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317517AbSGERlV>; Fri, 5 Jul 2002 13:41:21 -0400
+	id <S317518AbSGERqg>; Fri, 5 Jul 2002 13:46:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317518AbSGERlV>; Fri, 5 Jul 2002 13:41:21 -0400
-Received: from moutvdomng1.kundenserver.de ([195.20.224.131]:28147 "EHLO
-	moutvdomng1.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S317517AbSGERlU>; Fri, 5 Jul 2002 13:41:20 -0400
-Date: Fri, 5 Jul 2002 11:43:34 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Pablo Fischer <exilion@yifan.net>
-cc: Mark Hahn <hahn@physics.mcmaster.ca>, <linux-kernel@vger.kernel.org>
-Subject: RE: StackPages errors (CALLTRACE)
-In-Reply-To: <IDEJJDGBFBNEKLNKFPAEEEAJCDAA.exilion@yifan.net>
-Message-ID: <Pine.LNX.4.44.0207051125380.10105-100000@hawkeye.luckynet.adm>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317519AbSGERqf>; Fri, 5 Jul 2002 13:46:35 -0400
+Received: from mail.clsp.jhu.edu ([128.220.34.27]:52963 "EHLO
+	mail.clsp.jhu.edu") by vger.kernel.org with ESMTP
+	id <S317518AbSGERqe>; Fri, 5 Jul 2002 13:46:34 -0400
+Date: Fri, 5 Jul 2002 15:48:17 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: simple handling of module removals Re: [OKS] Module removal
+Message-ID: <20020705134816.GA112@elf.ucw.cz>
+References: <20020703034809.GI474@elf.ucw.cz> <10962.1025745528@kao2.melbourne.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <10962.1025745528@kao2.melbourne.sgi.com>
+User-Agent: Mutt/1.3.28i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-On Fri, 5 Jul 2002, Pablo Fischer wrote:
-> 1) Its more a HW problem? (a PRocessor problem?) I have AMD K6
+> >Okay. So we want modules and want them unload. And we want it bugfree.
+> >
+> >So... then its okay if module unload is *slow*, right?
+> >
+> >I believe you can just freeze_processes(), unload module [now its
+> >safe, you *know* noone is using that module, because all processes are
+> >in your refrigerator], thaw_processes().
 > 
-> 2) So.. you are telling me that I cant solve it? :(, only if I change the
-> proccessor to a Pentium?..
+> The devil is in the details.
 
-It's a problem with the module code. It should be sufficient to replace 
-cmov with something that can execute on < P6. That means, hand-checking, 
-depending on !CONFIG_MPENTIUM4.
+I don't think so.
 
-							Regards,
-							Thunder
+> You must not freeze the process doing rmmod, that way lies deadlock.
+
+That's automagic. Process doing freeze will not freeze itself.
+
+> Modules can run their own kernel threads.  When the module shuts
+> down
+> it terminates the threads but we must wait until the process entries
+> for the threads have been reaped.  If you are not careful, the zombie
+> clean up code can refer to the module that no longer exists.  You must
+> not freeze any threads that belong to the module.
+
+Look at the code. freezer will try for 5 seconds, then give up. So, in
+rare case module has some threads, rmmod will simply fail. I believe
+we can fix rare remaining modules one by one.
+
+> You must not freeze any process that has entered the module but not yet
+> incremented the use count, nor any process that has decremented the use
+> count but not yet left the module.  Simply looking at the EIP after
+
+Look how freezer works. refrigerator() is blocking, by definition. So
+if all processes reach refrigerator(), and the use count == 0, it is
+indeed safe to unload.
+
+> freeze is not enough.  Module code with a use count of 0 is allowed to
+> call any function as long as that function does not sleep.  That
+> rule
+
+And that's okay. If it only calls non-sleeping functions, it is not
+going to call refrigerator(), and it will exit module code before
+calling refrigerator().
+
+> Using freeze or any other quiesce style operation requires that the
+> module clean up be split into two parts.  The logic must be :-
+
+I still think it does not.
+								Pavel
 -- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
-
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277382AbRJENrw>; Fri, 5 Oct 2001 09:47:52 -0400
+	id <S277385AbRJENtw>; Fri, 5 Oct 2001 09:49:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277383AbRJENrn>; Fri, 5 Oct 2001 09:47:43 -0400
-Received: from geos.coastside.net ([207.213.212.4]:742 "EHLO
-	geos.coastside.net") by vger.kernel.org with ESMTP
-	id <S277382AbRJENrj>; Fri, 5 Oct 2001 09:47:39 -0400
-Mime-Version: 1.0
-Message-Id: <p0510031ab7e3681fe0b8@[207.213.214.37]>
-In-Reply-To: <567F3237EED@vcnet.vc.cvut.cz>
-In-Reply-To: <567F3237EED@vcnet.vc.cvut.cz>
-Date: Fri, 5 Oct 2001 06:41:39 -0700
-To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-From: Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: Finegrained a/c/mtime was Re: Directory notification pr
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	id <S277383AbRJENtm>; Fri, 5 Oct 2001 09:49:42 -0400
+Received: from www.microgate.com ([216.30.46.105]:10245 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP
+	id <S273506AbRJENtj>; Fri, 5 Oct 2001 09:49:39 -0400
+Message-ID: <009701c14da4$9c87df10$0c00a8c0@diemos>
+From: "Paul Fulghum" <paulkf@microgate.com>
+To: <Telford002@aol.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <66.154deb31.28ee7185@aol.com>
+Subject: Re: PCI Device Setup Question
+Date: Fri, 5 Oct 2001 08:49:53 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 3:27 PM -0700 2001-10-05, Petr Vandrovec wrote:
->On  5 Oct 01 at 14:15, Padraig Brady wrote:
->>  >Another advantage of using the real time instead of a counter is that
->>  >you can easily merge the both values into a single 64bit value and do
->>  >arithmetic on it in user space. With a generation counter you would need
->>  >to work with number pairs, which is much more complex.
->>  >
->>  ??
->>  if (file->mtime != mtime || file->gen_count != gen_count)
->>       file_changed=1;
->
->make needs comparing timestamps between two files. I cannot imagine
->how you can get this working (without network filesystem you can
->have global gen_count, but with network filesystem each server has
->its own gen_count... and using world-wide nanoseconds instead of world-wide
->gen_count looks much simpler to me ;-) )
+Joachim Martillo wrote:
 
-Except for the world-wide-nanosecond-resolution synchronization problem....
+> These cards use the PLX9050 PCI interface chip
+...
+> The cards are never masters and do no support
+> PCI PREFETCH and if PCI transactions are made
+> to them that relate to PCI PREFETCH, they become
+> confused and hang.
+...
+> The PCI bus driver allocates the sab8253x registers
+> as prefetchable memory resources.
 
-Even keeping cycle-counter-based systems in sync within SMP systems 
-seems problematical, depending on how the counters are implemented.
--- 
-/Jonathan Lundell.
+The PCI9050 LAS0RR local configuration register
+controls whether the address range is marked
+prefetchable or not. If bit 3 is set, then the range is marked as
+prefetchable in Bit 3 of PCI configuration register BAR2.
+
+I would verify that the EEPROM attached to the PCI9050 is setup
+to program the LAS0RR bit 3 to zero to mark the address range
+as *not* supporting prefetch.
+
+Paul Fulghum, paulkf@microgate.com
+Microgate Corporation, www.microgate.com
+

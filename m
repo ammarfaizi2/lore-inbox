@@ -1,55 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280975AbRKOSTX>; Thu, 15 Nov 2001 13:19:23 -0500
+	id <S280943AbRKOSVi>; Thu, 15 Nov 2001 13:21:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280941AbRKOSSj>; Thu, 15 Nov 2001 13:18:39 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:29151 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S280971AbRKOSSa>; Thu, 15 Nov 2001 13:18:30 -0500
-Date: Thu, 15 Nov 2001 10:15:43 -0800
-From: Jonathan Lahr <lahr@us.ibm.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: lahr@eng2.beaverton.ibm.com, linux-kernel@vger.kernel.org,
-        linux-scsi@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: Re: [Lse-tech] SCSI io_request_lock patch
-Message-ID: <20011115101543.R26302@us.ibm.com>
-In-Reply-To: <20011112130902.B26302@us.ibm.com> <20011113092311.L786@suse.de> <20011113104210.L26302@us.ibm.com> <20011114091129.H17933@suse.de> <20011114105433.O26302@us.ibm.com> <20011115112300.S27010@suse.de>
+	id <S280941AbRKOSUc>; Thu, 15 Nov 2001 13:20:32 -0500
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:53766 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S280943AbRKOSUC>;
+	Thu, 15 Nov 2001 13:20:02 -0500
+Date: Thu, 15 Nov 2001 11:18:39 -0800
+From: Greg KH <greg@kroah.com>
+To: "Eric S. Raymond" <esr@thyrsus.com>, CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: CML2 1.8.6 is available -- bug list is cleared
+Message-ID: <20011115111839.A10955@kroah.com>
+In-Reply-To: <20011115001659.A9067@thyrsus.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011115112300.S27010@suse.de>; from axboe@suse.de on Thu, Nov 15, 2001 at 11:23:00AM +0100
-X-Operating-System: Linux 2.0.32 on an i486
+In-Reply-To: <20011115001659.A9067@thyrsus.com>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Thu, 18 Oct 2001 17:44:17 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe [axboe@suse.de] wrote:
-> On Wed, Nov 14 2001, Jonathan Lahr wrote:
-> > > It's absolutely worthless. Look, it ties in with the points I made
-> > > below. You are exporting the merge functions for instance, and setting
-> > > them in the queue. This will cause scsi_merge not to use it's own
-> > > functions, broken.
-> > 
-> > As in the baseline, initialize_merge_fn overwrites these pointers:
-> >      q->back_merge_fn = scsi_back_merge_fn_;
-> >      q->front_merge_fn = scsi_front_merge_fn_;
-> >      q->merge_requests_fn = scsi_merge_requests_fn_;
-> 
-> I had forgotten I had #if 0 out the check for already set back_merge etc
-> in scsi_merge -- however that's still beside the point. _Why_ are you
-> exporting the ll_rw_blk functions and setting them just to have them
-> overridden? Makes no sense.
-...
-> Don't export the merge functions ever, define your own if you really
-> need them. You don't, though.
 
-That resulted merely from basing scsi_init_queue on blk_init_queue.
-I'll simplify the code by removing these unnecessary assignments.
+A few configuration bugs:
 
--- 
-Jonathan Lahr
-IBM Linux Technology Center
-Beaverton, Oregon
-lahr@us.ibm.com
-503-578-3385
+ - CONFIG_USB_UHCI and CONFIG_USB_UHCI_ALT should be able to be selected
+   as modules at the same time.  Currently they are not.
+ - USB Serial menu should be below "USS720 parport driver"
+ - If USB_SERIAL = 'M' then USB_SERIAL_DEBUG should be not be shown.
+ - USB_SERIAL_IR does not show up in the menu, is this due to there not
+   being a help entry for it?
+ - HOTPLUG_PCI_COMPAQ should be tristate.
 
+thanks,
+
+greg k-h

@@ -1,75 +1,39 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <154005-8316>; Fri, 11 Sep 1998 16:16:51 -0400
-Received: from send1c.yahoomail.com ([205.180.60.38]:40988 "HELO send1c.yahoomail.com" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with SMTP id <154524-8316>; Fri, 11 Sep 1998 15:57:21 -0400
-Message-ID: <19980911224927.2503.rocketmail@send1c.yahoomail.com>
-Date: Fri, 11 Sep 1998 15:49:27 -0700 (PDT)
-From: "Ethan O'Connor" <zudark@yahoo.com>
-Subject: Re: GPS Leap Second Scheduled!
-To: R.E.Wolff@BitWizard.nl
-Cc: linux-kernel@vger.rutgers.edu, chris@cybernet.co.nz
+Received: by vger.rutgers.edu id <154534-8316>; Fri, 11 Sep 1998 18:21:31 -0400
+Received: from mail.cyberus.ca ([209.195.95.1]:55562 "EHLO cyberus.ca" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <154629-8316>; Fri, 11 Sep 1998 17:49:59 -0400
+Date: Fri, 11 Sep 1998 20:39:46 -0400 (EDT)
+From: jamal <hadi@cyberus.ca>
+To: linux-kernel@vger.rutgers.edu
+Subject: Re: my broken TCP is faster on broken networks
+Message-ID: <Pine.GSO.3.96.980911203117.13283B-100000@shell>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Roger Wolff wrote:
 
->Chris Wedgwood wrote:
->> On Wed, Sep 09, 1998 at 02:13:42PM -0600, Colin Plumb wrote:
->> 
->> > - gettimeofday() never returns the same value twice (documented BSD
->> >   behaviour)
->> 
->> Ouch... gettimeofday(2) only presently has usec resolution. I suspect
->> we can make this report the same value twice on really high end boxes
->> (667MHz Alpha maybe, 400Mhz Sparcs?), if not now, in a year or so.
->> Even a P.ii 600 or so can probably manage it.
+Theodore Y. Ts'o (tytso@MIT.EDU) Fri, 11 Sep 1998 18:36:43 -0400 
 
->This is defined behaviour. On processors where gettimeofday can be
->called more than once in a microsecond (SMP systems, and fast
->systems), the kernel is required to keep a last-time-returned, and
->increment it and return that if the value calculated is below the
->stored value.
-
->If you have the results from two gettimeofday calls, you can always
->subtract them and divide by the result without checking for zero.
->That's what the spec says.
-
->A kernel will get into trouble if you keep on calling gettimeofday
->more than a million times a second..... 
+>I don't normally follow the TCP implementor's working group (*), so I
+>don't know if they actually followed through on his suggestion;
+>Matthais's note seems to indicate that they did.
 
 
-Modifying Chris's code to call gettimeofday() 4 times
-the second time around and to print the usec values 
-for the four successive calls yields the following on
-this system (SunOS 5.6, Ultra-IIi/333Mhz):
+I think it is just considered good practise to punish misbehaving users
+at the moment. Not sure if any vendor has implemented anything yet.
 
-athena% a.out
-213426
-213426
-213426
-213427
-athena% a.out
-499126
-499126
-499127
-499127
+There is an informational RFC out:
+http://info.internet.isi.edu:80/in-notes/rfc/files/rfc2309.txt
 
-and even:
+Unfortunately, they dont mention remedies for misbehaving flows. They do
+suggest RED; however, there are variants of RED that exist with specific
+intention of punishing misbehaving users.
 
-athena% a.out
-947875
-947875
-947875
-947875
+A really interesting pointer page is at:
+http://www-nrg.ee.lbl.gov/floyd/tcp_unfriendly.html
 
-Etc... 
 
-FWIW.
-
--Ethan O'Connor
-_________________________________________________________
-DO YOU YAHOO!?
-Get your free @yahoo.com address at http://mail.yahoo.com
+cheers,
+jamal
 
 
 -

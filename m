@@ -1,110 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261580AbUEFIni@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261648AbUEFIxB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261580AbUEFIni (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 04:43:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbUEFIni
+	id S261648AbUEFIxB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 04:53:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbUEFIxB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 04:43:38 -0400
-Received: from fw.osdl.org ([65.172.181.6]:28867 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261580AbUEFInf (ORCPT
+	Thu, 6 May 2004 04:53:01 -0400
+Received: from atlrel9.hp.com ([156.153.255.214]:24549 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S261648AbUEFIwz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 04:43:35 -0400
-Date: Thu, 6 May 2004 01:43:07 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Alexey Kopytov <alexeyk@mysql.com>
-Cc: linuxram@us.ibm.com, nickpiggin@yahoo.com.au, peter@mysql.com,
-       linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: Random file I/O regressions in 2.6
-Message-Id: <20040506014307.1a97d23b.akpm@osdl.org>
-In-Reply-To: <200405060204.51591.alexeyk@mysql.com>
-References: <200405022357.59415.alexeyk@mysql.com>
-	<200405050301.32355.alexeyk@mysql.com>
-	<20040504162037.6deccda4.akpm@osdl.org>
-	<200405060204.51591.alexeyk@mysql.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 6 May 2004 04:52:55 -0400
+From: "Sourav Sen" <souravs@india.hp.com>
+To: <Matt_Domsch@dell.com>, <matthew.e.tolentino@intel.com>,
+       <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: [2.6.6 PATCH] Exposing EFI memory map
+Date: Thu, 6 May 2004 14:22:46 +0530
+Message-ID: <003801c43347$812a1590$39624c0f@india.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexey Kopytov <alexeyk@mysql.com> wrote:
->
-> Results with the deadline scheduler on my hardware:
-> 
->  Time spent for test:  92.8340s
+Hi,
 
-Now we're into unreproducible results, alas.  On a 256MB uniprocessor
-machine:
+The following simple patch creates a read-only file
+"memmap" under <mount point>/firmware/efi/ in sysfs
+and exposes the efi memory map thru it.
 
-ext3:
-
-sysbench --num-threads=16 --test=fileio --file-total-size=2G --file-test-mode=rndrw run
-
-2.6.6-rc3-mm2, deadline:
-
-	Time spent for test:  66.7536s
-	Time spent for test:  67.9000s
-		0.04s user 6.41s system 4% cpu 2:14.74 total
-
-2.6.6-rc2-mm2, as:
-
-	Time spent for test:  66.7576s
-		0.07s user 6.68s system 5% cpu 2:14.18 total
-	Time spent for test:  66.3216s
-		0.06s user 6.28s system 4% cpu 2:12.25 total
-
-2.4.27-pre2:
-
-	Time spent for test:  64.9766s
-		0.09s user 11.57s system 8% cpu 2:17.43 total
-	Time spent for test:  64.2852s
-		0.11s user 11.18s system 8% cpu 2:14.63 total
-
-so 2.6 is a shade slower.  2.6 has tons less system CPU time, probably due
-to ext3 improvements.
-
-The reason for the difference appears to be the thing which Ram added to
-readahead which causes it to usually read one page too many.  With this
-exciting patch:
-
---- 25/mm/readahead.c~a	2004-05-06 01:24:26.230330464 -0700
-+++ 25-akpm/mm/readahead.c	2004-05-06 01:24:26.234329856 -0700
-@@ -475,7 +475,7 @@ do_io:
- 		ra->ahead_start = 0;		/* Invalidate these */
- 		ra->ahead_size = 0;
- 		actual = do_page_cache_readahead(mapping, filp, offset,
--						 ra->size);
-+				ra->size == 5 ? 4 : ra->size);
- 		if(!first_access) {
- 			/*
- 			 * do not adjust the readahead window size the first
-
-_
+Thanks
+Sourav
 
 
-I get:
+The patch is w.r.t 2.6.6-rc3
+----------------------------
+===========================================================================
+--- a/drivers/firmware/efivars.c        2004-05-05 13:55:40.000000000 +0530
++++ b/drivers/firmware/efivars.c        2004-05-06 11:43:40.000000000 +0530
+@@ -580,10 +580,42 @@ systab_read(struct subsystem *entry, cha
+        return str - buf;
+ }
 
-	Time spent for test:  63.9435s
-		0.07s user 6.69s system 5% cpu 2:11.02 total
++/*
++ * Expose the efi memory map as kernel keeps it. Note, it may be a little
++ * different from what gets actually passed in at loader handoff time as a
++ * call to efi_memmap_walk modifies that.
++ */
++
++static ssize_t
++efi_memmap_read(struct subsystem *entry, char * buf)
++{
++       void * efi_map_start, *efi_map_end, *p;
++       efi_memory_desc_t *md;
++       u64 efi_desc_size;
++       char * str = buf;
++
++       if (!entry || !buf)
++               return -EINVAL;
++
++       efi_map_start = __va(ia64_boot_param->efi_memmap);
++       efi_map_end   = efi_map_start + ia64_boot_param->efi_memmap_size;
++       efi_desc_size = ia64_boot_param->efi_memdesc_size;
++
++       for (p = efi_map_start; p < efi_map_end; p += efi_desc_size) {
++               md = (efi_memory_desc_t *)p;
++               str += sprintf(str, "%2u     %-#18lx    %#016lx %#016lx\n",
+\
++                       md->type, md->attribute, md->phys_addr, \
++                       md->phys_addr + (md->num_pages << EFI_PAGE_SHIFT));
++       }
++       return (str - buf);
++}
++
+ static EFI_ATTR(systab, 0400, systab_read, NULL);
++static EFI_ATTR(memmap, 0400, efi_memmap_read, NULL);
 
-which is a good result.
+ static struct subsys_attribute *efi_subsys_attrs[] = {
+        &efi_attr_systab,
++       &efi_attr_memmap,       /* Here comes one */
+        NULL,   /* maybe more in the future? */
+ };
 
-Ram, can you take a look at fixing that up please?  Something clean, not
-more hacks ;) I'd also be interested in an explanation of what the extra
-page is for.  The little comment in there doesn't really help.
-
-
-One thing I note about this test is that it generates a huge number of
-inode writes.  atime updates from the reads and mtime updates from the
-writes.  Suppressing them doesn't actually make a lot of performance
-difference, but that is with writeback caching enabled.  I expect that with
-a writethrough cache these will really hurt.
-
-The test uses 128 files, which seems excessive.  I assume that four or
-eight files is a more likely real-life setup, and in theis case the
-atime/mtime update volume will be proportionately less.
-
-Alexey, I do not know why you're seeing such a disparity.  I assume that
-IDE DMA is enabled - the difference seems too small for that to be an
-explanation, but please check it.

@@ -1,62 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263898AbTEOJQh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 05:16:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263902AbTEOJQh
+	id S263901AbTEOJ07 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 05:26:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263902AbTEOJ07
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 05:16:37 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:58623 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S263898AbTEOJQd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 05:16:33 -0400
+	Thu, 15 May 2003 05:26:59 -0400
+Received: from juicer11.bigpond.com ([139.134.6.17]:54493 "EHLO
+	mailout1.bigpond.com") by vger.kernel.org with ESMTP
+	id S263901AbTEOJ06 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 05:26:58 -0400
+From: michaeltone1975 <michaeltone1975@telstra.com>
+To: linux-kernel@vger.kernel.org
+Message-ID: <7166a72458.724587166a@bigpond.com>
+Date: Thu, 15 May 2003 19:39:39 +1000
+X-Mailer: Netscape Webmail
 MIME-Version: 1.0
+Content-Language: en
+Subject: route.c final stable fix committed?
+X-Accept-Language: en
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
-Message-ID: <16067.24042.126672.10150@gargle.gargle.HOWL>
-Date: Thu, 15 May 2003 11:29:14 +0200
-From: mikpe@csd.uu.se
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       Pavel Machek <pavel@suse.cz>
-Subject: Re: 2.5.69-mm5: CONFIG_ACPI_SLEEP compile error
-In-Reply-To: <20030514214536.GK1346@fs.tum.de>
-References: <20030514012947.46b011ff.akpm@digeo.com>
-	<20030514214536.GK1346@fs.tum.de>
-X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk writes:
- > It seems the following problem comes from Linus' tree:
- > 
- > <--  snip  -->
- > 
- > ...
- > ... --end-group  -o .tmp_vmlinux1
- > arch/i386/kernel/built-in.o(.data+0x1fae): In function `do_suspend_lowlevel':
- > : undefined reference to `saved_context_esp'
- > arch/i386/kernel/built-in.o(.data+0x1fb3): In function `do_suspend_lowlevel':
- > : undefined reference to `saved_context_eax'
- > arch/i386/kernel/built-in.o(.data+0x1fb9): In function `do_suspend_lowlevel':
- > : undefined reference to `saved_context_ebx'
+just wanting to rebuild boxes with -stable route/netfilter fix...
 
-My fault, sorry. When I grepped for these variables I failed to notice
-the references in acpi/wakeup.S. This patch fixes this.
+i assume the -ac stream (current patch-2.4.21-rc2-ac2.gz @ 13 may 2003)
+has the required fix ?
 
-/Mikael
+is there an eta or final source archive that has fixes applied?
 
---- linux-2.5.69-bk9/arch/i386/kernel/suspend_asm.S.~1~	2003-05-15 11:07:04.000000000 +0200
-+++ linux-2.5.69-bk9/arch/i386/kernel/suspend_asm.S	2003-05-15 11:09:29.000000000 +0200
-@@ -7,6 +7,12 @@
- #include <asm/page.h>
+
+when is 2.4.21-stable out? :)
+
+----------------
+Powered by telstra.com
+
  
- 	.data
-+	.align	4
-+	.globl	saved_context_eax, saved_context_ebx
-+	.globl	saved_context_ecx, saved_context_edx
-+	.globl	saved_context_esp, saved_context_ebp
-+	.globl	saved_context_esi, saved_context_edi
-+	.globl	saved_context_eflags
- saved_context_eax:
- 	.long	0
- saved_context_ebx:
+

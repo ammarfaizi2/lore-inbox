@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261353AbTIGUiN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 16:38:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbTIGUiN
+	id S261509AbTIGUga (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 16:36:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbTIGUga
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 16:38:13 -0400
-Received: from b0jm34bky18he.bc.hsia.telus.net ([64.180.152.77]:59148 "EHLO
-	antichrist") by vger.kernel.org with ESMTP id S261353AbTIGUiL (ORCPT
+	Sun, 7 Sep 2003 16:36:30 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:9695 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S261353AbTIGUg3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 16:38:11 -0400
-Date: Sun, 7 Sep 2003 13:37:23 -0700
-From: carbonated beverage <ramune@net-ronin.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: cpu not being found by 2.6.0-test4, input event bug too
-Message-ID: <20030907203723.GA10617@net-ronin.org>
-References: <20030905032100.GA32489@net-ronin.org> <20030905101403.GA1026@net-ronin.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030905101403.GA1026@net-ronin.org>
+	Sun, 7 Sep 2003 16:36:29 -0400
+Message-ID: <3F5B96C3.1060706@colorfullife.com>
+Date: Sun, 07 Sep 2003 22:36:19 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@fs.tum.de>
+CC: linux-kernel@vger.kernel.org, peter_daum@t-online.de
+Subject: Re: [2.4 patch] fix CONFIG_X86_L1_CACHE_SHIFT
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tried an older kernel (2.5.6x-series) and the event input kernel log flood
-is happening there, too.
+Adrian wrote:
 
-Can't really test for SMP, etc. as -test3 was the first kernel I tried since
-2.5.4x that booted properly on this system, and didn't panic quickly on
-various stuff.  I can try a binary search across kernel versions, if I knew
-what to test for.
+>With CONFIG_M686 CONFIG_X86_L1_CACHE_SHIFT was set to 5, but a Pentium 4 
+>requires 7.
+>  
+>
+Why requires? On x86, the cpu caches are fully coherent. A too small L1 
+cache shift results in false sharing on SMP, but it shouldn't cause the 
+described problems.
 
-Anyone have an idea?
+And obviously: Pentium II cpus have a 32 byte cache line, increasing the 
+L1 setting to 128 bytes only helps by chance.
 
--- DN
-Daniel
+My bet is that someone overwrites critical memory structures, and with 
+more padding, the critical stuff is further away.
+
+--
+    Manfred
+
+

@@ -1,51 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265111AbUADDt3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 22:49:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265112AbUADDt3
+	id S265102AbUADD6G (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 22:58:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265112AbUADD6G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 22:49:29 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:47033 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265111AbUADDt1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 22:49:27 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Davin McCall <davmac@ozonline.com.au>
-Subject: Re: [PATCH] fix issues with loading PCI ide drivers as modules (linux 2.6.0)
-Date: Sun, 4 Jan 2004 04:52:17 +0100
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-References: <20040103152802.6e27f5c5.davmac@ozonline.com.au> <200401040256.57419.bzolnier@elka.pw.edu.pl> <20040104142141.2bf4f230.davmac@ozonline.com.au>
-In-Reply-To: <20040104142141.2bf4f230.davmac@ozonline.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Sat, 3 Jan 2004 22:58:06 -0500
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:28036 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S265102AbUADD5u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 22:57:50 -0500
+From: John M Flinchbaugh <glynis@butterfly.hjsoft.com>
+Date: Sat, 3 Jan 2004 22:57:49 -0500
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.1-rc1, scanner.ko, oops
+Message-ID: <20040104035748.GA30429@butterfly.hjsoft.com>
+References: <20040103183501.GA2906@butterfly.hjsoft.com> <20040103225154.GK11061@kroah.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="2oS5YaxWCcQjTEyO"
 Content-Disposition: inline
-Message-Id: <200401040452.17659.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <20040103225154.GK11061@kroah.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 04 of January 2004 04:21, Davin McCall wrote:
-> However, there are still two genuine but easily solveable problems that I
-> can see:
->
-> 1) unless "idex=base,ctl,irq" is used, the hwif->chipset is left as
-> "ide_unknown" (this means for that the hwif can get re-allocated in
-> setup-pci.c - ide_match_hwif() - and clobbered)
 
-Hmm.  What if hwif is freed by a driver?
+--2oS5YaxWCcQjTEyO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> 2) if "idex=base,ctl,irq" IS used, the hwif structure will still get
-> clobbered when a PCI chipset module is loaded.
->
-> What about this is a solution to these problems:
->  - set hwif->chipset to "ide_generic" instead of leaving it as
-> "ide_unknown" (ide-probe.c); - if ide_match_hwif() returns an already
-> allocated hwif, do not clobber it in ide_hwif_configure() (setup-pci.c)
+On Sat, Jan 03, 2004 at 02:51:54PM -0800, Greg KH wrote:
+> On Sat, Jan 03, 2004 at 01:35:01PM -0500, John M Flinchbaugh wrote:
+> > i tried my canoscan 670u scanner with 2.6.1-rc1's scanner module,
+> > xsane 0.91, sane 1.0.13.  (also, i'm using ohci-hcd on a tyan
+> > thunder s2462ung.)
+> Can you try not using the scanner module?  xsane should work just fine
+> using libusb, talking to the device from userspace with no kernel
+> module.
 
-This brakes "idex=base..." parameters for PCI chipsets.
-They shouldn't be needed in this case, but...
+it does indeed work using libusb.  i had gotten the impression
+that the scanner module may not be the preferred path these
+days.  is this correct?
+--=20
+____________________}John Flinchbaugh{______________________
+| glynis@hjsoft.com         http://www.hjsoft.com/~glynis/ |
+~~Powered by Linux: Reboots are for hardware upgrades only~~
 
---bart
+--2oS5YaxWCcQjTEyO
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQE/9488CGPRljI8080RArWEAKCKm7GJYGEXh71kuMUfXtJjS9k0IgCdFMj4
+AcSfJEXuY2HWZMtABFomAPw=
+=x5Cf
+-----END PGP SIGNATURE-----
+
+--2oS5YaxWCcQjTEyO--

@@ -1,111 +1,191 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbVARD42@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261225AbVAREIJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261222AbVARD42 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 22:56:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbVARD42
+	id S261225AbVAREIJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 23:08:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbVAREIJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 22:56:28 -0500
-Received: from opersys.com ([64.40.108.71]:8459 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261222AbVARD4T (ORCPT
+	Mon, 17 Jan 2005 23:08:09 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:33205 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261225AbVAREHi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 22:56:19 -0500
-Message-ID: <41EC8AA2.1030000@opersys.com>
-Date: Mon, 17 Jan 2005 23:03:46 -0500
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-CC: Nikita Danilov <nikita@clusterfs.com>, linux-kernel@vger.kernel.org,
-       Tom Zanussi <zanussi@us.ibm.com>
-Subject: Re: 2.6.11-rc1-mm1
-References: <20050114002352.5a038710.akpm@osdl.org> <m1zmzcpfca.fsf@muc.de> <m17jmg2tm8.fsf@clusterfs.com> <20050114103836.GA71397@muc.de> <41E7A7A6.3060502@opersys.com> <Pine.LNX.4.61.0501141626310.6118@scrub.home> <41E8358A.4030908@opersys.com> <Pine.LNX.4.61.0501150101010.30794@scrub.home> <41E899AC.3070705@opersys.com> <Pine.LNX.4.61.0501160245180.30794@scrub.home> <41EA0307.6020807@opersys.com> <Pine.LNX.4.61.0501161648310.30794@scrub.home> <41EADA11.70403@opersys.com> <Pine.LNX.4.61.0501171403490.30794@scrub.home> <41EC2DCA.50904@opersys.com> <Pine.LNX.4.61.0501172323310.30794@scrub.home>
-In-Reply-To: <Pine.LNX.4.61.0501172323310.30794@scrub.home>
-Content-Type: text/plain; charset=us-ascii
+	Mon, 17 Jan 2005 23:07:38 -0500
+Subject: Re: [RFC/PATCH] add support for sysdev class attributes
+From: Nathan Lynch <nathanl@austin.ibm.com>
+To: Greg KH <greg@kroah.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050111192909.GA4623@kroah.com>
+References: <1105136891.13391.20.camel@pants.austin.ibm.com>
+	 <20050108050729.GA7587@kroah.com>
+	 <1105372684.27280.3.camel@localhost.localdomain>
+	 <20050111192909.GA4623@kroah.com>
+Content-Type: text/plain
+Date: Mon, 17 Jan 2005 22:02:44 -0600
+Message-Id: <1106020965.11566.40.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2005-01-11 at 11:29 -0800, Greg KH wrote:
+> On Mon, Jan 10, 2005 at 09:58:03AM -0600, Nathan Lynch wrote:
+> > On Fri, 2005-01-07 at 21:07 -0800, Greg KH wrote:
+> > > On Fri, Jan 07, 2005 at 04:28:12PM -0600, Nathan Lynch wrote:
+> > > > @@ -88,6 +123,12 @@ int sysdev_class_register(struct sysdev_
+> > > >  	INIT_LIST_HEAD(&cls->drivers);
+> > > >  	cls->kset.subsys = &system_subsys;
+> > > >  	kset_set_kset_s(cls, system_subsys);
+> > > > +
+> > > > +	/* I'm not going to claim to understand this; see
+> > > > +	 * fs/sysfs/file::check_perm for how sysfs_ops are selected
+> > > > +	 */
+> > > > +	cls->kset.kobj.ktype = &sysdev_class_ktype;
+> > > > +
+> > > 
+> > > I think you need to understand this, and then submit a patch without
+> > > such a comment :)
+> > > 
+> > > And probably without such code, as I don't think you need to do that.
+> > 
+> > Sure, now I'm not sure how I convinced myself that bit was needed.
+> > Things work fine without it.
 
-Hello Roman,
+OK I'm an idiot, because things certainly do not work without somehow
+associating the new sysfs_ops with the sysdev_class being registered.
+Otherwise, sysfs winds up using sysdev_store/sysdev_show, since
+ktype_sysdev is the kobj_type for the "system" subsystem.
 
-Roman Zippel wrote:
-> Why is so important that it's at the start of the buffer? What's wrong 
-> with a special event _near_ the start of a buffer?
-[snip]
-> What gives you the idea, that you can't do this with what I proposed?
-> You can still seek freely within the data at buffer boundaries and you 
-> only have to search a little into the buffer to find the delimiter. Events 
-> are not completely at random, so that the little reordering can be done at 
-> runtime. Sorry, but I don't get what kind of unsolvable problems you see 
-> here.
+Since sysdev_register is explicitly associating ktype_sysdev with the
+sysdev being registered anyway, I think it should be fine to define
+system_subsys with sysdev_class_ktype for its kobj_type.  What do you
+say?
 
-Actually I just checked the code and this is a non-issue. The callback
-can only be called when the condition is met, which itself happens only
-on buffer switch, which itself only happens when we try to reserve
-something bigger than what is left in the buffer. IOW, there is no need
-for reserving anything. Here's what the code does:
-	if (!finalizing) {
-		bytes_written = rchan->callbacks->buffer_start ...
-		cur_write_pos(rchan) += bytes_written;
-	}
+> > Before I repatch, does sysdev_class_ktype need a release function?
+> 
+> Why would it not?
 
-With that said, I hope we've agreed that we'll have a callback for
-letting relayfs clients know that they need to write the begining of
-the buffer event. There won't be any associated reserve. Conversly,
-I hope it is not too much to ask to have an end-of-buffer callback.
+I'm not sure what it would actually do...  it seems that we would need
+it if sysdevs were dynamically allocated, but they're not.  Not that
+they couldn't be, but that's existing practice afaict.  In any case,
+it's a matter for a separate patch, I would say.
 
-> Wrong question. What compromises can be made on both sides to create a 
-> common simple framework? Your unwillingness to compromise a little on the 
-> ltt requirements really amazes me.
+Updated patch below:
 
-Roman, of all people I've been more than happy to change my stuff following
-your recommendations. Do I have to list how far down relayfs has been
-stripped down? I mean, we got rid of the lockless scheme (which was
-one of ltt's explicit requirements), we got rid of the read/write capabilities
-for user-space, etc. And we are now only left with the bare-bones API:
-rchan* relay_open(channel_path, bufsize, nbufs, flags, *callbacks);
-int    relay_close(*rchan);
-int    relay_reset(*rchan);
-int    relay_write(*rchan, *data_ptr, count, **wrote-pos);
 
-char*  relay_reserve(*rchan, len, *ts, *td, *err, *interrupting);
-void   relay_commit(*rchan, *from, len, reserve_code, interrupting);
-void   relay_buffers_consumed(*rchan, u32);
+Add support for system device class attributes.  I would like to have
+this for doing cpu add and remove on ppc64, and I think the memory
+hotplug people probably will want it, too.
 
-#define relay_write_direct(DEST, SRC, SIZE) \
-#define relay_lock_channel(RCHAN, FLAGS) \
-#define relay_unlock_channel(RCHAN, FLAGS) \
+o  Add the necessary show and store methods and related data
+   structures.
 
-This is a far-cry from what we had before, have a look at the
-relayfs.txt file in 2.6.11-rc1-mm1's Documentation/filesystems if
-you want to compare. Please at least acknowledge as much.
+o  Add sysdev_create_file and sysdev_remove_file.
 
-I'm more than willing to compromise, but at least give me something
-substantive to feed on. I've explained why I believe there needs to be
-two modes for relayfs. If you don't think they are appropriate, then
-please explain why. Either my experience blinds me or it rightly
-compels me to continue defending it.
+o  Make the "system" subsys' ktype ktype_sysdev_class instead of
+   ktype_sysdev, which should be used only for sysdevs.
 
-You ask what compromises can be found from both sides to obtain a
-single implementation. I have looked at this, and given how
-stripped down it has become, anything less from relayfs will make
-it useless for LTT. IOW, I would have to reimplement a buffering
-scheme within LTT outside of relayfs.
+Signed-off-by: Nathan Lynch <nathanl@austin.ibm.com>
 
-Can't you see that not all buffering schemes are adapted to all
-applications and that it's preferable to have a single API
-transparently providing separate mechanisms instead of a single
-mechanism that doesn't satisfy any of its users?
 
-If I can't convince you of the concept, can I at least convince
-you to withhold your final judgement until you actually see the
-code for the managed vs. ad-hoc schemes?
+---
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+
+diff -puN drivers/base/sys.c~sysdev_class-attr-support drivers/base/sys.c
+--- linux-2.6.11-rc1-bk1/drivers/base/sys.c~sysdev_class-attr-support	2005-01-17 17:04:16.000000000 -0600
++++ linux-2.6.11-rc1-bk1-nathanl/drivers/base/sys.c	2005-01-17 17:32:25.000000000 -0600
+@@ -76,10 +76,45 @@ void sysdev_remove_file(struct sys_devic
+ EXPORT_SYMBOL_GPL(sysdev_create_file);
+ EXPORT_SYMBOL_GPL(sysdev_remove_file);
+ 
++#define to_sysdev_class(k) container_of(to_kset(k), struct sysdev_class, kset)
++#define to_sysdev_class_attr(a) container_of(a, struct sysdev_class_attribute, attr)
++
++static ssize_t
++sysdev_class_show(struct kobject * kobj, struct attribute * attr, char * buffer)
++{
++	struct sysdev_class * sysdev_class = to_sysdev_class(kobj);
++	struct sysdev_class_attribute * sysdev_class_attr = to_sysdev_class_attr(attr);
++
++	if (sysdev_class_attr->show)
++		return sysdev_class_attr->show(sysdev_class, buffer);
++	return 0;
++}
++
++static ssize_t
++sysdev_class_store(struct kobject * kobj, struct attribute * attr,
++	     const char * buffer, size_t count)
++{
++	struct sysdev_class * sysdev_class = to_sysdev_class(kobj);
++	struct sysdev_class_attribute * sysdev_class_attr = to_sysdev_class_attr(attr);
++
++	if (sysdev_class_attr->store)
++		return sysdev_class_attr->store(sysdev_class, buffer, count);
++	return 0;
++}
++
++static struct sysfs_ops sysdev_class_sysfs_ops = {
++	.show	= sysdev_class_show,
++	.store	= sysdev_class_store,
++};
++
++static struct kobj_type sysdev_class_ktype = {
++	.sysfs_ops	= &sysdev_class_sysfs_ops,
++};
++
+ /*
+  * declare system_subsys
+  */
+-decl_subsys(system, &ktype_sysdev, NULL);
++decl_subsys(system, &sysdev_class_ktype, NULL);
+ 
+ int sysdev_class_register(struct sysdev_class * cls)
+ {
+@@ -98,6 +133,19 @@ void sysdev_class_unregister(struct sysd
+ 	kset_unregister(&cls->kset);
+ }
+ 
++int sysdev_class_create_file(struct sysdev_class *s, struct sysdev_class_attribute *a)
++{
++	return sysfs_create_file(&s->kset.kobj, &a->attr);
++}
++
++
++void sysdev_class_remove_file(struct sysdev_class *s, struct sysdev_class_attribute *a)
++{
++	sysfs_remove_file(&s->kset.kobj, &a->attr);
++}
++
++EXPORT_SYMBOL_GPL(sysdev_class_create_file);
++EXPORT_SYMBOL_GPL(sysdev_class_remove_file);
+ EXPORT_SYMBOL_GPL(sysdev_class_register);
+ EXPORT_SYMBOL_GPL(sysdev_class_unregister);
+ 
+diff -puN include/linux/sysdev.h~sysdev_class-attr-support include/linux/sysdev.h
+--- linux-2.6.11-rc1-bk1/include/linux/sysdev.h~sysdev_class-attr-support	2005-01-17 17:04:16.000000000 -0600
++++ linux-2.6.11-rc1-bk1-nathanl/include/linux/sysdev.h	2005-01-17 17:04:16.000000000 -0600
+@@ -40,6 +40,21 @@ struct sysdev_class {
+ extern int sysdev_class_register(struct sysdev_class *);
+ extern void sysdev_class_unregister(struct sysdev_class *);
+ 
++struct sysdev_class_attribute {
++	struct attribute	attr;
++	ssize_t (*show)(struct sysdev_class *, char *);
++	ssize_t (*store)(struct sysdev_class *, const char *, size_t);
++};
++
++#define SYSDEV_CLASS_ATTR(_name,_mode,_show,_store) 		\
++struct sysdev_class_attribute attr_##_name = { 			\
++	.attr = {.name = __stringify(_name), .mode = _mode },	\
++	.show	= _show,					\
++	.store	= _store,					\
++};
++
++extern int sysdev_class_create_file(struct sysdev_class *, struct sysdev_class_attribute *);
++extern void sysdev_class_remove_file(struct sysdev_class *, struct sysdev_class_attribute *);
+ 
+ /**
+  * Auxillary system device drivers.
+
+_
+
+

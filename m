@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316497AbSEOUPi>; Wed, 15 May 2002 16:15:38 -0400
+	id <S316494AbSEOUMu>; Wed, 15 May 2002 16:12:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316488AbSEOUO1>; Wed, 15 May 2002 16:14:27 -0400
-Received: from skunk.directfb.org ([212.84.236.169]:49551 "EHLO
-	skunk.directfb.org") by vger.kernel.org with ESMTP
-	id <S316491AbSEOUON>; Wed, 15 May 2002 16:14:13 -0400
-Date: Wed, 15 May 2002 22:12:52 +0200
-From: Denis Oliver Kropp <dok@directfb.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Greg KH <greg@kroah.com>, Denis Oliver Kropp <dok@directfb.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] vmwarefb 0.5.2
-Message-ID: <20020515201252.GA2146@skunk.convergence.de>
-Reply-To: Denis Oliver Kropp <dok@directfb.org>
-In-Reply-To: <20020515010242.GA1257@skunk.convergence.de> <20020515042113.GA22029@kroah.com> <20020515145728.E37@toy.ucw.cz>
+	id <S316488AbSEOULg>; Wed, 15 May 2002 16:11:36 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:33943 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S316492AbSEOUKd>;
+	Wed, 15 May 2002 16:10:33 -0400
+Date: Wed, 15 May 2002 14:04:48 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: "Vamsi Krishna S ." <vamsi@in.ibm.com>
+Cc: "Gross, Mark" <mark.gross@intel.com>, "'Erich Focht'" <efocht@ess.nec.de>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        "'Bharata B Rao'" <bharata@in.ibm.com>
+Subject: Re: PATCH Multithreaded core dump support for the 2.5.14 (and 15) kernel.
+Message-ID: <20020515140448.C37@toy.ucw.cz>
+In-Reply-To: <59885C5E3098D511AD690002A5072D3C057B485B@orsmsx111.jf.intel.com> <20020515120722.A17644@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Pavel Machek (pavel@suse.cz):
-> Hi
-> 
-> > Is VMWare ok with releasing those files under the GPL?  If so, I suggest
-> > you add that line to those files, and then everything should be fine.
-> 
-> Code seems to come from XFree, and that should allow him to relicence like
-> that.
-> 
-> I have better question: "What is it good for"?
+Hi!
 
-The driver at all?
+> To respond to your specific question, if a thread happens to be in 
+> kernel mode when some other thread is dumping core (capturing
+> register state of other threads, to be more accurate) then
+> we would capture the _user mode_ register of that thread from the
+> bottom of it's kernel stack. GDB will show back trace untill the
+> thread entered kernel (int 0x80), eip will be pointing to the
+> instruction after the system call (return address).
 
-I want to use DirectFB in VMware. I will also add console acceleration
-to the framebuffer driver and possibly write an accelerated DirectFB driver.
+Okay, what about:
 
+Thread 1 is in kernel and holds lock A. You need lock A to dump state.
+When you move 1 to phantom runqueue, you loose ability to get A and
+deadlock.
+
+What prevents that?
+								Pavel
 -- 
-Best regards,
-  Denis Oliver Kropp
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 
-.------------------------------------------.
-| DirectFB - Hardware accelerated graphics |
-| http://www.directfb.org/                 |
-"------------------------------------------"
-
-                            Convergence GmbH

@@ -1,41 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262214AbSL2X2p>; Sun, 29 Dec 2002 18:28:45 -0500
+	id <S262224AbSL2XeA>; Sun, 29 Dec 2002 18:34:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262224AbSL2X2p>; Sun, 29 Dec 2002 18:28:45 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:62861 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S262214AbSL2X2o>; Sun, 29 Dec 2002 18:28:44 -0500
-Date: Sun, 29 Dec 2002 14:56:40 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Christoph Hellwig <hch@lst.de>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       Bill Irwin <wli@holomorphy.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove CONFIG_X86_NUMA
-Message-ID: <78170000.1041202589@titus>
-In-Reply-To: <20021229234051.A12535@lst.de>
-References: <200212292239.gBTMdPJ12407@localhost.localdomain>
- <20021229234051.A12535@lst.de>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S262258AbSL2XeA>; Sun, 29 Dec 2002 18:34:00 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:39428 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S262224AbSL2Xd7>;
+	Sun, 29 Dec 2002 18:33:59 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200212292342.gBTNg9gk000920@darkstar.example.net>
+Subject: [TRIVIAL] Fix two mis-spellings of 'kernel'
+To: trivial@rustcorp.com.au
+Date: Sun, 29 Dec 2002 23:42:09 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: multipart/mixed; boundary="%--multipart-mixed-boundary-1.883.1041205329--%"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > It's only used to hide two entries in arch/i386/Kconfig.
->>
->> The patch looks good.  If it's OK to get rid of X86_NUMA, could you also
->> move  X86_NUMAQ under the subarch menu?
->
-> I already wondered about that, but AFAIK a kernel with X86_NUMAQ set
-> still boots on a PeeCee, so it's really an option, not a choice.
 
-Nope, it won't boot on a PC - you're probably thinking of Summit,
-which should. I think Bill had a patch to move NUMA-Q already ...
-want to publish that one?
+--%--multipart-mixed-boundary-1.883.1041205329--%
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-M.
+Patches against 2.5.53 to fix two mis-spellings of 'kernel', in:
 
+arch/mips/kernel/pci.c
+
+and
+
+arch/ppc64/kernel/signal32.c
+
+both also apply to 2.4.20.
+
+John.
+
+--%--multipart-mixed-boundary-1.883.1041205329--%
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Description: ASCII text
+Content-Disposition: attachment; filename="patch_2"
+
+--- linux-2.5.53-orig/arch/ppc64/kernel/signal32.c	2002-12-29 23:15:07.000000000 +0000
++++ linux-2.5.53/arch/ppc64/kernel/signal32.c	2002-12-29 23:36:51.000000000 +0000
+@@ -57,7 +57,7 @@
+ struct sigregs32 {
+ 	/*
+ 	 * the gp_regs array is 32 bit representation of the pt_regs
+-	 * structure that was stored on the kernle stack during the
++	 * structure that was stored on the kernel stack during the
+ 	 * system call that was interrupted for the signal.
+ 	 *
+ 	 * Note that the entire pt_regs regs structure will fit in
+
+--%--multipart-mixed-boundary-1.883.1041205329--%
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Description: ASCII text
+Content-Disposition: attachment; filename="patch_1"
+
+--- linux-2.5.53-orig/arch/mips/kernel/pci.c	2002-12-29 23:15:03.000000000 +0000
++++ linux-2.5.53/arch/mips/kernel/pci.c	2002-12-29 23:36:17.000000000 +0000
+@@ -3,7 +3,7 @@
+  * Author: Jun Sun, jsun@mvista.com or jsun@junsun.net
+  *
+  * Modified to be mips generic, ppopov@mvista.com
+- * arch/mips/kernl/pci.c
++ * arch/mips/kernel/pci.c
+  *     Common MIPS PCI routines.
+  *
+  * This program is free software; you can redistribute  it and/or modify it
+
+--%--multipart-mixed-boundary-1.883.1041205329--%--

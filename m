@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318093AbSHLOuT>; Mon, 12 Aug 2002 10:50:19 -0400
+	id <S318123AbSHLPIA>; Mon, 12 Aug 2002 11:08:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318097AbSHLOuT>; Mon, 12 Aug 2002 10:50:19 -0400
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:35515 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S318093AbSHLOuS>; Mon, 12 Aug 2002 10:50:18 -0400
-Date: Mon, 12 Aug 2002 16:53:16 +0200
-From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-To: Linux-Kernel ML <linux-kernel@vger.kernel.org>
-Subject: VMA Merging
-Message-Id: <20020812165316.2701fc00.us15@os.inf.tu-dresden.de>
-Organization: Disorganized
-X-Mailer: Sylpheed version 0.7.8claws (GTK+ 1.2.10; )
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S318124AbSHLPIA>; Mon, 12 Aug 2002 11:08:00 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:6553 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S318123AbSHLPH7>;
+	Mon, 12 Aug 2002 11:07:59 -0400
+Date: Mon, 12 Aug 2002 08:09:47 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: root@chaos.analogic.com, Rik van Riel <riel@conectiva.com.br>
+cc: Manik Raina <manik@cisco.com>, Willy Tarreau <willy@w.ods.org>,
+       Jim Roland <jroland@roland.net>, linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: The spam problem.
+Message-ID: <1763744170.1029139786@[10.10.2.3]>
+In-Reply-To: <Pine.LNX.3.95.1020812102532.16181A-100000@chaos.analogic.com>
+References: <Pine.LNX.3.95.1020812102532.16181A-100000@chaos.analogic.com>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Blacklist the whole country. At the risk of receiving probably one
+> or, maybe two, flames from Nigeria, I doubt that there is any
+> legitimate email from that country at all. So called businessmen
+> and government personnel from that country, dress in "clown suits".
+> That should be a hint.
 
-Hello,
+1. That's the most offensively stupid thing I've heard in quite 
+some time. I'd really be much happier if we blacklisted your
+email address instead.
 
-I have a program which mmap's 320 MB from a file into memory in 4 KB chunks,
-like this....
+2. What makes you think they all still come from Nigeria?
 
-00002000-00003000 rw-s 00002000 03:46 688        /tmp/physmem (deleted)
-00003000-00004000 rw-s 00003000 03:46 688        /tmp/physmem (deleted)
-00004000-00005000 rw-s 00004000 03:46 688        /tmp/physmem (deleted)
-00005000-00006000 rw-s 00005000 03:46 688        /tmp/physmem (deleted)
-00006000-00007000 rw-s 00006000 03:46 688        /tmp/physmem (deleted)
-00007000-00008000 rw-s 00007000 03:46 688        /tmp/physmem (deleted)
-00008000-00009000 rw-s 00008000 03:46 688        /tmp/physmem (deleted)
-00009000-0000a000 rw-s 00009000 03:46 688        /tmp/physmem (deleted)
-0000a000-0000b000 rw-s 0000a000 03:46 688        /tmp/physmem (deleted)
-0000b000-0000c000 rw-s 0000b000 03:46 688        /tmp/physmem (deleted)
-0000c000-0000d000 rw-s 0000c000 03:46 688        /tmp/physmem (deleted)
-0000d000-0000e000 rw-s 0000d000 03:46 688        /tmp/physmem (deleted)
-0000e000-0000f000 rw-s 0000e000 03:46 688        /tmp/physmem (deleted)
-0000f000-00010000 rw-s 0000f000 03:46 688        /tmp/physmem (deleted)
-00010000-00011000 rw-s 00010000 03:46 688        /tmp/physmem (deleted)
-00011000-00012000 rw-s 00011000 03:46 688        /tmp/physmem (deleted)
-00012000-00013000 rw-s 00012000 03:46 688        /tmp/physmem (deleted)
+Martin.
 
-The problem is that after 320 MB the program exceeds the maximum number
-of 65536 VMA mappings. Why doesn't the kernel merge adjacent VMA's?
-
-Regards,
--Udo.

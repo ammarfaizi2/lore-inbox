@@ -1,86 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262078AbUAOTQ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 14:16:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262308AbUAOTQ2
+	id S261552AbUAOTbI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 14:31:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbUAOTbI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 14:16:28 -0500
-Received: from opersys.com ([64.40.108.71]:28933 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S262078AbUAOTQ0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 14:16:26 -0500
-Message-ID: <4006E812.7020007@opersys.com>
-Date: Thu, 15 Jan 2004 14:20:50 -0500
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-CC: Philippe Gerum <rpm@xenomai.org>
-Subject: [ANNOUNCE] RTAI 3.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 15 Jan 2004 14:31:08 -0500
+Received: from [128.173.54.129] ([128.173.54.129]:26242 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261552AbUAOTbG (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 14:31:06 -0500
+Message-Id: <200401151930.i0FJUutd012021@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: root@chaos.analogic.com
+Cc: Tim Cambrant <tim@cambrant.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: True story: "gconfig" removed root folder... 
+In-Reply-To: Your message of "Thu, 15 Jan 2004 14:00:10 EST."
+             <Pine.LNX.4.53.0401151353310.21008@chaos> 
+From: Valdis.Kletnieks@vt.edu
+References: <1074177405.3131.10.camel@oebilgen> <Pine.LNX.4.58.0401151558590.27223@serv> <87ptdl2q7l.fsf@asmodeus.mcnaught.org> <slrnc0dct5.2o5.erik@bender.home.hensema.net> <20040115160759.GA5458@cambrant.com> <200401151617.i0FGHW1a005870@turing-police.cc.vt.edu> <20040115183125.GA5772@cambrant.com>
+            <Pine.LNX.4.53.0401151353310.21008@chaos>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-1577005200P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Thu, 15 Jan 2004 14:30:56 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_-1577005200P
+Content-Type: text/plain; charset=us-ascii
 
-[This is a forward of the announcement on the RTAI mailing list by
-Philippe Gerum, the maintainer of RTAI 3.0 tree.]
+On Thu, 15 Jan 2004 14:00:10 EST, "Richard B. Johnson" said:
 
-The RTAI project is pleased to announce the release of the Real-Time
-Application Interface version 3.0 (codenamed "kilauea"). RTAI is a
-Free Software project aimed at developing a reliable and innovative
-framework for programming real-time applications on GNU/Linux systems.
+> directories, but it doesn't have any "folders". Microstuff has
+> "folders", but doesn't have "root". Is Gates infecting Linux?
 
-This new version of RTAI, which comes after a full year of continuous
-development, supports five architectures, namely: x86, PPC, ARM, MIPS
-and CRIS.
+Yes.
 
-RTAI 3.0 features a streamlined and polished installation, leveraging
-a new modular infrastructure, which brings an increased adaptability
-to various software and hardware configurations.
+http://www.informationweek.com/story/showArticle.jhtml?articleID=17300643
+http://www.microsoft.com/windows/sfu/downloads/default.asp
 
-Distributed real-time computing though the NETRPC middleware has
-gained full symmetry between kernel and user-space APIs.
+:)
 
-Traditional RTOS applications can now easily migrate to RTAI using one
-of the available emulators, among which VRTX32/VRTXsa, pSOS+, VxWorks,
-and uITRON-compliant "skins".
+--==_Exmh_-1577005200P
+Content-Type: application/pgp-signature
 
-Development tools have also been improved, with a major revision of
-RTAILab, and the release of a feature-rich simulator aimed at running
-RTAI applications in a virtual environment.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-With this 3rd major milestone, RTAI is also setting the groundwork for
-a seamless integration of hard real-time processing into the standard
-GNU/Linux programming model in user-space.
+iD8DBQFABupwcC3lWbTT17ARApwFAJ4v0MfmbcuyqrHk5Ntkv6C6GY0X4gCeOQDA
+t88xATCyR7Dm7dIp6gkGfOU=
+=Pevr
+-----END PGP SIGNATURE-----
 
-To this end, the LXRT support has been improved to the point where
-most real-time applications can now run under MMU protection with the
-required level of determinism.
-
-Additionally, a preview of the new "fusion" technology is being made
-available as part of this release. RTAI/fusion is the point of
-convergence of several technologies including LXRT, Adeos, the
-preemptible Linux kernel, and the low latency enhancements. It aims at
-reinstating the RTAI applications into the regular GNU/Linux programming
-model, allowing them to call Linux kernel services synchronously from
-hard real-time tasks, while retaining a high degree of determinism.
-
-RTAI 3.0 can be downloaded from the RTAI homepage at
-http://www.aero.polimi.it/~rtai/
-
---
-
-On a personal note, I would like to thank Paolo Mantegazza who, from
-day one, has always supported and contributed to the major overhaul
-which led to the 3.0 release (even at times when seeing a twirling
-chain saw inside the venerable RTAI codebase must have been a bit
-disturbing for him too! :o>) Many thanks also to the various
-contributors and users who gave time and knowledge for making this
-release happen.
-
--- Philippe.
-
+--==_Exmh_-1577005200P--

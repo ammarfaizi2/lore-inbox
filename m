@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265081AbSJWRCU>; Wed, 23 Oct 2002 13:02:20 -0400
+	id <S265092AbSJWQzO>; Wed, 23 Oct 2002 12:55:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265094AbSJWRCT>; Wed, 23 Oct 2002 13:02:19 -0400
-Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:54242 "EHLO
-	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S265081AbSJWRCT> convert rfc822-to-8bit; Wed, 23 Oct 2002 13:02:19 -0400
-Message-ID: <3DA24B2900A49061@mel-rta9.wanadoo.fr> (added by
-	    postmaster@wanadoo.fr)
-Date: Wed, 23 Oct 2002 19:08:23 +0200 (MET DST)
-From: "Florian FERNANDEZ" <Florian.Fernandez2@wanadoo.fr>
-To: <linux-kernel@vger.kernel.org>
-Subject: GCC 3.3 AND KERNEL  (all versions)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S265089AbSJWQzN>; Wed, 23 Oct 2002 12:55:13 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:13326 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S265092AbSJWQyz>; Wed, 23 Oct 2002 12:54:55 -0400
+Date: Wed, 23 Oct 2002 18:01:05 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "Matt D. Robinson" <yakker@aparity.com>
+Cc: linux-kernel@vger.kernel.org, lkcd-devel@lists.sourceforge.net
+Subject: Re: [PATCH] LKCD for 2.5.44 (6/8): dump trace/dump calls/dump_in_progress
+Message-ID: <20021023180105.B16547@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Matt D. Robinson" <yakker@aparity.com>,
+	linux-kernel@vger.kernel.org, lkcd-devel@lists.sourceforge.net
+References: <Pine.LNX.4.44.0210230241050.27315-100000@nakedeye.aparity.com> <Pine.LNX.4.44.0210230244300.27315-100000@nakedeye.aparity.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0210230244300.27315-100000@nakedeye.aparity.com>; from yakker@aparity.com on Wed, Oct 23, 2002 at 02:44:43AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Oct 23, 2002 at 02:44:43AM -0700, Matt D. Robinson wrote:
+> +#if !defined(CONFIG_CRASH_DUMP) && !defined(CONFIG_CRASH_DUMP_MODULE)
+>  #ifdef CONFIG_SMP
+>  	smp_send_stop();
+>  #endif
+> +#endif
 
-When I want to compile the kernel with gcc 3.3 but there is a lot of error during the "make bzImage":
-
-"comparison between signed and unsigned"... then crash.
-
-I tried with linux-2.4.18, linux-2.4.19 and linux-2.4.20-pre11 and I got the same things.
-
-All are ok when I compile with gcc 3.2.
-
-Anyone can help me or have the same problem or compile kernel with gcc 3. 3 without error ? [ :) ]
-
-Thanks.
-
+Again, is there a chance you could make this a runtime switch?
+This would allow to poweroff dump-enabled kernel not configured for
+dumping.
 

@@ -1,81 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131647AbQKJVh5>; Fri, 10 Nov 2000 16:37:57 -0500
+	id <S131938AbQKJVjR>; Fri, 10 Nov 2000 16:39:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131926AbQKJVhr>; Fri, 10 Nov 2000 16:37:47 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:14840 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S131647AbQKJVhb>;
-	Fri, 10 Nov 2000 16:37:31 -0500
-Date: Fri, 10 Nov 2000 16:37:20 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Jeff Garzik <garzik@havoc.gtf.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] more kmap fixes
-Message-ID: <Pine.GSO.4.21.0011101635590.17943-100000@weyl.math.psu.edu>
+	id <S131888AbQKJVi5>; Fri, 10 Nov 2000 16:38:57 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:44548 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131849AbQKJViu>; Fri, 10 Nov 2000 16:38:50 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: rdtsc to mili secs?
+Date: 10 Nov 2000 13:38:16 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <8uhps8$1tm$1@cesium.transmeta.com>
+In-Reply-To: <3A078C65.B3C146EC@mira.net> <E13t7ht-0007Kv-00@the-village.bc.nu> <20001110154254.A33@bug.ucw.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Couple of places missed in Jeff's patch:
+Followup to:  <20001110154254.A33@bug.ucw.cz>
+By author:    Pavel Machek <pavel@suse.cz>
+In newsgroup: linux.dev.kernel
+> > 
+> > Sensibly configured power saving/speed throttle systems do not change the
+> > frequency at all. The duty cycle is changed and this controls the cpu 
+> > performance but the tsc is constant
+> 
+> Do you have an example of notebook that does powersaving like that?
+> I have 2 examples of notebooks with changing TSC speed...
+> 
 
-diff -urN rc11-2/fs/ncpfs/mmap.c rc11-2-kmap/fs/ncpfs/mmap.c
---- rc11-2/fs/ncpfs/mmap.c	Sun Aug  6 13:43:18 2000
-+++ rc11-2-kmap/fs/ncpfs/mmap.c	Fri Nov 10 16:31:01 2000
-@@ -37,7 +37,7 @@
- 	struct dentry *dentry = file->f_dentry;
- 	struct inode *inode = dentry->d_inode;
- 	struct page* page;
--	unsigned long pg_addr;
-+	char *pg_addr;
- 	unsigned int already_read;
- 	unsigned int count;
- 	int bufsize;
-@@ -71,7 +71,7 @@
- 			if (ncp_read_kernel(NCP_SERVER(inode),
- 				     NCP_FINFO(inode)->file_handle,
- 				     pos, to_read,
--				     (char *) (pg_addr + already_read),
-+				     pg_addr + already_read,
- 				     &read_this_time) != 0) {
- 				read_this_time = 0;
- 			}
-@@ -87,8 +87,7 @@
- 	}
- 
- 	if (already_read < PAGE_SIZE)
--		memset((char*)(pg_addr + already_read), 0, 
--		       PAGE_SIZE - already_read);
-+		memset(pg_addr + already_read, 0, PAGE_SIZE - already_read);
- 	flush_dcache_page(page);
- 	kunmap(page);
- 	return page;
-diff -urN rc11-2/fs/udf/inode.c rc11-2-kmap/fs/udf/inode.c
---- rc11-2/fs/udf/inode.c	Tue Sep  5 16:07:30 2000
-+++ rc11-2-kmap/fs/udf/inode.c	Fri Nov 10 16:32:09 2000
-@@ -158,7 +158,6 @@
- {
- 	struct buffer_head *bh = NULL;
- 	struct page *page;
--	unsigned long kaddr = 0;
- 	int block;
- 
- 	/* from now on we have normal address_space methods */
-@@ -183,10 +182,10 @@
- 		PAGE_BUG(page);
- 	if (!Page_Uptodate(page))
- 	{
--		kaddr = kmap(page);
--		memset((char *)kaddr + UDF_I_LENALLOC(inode), 0x00,
-+		char *kaddr = kmap(page);
-+		memset(kaddr + UDF_I_LENALLOC(inode), 0x00,
- 			PAGE_CACHE_SIZE - UDF_I_LENALLOC(inode));
--		memcpy((char *)kaddr, bh->b_data + udf_file_entry_alloc_offset(inode),
-+		memcpy(kaddr, bh->b_data + udf_file_entry_alloc_offset(inode),
- 			UDF_I_LENALLOC(inode));
- 		flush_dcache_page(page);
- 		SetPageUptodate(page);
+Intel PIIX-based systems will do duty-cycle throttling, for example.
+However, there are definitely notebooks that will mess with the
+frequency.  At Transmeta, we went through some considerable pain to
+make sure RDTSC would count walltime even across Longrun transitions.
 
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,58 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbVA2XlS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbVA2XoJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261604AbVA2XlS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 18:41:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbVA2XlS
+	id S261605AbVA2XoJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 18:44:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261609AbVA2XoI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 18:41:18 -0500
-Received: from mailgw.aecom.yu.edu ([129.98.1.16]:36789 "EHLO
-	mailgw.aecom.yu.edu") by vger.kernel.org with ESMTP id S261604AbVA2XlH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 18:41:07 -0500
-Mime-Version: 1.0
-Message-Id: <a0620073cbe21c8047634@[129.98.90.227]>
-In-Reply-To: <20050129103057.GA27803@hansmi.ch>
-References: <a06200736be209a45bd65@[129.98.90.227]>
- <20050129103057.GA27803@hansmi.ch>
-Date: Sat, 29 Jan 2005 18:41:19 -0500
-To: Michael Hanselmann <hansmi@gentoo.org>
-From: Maurice Volaski <mvolaski@aecom.yu.edu>
-Subject: Re: [gentoo-ppc-dev] CONFIG_THERM_PM72 is missing from .config
- from recent kernels (2.6.10, 2.6.11)
-Cc: gentoo-ppc-dev@lists.gentoo.org, linuxppc64-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	Sat, 29 Jan 2005 18:44:08 -0500
+Received: from mail.dif.dk ([193.138.115.101]:44929 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261605AbVA2XmR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jan 2005 18:42:17 -0500
+Date: Sun, 30 Jan 2005 00:45:38 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: "Paul `Rusty' Russell" <rusty@rustcorp.com.au>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] micro optimization in kernel/params.c; don't call
+ to_module_kobject before we really have to.
+Message-ID: <Pine.LNX.4.62.0501300024110.2829@dragon.hygekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Hello Maurice
->
->>  It's missing from .config in at least a few releases of recent
->>  kernels (2.6.10, 2.6.11).
->
->Definitly not true, at least for ppc32.
 
-Note that..
+In kernel/params.c::module_attr_show and 
+kernel/params.c::module_attr_store we call to_module_kobject() and save 
+the result in a local variable right before a conditional statement that 
+does not depend on the call to to_module_kobject() and may cause the 
+function to return. If the function returns before we use the result of 
+to_module_kobject() then the call is just a waste of time. 
+The patch moves the call to to_module_kobject() down just before it is 
+actually used, thus we save a call to the function in a few cases. I doubt 
+this is in any way measurable, but I see no reason to not move the call - 
+it should be an infinitesimal improvement with no ill sideeffects.
+Please consider applying.
 
-1) I looked only at official kernel source code
-and
-2) I looked only at a few releases, not every patchset.
-and
-3) I looked only at the resulting .config file after preparing it 
-with make menuconfig.
 
->Linux g5 2.6.10-gentoo-r6-g5 #6 SMP Wed Jan 26 23:05:05 CET 2005 ppc
->PPC970, altivec supported PowerMac7,2 GNU/Linux
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
- From what I can tell, the .config file is built up from different 
-files. I just looked at gentoo-dev-sources for this version and it 
-is, in fact, present for ppc64 in
-/usr/src/linux-2.6.10-gentoo-r6/arch/ppc64/defconfig
+diff -up linux-2.6.11-rc2-bk7-orig/kernel/params.c linux-2.6.11-rc2-bk7/kernel/params.c
+--- linux-2.6.11-rc2-bk7-orig/kernel/params.c	2005-01-29 23:54:53.000000000 +0100
++++ linux-2.6.11-rc2-bk7/kernel/params.c	2005-01-30 00:27:08.000000000 +0100
+@@ -625,11 +625,12 @@ static ssize_t module_attr_show(struct k
+ 	int ret;
+ 
+ 	attribute = to_module_attr(attr);
+-	mk = to_module_kobject(kobj);
+ 
+ 	if (!attribute->show)
+ 		return -EPERM;
+ 
++	mk = to_module_kobject(kobj);
++
+ 	if (!try_module_get(mk->mod))
+ 		return -ENODEV;
+ 
+@@ -649,11 +650,12 @@ static ssize_t module_attr_store(struct 
+ 	int ret;
+ 
+ 	attribute = to_module_attr(attr);
+-	mk = to_module_kobject(kobj);
+ 
+ 	if (!attribute->store)
+ 		return -EPERM;
+ 
++	mk = to_module_kobject(kobj);
++
+ 	if (!try_module_get(mk->mod))
+ 		return -ENODEV;
+ 
 
-That suggests the mechanism that generates the .config files is not 
-working right under certain circumstances related to the 64bit G5.
--- 
 
-Maurice Volaski, mvolaski@aecom.yu.edu
-Computing Support, Rose F. Kennedy Center
-Albert Einstein College of Medicine of Yeshiva University
+

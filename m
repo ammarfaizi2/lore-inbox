@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313183AbSDUKSM>; Sun, 21 Apr 2002 06:18:12 -0400
+	id <S313304AbSDUKUc>; Sun, 21 Apr 2002 06:20:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313184AbSDUKSL>; Sun, 21 Apr 2002 06:18:11 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:8713 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S313093AbSDUKSJ>; Sun, 21 Apr 2002 06:18:09 -0400
-Message-Id: <200204211015.g3LAFCX08450@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: andersen@codepoet.org, "Dr. Death" <drd@homeworld.ath.cx>
-Subject: Re: A CD with errors (scratches etc.) blocks the whole system while reading damadged files
-Date: Sun, 21 Apr 2002 13:18:23 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3CBEC67F.3000909@filez> <20020419200112.GA16209@codepoet.org>
+	id <S313307AbSDUKUb>; Sun, 21 Apr 2002 06:20:31 -0400
+Received: from fungus.teststation.com ([212.32.186.211]:38925 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S313304AbSDUKUa>; Sun, 21 Apr 2002 06:20:30 -0400
+Date: Sun, 21 Apr 2002 12:19:40 +0200 (CEST)
+From: Urban Widmark <urban@teststation.com>
+X-X-Sender: <puw@cola.teststation.com>
+To: "Ivan G." <ivangurdiev@yahoo.com>
+cc: Shing Chuang <ShingChuang@via.com.tw>, LKML <linux-kernel@vger.kernel.org>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Re: [PATCH] Via-rhine minor issues
+In-Reply-To: <02042101022001.00833@cobra.linux>
+Message-ID: <Pine.LNX.4.33.0204211151010.13036-100000@cola.teststation.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19 April 2002 18:01, Erik Andersen wrote:
-> On Thu Apr 18, 2002 at 03:13:35PM +0200, Dr. Death wrote:
-> > Problem:
-> >
-> > I use SuSE Linux 7.2 and when I create md5sums from damaged files on a
-> > CD, the WHOLE system  freezes or is ugly slow untill md5 has passed the
-> > damaged part of the file !
->
-> This should help somewhat.  Currently, ide-cd.c retries ERROR_MAX
-> (8) times when it sees an error.  But ide.c is also retrying
-> ERROR_MAX times when _it_ sees an error, and does a bus reset
-> after evey 4 failures.  So for each bad sector, you get 64
-> retries (with typical timouts of 7 seconds each) plus 16 bus
-> resets per bad sector.
+On Sun, 21 Apr 2002, Ivan G. wrote:
 
-And nobody knows how many tries is in hardware...
-so we get 8x8x?? retries, and *this* is slow.
---
-vda
+> DIFF-ED AGAINST:
+> 2.4.19-pre3 ( I don't think there were changes to via-rhine 
+> b-ween pre3 and pre7)
+
+You should probably send this to Jeff Garzik instead of Marcelo. Jeff
+collects net driver patches.
+
+If you don't, Shing Chuang's changes are in -pre7-ac2, so a re-diff vs
+that and seding it to Alan Cox may cause less merge work.
+
+
+> - changed chip_id in wait_for_reset as parameter since np is not initialized
+> the first time this function is called (should this be fixed differently?)
+
+I think that is an ok change. np could be initialised sooner instead but
+I don't know why that would be better.
+
+> - change "Something Wicked" message to "PCI Error" (I still don't see the 
+> purpose of the trap)
+
+To trap things ... :)
+
+Maybe there should be a trap for all the unhandled interrupt status error
+events. via_rhine_interrupt could list more Intr flags as reasons to call
+via_rhine_error, if you know which ones are errors.
+
+/Urban
+

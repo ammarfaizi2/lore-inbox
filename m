@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292464AbSBUPmP>; Thu, 21 Feb 2002 10:42:15 -0500
+	id <S292468AbSBUPqy>; Thu, 21 Feb 2002 10:46:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292465AbSBUPlz>; Thu, 21 Feb 2002 10:41:55 -0500
-Received: from [66.150.46.254] ([66.150.46.254]:14120 "EHLO mail.tvol.net")
-	by vger.kernel.org with ESMTP id <S292464AbSBUPln>;
-	Thu, 21 Feb 2002 10:41:43 -0500
-Message-ID: <3C751531.AFFA30B1@wgate.com>
-Date: Thu, 21 Feb 2002 10:41:37 -0500
-From: Michael Sinz <msinz@wgate.com>
-Organization: WorldGate Communications Inc.
-X-Mailer: Mozilla 4.76 [en] (X11; U; FreeBSD 4.5-STABLE i386)
-X-Accept-Language: en
+	id <S292467AbSBUPqo>; Thu, 21 Feb 2002 10:46:44 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:11653 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S292465AbSBUPqj>; Thu, 21 Feb 2002 10:46:39 -0500
+Date: Thu, 21 Feb 2002 10:48:44 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Joe Wong <joewong@tkodog.no-ip.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: detect memory leak tools?
+In-Reply-To: <Pine.LNX.4.33.0202211531440.5429-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.3.95.1020221104124.20988A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: Alan Cox <alan@redhat.com>
-CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] kernel 2.5.5 - coredump sysctl
-In-Reply-To: <200202211512.g1LFC8Y27614@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Thu, 21 Feb 2002, Joe Wong wrote:
+
+> Hi,
 > 
-> Would it be cleaner to use snprintf here ? Each of those checks you do
-> appears to come down to
+>   Is there any tools that can detect memory leak in kernel loadable 
+> module?
 > 
->         buf+=snprintf(buf, sizeof(buffer)+buffer-buf, "%foo", arg)
+> TIA.
+> 
+> - Joe
 
-	buf+=snprintf(buf, MAX_CORE_NAME - buf, "%foo", arg)
+How would it know? If you can answer that question, you have made
+the tool. It would be specific to your module. FYI, in designing
+such a tool, you often the find the leak, which means you don't
+need the tool anymore.
 
-Hmm.... I was trying to keep things clear but if snprintf() is what
-is prefered, it could be done so.  Most of the items here are just
-string copies anyway, so the loop is trivial (and snprintf is
-much higher overhead) 
+I would start by temporarily putting a wrapper around whatever you
+use for memory allocation and deallocation. The wrapper code keeps
+track of pointer values and outstanding allocations. If the outstanding
+allocations grow or if the pointers to whatever_free() are different
+than the pointers to whatever_alloc(), you have a leak. You can read
+the results from a private ioctl().
 
-snprintf is a bit more annoying due to the fact that snprintf returns
-the number of bytes that *would have been written* and not the number
-of bytes actually written if the limit is reached.  (Or, in older C
-libraries, it returns -1 if the limit is hit)
+Cheers,
+Dick Johnson
 
-(Don't complain to me that snprintf() is like that, it is C99 standard.
-Older glibc have the -1 return code, which is also not really want
-you want.)
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
 
-BTW - I would really like to see this in the 2.4 kernels too - our
-clusters really could use it (and do use it since I build the kernel
-we use).
+        111,111,111 * 111,111,111 = 12,345,678,987,654,321
 
--- 
-Michael Sinz -- msinz@wgate.com -- http://www.sinz.org
-A master's secrets are only as good as
-        the master's ability to explain them to others.

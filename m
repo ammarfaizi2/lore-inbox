@@ -1,109 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131236AbRCRPfW>; Sun, 18 Mar 2001 10:35:22 -0500
+	id <S131237AbRCRQCP>; Sun, 18 Mar 2001 11:02:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131239AbRCRPfM>; Sun, 18 Mar 2001 10:35:12 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:14342 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S131236AbRCRPfJ>;
-	Sun, 18 Mar 2001 10:35:09 -0500
-Date: Sat, 17 Mar 2001 02:45:02 -0300 (BRT)
-From: <aris@cathedrallabs.org>
+	id <S131238AbRCRQCF>; Sun, 18 Mar 2001 11:02:05 -0500
+Received: from web1302.mail.yahoo.com ([128.11.23.152]:16912 "HELO
+	web1302.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S131237AbRCRQBq>; Sun, 18 Mar 2001 11:01:46 -0500
+Message-ID: <20010318160105.11345.qmail@web1302.mail.yahoo.com>
+Date: Sun, 18 Mar 2001 08:01:05 -0800 (PST)
+From: Leandro Bernsmuller <leberns@yahoo.com>
+Subject: floppy programming
 To: linux-kernel@vger.kernel.org
-Subject: [OOPS] 2.4.2-ac20
-Message-ID: <Pine.LNX.4.21.0103170236580.190-300000@matthew.cathedral.com>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="852975170-2072015456-984807889=:190"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
 
---852975170-2072015456-984807889=:190
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Hi,
 
-hi,
-	i got this oops followed by a freeze
+some body know if exist or is possible to do one
+driver
+to makes floppy drive use some type of "balanced" bits
+distribution?
+The idea is simple: format a disk doing inner tracks
+with less bits than
+in external tracks.
+Maybe is better think in sectors and not bits
+banlancing?
 
-aris
+I want opinions about the idea, pleace.
 
---852975170-2072015456-984807889=:190
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=env
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.21.0103170244490.190@matthew.cathedral.com>
-Content-Description: ver_linux
-Content-Disposition: attachment; filename=env
+Where can I find information about floppy drivers
+programming, DMA setup,...?
 
-R251IEMgICAgICAgICAgICAgICAgICBlZ2NzLTIuOTEuNjYNCkdudSBtYWtl
-ICAgICAgICAgICAgICAgMy43OQ0KYmludXRpbHMgICAgICAgICAgICAgICAy
-LjkuMS4wLjI1DQp1dGlsLWxpbnV4ICAgICAgICAgICAgIDIuMTBsDQptb2R1
-dGlscyAgICAgICAgICAgICAgIDIuNC4xDQplMmZzcHJvZ3MgICAgICAgICAg
-ICAgIDEuMTgNCnBjbWNpYS1jcyAgICAgICAgICAgICAgMy4xLjE2DQpMaW51
-eCBDIExpYnJhcnkgICAgICAgIDIuMS4zDQpsZGQ6IHZlcnNpb24gMS45LjkN
-ClByb2NwcyAgICAgICAgICAgICAgICAgMi4wLjYNCk5ldC10b29scyAgICAg
-ICAgICAgICAgMS41NQ0KS2JkICAgICAgICAgICAgICAgICAgICAwLjk5DQpT
-aC11dGlscyAgICAgICAgICAgICAgIDIuMA0KTW9kdWxlcyBMb2FkZWQgICAg
-ICAgICBzZXJpYWwgaXNhLXBucCBuc2MtaXJjYyBpcmRhIGFwbSB2ZmF0IGZh
-dCBlZXBybzEwMCBlc3Nzb2xvMQ0K
---852975170-2072015456-984807889=:190
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="ksymoops.console.oops.output"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.21.0103170244491.190@matthew.cathedral.com>
-Content-Description: oops
-Content-Disposition: attachment; filename="ksymoops.console.oops.output"
+Thanks,
 
-a3N5bW9vcHMgMi4zLjcgb24gaTY4NiAyLjQuMi1hYzIwLiAgT3B0aW9ucyB1
-c2VkDQogICAgIC1WIChkZWZhdWx0KQ0KICAgICAtayAvcHJvYy9rc3ltcyAo
-ZGVmYXVsdCkNCiAgICAgLWwgL3Byb2MvbW9kdWxlcyAoZGVmYXVsdCkNCiAg
-ICAgLW8gL2xpYi9tb2R1bGVzLzIuNC4yLWFjMjAvIChkZWZhdWx0KQ0KICAg
-ICAtbSAvYm9vdC9TeXN0ZW0ubWFwLjIuNC4yLmFjMjAgKHNwZWNpZmllZCkN
-Cg0KQ1BVOiAgICAwDQpFSVA6ICAgIDAwMTA6WzxjMDExNjQ1Yj5dDQpVc2lu
-ZyBkZWZhdWx0cyBmcm9tIGtzeW1vb3BzIC10IGVsZjMyLWkzODYgLWEgaTM4
-Ng0KRUZMQUdTOiAwMDAxMDIxMw0KZWF4OiBGRkZGRkZGRiAgIGVieDogYzI5
-MDI3MGMgICBlY3g6IGMyOGYyMDAwICAgZWR4OiAwMDAwMDAxNQ0KZXNpOiBj
-MjhmMjAwMCAgIGVkaTogMDAwMDAyNDYgICBlYnA6IGMyOGYyMzZjICAgZXNw
-OiAwMDIyYmU2NA0KUHJvY2VzcyBzd2FwcGVyIChwaWQ6IDAsIHN0YWNrcGFn
-ZT1jMDIxYjAwMCkNClN0YWNrOiBjMDE3NzBiNCBjMjhmMjAyMCBjMDE2YWQw
-MCBjMjhmMjAwMCBjMjhmMjc2OCBjMjhmMjM2OCBjMjhmMjU2OCBjMDIxYmZh
-NA0KICAgICAgIGMwMTgxZDAwIDAwMDAwMDAwIGMxMTIxZDAwIDIwMTgxODM0
-IDAwMDAwMDAwIDAwMDAwMDAwIGMyOGYyNzZjIDAwMDAwMDAxDQogICAgICAg
-MDAwMDAwMDggMDAwMDMyODYgYzEwY2NkODQgYzEwY2NkODQgYzAyMWJlZGMg
-MDAwMDAwODIgYzEwY2NkNTggYzEwY2NkODANCkNhbGwgVHJhY2U6IFs8YzAx
-NzcwYjQ+XSBbYzAxNmFkMDA+XSBbPGMwMTgxZDAwPl0gWzxjMDE2ZGZhOD5d
-IFs8YzAxNjkzM2I+XQ0KWzxjMDExOWM2MD5dIFs8YzAxMWMwZWU+XQ0KICAg
-ICAgIFs8YzAxMTliN2Y+XSBbPGMwMTE5YWMwPl0gWzxjMDExOTljYT5dIFs8
-YzAxMGExNzU+XSBbPGMwMTA3MTYwPl0NCls8YzAxMDhlNTA+XSBbPGMwMTA3
-MTYwPl0gWzxjMDEwNzE2MD5dDQogICAgICAgWzxjMDEwMDAxOD5dIFs8YzAx
-MDcxODA+XSBbPGMwMTA3MWUyPl0gWzxjMDEwNTAwMD5dIFs8YzAxMDAxOTI+
-XQ0KQ29kZTogMGYgMGIgYjkgODAgYTUgMjAgYzAgZmYgMGQgODAgYTUgMjAg
-YzAgMGYgODggNmUgNzYgMGMgMDAgYzcNCg0KPj5FSVA7IGMwMTE2NDViIDxh
-Y3F1aXJlX2NvbnNvbGVfc2VtK2YvMzA+ICAgPD09PT09DQpUcmFjZTsgYzAx
-NzcwYjQgPGNvbl9mbHVzaF9jaGFycysxMC8yND4NClRyYWNlOyBjMDExOWM2
-MCA8X19ydW5fdGFza19xdWV1ZSs1MC82MD4NClRyYWNlOyBjMDExYzBlZSA8
-dHF1ZXVlX2JoKzE2LzFjPg0KVHJhY2U7IGMwMTE5YjdmIDxiaF9hY3Rpb24r
-MWIvNjQ+DQpUcmFjZTsgYzAxMTlhYzAgPHRhc2tsZXRfaGlfYWN0aW9uKzM4
-LzVjPg0KVHJhY2U7IGMwMTE5OWNhIDxkb19zb2Z0aXJxKzRhLzZjPg0KVHJh
-Y2U7IGMwMTBhMTc1IDxkb19JUlErYTEvYjQ+DQpUcmFjZTsgYzAxMDcxNjAg
-PGRlZmF1bHRfaWRsZSswLzI4Pg0KVHJhY2U7IGMwMTA4ZTUwIDxyZXRfZnJv
-bV9pbnRyKzAvMjA+DQpUcmFjZTsgYzAxMDcxNjAgPGRlZmF1bHRfaWRsZSsw
-LzI4Pg0KVHJhY2U7IGMwMTA3MTYwIDxkZWZhdWx0X2lkbGUrMC8yOD4NClRy
-YWNlOyBjMDEwMDAxOCA8c3RhcnR1cF8zMisxOC8xM2E+DQpUcmFjZTsgYzAx
-MDcxODAgPGRlZmF1bHRfaWRsZSsyMC8yOD4NClRyYWNlOyBjMDEwNzFlMiA8
-Y3B1X2lkbGUrM2EvNTA+DQpUcmFjZTsgYzAxMDUwMDAgPGVtcHR5X2JhZF9w
-YWdlKzAvMTAwMD4NClRyYWNlOyBjMDEwMDE5MiA8TDYrMC8yPg0KQ29kZTsg
-IGMwMTE2NDViIDxhY3F1aXJlX2NvbnNvbGVfc2VtK2YvMzA+DQowMDAwMDAw
-MCA8X0VJUD46DQpDb2RlOyAgYzAxMTY0NWIgPGFjcXVpcmVfY29uc29sZV9z
-ZW0rZi8zMD4gICA8PT09PT0NCiAgIDA6ICAgMGYgMGIgICAgICAgICAgICAg
-ICAgICAgICB1ZDJhICAgICAgPD09PT09DQpDb2RlOyAgYzAxMTY0NWQgPGFj
-cXVpcmVfY29uc29sZV9zZW0rMTEvMzA+DQogICAyOiAgIGI5IDgwIGE1IDIw
-IGMwICAgICAgICAgICAgbW92bCAgICQweGMwMjBhNTgwLCVlY3gNCkNvZGU7
-ICBjMDExNjQ2MiA8YWNxdWlyZV9jb25zb2xlX3NlbSsxNi8zMD4NCiAgIDc6
-ICAgZmYgMGQgODAgYTUgMjAgYzAgICAgICAgICBkZWNsICAgMHhjMDIwYTU4
-MA0KQ29kZTsgIGMwMTE2NDY4IDxhY3F1aXJlX2NvbnNvbGVfc2VtKzFjLzMw
-Pg0KICAgZDogICAwZiA4OCA2ZSA3NiAwYyAwMCAgICAgICAgIGpzICAgICBj
-NzY4MSA8X0VJUCsweGM3NjgxPiBjMDFkZGFkYyA8c3RleHRfbG9jaysxOGMv
-MTBlND4NCkNvZGU7ICBjMDExNjQ2ZSA8YWNxdWlyZV9jb25zb2xlX3NlbSsy
-Mi8zMD4NCiAgMTM6ICAgYzcgMDAgMDAgMDAgMDAgMDAgICAgICAgICBtb3Zs
-ICAgJDB4MCwoJWVheCkNCg0K
---852975170-2072015456-984807889=:190--
+Leandro
+
+__________________________________________________
+Do You Yahoo!?
+Get email at your own domain with Yahoo! Mail. 
+http://personal.mail.yahoo.com/

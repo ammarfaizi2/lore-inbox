@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130232AbRBAK6J>; Thu, 1 Feb 2001 05:58:09 -0500
+	id <S129032AbRBALJv>; Thu, 1 Feb 2001 06:09:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130340AbRBAK57>; Thu, 1 Feb 2001 05:57:59 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:43533 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130232AbRBAK5r>; Thu, 1 Feb 2001 05:57:47 -0500
-Subject: Re: spelling of disc (disk) in /devfs
-To: peter@cadcamlab.org (Peter Samuelson)
-Date: Thu, 1 Feb 2001 10:58:40 +0000 (GMT)
-Cc: jmd@foozle.turbogeek.org (Jeremy M. Dolan),
-        alan@chandlerfamily.org.uk (Alan Chandler),
+	id <S129063AbRBALJk>; Thu, 1 Feb 2001 06:09:40 -0500
+Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:16312 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S129032AbRBALJb>; Thu, 1 Feb 2001 06:09:31 -0500
+Date: Thu, 1 Feb 2001 12:04:55 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: James Sutherland <jas88@cam.ac.uk>
+cc: Grzegorz Sojka <grzes@prioris.mini.pw.edu.pl>,
         linux-kernel@vger.kernel.org
-In-Reply-To: <20010201042813.C27725@cadcamlab.org> from "Peter Samuelson" at Feb 01, 2001 04:28:13 AM
-X-Mailer: ELM [version 2.5 PL1]
+Subject: Re: BUG
+In-Reply-To: <Pine.SOL.4.21.0101312317340.24868-100000@orange.csi.cam.ac.uk>
+Message-ID: <Pine.GSO.3.96.1010201120045.17657B-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14OHRq-00048M-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Richard Gooch (devfs author, from Australia) to switch to the American
-> spelling of the word, for consistency with the rest of the kernel, and
+On Wed, 31 Jan 2001, James Sutherland wrote:
 
-Pardon
+> > Jan 31 23:39:18 Zeus kernel: APIC error on CPU1: 08(02)
+> > Jan 31 23:39:46 Zeus kernel: APIC error on CPU0: 04(02)
+[...]
+> (These are common, but fairly harmless FWIH, on BP6s.)
 
-include/linux/console_struct.h:	unsigned char   vc_palette[16*3];       /* Colour palette for VGA+ */
-include/linux/dio.h:#define DIO_ID2_HRCCATSEYE  0x06 /* highres colour "catseye" */
-include/linux/kd.h:#define GIO_CMAP	0x4B70	/* gets colour palette on VGA+ */
-include/linux/kd.h:#define PIO_CMAP	0x4B71	/* sets colour palette on VGA+ */
-include/linux/videodev.h:	__u16	colour;
+ Yep, until you get a lockup due to an undetected error...
 
-etc..
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

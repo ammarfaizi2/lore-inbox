@@ -1,65 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271318AbRHORU5>; Wed, 15 Aug 2001 13:20:57 -0400
+	id <S271321AbRHOR11>; Wed, 15 Aug 2001 13:27:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271319AbRHORUr>; Wed, 15 Aug 2001 13:20:47 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34570 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S271318AbRHORUh>; Wed, 15 Aug 2001 13:20:37 -0400
-From: Linus Torvalds <torvalds@transmeta.com>
-Date: Wed, 15 Aug 2001 10:19:37 -0700
-Message-Id: <200108151719.f7FHJbS02350@penguin.transmeta.com>
-To: s3293115@student.anu.edu.au, linux-kernel@vger.kernel.org,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: kswapd using all cpu for long periods in 2.4.9-pre4
-Newsgroups: linux.dev.kernel
-In-Reply-To: <000c01c12569$65581630$0200a8c0@W2K>
+	id <S271324AbRHOR1J>; Wed, 15 Aug 2001 13:27:09 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:53633 "EHLO
+	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S271321AbRHOR0y>; Wed, 15 Aug 2001 13:26:54 -0400
+Importance: Normal
+Subject: Re: Kernel 2.4.6 and 2.4.7 networking performance: Seeing serious delays
+To: ron.flory@adtran.com
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
+Message-ID: <OF643DA24A.2BEBB0B0-ON88256AA9.0059AF34@boulder.ibm.com>
+From: "Nivedita Singhvi" <nivedita@us.ibm.com>
+Date: Wed, 15 Aug 2001 10:30:58 -0700
+X-MIMETrack: Serialize by Router on D03NM104/03/M/IBM(Release 5.0.6 |December 14, 2000) at
+ 08/15/2001 11:31:01 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just noticed something..
 
-In article <000c01c12569$65581630$0200a8c0@W2K> you write:
+> [1.] One line summary of the problem:
 >
->kswapd is using all cpu for long periods (100-200 seconds then 100-200
->seconds break....) there is very little disk activity (heres a vmstat while
->its happening)
+>  Depending upon length of TCP socket write requests, I'm seeing
+> extremely long TCP delays, limiting throughput to only 25 datagrams
+> per second. Data blocks above a 'magic' length have a much higher
+> throughput than shorter blocks, which is counter-intuitive.
+
+This is correct (but unfortunate) operation of TCP. Youre just
+hitting a well known phenomenon: the worst case interaction of
+delayed acks and Nagle at a boundary condition.
+
+Note that in the first case, your  write is 1447 bytes, which is
+1 byte less than an MSS, i.e. subject to Nagle if there is an
+outstanding packet not acked.
+
+Whats happening, we suspect, is that the ack for the 8 byte request
+(Frame 10) is delayed once delayed acks kick in (no longer in quick
+ack mode). Delayed ack timeout is 40ms, and youre seeing around 36ms.
+
+Since the other side has bytes outstanding and has to send a small
+packet (1447 bytes, 1 less than MSS), it will delay the send (Nagle)
+until it gets the ack.
+
+> # Time Src Dst Port Info
+>  8 0.000111 .100 .101 41359 > 4180 [PSH, ACK] Seq=4186558043
+>       Ack=124141127 Win=5840 Len=8
+>  9 0.000062 .101 .100 4180 > 41359 [PSH, ACK] Seq=124141127
+>       Ack=4186558051 Win=5792 Len=8
+> 10 0.036399 .100 .101 41359 > 4180 [ACK] Seq=4186558051
+>       Ack=124141135 Win=5840 Len=0 <- DELAY
+> 11 0.000074 .101 .100 4180 > 41359 [PSH, ACK] Seq=124141135
+>       Ack=4186558051 Win=5792 Len=1447
+> 12 0.000362 .100 .101 41359 > 4180 [ACK] Seq=4186558051
+>       Ack=124142582 Win=8682 Len=0
+> 13 0.000279 .100 .101 41359 > 4180 [FIN, ACK] Seq=4186558051
+>       Ack=124142582 Win=8682 Len=0
+> 14 0.000073 .101 .100 4180 > 41359 [FIN, ACK] Seq=124142582
+>       Ack=4186558052 Win=5792 Len=0
+
+In the next session, when youre sending the 1448 bytes, (exactly MSS),
+the ack is delayed, but the write isnt delayed since we have a big enough
+packet to send. The other end sends the ack as soon as it receives the
+1447 bytes. (Acks are delayed unless we have more than one MSS
+outstanding),
+so it doesnt need to wait the full delayed ack timeout.
+
+>  # Time Src Dst Port Info
+>  8 0.000122 .100 .101 41363 > 4180 [PSH, ACK] Seq=4268751138
+>       Ack=189815010 Win=5840 Len=8
+>  9 0.000061 .101 .100 4180 > 41363 [PSH, ACK] Seq=189815010
+>       Ack=4268751146 Win=5792 Len=8
+> 10 0.000034 .101 .100 4180 > 41363 [ACK] Seq=189815018
+>       Ack=4268751146 Win=5792 Len=1448
+> 11 0.000351 .100 .101 41363 > 4180 [ACK] Seq=4268751146
+>       Ack=189816466 Win=8688 Len=0
+> 12 0.000520 .100 .101 41363 > 4180 [FIN, ACK] Seq=4268751146
+>       Ack=189816466 Win=8688 Len=0
+
+> Of particular interest is line #10 of each above.
 >
->mem info during:
->SysRq: Show Memory
->Mem-info:
->Free pages: 3744kB ( 0kB HighMem)
->( Active: 6946, inactive_dirty: 4296, inactive_clean: 895, free: 936 (256
->512 2048) )
+> For some reason, in the case of the 'short' packet, the server machine
+> waits for a TCP ACK from the client machine (delaying 36 millisec),
+> which does not happen if the packet is just 1-byte longer, in which
+> case the server immediately follows the 8-byte block with the
+> 1448-byte payload.
+[ snip ]
 
-This shows your freepages.min low and high: 256. 512 and 2048
-respectively.
+Hope that helps. Its a consequence of sending repeated small packets.
+You can turn off Nagle (delayed sends) by setting the TCP socket option
+TCP_NODELAY, or alter your application sequence of writes, if possible.
 
-And that's WRONG. Your "freepages.high" is _way_ too high. You must have
-changed it through the /proc interface somehow, which should be
-impossible (the /proc/sys/vm/freepages file is read-only), but I suspect
-that maybe there's a sysctl backdoor.
+I'm still wondering why the next ack isnt delayed as well, though.
+I dont believe we should still be in quickack mode, and
+so I would have expected subsequent acks (there's just one, the FIN comes
+down as a result of the close, which might be a factor, masked by ethereal
+somehow) to be delayed as well.
 
-How do I know that "freepages.high" is too big? Because it should always
-be 3*freepages.min. Yours is 8*min.
+Thanks to Sridhar Samudrala, Dave Stevens, Shirley Ma who got interested
+in the question and contributed in shedding light on whats happening..
 
-And why does this matter? Because what has apparently happened is:
- - your setup somehow modifies the global free target
- - but the per-zone targets are still the old ones
+thanks,
+Nivedita
+----
+Nivedita Singhvi                            (503) 578-4580
+Linux Technology Center           nivedita@us.ibm.com
+IBM Beaverton, OR                      nivedita@sequent.com
 
-The end result: we always think that we are under a global shortage, but
-the actual page freeing routines refuse to free pages because all the
-_zones_ think that they are fine.
-
-Which gives you _exactly_ the behaviour you're describing. "kswapd" will
-run forever, and never make any progress at all.
-
-I wonder if this is more common? Does any of the distributions maybe
-have some "system tuning" script that modifies the freepages values
-through sysctl? That would certainly explain why some people see the
-problem and others do not..
-
-How DID you change that value?
-
-		Linus

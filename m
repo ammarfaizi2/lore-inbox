@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284607AbRLPNTu>; Sun, 16 Dec 2001 08:19:50 -0500
+	id <S284609AbRLPNig>; Sun, 16 Dec 2001 08:38:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284608AbRLPNTk>; Sun, 16 Dec 2001 08:19:40 -0500
-Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:55819 "EHLO
-	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id <S284607AbRLPNT0>; Sun, 16 Dec 2001 08:19:26 -0500
-Subject: Alpha  - how to fill the PC
-From: "Aneesh Kumar K.V" <aneesh.kumar@digital.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 16 Dec 2001 18:49:56 +0530
-Message-Id: <1008508796.18634.8.camel@satan.xko.dec.com>
-Mime-Version: 1.0
+	id <S284610AbRLPNi1>; Sun, 16 Dec 2001 08:38:27 -0500
+Received: from [217.222.53.238] ([217.222.53.238]:48646 "EHLO mail.gts.it")
+	by vger.kernel.org with ESMTP id <S284609AbRLPNiQ>;
+	Sun, 16 Dec 2001 08:38:16 -0500
+Message-ID: <33364.62.211.145.13.1008513364.squirrel@gtsmail.gts.it>
+Date: Sun, 16 Dec 2001 14:36:04 -0000 (UTC)
+Subject: Compilation of 2.5.1-pre11 fails w/LVM as module
+From: <s.rivoir@gts.it>
+To: <linux-kernel@vger.kernel.org>
+X-Mailer: SquirrelMail (version 1.2.0 [rc2])
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
 
- 	I am trying to do  process migration between nodes  using alpha
-architecture. For explaining what is happening I will take the process
-getting migrated from node1 to node2. I am using struct pt_regs  for
-rebuilding the process on  node2.I am getting the same  value of struct
-pt_regs on node1 and on node2 ( I print is using dik_show_regs) Now I
-want to set the value of registers including the program counter with
-the value i got from node1. Right now I am doing
-ret_from_sys_call(&regs). But then i am getting a Oops . The Oops
-message contain all the register values same as that I got from node1
-except pc and ra 
+As stated in the subject, this is 'make modules' output:
 
-	Any idea where I went wrong ? 
+make[2]: Entering directory `/us2/usr/src/linux/drivers/md'
+gcc -D__KERNEL__ -I/us2/usr/src/linux/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing-fno-common -pipe -mpreferred-stack-boundary=2 -march=i686
+-malign-functions=4  -DMODULE   -c -o lvm.o lvm.clvm.c: In function `lvm_user_bmap':
+lvm.c:1046: request for member `bv_len' in something not a structure or union
+make[2]: *** [lvm.o] Error 1
+make[2]: Leaving directory `/us2/usr/src/linux/drivers/md'
+make[1]: *** [_modsubdir_md] Error 2
+make[1]: Leaving directory `/us2/usr/src/linux/drivers'
+make: *** [_mod_drivers] Error 2
 
- -aneesh 
+Sorry if already issued by someone else :)
+
+Bye
+
+-- 
+Stefano
+
 
 
 

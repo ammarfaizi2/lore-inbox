@@ -1,57 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263372AbSJFK00>; Sun, 6 Oct 2002 06:26:26 -0400
+	id <S263371AbSJFKZO>; Sun, 6 Oct 2002 06:25:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263373AbSJFK00>; Sun, 6 Oct 2002 06:26:26 -0400
-Received: from adsl-66-136-198-157.dsl.austtx.swbell.net ([66.136.198.157]:16770
-	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
-	id <S263372AbSJFK0Z>; Sun, 6 Oct 2002 06:26:25 -0400
-Subject: Re: QLogic Linux failover/Load Balancing ER0000000020860
-From: GrandMasterLee <masterlee@digitalroadkill.net>
-To: jbradford@dial.pipex.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200210061019.g96AJ9KA001206@darkstar.example.net>
-References: <200210061019.g96AJ9KA001206@darkstar.example.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Digitalroadkill.net
-Message-Id: <1033900283.6413.27.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.1.1.99 (Preview Release)
-Date: 06 Oct 2002 05:31:54 -0500
+	id <S263372AbSJFKZO>; Sun, 6 Oct 2002 06:25:14 -0400
+Received: from web13108.mail.yahoo.com ([216.136.174.153]:14597 "HELO
+	web13108.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S263371AbSJFKZM>; Sun, 6 Oct 2002 06:25:12 -0400
+Message-ID: <20021006103049.7897.qmail@web13108.mail.yahoo.com>
+Date: Sun, 6 Oct 2002 03:30:49 -0700 (PDT)
+From: devnetfs <devnetfs@yahoo.com>
+Subject: [RESEND-2: Pl. Help] questions regarding sending/receiving udp packets in kernel
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-10-06 at 05:19, jbradford@dial.pipex.com wrote:
-> > > Linux is not allowed to address LUNs out of sequence, so searching for
-> > > further LUN numbers stops after 0, since 2 is the next one. 
-> 
-> That's not true:
-> 
-> CONFIG_SCSI_REPORT_LUNS:
-> 
-> If you want to build with SCSI REPORT LUNS support i the kernel, say Y here.
-> The REPORT LUNS command is useful for devices (such as disk arrays) with large numbers of LUNs where the LUN values are not contiguous (sparse LUN).
-> REPORT LUNS scanning is done only for SCSI-3 devices.
+Resending it again to the Gurus. Can somebody *please* help me with
+these networking+kernel issues?
 
-I believe my kernel has that configured. I will look when I wake. It's
-530 am now, and I've been setting up my volumes for a while now. Just
-about time to go to sleep, then wake up and install oracle. :)
+thanks once again,
+Abhi.
 
-> > > Is there a way to resolve this, either at the driver level, IMHO the
-> > > place it *should* happen. At the storage level, the place that it could
-> > > also happen, or in the Kernel?
-> 
-> This is new in 2.5.x
-> 
+Hello,
+
+I am trying to write a kernel module, to send and receive udp packets. 
+I have the following questions/problems:
+
+[1] 
+I wish to receive packets asynchronously (thru a callback), rather 
+than polling [i.e calling udp_recvmsg() periodically to check for
+packtets]. 
+
+To get this done, presently after creating a socket (sock_create), I 
+replace sk->data_ready with my own function, which when called (by the
+kernel) wakes up a kernel thread that does skb_recv_datagram() to get a
+udp sk_buff.
+
+Is this the correct approach? or is there a better way to register a
+callback with the core-networking subsystem, which will get called and
+deliver the pkt, when a udp pkt arrives on an ip/port?
 
 
-I see. ATM I'm using 2.4.19, but would like to get to 2.4.20, because of
-the TG3 fixes. 
+[2]
+The memory allocted for the sk_buff (which i get thru
+skb_recv_datagram() is charged to the socket (i created). But I wish to
+use this sk_buff in my module (for processing etc.) so i dont call
+kfree_skb for a long time (hence the rmem_alloc does not get
+decremented). I tried to unlink the sk_buff from the socket list by
+calling skb_unlink() but that does NOT decrease 'rmem_alloc'.
 
-> John.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+How do I cleanly (and truly) unlink a sk_buff from a socket list and
+decrease equivalent memory charged to this socket? I would be calling
+kfree_skb() later though which will eventually decrease rmem_alloc, but
+I wish to do it as part of skb_unlink(). Please advice.
+
+
+[3]
+My kernel module sends/recvs UDP pkts process and store these packets
+internally sk_buffs only. But udp_sendmsg() requires an iovec.
+I can construct an iovec from an sk_buff and give it to udp_sendmsg()
+but that will involve an additional COPYING from one kernel memory 
+space (sk_buff data buffer) to another new buffer (for iovec). I want 
+to avoid this xtra copying.
+
+Am I missing something? 
+And if above approach does involve extra copying is there a way to
+transmit a udp packet if one has the data in form of sk_buff (assuming
+there is head space for ether+ip+udp header)?
+
+
+Thanks in advance,
+
+Regards,
+Abhi.
+
+I am not subscribed to this list. Please Cc: me the replies. -- thanks.
+
+
+
+__________________________________________________
+Do you Yahoo!?
+Faith Hill - Exclusive Performances, Videos & More
+http://faith.yahoo.com

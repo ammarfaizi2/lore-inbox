@@ -1,56 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288511AbSA0Tyx>; Sun, 27 Jan 2002 14:54:53 -0500
+	id <S288512AbSA0UCD>; Sun, 27 Jan 2002 15:02:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288512AbSA0Tyo>; Sun, 27 Jan 2002 14:54:44 -0500
-Received: from gumby.it.wmich.edu ([141.218.23.21]:3202 "EHLO
-	gumby.it.wmich.edu") by vger.kernel.org with ESMTP
-	id <S288511AbSA0Tyi>; Sun, 27 Jan 2002 14:54:38 -0500
-Subject: Re: [CFT] Bus mastering support for IDE CDROM audio
-From: Ed Sweetman <ed.sweetman@wmich.edu>
-To: Kristian <kristian.peters@korseby.net>
-Cc: akpm@zip.com.au, linux-kernel@vger.kernel.org
-In-Reply-To: <20020127111917.3c019701.kristian.peters@korseby.net>
-In-Reply-To: <3C5119E0.6E5C45B6@zip.com.au>
-	<000701c1a5d5$812ef580$6caaa8c0@kevin> <3C53711B.F8D89811@zip.com.au>
-	<3C53A116.81432588@zip.com.au>
-	<20020127101131.0f71e978.kristian.peters@korseby.net> 
-	<20020127111917.3c019701.kristian.peters@korseby.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 27 Jan 2002 14:54:21 -0500
-Message-Id: <1012161271.22707.50.camel@psuedomode>
+	id <S288544AbSA0UBx>; Sun, 27 Jan 2002 15:01:53 -0500
+Received: from pc-62-31-92-140-az.blueyonder.co.uk ([62.31.92.140]:31885 "EHLO
+	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
+	id <S288512AbSA0UBl>; Sun, 27 Jan 2002 15:01:41 -0500
+Date: Sun, 27 Jan 2002 19:58:05 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Mark Zealey <mark@zealos.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RFC: booleans and the kernel
+Message-ID: <20020127195805.G4818@kushida.apsleyroad.org>
+In-Reply-To: <3C513CD8.B75B5C42@aitel.hist.no> <20020126030841.C5730@kushida.apsleyroad.org> <20020126091351.GA13468@itsolve.co.uk>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020126091351.GA13468@itsolve.co.uk>; from mark@zealos.org on Sat, Jan 26, 2002 at 09:13:51AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You might want to try sending your cdroms into sleep when dma mode wont
-work anymore.  That usually fixes things for me.    hdparm -Y  ....the
-kernel should wake them up immediately and things should work again.  
-
-
-On Sun, 2002-01-27 at 05:19, Kristian wrote:
-> Hello again.
+Mark Zealey wrote:
+> > Just to break that rule, however, if p were a pointer and x were an
+> > integer, I would write:
+> > 
+> >   x = (p != 0);
 > 
-> Ok. Sorry. My fault. The second patch produces the same throughput... I didn't realized that the kernel disabled DMA during rebooting. My drives only went to DMA again after a cold boot. Don't know what's going on here. But after a normal reboot, my drives are in PIO only and don't support DMA.
-> 
-> cdparanoia on /dev/scd0 now gives the same result as with the first patch.
-> real    1m8.055s
-> user    0m6.740s
-> sys     0m2.850s
-> 
-> *Kristian
-> 
->   :... [snd.science] ...:
->  ::
->  :: http://www.korseby.net
->  :: http://gsmp.sf.net
->   :.........................:: ~/$ kristian@korseby.net :
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Heard about NULL ?
 
+I prefer 0, thanks.  NULL has header file portability problems.
 
+-- Jamie

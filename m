@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262040AbTIWSCp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 14:02:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262183AbTIWSCp
+	id S262183AbTIWSEI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 14:04:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbTIWSEI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 14:02:45 -0400
-Received: from fw.osdl.org ([65.172.181.6]:25514 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262040AbTIWSCa (ORCPT
+	Tue, 23 Sep 2003 14:04:08 -0400
+Received: from rth.ninka.net ([216.101.162.244]:20133 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S262183AbTIWSED (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 14:02:30 -0400
-Date: Tue, 23 Sep 2003 11:02:19 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Chris Wright <chrisw@osdl.org>, David Yu Chen <dychen@stanford.edu>,
-       lkml <linux-kernel@vger.kernel.org>, mc@cs.stanford.edu,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [CHECKER] 32 Memory Leaks on Error Paths
-Message-ID: <20030923110219.A15247@osdlab.pdx.osdl.net>
-References: <200309160435.h8G4ZkQM009953@elaine4.Stanford.EDU> <20030919160459.K27079@osdlab.pdx.osdl.net> <1064322949.3851.10.camel@moss-spartans.epoch.ncsc.mil>
+	Tue, 23 Sep 2003 14:04:03 -0400
+Date: Tue, 23 Sep 2003 11:03:58 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: joe briggs <jbriggs@briggsmedia.com>
+Cc: jpiszcz@lucidpixels.com, linux-kernel@vger.kernel.org
+Subject: Re: Spam/LKML
+Message-Id: <20030923110358.751f76ef.davem@redhat.com>
+In-Reply-To: <200309231437.43542.jbriggs@briggsmedia.com>
+References: <Pine.LNX.4.58.0309231318450.11291@p500>
+	<200309231437.43542.jbriggs@briggsmedia.com>
+X-Mailer: Sylpheed version 0.9.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1064322949.3851.10.camel@moss-spartans.epoch.ncsc.mil>; from sds@epoch.ncsc.mil on Tue, Sep 23, 2003 at 09:15:49AM -0400
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Stephen Smalley (sds@epoch.ncsc.mil) wrote:
-> Sorry for the duplicated effort, but I had already written up a patch
-> prior to the hurricane, but didn't get it sent out.  I believe that the
-> patch below fixes the legitimate leaks in the SELinux code.  In some
-> cases, it rearranges the code (moving the allocation later to reduce the
-> need for further cleanup or linking the object into a containing
-> structure earlier so that the policydb_destroy will handle it upon any
-> subsequent errors).
+On Tue, 23 Sep 2003 14:37:43 -0400
+joe briggs <jbriggs@briggsmedia.com> wrote:
 
-No problem, your patch looks better anyway ;-)
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+> I am getting hammered with them, though I use a sendmail server.  Is this a 
+> manifestation or exploit of the buffer-overflow security issue out with 
+> sendmail?
+
+No.
+
+Anyone in the world can receive linux-kernel postings, even if they
+are not subscribed they can obtain such postings from various online
+web archives.
+
+Therefore someone harvesting emails for which to send spam can simply
+take the sender address of linux-kernel postings.
+
+This particular spam is happening to nearly everyone posting to just
+about any list in the world the past few days, not just to here at
+vger.kernel.org My wife, for example, does not making posting to the
+lists at vger.kernel.org yet she is receiving the same spams everyone
+else is.
+
+So please stop these threads about this problem, what can been said
+has been said and this issue is totally offtopic.

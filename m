@@ -1,29 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289015AbSAFTc3>; Sun, 6 Jan 2002 14:32:29 -0500
+	id <S289013AbSAFTdt>; Sun, 6 Jan 2002 14:33:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289014AbSAFTcV>; Sun, 6 Jan 2002 14:32:21 -0500
-Received: from NILE.GNAT.COM ([205.232.38.5]:51377 "HELO nile.gnat.com")
-	by vger.kernel.org with SMTP id <S289013AbSAFTcB>;
-	Sun, 6 Jan 2002 14:32:01 -0500
-From: dewar@gnat.com
-To: dewar@gnat.com, guerby@acm.org, mrs@windriver.com
+	id <S289018AbSAFTd3>; Sun, 6 Jan 2002 14:33:29 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:40965 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S289013AbSAFTdX>; Sun, 6 Jan 2002 14:33:23 -0500
 Subject: Re: [PATCH] C undefined behavior fix
-Cc: gcc@gcc.gnu.org, linux-kernel@vger.kernel.org, paulus@samba.org,
+To: guerby@acm.org (Laurent Guerby)
+Date: Sun, 6 Jan 2002 19:43:43 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), dewar@gnat.com, gcc@gcc.gnu.org,
+        linux-kernel@vger.kernel.org, paulus@samba.org,
         trini@kernel.crashing.org, velco@fadata.bg
-Message-Id: <20020106193201.53A96F30AD@nile.gnat.com>
-Date: Sun,  6 Jan 2002 14:32:01 -0500 (EST)
+In-Reply-To: <3C38A526.2050309@acm.org> from "Laurent Guerby" at Jan 06, 2002 08:27:34 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16NJCp-0006Jj-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<<I think the goal and intent, for Ada and C as well, is to say that the
-compiler will generate what is possible from assembly code written by
-an expert on the platform, using the best fitting access that is
-possible.
->>
+> I haven't done my homework, but I assume the code behind readb use inline
+> assembly and not C on most platforms?
 
-Ah ha! But then look again  at my 16-bit example, an expert assembly
-langauge programmer will use a 32 bit load if efficiency is not an
-issue (and it does not matter if there are extra bits around), but
-a 16-bit load if the hardware for some reason requires it. How is
-the poort C compiler to distinguish these cases automatically?
+It depends on the platform. Its all nicely wrapped in platform specific
+macros and using things like volatile to get the right results. Whatever
+gcc invents we can cope with for a weird port because we can make them asm

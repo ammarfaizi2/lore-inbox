@@ -1,36 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272358AbRHYAIG>; Fri, 24 Aug 2001 20:08:06 -0400
+	id <S272364AbRHYAJq>; Fri, 24 Aug 2001 20:09:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272352AbRHYAH4>; Fri, 24 Aug 2001 20:07:56 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:31360 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S272351AbRHYAHm>;
-	Fri, 24 Aug 2001 20:07:42 -0400
-Date: Fri, 24 Aug 2001 17:07:48 -0700 (PDT)
-Message-Id: <20010824.170748.41633430.davem@redhat.com>
-To: kakadu_croc@yahoo.com
-Cc: bcrl@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20010824235927.65425.qmail@web10902.mail.yahoo.com>
-In-Reply-To: <Pine.LNX.4.33.0108241919080.1398-100000@touchme.toronto.redhat.com>
-	<20010824235927.65425.qmail@web10902.mail.yahoo.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S272356AbRHYAJg>; Fri, 24 Aug 2001 20:09:36 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:29191 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S272351AbRHYAJU>; Fri, 24 Aug 2001 20:09:20 -0400
+Subject: Re: oops in 3c59x driver
+To: wichert@wiggy.net (Wichert Akkerman)
+Date: Sat, 25 Aug 2001 01:12:36 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010825020022.B21339@wiggy.net> from "Wichert Akkerman" at Aug 25, 2001 02:00:22 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15aR40-0006qp-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Brad Chapman <kakadu_croc@yahoo.com>
-   Date: Fri, 24 Aug 2001 16:59:27 -0700 (PDT)
-   
-   	- stay with the old-style macros (:P, :P, :P)
+> Decoded oops is below. The machine died in the middle of transferring
+> a large chunk of data (500Mb or so) via ssh. It did that twice in a row
+> now so it seems to be reprocuable.
 
-I've been trying to stay out of this until Linus returns
-and has his word... but I can say with a level of certainty
-that this won't sit well with Linus at all.
+Beautiful trace. You took an IRQ during PnPBIOS call and your machine
+exploded. Do me a favour -
 
-Later,
-David S. Miller
-davem@redhat.com
+Change the semaphore in drivers/pnp/pnp_bios.c to a spinlock_irqsave
+and __cli/ spin_unlock_irqrestore.  See if the crashes then go away.
+
+Alan

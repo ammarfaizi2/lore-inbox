@@ -1,68 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318395AbSGaQQL>; Wed, 31 Jul 2002 12:16:11 -0400
+	id <S318394AbSGaQ2Q>; Wed, 31 Jul 2002 12:28:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318398AbSGaQQL>; Wed, 31 Jul 2002 12:16:11 -0400
-Received: from mailout08.sul.t-online.com ([194.25.134.20]:39871 "EHLO
-	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S318395AbSGaQQK>; Wed, 31 Jul 2002 12:16:10 -0400
-Date: Wed, 31 Jul 2002 18:20:17 +0200
-From: Michael Schlenstedt <mailinglists_michael@schlenn.net>
-To: paulus@samba.org
-Cc: ppp-bugs@samba.org, Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: [pppd] increasing limit of transfered bytes - kernelbug?
-Message-ID: <20020731162017.GA1424@schlenn.net>
-Mail-Followup-To: Michael Schlenstedt <mailinglists_michael@schlenn.net>,
-	paulus@samba.org, ppp-bugs@samba.anu.edu.au,
-	Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
+	id <S318399AbSGaQ2Q>; Wed, 31 Jul 2002 12:28:16 -0400
+Received: from cse.ogi.edu ([129.95.20.2]:43495 "EHLO church.cse.ogi.edu")
+	by vger.kernel.org with ESMTP id <S318394AbSGaQ2P>;
+	Wed, 31 Jul 2002 12:28:15 -0400
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Benjamin LaHaise <bcrl@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+       linux-aio@kvack.org
+Subject: Re: [rfc] aio-core for 2.5.29 (Re: async-io API registration for 2.5.29)
+References: <20020730054111.GA1159@dualathlon.random>
+	<20020730084939.A8978@redhat.com>
+	<20020730214116.GN1181@dualathlon.random>
+	<20020730175421.J10315@redhat.com>
+	<20020731004451.GI1181@dualathlon.random>
+From: "Charles 'Buck' Krasic" <krasic@acm.org>
+Date: 31 Jul 2002 09:31:19 -0700
+In-Reply-To: <20020731004451.GI1181@dualathlon.random>
+Message-ID: <xu4bs8namg8.fsf@brittany.cse.ogi.edu>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Artificial Intelligence)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-Operating-System: SuSE Linux 8.0 (i386) -- Kernel 2.4.18-4GB
-Organization: http://www.schlenn.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all!
 
-I wrote a little script which logs the amount of bytes which were transfered
-over a ppp-line (ADSL/PPPoE).
+Andrea Arcangeli <andrea@suse.de> writes:
 
-The problem: this only works untill you do not transfer more than 2 GB
-(pppd-limit) or 4 GB (kernel-limit).
+> are you sure this is a good idea? this adds an implicit gettimeofday
+> (thought no entry/exit kernel) to every getevents syscall with a
+> "when" specificed, so the user may now need to do gettimeofday both
+> externally and internally to use the previous "timeout" feature (given
+> the kernel can delay only of a timeout, so the kernel has to calculate
+> the timeout internally now). I guess I prefer the previous version that
+> had the "timeout" information instead of "when". Also many soft
+> multimedia only expect the timeout to take "timeout", and if a frame
+> skips they'll just slowdown the frame rate, so they won't be real time
+> but you'll see something on the screen/audio. Otherwise they can keep
+> timing out endlessy if they cannot keep up with the stream, and they
+> will show nothing rather than showing a low frame rate.
 
-Within pppd it seems that there is a problem with the $BYTES_RECVD and
-$BYTES_SENT variables which can be used in /etc/ppp/ip-up and -down.
+I disagree.  If for some reason the multimedia player can not keep up,
+there will be corresponding changes to subsequent requested timeouts.
+For example, the pattern of future timeouts will reflect the new lower
+frame rate (e.g. timeout after 1/15 s instead of 1/30 s).  (BTW: I've
+written adaptive media players, so I'm speaking from experience).
 
-PPPD uses "signed int"-counters instead of an "unsigned-int". This is
-not a great problem, a patch is attached to this email (thanks to Evgeni
-Gechev).
+How repulsive would it be to add a boolean parameter that indicates
+whether the supplied timeout value is relative or absolute?
 
-Unfortunately, this only increases the amount of transfered bytes to 4
-GB (kernel-limit).
+-- Buck
 
-Is there any chance to increase the kernel-limit in feature
-kernel-releases?
 
-Bye,
-Michael
-
-,----[ pppd patch ]-
-| 
-| --- main.c      Fri Jan 25 15:03:38 2002
-| +++ main.c.etg  Fri Jul  5 00:18:25 2002
-| @@ -1090,9 +1090,9 @@
-| 
-|      slprintf(numbuf, sizeof(numbuf), "%d", link_connect_time);
-|      script_setenv("CONNECT_TIME", numbuf, 0);
-| -    slprintf(numbuf, sizeof(numbuf), "%d", link_stats.bytes_out);
-| +    slprintf(numbuf, sizeof(numbuf), "%u", link_stats.bytes_out);
-|      script_setenv("BYTES_SENT", numbuf, 0);
-| -    slprintf(numbuf, sizeof(numbuf), "%d", link_stats.bytes_in);
-| +    slprintf(numbuf, sizeof(numbuf), "%u", link_stats.bytes_in);
-|      script_setenv("BYTES_RCVD", numbuf, 0);
-|  }
-| 
-`----
 

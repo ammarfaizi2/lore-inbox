@@ -1,67 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261827AbVBXAxf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261732AbVBXAx5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261827AbVBXAxf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 19:53:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261816AbVBXAtr
+	id S261732AbVBXAx5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 19:53:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbVBXAx4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 19:49:47 -0500
-Received: from waste.org ([216.27.176.166]:50315 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261796AbVBXAos (ORCPT
+	Wed, 23 Feb 2005 19:53:56 -0500
+Received: from gw.goop.org ([64.81.55.164]:54210 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S261732AbVBXAuV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 19:44:48 -0500
-Date: Wed, 23 Feb 2005 16:44:44 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Steven Cole <elenstev@mesatop.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc4-mm1 (VFS: Cannot open root device "301")
-Message-ID: <20050224004444.GI3163@waste.org>
-References: <20050223014233.6710fd73.akpm@osdl.org> <421CB161.7060900@mesatop.com> <20050223121759.5cb270ee.akpm@osdl.org> <421CFF5E.4030402@mesatop.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <421CFF5E.4030402@mesatop.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 23 Feb 2005 19:50:21 -0500
+Message-ID: <421D24BD.1090307@goop.org>
+Date: Wed, 23 Feb 2005 16:50:05 -0800
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Mozilla Thunderbird  (X11/20041216)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Chris Wright <chrisw@osdl.org>
+Cc: Roland McGrath <roland@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Always send siginfo for synchronous signals
+References: <421C25BE.1090700@goop.org> <20050223201903.GF21662@shell0.pdx.osdl.net> <421D0D3F.40902@goop.org> <20050223234626.GZ15867@shell0.pdx.osdl.net>
+In-Reply-To: <20050223234626.GZ15867@shell0.pdx.osdl.net>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 23, 2005 at 03:10:38PM -0700, Steven Cole wrote:
-> Andrew Morton wrote:
-> >Steven Cole <elenstev@mesatop.com> wrote:
-> 
-> >>I am having trouble getting recent -mm kernels to boot on my test box.
-> >>For 2.6.11-rc3-mm2 and 2.6.11-rc4-mm1 I get the following:
-> >>
-> >>VFS: Cannot open root device "301" or unknown-block(3,1)
-> >>Please append a correct "root=" boot option
-> >>Kernel panic - not syncing: VFS: Unable to mount root fs on 
-> >>unknown-block(3,1)
-> >>
-> [snipped]
-> >
-> >Please set CONFIG_BASE_FULL=y.  Check that this causes CONFIG_BASE_SMALL=0,
-> >then retest.
-> 
-> Yes, that worked.  2.6.11-rc4-mm1 now boots OK, but hdb1 seems to be 
-> missing.
+Chris Wright wrote:
 
-Can you retry CONFIG_BASE_FULL=n with Andrew's patch?
+>>/proc/N/status will tell you that a process has
+>>a signal pending, but it won't tell you how many are pending).
+>>    
+>>
+>
+>Suggestion for good place to display that info?
+>  
+>
+I guess another line in /proc/N/status:
 
-You may need to boot back into a sane kernel for LILO to operate properly.
+    SigQue: 0 0 0 0 0 0 0 123 0 0 1238 0 0 0 0 0 ... 0 0 1
 
---- 25/drivers/ide/ide-probe.c~ide_init_disk-fix	Wed Feb 23 16:24:44 2005
-+++ 25-akpm/drivers/ide/ide-probe.c	Wed Feb 23 16:24:55 2005
-@@ -1269,7 +1269,7 @@ EXPORT_SYMBOL_GPL(ide_unregister_region)
- void ide_init_disk(struct gendisk *disk, ide_drive_t *drive)
- {
- 	ide_hwif_t *hwif = drive->hwif;
--	unsigned int unit = drive->select.all & (1 << 4);
-+	unsigned int unit = (drive->select.all >> 4) & 1;
- 
- 	disk->major = hwif->major;
- 	disk->first_minor = unit << PARTN_BITS;
+or something, but I haven't really thought about it.
 
+>>In fact, bugs with these symptoms have been reported against Valgrind
+>>from time to time for years, and its only recently I worked out what's
+>>going on (mostly because I introduced a bug which caused Valgrind to do
+>>it to itself).
+>>    
+>>
+>This code is pretty new (since 2.6.8-rc1, last June), so I expect some
+>other issue in the years past.
+>  
+>
+There was always a limit on the number of pending queue siginfo
+signals.  It used to be system-wide rather than per-user though.
 
-
-
--- 
-Mathematics is the supreme nostalgia of our time.
+    J

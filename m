@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272287AbRIRPoN>; Tue, 18 Sep 2001 11:44:13 -0400
+	id <S272264AbRIRPmX>; Tue, 18 Sep 2001 11:42:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272280AbRIRPn4>; Tue, 18 Sep 2001 11:43:56 -0400
-Received: from ns.suse.de ([213.95.15.193]:52744 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S272270AbRIRPms>;
-	Tue, 18 Sep 2001 11:42:48 -0400
-Date: Tue, 18 Sep 2001 17:43:12 +0200
-From: Hubert Mantel <mantel@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: /proc/partitions hosed in 2.4.9-ac10
-Message-ID: <20010918174312.H6102@suse.de>
-In-Reply-To: <20010917151957.A26615@codepoet.org> <9o5pfu$f03$1@ns1.clouddancer.com> <20010917223203.DACE3783EE@mail.clouddancer.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
-In-Reply-To: <20010917223203.DACE3783EE@mail.clouddancer.com>; from klink@clouddancer.com on Mon, Sep 17, 2001 at 03:32:03PM -0700
-Organization: SuSE Labs, Nuernberg, Germany
-X-Operating-System: SuSE Linux - Kernel 2.4.9-4GB
-X-GPG-Key: 1024D/B0DFF780
+	id <S272137AbRIRPmQ>; Tue, 18 Sep 2001 11:42:16 -0400
+Received: from h-207-228-73-44.gen.cadvision.com ([207.228.73.44]:6414 "EHLO
+	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S272264AbRIRPl6>; Tue, 18 Sep 2001 11:41:58 -0400
+Date: Tue, 18 Sep 2001 09:29:13 -0600
+Message-Id: <200109181529.f8IFTDJ10734@mobilix.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: "Giacomo Catenazzi" <cate@dplanet.ch>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: new OOPS 2.4.10-pre11, do_generic_file_read [devfs related?]
+In-Reply-To: <3BA73F45.4090704@dplanet.ch>
+In-Reply-To: <3BA73F45.4090704@dplanet.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Giacomo Catenazzi writes:
+> Starting in 2.4.10-pre11 I have a new oops.
+> This time the oops happens also without floppy support,
+> but also this bug happen at boot time, when mounting root
+> rw. Also this time the oops seem reproducible.
 
-On Mon, Sep 17, Colonel wrote:
+Wow! I should try 2.4.10-pre11. I have't had a chance yet.
 
-> >$ cat /proc/partitions
-
-[...]
-
-> Works fine here:
-
-[...]
-
-> SCSI subsystem driver Revision: 1.00
-> sym53c8xx: at PCI bus 0, device 9, function 0
-> sym53c8xx: setting PCI_COMMAND_PARITY...(fix-up)
-> sym53c8xx: 53c875 detected with Symbios NVRAM
-> sym53c8xx: at PCI bus 0, device 9, function 1
+> devfs=nomount solve this bug (like the old bug).
 > 
-> 
-> Perhaps it is a driver effect?
+> What the status of your devfs rewrite ?
 
-You only have one single SCSI adapter?
+Only small progress: I spent last week in Boston setting up some test
+boxes, which was slower than expected thanks to battling with the
+non-standardness of Compaq boxen. Grrr.
 
-I tried several things so far, and it seems you need the following to 
-trigger the problem: You need at least two SCSI adapters that require 
-different drivers (so two AHA2940s are not sufficient) and the drivers 
-need to be loaded as modules.
-                                                                  -o)
-    Hubert Mantel              Goodbye, dots...                   /\\
-                                                                 _\_v
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,61 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261773AbTCGVAT>; Fri, 7 Mar 2003 16:00:19 -0500
+	id <S261781AbTCGVDL>; Fri, 7 Mar 2003 16:03:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261778AbTCGVAS>; Fri, 7 Mar 2003 16:00:18 -0500
-Received: from as12-5-6.spa.s.bonet.se ([217.215.177.162]:5083 "EHLO
-	www.tnonline.net") by vger.kernel.org with ESMTP id <S261773AbTCGVAR>;
-	Fri, 7 Mar 2003 16:00:17 -0500
-Date: Fri, 7 Mar 2003 22:10:16 +0100
-From: Anders Widman <andewid@tnonline.net>
-X-Mailer: The Bat! (v1.63 Beta/6)
-Reply-To: Anders Widman <andewid@tnonline.net>
-Organization: TNOnline.net
-X-Priority: 3 (Normal)
-Message-ID: <17913565781.20030307221016@tnonline.net>
-To: "Jon Burgess" <Jon_Burgess@eur.3com.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Entire LAN goes boo with 2.5.64
-In-Reply-To: <80256CE2.006CEFC2.00@notesmta.eur.3com.com>
-References: <80256CE2.006CEFC2.00@notesmta.eur.3com.com>
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
+	id <S261782AbTCGVDL>; Fri, 7 Mar 2003 16:03:11 -0500
+Received: from tux.rsn.bth.se ([194.47.143.135]:22146 "EHLO tux.rsn.bth.se")
+	by vger.kernel.org with ESMTP id <S261781AbTCGVDJ>;
+	Fri, 7 Mar 2003 16:03:09 -0500
+Subject: Re: [patch] "interactivity changes", sched-2.5.64-B2
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: David Lang <david.lang@digitalinsight.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Mike Galbraith <efault@gmx.de>,
+       Andrew Morton <akpm@digeo.com>, Linus Torvalds <torvalds@transmeta.com>,
+       Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0303071301500.1933-100000@dlang.diginsite.com>
+References: <Pine.LNX.4.44.0303071301500.1933-100000@dlang.diginsite.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1047071612.29990.13.camel@tux.rsn.bth.se>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 07 Mar 2003 22:13:32 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2003-03-07 at 22:03, David Lang wrote:
+> sounds like the code in X that detects a key being held down is running
+> into problems. any chance it's doing a busy loop or something silly like
+> that that's just not running enough? (probably not, but since you have
+> problems in a couple applications that happen when you hold a key down I
+> would look there rather then at the scheduling code itself)
 
+Wouldn't surprise me if it's an X problem... I can't say that I feel
+like going digging into X sources...
 
-> Some things you might want to look at:
->    Is the Linux box sending any traffic (look at the stats in ifconfig)?
->    Does a packet sniffer like http://www.ethereal.com/ give any clues as to the
-> type of traffic on the network?
->    Does the same thing occur if you run less processes, e.g. boot into run level
-> 1 or 3?
->    Are there any processes consuming an unreasonable amount of CPU time on the
-> Linux box?
->    Is there a process which is being restarted many times a second, so top or ps
-> shows a radiply increasing PID?
+I can get the same problem in sawfish if I press the key a few times
+quite rapidly as well, without any background load at all. This problem
+has never occured before on 2.4 or 2.5, with or without load. It could
+be that the scheduler changes exposes some bug in X but I'm not really
+sure how to start investigating...
 
-nope, nothing like that. Running just a bare minimum...
+-- 
+/Martin
 
-> It could be some network-aware process which has got stuck in a tight loop
-> sending requests to your windows box, e.g. a DHCP client.
-> I mention the DHCP client specifically because they sometimes get upset if you
-> don't enable some specific kernel networking options like CONFIG_PACKET or
-> CONFIG_FILTER & WinRoute might be acting as the DHCP server.
-
-Yes,  you might be right. WinRoute is running as DCHP for the network,
-and  the  problems  do  start as soon as Linux tries to lease an IP...
-hm..
-
->      Jon
-
-
-   
-
-
-
---------
-PGP public key: https://tnonline.net/secure/pgp_key.txt
-
+Never argue with an idiot. They drag you down to their level, then beat you with experience.

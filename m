@@ -1,70 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262446AbTK1Pyv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Nov 2003 10:54:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262540AbTK1Pyv
+	id S262540AbTK1QCq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Nov 2003 11:02:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262546AbTK1QCq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Nov 2003 10:54:51 -0500
-Received: from gprs148-17.eurotel.cz ([160.218.148.17]:1152 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262446AbTK1Pyt (ORCPT
+	Fri, 28 Nov 2003 11:02:46 -0500
+Received: from seconix.com ([213.193.144.104]:48108 "EHLO seconix.com")
+	by vger.kernel.org with ESMTP id S262540AbTK1QCo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Nov 2003 10:54:49 -0500
-Date: Fri, 28 Nov 2003 16:37:28 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: vojtech@suse.cz, kernel list <linux-kernel@vger.kernel.org>
-Subject: insunficient locking in input.c (?)
-Message-ID: <20031128153727.GA194@elf.ucw.cz>
+	Fri, 28 Nov 2003 11:02:44 -0500
+Subject: Re: [ACPI] If your ACPI-enabled machine does clean shutdown
+	randomly...
+From: Damien Sandras <dsandras@seconix.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031128145249.GA563@elf.ucw.cz>
+References: <20031128145249.GA563@elf.ucw.cz>
+Content-Type: text/plain; charset=iso-8859-15
+Message-Id: <1070035371.1055.13.camel@golgoth01>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 28 Nov 2003 17:02:51 +0100
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Le ven 28/11/2003 à 15:52, Pavel Machek a écrit :
+> ...then you probably need this one. (One notebook I have here
+> certainly needs it).
+> 
+> It seems that acpi likes to report completely bogus value from time to
+> time...
+> 
 
-It seems to me some more locking is needed:
+The problem with that patch is that it is filling the logs, but it is
+certainly better than shutting the machine down without warning. I had
+that problem and it took me a few minutes to figure out that it was
+ACPI.
 
-1) input_event() seems to be called from both keyboard interupt and
-from timer. That makes it pretty nasty beast.
+However, I didn't have that problem with kernel 2.6.0 test 9, it
+appeared with 2.6.0 test 10 and test 11. I have mailed the list to see
+if there was no patch I could reverse to determine where the problem
+was, but I got no reaction, so I guess I will have to live with it ;)
 
-It does:
 
-...
-                list_for_each_entry(handle, &dev->h_list, d_node)
-                        if (handle->open)
-                                handle->handler->event(handle, type, code, value);
-...
-
-while input_unregister_handler could be running (on other CPU?)
-
-void input_unregister_handler(struct input_handler *handler)
-{
-        struct list_head * node, * next;
-
-        list_for_each_safe(node, next, &handler->h_list) {
-                struct input_handle * handle = to_handle_h(node);
-                list_del_init(&handle->h_node);
-                list_del_init(&handle->d_node);
-                handler->disconnect(handle);
-        }
-
-I guess that some locking around these lists is needed.
-
-2) input_event() is called from both keyboard interupt and from
-timer. That makes it behave pretty badly w.r.t. low-level handlers. I
-think that you can have one low-level handler running two times
-concurrently.
-
-There's no locking preventing that. AFAICS autorepeat timer can tick
-once more after key is released, which is normally not a problem, but
-if key is pressed while that, it looks to me like there can be normal
-key down and autorepeat entering input_event() concurrently, which
-then calls low-level handler (for example kbd_keycode)
-concurrently. kbd_keycode() certainly is not written to handle _that_.
-
-								Pavel
+> 								Pavel
+> 
+> --- clean/drivers/acpi/thermal.c	2003-07-27 22:31:09.000000000 +0200
+> +++ linux/drivers/acpi/thermal.c	2003-11-25 22:27:11.000000000 +0100
+> @@ -456,6 +459,10 @@
+>  	if (!tz || !tz->trips.critical.flags.valid)
+>  		return_VALUE(-EINVAL);
+>  
+> +	if (KELVIN_TO_CELSIUS(tz->temperature) >= 200) {
+> +		printk(KERN_ALERT "Are you running CPU or nuclear power plant? ACPI claims CPU temp is %d C. Ignoring.\n", KELVIN_TO_CELSIUS(tz->temperature));
+> +		return_VALUE(0);
+> +	}
+>  	if (tz->temperature >= tz->trips.critical.temperature) {
+>  		ACPI_DEBUG_PRINT((ACPI_DB_WARN, "Critical trip point\n"));
+>  		tz->trips.critical.flags.enabled = 1;
+> @@ -467,6 +474,7 @@
+>  	if (result)
+>  		return_VALUE(result);
+>  
+> +	printk(KERN_EMERG "Critical temperature reached (%d C), shutting down.\n", tz->temperature);
+>  	acpi_bus_generate_event(device, ACPI_THERMAL_NOTIFY_CRITICAL, tz->trips.critical.flags.enabled);
+>  
+>  	acpi_thermal_call_usermode(ACPI_THERMAL_PATH_POWEROFF);
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Damien Sandras <dsandras@seconix.com>
+

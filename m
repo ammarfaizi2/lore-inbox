@@ -1,75 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbUHGLan@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbUHGLk7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbUHGLan (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 07:30:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbUHGLan
+	id S261610AbUHGLk7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 07:40:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbUHGLku
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 07:30:43 -0400
-Received: from s-und-t-linnich.de ([217.160.180.132]:17792 "HELO
-	s-und-t-linnich.de") by vger.kernel.org with SMTP id S261500AbUHGLa1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 07:30:27 -0400
-Date: Sat, 7 Aug 2004 15:29:41 +0200
-From: Sebastian <admin@wodkahexe.de>
-To: Dave Jones <davej@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: MTRR problem, maybe FB related
-Message-Id: <20040807152941.78ce8412.admin@wodkahexe.de>
-In-Reply-To: <20040806203436.GA22421@redhat.com>
-References: <20040806194722.6298b00f.admin@wodkahexe.de>
-	<20040806203436.GA22421@redhat.com>
-X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 7 Aug 2004 07:40:50 -0400
+Received: from albireo.ucw.cz ([81.27.203.89]:30081 "EHLO albireo.ucw.cz")
+	by vger.kernel.org with ESMTP id S261610AbUHGLkq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 07:40:46 -0400
+Date: Sat, 7 Aug 2004 13:40:46 +0200
+From: Martin Mares <mj@ucw.cz>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: James.Bottomley@steeleye.com, axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Message-ID: <20040807114046.GA5249@ucw.cz>
+References: <200408071128.i77BSNCd006957@burner.fokus.fraunhofer.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200408071128.i77BSNCd006957@burner.fokus.fraunhofer.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Aug 2004 21:34:36 +0100
-Dave Jones <davej@redhat.com> wrote:
+Hello!
 
-> On Fri, Aug 06, 2004 at 07:47:22PM +0200, admin@wodkahexe.de wrote:
+> You wanted to get a description in 'a few words' - this cannot be done.
 > 
->  > vesafb: framebuffer at 0xb0000000, mapped to 0xdf80d000, size 6144k
->  > vesafb: mode is 1024x768x32, linelength=4096, pages=4
+> .... So I instucted you how to get the full desciption. 
 > 
-> vesafb's mtrr usage is borken. Instead of creating an MTRR the size
-> of video RAM, it creates one the size of the display.
+> You may of course look yourself for the documentation at docs.sun.com.......
 > 
->  > mtrr: 0xb0000000,0x8000000 overlaps existing 0xb0000000,0x400000
->  > [drm] Initialized i830 1.3.2 20021108 on minor 0: Intel Corp. 82852/855GM Integrated Graphics Device
->  > mtrr: 0xb0000000,0x8000000 overlaps existing 0xb0000000,0x400000
->  > [drm] Initialized i830 1.3.2 20021108 on minor 1: Intel Corp. 82852/855GM Integrated Graphics Device (#2)
-> 
-> Then X comes along, sizes the video ram, and tries to create an MTRR
-> of the correct size, but the framebuffer got there first and bodged it.
-> 
-> I used to see this happening also on my Matrox g550, but it seems
-> to have 'gone away' in recent times. I haven't checked out why,
-> but I'm suspecting X now detects this case, and deletes the crap
-> entry, and puts the proper values in its place.
-> 
->  > when starting X i'm getting the following in dmesg:
->  > 
->  > mtrr: base(0xb0020000) is not aligned on a size(0x180000) boundary
-> 
-> This one I can't explain however.
-> 
->  > mtrr: 0xb0000000,0x8000000 overlaps existing 0xb0000000,0x400000
->  > 
->  > is there any way to get both working together? (fb + mtrr)
-> 
-> Disable MTRR for vesafb. iirc, there's a boot command line option to do it.
-> 
-> 		Dave
-> 
+> It seems that you are not really interested to understand how it works :-(
 
-Ah, I see. It's not documented in Documentation/fb/vesafb.txt, but after
-looking at drivers/video/vesafb.c i got it (video=vesafb:nomtrr).
-Now it seems to work, but X still gives me upon starting:
+I am interested, but I life is too short to read the full docs of all existing
+OS's. Can you give me at least a pointer to the relevant section?
 
-mtrr: base(0xb0020000) is not aligned on a size(0x180000) boundary
+> If you behave this way, I tend to believe that you have a precasted opinion 
+> that you are not willing to change.
 
-thanks
+I think that most people around there tend to believe exactly the same about you :-)
+But let's change that.
 
-sebastian
+Most of all, I would like to know (I see I'm repeating myself, but I still
+haven't seen an answer to that) what's so special about the SCSI-like devices,
+that they would have to be addressed in a completely different way from the
+other UNIX devices. For the classical SCSI, you might argue that addressing
+by the physical topology is more realistic, but for ATAPI or USB disks,
+the SCSI triplets have nothing to do with the physical topology.
+
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+Only dead fish swim with the stream.

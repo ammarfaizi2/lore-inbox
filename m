@@ -1,32 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131244AbRCWREl>; Fri, 23 Mar 2001 12:04:41 -0500
+	id <S131286AbRCWRGT>; Fri, 23 Mar 2001 12:06:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131286AbRCWRDb>; Fri, 23 Mar 2001 12:03:31 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:6415 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131244AbRCWRDX>; Fri, 23 Mar 2001 12:03:23 -0500
+	id <S131290AbRCWRGL>; Fri, 23 Mar 2001 12:06:11 -0500
+Received: from dentin.eaze.net ([216.228.128.151]:25092 "EHLO xirr.com")
+	by vger.kernel.org with ESMTP id <S131286AbRCWRF3>;
+	Fri, 23 Mar 2001 12:05:29 -0500
+Date: Fri, 23 Mar 2001 11:00:27 -0600 (CST)
+From: SodaPop <soda@xirr.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] Prevent OOM from killing init
-To: dwguest@win.tue.nl (Guest section DW)
-Date: Fri, 23 Mar 2001 17:04:07 +0000 (GMT)
-Cc: vonbrand@inf.utfsm.cl (Horst von Brand),
-        mikpe@csd.uu.se (Mikael Pettersson), linux-kernel@vger.kernel.org
-In-Reply-To: <20010323174937.B6487@win.tue.nl> from "Guest section DW" at Mar 23, 2001 05:49:37 PM
-X-Mailer: ELM [version 2.5 PL1]
+In-Reply-To: <E14gOAz-0004MB-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.30.0103231053020.27155-100000@xirr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14gUyv-00052v-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This is just an escape route in case everything else has failed.
-> 
-> Linux is unreliable.
-> That is bad.
+Rik, is there any way we could get a /proc entry for this, so that one
+could do something like:
 
-Since your definition of reliability is a mathematical abstraction requiring
-infinite storage why don't you start by inventing infinitely large SDRAM
-chips, then get back to us ?
+cat /proc/oom-kill-scores | sort +3
+
+to get a process list (similar to ps) with a field for the current oom
+scores?  It would likely be very useful to be able to dump the current
+scores and see what will be the first thing to die, and may help people
+tune the killer for specific uses.
+
+Part of the current problem with the OOM killer is that people only know
+what it's going to kill after it's too late.
+
+-dennis T
+
 

@@ -1,25 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312716AbSCZWaq>; Tue, 26 Mar 2002 17:30:46 -0500
+	id <S312527AbSCZWgQ>; Tue, 26 Mar 2002 17:36:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312715AbSCZWag>; Tue, 26 Mar 2002 17:30:36 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:31904 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S312720AbSCZWaV>;
-	Tue, 26 Mar 2002 17:30:21 -0500
-Date: Tue, 26 Mar 2002 14:25:40 -0800 (PST)
-Message-Id: <20020326.142540.98376382.davem@redhat.com>
-To: kala@pinerecords.com
+	id <S312724AbSCZWgH>; Tue, 26 Mar 2002 17:36:07 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:64133 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S312527AbSCZWf6>;
+	Tue, 26 Mar 2002 17:35:58 -0500
+Date: Tue, 26 Mar 2002 14:26:24 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Marc-Christian Petersen <mcp@linux-systeme.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.18 SPARC SMP oops
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0203262128370.417-100000@louise.pinerecords.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Subject: Re: [ANNOUNCE] Kernel 2.4.18-WOLK3.1
+Message-ID: <20020326142624.E37@toy.ucw.cz>
+In-Reply-To: <200203251821.g2PIL7oA005522@codeman.linux-systeme.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-Please do not CC: me on sparc32 bugs, I do not maintain nor work on
-that port any more.
+> You are missing a patch? Patches will be added by request.
+> You think one or more of the patches are fully useless? Tell me why.
+> You have minor, major or heavy mega problems, let me know. I will try to fix.
+> You think this is great? Let me know too :-)
+> 
+> You want YOUR patch to be included in WOLK? Let me know :)
+
+Yep. Would you take swsusp? [Support for suspend-to-disk]
+								Pavel
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+

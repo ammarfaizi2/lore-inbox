@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266069AbUGENKo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266028AbUGENK1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266069AbUGENKo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jul 2004 09:10:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266073AbUGENKn
+	id S266028AbUGENK1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jul 2004 09:10:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266072AbUGENK1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jul 2004 09:10:43 -0400
-Received: from cantor.suse.de ([195.135.220.2]:13701 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S266069AbUGENKS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jul 2004 09:10:18 -0400
-Date: Mon, 5 Jul 2004 15:10:16 +0200 (CEST)
-From: Steffen Winterfeldt <snwint@suse.de>
-To: Szakacsits Szabolcs <szaka@sienet.hu>
-Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       "Patrick J. LoPresti" <patl@users.sourceforge.net>, bug-parted@gnu.org,
-       Thomas Fehr <fehr@suse.de>, linux-kernel@vger.kernel.org,
-       Andrew Clausen <clausen@gnu.org>, buytenh@gnu.org, msw@redhat.com
-Subject: Re: Restoring HDIO_GETGEO semantics for 2.6 (was: Re: [RFC] Restoring
- HDIO_GETGEO semantics)
-In-Reply-To: <Pine.LNX.4.21.0407041920480.11076-100000@mlf.linux.rulez.org>
-Message-ID: <Pine.LNX.4.58.0407051447010.11617@ligeti.suse.de>
-References: <Pine.LNX.4.21.0407041920480.11076-100000@mlf.linux.rulez.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 5 Jul 2004 09:10:27 -0400
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:37900 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S266028AbUGENKG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jul 2004 09:10:06 -0400
+Date: Mon, 5 Jul 2004 15:10:02 +0200
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: 2.6.7-mm6 and usb deadlock (and synaptics)
+Message-ID: <20040705131002.GA14768@gamma.logic.tuwien.ac.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
+From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Jul 2004, Szakacsits Szabolcs wrote:
+Hi Andrew!
 
-> On Sat, 3 Jul 2004, Andries Brouwer wrote:
-> > 
-> > But it is true, returning 0 in all other fields would have made
-> > it more clear that there is no attempt to return the BIOS geometry.
-> > It might be a good idea to do that.
-> 
-> I fail to see how that would solve _now_ the _current_ serious problem
-> with HDIO_GETGEO.
+With 2.6.7-mm6 my laptop stops working completely. Ooops while booting.
 
-It wouldn't, the damage has been done. I just wish HDIO_GETGEO had been
-removed rather than changed.
+Reverting
+- usb-locking-fix.patch
+- bk-usb.patch
+makes it work.
 
->  1) 2.6 kernels made very visible that the widely used Parted, libparted,
->     etc are severely broken. They should be FIXED. Off-topic on linux-kernel.
-
-It's not *severly* broken. All partitioning tools use some kind of
-heuristics and it's just a minor variation compared to, say, fdisk that
-makes parted fail.
-
-> Considering all the above points, it seems logical from practical point 
-> of view, that the restoration of the old HDIO_GETGEO functionality (or
-> something that's very close to its behaviour) _temporarily_ for 2.6
-> kernels makes sense.
-
-It's too late. Rather than updating the kernel you could as well update your
-favorite partitioning tool.
-
-Changing the semantics of HDIO_GETGEO either way in the (supposedly) stable
-2.6.x series it IMHO not a good idea.
+Yre you interested in the output of the kernel oops? I could recompile
+the `bad' kernel and copy the Oops by hand from the screen.
 
 
-Steffen
+BTW: With 2.6.7-mm6 my synaptics touchpad is not recognized anymore at
+boot time from the driver. Is this done somewhere in the usb stuff?
+
+And X does not start because it cannot find the synaptics stuff. Have
+there been any changes in this area?
+
+Best wishes
+
+Norbert
+
+-------------------------------------------------------------------------------
+Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+-------------------------------------------------------------------------------
+OUGHTERBY (n.)
+Someone you don't want to invite to a party but whom you know you have
+to as a matter of duty.
+			--- Douglas Adams, The Meaning of Liff

@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261663AbTINW1B (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 18:27:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbTINW1B
+	id S262013AbTINW3Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 18:29:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262031AbTINW3Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 18:27:01 -0400
-Received: from nikam.ms.mff.cuni.cz ([195.113.18.106]:22210 "EHLO
-	nikam.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261663AbTINW1A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 18:27:00 -0400
-Date: Mon, 15 Sep 2003 00:27:03 +0200
-From: Jan Hubicka <jh@suse.cz>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org, jh@suse.cz
-Subject: Re: stack alignment in the kernel was Re: nasm over gas?
-Message-ID: <20030914222703.GB8208@kam.mff.cuni.cz>
-References: <rZQN.83u.21@gated-at.bofh.it> <uw6d.3hD.35@gated-at.bofh.it> <uxED.5Rz.9@gated-at.bofh.it> <uYbM.26o.3@gated-at.bofh.it> <uZUr.4QR.25@gated-at.bofh.it> <v4qU.3h1.27@gated-at.bofh.it> <vog2.7k4.23@gated-at.bofh.it> <m31xuk8cnu.fsf_-_@averell.firstfloor.org> <20030914135431.GB16525@mail.jlokier.co.uk>
+	Sun, 14 Sep 2003 18:29:24 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:7073 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262013AbTINW3X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Sep 2003 18:29:23 -0400
+Subject: Re: 2.7 block ramblings (was Re: DMA for ide-scsi?)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Matt Domsch <Matt_Domsch@dell.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030913021117.GA16296@tux.linuxdev.us.dell.com>
+References: <3F64A5AC.8020901@pobox.com>
+	 <20030913021117.GA16296@tux.linuxdev.us.dell.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1063578413.2479.18.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030914135431.GB16525@mail.jlokier.co.uk>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-6) 
+Date: Sun, 14 Sep 2003 23:26:54 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> > A compiler option to turn it off would make sense to save .text space
-> > and eliminate these useless instructions. Especially since the kernel
-> > entry points make no attempt to align the stack to 16 byte anyways,
-> > so most likely the stack adjustments do not even work.
-> 
-> There is an option:
-> 
-> 	-mpreferred-stack-boundary=2
+On Sad, 2003-09-13 at 17:11, Matt Domsch wrote:
+> system-unique disk signature to the boot disk (int13 device 80h)
+> "BOOT" or something - we've got 4 bytes available in the msdos label
+> for it
 
-Note that this won't work for x86-64 where ABI compliant varargs require
-it.
+int 13 is still available during the 16bit boot up phase of the kernel.
+It does strike me as playing with fire, but an alternative approach
+might work. Read the first 4K off the boot disk, stuff it somewhere 
+temporary and then in 32bit compare it with the disk starts..
 
-Honza
-> 
-> -- Jamie

@@ -1,79 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261758AbULBUh7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261762AbULBUjI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261758AbULBUh7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 15:37:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbULBUh7
+	id S261762AbULBUjI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 15:39:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbULBUjH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 15:37:59 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:49045 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261758AbULBUhl (ORCPT
+	Thu, 2 Dec 2004 15:39:07 -0500
+Received: from lug-owl.de ([195.71.106.12]:28892 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S261762AbULBUiy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 15:37:41 -0500
-Date: Thu, 2 Dec 2004 21:37:36 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au
-Subject: Re: Time sliced CFQ io scheduler
-Message-ID: <20041202203736.GE26695@suse.de>
-References: <20041202130457.GC10458@suse.de> <20041202134801.GE10458@suse.de> <20041202114836.6b2e8d3f.akpm@osdl.org> <20041202195232.GA26695@suse.de> <20041202121938.12a9e5e0.akpm@osdl.org> <20041202201904.GD26695@suse.de> <20041202123407.5f8ba355.akpm@osdl.org>
+	Thu, 2 Dec 2004 15:38:54 -0500
+Date: Thu, 2 Dec 2004 21:38:53 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Cc: webmaster@kernel.org
+Subject: Re: kernel.org has severe performance problems
+Message-ID: <20041202203853.GH16958@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org, webmaster@kernel.org
+References: <colqv7$jf4$1@terminus.zytor.com> <conkfb$t3c$1@sea.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0XhtP95kHFp3KGBe"
 Content-Disposition: inline
-In-Reply-To: <20041202123407.5f8ba355.akpm@osdl.org>
+In-Reply-To: <conkfb$t3c$1@sea.gmane.org>
+X-Operating-System: Linux mail 2.6.10-rc2-bk5lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 02 2004, Andrew Morton wrote:
-> Jens Axboe <axboe@suse.de> wrote:
-> >
-> > > So what are you doing different?
-> > 
-> > Doing sync io, most likely. My results above are 64k O_DIRECT reads and
-> > writes, see the mention of the test cases in the first mail.
-> 
-> OK.
-> 
-> Writer:
-> 
-> 	while true
-> 	do
-> 	write-and-fsync -o -m 100 -c 65536 foo 
-> 	done
-> 
-> Reader:
-> 
-> 	time-read -o -b 65536 -n 256 x      (This is O_DIRECT)
-> or:	time-read -b 65536 -n 256 x	    (This is buffered)
-> 
-> `vmstat 1':
-> 
-> procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
->  r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
->  1  1   1032 137412   4276  84388   32    0 15456 25344 1659  1538  0  3 50 47
->  0  1   1032 137468   4276  84388    0    0     0 32128 1521  1027  0  2 51 48
->  0  1   1032 137476   4276  84388    0    0     0 32064 1519  1026  0  1 50 49
->  0  1   1032 137476   4276  84388    0    0     0 33920 1556  1102  0  2 50 49
->  0  1   1032 137476   4276  84388    0    0     0 33088 1541  1074  0  1 50 49
->  0  2   1032 135676   4284  85944    0    0  1656 29732 1868  2506  0  3 49 47
->  1  1   1032  96532   4292 125172    0    0 39220   128 10813 39313  0 31 35 34
->  0  2   1032  57724   4332 163892    0    0 38828   128 10716 38907  0 28 38 35
->  0  2   1032  18860   4368 202684    0    0 38768   128 10701 38845  1 28 38 35
->  0  2   1032   3672   4248 217764    0    0 39188   128 10803 39327  0 28 37 34
->  0  1   1032   2832   4260 218840    0    0 16812 17932 5504 17457  0 14 46 40
 
-Well there you go, exactly what I saw. The writer(s) basically make no
-progress as long as the reader is going. Since 'as' treats the sync
-writes like reads internally and given the really bad fairness problems
-demonstrated for same direction clients, that might be the same problem.
+--0XhtP95kHFp3KGBe
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Ugly.
-> 
-> (write-and-fsync and time-read are from
-> http://www.zip.com.au/~akpm/linux/patches/stuff/ext3-tools.tar.gz)
+On Thu, 2004-12-02 12:47:31 -0500, Ari Pollak <aripollak@gmail.com>
+wrote in message <conkfb$t3c$1@sea.gmane.org>:
+> I look forward to kernel.org getting better again. Is the source for=20
+> diffview.cgi available anywhere on the web so that I can run it locally?=
+=20
+> diffview is the only reason I use the main kernel.org site anymore,=20
+> since it seems to be the best way to view a whole patch at a glance that=
+=20
+> I have found.
 
-I'll try and post my cruddy test programs tomorrow as well. Pretty handy
-for getting a good feel for N client read/write performance.
+Currently, it's all a "Internal Server error" and webmaster@kernel.org
+shall be contacted :)
 
--- 
-Jens Axboe
+MfG, JBG
 
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ fuer einen Freien Staat voll Freier B=C3=BCrger" | im Internet! |   im Ira=
+k!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
+
+--0XhtP95kHFp3KGBe
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBr31dHb1edYOZ4bsRAlN0AJ0R7tihQMYfDPYmlck02NraBjAHAQCdH9qw
+ZhTPFAb/0ps3KOlhu6fJd8M=
+=APBz
+-----END PGP SIGNATURE-----
+
+--0XhtP95kHFp3KGBe--

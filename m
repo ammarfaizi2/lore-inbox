@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263053AbTLAB4H (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 20:56:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263064AbTLAB4H
+	id S263081AbTLACED (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 21:04:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263064AbTLACED
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 20:56:07 -0500
-Received: from dp.samba.org ([66.70.73.150]:65164 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S263053AbTLAB4E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 20:56:04 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: James Bourne <jbourne@hardrock.org>
-Cc: linux-kernel@vger.kernel.org, coreteam@netfilter.org
-Subject: Re: [netfilter-core] 2.4.23/others and ip_conntrack causing hangs 
-In-reply-to: Your message of "Sun, 30 Nov 2003 12:21:33 PDT."
-             <Pine.LNX.4.44.0311301204520.2148-100000@cafe.hardrock.org> 
-Date: Mon, 01 Dec 2003 11:22:59 +1100
-Message-Id: <20031201015604.816D52C06F@lists.samba.org>
+	Sun, 30 Nov 2003 21:04:03 -0500
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:62760 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S263081AbTLACD7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Nov 2003 21:03:59 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200312010203.hB123YQr002367@devserv.devel.redhat.com>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [USB] Fix connect/disconnect race
+In-Reply-To: <mailman.1070178780.32610.linux-kernel2news@redhat.com>
+References: <mailman.1070178780.32610.linux-kernel2news@redhat.com>
+Date: Sun, 30 Nov 2003 21:03:34 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0311301204520.2148-100000@cafe.hardrock.org> you writ
-e:
-> Hi all,
-> I wanted to bring up an issue with ip_conntrack in 2.4.23, 2.4.22, and at
-> least 2.4.21 (sorry, didn't try 2.4.20).
-> 
-> The issue is that as long as there are connections being tracked, the
-> ip_conntrack module will not unload.  I can understand why this might be,
-> but the problem is that ip_conntrack will hang rmmod and modprobe -r until
-> such time as all the connections have been closed.
-> 
-> I think we need something like an ip_conntrack_flush or else completely drop
-> the connections when the module is unloaded (as previously done) as this
-> becomes an issue for people who need to drop their ip_tables and reload the
-> modules (perhaps to correct other issues) especially ip_conntrack...  
+> This patch was integrated by you in 2.4 six months ago.  Unfortunately
+> it never got into 2.5.  Without it you can end up with crashes such
+> as http://bugs.debian.org/218670
 
-Um, this is exactly what the code does on unload: an explicit flush.
+> --- kernel-source-2.5/drivers/usb/core/hub.c	28 Sep 2003 04:44:16 -0000	1.1.1.15
+> +++ kernel-source-2.5/drivers/usb/core/hub.c	30 Nov 2003 07:44:40 -0000
+>  			break;
+>  		}
+>  
+> -		hub->children[port] = dev;
+>  		dev->state = USB_STATE_POWERED;
+>[...]
+>  		/* Run it through the hoops (find a driver, etc) */
+> -		if (!usb_new_device(dev, &hub->dev))
+> +		if (!usb_new_device(dev, &hub->dev)) {
+> +			hub->children[port] = dev;
+>  			goto done;
+> +		}
 
-Unfortunately, some packets are still referencing connections, so the
-module *cannot* go away.  Figuring out exactly where the packets are
-referenced from is the fun part.  We explicitly drop the reference in
-ip_local_deliver_finish() for exactly this reason.  Perhaps there is
-somewhere else we should be doing the same thing.
+I'm surprised you need it. The updated usbfs is supposed
+to be immune. This is probably the reason it wasn't ported.
 
-Hope that clarifies,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+-- Pete

@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135427AbRANUDG>; Sun, 14 Jan 2001 15:03:06 -0500
+	id <S131943AbRANUQA>; Sun, 14 Jan 2001 15:16:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135455AbRANUDE>; Sun, 14 Jan 2001 15:03:04 -0500
-Received: from [213.253.36.78] ([213.253.36.78]:41994 "HELO
-	blackhole.uknet.spacesurfer.com") by vger.kernel.org with SMTP
-	id <S135427AbRANUCs>; Sun, 14 Jan 2001 15:02:48 -0500
-Message-ID: <3A620671.B6C15F01@spacesurfer.com>
-Date: Sun, 14 Jan 2001 20:05:05 +0000
-From: Patrick <patrick@spacesurfer.com>
-Reply-To: pim@uknet.spacesurfer.com
-Organization: SpaceSurfer Ltd.
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i686)
-X-Accept-Language: en
+	id <S135244AbRANUPv>; Sun, 14 Jan 2001 15:15:51 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:9995 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131943AbRANUPk>; Sun, 14 Jan 2001 15:15:40 -0500
+Date: Sun, 14 Jan 2001 12:15:29 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Where did vm_operations_struct->unmap in 2.4.0 go?
+In-Reply-To: <Pine.LNX.4.30.0101141927200.18971-100000@imladris.demon.co.uk>
+Message-ID: <Pine.LNX.4.10.10101141209030.4086-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: kuznet@ms2.inr.ac.ru
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Kernel oops in tcp_ipv4.c
-In-Reply-To: <200101141946.WAA25337@ms2.inr.ac.ru>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kuznet@ms2.inr.ac.ru wrote:
-> 
-> Hello!
-> 
-> > Recently I tried 2.2.17, this kernel was up for about a month, before
-> > there was a kernel oops. The syslog messages are:
-> 
-> This is caused by illegal setting of /proc/sys/net/ipv4/ip_local_port_range
-> with kernels before 2.2.18.
-> 
-> Do not touch this value or change it to something reasonable,
-> f.e. to one of values recommended in net/ipv4/tcp_ipv4.c
-> 
-> Alexey
-
-You are right I had the range set to 16384-65535!
-I have changed the high limit to 61000, that should be ok.
-Is there any point in having the low limit above 1024?
 
 
-regards,
-Patrick
+On Sun, 14 Jan 2001, David Woodhouse wrote:
+> 
+> But in the case of the CFI probe code and also I believe DRM, we don't
+> actually know precisely which feature we're going to require until we've
+> done the hardware probe at runtime.
 
--- 
-Patrick Mackinlay                                patrick@spacesurfer.com
-ICQ: 59277981                                        tel: +44 7050699851
-                                                     fax: +44 7050699852
-SpaceSurfer Limited                          http://www.spacesurfer.com/
+That's ok.
+
+This is what "request_module()" and "kmod" is all about. Once we probe the
+hardware, the drievr itself can ask for more drivers.
+
+I completely fail to see the arguments that have been brought up for drm
+doing ugly things. The code should simply do
+
+	drm_agp_head_t * head = inter_module_get("drm_agp");
+
+	if (!head) {
+		request_module("drm-agp");
+		head = inter_module_get("drm_agp");
+		if (!head)
+			return -ENOAGP;
+	}
+
+and be done with it. THE ABOVE MAKES SENSE. The code says _exactly_ what
+the module wants to do: it wants to find the AGP support, and if it cannot
+find the AGP support it wants to load them.
+
+The arguments about how the user should load things in some specific order
+or whatever are complete crap. All the support is there, and whining about
+it is not going to change my opinion in the least.
+
+		Linus
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,35 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262808AbTBESdG>; Wed, 5 Feb 2003 13:33:06 -0500
+	id <S263256AbTBESev>; Wed, 5 Feb 2003 13:34:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263246AbTBESdG>; Wed, 5 Feb 2003 13:33:06 -0500
-Received: from phoenix.infradead.org ([195.224.96.167]:29964 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S262808AbTBESdF>; Wed, 5 Feb 2003 13:33:05 -0500
-Date: Wed, 5 Feb 2003 18:42:39 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Nicolas Pitre <nico@cam.org>
-Cc: andrea.glorioso@binary-only.com, lkml <linux-kernel@vger.kernel.org>
+	id <S263333AbTBESet>; Wed, 5 Feb 2003 13:34:49 -0500
+Received: from ECE.CMU.EDU ([128.2.136.200]:55516 "EHLO ece.cmu.edu")
+	by vger.kernel.org with ESMTP id <S263256AbTBESer>;
+	Wed, 5 Feb 2003 13:34:47 -0500
+Date: Wed, 5 Feb 2003 13:44:08 -0500 (EST)
+From: Nilmoni Deb <ndeb@ece.cmu.edu>
+Reply-To: Nilmoni Deb <ndeb@ece.cmu.edu>
+To: Robert Love <rml@mvista.com>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: Monta Vista software license terms
-Message-ID: <20030205184239.A24774@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Nicolas Pitre <nico@cam.org>, andrea.glorioso@binary-only.com,
-	lkml <linux-kernel@vger.kernel.org>
-References: <20030205183417.A24515@infradead.org> <Pine.LNX.4.44.0302051335480.8496-100000@xanadu.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0302051335480.8496-100000@xanadu.home>; from nico@cam.org on Wed, Feb 05, 2003 at 01:41:04PM -0500
+In-Reply-To: <1044465791.810.36.camel@phantasy>
+Message-ID: <Pine.LNX.3.96L.1030205132919.5144X-100000@frodo.ece.cmu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 05, 2003 at 01:41:04PM -0500, Nicolas Pitre wrote:
-> And you really think that those without that technical knowledge who are
-> happy to pay for that "shit" today will continue to do so if they just could
-> run away with it for free?
 
-surprisingly people still buy RHAS or UL even if they can download the source
-for free.  Or buy gcc support contracts at Cygnus/RedHat even if they get the
-source for free.
+
+On 5 Feb 2003, Robert Love wrote:
+
+> On Wed, 2003-02-05 at 12:18, Nilmoni Deb wrote:
+> 
+> > U missed the point. This is not the case of "If you do not distribute
+> > anything, you do not have to make available the source." because the
+> > vendor is distributing the binaries and source to the customers just fine.
+> > The issue is whether any 3rd party (who is not purchasing the binaries) 
+> > has the right to get the source too as per clause 3b of
+> > http://www.gnu.org/licenses/gpl.html . More specifically, is it true that
+> > if u obey clause 3a, u don't have to follow clause 3b ?
+> 
+> No, you are missing the point.
+
+I am not going to argue about that. But the last sentence of my previous	
+email "is it true that if u obey clause 3a, u don't have to follow clause
+3b ?" was the point I wanted to clarify which wasn't answered at that
+time.
+
+> Clause 3 says "...provided that you also do one of the following"
+> 
+> And 3(a) is done, as the source is included with the binary.
+> 
+> Further, all of the source is available anyhow in various open source
+> projects.
+> 
+> Besides, 3(b) says one must accompany the binary with a written offer.
+> How do you know that is not being done? It says nothing about source
+> available on a website.  
+
+Source available on web was just an example. I just could not find a link
+on the site which says something like "Apply/register to get source code
+on cd/dvd/ftp/http/bla_bla media". Basically, 3b refers to 3rd party 
+(who is not getting/buying the binaries) and my question was about that.
+
+> But 3(b) is not a requirement since 3(a) is
+> met.
+
+And u have answered my question now. Thanks for the clarification.
+
+> 
+> 	Robert Love
+> 
+> 
+
+
 

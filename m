@@ -1,73 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129345AbQLLACv>; Mon, 11 Dec 2000 19:02:51 -0500
+	id <S131227AbQLLAGw>; Mon, 11 Dec 2000 19:06:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129908AbQLLACl>; Mon, 11 Dec 2000 19:02:41 -0500
-Received: from web216.mail.yahoo.com ([128.11.68.116]:15377 "HELO
-	web216.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S129314AbQLLAC0>; Mon, 11 Dec 2000 19:02:26 -0500
-Message-ID: <20001211233159.12922.qmail@web216.mail.yahoo.com>
-Date: Mon, 11 Dec 2000 15:31:59 -0800 (PST)
-From: Jean Fekry Rizk <jeanfekry@yahoo.com>
-Subject: Re: Linking with kernel code (Makefile)
-To: David Feuer <David_Feuer@brown.edu>
-Cc: linux-kernel@vger.kernel.org
+	id <S130147AbQLLAGm>; Mon, 11 Dec 2000 19:06:42 -0500
+Received: from hibernia.clubi.ie ([212.17.32.129]:63879 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP
+	id <S129908AbQLLAG3>; Mon, 11 Dec 2000 19:06:29 -0500
+Date: Mon, 11 Dec 2000 01:25:48 +0000 (GMT)
+From: Paul Jakma <paul@clubi.ie>
+To: "Mohammad A. Haque" <mhaque@haque.net>
+cc: Andrew Stubbs <andrews@stusoft.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Enviromental Monitoring
+In-Reply-To: <3A33B81F.FAF661FB@haque.net>
+Message-ID: <Pine.LNX.4.30.0012110119390.9761-100000@fogarty.jakma.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for your advice,
+On Sun, 10 Dec 2000, Mohammad A. Haque wrote:
 
-I already know one way to accomodate shared memory between a user process
-and the kernel.
-This is done by making a character device which allocates memory in the
-kernel, then from the user appl, using the mmap function of the driver.
+> Hit http://www.lm-sensors.nu/
 
-I was only wondering why I could not link my code with the kernel, though
-they are compiled together, this means I should be able to use any
-function in the kernel files as long as I succeed to define it right
+do these guys /ever/ plan on submitting kernel patches? i used to use
+lm_sensors on 2.2 cause it was fairly painless - but just havn't
+bothered with 2.4 cause it was a pita when i tried.
 
-So in my question X would be any application, Y would be linking my code
-with the kernel and Z would be to get more control over structures
+i know they talked AC at some point about getting a patch in, but
+nothing seems to have come from it.
 
---- David Feuer <David_Feuer@brown.edu> wrote:
-> At 03:12 PM 12/10/2000 -0800, you wrote:
-> >Hi Kernel World,
-> >I'm new to linux-kernel developement, so I would appreciate any help.
-> >
-> >What I want to do:
-> >     create a shared memory segment between user space and kernel space
-> 
-> Generally, you can get the most useful help from linux-kernel if as well
-> as 
-> saying what you do you also say _why_.  So if you say you are developing
-> an 
-> application to do X, and you want to interact with the kernel in a
-> certain 
-> way Y because Z, then if Y is the correct way to accomplish X, people
-> will 
-> tell you how.  If, however, there is a better way, they will tell you
-> this 
-> instead.  Sorry, I don't know anything about the particular question you
-> 
-> posted, but if you want my own uneducated guess, I will guess that it's
-> not 
-> possible.
-> 
-> --
-> This message has been brought to you by the letter alpha and the number
-> pi.
-> Open Source: Think locally; act globally.
-> David Feuer
-> David_Feuer@brown.edu
-> 
+what a damm damm shame. we've got code that appears to work really
+well[1] to drive most of the hardware sensors out there - but the
+code is used by only a tiny fraction of linux users cause these guys
+/apparently/ would much rather keep themselves and their code
+isolated in some god forsaken CVS server rather than submit their
+code to Linus.
 
+fscking shame.
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Shopping - Thousands of Stores. Millions of Products.
-http://shopping.yahoo.com/
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org
+PGP5 key: http://www.clubi.ie/jakma/publickey.txt
+-------------------------------------------
+Fortune:
+Ten persons who speak make more noise than ten thousand who are silent.
+		-- Napoleon I
+
+[1]. i only had very slight problems with module ref counts earlier
+in its devel cycle.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

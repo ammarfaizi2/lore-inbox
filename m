@@ -1,191 +1,308 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265787AbTBCL1H>; Mon, 3 Feb 2003 06:27:07 -0500
+	id <S266210AbTBCLaS>; Mon, 3 Feb 2003 06:30:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266199AbTBCL1G>; Mon, 3 Feb 2003 06:27:06 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:4971
+	id <S266224AbTBCLaS>; Mon, 3 Feb 2003 06:30:18 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:9579
 	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S265787AbTBCL05>; Mon, 3 Feb 2003 06:26:57 -0500
-Date: Mon, 3 Feb 2003 06:35:03 -0500 (EST)
+	id <S266210AbTBCL3Q>; Mon, 3 Feb 2003 06:29:16 -0500
+Date: Mon, 3 Feb 2003 06:37:59 -0500 (EST)
 From: Zwane Mwaikambo <zwane@holomorphy.com>
 X-X-Sender: zwane@montezuma.mastecende.com
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Andrew Morton <akpm@digeo.com>
-Subject: [PATCH][2/6] CPU Hotplug mm/
-Message-ID: <Pine.LNX.4.44.0302030545300.9361-100000@montezuma.mastecende.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+cc: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH][5/6] CPU Hotplug i386
+Message-ID: <Pine.LNX.4.44.0302030550480.9361-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- page-writeback.c |    1 +
- page_alloc.c     |    3 ++-
- slab.c           |   33 ++++++++++++++++++++++++++++++++-
- vmscan.c         |   42 ++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 77 insertions(+), 2 deletions(-)
+ arch/i386/kernel/process.c |   39 ++++++++++++++++++++++++++++--
+ arch/i386/kernel/smp.c     |   18 +++++++++++--
+ arch/i386/kernel/smpboot.c |   58 +++++++++++++++++++++++++++++++++++++++++----
+ include/asm-i386/smp.h     |    4 +++
+ 4 files changed, 110 insertions(+), 9 deletions(-)
 
-Index: linux-2.5.59-lch2/mm/page-writeback.c
+Index: linux-2.5.59-lch2/include/asm-i386/smp.h
 ===================================================================
-RCS file: /build/cvsroot/linux-2.5.59/mm/page-writeback.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 page-writeback.c
---- linux-2.5.59-lch2/mm/page-writeback.c	17 Jan 2003 11:16:41 -0000	1.1.1.1
-+++ linux-2.5.59-lch2/mm/page-writeback.c	21 Jan 2003 04:48:29 -0000
-@@ -350,6 +350,7 @@
- static int
- ratelimit_handler(struct notifier_block *self, unsigned long u, void *v)
- {
-+	/* This should be fine for all cases */
- 	set_ratelimit();
- 	return 0;
- }
-Index: linux-2.5.59-lch2/mm/slab.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.59/mm/slab.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 slab.c
---- linux-2.5.59-lch2/mm/slab.c	17 Jan 2003 11:16:41 -0000	1.1.1.1
-+++ linux-2.5.59-lch2/mm/slab.c	3 Feb 2003 11:14:50 -0000
-@@ -528,6 +528,16 @@
- 	}
- }
- 
-+static void stop_cpu_timer(int cpu)
-+{
-+	struct timer_list *rt = &reap_timers[cpu];
-+
-+	if (rt->function) {
-+		del_timer_sync(rt);
-+		rt->function = NULL;
-+	}
-+}
-+
- /*
-  * Note: if someone calls kmem_cache_alloc() on the new
-  * cpu before the cpuup callback had a chance to allocate
-@@ -584,6 +594,24 @@
- 		}
- 		up(&cache_chain_sem);
- 		break;
-+
-+	case CPU_DEAD:
-+		down(&cache_chain_sem);
-+		list_for_each(p, &cache_chain) {
-+			struct array_cache *nc;
-+
-+			kmem_cache_t* cachep = list_entry(p, kmem_cache_t, next);
-+			spin_lock_irq(&cachep->spinlock);
-+			nc = cachep->array[cpu];
-+			cachep->array[cpu] = NULL;
-+			cachep->free_limit = (num_online_cpus())*cachep->batchcount
-+						+ cachep->num;
-+			kfree(nc);
-+			spin_unlock_irq(&cachep->spinlock);
-+		}
-+		up(&cache_chain_sem);
-+		stop_cpu_timer(cpu);
-+		break;
- 	}
- 	return NOTIFY_OK;
- bad:
-@@ -591,7 +619,7 @@
- 	return NOTIFY_BAD;
- }
- 
--static struct notifier_block cpucache_notifier = { &cpuup_callback, NULL, 0 };
-+static struct notifier_block __devinitdata cpucache_notifier = { &cpuup_callback, NULL, 0 };
- 
- static inline void ** ac_entry(struct array_cache *ac)
- {
-@@ -1236,6 +1264,9 @@
- 	}
- 	{
- 		int i;
-+		/* no cpu_online check required here since we clear the percpu
-+		 * array on cpu offline and set this to NULL.
-+		 */
- 		for (i = 0; i < NR_CPUS; i++)
- 			kfree(cachep->array[i]);
- 		/* NUMA: free the list3 structures */
-Index: linux-2.5.59-lch2/mm/vmscan.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.59/mm/vmscan.c,v
+RCS file: /build/cvsroot/linux-2.5.59/include/asm-i386/smp.h,v
 retrieving revision 1.1.1.1
 retrieving revision 1.1.1.1.2.1
 diff -u -r1.1.1.1 -r1.1.1.1.2.1
---- linux-2.5.59-lch2/mm/vmscan.c	17 Jan 2003 11:16:41 -0000	1.1.1.1
-+++ linux-2.5.59-lch2/mm/vmscan.c	20 Jan 2003 13:48:28 -0000	1.1.1.1.2.1
-@@ -27,6 +27,7 @@
- #include <linux/pagevec.h>
- #include <linux/backing-dev.h>
- #include <linux/rmap-locking.h>
-+#include <linux/notifier.h>
- 
- #include <asm/pgalloc.h>
- #include <asm/tlbflush.h>
-@@ -931,6 +932,7 @@
- 	daemonize();
- 	set_cpus_allowed(tsk, __node_to_cpu_mask(pgdat->node_id));
- 	sprintf(tsk->comm, "kswapd%d", pgdat->node_id);
-+	printk("Set %s affinity to %08lX\n", tsk->comm, tsk->cpus_allowed);
- 	sigfillset(&tsk->blocked);
- 	
- 	/*
-@@ -999,6 +1001,45 @@
+--- linux-2.5.59-lch2/include/asm-i386/smp.h	17 Jan 2003 11:16:10 -0000	1.1.1.1
++++ linux-2.5.59-lch2/include/asm-i386/smp.h	20 Jan 2003 13:48:27 -0000	1.1.1.1.2.1
+@@ -100,6 +100,10 @@
  }
- #endif
  
-+/* It's optimal to keep kswapds on the same CPUs as their memory, but
-+   not required for correctness.  So if the last cpu in a node goes
-+   away, let them run anywhere, and as the first one comes back,
-+   restore their cpu bindings. */
-+static int __devinit cpu_callback(struct notifier_block *nfb,
-+				  unsigned long action,
-+				  void *hcpu)
+ #endif
++
++extern int __cpu_disable(void);
++extern void __cpu_die(unsigned int cpu);
++
+ #endif /* !__ASSEMBLY__ */
+ 
+ #define NO_PROC_ID		0xFF		/* No processor magic marker */
+Index: linux-2.5.59-lch2/arch/i386/kernel/process.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.59/arch/i386/kernel/process.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 process.c
+--- linux-2.5.59-lch2/arch/i386/kernel/process.c	17 Jan 2003 11:14:42 -0000	1.1.1.1
++++ linux-2.5.59-lch2/arch/i386/kernel/process.c	20 Jan 2003 14:24:35 -0000
+@@ -36,7 +36,7 @@
+ #include <linux/mc146818rtc.h>
+ #include <linux/module.h>
+ #include <linux/kallsyms.h>
+-
++#include <linux/brlock.h>
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+ #include <asm/system.h>
+@@ -46,6 +46,7 @@
+ #include <asm/i387.h>
+ #include <asm/irq.h>
+ #include <asm/desc.h>
++#include <asm/tlbflush.h>
+ #ifdef CONFIG_MATH_EMULATION
+ #include <asm/math_emu.h>
+ #endif
+@@ -80,6 +81,8 @@
+ 	hlt_counter--;
+ }
+ 
++DECLARE_PER_CPU(int, cpu_die);
++
+ /*
+  * We use this if we don't have any better
+  * idle routine..
+@@ -127,6 +130,36 @@
+ 	}
+ }
+ 
++#ifdef CONFIG_HOTPLUG
++static inline void maybe_play_dead(void)
 +{
-+	pg_data_t *pgdat;
-+	unsigned int hotcpu = (unsigned long)hcpu;
-+	unsigned long mask;
++	if (unlikely(__get_cpu_var(cpu_die))) {
++		printk("Cpu %u Dust Dust Dust\n", smp_processor_id());
++		/* Ack it */
++		__get_cpu_var(cpu_die) = 2;
 +
-+	if (action == CPU_OFFLINE) {
-+		/* Make sure that kswapd never becomes unschedulable. */
-+		for_each_pgdat(pgdat) {
-+			mask = __node_to_cpu_mask(pgdat->node_id);
-+			if (any_online_cpu(mask) < 0) {
-+				mask = ~0UL;
-+				set_cpus_allowed(pgdat->kswapd, mask);
-+			}
-+		}
-+	}
++		/* Death loop */
++		local_irq_disable();
++		while (__get_cpu_var(cpu_die))
++			cpu_relax();
++		local_irq_enable();
 +
-+	if (action == CPU_ONLINE) {
-+		for_each_pgdat(pgdat) {
-+			mask = __node_to_cpu_mask(pgdat->node_id);
-+			mask &= ~(1UL << hotcpu);
-+			if (any_online_cpu(mask) < 0) {
-+				mask |= (1UL << hotcpu);
-+				/* One of our CPUs came back: restore mask */
-+				set_cpus_allowed(pgdat->kswapd, mask);
-+			}
-+		}
++		/* Now, we missed any cache flush IPIs, so be safe. */
++		local_flush_tlb();
++
++		/* Ack it by setting online bit */
++		br_write_lock_irq(BR_CPU_LOCK);
++		set_bit(smp_processor_id(), &cpu_online_map);
++		br_write_unlock_irq(BR_CPU_LOCK);
++		printk("Cpu %u arisen\n", smp_processor_id());
 +	}
-+	return NOTIFY_OK;
 +}
++#else
++static inline void maybe_play_dead(void)
++{
++}
++#endif /*CONFIG_HOTPLUG*/
 +
-+static struct notifier_block cpu_nfb = { &cpu_callback, NULL, 0 };
+ /*
+  * The idle thread. There's no useful work to be
+  * done, so just try to conserve power and have a
+@@ -141,8 +174,10 @@
+ 		if (!idle)
+ 			idle = default_idle;
+ 		irq_stat[smp_processor_id()].idle_timestamp = jiffies;
+-		while (!need_resched())
++		while (!need_resched()) {
++			maybe_play_dead();
+ 			idle();
++		}
+ 		schedule();
+ 	}
+ }
+Index: linux-2.5.59-lch2/arch/i386/kernel/smp.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.59/arch/i386/kernel/smp.c,v
+retrieving revision 1.1.1.1
+retrieving revision 1.1.1.1.2.1
+diff -u -r1.1.1.1 -r1.1.1.1.2.1
+--- linux-2.5.59-lch2/arch/i386/kernel/smp.c	17 Jan 2003 11:14:42 -0000	1.1.1.1
++++ linux-2.5.59-lch2/arch/i386/kernel/smp.c	20 Jan 2003 13:48:26 -0000	1.1.1.1.2.1
+@@ -19,6 +19,7 @@
+ #include <linux/mc146818rtc.h>
+ #include <linux/cache.h>
+ #include <linux/interrupt.h>
++#include <linux/brlock.h>
+ 
+ #include <asm/mtrr.h>
+ #include <asm/pgalloc.h>
+@@ -350,13 +351,18 @@
+ 	 */
+ 	if (!cpumask)
+ 		BUG();
+-	if ((cpumask & cpu_online_map) != cpumask)
++	if ((cpumask & cpu_callout_map) != cpumask)
+ 		BUG();
+ 	if (cpumask & (1 << smp_processor_id()))
+ 		BUG();
+ 	if (!mm)
+ 		BUG();
+ 
++	/* CPUs might have gone offline: don't worry about them. */
++	cpumask &= cpu_online_map;
++	if (!cpumask)
++		return;
 +
- static int __init kswapd_init(void)
+ 	/*
+ 	 * i'm not happy about this global shared spinlock in the
+ 	 * MM hot path, but we'll see how contended it is.
+@@ -515,10 +521,15 @@
+  */
  {
- 	pg_data_t *pgdat;
-@@ -1006,6 +1047,7 @@
- 	for_each_pgdat(pgdat)
- 		kernel_thread(kswapd, pgdat, CLONE_KERNEL);
- 	total_memory = nr_free_pagecache_pages();
-+	register_cpu_notifier(&cpu_nfb);
+ 	struct call_data_struct data;
+-	int cpus = num_online_cpus()-1;
++	int cpus;
+ 
+-	if (!cpus)
++	br_read_lock(BR_CPU_LOCK);
++	cpus = num_online_cpus()-1;
++
++	if (!cpus) {
++		br_read_unlock(BR_CPU_LOCK);
+ 		return 0;
++	}
+ 
+ 	data.func = func;
+ 	data.info = info;
+@@ -542,6 +553,7 @@
+ 			barrier();
+ 	spin_unlock(&call_lock);
+ 
++	br_read_unlock(BR_CPU_LOCK);
  	return 0;
  }
  
+Index: linux-2.5.59-lch2/arch/i386/kernel/smpboot.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.59/arch/i386/kernel/smpboot.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 smpboot.c
+--- linux-2.5.59-lch2/arch/i386/kernel/smpboot.c	17 Jan 2003 11:14:42 -0000	1.1.1.1
++++ linux-2.5.59-lch2/arch/i386/kernel/smpboot.c	3 Feb 2003 11:19:12 -0000
+@@ -45,6 +45,8 @@
+ 
+ #include <linux/delay.h>
+ #include <linux/mc146818rtc.h>
++#include <linux/brlock.h>
++#include <linux/percpu.h>
+ #include <asm/pgalloc.h>
+ #include <asm/tlbflush.h>
+ #include <asm/desc.h>
+@@ -64,9 +66,10 @@
+ /* Bitmask of currently online CPUs */
+ unsigned long cpu_online_map;
+ 
+-static volatile unsigned long cpu_callin_map;
++/* Initialize, although master cpu never calls in */
++static volatile unsigned long cpu_callin_map = 1;
+ volatile unsigned long cpu_callout_map;
+-static unsigned long smp_commenced_mask;
++static unsigned long smp_commenced_mask = 1;
+ 
+ /* Per CPU bogomips and other parameters */
+ struct cpuinfo_x86 cpu_data[NR_CPUS] __cacheline_aligned;
+@@ -222,6 +225,8 @@
+ 	int buggy = 0;
+ 
+ 	printk("checking TSC synchronization across %u CPUs: ", num_booting_cpus());
++	if (fast_gettimeoffset_quotient == 0)
++		fast_gettimeoffset_quotient = 1<<30;
+ 
+ 	one_usec = ((1<<30)/fast_gettimeoffset_quotient)*(1<<2);
+ 
+@@ -458,7 +463,9 @@
+ 	 * the local TLBs too.
+ 	 */
+ 	local_flush_tlb();
++	br_write_lock_irq(BR_CPU_LOCK);
+ 	set_bit(smp_processor_id(), &cpu_online_map);
++	br_write_unlock_irq(BR_CPU_LOCK);
+ 	wmb();
+ 	return cpu_idle();
+ }
+@@ -1138,10 +1145,11 @@
+ 	set_bit(smp_processor_id(), &cpu_callout_map);
+ }
+ 
++DEFINE_PER_CPU(int, cpu_die) = { 0 };
++
+ int __devinit __cpu_up(unsigned int cpu)
+ {
+-	/* This only works at boot for x86.  See "rewrite" above. */
+-	if (test_bit(cpu, &smp_commenced_mask)) {
++	if (test_bit(cpu, &smp_commenced_mask) && cpu_online(cpu)) {
+ 		local_irq_enable();
+ 		return -ENOSYS;
+ 	}
+@@ -1152,12 +1160,54 @@
+ 		return -EIO;
+ 	}
+ 
++	/* Already up, and in maybe_play_dead now? */
++	if (test_bit(cpu, &smp_commenced_mask)) {
++		per_cpu(cpu_die, cpu) = 0;
++		wmb();
++		wake_idle_cpu(cpu);
++		while (!cpu_online(cpu))
++			yield();
++		printk("Cpu %u says it's online\n", cpu);
++		return 0;
++	}
++
+ 	local_irq_enable();
+ 	/* Unleash the CPU! */
+ 	set_bit(cpu, &smp_commenced_mask);
+ 	while (!test_bit(cpu, &cpu_online_map))
+ 		mb();
+ 	return 0;
++}
++
++int __cpu_disable(void)
++{
++	br_write_lock_irq(BR_CPU_LOCK);
++  	cpu_online_map &= ~(1UL << smp_processor_id());
++	br_write_unlock_irq(BR_CPU_LOCK);
++
++	printk("Disabled cpu %u\n", smp_processor_id());
++	return 0;
++}
++
++void __cpu_die(unsigned int cpu)
++{
++	unsigned int start;
++
++	/* Final threads can take some time to actually clean up */
++	while (!idle_cpu(cpu))
++		yield();
++
++	/* FIXME: Rebind interrupts which have affinity. --RR */
++	per_cpu(cpu_die, cpu) = 1;
++	wmb();
++	for (start = jiffies; time_before(jiffies, start + HZ); ) {
++		wake_idle_cpu(cpu);
++		/* They ack this in maybe_play_dead by incrementing it. */
++		if (per_cpu(cpu_die, cpu) == 2)
++			return;
++		yield();
++	}
++	printk(KERN_ERR "CPU %u didn't die...\n", cpu);
+ }
+ 
+ void __init smp_cpus_done(unsigned int max_cpus)
 
 

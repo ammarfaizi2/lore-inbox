@@ -1,44 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129078AbRBVL2z>; Thu, 22 Feb 2001 06:28:55 -0500
+	id <S129111AbRBVLcp>; Thu, 22 Feb 2001 06:32:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129111AbRBVL2p>; Thu, 22 Feb 2001 06:28:45 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:1803 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129078AbRBVL2c>; Thu, 22 Feb 2001 06:28:32 -0500
-Date: Thu, 22 Feb 2001 07:41:52 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Jens Axboe <axboe@suse.de>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: ll_rw_block/submit_bh and request limits
-Message-ID: <Pine.LNX.4.21.0102220707380.1694-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129257AbRBVLcf>; Thu, 22 Feb 2001 06:32:35 -0500
+Received: from ns1.bmlv.gv.at ([193.171.152.34]:45069 "EHLO mail.bmlv.gv.at")
+	by vger.kernel.org with ESMTP id <S129111AbRBVLcD>;
+	Thu, 22 Feb 2001 06:32:03 -0500
+Message-Id: <3.0.6.32.20010222123207.009138d0@pop3.bmlv.gv.at>
+X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
+Date: Thu, 22 Feb 2001 12:32:07 +0100
+To: linux-kernel@vger.kernel.org
+From: "Ph. Marek" <marek@mail.bmlv.gv.at>
+Subject: some char * optimizations in kernel
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello everybody,
 
-Hi, 
+looking through the sources I found several pieces like
+lib/vsprintf.c, line 111:
+	const char *digits="0123456789abcdefghijklmnopqrstuvwxyz";
 
-The following piece of code in ll_rw_block() aims to limit the number of
-locked buffers by making processes throttle on IO if the number of on
-flight requests is bigger than a high watermaker. IO will only start
-again if we're under a low watermark.
+As tested with egcs-2.91.60 even with -O3 there is a difference
+between 
+	const char *digits="0123456789abcdefghijklmnopqrstuvwxyz";
+and
+	const char digits[]="0123456789abcdefghijklmnopqrstuvwxyz";
 
-                if (atomic_read(&queued_sectors) >= high_queued_sectors) {
-                        run_task_queue(&tq_disk);
-                        wait_event(blk_buffers_wait,
-                        	atomic_read(&queued_sectors) < low_queued_sectors);
-                }
+in the resulting assembler code.
 
 
-However, if submit_bh() is used to queue IO (which is used by ->readpage()
-for ext2, for example), no throttling happens.
+Usage of this pointer results in it being loaded in a register, and then
+pushed on the stack (for subrouting using); if it's an array, the address
+is pushed directly.
 
-It looks like ll_rw_block() users (writes, metadata reads) can be starved
-by submit_bh() (data reads). 
+Furthermore, in the "char *"-case the pointer is stored in memory.
 
-If I'm not missing something, the watermark check should be moved to
-submit_bh(). 
 
+
+As I'm not at home I can't give a complete reference of all these cases.
+(But it's trivial [at least for me :-)] using perl).
+
+So if this changes are approved and I have the time I can post a diff in
+the next few days.
+
+
+BTW: For which size of patch is it possible to get included in the "Hall of
+fame" (has helped with linux kernel)?
+And, btw too, where can I find a maintainer of a specific file? eg., one of
+these cases is in init/version.c which has "Copyright (C) 1992  Theodore
+Ts'o" - but I have to guess it's tytso@valinux.com.
+Is there something like Documentation/maintainers?
+
+
+
+Regards,
+
+Phil
 

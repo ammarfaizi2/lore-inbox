@@ -1,127 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S145191AbRA2FDG>; Mon, 29 Jan 2001 00:03:06 -0500
+	id <S145190AbRA2FMZ>; Mon, 29 Jan 2001 00:12:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S145192AbRA2FCp>; Mon, 29 Jan 2001 00:02:45 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:6924 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S145191AbRA2FCf>;
-	Mon, 29 Jan 2001 00:02:35 -0500
-Date: Sun, 28 Jan 2001 22:02:08 -0700
-From: yodaiken@fsmlabs.com
-To: Bill Huey <billh@gnuppy.monkey.org>
-Cc: yodaiken@fsmlabs.com, Nigel Gamble <nigel@nrg.org>,
-        Paul Barton-Davis <pbd@Op.Net>, Andrew Morton <andrewm@uow.edu.au>,
-        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-audio-dev@ginette.musique.umontreal.ca
-Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0
-Message-ID: <20010128220208.A12032@hq.fsmlabs.com>
-In-Reply-To: <200101220150.UAA29623@renoir.op.net> <Pine.LNX.4.05.10101211754550.741-100000@cosmic.nrg.org> <20010128061428.A21416@hq.fsmlabs.com> <20010128060704.A2181@gnuppy.monkey.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4us
-In-Reply-To: <20010128060704.A2181@gnuppy.monkey.org>; from Bill Huey on Sun, Jan 28, 2001 at 06:07:04AM -0800
+	id <S145192AbRA2FMF>; Mon, 29 Jan 2001 00:12:05 -0500
+Received: from smtp-server.maine.rr.com ([204.210.65.66]:14997 "HELO
+	smtp-server.maine.rr.com") by vger.kernel.org with SMTP
+	id <S145190AbRA2FMB>; Mon, 29 Jan 2001 00:12:01 -0500
+Message-ID: <001601c089b0$b1ec80d0$b001a8c0@caesar>
+From: "paradox3" <paradox3@maine.rr.com>
+To: "Michael Brown" <flight666@hotmail.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <F65Jqj0CYixMwInhdAH00002ef1@hotmail.com>
+Subject: Re: Poor SCSI drive performance on SMP machine, 2.2.16
+Date: Mon, 29 Jan 2001 00:02:35 -0500
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0013_01C08986.C8F05330"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 28, 2001 at 06:07:04AM -0800, Bill Huey wrote:
-> 
-> On Sun, Jan 28, 2001 at 06:14:28AM -0700, yodaiken@fsmlabs.com wrote:
-> > > Yes, I most emphatically do disagree with Victor!  IRIX is used for
-> > > mission-critical audio applications - recording as well playback - and
-> > And it has bloat, it's famously buggy, it is impossible to maintain, ...
-> 
-> However, that doesn't fault its concepts and its original goals. This
-> kind stuff is often more of an implementation and bad abstraction issue than
-> about faulty design and end goals.
+This is a multi-part message in MIME format.
 
+------=_NextPart_000_0013_01C08986.C8F05330
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
-That's the core of the disagreement. I think SGI had some really good
-engineers who have worked very hard - but that hard work and good
-programming can never compensate for bad design. I think Linux works so
-well because it's been designed well -- and good design often means
-refusing to go down a path that is known to seemingly invariably
-lead to failure. HP-UX, IRIX, Masscomp ... -- all these guys have
-tried this "concept" and all have had some sucess, but at a 
-very high price.
- 
+Here is the output from dmesg. How do I tell if it is improperly terminated?
 
-> 
-> > > used.  I will be very happy when Linux is as good in all these areas,
-> > > and I'm working hard to achieve this goal with negligible impact on the
-> > > current Linux "sweet-spot" applications such as web serving.
-> > As stated previously: I think this is a proven improbability and I have
-> > not seen any code or designs from you to show otherwise.
-> 
-> Andrew Morton's patch uses < 10 rescheduling points (maybe less from memory)
-> and in controlled, focused and logical places. It's certainly not a unmaintainable
-> mammoth unlike previous attempts, since Riel (many thanks) has massively
-> cleaned up the VM layer by using more reasonable algorithms, etc...
-> 
-
-Andrews' patch has grown, but sure, I think he is doing good work.
-
-> > I suggest that you get your hearing checked. I'm fully in favor of sensible
-> > low latency Linux. I believe however that low latency  in Linux will
-> > 	A. be "soft realtime", close to deadline most of the time.
-> 
-> Which is very good and maintainable with Andrew's patches.
-> 
-> > 	B. millisecond level on present hardware
-> 
-> Also very good an useable for many applications short of writting dedicated
-> code on specialized DSP cards.
-> 
-> > 	C. Best implemented by careful algorithm design instead of 
-> > 	"stuff the kernel with resched points" and hope for the best.
-> 
-> Algorithms ? which ones ? VM layer, scheduler ?  It seems there's enough
-> there in the Linux kernel to start doing interesting stuff, assuming that
-> there's a large enough media crowd willing to do the userspace programming.
-> 
-> > > for low-latency tasks.  RTLinux is not Linux, it is a separate
-> > > environment with a separate, limited set of APIs.  You can't run XMMS,
-> > > or any other existing Linux audio app in RTLinux.  I want a low-latency
-> > > Linux, not just another RTOS living parasitically alongside Linux.
->  
-> > Nice marketing line, but it is not working code.
-> 
-> Mean what ? How does that response answer his criticism ?
-> 
-
-RTLinux is not intended to be another Linux - one Linux is enough
-(and one IRIX is too many!). What 
-RTLinux does is, essentially, add a special realtime process to
-Linux and let applications in this "process" be written as threads
-and signal handlers. The environment is specifically made to be
-"restrictive" and programmers are encouraged to put non-realtime 
-components in Linux and only put timing critical stuff in the RT
-process. So complaining that the RTLinux environment is not 
-the Linux environment is rather silly and akin to a complain that
-you can't call shell scripts from driver code. Different environments
-serve different purposes. The engineering claim behind RTLinux is that
-while many attempts to integrate hard realtime into general purpose
-OS's have produced large buggy, slow, and compromised OS's, the
-RTLinux model provides a simple software design that offers reliable
-hard realtime without screwing up the internals of the general
-purpose OS. In fact, I argue that it's a mistake to integrate
-hard realtime and non-realtime code in applications as well. 
-So I think that the argument "we should have hard realtime in 
-an integrated environment" is like arguing  "we should have fast cornering,
-and instant acceleration in a moving van". If you don't like my 
-sports car because it does not come with air brakes and a trailer, 
-show me how it's possible to accomplish both design goals: but don't
-simply "marketize" about how inferior the sports car is because it
-is missing moving van features. 
+Thanks, Para-dox (paradox3@maine.rr.com)
 
 
 
-> bill
 
--- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
+----- Original Message -----
+From: "Michael Brown" <flight666@hotmail.com>
+To: <paradox3@maine.rr.com>
+Sent: Sunday, January 28, 2001 11:12 PM
+Subject: Re: Poor SCSI drive performance on SMP machine, 2.2.16
+
+
+> Your problem appears to be improper SCSI termination.
+>
+> You need to either
+>   1) make sure your SCSI drive has termination enabled
+> or
+>   2) move your SCSI drive to the middle connector and put a terminator on
+> the last connector
+>
+> Check your syslog and post to l-k the part where it detects your drives.
+> I'll bet the adapter is throttling back quite dramatically in the presence
+> of improper termination.
+>
+> --
+> Michael Brown
+>
+> _________________________________________________________________
+> Get your FREE download of MSN Explorer at http://explorer.msn.com
+>
+>
+
+------=_NextPart_000_0013_01C08986.C8F05330
+Content-Type: text/plain;
+	name="dmesg.txt"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="dmesg.txt"
+
+(scsi0) <Adaptec AIC-7890/1 Ultra2 SCSI host adapter> found at PCI 0/12/0=0A=
+(scsi0) Wide Channel, SCSI ID=3D7, 32/255 SCBs=0A=
+(scsi0) Downloading sequencer code... 392 instructions downloaded=0A=
+scsi0 : Adaptec AHA274x/284x/294x (EISA/VLB/PCI-Fast SCSI) 5.1.31/3.2.4=0A=
+       <Adaptec AIC-7890/1 Ultra2 SCSI host adapter>=0A=
+scsi : 1 host.=0A=
+(scsi0:0:0:0) Synchronous at 40.0 Mbyte/sec, offset 15.=0A=
+  Vendor: IBM       Model: DGHS09U           Rev: 0350=0A=
+  Type:   Direct-Access                      ANSI SCSI revision: 03=0A=
+Detected scsi disk sda at scsi0, channel 0, id 0, lun 0=0A=
+scsi : detected 1 SCSI disk total.=0A=
+SCSI device sda: hdwr sector=3D 512 bytes. Sectors=3D 17916240 [8748 MB] =
+[8.7 GB]=0A=
+Partition check:=0A=
+ sda: sda1 sda2 sda3=0A=
+
+------=_NextPart_000_0013_01C08986.C8F05330--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

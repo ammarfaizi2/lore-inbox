@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261481AbSJYQhf>; Fri, 25 Oct 2002 12:37:35 -0400
+	id <S261486AbSJYQrV>; Fri, 25 Oct 2002 12:47:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261483AbSJYQhf>; Fri, 25 Oct 2002 12:37:35 -0400
-Received: from sto-vo-kor.koschikode.com ([217.111.19.142]:13064 "EHLO
-	sto-vo-kor.koschikode.com") by vger.kernel.org with ESMTP
-	id <S261481AbSJYQhe>; Fri, 25 Oct 2002 12:37:34 -0400
-Message-ID: <3DB974D3.5040103@koschikode.com>
-Date: Fri, 25 Oct 2002 18:44:03 +0200
-From: Juri Haberland <juri@koschikode.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021016
-X-Accept-Language: en-us, en, de-de
+	id <S261489AbSJYQrV>; Fri, 25 Oct 2002 12:47:21 -0400
+Received: from 1-116.ctame701-1.telepar.net.br ([200.181.137.116]:37045 "EHLO
+	1-116.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S261486AbSJYQrV>; Fri, 25 Oct 2002 12:47:21 -0400
+Date: Fri, 25 Oct 2002 14:53:15 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andrew Morton <akpm@digeo.com>
+cc: Hugh Dickins <hugh@veritas.com>, <cmm@us.ibm.com>,
+       <manfred@colorfullife.com>, <linux-kernel@vger.kernel.org>,
+       <dipankar@in.ibm.com>, <lse-tech@lists.sourceforge.net>
+Subject: Re: [PATCH]updated ipc lock patch
+In-Reply-To: <3DB88298.735FD044@digeo.com>
+Message-ID: <Pine.LNX.4.44L.0210251451460.1995-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Mike Dresser <mdresser_l@windsormachine.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fragmentation DoS?
-References: <Pine.LNX.4.33.0210251235570.21571-100000@router.windsormachine.com>
-In-Reply-To: <Pine.LNX.4.33.0210251235570.21571-100000@router.windsormachine.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Dresser wrote:
+On Thu, 24 Oct 2002, Andrew Morton wrote:
 
-> Furthermore, if you look at
-> http://marc.theaimsgroup.com/?l=cisco-nsp&m=103515530331228&w=2, you'll
-> see this person cut/pasted and changed a few words.
+> And it seems that if the kmalloc fails, we decide to leak some
+> memory, yes?
 >
-> And the second link on the securityfocus page is that very lkml post :)
+> If so it would be better to use GFP_ATOMIC there.  Avoids any
+> locking problems and also increases the chance of the allocation
+> succeeding.  (With an explanatory comment, naturally :)).
 
+Actually, under memory load GFP_KERNEL will wait for the
+memory to become available, while GFP_ATOMIC will fail.
 
-Arghl, I didn't look at the date (I had quite a bit of backlog with
-respect to lkml...)
+Using GFP_ATOMIC here will probably increase the risk of
+a memory leak.
 
-How embarrassing.
+regards,
 
-Sorry for the noise,
-Juri
-
+Rik
 -- 
-  If each of us have one object, and we exchange them,
-     then each of us still has one object.
-  If each of us have one idea,   and we exchange them,
-     then each of us now has two ideas.
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://distro.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
 

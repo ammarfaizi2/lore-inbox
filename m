@@ -1,73 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268720AbUJEAh2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268722AbUJEAiw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268720AbUJEAh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 20:37:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268722AbUJEAh1
+	id S268722AbUJEAiw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 20:38:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268724AbUJEAiw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 20:37:27 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:43671 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S268720AbUJEAhR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 20:37:17 -0400
-Subject: Re: [PATCH] I/O space write barrier
-From: Albert Cahalan <albert@users.sf.net>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       benh@kernel.crashing.org
-In-Reply-To: <200410041420.01266.jbarnes@engr.sgi.com>
-References: <1096922369.2666.177.camel@cube>
-	 <200410041420.01266.jbarnes@engr.sgi.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1096936344.2674.198.camel@cube>
+	Mon, 4 Oct 2004 20:38:52 -0400
+Received: from main.gmane.org ([80.91.229.2]:12231 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S268722AbUJEAik (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 20:38:40 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Andrew Rodland <arodland@entermail.net>
+Subject: Re: 2.6.9-rc3-mm2
+Date: Mon, 04 Oct 2004 20:36:01 -0400
+Message-ID: <cjsqeb$8un$1@sea.gmane.org>
+References: <20041004020207.4f168876.akpm@osdl.org> <20041004121528.GA4635@diamant.rubis.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 04 Oct 2004 20:32:24 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: port146.public4.resnet.ucf.edu
+User-Agent: KNode/0.8.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-10-04 at 17:20, Jesse Barnes wrote:
-> On Monday, October 4, 2004 1:39 pm, Albert Cahalan wrote:
-> > > diff -Nru a/include/asm-ppc/io.h b/include/asm-ppc/io.h
-> > > --- a/include/asm-ppc/io.h 2004-09-27 10:48:41 -07:00
-> > > +++ b/include/asm-ppc/io.h 2004-09-27 10:48:41 -07:00
-> > > @@ -197,6 +197,8 @@
-> > >  #define memcpy_fromio(a,b,c)   memcpy((a),(void *)(b),(c))
-> > >  #define memcpy_toio(a,b,c) memcpy((void *)(a),(b),(c))
-> > >
-> > > +#define mmiowb() asm volatile ("eieio" ::: "memory")
-> > > +
-> > >  /*
-> > >   * Map in an area of physical address space, for accessing
-> > >   * I/O devices etc.
-> >
-> > I don't think this is right. For ppc, eieio is
-> > already included as part of the assembly for the
-> > IO operations. If you could delete that, great,
-> > but I suspect that nearly all drivers would break.
+Stephane Jourdois wrote:
+
+> Hello,
 > 
-> Ok, if it's covered than mmiowb() can just be empty for ppc.
-
-Ideally, it would be eieio, and the eieio in each
-of the IO operations would be removed. Finding and
-fixing all the drivers that break looks impossible
-though; most driver developers will be on x86 boxes.
-
-> > BTW, the "eieio" name is better. The "wb" part
-> > of "mmiowb" looks like "write back" to me, as if
-> > it were some sort of cache push operation. It is
-> > also lacking an appropriate song. :-)
+> This kernel does not boot on my i386 laptop. I have nothing after
+> "Uncompressing kernel... Ok, booting linux". The fans are increasingly
+> running, so I suspect cpu is heavily used at this time. I tried to
+> wait several minutes, just to see.
 > 
-> It's supposed to be 'write barrier' just like wmb is a write memory barrier, 
-> so is mmiowb a memory-mapped I/O write barrier.  Make sense?
+> I have the same problem since 2.6.9-rc2-mm2. Last booting kernel is
+> 2.6.9-rc2-mm1. I tried every -mm kernel between -rc2-mm1 and -rc3-mm2.
+> 
+> Here is my .config for -rc3-mm2. Same config was used for -rc2-mm2,
+> modulo new options.
+> 
 
-In that case: wmmiob
 
-(or something longer, like mmio_write_fence maybe)
+> CONFIG_PREEMPT_BKL=y
 
-As a name, "wmb" sucks almost as much as "cli" and "sti" do.
-It dates back to the Alpha port, where it's an opcode.
+Try compiling with this one off; it seems to cause problems on some systems.
 
 

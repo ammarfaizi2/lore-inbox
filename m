@@ -1,57 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270884AbTGVWAa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 18:00:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270898AbTGVWAa
+	id S271036AbTGVWNW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 18:13:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271038AbTGVWNW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 18:00:30 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:30482
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S270884AbTGVWA3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 18:00:29 -0400
-Date: Tue, 22 Jul 2003 15:15:33 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: different behaviour with badblocks on 2.6.0-test1-mm1-07int
-Message-ID: <20030722221533.GF1176@matchmail.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030722214253.GD1176@matchmail.com> <20030722214557.GE1176@matchmail.com>
+	Tue, 22 Jul 2003 18:13:22 -0400
+Received: from 217-124-16-150.dialup.nuria.telefonica-data.net ([217.124.16.150]:26769
+	"EHLO dardhal.mired.net") by vger.kernel.org with ESMTP
+	id S271036AbTGVWNU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 18:13:20 -0400
+Date: Wed, 23 Jul 2003 00:28:24 +0200
+From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Scheduler starvation (2.5.x, 2.6.0-test1)
+Message-ID: <20030722222824.GA2241@localhost>
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
+References: <bUil.2D8.11@gated-at.bofh.it> <pan.2003.07.22.15.14.44.457281@mtco.com> <20030722180442.6c116e1c.martin.zwickel@technotrend.de> <1058899302.733.1.camel@teapot.felipe-alfaro.com> <20030722193917.GA14669@localhost> <20030722195306.GA1176@matchmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030722214557.GE1176@matchmail.com>
+In-Reply-To: <20030722195306.GA1176@matchmail.com>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 22, 2003 at 02:45:57PM -0700, Mike Fedyk wrote:
-> On Tue, Jul 22, 2003 at 02:42:53PM -0700, Mike Fedyk wrote:
-> > Hi,
-> > 
-> > I was testing a hard drive with badblocks (from the e2fsprogs-1.34) on the
-> > 2.6.0-test1-mm1-07int (with Con's scheduler patch), and I noticed in vmstat
-> > and gkrellm that during the write passes there are reads on the same drive
-> > when there should only be writes.
-> > 
-> > I tried stracing badblocks, but all it showed was write() calls, and vmstat
-> > and gkrellm showed reads only, so it modified the behaviour.
-> > 
-> > Has anyone else seen this?
-> > 
-> > ii  e2fsprogs             1.33+1.34-WIP-2003.05 The EXT2 file system
-> > utilities and libraries                  
-> > 
-> 
-> Oh, and testing with the same hardware and userspace on 2.4.22-pre7 shows
-> normal behaviour (writes with no reading, reads with no writing).
-> 
-> This is with "badblocks -wso /tmp/hde.out /dev/hde > /dev/hde.log 2>&1 &" on
-> a bash prompt on both kernels.
-> 
-> Neither found any bad blocks, and /tmp is on a /dev/hda1
-> 
+On Tuesday, 22 July 2003, at 12:53:06 -0700,
+Mike Fedyk wrote:
 
-This is also being reported against e2fsprogs in debian to get more eyes on
-it.
+> Yes, I get the same thing with KDE 3.1.  Are you using KDE or Gnome?  And if
+> so, what version?
+> 
+Debian Sid KDE version 3.1.2 here, and xmms 1.2.7 and Mozilla 1.4 if
+that matters. I'll try to do some additional test, time permitting.
 
-http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=202008
+Regards,
+
+-- 
+Jose Luis Domingo Lopez
+Linux Registered User #189436     Debian Linux Sid (Linux 2.6.0-test1)

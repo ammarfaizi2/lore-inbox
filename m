@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132827AbRC2TXO>; Thu, 29 Mar 2001 14:23:14 -0500
+	id <S132825AbRC2T0o>; Thu, 29 Mar 2001 14:26:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132825AbRC2TXE>; Thu, 29 Mar 2001 14:23:04 -0500
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:2904 "EHLO
+	id <S132826AbRC2T0e>; Thu, 29 Mar 2001 14:26:34 -0500
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:3672 "EHLO
 	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S132826AbRC2TWy>; Thu, 29 Mar 2001 14:22:54 -0500
-Date: Thu, 29 Mar 2001 13:20:46 -0600 (CST)
+	id <S132825AbRC2T0X>; Thu, 29 Mar 2001 14:26:23 -0500
+Date: Thu, 29 Mar 2001 13:25:41 -0600 (CST)
 From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200103291920.NAA69574@tomcat.admin.navo.hpc.mil>
-To: dlang@diginsite.com, David Konerding <dek_ml@konerding.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: OOM killer???
+Message-Id: <200103291925.NAA69404@tomcat.admin.navo.hpc.mil>
+To: xordoquy@aurora-linux.com, linux-kernel@vger.kernel.org
+Subject: Re: Bug in the file attributes ?
 X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-avid Lang <dlang@diginsite.com>:
->one of the key places where the memory is 'allocated' but not used is in
->the copy on write conditions (fork, clone, etc) most of the time very
->little of the 'duplicate' memory is ever changed (in fact most of the time
->the program that forks then executes some other program) on a lot of
->production boxes this would be a _very_ significant additional overhead in
->memory (think a busy apache server, it forks a bunch of processes, but
->currently most of that memory is COW and never actually needs to be
->duplicated)
+---------  Received message begins Here  ---------
 
-So? If the requirement is no-overcommit, then assume it WILL be overwritten.
-Allocate sufficient swap for the requirement.
+> 
+> 
+> Hi,
+> 
+> I just made a manipulation that disturbs me. So I'm asking whether it's a
+> bug or a features.
+> 
+> user> su
+> root> echo "test" > test
+> root> ls -l
+> -rw-r--r--   1 root     root            5 Mar 29 19:14 test
+> root> exit
+> user> rm test
+> rm: remove write-protected file `test'? y
+> user> ls test
+> ls: test: No such file or directory
+> 
+> This is in the user home directory.
+> Since the file is read only for the user, it should not be able to remove
+> it. Moreover, the user can't write to test.
+> So I think this is a bug.
 
-Now, it shouldn't be necessary to include the text segment - after all
-this should be marked RX.
-
-Actually just X would do, but on Intel systems that also means R. and if W
-is set it also means RWX. I hope that Intel gets a better clue about memory
-protection sometime soon.
+Nope - rm only updates the directory, which the user owns; not the file.
+The prompt is just being nice.
 
 -------------------------------------------------------------------------
 Jesse I Pollard, II

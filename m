@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129356AbRBMDr0>; Mon, 12 Feb 2001 22:47:26 -0500
+	id <S129216AbRBMDzP>; Mon, 12 Feb 2001 22:55:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129492AbRBMDrF>; Mon, 12 Feb 2001 22:47:05 -0500
-Received: from smtp-out2.bellatlantic.net ([199.45.40.144]:8166 "EHLO
-	smtp-out2.bellatlantic.net") by vger.kernel.org with ESMTP
-	id <S129356AbRBMDqx>; Mon, 12 Feb 2001 22:46:53 -0500
-Message-ID: <3A88AE26.BA69E57A@cdi.com>
-Date: Mon, 12 Feb 2001 22:46:46 -0500
-From: "Rafael E. Herrera" <raffo@cdi.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16 i586)
-X-Accept-Language: en
+	id <S129402AbRBMDzG>; Mon, 12 Feb 2001 22:55:06 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:5128 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129216AbRBMDyt>; Mon, 12 Feb 2001 22:54:49 -0500
+Date: Tue, 13 Feb 2001 00:05:50 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: george anzinger <george@mvista.com>
+cc: Rasmus Andersen <rasmus@jaquet.dk>, Rik van Riel <riel@conectiva.com.br>,
+        torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org
+Subject: Re: [PATCH] guard mm->rss with page_table_lock (241p11)
+In-Reply-To: <3A88A6ED.6B51BCA9@mvista.com>
+Message-ID: <Pine.LNX.4.21.0102122334240.29855-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Animated framebuffer logo for 2.4.1
-In-Reply-To: <20010201183231.A373@tuxia.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've seen in recently purchased computers that the very initial
-messages, like memory test, are masked by some kind of picture or logo
-(example are the HP kayaks). They display a message saying that pressing
-ESC or some function key displays the messages. Why not having the same
-in this pretty boot option. I wouldn't mind not seeing all those
-messages.
 
--- 
-     Rafael
+
+On Mon, 12 Feb 2001, george anzinger wrote:
+
+> Excuse me if I am off base here, but wouldn't an atomic operation be
+> better here.  There are atomic inc/dec and add/sub macros for this.  It
+> just seems that that is all that is needed here (from inspection of the
+> patch).
+
+Most functions which touch mm->rss already hold mm->page_table_lock (also
+this functions are called more often and they use more CPU).
+
+Making those functions use an atomic instruction just to optimize the
+functions which do not lock mm->page_table_lock is not a good tradeoff.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

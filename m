@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266252AbUALVJA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 16:09:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266211AbUALVE6
+	id S266240AbUALU7n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 15:59:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266239AbUALU7Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 16:04:58 -0500
-Received: from fw.osdl.org ([65.172.181.6]:2277 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265635AbUALVET (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 16:04:19 -0500
-Date: Mon, 12 Jan 2004 13:01:13 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: fastboot@lists.osdl.org
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [announce] kexec updated for 2.6.1
-Message-Id: <20040112130113.51add57a.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Mon, 12 Jan 2004 15:59:25 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:25238 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S266240AbUALU7L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 15:59:11 -0500
+Date: Thu, 8 Jan 2004 10:29:26 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: James Simmons <jsimmons@infradead.org>
+Cc: S Ait-Kassi <sait-kassi@zonnet.nl>, linux-kernel@vger.kernel.org
+Subject: Re: [update]  Vesafb problem since 2.5.51
+Message-ID: <20040108092926.GB467@openzaurus.ucw.cz>
+References: <200401061440.55724.sait-kassi@zonnet.nl> <Pine.LNX.4.44.0401062305180.21143-100000@phoenix.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0401062305180.21143-100000@phoenix.infradead.org>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-kexec is a linux-reboots-linux kernel patch.
-It currently applies only to x86/ia32.
+> > Just tried the patch with the 2.6.0 kernel and it didn't help. As a bonus 
+> > "feature" the cursor also makes the character it is underlining blink.
+> 
+> The cursor is busted but I think the latest patch from Pavel might fix it.
 
+Unless he is using softcursor (by issuing appropriate escape
+sequence), that is unlikely.
+				Pavel
 
-Patch, scripts, userspace tools, etc., are available at
-
-  http://developer.osdl.org/rddunlap/kexec/2.6.1/
-
---
-~Randy
-MOTD:  Always include version info.

@@ -1,64 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261531AbUBUERp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 23:17:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261533AbUBUERp
+	id S261535AbUBUEUi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 23:20:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261533AbUBUERu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 23:17:45 -0500
-Received: from fw.osdl.org ([65.172.181.6]:60330 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261531AbUBUENL (ORCPT
+	Fri, 20 Feb 2004 23:17:50 -0500
+Received: from hera.kernel.org ([63.209.29.2]:45238 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S261534AbUBUEOS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 23:13:11 -0500
-Date: Fri, 20 Feb 2004 20:13:28 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][4/4] poll()/select() timeout behavior
-Message-Id: <20040220201328.609fe4e2.akpm@osdl.org>
-In-Reply-To: <20040220210452.GE1912@ti19.telemetry-investments.com>
-References: <20040220210452.GE1912@ti19.telemetry-investments.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 20 Feb 2004 23:14:18 -0500
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: kernel too big
+Date: Sat, 21 Feb 2004 04:14:13 +0000 (UTC)
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <c16lul$g2b$1@terminus.zytor.com>
+References: <UTC200402201400.i1KE0AH09811.aeb@smtp.cwi.nl> <403671FE.8090005@transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1077336853 16460 63.209.29.3 (21 Feb 2004 04:14:13 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Sat, 21 Feb 2004 04:14:13 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Bill Rugolsky Jr." <brugolsky@telemetry-investments.com> wrote:
->
-> This patch forces select() to wait *at least* the specified timeout if
-> no events have occurred, same as poll(). The SUSv3 man page for select(2)
-> says:
+Followup to:  <403671FE.8090005@transmeta.com>
+By author:    "H. Peter Anvin" <hpa@transmeta.com>
+In newsgroup: linux.dev.kernel
 > 
->    "If the timeout parameter is not a null pointer, it specifies a maximum
->    interval to wait for the selection to complete. If the specified
->    time interval expires without any requested operation becoming ready,
->    the function shall return."
+> Alternative I could take a stab at making these tables auto-generated
+> and therefore completely eliminate this dependency for bzImage.
 > 
-> Additionally:
-> 
->    "If the requested timeout interval requires a finer granularity than
->    the implementation supports, the actual timeout interval shall be
->    rounded up to the next supported value."
-> 
-> Unfortunately, fixing the fencepost error places a hard lower limit of
-> 1/HZ on the time slept, and increases the average minimum sleep time
-> threefold, from 1/(2*HZ) jiffy to 3/(2*HZ).
 
-I'm inclined to live with the current behaviour rather than
-risk breaking existing apps.
+Okay, I have a patch which makes this stuff generated fully dynamically:
 
-> 
-> --- linux/fs/select.c	2004-02-20 14:29:11.000000000 -0500
-> +++ linux/fs/select.c	2004-02-20 14:30:18.326814232 -0500
-> @@ -313,8 +313,8 @@
->  		if (sec < 0 || usec < 0 || usec >= 1000000)
->  			goto out_nofds;
->  
-> -		if ((unsigned long) sec < (MAX_SCHEDULE_TIMEOUT-1) / HZ - 1) {
-> -			timeout = ROUND_UP(usec, 1000000/HZ);
-> +		if ((unsigned long) sec < (MAX_SCHEDULE_TIMEOUT-2) / HZ - 1) {
-> +			timeout = ROUND_UP(usec, 1000000/HZ) + 1;
->  			timeout += sec * (unsigned long) HZ;
->  		} else {
->  			timeout = MAX_SCHEDULE_TIMEOUT-1;
+	ftp://ftp.kernel.org/pub/linux/kernel/people/hpa/earlymem-1.diff
+
+Andries, if you test this out and it works I'll submit it to akpm.
+
+	-hpa

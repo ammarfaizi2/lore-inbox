@@ -1,80 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292289AbSCDJ2Z>; Mon, 4 Mar 2002 04:28:25 -0500
+	id <S292296AbSCDJki>; Mon, 4 Mar 2002 04:40:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292296AbSCDJ2Q>; Mon, 4 Mar 2002 04:28:16 -0500
-Received: from dsl-213-023-043-059.arcor-ip.net ([213.23.43.59]:14228 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S292289AbSCDJ2H>;
-	Mon, 4 Mar 2002 04:28:07 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Andrew Morton <akpm@zip.com.au>
-Subject: Re: [patch] delayed disk block allocation
-Date: Mon, 4 Mar 2002 10:23:29 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: lkml <linux-kernel@vger.kernel.org>, Steve Lord <lord@sgi.com>
-In-Reply-To: <3C7F3B4A.41DB7754@zip.com.au> <E16hhuI-0000S6-00@starship.berlin> <3C83202D.A9FFB902@zip.com.au>
-In-Reply-To: <3C83202D.A9FFB902@zip.com.au>
+	id <S292294AbSCDJk3>; Mon, 4 Mar 2002 04:40:29 -0500
+Received: from nydalah028.sn.umu.se ([130.239.118.227]:61331 "EHLO
+	x-files.giron.wox.org") by vger.kernel.org with ESMTP
+	id <S292296AbSCDJkV>; Mon, 4 Mar 2002 04:40:21 -0500
+Message-ID: <003d01c1c360$96194600$0201a8c0@homer>
+From: "Martin Eriksson" <nitrax@giron.wox.org>
+To: "Helge Hafting" <helgehaf@idb.hist.no>,
+        "Florian Weimer" <Weimer@CERT.Uni-Stuttgart.DE>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <1015028463.2276.231.camel@thanatos> <87bse7nz8g.fsf@CERT.Uni-Stuttgart.DE> <20020304083055.GB21138@hh.idb.hist.no>
+Subject: Re: SSSCA: We're in trouble now
+Date: Mon, 4 Mar 2002 10:40:14 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16hogr-0000ao-00@starship.berlin>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On March 4, 2002 08:20 am, Andrew Morton wrote:
-> You know where this is headed, don't you:
+----- Original Message -----
+From: "Helge Hafting" <helgehaf@idb.hist.no>
+To: "Florian Weimer" <Weimer@CERT.Uni-Stuttgart.DE>;
+<linux-kernel@vger.kernel.org>
+Sent: Monday, March 04, 2002 9:30 AM
+Subject: Re: SSSCA: We're in trouble now
 
-Yes I do, because it's more or less a carbon copy of what I had in mind.
 
-> - writeout is performed by the writers, and by the gang-of-flush-threads.
-> - kswapd is 100% non-blocking.  It never does I/O.
-> - kswapd is the only process which runs page_launder/shrink_caches.
-> - Memory requesters do not perform I/O.  They sleep until memory
->   is available. kswapd gives them pages as they become available, and
->   wakes them up.
-> 
-> So that's the grand plan.  It may be fatally flawed - I remember Linus
-> had a serious-sounding objection to it some time back, but I forget
-> what that was.
+> On Sat, Mar 02, 2002 at 09:35:43AM +0100, Florian Weimer wrote:
+> [...]
+> > That's not necessarily true.  Most people cannot circumvent even basic
+> > obstacles when it comes to computers, and both industry and
+> > legislative might be content with that.
+>
+> Don't be too sure about that.  If a "few" knows how to circumvent,
+> they'll release circumvention kits that anybody can use.
+>
+> Few people can use a new buffer overflow exploit, much
+> more can use a rootkit.
 
-I remember, since he gently roasted me last autum for thinking such thoughts. 
-The idea is that by making threads do their own vm scanning they throttle 
-themselves.  I don't think the resulting chaotic scanning behavior is worth 
-it.
+Well, even if those who uses a rootkit are many more than those who knows
+how to use a buffer exploit, that doesn't mean they represent more than 5%
+of all computer users.
 
-> > > With this patch, writepage() is still using the buffer layer, so lock
-> > > contention will still be high.
-> > 
-> > Right, and buffers are going away one way or another.
-> 
-> This is a problem.  I'm adding new stuff which does old things in
-> a new way, with no believable plan in place for getting rid of the
-> old stuff.
-> 
-> I don't think it's humanly possible to do away with struct buffer_head.
-> It is *the* way of representing a disk block.   And unless we plan
-> to live with 4k pages and 4k blocks for ever, the problem is about
-> to get worse.  Think 64k pages with 4k blocks.
+My stepfather just recently figured out that you can actually DRAG a window
+around the desktop. I don't think he will be using a rootkit in some time,
+and I am pretty sure he don't know anyting about SSSCA, nor will he, nor
+will he be able to understand if I told him.
 
-If struct page refers to an object the same size as a disk block then struct
-page can take the place of a buffer in the getblk interface.  For IO we have 
-other ways of doing things, kvecs, bio's and so on.  We don't need buffers 
-for that, the only thing we need them for is handles for disk blocks, and 
-locking thereof.
+(btw. I might very well be ~69.5% off topic now, as I missed some of the
+conversation)
 
-If you actually had this now your patch would be quite a lot simpler.  It's 
-going to take a while though, because first we have to do active physical 
-defragmentation, and that requires rmap.  So a prototype is a few months away 
-at least, but six months ago I would have said two years.
+ _____________________________________________________
+|  Martin Eriksson <nitrax@giron.wox.org>
+|  MSc CSE student, department of Computing Science
+|  Umeå University, Sweden
 
-> Possibly we could handle sub-page segments of memory via a per-page up-to-date
-> bitmask.  And then a `dirty' bitmask.  And then a `locked' bitmask, etc.  I
-> suspect eventually we'll end up with, say, a vector of structures attached to
-> each page which represents the state of each of the page's sub-segments.  whoops.
-
-You could, but that would be a lot messier than what I have in mind.  Your 
-work fits really nicely with that since it gets rid of the IO function of 
-buffers.
-
--- 
-Daniel

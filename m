@@ -1,67 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129091AbRBLXRr>; Mon, 12 Feb 2001 18:17:47 -0500
+	id <S129175AbRBLXRX>; Mon, 12 Feb 2001 18:17:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129154AbRBLXRd>; Mon, 12 Feb 2001 18:17:33 -0500
-Received: from thebsh.namesys.com ([212.16.0.238]:57607 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S129075AbRBLXRX>; Mon, 12 Feb 2001 18:17:23 -0500
-Message-ID: <3A88675D.47C58360@namesys.com>
-Date: Tue, 13 Feb 2001 01:44:45 +0300
-From: Hans Reiser <reiser@namesys.com>
-Organization: Namesys
-X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.14 i686)
-X-Accept-Language: en, ru
+	id <S129154AbRBLXRM>; Mon, 12 Feb 2001 18:17:12 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:2822 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129075AbRBLXQ7>; Mon, 12 Feb 2001 18:16:59 -0500
+Subject: Re: LILO and serial speeds over 9600
+To: Werner.Almesberger@epfl.ch (Werner Almesberger)
+Date: Mon, 12 Feb 2001 23:16:29 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), hpa@transmeta.com (H. Peter Anvin),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20010213001123.D17129@almesberger.net> from "Werner Almesberger" at Feb 13, 2001 12:11:23 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: Chris Mason <mason@suse.com>
-CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>,
-        Alexander Zarochentcev <zam@namesys.com>
-Subject: Re: [reiserfs-list] Re: Apparent instability of reiserfs on 2.4.1
-In-Reply-To: <386960000.982019012@tiny>
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14SSCt-0008RR-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Mason wrote:
+> > Explain 'controlled buffer overrun'.
 > 
-> On Monday, February 12, 2001 11:42:38 PM +0300 Hans Reiser
-> <reiser@namesys.com> wrote:
-> 
-> >> Chris,
-> >>
-> >> Do you know if the people reporting the corruption with reiserfs on
-> >> 2.4 were using IDE drives with PIO mode and IDE multicount turned on?
-> >>
-> >> If so, it may be caused by the problem fixed by Russell King on
-> >> 2.4.2-pre2.
-> >>
-> >> Without his fix, I was able to corrupt ext2 while using PIO+multicount
-> >> very very easily.
-> >
-> 
-> I suspect the bugfixes in pre2 will fix some of the more exotic corruption
-> reports we've seen, but this one (nulls in log files) probably isn't caused
-> by a random (or semi-random) lower layer corruption.  These users are not
-> seeing random metadata corruption, so I suspect this bug is different (and
-> reiserfs specific).
-> 
-> > Was the bug you describe also present in the 2.2.* series?  If not, then
-> > the bugs are not the same.
-> >
-> 
-> In 2.2 code the only data file corruption I know if is caused by a crash....
-> 
-> -chris
+> That's probably the ability to send new data even if there's unacked old
+> data (e.g. because the receiver can't keep up or because we've had losses).
 
-I'd like to announce on our website and mailing list that all  XXX users should
-upgrade to 2.4.2pre2.  Do you all agree with this?
+Well let me see, the typical window on the other end of the connection if
+its a normal PC class host will be 32K. I think that should be sufficient.
 
-What is the exact definition of XXX?
 
-Hans
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

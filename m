@@ -1,63 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262743AbUDAHfb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 02:35:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262758AbUDAHfb
+	id S262753AbUDAIBU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 03:01:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262768AbUDAIBU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 02:35:31 -0500
-Received: from relay.inway.cz ([212.24.128.3]:53208 "EHLO relay.inway.cz")
-	by vger.kernel.org with ESMTP id S262743AbUDAHfY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 02:35:24 -0500
-Message-ID: <406BC632.8030904@scssoft.com>
-Date: Thu, 01 Apr 2004 09:35:14 +0200
-From: Petr Sebor <petr@scssoft.com>
-Organization: SCS Software
-User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
+	Thu, 1 Apr 2004 03:01:20 -0500
+Received: from mta5.adelphia.net ([68.168.78.187]:47091 "EHLO
+	mta5.adelphia.net") by vger.kernel.org with ESMTP id S262753AbUDAIBT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 03:01:19 -0500
+Message-ID: <406BC690.2080803@adelphia.net>
+Date: Thu, 01 Apr 2004 02:36:48 -0500
+From: Cory Tusar <ctusar@adelphia.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Jarno Paananen <jpaana@s2.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: [sata] libata update
-References: <4064E691.2070009@pobox.com> <4069FBC3.2080104@scssoft.com>	<406A8035.2080108@pobox.com> <406AB08C.1040907@scssoft.com>	<406AF66B.1030205@pobox.com> <m3n05xgcf0.fsf@kalahari.s2.org> <406B3244.4060708@pobox.com>
-In-Reply-To: <406B3244.4060708@pobox.com>
-X-Enigmail-Version: 0.83.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigA684E5C4529A9903C2FAA796"
+To: Albert Cahalan <albert@users.sf.net>
+CC: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] multiple namespaces
+References: <1080800087.1490.14.camel@cube>
+In-Reply-To: <1080800087.1490.14.camel@cube>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigA684E5C4529A9903C2FAA796
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Albert Cahalan wrote:
+> +/* drive letter support */
+> +#define PR_GET_DRIVE 42     /* get the current drive */
+> +#define PR_SET_DRIVE 69     /* set the current drive */
+> +#define PR_SUBST_CREATE 666   /* associate a drive letter with something */
+> +#define PR_SUBST_DESTROY 20040401   /* kill a drive letter */
 
-Jeff Garzik wrote:
+My bogometer just twitched...
 
-> cool, that's the patch I'm going with.
->
->     Jeff
-
-yup, works for me as well... thanks!
-
-Petr
-
-
-
---------------enigA684E5C4529A9903C2FAA796
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (MingW32)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFAa8Y2ir6eWjmOQ6cRAsgPAJ415CToFDUbuDLfqah1lMHpADJHzgCfZzoL
-imnBLF1KA9c5H8zzBIlPgjc=
-=UNdD
------END PGP SIGNATURE-----
-
---------------enigA684E5C4529A9903C2FAA796--

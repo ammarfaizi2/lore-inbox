@@ -1,30 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265364AbRFVS0c>; Fri, 22 Jun 2001 14:26:32 -0400
+	id <S265055AbRFVSmO>; Fri, 22 Jun 2001 14:42:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265408AbRFVS0W>; Fri, 22 Jun 2001 14:26:22 -0400
-Received: from calhoun.ci.minneapolis.mn.us ([170.159.4.8]:36484 "EHLO
-	calhoun.ci.minneapolis.mn.us") by vger.kernel.org with ESMTP
-	id <S265364AbRFVS0E>; Fri, 22 Jun 2001 14:26:04 -0400
-Message-ID: <8672A0FE7478D311B75300805FA7F84E45BCD0@200cidtc.ci.minneapolis.mn.us>
-From: "Comfort, Dan  W" <Dan.Comfort@ci.minneapolis.mn.us>
-To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: RE: For comment: draft BIOS use document for the kernel
-Date: Fri, 22 Jun 2001 13:25:42 -0500
+	id <S265034AbRFVSmE>; Fri, 22 Jun 2001 14:42:04 -0400
+Received: from [200.24.109.130] ([200.24.109.130]:59149 "EHLO
+	earth.cj.osso.org.co") by vger.kernel.org with ESMTP
+	id <S265055AbRFVSl4>; Fri, 22 Jun 2001 14:41:56 -0400
+Message-ID: <3B3390F8.AC4B0F4E@osso.org.co>
+Date: Fri, 22 Jun 2001 13:39:52 -0500
+From: "Jhon H. Caicedo O." <jhcaiced@osso.org.co>
+Organization: O.S.S.O
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: linux-kernel@vget.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: AMD756 PCI IRQ Routing Patch 0.2.0
+In-Reply-To: <3B3343E6.122965AC@osso.org.co> <3B338E4E.D1FDD74D@mandrakesoft.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Mozilla-Status: 0000
+X-Mozilla-Status2: 00000000
+X-UIDL: 3ada3da400000eae
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Typo?
+Hi,
 
-> If the E820 call fails then the INT 15 AX=0xE801 service is called and the
-> results are sanity checked. In particular the code zeroes the CX/DX return
+Jeff Garzik wrote:
+> None of the other PCI IRQ routines print out IRQ routing messages, so
+> these shouldn't either.  I assume this is debugging code?
+
+Yes, the printks are only for debug and surely will be removed 
+after some tests of the patch.
 > 
-> values in order to detect BIOS implementations that do not set them 
-> usable memory data. It also handles older BIOSes that return AX/BX but not
-> AX/BX data.
-> 
-> 
-	  /set them usable/set the usable/ 
+> Further, the printks are potentially misleading, because pirq_amd756_get
+> might not receive a valid irq, if 'pirq' is greater than 4.
+
+With pirq > 4 pirq_amd756_get should return 0, i left the
+printk just to see if this happens in some test.
+
+In the original 2.4.5 kernel (without patch), I get irq=0 for pirq=4
+and that was the cause of the error with a SMC Lucent CardBus Bridge.
+
+Thanks,
+--
+Jhon H. Caicedo O. <jhcaiced@osso.org.co>
+Observatorio Sismológico del SurOccidente O.S.S.O
+http://www.osso.org.co
+Cali - Colombia
+

@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261629AbULPQFW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261438AbULPQKT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261629AbULPQFW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 11:05:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261767AbULPQFW
+	id S261438AbULPQKT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 11:10:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbULPQKS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 11:05:22 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:16789 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261629AbULPQEF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 11:04:05 -0500
-Date: Thu, 16 Dec 2004 17:03:55 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Michelle Konzack <linux4michelle@freenet.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 3TB disk hassles
-In-Reply-To: <20041216155216.GA3854@freenet.de>
-Message-ID: <Pine.LNX.4.61.0412161703290.30336@yvahk01.tjqt.qr>
-References: <20041216145229.29167.qmail@web26502.mail.ukl.yahoo.com>
- <200412161537.02804.m.watts@eris.qinetiq.com> <20041216155216.GA3854@freenet.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 16 Dec 2004 11:10:18 -0500
+Received: from [213.146.154.40] ([213.146.154.40]:12989 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261438AbULPQIW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 11:08:22 -0500
+Date: Thu, 16 Dec 2004 16:08:11 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>, mingo@elte.hu,
+       rlrevell@joe-job.com, tiwai@suse.de, linux-kernel@vger.kernel.org,
+       pavel@suse.cz, discuss@x86-64.org, gordon.jin@intel.com,
+       alsa-devel@lists.sourceforge.net, greg@kroah.com
+Subject: Re: [PATCH] unregister_ioctl32_conversion and modules. ioctl32 revisited.
+Message-ID: <20041216160811.GA9641@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Michael S. Tsirkin" <mst@mellanox.co.il>,
+	Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+	mingo@elte.hu, rlrevell@joe-job.com, tiwai@suse.de,
+	linux-kernel@vger.kernel.org, pavel@suse.cz, discuss@x86-64.org,
+	gordon.jin@intel.com, alsa-devel@lists.sourceforge.net,
+	greg@kroah.com
+References: <20041215065650.GM27225@wotan.suse.de> <20041217014345.GA11926@mellanox.co.il>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041217014345.GA11926@mellanox.co.il>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Are you sure your card supports creating a single volume in excess of
->> 2TB? 
->> Some cards have such a limit, although you can create many 2TB volumes
->> on the 
->> same card.
->
->You can have 4 TByte on one 12-Channel Card,
->but in two Arrays of 6 HDD's   :-)
+> +	long (*ioctl_native) (struct inode *, struct file *, unsigned int,
+> +			unsigned long);
+> +	long (*ioctl_compat) (struct inode *, struct file *, unsigned int,
+> +			unsigned long);
 
-Maybe some LVM trickery can aggregate ungrowable hardware raids together to a 
-single block device.
+Please remove the struct inode * argument, it's easily retrievable
+from file->f_dentry->d_inode.  The ioctl prototype is a leftover from
+really old days where that wasn't true.
 
-
-
-Jan Engelhardt
--- 
-ENOSPC

@@ -1,81 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267395AbUHDT3F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267390AbUHDTc2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267395AbUHDT3F (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 15:29:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267390AbUHDT1n
+	id S267390AbUHDTc2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 15:32:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267388AbUHDTc1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 15:27:43 -0400
-Received: from irulan.endorphin.org ([212.13.208.107]:33555 "EHLO
-	irulan.endorphin.org") by vger.kernel.org with ESMTP
-	id S267398AbUHDT06 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 15:26:58 -0400
-Subject: Re: Linux 2.6.8-rc3 - BSD licensing
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: James Morris <jmorris@redhat.com>,
-       Jari Ruusu <jariruusu@users.sourceforge.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.58.0408041146070.24588@ppc970.osdl.org>
-References: <Xine.LNX.4.44.0408041156310.9291-100000@dhcp83-76.boston.redhat.com>
-	<1091644663.21675.51.camel@ghanima>
-	<Pine.LNX.4.58.0408041146070.24588@ppc970.osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature";
-	boundary="=-qayUcKEJQ16dTfNn8waE"
-Message-Id: <1091647612.24215.12.camel@ghanima>
+	Wed, 4 Aug 2004 15:32:27 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:42449 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S267390AbUHDTaH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 15:30:07 -0400
+Date: Fri, 6 Aug 2004 00:57:56 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+Cc: ak@suse.de, maneesh@in.ibm.com, shemminger@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] Improve readability by hiding read_barrier_depends() calls
+Message-ID: <20040805192756.GE3935@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20040804142845.GB1865@us.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 04 Aug 2004 21:26:52 +0200
-From: Fruhwirth Clemens <clemens-dated-1092511613.8d37@endorphin.org>
-X-Delivery-Agent: TMDA/0.92 (Kauai King)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040804142845.GB1865@us.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Aug 04, 2004 at 07:28:46AM -0700, Paul E. McKenney wrote:
+> Hello!
+> 
+> Updated based on feedback, and merged forward to 2.6.8-rc3.
+> 
+> This patch introduced an rcu_dereference() macro that replaces most
+> uses of smp_read_barrier_depends().  The new macro has the advantage
+> of explicitly documenting which pointers are protected by RCU -- in
+> contrast, it is sometimes difficult to figure out which pointer is
+> being protected by a given smp_read_barrier_depends() call.
+> 
 
---=-qayUcKEJQ16dTfNn8waE
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I have a series of 3 patches in my stack that applies on existing
+3 RCU patches in -mm2 -
 
-On Wed, 2004-08-04 at 20:51, Linus Torvalds wrote:
-> On Wed, 4 Aug 2004, Fruhwirth Clemens wrote:
-> >=20
-> > As a matter of principle I do not add additional restrictions as respec=
-t
-> > for the original author's efforts. But James, David or Linus might do
-> > that, and by accident choose these additional restrictions to be like
-> > those of the GPL. I would understand such action as I'd would like to
-> > see that every kernel code is protected by the GPL.
->=20
-> That's not actually what we did. I refused the code originally because I
-> didn't feel that Gladman's license was a proper subset of the GPL.=20
+rcu-code-cleanup : Major cleanup removing per_cpu() calculations and use				pointers to RCU global and per-cpu data.
 
-I don't view the FSF as sort of last instance, but just for the
-protocol: The exact wording of this license is labeled 'GPL-compatible'
-by the FSF. Imho, this makes it a subset.
+call-rcu-bh : Introduce call_rcu_bh() for faster grace periods with
+		softirq-only code.
 
-> I only accepted it after dual-licensing under the GPL had been ok'd by Dr=
- Brian
-> Gladman himself.
+use-call-rcu-bh : use call_rcu_bh in ipv4 route cache. This helps avoid
+  			dst cache overflows during DoS testing [as
+			explained in my OLS presentation ]
 
-Additional coding, no problem, but additional social work, I'd prefer
-not to be involved with. As there is no legal requirement, such efforts
-would just make a good appearance. But, hey, if someone volunteers to
-sort out these problems, my modifications to aes-i586.S can be
-relicensed under the GPL anytime, no problem.
+It will be easier to stick the two patches from Paul on top of these,
+so I will merge these with my patchset and send the entire set
+of 5 patches for -mm testing.
 
---=20
-Fruhwirth Clemens <clemens@endorphin.org>  http://clemens.endorphin.org
-
---=-qayUcKEJQ16dTfNn8waE
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBETh8W7sr9DEJLk4RApYPAKCIm0wjVnYDbPuc6srVcFqIrIv/7ACeI37Y
-16ogtxk4LdLEpT5De6xrDCs=
-=Ejki
------END PGP SIGNATURE-----
-
---=-qayUcKEJQ16dTfNn8waE--
+Thanks
+Dipankar

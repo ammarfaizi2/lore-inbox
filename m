@@ -1,79 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267646AbUHELcf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267562AbUHELnT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267646AbUHELcf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 07:32:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267648AbUHELcf
+	id S267562AbUHELnT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 07:43:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267648AbUHELnS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 07:32:35 -0400
-Received: from web50802.mail.yahoo.com ([206.190.38.111]:54457 "HELO
-	web50802.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S267646AbUHELcc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 07:32:32 -0400
-Message-ID: <20040805113228.51997.qmail@web50802.mail.yahoo.com>
-Date: Thu, 5 Aug 2004 04:32:28 -0700 (PDT)
-From: mr <jkerdawn@yahoo.com>
-Subject: using isa - performance degrade?
+	Thu, 5 Aug 2004 07:43:18 -0400
+Received: from mail.math.TU-Berlin.DE ([130.149.12.212]:46075 "EHLO
+	mail.math.TU-Berlin.DE") by vger.kernel.org with ESMTP
+	id S267562AbUHELnQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 07:43:16 -0400
+From: Thomas Richter <thor@math.TU-Berlin.DE>
+Message-Id: <200408051143.NAA23740@cleopatra.math.tu-berlin.de>
+Subject: [PATCH] NetMOS 9805 ParPort interface
 To: linux-kernel@vger.kernel.org
+Date: Thu, 5 Aug 2004 13:43:13 +0200 (CEST)
+X-Mailer: ELM [version 2.4ME+ PL100 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all
 
-i'm running 2.4.26 (debian) with sd's attached to an
-ncr53c8xx-scsi controller. since the sys is a p133
-(the machine acts as a router/gw and knfs) performance
-isn't all the matters...but i was wondering..
+Hi folks,
 
-if i would plug the vga-card to an isa slot(now
-unused& not compiled), one pci would get free to hold
-an AHA-2940 scsi controller, so i could split disks
-over the two scsihosts & add a few more. 
-will the additional use of the isa-bus give me a
-performance impact?
+here's a tiny patch against parport/parport_pc.c for kernel 2.4.26.
+It adds support for the NetMOS 9805 chip, used in several popular
+parallel port extension cards available here in germany. The patch below
+has been found working in a beige G3 Mac and a Canon BJC just fine.
 
-sym0: <810> rev 0x2 on pci bus 0 device 12 function 0
-irq 10
-  Vendor: IBM       Model: DNES-309170       Rev: SA30
-  ANSI SCSI revision: 03
-  Vendor: QUANTUM   Model: FIREBALL1080S     Rev: 1Q09
-  ANSI SCSI revision: 02
-  Vendor: QUANTUM   Model: VP32210           Rev: 81H8
-  ANSI SCSI revision: 02
-  Vendor: IBM       Model: DDRS-34560        Rev: S97B
-  ANSI SCSI revision: 02
-another DDRS-34560...cdroms...
+--- parport_pc_old.c	Wed Jul 28 10:26:23 2004
++++ parport_pc.c	Wed Jul 28 10:28:16 2004
+@@ -2692,6 +2692,7 @@
+ 	syba_2p_epp,
+ 	syba_1p_ecp,
+ 	titan_010l,
++	titan_1284p1,
+ 	titan_1284p2,
+ 	avlab_1p,
+ 	avlab_2p,
+@@ -2759,6 +2760,7 @@
+ 	/* syba_2p_epp AP138B */	{ 2, { { 0, 0x078 }, { 0, 0x178 }, } },
+ 	/* syba_1p_ecp W83787 */	{ 1, { { 0, 0x078 }, } },
+ 	/* titan_010l */		{ 1, { { 3, -1 }, } },
++	/* titan_1284p1 */              { 1, { { 0, 1 }, } },
+ 	/* titan_1284p2 */		{ 2, { { 0, 1 }, { 2, 3 }, } },
+ 	/* avlab_1p		*/	{ 1, { { 0, 1}, } },
+ 	/* avlab_2p		*/	{ 2, { { 0, 1}, { 2, 3 },} },
+@@ -2826,6 +2828,7 @@
+ 	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, syba_1p_ecp },
+ 	{ PCI_VENDOR_ID_TITAN, PCI_DEVICE_ID_TITAN_010L,
+ 	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, titan_010l },
++	{ 0x9710, 0x9805, 0x1000, 0x0010, 0, 0, titan_1284p1 },
+ 	{ 0x9710, 0x9815, 0x1000, 0x0020, 0, 0, titan_1284p2 },
+ 	/* PCI_VENDOR_ID_AVLAB/Intek21 has another bunch of cards ...*/
+ 	{ 0x14db, 0x2120, PCI_ANY_ID, PCI_ANY_ID, 0, 0, avlab_1p}, /* AFAVLAB_TK9902 */
 
-i won't have a problem with pci-throughput. afaik,
-with 33MHz-pci it shouldn't be a problem to get data
-from queries over the bus - those are not quite fast
-disks (hdparm -t 4,4MBs-fireball, 5,2MBs-VP,
->8MBs-IBMs). since i also heard about poor performance
-of the adaptec-2940, will it be wise to use the second
-adapter?
+The same patch should also apply to more modern kernels since it just adds
+some PCI ids.
 
-another issue i'm poring about is using tagged command
-queueing(VP) / linked commands(fireball) on two disks
-holding a cache for squid on a reiserfs + swaps. will
-it improve performance or is the elevator/schedular
-enough? i know how to set command queueing at bootup
-but i'm clueless if there is a programm (scsi-tools?
-do i need sg?) to set various other options for the
-drives/host?
+Similar patches for other NetMOS products might be easy since they're all
+documented; I could add a couple of PCI Ids to the parport_pc - I just don't
+have the hardware for testing.
 
-please cc to jkerdawn<at>yahoo.com 
--i've been on the list for a while, but the
-traffic..=(
+So long,
+	Thomas
 
-thanks a lot & regards
-
-ritch.
-
-
-	
-		
-__________________________________
-Do you Yahoo!?
-New and Improved Yahoo! Mail - 100MB free storage!
-http://promotions.yahoo.com/new_mail 

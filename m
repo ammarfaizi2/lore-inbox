@@ -1,76 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265962AbUGTRZQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266034AbUGTR2z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265962AbUGTRZQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 13:25:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266034AbUGTRZQ
+	id S266034AbUGTR2z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 13:28:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266063AbUGTR2z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 13:25:16 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:4047 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S265962AbUGTRZJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 13:25:09 -0400
-Subject: Re: [PATCH][2.6.8-rc2] Fix JFFS2_COMPRESSION_OPTIONS in Kconfig
-From: David Woodhouse <dwmw2@infradead.org>
-To: torvalds@osdl.org, akpm@osdl.org, kronos@kronoz.cjb.net
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040719154145.GA5429@dreamland.darkstar.lan>
-References: <20040719154145.GA5429@dreamland.darkstar.lan>
-Content-Type: text/plain
-Date: Tue, 20 Jul 2004 13:24:59 -0400
-Message-Id: <1090344299.4189.3.camel@localhost.localdomain>
+	Tue, 20 Jul 2004 13:28:55 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:25950 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S266049AbUGTR22
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jul 2004 13:28:28 -0400
+Date: Tue, 20 Jul 2004 21:28:58 +0200
+From: sam@ravnborg.org
+To: Pavel Machek <pavel@suse.cz>
+Cc: Patrick Mochel <mochel@digitalimplant.org>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@zip.com.au>
+Subject: Re: [0/25] Merge pmdisk and swsusp
+Message-ID: <20040720192858.GB9147@mars.ravnborg.org>
+Mail-Followup-To: Pavel Machek <pavel@suse.cz>,
+	Patrick Mochel <mochel@digitalimplant.org>,
+	linux-kernel@vger.kernel.org, Andrew Morton <akpm@zip.com.au>
+References: <Pine.LNX.4.50.0407171449200.28258-100000@monsoon.he.net> <20040720164640.GH10921@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.8 (1.5.8-3.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040720164640.GH10921@atrey.karlin.mff.cuni.cz>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-07-19 at 17:41 +0200, Kronos wrote:
-> Hi,
-> It seems to me that JFFS2_COMPRESSION_OPTIONS depends on JFFS2_FS:
+On Tue, Jul 20, 2004 at 06:46:40PM +0200, Pavel Machek wrote:
+> Hi!
+> 
+> > In the end, these patches remove pmdisk from the kernel and clean up the
+> > swsusp code base. The result is a single code base with greatly improved
+> > code, that will hopefully help others underestand it better.
+> 
+> Followup patch:
+> 
+> * if machine halt fails, it is very dangerous to continue.
+> 
+> diff -ur linux.middle/kernel/power/disk.c linux/kernel/power/disk.c
+> --- linux.middle/kernel/power/disk.c	2004-07-19 08:58:08.000000000 -0700
+> +++ linux/kernel/power/disk.c	2004-07-19 15:00:16.000000000 -0700
+> @@ -63,6 +63,9 @@
+>  		break;
+>  	}
+>  	machine_halt();
+> +	/* Valid image is on the disk, if we continue we risk serious data corruption
+> +	   after resume. */
+> +	while(1);
 
-Indeed it does.
+Would be nicer to use:
 
-Linus/Andrew, please pull from bk://linux-mtd.bkbits.net/mtd-2.6. 
+	while(1)
+		/* Loop forever */;
 
-It has Kronos' fix and a couple more from Adrian Bunk, and it also marks
-the JFFS2 support for NAND flash as no longer being experimental.
-
-ChangeSet@1.1852, 2004-07-20 12:42:36-04:00, dwmw2@shinybook.infradead.org +1 -0
-  NAND support in JFFS2 isn't experimental any more.
- 
-ChangeSet@1.1851, 2004-07-20 12:40:06-04:00, kronos@kronoz.cjb.net +1 -0
-  Fix JFFS2_COMPRESSION_OPTIONS in Kconfig
-   
-  Hi,
-  It seems to me that JFFS2_COMPRESSION_OPTIONS depends on JFFS2_FS:
-   
-  Signed-off-by: David Woodhouse <dwmw2@infradead.org>
- 
-ChangeSet@1.1850, 2004-07-20 12:37:20-04:00, bunk@fs.tum.de +1 -0
-  MAINTAINERS: update MTD list
-   
-  Trying to send an email to mtd@infradead.org gives you the answer that
-  you should use linux-mtd@lists.infradead.org instead.
-   
-  So let's update the entry in MAINTAINERS.
-   
-  Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-  Signed-off-by: David Woodhouse <dwmw2@infradead.org>
- 
-ChangeSet@1.1849, 2004-07-20 12:35:52-04:00, bunk@fs.tum.de +5 -0
-  MTD: remove some kernel 2.0 and 2.2 #ifdef's
-   
-  The patch below (applies against 2.6.8-rc2) removes some #ifdef's for
-  kernel 2.0 and 2.2 from the MTD code.
-   
-  Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-  Signed-off-by: David Woodhouse <dwmw2@infradead.org>
- 
-
-
--- 
-dwmw2
-
+	Sam

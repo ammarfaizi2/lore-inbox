@@ -1,33 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265648AbRF1M1l>; Thu, 28 Jun 2001 08:27:41 -0400
+	id <S265653AbRF1MbL>; Thu, 28 Jun 2001 08:31:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265653AbRF1M1b>; Thu, 28 Jun 2001 08:27:31 -0400
-Received: from cr626425-a.bloor1.on.wave.home.com ([24.156.35.8]:55306 "EHLO
-	spqr.damncats.org") by vger.kernel.org with ESMTP
-	id <S265648AbRF1M1U>; Thu, 28 Jun 2001 08:27:20 -0400
-Message-ID: <3B3B22A5.4F6BD1C1@damncats.org>
-Date: Thu, 28 Jun 2001 08:27:17 -0400
-From: John Cavan <johnc@damncats.org>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.5-ac18 i686)
-X-Accept-Language: en
+	id <S265655AbRF1MbB>; Thu, 28 Jun 2001 08:31:01 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:47115 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S265653AbRF1Maw>; Thu, 28 Jun 2001 08:30:52 -0400
+Subject: Re: VM Requirement Document - v0.0
+To: mike_phillips@urscorp.com
+Date: Thu, 28 Jun 2001 13:30:44 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <OF95A43E53.39291B42-ON84256A79.003D421D@urscorp.com> from "mike_phillips@urscorp.com" at Jun 28, 2001 09:20:09 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: "J. Nick Koston" <nick@burst.net>, linux-kernel@vger.kernel.org
-Subject: Re: Asus CUV4X-DLS
-In-Reply-To: <20010627215304.D28795@burst.net> <3B3AA1DE.E4419FA8@damncats.org> <20010627233541.A32271@burst.net> <3B3B1F91.FBBFB588@damncats.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15FawW-0006qI-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Cavan wrote:
-> I have an AIC7xxxx based SCSI card in my machine as well, hooked up to a
-> Jaz. I haven't actually used it in ages, but I'll test it to see of the
-> problem is apparent on CUV4X-D board as well.
+> This would be extremely useful. My laptop has 256mb of ram, but every day 
+> it runs the updatedb for locate. This fills the memory with the file 
+> cache. Interactivity is then terrible, and swap is unnecessarily used. On 
+> the laptop all this hard drive thrashing is bad news for battery life 
 
-First, I copied 640 Mb file to the jaz disk, no problem. Then I ran the
-same commands you did, also no problem...
+That isnt really down to labelling pages, what you are talking qbout is what
+you get for free when page aging works right (eg 2.0.39) but don't get in
+2.2 - and don't yet (although its coming) quite get right in 2.4.6pre.
 
-That would imply, at least, that the SCSI drivers are not at fault here.
 
-John

@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264058AbTJ1Rcg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 12:32:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264059AbTJ1Rcf
+	id S263640AbTJ1R0f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 12:26:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264024AbTJ1R0f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 12:32:35 -0500
-Received: from mail.euroweb.hu ([193.226.220.4]:40577 "HELO mail.euroweb.hu")
-	by vger.kernel.org with SMTP id S264058AbTJ1Rcd (ORCPT
+	Tue, 28 Oct 2003 12:26:35 -0500
+Received: from gprs192-228.eurotel.cz ([160.218.192.228]:57219 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S263640AbTJ1R0e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 12:32:33 -0500
-Message-ID: <000b01c39d79$6a187fe0$0100000a@Biocalderoni.hu>
-From: "Szucs Arpad" <giraffe@danubian.hu>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] netmos 9845 4 serial + 1 parallel port pci card
-Date: Tue, 28 Oct 2003 18:32:09 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2720.3000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	Tue, 28 Oct 2003 12:26:34 -0500
+Date: Tue, 28 Oct 2003 18:26:19 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Valdis.Kletnieks@vt.edu
+Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Patrick Mochel <mochel@osdl.org>, George Anzinger <george@mvista.com>,
+       John stultz <johnstul@us.ibm.com>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [pm] fix time after suspend-to-*
+Message-ID: <20031028172618.GA2307@elf.ucw.cz>
+References: <Pine.LNX.4.44.0310271535160.13116-100000@cherise> <1067329994.861.3.camel@teapot.felipe-alfaro.com> <20031028093233.GA1253@elf.ucw.cz> <200310281521.h9SFLQxF024354@turing-police.cc.vt.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200310281521.h9SFLQxF024354@turing-police.cc.vt.edu>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I tested it on kernel 2.4.20. If anyone else has this card and tests it I
-would like to hear about it.
+Hi!
 
-Changes parport_serial.c and pci_ids.h.
+> > Not sure... We do not want applications to know. Certainly we can't
+> > send a signal; SIGPWR already has some meaning and it would be bad to
+> > override it.
+> 
+> You are correct that SIGPWR already has an assigned semantic.
+> 
+> However, I'm not convinced that we don't want applications to know.
+> Others have mentioned timeouts of network connections, and there's other
+> issues as well - for instance, on my laptop, it is almost guaranteed (due to my
+> work habits) that if I were to suspend it, when it wakes up the network
+> configuration would be *wrong*.  It's possible to intuit what the right
+> config is by looking at the number of ethernets and their link state, but
+> that requires a wakeup of *something* in userspace - blindly going on
+> as if nothing happened simply won't work.
+> 
+> Would having a pair of 'sleep/wakeup' calls in /etc/inittab (similar to the
+> powerfail/powerok pair) be a solution here?  
 
-Todo: tell the difference between 6 ports serial and 4 ports serial and 1
-parallel or other variants. If anyone has suggestions please send them to my
-e-mail address
+Patrick has a patch to send event down using "hotplug" system.
 
-http://vnet.hu/ipeb/netmos-9735-9835-9845-2.4.20-22.patch.gz
-
-send comments to giraffe@danubian.hu
-
-
-Arpad Szucs
-
+									Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

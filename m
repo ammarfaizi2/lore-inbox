@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286340AbRLJSRs>; Mon, 10 Dec 2001 13:17:48 -0500
+	id <S286346AbRLJST2>; Mon, 10 Dec 2001 13:19:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286341AbRLJSRj>; Mon, 10 Dec 2001 13:17:39 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:60426 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S286340AbRLJSRc>; Mon, 10 Dec 2001 13:17:32 -0500
+	id <S286347AbRLJSTT>; Mon, 10 Dec 2001 13:19:19 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:46866 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S286341AbRLJSSS>; Mon, 10 Dec 2001 13:18:18 -0500
+Date: Mon, 10 Dec 2001 16:17:56 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: <volodya@mindspring.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
 Subject: Re: mm question
-To: volodya@mindspring.com
-Date: Mon, 10 Dec 2001 18:26:35 +0000 (GMT)
-Cc: riel@conectiva.com.br (Rik van Riel), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.20.0112101307360.18115-100000@node2.localnet.net> from "volodya@mindspring.com" at Dec 10, 2001 01:08:17 PM
-X-Mailer: ELM [version 2.5 PL6]
+In-Reply-To: <Pine.LNX.4.20.0112101307360.18115-100000@node2.localnet.net>
+Message-ID: <Pine.LNX.4.33L.0112101617300.4755-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16DV8N-0002vK-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > This makes it rather hard to go around trying to free pages
-> > within a certain physical range.
-> 
-> Well, what does kernel do when it runs out of memory ? For example when I
-> mmap a large file and start reading it back and force ?
+On Mon, 10 Dec 2001 volodya@mindspring.com wrote:
+> On Mon, 10 Dec 2001, Rik van Riel wrote:
 
-It doesn't care which physical page it gets. Processes being freeing
-up/swapping pages they have mappings to. The map counts hit zero and the 
-page is discarded.
+> > Even if you have a handle on a physical page, you don't know
+> > what processes are using the page, nor if there are additional
+> > users besides the processes.
+>
+> Well, what does kernel do when it runs out of memory ? For example
+> when I mmap a large file and start reading it back and force ?
 
-Alan
+For the full horror, see mm/vmscan.c, do_try_to_free_memory()
+
+cheers,
+
+Rik
+-- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

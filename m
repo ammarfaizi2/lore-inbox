@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311939AbSCOFtO>; Fri, 15 Mar 2002 00:49:14 -0500
+	id <S311935AbSCOGIu>; Fri, 15 Mar 2002 01:08:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311940AbSCOFsx>; Fri, 15 Mar 2002 00:48:53 -0500
-Received: from [202.135.142.196] ([202.135.142.196]:45831 "EHLO
-	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S311939AbSCOFst>; Fri, 15 Mar 2002 00:48:49 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: davidm@hpl.hp.com
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, rth@twiddle.net
-Subject: Re: [PATCH] 2.5.1-pre5: per-cpu areas 
-In-Reply-To: Your message of "Thu, 14 Mar 2002 20:19:21 -0800."
-             <15505.30281.414005.400815@napali.hpl.hp.com> 
-Date: Fri, 15 Mar 2002 16:52:01 +1100
-Message-Id: <E16lkdG-0001kx-00@wagner.rustcorp.com.au>
+	id <S311936AbSCOGIk>; Fri, 15 Mar 2002 01:08:40 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53766 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S311935AbSCOGIa>;
+	Fri, 15 Mar 2002 01:08:30 -0500
+Date: Fri, 15 Mar 2002 06:08:29 +0000
+From: Joel Becker <jlbec@evilplan.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: frankeh@watson.ibm.com, matthew@hairy.beasts.org,
+        linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: Re: [PATCH] Re: futex and timeouts
+Message-ID: <20020315060829.L4836@parcelfarce.linux.theplanet.co.uk>
+Mail-Followup-To: Joel Becker <jlbec@evilplan.org>,
+	Rusty Russell <rusty@rustcorp.com.au>, frankeh@watson.ibm.com,
+	matthew@hairy.beasts.org, linux-kernel@vger.kernel.org,
+	lse-tech@lists.sourceforge.net
+In-Reply-To: <20020314151846.EDCBF3FE07@smtp.linux.ibm.com> <E16lkRS-0001HN-00@wagner.rustcorp.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E16lkRS-0001HN-00@wagner.rustcorp.com.au>; from rusty@rustcorp.com.au on Fri, Mar 15, 2002 at 04:39:50PM +1100
+X-Burt-Line: Trees are cool.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <15505.30281.414005.400815@napali.hpl.hp.com> you write:
-> >>>>> On Fri, 15 Mar 2002 15:07:27 +1100, Rusty Russell <rusty@rustcorp.com.a
-u> said:
-> 
->   Rusty> Sorry, after thought, I've reverted to my original position.  the
->   Rusty> original SMP per_cpu()/this_cpu() implementations were broken.
-> 
->   Rusty> They must return an lvalue, otherwise they're useless for 50% of cas
-es
->   Rusty> (ie. assignment).  x86_64 can still use its own mechanism for
->   Rusty> arch-specific per-cpu data, of course.
-> 
-> What's your position about someone taking the address of this_cpu(foo)
-> and passing it to another CPU?  IMO, the effect of this should be
-> allowed to be implementation-dependent.  If you agree, perhaps it
-> would be good to add a comment to this effect?
+On Fri, Mar 15, 2002 at 04:39:50PM +1100, Rusty Russell wrote:
+> Yep, sorry, my mistake.  I suggest make it a relative "struct timespec
+> *" (more futureproof that timeval).  It would make sense to split the
+> interface into futex_down and futex_up syuscalls, since futex_up
+> doesn't need a timeout arg, but I haven't for the moment.
 
-Well, if you want to do TLB tricks, sure.  I don't know if that's a
-good idea (Linus seems opposed to it).  But I'll add the comment.
+	Why waste a syscall?  The user is going to be using a library
+wrapper.  They don't have to know that futex_up() calls sys_futex(futex,
+FUTEX_UP, NULL);
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Joel
+
+-- 
+
+Life's Little Instruction Book #182
+
+	"Be romantic."
+
+			http://www.jlbec.org/
+			jlbec@evilplan.org

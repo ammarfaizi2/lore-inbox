@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263121AbTDFWSs (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 18:18:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263138AbTDFWSs (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 18:18:48 -0400
-Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:42371 "HELO
-	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S263121AbTDFWSr (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 18:18:47 -0400
-Subject: 2.5.66-bk12: acpi_power_off: sleeping function called from illegal
-	context
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1049668212.725.13.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
-Date: 07 Apr 2003 00:30:12 +0200
-Content-Transfer-Encoding: 7bit
+	id S263144AbTDFW3u (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 18:29:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263151AbTDFW3u (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 18:29:50 -0400
+Received: from modemcable169.130-200-24.mtl.mc.videotron.ca ([24.200.130.169]:57093
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id S263144AbTDFW3s (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 18:29:48 -0400
+Date: Sun, 6 Apr 2003 18:36:34 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+cc: Ingo Molnar <mingo@elte.hu>
+Subject: 2.5.66-(bk) == horrible response times for non X11 applications
+Message-ID: <Pine.LNX.4.50.0304061757240.2268-100000@montezuma.mastecende.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+The X server is not reniced nor are any of the called tasks. This is very 
+easy to reproduce by doing the following;
 
-I'm seeing this oops on my P4 box running 2.5.66-bk12 + ACPI when
-shutting it down (copied by hand):
+open two xterms, run glxgears from one and then 5 or so seconds after that 
+run an application which you can easily determine completion, such as 
+ifconfig. You will notice that the console app doesn't make much progress 
+and essentially get's starved.
 
-Power down.
-acpi_power_off called
-Debug: sleeping function called from illegal context at
-include/asm/semaphore.h: 119
-Call  Trace:
- [<c012088a>] __might_sleep+0x5f/0x75
- [<c01ffb10>] acpi_os_wait_semaphore+0xc5/0xea
- [<c021440c>] acpi_ut_acquire_mutex+0x51/0x73
- [<c020ab4f>] acpi_set_register+0x34/0x15d
- [<c020b1f6>] acpi_enter_sleep_state+0x77/0x1ab
- [<c0215d7d>] acpi_power_off+0x21/0x23
- [<c011a3e5>] machine_power_off+0x10/0x13
- [<c0135f7b>] sys_reboot+0x332/0x741
- [<c011e010>] schedule+0x210/0x6d7
- [<c0130daf>] group_send_sig_info+0x2af/0x6b6
- [<c011e50d>] preempt_schedule+0x36/0x50
- [<c0131384>] kill_proc_info+0x60/0x62
- [<c0134346>] sys_kill+0x4d/0x51
- [<c016e76b>] __fput+0xaf/0xfb
- [<c016cabc>] filp_close+0x160/0x226
- [<c01850cb>] sys_ioctl+0x197/0x3e8
- [<c010af29>] sysenter_past_esp+0x52/0x71
+ifconfig      R 00000000 5738320  1213   1032                     (NOTLB)       
+Call Trace:                                                                     
+ [<c011ee20>] autoremove_wake_function+0x0/0x40                                 
+ [<c02b6462>] generic_make_request+0x112/0x1b0                                  
+ [<c011dc4d>] io_schedule+0x2d/0x40                                             
+ [<c015851a>] __wait_on_buffer+0xba/0xc0                                        
+ [<c011ee20>] autoremove_wake_function+0x0/0x40     
 
-This is not 100% reproducible. When using ACPI, the machine is *never*
-able to properly shut it off (only APM is able to turn the machine off).
+glxgears      S C010A1E8 4265977488  1209   1019                   (NOTLB)    
+Call Trace:                                                                     
+ [<c010a1e8>] common_interrupt+0x18/0x20                                        
+ [<c01298d5>] schedule_timeout+0xb5/0xc0                                        
+ [<c03e8490>] unix_poll+0x20/0x90                                               
+ [<c0391e69>] sock_poll+0x19/0x20                                               
+ [<c0169c22>] do_select+0x132/0x270                                             
+ [<c0169960>] __pollwait+0x0/0xa0         
 
-________________________________________________________________________
-Linux Registered User #287198
+Afflicted system was;
 
+K6 500MHz laptop
+128M RAM w/ 8M shared (Trident X11 Server)
+
+This was not reproduceable with 2.4.18-3 nor with 2.5.66 and the 
+following patch applied;
+
+http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.66/2.5.66-mm3/broken-out/sched-interactivity-backboost-revert.patch
+
+-- 
+function.linuxpower.ca

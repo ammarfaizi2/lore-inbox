@@ -1,61 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130699AbQJ1P6c>; Sat, 28 Oct 2000 11:58:32 -0400
+	id <S130571AbQJ1QCw>; Sat, 28 Oct 2000 12:02:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130706AbQJ1P6X>; Sat, 28 Oct 2000 11:58:23 -0400
-Received: from Cantor.suse.de ([194.112.123.193]:25098 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S130914AbQJ1P6Q>;
-	Sat, 28 Oct 2000 11:58:16 -0400
-Date: Sat, 28 Oct 2000 17:58:12 +0200
-From: Andi Kleen <ak@suse.de>
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: kumon@flab.fujitsu.co.jp, Andi Kleen <ak@suse.de>,
-        Alexander Viro <viro@math.psu.edu>,
-        "Jeff V. Merkey" <jmerkey@timpanogas.org>,
-        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
-        Olaf Kirch <okir@monad.swb.de>
-Subject: Re: [PATCH] Re: Negative scalability by removal of lock_kernel()?(Was: Strange performance behavior of 2.4.0-test9)
-Message-ID: <20001028175812.A10106@gruyere.muc.suse.de>
-In-Reply-To: <39F957BC.4289FF10@uow.edu.au>, <39F92187.A7621A09@timpanogas.org> <Pine.GSO.4.21.0010270257550.18660-100000@weyl.math.psu.edu> <20001027094613.A18382@gruyere.muc.suse.de> <39F957BC.4289FF10@uow.edu.au> <200010271257.VAA24374@asami.proc.flab.fujitsu.co.jp> <39FAF4C6.3BB04774@uow.edu.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <39FAF4C6.3BB04774@uow.edu.au>; from andrewm@uow.edu.au on Sun, Oct 29, 2000 at 02:46:14AM +1100
+	id <S130770AbQJ1QCc>; Sat, 28 Oct 2000 12:02:32 -0400
+Received: from hoochie.linux-support.net ([216.207.245.2]:10512 "EHLO
+	hoochie.linux-support.net") by vger.kernel.org with ESMTP
+	id <S130571AbQJ1QC2>; Sat, 28 Oct 2000 12:02:28 -0400
+Date: Sat, 28 Oct 2000 11:02:22 -0500 (CDT)
+From: Mark Spencer <markster@linux-support.net>
+To: linux-kernel@vger.kernel.org
+Subject: Linux-2.4.0-test9 not Open Source
+Message-ID: <Pine.LNX.4.21.0010281049300.26640-100000@hoochie.linux-support.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 29, 2000 at 02:46:14AM +1100, Andrew Morton wrote:
-> kumon@flab.fujitsu.co.jp wrote:
-> > 
-> > Change the following two macros:
-> >         acquire_fl_sem()->lock_kernel()
-> >         release_fl_sem()->unlock_kernel()
-> > then
-> > 5192 Req/s @8cpu is got. It is same as test8 within fluctuation.
-> 
-> hmm..  BKL increases scalability.  News at 11.
-> 
-> The big question is: why is Apache using file locking so
-> much?  Is this normal behaviour for Apache?
+I've been looking at the MTD (memory technology device) additions to the
+linux 2.4.0 kernels.  In particular I'm very interested in the DiskOnChip
+2000 and NFTL drivers.  However, as terribly useful as this driver is, was
+I the only one who caught the following notice at the top of the driver
+source:
 
-It serializes accept() to avoid the thundering herd from the wake-all
-semantics.
+/*
+  The contents of this file are distributed under the GNU Public
+  Licence version 2 ("GPL"). The legal note below refers only to the
+  _use_ of the code in some jurisdictions, and does not in any way
+  affect the copying, distribution and modification of this code,
+  which is permitted under the terms of the GPL.
 
-With the 2.4 stack that is probably not needed anymore (it was in 2.2), 
-it may just work to remove the file locking (it should always be correct,
-just on 2.2 it may be slower to remove it) 
+  Section 0 of the GPL says:
 
-> Because if so, the file locking code will be significantly
-> bad for the scalability of Apache on SMP (of all things!).
-> It basically grabs a big global lock for _anything_.  It
-> looks like it could be a lot more granular. 
+ "Activities other than copying, distribution and modification are not
+  covered by this License; they are outside its scope."
 
-iirc everybody who looked at the code agrees that it needs a rewrite
-badly.
+  You may copy, distribute and modify this code to your hearts'
+  content - it's just that in some jurisdictions, you may only _use_
+  it under the terms of the licence below. This puts it in a similar
+  situation to the ISDN code, which you may need telco approval to
+  use, and indeed any code which has uses that may be restricted in
+  law. For example, certain malicious uses of the networking stack
+  may be illegal, but that doesn't prevent the networking code from
+  being under GPL.
+
+  In fact the ISDN case is worse than this, because modification of
+  the code automatically invalidates its approval. Modificiation,
+  unlike usage, _is_ one of the rights which is protected by the
+  GPL. Happily, the law in those places where approval is required
+  doesn't actually prevent you from modifying the code - it's just
+  that you may not be allowed to _use_ it once you've done so - and
+  because usage isn't addressed by the GPL, that's just fine.
+
+  dwmw2@infradead.org
+  6/7/0
+
+  LEGAL NOTE: The NFTL format is patented by M-Systems.  They have
+  granted a licence for its use with their DiskOnChip products:
+
+    "M-Systems grants a royalty-free, non-exclusive license under
+    any presently existing M-Systems intellectual property rights
+    necessary for the design and development of NFTL-compatible
+    drivers, file systems and utilities to use the data formats with, 
+    and solely to support, M-Systems' DiskOnChip products"
+
+  A signed copy of this agreement from M-Systems is kept on file by
+  Red Hat UK Limited. In the unlikely event that you need access to it,
+  please contact dwmw2@redhat.com for assistance.  */
 
 
--Andi
+Now firstly, let's eliminate the ISDN red-herring from consideration
+because the authors of the code do not place any additional restrictions
+on the GPL whatsoever, they simply bring it to your attention that using
+an un-certified ISDN stack may be illegal in some countries.
+
+Now that we've cleared *that* up, let's look at the rest of the NFTL
+restriction.  I've already brought this to the attention, of course, of
+RMS and ESR.  
+
+Richard believes that this violates the GPL because it places additional
+restrictions not found in the GPL.
+
+In any case, it seems pretty obvious that this restriction violates
+section 6 of the Open Source Definition which states:
+
+  "The license must not restrict anyone from making use of the program in
+a specific field of endeavor...."
+
+In this case, the field of endeavor is to use it with another vendor's
+product.
+
+In any case, as terribly useful as this driver is (I'm working on a system
+that needs the Disk-On-Chip/NTFL support) I am also conerned with the
+stock Linux kernel getting tainted with non-Open Source code.
+
+Comments welcome and appreciated.
+
+Mark
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

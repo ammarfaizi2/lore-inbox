@@ -1,76 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262499AbUCRKWk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 05:22:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbUCRKWk
+	id S262501AbUCRKfW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 05:35:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262504AbUCRKfV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 05:22:40 -0500
-Received: from main.gmane.org ([80.91.224.249]:1937 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262499AbUCRKWi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 05:22:38 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jan Rychter <jan@rychter.com>
-Subject: Re: Dealing with swsusp vs. pmdisk
-Date: Thu, 18 Mar 2004 02:21:43 -0800
-Message-ID: <m2n06ee9qg.fsf@tnuctip.rychter.com>
-References: <20040312224645.GA326@elf.ucw.cz> <20040313004756.GB5115@thunk.org>
- <20040313122819.GB3084@openzaurus.ucw.cz>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: pu90.internetdsl.tpnet.pl
-User-Agent: Gnus/5.110002 (No Gnus v0.2) XEmacs/21.4 (Security Through
- Obscurity, linux)
-X-Spammers-Please: blackholeme@rychter.com
-Cancel-Lock: sha1:PDNHgGwcQkILvJ63GeAWjbFZ9jo=
+	Thu, 18 Mar 2004 05:35:21 -0500
+Received: from postfix4-1.free.fr ([213.228.0.62]:45768 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S262501AbUCRKfR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 05:35:17 -0500
+Message-ID: <40597BF2.80807@free.fr>
+Date: Thu, 18 Mar 2004 11:37:38 +0100
+From: Eric Valette <eric.valette@free.fr>
+Reply-To: eric.valette@free.fr
+Organization: HOME
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040116
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-rc1-mm2 : Badness in elv_requeue_request at drivers/block/elevator.c:157
+References: <40596FC5.3080703@free.fr> <20040318100222.GE22234@suse.de> <20040318100606.GG22234@suse.de>
+In-Reply-To: <20040318100606.GG22234@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+Jens Axboe wrote:
 
->>>>> "Pavel" == Pavel Machek <pavel@ucw.cz> writes:
-[...]
-Theodore Ts'o <tytso@mit.edu>:
- >> Pavel, what do you think of the swsusp2 patch, BTW?  My biggest
- >> complaint about it is that since it's maintained outside of the
- >> kernel, it's constantly behind about 0.75 revisions behind the
- >> latest 2.6 release.  The feature set of swsusp2, if they can ever
- >> get it completely bugfree(tm) is certainly impressive.
+>>Ah damn, requeue through blk_insert_request... Let me think about this
+>>a bit, I'll post a fix for you.
+> 
+> 
+> Does this work for you?
 
- Pavel> My biggest problem with swsusp2 is that it is big. Also last
- Pavel> time I looked it had some ugly hooks sprinkled all over the
- Pavel> kernel. Then there are some features I don't like (graphical
- Pavel> screens with progress, escape-to-abort) and
- Pavel> ithasvariableslikethis. OTOH it supports highmem and smp.  
+At least it does avoid the message at boot time :-) Thanks for your 
+quick reply. Who still thinks OSS is not supported?
 
-It also has the advantage of working extremely reliably on 2.4 (and a
-large part of the code base is shared, so that's a significant data
-point). I couldn't get it to crash or do anything bad for months now,
-and I'm doing at least several suspend/resumes a day on my laptop.
+Thanks a lot and have a nice day,
 
-Also, thanks to the excellent compression feature, suspend/resume times
-are very short and in fact competitive with suspend-to-ram schemes.
+-- 
+    __
+   /  `                   	Eric Valette
+  /--   __  o _.          	6 rue Paul Le Flem
+(___, / (_(_(__         	35740 Pace
 
-I think it's better not to mix personal preferences (such as the
-escape-to-abort thing) with technical discussions. On a practical level,
-swsusp2 is the only implementation which works reliably, does its job
-very well, and has a responsive maintainer willing to fix problems as
-they arise.
+Tel: +33 (0)2 99 85 26 76	Fax: +33 (0)2 99 85 26 76
+E-mail: eric.valette@free.fr
 
---J.
 
---=-=-=
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQBAWXg3Lth4/7/QhDoRAhsQAJ9nCsWIuBy+zkcagE/wVrQ792hZ8gCcCSRq
-IxuthgAVsiRcL30lwX6DhXw=
-=cKZJ
------END PGP SIGNATURE-----
---=-=-=--
 

@@ -1,30 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280683AbRKBNPb>; Fri, 2 Nov 2001 08:15:31 -0500
+	id <S280682AbRKBNPB>; Fri, 2 Nov 2001 08:15:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280684AbRKBNPV>; Fri, 2 Nov 2001 08:15:21 -0500
-Received: from mustard.heime.net ([194.234.65.222]:10428 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S280683AbRKBNPP>; Fri, 2 Nov 2001 08:15:15 -0500
-Date: Fri, 2 Nov 2001 14:15:13 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: RSVP setup
-Message-ID: <Pine.LNX.4.30.0111021413350.5468-100000@mustard.heime.net>
+	id <S280683AbRKBNOw>; Fri, 2 Nov 2001 08:14:52 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:55560 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S280682AbRKBNOk>;
+	Fri, 2 Nov 2001 08:14:40 -0500
+Date: Fri, 2 Nov 2001 11:14:21 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: safemode <safemode@speakeasy.net>
+Cc: Mark Hahn <hahn@physics.mcmaster.ca>, <linux-kernel@vger.kernel.org>
+Subject: Re: graphical swap comparison of aa and rik vm
+In-Reply-To: <20011102130750.1760138C77@perninha.conectiva.com.br>
+Message-ID: <Pine.LNX.4.33L.0111021110000.2963-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all
+On Fri, 2 Nov 2001, safemode wrote:
 
-I can see RSVP classifiers are somehow implemented in 2.4.
-Do anyone know how to get RSVP up and running as to separate different
-streams on a media server on Linux?
+> I'll try it with more swap later on today after work.  But realize,
+> though, the fact that you need much more swap to do the same thing
+> (compared to aa's)  is not helping any adoption of the VM.
 
-roy
+Uhhh ... this is nothing but a classical speed/size tradeoff.
 
----
-Computers are like air conditioners.
-They stop working when you open Windows.
+The fact that under my VM swap space stays reserved for the
+program on swapin means that if the page isn't dirtied, we
+can just drop it without having to write it to disk again.
+
+In situations where there is enough swap available, this
+should be a win (and it has traditionally been a big win).
+
+Andrea's VM always frees swap space on swapin, so even if
+the process doesn't write to its memory at all, the data
+still needs to be written out to disk again.
+
+Only in the one corner-case where my VM runs out of swap
+space and Andrea's VM doesn't yet run out of swap you'll
+find situations where the tactic used by Andrea's VM has
+its advantages, but I consider this to be a rare situation.
+
+regards,
+
+Rik
+-- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

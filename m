@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313023AbSC0OlM>; Wed, 27 Mar 2002 09:41:12 -0500
+	id <S313025AbSC0Oov>; Wed, 27 Mar 2002 09:44:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313025AbSC0OlB>; Wed, 27 Mar 2002 09:41:01 -0500
-Received: from tangens.hometree.net ([212.34.181.34]:5024 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S313023AbSC0Oku>; Wed, 27 Mar 2002 09:40:50 -0500
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: Bitkeeper licence issues
-Date: Wed, 27 Mar 2002 14:40:49 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <a7sllh$8m9$1@forge.intermeta.de>
-In-Reply-To: <E16nOzQ-0008U7-00@the-village.bc.nu> <Pine.LNX.4.44L.0203192005350.2181-100000@imladris.surriel.com> <20020319163155.A25986@hq.fsmlabs.com> <20020319154727.O14877@work.bitmover.com>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1017240049 18977 212.34.181.4 (27 Mar 2002 14:40:49 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Wed, 27 Mar 2002 14:40:49 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S313026AbSC0Ool>; Wed, 27 Mar 2002 09:44:41 -0500
+Received: from netfinity.realnet.co.sz ([196.28.7.2]:50393 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S313025AbSC0Oo3>; Wed, 27 Mar 2002 09:44:29 -0500
+Date: Wed, 27 Mar 2002 16:33:28 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Cc: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] P4/Xeon Thermal LVT support
+In-Reply-To: <Pine.GSO.3.96.1020327142715.8602C-100000@delta.ds2.pg.gda.pl>
+Message-ID: <Pine.LNX.4.44.0203271631400.5751-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy <lm@bitmover.com> writes:
+On Wed, 27 Mar 2002, Maciej W. Rozycki wrote:
 
->people within 30 minutes of my house.  What I'd like to see is a migration
->out of silly valley but to somewhere else.  I.e., pockets of smart people
->working together.  Face time with smart people is fun, if you get a chance
+> On Wed, 27 Mar 2002, Zwane Mwaikambo wrote:
+> 
+> >  #define FIRST_DEVICE_VECTOR	0x31
+> > +#define THERMAL_APIC_VECTOR	0x32	/* Thermal monitor local vector */
+> >  #define FIRST_SYSTEM_VECTOR	0xef
+> 
+>  You certainly want to select a different vector.
 
-Hm. Like, say Redmond, WA?
+Whats wrong with that vector? I tried to follow the guidelines as 
+specified in hw_irq.h and opted to go for the lower priority ones, or 
+is the vector not serviceable due to its range?
+
+Thanks,
+	Zwane
 
 -- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+http://function.linuxpower.ca
+		
 
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   

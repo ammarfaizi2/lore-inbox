@@ -1,48 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263375AbTHVPJv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 11:09:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264218AbTHVPJu
+	id S263183AbTHVPNS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 11:13:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263310AbTHVPNR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 11:09:50 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:60432 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264224AbTHVPJo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 11:09:44 -0400
-Date: Fri, 22 Aug 2003 16:09:39 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: torvalds@transmeta.com, Vinay K Nallamothu <vinay-rc@naturesoft.net>
-Cc: Christoph Hellwig <hch@infradead.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6.0-test3-bk9][ISDN] sedlbauer_cs.c: remove release timer
-Message-ID: <20030822160939.A17745@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	torvalds@transmeta.com,
-	Vinay K Nallamothu <vinay-rc@naturesoft.net>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <1061564783.1108.38.camel@lima.royalchallenge.com>
+	Fri, 22 Aug 2003 11:13:17 -0400
+Received: from mail1.bluewin.ch ([195.186.1.74]:34227 "EHLO mail1.bluewin.ch")
+	by vger.kernel.org with ESMTP id S263497AbTHVPNK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 11:13:10 -0400
+Date: Fri, 22 Aug 2003 17:11:50 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [CFT][PATCH] new scheduler policy
+Message-ID: <20030822151150.GA27508@k3.hellgate.ch>
+Mail-Followup-To: Nick Piggin <piggin@cyberone.com.au>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <3F4182FD.3040900@cyberone.com.au> <20030822085508.GA10215@k3.hellgate.ch> <3F4615D8.9030200@cyberone.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1061564783.1108.38.camel@lima.royalchallenge.com>; from vinay-rc@naturesoft.net on Fri, Aug 22, 2003 at 08:36:23PM +0530
+In-Reply-To: <3F4615D8.9030200@cyberone.com.au>
+X-Operating-System: Linux 2.6.0-test3 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 22, 2003 at 08:36:23PM +0530, Vinay K Nallamothu wrote:
-> Hi Christoph,
+On Fri, 22 Aug 2003 23:08:40 +1000, Nick Piggin wrote:
+> >I timed a pathological benchmark from hell I've been playing with lately.
+> >Three consecutive runs following a fresh boot. Time is in seconds:
+> >
+> >2.4.21			821	21	25
+> >2.6.0-test3-mm1		724	946	896
+> >2.6.0-test3-mm1-nick	905	987	997
+> >
+> >Runtime with ideal scheduling: < 2 seconds (we're thrashing).
+> >
 > 
-> This patch removes the PCMCIA release timer you missed out in earlier
-> patch. This patch is required for successful compilation of the driver.
+> Cool. Can you post the benchmark source please?
 
-Oops.  Linus, can you please apply the patch below?
+http://hellgate.ch/code/ploc/thrash.c
 
---- linux-2.6.0-test3-bk9/drivers/isdn/hisax/sedlbauer_cs.c	2003-08-22 15:04:47.000000000 +0530
-+++ linux-2.6.0-test3-nvk/drivers/isdn/hisax/sedlbauer_cs.c	2003-08-22 20:26:49.000000000 +0530
-@@ -647,7 +647,6 @@
- 
- 	/* XXX: this really needs to move into generic code.. */
- 	while (dev_list != NULL) {
--		del_timer(&dev_list->release);
- 		if (dev_list->state & DEV_CONFIG)
- 			sedlbauer_release(dev_list);
- 		sedlbauer_detach(dev_list);
+A parallel kernel build can generate some decent thrashing, too, but I
+wanted a short and simple test case that conveniently provides the
+information I need for both logging daemon and post processing tool.
+
+Note: The benchmark could trivially be made more evil which would prevent
+2.4.21 from finishing over 30 times faster (as it often does). I
+intentionally left it they way it is.
+
+While everybody seems to be working on interactivity, I am currently
+looking at this corner case. This should be pretty much orthogonal to your
+own work.
+
+Roger

@@ -1,61 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266347AbUGUOfe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266351AbUGUOfv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266347AbUGUOfe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 10:35:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266351AbUGUOfe
+	id S266351AbUGUOfv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 10:35:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266453AbUGUOfv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 10:35:34 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:1408 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266347AbUGUOfc (ORCPT
+	Wed, 21 Jul 2004 10:35:51 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:51385 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S266351AbUGUOft (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 10:35:32 -0400
-Date: Wed, 21 Jul 2004 20:04:16 +0530
-From: Ravikiran G Thirumalai <kiran@in.ibm.com>
-To: Greg KH <greg@kroah.com>
+	Wed, 21 Jul 2004 10:35:49 -0400
+Date: Wed, 21 Jul 2004 16:35:33 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Oliver Neukum <oliver@neukum.org>, Greg KH <greg@kroah.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] kref shrinkage patches -- 1 of 2 -- kref shrinkage
-Message-ID: <20040721143413.GB5974@obelix.in.ibm.com>
-References: <20040720122307.GA1235@obelix.in.ibm.com> <20040721061418.GB18787@kroah.com>
+Subject: Re: [PATCH] delete devfs
+Message-ID: <20040721143533.GO24361@marowsky-bree.de>
+References: <20040721141524.GA12564@kroah.com> <200407211626.55670.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20040721061418.GB18787@kroah.com>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200407211626.55670.oliver@neukum.org>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 21, 2004 at 02:14:18AM -0400, Greg KH wrote:
-> ... 
-> > Just had a question about definition of kref_get though, 
-> > why does it need to return struct kref * ? struct kref * is anywayz 
-> > being passed to it, hence the caller has it anywayz -- so it doesn't 
-> > value add anything afaics (but i might have limited vision so pls correct me)
-> 
-> Consistancy with other "get" and "put" functions.  It's quite common to
-> do:
-> 	have_this_foo(foo_get(foo));
-> 
-> or:
-> 	foo_to_send_off = foo_get(foo);
-> 
+On 2004-07-21T16:26:55,
+   Oliver Neukum <oliver@neukum.org> said:
 
-kref_get is invoked from inside foo_get in such cases no? so foo_get
-can do kref_get and return struct *foo...like in usb_serial_get_by_index?
+> > 	www.kernel.org/pub/linux/kernel/people/gregkh/misc/2.6/devfs-delete-2.6.8-rc2.patch
+> May I point out that 2.6 is supposed to be a _stable_ series?
 
-Even assuming foo_get is altogether replaced with kref_get, which might 
-not be a very common case (looking at the current usage, and future usage in
-fget_light etc)
-we will still have to do
-	foo_to_send_off = KREF_TO_FOO(kref_get(&foo->kref));
-instead :
-	kref_get(&foo->kref);
-	foo_to_send_off = foo;
-is better right?  Why use a macro for just one extra line of code.... 
-Looking at the current usage and looking at refcount 'getters'
-like fget, mntget etc., 'doesn't look like people will use the return
-value from kref_get much anywayz.  Since the api is young is it better to
-kill the return value now than let people misuse the return type like in the
-scsi subsystem? 
+Yeah, sounds like a good series to drop unsupported code from... ;-)
 
-Thanks,
-Kiran
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
+
+-- 
+High Availability & Clustering	    \ ever tried. ever failed. no matter.
+SUSE Labs, Research and Development | try again. fail again. fail better.
+SUSE LINUX AG - A Novell company    \ 	-- Samuel Beckett
+

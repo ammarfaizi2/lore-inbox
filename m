@@ -1,60 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263918AbTFDTeU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 15:34:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263943AbTFDTeT
+	id S263980AbTFDTd0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 15:33:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263981AbTFDTd0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 15:34:19 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:52682 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S263918AbTFDTeR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 15:34:17 -0400
-Date: Wed, 4 Jun 2003 21:46:59 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Michael Frank <mflt1@micrologica.com.hk>, hugang <hugang@soulinfo.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Pavel Machek <pavel@ucw.cz>,
+	Wed, 4 Jun 2003 15:33:26 -0400
+Received: from spanner.eng.cam.ac.uk ([129.169.8.9]:41457 "EHLO
+	spanner.eng.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S263980AbTFDTdY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 15:33:24 -0400
+Date: Wed, 4 Jun 2003 20:46:51 +0100 (BST)
+From: "P. Benie" <pjb1008@eng.cam.ac.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Christoph Hellwig <hch@infradead.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: IDE Power Management (Was: software suspend in 2.5.70-mm3)
-Message-ID: <20030604194659.GB524@elf.ucw.cz>
-References: <20030603211156.726366e7.hugang@soulinfo.com> <1054732481.20839.30.camel@gaston> <200306042151.10611.mflt1@micrologica.com.hk> <200306042210.12468.mflt1@micrologica.com.hk> <1054736960.20838.44.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1054736960.20838.44.camel@gaston>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+Subject: Re: [PATCH] [2.5] Non-blocking write can block
+In-Reply-To: <Pine.LNX.4.44.0306041050250.14593-100000@home.transmeta.com>
+Message-ID: <Pine.HPX.4.33L.0306041937290.18475-100000@punch.eng.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, 4 Jun 2003, Linus Torvalds wrote:
+>
+> A much better fix might well be to actually not allow over-long tty writes
+> at all, and thus avoid the "block out" thing at the source of the problem,
+> instead of trying to make programs who play nice be the ones that suffer.
+>
+> If somebody does a 1MB write to a tty, do we actually have any reason to
+> try to make it so damn atomic and not return early?
 
-> > ............ 
-> > [nosave c03f7000]critical section/: done (2273 pages copied)
-> > hda: Wakeup request inited, waiting for !BSY...
-> > hda: start_power_step(susp: 0, step: 0)
-> > hda: start_power_step(susp: 0, step: 101)
-> > hda: completing PM request, suspend: 0
-> > Devices Resumed
-> > Devices Resumed
-> 
-> Hrm... the joy if swsusp putting your disk to sleep just to wake it up
-> right away... I need to check if I can differenciate suspend-to-disk
-> from suspend-to-ram here to just not put the drive in STANDBY mode
-> on suspend-to-disk (just freeze the queues)
+The problem isn't to do with large writes. It's to do with any sequence of
+writes that fills up the receive buffer, which is only 4K for N_TTY. If
+the receiving program is suspended, the buffer will fill sooner or later.
 
-Why? Suspending then resuming it may take long but seems correct to
-me.
+I am half-tempted by this style of fix, but I can't help but feel that
+we'll discover a huge set of programs that assume short writes never
+happen if they aren't playing with signals.
 
-> > Writing data to swap (2273 pages): .<3>bad: scheduling while atomic!
-> 
-> Here's the real one. However, it doesn't look related to my sleep code,
-> though I cannot guarantee this for sure right now, it _seems_ it's
-> a swsusp bug you are hitting.
+It's also not as easy a fix as it sounds: for blocking writes, we've gone
+into into ldisc.write and then in tty->driver->write before we discover
+that that we can't write any bytes, by which time we already have the
+write semaphore. I suspect that it requires just as much effort to ensure
+that this case is handled correctly as it does to stop the non-blocking
+write/poll loop.
 
-Yes, it looks so.
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+I compared 2.4.20 and 2.5.70 to see if I could find the patch Hua
+referred to. n_tty.c and pty.c look almost the same - I don't think the
+patch is in 2.4.20.
+
+Peter
+
+

@@ -1,267 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312696AbSDONwk>; Mon, 15 Apr 2002 09:52:40 -0400
+	id <S312694AbSDONvl>; Mon, 15 Apr 2002 09:51:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312704AbSDONwj>; Mon, 15 Apr 2002 09:52:39 -0400
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:828 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S312696AbSDONwf>; Mon, 15 Apr 2002 09:52:35 -0400
-Date: Mon, 15 Apr 2002 08:52:16 -0500 (CDT)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200204151352.IAA43591@tomcat.admin.navo.hpc.mil>
-To: elenstev@mesatop.com, "Calin A. Culianu" <calin@ajvar.org>
-Subject: Re: Cannot compile mandrake 8.2 Kernel
-In-Reply-To: <1018475564.17571.10.camel@spc.esa.lanl.gov>
+	id <S312696AbSDONvk>; Mon, 15 Apr 2002 09:51:40 -0400
+Received: from www.microgate.com ([216.30.46.105]:33547 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP
+	id <S312694AbSDONvj>; Mon, 15 Apr 2002 09:51:39 -0400
+Subject: [PATCH] 2.5.8 synclink.c
+From: Paul Fulghum <paulkf@microgate.com>
+To: torvalds@transmeta.com
 Cc: linux-kernel@vger.kernel.org
-X-Mailer: [XMailTool v3.1.2b]
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3.99 
+Date: 15 Apr 2002 08:49:31 -0500
+Message-Id: <1018878572.1068.3.camel@diemos.microgate.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Very hard to read; how about doing the next one in ASCII?:
+patch against 2.5.8 to update virt_to_bus functions and
+remove version depedent #ifdef statements
 
-> <html>
-> <blockquote type=3Dcite class=3Dcite cite>All,<br><br>
-> At the last HPCMP SIG meeting (Security Implementation Group Meeting
-> 26-28 2002 at AFRL, Kirtland AFB, NM) Peer to Peer computing was
-> discussed, lead by Rodger Johnson.&nbsp; This resulted in a tasker at
-> several levels, which has been assigned to me to lead.&nbsp; <br><br>
-> As such a P2P direction or focus has been defined for the HPCMP (see
-> below), as well a high level timeline for deliverables from this
-> takser.&nbsp; From the SIG minutes furnished by Joe Molnar the following
-> individuals had expressed an interest in participating in the P2P effort
-> within our community.&nbsp; They need to discuss this with their
-> management before committing:<br><br>
-> Greg Fulmer<br>
-> Ricky Green<br>
-> Mike Donovon<br>
-> Mark Radleigh<br><br>
-> Has anyone of you been able to discuss this yet with your management
-> chain, and can you now make a commitment?<br><br>
-> In addition there were several volunteers:<br>
-> Jessie Pollard<br>
-> Vern Staats<br>
-> Nathan Bill <br>
-> Dana Allen<br><br>
-> Can you four still participate in this effort?<br><br>
+This is unchanged from previously submitted patch against 2.5.8-pre3
 
-I can as far as other work may intrude. (see discussion of:
+--- linux-2.5.8/drivers/char/synclink.c	Sun Apr 14 14:18:50 2002
++++ linux-2.5.8-mg/drivers/char/synclink.c	Wed Apr 10 15:43:18 2002
+@@ -1,7 +1,7 @@
+ /*
+  * linux/drivers/char/synclink.c
+  *
+- * $Id: synclink.c,v 3.12 2001/07/18 19:14:21 paulkf Exp $
++ * $Id: synclink.c,v 4.2 2002/04/10 20:45:13 paulkf Exp $
+  *
+  * Device driver for Microgate SyncLink ISA and PCI
+  * high speed multiprotocol serial adapters.
+@@ -60,8 +60,6 @@
+ #  define BREAKPOINT() { }
+ #endif
+ 
+-#error Please convert me to Documentation/DMA-mapping.txt
+-
+ #define MAX_ISA_DEVICES 10
+ #define MAX_PCI_DEVICES 10
+ #define MAX_TOTAL_DEVICES 20
+@@ -109,12 +107,8 @@
+ #endif
+ 
+ #ifdef CONFIG_SYNCLINK_SYNCPPP
+-#if LINUX_VERSION_CODE < VERSION(2,4,3) 
+-#include "../net/wan/syncppp.h"
+-#else
+ #include <net/syncppp.h>
+ #endif
+-#endif
+ 
+ #define GET_USER(error,value,addr) error = get_user(value,addr)
+ #define COPY_FROM_USER(error,dest,src,size) error = copy_from_user(dest,src,size) ? -EFAULT : 0
+@@ -923,7 +917,7 @@
+ MODULE_PARM(txholdbufs,"1-" __MODULE_STRING(MAX_TOTAL_DEVICES) "i");
+ 
+ static char *driver_name = "SyncLink serial driver";
+-static char *driver_version = "$Revision: 3.12 $";
++static char *driver_version = "$Revision: 4.2 $";
+ 
+ static int synclink_init_one (struct pci_dev *dev,
+ 				     const struct pci_device_id *ent);
+@@ -3985,7 +3979,7 @@
+ 		if ( info->buffer_list == NULL )
+ 			return -ENOMEM;
+ 			
+-		info->buffer_list_phys = virt_to_bus(info->buffer_list);
++		info->buffer_list_phys = isa_virt_to_bus(info->buffer_list);
+ 	}
+ 
+ 	/* We got the memory for the buffer entry lists. */
+@@ -4096,7 +4090,7 @@
+ 				kmalloc(DMABUFFERSIZE, GFP_KERNEL | GFP_DMA);
+ 			if ( BufferList[i].virt_addr == NULL )
+ 				return -ENOMEM;
+-			phys_addr = virt_to_bus(BufferList[i].virt_addr);
++			phys_addr = isa_virt_to_bus(BufferList[i].virt_addr);
+ 		}
+ 		BufferList[i].phys_addr = phys_addr;
+ 	}
+@@ -7990,10 +7984,6 @@
+ 	d->get_stats = mgsl_net_stats;
+ 	d->tx_timeout = mgsl_sppp_tx_timeout;
+ 	d->watchdog_timeo = 10*HZ;
+-
+-#if LINUX_VERSION_CODE < VERSION(2,4,4) 
+-	dev_init_buffers(d);
+-#endif
+ 
+ 	if (register_netdev(d) == -1) {
+ 		printk(KERN_WARNING "%s: register_netdev failed.\n", d->name);
 
-1. K5 1.2.3
-2. batch kerberos support
 
-> In addition the original P2P effort at the program office
-> included:<br><br>
-> Phil Dykstra<br><br>
-> We&nbsp; also hope to tap personnel at the HPCMO, and of course the
-> information from the lead HPCMP CSA POC, Mark Heck so we as a team can
-> provide the asked for deliverables, are the two of you available to
-> participate?<br><br>
-> FYI form the SIG minutes:<br><br>
-> <b>-Peer-to-Peer computing Rodger Johnson<br>
-> DoD going down the path of P2P because it is the hot thing.&nbsp; Input
-> on P2P computing was requested from the SIG, at large.&nbsp; It appears
-> that while e-mail can be examined some viruses (in attachments) have been
-> noted to be coming through P2P connections.&nbsp; It was noted that while
-> P2P could be a useful application for DoD to use, it is open to hackers
-> as it exists.<br><br>
-> Mark Heck spoke on the dangers of P2P; i.e. how do we check for it?&nbsp;
-> ISS will only pick up the default ports; need to write a plugin for
-> Nessus.<br>
 
-Not likely to happen. P2P can appear as normal HTTP traffic. The only
-thing unique about it is that the servers are in a "listen" mode. If the
-server is unknown (and assuming any port > 1024) then you can only assume
-it is "not allowed". Actual identification is not reliable due to:
 
-1. possible encryption
-2. the higher level protocol is unknown
-3. the higher level protocol requires an access key
-4. It may not allow local host connections
-5. It may not allow the host the scan is being run from
-
-Unfortunately, some utilities DO use ports > 1024 (console support on
-E-10000 for instance uses ports around 32000).
-
-Been doing some research....
-
-> Suggestion made to establish the policy to eliminate it. (Yeager.)&nbsp;
-> Suggestion also made that the applications look for open port.
-> (Samios).&nbsp; Pollard states that it is VPN connection and may not even
-> see it.&nbsp; Bottom line-there are a lot of concerns.<br>
-> Rodger indicated that we could form a working group to discuss P2P
-> security threats and issues and may also possibly address the positive
-> things that could be done with P2P.&nbsp; <br>
-> Volunteers include Greg Fulmer, Ricky Green, Mike Donovon, Mark
-> Radleigh.&nbsp; While these guys indicated that they would like to
-> participate they needed to talk to their management for the
-> commitment.&nbsp; In addition there were several defined candidates:
-> Jessie Pollard, Vern Staats, Nathan Bill and Dana Allen as a
-> minimum.<br><br>
-> <i>[Comment from Joe Molnar-My thoughts are that there are several levels
-> to address the problem. HPCMP policy, Local Site policy, firewall policy,
-> DREN site and NAP router filters, HPC CERT rules for intrusion detection,
-> CSA team tools to identify such traffic, and local site techniques for
-> identifying such traffic.&nbsp; Suggest that the group tries to address
-> what can be done at these and other levels that may exist.]<br><br>
-> </i></b>Based on this, the HPCMP P2P subgroup of the SIG team will
-> provide guidance and direction in the form of several white papers, i.e.
-> the deliverables.&nbsp; In addition, we hope to work with the ASD C3I
-> study of P2P, and at least provide input to the RAND study and report
-> forthcoming next year.<br><br>
-> The deliverables are:<br><br>
-> 1.&nbsp; White paper on how P2P can be useful to the HPC communities
-> within DoD<br>
-> 2.&nbsp; White paper on how security, or lack thereof, with P2P can be
-> bolstered and weaknesses mitigated<br>
-> <x-tab>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</x-tab>This would
-> include a DREN - Internet policy on P2P type traffic, as well as
-> recommended site policies for firewalls and filters and which
-> applications to allow and not allow<br>
-> 3. White paper on P2P traffic analysis and patterns, i.e. signatures
-> which could be used in NIDS and any kind of security assessments to
-> include HPCMP CSAs and perhaps provide input to ISS for additional
-> scanning signatures<br><br>
-> <i>The HPCMP P2P focus and direction is:<br><br>
-> The DoD at the ASD C3I level is investigating the use of P2P on DoD
-> systems interconnected using DoD WANs with Internet access.&nbsp; How can
-> the HPCMP take advantage of this technology, and leverage the usefulness
-> of distributed computing, and low tech file sharing and instant
-> messaging.&nbsp; Weakness in this technology are many, but with
-> mitigation some applications, ASD C3I has a great interest in the Groove
-> Network
-> (<a href=3D"http://www.groove.net/" eudora=3D"autourl">http://www.groove.net=
-> /</a>)
-> P2P solution, using encryption and authentication may be of great to use
-> to our user base.&nbsp; How can accept this type of access, with less
-> then Kerberos/SecurID authentication and identification?&nbsp; Would this
-> put the HPCMP security posture at risk?&nbsp;&nbsp;&nbsp; Which
-> applications and/or types of P2P applications should be used at HPCMP
-> SRCs, on DREN, at sites (each may have very different interests)?&nbsp;
-> How can the HPCMP contribute to the ASD C3I effort, or influence how P2P
-> should be used throughout the DoD?&nbsp; Can we identify all the
-> weaknesses, and devise suitable mitigations to the bigger risks?&nbsp;
-> Are there ways to look for the &quot;bogus&quot; P2P applications during
-> CSAs?&nbsp; How can the &quot;bogus&quot; applications be limited,and how
-> - via policies, scans, better system administration?<br><br>
-
-By not allowing users direct access:
-
-	The user app must make a local request for a P2P from a socket
-	generator daemon. This daemon must them establish the proper
-	remote connection, and then pass a socket back to the requesting
-	process. This socket should not communicate directly with the
-	remote host. The socket should talk to a "service" daemon to provide
-	possible encrypted communication with a remote "service" daemon
-	that provides the equivalent support for the remote application.
-
-	The "socket" daemon must act in a manner similar to the portmap
-	utility, in that it requires a request to a known service. Before
-	connections to that service are permitted, proper authentication
-	would be enforced. Encryption requirements should be negotiated.
-	Then the "socket" daemon can spawn the "service" daemon which carries
-	out the negotiated encryption/decryption and passes the data to
-	the user application via an anonymous socket.
-
-	Registration occurs when the user/batch/cron starts the user service
-	process. That user service process would then register with the
-	"socket" daemon in order to recieve/send reqests to a remote host.
-	The process (or daemon..) must be capable of using the users TGT
-	to authenticate remote connections.
-
-	This way the host/user can be authenticated between the hosts, and
-	still maintain security control over the facility. It also provides
-	an obvious audit and control point, yet is still permits the user
-	to put up almost any kind of P2P service. Real time audio/video
-	might have delays due to encrypt/decrypt or other handling done
-	by the service daemons.
-
-This doesn't address problems of buffer overflow attacks implemented by
-the users "application", or the restriction of data leak (unless only
-the same user identity is permitted access... though leaks can still occur,
-they are no greater risk than already existing leaks).
-
-> </i>If interested and time permits, perhaps we could get a demo copy of
-> Groove (since this is of particular interest to ASD C3I), and look at all
-> of its strengths and weaknesses.&nbsp; Additionally we could look at
-> existing P2P applications in use today over DREN, at DREN sites, and used
-> at HPCMP SRCs, and provide a risk analysis.&nbsp; During the initial
-> kickoff teleconference, additional directions or modification of the
-> above focus can be discussed.<br><br>
-
-Haven't finished digging into groove, but it wasn't mentioned in the
-Oriley P2P book as supporting security. The index was empty under the
-topic. Look under "trust" - Nowhere does it mention facility control
-of I&A and authorization. Might just as easily look at freenet.
-
-Every example shown does NOT perform identification and authentication.
-
-Identity is whatever the user wants. Authentication is nonexistant.
-Authorization is nonexistant - everybody is equal... (hence the peer to
-peer...).
-
-The problem is that P2P ASSUMES:
-
-1. client and server are one "application" (not necessarily one process).
-2. users have COMPLETE control over their "application".
-3. users have COMPLETE authorization to release/accept data.
-4. That data can contain ANYTHING - executables, images, audio, arbitrary
-   files. (this is also where the winamp bug shows up - it handles web pages
-   too, and does/did it incorrectly).
-5. full shared data access is desired (not necessarily updates to the data).
-6. data may be stored at any host, under the users credentials
-
-> Initial short term timeline is ~4 to 5 months for the three identified
-> white papers:<br><br>
-> 1.&nbsp; Kick off teleconference:&nbsp; 1 May 2002 1400 EST - number to
-> be provided latter this week.<br>
-> &nbsp; At this kickoff (expect a one hour conversation) sub-taksers and
-> sub-teams should be formed to address the deliverables and P2P
-> focus<br><br>
-> 2.&nbsp; Update teleconference 22 May 2002 1400 EST - Anticipate a one
-> hour teleconference<br>
-> &nbsp; Updates from each team, and new sub-taskers if=20
-> identified<br><br>
-> 3.&nbsp;&nbsp;&nbsp; Update teleconference 19 June 2002 1400 EST -
-> Anticipate a one hour teleconference<br>
-> &nbsp; Updates from each team, and new sub-taskers if=20
-> identified<br><br>
-> 4.&nbsp; First cut draft of each of the three identified white papers COB
-> 26 July 2002<br><br>
-> 5.&nbsp; Update teleconference 15 August 2002 1400 EST - Anticipate a one
-> hour teleconference<br>
-> &nbsp; Updates from each team on the white papers<br>
-> <br>
-> 6.&nbsp; Final White papers due COB 30 August 2002<br><br>
-> If possible the HPCMP would also like to participate at the DoD
-> level.&nbsp; If this can be arranged, the timelines may change and the
-> overall tasker may be much bigger.<br><br>
-> I have attached a copy of the HPCMP P2P position paper and P2P Powerpoint
-> presentation sent via our chain to Rodger Johnson, Dr. Frank Mello, Dr.
-> Holland, DDR&amp;E to ASD C3I.<br>
-> <x-tab>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</x-tab><br><br>
-> Very Respectfully,<br>
-> John E. Samios<br>
-> ............................................................................=
-> ..........<br>
-> High Performance Computing Modernization Program Office<br>
-> Defense Research Engineering Network (DREN) Operations Manager<br>
-> Contractor (Honeywell Technology Solutions Inc.)<br>
-> Voice:&nbsp;&nbsp; (703) 812-8205 x 4023<x-tab>&nbsp;&nbsp;</x-tab><br>
-> Cell:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (703) 622-1666<br>
-> Fax:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (703) 812-9701<br>
-> E-mail:&nbsp; jsamios@hpcmo.hpc.mil&nbsp; <br>
-> Web paging:
-> <a href=3D"http://www.hpcmo.hpc.mil/john.html"=
->  eudora=3D"autourl">http://www.hpcmo.hpc.mil/john.html</a><br>
-> Text messaging: 7036221666@mobile.att.net <br>
-> ............................................................................=
-> ..........
-> </blockquote><br>
-> </html>
-> 
-
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.

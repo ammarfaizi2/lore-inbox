@@ -1,81 +1,148 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261735AbTKLXsC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 18:48:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbTKLXsC
+	id S261764AbTKMAL5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 19:11:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbTKMAL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 18:48:02 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:32413 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261735AbTKLXr6
+	Wed, 12 Nov 2003 19:11:57 -0500
+Received: from 208.177.141.226.ptr.us.xo.net ([208.177.141.226]:31463 "HELO
+	ash.lnxi.com") by vger.kernel.org with SMTP id S261764AbTKMALx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 18:47:58 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: davidsen@tmr.com (bill davidsen)
-Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
-Date: Thu, 13 Nov 2003 00:47:31 +0100
-User-Agent: KMail/1.5.4
-References: <Pine.LNX.4.44.0311102136280.2881-100000@home.osdl.org> <20031111184919.43a93a88.diegocg@teleline.es> <boudu6$k3j$1@gatekeeper.tmr.com>
-In-Reply-To: <boudu6$k3j$1@gatekeeper.tmr.com>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200311130047.31161.bzolnier@elka.pw.edu.pl>
+	Wed, 12 Nov 2003 19:11:53 -0500
+Subject: [PATCH] Documentation/sysctl/vm.txt update
+From: Thayne Harbaugh <tharbaugh@lnxi.com>
+Reply-To: tharbaugh@lnxi.com
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: marcelo.tosatti@cyclades.com
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-2EHIPDnwLOK8oGugRa1p"
+Organization: Linux Networx
+Message-Id: <1068681892.28894.28.camel@tubarao>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 12 Nov 2003 17:04:52 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 12 of November 2003 23:58, bill davidsen wrote:
-> In article <20031111184919.43a93a88.diegocg@teleline.es>,
->
-> Diego Calleja =?ISO-8859-15?Q?Garc=EDa?=  <diegocg@teleline.es> wrote:
-> | El Mon, 10 Nov 2003 21:40:58 -0800 (PST) Linus Torvalds
-> | <torvalds@osdl.org>
-> |
-> | escribió:
-> | > Now it's your turn. Instead of wasting my time complaining, how about
-> | > you put up or shut up? Show me the code. THEN post it. Until you do,
-> | > there's no point to your mails.
-> |
-> | Until then, I'd suggest this patch to avoid more complains about this:
->
-> The object is not to avoid complaints, the object is to get the
-> capability working again. I presume eventually one of the commercial
-> vendors will fix it, since it's easier than rewriting all the SCSI
 
-Since it is easier for commercial vendors to fix it.
-They have necessary hardware and financial motivation
-(you've already pointed that out in one of your previous mails).
+--=-2EHIPDnwLOK8oGugRa1p
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> applications in the world. oddly there are people writing useful things
-> using other operating systems, under 2.4 almost all of those work.
+Now that 2.4.9 is well behind us, it's time to update
+Documentation/sysctl/vm.txt.
 
-Therefore stop complaining and _do_ something.
+Thanks
 
-> I hope to pick up another IDE tape drive so I can look at this problem,
-> the one I have is on a production system, which at the moment has no
-> reason to go to 2.6 even if it worked, which it doesn't. It also has
-> software to read ZIP drives in odd ways, and I'm not about to look for a
-> SCSI 100MB ZIP drive :-(
+--- linux-2.4.22/Documentation/sysctl/vm.txt	2002-11-28 16:53:08.000000000 =
+-0700
++++ linux-2.4.22-bs/Documentation/sysctl/vm.txt	2003-11-12 17:35:11.0000000=
+00 -0700
+@@ -18,13 +18,10 @@
+=20
+ Currently, these files are in /proc/sys/vm:
+ - bdflush
+-- buffermem
+-- freepages
+ - kswapd
+ - max_map_count
+ - overcommit_memory
+ - page-cluster
+-- pagecache
+ - pagetable_cache
+=20
+ =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+@@ -102,38 +99,6 @@
+ of buffer cache that is dirty which will stop bdflush.
+ The default is 20%, the miniumum is 0%, and the maxiumum is 100%.
+ =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+-buffermem:
+-
+-The three values in this file correspond to the values in
+-the struct buffer_mem. It controls how much memory should
+-be used for buffer memory. The percentage is calculated
+-as a percentage of total system memory.
+-
+-The values are:
+-min_percent	-- this is the minimum percentage of memory
+-		   that should be spent on buffer memory
+-borrow_percent  -- UNUSED
+-max_percent     -- UNUSED
+-
+-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+-freepages:
+-
+-This file contains the values in the struct freepages. That
+-struct contains three members: min, low and high.
+-
+-The meaning of the numbers is:
+-
+-freepages.min	When the number of free pages in the system
+-		reaches this number, only the kernel can
+-		allocate more memory.
+-freepages.low	If the number of free pages gets below this
+-		point, the kernel starts swapping aggressively.
+-freepages.high	The kernel tries to keep up to this amount of
+-		memory free; if memory comes below this point,
+-		the kernel gently starts swapping in the hopes
+-		that it never has to do real aggressive swapping.
+-
+-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+=20
+ kswapd:
+=20
+@@ -208,24 +173,6 @@
+=20
+ =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+=20
+-pagecache:
+-
+-This file does exactly the same as buffermem, only this
+-file controls the struct page_cache, and thus controls
+-the amount of memory used for the page cache.
+-
+-In 2.2, the page cache is used for 3 main purposes:
+-- caching read() data from files
+-- caching mmap()ed data and executable files
+-- swap cache
+-
+-When your system is both deep in swap and high on cache,
+-it probably means that a lot of the swapped data is being
+-cached, making for more efficient swapping than possible
+-with the 2.0 kernel.
+-
+-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+-
+ pagetable_cache:
+=20
+ The kernel keeps a number of page tables in a per-processor
 
-So you are about to look for a way to fix it... :P.
-Please send patches to me and lkml.
+--=20
+Thayne Harbaugh
+Linux Networx
 
---bartlomiej
-IDE Maintainer
+--=-2EHIPDnwLOK8oGugRa1p
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-> | diff -puN drivers/ide/Kconfig~idescsi-broken drivers/ide/Kconfig
-> | --- tim/drivers/ide/Kconfig~idescsi-broken	2003-11-11 18:35:23.000000000
-> | +0100 +++ tim-diego/drivers/ide/Kconfig	2003-11-11 18:36:07.000000000
-> | +0100 @@ -247,7 +247,7 @@ config BLK_DEV_IDEFLOPPY
-> |
-> |  config BLK_DEV_IDESCSI
-> |  	tristate "SCSI emulation support"
-> | -	depends on SCSI
-> | +	depends on SCSI && BROKEN
-> |  	---help---
-> |  	  This will provide SCSI host adapter emulation for IDE ATAPI
-> | devices, 	  and will allow you to use a SCSI device driver instead of
-> | a native
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA/ssqkfsBPTKE6HMkRAs2CAJ95z72g74Nd3FSFXMJh1Ei50U4kkgCeOCw/
+apbl25Q//yeaeXaHStTC61M=
+=LeVW
+-----END PGP SIGNATURE-----
+
+--=-2EHIPDnwLOK8oGugRa1p--
 

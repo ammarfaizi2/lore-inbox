@@ -1,435 +1,256 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261459AbVAXG1c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261456AbVAXG1d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261459AbVAXG1c (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 01:27:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbVAXG1G
+	id S261456AbVAXG1d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 01:27:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbVAXGZL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 01:27:06 -0500
+	Mon, 24 Jan 2005 01:25:11 -0500
 Received: from umhlanga.stratnet.net ([12.162.17.40]:19986 "EHLO
 	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261460AbVAXGOa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S261459AbVAXGOa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 24 Jan 2005 01:14:30 -0500
 Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: [PATCH][10/12] InfiniBand/core: add IsSM userspace support
-In-Reply-To: <20051232214.j7TLAr2Uqj9NHnIa@topspin.com>
+Subject: [PATCH][11/12] InfiniBand/mthca: clean up ioremap()/request_region() usage
+In-Reply-To: <20051232214.MwCsxKOebnykJtRc@topspin.com>
 X-Mailer: Roland's Patchbomber
 Date: Sun, 23 Jan 2005 22:14:24 -0800
-Message-Id: <20051232214.MwCsxKOebnykJtRc@topspin.com>
+Message-Id: <20051232214.3TWW9w76vhKgw1zV@topspin.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: akpm@osdl.org
 Content-Transfer-Encoding: 7BIT
 From: Roland Dreier <roland@topspin.com>
-X-OriginalArrivalTime: 24 Jan 2005 06:14:25.0512 (UTC) FILETIME=[F41FD680:01C501DB]
+X-OriginalArrivalTime: 24 Jan 2005 06:14:25.0575 (UTC) FILETIME=[F4297370:01C501DB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Implement setting/clearing IsSM port capability bit from userspace via
-"issm" special files (set IsSM bit on open, clear on close).
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+
+Here are misc fixes for mthca mapping:
+
+1. Thinkably, MSI tables or another region could fall between HCR
+   and ECR tables.
+   Thus its arguably wrong to map both tables in one region.
+   So, do it separately.
+   I think its also more readable to have ecr_base and access ecr there,
+   not access ecr with hcr pointer.
+
+2. mthca_request_regions error handling was borken
+   (wrong order of cleanups). For example on all errors
+   pci_release_region was called which is wrong if the region
+   was not yet mapped. And other such cleanups.
+
+3. Fixed some error messages too.
 
 Signed-off-by: Roland Dreier <roland@topspin.com>
 
---- linux-bk.orig/drivers/infiniband/core/user_mad.c	2005-01-23 20:57:19.946654072 -0800
-+++ linux-bk/drivers/infiniband/core/user_mad.c	2005-01-23 20:57:56.183145288 -0800
-@@ -45,6 +45,7 @@
- #include <linux/kref.h>
+--- linux-bk.orig/drivers/infiniband/hw/mthca/mthca_eq.c	2005-01-23 20:51:23.740805592 -0800
++++ linux-bk/drivers/infiniband/hw/mthca/mthca_eq.c	2005-01-23 20:58:55.772086392 -0800
+@@ -366,10 +366,11 @@
+ 	if (dev->eq_table.clr_mask)
+ 		writel(dev->eq_table.clr_mask, dev->eq_table.clr_int);
  
- #include <asm/uaccess.h>
-+#include <asm/semaphore.h>
+-	if ((ecr = readl(dev->hcr + MTHCA_ECR_OFFSET + 4)) != 0) {
++	if ((ecr = readl(dev->ecr_base + 4)) != 0) {
+ 		work = 1;
  
- #include <ib_mad.h>
- #include <ib_user_mad.h>
-@@ -54,7 +55,7 @@
- MODULE_LICENSE("Dual BSD/GPL");
+-		writel(ecr, dev->hcr + MTHCA_ECR_CLR_OFFSET + 4);
++		writel(ecr, dev->ecr_base +
++		       MTHCA_ECR_CLR_BASE - MTHCA_ECR_BASE + 4);
  
- enum {
--	IB_UMAD_MAX_PORTS  = 256,
-+	IB_UMAD_MAX_PORTS  = 64,
- 	IB_UMAD_MAX_AGENTS = 32
- };
- 
-@@ -62,6 +63,12 @@
- 	int                    devnum;
- 	struct cdev            dev;
- 	struct class_device    class_dev;
-+
-+	int                    sm_devnum;
-+	struct cdev            sm_dev;
-+	struct class_device    sm_class_dev;
-+	struct semaphore       sm_sem;
-+
- 	struct ib_device      *ib_dev;
- 	struct ib_umad_device *umad_dev;
- 	u8                     port_num;
-@@ -92,7 +99,7 @@
- 
- static dev_t base_dev;
- static spinlock_t map_lock;
--static DECLARE_BITMAP(dev_map, IB_UMAD_MAX_PORTS);
-+static DECLARE_BITMAP(dev_map, IB_UMAD_MAX_PORTS * 2);
- 
- static void ib_umad_add_one(struct ib_device *device);
- static void ib_umad_remove_one(struct ib_device *device);
-@@ -511,6 +518,54 @@
- 	.release        = ib_umad_close
- };
- 
-+static int ib_umad_sm_open(struct inode *inode, struct file *filp)
-+{
-+	struct ib_umad_port *port =
-+		container_of(inode->i_cdev, struct ib_umad_port, sm_dev);
-+	struct ib_port_modify props = {
-+		.set_port_cap_mask = IB_PORT_SM
-+	};
-+	int ret;
-+
-+	if (filp->f_flags & O_NONBLOCK) {
-+		if (down_trylock(&port->sm_sem))
-+			return -EAGAIN;
-+	} else {
-+		if (down_interruptible(&port->sm_sem))
-+			return -ERESTARTSYS;
+ 		for (i = 0; i < MTHCA_NUM_EQ; ++i)
+ 			if (ecr & dev->eq_table.eq[i].ecr_mask)
+--- linux-bk.orig/drivers/infiniband/hw/mthca/mthca_main.c	2005-01-23 20:52:01.962994936 -0800
++++ linux-bk/drivers/infiniband/hw/mthca/mthca_main.c	2005-01-23 20:58:55.771086544 -0800
+@@ -699,57 +699,83 @@
+ 	 */
+ 	if (!request_mem_region(pci_resource_start(pdev, 0) +
+ 				MTHCA_HCR_BASE,
+-				MTHCA_MAP_HCR_SIZE,
+-				DRV_NAME))
+-		return -EBUSY;
++				MTHCA_HCR_SIZE,
++				DRV_NAME)) {
++		err = -EBUSY;
++		goto err_hcr_failed;
 +	}
 +
-+	ret = ib_modify_port(port->ib_dev, port->port_num, 0, &props);
-+	if (ret) {
-+		up(&port->sm_sem);
-+		return ret;
-+	}
-+
-+	filp->private_data = port;
-+
-+	return 0;
-+}
-+
-+static int ib_umad_sm_close(struct inode *inode, struct file *filp)
-+{
-+	struct ib_umad_port *port = filp->private_data;
-+	struct ib_port_modify props = {
-+		.clr_port_cap_mask = IB_PORT_SM
-+	};
-+	int ret;
-+
-+	ret = ib_modify_port(port->ib_dev, port->port_num, 0, &props);
-+	up(&port->sm_sem);
-+
-+	return ret;
-+}
-+
-+static struct file_operations umad_sm_fops = {
-+	.owner 	 = THIS_MODULE,
-+	.open 	 = ib_umad_sm_open,
-+	.release = ib_umad_sm_close
-+};
-+
- static struct ib_client umad_client = {
- 	.name   = "umad",
- 	.add    = ib_umad_add_one,
-@@ -519,17 +574,18 @@
- 
- static ssize_t show_dev(struct class_device *class_dev, char *buf)
- {
--	struct ib_umad_port *port =
--		container_of(class_dev, struct ib_umad_port, class_dev);
-+	struct ib_umad_port *port = class_get_devdata(class_dev);
- 
--	return print_dev_t(buf, port->dev.dev);
-+	if (class_dev == &port->class_dev)
-+		return print_dev_t(buf, port->dev.dev);
-+	else
-+		return print_dev_t(buf, port->sm_dev.dev);
- }
- static CLASS_DEVICE_ATTR(dev, S_IRUGO, show_dev, NULL);
- 
- static ssize_t show_ibdev(struct class_device *class_dev, char *buf)
- {
--	struct ib_umad_port *port =
--		container_of(class_dev, struct ib_umad_port, class_dev);
-+	struct ib_umad_port *port = class_get_devdata(class_dev);
- 
- 	return sprintf(buf, "%s\n", port->ib_dev->name);
- }
-@@ -537,8 +593,7 @@
- 
- static ssize_t show_port(struct class_device *class_dev, char *buf)
- {
--	struct ib_umad_port *port =
--		container_of(class_dev, struct ib_umad_port, class_dev);
-+	struct ib_umad_port *port = class_get_devdata(class_dev);
- 
- 	return sprintf(buf, "%d\n", port->port_num);
- }
-@@ -554,11 +609,16 @@
- 
- static void ib_umad_release_port(struct class_device *class_dev)
- {
--	struct ib_umad_port *port =
--		container_of(class_dev, struct ib_umad_port, class_dev);
-+	struct ib_umad_port *port = class_get_devdata(class_dev);
-+
-+	if (class_dev == &port->class_dev) {
-+		cdev_del(&port->dev);
-+		clear_bit(port->devnum, dev_map);
-+	} else {
-+		cdev_del(&port->sm_dev);
-+		clear_bit(port->sm_devnum, dev_map);
++	if (!request_mem_region(pci_resource_start(pdev, 0) +
++				MTHCA_ECR_BASE,
++				MTHCA_MAP_ECR_SIZE,
++				DRV_NAME)) {
++		err = -EBUSY;
++		goto err_ecr_failed;
 +	}
  
--	cdev_del(&port->dev);
--	clear_bit(port->devnum, dev_map);
- 	kref_put(&port->umad_dev->ref, ib_umad_release_dev);
- }
- 
-@@ -573,6 +633,94 @@
- }
- static CLASS_ATTR(abi_version, S_IRUGO, show_abi_version, NULL);
- 
-+static int ib_umad_init_port(struct ib_device *device, int port_num,
-+			     struct ib_umad_port *port)
-+{
-+	spin_lock(&map_lock);
-+	port->devnum = find_first_zero_bit(dev_map, IB_UMAD_MAX_PORTS);
-+	if (port->devnum >= IB_UMAD_MAX_PORTS) {
-+		spin_unlock(&map_lock);
-+		return -1;
-+	}
-+	port->sm_devnum = find_next_zero_bit(dev_map, IB_UMAD_MAX_PORTS * 2, IB_UMAD_MAX_PORTS);
-+	if (port->sm_devnum >= IB_UMAD_MAX_PORTS * 2) {
-+		spin_unlock(&map_lock);
-+		return -1;
-+	}
-+	set_bit(port->devnum, dev_map);
-+	set_bit(port->sm_devnum, dev_map);
-+	spin_unlock(&map_lock);
-+
-+	port->ib_dev   = device;
-+	port->port_num = port_num;
-+	init_MUTEX(&port->sm_sem);
-+
-+	cdev_init(&port->dev, &umad_fops);
-+	port->dev.owner = THIS_MODULE;
-+	kobject_set_name(&port->dev.kobj, "umad%d", port->devnum);
-+	if (cdev_add(&port->dev, base_dev + port->devnum, 1))
-+		return -1;
-+
-+	port->class_dev.class = &umad_class;
-+	port->class_dev.dev   = device->dma_device;
-+
-+	snprintf(port->class_dev.class_id, BUS_ID_SIZE, "umad%d", port->devnum);
-+
-+	if (class_device_register(&port->class_dev))
-+		goto err_cdev;
-+
-+	class_set_devdata(&port->class_dev, port);
-+	kref_get(&port->umad_dev->ref);
-+
-+	if (class_device_create_file(&port->class_dev, &class_device_attr_dev))
-+		goto err_class;
-+	if (class_device_create_file(&port->class_dev, &class_device_attr_ibdev))
-+		goto err_class;
-+	if (class_device_create_file(&port->class_dev, &class_device_attr_port))
-+		goto err_class;
-+
-+	cdev_init(&port->sm_dev, &umad_sm_fops);
-+	port->sm_dev.owner = THIS_MODULE;
-+	kobject_set_name(&port->dev.kobj, "issm%d", port->sm_devnum - IB_UMAD_MAX_PORTS);
-+	if (cdev_add(&port->sm_dev, base_dev + port->sm_devnum, 1))
-+		return -1;
-+
-+	port->sm_class_dev.class = &umad_class;
-+	port->sm_class_dev.dev   = device->dma_device;
-+
-+	snprintf(port->sm_class_dev.class_id, BUS_ID_SIZE, "issm%d", port->sm_devnum - IB_UMAD_MAX_PORTS);
-+
-+	if (class_device_register(&port->sm_class_dev))
-+		goto err_sm_cdev;
-+
-+	class_set_devdata(&port->sm_class_dev, port);
-+	kref_get(&port->umad_dev->ref);
-+
-+	if (class_device_create_file(&port->sm_class_dev, &class_device_attr_dev))
-+		goto err_sm_class;
-+	if (class_device_create_file(&port->sm_class_dev, &class_device_attr_ibdev))
-+		goto err_sm_class;
-+	if (class_device_create_file(&port->sm_class_dev, &class_device_attr_port))
-+		goto err_sm_class;
-+
-+	return 0;
-+
-+err_sm_class:
-+	class_device_unregister(&port->sm_class_dev);
-+
-+err_sm_cdev:
-+	cdev_del(&port->sm_dev);
-+
-+err_class:
-+	class_device_unregister(&port->class_dev);
-+
-+err_cdev:
-+	cdev_del(&port->dev);
-+	clear_bit(port->devnum, dev_map);
-+
-+	return -1;
-+}
-+
- static void ib_umad_add_one(struct ib_device *device)
- {
- 	struct ib_umad_device *umad_dev;
-@@ -601,58 +749,20 @@
- 
- 	for (i = s; i <= e; ++i) {
- 		umad_dev->port[i - s].umad_dev = umad_dev;
--		kref_get(&umad_dev->ref);
--
--		spin_lock(&map_lock);
--		umad_dev->port[i - s].devnum =
--			find_first_zero_bit(dev_map, IB_UMAD_MAX_PORTS);
--		if (umad_dev->port[i - s].devnum >= IB_UMAD_MAX_PORTS) {
--			spin_unlock(&map_lock);
--			goto err;
--		}
--		set_bit(umad_dev->port[i - s].devnum, dev_map);
--		spin_unlock(&map_lock);
- 
--		umad_dev->port[i - s].ib_dev   = device;
--		umad_dev->port[i - s].port_num = i;
--
--		cdev_init(&umad_dev->port[i - s].dev, &umad_fops);
--		umad_dev->port[i - s].dev.owner = THIS_MODULE;
--		kobject_set_name(&umad_dev->port[i - s].dev.kobj,
--				 "umad%d", umad_dev->port[i - s].devnum);
--		if (cdev_add(&umad_dev->port[i - s].dev, base_dev +
--			     umad_dev->port[i - s].devnum, 1))
-+		if (ib_umad_init_port(device, i, &umad_dev->port[i - s]))
- 			goto err;
--
--		umad_dev->port[i - s].class_dev.class = &umad_class;
--		umad_dev->port[i - s].class_dev.dev   = device->dma_device;
--		snprintf(umad_dev->port[i - s].class_dev.class_id,
--			 BUS_ID_SIZE, "umad%d", umad_dev->port[i - s].devnum);
--		if (class_device_register(&umad_dev->port[i - s].class_dev))
--			goto err_class;
--
--		if (class_device_create_file(&umad_dev->port[i - s].class_dev,
--					     &class_device_attr_dev))
--			goto err_class;
--		if (class_device_create_file(&umad_dev->port[i - s].class_dev,
--					     &class_device_attr_ibdev))
--			goto err_class;
--		if (class_device_create_file(&umad_dev->port[i - s].class_dev,
--					     &class_device_attr_port))
--			goto err_class;
+ 	if (!request_mem_region(pci_resource_start(pdev, 0) +
+ 				MTHCA_CLR_INT_BASE,
+ 				MTHCA_CLR_INT_SIZE,
+ 				DRV_NAME)) {
+ 		err = -EBUSY;
+-		goto err_bar0_beg;
++		goto err_int_failed;
  	}
  
- 	ib_set_client_data(device, &umad_client, umad_dev);
++
+ 	err = pci_request_region(pdev, 2, DRV_NAME);
+ 	if (err)
+-		goto err_bar0_end;
++		goto err_bar2_failed;
  
- 	return;
+ 	if (!ddr_hidden) {
+ 		err = pci_request_region(pdev, 4, DRV_NAME);
+ 		if (err)
+-			goto err_bar2;
++			goto err_bar4_failed;
+ 	}
  
--err_class:
--	cdev_del(&umad_dev->port[i - s].dev);
--	clear_bit(umad_dev->port[i - s].devnum, dev_map);
--
- err:
--	while (--i >= s)
-+	while (--i >= s) {
- 		class_device_unregister(&umad_dev->port[i - s].class_dev);
-+		class_device_unregister(&umad_dev->port[i - s].sm_class_dev);
-+	}
+ 	return 0;
  
- 	kref_put(&umad_dev->ref, ib_umad_release_dev);
+-err_bar0_beg:
+-	release_mem_region(pci_resource_start(pdev, 0) +
+-			   MTHCA_HCR_BASE,
+-			   MTHCA_MAP_HCR_SIZE);
++err_bar4_failed:
++
++	pci_release_region(pdev, 2);
++err_bar2_failed:
+ 
+-err_bar0_end:
+ 	release_mem_region(pci_resource_start(pdev, 0) +
+ 			   MTHCA_CLR_INT_BASE,
+ 			   MTHCA_CLR_INT_SIZE);
++err_int_failed:
++
++	release_mem_region(pci_resource_start(pdev, 0) +
++			   MTHCA_ECR_BASE,
++			   MTHCA_MAP_ECR_SIZE);
++err_ecr_failed:
++
++	release_mem_region(pci_resource_start(pdev, 0) +
++			   MTHCA_HCR_BASE,
++			   MTHCA_HCR_SIZE);
++err_hcr_failed:
+ 
+-err_bar2:
+-	pci_release_region(pdev, 2);
+ 	return err;
  }
-@@ -665,8 +775,10 @@
- 	if (!umad_dev)
- 		return;
  
--	for (i = 0; i <= umad_dev->end_port - umad_dev->start_port; ++i)
-+	for (i = 0; i <= umad_dev->end_port - umad_dev->start_port; ++i) {
- 		class_device_unregister(&umad_dev->port[i].class_dev);
-+		class_device_unregister(&umad_dev->port[i].sm_class_dev);
-+	}
- 
- 	kref_put(&umad_dev->ref, ib_umad_release_dev);
- }
-@@ -677,7 +789,7 @@
- 
- 	spin_lock_init(&map_lock);
- 
--	ret = alloc_chrdev_region(&base_dev, 0, IB_UMAD_MAX_PORTS,
-+	ret = alloc_chrdev_region(&base_dev, 0, IB_UMAD_MAX_PORTS * 2,
- 				  "infiniband_mad");
- 	if (ret) {
- 		printk(KERN_ERR "user_mad: couldn't get device number\n");
-@@ -708,7 +820,7 @@
- 	class_unregister(&umad_class);
- 
- out_chrdev:
--	unregister_chrdev_region(base_dev, IB_UMAD_MAX_PORTS);
-+	unregister_chrdev_region(base_dev, IB_UMAD_MAX_PORTS * 2);
- 
- out:
- 	return ret;
-@@ -718,7 +830,7 @@
+ static void mthca_release_regions(struct pci_dev *pdev,
+ 				  int ddr_hidden)
  {
- 	ib_unregister_client(&umad_client);
- 	class_unregister(&umad_class);
--	unregister_chrdev_region(base_dev, IB_UMAD_MAX_PORTS);
-+	unregister_chrdev_region(base_dev, IB_UMAD_MAX_PORTS * 2);
+-	release_mem_region(pci_resource_start(pdev, 0) +
+-			   MTHCA_HCR_BASE,
+-			   MTHCA_MAP_HCR_SIZE);
++	if (!ddr_hidden)
++		pci_release_region(pdev, 4);
++
++	pci_release_region(pdev, 2);
++
+ 	release_mem_region(pci_resource_start(pdev, 0) +
+ 			   MTHCA_CLR_INT_BASE,
+ 			   MTHCA_CLR_INT_SIZE);
+-	pci_release_region(pdev, 2);
+-	if (!ddr_hidden)
+-		pci_release_region(pdev, 4);
++
++	release_mem_region(pci_resource_start(pdev, 0) +
++			   MTHCA_ECR_BASE,
++			   MTHCA_MAP_ECR_SIZE);
++
++	release_mem_region(pci_resource_start(pdev, 0) +
++			   MTHCA_HCR_BASE,
++			   MTHCA_HCR_SIZE);
  }
  
- module_init(ib_umad_init);
---- linux-bk.orig/Documentation/infiniband/user_mad.txt	2005-01-23 08:30:27.000000000 -0800
-+++ linux-bk/Documentation/infiniband/user_mad.txt	2005-01-23 20:57:46.505616496 -0800
-@@ -2,9 +2,10 @@
+ static int __devinit mthca_enable_msi_x(struct mthca_dev *mdev)
+@@ -911,29 +937,39 @@
+ 	mdev->cmd.use_events = 0;
  
- Device files
- 
--  Each port of each InfiniBand device has a "umad" device attached.
--  For example, a two-port HCA will have two devices, while a switch
--  will have one device (for switch port 0).
-+  Each port of each InfiniBand device has a "umad" device and an
-+  "issm" device attached.  For example, a two-port HCA will have two
-+  umad devices and two issm devices, while a switch will have one
-+  device of each type (for switch port 0).
- 
- Creating MAD agents
- 
-@@ -63,19 +64,36 @@
- 	if (ret != sizeof mad)
- 		perror("write");
- 
-+Setting IsSM Capability Bit
+ 	mthca_base = pci_resource_start(pdev, 0);
+-	mdev->hcr = ioremap(mthca_base + MTHCA_HCR_BASE, MTHCA_MAP_HCR_SIZE);
++	mdev->hcr = ioremap(mthca_base + MTHCA_HCR_BASE, MTHCA_HCR_SIZE);
+ 	if (!mdev->hcr) {
+ 		mthca_err(mdev, "Couldn't map command register, "
+ 			  "aborting.\n");
+ 		err = -ENOMEM;
+ 		goto err_free_dev;
+ 	}
 +
-+  To set the IsSM capability bit for a port, simply open the
-+  corresponding issm device file.  If the IsSM bit is already set,
-+  then the open call will block until the bit is cleared (or return
-+  immediately with errno set to EAGAIN if the O_NONBLOCK flag is
-+  passed to open()).  The IsSM bit will be cleared when the issm file
-+  is closed.  No read, write or other operations can be performed on
-+  the issm file.
+ 	mdev->clr_base = ioremap(mthca_base + MTHCA_CLR_INT_BASE,
+ 				 MTHCA_CLR_INT_SIZE);
+ 	if (!mdev->clr_base) {
+-		mthca_err(mdev, "Couldn't map command register, "
++		mthca_err(mdev, "Couldn't map interrupt clear register, "
+ 			  "aborting.\n");
+ 		err = -ENOMEM;
+ 		goto err_iounmap;
+ 	}
+ 
++	mdev->ecr_base = ioremap(mthca_base + MTHCA_ECR_BASE,
++				 MTHCA_ECR_SIZE + MTHCA_ECR_CLR_SIZE);
++	if (!mdev->ecr_base) {
++		mthca_err(mdev, "Couldn't map ecr register, "
++			  "aborting.\n");
++		err = -ENOMEM;
++		goto err_iounmap_clr;
++	}
 +
- /dev files
+ 	mthca_base = pci_resource_start(pdev, 2);
+ 	mdev->kar = ioremap(mthca_base + PAGE_SIZE * MTHCA_KAR_PAGE, PAGE_SIZE);
+ 	if (!mdev->kar) {
+ 		mthca_err(mdev, "Couldn't map kernel access region, "
+ 			  "aborting.\n");
+ 		err = -ENOMEM;
+-		goto err_iounmap_clr;
++		goto err_iounmap_ecr;
+ 	}
  
-   To create the appropriate character device files automatically with
-   udev, a rule like
+ 	err = mthca_tune_pci(mdev);
+@@ -982,6 +1018,9 @@
+ err_iounmap_kar:
+ 	iounmap(mdev->kar);
  
-     KERNEL="umad*", NAME="infiniband/%k"
-+    KERNEL="issm*", NAME="infiniband/%k"
- 
--  can be used.  This will create a device node named
-+  can be used.  This will create device nodes named
- 
-     /dev/infiniband/umad0
-+    /dev/infiniband/issm0
- 
-   for the first port, and so on.  The InfiniBand device and port
--  associated with this device can be determined from the files
-+  associated with these devices can be determined from the files
- 
-     /sys/class/infiniband_mad/umad0/ibdev
-     /sys/class/infiniband_mad/umad0/port
++err_iounmap_ecr:
++	iounmap(mdev->ecr_base);
 +
-+  and
-+
-+    /sys/class/infiniband_mad/issm0/ibdev
-+    /sys/class/infiniband_mad/issm0/port
+ err_iounmap_clr:
+ 	iounmap(mdev->clr_base);
+ 
+@@ -1033,6 +1072,7 @@
+ 		mthca_close_hca(mdev);
+ 
+ 		iounmap(mdev->hcr);
++		iounmap(mdev->ecr_base);
+ 		iounmap(mdev->clr_base);
+ 
+ 		if (mdev->mthca_flags & MTHCA_FLAG_MSI_X)
+--- linux-bk.orig/drivers/infiniband/hw/mthca/mthca_config_reg.h	2005-01-23 08:30:41.000000000 -0800
++++ linux-bk/drivers/infiniband/hw/mthca/mthca_config_reg.h	2005-01-23 20:58:55.772086392 -0800
+@@ -43,13 +43,8 @@
+ #define MTHCA_ECR_SIZE         0x00008
+ #define MTHCA_ECR_CLR_BASE     0x80708
+ #define MTHCA_ECR_CLR_SIZE     0x00008
+-#define MTHCA_ECR_OFFSET       (MTHCA_ECR_BASE     - MTHCA_HCR_BASE)
+-#define MTHCA_ECR_CLR_OFFSET   (MTHCA_ECR_CLR_BASE - MTHCA_HCR_BASE)
++#define MTHCA_MAP_ECR_SIZE     (MTHCA_ECR_SIZE + MTHCA_ECR_CLR_SIZE)
+ #define MTHCA_CLR_INT_BASE     0xf00d8
+ #define MTHCA_CLR_INT_SIZE     0x00008
+ 
+-#define MTHCA_MAP_HCR_SIZE     (MTHCA_ECR_CLR_BASE   + \
+-			        MTHCA_ECR_CLR_SIZE   - \
+-			        MTHCA_HCR_BASE)
+-
+ #endif /* MTHCA_CONFIG_REG_H */
+--- linux-bk.orig/drivers/infiniband/hw/mthca/mthca_dev.h	2005-01-23 20:39:02.036561776 -0800
++++ linux-bk/drivers/infiniband/hw/mthca/mthca_dev.h	2005-01-23 20:58:55.770086696 -0800
+@@ -237,6 +237,7 @@
+ 	struct semaphore cap_mask_mutex;
+ 
+ 	void __iomem    *hcr;
++	void __iomem    *ecr_base;
+ 	void __iomem    *clr_base;
+ 	void __iomem    *kar;
+ 
 

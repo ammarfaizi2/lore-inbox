@@ -1,49 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263343AbTKWKaJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Nov 2003 05:30:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263357AbTKWKaJ
+	id S263345AbTKWLEQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Nov 2003 06:04:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263357AbTKWLEQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Nov 2003 05:30:09 -0500
-Received: from attila.bofh.it ([213.92.8.2]:461 "EHLO attila.bofh.it")
-	by vger.kernel.org with ESMTP id S263343AbTKWKaG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Nov 2003 05:30:06 -0500
-Date: Sun, 23 Nov 2003 11:29:53 +0100
-From: "Marco d'Itri" <md@Linux.IT>
-To: Andi Kleen <ak@colin2.muc.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@muc.de>,
-       linux-kernel@vger.kernel.org, len.brown@intel.com
-Subject: Re: irq 15: nobody cared! with KT600 chipset and 2.6.0-test9
-Message-ID: <20031123102953.GA1852@wonderland.linux.it>
-References: <m3vfpbiwir.fsf@averell.firstfloor.org> <Pine.LNX.4.44.0311222022120.2379-100000@home.osdl.org> <20031123051011.GA92830@colin2.muc.de>
+	Sun, 23 Nov 2003 06:04:16 -0500
+Received: from arnor.apana.org.au ([203.14.152.115]:20745 "EHLO
+	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
+	id S263345AbTKWLEO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Nov 2003 06:04:14 -0500
+Date: Sun, 23 Nov 2003 22:04:01 +1100
+To: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [I810_AUDIO] 10/x: Fix reads/writes % 4 != 0
+Message-ID: <20031123110401.GA15665@gondor.apana.org.au>
+References: <20031122070931.GA27231@gondor.apana.org.au> <20031122071345.GA27303@gondor.apana.org.au> <20031122071935.GA27371@gondor.apana.org.au> <20031122082227.GA27692@gondor.apana.org.au> <20031122082635.GA27752@gondor.apana.org.au> <20031122083912.GA27884@gondor.apana.org.au> <20031122235101.GA9276@gondor.apana.org.au> <20031122235323.GA9326@gondor.apana.org.au> <20031123000202.GA9424@gondor.apana.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="DocE+STaALJfprDB"
 Content-Disposition: inline
-In-Reply-To: <20031123051011.GA92830@colin2.muc.de>
+In-Reply-To: <20031123000202.GA9424@gondor.apana.org.au>
 User-Agent: Mutt/1.5.4i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 23, Andi Kleen <ak@colin2.muc.de> wrote:
 
- >On Sat, Nov 22, 2003 at 08:23:16PM -0800, Linus Torvalds wrote:
- >> 
- >> On Sun, 23 Nov 2003, Andi Kleen wrote:
- >> > 
- >> > It's a long standing bug in how we handle VIA on board devices in ACPI.
- >> > It was a big problem on x86-64 too until I cheated and used only
- >> > PIC mode when there is a VIA southbridge.
- >> 
- >> That doesn't explain the lack of autodetection, and the early irq15 
- >> registration.
- >> 
- >> That would explain why no interrupts make it at all, but why do we not 
- >> even probe for irq15 here?
- >
- >It's easy to test. does it work when booted with "noapic" ? 
-Yes, I checked again.
+--DocE+STaALJfprDB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+This patch removes another bogus chunk of code that breaks when
+the application does a partial write.
+
+In particular, a read/write of x bytes where x % 4 != 0 will loop forever.
 -- 
-ciao, |
-Marco | [3232 ma6tjQg3wBT1w]
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+--DocE+STaALJfprDB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=p10
+
+Index: kernel-source-2.4/drivers/sound/i810_audio.c
+===================================================================
+RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.4/drivers/sound/i810_audio.c,v
+retrieving revision 1.17
+diff -u -r1.17 i810_audio.c
+--- kernel-source-2.4/drivers/sound/i810_audio.c	23 Nov 2003 00:34:22 -0000	1.17
++++ kernel-source-2.4/drivers/sound/i810_audio.c	23 Nov 2003 10:59:46 -0000
+@@ -1487,15 +1487,6 @@
+ 
+ 		if (cnt > count)
+ 			cnt = count;
+-		/* Lop off the last two bits to force the code to always
+-		 * write in full samples.  This keeps software that sets
+-		 * O_NONBLOCK but doesn't check the return value of the
+-		 * write call from getting things out of state where they
+-		 * think a full 4 byte sample was written when really only
+-		 * a portion was, resulting in odd sound and stereo
+-		 * hysteresis.
+-		 */
+-		cnt &= ~0x3;
+ 		if (cnt <= 0) {
+ 			unsigned long tmo;
+ 			/*
+@@ -1643,15 +1634,6 @@
+ #endif
+ 		if (cnt > count)
+ 			cnt = count;
+-		/* Lop off the last two bits to force the code to always
+-		 * write in full samples.  This keeps software that sets
+-		 * O_NONBLOCK but doesn't check the return value of the
+-		 * write call from getting things out of state where they
+-		 * think a full 4 byte sample was written when really only
+-		 * a portion was, resulting in odd sound and stereo
+-		 * hysteresis.
+-		 */
+-		cnt &= ~0x3;
+ 		if (cnt <= 0) {
+ 			unsigned long tmo;
+ 			// There is data waiting to be played
+
+--DocE+STaALJfprDB--

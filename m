@@ -1,66 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267829AbUI1OJ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267772AbUI1OPe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267829AbUI1OJ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 10:09:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267808AbUI1OHd
+	id S267772AbUI1OPe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 10:15:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267776AbUI1OPQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 10:07:33 -0400
-Received: from lists.us.dell.com ([143.166.224.162]:13455 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S267828AbUI1OG3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 10:06:29 -0400
-Date: Tue, 28 Sep 2004 09:06:27 -0500
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Dave Jones <davej@redhat.com>, Brian McGrew <Brian@doubledimension.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Probing for System Model Information
-Message-ID: <20040928140627.GA24899@lists.us.dell.com>
-References: <E6456D527ABC5B4DBD1119A9FB461E35019377@constellation.doubledimension.com> <20040928134705.GA11916@redhat.com>
+	Tue, 28 Sep 2004 10:15:16 -0400
+Received: from mail.kroah.org ([69.55.234.183]:47801 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S267772AbUI1OMt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 10:12:49 -0400
+Date: Tue, 28 Sep 2004 07:12:43 -0700
+From: Greg KH <greg@kroah.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       germano.barreiro@cyclades.com
+Subject: Re: [PATCH] cyclades.c sysfs statistics support
+Message-ID: <20040928141242.GA27728@kroah.com>
+References: <20040928120421.GB11779@logos.cnet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040928134705.GA11916@redhat.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040928120421.GB11779@logos.cnet>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 28, 2004 at 02:47:05PM +0100, Dave Jones wrote:
-> On Tue, Sep 28, 2004 at 06:32:31AM -0700, Brian McGrew wrote:
->  > Good morning All!  We exclusively ship Dell boxes with our
->  > hardware.  However, we use several different models, 1400's,
->  > 1600's, 2350's, 4600's and so on.  I need to write a small
->  > program to probe the system for the model information since I
->  > don't seem to find it in the logs anywhere.  I know the model
->  > info is in there somewhere and it's accessible because if I look
->  > on the default factory installed version of Windows, it's listed.
->  > Does anyone know how to do this or can you point me to one that's
->  > already done or some samples?
->  
-> You can find this info in the DMI tables assuming Dell filled
-> them in with sensible data (which they usually do).
+On Tue, Sep 28, 2004 at 09:04:21AM -0300, Marcelo Tosatti wrote:
+> +    device_create_file(&(cy_card[info->card].pdev->dev), &_cydas[line]);            
 
-Yes, we do. :-)  I've abbreviated the output to serve as an example.
+Why the array of attributes?  As you only have one (which is wrong...)
+you only need one attribute structure.
 
-# dmidecode
-Handle 0x0000
-        BIOS Information Block
-                Vendor: Dell Computer Corporation
-                Version: A08
-Handle 0x0100
-        System Information Block
-                Vendor: Dell Computer Corporation
-                Product: PowerEdge 2400
-Handle 0x0300
-        Chassis Information Block
-                Serial Number: MY_SERIAL_NUMBER
-                Asset Tag: 0000001
+> +  show_sys_data - shows the data exported to sysfs/device, mostly the signals status involved in the
+> +  serial communication such as CTS,RTS,DTS,etc
 
+NO!  sysfs is 1 value per file.  Not a whole bunch of values per one
+file.  Please change this to create a whole bunch of little files, not
+one big one.
 
-Thanks,
-Matt
+thanks,
 
---
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+greg k-h

@@ -1,63 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265846AbUA1D6N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 22:58:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265847AbUA1D6N
+	id S265847AbUA1EiG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 23:38:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265848AbUA1EiG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 22:58:13 -0500
-Received: from fw.osdl.org ([65.172.181.6]:20353 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265846AbUA1D6L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 22:58:11 -0500
-Date: Tue, 27 Jan 2004 19:55:58 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: jw schultz <jw@pegasys.ws>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC: Trailing blanks in source files
-Message-Id: <20040127195558.342dba6c.rddunlap@osdl.org>
-In-Reply-To: <20040128034939.GE15979@pegasys.ws>
-References: <Pine.LNX.4.58.0401271544120.27260@joel.ist.utl.pt.suse.lists.linux.kernel>
-	<p73bropfdgl.fsf@nielsen.suse.de>
-	<200401271251.34926.theman@josephdwagner.info>
-	<20040127191358.GI20879@khan.acc.umu.se>
-	<20040127111824.7f76efe6.rddunlap@osdl.org>
-	<20040127160214.69850c9c.akpm@osdl.org>
-	<20040128034939.GE15979@pegasys.ws>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 27 Jan 2004 23:38:06 -0500
+Received: from smtp806.mail.sc5.yahoo.com ([66.163.168.185]:34675 "HELO
+	smtp806.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265847AbUA1EiD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 23:38:03 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Andrew Morton <akpm@osdl.org>,
+       Alessandro Suardi <alessandro.suardi@oracle.com>
+Subject: Re: 2.6.2-rc2-bk1 oopses on boot (ACPI patch)
+Date: Tue, 27 Jan 2004 23:37:55 -0500
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org, linux-acpi@intel.com
+References: <40171B5B.4020601@oracle.com> <20040127184228.3a0b8a86.akpm@osdl.org>
+In-Reply-To: <20040127184228.3a0b8a86.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401272337.55676.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Jan 2004 19:49:39 -0800 jw schultz <jw@pegasys.ws> wrote:
+On Tuesday 27 January 2004 09:42 pm, Andrew Morton wrote:
+> Alessandro Suardi <alessandro.suardi@oracle.com> wrote:
+> > Already reported, but I'll do so once again, since it looks like
+> >   in a short while I won't be able to boot official kernels in my
+> >   current config...
+> >
+> > Original report here:
+> >
+> > http://www.ussg.iu.edu/hypermail/linux/kernel/0312.3/0442.html
+>
+> Divide by zero.  Looks like ACPI is now passing bad values into the
+> frequency change notifier.
 
-| On Tue, Jan 27, 2004 at 04:02:14PM -0800, Andrew Morton wrote:
-| > "Randy.Dunlap" <rddunlap@osdl.org> wrote:
-| > >
-| > > So please don't bother with just whitespace changes unless you
-| > > are going to cleanup a <driver | fs | module | etc> completely.
-| > 
-| > And if you're going to do that, do the whitespace cleanup _first_, so the
-| > substantive changes to the driver/fs/module/etc can be sanely understood
-| > and reverted if necessary.
-| > 
-| > I frequently sneakily remove all newly-added trailing whitespace from the
-| > patches people send me.  In 15 years it'll all be gone.
-| 
-| This would maybe warrant a bk option to remove trailing
-| whitespace from modified lines.  Preferably with an
-| notification that it is happening so if for some reason you
-| do want trailing whitespace you could abort or override.
-| 
-| A patch filter that removed trailing whitespace from + lines
-| could also be used.
+It is a common problem with Dell's DSDT implementation which does not
+follow ACPI spec and it's been going on for ages. From the original
+report:
 
-AFAIK Andrew already uses a script to check for trailing spaces,
-and I do also.  Yes, it could be modified to be a conversion filter,
-but it doesn't happen frequently, and when it does, I want to let
-the poster know about it, so I like to have the evidence handy.  :)
+cpufreq: CPU0 - ACPI performance management activated
+ cpufreq: *P0: 1Mhz, 0 mW, 0 uS
+ cpufreq: P1: 0Mhz, 0 mW, 0 uS
+ divide error: 0000 [#1]
 
---
-~Randy
+As you can see all data is bogus... Patching DSDT cures it for sure,
+sometimes CONFIG_ACPI_RELAXED_AML helps as well.
+
+I suppose ACPI P-states driver could check frequencies/latencies and
+refuse to activate if the are bogus.
+
+-- 
+Dmitry

@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129408AbQLOTjf>; Fri, 15 Dec 2000 14:39:35 -0500
+	id <S131038AbQLOTkf>; Fri, 15 Dec 2000 14:40:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129413AbQLOTj0>; Fri, 15 Dec 2000 14:39:26 -0500
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:21509 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S129408AbQLOTjQ>; Fri, 15 Dec 2000 14:39:16 -0500
-Message-Id: <200012151906.eBFJ6ac28241@pincoya.inf.utfsm.cl>
-To: root@chaos.analogic.com
-cc: Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
-        Andrea Arcangeli <andrea@suse.de>, Mike Black <mblack@csihq.com>,
-        "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.18 signal.h 
-In-Reply-To: Message from "Richard B. Johnson" <root@chaos.analogic.com> 
-   of "Fri, 15 Dec 2000 13:34:41 CDT." <Pine.LNX.3.95.1001215131538.1528B-100000@chaos.analogic.com> 
-Date: Fri, 15 Dec 2000 16:06:36 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S129391AbQLOTk0>; Fri, 15 Dec 2000 14:40:26 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:52302 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S131051AbQLOTkG>; Fri, 15 Dec 2000 14:40:06 -0500
+Date: Fri, 15 Dec 2000 20:09:06 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: J Sloan <jjs@toyota.com>, Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [lkml]Re: VM problems still in 2.2.18
+Message-ID: <20001215200906.H17781@inspiron.random>
+In-Reply-To: <20001215192207.E17781@inspiron.random> <E146zsJ-0001fT-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E146zsJ-0001fT-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Dec 15, 2000 at 06:46:32PM +0000
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" <root@chaos.analogic.com> said:
+On Fri, Dec 15, 2000 at 06:46:32PM +0000, Alan Cox wrote:
+> so the actual problem is either - the returning 1 when it is the wrong answer
+> - or the failure to block somewhere else (where its safe) based on a kpiod
+> maintained semaphore ?
 
-[...]
+The problem is not to find a safe place where to wait, the problem is to know
+"when" we can block. That's the only thing current->fs_locks tells us. Sometime
+we simply can't wait because I/O can't start until we return (it would deadlock
+regardless we wait on a kpiod semaphore or in down(i_sem) ourselfs).
 
-> 	Both examples allow an extern declaration inside a function scope
-> 	which is also contrary to any (even old) 'C' standards. 'extern'
-> 	is always file scope, there's no way to make it otherwise.
+Once we know "if" we can't wait or not the whole point of kpiod is lost
+as kpiod exists only because we didn't know that and so we were not able
+to wait.
 
-AFAIR (rather dimly... no K&R at hand here) if you have an extern
-declaration inside a block, it will be visible only within that block. The
-object itself certainly is file scope (or larger).
--- 
-Dr. Horst H. von Brand                       mailto:vonbrand@inf.utfsm.cl
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Now we know when we can block so we can run f_ops->write ourselfs that's also
+more efficient in terms of both performance and also memory pressure during
+swap of course.
+
+> I assume thats not an issue to reiserfs ?
+
+As said reiserfs AFIK didn't need any change, so only VFS is using
+fs_down/fs_up from the point of view of reiserfs.
+
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

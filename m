@@ -1,44 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132764AbRDIOzS>; Mon, 9 Apr 2001 10:55:18 -0400
+	id <S132767AbRDIPNL>; Mon, 9 Apr 2001 11:13:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132765AbRDIOzJ>; Mon, 9 Apr 2001 10:55:09 -0400
-Received: from CRUSH.REM.CMU.EDU ([128.2.81.185]:27046 "EHLO crush.hunch.net")
-	by vger.kernel.org with ESMTP id <S132764AbRDIOyx>;
-	Mon, 9 Apr 2001 10:54:53 -0400
-Date: Mon, 9 Apr 2001 09:59:02 -0400 (EDT)
-From: John Langford <l_k_account@crush.hunch.net>
-To: linux-kernel@vger.kernel.org
-Subject: New loopback bug
-Message-ID: <Pine.LNX.4.21.0104090943220.23713-100000@crush.hunch.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132769AbRDIPNB>; Mon, 9 Apr 2001 11:13:01 -0400
+Received: from smtpnotes.altec.com ([209.149.164.10]:28938 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S132767AbRDIPMp>; Mon, 9 Apr 2001 11:12:45 -0400
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+To: David Woodhouse <dwmw2@infradead.org>
+cc: Joseph Carter <knghtbrd@debian.org>, john slee <indigoid@higherplane.net>,
+        Colonel <klink@clouddancer.com>, linux-kernel@vger.kernel.org
+Message-ID: <86256A29.00538AAD.00@smtpnotes.altec.com>
+Date: Mon, 9 Apr 2001 10:12:24 -0500
+Subject: Re: goodbye
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've encountered a loopback bug on kernel-2.4.3+international_patch.  I
-haven't been able to pin down what the bug is exactly, but these are the
-conditions under which it manifests:
 
-1. connect file to loopback device
-2. build fs on loopback device
-3. mount fs and use it
-4. read the file
-5. lockup, about 1 out 5 times.
 
-The lockup occurs randomly and seems to have random effects.  Sometimes
-user-space scheduling is lost and sometimes there is a total lockup.  This
-is all I could extract from /var/log/messages in several crashes:
+David Woodhouse <dwmw2@infradead.org> wrote:
 
-Apr  9 04:04:48 gs176 kernel: kernel BUG at dcache.c:658!
-Apr  9 04:04:48 gs176 kernel: invalid operand: 0000
-Apr  9 04:04:48 gs176 kernel: CPU:    0
+>"self-appointed"
 
--John
+>
+>Are you implying that the people who run ORBS and the other RBL lists
+>actually hacked into vger.kernel.org and changed the MTA configuration to
+>use those lists? I was of the opinion that it was a free choice made by the
+>administrators of that machine.
 
-Stats:
-Linux version 2.4.3 + patch-int-2.4.3.1
-compiler - redhat's hacked 2.96 (I'll try gcc->kgcc next.)
-Also appeared with 2.4.2 + patch-2.4.3-pre4 + patch-int-2.4.0.3
-compiler egcs-1.1.2
+OK, "self-appointed" was too strong a term.  What ORBS and its ilk do is provide
+a simple, easy-to-use method of blocking large chunks of the net from
+communicating with other large chunks, regardless of whether the systems blocked
+are assisting in spam propagation or not.  The *possibility* of someday being
+guilty is enough to quarantine them.  Granted, it requires the cooperation of
+other administrators to accomplish that.
+
+I'm not denying that the administrators of mailing lists have the right to
+control what happens on their lists.  It's just that I'm personally opposed to
+spam-blocking methods that go above the level of a single system, or maybe even
+a single user.  My primary email account gets tons of spam every day.  Often I
+get three or more copies of the same spam, demonstrating both that my address
+has been harvested from multiple locations and that the spammers are clueless
+about managing their own mailing lists.  Yet the only defense I use is my delete
+key (and a personal resolve never to do business with any of those companies
+under any circumstances).  I just accept the fact that only one out of every
+dozen or so emails I receive will be of any interest to me.  The rest vanish
+without wasting more than a few seconds of my day.  It's not even worth setting
+up killfiles, although that would eliminate most of my repeat offenders.
+
+If individual mailing list administrators want to block email from certain sites
+because of spam concerns, fine.  But I still hold organizations like ORBS, that
+encourage such things and make it easy, in contempt.  They conjure up an image
+for me of those annoying "hall monitors" in grade school who were always hoping
+to find someone breaking a rule, so they could tattle on them.
+
+>Can we take this pointlessness off l-k now please?
+
+Your message included l-k in the headers, so my response does also.  But I have
+no intention of carrying on this discussion any further, in public or private,
+so this is the last post you'll see from me on the subject.
+
+Wayne
+
 

@@ -1,75 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261425AbULNFWv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261420AbULNFZd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261425AbULNFWv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 00:22:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbULNFWv
+	id S261420AbULNFZd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 00:25:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbULNFZd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 00:22:51 -0500
-Received: from mail.netshadow.at ([217.116.182.106]:2783 "EHLO
-	skeletor.netshadow.at") by vger.kernel.org with ESMTP
-	id S261420AbULNFWn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 00:22:43 -0500
-Message-ID: <41BE789B.6090005@netshadow.at>
-Date: Tue, 14 Dec 2004 06:22:35 +0100
-From: Andreas Unterkircher <unki@netshadow.at>
-User-Agent: Mozilla Thunderbird 1.0RC1 (Windows/20041201)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: krishna.c@globaledgesoft.com,
-       Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
-Subject: Re: How to enable sysrq feature
-References: <41BD24EB.8000502@globaledgesoft.com> <41BD2D35.5080101@netshadow.at> <41BD2F0C.9040602@globaledgesoft.com> <41BDF8B6.8050204@netshadow.at> <8A230BAC-4D4E-11D9-AC6C-000A9567DDDE@e18.physik.tu-muenchen.de>
-In-Reply-To: <8A230BAC-4D4E-11D9-AC6C-000A9567DDDE@e18.physik.tu-muenchen.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 14 Dec 2004 00:25:33 -0500
+Received: from rproxy.gmail.com ([64.233.170.198]:44336 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261420AbULNFZJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 00:25:09 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=WXFGHQNsuiuarawJ/yr7FrG24rAkYOBjUOGaQM24Q0KQI3tz2rAVAZXwT9OK06mJs9Tad3T/Y90cop6LbmyggwV9ovi5Wn78MsxSrM94iW5GadwOkA4VALKehewHlNXDv2s5SrbhRZrvvM0RkBJXoXl+LTnlQ6ULosdcm/vcPZU=
+Message-ID: <29495f1d04121321255eca7bc1@mail.gmail.com>
+Date: Mon, 13 Dec 2004 21:25:09 -0800
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: dynamic-hz
+Cc: andrea@suse.de, kernel@kolivas.org, pavel@suse.cz,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20041213202939.12285212.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <20041211142317.GF16322@dualathlon.random>
+	 <20041212163547.GB6286@elf.ucw.cz>
+	 <20041212222312.GN16322@dualathlon.random>
+	 <41BCD5F3.80401@kolivas.org> <20041213030237.5b6f6178.akpm@osdl.org>
+	 <20041213111741.GR16322@dualathlon.random>
+	 <20041213032521.702efe2f.akpm@osdl.org>
+	 <29495f1d041213195451677dab@mail.gmail.com>
+	 <20041213202939.12285212.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The problem is - if u would take a look to the original post - that 
-Krishna says, sysrq is not locateable in /proc ....
+On Mon, 13 Dec 2004 20:29:39 -0800, Andrew Morton <akpm@osdl.org> wrote:
+> Nish Aravamudan <nish.aravamudan@gmail.com> wrote:
+> 
+> 
+> >
+> > On Mon, 13 Dec 2004 03:25:21 -0800, Andrew Morton <akpm@osdl.org> wrote:
+> > > Andrea Arcangeli <andrea@suse.de> wrote:
+> > > >
+> > > > The patch only does HZ at dynamic time. But of course it's absolutely
+> > > >  trivial to define it at compile time, it's probably a 3 liner on top of
+> > > >  my current patch ;). However personally I don't think the three liner
+> > > >  will worth the few seconds more spent configuring the kernel ;).
+> > >
+> > > We still have 1000-odd places which do things like
+> > >
+> > >         schedule_timeout(HZ/10);
+> >
+> > Yes, yes, we do :) I replaced far more than I ever thought I could...
+> > There are a few issues I have with the remaining schedule_timeout()
+> > calls which I think fit ok with this thread... I'd especially like
+> > your input, Andrew, as you end up getting most of my patches from KJ.
+> >
+> > Many drivers use
+> >
+> > set_current_state(TASK_{UN,}INTERRUPTIBLE);
+> > schedule_timeout(1); // or some other small value < 10
+> >
+> > This may or may not hide a dependency on a particular HZ value. If the
+> > code is somewhat old, perhaps the author intended the task to sleep
+> > for 1 jiffy when HZ was equal to 100. That meants that they ended up
+> > sleeping for 10 ms. If the code is new, the author intends that the
+> > task sleeps for 1 ms (HZ==1000). The question is, what should the
+> > replacement be?
+> 
+> Presumably they meant 10 milliseconds.  Or at least, that is the delay
+> which the developer did his testing with.
 
-Roland Kuhn wrote:
+OK, I will make a set of these changes soon, hopefully.
 
-> Hi!
->
-> On Dec 13, 2004, at 9:16 PM, Andreas Unterkircher wrote:
->
->> Hi Krishna,
->>
->> If u compiled in sysrq into your kernel and booted the correct kernel 
->> - it must be there.
->>
-> echo 1 > /proc/sys/kernel/sysrq
->
->> If u enabled the /proc/config (or /proc/config.gz) with these kernel 
->> options
->>
->>    CONFIG_IKCONFIG
->>    (maybe CONFIG_IKCONFIG_PROC too)
->>
->> you can check with
->>
->> cat /proc/config | grep -i sysrq
->>
->> (or zcat /proc/config.gz | grep -i sysrq)
->>
->> if this options are really in your running kernel.
->>
->> Andi
->
->
-> [snip]
-> Was it really necessary to quote the .config four times?
->
-> Ciao,
->                     Roland
->
-> -- 
-> TU Muenchen, Physik-Department E18, James-Franck-Str. 85747 Garching
-> Telefon 089/289-12592; Telefax 089/289-12570
-> -- 
-> A mouse is a device used to point at
-> the xterm you want to type in.
-> Kim Alm on a.s.r.
+> > If they really meant to use schedule_timeout(1) in the sense of
+> > highest resolution delay possible (the latter above), then they
+> > probably should just call schedule() directly.
+> 
+> argh.  Never do that.  It's basically a busywait and can cause lockups if
+> the calling task has realtime scheduling policy.
+ 
+OK, I won't make any such changes in my next next set of patches. 
+ 
+> > schedule_timeout(1)
+> > simply sets up a timer to fire off after 1 jiffy & then calls
+> > schedule() itself. The overhead of setting up a timer and the
+> > execution of schedule() itself probably means that the timer will go
+> > off in the middle of the schedule() call or very shortly thereafter (I
+> > think). In which case, it makes more sense to use schedule()
+> > directly...
+> >
+> > If they meant to schedule a delay of 10ms, then msleep() should be
+> > used in those cases. msleep() will also resolve the issues with 0-time
+> > timeouts because of rounding, as it adds 1 to the converted parameter.
+> >
+> > Obviously, changing more and more sleeps to msecs & secs will really
+> > help make the changing of HZ more transparent. And specifying the time
+> > in real time units just seems so much clearer to me.
+> >
+> > What do people think?
+> 
+> I'd say that replacing them with msleep(10) is the safest approach.
+> Depending on what the surronding code is actually doing, of course.
 
+Thanks for the info!
+
+-Nish

@@ -1,37 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261852AbUCVKA1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 05:00:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbUCVKA0
+	id S261860AbUCVKCB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 05:02:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbUCVKAm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 05:00:26 -0500
-Received: from amsfep16-int.chello.nl ([213.46.243.26]:61522 "EHLO
-	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
-	id S261852AbUCVKAS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 05:00:18 -0500
-Date: Mon, 22 Mar 2004 11:00:16 +0100
-Message-Id: <200403221000.i2MA0GBg004121@callisto.of.borg>
+	Mon, 22 Mar 2004 05:00:42 -0500
+Received: from amsfep14-int.chello.nl ([213.46.243.22]:51531 "EHLO
+	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
+	id S261860AbUCVKAU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 05:00:20 -0500
+Date: Mon, 22 Mar 2004 11:00:17 +0100
+Message-Id: <200403221000.i2MA0HpQ004127@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 148] Amiga Oktagon URL
+Subject: [PATCH 150] Mac missing include
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Amiga Oktagon: Fix broken URL (from Petri Koistinen in 2.6)
+Mac: Add missing #include <asm/keyboard.h> (needed for SYSRQ_KEY)
 
---- linux-2.4.26-pre5/Documentation/Configure.help	2004-01-17 17:51:39.000000000 +0100
-+++ linux-m68k-2.4.26-pre5/Documentation/Configure.help	2004-01-20 22:25:39.000000000 +0100
-@@ -23572,7 +23572,7 @@
-   If you have the BSC Oktagon SCSI disk controller for the Amiga, say
-   Y to this question.  If you're in doubt about whether you have one,
-   see the picture at
--  <http://amiga.multigraph.com/photos/oktagon.html>.
-+  <http://amiga.resource.cx/exp/search.pl?product=oktagon>.
+--- linux-2.4.26-pre5/arch/m68k/mac/config.c	2003-07-10 16:22:26.000000000 +0200
++++ linux-m68k-2.4.26-pre5/arch/m68k/mac/config.c	2004-02-09 20:32:36.000000000 +0100
+@@ -33,6 +33,7 @@
+ #include <asm/pgtable.h>
+ #include <asm/rtc.h>
+ #include <asm/machdep.h>
++#include <asm/keyboard.h>
  
- Atari native SCSI support
- CONFIG_ATARI_SCSI
+ #include <asm/macintosh.h>
+ #include <asm/macints.h>
 
 Gr{oetje,eeting}s,
 

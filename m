@@ -1,52 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266187AbUBCXQq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 18:16:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266194AbUBCXQq
+	id S266203AbUBCXVS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 18:21:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266204AbUBCXVS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 18:16:46 -0500
-Received: from mail.kroah.org ([65.200.24.183]:59320 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266187AbUBCXPs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 18:15:48 -0500
-Date: Tue, 3 Feb 2004 15:14:56 -0800
-From: Greg KH <greg@kroah.com>
-To: Martin Schlemmer <azarah@nosferatu.za.org>
-Cc: linux-hotplug-devel@lists.sourceforge.net,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] udev 016 release
-Message-ID: <20040203231455.GB22058@kroah.com>
-References: <20040203201359.GB19476@kroah.com> <1075841390.7473.57.camel@nosferatu.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1075841390.7473.57.camel@nosferatu.lan>
-User-Agent: Mutt/1.4.1i
+	Tue, 3 Feb 2004 18:21:18 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:27829 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S266203AbUBCXVO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 18:21:14 -0500
+Message-ID: <40202D17.1000904@namesys.com>
+Date: Tue, 03 Feb 2004 15:21:59 -0800
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Vladimir Saveliev <vs@namesys.com>, linux-kernel@vger.kernel.org
+Subject: ReiserFS V4 (was Re: 2.6.2-rc3-mm1)
+References: <20040202235817.5c3feaf3.akpm@osdl.org>	<1075798370.1829.80.camel@tribesman.namesys.com> <20040203010456.3f3a2618.akpm@osdl.org>
+In-Reply-To: <20040203010456.3f3a2618.akpm@osdl.org>
+X-Enigmail-Version: 0.82.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 03, 2004 at 10:49:51PM +0200, Martin Schlemmer wrote:
-> On Tue, 2004-02-03 at 22:13, Greg KH wrote:
-> 
-> > 
-> > 	  Right now, udevsend and udev are built against klibc (udevsend
-> > 	  is only 2.5Kb big), and udevd is linked dynamically against
-> > 	  glibc, due to it using pthreads.  This is ok, as udev can
-> > 	  still be placed into initramfs and run at early boot, it's
-> > 	  only after init starts up that udevsend and udevd will kick
-> > 	  in.
-> > 
-> 
-> I am guessing this breaks group names (and not gid's) in
-> udev.permissions?  Or was support added to klibc?
+Andrew Morton wrote:
 
-Sorry, that should have read something to the effect that the .rpm is
-built using klibc, and that udevd can't be build against it yet due to
-pthreads being used.
+>
+>Be aware that the barriers for a new filesystem are relatively high: each
+>one adds a significant maintenance burden to the VFS and MM developers.  It
+>will need cautious review.
+>  
+>
+Andrew, while it is your decision to make, it would be very silly to not 
+let us upgrade ReiserFS.   V4 is 2-5x the speed of V3, has more 
+functionality, better security, is more maintainable, etc.  Once V4 is 
+as stable and tested as V3, no one in their right mind will use V3 on a 
+new install.  While we will be happy to read improvements and critiques 
+of our implementations from a clever coder such as yourself, we aren't 
+exactly new to the Linux Kernel, and we are one of the very few in that 
+community who have a real QA process that we systematically apply.  That 
+is why we did not send it in many months ago: our testing is quite 
+extensive, and we don't think users should find bugs that we can find if 
+we make the effort.  Now we are running out of bugs that we can hit.  
+There are distros that would like to ship using Reiser4 in April.
 
-It's entirely possible to build everything against glibc, and then you
-get back the group name stuff for the udev.permission file.
 
-thanks,
+>But that doesn't mean we cannot get it out there, get you some more testing
+>and exposure.  
+>-
+>
+>  
+>
+Thanks,
 
-greg k-h
+Hans
+

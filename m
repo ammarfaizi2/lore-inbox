@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264339AbRFSPtd>; Tue, 19 Jun 2001 11:49:33 -0400
+	id <S264329AbRFSPtN>; Tue, 19 Jun 2001 11:49:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264330AbRFSPtY>; Tue, 19 Jun 2001 11:49:24 -0400
-Received: from t111.niisi.ras.ru ([193.232.173.111]:23561 "EHLO
-	t111.niisi.ras.ru") by vger.kernel.org with ESMTP
-	id <S264339AbRFSPtS>; Tue, 19 Jun 2001 11:49:18 -0400
-Message-ID: <3B2F7374.9000707@niisi.msk.ru>
-Date: Tue, 19 Jun 2001 19:44:52 +0400
-From: Alexandr Andreev <andreev@niisi.msk.ru>
-Organization: niisi
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.18 i586; en-US; rv:0.9) Gecko/20010507
-X-Accept-Language: ru, en
-MIME-Version: 1.0
-To: "David L. Parsley" <parsley@linuxjedi.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Using cramfs as root filesystem on diskless machine
-In-Reply-To: <3B2A0F05.6050902@niisi.msk.ru> <3B2A538A.BA62148A@linuxjedi.org> <3B2F5282.30602@niisi.msk.ru> <3B2F5BEC.A94F33A3@linuxjedi.org>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S264330AbRFSPtD>; Tue, 19 Jun 2001 11:49:03 -0400
+Received: from isimail.interactivesi.com ([207.8.4.3]:22536 "HELO
+	dinero.interactivesi.com") by vger.kernel.org with SMTP
+	id <S264329AbRFSPs7>; Tue, 19 Jun 2001 11:48:59 -0400
+Date: Tue, 19 Jun 2001 10:48:48 -0500
+From: Timur Tabi <ttabi@interactivesi.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <635DA093636@vcnet.vc.cvut.cz>
+Subject: Re: gnu asm help...
+X-Mailer: The Polarbar Mailer; version=1.19a; build=73
+Message-ID: <giuPyB.A.JvE.jR3L7@dinero.interactivesi.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David L. Parsley wrote
+** Reply to message from "Petr Vandrovec" <VANDROVE@vc.cvut.cz> on Tue, 19 Jun
+2001 01:36:26 MET-1
 
->>...
->>RAMDISK driver initialized: 16 RAM disks of 4096K size 4096 blocksize
->>
->                                              ^^^^^
->You also need to give the kernel 'ramdisk_size=XXXX'.  I've used
->larger cramfs initrd's with no problem, but the kernel has to make
->larger ramdisks.  By editing rd.c, you can make this stuff default.
->
->regards,
->	David
->
-My cramfs ramdisk size is less then 4096, it is only 2304Kb.
-Matthias Kilian wrote me in the private letter:
 
- >  The cramfs does uncompression on the fly, i.e. on each file access.
- >  This means that the ramdisk in your example actually uses 2304 k RAM.
+> No. Another CPU might increment value between LOCK INCL and
+> fetching v->counter. On ia32 architecture you are almost out of
+> luck. You can either try building atomic_inc around CMPXCHG,
+> using it as conditional store (but CMPXCHG is not available 
+> on i386), or you can just guard your atomic variable with 
+> spinlock - but in that case there is no reason for using atomic_t 
+> at all.
 
-And besides, i have been tried this option already.
+Oh, I see the problem.  You could do something like this:
 
-But, thank you anyway, now i know that big cramfs initrd`s works.
-Possibly, some symlinks are broken, or some libraries are missed, on my 
-rootfs...
-But it is very strange, that ext2fs ramdisk image works with the same 
-rootfs on it.
-I'll try to investigate it by myself.
+cli
+mov %0, %%eax
+inc %%eax
+mov %%eax, %0
+sti
 
-Regards.
+and then return eax, but that won't work on SMP (whereas the "lock inc" does).
+Doing a global cli might work, though.
+
+
+-- 
+Timur Tabi - ttabi@interactivesi.com
+Interactive Silicon - http://www.interactivesi.com
 

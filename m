@@ -1,49 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263406AbTI2OB4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 10:01:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263419AbTI2OB4
+	id S263383AbTI2OSb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 10:18:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263389AbTI2OSb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 10:01:56 -0400
-Received: from gate.perex.cz ([194.212.165.105]:46043 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id S263406AbTI2OBy (ORCPT
+	Mon, 29 Sep 2003 10:18:31 -0400
+Received: from mail.zmailer.org ([62.197.173.195]:25220 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id S263383AbTI2OSZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 10:01:54 -0400
-Date: Mon, 29 Sep 2003 16:01:09 +0200 (CEST)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@pnote.perex-int.cz
-To: Muli Ben-Yehuda <mulix@mulix.org>
-Cc: Florin Iucha <florin@iucha.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.0-test6
-In-Reply-To: <20030929135540.GO29313@actcom.co.il>
-Message-ID: <Pine.LNX.4.53.0309291558550.1362@pnote.perex-int.cz>
-References: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org>
- <20030929132355.GA1206@iucha.net> <20030929135540.GO29313@actcom.co.il>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 29 Sep 2003 10:18:25 -0400
+Date: Mon, 29 Sep 2003 17:18:20 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Artur Klauser <Artur.Klauser@computer.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: div64.h:do_div() bug
+Message-ID: <20030929141820.GE1058@mea-ext.zmailer.org>
+References: <Pine.LNX.4.51.0309291503030.7947@enm.xynhfre.bet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.51.0309291503030.7947@enm.xynhfre.bet>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Sep 2003, Muli Ben-Yehuda wrote:
+On Mon, Sep 29, 2003 at 03:25:19PM +0200, Artur Klauser wrote:
+> I've found that a bug in asm-arm/div64.h:do_div() is preventing correct
+> conversion of timestamps in smbfs (and probably ntfs as well) from NT to
+> Unix format. I'll post a patch that fixes the bug, but I think it is also
+> present in other architectures - at least SPARC, SH, and CRIS look
+> suspicious.
+> 
+> If people with access to these architectures could run the following small 
+> test and let me know the outcome, I can fix it there too - thanks.
 
-> On Mon, Sep 29, 2003 at 08:23:55AM -0500, Florin Iucha wrote:
->
-> > I can no longer select my soundcard: In test5 it was configured by
-> > CONFIG_SND_CS46XX! This option is no longer available in test6 (make
-> > menuconfig does not offer me the opportunity).
->
-> You need to enable CONFIG_GAMEPORT, or apply this patch. Jaroslav, is
-> there a master plan for the CONFIG_SOUND_GAMEPORT -> CONFIG_GAMEPORT
-> conversion or is it a bug? this patch reverts it.
+Call it "lack/lazyness of implementation"
 
-CONFIG_SOUND_GAMEPORT define is ugly. It's better to remove all gameport
-dependencies from the ALSA's configuration files and let drivers to
-detect the gameport presence at "compile" time.
+Long ago it was used only in  printk()  debug printouts.
+Now it is used all over the place.  At least its users are aware of
+it being slow, and not just using GCC's magic bultin codes.
 
-						Jaroslav
 
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SuSE Labs
+> //-----------------------------------------------------------------------------
+> #define __KERNEL__
+> #include <asm/types.h> // get kernel definition of u64, u32
+> #undef __KERNEL__
+> #include <asm/div64.h> // get definition of do_div()
+> #include <stdio.h>
+> 
+> main () {
+>   union {
+>     u64 n64;
+>     u32 n32[2];
+>   } in, out;
+> 
+>   in.n32[0] = 1;
+>   in.n32[1] = 1;
+>   out = in;
+> 
+>   do_div(out.n64, 1);
+> 
+>   if (in.n64 != out.n64) {
+>     printf("FAILURE: asm/div64.h:do_div() is broken for 64-bit dividends\n");
+>     exit(1);
+>   } else {
+>     printf("Congratulations: asm/div64.h:do_div() handles 64-bit dividends\n");
+>   }
+>   return 0;
+> }

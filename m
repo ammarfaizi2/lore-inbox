@@ -1,53 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265538AbSJSGxd>; Sat, 19 Oct 2002 02:53:33 -0400
+	id <S265550AbSJSHpg>; Sat, 19 Oct 2002 03:45:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265539AbSJSGxd>; Sat, 19 Oct 2002 02:53:33 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:31729 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S265538AbSJSGxb>;
-	Sat, 19 Oct 2002 02:53:31 -0400
-Message-ID: <3DB102BC.F181BC1F@mvista.com>
-Date: Fri, 18 Oct 2002 23:59:08 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Jim Houston <jim.houston@attbi.com>, linux-kernel@vger.kernel.org
-Subject: Re: POSIX clocks & timers - more choices
-References: <200210190252.g9J2quf16153@linux.local.suse.lists.linux.kernel> <p73r8ennltj.fsf@oldwotan.suse.de>
+	id <S265551AbSJSHpg>; Sat, 19 Oct 2002 03:45:36 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:55221 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S265550AbSJSHpf>;
+	Sat, 19 Oct 2002 03:45:35 -0400
+Date: Sat, 19 Oct 2002 09:51:17 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Christopher Hoover <ch@murgatroid.com>
+Cc: "'Vojtech Pavlik'" <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.43: Fix for Logitech Wheel Mouse
+Message-ID: <20021019095117.A1354@ucw.cz>
+References: <20021018110625.A26788@ucw.cz> <004401c276cd$95d3bc90$8100000a@bergamot>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <004401c276cd$95d3bc90$8100000a@bergamot>; from ch@murgatroid.com on Fri, Oct 18, 2002 at 10:41:25AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-~snip~
-Since he picked this up from my code...
+On Fri, Oct 18, 2002 at 10:41:25AM -0700, Christopher Hoover wrote:
+
+> > No, it unfortunately is not a proper fix. I'll have to analyze the
+> > problem some more.
 > 
-> > +/*
-> > + * For some reason mips/mips64 define the SIGEV constants plus 128.
-> > + * Here we define a mask to get rid of the common bits.       The
-> > + * optimizer should make this costless to all but mips.
-> > + */
-> > +#if (ARCH == mips) || (ARCH == mips64)
-> > +#define MIPS_SIGEV ~(SIGEV_NONE & \
-> > +                   SIGEV_SIGNAL & \
-> > +                   SIGEV_THREAD &  \
-> > +                   SIGEV_THREAD_ID)
-> > +#else
-> > +#define MIPS_SIGEV (int)-1
-> > +#endif
+> Would you say more?  I looked at XFree86 sources and it seemed that the
+> ImPS/2 protocol best matched what my mouse was sending.
 > 
-> This definitely needs to be cleaned up.
+> What about a module param/setup arg to force the mouse protocol?
 > 
-What do you suggest?  Changing mips?  I would like this
-number to go away also, but with the mips assignments it is
-a bit of a bother.
+> 
+> > Can you send me the output of /proc/bus/input/devices on your system
+> > (without your fix, preferably)?
+> 
+> With*out* the patch:
+> 
+> I: Bus=0011 Vendor=0002 Product=0002 Version=0035
+> N: Name="PS2++ Logitech Mouse"
+> P: Phys=isa0060/serio1/input0
+> H: Handlers=mouse0 event0 
+> B: EV=7 
+> B: KEY=70000 0 0 0 0 0 0 0 0 
+> B: REL=3 
+
+Thanks! Can you try this patch?
+
+ psmouse.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+===================================================================
+
+diff -Nru a/drivers/input/mouse/psmouse.c b/drivers/input/mouse/psmouse.c
+--- a/drivers/input/mouse/psmouse.c	Sat Oct 19 09:50:17 2002
++++ b/drivers/input/mouse/psmouse.c	Sat Oct 19 09:50:17 2002
+@@ -348,7 +348,7 @@
+ 
+ 		int i;
+ 		static int logitech_4btn[] = { 12, 40, 41, 42, 43, 52, 73, 80, -1 };
+-		static int logitech_wheel[] = { 52, 75, 76, 80, 81, 83, 88, -1 };
++		static int logitech_wheel[] = { 52, 53, 75, 76, 80, 81, 83, 88, -1 };
+ 		static int logitech_ps2pp[] = { 12, 13, 40, 41, 42, 43, 50, 51, 52, 53, 73, 75,
+ 							76, 80, 81, 83, 88, 96, 97, -1 };
+ 		psmouse->vendor = "Logitech";
+
+===================================================================
+
 -- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+Vojtech Pavlik
+SuSE Labs

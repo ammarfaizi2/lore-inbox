@@ -1,50 +1,70 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315491AbSFOTuM>; Sat, 15 Jun 2002 15:50:12 -0400
+	id <S315485AbSFOUAZ>; Sat, 15 Jun 2002 16:00:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315485AbSFOTuM>; Sat, 15 Jun 2002 15:50:12 -0400
-Received: from moutvdomng0.kundenserver.de ([195.20.224.130]:37616 "EHLO
-	moutvdomng0.schlund.de") by vger.kernel.org with ESMTP
-	id <S315483AbSFOTuK>; Sat, 15 Jun 2002 15:50:10 -0400
-Message-Id: <5.0.2.1.2.20020615213722.038c4940@pop.puretec.de>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Sat, 15 Jun 2002 21:49:50 +0200
-To: Kurt Garloff <garloff@suse.de>,
-        Linux kernel list <linux-kernel@vger.kernel.org>,
-        Linux SCSI list <linux-scsi@vger.kernel.org>
-From: Sancho Dauskardt <sancho@dauskardt.de>
-Subject: Re: /proc/scsi/map
-Cc: linux-usb-devel@lists.sourceforge.net,
-        linux1394-devel@lists.sourceforge.net
-In-Reply-To: <20020615133606.GC11016@gum01m.etpnet.phys.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S315487AbSFOUAY>; Sat, 15 Jun 2002 16:00:24 -0400
+Received: from slip-32-103-25-72.ca.us.prserv.net ([32.103.25.72]:18560 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S315485AbSFOUAX>; Sat, 15 Jun 2002 16:00:23 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: linux-kernel@vger.kernel.org
+cc: torvalds@transmeta.com
+Subject: put_user/get_user warnings for x86
+Date: Sun, 16 Jun 2002 06:03:05 +1000
+Message-Id: <E17JJmO-0004ln-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+It's not *neccessarily wrong* to use put_user(int, long *), but it's
+probably worth warning for:
 
->Life would be easier if the scsi subsystem would just report which SCSI
->device (uniquely identified by the controller,bus,target,unit tuple) belongs
->to which high-level device. The information is available in the kernel.
->
->Attached patch does this:
->garloff@pckurt:/raid5/Kernel/src $ cat /proc/scsi/map
-># C,B,T,U       Type    onl     sg_nm   sg_dev  nm      dev(hex)
->0,0,00,00       0x05    1       sg0     c:15:00 sr0     b:0b:00
-[...]
+Name: put_user/get_user extra checks (x86 only)
+Author: Rusty Russell
+Status: Trivial
 
-Great, this was really missing badly.
+D: This makes put_user and get_user warn if the type of the userspace ptr
+D: and the kernel variable are incompatible, eg:
+D:   int x;
+D:   char *uptr;
+D:   ...
+D:   put_user(x,uptr); <= Warn here
+D:   get_user(x,uptr); <= Warn here
 
-But how about adding another column: GUID.
-Most usb-storage and (all?) FireWire devices have such a unique identitiy.
-In contrast to native SCSI devices, these emulated SCSI devices on 
-hot-plugging busses will change their LUNs/IDs. Therefor the GUID is really 
-a must to be able to create stable names (laptop suspend, etc.).
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.21/include/asm-i386/uaccess.h working-2.5.21-putusercheck/include/asm-i386/uaccess.h
+--- linux-2.5.21/include/asm-i386/uaccess.h	Wed Feb 20 17:56:40 2002
++++ working-2.5.21-putusercheck/include/asm-i386/uaccess.h	Sun Jun 16 05:55:27 2002
+@@ -133,16 +133,18 @@
+ extern void __put_user_bad(void);
+ 
+ #define put_user(x,ptr)							\
+-  __put_user_check((__typeof__(*(ptr)))(x),(ptr),sizeof(*(ptr)))
++  __put_user_check((x),(ptr),sizeof(*(ptr)))
+ 
+ #define __get_user(x,ptr) \
+   __get_user_nocheck((x),(ptr),sizeof(*(ptr)))
+ #define __put_user(x,ptr) \
+-  __put_user_nocheck((__typeof__(*(ptr)))(x),(ptr),sizeof(*(ptr)))
++  __put_user_nocheck((x),(ptr),sizeof(*(ptr)))
+ 
+ #define __put_user_nocheck(x,ptr,size)			\
+ ({							\
+ 	long __pu_err;					\
++	/* Elicit warning */				\
++	__typeof__(x) *__pu_check __attribute__((unused)) = ptr; \
+ 	__put_user_size((x),(ptr),(size),__pu_err);	\
+ 	__pu_err;					\
+ })
+@@ -151,7 +153,8 @@
+ #define __put_user_check(x,ptr,size)			\
+ ({							\
+ 	long __pu_err = -EFAULT;					\
+-	__typeof__(*(ptr)) *__pu_addr = (ptr);		\
++	/* Elicit warning */				\
++	__typeof__(x) *__pu_addr = (ptr);		\
+ 	if (access_ok(VERIFY_WRITE,__pu_addr,size))	\
+ 		__put_user_size((x),__pu_addr,(size),__pu_err);	\
+ 	__pu_err;					\
 
-Both usb-storage and iee1394-sbp2 know the GUID. It only needs to be 
-communicated..
 
-I'd guess that FibreChannel has similar problems ?
-
-- sda
-
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,40 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265100AbTFMBxC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 21:53:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265102AbTFMBxC
+	id S265103AbTFMB6W (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 21:58:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265105AbTFMB6W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 21:53:02 -0400
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:61515 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S265100AbTFMBxA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 21:53:00 -0400
-Date: Thu, 12 Jun 2003 22:07:03 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: David Schwartz <davids@webmaster.com>
-cc: Muthian Sivathanu <muthian_s@yahoo.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: limit resident memory size
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKOEBMDKAA.davids@webmaster.com>
-Message-ID: <Pine.LNX.4.44.0306122206010.29919-100000@chimarrao.boston.redhat.com>
+	Thu, 12 Jun 2003 21:58:22 -0400
+Received: from SMTP7.andrew.cmu.edu ([128.2.10.87]:14770 "EHLO
+	smtp7.andrew.cmu.edu") by vger.kernel.org with ESMTP
+	id S265103AbTFMB6V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 21:58:21 -0400
+Date: Thu, 12 Jun 2003 22:12:06 -0400 (EDT)
+From: "Nathaniel W. Filardo" <nwf@andrew.cmu.edu>
+To: linux-kernel@vger.kernel.org
+Subject: RTC causes hard lockups in 2.5.70-mm8
+Message-ID: <Pine.LNX.4.55L-032.0306122205210.4915@unix48.andrew.cmu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Jun 2003, David Schwartz wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> > I would like to limit the maximum resident memory size
-> > of a process within a threshold, i.e. if its virtual
-> > memory footprint exceeds this threshold, it needs to
-> > swap out pages *only* from within its VM space.
-> 
-> 	Why? If you think this is a good way to be nice to other
-> processes, you're wrong.
+If I set CONFIG_RTC=m and rebuild, when the kernel autoloads rtc.ko the
+system immediately locks hard, not responding even to magic SysRq series.
+Backing out either of the rtc-* patches from -mm8 does not seem to fix the
+problem.
 
-RSS limits are a good idea, provided that they are only
-enforced when the system is low on memory.  Once the system
-starts swapping and is into the "lots of disk IO" territory
-anyway, it can be a good idea to have the processes that
-exceed their RSS limit suffer more than the ones that don't.
+Hardware is a Fujitsu P2120 with Transmeta TM8500 with ALi chipset:
+00:00.0 Host bridge: Transmeta Corporation LongRun Northbridge (rev 03)
+00:00.1 RAM memory: Transmeta Corporation SDRAM controller
+00:00.2 RAM memory: Transmeta Corporation BIOS scratchpad
+00:02.0 USB Controller: ALi Corporation. [ALi] USB 1.1 Controller (rev 03)
+00:04.0 Multimedia audio controller: ALi Corporation. [ALi] M5451 PCI
+AC-Link Controller Audio Device (rev 01)
+00:06.0 Bridge: ALi Corporation. [ALi] M7101 PMU
+00:07.0 ISA bridge: ALi Corporation. [ALi] M1533 PCI to ISA Bridge
+[Aladdin IV]
+00:09.0 USB Controller: NEC Corporation USB (rev 41)
+00:09.1 USB Controller: NEC Corporation USB (rev 41)
+00:09.2 USB Controller: NEC Corporation USB 2.0 (rev 02)
+00:0c.0 CardBus bridge: Texas Instruments PCI1410 PC card Cardbus
+Controller (rev 01)
+00:0f.0 IDE interface: ALi Corporation. [ALi] M5229 IDE (rev c3)
+00:10.0 Ethernet controller: Realtek Semiconductor Co., Ltd.
+RTL-8139/8139C/8139C+ (rev 10)
+00:12.0 Network controller: Harris Semiconductor Prism 2.5 Wavelan chipset
+(rev 01)
+00:13.0 FireWire (IEEE 1394): Texas Instruments TSB43AB21 IEEE-1394a-2000
+Controller (PHY/Link)
+00:14.0 VGA compatible controller: ATI Technologies Inc Radeon Mobility M6
+LY
 
+Any additional information needed I'll be happy to provide.
+
+- --nwf
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE+6TLZR4WVIgmDWjIRAsSNAJ0UZUq/4A4MmQ4DHcl6qnncWcIFDwCfSUYD
+mE9xrtTweq57eM95dbs9Tbo=
+=iUCG
+-----END PGP SIGNATURE-----

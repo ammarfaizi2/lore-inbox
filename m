@@ -1,71 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269714AbUICOBw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269711AbUICOC2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269714AbUICOBw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 10:01:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269701AbUICN71
+	id S269711AbUICOC2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 10:02:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269710AbUICOC1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 09:59:27 -0400
-Received: from web50610.mail.yahoo.com ([206.190.38.249]:9375 "HELO
-	web50610.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S269703AbUICN6f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 09:58:35 -0400
-Message-ID: <20040903135835.96953.qmail@web50610.mail.yahoo.com>
-Date: Fri, 3 Sep 2004 06:58:35 -0700 (PDT)
-From: Yoav Zach <yoav_zach@yahoo.com>
-Subject: force_sig_info
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, yoav.zach@intel.com
+	Fri, 3 Sep 2004 10:02:27 -0400
+Received: from daq3.if.pw.edu.pl ([194.29.174.23]:34441 "HELO milosz.na.pl")
+	by vger.kernel.org with SMTP id S269698AbUICN7W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 09:59:22 -0400
+From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
+Reply-To: bzolnier@milosz.na.pl
+To: Alan Cox <alan@redhat.com>
+Subject: Re: PATCH: fix the barrier IDE detection logic
+Date: Fri, 3 Sep 2004 15:54:31 +0200
+User-Agent: KMail/1.6.2
+Cc: torvalds@osdl.org, axboe@suse.dk, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+References: <20040831165046.GA6928@devserv.devel.redhat.com>
+In-Reply-To: <20040831165046.GA6928@devserv.devel.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200409031554.31057.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The behavior of force_sig_info has changed in kernel 2.6 in
-a way that affects very badly our product - in case the user
-blocks a signal that must be delivered, the disposition of
-the signal is changed to SIG_DFL.
-The product that my team is working on is a binary translator
-of 32 bit binaries for IPF platforms. We have hard time
-juggling between signals that are meant for the translated
-process and signals that are meant for the translator, but
-till now we managed to let the kernel handle the signal mask.
-The new behavior enforces us to handle the signal mask in the
-translator, which might have severe implications on performance.
-There was a mailing thread about this matter, so apparently,
-we're not the only ones who suffer from this change. There
-was even a patch that was proposed to make things easier for
-existing apps that break because of this change, but somehow,
-the thread was cut and I could not see the response to the
-proposed patch. Does anyone know the reasons why this patch
-did not make it upstream ?
 
-Here is the patch -
-=============================================================
---- kernel/signal.c.orig	2004-09-02 00:43:18.751695391 +0800
-+++ kernel/signal.c	2004-09-02 00:45:11.815170569 +0800
-@@ -822,7 +822,8 @@ force_sig_info(int sig, struct siginfo *
- 
- 	spin_lock_irqsave(&t->sighand->siglock, flags);
- 	if (sigismember(&t->blocked, sig) || t->sighand->action[sig-1].sa.sa_handler == SIG_IGN) {
--		t->sighand->action[sig-1].sa.sa_handler = SIG_DFL;
-+		if (t->sighand->action[sig-1].sa.sa_handler == SIG_IGN)
-+			t->sighand->action[sig-1].sa.sa_handler = SIG_DFL;
- 		sigdelset(&t->blocked, sig);
- 		recalc_sigpending_tsk(t);
- 	}
-=============================================================
+On Tuesday 31 August 2004 18:50, Alan Cox wrote:
+> This fixes the logic so we always check for the cache. It also defaults
+> to safer behaviour for the non cache flush case now we have the right bits
+> in the right places. I've also played a bit with timings - the worst case
+> timings I can get for the flush are about 7 seconds (which I'd expect
+> as the engineering worst cases will include retries)
+> 
+> Probably what should happen is that the barrier logic is enabled providing
+> the wcache is disabled. I've not meddled with this as I don't know what
+> the intended semantics and rules are for disabling barrier on a live disk
+> (eg when a user uses hdparm to turn on the write cache). In the current
+> code as with Jens original that cannot occur.
 
-Thanks,
-Yoav.
+I think that logic is reversed here, I guess it should be: enable barrier
+if user enables wcache and disable it if user disables wcache.
 
-Yoav Zach
-IA-32 Execution Layer
-Performance Tools Lab
-Intel Corp.
+> I've also fixed the new printk's as per a private request from Matt Domsch.
 
+Patch looks fine except:
 
+> +	/* Now we have barrier awareness we can be properly conservative
+> +	   by default with other drives. We turn off write caching when
+> +	   barrier is not available. Users can adjust this at runtime if
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+This is not true because there is a check for flush cache in write_cache().
+
+I agree that disabling write cache by default is a good thing but user
+should be informed about this fact (ideally there also should be easily
+available FAQ somewhere) otherwise we will get a lot of bogus bugreports
+about decreased performance...
+
+> +	   they need unsafe but fast filesystems. This will reduce the
+> +	   performance of non cache flush supporting disks but it means
+> +	   you get the data order guarantees the journalling fs's require */
+> +	   
+> +	write_cache(drive, barrier);
+
+I'll drop this chunk and resend to Linus.
+
+Thanks!
+
+PS: please also cc: linux-ide on all ATA related stuff

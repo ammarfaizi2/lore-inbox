@@ -1,106 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264766AbSLGVSf>; Sat, 7 Dec 2002 16:18:35 -0500
+	id <S264779AbSLGVfW>; Sat, 7 Dec 2002 16:35:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264779AbSLGVSf>; Sat, 7 Dec 2002 16:18:35 -0500
-Received: from ida.xs4all.nl ([213.84.39.78]:6193 "EHLO ida.dejong.info")
-	by vger.kernel.org with ESMTP id <S264766AbSLGVSd>;
-	Sat, 7 Dec 2002 16:18:33 -0500
-Message-ID: <3DF26772.8040502@dejong.info>
-Date: Sat, 07 Dec 2002 22:26:10 +0100
-From: jorg de jong <jorg@dejong.info>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2a) Gecko/20020910
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id <S264798AbSLGVfW>; Sat, 7 Dec 2002 16:35:22 -0500
+Received: from f04s07.cac.psu.edu ([128.118.141.35]:34697 "EHLO
+	f04n07.cac.psu.edu") by vger.kernel.org with ESMTP
+	id <S264779AbSLGVfV>; Sat, 7 Dec 2002 16:35:21 -0500
+Date: Sat, 7 Dec 2002 16:43:00 -0500
+From: Matt Rickard <mjr318@psu.edu>
 To: linux-kernel@vger.kernel.org
-Subject: status of HPT374 support in 2.4.20 and 2.5.50 
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Oops with 3c59x module (3com 3c595 NIC)
+Message-Id: <20021207164300.2a35f18d.mjr318@psu.edu>
+X-Mailer: Sylpheed version 0.8.5claws (GTK+ 1.2.10; )
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I'm running kernel 2.4.19 on a system with a 3com 3c595 NIC, using the
+3c59x module.  The system will run as normal for a period of time
+(generally a pretty long period of time, e.g. 30 days or so) before I
+will get an Oops regarding this module.  After the oops however, the
+system will generally run as expected, although in several cases the NIC
+has been unresponsive following this.
 
-I just bought a Highpoint Rocketraid 404 controler. To my suppirce I 
-found that
-the kernel I was using does not like it one bit. The kernel entered a 
-kernel panic/BUG
-in file hpt666.c:1031. The kernel was a Redhat stock kernel 
-2.4.18-18.8.0smp.
+Also on another note, I have not been able to get this card to run at
+100mbps no matter what I try.  It will insist on running only at 10mbps
+half duplex (This is on a 100mbps network).
 
-Not afraid to build my own kernel I tried:
-- 2.4.20; which also stoped with a kernel panic.
-- 2.4.20-ac1; this kernel boots just fine. It even sees the controller 
-but does not detect
-the drive.
-- 2.5.46; sees the controler but no drive
-- 2.5.50; sees the controler but no drive
+Any ideas?  Is this a problem with the 3c59x module itself?
 
-Google told me that there are successes with the HPT374 contoller(kernel 
-2.5.46),
-but thus far not for me.
+Here is the relevant portion of my dmesg:
 
-Some info about by system:
-motherboard: msi k7d; dual amd athlon mp 2000+
-onboard ide controller: AMD7441
-other pci ide controller: PDC20267
+3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
+00:0b.0: 3Com PCI 3c595 Vortex 100baseTx at 0x6100. Vers LK1.1.16
+00:0b.0: Overriding PCI latency timer (CFLT) setting of 32, new value is
+248.
+[SNIPPED]
+...
 
-Please help,
+eth0: Transmit error, Tx status register 90.
+eth0: Transmit error, Tx status register 90.
+eth0: Transmit error, Tx status register c0.
+eth0: Transmit error, Tx status register d0.
+eth0: Transmit error, Tx status register 90.
+eth0: Transmit error, Tx status register 90.
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c0108704>]    Not tainted
+EFLAGS: 00010046
+eax: 00000000   ebx: 00000004   ecx: bffff698   edx: 401286a0
+esi: 4012c1d0   edi: 00000004   ebp: bffff668   esp: c30fbfd0
+ds: 0018   es: 0018   ss: 0018
+Process find (pid: 894, stackpage=c30fb000)
+Stack: 4012c1d0 00000004 bffff668 00000000 c010002b 0000002b 000000c5
+400d914c        00000023 00000216 bffff5fc 0000002b 
+Call Trace:   
 
-regards,
+Code: fe ff ff fd 1f 07 83 c4 0c cf cf fe fb f7 44 24 33 68 08 c3 
+ <1>Unable to handle kernel NULL pointer dereference at virtual address
+00000000 printing eip:
+c013d515
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c013d515>]    Not tainted
+EFLAGS: 00010246
+eax: 00000000   ebx: c220c6c0   ecx: c1b3ca20   edx: c29c44c0
+esi: c220c6d8   edi: c10b6320   ebp: c220c6c0   esp: c30fbe8c
+ds: 0018   es: 0018   ss: 0018
+Process find (pid: 894, stackpage=c30fb000)
+Stack: c29c4340 c1b3ca20 c012e427 c220c6c0 c088fea0 c24e7b40 08055000
+00001000        c012088d c24e7b40 c30fbf9c c30fa000 0000000b c088f5a0
+c01115dd c24e7b40        c24e7b40 c01153cd c24e7b40 00000000 c30fbf9c
+c0108f0c bffff668 c0108cf9 Call Trace:    [<c012e427>] [<c012088d>]
+[<c01115dd>] [<c01153cd>] [<c0108f0c>]  [<c0108cf9>] [<c0108f8e>]
+[<c0108704>] [<c011c60a>] [<c0135b80>] [<c01087f4>]  [<c0108704>]
 
-Jorg de Jong
-
-
-part of dmesg (2.4.20-ac1):
-
-Uniform Multi-Platform E-IDE driver Revision: 7.00beta-2.4
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-AMD7441: IDE controller at PCI slot 00:07.1
-AMD7441: chipset revision 4
-AMD7441: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xb000-0xb007, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xb008-0xb00f, BIOS settings: hdc:DMA, hdd:DMA
-HPT374: IDE controller at PCI slot 00:09.0
-HPT374: chipset revision 7
-HPT374: not 100% native mode: will probe irqs later
-PDC20267: IDE controller at PCI slot 02:05.0
-PDC20267: chipset revision 2
-PDC20267: not 100% native mode: will probe irqs later
-PDC20267: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
-    ide2: BM-DMA at 0x9000-0x9007, BIOS settings: hde:DMA, hdf:pio
-    ide3: BM-DMA at 0x9008-0x900f, BIOS settings: hdg:DMA, hdh:DMA
-hda: ST340823A, ATA DISK drive
-blk: queue c0399fa0, I/O limit 4095Mb (mask 0xffffffff)
-hdc: LITE-ON LTR-48125S, ATAPI CD/DVD-ROM drive
-hdd: TOSHIBA DVD-ROM SD-M1212, ATAPI CD/DVD-ROM drive
-hde: ST360021A, ATA DISK drive
-blk: queue c039a878, I/O limit 4095Mb (mask 0xffffffff)
-hdg: ST360021A, ATA DISK drive
-hdh: ST360021A, ATA DISK drive
-blk: queue c039ace4, I/O limit 4095Mb (mask 0xffffffff)
-blk: queue c039ae30, I/O limit 4095Mb (mask 0xffffffff)
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-ide2 at 0x8000-0x8007,0x8402 on irq 17
-ide3 at 0x8800-0x8807,0x8c02 on irq 17
-hda: 78165360 sectors (40021 MB) w/1024KiB Cache, CHS=4865/255/63, UDMA(100)
-hde: host protected area => 1
-hde: 117231408 sectors (60022 MB) w/2048KiB Cache, CHS=116301/16/63, 
-UDMA(100)
-hdg: host protected area => 1
-hdg: 117231408 sectors (60022 MB) w/2048KiB Cache, CHS=116301/16/63, 
-UDMA(100)
-hdh: host protected area => 1
-hdh: 117231408 sectors (60022 MB) w/2048KiB Cache, CHS=116301/16/63, 
-UDMA(100)
-
-
-
-
-
-
-
- 
-
-
+Code: 08 00 00 39 43 10 74 23 20 9c 02 25 c0 89 70 04 89 43 18 c7 
+ <3>eth0: Transmit error, Tx status register 90.
+eth0: Transmit error, Tx status register 90.

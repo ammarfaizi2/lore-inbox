@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262665AbULPOUz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262668AbULPOUm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262665AbULPOUz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 09:20:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262670AbULPOUy
+	id S262668AbULPOUm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 09:20:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262666AbULPOUl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 09:20:54 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:8578 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262665AbULPOUG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 09:20:06 -0500
-Subject: Re: arch/xen is a bad idea
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andi Kleen <ak@suse.de>
-Cc: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>, Rik van Riel <riel@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org,
-       Steven.Hand@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk,
-       Keir.Fraser@cl.cam.ac.uk
-In-Reply-To: <20041216140954.GA29761@wotan.suse.de>
-References: <p73acsg1za1.fsf@bragg.suse.de>
-	 <E1CeLLB-0000Sl-00@mta1.cl.cam.ac.uk>
-	 <20041215044927.GF27225@wotan.suse.de>
-	 <1103155782.3585.29.camel@localhost.localdomain>
-	 <20041216040136.GA30555@wotan.suse.de>
-	 <1103201656.3804.7.camel@localhost.localdomain>
-	 <20041216140954.GA29761@wotan.suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1103203145.3804.13.camel@localhost.localdomain>
+	Thu, 16 Dec 2004 09:20:41 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:10956 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262679AbULPOS7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 09:18:59 -0500
+Date: Thu, 16 Dec 2004 08:18:14 -0600
+From: "Jose R. Santos" <jrsantos@austin.ibm.com>
+To: Anton Blanchard <anton@samba.org>
+Cc: Andi Kleen <ak@suse.de>, "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       Brent Casavant <bcasavan@sgi.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, linux-ia64@vger.kernel.org, jrsantos@austin.ibm.com
+Subject: Re: [PATCH 0/3] NUMA boot hash allocation interleaving
+Message-ID: <20041216141814.GA10292@rx8.austin.ibm.com>
+References: <Pine.SGI.4.61.0412141720420.22462@kzerza.americas.sgi.com> <50260000.1103061628@flay> <20041215045855.GH27225@wotan.suse.de> <20041215144730.GC24000@krispykreme.ozlabs.ibm.com> <20041216050248.GG32718@wotan.suse.de> <20041216051323.GI24000@krispykreme.ozlabs.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 16 Dec 2004 13:19:06 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041216051323.GI24000@krispykreme.ozlabs.ibm.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-12-16 at 14:09, Andi Kleen wrote:
-> Also e.g. for non performance critical 
-> things like changing MTRRs or debug registers it would be IMHO much 
-> cleaner to just emulate the instructions (the ISA is very well 
-> defined) and not change the kernel here.  From a look at Ian's list
-> the majority of the changes needed for Xen actually fall into
-> this category. 
+Anton Blanchard <anton@samba.org> [041215]:
+>  
+> > I asked Brent to run some benchmarks originally and I believe he has 
+> > already run all that he could easily set up. If you want more testing
+> > you'll need to test yourself I think. 
+> 
+> We will be testing it.
 
-There are so many problems in snooping and decoding instructions it
-isn't funny. Aside from the mmap pci buffer half way through instruction
-that will emulate type stuff there are a lot of awkward issues if you
-want to emulate multiple mtrr sets (you need PAT).
+By "We" you mean "Me" right? :)
 
-Xen has tried the decode/patch stuff earlier - see the early NPTL
-handling and it was neither pretty nor reliable.
+I can do the SpecSFS runs but each runs takes several hours to complete
+and I would need to do two runs (baseline and patched).  I may have it 
+ready by today or tommorow.
 
+-JRS

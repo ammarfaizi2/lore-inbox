@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267137AbTBVRJr>; Sat, 22 Feb 2003 12:09:47 -0500
+	id <S267257AbTBVRax>; Sat, 22 Feb 2003 12:30:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267159AbTBVRJr>; Sat, 22 Feb 2003 12:09:47 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:34946
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267137AbTBVRJp>; Sat, 22 Feb 2003 12:09:45 -0500
-Subject: Re: Minutes from Feb 21 LSE Call
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Hanna Linder <hannal@us.ibm.com>, lse-tech@lists.sf.et,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030222001618.GA19700@work.bitmover.com>
-References: <96700000.1045871294@w-hlinder>
-	 <20030222001618.GA19700@work.bitmover.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1045938019.5034.9.camel@irongate.swansea.linux.org.uk>
+	id <S267259AbTBVRax>; Sat, 22 Feb 2003 12:30:53 -0500
+Received: from bitmover.com ([192.132.92.2]:679 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S267257AbTBVRaw>;
+	Sat, 22 Feb 2003 12:30:52 -0500
+Date: Sat, 22 Feb 2003 09:40:56 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: system time/2.4.18-3smp/3ware
+Message-ID: <20030222174056.GB13246@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 22 Feb 2003 18:20:19 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-02-22 at 00:16, Larry McVoy wrote:
-> In terms of the money and in terms of installed seats, the small Linux
-> machines out number the 4 or more CPU SMP machines easily 10,000:1.
-> And with the embedded market being one of the few real money makers
-> for Linux, there will be huge pushback from those companies against
-> changes which increase memory footprint.
+This is watching 3 drives being tar-ed | wc -c in parallel (I suspect
+a bad drive, trying to narrow it down).  The machine is a dual 1.6ghz
+Athlon, Tyan motherboard, 2GB of ram.  
 
-I think people overestimate the numbner of large boxes badly. Several IDE
-pre-patches didn't work on highmem boxes. It took *ages* for people to
-actually notice there was a problem. The desktop world is still 128-256Mb
-and some of the crap people push is problematic even there. In the embedded
-space where there is a *ton* of money to be made by smart people a lot
-of the 2.5 choices look very questionable indeed - but not all by any
-means, we are for example close to being able to dump the block layer,
-shrink stacks down by using IRQ stacks and other good stuff.
+I'm a little surprised at the system time - yeah, 72MB/sec is a far amount
+of I/O but should we really be eating up that much system time?
 
-I'm hoping the Montavista and IBM people will swat each others bogons 8)
+load free cach swap pgin  pgou dk0 dk1 dk2 dk3 ipkt opkt  int  ctx  usr sys idl
+3.16  11M 1.4G   0   74M  2.4K   0   0   0   0    0    0  1.3K  46K   0  92 108
+3.23  11M 1.4G   0   71M  2.4K   0   0   0   0    0    0  1.3K  45K   1  88 111
+3.29  11M 1.4G   0   72M  2.4K   0   0   0   0    0    0  1.2K  46K   2 105  93
+3.35  11M 1.4G   0   73M  3.2K   0   0   0   0    0    0  1.2K  45K   1 100  99
+3.32  11M 1.4G   0   74M  2.4K   0   0   0   0    0    0  1.2K  45K   1  98 101
+3.53  11M 1.4G   0   74M   65K   0   0   0   0    0    0  1.3K  46K   4 103  93
 
-Alan
+I thought maybe it was the | wc -c (notice the context switches/sec) so I 
+tried it with a cpio into /dev/null (tar neatly "optimizes" out any I/O
+when you are going to /dev/null, I really hate that) and it was still high
 
+load free cach swap pgin  pgou dk0 dk1 dk2 dk3 ipkt opkt  int  ctx  usr sys idl
+0.78  12M 1.4G   0   66M   34K   0   0   0   0    0    0  945  2.0K   6  82 112
+0.96  11M 1.4G   0   66M  2.4K   0   0   0   0  1.0  1.0  964  2.1K   6  79 115
+1.12  11M 1.4G   0   66M  2.4K   0   0   0   0    0    0  1.0K 2.3K   7  82 111
+1.27  11M 1.4G   0   66M  2.4K   0   0   0   0    0    0  972  2.1K   4  80 116
+1.41  11M 1.4G   0   67M  2.4K   0   0   0   0    0    0  960  2.1K   5  87 108
+1.62  11M 1.4G   0   67M  2.4K   0   0   0   0    0    0  1.0K 2.3K   7  83 110
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

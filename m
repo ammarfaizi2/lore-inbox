@@ -1,83 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275566AbTHMVDi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 17:03:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275568AbTHMVDi
+	id S275572AbTHMVGb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 17:06:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275573AbTHMVGb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 17:03:38 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:55781 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S275566AbTHMVDg (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 17:03:36 -0400
-Date: Wed, 13 Aug 2003 23:03:28 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: John Bradford <john@grabjohn.com>
-Cc: jgarzik@pobox.com, davidsen@tmr.com, Linux-Kernel@vger.kernel.org,
-       Riley@Williams.Name, szepe@pinerecords.com
-Subject: Re: [2.6 patch] let broken drivers depend on BROKEN{,ON_SMP}
-Message-ID: <20030813210328.GM569@fs.tum.de>
-References: <200308132040.h7DKe7VK002065@81-2-122-30.bradfords.org.uk>
+	Wed, 13 Aug 2003 17:06:31 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:44558 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S275572AbTHMVG0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 17:06:26 -0400
+Date: Wed, 13 Aug 2003 22:06:19 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Greg KH <greg@kroah.com>, "David S. Miller" <davem@redhat.com>,
+       rddunlap@osdl.org, davej@redhat.com, willy@debian.org,
+       linux-kernel@vger.kernel.org,
+       kernel-janitor-discuss@lists.sourceforge.net
+Subject: Re: C99 Initialisers
+Message-ID: <20030813220619.F20676@flint.arm.linux.org.uk>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
+	"David S. Miller" <davem@redhat.com>, rddunlap@osdl.org,
+	davej@redhat.com, willy@debian.org, linux-kernel@vger.kernel.org,
+	kernel-janitor-discuss@lists.sourceforge.net
+References: <20030813004941.GD2184@redhat.com> <32835.4.4.25.4.1060743746.squirrel@www.osdl.org> <3F39AFDF.1020905@pobox.com> <20030813031432.22b6a0d6.davem@redhat.com> <20030813173150.GA3317@kroah.com> <3F3A79CA.6010102@pobox.com> <20030813180245.GC3317@kroah.com> <3F3A82C3.5060006@pobox.com> <20030813193855.E20676@flint.arm.linux.org.uk> <3F3A952C.4050708@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200308132040.h7DKe7VK002065@81-2-122-30.bradfords.org.uk>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3F3A952C.4050708@pobox.com>; from jgarzik@pobox.com on Wed, Aug 13, 2003 at 03:44:44PM -0400
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 13, 2003 at 09:40:07PM +0100, John Bradford wrote:
-> > > The people who want Linux to be reliable won't be compiling their own
-> > > kernels, typically.  Because, the people that _do_ compile their own
-> > > kernels have sense enough to disable broken drivers :)  That's what Red
-> > > Hat, SuSE, and others do today.
-> >
-> > It occurs quite often that you need e.g. the latest -pre or -ac to
-> > support some of your hardware.
-> >
-> > These are situations when an average systems administrator has to 
-> > compile his on kernel.
+On Wed, Aug 13, 2003 at 03:44:44PM -0400, Jeff Garzik wrote:
+> Russell King wrote:
+> > But what's the point of the extra complexity?  People already put
+> > references to other structures in the driver_data element, and
+> > enums, so completely splitting the device IDs from the module
+> > source is not going to be practical.
 > 
-> That is true.  The point is that I don't see how adding an arbitrary
-> dependency on a CONFIG_BROKEN option actually helps in any way.
->...
-> compile, there is a problem anyway.  If they are hidden under a
-> CONFIG_BROKEN option, it's just an extra step to enable them, then
-> compile with them enabled to get an error to post to LKML.
->...
+> enums are easy  putting direct references would be annoying, but I also 
+> argue it's potentially broken and wrong to store and export that 
+> information publicly anyway.
 
-You don't accidentially enable such an option.
+Until new_id occurred, driver_data wasn't public, so this is a new
+problem.
 
-Currently, I see every day reports about compile errors on
-linux-kernel - reports for errors that are known and unfixed since 
-several months.
+> The use of enums instead of pointers is practically required because
+> there is a many-to-one relationship of ids to board information structs.
 
-A dependency on BROKEN is a clear mark that a compile error is already 
-known.
+Hmm.  Now that driver_data is public, people will bitch when the enums
+change.  This is _NOT_ something what I want to deal with - if I want
+to add a new TI bridge type, I want to add the new TI enumeration
+identifier along side the other TI enumeration identifiers, not at the
+end.  I don't want to worry about whether the user is using the enum
+values or not.  (eg, so I can use expressions like: 
+ if (id->driver_data >= first_ti_id && id->driver_data <= last_ti_id))
 
-My personal opinions:
-- Ideally, every valid configuration should result in a kernel that
-  both compiles and works.
-- Every compile error gives a bad impression of the quality of the 
-  Linux kernel.
+By separating this, it effectively taking away some of the driver authors
+freedoms to make choices like this, and this /will/ make driver code more
+ugly.
 
-Current 2.4 kernels are (on i386) relatively near to this ideal.
+> > Are you thinking of a parser which outputs C code for the module to
+> > include?  That might be made to work, but it doesn't sound as elegant
+> > as the solution being described previously in this thread.
+> > 
+> > "Make the easy things easy (PCI_DEVICE(vendor,device)) and make the
+> > not so easy things possible (the long form)"
+> 
+> That ignores the people who also need to get at the data, which must 
+> first be compiled from C into object code, then extracted via modutils, 
+> then turned into a computer readable form again, then used.
 
-It's not only a technical aspect, it's also a marketing aspect.  With
-many broken drivers it's easy for people to argue against Linux using
-arguments like
-
-  Look, what a crap Linux is, the developers even care whether the 
-  kernel compiles.
-
-> John.
-
-cu
-Adrian
+Could you describe the "user" side of your idea more?  ie, what would
+get installed onto the filesystem, and how would the tables be used?
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,35 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293740AbSCGWB6>; Thu, 7 Mar 2002 17:01:58 -0500
+	id <S310210AbSCGWCs>; Thu, 7 Mar 2002 17:02:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310210AbSCGWBt>; Thu, 7 Mar 2002 17:01:49 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:22006
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S293714AbSCGWBd>; Thu, 7 Mar 2002 17:01:33 -0500
-Date: Thu, 7 Mar 2002 14:01:59 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Linux 2.4.19pre2-ac3
-Message-ID: <20020307220159.GC28141@matchmail.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <E16iyh2-0002OY-00@the-village.bc.nu> <20020307172806.GA28141@matchmail.com> <20020307204526.GG28744@stingr.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020307204526.GG28744@stingr.net>
-User-Agent: Mutt/1.3.27i
+	id <S293726AbSCGWCj>; Thu, 7 Mar 2002 17:02:39 -0500
+Received: from mx2out.umbc.edu ([130.85.253.52]:62719 "EHLO mx2out.umbc.edu")
+	by vger.kernel.org with ESMTP id <S310251AbSCGWC1>;
+	Thu, 7 Mar 2002 17:02:27 -0500
+Date: Thu, 7 Mar 2002 17:01:54 -0500
+From: John Jasen <jjasen1@umbc.edu>
+X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
+To: michael bernstein <bernstein.46@osu.edu>
+cc: Larry McVoy <lm@bitmover.com>, Andrew Morton <akpm@zip.com.au>,
+        Troy Benjegerdes <hozer@drgw.net>, Pavel Machek <pavel@ucw.cz>,
+        Kent Borg <kentborg@borg.org>,
+        The Open Source Club at The Ohio State University 
+	<opensource-admin@cis.ohio-state.edu>,
+        <linux-kernel@vger.kernel.org>, <opensource@cis.ohio-state.edu>
+Subject: Re: [opensource] Re: Petition Against Official Endorsement of
+ BitKeeper by Linux Maintainers
+In-Reply-To: <10B32CBD-320F-11D6-BAF0-003065C60BC2@osu.edu>
+Message-ID: <Pine.SGI.4.31L.02.0203071656550.6425161-100000@irix2.gl.umbc.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 07, 2002 at 11:45:26PM +0300, Paul P Komkoff Jr wrote:
-> Replying to Mike Fedyk:
-> > > o	Fix quota deadlock and extreme load corruption	(Jan Kara, Chris Mason)
-> > 
-> > Corruption of what?  Quota meta-data?
-> 
-> Maybe - I've got  weird quota entries about same uid on same filesystem with
-> -pre2-ac2. But this was patched by me to add reiserfs quota so I thought
-> that was my fault :)
+On Thu, 7 Mar 2002, michael bernstein wrote:
 
-I have an affirmative responce from Alan, so it's just quota meta-data.
+> Get over the money issue though.  There are a lot of
+> people who could benefit from bitkeeper being opensourced, so why not go
+> and do it?
+
+rent. food. clothing. basic necessities and whatnot.
+
+Just a thought.
+
+> Serve others, not yourself.
+
+I begin to smell the exuberance of youthful ideology.
+
+Does anyone have a can of Lysol I can borrow?
+
+BK belongs to bitmover. They can do whatever they want with it. Deal.
+
+--
+-- John E. Jasen (jjasen1@umbc.edu)
+-- In theory, theory and practise are the same. In practise, they aren't.
+

@@ -1,116 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315437AbSGMUpp>; Sat, 13 Jul 2002 16:45:45 -0400
+	id <S313628AbSGMUyx>; Sat, 13 Jul 2002 16:54:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313628AbSGMUpm>; Sat, 13 Jul 2002 16:45:42 -0400
-Received: from 64-60-75-69.cust.telepacific.net ([64.60.75.69]:57863 "EHLO
-	racerx.ixiacom.com") by vger.kernel.org with ESMTP
-	id <S315437AbSGMUpk>; Sat, 13 Jul 2002 16:45:40 -0400
-Message-ID: <3D309C22.902@ixiacom.com>
-Date: Sat, 13 Jul 2002 14:31:14 -0700
-From: Dan Kegel <dkegel@ixiacom.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020615 Debian/1.0.0-3
+	id <S315440AbSGMUyw>; Sat, 13 Jul 2002 16:54:52 -0400
+Received: from t1o53p61.telia.com ([62.20.228.61]:38273 "EHLO best.localdomain")
+	by vger.kernel.org with ESMTP id <S313628AbSGMUyw>;
+	Sat, 13 Jul 2002 16:54:52 -0400
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Peter Osterlund <petero2@telia.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.19-rc1-ac3
+References: <Pine.LNX.4.44.0207131435570.3808-100000@linux-box.realnet.co.sz>
+	<m2n0svr42e.fsf@best.localdomain>
+	<1026584861.13886.27.camel@irongate.swansea.linux.org.uk>
+	<m265zj9zxn.fsf@best.localdomain>
+	<20020713205422.E25995@flint.arm.linux.org.uk>
+From: Peter Osterlund <petero2@telia.com>
+Date: 13 Jul 2002 22:56:07 +0200
+In-Reply-To: <20020713205422.E25995@flint.arm.linux.org.uk>
+Message-ID: <m2n0sv2vq0.fsf@best.localdomain>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: compile the kernel with -Werror
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+Russell King <rmk@arm.linux.org.uk> writes:
 
-> On Sat, 2002-07-13 at 14:41, Roy Sigurd Karlsbakk wrote: 
->> Why not add a menu item under kernel hacking?
+> On Sat, Jul 13, 2002 at 09:43:16PM +0200, Peter Osterlund wrote:
+> > So, is any of the above true for x86 processors? Or are there other
+> > reasons to expect frequency scaling to increase battery run-time.
 > 
-> CONFIG_TEACH_USER_TO_USE_GREP 
+> You're right if your CPU usage is 100% - lowering the CPU clock rate
+> means you take longer to complete the task, and with the static
+> element of the CPU power consumption, you'd probably end up using
+> more energy to perform the same task in a longer time.
+> 
+> However, if, like most desktops, your CPU is sitting around 90% idle,
+> if you lower the CPU clock rate, the idle time will drop.  Since the
+> power drops, the rate at which the CPU uses energy also drops.
+> However, overall your task completes in the same amount of time.
 
-It's a bit challenging to grep for errors in gcc's output, as
-gcc produces multiline errors and warnings.
-Here's a perl script I whipped up yesterday to filter out
-all but the errors and warnings from a make + gcc run
-for some other project; it'd probably do nicely on kernel
-builds.  I use it like this:
+Hmm, assume my activity at the computer requires 10% CPU time when the
+CPU is at full speed. My power consumption will then be
 
-     make > log 2>&1
-     errfilter.pl log | more
+        P_fullspeed = P_static + 0.9 * P_idle_hi + 0.1 * P_busy_hi
 
-It has the dubious feature that it properly filters out the
-warnings gcc produces on .h files that don't end in newlines
-(guess what IDE people use here?)
-- Dan
+If I halve the clock frequency, the computer will require 20% CPU time
+to perform the work, and the power consumption becomes
 
---- errfilter.pl ---
+        P_halfspeed = P_static + 0.8 * P_idle_lo + 0.2 * P_busy_lo
 
+If the voltage doesn't change, 0.1 * P_busy_hi == 0.2 * P_busy_lo, so
+the power savings will be
 
+        P_fullspeed - P_halfspeed = 0.9 * P_idle_hi - 0.8 * P_idle_lo
 
-#!/usr/bin/perl
-# Filter out all but essential lines of the output of a make + gcc run.
-# Dan Kegel dkegel@ixiacom.com 12 July 2002
+or
+        deltaP = 0.1 * P_idle_hi + 0.8 * (P_idle_hi - P_idle_lo)
 
-# Join logical lines which have been split into multiple physical lines
-while (<>) {
-     chop;
-     if (/^\S/) {
-         &save($linebuf);
-         $linebuf = "";
-     }
-     $linebuf .= $_;
-}
-# Force blank lines at end
-&save($linebuf);
-&save("");
+The first term will be smaller the more idle my CPU is. (When reading
+mail, I think 99% idle time is closer to the truth than 90%). The
+second term in this formula is the reason I wondered if the power
+consumption in apm idle mode is lower at lower clock frequencies.
 
-# Handle next logical line.  Handle lines of context, like 'Entering directory', properly.
-sub save
-{
-     my($buf) = $_[0];
-
-     # Remove excess space used at beginning of all but first physical
-     # of a long logical line.
-     $buf =~ s/  */ /g;
-
-     if ($buf =~ /In file included from/) {
-         # Handle include context.
-         $prefix = $buf."\n";
-     } elsif ($buf =~ /Entering directory/) {
-         # Handle directory context.
-         unshift(@dir, $buf."\n");
-         $curdir = $dir[0];
-     } elsif ($buf =~ /Leaving directory/) {
-         # Handle directory context.
-         shift(@dir);
-         $curdir = $dir[0];
-     } else {
-         # Handle possible error lines.
-         if (&filter($buf)) {
-             # It's an error.  Print it out with its context.
-             print $curdir.$prefix.$buf;
-             print "\n";
-             # Dir context only gets printed out once per directory change.
-             $curdir = "";
-         }
-         # Include context only gets printed out for immediately following line.
-         $prefix = "";
-     }
-}
-
-# Return true if given logical line contains a gcc error or warning and has not been seen before
-sub filter
-{
-     my($line) = $_[0];
-
-     if ($line =~ /:.*:/) {
-         if ($line !~ /treated|sed.*\.d|no newline at end|warning: overriding commands|warning: ignoring old commands|File format not recognized/) {
-             # uniq
-             if ($out{$line} == 0) {
-                 $out{$line}++;
-                 return 1;
-             }
-         }
-     }
-     return 0;
-}
-
-
-
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286488AbRLUAFN>; Thu, 20 Dec 2001 19:05:13 -0500
+	id <S286491AbRLUAGx>; Thu, 20 Dec 2001 19:06:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286489AbRLUAFG>; Thu, 20 Dec 2001 19:05:06 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:1932
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S286488AbRLUAEw>; Thu, 20 Dec 2001 19:04:52 -0500
-Date: Thu, 20 Dec 2001 18:52:26 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: David Garfield <garfield@irving.iisd.sra.com>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Configure.help editorial policy
-Message-ID: <20011220185226.A25080@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	David Garfield <garfield@irving.iisd.sra.com>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011220143247.A19377@thyrsus.com> <15394.29882.361540.200600@irving.iisd.sra.com>
+	id <S286489AbRLUAGo>; Thu, 20 Dec 2001 19:06:44 -0500
+Received: from noodles.codemonkey.org.uk ([62.49.180.5]:23722 "EHLO
+	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id <S286495AbRLUAGd>; Thu, 20 Dec 2001 19:06:33 -0500
+Date: Fri, 21 Dec 2001 00:08:06 +0000
+From: Dave Jones <davej@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: andrea@suse.de, davej@codemonkey.org.uk
+Subject: Possible O_DIRECT problems ?
+Message-ID: <20011221000806.A26849@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, andrea@suse.de,
+	davej@codemonkey.org.uk
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <15394.29882.361540.200600@irving.iisd.sra.com>; from garfield@irving.iisd.sra.com on Thu, Dec 20, 2001 at 06:31:06PM -0500
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Garfield <garfield@irving.iisd.sra.com>:
-> Another option: maybe the choice of KB vs KiB vs KKB should be a
-> configuration choice.
+Andrea, lk,
+ I just experimented with O_DIRECT in conjunction with fsx,
+and the results aren't pretty.
 
-You *must* be joking.
+Over NFS it survives around 921 operations, all local filesystems
+(ext2,ext3,reiser tested) just 6 operations.
+I've put the source to a modified fsx at
+http://www.codemonkey.org.uk/cruft/fsx-odirect.c
 
-Please tell me you're joking.
+It's possible I've done something wrong here, so look it over.
+Just adding O_DIRECT flag to open() should be all thats necessary
+correct ?
+
+Also note, that by changing the flags on line 988 to have O_DIRECT
+also, we get different failure type.
+
+So, did I get the usage of O_DIRECT correct and find some bugs,
+or have I had a little too much xmas spirits already ? 8-)
+
+
+Dave.
+
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-
-According to the National Crime Survey administered by the Bureau of
-the Census and the National Institute of Justice, it was found that
-only 12 percent of those who use a gun to resist assault are injured,
-as are 17 percent of those who use a gun to resist robbery. These
-percentages are 27 and 25 percent, respectively, if they passively
-comply with the felon's demands. Three times as many were injured if
-they used other means of resistance.
-        -- G. Kleck, "Policy Lessons from Recent Gun Control Research,"
-		Law and Contemporary Problems 49, no. 1. (Winter 1986.): 35-62.
+| Dave Jones.                    http://www.codemonkey.org.uk
+| SuSE Labs .

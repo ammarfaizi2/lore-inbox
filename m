@@ -1,36 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291635AbSBHQks>; Fri, 8 Feb 2002 11:40:48 -0500
+	id <S291633AbSBHQps>; Fri, 8 Feb 2002 11:45:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291633AbSBHQkj>; Fri, 8 Feb 2002 11:40:39 -0500
-Received: from sproxy.gmx.net ([213.165.64.20]:49562 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S291632AbSBHQk3>;
-	Fri, 8 Feb 2002 11:40:29 -0500
-Message-ID: <000c01c1b0bf$567ab910$704e2e3e@angband>
-Reply-To: "Andreas Happe" <andreashappe@subdimension.com>
-From: "Andreas Happe" <andreashappe@gmx.net>
-To: "lkml" <linux-kernel@vger.kernel.org>
-Subject: Re: boot problems using 2.5.3-dj3 || -dj4
-Date: Fri, 8 Feb 2002 17:40:35 +0100
+	id <S291637AbSBHQpk>; Fri, 8 Feb 2002 11:45:40 -0500
+Received: from mail.sonytel.be ([193.74.243.200]:22967 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S291633AbSBHQpY>;
+	Fri, 8 Feb 2002 11:45:24 -0500
+Date: Fri, 8 Feb 2002 17:43:53 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jani Monoses <jani@astechnix.ro>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Tridentfb and resource management
+Message-ID: <Pine.GSO.4.21.0202081741140.19681-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Andreas Happe" <andreashappe@gmx.net>
+	Hi Jani and Marcelo,
 
-> With dj4 the computer generates a kernel - oops instead of just freezing.
+Since Tridentfb uses resource management, its initialization must be done
+before the initialization of the generic drivers (vesafb and offb).
 
-sorry, with dj4 modprobe dies with the error message
-"PAP-14030: direct2indirect: posted or inserted byte exists in the
-treeinvalid operand: 0000"
+--- linux-2.4.18-pre9/drivers/video/fbmem.c.orig	Fri Feb  8 09:39:18 2002
++++ linux-2.4.18-pre9/drivers/video/fbmem.c	Fri Feb  8 17:40:30 2002
+@@ -207,6 +207,9 @@
+ #ifdef CONFIG_FB_SIS
+ 	{ "sisfb", sisfb_init, sisfb_setup },
+ #endif
++#ifdef CONFIG_FB_TRIDENT
++	{ "trident", tridentfb_init, tridentfb_setup },
++#endif
+ 
+ 	/*
+ 	 * Generic drivers that are used as fallbacks
+@@ -229,9 +232,6 @@
+ 
+ #ifdef CONFIG_FB_3DFX
+ 	{ "tdfx", tdfxfb_init, tdfxfb_setup },
+-#endif
+-#ifdef CONFIG_FB_TRIDENT
+-	{ "trident", tridentfb_init, tridentfb_setup },
+ #endif
+ #ifdef CONFIG_FB_SGIVW
+ 	{ "sgivw", sgivwfb_init, sgivwfb_setup },
 
+Gr{oetje,eeting}s,
 
-andreas
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

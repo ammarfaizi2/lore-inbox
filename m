@@ -1,34 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267947AbTBYO52>; Tue, 25 Feb 2003 09:57:28 -0500
+	id <S267955AbTBYPD2>; Tue, 25 Feb 2003 10:03:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267907AbTBYO52>; Tue, 25 Feb 2003 09:57:28 -0500
-Received: from 60.54.252.64.snet.net ([64.252.54.60]:29395 "EHLO
-	hotmale.blue-labs.org") by vger.kernel.org with ESMTP
-	id <S267947AbTBYO51>; Tue, 25 Feb 2003 09:57:27 -0500
-Message-ID: <3E5B86BA.2080802@blue-labs.org>
-Date: Tue, 25 Feb 2003 10:07:38 -0500
-From: David Ford <david+cert@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030224
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       jaroslav Kysela <perex@suse.cz>
-Subject: ALSA update for 2.5.62 porks up cs46xx
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267952AbTBYPD2>; Tue, 25 Feb 2003 10:03:28 -0500
+Received: from poup.poupinou.org ([195.101.94.96]:799 "EHLO poup.poupinou.org")
+	by vger.kernel.org with ESMTP id <S267955AbTBYPD1>;
+	Tue, 25 Feb 2003 10:03:27 -0500
+Date: Tue, 25 Feb 2003 16:13:41 +0100
+To: Robert <robert.woerle@symplon.com>
+Cc: Ducrot Bruno <ducrot@poupinou.org>, Pavel Machek <pavel@ucw.cz>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       Robert Woerle <robert@paceblade.com>
+Subject: Re: [ACPI] PaceBlade broken acpi/memory map
+Message-ID: <20030225151341.GI13404@poup.poupinou.org>
+References: <20030220172144.GA15016@elf.ucw.cz> <20030224164209.GD13404@poup.poupinou.org> <20030224183955.GC517@atrey.karlin.mff.cuni.cz> <20030225143505.GH13404@poup.poupinou.org> <3E5B835E.7050601@symplon.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E5B835E.7050601@symplon.com>
+User-Agent: Mutt/1.4i
+From: Ducrot Bruno <ducrot@poupinou.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horrible echo and drawn out sound play.  Reversing the patch for 
-cx46xx_lib.c fixes it.
+On Tue, Feb 25, 2003 at 03:53:18PM +0100, Robert wrote:
+> 
+> 
+> Ducrot Bruno schrieb:
+> 
+> >On Mon, Feb 24, 2003 at 07:39:55PM +0100, Pavel Machek wrote:
+> > 
+> >
+> >>Hi!
+> >>
+> >>   
+> >>
+> >>>>I have PaceBlade here, and its memory map is wrong, which leads to
+> >>>>ACPI refusing to load. [It does not mention "ACPI data" in the memory
+> >>>>map at all!]
+> >>>>       
+> >>>>
+> >>>I have made those patches to workaround that.  I have no time
+> >>>     
+> >>>
+> >>Yes, I have seen those... I also made a patch that enables you to do
+> >>that workaround from mem= options at kernel command line.
+> >>
+> >>   
+> >>
+> >
+> >I doubt you received the latest one, since I have not make it public
+> >unless this day.
+> > 
+> >
+> i did sent it to him since he recieved our machine from Suse Nuernberg
+> 
 
-David
+Ah, OK.  Wasn't aware of that.  But why then making a mem= opitons in
+that case.  I have take care to *not* use any mem= at all because that
+can make things worse.
 
 -- 
-I may have the information you need and I may choose only HTML.  It's up to you. Disclaimer: I am not responsible for any email that you send me nor am I bound to any obligation to deal with any received email in any given fashion.  If you send me spam or a virus, I may in whole or part send you 50,000 return copies of it. I may also publically announce any and all emails and post them to message boards, news sites, and even parody sites.  I may also mark them up, cut and paste, print, and staple them to telephone poles for the enjoyment of people without internet access.  This is not a confidential medium and your assumption that your email can or will be handled confidentially is akin to baring your backside, burying your head in the ground, and thinking nobody can see you butt nekkid and in plain view for miles away.  Don't be a cluebert, buy one from K-mart today.
+Ducrot Bruno
 
-When it absolutely, positively, has to be destroyed overnight.
-                           AIR FORCE
-
-
+--  Which is worse:  ignorance or apathy?
+--  Don't know.  Don't care.

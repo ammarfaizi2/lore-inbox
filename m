@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277006AbRJ3SB0>; Tue, 30 Oct 2001 13:01:26 -0500
+	id <S277316AbRJ3R40>; Tue, 30 Oct 2001 12:56:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277047AbRJ3SBQ>; Tue, 30 Oct 2001 13:01:16 -0500
-Received: from chaos.psimation.co.za ([160.124.112.123]:65041 "EHLO
-	chaos.psimation.co.za") by vger.kernel.org with ESMTP
-	id <S277006AbRJ3SBB>; Tue, 30 Oct 2001 13:01:01 -0500
-Message-ID: <3BDEE870.1060104@psimation.com>
-Date: Tue, 30 Oct 2001 19:50:40 +0200
-From: "P.Agenbag" <internet@psimation.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2.1) Gecko/20010901
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.13 kernel and ext3???
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S277203AbRJ3R4Q>; Tue, 30 Oct 2001 12:56:16 -0500
+Received: from hq2.fsmlabs.com ([209.155.42.199]:64006 "HELO hq2.fsmlabs.com")
+	by vger.kernel.org with SMTP id <S277119AbRJ3R4K>;
+	Tue, 30 Oct 2001 12:56:10 -0500
+Date: Tue, 30 Oct 2001 10:51:02 -0700
+From: Victor Yodaiken <yodaiken@fsmlabs.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Victor Yodaiken <yodaiken@fsmlabs.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Andrea Arcangeli <andrea@suse.de>, Benjamin LaHaise <bcrl@redhat.com>,
+        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: please revert bogus patch to vmscan.c
+Message-ID: <20011030105102.A10928@hq2>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0110300903320.8603-100000@penguin.transmeta.com>
+User-Agent: Mutt/1.3.18i
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-I just installed RedHat 7.2 with the 2.4.7 kernel. Low and behold, when 
-I tried to install the latest kernels, I see that there are many options 
-in the RedHat 2.4.7 kernel that are not even in the 2.4.13 kernel! How 
-does this work? Also, I see many (EXPERIMENTAL) greyd-out areas in the 
-kernel as well as other greyd out areas which are not experimental, yet 
-won't allow me to select it ( reiserfs for example ) .
-How can I get reiserfs to compile into the kernel, and to satsify my 
-curiosity, how do you enable the experimental options?
+On Tue, Oct 30, 2001 at 09:17:31AM -0800, Linus Torvalds wrote:
+> I still have the occasional nightmares about the IBM block diagrams
+> "explaining" the PowerPC MMU in their technical documentation.
+> 
+> There's probably a perfectly valid explanation for them, though (*).
+> 
+> 		Linus
+> 
+> (*) Probably along the lines of the designers being so high on LSD that
+> they thought it was a really cool idea. That would certainly explain it in
+> a very logical fashion.
 
-Does it mean that if there is a fairly large difference between the 
-RedHat 2.4.7 and the stock one from kernel.org, that they are not really 
-the same? ie, does anyone foresee any future problems with redhat adding 
-all these extra features to their kernel and people who would like to 
-upgrade to a newer version ( for one, I selected ext3 during install, 
-yet, now trying to install 2.4.13, I must revert back to ext2...)
+All the studies I saw were back from the days when
+cache-speed/expensive-memory-speed was close to 1. In this case, the
+effect of randomizing memory fetches is no big deal. The rest
+of standard PPC mmu architecture is pretty nice, but, if the Alpha
+architects could decide to use the PC cmos clock as their only 
+prgrammable timer, and the Itanium guys could decide to put in a single
+shift-mask path, why shouldn't the IBM designers get to destroy cache
+by wasting a bunch of CPU area logic?
 
-Thanks
 
 

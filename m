@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264730AbTGBFoD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 01:44:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264740AbTGBFoD
+	id S264728AbTGBFmY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 01:42:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264730AbTGBFmY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 01:44:03 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:56294
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S264730AbTGBFoB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 01:44:01 -0400
-Date: Wed, 2 Jul 2003 07:57:59 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Peter Chubb <peter@chubb.wattle.id.au>
-Cc: Bernardo Innocenti <bernie@develer.com>, Andrew Morton <akpm@digeo.com>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] Kill div64.h dupes, parenthesize do_div() macro params
-Message-ID: <20030702055759.GJ3040@dualathlon.random>
-References: <200307020232.20726.bernie@develer.com> <20030701173612.280d1296.akpm@digeo.com> <200307020424.47629.bernie@develer.com> <16130.21283.122787.362837@wombat.chubb.wattle.id.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16130.21283.122787.362837@wombat.chubb.wattle.id.au>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Wed, 2 Jul 2003 01:42:24 -0400
+Received: from mta07bw.bigpond.com ([144.135.24.134]:503 "EHLO
+	mta07bw.bigpond.com") by vger.kernel.org with ESMTP id S264728AbTGBFmX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 01:42:23 -0400
+Date: Wed, 02 Jul 2003 15:56:48 +1000
+From: Srihari Vijayaraghavan <harisri@bigpond.com>
+Subject: Re: PROBLEM: USB Serial oops in 2.4.22-pre2
+In-reply-to: <20030702033417.GB3272@kroah.com>
+To: Greg KH <greg@kroah.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Message-id: <200307021556.48174.harisri@bigpond.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: KMail/1.5
+References: <200307021222.09764.harisri@bigpond.com>
+ <20030702033417.GB3272@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 02, 2003 at 01:36:03PM +1000, Peter Chubb wrote:
-> Platforms that never expect to deal with a 64-bit number just redefine
-> the macro in terms of long.  Which means that printing out long longs
+Greg,
 
-this doesn't even sounds safe. If it's just for printing not a big deal,
-but there may be functional usages where they should not truncate the
-high 32bit of the 64bit words.
+On Wednesday 02 July 2003 13:34, Greg KH wrote:
+> On Wed, Jul 02, 2003 at 12:22:09PM +1000, Srihari Vijayaraghavan wrote:
+> > [1.] One line summary of the problem:
+> > USB Serial oops in 2.4.22-pre2
+>
+> Does this happen with 2.4.21?
 
-Bernardo, you should definitely add an #if BITS_PER_LONG == 64 around
-your implementation of do_div in asm-generic, just to make an example
-sparc is still silenty broken (and that's not an embedded thing).
+I do not know. I'll try to test it under 2.4.21 (ie, 2.4.21 + ACPI as USB 
+won't work without ACPI on ATI-IGP+ALi combo, like my laptop. And that's a 
+primary reason behind using 2.4.22-pre as ACPI is in the official 2.4 tree).
 
-In the #else path of the generic implementation you can consider adding
-another version that casts to (long long), then as worse it will spwan a
-link compile time failure. But if it compiles it won't generate runtime
-failures. so basically it's up to gcc to do the right thing then.
+>
+> Anyway, this is a known bug.  See the linux-usb-devel archives for what
+> needs to be done to fix this, or just switch to 2.5, as it's fixed there
+>
+> :)
 
-Andrea
+Unfortunately that isn't an option, as this is my production environment 
+(incidentally I've used 2.5 in the past, but as you know 2.4 is the stable 
+tree and is the most appropriate one).
+
+I'm now searching the usb-devel archives to understand this issue, but do you 
+think the upcoming 2.4.22-pre3 might fix this issue?
+
+Thanks for your response :).
+-- 
+Hari
+

@@ -1,73 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266599AbUFRTlD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266553AbUFRTos@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266599AbUFRTlD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 15:41:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266613AbUFRTk0
+	id S266553AbUFRTos (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 15:44:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266552AbUFRToU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 15:40:26 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:9089 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S266599AbUFRTjq (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 15:39:46 -0400
-Message-Id: <200406181940.i5IJeBDh032311@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: 4Front Technologies <dev@opensound.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Stop the Linux kernel madness 
-In-Reply-To: Your message of "Fri, 18 Jun 2004 13:12:34 PDT."
-             <40D34CB2.10900@opensound.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <40D232AD.4020708@opensound.com> <3217460000.1087518092@flay> <40D23701.1030302@opensound.com> <1087573691.19400.116.camel@winden.suse.de> <40D32C1D.80309@opensound.com> <20040618190257.GN14915@schnapps.adilger.int>
-            <40D34CB2.10900@opensound.com>
+	Fri, 18 Jun 2004 15:44:20 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:3603 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S266553AbUFRTnd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 15:43:33 -0400
+Date: Fri, 18 Jun 2004 20:43:22 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Matt Porter <mporter@kernel.crashing.org>
+Cc: Jamey Hicks <jamey.hicks@hp.com>, Ian Molton <spyro@f2s.com>,
+       linux-kernel@vger.kernel.org, greg@kroah.com, tony@atomide.com,
+       david-b@pacbell.net, joshua@joshuawise.com
+Subject: Re: DMA API issues
+Message-ID: <20040618204322.C17516@flint.arm.linux.org.uk>
+Mail-Followup-To: Matt Porter <mporter@kernel.crashing.org>,
+	Jamey Hicks <jamey.hicks@hp.com>, Ian Molton <spyro@f2s.com>,
+	linux-kernel@vger.kernel.org, greg@kroah.com, tony@atomide.com,
+	david-b@pacbell.net, joshua@joshuawise.com
+References: <20040618175902.778e616a.spyro@f2s.com> <20040618110721.B3851@home.com> <40D3356E.8040800@hp.com> <20040618122112.D3851@home.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1711540843P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 18 Jun 2004 15:40:11 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040618122112.D3851@home.com>; from mporter@kernel.crashing.org on Fri, Jun 18, 2004 at 12:21:12PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1711540843P
-Content-Type: text/plain; charset=us-ascii
+On Fri, Jun 18, 2004 at 12:21:12PM -0700, Matt Porter wrote:
+> > page_to_dma so that device specific dma addresses can be constructed.
+> 
+> A struct device argument to page_to_dma seems like a no brainer to be
+> included.
 
-On Fri, 18 Jun 2004 13:12:34 PDT, 4Front Technologies said:
+Tony Lindgren recently submitted a patch for this:
 
-> We precisely use this mechanism - we use 
-> /lib/modules/<version>/build/include/linux/config.h to figure such features out
-> but when the "build" part of the path doesn't point to the right source tree,
-> where do you look?. SuSE ships kernel sources "unconfigured" which means that
-> you have to rely on something else to tell you what the exact kernel
-> configuration looks like.
+http://www.arm.linux.org.uk/developer/patches/viewpatch.php?id=1931/1
 
-Right, but hopefully you can tell it's a SuSE machine via other means, and
-then apply a suitable workaround.
+which now pending for Linus.  ARM platforms now have three macros to
+define if they want to override the default struct page to DMA address
+translation.
 
-Or are you claiming that SuSE is *so* weird that you can't even apply a
-test like:
+> I see that's somewhat like what David Brownell suggested before...a single
+> pointer to a set of dma ops from struct device.  hppa_dma_ops translated
+> into a generic dma_ops entity with fields corresponding to existing
+> DMA API calls would be a good starting point. We can get rid of some
+> address translation hacks in a lot of custom embedded PPC drivers
+> with something like this.
 
-if [ -test $SuSE ]; then
-	echo Smells like a SuSE box - which of the following best describes your box?
-	i=1
-	for foo in ($likely_dirs) do;
-		echo ${i}: $foo
-		i=`expr $i + 1`
-	done;
-	read flavor
-	echo You chose $flavor...
-	ln -s /usr/src/linux/$flavor my_build
-fi
+I really don't think we need to go this far.
 
+As I understand it, the issue seems to surround DMA coherent memory
+for USB descriptors, and what happens when we call the streaming DMA
+API.
 
---==_Exmh_1711540843P
-Content-Type: application/pgp-signature
+We have the latter solved with Deepak's DMA bounce code (already merged)
+provided it's given the right information to determine when bounce
+buffers are needed.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+The bounce code only needs a way to get at the "safe" DMA memory, and
+it uses DMA pools for that.  DMA pools in turn take their memory from
+dma_alloc_coherent.
 
-iD8DBQFA00UbcC3lWbTT17ARAuz2AJ4vMaN9JOIjQV4QVEKF9plgpS8c9ACePog9
-sROgOBrH01s22lNiBSUiJW0=
-=iOPX
------END PGP SIGNATURE-----
+So, we just need a way to make dma_alloc_coherent do the right thing.
+One suggestion from James yesterday was to have a way to register
+device-private "coherent DMA" backing memory with dma_alloc_coherent,
+which it would use in preference to calling alloc_pages().  However,
+this memory would have no struct page pointer associated with it, and
+our dma_alloc_coherent implementation currently relies completely on
+that condition existing - so it would mean a complete rewrite of that.
 
---==_Exmh_1711540843P--
+Note also that some drivers (notably ALSA) assume that memory returned
+from dma_alloc_coherent() does have struct page pointers, so this would
+also break ALSA (which in turn provides much more of a justification
+for the DMA MMAP API I was trying (and failed) to propose a few months
+back.)
+
+Also, we need to consider what the DMA mask means in this case?  Should
+it be zero (to mean "can't DMA from system memory"?)
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262674AbTLIDRP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 22:17:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262679AbTLIDRP
+	id S262687AbTLIDWa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 22:22:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262695AbTLIDWa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 22:17:15 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:9621 "EHLO hermes.jf.intel.com")
-	by vger.kernel.org with ESMTP id S262674AbTLIDRO convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 22:17:14 -0500
-content-class: urn:content-classes:message
+	Mon, 8 Dec 2003 22:22:30 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:58381 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S262687AbTLIDW3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 22:22:29 -0500
+Message-ID: <3FD53FC6.5080103@zytor.com>
+Date: Mon, 08 Dec 2003 19:21:42 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031030
+X-Accept-Language: en, sv
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: Retriving PCI driver data from file ops
-Date: Mon, 8 Dec 2003 19:17:09 -0800
-Message-ID: <A20D5638D741DD4DBAAB80A95012C0AE0125DFCB@orsmsx409.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Retriving PCI driver data from file ops
-Thread-Index: AcO9/Dico5TzENP6STGd8cE4RkmN6AABVdaA
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "James Lamanna" <jamesl@appliedminds.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 09 Dec 2003 03:17:10.0438 (UTC) FILETIME=[EEEF5460:01C3BE02]
+To: Jamie Lokier <jamie@shareable.org>
+CC: Nikita Danilov <Nikita@Namesys.COM>, Arnd Bergmann <arnd@arndb.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: const versus __attribute__((const))
+References: <200312081646.42191.arnd@arndb.de> <3FD4B9E6.9090902@zytor.com> <16340.49791.585097.389128@laputa.namesys.com> <3FD4C375.2060803@zytor.com> <20031209025952.GA26439@mail.shareable.org>
+In-Reply-To: <20031209025952.GA26439@mail.shareable.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: James Lamanna
+Jamie Lokier wrote:
 > 
-> Is there an elegant way to retrieve a pointer registered with
-> pci_set_drvdata() within an open fops function?
-> Or am I forced to make it a static variable?
+> It would be nice to have a way to declare an asm like "pure" not
+> "const", so that it's allowed to read memory but multiple calls can be
+> eliminated; I don't know of a way to express that.
+> 
 
-Normally how you do this is that during open(), you associate
-your 'struct file's priv pointer to the specific instance of the device
-you are opening; in that instance structure you keep pointers to
-the 'struct pci_device' for your access needs.
+Just specify memory input operands.
 
-See for a more complete reference:
+	-hpa
 
-http://kernel-janitor.sourceforge.net/kernel-janitor/docs/driver-howto.html#3.2.2
-
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own (and my fault)

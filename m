@@ -1,77 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289364AbSAOC15>; Mon, 14 Jan 2002 21:27:57 -0500
+	id <S289358AbSAOCg5>; Mon, 14 Jan 2002 21:36:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289367AbSAOC1r>; Mon, 14 Jan 2002 21:27:47 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:27909 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S289364AbSAOC1h>; Mon, 14 Jan 2002 21:27:37 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 14 Jan 2002 18:33:26 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Ed Tomlinson <tomlins@cam.org>
-cc: Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>,
-        Dave Jones <davej@suse.de>
-Subject: Re: [patch] O(1) scheduler-H6/H7 and nice +19
-In-Reply-To: <20020115021837.4A63969E@oscar.casa.dyndns.org>
-Message-ID: <Pine.LNX.4.40.0201141829230.937-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289367AbSAOCgs>; Mon, 14 Jan 2002 21:36:48 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:29852 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S289358AbSAOCgn>; Mon, 14 Jan 2002 21:36:43 -0500
+Date: Mon, 14 Jan 2002 21:36:41 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org
+Subject: Re: Penelope builds a kernel
+Message-ID: <20020114213641.I30639@redhat.com>
+In-Reply-To: <20020114165909.A20808@thyrsus.com> <20020114173542.C30639@redhat.com> <20020114173854.C23081@thyrsus.com> <20020114180007.D30639@redhat.com> <20020114180522.A24120@thyrsus.com> <20020114183820.G30639@redhat.com> <20020114205307.E24120@thyrsus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020114205307.E24120@thyrsus.com>; from esr@thyrsus.com on Mon, Jan 14, 2002 at 08:53:07PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Jan 2002, Ed Tomlinson wrote:
+On Mon, Jan 14, 2002 at 08:53:07PM -0500, Eric S. Raymond wrote:
+> I don't understand what you think you're seeing, but I am sure of
+> this; if I had been enough of a drug-addled lunatic to allow fetchmail
+> to delete mail before getting a positive acknowledge from the
+> downstream MTA, someone in the pool of over two thousand people who have sent
+> me bug reports and patches would have called me on it some time in the
+> six years of production use well before *you* entered the picture.
 
-> On January 14, 2002 08:50 pm, Davide Libenzi wrote:
-> > On Mon, 14 Jan 2002, Ed Tomlinson wrote:
-> > > On January 13, 2002 10:45 pm, Davide Libenzi wrote:
-> > > > On Sun, 13 Jan 2002, Ed Tomlinson wrote:
-> > > > > With pre3+H7, kernel compiles still take 40% longer with a setiathome
-> > > > > process running at nice +19.  This is _not_ the case with the old
-> > > > > scheduler.
-> > > >
-> > > > Did you try to set MIN_TIMESLICE to 10 ( sched.h ) ?make bzImage with
-> > > > setiathome running nice +19
-> > >
-> > > This makes things a worst - note the decreased cpu utilizaton...
-> > >
-> > > make bzImage  424.33s user 32.21s system 48% cpu 15:48.69 total
-> > >
-> > > What is this telling us?
-> >
-> > Doh !
-> > Did you set this ?
-> >
-> > #define MIN_TIMESLICE  (10 * HZ / 1000)
->
-> I set:
->
-> #define MIN_TIMESLICE  10
->
-> Now I am tring
->
-> #define MIN_TIMESLICE  1
->
-> which, looksing at monitors, gives about 80% cpu to the compile
+Uhm, as someone who has run a number of mailing lists for the past 6 
+years, I've seen fetchmail induced bounces numerous times, and 99% of 
+the time they're because the damn thing should default to a 
+--never-send-bounces-to-anyone.
 
-try to replace :
+> It's likely you're being hosed by an MTA that's sending back bogus 2xx
+> responses.  That's happend before.  Fetchmail can't magically cope
+> with MTAs that tell it lies.
 
-PRIO_TO_TIMESLICE() and RT_PRIO_TO_TIMESLICE() with :
+That's part of what you have to deal with by being a hybrid MTA/MUA: 
+your error handling must be directed at the user of fetchmail, not the 
+originator of the message.  The originator of the message has no control 
+over the misdelivery of the message due to user config file error, so 
+why should they receive the error?  Bounces like these are very 
+difficult to determine what the address causing trouble is because of 
+the fact that fetchmail *is* an MUA -> it should not behave as if it is 
+purely an MTA.
 
-#define NICE_TO_TIMESLICE(n)    (MIN_TIMESLICE + ((MAX_TIMESLICE - \
-	MIN_TIMESLICE) * ((n) + 20)) / 39)
+> Fetchmail *already works the way you recommend* -- as any idiot can
+> verify by reading the short section of the main driver loop where
+> dispatch and delete takes place.  That's been an invariant of the code
+> since day one, and you thus clearly have no bloody idea what you are
+> flaming about.
 
+Good, at least that part of my understanding of it was wrong, and I'm 
+glad to hear that.  But the behaviour is still indistinguishable from 
+the gross misdesign that it feels like.  Namely, ask yourself why it 
+loses mail if the user makes a typo in the config file on their first 
+try?  Who gets the bounce?  Why should the message be deleted instead 
+of merely deferred?
 
-NICE_TO_TIMESLICE(p->__nice)
+Besides, I think you're trying to solve the wrong problem.  A good many 
+readers of linux-kernel don't want to start seeing posts from Aunt Tillie 
+and would rather leave this ease of use issue to the distributions that 
+already make it easy as pie.
 
-
-I'm currently running it on my machine but i don't want that this changes
-that 'liquid' interactive feel that me and Ingo have got with the new code
-
-
-
-
-- Davide
-
-
+		-ben

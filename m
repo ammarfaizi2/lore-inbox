@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289125AbSA1HcF>; Mon, 28 Jan 2002 02:32:05 -0500
+	id <S289135AbSA1H4A>; Mon, 28 Jan 2002 02:56:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289135AbSA1Hbz>; Mon, 28 Jan 2002 02:31:55 -0500
-Received: from defiant.secureone.com.au ([203.55.158.195]:30863 "EHLO
-	defiant.secureone.com.au") by vger.kernel.org with ESMTP
-	id <S289125AbSA1Hbl>; Mon, 28 Jan 2002 02:31:41 -0500
-Posted-Date: Mon, 28 Jan 2002 17:32:06 +1000
-X-URL: SecureONE SecureSentry - http://www.secureone.com.au/
-Message-ID: <02bb01c1a7ce$5caabf00$0f01000a@brisbane.hatfields.com.au>
-Reply-To: "Andrew Hatfield" <lkml@secureone.com.au>
-From: "Andrew Hatfield" <lkml@secureone.com.au>
-To: "Ka Fai Lau" <byzantinehk@yahoo.com.hk>
-Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020127171200.86601.qmail@web14901.mail.yahoo.com>
-Subject: Re: Any kernel project to work with?
-Date: Mon, 28 Jan 2002 17:35:23 +1000
-Organization: SecureONE
+	id <S288668AbSA1Hzu>; Mon, 28 Jan 2002 02:55:50 -0500
+Received: from [195.66.192.167] ([195.66.192.167]:51207 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S288288AbSA1Hze>; Mon, 28 Jan 2002 02:55:34 -0500
+Message-Id: <200201280750.g0S7oGE21742@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Subject: [PATCH] KERN_INFO for devfs
+Date: Mon, 28 Jan 2002 09:50:18 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="big5"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-x-mimeole: Produced By Microsoft MimeOLE V5.50.4807.1700
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I am looking for some linux kernel project to work
-> with? probably drivers. where can i find the pending
-> project list or anybody has some interested project
-> and want to work with someone else?
-> 
+Primary purpose of this patch is to make KERN_WARNING and
+KERN_INFO log levels closer to their original meaning.
+Today they are quite far from what was intended.
+Just look what kernel writes at the WARNING level
+each time you boot your box!
 
-check out http://kerneljanitors.org/ for a list of TODOs
+Diff for devfs.
+--
+vda
 
-  --
+diff --recursive -u linux-2.4.13-orig/fs/devfs/base.c linux-2.4.13-new/fs/devfs/base.c
+--- linux-2.4.13-orig/fs/devfs/base.c	Thu Oct 11 04:23:24 2001
++++ linux-2.4.13-new/fs/devfs/base.c	Thu Nov  8 23:42:11 2001
+@@ -3289,13 +3289,13 @@
+ {
+     int err;
 
-  Andrew Hatfield
-  SecureONE - http://www.secureone.com.au/
-  President - South East Brisbane Linux Users Group  http://www.seblug.org/
-
-  Kernel work available at http://development.secureone.com.au/kernel/
-
-
+-    printk ("%s: v%s Richard Gooch (rgooch@atnf.csiro.au)\n",
+-	    DEVFS_NAME, DEVFS_VERSION);
++    printk (KERN_INFO DEVFS_NAME ": v" DEVFS_VERSION
++	" Richard Gooch (rgooch@atnf.csiro.au)\n");
+ #ifdef CONFIG_DEVFS_DEBUG
+     devfs_debug = devfs_debug_init;
+-    printk ("%s: devfs_debug: 0x%0x\n", DEVFS_NAME, devfs_debug);
++    printk (KERN_INFO DEVFS_NAME ": devfs_debug: 0x%0x\n", devfs_debug);
+ #endif
+-    printk ("%s: boot_options: 0x%0x\n", DEVFS_NAME, boot_options);
++    printk (KERN_INFO DEVFS_NAME ": boot_options: 0x%0x\n", boot_options);
+     err = register_filesystem (&devfs_fs_type);
+     if (!err)
+     {

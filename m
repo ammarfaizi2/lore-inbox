@@ -1,121 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264811AbUEKRnZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264772AbUEKRpI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264811AbUEKRnZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 13:43:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264772AbUEKRnY
+	id S264772AbUEKRpI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 13:45:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264805AbUEKRpI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 13:43:24 -0400
-Received: from outmx012.isp.belgacom.be ([195.238.3.70]:23238 "EHLO
-	outmx012.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S264889AbUEKRml (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 13:42:41 -0400
-Subject: [PATCH 2.6.6-mm1] bluetooth definition redundancy fix
-From: FabF <Fabian.Frederick@skynet.be>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
-Content-Type: multipart/mixed; boundary="=-fV9XN9AsOGk5RMihMIdm"
-Message-Id: <1084381970.7894.4.camel@bluerhyme.real3>
+	Tue, 11 May 2004 13:45:08 -0400
+Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:52179 "EHLO
+	ti41.telemetry-investments.com") by vger.kernel.org with ESMTP
+	id S264772AbUEKRoz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 13:44:55 -0400
+Date: Tue, 11 May 2004 13:44:54 -0400
+From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
+To: Len Brown <len.brown@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Long boot delay with 2.6 on Tyan S2464 Dual Athlon
+Message-ID: <20040511174454.GD27033@ti64.telemetry-investments.com>
+Mail-Followup-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+	Len Brown <len.brown@intel.com>, linux-kernel@vger.kernel.org
+References: <A6974D8E5F98D511BB910002A50A6647615FB091@hdsmsx403.hd.intel.com> <1084294867.12359.109.camel@dhcppc4>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 12 May 2004 19:12:50 +0200
-X-RAVMilter-Version: 8.4.3(snapshot 20030212) (outmx012.isp.belgacom.be)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1084294867.12359.109.camel@dhcppc4>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-fV9XN9AsOGk5RMihMIdm
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-Hi,
-
-	HCI Core debug context is redefined 4 times in mm1 bluetooth
-module.Here's a trivial patch to have it in hci_core.h (only).
-
-Regards,
-FabF
-
---=-fV9XN9AsOGk5RMihMIdm
-Content-Disposition: attachment; filename=bluetooth1.diff
-Content-Type: text/x-patch; name=bluetooth1.diff; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-diff -Naur orig/include/net/bluetooth/hci_core.h edited/include/net/bluetooth/hci_core.h
---- orig/include/net/bluetooth/hci_core.h	2004-05-10 04:32:37.000000000 +0200
-+++ edited/include/net/bluetooth/hci_core.h	2004-05-12 18:54:20.000000000 +0200
-@@ -32,6 +32,12 @@
- #include <linux/proc_fs.h>
- #include <net/bluetooth/hci.h>
+On Tue, May 11, 2004 at 01:01:07PM -0400, Len Brown wrote:
+> On Tue, 2004-05-11 at 10:35, Bill Rugolsky Jr. wrote:
+> > When booting 2.6 on a Tyan S2464 dual Athlon, the kernel pauses
+> > for about two minutes before the first boot message appears.
+> > This does not occur with 2.4 kernels.
+> 
+> $0.05 says it is related to SCSI
  
-+#ifndef CONFIG_BT_HCI_CORE_DEBUG
-+#undef  BT_DBG
-+#define BT_DBG( A... )
-+#endif
-+
-+
- /* HCI upper protocols */
- #define HCI_PROTO_L2CAP	0
- #define HCI_PROTO_SCO	1
-diff -Naur orig/net/bluetooth/hci_conn.c edited/net/bluetooth/hci_conn.c
---- orig/net/bluetooth/hci_conn.c	2004-05-10 04:33:21.000000000 +0200
-+++ edited/net/bluetooth/hci_conn.c	2004-05-12 18:55:00.000000000 +0200
-@@ -52,11 +52,6 @@
- #include <net/bluetooth/bluetooth.h>
- #include <net/bluetooth/hci_core.h>
+> BTW. you got the latest BIOS on this box?
  
--#ifndef CONFIG_BT_HCI_CORE_DEBUG
--#undef  BT_DBG
--#define BT_DBG( A... )
--#endif
--
- void hci_acl_connect(struct hci_conn *conn)
- {
- 	struct hci_dev *hdev = conn->hdev;
-diff -Naur orig/net/bluetooth/hci_core.c edited/net/bluetooth/hci_core.c
---- orig/net/bluetooth/hci_core.c	2004-05-10 04:32:26.000000000 +0200
-+++ edited/net/bluetooth/hci_core.c	2004-05-12 18:55:08.000000000 +0200
-@@ -53,11 +53,6 @@
- #include <net/bluetooth/bluetooth.h>
- #include <net/bluetooth/hci_core.h>
- 
--#ifndef CONFIG_BT_HCI_CORE_DEBUG
--#undef  BT_DBG
--#define BT_DBG( A... )
--#endif
--
- static void hci_cmd_task(unsigned long arg);
- static void hci_rx_task(unsigned long arg);
- static void hci_tx_task(unsigned long arg);
-diff -Naur orig/net/bluetooth/hci_sock.c edited/net/bluetooth/hci_sock.c
---- orig/net/bluetooth/hci_sock.c	2004-05-10 04:32:38.000000000 +0200
-+++ edited/net/bluetooth/hci_sock.c	2004-05-12 18:59:34.000000000 +0200
-@@ -54,11 +54,6 @@
- #include <net/bluetooth/bluetooth.h>
- #include <net/bluetooth/hci_core.h>
- 
--#ifndef CONFIG_BT_HCI_SOCK_DEBUG
--#undef  BT_DBG
--#define BT_DBG( A... )
--#endif
--
- /* ----- HCI socket interface ----- */
- 
- static inline int hci_test_bit(int nr, void *addr)
-diff -Naur orig/net/bluetooth/hci_sysfs.c edited/net/bluetooth/hci_sysfs.c
---- orig/net/bluetooth/hci_sysfs.c	2004-05-10 04:33:04.000000000 +0200
-+++ edited/net/bluetooth/hci_sysfs.c	2004-05-12 18:59:45.000000000 +0200
-@@ -5,11 +5,6 @@
- #include <net/bluetooth/bluetooth.h>
- #include <net/bluetooth/hci_core.h>
- 
--#ifndef CONFIG_BT_HCI_CORE_DEBUG
--#undef  BT_DBG
--#define BT_DBG( A... )
--#endif
--
- static ssize_t show_name(struct class_device *cdev, char *buf)
- {
- 	struct hci_dev *hdev = class_get_devdata(cdev);
+Yes, 2.14 from the Tyan site, released a a few weeks ago.
 
---=-fV9XN9AsOGk5RMihMIdm--
+> >   Vendor: 3ware     Model: Logical Disk 3    Rev: 1.2 
+> >   Type:   Direct-Access                      ANSI SCSI revision: 00
+> > SCSI device sdd: 156301488 512-byte hdwr sectors (80026 MB)
+> > SCSI device sdd: drive cache: write through
+> >  sdd:
+> > Attached scsi disk sdd at scsi2, channel 0, id 3, lun 0
+> 
+> if you slap an IDE drive on this box and disable the SCSI does the delay
+> go away?
 
+The box is all IDE; the above messages are from the 3ware controller,
+which emulates a SCSI device.
+
+There is nothing hanging on the on-board Adaptec SCSI controller.
+The BIOS doesn't provide a setting to disable it, though I think
+there is a jumper on the motherboard.
+
+Unfortunately, I have to slap this box into production later today,
+so I can't experiment much more.  But we have a half-dozen of these
+motherboards in the office running Solaris 8 or FC1, and those are
+slated for eventual upgrade to a 2.6 kernel, so I'll try to take one
+out of production for a bit of experimentation.
+
+Thanks.
+
+	Bill Rugolsky

@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131175AbRCWO5J>; Fri, 23 Mar 2001 09:57:09 -0500
+	id <S131202AbRCWPB7>; Fri, 23 Mar 2001 10:01:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131194AbRCWO4t>; Fri, 23 Mar 2001 09:56:49 -0500
-Received: from zmamail05.zma.compaq.com ([161.114.64.105]:49676 "HELO
-	zmamail05.zma.compaq.com") by vger.kernel.org with SMTP
-	id <S131175AbRCWO4i>; Fri, 23 Mar 2001 09:56:38 -0500
-Reply-To: <frey@cxau.zko.dec.com>
-From: "Martin Frey" <frey@scs.ch>
-To: "'Andrew Morton'" <andrewm@uow.edu.au>
-Cc: "'Benjamin Herrenschmidt'" <benh@kernel.crashing.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: RE: kernel_thread vs. zombie
-Date: Fri, 23 Mar 2001 00:06:56 -0800
-Message-ID: <009e01c0b3a9$54a3cdc0$90600410@SCHLEPPDOWN>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <3ABAB12D.CE7FA890@uow.edu.au>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
-Importance: Normal
+	id <S131025AbRCWPBt>; Fri, 23 Mar 2001 10:01:49 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:15364 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S130940AbRCWPBo>; Fri, 23 Mar 2001 10:01:44 -0500
+Message-Id: <200103231500.f2NF07xY001127@pincoya.inf.utfsm.cl>
+To: Jonathan Morton <chromi@cyberspace.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: regression testing 
+In-Reply-To: Message from Jonathan Morton <chromi@cyberspace.org> 
+   of "Thu, 22 Mar 2001 18:12:47 GMT." <l03130302b6dfea87c17f@[192.168.239.101]> 
+Date: Fri, 23 Mar 2001 11:00:07 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->So I think it's reasonable to use keventd as `kinit', if you like.
->Something which knows how to launch and reap kernel daemons, and
->which provides a known environment to them.
->
->A kernel API function (`kernel_daemon'?) which does all this
->boilerplate is needed, I think.
->
-I completely agree. I'll be on a trip for the next two weeks, but
-after that I can write a small example how it would look. I'll mail
-again when it is ready.
+Jonathan Morton <chromi@cyberspace.org> said:
+> >- automated heavy stress testing
 
-Thanks, Martin
+> This would be an interesting one to me, from a benchmarking POV.  I'd like
+> to know what my hardware can really do, for one thing - it's all very well
+> saying this box can do X Whetstones and has a 100Mbit NIC, but it's a much
+> more solid thing to be able to say "my box handled the official Foobar
+> stress-test in Y hours, handling Z widgets per second".
+
+Which would tell you exactly that, nothing more and nothing less. No idea
+how many users it would support reading mail via IMAP, if playing Quake on
+it is doable, or whether it is a good idea to use it as a firewall or
+development machine. Computer systems are very complex, their uses much
+more so (and extremely varied to boot); to believe some number (or even a
+small set of numbers) will tell you everything there is to know about a
+particular box is just an illusion. And a box rarely stands in isolation.
+-- 
+Dr. Horst H. von Brand                       mailto:vonbrand@inf.utfsm.cl
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

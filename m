@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264295AbUFCVGu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264307AbUFCVMS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264295AbUFCVGu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 17:06:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264299AbUFCVGu
+	id S264307AbUFCVMS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 17:12:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264305AbUFCVMS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 17:06:50 -0400
-Received: from thunk.org ([140.239.227.29]:44781 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S264295AbUFCVGt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 17:06:49 -0400
-Date: Thu, 3 Jun 2004 17:06:01 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, greg@kroah.com, vojtech@suse.cz
-Subject: Re: [RFC] Changing SysRq - show registers handling
-Message-ID: <20040603210601.GC6709@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Oliver Neukum <oliver@neukum.org>,
-	Dmitry Torokhov <dtor_core@ameritech.net>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	greg@kroah.com, vojtech@suse.cz
-References: <200406030134.04121.dtor_core@ameritech.net> <20040603001804.750b7fa5.akpm@osdl.org> <200406030227.22178.dtor_core@ameritech.net> <200406030944.01615.oliver@neukum.org>
+	Thu, 3 Jun 2004 17:12:18 -0400
+Received: from outside.osdl.org ([65.172.181.23]:23424 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S264308AbUFCVL4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 17:11:56 -0400
+Subject: Re: [BUG] NFS no longer updates file modification times
+	appropriately
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: joe.korty@ccur.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040603202846.GA28479@tsunami.ccur.com>
+References: <20040603202846.GA28479@tsunami.ccur.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1086297112.3659.3.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200406030944.01615.oliver@neukum.org>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 03 Jun 2004 14:11:52 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 03, 2004 at 09:44:01AM +0200, Oliver Neukum wrote:
-> Am Donnerstag, 3. Juni 2004 09:27 schrieb Dmitry Torokhov:
-> > I don't like the requirement of SysRq request processing being in hard
-> > interrupt handler - that excludes uinput-generated events and precludes
-> > moving keyboard handling to a tasklet for example.
-> 
-> SysRq should work even if bottom halfs don't.
+På to , 03/06/2004 klokka 13:28, skreiv Joe Korty:
+> Trond,
+>  Paraphrased from one of my inhouse customers: "The timestamp of an
+> NFS-mounted file does not change when written to, when the below test is
+> run on a 2.6.6-rc1 to 2.6.7-rc2 kernel.  The timestamp is appropriately
+> updated when the test is run on a 2.6.5 kernel.  This is with NFSv3.
+> The type of system serving up the files does not seem to be a factor."
 
-Indeed; one of the times when SysRq-p is used in the field is when the
-machine is completely wedged.  Sometimes it's the only way to figure
-out where the machine is wedged.  It would be unfortunate if the
-number of cases (when the kernel is four feet in the air and
-twitching) where SysRq worked decreases as a result of the proposed
-change.
+NFS is only guaranteed to flush the file to disk when you do the
+close(). Your program will just result in a lot of cached writes right
+up until the moment it exits...
 
-						- Ted
+...and no - we do not update timestamps on the client side when we cache
+the write, 'cos NFS does not provide any device for ensuring that clocks
+on client and server are synchronized.
+
+Cheers,
+  Trond

@@ -1,56 +1,169 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282978AbSABTKa>; Wed, 2 Jan 2002 14:10:30 -0500
+	id <S285118AbSABTOK>; Wed, 2 Jan 2002 14:14:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287908AbSABTKR>; Wed, 2 Jan 2002 14:10:17 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:49025
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S287905AbSABTJ2>; Wed, 2 Jan 2002 14:09:28 -0500
-Date: Wed, 2 Jan 2002 12:09:10 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Momchil Velikov <velco@fadata.bg>
-Cc: linux-kernel@vger.kernel.org, gcc@gcc.gnu.org,
-        linuxppc-dev@lists.linuxppc.org,
-        Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Corey Minyard <minyard@acm.org>
-Subject: Re: [PATCH] C undefined behavior fix
-Message-ID: <20020102190910.GG1803@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <87g05py8qq.fsf@fadata.bg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87g05py8qq.fsf@fadata.bg>
-User-Agent: Mutt/1.3.24i
+	id <S287903AbSABTNV>; Wed, 2 Jan 2002 14:13:21 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:54758 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S287905AbSABTK3>;
+	Wed, 2 Jan 2002 14:10:29 -0500
+Date: Wed, 2 Jan 2002 20:10:28 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200201021910.UAA18871@harpo.it.uu.se>
+To: torvalds@transmeta.com
+Subject: [PATCH] DMI/APIC updates 4 of 4: dmi-apic-fixups
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 02, 2002 at 01:03:25AM +0200, Momchil Velikov wrote:
+Linus,
 
-> The GCC tries to replace the strcpy from a constant string source with
-> a memcpy, since the length is know at compile time.
+This is part 4 of 4 of a patch set for 2.5.2-pre6 to move the
+x86 DMI scan to an earlier point in the boot sequence. This is
+motivated by the UP APIC code, which must be disabled on some
+machines with broken BIOSen, but there are also other cases that
+would benefit from it. Tested. Please apply.
 
-Okay, here's a summary of all of the options we have:
-1) Change this particular strcpy to a memcpy
-2) Add -ffreestanding to the CFLAGS of arch/ppc/kernel/prom.o (If this
-optimization comes back on with this flag later on, it would be a
-compiler bug, yes?)
-3) Modify the RELOC() marco in such a way that GCC won't attempt to
-optimize anything which touches it [1]. (Franz, again by Jakub)
-4) Introduce a function to do the calculations [2]. (Corey Minyard)
-5) 'Properly' set things up so that we don't need the RELOC() macros
-(-mrelocatable or so?), and forget this mess altogether.
+This last patch (patch-dmi-apic-fixups) adds DMI matching rules
+and APIC workarounds to detect and handle machines known to have
+UP APIC problems, currently Dell laptops and Intel's old AL440LX.
+The UP APIC initialisation is moved from setup_arch() to trap_init();
+this minor adjustment allows the UP APIC initialisation to respond
+to DMI matches and explicit kernel command line options. To be
+effective, this needs the early-dmi-scan patch I posted previously.
 
-I think that if we're going to make sure that gcc-3.0.x works with 2.4.x
-kernels, we should pick one of the first 4 initially.  If this is only a
-2.5.x matter, we should probably try and do #5 as a long-term goal, and
-pick something else for now.  But either way I do think it's time to
-pick some solution.  Comments?
+/Mikael
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
-
-[1] http://lists.linuxppc.org/linuxppc-dev/200109/msg00155.html
-[2] http://lists.linuxppc.org/linuxppc-dev/200112/msg00038.html
+diff -ruN linux-2.5.2-pre6.early-dmi-scan/arch/i386/kernel/apic.c linux-2.5.2-pre6.dmi-apic-fixups/arch/i386/kernel/apic.c
+--- linux-2.5.2-pre6.early-dmi-scan/arch/i386/kernel/apic.c	Wed Jan  2 00:43:14 2002
++++ linux-2.5.2-pre6.dmi-apic-fixups/arch/i386/kernel/apic.c	Wed Jan  2 00:59:58 2002
+@@ -578,12 +578,17 @@
+  * Detect and enable local APICs on non-SMP boards.
+  * Original code written by Keir Fraser.
+  */
++int dont_enable_local_apic __initdata = 0;
+ 
+ static int __init detect_init_APIC (void)
+ {
+ 	u32 h, l, features;
+ 	extern void get_cpu_vendor(struct cpuinfo_x86*);
+ 
++	/* Disabled by DMI scan or kernel option? */
++	if (dont_enable_local_apic)
++		return -1;
++
+ 	/* Workaround for us being called before identify_cpu(). */
+ 	get_cpu_vendor(&boot_cpu_data);
+ 
+@@ -901,8 +906,14 @@
+ 
+ static unsigned int calibration_result;
+ 
++int dont_use_local_apic_timer __initdata = 0;
++
+ void __init setup_APIC_clocks (void)
+ {
++	/* Disabled by DMI scan or kernel option? */
++	if (dont_use_local_apic_timer)
++		return;
++
+ 	printk("Using local APIC timer interrupts.\n");
+ 	using_apic_timer = 1;
+ 
+diff -ruN linux-2.5.2-pre6.early-dmi-scan/arch/i386/kernel/dmi_scan.c linux-2.5.2-pre6.dmi-apic-fixups/arch/i386/kernel/dmi_scan.c
+--- linux-2.5.2-pre6.early-dmi-scan/arch/i386/kernel/dmi_scan.c	Wed Jan  2 01:01:06 2002
++++ linux-2.5.2-pre6.dmi-apic-fixups/arch/i386/kernel/dmi_scan.c	Wed Jan  2 00:59:58 2002
+@@ -417,6 +417,43 @@
+ 	return 0;
+ }
+ 
++/*
++ * Some machines, usually laptops, can't handle an enabled local APIC.
++ * The symptoms include hangs or reboots when suspending or resuming,
++ * attaching or detaching the power cord, or entering BIOS setup screens
++ * through magic key sequences.
++ */
++static int __init local_apic_kills_bios(struct dmi_blacklist *d)
++{
++#ifdef CONFIG_X86_LOCAL_APIC
++	extern int dont_enable_local_apic;
++	if (!dont_enable_local_apic) {
++		dont_enable_local_apic = 1;
++		printk(KERN_WARNING "%s with broken BIOS detected. "
++		       "Refusing to enable the local APIC.\n",
++		       d->ident);
++	}
++#endif
++	return 0;
++}
++
++/*
++ * The Intel AL440LX mainboard will hang randomly if the local APIC
++ * timer is running and the APM BIOS hasn't been disabled.
++ */
++static int __init apm_kills_local_apic_timer(struct dmi_blacklist *d)
++{
++#ifdef CONFIG_X86_LOCAL_APIC
++	extern int dont_use_local_apic_timer;
++	if (apm_info.bios.version && !dont_use_local_apic_timer) {
++		dont_use_local_apic_timer = 1;
++		printk(KERN_WARNING "%s with broken BIOS detected. "
++		       "The local APIC timer will not be used.\n",
++		       d->ident);
++	}
++#endif
++	return 0;
++}
+ 
+ /*
+  *	Simple "print if true" callback
+@@ -561,6 +598,25 @@
+ 			MATCH(DMI_BIOS_DATE, "09/12/00"), NO_MATCH
+ 			} },
+ 
++	/* Machines which have problems handling enabled local APICs */
++
++	{ local_apic_kills_bios, "Dell Inspiron", {
++			MATCH(DMI_SYS_VENDOR, "Dell Computer Corporation"),
++			MATCH(DMI_PRODUCT_NAME, "Inspiron"),
++			NO_MATCH, NO_MATCH
++			} },
++
++	{ local_apic_kills_bios, "Dell Latitude", {
++			MATCH(DMI_SYS_VENDOR, "Dell Computer Corporation"),
++			MATCH(DMI_PRODUCT_NAME, "Latitude"),
++			NO_MATCH, NO_MATCH
++			} },
++
++	{ apm_kills_local_apic_timer, "Intel AL440LX", {
++			MATCH(DMI_BOARD_VENDOR, "Intel Corporation"),
++			MATCH(DMI_BOARD_NAME, "AL440LX"),
++			NO_MATCH, NO_MATCH } },
++
+ 	/* Problem Intel 440GX bioses */
+ 
+ 	{ broken_pirq, "SABR1 Bios", {			/* Bad $PIR */
+diff -ruN linux-2.5.2-pre6.early-dmi-scan/arch/i386/kernel/setup.c linux-2.5.2-pre6.dmi-apic-fixups/arch/i386/kernel/setup.c
+--- linux-2.5.2-pre6.early-dmi-scan/arch/i386/kernel/setup.c	Wed Jan  2 01:01:06 2002
++++ linux-2.5.2-pre6.dmi-apic-fixups/arch/i386/kernel/setup.c	Wed Jan  2 00:59:58 2002
+@@ -870,7 +870,6 @@
+ 	 */
+ 	if (smp_found_config)
+ 		get_smp_config();
+-	init_apic_mappings();
+ #endif
+ 
+ 
+diff -ruN linux-2.5.2-pre6.early-dmi-scan/arch/i386/kernel/traps.c linux-2.5.2-pre6.dmi-apic-fixups/arch/i386/kernel/traps.c
+--- linux-2.5.2-pre6.early-dmi-scan/arch/i386/kernel/traps.c	Tue Dec 18 00:40:11 2001
++++ linux-2.5.2-pre6.dmi-apic-fixups/arch/i386/kernel/traps.c	Wed Jan  2 00:59:58 2002
+@@ -920,6 +920,10 @@
+ 		EISA_bus = 1;
+ #endif
+ 
++#ifdef CONFIG_X86_LOCAL_APIC
++	init_apic_mappings();
++#endif
++
+ 	set_trap_gate(0,&divide_error);
+ 	set_trap_gate(1,&debug);
+ 	set_intr_gate(2,&nmi);

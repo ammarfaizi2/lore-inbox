@@ -1,75 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275006AbRIYN4g>; Tue, 25 Sep 2001 09:56:36 -0400
+	id <S275004AbRIYN7H>; Tue, 25 Sep 2001 09:59:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275004AbRIYN4T>; Tue, 25 Sep 2001 09:56:19 -0400
-Received: from nick.dcs.qmul.ac.uk ([138.37.88.61]:38107 "EHLO
-	nick.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP
-	id <S275007AbRIYN4C>; Tue, 25 Sep 2001 09:56:02 -0400
-Date: Tue, 25 Sep 2001 14:56:28 +0100 (BST)
-From: <matt@thebachchoir.org.uk>
-To: <linux-kernel@vger.kernel.org>
-Subject: autofs oops 2.4.9-ac10-jfs, 2.4.9-ac15
-Message-ID: <Pine.LNX.4.33.0109251446390.13536-100000@nick.dcs.qmul.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S275007AbRIYN65>; Tue, 25 Sep 2001 09:58:57 -0400
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:35128 "EHLO
+	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
+	id <S275004AbRIYN6q>; Tue, 25 Sep 2001 09:58:46 -0400
+Date: Tue, 25 Sep 2001 15:59:09 +0200
+From: Kurt Garloff <garloff@suse.de>
+To: "[A]ndy80" <andy80@ptlug.org>
+Cc: "Dr. Michael Weller" <eowmob@exp-math.uni-essen.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Burning a CD image slow down my connection
+Message-ID: <20010925155909.J8678@gum01m.etpnet.phys.tue.nl>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	"[A]ndy80" <andy80@ptlug.org>,
+	"Dr. Michael Weller" <eowmob@exp-math.uni-essen.de>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.A32.3.95.1010925121523.20872B-100000@werner.exp-math.uni-essen.de> <1001420696.1316.8.camel@piccoli>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="GlnCQLZWzqLRJED8"
+Content-Disposition: inline
+In-Reply-To: <1001420696.1316.8.camel@piccoli>
+User-Agent: Mutt/1.3.20i
+X-Operating-System: Linux 2.4.10 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TU/e(NL), SuSE(DE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This, on a Debian woody box, everything modular, autofs4 module (probably
-autofs.o too), 1000MHz Athlon, (nb doesn't occur from same kernel tree on
-our SMP PIII with VIA Apollo Pro133x), the following chipset:
 
-00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] (rev 03)
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP]
-00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 40)
-00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
-00:07.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 16)
-00:07.3 USB Controller: VIA Technologies, Inc. UHCI USB (rev 16)
-00:07.4 SMBus: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 40)
-00:0d.0 Multimedia audio controller: Ensoniq 5880 AudioPCI (rev 02)
-00:0f.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100] (rev 0c)
-01:00.0 VGA compatible controller: nVidia Corporation NV11 (rev a1)
+--GlnCQLZWzqLRJED8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The oops (from my 2.4.9-ac10 tree with extra ext3 & jfs patches, both in
-modules not loaded at the time):
+On Tue, Sep 25, 2001 at 02:24:54PM +0200, [A]ndy80 wrote:
+> Hi
+>=20
+> > Hmm, /dev/cdrom would typically be a link. You might try to apply hdparm
+> > to where the link points to, but I cannot really believe hdparm doesn't
+> > follow links.
+>=20
+> yes it's a link to /dev/scd0 and I CAN mount it, because my IDE cdrom is
+> seen as scsi. In lilo.conf I've this line: append=3D"hdd=3Dide-scsi
+> hdc=3Dide-scsi" (read CD-WRITING HOWTO for more information)
 
-Sep 25 14:10:00 nonet kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000254
-Sep 25 14:10:00 nonet kernel: c01b5be7
-Sep 25 14:10:00 nonet kernel: *pde = 00000000
-Sep 25 14:10:00 nonet kernel: Oops: 0000
-Sep 25 14:10:00 nonet kernel: CPU:    0
-Sep 25 14:10:00 nonet kernel: EIP:    0010:[fast_copy_page+55/240]
-Sep 25 14:10:00 nonet kernel: EFLAGS: 00010246
-Sep 25 14:10:00 nonet kernel: eax: 0000003a   ebx: 00000254   ecx: ce62a000   edx: ce6c2000
-Sep 25 14:10:00 nonet kernel: esi: ce62a000   edi: 0e65d065   ebp: cfef88a4   esp: ce6c3e8c
-Sep 25 14:10:00 nonet kernel: ds: 0018   es: 0018   ss: 0018
-Sep 25 14:10:00 nonet kernel: Process S20autofs (pid: 352, stackpage=ce6c3000)
-Sep 25 14:10:00 nonet kernel: Stack: c13d2338 c13d30c4 c01204ab ce62a000 00000254 00000000 00000000 00000000
-Sep 25 14:10:00 nonet kernel:        00000000 080b5890 ffffffff 00000001 cfef88a4 c0120b5d cfef88a4 ce66cecc
-Sep 25 14:10:00 nonet kernel:        080b5890 ce6c02d4 0e65d065 00000000 ce654000 ce654000 ce6d8000 ce655f7c
-Sep 25 14:10:00 nonet kernel: Call Trace: [do_wp_page+475/592] [handle_mm_fault+157/208] [schedule+642/976] [do_page_fault+374/1152] [pipe_wait+136/176]
-Sep 25 14:10:00 nonet kernel: Code: 0f 6f 03 0f e7 06 0f 6f 4b 08 0f e7 4e 08 0f 6f 53 10 0f e7
-Using defaults from ksymoops -t elf32-i386 -a i386
+Try appending ide1=3Ddma to the boot options then. It might break on your
+machine, so first try manually.
 
-Code;  00000000 Before first symbol
-00000000 <_EIP>:
-Code;  00000000 Before first symbol
-   0:   0f 6f 03                  movq   (%ebx),%mm0
-Code;  00000003 Before first symbol
-   3:   0f e7 06                  movntq %mm0,(%esi)
-Code;  00000006 Before first symbol
-   6:   0f 6f 4b 08               movq   0x8(%ebx),%mm1
-Code;  0000000a Before first symbol
-   a:   0f e7 4e 08               movntq %mm1,0x8(%esi)
-Code;  0000000e Before first symbol
-   e:   0f 6f 53 10               movq   0x10(%ebx),%mm2
-Code;  00000012 Before first symbol
-  12:   0f e7 00                  movntq %mm0,(%eax)
+Regards,
+--=20
+Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+GPG key: See mail header, key servers         Linux kernel development
+SuSE GmbH, Nuernberg, DE                                SCSI, Security
 
+--GlnCQLZWzqLRJED8
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Any more info on request, but things are rather busy. Haven't yet tried
-noapic/nodma, would this info be useful?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-Matt
+iD8DBQE7sI2sxmLh6hyYd04RAnrDAKC0MKQYtpBdednk9sgHx+U+Aqo20gCguM3W
++xbXy/JzG9pjBgRMFleyA/g=
+=Aq5e
+-----END PGP SIGNATURE-----
 
+--GlnCQLZWzqLRJED8--

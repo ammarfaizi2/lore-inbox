@@ -1,87 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267409AbUIFDAy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267416AbUIFDBV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267409AbUIFDAy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 23:00:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267406AbUIFC7Z
+	id S267416AbUIFDBV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 23:01:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267414AbUIFDBV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 22:59:25 -0400
-Received: from mail.kroah.org ([69.55.234.183]:41707 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264531AbUIFC7L (ORCPT
+	Sun, 5 Sep 2004 23:01:21 -0400
+Received: from mail.kroah.org ([69.55.234.183]:54507 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S267405AbUIFC7U (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 22:59:11 -0400
-Date: Sun, 5 Sep 2004 10:02:00 +0200
+	Sun, 5 Sep 2004 22:59:20 -0400
+Date: Sun, 5 Sep 2004 17:04:46 -0700
 From: Greg KH <greg@kroah.com>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: devfs -> udev transition: vcsN are not created
-Message-ID: <20040905080200.GC10292@kroah.com>
-References: <200408251517.31608.vda@port.imtp.ilyichevsk.odessa.ua> <200408271248.59746.vda@port.imtp.ilyichevsk.odessa.ua>
+To: Andreas Happe <andreashappe@flatline.ath.cx>
+Cc: James Morris <jmorris@redhat.com>, linux-kernel@vger.kernel.org,
+       cryptoapi@lists.logix.cz
+Subject: Re: [cryptoapi/sysfs] display cipher details in sysfs
+Message-ID: <20040906000446.GA16840@kroah.com>
+References: <20040831175449.GA2946@final-judgement.ath.cx> <Xine.LNX.4.44.0409010043020.30561-100000@thoron.boston.redhat.com> <20040901082819.GA2489@final-judgement.ath.cx>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200408271248.59746.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <20040901082819.GA2489@final-judgement.ath.cx>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 27, 2004 at 12:48:59PM +0300, Denis Vlasenko wrote:
-> Hi Greg,
+On Wed, Sep 01, 2004 at 10:28:19AM +0200, Andreas Happe wrote:
+> Hi,
 > 
-> On Wednesday 25 August 2004 15:17, Denis Vlasenko wrote:
-> > I am migrating my 2.6 systems from devfs to udev.
-> > Versions:
+> following-up to: James Morris <jmorris@redhat.com> [040901 09:35]:
+> >This looks potentially useful, although I'm not sure yet whether the 
+> >userland crypto API should be exposed via sysfs or a separate filesystem.
 > >
-> > # uname -a
-> > Linux firebird 2.6.7-bk20 #6 Mon Jul 12 01:23:31 EEST 2004 i686 unknown
-> > # ls -d udev* hotplug*
-> > hotplug-2004_04_01  udev-030
-> >
-> > In early boot, when root fs is readonly yet, I start udev this way:
-> >
-> > mount -t ramfs none /dev
-> > env - udevd & sleep 1
-> > udevstart
-> >
-> > and then continue as normal. Things mostly work.
-> > However, I noticed that vcsN device nodes are missing
-> > (I tried to start Midnight Commander and it failed).
-> > This can be due to the fact that I start agettys very
-> > late in boot sequence, and thus all ttyN's were not
-> > open at the time of udevstart, only first one was (tty1).
-> >
-> > I logged in and did:
-> >
-> > # ls -l /udev >before
-> > # strace -o us.log udevstart
-> > # ls -l /udev >after
-> > # diff -u before after >diff
-> >
-> > This worked, vcsN's appeared:
-> [snip]
+> >I suggest you post the patch to linux-kernel and the crypto API list at:
+> >http://lists.logix.cz/pipermail/cryptoapi  as an RFC, for wider feedback.
 > 
-> As you suggested, I tried 2.6.9-rc1-mm1. Sorry. It does not work.
+> the attached patch creates a /sys/cryptoapi/<cipher-name>/ hierarchie
+> which includes all information which is currently offered by
+> /proc/crypto. This was done by embedding a kobject in struct crypto_alg
+> (include/linux/crypto.h) and using a kset/subsystem instead of the
+> currently used list (crypto_alg->cra_list was removed, as it shouldn't
+> be needed anymore). crypto/proc.c was converted to use the subsystem
+> internal rwlock/list for its iteration of ciphers.
 > 
-> My hotplug is instrumented a bit
-> to log invocations to syslog. I did 'cat >/dev/tty13':
-> 
-> hotplug[1196]: cmd: /sbin/hotplug vc
-> hotplug[1196]: env: DEVPATH=/class/vc/vcs13 PATH=/sbin:/bin:/usr/sbin:/usr/bin
-> ACTION=add PWD=/ SHLVL=1 HOME=/ SEQNUM=232 _=/sbin/env
-> hotplug[1198]: cmd: /sbin/hotplug vc
-> hotplug[1198]: env: DEVPATH=/class/vc/vcsa13 PATH=/sbin:/bin:/usr/sbin:/usr/bin
-> ACTION=add PWD=/ SHLVL=1 HOME=/ SEQNUM=233 _=/sbin/env
-> hotplug[1198]: run: /etc/hotplug.d/default/default.hotplug vc
-> hotplug[1196]: run: /etc/hotplug.d/default/default.hotplug vc
-> hotplug[1196]: run: /etc/hotplug.d/default/udev.hotplug vc
-> hotplug[1198]: run: /etc/hotplug.d/default/udev.hotplug vc
-> 
-> 	/dev/vcs[a]13 did NOT appear.
-> 	I waited ~15 secs and ^C'ed cat:
+> I think that the place for the cryptoapi-tree in sysfs is wrong (but the
+> others (block, module, bus, class, etc.) seemed worse). But the effort
+> to change this should be neglectable (and centered at syfs.c).
 
-Hm, this works for me.
+Why not use a class instead of a raw kobject?  Wouldn't a struct
+class_device make things easier for you?  That would also put the stuff
+into /sys/class/cryptoapi which I think makes a bit more sense than
+/sys/cryptoapi.
 
-What does /sys/class/vc/ contain?  Any "vcs" files there?  If not,
-that's the issue.
+Or how about just /sys/class/crypto ?
+
+Other than that, I like this move, /proc/crypto isn't the best thing to
+have in a proc filesystem :)
 
 thanks,
 

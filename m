@@ -1,101 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274553AbRIYHyH>; Tue, 25 Sep 2001 03:54:07 -0400
+	id <S274558AbRIYIDT>; Tue, 25 Sep 2001 04:03:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274554AbRIYHx6>; Tue, 25 Sep 2001 03:53:58 -0400
-Received: from t2.redhat.com ([199.183.24.243]:50934 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S274553AbRIYHxk>; Tue, 25 Sep 2001 03:53:40 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <3BAFC969.52B7FCDC@eyal.emu.id.au> 
-In-Reply-To: <3BAFC969.52B7FCDC@eyal.emu.id.au>  <Pine.LNX.4.30.0109242233150.18098-100000@Appserv.suse.de> 
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Cc: Dave Jones <davej@suse.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] compilation fix for nand.c 
-Mime-Version: 1.0
+	id <S274557AbRIYIDK>; Tue, 25 Sep 2001 04:03:10 -0400
+Received: from imail.altus.de ([195.124.129.2]:31997 "EHLO imail.altus.de")
+	by vger.kernel.org with ESMTP id <S274556AbRIYICy>;
+	Tue, 25 Sep 2001 04:02:54 -0400
+Message-ID: <3BB03A41.4B64F831@altus.de>
+Date: Tue, 25 Sep 2001 10:03:13 +0200
+From: Juri Haberland <haberland@altus.de>
+Organization: Altus Analytics AG
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-pre8-xfs i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jason Straight <jason@blazeconnect.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10 power management lockup
+In-Reply-To: <20010924220433.29ED8763@localhost.blazeconnect.net>
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 25 Sep 2001 08:53:54 +0100
-Message-ID: <15588.1001404434@redhat.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jason Straight wrote:
+> 
+> I've got a Dell Inspiron 8000 laptop, I had problems with 2.4.9 and .8 with
+> AC patches where my system would turn itself off at seemingly random
+> intervals, and closing my display would freeze the machine.
+> 
+> Well, 2.4.9 clean was fine as was 2.4.8, but now 2.4.10 is doing it again, I
+> upgraded my BIOS to the newest avail just in case with no change. 2.4.10
+> doesn't seem to power off, but it will freeze on display close and will power
+> off if the display is left closed for a while. All power management in my
+> BIOS is off as it has been forever.j
+> 
+> I mentioned this on the list a while back with 2.4.8-ac-something
 
-eyal@eyal.emu.id.au said:
->  This is not a full solution though: 
+And I think I posted a me-too on this and I now have the same problem
+with my I8000...
 
-This is also already fixed.
+Juri
 
-Index: drivers/mtd/nand/Config.in
-===================================================================
-RCS file: /inst/cvs/linux/drivers/mtd/nand/Attic/Config.in,v
-retrieving revision 1.1.2.4
-diff -u -r1.1.2.4 Config.in
---- drivers/mtd/nand/Config.in	2001/09/19 08:35:21	1.1.2.4
-+++ drivers/mtd/nand/Config.in	2001/09/25 07:52:18
-@@ -1,6 +1,6 @@
- # drivers/mtd/nand/Config.in
- 
--# $Id: Config.in,v 1.3 2001/07/03 17:50:56 sjhill Exp $
-+# $Id: Config.in,v 1.4 2001/09/19 09:35:23 dwmw2 Exp $
- 
- mainmenu_option next_comment
- 
-Index: drivers/mtd/nand/Makefile
-===================================================================
-RCS file: /inst/cvs/linux/drivers/mtd/nand/Attic/Makefile,v
-retrieving revision 1.1.2.3
-diff -u -r1.1.2.3 Makefile
---- drivers/mtd/nand/Makefile	2001/07/03 07:56:53	1.1.2.3
-+++ drivers/mtd/nand/Makefile	2001/09/25 07:52:18
-@@ -1,14 +1,16 @@
- #
- # linux/drivers/nand/Makefile
- #
--# $Id: Makefile,v 1.4 2001/06/28 10:49:45 dwmw2 Exp $
-+# $Id: Makefile,v 1.5 2001/09/19 22:39:59 dwmw2 Exp $
- 
- O_TARGET	:= nandlink.o
- 
- export-objs	:= nand.o nand_ecc.o
- 
--obj-$(CONFIG_MTD_NAND)		+= nand.o
--obj-$(CONFIG_MTD_NAND_ECC)	+= nand_ecc.o
-+nandobjs-y			:= nand.o
-+nandobjs-$(CONFIG_MTD_NAND_ECC) += nand_ecc.o
-+
-+obj-$(CONFIG_MTD_NAND)		+= $(nandobjs-y)
- obj-$(CONFIG_MTD_NAND_SPIA)	+= spia.o
- 
- include $(TOPDIR)/Rules.make
-Index: drivers/mtd/nand/nand.c
-===================================================================
-RCS file: /inst/cvs/linux/drivers/mtd/nand/Attic/nand.c,v
-retrieving revision 1.1.2.2
-diff -u -r1.1.2.2 nand.c
---- drivers/mtd/nand/nand.c	2001/06/13 06:41:34	1.1.2.2
-+++ drivers/mtd/nand/nand.c	2001/09/25 07:52:18
-@@ -3,7 +3,7 @@
-  *
-  *  Copyright (C) 2000 Steven J. Hill (sjhill@cotw.com)
-  *
-- * $Id: nand.c,v 1.10 2001/03/20 07:26:01 dwmw2 Exp $
-+ * $Id: nand.c,v 1.11 2001/09/02 15:32:25 dwmw2 Exp $
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License version 2 as
-@@ -21,6 +21,7 @@
- #include <linux/mtd/mtd.h>
- #include <linux/mtd/nand.h>
- #include <linux/mtd/nand_ids.h>
-+#include <linux/interrupt.h>
- #include <asm/io.h>
- 
- #ifdef CONFIG_MTD_NAND_ECC
-
---
-dwmw2
-
-
+-- 
+  If each of us have one object, and we exchange them,
+     then each of us still has one object.
+  If each of us have one idea,   and we exchange them,
+     then each of us now has two ideas.

@@ -1,86 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262974AbUCKDVc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 22:21:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262980AbUCKDVc
+	id S262976AbUCKDdn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 22:33:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262973AbUCKDdn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 22:21:32 -0500
-Received: from fw.osdl.org ([65.172.181.6]:12238 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262974AbUCKDVY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 22:21:24 -0500
-Date: Wed, 10 Mar 2004 19:28:17 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Linux 2.6.4
-Message-ID: <Pine.LNX.4.58.0403101924510.3693@ppc970.osdl.org>
+	Wed, 10 Mar 2004 22:33:43 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:65259 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S262979AbUCKDdm convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 22:33:42 -0500
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="GB2312"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: PTS test pass results with glibc-2004-02-15 (CVS pull 3-04-04) on IA64 platform
+Date: Thu, 11 Mar 2004 11:33:39 +0800
+Message-ID: <A12F5F3545A0654B97BFD863950C1E18032CEBA7@PDSMSX403.ccr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: PTS test pass results with glibc-2004-02-15 (CVS pull 3-04-04) on IA64 platform
+Thread-Index: AcQHGaID/rycMxnIRhuBBSMqBuzxuA==
+From: "Xiong, Crystal" <crystal.xiong@intel.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 11 Mar 2004 03:33:39.0663 (UTC) FILETIME=[A4F9D5F0:01C40719]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+POSIX Test Suite test pass results available for [CVS pull 3-04-04,
+Kernel 2.6.1, libc-2004-02-15 and message queue 
+4.17 patch on IA64 platform].
 
-A few small fixes since -rc3, most notably an OHCI bug that would corrupt
-memory and seems to have been the reason for the "Bad page flags" bug at
-least on ppc64 (it's not been reported on x86, as far as I know, but I
-don't see why the corruption couldn't have happened there too).
+The above results can be found here: 
+http://posixtest.sourceforge.net/testpass/PTS_cvs_3-04-04/pts_kernel-2.6.1_ia64.htm
 
-The full changelog from 2.6.3 is on the ftp-sites along with the patches
-and tar-balls, and the BK trees have been updated.
-
-			Linus
-
----
-
-Summary of changes from v2.6.4-rc3 to v2.6.4
-============================================
-
-Andrew Morton:
-  o tty oops fix
-
-Anton Blanchard:
-  o ppc64 POWER3 segment table fix
-
-Benjamin Herrenschmidt:
-  o Fix PCI<->OF matching on G5 AGP bus
-  o ppc64: Fix occasional crash at boot in OF interface
-  o ppc64: Let OF initialize all displays in the system
-  o Fix lockup accessing config space on G5
-
-David Brownell:
-  o USB: fix OHCI list corruption
-  o Proper OHCI unlink fix
-
-Don Fry:
-  o pcnet32.c oops
-
-Gerd Knorr:
-  o bttv input update
-
-Jens Axboe:
-  o set request fastfail bit correctly
-
-Krishna Kumar:
-  o [IPV4/IPV6]: Add missing kmalloc failure checks
-
-Linus Torvalds:
-  o Make sure to include syscalls.h to get proper prototypes
-  o Remove 'const' from min/max, to avoid gcc warning about double
-    usage
-  o Make bad_page() print out information about who triggered it
-  o Revert 8259 timer ack workaround
-  o Make bad_page() print out the page address
-  o Linux 2.6.4
-
-Olaf Kirch:
-  o [IPV6]: Do not report {multi,any}cast in inet6_dump_ifaddr()
-
-Petr Vandrovec:
-  o ncpfs fails to correctly retry requests on timeout
-
-Richard Henderson:
-  o [ALPHA] Mark exit_code before waking process for SINGLESTEP
-  o [ALPHA] Fix compressed bootp
-  o [ALPHA] Fix gcc 3.4 build problems
-  o [ALPHA] Add stat64 syscalls
+Thanks,
+Crystal Xiong
+http://posixtest.sf.net [POSIX Test Suite project]
 

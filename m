@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131519AbQKWMWq>; Thu, 23 Nov 2000 07:22:46 -0500
+        id <S132249AbQKWMhU>; Thu, 23 Nov 2000 07:37:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131671AbQKWMWh>; Thu, 23 Nov 2000 07:22:37 -0500
-Received: from 13dyn248.delft.casema.net ([212.64.76.248]:4356 "EHLO
-        abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-        id <S131519AbQKWMWU>; Thu, 23 Nov 2000 07:22:20 -0500
-Message-Id: <200011231152.MAA13624@cave.bitwizard.nl>
-Subject: Re: [NEW DRIVER] firestream
-In-Reply-To: <20001123054403.S2918@wire.cadcamlab.org> from Peter Samuelson at
- "Nov 23, 2000 05:44:03 am"
-To: Peter Samuelson <peter@cadcamlab.org>
-Date: Thu, 23 Nov 2000 12:52:05 +0100 (MET)
-CC: Rogier Wolff <R.E.Wolff@bitwizard.nl>,
-        Mitchell Blank Jr <mitch@sfgoth.com>,
-        Patrick van de Lageweg <patrick@bitwizard.nl>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Rogier Wolff <wolff@bitwizard.nl>
-From: R.E.Wolff@bitwizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        id <S132240AbQKWMhK>; Thu, 23 Nov 2000 07:37:10 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:46084 "EHLO zeus.kernel.org")
+        by vger.kernel.org with ESMTP id <S129507AbQKWMg6>;
+        Thu, 23 Nov 2000 07:36:58 -0500
+Date: Thu, 23 Nov 2000 12:01:35 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, Ben LaHaise <bcrl@redhat.com>
+Subject: Re: [patch] O_SYNC patch 3/3, add inode dirty buffer list support to ext2
+Message-ID: <20001123120135.D8368@redhat.com>
+In-Reply-To: <20001122112646.D6516@redhat.com> <20001122115424.A18592@vger.timpanogas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20001122115424.A18592@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Wed, Nov 22, 2000 at 11:54:24AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Samuelson wrote:
+Hi,
+
+On Wed, Nov 22, 2000 at 11:54:24AM -0700, Jeff V. Merkey wrote:
 > 
-> [Rogier Wolff]
-> > > > +MODULE_PARM(fs_debug, "i");
-> > > 
-> > > There's no reason to wrap these "MODULE_PARM"s inside an "#ifdef MODULE".
-> >                  ^^^^ anymore in 2.4 
->                                    ^^^2.2
-> 
-> Verified in 2.2.0 (the oldest tree I have)
+> I have not implemented O_SYNC in NWFS, but it looks like I need to add it 
+> before posting the final patches.  This patch appears to force write-through 
+> of only dirty inodes, and allow reads to continue from cache.  Is this
+> assumption correct
 
-Was it really neccesary to make me feel THAT old? :-)
+Yes: O_SYNC is not required to force reads to be made from disk.
+SingleUnix has an "O_RSYNC" option which does that, but O_SYNC and
+O_DSYNC don't imply that.
 
-			Roger. 
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+Cheers,
+ Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

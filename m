@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262692AbTI1TI6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 15:08:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262695AbTI1TI6
+	id S262686AbTI1TVs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 15:21:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbTI1TVs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 15:08:58 -0400
-Received: from gprs147-229.eurotel.cz ([160.218.147.229]:39809 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S262692AbTI1TI4 (ORCPT
+	Sun, 28 Sep 2003 15:21:48 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:64007 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S262686AbTI1TVr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 15:08:56 -0400
-Date: Sun, 28 Sep 2003 21:06:57 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Nigel Cunningham <ncunningham@clear.net.nz>
-Cc: Linus Torvalds <torvalds@osdl.org>, Patrick Mochel <mochel@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: pm: Revert swsusp to 2.6.0-test3
-Message-ID: <20030928190657.GJ359@elf.ucw.cz>
-References: <Pine.LNX.4.44.0309281038270.6307-100000@home.osdl.org> <1064774937.18769.9.camel@laptop-linux>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1064774937.18769.9.camel@laptop-linux>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Sun, 28 Sep 2003 15:21:47 -0400
+Date: Sun, 28 Sep 2003 21:21:15 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: CONFIG_I8042
+In-Reply-To: <20030928194511.C1428@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0309282119430.17548-100000@serv>
+References: <20030928161059.B1428@flint.arm.linux.org.uk>
+ <Pine.LNX.4.44.0309281136141.15408-100000@home.osdl.org>
+ <20030928194511.C1428@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-> Could you also give me some clear direction on where you want me to put
-> my 2.4 port. Should it go in kernel/power, or somewhere else? (I'm
-> assuming you don't want 3 versions of swsusp?!). I'd like to put it in
-> the right place when I start populating swsusp25.bkbits.net, so you're
-> not pulling changesets later that only move the code around (I know bk
-> reduces the cost, but...).
+On Sun, 28 Sep 2003, Russell King wrote:
 
-I believe kernel/power is the right place. And no, 3 versions would
-not be good thing.
-								Pavel
+> > Well, it does require us to have at least SERIO. Also, we need to have 
+> > some way to make sure that I8042 does get selected on a PC.
+> >
+> > Apart from that, it doesn't matter how it's solved..
+> 
+> It appears that "select" doesn't accept conditionals as the kconfig
+> language stands - jejb also ran into this issue, and tried various
+> ways around.  The only solution which seems to work is to remove this
+> select line entirely.
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+What did you try? E.g. "select SERIO_I8042 if !EMBEDDED && X86" works fine 
+here.
+
+bye, Roman
+

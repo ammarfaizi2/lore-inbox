@@ -1,71 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267819AbUIHN7z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267703AbUIHN75@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267819AbUIHN7z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 09:59:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267703AbUIHN5r
+	id S267703AbUIHN75 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 09:59:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269038AbUIHN50
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 09:57:47 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:28629 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S267841AbUIHN4j
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 09:56:39 -0400
-Subject: Re: TG3 doesn't work in kernel 2.4.27 (David S. Miller)
-From: Paul Larson <plars@linuxtestproject.org>
-To: Jake Moilanen <moilanen@austin.ibm.com>
-Cc: Roland Dreier <roland@topspin.com>,
-       "David S. Miller" <davem@davemloft.net>, Michael.Waychison@Sun.COM,
-       Brian.Somers@Sun.COM, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040908073412.3b7c9388@localhost>
-References: <20040816110000.1120.31256.Mailman@lists.us.dell.com>
-	 <200408162049.FFF09413.8592816B@anet.ne.jp>
-	 <20040816143824.15238e42.davem@redhat.com> <412CD101.4050406@sun.com>
-	 <20040825120831.55a20c57.davem@redhat.com> <412CF0E9.2010903@sun.com>
-	 <20040825175805.6807014c.davem@redhat.com> <412DC055.4070401@sun.com>
-	 <20040830161126.585a6b62.davem@davemloft.net>
-	 <1094238777.9913.278.camel@plars.austin.ibm.com> <4138C3DD.1060005@sun.com>
-	 <52acw7rtrw.fsf@topspin.com> <20040903133059.483e98a0.davem@davemloft.net>
-	 <52ekljq6l2.fsf@topspin.com> <20040907133332.4ceb3b5a@localhost>
-	 <52isapkg9z.fsf@topspin.com>  <20040908073412.3b7c9388@localhost>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Apu0Q0E4vh9PaXKHhIAH"
-Message-Id: <1094651744.9913.280.camel@plars.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 08 Sep 2004 08:55:44 -0500
+	Wed, 8 Sep 2004 09:57:26 -0400
+Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:35755 "HELO
+	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S269152AbUIHNpe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 09:45:34 -0400
+Message-ID: <413EFFFB.5050902@yahoo.com.au>
+Date: Wed, 08 Sep 2004 22:50:03 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Nathan Lynch <nathanl@austin.ibm.com>
+CC: Rusty Russell <rusty@rustcorp.com.au>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH 1/3] sched: trivial changes
+Content-Type: multipart/mixed;
+ boundary="------------040700060003020005010709"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------040700060003020005010709
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
---=-Apu0Q0E4vh9PaXKHhIAH
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Couple of trival changes before the hotplug stuff.
 
-I've had no success on any of the blades or bladecenters I've tried it
-on.
+--------------040700060003020005010709
+Content-Type: text/x-patch;
+ name="sched-trivial.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sched-trivial.patch"
 
-On Wed, 2004-09-08 at 07:34, Jake Moilanen wrote:
-> > With the 3.9 tg3 driver, neither SoL nor the real network seems to
-> > ever come back.  As far as I can tell, the network is dead (and
-> > without SoL there's no way for me to see what happens to the kernel).
-> >=20
-> > Have you had success with the latest tg3 on JS20?
->=20
-> I've had mixed results.  On some of my blades it never works.  On others
-> it will come up every third attempt or so.
->=20
-> Thanks,
-> Jake
 
---=-Apu0Q0E4vh9PaXKHhIAH
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Make a definition static and slightly sanitize ifdefs.
 
-iD8DBQBBPw9gbkpggQiFDqcRAtp8AJ9etEwaEFI4L1M2RRY9LUUUB/YDvQCeOVVa
-lWTdxs3wJze6l0eTKBRx04A=
-=hhoZ
------END PGP SIGNATURE-----
+Signed-off-by: Nick Piggin <nickpiggin@yahoo.com.au>
 
---=-Apu0Q0E4vh9PaXKHhIAH--
 
+---
+
+ linux-2.6-npiggin/kernel/sched.c |   16 ++++++++--------
+ 1 files changed, 8 insertions(+), 8 deletions(-)
+
+diff -puN kernel/sched.c~sched-trivial kernel/sched.c
+--- linux-2.6/kernel/sched.c~sched-trivial	2004-09-08 21:01:53.000000000 +1000
++++ linux-2.6-npiggin/kernel/sched.c	2004-09-08 22:39:38.000000000 +1000
+@@ -247,9 +247,7 @@ struct sched_group {
+ 
+ 	/*
+ 	 * CPU power of this group, SCHED_LOAD_SCALE being max power for a
+-	 * single CPU. This should be read only (except for setup). Although
+-	 * it will need to be written to at cpu hot(un)plug time, perhaps the
+-	 * cpucontrol semaphore will provide enough exclusion?
++	 * single CPU. This is read only (except for setup, hotplug CPU).
+ 	 */
+ 	unsigned long cpu_power;
+ };
+@@ -4053,7 +4051,8 @@ static void cpu_attach_domain(struct sch
+  * in arch code. That defines the number of nearby nodes in a node's top
+  * level scheduling domain.
+  */
+-#if defined(CONFIG_NUMA) && defined(SD_NODES_PER_DOMAIN)
++#ifdef CONFIG_NUMA
++#ifdef SD_NODES_PER_DOMAIN
+ /**
+  * find_next_best_node - find the next node to include in a sched_domain
+  * @node: node whose sched_domain we're building
+@@ -4100,7 +4099,7 @@ static int __init find_next_best_node(in
+  * should be one that prevents unnecessary balancing, but also spreads tasks
+  * out optimally.
+  */
+-cpumask_t __init sched_domain_node_span(int node)
++static cpumask_t __init sched_domain_node_span(int node)
+ {
+ 	int i;
+ 	cpumask_t span;
+@@ -4119,12 +4118,13 @@ cpumask_t __init sched_domain_node_span(
+ 
+ 	return span;
+ }
+-#else /* CONFIG_NUMA && SD_NODES_PER_DOMAIN */
+-cpumask_t __init sched_domain_node_span(int node)
++#else /* SD_NODES_PER_DOMAIN */
++static cpumask_t __init sched_domain_node_span(int node)
+ {
+ 	return cpu_possible_map;
+ }
+-#endif /* CONFIG_NUMA && SD_NODES_PER_DOMAIN */
++#endif /* SD_NODES_PER_DOMAIN */
++#endif /* CONFIG_NUMA */
+ 
+ #ifdef CONFIG_SCHED_SMT
+ static DEFINE_PER_CPU(struct sched_domain, cpu_domains);
+
+_
+
+--------------040700060003020005010709--

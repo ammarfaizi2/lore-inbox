@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292482AbSCIHS7>; Sat, 9 Mar 2002 02:18:59 -0500
+	id <S292475AbSCIHS7>; Sat, 9 Mar 2002 02:18:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292520AbSCIHRj>; Sat, 9 Mar 2002 02:17:39 -0500
+	id <S292527AbSCIHRg>; Sat, 9 Mar 2002 02:17:36 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:61645 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S292522AbSCIHPZ>;
-	Sat, 9 Mar 2002 02:15:25 -0500
-Date: Fri, 08 Mar 2002 22:02:05 -0500
-From: Thomas Hood <jdthood@mail.com>
-Subject: Re: PnP BIOS driver status
-In-Reply-To: <3C897238.CA903C93@didntduck.org>
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-id: <1015642925.940.55.camel@thanatos>
-MIME-version: 1.0
-X-Mailer: Evolution/1.0.2
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-In-Reply-To: <1015628440.14518.212.camel@thanatos>
- <3C895E90.696E92A2@didntduck.org> <1015636233.988.9.camel@thanatos>
- <3C897238.CA903C93@didntduck.org>
+	by vger.kernel.org with ESMTP id <S292520AbSCIHPU>;
+	Sat, 9 Mar 2002 02:15:20 -0500
+Date: Fri, 8 Mar 2002 23:35:11 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Paul Mackerras <paulus@samba.org>
+Cc: torvalds@transmeta.com, <linux-kernel@vger.kernel.org>
+Subject: Re: bk://linux.bkbits.net/linux-2.5
+In-Reply-To: <15497.26229.778087.419723@argo.ozlabs.ibm.com>
+Message-ID: <Pine.LNX.4.44L.0203082333380.2181-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-03-08 at 21:23, Brian Gerst wrote:
-> How does this patch look?  Against 2.5.6
+On Sat, 9 Mar 2002, Paul Mackerras wrote:
 
-Better than mine.
+> Could you push your repository to bk://linux.bkbits.net/linux-2.5
+> please?  It is still at 2.5.6-pre2.
 
-Alan: I suggest applying Brian's patch plus the 
-change from 'kpnpbios' to 'kpnpbiosd'.
+For now I've put up the 2.5 tree on bk://linuxvm.bkbits.net/linus-2.5
 
-I'll integrate Brian's patch into my patch for David
-Jones's patch to 2.5.x ... tomorrow.
+This thing gets mirrored automagically from Linus's home directory
+on kernel.org by the script /home/riel/pushpull.sh which is run from
+my crontab.
+
+Ideally Linus would run it from his own crontab and commit the data
+to bk://linux.bkbits.net/linux-2.5 ;)
+
+cheers,
+
+Rik
+-- 
+<insert bitkeeper endorsement here>
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

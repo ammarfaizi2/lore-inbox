@@ -1,40 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267351AbSLEQzI>; Thu, 5 Dec 2002 11:55:08 -0500
+	id <S267370AbSLERFN>; Thu, 5 Dec 2002 12:05:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267352AbSLEQzI>; Thu, 5 Dec 2002 11:55:08 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13066 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267351AbSLEQyw>;
-	Thu, 5 Dec 2002 11:54:52 -0500
-Message-ID: <3DEF86A2.2010704@pobox.com>
-Date: Thu, 05 Dec 2002 12:02:26 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id <S267371AbSLERFN>; Thu, 5 Dec 2002 12:05:13 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:21252 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267370AbSLERFM>; Thu, 5 Dec 2002 12:05:12 -0500
+Date: Thu, 5 Dec 2002 09:13:54 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
 To: george anzinger <george@mvista.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>
-Subject: Re: how is the asm-generic to be used?
-References: <3DEF1DB1.98CD4BB3@mvista.com>
-In-Reply-To: <3DEF1DB1.98CD4BB3@mvista.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "Randy.Dunlap" <rddunlap@osdl.org>
+Subject: Re: [PATCH ] POSIX clocks & timers take 15 (NOT HIGH RES)
+In-Reply-To: <3DEEFE42.3F04BDBD@mvista.com>
+Message-ID: <Pine.LNX.4.44.0212050904390.27298-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-george anzinger wrote:
-> Lets say there is a bit of code in the kernel ( i.e.
-> .../kernel/ ) that needs a function that is in an
-> asm-gneric/*.h file.  Now someone comes along and does an
-> asm-x386/*.h with the same functionality but much faster asm
-> functions.  How should the using code be set up to get the
-> faster asm version if it exists and the generic version if
-> it does not?
 
+Ok, finally starting to look at merging this, however:
 
-Can you be more specific?  :)
+This must go (we already have a timespec, there's no way it should be
+here in <asm/signal.h>):
 
-asm-generic is for things that belong in include/asm-$ARCH but are also 
-shared across multiple architectures.
+	+#ifndef _STRUCT_TIMESPEC
+	+#define _STRUCT_TIMESPEC
+	+struct timespec {
+	+       time_t  tv_sec;         /* seconds */
+	+       long    tv_nsec;        /* nanoseconds */
+	+};
+	+#endif /* _STRUCT_TIMESPEC */
+
+and you have things like
+
+	+       if ((flags & TIMER_ABSTIME) &&
+	+           (clock->clock_get != do_posix_clock_monotonic_gettime)) {
+	+       }else{
+	+       }
+
+and
+
+	+if (!p) {
+	+printk("in sub_remove for id=%d called with null pointer.\n", id);
+	+return(0);
+	+}
+
+and obviously the "nanosleep()" thing and the CLOCK_NANOSLEEP_ENTRY()
+stuff has been discussed in the unrelated thread (ie it doesn't work for
+alpha or other architectures).
+
+		Linus
 

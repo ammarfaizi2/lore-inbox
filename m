@@ -1,87 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263859AbTFHVOt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jun 2003 17:14:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263866AbTFHVOt
+	id S263866AbTFHVTy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jun 2003 17:19:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263867AbTFHVTy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jun 2003 17:14:49 -0400
-Received: from ziggy.one-eyed-alien.net ([64.169.228.100]:36623 "EHLO
-	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id S263859AbTFHVOq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jun 2003 17:14:46 -0400
-Date: Sun, 8 Jun 2003 14:28:21 -0700
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Andries.Brouwer@cwi.nl
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       torvalds@transmeta.com
-Subject: Re: [patch] scsi: ten -> use_10_for_rw / use_10_for_ms
-Message-ID: <20030608142821.F25191@one-eyed-alien.net>
-Mail-Followup-To: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org,
-	linux-scsi@vger.kernel.org, torvalds@transmeta.com
-References: <UTC200305230722.h4N7Mid25812.aeb@smtp.cwi.nl>
+	Sun, 8 Jun 2003 17:19:54 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:54541 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263866AbTFHVTx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jun 2003 17:19:53 -0400
+Date: Sun, 8 Jun 2003 22:33:18 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Matthew Wilcox <willy@debian.org>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>, linux-kernel@vger.kernel.org,
+       David Mosberger <davidm@hpl.hp.com>
+Subject: Re: [PATCH] [3/3] PCI segment support
+Message-ID: <20030608223318.C9520@flint.arm.linux.org.uk>
+Mail-Followup-To: Matthew Wilcox <willy@debian.org>,
+	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+	linux-kernel@vger.kernel.org, David Mosberger <davidm@hpl.hp.com>
+References: <20030407234411.GT23430@parcelfarce.linux.theplanet.co.uk> <20030408203824.A27019@jurassic.park.msu.ru> <20030608164351.GI28581@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="pyE8wggRBhVBcj8z"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <UTC200305230722.h4N7Mid25812.aeb@smtp.cwi.nl>; from Andries.Brouwer@cwi.nl on Fri, May 23, 2003 at 09:22:44AM +0200
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2003 Matthew Dharm, all rights reserved.
-X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030608164351.GI28581@parcelfarce.linux.theplanet.co.uk>; from willy@debian.org on Sun, Jun 08, 2003 at 05:43:51PM +0100
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jun 08, 2003 at 05:43:51PM +0100, Matthew Wilcox wrote:
+> I envisage ia64 will always turn on CONFIG_PCI_DOMAINS but x86 might
+> well have it as a user question.  I suspect most architectures would
+> never turn it on (yeah, I'm going to design an embedded ARM box with
+> multiple PCI domains.  sure.)
 
---pyE8wggRBhVBcj8z
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Don't be so sure.  There's already ARM implementations where there are
+multiple PCI buses hanging off the host bridge - mostly stuff from Intel
+though.
 
-On Fri, May 23, 2003 at 09:22:44AM +0200, Andries.Brouwer@cwi.nl wrote:
-> In the old days, ancient scsi devices understood 6-byte commands
-> and more recent ones also understood 10-byte commands.
-> Thus, we had a "ten" flag indicating that 10-byte commands worked.
->=20
-> These days, especially for usb-storage devices, the opposite
-> sometimes holds - 10-byte commands are supported, but 6-byte commands
-> are not.
->=20
-> The patch below changes the field ten into the pair of fields
-> use_10_for_rw, use_10_for_ms set initially when the driver
-> thinks these are supported. Ifthe device returns ILLEGAL_REQUEST
-> they are cleared.
->=20
-> This patch obsoletes a large amount of code in usb-storage,
-> and not only that, once the subsequent patch removes all this
-> usb-storage code many devices will work that hang today.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-Any idea when you'll submit that patch to usb-storage?
-
-Do you perhaps just want to send what you have to me for integration?
-
-Matt
-
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
-
-Sir, for the hundreth time, we do NOT carry 600-round boxes of belt-fed=20
-suction darts!
-					-- Salesperson to Greg
-User Friendly, 12/30/1997
-
---pyE8wggRBhVBcj8z
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE+46p1IjReC7bSPZARAlRWAJ9JvC9CFZNdXMb0ke3G8q3KnDFC7QCfamXN
-b6F9r/KWJkRZL9+vDDZOjnY=
-=Br0e
------END PGP SIGNATURE-----
-
---pyE8wggRBhVBcj8z--

@@ -1,37 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262598AbTKWNoq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Nov 2003 08:44:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263294AbTKWNoq
+	id S261850AbTKWNob (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Nov 2003 08:44:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbTKWNob
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Nov 2003 08:44:46 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:62860 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S262598AbTKWNop (ORCPT
+	Sun, 23 Nov 2003 08:44:31 -0500
+Received: from mail.gmx.net ([213.165.64.20]:2768 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261850AbTKWNo3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Nov 2003 08:44:45 -0500
-Date: Sun, 23 Nov 2003 14:44:37 +0100 (MET)
-Message-Id: <200311231344.hANDibuw003762@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: perfctr-devel@lists.sourceforge.net
-Subject: perfctr-2.6.2 released
-Cc: linux-kernel@vger.kernel.org
+	Sun, 23 Nov 2003 08:44:29 -0500
+X-Authenticated: #18350204
+Subject: Re: 2.6.0-test9 USB: ehci_hcd / usb-storage I/O error
+From: Kleiner Hampel <kleiner_hampel@gmx.de>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1069502440.851.16.camel@linux>
+References: <1069502440.851.16.camel@linux>
+Content-Type: text/plain
+Message-Id: <1069595006.664.1.camel@linux>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 23 Nov 2003 14:43:27 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Version 2.6.2 of perfctr, the Linux/x86 performance
-monitoring counters driver, is now available at the usual
-place: http://www.csd.uu.se/~mikpe/linux/perfctr/
+Am Sam, den 22.11.2003 schrieb Kleiner Hampel um 13:00:
+> Hello,
+> 
+> my usb-storage doesn't work with linux.
+> 
+> What i have:
+> 
+> Kernel 2.6.0-test9
+> USB 2.0 mobile disk
+> 
+> The problem:
+> 
+> trying to access this device after loading usb modules, dmesg shows the
+> following:
+> 
+> USB Mass Storage support registered.
+> SCSI device sda: 117231408 512-byte hdwr sectors (60022 MB)
+> sda: assuming drive cache: write through
+>  sda: sda1
+> Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
+> scsi: Device offlined - not ready after error recovery: host 0 channel 0
+> id 0 lun 0
+> SCSI error : <0 0 0 0> return code = 0x6070000
+> end_request: I/O error, dev sda, sector 128
+> Buffer I/O error on device sda, logical block 16
+> Buffer I/O error on device sda, logical block 17
+> Buffer I/O error on device sda, logical block 18
+> Buffer I/O error on device sda, logical block 19
+> Buffer I/O error on device sda, logical block 20
+> Buffer I/O error on device sda, logical block 21
+> Buffer I/O error on device sda, logical block 22
+> ...
+> 
+> The hardware *works* correctly, i tried in with win2k and this works
+> without problems.
+> 
+> I have another usb storage and this works correctly with kernel
+> 2.6.0-test9!
+> 
+> Any ideas?
+> I have found this problem often in different mailing lists, but with no
+> solution.
+> Perhaps it is a bug.
 
-I've now also made .rpm files for the user-space components.
-Please try them out and report any glitches.
+I tried 2.6.0-test9-bk25 but it doesn't work.
+But IT WORKS with kernel 2.4.22!
 
-Version 2.6.2, 2003-11-23
-- libperfctr.so is now installed with proper versioning.
-- ABI control and info structures padded to accommodate some
-  extensions without breaking application/library binary
-  compatibility. ABI version incremented to '5'.
-- Driver checks that only P4 models <= 2 use IQ_ESCR0/1.
-- Added support for Fedora Core 1's 2.4.22-1.2115.nptl kernel.
-- Driver compile fix for AMD64 in SMP 2.6 kernels.
-
-/ Mikael Pettersson

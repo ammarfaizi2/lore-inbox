@@ -1,60 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310858AbSCMRZm>; Wed, 13 Mar 2002 12:25:42 -0500
+	id <S293680AbSCMRbk>; Wed, 13 Mar 2002 12:31:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310869AbSCMRZ0>; Wed, 13 Mar 2002 12:25:26 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:10247 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S310858AbSCMRYn>;
-	Wed, 13 Mar 2002 12:24:43 -0500
-Date: Wed, 13 Mar 2002 14:24:22 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org
-Subject: [ANN] rmap VM kernel RPM
-Message-ID: <Pine.LNX.4.44L.0203131413240.2181-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S310869AbSCMRba>; Wed, 13 Mar 2002 12:31:30 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:62212 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S293680AbSCMRbQ>; Wed, 13 Mar 2002 12:31:16 -0500
+Date: Wed, 13 Mar 2002 09:17:13 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: bert hubert <ahu@ds9a.nl>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Bill Davidsen <davidsen@tmr.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: ide filters / 'ide dump' / 'bio dump'
+In-Reply-To: <3C8F25BE.9040000@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.33.0203130910420.29865-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-by popular request I've integrated -rmap into Conectiva's kernel
-RPM so people who don't like kernel patching can still test the
--rmap VM easily.
-
-The -rmap (reverse mapping) VM is an attempt to fix some of the
-fundamental virtual memory management problems that have plagued
-Linux since its introduction to larger machines and more complex
-workloads.  It is an attempt at a more flexible and robust VM.
-
-While little performance tuning and optimisation has been done
-yet, people have found it to perform better than the standard
-VM for various workloads.
-
-This version of the kernel RPM with -rmap VM is based on 2.4.18
-as shipped by Conectiva and the latest stable -rmap version 12 VM.
-
-These kernel RPMS, with stable -rmap VM, are available from:
-
-	http://nl.linux.org/pub/linux/conectiva/kernel-rmap/
-	ftp://nl.linux.org/pub/linux/conectiva/kernel-rmap/
 
 
-More experimental versions of the -rmap VM can be found on:
+On Wed, 13 Mar 2002, Jeff Garzik wrote:
+> bert hubert wrote:
+>
+> ># biodump /dev/hda
+> >09:09:33.023 READ block 12345 [10 blocks]
+> >09:09:33.024 READ block 12355 [10 blocks]
+> >09:09:33.025 READ block 12365 [10 blocks]
+> >09:09:34.000 WRITE block 12345 [1 block]
+>
+> Definitely an interesting idea...   With this new stuff Linus talked
+> about in his proposal and what I'm thinking about, it shouldn't be too
+> hard to do.
 
-	http://surriel.com/patches/
-	http://linuxvm.bkbit.net/
+Note that I actually think we're talking about two different things.
 
+There's the notion of _feeding_ special requests onto the request queue
+through some interface that also can refuse to feed certain kinds of
+requests. That is needed for the special commands, and is "above" the
+requests queue layer.
 
-kind regards,
+That interface doesn't really support filtering of requests that other
+people (notably the regular kernel itself) is also feeding to the request
+queue.
 
-Rik
--- 
-<insert bitkeeper endorsement here>
+Note that one of the big issues with the request queue is that it acts as
+a funnel: it (very much by design) can, and does, take requests from
+different places, and nobody needs to "own" the request queue. But the
+kind of "feed this raw request down" module that has been talked about
+would have absolutely _zero_ visibility into what others are feeding into
+the request queue.
 
-http://www.surriel.com/		http://distro.conectiva.com/
+If you actually want to filter other peoples requests, then you have to do
+something completely different, namely set up a request queue of your own,
+then exporting _your_ request queue as the request queue for <major,minor>
+and then taking the requests off that queue internally, and moving them to
+the original queue after you've done filtering.
+
+Basically a simplified "loopback" thing that doesn't even need to do any
+remapping.
+
+The two are totally independent, they work on requests queues at different
+levels (one feeds some random request queue, the other changes how we look
+up a request queue and inserts its own queue in between).
+
+			Linus
 

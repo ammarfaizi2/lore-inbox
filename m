@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289482AbSBSTSM>; Tue, 19 Feb 2002 14:18:12 -0500
+	id <S289306AbSBSTYN>; Tue, 19 Feb 2002 14:24:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289328AbSBSTSC>; Tue, 19 Feb 2002 14:18:02 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:33796 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S289054AbSBSTRr>;
-	Tue, 19 Feb 2002 14:17:47 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200202191917.WAA28452@ms2.inr.ac.ru>
-Subject: Re: Moving fasync_struct into struct file?
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Tue, 19 Feb 2002 22:17:11 +0300 (MSK)
-Cc: rusty@rustcorp.com.au, davem@redhat.com, sfr@canb.auug.org.au,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <E16d6JQ-0008LI-00@the-village.bc.nu> from "Alan Cox" at Feb 19, 2 09:11:48 am
-X-Mailer: ELM [version 2.4 PL24]
+	id <S289240AbSBSTYE>; Tue, 19 Feb 2002 14:24:04 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:47369 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S289074AbSBSTXr>; Tue, 19 Feb 2002 14:23:47 -0500
+Date: Tue, 19 Feb 2002 11:21:34 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: Re: [PATCH *] new struct page shrinkage
+In-Reply-To: <Pine.LNX.4.33L.0202191131050.1930-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.33.0202191116470.27806-100000@home.transmeta.com>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
-
-> We already clean up fasync structures on close,
-
-We do not.
 
 
-> responsibility to do so.  If you wanted to be more strict you could do
-> a similar helper call in the other closing callback for each fd close.
+On Tue, 19 Feb 2002, Rik van Riel wrote:
+>
+> The patch has been changed like you wanted, with page->zone
+> shoved into page->flags. I've also pulled the thing up to
+> your latest changes from linux.bkbits.net so you should be
+> able to just pull it into your tree from:
+>
+> bk://linuxvm.bkbits.net/linux-2.5-struct_page
 
-This is technical issue how to implement this exactly.
+Btw, _please_ don't do things like changing the bitkeeper etc/config file.
+Right now your very first changesets is something that I definitely do not
+want in my tree.
 
-BTW, sed -e 's/more strict/not so buggy/' :-)
+Sure, I can do "bk cset -x" on the damn thing, but the fact is, I don't
+want to have totally unnecessary undo's in my tree on things like this.
+That's just stupid, and only makes the revision history look even less
+readable than it already is..
 
-Alexey
+		Linus
+

@@ -1,74 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261809AbUJYNwk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261823AbUJYN5C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261809AbUJYNwk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 09:52:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261817AbUJYNt4
+	id S261823AbUJYN5C (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 09:57:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261813AbUJYN5C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 09:49:56 -0400
-Received: from sd291.sivit.org ([194.146.225.122]:35005 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S261806AbUJYNtW (ORCPT
+	Mon, 25 Oct 2004 09:57:02 -0400
+Received: from sd291.sivit.org ([194.146.225.122]:58813 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S261823AbUJYNzS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 09:49:22 -0400
-Date: Mon, 25 Oct 2004 15:50:36 +0200
+	Mon, 25 Oct 2004 09:55:18 -0400
+Date: Mon, 25 Oct 2004 15:56:35 +0200
 From: Stelian Pop <stelian@popies.net>
-To: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
-Cc: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH 0/5] Sonypi driver model & PM changes
-Message-ID: <20041025135036.GA3161@crusoe.alcove-fr>
+Message-ID: <20041025135635.GB3161@crusoe.alcove-fr>
 Reply-To: Stelian Pop <stelian@popies.net>
 Mail-Followup-To: Stelian Pop <stelian@popies.net>,
 	Dmitry Torokhov <dtor_core@ameritech.net>,
-	linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
-References: <200410210154.58301.dtor_core@ameritech.net> <20041025125629.GF6027@crusoe.alcove-fr>
+	linux-kernel@vger.kernel.org
+References: <200410210154.58301.dtor_core@ameritech.net> <20041025125629.GF6027@crusoe.alcove-fr> <200410250822.46023.dtor_core@ameritech.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041025125629.GF6027@crusoe.alcove-fr>
+In-Reply-To: <200410250822.46023.dtor_core@ameritech.net>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 25, 2004 at 02:56:29PM +0200, Stelian Pop wrote:
+On Mon, Oct 25, 2004 at 08:22:46AM -0500, Dmitry Torokhov wrote:
 
-> I have quite a few changes in my tree already for the sonypi driver,
-> and I was delaying the submission because I need to solve a problem
-> with the integration with the input subsystem...
+> If you need a hand - I am a bit familiar with the input system...
 
-Speaking of this, Vojtech, how should I proceed ?
+See the other mail I just send CC:'ed to Vojtech...
 
-Let me remind you the problem: I am in the process of converting
-the sonypi driver to (fully) use the input subsystem to forward 
-special key presses to X and the console instead of using a userspace
-daemon which pushes the KeyPress events into the X queue.
+> > Some of your changes (those related to module_param(), wait_event()
+> > use etc) were already in my tree, those related to whitespace cleanup,
+> > platform instead of sysdev etc are new and I will integrate them.
+> >
+> 
+> The change from sysdev to a platform device is the main reason I did
+> the change (and getting rid of old pm_register stuff which is useless
+> now) because swsusp2 (and seems that swsusp1 as well) have trouble
+> resuming system devices. The rest was just fluff really.
 
-The special keys are like KEY_BACK, KEY_HELP, KEY_ZOOM, KEY_CAMERA,
-and a dozen FN + some key combinations.
+Ok. Suspending never really worked on my laptop so I'll have to assume
+you're correct. :)
 
-I can integrate those events into the input layer in 2 different ways:
+[ Just tried once again to do a suspend to ram, seems that there were
+some enhancements in this area lately. 
 
-* allocate a new key event (in include/linux/input.h) for each
-  key *and* combination. This will make the keys and the combinations
-  work both on the console and in X.
+  No luck. Machine suspends ok, but upon waking up, the power led goes
+  greek ok, the disk led lights up, but the keyboard is dead, the
+  network card is dead, the screen doesn't turn on...
 
-  Unfortunately only events under the 0xff limit seem to be
-  propagated to X, the other ones don't generate any X event (I haven't
-  looked at the problem but I suppose it somewhere into the X code).
-
-  showkey does corectly see the keys in raw mode.
-
-* allocate a FN key event and let FN be a modifier.
-
-  This is much nicer (less events allocated in input.h), but I haven't
-  found a way (and I'm not sure there is one) to say to X that Fn is a 
-  *new* modifier. Yes, I can say FN act like a Control, Meta or whatever
-  existing modifier, but this is useless since I already have a Control,
-  Alt, etc. key on my keyboard. The whole point is to add support for 
-  a new key !
-
-  I also haven't looked yet at adding a new modifier in the console
-  mode...
-
-Please advice on the recommended way to do this properly.
+  Since this laptop has no serial port I don't see what else I can do,
+  except wait another 6 months and try again... :(
+]
 
 Stelian.
 -- 

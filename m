@@ -1,32 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136176AbREGPSG>; Mon, 7 May 2001 11:18:06 -0400
+	id <S136202AbREGP2P>; Mon, 7 May 2001 11:28:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136186AbREGPR4>; Mon, 7 May 2001 11:17:56 -0400
-Received: from as3-3-4.ml.g.bonet.se ([194.236.33.69]:46609 "EHLO
-	tellus.mine.nu") by vger.kernel.org with ESMTP id <S136176AbREGPRp>;
-	Mon, 7 May 2001 11:17:45 -0400
-Date: Mon, 7 May 2001 17:12:30 +0200 (CEST)
-From: Tobias Ringstrom <tori@tellus.mine.nu>
-X-X-Sender: <tori@svea.tellus>
-To: "David S. Miller" <davem@redhat.com>
-cc: Jonathan Morton <chromi@cyberspace.org>,
-        BERECZ Szabolcs <szabi@inf.elte.hu>, <linux-kernel@vger.kernel.org>,
-        <linux-mm@kvack.org>
-Subject: Re: page_launder() bug
-In-Reply-To: <15094.25285.410379.109719@pizda.ninka.net>
-Message-ID: <Pine.LNX.4.33.0105071657360.24936-100000@svea.tellus>
+	id <S136197AbREGP2F>; Mon, 7 May 2001 11:28:05 -0400
+Received: from mail.clemson.edu ([130.127.28.87]:62652 "EHLO CLEMSON.EDU")
+	by vger.kernel.org with ESMTP id <S136196AbREGP1t>;
+	Mon, 7 May 2001 11:27:49 -0400
+Message-ID: <000701c0d70a$923fbf70$3cac7f82@crb50>
+From: "Hai Xu" <xhai@CLEMSON.EDU>
+To: <linux-kernel@vger.kernel.org>
+Subject: A simple question.
+Date: Mon, 7 May 2001 11:29:56 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2462.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 May 2001, David S. Miller wrote:
->
-> I've seen this idiom used in many places (even the GCC sources :-),
-> so I'm rather surprised people are seeing it for the first time.
+Dear all,
 
-Or perhaps some of us have seen it one time too many?  :-)
+After I compile and upgrade to a newer Kernel, do I need to copy the
+System.map from /usr/src/linux/ to /boot/System-xxxx and link it to
+System.map?
 
-/Tobias
+Thanks in advance
+Hai Xu
 

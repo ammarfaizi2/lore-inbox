@@ -1,48 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263014AbVALHLe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263036AbVALHLe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263014AbVALHLe (ORCPT <rfc822;willy@w.ods.org>);
+	id S263036AbVALHLe (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 12 Jan 2005 02:11:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263033AbVALHIx
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbVALHJ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 02:08:53 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:26829 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S263014AbVALHHc (ORCPT
+	Wed, 12 Jan 2005 02:09:26 -0500
+Received: from mail.kroah.org ([69.55.234.183]:43448 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263027AbVALHIK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 02:07:32 -0500
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org
-Subject: Re: Linux 2.6.11-rc1 
-In-reply-to: Your message of "Tue, 11 Jan 2005 21:09:21 -0800."
-             <Pine.LNX.4.58.0501112100250.2373@ppc970.osdl.org> 
+	Wed, 12 Jan 2005 02:08:10 -0500
+Date: Tue, 11 Jan 2005 23:08:02 -0800
+From: Greg KH <greg@kroah.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Add attribute container to the generic device model
+Message-ID: <20050112070802.GB2085@kroah.com>
+References: <1105506370.10378.26.camel@mulgrave>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 12 Jan 2005 18:07:26 +1100
-Message-ID: <23675.1105513646@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+In-Reply-To: <1105506370.10378.26.camel@mulgrave>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 11 Jan 2005 21:09:21 -0800 (PST), 
-Linus Torvalds <torvalds@osdl.org> wrote:
->Ok, the big merges after 2.6.10 are hopefully over, and 2.6.11-rc1 is out 
->there.
+On Tue, Jan 11, 2005 at 11:06:10PM -0600, James Bottomley wrote:
+> Attribute containers allows a single device to belong to an arbitrary
+> number of classes, each with an arbitrary number of attributes.
 
-Export pcibios_resource_to_bus in ia64 to match other architectures.
+But classes could always have an arbitrary number of attributes, right?
 
-Signed-off-by: Keith Owens <kaos@sgi.com>
+> This will be used as the basis for a generic transport class, but I did
+> it like this in case anyone found the abstraction useful.
 
-Index: linux/arch/ia64/pci/pci.c
-===================================================================
---- linux.orig/arch/ia64/pci/pci.c	2005-01-12 17:07:23.000000000 +1100
-+++ linux/arch/ia64/pci/pci.c	2005-01-12 18:04:12.000000000 +1100
-@@ -367,6 +367,7 @@ void pcibios_resource_to_bus(struct pci_
- 	region->start = res->start - offset;
- 	region->end = res->end - offset;
- }
-+EXPORT_SYMBOL(pcibios_resource_to_bus);
- 
- void pcibios_bus_to_resource(struct pci_dev *dev,
- 		struct resource *res, struct pci_bus_region *region)
+Hm, I like the idea, but we already allow devices belonging to arbitrary
+number of classes (through class_device) today.  What makes this
+different?
 
+And how does this change, if at all, sysfs representations of devices
+that use this?
+
+Some minor comments about the code:
+
+> +EXPORT_SYMBOL(attribute_container_classdev_to_container);
+
+Can these all be EXPORT_SYMBOL_GPL?  It's your choice, as you wrote the
+code, but we're trying to keep the driver model stuff all GPL explicit,
+as there's no way someone can say it's a "derived work" from long ago
+that's using these new functions.
+
+> +/**
+> + * attribute_container_add_device - see if any container is interested in dev
+> + *
+> + * @dev: device to add attributes to
+> + * @fn:	 function to trigger addition of class device.
+> + *
+> + * If no fn is provided, the code will simply register the class
+> + * device via class_device_add.
+
+You mean the class_device of the "container", right?
+
+The code looks sane, if not a bit confusing as there's no user of it :)
+
+thanks,
+
+greg k-h

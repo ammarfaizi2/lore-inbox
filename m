@@ -1,179 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267705AbUIUPsb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267540AbUIUP44@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267705AbUIUPsb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 11:48:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267748AbUIUPsa
+	id S267540AbUIUP44 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 11:56:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267774AbUIUP44
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 11:48:30 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:54252 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S267705AbUIUPsG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 11:48:06 -0400
-Subject: Re: [RFC][PATCH] inotify 0.9.2
-From: Robert Love <rml@novell.com>
-To: Edgar Toernig <froese@gmx.de>
-Cc: John McCutchan <ttb@tentacle.dhs.org>, linux-kernel@vger.kernel.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-In-Reply-To: <20040921173404.0b8795c9.froese@gmx.de>
-References: <1095652572.23128.2.camel@vertex>
-	 <1095744091.2454.56.camel@localhost>
-	 <20040921173404.0b8795c9.froese@gmx.de>
-Content-Type: multipart/mixed; boundary="=-1pfCtIF4bEG15kXqO1ir"
-Date: Tue, 21 Sep 2004 11:46:58 -0400
-Message-Id: <1095781618.4944.23.camel@betsy.boston.ximian.com>
+	Tue, 21 Sep 2004 11:56:56 -0400
+Received: from rproxy.gmail.com ([64.233.170.194]:6113 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S267540AbUIUP4x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 11:56:53 -0400
+Message-ID: <9e473391040921085669c2dcd7@mail.gmail.com>
+Date: Tue, 21 Sep 2004 11:56:52 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: Design for setting video modes, ownership of sysfs attributes
+Cc: dri-devel <dri-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040921124507.GC2383@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.0 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <9e47339104091811431fb44254@mail.gmail.com>
+	 <20040921124507.GC2383@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 21 Sep 2004 14:45:07 +0200, Pavel Machek <pavel@ucw.cz> wrote:
+> Hi!
+> 
+> > 1) user owns graphics devices
+> > 2) user sets mode with string (or similar) format using ioctl common to
+> > all drivers.
+> > 3) driver is locked to prevent multiple mode sets
+> > 4) common code takes this string and does a hotplug event with it.
+> 
+> I though this was
+> 
+> "Driver decides to either do it itself in kernel, or call userspace
+> helper if that would be too complex".
 
---=-1pfCtIF4bEG15kXqO1ir
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+The driver almost always needs to go to user space to get the file of
+mode line overrides that the user can create. But there is nothing
+stopping you from building everything in the kernel.
 
-On Tue, 2004-09-21 at 17:34 +0200, Edgar Toernig wrote:
+I'd just rather not have 100K of resident code waiting around for
+something that doesn't occur very often.  For the radeon sample I'm
+working on I have moved everything to user space except for a couple
+of small helper functions that directly play with the registers. Note
+that all mode setting in X occurs completely in user space so you
+can't argue that it can't be done.
 
-> You really want to shove >4kB per event to userspace???
-
-Eh, good point.  And I guess this is just the filename.
-
-Probably best to keep it at 256, then, until we think of something
-better.
-
-Attached patch is the header cleanup minus the PATH_MAX bit.
-
-	Robert Love
-
-
---=-1pfCtIF4bEG15kXqO1ir
-Content-Disposition: attachment; filename=inotify-cleanup-header-rml-2.patch
-Content-Type: text/x-patch; name=inotify-cleanup-header-rml-2.patch; charset=utf-8
-Content-Transfer-Encoding: 7bit
-
-Clean up the inotify header
-
-Signed-Off-By: Robert Love <rml@novell.com>
-
- include/linux/inotify.h |   79 +++++++++++++++++++++++++++++-------------------
- 1 files changed, 48 insertions(+), 31 deletions(-)
-
---- linux-inotify/include/linux/inotify.h	2004-09-21 00:58:03.920388608 -0400
-+++ linux/include/linux/inotify.h	2004-09-21 01:15:05.831034576 -0400
-@@ -9,66 +9,83 @@
- #ifndef _LINUX_INOTIFY_H
- #define _LINUX_INOTIFY_H
  
--struct inode;
--struct dentry;
--struct super_block;
-+#include <linux/limits.h>
- 
-+/*
-+ * struct inotify_event - structure read from the inotify device for each event
-+ *
-+ * When you are watching a directory, you will receive the filename for events
-+ * such as IN_CREATE, IN_DELETE, IN_OPEN, IN_CLOSE, and so on ...
-+ *
-+ * Note: When reading from the device you must provide a buffer that is a
-+ * multiple of sizeof(struct inotify_event)
-+ */
- struct inotify_event {
- 	int wd;
- 	int mask;
--	char filename[256];
--	/* When you are watching a directory you will get the filenames
--	 * for events like IN_CREATE, IN_DELETE, IN_OPEN, IN_CLOSE, etc.. 
--	 */
-+	char filename[256];	/* XXX: This size may be a problem */
- };
--/* When reading from the device you must provide a buffer 
-- * that is a multiple of the sizeof(inotify_event)
-- */
- 
-+/* the following are legal, implemented events */
- #define IN_ACCESS	0x00000001	/* File was accessed */
- #define IN_MODIFY	0x00000002	/* File was modified */
- #define IN_CREATE	0x00000004	/* File was created */
- #define IN_DELETE	0x00000008	/* File was deleted */
- #define IN_RENAME	0x00000010	/* File was renamed */
--#define IN_ATTRIB	0x00000020	/* File changed attributes */
--#define IN_MOVE		0x00000040	/* File was moved */
--#define IN_UNMOUNT	0x00000080	/* Device file was on, was unmounted */
-+#define IN_UNMOUNT	0x00000080	/* Backing filesystem was unmounted */
- #define IN_CLOSE	0x00000100	/* File was closed */
- #define IN_OPEN		0x00000200	/* File was opened */
-+
-+/* the following are legal, but not yet implemented, events */
-+#define IN_ATTRIB	0x00000020	/* File changed attributes */
-+#define IN_MOVE		0x00000040	/* File was moved */
-+
-+/* special flags */
- #define IN_IGNORED	0x00000400	/* File was ignored */
- #define IN_ALL_EVENTS	0xffffffff	/* All the events */
- 
--/* ioctl */
--
--/* Fill this and pass it to INOTIFY_WATCH ioctl */
-+/*
-+ * struct inotify_watch_request - represents a watch request
-+ *
-+ * Pass to the inotify device via the INOTIFY_WATCH ioctl
-+ */
- struct inotify_watch_request {
--	char *dirname; // directory name
--	unsigned long mask; // event mask
-+	char *dirname;		/* directory name */
-+	unsigned long mask;	/* event mask */
- };
- 
--#define INOTIFY_IOCTL_MAGIC 'Q'
--#define INOTIFY_IOCTL_MAXNR 4
-+#define INOTIFY_IOCTL_MAGIC	'Q'
-+#define INOTIFY_IOCTL_MAXNR	4
- 
- #define INOTIFY_WATCH  		_IOR(INOTIFY_IOCTL_MAGIC, 1, struct inotify_watch_request)
- #define INOTIFY_IGNORE 		_IOR(INOTIFY_IOCTL_MAGIC, 2, int)
- #define INOTIFY_STATS		_IOR(INOTIFY_IOCTL_MAGIC, 3, int)
- #define INOTIFY_SETDEBUG	_IOR(INOTIFY_IOCTL_MAGIC, 4, int)
- 
--#define INOTIFY_DEBUG_NONE   0x00000000
--#define INOTIFY_DEBUG_ALLOC  0x00000001
--#define INOTIFY_DEBUG_EVENTS 0x00000002
--#define INOTIFY_DEBUG_INODE  0x00000004
--#define INOTIFY_DEBUG_ERRORS 0x00000008
--#define INOTIFY_DEBUG_FILEN  0x00000010
--#define INOTIFY_DEBUG_ALL    0xffffffff
-+#define INOTIFY_DEBUG_NONE	0x00000000
-+#define INOTIFY_DEBUG_ALLOC	0x00000001
-+#define INOTIFY_DEBUG_EVENTS	0x00000002
-+#define INOTIFY_DEBUG_INODE	0x00000004
-+#define INOTIFY_DEBUG_ERRORS	0x00000008
-+#define INOTIFY_DEBUG_FILEN	0x00000010
-+#define INOTIFY_DEBUG_ALL	0xffffffff
-+
-+#ifdef __KERNEL__
-+
-+#include <linux/dcache.h>
-+#include <linux/fs.h>
- 
--/* Kernel API */
- /* Adds events to all watchers on inode that are interested in mask */
--void inotify_inode_queue_event (struct inode *inode, unsigned long mask, const char *filename);
-+void inotify_inode_queue_event (struct inode *inode, unsigned long mask,
-+		const char *filename);
-+
- /* Same as above but uses dentry's inode */
--void inotify_dentry_parent_queue_event (struct dentry *dentry, unsigned long mask, const char *filename);
-+void inotify_dentry_parent_queue_event (struct dentry *dentry,
-+		unsigned long mask, const char *filename);
-+
- /* This will remove all watchers from all inodes on the superblock */
- void inotify_super_block_umount (struct super_block *sb);
- 
--#endif
-+#endif	/* __KERNEL __ */
- 
-+#endif	/* _LINUX_INOTIFY_H */
+> > How are errors going to be communicated in this scheme? I can cat the
+> > sysfs mode variable to get a status. Is there a good way to do this
+> > without polling?
+> 
+> I'd say that write() to that sysfs file can simply return error. See
+> echo disk > /sys/power/state, it returns error if transition failed.
+> 
+>                                                                 Pavel
+> --
+> People were complaining that M$ turns users into beta-testers...
+> ...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+> 
 
---=-1pfCtIF4bEG15kXqO1ir--
 
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com

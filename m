@@ -1,78 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261518AbUKHNbI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261710AbUKHN4P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261518AbUKHNbI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 08:31:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbUKHNbI
+	id S261710AbUKHN4P (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 08:56:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261839AbUKHN4P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 08:31:08 -0500
-Received: from smtp.persistent.co.in ([202.54.11.65]:47045 "EHLO
-	smtp.pspl.co.in") by vger.kernel.org with ESMTP id S261518AbUKHNbD
+	Mon, 8 Nov 2004 08:56:15 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46743 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261710AbUKHN4I
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 08:31:03 -0500
-Message-ID: <418F752E.80606@persistent.co.in>
-Date: Mon, 08 Nov 2004 19:01:26 +0530
-From: Sumesh <sumesh_kumar@persistent.co.in>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christian Kujau <evil@g-house.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Ensoniq ES1371 not working.
-References: <418F09F5.10406@persistent.co.in> <418F72F9.5050900@g-house.de>
-In-Reply-To: <418F72F9.5050900@g-house.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAQ=
-X-White-List-Member: TRUE
+	Mon, 8 Nov 2004 08:56:08 -0500
+Date: Mon, 8 Nov 2004 13:56:06 +0000
+From: Matthew Wilcox <matthew@wil.cx>
+To: Li Shaohua <shaohua.li@intel.com>
+Cc: ACPI-DEV <acpi-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, Len Brown <len.brown@intel.com>,
+       Greg <greg@kroah.com>, Patrick Mochel <mochel@digitalimplant.org>
+Subject: Re: [ACPI] [PATCH/RFC 0/4]Bind physical devices with ACPI devices
+Message-ID: <20041108135606.GA2685@parcelfarce.linux.theplanet.co.uk>
+References: <1099887066.1750.241.camel@sli10-desk.sh.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1099887066.1750.241.camel@sli10-desk.sh.intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Its a standard Linux kernel. Though i will other re-compiled kernels, 
-will check on them too. Thanks
+On Mon, Nov 08, 2004 at 12:11:06PM +0800, Li Shaohua wrote:
+> ACPI provides many functionalities for physical devices. Such as for
+> suspend/resume, ACPI can tell us correct devices D-state for S3. There
+> are tons of devices enhancement for both realtime and boot time from
+> ACPI. To utilize ACPI, physical devices like PCI devices must know its
+> partner. The patches try to do this. After this is done, we can enhance
+> many features, such as improve suspend/resume.
+> These patches are against 2.6.10-rc1, please give your comments.
 
-Regards,
-Sumesh
+I don't think this is a great way to do it.  There's at least two other
+examples of firmware that interacts with drivers in a similar way that you
+could look at -- PA-RISC's PDC and Sun/Apple/IBM OpenFirmware.  I don't
+know much about OpenFirmware, and I just redid the way parisc_device
+works, so I'll discourse about that for a bit.
+
+>From a driver's point of view, it's simple.  Call a function to get
+a cookie (an acpi_handle for ACPI, I guess), then pass that cookie to
+whatever functions necessary.  This is the code in the sym2 SCSI driver:
+
+#ifdef CONFIG_PARISC
+/*
+ * Host firmware (PDC) keeps a table for altering SCSI capabilities.
+ * Many newer machines export one channel of 53c896 chip as SE, 50-pin HD.
+ * Also used for Multi-initiator SCSI clusters to set the SCSI Initiator ID.
+ */
+static int sym_read_parisc_pdc(struct sym_device *np, struct pdc_initiator *pdc)
+{
+        struct hardware_path hwpath;
+        get_pci_node_path(np->pdev, &hwpath);
+        if (!pdc_get_initiator(&hwpath, pdc))
+                return 0;
+
+        return SYM_PARISC_PDC;
+}
+#else
+static int sym_read_parisc_pdc(struct sym_device *np, struct pdc_initiator *x)
+{
+        return 0;
+}
+#endif
 
 
+Hm.. ACPI doesn't really hanve anything SCSI-related in it.  Let's look at
+IDE's _GTM and _STM for examples.  
 
-Christian Kujau wrote:
+static void ide_acpi_gtm(struct hwif_s *hwif, struct acpi_timing_mode *tm)
+{
+	acpi_handle handle;
+	acpi_buffer buffer = { ACPI_ALLOCATE_BUFFER, NULL};
+	acpi_status status;
 
->-----BEGIN PGP SIGNED MESSAGE-----
->Hash: SHA1
->
->Sumesh schrieb:
->  
->
->>Hi,
->>
->>    I have a Ensoniq ES1371 sound card on a RH 9 (2.4.20-8). When i try
->>to load my module i get the following errors.
->>
->>shell -  insmod /lib/modules/2.4.20-8/kernel/drivers/sound/es1371.o
->>/lib/modules/2.4.20-8/kernel/drivers/sound/es1371.o: unresolved symbol
->>unregister_sound_mixer_R7afc9d8a
->>    
->>
->
->[...]
->
->this is the standard RH kernel? or did you re-compile their source?
->if yes, did you "make clean" before and "make modules_install" afterwards?
->
->Christian.
->- --
->BOFH excuse #317:
->
->Internet exceeded Luser level, please wait until a luser logs off before
->attempting to log back on.
->-----BEGIN PGP SIGNATURE-----
->Version: GnuPG v1.2.5 (GNU/Linux)
->Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
->
->iD8DBQFBj3L4+A7rjkF8z0wRAjoYAKC6+7YFi+75ENZTeuSvza2xfn/oIgCgzWOM
->oBfSEyM52hB87WC3aZ1PEz8=
->=qdIs
->-----END PGP SIGNATURE-----
->
->  
->
+	handle = acpi_get_gendev_handle(&hwif->gendev);
+	status = acpi_evaluate_object(handle, "_GTM", NULL, &buffer);
+	...
+}
+
+All we need is an acpi_get_gendev_handle that takes a struct device and
+returns the acpi_handle for it.  Now, maybe that'd be best done by placing
+a pointer in the struct device, but I bet it'd be just as good to walk
+the namespace looking for the corresponding device.
+
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

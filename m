@@ -1,61 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262540AbVAKAcM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262599AbVAKAgx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262540AbVAKAcM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 19:32:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262723AbVAKAcJ
+	id S262599AbVAKAgx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 19:36:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262759AbVAKAgf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 19:32:09 -0500
-Received: from mail.teja.com ([209.10.202.115]:43155 "EHLO mail.teja.com")
-	by vger.kernel.org with ESMTP id S262540AbVAKA2v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 19:28:51 -0500
-Message-ID: <41E31F42.2000008@teja.com>
-Date: Mon, 10 Jan 2005 16:35:14 -0800
-From: Slade Maurer <smaurer@teja.com>
-User-Agent: Mozilla Thunderbird 0.9 (Windows/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: dsaxena@plexity.net
-CC: Dave <dave.jiang@gmail.com>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, linux@arm.linux.org.uk, drew.moseley@intel.com
-Subject: Re: clean way to support >32bit addr on 32bit CPU
-References: <8746466a050110153479954fd2@mail.gmail.com> <41E3176F.6000809@teja.com> <20050111000050.GA7958@plexity.net>
-In-Reply-To: <20050111000050.GA7958@plexity.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 10 Jan 2005 19:36:35 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:18322
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S262599AbVAKAfx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 19:35:53 -0500
+Subject: Re: User space out of memory approach
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Edjard Souza Mota <edjard@gmail.com>, Mauricio Lin <mauriciolin@gmail.com>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Andrea Arcangeli <andrea@suse.de>
+In-Reply-To: <20050110200514.GA18796@logos.cnet>
+References: <3f250c71050110134337c08ef0@mail.gmail.com>
+	 <20050110192012.GA18531@logos.cnet>
+	 <4d6522b9050110144017d0c075@mail.gmail.com>
+	 <20050110200514.GA18796@logos.cnet>
+Content-Type: text/plain
+Date: Tue, 11 Jan 2005 01:35:47 +0100
+Message-Id: <1105403747.17853.48.camel@tglx.tec.linutronix.de>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 (2.0.3-2) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Deepak Saxena wrote:
+On Mon, 2005-01-10 at 18:05 -0200, Marcelo Tosatti wrote:
+> The feature is interesting - several similar patches have been around with similar
+> functionality (people who need usually write their own, I've seen a few), but none 
+> has ever been merged, even though it is an important requirement for many users.
 
->On Jan 10 2005, at 16:01, Slade Maurer was caught saying:
->  
->
->>Also, it would be nice to have PTEs to represent the upper 4GB such that 
->>it can be mmapped to user space. PAE handled this in and it would be 
->>great to have it in ARM MMU36 as well.
->>    
->>
->
->Not doable. I believe PAE allows for normal 4K pages to be used when
->mapping > 32-bits. XSC3 and ARMv6 only allow for > 32 bit addresses 
->when using 16MB pages (supersections), so we need to instead use
->the hugetlb approach.
->
->~Deepak
->
->  
->
-You are right of course. The MMUs first level descriptors force you to 
-have 16MB pages.
+It's not a requirement for users. The current implementation in the
+kernel it's just broken, ugly code.
 
-I don't see anything wrong with using hugeTLB. Then it is up to the user 
-to get hugetlbfs setup so that they can mmap(...) properly. This is 
-forced on us by the designers of the MMU ;)
+> This is simple, an ordered list of candidate PIDs. IMO something similar to this 
+> should be merged. Andrew ?
 
-I think that is better than setting permissions during ioremap(...) so 
-that a user space process can use a kernel virtual address for user 
-space access.
+I have no objections against the userspace provided candidate list
+option, but as long as the main sources of trouble 
 
- -Slade
+	- invocation
+	- reentrancy
+	- timed, counted, blah ugly protection
+	- selection problem
+
+are not fixed properly, we don't need to discuss the inclusion of a
+userspace provided candidate list.
+
+Postpone this until the main problem is fixed. There is a proper
+confirmed fix for this available. It was posted more than once.
+
+Merging a fix which helps only 0,001 % of the users to hide the mess
+instead of fixing the real problem is a real interesting engineering
+aproach.
+
+I don't deny, that after the source of trouble is fixed it is worth to
+think about the merging of this addon to allow interested users to
+define the culprits instead of relying on an always imperfect selection
+algorithm.
+
+tglx
+
 

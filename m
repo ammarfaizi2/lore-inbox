@@ -1,38 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129267AbRADWNF>; Thu, 4 Jan 2001 17:13:05 -0500
+	id <S129370AbRADWNf>; Thu, 4 Jan 2001 17:13:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129370AbRADWMz>; Thu, 4 Jan 2001 17:12:55 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:8967 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S129267AbRADWMl>;
-	Thu, 4 Jan 2001 17:12:41 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200101042212.f04MCDN510138@saturn.cs.uml.edu>
-Subject: Re: So, what about kwhich on RH6.2?
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Thu, 4 Jan 2001 17:12:13 -0500 (EST)
-Cc: ak@suse.de (Andi Kleen), andrewm@uow.edu.au (Andrew Morton),
-        zaitcev@metabyte.com (Pete Zaitcev), linux-kernel@vger.kernel.org
-In-Reply-To: <E14EBZw-0005oG-00@the-village.bc.nu> from "Alan Cox" at Jan 04, 2001 02:41:17 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S131399AbRADWN3>; Thu, 4 Jan 2001 17:13:29 -0500
+Received: from va-ext.webmethods.com ([208.234.160.252]:18752 "EHLO
+	localhost.neuron.com") by vger.kernel.org with ESMTP
+	id <S129370AbRADWNT>; Thu, 4 Jan 2001 17:13:19 -0500
+Date: Thu, 4 Jan 2001 17:15:05 -0500 (EST)
+From: <stewart@neuron.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alexander Viro <aviro@redhat.com>, "Marco d'Itri" <md@Linux.IT>,
+        Jeff Lightfoot <jeffml@pobox.com>, Dan Aloni <karrde@callisto.yi.org>,
+        Anton Blanchard <anton@linuxcare.com.au>
+Subject: Re: test13-pre6
+In-Reply-To: <20010104202330.J1290@redhat.com>
+Message-ID: <Pine.LNX.4.10.10101041711540.2041-100000@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> can't we just hardwire `kgcc' into the build system and be done
->>> with all this kwhich stuff?  It's just a symlink....
->>
->> And break compilation on all non RedHat 7, non connectiva systems ? 
->> Would you volunteer to handle the support load on l-k that would cause?
->
-> Hardcoding kgcc is definitely not an option. 
 
-Creating symlinks during the build would solve the problem.
+Stephen,
 
-/usr/src/linux/kern-cc -> /usr/bin/kgcc
-/usr/src/linux/user-cc -> /usr/bin/gcc
+Have you or can you run these tests directly against a buffered block
+device (bypassing the filesystem) and see if it still behaves correctly?
+I have a Java app that does this and 2.4.0-prerelease shows a cumulative
+sync() time. As I write more data, sync times take longer and longer
+and never comes back down. It takes writing 30-50 megs cumulative (many
+syncs along the way) to become noticable. Noticable are latencies in   
+the 20-30 ms range (up from 0-1 at the start of the test). Eventually  
+the test comes to a grinding halt with all of it's time spent in the 
+kernel.
+
+I don't know when this happened in 2.4.0-testxx, but 2.2.x does not
+show this behavior.
+
+stewart
+
+
+On Thu, 4 Jan 2001, Stephen C. Tweedie wrote:
+
+> Hi,
+> 
+> On Fri, Dec 29, 2000 at 04:25:43PM -0800, Linus Torvalds wrote:
+> > 
+> > Stephen: mind trying your fsync/etc tests on this one, to verify that the
+> > inode dirty stuff is all done right?
+> 
+> Back from the Scottish Hogmanay celebrations now. :)  I've run my
+> normal tests on this (based mainly on timing tests which show up
+> exactly how much is being written to disk for 1000 iterations of
+> various fsync/fdatasync/O_SYNC and overwrite/append combinations) and
+> 2.4.0-prerelease seems to be doing the Right Thing.
+> 
+> My standard tests for this don't cover msync --- do you want me to
+> give that a try too?
+> 
+> --Stephen
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

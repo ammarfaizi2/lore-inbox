@@ -1,76 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbVCUIYM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261683AbVCUIZq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261684AbVCUIYM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 03:24:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261697AbVCUIYL
+	id S261683AbVCUIZq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 03:25:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261695AbVCUIYm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Mon, 21 Mar 2005 03:24:42 -0500
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:51840 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261696AbVCUIYL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 21 Mar 2005 03:24:11 -0500
-Received: from wproxy.gmail.com ([64.233.184.203]:45406 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261684AbVCUIXP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 03:23:15 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=cAczyts2c6T5zO52XvbcXAVWNBVY80rYJDSUy/tVyt5/ThlIh5/jBZTFZvcjxMuAS7f/EjhskxHnziIkXWsTjOUHrVTkiRcNgfp2RpUo8yIYDtZi4mfpkjSUaEkSnM0sFNbLXLKAIr0ux7mIPYAHfan/lYcTFyapvHoSAOIT1j0=
-Message-ID: <58cb370e050321002313213dbd@mail.gmail.com>
-Date: Mon, 21 Mar 2005 09:23:14 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Paul <set@pobox.com>, Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Repeatable IDE Oops for 2.6.11 (ide-scsi vs ide-cdrom)
-In-Reply-To: <20050318182754.GC7974@squish.home.loc>
+Subject: Re: [patch 1/2] fork_connector: add a fork connector
+From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, Jay Lan <jlan@engr.sgi.com>,
+       Erich Focht <efocht@hpce.nec.com>, Ram <linuxram@us.ibm.com>,
+       Gerrit Huizenga <gh@us.ibm.com>,
+       elsa-devel <elsa-devel@lists.sourceforge.net>, Greg KH <greg@kroah.com>
+In-Reply-To: <200503171405.55095.jbarnes@engr.sgi.com>
+References: <1111050243.306.107.camel@frecb000711.frec.bull.fr>
+	 <200503170856.57893.jbarnes@engr.sgi.com>
+	 <20050318003857.4600af78@zanzibar.2ka.mipt.ru>
+	 <200503171405.55095.jbarnes@engr.sgi.com>
+Date: Mon, 21 Mar 2005 09:23:51 +0100
+Message-Id: <1111393431.8349.3.camel@frecb000711.frec.bull.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+X-Mailer: Evolution 2.0.3 
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 21/03/2005 09:33:26,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 21/03/2005 09:33:35,
+	Serialize complete at 21/03/2005 09:33:35
 Content-Transfer-Encoding: 7bit
-References: <20050314065508.GA7974@squish.home.loc>
-	 <58cb370e05031808341bbe5622@mail.gmail.com>
-	 <20050318182754.GC7974@squish.home.loc>
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Mar 2005 13:27:54 -0500, Paul <set@pobox.com> wrote:
-> Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, on Fri Mar 18, 2005 [05:34:06 PM] said:
-> > On Mon, 14 Mar 2005 01:55:08 -0500, Paul <set@pobox.com> wrote:
-> > >         Hi;
-> > >
-> > >         Here is what I did:
-> > >
-> > > # modprobe ide-scsi
-> > > # cd /proc/ide/hdd      (this is a dvdrw drive)
-> > > # cat driver
-> > > > ide-cdrom version 4.61
-> > > # echo ide-scsi > driver
-> > > # cat driver
-> > > > ide-scsi (something--- didnt note exactly, except it was ide-scsi)
-> > > # echo ide-cdrom > driver
-> > >
-> > > The shell is killed and Oops.
-> > >
-> > > Machine flakey and half alive at this point. Reboot with Alt-sysrq.
-> > > The same thing works with 2.6.10, without Oops.
-> >
-> > Please see http://lkml.org/lkml/2005/2/11/132
+On Thu, 2005-03-17 at 14:05 -0800, Jesse Barnes wrote:
+> On Thursday, March 17, 2005 1:38 pm, Evgeniy Polyakov wrote:
+> > The most significant part there - is requirement to store
+> > u32 seq in each CPU's cache and thus flush cacheline +
+> > invalidate/get from mem on each other cpus
+> > each time it is accessed, which is a big price.
 > 
->         Hi;
+> Same thing has to happen with the lock.  To put it simply, writing global 
+> variables from multiple CPUs with anything other than very low frequency is 
+> bad.
 > 
->         What is the nature of the 'ide-dev-2.6 tree'? Are there broken
-> out patches available I can test vs. 2.6.11 or -mm? How do the 'ide fixes'
-
-it is BK tree which is pulled into -mm, no patches against vanilla kernels (yet)
-
-> in -ac intersect with ide-dev? I am also curious if these patches could
-
-locking 'ide fixes' in -ac are another approach to the same problem
-
-> have any effect on the pktcdvd problems I have reported.[*]
-
-This issue looks like pktcdvdv/udf specific thing so these patches won't help.
-
->         Thanks for the feedback.
+> > It is totally Guillaume's work - so he decides,
+> > I would recomend per cpu counters and processor's
+> > id in each message.
+> > And of course userspace should take care of misordered
+> > messages.
+> > I personally prefer such mechanism.
 > 
-> Paul
-> set@pobox.com
-> 
-> * http://lists.suse.com/archive/packet-writing/2005-Mar/0001.html
->
+> Yep, I agree.  Hopefully Guillaume will too :)
+
+Sure, I agree and I will implement the per cpu counters solution with a
+processor id in each message. 
+
+Thank you very much Jesse and Evgeniy for your great help,
+Best regards,
+
+Guillaume
+

@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264144AbTEWTL3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 15:11:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264145AbTEWTL3
+	id S264145AbTEWTM2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 15:12:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264146AbTEWTM1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 15:11:29 -0400
-Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:24813
-	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S264144AbTEWTL2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 15:11:28 -0400
-Date: Fri, 23 May 2003 15:24:34 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: jpo234@netscape.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Dead machine, blinking Keyboard and no Oops on console
-Message-ID: <20030523192434.GA26135@gtf.org>
-References: <27E0EA8B.2CDE9C50.00065BAA@netscape.net>
+	Fri, 23 May 2003 15:12:27 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:48388 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S264145AbTEWTMX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 15:12:23 -0400
+Date: Fri, 23 May 2003 21:25:07 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: willy@w.ods.org, gibbs@scsiguy.com, linux-kernel@vger.kernel.org
+Subject: Re: Undo aic7xxx changes
+Message-Id: <20030523212507.66910402.skraw@ithnet.com>
+In-Reply-To: <Pine.LNX.4.55L.0305231530090.15956@freak.distro.conectiva>
+References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva>
+	<2804790000.1052441142@aslan.scsiguy.com>
+	<20030509120648.1e0af0c8.skraw@ithnet.com>
+	<20030509120659.GA15754@alpha.home.local>
+	<20030509150207.3ff9cd64.skraw@ithnet.com>
+	<20030509145738.GB17581@alpha.home.local>
+	<20030512110218.4bbc1afe.skraw@ithnet.com>
+	<20030523123837.6521738f.skraw@ithnet.com>
+	<Pine.LNX.4.55L.0305231530090.15956@freak.distro.conectiva>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <27E0EA8B.2CDE9C50.00065BAA@netscape.net>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 23, 2003 at 03:11:03PM -0400, jpo234@netscape.net wrote:
-> No Oops, no panic, just a sudden freeze with the blinking keyboard
-> lights.
+On Fri, 23 May 2003 15:30:33 -0300 (BRT)
+Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
 
-Blinking keyboard lights means kernel panic.
+> What about rc3?
 
-	Jeff
+I will inform you if anything bad happens :-)
 
+rc3+aic20030520 tests started today.
+
+Regards,
+Stephan
 
 

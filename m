@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129524AbQLNSHR>; Thu, 14 Dec 2000 13:07:17 -0500
+	id <S129314AbQLNSHH>; Thu, 14 Dec 2000 13:07:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129525AbQLNSHK>; Thu, 14 Dec 2000 13:07:10 -0500
-Received: from ip252.uni-com.net ([205.198.252.252]:64518 "HELO www.nondot.org")
-	by vger.kernel.org with SMTP id <S129524AbQLNSG4>;
-	Thu, 14 Dec 2000 13:06:56 -0500
-Date: Thu, 14 Dec 2000 11:37:11 -0600 (CST)
-From: Chris Lattner <sabre@nondot.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+	id <S129525AbQLNSG5>; Thu, 14 Dec 2000 13:06:57 -0500
+Received: from pcep-jamie.cern.ch ([137.138.38.126]:61456 "EHLO
+	pcep-jamie.cern.ch") by vger.kernel.org with ESMTP
+	id <S129314AbQLNSGp>; Thu, 14 Dec 2000 13:06:45 -0500
+Date: Thu, 14 Dec 2000 18:34:21 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Fredrik Vraalsen <vraalsen@cs.uiuc.edu>
+Cc: Rik van Riel <riel@conectiva.com.br>, Chris Lattner <sabre@nondot.org>,
+        Alexander Viro <viro@math.psu.edu>,
+        "Mohammad A. Haque" <mhaque@haque.net>, Ben Ford <ben@kalifornia.com>,
+        linux-kernel@vger.kernel.org, orbit-list@gnome.org,
+        korbit-cvs@lists.sourceforge.net
 Subject: Re: [Korbit-cvs] Re: ANNOUNCE: Linux Kernel ORB: kORBit
-In-Reply-To: <E146VJz-00044N-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0012141135100.26708-100000@www.nondot.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20001214183421.A8472@pcep-jamie.cern.ch>
+In-Reply-To: <Pine.LNX.4.21.0012141442390.1437-100000@duckman.distro.conectiva> <sz2g0jq9as0.fsf@kazoo.cs.uiuc.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <sz2g0jq9as0.fsf@kazoo.cs.uiuc.edu>; from vraalsen@cs.uiuc.edu on Thu, Dec 14, 2000 at 11:23:59AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Fredrik Vraalsen wrote:
+> The cool thing is that the CorbaFS userspace server can implement any
+> kind of filesystem you want, as long as it follows the CorbaFS
+> interface!
 
-> > Of course.  Which is why CORBA is about putting STRUCTURE in that stream
-> > of random bytes coming over the wire.  Why should I have to rewrite my
-> > marshalling and demarshalling code every time I want to write a
-> > server.  read and write are fine.  But sometimes I want a
-> > structure.  Sometimes, my structures aren't laid out like C struct's
-> > either.  What then?  What if I want to send an "object" to you?
+Sorry, it's yet another one.  Or does it do something different?
+(YAO hasn't stopped me working on userspace filesystems either :-)
+
+> The current implementation exports the filesystem on the
+> host machine that it is running on, similar to NFS.  But we also have
+> ideas for FTP or web filesystems, for example.  Imagine being able to
+> mount the web CorbaFS onto /mnt/www and do a
+>  
+>   cat /mnt/www/www.kernel.org/index.html
 > 
-> Then I need to understand the object anyway. And Corba objects are horribly
-> over complex. Any lisp hacker will tell you there is only one type: a list.
+> and the CorbaFS userspace server takes care of loading the webpage and
+> returning it to the kernel client.  And these new filesystems don't
+> take up any extra space in the kernel, since they all talk to the same
+> CorbaFS kernel module!  Not to mention being able to implement the
+> filesystem in any language you like, debug the implementation in
+> userspace, etc.
 
-But alan, that's the beautiful thing.  Given a CORBA object, you can
-understand its structure without knowing exactly what the contents
-are.  You can effectively derive it's prototype just by inspecting it.
+A bit like CodaFS and Perlfs.  Except, being CORBA, you can run the
+userspace server remotely? ;-) <evil grin>
 
-The only difference between lisp and a CORBA object in this respect is
-that each item in the list is typed so that you have even more info about
-what to do with it.  :)
-
--Chris
-
-http://www.nondot.org/~sabre/os/
-http://www.nondot.org/MagicStats/
-http://korbit.sourceforge.net/
-
-
+-- Jamie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

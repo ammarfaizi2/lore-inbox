@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313776AbSDUSkJ>; Sun, 21 Apr 2002 14:40:09 -0400
+	id <S313727AbSDUSl2>; Sun, 21 Apr 2002 14:41:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313780AbSDUSkH>; Sun, 21 Apr 2002 14:40:07 -0400
-Received: from hq.fsmlabs.com ([209.155.42.197]:46089 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S313776AbSDUSjX>;
-	Sun, 21 Apr 2002 14:39:23 -0400
-Date: Sun, 21 Apr 2002 12:38:14 -0600
-From: yodaiken@fsmlabs.com
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Larry McVoy <lm@bitmover.com>, Jeff Garzik <garzik@havoc.gtf.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-Message-ID: <20020421123814.A23073@hq.fsmlabs.com>
-In-Reply-To: <20020421101731.D10525@work.bitmover.com> <E16yzMr-0000lO-00@starship> <20020421112157.R10525@work.bitmover.com> <E16yzbc-0000lj-00@starship>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-Organization: FSM Labs
+	id <S313725AbSDUSl1>; Sun, 21 Apr 2002 14:41:27 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:47622 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S313781AbSDUSlH>; Sun, 21 Apr 2002 14:41:07 -0400
+Date: Sun, 21 Apr 2002 11:40:33 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rob Landley <landley@trommello.org>
+cc: Alexander Viro <viro@math.psu.edu>, Ian Molton <spyro@armlinux.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: BK, deltas, snapshots and fate of -pre...
+In-Reply-To: <20020421081224.6B6C547B@merlin.webofficenow.com>
+Message-ID: <Pine.LNX.4.44.0204211136590.17272-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 20, 2002 at 08:29:04PM +0200, Daniel Phillips wrote:
-> > Larry hereby retracts his offer until you back up your claims and answer
-> > the questions you have been asked.  You've made one unsubstantiated
-> > claim after another and when challenged, you tell the challenger to do
-> > the legwork to support your unsubstantiated claim.
-> 
-> So the offer was not in good faith.
-
-Daniel: I thought better of you.
 
 
--- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
+On Sat, 20 Apr 2002, Rob Landley wrote:
+>
+> The well-defined resync points are the 2.5.N releases.  If -pre goes away,
+> then the dot-releases might need to come a little closer together, that's all.
+
+I agree.
+
+I've told myself that I shouldn't have done "-preX" releases at all in
+2.5.x - the "real" numbers have become diluted by them, and I suspect the
+-pre's are really just because I got used to making them during the
+over-long 2.4.x time.
+
+For development stuff, I think I personally would rather have dailies
+together with a higher frequency of "real" releases. But as it is now
+(because it isn't automated), the dailies would be a lot of work..
+
+		Linus
 

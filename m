@@ -1,137 +1,201 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbUJ3Wam@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261367AbUJ3Wi6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbUJ3Wam (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 18:30:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbUJ3W3q
+	id S261367AbUJ3Wi6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 18:38:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbUJ3Wi6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 18:29:46 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:42210 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S261360AbUJ3W3L
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 18:29:11 -0400
-Subject: [patch 2/2]  fs/devpts: use lib/parser
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, domen@coderock.org
-From: janitor@sternwelten.at
-Date: Sun, 31 Oct 2004 00:29:04 +0200
-Message-ID: <E1CO1ia-0001N5-L0@sputnik>
+	Sat, 30 Oct 2004 18:38:58 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:27911 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261367AbUJ3Wit (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 18:38:49 -0400
+Date: Sun, 31 Oct 2004 00:38:17 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] telephony/ixj.c cleanup
+Message-ID: <20041030223817.GH4374@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The patch below does:
+- remove ixj_register and ixj_unregister
+  these were EXPORT_SYMBOL'ed static (sic) functions
+  it seems the only reason why this "worked" was that there were exactly
+  zero users of them...
+- remove four local variables that are after this removal no longer 
+  required
+- make five functions that were needlessly global static
 
 
+diffstat output:
+ drivers/telephony/ixj.c |  105 +---------------------------------------
+ 1 files changed, 5 insertions(+), 100 deletions(-)
 
-Hi.
 
-Use lib/parser.c for parsing mount options (item from "2.6 should fix").
- 1 files changed, 49 insertions(+), 27 deletions(-)
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Compile & boot tested.
-
-Signed-off-by: Domen Puncer <domen@coderock.org>
-
----
-
- linux-2.6.10-rc1-max/fs/devpts/inode.c |   76 +++++++++++++++++++++------------
- 1 files changed, 49 insertions(+), 27 deletions(-)
-
-diff -puN fs/devpts/inode.c~lib-parser-fs_devpts_inode fs/devpts/inode.c
---- linux-2.6.10-rc1/fs/devpts/inode.c~lib-parser-fs_devpts_inode	2004-10-24 17:06:16.000000000 +0200
-+++ linux-2.6.10-rc1-max/fs/devpts/inode.c	2004-10-24 17:06:16.000000000 +0200
-@@ -19,6 +19,7 @@
- #include <linux/tty.h>
- #include <linux/devpts_fs.h>
- #include <linux/xattr.h>
-+#include <linux/parser.h>
- 
- #define DEVPTS_SUPER_MAGIC 0x1cd1
- 
-@@ -51,39 +52,60 @@ static struct {
- 	umode_t mode;
- } config = {.mode = 0600};
- 
-+enum {
-+	Opt_uid, Opt_gid, Opt_mode,
-+	Opt_err
-+};
-+
-+static match_table_t tokens = {
-+	{Opt_uid, "uid=%u"},
-+	{Opt_gid, "gid=%u"},
-+	{Opt_mode, "mode=%o"},
-+	{Opt_err, NULL}
-+};
-+
- static int devpts_remount(struct super_block *sb, int *flags, char *data)
- {
--	int setuid = 0;
--	int setgid = 0;
--	uid_t uid = 0;
--	gid_t gid = 0;
--	umode_t mode = 0600;
--	char *this_char;
--
--	this_char = NULL;
--	while ((this_char = strsep(&data, ",")) != NULL) {
--		int n;
--		char dummy;
--		if (!*this_char)
-+	char *p;
-+
-+	config.setuid  = 0;
-+	config.setgid  = 0;
-+	config.uid     = 0;
-+	config.gid     = 0;
-+	config.mode    = 0600;
-+
-+	while ((p = strsep(&data, ",")) != NULL) {
-+		substring_t args[MAX_OPT_ARGS];
-+		int token;
-+		int option;
-+
-+		if (!*p)
- 			continue;
--		if (sscanf(this_char, "uid=%i%c", &n, &dummy) == 1) {
--			setuid = 1;
--			uid = n;
--		} else if (sscanf(this_char, "gid=%i%c", &n, &dummy) == 1) {
--			setgid = 1;
--			gid = n;
--		} else if (sscanf(this_char, "mode=%o%c", &n, &dummy) == 1)
--			mode = n & ~S_IFMT;
--		else {
--			printk("devpts: called with bogus options\n");
-+
-+		token = match_token(p, tokens, args);
-+		switch (token) {
-+		case Opt_uid:
-+			if (match_int(&args[0], &option))
-+				return -EINVAL;
-+			config.uid = option;
-+			config.setuid = 1;
-+			break;
-+		case Opt_gid:
-+			if (match_int(&args[0], &option))
-+				return -EINVAL;
-+			config.gid = option;
-+			config.setgid = 1;
-+			break;
-+		case Opt_mode:
-+			if (match_octal(&args[0], &option))
-+				return -EINVAL;
-+			config.mode = option & ~S_IFMT;
-+			break;
-+		default:
-+			printk(KERN_ERR "devpts: called with bogus options\n");
- 			return -EINVAL;
- 		}
- 	}
--	config.setuid  = setuid;
--	config.setgid  = setgid;
--	config.uid     = uid;
--	config.gid     = gid;
--	config.mode    = mode;
- 
+--- linux-2.6.10-rc1-mm2-full/drivers/telephony/ixj.c.old	2004-10-31 00:10:49.000000000 +0200
++++ linux-2.6.10-rc1-mm2-full/drivers/telephony/ixj.c	2004-10-31 00:23:17.000000000 +0200
+@@ -406,14 +406,10 @@
  	return 0;
  }
-_
+ 
+-static IXJ_REGFUNC ixj_DownloadG729 = &Stub;
+-static IXJ_REGFUNC ixj_DownloadTS85 = &Stub;
+ static IXJ_REGFUNC ixj_PreRead = &Stub;
+ static IXJ_REGFUNC ixj_PostRead = &Stub;
+ static IXJ_REGFUNC ixj_PreWrite = &Stub;
+ static IXJ_REGFUNC ixj_PostWrite = &Stub;
+-static IXJ_REGFUNC ixj_PreIoctl = &Stub;
+-static IXJ_REGFUNC ixj_PostIoctl = &Stub;
+ 
+ static void ixj_read_frame(IXJ *j);
+ static void ixj_write_frame(IXJ *j);
+@@ -792,97 +788,6 @@
+ 	return 0;
+ }
+ 
+-static int ixj_register(int index, IXJ_REGFUNC regfunc)
+-{
+-	int cnt;
+-	int retval = 0;
+-	switch (index) {
+-	case G729LOADER:
+-		ixj_DownloadG729 = regfunc;
+-		for (cnt = 0; cnt < IXJMAX; cnt++) {
+-			IXJ *j = get_ixj(cnt);
+-			while(test_and_set_bit(cnt, (void *)&j->busyflags) != 0) {
+-				set_current_state(TASK_INTERRUPTIBLE);
+-				schedule_timeout(1);
+-			}
+-			ixj_DownloadG729(j, 0L);
+-			clear_bit(cnt, &j->busyflags);
+-		}
+-		break;
+-	case TS85LOADER:
+-		ixj_DownloadTS85 = regfunc;
+-		for (cnt = 0; cnt < IXJMAX; cnt++) {
+-			IXJ *j = get_ixj(cnt);
+-			while(test_and_set_bit(cnt, (void *)&j->busyflags) != 0) {
+-				set_current_state(TASK_INTERRUPTIBLE);
+-				schedule_timeout(1);
+-			}
+-			ixj_DownloadTS85(j, 0L);
+-			clear_bit(cnt, &j->busyflags);
+-		}
+-		break;
+-	case PRE_READ:
+-		ixj_PreRead = regfunc;
+-		break;
+-	case POST_READ:
+-		ixj_PostRead = regfunc;
+-		break;
+-	case PRE_WRITE:
+-		ixj_PreWrite = regfunc;
+-		break;
+-	case POST_WRITE:
+-		ixj_PostWrite = regfunc;
+-		break;
+-	case PRE_IOCTL:
+-		ixj_PreIoctl = regfunc;
+-		break;
+-	case POST_IOCTL:
+-		ixj_PostIoctl = regfunc;
+-		break;
+-	default:
+-		retval = 1;
+-	}
+-	return retval;
+-}
+-
+-EXPORT_SYMBOL(ixj_register);
+-
+-static int ixj_unregister(int index)
+-{
+-	int retval = 0;
+-	switch (index) {
+-	case G729LOADER:
+-		ixj_DownloadG729 = &Stub;
+-		break;
+-	case TS85LOADER:
+-		ixj_DownloadTS85 = &Stub;
+-		break;
+-	case PRE_READ:
+-		ixj_PreRead = &Stub;
+-		break;
+-	case POST_READ:
+-		ixj_PostRead = &Stub;
+-		break;
+-	case PRE_WRITE:
+-		ixj_PreWrite = &Stub;
+-		break;
+-	case POST_WRITE:
+-		ixj_PostWrite = &Stub;
+-		break;
+-	case PRE_IOCTL:
+-		ixj_PreIoctl = &Stub;
+-		break;
+-	case POST_IOCTL:
+-		ixj_PostIoctl = &Stub;
+-		break;
+-	default:
+-		retval = 1;
+-	}
+-	return retval;
+-}
+-
+-EXPORT_SYMBOL(ixj_unregister);
+-
+ static void ixj_init_timer(IXJ *j)
+ {
+ 	init_timer(&j->timer);
+@@ -2257,7 +2162,7 @@
+ 	return 0;
+ }
+ 
+-int ixj_release(struct inode *inode, struct file *file_p)
++static int ixj_release(struct inode *inode, struct file *file_p)
+ {
+ 	IXJ_TONE ti;
+ 	int cnt;
+@@ -6785,7 +6690,7 @@
+ 	return fasync_helper(fd, file_p, mode, &j->async_queue);
+ }
+ 
+-struct file_operations ixj_fops =
++static struct file_operations ixj_fops =
+ {
+         .owner          = THIS_MODULE,
+         .read           = ixj_enhanced_read,
+@@ -7735,7 +7640,7 @@
+ 	return res;
+ }
+ 
+-int __init ixj_probe_isapnp(int *cnt)
++static int __init ixj_probe_isapnp(int *cnt)
+ {               
+ 	int probe = 0;
+ 	int func = 0x110;
+@@ -7815,7 +7720,7 @@
+ 	return probe;
+ }
+                         
+-int __init ixj_probe_isa(int *cnt)
++static int __init ixj_probe_isa(int *cnt)
+ {
+ 	int i, probe;
+ 
+@@ -7839,7 +7744,7 @@
+ 	return 0;
+ }
+ 
+-int __init ixj_probe_pci(int *cnt)
++static int __init ixj_probe_pci(int *cnt)
+ {
+ 	struct pci_dev *pci = NULL;   
+ 	int i, probe = 0;
+

@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265403AbTLHNuF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 08:50:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265404AbTLHNuE
+	id S265429AbTLHODt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 09:03:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265430AbTLHODt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 08:50:04 -0500
-Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:20232 "EHLO
-	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
-	id S265403AbTLHNt6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 08:49:58 -0500
-From: phillip@lougher.demon.co.uk
-To: "David Woodhouse" <dwmw2@infradead.org>
-Cc: joern@wohnheim.fh-wedel.de, kbiswas@neoscale.com,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <1070882901.31993.72.camel@hades.cambridge.redhat.com>
-Subject: Re: partially encrypted filesystem
-Date: Mon, 08 Dec 2003 13:49:57 +0000
-User-Agent: Demon-WebMail/2.0
-MIME-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <E1ATLlt-000366-0Y@anchor-post-34.mail.demon.net>
+	Mon, 8 Dec 2003 09:03:49 -0500
+Received: from holomorphy.com ([199.26.172.102]:21211 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265429AbTLHODr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 09:03:47 -0500
+Date: Mon, 8 Dec 2003 06:03:46 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test11-wli-1
+Message-ID: <20031208140346.GH8039@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
+References: <20031204200120.GL19856@holomorphy.com> <20031208135737.GG8039@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031208135737.GG8039@holomorphy.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dwmw2@infradead.org wrote:
-> On Thu, 2003-12-04 at 18:20 +0000, Phillip Lougher wrote:
-> > Considering that Jffs2 is the only writeable compressed filesystem, yes. 
-> >   What should be borne in mind is compressed filesystems never expect 
-> > the data after compression to be bigger than the original data.
-> 
-> In fact that assumption is fairly trivial to remove, if you can put an
-> upper bound on the growth. Adding encryption of data to JFFS2 would
-> actually be fairly trivial; encryption of metadata would be harder. 
-> 
+On Thu, Dec 04, 2003 at 12:01:20PM -0800, William Lee Irwin III wrote:
+>> Successfully tested on a Thinkpad T21. Any feedback regarding
+>> performance would be very helpful. Desktop users should notice top(1)
+>> is faster, kernel hackers that kernel compiles are faster, and highmem
+>> users should see much less per-process lowmem overhead.
 
-I was pointing out it had to be considered.  Modesty prevented me from mentioning that adding encryption of both data and metadata to Squashfs would be very easy :-)
+On Mon, Dec 08, 2003 at 05:57:37AM -0800, William Lee Irwin III wrote:
+> Woops, I missed the target by a few bytes. Probably a bit overwrought:
 
-Phillip
+These THREAD_SIZE bits are cropping up all over.
 
 
+-- wli
+
+--- wli-2.6.0-test11-37/arch/i386/kernel/traps.c	2003-11-26 12:43:09.000000000 -0800
++++ wli-2.6.0-test11-38/arch/i386/kernel/traps.c	2003-12-08 04:58:08.000000000 -0800
+@@ -119,7 +119,7 @@ void show_trace_task(struct task_struct 
+ 	unsigned long esp = tsk->thread.esp;
+ 
+ 	/* User space on another CPU? */
+-	if ((esp ^ (unsigned long)tsk->thread_info) & (PAGE_MASK<<1))
++	if ((esp ^ (unsigned long)tsk->thread_info) & ~(THREAD_SIZE - 1))
+ 		return;
+ 	show_trace(tsk, (unsigned long *)esp);
+ }

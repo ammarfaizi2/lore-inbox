@@ -1,86 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267785AbUJRXY1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267798AbUJRX1y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267785AbUJRXY1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 19:24:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267798AbUJRXY1
+	id S267798AbUJRX1y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 19:27:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267683AbUJRX1y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 19:24:27 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:61094 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S267785AbUJRXYR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 19:24:17 -0400
-Subject: Re: [PATCH] add unschedule_delayed_work to the workqueue API
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, mingo@elte.hu
-In-Reply-To: <20041018155727.3ba8cbea.akpm@osdl.org>
-References: <1098117067.2011.64.camel@mulgrave>
-	<20041018142524.5b81a09a.akpm@osdl.org>
-	<1098134824.2011.322.camel@mulgrave> <1098134994.2792.325.camel@mulgrave>
-	<20041018144354.2118138f.akpm@osdl.org>
-	<1098136049.2792.329.camel@mulgrave>
-	<20041018150217.0fbf714f.akpm@osdl.org>
-	<1098137747.1714.351.camel@mulgrave> 
-	<20041018155727.3ba8cbea.akpm@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 18 Oct 2004 18:24:01 -0500
-Message-Id: <1098141847.2011.364.camel@mulgrave>
+	Mon, 18 Oct 2004 19:27:54 -0400
+Received: from hostmaster.org ([212.186.110.32]:6065 "EHLO hostmaster.org")
+	by vger.kernel.org with ESMTP id S267798AbUJRX1v (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 19:27:51 -0400
+Subject: Re: Linux v2.6.9...
+From: Thomas Zehetbauer <thomasz@hostmaster.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-0C/XjUos7Nl1UfYioDpT"
+Date: Tue, 19 Oct 2004 01:27:44 +0200
+Message-Id: <1098142064.4500.15.camel@hostmaster.org>
 Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-1) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-10-18 at 17:57, Andrew Morton wrote:
-> James Bottomley <James.Bottomley@SteelEye.com> wrote:
-> You mean the scsi code wants to schedule a work some time in the future and
-> that when it executes, the handler will then run for several seconds?
-> 
-> If so, it sounds like this is the wrong mechanism to use.  We certainly
-> don't want keventd gone to lunch for that long, and even if the kernel
-> threads were privately created by the scsi code, you'll have to create many
-> such threads to get any sort of parallelism across many disks.  I suspect
-> I'm missing something.
 
-There is a case where this can happen, yes, but I admit it's not the
-common one...most DV's are kicked off without a thread from user context
-(either in the initial scan or by user request).  The common case where
-we use a workqueue is if an asynchronous event that alters the transport
-agreement comes in (mainly a bus reset) via an interrupt.
+--=-0C/XjUos7Nl1UfYioDpT
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> > However, now there's a worse problem.  If I want to cancel a piece of
-> > work synchronously, flush_scheduled_work() makes me dependent on the
-> > execution of all the prior pieces of work.  If some of them are related,
-> > like Domain Validation and device unlocking say, I have to now be
-> > extremely careful that the place I cancel and flush from isn't likely to
-> > deadlock with any other work scheduled on the device.  This makes it a
-> > hard to use interface.
-> 
-> Well yes, the caller wouldn't want to be holding any locks which cause
-> currently-queued works to block.
+Hi,
 
-It's not just locks (hopefully there shouldn't be any of these).  It's
-also device states.
+it seems you forgot to remove LATEST-IS-2.6.8.1 so the kernel.org start
+page is still not listing 2.6.9.
 
-For instance, DV will attempt to quiesce the device (i.e. wait for it's
-currently outstanding commands to complete).  Thus, I can't use the
-cancel/flush method in any code path (such as may be called from error
-handling) which could itself be part of the completion path.
+Tom
 
-This dependence is caused by having to wait for everything that could
-potentially be on the workqueue to complete.  I'd really prefer an API
-that didn't have this potentially nasty entanglement, which is why I
-coded mine to only do the wait if the piece of work being removed was in
-the process of executing, but not otherwise.
+--=20
+  T h o m a s   Z e h e t b a u e r   ( TZ251 )
+  PGP encrypted mail preferred - KeyID 96FFCB89
+      finger thomasz@hostmaster.org for key
 
-> >  By contrast, the proposed patch will *only* wait
-> > if the item of work is currently executing.  This is a (OK reasonably
-> > given the aic del_timer_sync() issues) well understood deadlock
-> > problem---the main point being I now don't have to consider any of the
-> > other work that might be queued.
-> 
-> OK.
+Programmer: A biological machine designed to convert caffeine into code.
 
-James
 
+
+
+--=-0C/XjUos7Nl1UfYioDpT
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iQEVAwUAQXRRb2D1OYqW/8uJAQIgqQgAh0ywUCril8AMMybsaqgDbFetaeyvOrwn
+p8UTp4uhqhPS3MtdH5+pZ69kOe2kwhKZAXM/L89mF8iDuJZ30f9RV9hNUCD/Vo6d
+m++VkhLbdjm7WJqZnVcTVBw+xjhH9mrt1oIxLYskWVZP29x5m9gzYvueqo8K8uCz
+gz6rJNgBR6GopcaXi/aX4b75gYL3Jq+Wl4Bipwr+VKmJGumMCGfDihS3VQT3MA5p
+diztx/P7wqCxk2RgRIEtzq94YNwuAQgqDEmW+C/iDkAq2it1Ng2aGkNBfqPwbGC/
+9QIoG3wseSihGvVB81POJa+A8MQIiYirr3RT1KVKhUI4Q4MDE2hGPA==
+=RGmX
+-----END PGP SIGNATURE-----
+
+--=-0C/XjUos7Nl1UfYioDpT--
 

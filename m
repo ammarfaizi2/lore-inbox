@@ -1,81 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263734AbUDGQlL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 12:41:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263738AbUDGQlL
+	id S263730AbUDGQkX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 12:40:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263734AbUDGQkX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 12:41:11 -0400
-Received: from waste.org ([209.173.204.2]:38121 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S263734AbUDGQk6 (ORCPT
+	Wed, 7 Apr 2004 12:40:23 -0400
+Received: from fw.osdl.org ([65.172.181.6]:3561 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263730AbUDGQkU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 12:40:58 -0400
-Date: Wed, 7 Apr 2004 11:40:35 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       celinux-dev@tree.celinuxforum.org
-Subject: Re: 2.6.5-rc1-tiny1 for small systems
-Message-ID: <20040407164035.GT6248@waste.org>
-References: <20040316222548.GD11010@waste.org> <200404070833.26197.vda@port.imtp.ilyichevsk.odessa.ua>
+	Wed, 7 Apr 2004 12:40:20 -0400
+Date: Wed, 7 Apr 2004 09:42:22 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Bruce Allen <ballen@gravity.phys.uwm.edu>
+Cc: adi@hexapodia.org, bug-coreutils@gnu.org, linux-kernel@vger.kernel.org
+Subject: Re: dd PATCH: add conv=direct
+Message-Id: <20040407094222.3362e5c8.akpm@osdl.org>
+In-Reply-To: <Pine.GSO.4.21.0404071119120.903-100000@dirac.phys.uwm.edu>
+References: <20040406173326.0fbb9d7a.akpm@osdl.org>
+	<Pine.GSO.4.21.0404071119120.903-100000@dirac.phys.uwm.edu>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200404070833.26197.vda@port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 07, 2004 at 08:33:25AM +0300, Denis Vlasenko wrote:
-> On Wednesday 17 March 2004 00:25, Matt Mackall wrote:
-> > This is the latest release of the -tiny kernel tree. The aim of this
-> > tree is to collect patches that reduce kernel disk and memory
-> > footprint as well as tools for working on small systems. Target users
-> > are things like embedded systems, small or legacy desktop folks, and
-> > handhelds.
-> >
-> > This release is primarily a resync with 2.6.5-rc1 and contains various
-> > compile fixes and other cleanups.
-> >
-> > The patch can be found at:
-> >
-> >  http://selenic.com/tiny/2.6.5-rc1-tiny1.patch.bz2
-> >  http://selenic.com/tiny/2.6.5-rc1-tiny1-broken-out.tar.bz2
-> >
-> > Webpage for your bookmarking pleasure:
-> >
-> >  http://selenic.com/tiny-about/
+Bruce Allen <ballen@gravity.phys.uwm.edu> wrote:
+>
+> > > On modern Linux, apparently the correct way to bypass the buffer cache
+> > > when writing to a block device is to open the block device with
+> > > O_DIRECT.  This enables, for example, the user to more easily force a
+> > > reallocation of a single sector of an IDE disk with a media error
+> > > (without overwriting anything but the 1k "sector pair" containing the
+> > > error).  dd(1) is convenient for this purpose, but is lacking a method
+> > > to force O_DIRECT.  The enclosed patch adds a "conv=direct" flag to
+> > > enable this usage.
+> > 
+> > This would be rather nice to have.  You'll need to ensure that the data
+> > is page-aligned in memory.
+> > 
+> > While you're there, please add an fsync-before-closing option.
 > 
-> With attached .config, I get this:
->   CC      lib/div64.o
->   CC      lib/dump_stack.o
->   CC      lib/errno.o
->   CC      lib/extable.o
->   CC      lib/idr.o
->   CC      lib/inflate.o
-> lib/inflate.c:138: syntax error before "void"
-> make[1]: *** [lib/inflate.o] Error 1
-> make: *** [lib] Error 2
-> 
-> lib/inflate.c:
-> static u32 crc_32_tab[256];
-> 
-> static INIT void makecrc(void)
->        ^^^^
-> {
->         unsigned i, j;
->         u32 c = 1;
+> Andrew, am I right that this is NOT needed for the proposed O_DIRECT
+> option, since open(2) says: 
+>   "The I/O is synchronous, i.e., at the completion of the read(2) or
+>    write(2) system call, data is guaranteed to have been transferred."
+> so the write will block until data is physically on the disk.
 
-Just changing that to __init should fix things. That got broken in a
-recent patch reordering and doesn't get compiled with the CRC
-shrinking option on.
+A conv=fsync option is an irrelevant wishlist item.  If you were to provide
+conv=fsync then dd should still fsync the file after performing the
+direct-io read or write.
 
-> Originally I wanted to have CONFIG_MEASURE_INLINES=y,
-> but it died even earlier, looks like my gcc does not like
-> the fact that there is way too many warnings for
-> eisa-bus.c.
-
-Hmm, that's interesting. The measure inlines stuff works by generating
-warnings, but I have yet to see recent GCC quit after too many warnings.
-
--- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+You're correct that an fsync after a direct-io read or write should not
+need to perform any file data I/O.  But it will often need to perform file
+metadata I/O - file allocation tables, inode, etc.  direct-io only syncs
+the file data, not the file metadata.

@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263091AbVCDUpx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263256AbVCDVXz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263091AbVCDUpx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 15:45:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263100AbVCDUmo
+	id S263256AbVCDVXz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 16:23:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263242AbVCDVUr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 15:42:44 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:62885 "EHLO suse.cz")
-	by vger.kernel.org with ESMTP id S263096AbVCDUfD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 15:35:03 -0500
-Date: Fri, 4 Mar 2005 21:35:38 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: dtor_core@ameritech.net
-Cc: Hans-Christian Egtvedt <hc@mivu.no>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] new driver for ITM Touch touchscreen
-Message-ID: <20050304203537.GA2550@ucw.cz>
-References: <1109932223.5453.16.camel@charlie.itk.ntnu.no> <200503041403.37137.adobriyan@mail.ru> <d120d50005030406525896b6cb@mail.gmail.com> <1109953224.3069.39.camel@charlie.itk.ntnu.no> <d120d50005030408544462c9ea@mail.gmail.com>
+	Fri, 4 Mar 2005 16:20:47 -0500
+Received: from mail.kroah.org ([69.55.234.183]:29089 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263105AbVCDUyM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 15:54:12 -0500
+Cc: benh@kernel.crashing.org
+Subject: [PATCH] PCI: Apple PCI IDs update
+In-Reply-To: <11099696382576@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Fri, 4 Mar 2005 12:53:58 -0800
+Message-Id: <11099696382976@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d120d50005030408544462c9ea@mail.gmail.com>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 04, 2005 at 11:54:18AM -0500, Dmitry Torokhov wrote:
+ChangeSet 1.1998.11.24, 2005/02/25 14:36:10-08:00, benh@kernel.crashing.org
 
-> No, not physical sizes. I was wondering if soe touchscreens are
-> reporting let's say actual coordinates from 1100-3600 and others from
-> 600-3850, instead of full 0-4096. Is there a way to query the hardware
-> and find the actual min and max for a device so it can be reported to
-> userspace.
+[PATCH] PCI: Apple PCI IDs update
 
-Resistive touchscreens, due to their voltage-divider nature have
-near-full range all the time, independent of the controller and sensor
-combination, so setting min to 0 and max to 4096 is OK.
+please sent that to Andrew/Linus in your next batch for after 2.6.11,
+those new IDs will be needed for support of the new iMac G5.
 
-> P.S. When you post the updated version could you please CC Vojtech
-> Pavlik <vojtech@suse.cz> as he is the current input system maintainer
-> and linux-input mailing list at linux-input@atrey.karlin.mff.cuni.cz.
+The changes to pci.ids match the changes already submitted to the web
+database.
+
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+
+
+ include/linux/pci_ids.h |    3 +++
+ 1 files changed, 3 insertions(+)
+
+
+diff -Nru a/include/linux/pci_ids.h b/include/linux/pci_ids.h
+--- a/include/linux/pci_ids.h	2005-03-04 12:41:26 -08:00
++++ b/include/linux/pci_ids.h	2005-03-04 12:41:26 -08:00
+@@ -862,6 +862,9 @@
+ #define PCI_DEVICE_ID_APPLE_KEYLARGO_I	0x003e
+ #define PCI_DEVICE_ID_APPLE_K2_ATA100	0x0043
+ #define PCI_DEVICE_ID_APPLE_K2_GMAC	0x004c
++#define PCI_DEVICE_ID_APPLE_SH_ATA      0x0050
++#define PCI_DEVICE_ID_APPLE_SH_SUNGEM   0x0051
++#define PCI_DEVICE_ID_APPLE_SH_FW       0x0052
+ #define PCI_DEVICE_ID_APPLE_TIGON3	0x1645
  
-Yes, please. ;)
+ #define PCI_VENDOR_ID_YAMAHA		0x1073
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR

@@ -1,90 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261287AbSJIIEp>; Wed, 9 Oct 2002 04:04:45 -0400
+	id <S261456AbSJIIHU>; Wed, 9 Oct 2002 04:07:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261456AbSJIIEp>; Wed, 9 Oct 2002 04:04:45 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:18348 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S261287AbSJIIEo>;
-	Wed, 9 Oct 2002 04:04:44 -0400
-Date: Wed, 9 Oct 2002 18:10:03 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Linus <torvalds@transmeta.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Jeff Dike <jdike@karaya.com>
-Subject: [PATCH] make do_signal static on i386
-Message-Id: <20021009181003.022da660.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.8.3 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S261476AbSJIIHU>; Wed, 9 Oct 2002 04:07:20 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:41865 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S261456AbSJIIHS>;
+	Wed, 9 Oct 2002 04:07:18 -0400
+Date: Wed, 9 Oct 2002 10:12:56 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Input - Make i8042.c less picky about AUX ports [1/3]
+Message-ID: <20021009101256.A10748@ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
 
-This patch makes do_signal static in arch/i386/kernel/signal.c which
-means its declaration can be removed from asm-i386/signal.h which may
-help Jeff out with UML.
+You can import this changeset into BK by piping this whole message to:
+'| bk receive [path to repository]' or apply the patch as usual.
+'bk pull bk://linux-input.bkbits.net/linux-input' should work as well.
 
-I am not sure whether we need the FASTCALL() or whether the change
-in the comment in asm-um/signal.h makes sense.  (Does UML work on
-x86_64, yet?)
+===================================================================
 
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+ChangeSet@1.597.3.1, 2002-10-08 17:36:32+02:00, vojtech@suse.cz
+  Make i8042.c even less picky about detecting an AUX port because of
+  broken chipsets that don't support the LOOP command or report failure
+  on the TEST command. Hopefully this won't screw any old 386/486
+  systems without the AUX port.
 
-diff -ruN 2.5.41-1.715/arch/i386/kernel/signal.c 2.5.41-1.715-si.1/arch/i386/kernel/signal.c
---- 2.5.41-1.715/arch/i386/kernel/signal.c	2002-10-02 11:23:54.000000000 +1000
-+++ 2.5.41-1.715-si.1/arch/i386/kernel/signal.c	2002-10-09 17:52:15.000000000 +1000
-@@ -27,6 +27,8 @@
+
+ i8042.c |   18 ++++++++++--------
+ 1 files changed, 10 insertions(+), 8 deletions(-)
+
+===================================================================
+
+diff -Nru a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+--- a/drivers/input/serio/i8042.c	Wed Oct  9 10:11:12 2002
++++ b/drivers/input/serio/i8042.c	Wed Oct  9 10:11:12 2002
+@@ -654,24 +654,26 @@
+ 	i8042_flush();
  
- #define _BLOCKABLE (~(sigmask(SIGKILL) | sigmask(SIGSTOP)))
- 
-+static int FASTCALL(do_signal(struct pt_regs *regs, sigset_t *oldset));
-+
  /*
-  * Atomically swap in the new signal mask, and wait for a signal.
+- * Internal loopback test - filters out AT-type i8042's
++ * Internal loopback test - filters out AT-type i8042's. Unfortunately
++ * SiS screwed up and their 5597 doesn't support the LOOP command even
++ * though it has an AUX port.
   */
-@@ -545,7 +547,7 @@
-  * want to handle. Thus you cannot kill init even with a SIGKILL even by
-  * mistake.
+ 
+ 	param = 0x5a;
+-	if (i8042_command(&param, I8042_CMD_AUX_LOOP) || param != 0xa5)
+-		return -1;
++	if (i8042_command(&param, I8042_CMD_AUX_LOOP) || param != 0xa5) {
+ 
+ /*
+  * External connection test - filters out AT-soldered PS/2 i8042's
+  * 0x00 - no error, 0x01-0x03 - clock/data stuck, 0xff - general error
+  * 0xfa - no error on some notebooks which ignore the spec
+- * We ignore general error, since some chips report it even under normal
+- * operation.
++ * Because it's common for chipsets to return error on perfectly functioning
++ * AUX ports, we test for this only when the LOOP command failed.
   */
--int do_signal(struct pt_regs *regs, sigset_t *oldset)
-+static int do_signal(struct pt_regs *regs, sigset_t *oldset)
- {
- 	siginfo_t info;
- 	int signr;
-diff -ruN 2.5.41-1.715/include/asm-i386/signal.h 2.5.41-1.715-si.1/include/asm-i386/signal.h
---- 2.5.41-1.715/include/asm-i386/signal.h	2002-01-31 07:12:46.000000000 +1100
-+++ 2.5.41-1.715-si.1/include/asm-i386/signal.h	2002-10-09 17:54:28.000000000 +1000
-@@ -2,7 +2,6 @@
- #define _ASMi386_SIGNAL_H
  
- #include <linux/types.h>
--#include <linux/linkage.h>
+-	if (i8042_command(&param, I8042_CMD_AUX_TEST)
+-	    || (param && param != 0xfa && param != 0xff))
+-		return -1;
++		if (i8042_command(&param, I8042_CMD_AUX_TEST)
++		    	|| (param && param != 0xfa && param != 0xff))
++				return -1;
++	}
  
- /* Avoid too many header ordering problems.  */
- struct siginfo;
-@@ -217,9 +216,6 @@
- 	return word;
- }
- 
--struct pt_regs;
--extern int FASTCALL(do_signal(struct pt_regs *regs, sigset_t *oldset));
--
- #endif /* __KERNEL__ */
- 
- #endif
-diff -ruN 2.5.41-1.715/include/asm-um/signal.h 2.5.41-1.715-si.1/include/asm-um/signal.h
---- 2.5.41-1.715/include/asm-um/signal.h	2002-09-16 13:40:57.000000000 +1000
-+++ 2.5.41-1.715-si.1/include/asm-um/signal.h	2002-10-09 17:56:20.000000000 +1000
-@@ -6,7 +6,7 @@
- #ifndef __UM_SIGNAL_H
- #define __UM_SIGNAL_H
- 
--/* Need to kill the do_signal() declaration in the i386 signal.h */
-+/* Need to kill the do_signal() declaration in the x86_64 signal.h */
- 
- #define do_signal do_signal_renamed
- #include "asm/arch/signal.h"
+ /*
+  * Bit assignment test - filters out PS/2 i8042's in AT mode
+
+===================================================================
+
+This BitKeeper patch contains the following changesets:
+1.597.3.1
+## Wrapped with gzip_uu ##
+
+
+begin 664 bkpatch10681
+M'XL(`*#DHST``\U5;6_;-A#^+/Z*&PKD9:UEDGJU!P]-DZ(+UB)!7H!]"VB)
+MBC3+I"!2<=UI_WU'V4DS%TNZH@,F&Q#$NWOTW-USIQ=P;60[]>[T[U9F)7D!
+MOVACIY[IC/2S3_A\H34^CTN]E..MUWB^&%>JZ2Q!^[FP60EWLC53C_G!PXE=
+M-W+J7;Q]=_W^Z(*0V0R.2Z%NY:6T,)L1J]L[4>?FM;!EK95O6Z',4EKA9WK9
+M/[CVG%*.OX@E`8WBGL4T3/J,Y8R)D,F<\C"-0[(E]GI+>R>>49HRQF(^Z:-T
+M,HG)"3`_FB1^X#.@?,SHF*;`DFD03P/^DO(II;`#"2\9C"AY`]^7^#')X(-8
+M2*A2&G(_`WDG%=32&&BJ;+$&,=>=A5PB%UNI6Q`*CJY_@T:W%N8R$\@.=($H
+M\U8O,#0KJ\9(:\"6`N.TVK=@NF;PMZ6$]V=GYX!,ET+EH%MHY6`J1%5WK40<
+MK0:_J[>75_=^/HJBD457UVNT5096&]BLE2LDM`9=YQ"D\1A30@2S-E8NT:NR
+MI2/OX.XY^^17B":44G+^60]D]"\O0JB@Y.>''ME555>WI?6[;.7:G[>5$^1&
+MI&,4>*7'VP)O^I+0@/$H9G$?H#IXGU#7$L$R24-6T'RW^\\B#A*+@IBG?1@&
+M23H(_HD@-P+_&?LOQN$KV">,\TG$>SY)4SH,"(MW9X.G_S@;%$;I_VHX'FD6
+M49Y3[;.:W33U#$;M:OBC!L^?ZN\W2/HDCA)@Y-3=`@(_PJFRLE6BAEKK9BZR
+M!5AI+(R@J&JT&'!$CZY&;M-N2K1O?+A6!7+NE+`24T>8R^IRD[3,H6O`S3UF
+M5[40X0K$#2'-DSO"U=S!N+K<EE!9*(7Y6Z61><R`(_.88P)>5<#!0.=FBW&P
+MUXA6+%_!Z7!Z_.'D!H-OW&L.H>]AL,(/,Z`?170(?SC`=`,XP1N^_,UVTU5V
+MWPS,<$MAFH^VG<9-9KM6@6Q;-*"]D6V!NL"=570*]:$52L2!W1,WKV`E-S5U
+M6(-&M$+_52G5EX5P*U+F+MN$8X-.XR2$D'A?G:[;J(?H#WAYF/7!)NV]O<?Y
+J%V+WH#AT09ZW36_$?B+>GY\_O%DILX7IEK,@C^9AQ"GY"_?0R^/3!P``
+`
+end

@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261219AbTEERit (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 13:38:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbTEERit
+	id S261218AbTEERiU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 13:38:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261219AbTEERiU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 13:38:49 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:17536 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261219AbTEERir
+	Mon, 5 May 2003 13:38:20 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:29922 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261218AbTEERiT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 13:38:47 -0400
-Date: Mon, 5 May 2003 14:06:34 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: ABIT IC7-G
-Message-ID: <Pine.LNX.4.53.0305051355490.1391@chaos>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 5 May 2003 13:38:19 -0400
+Date: Mon, 5 May 2003 10:50:30 -0700
+From: Greg KH <greg@kroah.com>
+To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+Cc: linux-i2c@pelican.tk.uni-linz.ac.at, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.69: Tyans S2460 hang with i2c
+Message-ID: <20030505175030.GB1713@kroah.com>
+References: <20030505114246.GA673@gallifrey>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030505114246.GA673@gallifrey>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, May 05, 2003 at 12:42:46PM +0100, Dr. David Alan Gilbert wrote:
+> Kernel: 2.5.69
+> Motherboard: Tyan S2460 (Dual Athlon 760MP chipset)
+> 
+> It works fine without i2c, with i2c we hang directly after:
+> 
+> i2c /dev entries module version 2.7.0 (20021208)
+> registering 0-0048
 
-ABIT IC7-G Main Boards and Linux
+What i2c drivers are you trying to load?  Are you sure you have the
+hardware for them?  Some of the i2c sensor drivers can hang your box if
+you load them and you don't have the hardware for them.
 
-Warning! These boards are being shipped without the On-board
-Intel CSA Gigabit LAN that is clearly specified in the user-
-manual, and in the advertisement on the Web-Page.
+And has these i2c drivers ever worked for you before on an older version
+of 2.5?
 
-Yes, I got ripped off. Also, the AGP slot will not work properly
-with the normal AGP video boards like NVIDA GForce, etc. You need
-special 1.5V or 0.8V AGP cards (page 2-15 in the manual). The 3.3V
-AGP cards will seem to work, but the machine will just STOP, for
-no apparent reason at all.
+thanks,
 
-So be forewarned.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
+greg k-h

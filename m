@@ -1,52 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262427AbUKQSE7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262412AbUKQSE6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262427AbUKQSE7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 13:04:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262456AbUKQSEl
+	id S262412AbUKQSE6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 13:04:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262427AbUKQSCj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 13:04:41 -0500
-Received: from fire.osdl.org ([65.172.181.4]:2198 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S262452AbUKQSAp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 13:00:45 -0500
-Message-ID: <419B8EC0.2070005@osdl.org>
-Date: Wed, 17 Nov 2004 09:47:44 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
+	Wed, 17 Nov 2004 13:02:39 -0500
+Received: from emulex.emulex.com ([138.239.112.1]:9405 "EHLO emulex.emulex.com")
+	by vger.kernel.org with ESMTP id S262456AbUKQSB4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 13:01:56 -0500
+From: James.Smart@Emulex.Com
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Gerd Knorr <kraxel@bytesex.org>
-CC: jelle@foks.8m.com, lkml <linux-kernel@vger.kernel.org>,
-       akpm <akpm@osdl.org>
-Subject: Re: [PATCH] cx88: fix printk arg. type
-References: <419A89A3.90903@osdl.org> <20041117172519.GB8176@bytesex>
-In-Reply-To: <20041117172519.GB8176@bytesex>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: Potential issue with some implementations of pci_resource_start()
+Date: Wed, 17 Nov 2004 12:54:25 -0500
+Message-ID: <0B1E13B586976742A7599D71A6AC733C12E722@xbl3.ma.emulex.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Potential issue with some implementations of pci_resource_start()
+Thread-Index: AcTMzSOXb9UWK5sYQyu45gmOn2xdqgAAOLBQ
+To: <greg@kroah.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-os@chaos.analogic.com>,
+       <jes@wildopensource.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerd Knorr wrote:
->>-		dprintk(0, "ERROR: Firmware size mismatch (have %ld, expected %d)\n",
->>+		dprintk(0, "ERROR: Firmware size mismatch (have %Zd, expected %d)\n",
+I started to - but had no idea what pci_resource_end() would correspond to. I'm guessing it's "cookie + N" where N is the size of the BAR. However, this seems really odd and would only be used to calculate the size of N. I figured someone actually in tune with the pci subsytem was better qualified to write the summary.
+
+-- James
+
+
+> -----Original Message-----
+> From: Greg KH [mailto:greg@kroah.com]
+> Sent: Wednesday, November 17, 2004 12:45 PM
+> To: Smart, James
+> Cc: linux-kernel@vger.kernel.org; linux-os@chaos.analogic.com;
+> jes@wildopensource.com
+> Subject: Re: Potential issue with some implementations of
+> pci_resource_start()
 > 
 > 
-> Thanks, merged to cvs.  I like that 'Z'.  Or is that just a linux-kernel
-> printk specific thingy?  Or is this standardized somewhere?  So I could
-> use that in userspace code as well maybe?
-
-Kernel supports/allows 'Z' or 'z'.
-C99 spec defines 'z' only as a size_t format length modifier:
-
-z   Specifies that a following d, i, o, u, x, or X conversion 
-specifier applies to a size_t or the corresponding signed integer type 
-argument; or that a following n conversion specifier applies to a 
-pointer to a signed integer type corresponding to size_t argument.
-
-Anyway, I agree with Al.  Will you please change it to
-'z' instead of 'Z'?
-
-Thanks,
--- 
-~Randy
+> On Wed, Nov 17, 2004 at 09:18:27AM -0500, 
+> James.Smart@Emulex.Com wrote:
+> > 
+> > Can someone please update Documentation/pci.txt so that it 
+> has correct
+> > definitions for pci_resource_start() and pci_resource_end()...
+> 
+> Patches gladly accepted for this.  And as you now know exactly what is
+> missing, you might be the best person to write such a patch :)
+> 
+> thanks,
+> 
+> greg k-h
+> 

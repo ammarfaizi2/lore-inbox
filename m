@@ -1,48 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135852AbREDEGv>; Fri, 4 May 2001 00:06:51 -0400
+	id <S135858AbREDETA>; Fri, 4 May 2001 00:19:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135855AbREDEGl>; Fri, 4 May 2001 00:06:41 -0400
-Received: from juicer24.bigpond.com ([139.134.6.34]:14812 "EHLO
-	mailin3.email.bigpond.com") by vger.kernel.org with ESMTP
-	id <S135852AbREDEGa>; Fri, 4 May 2001 00:06:30 -0400
-Message-Id: <m14vWv7-001QLxC@mozart>
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com, Alexander Viro <viro@math.psu.edu>
+	id <S135855AbREDESu>; Fri, 4 May 2001 00:18:50 -0400
+Received: from pneumatic-tube.sgi.com ([204.94.214.22]:24857 "EHLO
+	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
+	id <S135859AbREDESf>; Fri, 4 May 2001 00:18:35 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Jason Thomas <jason@topic.com.au>
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] max_fds race in select().
-Date: Fri, 04 May 2001 14:10:21 +1000
+Subject: Re: 2.4.4-ac4 and menuconfig 
+In-Reply-To: Your message of "Fri, 04 May 2001 13:54:49 +1000."
+             <20010504135449.A769@topic.com.au> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 04 May 2001 14:18:23 +1000
+Message-ID: <4023.988949903@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We can end up with the user getting more fds tban they asked for...
+On Fri, 4 May 2001 13:54:49 +1000, 
+Jason Thomas <jason@topic.com.au> wrote:
+>when building with 2.4.4-ac4 and using make menuconfig, the options in
+>"Processor type and features  --->" are not changable. other options
+>seem to change fine.
 
-Unlikely, but possible,
-Rusty.
---- linux-2.4.4-official/fs/select.c	Thu Feb 22 14:25:36 2001
-+++ working-2.4.4-rcu/fs/select.c	Fri May  4 14:06:39 2001
-@@ -260,7 +260,7 @@
- 	fd_set_bits fds;
- 	char *bits;
- 	long timeout;
--	int ret, size;
-+	int ret, size, max_fdset;
- 
- 	timeout = MAX_SCHEDULE_TIMEOUT;
- 	if (tvp) {
-@@ -285,8 +285,10 @@
- 	if (n < 0)
- 		goto out_nofds;
- 
--	if (n > current->files->max_fdset)
--		n = current->files->max_fdset;
-+	/* max_fdset can increase, so grab it once to avoid race */
-+	max_fdset = current->files->max_fdset;
-+	if (n > max_fdset)
-+		n = max_fdset;
- 
- 	/*
- 	 * We need 6 bitmaps (in/out/ex for both incoming and outgoing),
+http://www.mail-archive.com/linux-kernel@vger.kernel.org/msg42625.html
 
---
-Premature optmztion is rt of all evl. --DK

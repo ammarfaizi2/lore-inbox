@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268933AbRHGPbj>; Tue, 7 Aug 2001 11:31:39 -0400
+	id <S268898AbRHGPi3>; Tue, 7 Aug 2001 11:38:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268838AbRHGPb3>; Tue, 7 Aug 2001 11:31:29 -0400
-Received: from [47.129.117.131] ([47.129.117.131]:25235 "HELO
-	pcard0ks.ca.nortel.com") by vger.kernel.org with SMTP
-	id <S268928AbRHGPbQ>; Tue, 7 Aug 2001 11:31:16 -0400
-Message-ID: <3B7009D5.32491B59@nortelnetworks.com>
-Date: Tue, 07 Aug 2001 11:31:33 -0400
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
-X-Accept-Language: en
+	id <S268965AbRHGPiL>; Tue, 7 Aug 2001 11:38:11 -0400
+Received: from darkwing.uoregon.edu ([128.223.142.13]:15611 "EHLO
+	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
+	id <S268934AbRHGPh6>; Tue, 7 Aug 2001 11:37:58 -0400
+Date: Tue, 7 Aug 2001 08:43:59 -0700 (PDT)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: <joelja@twin.uoregon.edu>
+To: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: encrypted swap
+In-Reply-To: <tghevjnbuy.fsf@mercury.rus.uni-stuttgart.de>
+Message-ID: <Pine.LNX.4.33.0108070825410.6350-100000@twin.uoregon.edu>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: ramdisk as root filesystem causes eth carrier errors -- SOLVED 
- (interesting issue)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 7 Aug 2001, Florian Weimer wrote:
 
-A while back I posted an issue about getting carrier errors on eth1 when using
-ramdisk as root filesystem, but it working perfectly when using an nfs-mounted
-root filesystem.
+> David Maynor <david.maynor@oit.gatech.edu> writes:
+>
+> > But is the 10% perf hit really gaining you anything, expect to quell
+> > your paranoia. What is next, an encrypted /proc so that possible
+> > attackers can't gain information about running processes?
+>
+> This is not about paranoia, this is about stolen notebooks.
+>
+> (And you can't easily add hundreds of megabytes to such systems
+> usually.)
 
-Well, it seems that the culprit is the tulip driver.  After replacing it with
-the latest and greatest from scyld, the problem seems to have gone away. 
-Apparently some of the tulip drivers had issues with reporting full duplex when
-the chip was really only at half duplex.
+yeah, that's true, but on older ones (like my toshiba portege 3010 which
+has the system maximum of 96MB ) you may not be able to afford the
+performance hit either(pentium 266,dma mode0 or pio disk,430tx chipset
+and all it's attendant memory performance issues with more than 64mb).
 
-I am still at a loss to explain why the problem only showed up when using a
-ramdisk root filesystem, when the identical kernel and an identical nfs-mounted
-filesystem worked perfectly.  Anyone have any ideas?
+on a more modern unit (like my toshiba 2805 which has 384MB) the
+performance hit probably isn't a big deal but I probably don't need swap
+that much either.
 
-Chris
+joelja
 
-
+>
 
 -- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+--------------------------------------------------------------------------
+Joel Jaeggli				       joelja@darkwing.uoregon.edu
+Academic User Services			     consult@gladstone.uoregon.edu
+     PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E
+--------------------------------------------------------------------------
+It is clear that the arm of criticism cannot replace the criticism of
+arms.  Karl Marx -- Introduction to the critique of Hegel's Philosophy of
+the right, 1843.
+
+

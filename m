@@ -1,34 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132961AbRDJJIp>; Tue, 10 Apr 2001 05:08:45 -0400
+	id <S132969AbRDJJdk>; Tue, 10 Apr 2001 05:33:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132967AbRDJJIf>; Tue, 10 Apr 2001 05:08:35 -0400
-Received: from alpham.uni-mb.si ([164.8.1.101]:54792 "EHLO alpham.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S132961AbRDJJIU>;
-	Tue, 10 Apr 2001 05:08:20 -0400
-Date: Tue, 10 Apr 2001 11:07:24 +0200
-From: Igor Mozetic <igor.mozetic@uni-mb.si>
-Subject: Re: aic7xxx and 2.4.3 failures
-To: jim@federated.com, linux-kernel@vger.kernel.org
-Message-id: <3AD2CD4C.EF8E7292@uni-mb.si>
-Organization: CAMTP
-MIME-version: 1.0
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
+	id <S132970AbRDJJda>; Tue, 10 Apr 2001 05:33:30 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:4869 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S132969AbRDJJdS>; Tue, 10 Apr 2001 05:33:18 -0400
+Date: Tue, 10 Apr 2001 11:33:09 +0200
+From: Martin Mares <mj@suse.cz>
+To: Andi Kleen <ak@suse.de>
+Cc: Mark Salisbury <mbs@mc.com>, Jeff Dike <jdike@karaya.com>,
+        schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: No 100 HZ timer !
+Message-ID: <20010410113309.A16825@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <200104091830.NAA03017@ccure.karaya.com> <01040914220214.01893@pc-eng24.mc.com> <20010410075109.A9549@gruyere.muc.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010410075109.A9549@gruyere.muc.suse.de>; from ak@suse.de on Tue, Apr 10, 2001 at 07:51:09AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For me 2.4.3 + aic7xxx-6.1.10 work fine. I just changed the default
-bus settle delay from 15000ms to 5000m, and enabled APIC:
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_LOCAL_APIC=y
+Hi!
 
-The machine boots, devices are properly detected (unlike 6.1.8),
-CDRW reads and burns fine, CDROM works (IDE-SCSI).
+> Just how would you do kernel/user CPU time accounting then ?  It's currently done 
+> on every timer tick, and doing it less often would make it useless.
 
-Intel C440GX+ UP, Adaptec AIC-7896/7, 2GB RAM, CDRW Sony CDU948 4x/8x
+Except for machines with very slow timers we really should account time
+to processes during context switch instead of sampling on timer ticks.
+The current values are in many situations (i.e., lots of processes
+or a process frequently waiting for events bound to timer) a pile
+of random numbers.
 
--Igor Mozetic
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares <mj@ucw.cz> <mj@suse.cz> http://atrey.karlin.mff.cuni.cz/~mj/
+We all live in a yellow subroutine...

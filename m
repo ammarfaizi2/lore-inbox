@@ -1,52 +1,131 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263427AbTJUW6H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 18:58:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263432AbTJUW6H
+	id S263201AbTJUXW5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 19:22:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263109AbTJUXV7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 18:58:07 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:38086 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id S263427AbTJUW6F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 18:58:05 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Andrea Arcangeli <andrea@suse.de>
-Date: Wed, 22 Oct 2003 08:57:52 +1000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 21 Oct 2003 19:21:59 -0400
+Received: from [65.172.181.6] ([65.172.181.6]:31872 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263172AbTJUXVJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 19:21:09 -0400
+Date: Tue, 21 Oct 2003 16:20:34 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Simon Derr <Simon.Derr@bull.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: (4/4) [PATCH] cpuset -- seqfile change
+Message-Id: <20031021162034.7665533b.shemminger@osdl.org>
+In-Reply-To: <Pine.A41.4.53.0310131503500.173334@isabelle.frec.bull.fr>
+References: <Pine.A41.4.53.0310131503500.173334@isabelle.frec.bull.fr>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.9.6claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <16277.47600.3243.275778@notabene.cse.unsw.edu.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Strange dcache memory pressure when highmem enabled
-In-Reply-To: message from Andrea Arcangeli on Thursday October 16
-References: <16268.52761.907998.436272@notabene.cse.unsw.edu.au>
-	<20031014224352.0171e971.akpm@osdl.org>
-	<20031016133304.GC1348@velociraptor.random>
-X-Mailer: VM 7.17 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday October 16, andrea@suse.de wrote:
-> 
-> I wonder if what he's suffering from is a reduced normal zone due the
-> mem_map_t being larger. The reduced normal zone will trigger the dcache
-> shrinking more frequently. But he may want to try again with 2.4.23pre7
-> with a classzone aware refill_inactive that will ensure the inactive
-> list has enough lowmem pages before shrink_caches claims failure.
-> 
+Printing the header in seq_start is not the way other callers to
+seq_file interface do it, and it seems like it might be a problem
+with seeking and other possibilities.
 
-I didn't end up trying Andrew's patch, but tried 2.4.23-pre7 instead.
-It appears to be doing the right thing.
-Free Highmem (grep HighFree /proc/meminfo) steadily dropped from 3Gig
-to about 2-3 Meg and stayed there.
-The dentry cache (grep dentry_cache /proc/slabinfo) climbed up to
-about 500,000 and stayed there for 24 hours - much better than before
-where it would often be only a few thousand and we had complaints every
-night when the backups ran.
-
-Thanks.
-
-NeilBrown
+diff -Nru a/kernel/cpuset.c b/kernel/cpuset.c
+--- a/kernel/cpuset.c	Tue Oct 21 15:53:11 2003
++++ b/kernel/cpuset.c	Tue Oct 21 15:53:11 2003
+@@ -661,29 +661,33 @@
+  */
+ #ifdef CONFIG_CPUSETS_PROC
+ 
++static struct cpuset *proc_cpusets_idx(loff_t n)
++{
++	struct cpuset *set;
++	
++	list_for_each_entry(set, &top_cpuset, list) {
++		if (n-- == 0)
++			return set;
++	}
++	return NULL;
++}
++
+ static void *proc_cpusets_start(struct seq_file *m, loff_t *pos)
+ {
+-        loff_t n = *pos;
+-        struct list_head *p;
+ 
+ 	read_lock(&cpuset_lock); 
+-        if (!n) seq_puts(m, "cpusets info \n");
+-        
+-	p = &top_cpuset.list;
+-        while (n--) {
+-                p = p->next;
+-                if (p == &top_cpuset.list)
+-                        return NULL;
+-        }
+-        return list_entry(p, struct cpuset, list);
++	return (*pos == 0) ? SEQ_START_TOKEN : proc_cpusets_idx(*pos);
+ }
+ 
+ static void *proc_cpusets_next(struct seq_file *m, void *p, loff_t *pos)
+ {
+-        struct cpuset * cs = p;
++        struct cpuset * cs;
+         ++*pos;
+-        return cs->list.next == &top_cpuset.list ? NULL
+-                : list_entry(cs->list.next, struct cpuset, list);
++
++	cs = (p == SEQ_START_TOKEN) ? top_cpuset.list.next
++		: ((struct cpuset *)p)->list.next;
++
++	return (cs == &top_cpuset.list) ? NULL : cs;
+ }
+ 
+ /* How many chars needed to print a long (as a mask) ? */
+@@ -713,25 +717,28 @@
+ #else
+ 	char maskbuf[CFL + 1];
+ #endif
++	if (p == SEQ_START_TOKEN) 
++		seq_puts(m, "cpusets info \n");
++	else {
++		seq_printf(m, "cpuset %d {\n"
++			   "\tparent = %d\n"
++			   "\tflags = %d\n"
++			   "\tcount = %d\n"
++			   "\thba = %d\n"
++			   "\tuid & suid = %d & %d\n",
++			   cs->id, cs->parent ? cs->parent->id : -1, 
++			   cs->flags, atomic_read(&cs->count), cs->has_been_attached,
++			   cs->uid, cs->suid);
++
++		sprint_mask(maskbuf, cs->cpus_allowed);
++		seq_printf(m,"\tcpus_allowed = %s\n", maskbuf);
++		sprint_mask(maskbuf, cs->cpus_reserved);
++		seq_printf(m,"\tcpus_reserved = %s\n", maskbuf);
++		sprint_mask(maskbuf, cs->cpus_strictly_reserved);
++		seq_printf(m,"\tcpus_strictly_reserved = %s\n", maskbuf);
+ 
+-	seq_printf(m, "cpuset %d {\n"
+-		"\tparent = %d\n"
+-		"\tflags = %d\n"
+-		"\tcount = %d\n"
+-		"\thba = %d\n"
+-		"\tuid & suid = %d & %d\n",
+-		cs->id, cs->parent ? cs->parent->id : -1, 
+-		cs->flags, atomic_read(&cs->count), cs->has_been_attached,
+-		cs->uid, cs->suid);
+-
+-	sprint_mask(maskbuf, cs->cpus_allowed);
+-	seq_printf(m,"\tcpus_allowed = %s\n", maskbuf);
+-	sprint_mask(maskbuf, cs->cpus_reserved);
+-	seq_printf(m,"\tcpus_reserved = %s\n", maskbuf);
+-	sprint_mask(maskbuf, cs->cpus_strictly_reserved);
+-	seq_printf(m,"\tcpus_strictly_reserved = %s\n", maskbuf);
+-
+-	seq_printf(m, "}\n\n");
++		seq_printf(m, "}\n\n");
++	}
+ 
+ 	return 0;
+ }

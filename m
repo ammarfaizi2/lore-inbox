@@ -1,59 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287946AbSBRVrE>; Mon, 18 Feb 2002 16:47:04 -0500
+	id <S287895AbSBRVtO>; Mon, 18 Feb 2002 16:49:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287895AbSBRVqp>; Mon, 18 Feb 2002 16:46:45 -0500
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:60601 "EHLO
-	zcars0m9.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S287865AbSBRVqg>; Mon, 18 Feb 2002 16:46:36 -0500
-Message-ID: <3C71780F.6377F8D9@nortelnetworks.com>
-Date: Mon, 18 Feb 2002 16:54:23 -0500
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
+	id <S287933AbSBRVtE>; Mon, 18 Feb 2002 16:49:04 -0500
+Received: from relay1.pair.com ([209.68.1.20]:3342 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id <S287895AbSBRVsy>;
+	Mon, 18 Feb 2002 16:48:54 -0500
+X-pair-Authenticated: 24.126.75.99
+Message-ID: <3C717894.281D0BB4@kegel.com>
+Date: Mon, 18 Feb 2002 13:56:36 -0800
+From: Dan Kegel <dank@kegel.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Nick Craig-Wood <ncw@axis.demon.co.uk>
-Cc: Dan Kegel <dank@kegel.com>,
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Nick Craig-Wood <ncw@axis.demon.co.uk>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Subject: Re: time goes backwards periodically on laptop if booted in low-power 
  mode
-In-Reply-To: <3C6FDB8C.9B033134@kegel.com> <20020218213049.A28604@axis.demon.co.uk>
+In-Reply-To: <E16cvgK-0006uq-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Craig-Wood wrote:
+Alan Cox wrote:
 > 
-> On Sun, Feb 17, 2002 at 08:34:20AM -0800, Dan Kegel wrote:
-> > My Toshiba laptop (running stock Red Hat 7.2, kernel 2.4.7-10)
-> > appears to suffer from a power management-related time hiccup: when
-> > I boot in low-power mode, then switch to high-power mode,
-> > time goes backwards by 10ms several times a second.
-> > According to the thread
-> >  Subject:  [PATCH]: allow notsc option for buggy cpus
-> >  From:     Anton Blanchard <anton@linuxcare.com.au>
-> >  Date:     2001-03-10 0:58:29
-> >  http://marc.theaimsgroup.com/?l=linux-kernel&m=98418670406359&w=2
-> > this can be fixed by disabling the TSC option, but there
-> > ought to be a runtime fix.  Was a runtime fix ever put
-> > together for this situation?
+> > This isn't fixing the root cause of the problem which is interactions
+> > between the BIOS power management and the kernel I believe, but it
+> > does fix the problem and is really quite cheap so perhaps might be
 > 
-> All the IBM thinkpads we have in the office have exactly this problem.
-> The major symptom is that ALT-TAB goes wrong in the sawfish window
-> manager oddly!
+> do_gettimeofday is still going to give strange results - and consider
+> the case where you boot slow and speed up...
 > 
-> I made a patch to fix this (this is its first outing).  It stops
-> do_gettimeofday reporting a time less than it reported last time.
+> If you can give me the DMI strings for the affected boxes I can add
+> them to the DMi tables (see ftp://ftp.linux.org.uk/pub/linux/alan/DMI*)
 
-I see a minor problem here...what happens if you want to reset your clock (for
-whatever purpose) to a previous time?
+ftp://ftp.linux.org.uk/pub/linux/alan/DMI/dmidecode.c works properly
+on my desktop machine, but on the affected laptop it just repeatedly
+prints out
 
-Chris
+DMI 2.3 present.
+44 structures occupying 1330 bytes.
+DMI table at 0x17FF0000.
+dmi: read: Illegal seek
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+and doesn't say anything interesting.  Both machines are running
+vanilla Red Hat 7.2, I think.  Shall I try it with vanilla 2.4.18-rc1?
+
+- Dan

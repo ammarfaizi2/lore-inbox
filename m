@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270754AbTGUVTV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 17:19:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270753AbTGUVTU
+	id S270761AbTGUVWf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 17:22:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270757AbTGUVWf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 17:19:20 -0400
-Received: from holomorphy.com ([66.224.33.161]:50842 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S270741AbTGUVS2 (ORCPT
+	Mon, 21 Jul 2003 17:22:35 -0400
+Received: from dp.samba.org ([66.70.73.150]:16546 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S270756AbTGUVUv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 17:18:28 -0400
-Date: Mon, 21 Jul 2003 14:34:28 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test1-wli-1 compile fail
-Message-ID: <20030721213428.GU15452@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Bill Davidsen <davidsen@tmr.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0307211717270.23650-101000@oddball.prodigy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0307211717270.23650-101000@oddball.prodigy.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Mon, 21 Jul 2003 17:20:51 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: torvalds@transmeta.com, akpm@zip.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/5] percpu struct members. 
+In-reply-to: Your message of "Mon, 21 Jul 2003 19:56:19 +0100."
+             <20030721185619.GB6912@mail.jlokier.co.uk> 
+Date: Tue, 22 Jul 2003 07:27:41 +1000
+Message-Id: <20030721213554.723822C0FD@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 21, 2003 at 05:19:30PM -0400, root wrote:
-> Error:
-> fs/namei.c: In function `path_lookup':
-> fs/namei.c:868: parse error before `*'
-> fs/namei.c:873: `dirs' undeclared (first use in this function)
-> fs/namei.c:873: (Each undeclared identifier is reported only once
-> fs/namei.c:873: for each function it appears in.)
-> fs/namei.c:873: `fs' undeclared (first use in this function)
-> fs/namei.c:890: `task' undeclared (first use in this function)
-> make[1]: *** [fs/namei.o] Error 1
-> make: *** [fs] Error 2
-> gzipped and comment-stripped config attached. And I had such hopes...
+In message <20030721185619.GB6912@mail.jlokier.co.uk> you write:
+> Rusty Russell wrote:
+> > The current percpu macros do not allow __get_cpu_var(foo.val1)
+> > which makes building macros on top of them really difficult.
+> 
+> What's the problem with __get_cpu_var(foo).val1 ?
 
-That's moderately unusual. I didn't announce this; it was intended to
-be a drop for various odd testers, not generally released.
+Nothing: that will still work, too.  But not say you have a macro (as
+we do in local_t):
 
-Try 1A, ISTR having compiled that.
+	local_cpu_inc(cpuvar)
 
+if cpuvar is a struct, you want this to work:
 
--- wli
+	local_cpu_inc(cpuvar.member)
+
+Hope that helps,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,67 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262492AbTCMSkU>; Thu, 13 Mar 2003 13:40:20 -0500
+	id <S262490AbTCMSjd>; Thu, 13 Mar 2003 13:39:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262493AbTCMSkU>; Thu, 13 Mar 2003 13:40:20 -0500
-Received: from comtv.ru ([217.10.32.4]:59127 "EHLO comtv.ru")
-	by vger.kernel.org with ESMTP id <S262492AbTCMSkP>;
-	Thu, 13 Mar 2003 13:40:15 -0500
-X-Comment-To: Andreas Dilger
-To: Andreas Dilger <adilger@clusterfs.com>
-Cc: Alex Tomas <bzzz@tmi.comex.ru>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net, Andrew Morton <akpm@digeo.com>
-Subject: Re: [Ext2-devel] [PATCH] concurrent block allocation for ext2 against 2.5.64
-References: <m3el5bmyrf.fsf@lexa.home.net>
-	<20030313103948.Z12806@schatzie.adilger.int>
-From: Alex Tomas <bzzz@tmi.comex.ru>
-Organization: HOME
-Date: 13 Mar 2003 21:43:05 +0300
-In-Reply-To: <20030313103948.Z12806@schatzie.adilger.int>
-Message-ID: <m3d6kvhzuu.fsf@lexa.home.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	id <S262492AbTCMSjd>; Thu, 13 Mar 2003 13:39:33 -0500
+Received: from home.linuxhacker.ru ([194.67.236.68]:32676 "EHLO linuxhacker.ru")
+	by vger.kernel.org with ESMTP id <S262490AbTCMSjc>;
+	Thu, 13 Mar 2003 13:39:32 -0500
+Date: Thu, 13 Mar 2003 21:49:27 +0300
+From: Oleg Drokin <green@linuxhacker.ru>
+To: alan@redhat.com, linux-kernel@vger.kernel.org
+Subject: [2.4] Memleak in drivers/scsi/cpqfcTSinit.c::cpqfcTS_ioctl()
+Message-ID: <20030313184927.GA2423@linuxhacker.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-fs/attr.c:
-        if (ia_valid & ATTR_SIZE) {
-                if (attr->ia_size == inode->i_size) {
-                        if (ia_valid == ATTR_SIZE)
-                                goto out;       /* we can skip lock_kernel() */
-                } else {
-                        lock_kernel();
-                        error = vmtruncate(inode, attr->ia_size);
-                        unlock_kernel();
-                        if (error)
-                                goto out;
-                }
-        }
+   There is a trivial memleak in drivers/scsi/cpqfcTSinit.c::cpqfcTS_ioctl()
+   on error exit paths if copy_to/from_user fails, see the patch below.
+   Found with help of smatch + enhanced unfree script.
 
-so, all (!) truncates are serialized
+Bye,
+    Oleg
 
->>>>> Andreas Dilger (AD) writes:
-
- AD> On Mar 13, 2003 11:55 +0300, Alex Tomas wrote:
- >> as Andrew said, concurrent balloc for ext3 is useless because of
- >> BKL.  and I saw it in benchmarks. but it may be useful for ext2.
-
- AD> Sadly, we are constantly diverging the ext2/ext3 codebases.  Lots
- AD> of features are going into ext3, but lots of fixes/improvements
- AD> are only going into ext2.  Is ext3 holding BKL for doing
- AD> journal_start() still?
-
- AD> Looking at ext3_prepare_write() we grab the BKL for doing
- AD> journal_start() and for journal_stop(), but I don't _think_ we
- AD> need BKL for journal_stop() do we?  We may or may not need it for
- AD> the journal_data case, but that is not even working right now I
- AD> think.
-
- AD> It also seems we are getting BKL in ext3_truncate(), which likely
- AD> isn't needed past journal_start(), although we do need to have
- AD> superblock-only lock for ext3_orphan_add/del.
-
-
-
+===== drivers/scsi/cpqfcTSinit.c 1.14 vs edited =====
+--- 1.14/drivers/scsi/cpqfcTSinit.c	Tue Dec 17 16:18:20 2002
++++ edited/drivers/scsi/cpqfcTSinit.c	Thu Mar 13 21:45:20 2003
+@@ -467,8 +467,10 @@
+ 				// Need data from user?
+ 				// make sure caller's buffer is in kernel space.
+ 				if ((vendor_cmd->rw_flag == VENDOR_WRITE_OPCODE) && vendor_cmd->len)
+-					if (copy_from_user(buf, vendor_cmd->bufp, vendor_cmd->len))
++					if (copy_from_user(buf, vendor_cmd->bufp, vendor_cmd->len)) {
++						kfree(buf);
+ 						return (-EFAULT);
++					}
+ 
+ 				// copy the CDB (if/when MAX_COMMAND_SIZE is 16, remove copy below)
+ 				memcpy(&ScsiPassThruCmnd->cmnd[0], &vendor_cmd->cdb[0], MAX_COMMAND_SIZE);
+@@ -533,7 +535,7 @@
+ 				// need to pass data back to user (space)?
+ 				if ((vendor_cmd->rw_flag == VENDOR_READ_OPCODE) && vendor_cmd->len)
+ 					if (copy_to_user(vendor_cmd->bufp, buf, vendor_cmd->len))
+-						return (-EFAULT);
++						result = -EFAULT;
+ 
+ 				if (buf)
+ 					kfree(buf);

@@ -1,35 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261509AbTKONLl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Nov 2003 08:11:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbTKONLl
+	id S261681AbTKONM5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Nov 2003 08:12:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261687AbTKONM5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Nov 2003 08:11:41 -0500
-Received: from mail-05.iinet.net.au ([203.59.3.37]:24276 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S261509AbTKONLl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Nov 2003 08:11:41 -0500
-Message-ID: <3FB62608.4010708@cyberone.com.au>
-Date: Sun, 16 Nov 2003 00:11:36 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Nick's scheduler v19a
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 15 Nov 2003 08:12:57 -0500
+Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:30894 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S261681AbTKONMz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Nov 2003 08:12:55 -0500
+Date: Sat, 15 Nov 2003 14:12:53 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: 2.6 BK Autoloading of modules regression?
+Message-ID: <20031115131253.GA11413@merlin.emma.line.org>
+Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://www.kerneltrap.org/~npiggin/v19a/
+I am using a recent Linux-2.6 (BK) with module-init-tools 0.9.15-pre3.
 
-So the previous didn't exactly improve interactivity.
+I cannot autoload some modules in spite of (what I think) correct
+configuration.
 
-This one seems to be better. Major thing is microsecond timeslice
-accounting. Other small fixes related to the microsecond stuff.
-No idea what this has done to context switch and wake up performance,
-but it should be able to be improved a bit.
+When I try to access /dev/nst0, I'd like the st module to be loaded.
 
-I've made patches for Linus and Andrew's trees.
+$ grep char-major-9\  /etc/modprobe.conf
+alias char-major-9 st
+$ mt -f /dev/nst0 status
+mt: No such device. Cannot open '/dev/nst0'.
 
+dmesg reports
+"request_module: failed /sbin/modprobe -s -- char-major-9-128. error = -1"
+
+Changing the alias to char-major-9-* or char-major-9* does not help.
+
+The st module is available, a manual modprobe st loads it fine.
+
+This worked with older post-2.6.0-test9 BK kernels with 0.9.15-pre2
+module-init-tools.
+
+
+The other issue I'm having is that apparently the kernel does not even
+try to autoload my "scanner" module. I have "alias char-major-180-48
+scanner" in modprobe.conf, /dev/usb/scanner0 which is a character special
+wit 180,48 is opened, but the module is not loaded. This has always been
+the case for 2.6.0-test9 for me.
+
+Did I do something wrong? Is there a kernel or module-init-tools
+problem?
+
+-- 
+Matthias Andree
+
+Encrypt your mail: my GnuPG key ID is 0x052E7D95

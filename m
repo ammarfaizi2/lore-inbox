@@ -1,62 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262258AbTCRKYD>; Tue, 18 Mar 2003 05:24:03 -0500
+	id <S262264AbTCRKcq>; Tue, 18 Mar 2003 05:32:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262260AbTCRKYD>; Tue, 18 Mar 2003 05:24:03 -0500
-Received: from [66.70.28.20] ([66.70.28.20]:24078 "EHLO
-	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
-	id <S262258AbTCRKYC>; Tue, 18 Mar 2003 05:24:02 -0500
-Date: Tue, 18 Mar 2003 11:28:37 +0100
-From: DervishD <raul@pleyades.net>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: "Sparks, Jamie" <JAMIE.SPARKS@cubic.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: select() stress
-Message-ID: <20030318102837.GH42@DervishD>
-References: <Pine.WNT.4.44.0303171010580.1544-100000@GOLDENEAGLE.gameday2000> <Pine.LNX.4.53.0303171112090.22652@chaos>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.53.0303171112090.22652@chaos>
-User-Agent: Mutt/1.4i
-Organization: Pleyades
-User-Agent: Mutt/1.4i <http://www.mutt.org>
+	id <S262289AbTCRKcq>; Tue, 18 Mar 2003 05:32:46 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:40466 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S262264AbTCRKcp>; Tue, 18 Mar 2003 05:32:45 -0500
+Date: Tue, 18 Mar 2003 11:43:26 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: CaT <cat@zip.com.au>
+cc: Linus Torvalds <torvalds@transmeta.com>, <hch@lst.de>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.65
+In-Reply-To: <20030318103557.GF504@zip.com.au>
+Message-ID: <Pine.LNX.4.44.0303181142010.5042-100000@serv>
+References: <Pine.LNX.4.44.0303171429040.2827-100000@penguin.transmeta.com>
+ <20030318052257.GB635@zip.com.au> <Pine.LNX.4.44.0303181040150.12110-100000@serv>
+ <20030318103557.GF504@zip.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi all :)
+Hi,
 
- Richard B. Johnson dixit:
-> >       /*  ****************************** */
-> >       if (select(getdtablesize(), &socklist, NULL, NULL, NULL) < 0)
-> >       {
-> >         if (errno != EINTR) perror("WeapTerrain");
-> > 	continue;
-> >       }
-> select() takes a file-descriptor as its first argument, not the
-> return-value of some function that returns the number of file-
-> descriptors. You cannot assume that this number is the same
-> as the currently open socket. Just use the socket-value. That's
-> the file-descriptor.
+On Tue, 18 Mar 2003, CaT wrote:
 
-    Not at all. 'select()' takes a *number of file descriptors* as
-its first argument, meaning the maximum number of file descriptors to
-check (it checks only the first N file descriptors, being 'N' the
-first argument). Usually that first argument is FD_SETSIZE, but the
-result of any function returning a number is right if you know that
-the return value is what you want.
+> Ahhh. So if I want module support but not use it as a module then I'm
+> SOL?
 
-    If, for example, FD_SETSIZE is set to UINT_MAX but
-getdtablesize() returns 100 ('ulimit' came to mind), it's a good idea
-to use the return value of that function. Anyway, IMHO is better to
-use FD_SETSIZE.
+Yes, or you have to complain to the module author.
 
-    See the glibc info for more references.
+bye, Roman
 
-    Bye and happy coding :)
-    Raúl Núñez de Arenas Coronado
-
--- 
-Linux Registered User 88736
-http://www.pleyades.net & http://www.pleyades.net/~raulnac

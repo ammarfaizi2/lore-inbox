@@ -1,41 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264068AbUDNMKd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 08:10:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264066AbUDNMKc
+	id S264066AbUDNMLZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 08:11:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264065AbUDNMLZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 08:10:32 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33989 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264068AbUDNMK3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 08:10:29 -0400
-Date: Wed, 14 Apr 2004 13:10:26 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: raven@themaw.net
-Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] umount after bad chdir
-Message-ID: <20040414121026.GD31500@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.44.0404141241450.29568-100000@localhost.localdomain> <Pine.LNX.4.58.0404142009500.1537@donald.themaw.net>
-Mime-Version: 1.0
+	Wed, 14 Apr 2004 08:11:25 -0400
+Received: from [82.138.8.106] ([82.138.8.106]:25336 "EHLO gw.home.net")
+	by vger.kernel.org with ESMTP id S264069AbUDNMLU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 08:11:20 -0400
+To: <ext2-devel@lists.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org, <alex@clusterfs.com>
+Subject: Re: [RFC] extents,delayed allocation,mballoc for ext3
+References: <m365c3pthi.fsf@bzzz.home.net>
+From: Alex Tomas <alex@clusterfs.com>
+Organization: ClusterFS Inc.
+In-Reply-To: <m365c3pthi.fsf@bzzz.home.net> (alex@clusterfs.com's message of
+ "Tue, 13 Apr 2004 23:28:57 +0400")
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
+Date: Wed, 14 Apr 2004 16:10:53 +0400
+Message-ID: <m3ekqqoj3m.fsf@bzzz.home.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0404142009500.1537@donald.themaw.net>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 14, 2004 at 08:12:33PM +0800, raven@themaw.net wrote:
-> On Wed, 14 Apr 2004, Hugh Dickins wrote:
-> 
-> > After chdir (or chroot) to non-existent directory on 2.6.5-mm5, you
-> > can no longer unmount filesystem holding working directory (or root).
-> > 
-> 
-> Of course.
-> 
-> Excellent. Thanks very much.
 
-Mind you, chdir() patch in -mm is broken in a lot of other ways - e.g.
-it assumes that another thread sharing ->fs with us won't call chdir()
-in the wrong moment...
+I've just benched ext3 vs. ext3+reservation vs. ext3+delalloc vs. xfs.
+it was tiobench.
+
+Sequential Writes
+                              File  Blk   Num                   Avg     CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency   Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----
+ext3                          1024  4096    4   13.34 14.76%     0.897    90
+ext3-dalloc                   1024  4096    4   26.39 19.26%     0.452   137
+ext3-reserv                   1024  4096    4   23.77 28.99%     0.529    82
+xfs                           1024  4096    4   27.22 20.68%     0.373   132
+
+ext3                          1024  4096    8    9.71 10.82%     2.421    90
+ext3-dalloc                   1024  4096    8   25.81 18.64%     0.816   138
+ext3-reserv                   1024  4096    8   23.62 29.49%     1.006    80
+xfs                           1024  4096    8   27.06 22.49%     0.763   120
+
+ext3                          1024  4096   16    6.60 7.891%     7.222    84
+ext3-dalloc                   1024  4096   16   24.99 19.71%     1.783   127
+ext3-reserv                   1024  4096   16   23.04 28.15%     1.849    82
+xfs                           1024  4096   16   24.84 20.58%     1.300   121
+
+ext3                          1024  4096   32    8.12 9.872%     8.111    82
+ext3-dalloc                   1024  4096   32   24.83 20.01%     2.995   124
+ext3-reserv                   1024  4096   32   22.72 29.51%     3.282    77
+xfs                           1024  4096   32   25.47 21.75%     2.247   117
+
+ext3-dalloc is ext3 + extents + delayed allocation + multiblock allocator
+ext3-reserv is ext3 + reservation patches by Mingming Cao
+

@@ -1,242 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129259AbQKUIBX>; Tue, 21 Nov 2000 03:01:23 -0500
+	id <S129732AbQKUIDX>; Tue, 21 Nov 2000 03:03:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129732AbQKUIBO>; Tue, 21 Nov 2000 03:01:14 -0500
-Received: from ife.ee.ethz.ch ([129.132.29.2]:26029 "EHLO ife.ee.ethz.ch")
-	by vger.kernel.org with ESMTP id <S129259AbQKUIAz>;
-	Tue, 21 Nov 2000 03:00:55 -0500
-Date: Tue, 21 Nov 2000 08:30:52 +0100 (MET)
-From: Thomas Sailer <sailer@ife.ee.ethz.ch>
-Message-Id: <200011210730.eAL7UqW10740@eldrich.ee.ethz.ch>
-To: alan@lxorguk.ukuu.org.uk, he@kvintus.dk, linux-kernel@vger.kernel.org
-Subject: [PATCH]: 2.2.18pre: sound drivers
+	id <S129868AbQKUIDN>; Tue, 21 Nov 2000 03:03:13 -0500
+Received: from cm698210-a.denton1.tx.home.com ([24.17.129.59]:38155 "HELO
+	cm698210-a.denton1.tx.home.com") by vger.kernel.org with SMTP
+	id <S129732AbQKUIDD>; Tue, 21 Nov 2000 03:03:03 -0500
+Message-ID: <3A1A252D.462B991A@home.com>
+Date: Tue, 21 Nov 2000 01:33:01 -0600
+From: Matthew Vanecek <linux4us@home.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test10 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Assembler warnings
+In-Reply-To: <5600.974782160@kao2.melbourne.sgi.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In poll, the DMA buffers need to be allocated if not already, otherwise
-fragsize, dmasize, count etc. contain bogus values, which lead to bogus
-poll mask return. (The alternative would have been to special case
-!dmabuf_*.ready and defer DMA buffer allocation, but when the user
-does poll, it likely means he will want to also read/write to the
-device...)
+Keith Owens wrote:
+> 
+> On Mon, 20 Nov 2000 22:11:04 -0600,
+> Matthew Vanecek <linux4us@home.com> wrote:
+> >Hi.  I see these warnings while compiling modules in 2.4.0-test10.  This
+> >is with RH 7.0's kgcc (why-oh-why did they base their system on
+> >2.96!!).  It doesn't seem to break anything--I'm just curious as to what
+> >the warnings signify.
+> >
+> >{standard input}: Assembler messages:
+> >{standard input}:8: Warning: Ignoring changed section attributes for
+> >.modinfo
+> 
+> Firstly you should not be compiling the kernel with gcc 2.96, you
+> should be using kgcc.  Search recent l-k archives for kgcc.
+> 
 
-Testcase provided by Hrafnkell Eiriksson <he@kvintus.dk>
+I said above the compiler I'm using, which is kgcc. =P  AFAICT, a 2.96
+kernel wouldn't even boot properly (well, I listened to others, so I've
+only had the benefit of *other* people's experience!).
 
-Tom
+> Secondly that is a warning that section .modinfo was initially created
+> without the allocation bit but later usage of the section implies that
+> the allocation bit should be set.  Creating .modinfo as non-allocated
+> was an old kludge to stop the module descriptive data being loaded into
+> memory as part of the module.  modutils 2.3.19 onwards force .modinfo
+> to be non-allocated (and hence not loaded into kernel memory), even if
+> the allocate bit is set.  Feel free to try this patch, it is not urgent
+> so I have not sent it to Linus "code freeze" Torvalds yet.
+> 
 
---- drivers/sound/es1370.c.orig	Tue Nov 21 00:15:35 2000
-+++ drivers/sound/es1370.c	Tue Nov 21 00:54:12 2000
-@@ -114,6 +114,7 @@
-  *    03.09.1999   0.30  change read semantics for MIDI to match
-  *                       OSS more closely; remove possible wakeup race
-  *    28.10.1999   0.31  More waitqueue races fixed
-+ *    21.11.2000   0.32  Initialize dma buffers in poll, otherwise poll may return a bogus mask
-  *
-  * some important things missing in Ensoniq documentation:
-  *
-@@ -1298,6 +1299,12 @@
- 	unsigned int mask = 0;
- 
- 	VALIDATE_STATE(s);
-+	if (file->f_mode & FMODE_WRITE)
-+		if (!s->dma_dac2.ready && prog_dmabuf_dac2(s))
-+			return 0;
-+	if (file->f_mode & FMODE_READ)
-+		if (!s->dma_adc.ready && prog_dmabuf_adc(s))
-+			return 0;
- 	if (file->f_mode & (FMODE_READ|FMODE_WRITE))
- 		poll_wait(file, &s->poll_wait, wait);
- 	spin_lock_irqsave(&s->lock, flags);
-@@ -1836,6 +1843,8 @@
- 	unsigned int mask = 0;
- 
- 	VALIDATE_STATE(s);
-+	if (!s->dma_dac1.ready && prog_dmabuf_dac1(s))
-+		return 0;
- 	poll_wait(file, &s->dma_dac1.wait, wait);
- 	spin_lock_irqsave(&s->lock, flags);
- 	es1370_update_ptr(s);
-@@ -2463,7 +2472,7 @@
- 
- 	if (!pci_present())   /* No PCI bus in this machine! */
- 		return -ENODEV;
--	printk(KERN_INFO "es1370: version v0.31 time " __TIME__ " " __DATE__ "\n");
-+	printk(KERN_INFO "es1370: version v0.32 time " __TIME__ " " __DATE__ "\n");
- 	while (index < NR_DEVICE && 
- 	       (pcidev = pci_find_device(PCI_VENDOR_ID_ENSONIQ, PCI_DEVICE_ID_ENSONIQ_ES1370, pcidev))) {
- 		if (pcidev->base_address[0] == 0 || 
---- drivers/sound/es1371.c.orig	Tue Nov 21 00:33:35 2000
-+++ drivers/sound/es1371.c	Tue Nov 21 00:54:05 2000
-@@ -96,6 +96,7 @@
-  *                       detect ES137x chip and derivatives.
-  *    05.01.2000   0.22  Should now work with rev7 boards; patch by
-  *                       Eric Lemar, elemar@cs.washington.edu
-+ *    21.11.2000   0.23  Initialize dma buffers in poll, otherwise poll may return a bogus mask
-  */
- 
- /*****************************************************************************/
-@@ -1881,6 +1882,12 @@
- 	unsigned int mask = 0;
- 
- 	VALIDATE_STATE(s);
-+	if (file->f_mode & FMODE_WRITE)
-+		if (!s->dma_dac2.ready && prog_dmabuf_dac2(s))
-+			return 0;
-+	if (file->f_mode & FMODE_READ)
-+		if (!s->dma_adc.ready && prog_dmabuf_adc(s))
-+			return 0;
- 	if (file->f_mode & (FMODE_WRITE|FMODE_READ))
- 		poll_wait(file, &s->poll_wait, wait);
- 	spin_lock_irqsave(&s->lock, flags);
-@@ -2416,6 +2423,8 @@
- 	unsigned int mask = 0;
- 
- 	VALIDATE_STATE(s);
-+	if (!s->dma_dac1.ready && prog_dmabuf_dac1(s))
-+		return 0;
- 	poll_wait(file, &s->dma_dac1.wait, wait);
- 	spin_lock_irqsave(&s->lock, flags);
- 	es1371_update_ptr(s);
-@@ -3261,7 +3270,7 @@
- 
- 	if (!pci_present())   /* No PCI bus in this machine! */
- 		return -ENODEV;
--	printk(KERN_INFO "es1371: version v0.22 time " __TIME__ " " __DATE__ "\n");
-+	printk(KERN_INFO "es1371: version v0.23 time " __TIME__ " " __DATE__ "\n");
- 	for (pcidev = pci_devices; pcidev && index < NR_DEVICE; pcidev = pcidev->next) {
- 		if (pcidev->vendor == PCI_VENDOR_ID_ENSONIQ) {
- 			if (pcidev->device != PCI_DEVICE_ID_ENSONIQ_ES1371 &&
---- drivers/sound/esssolo1.c.orig	Tue Nov 21 00:33:49 2000
-+++ drivers/sound/esssolo1.c	Tue Nov 21 00:57:17 2000
-@@ -63,6 +63,7 @@
-  *    28.10.1999   0.10  More waitqueue races fixed
-  *    09.12.1999   0.11  Work around stupid Alpha port issue (virt_to_bus(kmalloc(GFP_DMA)) > 16M)
-  *                       Disabling recording on Alpha
-+ *    21.11.2000   0.12  Initialize dma buffers in poll, otherwise poll may return a bogus mask
-  *
-  */
- 
-@@ -180,6 +181,7 @@
- 	struct semaphore open_sem;
- 	mode_t open_mode;
- 	wait_queue_head_t open_wait;
-+	wait_queue_head_t poll_wait;
- 
- 	struct dmabuf {
- 		void *rawbuf;
-@@ -555,16 +557,20 @@
- 		       s->dma_adc.hwptr, s->dma_adc.swptr, s->dma_adc.dmasize, s->dma_adc.count);
- #endif
- 		if (s->dma_adc.mapped) {
--			if (s->dma_adc.count >= (signed)s->dma_adc.fragsize)
-+			if (s->dma_adc.count >= (signed)s->dma_adc.fragsize) {
- 				wake_up(&s->dma_adc.wait);
-+				wake_up(&s->poll_wait);
-+			}
- 		} else {
- 			if (s->dma_adc.count > (signed)(s->dma_adc.dmasize - ((3 * s->dma_adc.fragsize) >> 1))) {
- 				s->ena &= ~FMODE_READ;
- 				write_ctrl(s, 0xb8, 0xe);
- 				s->dma_adc.error++;
- 			}
--			if (s->dma_adc.count > 0)
-+			if (s->dma_adc.count > 0) {
- 				wake_up(&s->dma_adc.wait);
-+				wake_up(&s->poll_wait);
-+			}
- 		}
- 	}
- 	/* update DAC pointer */
-@@ -579,8 +585,10 @@
- #endif
- 		if (s->dma_dac.mapped) {
- 			s->dma_dac.count += diff;
--			if (s->dma_dac.count >= (signed)s->dma_dac.fragsize)
-+			if (s->dma_dac.count >= (signed)s->dma_dac.fragsize) {
- 				wake_up(&s->dma_dac.wait);
-+				wake_up(&s->poll_wait);
-+			}
- 		} else {
- 			s->dma_dac.count -= diff;
- 			if (s->dma_dac.count <= 0) {
-@@ -592,8 +600,10 @@
- 					      s->dma_dac.fragsize, (s->fmt & (AFMT_U8 | AFMT_U16_LE)) ? 0 : 0x80);
- 				s->dma_dac.endcleared = 1;
- 			}
--			if (s->dma_dac.count < (signed)s->dma_dac.dmasize)
-+			if (s->dma_dac.count < (signed)s->dma_dac.dmasize) {
- 				wake_up(&s->dma_dac.wait);
-+				wake_up(&s->poll_wait);
-+			}
- 		}
- 	}
- }
-@@ -1176,9 +1186,13 @@
- 
- 	VALIDATE_STATE(s);
- 	if (file->f_mode & FMODE_WRITE)
--		poll_wait(file, &s->dma_dac.wait, wait);
-+		if (!s->dma_dac.ready && prog_dmabuf_dac(s))
-+			return 0;
- 	if (file->f_mode & FMODE_READ)
--		poll_wait(file, &s->dma_adc.wait, wait);
-+		if (!s->dma_adc.ready && prog_dmabuf_adc(s))
-+			return 0;
-+	if (file->f_mode & (FMODE_READ|FMODE_WRITE))
-+		poll_wait(file, &s->poll_wait, wait);
- 	spin_lock_irqsave(&s->lock, flags);
- 	solo1_update_ptr(s);
- 	if (file->f_mode & FMODE_READ) {
-@@ -2170,7 +2184,7 @@
- 
- 	if (!pci_present())   /* No PCI bus in this machine! */
- 		return -ENODEV;
--	printk(KERN_INFO "solo1: version v0.11 time " __TIME__ " " __DATE__ "\n");
-+	printk(KERN_INFO "solo1: version v0.12 time " __TIME__ " " __DATE__ "\n");
- 	while (index < NR_DEVICE && 
- 	       (pcidev = pci_find_device(PCI_VENDOR_ID_ESS, PCI_DEVICE_ID_ESS_SOLO1, pcidev))) {
- 		if (pcidev->base_address[0] == 0 ||
-@@ -2191,6 +2205,7 @@
- 		memset(s, 0, sizeof(struct solo1_state));
- 		init_waitqueue_head(&s->dma_adc.wait);
- 		init_waitqueue_head(&s->dma_dac.wait);
-+		init_waitqueue_head(&s->poll_wait);
- 		init_waitqueue_head(&s->open_wait);
- 		init_waitqueue_head(&s->midi.iwait);
- 		init_waitqueue_head(&s->midi.owait);
---- drivers/sound/sonicvibes.c.orig	Tue Nov 21 00:33:41 2000
-+++ drivers/sound/sonicvibes.c	Tue Nov 21 00:51:36 2000
-@@ -82,6 +82,7 @@
-  *    03.09.1999   0.21  change read semantics for MIDI to match
-  *                       OSS more closely; remove possible wakeup race
-  *    28.10.1999   0.22  More waitqueue races fixed
-+ *    21.11.2000   0.23  Initialize dma buffers in poll, otherwise poll may return a bogus mask
-  *
-  */
- 
-@@ -1487,6 +1488,12 @@
- 	unsigned int mask = 0;
- 
- 	VALIDATE_STATE(s);
-+	if (file->f_mode & FMODE_READ)
-+		if (!s->dma_adc.ready && prog_dmabuf(s, 1))
-+			return 0;
-+	if (file->f_mode & FMODE_WRITE)
-+		if (!s->dma_dac.ready && prog_dmabuf(s, 0))
-+			return 0;
- 	if (file->f_mode & (FMODE_WRITE|FMODE_READ))
- 		poll_wait(file, &s->poll_wait, wait);
- 	spin_lock_irqsave(&s->lock, flags);
-@@ -2432,7 +2439,7 @@
- 
- 	if (!pci_present())   /* No PCI bus in this machine! */
- 		return -ENODEV;
--	printk(KERN_INFO "sv: version v0.22 time " __TIME__ " " __DATE__ "\n");
-+	printk(KERN_INFO "sv: version v0.23 time " __TIME__ " " __DATE__ "\n");
- #if 0
- 	if (!(wavetable_mem = __get_free_pages(GFP_KERNEL, 20-PAGE_SHIFT)))
- 		printk(KERN_INFO "sv: cannot allocate 1MB of contiguous nonpageable memory for wavetable data\n");
+I'll give your patch a try on the morrow, or day after.  Gotta get my
+new Visor working w/USB cradle first!  I just wanted to find out if
+those messages indicated a problem, or if they are harmless. 
+Personally, I hate seeing even warnings--I'd rather the code compiled
+without any at all (although with some compilers, that's just not
+possible!!).
+
+Thanks for the reply.
+
+> Against 2.4.0-test11-pre6, it might fit 2.4.0-test11.
+> 
+> Index: 0-test11-pre6.1/include/linux/module.h
+> --- 0-test11-pre6.1/include/linux/module.h Sun, 12 Nov 2000 14:59:01 +1100 kaos (linux-2.4/W/33_module.h 1.1.2.1.2.1.2.1.2.1.1.3 644)
+> +++ 0-test11-pre6.1(w)/include/linux/module.h Tue, 21 Nov 2000 15:46:58 +1100 kaos (linux-2.4/W/33_module.h 1.1.2.1.2.1.2.1.2.1.1.3 644)
+> @@ -247,12 +247,6 @@ static const struct gtype##_id * __modul
+>    __attribute__ ((unused)) = name
+>  #define MODULE_DEVICE_TABLE(type,name)         \
+>    MODULE_GENERIC_TABLE(type##_device,name)
+> -/* not put to .modinfo section to avoid section type conflicts */
+> -
+> -/* The attributes of a section are set the first time the section is
+> -   seen; we want .modinfo to not be allocated.  */
+> -
+> -__asm__(".section .modinfo\n\t.previous");
+> 
+>  /* Define the module variable, and usage macros.  */
+>  extern struct module __this_module;
+
+-- 
+Matthew Vanecek
+perl -e 'print
+$i=pack(c5,(41*2),sqrt(7056),(unpack(c,H)-2),oct(115),10);'
+********************************************************************************
+For 93 million miles, there is nothing between the sun and my shadow
+except me.
+I'm always getting in the way of something...
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

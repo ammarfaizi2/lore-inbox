@@ -1,32 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130457AbRCIOH2>; Fri, 9 Mar 2001 09:07:28 -0500
+	id <S130510AbRCIO0B>; Fri, 9 Mar 2001 09:26:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130510AbRCIOHS>; Fri, 9 Mar 2001 09:07:18 -0500
-Received: from [208.204.44.103] ([208.204.44.103]:14351 "EHLO
-	warpcore.provalue.net") by vger.kernel.org with ESMTP
-	id <S130457AbRCIOHD>; Fri, 9 Mar 2001 09:07:03 -0500
-Date: Fri, 9 Mar 2001 07:15:16 -0600 (CST)
-From: Collectively Unconscious <swarm@warpcore.provalue.net>
-To: linux-kernel@vger.kernel.org
-Subject: Reboot fails 2.2.19pre11 SMP
-In-Reply-To: <20010308160758.A16296@kroah.com>
-Message-ID: <Pine.LNX.4.10.10103090553390.18247-100000@warpcore.provalue.net>
+	id <S130515AbRCIOZv>; Fri, 9 Mar 2001 09:25:51 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:50148 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S130510AbRCIOZq>; Fri, 9 Mar 2001 09:25:46 -0500
+Message-ID: <3AA8E7D7.9805ABF7@uow.edu.au>
+Date: Sat, 10 Mar 2001 01:25:27 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.2-pre2 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: [patch] printk.c
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Using a server works le bios and kernel 2.2.19pre11 SMP
-we get the following message at the end of any reboot attempt (including
-the magic alt-sysrq-b):
+Hi, Alan.
 
-Disabling symmetric IO mode ... ... done
+Seems that Vibol's BUG() in call_console_drivers() was caused
+by:
 
-and then the system freezes requiring a manual reset.
+1: Task A takes console_sem
+2: Task B is running
+3: NMI watchdog fires, resets console_sem, kills Task B
+4: Task A releases console_sem - sem.count goes to 2.
+5: Task C takes console_sem, sees that it's still free,
+   goes BUG().
 
-Since we are looking at 100 of these to expand our cluster, it is a non
-trivial annoyance, any help would be appreciated.
+It would have been fine if the watchdog had killed task A.
+That's what it does in all my testing :(
 
-Jay
+If we had real mutexes rather than up/down counting semaphores, or
+if there was a cross-architecture unracy way of setting
+a semaphore's count to 1 without zapping all its other
+members then the fix is straightforward.
 
+Solutions to this are so arcane I don't think it's worth
+trying.  The best approach is to simply remove the BUG
+checks.  So if the above scenario occurs, the console drivers
+won't have locking after the crash.  The user will still be
+able to resync and reboot.
+
+They need to come out anyway - when it fails, down_trylock()
+is fairly expensive and locky - it does a wake_up() in the
+contended case.
+
+
+--- linux-2.4.2-ac16/kernel/printk.c	Fri Mar  9 17:11:18 2001
++++ linux-ac/kernel/printk.c	Fri Mar  9 22:47:39 2001
+@@ -321,12 +321,6 @@
+ 	unsigned long cur_index, start_print;
+ 	static int msg_level = -1;
+ 
+-	/* Check that the semaphore is held */
+-	if (down_trylock(&console_sem) == 0) {
+-		up(&console_sem);
+-		BUG();
+-	}
+-
+ 	if (((long)(start - end)) > 0)
+ 		BUG();
+ 
+@@ -516,11 +510,6 @@
+ void console_conditional_schedule(void)
+ {
+ 	if (console_may_schedule && current->need_resched) {
+-		/* Check that the semaphore is held */
+-		if (down_trylock(&console_sem) == 0) {
+-			up(&console_sem);
+-			BUG();
+-		}
+ 		set_current_state(TASK_RUNNING);
+ 		schedule();
+ 	}

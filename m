@@ -1,74 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266274AbSL1SGX>; Sat, 28 Dec 2002 13:06:23 -0500
+	id <S266250AbSL1SCT>; Sat, 28 Dec 2002 13:02:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266278AbSL1SGX>; Sat, 28 Dec 2002 13:06:23 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:25607 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266274AbSL1SGW>; Sat, 28 Dec 2002 13:06:22 -0500
-Date: Sat, 28 Dec 2002 18:14:38 +0000
-From: Russell King <rmk@arm.linux.org.uk>
+	id <S266256AbSL1SCT>; Sat, 28 Dec 2002 13:02:19 -0500
+Received: from mta5.snfc21.pbi.net ([206.13.28.241]:39058 "EHLO
+	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S266250AbSL1SCS>; Sat, 28 Dec 2002 13:02:18 -0500
+Date: Sat, 28 Dec 2002 10:16:38 -0800
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [RFT][PATCH] generic device DMA implementation
 To: James Bottomley <James.Bottomley@steeleye.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFT][PATCH] generic device DMA implementation
-Message-ID: <20021228181438.B5217@flint.arm.linux.org.uk>
-Mail-Followup-To: James Bottomley <James.Bottomley@steeleye.com>,
-	linux-kernel@vger.kernel.org
-References: <200212180301.gBI31wE06794@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200212180301.gBI31wE06794@localhost.localdomain>; from James.Bottomley@steeleye.com on Tue, Dec 17, 2002 at 09:01:57PM -0600
+Message-id: <3E0DEA86.8050804@pacbell.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en, fr
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+References: <200212281618.gBSGI7Q02415@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've just been working through the ARM dma stuff, converting it to the
-new API, and I foudn this:
+James Bottomley wrote:
+> david-b@pacbell.net said:
+> 
+>>The indirection is getting from the USB device (or interface) to the
+>>object representing the USB controller.  ...
+> 
+> This sounds like a mirror of the problem of finding the IOMMU on parisc (there 
+> can be more than one).
 
-> +static inline int
-> +pci_dma_supported(struct pci_dev *hwdev, u64 mask)
-> +{
-> +	return dma_supported(&hwdev->dev, mask);
-> +}
-> (etc)
+Wouldn't it be straightforward to package that IOMMU solution using the
+"call dev->whatsit->dma_op()" approach I mentioned?  Storing data in
+the "whatsit" seems more practical than saying driver_data is no longer
+available to the device's driver.  (I'll be agnostic on platform_data.)
 
-I'll now pull out a bit from DMA-mapping.txt:
+This problem seems to me to be a common layering requirement.  All the
+indirections are known when the device structure is being initted, so it
+might as well be set up then.  True for PARISC (right?), as well as USB,
+SCSI, and most other driver stacks.  I suspect it'd even allow complex
+voodoo for multi-path I/O too...
 
-| 		 Using Consistent DMA mappings.
-| 
-| To allocate and map large (PAGE_SIZE or so) consistent DMA regions,
-| you should do:
-| 
-| 	dma_addr_t dma_handle;
-| 
-| 	cpu_addr = pci_alloc_consistent(dev, size, &dma_handle);
-| 
-| where dev is a struct pci_dev *. You should pass NULL for PCI like buses
-| where devices don't have struct pci_dev (like ISA, EISA).  This may be
-| called in interrupt context. 
-
-What happens to &hwdev->dev when you do as detailed there and pass NULL
-into these "compatibility" functions?  Probably an oops.
-
-I think these "compatibility" functions need to do:
-
-static inline xxx
-pci_xxx(struct pci_dev *hwdev, ...)
-{
-	dma_xxxx(hwdev ? &hwdev->dev : NULL, ...)
-}
-
-so they remain correct to existing API users expectations.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+- Dave
 
 
-
-
-
+> The way parisc solves this is to look in dev->platform_data and if that's null 
+> walk up the dev->parent until the IOMMU is found and then cache the IOMMU ops 
+> in the current dev->platform_data.  Obviously, you can't use platform_data, 
+> but you could use driver_data for this.  The IOMMU's actually lie on a parisc 
+> specific bus, so the ability to walk up the device tree without having to know 
+> the device types was crucial to implementing this.
+> 
+> James
+> 
+> 
+> 
 
 
 

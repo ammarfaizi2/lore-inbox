@@ -1,106 +1,189 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264530AbUG2M32@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264444AbUG2MnU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264530AbUG2M32 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 08:29:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbUG2M0o
+	id S264444AbUG2MnU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 08:43:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbUG2MnT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 08:26:44 -0400
-Received: from os.inf.tu-dresden.de ([141.76.48.99]:44797 "EHLO
-	os.inf.tu-dresden.de") by vger.kernel.org with ESMTP
-	id S264501AbUG2MZj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 08:25:39 -0400
-From: Carsten Rietzschel <cr7@os.inf.tu-dresden.de>
-Organization: TU Dresden - Operating System Group 
-To: "Ingo Molnar" <mingo@elte.hu>
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-L2 - modem dialup broken
-Date: Thu, 29 Jul 2004 14:26:38 +0200
-User-Agent: KMail/1.6.82
-Cc: "Lee Revell" <rlrevell@joe-job.com>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>,
-       "William Lee Irwin III" <wli@holomorphy.com>,
-       "Lenar L?hmus" <lenar@vision.ee>, "Andrew Morton" <akpm@osdl.org>,
-       "Arjan van de Ven" <arjanv@redhat.com>,
-       "Wood, Scott" <Scott.Wood@timesys.com>,
-       "Saksena, Manas" <Manas.Saksena@timesys.com>
-References: <3D848382FB72E249812901444C6BDB1D036EDFD3@exchange.timesys.com>
-In-Reply-To: <3D848382FB72E249812901444C6BDB1D036EDFD3@exchange.timesys.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 29 Jul 2004 08:43:19 -0400
+Received: from lakermmtao09.cox.net ([68.230.240.30]:22751 "EHLO
+	lakermmtao09.cox.net") by vger.kernel.org with ESMTP
+	id S264444AbUG2MnL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 08:43:11 -0400
+In-Reply-To: <Xine.LNX.4.44.0407290116340.13892-100000@dhcp83-76.boston.redhat.com>
+References: <Xine.LNX.4.44.0407290116340.13892-100000@dhcp83-76.boston.redhat.com>
+Mime-Version: 1.0 (Apple Message framework v618)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <D92C5330-E15C-11D8-9EC8-000393ACC76E@mac.com>
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200407291426.38785.cr7@os.inf.tu-dresden.de>
+Cc: lkml List <linux-kernel@vger.kernel.org>
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Preliminary Linux Key Infrastructure 0.01-alpha1
+Date: Thu, 29 Jul 2004 08:43:10 -0400
+To: James Morris <jmorris@redhat.com>
+X-Mailer: Apple Mail (2.618)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Jul 29, 2004, at 01:58, James Morris wrote:
+> Firstly, it might be useful for other developers if you could write up 
+> a
+> brief rationale about this feature, why it's needed and why this is a 
+> good
+> solution.  I do know of a few projects which could make use of 
+> keyrings:
 
-I've found another problem w/ voluntary-preempt-2.6.8-rc2-L2:
-my dialup connection with a modem is broken with voluntary-preempt=3.
+Hrm, oops!  Somehow my readme got left out of the tarball, I'll upload
+another revision sometime today.
 
-With 
-"echo 2 > /proc/sys/kernel/voluntary_preemption"
-it works. All modem LEDs are blinking :)
-Then 
-"echo 3 > /proc/sys/kernel/voluntary_preemption"
--> the LEDs stop blinking after a few seconds. The connection times out.
+Basically, I put a generic "encryption key" type in the kernel with 
+functions
+to manipulate it.
 
-The only log message I see when booting with voluntary-preempt on is this one:
+>  - cryptfs (Michael Halcrow)
+>  - afs
 
-Jul 29 10:57:51 linux irq event 4: bogus return value ffffffff
-Jul 29 10:57:51 linux [<c01076ae>] dump_stack+0x1e/0x20
-Jul 29 10:57:51 linux [<c0108b4b>] __report_bad_irq+0x2b/0x90
-Jul 29 10:57:51 linux [<c0108be0>] report_bad_irq+0x30/0x40
-Jul 29 10:57:51 linux [<c0108c82>] note_interrupt+0x92/0xa0
-Jul 29 10:57:51 linux [<c0108ecb>] do_hardirq+0x11b/0x180
-Jul 29 10:57:51 linux [<c012025c>] irqd+0x9c/0xc0
-Jul 29 10:57:51 linux [<c012e25d>] kthread+0xad/0xc0
-Jul 29 10:57:51 linux [<c01052b1>] kernel_thread_helper+0x5/0x14
-Jul 29 10:57:51 linux handlers:
-Jul 29 10:57:51 linux irq event 3: bogus return value ffffffff
-Jul 29 10:57:51 linux [<c01076ae>] dump_stack+0x1e/0x20
-Jul 29 10:57:51 linux [<c0108b4b>] __report_bad_irq+0x2b/0x90
-Jul 29 10:57:51 linux [<c0108be0>] report_bad_irq+0x30/0x40
-Jul 29 10:57:51 linux [<c0108c82>] note_interrupt+0x92/0xa0
-Jul 29 10:57:51 linux [<c0108ecb>] do_hardirq+0x11b/0x180
-Jul 29 10:57:51 linux [<c012025c>] irqd+0x9c/0xc0
-Jul 29 10:57:51 linux [<c012e25d>] kthread+0xad/0xc0
-Jul 29 10:57:51 linux [<c01052b1>] kernel_thread_helper+0x5/0x14
+These two, as well as NFSv4 and possibly others could benefit from
+having user accessible keys/keyrings in the kernel
 
-May be this related to the above problem.
-Sorry for this inprecise description. Just ask me for more informations.
+>  - module signing (David Howells/ Arjan)
 
-Regards,
-Carsten
+This is the hard one, because this is only really useful for a kernel 
+that
+doesn't allow unsigned modules, which means that you need to put a
+key in the kernel when it is compiled, and possibly sign the entire 
+kernel
+with said key.  Such a key shouldn't be modifiable in any way.
 
-cat /proc/interrupts (without beeing online):
-CPU0
-  0:    5159722          XT-PIC  timer
-  1:      14081          XT-PIC  i8042
-  2:          0          XT-PIC  cascade
-  7:       2855          XT-PIC  VIA8233, uhci_hcd
-  8:          4          XT-PIC  rtc
-  9:          0          XT-PIC  acpi
- 10:     501556          XT-PIC  ohci1394, uhci_hcd
- 11:      40604          XT-PIC  eth0, uhci_hcd, ehci_hcd
- 14:      57086          XT-PIC  ide0
- 15:         38          XT-PIC  ide1
-NMI:          0
-LOC:    5159632
+> Are there others (with running code, merged or potentially mergable) ?
+>
+> Does your design cater for all needs?
+That's what I'm asking :-D.  There was a big discussion a week or two
+ago on the LKML "In-kernel Authentication Tokens (PAGs)".  This is an
+outgrowth of that discussion.
 
-cat /proc/interrupts (beeing online):
-           CPU0
-  0:    5248767          XT-PIC  timer
-  1:      14803          XT-PIC  i8042
-  2:          0          XT-PIC  cascade
-  3:    1945822          XT-PIC  serial
-  7:       2893          XT-PIC  VIA8233, uhci_hcd
-  8:          4          XT-PIC  rtc
-  9:          0          XT-PIC  acpi
- 10:     512803          XT-PIC  ohci1394, uhci_hcd
- 11:      40693          XT-PIC  eth0, uhci_hcd, ehci_hcd
- 14:      57251          XT-PIC  ide0
- 15:         38          XT-PIC  ide1
-NMI:          0
-LOC:    5248676
-ERR:         21
+> I think I heard that Greg-KH had some keyring code already, so there 
+> may
+> be some existing code floating around.
+I think that was David Howells, and I've looked at his code extensively.
+
+> To get more people to look at the code, I'd suggest that you get it
+> running and prepared as a patch to the mainline kernel.  It will also 
+> help
+> if you follow Documentation/CodingStyle and use more idiomatic kernel
+> development practices.
+
+Yeah, what I have now is one weekend's worth of work just throwing it
+together to get myself started.  I may have something new tomorrow, but
+if not I'm gone for a week and I'll have something when I get back.
+
+
+> For example, typedefs are generally frowned upon (but perhaps 
+> acceptable
+> to improve readability of complex function pointer stuff).
+>
+> You don't need to cast the result of kmalloc:
+>
+> 	key = (lki_key_t *)kmalloc(sizeof(lki_key_t),GFP_KERNEL);
+>
+> should be:
+>
+> 	key = kmalloc(sizeof(lki_key_t),GFP_KERNEL);
+>
+> Avoid using sizeof(some_type) for things like the above, use the actual
+> object itself:
+>
+> 	key = kmalloc(sizeof(*key), GFP_KERNEL);
+>
+> (in case the type of *key changes some day).
+
+Ok, thanks.  In the past some compilers had given we warnings when I
+didn't cast, so I wasn't sure.
+
+> Use wrapper functions like wait_event_interruptible() instead of 
+> rolling
+> your own.
+
+I needed a specialized version that dropped a spinlock after adding 
+itself
+to the waitqueue and before sleeping, then relocking before checking the
+condition.  Is there a better way to do what I need there?
+
+> It's better (IMHO) to have one exit path in a function, to clarify 
+> error
+> handling, locking, and make it easier to audit the code.  e.g. in
+> lki_key_used_list_allocate(), you grab a lock then have several return
+> points with no unlock.
+
+Yeah, my error handling is a real mess and needs to be cleaned up.
+
+> Having some real code which uses the framework will also be good.
+
+Yep.
+
+>> TODO:
+>> 	keyctl:
+>> 		The syscall that makes it all possible
+>
+> Why would you need a syscall?
+
+The only way to _manipulate_ keys is by first getting a key handle.
+To get a key handle you can open the file "keyfs/<keyid>/control"
+for a specific key number, or you can just get a key handle straight
+from the KEYCTL_CREATE call, or from the KEYCTL_GET call, or
+from a couple other calls.  A key handle is just a file handle with a
+special struct key_handle attached to it to provide access to the
+key behind it.
+
+>> 	keyfs:
+>> 		keys by number: On hold while I learn more about filesystems :-D
+>
+> What does this mean?
+
+A file system somewhat like the following:
+
+keyfs/
+	<keyid>/
+		control
+		desc
+		blob
+	<keyid>/
+		control
+		desc
+		blob
+		ring/
+			<keyid>	=>	../../<keyid>
+			<keyid>	=>	../../<keyid>
+	<keyid>/
+		[...]
+
+> I would imagine that the entire userspace API would be filesystem 
+> based.
+> e.g.  you could load the keys for module signature checking during 
+> boot by
+> writing them to a node like:
+>
+> cat keyring.txt > /keyrings/modsign/keys
+>
+> Disable further changes:
+>
+> echo "0" > /keyrings/modsign/write
+>
+> You could manage per process credentials via /proc/self/something
+
+There was a big discussion about user interface, see the earlier thread
+"In-kernel Autnetication Tokens (PAGs)" for more info.
+
+Thanks for your comments!
+
+Cheers,
+Kyle Moffett
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a17 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
+
+

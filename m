@@ -1,70 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311136AbSCHVd4>; Fri, 8 Mar 2002 16:33:56 -0500
+	id <S311148AbSCHVhq>; Fri, 8 Mar 2002 16:37:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311145AbSCHVdh>; Fri, 8 Mar 2002 16:33:37 -0500
-Received: from ns.suse.de ([213.95.15.193]:23823 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S311136AbSCHVdb>;
-	Fri, 8 Mar 2002 16:33:31 -0500
-Date: Fri, 8 Mar 2002 22:33:30 +0100
-From: Dave Jones <davej@suse.de>
-To: Patricia Gaughen <gone@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: Re: [RFC] modularization of i386 setup_arch and mem_init in 2.4.18
-Message-ID: <20020308223330.A15106@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Patricia Gaughen <gone@us.ibm.com>, linux-kernel@vger.kernel.org,
-	lse-tech@lists.sourceforge.net
-In-Reply-To: <200203082108.g28L8I504672@w-gaughen.des.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200203082108.g28L8I504672@w-gaughen.des.beaverton.ibm.com>; from gone@us.ibm.com on Fri, Mar 08, 2002 at 01:08:18PM -0800
+	id <S311145AbSCHVhg>; Fri, 8 Mar 2002 16:37:36 -0500
+Received: from rj.sgi.com ([204.94.215.100]:38815 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S311148AbSCHVhT>;
+	Fri, 8 Mar 2002 16:37:19 -0500
+Date: Fri, 8 Mar 2002 13:37:08 -0800 (PST)
+From: Samuel Ortiz <sortiz@dbear.engr.sgi.com>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+cc: Andrea Arcangeli <andrea@suse.de>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] stop null ptr deference in __alloc_pages
+In-Reply-To: <18990000.1015622208@flay>
+Message-ID: <Pine.LNX.4.33.0203081325560.18968-100000@dbear.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 08, 2002 at 01:08:18PM -0800, Patricia Gaughen wrote:
- > 
- > Hi,
- > 
- > I'm currently working on a discontigmem patch for IBM NUMAQ (an ia32 
- > NUMA box) and want to reuse the standard i386 code as much as
- > possible.  To achieve this, I've modularized setup_arch() and
- > mem_init().  This modularization is what the patch that I've included 
- > in this email contains.
+On Fri, 8 Mar 2002, Martin J. Bligh wrote:
 
- As a sidenote (sort of related topic) :
- An idea being kicked around a little right now is x86 subarch
- support for 2.5. With so many of the niche x86 spin-offs appearing
- lately, all fighting for their own piece of various files in
- arch/i386/kernel/, it may be time to do the same as the ARM folks did,
- and have..
+> >> If you applied an SGI patch that makes the zonelist contain all the zones
+> >> of your machine, then the zonelist should not be NULL.
+> >> If you allocate memory with gfp_mask & GFP_ZONEMASK == GFP_NORMAL from a
+> >> HIGHMEM only node, then the first entry on the corresponding zonelist
+> >> should be the first NORMAL zone on some other node.
+> >> Am I missing something here ?
+> >
+> > You're missing the fact that I'm missing the SGI patch ;-)
+Oh, I see. I was missing something then...;-)
 
-  arch/i386/generic/
-  arch/i386/numaq/
-  arch/i386/visws
-  arch/i386/voyager/
-  etc..
 
- I've been meaning to find some time to move the necessary bits around,
- and jiggle configs to see how it would work out, but with a pending
- house move, I haven't got around to it yet.. Maybe next week.
+>
+> I should have also mentioned that:
+>
+> 1) I shouldn't need the SGI patch, though it might help performance.
+Why shouldn't you need it ? It is NUMA generic, and totally arch
+independent.
+And it actually helps performance. I also allows the kernel to have a
+single memory allocation path. I think it is cleaner than calling _alloc_pages()
+from numa.c
 
- The downsides to this:
- - Code duplication.
-   Some routines will likely be very similar if not identical.
- - Bug propagation.
-   If something is fixed in one subarch, theres a high possibility
-   it needs fixing in other subarchs
+> 2) The kernel panics without my fix, and runs fine with it.
+I hope so  :-)
+But your fix is at the same time useless and harmless for UMA machines.
+OTOH, the SGI patch doesn't modify __alloc_pages(). I think I'm a little
+too picky here...
 
-  The plus sides of this:
-  - Removal of #ifdef noise
-    With more and more of these subarchs appearing, this is getting
-	more of an issue.
-  - subarchs are free to do things 'their way' without affecting the
-    common case.
+Cheers,
+Samuel.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+
+

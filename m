@@ -1,64 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262752AbTHUPGq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 11:06:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262763AbTHUPGq
+	id S262763AbTHUPIY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 11:08:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262764AbTHUPIY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 11:06:46 -0400
-Received: from obsidian.spiritone.com ([216.99.193.137]:47037 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S262752AbTHUPGo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 11:06:44 -0400
-Date: Thu, 21 Aug 2003 08:06:11 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: michal-bugzilla@logix.cz
-Subject: [Bug 1130] New: GRE tunnels freeze kernel 
-Message-ID: <6570000.1061478371@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Thu, 21 Aug 2003 11:08:24 -0400
+Received: from ext-ch1gw-2.online-age.net ([216.34.191.36]:20414 "EHLO
+	ext-ch1gw-2.online-age.net") by vger.kernel.org with ESMTP
+	id S262763AbTHUPIX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 11:08:23 -0400
+Message-ID: <A9D3E503844A904CB9E42AD008C1C7FDBA9C36@vacho3misge.cho.ge.com>
+From: "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>
+To: "'Pankaj Garg'" <PGarg@MEGISTO.com>, linux-kernel@vger.kernel.org
+Subject: RE: Messaging between kernel modules and User Apps
+Date: Thu, 21 Aug 2003 11:05:27 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Internet Mail Service (5.5.2655.55)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=1130
+> I am writing a kernel module. The module will need to send asynchronous
+> messages to a User Application. Is there a good and efficient way of
+> doing this?
 
-           Summary: GRE tunnels freeze kernel
-    Kernel Version: 2.6.0-test2, 2.6.0-test3
-            Status: NEW
-          Severity: high
-             Owner: bugme-janitors@lists.osdl.org
-         Submitter: michal-bugzilla@logix.cz
+Let user space read the data from a device file.
+Use poll/select to handle the asynchronous notification.
 
-
-Distribution: SuSE Linux 8.2
-Hardware Environment: x86
-Software Environment: gcc-3.3 used to compile kernel.
-
-Problem Description:
-Incoming packet to the GRE tunnel interface freezes the kernel.
-
-Steps to reproduce:
-On a 2.6.0-test system create a tunnel for instance with these steps:
-
-On 10.0.0.1:
-modprobe ip_gre
-ip tunnel add gre1 mode gre local 10.0.0.1 remote 10.0.0.2 ttl 64
-ip link set gre1 up
-ip addr add 172.16.0.1/24 dev gre1
-
-On a non-2.6.0 10.0.0.2:
-modprobe ip_gre
-ip tunnel add gre1 mode gre local 10.0.0.2 remote 10.0.0.1 ttl 64
-ip link set gre1 up
-ip addr add 172.16.0.2/24 dev gre1
-
-Now ping the 2.6.0 system:
-ping -c1 172.16.0.1
-
-Upon receiving the packet the box foreezes. No Oops but neither <Alt>+<F>
-console switching nor NumLock worked anymore. (Don't know about SysRq).
+The other option is to have the driver send a signal to user space.
+I've done that before, but at best it's a hack and not neatly supported
+by the Linux driver model.
 
 

@@ -1,84 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261439AbUE3AsN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261421AbUE3BSt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261439AbUE3AsN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 May 2004 20:48:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261418AbUE3AsM
+	id S261421AbUE3BSt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 May 2004 21:18:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261443AbUE3BSt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 May 2004 20:48:12 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:17814 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261358AbUE3AsF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 May 2004 20:48:05 -0400
-Subject: Re: iowait problems on 2.6, not on 2.4
-From: Doug Ledford <dledford@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Antonio Larrosa =?ISO-8859-1?Q?Jim=E9nez?= <antlarr@tedial.com>,
-       linux-kernel@vger.kernel.org,
-       linux-scsi mailing list <linux-scsi@vger.kernel.org>
-In-Reply-To: <20040528154525.6ed5f7b9.akpm@osdl.org>
-References: <200405261743.28111.antlarr@tedial.com>
-	 <20040526205225.7a0866aa.akpm@osdl.org>
-	 <200405281516.41901.antlarr@tedial.com>
-	 <20040528154525.6ed5f7b9.akpm@osdl.org>
-Content-Type: text/plain; charset=UTF-8
-Message-Id: <1085877991.18642.336.camel@compaq.xsintricity.com>
+	Sat, 29 May 2004 21:18:49 -0400
+Received: from ool-44c1e325.dyn.optonline.net ([68.193.227.37]:4763 "HELO
+	dyn.galis.org") by vger.kernel.org with SMTP id S261421AbUE3BSr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 May 2004 21:18:47 -0400
+MBOX-Line: From george@galis.org  Sat May 29 21:18:46 2004
+Date: Sat, 29 May 2004 21:18:46 -0400
+From: George Georgalis <george@galis.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Recommended compiler version
+Message-ID: <20040530011846.GA5975@trot.local>
+References: <20040529111616.A16627@electric-eye.fr.zoreil.com> <20040529115238.A17267@electric-eye.fr.zoreil.com> <200405291330.i4TDUhsN000547@81-2-122-30.bradfords.org.uk> <20040529161247.A19214@electric-eye.fr.zoreil.com> <20040529143135.GR16099@fs.tum.de> <200405291457.i4TEvtcn000170@81-2-122-30.bradfords.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Sat, 29 May 2004 20:46:31 -0400
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200405291457.i4TEvtcn000170@81-2-122-30.bradfords.org.uk>
+User-Agent: Mutt/1.5.6i
+Internet-Time: @96
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-05-28 at 18:45, Andrew Morton wrote:
-> Antonio Larrosa Jiménez <antlarr@tedial.com> wrote:
-> >
-> > On Thursday 27 May 2004 05:52, you wrote:
-> > > Antonio Larrosa Jiménez <antlarr@tedial.com> wrote:
-> > > > My next test will be to do the "dd tests" on one of the internal hard
-> > > > disks and use it for the data instead of the external raid.
-> > >
-> > > That's a logical next step.  The reduced read bandwith on the raid array
-> > > should be fixed up before we can go any further.  I don't recall any
-> > > reports of qlogic fc-scsi performance regressions though.
-> > 
-> > Ok, let's analyze that first.
-> > 
-> > The dd tests gave the following results:
-> 
-> Let me cc linux-scsi.
-> 
-> Guys: poke.  Does anyone know why this:
-> 
->   The machine is a 4 cpu Pentium III (Cascades) system with four SCSI
->   SEAGATE ST336704 hard disks connected to an Adaptec AIC-7899P U160/m, and
->   a external RAID connected to a QLA2200/QLA2xxx FC-SCSI Host Bus Adapter. 
->   The machine has 1Gb RAM.
-> 
-> got all slow at reads?
+On Sat, May 29, 2004 at 03:57:55PM +0100, John Bradford wrote:
+>Quote from Adrian Bunk <bunk@fs.tum.de>:
+>> Whether support for gcc 2.95 should be dropped is a discussion for 2.7.
+>
+>Is there any single 3.x.x version of GCC that's actively in use by a large
+>number of core developers?  How do we make a sensible recommendation if not?
 
-My first guess would be read ahead values.  Try poking around with
-those.  When using a hard disk vs. a raid array, it's easier to trigger
-firmware read ahead since all reads go to a single physical device and
-that in turn compensates for lack of reasonable OS read ahead.  On a
-raid array, depending on the vendor, there may be next to no firmware
-initiated read ahead and that can drastically reduce read performance on
-sequential reads.
+I've used gcc-3.3.2, since about when it came out. It's been reliable
+for me so I haven't noticed/tried newer versions. A few times I had
+problems, with xfree or mplayer and reverted to my distro version:
+gcc version 2.95.4 20011002 (Debian prerelease)
 
+if a standard, by someone more experienced with c than myself, where
+used that indicated preferred, known.works, known.broken versions of
+gcc, then developers could maintain the information, for their code,
+in a way that would make it easy to make global assertions on what gcc
+version is preferred, works or broken. Plus, make errors that say "this
+doesn't work with that gcc version" could save a lot of headaches.
 
-> > So yes, I suppose there's a regression on the qlogic fc-scsi module.
+// George
 
-A regression, yes.  In the qlogic-fc driver?  I doubt it.  Performance
-tuning is what I think this basically boils down to.
-
-But, I could be wrong.  Give it a try and see what happens.  In the 2.4
-kernels I would tell you to tweak /proc/sys/vm/{min,max}-readahead,
-don't know if those two knobs still exist in 2.6 and if they have the
-same effect.  Andrew?
 
 -- 
-  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
-         Red Hat, Inc.
-         1801 Varsity Dr.
-         Raleigh, NC 27606
-
+George Georgalis, Architect and administrator, Linux services. IXOYE
+http://galis.org/george/  cell:646-331-2027  mailto:george@galis.org
+Key fingerprint = 5415 2738 61CF 6AE1 E9A7  9EF0 0186 503B 9831 1631
 

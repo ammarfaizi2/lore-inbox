@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312361AbSDSMHC>; Fri, 19 Apr 2002 08:07:02 -0400
+	id <S312427AbSDSMRP>; Fri, 19 Apr 2002 08:17:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312392AbSDSMHB>; Fri, 19 Apr 2002 08:07:01 -0400
-Received: from cpe-66-1-218-52.fl.sprintbbd.net ([66.1.218.52]:57866 "EHLO
-	daytona.compro.net") by vger.kernel.org with ESMTP
-	id <S312361AbSDSMHB>; Fri, 19 Apr 2002 08:07:01 -0400
-Message-ID: <3CBFFC11.A851755A@compro.net>
-Date: Fri, 19 Apr 2002 07:14:25 -0400
-From: Mark Hounschell <markh@compro.net>
-Reply-To: markh@compro.net
-Organization: Compro Computer Svcs.
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16-lcrs i686)
-X-Accept-Language: en
+	id <S312444AbSDSMRO>; Fri, 19 Apr 2002 08:17:14 -0400
+Received: from [203.135.39.218] ([203.135.39.218]:37637 "EHLO ns1.giki.edu.pk")
+	by vger.kernel.org with ESMTP id <S312427AbSDSMRO>;
+	Fri, 19 Apr 2002 08:17:14 -0400
+Message-ID: <004801c1e740$3edb09b0$e53ca8c0@hostel6.resnet.giki.edu.pk>
+From: "Jehanzeb Hameed" <u990056@giki.edu.pk>
+To: "Trond Myklebust" <trond.myklebust@fys.uio.no>
+Cc: "Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0204181338050.19147-100000@penguin.transmeta.com><001f01c1e6c6$2d6a9f80$e53ca8c0@hostel6.resnet.giki.edu.pk> <shs7kn4m3mk.fsf@charged.uio.no>
+Subject: Re: regarding NFS
+Date: Thu, 18 Apr 2002 18:19:26 -0700
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Ingo Molnar <mingo@elte.hu>
-Subject: Re: SMP P4 APIC/interrupt balancing
-In-Reply-To: <Pine.LNX.3.96.1020418115423.5375B-100000@gatekeeper.tmr.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-ECS-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
+
+> Look again: there is no such thing as readpage() in the struct
+> inode_operations in the 2.4.x kernels. Just grep for 'nfs_file_aops'
+> in the source.
 > 
-> On Wed, 17 Apr 2002, James Bourne wrote:
-> 
-> > After Ingo forwarded me his original patch (I found his patch via a web
-> > based medium, which had converted all of the left shifts to compares, and
-> > now I'm very glad it didn't boot...) and the system is booted and is
-> > balancing most of the interrupts at least.  Here's the current output
-> > of /proc/interrupts
+> Cheers,
+>   Trond
 > 
 
-Is there a version of this patch for 2.4.18? I also found the one on the web site wouldn't
-boot but would very much like to have a copy that would work for 2.4.18. Where might I find
-this?
+In inode.c inside code for NFS says :
+ inode->i_data.a_ops = &nfs_file_aops;
 
-Ragards
-Mark
+it's still not  "inode->i_mapping->a_ops "!!!!!!
+
+ it should, somewhere, assign something to  inode->i_mapping->a_ops ?????
+

@@ -1,79 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263581AbUD2GLM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263348AbUD2GUf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263581AbUD2GLM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 02:11:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263589AbUD2GLM
+	id S263348AbUD2GUf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 02:20:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263555AbUD2GUf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 02:11:12 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:3046 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S263581AbUD2GLH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 02:11:07 -0400
-Date: Thu, 29 Apr 2004 07:10:59 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Rajesh Venkatasubramanian <vrajesh@umich.edu>,
-       Russell King <rmk@arm.linux.org.uk>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] rmap 18 i_mmap_nonlinear
-In-Reply-To: <20040428234448.GB737@holomorphy.com>
-Message-ID: <Pine.LNX.4.44.0404290621470.3719-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Thu, 29 Apr 2004 02:20:35 -0400
+Received: from gate.crashing.org ([63.228.1.57]:19074 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S263348AbUD2GUd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 02:20:33 -0400
+Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Andrew Morton <akpm@osdl.org>, brettspamacct@fastclick.com,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <16528.28485.996662.598051@cargo.ozlabs.ibm.com>
+References: <409021D3.4060305@fastclick.com>
+	 <20040428170106.122fd94e.akpm@osdl.org> <409047E6.5000505@pobox.com>
+	 <40905127.3000001@fastclick.com> <20040428180038.73a38683.akpm@osdl.org>
+	 <16528.23219.17557.608276@cargo.ozlabs.ibm.com>
+	 <20040428185342.0f61ed48.akpm@osdl.org>
+	 <20040428194039.4b1f5d40.akpm@osdl.org>
+	 <16528.28485.996662.598051@cargo.ozlabs.ibm.com>
+Content-Type: text/plain
+Message-Id: <1083219158.20089.128.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 29 Apr 2004 16:12:38 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Apr 2004, William Lee Irwin III wrote:
-> On Wed, Apr 28, 2004 at 07:11:18PM -0400, Rik van Riel wrote:
-> > ... do we still need both i_mmap and i_mmap_shared?
-> > Is there a place left where we're using both trees in
-> > a different way, or are we just walking both trees
-> > anyway in all places where they're referenced ?
 
-Good point from Rik.  I very nearly combined them in this patchset
-(and was trying to avoid adding i_mmap_nonlinear on top, but Rajesh
-gently persuaded me that would be a little foolish, the nonlinear
-processing too different).
+> The really strange thing is that the behaviour seems to get worse the
+> more RAM you have.  I haven't noticed any problem at all on my laptop
+> with 768MB, only on the G5, which has 2.5GB.  (The laptop is still on
+> 2.6.2-rc3 though, so I will try a newer kernel on it.)
 
-I'm sure i_mmap and i_mmap_shared can and should be combined (with
-addition of a count of shared writable mappings, for those places
-which need to know if there were any at all); but in the end decided
-to leave that for later, consult the architectures affected first.
+Your G5 also has a 2Gb IO hole in the middle of zone DMA, it's possible
+that the accounting doesn't work properly.
 
-Another change to contemplate: we should be able to add page_mapped
-checks to cut down on the flushing, this stuff was written before
-there was any such count.  But it's not straightforward: maybe some
-of the flush_dcache_page calls come just before the rmap is added,
-yet would be relying on it to be counted in?
+Ben.
 
-> I believe the flush_dcache_page() implementations touching
-> ->i_mmap_shared care about this distinction.
-
-That's right, arm and parisc do handle them differently: currently
-arm ignores i_mmap (and I think rmk was wondering a few months ago
-whether that's actually correct, given that MAP_SHARED mappings
-which can never become writable go in there - and that surprise is
-itself a very good reason for combining them), and parisc... ah,
-what it does in Linus' tree at present is about the same for both,
-but there are some changes on the way.
-
-The differences are not going to be enough to deserve two separate
-prio_tree_roots in every struct address_space, we can check vm_flags
-for any differences if necessary.
-
-Something else I should have commented on, in that patch comment or
-the next: although we now have the separate i_mmap_nonlinear list,
-no attempt to search it for nonlinear pages in flush_dcache_page.
-
-It looks like parisc has no sys_remap_file_pages syscall anyway,
-and arm only flushes current active_mm, so should be okay so long
-as people don't mix linear and nonlinear maps of same pages (hmm,
-and don't map same page twice in a nonlinear: more likely) in same
-mm: anyway, I think any problems there have to be a "Don't do that",
-searching page tables in flush_dcache_page would be too too painful.
-
-Hugh
 

@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263212AbRFYVQD>; Mon, 25 Jun 2001 17:16:03 -0400
+	id <S261651AbRFYV3Q>; Mon, 25 Jun 2001 17:29:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263165AbRFYVPn>; Mon, 25 Jun 2001 17:15:43 -0400
-Received: from m52-mp1-cvx1a.col.ntl.com ([213.104.68.52]:21632 "EHLO
-	[213.104.68.52]") by vger.kernel.org with ESMTP id <S262747AbRFYVPl>;
-	Mon, 25 Jun 2001 17:15:41 -0400
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: VM tuning through fault trace gathering [with actual code]
-In-Reply-To: <Pine.LNX.4.21.0106251456130.7419-100000@imladris.rielhome.conectiva>
-From: John Fremlin <vii@users.sourceforge.net>
-Date: 25 Jun 2001 22:15:31 +0100
-In-Reply-To: <Pine.LNX.4.21.0106251456130.7419-100000@imladris.rielhome.conectiva> (Rik van Riel's message of "Mon, 25 Jun 2001 14:57:39 -0300 (BRST)")
-Message-ID: <m28zigi7m4.fsf@boreas.yi.org.>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.1 (GTK)
-MIME-Version: 1.0
+	id <S262058AbRFYV3G>; Mon, 25 Jun 2001 17:29:06 -0400
+Received: from force.4t2.com ([195.230.37.100]:7192 "EHLO force.4t2.com")
+	by vger.kernel.org with ESMTP id <S261651AbRFYV2y>;
+	Mon, 25 Jun 2001 17:28:54 -0400
+Date: Mon, 25 Jun 2001 23:13:57 +0200
+From: Thomas Weber <x@abyss.4t2.com>
+To: Helge Hafting <helgehaf@idb.hist.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.6pre iptables masquerading seems to kill eth0
+Message-ID: <20010625231357.A9560@4t2.com>
+In-Reply-To: <3B31A652.85D2E597@idb.hist.no> <9gtmol$9ve$1@pandemonium.abyss.4t2.com> <3B32F1BA.C43BBE8A@idb.hist.no>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B32F1BA.C43BBE8A@idb.hist.no>; from helgehaf@idb.hist.no on Fri, Jun 22, 2001 at 09:20:26AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel <riel@conectiva.com.br> writes:
-
-> On 25 Jun 2001, John Fremlin wrote:
+On Fri, Jun 22, 2001 at 09:20:26AM +0200, Helge Hafting wrote:
+> Thomas Weber wrote:
+> > 
+> > I'm on 2.4.6pre3 + freeswan/ipsec on my gateway now for 5 days.
+> > It's an old 486/66 32MB with several isdn links, a dsl uplink (with
+> > iptables masquerading) behind a ne2k clone and a 3c509 to the inside network.
+> > no problems at all with the interfaces (all compiled as modules).
 > 
-> > Last year I had the idea of tracing the memory accesses of the
-> > system to improve the VM - the traces could be used to test
-> > algorithms in userspace. The difficulty is of course making all
-> > memory accesses fault without destroying system performance.
-> 
-> Sounds like a cool idea.  One thing you should keep in mind though
-> is to gather traces of the WHOLE SYSTEM and not of individual
-> applications.
+> Nice to know it works for you.  The troubled machine is a dual celeron, 
+> so it could be some sort of SMP problem.  I am trying pre5
+> to see if it is better, I'll probably know in a few days.
 
-In the current patch all pagefaults are recorded from all sources. I'd
-like to be able to catch read(2) and write(2) (buffer cache stuff) as
-well but I don't know how . . . .
+since i just read another report on the list I checked again and it seems 
+like i messed it up: 
+you were talking about the 3c905, but I have a 3c509 (ISA) card.
+I should have known, it's not the first time i mixed them up :(
 
-> There has to be a way to balance the eviction of pages from
-> applications against those of other applications.
-
-Of course! It is important not to regard each thread group as an
-independent entity IMHO (had a big old argument about this).
-
-[...]
-
--- 
-
-	http://ape.n3.net
+  Tom

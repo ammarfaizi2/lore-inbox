@@ -1,62 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265144AbTLZJeE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Dec 2003 04:34:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265154AbTLZJeE
+	id S265154AbTLZJtI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 04:49:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265162AbTLZJtI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Dec 2003 04:34:04 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:45574 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265144AbTLZJeB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Dec 2003 04:34:01 -0500
-Date: Fri, 26 Dec 2003 09:33:56 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux-kernel@vger.kernel.org, riel@surriel.com
-Subject: Re: Page aging broken in 2.6
-Message-ID: <20031226093356.A8980@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	linux-kernel@vger.kernel.org, riel@surriel.com
-References: <1072423739.15458.62.camel@gaston> <20031225234023.20396cbc.akpm@osdl.org>
+	Fri, 26 Dec 2003 04:49:08 -0500
+Received: from crisium.vnl.com ([194.46.8.33]:63755 "EHLO crisium.vnl.com")
+	by vger.kernel.org with ESMTP id S265154AbTLZJtF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Dec 2003 04:49:05 -0500
+Date: Fri, 26 Dec 2003 09:49:02 +0000
+From: Dale Amon <amon@vnl.com>
+To: joshk@triplehelix.org, linux-kernel@vger.kernel.org,
+       Dale Amon <amon@vnl.com>
+Subject: Re: 2.6.0 compile failure
+Message-ID: <20031226094902.GN4987@vnl.com>
+Mail-Followup-To: Dale Amon <amon@vnl.com>, joshk@triplehelix.org,
+	linux-kernel@vger.kernel.org
+References: <20031226010204.GM4987@vnl.com> <20031226014527.GA12871@triplehelix.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20031225234023.20396cbc.akpm@osdl.org>; from akpm@osdl.org on Thu, Dec 25, 2003 at 11:40:23PM -0800
+In-Reply-To: <20031226014527.GA12871@triplehelix.org>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux, the choice of a GNU generation
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 25, 2003 at 11:40:23PM -0800, Andrew Morton wrote:
-> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-> > And we never flush the TLB entry. 
-> > 
-> > I don't know if x86 (or other archs really using page tables) will
-> > actually set the referenced bit again in the PTE if it's already set
-> > in the TLB, if not, then x86 needs a flush too.
+On Thu, Dec 25, 2003 at 05:45:27PM -0800, Joshua Kwan wrote:
+> On Fri, Dec 26, 2003 at 01:02:04AM +0000, Dale Amon wrote:
+> > {standard input}:12164: Error: invalid character '_' in mnemonic
+> > Internal error: Terminated (program cc1)
+> > Please submit a full bug report.
+> > See <URL:http://gcc.gnu.org/bugs.html> for instructions.
+> > For Debian GNU/Linux specific bugs,
+> > please see /usr/share/doc/debian/bug-reporting.txt.
 > 
-> x86 needs a flush_tlb_page(), yes.
-> 
-> > ppc and ppc64 need a flush to evict the entry from the hash table or
-> > we'll never set the _PAGE_ACCESSED bit anymore.
+> This is obviously a compiler bug. Myself, I've not been able to hit it.
+> What GCC version are you using? I also use Debian:
 
-ARM would strictly need the flush as well.  I seem to vaguely remember,
-however, that when this code went in there was some discussion about
-this very topic, and it was decided that the flush was not critical.
+True, but often one can do a code workaround until things get 
+fixed. I might add that by making smbfs a module instead of
+compiled in, I got a compile. 
+ 
+> $ gcc -v
+> [...]
+> gcc version 3.3.3 20031206 (prerelease) (Debian)
 
-Indeed, 2.4 seems to have the same logic concerning not flushing the
-PTE:
-
-        /* Don't look at this pte if it's been accessed recently. */
-        if ((vma->vm_flags & VM_LOCKED) || ptep_test_and_clear_young(page_table)) {
-                mark_page_accessed(page);
-                return 0;
-        }
-
+gcc -v
+Reading specs from /usr/lib/gcc-lib/i486-linux/3.3.2/specs
+Configured with: ../src/configure -v --enable-languages=c,c++,java,f77,pascal,objc,ada,treelang --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-gxx-include-dir=/usr/include/c++/3.3 --enable-shared --with-system-zlib --enable-nls --without-included-gettext --enable-__cxa_atexit --enable-clocale=gnu --enable-debug --enable-java-gc=boehm --enable-java-awt=xlib --enable-objc-gc i486-linux
+Thread model: posix
+gcc version 3.3.2 (Debian)
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+------------------------------------------------------
+   Dale Amon     amon@islandone.org    +44-7802-188325
+       International linux systems consultancy
+     Hardware & software system design, security
+    and networking, systems programming and Admin
+	      "Have Laptop, Will Travel"
+------------------------------------------------------

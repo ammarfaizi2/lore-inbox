@@ -1,42 +1,131 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276424AbSBBX3c>; Sat, 2 Feb 2002 18:29:32 -0500
+	id <S284144AbSBBXdM>; Sat, 2 Feb 2002 18:33:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282967AbSBBX3W>; Sat, 2 Feb 2002 18:29:22 -0500
-Received: from brick.kernel.dk ([195.249.94.204]:16025 "EHLO
-	burns.home.kernel.dk") by vger.kernel.org with ESMTP
-	id <S276424AbSBBX3G>; Sat, 2 Feb 2002 18:29:06 -0500
-Date: Sun, 3 Feb 2002 00:28:21 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andre Hedrick <andre@linuxdiskcert.org>
-Cc: "Axel H. Siebenwirth" <axel@hh59.org>,
-        Anton Altaparmakov <aia21@cam.ac.uk>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.3 - (IDE) hda: drive not ready for command errors
-Message-ID: <20020203002821.A29553@suse.de>
-In-Reply-To: <20020202102659.L12156@suse.de> <Pine.LNX.4.10.10202021158010.26613-100000@master.linux-ide.org>
-Mime-Version: 1.0
+	id <S282978AbSBBXdD>; Sat, 2 Feb 2002 18:33:03 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10764 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S282967AbSBBXcs>;
+	Sat, 2 Feb 2002 18:32:48 -0500
+Message-ID: <3C5C76F2.78BA9A54@zip.com.au>
+Date: Sat, 02 Feb 2002 15:32:02 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Lars Christensen <larsch@cs.auc.dk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17 agpgart process hang on crash
+In-Reply-To: <3C5C68E2.32D11734@zip.com.au> <Pine.GSO.4.33.0202030009280.794-100000@peta.cs.auc.dk>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10202021158010.26613-100000@master.linux-ide.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 02 2002, Andre Hedrick wrote:
+Lars Christensen wrote:
 > 
-> Jens,
+> No luck. Still hangs (e.g. with ./testgart & pkill -ABRT testgart), with
+> and without that patch and with and without 2.4.18-pre7. Does seem to
+> happen when dumping core--it doesn't happen with core dumping disabled.
 > 
-> You and I know Linus will go ballistic over the reintroduction of a
-> working copy model using rq scratch pad.  We can go with this return to
 
-No I don't think so, I'd be surprised if Linus cared about that at all.
+This one, please:
 
-> what we are trying to get away from but we really need a way to stream the
-> pointers to the data register cleanly.  Otherwise the benefits of the zero
-> copy in block go away.
-
-?? Your point is not clear. zero copy what, request struct?! That would
-be way below measurable.
-
--- 
-Jens Axboe
-
+--- linux-2.4.18-pre7/drivers/char/agp/agpgart_fe.c	Sun Aug 12 10:38:48 2001
++++ linux-akpm/drivers/char/agp/agpgart_fe.c	Sat Feb  2 15:29:49 2002
+@@ -605,19 +605,18 @@ static int agp_mmap(struct file *file, s
+ 	agp_client *client;
+ 	agp_file_private *priv = (agp_file_private *) file->private_data;
+ 	agp_kern_info kerninfo;
++	int ret = -EPERM;
+ 
+ 	lock_kernel();
+ 	AGP_LOCK();
+ 
+ 	if (agp_fe.backend_acquired != TRUE) {
+-		AGP_UNLOCK();
+-		unlock_kernel();
+-		return -EPERM;
++		ret = -EPERM;
++		goto out;
+ 	}
+ 	if (!(test_bit(AGP_FF_IS_VALID, &priv->access_flags))) {
+-		AGP_UNLOCK();
+-		unlock_kernel();
+-		return -EPERM;
++		ret = -EPERM;
++		goto out;
+ 	}
+ 	agp_copy_info(&kerninfo);
+ 	size = vma->vm_end - vma->vm_start;
+@@ -627,52 +626,46 @@ static int agp_mmap(struct file *file, s
+ 
+ 	if (test_bit(AGP_FF_IS_CLIENT, &priv->access_flags)) {
+ 		if ((size + offset) > current_size) {
+-			AGP_UNLOCK();
+-			unlock_kernel();
+-			return -EINVAL;
++			ret = -EINVAL;
++			goto out;
+ 		}
+ 		client = agp_find_client_by_pid(current->pid);
+ 
+ 		if (client == NULL) {
+-			AGP_UNLOCK();
+-			unlock_kernel();
+-			return -EPERM;
++			ret = -EPERM;
++			goto out;
+ 		}
+ 		if (!agp_find_seg_in_client(client, offset,
+ 					    size, vma->vm_page_prot)) {
+-			AGP_UNLOCK();
+-			unlock_kernel();
+-			return -EINVAL;
++			ret = -EINVAL;
++			goto out;
+ 		}
+ 		if (remap_page_range(vma->vm_start,
+ 				     (kerninfo.aper_base + offset),
+ 				     size, vma->vm_page_prot)) {
+-			AGP_UNLOCK();
+-			unlock_kernel();
+-			return -EAGAIN;
+-		}
+-		AGP_UNLOCK();
+-		unlock_kernel();
+-		return 0;
++			ret = -EAGAIN;
++			goto out;
++		}
++		ret = 0;
++		goto out;
+ 	}
+ 	if (test_bit(AGP_FF_IS_CONTROLLER, &priv->access_flags)) {
+ 		if (size != current_size) {
+-			AGP_UNLOCK();
+-			unlock_kernel();
+-			return -EINVAL;
++			ret = -EINVAL;
++			goto out;
+ 		}
+ 		if (remap_page_range(vma->vm_start, kerninfo.aper_base,
+ 				     size, vma->vm_page_prot)) {
+-			AGP_UNLOCK();
+-			unlock_kernel();
+-			return -EAGAIN;
+-		}
+-		AGP_UNLOCK();
+-		unlock_kernel();
+-		return 0;
++			ret = -EAGAIN;
++			goto out;
++		}
++		ret = 0;
+ 	}
++out:
+ 	AGP_UNLOCK();
+ 	unlock_kernel();
++	if (ret == 0)
++		vma->vm_flags |= VM_IO;
+ 	return -EPERM;
+ }

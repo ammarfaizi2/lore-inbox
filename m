@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287738AbSAAEeX>; Mon, 31 Dec 2001 23:34:23 -0500
+	id <S287734AbSAAEfx>; Mon, 31 Dec 2001 23:35:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287739AbSAAEeN>; Mon, 31 Dec 2001 23:34:13 -0500
-Received: from chac.inf.utfsm.cl ([200.1.19.54]:29446 "EHLO chac.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S287738AbSAAEeK>;
-	Mon, 31 Dec 2001 23:34:10 -0500
-Message-Id: <200201010429.g014TO9j002744@sleipnir.valparaiso.cl>
-To: Christoph Hellwig <hch@caldera.de>
-cc: "Eric S. Raymond" <esr@thyrsus.com>, Alexander Viro <viro@math.psu.edu>,
-        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Re: State of the new config & build system 
-In-Reply-To: Your message of "Sun, 30 Dec 2001 14:58:31 BST."
-             <20011230145831.A30561@caldera.de> 
-X-mailer: MH [Version 6.8.4]
-X-charset: ISO_8859-1
-Date: Tue, 01 Jan 2002 01:29:24 -0300
-From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+	id <S287739AbSAAEfn>; Mon, 31 Dec 2001 23:35:43 -0500
+Received: from smtp02.web.de ([217.72.192.151]:36881 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id <S287734AbSAAEf2>;
+	Mon, 31 Dec 2001 23:35:28 -0500
+Message-ID: <3C314A78.2060808@web.de>
+Date: Tue, 01 Jan 2002 05:34:48 +0000
+From: Todor Todorov <ttodorov@web.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20011230
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: samson swanson <intellectcrew@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: a great C++ book?
+In-Reply-To: <20020101041111.29695.qmail@web14310.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@caldera.de> said:
-> On Fri, Dec 28, 2001 at 03:39:02PM -0500, Eric S. Raymond wrote:
-> > It may be that the reason our experiences have been different is
-> > because we focus on different target languages.  But I think my
-> > experience is an existence proof that there *is* demand for
-> > localization and that meeting it can have useful results.
+samson swanson wrote:
 
-> Is your native language something different thæn english or Al's?
 >
-> Localization for technical messages sucks.  badly.
-> Just take a look at a european computer magazine, you will find lots of
-> english words in the text because there is no german/frensh/whatever
-> one.  Trying to use different grammar doesn't help the understanding.
+>For a beginner to C++ what is your favorite book? A
+>book that goes in depth of teaching the language.
+>remeber i am  a beginner, new to c++.
+>
+Nicolai Josuttis, Object Oriented Programming in C++, Addison-Wesley 2001
 
-It is even worse when they try to "translate" the terms. In Spanish, the
-official language calls a computer "ordenador" (sorting device), and a file
-"fichero" (filing cabinet). It doesn't help in the least at understanding
-the _English_ documentation/source/... Add to it that here in South America
-they usually take over the English terms, using "computador" (computing
-device) and "archivo" (file). So it can even make it hard to understand the
-technical literature in your own language... My standard advise is to learn
-English, if nothing else for uniformity's sake. You'll need it anyway
-before long in anything related to computing. And it is quite useful in
-other areas...
---
-Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
-Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
+This guy is on the C++ standartization comitee,the book is intended for 
+complete beginners as for advanced programmers - it starts with the 
+basic concepts and goes smootly into more advanced topics, it's fairly 
+simple to understand and the examples are staright to the point and well 
+explained. Besides this, it describes very good the concepts of OOP.
+
+Greetings,
+Todor
+
+

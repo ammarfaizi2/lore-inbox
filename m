@@ -1,122 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263274AbTETBKK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 21:10:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263358AbTETBKK
+	id S263441AbTETBRX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 21:17:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263445AbTETBRX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 21:10:10 -0400
-Received: from dp.samba.org ([66.70.73.150]:3737 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S263274AbTETBKI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 21:10:08 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: akpm@zip.com.au
-Cc: linux-kernel@vger.kernel.org, David Mosberger-Tang <davidm@hpl.hp.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>
-Subject: [PATCH 1/3] Per-cpu UP unification
-Date: Tue, 20 May 2003 11:22:01 +1000
-Message-Id: <20030520012307.53A502C082@lists.samba.org>
+	Mon, 19 May 2003 21:17:23 -0400
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:17833 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP id S263441AbTETBRV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 21:17:21 -0400
+Message-ID: <3EC98525.80402@mvista.com>
+Date: Mon, 19 May 2003 20:30:13 -0500
+From: Corey Minyard <cminyard@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Add boot command line parsing for the e100 driver
+References: <Pine.SOL.4.30.0305200243380.28757-100000@mion.elka.pw.edu.pl>
+In-Reply-To: <Pine.SOL.4.30.0305200243380.28757-100000@mion.elka.pw.edu.pl>
+X-Enigmail-Version: 0.74.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ Untested on ia64, but fairly trivial if I've broken something ].
+Bartlomiej Zolnierkiewicz wrote:
 
-Name: Unification of per-cpu headers for non-SMP
-Author: Rusty Russell
-Status: Trivial
+>On Tue, 20 May 2003, Bartlomiej Zolnierkiewicz wrote:
+>  
+>
+>>On Mon, 19 May 2003, Corey Minyard wrote:
+>>
+>>    
+>>
+>>>Jeff Garzik wrote:
+>>>
+>>>      
+>>>
+>>>>>instead of adding such horrible cruft Corey did it should just use the
+>>>>>proper API.
+>>>>>
+>>>>>
+>>>>>          
+>>>>>
+>>>>An API already exists, and it is source compatible between 2.4 and 2.5:
+>>>>ethX=.... on the kernel command line.
+>>>>
+>>>>The proper patch would pick up options from there.
+>>>>
+>>>>        
+>>>>
+>>>Can you tell me where this is?  I found the "ether=xxx" and
+>>>"netdev=xxx", but they are not suitible.  I also could not find
+>>>"module_parame" anywhere on google or in the kernel.
+>>>
+>>>-Corey
+>>>      
+>>>
+>>:-) module_parm(), look at include/linux/moduleparam.h
+>>and scsi for usage examples
+>>    
+>>
+>
+>ugh. s/module_parm/module_param/
+>
+Thank you.  Nobody seems to be able to type correctly today :-).  I had
+actually found it, and looked it over.  It looks pretty nice, although
+the lack of documentation is somewhat annoying.
 
-D: Move non-SMP per-cpu operations from asm-*/percpu.h to
-D: linux/percpu.h.  There is no reason why archs would want to have
-D: their own versions of non-SMP per-cpu operations, and making each
-D: arch override them is just silly.
+However, if the ethX=.... exists, I would far prefer to use that.  (The
+parameters for what  am doing have to be at bootup to work, it can't be
+after the fact.  I hunted for a while, and I still couldn't find it,
+btw.)  Otherwise, it's really up to the driver maintainers.  I will
+adjust as they want, I will use the module_param stuff or the old
+__setup stuff.  I would like to get this in, though.
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .14436-linux-2.5.69-bk13/include/asm-generic/percpu.h .14436-linux-2.5.69-bk13.updated/include/asm-generic/percpu.h
---- .14436-linux-2.5.69-bk13/include/asm-generic/percpu.h	2003-01-02 12:32:47.000000000 +1100
-+++ .14436-linux-2.5.69-bk13.updated/include/asm-generic/percpu.h	2003-05-19 15:08:28.000000000 +1000
-@@ -17,22 +17,6 @@ extern unsigned long __per_cpu_offset[NR
- #define per_cpu(var, cpu) (*RELOC_HIDE(&var##__per_cpu, __per_cpu_offset[cpu]))
- #define __get_cpu_var(var) per_cpu(var, smp_processor_id())
- 
--#else /* ! SMP */
--
--/* Can't define per-cpu variables in modules.  Sorry --RR */
--#ifndef MODULE
--#define DEFINE_PER_CPU(type, name) \
--    __typeof__(type) name##__per_cpu
--#endif
--
--#define per_cpu(var, cpu)			((void)cpu, var##__per_cpu)
--#define __get_cpu_var(var)			var##__per_cpu
--
- #endif	/* SMP */
- 
--#define DECLARE_PER_CPU(type, name) extern __typeof__(type) name##__per_cpu
--
--#define EXPORT_PER_CPU_SYMBOL(var) EXPORT_SYMBOL(var##__per_cpu)
--#define EXPORT_PER_CPU_SYMBOL_GPL(var) EXPORT_SYMBOL_GPL(var##__per_cpu)
--
- #endif /* _ASM_GENERIC_PERCPU_H_ */
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .14436-linux-2.5.69-bk13/include/asm-ia64/percpu.h .14436-linux-2.5.69-bk13.updated/include/asm-ia64/percpu.h
---- .14436-linux-2.5.69-bk13/include/asm-ia64/percpu.h	2003-05-19 10:53:49.000000000 +1000
-+++ .14436-linux-2.5.69-bk13.updated/include/asm-ia64/percpu.h	2003-05-19 15:08:39.000000000 +1000
-@@ -17,23 +17,17 @@
- 
- #include <linux/threads.h>
- 
-+#ifdef CONFIG_SMP
- extern unsigned long __per_cpu_offset[NR_CPUS];
- 
- #ifndef MODULE
- #define DEFINE_PER_CPU(type, name) \
-     __attribute__((__section__(".data.percpu"))) __typeof__(type) name##__per_cpu
- #endif
--#define DECLARE_PER_CPU(type, name) extern __typeof__(type) name##__per_cpu
- 
- #define __get_cpu_var(var)	(var##__per_cpu)
--#ifdef CONFIG_SMP
--# define per_cpu(var, cpu)	(*RELOC_HIDE(&var##__per_cpu, __per_cpu_offset[cpu]))
--#else
--# define per_cpu(var, cpu)	((void)cpu, __get_cpu_var(var))
--#endif
--
--#define EXPORT_PER_CPU_SYMBOL(var) EXPORT_SYMBOL(var##__per_cpu)
--#define EXPORT_PER_CPU_SYMBOL_GPL(var) EXPORT_SYMBOL_GPL(var##__per_cpu)
-+#define per_cpu(var, cpu)	(*RELOC_HIDE(&var##__per_cpu, __per_cpu_offset[cpu]))
-+#endif /* CONFIG_SMP */
- 
- extern void setup_per_cpu_areas (void);
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .14436-linux-2.5.69-bk13/include/linux/percpu.h .14436-linux-2.5.69-bk13.updated/include/linux/percpu.h
---- .14436-linux-2.5.69-bk13/include/linux/percpu.h	2003-02-07 19:20:01.000000000 +1100
-+++ .14436-linux-2.5.69-bk13.updated/include/linux/percpu.h	2003-05-19 15:08:28.000000000 +1000
-@@ -44,6 +44,15 @@ static inline void kfree_percpu(const vo
- }
- static inline void kmalloc_percpu_init(void) { }
- 
-+/* Can't define per-cpu variables in modules.  Sorry --RR */
-+#ifndef MODULE
-+#define DEFINE_PER_CPU(type, name) \
-+    __typeof__(type) name##__per_cpu
-+#endif
-+
-+#define per_cpu(var, cpu)			((void)cpu, var##__per_cpu)
-+#define __get_cpu_var(var)			var##__per_cpu
-+
- #endif /* CONFIG_SMP */
- 
- /* 
-@@ -68,4 +77,9 @@ static inline void kmalloc_percpu_init(v
- #define get_cpu_ptr(ptr) per_cpu_ptr(ptr, get_cpu())
- #define put_cpu_ptr(ptr) put_cpu()
- 
-+#define DECLARE_PER_CPU(type, name) extern __typeof__(type) name##__per_cpu
-+
-+#define EXPORT_PER_CPU_SYMBOL(var) EXPORT_SYMBOL(var##__per_cpu)
-+#define EXPORT_PER_CPU_SYMBOL_GPL(var) EXPORT_SYMBOL_GPL(var##__per_cpu)
-+
- #endif /* __LINUX_PERCPU_H */
-_GPL(var) EXPORT_SYMBOL_GPL(var##__per_cpu)
-+
- #endif /* __LINUX_PERCPU_H */
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+-Corey
+

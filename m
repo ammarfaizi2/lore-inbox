@@ -1,77 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315236AbSD2XOh>; Mon, 29 Apr 2002 19:14:37 -0400
+	id <S315238AbSD2Xam>; Mon, 29 Apr 2002 19:30:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315237AbSD2XOg>; Mon, 29 Apr 2002 19:14:36 -0400
-Received: from twinlark.arctic.org ([208.44.199.239]:7352 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP
-	id <S315236AbSD2XOe>; Mon, 29 Apr 2002 19:14:34 -0400
-Date: Mon, 29 Apr 2002 16:14:33 -0700 (PDT)
-From: Jauder Ho <jauderho@carumba.com>
-X-X-Sender: jauderho@twinlark.arctic.org
-To: "Grover, Andrew" <andrew.grover@intel.com>
-cc: "'Andrew Theurer'" <habanero@us.ibm.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: Hyperthreading and physical/logical CPU identification
-In-Reply-To: <59885C5E3098D511AD690002A5072D3C02AB7DF0@orsmsx111.jf.intel.com>
-Message-ID: <Pine.LNX.4.44.0204291614100.6699-100000@twinlark.arctic.org>
-X-Mailer: UW Pine 4.44 + a bunch of schtuff
-X-There-Is-No-Hidden-Message-In-This-Email: There are no tyops either
+	id <S315239AbSD2Xal>; Mon, 29 Apr 2002 19:30:41 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:22797 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S315238AbSD2Xal>; Mon, 29 Apr 2002 19:30:41 -0400
+From: Daniel Quinlan <quinlan@transmeta.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15565.55114.422518.394576@transmeta.com>
+Date: Mon, 29 Apr 2002 16:29:14 -0700 (PDT)
+To: Johan Adolfsson <johan.adolfsson@axis.com>
+Cc: <quinlan@transmeta.com>, <marcelo@conectiva.com.br>,
+        <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] cramfs 1/6 - timestamp in includes
+In-Reply-To: <Pine.LNX.4.33.0204291326230.25892-100000@ado-2.axis.se>
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: quinlan@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Johan Adolfsson writes:
 
-Well, you could always take CPUs out... :)
+> 1. Support for fstime and EDITION_TIMESTAMP in cramfs include files.
+>    Uses the edition field in fsid if the CRAMFS_FLAG_EDITION_TIMESTAMP
+>    flag is set.
+> 2. Support for fstime in fs/cramfs/inode.c together with
+>    fixing hardcoded blocksize conversion
+>    (Now uses /(PAGE_CACHE_SIZE/1024) instead of >> 2).
+> 3. The tools: mkcramfs.c and cramfsck.c: Add support for timestamp in the
+>    edition field (fstime) and added the option -b blocksize.
+>    For cramfsck.c it also fixes a segfault that occured in the error
+>    message if the incorrect blocksize is used (order of arguments wrong).
 
---Jauder
+These first three look good.  I made a few minor changes and merged it
+with the big-endian patch, so I'll send you my current version before
+sending it onwards to Marcelo and Linus.
 
-On Mon, 29 Apr 2002, Grover, Andrew wrote:
+The big-endian patch was waiting for 2.4.19 to be released, but maybe I
+should just submit it if 2.4.19 is going to be a while.  Also, all of
+the big-endian changes are checked into the CVS tree now.
 
-> > From: Andrew Theurer [mailto:habanero@us.ibm.com]
-> > I would like to know if there is any way to confirm that I have
-> > hyperthreading enabled, and my P4 CPUs are hyperthreaded.
-> > Actually, from
-> > something like /proc/cpuinfo, I'd like to figure out if I am
-> > seeing 2/4
-> > physical/logical processors, as a result from hyperthreading, or 4/4
-> > physical/logical processors with no hyperthreading.  I know,
-> > "If it's double
-> > the number of physical processors, well you have
-> > hyperthreading enabled."
-> > The problem is, I have 4 physical processors, but kernel.org
-> > kernels so far
-> > do not recognize all of them.  2.4.18 will find 3, while
-> > 2.5.11 will find
-> > only 2 (BIOS hyperthreading support off, no acpismp=force).
-> > However, on
-> > 2.5.11, if I enable hyperthreading (thru BIOS and
-> > acpismp=force, I see 4
-> > processors.
-> >
-> > I would very much like to believe that in this configuration,
-> > I am only
-> > running on 2 physical, 4 logical processors, but I am getting a 31%
-> > improvement (netbench) when hyperthreading is enabled.  Thats
-> > why I want to
-> > confirm I am really only using 2 physical, 4 logical
-> > processors.  Is there
-> > any way I can do this? (dmesg? /proc/cpuinfo?)
->
-> Well the two alternatives are, either A) turning on hyperthreading enabled
-> the two virtual processors or B) turning on hyperthreading somehow enabled
-> the other two processors, right?
->
-> I would think B would be highly unlikely.
->
-> Anyone else who actually has HT hardware care to comment? ;-)
->
-> Regards -- Andy
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
-
+Dan

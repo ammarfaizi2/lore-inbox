@@ -1,48 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272855AbSISULY>; Thu, 19 Sep 2002 16:11:24 -0400
+	id <S272851AbSISUQN>; Thu, 19 Sep 2002 16:16:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272851AbSISULW>; Thu, 19 Sep 2002 16:11:22 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4364 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S272843AbSISULV>;
-	Thu, 19 Sep 2002 16:11:21 -0400
-Date: Thu, 19 Sep 2002 21:16:23 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Burton Windle <bwindle@fint.org>
-Cc: linux-kernel@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [2.5.36] oops when reading /proc/locks
-Message-ID: <20020919211623.B10583@parcelfarce.linux.theplanet.co.uk>
+	id <S272869AbSISUQN>; Thu, 19 Sep 2002 16:16:13 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:49935 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S272851AbSISUQM>; Thu, 19 Sep 2002 16:16:12 -0400
+Date: Thu, 19 Sep 2002 21:21:11 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] generic-pidhash-2.5.36-J2, BK-curr
+Message-ID: <20020919212111.A13366@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Ingo Molnar <mingo@elte.hu>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0209190938340.1594-100000@home.transmeta.com> <Pine.LNX.4.44.0209192055480.14365-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0209192055480.14365-100000@localhost.localdomain>; from mingo@elte.hu on Thu, Sep 19, 2002 at 09:38:03PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Sep 19, 2002 at 09:38:03PM +0200, Ingo Molnar wrote:
+>  - add list_for_each_noprefetch() to list.h, for all those list users who 
+>    know that in the majority of cases the list is going to be short.
 
-[note: please cc me or linux-fsdevel when reporting file locking bugs;
-i only read linux-kernel on the web and as time permits]
+That name is really ugly, as the lack ofthe prefetch is an implementation
+detail.  What about list_for_each_short or __list_for_each?
 
-It looks to me like your dereference comes from this line:
-
-        if (fl->fl_file != NULL)
-                inode = fl->fl_file->f_dentry->d_inode;
-
-and, if my terribly weak x86 assembler isn't deceiving me, f_dentry
-is NULL.  Since you can reproduce this at will, could you insert some
-debugging for me?
-
-	if (fl->fl_file != NULL) {
-		if (fl->fl_file->f_dentry) {
-			inode = fl->fl_file->f_dentry->d_inode;
-		} else {
-			printk(KERN_EMERG "null dentry at %d\n", id);
-		}
-	}
-
-That will avoid the oops, and tell us who managed to set a file lock on
-a file without a dentry.
-
--- 
-Revolutions do not require corporate support.

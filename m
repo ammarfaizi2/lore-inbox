@@ -1,124 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266013AbUAVI7K (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 03:59:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266016AbUAVI7K
+	id S266201AbUAVJJA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 04:09:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266202AbUAVJJA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 03:59:10 -0500
-Received: from 213-229-38-66.static.adsl-line.inode.at ([213.229.38.66]:57573
-	"HELO mail.falke.at") by vger.kernel.org with SMTP id S266013AbUAVI7E
+	Thu, 22 Jan 2004 04:09:00 -0500
+Received: from smtp1.clear.net.nz ([203.97.33.27]:24225 "EHLO
+	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S266201AbUAVJI6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 03:59:04 -0500
-Message-ID: <400F9055.5050206@winischhofer.net>
-Date: Thu, 22 Jan 2004 09:56:53 +0100
-From: Thomas Winischhofer <thomas@winischhofer.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
-X-Accept-Language: en-us, en, de, de-de, de-at, sv
-MIME-Version: 1.0
+	Thu, 22 Jan 2004 04:08:58 -0500
+Date: Thu, 22 Jan 2004 22:10:57 +1300
+From: Nigel Cunningham <ncunningham@users.sourceforge.net>
+Subject: Re: PATCH: Shutdown IDE before powering off.
+In-reply-to: <20040122004554.26536158.akpm@osdl.org>
 To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH] sisfb update 2.6.1
-References: <400F0F8C.8070900@winischhofer.net> <20040121160309.2fd26f0a.akpm@osdl.org>
-In-Reply-To: <20040121160309.2fd26f0a.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: john@grabjohn.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Reply-to: ncunningham@users.sourceforge.net
+Message-id: <1074762656.12774.33.camel@laptop-linux>
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.4.4-8mdk
+Content-type: multipart/signed; boundary="=-EkQKKHt3BgxPjz1csCQE";
+ protocol="application/pgp-signature"; micalg=pgp-sha1
+References: <1074735774.31963.82.camel@laptop-linux>
+ <20040121234956.557d8a40.akpm@osdl.org>
+ <200401220813.i0M8DX4Q000511@81-2-122-30.bradfords.org.uk>
+ <1074759964.12536.65.camel@laptop-linux>
+ <20040122004554.26536158.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--=-EkQKKHt3BgxPjz1csCQE
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Andrew Morton wrote:
+Hi.
 
-> Thomas Winischhofer <thomas@winischhofer.net> wrote:
-> 
->>Update for SiS framebuffer driver for 2.6.1 vanilla
-> 
-> 
-> It still has floating point stuff in sis_init().  Could you please
-> review, integrate and test the below patch?
+On Thu, 2004-01-22 at 21:45, Andrew Morton wrote:
+> A couple of thoughts come to mind:
+>=20
+> a) Don't do it if the user typed reboot - only do it if we're powering do=
+wn.
 
-sis_init()? You probably mean sis/init.c?
+You'd think a parameter called shutdown would do that :>
 
-Anyway: Irrelevant. This code part isn't even being compiled for the 
-linux kernel (See line 4304 - #ifdef LINUX_XF86).
+> b) Try to do a cache flush instead.  If that fails (do we know?) then
+>    power down the disk instead.
 
-(init.c and init301.c are universal modules for XFree86 and the Linux 
-kernel; there are some lines of code which are unique to one of these, 
-though. I will sort this out in the next release.)
+We're calling drivers_suspend and then sys_reboot for powering down, and
+only calling sys_reboot when rebooting. Shouldn't cache flushes already
+be happening?
 
-> After that we need to coordinate this with James and Ben who are also doing
-> things in this area.  But we wouldn't want to have to defer this SiS patch
-> until everything is sorted out in the fbdev core - life is too short ;)
+Regards,
 
-Exactly. I don't see any activity on the fvdevel list since a while 
-back. Don't even know what the current status is.
+Nigel
+--=20
+My work on Software Suspend is graciously brought to you by
+LinuxFund.org.
 
-Anyway, it required only to compiler directives to exclude the 
-modifications needed by the current James-stuff. Shouldn't be too hard.
+--=-EkQKKHt3BgxPjz1csCQE
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Thomas
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-> From: Andi Kleen <ak@muc.de>
-> 
-> Here's the matching patch from the SuSE 2.4 tree which also compiles with
-> soft-float.  No i haven't even checked if it applies to 2.6.  But maybe it
-> will help somebody fix the 2.6 driver.
-> 
-> 
-> 
-> ---
-> 
->  25-akpm/drivers/video/sis/init.c |   15 ++++++++-------
->  1 files changed, 8 insertions(+), 7 deletions(-)
-> 
-> diff -puN drivers/video/sis/init.c~sis-DRM-floating-point-removal drivers/video/sis/init.c
-> --- 25/drivers/video/sis/init.c~sis-DRM-floating-point-removal	Fri Jan  9 13:22:47 2004
-> +++ 25-akpm/drivers/video/sis/init.c	Fri Jan  9 13:22:47 2004
-> @@ -5165,7 +5165,8 @@ SiSBuildBuiltInModeList(ScrnInfoPtr pScr
->     unsigned short HRE, HBE, HRS, HBS, HDE, HT;
->     unsigned char  sr_data, cr_data, cr_data2, cr_data3;
->     unsigned char  sr2b, sr2c;
-> -   float          num, denum, postscalar, divider;
-> +   //float          num, denum, postscalar, divider;
-> +   unsigned int	  num, denum, postscalar, divider;
->     int            A, B, C, D, E, F, temp, i, j, index, vclkindex;
->     DisplayModePtr new = NULL, current = NULL, first = NULL, backup = NULL;
->  
-> @@ -5230,19 +5231,19 @@ SiSBuildBuiltInModeList(ScrnInfoPtr pScr
->        sr2b = pSiS->SiS_Pr->SiS_VCLKData[vclkindex].SR2B;
->        sr2c = pSiS->SiS_Pr->SiS_VCLKData[vclkindex].SR2C;
->  
-> -      divider = (sr2b & 0x80) ? 2.0 : 1.0;
-> +      divider = (sr2b & 0x80) ? 2 : 1;
->        postscalar = (sr2c & 0x80) ?
-> -              ( (((sr2c >> 5) & 0x03) == 0x02) ? 6.0 : 8.0) : (((sr2c >> 5) & 0x03) + 1.0);
-> -      num = (sr2b & 0x7f) + 1.0;
-> -      denum = (sr2c & 0x1f) + 1.0;
-> +              ( (((sr2c >> 5) & 0x03) == 0x02) ? 6 : 8) : (((sr2c >> 5) & 0x03) + 1);
-> +      num = (sr2b & 0x7f) + 1;
-> +      denum = (sr2c & 0x1f) + 1;
->        
->  #ifdef TWDEBUG
->        xf86DrvMsg(0, X_INFO, "------------\n");
-> -      xf86DrvMsg(0, X_INFO, "sr2b: %x sr2c %x div %f ps %f num %f denum %f\n",
-> +      xf86DrvMsg(0, X_INFO, "sr2b: %x sr2c %x div %i ps %i num %i denum %i\n",
->           sr2b, sr2c, divider, postscalar, num, denum);
->  #endif
->  
-> -      current->Clock = (int)(14318 * (divider / postscalar) * (num / denum));
-> +      current->Clock = (int)(14318 * divider / postscalar * num / denum);
->  
->        sr_data = pSiS->SiS_Pr->SiS_CRT1Table[index].CR[14];
->  	/* inSISIDXREG(SISSR, 0x0b, sr_data); */
-> 
-> _
-> 
+iD8DBQBAD5OgVfpQGcyBBWkRAjYFAJ9yNd06+NI+3VuPKaA6KwgStre7RQCeIaV4
+pFGNnhpr/lWf3Ltzc5U1/hk=
+=/1pt
+-----END PGP SIGNATURE-----
 
--- 
-Thomas Winischhofer
-Vienna/Austria
-thomas AT winischhofer DOT net          *** http://www.winischhofer.net/
-twini AT xfree86 DOT org
-
-
+--=-EkQKKHt3BgxPjz1csCQE--
 

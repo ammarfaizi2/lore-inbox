@@ -1,54 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269148AbTB0BQL>; Wed, 26 Feb 2003 20:16:11 -0500
+	id <S268887AbTB0BXd>; Wed, 26 Feb 2003 20:23:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269149AbTB0BQL>; Wed, 26 Feb 2003 20:16:11 -0500
-Received: from ool-4351594a.dyn.optonline.net ([67.81.89.74]:38409 "EHLO
-	badula.org") by vger.kernel.org with ESMTP id <S269148AbTB0BQK>;
-	Wed, 26 Feb 2003 20:16:10 -0500
-Date: Wed, 26 Feb 2003 20:26:18 -0500 (EST)
-From: Ion Badulescu <ionut@badula.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Mikael Pettersson <mikpe@user.it.uu.se>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>,
-       <mingo@redhat.com>
+	id <S269149AbTB0BXd>; Wed, 26 Feb 2003 20:23:33 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:10429 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S268887AbTB0BXc>; Wed, 26 Feb 2003 20:23:32 -0500
+Date: Wed, 26 Feb 2003 17:33:37 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Ion Badulescu <ionut@badula.org>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       Mikael Pettersson <mikpe@user.it.uu.se>,
+       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+       mingo@redhat.com
 Subject: Re: [BUG] 2.5.63: ESR killed my box!
-In-Reply-To: <Pine.LNX.4.44.0302261559170.3527-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0302261931130.6844-100000@moisil.badula.org>
+Message-ID: <12910000.1046309616@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.4.44.0302262008280.6844-100000@moisil.badula.org>
+References: <Pine.LNX.4.44.0302262008280.6844-100000@moisil.badula.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Feb 2003, Linus Torvalds wrote:
+> No, look further down in apic.c: APIC_init_uniprocessor() calls 
+> setup_IO_APIC() which then calls setup_ioapic_ids_from_mpc(). This
+> happens  after the code quoted above runs.
 
-> Ok, can people agree on this simplified version of Mikaels patch, which 
-> doesn't BUG_ON(), and doesn't reset 'boot_cpu_physical_apicid' 
-> unnecessarily..
+OK, sounds good - I might be twisting it with the SMP code, which I'm much
+more familiar with.
+ 
+>> boot_cpu_physical_apicid = hard_smp_processor_id();
+>> phys_cpu_present_map = 1 << boot_cpu_physical_apicid;
 > 
-> Does this work for people?
+> But is it necessarily true that hard_smp_processor_id() equals the APIC
+> id?
 
-Works for me, but I'm curious if it works for Rusty. We're still not sure 
-if he's hitting the same bug... but I guess it's rather early morning in 
-.au. :-)
+Well it should be. Except that someone did this for some odd reason
+#define hard_smp_processor_id()                 0
+on non-SMP rather than non-local-apic.
 
-Oh, and 2.4 needs the same fix -- and if Mikael's original BUG_ON() is 
-undesirable then we should probably also remove this code from 2.4's 
-apic.c:setup_local_APIC()
+But we could just substitute the real code:
+static __inline int hard_smp_processor_id(void)
+{
+        /* we don't want to mark this access volatile - bad code generation
+*/
+        return GET_APIC_ID(*(unsigned long *)(APIC_BASE+APIC_ID));
+}
+which is in smp.h, but wrapped in #ifdef CONFIG_X86_LOCAL_APIC.
+All very twisted. Probably not worth it.
 
-        if (!clustered_apic_mode && 
-            !test_bit(GET_APIC_ID(apic_read(APIC_ID)), &phys_cpu_present_map))
-                BUG();
+> and that's just about as good as it gets, certainly the CPU knows best 
+> what its APIC id is.
 
-because it's essentially the same test as the BUG_ON(), at least for the 
-UP case.
+Absolutely ;-)
 
-Thanks,
-Ion
-
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
-
+M.
 

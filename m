@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271746AbTHMKzO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 06:55:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271750AbTHMKzO
+	id S271747AbTHMKqY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 06:46:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271746AbTHMKqY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 06:55:14 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:50904 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S271746AbTHMKzK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 06:55:10 -0400
-X-Sender-Authentication: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Wed, 13 Aug 2003 12:55:09 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: akpm@osdl.org, andrea@suse.de, alan@lxorguk.ukuu.org.uk,
+	Wed, 13 Aug 2003 06:46:24 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:24328 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S271743AbTHMKqW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 06:46:22 -0400
+Date: Wed, 13 Aug 2003 12:46:19 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Greg KH <greg@kroah.com>, Christoph Hellwig <hch@infradead.org>,
+       linux-scsi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22-pre lockups (now decoded oops for pre10)
-Message-Id: <20030813125509.360c58fb.skraw@ithnet.com>
-In-Reply-To: <Pine.LNX.4.44.0308081232430.8384-100000@logos.cnet>
-References: <20030808170536.23118033.skraw@ithnet.com>
-	<Pine.LNX.4.44.0308081232430.8384-100000@logos.cnet>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Subject: Re: [PATCH] oops in sd_shutdown
+Message-ID: <20030813104619.GA7421@win.tue.nl>
+References: <Pine.LNX.4.53.0308111426570.16008@thevillage.soulcatcher> <20030812002844.B1353@pclin040.win.tue.nl> <20030812075353.A18547@infradead.org> <20030812213549.GA2158@kroah.com> <20030813002450.GA8712@beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030813002450.GA8712@beaverton.ibm.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Aug 2003 12:33:28 -0300 (BRT)
-Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
+On Tue, Aug 12, 2003 at 05:24:50PM -0700, Mike Anderson wrote:
 
-> That will provide further information yes. We can then know if the problem 
-> is reiserfs specific or not, which is VERY useful.
+> > > Well, this same problem could show upb in any other driver.  Could
+> > > you instead send a patch to Pat that the driver model never calls
+> > > the shutdown method for a driver that hasn't finished ->probe?
+> > 
+> > I think it already will not do that due to taking the bus->subsys.rwsem
+> > before calling either probe() or remove().
 > 
-> Again, thanks for your efforts helping us track down the problem.
+> Is the shutdown being called directly? The shutdown call is protected by
+> a different rwsem. Depending on the call graph setting dev->driver on
+> return of probe may provide a solution.
 
-Status update:
+Yes, that is precisely what I had considered doing.
 
-uptime:
- 12:45pm  up 2 days 19:39,  18 users,  load average: 2.02, 2.05, 2.06
+> I have not looked at all probe
+> routines to understand if this would cause any bad side effects.
+> 
+> Andries,
+> 	Can you send the oops output?
 
-Running SMP. So far no crash happened under ext3. 
-Still I see the tar-verification errors. None on the first day, 2 on the second
-and 2 today so far.
-I see a growing possibility that the formerly crashes are directly linked to a
-reiserfs problem, maybe broken SMP-locking.
-If it survives until sunday I will revert all ext3 back to reiserfs to be sure
-it still crashes, then ideas for patches will be welcome :-)
+top of stack was reported as (process reboot):
 
-Up to sunday I can try to look deeper into the verification troubles. To be
-honest I already doubt today that I will see a crash with ext3 until sunday...
-
-Regards,
-Stephan
+sd_shutdown + 0x22/0x110 NULL deref (namely, sdkp)
+i8042_notify_sys
+device_shutdown
+sys_reboot
+do_clock_nanosleep
 

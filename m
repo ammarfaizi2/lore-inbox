@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129055AbRBNPhK>; Wed, 14 Feb 2001 10:37:10 -0500
+	id <S129069AbRBNPnL>; Wed, 14 Feb 2001 10:43:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129069AbRBNPhA>; Wed, 14 Feb 2001 10:37:00 -0500
-Received: from smtp1.cern.ch ([137.138.128.38]:10511 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S129055AbRBNPgo>;
-	Wed, 14 Feb 2001 10:36:44 -0500
-To: Donald Becker <becker@scyld.com>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Ion Badulescu <ionut@moisil.cs.columbia.edu>,
-        Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+	id <S129091AbRBNPnA>; Wed, 14 Feb 2001 10:43:00 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:24083 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S129069AbRBNPmr>;
+	Wed, 14 Feb 2001 10:42:47 -0500
+To: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
+Cc: Gérard Roudier <groudier@club-internet.fr>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Donald Becker <becker@scyld.com>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] starfire reads irq before pci_enable_device.
-In-Reply-To: <Pine.LNX.4.10.10102131627180.7141-100000@vaio.greennet>
+In-Reply-To: <Pine.LNX.3.96.1010213070337.31857F-100000@mandrakesoft.mandrakesoft.com>
 From: Jes Sorensen <jes@linuxcare.com>
-Date: 14 Feb 2001 16:35:51 +0100
-In-Reply-To: Donald Becker's message of "Tue, 13 Feb 2001 20:20:35 -0500 (EST)"
-Message-ID: <d3snlh5lbc.fsf@lxplus015.cern.ch>
+Date: 14 Feb 2001 16:39:39 +0100
+In-Reply-To: Jeff Garzik's message of "Tue, 13 Feb 2001 07:06:44 -0600 (CST)"
+Message-ID: <d3ofw55l50.fsf@lxplus015.cern.ch>
 User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Donald" == Donald Becker <becker@scyld.com> writes:
+>>>>> "Jeff" == Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com> writes:
 
-Donald> On 12 Feb 2001, Jes Sorensen wrote:
->> In this case it just results in a performance degradation for 99%
->> of the usage. What about making the change so it is optimized away
->> unless IPX is enabled?
+Jeff> On 12 Feb 2001, Jes Sorensen wrote:
+>> 3) The acenic/gbit performance anomalies have been cured by
+>> reverting the PCI mem_inval tweaks.
 
-Donald> ???  - It's not just IPX hosts that send 802.3 headers.  -
-Donald> While a good initial value might depend on the architecture,
-Donald> the best setting is processor implementation and environment
-Donald> dependent.  Those details are not known at compile time.  -
-Donald> The code path cost of a module option is only a compare and a
-Donald> conditional branch.
+Jeff> Just to be clear, acenic should or should not use MWI?
 
-What else is sending out 802.3 frames these days? I really don't care
-about IPX when it comes to performance.
+Jeff> And can a general rule be applied here?  Newer Tulip hardware
+Jeff> also has the ability to enable/disable MWI usage, IIRC.
 
-I am just advocating that we optimize for the common case which is DIX
-frames and not 802.3.
+AceNIC always used to do this until the ZC patches appeared. It's a
+recommendation from the hardware designers so I figure it's a bug in
+the AceNIC hardware. I can probably go dig up the details on this, but
+it's hidden somewhere deep down, ie. it's been ages since I looked at
+it last.
 
 Jes

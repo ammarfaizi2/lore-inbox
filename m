@@ -1,79 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261678AbVAXWLX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261687AbVAXWMJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261678AbVAXWLX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 17:11:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbVAXWIX
+	id S261687AbVAXWMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 17:12:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261698AbVAXWLw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 17:08:23 -0500
-Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:7625 "EHLO
-	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
-	id S261678AbVAXWFL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 17:05:11 -0500
-Date: Mon, 24 Jan 2005 17:04:35 -0500
-From: Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: Re: [patch 1/13] Qsort
-In-reply-to: <20050123044637.GA54433@muc.de>
-To: Andi Kleen <ak@muc.de>
-Cc: Jesper Juhl <juhl-lkml@dif.dk>, Felipe Alfaro Solana <lkml@mac.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       linux-kernel@vger.kernel.org, Buck Huppmann <buchk@pobox.com>,
-       Neil Brown <neilb@cse.unsw.edu.au>,
-       Andreas Gruenbacher <agruen@suse.de>,
-       "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
-       Andrew Morton <akpm@osdl.org>, Olaf Kirch <okir@suse.de>,
-       Tim Hockin <thockin@hockin.org>
-Message-id: <41F570F3.3020306@sun.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-References: <20050122203326.402087000@blunzn.suse.de>
- <20050122203618.962749000@blunzn.suse.de>
- <Pine.LNX.4.58.0501221257440.1982@shell3.speakeasy.net>
- <FB9BAC88-6CE2-11D9-86B4-000D9352858E@mac.com> <m1r7kc27ix.fsf@muc.de>
- <Pine.LNX.4.61.0501230357580.2748@dragon.hygekrogen.localhost>
- <20050123044637.GA54433@muc.de>
+	Mon, 24 Jan 2005 17:11:52 -0500
+Received: from ernie.virtualdave.com ([198.216.116.246]:59919 "EHLO
+	ernie.virtualdave.com") by vger.kernel.org with ESMTP
+	id S261712AbVAXWJK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 17:09:10 -0500
+Date: Mon, 24 Jan 2005 16:09:08 -0600 (CST)
+From: David Sims <dpsims@virtualdave.com>
+To: linux-kernel@vger.kernel.org
+Subject: sata_vsc problem.... Please help me.
+Message-ID: <Pine.LNX.4.21.0501241600520.817-100000@ernie.virtualdave.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi,
 
-Andi Kleen wrote:
->>How about a shell sort?  if the data is mostly sorted shell sort beats 
->>qsort lots of times, and since the data sets are often small in-kernel, 
->>shell sorts O(n^2) behaviour won't harm it too much, shell sort is also 
->>faster if the data is already completely sorted. Shell sort is certainly 
->>not the simplest algorithm around, but I think (without having done any 
->>tests) that it would probably do pretty well for in-kernel use... Then 
->>again, I've known to be wrong :)
-> 
-> 
-> I like shell sort for small data sets too. And I agree it would be 
-> appropiate for the kernel.
-> 
+  With kernel 2.6.10 on Intel (Dell Powervault 745N).... When I insert the
+sata_vsc module via 'modprobe sata_vsc' from the command line, the module
+immediately recognizes the controller card and then enumerates the
+attached disks. During this process I am getting errors logged in syslog
+for each disk as follows:
 
-FWIW, we already have a Shell sort for the ngroups stuff in
-kernel/sys.c:groups_sort() that could be made generic.
+Jan 24 13:55:37 linux kernel: irq 3: nobody cared!
+Jan 24 13:55:37 linux kernel:  [<c0128972>] __report_bad_irq+0x22/0x90
+Jan 24 13:55:37 linux kernel:  [<c0128a68>] note_interrupt+0x58/0x90
+Jan 24 13:55:37 linux kernel:  [<c01285f8>] __do_IRQ+0xd8/0xe0
+Jan 24 13:55:37 linux kernel:  [<c0103a7a>] do_IRQ+0x1a/0x30
+Jan 24 13:55:37 linux kernel:  [<c010254a>] common_interrupt+0x1a/0x20
+Jan 24 13:55:37 linux kernel:  [<c0114fc0>] __do_softirq+0x30/0x90
+Jan 24 13:55:37 linux kernel:  [<c0115055>] do_softirq+0x35/0x40
+Jan 24 13:55:37 linux kernel:  [<c0103a7f>] do_IRQ+0x1f/0x30
+Jan 24 13:55:37 linux kernel:  [<c010254a>] common_interrupt+0x1a/0x20
+Jan 24 13:55:37 linux kernel:  [<c0100590>] default_idle+0x0/0x40
+Jan 24 13:55:37 linux kernel:  [<c01005b4>] default_idle+0x24/0x40
+Jan 24 13:55:37 linux kernel:  [<c010063e>] cpu_idle+0x2e/0x40
+Jan 24 13:55:37 linux kernel:  [<c03d277b>] start_kernel+0x15b/0x190
+Jan 24 13:55:37 linux kernel: handlers:
+Jan 24 13:55:37 linux kernel: [<c02471e0>] (ide_intr+0x0/0x120)
+Jan 24 13:55:37 linux kernel: [<c02471e0>] (ide_intr+0x0/0x120)
+Jan 24 13:55:37 linux kernel: [<e08ef250>] (vsc_sata_interrupt+0x0/0xa0
+[sata_vsc])
+Jan 24 13:55:37 linux kernel: Disabling IRQ #3
 
-- --
-Mike Waychison
-Sun Microsystems, Inc.
-1 (650) 352-5299 voice
-1 (416) 202-8336 voice
+and in /proc/interrupts the count for irq3 advances by 500,000 (i.e.,
+100,000 for the controller and 100,000 for each attached disk).....
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NOTICE:  The opinions expressed in this email are held by me,
-and may not represent the views of Sun Microsystems, Inc.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iD8DBQFB9XDzdQs4kOxk3/MRAs2ZAJ4if1XRFAiWsgb1wvTInFLUVGHesgCfWxCJ
-Efyrr4PkG/KrqefAVAQjt+c=
-=/OPh
------END PGP SIGNATURE-----
+  It seems to me that this driver is initializing itself and enabling
+interrupts before it is fully loaded and ready to deal with them.... 
+
+  If I insert the module during the boot up process, the machine just
+hangs trying to read/identify the first disk... 
+
+  Is there a way to disable or ignore these interrupts until the driver is
+fully loaded, the disks are identified and all of the necessary
+housekeeping is finished and the driver is finished loading?? 
+
+  Once the sata_vsc module finishes identifying the attached drives and
+the 'modprobe sata_vsc' returns to the command prompt the errors stop
+coming and it seems to work just fine.... You can fdisk and format the
+disks and all is well... If I could just get it load at boot time I would
+be happy....
+
+  Any advice would be welcome at this point. ;)
+
+TIA,
+
+Dave Sims
+
+

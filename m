@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262364AbTEFEqC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 00:46:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262366AbTEFEqC
+	id S262359AbTEFEo2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 00:44:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbTEFEo2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 00:46:02 -0400
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:4 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id S262364AbTEFEqB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 00:46:01 -0400
-Date: Tue, 6 May 2003 06:58:22 +0200
+	Tue, 6 May 2003 00:44:28 -0400
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:34314 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id S262359AbTEFEo1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 00:44:27 -0400
+Date: Tue, 6 May 2003 06:56:31 +0200
 From: Jurriaan <thunder7@xs4all.nl>
-To: crypt@ihug.co.nz
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: status of matrox framebuffer drivers.
-Message-ID: <20030506045822.GD5326@middle.of.nowhere>
+To: Stian Jordet <liste@jordet.nu>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: USB not working with 2.5.69, worked with .68
+Message-ID: <20030506045631.GC5326@middle.of.nowhere>
 Reply-To: thunder7@xs4all.nl
-References: <20030506023653.GA23098@python.graveyard>
+References: <1052168060.826.8.camel@chevrolet.hybel> <20030505215141.GB3111@kroah.com> <1052176021.1092.7.camel@chevrolet.hybel>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030506023653.GA23098@python.graveyard>
+In-Reply-To: <1052176021.1092.7.camel@chevrolet.hybel>
 X-Message-Flag: Still using Outlook? Please Upgrade to real software!
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: crypt@ihug.co.nz <crypt@ihug.co.nz>
-Date: Tue, May 06, 2003 at 02:36:54PM +1200
-> Hi I was just wondering if there was any work being done to get the
-> matrox framebuffer drivers updated so that they would compile under the
-> 4.5 series kernels.
+From: Stian Jordet <liste@jordet.nu>
+Date: Tue, May 06, 2003 at 01:07:02AM +0200
+> A little off-topic rant about my motherboard:
 > 
-> They seem to have been broken for a long time.
+> I have a ASUS CUV266-DLS motherboard. Dual P3, integrated SCSI and
+> ethernet. Since it is smp, I have to use ACPI to power it off.
 > 
-If you read this list you might notice that Petr Vandovec is hard at
-work, and a patch for 2.5.69 is available, as was one for 2.5.68, for
-2.5.67, etc etc.
 
-ftp://platan.vc.cvut.cz/pub/linux/matrox-latest/
+try
 
-The patch for 2.5.69 is 2.5.68-c1248, but it applies without
-difficulties.
+apm=power-off
+
+on the kernel command line.
 
 HTH,
 Jurriaan
 -- 
-And I thought that the Borg were bad...
-Debian (Unstable) GNU/Linux 2.5.69 4112 bogomips load av: 0.51 0.34 0.31
+MSDOS didn't get as bad as it is overnight -- it took over ten years
+of careful development.
+	dmeggins@aix1.uottawa.ca
+Debian (Unstable) GNU/Linux 2.5.69 4112 bogomips load av: 0.19 0.43 0.37

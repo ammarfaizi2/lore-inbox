@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264704AbUEXWU7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264722AbUEXWWZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264704AbUEXWU7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 18:20:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264723AbUEXWU7
+	id S264722AbUEXWWZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 18:22:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264725AbUEXWWZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 18:20:59 -0400
-Received: from blv-smtpout-01.boeing.com ([130.76.32.69]:8326 "EHLO
-	blv-smtpout-01.boeing.com") by vger.kernel.org with ESMTP
-	id S264704AbUEXWU5 convert rfc822-to-8bit (ORCPT
+	Mon, 24 May 2004 18:22:25 -0400
+Received: from zero.aec.at ([193.170.194.10]:37637 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S264722AbUEXWWN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 18:20:57 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6556.0
-content-class: urn:content-classes:message
+	Mon, 24 May 2004 18:22:13 -0400
+To: Greg KH <greg@kroah.com>
+cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       marcelo.tosatti@cyclades.com
+Subject: Re: [BK PATCH] PCI Express patches for 2.4.27-pre3
+References: <1ZuS0-1b4-15@gated-at.bofh.it> <1ZuS3-1b4-35@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Tue, 25 May 2004 00:21:59 +0200
+In-Reply-To: <1ZuS3-1b4-35@gated-at.bofh.it> (Greg KH's message of "Mon, 24
+ May 2004 23:10:15 +0200")
+Message-ID: <m3brkdcvp4.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: 
-Date: Mon, 24 May 2004 15:20:33 -0700
-Message-ID: <67B3A7DA6591BE439001F2736233351202B47E6E@xch-nw-28.nw.nos.boeing.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Index: AcRB3VQgxH6dWpbwSEWi7nAbAR3R5g==
-From: "Laughlin, Joseph V" <Joseph.V.Laughlin@boeing.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 24 May 2004 22:20:33.0854 (UTC) FILETIME=[54BE1DE0:01C441DD]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been tasked with modifying a 2.4 kernel so that a non-root user can
-do the following:
-
-Dynamically change the priorities of processes (up and down)
-Lock processes in memory
-Can change process cpu affinity
-
-Anyone got any ideas about how I could start doing this?  (I'm new to
-kernel development, btw.)
-
-Thanks,
-
-Joe Laughlin
-Phantom Works - Integrated Technology Development Labs 
-The Boeing Company
+Greg KH <greg@kroah.com> writes:
+>  obj-y			+= pci-pc.o pci-irq.o
+> diff -Nru a/arch/x86_64/kernel/mmconfig.c b/arch/x86_64/kernel/mmconfig.c
+> --- /dev/null	Wed Dec 31 16:00:00 1969
+> +++ b/arch/x86_64/kernel/mmconfig.c	Mon May 24 13:52:10 2004
 
 
+> +static inline void pci_exp_set_dev_base(int bus, int devfn)
+> +{
+> +	u32 dev_base = pci_mmcfg_base_addr | (bus << 20) | (devfn << 12);
+> +	if (dev_base != mmcfg_last_accessed_device) {
+> +		mmcfg_last_accessed_device = dev_base;
+> +		set_fixmap(FIX_PCIE_MCFG, dev_base);
+> +	}
+
+Please no dynamic fixmap crap on x86-64. Do it like 2.6 does  - ioremap()
+the complete mmconfig aperture once and just just reference it directly.
+
+Then you can also get rid of the spinlocks in the actual access functions,
+since everything will be stateless.
+
+-Andi
 

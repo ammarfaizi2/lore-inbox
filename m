@@ -1,54 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264134AbUCZVMi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 16:12:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264135AbUCZVMi
+	id S264133AbUCZVPe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 16:15:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264140AbUCZVPe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 16:12:38 -0500
-Received: from palrel13.hp.com ([156.153.255.238]:46208 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S264134AbUCZVMg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 16:12:36 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 26 Mar 2004 16:15:34 -0500
+Received: from pentafluge.infradead.org ([213.86.99.235]:45791 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S264133AbUCZVP3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 16:15:29 -0500
+Subject: Re: [patch 1/22] Add __early_param for all arches
+From: David Woodhouse <dwmw2@infradead.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, trini@kernel.crashing.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040326210355.D17638@flint.arm.linux.org.uk>
+References: <20040324235722.QDLK23486.fed1mtao04.cox.net@localhost.localdomain>
+	 <20040324195502.00a5b148.akpm@osdl.org>
+	 <1080210253.29835.37.camel@hades.cambridge.redhat.com>
+	 <20040326210355.D17638@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Message-Id: <1080335720.29835.294.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8.dwmw2.2) 
+Date: Fri, 26 Mar 2004 21:15:21 +0000
 Content-Transfer-Encoding: 7bit
-Message-ID: <16484.40129.606865.830739@napali.hpl.hp.com>
-Date: Fri, 26 Mar 2004 13:12:33 -0800
-To: Andrew Morton <akpm@osdl.org>
-Cc: davidm@hpl.hp.com, davidm@napali.hpl.hp.com, davej@redhat.com,
-       mpm@selenic.com, linux-kernel@vger.kernel.org
-Subject: Re: Fw: potential /dev/urandom scalability improvement
-In-Reply-To: <20040326123303.7a775b02.akpm@osdl.org>
-References: <20040325141923.7080c6f0.akpm@osdl.org>
-	<20040325224726.GB8366@waste.org>
-	<16483.35656.864787.827149@napali.hpl.hp.com>
-	<20040325180014.29e40b65.akpm@osdl.org>
-	<20040326110619.GA25210@redhat.com>
-	<16484.29095.842735.102236@napali.hpl.hp.com>
-	<20040326104904.59f7a156.akpm@osdl.org>
-	<16484.37279.839961.375027@napali.hpl.hp.com>
-	<20040326123303.7a775b02.akpm@osdl.org>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Fri, 26 Mar 2004 12:33:03 -0800, Andrew Morton <akpm@osdl.org> said:
+On Fri, 2004-03-26 at 21:03 +0000, Russell King wrote:
+> So we require, in order:
+> 
+> - mem= to be parsed
+> - bootmem to be initialised
+> - drivers which want to allocate from bootmem to then be
+>   initialised
+> - setup rest of the kernel
+> - final command line parsing
+> 
+> which gives us three stages of command line parsing.
 
-  Andrew> If someone does, say,
+No, because the existing command line parsing doesn't get to use the
+slab, so there's no need for us to add that final item in your list. 
 
-  Andrew> 	prefetch_range(some_pointer, sizeof(*some_pointer));
+Leave it out, and you have what Tom's already implemented. The current
+__setup() calls are allowed to use bootmem but not slab, and the
+__early_param() calls aren't even allowed to use bootmem.
 
-  Andrew> then it is possible that prefetch_range() could
+-- 
+dwmw2
 
-  Andrew> a) execute a prefetch at addresses which are not
-  Andrew> PREFETCH_STRIDE-aligned and, as a consequence,
-
-  Andrew> b) prefetch data from the next page, outside the range of
-  Andrew> the user's (addr,len).
-
-This is getting silly.  Cache-lines _never_ cross page-boundaries.
-
-	--david

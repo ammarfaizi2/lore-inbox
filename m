@@ -1,54 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317888AbSIOHK3>; Sun, 15 Sep 2002 03:10:29 -0400
+	id <S317892AbSIOH0e>; Sun, 15 Sep 2002 03:26:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317892AbSIOHK3>; Sun, 15 Sep 2002 03:10:29 -0400
-Received: from holomorphy.com ([66.224.33.161]:16601 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S317888AbSIOHK2>;
-	Sun, 15 Sep 2002 03:10:28 -0400
-Date: Sun, 15 Sep 2002 00:11:57 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Dave Hansen <haveblue@us.ibm.com>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH] add vmalloc stats to meminfo
-Message-ID: <20020915071157.GH3530@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@digeo.com>, Dave Hansen <haveblue@us.ibm.com>,
-	"Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <3D8422BB.5070104@us.ibm.com> <3D84340A.25ED4C69@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <3D84340A.25ED4C69@digeo.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S317931AbSIOH0e>; Sun, 15 Sep 2002 03:26:34 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:41863 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S317892AbSIOH0d>; Sun, 15 Sep 2002 03:26:33 -0400
+Date: Sun, 15 Sep 2002 09:31:12 +0200 (CEST)
+From: Oktay Akbal <oktay.akbal@s-tec.de>
+X-X-Sender: oktay@omega.s-tec.de
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Nachtrag: Possible Bug with MD multipath and raid1 on top
+In-Reply-To: <20020914230753.GA3781@marowsky-bree.de>
+Message-ID: <Pine.LNX.4.44.0209150905510.1185-100000@omega.s-tec.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiVirus: OK! AntiVir MailGate Version 2.0.1.1; AVE: 6.15.0.1; VDF: 6.15.0.7
+	 at email has not found any known virus in this email.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
->>  It is often hard to tell
->> whether this is because the area is too small, or just too fragmented.  This
->> makes it easy to determine.
+> If so, please use the patch at http://lars.marowsky-bree.de/dl/md-mp instead,
+> which is slightly newer and fixes one important (affecting raid0 use) and two
+> minor issues. Please be aware that you are beta-testing code for the time
+> being ;-) (Which is highly appreciated!)
 
-On Sun, Sep 15, 2002 at 12:17:30AM -0700, Andrew Morton wrote:
-> I do not recall ever having seen any bug/problem reports which this patch
-> would have helped to solve.  Could you explain in more detai why is it useful?
+Bin leider in Urlaub, d.h. mit Hardware wird das wohl schwer.
+Gegen welchen Kernel ist den der Patch genau ?
 
-LDT's were formerly allocated in vmallocspace. This presented difficulties
-with many simultaneous threaded applications. Also, given that there is
-zero vmallocspace OOM recovery now present in the kernel some method of
-monitoring this aspect of system behavior up until the point of failure is
-useful for detecting further problem areas (LDT's were addressed by using
-non-vmalloc allocations).
+Ich versuche das gerade mit den loop-devices. Leider ist mir dabei
+erstmal der rechner komplett abgestuerzt. Wie "failed" man denn ein
+loop-device ?
 
-Also, dynamic vmalloc allocations may very well be starved by boot-time
-allocations on systems where much vmallocspace is required for IO memory.
-The failure mode of such is effectively deadlock, since they block
-indefinitely waiting for permanent boot-time allocations to be freed up.
+Oktay Akbal
 
-Cheers,
-Bill

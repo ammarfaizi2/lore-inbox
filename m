@@ -1,99 +1,226 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262491AbULCUHF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262501AbULCUHG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262491AbULCUHF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 15:07:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbULCUG3
+	id S262501AbULCUHG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 15:07:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262502AbULCUGJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 15:06:29 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:16294 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262491AbULCUBK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 15:01:10 -0500
-Subject: Re: Suspend 2 merge: 50/51: Device mapper support.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Alasdair G Kergon <agk@redhat.com>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       dm-devel@redhat.com
-In-Reply-To: <20041203174749.GF24233@agk.surrey.redhat.com>
-References: <1101292194.5805.180.camel@desktop.cunninghams>
-	 <1101300802.5805.398.camel@desktop.cunninghams>
-	 <20041125235829.GJ2909@elf.ucw.cz>
-	 <1101427667.27250.175.camel@desktop.cunninghams>
-	 <20041202204042.GD24233@agk.surrey.redhat.com>
-	 <1102021461.13302.40.camel@desktop.cunninghams>
-	 <20041202214932.GE24233@agk.surrey.redhat.com>
-	 <1102025297.13302.51.camel@desktop.cunninghams>
-	 <20041203174749.GF24233@agk.surrey.redhat.com>
-Content-Type: text/plain
-Message-Id: <1102103827.22511.10.camel@desktop.cunninghams>
+	Fri, 3 Dec 2004 15:06:09 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:52124 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262501AbULCUB0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 15:01:26 -0500
+Date: Fri, 3 Dec 2004 12:01:08 -0800
+From: Greg KH <greg@kroah.com>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 3/3] Add documentation about why the in-kernel api is the way it is.
+Message-ID: <20041203200108.GD1178@kroah.com>
+References: <20041203195908.GA1178@kroah.com> <20041203200003.GB1178@kroah.com> <20041203200036.GC1178@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Sat, 04 Dec 2004 06:57:07 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041203200036.GC1178@kroah.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
-On Sat, 2004-12-04 at 04:47, Alasdair G Kergon wrote:
-> On Fri, Dec 03, 2004 at 09:08:18AM +1100, Nigel Cunningham wrote:
-> > My mistake. The code has been improved and I haven't reverted some of
-> > the changes in drivers/md to match. I'll do that and make the two
-> > exports that are needed (dm_io_get and dm_io_put) into an
-> > include/linux/dm.h.
->  
-> It would be device-mapper.h - or the whole of dm-io.h.
-> The vmalloc comment also looks wrong BTW - it's extra kmalloc 
-> GFP_KERNEL memory you're asking for here.
-> 
-> I'd like to understand why you need to call those functions
-> and how it integrates with the rest of what you're doing:
-> do you have calls to other dm functions in other patches?
-> 
-> Or is this particular change optional, but you have test results 
-> showing it to be desirable or necessary in certain cases, maybe 
-> indicating a shortcoming within the dm-io code which should be 
-> addressed instead?
-> 
-> Alasdair
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
-Okay. 
-
-Pavel's method of storing the image has an inherent limit: you have to
-get a consistent image, so you have to make an atomic copy of memory.
-This implies a maximum image size of half of memory. If you want to save
-all of your memory when suspending to disk, you simply can't. In order
-to get around this limitation, I'm saving the image in two parts: LRU
-pages and 'the rest'. The saving is done using highlevel routines (bio
-calls, rather than our own polling or whatever drivers), but LRU pages
-are guaranteed not to change while we're writing the image. We can then
-use the space occupied by our (saved) LRU pages for the atomic copy. 
-
-Prior to saving any of the pages, we generate all of the image meta
-data, including (of course) the list of pages in both parts of the
-image. But saving the LRU pages may also result in extra slab pages
-being allocated, which could make our image inconsistent (they wouldn't
-get saved, since we've already calculated which pages to save). To get
-around this problem, we use a memory pool, to and from which all page
-allocs are satisfied/returned while suspending. The pages in this pool
-are unconditionally saved, thereby removing the potentiality of having
-an inconsistent image.
-
-Now the question arises, "How big should the memory pool be?". The
-answer depends on how much I/O we intend to have on the fly at once
-(among other things). If, therefore, we we're using DM crypt to do our
-I/O, it will help if we can either get it to allocate the memory it will
-need prior to us preparing the metadata, or get from it an amount of
-memory to include in the pool, given the maximum amount of I/O we intend
-to have on the fly at once.
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-You see, at just the right time, when we were still powerless, Christ
-died for the ungodly.		-- Romans 5:6
-
+diff -Nru a/Documentation/stable_api_nonsense.txt b/Documentation/stable_api_nonsense.txt
+--- /dev/null	Wed Dec 31 16:00:00 196900
++++ b/Documentation/stable_api_nonsense.txt	2004-12-03 11:52:05 -08:00
+@@ -0,0 +1,193 @@
++The Linux Kernel Driver Interface
++(all of your questions answered and then some)
++
++Greg Kroah-Hartman <greg@kroah.com>
++
++This is being written to try to explain why Linux does not have a binary
++kernel interface, nor does it have a stable kernel interface.  Please
++realize that this article describes the _in kernel_ interfaces, not the
++kernel to userspace interfaces.  The kernel to userspace interface is
++the one that application programs use, the syscall interface.  That
++interface is _very_ stable over time, and will not break.  I have old
++programs that were built on a pre 0.9something kernel that still works
++just fine on the latest 2.6 kernel release.  This interface is the one
++that users and application programmers can count on being stable.
++
++
++Executive Summary
++-----------------
++You think you want a stable kernel interface, but you really do not, and
++you don't even know it.  What you want is a stable running driver, and
++you get that only if your driver is in the main kernel tree.  You also
++get lots of other good benefits if your driver is in the main kernel
++tree, all of which has made Linux into such a strong, stable, and mature
++operating system which is the reason you are using it in the first
++place.
++
++
++Intro
++-----
++
++It's only the odd person who wants to write a kernel driver that needs
++to worry about the in-kernel interfaces changing.  For the majority of
++the world, they neither see this interface, nor do they care about it at
++all.
++
++First off, I'm not going to address _any_ legal issues about closed
++source, hidden source, binary blobs, source wrappers, or any other term
++that describes kernel drivers that do not have their source code
++released under the GPL.  Please consult a lawyer if you have any legal
++questions, I'm a programmer and hence, I'm just going to be describing
++the technical issues here (not to make light of the legal issues, they
++are real, and you do need to be aware of them at all times.)
++
++So, there are two main topics here, binary kernel interfaces and stable
++kernel source interfaces.  They both depend on each other, but we will
++discuss the binary stuff first to get it out of the way.
++
++
++Binary Kernel Interface
++-----------------------
++Assuming that we had a stable kernel source interface for the kernel, a
++binary interface would naturally happen too, right?  Wrong.  Please
++consider the following facts about the Linux kernel:
++  - Depending on the version of the C compiler you use, different kernel
++    data structures will contain different alignment of structures, and
++    possibly include different functions in different ways (putting
++    functions inline or not.)  The individual function organization
++    isn't that important, but the different data structure padding is
++    very important.
++  - Depending on what kernel build options you select, a wide range of
++    different things can be assumed by the kernel:
++      - different structures can contain different fields
++      - Some functions may not be implemented at all, (i.e. some locks
++	compile away to nothing for non-SMP builds.)
++      - Parameter passing of variables from function to function can be
++	done in different ways (the CONFIG_REGPARM option controls
++	this.)
++      - Memory within the kernel can be aligned in different ways,
++	depending on the build options.
++  - Linux runs on a wide range of different processor architectures.
++    There is no way that binary drivers from one architecture will run
++    on another architecture properly.
++
++Now a number of these issues can be addressed by simply compiling your
++module for the exact specific kernel configuration, using the same exact
++C compiler that the kernel was built with.  This is sufficient if you
++want to provide a module for a specific release version of a specific
++Linux distribution.  But multiply that single build by the number of
++different Linux distributions and the number of different supported
++releases of the Linux distribution and you quickly have a nightmare of
++different build options on different releases.  Also realize that each
++Linux distribution release contains a number of different kernels, all
++tuned to different hardware types (different processor types and
++different options), so for even a single release you will need to create
++multiple versions of your module.
++
++Trust me, you will go insane over time if you try to support this kind
++of release, I learned this the hard way a long time ago...
++
++
++Stable Kernel Source Interfaces
++-------------------------------
++
++This is a much more "volatile" topic if you talk to people who try to
++keep a Linux kernel driver that is not in the main kernel tree up to
++date over time.
++
++Linux kernel development is continuous and at a rapid pace, never
++stopping to slow down.  As such, the kernel developers find bugs in
++current interfaces, or figure out a better way to do things.  If they do
++that, they then fix the current interfaces to work better.  When they do
++so, function names may change, structures may grow or shrink, and
++function parameters may be reworked.  If this happens, all of the
++instances of where this interface is used within the kernel are fixed up
++at the same time, ensuring that everything continues to work properly.
++
++As a specific examples of this, the in-kernel USB interfaces have
++undergone at least three different reworks over the lifetime of this
++subsystem.  These reworks were done to address a number of different
++issues:
++  - A change from a synchronous model of data streams to an asynchronous
++    one.  This reduced the complexity of a number of drivers and
++    increased the throughput of all USB drivers such that we are now
++    running almost all USB devices at their maximum speed possible.
++  - A change was made in the way data packets were allocated from the
++    USB core by USB drivers so that all drivers now needed to provide
++    more information to the USB core to fix a number of documented
++    deadlocks.
++
++This is in stark contrast to a number of closed source operating systems
++which have had to maintain their older USB interfaces over time.  This
++provides the ability for new developers to accidentally use the old
++interfaces and do things in improper ways, causing the stability of the
++operating system to suffer.
++
++In both of these instances, all developers agreed that these were
++important changes that needed to be made, and they were made, with
++relatively little pain.  If Linux had to ensure that it preserve a
++stable source interface, a new interface would have been created, and
++the older, broken one would have had to be maintained over time, leading
++to extra work for the USB developers.  Since all Linux USB developers do
++their work on their own time, asking programmers to do extra work for no
++gain, for free, is not a possibility.
++
++Security issues are also a very important for Linux.  When a
++security issue is found, it is fixed in a very short amount of time.  A
++number of times this has caused internal kernel interfaces to be
++reworked to prevent the security problem from occurring.  When this
++happens, all drivers that use the interfaces were also fixed at the
++same time, ensuring that the security problem was fixed and could not
++come back at some future time accidentally.  If the internal interfaces
++were not allowed to change, fixing this kind of security problem and
++insuring that it could not happen again would not be possible.
++
++Kernel interfaces are cleaned up over time.  If there is no one using a
++current interface, it is deleted.  This ensures that the kernel remains
++as small as possible, and that all potential interfaces are tested as
++well as they can be (unused interfaces are pretty much impossible to
++test for validity.)
++
++
++What to do
++----------
++
++So, if you have a Linux kernel driver that is not in the main kernel
++tree, what are you, a developer, supposed to do?  Releasing a binary
++driver for every different kernel version for every distribution is a
++nightmare, and trying to keep up with an ever changing kernel interface
++is also a rough job.
++
++Simple, get your kernel driver into the main kernel tree (remember we
++are talking about GPL released drivers here, if your code doesn't fall
++under this category, good luck, you are on your own here, you leech
++<insert link to leech comment from Andrew and Linus here>.)  If your
++driver is in the tree, and a kernel interface changes, it will be fixed
++up by the person who did the kernel change in the first place.  This
++ensures that your driver is always buildable, and works over time, with
++very little effort on your part.
++
++The very good side affects of having your driver in the main kernel tree
++are:
++  - The quality of the driver will rise as the maintenance costs (to the
++    original developer) will decrease.
++  - Other developers will add features to your driver.
++  - Other people will find and fix bugs in your driver.
++  - Other people will find tuning opportunities in your driver.
++  - Other people will update the driver for you when external interface
++    changes require it.
++  - The driver automatically gets shipped in all Linux distributions
++    without having to ask the distros to add it.
++    
++As Linux supports a larger number of different devices "out of the box"
++than any other operating system, and it supports these devices on more
++different processor architectures than any other operating system, this
++proven type of development model must be doing something right :)
++
++
++
++------
++
++Thanks to Randy Dunlap, Andrew Morton, David Brownell, Hanna Linder,
++Robert Love, and Nishanth Aravamudan for their review and comments on
++early drafts of this paper.

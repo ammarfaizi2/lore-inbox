@@ -1,56 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276815AbSIVI0g>; Sun, 22 Sep 2002 04:26:36 -0400
+	id <S276867AbSIVIuG>; Sun, 22 Sep 2002 04:50:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276866AbSIVI0g>; Sun, 22 Sep 2002 04:26:36 -0400
-Received: from ophelia.ess.nec.de ([193.141.139.8]:1704 "EHLO
-	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
-	id <S276815AbSIVI0g> convert rfc822-to-8bit; Sun, 22 Sep 2002 04:26:36 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Erich Focht <efocht@ess.nec.de>
-To: William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: [Lse-tech] [PATCH 1/2] node affine NUMA scheduler
-Date: Sun, 22 Sep 2002 10:30:32 +0200
-User-Agent: KMail/1.4.1
-References: <597807912.1032600740@[10.10.2.3]> <20020921231810.GA25605@holomorphy.com> <20020922080942.GF25605@holomorphy.com>
-In-Reply-To: <20020922080942.GF25605@holomorphy.com>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       LSE <lse-tech@lists.sourceforge.net>, Ingo Molnar <mingo@elte.hu>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>
+	id <S276878AbSIVIuG>; Sun, 22 Sep 2002 04:50:06 -0400
+Received: from apollo.nbase.co.il ([194.90.137.2]:53254 "EHLO
+	apollo.nbase.co.il") by vger.kernel.org with ESMTP
+	id <S276867AbSIVIuF>; Sun, 22 Sep 2002 04:50:05 -0400
+Message-ID: <3D8D8660.80905@nbase.co.il>
+Date: Sun, 22 Sep 2002 11:59:12 +0300
+From: eran@nbase.co.il (Eran Man)
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200209221030.32323.efocht@ess.nec.de>
+To: linux-kernel@vger.kernel.org
+CC: bart.de.schuymer@pandora.be
+Subject: Kernel 2.5.38 EBTables breakage
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill,
+It seems like the EBTables merge in 2.5.38 is incomplete:
+....
+   gcc -Wp,-MD,./.ebtables.o.d -D__KERNEL__ 
+-I/usr/src/linux-2.5.25/include -Wall -Wstrict-prototypes -Wno-trigraphs 
+-O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe 
+-mpreferred-stack-boundary=2 -march=i686 
+-I/usr/src/linux-2.5.25/arch/i386/mach-generic -nostdinc -iwithprefix 
+include -DMODULE   -DKBUILD_BASENAME=ebtables -DEXPORT_SYMTAB  -c -o 
+ebtables.o ebtables.c
+ebtables.c:25:45: linux/netfilter_bridge/ebtables.h: No such file or 
+directory
+ebtables.c:85: variable `ebt_standard_target' has initializer but 
+incomplete type
+ebtables.c:86: extra brace group at end of initializer
+ebtables.c:86: (near initialization for `ebt_standard_target')
+ebtables.c:86: warning: excess elements in struct initializer
+ebtables.c:86: warning: (near initialization for `ebt_standard_target')
+ebtables.c:86: `EBT_STANDARD_TARGET' undeclared here (not in a function)
+ebtables.c:86: warning: excess elements in struct initializer
+ebtables.c:86: warning: (near initialization for `ebt_standard_target')
+ebtables.c:86: warning: excess elements in struct initializer
+ebtables.c:86: warning: (near initialization for `ebt_standard_target')
+ebtables.c:86: warning: excess elements in struct initializer
+ebtables.c:86: warning: (near initialization for `ebt_standard_target')
+ebtables.c:86: warning: excess elements in struct initializer
+ebtables.c:86: warning: (near initialization for `ebt_standard_target')
+ebtables.c:86: warning: excess elements in struct initializer
+ebtables.c:86: warning: (near initialization for `ebt_standard_target')
+ebtables.c:90: warning: `struct ebt_entry_watcher' declared inside 
+parameter list
+ebtables.c:90: warning: its scope is only this definition or 
+declaration, which is probably not what you want.
+ebtables.c: In function `ebt_do_watcher':
+ebtables.c:92: dereferencing pointer to incomplete type
+ebtables.c:92: dereferencing pointer to incomplete type
+ebtables.c:93: dereferencing pointer to incomplete type
+ebtables.c: At top level:
+ebtables.c:100: warning: `struct ebt_entry_match' declared inside 
+parameter list
+ebtables.c: In function `ebt_do_match':
+ebtables.c:102: dereferencing pointer to incomplete type
+ebtables.c:102: dereferencing pointer to incomplete type
+ebtables.c:103: dereferencing pointer to incomplete type
+.....
+This goes on for a couple more pages...
+On the otherhand, there is no real sign of the ebtables in include/linux:
+[eran@eran linux-2.5]$ grep -ri EBT_STANDARD_TARGET include/linux/
+[eran@eran linux-2.5]$ grep -ri ebtables include/linux/
+include/linux/netfilter_bridge.h:/* Not really a hook, but used for the 
+ebtables broute table */
+include/linux/autoconf.h:#undef  CONFIG_BRIDGE_NF_EBTABLES
+[eran@eran linux-2.5]$
+-- 
+Eran Mann                 Direct  : 972-4-9936297
+Senior Software Engineer  Fax     : 972-4-9890430
+Optical Access            Email   : emann@opticalaccess.com
 
-would you please check the boot messages for the NUMA scheduler before
-doing the run. Martin sent me an example where he has:
 
-CPU pools : 1
-pool 0 :0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 
-node level 0 : 10
-pool_delay matrix:
- 129 
 
-which is clearly wrong. In that case we need to fix the cpu-pools setup
-first.
-
-Regards,
-Erich
-
-On Sunday 22 September 2002 10:09, William Lee Irwin III wrote:
-> On Sat, Sep 21, 2002 at 09:46:05AM -0700, Martin J. Bligh wrote:
-> >> An old compile off 2.5.31-mm1 + extras (I don't have 37, but similar)
->
-> On Sat, Sep 21, 2002 at 04:18:10PM -0700, William Lee Irwin III wrote:
-> > Some 8-quad numbers for 2.5.37 (virgin) follow.
->
-> Okay, 2.5.37 virgin with overcommit_memory set to 1 this time.
-> (compiles with -j256 seem to do better than -j32 or -j48, here is -j256):
->
-> ... will follow up with 2.5.38-mm1 with and without NUMA sched, at
-> least if the arrival rate of releases doesn't exceed the benchtime.
 

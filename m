@@ -1,109 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262871AbTAKMxK>; Sat, 11 Jan 2003 07:53:10 -0500
+	id <S265939AbTAKM4H>; Sat, 11 Jan 2003 07:56:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263991AbTAKMxK>; Sat, 11 Jan 2003 07:53:10 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:3336 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262871AbTAKMxI>; Sat, 11 Jan 2003 07:53:08 -0500
-Date: Sat, 11 Jan 2003 13:01:51 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Andi Kleen <ak@muc.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: any chance of 2.6.0-test*?
-Message-ID: <20030111130151.A21505@flint.arm.linux.org.uk>
-Mail-Followup-To: Andi Kleen <ak@muc.de>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-References: <20030110165441$1a8a@gated-at.bofh.it> <20030110165505$38d9@gated-at.bofh.it> <m3iswv27o3.fsf@averell.firstfloor.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S266537AbTAKM4H>; Sat, 11 Jan 2003 07:56:07 -0500
+Received: from zamok.crans.org ([138.231.136.6]:33438 "EHLO zamok.crans.org")
+	by vger.kernel.org with ESMTP id <S265939AbTAKM4F>;
+	Sat, 11 Jan 2003 07:56:05 -0500
+From: Bertrand VIEILLE <Bertrand.Vieille@crans.org>
+To: Vincent Hanquez <tab@tuxfamily.org>
+Subject: Re: 2.4.21-pre3-acX oops
+Date: Sat, 11 Jan 2003 14:04:50 +0100
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <20030110222008$074c@gated-at.bofh.it> <6599015.32TDcXEdQ7@adelaide.crans.org> <20030111123504.GB7731@darwin.gaia.net>
+In-Reply-To: <20030111123504.GB7731@darwin.gaia.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <m3iswv27o3.fsf@averell.firstfloor.org>; from ak@muc.de on Sat, Jan 11, 2003 at 01:27:24PM +0100
+Message-Id: <200301111404.51086@adelaide.crans.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> --- linux-2.5.56-work/drivers/char/tty_io.c-o	2003-01-02 05:13:12.000000000 +0100
-> +++ linux-2.5.56-work/drivers/char/tty_io.c	2003-01-11 13:23:15.000000000 +0100
-> @@ -1329,6 +1329,8 @@
->  		int major, minor;
->  		struct tty_driver *driver;
->  
-> +		lock_kernel(); 
-> +
+Le Saturday 11 January 2003 13:35, Vincent Hanquez a écrit :
+> > EIP:    0010:[__free_pages_ok+637/672]    Tainted: P
+>
+> Your kernel is tainted with a proprietary module.
+>
+> >Process X (pid: 547, stackpage=f7257000)
+>
+> and this is related to X. (nvidia proprietary module ?)
 
-Deadlock.  chrdev_open() calls lock_kernel() and then the fops->open
-method, which is tty_open().
+Yes, NVdriver is loaded.
 
->  		/* find a device that is not in use. */
->  		retval = -1;
->  		for ( major = 0 ; major < UNIX98_NR_MAJORS ; major++ ) {
-> @@ -1340,6 +1342,8 @@
->  				if (!init_dev(device, &tty)) goto ptmx_found; /* ok! */
->  			}
->  		}
-> +
-> +		unlock_kernel();
->  		return -EIO; /* no free ptys */
->  	ptmx_found:
->  		set_bit(TTY_PTY_LOCK, &tty->flags); /* LOCK THE SLAVE */
-> @@ -1357,6 +1361,8 @@
->  #endif  /* CONFIG_UNIX_98_PTYS */
->  	}
->  
-> +	lock_kernel();
-> +
+> Does this oops happen without the module ?
 
-Deadlock.  See chrdev_open() note above.
+I don't have tested without this module (because I works a lot under X) but 
+I also have had an oops with a non-X application (apt-get).
+And Magnus Månsson doesn't have any proprietary module and he has the same 
+problem.
 
->  	retval = init_dev(device, &tty);
->  	if (retval)
->  		return retval;
-> @@ -1389,6 +1395,8 @@
->  #endif
->  
->  		release_dev(filp);
-> +
-> +		unlock_kernel(); 
->  		if (retval != -ERESTARTSYS)
->  			return retval;
->  		if (signal_pending(current))
-> @@ -1397,6 +1405,7 @@
->  		/*
->  		 * Need to reset f_op in case a hangup happened.
->  		 */
-> +		lock_kernel();
 
-Deadlock.  See chrdev_open() note above.
+printing eip:
+c013172d
+Oops: 0002
+CPU:    0
+EIP:    0010:[__free_pages_ok+637/672]    Tainted: P
+EFLAGS: 00010246
+eax: 00000000   ebx: c174f060   ecx: f1262000   edx: f126205c
+esi: 00000000   edi: 00000000   ebp: 00000000   esp: f1263e40
+ds: 0018   es: 0018   ss: 0018
+Process apt-get (pid: 2125, stackpage=f1263000)
+Stack: 00000001 00000282 e70413e0 e70413e0 e70413e0 c174f060 c013d99e 
+e70413e0
+f5a8c128 c174f060 00006827 c02d89a0 c01308df c174f060 000001d2 f1262000
+00000200 000001d2 00000020 00000020 000001d2 00000020 00000006 c0130b23
+Call Trace:    [try_to_free_buffers+142/272] [shrink_cache+543/784] 
+[shrink_caches+99/160] [try_to_free_pages_zone+54/80] 
+[balance_classzone+87/496]
+[__alloc_pages+243/400] [generic_file_write+880/2016] 
+[ext3_file_write+57/208] [sys_write+163/320] [system_call+51/56]
 
->  		filp->f_op = &tty_fops;
->  		goto retry_open;
->  	}
-> @@ -1424,6 +1433,7 @@
->  			nr_warns++;
->  		}
->  	}
-> +	unlock_kernel();
->  	return 0;
->  }
->  
-> @@ -1444,8 +1454,13 @@
->  	if (tty_paranoia_check(tty, filp->f_dentry->d_inode->i_rdev, "tty_poll"))
->  		return 0;
->  
-> -	if (tty->ldisc.poll)
-> -		return (tty->ldisc.poll)(tty, filp, wait);
-> +	if (tty->ldisc.poll) { 
-> +		int ret;
-> +		lock_kernel();
-> +		ret = (tty->ldisc.poll)(tty, filp, wait);
-> +		unlock_kernel();
-> +		return ret;
-> +	}
+Code: 89 58 04 89 03 89 53 04 89 59 5c 89 7b 0c ff 41 68 eb bf 0f
+<1>Unable to handle kernel NULL pointer dereference at virtual address 
+00000004
+printing eip:
+c013172d
+Oops: 0002
+CPU:    0
+EIP:    0010:[__free_pages_ok+637/672]    Tainted: P
+EFLAGS: 00010246
+eax: 00000000   ebx: c19b1470   ecx: f1262000   edx: f126205c
+esi: 00000000   edi: 00000000   ebp: 00000000   esp: f1263c68
+ds: 0018   es: 0018   ss: 0018
+Process apt-get (pid: 2125, stackpage=f1263000)
+Stack: 00000082 00000082 c03449b4 00000020 00000000 c01dbbd3 c03449b4 
+0005879f
+00000000 f720f1a8 00004000 00000001 c012788b c19b1470 00000001 c00bd178
+c02ddfc0 08400000 f1260084 0806e000 00000000 c012607b f6a0bc00 f1260080
+Call Trace:    [poke_blanked_console+83/112] [zap_pte_range+235/272] 
+[zap_page_range+139/240] [exit_mmap+185/352] [mmput+71/160]
+[do_exit+135/560] [die+114/128] [do_page_fault+676/1231] 
+[do_get_write_access+692/1392] [journal_dirty_metadata+379/528] 
+[do_get_write_access+692/1392]
+[do_page_fault+0/1231] [error_code+52/60] [__free_pages_ok+637/672] 
+[try_to_free_buffers+142/272] [shrink_cache+543/784] [shrink_caches+99/160]
+[try_to_free_pages_zone+54/80] [balance_classzone+87/496] 
+[__alloc_pages+243/400] [generic_file_write+880/2016] 
+[ext3_file_write+57/208] [sys_write+163/320]
+[system_call+51/56]
 
-This one needs deeper review.
+Code: 89 58 04 89 03 89 53 04 89 59 5c 89 7b 0c ff 41 68 eb bf 0f
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Bertrand Vieille

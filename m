@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319029AbSHMOCq>; Tue, 13 Aug 2002 10:02:46 -0400
+	id <S319034AbSHMOKC>; Tue, 13 Aug 2002 10:10:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319030AbSHMOCq>; Tue, 13 Aug 2002 10:02:46 -0400
-Received: from pimout2-ext.prodigy.net ([207.115.63.101]:14264 "EHLO
-	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id <S319029AbSHMOCp>; Tue, 13 Aug 2002 10:02:45 -0400
-Message-Id: <200208131406.g7DE6ab182576@pimout2-ext.prodigy.net>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Rob Landley <landley@trommello.org>
-To: alan@redhat.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.20-pre1-ac2
-Date: Tue, 13 Aug 2002 05:06:30 -0400
-X-Mailer: KMail [version 1.3.1]
-References: <200208120010.g7C0A4L22478@devserv.devel.redhat.com> <20020812010136.GA4818@stargate.lan>
-In-Reply-To: <20020812010136.GA4818@stargate.lan>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S319035AbSHMOKC>; Tue, 13 Aug 2002 10:10:02 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:25609 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S319034AbSHMOKC>; Tue, 13 Aug 2002 10:10:02 -0400
+Message-Id: <200208131413.g7DEDd502174@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: linux-kernel@vger.kernel.org, James.Bottomley@SteelEye.com,
+       Erik Andersen <andersen@codepoet.org>
+Subject: Re: [PATCH] cdrom sane fallback vs 2.4.20-pre1
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 13 Aug 2002 09:13:39 -0500
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just a nomenclature thing...
+> > -             if (ret) {
+> > +             if (ret && sense.sense_key==0x05 && sense.asc==0x20 && sense.ascq==0x00) {
+> 
+> Do you really need to hardcode this values ?
 
-> On dim, 11 aoû 2002, Alan Cox wrote:
-> > [+ indicates stuff that went to Marcelo, o stuff that has not,
-> >  * indicates stuff that is merged in mainstream now, X stuff that proved
-> >    bad and was dropped out, - indicates stuff not relevant to the main
-> > tree]
+We have no #defines for the asc and ascq codes (they are interpreted in 
+constants.c but the values are hardcoded in there too).  There is a #define 
+for sense_key 0x05 as ILLEGAL_REQUEST in scsi/scsi.h, but these #defines have 
+annoyed a lot of people by being rather namespace polluting.
 
-> > Linux 2.4.19rc3-a1
-> > o	Merge with 2.4.19rc3
+James
 
-> > Linux 2.4.19rc2-ac1
-> > o	Merge with 2.4.19-rc2
 
-Since these sorts of entries are never going to go to marcelo, perhaps they 
-should be "-" instead of "o"?  (Just a noise reduction suggestion for those 
-trying to see what's still pending in your tree that they won't find in 
-Marcelo's.  No biggie...)
-
-Rob

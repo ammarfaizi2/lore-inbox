@@ -1,94 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261754AbULJQDv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261738AbULJQFF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261754AbULJQDv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 11:03:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261751AbULJQC1
+	id S261738AbULJQFF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 11:05:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261751AbULJQEK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 11:02:27 -0500
-Received: from ms-smtp-01-qfe0.socal.rr.com ([66.75.162.133]:49347 "EHLO
-	ms-smtp-01-eri0.socal.rr.com") by vger.kernel.org with ESMTP
-	id S261750AbULJPre (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 10:47:34 -0500
-Message-ID: <41B9C512.1010908@clones.net>
-Date: Fri, 10 Dec 2004 07:47:30 -0800
-From: Glendon Gross <gross@clones.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jan Dittmer <jdittmer@ppp0.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Burning CD's and 2.6.9
-References: <Pine.NEB.4.44.0412090810570.27084-100000@bsd.clones.net> <41B88007.7060300@ppp0.net> <41B91D62.20804@clones.net> <41B950E5.3080806@ppp0.net> <41B97A81.50606@clones.net> <41B98054.8080002@ppp0.net>
-In-Reply-To: <41B98054.8080002@ppp0.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Dec 2004 11:04:10 -0500
+Received: from mail.kroah.org ([69.55.234.183]:24298 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261750AbULJQCt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 11:02:49 -0500
+Date: Fri, 10 Dec 2004 08:02:24 -0800
+From: Greg KH <greg@kroah.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH] debugfs - yet another in-kernel file system
+Message-ID: <20041210160224.GA6714@kroah.com>
+References: <20041210005055.GA17822@kroah.com> <Pine.LNX.4.53.0412100805440.8273@yvahk01.tjqt.qr> <20041210075429.GA30223@kroah.com> <Pine.LNX.4.53.0412100859210.15980@yvahk01.tjqt.qr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0412100859210.15980@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just successfully made a data DVD using 2.6.9 and growisofs.   So I 
-know that the lockups I had experienced were either a fluke or due
-to problems with cdrecord. 
+On Fri, Dec 10, 2004 at 09:00:22AM +0100, Jan Engelhardt wrote:
+> >> I have to admit that adding another filesystem that is very like procfs or
+> >> sysfs make some kind of redundancy.
+> >
+> >Why?  The main issue is the discussion usually goes like this:
+> >
+> >Me:  Hey, the /proc/driver/foo/foo_value really shouldn't be in proc.
+> >Developer:  Ok, but it has a lot of really good debug stuff in it.  Can
+> >I put it in sysfs?
+> >Me:  No, sysfs is for one-value-per-file whenever possible.  It needs to
+> >go somewhere else.
+> >Developer:  Well, if you don't have anywhere else to put it, why are you
+> >even bringing this up at all.  Go away and leave me alone.
+> 
+> So how about adding seqfiles (or multi-value-per-file things) to sysfs?
 
-I think you are right, that growisofs calls mkosifs which cannot make 
-audio CD's.  So at least I know this is not a driver issue.  Most likely 
-the
-problems I have been having were due to cdrecord. 
+No, that is not going to happen, as it is directly opposite to how sysfs
+is supposed to work (one _single_ value per file).
 
-Regards,
+thanks,
 
-Glendon Gross
-
-
-Jan Dittmer wrote:
-
-> Glendon Gross schrieb:
->
->> I've been using growisofs for quite some time now, but I haven't yet 
->> tested it under 2.6.9. Is it possible to make audio CD's with 
->> growisofs?  If it is, then I really don't need cdrecord at all.
->
->
-> Sorry didn't test it. But I think the answer is no, as it just
-> calls mkisofs to get an iso which in turn is not capable of creating
-> audio cds?
->
-> Jan
->
->>
->> Thanks  for your input.
->>
->> Regards,
->>
->> Glendon Gross
->>
->>
->> Jan Dittmer wrote:
->>
->>> Glendon Gross wrote:
->>>  
->>>
->>>> When I initially posted the problem, I had no /dev/hdc device but 
->>>> now I have cleared that up by commenting out
->>>> the "append hdc=ide-scsi" line in /etc/lilo.conf.   I still need to 
->>>> do more testing to determine the cause of the lockups
->>>> I have been getting when trying to burn CD's under 2.6.9 with 
->>>> cdrecord.  I may be using the wrong version of
->>>> cdrecord, but I noticed that the syntax   "cdrecord dev=/dev/hdc" 
->>>> does work, and is able to talk to the DVD writer.
->>>>   
->>>
->>>
->>>
->>> You should also try growisofs from the dvd+rw-tools package. It works
->>> great for me burning dvds.
->>>
->>> Jan
->>>
->>>
->>>  
->>>
->
->
->
->
-
+greg k-h

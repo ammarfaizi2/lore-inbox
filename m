@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262899AbVAQVxb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262885AbVAQVxc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262899AbVAQVxb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 16:53:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262893AbVAQVxO
+	id S262885AbVAQVxc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 16:53:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262810AbVAQVwV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 16:53:14 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:46988 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262905AbVAQVtS convert rfc822-to-8bit
+	Mon, 17 Jan 2005 16:52:21 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:54419 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262901AbVAQVtR convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 16:49:18 -0500
-Cc: jason.d.gaston@intel.com
-Subject: [PATCH] I2C support for Intel ICH7 - 2.6.10 - resubmit
-In-Reply-To: <11059983952870@kroah.com>
+	Mon, 17 Jan 2005 16:49:17 -0500
+Cc: galak@somerset.sps.mot.com
+Subject: [PATCH] I2C-MPC: Convert to platform_device driver
+In-Reply-To: <11059983961556@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Mon, 17 Jan 2005 13:46:35 -0800
-Message-Id: <1105998395759@kroah.com>
+Date: Mon, 17 Jan 2005 13:46:36 -0800
+Message-Id: <11059983961393@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,53 +24,268 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2329.2.2, 2005/01/14 14:41:41-08:00, jason.d.gaston@intel.com
+ChangeSet 1.2329.2.11, 2005/01/14 14:45:49-08:00, galak@somerset.sps.mot.com
 
-[PATCH] I2C support for Intel ICH7 - 2.6.10 - resubmit
+[PATCH] I2C-MPC: Convert to platform_device driver
 
-This patch adds the Intel ICH7 DID to the i2c-i801.c driver and adds an
-entry to Kconfig for I2C(SMBus) support.  Note: This patch relies on the
-already submitted and accepted PATA patch to pci_ids.h containing all
-ICH7 DID's.
+Converted the driver to work as either a OCP or platform_device driver.
+The intent in the future (once we convert all PPC sub-archs from OCP to
+platform_device) is to remove the OCP code.
 
-
-Signed-off-by: Jason Gaston <Jason.d.gaston@intel.com>
+Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/i2c/busses/Kconfig    |    1 +
- drivers/i2c/busses/i2c-i801.c |    2 ++
- 2 files changed, 3 insertions(+)
+ drivers/i2c/busses/Kconfig   |    2 
+ drivers/i2c/busses/i2c-mpc.c |  135 ++++++++++++++++++++++++++++++++++++++-----
+ 2 files changed, 123 insertions(+), 14 deletions(-)
 
 
 diff -Nru a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
---- a/drivers/i2c/busses/Kconfig	2005-01-17 13:21:11 -08:00
-+++ b/drivers/i2c/busses/Kconfig	2005-01-17 13:21:11 -08:00
-@@ -112,6 +112,7 @@
- 	    82801EB
- 	    6300ESB
- 	    ICH6
-+	    ICH7
+--- a/drivers/i2c/busses/Kconfig	2005-01-17 13:19:48 -08:00
++++ b/drivers/i2c/busses/Kconfig	2005-01-17 13:19:48 -08:00
+@@ -209,7 +209,7 @@
  
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-i801.
-diff -Nru a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
---- a/drivers/i2c/busses/i2c-i801.c	2005-01-17 13:21:11 -08:00
-+++ b/drivers/i2c/busses/i2c-i801.c	2005-01-17 13:21:11 -08:00
-@@ -30,6 +30,7 @@
-     82801EB		24D3   (HW PEC supported, 32 byte buffer not supported)
-     6300ESB		25A4
-     ICH6		266A
-+    ICH7		27DA
-     This driver supports several versions of Intel's I/O Controller Hubs (ICH).
-     For SMBus support, they are similar to the PIIX4 and are part
-     of Intel's '810' and other chipsets.
-@@ -556,6 +557,7 @@
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801EB_3) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ESB_4) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH6_16) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH7_17) },
- 	{ 0, }
+ config I2C_MPC
+ 	tristate "MPC107/824x/85xx/52xx"
+-	depends on I2C && FSL_OCP
++	depends on I2C && PPC
+ 	help
+ 	  If you say yes to this option, support will be included for the
+ 	  built-in I2C interface on the MPC107/Tsi107/MPC8240/MPC8245 and
+diff -Nru a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+--- a/drivers/i2c/busses/i2c-mpc.c	2005-01-17 13:19:48 -08:00
++++ b/drivers/i2c/busses/i2c-mpc.c	2005-01-17 13:19:48 -08:00
+@@ -1,12 +1,12 @@
+ /*
+  * (C) Copyright 2003-2004
+  * Humboldt Solutions Ltd, adrian@humboldt.co.uk.
+- 
++
+  * This is a combined i2c adapter and algorithm driver for the
+  * MPC107/Tsi107 PowerPC northbridge and processors that include
+- * the same I2C unit (8240, 8245, 85xx). 
++ * the same I2C unit (8240, 8245, 85xx).
+  *
+- * Release 0.7
++ * Release 0.8
+  *
+  * This file is licensed under the terms of the GNU General Public
+  * License version 2. This program is licensed "as is" without any
+@@ -20,7 +20,13 @@
+ #include <linux/init.h>
+ #include <linux/pci.h>
+ #include <asm/io.h>
++#ifdef CONFIG_FSL_OCP
+ #include <asm/ocp.h>
++#define FSL_I2C_DEV_SEPARATE_DFSRR FS_I2C_SEPARATE_DFSRR
++#define FSL_I2C_DEV_CLOCK_5200 FS_I2C_CLOCK_5200
++#else
++#include <linux/fsl_devices.h>
++#endif
+ #include <linux/i2c.h>
+ #include <linux/interrupt.h>
+ #include <linux/delay.h>
+@@ -50,10 +56,11 @@
+ 
+ struct mpc_i2c {
+ 	char *base;
+-	struct ocp_def *ocpdef;
+ 	u32 interrupt;
+ 	wait_queue_head_t queue;
+ 	struct i2c_adapter adap;
++	int irq;
++	u32 flags;
  };
  
+ static __inline__ void writeccr(struct mpc_i2c *i2c, u32 x)
+@@ -79,7 +86,8 @@
+ 	u32 x;
+ 	int result = 0;
+ 
+-	if (i2c->ocpdef->irq == OCP_IRQ_NA) {
++	if (i2c->irq == 0)
++	{
+ 		while (!(readb(i2c->base + MPC_I2C_SR) & CSR_MIF)) {
+ 			schedule();
+ 			if (time_after(jiffies, orig_jiffies + timeout)) {
+@@ -92,7 +100,7 @@
+ 		writeb(0, i2c->base + MPC_I2C_SR);
+ 	} else {
+ 		/* Interrupt mode */
+-		result = wait_event_interruptible_timeout(i2c->queue, 
++		result = wait_event_interruptible_timeout(i2c->queue,
+ 			(i2c->interrupt & CSR_MIF), timeout * HZ);
+ 
+ 		if (unlikely(result < 0))
+@@ -130,12 +138,11 @@
+ 
+ static void mpc_i2c_setclock(struct mpc_i2c *i2c)
+ {
+-	struct ocp_fs_i2c_data *i2c_data = i2c->ocpdef->additions;
+ 	/* Set clock and filters */
+-	if (i2c_data && (i2c_data->flags & FS_I2C_SEPARATE_DFSRR)) {
++	if (i2c->flags & FSL_I2C_DEV_SEPARATE_DFSRR) {
+ 		writeb(0x31, i2c->base + MPC_I2C_FDR);
+ 		writeb(0x10, i2c->base + MPC_I2C_DFSRR);
+-	} else if (i2c_data && (i2c_data->flags & FS_I2C_CLOCK_5200))
++	} else if (i2c->flags & FSL_I2C_DEV_CLOCK_5200)
+ 		writeb(0x3f, i2c->base + MPC_I2C_FDR);
+ 	else
+ 		writel(0x1031, i2c->base + MPC_I2C_FDR);
+@@ -287,6 +294,7 @@
+ 	.retries = 1
+ };
+ 
++#ifdef CONFIG_FSL_OCP
+ static int __devinit mpc_i2c_probe(struct ocp_device *ocp)
+ {
+ 	int result = 0;
+@@ -296,7 +304,9 @@
+ 		return -ENOMEM;
+ 	}
+ 	memset(i2c, 0, sizeof(*i2c));
+-	i2c->ocpdef = ocp->def;
++
++	i2c->irq = ocp->def->irq;
++	i2c->flags = ((struct ocp_fs_i2c_data *)ocp->def->additions)->flags;
+ 	init_waitqueue_head(&i2c->queue);
+ 
+ 	if (!request_mem_region(ocp->def->paddr, MPC_I2C_REGION, "i2c-mpc")) {
+@@ -312,16 +322,20 @@
+ 		goto fail_map;
+ 	}
+ 
+-	if (ocp->def->irq != OCP_IRQ_NA)
++	if (i2c->irq != OCP_IRQ_NA)
++	{
+ 		if ((result = request_irq(ocp->def->irq, mpc_i2c_isr,
+ 					  0, "i2c-mpc", i2c)) < 0) {
+ 			printk(KERN_ERR
+ 			       "i2c-mpc - failed to attach interrupt\n");
+ 			goto fail_irq;
+ 		}
++	} else
++		i2c->irq = 0;
+ 
+ 	i2c->adap = mpc_ops;
+ 	i2c_set_adapdata(&i2c->adap, i2c);
++
+ 	if ((result = i2c_add_adapter(&i2c->adap)) < 0) {
+ 		printk(KERN_ERR "i2c-mpc - failed to add adapter\n");
+ 		goto fail_add;
+@@ -348,9 +362,9 @@
+ 	i2c_del_adapter(&i2c->adap);
+ 
+ 	if (ocp->def->irq != OCP_IRQ_NA)
+-		free_irq(i2c->ocpdef->irq, i2c);
++		free_irq(i2c->irq, i2c);
+ 	iounmap(i2c->base);
+-	release_mem_region(i2c->ocpdef->paddr, MPC_I2C_REGION);
++	release_mem_region(ocp->def->paddr, MPC_I2C_REGION);
+ 	kfree(i2c);
+ }
+ 
+@@ -380,6 +394,101 @@
+ 
+ module_init(iic_init);
+ module_exit(iic_exit);
++#else
++static int fsl_i2c_probe(struct device *device)
++{
++	int result = 0;
++	struct mpc_i2c *i2c;
++	struct platform_device *pdev = to_platform_device(device);
++	struct fsl_i2c_platform_data *pdata;
++	struct resource *r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++
++	pdata = (struct fsl_i2c_platform_data *) pdev->dev.platform_data;
++
++	if (!(i2c = kmalloc(sizeof(*i2c), GFP_KERNEL))) {
++		return -ENOMEM;
++	}
++	memset(i2c, 0, sizeof(*i2c));
++
++	i2c->irq = platform_get_irq(pdev, 0);
++	i2c->flags = pdata->device_flags;
++	init_waitqueue_head(&i2c->queue);
++
++	i2c->base = ioremap((phys_addr_t)r->start, MPC_I2C_REGION);
++
++	if (!i2c->base) {
++		printk(KERN_ERR "i2c-mpc - failed to map controller\n");
++		result = -ENOMEM;
++		goto fail_map;
++	}
++
++	if (i2c->irq != 0)
++		if ((result = request_irq(i2c->irq, mpc_i2c_isr,
++					  0, "fsl-i2c", i2c)) < 0) {
++			printk(KERN_ERR
++			       "i2c-mpc - failed to attach interrupt\n");
++			goto fail_irq;
++		}
++
++	i2c->adap = mpc_ops;
++	i2c_set_adapdata(&i2c->adap, i2c);
++	i2c->adap.dev.parent = &pdev->dev;
++	if ((result = i2c_add_adapter(&i2c->adap)) < 0) {
++		printk(KERN_ERR "i2c-mpc - failed to add adapter\n");
++		goto fail_add;
++	}
++
++	mpc_i2c_setclock(i2c);
++	dev_set_drvdata(device, i2c);
++	return result;
++
++      fail_add:
++	if (i2c->irq != 0)
++		free_irq(i2c->irq, 0);
++      fail_irq:
++	iounmap(i2c->base);
++      fail_map:
++	kfree(i2c);
++	return result;
++};
++
++static int fsl_i2c_remove(struct device *device)
++{
++	struct mpc_i2c *i2c = dev_get_drvdata(device);
++
++	dev_set_drvdata(device, NULL);
++	i2c_del_adapter(&i2c->adap);
++
++	if (i2c->irq != 0)
++		free_irq(i2c->irq, i2c);
++
++	iounmap(i2c->base);
++	kfree(i2c);
++	return 0;
++};
++
++/* Structure for a device driver */
++static struct device_driver fsl_i2c_driver = {
++	.name = "fsl-i2c",
++	.bus = &platform_bus_type,
++	.probe = fsl_i2c_probe,
++	.remove = fsl_i2c_remove,
++};
++
++static int __init fsl_i2c_init(void)
++{
++	return driver_register(&fsl_i2c_driver);
++}
++
++static void __exit fsl_i2c_exit(void)
++{
++	driver_unregister(&fsl_i2c_driver);
++}
++
++module_init(fsl_i2c_init);
++module_exit(fsl_i2c_exit);
++
++#endif /* CONFIG_FSL_OCP */
+ 
+ MODULE_AUTHOR("Adrian Cox <adrian@humboldt.co.uk>");
+ MODULE_DESCRIPTION
 

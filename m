@@ -1,82 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266208AbUIIQ0W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266242AbUIIQ3T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266208AbUIIQ0W (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 12:26:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266218AbUIIQ0V
+	id S266242AbUIIQ3T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 12:29:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266257AbUIIQ3S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 12:26:21 -0400
-Received: from fw.osdl.org ([65.172.181.6]:45789 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266208AbUIIQZM (ORCPT
+	Thu, 9 Sep 2004 12:29:18 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:45721 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S266242AbUIIQ2x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 12:25:12 -0400
-Date: Thu, 9 Sep 2004 09:24:57 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Makan Pourzandi <Makan.Pourzandi@ericsson.com>
-Cc: linux-kernel@vger.kernel.org,
-       Axelle Apvrille <axelle.apvrille@trusted-logic.fr>, serue@us.ibm.com,
-       david.gordon@ericsson.com, gaspoucho@yahoo.com
-Subject: Re: [ANNOUNCE] Release Digsig 1.3.1: kernel module for run-time authentication of binaries
-Message-ID: <20040909092457.L1973@build.pdx.osdl.net>
-References: <41407CF6.2020808@ericsson.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <41407CF6.2020808@ericsson.com>; from Makan.Pourzandi@ericsson.com on Thu, Sep 09, 2004 at 11:55:34AM -0400
+	Thu, 9 Sep 2004 12:28:53 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Thu, 9 Sep 2004 18:29:50 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: PROBLEM: x86 alignment check bug
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       davej@codemonkey.org.uk, hpa@zytor.com, bgerst@didntduck.org,
+       Riley@Williams.Name, zach@vmware.com
+X-mailer: Pegasus Mail v3.50
+Message-ID: <315C5E33D6A@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Makan Pourzandi (Makan.Pourzandi@ericsson.com) wrote:
-> Hi all,
+On  8 Sep 04 at 14:26, Alan Cox wrote:
+> On Mer, 2004-09-08 at 00:51, Zachary Amsden wrote:
+> > Exception reporting for alignment check violations on x86 is broken 
+> > (unfortunately, rather badly, and rather hard to fix).  Look at the trap 
+> > function which fills in the si_addr field during an unaligned memory 
+> > access, 2.6.8.1-mm4+, arch/i386/kernel/traps.c, Line 522:
 > 
-> DSI development team would like to announce the release 1.3.1 of digsig.
-> 
-> This kernel module helps system administrators control Executable and
-> Linkable Format (ELF) binary execution and library loading based on
-> the presence of a valid digital signature.  The main functionality is
-> to help system administrators distinguish applications he/she trusts
-> (and therefore signs) from viruses, worms (and other nuisances). It is
-> based on the Linux Security Module hooks.
-> 
-> The code is GPL and available from:
-> http://sourceforge.net/projects/disec/, download digsig-1.3.1. For
-> more documentation, please refer to disec.sourcefrge.net.
-> 
-> I hope that it'll be useful to you.
-> 
-> All bug reports and feature requests or general feedback are welcome
-> (please CC me or disec-devel@lists.sourceforge.net in your answer or
-> feedback to the mailing list).
-> 
-> Regards,
-> Makan Pourzandi
-> 
-> Changes from Digsig release 0.2 announced in this mailing list:
-> ================================================================
-> 
->      - the verification of signatures for the shared binaries has been
->      added.
->      - added support for caching of signatures
->      - added documentation for digsig
->      - added support for revoked signatures
->      - support to avoid vulnerability for rewrite of shared
->      libraries
+> So it fills in a value with random data that should be zero. Ok thats
+> hardly "badly". 
 
-Could you elaborate on this one?
+These are not random data.  It is old value of CR2, which happens to
+be address of last page fault which occured on this CPU.
 
->      - use sysfs to connect to the module instead of the char device
->      - code clean up, and some bug fixes
-> 
-> Future works
-> =============
-> 
->      - improving the caching and revocation: it is currently tested
->        and will be sent out soon after stability testing
+By artifically triggering alignment fault you can find at which virtual 
+address last pagefault on this CPU occured - so you can have some 
+additional information channel which can disclose information about 
+other processes running on your box.  And although probably all security
+related apps learned that page faults can be sensed from time taken to
+answer request, and add random delays to their failure answers, this 
+additional channel could be used to more precisely determine where
+failure occured.
 
-Should be helpful enough to cache result until thing's opened for
-writing, or is that what you're doing now?
+Yes, likelihood that you can use it to hack passwords on your linux box
+is zero, but given that currently si_addr reports garbage for alignment
+faults (on all x86 processors), why not always report zero (or all F,
+or any other constant value or eip) in si_addr? It has same relevance as 
+any other random value, and when compared with semi-random value it does
+not provide an additional information about system behavior.
+                                                Best regards,
+                                                    Petr Vandrovec
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

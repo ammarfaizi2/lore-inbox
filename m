@@ -1,63 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265544AbTIDVHe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 17:07:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265529AbTIDVHO
+	id S265531AbTIDVNV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 17:13:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265528AbTIDVNV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 17:07:14 -0400
-Received: from mail-in-03.arcor-online.net ([151.189.21.43]:25050 "EHLO
-	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
-	id S265323AbTIDVFM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 17:05:12 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: precise characterization of ext3 atomicity
-Date: Thu, 4 Sep 2003 23:08:54 +0200
-User-Agent: KMail/1.5.3
-Cc: reiser@namesys.com, reiserfs-list@namesys.com,
-       linux-kernel@vger.kernel.org
-References: <3F574A49.7040900@namesys.com> <200309042216.04121.phillips@arcor.de> <20030904131052.6ec6426d.akpm@osdl.org>
-In-Reply-To: <20030904131052.6ec6426d.akpm@osdl.org>
+	Thu, 4 Sep 2003 17:13:21 -0400
+Received: from mta06-svc.ntlworld.com ([62.253.162.46]:40940 "EHLO
+	mta06-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id S265531AbTIDVNR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 17:13:17 -0400
+From: James Clark <jimwclark@ntlworld.com>
+Reply-To: jimwclark@ntlworld.com
+To: Rik van Riel <riel@redhat.com>
+Subject: Re: Driver Model 2 Proposal - Linux Kernel Performance v Usability
+Date: Thu, 4 Sep 2003 22:12:25 +0100
+User-Agent: KMail/1.5
+References: <Pine.LNX.4.44.0309041628380.14715-100000@chimarrao.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0309041628380.14715-100000@chimarrao.boston.redhat.com>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200309042308.54002.phillips@arcor.de>
+Message-Id: <200309042212.25052.jimwclark@ntlworld.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 04 September 2003 22:10, Andrew Morton wrote:
-> Daniel Phillips <phillips@arcor.de> wrote:
-> > On Thursday 04 September 2003 17:55, Andrew Morton wrote:
-> > > Hans Reiser <reiser@namesys.com> wrote:
-> > > > Is it correct to say of ext3 that it guarantees and only guarantees
-> > > > atomicity of writes that do not cross page boundaries?
-> > >
-> > > Yes.
-> >
-> > Is that just happenstance, or does Posix or similar mandate it?
->
-> Happenstance.
->
-> It's semi-trivial to do this in ext3.  You'd open the file with O_ATOMIC
-> and a write() would either be completely atomic or would return -EFOO
-> without having written anything.
->
-> The thing which prevents this is the ranking order between journal_start()
-> and lock_page().
->
-> It's not trivial but also not too hard to change things so that
-> journal_start() can rank outside lock_page() - this would also offer some
-> CPU savings.
->
-> Can't say that I'm terribly motivated about the feature though.
+Why would binary drivers be any harder to debug than the existing binary 
+kernel. If you want to debug something use the source code. My proposal 
+doesn't remove the need for quality public source code but it does isolate 
+the kernel components and allow for 'plugin' use on different kernels both 
+old and new.
 
-I'm relieved, I have always thought that some higher level synchronization is 
-required for simultaneous writes.  So Hans might as well tell his fans that 
-Ext3 makes no official guarantee, and neither does Linux.
+If a relatively small kernel component can be turned on/off and upgraded at 
+will, without changing ANYTHING else, this would be a big step forward.
 
-Regards,
+James
 
-Daniel
+
+On Thursday 04 Sep 2003 9:29 pm, you wrote:
+> On Thu, 4 Sep 2003, James Clark wrote:
+> > I'm very surprised by the number of posts that have ranted about
+> > Open/Close source, GPL/taint issues etc. This is not about source code
+> > it is about making Linux usable by the masses.
+>
+> How would "making it easier to include impossible to debug
+> device drivers" help towards your goal of making Linux more
+> usable ?
 

@@ -1,33 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261312AbTDQLeO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 07:34:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbTDQLeO
+	id S261309AbTDQMLj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 08:11:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbTDQMLj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 07:34:14 -0400
-Received: from camay.yandex.ru ([213.180.193.64]:8458 "EHLO camay.yandex.ru")
-	by vger.kernel.org with ESMTP id S261312AbTDQLeN (ORCPT
+	Thu, 17 Apr 2003 08:11:39 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:32269 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S261309AbTDQMLi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 07:34:13 -0400
-Date: Thu, 17 Apr 2003 15:45:55 +0400 (MSD)
-From: "DigorA" <ydigora@yandex.ru>
-Reply-To: ydigora@yandex.ru
-Message-Id: <3E9E93F3.000007.06385@camay.yandex.ru>
-MIME-Version: 1.0
-X-Mailer: Yamail [ http://yandex.ru ]
-To: linux-kernel@vger.kernel.org
-Subject: /target0/lun0/
-X-source-ip: 212.40.192.21
-Content-Type: text/plain;
-  charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
+	Thu, 17 Apr 2003 08:11:38 -0400
+Date: Thu, 17 Apr 2003 14:23:28 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Ludovic Drolez <ludovic.drolez@freealter.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ioctl to get partitions infos
+Message-ID: <20030417122328.GA19035@win.tue.nl>
+References: <3E9E7B7C.9090605@freealter.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E9E7B7C.9090605@freealter.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Waiting for your help!
+On Thu, Apr 17, 2003 at 12:01:32PM +0200, Ludovic Drolez wrote:
 
-After successfull update of a new kernel from 2.2.14 to 2.4.18 first rebooting did failed.  On the stage of initialisation (but before inittab) had wrote "Partition check: /dev/ide/host0/bus0/target0/lun0" and buzzed.  Booting from rescue disk with differnet kernel (some disks with kernel 2.4.x does work, some doesn't) enables disk.  But I'm resctricted with usage and long booting and differnet kernel and so on.  So hard disk works through other kernel.  What can be done?
+> As I need more than 'cat /proc/partitions', I wondered if there's an 
+> ioctl in 2.4 or 2.5 which will kindly return me all the information the 
+> kernel knows about partition (start sector, length, type) ? (pls, don't 
+> say that I need the parse the partition table myself ;-( )
 
-Thank you in advance,
+There are ioctls that will tell you start sector and length.
+HDIO_GETGEO gives you start
+BLKGETSIZE gives you length
 
-Igor A. Dmitriev.
+I do not know what you mean by type, but the kernel doesn't know it.
+
+(A partition may be found from a DOS-type or BSD-type or Amiga-type
+or ... partition table. Each has its own ways of indicating a type
+of partition. A partition can also be created by ioctl where no
+partition table is involved. Then there is no type at all.
+No type is used by the kernel, roughly speaking.)
+
+Andries
+

@@ -1,51 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265943AbUHVDyQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266009AbUHVEPX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265943AbUHVDyQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 23:54:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265981AbUHVDyQ
+	id S266009AbUHVEPX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 00:15:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266013AbUHVEPX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 23:54:16 -0400
-Received: from ozlabs.org ([203.10.76.45]:20143 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S265943AbUHVDyO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 23:54:14 -0400
-Date: Sun, 22 Aug 2004 13:50:34 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: John Levon <levon@movementarian.org>, oprofile-list@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, jbarnes@sgi.com, phil.el@wanadoo.fr
-Subject: Re: [PATCH] improve OProfile on many-way systems
-Message-ID: <20040822035034.GA8702@krispykreme>
-References: <20040821192630.GA9501@compsoc.man.ac.uk> <20040821135833.6b1774a8.akpm@osdl.org> <20040821232206.GC20175@compsoc.man.ac.uk> <20040821163628.10cfa049.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040821163628.10cfa049.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040803i
+	Sun, 22 Aug 2004 00:15:23 -0400
+Received: from lakermmtao01.cox.net ([68.230.240.38]:25997 "EHLO
+	lakermmtao01.cox.net") by vger.kernel.org with ESMTP
+	id S266009AbUHVEPR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 00:15:17 -0400
+In-Reply-To: <41283EDA.6080501@dastyle.net>
+References: <87r7q0th2n.fsf@dedasys.com> <20040821201632.GA7622@digitasaru.net> <20040821202058.GA9218@animx.eu.org> <1093120274.854.145.camel@krustophenia.net> <41282F4C.9060305@dastyle.net> <4127FD5A.90605@superbug.demon.co.uk> <41283EDA.6080501@dastyle.net>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <DF012E80-F3F1-11D8-A7C9-000393ACC76E@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Wakko Warner <wakko@animx.eu.org>,
+       "David N. Welton" <davidw@dedasys.com>,
+       Lee Revell <rlrevell@joe-job.com>,
+       James Courtier-Dutton <James@superbug.demon.co.uk>
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Linux Incompatibility List
+Date: Sun, 22 Aug 2004 00:15:16 -0400
+To: Jonathan Bastien-Filiatrault <joe@dastyle.net>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> Anyway.  My question was mainly a prod in the antonward direction ;)
+On Aug 22, 2004, at 02:36, Jonathan Bastien-Filiatrault wrote:
+> My dad had a thing like that(quick reference card) for an old motorola 
+> 6800(not 68000) processor. It only had 2 8-bit general purpose 
+> registers if I remember correctly. Doesn't even begin to compare with 
+> modern ppc processors.
 
-And Im prepared this time :) An excerpt from my test results a few
-months ago:
+Hey! I built a primitive computer from one of those in a microprocessor 
+class a year ago.  2 8-bit registers, 8-bit data-bus and 16-bit address 
+bus.  There were two interrupt pins, IRQ and NMI, and a simple 
+condition code register.  The CPU clock is the same as the bus clock.  
+What fun!!!
 
-> I ran a fork/exit intensive benchmark (sdet) on a big machine.
-> 
-> No patch:
-> Enabling oprofile resulted in over a 10 times slow down in performance.
-> 
-> oprofile1.patch:
-> About 2% slowdown when oprofile enabled
-> 
-> oprofile2.patch:
-> About 5% slowdown when oprofile enabled
+> Good idea, we should have something like two lists one for "chips" and 
+> one for "containers of chips" aka whole systems. That way it could be 
+> cross-referenced in a database-like way with a nice gtk frontend. The 
+> project probably ressemble the pci-ids project. That would pave the 
+> way for a free(as in speech) hardware purchasing guide.
 
-The final version was actually oprofile3.patch but it had a similar (10
-times) gain in sdet performance.
+A well designed guide could go a long way toward convincing companies 
+to release specs.  When a well known hardware website has user 
+testimonials that the drivers suck, the tech support are unhelpful, and 
+the company just doesn't get it, said company will probably tend to 
+listen.
 
-So the patch is good stuff. Ive been running it locally for the last few 
-months without a problem.
+Cheers,
+Kyle Moffett
 
-Anton
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a17 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
+
+

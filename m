@@ -1,76 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278074AbRJKC7L>; Wed, 10 Oct 2001 22:59:11 -0400
+	id <S278073AbRJKC7B>; Wed, 10 Oct 2001 22:59:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278076AbRJKC7C>; Wed, 10 Oct 2001 22:59:02 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:43759
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S278074AbRJKC6u>; Wed, 10 Oct 2001 22:58:50 -0400
-Date: Wed, 10 Oct 2001 19:59:15 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
+	id <S278076AbRJKC6w>; Wed, 10 Oct 2001 22:58:52 -0400
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:3346 "HELO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
+	id <S278073AbRJKC6l>; Wed, 10 Oct 2001 22:58:41 -0400
+Date: Thu, 11 Oct 2001 04:59:09 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
 To: linux-kernel@vger.kernel.org
-Cc: Rik van Riel <riel@conectiva.com.br>
-Subject: Re: Linux 2.4.10-ac11
-Message-ID: <20011010195915.A485@mikef-linux.matchmail.com>
+Cc: Alan Cox <laughing@shared-source.org>
+Subject: Linux 2.4.10-ac11: swapoff frees memory + swap?
+Message-ID: <20011011045909.A13276@emma1.emma.line.org>
 Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Rik van Riel <riel@conectiva.com.br>
-In-Reply-To: <20011011001617.A4636@lightning.swansea.linux.org.uk> <20011011042228.A10133@emma1.emma.line.org>
+	Alan Cox <laughing@shared-source.org>
+In-Reply-To: <20011011001617.A4636@lightning.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20011011042228.A10133@emma1.emma.line.org>
-User-Agent: Mutt/1.3.22i
+In-Reply-To: <20011011001617.A4636@lightning.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 11, 2001 at 04:22:28AM +0200, Matthias Andree wrote:
-> On Thu, 11 Oct 2001, Alan Cox wrote:
-> 
-> > *	Small fixes to various long standing bugs, various architecture and
-> > *	driver cleanups. The 2.4.10-ac tree now seems pretty solid.
-> > *
-> > 
-> > 2.4.10-ac11
-> > o	Further VM tuning				(Rik van Riel)
-> 
-> Short version: Kicks ass!
-> 
-> Long version: the sluggishness that 2.4.9, 2.4.10 and the previous -ac
-> versions suffered from (not sure if 2.4.7 was also sluggish) seems to be
-> gone, the machine is much quieter now and does not look like paralysed
-> for seconds every now and then. Stress tests need to be done, but a make
-> -j on various DJB tools which would start up only slowly now quickly
-> zoom through.
->
+Hi,
 
-Hmm, I'm still seeing jerky swap out performance with make -j 30 on 256MB
-workstation.  Swap in is good and smooth though.  I would see kswapd taking
-about 10% (with 30 gcc processes on a 2x366 celeron) just before it would
-swap out about 5000 blocks in one second (actually, the entire system
-stalled for about 5-10 seconds, and vmstat wouldn't even report in that
-time period).
+I just ran efence 2.2.0 on an application, which eventually failed
+because it could not mmap more memory.
 
-Rik,
+My machine has 320 MB RAM and >~ 600 MB swap.
 
-Would you be interested in a vmstat output from kernel compile that is
-guaranteed to generate swap out?
+It swaps blazingly fast, but one strange observation. After the efenced
+application had died at approx 300 MB in RAM and 180 MB of swap, I had
+somewhat around 130 MB in swap and like 250 MB "USED+SHAR" as per
+xosview. That looked too high a number, so I did swapoff -av, and after
+that, I had 90 MB used. The swapoff was rather fast, compared with older
+2.4.x vanilla kernels.
 
-I thought of sending both output of make and vmstat to syslog (to get
-timestamps and an idea of exactly what is happening during the vmstat
-output...).
+It may well be a cosmetic issue, but it's irritating that switching the
+swap off looks like freeing main memory as well, one might expect pages
+are swapped back into RAM, so USED increases.
 
-If so, I can write up a little script that can send the output of vmstat, a
-diff of /proc/meminfo, and make output from kernel compile.
+Note, the xosview figures are backed by those of the "free" utility.
 
-Or would that be too much data to look at?
+Any insights?
 
-> 
-> However, one thing strikes me on boot: ext3fs claims it's 0.9.6, while
-> the ext3 web site tells us about 0.9.10. What's going on with 2.4.x-ac
-> ext3fs? Should I be concerned?
-
-No, the ext3 guys are working on a merge patch for -ac right now.  Though
-you won't see it on the ext3 for 2.4 web site...  Check the ext2-devel
-archive for the last week or so...
-
-Mike
+Matthias

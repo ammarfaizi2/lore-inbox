@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262339AbRERPLx>; Fri, 18 May 2001 11:11:53 -0400
+	id <S262335AbRERPKM>; Fri, 18 May 2001 11:10:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262341AbRERPLn>; Fri, 18 May 2001 11:11:43 -0400
-Received: from t2.redhat.com ([199.183.24.243]:47867 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S262339AbRERPLa>; Fri, 18 May 2001 11:11:30 -0400
-Message-ID: <3B053B9B.23286E6C@redhat.com>
-Date: Fri, 18 May 2001 16:11:23 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-Organization: Red Hat, Inc
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org
-Subject: Re: CML2 design philosophy heads-up
-In-Reply-To: <20010518034307.A10784@thyrsus.com> <E150fV9-0006q1-00@the-village.bc.nu> <20010518105353.A13684@thyrsus.com>
+	id <S262339AbRERPKD>; Fri, 18 May 2001 11:10:03 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:13072 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S262335AbRERPJr>;
+	Fri, 18 May 2001 11:09:47 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: CML2 <linux-kernel@vger.kernel.org>
+cc: kbuild-devel@lists.sourceforge.net
+Subject: Re: CML2 design philosophy heads-up 
+In-Reply-To: Your message of "Fri, 18 May 2001 10:53:53 -0400."
+             <20010518105353.A13684@thyrsus.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Sat, 19 May 2001 01:09:41 +1000
+Message-ID: <1694.990198581@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->    (a) Back off the capability approach.  That is, accept that
->        people doing configuration are going to explicitly and
->        exhaustively specify low-level hardware.
+cc trimmed back to mailing lists only.
 
-<snip>
+On Fri, 18 May 2001 10:53:53 -0400, 
+"Eric S. Raymond" <esr@thyrsus.com> wrote:
+>   (a) Back off the capability approach.  That is, accept that 
+>       people doing configuration are going to explicitly and 
+>       exhaustively specify low-level hardware.
 
- 
-> I don't want to do (a); it conflicts with my design objective of
-> simplifying configuration enough that Aunt Tillie can do it.  I won't
-> do that unless I see a strong consensus that it's the only Right Thing.
+No, you loose one of the nicer features of CML2.
 
-Aunt Tillie doesn't even know what a kernel is, nor does she want to. I
-think 
-it's fair to assume that people who configure and compile their own
-kernel 
-(as opposed to using the distribution supplied ones) know what they are
-doing.
+>   (b) Add complexity to the ruleset.  Split SCSI into SCSI_MIDLEVEL and 
+>       SCSI_DRIVERS capabilities, make sure SCSI_DRIVERS is implied
+>       whenever a SCSI card is configured, etc.
 
-Or at least make something like a "Expert level" question as first
-question, so 
-that people who DO know what they are doing can select the options they
-want.
-Going from "make config" (which has a scary interface for novice users,
-agreed)
-to "vi" is NOT progress.
+As a specific case this needs doing anyway, to handle SCSI emulation
+over IDE, irrespective of the board type.  It needs mid layer but no
+SCSI driver and can be done on a PC right now.
 
-Greetings,
-   Arjan van de Ven
+As a general question, I prefer selecting machine type foo to mean just
+that, you get the devices supported by foo.
+
+>   (c) Decide not to support this case and document the fact in the
+>       rulesfile.  If you're going put gunge on the VME bus that replaces
+>       the SBC's on-board facilities, you can hand-hack your own configs.
+
+In general this is the best option, if you create a non-standard
+configuration for machine foo then it is your problem, not everybody
+else's.
+

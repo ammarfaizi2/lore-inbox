@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265844AbRGFDRw>; Thu, 5 Jul 2001 23:17:52 -0400
+	id <S265902AbRGFDdm>; Thu, 5 Jul 2001 23:33:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265865AbRGFDRm>; Thu, 5 Jul 2001 23:17:42 -0400
-Received: from gecko.roadtoad.net ([209.209.8.2]:1021 "EHLO gecko.roadtoad.net")
-	by vger.kernel.org with ESMTP id <S265844AbRGFDRe>;
-	Thu, 5 Jul 2001 23:17:34 -0400
-Date: Thu, 5 Jul 2001 20:17:28 -0700 (PDT)
-From: Derek Vadala <derek@cynicism.com>
-To: linux-kernel@vger.kernel.org
-Subject: max sizes for files and file systems
-Message-ID: <Pine.GSO.4.21.0107052009500.28636-100000@gecko.roadtoad.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265918AbRGFDdc>; Thu, 5 Jul 2001 23:33:32 -0400
+Received: from sgi.SGI.COM ([192.48.153.1]:26731 "EHLO sgi.com")
+	by vger.kernel.org with ESMTP id <S265902AbRGFDdW>;
+	Thu, 5 Jul 2001 23:33:22 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: sendhil kumar <hello_linux@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: cleanup_module/delete_module. 
+In-Reply-To: Your message of "Thu, 05 Jul 2001 20:14:41 MST."
+             <20010706031441.44905.qmail@web14907.mail.yahoo.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 06 Jul 2001 13:32:57 +1000
+Message-ID: <6464.994390377@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been trying to do some research on the file size and filesystem size
-limitations under Linux for stable releases since 2.0. 
+On Thu, 5 Jul 2001 20:14:41 -0700 (PDT), 
+sendhil kumar <hello_linux@yahoo.com> wrote:
+>I want to know the difference between the
+>cleanup_module and delete_module system call. Can any
+>one please clarify my doubt.
 
-It's clear that under 2.4, the kernel imposes a limit of 2TB as the
-maximum file size and that some portion of the kernels before 2.4 had a
-limit of 2GB.
-
-However, it's not clear to me when the file size limit was increased, or
-what the maximum file system sizes under 2.0, 2.2 and 2.4 are. I realize
-that both of these values are also contingent on the filesystem used, but
-I'm wondering about what limits the kernel itself imposes. 
-
-I'm also a bit unclear as to where the 2GB limit in kernels < 2.4 comes
-from. It appears to be a kernel imposed limit, but there also seems to be
-a lot conflicting information out there, blaming the problem on
-EXT2. However, from what I can tell, 2.0.39, 2.2.19 and 2.4.5 all use the
-same version (0.5b-95/08/09) of ext2-- either that or EXT2FS_VERSION and
-EXT2FS_DATE in .../include/linux/ext2_fs.h simply haven't been updated.
-
-Any clarification would be appreciated.
-
----
-Derek Vadala, derek@cynicism.com, http://www.cynicism.com/~derek
+insmod inserts the address of cleanup_module() in the module structure
+at load time.  When syscall delete_module() is about to remove the
+module, it calls the module's clean up routine, if it exists.  So
+cleanup_module() is invoked during module deletion to let the module do
+any local clean up.
 

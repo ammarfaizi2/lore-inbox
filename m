@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261683AbSJCQfP>; Thu, 3 Oct 2002 12:35:15 -0400
+	id <S261442AbSJCQVJ>; Thu, 3 Oct 2002 12:21:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261641AbSJCQfP>; Thu, 3 Oct 2002 12:35:15 -0400
-Received: from se1.cogenit.fr ([195.68.53.173]:36751 "EHLO cogenit.fr")
-	by vger.kernel.org with ESMTP id <S261639AbSJCQfO>;
-	Thu, 3 Oct 2002 12:35:14 -0400
-Date: Thu, 3 Oct 2002 18:40:41 +0200
-From: Francois Romieu <romieu@cogenit.fr>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cli()/sti() fix for drivers/net/depca.c
-Message-ID: <20021003184041.A29041@se1.cogenit.fr>
-References: <200210022005.g92K5Fp31816@Port.imtp.ilyichevsk.odessa.ua> <200210022133.g92LX0p32156@Port.imtp.ilyichevsk.odessa.ua> <20021003001228.A18629@fafner.intra.cogenit.fr> <200210030743.g937hBp01523@Port.imtp.ilyichevsk.odessa.ua>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200210030743.g937hBp01523@Port.imtp.ilyichevsk.odessa.ua>; from vda@port.imtp.ilyichevsk.odessa.ua on Thu, Oct 03, 2002 at 10:37:03AM -0200
-X-Organisation: Marie's fan club - III
+	id <S261450AbSJCQVI>; Thu, 3 Oct 2002 12:21:08 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:7315 "EHLO cherise.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S261442AbSJCQVG>;
+	Thu, 3 Oct 2002 12:21:06 -0400
+Date: Thu, 3 Oct 2002 09:28:33 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise.pdx.osdl.net
+To: john stultz <johnstul@us.ibm.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>, Dave Jones <davej@suse.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Greg KH <greg@kroah.com>,
+       george anzinger <george@mvista.com>
+Subject: Re: [PATCH] linux-2.5.40_timer-changes_A3 (1/3 - infrastructure)
+In-Reply-To: <1033625380.28783.60.camel@cog>
+Message-ID: <Pine.LNX.4.44.0210030922210.27710-100000@cherise.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> :
-[...]
-> > depca_rx() looks strange:
-> > buf = skb_put(skb, len);
-> > [...]
-> > netif_rx(skb);
-> > [...]
-> > if (buf[0] & ...)
-> 
-> I'd say this network stuff is a bit cryptic for untrained eye :-)
-> What's strange with that code?
 
-One shouldn't assume the buffer is available once it was passed to 
-netif_rx().
+> 	Inspired by suggestions from Alan, this collection of patches tries to
+> clean up time.c by breaking out the PIT and TSC specific parts into
+> their own files. Additionally the patch creates an abstract interface to
+> use these existing time soruces, as well as make it easier to add future
+> time sources. 
 
--- 
-Ueimor
+I would suggest taking it one small step farther and putting everything in 
+their own subdirectory. Like arch/i386/kernel/timer/, at least for now. IF 
+we ever get an arch/i386/driver/ subdir, it's simple enough to move the 
+dir. One way or another, it unclutters the directory while achieving the 
+same cleanup.
+
+
+	-pat
+

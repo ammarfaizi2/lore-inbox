@@ -1,62 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265968AbSKFTgW>; Wed, 6 Nov 2002 14:36:22 -0500
+	id <S266041AbSKFTnX>; Wed, 6 Nov 2002 14:43:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265954AbSKFTgW>; Wed, 6 Nov 2002 14:36:22 -0500
-Received: from pirx.hexapodia.org ([208.42.114.113]:10774 "HELO
-	pirx.hexapodia.org") by vger.kernel.org with SMTP
-	id <S265968AbSKFTgV>; Wed, 6 Nov 2002 14:36:21 -0500
-Date: Wed, 6 Nov 2002 13:42:58 -0600
-From: Andy Isaacson <adi@hexapodia.org>
-To: Thomas Schenk <tschenk@origin.ea.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Need assistance in determining memory usage
-Message-ID: <20021106134258.A12322@hexapodia.org>
-References: <1036433472.2884.42.camel@shire> <1036436466.1106.105.camel@irongate.swansea.linux.org.uk> <1036437769.2902.76.camel@shire>
-Mime-Version: 1.0
+	id <S266045AbSKFTnW>; Wed, 6 Nov 2002 14:43:22 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:55288 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S266041AbSKFTnU>;
+	Wed, 6 Nov 2002 14:43:20 -0500
+Message-ID: <3DC97233.2BBD511@mvista.com>
+Date: Wed, 06 Nov 2002 11:49:07 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+CC: Mikael Pettersson <mikpe@csd.uu.se>, Ingo Molnar <mingo@elte.hu>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: NMI watchdog question.
+References: <Pine.GSO.3.96.1021106192840.2684L-100000@delta.ds2.pg.gda.pl>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1036437769.2902.76.camel@shire>; from tschenk@origin.ea.com on Mon, Nov 04, 2002 at 01:22:44PM -0600
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 04, 2002 at 01:22:44PM -0600, Thomas Schenk wrote:
-> On Mon, 2002-11-04 at 13:01, Alan Cox wrote:
-> > On Mon, 2002-11-04 at 18:11, Thomas Schenk wrote:
-> > > was adequate, I wouldn't be asking here and every reference I could find
-> > > indicates that this is not a trivial problem.  There were also
-> > > indications I found while searching that these tools do not always
-> > > report memory numbers accurately.  If there is a way to determine this
-> > > information using /proc, this would be ideal, since I could then
-> > > conceivably create a script or simple program that could determine the
-> > > answer given the process ID, which is what the developers here really
-> > > want.
-> > 
-> > Neither the question nor the answer are trivial. What are you trying to
-> > do with the data may be the most relevant question
+"Maciej W. Rozycki" wrote:
 > 
-> This situation is this:
+> On Wed, 6 Nov 2002, george anzinger wrote:
 > 
-> We are building an online game system.  On some of the systems, there
-> are simulator processes running that each service a player.  There may
-> be up to 200 or more of these processes running at any given time and
-> each uses a fairly large amount of memory (as reported by ps).  Part of
-> this is due to the fact that the processes have not been optimized to
-> make the most efficient use of memory.  When the simulator processes
-> start swapping, then the systems are becoming unstable, performance goes
-> all to hell and sometimes the systems totally hang.  It would be useful
-> for us to be able to monitor as closely as possible the amount of memory
-> each processes is using and especially to be notified when these
-> processes start using significant amounts of swap, so that we can be
-> prepared to react before the situation gets out of hand.
+> > So then the NMI checks for timer interrupts being serviced
+> > in this case?  But, still, why the turn off if the timer
+> > does not go thru the APIC?  The case this came up in is an
+> > SMP machine, but the test in apic.c shows that the PIT
+> > interrupt does not go thru the APIC.  Leaving NMI on seems
+> > to work, so I am wondering if this is just old code.
+> 
+>  For the I/O APIC NMI watchdog the PIT timer is used as a source of NMI
+> interrupts as well as a source of timer interrupts.  For this to work you
+> need to have two APIC interrupt inputs to receive timer ticks, one
+> programmed as an ordinary LoPri interrupt and the other one as an NMI one.
 
-I do not believe that the kernel exports the information "what processes
-are using swap?".  You can answer some of your questions by using my
-pmap program; it's in at least some recent procps packages, or download
-the source:
-http://web.hexapodia.org/~adi/pmap.c
+So the performance counters are only used on UP machines?
 
--andy
+Also, what is the point of turning off the nmi in this way
+(i.e. nmi_watchdog = 0;)?  If the interrupts are not
+generated the test of the flag will not be done in traps.c. 
+Is it tested else where?
+
+> 
+>  Our implementation supports two common variants:
+> 
+> 1. The PIT timer is directly connected to an I/O APIC input (typically
+> INTIN2 of the first I/O APIC) *and* to the master i8259A PIC (hereafter
+> referred to as PIC).  The output of the PIC is connected both to an I/O
+> APIC input (typically INTIN0 of the first I/O APIC) *and* to all LINT0
+> inputs of local APICs.  For such a setup, the I/O APIC input INTIN2 is
+> programmed to send LoPri timer interrupts and the LINT0 inputs are
+> programmed to send NMIs -- for the latter to work the PIC is programmed to
+> behave transparently.  Intel chipsets usually behave this way -- an
+> exception is the ancient EISA-only i82350.
+> 
+> 2. The PIT timer is directly connected to the PIC only.  The output of the
+> PIC is connected both to an I/O APIC input (typically INTIN0 of the first
+> I/O APIC) *and* to all LINT0 inputs of local APICs.  For such a setup, the
+> I/O APIC input INTIN0 is programmed to send LoPri timer interrupts and the
+> LINT0 inputs are programmed to send NMIs -- for both interrupts to work
+> the PIC is programmed to behave transparently.  The Intel i82350 chipset
+> and ServerWorks ones behave this way.
+> 
+>  If neither of the variants works, which is rare, but happens in real life
+> -- for example some glue logic prevents the PIC from working transparently
+> -- then the case you are asking about happens.  At this moment we only
+> have a single input for timer interrupts available (be it INTIN0 or LINT0)
+> and it has to be programmed for the ExtINTA PC/AT compatibility mode and
+> no input remains for the NMI.  We choose LINT0 of the bootstrap CPU as it
+> offloads the inter-APIC bus a little and provides a slightly lower
+> latency.  We could use INTIN0 as well, but LINT0 never failed so far
+> (there is also a safeguard in the MP-table parser).
+> 
+>   Maciej
+> 
+> --
+> +  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
+> +--------------------------------------------------------------+
+> +        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

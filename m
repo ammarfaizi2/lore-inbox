@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318046AbSHHX0U>; Thu, 8 Aug 2002 19:26:20 -0400
+	id <S318066AbSHHX3t>; Thu, 8 Aug 2002 19:29:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318066AbSHHX0U>; Thu, 8 Aug 2002 19:26:20 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:58385 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318046AbSHHX0T>; Thu, 8 Aug 2002 19:26:19 -0400
-Date: Fri, 9 Aug 2002 00:29:58 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Luca Barbieri <ldb@ldb.ods.org>
-Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [2.5] asm-generic/atomic.h and changes to arm, parisc, mips, m68k, sh, cris to use it
-Message-ID: <20020809002958.B20257@flint.arm.linux.org.uk>
-References: <1028842995.1669.70.camel@ldb>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1028842995.1669.70.camel@ldb>; from ldb@ldb.ods.org on Thu, Aug 08, 2002 at 11:43:15PM +0200
+	id <S318071AbSHHX3t>; Thu, 8 Aug 2002 19:29:49 -0400
+Received: from h-66-134-202-172.SNVACAID.covad.net ([66.134.202.172]:65465
+	"EHLO freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S318066AbSHHX3s>; Thu, 8 Aug 2002 19:29:48 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Thu, 8 Aug 2002 16:33:20 -0700
+Message-Id: <200208082333.QAA11560@adam.yggdrasil.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: USBLP_WRITE_TIMEOUT too short for Kyocera FS-1010.
+Cc: linux-usb-devel@lists.sourceforge.net, mjr@znex.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 08, 2002 at 11:43:15PM +0200, Luca Barbieri wrote:
->...
+Mark J Roberts writes:
+>Printing complicated postscript documents makes my Kyocera FS-1010
+>hit that timeout. I increased it to 240 seconds and the problem
+>seems to have disappeared.
+>
+>I guess there ought to be a blacklist or something.
 
-Please don't do this for ARM.
+	I saw a similar thing a few weeks ago (under 2.5.27?) with the
+Hewlett-Packard 656C ink jet printer, which only occurred when I would
+send a page with images on it, so the printer really would need a long
+time before it was ready to accept more data.
 
-> -static inline int atomic_dec_and_test(volatile atomic_t *v)
-> -{
-> -	unsigned long flags;
-> -	int val;
-> -
-> -	local_irq_save(flags);
-> -	val = v->counter;
-> -	v->counter = val -= 1;
-> -	local_irq_restore(flags);
-> -
-> -	return val == 0;
-> -}
+	I would hope that the kernel should be able to wait as long
+as the printer wants before the printer indicates that it is ready for
+more data.  I don't know if this is a bug in these printers' USB
+implementations or if it is a real kernel bug.  I just haven't had
+time to investigate it yet (and I no longer have access to that printer,
+although 656C's are only $30 at Fry's).
 
-This C code is carefully optimised to allow the compiler to order things
-efficiently.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

@@ -1,32 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316608AbSEUVYm>; Tue, 21 May 2002 17:24:42 -0400
+	id <S316620AbSEUV0d>; Tue, 21 May 2002 17:26:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316615AbSEUVYl>; Tue, 21 May 2002 17:24:41 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:23049 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S316608AbSEUVYk>; Tue, 21 May 2002 17:24:40 -0400
+	id <S316613AbSEUV0b>; Tue, 21 May 2002 17:26:31 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48644 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S316620AbSEUV0Y>; Tue, 21 May 2002 17:26:24 -0400
+Date: Tue, 21 May 2002 14:25:46 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Pavel Machek <pavel@suse.cz>
+cc: Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>,
+        <alan@lxorguk.ukuu.org.uk>
 Subject: Re: AUDIT: copy_from_user is a deathtrap.
-To: pavel@suse.cz (Pavel Machek)
-Date: Tue, 21 May 2002 22:44:42 +0100 (BST)
-Cc: torvalds@transmeta.com (Linus Torvalds),
-        rusty@rustcorp.com.au (Rusty Russell), linux-kernel@vger.kernel.org,
-        alan@lxorguk.ukuu.org.uk
-In-Reply-To: <20020521211727.GG22878@atrey.karlin.mff.cuni.cz> from "Pavel Machek" at May 21, 2002 11:17:27 PM
-X-Mailer: ELM [version 2.5 PL6]
+In-Reply-To: <20020521211727.GG22878@atrey.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.33.0205211423490.1405-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17AHQw-0000Jq-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So if you pass bad pointer to read(), why would you expect "number of
-> bytes read" return? Its true that kernel can't simply not return
 
-Because the standard says either you return the errorcode and no data
-is transferred or for a partial I/O you return how much was done. Its
-not neccessarily about accuracy either. If you do a 4k copy_from_user and
-error after for some reason returning -Esomething thats fine providing you
-didnt do anything that consumed data or shifted the file position etc
+On Tue, 21 May 2002, Pavel Machek wrote:
+> 
+> If you pass bad pointer to memcpy(), you don't expect any reasonable
+> return value, right?
+
+Actually, if I pass a bad pointer to memcpy(), and I have a handler for
+the SIGSEGV that fixes up the thing, yes, by golly, I _do_ expect memcpy()  
+to get the right value.
+
+If it doesn't, then the system is BROKEN.
+
+Face it Pavel, you're WRONG. You're so incredibly wrong that this is not 
+worth even discussing. Linux does it right now, and I won't break that 
+correct behaviour just because somebody has a incorrect and silly view of 
+what is readable.
+
+Face it, copy_to/from_user does the RIGHT THING, and stop whining about 
+it.
+
+		Linus
+

@@ -1,299 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261247AbUJ1RHL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261902AbUJ1RMX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261247AbUJ1RHL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 13:07:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbUJ1RGB
+	id S261902AbUJ1RMX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 13:12:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261948AbUJ1RIA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 13:06:01 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:33817 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261850AbUJ1RDC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 13:03:02 -0400
-Date: Thu, 28 Oct 2004 21:03:17 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       linux-arch@vger.kernel.org
-Subject: arm: use generic support for constants.h
-Message-ID: <20041028190317.GE9004@mars.ravnborg.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>, linux-arch@vger.kernel.org
-References: <20041028185917.GA9004@mars.ravnborg.org>
+	Thu, 28 Oct 2004 13:08:00 -0400
+Received: from THUNK.ORG ([69.25.196.29]:4809 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S261824AbUJ1RGp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 13:06:45 -0400
+Date: Thu, 28 Oct 2004 13:06:42 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Timo Sirainen <tss@iki.fi>, linux-kernel@vger.kernel.org
+Subject: Re: readdir loses renamed files
+Message-ID: <20041028170642.GA8220@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>, Timo Sirainen <tss@iki.fi>,
+	linux-kernel@vger.kernel.org
+References: <431547F9-2624-11D9-8AC3-000393CC2E90@iki.fi> <20041025123722.GA5107@thunk.org> <20041028093426.GB15050@merlin.emma.line.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041028185917.GA9004@mars.ravnborg.org>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20041028093426.GB15050@merlin.emma.line.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-arm: Use new generic offset.h infrastructure
-   
-The symlinking taking place in include/asm-arm had to move also.
-Did not have an arm toolchain to test it..
-  
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+On Thu, Oct 28, 2004 at 11:34:26AM +0200, Matthias Andree wrote:
+> Please - is it really necessary that application writers are offended in
+> this way? Timo is investing enormous time and effort in writing a *good*
+> application, and he's effectively seeking a way to *robustly* deal with
+> Maildir format mail storage. Please leave it at "readdir/getdents don't
+> work the way you expect and cannot for this and that reason."
+> 
+> Timo tries to implement a *robust* Maildir reader and has just bumped
+> into the flaws of DJB's "no-locking" store.
 
-diff -Nru a/arch/arm/Makefile b/arch/arm/Makefile
---- a/arch/arm/Makefile	2004-10-28 20:54:28 +02:00
-+++ b/arch/arm/Makefile	2004-10-28 20:54:28 +02:00
-@@ -108,7 +108,7 @@
- ifeq ($(incdir-y),)
- incdir-y := $(machine-y)
- endif
--INCDIR   := arch-$(incdir-y)
-+export INCDIR   := arch-$(incdir-y)
- ifneq ($(machine-y),)
- MACHINE  := arch/arm/mach-$(machine-y)/
- else
-@@ -141,21 +141,7 @@
- 
- boot := arch/arm/boot
- 
--#	Update machine arch and proc symlinks if something which affects
--#	them changed.  We use .arch to indicate when they were updated
--#	last, otherwise make uses the target directory mtime.
--
--include/asm-arm/.arch: $(wildcard include/config/arch/*.h) include/config/MARKER
--	@echo '  SYMLINK include/asm-arm/arch -> include/asm-arm/$(INCDIR)'
--ifneq ($(KBUILD_SRC),)
--	$(Q)mkdir -p include/asm-arm
--	$(Q)ln -fsn $(srctree)/include/asm-arm/$(INCDIR) include/asm-arm/arch
--else
--	$(Q)ln -fsn $(INCDIR) include/asm-arm/arch
--endif
--	@touch $@
--
--prepare: maketools include/asm-arm/.arch
-+prepare: maketools
- 
- .PHONY: maketools FORCE
- maketools: include/asm-arm/constants.h include/linux/version.h FORCE
-@@ -171,7 +157,7 @@
- 	$(Q)$(MAKE) $(build)=$(boot) MACHINE=$(MACHINE) $@
- 
- CLEAN_FILES += include/asm-arm/constants.h* include/asm-arm/mach-types.h \
--	       include/asm-arm/arch include/asm-arm/.arch
-+	       include/asm-arm/arch
- 
- # We use MRPROPER_FILES and CLEAN_FILES now
- archclean:
-@@ -180,12 +166,6 @@
- # My testing targets (bypasses dependencies)
- bp:;	$(Q)$(MAKE) $(build)=$(boot) MACHINE=$(MACHINE) $(boot)/bootpImage
- i zi:;	$(Q)$(MAKE) $(build)=$(boot) MACHINE=$(MACHINE) $@
--
--arch/$(ARCH)/kernel/asm-offsets.s: include/asm include/linux/version.h \
--				   include/asm-arm/.arch
--
--include/asm-$(ARCH)/constants.h: arch/$(ARCH)/kernel/asm-offsets.s
--	$(call filechk,gen-asm-offsets)
- 
- define archhelp
-   echo  '* zImage        - Compressed kernel image (arch/$(ARCH)/boot/zImage)'
-diff -Nru a/arch/arm/kernel/asm-offsets.c b/arch/arm/kernel/asm-offsets.c
---- a/arch/arm/kernel/asm-offsets.c	2004-10-28 20:54:28 +02:00
-+++ /dev/null	Wed Dec 31 16:00:00 196900
-@@ -1,80 +0,0 @@
--/*
-- * Copyright (C) 1995-2003 Russell King
-- *               2001-2002 Keith Owens
-- *     
-- * Generate definitions needed by assembly language modules.
-- * This code generates raw asm output which is post-processed to extract
-- * and format the required data.
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License version 2 as
-- * published by the Free Software Foundation.
-- */
--#include <linux/sched.h>
--#include <linux/mm.h>
--#include <asm/mach/arch.h>
--#include <asm/thread_info.h>
--
--/*
-- * Make sure that the compiler and target are compatible.
-- */
--#if defined(__APCS_26__)
--#error Sorry, your compiler targets APCS-26 but this kernel requires APCS-32
--#endif
--/*
-- * GCC 2.95.1, 2.95.2: ignores register clobber list in asm().
-- * GCC 3.0, 3.1: general bad code generation.
-- * GCC 3.2.0: incorrect function argument offset calculation.
-- * GCC 3.2.x: miscompiles NEW_AUX_ENT in fs/binfmt_elf.c
-- *            (http://gcc.gnu.org/PR8896) and incorrect structure
-- *	      initialisation in fs/jffs2/erase.c
-- */
--#if __GNUC__ < 2 || \
--   (__GNUC__ == 2 && __GNUC_MINOR__ < 95) || \
--   (__GNUC__ == 2 && __GNUC_MINOR__ == 95 && __GNUC_PATCHLEVEL__ != 0 && \
--					     __GNUC_PATCHLEVEL__ < 3) || \
--   (__GNUC__ == 3 && __GNUC_MINOR__ < 3)
--#error Your compiler is too buggy; it is known to miscompile kernels.
--#error    Known good compilers: 2.95.3, 2.95.4, 2.96, 3.3
--#endif
--
--/* Use marker if you need to separate the values later */
--
--#define DEFINE(sym, val) \
--        asm volatile("\n->" #sym " %0 " #val : : "i" (val))
--
--#define BLANK() asm volatile("\n->" : : )
--
--int main(void)
--{
--  DEFINE(TSK_ACTIVE_MM,		offsetof(struct task_struct, active_mm));
--  BLANK();
--  DEFINE(TI_FLAGS,		offsetof(struct thread_info, flags));
--  DEFINE(TI_PREEMPT,		offsetof(struct thread_info, preempt_count));
--  DEFINE(TI_ADDR_LIMIT,		offsetof(struct thread_info, addr_limit));
--  DEFINE(TI_TASK,		offsetof(struct thread_info, task));
--  DEFINE(TI_EXEC_DOMAIN,	offsetof(struct thread_info, exec_domain));
--  DEFINE(TI_CPU,		offsetof(struct thread_info, cpu));
--  DEFINE(TI_CPU_DOMAIN,		offsetof(struct thread_info, cpu_domain));
--  DEFINE(TI_CPU_SAVE,		offsetof(struct thread_info, cpu_context));
--  DEFINE(TI_USED_CP,		offsetof(struct thread_info, used_cp));
--  DEFINE(TI_FPSTATE,		offsetof(struct thread_info, fpstate));
--  DEFINE(TI_VFPSTATE,		offsetof(struct thread_info, vfpstate));
--  DEFINE(TI_IWMMXT_STATE,	(offsetof(struct thread_info, fpstate)+4)&~7);
--  BLANK();
--#if __LINUX_ARM_ARCH__ >= 6
--  DEFINE(MM_CONTEXT_ID,		offsetof(struct mm_struct, context.id));
--  BLANK();
--#endif
--  DEFINE(VMA_VM_MM,		offsetof(struct vm_area_struct, vm_mm));
--  DEFINE(VMA_VM_FLAGS,		offsetof(struct vm_area_struct, vm_flags));
--  BLANK();
--  DEFINE(VM_EXEC,	       	VM_EXEC);
--  BLANK();
--  DEFINE(PAGE_SZ,	       	PAGE_SIZE);
--  BLANK();
--  DEFINE(SYS_ERROR0,		0x9f0000);
--  BLANK();
--  DEFINE(SIZEOF_MACHINE_DESC,	sizeof(struct machine_desc));
--  return 0; 
--}
-diff -Nru a/include/asm-arm/Kbuild b/include/asm-arm/Kbuild
---- /dev/null	Wed Dec 31 16:00:00 196900
-+++ b/include/asm-arm/Kbuild	2004-10-28 20:54:28 +02:00
-@@ -0,0 +1,35 @@
-+# Generate header files required for $(ARCH)
-+# Pull in generic stuff from include/asm-generic
-+# Used to:
-+# 1) Generate include/asm/offset.h
-+
-+# pull in generic parts
-+include $(srctree)/include/asm-generic/Kbuild
-+
-+always  := constants.h include/asm-arm/.arch
-+
-+# Update machine arch and proc symlinks if something which affects
-+# them changed.  We use .arch to indicate when they were updated
-+# last, otherwise make uses the target directory mtime.
-+
-+include/asm-arm/.arch: $(wildcard include/config/arch/*.h) include/config/MARKER
-+	@echo '  SYMLINK include/asm-arm/arch -> include/asm-arm/$(INCDIR)'
-+ifneq ($(KBUILD_SRC),)
-+	$(Q)mkdir -p include/asm-arm
-+	$(Q)ln -fsn $(srctree)/include/asm-arm/$(INCDIR) include/asm-arm/arch
-+else
-+	$(Q)ln -fsn $(INCDIR) include/asm-arm/arch
-+endif
-+	@touch $@
-+
-+
-+# generate offsets.h file
-+targets := offsets.s
-+
-+CFLAGS_offsets.o := -I arch/$(ARCH)/kernel
-+
-+# explicit dependency
-+$(obj)/offsets.s: include/asm-arm/.arch
-+
-+$(obj)/constants.h: $(obj)/offsets.s FORCE
-+	$(call filechk,gen-asm-offsets, < $<)
-diff -Nru a/include/asm-arm/offsets.c b/include/asm-arm/offsets.c
---- /dev/null	Wed Dec 31 16:00:00 196900
-+++ b/include/asm-arm/offsets.c	2004-10-28 20:54:28 +02:00
-@@ -0,0 +1,80 @@
-+/*
-+ * Copyright (C) 1995-2003 Russell King
-+ *               2001-2002 Keith Owens
-+ *     
-+ * Generate definitions needed by assembly language modules.
-+ * This code generates raw asm output which is post-processed to extract
-+ * and format the required data.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+#include <linux/sched.h>
-+#include <linux/mm.h>
-+#include <asm/mach/arch.h>
-+#include <asm/thread_info.h>
-+
-+/*
-+ * Make sure that the compiler and target are compatible.
-+ */
-+#if defined(__APCS_26__)
-+#error Sorry, your compiler targets APCS-26 but this kernel requires APCS-32
-+#endif
-+/*
-+ * GCC 2.95.1, 2.95.2: ignores register clobber list in asm().
-+ * GCC 3.0, 3.1: general bad code generation.
-+ * GCC 3.2.0: incorrect function argument offset calculation.
-+ * GCC 3.2.x: miscompiles NEW_AUX_ENT in fs/binfmt_elf.c
-+ *            (http://gcc.gnu.org/PR8896) and incorrect structure
-+ *	      initialisation in fs/jffs2/erase.c
-+ */
-+#if __GNUC__ < 2 || \
-+   (__GNUC__ == 2 && __GNUC_MINOR__ < 95) || \
-+   (__GNUC__ == 2 && __GNUC_MINOR__ == 95 && __GNUC_PATCHLEVEL__ != 0 && \
-+					     __GNUC_PATCHLEVEL__ < 3) || \
-+   (__GNUC__ == 3 && __GNUC_MINOR__ < 3)
-+#error Your compiler is too buggy; it is known to miscompile kernels.
-+#error    Known good compilers: 2.95.3, 2.95.4, 2.96, 3.3
-+#endif
-+
-+/* Use marker if you need to separate the values later */
-+
-+#define DEFINE(sym, val) \
-+        asm volatile("\n->" #sym " %0 " #val : : "i" (val))
-+
-+#define BLANK() asm volatile("\n->" : : )
-+
-+int main(void)
-+{
-+  DEFINE(TSK_ACTIVE_MM,		offsetof(struct task_struct, active_mm));
-+  BLANK();
-+  DEFINE(TI_FLAGS,		offsetof(struct thread_info, flags));
-+  DEFINE(TI_PREEMPT,		offsetof(struct thread_info, preempt_count));
-+  DEFINE(TI_ADDR_LIMIT,		offsetof(struct thread_info, addr_limit));
-+  DEFINE(TI_TASK,		offsetof(struct thread_info, task));
-+  DEFINE(TI_EXEC_DOMAIN,	offsetof(struct thread_info, exec_domain));
-+  DEFINE(TI_CPU,		offsetof(struct thread_info, cpu));
-+  DEFINE(TI_CPU_DOMAIN,		offsetof(struct thread_info, cpu_domain));
-+  DEFINE(TI_CPU_SAVE,		offsetof(struct thread_info, cpu_context));
-+  DEFINE(TI_USED_CP,		offsetof(struct thread_info, used_cp));
-+  DEFINE(TI_FPSTATE,		offsetof(struct thread_info, fpstate));
-+  DEFINE(TI_VFPSTATE,		offsetof(struct thread_info, vfpstate));
-+  DEFINE(TI_IWMMXT_STATE,	(offsetof(struct thread_info, fpstate)+4)&~7);
-+  BLANK();
-+#if __LINUX_ARM_ARCH__ >= 6
-+  DEFINE(MM_CONTEXT_ID,		offsetof(struct mm_struct, context.id));
-+  BLANK();
-+#endif
-+  DEFINE(VMA_VM_MM,		offsetof(struct vm_area_struct, vm_mm));
-+  DEFINE(VMA_VM_FLAGS,		offsetof(struct vm_area_struct, vm_flags));
-+  BLANK();
-+  DEFINE(VM_EXEC,	       	VM_EXEC);
-+  BLANK();
-+  DEFINE(PAGE_SZ,	       	PAGE_SIZE);
-+  BLANK();
-+  DEFINE(SYS_ERROR0,		0x9f0000);
-+  BLANK();
-+  DEFINE(SIZEOF_MACHINE_DESC,	sizeof(struct machine_desc));
-+  return 0; 
-+}
+That's true, I should also have included badly-/stupidly- designed
+mailstore architectures in the list of possibilities.  :-)
+
+Stepping back for a moment, do you really need such semantics?  After
+all, when you're dealing with Maildir, even if you're not dealing with
+rename(), you still have to worry about programs deleting or inserting
+(or moving between Mailboxes) messages out from under you while you
+are doing the readdir() scan.
+
+Since by definition Maildir is lockless, it is expected that
+applications be able to deal with such changes.  If they can't, either
+the design of Maildir is busted (and I have my own opinions of DJB's
+designs, which aren't worth going into here) or the application is
+busted.  Take your pick.
+
+> Just some rough thoughts:
+> 
+> 1. the number of open file handles (including directories seen as files
+>    for a moment at least) is limited per process, and I'd think the
+>    number of directories open can be lower
+
+But directory sizes are unlimited --- they could conceivably be
+hundreds of megabytes, and so it's not reasonable to require the
+kernel to do the snapshot using unpageable kernel memory.
+
+> 2. versioned information might provide what the application wants
+>    without locking up the system
+
+Not given the POSIX readdir/opendir interface!
+
+(And if we have the freedom to redesign the readdir POSIX interface,
+there are plenty of other changes I'd make along the way.  Nuking
+telldir and seekdir would be near the top of the list.  If you want
+an example of truly brain-damaged design, just take telldir and
+seekdir... please!)
+
+> 3. the application could be offered an interface for atomic directory
+>    reads that requires the application to provide sufficient memory in a
+>    single contiguous buffer (making it thread-safe in the same go).
+
+Actually, you can do this today, if you use the underlying
+sys_getdents64 system call.  But the application would have to
+allocate potentially a very large amount of userspace memory.
+
+						- Ted

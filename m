@@ -1,73 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318980AbSHWPWY>; Fri, 23 Aug 2002 11:22:24 -0400
+	id <S318872AbSHWPSV>; Fri, 23 Aug 2002 11:18:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318991AbSHWPWX>; Fri, 23 Aug 2002 11:22:23 -0400
-Received: from windsormachine.com ([206.48.122.28]:29449 "EHLO
-	router.windsormachine.com") by vger.kernel.org with ESMTP
-	id <S318980AbSHWPWV>; Fri, 23 Aug 2002 11:22:21 -0400
-Date: Fri, 23 Aug 2002 11:26:26 -0400 (EDT)
-From: Mike Dresser <mdresser_l@windsormachine.com>
-To: Bill Unruh <unruh@physics.ubc.ca>
-cc: <linux-ppp@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: your mail
-In-Reply-To: <Pine.LNX.4.33L2.0208230806050.16223-100000@string.physics.ubc.ca>
-Message-ID: <Pine.LNX.4.33.0208231113550.8320-100000@router.windsormachine.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318873AbSHWPSV>; Fri, 23 Aug 2002 11:18:21 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:21496 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318872AbSHWPSU>; Fri, 23 Aug 2002 11:18:20 -0400
+Subject: Re: [PATCH] Intel 830m backport (2.5 -> 2.4)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Federico Di Gregorio <fog@initd.org>, faith@valinux.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20020823153057.A18848@infradead.org>
+References: <1030109549.1120.86.camel@momo> 
+	<20020823153057.A18848@infradead.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 23 Aug 2002 16:23:05 +0100
+Message-Id: <1030116185.5911.17.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Aug 2002, Bill Unruh wrote:
+On Fri, 2002-08-23 at 15:30, Christoph Hellwig wrote:
 
-> Well, it would be good if you actually told us what problem you were
-> describing. Is this a new connection attempt after the first hang up?
-> What?
->
-> What repeats over and over-- I see no repeat.
+> Alan, is there any chance you could send marcelo the -ac drm code?
 
-I >
-> You also do not tell us info like what kind of modem is this-- external,
-> internal, serial, usb, pci, winmodem,....
->
-> I assume what you are refering to is the "inappropriate ioctl" line.
-> This indicates a hardware problem.
->
-> Actually, it looks to me like another pppd is up on the line. Those
-> EchoReq are another pppd receiving stuff on an open pppd on another
-> line. More information on what it is you are trying to do, on what your
-> system is, and what the problem is might get you help.
->
-
-Sorry.
-
-It's a new connection from the persist option.  The exact same message
-repeats for every dial out it attempts.
-
-It's a PCI 3com 56k Sportster.  It's a hardware modem.
-
-There is sometimes another pppd up on ttys1
-
-Here's the setup:
-
-There is an external modem on ttyS01, irq 3, that dials in occasionally as
-needed.
-
-there is an internal PCI modem on ttyS04, irq 5, that dials in permamently
-to the ISP.
-
-Every 6 hours, the ISP enforces the 6 hour hangup rule they have.
-
-The modem is set to persist, max-fails 0.  It is not able to redial, and
-keeps giving the error message that i pasted.
-
-Under 2.2.x, this functioned properly.
-
-System is a VIA VT82C693A/694x [Apollo PRO133x] based motherboard, from
-Giga-byte, if I remember correctly.  Celeron 533.
-
-Sorry about the too brief error message, I fell into my "it makes sense to
-me the way it is" trap.
-
-Mike
+It needs untangling from any rmap macro dependancies. Go ahead 
 

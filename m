@@ -1,60 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292373AbSB0NCC>; Wed, 27 Feb 2002 08:02:02 -0500
+	id <S292347AbSB0NIz>; Wed, 27 Feb 2002 08:08:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292407AbSB0NBn>; Wed, 27 Feb 2002 08:01:43 -0500
-Received: from noose.gt.owl.de ([62.52.19.4]:55823 "HELO noose.gt.owl.de")
-	by vger.kernel.org with SMTP id <S292373AbSB0NBk>;
-	Wed, 27 Feb 2002 08:01:40 -0500
-Date: Wed, 27 Feb 2002 10:36:43 +0100
-From: Florian Lohoff <flo@rfc822.org>
-To: "T. A." <tkhoadfdsaf@hotmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [CRASH] gdth / __block_prepare_write: zeroing uptodate buffer! / NMI Watchdog detected LOCKUP
-Message-ID: <20020227093643.GA7957@paradigm.rfc822.org>
-In-Reply-To: <20020226184043.GA10420@paradigm.rfc822.org> <3C7BDC57.A835D657@zip.com.au> <20020226191626.GA11283@paradigm.rfc822.org> <OE43IwMw8lODAStRc0J00021292@hotmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3MwIy2ne0vdjdPXF"
-Content-Disposition: inline
-In-Reply-To: <OE43IwMw8lODAStRc0J00021292@hotmail.com>
-User-Agent: Mutt/1.3.27i
-Organization: rfc822 - pure communication
+	id <S292458AbSB0NIp>; Wed, 27 Feb 2002 08:08:45 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:34472 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S292406AbSB0NIi>; Wed, 27 Feb 2002 08:08:38 -0500
+Date: Wed, 27 Feb 2002 14:56:01 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "BODA Karoly jr." <woockie@expressz.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.18-ac2
+In-Reply-To: <E16frfu-0002co-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.44.0202271455050.16294-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 27 Feb 2002, Alan Cox wrote:
 
---3MwIy2ne0vdjdPXF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > > Linux 2.4.18-ac2
+> > 	Is there any concret couse You didn't made against .19pre ?
+> 
+> Its just fixes for 2.4.18 stable stuff. 2.4.19pre is much more interesting
 
-On Tue, Feb 26, 2002 at 10:27:50PM -0500, T. A. wrote:
->     What motherboard are you using?  I recently installed a ICP RAID card
-> into a VP6 with dual processors and had similar problems.  I've also had
-> problems with the gdth driver under linux in that drives were disappearing
-> now and then destroying the integrity of the RAID drive, though in a
-> different setup.
+And here i was thinking you were just trying to move the last few 
+remaining -ac fixes/updates onto Marcelo, you just can't stay away can 
+you? ;)
 
-Serverworks Chipsset - We dont have any other problems beside the=20
-real deadlocks.
+	Zwane
 
-Flo
---=20
-Florian Lohoff                  flo@rfc822.org             +49-5201-669912
-Nine nineth on september the 9th              Welcome to the new billenium
 
---3MwIy2ne0vdjdPXF
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8fKirUaz2rXW+gJcRAvfjAJ0Y46qkdEhszAA0Tgq9cKqNWXyn2ACgxtAs
-VN8AmkSpLD9FtY/mpUwmK7k=
-=7Acj
------END PGP SIGNATURE-----
-
---3MwIy2ne0vdjdPXF--

@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbUDZN3K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261815AbUDZNkN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261604AbUDZN3K (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 09:29:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261815AbUDZN3K
+	id S261815AbUDZNkN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 09:40:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbUDZNkM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 09:29:10 -0400
-Received: from out004pub.verizon.net ([206.46.170.142]:27606 "EHLO
-	out004.verizon.net") by vger.kernel.org with ESMTP id S261604AbUDZN3H
+	Mon, 26 Apr 2004 09:40:12 -0400
+Received: from mail.convergence.de ([212.84.236.4]:2435 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S261815AbUDZNkJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 09:29:07 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: 8139too not working in 2.6
-Date: Mon, 26 Apr 2004 09:29:05 -0400
-User-Agent: KMail/1.6
-References: <opr62ahdvlpsnffn@mail.mcaserta.com> <200404261241.41818.dj@david-web.co.uk>
-In-Reply-To: <200404261241.41818.dj@david-web.co.uk>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200404260929.05346.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [141.153.75.83] at Mon, 26 Apr 2004 08:29:06 -0500
+	Mon, 26 Apr 2004 09:40:09 -0400
+To: hunold@linuxtv.org, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+From: Michael Hunold <hunold@linuxtv.org>
+Subject: [PATCH 0/9] LinuxTV.org DVB update
+In-Reply-To: 
+Message-Id: <10829866543802@convergence.de>
+X-Mailer: gregkh_patchbomb_levon_offspring_mihu_extended
+Date: Mon, 26 Apr 2004 09:40:09 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 26 April 2004 07:41, David Johnson wrote:
->On Monday 26 Apr 2004 12:35, Mirko Caserta wrote:
->> Yes, I know, it's a damn cheap eth card and I should get it
->> replaced :)
->>
->> Besides that, this card works just fine with 2.4.25 while it
->> refuses to work on a recent 2.6 kernel. I tried 2.6.5 and even
->> 2.6.5-rc2-mm2-broken-out with no luck.
->
->Just to say that I'm having the exact same problem.
->
->The card works fine with 2.6.3 but not 2.6.5. I haven't tried 2.6.4.
->
-Please see my other reply to Mirko.
->
->Regards,
->David.
+Hello Linus, Andrew,
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.22% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+I'm sending you a set of 9 patches that sync the
+LinuxTV.org CVS with latest linux-2.6.5.
+
+I'm glad that I can announce that we have recently
+forked off our 2.6 development tree, so we are really
+looking forward to implement
+- proper kobject/sysfs support
+- proper firmware loading for frontend drivers
+- removal of dvb-i2c and use of kernel i2c instead
+- other interesting 2.6 specific things
+
+This is the last patchset that rides the dead "2.4 compatiblity"
+horse.
+
+As usual, detailed informations about what changed can be 
+found at the top of each file.
+
+Please apply! 
+
+CU
+Michael.
+
+

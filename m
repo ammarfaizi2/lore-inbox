@@ -1,62 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262372AbSKCUEr>; Sun, 3 Nov 2002 15:04:47 -0500
+	id <S262385AbSKCUJH>; Sun, 3 Nov 2002 15:09:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262374AbSKCUEr>; Sun, 3 Nov 2002 15:04:47 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:30993 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S262372AbSKCUEq>; Sun, 3 Nov 2002 15:04:46 -0500
-Date: Sun, 3 Nov 2002 21:10:54 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-cc: Sam Ravnborg <sam@ravnborg.org>,
-       Kai Germaschewski <kai-germaschewski@uiowa.edu>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5: troubles with piping make output
-In-Reply-To: <200211031946.gA3JkIp29186@Port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Pine.LNX.4.44.0211032106010.6949-100000@serv>
-References: <200211031122.gA3BMbp27805@Port.imtp.ilyichevsk.odessa.ua>
- <20021103182805.GA1057@mars.ravnborg.org> <200211031946.gA3JkIp29186@Port.imtp.ilyichevsk.odessa.ua>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262479AbSKCUHY>; Sun, 3 Nov 2002 15:07:24 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:17668 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S262464AbSKCUHI>;
+	Sun, 3 Nov 2002 15:07:08 -0500
+Date: Sun, 3 Nov 2002 21:12:51 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: benh@kernel.crashing.org, Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp: don't eat ide disks
+Message-ID: <20021103201251.GE27271@elf.ucw.cz>
+References: <200211022006.gA2K6XW08545@devserv.devel.redhat.com> <20021103145735.14872@smtp.wanadoo.fr> <1036340733.29642.41.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1036340733.29642.41.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-On Sun, 3 Nov 2002, Denis Vlasenko wrote:
-
-> *
-> * Processor type and features
-> *
-> Processor family (386, 486, 586/K5/5x86/6x86/6x86MX, Pentium-Classic, Pentium-MMX, Pentium-Pro/Celeron/Pentium-II, Pentium-III/Celeron(Coppermine), Pentium-4, K6/K6-II/K6-III, Athlon/Duron/K7, Elan, Crusoe, Winchip-C6, Winchip-2, Winchip-2A/Winchip-3, CyrixIII/VIA-C3) [386] (NEW)
+> > Hrm... I don't think so Alan. The PM ordering is bus driven,
+> > so actual bus binding of the disk is it's controller, not
+> > the request queue which is the functional binding. It's up to
+> > the disk driver to shut down processing of the request queue.
 > 
-> and it politely waits for my input.
+> That requires code in every driver. Duplicated, hard to write, likely to
+> be racey code. Thats bad.
 > 
-> Looks like fflush() got forgotten somewhere ;)
+> The bigger picture really should be
+> 
+> ACPI etc	"I want to suspend to disk"
+> 
+> PM layer
+> 		Suspend the non I/O tasks (btw reminds me - eh tasks and
+> 			all workqueues may be I/O tasks at times)
+> 		Complete all the block I/O queues
+> 		Throw out the pages we can evict
 
-What shell are you using?
-This is what should happen:
+...DMA from disk may be still running here...
 
-$ make 2>&1 | tee
-make[1]: `scripts/kconfig/conf' is up to date.
-./scripts/kconfig/conf -s arch/i386/Kconfig
-#
-# using defaults found in .config
-#
-*
-* Restart config...
-*
-*
-* Processor type and features
-*
-Processor family (386, 486, 586/K5/5x86/6x86/6x86MX, Pentium-Classic, Pentium-MMX, Pentium-Pro/Celeron/Pentium-II, Pentium-III/Celeron(Coppermine), Pentium-4, K6/K6-II/K6-III, Athlon/Duron/K7, Elan, Crusoe, Winchip-C6, Winchip-2, Winchip-2A/Winchip-3, CyrixIII/VIA-C3) [Pentium-Pro/Celeron/Pentium-II] (NEW) aborted!
+> 		Write suspend image
+> 		
+> 		Jump to PM layer "power off" logic
+> 
+> If you do it that way up then no drivers need to be hacked about.
 
-Console input/output is redirected. Run 'make oldconfig' to update configuration.
-
-make: *** [include/linux/autoconf.h] Error 1
-
-bye, Roman
-
-
+...and at resume you find out that your memory is not consistent
+because DMA was still running when you were doing copy.
+								Pavel
+-- 
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

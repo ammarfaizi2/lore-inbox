@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265577AbUAZKig (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 05:38:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265580AbUAZKig
+	id S265539AbUAZKcj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 05:32:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265567AbUAZKcj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 05:38:36 -0500
-Received: from [218.5.74.208] ([218.5.74.208]:50144 "EHLO vhost.bizcn.com")
-	by vger.kernel.org with ESMTP id S265577AbUAZKia (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 05:38:30 -0500
-Message-ID: <4014EE22.9070902@lovecn.org>
-Date: Mon, 26 Jan 2004 18:38:26 +0800
-From: Coywolf Qi Hunt <coywolf@lovecn.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en, zh
-MIME-Version: 1.0
-To: tao@debian.org
-CC: linux-kernel@vger.kernel.org
-Subject: [2.0.39] drivers/char/baycom.c Zero Sized File
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 26 Jan 2004 05:32:39 -0500
+Received: from probity.mcc.ac.uk ([130.88.200.94]:33552 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP id S265539AbUAZKci
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jan 2004 05:32:38 -0500
+Date: Mon, 26 Jan 2004 10:32:37 +0000
+From: John Levon <levon@movementarian.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Philippe Elie <phil.el@wanadoo.fr>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] oprofile per-cpu buffer overrun
+Message-ID: <20040126103237.GA52771@compsoc.man.ac.uk>
+References: <20040126023715.GA3166@zaniah> <20040125200701.3c7b769a.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040125200701.3c7b769a.akpm@osdl.org>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: King of Woolworths - L'Illustration Musicale
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1Al42n-000K5U-Ln*e89ZIrnWKGM*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, David
+On Sun, Jan 25, 2004 at 08:07:01PM -0800, Andrew Morton wrote:
 
-I downloaded 2.0.39 from kernel.org, and find that the file 
-drivers/char/baycom.c is a zero sized.
-Also see this http://lxr.linux.no/source/drivers/char/baycom.c?v=2.0.39
+> When implementing a circular buffer it is better to not constrain the head
+> and tail indices - just let them grow and wrap without bound.  You only need
+> to bring them in-bounds when you actually use them to index the buffer.
 
-Only Documentation/magic-number.txt describes:
+I'm not sure why that's better.
 
-BAYCOM_MAGIC        0x3105bac0  struct baycom_state  drivers/char/baycom.c
+> - head-tail is always the amount of used space, no need to futz around
+>   handling the case where one has wrapped and the other hasn't.
 
+I admit I have a hangover, but it seems to me it would actually be more
+complicated to make damn sure that the integer overflow case is
+definitely handled properly.
 
-also thanks to Segher Boessenkool
+I clearly can't write functioning ring buffers :), so I'd prefer it to
+stay as simple as possible.
 
-
-Coywolf Q. Hunt
-
+regards,
+john
+-- 
+Khendon's Law:
+If the same point is made twice by the same person, the thread is over.

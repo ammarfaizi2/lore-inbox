@@ -1,40 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317035AbSHGFPq>; Wed, 7 Aug 2002 01:15:46 -0400
+	id <S317022AbSHGFI0>; Wed, 7 Aug 2002 01:08:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317037AbSHGFPq>; Wed, 7 Aug 2002 01:15:46 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:50351 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S317035AbSHGFPq>;
-	Wed, 7 Aug 2002 01:15:46 -0400
-Date: Tue, 06 Aug 2002 22:16:04 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Andrew Morton <akpm@zip.com.au>,
-       William Lee Irwin III <wli@holomorphy.com>
-cc: linux-kernel@vger.kernel.org, riel@surriel.com
-Subject: Re: fix CONFIG_HIGHPTE
-Message-ID: <1296174189.1028672155@[10.10.2.3]>
-In-Reply-To: <3D506D43.890EA215@zip.com.au>
-References: <3D506D43.890EA215@zip.com.au>
-X-Mailer: Mulberry/2.1.2 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S317024AbSHGFI0>; Wed, 7 Aug 2002 01:08:26 -0400
+Received: from smtp3.hushmail.com ([64.40.111.33]:13322 "EHLO
+	smtp3.hushmail.com") by vger.kernel.org with ESMTP
+	id <S317022AbSHGFIZ>; Wed, 7 Aug 2002 01:08:25 -0400
+Message-Id: <200208070511.g775Bsf95940@mailserver2.hushmail.com>
+From: silvio.cesare@hushmail.com
+To: linux-kernel@vger.kernel.org
+Subject: PATCH 2.4.19: drivers/video/sbusfb.c
+Date: Tue,  6 Aug 2002 22:11:54 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> And we'll need that, to reduce load on KM_PTECHAIN.  Because
-> there's no point in pte_highmem without also having pte_chain_highmem,
-> yes?
 
-I'm not sure I agree that there's no point. If we shove half the 
-overhead into highmem (well, maybe 1/3 depending if on your PTE size), 
-we can fit a workload double the size. Not to be sniffed at. 50% of 
-the benefit at 5% of the cost.
+integer overflow in index + count, leading to unbounded copies.
 
-No, it doesn't completely solve the problem, but it's another hammer
-to give it a good sturdy whack over the head with. 
+patch has not been tested or verified.
 
-M.
+--
+Silvio
+
+diff -u  drivers/video/sbusfb.c.2.4.19 drivers/video/sbusfb.c 
+--- drivers/video/sbusfb.c.2.4.19       Tue Aug  6 21:17:39 2002
++++ drivers/video/sbusfb.c      Tue Aug  6 21:21:50 2002
+@@ -599,7 +599,8 @@
+                break;
+        case FBIOGETCMAP_SPARC: {
+                char *rp, *gp, *bp;
+-               int end, count, index;
++               int count, index;
++               unsigned int end;
+                struct fbcmap *cmap;
+ 
+                if (!fb->loadcmap)
+@@ -612,7 +613,10 @@
+                        return -EFAULT;
+                if ((index < 0) || (index > 255))
+                        return -EINVAL;
+-               if (index + count > 256)
++               if ((count < 0) || (count > 256))
++                       return -EINVAL;
++               end = index + count;
++               if (end > 256)
+                        count = 256 - index;
+                if (__get_user(rp, &cmap->red) ||
+                    __get_user(gp, &cmap->green) ||
+@@ -624,7 +628,6 @@
+                        return -EFAULT;
+                if (verify_area (VERIFY_WRITE, bp, count))
+                        return -EFAULT;
+-               end = index + count;
+                for (i = index; i < end; i++){
+                        if (__put_user(fb->color_map CM(i,0), rp) ||
+                            __put_user(fb->color_map CM(i,1), gp) ||
+@@ -637,7 +640,8 @@
+        }
+        case FBIOPUTCMAP_SPARC: {       /* load color map entries */
+                char *rp, *gp, *bp;
+-               int end, count, index;
++               int count, index;
++               unsigned int end;
+                struct fbcmap *cmap;
+                
+                if (!fb->loadcmap || !fb->color_map)
+@@ -650,7 +654,10 @@
+                        return -EFAULT;
+                if ((index < 0) || (index > 255))
+                        return -EINVAL;
+-               if (index + count > 256)
++               if ((count < 0) || (count > 256))
++                       return -EINVAL;
++               end = index + count;
++               if (end > 256)
+                        count = 256 - index;
+                if (__get_user(rp, &cmap->red) ||
+                    __get_user(gp, &cmap->green) ||
+@@ -663,7 +670,6 @@
+
+Communicate in total privacy.
+Get your free encrypted email at https://www.hushmail.com/?l=2
+
+Looking for a good deal on a domain name? http://www.hush.com/partners/offers.cgi?id=domainpeople
 

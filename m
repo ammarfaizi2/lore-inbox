@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130937AbRAZVOC>; Fri, 26 Jan 2001 16:14:02 -0500
+	id <S130670AbRAZVWD>; Fri, 26 Jan 2001 16:22:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130320AbRAZVNw>; Fri, 26 Jan 2001 16:13:52 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:9824
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S130147AbRAZVNm>; Fri, 26 Jan 2001 16:13:42 -0500
-Date: Fri, 26 Jan 2001 22:13:35 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: linux-kernel@vger.kernel.org
-Subject: [uPATCH][Probably fucked up] arch/i386/kernel/io_apic.c: missing extern? (241p10)
-Message-ID: <20010126221335.B612@jaquet.dk>
-Mime-Version: 1.0
+	id <S130855AbRAZVVn>; Fri, 26 Jan 2001 16:21:43 -0500
+Received: from Huntington-Beach.Blue-Labs.org ([208.179.0.198]:59751 "EHLO
+	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
+	id <S130670AbRAZVVh>; Fri, 26 Jan 2001 16:21:37 -0500
+Message-ID: <3A71EA53.3B2F39B@linux.com>
+Date: Fri, 26 Jan 2001 21:21:23 +0000
+From: David Ford <david@linux.com>
+Organization: Blue Labs Software
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Randal, Phil" <prandal@herefordshire.gov.uk>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: hotmail not dealing with ECN
+In-Reply-To: <AFE36742FF57D411862500508BDE8DD055F6@mail.herefordshire.gov.uk>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+"Randal, Phil" wrote:
 
-In arch/i386/kernel we declare nr_ioapics in both io_apic.c and mpparse.c.
-I guess that one of them should be an 'extern' declaration? In the patch
-below I have guessed that it is io_apic.c that is missing it since (AFAICS)
-never assign to nr_ioapic in this file. 
+> James Sutherland wrote:
+>
+> > Except you can't retry without ECN, because DaveM wants to do
+> > a Microsoft and force ECN on everyone, whether they like it
+> > or not. If ECN is so wonderful, why doesn't anybody actually
+> > WANT to use it anyway?
+>
+> And there's the rub.  Whether ECN is wonderful or not, attempting
+> to force it on everyone, whether they like it or not, whether
+> (for whatever reason) they are able to upgrade their firewalls
+> to handle ECN appropriately or not, is a recipe for a "Great
+> Linux Public Relations Disaster".
 
-But I am in way over my head here so please be gentle when you point
-out my mistake.
+Nobody is forcing you to use ECN, it is a compile time AND runtime option.
 
-The patch (against 241p10 and ac11):
+-d
+
+--
+  There is a natural aristocracy among men. The grounds of this are virtue and talents. Thomas Jefferson
+  The good thing about standards is that there are so many to choose from. Andrew S. Tanenbaum
 
 
---- linux-ac11-clean/arch/i386/kernel/io_apic.c	Thu Jan 25 20:48:51 2001
-+++ linux-ac11/arch/i386/kernel/io_apic.c	Fri Jan 26 21:59:16 2001
-@@ -38,7 +38,7 @@
- /*
-  * # of IRQ routing registers
-  */
--int nr_ioapics;
-+extern int nr_ioapics;
- int nr_ioapic_registers[MAX_IO_APICS];
- 
- #if CONFIG_SMP
 
--- 
-Regards,
-        Rasmus(rasmus@jaquet.dk)
-
-Freedom of the press is limited to those who own one.
-                                 - A.J. Liebling 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

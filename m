@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288649AbSAXQIN>; Thu, 24 Jan 2002 11:08:13 -0500
+	id <S288664AbSAXQll>; Thu, 24 Jan 2002 11:41:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288655AbSAXQH6>; Thu, 24 Jan 2002 11:07:58 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:37826 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S288649AbSAXQHL>;
-	Thu, 24 Jan 2002 11:07:11 -0500
-Date: Thu, 24 Jan 2002 19:04:42 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Dieter N?tzel <Dieter.Nuetzel@hamburg.de>, Robert Love <rml@tech9.net>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] preemptive kernel
-In-Reply-To: <20020124160540.GO1816@cpe-24-221-152-185.az.sprintbbd.net>
-Message-ID: <Pine.LNX.4.33.0201241904310.2523-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288660AbSAXQlb>; Thu, 24 Jan 2002 11:41:31 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:43410 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S288664AbSAXQlS>; Thu, 24 Jan 2002 11:41:18 -0500
+Date: Thu, 24 Jan 2002 09:40:50 -0700
+Message-Id: <200201241640.g0OGeoM14962@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>,
+        <vda@port.imtp.ilyichevsk.odessa.ua>, <linux-kernel@vger.kernel.org>
+Subject: Re: White Paper on the Linux kernel VM?
+In-Reply-To: <Pine.LNX.4.33L.0201241312450.32617-100000@imladris.surriel.com>
+In-Reply-To: <873d0vss8y.fsf@tigram.bogus.local>
+	<Pine.LNX.4.33L.0201241312450.32617-100000@imladris.surriel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 24 Jan 2002, Tom Rini wrote:
-
-> > > Or -J6 there was a small reject, it looks like -J6 sets p->cpu =
-> > > smp_processor_id(); in kernel/sched.c, which the preempt patch wants to
-> > > do as well.
+Rik van Riel writes:
+> On 24 Jan 2002, Olaf Dietsche wrote:
+> > Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> writes:
 > >
-> > it's the same fix - you can safely disregard the reject.
->
-> If you apply -J6 after.  preempt adds preempt_enable() in the same
-> section.
+> > > Writing docs wastes developer's time: they will write how they want VM to
+> > > operate or how they think it operates (while some bug can make actual VM
+> > > operate differently) instead of improving/debugging current VM code.
+> >
+> > I don't want to judge, wether writing docs wastes developer's
+> > time.
+> 
+> Not writing docs wastes other developers' time.
 
-right.
+Aka. being selfish and lazy.
 
-	Ingo
+				Regards,
 
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

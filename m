@@ -1,70 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266241AbTGEAYo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 20:24:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266244AbTGEAYn
+	id S266244AbTGEAdW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 20:33:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266246AbTGEAdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 20:24:43 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:1994 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266241AbTGEAYm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 20:24:42 -0400
-Date: Fri, 4 Jul 2003 17:39:01 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-cc: benh@kernel.crashing.org,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <linuxppc-dev@lists.linuxppc.org>, <linuxppc64-dev@lists.linuxppc.org>
-Subject: Re: [PATCH 2.5.73] Signal stack fixes #1 introduce PF_SS_ACTIVE
-In-Reply-To: <20030704201840.GH22152@wohnheim.fh-wedel.de>
-Message-ID: <Pine.LNX.4.44.0307041725180.1744-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Fri, 4 Jul 2003 20:33:22 -0400
+Received: from 69-55-72-144.ppp.netsville.net ([69.55.72.144]:429 "EHLO
+	tiny.suse.com") by vger.kernel.org with ESMTP id S266244AbTGEAdV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jul 2003 20:33:21 -0400
+Subject: Re: Status of the IO scheduler fixes for 2.4
+From: Chris Mason <mason@suse.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Nick Piggin <piggin@cyberone.com.au>
+In-Reply-To: <20030705000544.GC23578@dualathlon.random>
+References: <Pine.LNX.4.55L.0307021923260.12077@freak.distro.conectiva>
+	 <Pine.LNX.4.55L.0307021927370.12077@freak.distro.conectiva>
+	 <1057197726.20903.1011.camel@tiny.suse.com>
+	 <Pine.LNX.4.55L.0307041639020.7389@freak.distro.conectiva>
+	 <1057354654.20903.1280.camel@tiny.suse.com>
+	 <20030705000544.GC23578@dualathlon.random>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1057366019.20899.1300.camel@tiny.suse.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 04 Jul 2003 20:47:00 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 4 Jul 2003, Jörn Engel wrote:
+On Fri, 2003-07-04 at 20:05, Andrea Arcangeli wrote:
+> On Fri, Jul 04, 2003 at 05:37:35PM -0400, Chris Mason wrote:
+> > I've also attached a patch I've been working on to solve the latencies a
+> > different way.  bdflush-progress.diff changes balance_dirty to wait on
+> > bdflush instead of trying to start io.  It helps a lot here (both
+> > throughput and latency) but hasn't yet been tested on a box with tons of
+> > drives.
 > 
-> > Quite frankly, for the recursive SIGSEGV problem, I'd much rather look at
-> > the signal mask. If SIGSEGV is blocked, we should probably just kill the
-> > program instead of clearing the blocking and trying to handle the SIGSEGV 
-> > anyway. That should fix your test case, _without_ any subtle side effects.
-> 
-> What do we do, if a program also uses SA_NOMASK for the SIGSEGV
-> handler?  This is totally stupid, I agree, but it is legal.  Should we
-> declare it illegal from this day on, or is that path blocked as well?
+> that's orthogonal, it changes the write throttling, it doesn't touch the
+> blkdev layer like the other patches does. So if it helps it solves a
+> different kind of latencies.
 
-I think we should just continue to do what we do now - sure, we'll loop on 
-SIGSEGV, but hey, it's a user space bug, it's not the kernels problem. 
-It's better to let people continue to do stupid things than try to force 
-changes.
+It's also almost useless without elevator-low-latency applied ;-)  One
+major source of our latencies is a bunch of procs hammering on
+__get_request_wait, so bdflush-progess helps by reducing the number of
+procs doing io.  It does push some of the latency problem up higher into
+balance_dirty, but I believe it is easier to manage there.
 
-So how about something like the appended? Very simple patch,i and in fact 
-it's more logical than the old behaviour (the old behaviour punched 
-through blocked signals, the new ones says "if you block or ignore the 
-signal we will just kill you through the default action").
+bdflush-progress doesn't help at all for non-async workloads.
 
-		Linus
+> However the implementation in theory can run the box oom, since it won't
+> limit the dirty buffers anymore. To be safe you need to wait 2
+> generations. I doubt in practice it would be easily reproducible though ;).
 
----
---- 1.86/kernel/signal.c	Mon Jun  2 13:37:11 2003
-+++ edited/kernel/signal.c	Fri Jul  4 17:29:43 2003
-@@ -797,10 +797,11 @@
- 	int ret;
- 
- 	spin_lock_irqsave(&t->sighand->siglock, flags);
--	if (t->sighand->action[sig-1].sa.sa_handler == SIG_IGN)
-+	if (sigismember(&t->blocked, sig) || t->sighand->action[sig-1].sa.sa_handler == SIG_IGN) {
- 		t->sighand->action[sig-1].sa.sa_handler = SIG_DFL;
--	sigdelset(&t->blocked, sig);
--	recalc_sigpending_tsk(t);
-+		sigdelset(&t->blocked, sig);
-+		recalc_sigpending_tsk(t);
-+	}
- 	ret = specific_send_sig_info(sig, info, t);
- 	spin_unlock_irqrestore(&t->sighand->siglock, flags);
- 
+Hmmm, I think the critical part here is to write some buffers after
+marking a buffer dirty.  We don't check the generation number until
+after marking the buffer dirty, so if the generation has incremented at
+all we've made progress.  What am I missing?
+
+-chris
 
 

@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278748AbRJVMI3>; Mon, 22 Oct 2001 08:08:29 -0400
+	id <S278756AbRJVMJT>; Mon, 22 Oct 2001 08:09:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278751AbRJVMIT>; Mon, 22 Oct 2001 08:08:19 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:27278 "HELO
-	outpost.powerdns.com") by vger.kernel.org with SMTP
-	id <S278748AbRJVMIQ>; Mon, 22 Oct 2001 08:08:16 -0400
-Date: Mon, 22 Oct 2001 14:08:45 +0200
-From: bert hubert <ahu@ds9a.nl>
+	id <S278753AbRJVMJK>; Mon, 22 Oct 2001 08:09:10 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:64598 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S278751AbRJVMI6>; Mon, 22 Oct 2001 08:08:58 -0400
+Date: Mon, 22 Oct 2001 14:09:35 +0200
+From: Andrea Arcangeli <andrea@suse.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.20pre10
-Message-ID: <20011022140844.A15243@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>, linux-kernel@vger.kernel.org
-In-Reply-To: <20011022133554.A14759@outpost.ds9a.nl> <E15vdfl-0001hB-00@the-village.bc.nu>
+Subject: Re: problems with I/O performance with 2.4.12-ac3
+Message-ID: <20011022140935.I26029@athlon.random>
+In-Reply-To: <20011019195328.A30781@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E15vdfl-0001hB-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Oct 22, 2001 at 12:55:12PM +0100
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20011019195328.A30781@localhost>; from vdb@mail.ru on Fri, Oct 19, 2001 at 07:53:28PM +0400
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 22, 2001 at 12:55:12PM +0100, Alan Cox wrote:
-> > Are you saying that we can't divulge security problems in our own software
-> > anymore for fear of being sued by affected parties?
+On Fri, Oct 19, 2001 at 07:53:28PM +0400, Dmitry Volkoff wrote:
+> Hi,
+> On my machine HDD is slow with all ac-kernels I've tried so far.
+> There is even more simple test -- hdparm.
 > 
-> Not even affected parties - the government can do it too without anyone else
-> and indeed even if their are contractual agreements between parties
-> permitting the data to be released..
+> 2.4.12-ac3:
+> # hdparm -tT /dev/hda
+> /dev/hda:
+> Timing buffer-cache reads:   128 MB in  0.70 seconds =182.86 MB/sec
+> Timing buffered disk reads:  64 MB in  2.88 seconds = 22.22 MB/sec
+> 
+> 2.4.13-pre3:
+> # hdparm -tT /dev/hda
+> /dev/hda
+> Timing buffer-cache reads:   128 MB in  0.63 seconds =203.00 MB/sec
+> Timing buffered disk reads:  64 MB in  1.57 seconds = 40.76 MB/sec
 
-This is getting daft in a hurry.
+this should be mostly the blkdev in pagecache and possibly also the vm.
 
-> I hope to have the security stuff up on a non US citizen accessible site in
-> time for 2.2.20 final
-
-This would then presumably lead to password protected access for US kernel
-developers that need to know? And some kind of NDA?
-
-'IANAL', and neither are you, are you sure this sillyness is necessary?
-
-Regards,
-
-bert
-
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-Trilab                                 The Technology People
-Netherlabs BV / Rent-a-Nerd.nl           - Nerd Available -
-'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
+Andrea

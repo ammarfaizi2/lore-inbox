@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266910AbUH1GRq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266898AbUH1GUf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266910AbUH1GRq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 02:17:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267197AbUH1GR3
+	id S266898AbUH1GUf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 02:20:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267197AbUH1GUN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 02:17:29 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:46989 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S266910AbUH1GRM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 02:17:12 -0400
-Message-ID: <41302366.3020306@namesys.com>
-Date: Fri, 27 Aug 2004 23:17:10 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
+	Sat, 28 Aug 2004 02:20:13 -0400
+Received: from jade.spiritone.com ([216.99.193.136]:49852 "EHLO
+	jade.spiritone.com") by vger.kernel.org with ESMTP id S266898AbUH1GR7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 02:17:59 -0400
+Date: Fri, 27 Aug 2004 23:17:47 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
+cc: William Lee Irwin III <wli@holomorphy.com>, James <jamesclv@us.ibm.com>,
+       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>
+Subject: Re: [RFC][PATCH] fix target_cpus() for summit subarch
+Message-ID: <79750000.1093673866@[10.10.2.4]>
+In-Reply-To: <1093652688.14662.16.camel@cog.beaverton.ibm.com>
+References: <1093652688.14662.16.camel@cog.beaverton.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: Alex Zarochentsev <zam@namesys.com>
-CC: Andrea Arcangeli <andrea@suse.de>, Christophe Saout <christophe@saout.de>,
-       viro@parcelfarce.linux.theplanet.co.uk,
-       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-References: <412CEE38.1080707@namesys.com> <20040825200859.GA16345@lst.de> <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org> <20040825204240.GI21964@parcelfarce.linux.theplanet.co.uk> <1093467601.9749.14.camel@leto.cs.pocnet.net> <20040825225933.GD5618@nocona.random> <412DA0B5.3030301@namesys.com> <20040826112818.GL5618@nocona.random> <1093520699.9004.11.camel@leto.cs.pocnet.net> <20040826121630.GN5618@nocona.random> <20040827183858.GF5108@backtop.namesys.com>
-In-Reply-To: <20040827183858.GF5108@backtop.namesys.com>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Zarochentsev wrote:
+--john stultz <johnstul@us.ibm.com> wrote (on Friday, August 27, 2004 17:24:48 -0700):
 
->
->
->There should be infracture to change plugin on fly, and choosing object's
->plugins at object's creation time.  Currently only certain object's plugins
->can be changed through <object>/metas/plugin interface. 
->  
->
-To be more clear for those not familiar with our project, there is much 
-more work to be done, and one of the areas that (extremely) needs more 
-work is changing plugins on the fly and clean interfaces for specifying 
-them at creation time.
+> I've been hunting down a bug affecting IBM x440/x445 systems where the
+> floppy driver would get spurious interrupts and would not initialize
+> properly. 
+> 
+> After digging James Cleverdon pointed out that target_cpus() is routing
+> the interrupts to the clustered apic broadcast mask. This was causing
+> multiple interrupts to show up, breaking the floppy init code. 
+> 
+> This one-liner fix simply routes interrupts to the first cpu to resolve
+> this issue.
+
+I'd say that means your hardware is horribly broken ... but I guess this
+might be a suitable workaround given we're going to reprogram them all
+later.
+
+So ... do all your interrupts end up on the first cpu now, or does
+irqbalance take care of it?
+
+M.
+

@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287518AbSBKLQi>; Mon, 11 Feb 2002 06:16:38 -0500
+	id <S287860AbSBKLF1>; Mon, 11 Feb 2002 06:05:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287002AbSBKLQ1>; Mon, 11 Feb 2002 06:16:27 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:40716 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S287518AbSBKLQT>;
-	Mon, 11 Feb 2002 06:16:19 -0500
-Date: Mon, 11 Feb 2002 12:09:23 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: Badari Pulavarty <pbadari@us.ibm.com>, linux-aio@kvack.org,
-        linux-kernel@vger.kernel.org, axboe@suse.com
-Subject: Re: patch: aio + bio for raw io
-Message-ID: <20020211120923.D1014@suse.de>
-In-Reply-To: <20020208025313.A11893@redhat.com> <200202082107.g18L7wx26206@eng2.beaverton.ibm.com> <20020208171327.B12788@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020208171327.B12788@redhat.com>
+	id <S287896AbSBKLFR>; Mon, 11 Feb 2002 06:05:17 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:15627 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
+	id <S287860AbSBKLFE>; Mon, 11 Feb 2002 06:05:04 -0500
+X-Envelope-From: news@bytesex.org
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Gerd Knorr <kraxel@bytesex.org>
+Newsgroups: lists.linux.kernel
+Subject: Re: bttv driver broken in 2.5.4-pre
+Date: 11 Feb 2002 10:32:07 GMT
+Organization: SuSE Labs, =?ISO-8859-1?Q?Au=DFenstelle?= Berlin
+Message-ID: <slrna6f7d7.4tb.kraxel@bytesex.org>
+In-Reply-To: <3C6725A6.9E9AEC14@delusion.de>
+NNTP-Posting-Host: localhost
+X-Trace: bytesex.org 1013423527 5036 127.0.0.1 (11 Feb 2002 10:32:07 GMT)
+User-Agent: slrn/0.9.7.1 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 08 2002, Benjamin LaHaise wrote:
-> >    And also, currently BIO_MAX_SIZE is only 64K. Infact, if I try to issue
-> >    64K IO using submit_bio(), I get following BUG() on my QLOGIC controller.
-> 
-> Jens?  Also, why does the bio callback return a value?  Nothing could ever 
-> possibly use it as far as I can see.
+Udo A. Steinberg wrote:
+>  
+>  Hi Gerd,
+>  
+>  The latest changes in the 2.5.4 prepatches throw linker errors which seem to be caused by
+>  bttv-driver.c using obsolete functions:
 
-WRT max size, Linus already replied why this is so. The other thing --
-the callback return value was really to have it return 'done or not'
-when doing partial completions. It was later decided that the end_io
-callback should only be called for final completion, so really the
-nr_sectors and return value is not used now. I'll clean that up next
-time around.
+I'm not going to fix bttv 0.7.x (that's the version which is in both
+2.4.x and 2.5.x).  The redesigned bttv 0.8.x versions work (they never
+used virt_to_bus).  You can fetch them from http://bytesex.org/bttv/
+
+bttv 0.8.x depends on some other patches, thus it probably needs some
+time before it will show up in 2.5.x.  Expect bttv being broken for a
+few releases in 2.5.x kernels.
+
+  Gerd
 
 -- 
-Jens Axboe
-
+#define	ENOCLUE 125 /* userland programmer induced race condition */

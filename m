@@ -1,67 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262390AbVCBR4D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262382AbVCBR6C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262390AbVCBR4D (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 12:56:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262396AbVCBRyJ
+	id S262382AbVCBR6C (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 12:58:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbVCBR6C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 12:54:09 -0500
-Received: from alog0429.analogic.com ([208.224.222.205]:15536 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262382AbVCBRt4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 12:49:56 -0500
-Date: Wed, 2 Mar 2005 12:48:25 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-cc: Lee Revell <rlrevell@joe-job.com>, Ben Greear <greearb@candelatech.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Network speed Linux-2.6.10 
-In-Reply-To: <200503021740.j22HedCX006731@laptop11.inf.utfsm.cl>
-Message-ID: <Pine.LNX.4.61.0503021245060.5955@chaos.analogic.com>
-References: <200503021740.j22HedCX006731@laptop11.inf.utfsm.cl>
+	Wed, 2 Mar 2005 12:58:02 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:63951 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262382AbVCBR5S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 12:57:18 -0500
+From: Jesse Barnes <jbarnes@sgi.com>
+To: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+Subject: Re: [PATCH 2.6.11-rc4-mm1] end-of-proces handling for acct-csa
+Date: Wed, 2 Mar 2005 09:56:57 -0800
+User-Agent: KMail/1.7.2
+Cc: Jay Lan <jlan@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       Kaigai Kohei <kaigai@ak.jp.nec.com>
+References: <421EA8FF.1050906@sgi.com> <4224AF3D.3010803@sgi.com> <1109749735.8422.104.camel@frecb000711.frec.bull.fr>
+In-Reply-To: <1109749735.8422.104.camel@frecb000711.frec.bull.fr>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503020956.57637.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Mar 2005, Horst von Brand wrote:
+On Tuesday, March 1, 2005 11:48 pm, Guillaume Thouvenin wrote:
+> Is it possible to merge BSD and CSA? I mean with CSA, there is a part
+> that does per-process accounting. For exemple in the
+> linux-2.6.9.acct_mm.patch the two functions update_mem_hiwater() and
+> csa_update_integrals() update fields in the current (and parent)
+> process. So maybe you can improve the BSD per-process accounting or
+> maybe CSA can replace the BSD per-process accounting?
 
-> Lee Revell <rlrevell@joe-job.com> said:
->> On Tue, 2005-03-01 at 12:20 -0800, Ben Greear wrote:
->
-> [...]
->
->>> What happens if you just don't muck with the NIC and let it auto-negotiate
->>> on it's own?
->
->> This can be asking for trouble too (auto negotiation is often buggy).
->
-> I'be seen much more broken networks than buggy autonegotiation. If they
-> negotiate something funny, check and fix the network.
-> --
+The BSD accounting tools will expect the data to be written in a certain 
+format, so we can't change that.  We could, however, unify the data 
+collection under CONFIG_ACCOUNTING or something, that collects all the data 
+available (which would be the sum of the data collected by the BSD and CSA 
+calls) and then throw away data when writing to the BSD log so its format 
+remains the same.
 
-In this case it's going to negotiate with the exact same device
-in the other box when connected with a X-over cable, and with
-a Netgear switch on my desk when not. In both cases, I have
-complete control of the "network".
+That would simplify data collection since there would just be one set of 
+calls, and data reporting could be driven by userspace (whether it's in 
+old-style sys_acct format, or new-style data that CSA/ELSA defines).
 
-FYI I just upgraded to Linux-2.6.11 I'm going to repeat my
-experiment(s) later today after I put the same kernel on
-my other machine.
-
-> Dr. Horst H. von Brand                   User #22616 counter.li.org
-> Departamento de Informatica                     Fono: +56 32 654431
-> Universidad Tecnica Federico Santa Maria              +56 32 654239
-> Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+Jesse

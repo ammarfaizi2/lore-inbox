@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277836AbRJIRAe>; Tue, 9 Oct 2001 13:00:34 -0400
+	id <S277847AbRJIRFy>; Tue, 9 Oct 2001 13:05:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277835AbRJIRAP>; Tue, 9 Oct 2001 13:00:15 -0400
-Received: from are.twiddle.net ([64.81.246.98]:10917 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S277839AbRJIQ7y>;
-	Tue, 9 Oct 2001 12:59:54 -0400
-Date: Tue, 9 Oct 2001 10:00:23 -0700
-From: Richard Henderson <rth@twiddle.net>
-To: Paul McKenney <Paul.McKenney@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: Re: RFC: patch to allow lock-free traversal of lists with insertion
-Message-ID: <20011009100023.A27427@twiddle.net>
-Mail-Followup-To: Paul McKenney <Paul.McKenney@us.ibm.com>,
-	linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-In-Reply-To: <OF296D0EDC.4D1AE07A-ON88256AE0.00568638@boulder.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <OF296D0EDC.4D1AE07A-ON88256AE0.00568638@boulder.ibm.com>; from Paul.McKenney@us.ibm.com on Tue, Oct 09, 2001 at 08:45:15AM -0700
+	id <S277843AbRJIRFe>; Tue, 9 Oct 2001 13:05:34 -0400
+Received: from c009-h018.c009.snv.cp.net ([209.228.34.131]:24738 "HELO
+	c009.snv.cp.net") by vger.kernel.org with SMTP id <S277842AbRJIRFb>;
+	Tue, 9 Oct 2001 13:05:31 -0400
+X-Sent: 9 Oct 2001 17:05:56 GMT
+Date: Tue, 9 Oct 2001 10:07:05 -0700 (PDT)
+From: "Jeffrey W. Baker" <jwbaker@acm.org>
+X-X-Sender: <jwb@desktop>
+To: "Trever L. Adams" <trever_adams@yahoo.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: iptables in 2.4.10, 2.4.11pre6 problems
+In-Reply-To: <1002646705.2177.9.camel@aurora>
+Message-ID: <Pine.LNX.4.33.0110091005540.209-100000@desktop>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 09, 2001 at 08:45:15AM -0700, Paul McKenney wrote:
-> Please see the example above.  I do believe that my algorithms are
-> reliably forcing proper read ordering using IPIs, just in an different
-> way.
+On 9 Oct 2001, Trever L. Adams wrote:
 
-I wasn't suggesting that the IPI wouldn't work -- it will.
-But it will be _extremely_ slow.
+> I am seeing messages such as:
+>
+> Oct  9 12:52:51 smeagol kernel: Firewall:IN=ppp0 OUT= MAC=
+> SRC=64.152.2.36 DST=MY_IP_ADDRESS LEN=52 TOS=0x00 PREC=0x00 TTL=246
+> ID=1093 DF PROTO=TCP SPT=80 DPT=33157 WINDOW=34752 RES=0x00 ACK FIN
+> URGP=0
+>
+> In my firewall logs.  I see them for ACK RST as well.  These are valid
+> connections.  My rules follow for the most part (a few allowed
+> connections to the machine in question have been removed from the
+> list).  This often leaves open connections in a half closed state on
+> machines behind this firewall.  It also some times kills totally open
+> connections and I see packets rejected that should be allowed through.
 
-I am suggesting that the lock-free algorithms should add the
-read barriers, and that failure to do so indicates that they
-are incomplete.  If nothing else, it documents where the real
-dependancies are.
+I see this too.  iptables is refusing packets on locally-initiated TCP
+connections when the RELATED,ESTABLISHED rule should be letting them
+through.
 
+I mentioned this problem on the netfilter list but my message fell into
+a black hole and was apparently beyond the horizon of the developers.
 
-r~
+-jwb
+

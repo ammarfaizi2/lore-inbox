@@ -1,123 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313760AbSDZS1T>; Fri, 26 Apr 2002 14:27:19 -0400
+	id <S313765AbSDZS2z>; Fri, 26 Apr 2002 14:28:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313765AbSDZS1S>; Fri, 26 Apr 2002 14:27:18 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:64776 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S313760AbSDZS1R>; Fri, 26 Apr 2002 14:27:17 -0400
-Date: Fri, 26 Apr 2002 19:27:11 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
-Message-ID: <20020426192711.D18350@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S314126AbSDZS2y>; Fri, 26 Apr 2002 14:28:54 -0400
+Received: from mx7.sac.fedex.com ([199.81.194.38]:65032 "EHLO
+	mx7.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S313765AbSDZS2x>; Fri, 26 Apr 2002 14:28:53 -0400
+Date: Sat, 27 Apr 2002 01:47:14 +0800 (SGT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Alexander Viro <viro@math.psu.edu>
+cc: Pavel Machek <pavel@ucw.cz>, Michael Dreher <dreher@math.tu-freiberg.de>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19-pre7: rootfs mounted twice
+In-Reply-To: <Pine.GSO.4.21.0204261326580.22065-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.44.0204270145140.6483-100000@boston.corp.fedex.com>
+MIME-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 04/27/2002
+ 01:47:02 AM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 04/27/2002
+ 01:47:21 AM,
+	Serialize complete at 04/27/2002 01:47:21 AM
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 26 Apr 2002, Alexander Viro wrote:
 
-I've been looking at some of the ARM discontigmem implementations, and
-have come across a nasty bug.  To illustrate this, I'm going to take
-part of the generic kernel, and use the Alpha implementation to
-illustrate the problem we're facing on ARM.
-
-I'm going to argue here that virt_to_page() can, in the discontigmem
-case, produce rather a nasty bug when used with non-direct mapped
-kernel memory arguments.
-
-In mm/memory.c:remap_pte_range() we have the following code:
-
-                page = virt_to_page(__va(phys_addr));
-                if ((!VALID_PAGE(page)) || PageReserved(page))
-                        set_pte(pte, mk_pte_phys(phys_addr, prot));
-
-Let's look closely at the first line:
-
-                page = virt_to_page(__va(phys_addr));
-
-Essentially, what we're trying to do here is convert a physical address
-to a struct page pointer.
-
-__va() is defined, on Alpha, to be:
-
-	#define __va(x)  ((void *)((unsigned long) (x) + PAGE_OFFSET))
-
-so we produce a unique "va" for any physical address that is passed.  No
-problem so far.  Now, lets look at virt_to_page() for the Alpha:
-
-	#define virt_to_page(kaddr) \
-	     (ADDR_TO_MAPBASE(kaddr) + LOCAL_MAP_NR(kaddr))
-
-Looks inoccuous enough.  However, look closer at ADDR_TO_MAPBASE:
-
-	#define ADDR_TO_MAPBASE(kaddr) \
-                        NODE_MEM_MAP(KVADDR_TO_NID((unsigned long)(kaddr)))
-	#define NODE_MEM_MAP(nid)       (NODE_DATA(nid)->node_mem_map)
-	#define NODE_DATA(n)		(&((PLAT_NODE_DATA(n))->gendata))
-	#define PLAT_NODE_DATA(n)       (plat_node_data[(n)])
-
-Ok, so here we get the map base via:
-
-	plat_node_data[KVADDR_TO_NID((unsigned long)(kaddr))]->
-		gendata.node_mem_map
-
-plat_node_data is declared as:
-
-	plat_pg_data_t *plat_node_data[MAX_NUMNODES];
-
-Lets look closer at KVADDR_TO_NID() and MAX_NUMNODES:
-
-	#define KVADDR_TO_NID(kaddr)    PHYSADDR_TO_NID(__pa(kaddr))
-	#define __pa(x)                 ((unsigned long) (x) - PAGE_OFFSET)
-	#define PHYSADDR_TO_NID(pa)     ALPHA_PA_TO_NID(pa)
-	#define ALPHA_PA_TO_NID(pa)     ((pa) >> 36)    /* 16 nodes max due 43bit kseg */
-
-	#define MAX_NUMNODES            WILDFIRE_MAX_QBB
-	#define WILDFIRE_MAX_QBB        8       /* more than 8 requires other mods */
-
-So, we have a maximum of 8 nodes total, and therefore the plat_node_data
-array is 8 entries large.
-
-Now, what happens if 'kaddr' is below PAGE_OFFSET (because the user has
-opened /dev/mem and mapped some random bit of physical memory space)?
-
-__pa returns a large positive number.  We shift this large positive
-number left by 36 bits, leaving 28 bits of large positive number, which
-is larger than our total 8 nodes.
-
-We use this 28-bit number to index plat_node_data.  Whoops.
-
-And now, for the icing on the cake, take a look at Alpha's pte_page()
-implementation:
-
-        unsigned long kvirt;                                            \
-        struct page * __xx;                                             \
-                                                                        \
-        kvirt = (unsigned long)__va(pte_val(x) >> (32-PAGE_SHIFT));     \
-        __xx = virt_to_page(kvirt);                                     \
-                                                                        \
-        __xx;                                                           \
+>
+>
+> On Fri, 26 Apr 2002, Pavel Machek wrote:
+>
+> > > does statfs("/", &buf); for both.  Surprise, surprise, results of
+> > > two calls of statf2(2) are identical - what with arguments being
+> > > the same both times - and refer to the filesystem where your "/"
+> > > lives.  I.e. to ext3.
+> >
+> > df might be wrong, but lets say that this /proc/mounts become
+> > interesting. This could not have happened in the past. That means you
+>
+> This _could_ happen in past - as the matter of fact, I can reproduce it
+> on any 2.4 kernel.  Mount something over the root of already mounted
+> filesystem and watch the show.
+>
+> Now, we could disable showing rootfs in /proc/mounts and it might be a
+> good idea for 2.4,  I'm not all that sure that it's a right thing, though.
 
 
-Someone *please* tell me where I'm wrong.  I really want to be wrong,
-because I can see the same thing happening (in theory, and one report
-in practice from a developer) on a certain ARM platform.
+This happens all the time if you use initrd ramdisk and switch to hard
+disk during boot up.
 
-On ARM, however, we have cherry to add here.  __va() may alias certain
-physical memory addresses to the same virtual memory address, which
-makes:
+2.4.19-pre6 is ok, but 2.4.19-pre7 is not.
 
-	VALID_PAGE(virt_to_page(__va(phys)))
+Jeff.
 
-completely nonsensical.
 
-I'll try kicking myself 3 times to see if I wake up from this horrible
-dream now. 8)
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html

@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262499AbTGZSKa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 14:10:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262464AbTGZSK3
+	id S267520AbTGZSVH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 14:21:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267471AbTGZSUe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 14:10:29 -0400
-Received: from twilight.cs.hut.fi ([130.233.40.5]:30155 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S262439AbTGZSKX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 14:10:23 -0400
-Date: Sat, 26 Jul 2003 21:25:24 +0300
-From: Ville Herva <vherva@niksula.hut.fi>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: Orm Finnendahl <finnendahl@folkwang-hochschule.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: make menuconfig and 2.4.22-pre8
-Message-ID: <20030726182524.GO150921@niksula.cs.hut.fi>
-Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
-	Gene Heskett <gene.heskett@verizon.net>,
-	Orm Finnendahl <finnendahl@folkwang-hochschule.de>,
-	linux-kernel@vger.kernel.org
-References: <20030726171527.GA1173@finnendahl.de> <200307261342.17010.gene.heskett@verizon.net>
+	Sat, 26 Jul 2003 14:20:34 -0400
+Received: from fw.osdl.org ([65.172.181.6]:55704 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267378AbTGZSU0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 14:20:26 -0400
+Date: Sat, 26 Jul 2003 11:35:22 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: ed.sweetman@wmich.edu, eugene.teo@eugeneteo.net,
+       linux-kernel@vger.kernel.org, kernel@kolivas.org
+Subject: Re: Ingo Molnar and Con Kolivas 2.6 scheduler patches
+Message-Id: <20030726113522.447578d8.akpm@osdl.org>
+In-Reply-To: <200307271046.30318.phillips@arcor.de>
+References: <1059211833.576.13.camel@teapot.felipe-alfaro.com>
+	<20030726101015.GA3922@eugeneteo.net>
+	<3F2264DF.7060306@wmich.edu>
+	<200307271046.30318.phillips@arcor.de>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200307261342.17010.gene.heskett@verizon.net>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 26, 2003 at 01:42:16PM -0400, you [Gene Heskett] wrote:
-> On Saturday 26 July 2003 13:15, Orm Finnendahl wrote:
-> >
-> >grisey:/usr/src# tar -xjf ~orm/install/linux-2.4.21.tar.bz2
-> >grisey:/usr/src# rm -f linux
-> 
-> you are out of order with the above 2 lines.  Remove the link first, 
-> then unpack and rename the new kernel.
+Daniel Phillips <phillips@arcor.de> wrote:
+>
+> Audio players fall into a special category of application, the kind where it's 
+>  not unreasonable to change the code around to take advantage of new kernel 
+>  features to make them work better.
 
-Nowadays linux-x.x.x.tar.gz unpacks into linux-x.x.x directory, so it
-shoudn't matter.
+One shouldn't even need to modify the player application to start using a
+new scheduler policy - policy is inherited, so a wrapper will suffice:
 
-> >grisey:/usr/src# ln -s linux-2.4.21 linux
+	sudo /bin/run-something-as-softrr mplayer
 
-Instead of "rm -f; ln -s" you could do "ln -nfs".
+> Remember this word: audiophile.
+
+That is one problem space, and I guess if we fix that, we fix the X11
+problems too.
+
+Let us not lose sight of the other problem: particular sleep/run patterns
+as demonstrated in irman are causing extremem starvation.  Arguably we
+should be addressing this as the higher priority problem.
 
 
--- v --
+It is interesting that Felipe says that stock 2.5.69 was the best CPU
+scheduler of the 2.5 series.  Do others agree with that?
 
-v@iki.fi
+
+And what about the O(1) backports?  RH and UL and -aa kernels?  Are people
+complaining about those kernels?  If not, why?  What is different?
+

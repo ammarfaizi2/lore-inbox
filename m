@@ -1,73 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264938AbTBTH6w>; Thu, 20 Feb 2003 02:58:52 -0500
+	id <S264940AbTBTI0W>; Thu, 20 Feb 2003 03:26:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264939AbTBTH6w>; Thu, 20 Feb 2003 02:58:52 -0500
-Received: from angband.namesys.com ([212.16.7.85]:46986 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S264938AbTBTH6v>; Thu, 20 Feb 2003 02:58:51 -0500
-Date: Thu, 20 Feb 2003 11:08:51 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Jeff Dike <jdike@karaya.com>
-Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: uml-patch-2.5.62-1
-Message-ID: <20030220110851.A1069@namesys.com>
-References: <200302192008.h1JK88P16444@uml.karaya.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S264944AbTBTI0W>; Thu, 20 Feb 2003 03:26:22 -0500
+Received: from 205-158-62-131.outblaze.com ([205.158.62.131]:61076 "HELO
+	ws5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S264940AbTBTI0V>; Thu, 20 Feb 2003 03:26:21 -0500
+Message-ID: <20030220083620.31336.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-In-Reply-To: <200302192008.h1JK88P16444@uml.karaya.com>
-User-Agent: Mutt/1.3.22.1i
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: linux-kernel@vger.kernel.org
+Date: Thu, 20 Feb 2003 16:36:20 +0800
+Subject: No sound
+X-Originating-Ip: 62.101.98.215
+X-Originating-Server: ws5-1.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hi All,
+I really don't know the version of a kernel that played sound (in the 2.5 serie).
 
-On Wed, Feb 19, 2003 at 03:08:08PM -0500, Jeff Dike wrote:
+dmesg from 2.5.61:
+Advanced Linux Sound Architecture Driver Version 0.9.0rc7 (Sun Feb 09 18:00:12 2003 UTC).
+request_module[snd-card-0]: not ready
+request_module[snd-card-1]: not ready
+request_module[snd-card-2]: not ready
+request_module[snd-card-3]: not ready
+request_module[snd-card-4]: not ready
+request_module[snd-card-5]: not ready
+request_module[snd-card-6]: not ready
+request_module[snd-card-7]: not ready
+no UART detected at 0xffff
+Motu MidiTimePiece on parallel port irq: 7 ioport: 0x378
+ALSA sound/drivers/mpu401/mpu401.c:76: specify port
+PCI: Found IRQ 5 for device 00:0d.0
+ALSA device list:
+  #0: Dummy 1
+  #1: Virtual MIDI Card 1
+  #2: 
+  #3: ESS Maestro3 PCI at 0x1800, irq 5 <- My sound card ;-)
 
-> 	ubd driver cleanups and fixes
+And from 2.5.62:
+Advanced Linux Sound Architecture Driver Version 0.9.0rc7 (Sat Feb 15 15:01:21 2003 UTC).
+request_module: failed /sbin/modprobe -- snd-card-0. error = -16
+no UART detected at 0xffff
+Motu MidiTimePiece on parallel port irq: 7 ioport: 0x378
+ALSA sound/drivers/mpu401/mpu401.c:76: specify port
+PCI: Found IRQ 5 for device 00:0d.0
+ALSA device list:
+  #0: Dummy 1
+  #1: Virtual MIDI Card 1
+  #2: 
+  #3: ESS Maestro3 PCI at 0x1800, irq 5
 
-Ah, great. Except it introduced new breakage.
-That hunk below from your diff adds add_disk() call.
-Notice how a bit down we have another  call to add_disk(),
-that is not removed. So we end up woth two add_disk() calls.
-Of course sysfs gets upset immediately (probably not only it).
+Quite different from the previous one.
 
-diff -Naur a/arch/um/drivers/ubd_kern.c b/arch/um/drivers/ubd_kern.c
---- a/arch/um/drivers/ubd_kern.c        Wed Feb 19 11:24:39 2003
-+++ b/arch/um/drivers/ubd_kern.c        Wed Feb 19 11:29:49 2003
-@@ -499,17 +516,22 @@
-        disk->major = major;
-        disk->first_minor = minor;
-        disk->fops = &ubd_blops;
-+       disk->private_data = dev;
-+       disk->queue = &ubd_queue;
-        set_capacity(disk, size / 512);
--       /* needs to be ubd -> /dev/ubd/discX/disc */
--       sprintf(disk->disk_name, "ubd");
-+       sprintf(disk->disk_name, name);
-        *disk_out = disk;
-+       add_disk(disk);
+Both of them doesn't play any sound.
 
--       /* /dev/ubd/N style names */
--       sprintf(devfs_name, "%d", unit);
--       *handle_out = devfs_register(dir_handle, devfs_name,
--                                    DEVFS_FL_REMOVABLE, major, minor,
--                                    S_IFBLK | S_IRUSR | S_IWUSR | S_IRGRP |
--                                    S_IWGRP, &ubd_blops, NULL);
-+       if(handle_out != NULL){
-+               /* /dev/ubd/N style names */
-+               sprintf(devfs_name, "%d", unit);
-+               *handle_out = devfs_register(dir_handle, devfs_name,
-+                                            DEVFS_FL_DEFAULT, major, minor,
-+                                            S_IFBLK | S_IRUSR | S_IWUSR |
-+                                            S_IRGRP | S_IWGRP, &ubd_blops,
-+                                            NULL);
-+       }
-        disk->private_data = &ubd_dev[unit];
-        disk->queue = &ubd_queue;
-        add_disk(disk);
+Any hint/suggestion ?
 
+Ciao,
+             Paolo
 
-Bye,
-    Oleg
+-- 
+______________________________________________
+http://www.linuxmail.org/
+Now with e-mail forwarding for only US$5.95/yr
+
+Powered by Outblaze

@@ -1,70 +1,186 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263121AbUDAWZx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 17:25:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263130AbUDAWZx
+	id S263125AbUDAWZL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 17:25:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263121AbUDAWZL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 17:25:53 -0500
-Received: from harddata.com ([216.123.194.198]:64485 "EHLO mail.harddata.com")
-	by vger.kernel.org with ESMTP id S263121AbUDAWZs (ORCPT
+	Thu, 1 Apr 2004 17:25:11 -0500
+Received: from atlrel6.hp.com ([156.153.255.205]:36039 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S263120AbUDAWYs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 17:25:48 -0500
-From: Mark <mark@harddata.com>
-Organization: Hard Data Ltd
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Upgrade from 2.4.25 to 2.6.4 kernel
-Date: Thu, 1 Apr 2004 15:24:12 -0700
+	Thu, 1 Apr 2004 17:24:48 -0500
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] early serial console support
+Date: Thu, 1 Apr 2004 15:24:43 -0700
 User-Agent: KMail/1.6.1
-References: <20040401205344.546715FB7B@mail.metropipe.net>
-In-Reply-To: <20040401205344.546715FB7B@mail.metropipe.net>
+Cc: linux-ia64@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>
+References: <200404011458.04264.bjorn.helgaas@hp.com>
+In-Reply-To: <200404011458.04264.bjorn.helgaas@hp.com>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
-  charset="utf-8"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200404011524.12034.mark@harddata.com>
+Message-Id: <200404011524.43700.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On April 1, 2004 03:49 pm, "Job 317" <job317@mailvault.com> wrote:
-> Hello list.
->
-> Can someone please point me to a HOWTO on installing a 2.6.x kernel on a
-> system that heretofore runs a 2.4.x kernel?
+This updates ia64 to use the early serial console in the previous
+patch.  It depends on that patch, so please don't apply it unless/
+until that is applied.
 
-http://kerneltrap.org/node/view/799 
+The benefits to ia64 are:
+    - /dev/ttyS<N> naming is now independent of any EFI console
+      configuration or "console=" arguments.
+    - Serial console can work a little earlier because it no longer
+      depends on ACPI for interrupt registration.
+    - It probably works early enough to obsolete the EARLY_PRINTK
+      stuff.
 
-BTW Google is your friend here. Do a search for 2.6 HOWTO and that link is the 
-first one on the list.
->
-> NOT a howto on building the kernel. I'm o.k. there. But I understand
-> that it is not the same upgrading to a 2.6.x kernel as it is just
-> upgrading to the next 2.4.x kernel. Is this correct?
+"console=serial" means use the first device described in the HCDP (or
+COM1 at I/O port 0x3f8 if no HCDP) as the early and normal console.
+The baud rate is obtained from the HCDP or probed from the UART if
+not specified.
 
-No, a 2.6 kernel will run without changes to RedHat 9 but some changes should 
-be made.
+"console=ttyS<N>" means use ttyS<N> as the console.  There will be no
+early console.  The baud rate must be specified unless it is 9600.
 
-> Aren't there 
-> startup scripts and things that rely on the 2.4.x structure that change
-> slightly for a 2.6.x kernel?
->
+Gotchas:
+    - Old kernels don't understand "console=serial", so elilo.conf
+      changes are needed if you want an early console.
+    - Old kernels named ttyS devices in different orders, depending on
+      which one was selected as the EFI console device, so you may
+      need to add or change a getty entry in /etc/inittab.
 
-Yes, check out the link above. There are also some links to RedHat 9 specific 
-instructions.
+For example, a machine with a built-in serial port plus an MP might
+have these ports:
 
-> !!!!Also... is it possible to still to boot back to a 2.4.x kernel in
-> this case?
+			        old, EFI	old, EFI	new, EFI
+		   MMIO		console		console		console
+		  address	on builtin	on MP		anywhere
+		----------	---------	--------	--------
+    builtin	0xff5e0000	ttyS0		ttyS1		ttyS0
+    MP UPS	0xf8031000	ttyS1		ttyS2		ttyS1
+    MP Console	0xf8030000	ttyS2		ttyS0		ttyS2
+    MP 2	0xf8030010	ttyS3		ttyS3		ttyS3
+    MP 3	0xf8030038	ttyS4		ttyS4		ttyS4
 
-Yep you can still run a 2.4.x kernel.
+If you're using the MP console port (the port labelled "console" on
+the 3-headed cable), it used to be /dev/ttyS0, but is now /dev/ttyS2.
 
-> Lets say I keep my 2.4.25 kernel that I built on my RedHat 9 
-> box. Can I also boot to and from my 2.6.x kernel?
+Troubleshooting:
+    - No kernel output after "Uncompressing Linux... done":
+	-> You're using an MP port as the console and specified
+	   "console=ttyS0".  This port is now named something else.
+	   Use "console=serial" instead.
+	-> Multiple UARTs selected as EFI console devices, and you're
+	   looking at the wrong one.  Make sure only one UART is
+	   selected (use the Boot Manager "Boot option maintenance"
+	   menu).
 
-Yes
+    - Long pause (60+ seconds) between "Uncompressing Linux... done"
+      and start of kernel output:
+	-> No early console, probably because you used "console=ttyS0".
+	   Replace it with "console=serial".
 
--- 
-Mark Lane, CET mailto:mark@harddata.com 
-Hard Data Ltd. http://www.harddata.com 
-T: 01-780-456-9771   F: 01-780-456-9772
-11060 - 166 Avenue Edmonton, AB, Canada, T5X 1Y3
---> Ask me about our Excellent 1U Systems! <--
+    - Kernel and init script output is fine, but no "login:" prompt:
+	-> Missing getty entry in /etc/inittab.  Add the appropriate
+	   entry based on the kernel "Starting serial console on
+	   ttyS<N>" message.
+
+    - "login:" prompt, but can't login as root:
+	-> Add entry to /etc/securetty for console tty.
+
+
+===== arch/ia64/kernel/setup.c 1.70 vs edited =====
+--- 1.70/arch/ia64/kernel/setup.c	Wed Mar 17 05:46:59 2004
++++ edited/arch/ia64/kernel/setup.c	Thu Apr  1 12:39:14 2004
+@@ -263,20 +263,34 @@
+ 
+ #ifdef CONFIG_SERIAL_8250_CONSOLE
+ static void __init
+-setup_serial_legacy (void)
++setup_serial_legacy (char *cmdline)
+ {
++	static char buf[32];
++	char *options, *space;
+ 	struct uart_port port;
+-	unsigned int i, iobase[] = {0x3f8, 0x2f8};
+ 
+-	printk(KERN_INFO "Registering legacy COM ports for serial console\n");
++	if (!strstr(cmdline, "console=serial"))
++		return;
++
++	/*
++	 * We have no idea where the console UART is, but the
++	 * user explicitly requested it, so assume it's COM1.
++	 */
+ 	memset(&port, 0, sizeof(port));
+ 	port.iotype = SERIAL_IO_PORT;
+-	port.uartclk = BASE_BAUD * 16;
+-	for (i = 0; i < ARRAY_SIZE(iobase); i++) {
+-		port.line = i;
+-		port.iobase = iobase[i];
+-		early_serial_setup(&port);
++	port.iobase = 0x3f8;
++
++	options = strstr(cmdline, "console=serial,");
++	if (options) {
++		options += 15;	// strlen("console=serial,")
++		strlcpy(buf, options, sizeof(buf));
++		space = strchr(buf, ' ');
++		if (space)
++			*space = 0;
++		options = buf;
+ 	}
++
++	serial8250_early_console_setup(&port, options);
+ }
+ #endif
+ 
+@@ -297,6 +311,17 @@
+ 	machvec_init(acpi_get_sysname());
+ #endif
+ 
++#ifdef CONFIG_SERIAL_8250_CONSOLE
++#ifdef CONFIG_SERIAL_8250_HCDP
++	if (efi.hcdp) {
++		extern void setup_hcdp_console(void *, char *);
++		setup_hcdp_console(efi.hcdp, *cmdline_p);
++	}
++#endif
++	if (!efi.hcdp)
++		setup_serial_legacy(*cmdline_p);
++#endif
++
+ #ifdef CONFIG_ACPI_BOOT
+ 	/* Initialize the ACPI boot-time table parser */
+ 	acpi_table_init();
+@@ -322,26 +347,6 @@
+ 
+ #ifdef CONFIG_ACPI_BOOT
+ 	acpi_boot_init();
+-#endif
+-#ifdef CONFIG_SERIAL_8250_CONSOLE
+-#ifdef CONFIG_SERIAL_8250_HCDP
+-	if (efi.hcdp) {
+-		void setup_serial_hcdp(void *);
+-		setup_serial_hcdp(efi.hcdp);
+-	}
+-#endif
+-	/*
+-	 * Without HCDP, we won't discover any serial ports until the serial driver looks
+-	 * in the ACPI namespace.  If ACPI claims there are some legacy devices, register
+-	 * the legacy COM ports so serial console works earlier.  This is slightly dangerous
+-	 * because we don't *really* know whether there's anything there, but we hope that
+-	 * all new boxes will implement HCDP.
+-	 */
+-	{
+-		extern unsigned char acpi_legacy_devices;
+-		if (!efi.hcdp && acpi_legacy_devices)
+-			setup_serial_legacy();
+-	}
+ #endif
+ 
+ #ifdef CONFIG_VT

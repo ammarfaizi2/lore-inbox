@@ -1,71 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132431AbQKWNTJ>; Thu, 23 Nov 2000 08:19:09 -0500
+        id <S131963AbQKWNXa>; Thu, 23 Nov 2000 08:23:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132430AbQKWNS7>; Thu, 23 Nov 2000 08:18:59 -0500
-Received: from www.heime.net ([194.234.65.222]:41478 "EHLO mustard.heime.net")
-        by vger.kernel.org with ESMTP id <S132280AbQKWNSz>;
-        Thu, 23 Nov 2000 08:18:55 -0500
-Message-ID: <3A1D12B5.D0AF250C@karlsbakk.net>
-Date: Thu, 23 Nov 2000 13:51:01 +0100
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-X-Mailer: Mozilla 4.75 [en] (Win98; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: linux-kernel@vger.kernel.org, Frank Ronny Larsen <frankrl@nhn.no>,
-        Frank Ronny Larsen <gobo@gimle.nu>, Jannik Rasmussen <jannik@east.no>,
-        "Lars Christian Nygård" <lars@snart.com>
-Subject: Re: ext2 compression: How about using the Netware principle?
-In-Reply-To: <3A193A12.9B384B61@karlsbakk.net> <20001122132922.A41@toy>
+        id <S132280AbQKWNXT>; Thu, 23 Nov 2000 08:23:19 -0500
+Received: from mailhost.tue.nl ([131.155.2.5]:31756 "EHLO mailhost.tue.nl")
+        by vger.kernel.org with ESMTP id <S131963AbQKWNXA>;
+        Thu, 23 Nov 2000 08:23:00 -0500
+Message-ID: <20001123135252.A4149@win.tue.nl>
+Date: Thu, 23 Nov 2000 13:52:52 +0100
+From: Guest section DW <dwguest@win.tue.nl>
+To: Neil Brown <neilb@cse.unsw.edu.au>, "Mohammad A. Haque" <mhaque@haque.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+        Tigran Aivazian <tigran@veritas.com>
+Subject: Re: ext2 filesystem corruptions back from dead? 2.4.0-test11
+In-Reply-To: <3A1CB07C.CEE01F1F@haque.net> <14876.45844.670274.366687@notabene.cse.unsw.edu.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 0.93i
+In-Reply-To: <14876.45844.670274.366687@notabene.cse.unsw.edu.au>; from Neil Brown on Thu, Nov 23, 2000 at 05:03:00PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > - A file is saved to disk
-> > - If the file isn't touched (read or written to) within <n> days
-> > (default 14), the file is compressed.
-> > - If the file isn't compressed more than <n> percent (default 20), the
-> > file is flagged "can't compress".
-> > - All file compression is done on low traffic times (default between
-> > 00:00 and 06:00 hours)
-> > - The first time a file is read or written to within the <n> days
-> > interval mentioned above, the file is addressed using realtime
-> > compression. The second time, the file is decompressed and commited to
-> > disk (uncompressed).
->
-> Oops, that means that merely reading a file followed by powerfail can
-> lead to you loosing the file. Oops.
+On Thu, Nov 23, 2000 at 05:03:00PM +1100, Neil Brown wrote:
 
-eh.. don't think so.
-READ
-DECOMPRESS
-WRITE
-SYNC
-DELETE OLD COMPRESSED FILE
-or something
+> Oh, good.  It's not just me and Tigran then.
 
-> Besides: you can do this in userspace with existing e2compr. Should take
-> less than 2 days to implement.
+You have it all backwards. It would be good if it were
+just you and Tigran. Unfortunately it also hits me.
 
-ok
-never seen that...
+(I am reorganizing my disks, copying large trees from
+one place to the other. Always doing a diff -r between
+old and new before removing the old version.
+Yesterday I had a diff -r showing that the old version
+was corrupted and the new was OK. Of course a second
+look showed that the old version also was OK, the corruption
+must have been in the buffer cache, not on disk.)
 
-> > Results:
-> > A minimum of CPU time is wasted compressing/decompressing files.
-> > The average server I've been out working with have an effective
-> > compression of somewhere between 30 and 100 per cent.
->
-> Results: NOP at machines that are never on in that time, random corruption
-> after powerfail between 0:00-6:00, ..                           Pavel
-
-I'm talking about file servers. Not merely a bloody PC. On a PC, hard disk
-space doesn't really cost anything and you can manually compress what you're
-not using.
-
-roy
-
+Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

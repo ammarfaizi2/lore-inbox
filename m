@@ -1,79 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266839AbUHCVCr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266850AbUHCVIF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266839AbUHCVCr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 17:02:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266846AbUHCVCr
+	id S266850AbUHCVIF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 17:08:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266854AbUHCVIF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 17:02:47 -0400
-Received: from alias.nmd.msu.ru ([193.232.127.67]:8965 "EHLO alias.nmd.msu.ru")
-	by vger.kernel.org with ESMTP id S266839AbUHCVCk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 17:02:40 -0400
-Date: Wed, 4 Aug 2004 01:02:39 +0400
-From: Alexander Lyamin <flx@msu.ru>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Hans Reiser <reiser@namesys.com>, andrea@cpushare.com,
-       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re:  secure computing for 2.6.7
-Message-ID: <20040803210239.GB7236@alias.nmd.msu.ru>
-Reply-To: flx@msu.ru
-Mail-Followup-To: flx@msu.ru, Stephen Smalley <sds@epoch.ncsc.mil>,
-	Hans Reiser <reiser@namesys.com>, andrea@cpushare.com,
-	lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-References: <20040704173903.GE7281@dualathlon.random> <40EC4E96.9090800@namesys.com> <1091536845.7645.60.camel@moss-spartans.epoch.ncsc.mil>
+	Tue, 3 Aug 2004 17:08:05 -0400
+Received: from mail-relay-3.tiscali.it ([213.205.33.43]:47795 "EHLO
+	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
+	id S266850AbUHCVIC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 17:08:02 -0400
+Date: Tue, 3 Aug 2004 23:07:37 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rik van Riel <riel@redhat.com>
+Cc: Chris Wright <chrisw@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [patch] mlock-as-nonroot revisted
+Message-ID: <20040803210737.GI2241@dualathlon.random>
+References: <20040729185215.Q1973@build.pdx.osdl.net> <Pine.LNX.4.44.0408031654290.5948-100000@dhcp83-102.boston.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1091536845.7645.60.camel@moss-spartans.epoch.ncsc.mil>
-X-Operating-System: Linux 2.6.5-7.95-bigsmp
-X-Fnord: +++ath
-X-WebTV-Stationery: Standard; BGColor=black; TextColor=black
-X-Message-Flag: Message text blocked: ADULT LANGUAGE/SITUATIONS
+In-Reply-To: <Pine.LNX.4.44.0408031654290.5948-100000@dhcp83-102.boston.redhat.com>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tue, Aug 03, 2004 at 08:40:45AM -0400, Stephen Smalley wrote:
-> On Wed, 2004-07-07 at 15:27, Hans Reiser wrote:
-> > Am I right to think that this could complement nicely our plans 
-> > described at www.namesys.com/blackbox_security.html
-> Hi Hans,
-> 
-> Out of curiosity, what do you think that this proposal will achieve that
-> cannot already be done via SELinux policy?  SELinux policy can already
-> express access rules based not only on the executable and user, but even
-> the entire call chain that led to a given executable.
+On Tue, Aug 03, 2004 at 04:55:49PM -0400, Rik van Riel wrote:
+> @@ -198,9 +201,11 @@
+>  		return error;
+>  	}
+>  
+> -	if (shmflg & SHM_HUGETLB)
+> +	if (shmflg & SHM_HUGETLB) {
+> +		/* hugetlb_zero_setup takes care of mlock user accounting */
+>  		file = hugetlb_zero_setup(size);
+> -	else {
+> +		shp->mlock_user = current->user;
+> +	} else {
+>  		sprintf (name, "SYSV%08x", key);
+>  		file = shmem_file_setup(name, size, VM_ACCOUNT);
+>  	}
 
-convinience ? speed ?
-
-
-RBAC is a Good Thing, but I wonder if it could provide throughout syntax analysis
-for vfs related syscalls. As it is now.
-
-At least what declared in their docs, fs-wise they are somewhat like this
-
-Macro Name	Description
-stat_file_perms	Permissions to call stat or access on a file.
-x_file_perms	Permissions to execute a file.
-r_file_perms	Permissions to read a file.
-rx_file_perms	Permissions to read and execute a file.
-rw_file_perms	Permissions to read and write a file.
-ra_file_perms	Permissions to read and append to a file.
-link_file_perms	Permissions to link, unlink, or rename a file.
-create_file_perms	Permissions to create, access, and delete a file.
-r_dir_perms	Permissions to read and search a directory.
-rw_dir_perms	Permissions to read and modify a directory.
-ra_dir_perms	Permissions to read and add entries to a directory.
-create_dir_perms	Permissions to create, access, and delete a directory.
-mount_fs_perms	Permissions to mount and unmount a filesystem.
-
-
-*shrugs*
-Well, I am probably wrong...
-
-p.s. _AND_ if I remember correctly reiser4 supposed to provide finer-then-file grain security.
-well, at least it easily could, being truly semantic-enabled fs.
-
--- 
-"the liberation loophole will make it clear.."
-lex lyamin
+where do you change mlock_user in chown?

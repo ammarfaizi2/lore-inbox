@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267191AbTBQRWi>; Mon, 17 Feb 2003 12:22:38 -0500
+	id <S267208AbTBQRiI>; Mon, 17 Feb 2003 12:38:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267198AbTBQRWi>; Mon, 17 Feb 2003 12:22:38 -0500
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:59586 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S267191AbTBQRWh>; Mon, 17 Feb 2003 12:22:37 -0500
-Message-Id: <200302171732.SAA00873@post.webmailer.de>
-From: Arnd Bergmann <arnd@bergmann-dalldorf.de>
-Subject: Re: [RFC] klibc for 2.5.59 bk
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       linux-kernel@vger.kernel.org
-Date: Mon, 17 Feb 2003 18:12:33 +0100
-References: <20030217031008$3e63@gated-at.bofh.it> <20030217031008$270a@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	id <S267209AbTBQRiI>; Mon, 17 Feb 2003 12:38:08 -0500
+Received: from zeke.inet.com ([199.171.211.198]:416 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id <S267208AbTBQRiH>;
+	Mon, 17 Feb 2003 12:38:07 -0500
+Message-ID: <3E51204C.1010505@inet.com>
+Date: Mon, 17 Feb 2003 11:47:56 -0600
+From: Eli Carter <eli.carter@inet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
+To: jlnance@unity.ncsu.edu
+CC: linux-kernel@vger.kernel.org
+Subject: Re: What language has Alan's portaloo changed to?
+References: <20030217172507.GA23990@ncsu.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kai Germaschewski wrote:
+jlnance@unity.ncsu.edu wrote:
+> I notice that the entries on http://www.linux.org.uk/diary/ have changed
+> to a different language.  Is it Welsh?  Hm.  I wonder if bablefish can
+> help me translate it.
 
-> should work fine (reminder: "make KBUILD_VERBOSE=0 ..." will give you much 
-> more readable output), but I probably broke some non-x86 architectures 
-> in the process.
+Apparently it is Welsh....  check that 'The other side of the story' 
+link at the top, and the feb 16th entry on that page.
 
-I just tried building on s390x and only needed this trivial fix. Unfortunately,
-2.5.61 does not boot on s390x yet, so I could not do run-time tests.
+I have no idea how to grok Welsh.
 
-        Arnd <><
+HTH,
 
-===== usr/lib/socketcalls.pl 1.4 vs edited =====
---- 1.4/usr/lib/socketcalls.pl  Sun Feb 16 06:09:33 2003
-+++ edited/usr/lib/socketcalls.pl       Mon Feb 17 18:24:39 2003
-@@ -39,7 +39,7 @@
-            print OUT "\tjmp __socketcall_common\n";
-            print OUT "\t.size ${name},.-${name}\n";
-        } else {
--           open(OUT, "> ${obj}/${name}.c")
-+           open(OUT, "> ${obj}/socketcalls/${name}.c")
-                or die "$0: Cannot open socketcalls/${name}.c\n";
-            print OUT "#include \"socketcommon.h\"\n\n";
-            
+Eli
+--------------------. "If it ain't broke now,
+Eli Carter           \                  it will be soon." -- crypto-gram
+eli.carter(a)inet.com `-------------------------------------------------
+

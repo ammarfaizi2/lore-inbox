@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263039AbTCEFlf>; Wed, 5 Mar 2003 00:41:35 -0500
+	id <S262452AbTCEFsA>; Wed, 5 Mar 2003 00:48:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262604AbTCEFlf>; Wed, 5 Mar 2003 00:41:35 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:63753
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S262492AbTCEFld>; Wed, 5 Mar 2003 00:41:33 -0500
-Date: Wed, 5 Mar 2003 00:49:55 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: ChristopherHuhn <c.huhn@gsi.de>
-cc: linux-smp <linux-smp@vger.kernel.org>, "" <linux-kernel@vger.kernel.org>,
-       Walter Schoen <w.schoen@gsi.de>, "" <support-gsi@credativ.de>
-Subject: Re: Kernel Bug at spinlock.h ?!
-In-Reply-To: <3E64B0EA.4080109@GSI.de>
-Message-ID: <Pine.LNX.4.50.0303042133170.5867-100000@montezuma.mastecende.com>
-References: <Pine.LNX.3.95.1030303103332.22802A-100000@chaos> <3E637CDC.3030409@GSI.de>
- <Pine.LNX.4.50.0303031248220.29455-100000@montezuma.mastecende.com>
- <3E64B0EA.4080109@GSI.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262469AbTCEFsA>; Wed, 5 Mar 2003 00:48:00 -0500
+Received: from SPARCLINUX.MIT.EDU ([18.248.2.241]:57354 "EHLO
+	sparclinux.mit.edu") by vger.kernel.org with ESMTP
+	id <S262452AbTCEFr7>; Wed, 5 Mar 2003 00:47:59 -0500
+Date: Wed, 5 Mar 2003 00:44:57 -0500
+To: David van Hoose <davidvh@cox.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SCSI broken
+Message-ID: <20030305054457.GA12564@osinvestor.com>
+References: <3E658E51.4070505@cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E658E51.4070505@cox.net>
+User-Agent: Mutt/1.4i
+From: rob@osinvestor.com (Rob Radez)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Mar 2003, ChristopherHuhn wrote:
+On Tue, Mar 04, 2003 at 11:42:41PM -0600, David van Hoose wrote:
+> Kernels 2.5.63 and 2.5.64 lock up when displaying the information for my 
+> ZipDrive during SCSI probe. Attached is my .config for 2.5.64.
 
-> Newer means 2.4.21pre, since we are running 2.4.20?
-> I assume that we will not upgrade the kernel before a new stable 
-> release, since it is - should be - a production environment.
-> 
-> We have some indications, that our whole problem might be related to 
-> kernel NFS and mixing between 2.2.21 and 2.4.20 in both directions.
-> 
-> I'll compile some more oopses and give you a report tomorrow.
+I suspect I'm seeing something similar.  On SPARC, I'm getting a hang
+after displaying the information for my SCSI CD-ROM drive.
 
-Ok don't worry about upgrading kernels for now, (Disclaimer: I'm no NFS 
-expert). it looks like there might have been a race here.
+scsi0 : Sparc ESP100A-FAST
+Vendor: SEAGATE   Model: ST31200W SUN1.05  Rev: 8724
+Type:   Direct-Access                      ANSI SCSI revision: 02
+Vendor: SEAGATE   Model: ST32155W SUN2.1G  Rev: 8456
+Type:   Direct-Access                      ANSI SCSI revision: 02
+Vendor: TOSHIBA   Model: XM-4101TASUNSLCD  Rev: 1755
+Type:   CD-ROM                             ANSI SCSI revision: 02
+<hang>
 
-Code: Bad EIP value
-[rpc_call_sync+121/164]
-[rpc_run_timer+0/240]
+.config available on request.  Worked fine in 2.5.62, hangs in 2.5.63.
+Reverting the scsi changes listed at
+http://osinvestor.com/sparc/patch/2.5.63-revertscsi.diff allows 2.5.63
+to boot.
 
-It looks like a possible race with rpc_execute and possibly the timer, 
-although i can't be certain where the other cpus are. Do the other oopses 
-look somewhat similar? Could you supply them?
-
-	Zwane
--- 
-function.linuxpower.ca
+Regards,
+Rob Radez

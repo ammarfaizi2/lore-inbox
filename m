@@ -1,63 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284969AbRLKLZ3>; Tue, 11 Dec 2001 06:25:29 -0500
+	id <S284975AbRLKL1k>; Tue, 11 Dec 2001 06:27:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284970AbRLKLZU>; Tue, 11 Dec 2001 06:25:20 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:3332 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S284969AbRLKLZQ>;
-	Tue, 11 Dec 2001 06:25:16 -0500
-Date: Tue, 11 Dec 2001 12:25:09 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Bas Vermeulen <bvermeul@blackstar.nl>
+	id <S284972AbRLKL1a>; Tue, 11 Dec 2001 06:27:30 -0500
+Received: from pl475.nas921.ichikawa.nttpc.ne.jp ([210.165.235.219]:42008 "EHLO
+	mbr.sphere.ne.jp") by vger.kernel.org with ESMTP id <S284970AbRLKL1U>;
+	Tue, 11 Dec 2001 06:27:20 -0500
+Date: Tue, 11 Dec 2001 20:27:07 +0900
+From: Bruce Harada <bruce@ask.ne.jp>
+To: John Huttley <john@mwk.co.nz>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.1-pre8 oopses on non existing acorn partition
-Message-ID: <20011211112509.GO13498@suse.de>
-In-Reply-To: <Pine.LNX.4.33.0112110910350.1461-100000@laptop.blackstar.nl>
+Subject: Re: [2.4.16 Bug] major failure
+Message-Id: <20011211202707.5abe3bed.bruce@ask.ne.jp>
+In-Reply-To: <1008054620.1453.0.camel@albatross.hisdad.org.nz>
+In-Reply-To: <1008054620.1453.0.camel@albatross.hisdad.org.nz>
+X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.6; i686-pc-linux-gnu)
+X-Face: $qrUU,Lz=B[A}i%m2Rg^Ik;~V@]$Ay)$S`wUf3:^aZ1UdLf,_;1y7_xbEh=Yv*wB0=Fv]a1hj14_qQsl[f1KX]q4IdhwmSIeP6>Ap@[e$c$G;;ObLI7?Y<H5";4<{GAPoak2U)!da]-ZJb}!.#>Xsq*)M'3Jp<M,l~'4F{qWpM$%"%p'
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="k1lZvvs/B4yU6o8G"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0112110910350.1461-100000@laptop.blackstar.nl>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 11 Dec 2001 20:10:19 +1300
+John Huttley <john@mwk.co.nz> wrote:
 
---k1lZvvs/B4yU6o8G
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> 
+> I wish to report a major failure.
+> with 2.4.16 and 2.4.17-pre8
+> on PII-450 x2 SMP system, Gigabyte BXDS board
+> (has adaptec scsi chip on it)
+> using IDE disk, scsi tape (DDS-4)
+> 
+> My system boots to X.
+> I swap to VC1 and start tarring up a lot of mp3's.
+> 
+> It works fine if i leave it to complete.
+> 
+> If I go to X and then back to VC1, the system will lock solid.
+> No num lock, no magic sysreq, no ping.
 
-On Tue, Dec 11 2001, Bas Vermeulen wrote:
-> 2.5.1-pre8 oopses in adfspart_check_ICS (probably the put_dev_sector, 
-> not entirely sure, since there doesn't seem to be anything wrong).
-> I've enabled advanced partitions, and all the partition types.
-> Disabling advanced partitions fixes it.
+What video card are you using?
 
-Please try attached patch.
-
--- 
-Jens Axboe
-
-
---k1lZvvs/B4yU6o8G
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=acorn-part-1
-
---- /opt/kernel/linux-2.5.1-pre9/fs/partitions/acorn.c	Mon Oct  1 23:03:26 2001
-+++ fs/partitions/acorn.c	Tue Dec 11 06:21:54 2001
-@@ -162,12 +162,12 @@
- 		struct adfs_discrecord *dr;
- 		unsigned int nr_sects;
- 
--		if (!(minor & mask))
--			break;
--
- 		data = read_dev_sector(bdev, start_blk * 2 + 6, &sect);
- 		if (!data)
- 			return -1;
-+
-+		if (!(minor & mask))
-+			break;
- 
- 		dr = adfs_partition(hd, name, data, first_sector, minor++);
- 		if (!dr)
-
---k1lZvvs/B4yU6o8G--

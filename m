@@ -1,41 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261330AbUK1Qva@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261533AbUK1Qzs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261330AbUK1Qva (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 11:51:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbUK1QpJ
+	id S261533AbUK1Qzs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 11:55:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbUK1QzX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 11:45:09 -0500
-Received: from main.gmane.org ([80.91.229.2]:58581 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261330AbUK1Qev (ORCPT
+	Sun, 28 Nov 2004 11:55:23 -0500
+Received: from mail-ex.suse.de ([195.135.220.2]:56262 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261533AbUK1QyI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 11:34:51 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Kevin Puetz <puetzk@puetzk.org>
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-Date: Sun, 28 Nov 2004 10:34:46 -0600
-Message-ID: <cocun6$e1g$1@sea.gmane.org>
-References: <19865.1101395592@redhat.com> <200411272353.54056.arnd@arndb.de> <1101626019.2638.2.camel@laptop.fenrus.org> <200411281303.46609.arnd@arndb.de> <1101644385.2638.11.camel@laptop.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 12-219-2-179.client.mchsi.com
-User-Agent: KNode/0.8.1
+	Sun, 28 Nov 2004 11:54:08 -0500
+Message-ID: <41AA02AC.3070200@suse.de>
+Date: Sun, 28 Nov 2004 17:54:04 +0100
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041104)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] swsusp kconfig: Change in wording (fwd)
+References: <20041126113040.GB1028@elf.ucw.cz>
+In-Reply-To: <20041126113040.GB1028@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
+Pavel Machek wrote:
 
-> implementing your own is still evil, but glibc provides similar
-> constructs already. busy waiting in userspace is evil anyway (use futex
-> :) and.... just as with atomic.h, spinlock.h only gets compiled in for
-> CONFIG_SMP so the same caveats apply
+>           Right now you may boot without resuming and then later resume but
+>           in meantime you cannot use those swap partitions/files which were
 
-Yeah, this is on it's way out now that futexes exist, but KDE (for one) used
-to use spinlocks for a thread-pooled malloc (spin-sleep-spin-sleep though,
-calling either sched_yield or nanosleep if the lock-grab failed - so it
-wasn't a pure busy-wait). It didn't reuse spinlock.h from the kernel, but
-it did use the general concept, since the old pre-futex posix mutexes were
-crazy-slow for a lock which was heavily used but rarely contended.
+Is this still true? Don't we kill the image early, even with "noresume"?
+It is of course possible by omitting the "resume=" parameter, but not
+for the faint of heart ;-)
 
+   Stefan

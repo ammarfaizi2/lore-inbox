@@ -1,99 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278904AbRJ2ANG>; Sun, 28 Oct 2001 19:13:06 -0500
+	id <S278911AbRJ2A3u>; Sun, 28 Oct 2001 19:29:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278905AbRJ2AM5>; Sun, 28 Oct 2001 19:12:57 -0500
-Received: from [212.34.128.4] ([212.34.128.4]:11112 "EHLO mailer.ran.es")
-	by vger.kernel.org with ESMTP id <S278904AbRJ2AMg>;
-	Sun, 28 Oct 2001 19:12:36 -0500
-Date: Mon, 29 Oct 2001 01:12:58 +0100
-From: victor <ixnay@infonegocio.com>
-X-Mailer: The Bat! (v1.53d)
-Reply-To: victor <ixnay@infonegocio.com>
-X-Priority: 3 (Normal)
-Message-ID: <1871217837878.20011029011258@infonegocio.com>
-To: erich@uruk.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: APM disable broken (was -> Re: 8139too on ABIT BP6 causes "eth0: transmit timed out" )
-In-Reply-To: <E15xz5T-0008SA-00@trillium-hollow.org>
-In-Reply-To: <E15xz5T-0008SA-00@trillium-hollow.org>
+	id <S278913AbRJ2A3k>; Sun, 28 Oct 2001 19:29:40 -0500
+Received: from shed.alex.org.uk ([195.224.53.219]:9357 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S278911AbRJ2A3W>;
+	Sun, 28 Oct 2001 19:29:22 -0500
+Date: Mon, 29 Oct 2001 00:29:53 -0000
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: linux-kernel@vger.kernel.org
+Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: IBM T-23 crashes on resume from suspend, 2.4.12-ac5
+Message-ID: <34228322.1004315393@[195.224.237.69]>
+X-Mailer: Mulberry/2.1.0 (Win32)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello erich,
+When I suspend (apm -s, or system driven suspend), it appears to
+work. When I resume, the screen comes back, but the system
+appears to be dead to the extent that interrupts are disabled
+(i.e. caps lock key has no effect, SysReq+anything does nothing).
 
-Monday, October 29, 2001, 12:11:27 AM, you wrote:
+Although I'm running X, I'm doing this bit from a normal virtual
+console to make things simple.
 
-i have a dual celeron in a bp6, i reflash de bios with
-http://bp6.gamesquad.net/bios.phtml the bios revision
-Final RU BIOS (newest Fianl Release BIOS from Abit)
-and i have a ovislink 8139C chip and a hp 100mb switch and all works
-fine
+I have tried various configuration options, including enabling
+and disabling ACPI, Plug & Play, and setting APM to call the
+BIOS with interrupts either enabled (seems to be recommended
+for 'later IBM laptops' or disabled). And indeed disabling
+APM support totally (I think I got it to work, once, using
+this, but couldn't repeat it).
 
+Any ideas?
 
-euo> Raphael Manfredi <Raphael_Manfredi@pobox.com> wrote:
+.config file (one iteration thereof) can be found at:
+  http://www.alex.org.uk/T23/dot-config-2.4.12-ac5
 
-euo> ...[recent 2.4-based kernel]...
+lspci output can be found at:
+  http://www.alex.org.uk/T23/lspci.txt
 
->> but this problem is not specific to that kernel.  I've been having
->> it for a looong time.
->> 
->> Specifically, I get:
->> 
->>  NETDEV WATCHDOG: eth0: transmit timed out
-euo> ...
->> and then the machine is dead, network-wise.  I have to reboot (reset).
->> 
->> Note that I am on an ABIT BP6 board, and I do get a lot of APIC errors
->> under heavy network traffic, which is what raises the above.
->> By heavy network traffic, I mean a 7 Mb/s full duplex (it's a 100 Mb/s
->> LAN).
-
-euo> I had what looks like exactly this problem with my ABIT BP6 -based machine
-euo> running RH 7.1, and the problem turned out to be the interaction between
-euo> SMP and the APM BIOS, when APM is turned on.  A different network card,
-euo> but the same symptom.  Another symptom I would occasionally see was a
-euo> certain kind of hard-disk hang, but only on the integrated HPT366
-euo> controller.
-
-euo> I suggest you try either:
-
-euo>   --  adding the "noapic" line to your kernel command-line (which will
-euo>       lose you some I/O performance since normal interrupts will not be
-euo>       handled APIC-style)
-euo>   --  completely disabling APM from your kernel configuration.  Using
-euo>       "apm=off/disabled" (I can't remember the exact one you're supposed
-euo>       to use here) does not totally disable APM usage.
-
-
-euo> This brings me to my other point.  During the Linux kernel startup
-euo> code (in the early assembly), the APM BIOS checking code leaves the
-euo> BIOS in the "connected" state even if the kernel option for disabling
-euo> APM or the SMP forced disable of APM is triggered.
-
-euo> This makes various motherboards (such as the ABIT BP6) unstable.
-
-euo> The Right Thing to do would be to disconnect the APM BIOS if it is
-euo> determined that APM support should be disabled.
-
-euo> I could probably generate a patch to fix this if it looked like it would
-euo> be accepted by the folks maintaining APM support...
-
-euo> --
-euo>     Erich Stefan Boleyn     <erich@uruk.org>     http://www.uruk.org/
-euo> "Reality is truly stranger than fiction; Probably why fiction is so popular"
-euo> -
-euo> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-euo> the body of a message to majordomo@vger.kernel.org
-euo> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-euo> Please read the FAQ at  http://www.tux.org/lkml/
-
-
-
--- 
-Best regards,
- victor                            mailto:ixnay@infonegocio.com
-
+--
+Alex Bligh

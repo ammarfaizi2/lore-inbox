@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278429AbRJMWbI>; Sat, 13 Oct 2001 18:31:08 -0400
+	id <S278427AbRJMW1r>; Sat, 13 Oct 2001 18:27:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278430AbRJMWbA>; Sat, 13 Oct 2001 18:31:00 -0400
-Received: from a1as13-p76.stg.tli.de ([195.252.191.76]:31665 "EHLO
-	dea.linux-mips.net") by vger.kernel.org with ESMTP
-	id <S278429AbRJMWau>; Sat, 13 Oct 2001 18:30:50 -0400
-Date: Sun, 14 Oct 2001 00:31:14 +0200
-From: Ralf Baechle <ralf@uni-koblenz.de>
-To: "J . A . Magallon" <jamagallon@able.es>
-Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: bug in mips/config.in
-Message-ID: <20011014003114.A21528@dea.linux-mips.net>
-In-Reply-To: <20011013001116.G1693@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011013001116.G1693@werewolf.able.es>; from jamagallon@able.es on Sat, Oct 13, 2001 at 12:11:16AM +0200
-X-Accept-Language: de,en,fr
+	id <S278429AbRJMW1i>; Sat, 13 Oct 2001 18:27:38 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61967 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S278427AbRJMW13>; Sat, 13 Oct 2001 18:27:29 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: Security question: "Text file busy" overwriting executables but
+ not shared libraries?
+Date: Sat, 13 Oct 2001 22:27:30 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <9qaf4i$8qa$1@penguin.transmeta.com>
+In-Reply-To: <20011013205445.A24854@kushida.jlokier.co.uk> <Pine.LNX.4.33.0110131219520.8900-100000@penguin.transmeta.com>
+X-Trace: palladium.transmeta.com 1003012058 26376 127.0.0.1 (13 Oct 2001 22:27:38 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 13 Oct 2001 22:27:38 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 13, 2001 at 12:11:16AM +0200, J . A . Magallon wrote:
+In article <Pine.LNX.4.33.0110131219520.8900-100000@penguin.transmeta.com>,
+Linus Torvalds  <torvalds@transmeta.com> wrote:
+>
+>The explicit flag is probably a good idea also because of usage patterns
+>(PAGE_COPY is a slowdown _if_ the file is actually written to or even
+>mapped shared).
 
-> Due to a buggy bit I found in i2c, I did a
-> werewolf:/usr/src/linux# grep -r "\"CONFIG" . | fgrep .in
-> ./arch/mips/config.in:      if [ "CONFIG_DECSTATION" = "y" ]; then
-> 
-> '$' is missing there, isn't it ?
+Actually, I missed the obvious case: quite often when you do a "read()",
+the reader itself will end up writing to the area read into.  In which
+case doing the PAGE_COPY would also slow down measurably, due to the
+extra overhead of the copy-on-write fault (which not just does the copy
+that we tried to avoid, but will take a fault and more VM locks). 
 
-Long fixed.
+So if we want to do this optimization, we _definitely_ want it to be
+explicitly controlled by a flag, like O_DIRECT is.  There are just too
+many cases where it's a pessimization, and while the user can often tell
+before-hand, the kernel simply cannot. 
 
-  Ralf
+		Linus

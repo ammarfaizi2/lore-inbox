@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291430AbSBHGMj>; Fri, 8 Feb 2002 01:12:39 -0500
+	id <S291436AbSBHGOu>; Fri, 8 Feb 2002 01:14:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291432AbSBHGMU>; Fri, 8 Feb 2002 01:12:20 -0500
-Received: from out018pub.verizon.net ([206.46.170.96]:34519 "EHLO
-	out018.verizon.net") by vger.kernel.org with ESMTP
-	id <S291430AbSBHGMK>; Fri, 8 Feb 2002 01:12:10 -0500
-Date: Fri, 8 Feb 2002 01:09:46 -0500
-From: Skip Ford <skip.ford@verizon.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: linux 2.5.4-pre3 and IDE changes
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <3C634346.1010405@nyc.rr.com> <Pine.LNX.4.10.10202071953330.15165-100000@master.linux-ide.org>
+	id <S291437AbSBHGOk>; Fri, 8 Feb 2002 01:14:40 -0500
+Received: from altus.drgw.net ([209.234.73.40]:1029 "EHLO altus.drgw.net")
+	by vger.kernel.org with ESMTP id <S291432AbSBHGO0>;
+	Fri, 8 Feb 2002 01:14:26 -0500
+Date: Fri, 8 Feb 2002 00:14:21 -0600
+From: Troy Benjegerdes <hozer@drgw.net>
+To: Larry McVoy <lm@work.bitmover.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Stelian Pop <stelian.pop@fr.alcove.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
+Message-ID: <20020208001421.P17426@altus.drgw.net>
+In-Reply-To: <20020207080714.GA10860@come.alcove-fr> <Pine.LNX.4.33.0202070833400.2269-100000@athlon.transmeta.com> <20020207092640.P27932@work.bitmover.com> <20020207232858.M17426@altus.drgw.net> <20020207220619.A18469@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.10.10202071953330.15165-100000@master.linux-ide.org>; from andre@linuxdiskcert.org on Thu, Feb 07, 2002 at 07:54:09PM -0800
-Message-Id: <20020208061209.LZYM25425.out018.verizon.net@pool-141-150-235-204.delv.east.verizon.net>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020207220619.A18469@work.bitmover.com>; from lm@bitmover.com on Thu, Feb 07, 2002 at 10:06:19PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Andre Hedrick wrote:
+On Thu, Feb 07, 2002 at 10:06:19PM -0800, Larry McVoy wrote:
+> > Ideally, this should ask what changesets you want to send, and what 
+> > public tree to look at to see *what* makes sense to send.
 > 
-> I repeat that is a diagnostic layer and is to never be called from the
-> kernel, it is a user-space only and will go away.
+> In BK 2.1.4 we added a 
+> 
+> 	bk send -u<url> email
+> 
+> which does the sync with the URL and sends only what you have that the
+> URL doesn't have.  But you have to be running 2.1.4 on both ends.
 
-Maybe so, but I got pre3 to boot finally with that patch and it works
-fine.
+Perfect. 
 
-- -- 
-Skip  ID: 0x7EDDDB0A
------BEGIN PGP SIGNATURE-----
+Does 2.1.4 have a "is the user on crack and trying to send the whole
+tree" check?
 
-iEYEARECAAYFAjxja3oACgkQBMKxVH7d2wpoqQCgmvuwyMF+NtjgFP3zhZguLjMb
-uiEAniwZm7fifpuvWjIdhUCNcbnI8JVM
-=ACIo
------END PGP SIGNATURE-----
+-- 
+Troy Benjegerdes | master of mispeeling | 'da hozer' |  hozer@drgw.net
+-----"If this message isn't misspelled, I didn't write it" -- Me -----
+"Why do musicians compose symphonies and poets write poems? They do it
+because life wouldn't have any meaning for them if they didn't. That's 
+why I draw cartoons. It's my life." -- Charles Schulz

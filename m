@@ -1,72 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261958AbTCMBwE>; Wed, 12 Mar 2003 20:52:04 -0500
+	id <S261911AbTCMB6D>; Wed, 12 Mar 2003 20:58:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261967AbTCMBwE>; Wed, 12 Mar 2003 20:52:04 -0500
-Received: from smtp.cs.curtin.edu.au ([134.7.1.1]:14274 "EHLO
-	smtp.cs.curtin.edu.au") by vger.kernel.org with ESMTP
-	id <S261958AbTCMBwD>; Wed, 12 Mar 2003 20:52:03 -0500
-Message-ID: <004501c2e904$38a120e0$64070786@synack>
-From: "David Shirley" <dave@cs.curtin.edu.au>
-To: "Hans-Peter Jansen" <hpj@urpla.net>, <vda@port.imtp.ilyichevsk.odessa.ua>,
-       <linux-kernel@vger.kernel.org>
-References: <041b01c2e86a$870822f0$64070786@synack> <200303121353.h2CDrhu30117@Port.imtp.ilyichevsk.odessa.ua> <002101c2e8a5$8358d4c0$2400a8c0@compaq3> <200303121852.44804.hpj@urpla.net>
-Subject: Re: Help, eth0: transmit timed out!
-Date: Thu, 13 Mar 2003 09:59:45 +0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id <S261943AbTCMB6D>; Wed, 12 Mar 2003 20:58:03 -0500
+Received: from [207.153.214.77] ([207.153.214.77]:7132 "HELO
+	smtp.latinmail.com") by vger.kernel.org with SMTP
+	id <S261911AbTCMB6C>; Wed, 12 Mar 2003 20:58:02 -0500
+To: linux-kernel@vger.kernel.org
+From: benny obaseki <bennyobaseki1@latinmail.com>
+Date: Wed, 12 Mar 2003 21:08:48 -0500
+Subject: I NEED YOUR ASSISTANT
+X-Mailer: LatinMail v3.0 -- http://www.latinmail.com.com
+Content-Type: text/plain; charset=us-ascii
 X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Message-Id: <20030313020844.E400A181AB@smtp.latinmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry
+Dear Parker, 
 
-Diferent NIC didn't help.
+I am Mr. Benny Obaseki, the Manager funds release with Standard Trust Bank (plc), I am the accountant in charge of Mr.Anthony Parker's account a National of your country, who used to work with a Multi-National oil Firm in Nigeria. Here in after shall be referred to as my client On April 21, 2000, my client, his wife, and their three children were involved in a car accident along Sagamu express way. All occupants of the vehicle unfortunately lost their lives. Since then I have made several inquiries to your embassy to locate any of my clients extended Relatives, this has also proved unsuccessful.
+After these several unsuccessful attempts, I decided to trace his last name over the Internet, to locate any member of his family hence I contacted you. I have contacted you to assist in repatriating the money and property left behind by my client before they Get confiscated or declared unserviceable by the bank where this huge deposits were lodged, particularly the Standard Trust Bank (plc) where the deceased had an account valued at about ($12 million u s dollars) has Issued me a notice to provide the next of kin or have the account confiscated within the next ten official working days.
+Since I have been unsuccessful in locating the relatives for over 2 years now I seek your consent to present you as the next of kin of the deceased since you have the same last name so that the proceeds of this account valued at ($12 million u s dollars) can be paid to you and then you and me Can share the money.
+60% to me and 40% to you . All I require is your honest cooperation to enable us see this deal through.I guarantee that this will be executed under a legitimate arrangement that will protect you from any breach of the law. Please get in touch with me by my email. 
 
-Yeah we have used about 300 3c905's over the last couple of years
-(labs for a university dept). Never had a problem
-
-Must be something else, mem of MB i reckon.
-
-Will change it and let you all know.
-
-Cheers
-Dave
-
------ Original Message -----
-From: "Hans-Peter Jansen" <hpj@urpla.net>
-To: "David Shirley" <dave@cs.curtin.edu.au>;
-<vda@port.imtp.ilyichevsk.odessa.ua>; <linux-kernel@vger.kernel.org>
-Sent: Thursday, March 13, 2003 1:52 AM
-Subject: Re: Help, eth0: transmit timed out!
+Best regards,
+Benny Obaseki.
 
 
-> On Wednesday 12 March 2003 15:41, David Shirley wrote:
-> > Tried a different NIC, another 3c905c.
->
-> ..and? I'm using this NIC family with this driver in all my diskless
-setups
-> with kernels since 2.0.* up to 2.4.20, and I never experienced the problem
-> you describe, so I would check for some hardware, bios, chipset, cable,
-hub
-> or switch problem.
->
-> From about 30 NICs currently in production for 6 month up to 5 years, I
-had
-> one failure (3c905b). I haven't found Don's driver failing since ages ;-),
-> through the b versions created me some headaches for etherbooting and the
-> newest 3c905cx-txm has a problem with software bootprom flashing :-(.
->
-> Pete
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+
+_________________________________________________________
+http://www.latinmail.com.  Gratuito, latino y en español.
 

@@ -1,58 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263653AbTJaWpm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 17:45:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263669AbTJaWpm
+	id S263688AbTJaXAZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 18:00:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263692AbTJaXAZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 17:45:42 -0500
-Received: from h80ad273a.async.vt.edu ([128.173.39.58]:45478 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263653AbTJaWpk (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 17:45:40 -0500
-Message-Id: <200310312245.h9VMjZr5029965@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Omen Wild <Omen.Wild@Dartmouth.EDU>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Remote memory access through FireWire? 
-In-Reply-To: Your message of "Fri, 31 Oct 2003 17:36:28 EST."
-             <20031031223628.GB11607@descolada.dartmouth.edu> 
-From: Valdis.Kletnieks@vt.edu
-References: <20031031223628.GB11607@descolada.dartmouth.edu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-528249359P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 31 Oct 2003 17:45:35 -0500
+	Fri, 31 Oct 2003 18:00:25 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:48269 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S263688AbTJaXAV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 18:00:21 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Fri, 31 Oct 2003 15:00:15 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Ben Mansell <ben@zeus.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: epoll gives broken results when interrupted with a signal
+In-Reply-To: <Pine.LNX.4.58.0310301425090.1597@stones.cam.zeus.com>
+Message-ID: <Pine.LNX.4.56.0310311456180.1028@bigblue.dev.mdolabs.com>
+References: <Pine.LNX.4.58.0310291439110.2982@stones.cam.zeus.com>
+ <Pine.LNX.4.56.0310290923100.2049@bigblue.dev.mdolabs.com>
+ <Pine.LNX.4.58.0310291729310.2982@stones.cam.zeus.com>
+ <Pine.LNX.4.56.0310291121560.973@bigblue.dev.mdolabs.com>
+ <Pine.LNX.4.58.0310301102470.1597@stones.cam.zeus.com>
+ <Pine.LNX.4.58.0310301425090.1597@stones.cam.zeus.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-528249359P
-Content-Type: text/plain; charset=us-ascii
+On Thu, 30 Oct 2003, Ben Mansell wrote:
 
-On Fri, 31 Oct 2003 17:36:28 EST, Omen Wild <Omen.Wild@Dartmouth.EDU>  said:
+> On Thu, 30 Oct 2003, Ben Mansell wrote:
+>
+> > On Wed, 29 Oct 2003, Davide Libenzi wrote:
+> >
+> > > Can you try the patch below and show me a dmesg when this happen?
+> >
+> > Ok, patch applied. (I changed DEBUG_EPOLL to 10 however, otherwise
+> > nothing would be printed). Now, epoll appears to behave perfectly and I
+> > can't re-create the problem :(
+>
+> Got it! I was missing the problem because I had removed some debug
+> messages in my own code. Here's another run, this time the
+> final epoll_wait() call of the child process brings back 2 events:
+>  Event 0 fd: 7 events: 17
+>  Event 1 fd: -2095926561 events: 0
 
-> "As you know, IEEE1394 is a bus and OHCI supports physical access to
-> the host memory. 
+It is really strage. If you look what epoll sees:
 
-Supporting something as part of the hardware/protocol design is one thing.
+> [0000010002ba7520] eventpoll: polling file=00000100099822c0 ep=000001001f928000 epi=000001000d9c6a80
+> [0000010002ba7520] eventpoll: pollres file=00000100099822c0 ep=000001001f928000 epi=000001000d9c6a80 events=17
+> [0000010002ba7520] eventpoll: polling file=000001000615d980 ep=000001001f928000 epi=000001000d9c69c0
+> [0000010002ba7520] eventpoll: pollres file=000001000615d980 ep=000001001f928000 epi=000001000d9c69c0 events=16
+> [0000010002ba7520] eventpoll: sys_epoll_wait(3, 000000000073e390, 32, 1000) = 2
+> [0000010002ba7520] eventpoll: eventpoll_release_file(00000100099822c0)
+> [0000010002ba7520] eventpoll: remove ep=000001001f928000 epi=000001000d9c6a80
+> [0000010002ba7520] eventpoll: ep_unlink(000001001f928000, 00000100099822c0) = 0
+> [0000010002ba7520] eventpoll: ep_remove(000001001f928000, 00000100099822c0) = 0
+> [0000010002ba7520] eventpoll: eventpoll_release_file(000001000615d980)
+> [0000010002ba7520] eventpoll: remove ep=000001001f928000 epi=000001000d9c69c0
+> [0000010002ba7520] eventpoll: ep_unlink(000001001f928000, 000001000615d980) = 0
+> [0000010002ba7520] eventpoll: ep_remove(000001001f928000, 000001000615d980) = 0
+> [0000010002ba7520] eventpoll: close() ep=000001001f928000
 
-Writing the device driver to support it is another (I'm sure that *before* you crash,
-you have to set bits in the appropriate OHCI structures).
+It clearly sees two events with masks 16 and 17. And at this points events
+are already inside a buffer ready to be pushed to usespace with a
+copy_to_user().
 
-Actually allowing it to be enabled is a third thing.
 
-Having said that, it *would* make for an interesting kgdb enhancement. :)
 
---==_Exmh_-528249359P
-Content-Type: application/pgp-signature
+- Davide
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/ouYPcC3lWbTT17ARAkAZAKDk6Z6cI2MgRZ25eYIKWhxGI+UQQACg3hMm
-pbNBj/4thmtyBN6tGFBpYhw=
-=eie0
------END PGP SIGNATURE-----
-
---==_Exmh_-528249359P--

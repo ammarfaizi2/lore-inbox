@@ -1,79 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272868AbTG3M0w (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 08:26:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272867AbTG3M0w
+	id S272862AbTG3MaM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 08:30:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272865AbTG3MaM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 08:26:52 -0400
-Received: from 64-238-252-21.arpa.kmcmail.net ([64.238.252.21]:55018 "EHLO
-	kermit.unets.com") by vger.kernel.org with ESMTP id S272868AbTG3M0u
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 08:26:50 -0400
-Subject: Re: 2.6.0-test 2 & matroxfb or orinoco wifi card
-From: Adam Voigt <adam@cryptocomm.com>
-Reply-To: adam@cryptocomm.com
-To: Jan Huijsmans <huysmans@xs4all.nl>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <XFMail.20030729223514.huysmans@xs4all.nl>
-References: <XFMail.20030729223514.huysmans@xs4all.nl>
-Content-Type: text/plain
-Organization: Cryptocomm
-Message-Id: <1059568034.2439.2.camel@beowulf.cryptocomm.com>
+	Wed, 30 Jul 2003 08:30:12 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:53010 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S272862AbTG3MaF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 08:30:05 -0400
+Date: Wed, 30 Jul 2003 14:15:54 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: John Bradford <john@grabjohn.com>
+Cc: linux-kernel@vger.kernel.org, pgw99@doc.ic.ac.uk
+Subject: Re: PATCH : LEDs - possibly the most pointless kernel subsystem ever
+Message-ID: <20030730121554.GG2601@openzaurus.ucw.cz>
+References: <200307291915.h6TJF6YB000421@81-2-122-30.bradfords.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 30 Jul 2003 08:27:15 -0400
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Jul 2003 12:26:49.0648 (UTC) FILETIME=[D98C6B00:01C35695]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200307291915.h6TJF6YB000421@81-2-122-30.bradfords.org.uk>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Might be not the same, but I got this same
-error when I forgot to check "Virtual Terminal"
-in the config.
+Hi!
 
+> I haven't had chance to test this yet, but I really like the idea - by
+> an amasing co-incidence, I was actually thinking about the possibility
+> of doing a parallel port connected front panel earlier today!
+> 
+> Does anybody have any suggestions for recommended standard uses for
+> parallel port connected LEDs?
+> 
+> Disk spinning up/disk ready
+> Root login active
+> 
+> Any other suggestions?
 
-On Tue, 2003-07-29 at 16:35, Jan Huijsmans wrote:
-> Hello,
-> 
-> After digging a bit in the archives I couldn't find the solution to my problem,
-> so I'm asking you guys.
-> 
-> I found the "matroxfb and 2.6.0-test2" thread, so it's possible to compile the
-> kernel with the matrox framebuffer, but I can't find what I'm missing. Did I
-> forget to set a config option (all copied from the 2.4.21 config except the
-> nForce2 agp chipset)?
-> 
-> This is the error I'm getting while linking. 
-> 
-> drivers/built-in.o(.text+0x89c80): In function `matroxfb_set_par':
-> : undefined reference to `default_grn'
-> drivers/built-in.o(.text+0x89c85): In function `matroxfb_set_par':
-> : undefined reference to `default_blu'
-> drivers/built-in.o(.text+0x89c93): In function `matroxfb_set_par':
-> : undefined reference to `color_table'
-> drivers/built-in.o(.text+0x89c9b): In function `matroxfb_set_par':
-> : undefined reference to `default_red'
-> 
-> I would suspect I'm missing libraries, but I don't know which set. I'm runnig
-> with a dabian sarge distro, the system has an Athlon XP CPU, with asus A7N8X-X
-> mainboard, matrox G550 graphics card.
-> 
-> Could someone point me in the right direction to get this working?
-> 
-> ---
-> 
-> Jan Huijsmans              kernel@koffie.nu
-> 
-> ... cannot activate /dev/brain, no response from main coffee server
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+At one point I had 12 LEDs on parport. LEDs were fast enough to be drive at interrupt entry/exit.
+They were: 
+Yellow not idle task
+Green interrupt
+" bh
+" pagefault
+Red lowest 4 bits of PID
+Red, low intensity serial i/o
+" network i/o
+
+It actually looked very good. Glow of interrupt led
+told you interrupt load, pid LEDs told you about what kind of load
+it is experiencing (you could tell shell script from make and from computation, and
+if machine hard-died, you at least knew if it
+was interrupt or process context).
+But this kind of blinkenlights needed pretty fast LEDs. (At 486 time I decided that parport on ISA is fast enough..)
+				Pavel
 -- 
-Adam Voigt (adam@cryptocomm.com)
-Linux/Unix Network Administrator
-The Cryptocomm Group
+				Pavel
+Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
 

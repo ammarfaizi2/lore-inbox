@@ -1,67 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136794AbREIRyt>; Wed, 9 May 2001 13:54:49 -0400
+	id <S136793AbREISC7>; Wed, 9 May 2001 14:02:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136796AbREIRyj>; Wed, 9 May 2001 13:54:39 -0400
-Received: from babylon5.babcom.com ([216.36.71.34]:1664 "EHLO
-	babylon5.babcom.com") by vger.kernel.org with ESMTP
-	id <S136794AbREIRyY>; Wed, 9 May 2001 13:54:24 -0400
-Date: Wed, 9 May 2001 10:54:23 -0700
-From: Phil Stracchino <alaric@babcom.com>
-To: Linux-KERNEL <linux-kernel@vger.kernel.org>
-Subject: Re: CDROM troubles -- followup
-Message-ID: <20010509105423.A725@babylon5.babcom.com>
-Mail-Followup-To: Linux-KERNEL <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010506030500.A26278@babylon5.babcom.com> <20010506144228.B13711@babylon5.babcom.com> <20010507000116.D506@suse.de> <20010506161701.A778@babylon5.babcom.com>
-Mime-Version: 1.0
+	id <S136797AbREISCj>; Wed, 9 May 2001 14:02:39 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:49675 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S136793AbREISCg>; Wed, 9 May 2001 14:02:36 -0400
+Subject: Re: Nasty Requirements for non-GPL Linux Kernel Modules?
+To: scott@CS.Princeton.EDU
+Date: Wed, 9 May 2001 19:06:38 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200105091750.f49HoEg20765@chinstrap.CS.Princeton.EDU> from "Scott C. Karlin" at May 09, 2001 01:50:13 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010506161701.A778@babylon5.babcom.com>; from alaric@babcom.com on Sun, May 06, 2001 at 04:17:01PM -0700
-X-No-Archive: Yes
-X-PGP-Fingerprint: 2105 C6FC 945D 2A7A 0738  9BB8 D037 CE8E EFA1 3249
-X-PGP-Key-FTP-URL: ftp://ftp.babcom.com/pub/pgpkeys/alaric.asc
-X-PGP-Key-HTTP-URL: http://www.babcom.com/alaric/pgp.html
-X-Copyright: This message may not be reproduced, in part or in whole, for any commercial purpose without prior written permission.  Prior permission for securityfocus.com is implicit.
-X-UCE-Policy: No unsolicited commercial email is accepted at this site.  The sending of any UCE to this domain may result in the imposition of civil liability against the sender in accordance with Cal. Bus. & Prof. Code Section 17538.45, and all senders of UCE will be permanently blocked.
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14xYMC-0002vn-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 06, 2001 at 04:17:01PM -0700, Phil Stracchino wrote:
-> The patch does indeed seem to prevent the panic, but not the underlying
-> problem.  Here's the results of a series of mount/umount operations after
-> applying the patch:
-> 
-> 	*** CD inserted
-> VFS: Disk change detected on device sr(11,0)
-> 	*** first mount (succeeded)
-> ISO 9660 Extensions: RRIP_1991A
-> 	*** second mount (succeeded)
-> ISO 9660 Extensions: RRIP_1991A
-> 	*** third mount (succeeded)
-> ISO 9660 Extensions: RRIP_1991A
-> 	*** fourth and subsequent mounts failed
-> sr: ran out of mem for scatter pad
->  I/O error: dev 0b:00, sector 252
-> isofs_read_super: bread failed, dev=0b:00, iso_blknum=63, block=126
-> sr: ran out of mem for scatter pad
->  I/O error: dev 0b:00, sector 0
-> sr: ran out of mem for scatter pad
->  I/O error: dev 0b:00, sector 64
-> sr: ran out of mem for scatter pad
->  I/O error: dev 0b:00, sector 0
-> 	*** the last manual mount attempt
-> sr: ran out of mem for scatter pad
->  I/O error: dev 0b:00, sector 64
+> As part of our operating system / networking research, we have
+> written a loadable kernel module for Linux.  We would like to
+> distribute the source but we're not sure if our development
+> office will allow us to release it under the GPL (at least
+> initially).  Before meeting with the lawyers, I'm trying to
+> learn what I can about the issue.
 
+If you want to do binary only then it depends solely how your lawyers intend
+to interpret the concept of 'linking'. Linus comments on the matter have no
+impact since the kernel isnt all his copyright and he has linked in code by
+bodies who are most definitely opposed to binary modules.
 
-I have just updated to kernel 2.4.4-ac6 and modutils-2.4.6.  While the
-sr-scatter patch alone did not fix this problem, after uupgrading to -ac6,
-the problem no longer appears to be present.  
+The same applies for source code under 'additional restrictions' as the GPL
+calls things disallowing stuff it allows.
 
+If you are releasing modules with source under terms that are at least as free
+as the GPL (eg BSD without advertising clause) then nobody has any cares. We
+probably wouldnt merge it with the mainstream kernel due to the lack of
+patent trap protection in the BSD license but I suspect you dont want that
+anyway.
 
--- 
- Linux Now!   ..........Because friends don't let friends use Microsoft.
- phil stracchino   --   the renaissance man   --   mystic zen biker geek
-    Vr00m:  2000 Honda CBR929RR   --   Cage:  2000 Dodge Intrepid R/T
- Previous vr00mage:  1986 VF500F (sold), 1991 VFR750F3 (foully murdered)
+Alan
+

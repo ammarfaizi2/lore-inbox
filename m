@@ -1,97 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272699AbRHaOQj>; Fri, 31 Aug 2001 10:16:39 -0400
+	id <S272702AbRHaOSJ>; Fri, 31 Aug 2001 10:18:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272700AbRHaOQa>; Fri, 31 Aug 2001 10:16:30 -0400
-Received: from ns1.hicom.net ([208.245.180.8]:11013 "EHLO ns1.hicom.net")
-	by vger.kernel.org with ESMTP id <S272699AbRHaOQS>;
-	Fri, 31 Aug 2001 10:16:18 -0400
-From: "Stephen von Voros" <stevon@hicom.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: fix pppd daemon
-Date: Fri, 31 Aug 2001 10:31:09 -0400
-Message-ID: <MLEPIMPCNOKIBHIBMPMFIEKKCAAA.stevon@hicom.net>
+	id <S272701AbRHaOSA>; Fri, 31 Aug 2001 10:18:00 -0400
+Received: from cpe-24-221-114-147.az.sprintbbd.net ([24.221.114.147]:3981 "EHLO
+	localhost.digitalaudioresources.org") by vger.kernel.org with ESMTP
+	id <S272702AbRHaORr>; Fri, 31 Aug 2001 10:17:47 -0400
+Message-ID: <3B8F9C90.7080100@digitalaudioresources.org>
+Date: Fri, 31 Aug 2001 07:17:52 -0700
+From: David Hollister <david@digitalaudioresources.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010808
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: arjanv@redhat.com
+CC: Chris Abbey <linux@cabbey.net>, linux-kernel@vger.kernel.org
+Subject: Re: Athlon doesn't like Athlon optimisation?
+In-Reply-To: <Pine.LNX.4.30.0108302117150.16904-100000@anime.net> <Pine.LNX.4.33.0108302353380.4964-100000@tweedle.cabbey.net> <3B8F4A64.8B9DEDE4@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Diald killed pppd
-I recently installed diald 0.99.4. into RH 7.1 2.4.3-12. After diald
-is started it listens for http requests and initializes pppd with
-the chat program and connect script. The problem is that since the
-first time I ran diald, pppd no longer works with any command or
-dialup tool. It worked fine before with no problems. Using RedHats
-"Dialup configuration tool" I highlighted the ppp0 interface and
-clicked on the debug button. After it finished I was asked to create
-& save a log file. I named it "ppp.log" this was what it looks like:
+Arjan van de Ven wrote:
+> 
+> For the upcomming Red Hat Linux release an athlon kernel
+> will be included, and due to the people who have this
+> problem, I added a kernel commandline option to disable
+> the optimized page_copy() and clear_page() functions.
+> The use of this option makes the machines, of the people
+> who had this problem, happy again.
+> 
+> Now I also wrote the 2 functions in question, and I am
+> very convinced that they are correct. They also work on
+> the vast majority of motherboards, and most of the failure
+> cases are cheaper motherboards (or cheap PSU's).
 
-WvDial: Internet dialer version 1.41
-Initializing modem
-Sending ATZ
-ATZ
-OK
-Sending: ATQ0 V1 E1 S0=0 &D2 S11=55 +FCLASS=0
-ATQ0 V1 E1 S0=0 &D2 S11=55 +FCLASS=0
-OK
-Modem initialized
-Sending ATDT9733058585
-Waiting for carrier
-ATDT 9733058585
-CONNECT 115200
-Carrier detected. waiting for prompt
-
-Welcome to HICom Internet Access, tc1 15-10
-
-login: Looks like a login prompt.
-Sending:(stevon)
-stevon
-login: Looks like a password prompt.
-Sending:(password)
-
-~}#@!}!}!} }?}!}$}% -|~PPP negotiation detected.
-Starting pppd at Thu Aug 30 18:00:48 2001
-PPP daemon has died! (exit code=10)
-Disconnecting at Thu Aug 30 18:01:22 2001
-Auto reconnect will be attempted in 5 seconds
-pppd error! look for an explanation in /var/log/messages.
-
-Initializing modem
-Sending ATZ
-(I stoped here)
-
-SvV- something is wrong with pppd, I wonder what error (exit code=10)
-means?
-
-Checking the /var/log/messages I looked at entries related to ppp:
-
-Aug 30 18:00:48 stevon kernel PPP generic driver version 2.4.1
-Aug 30 18:00:48 stevon pppd [954]: 2.4.0 started by root, uid 0
-Aug 30 18:00:48 stevon pppd [954]: Using interface ppp0
-Aug 30 18:00:48 stevon pppd [954]: Connect: ppp0 <--> /dev/ttyS3
-Aug 30 18:00:49 stevon su(pam_unix)[975] session opened for user root by
-(uid=0)
-Aug 30 18:00:49 stevon su(pam_unix)[975] session closed for user root
-Aug 30 18:00:49 stevon su(pam_unix)[980] session opened for user root by
-(uid=0)
-Aug 30 18:00:49 stevon su(pam_unix)[980] session closed for user root
-Aug 30 18:00:51 stevon kernel PPP Deflate Compression module registered
-Aug 30 18:00:52 stevon pppd [954]: Recieved bad configure -nak/rej: 03 06 d0
-f5 b6 70
-Aug 30 18:01:22 stevon pppd [954]: IPCP: timeout sending config-request
-Aug 30 18:01:22 stevon pppd [954]: Connection terminated
-Aug 30 18:01:22 stevon pppd [954]: Exit
-
-The previous day entries shows that pppd worked and interface ppp0 was
-started
-and running. How do I fix the pppd daemon?
-
-Stephen von Voros
+Hey look, folks.  I didn't point a finger and try to blame anybody or anything. 
+  I'm as much a Linux advocate as the next guy.  Granted, I have not tried every 
+trick under the sun to get it to work.  I don't really care that much.  I can 
+live with my memory accesses taking a few microseconds longer.  My point, and my 
+only point, to all this was just to add data.  If there's something relatively 
+easy I can try, I will.  Otherwise, life goes on.
+-- 
+David Hollister
+Driversoft Engineering:  http://devicedrivers.com
+Digital Audio Resources: http://digitalaudioresources.org
 

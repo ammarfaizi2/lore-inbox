@@ -1,48 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265797AbUFDOMZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265792AbUFDOPS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265797AbUFDOMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 10:12:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265791AbUFDOLb
+	id S265792AbUFDOPS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 10:15:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265791AbUFDOPS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 10:11:31 -0400
-Received: from gprs214-121.eurotel.cz ([160.218.214.121]:19585 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S265787AbUFDOL0 (ORCPT
+	Fri, 4 Jun 2004 10:15:18 -0400
+Received: from vhost-13-248.vhosts.internet1.de ([62.146.13.248]:5336 "EHLO
+	spotnic.de") by vger.kernel.org with ESMTP id S265789AbUFDOPK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 10:11:26 -0400
-Date: Fri, 4 Jun 2004 16:11:15 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: keyboard problem with 2.6.6
-Message-ID: <20040604141115.GE11950@elf.ucw.cz>
-References: <xb7r7t2b3mb.fsf@savona.informatik.uni-freiburg.de> <20040530111847.GA1377@ucw.cz> <xb71xl2b0to.fsf@savona.informatik.uni-freiburg.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <xb71xl2b0to.fsf@savona.informatik.uni-freiburg.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Fri, 4 Jun 2004 10:15:10 -0400
+In-Reply-To: <20040604135326.GD1684@web1.rockingstone.nl>
+References: <20040604075448.GK18885@web1.rockingstone.nl> <200406040943.i549h2aG000175@81-2-122-30.bradfords.org.uk> <20040604095409.GL18885@web1.rockingstone.nl> <E0E7D4BA-B62C-11D8-B781-000A958E35DC@axiros.com> <20040604135326.GD1684@web1.rockingstone.nl>
+Mime-Version: 1.0 (Apple Message framework v618)
+Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-11-677119750"
+Message-Id: <91A91188-B631-11D8-B781-000A958E35DC@axiros.com>
+Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org
+From: Daniel Egger <de@axiros.com>
+Subject: Re: DriveReady SeekComplete Error
+Date: Fri, 4 Jun 2004 16:15:02 +0200
+To: Rick Jansen <rick@rockingstone.nl>
+X-Pgp-Agent: GPGMail 1.0.2
+X-Mailer: Apple Mail (2.618)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
->     >> In a nutshell, I hate to be restricted by YOUR own imaginations
->     >> of how people should hack the system.
-> 
->     Vojtech> You're not. You're free to hack the kernel drivers. 
-> 
-> Not everyone using  Linux is patient enough to  explore the Wonderland
-> of kernel hacking.  Many immigrants from 2.4 are highly disappointed
-> by the new but incompatible mouse/keyboard behaviours.  Some of them
-> returned to their 2.4 homeland because of this.
+--Apple-Mail-11-677119750
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 
-How can you propose moving keyboard handling to userland in one thread
-and complain about 2.4-vs-2.6 incompatibility of inputs in another?!
+On 04.06.2004, at 15:53, Rick Jansen wrote:
 
-2.4-vs-2.6 broke few strange keyboards. What you are proposing would
-break everyone who has a keyboard.
+> I don't think -v is the option you mean:
 
-								Pavel
--- 
-934a471f20d6580d5aad759bf0d97ddc
+> smartctl version 5.30 Copyright (C) 2002-4 Bruce Allen
+> Home page is http://smartmontools.sourceforge.net/
+
+DOH! Works for version 2.1 and will list all attributes
+as well as their values.
+
+Servus,
+       Daniel
+
+--Apple-Mail-11-677119750
+content-type: application/pgp-signature; x-mac-type=70674453;
+	name=PGP.sig
+content-description: This is a digitally signed message part
+content-disposition: inline; filename=PGP.sig
+content-transfer-encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (Darwin)
+
+iQEVAwUBQMCD5jBkNMiD99JrAQKcMwgAi2tu+Iiip+6XUQ9C7jwbt9cRAVwcBEiv
+ZH/5i9v6c5QqXz7I+xEdB2ExeRY7U/sNRlgDnvplD69IDnULlDFMZPuaM3TJg2MC
+SS1Bq/JfmrkJ9loaYB9phlE4o+iphvi3dbOeEX0M0OI5+MUkLM1o2rip9H8hU79R
+C2HFgXKNp8Rm2x+VAaCiG4N3PMDTzF6EnZV9tKJS3boXcecsTaPz5J8O5DX/oSMO
+YQQS0tYpWB48a3KLAfRWsNY8okuo4TIaQhb+E68JouTy3A5EXAnvgynzDd2N+Ml9
+AVPPCHIBey4NCHekMGAzuyQusx6nXenlgUh0EdSes7IHJwCeZaXbFw==
+=T+Iw
+-----END PGP SIGNATURE-----
+
+--Apple-Mail-11-677119750--
+

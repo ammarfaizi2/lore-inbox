@@ -1,127 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261766AbUKHFQJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261784AbUKHFTn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261766AbUKHFQJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 00:16:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261768AbUKHFQJ
+	id S261784AbUKHFTn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 00:19:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261783AbUKHFTn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 00:16:09 -0500
-Received: from jpnmailout01.yamato.ibm.com ([203.141.80.81]:38313 "EHLO
-	jpnmailout01.yamato.ibm.com") by vger.kernel.org with ESMTP
-	id S261766AbUKHFPv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 00:15:51 -0500
-In-Reply-To: <1099887081.1750.249.camel@sli10-desk.sh.intel.com>
-Subject: Re: [ACPI] [PATCH/RFC 4/4]An experimental implementation for IDE bus
-To: Li Shaohua <shaohua.li@intel.com>
-Cc: ACPI-DEV <acpi-devel@lists.sourceforge.net>, Greg <greg@kroah.com>,
-       Len Brown <len.brown@intel.com>, lkml <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>
-X-Mailer: Lotus Notes Release 6.0.2CF2 July 23, 2003
-Message-ID: <OFD9746A61.227E41CC-ON49256F46.001B0F2E-49256F46.001CE593@jp.ibm.com>
-From: Hiroshi 2 Itoh <HIROIT@jp.ibm.com>
-Date: Mon, 8 Nov 2004 14:15:10 +0900
-X-MIMETrack: Serialize by Router on D19ML115/19/M/IBM(Release 6.51HF338 | June 21, 2004) at
- 2004/11/08 14:15:12
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	Mon, 8 Nov 2004 00:19:43 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:10500 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261780AbUKHFTc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 00:19:32 -0500
+Date: Mon, 8 Nov 2004 06:15:22 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: Adrian Bunk <bunk@stusta.de>, marcelo.tosatti@cyclades.com,
+       laforge@netfilter.org, linux-kernel@vger.kernel.org,
+       chas@cmf.nrl.navy.mil, linux-atm-general@lists.sourceforge.net,
+       linux-net@vger.kernel.org
+Subject: Re: 2.4.28-rc2: net/atm/proc.c compile error
+Message-ID: <20041108051522.GA17729@alpha.home.local>
+References: <20041107173753.GB30130@logos.cnet> <20041107214246.GY14308@stusta.de> <20041107174247.559be214.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041107174247.559be214.davem@davemloft.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi David,
 
+On Sun, Nov 07, 2004 at 05:42:47PM -0800, David S. Miller wrote:
+ 
+> You must have mispatched, here is a grep I just did in Marcelo's
+> current tree:
+> 
+> davem@nuts:/disk1/BK/marcelo-2.4/net/atm$ egrep atm_lec_info *.c
+> davem@nuts:/disk1/BK/marcelo-2.4/net/atm$ 
 
+No, he patched it right, I got it too and found where it broke :
 
+gcc -D__KERNEL__ -I/data/projets/dev/linux/trees/linux-2.4.28-rc2/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mno-fp-regs -ffixed-8 -mcpu=ev6 -Wa,-mev6 -DMODULE  -nostdinc -iwithprefix include -DKBUILD_BASENAME=proc  -DEXPORT_SYMTAB -c proc.c
+proc.c: In function `atm_proc_init':
+proc.c:624: error: `atm_lec_info' undeclared (first use in this function)
+proc.c:624: error: (Each undeclared identifier is reported only once
+proc.c:624: error: for each function it appears in.)
+make[2]: *** [proc.o] Error 1
 
-Hi, Li-san
+----- net/atm/proc.c: -------
 
-Thanks for your framework. It's one of patches what I really want.
+#define CREATE_ENTRY(name) \
+    name = create_proc_entry(#name,0,atm_proc_root); \
+    if (!name) goto cleanup; \
+    name->data = atm_##name##_info; \
+    name->proc_fops = &proc_spec_atm_operations; \
+    name->owner = THIS_MODULE
+...
+623: #if defined(CONFIG_ATM_LANE) || defined(CONFIG_ATM_LANE_MODULE)
+624:        CREATE_ENTRY(lec);
+625: #endif
 
-My test machine has SATA controller and works with ata_piix driver with no
-.suspend and .resume entry while ide.c has them.
+That's why your grep did not find it ;-)
+Is it enough to remove these 3 lines ?
 
-The first thing I did is to create them and add some function calls to save
-and restore the device specific PCI configuration space.
-But then I had no idea how to execute ACPI's IDE specific method like _GTM,
-_STM.
-
-As I am not familiar with IDE driver too, I hope the module owner will
-change ata_piix source to support .suspend, .resume, .platform_bind entries
-soon.
-
-Regards, Hiro.
-
-acpi-devel-admin@lists.sourceforge.net wrote on 2004/11/08 13:11:47:
-> Hi,
-> A sample patch to bind IDE devices. I'm not familar with IDE driver, so
-> the patch possibly is completely wrong, though it can show correct ACPI
-> path in my laptop. This test case just shows the framework works, please
-> don't apply it.
->
-> Thanks,
-> Shaohua
-> ---
->
->  2.6-root/drivers/ide/ide.c |   43
-> +++++++++++++++++++++++++++++++++++++++++++
->  1 files changed, 43 insertions(+)
->
-> diff -puN drivers/ide/ide.c~ide-bind-acpi drivers/ide/ide.c
-> --- 2.6/drivers/ide/ide.c~ide-bind-acpi   2004-11-08 11:09:12.625009440
-> +0800
-> +++ 2.6-root/drivers/ide/ide.c   2004-11-08 11:10:04.477126720 +0800
-> @@ -2412,10 +2412,53 @@ EXPORT_SYMBOL(ide_fops);
->
->  EXPORT_SYMBOL(ide_lock);
->
-> +#ifdef CONFIG_ACPI
-> +#include <linux/acpi.h>
-> +int generic_ide_platform_bind(struct device *dev)
-> +{
-> +   acpi_handle parent_handle = NULL;
-> +   acpi_integer address;
-> +   int i;
-> +
-> +   /* Seems dev->parent->parent is the PCI IDE controller */
-> +        if (dev->parent && dev->parent->parent)
-> +                parent_handle = dev->parent->parent->handle;
-> +
-> +   if (!parent_handle) {
-> +      printk("Can't find parent handle \n");
-> +      return -1;
-> +   }
-> +   /* Please ref to ACPI spec for syntax of _ADR */
-> +   sscanf(dev->bus_id, "%d", &i);
-> +   address = i;
-> +   dev->handle = acpi_get_child(parent_handle, address);
-> +
-> +#if 1
-> +       {/* For debug */
-> +               char            name[80] = {'?','\0'};
-> +               struct acpi_buffer      buffer = {sizeof(name), name};
-> +
-> +               printk("IDE device %d:", i);
-> +               if (dev->handle) {
-> +                       acpi_get_name(dev->handle, ACPI_FULL_PATHNAME,
-> &buffer);
-> +                       printk("%s", name);
-> +               }
-> +               printk("\n");
-> +       }
-> +#endif
-> +   return 0;
-> +}
-> +#else
-> +int generic_ide_platform_bind(struct device *dev)
-> +{
-> +   return 0;
-> +}
-> +#endif
->  struct bus_type ide_bus_type = {
->     .name      = "ide",
->     .suspend   = generic_ide_suspend,
->     .resume      = generic_ide_resume,
-> +   .platform_bind   = generic_ide_platform_bind,
->  };
->
->  /*
-> _
->
+Regards,
+Willy
 

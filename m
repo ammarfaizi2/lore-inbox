@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263297AbTIWGCG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 02:02:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263304AbTIWGCG
+	id S261905AbTIWGdt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 02:33:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262974AbTIWGdt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 02:02:06 -0400
-Received: from amalthea.dnx.de ([193.108.181.146]:18661 "EHLO amalthea.dnx.de")
-	by vger.kernel.org with ESMTP id S263297AbTIWGCE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 02:02:04 -0400
-Date: Tue, 23 Sep 2003 08:01:58 +0200
-From: Robert Schwebel <robert@schwebel.de>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Add 'make uImage' for PPC32
-Message-ID: <20030923060158.GJ8367@pengutronix.de>
-References: <20030922182928.GM7443@ip68-0-152-218.tc.ph.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030922182928.GM7443@ip68-0-152-218.tc.ph.cox.net>
-User-Agent: Mutt/1.4i
-X-Spam-Score: -5.0 (----)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1A1gFB-0004ou-00*q8.lXA1S.dU*
+	Tue, 23 Sep 2003 02:33:49 -0400
+Received: from lopsy-lu.misterjones.org ([62.4.18.26]:60934 "EHLO
+	young-lust.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
+	id S261905AbTIWGds (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 02:33:48 -0400
+To: Christoph Hellwig <hch@misterjones.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kill CONFIG_EISA_ALWAYS
+Organization: Metropolis -- Nowhere
+X-Attribution: maz
+Reply-to: mzyngier@freesurf.fr
+References: <20030922194005.GA29357@lst.de>
+From: Marc Zyngier <mzyngier@freesurf.fr>
+Date: Tue, 23 Sep 2003 08:31:04 +0200
+Message-ID: <wrpr828qamv.fsf@hina.wild-wind.fr.eu.org>
+In-Reply-To: <20030922194005.GA29357@lst.de> (Christoph Hellwig's message of
+ "Mon, 22 Sep 2003 21:40:05 +0200")
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 22, 2003 at 11:29:28AM -0700, Tom Rini wrote:
-> Hello. The following BK patch adds support for a 'uImage' target on
-> PPC32. This will create an image for the U-Boot (and formerly PPCBoot)
-> firmware. The patch adds a scripts/mkuboot.sh as a wrapper for the
-> U-Boot mkimage program. We put mkuboot.sh into scripts/ because
-> U-Boot works on a number of other platforms, and it's likely that they
-> will add a uImage target at some point.  Please apply.
+>>>>> "HCH" == Christoph Hellwig <hch@lst.de> writes:
 
-Integrating the U-Boot mkimage into the kernel would be a great thing
-for us Embedded folks (U-Boot supports most interesting platforms these
-days), but I don't like your way to provide a script wrapper around the
-"real" mkimage; I'm not sure what the maintainers think about this but I
-would prefer a "native" mkuimage.c -> mkuimage.  
+HCH> I'd like to kill willy's CONFIG_EISA_ALWAYS kludge.  So make
+HCH> EISA_bus a variable always when CONFIG_EISA is set and initialize
+HCH> it to 1 for alpha.  We probably want to do that only if the system
+HCH> actually supports eisa, but I keep the old behaviour for now.
 
-Robert
+HCH> Also remove the CONFIG_EISA helptext on alpha as it's not user-visible.
+
+I do not mind the change, but you might want to check that with
+Richard Henderson. Maybe there was a good reason for EISA_bus to be
+#defined on Alpha (although I really can't see it at the moment...).
+
+Having a single way to define EISA_bus will help its removal in the
+future...
+
+	M.
 -- 
- Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
-   Handelsregister:  Amtsgericht Hildesheim, HRA 2686
-     Hornemannstraﬂe 12,  31137 Hildesheim, Germany
-    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4
+Places change, faces change. Life is so very strange.

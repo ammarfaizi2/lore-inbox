@@ -1,49 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261562AbRFQQqd>; Sun, 17 Jun 2001 12:46:33 -0400
+	id <S261515AbRFQQln>; Sun, 17 Jun 2001 12:41:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261651AbRFQQqX>; Sun, 17 Jun 2001 12:46:23 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:5380 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S261562AbRFQQqN>;
-	Sun, 17 Jun 2001 12:46:13 -0400
-Message-ID: <20010617183421.B121@bug.ucw.cz>
-Date: Sun, 17 Jun 2001 18:34:21 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Leon Breedt <ljb@devco.net>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] nonblinking VGA block cursor
-In-Reply-To: <20010615162249.A1328@rinoa.rinoa>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <20010615162249.A1328@rinoa.rinoa>; from Leon Breedt on Fri, Jun 15, 2001 at 04:22:49PM +0200
+	id <S261550AbRFQQlY>; Sun, 17 Jun 2001 12:41:24 -0400
+Received: from www.wen-online.de ([212.223.88.39]:53778 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S261515AbRFQQlV>;
+	Sun, 17 Jun 2001 12:41:21 -0400
+Date: Sun, 17 Jun 2001 18:40:46 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: <thunder7@xs4all.nl>
+cc: <linux-kernel@vger.kernel.org>, <riel@conectiva.com.br>
+Subject: Re: (lkml)Re: spindown [was Re: 2.4.6-pre2, pre3 VM Behavior]
+In-Reply-To: <20010617144938.A2300@middle.of.nowhere>
+Message-ID: <Pine.LNX.4.33.0106171748070.476-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, 17 Jun 2001 thunder7@xs4all.nl wrote:
 
-> Attached is a patch to enforce a non-blinking, FreeBSD-syscons like
-> block cursor in console mode.
-> 
-> This is useful for laptop types, or people like me who really really
-> detest a blinking cursor.
-> 
-> NOTE: It disables the softcursor escape codes 
->       (/usr/src/linux/Documentation/VGA-softcursor.txt), since I don't 
->       ever want anything to change my cursor shape/style :)
-> 
-> It applies cleanly against 2.4.5, to use, select: 
-> 
-> 'VGA block cursor (non-blinking) support' in the 'Console drivers'
-> section of menuconfig.
+> On Sun, Jun 17, 2001 at 12:05:10PM +0200, Mike Galbraith wrote:
+> >
+> > It _juuust_ so happens that I was tinkering... what do you think of
+> > something like the below?  (and boy do I ever wonder what a certain
+> > box doing slrn stuff thinks of it.. hint hint;)
+> >
+> I'm sorry to say this box doesn't really think any different of it.
 
-You want softcursor to be used after console reset. Ok. I want
-non-standard pallete after console reset. Should I also add an option?
+Well darn.  But..
 
-What could make sense would be "Escape sequence to do after console
-reset". You could type there softcursor sequence to make it solid, and
-I could type there sequence to change my pallete. Seems less ugly than 
-special config option for each such feature.
-								Pavel
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+> Everything that's in the cache before running slrn on a big group seems
+> to stay there the whole time, making my active slrn-process use swap.
+
+It should not be the same data if page aging is working at all.  Better
+stated, if it _is_ the same data and page aging is working, it's needed
+data, so the movement of momentarily unused rss to disk might have been
+the right thing to do.. it just has to buy you the use of the pages moved
+for long enough to offset the (large) cost of dropping those pages.
+
+I saw it adding rss to the aging pool, but not terribly much IO.  The
+fact that it is using page replacement is only interesting in regard to
+total system efficiency.
+
+> I applied the patch to 2.4.5-ac15, and this was the result:
+
+<saves vmstat>
+
+Thanks for running it.  Can you (afford to) send me procinfo or such
+(what I would like to see is job efficiency) information?  Full logs
+are fine, as long as they're not truely huge :)  Anything under a meg
+is gratefully accepted (privately 'course).
+
+I think (am pretty darn sure) the aging fairness change is what is
+affecting you, but it's not possible to see whether this change is
+affecting you in a negative or positive way without timing data.
+
+	-Mike
+
+misc:
+
+wrt this ~patch, it only allows you to move the rolldown to sync disk
+behavior some.. moving write delay back some (knob) is _supposed_ to
+get that IO load (at least) a modest throughput increase.  The flushto
+thing was basically directed toward laptop use, but ~seems to exhibit
+better IO clustering/bandwidth sharing as well.  (less old/new request
+merging?.. distance?)
+

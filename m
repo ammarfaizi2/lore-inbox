@@ -1,46 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269247AbUIIDNq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269250AbUIIDQb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269247AbUIIDNq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 23:13:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269250AbUIIDNq
+	id S269250AbUIIDQb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 23:16:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269262AbUIIDQb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 23:13:46 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14019 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269247AbUIIDNp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 23:13:45 -0400
-Message-ID: <413FCA57.5040807@pobox.com>
-Date: Wed, 08 Sep 2004 23:13:27 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dan Williams <dcbw@redhat.com>
-CC: Francois Romieu <romieu@fr.zoreil.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>, jt@hpl.hp.com,
-       Pavel Roskin <proski@gnu.org>,
-       David Gibson <hermes@gibson.dropbear.id.au>
-Subject: Re: [0/15] orinoco merge preliminaries
-References: <20040712213349.A2540@electric-eye.fr.zoreil.com>	 <40F57D78.9080609@pobox.com> <20040715010137.GB3697@zax>	 <41068E4B.2040507@pobox.com> <20040728065128.GC16908@zax>	 <20040729005029.A11537@electric-eye.fr.zoreil.com>	 <20040729001918.GD15321@zax>	 <20040730011917.A1043@electric-eye.fr.zoreil.com> <1094656727.6006.24.camel@localhost.localdomain>
-In-Reply-To: <1094656727.6006.24.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 8 Sep 2004 23:16:31 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:48593 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S269250AbUIIDQ2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 23:16:28 -0400
+Subject: Re: Major XFS problems...
+From: Greg Banks <gnb@melbourne.sgi.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <chnkqd$u7n$1@gatekeeper.tmr.com>
+References: <20040908154434.GE390@unthought.net>
+	 <20040908123524.GZ390@unthought.net>
+	 <1094661418.19981.36.camel@hole.melbourne.sgi.com>
+	 <chnkqd$u7n$1@gatekeeper.tmr.com>
+Content-Type: text/plain
+Organization: Silicon Graphics Inc, Australian Software Group.
+Message-Id: <1094700180.19981.85.camel@hole.melbourne.sgi.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 09 Sep 2004 13:23:00 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Williams wrote:
-> Guys,
+On Thu, 2004-09-09 at 05:06, Bill Davidsen wrote:
+> Greg Banks wrote:
+> > On Thu, 2004-09-09 at 01:44, Jakob Oestergaard wrote:
+> > 
+> >>SMP systems on 2.6 have a problem with XFS+NFS.
+> > 
+> > 
+> > Knfsd threads in 2.6 are no longer serialised by the BKL, and the
+> > change has exposed a number of SMP issues in the dcache.  Try the
+> > two patches at
+> > 
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=108330112505555&w=2
+> > 
+> > and
+> > 
+> > http://linus.bkbits.net:8080/linux-2.5/cset@1.1722.48.23
+> > 
+> > (the latter is in recent Linus kernels).  If you're still having
+> > problems after applying those patches, Nathan and I need to know.
 > 
-> I see Francois has a lot of split patches available at his website.
-> 
-> Francois: is the patchlist you have complete?
-> David: Are Francois' patches correct?
-> Jeff: If so, what's the status on the merge?
+> Do I read you right that this is an SMP issue and that the NFS, quota, 
+> backup and all that are not relevant?
 
+The first issue is NFS-specific.  The second one is an ancient dcache
+bug from before 2.6 which NFS changes in 2.6 uncovered; however it
+could affect any filesystem with or without NFS.  Neither have anything
+to do with quota or backup per se, except that backup might generate
+enough load to help them happen.
 
-I merged a bunch of David's patches, so at the very least I think 
-Francois's patches would need re-diffing.
-
-	Jeff
+Greg.
+-- 
+Greg Banks, R&D Software Engineer, SGI Australian Software Group.
+I don't speak for SGI.
 
 

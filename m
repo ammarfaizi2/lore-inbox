@@ -1,37 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261557AbULJC6M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261616AbULJDIo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261557AbULJC6M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 21:58:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261616AbULJC6M
+	id S261616AbULJDIo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 22:08:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbULJDIo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 21:58:12 -0500
-Received: from science.horizon.com ([192.35.100.1]:23876 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S261557AbULJC6K
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 21:58:10 -0500
-Date: 10 Dec 2004 02:58:09 -0000
-Message-ID: <20041210025809.23529.qmail@science.horizon.com>
-From: linux@horizon.com
-To: linux-kernel@vger.kernel.org, linux@horizon.com, pavel@ucw.cz
-Subject: Re: [please test] 2.6.10-rc3 swsusp speedups
-In-Reply-To: <20041209202920.GA1150@elf.ucw.cz>
+	Thu, 9 Dec 2004 22:08:44 -0500
+Received: from relay.axxeo.de ([213.239.199.237]:11671 "EHLO relay.axxeo.de")
+	by vger.kernel.org with ESMTP id S261616AbULJDIl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 22:08:41 -0500
+From: Ingo Oeser <ioe@axxeo.de>
+Reply-To: linux-kernel@vger.kernel.org
+Organization: Axxeo GmbH
+To: dhowells@redhat.com
+Subject: Re: [PATCH 4/5] NOMMU: Make POSIX shmem work on ramfs-backed files
+Date: Fri, 10 Dec 2004 04:08:33 +0100
+User-Agent: KMail/1.6.2
+References: <3e47b0ba-49f4-11d9-9df1-0002b3163499@redhat.com> <200412091508.iB9F8wja027564@warthog.cambridge.redhat.com>
+In-Reply-To: <200412091508.iB9F8wja027564@warthog.cambridge.redhat.com>
+Cc: linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200412100408.33482.ioe@axxeo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ouch, I see it here, something is wrong with /sys interface. Can you
-> echo 4  > /proc/acpi/sleep instead?
+You wrote:
+> diff -uNrp linux-2.6.10-rc2-mm3-mmcleanup/fs/ramfs/Makefile
+> linux-2.6.10-rc2-mm3-shmem/fs/ramfs/Makefile ---
+> linux-2.6.10-rc2-mm3-mmcleanup/fs/ramfs/Makefile 2004-06-18
+> 13:41:28.000000000 +0100 +++
+> linux-2.6.10-rc2-mm3-shmem/fs/ramfs/Makefile 2004-11-26 15:36:07.000000000
+> +0000 @@ -4,4 +4,10 @@
+>
+>  obj-$(CONFIG_RAMFS) += ramfs.o
+>
+> -ramfs-objs := inode.o
+> +ifeq ($(CONFIG_MMU),y)
+> +ramfs-objs := file-mmu.o
+> +else
+> +ramfs-objs := file-nommu.o
+> +endif
+> +
+> +ramfs-objs += inode.o
 
-Ooh!  Works NICE!  Thank you very much.
+What about this pattern instead:
 
-dmesg tail:
+file-mmu-y := file-mmu.o
+file-mmu-n := file-nommu.o
+file-mmu- := file-nommu.o
+ramfs-objs += file-mmu-$(CONFIG_MMU)
 
-Stopping tasks:
-===========================================================================================|
-Freeing memory... done (125370 pages freed)
-swsusp: Need to copy 7085 pages
-ACPI: PCI interrupt 0000:00:09.0[A] -> GSI 9 (level, low) -> IRQ 9
-eth0: link up, 100Mbps, full-duplex, lpa 0x41E1
-eth0: Promiscuous mode enabled.
-ACPI: PCI interrupt 0000:00:11.0[A] -> GSI 10 (level, low) -> IRQ 10
-Restarting tasks... done
+
+Requires more work while writing it, but removes the ifeq, 
+which should be avoided in makefiles as hell
+-- 
+Ingo Oeser
+axxeo GmbH
+Tiestestr. 16, 30171 Hannover
+Tel. +49-511-4753706
+Fax. +49-511-4753716
+
+mailto:support@axxeo.de
 

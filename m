@@ -1,59 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbUIDVWX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbUIDVZB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261234AbUIDVWX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 17:22:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbUIDVWX
+	id S261451AbUIDVZB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 17:25:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbUIDVZA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 17:22:23 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:36305 "HELO
+	Sat, 4 Sep 2004 17:25:00 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:47569 "HELO
 	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261234AbUIDVWV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 17:22:21 -0400
+	id S261451AbUIDVY7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 17:24:59 -0400
 Subject: Re: NVIDIA Driver 1.0-6111 fix
 From: Lee Revell <rlrevell@joe-job.com>
-To: Tim Fairchild <tim@bcs4me.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Sid Boyce <sboyce@blueyonder.co.uk>,
+To: Dominik Karall <dominik.karall@gmx.net>
+Cc: Tim Fairchild <tim@bcs4me.com>, Christoph Hellwig <hch@infradead.org>,
+       Sid Boyce <sboyce@blueyonder.co.uk>,
        linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200409050702.29007.tim@bcs4me.com>
+In-Reply-To: <200409042322.50478.dominik.karall@gmx.net>
 References: <41390988.2010503@blueyonder.co.uk>
 	 <200409041954.05272.tim@bcs4me.com>
 	 <1094327788.6575.209.camel@krustophenia.net>
-	 <200409050702.29007.tim@bcs4me.com>
+	 <200409042322.50478.dominik.karall@gmx.net>
 Content-Type: text/plain
-Message-Id: <1094332949.6575.360.camel@krustophenia.net>
+Message-Id: <1094333106.6575.367.camel@krustophenia.net>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 04 Sep 2004 17:22:29 -0400
+Date: Sat, 04 Sep 2004 17:25:07 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-09-04 at 17:02, Tim Fairchild wrote:
-> Users don't really care about open and closed source. They just want 
-> to play quake 3 (etc).
+On Sat, 2004-09-04 at 17:22, Dominik Karall wrote:
+> so which (in this case) graphic card should we buy? i bought my nvidia card, 
+> because i knew that nvidia hands out linux drivers, even if they are binary 
+> only, but i knew that they do, so i didn't want to buy another card and 
+> realize afterwards that it absolutely isn't supported under linux.
 > 
 
-I have never understood why these people don't just run Windows.  I have
-also never understood why people make so much noise about having to use
-a closed source driver to play A CLOSED SOURCE GAME!  What's next, a
-petition to open the UT2004 source?  Sheesh...
+Intel and VIA release 3D drivers with source.  Of course, you won't have
+the highest framerate on the block, but TANSTAAFL.
 
-> I've never had an oops that was specifically caused by the nvidia module, tho 
-> I suppose it does happen.
-
-And I have never seen one either.  I am just using the OOPS'es as an
-indication of how many Linux users use this driver.  It's WAY more than
-I expected.  The open source nv.o module works fine for me, I don't see
-how the 2D would need to be faster, or how you would even tell the
-difference.
-
-I suspect many of these users are ricers who tweak CFLAGS and compare
-benchmark scores all day, and cannot bear to use the open source driver
-if it will make their machine 1% slower.  I was surprised to find that
-apparently there are open source ATI 3D drivers after all but some
-people are petitioning ATI anyway because these 'aren't as good' as the
-binary ones.  So fix it already, this is open source, and if you can't,
-then please learn to write code or STFU.
-
-Lee
+Lee  
 

@@ -1,147 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262562AbVAPTgw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262589AbVAPTkV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262562AbVAPTgw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 14:36:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262588AbVAPTgw
+	id S262589AbVAPTkV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 14:40:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262590AbVAPTkU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 14:36:52 -0500
-Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:3857 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S262562AbVAPTgl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 14:36:41 -0500
-Date: Sun, 16 Jan 2005 20:39:09 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Greg KH <greg@kroah.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: [PATCH 2.6] I2C: Kill i2c_client.id (3/5)
-Message-Id: <20050116203909.3583f239.khali@linux-fr.org>
-In-Reply-To: <20050116194653.17c96499.khali@linux-fr.org>
-References: <20050116194653.17c96499.khali@linux-fr.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 16 Jan 2005 14:40:20 -0500
+Received: from opersys.com ([64.40.108.71]:15634 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S262589AbVAPTkM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 14:40:12 -0500
+Message-ID: <41EAC4C5.7@opersys.com>
+Date: Sun, 16 Jan 2005 14:47:17 -0500
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: Roman Zippel <zippel@linux-m68k.org>, Andi Kleen <ak@muc.de>,
+       Nikita Danilov <nikita@clusterfs.com>, linux-kernel@vger.kernel.org,
+       Tom Zanussi <zanussi@us.ibm.com>
+Subject: Re: 2.6.11-rc1-mm1
+References: <20050114002352.5a038710.akpm@osdl.org> <m1zmzcpfca.fsf@muc.de> <m17jmg2tm8.fsf@clusterfs.com> <20050114103836.GA71397@muc.de> <41E7A7A6.3060502@opersys.com> <Pine.LNX.4.61.0501141626310.6118@scrub.home> <41E8358A.4030908@opersys.com> <20050116161437.GA26144@infradead.org>
+In-Reply-To: <20050116161437.GA26144@infradead.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(3/5) Stop using i2c_client.id in misc drivers.
 
-Affected drivers:
-* acorn/char/pcf8583
-* acorn/char/i2c
-* i2c/i2c-dev
-* macintosh/therm_windtunnel
-* sound/oss/dmasound/dac3550a
-* sound/ppc/keywest
+Hello Christoph,
 
-The Acorn pcf8583 driver would give the i2c_client id the same value as
-the i2c_driver id, and later test that client id (in i2c). I changed it
-to test the client's driver id instead. The result is the same and the
-client id is then useless and can be removed.
+Christoph Hellwig wrote:
+> Why would you want anything but read access?
 
-All other drivers here would allocate the client id to some value and
-then never use it. They are unaffected by the change.
+Fine, we can put it read-only, we'll drop the "mode" field.
 
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
+> I think random access is overkill.  Keeping the code simple is more
+> important and user-space can post-process it.
 
-diff -ruN linux-2.6.11-rc1.orig/drivers/acorn/char/i2c.c linux-2.6.11-rc1/drivers/acorn/char/i2c.c
---- linux-2.6.11-rc1.orig/drivers/acorn/char/i2c.c	2004-12-24 22:35:49.000000000 +0100
-+++ linux-2.6.11-rc1/drivers/acorn/char/i2c.c	2005-01-16 12:50:29.000000000 +0100
-@@ -313,7 +313,7 @@
- 
- static int ioc_client_reg(struct i2c_client *client)
- {
--	if (client->id == I2C_DRIVERID_PCF8583 &&
-+	if (client->driver->id == I2C_DRIVERID_PCF8583 &&
- 	    client->addr == 0x50) {
- 		struct rtc_tm rtctm;
- 		unsigned int year;
-diff -ruN linux-2.6.11-rc1.orig/drivers/acorn/char/pcf8583.c linux-2.6.11-rc1/drivers/acorn/char/pcf8583.c
---- linux-2.6.11-rc1.orig/drivers/acorn/char/pcf8583.c	2004-12-24 22:35:28.000000000 +0100
-+++ linux-2.6.11-rc1/drivers/acorn/char/pcf8583.c	2005-01-16 12:50:29.000000000 +0100
-@@ -51,7 +51,6 @@
- 		return -ENOMEM;
- 
- 	memset(c, 0, sizeof(*c));
--	c->id		= pcf8583_driver.id;
- 	c->addr		= addr;
- 	c->adapter	= adap;
- 	c->driver	= &pcf8583_driver;
-diff -ruN linux-2.6.11-rc1.orig/drivers/i2c/i2c-dev.c linux-2.6.11-rc1/drivers/i2c/i2c-dev.c
---- linux-2.6.11-rc1.orig/drivers/i2c/i2c-dev.c	2004-12-24 22:35:24.000000000 +0100
-+++ linux-2.6.11-rc1/drivers/i2c/i2c-dev.c	2005-01-16 12:50:29.000000000 +0100
-@@ -507,7 +507,6 @@
- 
- static struct i2c_client i2cdev_client_template = {
- 	.name		= "I2C /dev entry",
--	.id		= 1,
- 	.addr		= -1,
- 	.driver		= &i2cdev_driver,
- };
-diff -ruN linux-2.6.11-rc1.orig/drivers/macintosh/therm_windtunnel.c linux-2.6.11-rc1/drivers/macintosh/therm_windtunnel.c
---- linux-2.6.11-rc1.orig/drivers/macintosh/therm_windtunnel.c	2004-12-24 22:35:23.000000000 +0100
-+++ linux-2.6.11-rc1/drivers/macintosh/therm_windtunnel.c	2005-01-16 12:50:29.000000000 +0100
-@@ -47,8 +47,6 @@
- #define LOG_TEMP		0			/* continously log temperature */
- 
- #define I2C_DRIVERID_G4FAN	0x9001			/* fixme */
--#define THERMOSTAT_CLIENT_ID	1
--#define FAN_CLIENT_ID		2
- 
- static int 			do_probe( struct i2c_adapter *adapter, int addr, int kind);
- 
-@@ -372,7 +370,6 @@
- 		goto out;
- 	printk("ADM1030 fan controller [@%02x]\n", cl->addr );
- 
--	cl->id = FAN_CLIENT_ID;
- 	strlcpy( cl->name, "ADM1030 fan controller", sizeof(cl->name) );
- 
- 	if( !i2c_attach_client(cl) )
-@@ -412,7 +409,6 @@
- 	x.overheat_temp = os_temp;
- 	x.overheat_hyst = hyst_temp;
- 	
--	cl->id = THERMOSTAT_CLIENT_ID;
- 	strlcpy( cl->name, "DS1775 thermostat", sizeof(cl->name) );
- 
- 	if( !i2c_attach_client(cl) )
-diff -ruN linux-2.6.11-rc1.orig/sound/oss/dmasound/dac3550a.c linux-2.6.11-rc1/sound/oss/dmasound/dac3550a.c
---- linux-2.6.11-rc1.orig/sound/oss/dmasound/dac3550a.c	2004-12-24 22:34:26.000000000 +0100
-+++ linux-2.6.11-rc1/sound/oss/dmasound/dac3550a.c	2005-01-16 12:50:29.000000000 +0100
-@@ -40,9 +40,6 @@
- static int daca_detect_client(struct i2c_adapter *adapter, int address);
- static int daca_detach_client(struct i2c_client *client);
- 
--/* Unique ID allocation */
--static int daca_id;
--
- struct i2c_driver daca_driver = {  
- 	.owner			= THIS_MODULE,
- 	.name			= "DAC3550A driver  V " DACA_VERSION,
-@@ -176,7 +173,6 @@
- 	new_client->driver = &daca_driver;
- 	new_client->flags = 0;
- 	strcpy(new_client->name, client_name);
--	new_client->id = daca_id++; /* racy... */
- 
- 	if (daca_init_client(new_client))
- 		goto bail;
-diff -ruN linux-2.6.11-rc1.orig/sound/ppc/keywest.c linux-2.6.11-rc1/sound/ppc/keywest.c
---- linux-2.6.11-rc1.orig/sound/ppc/keywest.c	2004-12-24 22:35:39.000000000 +0100
-+++ linux-2.6.11-rc1/sound/ppc/keywest.c	2005-01-16 12:50:29.000000000 +0100
-@@ -76,8 +76,6 @@
- 	new_client->flags = 0;
- 
- 	strcpy(i2c_device_name(new_client), keywest_ctx->name);
--
--	new_client->id = keywest_ctx->id++; /* Automatically unique */
- 	keywest_ctx->client = new_client;
- 	
- 	/* Tell the i2c layer a new client has arrived */
+it's overkill if you're thinking in terms of kbs or mbs of data.
+it isn't if you're looking at gbs and 100gbs. please read my
+other posting as to who is using this and how.
 
+but regardless of access, you have to have some way of telling
+relayfs of the size of the channel you want. bufsize, nbufs
+just tell relayfs the size of the buffers you want and how many
+buffers there are in the ring. both of which are really basic
+to any sort of buffering scheme.
 
+> Auto-resizing sounds like a really bad idea.
+
+Ok, it will go.
+
+> And why can't you do this from that code?  It just needs an initcall-like
+> thing that runs after mounting of relayfs.
+
+Ok, we'll leave it to the caller to do a relay_write() with his
+init-bufs at startup.
+
+Karim
 -- 
-Jean Delvare
-http://khali.linux-fr.org/
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546

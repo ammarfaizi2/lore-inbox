@@ -1,75 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275571AbRJLKCX>; Fri, 12 Oct 2001 06:02:23 -0400
+	id <S277277AbRJLKEN>; Fri, 12 Oct 2001 06:04:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277277AbRJLKCN>; Fri, 12 Oct 2001 06:02:13 -0400
-Received: from twilight.cs.hut.fi ([130.233.40.5]:49711 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S275571AbRJLKCC>; Fri, 12 Oct 2001 06:02:02 -0400
-Date: Fri, 12 Oct 2001 13:02:06 +0300
-From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
-To: "T. A." <tkhoadfdsaf@hotmail.com>
+	id <S277298AbRJLKED>; Fri, 12 Oct 2001 06:04:03 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:25118 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S277277AbRJLKDt>; Fri, 12 Oct 2001 06:03:49 -0400
+Date: Fri, 12 Oct 2001 06:04:20 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Keith Owens <kaos@ocs.com.au>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Which kernel (Linus or ac)?
-Message-ID: <20011012130206.E1074@niksula.cs.hut.fi>
-In-Reply-To: <XFMail.20011011094548.jkp@riker.nailed.org> <3BC5E152.3D81631@bigfoot.com> <3BC5E3AF.588D0A55@lexus.com> <OE22ITtCsuSYkbAY0Jp0000df3f@hotmail.com> <20011012095618.R22640@niksula.cs.hut.fi> <OE26nfAMxUtDjTZZTTu0000e302@hotmail.com>
+Subject: Re: Modutils 2.5 change, start running this command now
+Message-ID: <20011012060419.A1649@redhat.com>
+In-Reply-To: <25612.1002800758@ocs3.intra.ocs.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <OE26nfAMxUtDjTZZTTu0000e302@hotmail.com>; from tkhoadfdsaf@hotmail.com on Fri, Oct 12, 2001 at 05:25:32AM -0400
+In-Reply-To: <25612.1002800758@ocs3.intra.ocs.com.au>; from kaos@ocs.com.au on Thu, Oct 11, 2001 at 09:45:58PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 12, 2001 at 05:25:32AM -0400, you [T. A.] claimed:
-> >
-> > Of course, you can get most of the IDE chipset support, fs support
-> (reiserfs
-> > 3.5, ext3) and LFS support as patches for 2.2:
-> >
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/hedrick/ide-2.2.19/
+On Thu, Oct 11, 2001 at 09:45:58PM +1000, Keith Owens wrote:
+> In current modutils, a module that does not export symbols and does not
+> say EXPORT_NO_SYMBOLS will default to exporting all symbols.  This is a
+> hangover from kernel 2.0 and will be removed when modutils 2.5 appears,
+> shortly after the kernel 2.5 branch is created.
 > 
->     Have used this and has worked great on the machines I've had to use it
-> on.  Though I'm a bit leery about using it since I figure the generic
-> 2.2.x.preX kernels get a lot more testing that those with this patch
-> installed.  Also heard of problems using this patch on a VIA PIII SMP
-> system. :-(  And just went I had been planning to use it on a dual PIII VIA
-> chipset board too.
+> Starting with modutils 2.5, modules must explicitly say what their
+> intention is for symbols.  That will break a lot of existing modules.
 
-I've used it on multiple 2.2 systems as well (Dual Celeron/BX400++HPT366,
-Via/Duron, PII/BX440 etc) and never had a problem.
+Isn't EXPORT_NO_SYMBOLS the default case for 99.44% of modules?  It seems 
+to me that the lameness incurred in adding an EXPORT_NO_SYMBOLS line to 
+each and every driver that one writes is a pointless additional hoop to 
+jump through.  I'd rather break the modules that are relying on behaviour 
+that was deprecated several *years* ago than go through another make-work 
+project.
 
-> ftp://ftp.namesys.com/pub/reiserfs-for-2.2/linux-2.2.19-reiserfs-3.5.34-patc
-> h.bz2
-> 
->     I actually was going to start using this until I learned that 2.2.x
-> reiser patched kernels couldn't use reiserfs partitions made with 2.4.
-
-Yeah.
-
-I've used it for a long time and only once had a small issue with it (which
-didn't impose data corruption, just one app (UML) didn't work since mmap on
-old 2.2 reiser was somewhat broken).
-
-> :-(  Ended up having to redo an entire system when a downgrade to 2.2.x
-> became imperitive.  Also the 2.2.x reiser patch lacks the large file support
-> (on the reiser filesystems created under 2.2.x) and maybe other goodies and
-
-I thought you could get LFS on reiser on 2.2 with the LFS patch and some
-patch to reiser? I'm not sure though. SuSE did ship with 2.2, reiser and
-large file support...
-
-> > http://moldybread.net/patch/kernel-2.2/linux-2.2.19-lfs-1.0.diff.gz
-> 
->     I'll look into this the next time > 2GB files support becomes needed on
-> a system.  pre 2.4.x I had been using FreeBSD for such tasks.
-
-Nowdays, though, I think I 2.4 is beginning to be stable enough for just
-about anything. The first 2.4 kernels were terrible wrt vm - they'd go ahead
-killing innocent daemons when I did a simple diff -R /usr/src/linux
-/usr/src/linux2 with hundreds of MBs free RAM.
-
-
--- v --
-
-v@iki.fi
+		-ben

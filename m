@@ -1,55 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267370AbSLERFN>; Thu, 5 Dec 2002 12:05:13 -0500
+	id <S267352AbSLEQ6i>; Thu, 5 Dec 2002 11:58:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267371AbSLERFN>; Thu, 5 Dec 2002 12:05:13 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:21252 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267370AbSLERFM>; Thu, 5 Dec 2002 12:05:12 -0500
-Date: Thu, 5 Dec 2002 09:13:54 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: george anzinger <george@mvista.com>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: Re: [PATCH ] POSIX clocks & timers take 15 (NOT HIGH RES)
-In-Reply-To: <3DEEFE42.3F04BDBD@mvista.com>
-Message-ID: <Pine.LNX.4.44.0212050904390.27298-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267359AbSLEQ6i>; Thu, 5 Dec 2002 11:58:38 -0500
+Received: from pc1-cwma1-5-cust42.swan.cable.ntl.com ([80.5.120.42]:18601 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267352AbSLEQ5S>; Thu, 5 Dec 2002 11:57:18 -0500
+Subject: Re: stock 2.4.20: loading amd76x_pm makes time jiggle on A7M266-D
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Kay Diederichs <kay.diederichs@uni-konstanz.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3DEF26D3.7A4236D7@uni-konstanz.de>
+References: <3DEDF543.51C80677@uni-konstanz.de>
+	<1039009531.15353.13.camel@irongate.swansea.linux.org.uk> 
+	<3DEF26D3.7A4236D7@uni-konstanz.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 05 Dec 2002 17:39:30 +0000
+Message-Id: <1039109970.19681.14.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2002-12-05 at 10:13, Kay Diederichs wrote:
+> installed the latest glibc-2.2.4-31 from redhat/7.2/updates but still
+> init fails. Are there RH7.2 compatible versions of glibc which are
+> TSC-checking?
 
-Ok, finally starting to look at merging this, however:
-
-This must go (we already have a timespec, there's no way it should be
-here in <asm/signal.h>):
-
-	+#ifndef _STRUCT_TIMESPEC
-	+#define _STRUCT_TIMESPEC
-	+struct timespec {
-	+       time_t  tv_sec;         /* seconds */
-	+       long    tv_nsec;        /* nanoseconds */
-	+};
-	+#endif /* _STRUCT_TIMESPEC */
-
-and you have things like
-
-	+       if ((flags & TIMER_ABSTIME) &&
-	+           (clock->clock_get != do_posix_clock_monotonic_gettime)) {
-	+       }else{
-	+       }
-
-and
-
-	+if (!p) {
-	+printk("in sub_remove for id=%d called with null pointer.\n", id);
-	+return(0);
-	+}
-
-and obviously the "nanosleep()" thing and the CLOCK_NANOSLEEP_ENTRY()
-stuff has been discussed in the unrelated thread (ie it doesn't work for
-alpha or other architectures).
-
-		Linus
+The -i386 one rather than the -i686 one
 

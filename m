@@ -1,62 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270227AbTHBTkm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 15:40:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270237AbTHBTkm
+	id S265531AbTHBTrY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 15:47:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270237AbTHBTrX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 15:40:42 -0400
-Received: from notes.hallinto.turkuamk.fi ([195.148.215.149]:9479 "EHLO
-	notes.hallinto.turkuamk.fi") by vger.kernel.org with ESMTP
-	id S270227AbTHBTkk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 15:40:40 -0400
-Message-ID: <3F2C1535.9000203@kolumbus.fi>
-Date: Sat, 02 Aug 2003 22:47:01 +0300
-From: =?ISO-8859-15?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: switch_to() x86 changes
-X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.8 |June
- 18, 2001) at 02.08.2003 22:42:07,
-	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 5.0.10 |March
- 22, 2002) at 02.08.2003 22:41:30,
-	Serialize complete at 02.08.2003 22:41:30
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+	Sat, 2 Aug 2003 15:47:23 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:16125 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S265531AbTHBTrO (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Sat, 2 Aug 2003 15:47:14 -0400
+Date: Sat, 2 Aug 2003 21:47:05 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: John Bradford <john@grabjohn.com>, Riley@Williams.Name,
+       Linux-Kernel@vger.kernel.org
+Subject: Re: [2.6 patch] let broken drivers depend on BROKEN{,ON_SMP}
+Message-ID: <20030802194705.GF16426@fs.tum.de>
+References: <200307300911.h6U9BH2f000813@81-2-122-30.bradfords.org.uk> <20030730104421.GC28767@fs.tum.de> <20030730160403.GF12849@louise.pinerecords.com> <20030730161839.GB19356@fs.tum.de> <20030731091525.GI12849@louise.pinerecords.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030731091525.GI12849@louise.pinerecords.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jul 31, 2003 at 11:15:25AM +0200, Tomas Szepe wrote:
+> > [bunk@fs.tum.de]
+> > 
+> > On Wed, Jul 30, 2003 at 06:04:03PM +0200, Tomas Szepe wrote:
+> > > > [bunk@fs.tum.de]
+> > > > 
+> > > > If a _user_ of a stable kernel notices "it doesn't even compile" this 
+> > > > gives a very bad impression of the quality of the Linux kernel.
+> > > 
+> > > The keyword in this sentence is "stable."
+> > > Could you maybe come up with this again at around 2.6.40? :)
+> > 
+> > The first stable kernel of the 2.6 kernel series will be 2.6.0.
+> 
+> There are going to be a zillion drivers that don't compile by the
+> time 2.6.0 is released, which is precisely when lkml will see a whole
+> new wave of people willing to fix things so I really don't think
+> hiding the problems behind CONFIG_BROKEN or whatever is reasonable.
 
-Some six months ago the x86 version of switch_to macro changed not to 
-explicitly push and pop esi and edi. Below is pasted the current 
-version, it does save esi and edi through inline assembly magic but 
-never restores them....?
+Note that we aren't talking about problems that ae easy to fix, such 
+problems are already fixed. We are talking about drivers that are broken 
+for many months.
 
-Also, not saving ebx has been dicussed before, afair, but couldn't 
-remember/find the exact reason (other than by luck ebx isn't used by 
-schedule() in such a way that would need it). Anyone put some light on this?
+Besides this, "a whole new wave of people willing to fix things" isn't
+necessarily positive - for several of the broken drivers there were
+alredy broken "fixes" posted. Some of these drivers need a non-trivial 
+fix by someone who knows what he is doing.
 
+> Tomas Szepe <szepe@pinerecords.com>
 
-#define switch_to(prev,next,last) do {                    \
-    unsigned long esi,edi;                        \
-    asm volatile("pushfl\n\t"                    \
-             "pushl %%ebp\n\t"                    \
-             "movl %%esp,%0\n\t"    /* save ESP */        \
-             "movl %5,%%esp\n\t"    /* restore ESP */    \
-             "movl $1f,%1\n\t"        /* save EIP */        \
-             "pushl %6\n\t"        /* restore EIP */    \
-             "jmp __switch_to\n"                \
-             "1:\t"                        \
-             "popl %%ebp\n\t"                    \
-             "popfl"                        \
-             :"=m" (prev->thread.esp),"=m" (prev->thread.eip),    \
-              "=a" (last),"=S" (esi),"=D" (edi)            \
-             :"m" (next->thread.esp),"m" (next->thread.eip),    \
-              "2" (prev), "d" (next));                \
-} while (0)
+cu
+Adrian
 
+-- 
 
---Mika
-
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,63 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263962AbTICQLk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 12:11:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263963AbTICQLk
+	id S263963AbTICQPq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 12:15:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263966AbTICQPp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 12:11:40 -0400
-Received: from pentafluge.infradead.org ([213.86.99.235]:21643 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S263962AbTICQLb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 12:11:31 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Patrick Mochel <mochel@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Message-Id: <1062605483.1780.30.camel@gaston>
+	Wed, 3 Sep 2003 12:15:45 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.51]:61582 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S263963AbTICQOh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 12:14:37 -0400
+Date: Wed, 3 Sep 2003 18:14:35 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: bill davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Quota Hash Abstraction 2.6.0-test2
+Message-ID: <20030903161435.GC24897@DUK2.13thfloor.at>
+Mail-Followup-To: bill davidsen <davidsen@tmr.com>,
+	linux-kernel@vger.kernel.org
+References: <20030731184341.GA21078@www.13thfloor.at> <bj4vfq$6to$1@gatekeeper.tmr.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Wed, 03 Sep 2003 18:11:23 +0200
-X-SA-Exim-Mail-From: benh@kernel.crashing.org
-Subject: [PATCH] IDE: fix Power Management
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
-X-SA-Exim-Scanned: Yes
-X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <bj4vfq$6to$1@gatekeeper.tmr.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the "final" one hopefully, Bart, check out it's correct,
-Andrew that I did no typo this time ;)
+On Wed, Sep 03, 2003 at 02:56:58PM +0000, bill davidsen wrote:
+> In article <20030731184341.GA21078@www.13thfloor.at>,
+> Herbert =?iso-8859-1?Q?P=F6tzl?=  <herbert@13thfloor.at> wrote:
+> 
+> Is any of this, particularly the work mentioned in the last paragraph
+> getting into the mail kernel?
 
-Spacing is a bit fucked up in setup_driver_defaults due to the
-field name beeing too long (gah !) but that isn't too bad...
+the quota fix was included in the next (test) release
+so default quota will work again ...
 
-Ben.
+the Quota Hash Abstraction is neither a (big) performance
+gain nor a feature bonus for the end user ... it is more
+an enhancement to the code itself, allowing to have more
+than one quota hash for arbitrary purposes ...
 
-diff -urN for-linus-ppc/drivers/ide/ide.c linuxppc-2.5-benh/drivers/ide/ide.c
---- for-linus-ppc/drivers/ide/ide.c	2003-09-03 18:07:14.000000000 +0200
-+++ linuxppc-2.5-benh/drivers/ide/ide.c	2003-09-03 18:09:01.000000000 +0200
-@@ -2406,6 +2406,12 @@
- 	return ide_abort(drive, msg);
- }
- 
-+static int default_start_power_step(ide_drive_t *drive, struct request *rq)
-+{
-+	rq->pm->pm_step = ide_pm_state_completed;
-+	return ide_stopped;
-+}
-+
- static void setup_driver_defaults (ide_driver_t *d)
- {
- 	if (d->cleanup == NULL)		d->cleanup = default_cleanup;
-@@ -2420,6 +2426,7 @@
- 	if (d->capacity == NULL)	d->capacity = default_capacity;
- 	if (d->special == NULL)		d->special = default_special;
- 	if (d->attach == NULL)		d->attach = default_attach;
-+	if (d->start_power_step == NULL)d->start_power_step = default_start_power_step;
- }
- 
- int ide_register_subdriver (ide_drive_t *drive, ide_driver_t *driver, int version)
+I doubt, that this code will ever make it into mainline
+without another 'good' reason to use it, but maybe the
+--bind mount quota stuff would be such a reason, if the 
+interest for such things will eventually grow ...
 
+HTH,
+Herbert
 
+> | Last time I posted the Quota Hash Abstraction for 2.4
+> | somebody suggested doing it for 2.6, because it "might
+> | be interesting", so I thought, give it a try, and here
+> | it is ...
+> | 
+> | please, if somebody has any quota tests, which he/she
+> | is willing to do on this code, or just want to do some
+> | testing with this code, do it and send me the results ...
+> | 
+> | this patch requires the quota fix done by Jan Kara, 
+> | otherwise quota would not work at all ... 
+> -- 
+> bill davidsen <davidsen@tmr.com>
+>   CTO, TMR Associates, Inc
+> Doing interesting things with little computers since 1979.

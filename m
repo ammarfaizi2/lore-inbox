@@ -1,62 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268322AbUHFXhE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263962AbUHFXys@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268322AbUHFXhE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 19:37:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268325AbUHFXhD
+	id S263962AbUHFXys (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 19:54:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266198AbUHFXys
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 19:37:03 -0400
-Received: from relay.uni-heidelberg.de ([129.206.100.212]:49108 "EHLO
-	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id S268322AbUHFXgQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 19:36:16 -0400
-From: Bernd Schubert <bernd-schubert@web.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Date: Sat, 7 Aug 2004 01:35:54 +0200
-User-Agent: KMail/1.6.2
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       schilling@fokus.fraunhofer.de
-References: <1091823988.1232.2552.camel@cube>
-In-Reply-To: <1091823988.1232.2552.camel@cube>
-MIME-Version: 1.0
+	Fri, 6 Aug 2004 19:54:48 -0400
+Received: from nef.ens.fr ([129.199.96.32]:63240 "EHLO nef.ens.fr")
+	by vger.kernel.org with ESMTP id S263962AbUHFXyp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 19:54:45 -0400
+Date: Sat, 7 Aug 2004 01:54:38 +0200
+From: =?iso-8859-1?Q?=C9ric?= Brunet <Eric.Brunet@lps.ens.fr>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
+       p_gortmaker@yahoo.com
+Subject: Re: swsuspend not working
+Message-ID: <20040806235438.GA7095@lps.ens.fr>
+References: <20040715121042.GB9873@lps.ens.fr> <20040715121825.GC22260@elf.ucw.cz> <20040715132348.GA9939@lps.ens.fr> <20040719191906.GA7053@lps.ens.fr> <20040720131748.GI27492@atrey.karlin.mff.cuni.cz> <20040731182001.GA6760@lps.ens.fr> <20040806190649.GC3048@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408070136.04576.bernd-schubert@web.de>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040806190649.GC3048@elf.ucw.cz>
+User-Agent: Mutt/1.4.1i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.3.3 (nef.ens.fr [129.199.96.32]); Sat, 07 Aug 2004 01:54:39 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 06 August 2004 22:26, Albert Cahalan wrote:
-> In various emails, Joerg Schilling writes:
-> > Linux users like to call cdrecord -scanbus and they like to
-> > see _all_ SCSI devices from a single call to cdrecord.
->
-> If you really think so, you've been smoking crack.
+On Fri, Aug 06, 2004 at 09:06:49PM +0200, Pavel Machek wrote:
+> > Do you think it could get in ?
+> 
+> Yes, the patch looks good to me, submit it through ne2k-pci
+> maintainer...
+> 
+Thank you ! The maintainer (Paul Gortmaker) is already in the CC. He
+didn't answer but hey, it is August and people are going on holyday. I
+will resend the patch in September.
 
-Please, no insults. I like this cdrecord -scanbus too, but I would like it 
-more, if it would also print pure ide devices ;)
-On the other hand I usually also don't care since k3b does all this stuff for 
-me.
-
-> Users _hate_ to call "cdrecord -scanbus". They don't
-> see why it should be needed. The normal reaction to
-> reading your documentation goes something like this:
->
-> "What the fuck? Can't I just give it a device name?"
-
-Well, the usual reaction is 'cdrecord whats that? Commandline interface, 
-parameters? Hey, I want to burn a CD and don't like reading manpages for 
-stuff like that'. I guess that at least 95% of all people who would like to 
-burn a CD will prefer (and also use) a grahical interface.
-
-The hole discussion which cdrecord -dev parameter to use is completely 
-useless, it only effects a clear minority of developers and guys who probably 
-don't like graphical interfaces at at all. Those guys should be able to adopt 
-to whatever -dev option is possible.
-
-Please, calm down and return to usefull technical discussions.
-
-Bernd
-
-
+Éric Brunet
+> 									Pavel
+> 
+> > --- ne2k-pci.c.orig	2004-07-20 22:15:30.000000000 +0200
+> > +++ ne2k-pci.c	2004-07-31 19:48:38.000000000 +0200
+> > @@ -653,12 +653,43 @@
+> >  	pci_set_drvdata(pdev, NULL);
+> >  }
+> >  
+> > +#ifdef CONFIG_PM
+> > +static int ne2k_pci_suspend (struct pci_dev *pdev, u32 state)
+> > +{
+> > +	struct net_device *dev = pci_get_drvdata (pdev);
+> > +
+> > +	netif_device_detach(dev);
+> > +	ne2k_pci_close(dev);
+> > +	ne2k_pci_reset_8390(dev);
+> > +	pci_set_power_state (pdev, state);
+> > +
+> > +	return 0;
+> > +}
+> > +static int ne2k_pci_resume (struct pci_dev *pdev)
+> > +{
+> > +	struct net_device *dev = pci_get_drvdata (pdev);
+> > +
+> > +	pci_set_power_state(pdev, 0);
+> > +	ne2k_pci_reset_8390(dev);
+> > +	ne2k_pci_open(dev);
+> > +	netif_device_attach(dev);
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +#endif /* CONFIG_PM */
+> > +
+> >  
+> >  static struct pci_driver ne2k_driver = {
+> >  	.name		= DRV_NAME,
+> >  	.probe		= ne2k_pci_init_one,
+> >  	.remove		= __devexit_p(ne2k_pci_remove_one),
+> >  	.id_table	= ne2k_pci_tbl,
+> > +#ifdef CONFIG_PM
+> > +	.suspend	= ne2k_pci_suspend,
+> > +	.resume		= ne2k_pci_resume,
+> > +#endif /* CONFIG_PM */
+> > +
+> >  };
+> >  
+> >  
+> 
+> -- 
+> People were complaining that M$ turns users into beta-testers...
+> ...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

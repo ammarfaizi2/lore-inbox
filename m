@@ -1,68 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261217AbRETSB4>; Sun, 20 May 2001 14:01:56 -0400
+	id <S261252AbRETSD0>; Sun, 20 May 2001 14:03:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261276AbRETSBq>; Sun, 20 May 2001 14:01:46 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:40457 "EHLO
-	infradead.org") by vger.kernel.org with ESMTP id <S261409AbRETSB1>;
-	Sun, 20 May 2001 14:01:27 -0400
-Date: Sun, 20 May 2001 19:01:22 +0100 (BST)
-From: Riley Williams <rhw@MemAlpha.CX>
-X-X-Sender: <rhw@infradead.org>
-To: Peter Zaitsev <pz@spylog.ru>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.4 folks
-In-Reply-To: <24243045671.20010519105201@spylog.ru>
-Message-ID: <Pine.LNX.4.33.0105201856400.16275-100000@infradead.org>
+	id <S261276AbRETSDQ>; Sun, 20 May 2001 14:03:16 -0400
+Received: from www.wen-online.de ([212.223.88.39]:16649 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S261252AbRETSDG>;
+	Sun, 20 May 2001 14:03:06 -0400
+Date: Sun, 20 May 2001 19:58:39 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Zlatko Calusic <zlatko.calusic@iskon.hr>
+cc: "Stephen C. Tweedie" <sct@redhat.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: Re: [RFC][PATCH] Re: Linux 2.4.4-ac10
+In-Reply-To: <8766ew16fn.fsf@atlas.iskon.hr>
+Message-ID: <Pine.LNX.4.33.0105201943510.1635-100000@mikeg.weiden.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Peter.
+On 20 May 2001, Zlatko Calusic wrote:
 
- > I've trying to move some of my servers to 2.4.4 kernel from
- > 2.2.x. Everything goes fine, notable perfomance increase
- > occures, but the problem is I'm really often touch the following
- > problem:
+> Mike Galbraith <mikeg@wen-online.de> writes:
+>
+> > Hi,
+> >
+> > On Fri, 18 May 2001, Stephen C. Tweedie wrote:
+> >
+> > > That's the main problem with static parameters.  The problem you are
+> > > trying to solve is fundamentally dynamic in most cases (which is also
+> > > why magic numbers tend to suck in the VM.)
+> >
+> > Magic numbers might be sucking some performance right now ;-)
+> >
+> [snip]
+>
+> I like your patch, it improves performance somewhat and makes things
+> more smooth and also code is simpler.
 
- > __alloc_pages: 1-order allocation failed.
- > __alloc_pages: 1-order allocation failed.
- > __alloc_pages: 1-order allocation failed.
- > __alloc_pages: 1-order allocation failed.
- > __alloc_pages: 1-order allocation failed.
+Thanks for the feedback.  Positive is nice.. as is negative.
 
- > This message may also show 1-order, 0-order, 3-order failures
- > (only one type at the time).  This problems also appeared then I
- > tried to use 2.4.1-2.4.3 kernels.
+> Anyway, 2.4.5-pre3 is quite debalanced and it has even broken some
+> things that were working properly before. For instance, swapoff now
+> deadlocks the machine (even with your patch applied).
 
- > This sometimes leads to system hang, sometimes some processes
- > gets unkillable (even by kill -9) and in some cases I do not see
- > any bad results from this, but still this does not looks the
- > right thing to happen.
+I haven't run into that.
 
- > The problem is the systems this happens on are not short of
- > memory. Here is the free output for the system I had this
- > happened this morning:
+> Unfortunately, I have failed to pinpoint the exact problem, but I'm
+> confident that kernel goes in some kind of loop (99% system time, just
+> before deadlock). Anybody has some guidelines how to debug kernel if
+> you're running X?
 
- > rat:~ #  free
+Serial console and kdb or kgdb if you have two machines.. or uml?
 
- > Mem:       1028628    1025820       2808          0       9340     332412
- > -/+ buffers/cache:     684068     344560
- > Swap:      2097136          0    2097136
+> Also in all recent kernels, if the machine is swapping, swap cache
+> grows without limits and is hard to recycle, but then again that is
+> a known problem.
 
- > Does anyone has any ideas about this problem ?
+This one bugs me.  I do not see that and can't understand why.
 
-I'm not up to date with the 2.4 series at the moment, but...
-
-Looking at the figures you're showing, this looks like you have 1024M
-of RAM. It used to be necessary to recompile the kernel if you had
-more than (going from memory) 976M of RAM, where you had to change a
-configuration option to select 2G of paging space instead of the
-default 3G thereof, and this looks suspiciously like this problem to
-me.
-
-Can anybody confirm whether this limitation still applies?
-
-Best wishes from Riley.
+	-Mike
 

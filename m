@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262084AbVBUTn2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262083AbVBUTqh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262084AbVBUTn2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 14:43:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262089AbVBUTmn
+	id S262083AbVBUTqh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 14:46:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262082AbVBUTqh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 14:42:43 -0500
-Received: from levante.wiggy.net ([195.85.225.139]:58060 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id S262085AbVBUTmc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 14:42:32 -0500
-Date: Mon, 21 Feb 2005 20:42:27 +0100
-From: Wichert Akkerman <wichert@wiggy.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>,
-       Matthias-Christian Ott <matthias.christian@tiscali.de>,
-       =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: 2.6.11rc4: irq 5, nobody cared
-Message-ID: <20050221194227.GH6722@wiggy.net>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>,
-	Matthias-Christian Ott <matthias.christian@tiscali.de>,
-	=?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>,
-	linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-References: <20050220155600.GD5049@vanheusden.com> <4218C692.9040106@tiscali.de> <20050220180550.GA18606@ime.usp.br> <200502211943.59887.bzolnier@elka.pw.edu.pl> <421A2D8F.3050704@pobox.com>
+	Mon, 21 Feb 2005 14:46:37 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:47111 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262085AbVBUTpu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 14:45:50 -0500
+Message-Id: <200502211945.j1LJjgbZ029643@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Anthony DiSante <theant@nodivisions.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: uninterruptible sleep lockups 
+In-Reply-To: Your message of "Mon, 21 Feb 2005 14:18:44 EST."
+             <421A3414.2020508@nodivisions.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <421A3414.2020508@nodivisions.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <421A2D8F.3050704@pobox.com>
-User-Agent: Mutt/1.5.6+20040907i
-X-SA-Exim-Connect-IP: <locally generated>
+Content-Type: multipart/signed; boundary="==_Exmh_1109015141_9072P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 21 Feb 2005 14:45:42 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously Jeff Garzik wrote:
-> You should add this to your procmailrc :)
-> 
-> # Nuke duplicate messages
-> :0 Wh: msgid.lock
-> | $FORMAIL -D 32768 msgid.cache
+--==_Exmh_1109015141_9072P
+Content-Type: text/plain; charset=us-ascii
 
-That has the nasty side-effect of spreading messages for a single
-discussion amongst many different mailboxes depending on which path
-happens to be the first to deliver an email to you.
+On Mon, 21 Feb 2005 14:18:44 EST, Anthony DiSante said:
 
-Wichert.
+> It seems like this problem is always going to exist, because some hardware 
+> and some drivers will always be buggy.  So shouldn't we have some sort of 
+> watchdog higher up in the kernel, that watches for hung processes like this 
+> and kills them?
 
--- 
-Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
-http://www.wiggy.net/                   It is hard to make things simple.
+And said watchdog would clean up the mess, how, exactly?  There's lots of sticky
+issues having to do with breaking locks and possibly still-pending I/O (I once had
+a tape drive complete an I/O 3 *days* after the request was sent - good thing no
+watchdog killed the process and deallocated the memory that I/O landed in ;)
+
+It's been covered before, look in the lkml archives for details.
+
+--==_Exmh_1109015141_9072P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCGjplcC3lWbTT17ARAuI0AKC6A/ZxTvdUtjHy9LMniix2NiLjtACgjSIp
+roswn0PTkPJd01fSru5puno=
+=HbrY
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1109015141_9072P--

@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275039AbRIYPXq>; Tue, 25 Sep 2001 11:23:46 -0400
+	id <S275043AbRIYPaG>; Tue, 25 Sep 2001 11:30:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275040AbRIYPXh>; Tue, 25 Sep 2001 11:23:37 -0400
-Received: from otter.mbay.net ([206.40.79.2]:31248 "EHLO otter.mbay.net")
-	by vger.kernel.org with ESMTP id <S275039AbRIYPXP>;
-	Tue, 25 Sep 2001 11:23:15 -0400
-Date: Tue, 25 Sep 2001 08:23:10 -0700 (PDT)
-From: John Alvord <jalvo@mbay.net>
-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-cc: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
-        linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: [PATCH] 2.4.10 improved reiserfs a lot, but could still be better
-In-Reply-To: <107194016.1001432841@[10.132.113.67]>
-Message-ID: <Pine.LNX.4.20.0109250820001.28393-100000@otter.mbay.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S275033AbRIYP34>; Tue, 25 Sep 2001 11:29:56 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:24849 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S275043AbRIYP3n>;
+	Tue, 25 Sep 2001 11:29:43 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com, linux-irda@pasta.cs.uit.no
+Subject: [patch] 2.4.10 drivers/net/irda/smc-ircc.c
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 26 Sep 2001 01:29:58 +1000
+Message-ID: <19781.1001431798@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Sep 2001, Alex Bligh - linux-kernel wrote:
+Data should be __initdata, not __init, and cannot be const.
 
-> 
-> 
-> --On Tuesday, September 25, 2001 2:11 AM +0200 Matthias Andree 
-> <matthias.andree@stud.uni-dortmund.de> wrote:
-> 
-> > Why are disk drives slower with their caches disabled on LINEAR writes?
-> 
-> Probably because sectors are so close together on the physical media.
-> If you disable write caching, and are writing sectors 1001, 1002, 1003
-> etc., you tell it to write sector 1001, and it doesn't complete until
-> it's written it, you IRQ the PC, and it sends the write out for 1002,
-> which completes a little later. However, by this time 1002 has
-> flown past the drive head, as it wasn't immediately queued on the drive.
-
-There used to be stupid hard disk formatting tricks where the sector
-numbers were interleaved
-
-1001 1008 1002 1009 1003 1010 1004 1011 1005 1012 1006 1013 1007 1014
-
-just to gain that enhancement. I also remember an ancient IBM Dasd trick
-where the sectors were offset just slightly so that a track to track
-switch could pick up the next sector in time.
-
-Ancient history...
-john
+Index: 10.1/drivers/net/irda/smc-ircc.c
+--- 10.1/drivers/net/irda/smc-ircc.c Mon, 13 Aug 2001 14:14:10 +1000 kaos (linux-2.4/f/c/23_smc-ircc.c 1.3.1.1.1.1.1.1 644)
++++ 10.9(w)/drivers/net/irda/smc-ircc.c Wed, 26 Sep 2001 01:26:37 +1000 kaos (linux-2.4/f/c/23_smc-ircc.c 1.3.1.1.1.1.1.1 644)
+@@ -99,7 +99,7 @@ static int  ircc_pmproc(struct pm_dev *d
+ #define	SERx4	8	/* SuperIO Chip supports 115,2 KBaud * 4=460,8 KBaud */
+ 
+ /* These are the currently known SMC SuperIO chipsets */
+-static const smc_chip_t __init fdc_chips_flat[]=
++static smc_chip_t __initdata fdc_chips_flat[]=
+ {
+ 	/* Base address 0x3f0 or 0x370 */
+ 	{ "37C44",	KEY55_1|NoIRDA,		0x00, 0x00 }, /* This chip can not detected */
+@@ -113,7 +113,7 @@ static const smc_chip_t __init fdc_chips
+ 	{ NULL }
+ };
+ 
+-static const smc_chip_t __init fdc_chips_paged[]=
++static smc_chip_t __initdata fdc_chips_paged[]=
+ {
+ 	/* Base address 0x3f0 or 0x370 */
+ 	{ "37B72X",	KEY55_1|SIR|SERx4,	0x4c, 0x00 },
+@@ -132,7 +132,7 @@ static const smc_chip_t __init fdc_chips
+ 	{ NULL }
+ };
+ 
+-static const smc_chip_t __init lpc_chips_flat[]=
++static smc_chip_t __initdata lpc_chips_flat[]=
+ {
+ 	/* Base address 0x2E or 0x4E */
+ 	{ "47N227",	KEY55_1|FIR|SERx4,	0x5a, 0x00 },
+@@ -140,7 +140,7 @@ static const smc_chip_t __init lpc_chips
+ 	{ NULL }
+ };
+ 
+-static const smc_chip_t __init lpc_chips_paged[]=
++static smc_chip_t __initdata lpc_chips_paged[]=
+ {
+ 	/* Base address 0x2E or 0x4E */
+ 	{ "47B27X",	KEY55_1|SIR|SERx4,	0x51, 0x00 },
 

@@ -1,45 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130320AbRAXDsl>; Tue, 23 Jan 2001 22:48:41 -0500
+	id <S131035AbRAXECf>; Tue, 23 Jan 2001 23:02:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131035AbRAXDsb>; Tue, 23 Jan 2001 22:48:31 -0500
-Received: from tomts8.bellnexxia.net ([209.226.175.52]:36349 "EHLO
-	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S130320AbRAXDs0>; Tue, 23 Jan 2001 22:48:26 -0500
-Message-ID: <3A6E507F.21E518DE@yahoo.co.uk>
-Date: Tue, 23 Jan 2001 22:48:15 -0500
-From: Thomas Hood <jdthoodREMOVETHIS@yahoo.co.uk>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S131990AbRAXECZ>; Tue, 23 Jan 2001 23:02:25 -0500
+Received: from quechua.inka.de ([212.227.14.2]:11811 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S131035AbRAXECS>;
+	Tue, 23 Jan 2001 23:02:18 -0500
+From: Bernd Eckenfels <inka-user@lina.inka.de>
 To: linux-kernel@vger.kernel.org
-Subject: With recent kernels, ThinkPad 600 won't resume for two minutes after 
- suspend
-In-Reply-To: <393D1B6D.ECCE0721@mail.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Re: Turning off ARP in linux-2.4.0
+Message-Id: <E14LH8T-00033R-00@sites.inka.de>
+Date: Wed, 24 Jan 2001 05:02:17 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+In article <20010124011011.A12252@gruyere.muc.suse.de> you wrote:
+> The snippet you posted doesn't describe what ClusterThingy exactly wants
+> to do with ARPs. 
 
-With recent kernels, my ThinkPad 600 won't resume for two minutes
-after it is suspended.  When the Fn key is pressed the machine
-starts up, the CD-ROM scans, the screen backlight turns on,
-and the APM light flashes.  But then it just stays like that
-instead of restarting the CPU; it is completely hung, although
-the APM light continues to flash.  If I wait more than about
-two minutes with the machine suspended, however, then everything
-resumes normally.
+Andi, it is simple. There are 3 machines on one net with the same IP Address.
+Two of them run a web server and one of them a packet redirector. The packet
+redirector will ARP for the address. Receive the packet from the Border router
+and put it back on the wire destinated to one of the both other systems. The
+other systems will receive it and process it with the OS stack, respond back
+to the server. That way the load balancer only needs to pass 2-3 packets for
+each http request in usermode to the load balanced servers.
 
-I have been running Linux for two years.  This never happened
-before a couple weeks ago when I upgraded to kernels 2.2.18 and
-then 2.4.0 .  I have since tested kernel 2.2.17 and see the
-same problem.  Do I have a hardware problem, or might something
-have changed in the kernel that could lead to this behavior?
+/usr/src/linux-2.4.0/net/ipv4/arp.c
 
-Thomas Hood
-jdthood_AT_yahoo.co.uk
+void arp_send(int type, int ptype, u32 dest_ip, 
+              struct net_device *dev, u32 src_ip, 
+              unsigned char *dest_hw, unsigned char *src_hw,
+              unsigned char *target_hw)
+{
+        struct sk_buff *skb;
+        struct arphdr *arp;
+        unsigned char *arp_ptr;
+
+        /*
+         *      No arp on this interface.
+         */
+        
+        if (dev->flags&IFF_NOARP)
+                return;
+
+and
+
+
+/*
+ *      The hardware length of the packet should match the hardware length
+ *      of the device.  Similarly, the hardware types should match.  The
+ *      device should be ARP-able.  Also, if pln is not 4, then the lookup
+ *      is not from an IP number.  We can't currently handle this, so toss
+ *      it. 
+ */  
+        if (in_dev == NULL ||
+            arp->ar_hln != dev->addr_len    || 
+            dev->flags & IFF_NOARP ||
+            skb->pkt_type == PACKET_OTHERHOST ||
+            skb->pkt_type == PACKET_LOOPBACK ||
+            arp->ar_pln != 4)
+                goto out;
+
+Greetings
+Bernd
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

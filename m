@@ -1,31 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267988AbRHBATq>; Wed, 1 Aug 2001 20:19:46 -0400
+	id <S268599AbRHBCtg>; Wed, 1 Aug 2001 22:49:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267999AbRHBATg>; Wed, 1 Aug 2001 20:19:36 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:48908 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S267988AbRHBATZ>; Wed, 1 Aug 2001 20:19:25 -0400
-Subject: Re: 2.4.2 ext2fs corruption status
-To: adilger@turbolinux.com (Andreas Dilger)
-Date: Thu, 2 Aug 2001 01:20:28 +0100 (BST)
-Cc: mhd@gxt.com (Mohamed DOLLIAZAL), linux-kernel@vger.kernel.org
-In-Reply-To: <no.id> from "Andreas Dilger" at Aug 01, 2001 04:15:52 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S268598AbRHBCt1>; Wed, 1 Aug 2001 22:49:27 -0400
+Received: from web11002.mail.yahoo.com ([216.136.131.52]:9486 "HELO
+	web11002.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S268486AbRHBCtJ>; Wed, 1 Aug 2001 22:49:09 -0400
+Message-ID: <20010802024918.20150.qmail@web11002.mail.yahoo.com>
+Date: Wed, 1 Aug 2001 19:49:18 -0700 (PDT)
+From: Usman Wahid <mswahid@yahoo.com>
+Subject: SMP kernel oops
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15S6E0-00084e-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It may be that Red Hat has already released a new kernel RPM since that
-> time, or maybe you need to compile a new kernel.
+Hi,
+two of our smp linux web servers (2.2.12smp) were
+running fine for about a year until a month back. now
+they crash randomly from a week to a couple of days
+giving wait_on_bh oops. that can happen during both
+busy and not so busy times. following is the message
+we receive,
+wait_on_bh, CPU 0: 
+irq: 0 [0 0] 
+bh: 1 [0 1] 
+<[c010a385] [c016881e] [c0162e6b] [c0163108]
+[c016f91e] [c01533cb] 
+[c01537c5] [c012611d]
 
-The official VIA workaround fix is now in 2.4.6ac5 and 2.4.7ac*. The fixes
-in the older kernels were mostly going to do the job but I dont know if they
-were perfect for all cases
+and the mapping
+c010a385: synchronize_bh 
+c016881e: tcp_v4_unhash 
+c0162e6b: tcp_close_state 
+c0163108: tcp_close 
+c016f91e: inet_release 
+c01533cb: sock_release 
+c01537c5: sock_close 
+c012611d: __fput
 
-The -ac kernel tree also contains important fixes that avoid DMA timeouts
-potentially causing disk corruption by forgetting to write sectors
+appreciate any help,
+
+regards,
+saans
+
+__________________________________________________
+Do You Yahoo!?
+Make international calls for as low as $.04/minute with Yahoo! Messenger
+http://phonecard.yahoo.com/

@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285745AbRLTA4T>; Wed, 19 Dec 2001 19:56:19 -0500
+	id <S285730AbRLTBVg>; Wed, 19 Dec 2001 20:21:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285738AbRLTA4J>; Wed, 19 Dec 2001 19:56:09 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:7431 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S285730AbRLTAzy>; Wed, 19 Dec 2001 19:55:54 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
+	id <S285738AbRLTBV1>; Wed, 19 Dec 2001 20:21:27 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:8065 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S285730AbRLTBVI>;
+	Wed, 19 Dec 2001 20:21:08 -0500
+Date: Wed, 19 Dec 2001 17:20:46 -0800 (PST)
+Message-Id: <20011219.172046.08320763.davem@redhat.com>
+To: billh@tierra.ucsd.edu
+Cc: bcrl@redhat.com, torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        linux-aio@kvack.org
 Subject: Re: aio
-Date: 19 Dec 2001 16:55:19 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9vrctn$bek$1@cesium.transmeta.com>
-In-Reply-To: <E16Gjuw-0000UT-00@starship.berlin> <-0800> <20011219192136.F2034@redhat.com> <3C213270.966DABFE@zip.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20011219171631.A544@burn.ucsd.edu>
+In-Reply-To: <20011219135708.A12608@devserv.devel.redhat.com>
+	<20011219.161359.71089731.davem@redhat.com>
+	<20011219171631.A544@burn.ucsd.edu>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <3C213270.966DABFE@zip.com.au>
-By author:    Andrew Morton <akpm@zip.com.au>
-In newsgroup: linux.dev.kernel
-> 
-> The aio_* functions are part of POSIX and SUS, so merely reserving
-> system call numbers for them does not seems a completely dumb
-> thing to do, IMO.
-> 
+   From: Bill Huey <billh@tierra.ucsd.edu>
+   Date: Wed, 19 Dec 2001 17:16:31 -0800
+   
+   Like the Java folks ? few and far between ?
 
-Yes, it is, unless you already have a design for how to map the aio_*
-library functions onto system calls.
+Precisely, in fact.  Anyone who can say that Java is going to be
+relevant in a few years time, with a straight face, is only kidding
+themselves.
 
-	-hpa
-
-
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+Java is not something to justify a new kernel feature, that is for
+certain.

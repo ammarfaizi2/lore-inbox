@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266154AbUGJGTD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266157AbUGJGVU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266154AbUGJGTD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 02:19:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266157AbUGJGTD
+	id S266157AbUGJGVU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 02:21:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266158AbUGJGVU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 02:19:03 -0400
-Received: from fw.osdl.org ([65.172.181.6]:35492 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266154AbUGJGTA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 02:19:00 -0400
-Date: Fri, 9 Jul 2004 23:18:35 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: Herbert Xu <herbert@gondor.apana.org.au>, Chris Wright <chrisw@osdl.org>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, sds@epoch.ncsc.mil,
-       jmorris@redhat.com, mika@osdl.org
-Subject: Re: [PATCH] Use NULL instead of integer 0 in security/selinux/
-In-Reply-To: <m1fz80c406.fsf@ebiederm.dsl.xmission.com>
-Message-ID: <Pine.LNX.4.58.0407092313410.1764@ppc970.osdl.org>
-References: <E1BiPKz-0008Q7-00@gondolin.me.apana.org.au>
- <Pine.LNX.4.58.0407072214590.1764@ppc970.osdl.org> <m1fz80c406.fsf@ebiederm.dsl.xmission.com>
+	Sat, 10 Jul 2004 02:21:20 -0400
+Received: from wl-193.226.227-253-szolnok.dunaweb.hu ([193.226.227.253]:19095
+	"EHLO szolnok.dunaweb.hu") by vger.kernel.org with ESMTP
+	id S266157AbUGJGVS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 02:21:18 -0400
+Message-ID: <40EF8ADC.4070507@dunaweb.hu>
+Date: Sat, 10 Jul 2004 08:21:16 +0200
+From: Zoltan Boszormenyi <zboszor@dunaweb.hu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; hu-HU; rv:1.4.1) Gecko/20031114
+X-Accept-Language: hu, en-US
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-mm7
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+I found in my logs something that indicates problems with ACPI:
 
-On Fri, 9 Jul 2004, Eric W. Biederman wrote:
->
-> Does this mean constructs like:
-> ``if (pointer)'' and ``if (!pointer)'' are also outlawed.
+ACPI: Subsystem revision 20040615
+ACPI: System description tables not found
+     ACPI-0084: *** Error: acpi_load_tables: Could not get RSDP, 
+AE_NOT_FOUND
+     ACPI-0134: *** Error: acpi_load_tables: Could not load tables: 
+AE_NOT_FOUND
+ACPI: Unable to load the System Description Tables
+Linux Plug and Play Support v0.97 (c) Adam Belay
+PnPBIOS: Scanning system for PnP BIOS support...
+PnPBIOS: Found PnP BIOS installation structure at 0xc00f7510
+PnPBIOS: PnP BIOS version 1.0, entry 0xf0000:0x645b, dseg 0xf0000
+PnPBIOS: 12 nodes reported by PnP BIOS; 12 recorded by driver
+PCI: Probing PCI hardware
+PCI: Probing PCI hardware (bus 00)
+PCI: Using IRQ router default [1106/3227] at 0000:00:11.0
+PCI BIOS passed nonexistent PCI bus 0!
+PCI BIOS passed nonexistent PCI bus 0!
+PCI BIOS passed nonexistent PCI bus 1!
+PCI BIOS passed nonexistent PCI bus 0!
 
-Of course not.
+Machine is MSI K8T Neo FIS2R with fairly recent 1.6 BIOS.
+I dont have this with Linux-2.6.7.
 
-Why should they be?
-
-What's considered bad form is:
- - assignments in boolean context (because of the confusion of "=" and 
-   "==")
- - thinking the constant "0" is a pointer.
-
-There's no reason why "if (!ptr)" would be wrong. That has zero confusion 
-about 0 vs NULL.
-
-The confusion about "0" is that in traditional C it means two things: it 
-can either be an integer (the common case) or it can sometimes be a 
-pointer. That kind of semantic confusion is bad.
-
-But it has nothing to do with the _value_ zero, or testing pointers for
-being non-NULL. The value zero is not about semantic confusion, it's just 
-a bit pattern. And testing pointers is not ambiguous: when you test a 
-pointer, it's _un_ambigiously checking that pointer for NULL.
-
-Problems arise when there is room for confusion, and that's when the 
-compiler should (and does) warn. If something is unambiguous, it's not 
-bad.
-
-		Linus
+Best regards,
+Zoltán Böszörményi
 

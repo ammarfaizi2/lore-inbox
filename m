@@ -1,64 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269174AbRH0Vid>; Mon, 27 Aug 2001 17:38:33 -0400
+	id <S269206AbRH0Vkx>; Mon, 27 Aug 2001 17:40:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269206AbRH0ViY>; Mon, 27 Aug 2001 17:38:24 -0400
-Received: from mailrelay1.lrz-muenchen.de ([129.187.254.101]:680 "EHLO
-	mailrelay1.lrz-muenchen.de") by vger.kernel.org with ESMTP
-	id <S269174AbRH0ViI>; Mon, 27 Aug 2001 17:38:08 -0400
-Date: Mon, 27 Aug 2001 23:38:21 +0200 (MET DST)
-From: <Oliver.Neukum@lrz.uni-muenchen.de>
-X-X-Sender: <ui222bq@sun2.lrz-muenchen.de>
-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-cc: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Helge Hafting <helgehaf@idb.hist.no>, <linux-kernel@vger.kernel.org>
-Subject: Re: [resent PATCH] Re: very slow parallel read performance
-In-Reply-To: <519324650.998947144@[169.254.198.40]>
-Message-Id: <Pine.SOL.4.33.0108272332230.1537-100000@sun2.lrz-muenchen.de>
+	id <S269184AbRH0Vko>; Mon, 27 Aug 2001 17:40:44 -0400
+Received: from 20dyn24.com21.casema.net ([213.17.90.24]:31762 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S269206AbRH0Vkd>; Mon, 27 Aug 2001 17:40:33 -0400
+Message-Id: <200108272140.XAA20798@cave.bitwizard.nl>
+Subject: Re: memcpy to videoram eats too much CPU on ATI cards (cache trashing?)
+In-Reply-To: <E15bRy4-0004Va-00@the-village.bc.nu> from Alan Cox at "Aug 27,
+ 2001 08:22:40 pm"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Mon, 27 Aug 2001 23:40:44 +0200 (MEST)
+CC: Peter Surda <shurdeek@panorama.sth.ac.at>, linux-kernel@vger.kernel.org
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Aug 2001, Alex Bligh - linux-kernel wrote:
+Alan Cox wrote:
+> > cause any CPU load (or more precisely, non-measurable load). However, with
+> > mach64 and r128, it DOES. I did some more research.
+> 
+> Makes sense
+> 
+> > memcpy-ing 380kB at 25fps takes about 5ms per frame and causes X to eat 1% cpu
+> > time (time measurements were done by tsc)
 
-> Oliver,
->
-> --On Monday, 27 August, 2001 10:03 PM +0200 Oliver Neukum
-> <Oliver.Neukum@lrz.uni-muenchen.de> wrote:
->
-> > what leads you to this conclusion ?
-> > A task that needs little time to process data it reads in is hurt much
-> > more  by added latency due to a disk read.
->
-> I meant that dropping readahed pages from dd from a floppy (or
-> slow network connection) is going to cost more to replace
-> than dropping the same number of readahead pages from dd from
-> a fast HD. By fast, I meant fast to read in from the file.
+1%? at 5ms/f * 25 f/s = 125 ms/ second. = 12% of your CPU. 
 
-There you are perfectly right. I misunderstood. How do you measure cost of
-replacement ?
+However, as the X server manages to finish doing what it has to do
+before the next timer tick, it will almost never get a timer tick
+accounted to it.
 
-> If the task is slow, because it's CPU bound (or bound by
-> other I/O), and /that/ causes the stream to be slow to
-> empty, then as you say, we have the opposite problem.
-> On the other hand, it might only be a fast reading task
-> compared to others as other tasks are blocking on stuff
-> requiring memory, and all the memory is allocated to that
-> stream's readahead buffer. So penalizing slow tasks and
-> prioritizing fast ones may cause an avalanche effect.
->
-> Complicated.
+> > memcpy-ing 760kB at 25fps takes about 11ms per frame, but instead of eating
+> > 2% CPU time, it eats 35% (yes, that's 35 times more)
 
-Do we need a maximum readahead based on reasonable latency of the device
-in question ?
-If on the other hand a task is very fast in processing its buffers the
-readahead queue will _not_ be long. The task will however use a lot of IO
-bandwidth. Strictly speaking this is a question of IO scheduling.
+So at 2.2 times as much CPU time, I'd expect around 27% real
+usage. But instead of managing to miss the timer tick almost every
+time, it is now managing to hit slightly more than average on the
+timer ticks. Or it's using a little bit more than you measured.
 
-	Regards
-		Oliver
+By doing stuff that takes on the order of a timer tick, and to trigger
+them off a timer event, means that CPU time measurements can become
+highly inaccurate. 
+
+If you buy CPUtime on a large unix computer, and have a tight
+mainloop, you can measure the number of iterations you can do inside
+your mainloop in 9ms. Then schedule an "usleep (1)" every time you hit
+that many iterations. Cheap computing... ;-)
+
+			Roger. 
 
 
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

@@ -1,86 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129042AbRBBJeu>; Fri, 2 Feb 2001 04:34:50 -0500
+	id <S129027AbRBBJob>; Fri, 2 Feb 2001 04:44:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129032AbRBBJek>; Fri, 2 Feb 2001 04:34:40 -0500
-Received: from femail4.sdc1.sfba.home.com ([24.0.95.84]:13272 "EHLO
-	femail4.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S129042AbRBBJe0>; Fri, 2 Feb 2001 04:34:26 -0500
-Message-ID: <002101c08cfb$a3e026b0$8d19b018@c779218a>
-From: "Nicholas Knight" <tegeran@home.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Fw: VT82C686A corruption with 2.4.x
-Date: Fri, 2 Feb 2001 01:36:37 -0800
+	id <S129028AbRBBJoV>; Fri, 2 Feb 2001 04:44:21 -0500
+Received: from alex.intersurf.net ([216.115.129.11]:59399 "HELO
+	alex.intersurf.net") by vger.kernel.org with SMTP
+	id <S129027AbRBBJoH>; Fri, 2 Feb 2001 04:44:07 -0500
+Message-ID: <XFMail.20010202034407.markorr@intersurf.com>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+In-Reply-To: <20010201231806.B2684@grobbebol.xs4all.nl>
+Date: Fri, 02 Feb 2001 03:44:07 -0600 (CST)
+Reply-To: Mark Orr <markorr@intersurf.com>
+From: Mark Orr <markorr@intersurf.com>
+To: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
+Subject: Re: esp causing crashes..
+Cc: linux-kernel@vger.kernel.org, arobinso@nyx.net, miquels@cistron.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-oops, I forgot to send this to linux-kernel as well...
 
------ Original Message -----
-From: "Nicholas Knight" <tegeran@home.com>
-To: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
-Sent: Thursday, February 01, 2001 5:24 AM
-Subject: Re: VT82C686A corruption with 2.4.x
+On 01-Feb-2001 Roeland Th. Jansen wrote:
+> On Thu, Feb 01, 2001 at 03:38:28PM -0600, Mark Orr wrote:
+>> I dont like to be the sort of person who, when people report problems,
+>> fires back "it works fine here!"...but...just as a point of reference,
+>> I have a Hayes ESP too -- it's connected to a 56k modem.  I havent
+>> had any crashes or hangs related to it, but I dont use mgetty.  (I use
+>> rungetty, a variant of mingetty,  for VC's).    Seeing this, I will
+>> compile up mgetty here to see if I can replicate it.
+> 
+> 
+> even without mgetty it fails. the fact hat esp.o is loaded is cause for
+> trouble. minicom using the card, exit - crash.
 
+Well that surely shouldnt happen...I use minicom all the time (I still
+call BBSes), and havent had any crashes.  I can quit/disconnect, or 
+quit/stay connected and it works okay.   I've even got it set up to
+use 230000bps, which is the max my Zoom will take.
 
-> ----- Original Message -----
-> From: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
-> To: "David Riley" <oscar@the-rileys.net>
-> Cc: <linux-kernel@vger.kernel.org>
-> Sent: Thursday, February 01, 2001 4:51 AM
-> Subject: Re: VT82C686A corruption with 2.4.x
->
->
-> > Yeah, I'm seriously beginning to think it's a board specific issue. If I
-> > drop the RAM count down to 768MB I get far less drops in app deaths
->
-> <....>
->
-> >Right now I've got the full 1GB in there. What I'm seeing now is
-> >application deaths, occational X11 lockups, but SUPRIZE! SUPRIZE! no more
-> >drive corruptions since I removed the DMA flag from the drives, disabled
-> >DMA use in the BIOS and replaced the ATA66 cable with an ATA33.
->
-> (the following is a lot of conjecture and doesn't wholly fit the
-information
-> avalible to me on this problem, but maybe it'll help bring about other
-ideas
-> that will lead to a fix for this)
->
-> OK, I haven't had a chance to get 2.4 up and running yet, but yesterday I
-> was troubleshooting some lockup issues in Win2k and there was a slim
-chance
-> that it might have had to do with overheating of the chipset that controls
-> the RAM on the machine; but it turned out to be something of a driver
-issue.
-> However this got me thinking more about heat... this *really* is sounding
-> more and more like a heat problem to me... esspecialy if it might be board
-> specific, since there might be something in the specific designs that
-causes
-> higher levels of heat.
-> I *KNOW* that it seems unlikely since no other OS is exhibiting these
-> problems to my knowledge (including linux 2.2.*) but what if? Could there
-be
-> something in 2.4 making it more sensitive to errors related to heat? Could
-> 2.4 somehow be making the HDD controllers run hotter?
-> Prehaps we should start collecting average system tempatures of systems
-that
-> display this problem, esspecialy while running 2.4.x both with and without
-> DMA enabled.
->
-> <end conjecture spoken by someone without enough information avalible to
-> him>
->
-> -NK
->
+When I was trying to set up the ESP shortly after I'd received it,
+there was some trial+error to get the address/irq/dma/jumpers set right,
+and minicom would hang (the program), but I could kill it.  It took about
+an hour to get the settings the way I'd wanted them, and since then...
+no real problems.
+
+> I do not use the DMA channel of the card as it conflicts with the SB16 I
+> have on board.
+
+I also have a SB16 (non-PnP).  I use DMA 1 and 5 for the SB16 and 3 for
+the ESP.    I dont know if it's doing anything though...wish there were a
+way to know how deep into the buffers it ever gets on transfers.  DMA
+threshold on mine is the default value (I believe it's 32 bytes) -- it
+wouldnt suprise me if it didnt get that deep, keeping the rx_threshold
+so low.
+
+My modules.conf ESP section looks like:
+
+#
+# Hayes ESP module + options
+# port 180h, irq 3, dma 3, divisor 4
+options esp irq=0,0,3,0,0,0,0,0 dma=3 divisor=0,0,0x04,0,0,0,0,0 rx_timeout=1
+post-install esp setserial /dev/ttyP16 low_latency
+alias char-major-57 esp
+alias chat-major-58 esp
+
+Only troubles it's given me lately is that esp.c isnt a devfs-aware
+driver.  I've been experimenting with devfs lately, so I have to do
+a "mknod /dev/ttyP16 c 57 16" every time I boot, and it still barks out
+a few meaningless errors (cup: device already registered).
+I just have the one-port ESP card.
+
+--
+Mark Orr
+markorr@intersurf.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
